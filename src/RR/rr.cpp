@@ -1013,7 +1013,7 @@ int main(int argc, char **argv)
  matrix_Init(__identity);
  matrix_Create(&__world->camera[0],0);
  matrix_Hierarchy(__world->hierarchy,__identity,0);
- matrix_Move(__world->camera[0].matrix, 0,0,GLMINUS( 900));//!!! hack na cube / gl
+// matrix_Move(__world->camera[0].matrix, 0,0,GLMINUS( 900));//!!! hack na cube / gl
  matrix_Invert(__world->camera[0].matrix,__world->camera[0].inverse);
 
  // zkonvertuje world na scene

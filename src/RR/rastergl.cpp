@@ -7,35 +7,33 @@
 
 void raster_Init(int xres, int yres)
 {
-  assert(sizeof(GLfloat)==sizeof(real));
+	assert(sizeof(GLfloat)==sizeof(real));
 
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);		// This Will Clear The Background Color To Black
-//  glClearDepth(1000);
-  glDepthFunc(GL_LESS);			        // The Type Of Depth Test To Do
-  glEnable(GL_DEPTH_TEST);		        // Enables Depth Testing
-//  glFrontFace(GL_CW);
-//  glEnable(GL_CULL_FACE);
-  glShadeModel(GL_SMOOTH);			// Enables Smooth Color Shading
-
-  glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//  glClearDepth(1000);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+	//  glFrontFace(GL_CW);
+	//  glEnable(GL_CULL_FACE);
+	glShadeModel(GL_SMOOTH);
 }
 
 void raster_Clear()
 {
-  glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 
 void raster_SetFOV(float xfov, float yfov)
 {
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glFrustum(xfov/90,-xfov/90,-xfov/90,xfov/90,2,2000);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glFrustum(xfov/90,-xfov/90,-xfov/90,xfov/90,2,10000);
 }
 
 void raster_SetMatrix( raster_MATRIX *cam, raster_MATRIX *inv)
 {
-  glMatrixMode(GL_MODELVIEW);
-  glLoadMatrixf( (GLfloat *) *cam);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf( (GLfloat *) *cam);
 }
 
 void raster_SetMatrix(Point3 &cam,Vec3 &dir)
@@ -53,32 +51,32 @@ void raster_BeginTriangles()
 
 void raster_ZFlat(Point3 *p, unsigned *col, real brightness)
 {
-  glShadeModel(GL_FLAT);
-  int i;
+	glShadeModel(GL_FLAT);
+	int i;
 
-  #define SETCOL(brightness) i=(int)(brightness*256);i=col[(i<0)?0:((i>255)?255:i)]; glColor3f(((i&0xff0000)>>16)*brightness/255, ((i&0xff00)>>8)*brightness/255, (i&0xff)*brightness/255);
-  SETCOL(brightness);
+	#define SETCOL(brightness) i=(int)(brightness*256);i=col[(i<0)?0:((i>255)?255:i)]; glColor3f(((i&0xff0000)>>16)*brightness/255, ((i&0xff00)>>8)*brightness/255, (i&0xff)*brightness/255);
+	SETCOL(brightness);
 
-  glBegin(GL_TRIANGLES);
-  glVertex3fv( (GLfloat *) &p[0]);
-  glVertex3fv( (GLfloat *) &p[1]);
-  glVertex3fv( (GLfloat *) &p[2]);
-  glEnd();
+	glBegin(GL_TRIANGLES);
+	glVertex3fv( (GLfloat *) &p[0]);
+	glVertex3fv( (GLfloat *) &p[1]);
+	glVertex3fv( (GLfloat *) &p[2]);
+	glEnd();
 }
 
 void raster_ZGouraud(Point3 *p, unsigned *col, real brightness[3])
 {
-  glShadeModel(GL_SMOOTH);
-  int i;
+	glShadeModel(GL_SMOOTH);
+	int i;
 
-  glBegin(GL_TRIANGLES);
-  SETCOL(brightness[0]);
-  glVertex3fv( (GLfloat *)&p[0]);
-  SETCOL(brightness[1]);
-  glVertex3fv( (GLfloat *)&p[1]);
-  SETCOL(brightness[2]);
-  glVertex3fv( (GLfloat *)&p[2]);
-  glEnd();
+	glBegin(GL_TRIANGLES);
+	SETCOL(brightness[0]);
+	glVertex3fv( (GLfloat *)&p[0]);
+	SETCOL(brightness[1]);
+	glVertex3fv( (GLfloat *)&p[1]);
+	SETCOL(brightness[2]);
+	glVertex3fv( (GLfloat *)&p[2]);
+	glEnd();
 }
 
 void raster_EndTriangles()

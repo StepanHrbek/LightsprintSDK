@@ -13,7 +13,7 @@ extern bool video_Init(int xres, int yres)
 	if(video_inited) return true;
 
 	glutInitWindowSize(xres, yres);
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH|GLUT_STENCIL); // +stencil makes use of depth24 instead of depth16
 
 	if(!(glutCreateWindow("ReeltimeRadiosity"))) return false;
 	//  glutFullScreen();
