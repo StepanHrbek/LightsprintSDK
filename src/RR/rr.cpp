@@ -61,7 +61,6 @@ int __obj=0,__mirror=0,*__mirrorOutput;
 // global variables for drawing to speed up recursive calls
 
 // c=calculation params
-bool    c_useClusters=true;     // vyrobit a pouzit clustery?
 bool    c_fightNeedles=false;   // specialne hackovat jehlovite triangly?
 bool    c_staticReinit=false;   // pocita se kazdy snimek samostatne?
 bool    c_dynamic=false;        // pocita dynamicke osvetleni misto statickeho?
@@ -1878,7 +1877,7 @@ int main(int argc, char **argv)
         {int tmp;if(sscanf(argv[i],"-verbose%d",&tmp)==1) __infolevel=tmp; else goto badarg;}
      else
      if (!strcmp(argv[i],"-c"))
-        c_useClusters=false;
+        RRSetState(RRSS_USE_CLUSTERS,0);
      else
      if (!strncmp(argv[i],"-gamma",6))
         {float tmp;if(sscanf(argv[i],"-gamma%f",&tmp)==1) d_gamma=tmp; else goto badarg;}

@@ -1523,3 +1523,12 @@ real IVertex::getClosestRadiosity()
 
 } // namespace
 
+
+/*
+
+problem:
+ kdyz ivertex spoji maly cerny trianglik a velky svetly, 
+ vysledkem interpolace je ze mala ploska
+ zesvetla a velka ztmavne -> celkova svetlost se zmeni
+
+*/

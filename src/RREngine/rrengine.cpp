@@ -34,7 +34,6 @@ namespace rrEngine
 {
 
 #define DBG(a) a //!!!
-#define c_useClusters false
 #define scene ((Scene*)_scene)
 
 /*
@@ -165,7 +164,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 		DBG(printf(" edges...\n"));
 		obj->buildEdges(); // build edges only for clusters and/or interpol
 	}
-	if(c_useClusters) 
+	if(RRGetState(RRSS_USE_CLUSTERS))
 	{
 		DBG(printf(" clusters...\n"));
 		obj->buildClusters(); 
@@ -242,6 +241,7 @@ static StateValue RRSSValue[RRSS_LAST];
 void RRResetStates()
 {
 	memset(RRSSValue,0,sizeof(RRSSValue));
+	RRSetState(RRSS_USE_CLUSTERS,1);
 }
 
 unsigned RRGetState(RRSceneState state)
