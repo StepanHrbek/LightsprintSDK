@@ -145,6 +145,77 @@ begin:
 	goto begin;
 }
 
+bool IntersectBsp::intersect_bspNP(BspTree *t,real distanceMax)
+{
+begin:
+	intersectStats.bsp++;
+	assert(t);
+#ifdef TEST_SCENE
+	if (!t) return false; // prazdny strom
+#endif
+
+	BspTree *front=t+1;
+	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
+	TriangleNP **triangle=(TriangleNP **)((char*)back+(t->back?back->size:0));
+	assert(*triangle);
+#ifdef TEST_SCENE
+	if (!*triangle) return false; // rovina zacina vyrazenym polygonem (nema zadne triangly)
+#endif
+	Normal n=triangle[0]->n3;
+	real distancePlane=intersect_plane_distance(n);
+	bool frontback=normalValueIn(n,i_eye2)>0;
+
+	// test only one half
+	if (distancePlane<i_distanceMin || distancePlane>distanceMax)
+	{
+		if(frontback)
+		{
+			if(!t->front) return false;
+			t=front;
+		} else {
+			if(!t->back) return false;
+			t=back;
+		}
+		goto begin;
+	}
+
+	// test first half
+	if(frontback)
+	{
+		if(t->front && intersect_bspNP(front,distancePlane+DELTA_BSP)) return true;
+	} else {
+		if(t->back && intersect_bspNP(back,distancePlane+DELTA_BSP)) return true;
+	}
+
+	// test plane
+	i_hitPoint3d=i_eye+i_direction*distancePlane;
+	void* trianglesEnd=t->getTrianglesEnd();
+	while(triangle<trianglesEnd)
+	{
+		RRObjectImporter::TriangleSRL t2;
+		importer->getTriangleSRL((unsigned)(*triangle-triangleNP),&t2);
+		if (*triangle!=i_skip && intersect_triangleNP(*triangle,&t2))
+		{
+			i_hitDistance=distancePlane;
+			return true;
+		}
+		triangle++;
+	}
+
+	// test other half
+	if(frontback)
+	{
+		if(!t->back) return false;
+		t=back;
+	} else {
+		if(!t->front) return false;
+		t=front;
+	}
+	i_distanceMin=distancePlane-DELTA_BSP;
+	i_eye2=i_eye+i_direction*i_distanceMin; // precalculation helps -0.4%cpu
+	goto begin;
+}
+
 IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimporter)
 {
 	tree = NULL;
@@ -221,11 +292,23 @@ bool IntersectBsp::intersect(RRRay* ray, RRHit* hit)
 	assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
 
 	assert(tree);
-	assert(triangleSRLNP);//!!!
-	i_skip=&triangleSRLNP[ray->skip];
-	i_distanceMin=0;
-	i_eye2=i_eye;
-	result=intersect_bspSRLNP(tree,ray->distanceMax);
+	if(triangleSRLNP)
+	{
+		i_skip=&triangleSRLNP[ray->skip];
+		i_distanceMin=0;
+		i_eye2=i_eye;
+		result=intersect_bspSRLNP(tree,ray->distanceMax);
+	} else 
+	if(triangleNP)
+	{
+		i_skip=&triangleNP[ray->skip];
+		i_distanceMin=0;
+		i_eye2=i_eye;
+		result=intersect_bspNP(tree,ray->distanceMax);
+	} else {
+		assert(0);
+		result = false;
+	}
 
 	if(result)
 	{
