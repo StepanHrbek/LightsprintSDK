@@ -59,17 +59,17 @@ struct Vec2
 	real    x;
 	real    y;
 
-	Vec2()                   {}
-	Vec2(real ax,real ay)    {x=ax;y=ay;}
-	Vec2 operator +(Vec2 a)  {return Vec2(x+a.x,y+a.y);}
-	Vec2 operator -(Vec2 a)  {return Vec2(x-a.x,y-a.y);}
-	Vec2 operator *(real f)  {return Vec2(x*f,y*f);}
-	Vec2 operator /(real f)  {return Vec2(x/f,y/f);}
-	Vec2 operator +=(Vec2 a) {x+=a.x;y+=a.y;return *this;}
-	Vec2 operator -=(Vec2 a) {x-=a.x;y-=a.y;return *this;}
-	Vec2 operator *=(real f) {x*=f;y*=f;return *this;}
-	Vec2 operator /=(real f) {x/=f;y/=f;return *this;}
-	bool operator ==(Vec2 a) {return a.x==x && a.y==y;}
+	Vec2()                         {}
+	Vec2(real ax,real ay)          {x=ax;y=ay;}
+	Vec2 operator + (Vec2 a) const {return Vec2(x+a.x,y+a.y);}
+	Vec2 operator - (Vec2 a) const {return Vec2(x-a.x,y-a.y);}
+	Vec2 operator * (real f) const {return Vec2(x*f,y*f);}
+	Vec2 operator / (real f) const {return Vec2(x/f,y/f);}
+	Vec2 operator +=(Vec2 a)       {x+=a.x;y+=a.y;return *this;}
+	Vec2 operator -=(Vec2 a)       {x-=a.x;y-=a.y;return *this;}
+	Vec2 operator *=(real f)       {x*=f;y*=f;return *this;}
+	Vec2 operator /=(real f)       {x/=f;y/=f;return *this;}
+	bool operator ==(Vec2 a) const {return a.x==x && a.y==y;}
 };
 
 Vec2 operator -(Vec2 a);
@@ -99,21 +99,21 @@ struct Vec3
 	real    z;
 
 	Vec3()                        {}
-	Vec3(real ax,real ay,real az) {x=ax;y=ay;z=az;}
-	Vec3 operator +(Vec3 a)       {return Vec3(x+a.x,y+a.y,z+a.z);}
-	Vec3 operator -(Vec3 a)       {return Vec3(x-a.x,y-a.y,z-a.z);}
-	Vec3 operator *(real f)       {return Vec3(x*f,y*f,z*f);}
-	Vec3 operator /(real f)       {return Vec3(x/f,y/f,z/f);}
-	Vec3 operator /(int f)        {return Vec3(x/f,y/f,z/f);}
-	Vec3 operator /(unsigned f)   {return Vec3(x/f,y/f,z/f);}
-	Vec3 operator +=(Vec3 a)      {x+=a.x;y+=a.y;z+=a.z;return *this;}
-	Vec3 operator -=(Vec3 a)      {x-=a.x;y-=a.y;z-=a.z;return *this;}
-	Vec3 operator *=(real f)      {x*=f;y*=f;z*=f;return *this;}
-	Vec3 operator /=(real f)      {x/=f;y/=f;z/=f;return *this;}
-	bool operator ==(Vec3 a)      {return a.x==x && a.y==y && a.z==z;}
-	Vec3 transformed(Matrix *m);
-	Vec3 transform(Matrix *m);
-	real operator [](int i)       {return ((real*)this)[i];}
+	Vec3(real ax,real ay,real az)     {x=ax;y=ay;z=az;}
+	Vec3 operator +(Vec3 a)     const {return Vec3(x+a.x,y+a.y,z+a.z);}
+	Vec3 operator -(Vec3 a)     const {return Vec3(x-a.x,y-a.y,z-a.z);}
+	Vec3 operator *(real f)     const {return Vec3(x*f,y*f,z*f);}
+	Vec3 operator /(real f)     const {return Vec3(x/f,y/f,z/f);}
+	Vec3 operator /(int f)      const {return Vec3(x/f,y/f,z/f);}
+	Vec3 operator /(unsigned f) const {return Vec3(x/f,y/f,z/f);}
+	Vec3 operator +=(Vec3 a)          {x+=a.x;y+=a.y;z+=a.z;return *this;}
+	Vec3 operator -=(Vec3 a)          {x-=a.x;y-=a.y;z-=a.z;return *this;}
+	Vec3 operator *=(real f)          {x*=f;y*=f;z*=f;return *this;}
+	Vec3 operator /=(real f)          {x/=f;y/=f;z/=f;return *this;}
+	bool operator ==(Vec3 a)    const {return a.x==x && a.y==y && a.z==z;}
+	Vec3 transformed(const Matrix *m);
+	Vec3 transform(const Matrix *m);
+	real operator [](int i)     const {return ((real*)this)[i];}
 };
 
 Vec3 operator -(Vec3 a);
@@ -155,9 +155,9 @@ struct Bound
 	Point3  center;
 	real    radius;
 	real    radiusSquare;
-	void    detect(Vec3 *vertex,unsigned vertices);
+	void    detect(const Vec3 *vertex,unsigned vertices);
 	bool    intersect(Point3 eye,Vec3 direction,real maxDistance);
-	bool    visible(Matrix *camera);
+	bool    visible(const Matrix *camera);
 };
 
 } // namespace

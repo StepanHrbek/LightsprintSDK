@@ -28,34 +28,42 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t)
 {
 	unsigned v0,v1,v2,s;
 	getTriangle(i,v0,v1,v2,s);
-	getVertex(v0,t->s[0],t->s[1],t->s[2]);
-	getVertex(v1,t->r[0],t->r[1],t->r[2]);
-	getVertex(v2,t->l[0],t->l[1],t->l[2]);
-	t->r[0]-=t->s[0];
-	t->r[1]-=t->s[1];
-	t->r[2]-=t->s[2];
-	t->l[0]-=t->s[0];
-	t->l[1]-=t->s[1];
-	t->l[2]-=t->s[2];
+	real* v[3];
+	v[0] = getVertex(v0);
+	v[1] = getVertex(v1);
+	v[2] = getVertex(v2);
+	t->s[0]=v[0][0];
+	t->s[1]=v[0][1];
+	t->s[2]=v[0][2];
+	t->r[0]=v[1][0]-v[0][0];
+	t->r[1]=v[1][1]-v[0][1];
+	t->r[2]=v[1][2]-v[0][2];
+	t->l[0]=v[2][0]-v[0][0];
+	t->l[1]=v[2][1]-v[0][1];
+	t->l[2]=v[2][2]-v[0][2];
 }
 
 void RRObjectImporter::getTriangleSRLN(unsigned i, TriangleSRLN* t)
 {
 	unsigned v0,v1,v2,s;
 	getTriangle(i,v0,v1,v2,s);
-	getVertex(v0,t->s[0],t->s[1],t->s[2]);
-	getVertex(v1,t->r[0],t->r[1],t->r[2]);
-	getVertex(v2,t->l[0],t->l[1],t->l[2]);
-	t->r[0]-=t->s[0];
-	t->r[1]-=t->s[1];
-	t->r[2]-=t->s[2];
-	t->l[0]-=t->s[0];
-	t->l[1]-=t->s[1];
-	t->l[2]-=t->s[2];
-	float x=t->r[1] * t->l[2] - t->r[2] * t->l[1];
-	float y=t->r[2] * t->l[0] - t->r[0] * t->l[2];
-	float z=t->r[0] * t->l[1] - t->r[1] * t->l[0];
-	float a=1/sqrtf(x*x+y*y+z*z);
+	real* v[3];
+	v[0] = getVertex(v0);
+	v[1] = getVertex(v1);
+	v[2] = getVertex(v2);
+	t->s[0]=v[0][0];
+	t->s[1]=v[0][1];
+	t->s[2]=v[0][2];
+	t->r[0]=v[1][0]-v[0][0];
+	t->r[1]=v[1][1]-v[0][1];
+	t->r[2]=v[1][2]-v[0][2];
+	t->l[0]=v[2][0]-v[0][0];
+	t->l[1]=v[2][1]-v[0][1];
+	t->l[2]=v[2][2]-v[0][2];
+	real x=t->r[1] * t->l[2] - t->r[2] * t->l[1];
+	real y=t->r[2] * t->l[0] - t->r[0] * t->l[2];
+	real z=t->r[0] * t->l[1] - t->r[1] * t->l[0];
+	real a=1/sqrtf(x*x+y*y+z*z);
 	t->n[0]=x*a;
 	t->n[1]=y*a;
 	t->n[2]=z*a;

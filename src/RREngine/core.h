@@ -452,24 +452,23 @@ public:
 #endif
 
 	// geometry
-	struct Edge *edge[3];   // edges
-	Vec3    getS3() {return *getVertex(0);}//n // absolute position of start of base (transformed when dynamic)
-	Vec3    getR3() {return *getVertex(1)-*getVertex(0);}//1 // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
-	Vec3    getL3() {return *getVertex(2)-*getVertex(0);}//1
-	Normal  getN3() {return qn3;}//n
-	Vec3    getU3() {return qu3;}//2n
-	Vec3    getV3() {return qv3;}//2n
-	Vec3*   getVertex(unsigned i) {return qvertex[i];}//20
+	const Vec3* getVertex(unsigned i) {return qvertex[i];}
+	Vec3    getS3() {return *getVertex(0);} // absolute position of start of base (transformed when dynamic)
+	Vec3    getR3() {return *getVertex(1)-*getVertex(0);} // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
+	Vec3    getL3() {return *getVertex(2)-*getVertex(0);}
+	Normal  getN3() {return qn3;}
+	Vec3    getU3() {return qu3;}
+	Vec3    getV3() {return qv3;}
 		private:
 		Vec3    *qvertex[3];     // 3x vertex
 		Normal  qn3;             // normalised normal vector
 		Vec3    qu3,qv3;         // ortonormal base for 2d coordinates in subtriangles
 		public:
-	bool    isInCluster  :1;// triangle is in cluster
-	bool    isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
+	struct Edge *edge[3];   // edges
+	U8      isInCluster  :1;// triangle is in cluster
+	U8      isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
 	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
-	//unsigned intersectionTime;
-	signed char setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n=NULL,int rots=-1);
+	S8      setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n=NULL,int rots=-1);
 #ifdef SUPPORT_DYNAMIC
 	void    updateGeometryMoverot();
 #endif
@@ -595,11 +594,11 @@ public:
 
 struct Edge
 {
-	Vec3    *vertex[2];
-	Triangle *triangle[2];
-	Angle   angle;
-	bool    free     :1;
-	bool    interpol :1;
+	const Vec3 *vertex[2];
+	Triangle   *triangle[2];
+	Angle      angle;
+	bool       free     :1;
+	bool       interpol :1;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -639,10 +638,10 @@ public:
 	unsigned id;
 
 	// object data
+	RRSceneObjectImporter* importer;
 	unsigned vertices;
 	unsigned triangles; // primary emitors go first (in DObject)
 	unsigned edges;
-	Vec3     *vertex;
 	Triangle *triangle;
 	Edge    *edge;
 	void    buildEdges();

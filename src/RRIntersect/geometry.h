@@ -1,6 +1,8 @@
 #ifndef RRINTERSECT_GEOMETRY_H
 #define RRINTERSECT_GEOMETRY_H
 
+#include "RRIntersect.h"
+
 namespace rrIntersect
 {
 	#define S8           signed char //__int8
@@ -11,7 +13,7 @@ namespace rrIntersect
 	#define U32          unsigned __int32
 	#define S64          __int64
 	#define U64          unsigned __int64
-	#define real         float
+	#define real         RRreal
 	#define BIG_REAL     1e20
 	#define SMALL_REAL   1e-10
 	#define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs

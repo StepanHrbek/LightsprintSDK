@@ -522,7 +522,9 @@ void Object::buildTopIVertices()
 	{
 		for(int v1=0;v1<3;v1++)
 		{
-			unsigned v=(unsigned)(triangle[t].getVertex(v1)-vertex);
+			unsigned ve[3],si;
+			importer->getTriangle(t,ve[0],ve[1],ve[2],si);
+			unsigned v = ve[(v1+triangle[t].rotations)%3];
 			assert(v>=0 && v<vertices);
 			triangle[t].topivertex[v1]=&topivertex[v];
 			Angle angle=angleBetween(
@@ -536,8 +538,9 @@ void Object::buildTopIVertices()
 	int unusedVertices=0;
 	for(unsigned v=0;v<vertices;v++)
 	{
-		if(!topivertex[v].check(vertex[v])) unusedVertices++;
-		topivertex[v].splitTopLevel(&vertex[v]);
+		real* vert = importer->getVertex(v);
+		if(!topivertex[v].check(*(Vec3*)vert)) unusedVertices++;
+		topivertex[v].splitTopLevel((Vec3*)vert);
 	}
 #ifdef TEST_SCENE
 	if(unusedVertices)

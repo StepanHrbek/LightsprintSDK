@@ -16,7 +16,7 @@ public:
 	
 	// must not change during object lifetime
 	virtual unsigned     getNumVertices();
-	virtual void         getVertex(unsigned i, float& x, float& y, float& z);
+	virtual float*       getVertex(unsigned i);
 	virtual unsigned     getNumTriangles();
 	virtual void         getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2, unsigned& si);
 	virtual void         getTriangleSRL(unsigned i, TriangleSRL* t);

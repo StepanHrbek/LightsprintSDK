@@ -15,7 +15,7 @@ namespace rrEngine
 	#pragma comment(lib,"RREngine.lib")
 	#endif
 
-	#define RRreal float
+	typedef rrIntersect::RRreal RRreal;
 
 	//////////////////////////////////////////////////////////////////////////////
 	//

@@ -36,9 +36,7 @@ const char* getFileName(RRObjectImporter* importer)
 	unsigned i = importer->getNumVertices();
 	while(i--)
 	{
-		struct S {float x,y,z;} s;
-		importer->getVertex(i,s.x,s.y,s.z);
-		sha1_update(&ctx, (unsigned char*)&s, sizeof(s));
+		sha1_update(&ctx, (unsigned char*)importer->getVertex(i), sizeof(RRreal)*3);
 	}
 	i = importer->getNumTriangles();
 	while(i--)

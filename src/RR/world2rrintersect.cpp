@@ -19,13 +19,11 @@ unsigned WorldObjectImporter::getNumVertices()
 	return object->vertex_num;
 }
 
-void WorldObjectImporter::getVertex(unsigned i, float& x, float& y, float& z)
+float* WorldObjectImporter::getVertex(unsigned i)
 {
 	assert(object);
 	assert(i<object->vertex_num);
-	x=object->vertex[i].x;
-	y=object->vertex[i].y;
-	z=object->vertex[i].z;
+	return &object->vertex[i].x;
 }
 
 unsigned WorldObjectImporter::getNumTriangles()

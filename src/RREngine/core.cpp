@@ -1063,7 +1063,7 @@ Triangle::Triangle() : SubTriangle(NULL,this)
 	edge[0]=NULL;
 	edge[1]=NULL;
 	edge[2]=NULL;
-	isInCluster=false;
+	isInCluster=0;
 	area=0;       // says that setGeometry wasn't called yet
 	surface=NULL; // says that setSurface wasn't called yet
 }
@@ -1104,7 +1104,7 @@ static real spicatost(real a,real b,real c) // delky stran
 // n=NULL .. spocita normalu sam
 // n!=NULL .. pouzije zadanou normalu, nicmene SUPPORT_DYNAMIC pri transformacich stejne zada NULL a stara je zahozena, spocita se nova
 
-signed char Triangle::setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n,int rots)
+S8 Triangle::setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n,int rots)
 {
 	assert(rots>=-1 && rots<=2);
 	if(rots==-1) rotations=0; else rotations=rots;
@@ -1193,7 +1193,7 @@ again:
 	assert(v2.x>=0);
 	assert(v2.y>=0);
 
-	isNeedle=RRGetState(RRSS_FIGHT_NEEDLES) && spicatost(lsize,rsize,size(getL3()-getR3()))>1000;
+	isNeedle = (RRGetState(RRSS_FIGHT_NEEDLES) && spicatost(lsize,rsize,size(getL3()-getR3()))>1000) ? 1 : 0;
 
 	assert(IS_VEC3(getV3()));
 	return rotations;
@@ -1598,7 +1598,7 @@ void Cluster::makeDirty()
 void Cluster::insert(Triangle *t,Triangles *triangles)
 {
 	if(t->isInCluster) return;
-	t->isInCluster=true;
+	t->isInCluster=1;
 	assert(!t->parent);
 	triangles->insert(t);
 	assert(!t->topivertex[0]); // buildTopIVertices can't go before buildClusters
@@ -1810,7 +1810,6 @@ Object::Object(int avertices,int atriangles)
 	vertices=avertices;
 	triangles=atriangles;
 	edges=0;
-	vertex=new Vec3[vertices];
 	triangle=new Triangle[triangles];
 	edge=NULL;
 #ifndef ONLY_PLAYER
@@ -1876,7 +1875,10 @@ void Object::buildEdges()
 	for(unsigned t=0;t<triangles;t++)
 		for(int v1=0;v1<3;v1++)
 		{
-			unsigned v=(unsigned)(triangle[t].getVertex(v1)-vertex);
+			//unsigned v=(unsigned)(triangle[t].getVertex(v1)-vertex);
+			unsigned ve[3],si;
+			importer->getTriangle(t,ve[0],ve[1],ve[2],si);
+			unsigned v = ve[(v1+triangle[t].rotations)%3];
 			assert(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
 			trianglesInV[v].insert(&triangle[t]);
 		}
@@ -1898,7 +1900,6 @@ Object::~Object()
 #endif
 	delete[] triangle;
 	if(edge) delete[] edge;
-	delete[] vertex;
 }
 
 #ifndef ONLY_PLAYER
@@ -1936,7 +1937,16 @@ bool Object::contains(Node *n)
 
 void Object::detectBounds()
 {
+	Vec3* vertex = new Vec3[vertices];
+	for(unsigned i=0;i<vertices;i++)
+	{
+		real* v = importer->getVertex(i);
+		vertex[i].x = v[0];
+		vertex[i].y = v[1];
+		vertex[i].z = v[2];
+	}
 	bound.detect(vertex,vertices);
+	delete vertex;
 }
 
 void Object::buildClusters()

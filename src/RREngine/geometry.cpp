@@ -65,7 +65,7 @@ Angle angleBetween(Vec2 a,Vec2 b)
 //
 // 3d vector
 
-Vec3 Vec3::transformed(Matrix *m)
+Vec3 Vec3::transformed(const Matrix *m)
 {
 	return Vec3(
 	  x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0] + (*m)[3][0],
@@ -73,7 +73,7 @@ Vec3 Vec3::transformed(Matrix *m)
 	  x*(*m)[0][2] + y*(*m)[1][2] + z*(*m)[2][2] + (*m)[3][2]);
 }
 
-Vec3 Vec3::transform(Matrix *m)
+Vec3 Vec3::transform(const Matrix *m)
 {
 	real _x=x,_y=y,_z=z;
 
@@ -149,7 +149,7 @@ real normalValueIn(Normal n,Point3 a)
 //
 // bounding object (sphere)
 
-void Bound::detect(Vec3 *vertex,unsigned vertices)
+void Bound::detect(const Vec3 *vertex,unsigned vertices)
 {
 	Point3 sum=Point3(0,0,0);
 	for(unsigned i=0;i<vertices;i++) sum+=vertex[i];
@@ -210,7 +210,7 @@ bool Bound::intersect(Point3 eye,Vec3 direction,real maxDistance)
 	return true;
 }
 
-bool Bound::visible(Matrix *camera)
+bool Bound::visible(const Matrix *camera)
 {
 	//...
 	return true;

@@ -199,7 +199,10 @@ IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimpor
 		obj.vertex = new VERTEX[obj.vertex_num];
 		for(int i=0;i<obj.vertex_num;i++)
 		{
-			importer->getVertex(i,obj.vertex[i].x,obj.vertex[i].y,obj.vertex[i].z);
+			real* v = importer->getVertex(i);
+			obj.vertex[i].x = v[0];
+			obj.vertex[i].y = v[1];
+			obj.vertex[i].z = v[2];
 			obj.vertex[i].id = i;
 			obj.vertex[i].side = 1;
 			obj.vertex[i].used = 1;

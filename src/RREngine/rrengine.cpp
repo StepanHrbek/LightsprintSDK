@@ -117,8 +117,9 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 {
 	assert(importer);	
 	TObject *obj=new TObject(importer->getNumVertices(),importer->getNumTriangles());
-	
-	// import vertices
+	obj->importer = importer;
+
+	/*/ import vertices
 	DBG(printf(" vertices...\n"));
 	for (unsigned v=0;v<obj->vertices;v++) 
 	{
@@ -128,16 +129,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 		//  for (int i=0;i<v;i++)
 		//    if (obj->vertex[v]==obj->vertex[i]) {duplicit++;break;}
 #endif
-	}
-#ifndef SUPPORT_DYNAMIC
-	// in static mode: convert vertices to scenespace
-	Matrix mat;
-	memcpy(mat,importer->getWorldMatrix(),sizeof(Matrix));
-	for (unsigned v=0;v<obj->vertices;v++) 
-	{
-		obj->vertex[v].transform(&mat);
-	}
-#endif
+	}*/
 
 	// import triangles
 	// od nuly nahoru insertuje emitory, od triangles-1 dolu ostatni
@@ -166,9 +158,9 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 		n.z=f->normal.c;
 		n.d=f->normal.d;*/
 		int geom=t->setGeometry(
-			&obj->vertex[v0],
-			&obj->vertex[v1],
-			&obj->vertex[v2]/*,
+			(Vec3*)(importer->getVertex(v0)),
+			(Vec3*)(importer->getVertex(v1)),
+			(Vec3*)(importer->getVertex(v2))/*,
 			&n*/);
 		if(geom>=0)
 		{
@@ -177,7 +169,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 		} else {
 			// geometrie je invalidni, trojuhelnik zahazujem
 			printf("# Removing invalid triangle %d (reason %d)\n",fi,geom);
-			printf("  [%.2f %.2f %.2f] [%.2f %.2f %.2f] [%.2f %.2f %.2f]\n",obj->vertex[v0].x,obj->vertex[v0].y,obj->vertex[v0].z,obj->vertex[v1].x,obj->vertex[v1].y,obj->vertex[v1].z,obj->vertex[v2].x,obj->vertex[v2].y,obj->vertex[v2].z);
+			//printf("  [%.2f %.2f %.2f] [%.2f %.2f %.2f] [%.2f %.2f %.2f]\n",obj->vertex[v0].x,obj->vertex[v0].y,obj->vertex[v0].z,obj->vertex[v1].x,obj->vertex[v1].y,obj->vertex[v1].z,obj->vertex[v2].x,obj->vertex[v2].y,obj->vertex[v2].z);
 			--obj->triangles;
 #ifdef SUPPORT_DYNAMIC
 			if(s->diffuseEmittance) tbot--;else ttop++;//undo insert

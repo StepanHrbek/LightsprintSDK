@@ -303,13 +303,12 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 	{
 		unsigned v0,v1,v2,s;
 		importer->getTriangle(i,v0,v1,v2,s);
-		Vec3 p0,p1,p2;
-		importer->getVertex(v0,p0.x,p0.y,p0.z);
-		importer->getVertex(v1,p1.x,p1.y,p1.z);
-		importer->getVertex(v2,p2.x,p2.y,p2.z);
-		if(triangleP) triangleP[i].setGeometry(&p0,&p1,&p2);
-		if(triangleNP) triangleNP[i].setGeometry(&p0,&p1,&p2);
-		if(triangleSRLNP) triangleSRLNP[i].setGeometry(&p0,&p1,&p2);
+		real* p0 = importer->getVertex(v0);
+		real* p1 = importer->getVertex(v1);
+		real* p2 = importer->getVertex(v2);
+		if(triangleP) triangleP[i].setGeometry((Vec3*)p0,(Vec3*)p1,(Vec3*)p2);
+		if(triangleNP) triangleNP[i].setGeometry((Vec3*)p0,(Vec3*)p1,(Vec3*)p2);
+		if(triangleSRLNP) triangleSRLNP[i].setGeometry((Vec3*)p0,(Vec3*)p1,(Vec3*)p2);
 	}
 }
 

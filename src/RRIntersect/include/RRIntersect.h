@@ -19,6 +19,7 @@ namespace rrIntersect
 	#define CONST const
 
 	typedef unsigned TRIANGLE_HANDLE;
+	typedef float RRreal;
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -33,7 +34,7 @@ namespace rrIntersect
 	public:
 		// must not change during object lifetime
 		virtual unsigned     getNumVertices() = 0;
-		virtual void         getVertex(unsigned i, float& x, float& y, float& z) = 0;
+		virtual RRreal*      getVertex(unsigned i) = 0;
 		virtual unsigned     getNumTriangles() = 0;
 		virtual void         getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2, unsigned& s) = 0;
 
@@ -44,9 +45,9 @@ namespace rrIntersect
 		bool                 fastN   :1;
 		bool                 fastSRL :1;
 		bool                 fastSRLN:1;
-		struct TriangleN     {float n[4];};
-		struct TriangleSRL   {float s[3],r[3],l[3];};
-		struct TriangleSRLN  {float s[3],r[3],l[3],n[4];};
+		struct TriangleN     {RRreal n[4];};
+		struct TriangleSRL   {RRreal s[3],r[3],l[3];};
+		struct TriangleSRLN  {RRreal s[3],r[3],l[3],n[4];};
 		virtual void         getTriangleN(unsigned i, TriangleN* t);
 		virtual void         getTriangleSRL(unsigned i, TriangleSRL* t);
 		virtual void         getTriangleSRLN(unsigned i, TriangleSRLN* t);
@@ -59,12 +60,12 @@ namespace rrIntersect
 
 	struct RRRay
 	{
-		float           rayOrigin[3];
-		float           rayDir[3];
-		float           hitDistanceMin,hitDistanceMax;
-		float           hitDistance;   // changed even when no hit
-		float           hitPoint3d[3]; // returned wrong
-		float           hitPoint2d[2];
+		RRreal          rayOrigin[3];
+		RRreal          rayDir[3];
+		RRreal          hitDistanceMin,hitDistanceMax;
+		RRreal          hitDistance;   // changed even when no hit
+		RRreal          hitPoint3d[3]; // returned wrong
+		RRreal          hitPoint2d[2];
 		TRIANGLE_HANDLE skip;
 		TRIANGLE_HANDLE hitTriangle;
 		bool            hitOuterSide;
