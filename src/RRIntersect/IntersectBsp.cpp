@@ -57,7 +57,9 @@ bool IntersectBsp::convert(BspTree *tree)
 #ifdef TEST_SCENE
 		if(tri<0 || tri>=triangles) return false;
 #endif
-		*(void **)tree=&triangle[tri];
+		if(triangleSRLNP) *(void **)tree=&triangleSRLNP[tri];
+		if(triangleNP) *(void **)tree=&triangleNP[tri];
+		if(triangleP) *(void **)tree=&triangleP[tri];
 		tree++;
 	}
 	return true;
@@ -67,7 +69,7 @@ bool IntersectBsp::convert(BspTree *tree)
 // higher number = slower intersection
 // (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
 
-static bool bsp_intersect(BspTree *t,real distanceMax)
+static bool intersect_bspSRLNP(BspTree *t,real distanceMax)
 // input:                t, i_eye, i_eye2=i_eye, i_direction, i_skip, i_distanceMin=0, distanceMax
 // returns:              true if ray hits t
 // modifies when hit:    (i_eye2, i_distanceMin, i_hitPoint3d) i_hitTriangle, i_hitU, i_hitV, i_hitOuterSide, i_hitDistance
@@ -85,7 +87,7 @@ begin:
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	Triankle **triangle=(Triankle **)((char*)back+(t->back?back->size:0));
+	TriangleSRLNP **triangle=(TriangleSRLNP **)((char*)back+(t->back?back->size:0));
 	assert(*triangle);
 	#ifdef TEST_SCENE
 	if (!*triangle) return false; // rovina zacina vyrazenym polygonem (nema zadne triangly)
@@ -111,9 +113,9 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->front && bsp_intersect(front,distancePlane+DELTA_BSP)) return true;
+		if(t->front && intersect_bspSRLNP(front,distancePlane+DELTA_BSP)) return true;
 	} else {
-		if(t->back && bsp_intersect(back,distancePlane+DELTA_BSP)) return true;
+		if(t->back && intersect_bspSRLNP(back,distancePlane+DELTA_BSP)) return true;
 	}
 
 	// test plane
@@ -121,12 +123,11 @@ begin:
 	void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
-		if (*triangle!=i_skip /*&& (*triangle)->intersectionTime!=__shot*/ && intersect_triangle_bsp(*triangle))
+		if (*triangle!=i_skip && intersect_triangleSRLNP(*triangle))
 		{
 			i_hitDistance=distancePlane;
 			return true;
 		}
-		//(*triangle)->intersectionTime=__shot;
 		triangle++;
 	}
 
@@ -171,7 +172,6 @@ IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimpor
 			obj.face[i].vertex[1] = &obj.vertex[v1];
 			obj.face[i].vertex[2] = &obj.vertex[v2];
 			obj.face[i].material = s;
-			obj.face[i].source_triangle = &triangle[i];
 		}
 		f = fopen(name,"wb");
 		if(f)
@@ -221,10 +221,11 @@ bool IntersectBsp::intersect(RRRay* ray, RRHit* hit)
 	assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
 
 	assert(tree);
-	i_skip=&triangle[ray->skip];
+	assert(triangleSRLNP);//!!!
+	i_skip=&triangleSRLNP[ray->skip];
 	i_distanceMin=0;
 	i_eye2=i_eye;
-	result=bsp_intersect(tree,ray->distanceMax);
+	result=intersect_bspSRLNP(tree,ray->distanceMax);
 
 	if(result)
 	{
@@ -242,7 +243,9 @@ bool IntersectBsp::intersect(RRRay* ray, RRHit* hit)
 #endif
 		assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
 		hit->outerSide = i_hitOuterSide;
-		hit->triangle = (unsigned)(((U64)i_hitTriangle-(U64)triangle))/sizeof(Triankle);
+		if(triangleP) hit->triangle = (unsigned)(((U64)i_hitTriangle-(U64)triangleP))/sizeof(TriangleP);
+		if(triangleNP) hit->triangle = (unsigned)(((U64)i_hitTriangle-(U64)triangleNP))/sizeof(TriangleNP);
+		if(triangleSRLNP) hit->triangle = (unsigned)(((U64)i_hitTriangle-(U64)triangleSRLNP))/sizeof(TriangleSRLNP);
 		hit->distance = i_hitDistance;
 	}
 

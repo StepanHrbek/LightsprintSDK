@@ -31,7 +31,8 @@ namespace rrIntersect
 		virtual void         getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2, unsigned& s) = 0;
 
 		// optional
-		// when fastXXX is set, slower but much lower memory footprint Intersect may be used
+		// if you implement fast getTriangleXXX, set fastXXX
+		// -> slower but much lower memory footprint Intersect may be used
 		RRObjectImporter();
 		bool                 fastN   :1;
 		bool                 fastSRL :1;

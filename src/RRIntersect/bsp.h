@@ -40,7 +40,6 @@ namespace rrIntersect
 		int id,side,material;
 		VERTEX *vertex[3];
 		NORMAL normal;
-		void* source_triangle;
 		} FACE;
 
 	typedef struct {

@@ -19,6 +19,7 @@ public:
 	virtual void         getVertex(unsigned i, float& x, float& y, float& z);
 	virtual unsigned     getNumTriangles();
 	virtual void         getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2, unsigned& si);
+	virtual void         getTriangleSRL(unsigned i, TriangleSRL* t);
 
 protected:
 	OBJECT* object;

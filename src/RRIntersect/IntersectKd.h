@@ -3,6 +3,8 @@
 
 #include "IntersectLinear.h"
 
+#ifdef USE_KD
+
 namespace rrIntersect
 {
 
@@ -17,5 +19,7 @@ namespace rrIntersect
 	};
 
 }
+
+#endif
 
 #endif

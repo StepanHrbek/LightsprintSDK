@@ -3,6 +3,8 @@
 
 #include "IntersectLinear.h"
 
+#ifdef USE_BSP
+
 namespace rrIntersect
 {
 
@@ -16,7 +18,7 @@ namespace rrIntersect
 		BspTree*  getFront()       {return front?getFrontAdr():0;}
 		BspTree*  getBackAdr()     {return (BspTree *)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
 		BspTree*  getBack()        {return back?getBackAdr():0;}
-		Triankle**getTriangles()   {return (Triankle **)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+		TriangleP**getTriangles()  {return (TriangleP **)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
 		void*     getTrianglesEnd(){return (char*)this+size;}
 	};
 
@@ -32,5 +34,7 @@ namespace rrIntersect
 	};
 
 }
+
+#endif
 
 #endif
