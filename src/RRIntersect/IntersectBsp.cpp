@@ -237,66 +237,41 @@ bool IntersectBsp::intersect(RRRay* ray)
 		return IntersectLinear::intersect(ray);
 	}
 
-	Point3 eye = *(Point3*)(ray->rayOrigin);
-	Vec3 direction = *((Point3*)(ray->rayDir));
-
 	DBG(printf("\n"));
 	intersectStats.shots++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-#ifdef TRANSFORM_SHOTS
-	// transform from scenespace to objectspace
-	i_eye            =eye.transformed(inverseMatrix);
-	i_direction      =(eye+direction).transformed(inverseMatrix)-i_eye;
-#else
-	i_eye            =eye;
-	i_direction      =direction;
-#endif
 
-	bool result=false;
+	i_eye         = *(Point3*)(ray->rayOrigin);
+	i_direction   = *((Point3*)(ray->rayDir));
+	i_skip        = ray->skip;
+	i_distanceMin = ray->hitDistanceMin;
+	i_eye2        = i_eye;
 
+	bool hit = false;
 	assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
-
 	assert(tree);
 	if(triangleSRLNP)
 	{
-		i_skip=ray->skip;
-		i_distanceMin=0;
-		i_eye2=i_eye;
 		i_triangleSRLNP=triangleSRLNP;
-		result=intersect_bspSRLNP(tree,ray->hitDistanceMax);
+		hit = intersect_bspSRLNP(tree,ray->hitDistanceMax);
 	} else 
 	if(triangleNP)
 	{
-		i_skip=ray->skip;
-		i_distanceMin=0;
-		i_eye2=i_eye;
-		result=intersect_bspNP(tree,ray->hitDistanceMax);
+		hit = intersect_bspNP(tree,ray->hitDistanceMax);
 	} else {
 		assert(0);
-		result = false;
 	}
 
-	if(result)
+	if(hit)
 	{
-		//!!!assert(i_hitTriangle->u2.y==0);
-#ifdef HITS_FIXED
-		hitPoint2d->u=(HITS_UV_TYPE)(HITS_UV_MAX*i_hitU);
-		hitPoint2d->v=(HITS_UV_TYPE)(HITS_UV_MAX*i_hitV);
-#else
-		// prepocet u,v ze souradnic (rightside,leftside)
-		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
-		//!!!hitPoint2d->u=i_hitU*i_hitTriangle->u2.x+i_hitV*i_hitTriangle->v2.x;
-		//hitPoint2d->v=i_hitV*i_hitTriangle->v2.y;
 		ray->hitU = i_hitU;
 		ray->hitV = i_hitV;
-#endif
-		assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
 		ray->hitOuterSide = i_hitOuterSide;
 		ray->hitTriangle = i_hitTriangle;
 		ray->hitDistance = i_hitDistance;
 	}
 
-	return result;
+	return hit;
 }
 
 IntersectBsp::~IntersectBsp()

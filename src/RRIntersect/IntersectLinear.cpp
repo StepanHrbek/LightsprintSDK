@@ -332,102 +332,82 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 //  Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 bool IntersectLinear::intersect(RRRay* ray)
 {
-	Point3 eye = *(Point3*)(ray->rayOrigin);
-	Vec3 direction = *((Point3*)(ray->rayDir));
-
 	DBG(printf("\n"));
 	intersectStats.shots++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-#ifdef TRANSFORM_SHOTS
-	// transform from scenespace to objectspace
-	i_eye            =eye.transformed(inverseMatrix);
-	i_direction      =(eye+direction).transformed(inverseMatrix)-i_eye;
-#else
-	i_eye            =eye;
-	i_direction      =direction;
-#endif
 
-	bool result=false;
+	i_eye         = *(Point3*)(ray->rayOrigin);
+	i_direction   = *((Point3*)(ray->rayDir));
+	i_hitDistance = ray->hitDistanceMax;
+
+	bool hit = false;
 	assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
-	i_hitDistance=ray->hitDistanceMax;
-	for(unsigned t=0;t<triangles;t++)
-		if(t!=ray->skip)
-		{
-			// 100% speed using no-precalc intersect
-			//hit|=intersect_triangle_kd(&triangle[t],0,i_hitDistance);
-			// 170% speed using with-precalc intersect
-			if(importer->fastSRLN)
-			{
-				RRObjectImporter::TriangleSRLN t2;
-				importer->getTriangleSRLN(t,&t2);
-				real distance=intersect_plane_distance(*(Normal*)t2.n);
-				if(distance>0 && distance<i_hitDistance)
-				{
-					DBG(printf("."));
-					i_hitPoint3d=i_eye+i_direction*distance;
-					if(intersect_triangleP(&triangleP[t],&t2))
-					{
-						result=true;
-						ray->hitTriangle = t;
-						ray->hitDistance = distance;
-						DBG(printf("%d",t));
-					}
-				}			
-			} else
-			if(importer->fastSRL) 
-			{
-				real distance=intersect_plane_distance(triangleNP[t].n3);
-				if(distance>0 && distance<i_hitDistance)
-				{
-					DBG(printf("."));
-					i_hitPoint3d=i_eye+i_direction*distance;
-					RRObjectImporter::TriangleSRL t2;
-					importer->getTriangleSRL(t,&t2);
-					if(intersect_triangleNP(&triangleNP[t],&t2))
-					{
-						result=true;
-						ray->hitTriangle = t;
-						ray->hitDistance = distance;
-						DBG(printf("%d",t));
-					}
-				}			
-			} else {
-				real distance=intersect_plane_distance(triangleSRLNP[t].n3);
-				if(distance>0 && distance<i_hitDistance)
-				{
-					DBG(printf("."));
-					i_hitPoint3d=i_eye+i_direction*distance;
-					if(intersect_triangleSRLNP(&triangleSRLNP[t]))
-					{
-						result=true;
-						ray->hitTriangle = t;
-						ray->hitDistance = distance;
-						DBG(printf("%d",t));
-					}
-				}			
-			}
-		}
-		DBG(printf(hit?"\n":"NOHIT\n"));
-
-	if(result)
+	for(unsigned t=0;t<triangles;t++) if(t!=ray->skip)
 	{
-		//!!!assert(i_hitTriangle->u2.y==0);
-#ifdef HITS_FIXED
-		hitPoint2d->u=(HITS_UV_TYPE)(HITS_UV_MAX*i_hitU);
-		hitPoint2d->v=(HITS_UV_TYPE)(HITS_UV_MAX*i_hitV);
-#else
-		// prepocet u,v ze souradnic (rightside,leftside)
-		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
-		//!!!hitPoint2d->u=i_hitU*i_hitTriangle->u2.x+i_hitV*i_hitTriangle->v2.x;
-		//hitPoint2d->v=i_hitV*i_hitTriangle->v2.y;
+		// 100% speed using no-precalc intersect
+		//hit|=intersect_triangle_kd(&triangle[t],0,i_hitDistance);
+		// 170% speed using with-precalc intersect
+		if(importer->fastSRLN)
+		{
+			RRObjectImporter::TriangleSRLN t2;
+			importer->getTriangleSRLN(t,&t2);
+			real distance=intersect_plane_distance(*(Normal*)t2.n);
+			if(distance>0 && distance<i_hitDistance)
+			{
+				DBG(printf("."));
+				i_hitPoint3d=i_eye+i_direction*distance;
+				if(intersect_triangleP(&triangleP[t],&t2))
+				{
+					hit = true;
+					ray->hitTriangle = t;
+					ray->hitDistance = distance;
+					DBG(printf("%d",t));
+				}
+			}			
+		} else
+		if(importer->fastSRL) 
+		{
+			real distance=intersect_plane_distance(triangleNP[t].n3);
+			if(distance>0 && distance<i_hitDistance)
+			{
+				DBG(printf("."));
+				i_hitPoint3d=i_eye+i_direction*distance;
+				RRObjectImporter::TriangleSRL t2;
+				importer->getTriangleSRL(t,&t2);
+				if(intersect_triangleNP(&triangleNP[t],&t2))
+				{
+					hit = true;
+					ray->hitTriangle = t;
+					ray->hitDistance = distance;
+					DBG(printf("%d",t));
+				}
+			}			
+		} else {
+			real distance=intersect_plane_distance(triangleSRLNP[t].n3);
+			if(distance>0 && distance<i_hitDistance)
+			{
+				DBG(printf("."));
+				i_hitPoint3d=i_eye+i_direction*distance;
+				if(intersect_triangleSRLNP(&triangleSRLNP[t]))
+				{
+					hit = true;
+					ray->hitTriangle = t;
+					ray->hitDistance = distance;
+					DBG(printf("%d",t));
+				}
+			}			
+		}
+	}
+	DBG(printf(hit?"\n":"NOHIT\n"));
+
+	if(hit)
+	{
 		ray->hitU = i_hitU;
 		ray->hitV = i_hitV;
-#endif
-		assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
 		ray->hitOuterSide = i_hitOuterSide;
 	}
 
-	return result;
+	return hit;
 }
 
 IntersectLinear::~IntersectLinear()

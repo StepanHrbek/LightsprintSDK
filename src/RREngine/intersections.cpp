@@ -38,9 +38,6 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	// transform from scenespace to objectspace
 	i_eye            =eye.transformed(inverseMatrix);
 	i_direction      =(eye+direction).transformed(inverseMatrix)-i_eye;
-#else
-	//i_eye            =eye;
-	//i_direction      =direction;
 #endif
 	assert(fabs(sizeSquare(direction)-1)<0.001);//ocekava normalizovanej dir
 
