@@ -71,7 +71,6 @@ WORLD  *__world=NULL;
 MATRIX  __identity;
 int __obj=0,__mirror=0,*__mirrorOutput;
 
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // drawing
@@ -104,6 +103,7 @@ real    d_details=256;
 bool    d_pointers=false;       // jako barvu pouzit pointer na subtriangle
 Node   *d_factors2=NULL;        // zobrazi faktory do nodu
 byte    d_forceSides=0;         // 0 podle mgf, 1=vse zobrazi 1sided, 2=vse zobrazi 2sided
+int     d_only_o=-1;            // draw only object o, -1=all
 
 // p=play params
 bool    p_flyingCamera=false;   // kamera jezi po draze
@@ -961,7 +961,7 @@ void render_world(WORLD *w, int camera_id, bool mirrorFrame)
 // TIME t0=GETTIME;
  MATRIX cm,im,om;
 
- for (int i=0;i<w->object_num;i++) { 
+ for (int i=0;i<w->object_num;i++) {//if(/*d_only_o<0 ||*/ (i!=336 /*|| i==279*/) /*&& (i%100)==d_only_o*/) { 
    
      OBJECT *o=&w->object[i];
      Object *obj=(Object *)o->obj;
@@ -995,7 +995,7 @@ if(camera_id>=0)
         raster_SetMatrix(&cm,&im);
 }
         //raster_BeginTriangles();
-        for (unsigned j=0;j<obj->triangles;j++) {
+        for (unsigned j=0;j<obj->triangles;j++) /*if(!(j&3))*/{
             Normal *n=&obj->triangle[j].n3;
             byte fromOut=n->d+im[3][0]*n->x+im[3][1]*n->y+im[3][2]*n->z>0;
             if ((d_forceSides==0 && sideBits[obj->triangle[j].surface->sides][fromOut?0:1].renderFrom) ||
@@ -1236,6 +1236,7 @@ void fillColorTable(unsigned *ct,double cx,double cy,real rs)
    ct[c]=(FLOAT2BYTE(rs)<<24) + (FLOAT2BYTE(rgb[0])<<16) + (FLOAT2BYTE(rgb[1])<<8) + FLOAT2BYTE(rgb[2]);
  }
 }
+
 /*
 ColorTable createColorTable(double cx,double cy,real rs)
 {
@@ -1300,17 +1301,19 @@ bool convert_BspTree(BspTree *tree)
 	unsigned endoffset=(unsigned)tree+tree->size;
 	bool front=tree->front;
 	bool back=tree->back;
+	// subtrees
 	tree++;
 	if(front) 
 	{
 		if(!convert_BspTree(tree)) return false;
-		tree+=tree->size/4;
+		tree=tree->next();
 	}
 	if(back)
 	{
 		if(!convert_BspTree(tree)) return false;
-		tree+=tree->size/4;
+		tree=tree->next();
 	}
+	// leaf, change triangle index to triangle pointer
 	while((unsigned)tree<endoffset)	
 	{
 		unsigned tri=*(unsigned *)tree;
@@ -1325,12 +1328,53 @@ bool convert_BspTree(BspTree *tree)
 	return true;
 }
 
+OBJECT *ckd_o1;
+Object *ckd_o2;
+
+bool convert_KdTree(KdTree *tree)
+{
+	assert(tree);
+	assert(tree->size);
+
+	int axis=tree->axis;
+	if(axis!=3) 
+	{
+		// subtrees, change splitVertexNum to splitValue
+		tree->splitValue=ckd_o2->vertex[tree->splitVertexNum][tree->axis];
+		tree++;
+		if(!convert_KdTree(tree)) return false;
+		tree=tree->next();
+		if(!convert_KdTree(tree)) return false;
+		tree=tree->next();
+	} else {
+		// leaf, change triangle index to triangle pointer
+		for(unsigned i=0;&(tree->leafTriangleNum[i])<tree->getTrianglesEnd();i++)	
+		{
+			unsigned tri=tree->leafTriangleNum[i];
+			assert(tri>=0 && tri<(unsigned)ckd_o1->face_num);
+			#ifdef TEST_SCENE
+			if(tri<0 || tri>=(unsigned)ckd_o1->face_num) return false;
+			#endif
+			tree->leafTrianglePtr[i]=(Triangle*)ckd_o1->face[tri].source_triangle;
+		}
+	}
+	return true;
+}
+
 bool convert_BspTree(OBJECT *o1,TObject *o2)
 {
 	o2->bspTree=(BspTree *)o1->bsp_tree;
 	cbsp_o1=o1;
 	cbsp_o2=o2;
 	return convert_BspTree((BspTree *)o1->bsp_tree);
+}
+
+bool convert_KdTree(OBJECT *o1,TObject *o2)
+{
+	o2->kdTree=(KdTree *)o1->kd_tree;
+	ckd_o1=o1;
+	ckd_o2=o2;
+	return convert_KdTree((KdTree *)o1->kd_tree);
 }
 
 
@@ -1361,7 +1405,7 @@ Scene *convert_world2scene(WORLD *w,char *material_mgf)
 	s_default.diffuseReflectanceColorTable=createColorTable(0.3,0.3,0);
 	s_default.diffuseTransmittance=0;
 	//s_default.diffuseTransmittanceColor={1,1,1};
-	s_default.diffuseEmittance=1;
+	s_default.diffuseEmittance=0;
 	s_default.diffuseEmittanceColor[0]=1;
 	s_default.diffuseEmittanceColor[1]=1;
 	s_default.diffuseEmittanceColor[2]=1;
@@ -1434,7 +1478,7 @@ Scene *convert_world2scene(WORLD *w,char *material_mgf)
          if(f->material<0 || f->material>=w->material_num)
          {
              printf("# Invalid material #%d (valid 0..%d).\n",f->material,w->material_num-1);
-             assert(0);
+             //assert(0); neassertit aby neexistujici material prosel i v debug verzi
              s=&s_default;
          } else
          #endif
@@ -1515,6 +1559,7 @@ Scene *convert_world2scene(WORLD *w,char *material_mgf)
            printf("# Removing invalid triangle %d in object %d (reason %d), disabling BSP!\n",fi,o,geom);
            printf("  [%.2f %.2f %.2f] [%.2f %.2f %.2f] [%.2f %.2f %.2f]\n",w->object[o].vertex[f->vertex[0]->id].x,w->object[o].vertex[f->vertex[0]->id].y,w->object[o].vertex[f->vertex[0]->id].z,w->object[o].vertex[f->vertex[1]->id].x,w->object[o].vertex[f->vertex[1]->id].y,w->object[o].vertex[f->vertex[1]->id].z,w->object[o].vertex[f->vertex[2]->id].x,w->object[o].vertex[f->vertex[2]->id].y,w->object[o].vertex[f->vertex[2]->id].z);
            obj->bspTree=NULL; // invalid geometry -> invalid bspTree
+           // kdTree is still valid, but is has to be parsed more carefully (slowly)
            f->source_triangle=NULL;
            --obj->triangles;
            #ifdef SUPPORT_DYNAMIC
@@ -1536,6 +1581,12 @@ Scene *convert_world2scene(WORLD *w,char *material_mgf)
      {
        printf("Invalid BSP tree, disabling BSP!\n");
        obj->bspTree=NULL;
+     }
+     DBG(printf(" kd...\n"));
+     if(!convert_KdTree(&w->object[o],obj))
+     {
+       printf("Invalid KD tree, disabling KD!\n");
+       obj->kdTree=NULL;
      }
      // smaze z worldu vertexy a facy
      //nemazat, facy pouziju v save_lightmaps
@@ -1609,10 +1660,15 @@ Scene *convert_world2scene(WORLD *w,char *material_mgf)
 // p_3dsFrameEnd=w->camera->tar.keys[w->camera->tar.num-1].frame;
 //printf("%i\n",p_3dsFrameEnd);
 
+// scene->objRemoveStatic(336); //!!! hack kvuli fact_big.bsp
+// scene->objRemoveStatic(279);
+// for(int i=0;i<200;i++) scene->objRemoveStatic(i);
+
  WAIT;
  return scene;
 }
 */
+
 // zmeni dynamicky objekty na staticky
 
 void objMakeAllStatic(Scene *scene)
@@ -2121,6 +2177,7 @@ void keyboardFunc(unsigned char key, int x, int y)
   case '<': matrix_Move(__world->object[__obj].matrix, 5,0, 0);n_dirtyGeometry=true;break;
   case '>': matrix_Move(__world->object[__obj].matrix,-5,0, 0);n_dirtyGeometry=true;break;
 
+  case '.': d_only_o++;break;
  }
 
  // vynuti si pozdejsi transformaci objektu se kterym se hnulo
@@ -2162,7 +2219,7 @@ void mouseFunc(int button, int state, int x, int y)
  if(!state) return;
  Node *tmp=locate_subtriangle(__world,x,y);
  d_factors2=(tmp==d_factors2)?NULL:tmp;
- //scene->staticReflectors.findFactorsTo(d_factors2); //!!! ladici vypis
+ scene->staticReflectors.findFactorsTo(d_factors2); //!!! ladici vypis
  n_dirtyColor=true;
  n_dirtyCamera=true;//vynuti refresh, dirtyColor kvuli zrychleni neprekresluje hned
 */
@@ -2361,6 +2418,16 @@ int main(int argc, char **argv)
 
  // nastavi matice, nutno pred world2scene
  matrix_Init(__identity);
+ /*if(!__world->camera_num) {
+	 __world->camera_num=1;
+	 __world->camera=new CAMERA;
+	 FILE* f=fopen("rr.cam","rb");
+	 fread(&__world->camera[0],1,sizeof(__world->camera[0]),f);
+	 fclose(f);
+ }
+ /*FILE* f=fopen("rr.cam2","wb");
+ fwrite(&__world->camera[0],1,sizeof(__world->camera[0]),f);
+ fclose(f);*/
  matrix_Create(&__world->camera[0],0);
  matrix_Hierarchy(__world->hierarchy,__identity,0);
  matrix_Invert(__world->camera[0].matrix,__world->camera[0].inverse);
@@ -2454,6 +2521,8 @@ int main(int argc, char **argv)
      scene->improveStatic(endByTime);
      scene->infoImprovement(buf); puts(buf);
      //printf("kshot=%d kbsp=%d ktri=%d hak1=%d hak2=%d hak3=%d hak4=%d\n",__shot/1000,__bsp/1000,__tri/1000,__hak1/1000,__hak2/1000,__hak3/1000,__hak4/1000);
+     extern void i_dbg_print();
+     i_dbg_print();
      return 0;
    }
    //prehraje 5 snimku
@@ -2493,4 +2562,3 @@ int main(int argc, char **argv)
 
  return 0;
 }
-

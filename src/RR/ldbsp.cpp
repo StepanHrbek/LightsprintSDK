@@ -10,7 +10,8 @@
 #define ALLOC(A) nALLOC(A,1)
 #define SIGNATURE "BSP\n"
 
-static bool contains_tree;
+static bool contains_bsp;
+static bool contains_kd;
 
 #define RU(A) fread(&Unsigned,sizeof(unsigned),1,f); A=Unsigned
 #define RI(A) fread(&Integer,sizeof(int),1,f); A=Integer
@@ -52,6 +53,20 @@ static BSP_TREE *load_bsp(FILE *f, OBJECT *o)
  t->back  = back  ? load_bsp(f,o) : NULL;
 
  return t;
+}
+
+static void* load_kd(FILE *f, OBJECT *o)
+{
+ unsigned size;
+ void *ptr;
+
+ RU(size);
+ size&=0x3fffffff; // mask out front/back flags
+ ptr=malloc(size);
+ fseek(f,-sizeof(unsigned),SEEK_CUR);
+ fread(ptr,1,size,f);
+
+ return (void *)ptr;
 }
 
 static void load_object(FILE *f, OBJECT *obj)
@@ -159,7 +174,8 @@ static void load_object(FILE *f, OBJECT *obj)
      RF(obj->face[i].normal.d);
      }
 
- obj->bsp_tree=NULL; if (contains_tree) obj->bsp_tree=_load_bsp(f,obj);
+ obj->bsp_tree=NULL; if (contains_bsp) obj->bsp_tree=_load_bsp(f,obj);
+ obj->kd_tree=NULL; if (contains_kd) obj->kd_tree=load_kd(f,obj);
 }
 
 static HIERARCHY *make_hierarchy(WORLD *w, int id)
@@ -186,7 +202,10 @@ extern WORLD *load_world(char *name)
  if (!f) return NULL;
  fseek(f,strlen(sig),SEEK_SET);
 
- contains_tree=!strcmp(name+strlen(name)-4,".bsp") || !strcmp(name+strlen(name)-4,".BSP");
+ contains_bsp=!strcmp(name+strlen(name)-4,".bsp") || !strcmp(name+strlen(name)-4,".BSP");
+ contains_kd=!strcmp(name+strlen(name)-4,".kd") || !strcmp(name+strlen(name)-4,".KD");
+ 
+ contains_bsp=contains_kd=1;//! hack for development time, .bsp contains both bsp and kd
 
  world=ALLOC(WORLD);
 

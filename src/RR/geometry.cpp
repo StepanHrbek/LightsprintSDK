@@ -213,6 +213,11 @@ bool Vec3::operator ==(Vec3 a)
 	return a.x==x && a.y==y && a.z==z;
 }
 
+real Vec3::operator [](int i)
+{
+	return ((real*)this)[i];
+}
+
 Vec3 operator -(Vec3 a)
 {
 	return Vec3(-a.x,-a.y,-a.z);

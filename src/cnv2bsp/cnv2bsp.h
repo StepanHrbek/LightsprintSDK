@@ -43,11 +43,24 @@ typedef struct {
         NORMAL normal;
         } FACE;
 
+typedef struct {
+        float hi[3];
+        float lo[3];
+        } BBOX;
+
 typedef struct _BSP_TREE {
         struct _BSP_TREE *front;
         struct _BSP_TREE *back;
         FACE **plane;
         } BSP_TREE;
+
+typedef struct _KD_TREE {
+        struct _KD_TREE *front;
+        struct _KD_TREE *back;
+        FACE **leaf;
+        int axis;
+        VERTEX *root;
+        } KD_TREE;
 
 typedef struct {
         int      id;
@@ -63,6 +76,7 @@ typedef struct {
         VERTEX   *vertex;
         MATRIX   matrix;
         BSP_TREE *bsp;
+        KD_TREE  *kd;
         } OBJECT;
 
 typedef struct { char *name; } MATERIAL;

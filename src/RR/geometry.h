@@ -110,6 +110,7 @@ struct Vec3
 	bool operator ==(Vec3 a);
 	Vec3 transformed(MATRIX *m);
 	Vec3 transform(MATRIX *m);
+	real operator [](int i);
 };
 
 Vec3 operator -(Vec3 a);

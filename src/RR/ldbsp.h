@@ -52,6 +52,7 @@ typedef struct {
         VERTEX   *vertex;
         BSP_TREE *bsp_tree;
         VERTEX   *bsp_vertex;
+        void     *kd_tree;
         void     *obj;
         } OBJECT;
 

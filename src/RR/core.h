@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include "geometry.h"
 #include "misc.h"
-#include "rrengine.h"
+#include "RREngine.h"
 #include "surface.h"
 
 //#define TEST_SCENE       // tests that scene has no degenerated triangles etc
@@ -609,6 +609,26 @@ struct BspTree
   unsigned getTrianglesEnd(){return (unsigned)this+size;}
 };
 
+struct KdTree
+{
+  U32      size:30;  //< size of this tree in bytes
+  U32      axis:2;   //< splitting axis, 0=x, 1=y, 2=z, 3=no more splitting
+  union {
+    U32       splitVertexNum;     //< !isLeaf -> index into vertex array, vertex that defines splitting plane
+    real      splitValue;         //< !isLeaf -> value readen from splitVertex for speed
+    U32       leafTriangleNum[1]; //< isLeaf -> (size-sizeof(size))/sizeof(data[0]) indices into triangle array
+    Triangle *leafTrianglePtr[1]; //< isLeaf -> leafTriangleNum converted to pointers for speed
+  };
+  bool     isLeaf()         {return axis==3;}
+  KdTree  *next()           {return (KdTree *)((char *)this+size);}
+  KdTree  *getFrontAdr()    {return this+1;}
+  KdTree  *getFront()       {return isLeaf()?NULL:getFrontAdr();}
+  KdTree  *getBackAdr()     {return (KdTree *)(isLeaf()?NULL:((char*)getFrontAdr()+getFrontAdr()->size));}
+  KdTree  *getBack()        {return isLeaf()?NULL:getBackAdr();}
+  Triangle **getTriangles() {return leafTrianglePtr;}
+  void    *getTrianglesEnd(){return (char*)this+size;}
+};
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // object, part of scene
@@ -649,6 +669,7 @@ struct Object
 	// intersections
 	RRObject*intersector;
 	BspTree *bspTree;
+	KdTree  *kdTree;
 	Bound   bound;
 	void    detectBounds();
 	bool    intersection(Point3 eye,Vec3 direction,Triangle *skip,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);

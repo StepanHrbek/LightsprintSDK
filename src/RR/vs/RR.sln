@@ -3,7 +3,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RR", "RR.vcproj", "{4B85364
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cnv2bsp", "cnv2bsp\cnv2bsp.vcproj", "{A57BDEBD-5E2A-41DF-B204-357C62E18B09}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cnv2bsp", "..\..\cnv2bsp\vs\cnv2bsp.vcproj", "{A57BDEBD-5E2A-41DF-B204-357C62E18B09}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -18,7 +18,9 @@ Global
 		{4B85364D-0156-4489-B606-55894A1B1813}.Release.ActiveCfg = Release|Win32
 		{4B85364D-0156-4489-B606-55894A1B1813}.Release.Build.0 = Release|Win32
 		{A57BDEBD-5E2A-41DF-B204-357C62E18B09}.Debug.ActiveCfg = Debug|Win32
+		{A57BDEBD-5E2A-41DF-B204-357C62E18B09}.Debug.Build.0 = Debug|Win32
 		{A57BDEBD-5E2A-41DF-B204-357C62E18B09}.Release.ActiveCfg = Release|Win32
+		{A57BDEBD-5E2A-41DF-B204-357C62E18B09}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

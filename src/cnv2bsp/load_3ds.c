@@ -244,11 +244,11 @@ INT read_FaceMat(_CHUNK_)
 
 INT read_MapList(_CHUNK_)
 {
- word nv; float c[2]; int i; BLOCK(nv);
+ word nv; float c[2]; int i=0; BLOCK(nv);
  while (i<nv) { ARRAY(c);
        if (!init) {
           object->vertex[i].u=c[0];
-          object->vertex[i].v=1.0-c[1];
+          object->vertex[i].v=1.0f-c[1];
           } i++;
        }
  return OK;
@@ -306,12 +306,12 @@ INT read_Frames(_CHUNK_)
 
 INT read_TrackObjName(_CHUNK_)
 {
- word w[2]; word parent;
+ word w[2]; short parent; // parent changed from word which caused problem, all objects had parent=65535 instead of expected -1, hierarchy was broken
  ASCIIZ(track_name); ARRAY(w); BLOCK(parent);
  if (init) return OK;
  if (track_type!=UNKNOWN) element_id=get_Camera(track_name);
     else { element_id=get_Object(track_name);
-           set_Object(element_id,object_number,parent);
+           if(element_id>=0) set_Object(element_id,object_number,parent);
            track_type=OBJECT_POSITION; }
  return OK;
 }

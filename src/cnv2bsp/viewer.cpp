@@ -249,6 +249,7 @@ int bsp_depth=0;
 char bsp_traverse[1024];
 GLfloat bsp_col[4]={1,1,1,1};
 GLfloat bsp_white[4]={1,1,1,1};
+int show_kd=1;
 
 void draw_bsp(BSP_TREE *t, int depth)
 {
@@ -292,9 +293,53 @@ void draw_bsp(BSP_TREE *t, int depth)
     if (t->back) draw_bsp(t->back,depth+1);
 }
 
+void draw_kd(KD_TREE *t, int depth)
+{
+ int i;
+
+ if (depth>=bsp_depth) for (i=0;t->leaf && t->leaf[i];i++) {
+
+    VERTEX **v=t->leaf[i]->vertex;
+    NORMAL *n=&t->leaf[i]->normal;
+
+    glBegin(GL_TRIANGLES);
+
+    glNormal3f(n->a,n->b,n->c);
+
+    glVertex3f(v[0]->x,v[0]->y,v[0]->z);
+    glVertex3f(v[1]->x,v[1]->y,v[1]->z);
+    glVertex3f(v[2]->x,v[2]->y,v[2]->z);
+
+    glEnd();
+
+    }
+
+ if (depth==bsp_depth) {
+    bsp_col[0]=.5; bsp_col[1]=1; bsp_col[2]=.2;
+    glMaterialfv(GL_FRONT,GL_AMBIENT_AND_DIFFUSE,bsp_col);
+    glDepthFunc(GL_LESS);
+    }
+
+ if (depth>=bsp_depth || bsp_traverse[depth]=='f')
+    if (t->front) draw_kd(t->front,depth+1);
+
+ if (depth==bsp_depth) {
+    bsp_col[0]=.5; bsp_col[1]=.2; bsp_col[2]=1;
+    glMaterialfv(GL_FRONT,GL_AMBIENT_AND_DIFFUSE,bsp_col);
+    if(rand()%2) glDepthFunc(GL_LEQUAL);
+    }
+
+ if (depth>=bsp_depth || bsp_traverse[depth]=='b')
+    if (t->back) draw_kd(t->back,depth+1);
+
+ if (depth==bsp_depth) {
+    glDepthFunc(GL_LEQUAL);
+    }
+}
+
 void draw_Scene(WORLD *w, float px, float py, float pz)
 {
- int i,j; GLfloat pos[4],col[4]={1,1,1,1};
+ int j; GLfloat pos[4],col[4]={1,1,1,1};
  
  glShadeModel(GL_FLAT);
 
@@ -324,7 +369,8 @@ void draw_Scene(WORLD *w, float px, float py, float pz)
          }
      }
 */
- for (j=0;j<w->object_num;j++) draw_bsp(w->object[j].bsp,0);
+ for (j=0;j<w->object_num;j++) 
+     if(show_kd) draw_kd(w->object[j].kd,0); else draw_bsp(w->object[j].bsp,0);
 }
 
 void run_Scene(WORLD *w, float rho, float alpha, float aspect, float fov)
@@ -350,20 +396,13 @@ void run_Scene(WORLD *w, float rho, float alpha, float aspect, float fov)
  draw_Scene(w,px,py,pz);
 }
 
-int APIENTRY WinMain(HINSTANCE hCurrentInst,
-                     HINSTANCE hPreviousInst,
-                     LPSTR lpszCmdLine, int nCmdShow)
+int main(int argc,char **argv)
 {
- int argc=0,speed=500,progress=1,view=0,root=BIG,dir=0,one=0,max=1,bestN=0,i;
- char *argv[256],s[256],*sp=s; WORLD *w; MSG msg;
+ int speed=500,progress=1,view=0,root=BESTN,dir=0,one=0,max=1,bestN=100,i;
+ WORLD *w; MSG msg;
  float rho=0,alpha=0,fov=55;
 
- strcpy(s,lpszCmdLine); argv[++argc]=sp;
-
- printf("\n -=[ BSP generator v2.01 ]=- by ReDox/MovSD (C) 2004\n\n");
-
- while (*sp) if (*sp==' ') { while (*sp==' ') *sp++=0;
-    if (*sp) argv[++argc]=sp; else break; } else sp++;
+ printf("\n -=[ BSP/KD generator v2.2 ]=- by ReDox/MovSD (C) 2000..2005\n\n");
 
  if (argc<2) {
     printf(" usage: cnv2bsp <*.[3ds|mgf]> <*.bsp> [dir|one|view|big|mean|best|{max}] \n\n"
@@ -378,7 +417,7 @@ int APIENTRY WinMain(HINSTANCE hCurrentInst,
            " {max} -> maximal number of faces stored in leaves of BSP tree\n\n"
            " example: cnv2bsp big.mgf big.bsp one best view 16\n"); return 0; }
 
- for (i=3;i<=argc;i++) {
+ for (i=3;i<argc;i++) {
      if (!strcmp(argv[i],"dir")) dir=1;
      if (!strcmp(argv[i],"one")) one=1;
      if (!strcmp(argv[i],"view")) view=1;
@@ -436,5 +475,19 @@ int APIENTRY WinMain(HINSTANCE hCurrentInst,
 
  console_Done();
 
- return msg.wParam;
+ return (int)msg.wParam;
 }
+/*
+int APIENTRY WinMain(HINSTANCE hCurrentInst,
+HINSTANCE hPreviousInst,
+LPSTR lpszCmdLine, int nCmdShow)
+{
+int argc=0;
+char *argv[256],s[256],*sp=s;
+
+strcpy(s,lpszCmdLine); argv[++argc]=sp;
+while (*sp) if (*sp==' ') { while (*sp==' ') *sp++=0;
+if (*sp) argv[++argc]=sp; else break; } else sp++;
+return main(argv,argc);
+}
+*/
