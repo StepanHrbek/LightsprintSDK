@@ -144,26 +144,10 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 			(Vec3*)(importer->getVertex(v0)),
 			(Vec3*)(importer->getVertex(v1)),
 			(Vec3*)(importer->getVertex(v2)));
-		if(geom>=0)
-		{
-			// geometrie je v poradku
+		if(t->isValid) 
 			obj->energyEmited+=fabs(t->setSurface(s));
-		} else {
-			// geometrie je invalidni, trojuhelnik zahazujem
-			printf("# Removing invalid triangle %d (reason %d)\n",fi,geom);
-			//printf("  [%.2f %.2f %.2f] [%.2f %.2f %.2f] [%.2f %.2f %.2f]\n",obj->vertex[v0].x,obj->vertex[v0].y,obj->vertex[v0].z,obj->vertex[v1].x,obj->vertex[v1].y,obj->vertex[v1].z,obj->vertex[v2].x,obj->vertex[v2].y,obj->vertex[v2].z);
-			--obj->triangles;
-#ifdef SUPPORT_DYNAMIC
-			if(s->diffuseEmittance) tbot--;else ttop++;//undo insert
-			byte tmp[sizeof(Triangle)];
-			memcpy(tmp,&obj->triangle[obj->triangles],sizeof(Triangle));
-			memcpy(&obj->triangle[obj->triangles],&obj->triangle[ttop],sizeof(Triangle));
-			memcpy(&obj->triangle[ttop],tmp,sizeof(Triangle));
-			ttop--;
-#else
-			tbot--; //undo insert
-#endif
-		}
+		else
+			t->surface=NULL;
 	}
 	   
 #ifdef SUPPORT_DYNAMIC

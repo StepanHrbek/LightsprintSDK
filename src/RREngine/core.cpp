@@ -1083,6 +1083,7 @@ static real spicatost(real a,real b,real c) // delky stran
 
 S8 Triangle::setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n,int rots)
 {
+	isValid=0;
 	assert(rots>=-1 && rots<=2);
 	if(rots==-1) rotations=0; else rotations=rots;
 
@@ -1162,6 +1163,7 @@ again:
 	isNeedle = (RRGetState(RRSS_FIGHT_NEEDLES) && spicatost(lsize,rsize,size(getL3()-getR3()))>1000) ? 1 : 0;
 
 	assert(IS_VEC3(getV3()));
+	isValid=1;
 	return rotations;
 }
 

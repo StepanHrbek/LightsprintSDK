@@ -184,10 +184,13 @@ begin:
 IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimporter)
 {
 	tree = NULL;
+	bool retried = false;
 	const char* name = getFileName(aimporter,".bsp");
 	FILE* f = fopen(name,"rb");
 	if(!f)
 	{
+		printf("'%s' not found.\n",name);
+retry:
 		OBJECT obj;
 		obj.face_num = triangles;
 		obj.vertex_num = importer->getNumVertices();
@@ -226,7 +229,15 @@ IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimpor
 	}
 	if(f)
 	{
+		printf("Loading '%s'.\n",name);
 		tree = load(f);
+		fclose(f);
+		if(!tree && !retried)
+		{
+			printf("Invalid tree in cache (%s), trying to fix...\n",name);
+			retried = true;
+			goto retry;
+		}
 	}
 }
 

@@ -977,7 +977,7 @@ if(camera_id>=0)
         raster_SetMatrix(&cm,&im);
 }
         //raster_BeginTriangles();
-        for (unsigned j=0;j<obj->triangles;j++) /*if(!(j&3))*/{
+        for (unsigned j=0;j<obj->triangles;j++) if(obj->triangle[j].isValid){
             Normal n=obj->triangle[j].getN3();
             byte fromOut=n.d+im[3][0]*n.x+im[3][1]*n.y+im[3][2]*n.z>0;
             if ((d_forceSides==0 && sideBits[obj->triangle[j].surface->sides][fromOut?0:1].renderFrom) ||

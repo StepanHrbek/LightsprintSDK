@@ -62,7 +62,7 @@ enum
 
 #define WU(A) Unsigned=A; fwrite(&Unsigned,sizeof(unsigned),1,f)
 
-int quality,max_skip,nodes,faces,rooted,bestN;
+int quality,max_skip,nodes,faces,bestN;
 
 BSP_TREE *bsptree;
 unsigned bsptree_id;
@@ -390,6 +390,11 @@ BSP_TREE *create_bsp(FACE **space)
   case BESTN:root=find_bestN_root(space);break;
   }
 
+ int pn=0;
+ FACE_Q *tmp;
+ for (int i=0;space[i];i++) pn++;
+ if(!root && pn>5000) printf("No split in %d faces, texniq=%d(%d) bestN=%d",pn,quality,BESTN,bestN);//!!!
+
  if (root) plane_num++; else { t->plane=space; t->front=NULL; t->back=NULL; return t; }
 
  for (i=0;space[i];i++) if (space[i]!=root) {
@@ -571,7 +576,8 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
  int i,j; BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
 
  quality=BESTN;
- bestN=1000;
+ bestN=100;
+ max_skip=1;
 
  assert(f);
  assert(obj->face_num>0); // pozor nastava
@@ -610,8 +616,6 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
 
  for (i=0;i<obj->vertex_num;i++)
      if (!obj->vertex[i].used) printf("unused_vertex: %d\n",i);
-
- rooted=0;
 
  BSP_TREE* bsp=create_bsp(make_list(obj));
  nodes=0; faces=0;

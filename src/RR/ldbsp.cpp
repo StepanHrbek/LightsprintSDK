@@ -118,9 +118,9 @@ static void load_object(FILE *f, OBJECT *obj)
  for (i=0;i<obj->face_num;i++) {
      RU(obj->face[i].id);
      RU(obj->face[i].material);
-     RU(id); obj->face[i].vertex[0]=&obj->vertex[id];
-     RU(id); obj->face[i].vertex[1]=&obj->vertex[id];
-     RU(id); obj->face[i].vertex[2]=&obj->vertex[id];
+     RU(id); if(id<0 || id>=obj->vertex_num) {id=0;printf("Bad bsp format(1).");} obj->face[i].vertex[0]=&obj->vertex[id];
+     RU(id); if(id<0 || id>=obj->vertex_num) {id=0;printf("Bad bsp format(1).");} obj->face[i].vertex[1]=&obj->vertex[id];
+     RU(id); if(id<0 || id>=obj->vertex_num) {id=0;printf("Bad bsp format(1).");} obj->face[i].vertex[2]=&obj->vertex[id];
      RF(obj->face[i].normal.a);
      RF(obj->face[i].normal.b);
      RF(obj->face[i].normal.c);

@@ -464,6 +464,7 @@ public:
 		Vec3    qu3,qv3;         // ortonormal base for 2d coordinates in subtriangles
 		public:
 	struct Edge *edge[3];   // edges
+	U8      isValid      :1;// triangle is not degenerated
 	U8      isInCluster  :1;// triangle is in cluster
 	U8      isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
 	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}

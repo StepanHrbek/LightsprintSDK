@@ -580,7 +580,7 @@ static void invert_matrix(MATRIX s, MATRIX d)
 
 static void save_object(FILE *f, OBJECT *obj)
 {
- int i,j; MATRIX om,im; BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
+ int i; MATRIX om,im; BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
 
  //assert(f);
  //assert(obj->face_num>0); pozor, nastava
