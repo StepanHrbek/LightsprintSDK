@@ -1,5 +1,5 @@
-#ifndef _GEOMETRY_H
-#define _GEOMETRY_H
+#ifndef RRINTERSECT_GEOMETRY_H
+#define RRINTERSECT_GEOMETRY_H
 
 namespace rrIntersect
 {

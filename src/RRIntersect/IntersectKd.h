@@ -1,5 +1,5 @@
-#ifndef _INTERSECTKD_H
-#define _INTERSECTKD_H
+#ifndef RRINTERSECT_INTERSECTKD_H
+#define RRINTERSECT_INTERSECTKD_H
 
 #include "IntersectLinear.h"
 

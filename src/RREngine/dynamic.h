@@ -1,7 +1,7 @@
 #ifdef SUPPORT_DYNAMIC
 
-#ifndef _DYNAMIC_H
-#define _DYNAMIC_H
+#ifndef RRENGINE_DYNAMIC_H
+#define RRENGINE_DYNAMIC_H
 
 #include "core.h"
 

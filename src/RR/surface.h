@@ -1,10 +1,11 @@
 #ifndef _SURFACE_H
 #define _SURFACE_H
 
-#include "../RREngine/geometry.h"//!!!
-using namespace rrEngine;
+#include "geometry.h"
+#include "RREngine.h"
 
 #define ColorTable unsigned * // 256 colors in common 32bit format (BGRA)
+#define Color rrEngine::RRColor
 
 struct Material
 {

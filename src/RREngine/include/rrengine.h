@@ -1,5 +1,5 @@
-#ifndef _RRENGINE_H
-#define _RRENGINE_H
+#ifndef RRENGINE_RRENGINE_H
+#define RRENGINE_RRENGINE_H
 
 #include "RRIntersect.h"
 
@@ -10,9 +10,7 @@ namespace rrEngine
 	#pragma comment(lib,"RREngine.lib")
 	#endif
 
-	using rrIntersect::OBJECT_HANDLE;//!!!
-	#define real float//!!!
-	#define U8 unsigned char//!!!
+	#define RRreal float
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -21,7 +19,7 @@ namespace rrEngine
 	#define C_COMPS 3
 	#define C_INDICES 256
 
-	typedef real RRColor[C_COMPS]; // r,g,b 0..1
+	typedef RRreal RRColor[C_COMPS]; // r,g,b 0..1
 
 	enum RREmittance
 	{
@@ -34,45 +32,45 @@ namespace rrEngine
 
 	struct RRSurface
 	{
-		U8          sides; // 1 if surface is 1-sided, 2 for 2-sided
-		real        diffuseReflectance;
-		RRColor     diffuseReflectanceColor;
-		real        diffuseTransmittance;
-		RRColor     diffuseTransmittanceColor;
-		real        diffuseEmittance;
-		RRColor     diffuseEmittanceColor;
-		RREmittance diffuseEmittanceType;
+		unsigned char sides; // 1 if surface is 1-sided, 2 for 2-sided
+		RRreal        diffuseReflectance;
+		RRColor       diffuseReflectanceColor;
+		RRreal        diffuseTransmittance;
+		RRColor       diffuseTransmittanceColor;
+		RRreal        diffuseEmittance;
+		RRColor       diffuseEmittanceColor;
+		RREmittance   diffuseEmittanceType;
 		//Point3  diffuseEmittancePoint;
-		real        specularReflectance;
-		RRColor     specularReflectanceColor;
-		real        specularReflectanceRoughness;
-		real        specularTransmittance;
-		RRColor     specularTransmittanceColor;
-		real        specularTransmittanceRoughness;
-		real        refractionReal;
-		real        refractionImaginary;
+		RRreal        specularReflectance;
+		RRColor       specularReflectanceColor;
+		RRreal        specularReflectanceRoughness;
+		RRreal        specularTransmittance;
+		RRColor       specularTransmittanceColor;
+		RRreal        specularTransmittanceRoughness;
+		RRreal        refractionReal;
+		RRreal        refractionImaginary;
 
-		real    _rd;//needed when calculating different illumination for different components
-		real    _rdcx;
-		real    _rdcy;
-		real    _ed;//needed by turnLight
+		RRreal    _rd;//needed when calculating different illumination for different components
+		RRreal    _rdcx;
+		RRreal    _rdcy;
+		RRreal    _ed;//needed by turnLight
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// surface behaviour bits
 
-	struct SideBits
+	struct RRSideBits
 	{
-		U8 renderFrom:1;  // is visible from that halfspace
-		U8 emitTo:1;      // emits energy to that halfspace
-		U8 catchFrom:1;   // stops rays from that halfspace and performs following operations: (otherwise ray continues as if nothing happened)
-		U8 receiveFrom:1; //  receives energy from that halfspace
-		U8 reflect:1;     //  reflects energy from that halfspace to that halfspace
-		U8 transmitFrom:1;//  transmits energy from that halfspace to other halfspace
+		unsigned char renderFrom:1;  // is visible from that halfspace
+		unsigned char emitTo:1;      // emits energy to that halfspace
+		unsigned char catchFrom:1;   // stops rays from that halfspace and performs following operations: (otherwise ray continues as if nothing happened)
+		unsigned char receiveFrom:1; //  receives energy from that halfspace
+		unsigned char reflect:1;     //  reflects energy from that halfspace to that halfspace
+		unsigned char transmitFrom:1;//  transmits energy from that halfspace to other halfspace
 	};
 
-	extern SideBits sideBits[3][2];
+	extern RRSideBits sideBits[3][2];
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -106,6 +104,8 @@ namespace rrEngine
 		RRScene();
 		~RRScene();
 
+		typedef unsigned OBJECT_HANDLE;
+
 		// import geometry
 		OBJECT_HANDLE objectCreate(RRSceneObjectImporter* importer);
 		void          objectDestroy(OBJECT_HANDLE object);
@@ -114,7 +114,7 @@ namespace rrEngine
 		typedef       rrIntersect::RRHit INTERSECT(rrIntersect::RRRay*);
 		typedef       OBJECT_HANDLE ENUM_OBJECTS(rrIntersect::RRRay*, INTERSECT);
 		void          setObjectEnumerator(ENUM_OBJECTS enumerator);
-		rrIntersect::RRHit         intersect(rrIntersect::RRRay* ray);
+		rrIntersect::RRHit intersect(rrIntersect::RRRay* ray);
 		
 		// calculate radiosity
 		typedef       bool ENDFUNC(class Scene*);
@@ -124,10 +124,10 @@ namespace rrEngine
 		// read results
 		float         triangleGetRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex);
 
-		// misc
+		// misc: misc
 		void          compact();
 		
-		// development
+		// misc: development
 		void*         getScene();
 		void*         getObject(OBJECT_HANDLE object);
 
@@ -135,17 +135,23 @@ namespace rrEngine
 		void*         _scene;
 	};
 
-	// BSP+INTERSECT
-	// kam je dat?
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// RRStates
 
-	// scenare pouziti
-	// 1. pocitat radiositu (tixe 3d, rr, plugin na predpocet radiosity)
-	// 2. pocitat radiositu a intersecty (editor, hra s rr)
-	// 3. pocitat intersecty (hra bez rr)
+	enum RRSceneState
+	{
+		RRSS_USE_CLUSTERS,
+		RRSS_FIGHT_NEEDLES,
+		RRSS_NEEDLE,
+		RRSS_LAST
+	};
 
-	// oddelena knihovna RRIntersect
-	// RRScene ji zavola pokud bude chtit
-	// hra pouzije jenom ji pokud bude chtit
+	void          RRResetStates();
+	unsigned      RRGetState(RRSceneState state);
+	unsigned      RRSetState(RRSceneState state, unsigned value);
+	RRreal        RRGetStateF(RRSceneState state);
+	RRreal        RRSetStateF(RRSceneState state, RRreal value);
 
 
 	// INSTANCOVANI

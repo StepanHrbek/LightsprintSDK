@@ -1,6 +1,6 @@
 
-#ifndef _INTERPOL_H
-#define _INTERPOL_H
+#ifndef RRENGINE_INTERPOL_H
+#define RRENGINE_INTERPOL_H
 
 namespace rrEngine
 {

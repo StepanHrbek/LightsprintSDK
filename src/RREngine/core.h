@@ -1,5 +1,5 @@
-#ifndef _CORE_H
-#define _CORE_H
+#ifndef RRENGINE_CORE_H
+#define RRENGINE_CORE_H
 
 #include <stdarg.h>
 #include <stdlib.h>

@@ -29,6 +29,7 @@
 #endif
 */
 
+
 namespace rrEngine
 {
 
@@ -96,7 +97,7 @@ Real behaviour:
 
 */
 
-SideBits sideBits[3][2]={
+RRSideBits sideBits[3][2]={
 	{{0},{0}},
 	{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (outer side, inner side)
 	{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (outer side, inner side)
@@ -112,7 +113,7 @@ RRScene::~RRScene()
 	delete scene;
 }
 
-OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
+RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 {
 	assert(importer);	
 	TObject *obj=new TObject(importer->getNumVertices(),importer->getNumTriangles());
@@ -271,6 +272,47 @@ void* RRScene::getObject(OBJECT_HANDLE object)
 {
 	assert(object<scene->objects);
 	return scene->object[object];
+}
+
+union StateValue
+{
+	unsigned u;
+	real r;
+};
+
+static StateValue RRSSValue[RRSS_LAST];
+
+void RRResetStates()
+{
+	memset(RRSSValue,0,sizeof(RRSSValue));
+}
+
+unsigned RRGetState(RRSceneState state)
+{
+	assert(state>=0 && state<RRSS_LAST);
+	return RRSSValue[state].u;
+}
+
+unsigned RRSetState(RRSceneState state, unsigned value)
+{
+	assert(state>=0 && state<RRSS_LAST);
+	unsigned tmp = RRSSValue[state].u;
+	RRSSValue[state].u = value;
+	return tmp;
+}
+
+real RRGetStateF(RRSceneState state)
+{
+	assert(state>=0 && state<RRSS_LAST);
+	return RRSSValue[state].r;
+}
+
+real RRSetStateF(RRSceneState state, real value)
+{
+	assert(state>=0 && state<RRSS_LAST);
+	real tmp = RRSSValue[state].r;
+	RRSSValue[state].r = value;
+	return tmp;
 }
 
 } // namespace

@@ -122,7 +122,7 @@ float	xyz2rgbmat[3][3] = {		/* XYZ to RGB conversion matrix */
 };
 
 
-void xy2rgb(double cx,double cy,double intensity,real cout[3])
+void xy2rgb(double cx,double cy,double intensity,RRColor cout)
 /* convert MGF color to RGB */
 /* input MGF chrominance */
 /* input luminance or reflectance */
@@ -145,7 +145,7 @@ void xy2rgb(double cx,double cy,double intensity,real cout[3])
 	if(cout[2] < 0.) cout[2] = 0.;
 }
 
-void mgf2rgb(C_COLOR *cin,double intensity,real cout[3])
+void mgf2rgb(C_COLOR *cin,double intensity,RRColor cout)
 {
 	c_ccvt(cin, C_CSXY);
 	xy2rgb(cin->cx,cin->cy,intensity,cout);

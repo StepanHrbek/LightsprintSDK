@@ -1,5 +1,5 @@
-#ifndef _3DS2BSP_H_
-#define _3DS2BSP_H_
+#ifndef RRINTERSECT_BSP_H
+#define RRINTERSECT_BSP_H
 
 namespace rrIntersect
 {

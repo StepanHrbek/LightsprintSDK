@@ -1,17 +1,15 @@
 LIB = ../../lib/libRREngine.a
 TMP = #../../tmp/RREngine/
 
-MACH = 
-OPT = -O3 -Iinclude -I../../include
-CPPFLAGS = $(MACH) $(OPT)
+CPPFLAGS = -Iinclude -I../../include -DSUPPORT_INTERPOL
 CPPFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
-CPPFLAGS += -march=athlon-xp --param max-inline-insns-auto=300
-#CPPFLAGS += -march=athlon-xp -msse -mfpmath=sse --param max-inline-insns-auto=300
 #CPPFLAGS += -fomit-frame-pointer
+CPPFLAGS += -march=athlon-xp --param max-inline-insns-auto=300
+#CPPFLAGS += -msse -mfpmath=sse
 CC = gcc
-CPPFLAGS += -DSUPPORT_INTERPOL
+CPPFLAGS +=
 
-OBJS = $(TMP)core.o $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o $(TMP)RREngine.o
+OBJS = $(TMP)RREngine.o $(TMP)core.o $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o
 
 all: makefile $(LIB)
 
@@ -34,3 +32,4 @@ $(TMP)interpol.o: makefile
 $(TMP)intersections.o: makefile
 
 $(TMP)RREngine.o: makefile
+

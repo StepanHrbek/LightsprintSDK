@@ -1,5 +1,5 @@
-#ifndef _INTERSECTLINEAR_H
-#define _INTERSECTLINEAR_H
+#ifndef RRINTERSECT_INTERSECTLINEAR_H
+#define RRINTERSECT_INTERSECTLINEAR_H
 
 #include "geometry.h"
 #include "RRIntersect.h"

@@ -1,14 +1,10 @@
 #ifndef _LDMGF_H
 #define _LDMGF_H
 
-//#include "geometry.h" // kvuli real
-#define real float //!!!
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#define real float //!!!
 
 #include "parser.h"
+#include "surface.h"
 
 // polygons won't share vertices if you say...
 extern bool shared_vertices;
@@ -25,11 +21,7 @@ int ldmgf(char *filename,
 C_MATERIAL *c_getmaterial(char *);
 
 // convert mgf color to rgb
-void xy2rgb(double cx,double cy,double intensity,real cout[3]);
-void mgf2rgb(C_COLOR *cin,double intensity,real cout[3]);
-
-#ifdef __cplusplus
-}
-#endif
+void xy2rgb(double cx,double cy,double intensity,RRColor cout);
+void mgf2rgb(C_COLOR *cin,double intensity,RRColor cout);
 
 #endif

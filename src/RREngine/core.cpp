@@ -1235,8 +1235,7 @@ again:
 	assert(v2.x>=0);
 	assert(v2.y>=0);
 
-	extern bool c_fightNeedles;
-	isNeedle=c_fightNeedles && spicatost(lsize,rsize,size(l3-r3))>1000;
+	isNeedle=RRGetState(RRSS_FIGHT_NEEDLES) && spicatost(lsize,rsize,size(l3-r3))>1000;
 
 	assert(IS_VEC3(v3));
 	return rotations;
@@ -2144,7 +2143,7 @@ real Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExt
 		  return 0;
 	if(hitOuterSide) __hitsOuter++;else __hitsInner++;
 	// otherwise surface with these properties was hit
-	SideBits *side=&sideBits[hitTriangle->surface->sides][hitOuterSide?0:1];
+	RRSideBits *side=&sideBits[hitTriangle->surface->sides][hitOuterSide?0:1];
 	assert(side->catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
 	real      hitPower=0;

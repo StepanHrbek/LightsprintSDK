@@ -2,7 +2,6 @@
 //#define SUPPORT_Z
 //#define SUPPORT_REGEX
 //#define NDEBUG       // no asserts, no debug code
-//#define ONE          // rr+core+geometry+interpol+dynamic in ONE module (20% faster)
 //#define RASTERGL     // raster+video via openGL
 #define LOGARITMIC_TGA // v tga jsou zlogaritmovane hodnoty
 //#define ARCTAN_COLOR // spocitany jas pred zobrazenim prozene pres arctan()
@@ -39,7 +38,6 @@
 #include "surface.h"
 #include "world2rrengine.h"
 
-//#include "../RREngine/geometry.h"//!!!
 #include "../RREngine/core.h"//!!!
 using namespace rrEngine;
 
@@ -710,7 +708,7 @@ void Triangle::drawLightmap()
   assert(p2.v<lightmap.h);
   assert(p3.v>=0);
   assert(p3.v<lightmap.h);
-  raster_ZTexture(p,lightmap.w,lightmap.bitmap,surface->diffuseReflectanceColorTable);
+  raster_ZTexture(p,lightmap.w,lightmap.bitmap,((Surface*)surface)->diffuseReflectanceColorTable);
 }
 
 void save_lightmaps(WORLD *w)
@@ -1852,6 +1850,7 @@ int main(int argc, char **argv)
  assert(sizeof(U16)==2);
  assert(sizeof(U32)==4);
  assert(sizeof(U64)==8);
+ RRResetStates();
  MEM_INIT;
  kb_init();
  core_Init();
@@ -1896,7 +1895,7 @@ int main(int argc, char **argv)
         {int side,onoff;char inout[30],bit[30];
          if(sscanf(argv[i],"-sides%d%[^:]:%[^=]=%d",&side,inout,bit,&onoff)!=4) goto badarg;
          if(side<1 || side>2 || onoff<0 || onoff>1) goto badarg;
-         SideBits *b;
+         RRSideBits *b;
          if(!strcmp(inout,"inner")) b=&sideBits[side][1]; else
          if(!strcmp(inout,"outer")) b=&sideBits[side][0]; else goto badarg;
          if(!strcmp(bit,"render")) b->renderFrom=onoff; else

@@ -7,16 +7,13 @@
 #include "world2rrintersect.h"
 #include "surface.h"
 
-#include "../RREngine/geometry.h"//!!!
-using namespace rrEngine;
-
 #define DBG(a) a //!!!
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // WorldSceneImporter
 
-class WorldSceneObjectImporter : public WorldObjectImporter, public RRSceneObjectImporter
+class WorldSceneObjectImporter : public WorldObjectImporter, public rrEngine::RRSceneObjectImporter
 {
 public:
 	WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces);
@@ -210,7 +207,7 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf)
 	for (int o=0;o<world->object_num;o++) 
 	{
 		WorldSceneObjectImporter* importer = new WorldSceneObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces);
-		OBJECT_HANDLE handle = rrscene->objectCreate(importer);
+		RRScene::OBJECT_HANDLE handle = rrscene->objectCreate(importer);
 		world->object[o].obj = rrscene->getObject(handle);
 	}	
 	return rrscene;

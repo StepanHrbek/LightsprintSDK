@@ -1,5 +1,5 @@
-#ifndef _SHA1_H
-#define _SHA1_H
+#ifndef RRINTERSECT_SHA1_H
+#define RRINTERSECT_SHA1_H
 
 namespace rrIntersect
 {

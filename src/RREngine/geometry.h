@@ -1,5 +1,7 @@
-#ifndef _GEOMETRY_H
-#define _GEOMETRY_H
+#ifndef RRENGINE_GEOMETRY_H
+#define RRENGINE_GEOMETRY_H
+
+#include "RREngine.h" // RRreal
 
 namespace rrEngine
 {
@@ -12,7 +14,7 @@ namespace rrEngine
 #define U32          unsigned
 #define S64          __int64 //long long
 #define U64          unsigned __int64 //unsigned long long
-#define real         float
+#define real         RRreal
 #define BIG_REAL     1e20f
 #define SMALL_REAL   1e-10f
 #define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs

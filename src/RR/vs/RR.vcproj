@@ -96,7 +96,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;SUPPORT_LIGHTMAP;ONE"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;SUPPORT_LIGHTMAP"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
 				RuntimeLibrary="4"
@@ -228,6 +228,9 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="..\geometry.cpp">
+			</File>
 			<File
 				RelativePath="..\ldbsp.cpp">
 				<FileConfiguration
@@ -431,6 +434,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\surface.cpp">
+			</File>
+			<File
 				RelativePath="..\video.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -485,6 +491,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\geometry.h">
+			</File>
 			<File
 				RelativePath="..\ldbsp.h">
 			</File>

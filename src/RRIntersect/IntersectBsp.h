@@ -1,5 +1,5 @@
-#ifndef _INTERSECTBSP_H
-#define _INTERSECTBSP_H
+#ifndef RRINTERSECT_INTERSECTBSP_H
+#define RRINTERSECT_INTERSECTBSP_H
 
 #include "IntersectLinear.h"
 

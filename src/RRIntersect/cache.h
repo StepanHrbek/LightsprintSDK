@@ -1,5 +1,5 @@
-#ifndef _CACHE_H
-#define _CACHE_H
+#ifndef RRINTERSECT_CACHE_H
+#define RRINTERSECT_CACHE_H
 
 #include "RRIntersect.h"
 

@@ -1,5 +1,5 @@
-#ifndef _RRINTERSECT_H
-#define _RRINTERSECT_H
+#ifndef RRINTERSECT_RRINTERSECT_H
+#define RRINTERSECT_RRINTERSECT_H
 
 namespace rrIntersect
 {
@@ -11,7 +11,6 @@ namespace rrIntersect
 	#define USE_BSP
 	//#define USE_KD
 
-	typedef unsigned OBJECT_HANDLE;
 	typedef unsigned TRIANGLE_HANDLE;
 
 
