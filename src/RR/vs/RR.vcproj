@@ -12,8 +12,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="..\..\..\bin"
+			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -30,9 +30,9 @@
 				ForceConformanceInForLoopScope="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=""
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="4"/>
 			<Tool
@@ -40,13 +40,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="mgflib.lib alleg.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Debug/RR.exe"
+				OutputFile="$(OutDir)\RR.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="h:\c\rr\lib"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/RR.pdb"
+				ProgramDatabaseFile="$(IntDir)/RR.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -80,8 +80,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="..\..\..\bin"
+			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -99,19 +99,19 @@
 				ForceConformanceInForLoopScope="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=""
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="mgflib.lib alleg.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Release/RR.exe"
+				OutputFile="$(OutDir)\RR.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="h:\c\rr\mgflib\mgflib\release,h:\c\rr\allegro\lib\msvc h:\c\rr\mgflib\mgflib\debug"
+				AdditionalLibraryDirectories="h:\c\rr\lib"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -145,8 +145,8 @@
 		</Configuration>
 		<Configuration
 			Name="GL Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="..\..\..\bin"
+			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -163,9 +163,9 @@
 				ForceConformanceInForLoopScope="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/RR.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="4"/>
 			<Tool
@@ -173,10 +173,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="mgflib.lib alleg.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\GL Debug/RR.exe"
+				OutputFile="$(OutDir)\RR.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="h:\c\rr\mgflib\mgflib\debug"
+				AdditionalLibraryDirectories="h:\c\rr\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\GL Debug/RR.pdb"
 				SubSystem="1"
