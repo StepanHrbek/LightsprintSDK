@@ -599,7 +599,6 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
 
      create_normal(&obj->face[i]);
 
-     obj->face[i].id=i;
      obj->vertex[obj->face[i].vertex[0]->id].used++;
      obj->vertex[obj->face[i].vertex[1]->id].used++;
      obj->vertex[obj->face[i].vertex[2]->id].used++;

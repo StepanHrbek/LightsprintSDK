@@ -1068,29 +1068,6 @@ Triangle::Triangle() : SubTriangle(NULL,this)
 	surface=NULL; // says that setSurface wasn't called yet
 }
 
-void Triangle::setGeometryCore(Normal *n)
-{
-	// set u3,v3,n3
-	qu3=normalized(getR3());
-	if(n)
-	{
-	  // use normal provided by caller
-	  qn3=*n;
-#ifdef TEST_SCENE
-	  Normal tmp;
-	  tmp=normalized(ortogonalTo(getR3(),getL3()));
-	  if(IS_VEC3(tmp))
-	    if(sizeSquare(getN3()-tmp)>0.01) __trianglesWithBadNormal++;
-#endif
-	} else {
-	  // calculate normal
-	  qn3=normalized(ortogonalTo(getR3(),getL3()));
-	  qn3.d=-scalarMul(getS3(),getN3());
-	}
-	//if(!IS_VEC3(n3)) n3=ortogonalTo(r3);
-	qv3=ortogonalTo(getN3(),getU3());
-}
-
 static real spicatost(real a,real b,real c) // delky stran
 {
 	real lo=MIN(a,MIN(b,c));
@@ -1116,25 +1093,18 @@ again:
 	qvertex[(4-rotations)%3]=b;
 	qvertex[(5-rotations)%3]=c;
 
-	// set intersectByte,intersectReal,u3,v3,n3
-	setGeometryCore(n);
-	#ifdef TEST_SCENE
-	if(!IS_VEC3(getN3())) {
-	  return -3; // throw out degenerated triangle
-	}
-	if(!IS_VEC3(getV3())) {
-	  return -10; // throw out degenerated triangle
-	}
-	#endif
+	// set u3,v3,n3
+	qn3=normalized(ortogonalTo(getR3(),getL3()));
+	qn3.d=-scalarMul(getS3(),getN3());
+	if(!IS_VEC3(getN3())) return -3; // throw out degenerated triangle
+	qu3=normalized(getR3());
+	qv3=ortogonalTo(getN3(),getU3());
+	if(!IS_VEC3(getV3())) return -10; // throw out degenerated triangle
 
 	// set s2,u2,v2
 	real rsize=size(getR3());
 	real lsize=size(getL3());
-	#ifdef TEST_SCENE
 	if(rsize<=0 || lsize<=0) return -1; // throw out degenerated triangle
-	#endif
-	assert(rsize>0);// we don't like degenerated triangles
-	assert(lsize>0);
 	real psqr=sizeSquare(getU3()-(getL3()/lsize));// ctverec nad preponou pri jednotkovejch stranach
 	#ifdef ALLOW_DEGENS
 	if(psqr<=0) {psqr=0.0001f;printf("Low numerical quality, fixing area=0 triangle.\n");} else
@@ -1146,14 +1116,12 @@ again:
 	uv[1]=u2=Vec2(rsize,0);
 	uv[2]=v2=Vec2(cosa,sina)*lsize;
 	area=sina/2*rsize*lsize;
-	#ifdef TEST_SCENE
 	if(psqr<=0) return -7;
 	if(psqr>=4) return -9;
 	if(1-psqr/4<=0) return -8;
 	if(sina<=0) return -6;
 	if(area<=0) return -4;
 	if(area<=SMALL_REAL) return -5;
-	#endif
 	//assert(size(SubTriangle::to3d(2)-*vertex[2])<0.001);
 
 	// stary rotace davajici ruzny vysledky s a bez optimalizaci
@@ -1185,9 +1153,7 @@ again:
 		#undef MAXERR
 	}
 
-	#ifdef TEST_SCENE
 	if(u2.x<0 || u2.y!=0 || v2.x<0 || v2.y<0) return -2; // throw out degenerated triangle
-	#endif
 	assert(u2.x>=0);
 	assert(u2.y==0);
 	assert(v2.x>=0);
@@ -2931,30 +2897,6 @@ bool Scene::finishStaticImprovement()
 	}
 	return false;
 }
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// play scene at given framerate (if possible) until keypress
-
-/*void Scene::play(real fps,real quality,bool endPlay(void))
-{
-	TIME start=GETTIME;
-	TIME prevFrameTime=start;
-	bool redraw=true;
-	while(!endPlay())
-	{
-		TIME now=GETTIME;
-		//setTime((now-start)/PER_SEC);
-		real timeleft=1/fps-(now-prevFrameTime)/PER_SEC;
-		if(improveStatic(timeleft)) redraw=true;
-		prevFrameTime=GETTIME;
-		if(redraw)
-		{
-			draw(quality);
-			redraw=false;
-		}
-	}
-}*/
 
 Scene::~Scene()
 {

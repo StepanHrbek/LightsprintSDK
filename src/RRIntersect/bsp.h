@@ -13,7 +13,7 @@ namespace rrIntersect
 		};
 
 	struct FACE {
-		int id,side,material;
+		int id,side;
 		VERTEX *vertex[3];
 		NORMAL normal;
 		};

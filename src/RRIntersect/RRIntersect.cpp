@@ -4,6 +4,8 @@
 #include "IntersectKd.h"
 #include <math.h>
 #include <memory.h>
+#include <stdio.h>
+#include <string.h>
 
 namespace rrIntersect
 {
@@ -93,6 +95,20 @@ RRIntersectStats intersectStats;
 RRIntersectStats::RRIntersectStats() 
 {
 	memset(this,0,sizeof(*this));
+}
+
+char* RRIntersectStats::getInfo(unsigned level)
+{
+	static char buf[1000];
+	buf[0]=0;
+	if(level>=1) _snprintf(buf+strlen(buf),999-strlen(buf),"Intersect stats:\n");
+	if(level>=1) _snprintf(buf+strlen(buf),999-strlen(buf)," rays=%d missed=%d(%d)\n",intersects,intersects-hits,(intersects-hits)/(intersects/100));
+	if(level>=1 && (intersect_bspSRLNP || intersect_triangleSRLNP)) _snprintf(buf+strlen(buf),999-strlen(buf)," bspSRLNP=%d(%d) triSRLNP=%d(%d)\n",intersect_bspSRLNP,intersect_bspSRLNP/intersects,intersect_triangleSRLNP,intersect_triangleSRLNP/intersects);
+	if(level>=1 && (intersect_bspNP    || intersect_triangleNP   )) _snprintf(buf+strlen(buf),999-strlen(buf)," bspNP=%d(%d) triNP=%d(%d)\n",intersect_bspNP,intersect_bspNP/intersects,intersect_bspNP,intersect_bspNP/intersects);
+	if(invalid_triangles) _snprintf(buf+strlen(buf),999-strlen(buf)," invalid_triangles=%d/%d\n",invalid_triangles,loaded_triangles);
+	if(intersect_linear) _snprintf(buf+strlen(buf),999-strlen(buf)," intersect_linear=%d\n",intersect_linear);
+	buf[999]=0;
+	return buf;
 }
 
 } //namespace

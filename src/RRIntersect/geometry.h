@@ -2,13 +2,14 @@
 #define RRINTERSECT_GEOMETRY_H
 
 #include "RRIntersect.h"
+#include <float.h> // _finite
 
 namespace rrIntersect
 {
 	typedef RRreal real;
 
 	#define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs
-	#define IS_NUMBER(n) ((n)>-BIG_REAL && (n)<BIG_REAL)
+	#define IS_NUMBER(n) _finite(n)//((n)>-BIG_REAL && (n)<BIG_REAL)
 	#define IS_VEC2(v)   (IS_NUMBER(v.x) && IS_NUMBER(v.y))
 	#define IS_VEC3(v)   (IS_NUMBER(v.x) && IS_NUMBER(v.y) && IS_NUMBER(v.z))
 

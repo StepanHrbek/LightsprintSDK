@@ -119,18 +119,6 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	TObject *obj=new TObject(importer->getNumVertices(),importer->getNumTriangles());
 	obj->importer = importer;
 
-	/*/ import vertices
-	DBG(printf(" vertices...\n"));
-	for (unsigned v=0;v<obj->vertices;v++) 
-	{
-		importer->getVertex(v,obj->vertex[v].x,obj->vertex[v].y,obj->vertex[v].z);
-#ifdef TEST_SCENE
-		//if(v<10000) // too slow for big scenes
-		//  for (int i=0;i<v;i++)
-		//    if (obj->vertex[v]==obj->vertex[i]) {duplicit++;break;}
-#endif
-	}*/
-
 	// import triangles
 	// od nuly nahoru insertuje emitory, od triangles-1 dolu ostatni
 	DBG(printf(" triangles...\n"));
@@ -152,16 +140,10 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 #endif
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
-		/*Normal n;
-		n.x=f->normal.a;
-		n.y=f->normal.b;
-		n.z=f->normal.c;
-		n.d=f->normal.d;*/
 		int geom=t->setGeometry(
 			(Vec3*)(importer->getVertex(v0)),
 			(Vec3*)(importer->getVertex(v1)),
-			(Vec3*)(importer->getVertex(v2))/*,
-			&n*/);
+			(Vec3*)(importer->getVertex(v2)));
 		if(geom>=0)
 		{
 			// geometrie je v poradku

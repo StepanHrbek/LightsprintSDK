@@ -542,13 +542,10 @@ void Object::buildTopIVertices()
 		if(!topivertex[v].check(*(Vec3*)vert)) unusedVertices++;
 		topivertex[v].splitTopLevel((Vec3*)vert);
 	}
-#ifdef TEST_SCENE
 	if(unusedVertices)
 	{
-		fprintf(stderr,"Nefatalni: scena obsahuje %i nikde nepouzitych vertexu.\n",unusedVertices);
-		//GETCH;
+		fprintf(stderr,"Btw, scene contains %i never used vertices.\n",unusedVertices);
 	}
-#endif
 	for(unsigned t=0;t<triangles;t++)
 	  for(int v=0;v<3;v++)
 	  {

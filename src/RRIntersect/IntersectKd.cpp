@@ -102,10 +102,8 @@ static bool intersect_kd(KdTree *t,real distanceMax)
 {
 begin:
 	intersectStats.kd++;
+	assert(ray);
 	assert(t);
-	#ifdef TEST_SCENE
-	if (!t) return false; // prazdny strom
-	#endif
 	assert(i_distanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 	// test leaf

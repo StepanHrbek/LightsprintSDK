@@ -43,11 +43,9 @@ bool IntersectBsp::intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) 
 // all calls (except recursion) are inlined
 {
 begin:
-	intersectStats.bspSRLNP++;
+	intersectStats.intersect_bspSRLNP++;
+	assert(ray);
 	assert(t);
-	#ifdef TEST_SCENE
-	if (!t) return false; // prazdny strom
-	#endif
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
@@ -113,11 +111,9 @@ begin:
 bool IntersectBsp::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) CONST
 {
 begin:
-	intersectStats.bspNP++;
+	intersectStats.intersect_bspNP++;
+	assert(ray);
 	assert(t);
-#ifdef TEST_SCENE
-	if (!t) return false; // prazdny strom
-#endif
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
@@ -207,21 +203,25 @@ IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimpor
 			obj.vertex[i].side = 1;
 			obj.vertex[i].used = 1;
 		}
+		unsigned ii=0;
 		for(int i=0;i<obj.face_num;i++)
 		{
 			unsigned v0,v1,v2,s;
 			importer->getTriangle(i,v0,v1,v2,s);
-			obj.face[i].vertex[0] = &obj.vertex[v0];
-			obj.face[i].vertex[1] = &obj.vertex[v1];
-			obj.face[i].vertex[2] = &obj.vertex[v2];
-			obj.face[i].material = s;
+			obj.face[ii].vertex[0] = &obj.vertex[v0];
+			obj.face[ii].vertex[1] = &obj.vertex[v1];
+			obj.face[ii].vertex[2] = &obj.vertex[v2];
+			if(isValidTriangle(i)) obj.face[ii++].id=i;
 		}
+		obj.face_num = ii;
 		f = fopen(name,"wb");
 		if(f)
 		{
 			createAndSaveBsp(f,&obj);
 			fclose(f);
 		}
+		delete[] obj.vertex;
+		delete[] obj.face;
 		f = fopen(name,"rb");
 	}
 	if(f)
@@ -262,6 +262,7 @@ bool IntersectBsp::intersect(RRRay* ray) const
 		assert(0);
 	}
 
+	if(hit) intersectStats.hits++;
 	return hit;
 }
 

@@ -54,10 +54,10 @@ namespace rrIntersect
 		virtual void         getTriangleSRL(unsigned i, TriangleSRL* t);
 		virtual void         getTriangleSRLN(unsigned i, TriangleSRLN* t);
 		// optional for faster access
-		virtual unsigned __int16* getTriangleList16()  {return 0;}
-		virtual unsigned __int32* getTriangleList32()  {return 0;}
-		virtual unsigned __int16* getTriangleStrip16() {return 0;}
-		virtual unsigned __int32* getTriangleStrip32() {return 0;}
+		//virtual unsigned __int16* getTriangleList16()  {return 0;}
+		//virtual unsigned __int32* getTriangleList32()  {return 0;}
+		//virtual unsigned __int16* getTriangleStrip16() {return 0;}
+		//virtual unsigned __int32* getTriangleStrip32() {return 0;}
 	};
 
 
@@ -101,15 +101,23 @@ namespace rrIntersect
 	{
 	public:
 		RRIntersectStats();
+		// data
+		unsigned loaded_triangles;
+		unsigned invalid_triangles;
+		// calls
 		unsigned intersects;
 		unsigned hits;
-		unsigned bspSRLNP;
-		unsigned bspNP;
-		unsigned kd;
-		unsigned linear;
-		unsigned triangleSRLNP;
-		unsigned triangleNP;
-		unsigned triangleP;
+		// branches, once per call
+		unsigned intersect_bspSRLNP;
+		unsigned intersect_bspNP;
+		unsigned intersect_kd;
+		unsigned intersect_linear;
+		// branches, many times per call
+		unsigned intersect_triangleSRLNP;
+		unsigned intersect_triangleNP;
+		unsigned intersect_triangleP;
+		// helper
+		char* getInfo(unsigned level);
 	};
 
 	extern RRIntersectStats intersectStats;

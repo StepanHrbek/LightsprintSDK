@@ -42,6 +42,7 @@ namespace rrIntersect
 		IntersectLinear(RRObjectImporter* aimporter);
 		virtual ~IntersectLinear();
 		virtual bool      intersect(RRRay* ray) CONST;
+		bool              isValidTriangle(unsigned i) CONST;
 	protected:
 		RRObjectImporter* importer;
 		unsigned          triangles;

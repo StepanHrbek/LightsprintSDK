@@ -10,6 +10,8 @@ namespace rrIntersect
 
 void TriangleP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
+	intersectStats.loaded_triangles++;
+
 	// set s3,r3,l3
 	Vec3 s3=*a;
 	Vec3 r3=*b-*a;
@@ -56,6 +58,8 @@ void TriangleP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 
 void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
+	intersectStats.loaded_triangles++;
+
 	// set s3,r3,l3
 	Vec3 s3=*a;
 	Vec3 r3=*b-*a;
@@ -102,18 +106,17 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	n3=normalized(ortogonalTo(r3,l3));
 	n3.d=-scalarMul(s3,n3);
 
-	#ifdef TEST_SCENE
-	if(!IS_VEC3(n3)) {
-	  return -3; // throw out degenerated triangle
+	if(!IS_VEC3(n3)) 
+	{
+		intersectStats.invalid_triangles++;
+		intersectByte=10;  // throw out degenerated triangle
 	}
-	if(!IS_VEC3(v3)) {
-	  return -10; // throw out degenerated triangle
-	}
-	#endif
 }
 
 void TriangleSRLNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
+	intersectStats.loaded_triangles++;
+
 	// set s3,r3,l3
 	s3=*a;
 	r3=*b-*a;
@@ -160,14 +163,11 @@ void TriangleSRLNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	n3=normalized(ortogonalTo(r3,l3));
 	n3.d=-scalarMul(s3,n3);
 
-	#ifdef TEST_SCENE
-	if(!IS_VEC3(n3)) {
-	  return -3; // throw out degenerated triangle
+	if(!IS_VEC3(n3)) 
+	{
+		intersectStats.invalid_triangles++;
+		intersectByte=10;  // throw out degenerated triangle
 	}
-	if(!IS_VEC3(v3)) {
-	  return -10; // throw out degenerated triangle
-	}
-	#endif
 }
 
 void update_hitPoint3d(RRRay* ray, real distance)
@@ -189,11 +189,11 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 // modifies when hit:    hitPoint2d, hitOuterSide
 // modifies when no hit: <nothing is changed>
 {
-	intersectStats.triangleSRLNP++;
+	intersectStats.intersect_triangleSRLNP++;
+	assert(ray);
 	assert(t);
-	//if(!t->surface) return false;
-	real u,v;
 
+	real u,v;
 	switch(t->intersectByte)
 	{
 		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t->s3[Y])*t->r3[X]-(ray->hitPoint3d[X]-t->s3[X])*t->r3[Y]) / t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t->s3[Z]-t->l3[Z]*v)/t->r3[Z];                break
@@ -206,7 +206,7 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 		case 2:CASE(2,0,2);
 		case 5:CASE(2,0,0);
 		case 8:CASE(2,0,1);
-		default: assert(0); return false;
+		default: return false;
 		#undef CASE
 	}
 	if (u<0 || u+v>1) return false;
@@ -221,14 +221,14 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 
 bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporter::TriangleSRL* t2)
 {
-	intersectStats.triangleNP++;
+	intersectStats.intersect_triangleNP++;
+	assert(ray);
 	assert(t);
-	//if(!t->surface) return false;
-	real u,v;
+	assert(t2);
 
+	real u,v;
 	//RRObjectImporter::TriangleSRL t2;
 	//getTriangleSRL(i,&t2);
-
 	switch(t->intersectByte)
 	{
 		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t2->s[Y])*t2->r[X]-(ray->hitPoint3d[X]-t2->s[X])*t2->r[Y]) / t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t2->s[Z]-t2->l[Z]*v)/t2->r[Z];                break
@@ -241,7 +241,7 @@ bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporte
 		case 2:CASE(2,0,2);
 		case 5:CASE(2,0,0);
 		case 8:CASE(2,0,1);
-		default: assert(0); return false;
+		default: return false;
 		#undef CASE
 	}
 	if (u<0 || u+v>1) return false;
@@ -256,14 +256,14 @@ bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporte
 
 bool intersect_triangleP(RRRay* ray, const TriangleP *t, const RRObjectImporter::TriangleSRLN* t2)
 {
-	intersectStats.triangleP++;
+	intersectStats.intersect_triangleP++;
+	assert(ray);
 	assert(t);
-	//if(!t->surface) return false;
-	real u,v;
+	assert(t2);
 
+	real u,v;
 	//RRObjectImporter::TriangleSRLN t2;
 	//getTriangleSRLN(i,&t2);
-
 	switch(t->intersectByte)
 	{
 		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t2->s[Y])*t2->r[X]-(ray->hitPoint3d[X]-t2->s[X])*t2->r[Y]) / t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t2->s[Z]-t2->l[Z]*v)/t2->r[Z];                break
@@ -276,7 +276,7 @@ bool intersect_triangleP(RRRay* ray, const TriangleP *t, const RRObjectImporter:
 		case 2:CASE(2,0,2);
 		case 5:CASE(2,0,0);
 		case 8:CASE(2,0,1);
-		default: assert(0); return false;
+		default: return false;
 		#undef CASE
 	}
 	if (u<0 || u+v>1) return false;
@@ -312,6 +312,11 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 	}
 }
 
+bool IntersectLinear::isValidTriangle(unsigned i) CONST
+{
+	return (triangleSRLNP && triangleSRLNP[i].intersectByte<10) || (triangleNP && triangleNP[i].intersectByte<10) || (triangleP && triangleP[i].intersectByte<10);
+}
+
 // return first intersection with object
 // but not with *skip and not more far than *hitDistance
 //bool Object::intersection(Point3 eye,Vec3 direction,Triankle *skip,
@@ -326,7 +331,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 
 	bool hit = false;
 	assert(fabs(sizeSquare((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
-	intersectStats.linear++;
+	intersectStats.intersect_linear++;
 	for(unsigned t=0;t<triangles;t++) if(t!=ray->skip)
 	{
 		// 100% speed using no-precalc intersect
@@ -385,6 +390,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		}
 	}
 	DBG(printf(hit?"\n":"NOHIT\n"));
+	if(hit) intersectStats.hits++;
 	return hit;
 }
 
