@@ -247,8 +247,8 @@ INT read_MapList(_CHUNK_)
  word nv; float c[2]; int i=0; BLOCK(nv);
  while (i<nv) { ARRAY(c);
        if (!init) {
-          object->vertex[i].u=c[0];
-          object->vertex[i].v=1.0f-c[1];
+          //!!!object->vertex[i].u=c[0];
+          //!!!object->vertex[i].v=1.0f-c[1];
           } i++;
        }
  return OK;

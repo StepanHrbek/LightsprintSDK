@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "parser.h" // MgfLib
-//#include "interface.h" // Nikos Drakos triangulate
-#include "triangle.h" // Triangle
 #include "cnv2bsp.h"
 
 FACE *face;
@@ -48,8 +46,10 @@ static inline FACE *get_Face(int id)
 {
  FACE *new_face;
  if (id<face_cache) return face+id;
+ printf("Realloc face_cache %d -> %d.\n",face_cache,face_cache<<1);
  new_face=nALLOC(FACE,face_cache<<1);
- memcpy(new_face,face,sizeof(FACE)*face_cache);
+ if(!new_face) {printf("Out of memory.\n");exit(1);}
+ memcpy(new_face,face,sizeof(FACE)*face_cache); free(face);
  face_cache<<=1; face=new_face;
  return get_Face(id);
 }
@@ -58,8 +58,10 @@ static inline VERTEX *get_Vertex(int id)
 {
  VERTEX *new_vertex;
  if (id<vertex_cache) return vertex+id;
+ printf("Realloc vertex_cache %d -> %d.\n",vertex_cache,vertex_cache<<1);
  new_vertex=nALLOC(VERTEX,vertex_cache<<1);
- memcpy(new_vertex,vertex,sizeof(VERTEX)*vertex_cache);
+ if(!new_vertex) {printf("Out of memory.\n");exit(1);}
+ memcpy(new_vertex,vertex,sizeof(VERTEX)*vertex_cache); //!!!free(vertex); faces contain pointers to old block
  vertex_cache<<=1; vertex=new_vertex;
  return get_Vertex(id);
 }
@@ -68,8 +70,10 @@ static inline OBJECT *get_Object(int id)
 {
  OBJECT *new_object;
  if (id<object_cache) return object+id;
+ printf("Realloc object_cache %d -> %d.\n",object_cache,object_cache<<1);
  new_object=nALLOC(OBJECT,object_cache<<1);
- memcpy(new_object,object,sizeof(OBJECT)*object_cache);
+ if(!new_object) {printf("Out of memory.\n");exit(1);}
+ memcpy(new_object,object,sizeof(OBJECT)*object_cache); free(object);
  object_cache<<=1; object=new_object;
  return get_Object(id);
 }
@@ -78,8 +82,10 @@ static inline MATERIAL *get_Material(int id)
 {
  MATERIAL *new_material;
  if (id<material_cache) return material+id;
+ printf("Realloc material_cache %d -> %d.\n",material_cache,material_cache<<1);
  new_material=nALLOC(MATERIAL,material_cache<<1);
- memcpy(new_material,material,sizeof(MATERIAL)*material_cache);
+ if(!new_material) {printf("Out of memory.\n");exit(1);}
+ memcpy(new_material,material,sizeof(MATERIAL)*material_cache); free(material);
  material_cache<<=1; material=new_material;
  return get_Material(id);
 }
@@ -257,6 +263,7 @@ static void end_object(void)
 static void *insert_vertex(FLOAT *p, FLOAT *n)
 {
  VERTEX *v=get_Vertex(mgf_vertex_id);
+ //return NULL;//!!!
  //printf("v[%d]: %f %f %f\n",mgf_vertex_id,p[0],p[1],p[2]);
  v->x=p[0]; v->y=p[1]; v->z=p[2];
  return (void *)(mgf_vertex_id++);
@@ -300,139 +307,6 @@ static void insert_polygon_convex(unsigned vertices, void **vertex_id, void *mat
 	}
 }
 
-static void insert_polygon_triangulate(unsigned vertices, void **vertex_id, void *material)
-{
-	// zed s oknem: crashuje na mnoha mistech
-	int i,j,overtices=0;
-	double (*vertex_xy)[2]=(double(*)[2])malloc(sizeof(double)*(vertices+1)*2); //new double[vertices+1][2];
-	int (*triangle_vertex_idx)[3]=(int(*)[3])malloc(sizeof(int)*(vertices-2)*3); //new int[vertices-2][3];
-	double dx=0, dy=0, dz=0;
-
-	for (i=0;i<vertices-1;i++) {
-		dx+=fabs(vertex[(intptr_t)vertex_id[i]].x-vertex[(intptr_t)vertex_id[i+1]].x);
-		dy+=fabs(vertex[(intptr_t)vertex_id[i]].y-vertex[(intptr_t)vertex_id[i+1]].y);
-		dz+=fabs(vertex[(intptr_t)vertex_id[i]].z-vertex[(intptr_t)vertex_id[i+1]].z);
-	}
-
-	for (i=0;i<vertices;i++) {
-		double hack = 0;
-		vertex_xy[i+1][0] = (dx<dy&&dx<dz) ? vertex[(intptr_t)vertex_id[i]].y : vertex[(intptr_t)vertex_id[i]].x;
-		vertex_xy[i+1][1] = (dz<dy&&dz<dx) ? vertex[(intptr_t)vertex_id[i]].y : vertex[(intptr_t)vertex_id[i]].z;
-		for (j=0;j<i;j++) if(vertex_id[i]==vertex_id[j]) hack-=1e-5;
-		vertex_xy[i+1][0] += hack;
-		vertex_xy[i+1][1] += hack;
-		overtices++;
-		//for (j=0;j<i;j++) if(vertex_id[i]==vertex_id[j]) goto l1;
-		//vertex_xy[overtices+1][0] = (dx<dy&&dx<dz) ? vertex[(intptr_t)vertex_id[i]].y : vertex[(intptr_t)vertex_id[i]].x;
-		//vertex_xy[overtices+1][1] = (dz<dy&&dz<dx) ? vertex[(intptr_t)vertex_id[i]].y : vertex[(intptr_t)vertex_id[i]].z;
-		//overtices++;
-		//l1:;
-	}
-
-	triangulate_polygon(1, (int*)&overtices, vertex_xy, triangle_vertex_idx);
-
-	for (i=0;i<vertices-2;i++) {
-		FACE *n=get_Face(mgf_face_id++);
-		n->id=obj_face_id++;
-		n->material=(int)material;
-		n->vertex[0]=&vertex[(intptr_t)vertex_id[triangle_vertex_idx[i][0]-1]];
-		n->vertex[1]=&vertex[(intptr_t)vertex_id[triangle_vertex_idx[i][1]-1]];
-		n->vertex[2]=&vertex[(intptr_t)vertex_id[triangle_vertex_idx[i][2]-1]];
-	}
-
-	free(triangle_vertex_idx);
-	free(vertex_xy);
-}
-
-static void insert_polygon_triangle(unsigned vertices, void **vertex_id, void *material)
-{
-	// zed s oknem: vygeneruje facy i uvnitr okna
-	struct triangulateio in;
-	struct triangulateio out;
-
-	int i;
-	int positive = 1;
-	REAL (*vertex_xy)[2]=(REAL(*)[2])malloc(sizeof(REAL)*(vertices)*2);
-	int (*segment)[2]=(int(*)[2])malloc(sizeof(int)*(vertices)*2);
-	double dx=0, dy=0, dz=0;
-
-	// detect and select 2 important axes
-	// buggy! new version in _dee
-	for (i=0;i<vertices-1;i++) {
-		dx+=fabs(vertex[(intptr_t)vertex_id[i]].x-vertex[(intptr_t)vertex_id[i+1]].x);
-		dy+=fabs(vertex[(intptr_t)vertex_id[i]].y-vertex[(intptr_t)vertex_id[i+1]].y);
-		dz+=fabs(vertex[(intptr_t)vertex_id[i]].z-vertex[(intptr_t)vertex_id[i+1]].z);
-	}
-	for (i=0;i<vertices;i++) {
-		vertex_xy[i][0] = (dx<dy&&dx<dz) ? vertex[(intptr_t)vertex_id[i]].y : vertex[(intptr_t)vertex_id[i]].x;
-		vertex_xy[i][1] = (dz<dy&&dz<dx) ? vertex[(intptr_t)vertex_id[i]].y : vertex[(intptr_t)vertex_id[i]].z;
-		segment[i][0] = i;
-		segment[i][1] = (i+1)%vertices;
-	}
-
-	memset(&in,0,sizeof(in));
-	memset(&out,0,sizeof(out));
-	in.pointlist = vertex_xy[0];
-	in.numberofpoints = vertices;
-	in.segmentlist = segment[0];
-	in.numberofsegments = vertices;
-	in.pointmarkerlist = (int*)malloc(sizeof(int)*in.numberofpoints);
-	for (i=0;i<in.numberofpoints;i++) in.pointmarkerlist[i]=1;
-
-	triangulate("zQ",&in,&out,NULL);
-
-	// find first outer segment 
-	{int outerseg = 0;
-	// detect orientation
-	for (i=0;i<out.numberoftriangles;i++) {
-		if(out.trianglelist[3*i+0]==segment[outerseg][0] && out.trianglelist[3*i+1]==segment[outerseg][1]) positive=1;
-		if(out.trianglelist[3*i+1]==segment[outerseg][0] && out.trianglelist[3*i+2]==segment[outerseg][1]) positive=1;
-		if(out.trianglelist[3*i+2]==segment[outerseg][0] && out.trianglelist[3*i+0]==segment[outerseg][1]) positive=1;
-		if(out.trianglelist[3*i+0]==segment[outerseg][1] && out.trianglelist[3*i+1]==segment[outerseg][0]) positive=0;
-		if(out.trianglelist[3*i+1]==segment[outerseg][1] && out.trianglelist[3*i+2]==segment[outerseg][0]) positive=0;
-		if(out.trianglelist[3*i+2]==segment[outerseg][1] && out.trianglelist[3*i+0]==segment[outerseg][0]) positive=0;
-	}}
-
-	for (i=0;i<out.numberoftriangles;i++) {
-		// remove hole face
-		FACE *n;
-		int q=0;
-		if(out.trianglelist[3*i+0]+1==out.trianglelist[3*i+1]) q++;
-		if(out.trianglelist[3*i+0]==1+out.trianglelist[3*i+1]) q--;
-		if(out.trianglelist[3*i+1]+1==out.trianglelist[3*i+2]) q++;
-		if(out.trianglelist[3*i+1]==1+out.trianglelist[3*i+2]) q--;
-		if(out.trianglelist[3*i+2]+1==out.trianglelist[3*i+0]) q++;
-		if(out.trianglelist[3*i+2]==1+out.trianglelist[3*i+0]) q--;
-		if(!positive) q=-q;
-		printf("tri%d: %d %d %d  q=%d\n",i,out.trianglelist[3*i+0],out.trianglelist[3*i+1],out.trianglelist[3*i+2],q);
-		if(q<0) continue;
-		// add face
-		n=get_Face(mgf_face_id++);
-		n->id=obj_face_id++;
-		n->material=(int)material;
-		assert(out.trianglelist[3*i+0]>=0 && out.trianglelist[3*i+0]<vertices);
-		assert(out.trianglelist[3*i+1]>=0 && out.trianglelist[3*i+1]<vertices);
-		assert(out.trianglelist[3*i+2]>=0 && out.trianglelist[3*i+2]<vertices);
-		n->vertex[2]=&vertex[(intptr_t)vertex_id[out.trianglelist[3*i+0]]];
-		n->vertex[1]=&vertex[(intptr_t)vertex_id[out.trianglelist[3*i+1]]];
-		n->vertex[0]=&vertex[(intptr_t)vertex_id[out.trianglelist[3*i+2]]];
-	}
-
-	free(in.pointlist);
-	free(in.segmentlist);
-	free(out.pointlist);
-	free(out.pointattributelist);
-	free(out.pointmarkerlist);
-	free(out.trianglelist);
-	free(out.triangleattributelist);
-	free(out.trianglearealist);
-	free(out.neighborlist);
-	free(out.segmentlist);
-	free(out.segmentmarkerlist);
-	free(out.edgelist);
-	free(out.edgemarkerlist);
-}
-
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -466,7 +340,6 @@ static char is_cw2(float* a,float* b,float* c)
 
 void cross3(float* a,float* b,float* r)
 {
-	float size;
 	r[0] = a[1]*b[2]-a[2]*b[1];
 	r[1] = -a[0]*b[2]+a[2]*b[0];
 	r[2] = a[0]*b[1]-a[1]*b[0];
@@ -503,9 +376,9 @@ void sub3(float* a,float* b,float* r)
 
 static void insert_polygon_dee(unsigned vertices, void **vertex_id, void *material)
 {
-	int i,j,k;
+	int i,j,k, created=0;
 	int positive = 1;
-	REAL (*vertex_xy)[2]=(REAL(*)[2])malloc(sizeof(REAL)*(vertices)*2);
+	float (*vertex_xy)[2]=(float(*)[2])malloc(sizeof(float)*(vertices)*2);
 	char* used = (char*)malloc(sizeof(char)*vertices);
 	double dx=0, dy=0, dz=0;
 	char poly_cw;
@@ -573,17 +446,20 @@ static void insert_polygon_dee(unsigned vertices, void **vertex_id, void *materi
 			goto abc_good;
 			k_bad:;
 		}
-		fprintf(stderr,"Invalid polygon.\n");
+		for(k=0;k<vertices;k++) if(used[k]) created++;
+		fprintf(stderr,"Invalid polygon (created only %d out of %d triangles).\n",created,vertices-2);
 		break;
 		abc_good:;
 	}
+	free(vertex_xy);
 	free(used);
 }
 
 static void insert_polygon(unsigned vertices, void **vertex_id, void *material)
 {
- if(vertices<=4) insert_polygon_convex(vertices,vertex_id,material); else
- insert_polygon_dee(vertices,vertex_id,material);
+	//return;//!!!
+	if(vertices<=4) insert_polygon_convex(vertices,vertex_id,material); else
+	insert_polygon_dee(vertices,vertex_id,material);
 }
 
 static inline CAMERA *get_Camera()

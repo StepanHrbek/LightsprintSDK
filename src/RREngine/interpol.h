@@ -5,10 +5,6 @@
 namespace rrEngine
 {
 
-#ifdef PACK
-#pragma pack(1) // recognized by GCC and MSVC
-#endif
-
 #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=MAX_INTERPOL_ANGLE && t1->grandpa->surface==t2->grandpa->surface)
 #define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->getN3(),t2->grandpa->getN3()))
 #define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)

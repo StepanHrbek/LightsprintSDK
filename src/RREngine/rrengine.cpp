@@ -247,6 +247,7 @@ void RRResetStates()
 {
 	memset(RRSSValue,0,sizeof(RRSSValue));
 	RRSetState(RRSS_USE_CLUSTERS,1);
+	RRSetStateF(RRSSF_SUBDIVISION_SPEED,1);
 }
 
 unsigned RRGetState(RRSceneState state)

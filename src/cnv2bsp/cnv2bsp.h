@@ -16,11 +16,6 @@ extern "C" {
 #define SCALE 1000
 #define SQR(A) ((A)*(A))
 
-#define BEST  0
-#define MEAN  1
-#define BIG   2
-#define BESTN 3
-
 #define nALLOC(A,B) (A *)malloc((B)*sizeof(A))
 #define ALLOC(A) nALLOC(A,1)
 
@@ -30,7 +25,7 @@ typedef float MATRIX[4][4];
 
 typedef struct {
         int id,side,used;
-        float x,y,z,u,v;
+        float x,y,z;
         } VERTEX;
 
 typedef struct {
@@ -40,27 +35,12 @@ typedef struct {
 typedef struct {
         int id,side,material;
         VERTEX *vertex[3];
-        NORMAL normal;
         } FACE;
 
 typedef struct {
         float hi[3];
         float lo[3];
         } BBOX;
-
-typedef struct _BSP_TREE {
-        struct _BSP_TREE *front;
-        struct _BSP_TREE *back;
-        FACE **plane;
-        } BSP_TREE;
-
-typedef struct _KD_TREE {
-        struct _KD_TREE *front;
-        struct _KD_TREE *back;
-        FACE **leaf;
-        int axis;
-        VERTEX *root;
-        } KD_TREE;
 
 typedef struct {
         int      id;
@@ -75,8 +55,6 @@ typedef struct {
         FACE     *face;
         VERTEX   *vertex;
         MATRIX   matrix;
-        BSP_TREE *bsp;
-        KD_TREE  *kd;
         } OBJECT;
 
 typedef struct { char *name; } MATERIAL;
@@ -102,7 +80,7 @@ typedef struct {
 
 extern WORLD *load_3DS(char *fn);
 extern WORLD *load_MGF(char *fn, int mode, int dir);
-extern WORLD *load_Scene(char *in_name, char *out_name, int dir, int mode, int max, int root, int num);
+extern WORLD *load_Scene(char *in_name, char *out_name, int dir, int mode);
 
 #ifdef __cplusplus
 }

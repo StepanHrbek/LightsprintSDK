@@ -9,6 +9,9 @@
 #define ALLOC(A) nALLOC(A,1)
 #define SIGNATURE "BSP\n"
 
+#define byte  unsigned char
+#define word  unsigned short
+
 #define RU(A) fread(&Unsigned,sizeof(unsigned),1,f); A=Unsigned
 #define RI(A) fread(&Integer,sizeof(int),1,f); A=Integer
 #define RF(A) fread(&Float,sizeof(float),1,f); A=Float
@@ -100,8 +103,8 @@ static void load_object(FILE *f, OBJECT *obj)
      RF(obj->vertex[i].x);
      RF(obj->vertex[i].y);
      RF(obj->vertex[i].z);
-     RF(obj->vertex[i].u);
-     RF(obj->vertex[i].v);
+     RF(Float);//obj->vertex[i].u);
+     RF(Float);//obj->vertex[i].v);
 /*
      //!!! smazat
      for (int j=0;j<i;j++)
@@ -120,10 +123,10 @@ static void load_object(FILE *f, OBJECT *obj)
      RU(id); if(id<0 || id>=obj->vertex_num) {id=0;printf("Bad bsp format(1).");} obj->face[i].vertex[0]=&obj->vertex[id];
      RU(id); if(id<0 || id>=obj->vertex_num) {id=0;printf("Bad bsp format(1).");} obj->face[i].vertex[1]=&obj->vertex[id];
      RU(id); if(id<0 || id>=obj->vertex_num) {id=0;printf("Bad bsp format(1).");} obj->face[i].vertex[2]=&obj->vertex[id];
-     RF(obj->face[i].normal.a);
-     RF(obj->face[i].normal.b);
-     RF(obj->face[i].normal.c);
-     RF(obj->face[i].normal.d);
+     RF(Float);//obj->face[i].normal.a);
+     RF(Float);//obj->face[i].normal.b);
+     RF(Float);//obj->face[i].normal.c);
+     RF(Float);//obj->face[i].normal.d);
      }
 }
 

@@ -455,9 +455,9 @@ public:
 	Vec3    getU3() {return qu3;}
 	Vec3    getV3() {return qv3;}
 		private:
-		Vec3    *qvertex[3];     // 3x vertex
-		Normal  qn3;             // normalised normal vector
-		Vec3    qu3,qv3;         // ortonormal base for 2d coordinates in subtriangles
+		const Vec3 *qvertex[3];     // 3x vertex
+		Normal      qn3;             // normalised normal vector
+		Vec3        qu3,qv3;         // ortonormal base for 2d coordinates in subtriangles
 		public:
 	struct Edge *edge[3];   // edges
 	U8      isValid      :1;// triangle is not degenerated
@@ -684,17 +684,6 @@ public:
 namespace rrEngine
 {
 #endif
-
-/*/////////////////////////////////////////////////////////////////////////////
-//
-// instant radiosity
-
-struct InstantRadiosityPoint
-{
-	Vec3 pos;
-	Vec3 norm;
-	Vec3 col;
-};*/
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -7,14 +7,6 @@
 
 #include "spline.h"
 
-#define byte  unsigned char
-#define word  unsigned short
-
-#define PLANE 0
-#define FRONT 1
-#define BACK -1
-#define SPLIT 2
-
 #define _X_ 0
 #define _Y_ 1
 #define _Z_ 2
@@ -22,9 +14,8 @@
 typedef float MATRIX[4][4];
 
 typedef struct {
-        int id,sx,sy,t,s;
-        float x,y,z,u,v;
-        float tx,ty,tz;
+        int id;
+        float x,y,z;//,u,v;
         } VERTEX;
 
 typedef struct {
@@ -34,10 +25,8 @@ typedef struct {
 
 typedef struct _FACE {
         int id,material;
-        NORMAL normal;
+        //NORMAL normal;
         VERTEX *vertex[3];
-        struct _FACE *source_face;
-        void *source_triangle;
         } FACE;
 
 typedef struct {
@@ -46,7 +35,6 @@ typedef struct {
         int      parent;
         int      vertex_num;
         int      face_num;
-        int      bsp_num;
         MATRIX   matrix;
         MATRIX   transform;
         MATRIX   inverse;
