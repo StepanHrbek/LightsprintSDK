@@ -1788,6 +1788,13 @@ Object::Object(int avertices,int atriangles)
 	bound.radiusSquare=BIG_REAL;
 	energyEmited=0;
 #endif
+#ifdef SUPPORT_DYNAMIC
+	trianglesEmiting=0;
+	for(unsigned t=0;t<triangles;t++) triangle[t].object=this;
+	transformMatrix=NULL;
+	inverseMatrix=NULL;
+	matrixDirty=false;
+#endif
 }
 
 void addEdgeWith(Triangle *t1,va_list ap)
@@ -1968,7 +1975,7 @@ Scene::Scene()
 #endif
 {
 	allocatedObjects=16;
-	object=(TObject **)malloc(allocatedObjects*sizeof(TObject *));
+	object=(Object **)malloc(allocatedObjects*sizeof(Object *));
 	staticObjects=0;
 	objects=0;
 	surface=NULL;
@@ -1985,13 +1992,13 @@ Scene::Scene()
 	improveInaccurate=0.99f;
 }
 
-void Scene::objInsertStatic(TObject *o)
+void Scene::objInsertStatic(Object *o)
 {
 	if(objects==allocatedObjects)
 	{
-		size_t oldsize=allocatedObjects*sizeof(TObject *);
+		size_t oldsize=allocatedObjects*sizeof(Object *);
 		allocatedObjects*=2;
-		object=(TObject **)realloc(object,oldsize,allocatedObjects*sizeof(TObject *));
+		object=(Object **)realloc(object,oldsize,allocatedObjects*sizeof(Object *));
 	}
 	object[objects++]=object[staticObjects];
 	object[staticObjects++]=o;
@@ -2013,7 +2020,7 @@ void Scene::objRemoveStatic(unsigned o)
 	object[staticObjects]=object[--objects];
 }
 
-unsigned Scene::objNdx(TObject *o)
+unsigned Scene::objNdx(Object *o)
 {
 	for(unsigned i=0;i<objects;i++)
 	    if(object[i]==o) return i;
@@ -2283,12 +2290,10 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	assert(IS_SIZE1(rayVec3));
 
 #ifdef SUPPORT_DYNAMIC
-#ifdef TRANSFORM_SHOTS
 	// transform from shooter's objectspace to scenespace
 	Point3 srcPoint3t=srcPoint3.transformed(source->grandpa->object->transformMatrix);
 	rayVec3=(srcPoint3+rayVec3).transformed(source->grandpa->object->transformMatrix)-srcPoint3t;
 	srcPoint3=srcPoint3t;
-#endif
 #endif
 	// cast ray
 	rayTracePhoton(srcPoint3,rayVec3,source->grandpa,NULL);

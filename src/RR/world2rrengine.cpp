@@ -206,6 +206,7 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf)
 	DBG(printf("Loading geometry...\n"));
 	for (int o=0;o<world->object_num;o++) 
 	{
+		// dynamic = w->object[o].pos.num!=1 || w->object[o].rot.num!=1
 		WorldSceneObjectImporter* importer = new WorldSceneObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces);
 		RRScene::OBJECT_HANDLE handle = rrscene->objectCreate(importer);
 		world->object[o].obj = rrscene->getObject(handle);

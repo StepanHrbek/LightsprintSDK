@@ -12,7 +12,7 @@ namespace rrEngine
 //
 // globals
 
-extern byte d_drawDynamicHits; // kreslit dynamicky zasahy? (vs. konvertit je na dynamickou energii a kreslit tu)
+extern U8 d_drawDynamicHits; // kreslit dynamicky zasahy? (vs. konvertit je na dynamickou energii a kreslit tu)
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -45,32 +45,15 @@ struct ReflToDynobj
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// object, part of scene
-
-struct DObject : public Object
-{
-	DObject(int avertices,int atriangles);
-	~DObject();
-
-	// access to primary emitors
-	unsigned trianglesEmiting; // number of first triangles that are primary emitors
-
-	// transformations
-	bool    matrixDirty;
-	void    transformBound();
-	void    transformAll(bool freeTransform);
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // set of reflectors (light sources and things that reflect light)
 // dynamic version - first go nodesImportant, then others
 //                 - gimmeLinks selects most important links for dyn.shooting
 
-struct Scene;
+class Scene;
 
-struct DReflectors : public Reflectors
+class DReflectors : public Reflectors
 {
+public:
 	DReflectors(Scene *ascene);
 	~DReflectors();
 	void    reset();
@@ -79,7 +62,7 @@ struct DReflectors : public Reflectors
 	void    removeObject(Object *o);
 	void    removeSubtriangles();
 	void    updateListForDynamicShadows();
-	unsigned gimmeLinks(unsigned (shootFunc1)(Scene *scene,Node *refl,DObject *dynobj,ReflToDynobj* r2d,unsigned shots),
+	unsigned gimmeLinks(unsigned (shootFunc1)(Scene *scene,Node *refl,Object *dynobj,ReflToDynobj* r2d,unsigned shots),
 	                    unsigned (shootFunc2)(Scene *scene,Node *refl,unsigned shots),
 	                    bool endfunc(Scene *));
 

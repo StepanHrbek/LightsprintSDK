@@ -86,7 +86,7 @@
 				Optimization="0"
 				ImproveFloatingPointConsistency="TRUE"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;SUPPORT_INTERPOL"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;SUPPORT_INTERPOL;SUPPORT_DYNAMIC"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"

@@ -116,16 +116,17 @@ RRScene::~RRScene()
 RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 {
 	assert(importer);	
-	TObject *obj=new TObject(importer->getNumVertices(),importer->getNumTriangles());
+	Object *obj=new Object(importer->getNumVertices(),importer->getNumTriangles());
 	obj->importer = importer;
 
 	// import triangles
 	// od nuly nahoru insertuje emitory, od triangles-1 dolu ostatni
 	DBG(printf(" triangles...\n"));
 	int tbot=0;
-#ifdef SUPPORT_DYNAMIC
-	int ttop=obj->triangles-1;
-#endif
+// bohuzel pak nesedej triangle_handly, poradi se ted uz nesmi menit
+//#ifdef SUPPORT_DYNAMIC
+//	int ttop=obj->triangles-1;
+//#endif
 	for (unsigned fi=0;fi<obj->triangles;fi++) {
 		unsigned v0,v1,v2,si;
 		importer->getTriangle(fi,v0,v1,v2,si);
@@ -133,11 +134,11 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 		assert(s);
 		// rozhodne zda vlozit face dolu mezi emitory nebo nahoru mezi ostatni
 		Triangle *t;
-#ifdef SUPPORT_DYNAMIC
-		if(s && s->diffuseEmittance) t=&obj->triangle[tbot++]; else t=&obj->triangle[ttop--];
-#else
+//#ifdef SUPPORT_DYNAMIC
+//		if(s && s->diffuseEmittance) t=&obj->triangle[tbot++]; else t=&obj->triangle[ttop--];
+//#else
 		t=&obj->triangle[tbot++];
-#endif
+//#endif
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
 		int geom=t->setGeometry(
@@ -152,8 +153,8 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	   
 #ifdef SUPPORT_DYNAMIC
 	obj->trianglesEmiting=tbot;
-	obj->transformMatrix=&w->object[o].transform;
-	obj->inverseMatrix=&w->object[o].inverse;
+	obj->transformMatrix=(Matrix*)importer->getWorldMatrix();
+	obj->inverseMatrix=(Matrix*)importer->getInvWorldMatrix();
 	// vyzada si prvni transformaci
 	obj->matrixDirty=true;
 #endif
@@ -180,7 +181,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	obj->intersector = newIntersect(importer);   //!!! won't be freed
 	// vlozi objekt do sceny
 #ifdef SUPPORT_DYNAMIC
-	if (w->object[o].pos.num!=1 || w->object[o].rot.num!=1) 
+	if (0) 
 	{
 		scene->objInsertDynamic(obj); 
 		return -1-scene->objects;

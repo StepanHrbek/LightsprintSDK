@@ -24,7 +24,7 @@
 				InlineFunctionExpansion="0"
 				ImproveFloatingPointConsistency="TRUE"
 				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL"
+				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;SUPPORT_DYNAMIC"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"

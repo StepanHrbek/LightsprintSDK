@@ -4,7 +4,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include "geometry.h"
-//#include "surface.h"
 #include "RREngine.h"
 #include "interpol.h"
 
@@ -14,7 +13,6 @@ namespace rrEngine
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 //#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
 //#define LIGHTMAP         // generate lightmap for each Triangle + texturemapping
-//#define TRANSFORM_SHOTS  // transform shots instead of objects (note: there are no transformations without SUPPORT_DYNAMIC)
 //#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
 			   // note that fixed hits have no hit extension implemeted (used only for dynamic objects)
 #define HIT_PTR          & // hits are passed by reference
@@ -43,7 +41,7 @@ namespace rrEngine
 #endif
 
 #ifndef M_PI
- #define M_PI                3.14159265358979323846
+ #define M_PI                ((real)3.14159265358979323846)
 #endif
 
 #define SMALL_ENERGY 0.000001f // energy amount small enough to have no impact on scene
@@ -53,10 +51,8 @@ namespace rrEngine
 //  resetStaticIllumination() uvadi objekt do stavu po nacteni sceny
 
 #ifdef SUPPORT_DYNAMIC
- #define TObject DObject
  #define TReflectors DReflectors
 #else
- #define TObject Object
  #define TReflectors Reflectors
 #endif
 
@@ -280,8 +276,8 @@ public:
 		real    energyDynamicFrame;  // dynamic energy acumulated during one frame
 		real    energyDynamicSmooth;  // the same value smoothed using previous value and variance
 		real    energyDynamicVariance;
-		byte    energyDynamicFrameTime;
-		byte    energyDynamicSmoothTime;
+		U8      energyDynamicFrameTime;
+		U8      energyDynamicSmoothTime;
 	public:
 	real    importanceForDynamicShadows();
 	real    importanceForDynamicShadows(Bound *objectBound);
@@ -447,7 +443,7 @@ public:
 
 	// genealogy
 #ifdef SUPPORT_DYNAMIC
-	class TObject *object;
+	class Object *object;
 #endif
 
 	// geometry
@@ -469,9 +465,6 @@ public:
 	U8      isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
 	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
 	S8      setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n=NULL,int rots=-1);
-#ifdef SUPPORT_DYNAMIC
-	void    updateGeometryMoverot();
-#endif
 	Vec3    to3d(Point2 a);
 	Vec3    to3d(int vertex);
 	SubTriangle *getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex);
@@ -667,20 +660,28 @@ public:
 	Bound   bound;
 	void    detectBounds();
 	bool    intersection(Point3 eye,Vec3 direction,Triangle *skip,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
-#ifdef SUPPORT_DYNAMIC
-	bool    intersectionCloserThan(Point3 eye,Vec3 direction,Triangle *skip,real hitDistance);
-
-	// transformations
-	MATRIX  *transformMatrix;
-	MATRIX  *inverseMatrix;
-#endif
 
 	char    *name;
 	bool    check();
+
+#ifdef SUPPORT_DYNAMIC
+	// access to primary emitors
+	unsigned trianglesEmiting; // number of first triangles that are primary emitors
+
+	// transformations
+	const Matrix  *transformMatrix;
+	const Matrix  *inverseMatrix;
+	bool    matrixDirty;
+	void    transformBound();
+#endif
+
 };
 
 #ifdef SUPPORT_DYNAMIC
- #include "dynamic.h"
+}
+#include "dynamic.h"
+namespace rrEngine
+{
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -696,7 +697,7 @@ public:
 	Scene();
 	~Scene();
 
-	TObject **object;        // array of objects, first static, then dynamic
+	Object **object;        // array of objects, first static, then dynamic
 	unsigned staticObjects;
 	unsigned objects;
 	RRSurface *surface;
@@ -705,23 +706,23 @@ public:
 		real    energyEmitedByDynamics;
 
 	bool    intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
-	bool    intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,TObject *object,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
+	bool    intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,Object *object,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
 	real    rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,real power=1);
 //	Color   rayTraceCamera(Point3 eye,Vec3 direction,Triangle *skip,Color power=Color(1,1,1));
 
 	char    selectColorFilter(int i);
 	int     turnLight(int whichLight,real intensity); // turns light on/off. just material, no energies modified (use resetStaticIllumination), returns number of lights (emitting materials) in scene
 
-	void    objInsertStatic(TObject *aobject);
+	void    objInsertStatic(Object *aobject);
 	void    objRemoveStatic(unsigned o);
-	unsigned objNdx(TObject *aobject);
+	unsigned objNdx(Object *aobject);
 	bool    improveStatic(bool endfunc(Scene *));
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
 	bool    distribute(real maxError);//skonci kdyz nejvetsi mnozstvi nerozdistribuovane energie na jednom facu nepresahuje takovou cast energie lamp (0.001 is ok)
 #ifdef SUPPORT_DYNAMIC
-	void    objInsertDynamic(TObject *aobject);
+	void    objInsertDynamic(Object *aobject);
 	void    objRemoveDynamic(unsigned o);
 	void    objMakeStatic(unsigned o);
 	void    objMakeDynamic(unsigned o);

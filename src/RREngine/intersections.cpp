@@ -18,12 +18,6 @@ namespace rrEngine
 //
 unsigned __shot=0;
 
-#ifdef SUPPORT_DYNAMIC
- #ifdef TRANSFORM_SHOTS
-  #define SUPPORT_DYNAMIC_AND_TRANSFORM_SHOTS
- #endif
-#endif
-
 // return first intersection with object
 // but not with *skip and not more far than *hitDistance
 
@@ -33,10 +27,13 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	DBG(printf("\n"));
 	__shot++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-#ifdef SUPPORT_DYNAMIC_AND_TRANSFORM_SHOTS
+#ifdef SUPPORT_DYNAMIC
 	// transform from scenespace to objectspace
-	i_eye            =eye.transformed(inverseMatrix);
-	i_direction      =(eye+direction).transformed(inverseMatrix)-i_eye;
+	Vec3 i_eye;
+	Vec3 i_direction;
+	i_eye = eye.transformed(inverseMatrix);
+	direction = (eye+direction).transformed(inverseMatrix)-i_eye;
+	eye = i_eye;
 #endif
 	assert(fabs(sizeSquare(direction)-1)<0.001);//ocekava normalizovanej dir
 
@@ -119,60 +116,11 @@ bool Scene::intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,
 
 #ifdef SUPPORT_DYNAMIC
 
-// return if intersection with object-skip is closer than hitDistance
-
-bool Object::intersectionCloserThan(Point3 eye,Vec3 direction,Triangle *skip,real hitDistance)
-{
-	#ifdef SUPPORT_DYNAMIC_AND_TRANSFORM_SHOTS
-	// transform from scenespace to objectspace
-	i_eye            =eye.transformed(inverseMatrix);
-	i_direction      =(eye+direction).transformed(inverseMatrix)-i_eye;
-	#else
-	i_eye            =eye;
-	i_direction      =direction;
-	#endif
-	assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
-
-#ifdef USE_KD
-	if(kdTree)
-	{
-		i_skip=skip;
-		i_distanceMin=0;
-		if(intersect_kd(kdTree,hitDistance)) return true;
-	}
-	else
-#endif
-#ifdef USE_BSP
-	if(bspTree)
-	{
-		i_skip=skip;
-		i_distanceMin=0;
-		i_eye2=i_eye;
-		if(intersect_bsp(bspTree,hitDistance)) return true;
-	}
-	else
-#endif
-	{
-		for(unsigned t=0;t<triangles;t++)
-		  if(&triangle[t]!=skip)
-		  {
-		    real distance=intersect_plane_distance(triangle[t].n3);
-		    if(distance>0 && distance<hitDistance)
-		    {
-		      i_hitPoint3d=i_eye+i_direction*distance;
-		      if(intersect_triangle(&triangle[t])) return true;
-		    }
-		  }
-	}
-
-	return false;
-}
-
 // return first intersection with scene
 // but only when that intersection is with dynobj
 // sideeffect: inserts hit to triangle and triangle to hitTriangles
 
-bool Scene::intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,TObject *dynobj,
+bool Scene::intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,Object *dynobj,
   Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 {
 	assert(fabs(sizeSquare(direction)-1)<0.001);//ocekava normalizovanej dir
@@ -182,9 +130,17 @@ bool Scene::intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,TObject 
 	if(!dynobj->intersection(eye,direction,skip,hitTriangle,hitPoint2d,hitOuterSide,hitDistance))
 		return false;
 	for(unsigned o=0;o<objects;o++)
+	{
 		if(object[o]!=dynobj && object[o]->bound.intersect(eye,direction,*hitDistance))
-			if(object[o]->intersectionCloserThan(eye,direction,skip,*hitDistance))
+		{
+			Triangle *hitTriangle;
+			Hit hitPoint2d;
+			bool hitOuterSide;
+			real hitDistTmp = *hitDistance;
+			if(object[o]->intersection(eye,direction,skip,&hitTriangle,&hitPoint2d,&hitOuterSide,&hitDistTmp))
 				return false;
+		}
+	}
 
 	// inserts hit triangle to hitTriangles
 	if(!(*hitTriangle)->hits.hits) hitTriangles.insert(*hitTriangle);

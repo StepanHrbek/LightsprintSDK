@@ -1236,7 +1236,7 @@ void objReturnDynamic(Scene *scene)
  for(unsigned o=0;o<scene->objects;o++)
    if(__world->object[o].pos.num!=1 || __world->object[o].rot.num!=1)
    {
-     unsigned ndx=scene->objNdx((TObject *)(__world->object[o].obj));
+     unsigned ndx=scene->objNdx((Object *)(__world->object[o].obj));
      if(ndx>=0 && ndx<scene->staticObjects) scene->objMakeDynamic(ndx);
    }
  #endif
