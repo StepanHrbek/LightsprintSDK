@@ -3,7 +3,7 @@
 
 typedef unsigned char U8;
 
-typedef float MATRIX[4][4];
+typedef float raster_MATRIX[4][4];
 
 typedef struct {
         float x,y,z;
@@ -24,7 +24,7 @@ extern int *raster_Output;
 
 void raster_Init(int xres, int yres);
 void raster_SetFOV(float xfov, float yfov);
-void raster_SetMatrix(MATRIX *cam, MATRIX *inv);
+void raster_SetMatrix(raster_MATRIX *cam, raster_MATRIX *inv);
 void raster_Clear();
 //!!!...
 int raster_ZGouraud(raster_POLYGON *p, unsigned *col);

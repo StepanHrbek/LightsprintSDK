@@ -1,20 +1,6 @@
-#include <assert.h>
-#include <io.h>
-#include <limits.h>   //INT_MAX
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
 //#define SUPPORT_KAMIL
 //#define SUPPORT_Z
 //#define SUPPORT_REGEX
-
-#ifdef SUPPORT_Z
- #include <zlib.h>
-#endif
-
 //#define NDEBUG       // no asserts, no debug code
 //#define ONE          // rr+core+geometry+interpol+dynamic in ONE module (20% faster)
 //#define RASTERGL     // raster+video via openGL
@@ -24,6 +10,17 @@
 #define WAIT //fgetc(stdin) // program ceka na stisk, pro ladeni spotreby pameti
 #define MAX_UNINTERACT_TIME 2 // max waiting for response with glut/opengl 2sec
 
+#include <assert.h>
+#include <io.h>
+#include <limits.h>   //INT_MAX
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#ifdef SUPPORT_Z
+ #include <zlib.h>
+#endif
 #ifdef RASTERGL
  #include "videogl.h"
  #include "rastergl.h"
@@ -35,21 +32,23 @@
  #include "subglut.h"
  #define GLMINUS(A) (A)
 #endif
+#include "ldmgf.h"
+#include "ldbsp.h"
+#include "misc.h"
+#include "RREngine.h"
+#include "surface.h"
+#include "world2rrengine.h"
+
+//#include "../RREngine/geometry.h"//!!!
+#include "../RREngine/core.h"//!!!
+using namespace rrEngine;
+
 
 #ifdef RASTERGL
 #ifdef SUPPORT_LIGHTMAP
  #error accelerated lightmaps not supported
 #endif
 #endif
-
-#include "ldmgf.h"
-#include "ldbsp.h"
-#include "misc.h"
-#include "RREngine.h"
-#include "world2rrengine.h"
-
-//#include "../RREngine/geometry.h"//!!!
-using namespace rrEngine;
 
 WORLD  *__world=NULL;
 MATRIX  __identity;
@@ -280,7 +279,7 @@ void SubTriangle::drawFlat(real ambient,int df)
             raster_ZFlat(&p1,&col,0);
     }
     else
-    raster_ZFlat(&p1,grandpa->surface->diffuseReflectanceColorTable,brightness);
+    raster_ZFlat(&p1,((Surface*)grandpa->surface)->diffuseReflectanceColorTable,brightness);
   }
 
 #endif
@@ -440,7 +439,7 @@ void SubTriangle::drawGouraud(real ambient,IVertex **iv,int df)
       p2.point=&p[2];
       p3.point=&p[3];
 
-      raster_ZGouraud(&p1,(d_needle==0 && grandpa->isNeedle)?__needle_ct:grandpa->surface->diffuseReflectanceColorTable);
+      raster_ZGouraud(&p1,(d_needle==0 && grandpa->isNeedle)?__needle_ct:((Surface*)grandpa->surface)->diffuseReflectanceColorTable);
     }
     else
     {
@@ -452,19 +451,19 @@ void SubTriangle::drawGouraud(real ambient,IVertex **iv,int df)
       p2.point=&p[2];
       p3.point=&p[0];
 
-      raster_ZGouraud(&p1,grandpa->surface->diffuseReflectanceColorTable);
+      raster_ZGouraud(&p1,((Surface*)grandpa->surface)->diffuseReflectanceColorTable);
 
       p1.point=&p[1];
       p2.point=&p[0];
       p3.point=&p[3];
 
-      raster_ZGouraud(&p1,grandpa->surface->diffuseReflectanceColorTable);
+      raster_ZGouraud(&p1,((Surface*)grandpa->surface)->diffuseReflectanceColorTable);
 
       p1.point=&p[0];
       p2.point=&p[2];
       p3.point=&p[3];
 
-      raster_ZGouraud(&p1,grandpa->surface->diffuseReflectanceColorTable);
+      raster_ZGouraud(&p1,((Surface*)grandpa->surface)->diffuseReflectanceColorTable);
 
     }
 

@@ -35,18 +35,18 @@ typedef real Angle;
 //
 // matrix in 3d
 
-typedef float MATRIX[4][4];
+typedef float Matrix[4][4];
 
 #define _X_ 0
 #define _Y_ 1
 #define _Z_ 2
 
-void matrix_Invert(MATRIX s, MATRIX d);
-void matrix_Mul(MATRIX a, MATRIX b);
-void matrix_Init(MATRIX a);
-void matrix_Copy(MATRIX s, MATRIX d);
-void matrix_Move(MATRIX m, float dx, float dy, float dz);
-void matrix_Rotate(MATRIX m, float a, int axis);
+void matrix_Invert(Matrix s, Matrix d);
+void matrix_Mul(Matrix a, Matrix b);
+void matrix_Init(Matrix a);
+void matrix_Copy(Matrix s, Matrix d);
+void matrix_Move(Matrix m, float dx, float dy, float dz);
+void matrix_Rotate(Matrix m, float a, int axis);
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -109,8 +109,8 @@ struct Vec3
 	Vec3 operator *=(real f)      {x*=f;y*=f;z*=f;return *this;}
 	Vec3 operator /=(real f)      {x/=f;y/=f;z/=f;return *this;}
 	bool operator ==(Vec3 a)      {return a.x==x && a.y==y && a.z==z;}
-	Vec3 transformed(MATRIX *m);
-	Vec3 transform(MATRIX *m);
+	Vec3 transformed(Matrix *m);
+	Vec3 transform(Matrix *m);
 	real operator [](int i)       {return ((real*)this)[i];}
 };
 
@@ -160,7 +160,7 @@ struct Vertex : public Point3
 	real    sy;
 
 	void operator =(Point3 a)            {x=a.x;y=a.y;z=a.z;}
-	void    transformToCache(MATRIX *m);
+	void    transformToCache(Matrix *m);
 	Point3  transformedFromCache()       {return Point3(tx,ty,tz);}
 };
 
@@ -176,7 +176,7 @@ struct Bound
 	real    radiusSquare;
 	void    detect(Vertex *vertex,unsigned vertices);
 	bool    intersect(Point3 eye,Vec3 direction,real maxDistance);
-	bool    visible(MATRIX *camera);
+	bool    visible(Matrix *camera);
 };
 
 } // namespace

@@ -839,8 +839,6 @@ int SubTriangle::getSplitVertex()
 	return 2;
 }
 
-extern void nothing(double r);
-
 void SubTriangle::splitGeometry(IVertex *asubvertex)
 {
 	if(sub[0]) return;
@@ -867,14 +865,6 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 		DBGLINE
 	}
 
-	// zde je potreba nedovolit optimalizatoru zabugovat r
-	// tim ze se vynuti aby ho opravdu spocital
-	// (bez bugfixu vychazi zdejsi test r<0 v jednom programu tak
-	//  a v jinym onak, asi podle zapnutych optimalizaci)
-	// vyskyt bugy na jinych kompilatorech/verzich jsem nezkousel,
-	// pouze na egcs 2.91.60
-	nothing(r);
-
 	// prikazuje nam nekdo kteryho syna dat doprava/doleva?
 	if(splitVertex_rightLeft>=0)
 	{
@@ -900,8 +890,6 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 #ifdef LOG_LOADING_MES
 	printf(" rot=%i rl=%i\n",rot,(r>0)?1:-1);
 #endif
-	// a tady jeste jednou
-	nothing(r);
 
 	DBGLINE
 	splita=splitvector.y/r;

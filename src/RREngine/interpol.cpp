@@ -1333,7 +1333,7 @@ void Scene::iv_startSavingBytes(unsigned frames,char *nametga)
 	iv_FALLW(j);
 }
 
-extern real getBrightness(real color);//vypujcka z rr.cpp
+//extern real getBrightness(real color);//vypujcka z rr.cpp
 
 static void iv_saveImportantByte(SubTriangle *s,IVertex *iv,int type)
 {
@@ -1344,7 +1344,8 @@ static void iv_saveImportantByte(SubTriangle *s,IVertex *iv,int type)
 //ale neni to nutne protoze rizeni kvality uz mame
 //if(!iv->loaded || (type==3 && iv_error(s,iv)<1))
 //b=255;else
-		b=(U8)(254.99*getBrightness(iv->radiosity()));
+		//!!!b=(U8)(254.99*getBrightness(iv->radiosity()));
+		b=(U8)iv->radiosity();
 		iv_FALLW(b);
 		iv->saved=true;
 	}

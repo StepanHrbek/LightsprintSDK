@@ -130,8 +130,8 @@ OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	}
 #ifndef SUPPORT_DYNAMIC
 	// in static mode: convert vertices to scenespace
-	MATRIX mat;
-	memcpy(mat,importer->getWorldMatrix(),sizeof(MATRIX));
+	Matrix mat;
+	memcpy(mat,importer->getWorldMatrix(),sizeof(Matrix));
 	for (unsigned v=0;v<obj->vertices;v++) 
 	{
 		obj->vertex[v].transform(&mat);

@@ -5,30 +5,12 @@
 #include "RREngine.h"
 #include "world2rrengine.h"
 #include "world2rrintersect.h"
+#include "surface.h"
 
 #include "../RREngine/geometry.h"//!!!
 using namespace rrEngine;
 
 #define DBG(a) a //!!!
-
-#define ColorTable unsigned * // 256 colors in common 32bit format (BGRA)
-
-struct Material
-{
-	real       transparency;
-	real       lightspeed;
-	RRColor    color;
-};
-
-struct Texture;
-struct Surface : public RRSurface
-{
-	ColorTable diffuseReflectanceColorTable;
-	Point3     diffuseEmittancePoint;
-	Material*  outside;
-	Material*  inside;
-	Texture*   texture;
-};
 
 //////////////////////////////////////////////////////////////////////////////
 //

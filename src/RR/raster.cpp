@@ -46,7 +46,7 @@ typedef struct { int x; int y; int num; int dxdy; } raster_EDGE;
 int *raster_Output;
 static int *raster_Light;
 static float *raster_Zbuffer;
-static MATRIX *raster_Camera, *raster_Matrix;
+static raster_MATRIX *raster_Camera, *raster_Matrix;
 static int raster_XRES,raster_YRES,raster_WIDTH;
 static int led_num,red_num,raster_TextureWidth;
 static raster_EDGE led_buf[EDGES],red_buf[EDGES],*led,*red;
@@ -125,7 +125,7 @@ extern void raster_SetFOV(float xfov, float yfov)
  raster_SetPlane(p3,0,0,0,1,yt,1,0,yt,1);
 }
 
-extern void raster_SetMatrix(MATRIX *cam, MATRIX *inv)
+extern void raster_SetMatrix(raster_MATRIX *cam, raster_MATRIX *inv)
 {
  raster_Camera=cam;
  raster_Matrix=inv;

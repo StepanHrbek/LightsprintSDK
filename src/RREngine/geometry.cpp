@@ -65,7 +65,7 @@ Angle angleBetween(Vec2 a,Vec2 b)
 //
 // 3d vector
 
-Vec3 Vec3::transformed(MATRIX *m)
+Vec3 Vec3::transformed(Matrix *m)
 {
 	return Vec3(
 	  x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0] + (*m)[3][0],
@@ -73,7 +73,7 @@ Vec3 Vec3::transformed(MATRIX *m)
 	  x*(*m)[0][2] + y*(*m)[1][2] + z*(*m)[2][2] + (*m)[3][2]);
 }
 
-Vec3 Vec3::transform(MATRIX *m)
+Vec3 Vec3::transform(Matrix *m)
 {
 	real _x=x,_y=y,_z=z;
 
@@ -149,7 +149,7 @@ real normalValueIn(Normal n,Point3 a)
 //
 // vertex in 3d
 
-void Vertex::transformToCache(MATRIX *m)
+void Vertex::transformToCache(Matrix *m)
 {
 	tx=x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0] + (*m)[3][0];
 	ty=x*(*m)[0][1] + y*(*m)[1][1] + z*(*m)[2][1] + (*m)[3][1];
@@ -221,7 +221,7 @@ bool Bound::intersect(Point3 eye,Vec3 direction,real maxDistance)
 	return true;
 }
 
-bool Bound::visible(MATRIX *camera)
+bool Bound::visible(Matrix *camera)
 {
 	//...
 	return true;
@@ -231,12 +231,12 @@ bool Bound::visible(MATRIX *camera)
 //
 // matrix in 3d
 
-void matrix_Copy(MATRIX s, MATRIX d)
+void matrix_Copy(Matrix s, Matrix d)
 {
- memcpy(d,s,sizeof(MATRIX));
+ memcpy(d,s,sizeof(Matrix));
 }
 
-void matrix_Invert(MATRIX s, MATRIX d)
+void matrix_Invert(Matrix s, Matrix d)
 {
  int i,j; float det;
 
@@ -266,9 +266,9 @@ void matrix_Invert(MATRIX s, MATRIX d)
  d[3][3] = 1;
 }
 
-void matrix_Mul(MATRIX a, MATRIX b)
+void matrix_Mul(Matrix a, Matrix b)
 {
- MATRIX t; int i, j;
+ Matrix t; int i, j;
 
  for (i=0;i<4;i++) for (j=0;j<4;j++)
      t[i][j]=a[0][j]*b[i][0]+a[1][j]*b[i][1]+
@@ -277,21 +277,21 @@ void matrix_Mul(MATRIX a, MATRIX b)
  for (i=0;i<4; i++) for (j=0;j<4;j++) a[i][j]=t[i][j];
 }
 
-void matrix_Init(MATRIX a)
+void matrix_Init(Matrix a)
 {
  int i,j; for (j=0;j<4;j++) {for (i=0;i<4;i++) a[i][j]=0;a[j][j]=1;}
 }
 
-void matrix_Move(MATRIX m, float dx, float dy, float dz)
+void matrix_Move(Matrix m, float dx, float dy, float dz)
 {
- MATRIX t; matrix_Init(t);
+ Matrix t; matrix_Init(t);
  t[3][0]=dx; t[3][1]=dy; t[3][2]=dz;
  matrix_Mul(m,t);
 }
 
-void matrix_Rotate(MATRIX m, float a, int axis)
+void matrix_Rotate(Matrix m, float a, int axis)
 {
- MATRIX t; matrix_Init(t);
+ Matrix t; matrix_Init(t);
  switch (axis) {
   case _X_: t[1][2] = sin(a);
             t[1][1] = cos(a);
