@@ -229,142 +229,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\core.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="ONE"
-						ExceptionHandling="FALSE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="GL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dynamic.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="GL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\geometry.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="GL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\interpol.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="GL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\intersections.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="GL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\ldbsp.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -514,9 +378,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\rrengine.cpp">
-			</File>
-			<File
 				RelativePath="..\spline.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -628,21 +489,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="..\core.h">
-			</File>
-			<File
-				RelativePath="..\dynamic.h">
-			</File>
-			<File
-				RelativePath="..\geometry.h">
-			</File>
-			<File
-				RelativePath="..\interpol.h">
-			</File>
-			<File
-				RelativePath="..\intersections.h">
-			</File>
-			<File
 				RelativePath="..\ldbsp.h">
 			</File>
 			<File
@@ -674,9 +520,6 @@
 					<Tool
 						Name="VCCustomBuildTool"/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\rrengine.h">
 			</File>
 			<File
 				RelativePath="..\spline.h">

@@ -1,7 +1,7 @@
 #ifndef _RASTER_H
 #define _RASTER_H
 
-#include "geometry.h"
+typedef unsigned char U8;
 
 typedef struct {
         float x,y,z;

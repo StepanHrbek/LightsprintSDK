@@ -65,7 +65,33 @@
 // 	cmix 0.265 R 0.670 G 0.065 B
 
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// memory
+
 #ifndef ONLY_PLAYER
+
+#define SIMULATE_REALLOC
+
+#include <memory.h>
+
+void* realloc(void* p,size_t oldsize,size_t newsize)
+{
+#ifdef SIMULATE_REALLOC
+	//if(newsize>500000) return realloc(p,newsize);
+	// this simulated realloc prevents real but buggy realloc from crashing rr (seen in DJGPP)
+	// it is also faster (seen in MinGW)
+	void *q=malloc(newsize);
+	if(p)
+	{
+		memcpy(q,p,MIN(oldsize,newsize));
+		free(p);
+	}
+	return q;
+#else
+	return realloc(p,newsize);
+#endif
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2988,7 +3014,6 @@ void core_Done()
 	delete __levels;
 	__levels=NULL;
 #ifndef NDEBUG
-	int memoryLeak=MEM_ALLOCATED;
 	if( __nodesAllocated
 	 || __subtrianglesAllocated
 	 || __trianglesAllocated
@@ -3003,7 +3028,6 @@ void core_Done()
 	#endif
 	  )
 	{
-	  fprintf(stderr,"memory leaks: %i bytes\n",memoryLeak);
 	  fprintf(stderr," nodes       =%8d %8dK\n subtriangles=%8d %8dK\n triangles   =%8d %8dK\n clusters    =%8d %8dK\n edges       =%8d %8dK\n hits        =%8d %8dK\n factors     =%8d %8dK\n",
 	    __nodesAllocated,__nodesAllocated*sizeof(Node)/1024,
 	    __subtrianglesAllocated,__subtrianglesAllocated*sizeof(SubTriangle)/1024,

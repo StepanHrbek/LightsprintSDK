@@ -83,7 +83,7 @@ extern bool mouse_get(int &x,int &y,int &z,int &b);
  #define MEM_ALLOCATED 0
 #endif
 
-void* realloc(void* p,size_t oldsize,size_t newsize);
+//void* realloc(void* p,size_t oldsize,size_t newsize);
 
 
 #endif

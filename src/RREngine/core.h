@@ -2,8 +2,8 @@
 #define _CORE_H
 
 #include <stdarg.h>
+#include <stdlib.h>
 #include "geometry.h"
-#include "misc.h"
 #include "surface.h"
 #include "RREngine.h"
 
@@ -16,6 +16,16 @@
 			   // note that fixed hits have no hit extension implemeted (used only for dynamic objects)
 #define HIT_PTR          & // hits are passed by reference
 #define BESTS          200 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
+
+#define DBGLINE
+//#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);
+
+#ifndef MAX
+ #define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
+#ifndef MIN
+ #define MIN(a,b) ((a)<(b)?(a):(b))
+#endif
 
 #ifdef HITS_FIXED
  #define HITS_UV_TYPE       U8
@@ -50,6 +60,12 @@
 #endif
 
 #ifndef ONLY_PLAYER
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// memory
+
+void* realloc(void* p,size_t oldsize,size_t newsize);
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -694,8 +710,9 @@ struct Object
 extern unsigned __hitsOuter;
 extern unsigned __hitsInner;
 
-struct Scene
+class Scene
 {
+public:
 	Scene();
 	~Scene();
 

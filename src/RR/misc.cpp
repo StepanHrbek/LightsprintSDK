@@ -202,7 +202,7 @@ TIME TIME_GET()
         return memavail-info.available_memory;
  }
 #endif
-
+/*
 #define SIMULATE_REALLOC
 
 #include <memory.h>
@@ -224,3 +224,4 @@ void* realloc(void* p,size_t oldsize,size_t newsize)
  return realloc(p,newsize);
 #endif
 }
+*/
