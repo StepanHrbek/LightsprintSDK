@@ -743,7 +743,7 @@ Point3 SubTriangle::to3dlo(int vertex)
 Point3 Triangle::to3d(int v)
 {
 	assert(v>=0 && v<=2);
-	return *vertex[v];
+	return *getVertex(v);
 }
 
 real SubTriangle::perimeter()
@@ -1071,24 +1071,24 @@ Triangle::Triangle() : SubTriangle(NULL,this)
 void Triangle::setGeometryCore(Normal *n)
 {
 	// set u3,v3,n3
-	u3=normalized(r3);
+	qu3=normalized(getR3());
 	if(n)
 	{
 	  // use normal provided by caller
-	  n3=*n;
+	  qn3=*n;
 #ifdef TEST_SCENE
 	  Normal tmp;
-	  tmp=normalized(ortogonalTo(r3,l3));
+	  tmp=normalized(ortogonalTo(getR3(),getL3()));
 	  if(IS_VEC3(tmp))
-	    if(sizeSquare(n3-tmp)>0.01) __trianglesWithBadNormal++;
+	    if(sizeSquare(getN3()-tmp)>0.01) __trianglesWithBadNormal++;
 #endif
 	} else {
 	  // calculate normal
-	  n3=normalized(ortogonalTo(r3,l3));
-	  n3.d=-scalarMul(s3,n3);
+	  qn3=normalized(ortogonalTo(getR3(),getL3()));
+	  qn3.d=-scalarMul(getS3(),getN3());
 	}
 	//if(!IS_VEC3(n3)) n3=ortogonalTo(r3);
-	v3=ortogonalTo(n3,u3);
+	qv3=ortogonalTo(getN3(),getU3());
 }
 
 static real spicatost(real a,real b,real c) // delky stran
@@ -1104,7 +1104,7 @@ static real spicatost(real a,real b,real c) // delky stran
 // n=NULL .. spocita normalu sam
 // n!=NULL .. pouzije zadanou normalu, nicmene SUPPORT_DYNAMIC pri transformacich stejne zada NULL a stara je zahozena, spocita se nova
 
-signed char Triangle::setGeometry(Vertex *a,Vertex *b,Vertex* c,Normal *n,int rots)
+signed char Triangle::setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n,int rots)
 {
 	assert(rots>=-1 && rots<=2);
 	if(rots==-1) rotations=0; else rotations=rots;
@@ -1112,35 +1112,30 @@ signed char Triangle::setGeometry(Vertex *a,Vertex *b,Vertex* c,Normal *n,int ro
 again:
 	assert(rotations<=2);
 
-	vertex[(3-rotations)%3]=a;
-	vertex[(4-rotations)%3]=b;
-	vertex[(5-rotations)%3]=c;
-
-	// set s3,r3,l3
-	s3=*vertex[0];
-	r3=*vertex[1]-*vertex[0];
-	l3=*vertex[2]-*vertex[0];
+	qvertex[(3-rotations)%3]=a;
+	qvertex[(4-rotations)%3]=b;
+	qvertex[(5-rotations)%3]=c;
 
 	// set intersectByte,intersectReal,u3,v3,n3
 	setGeometryCore(n);
 	#ifdef TEST_SCENE
-	if(!IS_VEC3(n3)) {
+	if(!IS_VEC3(getN3())) {
 	  return -3; // throw out degenerated triangle
 	}
-	if(!IS_VEC3(v3)) {
+	if(!IS_VEC3(getV3())) {
 	  return -10; // throw out degenerated triangle
 	}
 	#endif
 
 	// set s2,u2,v2
-	real rsize=size(r3);
-	real lsize=size(l3);
+	real rsize=size(getR3());
+	real lsize=size(getL3());
 	#ifdef TEST_SCENE
 	if(rsize<=0 || lsize<=0) return -1; // throw out degenerated triangle
 	#endif
 	assert(rsize>0);// we don't like degenerated triangles
 	assert(lsize>0);
-	real psqr=sizeSquare(u3-(l3/lsize));// ctverec nad preponou pri jednotkovejch stranach
+	real psqr=sizeSquare(getU3()-(getL3()/lsize));// ctverec nad preponou pri jednotkovejch stranach
 	#ifdef ALLOW_DEGENS
 	if(psqr<=0) {psqr=0.0001f;printf("Low numerical quality, fixing area=0 triangle.\n");} else
 	if(psqr>=4) {psqr=3.9999f;printf("Low numerical quality, fixing area=0 triangle.\n");}
@@ -1198,9 +1193,9 @@ again:
 	assert(v2.x>=0);
 	assert(v2.y>=0);
 
-	isNeedle=RRGetState(RRSS_FIGHT_NEEDLES) && spicatost(lsize,rsize,size(l3-r3))>1000;
+	isNeedle=RRGetState(RRSS_FIGHT_NEEDLES) && spicatost(lsize,rsize,size(getL3()-getR3()))>1000;
 
-	assert(IS_VEC3(v3));
+	assert(IS_VEC3(getV3()));
 	return rotations;
 }
 
@@ -1268,7 +1263,7 @@ real Triangle::setSurface(RRSurface *s)
 
 Point3 Triangle::to3d(Point2 a)
 {
-	return s3+u3*a.x+v3*a.y;
+	return getS3()+getU3()*a.x+getV3()*a.y;
 }
 
 void Triangle::compact()
@@ -1665,7 +1660,7 @@ Node *Triangles::buildClusterHierarchy(bool differentNormals,Cluster *aparent,Cl
 	//    2. kdykoliv obsahuje nesouvisly oblasti, rozdelit je do 2 clusteru
 	//    3. vybrat rovinu (kolmou na spoj nejvzdalenejsich vertexu) a rozseknout na 2 clustery podle ni
 
-	for(unsigned i=0;i<triangles;i++) assert(IS_VEC3(triangle[i]->n3));
+	for(unsigned i=0;i<triangles;i++) assert(IS_VEC3(triangle[i]->getN3()));
 
 	// 0. if triangles==1, skip building and return triangle
 	assert(triangles>0);
@@ -1686,7 +1681,7 @@ Node *Triangles::buildClusterHierarchy(bool differentNormals,Cluster *aparent,Cl
 	if(differentNormals)/**/
 	{
 		Point3 *norm=new Point3[triangles];
-		for(unsigned i=0;i<triangles;i++) norm[i]=triangle[i]->n3;
+		for(unsigned i=0;i<triangles;i++) norm[i]=triangle[i]->getN3();
 		unsigned t0;
 		unsigned t1;
 		for(unsigned i=0;i<triangles;i++) assert(IS_VEC3(norm[i]));
@@ -1725,7 +1720,7 @@ Node *Triangles::buildClusterHierarchy(bool differentNormals,Cluster *aparent,Cl
 		assert(triangle[i]);
 		//mid[i]=*(triangle[i]->vertex[0])+*(triangle[i]->vertex[1])+*(triangle[i]->vertex[2]);
 		Triangle *t=triangle[i];
-		mid[i]=*t->vertex[0]+*t->vertex[1]+*t->vertex[2];
+		mid[i]=*t->getVertex(0)+*t->getVertex(1)+*t->getVertex(2);
 		assert(IS_VEC3(mid[i]));
 	}
 //  for(unsigned i=0;i<triangles;i++) printf("mid[%i]= %f %f %f\n",i,(double)mid[i].x,(double)mid[i].y,(double)mid[i].z);
@@ -1815,7 +1810,7 @@ Object::Object(int avertices,int atriangles)
 	vertices=avertices;
 	triangles=atriangles;
 	edges=0;
-	vertex=new Vertex[vertices];
+	vertex=new Vec3[vertices];
 	triangle=new Triangle[triangles];
 	edge=NULL;
 #ifndef ONLY_PLAYER
@@ -1839,10 +1834,10 @@ void addEdgeWith(Triangle *t1,va_list ap)
 	  if(!t1->edge[v1])
 	    for(unsigned v2=0;v2<3;v2++)
 	      if(!t2->edge[v2] &&
-	         t1->vertex[v1]==t2->vertex[(v2+1)%3] &&
-	         t1->vertex[(v1+1)%3]==t2->vertex[v2])
+	         t1->getVertex(v1)==t2->getVertex((v2+1)%3) &&
+	         t1->getVertex((v1+1)%3)==t2->getVertex(v2))
 	{
-		Angle angle=angleBetweenNormalized(t1->n3,t2->n3);
+		Angle angle=angleBetweenNormalized(t1->getN3(),t2->getN3());
 		if(angle<MAX(MAX_CLUSTER_ANGLE_B,MAX_INTERPOL_ANGLE))
 		{
 		  assert(*edges<maxedges);
@@ -1853,8 +1848,8 @@ void addEdgeWith(Triangle *t1,va_list ap)
 		  }
 		  edge[*edges].angle=angle;
 		  edge[*edges].interpol=INTERPOL_BETWEEN_A(t1,t2,angle);
-		  edge[*edges].vertex[0]=t1->vertex[v1];
-		  edge[*edges].vertex[1]=t1->vertex[(v1+1)%3];
+		  edge[*edges].vertex[0]=t1->getVertex(v1);
+		  edge[*edges].vertex[1]=t1->getVertex((v1+1)%3);
 		  edge[*edges].triangle[0]=t1;
 		  edge[*edges].triangle[1]=t2;
 		  assert(!t1->edge[v1]);
@@ -1881,7 +1876,7 @@ void Object::buildEdges()
 	for(unsigned t=0;t<triangles;t++)
 		for(int v1=0;v1<3;v1++)
 		{
-			unsigned v=(unsigned)(triangle[t].vertex[v1]-vertex);
+			unsigned v=(unsigned)(triangle[t].getVertex(v1)-vertex);
 			assert(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
 			trianglesInV[v].insert(&triangle[t]);
 		}
@@ -2139,7 +2134,7 @@ real Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExt
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*hitDistance;
 		// calculate new direction after ideal mirror reflection
-		Vec3 newDirection=hitTriangle->n3*(-2*scalarMul(direction,hitTriangle->n3)/sizeSquare(hitTriangle->n3))+direction;
+		Vec3 newDirection=hitTriangle->getN3()*(-2*scalarMul(direction,hitTriangle->getN3())/sizeSquare(hitTriangle->getN3()))+direction;
 		// recursively call this function
 		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,hitExtension,/*sqrt*/(power*hitTriangle->surface->specularReflectance));
 	}
@@ -2153,7 +2148,7 @@ real Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExt
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*hitDistance;
 		// calculate new direction after refraction
-		Vec3 newDirection=-refract(hitTriangle->n3,direction,hitTriangle->surface->refractionReal);
+		Vec3 newDirection=-refract(hitTriangle->getN3(),direction,hitTriangle->surface->refractionReal);
 		// recursively call this function
 		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,hitExtension,/*sqrt*/(power*hitTriangle->surface->specularTransmittance));
 	}
@@ -2253,15 +2248,15 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	    if(!sideBits[source->grandpa->surface->sides][0].emitTo && !sideBits[source->grandpa->surface->sides][1].emitTo)
 	      return;
 #ifdef HOMOGENOUS_FILL
-	    rayVec3=source->grandpa->n3*cosa
-	           +source->grandpa->u3*x
-	           +source->grandpa->v3*y;
+	    rayVec3=source->grandpa->getN3()*cosa
+	           +source->grandpa->getU3()*x
+	           +source->grandpa->getV3()*y;
 #else
 	    real sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
 	    Angle b=rand()*2*M_PI/RAND_MAX;         // b = rotation angle around normal
-	    rayVec3=source->grandpa->n3*cosa
-	           +source->grandpa->u3*(sina*cos(b))
-	           +source->grandpa->v3*(sina*sin(b));
+	    rayVec3=source->grandpa->getN3()*cosa
+	           +source->grandpa->getU3()*(sina*cos(b))
+	           +source->grandpa->getV3()*(sina*sin(b));
 #endif
 	    break;
 	    }

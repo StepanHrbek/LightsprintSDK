@@ -452,22 +452,29 @@ public:
 #endif
 
 	// geometry
-	Vertex  *vertex[3];     // 3x vertex
 	struct Edge *edge[3];   // edges
-	Point3  s3;             // absolute position of start of base (transformed when dynamic)
-	Vec3    r3,l3;          // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
+	Vec3    getS3() {return *getVertex(0);}//n // absolute position of start of base (transformed when dynamic)
+	Vec3    getR3() {return *getVertex(1)-*getVertex(0);}//1 // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
+	Vec3    getL3() {return *getVertex(2)-*getVertex(0);}//1
+	Normal  getN3() {return qn3;}//n
+	Vec3    getU3() {return qu3;}//2n
+	Vec3    getV3() {return qv3;}//2n
+	Vec3*   getVertex(unsigned i) {return qvertex[i];}//20
+		private:
+		Vec3    *qvertex[3];     // 3x vertex
+		Normal  qn3;             // normalised normal vector
+		Vec3    qu3,qv3;         // ortonormal base for 2d coordinates in subtriangles
+		public:
 	bool    isInCluster  :1;// triangle is in cluster
 	bool    isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
 	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
 	//unsigned intersectionTime;
-	Vec3    u3,v3;          // ortonormal base for 2d coordinates in subtriangles
-	Normal  n3;             // normalised normal vector
-	signed char setGeometry(Vertex *a,Vertex *b,Vertex* c,Normal *n=NULL,int rots=-1);
+	signed char setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n=NULL,int rots=-1);
 #ifdef SUPPORT_DYNAMIC
 	void    updateGeometryMoverot();
 #endif
-	Point3  to3d(Point2 a);
-	Point3  to3d(int vertex);
+	Vec3    to3d(Point2 a);
+	Vec3    to3d(int vertex);
 	SubTriangle *getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex);
 	IVertex *topivertex[3]; // 3x ivertex
 	void    removeFromIVertices(Node *node);
@@ -588,7 +595,7 @@ public:
 
 struct Edge
 {
-	Vertex  *vertex[2];
+	Vec3    *vertex[2];
 	Triangle *triangle[2];
 	Angle   angle;
 	bool    free     :1;
@@ -635,7 +642,7 @@ public:
 	unsigned vertices;
 	unsigned triangles; // primary emitors go first (in DObject)
 	unsigned edges;
-	Vertex  *vertex;
+	Vec3     *vertex;
 	Triangle *triangle;
 	Edge    *edge;
 	void    buildEdges();

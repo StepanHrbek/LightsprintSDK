@@ -10,7 +10,7 @@ namespace rrEngine
 #endif
 
 #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=MAX_INTERPOL_ANGLE && t1->grandpa->surface==t2->grandpa->surface)
-#define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->n3,t2->grandpa->n3))
+#define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->getN3(),t2->grandpa->getN3()))
 #define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)
 
 extern real MAX_INTERPOL_ANGLE; // max angle between interpolated neighbours
@@ -46,7 +46,7 @@ public:
 	void    insert(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	void    insertAlsoToParents(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	bool    contains(Node *node);
-	void    splitTopLevel(Vertex *avertex);
+	void    splitTopLevel(Vec3 *avertex);
 	void    makeDirty();
 	bool    hasRadiosity() {return powerTopLevel!=0;}
 	real    radiosity();

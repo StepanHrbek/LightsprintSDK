@@ -52,6 +52,7 @@ WORLD  *__world=NULL;
 MATRIX  __identity;
 int __obj=0,__mirror=0,*__mirrorOutput;
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // drawing
@@ -253,7 +254,7 @@ void SubTriangle::drawFlat(real ambient,int df)
  #endif
 
   {
-    Vertex v;
+    Vec3 v;
 
     v=to3d(0); p[0].x=v.x; p[0].y=v.y; p[0].z=v.z;
     v=to3d(1); p[1].x=v.x; p[1].y=v.y; p[1].z=v.z;
@@ -417,7 +418,7 @@ void SubTriangle::drawGouraud(real ambient,IVertex **iv,int df)
  #endif
   {
 
-    Vertex v;
+    Vec3 v;
 
     v=to3d(0);
     p[1].x=v.x; p[1].y=v.y; p[1].z=v.z;
@@ -977,8 +978,8 @@ if(camera_id>=0)
 }
         //raster_BeginTriangles();
         for (unsigned j=0;j<obj->triangles;j++) /*if(!(j&3))*/{
-            Normal *n=&obj->triangle[j].n3;
-            byte fromOut=n->d+im[3][0]*n->x+im[3][1]*n->y+im[3][2]*n->z>0;
+            Normal n=obj->triangle[j].getN3();
+            byte fromOut=n.d+im[3][0]*n.x+im[3][1]*n.y+im[3][2]*n.z>0;
             if ((d_forceSides==0 && sideBits[obj->triangle[j].surface->sides][fromOut?0:1].renderFrom) ||
                 (d_forceSides==1 && fromOut) ||
                 (d_forceSides==2))

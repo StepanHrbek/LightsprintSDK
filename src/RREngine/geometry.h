@@ -147,27 +147,6 @@ real normalValueIn(Normal n,Point3 a);
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vertex in 3d
-
-struct Vertex : public Point3
-{
-	int     id;
-	int     t;
-	real    u;
-	real    v;
-	real    tx;
-	real    ty;
-	real    tz;
-	real    sx;
-	real    sy;
-
-	void operator =(Point3 a)            {x=a.x;y=a.y;z=a.z;}
-	void    transformToCache(Matrix *m);
-	Point3  transformedFromCache()       {return Point3(tx,ty,tz);}
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // bounding object (sphere)
 
 struct Bound
@@ -176,7 +155,7 @@ struct Bound
 	Point3  center;
 	real    radius;
 	real    radiusSquare;
-	void    detect(Vertex *vertex,unsigned vertices);
+	void    detect(Vec3 *vertex,unsigned vertices);
 	bool    intersect(Point3 eye,Vec3 direction,real maxDistance);
 	bool    visible(Matrix *camera);
 };

@@ -112,7 +112,7 @@ bool IVertex::contains(Node *node)
 	return false;
 }
 
-void IVertex::splitTopLevel(Vertex *avertex)
+void IVertex::splitTopLevel(Vec3 *avertex)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices
@@ -339,8 +339,8 @@ SubTriangle *Triangle::getNeighbourTriangle(int myside,int *nbsside,IVertex *new
 			assert(neighbourTri->edge[2]==edge[myside]);
 			*nbsside=2;
 		}
-		assert(vertex[myside]==neighbourTri->vertex[(*nbsside+1)%3]);
-		assert(vertex[(myside+1)%3]==neighbourTri->vertex[*nbsside]);
+		assert(getVertex(myside)==neighbourTri->getVertex((*nbsside+1)%3));
+		assert(getVertex((myside+1)%3)==neighbourTri->getVertex(*nbsside));
 		neighbourSub=downWhereSideSplits(neighbourTri,nbsside,newVertex);
 	}
 	newVertex->insertAlsoToParents(this,true,(real)M_PI);
@@ -522,14 +522,14 @@ void Object::buildTopIVertices()
 	{
 		for(int v1=0;v1<3;v1++)
 		{
-			unsigned v=(unsigned)(triangle[t].vertex[v1]-vertex);
+			unsigned v=(unsigned)(triangle[t].getVertex(v1)-vertex);
 			assert(v>=0 && v<vertices);
 			triangle[t].topivertex[v1]=&topivertex[v];
 			Angle angle=angleBetween(
-			  *triangle[t].vertex[(v1+1)%3]-*triangle[t].vertex[v1],
-			  *triangle[t].vertex[(v1+2)%3]-*triangle[t].vertex[v1]);
+			  *triangle[t].getVertex((v1+1)%3)-*triangle[t].getVertex(v1),
+			  *triangle[t].getVertex((v1+2)%3)-*triangle[t].getVertex(v1));
 			topivertex[v].insert(&triangle[t],true,angle,
-			  *triangle[t].vertex[v1]
+			  *triangle[t].getVertex(v1)
 			  );
 		}
 	}
@@ -1425,9 +1425,9 @@ static void iv_dump(SubTriangle *s,IVertex *iv,int type)
 	if(type!=0) return;
 	assert(IS_TRIANGLE(s));
 	fprintf(iv_f,"%f %f %f  %f %f %f  %f %f %f\n",
-	  TRIANGLE(s)->vertex[0]->x,TRIANGLE(s)->vertex[0]->y,TRIANGLE(s)->vertex[0]->z,
-	  TRIANGLE(s)->vertex[1]->x,TRIANGLE(s)->vertex[1]->y,TRIANGLE(s)->vertex[1]->z,
-	  TRIANGLE(s)->vertex[2]->x,TRIANGLE(s)->vertex[2]->y,TRIANGLE(s)->vertex[2]->z);
+	  TRIANGLE(s)->getVertex(0)->x,TRIANGLE(s)->getVertex(0)->y,TRIANGLE(s)->getVertex(0)->z,
+	  TRIANGLE(s)->getVertex(1)->x,TRIANGLE(s)->getVertex(1)->y,TRIANGLE(s)->getVertex(1)->z,
+	  TRIANGLE(s)->getVertex(2)->x,TRIANGLE(s)->getVertex(2)->y,TRIANGLE(s)->getVertex(2)->z);
 }
 
 void Scene::iv_dumpTree(char *name)

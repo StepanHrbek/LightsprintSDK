@@ -147,20 +147,9 @@ real normalValueIn(Normal n,Point3 a)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vertex in 3d
-
-void Vertex::transformToCache(Matrix *m)
-{
-	tx=x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0] + (*m)[3][0];
-	ty=x*(*m)[0][1] + y*(*m)[1][1] + z*(*m)[2][1] + (*m)[3][1];
-	tz=x*(*m)[0][2] + y*(*m)[1][2] + z*(*m)[2][2] + (*m)[3][2];
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // bounding object (sphere)
 
-void Bound::detect(Vertex *vertex,unsigned vertices)
+void Bound::detect(Vec3 *vertex,unsigned vertices)
 {
 	Point3 sum=Point3(0,0,0);
 	for(unsigned i=0;i<vertices;i++) sum+=vertex[i];
