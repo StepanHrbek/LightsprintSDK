@@ -1,13 +1,45 @@
 #include <assert.h>
-#include <conio.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "bsp.h"
 
 namespace rrIntersect
 {
+
+class BspBuilder
+{
+public:
+
+
+typedef float VECTOR[3];
+
+typedef struct {
+	float hi[3];
+	float lo[3];
+	} BBOX;
+
+typedef struct _BSP_TREE {
+	struct _BSP_TREE *front;
+	struct _BSP_TREE *back;
+	FACE **plane;
+	} BSP_TREE;
+
+typedef struct _KD_TREE {
+	struct _KD_TREE *front;
+	struct _KD_TREE *back;
+	FACE **leaf;
+	int axis;
+	VERTEX *root;
+	} KD_TREE;
+
+enum
+{
+	BEST,
+	MEAN,
+	BIG,
+	BESTN,
+};
 
 #define CACHE_SIZE 1000
 #define ZERO 0.00001
@@ -22,47 +54,49 @@ namespace rrIntersect
 #define SPLIT_PRIZE 150
 #define BALANCE_PRIZE 5
 
+#define nALLOC(A,B) (A *)malloc((B)*sizeof(A))
+#define ALLOC(A) nALLOC(A,1)
+
+#define SQR(A) ((A)*(A))
 #define ABS(x) (((x)>0)?(x):(-(x)))
 
-#define WB(A) Byte=A; fwrite(&Byte,sizeof(byte),1,f)
-#define WW(A) Word=A; fwrite(&Word,sizeof(word),1,f)
-#define WF(A) Float=A; fwrite(&Float,sizeof(float),1,f)
-#define WI(A) Integer=A; fwrite(&Integer,sizeof(int),1,f)
 #define WU(A) Unsigned=A; fwrite(&Unsigned,sizeof(unsigned),1,f)
 
-static byte Byte;
-static word Word;
-static float Float;
-static int Integer;
-static unsigned Unsigned;
+int quality,max_skip,nodes,faces,rooted,bestN;
 
-static int quality,max_skip,nodes,faces,rooted,bestN;
+BSP_TREE *bsptree;
+unsigned bsptree_id;
+KD_TREE *kdtree;
+unsigned kdtree_id;
 
-static BSP_TREE *bsptree=NULL;
-static unsigned bsptree_id=CACHE_SIZE;
-static KD_TREE *kdtree=NULL;
-static unsigned kdtree_id=CACHE_SIZE;
+BspBuilder()
+{
+	bsptree = NULL;
+	bsptree_id = CACHE_SIZE;
+	kdtree = NULL;
+	kdtree_id = CACHE_SIZE;
+}
 
-static inline BSP_TREE *get_BspTree()
+BSP_TREE *get_BspTree()
 {
  if (bsptree_id<CACHE_SIZE) return bsptree+bsptree_id++;
  bsptree=nALLOC(BSP_TREE,CACHE_SIZE); bsptree_id=1; return bsptree;
 }
 
-static inline KD_TREE *get_KdTree()
+KD_TREE *get_KdTree()
 {
  if (kdtree_id<CACHE_SIZE) return kdtree+kdtree_id++;
  kdtree=nALLOC(KD_TREE,CACHE_SIZE); kdtree_id=1; return kdtree;
 }
 
-static inline void cross_product(VECTOR res, VECTOR a, VECTOR b)
+static void cross_product(VECTOR res, VECTOR a, VECTOR b)
 {
  res[0]=b[1]*a[2]-a[1]*b[2];
  res[1]=b[2]*a[0]-a[2]*b[0];
  res[2]=b[0]*a[1]-a[0]*b[1];
 }
 
-static inline void create_normal(FACE *f)
+static void create_normal(FACE *f)
 {
  VECTOR u,v,n; float l;
 
@@ -89,13 +123,13 @@ static inline void create_normal(FACE *f)
                n[2]*f->vertex[0]->z);
 }
 
-static inline int locate_vertex_bsp(FACE *f, VERTEX *v)
+static int locate_vertex_bsp(FACE *f, VERTEX *v)
 {
  float r=f->normal.a*v->x+f->normal.b*v->y+f->normal.c*v->z+f->normal.d;
  if (ABS(r)<DELTA) return PLANE; if (r>0) return FRONT; return BACK;
 }
 
-static inline int locate_vertex_kd(VERTEX *splitVertex, int splitAxis, VERTEX *v)
+static int locate_vertex_kd(VERTEX *splitVertex, int splitAxis, VERTEX *v)
 {
  switch(splitAxis) {
    #define TEST(x) return (v->x>splitVertex->x)?FRONT:((v->x<splitVertex->x)?BACK:PLANE)
@@ -108,14 +142,14 @@ static inline int locate_vertex_kd(VERTEX *splitVertex, int splitAxis, VERTEX *v
  return PLANE;
 }
 
-int normals_match(FACE *plane, FACE *face)
+static int normals_match(FACE *plane, FACE *face)
 {
  return
   fabs(plane->normal.a+face->normal.a)+fabs(plane->normal.b+face->normal.b)+fabs(plane->normal.c+face->normal.c)<0.01 ||
   fabs(plane->normal.a-face->normal.a)+fabs(plane->normal.b-face->normal.b)+fabs(plane->normal.c-face->normal.c)<0.01;
 }
 
-static inline int locate_face_bsp(FACE *plane, FACE *face)
+static int locate_face_bsp(FACE *plane, FACE *face)
 {
  int i,f=0,b=0,p=0;
 
@@ -132,7 +166,7 @@ static inline int locate_face_bsp(FACE *plane, FACE *face)
  return SPLIT;
 }
 
-static inline int locate_face_kd(VERTEX *vertex, int axis, FACE *face)
+static int locate_face_kd(VERTEX *vertex, int axis, FACE *face)
 {
  int i,f=0,b=0,p=0;
 
@@ -148,7 +182,7 @@ static inline int locate_face_kd(VERTEX *vertex, int axis, FACE *face)
  return SPLIT;
 }
 
-static inline FACE *find_best_root(FACE **list)
+static FACE *find_best_root(FACE **list)
 {
  int i,j,prize,best_prize=0; FACE *best=NULL;
 
@@ -171,7 +205,7 @@ static inline FACE *find_best_root(FACE **list)
  return best;
 }
 
-static inline VERTEX *find_best_root_kd(BBOX *bbox, FACE **list, int *bestaxis)
+static VERTEX *find_best_root_kd(BBOX *bbox, FACE **list, int *bestaxis)
 {
  int i,j,vert,axis; VERTEX *best=NULL; float front_area,back_area,prize,best_prize=0;
 
@@ -207,7 +241,7 @@ static inline VERTEX *find_best_root_kd(BBOX *bbox, FACE **list, int *bestaxis)
  return best;
 }
 
-static inline float face_size(FACE *f)
+static float face_size(FACE *f)
 {
  VECTOR u,v,n;
 
@@ -224,7 +258,7 @@ static inline float face_size(FACE *f)
  return n[0]*n[0]+n[1]*n[1]+n[2]*n[2];
 }
 
-static inline void mid_point(FACE *f, float *x, float *y, float *z)
+static void mid_point(FACE *f, float *x, float *y, float *z)
 {
  int i; *x=0; *y=0; *z=0;
 
@@ -237,7 +271,7 @@ static inline void mid_point(FACE *f, float *x, float *y, float *z)
  *x/=3; *y/=3; *z/=3;
 }
 
-static inline float dist_point(FACE *f, float x, float y, float z)
+static float dist_point(FACE *f, float x, float y, float z)
 {
  float dist=0; int i;
 
@@ -249,7 +283,7 @@ static inline float dist_point(FACE *f, float x, float y, float z)
  return dist/3;
 }
 
-static inline FACE *find_mean_root(FACE **list)
+FACE *find_mean_root(FACE **list)
 {
  int i; FACE *best=NULL;
  float dist,min=1e10,x,y,z,px=0,py=0,pz=0; int pn=0;
@@ -268,7 +302,7 @@ static inline FACE *find_mean_root(FACE **list)
  return best;
 }
 
-static inline FACE *find_big_root(FACE **list)
+FACE *find_big_root(FACE **list)
 {
  int i,pn=0; FACE *best=NULL; float size,max=0;
 
@@ -289,13 +323,13 @@ typedef struct {
         FACE *f;
         } FACE_Q;
 
-int compare_face_q( const void *p1, const void *p2 )
+static int compare_face_q( const void *p1, const void *p2 )
 {
  float f=((FACE_Q *)p2)->q-((FACE_Q *)p1)->q;
  return (f<0)?-1:((f>0)?1:0);
 }
 
-static inline FACE *find_bestN_root(FACE **list)
+FACE *find_bestN_root(FACE **list)
 {
  int i,j,prize,best_prize=0; FACE *best=NULL;
  float px=0,py=0,pz=0; int pn=0;
@@ -342,7 +376,7 @@ static inline FACE *find_bestN_root(FACE **list)
  return best;
 }
 
-static BSP_TREE *create_bsp(FACE **space)
+BSP_TREE *create_bsp(FACE **space)
 {
  BSP_TREE *t=get_BspTree();
  int plane_id=0,front_id=0,back_id=0;
@@ -395,7 +429,7 @@ static BSP_TREE *create_bsp(FACE **space)
  return t;
 }
 
-static KD_TREE *create_kd(BBOX *bbox, FACE **space)
+KD_TREE *create_kd(BBOX *bbox, FACE **space)
 {
  KD_TREE *t=get_KdTree();
  int front_id=0,back_id=0;
@@ -464,7 +498,7 @@ typedef struct { unsigned size:30;
                  unsigned front:1;
                  unsigned back:1; } BSP_NODE;
 
-static void _save_bsp(FILE *f, BSP_TREE *t)
+void save_bsp(FILE *f, BSP_TREE *t)
 {
  int i,n=0,pos1,pos2; BSP_NODE node; nodes++;
 
@@ -472,10 +506,11 @@ static void _save_bsp(FILE *f, BSP_TREE *t)
 
  pos1=ftell(f);
 
+ unsigned Unsigned;
  WU(0); // empty space
 
- if (t->front) _save_bsp(f,t->front);
- if (t->back) _save_bsp(f,t->back);
+ if (t->front) save_bsp(f,t->front);
+ if (t->back) save_bsp(f,t->back);
 
  for (i=n;i--;) { WU(t->plane[i]->id); }
 
@@ -489,27 +524,10 @@ static void _save_bsp(FILE *f, BSP_TREE *t)
  fseek(f,pos2,SEEK_SET);
 }
 
-static void save_bsp(FILE *f, BSP_TREE *t)
-{
- int i,n=0; nodes++;
-
- for (i=0;t->plane[i];i++) n++; faces+=n;
-
- WU(n);
-
- for (i=n;i--;) { WU(t->plane[i]->id); }
-
- WB(t->front ? 1 : 0);
- WB(t->back ? 1 : 0);
-
- if (t->front) save_bsp(f,t->front);
- if (t->back) save_bsp(f,t->back);
-}
-
 typedef struct { unsigned size:30;
-unsigned axis:2; } KD_NODE;
+                 unsigned axis:2; } KD_NODE;
 
-static void save_kd(FILE *f, KD_TREE *t)
+void save_kd(FILE *f, KD_TREE *t)
 {
  int i,n=0,pos1,pos2; KD_NODE node; nodes++;
 
@@ -519,6 +537,7 @@ static void save_kd(FILE *f, KD_TREE *t)
 
  pos1=ftell(f);
 
+ unsigned Unsigned;
  WU(0); // empty space
 
  if (t->axis==3) {
@@ -540,7 +559,7 @@ static void save_kd(FILE *f, KD_TREE *t)
  fseek(f,pos2,SEEK_SET);
 }
 
-FACE **make_list(OBJECT *o)
+static FACE **make_list(OBJECT *o)
 {
  FACE **l=nALLOC(FACE*,o->face_num+1); int i;
  for (i=0;i<o->face_num;i++) l[i]=o->face+i;
@@ -595,20 +614,29 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
 
  rooted=0;
 
- obj->bsp=create_bsp(make_list(obj));
+ BSP_TREE* bsp=create_bsp(make_list(obj));
  nodes=0; faces=0;
  i=ftell(f);
- _save_bsp(f,obj->bsp); 
+ save_bsp(f,bsp); 
  j=ftell(f);
  if(!obj->face_num) printf("\nBSP: No faces.\n"); else
  printf("\nBSP nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,j-i,(j-i)/obj->face_num);
-
- /*obj->kd=create_kd(&bbox,make_list(obj));
+/*
+ KD_TREE* kd=create_kd(&bbox,make_list(obj));
  nodes=0; faces=0;
- save_kd(f,obj->kd); 
+ save_kd(f,kd); 
  i=ftell(f);
  if(!obj->face_num) printf("\nKD: No faces.\n"); else
  printf("\nKD nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,i-j,(i-j)/obj->face_num);*/
+}
+
+}; // BspBuilder
+
+void createAndSaveBsp(FILE *f, OBJECT *obj)
+{
+	BspBuilder* builder = new BspBuilder();
+	builder->createAndSaveBsp(f, obj);
+	delete builder;
 }
 
 } // namespace

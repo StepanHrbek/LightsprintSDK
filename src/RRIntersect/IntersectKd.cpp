@@ -12,13 +12,6 @@ namespace rrIntersect
 
 #define DBG(a) //a
 #define I_DBG(a) //a
-unsigned  _i_stat[8]={0,0,0,0,0,0,0,0};
-void _i_dbg_print()
-{
-	I_DBG(printf("intersect_bsp stat:"));
-	I_DBG(for(int i=0;i<6;i++) if(i_stat[i]) printf(" %d%%",_i_stat[i+1]*100/_i_stat[i]));
-	I_DBG(printf("\n"));
-}
 
 struct KdTree
 {

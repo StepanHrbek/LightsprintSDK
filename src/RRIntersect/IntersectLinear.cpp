@@ -177,7 +177,7 @@ void update_hitPoint3d(RRRay* ray, real distance)
 	ray->hitPoint3d[2] = ray->rayOrigin[2] + ray->rayDir[2]*distance;
 }
 
-real intersect_plane_distance(const RRRay* ray, const Normal n)
+real intersect_plane_distance(const RRRay* ray, const Plane n)
 {
 	return -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / (ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z);
 }
@@ -189,7 +189,7 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 // modifies when hit:    hitPoint2d, hitOuterSide
 // modifies when no hit: <nothing is changed>
 {
-	intersectStats.tri++;
+	intersectStats.triangleSRLNP++;
 	assert(t);
 	//if(!t->surface) return false;
 	real u,v;
@@ -221,7 +221,7 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 
 bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporter::TriangleSRL* t2)
 {
-	intersectStats.tri++;
+	intersectStats.triangleNP++;
 	assert(t);
 	//if(!t->surface) return false;
 	real u,v;
@@ -256,7 +256,7 @@ bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporte
 
 bool intersect_triangleP(RRRay* ray, const TriangleP *t, const RRObjectImporter::TriangleSRLN* t2)
 {
-	intersectStats.tri++;
+	intersectStats.triangleP++;
 	assert(t);
 	//if(!t->surface) return false;
 	real u,v;
@@ -319,13 +319,14 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 bool IntersectLinear::intersect(RRRay* ray) const
 {
 	DBG(printf("\n"));
-	intersectStats.shots++;
+	intersectStats.intersects++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 
 	ray->hitDistance = ray->hitDistanceMax;
 
 	bool hit = false;
 	assert(fabs(sizeSquare((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
+	intersectStats.linear++;
 	for(unsigned t=0;t<triangles;t++) if(t!=ray->skip)
 	{
 		// 100% speed using no-precalc intersect
@@ -335,7 +336,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		{
 			RRObjectImporter::TriangleSRLN t2;
 			importer->getTriangleSRLN(t,&t2);
-			real distance=intersect_plane_distance(ray,*(Normal*)t2.n);
+			real distance=intersect_plane_distance(ray,*(Plane*)t2.n);
 			if(distance>ray->hitDistanceMin && distance<ray->hitDistance)
 			{
 				DBG(printf("."));

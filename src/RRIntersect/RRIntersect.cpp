@@ -3,6 +3,7 @@
 #include "IntersectBsp.h"
 #include "IntersectKd.h"
 #include <math.h>
+#include <memory.h>
 
 namespace rrIntersect
 {
@@ -91,12 +92,7 @@ RRIntersectStats intersectStats;
 
 RRIntersectStats::RRIntersectStats() 
 {
-	//!!!memset(this,0,sizeof(*this));
+	memset(this,0,sizeof(*this));
 }
-
-unsigned RRIntersectStats::shots;
-unsigned RRIntersectStats::bsp;
-unsigned RRIntersectStats::kd;
-unsigned RRIntersectStats::tri;
 
 } //namespace

@@ -7,12 +7,12 @@ namespace rrIntersect
 
 #define min(a,b) (((a)<(b))?(a):(b))
 
-unsigned getBit(unsigned char* data, unsigned bit)
+static unsigned getBit(unsigned char* data, unsigned bit)
 {
 	return (data[bit/8]>>(bit%8))&1;
 }
 
-unsigned getBits(unsigned char* data, unsigned bit, unsigned bits)
+static unsigned getBits(unsigned char* data, unsigned bit, unsigned bits)
 {
 	unsigned tmp = 0;
 	while(bits--) tmp = tmp*2 + getBit(data, bit+bits);

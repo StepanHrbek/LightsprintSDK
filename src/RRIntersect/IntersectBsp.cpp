@@ -43,7 +43,7 @@ bool IntersectBsp::intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) 
 // all calls (except recursion) are inlined
 {
 begin:
-	intersectStats.bsp++;
+	intersectStats.bspSRLNP++;
 	assert(t);
 	#ifdef TEST_SCENE
 	if (!t) return false; // prazdny strom
@@ -53,7 +53,7 @@ begin:
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
 	TRIANGLE_HANDLE* triangle=(TRIANGLE_HANDLE*)((char*)back+(t->back?back->size:0));
 	assert(triangleSRLNP);
-	Normal n=triangleSRLNP[triangle[0]].n3;
+	Plane n=triangleSRLNP[triangle[0]].n3;
 	real distancePlane=intersect_plane_distance(ray,n);
 	bool frontback =
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
@@ -113,7 +113,7 @@ begin:
 bool IntersectBsp::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) CONST
 {
 begin:
-	intersectStats.bsp++;
+	intersectStats.bspNP++;
 	assert(t);
 #ifdef TEST_SCENE
 	if (!t) return false; // prazdny strom
@@ -123,7 +123,7 @@ begin:
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
 	TRIANGLE_HANDLE* triangle=(TRIANGLE_HANDLE*)((char*)back+(t->back?back->size:0));
 	assert(triangleNP);
-	Normal n=triangleNP[triangle[0]].n3;
+	Plane n=triangleNP[triangle[0]].n3;
 	DBGLINE
 	real distancePlane=intersect_plane_distance(ray,n);
 	DBGLINE
@@ -245,7 +245,7 @@ bool IntersectBsp::intersect(RRRay* ray) const
 	}
 
 	DBG(printf("\n"));
-	intersectStats.shots++;
+	intersectStats.intersects++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 
 	bool hit = false;

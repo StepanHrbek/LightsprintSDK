@@ -50,7 +50,7 @@ Vec3 ortogonalTo(Vec3 a,Vec3 b)
 //
 // normal in 3d
 
-real normalValueIn(Normal n,Vec3 a)
+real normalValueIn(Plane n,Vec3 a)
 {
 	return a.x*n.x+a.y*n.y+a.z*n.z+n.d;
 }

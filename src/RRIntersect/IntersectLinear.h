@@ -13,13 +13,13 @@ namespace rrIntersect
 	struct TriangleP
 	{
 		real    intersectReal;  // precalculated number for intersections
-		U8      intersectByte;  // precalculated number for intersections, 0..8
+		char    intersectByte;  // precalculated number for intersections, 0..8
 		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
 	};
 
 	struct TriangleNP : public TriangleP
 	{
-		Normal  n3;             // normalised normal vector
+		Plane   n3;             // normalised normal vector
 		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
 	};
 
@@ -31,7 +31,7 @@ namespace rrIntersect
 	};
 
 	void update_hitPoint3d(RRRay* ray, real distance);
-	real intersect_plane_distance(const RRRay* ray, const Normal n);
+	real intersect_plane_distance(const RRRay* ray, const Plane n);
 	bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t);
 	bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporter::TriangleSRL* t2);
 	bool intersect_triangleP(RRRay* ray, const TriangleP *t, const RRObjectImporter::TriangleSRLN* t2);
