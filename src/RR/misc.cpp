@@ -25,7 +25,7 @@ bool allegro_inited=false;
 
 // time
 
-#ifdef WIN32
+#ifdef xWIN32
 typedef void *HANDLE;
 typedef long BOOL;
 typedef struct _FILETIME {unsigned dwLowDateTime;unsigned dwHighDateTime;} FILETIME;

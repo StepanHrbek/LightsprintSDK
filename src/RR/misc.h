@@ -21,7 +21,7 @@ extern bool allegro_inited;
 
 // time
 
-#ifdef WIN32
+#ifdef xWIN32
  #define TIME    unsigned//U64
  #define GETTIME TIME_GET()
  #define PER_SEC 10000000

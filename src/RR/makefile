@@ -2,6 +2,8 @@
 #
 # features
 
+  RRINTERSECT =   # ?
+
   INTERPOL    = 1  # interpolation support            +20% space  +4% calc
   DYNAMIC     =    # dynamic object suport             +5% space  +5% calc
 
@@ -27,10 +29,17 @@ CFLAGS = -Wall
 LIBS = -lz -lm -lmgf -lstdc++
 LIBSALLEG = -lalleg_s -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
 MAKE = makefile
+BIN = ../../bin/
 
 OBJS = spline.o   ldbsp.o   misc.o   ldmgf.o   surface.o
 CPPS = spline.cpp ldbsp.cpp misc.cpp ldmgf.cpp surface.cpp geometry.cpp core.cpp intersections.cpp
 HHHS = spline.h   ldbsp.h   misc.h   ldmgf.h   surface.h   geometry.h   core.h   intersections.h
+
+ifdef RRINTERSECT
+ LIBS += -L../../lib -lRRIntersect
+ OBJS += world2rrengine.o world2rrintersect.o RREngine.o
+ CFLAGS += -DUSE_RRINTERSECT -I../../include
+endif
 
 ifeq ($(OSTYPE), Linux)    # ...jak poznam ze jsem pod unixem?
  UNIX = yez        # klavesnice pres curses, rm misto del
@@ -96,7 +105,7 @@ ifdef DEBUG
 else
  OBJS += rrbig.o       # zkompiluje vic modulu do jednoho, zrychli rr o 20%
  CFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
-# CFLAGS += -march=athlon-xp -msse -mfpmath=sse --param max-inline-insns-auto=300
+ CFLAGS += -march=athlon-xp -msse -mfpmath=sse --param max-inline-insns-auto=300
  ifndef PROFILE
   CFLAGS += -fomit-frame-pointer
   # -fprofile-use
@@ -115,10 +124,10 @@ ifdef TEST_SCENE
  CFLAGS += -DTEST_SCENE
 endif
 
-all: rr.exe dotga.exe dosmooth.exe
+all: $(BIN)rr.exe $(BIN)dotga.exe $(BIN)dosmooth.exe
 
-rr.exe: $(OBJS) $(MAKE)
-	gcc $(OBJS) $(LIBS) -o rr.exe
+$(BIN)rr.exe: $(OBJS) $(MAKE)
+	gcc $(OBJS) $(LIBS) -o $(BIN)rr.exe
 
 rrbig.o: rr.cpp $(HHHS) $(CPPS) $(MAKE)
 	gcc -DONE $(CFLAGS) -c rr.cpp -o $@
@@ -154,23 +163,28 @@ subglut.o: subglut.cpp subglut.h $(MAKE)
 	gcc $(CFLAGS) -c subglut.cpp -o $@
 ldmgf.o: ldmgf.cpp ldmgf.h geometry.h $(MAKE)
 	gcc $(CFLAGS) -c ldmgf.cpp -o $@
+world2rrengine.o: world2rrengine.cpp world2rrengine.h world2rrintersect.h ldmgf.h ldbsp.h surface.h RREngine.h
+	gcc $(CFLAGS) -c world2rrengine.cpp -o $@
+world2rrintersect.o: world2rrintersect.cpp world2rrintersect.h surface.h ldbsp.h RREngine.h
+	gcc $(CFLAGS) -c world2rrintersect.cpp -o $@
+RREngine.o: RRENgine.cpp RREngine.h ../../include/RRIntersect.h surface.h core.h geometry.h misc.h
+	gcc $(CFLAGS) -c RREngine.cpp -o $@
 
+$(BIN)dotga.exe: dotga.c
+	gcc -s dotga.c -o $(BIN)dotga.exe $(LIBSALLEG)
+	upx $(BIN)dotga.exe
 
-dotga.exe: dotga.c
-	gcc -s dotga.c -o dotga.exe $(LIBSALLEG)
-	upx dotga.exe
+$(BIN)dosmooth.exe: dosmooth.c
+	gcc -s dosmooth.c -o $(BIN)dosmooth.exe $(LIBSALLEG)
+	upx $(BIN)dosmooth.exe
 
-dosmooth.exe: dosmooth.c
-	gcc -s dosmooth.c -o dosmooth.exe $(LIBSALLEG)
-	upx dosmooth.exe
-
-player.exe: player.cpp geometry.cpp geometry.h core.cpp core.h interpol.cpp interpol.h ldbsp.o spline.o raster.o video.o
-	gcc player.cpp -o player.exe ldbsp.o spline.o raster.o video.o
+$(BIN)player.exe: player.cpp geometry.cpp geometry.h core.cpp core.h interpol.cpp interpol.h ldbsp.o spline.o raster.o video.o
+	gcc player.cpp -o $(BIN)player.exe ldbsp.o spline.o raster.o video.o
 
 clean:
 	$(DEL) *.o
 	$(DEL) *.bak
 	$(DEL) *.bkp
-	$(DEL) rr.exe
-	$(DEL) dotga.exe
-	$(DEL) dosmooth.exe
+	$(DEL) $(BIN)rr.exe
+	$(DEL) $(BIN)dotga.exe
+	$(DEL) $(BIN)dosmooth.exe

@@ -1,14 +1,14 @@
 #ifndef _GEOMETRY_H
 #define _GEOMETRY_H
 
-#define S8           signed char
-#define U8           unsigned char
-#define S16          short
-#define U16          unsigned short
-#define S32          int
-#define U32          unsigned
-#define S64          __int64 //long long
-#define U64          unsigned __int64 //unsigned long long
+#define S8           signed char //__int8
+#define U8           unsigned char //unsigned __int8
+#define S16          __int16
+#define U16          unsigned __int16
+#define S32          __int32
+#define U32          unsigned __int32
+#define S64          __int64
+#define U64          unsigned __int64
 #define real         float
 #define BIG_REAL     1e20
 #define SMALL_REAL   1e-10

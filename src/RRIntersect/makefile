@@ -1,31 +1,28 @@
-#LIB =  ../../lib/
-#OBJS = ../../tmp/RRIntersect/*.o
-#../../tmp/RRIntersect/sha1.o: gcc 
+LIB = ../../lib/libRRIntersect.a
+TMP = #../../tmp/RRIntersect/
 
 MACH = 
-OPT = -O3
-CFLAGS = $(MACH) $(OPT)
+OPT = -O3 -Iinclude
+CPPFLAGS = $(MACH) $(OPT)
 CC = gcc
 
-OBJS = bsp.o cache.o geometry.o IntersectBsp.o IntersectKd.o IntersectLinear.o RRIntersect.o sha1.o
+OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)geometry.o $(TMP)IntersectBsp.o $(TMP)IntersectKd.o $(TMP)IntersectLinear.o $(TMP)RRIntersect.o $(TMP)sha1.o
 
-all:	libRRIntersect.a
+all:	$(LIB)
 
-libRRIntersect.a:	$(OBJS)
-	ar rc libRRIntersect.a $(OBJS)
-	-ranlib libRRIntersect.a
+$(LIB):	$(OBJS)
+	ar rc $(LIB) $(OBJS)
+	-ranlib $(LIB)
 
 clean:
-	set nonomatch ; rm -f *.o libRRIntersect.a
+	del -f $(TMP)*.o $(LIB)
 
-bsp.o:	
+$(TMP)bsp.o:	
 
-cache.o:	RRIntersect.h
+$(TMP)cache.o $(TMP)RRIntersect.o:	include/RRIntersect.h
 
-geometry.o:	
+$(TMP)geometry.o:	
 
-IntersectLinear.o IntersectBsp.o IntersectKd.o:	IntersectLinear.h
+$(TMP)IntersectLinear.o $(TMP)IntersectBsp.o $(TMP)IntersectKd.o:	IntersectLinear.h
 
-RRIntersect.o:	RRIntersect.h
-
-sha1.o:	sha1.h
+$(TMP)sha1.o:	sha1.h

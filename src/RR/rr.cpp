@@ -11,9 +11,6 @@
 //#define SUPPORT_Z
 //#define SUPPORT_REGEX
 
-//#define HISTORIC_LOADER
-#define RRENGINE_LOADER
-
 #ifdef SUPPORT_Z
  #include <zlib.h>
 #endif
@@ -41,16 +38,16 @@
 
 #ifdef ONE
  #include "geometry.cpp"
- #include "intersections.cpp"
  #include "core.cpp"
+ #include "intersections.cpp"
   #include "interpol.cpp"
  #ifdef SUPPORT_DYNAMIC
   #include "dynamic.cpp"
  #endif
 #else
  #include "geometry.h"
- #include "intersections.h"
  #include "core.h"
+ #include "intersections.h"
   #include "interpol.h"
  #ifdef SUPPORT_DYNAMIC
   #include "dynamic.h"
@@ -67,6 +64,12 @@
 #include "ldbsp.h"
 #include "misc.h"
 #include "surface.h"
+
+#ifdef USE_RRINTERSECT
+ #define RRENGINE_LOADER
+#else
+ #define HISTORIC_LOADER
+#endif
 
 #ifdef RRENGINE_LOADER
  #include "rrengine.h"
@@ -2303,6 +2306,10 @@ int main(int argc, char **argv)
  bool kamil=false;
 #endif
 
+ assert(sizeof(U8)==1);
+ assert(sizeof(U16)==2);
+ assert(sizeof(U32)==4);
+ assert(sizeof(U64)==8);
  MEM_INIT;
  kb_init();
  core_Init();
@@ -2431,7 +2438,7 @@ int main(int argc, char **argv)
 	 fread(&__world->camera[0],1,sizeof(__world->camera[0]),f);
 	 fclose(f);
  }
- /*FILE* f=fopen("rr.cam2","wb");
+ FILE* f=fopen("rr.cam2","wb");
  fwrite(&__world->camera[0],1,sizeof(__world->camera[0]),f);
  fclose(f);*/
  matrix_Create(&__world->camera[0],0);

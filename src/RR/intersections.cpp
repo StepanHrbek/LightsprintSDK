@@ -4,8 +4,7 @@
 #include "core.h"
 #include "intersections.h"
 
-#define USE_LIB
-//#define USE_BSP
+#define USE_BSP
 //#define USE_KD
 #define DBG(a) //a
 
@@ -321,7 +320,7 @@ begin:
 bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
   Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 {
-#ifdef USE_LIB
+#ifdef USE_RRINTERSECT
 RRHit hit2;
 	{RRRay ray;
 	RRHit hit;
@@ -375,7 +374,7 @@ RRHit hit2;
 	return res;
 	hit2=hit;}
 	//!!!
-#endif // USE_LIB
+#endif // USE_RRINTERSECT
 
 	DBG(printf("\n"));
 	__shot++;

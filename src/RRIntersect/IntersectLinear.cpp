@@ -83,14 +83,14 @@ real      i_hitU;
 real      i_hitV;
 Point3    i_hitPoint3d;
 
-inline real intersect_plane_distance(Normal n)
+real intersect_plane_distance(Normal n)
 {
 	// return -normalValueIn(n,i_eye)/scalarMul(n,i_direction);
 	// compilers don't tend to inline scalarMul, we must do it ourselves (-1.5%cpu)
 	return -normalValueIn(n,i_eye)/(n.x*i_direction.x+n.y*i_direction.y+n.z*i_direction.z);
 }
 
-inline bool intersect_triangle_bsp(Triankle *t)
+bool intersect_triangle_bsp(Triankle *t)
 // input:                t, i_hitPoint3d, i_direction
 // returns:              true if i_hitPoint3d is inside t
 //                       if i_hitPoint3d is outside t plane, resut is undefined
