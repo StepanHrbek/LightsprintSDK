@@ -68,16 +68,16 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 			case 0:
 				break;
 			case 1:
-				{float u=ray.hitU;
-				float v=ray.hitV;
-				ray.hitU=v;
-				ray.hitV=1-u-v;}
+				{float u=ray.hitPoint2d[0];
+				float v=ray.hitPoint2d[1];
+				ray.hitPoint2d[0]=v;
+				ray.hitPoint2d[1]=1-u-v;}
 				break;
 			case 2:
-				{float u=ray.hitU;
-				float v=ray.hitV;
-				ray.hitU=1-u-v;
-				ray.hitV=u;}
+				{float u=ray.hitPoint2d[0];
+				float v=ray.hitPoint2d[1];
+				ray.hitPoint2d[0]=1-u-v;
+				ray.hitPoint2d[1]=u;}
 				break;
 			default:
 				assert(0);
@@ -90,11 +90,11 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 		// prepocet u,v ze souradnic (rightside,leftside)
 		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
 		assert(ray.hitTriangle>=0 && ray.hitTriangle<triangles);
-		ray.hitU=ray.hitU*triangle[ray.hitTriangle].u2.x+ray.hitV*triangle[ray.hitTriangle].v2.x;
-		ray.hitV=ray.hitV*triangle[ray.hitTriangle].v2.y;
+		ray.hitPoint2d[0]=ray.hitPoint2d[0]*triangle[ray.hitTriangle].u2.x+ray.hitPoint2d[1]*triangle[ray.hitTriangle].v2.x;
+		ray.hitPoint2d[1]=ray.hitPoint2d[1]*triangle[ray.hitTriangle].v2.y;
 #endif
-		hitPoint2d->u = ray.hitU;
-		hitPoint2d->v = ray.hitV;
+		hitPoint2d->u = ray.hitPoint2d[0];
+		hitPoint2d->v = ray.hitPoint2d[1];
 		*hitOuterSide = ray.hitOuterSide;
 		*hitDistance = ray.hitDistance;
 	}

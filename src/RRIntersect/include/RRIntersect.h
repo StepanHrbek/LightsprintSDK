@@ -55,9 +55,9 @@ namespace rrIntersect
 		float           rayOrigin[3];
 		float           rayDir[3];
 		float           hitDistanceMin,hitDistanceMax;
-		float           hitPoint[3];
-		float           hitU,hitV;
-		float           hitDistance;
+		float           hitDistance;   // changed even when no hit
+		float           hitPoint3d[3]; // returned wrong
+		float           hitPoint2d[2];
 		TRIANGLE_HANDLE skip;
 		TRIANGLE_HANDLE hitTriangle;
 		bool            hitOuterSide;

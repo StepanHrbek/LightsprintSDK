@@ -29,7 +29,8 @@ namespace rrIntersect
 		~IntersectBsp();
 		virtual bool      intersect(RRRay* ray);
 	protected:
-		bool              intersect_bspNP(RRRay* ray, BspTree *t,real distanceMax);
+		bool              intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax);
+		bool              intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax);
 		BspTree*          tree;
 	};
 
