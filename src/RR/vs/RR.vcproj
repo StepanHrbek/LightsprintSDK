@@ -22,6 +22,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				ImproveFloatingPointConsistency="TRUE"
+				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -91,6 +92,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				ImproveFloatingPointConsistency="TRUE"
+				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;SUPPORT_LIGHTMAP;ONE"
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
@@ -155,6 +157,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				ImproveFloatingPointConsistency="TRUE"
+				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;RASTERGL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -506,9 +509,6 @@
 				RelativePath="..\rrengine.cpp">
 			</File>
 			<File
-				RelativePath="..\rrintersect.cpp">
-			</File>
-			<File
 				RelativePath="..\spline.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -669,9 +669,6 @@
 			</File>
 			<File
 				RelativePath="..\rrengine.h">
-			</File>
-			<File
-				RelativePath="..\rrintersect.h">
 			</File>
 			<File
 				RelativePath="..\spline.h">

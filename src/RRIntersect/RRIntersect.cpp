@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
-#include "core.h"
+//#include "core.h"
 
 #define USE_BSP
 #define DBG(a) //a
