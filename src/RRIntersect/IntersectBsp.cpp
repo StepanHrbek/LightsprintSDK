@@ -248,7 +248,7 @@ retry:
 bool IntersectBsp::intersect(RRRay* ray) const
 {
 	// fallback when bspgen failed (run from readonly disk etc)
-	if(!tree) 
+	if(!tree)
 	{
 		DBGLINE
 		DBG(printf("Bsp fallback to linear."));

@@ -77,16 +77,34 @@ BspBuilder()
 	kdtree_id = CACHE_SIZE;
 }
 
-BSP_TREE *get_BspTree()
+BSP_TREE *new_bsp()
 {
- if (bsptree_id<CACHE_SIZE) return bsptree+bsptree_id++;
- bsptree=nALLOC(BSP_TREE,CACHE_SIZE); bsptree_id=1; return bsptree;
+	BSP_TREE* oldbsptree=bsptree;
+	if (bsptree_id<CACHE_SIZE) return bsptree+bsptree_id++;
+	bsptree=nALLOC(BSP_TREE,CACHE_SIZE+1); bsptree[CACHE_SIZE].front=oldbsptree; bsptree_id=1; return bsptree;
 }
 
-KD_TREE *get_KdTree()
+KD_TREE *new_kd()
 {
- if (kdtree_id<CACHE_SIZE) return kdtree+kdtree_id++;
- kdtree=nALLOC(KD_TREE,CACHE_SIZE); kdtree_id=1; return kdtree;
+	if (kdtree_id<CACHE_SIZE) return kdtree+kdtree_id++;
+	kdtree=nALLOC(KD_TREE,CACHE_SIZE); kdtree_id=1; return kdtree;
+}
+
+static free_bsp(BSP_TREE* t)
+{
+	free(t->plane);
+	if(t->front) free_bsp(t->front);
+	if(t->back) free_bsp(t->back);
+}
+
+~BspBuilder()
+{
+	while(bsptree)
+	{
+		BSP_TREE* tmp = bsptree[CACHE_SIZE].front;
+		free(bsptree);
+		bsptree = tmp;
+	}
 }
 
 static void cross_product(VECTOR res, VECTOR a, VECTOR b)
@@ -378,7 +396,7 @@ FACE *find_bestN_root(FACE **list)
 
 BSP_TREE *create_bsp(FACE **space)
 {
- BSP_TREE *t=get_BspTree();
+ BSP_TREE *t=new_bsp();
  int plane_id=0,front_id=0,back_id=0;
  int split_num=0,plane_num=0,front_num=0,back_num=0,i;
  FACE **plane=NULL,**front=NULL,**back=NULL,*root;
@@ -391,7 +409,6 @@ BSP_TREE *create_bsp(FACE **space)
   }
 
  int pn=0;
- FACE_Q *tmp;
  for (int i=0;space[i];i++) pn++;
  if(!root && pn>5000) printf("No split in %d faces, texniq=%d(%d) bestN=%d",pn,quality,BESTN,bestN);//!!!
 
@@ -436,7 +453,7 @@ BSP_TREE *create_bsp(FACE **space)
 
 KD_TREE *create_kd(BBOX *bbox, FACE **space)
 {
- KD_TREE *t=get_KdTree();
+ KD_TREE *t=new_kd();
  int front_id=0,back_id=0;
  int split_num=0,plane_num=0,front_num=0,back_num=0,i;
  FACE **front=NULL,**back=NULL;
@@ -624,6 +641,7 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
  j=ftell(f);
  if(!obj->face_num) printf("\nBSP: No faces.\n"); else
  printf("\nBSP nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,j-i,(j-i)/obj->face_num);
+ free_bsp(bsp);
 /*
  KD_TREE* kd=create_kd(&bbox,make_list(obj));
  nodes=0; faces=0;

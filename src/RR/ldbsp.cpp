@@ -210,5 +210,3 @@ extern WORLD *load_world(char *name)
 
  fclose(f); world->hierarchy=make_hierarchy(world,-1); return world;
 }
-
-extern void nothing(double r) { r=r; }

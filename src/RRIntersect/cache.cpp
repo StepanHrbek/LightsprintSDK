@@ -1,6 +1,7 @@
 #include "cache.h"
 #include "sha1.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 namespace rrIntersect
 {
@@ -53,7 +54,8 @@ const char* getFileName(RRObjectImporter* importer)
 const char* getFileName(RRObjectImporter* importer, char* extension)
 {
 	static char buf[100];
-	_snprintf(buf,99,"%s%s",getFileName(importer),extension);
+	char* dir=getenv("RRCACHE");
+	_snprintf(buf,99,"%s%s%s",dir?dir:"",getFileName(importer),extension);
 	buf[99]=0;
 	return buf;
 }
