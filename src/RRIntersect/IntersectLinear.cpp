@@ -8,12 +8,12 @@ namespace rrIntersect
 
 #define DBG(a) //a
 
-void TriangleP::setGeometry(Point3 *a,Point3 *b,Point3* c)
+void TriangleP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
 	// set s3,r3,l3
-	Point3 s3=*a;
-	Point3 r3=*b-*a;
-	Point3 l3=*c-*a;
+	Vec3 s3=*a;
+	Vec3 r3=*b-*a;
+	Vec3 l3=*c-*a;
 
 	// set intersectByte,intersectReal,u3,v3,n3
 	// set intersectByte,intersectReal
@@ -54,12 +54,12 @@ void TriangleP::setGeometry(Point3 *a,Point3 *b,Point3* c)
 	}
 }
 
-void TriangleNP::setGeometry(Point3 *a,Point3 *b,Point3* c)
+void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
 	// set s3,r3,l3
-	Point3 s3=*a;
-	Point3 r3=*b-*a;
-	Point3 l3=*c-*a;
+	Vec3 s3=*a;
+	Vec3 r3=*b-*a;
+	Vec3 l3=*c-*a;
 
 	// set intersectByte,intersectReal,u3,v3,n3
 	// set intersectByte,intersectReal
@@ -112,7 +112,7 @@ void TriangleNP::setGeometry(Point3 *a,Point3 *b,Point3* c)
 	#endif
 }
 
-void TriangleSRLNP::setGeometry(Point3 *a,Point3 *b,Point3* c)
+void TriangleSRLNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
 	// set s3,r3,l3
 	s3=*a;
@@ -177,12 +177,12 @@ void update_hitPoint3d(RRRay* ray, real distance)
 	ray->hitPoint3d[2] = ray->rayOrigin[2] + ray->rayDir[2]*distance;
 }
 
-real intersect_plane_distance(RRRay* ray, Normal n)
+real intersect_plane_distance(const RRRay* ray, const Normal n)
 {
 	return -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / (ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z);
 }
 
-bool intersect_triangleSRLNP(RRRay* ray, TriangleSRLNP *t)
+bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 // input:                t, hitPoint3d, rayDir
 // returns:              true if hitPoint3d is inside t
 //                       if hitPoint3d is outside t plane, resut is undefined
@@ -219,7 +219,7 @@ bool intersect_triangleSRLNP(RRRay* ray, TriangleSRLNP *t)
 	return true;
 }
 
-bool intersect_triangleNP(RRRay* ray, TriangleNP *t, RRObjectImporter::TriangleSRL* t2)
+bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporter::TriangleSRL* t2)
 {
 	intersectStats.tri++;
 	assert(t);
@@ -254,7 +254,7 @@ bool intersect_triangleNP(RRRay* ray, TriangleNP *t, RRObjectImporter::TriangleS
 	return true;
 }
 
-bool intersect_triangleP(RRRay* ray, TriangleP *t, RRObjectImporter::TriangleSRLN* t2)
+bool intersect_triangleP(RRRay* ray, const TriangleP *t, const RRObjectImporter::TriangleSRLN* t2)
 {
 	intersectStats.tri++;
 	assert(t);
@@ -266,7 +266,7 @@ bool intersect_triangleP(RRRay* ray, TriangleP *t, RRObjectImporter::TriangleSRL
 
 	switch(t->intersectByte)
 	{
-#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t2->s[Y])*t2->r[X]-(ray->hitPoint3d[X]-t2->s[X])*t2->r[Y]) / t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t2->s[Z]-t2->l[Z]*v)/t2->r[Z];                break
+		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t2->s[Y])*t2->r[X]-(ray->hitPoint3d[X]-t2->s[X])*t2->r[Y]) / t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t2->s[Z]-t2->l[Z]*v)/t2->r[Z];                break
 		case 0:CASE(0,1,2);
 		case 3:CASE(0,1,0);
 		case 6:CASE(0,1,1);
@@ -277,7 +277,7 @@ bool intersect_triangleP(RRRay* ray, TriangleP *t, RRObjectImporter::TriangleSRL
 		case 5:CASE(2,0,0);
 		case 8:CASE(2,0,1);
 		default: assert(0); return false;
-#undef CASE
+		#undef CASE
 	}
 	if (u<0 || u+v>1) return false;
 
@@ -303,7 +303,7 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 	{
 		unsigned v0,v1,v2,s;
 		importer->getTriangle(i,v0,v1,v2,s);
-		Point3 p0,p1,p2;
+		Vec3 p0,p1,p2;
 		importer->getVertex(v0,p0.x,p0.y,p0.z);
 		importer->getVertex(v1,p1.x,p1.y,p1.z);
 		importer->getVertex(v2,p2.x,p2.y,p2.z);
@@ -317,7 +317,7 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 // but not with *skip and not more far than *hitDistance
 //bool Object::intersection(Point3 eye,Vec3 direction,Triankle *skip,
 //  Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
-bool IntersectLinear::intersect(RRRay* ray)
+bool IntersectLinear::intersect(RRRay* ray) const
 {
 	DBG(printf("\n"));
 	intersectStats.shots++;
@@ -395,4 +395,4 @@ IntersectLinear::~IntersectLinear()
 	delete[] triangleSRLNP;
 }
 
-}
+} // namespace

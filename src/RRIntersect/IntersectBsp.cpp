@@ -33,7 +33,7 @@ BspTree* load(FILE *f)
 // higher number = slower intersection
 // (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
 
-bool IntersectBsp::intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax)
+bool IntersectBsp::intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) CONST
 // input:                t, rayOrigin, rayDir, skip, hitDistanceMin, hitDistanceMax
 // returns:              true if ray hits t
 // modifies when hit:    (distanceMin, hitPoint3d) hitPoint2d, hitOuterSide, hitDistance
@@ -110,7 +110,7 @@ begin:
 	goto begin;
 }
 
-bool IntersectBsp::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax)
+bool IntersectBsp::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) CONST
 {
 begin:
 	intersectStats.bsp++;
@@ -228,7 +228,7 @@ IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimpor
 // but not with *skip and not more far than *hitDistance
 //bool Object::intersection(Point3 eye,Vec3 direction,Triankle *skip,
 //  Triankle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
-bool IntersectBsp::intersect(RRRay* ray)
+bool IntersectBsp::intersect(RRRay* ray) const
 {
 	// fallback when bspgen failed (run from readonly disk etc)
 	if(!tree) 

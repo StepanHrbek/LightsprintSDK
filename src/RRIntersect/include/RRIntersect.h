@@ -1,15 +1,22 @@
 #ifndef RRINTERSECT_RRINTERSECT_H
 #define RRINTERSECT_RRINTERSECT_H
 
+//////////////////////////////////////////////////////////////////////////////
+// RRIntersect - library for fast "ray x mesh" intersections
+//
+// - thread safe, you can calculate any number of intersections at the same time
+// - builds helper-structures and stores them in cache on disk
+//////////////////////////////////////////////////////////////////////////////
+
 namespace rrIntersect
 {
-
 	#ifdef _MSC_VER
 	#pragma comment(lib,"RRIntersect.lib")
 	#endif
 
 	#define USE_BSP
 	//#define USE_KD
+	#define CONST const
 
 	typedef unsigned TRIANGLE_HANDLE;
 
@@ -72,7 +79,7 @@ namespace rrIntersect
 	{
 	public:
 		//virtual ~Intersect() = 0;
-		virtual bool intersect(RRRay* ray) = 0;
+		virtual bool intersect(RRRay* ray) CONST = 0;
 	};
 
 	RRIntersect* newIntersect(RRObjectImporter* importer);
@@ -93,7 +100,6 @@ namespace rrIntersect
 	};
 
 	extern RRIntersectStats intersectStats;
-
 }
 
 #endif
