@@ -163,4 +163,14 @@ begin:
 	}
 }
 
+if(kdTree)
+{
+	i_skip=skip;
+	i_distanceMin=0;
+	//real distanceMax=bbox.GetMaxDistance(i_eye);
+	//distanceMax=MIN(distanceMax,*hitDistance);
+	real distanceMax=1e5;
+	hit=intersect_kd(kdTree,distanceMax);
+}
+
 #endif

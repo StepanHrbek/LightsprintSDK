@@ -26,7 +26,7 @@ OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	
 	// import vertices
 	DBG(printf(" vertices...\n"));
-	for (int v=0;v<obj->vertices;v++) 
+	for (unsigned v=0;v<obj->vertices;v++) 
 	{
 		importer->getVertex(v,obj->vertex[v].x,obj->vertex[v].y,obj->vertex[v].z);
 #ifdef TEST_SCENE
@@ -39,7 +39,7 @@ OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	// in static mode: convert vertices to scenespace
 	MATRIX mat;
 	memcpy(mat,importer->getWorldMatrix(),sizeof(MATRIX));
-	for (int v=0;v<obj->vertices;v++) 
+	for (unsigned v=0;v<obj->vertices;v++) 
 	{
 		obj->vertex[v].transform(&mat);
 	}
@@ -52,7 +52,7 @@ OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 #ifdef SUPPORT_DYNAMIC
 	int ttop=obj->triangles-1;
 #endif
-	for (int fi=0;fi<obj->triangles;fi++) {
+	for (unsigned fi=0;fi<obj->triangles;fi++) {
 		unsigned v0,v1,v2,si;
 		importer->getTriangle(fi,v0,v1,v2,si);
 		Surface* s=importer->getSurface(si);
@@ -127,9 +127,7 @@ OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	obj->name=NULL;
 	// bsp tree
 	DBG(printf(" tree...\n"));
-#ifdef USE_RRINTERSECT
 	obj->intersector = newIntersect(importer);   //!!! won't be freed
-#endif
 	// vlozi objekt do sceny
 #ifdef SUPPORT_DYNAMIC
 	if (w->object[o].pos.num!=1 || w->object[o].rot.num!=1) 

@@ -30,13 +30,6 @@ typedef struct _FACE {
         void *source_triangle;
         } FACE;
 
-typedef struct _BSP_TREE {
-        unsigned num;
-        unsigned *plane;
-        struct _BSP_TREE * front;
-        struct _BSP_TREE * back;
-        } BSP_TREE;
-
 typedef struct {
         int      id;
         char     *name;
@@ -50,9 +43,6 @@ typedef struct {
         TRACK    pos,rot;
         FACE     *face;
         VERTEX   *vertex;
-        BSP_TREE *bsp_tree;
-        VERTEX   *bsp_vertex;
-        void     *kd_tree;
         void     *obj;
         } OBJECT;
 

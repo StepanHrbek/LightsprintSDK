@@ -5,8 +5,8 @@
 #include "geometry.h"
 #include "misc.h"
 #include "surface.h"
+#include "RREngine.h"
 
-#define USE_RRINTERSECT  // uses RRIntersect library
 //#define TEST_SCENE       // tests that scene has no degenerated triangles etc
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 //#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
@@ -27,10 +27,6 @@
  //#define HITS_P_TYPE        S16
  //#define HITS_P_MAX         32767
 #else
-#endif
-
-#ifdef USE_RRINTERSECT
- #include "RREngine.h"
 #endif
 
  #include "interpol.h"
@@ -671,11 +667,7 @@ struct Object
 	void    resetStaticIllumination();
 
 	// intersections
-#ifdef USE_RRINTERSECT
 	RRIntersect*intersector;
-#endif
-	BspTree *bspTree;
-	KdTree  *kdTree;
 	Bound   bound;
 	void    detectBounds();
 	bool    intersection(Point3 eye,Vec3 direction,Triangle *skip,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);

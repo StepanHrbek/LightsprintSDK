@@ -680,6 +680,9 @@ static void save_object(FILE *f, OBJECT *obj)
 
  rooted=0; name=obj->name; printf("%s -> ",name); 
 
+ obj->bsp=NULL;
+ obj->kd=NULL;
+ /*
  obj->bsp=create_bsp(make_list(obj));
  nodes=0; faces=0;
  i=ftell(f);
@@ -688,8 +691,7 @@ static void save_object(FILE *f, OBJECT *obj)
  if(!obj->face_num) printf("\nBSP: No faces.\n"); else
  printf("\nBSP nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,j-i,(j-i)/obj->face_num);
 
- obj->kd=NULL;
- /*obj->kd=create_kd(&bbox,make_list(obj));
+ obj->kd=create_kd(&bbox,make_list(obj));
  nodes=0; faces=0;
  save_kd(f,obj->kd); 
  i=ftell(f);

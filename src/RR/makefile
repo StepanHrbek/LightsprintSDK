@@ -2,8 +2,6 @@
 #
 # features
 
-  RRINTERSECT =   # ?
-
   INTERPOL    = 1  # interpolation support            +20% space  +4% calc
   DYNAMIC     =    # dynamic object suport             +5% space  +5% calc
 
@@ -35,11 +33,9 @@ OBJS = spline.o   ldbsp.o   misc.o   ldmgf.o   surface.o
 CPPS = spline.cpp ldbsp.cpp misc.cpp ldmgf.cpp surface.cpp geometry.cpp core.cpp intersections.cpp
 HHHS = spline.h   ldbsp.h   misc.h   ldmgf.h   surface.h   geometry.h   core.h   intersections.h
 
-ifdef RRINTERSECT
- LIBS += -L../../lib -lRRIntersect
- OBJS += world2rrengine.o world2rrintersect.o RREngine.o
- CFLAGS += -DUSE_RRINTERSECT -I../../include
-endif
+LIBS += -L../../lib -lRRIntersect
+OBJS += world2rrengine.o world2rrintersect.o RREngine.o
+CFLAGS += -I../../include
 
 ifeq ($(OSTYPE), Linux)    # ...jak poznam ze jsem pod unixem?
  UNIX = yez        # klavesnice pres curses, rm misto del
@@ -110,9 +106,7 @@ else
   # -fprofile-use
  endif
  CFLAGS += -march=athlon-xp --param max-inline-insns-auto=300
- ifndef RRINTERSECT
-  CFLAGS += -msse -mfpmath=sse
- endif
+ # CFLAGS += -msse -mfpmath=sse
 endif
 
 ifdef PACK

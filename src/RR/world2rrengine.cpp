@@ -1,6 +1,3 @@
-#include "core.h" // only for symbol USE_RRINTERSECT
-#ifdef USE_RRINTERSECT
-
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -215,5 +212,3 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf)
 	}	
 	return rrscene;
 }
-
-#endif

@@ -1,7 +1,9 @@
 #ifndef _RRINTERSECT_H
 #define _RRINTERSECT_H
 
+#ifdef _MSC_VER
 #pragma comment(lib,"RRIntersect.lib")
+#endif
 
 #define USE_BSP
 //#define USE_KD

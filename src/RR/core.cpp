@@ -1843,7 +1843,6 @@ Object::Object(int avertices,int atriangles)
 #ifndef ONLY_PLAYER
 	clusters=0;
 	cluster=NULL;
-	bspTree=NULL;
 	bound.center=Point3(0,0,0);
 	bound.radius=BIG_REAL;
 	bound.radiusSquare=BIG_REAL;
@@ -1927,7 +1926,6 @@ Object::~Object()
 	delete[] triangle;
 	if(edge) delete[] edge;
 	delete[] vertex;
-//	delete bspTree;
 }
 
 #ifndef ONLY_PLAYER
