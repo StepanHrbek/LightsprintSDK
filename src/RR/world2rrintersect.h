@@ -4,14 +4,11 @@
 #include "ldbsp.h"
 #include "RREngine.h"
 
-using namespace rrIntersect;
-using namespace rrEngine;
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // WorldObjectImporter
 
-class WorldObjectImporter : virtual public RRObjectImporter
+class WorldObjectImporter : virtual public rrIntersect::RRObjectImporter
 {
 public:
 	WorldObjectImporter(OBJECT* aobject);

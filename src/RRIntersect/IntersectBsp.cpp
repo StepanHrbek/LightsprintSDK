@@ -1,7 +1,5 @@
 #include "IntersectBsp.h"
 
-using namespace rrIntersect;
-
 #ifdef USE_BSP
 
 #define DBG(a) //a
@@ -12,6 +10,9 @@ using namespace rrIntersect;
 #include <stdio.h>
 #include "bsp.h"
 #include "cache.h"
+
+namespace rrIntersect
+{
 
 BspTree* load(FILE *f)
 {
@@ -252,5 +253,7 @@ IntersectBsp::~IntersectBsp()
 {
 	free(tree);
 }
+
+} // namespace
 
 #endif

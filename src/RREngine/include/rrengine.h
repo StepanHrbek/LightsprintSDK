@@ -10,8 +10,7 @@ namespace rrEngine
 	#pragma comment(lib,"RREngine.lib")
 	#endif
 
-	//using namespace rrIntersect;
-	using rrIntersect::OBJECT_HANDLE;
+	using rrIntersect::OBJECT_HANDLE;//!!!
 	#define real float//!!!
 	#define U8 unsigned char//!!!
 

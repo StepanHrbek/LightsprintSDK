@@ -1,8 +1,14 @@
 #include "IntersectKd.h"
 
-using namespace rrIntersect;
-
 #ifdef USE_KD
+
+#include <assert.h>
+#include <math.h>
+#include <malloc.h>
+#include <stdio.h>
+
+namespace rrIntersect
+{
 
 #define DBG(a) //a
 #define I_DBG(a) //a
@@ -13,11 +19,6 @@ void _i_dbg_print()
 	I_DBG(for(int i=0;i<6;i++) if(i_stat[i]) printf(" %d%%",_i_stat[i+1]*100/_i_stat[i]));
 	I_DBG(printf("\n"));
 }
-
-#include <assert.h>
-#include <math.h>
-#include <malloc.h>
-#include <stdio.h>
 
 struct KdTree
 {
@@ -174,5 +175,7 @@ if(kdTree)
 	real distanceMax=1e5;
 	hit=intersect_kd(kdTree,distanceMax);
 }
+
+} // namespace
 
 #endif

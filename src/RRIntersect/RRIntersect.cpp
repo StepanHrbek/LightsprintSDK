@@ -4,7 +4,8 @@
 #include "IntersectKd.h"
 #include <math.h>
 
-using namespace rrIntersect;
+namespace rrIntersect
+{
 
 RRObjectImporter::RRObjectImporter()
 {
@@ -90,3 +91,4 @@ unsigned RRIntersectStats::bsp;
 unsigned RRIntersectStats::kd;
 unsigned RRIntersectStats::tri;
 
+} //namespace

@@ -6,7 +6,8 @@
 #include <string.h>
 #include "bsp.h"
 
-using namespace rrIntersect;
+namespace rrIntersect
+{
 
 #define CACHE_SIZE 1000
 #define ZERO 0.00001
@@ -609,3 +610,5 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
  if(!obj->face_num) printf("\nKD: No faces.\n"); else
  printf("\nKD nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,i-j,(i-j)/obj->face_num);*/
 }
+
+} // namespace
