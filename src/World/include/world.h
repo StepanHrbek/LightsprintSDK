@@ -1,5 +1,9 @@
-#ifndef _LDBSP_H
-#define _LDBSP_H
+#ifndef _WORLD_H
+#define _WORLD_H
+
+#ifdef _MSC_VER
+#pragma comment(lib,"World.lib")
+#endif
 
 #include "spline.h"
 

@@ -233,9 +233,6 @@
 				RelativePath="..\geometry.cpp">
 			</File>
 			<File
-				RelativePath="..\ldbsp.cpp">
-			</File>
-			<File
 				RelativePath="..\ldmgf.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -359,32 +356,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\spline.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="GL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\subglut.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -473,9 +444,6 @@
 				RelativePath="..\geometry.h">
 			</File>
 			<File
-				RelativePath="..\ldbsp.h">
-			</File>
-			<File
 				RelativePath="..\ldmgf.h">
 			</File>
 			<File
@@ -504,9 +472,6 @@
 					<Tool
 						Name="VCCustomBuildTool"/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\spline.h">
 			</File>
 			<File
 				RelativePath="..\subglut.h">

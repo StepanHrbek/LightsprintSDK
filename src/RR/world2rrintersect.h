@@ -1,7 +1,7 @@
 #ifndef _WORLD2RRINTERSECT_H
 #define _WORLD2RRINTERSECT_H
 
-#include "ldbsp.h"
+#include "World.h"
 #include "RREngine.h"
 
 //////////////////////////////////////////////////////////////////////////////

@@ -1297,7 +1297,7 @@ void Scene::iv_markImportants_saveMeshing(unsigned maxvertices,char *namemes)
 	// tak aby mel prvni 0 az linearne k poslednimu 255.
 	// to se pak ulozi jako byteerror, jako ukazatel dulezitosti.
 	for(unsigned i=0;i<iv_savesubs;i++)
-		iv_array[i]->subvertex->error=255*i/iv_savesubs;
+		iv_array[i]->subvertex->error=255.f*i/iv_savesubs;
 	// ostatnim zrusi importance aby se neukladaly
 	for(unsigned i=iv_savesubs;i<iv_subs;i++)
 		iv_array[i]->subvertex->important=false;

@@ -2,9 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "geometry.h"
 #include "spline.h"
-#include "ldbsp.h"
+#include "World.h"
 
 #define nALLOC(A,B) (A *)malloc((B)*sizeof(A))
 #define ALLOC(A) nALLOC(A,1)

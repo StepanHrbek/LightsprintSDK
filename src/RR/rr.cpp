@@ -32,10 +32,10 @@
  #define GLMINUS(A) (A)
 #endif
 #include "ldmgf.h"
-#include "ldbsp.h"
 #include "misc.h"
 #include "RREngine.h"
 #include "surface.h"
+#include "World.h"
 #include "world2rrengine.h"
 
 #include "../RREngine/core.h"//!!!
