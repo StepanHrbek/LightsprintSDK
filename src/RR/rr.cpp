@@ -88,13 +88,13 @@ char *bp(char *fmt, ...)
 	return msg;
 }
 
-SubTriangle *locate_subtriangle(WORLD *w, int x,int y)
+SubTriangle *locate_subtriangle(WORLD *w, rrEngine::RRScene* scene, int x,int y)
 {
 	raster_Clear();
 	bool old_gouraud=d_gouraud; d_gouraud=false;
 	char old_meshing=d_meshing; d_meshing=2;
 	d_pointers=true;
-	render_world(w,0,false);
+	render_world(w,scene,0,false);
 	d_pointers=false;
 	d_meshing=old_meshing;
 	d_gouraud=old_gouraud;
@@ -163,7 +163,7 @@ void Scene::infoImprovement(char *buf)
    assert((improvingStatic!=NULL) == (phase!=0));
 }
 
-void Scene::draw(real quality)
+void Scene::draw(rrEngine::RRScene* scene, real quality)
 {
  float backgroundColor[3]={0,0,0};
   //spravne ma byt =(material ve kterem je kamera)->color;
@@ -174,10 +174,10 @@ void Scene::draw(real quality)
     int *o=raster_Output;
     raster_Output=__mirrorOutput;
     raster_Clear();
-    render_world(__world,0,true);
+    render_world(__world,scene,0,true);
     raster_Output=o;
     raster_Clear();
-    render_world(__world,0,false);
+    render_world(__world,scene,0,false);
     int *m=__mirrorOutput,*s=m+video_XRES*video_YRES;
     while (m<s) {
           U8 reflect_power=(*o)>>24;
@@ -197,7 +197,7 @@ void Scene::draw(real quality)
 #endif
   {
     raster_Clear();
-    render_world(__world,0,false);
+    render_world(__world,scene,0,false);
   }
 
  if(__infolevel && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames))
@@ -338,13 +338,13 @@ static bool endByAccuracy(Scene *scene)
  return scene->avgAccuracy()>endAccuracy;
 }*/
 
-static void captureTgaAfter(Scene *scene,char *name,real seconds,real minimalImprovementToShorten)
+static void captureTgaAfter(Scene *scene,rrEngine::RRScene* rrscene,char *name,real seconds,real minimalImprovementToShorten)
 {
  endAfter(seconds);
  scene->improveStatic(endByTime);
  if (scene->shortenStaticImprovementIfBetterThan(minimalImprovementToShorten))
     scene->finishStaticImprovement();
- scene->draw(0.4);
+ scene->draw(rrscene,0.4);
  video_Grab(name);
  __frameNumber++;
 }
@@ -545,10 +545,10 @@ bool frameCalculate(Scene *scene)
 
 // vykresli a pripadne grabne aktualni frame
 
-void frameDraw(Scene *scene)
+void frameDraw(Scene *scene, rrEngine::RRScene* rrscene)
 {
 // d_fast=!p_flyingObjects && !p_flyingCamera && n_dirtyGeometry;
- scene->draw(0.4);
+ scene->draw(rrscene,0.4);
  n_dirtyCamera=false;
  if(p_ffGrab && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames))
  {
@@ -639,11 +639,12 @@ void frameAdvance(Scene *scene)
 char  name[20];
 int   id=0;
 Scene *scene;
+rrEngine::RRScene *rrscene;
 
 void displayFunc(void)
 {
  frameSetup(scene);
- if(frameCalculate(scene)) frameDraw(scene);
+ if(frameCalculate(scene)) frameDraw(scene,rrscene);
  frameAdvance(scene);
 }
 
@@ -664,10 +665,10 @@ void keyboardFunc(unsigned char key, int x, int y)
   case ' ': if(preparing_capture)
             {
               preparing_capture=false;
-              captureTgaAfter(scene,"d01.tga",0,2);
-              captureTgaAfter(scene,"d1.tga",0.9,2);
-              captureTgaAfter(scene,"d10.tga",9,2);
-              captureTgaAfter(scene,"d100.tga",90,1);
+              captureTgaAfter(scene,rrscene,"d01.tga",0,2);
+              captureTgaAfter(scene,rrscene,"d1.tga",0.9,2);
+              captureTgaAfter(scene,rrscene,"d10.tga",9,2);
+              captureTgaAfter(scene,rrscene,"d100.tga",90,1);
             }
             break;
   case 'i': __infolevel=(__infolevel+1)%3;n_dirtyGeometry=true;break;
@@ -1000,6 +1001,7 @@ int main(int argc, char **argv)
  }
  g_batchGrab/=2; // zas to vynuluje pokud nebylo inkremetovano u -s i -g
  g_batchMerge/=2;// zas to vynuluje pokud nebylo inkremetovano u -v i -g
+ //!!!RRSetStateF(RRSSF_SUBDIVISION_SPEED,0.0001f);
 
  // nacte world
  DBG(printf("Loading bsp...\n"));
@@ -1025,7 +1027,7 @@ int main(int argc, char **argv)
  // zkonvertuje world na scene
  strcpy(p_ffName,scenename);
  p_ffName[strlen(p_ffName)-4]=0;// do p_ffName da jmeno sceny bez pripony
- RRScene* rrscene=convert_world2scene(__world,bp("%s.mgf",p_ffName));
+ rrscene=convert_world2scene(__world,bp("%s.mgf",p_ffName));
  if(!rrscene) help();
  scene=(Scene*)rrscene->getScene();
  if(!scene) help();

@@ -50,6 +50,7 @@ bool    d_gouraud=true;
 bool    d_gouraud3=false;
 char    d_needle=0;             // 0=pink 1=retusovat jehly (pomale kresleni)
 char    d_meshing=2;            // 0=source faces, 1=reflector meshing, 2=receiver meshing
+char    d_engine=0;             // output via rrengine interface, no direct access
 float   d_details=256;
 bool    d_pointers=false;       // jako barvu pouzit pointer na subtriangle
 void   *d_factors2=NULL;        // zobrazi faktory do nodu
@@ -115,6 +116,31 @@ real getBrightness(real color) // converts 0..infinity radiosity to 0..1 value f
 	if(color<0) return 0;
 	assert(IS_NUMBER(color));
 	return color;
+}
+
+void drawEngine(rrEngine::RRScene* scene, unsigned o, unsigned t, Triangle *f)
+{
+	Point3 v[3];
+	real brightness[3];
+	v[0]=f->to3d(0);
+	v[1]=f->to3d(1);
+	v[2]=f->to3d(2);
+	brightness[0]=getBrightness(scene->triangleGetRadiosity(o,t,0));
+	brightness[1]=getBrightness(scene->triangleGetRadiosity(o,t,1));
+	brightness[2]=getBrightness(scene->triangleGetRadiosity(o,t,2));
+#ifdef RASTERGL
+	raster_ZGouraud(v,f->grandpa->surface->diffuseReflectanceColorTable,brightness);
+#else
+	raster_POINT p[4];
+	raster_POLYGON p1,p2,p3;
+	p1.point=&p[1]; p1.next=&p2; 
+	p2.point=&p[2]; p2.next=&p3;
+	p3.point=&p[3]; p3.next=NULL;
+	p[1].x=v[0].x; p[1].y=v[0].y; p[1].z=v[0].z; p[1].u=brightness[0];
+	p[2].x=v[1].x; p[2].y=v[1].y; p[2].z=v[1].z; p[2].u=brightness[1];
+	p[3].x=v[2].x; p[3].y=v[2].y; p[3].z=v[2].z; p[3].u=brightness[2];
+	raster_ZGouraud(&p1,((Surface*)f->surface)->diffuseReflectanceColorTable);
+#endif
 }
 
 static ColorTable __needle_ct=new unsigned[C_INDICES];
@@ -812,12 +838,13 @@ void save_subtriangles(WORLD *w)
 
 // obecna fce na kresleni trianglu, pouzije tu metodu ktera je zrovna podporovana
 
-void inline draw_triangle(Triangle *f)
+void inline draw_triangle(rrEngine::RRScene* scene, unsigned o, unsigned t, Triangle *f)
 {
 	if(!f->surface) return;
 #ifdef TEST_SCENE
 	if (!f) return; // narazili jsme na vyrazeny triangl
 #endif
+	if(d_engine) {drawEngine(scene,o,t,f); return;}
 #ifdef RASTERGL
 	real ambient=f->radiosityIndirect();
 	//teoreticky by do flagu stacilo dat (n_dirtyColor || n_dirtyGeometry)?DF_REFRESHALL:0
@@ -843,7 +870,7 @@ void inline draw_triangle(Triangle *f)
 #endif
 }
 
-void render_object(Object* obj, MATRIX& im)
+void render_object(rrEngine::RRScene* scene, unsigned o, Object* obj, MATRIX& im)
 {
 	//raster_BeginTriangles();
 	for (unsigned j=0;j<obj->triangles;j++) if(obj->triangle[j].isValid){
@@ -852,12 +879,12 @@ void render_object(Object* obj, MATRIX& im)
 		if ((d_forceSides==0 && sideBits[obj->triangle[j].surface->sides][fromOut?0:1].renderFrom) ||
 			(d_forceSides==1 && fromOut) ||
 			(d_forceSides==2))
-			draw_triangle(&obj->triangle[j]);
+			draw_triangle(scene,o,j,&obj->triangle[j]);
 	}
 	//raster_EndTriangles();
 }
 
-void render_world(WORLD *w, int camera_id, bool mirrorFrame)
+void render_world(WORLD *w, rrEngine::RRScene* scene, int camera_id, bool mirrorFrame)
 {
 	// TIME t0=GETTIME;
 	MATRIX cm,im,om;
@@ -895,7 +922,7 @@ void render_world(WORLD *w, int camera_id, bool mirrorFrame)
 #endif
 				raster_SetMatrix(&cm,&im);
 			}
-			render_object(obj,im);
+			render_object(scene,i,obj,im);
 		}
 	}
 	/*

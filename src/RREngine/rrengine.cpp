@@ -216,7 +216,11 @@ void RRScene::compact()
 RRreal RRScene::triangleGetRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
 {
 	assert(object<scene->objects);
-	return scene->object[object]->triangle[triangle].topivertex[vertex]->radiosity();
+	Object* obj = scene->object[object];
+	assert(triangle<obj->triangles);
+	Triangle* tri = &obj->triangle[triangle];
+	if(vertex>=3) return (tri->energyDirect + tri->getEnergyDynamic()) / tri->area;
+	return tri->topivertex[vertex]->radiosity();
 }
 
 unsigned RRScene::getInstantRadiosityPoints(unsigned n, RRScene::InstantRadiosityPoint* point)

@@ -285,10 +285,7 @@ static void *insert_material(C_MATERIAL *cm)
 
 static void insert_polygon_convex(unsigned vertices, void **vertex_id, void *material)
 {
-	FACE *f,*o,*n; int i; f=get_Face(mgf_face_id++); n=f;
-
-	//printf("f[%d]: %d %d %d %d\n",mgf_face_id,
-	//vertex_id[0],vertex_id[1],vertex_id[2],vertex_id[3]);
+	FACE *f; int i; f=get_Face(mgf_face_id++);
 
 	f->vertex[0]=&vertex[(int)vertex_id[0]];
 	f->vertex[1]=&vertex[(int)vertex_id[1]];
@@ -297,8 +294,8 @@ static void insert_polygon_convex(unsigned vertices, void **vertex_id, void *mat
 	f->id=obj_face_id++;
 
 	for (i=3;i<vertices;i++) { 
-		o=n;
-		n=get_Face(mgf_face_id++);
+		FACE *n=get_Face(mgf_face_id++); // new -> possible realloc
+		FACE *o=get_Face(mgf_face_id-2);
 		n->id=obj_face_id++;
 		n->material=(int)material;
 		n->vertex[0]=o->vertex[0];
@@ -334,8 +331,15 @@ static float angle_change_abc2(float* a,float* b,float* c)
 // is 2d traingle abc clockwise = 1, ccw = 0 or invalid = 2 ?
 static char is_cw2(float* a,float* b,float* c)
 {
-	float r = angle_change_abc2(a,b,c);
-	return (r>10) ? 2 : ((r>0) ? 1 : 0);
+	float r;
+	char i,j,k;
+	if(a[0]==b[0] && a[0]==c[0]) return 2;
+	if(a[1]==b[1] && a[1]==c[1]) return 2;
+	r = angle_change_abc2(a,b,c); i = (r>10) ? 2 : ((r>0) ? 1 : 0);
+	r = angle_change_abc2(b,c,a); j = (r>10) ? 2 : ((r>0) ? 1 : 0);
+	r = angle_change_abc2(c,a,b); k = (r>10) ? 2 : ((r>0) ? 1 : 0);
+	if(i==j && j==k) return i;
+	return 2;
 }
 
 void cross3(float* a,float* b,float* r)
@@ -383,6 +387,7 @@ static void insert_polygon_dee(unsigned vertices, void **vertex_id, void *materi
 	double dx=0, dy=0, dz=0;
 	char poly_cw;
 	float ang = 0;
+	printf("-----\n");
 
 	// detect and select 2 important axes
 	for (i=0;i<vertices;i++)
@@ -442,11 +447,15 @@ static void insert_polygon_dee(unsigned vertices, void **vertex_id, void *materi
 			n->vertex[0]=&vertex[(intptr_t)vertex_id[a]];
 			n->vertex[1]=&vertex[(intptr_t)vertex_id[b]];
 			n->vertex[2]=&vertex[(intptr_t)vertex_id[c]];
-			//printf("Creating face %d %d %d.\n",a,b,c);
+			printf("Creating face %d %d %d.\n",a,b,c);
 			goto abc_good;
 			k_bad:;
 		}
-		for(k=0;k<vertices;k++) if(used[k]) created++;
+		for(k=0;k<vertices;k++) 
+		{
+			fprintf(stderr,"%d: %f %f %c\n",k,vertex_xy[k][0],vertex_xy[k][1],used[k]?' ':'!');
+			if(used[k]) created++;
+		}
 		fprintf(stderr,"Invalid polygon (created only %d out of %d triangles).\n",created,vertices-2);
 		break;
 		abc_good:;
