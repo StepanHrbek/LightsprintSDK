@@ -12,7 +12,7 @@ void raster_Clear();
 void raster_SetFOV(float xfov, float yfov);
 void raster_SetMatrix(raster_MATRIX *cam, raster_MATRIX *inv);
 //void raster_SetLight(real pos[3], real dir[3], real col[3]);
-void raster_SetMatrix(Point3 &cam,Vec3 &dir);
+//void raster_SetMatrix(Point3 &cam,Vec3 &dir);
 
 void raster_BeginTriangles();
 void raster_ZFlat(Point3 *p, unsigned *col, real brightness);

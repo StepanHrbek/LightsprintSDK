@@ -15,6 +15,10 @@
 #define BACK -1
 #define SPLIT 2
 
+#define _X_ 0
+#define _Y_ 1
+#define _Z_ 2
+
 typedef float MATRIX[4][4];
 
 typedef struct {
@@ -78,6 +82,14 @@ typedef struct {
         MATERIAL  *material;
         HIERARCHY *hierarchy;
         } WORLD;
+
+void   matrix_Invert(MATRIX s, MATRIX d);
+void   matrix_Mul(MATRIX a, MATRIX b);
+void   matrix_Init(MATRIX a);
+void   matrix_Copy(MATRIX s, MATRIX d);
+void   matrix_Move(MATRIX m, float dx, float dy, float dz);
+void   matrix_Rotate(MATRIX m, float a, int axis);
+void   matrix_Hierarchy(HIERARCHY *h, MATRIX m, float t);
 
 WORLD *load_world(char *name);
 

@@ -1,8 +1,6 @@
 #ifndef _LDMGF_H
 #define _LDMGF_H
 
-//#define real float //!!!
-
 #include "parser.h"
 #include "surface.h"
 

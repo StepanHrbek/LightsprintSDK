@@ -8,6 +8,8 @@
 
 #ifndef MG_VMAJOR
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -149,7 +149,7 @@ extern WORLD *load_world(char *name)
  if(!name) return NULL;
  f=fopen(name,"rb");
  if (!f) return NULL;
- fseek(f,strlen(sig),SEEK_SET);
+ fseek(f,(long)strlen(sig),SEEK_SET);
 
  world=ALLOC(WORLD);
 

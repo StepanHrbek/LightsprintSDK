@@ -1,7 +1,9 @@
 #ifndef _RASTER_H
 #define _RASTER_H
 
+#ifndef U8
 typedef unsigned char U8;
+#endif
 
 typedef float raster_MATRIX[4][4];
 
@@ -23,10 +25,11 @@ typedef struct raster_VERTEX {
 extern int *raster_Output;
 
 void raster_Init(int xres, int yres);
+void raster_Clear();
+
 void raster_SetFOV(float xfov, float yfov);
 void raster_SetMatrix(raster_MATRIX *cam, raster_MATRIX *inv);
-void raster_Clear();
-//!!!...
+
 int raster_ZGouraud(raster_POLYGON *p, unsigned *col);
 int raster_LGouraud(raster_POLYGON *p, int w, U8 *lightmap);
 int raster_ZFlat(raster_POLYGON *p, unsigned *col, float brightness);

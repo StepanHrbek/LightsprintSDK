@@ -36,20 +36,9 @@ typedef real Angle;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// matrix in 3d
+// matrix 4x4
 
 typedef float Matrix[4][4];
-
-#define _X_ 0
-#define _Y_ 1
-#define _Z_ 2
-
-void matrix_Invert(Matrix s, Matrix d);
-void matrix_Mul(Matrix a, Matrix b);
-void matrix_Init(Matrix a);
-void matrix_Copy(Matrix s, Matrix d);
-void matrix_Move(Matrix m, float dx, float dy, float dz);
-void matrix_Rotate(Matrix m, float a, int axis);
 
 //////////////////////////////////////////////////////////////////////////////
 //

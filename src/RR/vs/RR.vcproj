@@ -330,6 +330,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\render.cpp">
+			</File>
+			<File
 				RelativePath="..\rr.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -472,6 +475,9 @@
 					<Tool
 						Name="VCCustomBuildTool"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\render.h">
 			</File>
 			<File
 				RelativePath="..\subglut.h">
