@@ -16,10 +16,11 @@ all: makefile $(LIB)
 
 $(LIB): makefile $(OBJS)
 	ar rc $(LIB) $(OBJS)
-	-ranlib $(LIB)
+	ranlib $(LIB)
 
 clean:
-	del -f $(TMP)*.o $(LIB)
+	del $(TMP)*.o
+	del $(LIB)
 
 $(TMP)bsp.o: makefile
 

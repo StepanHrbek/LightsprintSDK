@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include "geometry.h"
-#include "surface.h"
+//#include "surface.h"
 #include "RREngine.h"
 #include "interpol.h"
 
@@ -77,7 +77,7 @@ extern bool __errors; // was there errors during batch work? used to set result
 
 extern unsigned __frameNumber; // frame number increased after each draw
 
-extern Color __colorFilter;
+extern RRColor __colorFilter;
   // set only via scene::selectColorFilter()
   // barva svetla jehoz sireni ve scene pocitame.
   // spocitat (grayscale) osvetleni zvlast pro r,g,b a slozit je presnejsi nez
@@ -478,8 +478,8 @@ public:
 	public:
 
 	// surface
-	Surface *surface;       // material at outer and inner side of Triangle
-	real    setSurface(Surface *s);
+	RRSurface *surface;       // material at outer and inner side of Triangle
+	real    setSurface(RRSurface *s);
 
 #ifndef ONLY_PLAYER
 	// hits
@@ -659,7 +659,7 @@ public:
 	void    resetStaticIllumination();
 
 	// intersections
-	RRIntersect*intersector;
+	rrIntersect::RRIntersect*intersector;
 	Bound   bound;
 	void    detectBounds();
 	bool    intersection(Point3 eye,Vec3 direction,Triangle *skip,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
@@ -695,7 +695,7 @@ public:
 	TObject **object;        // array of objects, first static, then dynamic
 	unsigned staticObjects;
 	unsigned objects;
-	Surface *surface;
+	RRSurface *surface;
 	unsigned surfaces;
 		real    energyEmitedByStatics;
 		real    energyEmitedByDynamics;

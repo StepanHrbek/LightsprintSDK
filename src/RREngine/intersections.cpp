@@ -4,6 +4,7 @@
 #include "core.h"
 #include "intersections.h"
 
+using namespace rrIntersect;
 namespace rrEngine
 {
 

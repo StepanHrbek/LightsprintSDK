@@ -2,8 +2,8 @@
 #define _WORLD2RRENGINE_H
 
 #include "ldbsp.h"
-#include "rrengine.h"
+#include "RREngine.h"
 
-RRScene *convert_world2scene(WORLD *w, char *material_mgf);
+rrEngine::RRScene *convert_world2scene(WORLD *w, char *material_mgf);
 
 #endif

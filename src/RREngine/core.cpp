@@ -103,7 +103,7 @@ bool  __errors=false; // was there errors during batch work? used to set result
 
 unsigned  __frameNumber=1; // frame number increased after each draw
 
-Color __colorFilter={0.33f,0.33f,0.33f}; // see core.h
+RRColor __colorFilter={0.33f,0.33f,0.33f}; // see core.h
 
 bool  __preserveFactors=false; // preserve factors in Factors::reset(), needed if we want resetStaticIllumination() but not factors
 
@@ -1259,7 +1259,7 @@ char Scene::selectColorFilter(int i)
 	// selects color component for further calculations
 	// you must resetStaticIllumination() and distribute() to get
 	//  static illumination for new filter
-	Color myColorFilter[4]={{1,0,0},{0,1,0},{0,0,1},{0.33f,0.33f,0.33f}};
+	RRColor myColorFilter[4]={{1,0,0},{0,1,0},{0,0,1},{0.33f,0.33f,0.33f}};
 	char myColorID[4]={'r','g','b','w'};
 	__colorFilter[0]=myColorFilter[i][0];
 	__colorFilter[1]=myColorFilter[i][1];
@@ -1269,7 +1269,7 @@ char Scene::selectColorFilter(int i)
 	//  to reflect only selected component (blue material to reflect only blue)
 	for(unsigned j=0;j<surfaces;j++)
 	{
-	  Surface *s=&surface[j];
+	  RRSurface *s=&surface[j];
 	  real r=s->diffuseReflectanceColor[0];
 	  real g=s->diffuseReflectanceColor[1];
 	  real b=s->diffuseReflectanceColor[2];
@@ -1292,7 +1292,7 @@ int Scene::turnLight(int whichLight,real intensity)
 	return light;
 }
 
-real Triangle::setSurface(Surface *s)
+real Triangle::setSurface(RRSurface *s)
 {
 	assert(area!=0);//setGeometry must be called before setSurface
 	assert(s);
@@ -2283,7 +2283,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	{
 	  case areaLight:
 	    {
-	    area:
+	    //area:
 #ifdef HOMOGENOUS_FILL
 	    real x,y;
 	    real cosa=sqrt(1-filler.GetCirclePoint(&x,&y));
@@ -2328,8 +2328,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	    // hack pro okna, rozptylene svetlo, vice shora, mene zdola
 	    rayVec3=normalized(Vec3(1,1,1));
 	    break;
-	    }
-	    */
+	    }	    
 	  case nearLight:
 	    {
 	    // hack pro diskolampu, bodovej zdroj je na souradnicich:
@@ -2353,7 +2352,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	    Vec3 rndvec=Vec3(rand()*r*2/RAND_MAX-r,rand()*r*2/RAND_MAX-r,rand()*r*2/RAND_MAX-r);
 	    rayVec3=normalized(srcPoint3-source->grandpa->surface->diffuseEmittancePoint+rndvec);
 	    break;
-	    }
+	    }*/
 	  default:
 	    // jiny typy zatim nejsou podporovany
 	    assert(0);

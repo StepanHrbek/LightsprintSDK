@@ -2,12 +2,33 @@
 #include <stdio.h>
 #include <string.h>
 #include "ldmgf.h"
-#include "rrengine.h"
-//#include "surface.h"
+#include "RREngine.h"
 #include "world2rrengine.h"
 #include "world2rrintersect.h"
 
+#include "../RREngine/geometry.h"//!!!
+using namespace rrEngine;
+
 #define DBG(a) a //!!!
+
+#define ColorTable unsigned * // 256 colors in common 32bit format (BGRA)
+
+struct Material
+{
+	real       transparency;
+	real       lightspeed;
+	RRColor    color;
+};
+
+struct Texture;
+struct Surface : public RRSurface
+{
+	ColorTable diffuseReflectanceColorTable;
+	Point3     diffuseEmittancePoint;
+	Material*  outside;
+	Material*  inside;
+	Texture*   texture;
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -16,7 +37,7 @@
 class WorldSceneObjectImporter : public WorldObjectImporter, public RRSceneObjectImporter
 {
 public:
-	WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobject, RRSurface** asurface, unsigned asurfaces);
+	WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces);
 	virtual ~WorldSceneObjectImporter();
 	
 	// must not change during object lifetime
@@ -28,11 +49,11 @@ public:
 
 private:
 	WORLD*      world;
-	RRSurface** surface;
+	Surface**   surface;
 	unsigned    surfaces;
 };
 
-WorldSceneObjectImporter::WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobject, RRSurface** asurface, unsigned asurfaces) : WorldObjectImporter(aobject)
+WorldSceneObjectImporter::WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces) : WorldObjectImporter(aobject)
 {
 	world = aworld;
 	surface = asurface;
@@ -112,8 +133,8 @@ static void fillSurface(Surface *s,C_MATERIAL *m)
 
 unsigned    scene_surfaces;
 unsigned    scene_surfaces_loaded;
-RRSurface*  scene_surface;
-RRSurface** scene_surface_ptr;
+Surface*    scene_surface;
+Surface**   scene_surface_ptr;
 
 static void *scene_add_surface(C_MATERIAL *m)
 {
@@ -170,7 +191,7 @@ static void load_materials(WORLD* world, char *material_mgf)
 	
 	for(int si=0;si<world->material_num;si++)
 	{
-		RRSurface* s = NULL;
+		Surface* s = NULL;
 		/*if(  (__hidematerial1 && expmatch(w->material[si].name,__hidematerial1)) 
 			|| (__hidematerial2 && expmatch(w->material[si].name,__hidematerial2))
 			|| (__hidematerial3 && expmatch(w->material[si].name,__hidematerial3)))

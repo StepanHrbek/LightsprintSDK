@@ -2,7 +2,10 @@
 #define _WORLD2RRINTERSECT_H
 
 #include "ldbsp.h"
-#include "rrengine.h"
+#include "RREngine.h"
+
+using namespace rrIntersect;
+using namespace rrEngine;
 
 //////////////////////////////////////////////////////////////////////////////
 //

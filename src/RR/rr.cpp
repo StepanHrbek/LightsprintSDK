@@ -36,24 +36,6 @@
  #define GLMINUS(A) (A)
 #endif
 
-#ifdef ONE
- #include "geometry.cpp"
- #include "core.cpp"
- #include "intersections.cpp"
-  #include "interpol.cpp"
- #ifdef SUPPORT_DYNAMIC
-  #include "dynamic.cpp"
- #endif
-#else
- #include "geometry.h"
- #include "core.h"
- #include "intersections.h"
-  #include "interpol.h"
- #ifdef SUPPORT_DYNAMIC
-  #include "dynamic.h"
- #endif
-#endif
-
 #ifdef RASTERGL
 #ifdef SUPPORT_LIGHTMAP
  #error accelerated lightmaps not supported
@@ -63,9 +45,11 @@
 #include "ldmgf.h"
 #include "ldbsp.h"
 #include "misc.h"
-#include "surface.h"
-#include "rrengine.h"
+#include "RREngine.h"
 #include "world2rrengine.h"
+
+//#include "../RREngine/geometry.h"//!!!
+using namespace rrEngine;
 
 WORLD  *__world=NULL;
 MATRIX  __identity;

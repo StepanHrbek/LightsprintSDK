@@ -155,9 +155,6 @@
 			<File
 				RelativePath="..\RREngine.cpp">
 			</File>
-			<File
-				RelativePath="..\surface.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -179,9 +176,6 @@
 			</File>
 			<File
 				RelativePath="..\include\RREngine.h">
-			</File>
-			<File
-				RelativePath="..\surface.h">
 			</File>
 		</Filter>
 		<Filter
