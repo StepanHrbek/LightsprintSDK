@@ -13,8 +13,8 @@
 // intersections
 //
 
-! zastaraly kod, prinest novy z prace
-
+//!!! zastaraly kod, prinest novy z prace
+/*
 // global variables used only by intersections to speed up recursive calls
 
 Triangle *i_skip;
@@ -50,7 +50,7 @@ static inline bool intersect_triangle(Triangle *t)
 #define TEST(x) {if((LT(0,x,-E) && LT(1,x,-E) && LT(0,x,-E)) || (!LT(0,x,+E) && !LT(1,x,+E) && !LT(0,x,+E))) return false;}
 		TEST(x);
 		TEST(y);
-		TEST(z);*/
+		TEST(z);* /
 
 	switch(t->intersectByte)
 	{
@@ -126,7 +126,7 @@ static inline bool intersect_triangle(Triangle *t)
 	i_hitTriangle=t;
 	return true;
 }
-*/
+* /
 
 static inline real intersect_plane_distance(Normal n)
 {
@@ -188,7 +188,7 @@ begin:
 	unsigned trianglesEnd=t->getTrianglesEnd();
 	while((unsigned)triangle<trianglesEnd)
 	{
-		if (*triangle!=i_skip /*&& (*triangle)->intersectionTime!=__shot*/ && intersect_triangle(*triangle))
+		if (*triangle!=i_skip /*&& (*triangle)->intersectionTime!=__shot* / && intersect_triangle(*triangle))
 		{
 			i_hitDistance=distancePlane;
 			return true;
@@ -290,7 +290,7 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	return hit;
 }
 
-
+*/
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -300,12 +300,13 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 
 class Intersector
 {
+public:
 	Intersector(RRObjectImporter* aimporter);
 	~Intersector();
 
 	bool            intersect(RRRay* ray, RRHit* hit);
 	
-	RRObjectImporter* aimporter;	
+	RRObjectImporter* importer;	
 };
 
 Intersector::Intersector(RRObjectImporter* aimporter)
@@ -313,7 +314,7 @@ Intersector::Intersector(RRObjectImporter* aimporter)
 	importer = aimporter;
 }
 
-bool intersect(RRRay* ray, RRHit* hit)
+bool Intersector::intersect(RRRay* ray, RRHit* hit)
 {
 	return false;
 }
