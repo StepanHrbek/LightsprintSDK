@@ -4,7 +4,8 @@
 #include "core.h"
 #include "intersections.h"
 
-#define USE_BSP
+#define USE_LIB
+//#define USE_BSP
 //#define USE_KD
 #define DBG(a) //a
 
@@ -155,7 +156,7 @@ static inline real intersect_plane_distance(Normal n)
 
 #ifdef USE_BSP
 
-#define DELTA_BSP 0.01 // tolerance to numeric errors (absolute distance in scenespace)
+#define DELTA_BSP 0.01f // tolerance to numeric errors (absolute distance in scenespace)
 // higher number = slower intersection
 // (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
 
@@ -210,8 +211,8 @@ begin:
 
 	// test plane
 	i_hitPoint3d=i_eye+i_direction*distancePlane;
-	unsigned trianglesEnd=t->getTrianglesEnd();
-	while((unsigned)triangle<trianglesEnd)
+	void* trianglesEnd=t->getTrianglesEnd();
+	while(triangle<trianglesEnd)
 	{
 		if (*triangle!=i_skip /*&& (*triangle)->intersectionTime!=__shot*/ && intersect_triangle_bsp(*triangle))
 		{
@@ -320,6 +321,62 @@ begin:
 bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
   Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 {
+#ifdef USE_LIB
+RRHit hit2;
+	{RRRay ray;
+	RRHit hit;
+	ray.ex = eye.x;
+	ray.ey = eye.y;
+	ray.ez = eye.z;
+	ray.dx = direction.x;
+	ray.dy = direction.y;
+	ray.dz = direction.z;
+	ray.skip = ((unsigned)((U64)skip-(U64)triangle))/sizeof(Triangle);
+	ray.distanceMin = 0;
+	ray.distanceMax = *hitDistance;
+	assert(intersector);
+	bool res = intersector->intersect(&ray,&hit);
+	if(res)
+	{
+		assert(hit.triangle>=0 && hit.triangle<triangles);
+		*hitTriangle = &triangle[hit.triangle];
+		// compenasate for our rotations
+		switch((*hitTriangle)->rotations)
+		{
+			case 0:
+				break;
+			case 1:
+				{float u=hit.u;
+				float v=hit.v;
+				hit.u=v;
+				hit.v=1-u-v;}
+				break;
+			case 2:
+				{float u=hit.u;
+				float v=hit.v;
+				hit.u=1-u-v;
+				hit.v=u;}
+				break;
+			default:
+				assert(0);
+		}
+#ifndef HITS_FIXED
+		// prepocet u,v ze souradnic (rightside,leftside)
+		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
+		assert(hit.triangle>=0 && hit.triangle<triangles);
+		hit.u=hit.u*triangle[hit.triangle].u2.x+hit.v*triangle[hit.triangle].v2.x;
+		hit.v=hit.v*triangle[hit.triangle].v2.y;
+#endif
+		hitPoint2d->u = hit.u;
+		hitPoint2d->v = hit.v;
+		*hitOuterSide = hit.outerSide;
+		*hitDistance = hit.distance;
+	}
+	return res;
+	hit2=hit;}
+	//!!!
+#endif // USE_LIB
+
 	DBG(printf("\n"));
 	__shot++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp

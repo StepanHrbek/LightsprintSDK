@@ -63,9 +63,14 @@
 #include "ldmgf.h"
 #include "ldbsp.h"
 #include "misc.h"
-#include "rrengine.h"
 #include "surface.h"
-#include "world2rrengine.h"
+
+//#define HISTORIC_LOADER
+#define RRENGINE_LOADER
+#ifdef RRENGINE_LOADER
+ #include "rrengine.h"
+ #include "world2rrengine.h"
+#endif
 
 WORLD  *__world=NULL;
 MATRIX  __identity;
@@ -1237,7 +1242,8 @@ void fillColorTable(unsigned *ct,double cx,double cy,real rs)
  }
 }
 
-/*
+#ifdef HISTORIC_LOADER
+
 ColorTable createColorTable(double cx,double cy,real rs)
 {
  ColorTable ct=new unsigned[C_INDICES];
@@ -1383,7 +1389,7 @@ int duplicit=0;
 int verticesKilled=0;//unused
 #endif
 
-Scene *convert_world2scene(WORLD *w,char *material_mgf)
+Scene *convert_world2scene_historic(WORLD *w,char *material_mgf)
 {
 	WAIT;
 	Scene *scene=new Scene;
@@ -1559,7 +1565,7 @@ Scene *convert_world2scene(WORLD *w,char *material_mgf)
            printf("# Removing invalid triangle %d in object %d (reason %d), disabling BSP!\n",fi,o,geom);
            printf("  [%.2f %.2f %.2f] [%.2f %.2f %.2f] [%.2f %.2f %.2f]\n",w->object[o].vertex[f->vertex[0]->id].x,w->object[o].vertex[f->vertex[0]->id].y,w->object[o].vertex[f->vertex[0]->id].z,w->object[o].vertex[f->vertex[1]->id].x,w->object[o].vertex[f->vertex[1]->id].y,w->object[o].vertex[f->vertex[1]->id].z,w->object[o].vertex[f->vertex[2]->id].x,w->object[o].vertex[f->vertex[2]->id].y,w->object[o].vertex[f->vertex[2]->id].z);
            obj->bspTree=NULL; // invalid geometry -> invalid bspTree
-           // kdTree is still valid, but is has to be parsed more carefully (slowly)
+           // kdTree is still valid, but it has to be parsed more carefully (slowly)
            f->source_triangle=NULL;
            --obj->triangles;
            #ifdef SUPPORT_DYNAMIC
@@ -1605,9 +1611,6 @@ Scene *convert_world2scene(WORLD *w,char *material_mgf)
      // preprocessuje objekt
      DBG(printf(" bounds...\n"));
      obj->detectBounds();
-     #ifndef SUPPORT_INTERPOL
-     if(c_useClusters) 
-     #endif
      {
        DBG(printf(" edges...\n"));
        obj->buildEdges(); // build edges only for clusters and/or interpol
@@ -1618,10 +1621,8 @@ Scene *convert_world2scene(WORLD *w,char *material_mgf)
        obj->buildClusters(); 
        // clusters first, ivertices then (see comment in Cluster::insert)
      }
-     #ifdef SUPPORT_INTERPOL
      DBG(printf(" ivertices...\n"));
      obj->buildTopIVertices();
-     #endif
      // priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
      obj->id=o;
      obj->name=w->object[o].name;
@@ -1667,7 +1668,8 @@ Scene *convert_world2scene(WORLD *w,char *material_mgf)
  WAIT;
  return scene;
 }
-*/
+
+#endif // HISTORIC_LOADER
 
 // zmeni dynamicky objekty na staticky
 
@@ -2435,11 +2437,27 @@ int main(int argc, char **argv)
  // zkonvertuje world na scene
  strcpy(p_ffName,scenename);
  p_ffName[strlen(p_ffName)-4]=0;// do p_ffName da jmeno sceny bez pripony
- //scene=convert_world2scene(__world,bp("%s.mgf",p_ffName));
+#ifdef RRENGINE_LOADER
  RRScene* rrscene=convert_world2scene(__world,bp("%s.mgf",p_ffName));
  if(!rrscene) help();
  scene=(Scene*)rrscene->getScene();
+#endif
+#ifdef HISTORIC_LOADER
+ scene=convert_world2scene_historic(__world,bp("%s.mgf",p_ffName));
+#endif
  if(!scene) help();
+
+ /*FILE* f=fopen("h:/c/rr/data/zcrash","wb");
+ fprintf(f,"triangles %d, vertices %d\n",scene->object[0]->triangles,scene->object[0]->vertices);
+ for(unsigned i=0;i<scene->object[0]->triangles;i++)
+ {
+	 fprintf(f," %d: [%f %f %f] [%f %f %f] [%f %f %f]\n",i,
+	 scene->object[0]->triangle[i].s3.x,scene->object[0]->triangle[i].s3.y,scene->object[0]->triangle[i].s3.z,
+	 scene->object[0]->triangle[i].u3.x,scene->object[0]->triangle[i].u3.y,scene->object[0]->triangle[i].u3.z,
+	 scene->object[0]->triangle[i].v3.x,scene->object[0]->triangle[i].v3.y,scene->object[0]->triangle[i].v3.z
+	 );
+ }
+ fclose(f);*/
 
  g_lights=g_separLights?scene->turnLight(-1,0):1;// zjisti kolik je ve scene svetel (sviticich materialu), pokud je nema separovat tak necha jedno
 

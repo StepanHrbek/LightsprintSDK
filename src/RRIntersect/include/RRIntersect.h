@@ -66,4 +66,20 @@ private:
 	void*           hook;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRIntersectStats - statistics for library calls
+
+class RRIntersectStats
+{
+public:
+	RRIntersectStats();
+	static unsigned shots;
+	static unsigned bsp;
+	static unsigned kd;
+	static unsigned tri;
+};
+
+extern RRIntersectStats intersectStats;
+
 #endif

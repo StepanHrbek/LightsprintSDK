@@ -1,6 +1,13 @@
 #ifndef _GEOMETRY_H
 #define _GEOMETRY_H
 
+#ifndef MAX
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
+#ifndef MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#endif
+
 #define S8           signed char
 #define U8           unsigned char
 #define S16          short
@@ -58,17 +65,17 @@ struct Vec2
 	real    x;
 	real    y;
 
-	Vec2()                   {}
-	Vec2(real ax,real ay)    {x=ax;y=ay;}
-	Vec2 operator +(Vec2 a)  {return Vec2(x+a.x,y+a.y);}
-	Vec2 operator -(Vec2 a)  {return Vec2(x-a.x,y-a.y);}
-	Vec2 operator *(real f)  {return Vec2(x*f,y*f);}
-	Vec2 operator /(real f)  {return Vec2(x/f,y/f);}
-	Vec2 operator +=(Vec2 a) {x+=a.x;y+=a.y;return *this;}
-	Vec2 operator -=(Vec2 a) {x-=a.x;y-=a.y;return *this;}
-	Vec2 operator *=(real f) {x*=f;y*=f;return *this;}
-	Vec2 operator /=(real f) {x/=f;y/=f;return *this;}
-	bool operator ==(Vec2 a) {return a.x==x && a.y==y;}
+	Vec2();
+	Vec2(real ax,real ay);
+	Vec2 operator +(Vec2 a);
+	Vec2 operator -(Vec2 a);
+	Vec2 operator *(real f);
+	Vec2 operator /(real f);
+	Vec2 operator +=(Vec2 a);
+	Vec2 operator -=(Vec2 a);
+	Vec2 operator *=(real f);
+	Vec2 operator /=(real f);
+	bool operator ==(Vec2 a);
 };
 
 Vec2 operator -(Vec2 a);

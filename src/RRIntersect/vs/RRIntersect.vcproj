@@ -133,12 +133,18 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath="..\geometry.cpp">
+			</File>
+			<File
 				RelativePath="..\RRIntersect.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\geometry.h">
+			</File>
 			<File
 				RelativePath="..\include\RRIntersect.h">
 			</File>

@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
-#include "misc.h" // MAX
+//#include "misc.h" // MAX
 #include "geometry.h"
 
 //#define FAST_BOUND                // fast approximate bounding sphere intersection
@@ -10,6 +10,69 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 // 2d vector
+
+Vec2::Vec2()
+{
+}
+
+Vec2::Vec2(real ax,real ay)
+{
+	x=ax;
+	y=ay;
+}
+
+Vec2 Vec2::operator +(Vec2 a)
+{
+	return Vec2(x+a.x,y+a.y);
+}
+
+Vec2 Vec2::operator -(Vec2 a)
+{
+	return Vec2(x-a.x,y-a.y);
+}
+
+Vec2 Vec2::operator *(real f)
+{
+	return Vec2(x*f,y*f);
+}
+
+Vec2 Vec2::operator /(real f)
+{
+	return Vec2(x/f,y/f);
+}
+
+Vec2 Vec2::operator +=(Vec2 a)
+{
+	x+=a.x;
+	y+=a.y;
+	return *this;
+}
+
+Vec2 Vec2::operator -=(Vec2 a)
+{
+	x-=a.x;
+	y-=a.y;
+	return *this;
+}
+
+Vec2 Vec2::operator *=(real f)
+{
+	x*=f;
+	y*=f;
+	return *this;
+}
+
+Vec2 Vec2::operator /=(real f)
+{
+	x/=f;
+	y/=f;
+	return *this;
+}
+
+bool Vec2::operator ==(Vec2 a)
+{
+	return a.x==x && a.y==y;
+}
 
 Vec2 operator -(Vec2 a)
 {

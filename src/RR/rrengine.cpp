@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define DBG(a) a //!!!
-#define c_useClusters false
+#define c_useClusters true//false
 #define scene ((Scene*)_scene)
 
 RRScene::RRScene()
@@ -28,7 +28,6 @@ OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	DBG(printf(" vertices...\n"));
 	for (int v=0;v<obj->vertices;v++) 
 	{
-		//!!!w->object[o].vertex[v].id=v;
 		importer->getVertex(v,obj->vertex[v].x,obj->vertex[v].y,obj->vertex[v].z);
 #ifdef TEST_SCENE
 		//if(v<10000) // too slow for big scenes
@@ -53,7 +52,7 @@ OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 #ifdef SUPPORT_DYNAMIC
 	int ttop=obj->triangles-1;
 #endif
-     for (int fi=0;fi<obj->triangles;fi++) {
+	for (int fi=0;fi<obj->triangles;fi++) {
 		unsigned v0,v1,v2,si;
 		importer->getTriangle(fi,v0,v1,v2,si);
 		Surface* s=importer->getSurface(si);
@@ -100,36 +99,36 @@ OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	}
 	// create bsp tree
 	//!!!
-
+	   
 #ifdef SUPPORT_DYNAMIC
-     obj->trianglesEmiting=tbot;
-     obj->transformMatrix=&w->object[o].transform;
-     obj->inverseMatrix=&w->object[o].inverse;
-     // vyzada si prvni transformaci
-     obj->matrixDirty=true;
+	obj->trianglesEmiting=tbot;
+	obj->transformMatrix=&w->object[o].transform;
+	obj->inverseMatrix=&w->object[o].inverse;
+	// vyzada si prvni transformaci
+	obj->matrixDirty=true;
 #endif
-     // preprocessuje objekt
-     DBG(printf(" bounds...\n"));
-     obj->detectBounds();
-     {
-       DBG(printf(" edges...\n"));
-       obj->buildEdges(); // build edges only for clusters and/or interpol
-     }
-     if(c_useClusters) 
-     {
-       DBG(printf(" clusters...\n"));
-       obj->buildClusters(); 
-       // clusters first, ivertices then (see comment in Cluster::insert)
-     }
-     DBG(printf(" ivertices...\n"));
-     obj->buildTopIVertices();
-     // priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
-     obj->id=0;//!!!
-     obj->name=NULL;
+	// preprocessuje objekt
+	DBG(printf(" bounds...\n"));
+	obj->detectBounds();
+	{
+		DBG(printf(" edges...\n"));
+		obj->buildEdges(); // build edges only for clusters and/or interpol
+	}
+	if(c_useClusters) 
+	{
+		DBG(printf(" clusters...\n"));
+		obj->buildClusters(); 
+		// clusters first, ivertices then (see comment in Cluster::insert)
+	}
+	DBG(printf(" ivertices...\n"));
+	obj->buildTopIVertices();
+	// priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
+	obj->id=0;//!!!
+	obj->name=NULL;
 	// bsp tree
 	DBG(printf(" tree...\n"));
-	obj->intersector = new RRObject(importer);
-     // vlozi objekt do sceny
+	obj->intersector = new RRObject(importer);   //!!! won't be freed
+	// vlozi objekt do sceny
 #ifdef SUPPORT_DYNAMIC
 	if (w->object[o].pos.num!=1 || w->object[o].rot.num!=1) 
 	{

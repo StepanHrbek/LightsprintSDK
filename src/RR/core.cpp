@@ -819,7 +819,9 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 
 	// zjisti splitvertex
 	// pokud nam nekdo prikazuje jakej pouzit, fce to vi a rekne nam to
+	DBGLINE
 	int rot=getSplitVertexSlow();
+	DBGLINE
 
 	// split the longest side, calculate splita and splitb
 	// split line is { [u,v] | splita*u+splitb*v=1 }
@@ -873,6 +875,7 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	// a tady jeste jednou
 	nothing(r);
 
+	DBGLINE
 	splita=splitvector.y/r;
 	splitb=-splitvector.x/r;
 #ifdef HITS_FIXED
@@ -881,7 +884,9 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	splita=grandpa->u2.x*splita/HITS_UV_MAX;
 #endif
 	// create subtriangles
+	DBGLINE
 	SubTriangle *sa=new SubTriangle(this,grandpa);
+	DBGLINE
 	sa->uv[0]=uv[rot];
 	sa->uv[1]=uv[(rot+1)%3];
 	sa->uv[2]=(uv[(rot+1)%3]+uv[(rot+2)%3])/2;
@@ -898,7 +903,9 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	sb->area=area/2;
 	sub[r<0?0:1]=sb;
 	// create subvertex
+	DBGLINE
 	createSubvertex(asubvertex,rot);
+	DBGLINE
 }
 
 #ifndef ONLY_PLAYER
@@ -2409,7 +2416,9 @@ static bool setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *f
 //	bool doSplit=difBtwAvgHitAndCen*destination->phits->count>perimeter/MESHING;
 	if(doSplit)
 	{
+		DBGLINE
 		destination->splitGeometry(NULL);
+		DBGLINE
 		Hits *phits2=allocHitsLevel();
 		destination->splitHits(phits,phits2);
 		setFormFactorsTo(source,sourceVertices,factors,SUBTRIANGLE(destination->sub[0]),phits2,shots);
@@ -2420,6 +2429,7 @@ static bool setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *f
 	}
 	else
 	{
+		DBGLINE
 		real ff;
 		/*if(sourceVertices)
 		{

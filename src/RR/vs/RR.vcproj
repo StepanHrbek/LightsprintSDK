@@ -632,6 +632,9 @@
 				RelativePath="..\interpol.h">
 			</File>
 			<File
+				RelativePath="..\intersections.h">
+			</File>
+			<File
 				RelativePath="..\ldbsp.h">
 			</File>
 			<File

@@ -187,13 +187,13 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf)
 	// load surfaces
 	load_materials(world, material_mgf);
 	// load geometry
-	RRScene *scene=new RRScene;
+	RRScene *rrscene=new RRScene();
 	DBG(printf("Loading geometry...\n"));
 	for (int o=0;o<world->object_num;o++) 
 	{
 		WorldSceneObjectImporter* importer = new WorldSceneObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces);
-		OBJECT_HANDLE handle = scene->objectCreate(importer);
-		world->object[o].obj = scene->getObject(handle);
+		OBJECT_HANDLE handle = rrscene->objectCreate(importer);
+		world->object[o].obj = rrscene->getObject(handle);
 	}	
-	return scene;
+	return rrscene;
 }

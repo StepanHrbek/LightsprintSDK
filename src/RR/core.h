@@ -597,36 +597,36 @@ struct Edges
 
 struct BspTree
 {
-  unsigned size:30;
-  unsigned front:1;
-  unsigned back:1;
-  BspTree *next()           {return (BspTree *)((char *)this+size);}
-  BspTree *getFrontAdr()    {return this+1;}
-  BspTree *getFront()       {return front?getFrontAdr():NULL;}
-  BspTree *getBackAdr()     {return (BspTree *)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
-  BspTree *getBack()        {return back?getBackAdr():NULL;}
-  Triangle **getTriangles() {return (Triangle **)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
-  unsigned getTrianglesEnd(){return (unsigned)this+size;}
+	unsigned  size:30;
+	unsigned  front:1;
+	unsigned  back:1;
+	BspTree*  next()           {return (BspTree *)((char *)this+size);}
+	BspTree*  getFrontAdr()    {return this+1;}
+	BspTree*  getFront()       {return front?getFrontAdr():NULL;}
+	BspTree*  getBackAdr()     {return (BspTree *)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
+	BspTree*  getBack()        {return back?getBackAdr():NULL;}
+	Triangle**getTriangles()   {return (Triangle **)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+	void*     getTrianglesEnd(){return (char*)this+size;}
 };
 
 struct KdTree
 {
-  U32      size:30;  //< size of this tree in bytes
-  U32      axis:2;   //< splitting axis, 0=x, 1=y, 2=z, 3=no more splitting
-  union {
-    U32       splitVertexNum;     //< !isLeaf -> index into vertex array, vertex that defines splitting plane
-    real      splitValue;         //< !isLeaf -> value readen from splitVertex for speed
-    U32       leafTriangleNum[1]; //< isLeaf -> (size-sizeof(size))/sizeof(data[0]) indices into triangle array
-    Triangle *leafTrianglePtr[1]; //< isLeaf -> leafTriangleNum converted to pointers for speed
-  };
-  bool     isLeaf()         {return axis==3;}
-  KdTree  *next()           {return (KdTree *)((char *)this+size);}
-  KdTree  *getFrontAdr()    {return this+1;}
-  KdTree  *getFront()       {return isLeaf()?NULL:getFrontAdr();}
-  KdTree  *getBackAdr()     {return (KdTree *)(isLeaf()?NULL:((char*)getFrontAdr()+getFrontAdr()->size));}
-  KdTree  *getBack()        {return isLeaf()?NULL:getBackAdr();}
-  Triangle **getTriangles() {return leafTrianglePtr;}
-  void    *getTrianglesEnd(){return (char*)this+size;}
+	U32       size:30;  //< size of this tree in bytes
+	U32       axis:2;   //< splitting axis, 0=x, 1=y, 2=z, 3=no more splitting
+	union {
+		U32       splitVertexNum;     //< !isLeaf -> index into vertex array, vertex that defines splitting plane
+		real      splitValue;         //< !isLeaf -> value readen from splitVertex for speed
+		U32       leafTriangleNum[1]; //< isLeaf -> (size-sizeof(size))/sizeof(data[0]) indices into triangle array
+		Triangle* leafTrianglePtr[1]; //< isLeaf -> leafTriangleNum converted to pointers for speed
+	};
+	bool      isLeaf()         {return axis==3;}
+	KdTree*   next()           {return (KdTree *)((char *)this+size);}
+	KdTree*   getFrontAdr()    {return this+1;}
+	KdTree*   getFront()       {return isLeaf()?NULL:getFrontAdr();}
+	KdTree*   getBackAdr()     {return (KdTree *)(isLeaf()?NULL:((char*)getFrontAdr()+getFrontAdr()->size));}
+	KdTree*   getBack()        {return isLeaf()?NULL:getBackAdr();}
+	Triangle**getTriangles()   {return leafTrianglePtr;}
+	void*     getTrianglesEnd(){return (char*)this+size;}
 };
 
 //////////////////////////////////////////////////////////////////////////////
