@@ -111,10 +111,10 @@ namespace rrEngine
 		void          objectDestroy(OBJECT_HANDLE object);
 
 		// get intersection
-		typedef       rrIntersect::RRHit INTERSECT(rrIntersect::RRRay*);
+		typedef       bool INTERSECT(rrIntersect::RRRay*);
 		typedef       OBJECT_HANDLE ENUM_OBJECTS(rrIntersect::RRRay*, INTERSECT);
 		void          setObjectEnumerator(ENUM_OBJECTS enumerator);
-		rrIntersect::RRHit intersect(rrIntersect::RRRay* ray);
+		bool          intersect(rrIntersect::RRRay* ray);
 		
 		// calculate radiosity
 		typedef       bool ENDFUNC(class Scene*);

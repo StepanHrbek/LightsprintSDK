@@ -49,7 +49,7 @@ namespace rrIntersect
 	public:
 		IntersectLinear(RRObjectImporter* aimporter);
 		virtual ~IntersectLinear();
-		virtual bool      intersect(RRRay* ray, RRHit* hit);
+		virtual bool      intersect(RRRay* ray);
 	protected:
 		RRObjectImporter* importer;
 		unsigned          triangles;

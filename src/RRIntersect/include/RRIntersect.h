@@ -52,24 +52,15 @@ namespace rrIntersect
 
 	struct RRRay
 	{
-		float           ex,ey,ez;
-		float           dx,dy,dz;
-		float           distanceMin,distanceMax;
+		float           rayOrigin[3];
+		float           rayDir[3];
+		float           hitDistanceMin,hitDistanceMax;
+		float           hitPoint[3];
+		float           hitU,hitV;
+		float           hitDistance;
 		TRIANGLE_HANDLE skip;
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	// RRRay - hit from intersection.
-
-	struct RRHit
-	{
-		float           x,y,z;
-		float           u,v;
-		float           distance;
-		bool            outerSide;
-		TRIANGLE_HANDLE triangle;
+		TRIANGLE_HANDLE hitTriangle;
+		bool            hitOuterSide;
 	};
 
 
@@ -81,7 +72,7 @@ namespace rrIntersect
 	{
 	public:
 		//virtual ~Intersect() = 0;
-		virtual bool intersect(RRRay* ray, RRHit* hit) = 0;
+		virtual bool intersect(RRRay* ray) = 0;
 	};
 
 	RRIntersect* newIntersect(RRObjectImporter* importer);

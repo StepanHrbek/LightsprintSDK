@@ -46,42 +46,41 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 
 
 	RRRay ray;
-	RRHit hit;
-	ray.ex = eye.x;
-	ray.ey = eye.y;
-	ray.ez = eye.z;
-	ray.dx = direction.x;
-	ray.dy = direction.y;
-	ray.dz = direction.z;
+	ray.rayOrigin[0] = eye.x;
+	ray.rayOrigin[1] = eye.y;
+	ray.rayOrigin[2] = eye.z;
+	ray.rayDir[0] = direction.x;
+	ray.rayDir[1] = direction.y;
+	ray.rayDir[2] = direction.z;
 #ifdef _MSC_VER
 	ray.skip = ((unsigned)((U64)skip-(U64)triangle))/sizeof(Triangle);
 #else
 	ray.skip = ((unsigned)((U32)skip-(U32)triangle))/sizeof(Triangle);
 #endif
-	ray.distanceMin = 0;
-	ray.distanceMax = *hitDistance;
+	ray.hitDistanceMin = 0;
+	ray.hitDistanceMax = *hitDistance;
 	assert(intersector);
-	bool res = intersector->intersect(&ray,&hit);
+	bool res = intersector->intersect(&ray);
 	if(res)
 	{
-		assert(hit.triangle>=0 && hit.triangle<triangles);
-		*hitTriangle = &triangle[hit.triangle];
+		assert(ray.hitTriangle>=0 && ray.hitTriangle<triangles);
+		*hitTriangle = &triangle[ray.hitTriangle];
 		// compenasate for our rotations
 		switch((*hitTriangle)->rotations)
 		{
 			case 0:
 				break;
 			case 1:
-				{float u=hit.u;
-				float v=hit.v;
-				hit.u=v;
-				hit.v=1-u-v;}
+				{float u=ray.hitU;
+				float v=ray.hitV;
+				ray.hitU=v;
+				ray.hitV=1-u-v;}
 				break;
 			case 2:
-				{float u=hit.u;
-				float v=hit.v;
-				hit.u=1-u-v;
-				hit.v=u;}
+				{float u=ray.hitU;
+				float v=ray.hitV;
+				ray.hitU=1-u-v;
+				ray.hitV=u;}
 				break;
 			default:
 				assert(0);
@@ -93,14 +92,14 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 #else
 		// prepocet u,v ze souradnic (rightside,leftside)
 		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
-		assert(hit.triangle>=0 && hit.triangle<triangles);
-		hit.u=hit.u*triangle[hit.triangle].u2.x+hit.v*triangle[hit.triangle].v2.x;
-		hit.v=hit.v*triangle[hit.triangle].v2.y;
+		assert(ray.hitTriangle>=0 && ray.hitTriangle<triangles);
+		ray.hitU=ray.hitU*triangle[ray.hitTriangle].u2.x+ray.hitV*triangle[ray.hitTriangle].v2.x;
+		ray.hitV=ray.hitV*triangle[ray.hitTriangle].v2.y;
 #endif
-		hitPoint2d->u = hit.u;
-		hitPoint2d->v = hit.v;
-		*hitOuterSide = hit.outerSide;
-		*hitDistance = hit.distance;
+		hitPoint2d->u = ray.hitU;
+		hitPoint2d->v = ray.hitV;
+		*hitOuterSide = ray.hitOuterSide;
+		*hitDistance = ray.hitDistance;
 	}
 	return res;
 }

@@ -330,10 +330,10 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 // but not with *skip and not more far than *hitDistance
 //bool Object::intersection(Point3 eye,Vec3 direction,Triankle *skip,
 //  Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
-bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
+bool IntersectLinear::intersect(RRRay* ray)
 {
-	Point3 eye = *(Point3*)(&ray->ex);
-	Vec3 direction = *((Point3*)(&ray->dx));
+	Point3 eye = *(Point3*)(ray->rayOrigin);
+	Vec3 direction = *((Point3*)(ray->rayDir));
 
 	DBG(printf("\n"));
 	intersectStats.shots++;
@@ -349,7 +349,7 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 
 	bool result=false;
 	assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
-	i_hitDistance=ray->distanceMax;
+	i_hitDistance=ray->hitDistanceMax;
 	for(unsigned t=0;t<triangles;t++)
 		if(t!=ray->skip)
 		{
@@ -368,8 +368,8 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 					if(intersect_triangleP(&triangleP[t],&t2))
 					{
 						result=true;
-						hit->triangle = t;
-						i_hitDistance=distance;
+						ray->hitTriangle = t;
+						ray->hitDistance = distance;
 						DBG(printf("%d",t));
 					}
 				}			
@@ -386,8 +386,8 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 					if(intersect_triangleNP(&triangleNP[t],&t2))
 					{
 						result=true;
-						hit->triangle = t;
-						i_hitDistance=distance;
+						ray->hitTriangle = t;
+						ray->hitDistance = distance;
 						DBG(printf("%d",t));
 					}
 				}			
@@ -400,8 +400,8 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 					if(intersect_triangleSRLNP(&triangleSRLNP[t]))
 					{
 						result=true;
-						hit->triangle = t;
-						i_hitDistance=distance;
+						ray->hitTriangle = t;
+						ray->hitDistance = distance;
 						DBG(printf("%d",t));
 					}
 				}			
@@ -420,12 +420,11 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
 		//!!!hitPoint2d->u=i_hitU*i_hitTriangle->u2.x+i_hitV*i_hitTriangle->v2.x;
 		//hitPoint2d->v=i_hitV*i_hitTriangle->v2.y;
-		hit->u = i_hitU;
-		hit->v = i_hitV;
+		ray->hitU = i_hitU;
+		ray->hitV = i_hitV;
 #endif
 		assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
-		hit->outerSide = i_hitOuterSide;
-		hit->distance = i_hitDistance;
+		ray->hitOuterSide = i_hitOuterSide;
 	}
 
 	return result;

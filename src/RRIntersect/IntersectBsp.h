@@ -27,7 +27,7 @@ namespace rrIntersect
 	public:
 		IntersectBsp(RRObjectImporter* aimporter);
 		~IntersectBsp();
-		virtual bool      intersect(RRRay* ray, RRHit* hit);
+		virtual bool      intersect(RRRay* ray);
 	protected:
 		bool              intersect_bspNP(BspTree *t,real distanceMax);
 		BspTree*          tree;

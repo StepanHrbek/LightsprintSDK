@@ -228,17 +228,17 @@ IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimpor
 // but not with *skip and not more far than *hitDistance
 //bool Object::intersection(Point3 eye,Vec3 direction,Triankle *skip,
 //  Triankle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
-bool IntersectBsp::intersect(RRRay* ray, RRHit* hit)
+bool IntersectBsp::intersect(RRRay* ray)
 {
 	// fallback when bspgen failed (run from readonly disk etc)
 	if(!tree) 
 	{
 		DBG(printf("Bsp fallback to linear."));
-		return IntersectLinear::intersect(ray,hit);
+		return IntersectLinear::intersect(ray);
 	}
 
-	Point3 eye = *(Point3*)(&ray->ex);
-	Vec3 direction = *((Point3*)(&ray->dx));
+	Point3 eye = *(Point3*)(ray->rayOrigin);
+	Vec3 direction = *((Point3*)(ray->rayDir));
 
 	DBG(printf("\n"));
 	intersectStats.shots++;
@@ -263,14 +263,14 @@ bool IntersectBsp::intersect(RRRay* ray, RRHit* hit)
 		i_distanceMin=0;
 		i_eye2=i_eye;
 		i_triangleSRLNP=triangleSRLNP;
-		result=intersect_bspSRLNP(tree,ray->distanceMax);
+		result=intersect_bspSRLNP(tree,ray->hitDistanceMax);
 	} else 
 	if(triangleNP)
 	{
 		i_skip=ray->skip;
 		i_distanceMin=0;
 		i_eye2=i_eye;
-		result=intersect_bspNP(tree,ray->distanceMax);
+		result=intersect_bspNP(tree,ray->hitDistanceMax);
 	} else {
 		assert(0);
 		result = false;
@@ -287,13 +287,13 @@ bool IntersectBsp::intersect(RRRay* ray, RRHit* hit)
 		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
 		//!!!hitPoint2d->u=i_hitU*i_hitTriangle->u2.x+i_hitV*i_hitTriangle->v2.x;
 		//hitPoint2d->v=i_hitV*i_hitTriangle->v2.y;
-		hit->u = i_hitU;
-		hit->v = i_hitV;
+		ray->hitU = i_hitU;
+		ray->hitV = i_hitV;
 #endif
 		assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
-		hit->outerSide = i_hitOuterSide;
-		hit->triangle = i_hitTriangle;
-		hit->distance = i_hitDistance;
+		ray->hitOuterSide = i_hitOuterSide;
+		ray->hitTriangle = i_hitTriangle;
+		ray->hitDistance = i_hitDistance;
 	}
 
 	return result;
