@@ -97,7 +97,7 @@ extern void video_WriteBuf(char *text)
  if(!video_inited)
    printf("%s\n",text);
  else
-   textout(video_Bmp,font,text,0,0,0x7F7F7F);
+   textout_ex(video_Bmp,font,text,0,0,0x7F7F7F,0);
 }
 
 extern void video_WriteScreen(char *text)
@@ -105,7 +105,7 @@ extern void video_WriteScreen(char *text)
  if(!video_inited)
    printf("%s\n",text);
  else
-   textout(screen,font,text,0,0,0x7F7F7F);
+   textout_ex(screen,font,text,0,0,0x7F7F7F,0);
 }
 
 extern void video_Grab(char *name)

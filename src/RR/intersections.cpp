@@ -49,7 +49,11 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	ray.dx = direction.x;
 	ray.dy = direction.y;
 	ray.dz = direction.z;
+#ifdef _MSC_VER
 	ray.skip = ((unsigned)((U64)skip-(U64)triangle))/sizeof(Triangle);
+#else
+	ray.skip = ((unsigned)((U32)skip-(U32)triangle))/sizeof(Triangle);
+#endif
 	ray.distanceMin = 0;
 	ray.distanceMax = *hitDistance;
 	assert(intersector);
