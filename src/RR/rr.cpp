@@ -2541,6 +2541,7 @@ int main(int argc, char **argv)
      //printf("kshot=%d kbsp=%d ktri=%d hak1=%d hak2=%d hak3=%d hak4=%d\n",__shot/1000,__bsp/1000,__tri/1000,__hak1/1000,__hak2/1000,__hak3/1000,__hak4/1000);
      extern void i_dbg_print();
      i_dbg_print();
+     fgetc(stdin);
      return 0;
    }
    //prehraje 5 snimku

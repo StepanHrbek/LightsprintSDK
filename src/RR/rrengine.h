@@ -18,6 +18,10 @@ class RRSceneObjectImporter : virtual public RRObjectImporter
 public:
 	// must not change during object lifetime
 	virtual RRSurface*   getSurface(unsigned s) = 0;
+
+	// may change during object lifetime
+	virtual const float* getWorldMatrix() = 0;
+	virtual const float* getInvWorldMatrix() = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////

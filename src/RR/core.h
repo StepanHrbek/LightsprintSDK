@@ -667,7 +667,7 @@ struct Object
 	void    resetStaticIllumination();
 
 	// intersections
-	RRObject*intersector;
+	RRIntersect*intersector;
 	BspTree *bspTree;
 	KdTree  *kdTree;
 	Bound   bound;

@@ -127,7 +127,7 @@ OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	obj->name=NULL;
 	// bsp tree
 	DBG(printf(" tree...\n"));
-	obj->intersector = new RRObject(importer);   //!!! won't be freed
+	obj->intersector = newIntersect(importer);   //!!! won't be freed
 	// vlozi objekt do sceny
 #ifdef SUPPORT_DYNAMIC
 	if (w->object[o].pos.num!=1 || w->object[o].rot.num!=1) 

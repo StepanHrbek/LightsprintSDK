@@ -1,8 +1,12 @@
 #ifndef _RRINTERSECT_H
 #define _RRINTERSECT_H
 
+#define USE_BSP
+//#define USE_KD
+
 typedef unsigned OBJECT_HANDLE;
 typedef unsigned TRIANGLE_HANDLE;
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -19,11 +23,8 @@ public:
 	virtual void         getVertex(unsigned i, float& x, float& y, float& z) = 0;
 	virtual unsigned     getNumTriangles() = 0;
 	virtual void         getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2, unsigned& s) = 0;
-
-	// may change during object lifetime
-	virtual const float* getWorldMatrix() = 0;
-	virtual const float* getInvWorldMatrix() = 0;
 };
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -36,6 +37,7 @@ struct RRRay
 	float           distanceMin,distanceMax;
 	TRIANGLE_HANDLE skip;
 };
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -50,21 +52,20 @@ struct RRHit
 	TRIANGLE_HANDLE triangle;
 };
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObject - single object able to calculate intersections.
+// RRIntersect - single object able to calculate intersections.
 
-class RRObject
+class RRIntersect
 {
 public:
-	RRObject(RRObjectImporter* aimporter);
-	~RRObject();
-	
-	bool            intersect(RRRay* ray, RRHit* hit);
-
-private:
-	void*           hook;
+	//virtual ~Intersect() = 0;
+	virtual bool intersect(RRRay* ray, RRHit* hit) = 0;
 };
+
+RRIntersect* newIntersect(RRObjectImporter* importer);
+
 
 //////////////////////////////////////////////////////////////////////////////
 //

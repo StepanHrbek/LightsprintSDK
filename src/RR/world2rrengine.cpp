@@ -19,7 +19,12 @@ public:
 	WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobject, RRSurface** asurface, unsigned asurfaces);
 	virtual ~WorldSceneObjectImporter();
 	
+	// must not change during object lifetime
 	virtual RRSurface* getSurface(unsigned si);
+
+	// may change during object lifetime
+	virtual const float* getWorldMatrix();
+	virtual const float* getInvWorldMatrix();
 
 private:
 	WORLD*      world;
@@ -45,6 +50,16 @@ RRSurface* WorldSceneObjectImporter::getSurface(unsigned si)
 	assert(si<surfaces);
 	if(si>=surfaces) return surface[0];
 	return surface[si];
+}
+
+const float* WorldSceneObjectImporter::getWorldMatrix()
+{
+	return object->matrix[0];
+}
+
+const float* WorldSceneObjectImporter::getInvWorldMatrix()
+{
+	return object->inverse[0];
 }
 
 //////////////////////////////////////////////////////////////////////////////

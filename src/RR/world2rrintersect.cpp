@@ -48,13 +48,3 @@ void WorldObjectImporter::getTriangle(unsigned i, unsigned& v0, unsigned& v1, un
 	v2=object->face[i].vertex[2]->id;
 	si=object->face[i].material;
 }
-
-const float* WorldObjectImporter::getWorldMatrix()
-{
-	return object->matrix[0];
-}
-
-const float* WorldObjectImporter::getInvWorldMatrix()
-{
-	return object->inverse[0];
-}

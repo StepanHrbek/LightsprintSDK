@@ -20,11 +20,7 @@ public:
 	virtual unsigned     getNumTriangles();
 	virtual void         getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2, unsigned& si);
 
-	// may change during object lifetime
-	virtual const float* getWorldMatrix();
-	virtual const float* getInvWorldMatrix();
-
-private:
+protected:
 	OBJECT* object;
 };
 
