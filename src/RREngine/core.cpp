@@ -1390,6 +1390,70 @@ Node *Reflectors::best(bool distributing,real avgAccuracy,real improveBig,real i
 	return best;
 }
 
+struct NodeQ {Node* node; real f,q;};
+int CompareNodeQ(const void* elem1, const void* elem2)
+{
+	return (((NodeQ*)elem2)->q < ((NodeQ*)elem1)->q) ? -1 : 1;
+}
+
+unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point)
+{
+#define ENERGY(node) fabs(node->shooter->energyToDiffuse+node->shooter->energyDiffused)
+	if(!points) return 0;
+	if(!nodes) return 0;
+	assert(point);
+	NodeQ* sortedNode=new NodeQ[nodes];
+	real f = 0;
+	for(unsigned i=0;i<nodes;i++)
+	{
+		real energy=ENERGY(node[i]);
+		real fertility=energy;//!!!
+		f+=fertility;
+		sortedNode[i].q=energy;//!!!
+		sortedNode[i].f=fertility;
+		sortedNode[i].node=node[i];
+	}
+	qsort(sortedNode,nodes,sizeof(NodeQ*),CompareNodeQ);
+	//!!!good order?
+	f/=nodes;
+	unsigned generatedPoints = 0;
+	for(unsigned i=0;i<nodes;i++)
+	{
+		unsigned generatePoints = (unsigned)(sortedNode[i].f/f);
+		generatePoints = MAX(generatePoints,1);
+		generatePoints = MIN(generatePoints,points-generatedPoints);
+		for(unsigned j=0;j<generatePoints;j++)
+		{
+			//!!! udelat fce getSourcePoint()/getSourceDir() a sdilet ji s hlavnim kanonyrem
+			unsigned u=rand();
+			unsigned v=rand();
+			if(u+v>RAND_MAX)
+			{
+				u=RAND_MAX-u;
+				v=RAND_MAX-v;
+			}
+			Node* source1 = sortedNode[i].node;
+			if(IS_CLUSTER(source1)) source1 = CLUSTER(source1)->randomTriangle();
+			SubTriangle* source = SUBTRIANGLE(source1);
+			Point2 srcPoint2 = source->uv[0]+source->u2*(u/(float)RAND_MAX)+source->v2*(v/(float)RAND_MAX);
+			Point3 srcPoint3 = source->grandpa->to3d(srcPoint2);
+			*(Vec3*)point[generatedPoints].pos = srcPoint3;
+			*(Vec3*)point[generatedPoints].norm = sortedNode[i].node->grandpa->getN3();
+			real c = ENERGY(sortedNode[i].node)/generatePoints;
+			*(Vec3*)point[generatedPoints].col = Vec3(c,c,c);
+			generatedPoints++;
+		}
+	}
+	delete[] sortedNode;
+	return generatedPoints;
+#undef ENERGY
+}
+
+unsigned Scene::getInstantRadiosityPoints(unsigned n, RRScene::InstantRadiosityPoint* point)
+{
+	return staticReflectors.getInstantRadiosityPoints(n,point);
+}
+
 bool Reflectors::findFactorsTo(Node *n)
 {
 	for(unsigned i=0;i<nodes;i++)

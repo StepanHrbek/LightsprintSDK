@@ -568,6 +568,7 @@ public:
 	void    removeObject(Object *o);
 	void    removeSubtriangles();
 	bool    findFactorsTo(Node *n);
+	unsigned getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point);
 
 	private:
 		unsigned nodesAllocated;
@@ -684,6 +685,17 @@ namespace rrEngine
 {
 #endif
 
+/*/////////////////////////////////////////////////////////////////////////////
+//
+// instant radiosity
+
+struct InstantRadiosityPoint
+{
+	Vec3 pos;
+	Vec3 norm;
+	Vec3 col;
+};*/
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // scene
@@ -747,8 +759,9 @@ public:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
 	void    draw(real quality);
-//	void    play(real fps,real quality,bool endfunc(Scene *)); //improve and draw until endfunc
 	void    resetStaticIllumination(bool preserveFactors);
+
+	unsigned getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point);
 
 	// get info
 	void    infoScene(char *buf);

@@ -110,6 +110,12 @@ namespace rrEngine
 		~RRScene();
 
 		typedef unsigned OBJECT_HANDLE;
+		struct InstantRadiosityPoint
+		{
+			float pos[3];
+			float norm[3];
+			float col[3];
+		};
 
 		// import geometry
 		OBJECT_HANDLE objectCreate(RRSceneObjectImporter* importer);
@@ -126,8 +132,11 @@ namespace rrEngine
 		void          sceneResetStatic();
 		bool          sceneImproveStatic(ENDFUNC endfunc);
 
-		// read results
+		// read vertex results
 		float         triangleGetRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex);
+
+		// read instant radiosity points
+		unsigned      getInstantRadiosityPoints(unsigned n, InstantRadiosityPoint* point);
 
 		// misc: misc
 		void          compact();
