@@ -34,13 +34,9 @@ BspTree* load(FILE *f)
 // (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
 
 TriangleSRLNP*  i_triangleSRLNP;
-real            i_distanceMin; // bsp: starts as 0, may only increase during bsp traversal
-Point3          i_eye2;        // bsp: precalculated i_eye+i_direction*i_distanceMin
-TRIANGLE_HANDLE i_skip;
-TRIANGLE_HANDLE i_hitTriangle;
 
-static bool intersect_bspSRLNP(BspTree *t,real distanceMax)
-// input:                t, i_eye, i_eye2=i_eye, i_direction, i_skip, i_distanceMin=0, distanceMax
+static bool intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax)
+// input:                t, i_eye, i_eye2=i_eye, i_direction, i_skip, distanceMax
 // returns:              true if ray hits t
 // modifies when hit:    (i_eye2, i_distanceMin, i_hitPoint3d) i_hitU, i_hitV, i_hitOuterSide, i_hitDistance
 // modifies when no hit: (i_eye2, i_distanceMin, i_hitPoint3d)
@@ -61,10 +57,10 @@ begin:
 	assert(i_triangleSRLNP);
 	Normal n=i_triangleSRLNP[triangle[0]].n3;
 	real distancePlane=intersect_plane_distance(n);
-	bool frontback=normalValueIn(n,i_eye2)>0;
+	bool frontback=normalValueIn(n,i_eye+i_direction*ray->hitDistanceMin)>0;
 
 	// test only one half
-	if (distancePlane<i_distanceMin || distancePlane>distanceMax)
+	if (distancePlane<ray->hitDistanceMin || distancePlane>distanceMax)
 	{
 		if(frontback)
 		{
@@ -80,9 +76,9 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->front && intersect_bspSRLNP(front,distancePlane+DELTA_BSP)) return true;
+		if(t->front && intersect_bspSRLNP(ray,front,distancePlane+DELTA_BSP)) return true;
 	} else {
-		if(t->back && intersect_bspSRLNP(back,distancePlane+DELTA_BSP)) return true;
+		if(t->back && intersect_bspSRLNP(ray,back,distancePlane+DELTA_BSP)) return true;
 	}
 
 	// test plane
@@ -90,10 +86,13 @@ begin:
 	void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
-		if (*triangle!=i_skip && intersect_triangleSRLNP(i_triangleSRLNP+*triangle))
+		if (*triangle!=ray->skip && intersect_triangleSRLNP(i_triangleSRLNP+*triangle))
 		{
-			i_hitTriangle=*triangle;
-			i_hitDistance=distancePlane;
+			ray->hitU = i_hitU;
+			ray->hitV = i_hitV;
+			ray->hitOuterSide = i_hitOuterSide;
+			ray->hitTriangle = *triangle;
+			ray->hitDistance = distancePlane;
 			return true;
 		}
 		triangle++;
@@ -108,12 +107,11 @@ begin:
 		if(!t->front) return false;
 		t=front;
 	}
-	i_distanceMin=distancePlane-DELTA_BSP;
-	i_eye2=i_eye+i_direction*i_distanceMin; // precalculation helps -0.4%cpu
+	ray->hitDistanceMin = distancePlane-DELTA_BSP;
 	goto begin;
 }
 
-bool IntersectBsp::intersect_bspNP(BspTree *t,real distanceMax)
+bool IntersectBsp::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax)
 {
 begin:
 	intersectStats.bsp++;
@@ -128,10 +126,10 @@ begin:
 	assert(triangleNP);
 	Normal n=triangleNP[triangle[0]].n3;
 	real distancePlane=intersect_plane_distance(n);
-	bool frontback=normalValueIn(n,i_eye2)>0;
+	bool frontback=normalValueIn(n,i_eye+i_direction*ray->hitDistanceMin)>0;
 
 	// test only one half
-	if (distancePlane<i_distanceMin || distancePlane>distanceMax)
+	if (distancePlane<ray->hitDistanceMin || distancePlane>distanceMax)
 	{
 		if(frontback)
 		{
@@ -147,9 +145,9 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->front && intersect_bspNP(front,distancePlane+DELTA_BSP)) return true;
+		if(t->front && intersect_bspNP(ray,front,distancePlane+DELTA_BSP)) return true;
 	} else {
-		if(t->back && intersect_bspNP(back,distancePlane+DELTA_BSP)) return true;
+		if(t->back && intersect_bspNP(ray,back,distancePlane+DELTA_BSP)) return true;
 	}
 
 	// test plane
@@ -159,10 +157,13 @@ begin:
 	{
 		RRObjectImporter::TriangleSRL t2;
 		importer->getTriangleSRL(*triangle,&t2);
-		if (*triangle!=i_skip && intersect_triangleNP(triangleNP+*triangle,&t2))
+		if (*triangle!=ray->skip && intersect_triangleNP(triangleNP+*triangle,&t2))
 		{
-			i_hitTriangle=*triangle;
-			i_hitDistance=distancePlane;
+			ray->hitU = i_hitU;
+			ray->hitV = i_hitV;
+			ray->hitOuterSide = i_hitOuterSide;
+			ray->hitTriangle = *triangle;
+			ray->hitDistance = distancePlane;
 			return true;
 		}
 		triangle++;
@@ -177,8 +178,7 @@ begin:
 		if(!t->front) return false;
 		t=front;
 	}
-	i_distanceMin=distancePlane-DELTA_BSP;
-	i_eye2=i_eye+i_direction*i_distanceMin; // precalculation helps -0.4%cpu
+	ray->hitDistanceMin=distancePlane-DELTA_BSP;
 	goto begin;
 }
 
@@ -243,9 +243,6 @@ bool IntersectBsp::intersect(RRRay* ray)
 
 	i_eye         = *(Point3*)(ray->rayOrigin);
 	i_direction   = *((Point3*)(ray->rayDir));
-	i_skip        = ray->skip;
-	i_distanceMin = ray->hitDistanceMin;
-	i_eye2        = i_eye;
 
 	bool hit = false;
 	assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
@@ -253,22 +250,13 @@ bool IntersectBsp::intersect(RRRay* ray)
 	if(triangleSRLNP)
 	{
 		i_triangleSRLNP=triangleSRLNP;
-		hit = intersect_bspSRLNP(tree,ray->hitDistanceMax);
+		hit = intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
 	} else 
 	if(triangleNP)
 	{
-		hit = intersect_bspNP(tree,ray->hitDistanceMax);
+		hit = intersect_bspNP(ray,tree,ray->hitDistanceMax);
 	} else {
 		assert(0);
-	}
-
-	if(hit)
-	{
-		ray->hitU = i_hitU;
-		ray->hitV = i_hitV;
-		ray->hitOuterSide = i_hitOuterSide;
-		ray->hitTriangle = i_hitTriangle;
-		ray->hitDistance = i_hitDistance;
 	}
 
 	return hit;
