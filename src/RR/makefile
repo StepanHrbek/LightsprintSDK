@@ -98,7 +98,7 @@ endif
 
 all: $(BIN)rr.exe $(BIN)dotga.exe $(BIN)dosmooth.exe
 
-$(BIN)rr.exe: $(OBJS) $(MAKE)
+$(BIN)rr.exe: $(OBJS) $(MAKE) ../../lib/libRRIntersect.a ../../lib/libRREngine.a
 	gcc $(OBJS) $(LIBS) -o $(BIN)rr.exe
 
 rr.o: rr.cpp $(HHHS) $(MAKE)

@@ -28,17 +28,17 @@ namespace rrIntersect
 	};
 
 	// global variables used only by intersections to speed up recursive calls
-	extern TRIANGLE_HANDLE i_skip;
+	// intersector input
+	//extern RRRay     i_ray;
 	extern Point3    i_eye;
 	extern Vec3      i_direction;
-	extern real      i_distanceMin; // bsp: starts as 0, may only increase during bsp traversal
-	extern Point3    i_eye2;        // bsp: precalculated i_eye+i_direction*i_distanceMin
 	extern real      i_hitDistance;
+	extern Point3    i_hitPoint3d;
+	// intersector output
+	//extern RRHit   i_hit;
 	extern bool      i_hitOuterSide;
-	extern TRIANGLE_HANDLE i_hitTriangle;
 	extern real      i_hitU;
 	extern real      i_hitV;
-	extern Point3    i_hitPoint3d;
 	real intersect_plane_distance(Normal n);
 	bool intersect_triangleSRLNP(TriangleSRLNP *t);
 	bool intersect_triangleNP(TriangleNP *t, RRObjectImporter::TriangleSRL* t2);

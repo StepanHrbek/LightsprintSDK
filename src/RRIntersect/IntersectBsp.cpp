@@ -33,7 +33,11 @@ BspTree* load(FILE *f)
 // higher number = slower intersection
 // (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
 
-TriangleSRLNP* i_triangleSRLNP;
+TriangleSRLNP*  i_triangleSRLNP;
+real            i_distanceMin; // bsp: starts as 0, may only increase during bsp traversal
+Point3          i_eye2;        // bsp: precalculated i_eye+i_direction*i_distanceMin
+TRIANGLE_HANDLE i_skip;
+TRIANGLE_HANDLE i_hitTriangle;
 
 static bool intersect_bspSRLNP(BspTree *t,real distanceMax)
 // input:                t, i_eye, i_eye2=i_eye, i_direction, i_skip, i_distanceMin=0, distanceMax

@@ -172,14 +172,10 @@ void TriangleSRLNP::setGeometry(Point3 *a,Point3 *b,Point3* c)
 
 
 // global variables used only by intersections to speed up recursive calls
-TRIANGLE_HANDLE i_skip;
 Point3    i_eye;
 Vec3      i_direction;
-real      i_distanceMin; // bsp: starts as 0, may only increase during bsp traversal
-Point3    i_eye2;        // bsp: precalculated i_eye+i_direction*i_distanceMin
 real      i_hitDistance;
 bool      i_hitOuterSide;
-TRIANGLE_HANDLE i_hitTriangle;
 real      i_hitU;
 real      i_hitV;
 Point3    i_hitPoint3d;
@@ -372,7 +368,7 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 					if(intersect_triangleP(&triangleP[t],&t2))
 					{
 						result=true;
-						i_hitTriangle=t;
+						hit->triangle = t;
 						i_hitDistance=distance;
 						DBG(printf("%d",t));
 					}
@@ -390,7 +386,7 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 					if(intersect_triangleNP(&triangleNP[t],&t2))
 					{
 						result=true;
-						i_hitTriangle=t;
+						hit->triangle = t;
 						i_hitDistance=distance;
 						DBG(printf("%d",t));
 					}
@@ -404,7 +400,7 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 					if(intersect_triangleSRLNP(&triangleSRLNP[t]))
 					{
 						result=true;
-						i_hitTriangle=t;
+						hit->triangle = t;
 						i_hitDistance=distance;
 						DBG(printf("%d",t));
 					}
@@ -429,7 +425,6 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 #endif
 		assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
 		hit->outerSide = i_hitOuterSide;
-		hit->triangle = i_hitTriangle;
 		hit->distance = i_hitDistance;
 	}
 
