@@ -97,20 +97,20 @@ struct Vec3
 	real    y;
 	real    z;
 
-	Vec3();
-	Vec3(real ax,real ay,real az);
-	Vec3 operator +(Vec3 a);
-	Vec3 operator -(Vec3 a);
-	Vec3 operator *(real f);
-	Vec3 operator /(real f);
-	Vec3 operator +=(Vec3 a);
-	Vec3 operator -=(Vec3 a);
-	Vec3 operator *=(real f);
-	Vec3 operator /=(real f);
-	bool operator ==(Vec3 a);
+	Vec3()                        {}
+	Vec3(real ax,real ay,real az) {x=ax;y=ay;z=az;}
+	Vec3 operator +(Vec3 a)       {return Vec3(x+a.x,y+a.y,z+a.z);}
+	Vec3 operator -(Vec3 a)       {return Vec3(x-a.x,y-a.y,z-a.z);}
+	Vec3 operator *(real f)       {return Vec3(x*f,y*f,z*f);}
+	Vec3 operator /(real f)       {return Vec3(x/f,y/f,z/f);}
+	Vec3 operator +=(Vec3 a)      {x+=a.x;y+=a.y;z+=a.z;return *this;}
+	Vec3 operator -=(Vec3 a)      {x-=a.x;y-=a.y;z-=a.z;return *this;}
+	Vec3 operator *=(real f)      {x*=f;y*=f;z*=f;return *this;}
+	Vec3 operator /=(real f)      {x/=f;y/=f;z/=f;return *this;}
+	bool operator ==(Vec3 a)      {return a.x==x && a.y==y && a.z==z;}
 	Vec3 transformed(MATRIX *m);
 	Vec3 transform(MATRIX *m);
-	real operator [](int i);
+	real operator [](int i)       {return ((real*)this)[i];}
 };
 
 Vec3 operator -(Vec3 a);
@@ -137,7 +137,7 @@ struct Normal : public Vec3
 {
 	real    d;
 
-	void operator =(Vec3 a);
+	void operator =(Vec3 a)   {x=a.x;y=a.y;z=a.z;}
 };
 
 real normalValueIn(Normal n,Point3 a);
@@ -158,9 +158,9 @@ struct Vertex : public Point3
 	real    sx;
 	real    sy;
 
-	void operator =(Point3 p);
+	void operator =(Point3 a)            {x=a.x;y=a.y;z=a.z;}
 	void    transformToCache(MATRIX *m);
-	Point3  transformedFromCache();
+	Point3  transformedFromCache()       {return Point3(tx,ty,tz);}
 };
 
 //////////////////////////////////////////////////////////////////////////////

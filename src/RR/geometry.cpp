@@ -63,17 +63,6 @@ Angle angleBetween(Vec2 a,Vec2 b)
 //
 // 3d vector
 
-Vec3::Vec3()
-{
-}
-
-Vec3::Vec3(real ax,real ay,real az)
-{
-	x=ax;
-	y=ay;
-	z=az;
-}
-
 Vec3 Vec3::transformed(MATRIX *m)
 {
 	return Vec3(
@@ -91,68 +80,6 @@ Vec3 Vec3::transform(MATRIX *m)
 	z = _x*(*m)[0][2] + _y*(*m)[1][2] + _z*(*m)[2][2] + (*m)[3][2];
 
 	return *this;
-}
-
-Vec3 Vec3::operator +(Vec3 a)
-{
-	return Vec3(x+a.x,y+a.y,z+a.z);
-}
-
-Vec3 Vec3::operator -(Vec3 a)
-{
-	return Vec3(x-a.x,y-a.y,z-a.z);
-}
-
-Vec3 Vec3::operator *(real f)
-{
-	return Vec3(x*f,y*f,z*f);
-}
-
-Vec3 Vec3::operator /(real f)
-{
-	return Vec3(x/f,y/f,z/f);
-}
-
-Vec3 Vec3::operator +=(Vec3 a)
-{
-	x+=a.x;
-	y+=a.y;
-	z+=a.z;
-	return *this;
-}
-
-Vec3 Vec3::operator -=(Vec3 a)
-{
-	x-=a.x;
-	y-=a.y;
-	z-=a.z;
-	return *this;
-}
-
-Vec3 Vec3::operator *=(real f)
-{
-	x*=f;
-	y*=f;
-	z*=f;
-	return *this;
-}
-
-Vec3 Vec3::operator /=(real f)
-{
-	x/=f;
-	y/=f;
-	z/=f;
-	return *this;
-}
-
-bool Vec3::operator ==(Vec3 a)
-{
-	return a.x==x && a.y==y && a.z==z;
-}
-
-real Vec3::operator [](int i)
-{
-	return ((real*)this)[i];
 }
 
 Vec3 operator -(Vec3 a)
@@ -211,13 +138,6 @@ Angle angleBetween(Vec3 a,Vec3 b)
 //
 // normal in 3d
 
-void Normal::operator =(Vec3 a)
-{
-	x=a.x;
-	y=a.y;
-	z=a.z;
-}
-
 real normalValueIn(Normal n,Point3 a)
 {
 	return a.x*n.x+a.y*n.y+a.z*n.z+n.d;
@@ -227,23 +147,11 @@ real normalValueIn(Normal n,Point3 a)
 //
 // vertex in 3d
 
-void Vertex::operator =(Point3 a)
-{
-	x=a.x;
-	y=a.y;
-	z=a.z;
-}
-
 void Vertex::transformToCache(MATRIX *m)
 {
 	tx=x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0] + (*m)[3][0];
 	ty=x*(*m)[0][1] + y*(*m)[1][1] + z*(*m)[2][1] + (*m)[3][1];
 	tz=x*(*m)[0][2] + y*(*m)[1][2] + z*(*m)[2][2] + (*m)[3][2];
-}
-
-Point3 Vertex::transformedFromCache()
-{
-	return Point3(tx,ty,tz);
 }
 
 //////////////////////////////////////////////////////////////////////////////
