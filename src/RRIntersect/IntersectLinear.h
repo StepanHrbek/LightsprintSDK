@@ -28,14 +28,14 @@ namespace rrIntersect
 	};
 
 	// global variables used only by intersections to speed up recursive calls
-	extern TriangleP*i_skip;
+	extern TRIANGLE_HANDLE i_skip;
 	extern Point3    i_eye;
 	extern Vec3      i_direction;
 	extern real      i_distanceMin; // bsp: starts as 0, may only increase during bsp traversal
 	extern Point3    i_eye2;        // bsp: precalculated i_eye+i_direction*i_distanceMin
 	extern real      i_hitDistance;
 	extern bool      i_hitOuterSide;
-	extern TriangleP*i_hitTriangle;
+	extern TRIANGLE_HANDLE i_hitTriangle;
 	extern real      i_hitU;
 	extern real      i_hitV;
 	extern Point3    i_hitPoint3d;

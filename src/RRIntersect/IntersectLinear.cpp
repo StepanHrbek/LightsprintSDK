@@ -172,14 +172,14 @@ void TriangleSRLNP::setGeometry(Point3 *a,Point3 *b,Point3* c)
 
 
 // global variables used only by intersections to speed up recursive calls
-TriangleP*i_skip;
+TRIANGLE_HANDLE i_skip;
 Point3    i_eye;
 Vec3      i_direction;
 real      i_distanceMin; // bsp: starts as 0, may only increase during bsp traversal
 Point3    i_eye2;        // bsp: precalculated i_eye+i_direction*i_distanceMin
 real      i_hitDistance;
 bool      i_hitOuterSide;
-TriangleP*i_hitTriangle;
+TRIANGLE_HANDLE i_hitTriangle;
 real      i_hitU;
 real      i_hitV;
 Point3    i_hitPoint3d;
@@ -195,10 +195,9 @@ bool intersect_triangleSRLNP(TriangleSRLNP *t)
 // input:                t, i_hitPoint3d, i_direction
 // returns:              true if i_hitPoint3d is inside t
 //                       if i_hitPoint3d is outside t plane, resut is undefined
-// modifies when hit:    i_hitTriangle, i_hitU, i_hitV, i_hitOuterSide
+// modifies when hit:    i_hitU, i_hitV, i_hitOuterSide
 // modifies when no hit: <nothing is changed>
 {
-	assert(t!=i_skip);
 	intersectStats.tri++;
 	assert(t);
 	//if(!t->surface) return false;
@@ -232,7 +231,6 @@ bool intersect_triangleSRLNP(TriangleSRLNP *t)
 	bool hitOuterSide=sizeSquare(i_direction-t->n3)>2;
 	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
 	i_hitOuterSide=hitOuterSide;
-	i_hitTriangle=t;
 	i_hitU=u;
 	i_hitV=v;
 	return true;
@@ -240,7 +238,6 @@ bool intersect_triangleSRLNP(TriangleSRLNP *t)
 
 bool intersect_triangleNP(TriangleNP *t, RRObjectImporter::TriangleSRL* t2)
 {
-	assert(t!=i_skip);
 	intersectStats.tri++;
 	assert(t);
 	//if(!t->surface) return false;
@@ -269,7 +266,6 @@ bool intersect_triangleNP(TriangleNP *t, RRObjectImporter::TriangleSRL* t2)
 	bool hitOuterSide=sizeSquare(i_direction-t->n3)>2;
 	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
 	i_hitOuterSide=hitOuterSide;
-	i_hitTriangle=t;
 	i_hitU=u;
 	i_hitV=v;
 	return true;
@@ -277,7 +273,6 @@ bool intersect_triangleNP(TriangleNP *t, RRObjectImporter::TriangleSRL* t2)
 
 bool intersect_triangleP(TriangleP *t, RRObjectImporter::TriangleSRLN* t2)
 {
-	assert(t!=i_skip);
 	intersectStats.tri++;
 	assert(t);
 	//if(!t->surface) return false;
@@ -306,7 +301,6 @@ bool intersect_triangleP(TriangleP *t, RRObjectImporter::TriangleSRLN* t2)
 	bool hitOuterSide=sizeSquare(i_direction-*(Vec3*)(t2->n))>2;
 	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
 	i_hitOuterSide=hitOuterSide;
-	i_hitTriangle=t;
 	i_hitU=u;
 	i_hitV=v;
 	return true;
@@ -378,6 +372,7 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 					if(intersect_triangleP(&triangleP[t],&t2))
 					{
 						result=true;
+						i_hitTriangle=t;
 						i_hitDistance=distance;
 						DBG(printf("%d",t));
 					}
@@ -395,6 +390,7 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 					if(intersect_triangleNP(&triangleNP[t],&t2))
 					{
 						result=true;
+						i_hitTriangle=t;
 						i_hitDistance=distance;
 						DBG(printf("%d",t));
 					}
@@ -408,6 +404,7 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 					if(intersect_triangleSRLNP(&triangleSRLNP[t]))
 					{
 						result=true;
+						i_hitTriangle=t;
 						i_hitDistance=distance;
 						DBG(printf("%d",t));
 					}
@@ -432,9 +429,7 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 #endif
 		assert(fabs(sizeSquare(i_direction)-1)<0.001);//ocekava normalizovanej dir
 		hit->outerSide = i_hitOuterSide;
-		if(triangleP) hit->triangle = (unsigned)(((U64)i_hitTriangle-(U64)triangleP))/sizeof(TriangleP);
-		if(triangleNP) hit->triangle = (unsigned)(((U64)i_hitTriangle-(U64)triangleNP))/sizeof(TriangleNP);
-		if(triangleSRLNP) hit->triangle = (unsigned)(((U64)i_hitTriangle-(U64)triangleSRLNP))/sizeof(TriangleSRLNP);
+		hit->triangle = i_hitTriangle;
 		hit->distance = i_hitDistance;
 	}
 

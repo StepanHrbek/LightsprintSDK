@@ -30,7 +30,6 @@ namespace rrIntersect
 		virtual bool      intersect(RRRay* ray, RRHit* hit);
 	protected:
 		bool              intersect_bspNP(BspTree *t,real distanceMax);
-		bool              convert(BspTree *tree);
 		BspTree*          tree;
 	};
 
