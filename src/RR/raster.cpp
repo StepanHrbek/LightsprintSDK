@@ -51,8 +51,8 @@ static int raster_XRES,raster_YRES,raster_WIDTH;
 static int led_num,red_num,raster_TextureWidth;
 static raster_EDGE led_buf[EDGES],red_buf[EDGES],*led,*red;
 static raster_PLANE pp[4],*p0=pp,*p1=pp+1,*p2=pp+2,*p3=pp+3;
-static byte *raster_Texture,raster_Memory[MAXMEM],*raster_MemNext,
-            *raster_MemEnd=raster_Memory+MAXMEM;
+static U8 *raster_Texture,raster_Memory[MAXMEM],*raster_MemNext,
+          *raster_MemEnd=raster_Memory+MAXMEM;
 
 static float dudx, dudy, orgu, dudx16,
              dvdx, dvdy, orgv, dvdx16,
@@ -60,9 +60,9 @@ static float dudx, dudy, orgu, dudx16,
 
 //********************** Clipping & Transformation ********************
 
-static byte *raster_Alloc(int size)
+static U8 *raster_Alloc(int size)
 {
- byte *tmp=raster_MemNext;
+ U8 *tmp=raster_MemNext;
  if (tmp+size>=raster_MemEnd) abort();
  raster_MemNext+=size;
  return tmp;
@@ -381,9 +381,9 @@ static inline void raster_ZTextureSpan(float u, float v, float z,
     }
 }
 
-static inline void raster_LGouraudSpan(float u, float z, int len, byte *out)
+static inline void raster_LGouraudSpan(float u, float z, int len, U8 *out)
 {
- byte *s; float z1=FIX/z;int u1=ROUND(u*z1),u2,du;
+ U8 *s; float z1=FIX/z;int u1=ROUND(u*z1),u2,du;
 
  while (len>=STEP) { u+=dudx16; z+=dzdx16; z1=FIX/z;
        u2=ROUND(u*z1); du=(u2-u1)/STEP; s=out+STEP;
@@ -424,7 +424,7 @@ static inline void raster_ZGouraudSpan(float u, float z, int len,
 
 //********************** Polygon rasterization ************************
 
-extern int raster_ZTexture(raster_POLYGON *p, int w, byte *lightmap, unsigned *col)
+extern int raster_ZTexture(raster_POLYGON *p, int w, U8 *lightmap, unsigned *col)
 {
  int start_y,i,l_x,r_x,l_dxdy,r_dxdy,l_num,r_num,l,c,s; float u,v,z;
  int *out=raster_Output; float *zbuf=raster_Zbuffer;
@@ -457,10 +457,10 @@ extern int raster_ZTexture(raster_POLYGON *p, int w, byte *lightmap, unsigned *c
  return 1;
 }
 
-extern int raster_LGouraud(raster_POLYGON *p, int w, byte *lightmap)
+extern int raster_LGouraud(raster_POLYGON *p, int w, U8 *lightmap)
 {
  int start_y,i,l_x,r_x,l_dxdy,r_dxdy,l_num,r_num,l,c,s;
- float u,z; byte *out=lightmap; raster_WIDTH=w;
+ float u,z; U8 *out=lightmap; raster_WIDTH=w;
 
  if (!raster_GouraudInit(p)) return 0;
  if (!raster_CreateEdges(p)) return 0;
@@ -507,10 +507,10 @@ extern int raster_ZGouraud(raster_POLYGON *p, unsigned *col)
  return 1;
 }
 
-extern int raster_LFlat(raster_POLYGON *p, int w, byte *lightmap, float brightness)
+extern int raster_LFlat(raster_POLYGON *p, int w, U8 *lightmap, float brightness)
 {
  int start_y,i,l_x,r_x,l_dxdy,r_dxdy,l_num,r_num,l,c,s;
- byte *out=lightmap,col=ROUND(255*brightness); raster_WIDTH=w;
+ U8 *out=lightmap,col=ROUND(255*brightness); raster_WIDTH=w;
 
  if (!raster_CreateEdges(p)) return 0; INIT out+=start_y*raster_WIDTH;
 

@@ -33,7 +33,7 @@ enum Emittance
 struct Texture;
 struct Surface
 {
-	byte    sides;		// 1 if surface is 1-sided, 2 for 2-sided
+	U8      sides;		// 1 if surface is 1-sided, 2 for 2-sided
 	real    diffuseReflectance;
 	Color   diffuseReflectanceColor;
 	ColorTable diffuseReflectanceColorTable;
@@ -67,12 +67,12 @@ struct Surface
 
 struct SideBits
 {
-	byte renderFrom:1;  // is visible from that halfspace
-	byte emitTo:1;      // emits energy to that halfspace
-	byte catchFrom:1;   // stops rays from that halfspace and performs following operations: (otherwise ray continues as if nothing happened)
-	byte receiveFrom:1; //  receives energy from that halfspace
-	byte reflect:1;     //  reflects energy from that halfspace to that halfspace
-	byte transmitFrom:1;//  transmits energy from that halfspace to other halfspace
+	U8 renderFrom:1;  // is visible from that halfspace
+	U8 emitTo:1;      // emits energy to that halfspace
+	U8 catchFrom:1;   // stops rays from that halfspace and performs following operations: (otherwise ray continues as if nothing happened)
+	U8 receiveFrom:1; //  receives energy from that halfspace
+	U8 reflect:1;     //  reflects energy from that halfspace to that halfspace
+	U8 transmitFrom:1;//  transmits energy from that halfspace to other halfspace
 };
 
 extern SideBits sideBits[3][2];

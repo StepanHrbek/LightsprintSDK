@@ -21,6 +21,12 @@ extern bool allegro_inited;
 
 // time
 
+#ifdef WIN32
+ #define TIME    unsigned//U64
+ #define GETTIME TIME_GET()
+ #define PER_SEC 10000000
+ TIME TIME_GET();
+#else
 #ifdef DJGPP
  // high precision DJGPP timer
  #include <time.h>
@@ -33,6 +39,7 @@ extern bool allegro_inited;
  #define TIME    clock_t            
  #define GETTIME clock()
  #define PER_SEC CLOCKS_PER_SEC
+#endif
 #endif
 
 

@@ -755,7 +755,7 @@ static void iv_saveReal(SubTriangle *s,IVertex *iv,int type)
 	// vynorovani ze subtrianglu nemusi ukladat
 	if(type==4) return;
 	// ulozi bajt co delat
-	byte b;
+	U8 b;
 	// kdyz narazi na neimportant iv, prejde do rezimu cekani na vynoreni
 	if(iv && !iv->important)
 	{
@@ -784,7 +784,7 @@ static void iv_saveReal(SubTriangle *s,IVertex *iv,int type)
 		else
 		if(type==3)//byteerror neuklada pro topvertexy
 		{
-			byte be=(byte)(iv->error);
+			U8 be=(U8)(iv->error);
 			iv_FW(be);
 		}
 		iv->saved=true;
@@ -826,7 +826,7 @@ void iv_skipLoadingSubTree()
 	unsigned todo=2;//ma pred sebou dva syny ktery musi projit (treba 2x0)
 	do
 	{
-	  byte b;
+	  U8 b;
 	  iv_FR(b);
 	  switch(b)
 	  {
@@ -849,7 +849,7 @@ void iv_skipLoadingSubTree()
 	    case 16:
 	    case 17:
 	    case 18:if(iv_realsInside) {real r;iv_FR(r);assert(IS_NUMBER(r));}
-	            else if(b>=13){byte be;iv_FR(be);}//byteerror nenacita z topvertexu
+	            else if(b>=13){U8 be;iv_FR(be);}//byteerror nenacita z topvertexu
 	            todo++;break;
 	    default: assert(0);
 	  }
@@ -880,7 +880,7 @@ static void iv_findSplitInfo(SubTriangle *s,IVertex *iv,int type)
 	// ostatni vynorovani uz zcela ignoruje
 	if(type==4) return;
 	// nacte bajt z disku a kouka co dal
-	byte b;
+	U8 b;
 	real r;
 	iv_FR(b);
 	switch(b)
@@ -927,7 +927,7 @@ static void iv_findSplitInfo(SubTriangle *s,IVertex *iv,int type)
 	    else
 	    //byteerror nacita ze subivertexu a tam zrovna jsme
 	    {
-	      byte be;
+	      U8 be;
 	      iv_FR(be);
 	    }
 	    if(!iv) iv_skipLoadingSubTree();
@@ -981,9 +981,9 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	// ostatni vynorovani uz zcela ignoruje
 	if(type==4) return;
 	// nacte bajt z disku a kouka co dal
-	byte b;
+	U8 b;
 	real r;
-	byte be;//byte error
+	U8 be;//byte error
 	iv_FR(b);
 #ifdef LOG_LOADING_MES
 	printf("iv=%i type=%i b=%i",iv?1:0,type,b);
@@ -1335,12 +1335,12 @@ static void iv_saveImportantByte(SubTriangle *s,IVertex *iv,int type)
 {
 	if(iv && iv->important && !iv->saved)
 	{
-		byte b;
+		U8 b;
 //takto by misto silne nedulezitych bajtu ukladal 255
 //ale neni to nutne protoze rizeni kvality uz mame
 //if(!iv->loaded || (type==3 && iv_error(s,iv)<1))
 //b=255;else
-		b=(byte)(254.99*getBrightness(iv->radiosity()));
+		b=(U8)(254.99*getBrightness(iv->radiosity()));
 		iv_FALLW(b);
 		iv->saved=true;
 	}
@@ -1358,7 +1358,7 @@ void Scene::iv_savingBytesDone()
 }
 
 static unsigned iv_frames=0;
-static byte *iv_bytetable=NULL;
+static U8 *iv_bytetable=NULL;
 
 unsigned Scene::iv_initLoadingBytes(char *namemes,char *nametga)
 {
@@ -1380,8 +1380,8 @@ unsigned Scene::iv_initLoadingBytes(char *namemes,char *nametga)
 	iv_FALLR(j);
 	iv_frames=j;
 	iv_FALLR(j);
-	iv_bytetable=new byte[iv_frames*iv_ivertices];
-	fread(iv_bytetable,sizeof(byte),iv_frames*iv_ivertices,iv_fall);
+	iv_bytetable=new U8[iv_frames*iv_ivertices];
+	fread(iv_bytetable,sizeof(U8),iv_frames*iv_ivertices,iv_fall);
 	fclose(iv_fall);
 	// nacte ktery ivertices budou loadovany z pole bytes
 	iv_f=fopen(namemes,"rb");

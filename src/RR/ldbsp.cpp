@@ -205,7 +205,7 @@ extern WORLD *load_world(char *name)
  contains_bsp=!strcmp(name+strlen(name)-4,".bsp") || !strcmp(name+strlen(name)-4,".BSP");
  contains_kd=!strcmp(name+strlen(name)-4,".kd") || !strcmp(name+strlen(name)-4,".KD");
  
- contains_bsp=contains_kd=1;//! hack for development time, .bsp contains both bsp and kd
+ contains_bsp=1; contains_kd=0;//! hack for development time, .bsp contains both bsp and kd 
 
  world=ALLOC(WORLD);
 

@@ -187,6 +187,13 @@ IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimpor
 //  Triankle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 bool IntersectBsp::intersect(RRRay* ray, RRHit* hit)
 {
+	// fallback when bspgen failed (run from readonly disk etc)
+	if(!tree) 
+	{
+		DBG(printf("Bsp fallback to linear."));
+		return IntersectLinear::intersect(ray,hit);
+	}
+
 	Point3 eye = *(Point3*)(&ray->ex);
 	Vec3 direction = *((Point3*)(&ray->dx));
 

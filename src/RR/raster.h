@@ -26,9 +26,9 @@ void raster_SetMatrix(MATRIX *cam, MATRIX *inv);
 void raster_Clear();
 //!!!...
 int raster_ZGouraud(raster_POLYGON *p, unsigned *col);
-int raster_LGouraud(raster_POLYGON *p, int w, byte *lightmap);
+int raster_LGouraud(raster_POLYGON *p, int w, U8 *lightmap);
 int raster_ZFlat(raster_POLYGON *p, unsigned *col, float brightness);
-int raster_LFlat(raster_POLYGON *p, int w, byte *lightmap, float brightness);
-int raster_ZTexture(raster_POLYGON *p, int w, byte *lightmap, unsigned *col);
+int raster_LFlat(raster_POLYGON *p, int w, U8 *lightmap, float brightness);
+int raster_ZTexture(raster_POLYGON *p, int w, U8 *lightmap, unsigned *col);
 
 #endif

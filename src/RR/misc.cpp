@@ -23,6 +23,35 @@ bool allegro_inited=false;
 
 
 
+// time
+
+#ifdef WIN32
+typedef void *HANDLE;
+typedef long BOOL;
+typedef struct _FILETIME {unsigned dwLowDateTime;unsigned dwHighDateTime;} FILETIME;
+typedef struct _FILETIME *LPFILETIME;
+extern "C" HANDLE __stdcall GetCurrentProcess();
+extern "C" BOOL __stdcall GetProcessTimes(HANDLE hProcess,LPFILETIME lpCreationTime,LPFILETIME lpExitTime,LPFILETIME lpKernelTime,LPFILETIME lpUserTime);
+#pragma comment(lib,"kernel32")
+TIME TIME_GET()
+{
+	FILETIME CreationTime;
+	FILETIME ExitTime;
+	FILETIME KernelTime;
+	FILETIME UserTime;
+	GetProcessTimes(
+		GetCurrentProcess(),
+		&CreationTime,
+		&ExitTime,
+		&KernelTime,
+		&UserTime
+		);
+	return (TIME)(/*KernelTime.dwLowDateTime+*/UserTime.dwLowDateTime);
+}
+#endif
+
+
+
 // keyboard
 
 #ifdef DJGPP
@@ -195,4 +224,3 @@ void* realloc(void* p,size_t oldsize,size_t newsize)
  return realloc(p,newsize);
 #endif
 }
-

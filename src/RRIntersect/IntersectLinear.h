@@ -4,14 +4,23 @@
 #include "geometry.h"
 #include "RRIntersect.h"
 
-struct Triankle
+struct TriankleP
 {
-	Triankle() {}
+	real    intersectReal;  // precalculated number for intersections
+	U8      intersectByte:4;// precalculated number for intersections, 0..8
+	void    setGeometry(Point3 *a,Point3 *b,Point3* c);
+};
+
+struct TriankleNP : public TriankleP
+{
+	Normal  n3;             // normalised normal vector
+	void    setGeometry(Point3 *a,Point3 *b,Point3* c);
+};
+
+struct Triankle/*SRLNP*/ : public TriankleNP
+{
 	Point3  s3;             // absolute position of start of base
 	Vec3    r3,l3;          // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0]
-	Normal  n3;             // normalised normal vector
-	byte    intersectByte:4;// precalculated number for intersections, 0..8
-	real    intersectReal;  // precalculated number for intersections
 	void    setGeometry(Point3 *a,Point3 *b,Point3* c);
 };
 
@@ -39,6 +48,8 @@ public:
 protected:
 	RRObjectImporter* importer;
 	unsigned          triangles;
+	//TriankleSRLN*     triangle;
+	//TriankleSRL*      triangle;
 	Triankle*         triangle;
 };
 

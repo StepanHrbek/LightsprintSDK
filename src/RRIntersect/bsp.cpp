@@ -548,6 +548,9 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
 {
  int i,j; BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
 
+ quality=BESTN;
+ bestN=1000;
+
  assert(f);
  assert(obj->face_num>0); // pozor nastava
 
@@ -597,10 +600,10 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
  if(!obj->face_num) printf("\nBSP: No faces.\n"); else
  printf("\nBSP nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,j-i,(j-i)/obj->face_num);
 
- obj->kd=create_kd(&bbox,make_list(obj));
+ /*obj->kd=create_kd(&bbox,make_list(obj));
  nodes=0; faces=0;
  save_kd(f,obj->kd); 
  i=ftell(f);
  if(!obj->face_num) printf("\nKD: No faces.\n"); else
- printf("\nKD nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,i-j,(i-j)/obj->face_num);
+ printf("\nKD nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,i-j,(i-j)/obj->face_num);*/
 }

@@ -387,7 +387,7 @@ struct Lightmap
 	unsigned w;
 	unsigned h;
 	Point2  uv[3];
-	byte    *bitmap;
+	U8      *bitmap;
 
 	bool    isClean;
 
@@ -433,8 +433,8 @@ struct Triangle : public SubTriangle
 	Vec3    r3,l3;          // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
 	bool    isInCluster  :1;// triangle is in cluster
 	bool    isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
-	byte    rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
-	byte    intersectByte:4;// precalculated number for intersections, 0..8
+	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
+	U8      intersectByte:4;// precalculated number for intersections, 0..8
 	real    intersectReal;  // precalculated number for intersections
 	//unsigned intersectionTime;
 	Vec3    u3,v3;          // ortonormal base for 2d coordinates in subtriangles

@@ -9,10 +9,6 @@
 #define U32          unsigned
 #define S64          __int64 //long long
 #define U64          unsigned __int64 //unsigned long long
-#define byte         unsigned char
-#define word         unsigned short
-#define dword        unsigned
-#define qword        unsigned long long
 #define real         float
 #define BIG_REAL     1e20
 #define SMALL_REAL   1e-10
@@ -103,6 +99,8 @@ struct Vec3
 	Vec3 operator -(Vec3 a)       {return Vec3(x-a.x,y-a.y,z-a.z);}
 	Vec3 operator *(real f)       {return Vec3(x*f,y*f,z*f);}
 	Vec3 operator /(real f)       {return Vec3(x/f,y/f,z/f);}
+	Vec3 operator /(int f)        {return Vec3(x/f,y/f,z/f);}
+	Vec3 operator /(unsigned f)   {return Vec3(x/f,y/f,z/f);}
 	Vec3 operator +=(Vec3 a)      {x+=a.x;y+=a.y;z+=a.z;return *this;}
 	Vec3 operator -=(Vec3 a)      {x-=a.x;y-=a.y;z-=a.z;return *this;}
 	Vec3 operator *=(real f)      {x*=f;y*=f;z*=f;return *this;}

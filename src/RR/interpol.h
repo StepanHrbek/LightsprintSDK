@@ -58,14 +58,14 @@ struct IVertex
 	bool    important:1;// jen pro ucely grabovani/loadovani fak
 
 	private:
-		byte cacheTime:5;
-		byte cornersAllocatedLn2;
-		word corners;
-		real cache;
+		U8       cacheTime:5;
+		U8       cornersAllocatedLn2;
+		U16      corners;
+		real     cache;
 		unsigned cornersAllocated();
-		real powerTopLevel;
-		Corner *corner; // pole corneru tvoricich tento ivertex
-		real getClosestRadiosity();
+		real     powerTopLevel;
+		Corner   *corner; // pole corneru tvoricich tento ivertex
+		real     getClosestRadiosity();
 };
 
 //////////////////////////////////////////////////////////////////////////////

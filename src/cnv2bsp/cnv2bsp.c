@@ -688,12 +688,13 @@ static void save_object(FILE *f, OBJECT *obj)
  if(!obj->face_num) printf("\nBSP: No faces.\n"); else
  printf("\nBSP nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,j-i,(j-i)/obj->face_num);
 
- obj->kd=create_kd(&bbox,make_list(obj));
+ obj->kd=NULL;
+ /*obj->kd=create_kd(&bbox,make_list(obj));
  nodes=0; faces=0;
  save_kd(f,obj->kd); 
  i=ftell(f);
  if(!obj->face_num) printf("\nKD: No faces.\n"); else
- printf("\nKD nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,i-j,(i-j)/obj->face_num);
+ printf("\nKD nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,i-j,(i-j)/obj->face_num);*/
 }
 
 extern WORLD *load_Scene(char *in_name, char *out_name, int dir, int mode, int max, int root, int num)

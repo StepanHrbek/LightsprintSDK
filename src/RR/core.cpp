@@ -1938,8 +1938,8 @@ Object::~Object()
 void Object::resetStaticIllumination()
 {
 	// smaze akumulatory (ale necha jim flag zda jsou v reflectors)
-	for(unsigned c=0;c<clusters;c++) {byte flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset();cluster[c].flags=flag;}
-	for(unsigned t=0;t<triangles;t++) {byte flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset();triangle[t].flags=flag;}
+	for(unsigned c=0;c<clusters;c++) {U8 flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset();cluster[c].flags=flag;}
+	for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset();triangle[t].flags=flag;}
 	// nastavi akumulatory na pocatecni hodnoty
 	energyEmited=0;
 	for(unsigned t=0;t<triangles;t++) energyEmited+=fabs(triangle[t].setSurface(triangle[t].surface));

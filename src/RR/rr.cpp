@@ -11,6 +11,9 @@
 //#define SUPPORT_Z
 //#define SUPPORT_REGEX
 
+//#define HISTORIC_LOADER
+#define RRENGINE_LOADER
+
 #ifdef SUPPORT_Z
  #include <zlib.h>
 #endif
@@ -65,8 +68,6 @@
 #include "misc.h"
 #include "surface.h"
 
-//#define HISTORIC_LOADER
-#define RRENGINE_LOADER
 #ifdef RRENGINE_LOADER
  #include "rrengine.h"
  #include "world2rrengine.h"
@@ -1588,11 +1589,14 @@ Scene *convert_world2scene_historic(WORLD *w,char *material_mgf)
        printf("Invalid BSP tree, disabling BSP!\n");
        obj->bspTree=NULL;
      }
-     DBG(printf(" kd...\n"));
-     if(!convert_KdTree(&w->object[o],obj))
+     if(w->object[o].kd_tree)
      {
-       printf("Invalid KD tree, disabling KD!\n");
-       obj->kdTree=NULL;
+	     DBG(printf(" kd...\n"));
+	     if(!convert_KdTree(&w->object[o],obj))
+	     {
+		     printf("Invalid KD tree, disabling KD!\n");
+		     obj->kdTree=NULL;
+	     }
      }
      // smaze z worldu vertexy a facy
      //nemazat, facy pouziju v save_lightmaps

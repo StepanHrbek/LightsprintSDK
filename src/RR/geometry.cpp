@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
-#include "misc.h" // MAX
 #include "geometry.h"
 
 //#define FAST_BOUND                // fast approximate bounding sphere intersection
@@ -164,7 +163,11 @@ void Bound::detect(Vertex *vertex,unsigned vertices)
 	for(unsigned i=0;i<vertices;i++) sum+=vertex[i];
 	center=sum/vertices;
 	radiusSquare=0;
-	for(unsigned i=0;i<vertices;i++) radiusSquare=MAX(radiusSquare,sizeSquare(vertex[i]-center));
+	for(unsigned i=0;i<vertices;i++) 
+	{
+		real tmp=sizeSquare(vertex[i]-center);
+		if(tmp>radiusSquare) radiusSquare=tmp;
+	}
 	radius=sqrt(radiusSquare);
 	//...najit presnejsi bound
 	centerBeforeTransformation=center;

@@ -23,6 +23,19 @@ public:
 	virtual void         getVertex(unsigned i, float& x, float& y, float& z) = 0;
 	virtual unsigned     getNumTriangles() = 0;
 	virtual void         getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2, unsigned& s) = 0;
+
+	// optional
+	// when fastXXX is set, slower but much lower memory footprint Intersect may be used
+	RRObjectImporter();
+	bool                 fastN   :1;
+	bool                 fastSRL :1;
+	bool                 fastSRLN:1;
+	struct TriangleN     {float n[4];};
+	struct TriangleSRL   {float s[3],r[3],l[3];};
+	struct TriangleSRLN  {float s[3],r[3],l[3],n[4];};
+	virtual void         getTriangleN(unsigned i, TriangleN* t);
+	virtual void         getTriangleSRL(unsigned i, TriangleSRL* t);
+	virtual void         getTriangleSRLN(unsigned i, TriangleSRLN* t);
 };
 
 
