@@ -21,6 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				InlineFunctionExpansion="0"
 				ImproveFloatingPointConsistency="TRUE"
 				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL"
@@ -40,7 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mgflib.lib alleg.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="alleg.lib odbc32.lib odbccp32.lib"
 				OutputFile="$(OutDir)\RR.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
@@ -91,7 +92,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				GlobalOptimizations="TRUE"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="2"
 				ImproveFloatingPointConsistency="TRUE"
 				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\..\..\include"
@@ -115,7 +116,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mgflib.lib alleg.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="alleg.lib odbc32.lib odbccp32.lib"
 				OutputFile="$(OutDir)\RR.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -162,6 +163,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				InlineFunctionExpansion="2"
 				ImproveFloatingPointConsistency="TRUE"
 				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;RASTERGL"
@@ -181,7 +183,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mgflib.lib alleg.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="alleg.lib odbc32.lib odbccp32.lib"
 				OutputFile="$(OutDir)\RR.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"

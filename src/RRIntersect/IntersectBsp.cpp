@@ -13,13 +13,17 @@
 
 BspTree* load(FILE *f)
 {
+	if(!f) return NULL;
 	unsigned size;
-	fread(&size,sizeof(size),1,f);
+	size_t readen = fread(&size,sizeof(size),1,f);
+	if(!readen) return NULL;
 	size &= 0x3fffffff;
 	fseek(f,-(int)sizeof(unsigned),SEEK_CUR);
 	BspTree* tree = (BspTree*)malloc(size);
-	fread(tree,1,size,f);
-	return tree;
+	readen = fread(tree,1,size,f);
+	if(readen == size) return tree;
+	free(tree);
+	return NULL;
 }
 
 bool IntersectBsp::convert(BspTree *tree)

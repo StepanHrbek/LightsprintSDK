@@ -1584,6 +1584,7 @@ Scene *convert_world2scene_historic(WORLD *w,char *material_mgf)
            #endif
          }
      }
+
      // prevede bsp tree
      // nutno po nacteni trianglu (v dynamic je preradi) ale pred odalokovanim facu (obsahuji pointery na jinak razene triangly)
      DBG(printf(" bsp...\n"));

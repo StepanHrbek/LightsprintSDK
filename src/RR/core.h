@@ -6,7 +6,7 @@
 #include "misc.h"
 #include "surface.h"
 
-//#define USE_RRINTERSECT
+#define USE_RRINTERSECT  // uses RRIntersect library
 //#define TEST_SCENE       // tests that scene has no degenerated triangles etc
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 //#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations

@@ -105,10 +105,13 @@ ifdef DEBUG
 else
  OBJS += rrbig.o       # zkompiluje vic modulu do jednoho, zrychli rr o 20%
  CFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
- CFLAGS += -march=athlon-xp -msse -mfpmath=sse --param max-inline-insns-auto=300
  ifndef PROFILE
   CFLAGS += -fomit-frame-pointer
   # -fprofile-use
+ endif
+ CFLAGS += -march=athlon-xp --param max-inline-insns-auto=300
+ ifndef RRINTERSECT
+  CFLAGS += -msse -mfpmath=sse
  endif
 endif
 
@@ -183,8 +186,6 @@ $(BIN)player.exe: player.cpp geometry.cpp geometry.h core.cpp core.h interpol.cp
 
 clean:
 	$(DEL) *.o
-	$(DEL) *.bak
-	$(DEL) *.bkp
 	$(DEL) $(BIN)rr.exe
 	$(DEL) $(BIN)dotga.exe
 	$(DEL) $(BIN)dosmooth.exe

@@ -1,3 +1,6 @@
+#include "core.h" // only for symbol USE_RRINTERSECT
+#ifdef USE_RRINTERSECT
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -47,3 +50,5 @@ void WorldObjectImporter::getTriangle(unsigned i, unsigned& v0, unsigned& v1, un
 	v2=object->face[i].vertex[2]->id;
 	si=object->face[i].material;
 }
+
+#endif

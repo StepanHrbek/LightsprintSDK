@@ -321,7 +321,8 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
   Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 {
 #ifdef USE_RRINTERSECT
-RRHit hit2;
+	RRHit hit2;
+	bool res2;
 	{RRRay ray;
 	RRHit hit;
 	ray.ex = eye.x;
@@ -372,7 +373,7 @@ RRHit hit2;
 		*hitDistance = hit.distance;
 	}
 	return res;
-	hit2=hit;}
+	hit2=hit;res2=res;}
 	//!!!
 #endif // USE_RRINTERSECT
 
@@ -457,6 +458,11 @@ RRHit hit2;
 		*hitDistance =i_hitDistance;
 	}
 
+#ifdef USE_RRINTERSECT
+	static unsigned qw=0;
+	if(res2!=hit) qw++;
+	assert(qw<10);
+#endif
 	return hit;
 }
 

@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+#pragma comment(lib,"mgflib.lib")
+
 /* must include stdio.h before us */
 
 #define MG_VMAJOR	2		/* major version number */

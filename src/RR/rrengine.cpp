@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define DBG(a) a //!!!
-#define c_useClusters true//false
+#define c_useClusters false
 #define scene ((Scene*)_scene)
 
 RRScene::RRScene()
