@@ -29,10 +29,10 @@ void raster_SetFOV(float xfov, float yfov)
 {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glFrustum(xfov/90,-xfov/90,-xfov/90,xfov/90,1,100000);
+  glFrustum(xfov/90,-xfov/90,-xfov/90,xfov/90,2,2000);
 }
 
-void raster_SetMatrix( MATRIX *cam, MATRIX *inv)
+void raster_SetMatrix( raster_MATRIX *cam, raster_MATRIX *inv)
 {
   glMatrixMode(GL_MODELVIEW);
   glLoadMatrixf( (GLfloat *) *cam);

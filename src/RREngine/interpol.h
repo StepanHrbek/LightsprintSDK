@@ -5,7 +5,7 @@
 namespace rrEngine
 {
 
-#define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=MAX_INTERPOL_ANGLE && t1->grandpa->surface==t2->grandpa->surface)
+#define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=(MIN(t1->area,t2->area)/(t1->area+t2->area)*2+0.2f)*MAX_INTERPOL_ANGLE && t1->grandpa->surface==t2->grandpa->surface)
 #define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->getN3(),t2->grandpa->getN3()))
 #define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)
 
@@ -36,7 +36,7 @@ public:
 	void    loadCache(real r);
 #ifdef ONLY_PLAYER
 	real    player_cache;
-	byte    player_detail;
+	U8      player_detail;
 #endif
 
 	void    insert(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));

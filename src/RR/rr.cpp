@@ -14,6 +14,7 @@
 #include <string.h>
 #include <time.h>
 #ifdef RASTERGL
+ #include "ldmgf2.h"
  #include "videogl.h"
  #include "rastergl.h"
  #include <GL/glut.h>
@@ -1010,18 +1011,9 @@ int main(int argc, char **argv)
 
  // nastavi matice, nutno pred world2scene
  matrix_Init(__identity);
- /*if(!__world->camera_num) {
-	 __world->camera_num=1;
-	 __world->camera=new CAMERA;
-	 FILE* f=fopen("rr.cam","rb");
-	 fread(&__world->camera[0],1,sizeof(__world->camera[0]),f);
-	 fclose(f);
- }
- FILE* f=fopen("rr.cam2","wb");
- fwrite(&__world->camera[0],1,sizeof(__world->camera[0]),f);
- fclose(f);*/
  matrix_Create(&__world->camera[0],0);
  matrix_Hierarchy(__world->hierarchy,__identity,0);
+ matrix_Move(__world->camera[0].matrix, 0,0,GLMINUS( 900));//!!! hack na cube / gl
  matrix_Invert(__world->camera[0].matrix,__world->camera[0].inverse);
 
  // zkonvertuje world na scene
@@ -1031,18 +1023,6 @@ int main(int argc, char **argv)
  if(!rrscene) help();
  scene=(Scene*)rrscene->getScene();
  if(!scene) help();
-
- /*FILE* f=fopen("h:/c/rr/data/zcrash","wb");
- fprintf(f,"triangles %d, vertices %d\n",scene->object[0]->triangles,scene->object[0]->vertices);
- for(unsigned i=0;i<scene->object[0]->triangles;i++)
- {
-	 fprintf(f," %d: [%f %f %f] [%f %f %f] [%f %f %f]\n",i,
-	 scene->object[0]->triangle[i].s3.x,scene->object[0]->triangle[i].s3.y,scene->object[0]->triangle[i].s3.z,
-	 scene->object[0]->triangle[i].u3.x,scene->object[0]->triangle[i].u3.y,scene->object[0]->triangle[i].u3.z,
-	 scene->object[0]->triangle[i].v3.x,scene->object[0]->triangle[i].v3.y,scene->object[0]->triangle[i].v3.z
-	 );
- }
- fclose(f);*/
 
  g_lights=g_separLights?scene->turnLight(-1,0):1;// zjisti kolik je ve scene svetel (sviticich materialu), pokud je nema separovat tak necha jedno
 
@@ -1064,6 +1044,10 @@ int main(int argc, char **argv)
 
  raster_Init(video_XRES,video_YRES);
  raster_SetFOV(video_XFOV,video_YFOV);
+#ifdef RASTERGL
+ mgf_load(bp("%s.mgf",p_ffName));
+ mgf_compile();
+#endif
 
  if (__mirror) __mirrorOutput=new int[video_XRES*video_YRES];
 

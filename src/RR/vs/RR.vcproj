@@ -23,7 +23,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="0"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\..\..\include"
+				AdditionalIncludeDirectories="..\..\..\include;.."
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;SUPPORT_DYNAMIC"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -96,7 +96,7 @@
 				InlineFunctionExpansion="2"
 				ImproveFloatingPointConsistency="TRUE"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\..\..\include"
+				AdditionalIncludeDirectories="..\..\..\include;.."
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;SUPPORT_DYNAMIC"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -165,10 +165,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				InlineFunctionExpansion="2"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;RASTERGL"
+				AdditionalIncludeDirectories="..\..\..\include;.."
+				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;TEST_SCENE;SUPPORT_INTERPOL;SUPPORT_DYNAMIC;RASTERGL;KB_VIA_ALLEGRO"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
@@ -190,8 +189,10 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="h:\c\rr\lib"
+				IgnoreAllDefaultLibraries="FALSE"
+				IgnoreDefaultLibraryNames="libc"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\GL Debug/RR.pdb"
+				ProgramDatabaseFile="$(IntDir)/RR.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -234,6 +235,27 @@
 				RelativePath="..\geometry.cpp">
 			</File>
 			<File
+				RelativePath="..\Gl\glprocs.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="GL Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						DisableLanguageExtensions="FALSE"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\ldmgf.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -257,6 +279,29 @@
 						Optimization="0"
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ldmgf2.cpp">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"
+						DisableLanguageExtensions="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"
+						DisableLanguageExtensions="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="GL Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						DisableLanguageExtensions="FALSE"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -449,6 +494,9 @@
 			</File>
 			<File
 				RelativePath="..\ldmgf.h">
+			</File>
+			<File
+				RelativePath="..\ldmgf2.h">
 			</File>
 			<File
 				RelativePath="..\misc.h">

@@ -11,6 +11,8 @@
 #include "surface.h"
 #include "world.h"
 #ifdef RASTERGL
+ #include "ldmgf2.h"
+ #include <GL/glut.h>
  #include "videogl.h"
  #include "rastergl.h"
 #else
@@ -129,7 +131,7 @@ void drawEngine(rrEngine::RRScene* scene, unsigned o, unsigned t, Triangle *f)
 	brightness[1]=getBrightness(scene->triangleGetRadiosity(o,t,1));
 	brightness[2]=getBrightness(scene->triangleGetRadiosity(o,t,2));
 #ifdef RASTERGL
-	raster_ZGouraud(v,f->grandpa->surface->diffuseReflectanceColorTable,brightness);
+	raster_ZGouraud(v,((Surface*)f->grandpa->surface)->diffuseReflectanceColorTable,brightness);
 #else
 	raster_POINT p[4];
 	raster_POLYGON p1,p2,p3;
@@ -176,7 +178,7 @@ void SubTriangle::drawFlat(real ambient,int df)
 		v[1]=to3d(1);
 		v[2]=to3d(2);
 
-		raster_ZFlat(v,grandpa->surface->diffuseReflectanceColorTable,brightness);
+		raster_ZFlat(v,((Surface*)grandpa->surface)->diffuseReflectanceColorTable,brightness);
 
 #else
 
@@ -301,7 +303,7 @@ void SubTriangle::drawGouraud(real ambient,IVertex **iv,int df)
 	brightness[1]=getBrightness(iv[1]->radiosity());
 	brightness[2]=getBrightness(iv[2]->radiosity());
 
-	raster_ZGouraud(v,grandpa->surface->diffuseReflectanceColorTable,brightness);
+	raster_ZGouraud(v,((Surface*)grandpa->surface)->diffuseReflectanceColorTable,brightness);
 
 #else
 
@@ -875,7 +877,7 @@ void render_object(rrEngine::RRScene* scene, unsigned o, Object* obj, MATRIX& im
 	//raster_BeginTriangles();
 	for (unsigned j=0;j<obj->triangles;j++) if(obj->triangle[j].isValid){
 		Normal n=obj->triangle[j].getN3();
-		byte fromOut=n.d+im[3][0]*n.x+im[3][1]*n.y+im[3][2]*n.z>0;
+		U8 fromOut=n.d+im[3][0]*n.x+im[3][1]*n.y+im[3][2]*n.z>0;
 		if ((d_forceSides==0 && sideBits[obj->triangle[j].surface->sides][fromOut?0:1].renderFrom) ||
 			(d_forceSides==1 && fromOut) ||
 			(d_forceSides==2))
@@ -884,8 +886,31 @@ void render_object(rrEngine::RRScene* scene, unsigned o, Object* obj, MATRIX& im
 	//raster_EndTriangles();
 }
 
+#ifdef RASTERGL
+void setLightIntensity(float* col)
+{
+	float zero[4]={1,0,0,1};
+	glLightfv(GL_LIGHT0, GL_AMBIENT, zero);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, col);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
+}
+#endif
+
 void render_world(WORLD *w, rrEngine::RRScene* scene, int camera_id, bool mirrorFrame)
 {
+	/*
+#ifdef RASTERGL
+	float col[4]={1,1,1,1};
+	setLightIntensity(col);
+	glLightfv(GL_LIGHT0, GL_POSITION, col);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//setupEyeView();
+	//drawShadowMapFrustum();
+#endif
+	*/
+
 	// TIME t0=GETTIME;
 	MATRIX cm,im,om;
 
@@ -922,7 +947,14 @@ void render_world(WORLD *w, rrEngine::RRScene* scene, int camera_id, bool mirror
 #endif
 				raster_SetMatrix(&cm,&im);
 			}
+			/*
+#ifdef RASTERGL
+			mgf_draw_colored();
+			return;
+#else
+			*/
 			render_object(scene,i,obj,im);
+//#endif
 		}
 	}
 	/*
