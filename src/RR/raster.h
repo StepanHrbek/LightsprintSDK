@@ -3,6 +3,8 @@
 
 typedef unsigned char U8;
 
+typedef float MATRIX[4][4];
+
 typedef struct {
         float x,y,z;
         float u,v,i;

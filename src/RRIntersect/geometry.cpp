@@ -3,6 +3,9 @@
 #include <memory.h>
 #include "geometry.h"
 
+namespace rrIntersect
+{
+
 //#define FAST_BOUND                // fast approximate bounding sphere intersection
 //...naky intersecty pritom zahazuje, je treba proverit skodlivost
 
@@ -309,3 +312,4 @@ void matrix_Rotate(MATRIX m, float a, int axis)
  matrix_Mul(m,t);
 }
 
+}

@@ -6,6 +6,9 @@
 #include "core.h"
 #include "dynamic.h"
 
+namespace rrEngine
+{
+
 
 byte d_drawDynamicHits=0;// 0=normal energy, 1=hits->pixels, 2=all shots->pixels
 
@@ -980,5 +983,7 @@ optimalizace dynashadingu:
 -vedet jaky pary dynobj-refl byly minule nejvytizenejsi a venovat se prednostne jim
 -v kazdym nodu sledovat kolisavost dynalightu a kdyz je mensi, zvetsit setrvacnost
 */
+
+} // namespace
 
 #endif

@@ -1,5 +1,7 @@
 #include "IntersectKd.h"
 
+using namespace rrIntersect;
+
 #ifdef USE_KD
 
 #define DBG(a) //a

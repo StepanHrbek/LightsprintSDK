@@ -2,8 +2,13 @@
 #define _RRENGINE_H
 
 #include "rrintersect.h"
-
 #include "surface.h"
+
+namespace rrEngine
+{
+using namespace rrIntersect;
+	//using rrIntersect::OBJECT_HANDLE;
+
 typedef Surface  RRSurface;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -13,7 +18,7 @@ typedef Surface  RRSurface;
 // Derive to import YOUR geometry and surfaces.
 // Can also be used to import data into RRObject.
 
-class RRSceneObjectImporter : virtual public RRObjectImporter
+class RRSceneObjectImporter : virtual public rrIntersect::RRObjectImporter
 {
 public:
 	// must not change during object lifetime
@@ -88,5 +93,7 @@ private:
 // DEMA
 // viewer
 // grabber+player
+
+} // namespace
 
 #endif

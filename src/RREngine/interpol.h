@@ -1,5 +1,9 @@
+
 #ifndef _INTERPOL_H
 #define _INTERPOL_H
+
+namespace rrEngine
+{
 
 #ifdef PACK
 #pragma pack(1) // recognized by GCC and MSVC
@@ -18,7 +22,7 @@ extern real MAX_INTERPOL_ANGLE; // max angle between interpolated neighbours
 extern unsigned __iverticesAllocated;
 extern unsigned __cornersAllocated;
 
-struct Node;
+class Node;
 
 struct Corner
 {
@@ -26,8 +30,9 @@ struct Corner
 	real power;
 };
 
-struct IVertex
+class IVertex
 {
+public:
 	IVertex();
        ~IVertex();
 
@@ -84,4 +89,7 @@ void ora_reading_init(char *filename);
 S8   ora_read();
 void ora_reading_done();
 
+} // namespace
+
 #endif
+

@@ -4,53 +4,58 @@
 #include "geometry.h"
 #include "RRIntersect.h"
 
-struct TriankleP
+namespace rrIntersect
 {
-	real    intersectReal;  // precalculated number for intersections
-	U8      intersectByte:4;// precalculated number for intersections, 0..8
-	void    setGeometry(Point3 *a,Point3 *b,Point3* c);
-};
 
-struct TriankleNP : public TriankleP
-{
-	Normal  n3;             // normalised normal vector
-	void    setGeometry(Point3 *a,Point3 *b,Point3* c);
-};
+	struct TriankleP
+	{
+		real    intersectReal;  // precalculated number for intersections
+		U8      intersectByte:4;// precalculated number for intersections, 0..8
+		void    setGeometry(Point3 *a,Point3 *b,Point3* c);
+	};
 
-struct Triankle/*SRLNP*/ : public TriankleNP
-{
-	Point3  s3;             // absolute position of start of base
-	Vec3    r3,l3;          // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0]
-	void    setGeometry(Point3 *a,Point3 *b,Point3* c);
-};
+	struct TriankleNP : public TriankleP
+	{
+		Normal  n3;             // normalised normal vector
+		void    setGeometry(Point3 *a,Point3 *b,Point3* c);
+	};
 
-// global variables used only by intersections to speed up recursive calls
-extern Triankle *i_skip;
-extern Point3    i_eye;
-extern Vec3      i_direction;
-extern real      i_distanceMin; // bsp: starts as 0, may only increase during bsp traversal
-extern Point3    i_eye2;        // bsp: precalculated i_eye+i_direction*i_distanceMin
-extern real      i_hitDistance;
-extern bool      i_hitOuterSide;
-extern Triankle *i_hitTriangle;
-extern real      i_hitU;
-extern real      i_hitV;
-extern Point3    i_hitPoint3d;
-real intersect_plane_distance(Normal n);
-bool intersect_triangle_bsp(Triankle *t);
+	struct Triankle/*SRLNP*/ : public TriankleNP
+	{
+		Point3  s3;             // absolute position of start of base
+		Vec3    r3,l3;          // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0]
+		void    setGeometry(Point3 *a,Point3 *b,Point3* c);
+	};
 
-class IntersectLinear : public RRIntersect
-{
-public:
-	IntersectLinear(RRObjectImporter* aimporter);
-	virtual ~IntersectLinear();
-	virtual bool      intersect(RRRay* ray, RRHit* hit);
-protected:
-	RRObjectImporter* importer;
-	unsigned          triangles;
-	//TriankleSRLN*     triangle;
-	//TriankleSRL*      triangle;
-	Triankle*         triangle;
-};
+	// global variables used only by intersections to speed up recursive calls
+	extern Triankle *i_skip;
+	extern Point3    i_eye;
+	extern Vec3      i_direction;
+	extern real      i_distanceMin; // bsp: starts as 0, may only increase during bsp traversal
+	extern Point3    i_eye2;        // bsp: precalculated i_eye+i_direction*i_distanceMin
+	extern real      i_hitDistance;
+	extern bool      i_hitOuterSide;
+	extern Triankle *i_hitTriangle;
+	extern real      i_hitU;
+	extern real      i_hitV;
+	extern Point3    i_hitPoint3d;
+	real intersect_plane_distance(Normal n);
+	bool intersect_triangle_bsp(Triankle *t);
+
+	class IntersectLinear : public RRIntersect
+	{
+	public:
+		IntersectLinear(RRObjectImporter* aimporter);
+		virtual ~IntersectLinear();
+		virtual bool      intersect(RRRay* ray, RRHit* hit);
+	protected:
+		RRObjectImporter* importer;
+		unsigned          triangles;
+		//TriankleSRLN*     triangle;
+		//TriankleSRL*      triangle;
+		Triankle*         triangle;
+	};
+
+}
 
 #endif

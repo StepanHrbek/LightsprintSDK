@@ -3,6 +3,9 @@
 
 #include "geometry.h"
 
+namespace rrEngine
+{
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // material aspects of space and surfaces
@@ -76,5 +79,7 @@ struct SideBits
 };
 
 extern SideBits sideBits[3][2];
+
+} // namespace
 
 #endif

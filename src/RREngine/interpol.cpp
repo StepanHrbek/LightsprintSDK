@@ -1,3 +1,4 @@
+
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
@@ -6,10 +7,13 @@
 #include "core.h"
 #include "interpol.h"
 
+namespace rrEngine
+{
+
 //#define LOG_LOADING_MES
 #define MAX_NEIGHBOUR_DISTANCE 0.01
 
-real MAX_INTERPOL_ANGLE=M_PI/10+0.01; // default max angle between interpolated neighbours
+real MAX_INTERPOL_ANGLE=(real)M_PI/10+0.01f; // default max angle between interpolated neighbours
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -298,7 +302,7 @@ SubTriangle *downWhereSideSplits(SubTriangle *s,int *side,IVertex *newVertex)
 		s->splitGeometry(NULL);
 		s=SUBTRIANGLE(s->sub[( (*side==splitVertex) == s->isRightLeft() )?0:1]);
 		*side=(*side==splitVertex)?0:2;
-		newVertex->insert(s,false,M_PI);
+		newVertex->insert(s,false,(real)M_PI);
 	}
 	real sideLength2;
 	switch(*side)
@@ -320,7 +324,7 @@ SubTriangle *Triangle::getNeighbourTriangle(int myside,int *nbsside,IVertex *new
 	if(edge[myside] && edge[myside]->interpol)
 	{
 		Triangle *neighbourTri=edge[myside]->triangle[edge[myside]->triangle[0]==this?1:0];
-		newVertex->insertAlsoToParents(neighbourTri,true,M_PI);
+		newVertex->insertAlsoToParents(neighbourTri,true,(real)M_PI);
 		if(neighbourTri->edge[0]==edge[myside])
 		{
 			*nbsside=0;
@@ -339,7 +343,7 @@ SubTriangle *Triangle::getNeighbourTriangle(int myside,int *nbsside,IVertex *new
 		assert(vertex[(myside+1)%3]==neighbourTri->vertex[*nbsside]);
 		neighbourSub=downWhereSideSplits(neighbourTri,nbsside,newVertex);
 	}
-	newVertex->insertAlsoToParents(this,true,M_PI);
+	newVertex->insertAlsoToParents(this,true,(real)M_PI);
 	return neighbourSub;
 }
 
@@ -367,14 +371,14 @@ SubTriangle *SubTriangle::getNeighbourSubTriangle(int myside,int *nbsside,IVerte
 		return neighbour;
 	}
 	// is brother neighbour?
-	newVertex->insert(this,false,M_PI);
+	newVertex->insert(this,false,(real)M_PI);
 	bool right=isRight();
 	if((myside==0 && !right) || (myside==2 && right))
 	{
 		*nbsside=right?0:2;
-		newVertex->insertAlsoToParents(parent,true,2*M_PI);
+		newVertex->insertAlsoToParents(parent,true,2*(real)M_PI);
 		SubTriangle *neighbour=brotherSub();
-		newVertex->insert(neighbour,false,M_PI);
+		newVertex->insert(neighbour,false,(real)M_PI);
 		neighbour=downWhereSideSplits(neighbour,nbsside,newVertex);
 #ifndef NDEBUG
 		Point3 nb_a=neighbour->to3d((*nbsside+1)%3);
@@ -404,7 +408,7 @@ SubTriangle *SubTriangle::getNeighbourSubTriangle(int myside,int *nbsside,IVerte
 			assert(SUBTRIANGLE(parent)->subvertex==neighbour->subvertex);
 			assert((neighbour->getSplitVertex()+1)%3==*nbsside);
 			neighbour=SUBTRIANGLE(neighbour->sub[(neighbour->isRightLeft()==right)?1:0]);
-			newVertex->insert(neighbour,false,M_PI);
+			newVertex->insert(neighbour,false,(real)M_PI);
 			*nbsside=1;
 			neighbour=downWhereSideSplits(neighbour,nbsside,newVertex);
 			assert(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
@@ -518,7 +522,7 @@ void Object::buildTopIVertices()
 	{
 		for(int v1=0;v1<3;v1++)
 		{
-			unsigned v=(triangle[t].vertex[v1]-vertex);
+			unsigned v=(unsigned)(triangle[t].vertex[v1]-vertex);
 			assert(v>=0 && v<vertices);
 			triangle[t].topivertex[v1]=&topivertex[v];
 			Angle angle=angleBetween(
@@ -1220,7 +1224,7 @@ static void iv_propagateErrors(SubTriangle *s,IVertex *iv,int type)
 //*fprintf(stderr," %i(%f,",(int)s,parent->subvertex->error);
 			// zde potrebujeme dat do parent->subvertex->error malinko vic nez je v s->subvertex->error
 			// protoze to pak budeme sortit podle erroru a vertexy s nizkym errorem neulozime do tga
-			real add=0.001;
+			real add=0.001f;
 			do
 			{
 				parent->subvertex->error=s->subvertex->error+add;
@@ -1404,7 +1408,7 @@ void Scene::iv_loadByteFrame(real frame)
 {
 	assert(iv_realptrtable);
 	assert(iv_bytetable);
-	frame=fmod(fmod(frame,iv_frames)+iv_frames,iv_frames);
+	frame=fmod(fmod(frame,(real)iv_frames)+iv_frames,(real)iv_frames);
 	unsigned framefloor=(int)frame;
 	assert(framefloor<iv_frames);
 	for(unsigned iv=0;iv<iv_ivertices;iv++)
@@ -1495,7 +1499,7 @@ real IVertex::getClosestRadiosity()
 	// projdem vsechny
 	ne_iv=this;
 	ne_bestIv=NULL;
-	ne_bestDist=1e20;
+	ne_bestDist=1e20f;
 	Node *tested1=NULL;
 	Node *tested2=NULL;
 	for(unsigned i=0;i<corners;i++)
@@ -1519,3 +1523,6 @@ real IVertex::getClosestRadiosity()
 }
 
 #endif
+
+} // namespace
+

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "geometry.h"
+//#include "geometry.h"
 #include "spline.h"
 #include "ldbsp.h"
 

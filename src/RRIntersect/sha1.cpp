@@ -19,8 +19,10 @@
  */
 
 #include <string.h>
-
 #include "sha1.h"
+
+namespace rrIntersect
+{
 
 #define GET_UINT32(n,b,i)                       \
 {                                               \
@@ -383,3 +385,5 @@ int xmain( int argc, char *argv[] )
 }
 
 #endif
+
+};

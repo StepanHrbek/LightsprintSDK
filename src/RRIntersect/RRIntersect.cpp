@@ -4,6 +4,8 @@
 #include "IntersectKd.h"
 #include <math.h>
 
+using namespace rrIntersect;
+
 RRObjectImporter::RRObjectImporter()
 {
 	fastN = false;

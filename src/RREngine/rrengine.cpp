@@ -5,6 +5,9 @@
 #include "core.h"
 #include "RREngine.h"
 
+namespace rrEngine
+{
+
 #define DBG(a) a //!!!
 #define c_useClusters false
 #define scene ((Scene*)_scene)
@@ -179,3 +182,5 @@ void* RRScene::getObject(OBJECT_HANDLE object)
 	assert(object<scene->objects);
 	return scene->object[object];
 }
+
+} // namespace

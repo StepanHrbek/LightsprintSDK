@@ -2,6 +2,9 @@
 #include "sha1.h"
 #include <stdio.h>
 
+namespace rrIntersect
+{
+
 #define min(a,b) (((a)<(b))?(a):(b))
 
 unsigned getBit(unsigned char* data, unsigned bit)
@@ -55,4 +58,6 @@ const char* getFileName(RRObjectImporter* importer, char* extension)
 	_snprintf(buf,99,"%s%s",getFileName(importer),extension);
 	buf[99]=0;
 	return buf;
+}
+
 }

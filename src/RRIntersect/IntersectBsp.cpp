@@ -1,5 +1,7 @@
 #include "IntersectBsp.h"
 
+using namespace rrIntersect;
+
 #ifdef USE_BSP
 
 #define DBG(a) //a

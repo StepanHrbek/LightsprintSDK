@@ -6,6 +6,10 @@
 #include "geometry.h"
 #include "surface.h"
 #include "RREngine.h"
+#include "interpol.h"
+
+namespace rrEngine
+{
 
 //#define TEST_SCENE       // tests that scene has no degenerated triangles etc
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
@@ -39,13 +43,11 @@
 #else
 #endif
 
- #include "interpol.h"
-
 #ifndef M_PI
  #define M_PI                3.14159265358979323846
 #endif
 
-#define SMALL_ENERGY 0.000001 // energy amount small enough to have no impact on scene
+#define SMALL_ENERGY 0.000001f // energy amount small enough to have no impact on scene
 
 // konvence:
 //  reset() uvadi objekt do stavu po konstruktoru
@@ -113,10 +115,11 @@ struct Hit
 // hits to one subtriangle
 
 extern unsigned __hitsAllocated;
-struct Triangle;
+class Triangle;
 
-struct Hits
+class Hits
 {
+public:
 	unsigned hits;
 	Hit     *hit;
 
@@ -154,7 +157,7 @@ struct Hits
 	void    insert(Hit ahit,void *extension);
 	real    convertDHitsToHits();
 #ifdef SUPPORT_LIGHTMAP
-	void    convertDHitsToLightmap(struct Lightmap *l,real zoomToLightmap);
+	void    convertDHitsToLightmap(class Lightmap *l,real zoomToLightmap);
 #endif
 #endif
 };
@@ -166,10 +169,11 @@ void    freeHitsLevel();
 //
 // form factor from implicit source to explicit destination
 
-struct Node;
+class Node;
 
-struct Factor
+class Factor
 {
+public:
 	Node    *destination;
 	real    power; // this part of shooted energy is transferred to destination
 	               // Q:is multiplied by destination's diffuseReflectance?
@@ -184,9 +188,9 @@ struct Factor
 
 extern unsigned __factorsAllocated;
 
-struct Factors
+class Factors
 {
-
+public:
 	Factors();
 	~Factors();
 	void    reset();
@@ -211,8 +215,9 @@ struct Factors
 //
 // thing that shoots and has form factors
 
-struct Shooter : public Factors
+class Shooter : public Factors
 {
+public:
 	Shooter();
 	~Shooter();
 	void    reset();
@@ -239,10 +244,11 @@ struct Shooter : public Factors
 // |       nodes              |
 
 extern unsigned __nodesAllocated;
-struct Triangle;
+class Triangle;
 
-struct Node
+class Node
 {
+public:
 	Node(Node *aparent,Triangle *agrandpa);
 	~Node();
 
@@ -337,8 +343,9 @@ struct Node
 extern unsigned __subtrianglesAllocated;
 extern void (*__oraculum)();//doplni vsude ve scene kde to jde splitVertex_rightLeft = informaci jak splitovat kdyz hrozi ze zaokrouhlovaci chybou splitne pokazdy jinak
 
-struct SubTriangle : public Node
+class SubTriangle : public Node
 {
+public:
 	SubTriangle(SubTriangle *aparent,Triangle *agrandpa);
 	~SubTriangle();
 
@@ -398,8 +405,9 @@ struct SubTriangle : public Node
 
 extern unsigned __lightmapsAllocated;
 
-struct Lightmap
+class Lightmap
 {
+public:
 	unsigned w;
 	unsigned h;
 	Point2  uv[3];
@@ -431,15 +439,16 @@ struct Lightmap
 extern unsigned __trianglesAllocated;
 extern unsigned __trianglesWithBadNormal;
 
-struct Triangle : public SubTriangle
+class Triangle : public SubTriangle
 {
+public:
 	Triangle();
 	~Triangle();
 	void    compact();
 
 	// genealogy
 #ifdef SUPPORT_DYNAMIC
-	struct TObject *object;
+	class TObject *object;
 #endif
 
 	// geometry
@@ -493,10 +502,11 @@ struct Triangle : public SubTriangle
 //
 // set of triangles
 
-struct Cluster;
+class Cluster;
 
-struct Triangles
+class Triangles
 {
+public:
 	Triangles();
 	~Triangles();
 	void    reset();
@@ -525,8 +535,9 @@ struct Triangles
 
 extern unsigned __clustersAllocated;
 
-struct Cluster : public Node
+class Cluster : public Node
 {
+public:
 	Cluster();
 	~Cluster();
 
@@ -542,10 +553,11 @@ struct Cluster : public Node
 //
 // set of reflectors (light sources and things that reflect some light, no dark things)
 
-struct Object;
+class Object;
 
-struct Reflectors
+class Reflectors
 {
+public:
 	unsigned nodes;
 
 	Reflectors();
@@ -591,8 +603,9 @@ struct Edge
 
 extern unsigned __edgesAllocated;
 
-struct Edges
+class Edges
 {
+public:
 	unsigned edges;
 
 	Edges();
@@ -609,48 +622,11 @@ struct Edges
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// bsp tree
-
-struct BspTree
-{
-	unsigned  size:30;
-	unsigned  front:1;
-	unsigned  back:1;
-	BspTree*  next()           {return (BspTree *)((char *)this+size);}
-	BspTree*  getFrontAdr()    {return this+1;}
-	BspTree*  getFront()       {return front?getFrontAdr():NULL;}
-	BspTree*  getBackAdr()     {return (BspTree *)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
-	BspTree*  getBack()        {return back?getBackAdr():NULL;}
-	Triangle**getTriangles()   {return (Triangle **)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
-	void*     getTrianglesEnd(){return (char*)this+size;}
-};
-
-struct KdTree
-{
-	U32       size:30;  //< size of this tree in bytes
-	U32       axis:2;   //< splitting axis, 0=x, 1=y, 2=z, 3=no more splitting
-	union {
-		U32       splitVertexNum;     //< !isLeaf -> index into vertex array, vertex that defines splitting plane
-		real      splitValue;         //< !isLeaf -> value readen from splitVertex for speed
-		U32       leafTriangleNum[1]; //< isLeaf -> (size-sizeof(size))/sizeof(data[0]) indices into triangle array
-		Triangle* leafTrianglePtr[1]; //< isLeaf -> leafTriangleNum converted to pointers for speed
-	};
-	bool      isLeaf()         {return axis==3;}
-	KdTree*   next()           {return (KdTree *)((char *)this+size);}
-	KdTree*   getFrontAdr()    {return this+1;}
-	KdTree*   getFront()       {return isLeaf()?NULL:getFrontAdr();}
-	KdTree*   getBackAdr()     {return (KdTree *)(isLeaf()?NULL:((char*)getFrontAdr()+getFrontAdr()->size));}
-	KdTree*   getBack()        {return isLeaf()?NULL:getBackAdr();}
-	Triangle**getTriangles()   {return leafTrianglePtr;}
-	void*     getTrianglesEnd(){return (char*)this+size;}
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // object, part of scene
 
-struct Object
+class Object
 {
+public:
 	Object(int avertices,int atriangles);
 	~Object();
 
@@ -799,5 +775,7 @@ void core_Init();
 void core_Done();
 
 #endif
+
+} // namespace
 
 #endif

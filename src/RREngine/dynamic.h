@@ -1,9 +1,12 @@
+#ifdef SUPPORT_DYNAMIC
+
 #ifndef _DYNAMIC_H
 #define _DYNAMIC_H
 
-#ifdef SUPPORT_DYNAMIC
-
 #include "core.h"
+
+namespace rrEngine
+{
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -99,6 +102,8 @@ struct DReflectors : public Reflectors
 
 extern unsigned __lightShotsPerDynamicFrame;
 extern unsigned __shadeShotsPerDynamicFrame;
+
+} // namespace
 
 #endif
 

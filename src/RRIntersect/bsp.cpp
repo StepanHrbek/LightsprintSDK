@@ -6,6 +6,8 @@
 #include <string.h>
 #include "bsp.h"
 
+using namespace rrIntersect;
+
 #define CACHE_SIZE 1000
 #define ZERO 0.00001
 #define DELTA 0.001

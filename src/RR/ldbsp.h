@@ -11,6 +11,8 @@
 #define BACK -1
 #define SPLIT 2
 
+typedef float MATRIX[4][4];
+
 typedef struct {
         int id,sx,sy,t,s;
         float x,y,z,u,v;

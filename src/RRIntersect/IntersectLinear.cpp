@@ -1,8 +1,10 @@
 #include "IntersectLinear.h"
-
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
+
+namespace rrIntersect
+{
 
 #define DBG(a) //a
 
@@ -225,4 +227,6 @@ bool IntersectLinear::intersect(RRRay* ray, RRHit* hit)
 IntersectLinear::~IntersectLinear()
 {
 	delete[] triangle;
+}
+
 }

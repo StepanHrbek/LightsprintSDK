@@ -1,7 +1,8 @@
 #ifndef _LDMGF_H
 #define _LDMGF_H
 
-#include "geometry.h" // kvuli real
+//#include "geometry.h" // kvuli real
+#define real float //!!!
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,5 +1,8 @@
 #include "surface.h"
 
+namespace rrEngine
+{
+
 /*
 1-sided vs 2-sided surface
 
@@ -65,3 +68,5 @@ SideBits sideBits[3][2]={
 	{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (outer side, inner side)
 	{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (outer side, inner side)
 };
+
+} // namespace

@@ -4,6 +4,9 @@
 #include "core.h"
 #include "intersections.h"
 
+namespace rrEngine
+{
+
 #define USE_BSP
 //#define USE_KD
 #define DBG(a) //a
@@ -193,3 +196,5 @@ bool Scene::intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,TObject 
 }
 
 #endif
+
+} // namespace

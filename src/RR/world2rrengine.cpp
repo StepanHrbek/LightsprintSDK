@@ -3,7 +3,7 @@
 #include <string.h>
 #include "ldmgf.h"
 #include "rrengine.h"
-#include "surface.h"
+//#include "surface.h"
 #include "world2rrengine.h"
 #include "world2rrintersect.h"
 
