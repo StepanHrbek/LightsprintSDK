@@ -3,11 +3,10 @@ TMP = #../../tmp/RREngine/
 
 CPPFLAGS = -Iinclude -I../../include -DSUPPORT_INTERPOL
 CPPFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
-#CPPFLAGS += -fomit-frame-pointer
-CPPFLAGS += -march=athlon-xp --param max-inline-insns-auto=300
-#CPPFLAGS += -msse -mfpmath=sse
+CPPFLAGS += -fomit-frame-pointer
+CPPFLAGS += -march=athlon-xp -msse --param max-inline-insns-auto=300
+#CPPFLAGS += -mfpmath=sse
 CC = gcc
-CPPFLAGS +=
 
 OBJS = $(TMP)RREngine.o $(TMP)core.o $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o
 

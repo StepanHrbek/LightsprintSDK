@@ -191,8 +191,6 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 #endif
 		}
 	}
-	// create bsp tree
-	//!!!
 	   
 #ifdef SUPPORT_DYNAMIC
 	obj->trianglesEmiting=tbot;

@@ -73,15 +73,15 @@ else
 endif
 
 ifdef DEBUG
- CFLAGS += -O1 # -O0 bez CLEAN_FACTORS spatne pocita, -O1 ok, nikdo nevi proc
+ CFLAGS += -O0
 else
  CFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
  ifndef PROFILE
   CFLAGS += -fomit-frame-pointer
   # -fprofile-use
  endif
- CFLAGS += -march=athlon-xp --param max-inline-insns-auto=300
- # CFLAGS += -msse -mfpmath=sse
+ CFLAGS += -march=athlon-xp -msse --param max-inline-insns-auto=300
+ # CFLAGS += -mfpmath=sse
 endif
 
 ifdef PACK

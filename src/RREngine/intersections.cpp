@@ -30,7 +30,6 @@ unsigned __shot=0;
 bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
   Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 {
-
 	DBG(printf("\n"));
 	__shot++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp

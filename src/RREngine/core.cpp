@@ -1070,43 +1070,6 @@ Triangle::Triangle() : SubTriangle(NULL,this)
 
 void Triangle::setGeometryCore(Normal *n)
 {
-	// set intersectByte,intersectReal
-	real rxy=l3.y*r3.x-l3.x*r3.y;
-	real ryz=l3.z*r3.y-l3.y*r3.z;
-	real rzx=l3.x*r3.z-l3.z*r3.x;
-	if(ABS(rxy)>=ABS(ryz))
-	  if(ABS(rxy)>=ABS(rzx))
-	  {
-	    intersectByte=0;
-	    intersectReal=rxy;
-	  }
-	  else
-	  {
-	    intersectByte=2;
-	    intersectReal=rzx;
-	  }
-	else
-	  if(ABS(ryz)>=ABS(rzx))
-	  {
-	    intersectByte=1;
-	    intersectReal=ryz;
-	  }
-	  else
-	  {
-	    intersectByte=2;
-	    intersectReal=rzx;
-	  }
-	if(ABS(r3.x)>=ABS(r3.y))
-	{
-	  if(ABS(r3.x)>=ABS(r3.z))
-	    intersectByte+=3;//max=r3.x
-	}
-	else
-	{
-	  if(ABS(r3.y)>=ABS(r3.z))
-	    intersectByte+=6;//max=r3.y
-	}
-
 	// set u3,v3,n3
 	u3=normalized(r3);
 	if(n)

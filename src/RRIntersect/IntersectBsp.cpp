@@ -124,7 +124,9 @@ begin:
 	TRIANGLE_HANDLE* triangle=(TRIANGLE_HANDLE*)((char*)back+(t->back?back->size:0));
 	assert(triangleNP);
 	Normal n=triangleNP[triangle[0]].n3;
+	DBGLINE
 	real distancePlane=intersect_plane_distance(ray,n);
+	DBGLINE
 	bool frontback =
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
 		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
@@ -164,6 +166,7 @@ begin:
 		{
 			ray->hitTriangle = *triangle;
 			ray->hitDistance = distancePlane;
+			DBGLINE
 			return true;
 		}
 		triangle++;
@@ -233,6 +236,7 @@ bool IntersectBsp::intersect(RRRay* ray) const
 	// fallback when bspgen failed (run from readonly disk etc)
 	if(!tree) 
 	{
+		DBGLINE
 		DBG(printf("Bsp fallback to linear."));
 		return IntersectLinear::intersect(ray);
 	}

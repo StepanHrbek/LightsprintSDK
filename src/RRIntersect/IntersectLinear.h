@@ -4,6 +4,9 @@
 #include "geometry.h"
 #include "RRIntersect.h"
 
+#define DBGLINE
+//#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);//fgetc(stdin);
+
 namespace rrIntersect
 {
 

@@ -1,13 +1,11 @@
 LIB = ../../lib/libRRIntersect.a
 TMP = #../../tmp/RRIntersect/
 
-MACH = 
-OPT = -O3 -Iinclude
-CPPFLAGS = $(MACH) $(OPT)
+CPPFLAGS = -Iinclude
 CPPFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
-CPPFLAGS += -march=athlon-xp --param max-inline-insns-auto=300
-#CPPFLAGS += -march=athlon-xp -msse -mfpmath=sse --param max-inline-insns-auto=300
-#CPPFLAGS += -fomit-frame-pointer
+CPPFLAGS += -fomit-frame-pointer
+CPPFLAGS += -march=athlon-xp -msse --param max-inline-insns-auto=300
+#CPPFLAGS += -mfpmath=sse
 CC = gcc
 
 OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)geometry.o $(TMP)IntersectBsp.o $(TMP)IntersectKd.o $(TMP)IntersectLinear.o $(TMP)RRIntersect.o $(TMP)sha1.o
