@@ -641,9 +641,6 @@
 				RelativePath="..\misc.h">
 			</File>
 			<File
-				RelativePath="..\parser.h">
-			</File>
-			<File
 				RelativePath="..\raster.h">
 				<FileConfiguration
 					Name="GL Debug|Win32"

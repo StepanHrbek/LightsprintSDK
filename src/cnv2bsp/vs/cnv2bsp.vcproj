@@ -22,6 +22,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -86,6 +87,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				ImproveFloatingPointConsistency="TRUE"
+				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
@@ -175,9 +177,6 @@
 			Filter="h;hpp;hxx;hm;inl">
 			<File
 				RelativePath="..\cnv2bsp.h">
-			</File>
-			<File
-				RelativePath="..\parser.h">
 			</File>
 		</Filter>
 		<Filter
