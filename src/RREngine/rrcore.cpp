@@ -1941,6 +1941,8 @@ void Object::buildEdges()
 
 Object::~Object()
 {
+	check();
+	delete intersector;
 	delete[] vertexIVertex;
 #ifndef ONLY_PLAYER
 	if(cluster) delete[] cluster;
@@ -2034,6 +2036,12 @@ bool Object::check()
 {
 	for(unsigned c=0;c<clusters;c++) assert(cluster[c].check());
 	for(unsigned t=0;t<triangles;t++) assert(triangle[t].check());
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
+	{
+		assert(triangle[t].topivertex[0]->contains(&triangle[t]));
+		assert(triangle[t].topivertex[1]->contains(&triangle[t]));
+		assert(triangle[t].topivertex[2]->contains(&triangle[t]));
+	}
 	return true;
 }
 
@@ -2982,6 +2990,7 @@ Scene::~Scene()
 {
 	abortStaticImprovement();
 	for(unsigned o=0;o<objects;o++) delete object[o];
+	free(object);
 	delete[] surface;
 }
 

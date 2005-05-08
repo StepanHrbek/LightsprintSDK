@@ -121,6 +121,7 @@ void IVertex::splitTopLevel(Vec3 *avertex)
 	{
 		assert(corner[i].node);
 		assert(corner[i].node->grandpa);
+		assert(corner[i].node->grandpa->surface);
 		bool found=false;
 		for(int k=0;k<3;k++)
 		{
@@ -516,7 +517,7 @@ void Object::buildTopIVertices()
 			assert(!triangle[t].topivertex[v]);
 	}
 	IVertex *topivertex=new IVertex[vertices];
-	for(unsigned t=0;t<triangles;t++)
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
 		unsigned un_ve[3];
 		importer->getTriangle(t,un_ve[0],un_ve[1],un_ve[2]);
@@ -544,8 +545,9 @@ void Object::buildTopIVertices()
 	{
 		fprintf(stderr,"Btw, scene contains %i never used vertices.\n",unusedVertices);
 	}
-	for(unsigned t=0;t<triangles;t++)
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
+		// ro_=rotated, un_=unchanged,original from importer
 		unsigned un_ve[3];
 		importer->getTriangle(t,un_ve[0],un_ve[1],un_ve[2]);
 		for(int ro_v=0;ro_v<3;ro_v++)
@@ -566,7 +568,6 @@ void Object::buildTopIVertices()
 			//assert(triangle[t].topivertex[v]);
 			assert(!triangle[t].topivertex[v] || triangle[t].topivertex[v]->error!=-45);
 		}
-
 }
 
 
