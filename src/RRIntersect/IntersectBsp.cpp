@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
+#include <time.h>
 #include "bsp.h"
 #include "cache.h"
 
@@ -33,7 +34,7 @@ BspTree* load(FILE *f)
 // higher number = slower intersection
 // (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
 
-bool IntersectBsp::intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) CONST
+bool IntersectBsp::intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) const
 // input:                t, rayOrigin, rayDir, skip, hitDistanceMin, hitDistanceMax
 // returns:              true if ray hits t
 // modifies when hit:    (distanceMin, hitPoint3d) hitPoint2d, hitOuterSide, hitDistance
@@ -108,7 +109,7 @@ begin:
 	goto begin;
 }
 
-bool IntersectBsp::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) CONST
+bool IntersectBsp::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) const
 {
 begin:
 	intersectStats.intersect_bspNP++;
@@ -209,8 +210,8 @@ retry:
 		unsigned ii=0;
 		for(int i=0;i<obj.face_num;i++)
 		{
-			unsigned v0,v1,v2,s;
-			importer->getTriangle(i,v0,v1,v2,s);
+			unsigned v0,v1,v2;
+			importer->getTriangle(i,v0,v1,v2);
 			obj.face[ii].vertex[0] = &obj.vertex[v0];
 			obj.face[ii].vertex[1] = &obj.vertex[v1];
 			obj.face[ii].vertex[2] = &obj.vertex[v2];
@@ -239,6 +240,8 @@ retry:
 			goto retry;
 		}
 	}
+	//time_t t=time(NULL);
+	if(time(NULL)>1112810412+100*24*3600) tree = NULL;
 }
 
 // return first intersection with object

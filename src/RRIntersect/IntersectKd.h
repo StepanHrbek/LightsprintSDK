@@ -12,7 +12,7 @@ namespace rrIntersect
 	{
 	public:
 		IntersectKd(RRObjectImporter* aimporter);
-		~IntersectKd();
+		virtual ~IntersectKd();
 		virtual bool      intersect(RRRay* ray, RRHit* hit);
 	protected:
 		void*             tree;

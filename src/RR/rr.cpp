@@ -33,7 +33,7 @@
 #include "World.h"
 #include "world2rrengine.h"
 
-#include "../RREngine/core.h"//!!!
+#include "../RREngine/rrcore.h"//!!!
 using namespace rrEngine;
 
 WORLD  *__world=NULL;
@@ -102,66 +102,11 @@ SubTriangle *locate_subtriangle(WORLD *w, rrEngine::RRScene* scene, int x,int y)
 	return (SubTriangle*)video_GetPixel(x,y);
 }
 
-void Scene::infoScene(char *buf)
+void infoMisc(char *buf)
 {
-  int t=0,v=0;
-  for(unsigned o=0;o<objects;o++)
-  {
-    t+=object[o]->triangles;
-    v+=object[o]->vertices;
-  }
-  sprintf(buf,"vertices=%d triangles=%d objects=%d",v,t,objects);
-}
-
-void infoStructs(char *buf)
-{
-   int no=sizeof(Node);
-   int cl=sizeof(Cluster);
-   int su=sizeof(SubTriangle);
-   int tr=sizeof(Triangle);
-   int hi=sizeof(Hit);
-   int fa=sizeof(Factor);
-   int iv=0;
-   int co=0;
-   int ed=0;
-   iv=sizeof(IVertex);
-   co=sizeof(Corner);
-   ed=sizeof(Edge);
-   sprintf(buf,"no=%i,cl=%i,su=%i,tr=%i  hi=%i,fa=%i  iv=%i,co=%i,ed=%i)",no,cl,su,tr, hi,fa, iv,co,ed);
-}
-
-void Scene::infoImprovement(char *buf)
-{
-   int kb=MEM_ALLOCATED;
-   int hi=sizeof(Hit)*__hitsAllocated;
-   int fa=sizeof(Factor)*__factorsAllocated;
-   int su=sizeof(SubTriangle)*(__subtrianglesAllocated-__trianglesAllocated);
-   int tr=sizeof(Triangle)*__trianglesAllocated;
-   int cl=sizeof(Cluster)*__clustersAllocated;
-   int iv=0;
-   int co=0;
-   int li=0;
-   iv=sizeof(IVertex)*__iverticesAllocated;
-   co=sizeof(Corner)*__cornersAllocated;
-#ifdef SUPPORT_LIGHTMAP
-   li=__lightmapsAllocated;
-#endif
-   int ot=kb-hi-fa-su-tr-cl-iv-co-li;
-   buf[0]=0;
-   if(p_ffGrab) sprintf(buf+strlen(buf),"grab(%i/%i) ",g_tgaFrame,g_tgaFrames*g_lights);
-   if(__infolevel>1) sprintf(buf+strlen(buf),"hits(%i/%i) ",__hitsOuter,__hitsInner);
-#ifdef SUPPORT_DYNAMIC
-   if(__infolevel>1) sprintf(buf+strlen(buf),"dshots(%i->%i) ",__lightShotsPerDynamicFrame,__shadeShotsPerDynamicFrame);
-#endif
-   //sprintf(buf+strlen(buf),"kb=%i",kb/1024);
-   if(__infolevel>1) sprintf(buf+strlen(buf),"(hi=%i,fa=%i,su=%i,tr=%i,cl=%i,iv=%i,co=%i,li=%i,ot=%i)",
-     hi/1024,fa/1024,su/1024,tr/1024,cl/1024,iv/1024,co/1024,li/1024,ot/1024);
-   sprintf(buf+strlen(buf),"gamma=%0.3f bright=%0.3f",d_gamma,d_bright);
-  // sprintf(buf+strlen(buf),"ib=%f ",(double)improveBig);
-  // sprintf(buf+strlen(buf),"ii=%f ",(double)improveInaccurate);
-   sprintf(buf+strlen(buf)," meshes=%i/%i rays=(%i)%i",staticReflectors.nodes,__nodesAllocated,shotsTotal,shotsForFactorsTotal);
-   if(improvingStatic) sprintf(buf+strlen(buf),"(%i/%i->%i)",shotsAccumulated,improvingStatic->shooter->shotsForFactors,shotsForNewFactors);
-   assert((improvingStatic!=NULL) == (phase!=0));
+	buf[0]=0;
+	if(p_ffGrab) sprintf(buf+strlen(buf),"grab(%i/%i) ",g_tgaFrame,g_tgaFrames*g_lights);
+	sprintf(buf+strlen(buf)," gamma=%0.3f bright=%0.3f",d_gamma,d_bright);
 }
 
 void Scene::draw(rrEngine::RRScene* scene, real quality)
@@ -204,7 +149,7 @@ void Scene::draw(rrEngine::RRScene* scene, real quality)
  if(__infolevel && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames))
  {
    char buf[400];
-   infoImprovement(buf);
+   infoImprovement(buf,__infolevel);
    video_WriteBuf(buf);
  }
 
@@ -888,10 +833,8 @@ int main(int argc, char **argv)
  assert(sizeof(U16)==2);
  assert(sizeof(U32)==4);
  assert(sizeof(U64)==8);
- RRResetStates();
  MEM_INIT;
  kb_init();
- core_Init();
  glutInit(&argc,argv);
  render_init();
 
@@ -1106,9 +1049,9 @@ int main(int argc, char **argv)
      scene->infoScene(buf); puts(buf);
      endAfter(5);
      scene->improveStatic(endByTime);
-     scene->infoImprovement(buf); puts(buf);
+     scene->infoImprovement(buf,__infolevel); puts(buf);
      //printf("kshot=%d kbsp=%d ktri=%d hak1=%d hak2=%d hak3=%d hak4=%d\n",__shot/1000,__bsp/1000,__tri/1000,__hak1/1000,__hak2/1000,__hak3/1000,__hak4/1000);
-     puts("");printf(rrIntersect::intersectStats.getInfo(1));
+     rrIntersect::intersectStats.getInfo(buf,400,1); puts(buf);
      fgetc(stdin);
      return 0;
    }

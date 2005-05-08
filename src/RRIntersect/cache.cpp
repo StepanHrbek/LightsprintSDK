@@ -42,8 +42,8 @@ const char* getFileName(RRObjectImporter* importer)
 	i = importer->getNumTriangles();
 	while(i--)
 	{
-		struct S {unsigned a,b,c,m;} s;
-		importer->getTriangle(i,s.a,s.b,s.c,s.m);
+		struct S {unsigned a,b,c;} s;
+		importer->getTriangle(i,s.a,s.b,s.c);
 		sha1_update(&ctx, (unsigned char*)&s, sizeof(s));
 	}
 	unsigned char digest[20];

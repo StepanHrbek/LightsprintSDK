@@ -26,11 +26,11 @@ namespace rrIntersect
 	{
 	public:
 		IntersectBsp(RRObjectImporter* aimporter);
-		~IntersectBsp();
-		virtual bool      intersect(RRRay* ray) CONST;
+		virtual ~IntersectBsp();
+		virtual bool      intersect(RRRay* ray) const;
 	protected:
-		bool              intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) CONST;
-		bool              intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) CONST;
+		bool              intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) const;
+		bool              intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) const;
 		BspTree*          tree;
 	};
 

@@ -17,7 +17,7 @@ RRObjectImporter::RRObjectImporter()
 	fastSRLN = false;
 }
 
-void RRObjectImporter::getTriangleN(unsigned i, TriangleN* t)
+void RRObjectImporter::getTriangleN(unsigned i, TriangleN* t) const
 {
 	TriangleSRLN tmp;
 	getTriangleSRLN(i,&tmp);
@@ -27,10 +27,10 @@ void RRObjectImporter::getTriangleN(unsigned i, TriangleN* t)
 	t->n[3]=tmp.n[3];
 }
 
-void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t)
+void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 {
-	unsigned v0,v1,v2,s;
-	getTriangle(i,v0,v1,v2,s);
+	unsigned v0,v1,v2;
+	getTriangle(i,v0,v1,v2);
 	real* v[3];
 	v[0] = getVertex(v0);
 	v[1] = getVertex(v1);
@@ -46,10 +46,10 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t)
 	t->l[2]=v[2][2]-v[0][2];
 }
 
-void RRObjectImporter::getTriangleSRLN(unsigned i, TriangleSRLN* t)
+void RRObjectImporter::getTriangleSRLN(unsigned i, TriangleSRLN* t) const
 {
-	unsigned v0,v1,v2,s;
-	getTriangle(i,v0,v1,v2,s);
+	unsigned v0,v1,v2;
+	getTriangle(i,v0,v1,v2);
 	real* v[3];
 	v[0] = getVertex(v0);
 	v[1] = getVertex(v1);
@@ -97,18 +97,19 @@ RRIntersectStats::RRIntersectStats()
 	memset(this,0,sizeof(*this));
 }
 
-char* RRIntersectStats::getInfo(unsigned level)
+void RRIntersectStats::getInfo(char *buf, unsigned len, unsigned level) const
 {
-	static char buf[1000];
 	buf[0]=0;
-	if(level>=1) _snprintf(buf+strlen(buf),999-strlen(buf),"Intersect stats:\n");
-	if(level>=1) _snprintf(buf+strlen(buf),999-strlen(buf)," rays=%d missed=%d(%d)\n",intersects,intersects-hits,(intersects-hits)/(intersects/100));
-	if(level>=1 && (intersect_bspSRLNP || intersect_triangleSRLNP)) _snprintf(buf+strlen(buf),999-strlen(buf)," bspSRLNP=%d(%d) triSRLNP=%d(%d)\n",intersect_bspSRLNP,intersect_bspSRLNP/intersects,intersect_triangleSRLNP,intersect_triangleSRLNP/intersects);
-	if(level>=1 && (intersect_bspNP    || intersect_triangleNP   )) _snprintf(buf+strlen(buf),999-strlen(buf)," bspNP=%d(%d) triNP=%d(%d)\n",intersect_bspNP,intersect_bspNP/intersects,intersect_bspNP,intersect_bspNP/intersects);
-	if(invalid_triangles) _snprintf(buf+strlen(buf),999-strlen(buf)," invalid_triangles=%d/%d\n",invalid_triangles,loaded_triangles);
-	if(intersect_linear) _snprintf(buf+strlen(buf),999-strlen(buf)," intersect_linear=%d\n",intersect_linear);
-	buf[999]=0;
-	return buf;
+	len--;
+	if(level>=1) _snprintf(buf+strlen(buf),len-strlen(buf),"Intersect stats:\n");
+	if(intersects>100) {
+	if(level>=1) _snprintf(buf+strlen(buf),len-strlen(buf)," rays=%d missed=%d(%d)\n",intersects,intersects-hits,(intersects-hits)/(intersects/100));
+	if(level>=1 && (intersect_bspSRLNP || intersect_triangleSRLNP)) _snprintf(buf+strlen(buf),len-strlen(buf)," bspSRLNP=%d(%d) triSRLNP=%d(%d)\n",intersect_bspSRLNP,intersect_bspSRLNP/intersects,intersect_triangleSRLNP,intersect_triangleSRLNP/intersects);
+	if(level>=1 && (intersect_bspNP    || intersect_triangleNP   )) _snprintf(buf+strlen(buf),len-strlen(buf)," bspNP=%d(%d) triNP=%d(%d)\n",intersect_bspNP,intersect_bspNP/intersects,intersect_bspNP,intersect_bspNP/intersects);
+	}
+	if(invalid_triangles) _snprintf(buf+strlen(buf),len-strlen(buf)," invalid_triangles=%d/%d\n",invalid_triangles,loaded_triangles);
+	if(intersect_linear) _snprintf(buf+strlen(buf),len-strlen(buf)," intersect_linear=%d\n",intersect_linear);
+	buf[len]=0;
 }
 
 } //namespace

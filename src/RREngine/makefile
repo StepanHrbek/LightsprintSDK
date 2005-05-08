@@ -8,7 +8,7 @@ CPPFLAGS += -march=athlon-xp -msse --param max-inline-insns-auto=300
 #CPPFLAGS += -mfpmath=sse
 CC = gcc
 
-OBJS = $(TMP)RREngine.o $(TMP)core.o $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o
+OBJS = $(TMP)RREngine.o $(TMP)rrcore.o $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o
 
 all: makefile $(LIB)
 
@@ -21,7 +21,7 @@ clean:
 	del $(TMP)*.o
 	del $(LIB)
 
-$(TMP)core.o: makefile
+$(TMP)rrcore.o: makefile
 
 $(TMP)dynamic.o: makefile
 

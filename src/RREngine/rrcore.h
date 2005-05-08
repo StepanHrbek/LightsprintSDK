@@ -1,8 +1,8 @@
-#ifndef RRENGINE_CORE_H
-#define RRENGINE_CORE_H
+#ifndef RRENGINE_RRCORE_H
+#define RRENGINE_RRCORE_H
 
 #include <stdarg.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include "geometry.h"
 #include "RREngine.h"
 #include "interpol.h"
@@ -644,6 +644,8 @@ public:
 };
 
 #else
+	real    getVertexRadiosity(unsigned avertex);
+	IVertex **vertexIVertex;
 
 	unsigned clusters;
 	Cluster *cluster;
@@ -717,7 +719,8 @@ public:
 	void    objInsertStatic(Object *aobject);
 	void    objRemoveStatic(unsigned o);
 	unsigned objNdx(Object *aobject);
-	bool    improveStatic(bool endfunc(Scene *));
+	typedef bool ENDFUNC(Scene*);
+	bool    improveStatic(ENDFUNC endfunc);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
@@ -754,7 +757,8 @@ public:
 
 	// get info
 	void    infoScene(char *buf);
-	void    infoImprovement(char *buf);
+	void    infoStructs(char *buf);
+	void    infoImprovement(char *buf, int infolevel);
 	real    avgAccuracy();
 
 	private:

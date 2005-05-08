@@ -29,7 +29,7 @@
 #endif
 #endif
 
-#include "../RREngine/core.h"//!!!
+#include "../RREngine/rrcore.h"//!!!
 using namespace rrEngine;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -127,9 +127,9 @@ void drawEngine(rrEngine::RRScene* scene, unsigned o, unsigned t, Triangle *f)
 	v[0]=f->to3d(0);
 	v[1]=f->to3d(1);
 	v[2]=f->to3d(2);
-	brightness[0]=getBrightness(scene->triangleGetRadiosity(o,t,0));
-	brightness[1]=getBrightness(scene->triangleGetRadiosity(o,t,1));
-	brightness[2]=getBrightness(scene->triangleGetRadiosity(o,t,2));
+	brightness[0]=getBrightness(scene->getTriangleRadiosity(o,t,0));
+	brightness[1]=getBrightness(scene->getTriangleRadiosity(o,t,1));
+	brightness[2]=getBrightness(scene->getTriangleRadiosity(o,t,2));
 #ifdef RASTERGL
 	raster_ZGouraud(v,((Surface*)f->grandpa->surface)->diffuseReflectanceColorTable,brightness);
 #else
@@ -887,29 +887,157 @@ void render_object(rrEngine::RRScene* scene, unsigned o, Object* obj, MATRIX& im
 }
 
 #ifdef RASTERGL
+void renderWorld_Lights0(WORLD *w, int camera_id)
+{
+	for (int i=0;i<w->object_num;i++) 
+	{
+		if(camera_id>=0) 
+		{
+			MATRIX cm,im,om;
+			OBJECT *o=&w->object[i];
+			matrix_Copy(w->camera[camera_id].inverse,cm);
+			matrix_Copy(o->transform,om);
+			matrix_Mul(cm,om);
+			matrix_Invert(cm,im);
+			raster_SetMatrix(&cm,&im);
+		}
+		mgf_draw_colored();
+		return;
+	}
+}
+
+void renderWorld_Lights1(WORLD *w, int camera_id)
+{
+	if (softLight<0) updateDepthMap();
+
+	if (clear) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	if (wireFrame) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
+	setupEyeView();
+	glLightfv(GL_LIGHT0, GL_POSITION, lv);
+
+	if (useShadowMapSupport) {
+		drawHardwareShadowPass();
+	} else {
+		drawDualTextureShadowPasses();
+		blendTexturedFloor();
+	}
+
+	drawLight();
+	drawShadowMapFrustum();
+}
+
+void placeSoftLight(int n)
+{
+	softLight=n;
+	static float oldLightAngle,oldLightHeight;
+	if(n==-1) { // init, before all
+		oldLightAngle=lightAngle;
+		oldLightHeight=lightHeight;
+		glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 1);
+		glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90); // no light behind spotlight
+		glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
+		return;
+	}
+	if(n==-2) { // done, after all
+		lightAngle=oldLightAngle;
+		lightHeight=oldLightHeight;
+		updateMatrices();
+		return;
+	}
+	// place one point light approximating part of area light
+	if(useLights>1) {
+		switch(areaType) {
+      case 0: // linear
+	      lightAngle=oldLightAngle+0.2*(n/(useLights-1.)-0.5);
+	      lightHeight=oldLightHeight-0.4*n/useLights;
+	      break;
+      case 1: // rectangular
+	      {int q=(int)sqrtf(useLights-1)+1;
+	      lightAngle=oldLightAngle+0.1*(n/q/(q-1.)-0.5);
+	      lightHeight=oldLightHeight+(n%q/(q-1.)-0.5);}
+	      break;
+      case 2: // circular
+	      lightAngle=oldLightAngle+sin(n*2*3.14159/useLights)/20;
+	      lightHeight=oldLightHeight+cos(n*2*3.14159/useLights)/2;
+	      break;
+		}
+		updateMatrices();
+	}
+	GLfloat ld[3]={-lv[0],-lv[1],-lv[2]};
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, ld);
+}
+
 void setLightIntensity(float* col)
 {
 	float zero[4]={1,0,0,1};
+	float col[4];
 	glLightfv(GL_LIGHT0, GL_AMBIENT, zero);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, col);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
+}
+
+void renderWorld_LightsN(WORLD *w, int camera_id, unsigned useLights, bool useAccum)
+{
+	int i;
+	placeSoftLight(-1);
+	for(i=0;i<useLights;i++)
+	{
+		placeSoftLight(i);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		renderWorld_Depth(i);
+	}
+	if(useAccum) {
+		glClear(GL_ACCUM_BUFFER_BIT);
+	} else {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		setupEyeView();
+		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zero);
+		glDisable(GL_LIGHTING)
+		renderWorld_Lights0(w,camera_id);
+		glEnable(GL_LIGHTING)
+		globalIntensity=1./useLights;
+		glBlendFunc(GL_ONE,GL_ONE);
+		glEnable(GL_BLEND);
+	}
+	for(i=0;i<useLights;i++)
+	{
+		placeSoftLight(i);
+		renderWorld_Lights1(useAccum);
+		if(useAccum) {
+			glAccum(GL_ACCUM,1./useLights);
+		}
+	}
+	placeSoftLight(-2);
+	if(useAccum) {
+		glAccum(GL_RETURN,1);
+	} else {  
+		glDisable(GL_BLEND);
+		globalIntensity=1;
+	}
 }
 #endif
 
 void render_world(WORLD *w, rrEngine::RRScene* scene, int camera_id, bool mirrorFrame)
 {
-	/*
 #ifdef RASTERGL
+	renderWorldInstantRadiosity(w,camera_id); return;
+
 	float col[4]={1,1,1,1};
 	setLightIntensity(col);
 	glLightfv(GL_LIGHT0, GL_POSITION, col);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	renderWorldGeometry(w,camera_id);
+	return;
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//setupEyeView();
 	//drawShadowMapFrustum();
 #endif
-	*/
 
 	// TIME t0=GETTIME;
 	MATRIX cm,im,om;
@@ -947,14 +1075,7 @@ void render_world(WORLD *w, rrEngine::RRScene* scene, int camera_id, bool mirror
 #endif
 				raster_SetMatrix(&cm,&im);
 			}
-			/*
-#ifdef RASTERGL
-			mgf_draw_colored();
-			return;
-#else
-			*/
 			render_object(scene,i,obj,im);
-//#endif
 		}
 	}
 	/*

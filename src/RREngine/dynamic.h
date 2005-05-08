@@ -3,7 +3,7 @@
 #ifndef RRENGINE_DYNAMIC_H
 #define RRENGINE_DYNAMIC_H
 
-#include "core.h"
+#include "rrcore.h"
 
 namespace rrEngine
 {

@@ -1,7 +1,8 @@
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
-#include "core.h"
+#include "rrengine.h" // dbgray
+#include "rrcore.h"
 #include "intersections.h"
 
 using namespace rrIntersect;
@@ -27,15 +28,17 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	DBG(printf("\n"));
 	__shot++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
+	assert(fabs(sizeSquare(direction)-1)<0.001); // normalized dir expected
+	int ii=1;//!!!
 #ifdef SUPPORT_DYNAMIC
 	// transform from scenespace to objectspace
-	Vec3 i_eye;
-	Vec3 i_direction;
-	i_eye = eye.transformed(inverseMatrix);
-	direction = (eye+direction).transformed(inverseMatrix)-i_eye;
-	eye = i_eye;
+	// translation+rotation allowed, no scaling, so direction stays normalized
+	Vec3 eye_t = eye.transformed(inverseMatrix);
+	direction = (eye+direction).transformed(inverseMatrix)-eye_t;
+	eye = eye_t;
 #endif
-	assert(fabs(sizeSquare(direction)-1)<0.001);//ocekava normalizovanej dir
+	direction = normalized(direction); //!!!
+	assert(fabs(sizeSquare(direction)-1)<0.005); // normalized dir expected
 
 
 	RRRay ray;
@@ -97,8 +100,12 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	return res;
 }
 
-// return first intersection with "scene minus *skip minus dynamic objects"
+#include <memory.h>
+DbgRay dbgRay[MAX_DBGRAYS];
+unsigned dbgRays=0;
+#define LOG_RAY(aeye,adir,adist) { memcpy(dbgRay[dbgRays].eye,&aeye,sizeof(Vec3)); memcpy(dbgRay[dbgRays].dir,&adir,sizeof(Vec3)); dbgRay[dbgRays].dist=adist; ++dbgRays%=MAX_DBGRAYS; }
 
+// return first intersection with "scene minus *skip minus dynamic objects"
 bool Scene::intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,
   Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 {
@@ -111,6 +118,7 @@ bool Scene::intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,
 		if(object[o]->bound.intersect(eye,direction,*hitDistance))
 			if(object[o]->intersection(eye,direction,skip,hitTriangle,hitPoint2d,hitOuterSide,hitDistance))
 				 hit=true;
+	LOG_RAY(eye,direction,hit?*hitDistance:-1);
 	return hit;
 }
 

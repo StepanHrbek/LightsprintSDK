@@ -301,8 +301,8 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 		triangleSRLNP = new TriangleSRLNP[triangles];
 	for(unsigned i=0;i<triangles;i++)
 	{
-		unsigned v0,v1,v2,s;
-		importer->getTriangle(i,v0,v1,v2,s);
+		unsigned v0,v1,v2;
+		importer->getTriangle(i,v0,v1,v2);
 		real* p0 = importer->getVertex(v0);
 		real* p1 = importer->getVertex(v1);
 		real* p2 = importer->getVertex(v2);
@@ -312,7 +312,7 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 	}
 }
 
-bool IntersectLinear::isValidTriangle(unsigned i) CONST
+bool IntersectLinear::isValidTriangle(unsigned i) const
 {
 	return (triangleSRLNP && triangleSRLNP[i].intersectByte<10) || (triangleNP && triangleNP[i].intersectByte<10) || (triangleP && triangleP[i].intersectByte<10);
 }

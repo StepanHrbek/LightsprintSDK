@@ -1,4 +1,3 @@
-#include <string.h>
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
@@ -13,7 +12,7 @@
  #endif
 #endif
 //#include "libff/ff.h"
-#include "core.h"
+#include "rrcore.h"
 
 namespace rrEngine
 {
@@ -103,7 +102,7 @@ bool  __errors=false; // was there errors during batch work? used to set result
 
 unsigned  __frameNumber=1; // frame number increased after each draw
 
-RRColor __colorFilter={0.33f,0.33f,0.33f}; // see core.h
+RRColor __colorFilter={0.33f,0.33f,0.33f}; // see rrcore.h
 
 bool  __preserveFactors=false; // preserve factors in Factors::reset(), needed if we want resetStaticIllumination() but not factors
 
@@ -1859,6 +1858,15 @@ Object::Object(int avertices,int atriangles)
 	inverseMatrix=NULL;
 	matrixDirty=false;
 #endif
+	vertexIVertex=new IVertex*[vertices];
+	memset(vertexIVertex,0,sizeof(void*)*vertices);
+}
+
+real Object::getVertexRadiosity(unsigned avertex)
+{
+	assert(avertex<vertices);
+	assert(vertexIVertex[avertex]);
+	return vertexIVertex[avertex]->radiosity();
 }
 
 void addEdgeWith(Triangle *t1,va_list ap)
@@ -1914,9 +1922,8 @@ void Object::buildEdges()
 	for(unsigned t=0;t<triangles;t++)
 		for(int v1=0;v1<3;v1++)
 		{
-			//unsigned v=(unsigned)(triangle[t].getVertex(v1)-vertex);
-			unsigned ve[3],si;
-			importer->getTriangle(t,ve[0],ve[1],ve[2],si);
+			unsigned ve[3];
+			importer->getTriangle(t,ve[0],ve[1],ve[2]);
 			unsigned v = ve[(v1+triangle[t].rotations)%3];
 			assert(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
 			trianglesInV[v].insert(&triangle[t]);
@@ -1934,6 +1941,7 @@ void Object::buildEdges()
 
 Object::~Object()
 {
+	delete[] vertexIVertex;
 #ifndef ONLY_PLAYER
 	if(cluster) delete[] cluster;
 #endif
@@ -1953,8 +1961,8 @@ void Object::resetStaticIllumination()
 	for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset();triangle[t].flags=flag;}
 	// nastavi akumulatory na pocatecni hodnoty
 	energyEmited=0;
-	for(unsigned t=0;t<triangles;t++) energyEmited+=fabs(triangle[t].setSurface(triangle[t].surface));
-	for(unsigned t=0;t<triangles;t++) triangle[t].propagateEnergyUp();
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) energyEmited+=fabs(triangle[t].setSurface(triangle[t].surface));
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
 }
 
 bool Object::contains(Triangle *t)
@@ -2357,6 +2365,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	// transform from shooter's objectspace to scenespace
 	Point3 srcPoint3t=srcPoint3.transformed(source->grandpa->object->transformMatrix);
 	rayVec3=(srcPoint3+rayVec3).transformed(source->grandpa->object->transformMatrix)-srcPoint3t;
+	rayVec3=normalized(rayVec3);//!!! neccessary only for transforms with scale
 	srcPoint3=srcPoint3t;
 #endif
 	// cast ray
@@ -2977,6 +2986,66 @@ Scene::~Scene()
 }
 
 
+void Scene::infoScene(char *buf)
+{
+	int t=0,v=0;
+	for(unsigned o=0;o<objects;o++)
+	{
+		t+=object[o]->triangles;
+		v+=object[o]->vertices;
+	}
+	sprintf(buf,"vertices=%d triangles=%d objects=%d",v,t,objects);
+}
+
+void Scene::infoStructs(char *buf)
+{
+	int no=sizeof(Node);
+	int cl=sizeof(Cluster);
+	int su=sizeof(SubTriangle);
+	int tr=sizeof(Triangle);
+	int hi=sizeof(Hit);
+	int fa=sizeof(Factor);
+	int iv=0;
+	int co=0;
+	int ed=0;
+	iv=sizeof(IVertex);
+	co=sizeof(Corner);
+	ed=sizeof(Edge);
+	sprintf(buf,"no=%i,cl=%i,su=%i,tr=%i  hi=%i,fa=%i  iv=%i,co=%i,ed=%i)",no,cl,su,tr, hi,fa, iv,co,ed);
+}
+
+void Scene::infoImprovement(char *buf, int infolevel)
+{
+	int kb=0;
+	int hi=sizeof(Hit)*__hitsAllocated;
+	int fa=sizeof(Factor)*__factorsAllocated;
+	int su=sizeof(SubTriangle)*(__subtrianglesAllocated-__trianglesAllocated);
+	int tr=sizeof(Triangle)*__trianglesAllocated;
+	int cl=sizeof(Cluster)*__clustersAllocated;
+	int iv=0;
+	int co=0;
+	int li=0;
+	iv=sizeof(IVertex)*__iverticesAllocated;
+	co=sizeof(Corner)*__cornersAllocated;
+#ifdef SUPPORT_LIGHTMAP
+	li=__lightmapsAllocated;
+#endif
+	int ot=kb-hi-fa-su-tr-cl-iv-co-li;
+	buf[0]=0;
+	if(infolevel>1) sprintf(buf+strlen(buf),"hits(%i/%i) ",__hitsOuter,__hitsInner);
+#ifdef SUPPORT_DYNAMIC
+	if(infolevel>1) sprintf(buf+strlen(buf),"dshots(%i->%i) ",__lightShotsPerDynamicFrame,__shadeShotsPerDynamicFrame);
+#endif
+	//sprintf(buf+strlen(buf),"kb=%i",kb/1024);
+	if(infolevel>1) sprintf(buf+strlen(buf),"(hi=%i,fa=%i,su=%i,tr=%i,cl=%i,iv=%i,co=%i,li=%i,ot=%i)",
+		hi/1024,fa/1024,su/1024,tr/1024,cl/1024,iv/1024,co/1024,li/1024,ot/1024);
+	// sprintf(buf+strlen(buf),"ib=%f ",(double)improveBig);
+	// sprintf(buf+strlen(buf),"ii=%f ",(double)improveInaccurate);
+	sprintf(buf+strlen(buf)," meshes=%i/%i rays=(%i)%i",staticReflectors.nodes,__nodesAllocated,shotsTotal,shotsForFactorsTotal);
+	if(improvingStatic) sprintf(buf+strlen(buf),"(%i/%i->%i)",shotsAccumulated,improvingStatic->shooter->shotsForFactors,shotsForNewFactors);
+	assert((improvingStatic!=NULL) == (phase!=0));
+}
+
 void core_Done()
 {
 	assert(__levels);
@@ -3021,7 +3090,6 @@ void core_Init()
 {
 	assert(!__levels);
 	__levels=new LevelHits();
-	atexit(core_Done);
 }
 
 #endif

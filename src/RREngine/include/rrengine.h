@@ -89,11 +89,14 @@ namespace rrEngine
 	{
 	public:
 		// must not change during object lifetime
+		virtual unsigned     getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*   getSurface(unsigned s) = 0;
 
 		// may change during object lifetime
 		virtual const float* getWorldMatrix() = 0;
 		virtual const float* getInvWorldMatrix() = 0;
+
+		virtual ~RRSceneObjectImporter() {};
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -128,20 +131,21 @@ namespace rrEngine
 		bool          intersect(rrIntersect::RRRay* ray);
 		
 		// calculate radiosity
-		typedef       bool ENDFUNC(class Scene*);
+		typedef       bool ENDFUNC(void*);
 		void          sceneResetStatic();
 		bool          sceneImproveStatic(ENDFUNC endfunc);
 
 		// read vertex results
-		float         triangleGetRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex);
-
+		float         getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex);
+		float         getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex);
 		// read instant radiosity points
-		unsigned      getInstantRadiosityPoints(unsigned n, InstantRadiosityPoint* point);
+		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
 
 		// misc: misc
 		void          compact();
 		
 		// misc: development
+		void          getInfo(char* buf, unsigned type);
 		void*         getScene();
 		void*         getObject(OBJECT_HANDLE object);
 
@@ -178,6 +182,16 @@ namespace rrEngine
 	// DEMA
 	// viewer
 	// grabber+player
+
+	struct DbgRay
+	{
+		float eye[3];
+		float dir[3];
+		RRreal dist;
+	};
+	#define MAX_DBGRAYS 10000
+	extern DbgRay dbgRay[MAX_DBGRAYS];
+	extern unsigned dbgRays;
 
 } // namespace
 

@@ -13,36 +13,35 @@ WorldObjectImporter::~WorldObjectImporter()
 {
 }
 
-unsigned WorldObjectImporter::getNumVertices()
+unsigned WorldObjectImporter::getNumVertices() const
 {
 	assert(object);
 	return object->vertex_num;
 }
 
-float* WorldObjectImporter::getVertex(unsigned i)
+float* WorldObjectImporter::getVertex(unsigned i) const
 {
 	assert(object);
 	assert(i<object->vertex_num);
 	return &object->vertex[i].x;
 }
 
-unsigned WorldObjectImporter::getNumTriangles()
+unsigned WorldObjectImporter::getNumTriangles() const
 {
 	assert(object);
 	return object->face_num;
 }
 
-void WorldObjectImporter::getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2, unsigned& si)
+void WorldObjectImporter::getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2) const
 {
 	assert(object);
 	assert(i<object->face_num);
 	v0=object->face[i].vertex[0]->id;
 	v1=object->face[i].vertex[1]->id;
 	v2=object->face[i].vertex[2]->id;
-	si=object->face[i].material;
 }
 
-void WorldObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t)
+void WorldObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 {
 	assert(object);
 	assert(i<object->face_num);

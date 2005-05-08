@@ -20,7 +20,8 @@ public:
 	virtual ~WorldSceneObjectImporter();
 	
 	// must not change during object lifetime
-	virtual RRSurface* getSurface(unsigned si);
+	virtual unsigned     getTriangleSurface(unsigned i) const;
+	virtual RRSurface*   getSurface(unsigned si);
 
 	// may change during object lifetime
 	virtual const float* getWorldMatrix();
@@ -43,6 +44,13 @@ WorldSceneObjectImporter::WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobjec
 
 WorldSceneObjectImporter::~WorldSceneObjectImporter()
 {
+}
+
+unsigned WorldSceneObjectImporter::getTriangleSurface(unsigned i) const
+{
+	assert(object);
+	assert(i<object->face_num);
+	return object->face[i].material;
 }
 
 RRSurface* WorldSceneObjectImporter::getSurface(unsigned si)

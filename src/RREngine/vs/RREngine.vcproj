@@ -19,7 +19,8 @@
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			CharacterSet="2"
+			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
@@ -30,7 +31,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;SUPPORT_INTERPOL;SUPPORT_DYNAMIC"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				EnableEnhancedInstructionSet="1"
 				DisableLanguageExtensions="TRUE"
@@ -40,14 +41,15 @@
 				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/"
+				ProgramDataBaseFileName="$(OutDir)/$(ProjectName).pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCLibrarianTool"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
 				TypeLibraryName="$(IntDir)/RREngine.tlb"
@@ -84,20 +86,20 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				ImproveFloatingPointConsistency="TRUE"
+				ImproveFloatingPointConsistency="FALSE"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;SUPPORT_INTERPOL;SUPPORT_DYNAMIC"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="5"
-				StructMemberAlignment="0"
+				RuntimeLibrary="1"
 				DisableLanguageExtensions="TRUE"
 				ForceConformanceInForLoopScope="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/"
+				ProgramDataBaseFileName="$(OutDir)/$(ProjectName).pdb"
+				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -105,7 +107,8 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCLibrarianTool"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
 				TypeLibraryName="$(IntDir)/RREngine.tlb"
@@ -139,9 +142,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\core.cpp">
-			</File>
-			<File
 				RelativePath="..\dynamic.cpp">
 			</File>
 			<File
@@ -154,15 +154,15 @@
 				RelativePath="..\intersections.cpp">
 			</File>
 			<File
+				RelativePath="..\rrcore.cpp">
+			</File>
+			<File
 				RelativePath="..\RREngine.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
-			<File
-				RelativePath="..\core.h">
-			</File>
 			<File
 				RelativePath="..\dynamic.h">
 			</File>
@@ -174,6 +174,9 @@
 			</File>
 			<File
 				RelativePath="..\intersections.h">
+			</File>
+			<File
+				RelativePath="..\rrcore.h">
 			</File>
 			<File
 				RelativePath="..\include\RREngine.h">

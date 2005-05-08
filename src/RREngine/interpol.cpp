@@ -4,7 +4,7 @@
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "core.h"
+#include "rrcore.h"
 #include "interpol.h"
 
 namespace rrEngine
@@ -210,7 +210,7 @@ void IVertex::loadCache(real r)
 #endif
 
 bool IVertex::remove(Node *node,bool toplevel)
-// returns true when last corner removed (-> iverted should be deleted)
+// returns true when last corner removed (-> ivertex should be deleted)
 //!!! vsechna volani nastavuji do toplevel false
 {
 	bool removed=false;
@@ -518,18 +518,18 @@ void Object::buildTopIVertices()
 	IVertex *topivertex=new IVertex[vertices];
 	for(unsigned t=0;t<triangles;t++)
 	{
-		for(int v1=0;v1<3;v1++)
+		unsigned un_ve[3];
+		importer->getTriangle(t,un_ve[0],un_ve[1],un_ve[2]);
+		for(int ro_v=0;ro_v<3;ro_v++)
 		{
-			unsigned ve[3],si;
-			importer->getTriangle(t,ve[0],ve[1],ve[2],si);
-			unsigned v = ve[(v1+triangle[t].rotations)%3];
-			assert(v>=0 && v<vertices);
-			triangle[t].topivertex[v1]=&topivertex[v];
+			unsigned un_v = un_ve[(ro_v+triangle[t].rotations)%3];
+			assert(un_v<vertices);
+			triangle[t].topivertex[ro_v]=&topivertex[un_v];
 			Angle angle=angleBetween(
-			  *triangle[t].getVertex((v1+1)%3)-*triangle[t].getVertex(v1),
-			  *triangle[t].getVertex((v1+2)%3)-*triangle[t].getVertex(v1));
-			topivertex[v].insert(&triangle[t],true,angle,
-			  *triangle[t].getVertex(v1)
+			  *triangle[t].getVertex((ro_v+1)%3)-*triangle[t].getVertex(ro_v),
+			  *triangle[t].getVertex((ro_v+2)%3)-*triangle[t].getVertex(ro_v));
+			topivertex[un_v].insert(&triangle[t],true,angle,
+			  *triangle[t].getVertex(ro_v)
 			  );
 		}
 	}
@@ -545,20 +545,27 @@ void Object::buildTopIVertices()
 		fprintf(stderr,"Btw, scene contains %i never used vertices.\n",unusedVertices);
 	}
 	for(unsigned t=0;t<triangles;t++)
-	  for(int v=0;v<3;v++)
-	  {
-	    //assert(triangle[t].topivertex[v]);
-	    assert(!triangle[t].topivertex[v] || triangle[t].topivertex[v]->error!=-45);
-	  }
+	{
+		unsigned un_ve[3];
+		importer->getTriangle(t,un_ve[0],un_ve[1],un_ve[2]);
+		for(int ro_v=0;ro_v<3;ro_v++)
+		{
+			//assert(triangle[t].topivertex[v]);
+			assert(!triangle[t].topivertex[ro_v] || triangle[t].topivertex[ro_v]->error!=-45);
+			unsigned un_v = un_ve[(ro_v+triangle[t].rotations)%3];
+			assert(un_v<vertices);
+			vertexIVertex[un_v]=triangle[t].topivertex[ro_v]; // un[un]=ro[ro]
+		}
+	}
 
 	delete[] topivertex;
 
 	for(unsigned t=0;t<triangles;t++)
-	  for(int v=0;v<3;v++)
-	  {
-	    //assert(triangle[t].topivertex[v]);
-	    assert(!triangle[t].topivertex[v] || triangle[t].topivertex[v]->error!=-45);
-	  }
+		for(int v=0;v<3;v++)
+		{
+			//assert(triangle[t].topivertex[v]);
+			assert(!triangle[t].topivertex[v] || triangle[t].topivertex[v]->error!=-45);
+		}
 
 }
 

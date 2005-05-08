@@ -2,13 +2,13 @@
 #include <math.h>
 #include <memory.h>
 #include <stdio.h>
-#include "core.h"
+#include "rrcore.h"
 #include "RREngine.h"
 
 /*
 #ifdef ONE
 #include "geometry.cpp"
-#include "core.cpp"
+#include "rrcore.cpp"
 #include "intersections.cpp"
 #ifdef SUPPORT_INTERPOL
 #include "interpol.cpp"
@@ -18,7 +18,7 @@
 #endif
 #else
 #include "geometry.h"
-#include "core.h"
+#include "rrcore.h"
 #include "intersections.h"
 #ifdef SUPPORT_INTERPOL
 #include "interpol.h"
@@ -127,8 +127,9 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 //	int ttop=obj->triangles-1;
 //#endif
 	for (unsigned fi=0;fi<obj->triangles;fi++) {
-		unsigned v0,v1,v2,si;
-		importer->getTriangle(fi,v0,v1,v2,si);
+		unsigned v0,v1,v2;
+		importer->getTriangle(fi,v0,v1,v2);
+		unsigned si = importer->getTriangleSurface(fi);
 		RRSurface* s=importer->getSurface(si);
 		assert(s);
 		// rozhodne zda vlozit face dolu mezi emitory nebo nahoru mezi ostatni
@@ -206,26 +207,46 @@ void RRScene::sceneResetStatic()
 
 bool RRScene::sceneImproveStatic(ENDFUNC endfunc)
 {
-	return scene->improveStatic(endfunc);
+	__frameNumber++;
+	return scene->improveStatic((Scene::ENDFUNC*)endfunc);
 }
 
 void RRScene::compact()
 {
 }
 
-RRreal RRScene::triangleGetRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
+RRreal RRScene::getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex)
+{
+	assert(object<scene->objects);
+	Object* obj = scene->object[object];
+	return obj->getVertexRadiosity(vertex);
+}
+
+RRreal RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
 	assert(triangle<obj->triangles);
 	Triangle* tri = &obj->triangle[triangle];
-	if(vertex>=3) return (tri->energyDirect + tri->getEnergyDynamic()) / tri->area;
+	//if(vertex>=3) return (tri->energyDirect + tri->getEnergyDynamic()) / tri->area;
+	vertex=(vertex+3-tri->rotations)%3;
 	return tri->topivertex[vertex]->radiosity();
 }
 
-unsigned RRScene::getInstantRadiosityPoints(unsigned n, RRScene::InstantRadiosityPoint* point)
+unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)
 {
 	return scene->getInstantRadiosityPoints(n,point);
+}
+
+void RRScene::getInfo(char* buf, unsigned type)
+{
+	switch(type)
+	{
+	case 0: scene->infoScene(buf); break;
+	case 1: scene->infoImprovement(buf,2); break;
+	case 2: rrIntersect::intersectStats.getInfo(buf,900,2); break;
+	case 3: scene->infoStructs(buf); break;
+	}
 }
 
 void* RRScene::getScene()
@@ -244,6 +265,10 @@ union StateValue
 	unsigned u;
 	real r;
 };
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// set/get state
 
 static StateValue RRSSValue[RRSS_LAST];
 
@@ -281,5 +306,29 @@ real RRSetStateF(RRSceneState state, real value)
 	RRSSValue[state].r = value;
 	return tmp;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// global init/done
+
+class RREngine
+{
+public:
+	RREngine();
+	~RREngine();
+};
+
+RREngine::RREngine()
+{
+	core_Init();
+	RRResetStates();
+}
+
+RREngine::~RREngine()
+{
+	core_Done();
+}
+
+static RREngine engine;
 
 } // namespace
