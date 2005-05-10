@@ -228,6 +228,7 @@ RRreal RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, un
 	Object* obj = scene->object[object];
 	assert(triangle<obj->triangles);
 	Triangle* tri = &obj->triangle[triangle];
+	if(!tri->surface) return 0;
 	//if(vertex>=3) return (tri->energyDirect + tri->getEnergyDynamic()) / tri->area;
 	vertex=(vertex+3-tri->rotations)%3;
 	return tri->topivertex[vertex]->radiosity();
