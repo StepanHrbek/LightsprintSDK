@@ -1204,7 +1204,7 @@ int Scene::turnLight(int whichLight,real intensity)
 	return light;
 }
 
-real Triangle::setSurface(RRSurface *s)
+real Triangle::setSurface(RRSurface *s, real additionalEnergy)
 {
 	assert(area!=0);//setGeometry must be called before setSurface
 	assert(s);
@@ -1213,8 +1213,8 @@ real Triangle::setSurface(RRSurface *s)
 	real g=surface->diffuseEmittanceColor[1];
 	real b=surface->diffuseEmittanceColor[2];
 	real filteringCoef=(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
-	real e=surface->diffuseEmittance*area*filteringCoef;
-	assert(surface->diffuseEmittance>=0);
+	real e=(surface->diffuseEmittance*area+additionalEnergy)*filteringCoef;
+	assert(surface->diffuseEmittance+additionalEnergy>=0);
 	assert(area>=0);
 	assert(filteringCoef>=0);
 	assert(e>=0);
@@ -1963,7 +1963,7 @@ void Object::resetStaticIllumination()
 	for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset();triangle[t].flags=flag;}
 	// nastavi akumulatory na pocatecni hodnoty
 	energyEmited=0;
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) energyEmited+=fabs(triangle[t].setSurface(triangle[t].surface));
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) energyEmited+=fabs(triangle[t].setSurface(triangle[t].surface,importer->getTriangleAdditionalEnergy(t)));
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
 }
 

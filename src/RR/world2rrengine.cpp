@@ -20,8 +20,9 @@ public:
 	virtual ~WorldSceneObjectImporter();
 	
 	// must not change during object lifetime
-	virtual unsigned     getTriangleSurface(unsigned i) const;
+	virtual unsigned     getTriangleSurface(unsigned t) const;
 	virtual RRSurface*   getSurface(unsigned si);
+	virtual RRreal       getTriangleAdditionalEnergy(unsigned t) const {return 0;}
 
 	// may change during object lifetime
 	virtual const float* getWorldMatrix();

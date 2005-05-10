@@ -476,7 +476,7 @@ public:
 
 	// surface
 	RRSurface *surface;       // material at outer and inner side of Triangle
-	real    setSurface(RRSurface *s);
+	real    setSurface(RRSurface *s,real additionalEnergy);
 
 #ifndef ONLY_PLAYER
 	// hits

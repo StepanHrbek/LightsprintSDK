@@ -94,6 +94,7 @@ namespace rrEngine
 		// must not change during object lifetime
 		virtual unsigned     getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*   getSurface(unsigned s) = 0;
+		virtual RRreal       getTriangleAdditionalEnergy(unsigned t) const = 0;
 
 		// may change during object lifetime
 		virtual const float* getWorldMatrix() = 0;

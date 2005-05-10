@@ -146,7 +146,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 			(Vec3*)(importer->getVertex(v1)),
 			(Vec3*)(importer->getVertex(v2)));
 		if(t->isValid) 
-			obj->energyEmited+=fabs(t->setSurface(s));
+			obj->energyEmited+=fabs(t->setSurface(s,importer->getTriangleAdditionalEnergy(fi)));
 		else
 			t->surface=NULL;
 	}
