@@ -6,7 +6,7 @@
 
 namespace rrIntersect
 {
-	typedef RRreal real;
+	typedef RRReal real;
 
 	#define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs
 	#define IS_NUMBER(n) _finite(n)//((n)>-BIG_REAL && (n)<BIG_REAL)

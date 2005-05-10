@@ -1434,7 +1434,7 @@ unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::Instant
 			Node* source1 = sortedNode[i].node;
 			if(IS_CLUSTER(source1)) source1 = CLUSTER(source1)->randomTriangle();
 			SubTriangle* source = SUBTRIANGLE(source1);
-			Point2 srcPoint2 = source->uv[0]+source->u2*(u/(float)RAND_MAX)+source->v2*(v/(float)RAND_MAX);
+			Point2 srcPoint2 = source->uv[0]+source->u2*(u/(real)RAND_MAX)+source->v2*(v/(real)RAND_MAX);
 			Point3 srcPoint3 = source->grandpa->to3d(srcPoint2);
 			*(Vec3*)point[generatedPoints].pos = srcPoint3;
 			*(Vec3*)point[generatedPoints].norm = sortedNode[i].node->grandpa->getN3();
@@ -2285,13 +2285,13 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 		u=RAND_MAX-u;
 		v=RAND_MAX-v;
 	}
-	Point2 srcPoint2=source->uv[0]+source->u2*(u/(float)RAND_MAX)+source->v2*(v/(float)RAND_MAX);
+	Point2 srcPoint2=source->uv[0]+source->u2*(u/(real)RAND_MAX)+source->v2*(v/(real)RAND_MAX);
 	Point3 srcPoint3=source->grandpa->to3d(srcPoint2);
 
 	Vec3 rayVec3;
-	switch(source->grandpa->surface->diffuseEmittanceType)
+	switch(source->grandpa->surface->emittanceType)
 	{
-	  case areaLight:
+	  case diffuseLight:
 	    {
 	    //area:
 #ifdef HOMOGENOUS_FILL
@@ -2339,7 +2339,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	    rayVec3=normalized(Vec3(1,1,1));
 	    break;
 	    }	    
-	  case nearLight:
+	  case spotLight:
 	    {
 	    // hack pro diskolampu, bodovej zdroj je na souradnicich:
 	    source->grandpa->surface->diffuseEmittancePoint=Point3(0,0,23);
@@ -2350,7 +2350,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	    rayVec3=normalized(srcPoint3-source->grandpa->surface->diffuseEmittancePoint+rndvec);
 	    break;
 	    }
-	  case nearLight2:
+	  case spotLight2:
 	    {
 	    // hack pro dvere, sviti napul vsesmerove a napul smerove
 	    // bodovej zdroj za postavou je v bode:

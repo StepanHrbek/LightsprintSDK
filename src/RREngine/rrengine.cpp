@@ -215,14 +215,14 @@ void RRScene::compact()
 {
 }
 
-RRreal RRScene::getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex)
+RRReal RRScene::getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
 	return obj->getVertexRadiosity(vertex);
 }
 
-RRreal RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
+RRReal RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];

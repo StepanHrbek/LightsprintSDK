@@ -22,7 +22,7 @@ public:
 	// must not change during object lifetime
 	virtual unsigned     getTriangleSurface(unsigned t) const;
 	virtual RRSurface*   getSurface(unsigned si);
-	virtual RRreal       getTriangleAdditionalEnergy(unsigned t) const {return 0;}
+	virtual RRReal       getTriangleAdditionalEnergy(unsigned t) const {return 0;}
 
 	// may change during object lifetime
 	virtual const float* getWorldMatrix();
@@ -104,8 +104,8 @@ static void fillSurface(Surface *s,C_MATERIAL *m)
 	xy2rgb(m->td_c.cx,m->td_c.cy,0.5,s->diffuseTransmittanceColor);
 	s->diffuseEmittance     =m->ed/1000;
 	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,s->diffuseEmittanceColor);
-	s->diffuseEmittanceType =areaLight;
-	s->diffuseEmittancePoint=Point3(0,0,0);
+	s->emittanceType        =diffuseLight;
+	//s->emittancePoint       =Point3(0,0,0);
 	s->specularReflectance  =m->rs;
 	s->specularTransmittance=m->ts;
 	s->refractionReal       =m->nr;
@@ -157,8 +157,8 @@ static void load_materials(WORLD* world, char *material_mgf)
 	s_default.diffuseEmittanceColor[0]=1;
 	s_default.diffuseEmittanceColor[1]=1;
 	s_default.diffuseEmittanceColor[2]=1;
-	s_default.diffuseEmittanceType=areaLight;
-	s_default.diffuseEmittancePoint=Vec3(0,0,0);
+	s_default.emittanceType=diffuseLight;
+	//s_default.emittancePoint=Vec3(0,0,0);
 	s_default.specularReflectance=0;
 	s_default.specularReflectanceColor[0]=1;
 	s_default.specularReflectanceColor[1]=1;

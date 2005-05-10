@@ -1,7 +1,7 @@
 #ifndef RRENGINE_GEOMETRY_H
 #define RRENGINE_GEOMETRY_H
 
-#include "RREngine.h" // RRreal
+#include "RREngine.h" // RRReal
 #include <float.h> // _finite
 
 namespace rrEngine
@@ -15,7 +15,7 @@ namespace rrEngine
 #define U32          unsigned
 #define S64          __int64 //long long
 #define U64          unsigned __int64 //unsigned long long
-#define real         RRreal
+#define real         RRReal
 #define BIG_REAL     1e20f
 #define SMALL_REAL   1e-10f
 #define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs
@@ -38,7 +38,7 @@ typedef real Angle;
 //
 // matrix 4x4
 
-typedef float Matrix[4][4];
+typedef real Matrix[4][4];
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -18,7 +18,7 @@ struct Texture;
 struct Surface : public RRSurface
 {
 	ColorTable diffuseReflectanceColorTable;
-	Point3     diffuseEmittancePoint;
+	//Point3     diffuseEmittancePoint;
 	Material*  outside;
 	Material*  inside;
 	Texture*   texture;

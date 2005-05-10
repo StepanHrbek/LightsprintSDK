@@ -3,9 +3,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
+// version 2005.05.10  
+// http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
 // - builds helper-structures and stores them in cache on disk
+//
+// Copyright (C) Stepan Hrbek 1999-2005, Daniel Sykora 1999-2004
+// This work is protected by copyright law, 
+// using it without written permission from Stepan Hrbek is forbidden.
 //////////////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
@@ -19,8 +25,7 @@ namespace rrIntersect
 	#define USE_BSP
 	//#define USE_KD
 
-	typedef unsigned TRIANGLE_HANDLE;
-	typedef float    RRreal;
+	typedef float RRReal;
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -39,7 +44,7 @@ namespace rrIntersect
 
 		// vertices
 		virtual unsigned     getNumVertices() const = 0;
-		virtual RRreal*      getVertex(unsigned i) const = 0;
+		virtual RRReal*      getVertex(unsigned i) const = 0;
 
 		// triangles
 		virtual unsigned     getNumTriangles() const = 0;
@@ -49,9 +54,9 @@ namespace rrIntersect
 		bool                 fastN   :1; // set true if you implement fast getTriangleN -> slower but much lower memory footprint Intersect may be used
 		bool                 fastSRL :1;
 		bool                 fastSRLN:1;
-		struct TriangleN     {RRreal n[4];};
-		struct TriangleSRL   {RRreal s[3],r[3],l[3];};
-		struct TriangleSRLN  {RRreal s[3],r[3],l[3],n[4];};
+		struct TriangleN     {RRReal n[4];};
+		struct TriangleSRL   {RRReal s[3],r[3],l[3];};
+		struct TriangleSRLN  {RRReal s[3],r[3],l[3],n[4];};
 		virtual void         getTriangleN(unsigned i, TriangleN* t) const;
 		virtual void         getTriangleSRL(unsigned i, TriangleSRL* t) const;
 		virtual void         getTriangleSRLN(unsigned i, TriangleSRLN* t) const;
@@ -64,14 +69,14 @@ namespace rrIntersect
 
 	struct RRRay
 	{
-		RRreal          rayOrigin[3];
-		RRreal          rayDir[3];
-		RRreal          hitDistanceMin,hitDistanceMax;
-		RRreal          hitDistance;   // changed even when no hit
-		RRreal          hitPoint3d[3]; // returned wrong
-		RRreal          hitPoint2d[2];
-		TRIANGLE_HANDLE skip;
-		TRIANGLE_HANDLE hitTriangle;
+		RRReal          rayOrigin[3];
+		RRReal          rayDir[3];
+		RRReal          hitDistanceMin,hitDistanceMax;
+		RRReal          hitDistance;   // changed even when no hit
+		RRReal          hitPoint3d[3]; // returned wrong
+		RRReal          hitPoint2d[2];
+		unsigned        skipTriangle;
+		unsigned        hitTriangle;
 		bool            hitOuterSide;
 	};
 
@@ -122,10 +127,11 @@ namespace rrIntersect
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// Basic Importers
-	// - RRIndexedTriStripImporter 
-	// - RRDuplVertTriStripImporter
-	// - RRSparseTriStripImporter
+	// Example Importers
+	//
+	// RRIndexedTriStripImporter  = indexed triangle strip, 16bit indices, float[3] vertex positions
+	// RRDuplVertTriStripImporter = + duplicate vertices removed
+	// RRSparseTriStripImporter   = + degenerated triangles removed 
 
 	class RRIndexedTriStripImporter : virtual public rrIntersect::RRObjectImporter
 	{
@@ -139,10 +145,10 @@ namespace rrIntersect
 		{
 			return Vertices;
 		}
-		virtual float* getVertex(unsigned v) const
+		virtual RRReal* getVertex(unsigned v) const
 		{
 			assert(v<Vertices);
-			return (float*)(VBuffer+v*Stride);
+			return (RRReal*)(VBuffer+v*Stride);
 		}
 		virtual unsigned getPostImportVertex(unsigned preImportVertex) const 
 		{
@@ -166,7 +172,7 @@ namespace rrIntersect
 			v0 = IBuffer[t];         assert(v0<Vertices);
 			v1 = IBuffer[t+1+(t%2)]; assert(v1<Vertices);
 			v2 = IBuffer[t+2-(t%2)]; assert(v2<Vertices);
-			#define VERTEX(v) ((float*)(VBuffer+v*Stride))
+			#define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
 			tr->s[0] = VERTEX(v0)[0];
 			tr->s[1] = VERTEX(v0)[1];
 			tr->s[2] = VERTEX(v0)[2];
@@ -202,10 +208,10 @@ namespace rrIntersect
 			UniqueVertices = 0;
 			for(unsigned d=0;d<vertices;d++)
 			{
-				float* dfl = inherited::getVertex(d);
+				RRReal* dfl = inherited::getVertex(d);
 				for(unsigned u=0;u<UniqueVertices;u++)
 				{
-					float* ufl = inherited::getVertex(Unique2Dupl[u]);
+					RRReal* ufl = inherited::getVertex(Unique2Dupl[u]);
 					if(dfl[0]==ufl[0] && dfl[1]==ufl[1] && dfl[2]==ufl[2]) 
 					{
 						Dupl2Unique[d] = u;
@@ -227,11 +233,11 @@ namespace rrIntersect
 		{
 			return UniqueVertices;
 		}
-		virtual float* getVertex(unsigned v) const
+		virtual RRReal* getVertex(unsigned v) const
 		{
 			assert(v<UniqueVertices);
 			assert(Unique2Dupl[v]<Vertices);
-			return (float*)(VBuffer+Unique2Dupl[v]*Stride);
+			return (RRReal*)(VBuffer+Unique2Dupl[v]*Stride);
 		}
 		virtual unsigned getPostImportVertex(unsigned preImportVertex) const
 		{
@@ -285,7 +291,6 @@ namespace rrIntersect
 			delete[] ValidIndex;
 		}
 
-		// must not change during object lifetime
 		virtual unsigned getNumTriangles() const
 		{
 			return ValidIndices;
@@ -303,6 +308,6 @@ namespace rrIntersect
 
 	#undef inherited
 
-}
+} // namespace
 
 #endif

@@ -50,7 +50,7 @@ begin:
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	TRIANGLE_HANDLE* triangle=(TRIANGLE_HANDLE*)((char*)back+(t->back?back->size:0));
+	unsigned* triangle=(unsigned*)((char*)back+(t->back?back->size:0));
 	assert(triangleSRLNP);
 	Plane n=triangleSRLNP[triangle[0]].n3;
 	real distancePlane=intersect_plane_distance(ray,n);
@@ -87,7 +87,7 @@ begin:
 	void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
-		if (*triangle!=ray->skip && intersect_triangleSRLNP(ray,triangleSRLNP+*triangle))
+		if (*triangle!=ray->skipTriangle && intersect_triangleSRLNP(ray,triangleSRLNP+*triangle))
 		{
 			ray->hitTriangle = *triangle;
 			ray->hitDistance = distancePlane;
@@ -118,7 +118,7 @@ begin:
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	TRIANGLE_HANDLE* triangle=(TRIANGLE_HANDLE*)((char*)back+(t->back?back->size:0));
+	unsigned* triangle=(unsigned*)((char*)back+(t->back?back->size:0));
 	assert(triangleNP);
 	Plane n=triangleNP[triangle[0]].n3;
 	DBGLINE
@@ -159,7 +159,7 @@ begin:
 	{
 		RRObjectImporter::TriangleSRL t2;
 		importer->getTriangleSRL(*triangle,&t2);
-		if (*triangle!=ray->skip && intersect_triangleNP(ray,triangleNP+*triangle,&t2))
+		if (*triangle!=ray->skipTriangle && intersect_triangleNP(ray,triangleNP+*triangle,&t2))
 		{
 			ray->hitTriangle = *triangle;
 			ray->hitDistance = distancePlane;

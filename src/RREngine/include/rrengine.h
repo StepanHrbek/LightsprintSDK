@@ -1,24 +1,26 @@
-/*
-ivertex alokator do object, hromadny zanik v ~object
-
-*/
 #ifndef RRENGINE_RRENGINE_H
 #define RRENGINE_RRENGINE_H
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
+// version 2005.05.10
+// http://dee.cz/rr
+//
+// Copyright (C) Stepan Hrbek 1999-2005
+// This work is protected by copyright law, 
+// using it without written permission from Stepan Hrbek is forbidden.
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRIntersect.h"
 
 namespace rrEngine
 {
-
 	#ifdef _MSC_VER
 	#pragma comment(lib,"RREngine.lib")
 	#endif
 
-	typedef rrIntersect::RRreal RRreal;
+	typedef rrIntersect::RRReal RRReal;
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -27,41 +29,40 @@ namespace rrEngine
 	#define C_COMPS 3
 	#define C_INDICES 256
 
-	typedef RRreal RRColor[C_COMPS]; // r,g,b 0..1
+	typedef RRReal RRColor[C_COMPS]; // r,g,b 0..1
 
-	enum RREmittance
+	enum RREmittanceType
 	{
-		areaLight   =0, // svitici plocha
-		pointLight  =1, // zdroj uprostred plochy, bod sviti do vsech smeru
-		nearLight   =2, // zdroj v point, plocha sviti smerem od pointu
-		distantLight=3, // zdroj v -nekonecno*point, plocha sviti smerem point
-		nearLight2  =4, // docasne napraseno kvuli dvere.bsp
+		diffuseLight=0, // face emitting like ideal diffuse emitor
+		pointLight  =1, // point P emitting equally to all directions (P=diffuseEmittancePoint)
+		spotLight   =2, // face emitting only in direction from point P
+		dirLight    =3, // face emiting only in direction P
 	};
 
 	struct RRSurface
 	{
 		unsigned char sides; // 1 if surface is 1-sided, 2 for 2-sided
-		RRreal        diffuseReflectance;
+		RRReal        diffuseReflectance;
 		RRColor       diffuseReflectanceColor;
-		RRreal        diffuseTransmittance;
+		RRReal        diffuseTransmittance;
 		RRColor       diffuseTransmittanceColor;
-		RRreal        diffuseEmittance;
+		RRReal        diffuseEmittance;
 		RRColor       diffuseEmittanceColor;
-		RREmittance   diffuseEmittanceType;
-		//Point3  diffuseEmittancePoint;
-		RRreal        specularReflectance;
+		RREmittanceType emittanceType;
+		RRReal        emittancePoint[3];
+		RRReal        specularReflectance;
 		RRColor       specularReflectanceColor;
-		RRreal        specularReflectanceRoughness;
-		RRreal        specularTransmittance;
+		RRReal        specularReflectanceRoughness;
+		RRReal        specularTransmittance;
 		RRColor       specularTransmittanceColor;
-		RRreal        specularTransmittanceRoughness;
-		RRreal        refractionReal;
-		RRreal        refractionImaginary;
+		RRReal        specularTransmittanceRoughness;
+		RRReal        refractionReal;
+		RRReal        refractionImaginary;
 
-		RRreal    _rd;//needed when calculating different illumination for different components
-		RRreal    _rdcx;
-		RRreal    _rdcy;
-		RRreal    _ed;//needed by turnLight
+		RRReal    _rd;//needed when calculating different illumination for different components
+		RRReal    _rdcx;
+		RRReal    _rdcy;
+		RRReal    _ed;//needed by turnLight
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -94,11 +95,11 @@ namespace rrEngine
 		// must not change during object lifetime
 		virtual unsigned     getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*   getSurface(unsigned s) = 0;
-		virtual RRreal       getTriangleAdditionalEnergy(unsigned t) const = 0;
+		virtual RRReal       getTriangleAdditionalEnergy(unsigned t) const = 0;
 
 		// may change during object lifetime
-		virtual const float* getWorldMatrix() = 0;
-		virtual const float* getInvWorldMatrix() = 0;
+		virtual const RRReal* getWorldMatrix() = 0;
+		virtual const RRReal* getInvWorldMatrix() = 0;
 
 		virtual ~RRSceneObjectImporter() {};
 	};
@@ -119,9 +120,9 @@ namespace rrEngine
 		typedef unsigned OBJECT_HANDLE;
 		struct InstantRadiosityPoint
 		{
-			float pos[3];
-			float norm[3];
-			float col[3];
+			RRReal pos[3];
+			RRReal norm[3];
+			RRReal col[3];
 		};
 
 		// import geometry
@@ -139,10 +140,9 @@ namespace rrEngine
 		void          sceneResetStatic();
 		bool          sceneImproveStatic(ENDFUNC endfunc);
 
-		// read vertex results
-		float         getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex);
-		float         getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex);
-		// read instant radiosity points
+		// read results
+		RRReal        getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex);
+		RRReal        getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex);
 		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
 
 		// misc: misc
@@ -173,25 +173,16 @@ namespace rrEngine
 	void          RRResetStates();
 	unsigned      RRGetState(RRSceneState state);
 	unsigned      RRSetState(RRSceneState state, unsigned value);
-	RRreal        RRGetStateF(RRSceneState state);
-	RRreal        RRSetStateF(RRSceneState state, RRreal value);
+	RRReal        RRGetStateF(RRSceneState state);
+	RRReal        RRSetStateF(RRSceneState state, RRReal value);
 
 
-	// INSTANCOVANI
-	// umoznit instancovani -> oddelit statickou geometrii a akumulatory
-	// komplikace: delat subdivision na vsech instancich?
-	//  do max hloubky na geometrii
-	//  jen do nutne hlubky na instancich ?
-
-	// DEMA
-	// viewer
-	// grabber+player
-
+	// -- temporary --
 	struct DbgRay
 	{
-		float eye[3];
-		float dir[3];
-		RRreal dist;
+		RRReal eye[3];
+		RRReal dir[3];
+		RRReal dist;
 	};
 	#define MAX_DBGRAYS 10000
 	extern DbgRay dbgRay[MAX_DBGRAYS];

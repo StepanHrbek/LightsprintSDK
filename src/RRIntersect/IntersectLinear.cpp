@@ -332,7 +332,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	bool hit = false;
 	assert(fabs(sizeSquare((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	intersectStats.intersect_linear++;
-	for(unsigned t=0;t<triangles;t++) if(t!=ray->skip)
+	for(unsigned t=0;t<triangles;t++) if(t!=ray->skipTriangle)
 	{
 		// 100% speed using no-precalc intersect
 		//hit|=intersect_triangle_kd(&triangle[t],hitDistanceMin,hitDistanceMax);

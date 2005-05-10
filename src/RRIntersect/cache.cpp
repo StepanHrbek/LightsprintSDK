@@ -37,7 +37,7 @@ const char* getFileName(RRObjectImporter* importer)
 	unsigned i = importer->getNumVertices();
 	while(i--)
 	{
-		sha1_update(&ctx, (unsigned char*)importer->getVertex(i), sizeof(RRreal)*3);
+		sha1_update(&ctx, (unsigned char*)importer->getVertex(i), sizeof(RRReal)*3);
 	}
 	i = importer->getNumTriangles();
 	while(i--)

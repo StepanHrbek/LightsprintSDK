@@ -49,9 +49,9 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	ray.rayDir[1] = direction.y;
 	ray.rayDir[2] = direction.z;
 #ifdef _MSC_VER
-	ray.skip = ((unsigned)((U64)skip-(U64)triangle))/sizeof(Triangle);
+	ray.skipTriangle = ((unsigned)((U64)skip-(U64)triangle))/sizeof(Triangle);
 #else
-	ray.skip = ((unsigned)((U32)skip-(U32)triangle))/sizeof(Triangle);
+	ray.skipTriangle = ((unsigned)((U32)skip-(U32)triangle))/sizeof(Triangle);
 #endif
 	ray.hitDistanceMin = 0;
 	ray.hitDistanceMax = *hitDistance;
@@ -67,14 +67,14 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 			case 0:
 				break;
 			case 1:
-				{float u=ray.hitPoint2d[0];
-				float v=ray.hitPoint2d[1];
+				{real u=ray.hitPoint2d[0];
+				real v=ray.hitPoint2d[1];
 				ray.hitPoint2d[0]=v;
 				ray.hitPoint2d[1]=1-u-v;}
 				break;
 			case 2:
-				{float u=ray.hitPoint2d[0];
-				float v=ray.hitPoint2d[1];
+				{real u=ray.hitPoint2d[0];
+				real v=ray.hitPoint2d[1];
 				ray.hitPoint2d[0]=1-u-v;
 				ray.hitPoint2d[1]=u;}
 				break;
