@@ -19,6 +19,7 @@ extern unsigned __iverticesAllocated;
 extern unsigned __cornersAllocated;
 
 class Node;
+class Object;
 
 struct Corner
 {
@@ -42,7 +43,7 @@ public:
 	void    insert(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	void    insertAlsoToParents(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	bool    contains(Node *node);
-	void    splitTopLevel(Vec3 *avertex);
+	void    splitTopLevel(Vec3 *avertex, Object *obj);
 	void    makeDirty();
 	bool    hasRadiosity() {return powerTopLevel!=0;}
 	real    radiosity();

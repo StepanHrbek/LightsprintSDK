@@ -646,6 +646,12 @@ public:
 #else
 	real    getVertexRadiosity(unsigned avertex);
 	IVertex **vertexIVertex;
+	// IVertex pool
+	IVertex *newIVertex();
+	void     deleteIVertices();
+	IVertex *IVertexPool;
+	unsigned IVertexPoolItems;
+	unsigned IVertexPoolItemsUsed;
 
 	unsigned clusters;
 	Cluster *cluster;

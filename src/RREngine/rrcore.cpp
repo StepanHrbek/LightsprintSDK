@@ -966,7 +966,7 @@ SubTriangle::~SubTriangle()
 	for(int i=0;i<3;i++)
 	{
 		IVertex *iv=ivertex(i);
-		if(iv) if(iv->remove(this,false)) delete iv;
+		if(iv) iv->remove(this,false);
 	}
 #ifdef SUPPORT_LIGHTMAP
 	if(grandpa) grandpa->subtriangles--;
@@ -1860,6 +1860,9 @@ Object::Object(int avertices,int atriangles)
 #endif
 	vertexIVertex=new IVertex*[vertices];
 	memset(vertexIVertex,0,sizeof(void*)*vertices);
+	IVertexPool=NULL;
+	IVertexPoolItems=0;
+	IVertexPoolItemsUsed=0;
 }
 
 real Object::getVertexRadiosity(unsigned avertex)
@@ -1943,12 +1946,13 @@ Object::~Object()
 {
 	check();
 	delete intersector;
-	delete[] vertexIVertex;
 #ifndef ONLY_PLAYER
 	if(cluster) delete[] cluster;
 #endif
 	delete[] triangle;
 	if(edge) delete[] edge;
+	delete[] vertexIVertex;
+	deleteIVertices();
 }
 
 #ifndef ONLY_PLAYER

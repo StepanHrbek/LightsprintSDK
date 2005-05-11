@@ -17,6 +17,36 @@ real MAX_INTERPOL_ANGLE=M_PI/10+0.01f; // default max angle between interpolated
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// ivertex pool
+
+IVertex *Object::newIVertex()
+{
+	if(IVertexPoolItemsUsed>=IVertexPoolItems) 
+	{
+		IVertex *old=IVertexPool;
+		if(!IVertexPoolItems) IVertexPoolItems=128; else IVertexPoolItems*=2;
+		IVertexPool=new IVertex[IVertexPoolItems];
+		IVertexPoolItemsUsed=1;
+		if(old) *(IVertex**)IVertexPool=old;
+	}
+	return &IVertexPool[IVertexPoolItemsUsed++];
+}
+
+void Object::deleteIVertices()
+{
+	while(IVertexPool)
+	{
+		IVertex *old=*(IVertex**)IVertexPool;
+		delete[] IVertexPool;
+		IVertexPool=old;
+	}
+	IVertexPool=0;
+	IVertexPoolItems=0;
+	IVertexPoolItemsUsed=0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // all subtriangles around vertex
 
 unsigned __iverticesAllocated=0;
@@ -110,7 +140,7 @@ bool IVertex::contains(Node *node)
 	return false;
 }
 
-void IVertex::splitTopLevel(Vec3 *avertex)
+void IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices
@@ -150,7 +180,7 @@ void IVertex::splitTopLevel(Vec3 *avertex)
 			j_differs_i:;
 		}
 		// make new reduction
-		v=new IVertex();
+		v=obj->newIVertex();
 #ifdef IV_POINT
 		v->point=point;
 #endif
@@ -236,7 +266,7 @@ bool IVertex::isEmpty()
 
 IVertex::~IVertex()
 {
-	assert(corners==0);
+	//!!!assert(corners==0);
 	free(corner);
 	__cornersAllocated-=cornersAllocated();
 	__iverticesAllocated--;
@@ -539,7 +569,7 @@ void Object::buildTopIVertices()
 	{
 		real* vert = importer->getVertex(v);
 		if(!topivertex[v].check(*(Vec3*)vert)) unusedVertices++;
-		topivertex[v].splitTopLevel((Vec3*)vert);
+		topivertex[v].splitTopLevel((Vec3*)vert,this);
 	}
 	if(unusedVertices)
 	{
