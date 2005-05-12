@@ -127,17 +127,20 @@ namespace rrIntersect
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// Example Importers
+	// Importers from vertex/index buffers
 	//
-	// RRIndexedTriStripImporter  = indexed triangle strip, 16bit indices, float[3] vertex positions
-	// RRDuplVertTriStripImporter = + duplicate vertices removed
-	// RRSparseTriStripImporter   = + degenerated triangles removed 
+	// support indices of any size, vertex positions float[3]
+	//
+	// RRTriStripImporter               - triangle strip
+	// RRTriListImporter                - triangle list
+	// RRIndexedTriStripImporter<INDEX> - indexed triangle strip 
+	// RRIndexedTriListImporter<INDEX>  - indexed triangle list
 
-	class RRIndexedTriStripImporter : virtual public rrIntersect::RRObjectImporter
+	class RRTriStripImporter : virtual public RRObjectImporter
 	{
 	public:
-		RRIndexedTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride, unsigned short* ibuffer, unsigned indices)
-			: VBuffer(vbuffer), Vertices(vertices), Stride(stride), IBuffer(ibuffer), Indices(indices)
+		RRTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride)
+			: VBuffer(vbuffer), Vertices(vertices), Stride(stride)
 		{
 		}
 
@@ -154,6 +157,95 @@ namespace rrIntersect
 		{
 			return preImportVertex;
 		}
+		virtual unsigned getNumTriangles() const
+		{
+			return Vertices-2;
+		}
+		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		{
+			assert(t<Vertices-2);
+			v0 = t+0;
+			v1 = t+1;
+			v2 = t+2;
+		}
+		virtual void getTriangleSRL(unsigned t, TriangleSRL* tr) const
+		{
+			assert(t<Vertices-2);
+			unsigned v0,v1,v2;
+			v0 = t+0;
+			v1 = t+1;
+			v2 = t+2;
+			#define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
+			tr->s[0] = VERTEX(v0)[0];
+			tr->s[1] = VERTEX(v0)[1];
+			tr->s[2] = VERTEX(v0)[2];
+			tr->r[0] = VERTEX(v1)[0]-tr->s[0];
+			tr->r[1] = VERTEX(v1)[1]-tr->s[1];
+			tr->r[2] = VERTEX(v1)[2]-tr->s[2];
+			tr->l[0] = VERTEX(v2)[0]-tr->s[0];
+			tr->l[1] = VERTEX(v2)[1]-tr->s[1];
+			tr->l[2] = VERTEX(v2)[2]-tr->s[2];
+			#undef VERTEX
+		}
+
+	protected:
+		char*                VBuffer;
+		unsigned             Vertices;
+		unsigned             Stride;
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RRTriListImporter : public RRTriStripImporter
+	{
+	public:
+		RRTriListImporter(char* vbuffer, unsigned vertices, unsigned stride)
+			: RRTriStripImporter(vbuffer,vertices,stride)
+		{
+		}
+		virtual unsigned getNumTriangles() const
+		{
+			return Vertices/3;
+		}
+		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		{
+			assert(t*3<Vertices);
+			v0 = t*3+0;
+			v1 = t*3+1;
+			v2 = t*3+2;
+		}
+		virtual void getTriangleSRL(unsigned t, TriangleSRL* tr) const
+		{
+			assert(t*3<Vertices);
+			unsigned v0,v1,v2;
+			v0 = t*3+0;
+			v1 = t*3+1;
+			v2 = t*3+2;
+			#define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
+			tr->s[0] = VERTEX(v0)[0];
+			tr->s[1] = VERTEX(v0)[1];
+			tr->s[2] = VERTEX(v0)[2];
+			tr->r[0] = VERTEX(v1)[0]-tr->s[0];
+			tr->r[1] = VERTEX(v1)[1]-tr->s[1];
+			tr->r[2] = VERTEX(v1)[2]-tr->s[2];
+			tr->l[0] = VERTEX(v2)[0]-tr->s[0];
+			tr->l[1] = VERTEX(v2)[1]-tr->s[1];
+			tr->l[2] = VERTEX(v2)[2]-tr->s[2];
+			#undef VERTEX
+		}
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+
+	template <class INDEX>
+	class RRIndexedTriStripImporter : public RRTriStripImporter
+	{
+	public:
+		RRIndexedTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+			: RRTriStripImporter(vbuffer,vertices,stride), IBuffer(ibuffer), Indices(indices)
+		{
+		}
+
 		virtual unsigned getNumTriangles() const
 		{
 			return Indices-2;
@@ -186,32 +278,78 @@ namespace rrIntersect
 		}
 
 	protected:
-		char*                VBuffer;
-		unsigned             Vertices;
-		unsigned             Stride;
-		unsigned short*      IBuffer;
+		INDEX*               IBuffer;
 		unsigned             Indices;
 	};
 
-	//****************************************************************************
+	//////////////////////////////////////////////////////////////////////////////
 
-	#define inherited RRIndexedTriStripImporter
-
-	class RRDuplVertTriStripImporter : public inherited
+	template <class INDEX>
+	#define INHERITED RRIndexedTriStripImporter<INDEX>
+	class RRIndexedTriListImporter : public INHERITED
 	{
 	public:
-		RRDuplVertTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride, unsigned short* ibuffer, unsigned indices)
-			: inherited(vbuffer,vertices,stride,ibuffer,indices) 
+		RRIndexedTriListImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+			: RRIndexedTriStripImporter<INDEX>(vbuffer,vertices,stride,ibuffer,indices)
 		{
-			Dupl2Unique = new unsigned short[vertices];
-			Unique2Dupl = new unsigned short[vertices];
+		}
+		virtual unsigned getNumTriangles() const
+		{
+			return INHERITED::Indices/3;
+		}
+		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		{
+			assert(t*3<Indices);
+			v0 = INHERITED::IBuffer[t*3+0]; assert(v0<INHERITED::Vertices);
+			v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
+			v2 = INHERITED::IBuffer[t*3+2]; assert(v2<INHERITED::Vertices);
+		}
+		virtual void getTriangleSRL(unsigned t, RRObjectImporter::TriangleSRL* tr) const
+		{
+			assert(t*3<Indices);
+			unsigned v0,v1,v2;
+			v0 = INHERITED::IBuffer[t*3+0]; assert(v0<INHERITED::Vertices);
+			v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
+			v2 = INHERITED::IBuffer[t*3+2]; assert(v2<INHERITED::Vertices);
+			#define VERTEX(v) ((RRReal*)(INHERITED::VBuffer+v*INHERITED::Stride))
+			tr->s[0] = VERTEX(v0)[0];
+			tr->s[1] = VERTEX(v0)[1];
+			tr->s[2] = VERTEX(v0)[2];
+			tr->r[0] = VERTEX(v1)[0]-tr->s[0];
+			tr->r[1] = VERTEX(v1)[1]-tr->s[1];
+			tr->r[2] = VERTEX(v1)[2]-tr->s[2];
+			tr->l[0] = VERTEX(v2)[0]-tr->s[0];
+			tr->l[1] = VERTEX(v2)[1]-tr->s[1];
+			tr->l[2] = VERTEX(v2)[2]-tr->s[2];
+			#undef VERTEX
+		}
+	};
+	#undef INHERITED
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// Importer filters
+	//
+	// RRLessVerticesImporter<IMPORTER,INDEX>  - importer filter that removes duplicate vertices
+	// RRLessTrianglesImporter<IMPORTER,INDEX> - importer filter that removes degenerate triangles
+
+	template <class INHERITED, class INDEX>
+	class RRLessVerticesImporter : public INHERITED
+	{
+	public:
+		RRLessVerticesImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+			: INHERITED(vbuffer,vertices,stride,ibuffer,indices)
+		{
+			Dupl2Unique = new INDEX[vertices];
+			Unique2Dupl = new INDEX[vertices];
 			UniqueVertices = 0;
 			for(unsigned d=0;d<vertices;d++)
 			{
-				RRReal* dfl = inherited::getVertex(d);
+				RRReal* dfl = INHERITED::getVertex(d);
 				for(unsigned u=0;u<UniqueVertices;u++)
 				{
-					RRReal* ufl = inherited::getVertex(Unique2Dupl[u]);
+					RRReal* ufl = INHERITED::getVertex(Unique2Dupl[u]);
 					if(dfl[0]==ufl[0] && dfl[1]==ufl[1] && dfl[2]==ufl[2]) 
 					{
 						Dupl2Unique[d] = u;
@@ -223,7 +361,7 @@ namespace rrIntersect
 				dupl:;
 			}
 		}
-		~RRDuplVertTriStripImporter()
+		~RRLessVerticesImporter()
 		{
 			delete[] Unique2Dupl;
 			delete[] Dupl2Unique;
@@ -236,57 +374,54 @@ namespace rrIntersect
 		virtual RRReal* getVertex(unsigned v) const
 		{
 			assert(v<UniqueVertices);
-			assert(Unique2Dupl[v]<Vertices);
-			return (RRReal*)(VBuffer+Unique2Dupl[v]*Stride);
+			assert(Unique2Dupl[v]<INHERITED::Vertices);
+			return (RRReal*)(INHERITED::VBuffer+Unique2Dupl[v]*INHERITED::Stride);
 		}
 		virtual unsigned getPostImportVertex(unsigned preImportVertex) const
 		{
-			assert(preImportVertex<Vertices);
+			assert(preImportVertex<INHERITED::Vertices);
 			return Dupl2Unique[preImportVertex];
 		}
 		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
 		{
-			inherited::getTriangle(t,v0,v1,v2);
+			INHERITED::getTriangle(t,v0,v1,v2);
 			v0 = Dupl2Unique[v0]; assert(v0<UniqueVertices);
 			v1 = Dupl2Unique[v1]; assert(v1<UniqueVertices);
 			v2 = Dupl2Unique[v2]; assert(v2<UniqueVertices);
 		}
 
 	protected:
-		unsigned short*      Unique2Dupl;
-		unsigned short*      Dupl2Unique;
+		INDEX*               Unique2Dupl;
+		INDEX*               Dupl2Unique;
 		unsigned             UniqueVertices;
 	};
 
-	#undef inherited
+	//////////////////////////////////////////////////////////////////////////////
 
-	//****************************************************************************
-
-	#define inherited RRDuplVertTriStripImporter
-
-	class RRSparseTriStripImporter : public inherited
+	template <class INHERITED, class INDEX>
+	class RRLessTrianglesImporter : public INHERITED
 	{
 	public:
-		RRSparseTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride, unsigned short* ibuffer, unsigned indices)
-			: inherited(vbuffer,vertices,stride,ibuffer,indices) 
+		RRLessTrianglesImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+			: INHERITED(vbuffer,vertices,stride,ibuffer,indices) 
 		{
 			ValidIndices = 0;
-			for(unsigned i=0;i<Indices-2;i++)
+			for(unsigned i=0;i<INHERITED::Indices-2;i++)
 			{
 				unsigned v0,v1,v2;
-				inherited::getTriangle(i,v0,v1,v2);
+				INHERITED::getTriangle(i,v0,v1,v2);
 				if(!(v0==v1 || v0==v2 || v1==v2)) ValidIndices++;
 			}
-			ValidIndex = new unsigned short[ValidIndices];
+			ValidIndex = new INDEX[ValidIndices];
 			ValidIndices = 0;
-			for(unsigned i=0;i<Indices-2;i++)
+			for(unsigned i=0;i<INHERITED::Indices-2;i++)
 			{
 				unsigned v0,v1,v2;
-				inherited::getTriangle(i,v0,v1,v2);
+				INHERITED::getTriangle(i,v0,v1,v2);
 				if(!(v0==v1 || v0==v2 || v1==v2)) ValidIndex[ValidIndices++] = i;
 			}
 		};
-		~RRSparseTriStripImporter()
+		~RRLessTrianglesImporter()
 		{
 			delete[] ValidIndex;
 		}
@@ -298,15 +433,13 @@ namespace rrIntersect
 		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
 		{
 			assert(t<ValidIndices);
-			inherited::getTriangle(ValidIndex[t],v0,v1,v2);
+			INHERITED::getTriangle(ValidIndex[t],v0,v1,v2);
 		}
 
 	protected:
-		unsigned short*      ValidIndex;
+		INDEX*               ValidIndex;
 		unsigned             ValidIndices;
 	};
-
-	#undef inherited
 
 } // namespace
 

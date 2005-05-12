@@ -90,7 +90,7 @@ KD_TREE *new_kd()
 	kdtree=nALLOC(KD_TREE,CACHE_SIZE); kdtree_id=1; return kdtree;
 }
 
-static free_bsp(BSP_TREE* t)
+static void free_bsp(BSP_TREE* t)
 {
 	free(t->plane);
 	if(t->front) free_bsp(t->front);

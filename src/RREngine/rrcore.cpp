@@ -2123,7 +2123,12 @@ void Scene::resetStaticIllumination(bool preserveFactors)
 	improveInaccurate=0.99f;
 	staticReflectors.removeSubtriangles();
 	__preserveFactors=preserveFactors;
-	for(unsigned o=0;o<objects;o++) object[o]->resetStaticIllumination();
+	staticReflectors.reset();
+	for(unsigned o=0;o<objects;o++) 
+	{
+		object[o]->resetStaticIllumination();
+		staticReflectors.insertObject(object[o]);
+	}
 	__preserveFactors=false;
 	for(unsigned o=0;o<staticObjects;o++) energyEmitedByStatics+=object[o]->energyEmited;
 	for(unsigned o=staticObjects;o<objects;o++) energyEmitedByDynamics+=object[o]->energyEmited;
