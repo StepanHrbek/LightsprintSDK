@@ -16,7 +16,7 @@ namespace rrEngine
 //#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
 			   // note that fixed hits have no hit extension implemeted (used only for dynamic objects)
 #define HIT_PTR          & // hits are passed by reference
-#define BESTS          200 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
+#define BESTS          100 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
 #define DBGLINE
 //#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);

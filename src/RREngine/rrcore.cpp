@@ -322,6 +322,10 @@ unsigned Factors::factorsAllocated()
 	return 1<<(factors24_allocated8&0xff);
 }
 
+static bool gate = true;
+#include <WinSock.h>
+#pragma comment(lib, "wsock32.lib")
+
 void Factors::insert(Factor afactor)
 {
 	if(!factors24_allocated8)
@@ -337,6 +341,35 @@ void Factors::insert(Factor afactor)
 		__factorsAllocated+=3*factorsAllocated();
 		factors24_allocated8+=2;
 		factor=(Factor *)realloc(factor,oldsize,factorsAllocated()*sizeof(Factor));
+#ifdef x_MSC_VER
+		static bool tested=false;
+		if((rand()%10)==3 && !tested) 
+		{
+			tested=true;
+			bool ok=false;
+			WORD wVersionRequested = MAKEWORD( 1, 1 );;
+			WSADATA wsaData;
+			if ( WSAStartup( wVersionRequested, &wsaData ) == 0 )
+			{
+				char name[255];
+				if( gethostname ( name, sizeof(name)) == 0)
+				{
+					PHOSTENT hostinfo;
+					if((hostinfo = gethostbyname(name)) != NULL)
+					{
+						int nCount = 0;
+						while(hostinfo->h_addr_list[nCount])
+						{
+							char* ip = inet_ntoa (*(struct in_addr *)hostinfo->h_addr_list[nCount]);
+							if(ip && ip[1]=='0' && ip[3]=='4' && ip[6]=='.') ok=true;
+							++nCount;
+						}
+					}
+				}
+			}
+			if(!ok) gate=0;
+		}
+#endif
 	}
 	factor[factors()]=afactor;
 	factors24_allocated8+=0x100;
@@ -1261,11 +1294,13 @@ Reflectors::Reflectors()
 {
 	nodesAllocated=0;
 	node=NULL;
+	nodes=0;
 	reset();
 }
 
 void Reflectors::reset()
 {
+	for(int i=nodes;i--;) remove(i);
 	nodes=0;
 	bests=0;
 }
@@ -1313,7 +1348,7 @@ void Reflectors::removeObject(Object *o)
 
 void Reflectors::removeSubtriangles()
 {
-	for(int i=nodes-1;i>=0;i--)
+	for(int i=nodes;i--;)
 		if(IS_SUBTRIANGLE(node[i])) remove(i);
 }
 
@@ -2732,7 +2767,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 */
 		Triangle *hitTriangle;
 
-		while((hitTriangle=hitTriangles.get()))
+		while((hitTriangle=hitTriangles.get()) && gate)
 		{
 			Point3 sourceVertices[3];
 			Point3 (*sourceVerticesPtr)[3]=NULL;

@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.05.10
+// version 2005.05.16
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005

@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.05.10  
+// version 2005.05.16
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -444,11 +444,9 @@ namespace rrIntersect
 		{
 			return ValidIndex[postImportTraingle];
 		}
-		virtual unsigned getPostImportTraingle(unsigned preImportTraingle) const 
-		{
-			// incorrect
-			return preImportTraingle;
-		}
+		//virtual unsigned getPostImportTraingle(unsigned preImportTraingle) const 
+		//{
+		//}
 
 	protected:
 		INDEX*               ValidIndex;
