@@ -44,11 +44,15 @@ namespace rrIntersect
 
 		// vertices
 		virtual unsigned     getNumVertices() const = 0;
-		virtual RRReal*      getVertex(unsigned i) const = 0;
+		virtual RRReal*      getVertex(unsigned v) const = 0;
+		virtual unsigned     getPreImportVertex(unsigned postImportVertex) const {return postImportVertex;}
+		virtual unsigned     getPostImportVertex(unsigned preImportVertex) const {return preImportVertex;}
 
 		// triangles
 		virtual unsigned     getNumTriangles() const = 0;
-		virtual void         getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2) const = 0;
+		virtual void         getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const = 0;
+		virtual unsigned     getPreImportTriangle(unsigned postImportTraingle) const {return postImportTraingle;}
+		virtual unsigned     getPostImportTraingle(unsigned preImportTraingle) const {return preImportTraingle;}
 
 		// optional for faster access
 		bool                 fastN   :1; // set true if you implement fast getTriangleN -> slower but much lower memory footprint Intersect may be used
@@ -152,10 +156,6 @@ namespace rrIntersect
 		{
 			assert(v<Vertices);
 			return (RRReal*)(VBuffer+v*Stride);
-		}
-		virtual unsigned getPostImportVertex(unsigned preImportVertex) const 
-		{
-			return preImportVertex;
 		}
 		virtual unsigned getNumTriangles() const
 		{
@@ -377,6 +377,11 @@ namespace rrIntersect
 			assert(Unique2Dupl[v]<INHERITED::Vertices);
 			return (RRReal*)(INHERITED::VBuffer+Unique2Dupl[v]*INHERITED::Stride);
 		}
+		virtual unsigned getPreImportVertex(unsigned postImportVertex) const
+		{
+			assert(postImportVertex<UniqueVertices);
+			return Unique2Dupl[postImportVertex];
+		}
 		virtual unsigned getPostImportVertex(unsigned preImportVertex) const
 		{
 			assert(preImportVertex<INHERITED::Vertices);
@@ -434,6 +439,15 @@ namespace rrIntersect
 		{
 			assert(t<ValidIndices);
 			INHERITED::getTriangle(ValidIndex[t],v0,v1,v2);
+		}
+		virtual unsigned getPreImportTriangle(unsigned postImportTraingle) const 
+		{
+			return ValidIndex[postImportTraingle];
+		}
+		virtual unsigned getPostImportTraingle(unsigned preImportTraingle) const 
+		{
+			// incorrect
+			return preImportTraingle;
 		}
 
 	protected:

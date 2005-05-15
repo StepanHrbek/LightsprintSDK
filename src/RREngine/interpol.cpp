@@ -207,22 +207,29 @@ void IVertex::makeDirty()
 
 real IVertex::radiosity()
 {
+	bool getSource=RRGetState(RRSS_GET_SOURCE)!=0;
+	bool getReflected=RRGetState(RRSS_GET_REFLECTED)!=0;
 	if(cacheTime!=(__frameNumber&0x1f) || cache<0) // cacheTime is byte:5
 	{
 		//assert(powerTopLevel);
 		real rad=0;
 		for(unsigned i=0;i<corners;i++)
-		//if(!IS_CLUSTER(corner[i].node))
-		//...proc je zakomentovano?
 		{
-		  assert(corner[i].node);
-		  real r=corner[i].node->energyDirect+corner[i].node->getEnergyDynamic();
-		  if(corner[i].node->sub[0])
-		  {
-		    assert(corner[i].node->sub[1]);
-		    r-=corner[i].node->sub[0]->energyDirect+corner[i].node->sub[1]->energyDirect;
-		  }
-		  rad+=r/corner[i].node->area*corner[i].power;
+			assert(corner[i].node);
+			// a=source+reflected
+			real a=corner[i].node->energyDirect+corner[i].node->getEnergyDynamic();
+			if(corner[i].node->sub[0])
+			{
+				assert(corner[i].node->sub[1]);
+				a-=corner[i].node->sub[0]->energyDirect+corner[i].node->sub[1]->energyDirect;
+			}
+			// s=source
+			real s=IS_TRIANGLE(corner[i].node) ? TRIANGLE(corner[i].node)->sourceEnergy : 0;
+			// r=reflected
+			real r=a-s;
+			// w=wanted
+			real w=(getSource&&getReflected)?a:( getSource?s: ( getReflected?r:0 ) );
+			rad+=w/corner[i].node->area*corner[i].power;
 		}
 		cache=powerTopLevel?rad/powerTopLevel:getClosestRadiosity();//hack for ivertices inside needle - quick search for nearest valid value
 		cacheTime=__frameNumber;
@@ -1562,11 +1569,3 @@ real IVertex::getClosestRadiosity()
 } // namespace
 
 
-/*
-
-problem:
- kdyz ivertex spoji maly cerny trianglik a velky svetly, 
- vysledkem interpolace je ze mala ploska
- zesvetla a velka ztmavne -> celkova svetlost se zmeni
-
-*/

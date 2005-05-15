@@ -1214,8 +1214,9 @@ real Triangle::setSurface(RRSurface *s, real additionalEnergy)
 	real b=surface->diffuseEmittanceColor[2];
 	real filteringCoef=(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
 	real e=(surface->diffuseEmittance*area+additionalEnergy)*filteringCoef;
-	assert(surface->diffuseEmittance+additionalEnergy>=0);
+	assert(surface->diffuseEmittance>=0);
 	assert(area>=0);
+	assert(additionalEnergy>=0);
 	assert(filteringCoef>=0);
 	assert(e>=0);
 #ifndef ONLY_PLAYER
@@ -1224,6 +1225,7 @@ real Triangle::setSurface(RRSurface *s, real additionalEnergy)
 	shooter->energyToDiffuse=e;
 	// load received energy accumulator
 	energyDirect=e;
+	sourceEnergy=e;
 #endif
 	return e;
 }

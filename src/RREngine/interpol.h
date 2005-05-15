@@ -5,6 +5,13 @@
 namespace rrEngine
 {
 
+/*
+INTERPOL_BETWEEN tells if it's good idea to interpolate between two triangles
+ different surface -> no
+ (angle too big) * (areas of too different size) -> no
+If we interpolate between areas of too different size, small dark tri + large lit tri would
+ go both to grey which makes scene much r\darker than it should be.
+*/
 #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=(MIN(t1->area,t2->area)/(t1->area+t2->area)*2+0.2f)*MAX_INTERPOL_ANGLE && t1->grandpa->surface==t2->grandpa->surface)
 #define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->getN3(),t2->grandpa->getN3()))
 #define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)

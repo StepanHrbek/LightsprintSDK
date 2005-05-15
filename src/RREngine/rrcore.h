@@ -475,10 +475,11 @@ public:
 	public:
 
 	// surface
-	RRSurface *surface;       // material at outer and inner side of Triangle
+	RRSurface *surface;     // material at outer and inner side of Triangle
 	real    setSurface(RRSurface *s,real additionalEnergy);
-
 #ifndef ONLY_PLAYER
+	real    sourceEnergy;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
+
 	// hits
 	Hits    hits;           // the most memory consuming struct: set of hits
 #endif
