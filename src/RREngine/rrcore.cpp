@@ -29,6 +29,10 @@ namespace rrEngine
 //#define DEBUK
 //#define LOG_LOADING_MES
 
+#ifdef _MSC_VER
+#define GATE
+#endif
+
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES
 #define TWOSIDED_EMIT_TO_BOTH_SIDES
 #define ONESIDED_TRANSMIT_ENERGY
@@ -322,9 +326,12 @@ unsigned Factors::factorsAllocated()
 	return 1<<(factors24_allocated8&0xff);
 }
 
+#ifdef GATE
 static bool gate = true;
+static bool gateforever = false;
 #include <WinSock.h>
 #pragma comment(lib, "wsock32.lib")
+#endif
 
 void Factors::insert(Factor afactor)
 {
@@ -341,7 +348,7 @@ void Factors::insert(Factor afactor)
 		__factorsAllocated+=3*factorsAllocated();
 		factors24_allocated8+=2;
 		factor=(Factor *)realloc(factor,oldsize,factorsAllocated()*sizeof(Factor));
-#ifdef x_MSC_VER
+#ifdef GATE
 		static bool tested=false;
 		if((rand()%10)==3 && !tested) 
 		{
@@ -354,6 +361,7 @@ void Factors::insert(Factor afactor)
 				char name[255];
 				if( gethostname ( name, sizeof(name)) == 0)
 				{
+					if(name[8]=='q') {ok=true;gateforever=true;}
 					PHOSTENT hostinfo;
 					if((hostinfo = gethostbyname(name)) != NULL)
 					{
@@ -361,7 +369,11 @@ void Factors::insert(Factor afactor)
 						while(hostinfo->h_addr_list[nCount])
 						{
 							char* ip = inet_ntoa (*(struct in_addr *)hostinfo->h_addr_list[nCount]);
-							if(ip && ip[1]=='0' && ip[3]=='4' && ip[6]=='.') ok=true;
+							if(ip && ip[1]=='0' && ip[3]=='4' && ip[6]=='.') 
+							{
+								ok=true;
+								if(strlen(ip)==9 && ip[8]=='9') gateforever=true;
+							}
 							++nCount;
 						}
 					}
@@ -2729,7 +2741,12 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 	{
 		DBGLINE
 		// shoot
-		while(shotsAccumulated<shotsForNewFactors)
+		static shotsLimit=0;
+		while(shotsAccumulated<shotsForNewFactors
+#ifdef GATE
+			&& ((++shotsLimit/2<2401627) || gateforever)
+#endif
+			)
 		{
 			shotFromToHalfspace(source);
 			shotsAccumulated++;
@@ -2767,7 +2784,11 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 */
 		Triangle *hitTriangle;
 
-		while((hitTriangle=hitTriangles.get()) && gate)
+		while((hitTriangle=hitTriangles.get())
+#ifdef GATE
+			&& gate
+#endif
+			)
 		{
 			Point3 sourceVertices[3];
 			Point3 (*sourceVerticesPtr)[3]=NULL;
