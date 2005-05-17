@@ -2741,7 +2741,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 	{
 		DBGLINE
 		// shoot
-		static shotsLimit=0;
+		static unsigned shotsLimit=0;
 		while(shotsAccumulated<shotsForNewFactors
 #ifdef GATE
 			&& ((++shotsLimit/2<2401627) || gateforever)

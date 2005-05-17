@@ -19,14 +19,14 @@
 CC = gcc
 CPP = gcc
 CFLAGS = -Wall -I../../include -DSUPPORT_INTERPOL
-LIBS = -lz -lm -lmgf -lstdc++ -L../../lib -lRRIntersect -lRREngine
+LIBS = -lz -lm -lmgf -lstdc++ -L../../lib -lRRIntersect -lRREngine -lWorld
 LIBSALLEG = -lalleg_s -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
 MAKE = makefile
 BIN = ../../bin/
 
-OBJS = spline.o   ldbsp.o   misc.o   ldmgf.o   world2rrengine.o   world2rrintersect.o   surface.o   geometry.o   rr.o
-CPPS = spline.cpp ldbsp.cpp misc.cpp ldmgf.cpp world2rrengine.cpp world2rrintersect.cpp surface.cpp geometry.cpp rr.cpp
-HHHS = spline.h   ldbsp.h   misc.h   ldmgf.h   world2rrengine.h   world2rrintersect.h   surface.h   geometry.h
+OBJS = render.o   misc.o   ldmgf.o   world2rrengine.o   world2rrintersect.o   surface.o   geometry.o   rr.o
+CPPS = render.cpp misc.cpp ldmgf.cpp world2rrengine.cpp world2rrintersect.cpp surface.cpp geometry.cpp rr.cpp
+HHHS = render.h   misc.h   ldmgf.h   world2rrengine.h   world2rrintersect.h   surface.h   geometry.h
 
 ifeq ($(OSTYPE), Linux)    # ...jak poznam ze jsem pod unixem?
  UNIX = yez        # klavesnice pres curses, rm misto del
@@ -103,6 +103,8 @@ $(BIN)rr.exe: $(OBJS) $(MAKE) ../../lib/libRRIntersect.a ../../lib/libRREngine.a
 
 rr.o: rr.cpp $(HHHS) $(MAKE)
 	gcc $(CFLAGS) -c rr.cpp -o $@
+render.o: render.cpp render.h $(MAKE)
+	gcc $(CFLAGS) -c render.cpp -o $@
 surface.o: surface.cpp $(HHHS) $(MAKE)
 	gcc $(CFLAGS) -c surface.cpp -o $@
 geometry.o: geometry.cpp $(HHHS) $(MAKE)
@@ -111,10 +113,6 @@ misc.o: misc.cpp misc.h $(MAKE)
 	gcc $(CFLAGS) -c misc.cpp -o $@
 raster.o: raster.cpp raster.h $(MAKE)
 	gcc $(CFLAGS) -c raster.cpp -o $@
-ldbsp.o: ldbsp.cpp spline.h ldbsp.h $(MAKE)
-	gcc $(CFLAGS) -c ldbsp.cpp -o $@
-spline.o: spline.cpp spline.h $(MAKE)
-	gcc $(CFLAGS) -c spline.cpp -o $@
 video.o: video.cpp video.h $(MAKE)
 	gcc $(CFLAGS) -c video.cpp -o $@
 rastergl.o: rastergl.cpp rastergl.h $(MAKE)
@@ -125,9 +123,9 @@ subglut.o: subglut.cpp subglut.h $(MAKE)
 	gcc $(CFLAGS) -c subglut.cpp -o $@
 ldmgf.o: ldmgf.cpp ldmgf.h $(MAKE)
 	gcc $(CFLAGS) -c ldmgf.cpp -o $@
-world2rrengine.o: world2rrengine.cpp world2rrengine.h world2rrintersect.h ldmgf.h ldbsp.h surface.h
+world2rrengine.o: world2rrengine.cpp world2rrengine.h world2rrintersect.h ldmgf.h surface.h
 	gcc $(CFLAGS) -c world2rrengine.cpp -o $@
-world2rrintersect.o: world2rrintersect.cpp world2rrintersect.h surface.h ldbsp.h
+world2rrintersect.o: world2rrintersect.cpp world2rrintersect.h surface.h
 	gcc $(CFLAGS) -c world2rrintersect.cpp -o $@
 
 $(BIN)dotga.exe: dotga.c
