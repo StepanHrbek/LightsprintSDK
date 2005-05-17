@@ -231,7 +231,15 @@ RRReal RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, un
 	if(!tri->surface) return 0;
 	//if(vertex>=3) return (tri->energyDirect + tri->getEnergyDynamic()) / tri->area;
 	vertex=(vertex+3-tri->rotations)%3;
-	return tri->topivertex[vertex]->radiosity();
+
+	float refl = 0;
+	if(RRGetState(RRSS_GET_REFLECTED))
+	{
+		RRSetState(RRSS_GET_REFLECTED,0);
+		refl = tri->topivertex[vertex]->radiosity();
+		RRSetState(RRSS_GET_REFLECTED,1);
+	}
+	return (RRGetState(RRSS_GET_SOURCE)?tri->getEnergySource()/tri->area:0) + refl;
 }
 
 unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)

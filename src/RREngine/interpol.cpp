@@ -215,16 +215,17 @@ real IVertex::radiosity()
 		real rad=0;
 		for(unsigned i=0;i<corners;i++)
 		{
-			assert(corner[i].node);
+			Node* node=corner[i].node;
+			assert(node);
 			// a=source+reflected
-			real a=corner[i].node->energyDirect+corner[i].node->getEnergyDynamic();
-			if(corner[i].node->sub[0])
+			real a=node->energyDirect+node->getEnergyDynamic();
+			if(node->sub[0])
 			{
-				assert(corner[i].node->sub[1]);
-				a-=corner[i].node->sub[0]->energyDirect+corner[i].node->sub[1]->energyDirect;
+				assert(node->sub[1]);
+				a-=node->sub[0]->energyDirect+node->sub[1]->energyDirect;
 			}
 			// s=source
-			real s=IS_TRIANGLE(corner[i].node) ? TRIANGLE(corner[i].node)->sourceEnergy : 0;
+			real s=IS_TRIANGLE(node) ? TRIANGLE(node)->getEnergySource() : 0;
 			// r=reflected
 			real r=a-s;
 			// w=wanted

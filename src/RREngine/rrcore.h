@@ -470,15 +470,18 @@ public:
 	SubTriangle *getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex);
 	IVertex *topivertex[3]; // 3x ivertex
 	void    removeFromIVertices(Node *node);
-	private:
+		private:
 		void    setGeometryCore(Normal *n=NULL);
-	public:
+		public:
 
 	// surface
 	RRSurface *surface;     // material at outer and inner side of Triangle
 	real    setSurface(RRSurface *s,real additionalEnergy);
 #ifndef ONLY_PLAYER
-	real    sourceEnergy;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
+	real    getEnergySource() {return sourceEnergy;}
+		private:
+		real    sourceEnergy;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
+		public:
 
 	// hits
 	Hits    hits;           // the most memory consuming struct: set of hits

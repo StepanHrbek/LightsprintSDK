@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.05.16
+// version 2005.05.17
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -13,11 +13,12 @@
 
 #include "RRIntersect.h"
 
+#ifdef _MSC_VER
+#pragma comment(lib,"RREngine.lib")
+#endif
+
 namespace rrEngine
 {
-	#ifdef _MSC_VER
-	#pragma comment(lib,"RREngine.lib")
-	#endif
 
 	typedef rrIntersect::RRReal RRReal;
 

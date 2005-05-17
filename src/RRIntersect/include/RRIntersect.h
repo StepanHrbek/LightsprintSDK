@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.05.16
+// version 2005.05.17
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -16,14 +16,12 @@
 
 #include <assert.h>
 
+#ifdef _MSC_VER
+#pragma comment(lib,"RRIntersect.lib")
+#endif
+
 namespace rrIntersect
 {
-	#ifdef _MSC_VER
-	#pragma comment(lib,"RRIntersect.lib")
-	#endif
-
-	#define USE_BSP
-	//#define USE_KD
 
 	typedef float RRReal;
 
