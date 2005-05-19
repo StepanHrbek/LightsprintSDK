@@ -64,7 +64,7 @@ public:
 	void    updateListForDynamicShadows();
 	unsigned gimmeLinks(unsigned (shootFunc1)(Scene *scene,Node *refl,Object *dynobj,ReflToDynobj* r2d,unsigned shots),
 	                    unsigned (shootFunc2)(Scene *scene,Node *refl,unsigned shots),
-	                    bool endfunc(Scene *));
+	                    bool endfunc(void *),void *context);
 
 	private:
 		Scene *scene;

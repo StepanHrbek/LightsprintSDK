@@ -389,7 +389,7 @@ void DReflectors::updateListForDynamicShadows()
 unsigned DReflectors::gimmeLinks(
  unsigned (shootFunc1)(Scene *scene,Node *refl,Object *dynobj,ReflToDynobj* r2d,unsigned shots),
  unsigned (shootFunc2)(Scene *scene,Node *refl,unsigned shots),
- bool endfunc(Scene *))
+ bool endfunc(void *),void *context)
 {
 	// this function is called once per frame
 	// realloc r2d if not big enough
@@ -458,7 +458,7 @@ unsigned DReflectors::gimmeLinks(
 		}
 		shotsDoneTotalSum+=shotsDoneSum;
 		if(!shotsAllowedSum) break;
-		if(endfunc(scene)) break;
+		if(endfunc(context)) break;
 		// change shotsPerImportance to double shotsDoneSum
 		shotsPerRound*=MULT_SHOTS_EACH_PASS*MULT_SHOTS_EACH_PASS*prevShotsDoneSum/(shotsDoneSum+MIN_DYNAMIC_SHOTS/10.f);//+neco aby nedelil nulou pri !shotsDoneSum
 		prevShotsDoneSum=shotsDoneSum;
@@ -772,7 +772,7 @@ static void distributeEnergyDynamicViaFactor(Factor *factor,va_list ap)
 unsigned __lightShotsPerDynamicFrame=0;
 unsigned __shadeShotsPerDynamicFrame=0;
 
-void Scene::improveDynamic(bool endfunc(Scene *))
+void Scene::improveDynamic(bool endfunc(void *),void *context)
 {
 	// dynamic shadows use the same structures as static, only one may
 	//  run at time
@@ -783,7 +783,7 @@ void Scene::improveDynamic(bool endfunc(Scene *))
 	staticReflectors.updateListForDynamicShadows();
 	__lightShotsPerDynamicFrame=0;
 	__shadeShotsPerDynamicFrame=0;
-	staticReflectors.gimmeLinks(staticToDynobjShotFunc,dynlightShotFunc,endfunc);
+	staticReflectors.gimmeLinks(staticToDynobjShotFunc,dynlightShotFunc,endfunc,context);
 	// no hits, no dynamic light
 	if(!__lightShotsPerDynamicFrame) return;
 	// drawing hits = no need to convert them to energyDynamic

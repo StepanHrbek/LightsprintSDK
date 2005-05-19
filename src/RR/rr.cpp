@@ -228,21 +228,14 @@ void objReturnDynamic(Scene *scene)
 // misc
 //
 
-static TIME   endTime;
-
-static void endAfter(real seconds)
+static bool endByTime(void *context)
 {
- endTime=(TIME)(GETTIME+seconds*PER_SEC);
+ return GETTIME>(TIME)(intptr_t)context;
 }
 
-static bool endByTime(Scene *scene)
+static bool endByTimeOrInput(void *context)
 {
- return GETTIME>endTime;
-}
-
-static bool endByTimeOrInput(Scene *scene)
-{
- return kb_hit() || GETTIME>endTime || mouse_hit();
+ return kb_hit() || GETTIME>(TIME)(intptr_t)context || mouse_hit();
 }
 
 static real   endAccuracy=-1;
@@ -259,8 +252,9 @@ static Counter *cnt=0;
 
 static int oAccuracy=0;
 
-static bool endByAccuracy(Scene *scene)
+static bool endByAccuracy(void *context)
 {
+ Scene* scene = (Scene*)context;
  int Accuracy=(int)(100.0*scene->avgAccuracy()/endAccuracy);
  
  if (oAccuracy+5<=Accuracy) { oAccuracy=Accuracy;
@@ -279,15 +273,9 @@ static bool endByAccuracy(Scene *scene)
  return Accuracy>=100;
 }
 
-/*static bool endByAccuracy(Scene *scene)
-{
- return scene->avgAccuracy()>endAccuracy;
-}*/
-
 static void captureTgaAfter(Scene *scene,rrEngine::RRScene* rrscene,char *name,real seconds,real minimalImprovementToShorten)
 {
- endAfter(seconds);
- scene->improveStatic(endByTime);
+ scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+seconds*PER_SEC));
  if (scene->shortenStaticImprovementIfBetterThan(minimalImprovementToShorten))
     scene->finishStaticImprovement();
  scene->draw(rrscene,0.4);
@@ -466,13 +454,13 @@ bool frameCalculate(Scene *scene)
  if(!c_dynamic && !p_flyingObjects && !p_flyingCamera && n_dirtyGeometry) c_dynamicFrameTime=0.05;
  if(c_dynamicFrameTime>MAX_UNINTERACT_TIME) c_dynamicFrameTime=MAX_UNINTERACT_TIME;
 #endif
- endAfter(c_dynamicFrameTime);
 
 #ifdef SUPPORT_DYNAMIC
  if(c_dynamic)
  {
-   scene->improveDynamic(endByTimeOrInput);
-   if(endByTime(scene)) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
+   TIME endTime=(GETTIME+c_dynamicFrameTime*PER_SEC);
+   scene->improveDynamic(endByTimeOrInput,(void*)(intptr_t)endTime);
+   if(GETTIME>endTime) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
    n_dirtyColor=true;
    return true;
  }
@@ -482,8 +470,9 @@ bool frameCalculate(Scene *scene)
    if(!p_flyingCamera && !p_flyingObjects && (n_dirtyCamera || n_dirtyObject)) return true; // jednorazova zmena sceny klavesnici nebo mysi -> okamzity redraw
    bool change=false;
    if(!preparing_capture && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames)) {
-     change=scene->improveStatic(endByTimeOrInput);
-     if(endByTime(scene)) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
+     TIME endTime=(GETTIME+c_dynamicFrameTime*PER_SEC);
+     change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime);
+     if(GETTIME>endTime) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
    }
    return change || p_flyingCamera || p_flyingObjects || n_dirtyCamera || n_dirtyObject;
  }
@@ -994,14 +983,13 @@ int main(int argc, char **argv)
 
  if (__mirror) __mirrorOutput=new int[video_XRES*video_YRES];
 
- endAfter(0.1);
- if(preparing_capture) scene->improveStatic(endByTime);
+ if(preparing_capture) scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+0.1*PER_SEC));
 
  if(endAccuracy>=0) {
 #ifdef SUPPORT_KAMIL
    if (kamil) cnt=new Counter(20);
 #endif
-   scene->improveStatic(endByAccuracy);
+   scene->improveStatic(endByAccuracy,scene);
 #ifdef SUPPORT_LIGHTMAP
    save_lightmaps(__world);
 #else
@@ -1026,8 +1014,7 @@ int main(int argc, char **argv)
    real step=5;
    while(c_frameTime>step && !kb_hit())
    {
-     endAfter(step);
-     scene->improveStatic(endByTimeOrInput);
+     scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)(GETTIME+step*PER_SEC));
      scene->draw(0.4);
      c_frameTime-=step;
      __frameNumber++;
@@ -1047,8 +1034,7 @@ int main(int argc, char **argv)
    {
      char buf[400];
      scene->infoScene(buf); puts(buf);
-     endAfter(5);
-     scene->improveStatic(endByTime);
+     scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+5*PER_SEC));
      scene->infoImprovement(buf,__infolevel); puts(buf);
      //printf("kshot=%d kbsp=%d ktri=%d hak1=%d hak2=%d hak3=%d hak4=%d\n",__shot/1000,__bsp/1000,__tri/1000,__hak1/1000,__hak2/1000,__hak3/1000,__hak4/1000);
      rrIntersect::intersectStats.getInfo(buf,400,1); puts(buf);

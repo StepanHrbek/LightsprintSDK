@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.05.17
+// version 2005.05.19
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -96,7 +96,7 @@ namespace rrEngine
 		// must not change during object lifetime
 		virtual unsigned     getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*   getSurface(unsigned s) = 0;
-		virtual RRReal       getTriangleAdditionalEnergy(unsigned t) const = 0;
+		virtual const RRReal* getTriangleAdditionalEnergy(unsigned t) const = 0;
 
 		// may change during object lifetime
 		virtual const RRReal* getWorldMatrix() = 0;
@@ -137,9 +137,8 @@ namespace rrEngine
 		bool          intersect(rrIntersect::RRRay* ray);
 		
 		// calculate radiosity
-		typedef       bool ENDFUNC(void*);
-		void          sceneResetStatic();
-		bool          sceneImproveStatic(ENDFUNC endfunc);
+		void          sceneResetStatic(bool resetFactors, unsigned selectColorComponent); // 0=red, 1=green, 2=blue, 3=white
+		bool          sceneImproveStatic(bool endfunc(void*), void* context);
 
 		// read results
 		RRReal        getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex);

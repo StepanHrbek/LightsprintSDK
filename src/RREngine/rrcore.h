@@ -476,7 +476,7 @@ public:
 
 	// surface
 	RRSurface *surface;     // material at outer and inner side of Triangle
-	real    setSurface(RRSurface *s,real additionalEnergy);
+	real    setSurface(RRSurface *s,const real* additionalEnergy);
 #ifndef ONLY_PLAYER
 	real    getEnergySource() {return sourceEnergy;}
 		private:
@@ -729,8 +729,7 @@ public:
 	void    objInsertStatic(Object *aobject);
 	void    objRemoveStatic(unsigned o);
 	unsigned objNdx(Object *aobject);
-	typedef bool ENDFUNC(Scene*);
-	bool    improveStatic(ENDFUNC endfunc);
+	bool    improveStatic(bool endfunc(void*), void* context);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
@@ -741,7 +740,7 @@ public:
 	void    objMakeStatic(unsigned o);
 	void    objMakeDynamic(unsigned o);
 	void    transformObjects();
-	void    improveDynamic(bool endfunc(Scene *));
+	void    improveDynamic(bool endfunc(void *),void *context);
 #endif
 	void    iv_forEach(void callback(SubTriangle *s,IVertex *iv,int type));
 	void    iv_saveRealFrame(char *name);
@@ -761,7 +760,7 @@ public:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
 	void    draw(rrEngine::RRScene* scene, real quality);
-	void    resetStaticIllumination(bool preserveFactors);
+	void    resetStaticIllumination(bool resetFactors);
 
 	unsigned getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point);
 
@@ -780,8 +779,8 @@ public:
 		Factors improvingFactors;
 		Factors candidatesForClustering;
 		void    shotFromToHalfspace(Node *sourceNode);
-		void    refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(Scene *));
-		bool    energyFromDistributedUntil(Node *source,bool endfunc(Scene *));
+		void    refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(void *),void *context);
+		bool    energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context);
 
 		unsigned shotsForNewFactors;
 		unsigned shotsAccumulated;

@@ -200,15 +200,17 @@ void RRScene::objectDestroy(OBJECT_HANDLE object)
 	scene->objRemoveStatic(object);
 }
 
-void RRScene::sceneResetStatic()
-{
-	scene->resetStaticIllumination(false);
-}
-
-bool RRScene::sceneImproveStatic(ENDFUNC endfunc)
+void RRScene::sceneResetStatic(bool resetFactors, unsigned selectColorComponent)
 {
 	__frameNumber++;
-	return scene->improveStatic((Scene::ENDFUNC*)endfunc);
+	scene->selectColorFilter(selectColorComponent);
+	scene->resetStaticIllumination(resetFactors);
+}
+
+bool RRScene::sceneImproveStatic(bool endfunc(void*), void* context)
+{
+	__frameNumber++;
+	return scene->improveStatic(endfunc, context);
 }
 
 void RRScene::compact()
@@ -235,9 +237,9 @@ RRReal RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, un
 	float refl = 0;
 	if(RRGetState(RRSS_GET_REFLECTED))
 	{
-		RRSetState(RRSS_GET_REFLECTED,0);
+		unsigned oldSource = RRSetState(RRSS_GET_SOURCE,0);
 		refl = tri->topivertex[vertex]->radiosity();
-		RRSetState(RRSS_GET_REFLECTED,1);
+		RRSetState(RRSS_GET_SOURCE,oldSource);
 	}
 	return (RRGetState(RRSS_GET_SOURCE)?tri->getEnergySource()/tri->area:0) + refl;
 }

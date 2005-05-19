@@ -22,7 +22,7 @@ public:
 	// must not change during object lifetime
 	virtual unsigned     getTriangleSurface(unsigned t) const;
 	virtual RRSurface*   getSurface(unsigned si);
-	virtual RRReal       getTriangleAdditionalEnergy(unsigned t) const {return 0;}
+	virtual const RRReal* getTriangleAdditionalEnergy(unsigned t) const {static RRReal zero[3]={0,0,0}; return zero;}
 
 	// may change during object lifetime
 	virtual const float* getWorldMatrix();
