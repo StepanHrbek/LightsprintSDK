@@ -137,7 +137,7 @@ namespace rrEngine
 		bool          intersect(rrIntersect::RRRay* ray);
 		
 		// calculate radiosity
-		void          sceneResetStatic(bool resetFactors, unsigned selectColorComponent); // 0=red, 1=green, 2=blue, 3=white
+		void          sceneResetStatic(bool resetFactors, RRColor colorFilter);
 		bool          sceneImproveStatic(bool endfunc(void*), void* context);
 
 		// read results

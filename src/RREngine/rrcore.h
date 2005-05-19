@@ -723,7 +723,7 @@ public:
 	real    rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,real power=1);
 //	Color   rayTraceCamera(Point3 eye,Vec3 direction,Triangle *skip,Color power=Color(1,1,1));
 
-	char    selectColorFilter(int i);
+	char    selectColorFilter(int i, real *rgb=NULL);
 	int     turnLight(int whichLight,real intensity); // turns light on/off. just material, no energies modified (use resetStaticIllumination), returns number of lights (emitting materials) in scene
 
 	void    objInsertStatic(Object *aobject);

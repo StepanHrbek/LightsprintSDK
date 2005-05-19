@@ -1211,16 +1211,17 @@ again:
 	return rotations;
 }
 
-char Scene::selectColorFilter(int i)
+char Scene::selectColorFilter(int i, real *rgb)
 {
+	assert(i>=0 && i<4);
 	// selects color component for further calculations
 	// you must resetStaticIllumination() and distribute() to get
 	//  static illumination for new filter
 	RRColor myColorFilter[4]={{1,0,0},{0,1,0},{0,0,1},{0.33f,0.33f,0.33f}};
 	char myColorID[4]={'r','g','b','w'};
-	__colorFilter[0]=myColorFilter[i][0];
-	__colorFilter[1]=myColorFilter[i][1];
-	__colorFilter[2]=myColorFilter[i][2];
+	__colorFilter[0]=rgb?rgb[0]:myColorFilter[i][0];
+	__colorFilter[1]=rgb?rgb[1]:myColorFilter[i][1];
+	__colorFilter[2]=rgb?rgb[2]:myColorFilter[i][2];
 
 	// adjusts diffuseReflectance in all surfaces (faster than fixing all usages of diffuseReflectance)
 	//  to reflect only selected component (blue material to reflect only blue)
@@ -2168,8 +2169,11 @@ unsigned Scene::objNdx(Object *o)
 void Scene::resetStaticIllumination(bool resetFactors)
 {
 	abortStaticImprovement();
-	shotsForFactorsTotal=0;
-	shotsTotal=0;
+	if(resetFactors)
+	{
+		shotsForFactorsTotal=0;
+		shotsTotal=0;
+	}
 	energyEmitedByStatics=SMALL_ENERGY;
 	energyEmitedByDynamics=SMALL_ENERGY;
 	improveBig=0.5f;

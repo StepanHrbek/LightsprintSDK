@@ -200,10 +200,10 @@ void RRScene::objectDestroy(OBJECT_HANDLE object)
 	scene->objRemoveStatic(object);
 }
 
-void RRScene::sceneResetStatic(bool resetFactors, unsigned selectColorComponent)
+void RRScene::sceneResetStatic(bool resetFactors, RRColor colorFilter)
 {
 	__frameNumber++;
-	scene->selectColorFilter(selectColorComponent);
+	scene->selectColorFilter(0,colorFilter);
 	scene->resetStaticIllumination(resetFactors);
 }
 
