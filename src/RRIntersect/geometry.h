@@ -41,9 +41,9 @@ namespace rrIntersect
 
 	Vec3 operator -(Vec3 a);
 	real size(Vec3 a);
-	real sizeSquare(Vec3 a);
+	real size2(Vec3 a);
 	Vec3 normalized(Vec3 a);
-	real scalarMul(Vec3 a,Vec3 b);
+	real dot(Vec3 a,Vec3 b);
 	Vec3 ortogonalTo(Vec3 a,Vec3 b);
 
 	//////////////////////////////////////////////////////////////////////////////

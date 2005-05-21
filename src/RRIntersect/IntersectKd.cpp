@@ -51,7 +51,7 @@ static inline bool intersect_triangle_kd(Triankle *t,real distanceMin,real dista
 
 	// calculate determinant - also used to calculate U parameter
 	Vec3 pvec=ortogonalTo(i_direction,t->l3);
-	real det = scalarMul(t->r3,pvec);
+	real det = dot(t->r3,pvec);
 
 	// cull test
 	bool hitOuterSide=det>0;
@@ -66,7 +66,7 @@ static inline bool intersect_triangle_kd(Triankle *t,real distanceMin,real dista
 	Vec3 tvec=i_eye-t->s3;
 
 	// calculate U parameter and test bounds
-	real u=scalarMul(tvec,pvec)/det;
+	real u=dot(tvec,pvec)/det;
 	if (u<0 || u>1) return false;
 	I_DBG(i_stat[4]++);
 
@@ -74,12 +74,12 @@ static inline bool intersect_triangle_kd(Triankle *t,real distanceMin,real dista
 	Vec3 qvec=ortogonalTo(tvec,t->r3);
 
 	// calculate V parameter and test bounds
-	real v=scalarMul(i_direction,qvec)/det;
+	real v=dot(i_direction,qvec)/det;
 	if (v<0 || u+v>1) return false;
 	I_DBG(i_stat[5]++);
 
 	// calculate distance where ray intersects triangle
-	real dist=scalarMul(t->l3,qvec)/det;
+	real dist=dot(t->l3,qvec)/det;
 	if(dist<distanceMin || dist>distanceMax) return false;
 	I_DBG(i_stat[6]++);
 

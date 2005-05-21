@@ -41,9 +41,9 @@ public:
        ~IVertex();
 
 	real    error;
-	void    loadCache(real r);
+	void    loadCache(Channels r);
 #ifdef ONLY_PLAYER
-	real    player_cache;
+	Channels player_cache;
 	U8      player_detail;
 #endif
 
@@ -53,7 +53,7 @@ public:
 	void    splitTopLevel(Vec3 *avertex, Object *obj);
 	void    makeDirty();
 	bool    hasRadiosity() {return powerTopLevel!=0;}
-	real    radiosity();
+	Channels radiosity();
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();
 	bool    check();
@@ -67,14 +67,15 @@ public:
 	bool    important:1;// jen pro ucely grabovani/loadovani fak
 
 	private:
-		U8       cacheTime:5;
-		U8       cornersAllocatedLn2;
+		U8       cacheTime:5; // fix __frameNumber&0x1f if you change :5
+		U8       cacheValid:1;
+		U8       cornersAllocatedLn2:7;
 		U16      corners;
-		real     cache;
+		Channels cache;
 		unsigned cornersAllocated();
 		real     powerTopLevel;
 		Corner   *corner; // pole corneru tvoricich tento ivertex
-		real     getClosestRadiosity();
+		Channels getClosestRadiosity();
 };
 
 //////////////////////////////////////////////////////////////////////////////

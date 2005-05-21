@@ -263,7 +263,7 @@ bool IntersectBsp::intersect(RRRay* ray) const
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 
 	bool hit = false;
-	assert(fabs(sizeSquare((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
+	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
 	if(triangleSRLNP)
 	{

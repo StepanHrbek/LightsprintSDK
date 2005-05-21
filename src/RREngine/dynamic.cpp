@@ -178,7 +178,7 @@ real Node::importanceForDynamicShadows(Bound *objectBound)
 	return fabs(shooter->energyDiffused+shooter->energyToDiffuse)
 	       /(sqrt(area)+SMALL_OBJECT_SIZE)
 	       *(objectBound->radius+SMALL_OBJECT_SIZE)
-	       /(sizeSquare(objectBound->center-point)+SMALL_OBJECT_SIZE);
+	       /(size2(objectBound->center-point)+SMALL_OBJECT_SIZE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -599,7 +599,7 @@ static unsigned staticToDynobjShotFunc(Scene *scene,Node *refl,Object *dynobj,Re
 		// sphereSizeCode=sin(uhel stredkoule-oko-tecnakoule)
 		real sphereSizeCode=dynobj->bound.radius/toSphereCenterSize;
 		// spherePositionCode=ctverec rozdilu normaly a smeru ke kouli
-		real spherePositionCode=sizeSquare(source->grandpa->getN3()-toSphereCenter/toSphereCenterSize);
+		real spherePositionCode=size2(source->grandpa->getN3()-toSphereCenter/toSphereCenterSize);
 		powerR2D=powerToSphere(sphereSizeCode,spherePositionCode);
 
 		// shoot to sphere but not under source surface
@@ -628,9 +628,9 @@ static unsigned staticToDynobjShotFunc(Scene *scene,Node *refl,Object *dynobj,Re
 		rayVec3=toSphereCenterNorm*cos(a)
 		       +toSphereRight*(sin(a)*cos(b))
 		       +toSphereFront*(sin(a)*sin(b));
-		assert(fabs(sizeSquare(rayVec3)-1)<0.001);
+		assert(fabs(size2(rayVec3)-1)<0.001);
 		// shotPower=cos(uhel mezi n3 a rayVec3)=1-sqr(rozdil tech vektoru)/2;
-		shotPower=1-sizeSquare(rayVec3-source->grandpa->getN3())/2;
+		shotPower=1-size2(rayVec3-source->grandpa->getN3())/2;
 		// osetri pripad kdy miri dovnitr zarice=moc daleko od normaly
 		if(shotPower<=0.001)
 		{

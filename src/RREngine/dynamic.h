@@ -3,6 +3,14 @@
 #ifndef RRENGINE_DYNAMIC_H
 #define RRENGINE_DYNAMIC_H
 
+#if CHANNELS != 1
+#error dynamic.* is not adjusted for CHANNELS!=1
+#endif
+
+#ifndef SUPPORT_TRANSFORMS
+#error SUPPORT_DYNAMIC requires SUPPORT_TRANSFORMS
+#endif
+
 #include "rrcore.h"
 
 namespace rrEngine

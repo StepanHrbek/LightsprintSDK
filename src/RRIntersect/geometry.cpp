@@ -20,7 +20,7 @@ real size(Vec3 a)
 	return sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
 }
 
-real sizeSquare(Vec3 a)
+real size2(Vec3 a)
 {
 	return a.x*a.x+a.y*a.y+a.z*a.z;
 }
@@ -30,7 +30,7 @@ Vec3 normalized(Vec3 a)
 	return a/size(a);
 }
 
-real scalarMul(Vec3 a,Vec3 b)
+real dot(Vec3 a,Vec3 b)
 {
 	return a.x*b.x+a.y*b.y+a.z*b.z;
 }

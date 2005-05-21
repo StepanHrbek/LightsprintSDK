@@ -62,7 +62,7 @@ IVertex::IVertex()
 	point=Point3(0,0,0);
 #endif
 	cacheTime=__frameNumber-1;
-	cache=-1; // negative=not valid, needs refresh
+	cacheValid=0;
 	__iverticesAllocated++;
 	__cornersAllocated+=cornersAllocated();
 	loaded=false;
@@ -87,7 +87,7 @@ bool IVertex::check(Point3 apoint)
 	// kdyz transformuje objekty misto strel, kontrolni pointy
 	// v ivertexech zustanou neztransformovany a nelze je checkovat
 #ifdef IV_POINT
-	if(sizeSquare(point)) assert(sizeSquare(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
+	if(size2(point)) assert(size2(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
 #endif
 	return true;
 }
@@ -96,11 +96,11 @@ void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 {
 	if(node->grandpa && node->grandpa->isNeedle) power=0; // ignorovat prispevky jehel
 #ifdef IV_POINT
-	if(sizeSquare(apoint))
+	if(size2(apoint))
 	{
 		assert(power<M_PI+0.001);
-		if(sizeSquare(point)==0) point=apoint; else
-		  assert(sizeSquare(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
+		if(size2(point)==0) point=apoint; else
+		  assert(size2(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
 	}
 #endif
 	if(corners==cornersAllocated())
@@ -205,45 +205,46 @@ void IVertex::makeDirty()
 		corner[i].node->flags|=FLAG_DIRTY_IVERTEX+FLAG_DIRTY_SOME_SUBIVERTICES;
 }
 
-real IVertex::radiosity()
+Channels IVertex::radiosity()
 {
 	bool getSource=RRGetState(RRSS_GET_SOURCE)!=0;
 	bool getReflected=RRGetState(RRSS_GET_REFLECTED)!=0;
-	if(cacheTime!=(__frameNumber&0x1f) || cache<0) // cacheTime is byte:5
+	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid) // cacheTime is byte:5
 	{
 		//assert(powerTopLevel);
-		real rad=0;
+		Channels rad=Channels(0);
 		for(unsigned i=0;i<corners;i++)
 		{
 			Node* node=corner[i].node;
 			assert(node);
 			// a=source+reflected
-			real a=node->energyDirect+node->getEnergyDynamic();
+			Channels a=node->energyDirect+node->getEnergyDynamic();
 			if(node->sub[0])
 			{
 				assert(node->sub[1]);
 				a-=node->sub[0]->energyDirect+node->sub[1]->energyDirect;
 			}
 			// s=source
-			real s=IS_TRIANGLE(node) ? TRIANGLE(node)->getEnergySource() : 0;
+			Channels s=IS_TRIANGLE(node) ? TRIANGLE(node)->getEnergySource() : Channels(0);
 			// r=reflected
-			real r=a-s;
+			Channels r=a-s;
 			// w=wanted
-			real w=(getSource&&getReflected)?a:( getSource?s: ( getReflected?r:0 ) );
+			Channels w=(getSource&&getReflected)?a:( getSource?s: ( getReflected?r:Channels(0) ) );
 			rad+=w/corner[i].node->area*corner[i].power;
 		}
 		cache=powerTopLevel?rad/powerTopLevel:getClosestRadiosity();//hack for ivertices inside needle - quick search for nearest valid value
 		cacheTime=__frameNumber;
+		cacheValid=1;
 	}
-	if(cache<0) cache=0; //!!! obcas tu vznikaji zaporny hodnoty coz je zcela nepripustny!
-	assert(cache>=0);
+	clampToZero(cache); //!!! obcas tu vznikaji zaporny hodnoty coz je zcela nepripustny!
 	return cache;
 }
 
-void IVertex::loadCache(real r)
+void IVertex::loadCache(Channels r)
 {
 	cache=r;
 	cacheTime=__frameNumber;
+	cacheValid=1;
 }
 
 #endif
@@ -826,7 +827,7 @@ static void iv_saveReal(SubTriangle *s,IVertex *iv,int type)
 	{
 		if(iv_realsInside)
 		{
-			real r=iv->radiosity();
+			Channels r=iv->radiosity();
 			iv_FW(r);
 		}
 		else
@@ -1030,7 +1031,7 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	if(type==4) return;
 	// nacte bajt z disku a kouka co dal
 	U8 b;
-	real r;
+	Channels r;
 	U8 be;//byte error
 	iv_FR(b);
 #ifdef LOG_LOADING_MES
@@ -1071,7 +1072,7 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	    if(iv_realsInside)
 	    {
 	      iv_FR(r);
-	      assert(IS_NUMBER(r));
+	      assert(IS_CHANNELS(r));
 	    }
 	    else
 	    if(type==3)//byteerror nenacita z topvertexu
@@ -1190,10 +1191,10 @@ static real iv_error(SubTriangle *s,IVertex *iv)
 	assert(iv==s->subvertex);
 	assert(iv->loaded);
 	bool isRL=s->isRightLeft();
-	real r1=SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->radiosity();
-	real r2=SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->radiosity();
+	Channels r1=SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->radiosity();
+	Channels r2=SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->radiosity();
 	assert(s->area>=0);
-	return fabs(r1-r2)*s->area;
+	return sum(abs(r1-r2))*s->area;
 }
 
 static void iv_addLoadedError(SubTriangle *s,IVertex *iv,int type)
@@ -1218,7 +1219,7 @@ static void iv_fillEmptyImportant(SubTriangle *s,IVertex *iv,int type)
 	{
 		assert(type==3);
 		bool isRL=s->isRightLeft();
-		real r=(SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->radiosity()+SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->radiosity())/2;
+		Channels r=(SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->radiosity()+SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->radiosity())/2;
 		iv->loadCache(r);
 		iv->loaded=true;
 	}
@@ -1389,7 +1390,11 @@ static void iv_saveImportantByte(SubTriangle *s,IVertex *iv,int type)
 //if(!iv->loaded || (type==3 && iv_error(s,iv)<1))
 //b=255;else
 		//!!!b=(U8)(254.99*getBrightness(iv->radiosity()));
+#if CHANNELS == 1
 		b=(U8)iv->radiosity();
+#else
+		b=0; //!!!
+#endif
 		iv_FALLW(b);
 		iv->saved=true;
 	}
@@ -1460,7 +1465,7 @@ void Scene::iv_loadByteFrame(real frame)
 	{
 		real r=(framefloor+1-frame)*iv_bytetable[iv+framefloor*iv_ivertices]
 		      +(frame-framefloor)*iv_bytetable[iv+((framefloor+1)%iv_frames)*iv_ivertices];
-		iv_realptrtable[iv]->loadCache(r/256);
+		iv_realptrtable[iv]->loadCache(Channels(r/256));
 	}
 }
 
@@ -1525,7 +1530,7 @@ static void iv_findIvClosestToPos(SubTriangle *s,IVertex *iv,int type)
 	}
 	iv->check(s->to3d(pos));
 #endif
-	real dist=sizeSquare(pos-ne_pos);
+	real dist=size2(pos-ne_pos);
 	if(dist<ne_bestDist)
 	{
 		ne_bestDist=dist;
@@ -1533,10 +1538,10 @@ static void iv_findIvClosestToPos(SubTriangle *s,IVertex *iv,int type)
 	}
 }
 
-real IVertex::getClosestRadiosity()
+Channels IVertex::getClosestRadiosity()
 // returns radiosity of ivertex closest to this
 {
-	if(!RRGetState(RRSS_FIGHT_NEEDLES) || RRGetState(RRSS_NEEDLE)!=1) return 0; // pokud nebojujem s jehlama, vertexum bez powerTopLevel (zrejme nekde v jehlach na okraji sceny) dame barvu 0
+	if(!RRGetState(RRSS_FIGHT_NEEDLES) || RRGetState(RRSS_NEEDLE)!=1) return Channels(0); // pokud nebojujem s jehlama, vertexum bez powerTopLevel (zrejme nekde v jehlach na okraji sceny) dame barvu 0
 	// kdyz 2 jehly sousedej, sdilej ivertex s powertoplevel==0
 	//  kde nektery cornery spadaj do jednoho, jiny do druhyho
 	// projdem vsechny
@@ -1560,7 +1565,7 @@ real IVertex::getClosestRadiosity()
 		iv_callIvertices(n->grandpa,iv_findIvClosestToPos);
 		if(!tested1) tested1=n; else tested2=n;
 	}
-	static real prev=1e10;
+	static Channels prev=Channels(1e10);
 	if(ne_bestIv) prev=ne_bestIv->radiosity();
 	return prev;
 }

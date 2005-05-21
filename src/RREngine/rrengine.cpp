@@ -146,17 +146,19 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 			(Vec3*)(importer->getVertex(v1)),
 			(Vec3*)(importer->getVertex(v2)));
 		if(t->isValid) 
-			obj->energyEmited+=fabs(t->setSurface(s,importer->getTriangleAdditionalEnergy(fi)));
+			obj->energyEmited+=abs(t->setSurface(s,importer->getTriangleAdditionalEnergy(fi)));
 		else
 			t->surface=NULL;
 	}
 	   
-#ifdef SUPPORT_DYNAMIC
-	obj->trianglesEmiting=tbot;
+#ifdef SUPPORT_TRANSFORMS
 	obj->transformMatrix=(Matrix*)importer->getWorldMatrix();
 	obj->inverseMatrix=(Matrix*)importer->getInvWorldMatrix();
 	// vyzada si prvni transformaci
 	obj->matrixDirty=true;
+#endif
+#ifdef SUPPORT_DYNAMIC
+	obj->trianglesEmiting=tbot;
 #endif
 	// preprocessuje objekt
 	DBG(printf(" bounds...\n"));
@@ -228,12 +230,17 @@ const RRReal* RRScene::getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
-	real rad = obj->getVertexRadiosity(vertex);
+#if CHANNELS==1
+	Channels rad = obj->getVertexRadiosity(vertex);
 	static RRColor tmp;
 	tmp[0] = rad*__colorFilter[0];
 	tmp[1] = rad*__colorFilter[1];
 	tmp[2] = rad*__colorFilter[2];
 	return tmp;
+#else
+	static Channels rad = obj->getVertexRadiosity(vertex);
+	return (RRReal*)&rad;
+#endif
 }
 
 const RRReal* RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
@@ -246,18 +253,24 @@ const RRReal* RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned trian
 	//if(vertex>=3) return (tri->energyDirect + tri->getEnergyDynamic()) / tri->area;
 	vertex=(vertex+3-tri->rotations)%3;
 
-	float refl = 0;
+	Channels refl = Channels(0);
 	if(RRGetState(RRSS_GET_REFLECTED))
 	{
 		unsigned oldSource = RRSetState(RRSS_GET_SOURCE,0);
 		refl = tri->topivertex[vertex]->radiosity();
 		RRSetState(RRSS_GET_SOURCE,oldSource);
 	}
-	float rad = (RRGetState(RRSS_GET_SOURCE)?tri->getEnergySource()/tri->area:0) + refl;
+	Channels rad = (RRGetState(RRSS_GET_SOURCE)?tri->getEnergySource()/tri->area:Channels(0)) + refl;
 	static RRColor tmp;
+#if CHANNELS == 1
 	tmp[0] = rad*__colorFilter[0];
 	tmp[1] = rad*__colorFilter[1];
 	tmp[2] = rad*__colorFilter[2];
+#else
+	tmp[0] = rad.x*__colorFilter[0];
+	tmp[1] = rad.y*__colorFilter[1];
+	tmp[2] = rad.z*__colorFilter[2];
+#endif
 	return tmp;
 }
 

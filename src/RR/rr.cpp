@@ -400,7 +400,7 @@ void frameSetup(Scene *scene)
    // jedine kdyz grabuje, g_tgaFrame prebiji hodnotu v p_3dsFrame
    p_3dsFrame=p_3dsFrameStart+(p_3dsFrameEnd-p_3dsFrameStart)*(g_tgaFrame%g_tgaFrames)/g_tgaFrames;
  }
- #ifdef SUPPORT_DYNAMIC
+ #ifdef SUPPORT_TRANSFORMS
  if(p_flyingObjects)
  {
    for(unsigned o=scene->staticObjects;o<scene->objects;o++) scene->object[o]->matrixDirty=true;
@@ -702,7 +702,7 @@ void keyboardFunc(unsigned char key, int x, int y)
  }
 
  // vynuti si pozdejsi transformaci objektu se kterym se hnulo
- #ifdef SUPPORT_DYNAMIC
+ #ifdef SUPPORT_TRANSFORMS
  scene->object[__obj]->matrixDirty=true;
  n_dirtyObject=true;
  #endif
@@ -721,7 +721,7 @@ void specialFunc(int key,int x,int y)
   }
 
  // vynuti si pozdejsi transformaci objektu se kterym se hnulo
- #ifdef SUPPORT_DYNAMIC
+ #ifdef SUPPORT_TRANSFORMS
  scene->object[__obj]->matrixDirty=true;
  n_dirtyObject=true;
  #endif

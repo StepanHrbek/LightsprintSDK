@@ -1,6 +1,43 @@
 #ifndef RRENGINE_RRCORE_H
 #define RRENGINE_RRCORE_H
 
+#define SUPPORT_TRANSFORMS
+//#define SUPPORT_INTERPOL // support interpolation, +20% memory required
+//#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
+//#define LIGHTMAP         // generate lightmap for each Triangle + texturemapping
+//#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
+// note that fixed hits have no hit extension implemeted (used only for dynamic objects)
+#define HIT_PTR          & // hits are passed by reference
+#define BESTS          100 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
+
+#define CHANNELS         3
+#define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (eg. polished steel))
+#define FACTORCHANNELS   1 // if CLEAN_FACTORS then 1 else CHANNELS
+
+#if CHANNELS==1
+#define Channels         real
+#elif CHANNELS==3
+#define Channels         Vec3
+#else		    
+#error unsupported CHANNELS
+#endif
+
+#if HITCHANNELS==1
+#define HitChannels      real
+#elif HITCHANNELS==3
+#define HitChannels      Vec3
+#else
+#error unsupported HITCHANNELS
+#endif
+
+#if FACTORCHANNELS==1
+#define FactorChannels   real
+#elif FACTORCHANNELS==3
+#define FactorChannels   Vec3
+#else
+#error unsupported FACTORCHANNELS
+#endif
+
 #include <stdarg.h>
 //#include <stdlib.h>
 #include "geometry.h"
@@ -9,14 +46,6 @@
 
 namespace rrEngine
 {
-
-//#define SUPPORT_INTERPOL // support interpolation, +20% memory required
-//#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
-//#define LIGHTMAP         // generate lightmap for each Triangle + texturemapping
-//#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
-			   // note that fixed hits have no hit extension implemeted (used only for dynamic objects)
-#define HIT_PTR          & // hits are passed by reference
-#define BESTS          100 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
 #define DBGLINE
 //#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);
@@ -93,10 +122,10 @@ struct Hit
 #else
 	real    u; // 0..side lengths, multiple of u3,v3 in grandpa triangle
 	real    v;
-	real    power; // -1..1, negative energy is for dynamic shooting
+	HitChannels power; // -1..1, negative energy is for dynamic shooting
 #endif
-	void    setPower(real apower);
-	real    getPower();
+	void    setPower(HitChannels apower);
+	HitChannels getPower();
 	void    setExtensionP(void *ext);
 	void   *getExtensionP();
 	void    setExtensionR(real r);
@@ -142,7 +171,7 @@ public:
 #else
 		real sum_u;
 		real sum_v;
-		real sum_power;
+		HitChannels sum_power;
 #endif
 		unsigned hitsAllocated;
 
@@ -170,11 +199,11 @@ class Factor
 {
 public:
 	Node    *destination;
-	real    power; // this part of shooted energy is transferred to destination
+	FactorChannels power; // this part of shooted energy is transferred to destination
 	               // Q:is multiplied by destination's diffuseReflectance?
 	               // A:NO, it allows us to calculate 3 channels using factors calculated once
 
-	Factor(Node *destination,real apower);
+	Factor(Node *destination,FactorChannels apower);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -217,8 +246,8 @@ public:
 	~Shooter();
 	void    reset();
 
-	real    energyDiffused;
-	real    energyToDiffuse;
+	Channels energyDiffused;
+	Channels energyToDiffuse;
 	unsigned shotsForFactors;
 
 	Factor  *tmpFactor;     // used only during clustering
@@ -263,11 +292,11 @@ public:
 	real    accuracy();     // shots done per energy unit
 
 	// static energy acumulators
-	real    energyDirect;   // energy received directly by this node or his subs (not by ancestors)
-	real    radiosityIndirect();// radiosity received by ancestors
+	Channels energyDirect;   // energy received directly by this node or his subs (not by ancestors)
+	Channels radiosityIndirect();// radiosity received by ancestors
 	bool    loadEnergyFromSubs();
 	void    propagateEnergyUp();
-	real    getEnergyDynamic(); // gets all energy averaged in more frames
+	Channels getEnergyDynamic(); // gets all energy averaged in more frames
 
 	// dynamic energy acumulators
 #ifdef SUPPORT_DYNAMIC
@@ -379,9 +408,9 @@ public:
 	bool    checkVertices();
 	void    installVertices();
 
-	unsigned printGouraud(void *f, IVertex **iv,real scale,real flatambient=0);
-	void    drawGouraud(real ambient,IVertex **iv,int df);
-	void    drawFlat(real ambient,int df);
+	unsigned printGouraud(void *f, IVertex **iv,real scale,Channels flatambient=Channels(0));
+	void    drawGouraud(Channels ambient,IVertex **iv,int df);
+	void    drawFlat(Channels ambient,int df);
 
 	private:
 		real    splita; // sub[0]=subtriangle with splita*u+splitb*v>1
@@ -442,7 +471,7 @@ public:
 	void    compact();
 
 	// genealogy
-#ifdef SUPPORT_DYNAMIC
+#ifdef SUPPORT_TRANSFORMS
 	class Object *object;
 #endif
 
@@ -476,11 +505,11 @@ public:
 
 	// surface
 	RRSurface *surface;     // material at outer and inner side of Triangle
-	real    setSurface(RRSurface *s,const real* additionalEnergy);
+	Channels setSurface(RRSurface *s,const real* additionalEnergy);
 #ifndef ONLY_PLAYER
-	real    getEnergySource() {return sourceEnergy;}
+	Channels getEnergySource() {return sourceEnergy;}
 		private:
-		real    sourceEnergy;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
+		Channels sourceEnergy;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
 		public:
 
 	// hits
@@ -648,7 +677,7 @@ public:
 };
 
 #else
-	real    getVertexRadiosity(unsigned avertex);
+	Channels getVertexRadiosity(unsigned avertex);
 	IVertex **vertexIVertex;
 	// IVertex pool
 	IVertex *newIVertex();
@@ -665,7 +694,7 @@ public:
 	void    buildClusters();
 
 	// energies
-	real    energyEmited;
+	Channels energyEmited;
 	void    resetStaticIllumination();
 
 	// intersections
@@ -677,15 +706,16 @@ public:
 	char    *name;
 	bool    check();
 
-#ifdef SUPPORT_DYNAMIC
-	// access to primary emitors
-	unsigned trianglesEmiting; // number of first triangles that are primary emitors
-
+#ifdef SUPPORT_TRANSFORMS
 	// transformations
 	const Matrix  *transformMatrix;
 	const Matrix  *inverseMatrix;
 	bool    matrixDirty;
 	void    transformBound();
+#endif
+#ifdef SUPPORT_DYNAMIC
+	// access to primary emitors
+	unsigned trianglesEmiting; // number of first triangles that are primary emitors
 #endif
 
 };
@@ -715,12 +745,12 @@ public:
 	unsigned objects;
 	RRSurface *surface;
 	unsigned surfaces;
-		real    energyEmitedByStatics;
-		real    energyEmitedByDynamics;
+		Channels energyEmitedByStatics;
+		Channels energyEmitedByDynamics;
 
 	bool    intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
 	bool    intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,Object *object,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
-	real    rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,real power=1);
+	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power=1);
 //	Color   rayTraceCamera(Point3 eye,Vec3 direction,Triangle *skip,Color power=Color(1,1,1));
 
 	char    selectColorFilter(int i, const real *rgb=NULL);

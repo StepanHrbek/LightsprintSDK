@@ -125,6 +125,13 @@ real getAvg(const real* rad)
 	return (rad[0]+rad[1]+rad[2])/3;
 }
 
+#if CHANNELS == 3
+real getBrightness(Channels rad)
+{
+	return getBrightness(sum(rad)/3);
+}
+#endif
+
 void drawEngine(rrEngine::RRScene* scene, unsigned o, unsigned t, Triangle *f)
 {
 	Point3 v[3];
@@ -152,7 +159,7 @@ void drawEngine(rrEngine::RRScene* scene, unsigned o, unsigned t, Triangle *f)
 
 static ColorTable __needle_ct=new unsigned[C_INDICES];
 
-void SubTriangle::drawFlat(real ambient,int df)
+void SubTriangle::drawFlat(Channels ambient,int df)
 {
 	if(flags&FLAG_DIRTY_ALL_SUBNODES) df|=DF_REFRESHALL;
 	if(!(df&DF_REFRESHALL) && !(flags&FLAG_DIRTY_NODE)) return;
@@ -258,7 +265,7 @@ void SubTriangle::drawFlat(real ambient,int df)
 
 // ambient propaguje dolu jen kvuli gouraud3 at vi barvu stredu subtrianglu
 
-void SubTriangle::drawGouraud(real ambient,IVertex **iv,int df)
+void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 {
 	if(flags&(FLAG_DIRTY_ALL_SUBNODES+FLAG_DIRTY_SOME_SUBIVERTICES)) df|=DF_REFRESHALL;
 	if(!(df&DF_REFRESHALL) && !(flags&(FLAG_DIRTY_NODE+FLAG_DIRTY_IVERTEX))) return;
@@ -442,7 +449,7 @@ void SubTriangle::drawGouraud(real ambient,IVertex **iv,int df)
 #endif
 }
 
-unsigned SubTriangle::printGouraud(void *f, IVertex **iv, real scale,real flatambient)
+unsigned SubTriangle::printGouraud(void *f, IVertex **iv, real scale,Channels flatambient)
 {
 	if(sub[0])
 	{
@@ -474,7 +481,7 @@ unsigned SubTriangle::printGouraud(void *f, IVertex **iv, real scale,real flatam
 		u[2]=uv[2].x*scale;
 		v[2]=uv[2].y*scale;
 
-		if (flatambient) {
+		if (flatambient!=Channels(0)) {
 			// flat
 			b[0]=b[1]=b[2]=getBrightness(flatambient+(energyDirect+getEnergyDynamic())/area);
 		}  else {
@@ -866,7 +873,7 @@ void inline draw_triangle(rrEngine::RRScene* scene, unsigned o, unsigned t, Tria
 	else
 #endif
 	{
-		real ambient=f->radiosityIndirect();
+		Channels ambient=f->radiosityIndirect();
 		if(d_gouraud
 #ifndef SUPPORT_LIGHTMAP
 			&& !d_fast

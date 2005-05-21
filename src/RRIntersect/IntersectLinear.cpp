@@ -104,7 +104,7 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	}
 	// calculate normal
 	n3=normalized(ortogonalTo(r3,l3));
-	n3.d=-scalarMul(s3,n3);
+	n3.d=-dot(s3,n3);
 
 	if(!IS_VEC3(n3)) 
 	{
@@ -161,7 +161,7 @@ void TriangleSRLNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	}
 	// calculate normal
 	n3=normalized(ortogonalTo(r3,l3));
-	n3.d=-scalarMul(s3,n3);
+	n3.d=-dot(s3,n3);
 
 	if(!IS_VEC3(n3)) 
 	{
@@ -211,7 +211,7 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	}
 	if (u<0 || u+v>1) return false;
 
-	bool hitOuterSide=sizeSquare((*(Vec3*)(ray->rayDir))-t->n3)>2;
+	bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
 	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
 	ray->hitOuterSide=hitOuterSide;
 	ray->hitPoint2d[0]=u;
@@ -246,7 +246,7 @@ bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporte
 	}
 	if (u<0 || u+v>1) return false;
 
-	bool hitOuterSide=sizeSquare((*(Vec3*)(ray->rayDir))-t->n3)>2;
+	bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
 	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
 	ray->hitOuterSide=hitOuterSide;
 	ray->hitPoint2d[0]=u;
@@ -281,7 +281,7 @@ bool intersect_triangleP(RRRay* ray, const TriangleP *t, const RRObjectImporter:
 	}
 	if (u<0 || u+v>1) return false;
 
-	bool hitOuterSide=sizeSquare((*(Vec3*)(ray->rayDir))-*(Vec3*)(t2->n))>2;
+	bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-*(Vec3*)(t2->n))>2;
 	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
 	ray->hitOuterSide=hitOuterSide;
 	ray->hitPoint2d[0]=u;
@@ -330,7 +330,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	ray->hitDistance = ray->hitDistanceMax;
 
 	bool hit = false;
-	assert(fabs(sizeSquare((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
+	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	intersectStats.intersect_linear++;
 	for(unsigned t=0;t<triangles;t++) if(t!=ray->skipTriangle)
 	{

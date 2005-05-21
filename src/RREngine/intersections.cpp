@@ -28,9 +28,9 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	DBG(printf("\n"));
 	__shot++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-	assert(fabs(sizeSquare(direction)-1)<0.001); // normalized dir expected
+	assert(fabs(size2(direction)-1)<0.001); // normalized dir expected
 	int ii=1;//!!!
-#ifdef SUPPORT_DYNAMIC
+#ifdef SUPPORT_TRANSFORMS
 	// transform from scenespace to objectspace
 	// translation+rotation allowed, no scaling, so direction stays normalized
 	Vec3 eye_t = eye.transformed(inverseMatrix);
@@ -38,7 +38,7 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	eye = eye_t;
 #endif
 	direction = normalized(direction); //!!!
-	assert(fabs(sizeSquare(direction)-1)<0.005); // normalized dir expected
+	assert(fabs(size2(direction)-1)<0.005); // normalized dir expected
 
 
 	RRRay ray;
@@ -109,7 +109,7 @@ unsigned dbgRays=0;
 bool Scene::intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,
   Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 {
-	assert(fabs(sizeSquare(direction)-1)<0.001);//ocekava normalizovanej dir
+	assert(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
 	// pri velkem poctu objektu by pomohlo sesortovat je podle
 	//  vzdalenosti od oka a blizsi testovat driv
 
@@ -131,7 +131,7 @@ bool Scene::intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,
 bool Scene::intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,Object *dynobj,
   Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 {
-	assert(fabs(sizeSquare(direction)-1)<0.001);//ocekava normalizovanej dir
+	assert(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
 	// pri velkem poctu objektu by pomohlo sesortovat je podle
 	//  vzdalenosti od oka a blizsi testovat driv
 

@@ -490,14 +490,14 @@ void Shooter::reset()
 		Factors::reset();
 		shotsForFactors=0;
 	}
-	energyDiffused=0;
-	energyToDiffuse=0;
+	energyDiffused=Channels(0);
+	energyToDiffuse=Channels(0);
 	tmpFactor=NULL;
 }
 
 real Shooter::accuracy()
 {
-	return shotsForFactors/(fabs(energyDiffused+energyToDiffuse)+SMALL_ENERGY);
+	return shotsForFactors/(sum(abs(energyDiffused+energyToDiffuse))+SMALL_ENERGY);
 }
 
 Shooter::~Shooter()
@@ -617,7 +617,7 @@ Node::Node(Node *aparent,class Triangle *agrandpa)
 
 void Node::reset()
 {
-	energyDirect=0;
+	energyDirect=Channels(0);
 	flags=0;
 #ifdef SUPPORT_DYNAMIC
 	energyDynamicFrame=0;
@@ -662,26 +662,26 @@ bool Node::loadEnergyFromSubs()
 	energyDirect=sub[0]->energyDirect+sub[1]->energyDirect;
 	assert(sub[0]->shooter);
 	assert(sub[1]->shooter);
-	real tmp0=sub[0]->shooter->energyToDiffuse/sub[0]->area;
-	real tmp1=sub[1]->shooter->energyToDiffuse/sub[1]->area;
-	real e;
-	if(tmp0<tmp1)
+	Channels tmp0=sub[0]->shooter->energyToDiffuse/sub[0]->area;
+	Channels tmp1=sub[1]->shooter->energyToDiffuse/sub[1]->area;
+	Channels e;
+	if(sum(tmp0)<sum(tmp1))
 	{
 		e=tmp0;
-		sub[0]->shooter->energyToDiffuse=0;
+		sub[0]->shooter->energyToDiffuse=Channels(0);
 		sub[1]->shooter->energyToDiffuse-=e*sub[1]->area;
-		assert(sub[1]->shooter->energyToDiffuse>-0.1);
-		if(sub[1]->shooter->energyToDiffuse<0) sub[1]->shooter->energyToDiffuse=0; // fix minor numerical errors
+		assert(sum(sub[1]->shooter->energyToDiffuse)>-0.1);
+		clampToZero(sub[1]->shooter->energyToDiffuse); // fix minor numerical errors
 	} else {
 		e=tmp1;
 		sub[0]->shooter->energyToDiffuse-=e*sub[0]->area;
-		assert(sub[0]->shooter->energyToDiffuse>-0.1);
-		if(sub[0]->shooter->energyToDiffuse<0) sub[0]->shooter->energyToDiffuse=0; // fix minor numerical errors
-		sub[1]->shooter->energyToDiffuse=0;
+		assert(sum(sub[0]->shooter->energyToDiffuse)>-0.1);
+		clampToZero(sub[0]->shooter->energyToDiffuse); // fix minor numerical errors
+		sub[1]->shooter->energyToDiffuse=Channels(0);
 	}
 	assert(shooter);
 	shooter->energyToDiffuse+=e*area;
-	return e!=0;
+	return e!=Channels(0);
 	// v teto fci vznikala nepresnost, min sviticimu synovi s X odebral X+-chyba
 	// oprava neeliminuje nepresnost u svitivejsiho syna, pouze zajisti aby min svitivy mel na konci energii 0
 }
@@ -693,9 +693,9 @@ void Node::propagateEnergyUp()
 }
 
 #ifndef SUPPORT_DYNAMIC
-real Node::getEnergyDynamic()
+Channels Node::getEnergyDynamic()
 {
-	return 0;
+	return Channels(0);
 }
 #endif
 
@@ -705,9 +705,9 @@ real Node::accuracy()
 	return shooter->accuracy();
 }
 
-real Node::radiosityIndirect()
+Channels Node::radiosityIndirect()
 {
-	real e=0;
+	Channels e=Channels(0);
 	Node *node=parent;
 	while(node)
 	{
@@ -721,7 +721,7 @@ bool Node::check()
 {
 	assert(!(flags&FLAGS_CLUSTERING));
 	assert(!shooter || !shooter->tmpFactor);
-	assert(!shooter || fabs(shooter->energyToDiffuse)<1e10);
+	assert(!shooter || sum(abs(shooter->energyToDiffuse))<1e10);
 	return true;
 }
 
@@ -833,20 +833,20 @@ int SubTriangle::getSplitVertexSlow()
 	#define IS_00(r) (fabs(r)<1)
 
 	// zjisti result a jestli hrozi ze pokazdy vrati jinej vysledek
-	bool danger=IS_00(sizeSquare(u2)-sizeSquare(v2)*MAGIC1);
+	bool danger=IS_00(size2(u2)-size2(v2)*MAGIC1);
 	int result;
-	if(sizeSquare(u2)>sizeSquare(v2)*MAGIC1)
+	if(size2(u2)>size2(v2)*MAGIC1)
 	{
-		danger=danger || IS_00(sizeSquare(u2-v2)-sizeSquare(u2)*MAGIC1);
-		if(sizeSquare(u2-v2)>sizeSquare(u2)*MAGIC1)
+		danger=danger || IS_00(size2(u2-v2)-size2(u2)*MAGIC1);
+		if(size2(u2-v2)>size2(u2)*MAGIC1)
 			result=0;
 		else
 			result=2;
 	}
 	else
 	{
-		danger=danger || IS_00(sizeSquare(u2-v2)-sizeSquare(v2)*MAGIC1);
-		if(sizeSquare(u2-v2)>sizeSquare(v2)*MAGIC1)
+		danger=danger || IS_00(size2(u2-v2)-size2(v2)*MAGIC1);
+		if(size2(u2-v2)>size2(v2)*MAGIC1)
 			result=0;
 		else
 			result=1;
@@ -990,8 +990,8 @@ bool SubTriangle::wishesToSplitReflector()
 	assert(shooter);
 	if(!sub[0]) return false;//dal uz splitovat nejde
 	if(sub[0]->shooter) return false;//uz je splitnutej
-	real e0=sub[0]->energyDirect;
-	real e1=sub[1]->energyDirect;
+	real e0=sum(sub[0]->energyDirect);
+	real e1=sum(sub[1]->energyDirect);
 	real esum=ABS(e0)+ABS(e1);
 	real edif=fabs(e0-e1);
 	return edif>esum/REFLECTOR_MESHING;
@@ -1140,7 +1140,7 @@ again:
 
 	// set u3,v3,n3
 	qn3=normalized(ortogonalTo(getR3(),getL3()));
-	qn3.d=-scalarMul(getS3(),getN3());
+	qn3.d=-dot(getS3(),getN3());
 	if(!IS_VEC3(getN3())) return -3; // throw out degenerated triangle
 	qu3=normalized(getR3());
 	qv3=ortogonalTo(getN3(),getU3());
@@ -1150,7 +1150,7 @@ again:
 	real rsize=size(getR3());
 	real lsize=size(getL3());
 	if(rsize<=0 || lsize<=0) return -1; // throw out degenerated triangle
-	real psqr=sizeSquare(getU3()-(getL3()/lsize));// ctverec nad preponou pri jednotkovejch stranach
+	real psqr=size2(getU3()-(getL3()/lsize));// ctverec nad preponou pri jednotkovejch stranach
 	#ifdef ALLOW_DEGENS
 	if(psqr<=0) {psqr=0.0001f;printf("Low numerical quality, fixing area=0 triangle.\n");} else
 	if(psqr>=4) {psqr=3.9999f;printf("Low numerical quality, fixing area=0 triangle.\n");}
@@ -1250,25 +1250,30 @@ int Scene::turnLight(int whichLight,real intensity)
 	return light;
 }
 
-real Triangle::setSurface(RRSurface *s, const real* additionalEnergy)
+Channels Triangle::setSurface(RRSurface *s, const real* additionalEnergy)
 {
 	assert(area!=0);//setGeometry must be called before setSurface
 	assert(s);
 	surface=s;
+#if CHANNELS == 1
 	real r=surface->diffuseEmittanceColor[0];
 	real g=surface->diffuseEmittanceColor[1];
 	real b=surface->diffuseEmittanceColor[2];
-	real add=__colorFilter[0]*additionalEnergy[0]+__colorFilter[1]*additionalEnergy[1]+__colorFilter[2]*additionalEnergy[2];
 	real filteringCoef=(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
-	real e=(surface->diffuseEmittance*area+add)*filteringCoef;
+	Channels e=filteringCoef*surface->diffuseEmittance*area
+	  + __colorFilter[0]*additionalEnergy[0]+__colorFilter[1]*additionalEnergy[1]+__colorFilter[2]*additionalEnergy[2];
+	assert(add>=0);
+	assert(filteringCoef>=0);
+	assert(e>=0);
+#else
+	Channels e=*(Vec3*)__colorFilter * 
+	  ( *(Vec3*)surface->diffuseEmittanceColor * surface->diffuseEmittance * area + *(Vec3*)additionalEnergy );
+#endif
 	assert(surface->diffuseEmittance>=0);
 	assert(area>=0);
 	assert(additionalEnergy[0]>=0);
 	assert(additionalEnergy[1]>=0);
 	assert(additionalEnergy[2]>=0);
-	assert(add>=0);
-	assert(filteringCoef>=0);
-	assert(e>=0);
 #ifndef ONLY_PLAYER
 	// load triangle shooter with energy emited by surface
 	assert(shooter);
@@ -1325,7 +1330,7 @@ void Reflectors::reset()
 bool Reflectors::insert(Node *anode)
 {
 	if(anode->flags&FLAG_IS_REFLECTOR) return false;
-	if(!anode->shooter->energyDiffused && !anode->shooter->energyToDiffuse) return false;
+	if(anode->shooter->energyDiffused==Channels(0) && anode->shooter->energyToDiffuse==Channels(0)) return false;
 	if(!nodesAllocated)
 	{
 		nodesAllocated=1024;
@@ -1373,7 +1378,7 @@ bool Reflectors::check()
 {
 	for(unsigned i=0;i<nodes;i++) if(node[i]->shooter)
 	{
-		assert(IS_NUMBER(node[i]->shooter->energyToDiffuse));
+		assert(IS_CHANNELS(node[i]->shooter->energyToDiffuse));
 	}
 	return true;
 }
@@ -1389,14 +1394,14 @@ Node *Reflectors::best(bool distributing,real avgAccuracy,real improveBig,real i
 		for(unsigned i=0;i<nodes;i++) if(node[i]->shooter)
 		{
 			// calculate q for node
-			real toDiffuse=ABS(node[i]->shooter->energyToDiffuse);
+			real toDiffuse=sum(abs(node[i]->shooter->energyToDiffuse));
 			real q;
 
 			if(distributing) {
 			  // when only diffusing (not improving factors), use simpler criteria
 			  q=toDiffuse;
 			} else {
-			  real allEnergy=fabs(node[i]->shooter->energyToDiffuse+node[i]->shooter->energyDiffused);
+			  real allEnergy=sum(abs(node[i]->shooter->energyToDiffuse+node[i]->shooter->energyDiffused));
 			  #define DISTRIB_TIME 1 // cost of energy redistribution
 			  #define REFRESH_TIME 10 // cost of form factor recalculation
 			  real distribValue=toDiffuse/(node[i]->shooter->factors()+0.5f)*DISTRIB_TIME;
@@ -1451,7 +1456,7 @@ int CompareNodeQ(const void* elem1, const void* elem2)
 
 unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point)
 {
-#define ENERGY(node) fabs(node->shooter->energyToDiffuse+node->shooter->energyDiffused)
+#define ENERGY(node) sum(abs(node->shooter->energyToDiffuse+node->shooter->energyDiffused))
 	if(!points) return 0;
 	if(!nodes) return 0;
 	assert(point);
@@ -1718,7 +1723,7 @@ real findMostDistantPoints(Point3 *p,unsigned points,unsigned *far1,unsigned *fa
 	for(unsigned i=0;i<points-1;i++)
 	  for(unsigned j=i+1;j<points;j++)
 	  {
-	    real dist=sizeSquare(p[i]-p[j]);
+	    real dist=size2(p[i]-p[j]);
 	    assert(dist>=0);
 	    if(dist>maxdist)
 	    {
@@ -1779,7 +1784,7 @@ Node *Triangles::buildClusterHierarchy(bool differentNormals,Cluster *aparent,Cl
 			Triangles tri0;
 			Triangles tri1;
 			for(unsigned t=0;t<triangles;t++)
-				((sizeSquare(norm[t]-norm[t0])<sizeSquare(norm[t]-norm[t1]))?tri0:tri1).insert(triangle[t]);
+				((size2(norm[t]-norm[t0])<size2(norm[t]-norm[t1]))?tri0:tri1).insert(triangle[t]);
 			assert(tri0.triangles>0);
 			assert(tri1.triangles>0);
 			thisCluster->sub[0]=tri0.buildClusterHierarchy(true,thisCluster,cluster,c,maxc);
@@ -1817,7 +1822,7 @@ Node *Triangles::buildClusterHierarchy(bool differentNormals,Cluster *aparent,Cl
 	Triangles tri0;
 	Triangles tri1;
 	for(unsigned t=0;t<triangles;t++)
-		((sizeSquare(mid[t]-mid[t0])<sizeSquare(mid[t]-mid[t1]))?tri0:tri1).insert(triangle[t]);
+		((size2(mid[t]-mid[t0])<size2(mid[t]-mid[t1]))?tri0:tri1).insert(triangle[t]);
 //printf("splitting cluster %i -> %i + %i\n",triangles,tri0.triangles,tri1.triangles);
 //GETCH;
 	assert(tri0.triangles>0);
@@ -1902,15 +1907,17 @@ Object::Object(int avertices,int atriangles)
 	cluster=NULL;
 	bound.center=Point3(0,0,0);
 	bound.radius=BIG_REAL;
-	bound.radiusSquare=BIG_REAL;
-	energyEmited=0;
+	bound.radius2=BIG_REAL;
+	energyEmited=Channels(0);
 #endif
-#ifdef SUPPORT_DYNAMIC
-	trianglesEmiting=0;
-	for(unsigned t=0;t<triangles;t++) triangle[t].object=this;
+#ifdef SUPPORT_TRANSFORMS
 	transformMatrix=NULL;
 	inverseMatrix=NULL;
 	matrixDirty=false;
+	for(unsigned t=0;t<triangles;t++) triangle[t].object=this;
+#endif
+#ifdef SUPPORT_DYNAMIC
+	trianglesEmiting=0;
 #endif
 	vertexIVertex=new IVertex*[vertices];
 	memset(vertexIVertex,0,sizeof(void*)*vertices);
@@ -1919,7 +1926,7 @@ Object::Object(int avertices,int atriangles)
 	IVertexPoolItemsUsed=0;
 }
 
-real Object::getVertexRadiosity(unsigned avertex)
+Channels Object::getVertexRadiosity(unsigned avertex)
 {
 	assert(avertex<vertices);
 	assert(vertexIVertex[avertex]);
@@ -2020,8 +2027,8 @@ void Object::resetStaticIllumination()
 	for(unsigned c=0;c<clusters;c++) {U8 flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset();cluster[c].flags=flag;}
 	for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset();triangle[t].flags=flag;}
 	// nastavi akumulatory na pocatecni hodnoty
-	energyEmited=0;
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) energyEmited+=fabs(triangle[t].setSurface(triangle[t].surface,importer->getTriangleAdditionalEnergy(t)));
+	energyEmited=Channels(0);
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) energyEmited+=abs(triangle[t].setSurface(triangle[t].surface,importer->getTriangleAdditionalEnergy(t)));
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
 }
 
@@ -2124,8 +2131,8 @@ Scene::Scene()
 	shotsAccumulated=0;
 	shotsForFactorsTotal=0;
 	shotsTotal=0;
-	energyEmitedByStatics=SMALL_ENERGY; //to avoid division by zero in black scene
-	energyEmitedByDynamics=SMALL_ENERGY; //to avoid division by zero in black scene
+	energyEmitedByStatics=Channels(SMALL_ENERGY); //to avoid division by zero in black scene
+	energyEmitedByDynamics=Channels(SMALL_ENERGY); //to avoid division by zero in black scene
 	improveBig=0.5f;
 	improveInaccurate=0.99f;
 }
@@ -2174,8 +2181,8 @@ void Scene::resetStaticIllumination(bool resetFactors)
 		shotsForFactorsTotal=0;
 		shotsTotal=0;
 	}
-	energyEmitedByStatics=SMALL_ENERGY;
-	energyEmitedByDynamics=SMALL_ENERGY;
+	energyEmitedByStatics=Channels(SMALL_ENERGY);
+	energyEmitedByDynamics=Channels(SMALL_ENERGY);
 	improveBig=0.5f;
 	improveInaccurate=0.99f;
 	staticReflectors.removeSubtriangles();
@@ -2201,7 +2208,7 @@ void Scene::resetStaticIllumination(bool resetFactors)
 
 Vec3 refract(Vec3 N,Vec3 I,real r)
 {
-	real ndoti=scalarMul(N,I);
+	real ndoti=dot(N,I);
 	if(ndoti<0) r=1/r;
 	real D2=1-r*r*(1-ndoti*ndoti);
 	if(D2>=0)
@@ -2265,7 +2272,7 @@ real Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExt
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*hitDistance;
 		// calculate new direction after ideal mirror reflection
-		Vec3 newDirection=hitTriangle->getN3()*(-2*scalarMul(direction,hitTriangle->getN3())/sizeSquare(hitTriangle->getN3()))+direction;
+		Vec3 newDirection=hitTriangle->getN3()*(-2*dot(direction,hitTriangle->getN3())/size2(hitTriangle->getN3()))+direction;
 		// recursively call this function
 		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,hitExtension,/*sqrt*/(power*hitTriangle->surface->specularReflectance));
 	}
@@ -2435,7 +2442,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	}
 	assert(IS_SIZE1(rayVec3));
 
-#ifdef SUPPORT_DYNAMIC
+#ifdef SUPPORT_TRANSFORMS
 	// transform from shooter's objectspace to scenespace
 	Point3 srcPoint3t=srcPoint3.transformed(source->grandpa->object->transformMatrix);
 	rayVec3=(srcPoint3+rayVec3).transformed(source->grandpa->object->transformMatrix)-srcPoint3t;
@@ -2453,7 +2460,11 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 {
 	DBGLINE
-	real energy=(real)va_arg(ap,double);
+#if CHANNELS == 1
+	Channels energy=(real)va_arg(ap,double);
+#else
+	Channels energy=va_arg(ap,Channels);
+#endif
 	Reflectors *staticReflectors=va_arg(ap,Reflectors *);
 
 	Node *destination=factor->destination;
@@ -2738,7 +2749,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 		DBGLINE
 		// prepare shooting
 		assert(source->shooter);
-		shotsForNewFactors=1+(int)(accuracy*fabs(source->shooter->energyDiffused+source->shooter->energyToDiffuse));
+		shotsForNewFactors=1+(int)(accuracy*sum(abs(source->shooter->energyDiffused+source->shooter->energyToDiffuse)));
 		assert(shotsForNewFactors>source->shooter->shotsForFactors);
 		assert(shotsAccumulated==0);
 		assert(!hitTriangles.get());
@@ -2850,7 +2861,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 		shotsForFactorsTotal-=source->shooter->shotsForFactors;
 		source->shooter->forEach(distributeEnergyViaFactor,-source->shooter->energyDiffused,&staticReflectors);
 		source->shooter->energyToDiffuse+=source->shooter->energyDiffused;
-		source->shooter->energyDiffused=0;
+		source->shooter->energyDiffused=Channels(0);
 		source->shooter->shotsForFactors=shotsAccumulated;
 		shotsAccumulated=0;
 		shotsForFactorsTotal+=source->shooter->shotsForFactors;
@@ -2867,7 +2878,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 
 real Scene::avgAccuracy()
 {
-	return (1+shotsForFactorsTotal)/energyEmitedByStatics;//* nema tu byt (Statics+Dynamics)?
+	return (1+shotsForFactorsTotal)/sum(abs(energyEmitedByStatics));//* nema tu byt (Statics+Dynamics)?
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2938,7 +2949,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 		source->shooter->forEach(distributeEnergyViaFactor,source->shooter->energyToDiffuse,&staticReflectors);
 		assert(__staticReflectors->check());
 		source->shooter->energyDiffused+=source->shooter->energyToDiffuse;
-		source->shooter->energyToDiffuse=0;
+		source->shooter->energyToDiffuse=Channels(0);
 		assert(__staticReflectors->check());
 		return true;
 	}
@@ -2962,11 +2973,11 @@ bool Scene::distribute(real maxError)
 	{
 		Node *source=staticReflectors.best(true,0.000001f,0,0);
 //if(source) printf(" %f<%f\n",fabs(source->shooter->energyToDiffuse),fabs(maxError*energyEmitedByStatics));
-		if(!source || ( ABS(source->shooter->energyToDiffuse)<fabs(maxError*energyEmitedByStatics) && !rezerva--)) break;
+		if(!source || ( sum(abs(source->shooter->energyToDiffuse))<sum(abs(energyEmitedByStatics*maxError)) && !rezerva--)) break;
 		assert(source->shooter);
 		source->shooter->forEach(distributeEnergyViaFactor,source->shooter->energyToDiffuse,&staticReflectors);
 		source->shooter->energyDiffused+=source->shooter->energyToDiffuse;
-		source->shooter->energyToDiffuse=0;
+		source->shooter->energyToDiffuse=Channels(0);
 		steps++;
 		distributed=true;
 	}

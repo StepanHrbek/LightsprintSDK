@@ -23,7 +23,7 @@ real size(Vec2 a)
 	return sqrt(a.x*a.x+a.y*a.y);
 }
 
-real sizeSquare(Vec2 a)
+real size2(Vec2 a)
 {
 	return a.x*a.x+a.y*a.y;
 }
@@ -33,7 +33,7 @@ Vec2 normalized(Vec2 a)
 	return a/size(a);
 }
 
-real scalarMul(Vec2 a,Vec2 b)
+real dot(Vec2 a,Vec2 b)
 {
 	return a.x*b.x+a.y*b.y;
 }
@@ -52,7 +52,7 @@ Angle angleBetweenNormalized(Vec2 a,Vec2 b)
 {
 	assert(fabs(size(a)-1)<0.001);
 	assert(fabs(size(b)-1)<0.001);
-	real r=sizeSquare(a-b);
+	real r=size2(a-b);
 	return acos(1-r/2);
 }
 
@@ -94,9 +94,41 @@ real size(Vec3 a)
 	return sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
 }
 
-real sizeSquare(Vec3 a)
+real size2(Vec3 a)
 {
 	return a.x*a.x+a.y*a.y+a.z*a.z;
+}
+
+real abs(real a)
+{
+	return fabs(a);
+}
+
+Vec3 abs(Vec3 a)
+{
+	return Vec3(fabs(a.x),fabs(a.y),fabs(a.z));
+}
+
+real sum(real a)
+{
+	return a;
+}
+
+real sum(Vec3 a)
+{
+	return a.x+a.y+a.z;
+}
+
+void clampToZero(real& a)
+{
+	if(a<0) a=0;
+}
+
+void clampToZero(Vec3& a)
+{
+	if(a.x<0) a.x=0;
+	if(a.y<0) a.y=0;
+	if(a.z<0) a.z=0;
 }
 
 Vec3 normalized(Vec3 a)
@@ -104,7 +136,7 @@ Vec3 normalized(Vec3 a)
 	return a/size(a);
 }
 
-real scalarMul(Vec3 a,Vec3 b)
+real dot(Vec3 a,Vec3 b)
 {
 	return a.x*b.x+a.y*b.y+a.z*b.z;
 }
@@ -127,7 +159,7 @@ Vec3 ortogonalTo(Vec3 a,Vec3 b)
 
 Angle angleBetweenNormalized(Vec3 a,Vec3 b)
 {
-	real r=sizeSquare(a-b);
+	real r=size2(a-b);
 	return acos(1-r/2);
 }
 
@@ -154,13 +186,13 @@ void Bound::detect(const Vec3 *vertex,unsigned vertices)
 	Point3 sum=Point3(0,0,0);
 	for(unsigned i=0;i<vertices;i++) sum+=vertex[i];
 	center=sum/vertices;
-	radiusSquare=0;
+	radius2=0;
 	for(unsigned i=0;i<vertices;i++) 
 	{
-		real tmp=sizeSquare(vertex[i]-center);
-		if(tmp>radiusSquare) radiusSquare=tmp;
+		real tmp=size2(vertex[i]-center);
+		if(tmp>radius2) radius2=tmp;
 	}
-	radius=sqrt(radiusSquare);
+	radius=sqrt(radius2);
 	//...najit presnejsi bound
 	centerBeforeTransformation=center;
 }
@@ -170,42 +202,42 @@ void Bound::detect(const Vec3 *vertex,unsigned vertices)
 bool Bound::intersect(Point3 eye,Vec3 direction,real maxDistance)
 {
 	Vec3 toCenter=center-eye;
-	real distEyeCenterSquare=sizeSquare(toCenter);            //3*mul
+	real distEyeCenter2=size2(toCenter);            //3*mul
 
 	// eye inside sphere
-	if(distEyeCenterSquare-radiusSquare<0) return true;
+	if(distEyeCenter2-radius2<0) return true;
 
-	real distEyeCenter=sqrt(distEyeCenterSquare);             //1*sqrt
+	real distEyeCenter=sqrt(distEyeCenter2);             //1*sqrt
 
 	// sphere too far
 	if(distEyeCenter-radius>=maxDistance) return false;
 
-	assert(fabs(sizeSquare(direction)-1)<0.001);
+	assert(fabs(size2(direction)-1)<0.001);
 
 #ifdef FAST_BOUND
 	Point3 nearCenter=eye+direction*distEyeCenter;            //3*mul
-	real distNrcntrCenterSquare=sizeSquare(nearCenter-center);//3*mul
+	real distNrcntrCenter2=size2(nearCenter-center);//3*mul
 
 	// probably no intersection
-	if(distNrcntrCenterSquare>=radiusSquare) return false;
+	if(distNrcntrCenter2>=radius2) return false;
 #else
-	real psqr=sizeSquare(toCenter/distEyeCenter-direction);
+	real psqr=size2(toCenter/distEyeCenter-direction);
 	real cosa=1-psqr/2;
-	real sinaSquare=psqr*(1-psqr/4);//=sin(acos(cosa));
-	real distNrstCenterSquare=distEyeCenterSquare*sinaSquare;
+	real sina2=psqr*(1-psqr/4);//=sin(acos(cosa));
+	real distNrstCenter2=distEyeCenter2*sina2;
 
 	// no intersection
-	if(distNrstCenterSquare>=radiusSquare) return false;
+	if(distNrstCenter2>=radius2) return false;
 
 	real distNrstEye=distEyeCenter*cosa;
-	real distNrstIntrsct=sqrt(radius*radius-distNrstCenterSquare);
+	real distNrstIntrsct=sqrt(radius*radius-distNrstCenter2);
 	real distEyeIntrsct=distNrstEye-distNrstIntrsct;
 
 	// intersection too far
 	if(distEyeIntrsct>=maxDistance) return false;
 
 	// intersection beyond eye
-	if(sizeSquare(toCenter+direction*distEyeCenter)<sizeSquare(toCenter-direction*distEyeCenter)) return false;
+	if(size2(toCenter+direction*distEyeCenter)<size2(toCenter-direction*distEyeCenter)) return false;
 #endif
 	return true;
 }
