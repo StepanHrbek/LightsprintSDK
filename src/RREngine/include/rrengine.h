@@ -137,12 +137,13 @@ namespace rrEngine
 		bool          intersect(rrIntersect::RRRay* ray);
 		
 		// calculate radiosity
-		void          sceneResetStatic(bool resetFactors, RRColor colorFilter);
+		void          sceneSetColorFilter(const RRReal* colorFilter);
+		void          sceneResetStatic(bool resetFactors);
 		bool          sceneImproveStatic(bool endfunc(void*), void* context);
 
 		// read results
-		RRReal        getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex);
-		RRReal        getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex);
+		const RRReal* getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex);
+		const RRReal* getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex);
 		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
 
 		// misc: misc

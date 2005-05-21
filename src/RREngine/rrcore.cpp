@@ -1211,7 +1211,7 @@ again:
 	return rotations;
 }
 
-char Scene::selectColorFilter(int i, real *rgb)
+char Scene::selectColorFilter(int i, const real *rgb)
 {
 	assert(i>=0 && i<4);
 	// selects color component for further calculations

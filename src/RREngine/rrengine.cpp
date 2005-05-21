@@ -200,10 +200,17 @@ void RRScene::objectDestroy(OBJECT_HANDLE object)
 	scene->objRemoveStatic(object);
 }
 
-void RRScene::sceneResetStatic(bool resetFactors, RRColor colorFilter)
+void RRScene::sceneSetColorFilter(const RRReal* colorFilter)
 {
 	__frameNumber++;
 	scene->selectColorFilter(0,colorFilter);
+	scene->resetStaticIllumination(false);
+	scene->distribute(0.001f);
+}
+
+void RRScene::sceneResetStatic(bool resetFactors)
+{
+	__frameNumber++;
 	scene->resetStaticIllumination(resetFactors);
 }
 
@@ -217,14 +224,19 @@ void RRScene::compact()
 {
 }
 
-RRReal RRScene::getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex)
+const RRReal* RRScene::getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
-	return obj->getVertexRadiosity(vertex);
+	real rad = obj->getVertexRadiosity(vertex);
+	static RRColor tmp;
+	tmp[0] = rad*__colorFilter[0];
+	tmp[1] = rad*__colorFilter[1];
+	tmp[2] = rad*__colorFilter[2];
+	return tmp;
 }
 
-RRReal RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
+const RRReal* RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
@@ -241,7 +253,12 @@ RRReal RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, un
 		refl = tri->topivertex[vertex]->radiosity();
 		RRSetState(RRSS_GET_SOURCE,oldSource);
 	}
-	return (RRGetState(RRSS_GET_SOURCE)?tri->getEnergySource()/tri->area:0) + refl;
+	float rad = (RRGetState(RRSS_GET_SOURCE)?tri->getEnergySource()/tri->area:0) + refl;
+	static RRColor tmp;
+	tmp[0] = rad*__colorFilter[0];
+	tmp[1] = rad*__colorFilter[1];
+	tmp[2] = rad*__colorFilter[2];
+	return tmp;
 }
 
 unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)
