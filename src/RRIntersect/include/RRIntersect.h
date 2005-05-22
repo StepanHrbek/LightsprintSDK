@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.05.18
+// version 2005.05.22
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time

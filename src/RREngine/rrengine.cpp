@@ -316,7 +316,7 @@ static StateValue RRSSValue[RRSS_LAST];
 void RRResetStates()
 {
 	memset(RRSSValue,0,sizeof(RRSSValue));
-	RRSetState(RRSS_USE_CLUSTERS,1);
+	RRSetState(RRSS_USE_CLUSTERS,0);
 	RRSetStateF(RRSSF_SUBDIVISION_SPEED,1);
 	RRSetState(RRSS_GET_SOURCE,1);
 	RRSetState(RRSS_GET_REFLECTED,1);

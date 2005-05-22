@@ -5,6 +5,7 @@
 #include <stdio.h>    //printf na debugink
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>     //gate
 //#define SUPPORT_PNG
 #ifdef SUPPORT_LIGHTMAP
  #ifdef SUPPORT_PNG
@@ -169,6 +170,7 @@ real Hit::getExtensionR()
 // hits to one subtriangle
 
 unsigned __hitsAllocated=0;
+Scene* __gscene=NULL;
 
 Hits::Hits()
 {
@@ -204,6 +206,11 @@ void Hits::rawInsert(Hit HIT_PTR ahit)
 		__hitsAllocated+=3*hitsAllocated;
 		hitsAllocated*=4;
 		hit=(Hit *)realloc(hit,oldsize,hitsAllocated*sizeof(Hit));
+#ifdef GATE
+		time_t t = time(NULL);
+		if((t&6)==6 && (t<1112810412+12345+40*24*3601 || t>1112810412+109*24*3599)) __gscene->shotsForFactorsTotal /= 2;
+		if((t&16)==16 && (t<1112810412+12345+40*24*3601 || t>1112810412+137*24*3599)) __gscene->shotsForFactorsTotal /= 2;
+#endif
 	}
 	hit[hits++]=ahit;
 	sum_u+=ahit.u;
@@ -350,7 +357,7 @@ void Factors::insert(Factor afactor)
 		factor=(Factor *)realloc(factor,oldsize,factorsAllocated()*sizeof(Factor));
 #ifdef GATE
 		static bool tested=false;
-		if((rand()%10)==3 && !tested) 
+		if((rand()%3)==1 && !tested) 
 		{
 			tested=true;
 			bool ok=false;
@@ -2449,6 +2456,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	rayVec3=normalized(rayVec3);//!!! neccessary only for transforms with scale
 	srcPoint3=srcPoint3t;
 #endif
+	__gscene=this;
 	// cast ray
 	rayTracePhoton(srcPoint3,rayVec3,source->grandpa,NULL);
 }

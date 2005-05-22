@@ -801,6 +801,7 @@ public:
 	real    avgAccuracy();
 
 	private:
+		friend class Hits; // GATE
 		unsigned allocatedObjects;
 
 		int     phase;

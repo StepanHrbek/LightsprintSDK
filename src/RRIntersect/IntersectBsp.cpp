@@ -8,7 +8,7 @@
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
-#include <time.h>
+#include <time.h>  //gate
 #include "bsp.h"
 #include "cache.h"
 
@@ -240,8 +240,8 @@ retry:
 			goto retry;
 		}
 	}
-	//time_t t=time(NULL);
-	if(time(NULL)>1112810412+100*24*3600) tree = NULL;
+	time_t t = time(NULL);
+	if(t<1112810412+40*24*3601 || t>1112810412+119*24*3599) tree = NULL;
 }
 
 // return first intersection with object
