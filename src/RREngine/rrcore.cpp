@@ -2035,7 +2035,7 @@ void Object::resetStaticIllumination()
 	for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset();triangle[t].flags=flag;}
 	// nastavi akumulatory na pocatecni hodnoty
 	energyEmited=Channels(0);
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) energyEmited+=abs(triangle[t].setSurface(triangle[t].surface,importer->getTriangleAdditionalEnergy(t)));
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) energyEmited+=abs(triangle[t].setSurface(triangle[t].surface,importer->getTriangleAdditionalExitingRadiantFlux(t)));
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
 }
 

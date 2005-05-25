@@ -146,7 +146,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 			(Vec3*)(importer->getVertex(v1)),
 			(Vec3*)(importer->getVertex(v2)));
 		if(t->isValid) 
-			obj->energyEmited+=abs(t->setSurface(s,importer->getTriangleAdditionalEnergy(fi)));
+			obj->energyEmited+=abs(t->setSurface(s,importer->getTriangleAdditionalExitingRadiantFlux(fi)));
 		else
 			t->surface=NULL;
 	}
@@ -226,7 +226,7 @@ void RRScene::compact()
 {
 }
 
-const RRReal* RRScene::getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex)
+const RRReal* RRScene::getVertexRadiantExitance(OBJECT_HANDLE object, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
@@ -243,7 +243,7 @@ const RRReal* RRScene::getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex)
 #endif
 }
 
-const RRReal* RRScene::getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
+const RRReal* RRScene::getTriangleRadiantExitance(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];

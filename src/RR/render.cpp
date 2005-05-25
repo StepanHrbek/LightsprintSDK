@@ -139,9 +139,9 @@ void drawEngine(rrEngine::RRScene* scene, unsigned o, unsigned t, Triangle *f)
 	v[0]=f->to3d(0);
 	v[1]=f->to3d(1);
 	v[2]=f->to3d(2);
-	brightness[0]=getBrightness(getAvg(scene->getTriangleRadiosity(o,t,0)));
-	brightness[1]=getBrightness(getAvg(scene->getTriangleRadiosity(o,t,1)));
-	brightness[2]=getBrightness(getAvg(scene->getTriangleRadiosity(o,t,2)));
+	brightness[0]=getBrightness(getAvg(scene->getTriangleRadiantExitance(o,t,0)));
+	brightness[1]=getBrightness(getAvg(scene->getTriangleRadiantExitance(o,t,1)));
+	brightness[2]=getBrightness(getAvg(scene->getTriangleRadiantExitance(o,t,2)));
 #ifdef RASTERGL
 	raster_ZGouraud(v,((Surface*)f->grandpa->surface)->diffuseReflectanceColorTable,brightness);
 #else

@@ -96,7 +96,7 @@ namespace rrEngine
 		// must not change during object lifetime
 		virtual unsigned     getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*   getSurface(unsigned s) = 0;
-		virtual const RRReal* getTriangleAdditionalEnergy(unsigned t) const = 0;
+		virtual const RRReal* getTriangleAdditionalExitingRadiantFlux(unsigned t) const = 0; // exiting radiant flux in watts
 
 		// may change during object lifetime
 		virtual const RRReal* getWorldMatrix() = 0;
@@ -142,8 +142,8 @@ namespace rrEngine
 		bool          sceneImproveStatic(bool endfunc(void*), void* context);
 
 		// read results
-		const RRReal* getVertexRadiosity(OBJECT_HANDLE object, unsigned vertex);
-		const RRReal* getTriangleRadiosity(OBJECT_HANDLE object, unsigned triangle, unsigned vertex);
+		const RRReal* getVertexRadiantExitance(OBJECT_HANDLE object, unsigned vertex); // radiant exitance in watts per square meter
+		const RRReal* getTriangleRadiantExitance(OBJECT_HANDLE object, unsigned triangle, unsigned vertex); // radiant exitance in watts per square meter
 		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
 
 		// misc: misc

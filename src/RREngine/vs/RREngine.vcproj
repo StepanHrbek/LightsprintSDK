@@ -34,7 +34,7 @@
 				RuntimeLibrary="0"
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
-				EnableEnhancedInstructionSet="1"
+				EnableEnhancedInstructionSet="0"
 				DisableLanguageExtensions="TRUE"
 				ForceConformanceInForLoopScope="TRUE"
 				UsePrecompiledHeader="0"
