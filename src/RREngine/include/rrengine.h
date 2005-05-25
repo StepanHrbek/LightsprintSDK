@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.05.22
+// version 2005.05.26
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -96,7 +96,8 @@ namespace rrEngine
 		// must not change during object lifetime
 		virtual unsigned     getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*   getSurface(unsigned s) = 0;
-		virtual const RRReal* getTriangleAdditionalExitingRadiantFlux(unsigned t) const = 0; // exiting radiant flux in watts
+		virtual const RRReal* getTriangleAdditionalRadiantExitance(unsigned t) const {return 0;} // radiant exitance in watts per square meter. 
+		virtual const RRReal* getTriangleAdditionalRadiantExitingFlux(unsigned t) const {return 0;} // radiant flux in watts. implement only one of these two methods.
 
 		// may change during object lifetime
 		virtual const RRReal* getWorldMatrix() = 0;

@@ -240,17 +240,6 @@ real ReflToDynobj::getImportance()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// object, part of scene
-
-// transformuje boundingsphere z objectspace do scenespace
-
-void Object::transformBound()
-{
-	bound.center=bound.centerBeforeTransformation.transformed(transformMatrix);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // set of reflectors (light sources and things that reflect light)
 // dynamic version - first go nodesImportant, then others
 //                 - gimmeLinks selects most important links for dyn.shooting
@@ -865,20 +854,6 @@ void Scene::objMakeDynamic(unsigned o)
 	energyEmitedByDynamics+=tmp->energyEmited;
 
 	staticReflectors.removeObject(tmp);
-}
-
-void Scene::transformObjects()
-{
-	for(unsigned o=0;o<objects;o++)
-	{
-		// transformuje jen kdyz se matice od minule zmenila
-		if(object[o]->matrixDirty)
-		{
-			// transformuje ted jen sphere a pak vsechny paprsky
-			object[o]->transformBound();
-			object[o]->matrixDirty=false;
-		}
-	}
 }
 
 /*

@@ -205,7 +205,7 @@ void IVertex::makeDirty()
 		corner[i].node->flags|=FLAG_DIRTY_IVERTEX+FLAG_DIRTY_SOME_SUBIVERTICES;
 }
 
-Channels IVertex::radiosity()
+Channels IVertex::exitance()
 {
 	bool getSource=RRGetState(RRSS_GET_SOURCE)!=0;
 	bool getReflected=RRGetState(RRSS_GET_REFLECTED)!=0;
@@ -827,7 +827,7 @@ static void iv_saveReal(SubTriangle *s,IVertex *iv,int type)
 	{
 		if(iv_realsInside)
 		{
-			Channels r=iv->radiosity();
+			Channels r=iv->exitance();
 			iv_FW(r);
 		}
 		else
@@ -1191,8 +1191,8 @@ static real iv_error(SubTriangle *s,IVertex *iv)
 	assert(iv==s->subvertex);
 	assert(iv->loaded);
 	bool isRL=s->isRightLeft();
-	Channels r1=SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->radiosity();
-	Channels r2=SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->radiosity();
+	Channels r1=SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->exitance();
+	Channels r2=SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->exitance();
 	assert(s->area>=0);
 	return sum(abs(r1-r2))*s->area;
 }
@@ -1219,7 +1219,7 @@ static void iv_fillEmptyImportant(SubTriangle *s,IVertex *iv,int type)
 	{
 		assert(type==3);
 		bool isRL=s->isRightLeft();
-		Channels r=(SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->radiosity()+SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->radiosity())/2;
+		Channels r=(SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->exitance()+SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->exitance())/2;
 		iv->loadCache(r);
 		iv->loaded=true;
 	}
@@ -1389,9 +1389,9 @@ static void iv_saveImportantByte(SubTriangle *s,IVertex *iv,int type)
 //ale neni to nutne protoze rizeni kvality uz mame
 //if(!iv->loaded || (type==3 && iv_error(s,iv)<1))
 //b=255;else
-		//!!!b=(U8)(254.99*getBrightness(iv->radiosity()));
+		//!!!b=(U8)(254.99*getBrightness(iv->exitance()));
 #if CHANNELS == 1
-		b=(U8)iv->radiosity();
+		b=(U8)iv->exitance();
 #else
 		b=0; //!!!
 #endif
@@ -1515,7 +1515,7 @@ static void iv_findIvPos(SubTriangle *s,IVertex *iv,int type)
 
 static void iv_findIvClosestToPos(SubTriangle *s,IVertex *iv,int type)
 {
-	if(!iv || iv==ne_iv || !iv->hasRadiosity()) return;
+	if(!iv || iv==ne_iv || !iv->hasExitance()) return;
 #ifdef IV_POINT
 	Point3 pos=iv->point;
 #else
@@ -1566,7 +1566,7 @@ Channels IVertex::getClosestRadiosity()
 		if(!tested1) tested1=n; else tested2=n;
 	}
 	static Channels prev=Channels(1e10);
-	if(ne_bestIv) prev=ne_bestIv->radiosity();
+	if(ne_bestIv) prev=ne_bestIv->exitance();
 	return prev;
 }
 

@@ -101,8 +101,8 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 }
 
 #include <memory.h>
-DbgRay dbgRay[MAX_DBGRAYS];
-unsigned dbgRays=0;
+DbgRay rrEngine::dbgRay[MAX_DBGRAYS];
+unsigned rrEngine::dbgRays=0;
 #define LOG_RAY(aeye,adir,adist) { memcpy(dbgRay[dbgRays].eye,&aeye,sizeof(Vec3)); memcpy(dbgRay[dbgRays].dir,&adir,sizeof(Vec3)); dbgRay[dbgRays].dist=adist; ++dbgRays%=MAX_DBGRAYS; }
 
 // return first intersection with "scene minus *skip minus dynamic objects"

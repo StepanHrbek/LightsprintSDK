@@ -311,9 +311,9 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 
 	real brightness[3];
 
-	brightness[0]=getBrightness(iv[0]->radiosity());
-	brightness[1]=getBrightness(iv[1]->radiosity());
-	brightness[2]=getBrightness(iv[2]->radiosity());
+	brightness[0]=getBrightness(iv[0]->exitance());
+	brightness[1]=getBrightness(iv[1]->exitance());
+	brightness[2]=getBrightness(iv[2]->exitance());
 
 	raster_ZGouraud(v,((Surface*)grandpa->surface)->diffuseReflectanceColorTable,brightness);
 
@@ -352,9 +352,9 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 		assert(x3>=0 && x3<WIDTH && y3>=0 && y3<HEIGHT);
 #endif
 
-		p[1].sx=x1; p[1].sy=y1; p[1].tz=1; p[1].u=getBrightness(iv[0]->radiosity());
-		p[2].sx=x2; p[2].sy=y2; p[2].tz=1; p[2].u=getBrightness(iv[1]->radiosity());
-		p[3].sx=x3; p[3].sy=y3; p[3].tz=1; p[3].u=getBrightness(iv[2]->radiosity());
+		p[1].sx=x1; p[1].sy=y1; p[1].tz=1; p[1].u=getBrightness(iv[0]->exitance());
+		p[2].sx=x2; p[2].sy=y2; p[2].tz=1; p[2].u=getBrightness(iv[1]->exitance());
+		p[3].sx=x3; p[3].sy=y3; p[3].tz=1; p[3].u=getBrightness(iv[2]->exitance());
 
 		if(!d_gouraud3)
 		{
@@ -400,15 +400,15 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 
 		v=to3d(0);
 		p[1].x=v.x; p[1].y=v.y; p[1].z=v.z;
-		p[1].u=getBrightness(iv[0]->radiosity());
+		p[1].u=getBrightness(iv[0]->exitance());
 
 		v=to3d(1);
 		p[2].x=v.x; p[2].y=v.y; p[2].z=v.z;
-		p[2].u=getBrightness(iv[1]->radiosity());
+		p[2].u=getBrightness(iv[1]->exitance());
 
 		v=to3d(2);
 		p[3].x=v.x; p[3].y=v.y; p[3].z=v.z;
-		p[3].u=getBrightness(iv[2]->radiosity());
+		p[3].u=getBrightness(iv[2]->exitance());
 
 		if(!d_gouraud3)
 		{
@@ -486,9 +486,9 @@ unsigned SubTriangle::printGouraud(void *f, IVertex **iv, real scale,Channels fl
 			b[0]=b[1]=b[2]=getBrightness(flatambient+(energyDirect+getEnergyDynamic())/area);
 		}  else {
 			// gouraud
-			b[0]=getBrightness(iv[0]->radiosity());
-			b[1]=getBrightness(iv[1]->radiosity());
-			b[2]=getBrightness(iv[2]->radiosity());
+			b[0]=getBrightness(iv[0]->exitance());
+			b[1]=getBrightness(iv[1]->exitance());
+			b[2]=getBrightness(iv[2]->exitance());
 		}
 
 		i[0]=(3-grandpa->rotations)%3;
@@ -724,9 +724,9 @@ void save_lightmaps(WORLD *w)
 				t->lightmap.setSize(0,0);
 			} else {
 				fprintf(lightmap_log,"%d %f 0 %f 0 %f 0\n",o->face[j].id,
-					getBrightness(t->topivertex[0]->radiosity()),
-					getBrightness(t->topivertex[1]->radiosity()),
-					getBrightness(t->topivertex[2]->radiosity()));
+					getBrightness(t->topivertex[0]->exitance()),
+					getBrightness(t->topivertex[1]->exitance()),
+					getBrightness(t->topivertex[2]->exitance()));
 			}
 		}
 

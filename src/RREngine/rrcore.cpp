@@ -1257,7 +1257,7 @@ int Scene::turnLight(int whichLight,real intensity)
 	return light;
 }
 
-Channels Triangle::setSurface(RRSurface *s, const real* additionalEnergy)
+Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalRadiantExitance)
 {
 	assert(area!=0);//setGeometry must be called before setSurface
 	assert(s);
@@ -1267,20 +1267,20 @@ Channels Triangle::setSurface(RRSurface *s, const real* additionalEnergy)
 	real g=surface->diffuseEmittanceColor[1];
 	real b=surface->diffuseEmittanceColor[2];
 	real filteringCoef=(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
-	Channels e=filteringCoef*surface->diffuseEmittance*area
-	  + __colorFilter[0]*additionalEnergy[0]+__colorFilter[1]*additionalEnergy[1]+__colorFilter[2]*additionalEnergy[2];
+	Channels e=area * ( filteringCoef*surface->diffuseEmittance
+	  + __colorFilter[0]*additionalRadiantExitance.x+__colorFilter[1]*additionalRadiantExitance.y+__colorFilter[2]*additionalRadiantExitance.z );
 	assert(add>=0);
 	assert(filteringCoef>=0);
 	assert(e>=0);
 #else
-	Channels e=*(Vec3*)__colorFilter * 
-	  ( *(Vec3*)surface->diffuseEmittanceColor * surface->diffuseEmittance * area + *(Vec3*)additionalEnergy );
+	Channels e=*(Vec3*)__colorFilter * area *
+	  ( *(Vec3*)surface->diffuseEmittanceColor * (surface->diffuseEmittance) + additionalRadiantExitance );
 #endif
 	assert(surface->diffuseEmittance>=0);
 	assert(area>=0);
-	assert(additionalEnergy[0]>=0);
-	assert(additionalEnergy[1]>=0);
-	assert(additionalEnergy[2]>=0);
+	assert(additionalRadiantExitance.x>=0);
+	assert(additionalRadiantExitance.y>=0);
+	assert(additionalRadiantExitance.z>=0);
 #ifndef ONLY_PLAYER
 	// load triangle shooter with energy emited by surface
 	assert(shooter);
@@ -1937,7 +1937,7 @@ Channels Object::getVertexRadiosity(unsigned avertex)
 {
 	assert(avertex<vertices);
 	assert(vertexIVertex[avertex]);
-	return vertexIVertex[avertex]->radiosity();
+	return vertexIVertex[avertex]->exitance();
 }
 
 void addEdgeWith(Triangle *t1,va_list ap)
@@ -2035,7 +2035,13 @@ void Object::resetStaticIllumination()
 	for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset();triangle[t].flags=flag;}
 	// nastavi akumulatory na pocatecni hodnoty
 	energyEmited=Channels(0);
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) energyEmited+=abs(triangle[t].setSurface(triangle[t].surface,importer->getTriangleAdditionalExitingRadiantFlux(t)));
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) 
+	{
+		const real* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(t);
+		const real* addExitance=importer->getTriangleAdditionalRadiantExitance(t);
+		Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?*(Vec3*)addExitingFlux/triangle[t].area:Vec3(0,0,0));
+		energyEmited+=abs(triangle[t].setSurface(triangle[t].surface,sumExitance));
+	}
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
 }
 
@@ -2068,6 +2074,25 @@ void Object::detectBounds()
 	}
 	bound.detect(vertex,vertices);
 	delete vertex;
+}
+
+void Object::transformBound()
+{
+	bound.center=bound.centerBeforeTransformation.transformed(transformMatrix);
+}
+
+void Scene::transformObjects()
+{
+	for(unsigned o=0;o<objects;o++)
+	{
+		// transformuje jen kdyz se matice od minule zmenila
+		if(object[o]->matrixDirty)
+		{
+			// transformuje ted jen sphere a pak vsechny paprsky
+			object[o]->transformBound();
+			object[o]->matrixDirty=false;
+		}
+	}
 }
 
 void Object::buildClusters()

@@ -52,8 +52,8 @@ public:
 	bool    contains(Node *node);
 	void    splitTopLevel(Vec3 *avertex, Object *obj);
 	void    makeDirty();
-	bool    hasRadiosity() {return powerTopLevel!=0;}
-	Channels radiosity();
+	bool    hasExitance() {return powerTopLevel!=0;}
+	Channels exitance();
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();
 	bool    check();

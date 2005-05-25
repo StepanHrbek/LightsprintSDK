@@ -146,7 +146,12 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 			(Vec3*)(importer->getVertex(v1)),
 			(Vec3*)(importer->getVertex(v2)));
 		if(t->isValid) 
-			obj->energyEmited+=abs(t->setSurface(s,importer->getTriangleAdditionalExitingRadiantFlux(fi)));
+		{
+			const real* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(fi);
+			const real* addExitance=importer->getTriangleAdditionalRadiantExitance(fi);
+			Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?*(Vec3*)addExitingFlux/t->area:Vec3(0,0,0));
+			obj->energyEmited+=abs(t->setSurface(s,sumExitance));
+		}
 		else
 			t->surface=NULL;
 	}
@@ -181,6 +186,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	// bsp tree
 	DBG(printf(" tree...\n"));
 	obj->intersector = newIntersect(importer);
+	obj->transformBound();
 	// vlozi objekt do sceny
 #ifdef SUPPORT_DYNAMIC
 	if (0) 
@@ -257,7 +263,7 @@ const RRReal* RRScene::getTriangleRadiantExitance(OBJECT_HANDLE object, unsigned
 	if(RRGetState(RRSS_GET_REFLECTED))
 	{
 		unsigned oldSource = RRSetState(RRSS_GET_SOURCE,0);
-		refl = tri->topivertex[vertex]->radiosity();
+		refl = tri->topivertex[vertex]->exitance();
 		RRSetState(RRSS_GET_SOURCE,oldSource);
 	}
 	Channels rad = (RRGetState(RRSS_GET_SOURCE)?tri->getEnergySource()/tri->area:Channels(0)) + refl;

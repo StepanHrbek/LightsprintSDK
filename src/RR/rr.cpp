@@ -328,7 +328,7 @@ void fakMerge(Scene *scene,unsigned frames,unsigned maxvertices)
  // postupne spocita a ulozi do .tga jednotlivy barevny komponenty
     // 1. mozny pristup k tomu aby cervena stena odrazela jen cervene svetlo
     //    energyDirect [25 vyskytu] rozdelit na energyDirectR/G/B
-    //    radiosity() rozdelit na radiosityR/G/B()
+    //    exitance() rozdelit na radiosityR/G/B()
     //    + bezny vypocet by jel ve vyssi kvalite
     //    - pomalejsi, zere vic pameti
     //    - upravy by byly naporad, nejde to udelat optional
@@ -501,7 +501,7 @@ void frameDraw(Scene *scene, rrEngine::RRScene* rrscene)
      // rozdistribuuje energii
      scene->distribute(0.00001);
 
-     // zvysi cislo snimku aby radiosity() volana pri ukladani vedela ze nema
+     // zvysi cislo snimku aby exitance() volana pri ukladani vedela ze nema
      //  vracet cislo z cache (udaj pro predchozi komponentu)
      __frameNumber++;
 

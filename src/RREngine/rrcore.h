@@ -505,7 +505,7 @@ public:
 
 	// surface
 	RRSurface *surface;     // material at outer and inner side of Triangle
-	Channels setSurface(RRSurface *s,const real* additionalEnergy);
+	Channels setSurface(RRSurface *s,const Vec3& additionalRadiantExitance);
 #ifndef ONLY_PLAYER
 	Channels getEnergySource() {return sourceEnergy;}
 		private:
@@ -764,12 +764,14 @@ public:
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
 	bool    distribute(real maxError);//skonci kdyz nejvetsi mnozstvi nerozdistribuovane energie na jednom facu nepresahuje takovou cast energie lamp (0.001 is ok)
+#ifdef SUPPORT_TRANSFORMS
+	void    transformObjects();
+#endif
 #ifdef SUPPORT_DYNAMIC
 	void    objInsertDynamic(Object *aobject);
 	void    objRemoveDynamic(unsigned o);
 	void    objMakeStatic(unsigned o);
 	void    objMakeDynamic(unsigned o);
-	void    transformObjects();
 	void    improveDynamic(bool endfunc(void *),void *context);
 #endif
 	void    iv_forEach(void callback(SubTriangle *s,IVertex *iv,int type));
