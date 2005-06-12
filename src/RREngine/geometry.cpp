@@ -119,6 +119,16 @@ real sum(Vec3 a)
 	return a.x+a.y+a.z;
 }
 
+real avg(real a)
+{
+	return a;
+}
+
+real avg(Vec3 a)
+{
+	return (a.x+a.y+a.z)/3;
+}
+
 void clampToZero(real& a)
 {
 	if(a<0) a=0;

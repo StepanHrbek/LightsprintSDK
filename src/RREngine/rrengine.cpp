@@ -149,7 +149,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 		{
 			const real* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(fi);
 			const real* addExitance=importer->getTriangleAdditionalRadiantExitance(fi);
-			Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?*(Vec3*)addExitingFlux/t->area:Vec3(0,0,0));
+			Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?(*(Vec3*)addExitingFlux)/t->area:Vec3(0,0,0));
 			obj->energyEmited+=abs(t->setSurface(s,sumExitance));
 		}
 		else

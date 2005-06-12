@@ -43,22 +43,22 @@ namespace rrEngine
 	struct RRSurface
 	{
 		unsigned char sides; // 1 if surface is 1-sided, 2 for 2-sided
-		RRReal        diffuseReflectance;
-		RRColor       diffuseReflectanceColor;
-		RRReal        diffuseTransmittance;
-		RRColor       diffuseTransmittanceColor;
-		RRReal        diffuseEmittance;
-		RRColor       diffuseEmittanceColor;
+		RRReal        diffuseReflectance;            // Fraction of energy that is diffuse reflected (all channels averaged).
+		RRColor       diffuseReflectanceColor;       // Fraction of energy that is diffuse reflected (each channel separately).
+		RRReal        diffuseTransmittance;          // Currently not used.
+		RRColor       diffuseTransmittanceColor;     // Currently not used.
+		RRReal        diffuseEmittance;              // \ Multiplied = Radiant emittance in watts per square meter.
+		RRColor       diffuseEmittanceColor;         // / 
 		RREmittanceType emittanceType;
 		RRReal        emittancePoint[3];
-		RRReal        specularReflectance;
-		RRColor       specularReflectanceColor;
-		RRReal        specularReflectanceRoughness;
-		RRReal        specularTransmittance;
-		RRColor       specularTransmittanceColor;
-		RRReal        specularTransmittanceRoughness;
+		RRReal        specularReflectance;           // Fraction of energy that is mirror reflected (without color change).
+		RRColor       specularReflectanceColor;      // Currently not used.
+		RRReal        specularReflectanceRoughness;  // Currently not used.
+		RRReal        specularTransmittance;         // Fraction of energy that is transmitted (without color change).
+		RRColor       specularTransmittanceColor;    // Currently not used.
+		RRReal        specularTransmittanceRoughness;// Currently not used.
 		RRReal        refractionReal;
-		RRReal        refractionImaginary;
+		RRReal        refractionImaginary;           // Currently not used.
 
 		RRReal    _rd;//needed when calculating different illumination for different components
 		RRReal    _rdcx;

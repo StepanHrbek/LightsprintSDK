@@ -11,7 +11,7 @@
 #define BESTS          100 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
 #define CHANNELS         3
-#define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (eg. polished steel))
+#define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (eg. polished steel) or specular transmittance that changes light color (eg. colored glass))
 #define FACTORCHANNELS   1 // if CLEAN_FACTORS then 1 else CHANNELS
 
 #if CHANNELS==1
@@ -199,9 +199,9 @@ class Factor
 {
 public:
 	Node    *destination;
-	FactorChannels power; // this part of shooted energy is transferred to destination
-	               // Q:is multiplied by destination's diffuseReflectance?
-	               // A:NO, it allows us to calculate 3 channels using factors calculated once
+	FactorChannels power; // this fraction of emited energy reaches destination
+	               // Q: is modulated by destination's material?
+	               // A: CLEAN_FACTORS->NO, !CLEAN_FACTORS->YES
 
 	Factor(Node *destination,FactorChannels apower);
 };
@@ -750,7 +750,7 @@ public:
 
 	bool    intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
 	bool    intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,Object *object,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
-	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power=1);
+	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power=HitChannels(1));
 //	Color   rayTraceCamera(Point3 eye,Vec3 direction,Triangle *skip,Color power=Color(1,1,1));
 
 	char    selectColorFilter(int i, const real *rgb=NULL);

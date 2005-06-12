@@ -38,9 +38,9 @@ namespace rrEngine
 #define TWOSIDED_EMIT_TO_BOTH_SIDES
 #define ONESIDED_TRANSMIT_ENERGY
 
-#define PHOTOMETRIC_R        0.265f
-#define PHOTOMETRIC_G        0.670f
-#define PHOTOMETRIC_B        0.065f
+#define PHOTOMETRIC_R        1//0.265f
+#define PHOTOMETRIC_G        1//0.670f
+#define PHOTOMETRIC_B        1//0.065f
 
 // vyznam ve vypoctu odrazene energie je podil prislusne komponenty v namerene
 // hodnote photometric reflectance. spravne hodnoty mi nejsou znamy.
@@ -107,7 +107,7 @@ bool  __errors=false; // was there errors during batch work? used to set result
 
 unsigned  __frameNumber=1; // frame number increased after each draw
 
-RRColor __colorFilter={0.33f,0.33f,0.33f}; // see rrcore.h
+RRColor __colorFilter={1,1,1}; // see rrcore.h
 
 bool  __preserveFactors=false; // preserve factors in Factors::reset(), needed if we want resetStaticIllumination() but not factors
 
@@ -1239,7 +1239,7 @@ char Scene::selectColorFilter(int i, const real *rgb)
 	  real g=s->diffuseReflectanceColor[1];
 	  real b=s->diffuseReflectanceColor[2];
 //        s->diffuseReflectance=s->_rd*(__colorFilter[0]*s->_rdcx+__colorFilter[1]*s->_rdcy+__colorFilter[2]*(1-s->_rdcx-s->_rdcy));
-	  s->diffuseReflectance=s->_rd*(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
+	  s->diffuseReflectance=s->_rd*(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.001f);
 	}
 
 	return myColorID[i];
@@ -1274,7 +1274,7 @@ Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalRadiantExitanc
 	assert(e>=0);
 #else
 	Channels e=*(Vec3*)__colorFilter * area *
-	  ( *(Vec3*)surface->diffuseEmittanceColor * (surface->diffuseEmittance) + additionalRadiantExitance );
+	  ( *(Vec3*)surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalRadiantExitance );
 #endif
 	assert(surface->diffuseEmittance>=0);
 	assert(area>=0);
@@ -1455,38 +1455,48 @@ Node *Reflectors::best(bool distributing,real avgAccuracy,real improveBig,real i
 	return best;
 }
 
-struct NodeQ {Node* node; real f,q;};
+struct NodeQ 
+{
+	Node* node; 
+	real q;
+};
+
 int CompareNodeQ(const void* elem1, const void* elem2)
 {
 	return (((NodeQ*)elem2)->q < ((NodeQ*)elem1)->q) ? -1 : 1;
 }
 
-unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point)
+unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point) // point must be allocated by caller
 {
-#define ENERGY(node) sum(abs(node->shooter->energyToDiffuse+node->shooter->energyDiffused))
+#define ENERGY_SIZE(node) sum(abs(node->shooter->energyToDiffuse+node->shooter->energyDiffused))
+#define ENERGY(node) (node->shooter->energyToDiffuse+node->shooter->energyDiffused)
 	if(!points) return 0;
 	if(!nodes) return 0;
 	assert(point);
 	NodeQ* sortedNode=new NodeQ[nodes];
-	real f = 0;
+	real fperp = 0;
 	for(unsigned i=0;i<nodes;i++)
 	{
-		real energy=ENERGY(node[i]);
-		real fertility=energy;//!!!
-		f+=fertility;
-		sortedNode[i].q=energy;//!!!
-		sortedNode[i].f=fertility;
-		sortedNode[i].node=node[i];
+		real energy = ENERGY_SIZE(node[i]);
+		real fertility = energy;
+		fperp+=fertility;
+		sortedNode[i].q = fertility;
+		sortedNode[i].node = node[i];
 	}
-	qsort(sortedNode,nodes,sizeof(NodeQ*),CompareNodeQ);
+	qsort(sortedNode,nodes,sizeof(NodeQ),CompareNodeQ);
 	//!!!good order?
-	f/=nodes;
+	fperp/=points;
 	unsigned generatedPoints = 0;
+	float acum=fperp/2;
 	for(unsigned i=0;i<nodes;i++)
 	{
-		unsigned generatePoints = (unsigned)(sortedNode[i].f/f);
-		generatePoints = MAX(generatePoints,1);
-		generatePoints = MIN(generatePoints,points-generatedPoints);
+		acum += sortedNode[i].q;
+		unsigned generatePoints = 0;
+		while(acum>fperp && generatedPoints+generatePoints<points) 
+		{
+			generatePoints++;
+			acum -= fperp;
+		}
 		for(unsigned j=0;j<generatePoints;j++)
 		{
 			//!!! udelat fce getSourcePoint()/getSourceDir() a sdilet ji s hlavnim kanonyrem
@@ -1502,15 +1512,28 @@ unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::Instant
 			SubTriangle* source = SUBTRIANGLE(source1);
 			Point2 srcPoint2 = source->uv[0]+source->u2*(u/(real)RAND_MAX)+source->v2*(v/(real)RAND_MAX);
 			Point3 srcPoint3 = source->grandpa->to3d(srcPoint2);
+			Vec3 rayVec3 = sortedNode[i].node->grandpa->getN3();
+#ifdef SUPPORT_TRANSFORMS
+			// transform from objectspace to scenespace
+			Point3 srcPoint3t=srcPoint3.transformed(source->grandpa->object->transformMatrix);
+			rayVec3=(srcPoint3+rayVec3).transformed(source->grandpa->object->transformMatrix)-srcPoint3t;
+			rayVec3=normalized(rayVec3);//!!! neccessary only for transforms with scale
+			srcPoint3=srcPoint3t;
+#endif
 			*(Vec3*)point[generatedPoints].pos = srcPoint3;
-			*(Vec3*)point[generatedPoints].norm = sortedNode[i].node->grandpa->getN3();
-			real c = ENERGY(sortedNode[i].node)/generatePoints;
+			*(Vec3*)point[generatedPoints].norm = rayVec3;
+			Channels c = ENERGY(sortedNode[i].node)/generatePoints;
+#if CHANNELS==1
 			*(Vec3*)point[generatedPoints].col = Vec3(c,c,c);
+#else
+			*(Vec3*)point[generatedPoints].col = c;
+#endif
 			generatedPoints++;
 		}
 	}
 	delete[] sortedNode;
 	return generatedPoints;
+#undef ENERGY_SIZE
 #undef ENERGY
 }
 
@@ -2258,8 +2281,8 @@ Vec3 refract(Vec3 N,Vec3 I,real r)
 unsigned __hitsOuter=0;
 unsigned __hitsInner=0;
 
-real Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,real power)
-// returns power of diffuse surface hits
+HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power)
+// returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
 {
 	Hit       hitPoint2d;
@@ -2268,13 +2291,13 @@ real Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExt
 	real      hitDistance=BIG_REAL;
 	if(!intersectionStatic(eye,direction,skip,&hitTriangle,&hitPoint2d,&hitOuterSide,&hitDistance))
 		  // ray left scene and vanished
-		  return 0;
+		  return HitChannels(0);
 	if(hitOuterSide) __hitsOuter++;else __hitsInner++;
 	// otherwise surface with these properties was hit
 	RRSideBits *side=&sideBits[hitTriangle->surface->sides][hitOuterSide?0:1];
 	assert(side->catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
-	real      hitPower=0;
+	HitChannels  hitPower=HitChannels(0);
 	// diffuse reflection
 	// no real reflection is done here, but energy is stored for further
 	//  redistribution along existing or newly calculated form factors
@@ -2292,7 +2315,7 @@ real Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExt
 		if(hitExtension) hitTriangle->hits.insert(hitPoint2d,hitExtension);
 		else
 #endif
-		hitTriangle->hits.insert(hitPoint2d);
+			hitTriangle->hits.insert(hitPoint2d);
 	}
 	// mirror reflection
 	// speedup: weaker rays continue less often but with
@@ -2517,8 +2540,8 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 #ifdef CLEAN_FACTORS
 	assert(destination->grandpa);
 	assert(destination->grandpa->surface);
-	assert(IS_NUMBER(destination->grandpa->surface->diffuseReflectance));
-	energy*=destination->grandpa->surface->diffuseReflectance;
+	assert(IS_VEC3(*(Vec3*)destination->grandpa->surface->diffuseReflectanceColor));
+	energy *= *(Vec3*)destination->grandpa->surface->diffuseReflectanceColor;
 #endif
 	// pak leze nahoru az k trianglu, do clusteru neni treba
 	bool wasLetToDiffuse=false;

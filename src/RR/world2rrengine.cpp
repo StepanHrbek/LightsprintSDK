@@ -98,6 +98,9 @@ static void fillSurface(Surface *s,C_MATERIAL *m)
 	s->sides                =(m->sided==1)?1:2;
 	s->diffuseReflectance   =m->rd;
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectanceColor);
+	s->diffuseReflectanceColor[0]*=m->rd;
+	s->diffuseReflectanceColor[1]*=m->rd;
+	s->diffuseReflectanceColor[2]*=m->rd;
 	s->diffuseReflectanceColorTable=createColorTable(m->rd_c.cx,m->rd_c.cy,m->rs);
 	s->diffuseTransmittance =m->td;
 	xy2rgb(m->td_c.cx,m->td_c.cy,0.5,s->diffuseTransmittanceColor);

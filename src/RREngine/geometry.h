@@ -24,7 +24,7 @@ namespace rrEngine
 #define IS_1(n)      (fabs(n-1)<0.001)
 #define IS_EQ(a,b)   (fabs(a-b)<0.001)
 #define IS_VEC2(v)   (IS_NUMBER(v.x) && IS_NUMBER(v.y))
-#define IS_VEC3(v)   (IS_NUMBER(v.x) && IS_NUMBER(v.y) && IS_NUMBER(v.z))
+#define IS_VEC3(v)   (IS_NUMBER((v).x) && IS_NUMBER((v).y) && IS_NUMBER((v).z))
 #define IS_SIZE1(v)  IS_1(size2(v))
 #define IS_SIZE0(v)  IS_0(size2(v))
 
@@ -36,6 +36,7 @@ namespace rrEngine
 
 real abs(real a);
 real sum(real a);
+real avg(real a);
 void clampToZero(real& a);
 
 //////////////////////////////////////////////////////////////////////////////
@@ -111,6 +112,7 @@ struct Vec3
 	Vec3 operator +=(Vec3 a)          {x+=a.x;y+=a.y;z+=a.z;return *this;}
 	Vec3 operator -=(Vec3 a)          {x-=a.x;y-=a.y;z-=a.z;return *this;}
 	Vec3 operator *=(real f)          {x*=f;y*=f;z*=f;return *this;}
+	Vec3 operator *=(Vec3 a)          {x*=a.x;y*=a.y;z*=a.z;return *this;}
 	Vec3 operator /=(real f)          {x/=f;y/=f;z/=f;return *this;}
 	bool operator ==(Vec3 a)    const {return a.x==x && a.y==y && a.z==z;}
 	bool operator !=(Vec3 a)    const {return a.x!=x || a.y!=y || a.z!=z;}
@@ -124,6 +126,7 @@ real size(Vec3 a);
 real size2(Vec3 a);
 Vec3 abs(Vec3 a);
 real sum(Vec3 a);
+real avg(Vec3 a);
 void clampToZero(Vec3& a);
 Vec3 normalized(Vec3 a);
 real dot(Vec3 a,Vec3 b);
