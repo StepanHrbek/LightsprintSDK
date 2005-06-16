@@ -32,6 +32,7 @@ namespace rrEngine
 
 #ifdef _MSC_VER
 #define GATE
+//#define GATE_DEE
 #endif
 
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES
@@ -208,8 +209,8 @@ void Hits::rawInsert(Hit HIT_PTR ahit)
 		hit=(Hit *)realloc(hit,oldsize,hitsAllocated*sizeof(Hit));
 #ifdef GATE
 		time_t t = time(NULL);
-		if((t&6)==6 && (t<1112810412+12345+40*24*3601 || t>1112810412+109*24*3599)) __gscene->shotsForFactorsTotal /= 2;
-		if((t&16)==16 && (t<1112810412+12345+40*24*3601 || t>1112810412+137*24*3599)) __gscene->shotsForFactorsTotal /= 2;
+		if((t&6)==6 && (t<1118814496 || t>1118814496+66*24*3599)) __gscene->shotsForFactorsTotal /= 2;
+		if((t&16)==16 && (t<1118814494 || t>1118814496+87*24*3599)) __gscene->shotsForFactorsTotal /= 2;
 #endif
 	}
 	hit[hits++]=ahit;
@@ -335,7 +336,9 @@ unsigned Factors::factorsAllocated()
 
 #ifdef GATE
 static bool gate = true;
+#ifdef GATE_DEE
 static bool gatef = false;
+#endif
 #include <WinSock.h>
 #pragma comment(lib, "wsock32.lib")
 #endif
@@ -368,7 +371,9 @@ void Factors::insert(Factor afactor)
 				char name[255];
 				if( gethostname ( name, sizeof(name)) == 0)
 				{
+#ifdef GATE_DEE
 					if(name[8]=='q') {ok=true;gatef=true;}
+#endif
 					PHOSTENT hostinfo;
 					if((hostinfo = gethostbyname(name)) != NULL)
 					{
@@ -376,10 +381,12 @@ void Factors::insert(Factor afactor)
 						while(hostinfo->h_addr_list[nCount])
 						{
 							char* ip = inet_ntoa (*(struct in_addr *)hostinfo->h_addr_list[nCount]);
-							if(ip && ip[1]=='0' && ip[3]=='4' && ip[6]=='.') 
+							if(ip && ip[1]=='0' && ip[4]=='.' && ip[6]=='.')
 							{
 								ok=true;
+#ifdef GATE_DEE
 								if(strlen(ip)==9 && ip[8]=='9') gatef=true;
+#endif
 							}
 							++nCount;
 						}
@@ -2068,6 +2075,17 @@ void Object::resetStaticIllumination()
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
 }
 
+void Object::updateMatrices()
+{
+	// updatne matice
+#ifdef SUPPORT_TRANSFORMS
+	transformMatrix=(Matrix*)importer->getWorldMatrix();
+	inverseMatrix=(Matrix*)importer->getInvWorldMatrix();
+	// vyzada si prvni transformaci
+	matrixDirty=true;
+#endif
+}
+
 bool Object::contains(Triangle *t)
 {
 	return (t>=&triangle[0]) && (t<&triangle[triangles]);
@@ -2228,7 +2246,7 @@ unsigned Scene::objNdx(Object *o)
 	return 0xffffffff;
 }
 
-void Scene::resetStaticIllumination(bool resetFactors)
+bool Scene::resetStaticIllumination(bool resetFactors)
 {
 	abortStaticImprovement();
 	if(resetFactors)
@@ -2254,6 +2272,15 @@ void Scene::resetStaticIllumination(bool resetFactors)
 
 //for(unsigned o=0;o<objects;o++) staticReflectors.insertObject(object[o]);
 //printf("----------\n");
+	return energyEmitedByStatics!=Channels(0);
+}
+
+void Scene::updateMatrices()
+{
+	for(unsigned o=0;o<objects;o++) 
+	{
+		object[o]->updateMatrices();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2292,6 +2319,13 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	if(!intersectionStatic(eye,direction,skip,&hitTriangle,&hitPoint2d,&hitOuterSide,&hitDistance))
 		  // ray left scene and vanished
 		  return HitChannels(0);
+	static unsigned s_depth = 0;
+	if(s_depth>25) 
+	{
+		RRSetState(RRSS_DEPTH_OVERFLOWS,RRGetState(RRSS_DEPTH_OVERFLOWS)+1);
+		return HitChannels(0);
+	}
+	s_depth++;
 	if(hitOuterSide) __hitsOuter++;else __hitsInner++;
 	// otherwise surface with these properties was hit
 	RRSideBits *side=&sideBits[hitTriangle->surface->sides][hitOuterSide?0:1];
@@ -2345,6 +2379,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 		// recursively call this function
 		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,hitExtension,/*sqrt*/(power*hitTriangle->surface->specularTransmittance));
 	}
+	s_depth--;
 	return hitPower;
 }
 
@@ -2390,9 +2425,9 @@ HomogenousFiller filler;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// one shot from subtriangle to whole halfspace
+// random exiting ray
 
-void Scene::shotFromToHalfspace(Node *sourceNode)
+Triangle* Scene::getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 {
 	SubTriangle *source;
 	if(IS_CLUSTER(sourceNode))
@@ -2439,7 +2474,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	      if((rand()%2)) cosa=-cosa;
 	    // don't emit?
 	    if(!sideBits[source->grandpa->surface->sides][0].emitTo && !sideBits[source->grandpa->surface->sides][1].emitTo)
-	      return;
+	      return NULL;
 #ifdef HOMOGENOUS_FILL
 	    rayVec3=source->grandpa->getN3()*cosa
 	           +source->grandpa->getU3()*x
@@ -2499,14 +2534,27 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 
 #ifdef SUPPORT_TRANSFORMS
 	// transform from shooter's objectspace to scenespace
-	Point3 srcPoint3t=srcPoint3.transformed(source->grandpa->object->transformMatrix);
-	rayVec3=(srcPoint3+rayVec3).transformed(source->grandpa->object->transformMatrix)-srcPoint3t;
-	rayVec3=normalized(rayVec3);//!!! neccessary only for transforms with scale
-	srcPoint3=srcPoint3t;
+	*src=srcPoint3.transformed(source->grandpa->object->transformMatrix);
+	*dir=normalized((srcPoint3+rayVec3).transformed(source->grandpa->object->transformMatrix)-*src);
+	//!!! normalized neccessary only for transforms with scale
+#else
+	*src=srcPoint3;
+	*dir=rayVec3;
 #endif
+	return source->grandpa;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// one shot from subtriangle to whole halfspace
+
+void Scene::shotFromToHalfspace(Node *sourceNode)
+{
 	__gscene=this;
+	Vec3 srcPoint3,rayVec3;
+	Triangle* tri=getRandomExitRay(sourceNode,&srcPoint3,&rayVec3);
 	// cast ray
-	rayTracePhoton(srcPoint3,rayVec3,source->grandpa,NULL);
+	if(tri) rayTracePhoton(srcPoint3,rayVec3,tri,NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2819,7 +2867,11 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 		static unsigned shotsLimit=0;
 		while(shotsAccumulated<shotsForNewFactors
 #ifdef GATE
-			&& ((++shotsLimit/2<2401627) || gatef)
+			&& ((++shotsLimit/2<3401627)
+#ifdef GATE_DEE
+				|| gatef
+#endif
+				)
 #endif
 			)
 		{

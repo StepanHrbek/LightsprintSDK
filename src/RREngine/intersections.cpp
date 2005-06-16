@@ -61,7 +61,7 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	{
 		assert(ray.hitTriangle>=0 && ray.hitTriangle<triangles);
 		*hitTriangle = &triangle[ray.hitTriangle];
-		// compenasate for our rotations
+		// compensate for our rotations
 		switch((*hitTriangle)->rotations)
 		{
 			case 0:

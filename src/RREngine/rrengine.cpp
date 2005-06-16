@@ -216,10 +216,11 @@ void RRScene::sceneSetColorFilter(const RRReal* colorFilter)
 	scene->distribute(0.001f);
 }
 
-void RRScene::sceneResetStatic(bool resetFactors)
+bool RRScene::sceneResetStatic(bool resetFactors)
 {
 	__frameNumber++;
-	scene->resetStaticIllumination(resetFactors);
+	scene->updateMatrices();
+	return scene->resetStaticIllumination(resetFactors);
 }
 
 bool RRScene::sceneImproveStatic(bool endfunc(void*), void* context)

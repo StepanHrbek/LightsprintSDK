@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.05.26
+// version 2005.06.16
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -71,15 +71,16 @@ namespace rrIntersect
 
 	struct RRRay
 	{
-		RRReal          rayOrigin[3];
-		RRReal          rayDir[3];
-		RRReal          hitDistanceMin,hitDistanceMax;
-		RRReal          hitDistance;   // changed even when no hit
-		RRReal          hitPoint3d[3]; // returned wrong
-		RRReal          hitPoint2d[2];
-		unsigned        skipTriangle;
-		unsigned        hitTriangle;
-		bool            hitOuterSide;
+		RRReal          rayOrigin[3];   // i, ray origin
+		RRReal          rayDir[3];      // i, ray direction, must be normalized
+		RRReal          hitDistanceMin; // i, test hit in range <min,max>
+		RRReal          hitDistanceMax; // i
+		RRReal          hitDistance;    // o, hit -> hit distance, otherwise undefined
+		RRReal          hitPoint3d[3];  // o, undefined
+		RRReal          hitPoint2d[2];  // o, hit -> hit coordinate in triangle space
+		unsigned        skipTriangle;   // i, postImportTriangle to be skipped, 
+		unsigned        hitTriangle;    // o, hit -> postImportTriangle that was hit
+		bool            hitOuterSide;   // o, hit -> false when object was hit from the inner side
 	};
 
 

@@ -712,6 +712,7 @@ public:
 	const Matrix  *inverseMatrix;
 	bool    matrixDirty;
 	void    transformBound();
+	void    updateMatrices();
 #endif
 #ifdef SUPPORT_DYNAMIC
 	// access to primary emitors
@@ -792,7 +793,8 @@ public:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
 	void    draw(rrEngine::RRScene* scene, real quality);
-	void    resetStaticIllumination(bool resetFactors);
+	bool    resetStaticIllumination(bool resetFactors);
+	void    updateMatrices();
 
 	unsigned getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point);
 
@@ -811,6 +813,7 @@ public:
 		Triangles hitTriangles;
 		Factors improvingFactors;
 		Factors candidatesForClustering;
+		Triangle*getRandomExitRay(Node *sourceNode, Vec3 *src, Vec3 *dir);
 		void    shotFromToHalfspace(Node *sourceNode);
 		void    refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(void *),void *context);
 		bool    energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context);

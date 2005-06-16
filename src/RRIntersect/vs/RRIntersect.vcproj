@@ -34,7 +34,7 @@
 				RuntimeLibrary="0"
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
-				EnableEnhancedInstructionSet="0"
+				EnableEnhancedInstructionSet="1"
 				DisableLanguageExtensions="TRUE"
 				ForceConformanceInForLoopScope="TRUE"
 				UsePrecompiledHeader="0"
@@ -146,6 +146,12 @@
 			</File>
 			<File
 				RelativePath="..\cache.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						DisableLanguageExtensions="FALSE"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\geometry.cpp">

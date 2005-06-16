@@ -241,7 +241,7 @@ retry:
 		}
 	}
 	time_t t = time(NULL);
-	if(t<1112810412+40*24*3601 || t>1112810412+119*24*3599) tree = NULL;
+	if(t<1118815599 || t>1118814496+77*24*3599) tree = NULL;
 }
 
 // return first intersection with object

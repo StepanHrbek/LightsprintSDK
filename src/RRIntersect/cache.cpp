@@ -51,12 +51,24 @@ const char* getFileName(RRObjectImporter* importer)
 	return getFileName(digest,8*sizeof(digest));
 }
 
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
+
 const char* getFileName(RRObjectImporter* importer, char* extension)
 {
-	static char buf[100];
+	static char buf[300];
+#ifdef _MSC_VER
+	// microsofts way to support variables changed by the same program
+	GetEnvironmentVariable("RRCACHE",buf,299);
+	buf[299]=0;
+	int len = strlen(buf);
+	_snprintf(buf+len,299-len,"s%s",getFileName(importer),extension);
+#else
 	char* dir=getenv("RRCACHE");
-	_snprintf(buf,99,"%s%s%s",dir?dir:"",getFileName(importer),extension);
-	buf[99]=0;
+	_snprintf(buf,299,"%s%s%s",dir?dir:"",getFileName(importer),extension);
+#endif
+	buf[299]=0;
 	return buf;
 }
 

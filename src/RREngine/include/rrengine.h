@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.05.26
+// version 2005.06.16
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -139,7 +139,7 @@ namespace rrEngine
 		
 		// calculate radiosity
 		void          sceneSetColorFilter(const RRReal* colorFilter);
-		void          sceneResetStatic(bool resetFactors);
+		bool          sceneResetStatic(bool resetFactors);
 		bool          sceneImproveStatic(bool endfunc(void*), void* context);
 
 		// read results
@@ -165,12 +165,13 @@ namespace rrEngine
 
 	enum RRSceneState
 	{
-		RRSS_USE_CLUSTERS,
-		RRSS_FIGHT_NEEDLES,
+		RRSS_USE_CLUSTERS,       // !0 = use clustering
+		RRSS_FIGHT_NEEDLES,      // !0 = fight needle triangles (expensive)
 		RRSS_NEEDLE,
-		RRSSF_SUBDIVISION_SPEED,
-		RRSS_GET_SOURCE,
-		RRSS_GET_REFLECTED,
+		RRSSF_SUBDIVISION_SPEED, // speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast
+		RRSS_GET_SOURCE,         // results from getXxxRadiantExitance contain input emittances
+		RRSS_GET_REFLECTED,      // results from getXxxRadiantExitance contain additional exitances calculated by radiosity
+		RRSS_DEPTH_OVERFLOWS,    // accumulated number of depth overflows in photon tracing, caused by physically incorrect scenes
 		RRSS_LAST
 	};
 
