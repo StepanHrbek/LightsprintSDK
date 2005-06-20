@@ -32,7 +32,7 @@ namespace rrEngine
 
 #ifdef _MSC_VER
 #define GATE
-//#define GATE_DEE
+#define GATE_DEE
 #endif
 
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES
@@ -2312,13 +2312,16 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
 {
+	assert(IS_VEC3(eye));
+	assert(IS_VEC3(direction));
 	Hit       hitPoint2d;
 	bool      hitOuterSide;
 	Triangle *hitTriangle=NULL;
 	real      hitDistance=BIG_REAL;
 	if(!intersectionStatic(eye,direction,skip,&hitTriangle,&hitPoint2d,&hitOuterSide,&hitDistance))
-		  // ray left scene and vanished
-		  return HitChannels(0);
+		// ray left scene and vanished
+		return HitChannels(0);
+	assert(IS_NUMBER(hitDistance));
 	static unsigned s_depth = 0;
 	if(s_depth>25) 
 	{

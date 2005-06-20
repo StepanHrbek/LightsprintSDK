@@ -34,7 +34,6 @@ namespace rrIntersect
 	};
 
 	void update_hitPoint3d(RRRay* ray, real distance);
-	real intersect_plane_distance(const RRRay* ray, const Plane n);
 	bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t);
 	bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporter::TriangleSRL* t2);
 	bool intersect_triangleP(RRRay* ray, const TriangleP *t, const RRObjectImporter::TriangleSRLN* t2);

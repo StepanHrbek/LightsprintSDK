@@ -9,17 +9,17 @@ namespace rrIntersect
 {
 
 	struct BspTree
-	{
-		unsigned  size:30;
-		unsigned  front:1;
-		unsigned  back:1;
-		BspTree*  next()           {return (BspTree *)((char *)this+size);}
-		BspTree*  getFrontAdr()    {return this+1;}
-		BspTree*  getFront()       {return front?getFrontAdr():0;}
-		BspTree*  getBackAdr()     {return (BspTree *)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
-		BspTree*  getBack()        {return back?getBackAdr():0;}
-		TriangleP**getTriangles()  {return (TriangleP **)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
-		void*     getTrianglesEnd(){return (char*)this+size;}
+	{			  
+		unsigned          size:30;
+		unsigned          front:1;
+		unsigned          back:1;
+		const BspTree*    getNext()        const {return (BspTree *)((char *)this+size);}
+		const BspTree*    getFrontAdr()    const {return this+1;}
+		const BspTree*    getFront()       const {return front?getFrontAdr():0;}
+		const BspTree*    getBackAdr()     const {return (BspTree *)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
+		const BspTree*    getBack()        const {return back?getBackAdr():0;}
+		const TriangleP** getTriangles()   const {return (const TriangleP **)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+		void*             getTrianglesEnd()const {return (char*)this+size;}
 	};
 
 	class IntersectBsp : public IntersectLinear

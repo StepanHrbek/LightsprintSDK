@@ -52,8 +52,10 @@ begin:
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
 	unsigned* triangle=(unsigned*)((char*)back+(t->back?back->size:0));
 	assert(triangleSRLNP);
-	Plane n=triangleSRLNP[triangle[0]].n3;
-	real distancePlane=intersect_plane_distance(ray,n);
+	Plane& n=triangleSRLNP[triangle[0]].n3;
+	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+	if(nonz==0) return false; // ray parallel with plane (possibly inside)
+	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
 	bool frontback =
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
 		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
@@ -84,13 +86,18 @@ begin:
 
 	// test plane
 	update_hitPoint3d(ray,distancePlane);
-	void* trianglesEnd=t->getTrianglesEnd();
+	const void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
 		if (*triangle!=ray->skipTriangle && intersect_triangleSRLNP(ray,triangleSRLNP+*triangle))
 		{
+			assert(IS_NUMBER(distancePlane));
+#ifdef FILL_HITTRIANGLE
 			ray->hitTriangle = *triangle;
+#endif
+#ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;
+#endif
 			return true;
 		}
 		triangle++;
@@ -120,9 +127,11 @@ begin:
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
 	unsigned* triangle=(unsigned*)((char*)back+(t->back?back->size:0));
 	assert(triangleNP);
-	Plane n=triangleNP[triangle[0]].n3;
+	Plane& n=triangleNP[triangle[0]].n3;
 	DBGLINE
-	real distancePlane=intersect_plane_distance(ray,n);
+	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+	if(nonz==0) return false; // ray parallel with plane (possibly inside)
+	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
 	DBGLINE
 	bool frontback =
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
@@ -161,8 +170,12 @@ begin:
 		importer->getTriangleSRL(*triangle,&t2);
 		if (*triangle!=ray->skipTriangle && intersect_triangleNP(ray,triangleNP+*triangle,&t2))
 		{
+#ifdef FILL_HITTRIANGLE
 			ray->hitTriangle = *triangle;
+#endif
+#ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;
+#endif
 			DBGLINE
 			return true;
 		}
@@ -244,10 +257,6 @@ retry:
 	if(t<1118815599 || t>1118814496+77*24*3599) tree = NULL;
 }
 
-// return first intersection with object
-// but not with *skip and not more far than *hitDistance
-//bool Object::intersection(Point3 eye,Vec3 direction,Triankle *skip,
-//  Triankle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
 bool IntersectBsp::intersect(RRRay* ray) const
 {
 	// fallback when bspgen failed (run from readonly disk etc)

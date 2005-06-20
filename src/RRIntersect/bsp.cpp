@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include "bsp.h"
 
+#define BESTN_N 100
+
 namespace rrIntersect
 {
 
@@ -593,7 +595,7 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
  int i,j; BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
 
  quality=BESTN;
- bestN=100;
+ bestN=BESTN_N;
  max_skip=1;
 
  assert(f);

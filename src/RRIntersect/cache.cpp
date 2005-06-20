@@ -6,6 +6,8 @@
 namespace rrIntersect
 {
 
+#define TREE_VERSION 0
+
 #define min(a,b) (((a)<(b))?(a):(b))
 
 static unsigned getBit(unsigned char* data, unsigned bit)
@@ -34,6 +36,11 @@ const char* getFileName(RRObjectImporter* importer)
 {
 	sha1_context ctx;
 	sha1_starts(&ctx);
+	if(TREE_VERSION)
+	{
+		uint8 ver = TREE_VERSION;
+		sha1_update(&ctx, &ver, 1);
+	}
 	unsigned i = importer->getNumVertices();
 	while(i--)
 	{
@@ -59,7 +66,7 @@ const char* getFileName(RRObjectImporter* importer, char* extension)
 {
 	static char buf[300];
 #ifdef _MSC_VER
-	// microsofts way to support variables changed by the same program
+	// microsoft's way to support variables changed by the same program
 	GetEnvironmentVariable("RRCACHE",buf,299);
 	buf[299]=0;
 	int len = strlen(buf);

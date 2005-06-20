@@ -69,16 +69,24 @@ namespace rrIntersect
 	//
 	// RRRay - ray to intersect with object.
 
+	#define FILL_HITDISTANCE
+	#define FILL_HITPOINT3D
+	#define FILL_HITPOINT2D
+	//#define FILL_HITPLANE
+	#define FILL_HITTRIANGLE
+	#define FILL_HITSIDE
+
 	struct RRRay
 	{
 		RRReal          rayOrigin[3];   // i, ray origin
 		RRReal          rayDir[3];      // i, ray direction, must be normalized
 		RRReal          hitDistanceMin; // i, test hit in range <min,max>
 		RRReal          hitDistanceMax; // i
+		unsigned        skipTriangle;   // i, postImportTriangle to be skipped, not tested
 		RRReal          hitDistance;    // o, hit -> hit distance, otherwise undefined
-		RRReal          hitPoint3d[3];  // o, undefined
+		RRReal          hitPoint3d[3];  // o, hit -> hit coordinate in object space; !hit -> undefined
 		RRReal          hitPoint2d[2];  // o, hit -> hit coordinate in triangle space
-		unsigned        skipTriangle;   // i, postImportTriangle to be skipped, 
+		RRReal          hitPlane[4];    // o, hit -> plane of hitTriangle
 		unsigned        hitTriangle;    // o, hit -> postImportTriangle that was hit
 		bool            hitOuterSide;   // o, hit -> false when object was hit from the inner side
 	};

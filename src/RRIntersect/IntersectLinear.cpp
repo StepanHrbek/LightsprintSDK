@@ -177,11 +177,6 @@ void update_hitPoint3d(RRRay* ray, real distance)
 	ray->hitPoint3d[2] = ray->rayOrigin[2] + ray->rayDir[2]*distance;
 }
 
-real intersect_plane_distance(const RRRay* ray, const Plane n)
-{
-	return -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / (ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z);
-}
-
 bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 // input:                t, hitPoint3d, rayDir
 // returns:              true if hitPoint3d is inside t
@@ -211,11 +206,18 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	}
 	if (u<0 || u+v>1) return false;
 
+#ifdef FILL_HITSIDE
 	bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
 	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
 	ray->hitOuterSide=hitOuterSide;
+#endif
+#ifdef FILL_HITPOINT2D
 	ray->hitPoint2d[0]=u;
 	ray->hitPoint2d[1]=v;
+#endif
+#ifdef FILL_HITPLANE
+	*(Plane*)ray->hitPlane=t->n3;
+#endif
 	return true;
 }
 
@@ -246,11 +248,18 @@ bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporte
 	}
 	if (u<0 || u+v>1) return false;
 
+#ifdef FILL_HITSIDE
 	bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
 	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
 	ray->hitOuterSide=hitOuterSide;
+#endif
+#ifdef FILL_HITPOINT2D
 	ray->hitPoint2d[0]=u;
 	ray->hitPoint2d[1]=v;
+#endif
+#ifdef FILL_HITPLANE
+	*(Plane*)ray->hitPlane=t->n3;
+#endif
 	return true;
 }
 
@@ -281,11 +290,18 @@ bool intersect_triangleP(RRRay* ray, const TriangleP *t, const RRObjectImporter:
 	}
 	if (u<0 || u+v>1) return false;
 
+#ifdef FILL_HITSIDE
 	bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-*(Vec3*)(t2->n))>2;
 	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
 	ray->hitOuterSide=hitOuterSide;
+#endif
+#ifdef FILL_HITPOINT2D
 	ray->hitPoint2d[0]=u;
 	ray->hitPoint2d[1]=v;
+#endif
+#ifdef FILL_HITPLANE
+	*(Plane*)ray->hitPlane=*(Plane*)t2->n;
+#endif
 	return true;
 }
 
@@ -341,54 +357,76 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		{
 			RRObjectImporter::TriangleSRLN t2;
 			importer->getTriangleSRLN(t,&t2);
-			real distance=intersect_plane_distance(ray,*(Plane*)t2.n);
-			if(distance>ray->hitDistanceMin && distance<ray->hitDistance)
+			Plane& n=*(Plane*)t2.n;
+			real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+			if(nonz!=0)
 			{
-				DBG(printf("."));
-				//!!! hitPoint3d vyjde spatne protoze spravny tady muze prepsat spatnym
-				update_hitPoint3d(ray,distance);
-				if(intersect_triangleP(ray,&triangleP[t],&t2))
+				real distance = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
+				if(distance>ray->hitDistanceMin && distance<ray->hitDistance)
 				{
-					hit = true;
-					ray->hitTriangle = t;
-					ray->hitDistance = distance;
-					DBG(printf("%d",t));
-				}
-			}			
+					DBG(printf("."));
+					//!!! hitPoint3d vyjde spatne protoze spravny tady muze prepsat spatnym
+					update_hitPoint3d(ray,distance);
+					if(intersect_triangleP(ray,&triangleP[t],&t2))
+					{
+						hit = true;
+#ifdef FILL_HITTRIANGLE
+						ray->hitTriangle = t;
+#endif
+						ray->hitDistance = distance;
+						DBG(printf("%d",t));
+					}
+				}			
+			}
 		} else
 		if(importer->fastSRL) 
 		{
-			real distance=intersect_plane_distance(ray,triangleNP[t].n3);
-			if(distance>ray->hitDistanceMin && distance<ray->hitDistance)
+			Plane& n=triangleNP[t].n3;
+			real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+			if(nonz!=0)
 			{
-				DBG(printf("."));
-				update_hitPoint3d(ray,distance);
-				RRObjectImporter::TriangleSRL t2;
-				importer->getTriangleSRL(t,&t2);
-				if(intersect_triangleNP(ray,&triangleNP[t],&t2))
+				real distance = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
+				if(distance>ray->hitDistanceMin && distance<ray->hitDistance)
 				{
-					hit = true;
-					ray->hitTriangle = t;
-					ray->hitDistance = distance;
-					DBG(printf("%d",t));
-				}
-			}			
+					DBG(printf("."));
+					update_hitPoint3d(ray,distance);
+					RRObjectImporter::TriangleSRL t2;
+					importer->getTriangleSRL(t,&t2);
+					if(intersect_triangleNP(ray,&triangleNP[t],&t2))
+					{
+						hit = true;
+#ifdef FILL_HITTRIANGLE
+						ray->hitTriangle = t;
+#endif
+						ray->hitDistance = distance;
+						DBG(printf("%d",t));
+					}
+				}			
+			}
 		} else {
-			real distance=intersect_plane_distance(ray,triangleSRLNP[t].n3);
-			if(distance>ray->hitDistanceMin && distance<ray->hitDistance)
+			Plane& n=triangleNP[t].n3;
+			real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+			if(nonz!=0)
 			{
-				DBG(printf("."));
-				update_hitPoint3d(ray,distance);
-				if(intersect_triangleSRLNP(ray,&triangleSRLNP[t]))
+				real distance = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
+				if(distance>ray->hitDistanceMin && distance<ray->hitDistance)
 				{
-					hit = true;
-					ray->hitTriangle = t;
-					ray->hitDistance = distance;
-					DBG(printf("%d",t));
-				}
-			}			
+					DBG(printf("."));
+					update_hitPoint3d(ray,distance);
+					if(intersect_triangleSRLNP(ray,&triangleSRLNP[t]))
+					{
+						hit = true;
+#ifdef FILL_HITTRIANGLE
+						ray->hitTriangle = t;
+#endif
+						ray->hitDistance = distance;
+						DBG(printf("%d",t));
+					}
+				}			
+			}
 		}
 	}
+	//ray->hitPlane = ;
 	DBG(printf(hit?"\n":"NOHIT\n"));
 	if(hit) intersectStats.hits++;
 	return hit;
