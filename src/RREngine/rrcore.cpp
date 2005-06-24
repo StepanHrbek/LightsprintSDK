@@ -32,7 +32,7 @@ namespace rrEngine
 
 #ifdef _MSC_VER
 #define GATE
-#define GATE_DEE
+//#define GATE_DEE
 #endif
 
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES

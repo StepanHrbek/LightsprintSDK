@@ -26,9 +26,9 @@ const char* getFileName(unsigned char* data, unsigned bits)
 {
 	static char name[100];
 	static char letter[33]="0123456789abcdefghijklmnopqrstuv";
-	for(unsigned i=0;i<min((bits+4)/5,100);i++)
+	for(unsigned i=0;i<min((bits+4)/5,99);i++)
 		name[i]=letter[getBits(data, i*5, min(5,bits-i*5))];
-	name[99]=0;
+	name[min((bits+4)/5,99)]=0;
 	return name;
 }
 
@@ -67,10 +67,11 @@ const char* getFileName(RRObjectImporter* importer, char* extension)
 	static char buf[300];
 #ifdef _MSC_VER
 	// microsoft's way to support variables changed by the same program
+	buf[0]=0;
 	GetEnvironmentVariable("RRCACHE",buf,299);
 	buf[299]=0;
-	int len = strlen(buf);
-	_snprintf(buf+len,299-len,"s%s",getFileName(importer),extension);
+	size_t len = strlen(buf);
+	_snprintf(buf+len,299-len,"%s%s",getFileName(importer),extension);
 #else
 	char* dir=getenv("RRCACHE");
 	_snprintf(buf,299,"%s%s%s",dir?dir:"",getFileName(importer),extension);

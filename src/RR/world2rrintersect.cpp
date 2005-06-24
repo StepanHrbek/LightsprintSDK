@@ -6,7 +6,6 @@ WorldObjectImporter::WorldObjectImporter(OBJECT* aobject)
 	object=aobject;
 	assert(object);
 	for(int i=0;i<object->vertex_num;i++) object->vertex[i].id=i;
-//	fastSRL=true;
 }
 
 WorldObjectImporter::~WorldObjectImporter()

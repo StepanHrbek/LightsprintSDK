@@ -10,23 +10,6 @@
 namespace rrIntersect
 {
 
-RRObjectImporter::RRObjectImporter()
-{
-	fastN = false;
-	fastSRL = false;
-	fastSRLN = false;
-}
-
-void RRObjectImporter::getTriangleN(unsigned i, TriangleN* t) const
-{
-	TriangleSRLN tmp;
-	getTriangleSRLN(i,&tmp);
-	t->n[0]=tmp.n[0];
-	t->n[1]=tmp.n[1];
-	t->n[2]=tmp.n[2];
-	t->n[3]=tmp.n[3];
-}
-
 void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 {
 	unsigned v0,v1,v2;
@@ -46,42 +29,16 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 	t->l[2]=v[2][2]-v[0][2];
 }
 
-void RRObjectImporter::getTriangleSRLN(unsigned i, TriangleSRLN* t) const
-{
-	unsigned v0,v1,v2;
-	getTriangle(i,v0,v1,v2);
-	real* v[3];
-	v[0] = getVertex(v0);
-	v[1] = getVertex(v1);
-	v[2] = getVertex(v2);
-	t->s[0]=v[0][0];
-	t->s[1]=v[0][1];
-	t->s[2]=v[0][2];
-	t->r[0]=v[1][0]-v[0][0];
-	t->r[1]=v[1][1]-v[0][1];
-	t->r[2]=v[1][2]-v[0][2];
-	t->l[0]=v[2][0]-v[0][0];
-	t->l[1]=v[2][1]-v[0][1];
-	t->l[2]=v[2][2]-v[0][2];
-	real x=t->r[1] * t->l[2] - t->r[2] * t->l[1];
-	real y=t->r[2] * t->l[0] - t->r[0] * t->l[2];
-	real z=t->r[0] * t->l[1] - t->r[1] * t->l[0];
-	real a=1/sqrtf(x*x+y*y+z*z);
-	t->n[0]=x*a;
-	t->n[1]=y*a;
-	t->n[2]=z*a;
-	t->n[3]=-(t->s[0] * t->n[0] + t->s[1] * t->n[1] + t->s[2] * t->n[2]);
-}
-
-RRIntersect* newIntersect(RRObjectImporter* importer)
+RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique)
 {
 #ifdef USE_KD
 	return new IntersectKd(importer);
 #else
 #ifdef USE_BSP
-	return new IntersectBsp(importer);
+	if(intersectTechnique==IT_LINEAR) return new IntersectLinear(importer,intersectTechnique);
+	else return new IntersectBsp(importer,intersectTechnique);
 #else
-	return new IntersectLinear(importer);
+	return new IntersectLinear(importer,intersectTechnique);
 #endif
 #endif
 }

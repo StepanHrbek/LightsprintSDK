@@ -36,19 +36,20 @@ namespace rrIntersect
 	void update_hitPoint3d(RRRay* ray, real distance);
 	bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t);
 	bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporter::TriangleSRL* t2);
-	bool intersect_triangleP(RRRay* ray, const TriangleP *t, const RRObjectImporter::TriangleSRLN* t2);
+	bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t);
 
 	class IntersectLinear : public RRIntersect
 	{
 	public:
-		IntersectLinear(RRObjectImporter* aimporter);
+		IntersectLinear(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique);
 		virtual ~IntersectLinear();
 		virtual bool      intersect(RRRay* ray) const;
+		virtual unsigned  getMemorySize() const;
 		bool              isValidTriangle(unsigned i) const;
 	protected:
 		RRObjectImporter* importer;
+		IntersectTechnique intersectTechnique;
 		unsigned          triangles;
-		TriangleP*        triangleP;
 		TriangleNP*       triangleNP;
 		TriangleSRLNP*    triangleSRLNP;
 	};

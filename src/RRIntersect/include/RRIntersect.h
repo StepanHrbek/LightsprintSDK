@@ -3,10 +3,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.06.16
+// version 2005.06.24
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
+// - you can select technique in range from maximal speed to zero memory allocated
+// - up to 2^32 vertices and 2^30 triangles in mesh
 // - builds helper-structures and stores them in cache on disk
 //
 // Copyright (C) Stepan Hrbek 1999-2005, Daniel Sykora 1999-2004
@@ -37,31 +39,26 @@ namespace rrIntersect
 	class RRObjectImporter
 	{
 	public:
-		RRObjectImporter();
-		virtual ~RRObjectImporter() {};
+		RRObjectImporter() {}
+		virtual ~RRObjectImporter() {}
 
 		// vertices
 		virtual unsigned     getNumVertices() const = 0;
 		virtual RRReal*      getVertex(unsigned v) const = 0;
-		virtual unsigned     getPreImportVertex(unsigned postImportVertex) const {return postImportVertex;}
-		virtual unsigned     getPostImportVertex(unsigned preImportVertex) const {return preImportVertex;}
 
 		// triangles
 		virtual unsigned     getNumTriangles() const = 0;
 		virtual void         getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const = 0;
+
+		// optional for advanced importers
+		virtual unsigned     getPreImportVertex(unsigned postImportVertex) const {return postImportVertex;}
+		virtual unsigned     getPostImportVertex(unsigned preImportVertex) const {return preImportVertex;}
 		virtual unsigned     getPreImportTriangle(unsigned postImportTraingle) const {return postImportTraingle;}
 		virtual unsigned     getPostImportTraingle(unsigned preImportTraingle) const {return preImportTraingle;}
 
 		// optional for faster access
-		bool                 fastN   :1; // set true if you implement fast getTriangleN -> slower but much lower memory footprint Intersect may be used
-		bool                 fastSRL :1;
-		bool                 fastSRLN:1;
-		struct TriangleN     {RRReal n[4];};
 		struct TriangleSRL   {RRReal s[3],r[3],l[3];};
-		struct TriangleSRLN  {RRReal s[3],r[3],l[3],n[4];};
-		virtual void         getTriangleN(unsigned i, TriangleN* t) const;
 		virtual void         getTriangleSRL(unsigned i, TriangleSRL* t) const;
-		virtual void         getTriangleSRLN(unsigned i, TriangleSRLN* t) const;
 	};
 
 
@@ -72,7 +69,7 @@ namespace rrIntersect
 	#define FILL_HITDISTANCE
 	#define FILL_HITPOINT3D
 	#define FILL_HITPOINT2D
-	//#define FILL_HITPLANE
+	#define FILL_HITPLANE
 	#define FILL_HITTRIANGLE
 	#define FILL_HITSIDE
 
@@ -80,13 +77,13 @@ namespace rrIntersect
 	{
 		RRReal          rayOrigin[3];   // i, ray origin
 		RRReal          rayDir[3];      // i, ray direction, must be normalized
-		RRReal          hitDistanceMin; // i, test hit in range <min,max>
-		RRReal          hitDistanceMax; // i
 		unsigned        skipTriangle;   // i, postImportTriangle to be skipped, not tested
+		RRReal          hitDistanceMin; // io, test hit in range <min,max>, undefined after test
+		RRReal          hitDistanceMax; // io, test hit in range <min,max>, undefined after test
 		RRReal          hitDistance;    // o, hit -> hit distance, otherwise undefined
 		RRReal          hitPoint3d[3];  // o, hit -> hit coordinate in object space; !hit -> undefined
 		RRReal          hitPoint2d[2];  // o, hit -> hit coordinate in triangle space
-		RRReal          hitPlane[4];    // o, hit -> plane of hitTriangle
+		RRReal          hitPlane[4];    // o, hit -> plane of hitTriangle, [0..2] is normal
 		unsigned        hitTriangle;    // o, hit -> postImportTriangle that was hit
 		bool            hitOuterSide;   // o, hit -> false when object was hit from the inner side
 	};
@@ -99,11 +96,19 @@ namespace rrIntersect
 	class RRIntersect
 	{
 	public:
-		virtual bool intersect(RRRay* ray) const = 0;
+		enum IntersectTechnique
+		{
+			IT_BSP_FASTEST,    // speed 100%, size 58, precalculated srlnp
+			IT_BSP_FAST,       // speed  80%, size 31, precalculated np, realtime srl
+			IT_BSP_COMPACT,    // speed  50%, size 10, realtime srl
+			//IT_BSP2_COMPACT,   // speed  ?%, size  6, realtime srl
+			IT_LINEAR,         // speed  1%, size  0, realtime srl
+		};
+		static RRIntersect*  newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique);
+		virtual bool         intersect(RRRay* ray) const = 0;
+		virtual unsigned     getMemorySize() const = 0;
 		virtual ~RRIntersect() {};
 	};
-
-	RRIntersect* newIntersect(RRObjectImporter* importer);
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -123,12 +128,14 @@ namespace rrIntersect
 		// branches, once per call
 		unsigned intersect_bspSRLNP;
 		unsigned intersect_bspNP;
+		unsigned intersect_bsp;
 		unsigned intersect_kd;
 		unsigned intersect_linear;
 		// branches, many times per call
 		unsigned intersect_triangleSRLNP;
 		unsigned intersect_triangleNP;
 		unsigned intersect_triangleP;
+		unsigned intersect_triangle;
 		// helper
 		void getInfo(char *buf, unsigned len, unsigned level) const;
 	};

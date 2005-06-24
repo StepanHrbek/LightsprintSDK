@@ -195,9 +195,94 @@ begin:
 	goto begin;
 }
 
-IntersectBsp::IntersectBsp(RRObjectImporter* aimporter) : IntersectLinear(aimporter)
+
+bool IntersectBsp::intersect_bsp(RRRay* ray, BspTree *t, real distanceMax) const
+{
+begin:
+	intersectStats.intersect_bsp++;
+	assert(ray);
+	assert(t);
+
+	BspTree *front=t+1;
+	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
+	unsigned* triangle=(unsigned*)((char*)back+(t->back?back->size:0));
+
+	RRObjectImporter::TriangleSRL t2;
+	importer->getTriangleSRL(*triangle,&t2);
+	Plane n;
+	n.x = t2.r[1] * t2.l[2] - t2.r[2] * t2.l[1];
+	n.y = t2.r[2] * t2.l[0] - t2.r[0] * t2.l[2];
+	n.z = t2.r[0] * t2.l[1] - t2.r[1] * t2.l[0];
+	n.d = -(t2.s[0] * n.x + t2.s[1] * n.y + t2.s[2] * n.z);
+
+	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+	if(nonz==0) return false; // ray parallel with plane (possibly inside)
+	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
+	bool frontback =
+		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
+		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
+		n[2]*(ray->rayOrigin[2]+ray->rayDir[2]*ray->hitDistanceMin)+
+		n[3]>0;
+
+	// test only one half
+	if (distancePlane<ray->hitDistanceMin || distancePlane>distanceMax)
+	{
+		if(frontback)
+		{
+			if(!t->front) return false;
+			t=front;
+		} else {
+			if(!t->back) return false;
+			t=back;
+		}
+		goto begin;
+	}
+
+	// test first half
+	if(frontback)
+	{
+		if(t->front && intersect_bsp(ray,front,distancePlane+DELTA_BSP)) return true;
+	} else {
+		if(t->back && intersect_bsp(ray,back,distancePlane+DELTA_BSP)) return true;
+	}
+
+	// test plane
+	update_hitPoint3d(ray,distancePlane);
+	void* trianglesEnd=t->getTrianglesEnd();
+	while(triangle<trianglesEnd)
+	{
+		importer->getTriangleSRL(*triangle,&t2);
+		if (*triangle!=ray->skipTriangle && intersect_triangle(ray,&t2))
+		{
+#ifdef FILL_HITTRIANGLE
+			ray->hitTriangle = *triangle;
+#endif
+#ifdef FILL_HITDISTANCE
+			ray->hitDistance = distancePlane;
+#endif
+			DBGLINE
+				return true;
+		}
+		triangle++;
+	}
+
+	// test other half
+	if(frontback)
+	{
+		if(!t->back) return false;
+		t=back;
+	} else {
+		if(!t->front) return false;
+		t=front;
+	}
+	ray->hitDistanceMin=distancePlane-DELTA_BSP;
+	goto begin;
+}
+
+IntersectBsp::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique) : IntersectLinear(aimporter, intersectTechnique)
 {
 	tree = NULL;
+	if(!triangles) return;
 	bool retried = false;
 	const char* name = getFileName(aimporter,".bsp");
 	FILE* f = fopen(name,"rb");
@@ -257,6 +342,13 @@ retry:
 	if(t<1118815599 || t>1118814496+77*24*3599) tree = NULL;
 }
 
+unsigned IntersectBsp::getMemorySize() const
+{
+	return IntersectLinear::getMemorySize()
+		+(tree?tree->size:0)
+		+sizeof(IntersectBsp)-sizeof(IntersectLinear);
+}
+
 bool IntersectBsp::intersect(RRRay* ray) const
 {
 	// fallback when bspgen failed (run from readonly disk etc)
@@ -269,20 +361,23 @@ bool IntersectBsp::intersect(RRRay* ray) const
 
 	DBG(printf("\n"));
 	intersectStats.intersects++;
-	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 
 	bool hit = false;
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
-	if(triangleSRLNP)
+	switch(intersectTechnique)
 	{
-		hit = intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
-	} else 
-	if(triangleNP)
-	{
-		hit = intersect_bspNP(ray,tree,ray->hitDistanceMax);
-	} else {
-		assert(0);
+		case IT_BSP_FASTEST:
+			hit = intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
+			break;
+		case IT_BSP_FAST:
+			hit = intersect_bspNP(ray,tree,ray->hitDistanceMax);
+			break;
+		case IT_BSP_COMPACT:
+			hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
+			break;
+		default:
+			assert(0);
 	}
 
 	if(hit) intersectStats.hits++;
