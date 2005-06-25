@@ -263,8 +263,15 @@ begin:
 #ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;
 #endif
+#ifdef FILL_HITPLANE
+			real siz = size(n);
+			ray->hitPlane[0] = n.x/siz;
+			ray->hitPlane[1] = n.y/siz;
+			ray->hitPlane[2] = n.z/siz;
+			ray->hitPlane[3] = n.d/siz;
+#endif
 			DBGLINE
-				return true;
+			return true;
 		}
 		triangle++;
 	}

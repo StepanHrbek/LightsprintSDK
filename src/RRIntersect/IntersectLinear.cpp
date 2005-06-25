@@ -177,6 +177,21 @@ void update_hitPoint3d(RRRay* ray, real distance)
 	ray->hitPoint3d[2] = ray->rayOrigin[2] + ray->rayDir[2]*distance;
 }
 
+void update_hitPlane(RRRay* ray, RRObjectImporter* importer)
+{
+	RRObjectImporter::TriangleSRL t2;
+	importer->getTriangleSRL(ray->hitTriangle,&t2);
+	Vec3 n;
+	n.x = t2.r[1] * t2.l[2] - t2.r[2] * t2.l[1];
+	n.y = t2.r[2] * t2.l[0] - t2.r[0] * t2.l[2];
+	n.z = t2.r[0] * t2.l[1] - t2.r[1] * t2.l[0];
+	real siz = size(n);
+	ray->hitPlane[0] = n.x/siz;
+	ray->hitPlane[1] = n.y/siz;
+	ray->hitPlane[2] = n.z/siz;
+	ray->hitPlane[3] = -(t2.s[0] * ray->hitPlane[0] + t2.s[1] * ray->hitPlane[1] + t2.s[2] * ray->hitPlane[2]);
+}
+
 bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 // input:                t, hitPoint3d, rayDir
 // returns:              true if hitPoint3d is inside t
@@ -396,7 +411,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		update_hitPoint3d(ray,ray->hitDistance);
 #endif
 #ifdef FILL_HITPLANE
-		//!!!ray->hitPlane = ;
+		update_hitPlane(ray,importer);
 #endif
 		intersectStats.hits++;
 	}
