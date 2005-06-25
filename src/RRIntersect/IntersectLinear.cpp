@@ -222,9 +222,12 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	if (u<0 || u+v>1) return false;
 
 #ifdef FILL_HITSIDE
-	bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
-	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
-	ray->hitOuterSide=hitOuterSide;
+	if(ray->flags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
+	{
+		bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
+		if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
+		ray->hitOuterSide=hitOuterSide;
+	}
 #endif
 #ifdef FILL_HITPOINT2D
 	ray->hitPoint2d[0]=u;
@@ -262,9 +265,12 @@ bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporte
 	if (u<0 || u+v>1) return false;
 
 #ifdef FILL_HITSIDE
-	bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
-	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
-	ray->hitOuterSide=hitOuterSide;
+	if(ray->flags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
+	{
+		bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
+		if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
+		ray->hitOuterSide=hitOuterSide;
+	}
 #endif
 #ifdef FILL_HITPOINT2D
 	ray->hitPoint2d[0]=u;
@@ -294,7 +300,7 @@ bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t)
 
 	// cull test
 	bool hitOuterSide = det>0;
-	//if (!sideBits[1/*t->surface->sides*/][hitOuterSide?0:1].catchFrom) return false;
+	if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
 
 	// if determinant is near zero, ray lies in plane of triangle
 	if (det>-EPSILON && det<EPSILON) return false;
@@ -408,10 +414,16 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	if(hit) 
 	{
 #ifdef FILL_HITPOINT3D
-		update_hitPoint3d(ray,ray->hitDistance);
+		if(ray->flags&RRRay::FILL_POINT3D)
+		{
+			update_hitPoint3d(ray,ray->hitDistance);
+		}
 #endif
 #ifdef FILL_HITPLANE
-		update_hitPlane(ray,importer);
+		if(ray->flags&RRRay::FILL_PLANE)
+		{
+			update_hitPlane(ray,importer);
+		}
 #endif
 		intersectStats.hits++;
 	}

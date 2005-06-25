@@ -66,21 +66,27 @@ namespace rrIntersect
 	//
 	// RRRay - ray to intersect with object.
 
-	#define FILL_HITDISTANCE
-	#define FILL_HITPOINT3D
-	#define FILL_HITPOINT2D
-	#define FILL_HITPLANE
-	#define FILL_HITTRIANGLE
-	#define FILL_HITSIDE
-
 	struct RRRay
 	{
+		// inputs
+		enum Flags
+		{ 
+			FILL_DISTANCE   =(1<<0), // what outputs to fill
+			FILL_POINT3D    =(1<<1), // note: some outputs might be filled even when not requested by flag.
+			FILL_POINT2D    =(1<<2),
+			FILL_PLANE      =(1<<3),
+			FILL_TRIANGLE   =(1<<4),
+			FILL_SIDE       =(1<<5),
+			TEST_SINGLESIDED=(1<<6), // detect collision only against outer side. default is to test both sides
+		};
 		RRReal          rayOrigin[3];   // i, ray origin
 		RRReal          rayDir[3];      // i, ray direction, must be normalized
-		unsigned        skipTriangle;   // i, postImportTriangle to be skipped, not tested
 		RRReal          hitDistanceMin; // io, test hit in range <min,max>, undefined after test
 		RRReal          hitDistanceMax; // io, test hit in range <min,max>, undefined after test
-		RRReal          hitDistance;    // o, hit -> hit distance, otherwise undefined
+		unsigned        skipTriangle;   // i, postImportTriangle to be skipped, not tested
+		unsigned        flags;          // i, flags that specify the action
+		// outputs
+		RRReal          hitDistance;    // o, hit -> hit distance, !hit -> undefined
 		RRReal          hitPoint3d[3];  // o, hit -> hit coordinate in object space; !hit -> undefined
 		RRReal          hitPoint2d[2];  // o, hit -> hit coordinate in triangle space
 		RRReal          hitPlane[4];    // o, hit -> plane of hitTriangle, [0..2] is normal

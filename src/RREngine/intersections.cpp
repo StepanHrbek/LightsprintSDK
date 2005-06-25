@@ -38,6 +38,7 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 
 
 	RRRay ray;
+	ray.flags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	ray.rayOrigin[0] = eye.x;
 	ray.rayOrigin[1] = eye.y;
 	ray.rayOrigin[2] = eye.z;

@@ -250,7 +250,6 @@ begin:
 	}
 
 	// test plane
-	update_hitPoint3d(ray,distancePlane);
 	void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
@@ -264,11 +263,20 @@ begin:
 			ray->hitDistance = distancePlane;
 #endif
 #ifdef FILL_HITPLANE
-			real siz = size(n);
-			ray->hitPlane[0] = n.x/siz;
-			ray->hitPlane[1] = n.y/siz;
-			ray->hitPlane[2] = n.z/siz;
-			ray->hitPlane[3] = n.d/siz;
+			if(ray->flags&RRRay::FILL_PLANE)
+			{
+				real siz = size(n);
+				ray->hitPlane[0] = n.x/siz;
+				ray->hitPlane[1] = n.y/siz;
+				ray->hitPlane[2] = n.z/siz;
+				ray->hitPlane[3] = n.d/siz;
+			}
+#endif
+#ifdef FILL_HITPOINT3D
+			if(ray->flags&RRRay::FILL_POINT3D)
+			{
+				update_hitPoint3d(ray,distancePlane);
+			}
 #endif
 			DBGLINE
 			return true;

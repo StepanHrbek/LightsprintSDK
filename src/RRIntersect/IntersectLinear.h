@@ -4,6 +4,13 @@
 #include "geometry.h"
 #include "RRIntersect.h"
 
+#define FILL_HITDISTANCE
+#define FILL_HITPOINT3D
+#define FILL_HITPOINT2D
+#define FILL_HITPLANE
+#define FILL_HITTRIANGLE
+#define FILL_HITSIDE
+
 #define USE_BSP
 //#define USE_KD
 
