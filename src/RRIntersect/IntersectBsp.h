@@ -10,7 +10,10 @@ namespace rrIntersect
 
 	template <class Ofs, unsigned ofsBits, class TriInfo>
 	struct BspTreeLo
-	{	
+	{
+		typedef Ofs _Ofs;
+		enum {_ofsBits=ofsBits};
+		typedef TriInfo _TriInfo;
 		typedef const BspTreeLo<Ofs,ofsBits,TriInfo> This;
 		Ofs               size:ofsBits-2;
 		Ofs               front:1;
@@ -45,8 +48,8 @@ namespace rrIntersect
 		void*             getTrianglesEnd()const {return (char*)this+size;}
 	};
 
-	#define IBP <class BspTree, class Ofs, int ofsBits, class TriInfo>
-	#define IBP2 <BspTree,Ofs,ofsBits,TriInfo>
+	#define IBP <class BspTree>
+	#define IBP2 <BspTree>
 	template IBP
 	class IntersectBsp : public IntersectLinear
 	{

@@ -51,7 +51,7 @@ begin:
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	TriInfo* triangle=(TriInfo*)((char*)back+(t->back?back->size:0));
+	BspTree::_TriInfo* triangle=(BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle[0]].n3;
 	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
@@ -127,7 +127,7 @@ begin:
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	TriInfo* triangle=(TriInfo*)((char*)back+(t->back?back->size:0));
+	BspTree::_TriInfo* triangle=(BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangleNP);
 	Plane& n=triangleNP[triangle[0]].n3;
 	DBGLINE
@@ -207,7 +207,7 @@ begin:
 
 	BspTree* front=t+1;
 	BspTree* back=(BspTree*)((char*)front+(t->front?front->size:0));
-	TriInfo* triangle=(TriInfo*)((char*)back+(t->back?back->size:0));
+	BspTree::_TriInfo* triangle=(BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangle<t->getTrianglesEnd());
 
 	RRObjectImporter::TriangleSRL t2;
@@ -383,6 +383,7 @@ bool IntersectBsp IBP2::intersect(RRRay* ray) const
 			hit = intersect_bspNP(ray,tree,ray->hitDistanceMax);
 			break;
 		case IT_BSP_COMPACT:
+		case IT_BSP_MOST_COMPACT:
 			hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
 			break;
 		default:
@@ -400,10 +401,10 @@ IntersectBsp IBP2::~IntersectBsp()
 }
 
 // explicit instantiation
-template class IntersectBsp<BspTreeLo<unsigned,32,unsigned>,unsigned,32,unsigned>;
-template class IntersectBsp<BspTreeLo<unsigned,32,unsigned short>,unsigned,32,unsigned short>;
-template class IntersectBsp<BspTreeLo<unsigned short,16,unsigned short>,unsigned short,16,unsigned short>;
-template class IntersectBsp<BspTreeLo<unsigned short,16,unsigned char>,unsigned short,16,unsigned char>;
+template class IntersectBsp<BspTreeLo<unsigned,32,unsigned> >;
+template class IntersectBsp<BspTreeLo<unsigned,32,unsigned short> >;
+template class IntersectBsp<BspTreeLo<unsigned short,16,unsigned short> >;
+template class IntersectBsp<BspTreeLo<unsigned short,16,unsigned char> >;
 
 } // namespace
 
