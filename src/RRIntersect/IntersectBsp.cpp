@@ -15,17 +15,20 @@
 namespace rrIntersect
 {
 
+// explicit instantiation
+template class IntersectBsp<BspTreeLo<unsigned,32,unsigned>,unsigned,32,unsigned>;
+
+template IBP
 BspTree* load(FILE *f)
 {
 	if(!f) return NULL;
-	unsigned size;
-	size_t readen = fread(&size,sizeof(size),1,f);
+	BspTree head;
+	size_t readen = fread(&head,sizeof(head),1,f);
 	if(!readen) return NULL;
-	size &= 0x3fffffff;
-	fseek(f,-(int)sizeof(unsigned),SEEK_CUR);
-	BspTree* tree = (BspTree*)malloc(size);
-	readen = fread(tree,1,size,f);
-	if(readen == size) return tree;
+	fseek(f,-(int)sizeof(head),SEEK_CUR);
+	BspTree* tree = (BspTree*)malloc(head.size);
+	readen = fread(tree,1,head.size,f);
+	if(readen == head.size) return tree;
 	free(tree);
 	return NULL;
 }
@@ -34,7 +37,8 @@ BspTree* load(FILE *f)
 // higher number = slower intersection
 // (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
 
-bool IntersectBsp::intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) const
+template IBP
+bool IntersectBsp IBP2::intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) const
 // input:                t, rayOrigin, rayDir, skip, hitDistanceMin, hitDistanceMax
 // returns:              true if ray hits t
 // modifies when hit:    (distanceMin, hitPoint3d) hitPoint2d, hitOuterSide, hitDistance
@@ -116,7 +120,8 @@ begin:
 	goto begin;
 }
 
-bool IntersectBsp::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) const
+template IBP
+bool IntersectBsp IBP2::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) const
 {
 begin:
 	intersectStats.intersect_bspNP++;
@@ -195,17 +200,17 @@ begin:
 	goto begin;
 }
 
-
-bool IntersectBsp::intersect_bsp(RRRay* ray, BspTree *t, real distanceMax) const
+template IBP
+bool IntersectBsp IBP2::intersect_bsp(RRRay* ray, BspTree* t, real distanceMax) const
 {
 begin:
 	intersectStats.intersect_bsp++;
 	assert(ray);
 	assert(t);
 
-	BspTree *front=t+1;
-	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	unsigned* triangle=(unsigned*)((char*)back+(t->back?back->size:0));
+	BspTree* front=t+1;
+	BspTree* back=(BspTree*)((char*)front+(t->front?front->size:0));
+	TriInfo* triangle=(TriInfo*)((char*)back+(t->back?back->size:0));
 
 	RRObjectImporter::TriangleSRL t2;
 	importer->getTriangleSRL(*triangle,&t2);
@@ -279,7 +284,8 @@ begin:
 	goto begin;
 }
 
-IntersectBsp::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique) : IntersectLinear(aimporter, intersectTechnique)
+template IBP
+IntersectBsp IBP2::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique) : IntersectLinear(aimporter, intersectTechnique)
 {
 	tree = NULL;
 	if(!triangles) return;
@@ -329,7 +335,7 @@ retry:
 	if(f)
 	{
 		printf("Loading '%s'.\n",name);
-		tree = load(f);
+		tree = load IBP2(f);
 		fclose(f);
 		if(!tree && !retried)
 		{
@@ -342,14 +348,16 @@ retry:
 	if(t<1118815599 || t>1118814496+77*24*3599) tree = NULL;
 }
 
-unsigned IntersectBsp::getMemorySize() const
+template IBP
+unsigned IntersectBsp IBP2::getMemorySize() const
 {
 	return IntersectLinear::getMemorySize()
 		+(tree?tree->size:0)
 		+sizeof(IntersectBsp)-sizeof(IntersectLinear);
 }
 
-bool IntersectBsp::intersect(RRRay* ray) const
+template IBP
+bool IntersectBsp IBP2::intersect(RRRay* ray) const
 {
 	// fallback when bspgen failed (run from readonly disk etc)
 	if(!tree)
@@ -384,7 +392,8 @@ bool IntersectBsp::intersect(RRRay* ray) const
 	return hit;
 }
 
-IntersectBsp::~IntersectBsp()
+template IBP
+IntersectBsp IBP2::~IntersectBsp()
 {
 	free(tree);
 }

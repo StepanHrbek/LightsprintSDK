@@ -31,16 +31,22 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 
 RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique)
 {
-#ifdef USE_KD
-	return new IntersectKd(importer);
-#else
+	switch(intersectTechnique)
+	{
 #ifdef USE_BSP
-	if(intersectTechnique==IT_LINEAR) return new IntersectLinear(importer,intersectTechnique);
-	else return new IntersectBsp(importer,intersectTechnique);
-#else
-	return new IntersectLinear(importer,intersectTechnique);
+		case IT_BSP_FASTEST:
+		case IT_BSP_FAST:
+		case IT_BSP_COMPACT:
+			return new IntersectBsp<BspTreeLo<unsigned,32,unsigned>,unsigned,32,unsigned>(importer,intersectTechnique);
 #endif
+#ifdef USE_KD
+		case IT_KD:
+			return new IntersectKd(importer);
 #endif
+		case IT_LINEAR: 
+		default:
+			return new IntersectLinear(importer,intersectTechnique);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
