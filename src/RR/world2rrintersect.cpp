@@ -28,6 +28,7 @@ float* WorldObjectImporter::getVertex(unsigned i) const
 unsigned WorldObjectImporter::getNumTriangles() const
 {
 	assert(object);
+	assert(object->face_num);
 	return object->face_num;
 }
 

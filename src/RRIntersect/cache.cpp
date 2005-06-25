@@ -22,17 +22,15 @@ static unsigned getBits(unsigned char* data, unsigned bit, unsigned bits)
 	return tmp;
 }
 
-const char* getFileName(unsigned char* data, unsigned bits)
+void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits)
 {
-	static char name[100];
-	static char letter[33]="0123456789abcdefghijklmnopqrstuv";
-	for(unsigned i=0;i<min((bits+4)/5,99);i++)
-		name[i]=letter[getBits(data, i*5, min(5,bits-i*5))];
-	name[min((bits+4)/5,99)]=0;
-	return name;
+	char* letter="0123456789abcdefghijklmnopqrstuv";
+	for(unsigned i=0;i<min((bits+4)/5,bufsize-1);i++)
+		buf[i]=letter[getBits(hash, i*5, min(5,bits-i*5))];
+	buf[min((bits+4)/5,bufsize-1)]=0;
 }
 
-const char* getFileName(RRObjectImporter* importer)
+void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer)
 {
 	sha1_context ctx;
 	sha1_starts(&ctx);
@@ -55,29 +53,41 @@ const char* getFileName(RRObjectImporter* importer)
 	}
 	unsigned char digest[20];
 	sha1_finish(&ctx, digest);
-	return getFileName(digest,8*sizeof(digest));
+	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
 
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
 
-const char* getFileName(RRObjectImporter* importer, char* extension)
+void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer, char* extension)
 {
-	static char buf[300];
-#ifdef _MSC_VER
-	// microsoft's way to support variables changed by the same program
+	if(!bufsize) return;
 	buf[0]=0;
-	GetEnvironmentVariable("RRCACHE",buf,299);
-	buf[299]=0;
-	size_t len = strlen(buf);
-	_snprintf(buf+len,299-len,"%s%s",getFileName(importer),extension);
-#else
+	// rrcache
 	char* dir=getenv("RRCACHE");
-	_snprintf(buf,299,"%s%s%s",dir?dir:"",getFileName(importer),extension);
-#endif
-	buf[299]=0;
-	return buf;
+	if(dir) 
+	{
+		strncpy(buf,dir,bufsize-1);
+		buf[bufsize-1]=0;
+		unsigned len = (unsigned)strlen(buf); 
+		buf += len; 
+		bufsize -= len;
+	}
+	// hash
+	if(importer)
+	{
+		getFileName(buf,bufsize-1,importer);
+		unsigned len = (unsigned)strlen(buf); 
+		buf += len; 
+		bufsize -= len;
+	}
+	// extension
+	if(extension)
+	{
+		strncpy(buf,extension,bufsize-1);
+		buf[bufsize-1]=0;
+	}
 }
 
 }

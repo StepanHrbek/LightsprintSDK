@@ -34,10 +34,18 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 	switch(intersectTechnique)
 	{
 #ifdef USE_BSP
+		case IT_BSP_MOST_COMPACT:
+			if(importer->getNumTriangles()<=256)
+				return new IntersectBsp<BspTreeLo<unsigned short,16,unsigned char>,unsigned short,16,unsigned char>(importer,intersectTechnique,".b21");
+			if(importer->getNumTriangles()<=2000)
+				return new IntersectBsp<BspTreeLo<unsigned short,16,unsigned short>,unsigned short,16,unsigned short>(importer,intersectTechnique,".b22");
+			if(importer->getNumTriangles()<=65536)
+				return new IntersectBsp<BspTreeLo<unsigned,32,unsigned short>,unsigned,32,unsigned short>(importer,intersectTechnique,".b42");
+			// intentionally no break
 		case IT_BSP_FASTEST:
 		case IT_BSP_FAST:
 		case IT_BSP_COMPACT:
-			return new IntersectBsp<BspTreeLo<unsigned,32,unsigned>,unsigned,32,unsigned>(importer,intersectTechnique);
+			return new IntersectBsp<BspTreeLo<unsigned,32,unsigned>,unsigned,32,unsigned>(importer,intersectTechnique,".bsp");
 #endif
 #ifdef USE_KD
 		case IT_KD:

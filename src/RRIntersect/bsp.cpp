@@ -60,9 +60,8 @@ enum
 #define ALLOC(A) nALLOC(A,1)
 
 #define SQR(A) ((A)*(A))
+#undef ABS
 #define ABS(x) (((x)>0)?(x):(-(x)))
-
-#define WU(A) Unsigned=A; fwrite(&Unsigned,sizeof(unsigned),1,f)
 
 int quality,max_skip,nodes,faces,bestN;
 
@@ -518,34 +517,42 @@ KD_TREE *create_kd(BBOX *bbox, FACE **space)
  return t;
 }
 
-typedef struct { unsigned size:30;
-                 unsigned front:1;
-                 unsigned back:1; } BSP_NODE;
-
-void save_bsp(FILE *f, BSP_TREE *t)
+template IBP
+bool save_bsp(FILE *f, BSP_TREE *t)
 {
- int i,n=0,pos1,pos2; BSP_NODE node; nodes++;
+	unsigned n = 0; 
+	for(unsigned i=0;t->plane[i];i++) n++; 
+	nodes++;
+	faces += n;
 
- for (i=0;t->plane[i];i++) n++; faces+=n;
+	unsigned pos1 = ftell(f);
 
- pos1=ftell(f);
+	BspTree node;
+	node.size=-1;
+	fwrite(&node,sizeof(node),1,f);
 
- unsigned Unsigned;
- WU(0); // empty space
+	if(t->front) if(!save_bsp IBP2(f,t->front)) return false;
+	if(t->back) if(!save_bsp IBP2(f,t->back)) return false;
 
- if (t->front) save_bsp(f,t->front);
- if (t->back) save_bsp(f,t->back);
+	if(!t->front && !t->back) assert(n);
 
- for (i=n;i--;) { WU(t->plane[i]->id); }
+	for(unsigned i=n;i--;)
+	{
+		TriInfo info = t->plane[i]->id;
+		if(info!=t->plane[i]->id) return false;
+		fwrite(&info,sizeof(info),1,f);
+	}
 
- // write back into empty space
- pos2=ftell(f);
- node.size=pos2-pos1;
- node.back=t->back?1:0;
- node.front=t->front?1:0;
- fseek(f,pos1,SEEK_SET);
- fwrite(&node,sizeof(node),1,f);
- fseek(f,pos2,SEEK_SET);
+	// write back into empty space
+	unsigned pos2 = ftell(f);
+	node.size = pos2-pos1;
+	if(node.size!=pos2-pos1) return false;
+	node.back = t->back?1:0;
+	node.front = t->front?1:0;
+	fseek(f,pos1,SEEK_SET);
+	fwrite(&node,sizeof(node),1,f);
+	fseek(f,pos2,SEEK_SET);
+	return true;
 }
 
 typedef struct { unsigned size:30;
@@ -562,6 +569,7 @@ void save_kd(FILE *f, KD_TREE *t)
  pos1=ftell(f);
 
  unsigned Unsigned;
+ #define WU(A) Unsigned=A; fwrite(&Unsigned,sizeof(unsigned),1,f)
  WU(0); // empty space
 
  if (t->axis==3) {
@@ -590,18 +598,17 @@ static FACE **make_list(OBJECT *o)
  l[o->face_num]=NULL; return l;
 }
 
-void createAndSaveBsp(FILE *f, OBJECT *obj)
+BSP_TREE* create_bsp(OBJECT *obj)
 {
- int i,j; BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
+ BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
 
  quality=BESTN;
  bestN=BESTN_N;
  max_skip=1;
 
- assert(f);
  assert(obj->face_num>0); // pozor nastava
 
- for (i=0;i<obj->vertex_num;i++) {
+ for (int i=0;i<obj->vertex_num;i++) {
 
      obj->vertex[i].id=i;
      obj->vertex[i].used=0;
@@ -620,7 +627,7 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
      bbox.lo[2]=MIN(bbox.lo[2],obj->vertex[i].z);
      }
 
- for (i=0;i<obj->face_num;i++) {
+ for (int i=0;i<obj->face_num;i++) {
 
      create_normal(&obj->face[i]);
 
@@ -633,33 +640,50 @@ void createAndSaveBsp(FILE *f, OBJECT *obj)
                                   obj->face[i].vertex[2]->id);*/
      }
 
- for (i=0;i<obj->vertex_num;i++)
+ for (int i=0;i<obj->vertex_num;i++)
      if (!obj->vertex[i].used) printf("unused_vertex: %d\n",i);
 
- BSP_TREE* bsp=create_bsp(make_list(obj));
- nodes=0; faces=0;
- i=ftell(f);
- save_bsp(f,bsp); 
- j=ftell(f);
- if(!obj->face_num) printf("\nBSP: No faces.\n"); else
- printf("\nBSP nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,j-i,(j-i)/obj->face_num);
- free_bsp(bsp);
-/*
- KD_TREE* kd=create_kd(&bbox,make_list(obj));
- nodes=0; faces=0;
- save_kd(f,kd); 
- i=ftell(f);
- if(!obj->face_num) printf("\nKD: No faces.\n"); else
- printf("\nKD nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,i-j,(i-j)/obj->face_num);*/
+ return create_bsp(make_list(obj));
+ //KD_TREE* kd=create_kd(&bbox,make_list(obj));
+}
+
+template IBP
+bool save_bsp(FILE *f, OBJECT *obj, BSP_TREE* bsp)
+{
+	assert(f);
+	nodes=0; faces=0;
+
+	int i=ftell(f);
+	bool ok = save_bsp IBP2(f,bsp); 
+	int j=ftell(f);
+	if(!obj->face_num) printf("\nBSP: No faces.\n"); else
+		printf("\nBSP nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,j-i,(j-i)/obj->face_num);
+	/*
+	save_kd(f,kd); 
+	i=ftell(f);
+	if(!obj->face_num) printf("\nKD: No faces.\n"); else
+	printf("\nKD nodes: %d(%d) size: %d(%d)\n",nodes,faces/obj->face_num,i-j,(i-j)/obj->face_num);*/
+
+	return ok;
 }
 
 }; // BspBuilder
 
-void createAndSaveBsp(FILE *f, OBJECT *obj)
+template IBP
+bool createAndSaveBsp(FILE *f, OBJECT *obj)
 {
 	BspBuilder* builder = new BspBuilder();
-	builder->createAndSaveBsp(f, obj);
+	BspBuilder::BSP_TREE* bsp = builder->create_bsp(obj);
+	bool ok = builder->save_bsp IBP2(f, obj, bsp);
+	builder->free_bsp(bsp);
 	delete builder;
+	return ok;
 }
+
+// explicit instantiation
+template bool createAndSaveBsp<BspTreeLo<unsigned,32,unsigned>,unsigned,32,unsigned>(FILE *f, OBJECT *obj);
+template bool createAndSaveBsp<BspTreeLo<unsigned,32,unsigned short>,unsigned,32,unsigned short>(FILE *f, OBJECT *obj);
+template bool createAndSaveBsp<BspTreeLo<unsigned short,16,unsigned short>,unsigned short,16,unsigned short>(FILE *f, OBJECT *obj);
+template bool createAndSaveBsp<BspTreeLo<unsigned short,16,unsigned char>,unsigned short,16,unsigned char>(FILE *f, OBJECT *obj);
 
 } // namespace

@@ -1,6 +1,8 @@
 #ifndef RRINTERSECT_BSP_H
 #define RRINTERSECT_BSP_H
 
+#include "IntersectBsp.h"
+
 namespace rrIntersect
 {
 	struct VERTEX {
@@ -25,7 +27,8 @@ namespace rrIntersect
 		VERTEX   *vertex;
 		};
 
-	extern void createAndSaveBsp(FILE *f, OBJECT *obj);
+	template IBP
+	extern bool createAndSaveBsp(FILE *f, OBJECT *obj);
 }
 
 #endif

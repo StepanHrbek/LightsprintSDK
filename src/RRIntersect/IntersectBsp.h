@@ -51,7 +51,7 @@ namespace rrIntersect
 	class IntersectBsp : public IntersectLinear
 	{
 	public:
-		IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique);
+		IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique, char* ext);
 		virtual ~IntersectBsp();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual unsigned  getMemorySize() const;

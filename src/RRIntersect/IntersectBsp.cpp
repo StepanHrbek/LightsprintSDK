@@ -15,9 +15,6 @@
 namespace rrIntersect
 {
 
-// explicit instantiation
-template class IntersectBsp<BspTreeLo<unsigned,32,unsigned>,unsigned,32,unsigned>;
-
 template IBP
 BspTree* load(FILE *f)
 {
@@ -54,7 +51,7 @@ begin:
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	unsigned* triangle=(unsigned*)((char*)back+(t->back?back->size:0));
+	TriInfo* triangle=(TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle[0]].n3;
 	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
@@ -130,7 +127,7 @@ begin:
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	unsigned* triangle=(unsigned*)((char*)back+(t->back?back->size:0));
+	TriInfo* triangle=(TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangleNP);
 	Plane& n=triangleNP[triangle[0]].n3;
 	DBGLINE
@@ -211,6 +208,7 @@ begin:
 	BspTree* front=t+1;
 	BspTree* back=(BspTree*)((char*)front+(t->front?front->size:0));
 	TriInfo* triangle=(TriInfo*)((char*)back+(t->back?back->size:0));
+	assert(triangle<t->getTrianglesEnd());
 
 	RRObjectImporter::TriangleSRL t2;
 	importer->getTriangleSRL(*triangle,&t2);
@@ -285,18 +283,20 @@ begin:
 }
 
 template IBP
-IntersectBsp IBP2::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique) : IntersectLinear(aimporter, intersectTechnique)
+IntersectBsp IBP2::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique, char* ext) : IntersectLinear(aimporter, intersectTechnique)
 {
 	tree = NULL;
 	if(!triangles) return;
 	bool retried = false;
-	const char* name = getFileName(aimporter,".bsp");
+	char name[300];
+	getFileName(name,300,aimporter,ext);
 	FILE* f = fopen(name,"rb");
 	if(!f)
 	{
 		printf("'%s' not found.\n",name);
 retry:
 		OBJECT obj;
+		assert(triangles);
 		obj.face_num = triangles;
 		obj.vertex_num = importer->getNumVertices();
 		obj.face = new FACE[obj.face_num];
@@ -314,18 +314,19 @@ retry:
 		unsigned ii=0;
 		for(int i=0;i<obj.face_num;i++)
 		{
-			unsigned v0,v1,v2;
-			importer->getTriangle(i,v0,v1,v2);
-			obj.face[ii].vertex[0] = &obj.vertex[v0];
-			obj.face[ii].vertex[1] = &obj.vertex[v1];
-			obj.face[ii].vertex[2] = &obj.vertex[v2];
+			unsigned v[3];
+			importer->getTriangle(i,v[0],v[1],v[2]);
+			obj.face[ii].vertex[0] = &obj.vertex[v[0]];
+			obj.face[ii].vertex[1] = &obj.vertex[v[1]];
+			obj.face[ii].vertex[2] = &obj.vertex[v[2]];
 			if(isValidTriangle(i)) obj.face[ii++].id=i;
 		}
+		assert(ii);
 		obj.face_num = ii;
 		f = fopen(name,"wb");
 		if(f)
 		{
-			createAndSaveBsp(f,&obj);
+			createAndSaveBsp IBP2(f,&obj);
 			fclose(f);
 		}
 		delete[] obj.vertex;
@@ -397,6 +398,12 @@ IntersectBsp IBP2::~IntersectBsp()
 {
 	free(tree);
 }
+
+// explicit instantiation
+template class IntersectBsp<BspTreeLo<unsigned,32,unsigned>,unsigned,32,unsigned>;
+template class IntersectBsp<BspTreeLo<unsigned,32,unsigned short>,unsigned,32,unsigned short>;
+template class IntersectBsp<BspTreeLo<unsigned short,16,unsigned short>,unsigned short,16,unsigned short>;
+template class IntersectBsp<BspTreeLo<unsigned short,16,unsigned char>,unsigned short,16,unsigned char>;
 
 } // namespace
 

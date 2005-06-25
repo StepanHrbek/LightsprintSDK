@@ -98,11 +98,12 @@ namespace rrIntersect
 	public:
 		enum IntersectTechnique
 		{
-			IT_BSP_FASTEST,    // speed 100%, size 58, precalculated srlnp
-			IT_BSP_FAST,       // speed  80%, size 31, precalculated np, realtime srl
-			IT_BSP_COMPACT,    // speed  50%, size 10, realtime srl
-			//IT_BSP2_COMPACT,   // speed  ?%, size  6, realtime srl
-			IT_LINEAR,         // speed  1%, size  0, realtime srl
+			IT_BSP_FASTEST,     // speed 100%, size 58, precalculated srlnp
+			IT_BSP_FAST,        // speed  80%, size 31, precalculated np, realtime srl
+			IT_BSP_COMPACT,     // speed  50%, size 10, realtime srl
+			IT_BSP_MOST_COMPACT,// speed  40%, size  8, realtime srl
+			//IT_BSP2_COMPACT,    // speed  ?%, size  6, realtime srl
+			IT_LINEAR,          // speed  1%, size  0, realtime srl
 		};
 		static RRIntersect*  newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique);
 		virtual bool         intersect(RRRay* ray) const = 0;

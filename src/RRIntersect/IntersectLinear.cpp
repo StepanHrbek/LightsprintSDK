@@ -357,7 +357,11 @@ unsigned IntersectLinear::getMemorySize() const
 
 bool IntersectLinear::isValidTriangle(unsigned i) const
 {
-	return (triangleSRLNP && triangleSRLNP[i].intersectByte<10) || (triangleNP && triangleNP[i].intersectByte<10);
+	if(triangleSRLNP) return triangleSRLNP[i].intersectByte<10;
+	if(triangleNP) return triangleNP[i].intersectByte<10;
+	unsigned v[3];
+	importer->getTriangle(i,v[0],v[1],v[2]);
+	return v[0]!=v[1] && v[0]!=v[2] && v[1]!=v[2];
 }
 
 // return first intersection with object
