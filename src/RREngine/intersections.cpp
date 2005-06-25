@@ -29,16 +29,12 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 	__shot++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 	assert(fabs(size2(direction)-1)<0.001); // normalized dir expected
-	int ii=1;//!!!
 #ifdef SUPPORT_TRANSFORMS
 	// transform from scenespace to objectspace
 	// translation+rotation allowed, no scaling, so direction stays normalized
-	Vec3 eye_t = eye.transformed(inverseMatrix);
-	direction = (eye+direction).transformed(inverseMatrix)-eye_t;
-	eye = eye_t;
+	eye = eye.transformed(inverseMatrix);
+	direction = normalized(direction.rotated(inverseMatrix));
 #endif
-	direction = normalized(direction); //!!!
-	assert(fabs(size2(direction)-1)<0.005); // normalized dir expected
 
 
 	RRRay ray;

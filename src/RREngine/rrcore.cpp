@@ -32,7 +32,7 @@ namespace rrEngine
 
 #ifdef _MSC_VER
 #define GATE
-//#define GATE_DEE
+#define GATE_DEE
 #endif
 
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES
@@ -1473,82 +1473,6 @@ int CompareNodeQ(const void* elem1, const void* elem2)
 	return (((NodeQ*)elem2)->q < ((NodeQ*)elem1)->q) ? -1 : 1;
 }
 
-unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point) // point must be allocated by caller
-{
-#define ENERGY_SIZE(node) sum(abs(node->shooter->energyToDiffuse+node->shooter->energyDiffused))
-#define ENERGY(node) (node->shooter->energyToDiffuse+node->shooter->energyDiffused)
-	if(!points) return 0;
-	if(!nodes) return 0;
-	assert(point);
-	NodeQ* sortedNode=new NodeQ[nodes];
-	real fperp = 0;
-	for(unsigned i=0;i<nodes;i++)
-	{
-		real energy = ENERGY_SIZE(node[i]);
-		real fertility = energy;
-		fperp+=fertility;
-		sortedNode[i].q = fertility;
-		sortedNode[i].node = node[i];
-	}
-	qsort(sortedNode,nodes,sizeof(NodeQ),CompareNodeQ);
-	//!!!good order?
-	fperp/=points;
-	unsigned generatedPoints = 0;
-	float acum=fperp/2;
-	for(unsigned i=0;i<nodes;i++)
-	{
-		acum += sortedNode[i].q;
-		unsigned generatePoints = 0;
-		while(acum>fperp && generatedPoints+generatePoints<points) 
-		{
-			generatePoints++;
-			acum -= fperp;
-		}
-		for(unsigned j=0;j<generatePoints;j++)
-		{
-			//!!! udelat fce getSourcePoint()/getSourceDir() a sdilet ji s hlavnim kanonyrem
-			unsigned u=rand();
-			unsigned v=rand();
-			if(u+v>RAND_MAX)
-			{
-				u=RAND_MAX-u;
-				v=RAND_MAX-v;
-			}
-			Node* source1 = sortedNode[i].node;
-			if(IS_CLUSTER(source1)) source1 = CLUSTER(source1)->randomTriangle();
-			SubTriangle* source = SUBTRIANGLE(source1);
-			Point2 srcPoint2 = source->uv[0]+source->u2*(u/(real)RAND_MAX)+source->v2*(v/(real)RAND_MAX);
-			Point3 srcPoint3 = source->grandpa->to3d(srcPoint2);
-			Vec3 rayVec3 = sortedNode[i].node->grandpa->getN3();
-#ifdef SUPPORT_TRANSFORMS
-			// transform from objectspace to scenespace
-			Point3 srcPoint3t=srcPoint3.transformed(source->grandpa->object->transformMatrix);
-			rayVec3=(srcPoint3+rayVec3).transformed(source->grandpa->object->transformMatrix)-srcPoint3t;
-			rayVec3=normalized(rayVec3);//!!! neccessary only for transforms with scale
-			srcPoint3=srcPoint3t;
-#endif
-			*(Vec3*)point[generatedPoints].pos = srcPoint3;
-			*(Vec3*)point[generatedPoints].norm = rayVec3;
-			Channels c = ENERGY(sortedNode[i].node)/generatePoints;
-#if CHANNELS==1
-			*(Vec3*)point[generatedPoints].col = Vec3(c,c,c);
-#else
-			*(Vec3*)point[generatedPoints].col = c;
-#endif
-			generatedPoints++;
-		}
-	}
-	delete[] sortedNode;
-	return generatedPoints;
-#undef ENERGY_SIZE
-#undef ENERGY
-}
-
-unsigned Scene::getInstantRadiosityPoints(unsigned n, RRScene::InstantRadiosityPoint* point)
-{
-	return staticReflectors.getInstantRadiosityPoints(n,point);
-}
-
 bool Reflectors::findFactorsTo(Node *n)
 {
 	for(unsigned i=0;i<nodes;i++)
@@ -2210,6 +2134,14 @@ Scene::Scene()
 	improveInaccurate=0.99f;
 }
 
+Scene::~Scene()
+{
+	abortStaticImprovement();
+	for(unsigned o=0;o<objects;o++) delete object[o];
+	free(object);
+	delete[] surface;
+}
+
 void Scene::objInsertStatic(Object *o)
 {
 	if(objects==allocatedObjects)
@@ -2430,7 +2362,7 @@ HomogenousFiller filler;
 //
 // random exiting ray
 
-Triangle* Scene::getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
+Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 {
 	SubTriangle *source;
 	if(IS_CLUSTER(sourceNode))
@@ -2538,8 +2470,7 @@ Triangle* Scene::getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 #ifdef SUPPORT_TRANSFORMS
 	// transform from shooter's objectspace to scenespace
 	*src=srcPoint3.transformed(source->grandpa->object->transformMatrix);
-	*dir=normalized((srcPoint3+rayVec3).transformed(source->grandpa->object->transformMatrix)-*src);
-	//!!! normalized neccessary only for transforms with scale
+	*dir=normalized(rayVec3.rotated(source->grandpa->object->transformMatrix));
 #else
 	*src=srcPoint3;
 	*dir=rayVec3;
@@ -3183,14 +3114,71 @@ bool Scene::finishStaticImprovement()
 	return false;
 }
 
-Scene::~Scene()
+//////////////////////////////////////////////////////////////////////////////
+//
+// instant radiosity
+
+unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point) // point must be allocated by caller
 {
-	abortStaticImprovement();
-	for(unsigned o=0;o<objects;o++) delete object[o];
-	free(object);
-	delete[] surface;
+#define ENERGY_SIZE(node) sum(abs(node->shooter->energyToDiffuse+node->shooter->energyDiffused))
+#define ENERGY(node) (node->shooter->energyToDiffuse+node->shooter->energyDiffused)
+	if(!points) return 0;
+	if(!nodes) return 0;
+	assert(point);
+	NodeQ* sortedNode=new NodeQ[nodes];
+	real fperp = 0;
+	for(unsigned i=0;i<nodes;i++)
+	{
+		real energy = ENERGY_SIZE(node[i]);
+		real fertility = energy;
+		fperp+=fertility;
+		sortedNode[i].q = fertility;
+		sortedNode[i].node = node[i];
+	}
+	qsort(sortedNode,nodes,sizeof(NodeQ),CompareNodeQ);
+	//!!!good order?
+	fperp/=points;
+	unsigned generatedPoints = 0;
+	float acum=fperp/2;
+	for(unsigned i=0;i<nodes;i++)
+	{
+		acum += sortedNode[i].q;
+		unsigned generatePoints = 0;
+		while(acum>fperp && generatedPoints+generatePoints<points) 
+		{
+			generatePoints++;
+			acum -= fperp;
+		}
+		for(unsigned j=0;j<generatePoints;j++)
+		{
+			Triangle* t = getRandomExitRay(sortedNode[i].node,(Vec3*)point[generatedPoints].pos,(Vec3*)point[generatedPoints].norm);
+			if(dot(*(Vec3*)point[generatedPoints].norm,t->getN3())>=0)
+				*(Vec3*)point[generatedPoints].norm = t->getN3();
+			else
+				*(Vec3*)point[generatedPoints].norm = -t->getN3();
+			Channels c = ENERGY(sortedNode[i].node)/generatePoints;
+#if CHANNELS==1
+			*(Vec3*)point[generatedPoints].col = Vec3(c,c,c);
+#else
+			*(Vec3*)point[generatedPoints].col = c;
+#endif
+			generatedPoints++;
+		}
+	}
+	delete[] sortedNode;
+	return generatedPoints;
+#undef ENERGY_SIZE
+#undef ENERGY
 }
 
+unsigned Scene::getInstantRadiosityPoints(unsigned n, RRScene::InstantRadiosityPoint* point)
+{
+	return staticReflectors.getInstantRadiosityPoints(n,point);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// infos
 
 void Scene::infoScene(char *buf)
 {

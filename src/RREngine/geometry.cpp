@@ -73,6 +73,14 @@ Vec3 Vec3::transformed(const Matrix *m)
 	  x*(*m)[0][2] + y*(*m)[1][2] + z*(*m)[2][2] + (*m)[3][2]);
 }
 
+Vec3 Vec3::rotated(const Matrix *m)
+{
+	return Vec3(
+		x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0],
+		x*(*m)[0][1] + y*(*m)[1][1] + z*(*m)[2][1],
+		x*(*m)[0][2] + y*(*m)[1][2] + z*(*m)[2][2]);
+}
+
 Vec3 Vec3::transform(const Matrix *m)
 {
 	real _x=x,_y=y,_z=z;
@@ -80,6 +88,17 @@ Vec3 Vec3::transform(const Matrix *m)
 	x = _x*(*m)[0][0] + _y*(*m)[1][0] + _z*(*m)[2][0] + (*m)[3][0];
 	y = _x*(*m)[0][1] + _y*(*m)[1][1] + _z*(*m)[2][1] + (*m)[3][1];
 	z = _x*(*m)[0][2] + _y*(*m)[1][2] + _z*(*m)[2][2] + (*m)[3][2];
+
+	return *this;
+}
+
+Vec3 Vec3::rotate(const Matrix *m)
+{
+	real _x=x,_y=y,_z=z;
+
+	x = _x*(*m)[0][0] + _y*(*m)[1][0] + _z*(*m)[2][0];
+	y = _x*(*m)[0][1] + _y*(*m)[1][1] + _z*(*m)[2][1];
+	z = _x*(*m)[0][2] + _y*(*m)[1][2] + _z*(*m)[2][2];
 
 	return *this;
 }

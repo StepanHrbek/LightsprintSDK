@@ -118,6 +118,8 @@ struct Vec3
 	bool operator !=(Vec3 a)    const {return a.x!=x || a.y!=y || a.z!=z;}
 	Vec3 transformed(const Matrix *m);
 	Vec3 transform(const Matrix *m);
+	Vec3 rotated(const Matrix *m);
+	Vec3 rotate(const Matrix *m);
 	real operator [](int i)     const {return ((real*)this)[i];}
 };
 
