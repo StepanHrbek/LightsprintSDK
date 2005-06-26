@@ -8,12 +8,13 @@
 namespace rrIntersect
 {
 
-	template <class Ofs, class TriInfo>
-	struct BspTreeLo
+	template <class Ofs, class TriInfo, class Lo>
+	struct BspTree1
 	{
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
-		typedef const BspTreeLo<Ofs,TriInfo> This;
+		typedef Lo _Lo;
+		typedef const BspTree1<Ofs,TriInfo,Lo> This;
 		Ofs               size:sizeof(Ofs)*8-2;
 		Ofs               front:1;
 		Ofs               back:1;
@@ -27,9 +28,12 @@ namespace rrIntersect
 	};
 
 	template <class Ofs, class TriInfo, class Lo>
-	struct BspTreeHi
+	struct BspTree2
 	{	
-		typedef const BspTreeHi<Ofs,TriInfo,Lo> This;
+		typedef Ofs _Ofs;
+		typedef TriInfo _TriInfo;
+		typedef Lo _Lo;
+		typedef const BspTree2<Ofs,TriInfo,Lo> This;
 		Ofs               size:sizeof(Ofs)*8-3;
 		Ofs               transition:1; // last This in tree traversal, sons are Lo
 		Ofs               front:1;
@@ -46,6 +50,24 @@ namespace rrIntersect
 		const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getLoBackAdr()+(back?getLoBackAdr()->size:0));}
 		void*             getTrianglesEnd()const {return (char*)this+size;}
 	};
+	// single-level bsp
+	typedef BspTree1<unsigned short,unsigned char ,void> BspTree21;
+	typedef BspTree1<unsigned short,unsigned short,void> BspTree22;
+	typedef BspTree1<unsigned int  ,unsigned short,void> BspTree42;
+	typedef BspTree1<unsigned int  ,unsigned int  ,void> BspTree44;
+
+	// multi-level bsp
+	typedef BspTree2<unsigned char ,unsigned int  ,void      > CBspTree14;
+	typedef BspTree2<unsigned short,unsigned int  ,CBspTree14> CBspTree24;
+	typedef BspTree2<unsigned int  ,unsigned int  ,CBspTree24> CBspTree44;
+
+	typedef BspTree2<unsigned char ,unsigned short,void      > CBspTree12;
+	typedef BspTree2<unsigned short,unsigned short,CBspTree12> CBspTree22;
+	typedef BspTree2<unsigned int  ,unsigned short,CBspTree22> CBspTree42;
+
+	typedef BspTree2<unsigned char ,unsigned char ,void      > CBspTree11;
+	typedef BspTree2<unsigned short,unsigned char ,CBspTree11> CBspTree21;
+	typedef BspTree2<unsigned int  ,unsigned char ,CBspTree21> CBspTree41;
 
 	#define IBP <class BspTree>
 	#define IBP2 <BspTree>

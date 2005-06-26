@@ -416,10 +416,25 @@ IntersectBsp IBP2::~IntersectBsp()
 }
 
 // explicit instantiation
-template class IntersectBsp<BspTreeLo<unsigned,unsigned> >;
-template class IntersectBsp<BspTreeLo<unsigned,unsigned short> >;
-template class IntersectBsp<BspTreeLo<unsigned short,unsigned short> >;
-template class IntersectBsp<BspTreeLo<unsigned short,unsigned char> >;
+
+// single-level bsp
+template class IntersectBsp<BspTree44>; // for size 0..2^30-1         [65537..2^32 triangles]
+template class IntersectBsp<BspTree42>; // for 257..65536 triangles   [size 0..2^30-1]
+template class IntersectBsp<BspTree22>; // for size 0..16383          [257..65536 triangles]
+template class IntersectBsp<BspTree21>; // for 0..256 triangles       [size 0..16383]
+
+// multi-level bsp
+template class IntersectBsp<CBspTree14>; // for 65537..2^32 triangles
+template class IntersectBsp<CBspTree24>;
+template class IntersectBsp<CBspTree44>;
+
+template class IntersectBsp<CBspTree12>; // for 257..65536 triangles
+template class IntersectBsp<CBspTree22>;
+template class IntersectBsp<CBspTree42>;
+
+template class IntersectBsp<CBspTree11>; // for 0..256 triangles
+template class IntersectBsp<CBspTree21>;
+template class IntersectBsp<CBspTree41>;
 
 } // namespace
 

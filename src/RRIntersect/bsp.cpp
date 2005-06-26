@@ -681,14 +681,28 @@ bool createAndSaveBsp(FILE *f, OBJECT *obj)
 }
 
 // explicit instantiation
-#define INSTANTIATE(a,b) \
-	template bool BspBuilder::save_bsp<BspTreeLo<a,b> >(FILE *f, BSP_TREE *t);\
-	template bool BspBuilder::save_bsp<BspTreeLo<a,b> >(FILE *f, OBJECT *obj, BSP_TREE* bsp);\
-	template bool createAndSaveBsp    <BspTreeLo<a,b> >(FILE *f, OBJECT *obj)
+#define INSTANTIATE(BspTree) \
+	template bool BspBuilder::save_bsp<BspTree>(FILE *f, BSP_TREE *t);\
+	template bool BspBuilder::save_bsp<BspTree>(FILE *f, OBJECT *obj, BSP_TREE* bsp);\
+	template bool createAndSaveBsp    <BspTree>(FILE *f, OBJECT *obj)
 
-INSTANTIATE(unsigned,unsigned);
-INSTANTIATE(unsigned,unsigned short);
-INSTANTIATE(unsigned short,unsigned short);
-INSTANTIATE(unsigned short,unsigned char);
+// single-level bsp
+INSTANTIATE(BspTree21);
+INSTANTIATE(BspTree22);
+INSTANTIATE(BspTree42);
+INSTANTIATE(BspTree44);
+
+// multi-level bsp
+INSTANTIATE(CBspTree14);
+INSTANTIATE(CBspTree24);
+INSTANTIATE(CBspTree44);
+
+INSTANTIATE(CBspTree12);
+INSTANTIATE(CBspTree22);
+INSTANTIATE(CBspTree42);
+
+INSTANTIATE(CBspTree11);
+INSTANTIATE(CBspTree21);
+INSTANTIATE(CBspTree41);
 
 } // namespace
