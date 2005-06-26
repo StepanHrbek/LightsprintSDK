@@ -185,7 +185,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	obj->name=NULL;
 	// bsp tree
 	DBG(printf(" tree...\n"));
-	obj->intersector = rrIntersect::RRIntersect::newIntersect(importer,rrIntersect::RRIntersect::IT_BSP_FASTEST);
+	obj->intersector = rrIntersect::RRIntersect::newIntersect(importer,(rrIntersect::RRIntersect::IntersectTechnique)RRGetState(RRSS_INTERSECT_TECHNIQUE));
 	obj->transformBound();
 	// vlozi objekt do sceny
 #ifdef SUPPORT_DYNAMIC
@@ -327,6 +327,7 @@ void RRResetStates()
 	RRSetStateF(RRSSF_SUBDIVISION_SPEED,1);
 	RRSetState(RRSS_GET_SOURCE,1);
 	RRSetState(RRSS_GET_REFLECTED,1);
+	RRSetState(RRSS_INTERSECT_TECHNIQUE,rrIntersect::RRIntersect::IT_BSP_FASTEST);
 }
 
 unsigned RRGetState(RRSceneState state)

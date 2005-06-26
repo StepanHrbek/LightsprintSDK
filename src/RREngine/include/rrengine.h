@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.06.24
+// version 2005.06.27
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -172,6 +172,7 @@ namespace rrEngine
 		RRSS_GET_SOURCE,         // results from getXxxRadiantExitance contain input emittances
 		RRSS_GET_REFLECTED,      // results from getXxxRadiantExitance contain additional exitances calculated by radiosity
 		RRSS_DEPTH_OVERFLOWS,    // accumulated number of depth overflows in photon tracing, caused by physically incorrect scenes
+		RRSS_INTERSECT_TECHNIQUE,// IT_XXX, 0=most compact, 4=fastest
 		RRSS_LAST
 	};
 

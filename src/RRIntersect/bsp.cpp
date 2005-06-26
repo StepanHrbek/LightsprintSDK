@@ -9,6 +9,21 @@
 namespace rrIntersect
 {
 
+
+// first_nonvoid<T1,T2>.T is (T1!=void)?T1:T2
+template <typename T1,typename T2>
+struct first_nonvoid{
+	typedef T1 T;
+	static const bool value = false;
+};
+
+template <typename T2>
+struct first_nonvoid<void,T2>{
+	typedef T2 T;
+	static const bool value = true;
+}; 
+
+
 class BspBuilder
 {
 public:
@@ -25,6 +40,8 @@ typedef struct _BSP_TREE {
 	struct _BSP_TREE *front;
 	struct _BSP_TREE *back;
 	FACE **plane;
+	unsigned nodes;// nodes in whole tree
+	unsigned faces;// face instances in whole tree
 	} BSP_TREE;
 
 typedef struct _KD_TREE {
@@ -517,6 +534,16 @@ KD_TREE *create_kd(BBOX *bbox, FACE **space)
  return t;
 }
 
+void guess_size_bsp(BSP_TREE *t)
+{
+	unsigned n = 0;
+	for(unsigned i=0;t->plane[i];i++) n++; 
+	if(t->front) guess_size_bsp(t->front);
+	if(t->back) guess_size_bsp(t->back);
+	t->nodes = 1 + (t->front?t->front->nodes:0) + (t->back?t->back->nodes:0);
+	t->faces = n + (t->front?t->front->faces:0) + (t->back?t->back->faces:0);
+}
+
 template IBP
 bool save_bsp(FILE *f, BSP_TREE *t)
 {
@@ -531,24 +558,46 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 	node.size=-1;
 	fwrite(&node,sizeof(node),1,f);
 
-	if(t->front) if(!save_bsp IBP2(f,t->front)) return false;
-	if(t->back) if(!save_bsp IBP2(f,t->back)) return false;
+	bool transition = false;
+	if(BspTree::allows_transition)
+	{
+		#define TREE_SIZE(tree,nodeSize,triSize) (tree ? tree->nodes*nodeSize + tree->faces*triSize : 0)
+		typename first_nonvoid<typename BspTree::_Lo,BspTree>::T smallerBspTree,smallerBspTree2;
+		typename first_nonvoid<typename BspTree::_Lo,BspTree>::T::_TriInfo smallerTriInfo;
+		//unsigned frontSizeMax = TREE_SIZE(t->front,sizeof(BspTree),sizeof(typename BspTree::_TriInfo));
+		unsigned frontSizeMin = TREE_SIZE(t->front,sizeof(smallerBspTree),sizeof(smallerTriInfo));
+		//unsigned backSizeMax = TREE_SIZE(t->back,sizeof(BspTree),sizeof(typename BspTree::_TriInfo));
+		unsigned backSizeMin = TREE_SIZE(t->back,sizeof(smallerBspTree),sizeof(smallerTriInfo));
+		smallerBspTree.size=frontSizeMin;
+		smallerBspTree2.size=backSizeMin;
+		transition = smallerBspTree.size==frontSizeMin && smallerBspTree2.size==backSizeMin;
+	}
+
+	if(transition)
+	{
+		if(t->front) if(!save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(f,t->front)) return false;
+		if(t->back) if(!save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(f,t->back)) return false;
+	} else {
+		if(t->front) if(!save_bsp IBP2(f,t->front)) return false;
+		if(t->back) if(!save_bsp IBP2(f,t->back)) return false;
+	}
 
 	if(!t->front && !t->back) assert(n);
 
 	for(unsigned i=n;i--;)
 	{
 		typename BspTree::_TriInfo info = t->plane[i]->id;
-		if(info!=t->plane[i]->id) return false;
+		if(info!=t->plane[i]->id) {assert(0);return false;}
 		fwrite(&info,sizeof(info),1,f);
 	}
 
 	// write back into empty space
 	unsigned pos2 = ftell(f);
 	node.size = pos2-pos1;
-	if(node.size!=pos2-pos1) return false;
+	if(node.size!=pos2-pos1) {assert(0);return false;}
 	node.back = t->back?1:0;
 	node.front = t->front?1:0;
+	node.setTransition(transition);
 	fseek(f,pos1,SEEK_SET);
 	fwrite(&node,sizeof(node),1,f);
 	fseek(f,pos2,SEEK_SET);
@@ -654,6 +703,7 @@ bool save_bsp(FILE *f, OBJECT *obj, BSP_TREE* bsp)
 	nodes=0; faces=0;
 
 	int i=ftell(f);
+	guess_size_bsp(bsp);
 	bool ok = save_bsp IBP2(f,bsp); 
 	int j=ftell(f);
 	if(!obj->face_num) printf("\nBSP: No faces.\n"); else
@@ -693,15 +743,15 @@ INSTANTIATE(BspTree42);
 INSTANTIATE(BspTree44);
 
 // multi-level bsp
-INSTANTIATE(CBspTree14);
+INSTANTIATE( BspTree14);
 INSTANTIATE(CBspTree24);
 INSTANTIATE(CBspTree44);
 
-INSTANTIATE(CBspTree12);
+INSTANTIATE( BspTree12);
 INSTANTIATE(CBspTree22);
 INSTANTIATE(CBspTree42);
 
-INSTANTIATE(CBspTree11);
+INSTANTIATE( BspTree11);
 INSTANTIATE(CBspTree21);
 INSTANTIATE(CBspTree41);
 

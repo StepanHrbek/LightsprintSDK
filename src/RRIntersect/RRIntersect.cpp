@@ -36,12 +36,12 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 #ifdef USE_BSP
 		// needs explicit instantiation at the end of IntersectBsp.cpp and bsp.cpp
 		case IT_BSP_MOST_COMPACT:
-			/*if(importer->getNumTriangles()<=256)
+			if(importer->getNumTriangles()<=256)
 				return new IntersectBsp<CBspTree21>(importer,intersectTechnique,".c21");
 			if(importer->getNumTriangles()<=65536)
-				return new IntersectBsp<BspTree42>(importer,intersectTechnique,".c42");
+				return new IntersectBsp<CBspTree42>(importer,intersectTechnique,".c42");
 			return new IntersectBsp<CBspTree44>(importer,intersectTechnique,".c44");
-			/*/
+			/*
 			if(importer->getNumTriangles()<=256)
 				return new IntersectBsp<BspTree21>(importer,intersectTechnique,".b21");
 			if(importer->getNumTriangles()<=2000)
@@ -49,7 +49,7 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 			if(importer->getNumTriangles()<=65536)
 				return new IntersectBsp<BspTree42>(importer,intersectTechnique,".b42");
 			// intentionally no break
-
+			//*/
 		case IT_BSP_FASTEST:
 		case IT_BSP_FAST:
 		case IT_BSP_COMPACT:

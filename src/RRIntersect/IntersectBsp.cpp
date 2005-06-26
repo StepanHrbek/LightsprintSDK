@@ -35,7 +35,7 @@ BspTree* load(FILE *f)
 // (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
 
 template IBP
-bool IntersectBsp IBP2::intersect_bspSRLNP(RRRay* ray, BspTree *t, real distanceMax) const
+bool IntersectBsp IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const
 // input:                t, rayOrigin, rayDir, skip, hitDistanceMin, hitDistanceMax
 // returns:              true if ray hits t
 // modifies when hit:    (distanceMin, hitPoint3d) hitPoint2d, hitOuterSide, hitDistance
@@ -49,8 +49,8 @@ begin:
 	assert(ray);
 	assert(t);
 
-	BspTree *front=t+1;
-	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
+	const BspTree *front=t+1;
+	const BspTree *back=(const BspTree *)((char*)front+(t->front?front->size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle[0]].n3;
@@ -118,15 +118,15 @@ begin:
 }
 
 template IBP
-bool IntersectBsp IBP2::intersect_bspNP(RRRay* ray, BspTree *t, real distanceMax) const
+bool IntersectBsp IBP2::intersect_bspNP(RRRay* ray, const BspTree *t, real distanceMax) const
 {
 begin:
 	intersectStats.intersect_bspNP++;
 	assert(ray);
 	assert(t);
 
-	BspTree *front=t+1;
-	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
+	const BspTree *front=t+1;
+	const BspTree *back=(const BspTree *)((char*)front+(t->front?front->size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangleNP);
 	Plane& n=triangleNP[triangle[0]].n3;
@@ -198,15 +198,23 @@ begin:
 }
 
 template IBP
-bool IntersectBsp IBP2::intersect_bsp(RRRay* ray, BspTree* t, real distanceMax) const
+bool IntersectBsp IBP2::intersect_bsp(RRRay* ray, const BspTree* t, real distanceMax) const
 {
 begin:
-	intersectStats.intersect_bsp++;
 	assert(ray);
 	assert(t);
 
-	BspTree* front=t+1;
-	BspTree* back=(BspTree*)((char*)front+(t->front?front->size:0));
+	// transition to sons with different size
+	if(t->transition && t->allows_transition)
+	{
+		#define intersect_bsp_type(type,ray,tree,distanceMax) ((IntersectBsp<typename type>*)this)->intersect_bsp(ray,(typename type*)tree,distanceMax)
+		return intersect_bsp_type(BspTree::Transitioneer,ray,t,distanceMax);
+	}
+
+	intersectStats.intersect_bsp++;
+
+	typename BspTree::Son* front=(typename BspTree::Son*)(t+1);
+	typename BspTree::Son* back=(typename BspTree::Son*)((char*)front+(t->front?front->size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangle<t->getTrianglesEnd());
 
@@ -233,10 +241,12 @@ begin:
 		if(frontback)
 		{
 			if(!t->front) return false;
-			t=front;
+			if(t->transition) return intersect_bsp_type(BspTree::Son,ray,front,distanceMax);
+			t=(BspTree*)front;
 		} else {
 			if(!t->back) return false;
-			t=back;
+			if(t->transition) return intersect_bsp_type(BspTree::Son,ray,back,distanceMax);
+			t=(BspTree*)back;
 		}
 		goto begin;
 	}
@@ -244,9 +254,9 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->front && intersect_bsp(ray,front,distancePlane+DELTA_BSP)) return true;
+		if(t->front && intersect_bsp_type(BspTree::Son,ray,front,distancePlane+DELTA_BSP)) return true;
 	} else {
-		if(t->back && intersect_bsp(ray,back,distancePlane+DELTA_BSP)) return true;
+		if(t->back && intersect_bsp_type(BspTree::Son,ray,back,distancePlane+DELTA_BSP)) return true;
 	}
 
 	// test plane
@@ -288,14 +298,18 @@ begin:
 	if(frontback)
 	{
 		if(!t->back) return false;
-		t=back;
+		ray->hitDistanceMin=distancePlane-DELTA_BSP;
+		if(t->transition) return intersect_bsp_type(BspTree::Son,ray,back,distanceMax);
+		t=(BspTree*)back;
 	} else {
 		if(!t->front) return false;
-		t=front;
+		ray->hitDistanceMin=distancePlane-DELTA_BSP;
+		if(t->transition) return intersect_bsp_type(BspTree::Son,ray,front,distanceMax);
+		t=(BspTree*)front;
 	}
-	ray->hitDistanceMin=distancePlane-DELTA_BSP;
 	goto begin;
 }
+
 
 template IBP
 IntersectBsp IBP2::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique, char* ext) : IntersectLinear(aimporter, intersectTechnique)
@@ -341,8 +355,16 @@ retry:
 		f = fopen(name,"wb");
 		if(f)
 		{
-			createAndSaveBsp IBP2(f,&obj);
+			bool ok = createAndSaveBsp IBP2(f,&obj);
 			fclose(f);
+			if(!ok)
+			{
+				printf("Failed to write tree (%s)...\n",name);
+				//remove(name);
+				f = fopen(name,"wb");
+				fclose(f);
+				retried = true;
+			}
 		}
 		delete[] obj.vertex;
 		delete[] obj.face;
@@ -412,7 +434,7 @@ bool IntersectBsp IBP2::intersect(RRRay* ray) const
 template IBP
 IntersectBsp IBP2::~IntersectBsp()
 {
-	free(tree);
+	free((void*)tree);
 }
 
 // explicit instantiation
@@ -424,17 +446,17 @@ template class IntersectBsp<BspTree22>; // for size 0..16383          [257..6553
 template class IntersectBsp<BspTree21>; // for 0..256 triangles       [size 0..16383]
 
 // multi-level bsp
-template class IntersectBsp<CBspTree14>; // for 65537..2^32 triangles
+template class IntersectBsp< BspTree14>;
 template class IntersectBsp<CBspTree24>;
-template class IntersectBsp<CBspTree44>;
+template class IntersectBsp<CBspTree44>; // for 65537..2^32 triangles
 
-template class IntersectBsp<CBspTree12>; // for 257..65536 triangles
+template class IntersectBsp< BspTree12>;
 template class IntersectBsp<CBspTree22>;
-template class IntersectBsp<CBspTree42>;
+template class IntersectBsp<CBspTree42>; // for 257..65536 triangles
 
-template class IntersectBsp<CBspTree11>; // for 0..256 triangles
+template class IntersectBsp< BspTree11>;
 template class IntersectBsp<CBspTree21>;
-template class IntersectBsp<CBspTree41>;
+template class IntersectBsp<CBspTree41>; // for 0..256 triangles
 
 } // namespace
 

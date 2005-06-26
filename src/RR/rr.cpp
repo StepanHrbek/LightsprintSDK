@@ -776,6 +776,7 @@ void help()
  printf(" -hide:NAME   ...hide all faces from material NAME ()\n");
  printf(" -j           ...fight needles ('j' toggles needles: highlighted, masked)\n");
  printf(" -c           ...don't use clusters\n");
+ printf(" -itN         ...intersect technique, 0=most_compact..4=fastest\n");
  printf("\n ---------------------------------[ display ]----------------------------------\n");
  printf(" -rXRESxYRES  ...set gfx display resolution (800x600)\n");
  printf(" -nogfx       ...no gfx display, stay in console\n");
@@ -854,6 +855,9 @@ int main(int argc, char **argv)
      else
      if (!strncmp(argv[i],"-bright",7))
         {float tmp;if(sscanf(argv[i],"-bright%f",&tmp)==1) d_bright=tmp; else goto badarg;}
+     else
+     if (!strncmp(argv[i],"-it",2))
+        {int tmp;if(sscanf(argv[i],"-it%i",&tmp)==1) RRSetState(RRSS_INTERSECT_TECHNIQUE,tmp); else goto badarg;}
      else
      if (!strncmp(argv[i],"-smooth",7))
         {float tmp;if(sscanf(argv[i],"-smooth%f",&tmp)==1) MAX_INTERPOL_ANGLE=tmp; else goto badarg;}
