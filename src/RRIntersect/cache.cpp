@@ -2,6 +2,7 @@
 #include "sha1.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 namespace rrIntersect
 {
@@ -55,10 +56,6 @@ void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer)
 	sha1_finish(&ctx, digest);
 	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
-
-#ifdef _MSC_VER
-#include <windows.h>
-#endif
 
 void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer, char* extension)
 {

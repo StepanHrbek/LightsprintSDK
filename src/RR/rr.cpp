@@ -470,7 +470,7 @@ bool frameCalculate(Scene *scene)
    if(!p_flyingCamera && !p_flyingObjects && (n_dirtyCamera || n_dirtyObject)) return true; // jednorazova zmena sceny klavesnici nebo mysi -> okamzity redraw
    bool change=false;
    if(!preparing_capture && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames)) {
-     TIME endTime=(GETTIME+c_dynamicFrameTime*PER_SEC);
+     TIME endTime=(TIME)(GETTIME+c_dynamicFrameTime*PER_SEC);
      change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime);
      if(GETTIME>endTime) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
    }

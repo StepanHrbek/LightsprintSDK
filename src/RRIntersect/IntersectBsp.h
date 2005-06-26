@@ -8,30 +8,29 @@
 namespace rrIntersect
 {
 
-	template <class Ofs, unsigned ofsBits, class TriInfo>
+	template <class Ofs, class TriInfo>
 	struct BspTreeLo
 	{
 		typedef Ofs _Ofs;
-		enum {_ofsBits=ofsBits};
 		typedef TriInfo _TriInfo;
-		typedef const BspTreeLo<Ofs,ofsBits,TriInfo> This;
-		Ofs               size:ofsBits-2;
+		typedef const BspTreeLo<Ofs,TriInfo> This;
+		Ofs               size:sizeof(Ofs)*8-2;
 		Ofs               front:1;
 		Ofs               back:1;
-		This*             getNext()        const {return (THIS*)((char *)this+size);}
+		This*             getNext()        const {return (This*)((char *)this+size);}
 		This*             getFrontAdr()    const {return this+1;}
 		This*             getFront()       const {return front?getFrontAdr():0;}
-		This*             getBackAdr()     const {return (THIS*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
+		This*             getBackAdr()     const {return (This*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
 		This*             getBack()        const {return back?getBackAdr():0;}
 		const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
 		void*             getTrianglesEnd()const {return (char*)this+size;}
 	};
 
-	template <class Ofs, int ofsBits, class TriInfo, class Lo>
+	template <class Ofs, class TriInfo, class Lo>
 	struct BspTreeHi
 	{	
-		typedef const BspTreeHi<Ofs,ofsBits,TriInfo,Lo> This;
-		Ofs               size:ofsBits-3;
+		typedef const BspTreeHi<Ofs,TriInfo,Lo> This;
+		Ofs               size:sizeof(Ofs)*8-3;
 		Ofs               transition:1; // last This in tree traversal, sons are Lo
 		Ofs               front:1;
 		Ofs               back:1;

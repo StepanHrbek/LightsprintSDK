@@ -1,11 +1,15 @@
 #include <assert.h>
+#ifndef _MSC_VER
+#include <inttypes.h> // intptr_t
+#endif
 #include <math.h>
 #include <memory.h>
 #include <stdarg.h>
-#include <stdio.h>    //printf na debugink
+#include <stddef.h>   // intptr_t
+#include <stdio.h>    // printf na debugink
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>     //gate
+#include <time.h>     // gate
 //#define SUPPORT_PNG
 #ifdef SUPPORT_LIGHTMAP
  #ifdef SUPPORT_PNG
@@ -1480,7 +1484,7 @@ bool Reflectors::findFactorsTo(Node *n)
 		assert(node[i]->shooter);
 		real pwr=node[i]->shooter->contains(n);
 		if(pwr!=-1)
-			printf("[%x %f]",(unsigned)(U64)node[i],pwr);
+			printf("[%x %f]",(unsigned)(intptr_t)node[i],pwr);
 	}
 	printf(" ");
 	return false;
@@ -2498,11 +2502,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 {
 	DBGLINE
-#if CHANNELS == 1
-	Channels energy=(real)va_arg(ap,double);
-#else
-	Channels energy=va_arg(ap,Channels);
-#endif
+	Channels energy=*va_arg(ap,Channels*);
 	Reflectors *staticReflectors=va_arg(ap,Reflectors *);
 
 	Node *destination=factor->destination;
@@ -2539,8 +2539,7 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 		}
 		destination=destination->parent;
 	}
-	while(destination /*&& !IS_CLUSTER(destination)*/);
-//...proc je to zakomentovany?
+	while(destination /*&& !IS_CLUSTER(destination)*/); //...proc je to zakomentovany?
 	assert(wasLetToDiffuse);
 	// stara verze bez zmeny levelu
 	//factor->destination->energyToDiffuse+=energy*factor->power;
@@ -2901,7 +2900,8 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 
 		// take back energy distributed via old factors
 		shotsForFactorsTotal-=source->shooter->shotsForFactors;
-		source->shooter->forEach(distributeEnergyViaFactor,-source->shooter->energyDiffused,&staticReflectors);
+		Channels ch(-source->shooter->energyDiffused);
+		source->shooter->forEach(distributeEnergyViaFactor,&ch/*-source->shooter->energyDiffused*/,&staticReflectors);
 		source->shooter->energyToDiffuse+=source->shooter->energyDiffused;
 		source->shooter->energyDiffused=Channels(0);
 		source->shooter->shotsForFactors=shotsAccumulated;
@@ -2988,7 +2988,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 		// distribute energy via form factors
 		assert(source->shooter);
 		assert(__staticReflectors->check());
-		source->shooter->forEach(distributeEnergyViaFactor,source->shooter->energyToDiffuse,&staticReflectors);
+		source->shooter->forEach(distributeEnergyViaFactor,&source->shooter->energyToDiffuse,&staticReflectors);
 		assert(__staticReflectors->check());
 		source->shooter->energyDiffused+=source->shooter->energyToDiffuse;
 		source->shooter->energyToDiffuse=Channels(0);
@@ -3017,7 +3017,7 @@ bool Scene::distribute(real maxError)
 //if(source) printf(" %f<%f\n",fabs(source->shooter->energyToDiffuse),fabs(maxError*energyEmitedByStatics));
 		if(!source || ( sum(abs(source->shooter->energyToDiffuse))<sum(abs(energyEmitedByStatics*maxError)) && !rezerva--)) break;
 		assert(source->shooter);
-		source->shooter->forEach(distributeEnergyViaFactor,source->shooter->energyToDiffuse,&staticReflectors);
+		source->shooter->forEach(distributeEnergyViaFactor,&source->shooter->energyToDiffuse,&staticReflectors);
 		source->shooter->energyDiffused+=source->shooter->energyToDiffuse;
 		source->shooter->energyToDiffuse=Channels(0);
 		steps++;

@@ -538,7 +538,7 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 
 	for(unsigned i=n;i--;)
 	{
-		BspTree::_TriInfo info = t->plane[i]->id;
+		typename BspTree::_TriInfo info = t->plane[i]->id;
 		if(info!=t->plane[i]->id) return false;
 		fwrite(&info,sizeof(info),1,f);
 	}
@@ -681,9 +681,14 @@ bool createAndSaveBsp(FILE *f, OBJECT *obj)
 }
 
 // explicit instantiation
-template bool createAndSaveBsp<BspTreeLo<unsigned,32,unsigned> >(FILE *f, OBJECT *obj);
-template bool createAndSaveBsp<BspTreeLo<unsigned,32,unsigned short> >(FILE *f, OBJECT *obj);
-template bool createAndSaveBsp<BspTreeLo<unsigned short,16,unsigned short> >(FILE *f, OBJECT *obj);
-template bool createAndSaveBsp<BspTreeLo<unsigned short,16,unsigned char> >(FILE *f, OBJECT *obj);
+#define INSTANTIATE(a,b) \
+	template bool BspBuilder::save_bsp<BspTreeLo<a,b> >(FILE *f, BSP_TREE *t);\
+	template bool BspBuilder::save_bsp<BspTreeLo<a,b> >(FILE *f, OBJECT *obj, BSP_TREE* bsp);\
+	template bool createAndSaveBsp    <BspTreeLo<a,b> >(FILE *f, OBJECT *obj)
+
+INSTANTIATE(unsigned,unsigned);
+INSTANTIATE(unsigned,unsigned short);
+INSTANTIATE(unsigned short,unsigned short);
+INSTANTIATE(unsigned short,unsigned char);
 
 } // namespace

@@ -1,3 +1,3 @@
 @ren rrengine.cpp rrengine.cp
 @ren rrengine.cp RREngine.cpp
-@-min make
+@-min make %1 %2 %3

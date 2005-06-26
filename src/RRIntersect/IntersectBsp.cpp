@@ -51,7 +51,7 @@ begin:
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	BspTree::_TriInfo* triangle=(BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
+	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle[0]].n3;
 	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
@@ -127,7 +127,7 @@ begin:
 
 	BspTree *front=t+1;
 	BspTree *back=(BspTree *)((char*)front+(t->front?front->size:0));
-	BspTree::_TriInfo* triangle=(BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
+	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangleNP);
 	Plane& n=triangleNP[triangle[0]].n3;
 	DBGLINE
@@ -207,7 +207,7 @@ begin:
 
 	BspTree* front=t+1;
 	BspTree* back=(BspTree*)((char*)front+(t->front?front->size:0));
-	BspTree::_TriInfo* triangle=(BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
+	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
 	assert(triangle<t->getTrianglesEnd());
 
 	RRObjectImporter::TriangleSRL t2;
@@ -416,10 +416,10 @@ IntersectBsp IBP2::~IntersectBsp()
 }
 
 // explicit instantiation
-template class IntersectBsp<BspTreeLo<unsigned,32,unsigned> >;
-template class IntersectBsp<BspTreeLo<unsigned,32,unsigned short> >;
-template class IntersectBsp<BspTreeLo<unsigned short,16,unsigned short> >;
-template class IntersectBsp<BspTreeLo<unsigned short,16,unsigned char> >;
+template class IntersectBsp<BspTreeLo<unsigned,unsigned> >;
+template class IntersectBsp<BspTreeLo<unsigned,unsigned short> >;
+template class IntersectBsp<BspTreeLo<unsigned short,unsigned short> >;
+template class IntersectBsp<BspTreeLo<unsigned short,unsigned char> >;
 
 } // namespace
 
