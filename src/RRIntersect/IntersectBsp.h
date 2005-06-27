@@ -107,11 +107,11 @@ namespace rrIntersect
 	class IntersectBsp : public IntersectLinear
 	{
 	public:
-		IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique, char* ext);
+		IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique, char* ext, int effort);
 		virtual ~IntersectBsp();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual unsigned  getMemorySize() const;
-		bool              intersect_bsp(RRRay* ray, const BspTree *t, real distanceMax) const;//!!!
+		bool              intersect_bsp(RRRay* ray, const BspTree *t, real distanceMax) const;//!!!protected
 	protected:
 		BspTree*          tree;
 		bool              intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const;

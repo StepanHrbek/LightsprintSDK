@@ -29,7 +29,7 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 	t->l[2]=v[2][2]-v[0][2];
 }
 
-RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique)
+RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, int effort)
 {
 	switch(intersectTechnique)
 	{
@@ -37,10 +37,10 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 		// needs explicit instantiation at the end of IntersectBsp.cpp and bsp.cpp
 		case IT_BSP_MOST_COMPACT:
 			if(importer->getNumTriangles()<=256)
-				return new IntersectBsp<CBspTree21>(importer,intersectTechnique,".c21");
+				return new IntersectBsp<CBspTree21>(importer,intersectTechnique,".c21",effort);
 			if(importer->getNumTriangles()<=65536)
-				return new IntersectBsp<CBspTree42>(importer,intersectTechnique,".c42");
-			return new IntersectBsp<CBspTree44>(importer,intersectTechnique,".c44");
+				return new IntersectBsp<CBspTree42>(importer,intersectTechnique,".c42",effort);
+			return new IntersectBsp<CBspTree44>(importer,intersectTechnique,".c44",effort);
 			/*
 			if(importer->getNumTriangles()<=256)
 				return new IntersectBsp<BspTree21>(importer,intersectTechnique,".b21");
@@ -53,7 +53,7 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 		case IT_BSP_FASTEST:
 		case IT_BSP_FAST:
 		case IT_BSP_COMPACT:
-			return new IntersectBsp<BspTree44>(importer,intersectTechnique,".bsp");
+			return new IntersectBsp<BspTree44>(importer,intersectTechnique,".bsp",effort);
 #endif
 #ifdef USE_KD
 		case IT_KD:

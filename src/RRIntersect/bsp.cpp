@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "bsp.h"
 
-#define BESTN_N 100
+//#define BESTN_N 100
 
 namespace rrIntersect
 {
@@ -652,7 +652,7 @@ BSP_TREE* create_bsp(OBJECT *obj)
  BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
 
  quality=BESTN;
- bestN=BESTN_N;
+ //bestN=BESTN_N;
  max_skip=1;
 
  assert(obj->face_num>0); // pozor nastava
@@ -720,9 +720,10 @@ bool save_bsp(FILE *f, OBJECT *obj, BSP_TREE* bsp)
 }; // BspBuilder
 
 template IBP
-bool createAndSaveBsp(FILE *f, OBJECT *obj)
+bool createAndSaveBsp(FILE *f, OBJECT *obj, int effort)
 {
 	BspBuilder* builder = new BspBuilder();
+	builder->bestN = effort;
 	BspBuilder::BSP_TREE* bsp = builder->create_bsp(obj);
 	bool ok = builder->save_bsp IBP2(f, obj, bsp);
 	builder->free_bsp(bsp);
@@ -734,7 +735,7 @@ bool createAndSaveBsp(FILE *f, OBJECT *obj)
 #define INSTANTIATE(BspTree) \
 	template bool BspBuilder::save_bsp<BspTree>(FILE *f, BSP_TREE *t);\
 	template bool BspBuilder::save_bsp<BspTree>(FILE *f, OBJECT *obj, BSP_TREE* bsp);\
-	template bool createAndSaveBsp    <BspTree>(FILE *f, OBJECT *obj)
+	template bool createAndSaveBsp    <BspTree>(FILE *f, OBJECT *obj, int effort)
 
 // single-level bsp
 INSTANTIATE(BspTree21);

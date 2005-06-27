@@ -312,14 +312,14 @@ begin:
 
 
 template IBP
-IntersectBsp IBP2::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique, char* ext) : IntersectLinear(aimporter, intersectTechnique)
+IntersectBsp IBP2::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique, char* ext, int effort) : IntersectLinear(aimporter, intersectTechnique)
 {
 	tree = NULL;
 	if(!triangles) return;
 	bool retried = false;
 	char name[300];
 	getFileName(name,300,aimporter,ext);
-	FILE* f = fopen(name,"rb");
+	FILE* f = (effort<=0) ? NULL : fopen(name,"rb");
 	if(!f)
 	{
 		printf("'%s' not found.\n",name);
@@ -355,7 +355,7 @@ retry:
 		f = fopen(name,"wb");
 		if(f)
 		{
-			bool ok = createAndSaveBsp IBP2(f,&obj);
+			bool ok = createAndSaveBsp IBP2(f,&obj,abs(effort));
 			fclose(f);
 			if(!ok)
 			{

@@ -28,7 +28,7 @@ namespace rrIntersect
 		};
 
 	template IBP
-	extern bool createAndSaveBsp(FILE *f, OBJECT *obj);
+	extern bool createAndSaveBsp(FILE *f, OBJECT *obj, int effort);
 }
 
 #endif

@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.06.27
+// version 2005.06.28
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -110,7 +110,8 @@ namespace rrIntersect
 			IT_BSP_FAST,        // speed  80%, size 31, precalculated np, realtime srl+idx
 			IT_BSP_FASTEST,     // speed 100%, size 58, precalculated srlnp, realtime idx
 		};
-		static RRIntersect*  newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique);
+		static RRIntersect*  newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, int effort=100);
+
 		virtual bool         intersect(RRRay* ray) const = 0;
 		virtual unsigned     getMemorySize() const = 0;
 		virtual ~RRIntersect() {};
