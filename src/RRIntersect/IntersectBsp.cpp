@@ -420,7 +420,6 @@ bool IntersectBsp IBP2::intersect(RRRay* ray) const
 			hit = intersect_bspNP(ray,tree,ray->hitDistanceMax);
 			break;
 		case IT_BSP_COMPACT:
-		case IT_BSP_MOST_COMPACT:
 			hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
 			break;
 		default:

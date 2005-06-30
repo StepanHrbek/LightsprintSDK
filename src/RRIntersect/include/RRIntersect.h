@@ -104,11 +104,10 @@ namespace rrIntersect
 	public:
 		enum IntersectTechnique
 		{
-			IT_LINEAR,          // speed  1%, size  0, realtime srl+idx
-			IT_BSP_MOST_COMPACT,// speed  40%, size  5, realtime srl+idx
-			IT_BSP_COMPACT,     // speed  50%, size 10, realtime srl+idx
-			IT_BSP_FAST,        // speed  80%, size 31, precalculated np, realtime srl+idx
-			IT_BSP_FASTEST,     // speed 100%, size 58, precalculated srlnp, realtime idx
+			IT_LINEAR,          // speed   1%, size  0
+			IT_BSP_COMPACT,     // speed 100%, size  5 bytes per triangle
+			IT_BSP_FAST,        // speed 200%, size 31
+			IT_BSP_FASTEST,     // speed 250%, size 58
 		};
 		static RRIntersect*  newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, int effort=100);
 
@@ -176,6 +175,7 @@ namespace rrIntersect
 		virtual RRReal* getVertex(unsigned v) const
 		{
 			assert(v<Vertices);
+			assert(VBuffer);
 			return (RRReal*)(VBuffer+v*Stride);
 		}
 		virtual unsigned getNumTriangles() const
@@ -192,6 +192,7 @@ namespace rrIntersect
 		virtual void getTriangleSRL(unsigned t, TriangleSRL* tr) const
 		{
 			assert(t<Vertices-2);
+			assert(VBuffer);
 			unsigned v0,v1,v2;
 			v0 = t+0;
 			v1 = t+1;
@@ -238,6 +239,7 @@ namespace rrIntersect
 		virtual void getTriangleSRL(unsigned t, TriangleSRL* tr) const
 		{
 			assert(t*3<Vertices);
+			assert(VBuffer);
 			unsigned v0,v1,v2;
 			v0 = t*3+0;
 			v1 = t*3+1;
@@ -265,6 +267,8 @@ namespace rrIntersect
 		RRIndexedTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
 			: RRTriStripImporter(vbuffer,vertices,stride), IBuffer(ibuffer), Indices(indices)
 		{
+			INDEX tmp = vertices;
+			assert(tmp==vertices);
 		}
 
 		virtual unsigned getNumTriangles() const
@@ -274,6 +278,7 @@ namespace rrIntersect
 		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
 		{
 			assert(t<Indices-2);
+			assert(IBuffer);
 			v0 = IBuffer[t];         assert(v0<Vertices);
 			v1 = IBuffer[t+1+(t%2)]; assert(v1<Vertices);
 			v2 = IBuffer[t+2-(t%2)]; assert(v2<Vertices);
@@ -281,6 +286,8 @@ namespace rrIntersect
 		virtual void getTriangleSRL(unsigned t, TriangleSRL* tr) const
 		{
 			assert(t<Indices-2);
+			assert(VBuffer);
+			assert(IBuffer);
 			unsigned v0,v1,v2;
 			v0 = IBuffer[t];         assert(v0<Vertices);
 			v1 = IBuffer[t+1+(t%2)]; assert(v1<Vertices);
@@ -313,6 +320,8 @@ namespace rrIntersect
 		RRIndexedTriListImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
 			: RRIndexedTriStripImporter<INDEX>(vbuffer,vertices,stride,ibuffer,indices)
 		{
+			INDEX tmp = vertices;
+			assert(tmp==vertices);
 		}
 		virtual unsigned getNumTriangles() const
 		{
@@ -321,6 +330,7 @@ namespace rrIntersect
 		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
 		{
 			assert(t*3<Indices);
+			assert(IBuffer);
 			v0 = INHERITED::IBuffer[t*3+0]; assert(v0<INHERITED::Vertices);
 			v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
 			v2 = INHERITED::IBuffer[t*3+2]; assert(v2<INHERITED::Vertices);
@@ -328,6 +338,8 @@ namespace rrIntersect
 		virtual void getTriangleSRL(unsigned t, RRObjectImporter::TriangleSRL* tr) const
 		{
 			assert(t*3<Indices);
+			assert(VBuffer);
+			assert(IBuffer);
 			unsigned v0,v1,v2;
 			v0 = INHERITED::IBuffer[t*3+0]; assert(v0<INHERITED::Vertices);
 			v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
@@ -362,6 +374,8 @@ namespace rrIntersect
 		RRLessVerticesImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
 			: INHERITED(vbuffer,vertices,stride,ibuffer,indices)
 		{
+			INDEX tmp = vertices;
+			assert(tmp==vertices);
 			Dupl2Unique = new INDEX[vertices];
 			Unique2Dupl = new INDEX[vertices];
 			UniqueVertices = 0;
@@ -396,6 +410,7 @@ namespace rrIntersect
 		{
 			assert(v<UniqueVertices);
 			assert(Unique2Dupl[v]<INHERITED::Vertices);
+			assert(VBuffer);
 			return (RRReal*)(INHERITED::VBuffer+Unique2Dupl[v]*INHERITED::Stride);
 		}
 		virtual unsigned getPreImportVertex(unsigned postImportVertex) const
@@ -465,9 +480,19 @@ namespace rrIntersect
 		{
 			return ValidIndex[postImportTraingle];
 		}
-		//virtual unsigned getPostImportTraingle(unsigned preImportTraingle) const 
-		//{
-		//}
+		virtual unsigned getPostImportTraingle(unsigned preImportTriangle) const 
+		{
+			// efficient implementation would require another translation array
+			for(unsigned post=0;post<ValidIndices-2;post++)
+				if(ValidIndex[post]==preImportTriangle)
+					return post;
+			return UINT_MAX;
+		}
+		virtual void getTriangleSRL(unsigned t, RRObjectImporter::TriangleSRL* tr) const
+		{
+			assert(t<ValidIndices);
+			INHERITED::getTriangleSRL(ValidIndex[t],tr);
+		}
 
 	protected:
 		INDEX*               ValidIndex;

@@ -350,10 +350,8 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter, IntersectTechnique
 			triangleNP = new TriangleNP[triangles];
 			break;
 		case IT_BSP_COMPACT:
-		case IT_BSP_MOST_COMPACT:
 		case IT_LINEAR:
 			break;
-		//case IT_BSP2_COMPACT:
 		default:
 			assert(0);
 	}
