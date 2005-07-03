@@ -23,9 +23,9 @@ BspTree* load(FILE *f)
 	size_t readen = fread(&head,sizeof(head),1,f);
 	if(!readen) return NULL;
 	fseek(f,-(int)sizeof(head),SEEK_CUR);
-	BspTree* tree = (BspTree*)malloc(head.size);
-	readen = fread(tree,1,head.size,f);
-	if(readen == head.size) return tree;
+	BspTree* tree = (BspTree*)malloc(head.bsp.size);
+	readen = fread(tree,1,head.bsp.size,f);
+	if(readen == head.bsp.size) return tree;
 	free(tree);
 	return NULL;
 }
@@ -49,9 +49,56 @@ begin:
 	assert(ray);
 	assert(t);
 
+	// KD
+	if(t->bsp.kd)
+	{
+		intersectStats.intersect_kd++;
+		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
+
+		// test leaf
+		if(t->kd.isLeaf()) 
+		{
+			assert(0);
+		}
+
+		// test subtrees
+		real splitValue = t->kd.getSplitValue();
+		real pointMinVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*ray->hitDistanceMin;
+		real pointMaxVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*distanceMax;
+		if(pointMinVal>splitValue) 
+		{
+			// front only
+			if(pointMaxVal>=splitValue) 
+			{
+				t = (BspTree*)t->kd.getFront();
+				goto begin;
+			}
+			// front and back
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			if(intersect_bspSRLNP(ray,(BspTree*)t->kd.getFront(),distSplit)) return true;
+			ray->hitDistanceMin = distSplit;
+			t = (BspTree*)t->kd.getBack();
+			goto begin;
+		} else {
+			// back only
+			// btw if point1[axis]==point2[axis]==splitVertex[axis], testing only back may be sufficient
+			if(pointMaxVal<=splitValue) // catches also i_direction[t->axis]==0 case
+			{
+				t = (BspTree*)t->kd.getBack();
+				goto begin;
+			}
+			// back and front
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			if(intersect_bspSRLNP(ray,(BspTree*)t->kd.getBack(),distSplit)) return true;
+			ray->hitDistanceMin = distSplit;
+			t = (BspTree*)t->kd.getFront();
+			goto begin;
+		}
+	}
+
 	const BspTree *front=t+1;
-	const BspTree *back=(const BspTree *)((char*)front+(t->front?front->size:0));
-	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
+	const BspTree *back=(const BspTree *)((char*)front+(t->bsp.front?front->bsp.size:0));
+	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle[0]].n3;
 	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
@@ -68,10 +115,10 @@ begin:
 	{
 		if(frontback)
 		{
-			if(!t->front) return false;
+			if(!t->bsp.front) return false;
 			t=front;
 		} else {
-			if(!t->back) return false;
+			if(!t->bsp.back) return false;
 			t=back;
 		}
 		goto begin;
@@ -80,14 +127,14 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->front && intersect_bspSRLNP(ray,front,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.front && intersect_bspSRLNP(ray,front,distancePlane+DELTA_BSP)) return true;
 	} else {
-		if(t->back && intersect_bspSRLNP(ray,back,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.back && intersect_bspSRLNP(ray,back,distancePlane+DELTA_BSP)) return true;
 	}
 
 	// test plane
 	update_hitPoint3d(ray,distancePlane);
-	const void* trianglesEnd=t->getTrianglesEnd();
+	const void* trianglesEnd=t->bsp.getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
 		if (*triangle!=ray->skipTriangle && intersect_triangleSRLNP(ray,triangleSRLNP+*triangle))
@@ -107,10 +154,10 @@ begin:
 	// test other half
 	if(frontback)
 	{
-		if(!t->back) return false;
+		if(!t->bsp.back) return false;
 		t=back;
 	} else {
-		if(!t->front) return false;
+		if(!t->bsp.front) return false;
 		t=front;
 	}
 	ray->hitDistanceMin = distancePlane-DELTA_BSP;
@@ -125,9 +172,56 @@ begin:
 	assert(ray);
 	assert(t);
 
+	// KD
+	if(t->bsp.kd)
+	{
+		intersectStats.intersect_kd++;
+		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
+
+		// test leaf
+		if(t->kd.isLeaf()) 
+		{
+			assert(0);
+		}
+
+		// test subtrees
+		real splitValue = t->kd.getSplitValue();
+		real pointMinVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*ray->hitDistanceMin;
+		real pointMaxVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*distanceMax;
+		if(pointMinVal>splitValue) 
+		{
+			// front only
+			if(pointMaxVal>=splitValue) 
+			{
+				t = (BspTree*)t->kd.getFront();
+				goto begin;
+			}
+			// front and back
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			if(intersect_bspSRLNP(ray,(BspTree*)t->kd.getFront(),distSplit)) return true;
+			ray->hitDistanceMin = distSplit;
+			t = (BspTree*)t->kd.getBack();
+			goto begin;
+		} else {
+			// back only
+			// btw if point1[axis]==point2[axis]==splitVertex[axis], testing only back may be sufficient
+			if(pointMaxVal<=splitValue) // catches also i_direction[t->axis]==0 case
+			{
+				t = (BspTree*)t->kd.getBack();
+				goto begin;
+			}
+			// back and front
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			if(intersect_bspSRLNP(ray,(BspTree*)t->kd.getBack(),distSplit)) return true;
+			ray->hitDistanceMin = distSplit;
+			t = (BspTree*)t->kd.getFront();
+			goto begin;
+		}
+	}
+
 	const BspTree *front=t+1;
-	const BspTree *back=(const BspTree *)((char*)front+(t->front?front->size:0));
-	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
+	const BspTree *back=(const BspTree *)((char*)front+(t->bsp.front?front->bsp.size:0));
+	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangleNP);
 	Plane& n=triangleNP[triangle[0]].n3;
 	DBGLINE
@@ -146,10 +240,10 @@ begin:
 	{
 		if(frontback)
 		{
-			if(!t->front) return false;
+			if(!t->bsp.front) return false;
 			t=front;
 		} else {
-			if(!t->back) return false;
+			if(!t->bsp.back) return false;
 			t=back;
 		}
 		goto begin;
@@ -158,14 +252,14 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->front && intersect_bspNP(ray,front,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.front && intersect_bspNP(ray,front,distancePlane+DELTA_BSP)) return true;
 	} else {
-		if(t->back && intersect_bspNP(ray,back,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.back && intersect_bspNP(ray,back,distancePlane+DELTA_BSP)) return true;
 	}
 
 	// test plane
 	update_hitPoint3d(ray,distancePlane);
-	void* trianglesEnd=t->getTrianglesEnd();
+	void* trianglesEnd=t->bsp.getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
 		RRObjectImporter::TriangleSRL t2;
@@ -187,10 +281,10 @@ begin:
 	// test other half
 	if(frontback)
 	{
-		if(!t->back) return false;
+		if(!t->bsp.back) return false;
 		t=back;
 	} else {
-		if(!t->front) return false;
+		if(!t->bsp.front) return false;
 		t=front;
 	}
 	ray->hitDistanceMin=distancePlane-DELTA_BSP;
@@ -205,18 +299,71 @@ begin:
 	assert(t);
 
 	// transition to sons with different size
-	if(t->transition && t->allows_transition)
+	if(t->allows_transition && t->bsp.transition)
 	{
-		#define intersect_bsp_type(type,ray,tree,distanceMax) ((IntersectBsp<typename type>*)this)->intersect_bsp(ray,(typename type*)tree,distanceMax)
+		#define intersect_bsp_type_func(type,func,ray,tree,distanceMax) ((IntersectBsp<typename type>*)this)->func(ray,(typename type*)tree,distanceMax)
+		#define intersect_bsp_type(type,ray,tree,distanceMax) intersect_bsp_type_func(type,intersect_bsp,ray,tree,distanceMax)
 		return intersect_bsp_type(BspTree::Transitioneer,ray,t,distanceMax);
 	}
+	
+	// KD
+	if(t->bsp.kd)
+	{
+		intersectStats.intersect_kd++;
+		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
+		// test leaf
+		if(t->kd.isLeaf()) 
+		{
+			assert(0);
+		}
+
+		// test subtrees
+		real splitValue = t->kd.getSplitValue();
+		real pointMinVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*ray->hitDistanceMin;
+		real pointMaxVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*distanceMax;
+		if(pointMinVal>splitValue) 
+		{
+			// front only
+			if(pointMaxVal>=splitValue) 
+			{
+				if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getFront(),distanceMax);
+				t = (BspTree*)t->kd.getFront();
+				goto begin;
+			}
+			// front and back
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			if(intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getFront(),distSplit)) return true;
+			ray->hitDistanceMin = distSplit;
+			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getBack(),distanceMax);
+			t = (BspTree*)t->kd.getBack();
+			goto begin;
+		} else {
+			// back only
+			// btw if point1[axis]==point2[axis]==splitVertex[axis], testing only back may be sufficient
+			if(pointMaxVal<=splitValue) // catches also i_direction[t->axis]==0 case
+			{
+				if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getBack(),distanceMax);
+				t = (BspTree*)t->kd.getBack();
+				goto begin;
+			}
+			// back and front
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			if(intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getBack(),distSplit)) return true;
+			ray->hitDistanceMin = distSplit;
+			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getFront(),distanceMax);
+			t = (BspTree*)t->kd.getFront();
+			goto begin;
+		}
+	}
+
+	// BSP
 	intersectStats.intersect_bsp++;
 
 	typename BspTree::Son* front=(typename BspTree::Son*)(t+1);
-	typename BspTree::Son* back=(typename BspTree::Son*)((char*)front+(t->front?front->size:0));
-	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->back?back->size:0));
-	assert(triangle<t->getTrianglesEnd());
+	typename BspTree::Son* back=(typename BspTree::Son*)((char*)front+(t->bsp.front?front->bsp.size:0));
+	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
+	assert(triangle<t->bsp.getTrianglesEnd());
 
 	RRObjectImporter::TriangleSRL t2;
 	importer->getTriangleSRL(*triangle,&t2);
@@ -240,12 +387,12 @@ begin:
 	{
 		if(frontback)
 		{
-			if(!t->front) return false;
-			if(t->transition) return intersect_bsp_type(BspTree::Son,ray,front,distanceMax);
+			if(!t->bsp.front) return false;
+			if(t->bsp.transition) return intersect_bsp_type(BspTree::Son,ray,front,distanceMax);
 			t=(BspTree*)front;
 		} else {
-			if(!t->back) return false;
-			if(t->transition) return intersect_bsp_type(BspTree::Son,ray,back,distanceMax);
+			if(!t->bsp.back) return false;
+			if(t->bsp.transition) return intersect_bsp_type(BspTree::Son,ray,back,distanceMax);
 			t=(BspTree*)back;
 		}
 		goto begin;
@@ -254,13 +401,13 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->front && intersect_bsp_type(BspTree::Son,ray,front,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.front && intersect_bsp_type(BspTree::Son,ray,front,distancePlane+DELTA_BSP)) return true;
 	} else {
-		if(t->back && intersect_bsp_type(BspTree::Son,ray,back,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.back && intersect_bsp_type(BspTree::Son,ray,back,distancePlane+DELTA_BSP)) return true;
 	}
 
 	// test plane
-	void* trianglesEnd=t->getTrianglesEnd();
+	void* trianglesEnd=t->bsp.getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
 		importer->getTriangleSRL(*triangle,&t2);
@@ -297,14 +444,14 @@ begin:
 	// test other half
 	if(frontback)
 	{
-		if(!t->back) return false;
+		if(!t->bsp.back) return false;
 		ray->hitDistanceMin=distancePlane-DELTA_BSP;
-		if(t->transition) return intersect_bsp_type(BspTree::Son,ray,back,distanceMax);
+		if(t->bsp.transition) return intersect_bsp_type(BspTree::Son,ray,back,distanceMax);
 		t=(BspTree*)back;
 	} else {
-		if(!t->front) return false;
+		if(!t->bsp.front) return false;
 		ray->hitDistanceMin=distancePlane-DELTA_BSP;
-		if(t->transition) return intersect_bsp_type(BspTree::Son,ray,front,distanceMax);
+		if(t->bsp.transition) return intersect_bsp_type(BspTree::Son,ray,front,distanceMax);
 		t=(BspTree*)front;
 	}
 	goto begin;
@@ -390,7 +537,7 @@ template IBP
 unsigned IntersectBsp IBP2::getMemorySize() const
 {
 	return IntersectLinear::getMemorySize()
-		+(tree?tree->size:0)
+		+(tree?tree->bsp.size:0)
 		+sizeof(IntersectBsp)-sizeof(IntersectLinear);
 }
 

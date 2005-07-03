@@ -31,28 +31,20 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 
 RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, int effort)
 {
+	//intersectTechnique=IT_BSP_COMPACT;//!!!
 	switch(intersectTechnique)
 	{
 #ifdef USE_BSP
 		// needs explicit instantiation at the end of IntersectBsp.cpp and bsp.cpp
 		case IT_BSP_COMPACT:
 			if(importer->getNumTriangles()<=256)
-				return new IntersectBsp<CBspTree21>(importer,intersectTechnique,".c21",effort);
+				return new IntersectBsp<CBspTree21>(importer,intersectTechnique,".m21",effort);
 			if(importer->getNumTriangles()<=65536)
-				return new IntersectBsp<CBspTree42>(importer,intersectTechnique,".c42",effort);
-			return new IntersectBsp<CBspTree44>(importer,intersectTechnique,".c44",effort);
-			/*
-			if(importer->getNumTriangles()<=256)
-				return new IntersectBsp<BspTree21>(importer,intersectTechnique,".b21");
-			if(importer->getNumTriangles()<=2000)
-				return new IntersectBsp<BspTree22>(importer,intersectTechnique,".b22");
-			if(importer->getNumTriangles()<=65536)
-				return new IntersectBsp<BspTree42>(importer,intersectTechnique,".b42");
-			// intentionally no break
-			//*/
+				return new IntersectBsp<CBspTree42>(importer,intersectTechnique,".m42",effort);
+			return new IntersectBsp<CBspTree44>(importer,intersectTechnique,".m44",effort);
 		case IT_BSP_FASTEST:
 		case IT_BSP_FAST:
-			return new IntersectBsp<BspTree44>(importer,intersectTechnique,".bsp",effort);
+			return new IntersectBsp<BspTree44>(importer,intersectTechnique,".big",effort);
 #endif
 #ifdef USE_KD
 		case IT_KD:

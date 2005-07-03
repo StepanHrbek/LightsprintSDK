@@ -15,21 +15,43 @@ namespace rrIntersect
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
 		typedef Lo _Lo;
-		enum {transition=0, allows_transition=0};
+		enum {allows_transition=0, allows_kd=1};
 		typedef const BspTree1<Ofs,TriInfo,Lo> This;
 		typedef This Transitioneer;
 		typedef This Son;
-		Ofs               size:sizeof(Ofs)*8-2;
-		Ofs               front:1;
-		Ofs               back:1;
-		This*             getNext()        const {return (This*)((char *)this+size);}
-		Son*              getFrontAdr()    const {return (Son*)(this+1);}
-		Son*              getFront()       const {return front?getFrontAdr():0;}
-		Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
-		Son*              getBack()        const {return back?getBackAdr():0;}
-		const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
-		void*             getTrianglesEnd()const {return (char*)this+size;}
+		struct BspData
+		{
+			enum {transition=0};
+			Ofs               size:sizeof(Ofs)*8-3;
+			Ofs               kd:1;
+			Ofs               front:1;
+			Ofs               back:1;
+			//Son*              getFrontAdr()    const {return (Son*)(this+1);}
+			//Son*              getFront()       const {return front?getFrontAdr():0;}
+			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
+			//Son*              getBack()        const {return back?getBackAdr():0;}
+			const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+			void*             getTrianglesEnd()const {return (char*)this+size;}
+		};
+		struct KdData
+		{
+			enum {transition=0};
+			Ofs               size:sizeof(Ofs)*8-3;
+			Ofs               kd:1;
+			Ofs               splitAxis:2;
+			bool              isLeaf()         const {return splitAxis==3;}
+			Son*              getFront()       const {return (Son*)((char*)this+sizeof(*this)+sizeof(real));}
+			Son*              getBack()        const {return getFront()->getNext();}
+			real              getSplitValue()  const {return *(real*)(this+1);}
+			void              setSplitValue(real r)  {*(real*)(this+1)=r;}
+		};
+		union {
+			BspData bsp;
+			KdData  kd;
+		};
+		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
 		void              setTransition(bool t) {}
+		void              setKd(bool k)         {assert(allows_kd || !k);kd.kd=k;}
 	};
 
 	// multi-level bsp (with transition in this node)
@@ -39,22 +61,45 @@ namespace rrIntersect
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
 		typedef Lo _Lo;
-		enum {transition=1, allows_transition=0};
+		enum {allows_transition=0, allows_kd=1};
 		typedef const BspTree2T<Ofs,TriInfo,Lo> This;
 		typedef const This Transitioneer;
 		typedef const Lo Son;
-		Ofs               size:sizeof(Ofs)*8-3;
-		Ofs               _transition:1;
-		Ofs               front:1;
-		Ofs               back:1;
-		This*             getNext()        const {return (This*)((char *)this+size);}
-		Son*              getFrontAdr()    const {return (Son*)(this+1);}
-		Son*              getFront()       const {return front?getFrontAdr():0;}
-		Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
-		Son*              getBack()        const {return back?getBackAdr():0;}
-		const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
-		void*             getTrianglesEnd()const {return (char*)this+size;}
+		struct BspData
+		{
+			enum {transition=1};
+			Ofs               size:sizeof(Ofs)*8-4;
+			Ofs               kd:1;
+			Ofs               _transition:1;
+			Ofs               front:1;
+			Ofs               back:1;
+			//Son*              getFrontAdr()    const {return (Son*)(this+1);}
+			//Son*              getFront()       const {return front?getFrontAdr():0;}
+			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
+			//Son*              getBack()        const {return back?getBackAdr():0;}
+			const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+			void*             getTrianglesEnd()const {return (char*)this+size;}
+		};
+		struct KdData
+		{
+			enum {transition=1};
+			Ofs               size:sizeof(Ofs)*8-4;
+			Ofs               kd:1;
+			Ofs               _transition:1;
+			Ofs               splitAxis:2;
+			bool              isLeaf()         const {return splitAxis==3;}
+			Son*              getFront()       const {return (Son*)((char*)this+sizeof(*this)+sizeof(real));}
+			Son*              getBack()        const {return getFront()->getNext();}
+			real              getSplitValue()  const {return *(real*)(this+1);}
+			void              setSplitValue(real r)  {*(real*)(this+1)=r;}
+		};
+		union {
+			BspData bsp;
+			KdData  kd;
+		};
+		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
 		void              setTransition(bool t) {}
+		void              setKd(bool k)         {kd.kd=k;}
 	};
 
 	// multi-level bsp (without transition in this node)
@@ -64,22 +109,43 @@ namespace rrIntersect
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
 		typedef Lo _Lo;
-		enum {allows_transition=1};
+		enum {allows_transition=1, allows_kd=1};
 		typedef const BspTree2<Ofs,TriInfo,Lo> This;
 		typedef const BspTree2T<Ofs,TriInfo,Lo> Transitioneer;
 		typedef This Son;
-		Ofs               size:sizeof(Ofs)*8-3;
-		Ofs               transition:1; // last This in tree traversal, sons are Lo
-		Ofs               front:1;
-		Ofs               back:1;
-		This*             getNext()        const {return (This*)((char *)this+size);}
-		Son*              getFrontAdr()    const {return (Son*)(this+1);}
-		Son*              getFront()       const {return front?getFrontAdr():0;}
-		Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
-		Son*              getBack()        const {return back?getBackAdr():0;}
-		const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
-		void*             getTrianglesEnd()const {return (char*)this+size;}
-		void              setTransition(bool t) {transition=t;}
+		struct BspData
+		{
+			Ofs               size:sizeof(Ofs)*8-4;
+			Ofs               kd:1;
+			Ofs               transition:1;
+			Ofs               front:1;
+			Ofs               back:1;
+			//Son*              getFrontAdr()    const {return (Son*)(this+1);}
+			//Son*              getFront()       const {return front?getFrontAdr():0;}
+			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
+			//Son*              getBack()        const {return back?getBackAdr():0;}
+			const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+			void*             getTrianglesEnd()const {return (char*)this+size;}
+		};
+		struct KdData
+		{
+			Ofs               size:sizeof(Ofs)*8-4;
+			Ofs               kd:1;
+			Ofs               transition:1;
+			Ofs               splitAxis:2;
+			bool              isLeaf()         const {return splitAxis==3;}
+			Son*              getFront()       const {return (Son*)((char*)this+sizeof(*this)+sizeof(real));}
+			Son*              getBack()        const {return getFront()->getNext();}
+			real              getSplitValue()  const {return *(real*)(this+1);}
+			void              setSplitValue(real r)  {*(real*)(this+1)=r;}
+		};
+		union {
+			BspData bsp;
+			KdData  kd;
+		};
+		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
+		void              setTransition(bool t) {bsp.transition=t;}
+		void              setKd(bool k)         {kd.kd=k;}
 	};
 
 	// single-level bsp
