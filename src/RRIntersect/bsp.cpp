@@ -83,7 +83,7 @@ enum
 #undef ABS
 #define ABS(x) (((x)>0)?(x):(-(x)))
 
-int quality,max_skip,nodes,faces,bestN;
+int max_skip,nodes,faces,bestN;
 
 BSP_TREE *bsptree;
 unsigned bsptree_id;
@@ -321,46 +321,6 @@ static float dist_point(FACE *f, float x, float y, float z)
 	return dist/3;
 }
 
-FACE *find_mean_root(FACE **list)
-{
-	int i; FACE *best=NULL;
-	float dist,min=1e10,x,y,z,px=0,py=0,pz=0; int pn=0;
-
-	for (i=0;list[i];i++) 
-	{
-		mid_point(list[i],&x,&y,&z);
-		px+=x; py+=y; pz+=z; pn++; 
-	}
-
-	if (pn<max_skip) return NULL;
-
-	px/=pn; py/=pn; pz/=pn; best=NULL;
-
-	for (i=0;list[i];i++) { dist=dist_point(list[i],px,py,pz);
-	if (dist<min || !best) { min=dist; best=list[i]; } }
-
-	return best;
-}
-
-FACE *find_big_root(FACE **list)
-{
-	int i,pn=0; FACE *best=NULL; float size,max=0;
-
-	for (i=0;list[i];i++) 
-	{
-		pn++;
-		size=face_size(list[i]);
-		if (size>max || !best) 
-		{
-			max=size; best=list[i];
-		}
-	}
-
-	if (pn<max_skip) return NULL;
-
-	return best;
-}
-
 struct FACE_Q 
 {
         float q;
@@ -439,27 +399,19 @@ BSP_TREE *create_bsp(FACE **space, BBOX *bbox, bool kd_allowed)
 	FACE* bsproot = NULL;
 	VERTEX* kdroot = NULL; 
 	int axis = 3;
-	switch(quality) 
+	if(!kd_allowed || pn<400) //!!! 400=temer nikdy kd, 10=temer vzdy kd
 	{
-		case BIG:bsproot=find_big_root(space);break;
-		case MEAN:bsproot=find_mean_root(space);break;
-		case BEST:bsproot=find_best_root(space);break;
-		case BESTN:
-			if(!kd_allowed || pn<400) //!!! 400=temer nikdy kd, 10=temer vzdy kd
-			{
-				bsproot=find_bestN_root(space);
-			} else {
-				kdroot=find_best_root_kd(bbox,space,&axis);
-				if(!kdroot)
-					bsproot=find_bestN_root(space);
-			}
-			break;
+		bsproot=find_bestN_root(space);
+	} else {
+		kdroot=find_best_root_kd(bbox,space,&axis);
+		if(!kdroot)
+			bsproot=find_bestN_root(space);
 	}
 
 	// leaf -> exit
 	if(!bsproot && !kdroot) 
 	{
-		if(pn>5000) printf("No split in %d faces, texniq=%d(%d) bestN=%d",pn,quality,BESTN,bestN);//!!!
+		if(pn>5000) printf("No split in %d faces, bestN=%d",pn,bestN);//!!!
 		t->plane  =space;
 		t->leaf   =NULL;
 		t->front  =NULL;
@@ -645,7 +597,6 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 {
 	BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
 
-	quality=BESTN;
 	//bestN=BESTN_N;
 	max_skip=1;
 

@@ -175,7 +175,8 @@ namespace rrIntersect
 		virtual ~IntersectBsp();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual unsigned  getMemorySize() const;
-		bool              intersect_bsp(RRRay* ray, const BspTree *t, real distanceMax) const;//!!!protected
+		// must be public because it calls itself with different template params
+		bool              intersect_bsp(RRRay* ray, const BspTree *t, real distanceMax) const; 
 	protected:
 		BspTree*          tree;
 		bool              intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const;
