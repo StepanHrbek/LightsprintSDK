@@ -1,7 +1,5 @@
 #include "IntersectBsp.h"
 
-#ifdef USE_BSP
-
 #define DBG(a) //a
 
 #include <assert.h>
@@ -316,6 +314,20 @@ begin:
 		if(t->kd.isLeaf()) 
 		{
 			assert(0);
+			/*void *trianglesEnd=t->getTrianglesEnd();
+			bool hit=false;
+			for(Triankle **triangle=t->getTriangles();triangle<trianglesEnd;triangle++)
+				//if((*triangle)->intersectionTime!=__shot)
+				if(*triangle!=i_skip)
+				{
+					//(*triangle)->intersectionTime=__shot;
+					if(intersect_triangle_kd(*triangle,i_distanceMin,distanceMax)) 
+					{
+						distanceMax=MIN(distanceMax,i_hitDistance);
+						hit=true;
+					}
+				}
+			return hit;*/
 		}
 
 		// test subtrees
@@ -605,5 +617,3 @@ template class IntersectBsp<CBspTree21>;
 template class IntersectBsp<CBspTree41>; // for 0..256 triangles
 
 } // namespace
-
-#endif

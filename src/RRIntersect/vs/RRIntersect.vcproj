@@ -155,9 +155,6 @@
 				RelativePath="..\IntersectBsp.cpp">
 			</File>
 			<File
-				RelativePath="..\IntersectKd.cpp">
-			</File>
-			<File
 				RelativePath="..\IntersectLinear.cpp">
 			</File>
 			<File
@@ -181,9 +178,6 @@
 			</File>
 			<File
 				RelativePath="..\IntersectBsp.h">
-			</File>
-			<File
-				RelativePath="..\IntersectKd.h">
 			</File>
 			<File
 				RelativePath="..\IntersectLinear.h">

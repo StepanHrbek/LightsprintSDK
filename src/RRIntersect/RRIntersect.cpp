@@ -1,7 +1,6 @@
 #include "RRIntersect.h"
 #include "IntersectLinear.h"
 #include "IntersectBsp.h"
-#include "IntersectKd.h"
 #include <math.h>
 #include <memory.h>
 #include <stdio.h>
@@ -34,7 +33,6 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 	//intersectTechnique=IT_BSP_COMPACT;//!!!
 	switch(intersectTechnique)
 	{
-#ifdef USE_BSP
 		// needs explicit instantiation at the end of IntersectBsp.cpp and bsp.cpp
 		case IT_BSP_COMPACT:
 			if(importer->getNumTriangles()<=256)
@@ -45,11 +43,6 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 		case IT_BSP_FASTEST:
 		case IT_BSP_FAST:
 			return new IntersectBsp<BspTree44>(importer,intersectTechnique,".big",effort);
-#endif
-#ifdef USE_KD
-		case IT_KD:
-			return new IntersectKd(importer);
-#endif
 		case IT_LINEAR: 
 		default:
 			return new IntersectLinear(importer,intersectTechnique);

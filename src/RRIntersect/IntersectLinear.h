@@ -11,9 +11,6 @@
 #define FILL_HITTRIANGLE
 #define FILL_HITSIDE
 
-#define USE_BSP
-//#define USE_KD
-
 #define DBGLINE
 //#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);//fgetc(stdin);
 

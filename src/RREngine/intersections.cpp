@@ -9,8 +9,6 @@ using namespace rrIntersect;
 namespace rrEngine
 {
 
-#define USE_BSP
-//#define USE_KD
 #define DBG(a) //a
 
 //////////////////////////////////////////////////////////////////////////////

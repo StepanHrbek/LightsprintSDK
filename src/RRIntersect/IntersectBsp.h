@@ -3,8 +3,6 @@
 
 #include "IntersectLinear.h"
 
-#ifdef USE_BSP
-
 namespace rrIntersect
 {
 
@@ -185,7 +183,5 @@ namespace rrIntersect
 	};
 
 }
-
-#endif
 
 #endif
