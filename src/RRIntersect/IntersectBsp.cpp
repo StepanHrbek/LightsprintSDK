@@ -471,14 +471,16 @@ begin:
 
 
 template IBP
-IntersectBsp IBP2::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique, char* ext, int effort) : IntersectLinear(aimporter, intersectTechnique)
+IntersectBsp IBP2::IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique, char* ext, BuildParams* buildParams) : IntersectLinear(aimporter, intersectTechnique)
 {
 	tree = NULL;
 	if(!triangles) return;
+	assert(buildParams);
+	assert(buildParams->size>=sizeof(BuildParams));
 	bool retried = false;
 	char name[300];
 	getFileName(name,300,aimporter,ext);
-	FILE* f = (effort<=0) ? NULL : fopen(name,"rb");
+	FILE* f = buildParams->forceRebuild ? NULL : fopen(name,"rb");
 	if(!f)
 	{
 		printf("'%s' not found.\n",name);
@@ -514,7 +516,7 @@ retry:
 		f = fopen(name,"wb");
 		if(f)
 		{
-			bool ok = createAndSaveBsp IBP2(f,&obj,abs(effort));
+			bool ok = createAndSaveBsp IBP2(f,&obj,buildParams);
 			fclose(f);
 			if(!ok)
 			{

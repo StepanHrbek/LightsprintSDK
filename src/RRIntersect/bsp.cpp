@@ -1,13 +1,29 @@
 #include <assert.h>
+#include <limits.h>
 #include <math.h>
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "bsp.h"
 
+//#define CHECK_KD // slow checks of kd build correctness
+
+#define PLANE_PRIZE   (buildParams.prizePlane)   // 1
+#define SPLIT_PRIZE   (buildParams.prizeSplit)   // 150
+#define BALANCE_PRIZE (buildParams.prizeBalance) // 5
+/*
+worst situations
+ worst balance (0 vs faces) has prize faces*BALLANCE_PRIZE -> use bsp or kd_leaf
+ split of all faces is equally bad and has prize faces*SPLIT_PRIZE -> use kd_leaf
+
+*/
+
 //#define BESTN_N 100
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX3(a,b,c) MAX(a,MAX(b,c))
+#define MIN3(a,b,c) MIN(a,MIN(b,c))
+
 
 namespace rrIntersect
 {
@@ -25,6 +41,16 @@ struct first_nonvoid<void,T2>{
 	typedef T2 T;
 	static const bool value = true;
 }; 
+
+
+void FACE::fillMinMax()
+{
+	for(unsigned i=0;i<3;i++)
+	{
+		min[i] = MIN3((*vertex[0])[i],(*vertex[1])[i],(*vertex[2])[i]);
+		max[i] = MAX3((*vertex[0])[i],(*vertex[1])[i],(*vertex[2])[i]);
+	}
+}
 
 
 class BspBuilder
@@ -55,14 +81,6 @@ struct BSP_TREE
 	FACE **leaf;
 };
 
-enum
-{
-	BEST,
-	MEAN,
-	BIG,
-	BESTN,
-};
-
 #define CACHE_SIZE 1000
 #define ZERO 0.00001
 #define DELTA 0.001
@@ -72,21 +90,17 @@ enum
 #define BACK -1
 #define SPLIT 2
 
-#define PLANE_PRIZE 1
-#define SPLIT_PRIZE 150
-#define BALANCE_PRIZE 5
-
 #define nALLOC(A,B) (A *)malloc((B)*sizeof(A))
 #define ALLOC(A) nALLOC(A,1)
 
 #define SQR(A) ((A)*(A))
-#undef ABS
+#undef  ABS
 #define ABS(x) (((x)>0)?(x):(-(x)))
 
-int max_skip,nodes,faces,bestN;
-
-BSP_TREE *bsptree;
-unsigned bsptree_id;
+unsigned    max_skip,nodes,faces;
+BSP_TREE*   bsptree;
+unsigned    bsptree_id;
+BuildParams buildParams;
 
 BspBuilder()
 {
@@ -159,18 +173,9 @@ static int locate_vertex_bsp(FACE *f, VERTEX *v)
 	if (ABS(r)<DELTA) return PLANE; if (r>0) return FRONT; return BACK;
 }
 
-static int locate_vertex_kd(VERTEX *splitVertex, int splitAxis, VERTEX *v)
+static int locate_vertex_kd(float splitValue, int splitAxis, VERTEX *v)
 {
-	switch(splitAxis) 
-	{
-		#define TEST(x) return (v->x>splitVertex->x)?FRONT:((v->x<splitVertex->x)?BACK:PLANE)
-		case 0: TEST(x);
-		case 1: TEST(y);
-		case 2: TEST(z);
-		#undef TEST
-	}
-	assert(0);
-	return PLANE;
+	return ((*v)[splitAxis]>splitValue) ? FRONT : ( ((*v)[splitAxis]<splitValue) ? BACK : PLANE );
 }
 
 static int normals_match(FACE *plane, FACE *face)
@@ -198,12 +203,12 @@ static int locate_face_bsp(FACE *plane, FACE *face)
 	return SPLIT;
 }
 
-static int locate_face_kd(VERTEX *vertex, int axis, FACE *face)
+static int locate_face_kd(float splitValue, int axis, FACE *face)
 {
 	int i,f=0,b=0,p=0;
 
 	for (i=0;i<3;i++)
-		switch (locate_vertex_kd(vertex,axis,face->vertex[i])) 
+		switch (locate_vertex_kd(splitValue,axis,face->vertex[i])) 
 		{
 			case BACK:b++;break;
 			case FRONT:f++;break;
@@ -215,7 +220,7 @@ static int locate_face_kd(VERTEX *vertex, int axis, FACE *face)
 	if (b==3) return BACK;
 	return SPLIT;
 }
-
+/*
 static FACE *find_best_root(FACE **list)
 {
 	int i,j,prize,best_prize=0; FACE *best=NULL;
@@ -240,42 +245,130 @@ static FACE *find_best_root(FACE **list)
 
 	return best;
 }
+*/
 
-static VERTEX *find_best_root_kd(BBOX *bbox, FACE **list, int *bestaxis)
+static int compare_face_minx_asc( const void *p1, const void *p2 )
 {
-	int i,j,vert,axis; VERTEX *best=NULL; float front_area,back_area,prize,best_prize=0;
+	float f=(*(FACE**)p2)->min[0]-(*(FACE**)p1)->min[0];
+	return (f<0)?+1:((f>0)?-1:0);
+}
 
-	for (axis=0;axis<3;axis++) 
+static int compare_face_maxx_asc( const void *p1, const void *p2 )
+{
+	float f=(*(FACE**)p2)->max[0]-(*(FACE**)p1)->max[0];
+	return (f<0)?+1:((f>0)?-1:0);
+}
+
+static int compare_face_miny_asc( const void *p1, const void *p2 )
+{
+	float f=(*(FACE**)p2)->min[1]-(*(FACE**)p1)->min[1];
+	return (f<0)?+1:((f>0)?-1:0);
+}
+
+static int compare_face_maxy_asc( const void *p1, const void *p2 )
+{
+	float f=(*(FACE**)p2)->max[1]-(*(FACE**)p1)->max[1];
+	return (f<0)?+1:((f>0)?-1:0);
+}
+
+static int compare_face_minz_asc( const void *p1, const void *p2 )
+{
+	float f=(*(FACE**)p2)->min[2]-(*(FACE**)p1)->min[2];
+	return (f<0)?+1:((f>0)?-1:0);
+}
+
+static int compare_face_maxz_asc( const void *p1, const void *p2 )
+{
+	float f=(*(FACE**)p2)->max[2]-(*(FACE**)p1)->max[2];
+	return (f<0)?+1:((f>0)?-1:0);
+}
+
+struct ROOT_INFO
+{
+	unsigned prize;
+	unsigned front;
+	unsigned plane;
+	unsigned back;
+	unsigned split;
+};
+
+VERTEX *find_best_root_kd(BBOX *bbox, FACE **list, int* bestaxis, ROOT_INFO* bestinfo)
+{
+	// prepare sortarrays
+	unsigned faces=0;
+	for(int i=0;list[i];i++) faces++;
+	assert(faces);
+	if(!faces) return NULL;
+	FACE** minx = new FACE*[faces];
+	FACE** maxx = new FACE*[faces];
+	memcpy(minx,list,sizeof(FACE*)*faces);
+	memcpy(maxx,list,sizeof(FACE*)*faces);
+
+	unsigned best_prize = UINT_MAX;
+	unsigned best_axis = 0;
+	float best_value = 0;
+	FACE* best_face = NULL;
+
+	for (unsigned axis=0;axis<3;axis++) 
 	{
-		float cut_peri=(bbox->hi[(axis+1)%3]-bbox->lo[(axis+1)%3]) + (bbox->hi[(axis+2)%3]-bbox->lo[(axis+2)%3]);
-		float cut_area=(bbox->hi[(axis+1)%3]-bbox->lo[(axis+1)%3]) * (bbox->hi[(axis+2)%3]-bbox->lo[(axis+2)%3]);
+		// sort sortarrays
+		qsort(minx,faces,sizeof(FACE*),(axis==0)?compare_face_minx_asc:((axis==1)?compare_face_miny_asc:compare_face_minz_asc));
+		qsort(maxx,faces,sizeof(FACE*),(axis==0)?compare_face_maxx_asc:((axis==1)?compare_face_maxy_asc:compare_face_maxz_asc));
 
-		for (i=0;list[i];i++) for (vert=0;vert<3;vert++) 
+		// select root
+		unsigned minxi = 0;
+		unsigned maxxi = 0;
+		while(1)
 		{
-			int front=0,back=0,plane=0,split=0;
+			// skip faces in plane minx[minxi].min[axis]
+			unsigned plane = 0;
+			while(maxxi<faces && minx[minxi]->min[axis] >= maxx[maxxi]->max[axis]) 
+			{
+				if(minx[minxi]->min[axis]==maxx[maxxi]->max[axis] && 
+					maxx[maxxi]->min[axis]==maxx[maxxi]->max[axis]) plane++;
+				maxxi++;
+			}
 
-			for (j=0;list[j];j++)
-				switch (locate_face_kd(list[i]->vertex[vert],axis,list[j])) 
-				{
-					case PLANE:plane++;break;
-					case FRONT:front++;break;
-					case SPLIT:split++;break;
-					case BACK:back++;break;
-				}
+			// calculate prize of split plane at minx[minxi].min[axis]
+			unsigned back = maxxi-plane;	// pocet facu nalevo od rezu v minx[minxi].q
+			unsigned front = faces-minxi-plane; // pocet facu napravo od rezu v minx[minxi].q
+			unsigned split = minxi-back; // pocet facu preseklych rezem v minx[minxi].q
+			unsigned prize = 1 + split*SPLIT_PRIZE + ABS((int)front-(int)(back+plane))*BALANCE_PRIZE;
 
-			//prize=split*SPLIT_PRIZE+ABS(front-(plane+back))*BALANCE_PRIZE;
-			#define VERTEX_COMPONENT(vrtx,ax) ((ax==0)?(vrtx->x):((ax==1)?(vrtx->y):(vrtx->z)))
-			front_area=(bbox->hi[axis]-VERTEX_COMPONENT(list[i]->vertex[vert],axis))*cut_peri+cut_area;
-			back_area =(VERTEX_COMPONENT(list[i]->vertex[vert],axis)-bbox->lo[axis])*cut_peri+cut_area;
-			prize=(front+split)*front_area+(split+plane+back)*back_area;
 
-			if (prize<best_prize || best==NULL)
-				if (front>0 && plane+back>0) { best_prize=prize; best=list[i]->vertex[vert]; *bestaxis=axis; }
-
+			if(prize<best_prize)
+			{
+				best_prize = prize;
+				best_face = minx[minxi];
+				best_axis = axis;
+				best_value = minx[minxi]->min[axis];
+				bestinfo->back = back;
+				bestinfo->front = front;
+				bestinfo->plane = plane;
+				bestinfo->split = split;
+				bestinfo->prize = prize;
+			}
+			// step forward to next plane
+next:
+			minxi++;
+			if(minxi==faces) break;
+			if(minx[minxi]->min[axis] == minx[minxi-1]->min[axis]) goto next; // another identical planes -> skip it
 		}
 	}
 
-	return best;
+	// delete sortarrays
+	delete[] minx;
+	delete[] maxx;
+
+	FACE* f = best_face;
+	*bestaxis = best_axis;
+	VERTEX* result;
+	if(f->min[best_axis]==(*f->vertex[0])[best_axis]) result = f->vertex[0]; else
+	if(f->min[best_axis]==(*f->vertex[1])[best_axis]) result = f->vertex[1]; else
+	{assert(f->min[best_axis]==(*f->vertex[2])[best_axis]);	result = f->vertex[2];}
+
+
+	return result;
 }
 
 static float face_size(FACE *f)
@@ -320,39 +413,39 @@ static float dist_point(FACE *f, float x, float y, float z)
 
 	return dist/3;
 }
-
 struct FACE_Q 
 {
-        float q;
-        FACE *f;
+	float q;
+	FACE *f;
 };
 
-static int compare_face_q( const void *p1, const void *p2 )
+static int compare_face_q_desc( const void *p1, const void *p2 )
 {
 	float f=((FACE_Q *)p2)->q-((FACE_Q *)p1)->q;
 	return (f<0)?-1:((f>0)?1:0);
 }
 
-FACE *find_bestN_root(FACE **list)
+FACE *find_best_root_bsp(FACE **list, ROOT_INFO* bestinfo)
 {
-	int i,j,prize,best_prize=0; FACE *best=NULL;
-	float px=0,py=0,pz=0; int pn=0;
+	int best_prize=0; FACE *best=NULL;
+	float px=0,py=0,pz=0;
+	unsigned pn=0;
 	FACE_Q *tmp;
 
-	for (i=0;list[i];i++) 
+	for(int i=0;list[i];i++) 
 	{
 		float x,y,z;
 		mid_point(list[i],&x,&y,&z);
 		px+=x; py+=y; pz+=z; pn++; 
 	}
 
-	if (pn<max_skip) return NULL;
+	if(pn<max_skip) return NULL;
 
 	px/=pn; py/=pn; pz/=pn;
 
-	tmp=nALLOC(FACE_Q,i);
+	tmp=nALLOC(FACE_Q,pn);
 
-	for (i=0;list[i];i++) 
+	for(int i=0;list[i];i++) 
 	{
 		float dist=dist_point(list[i],px,py,pz);
 		float size=face_size(list[i]);
@@ -360,14 +453,14 @@ FACE *find_bestN_root(FACE **list)
 		tmp[i].f=list[i];
 	}
 
-	qsort(tmp,pn,sizeof(FACE_Q),compare_face_q);
+	qsort(tmp,pn,sizeof(FACE_Q),compare_face_q_desc);
 
-	for (i=0;i<bestN && i<pn;i++) 
+	for(unsigned i=0;i<buildParams.bspBestN && i<pn;i++) 
 	{ 
 		int front=0,back=0,plane=0,split=0;
 
-		for (j=0;list[j];j++)
-			switch (locate_face_bsp(tmp[i].f,list[j])) 
+		for(int j=0;list[j];j++)
+			switch(locate_face_bsp(tmp[i].f,list[j])) 
 			{
 				case PLANE:plane++;break;
 				case FRONT:front++;break;
@@ -375,9 +468,18 @@ FACE *find_bestN_root(FACE **list)
 				case BACK:back++;break;
 			}
 
-		prize=split*SPLIT_PRIZE+plane*PLANE_PRIZE+ABS(front-back)*BALANCE_PRIZE;
+		int prize=split*SPLIT_PRIZE+plane*PLANE_PRIZE+ABS(front-back)*BALANCE_PRIZE;
 
-		if (prize<best_prize || best==NULL) { best_prize=prize; best=tmp[i].f; }
+		if(prize<best_prize || best==NULL) 
+		{ 
+			best_prize=prize; 
+			bestinfo->back = back;
+			bestinfo->front = front;
+			bestinfo->plane = plane;
+			bestinfo->split = split;
+			bestinfo->prize = prize;
+			best=tmp[i].f; 
+		}
 
 	}
 
@@ -388,7 +490,7 @@ FACE *find_bestN_root(FACE **list)
 
 BSP_TREE *create_bsp(FACE **space, BBOX *bbox, bool kd_allowed)
 {
-	int pn=0;
+	unsigned pn=0;
 	for(int i=0;space[i];i++) pn++;
 
 	// alloc node
@@ -399,19 +501,22 @@ BSP_TREE *create_bsp(FACE **space, BBOX *bbox, bool kd_allowed)
 	FACE* bsproot = NULL;
 	VERTEX* kdroot = NULL; 
 	int axis = 3;
-	if(!kd_allowed || pn<400) //!!! 400=temer nikdy kd, 10=temer vzdy kd
+	ROOT_INFO info_bsp, info_kd;
+	if(!kd_allowed || pn<buildParams.kdMinFacesInTree)
 	{
-		bsproot=find_bestN_root(space);
+		bsproot=find_best_root_bsp(space,&info_bsp);
 	} else {
-		kdroot=find_best_root_kd(bbox,space,&axis);
-		if(!kdroot)
-			bsproot=find_bestN_root(space);
+		kdroot = find_best_root_kd(bbox,space,&axis,&info_kd);
+		bsproot = find_best_root_bsp(space,&info_bsp);
+		if(kdroot && info_kd.prize<info_bsp.prize && info_kd.front && info_kd.back+info_kd.plane) 
+			bsproot=NULL; 
+		else kdroot=NULL;
 	}
 
 	// leaf -> exit
 	if(!bsproot && !kdroot) 
 	{
-		if(pn>5000) printf("No split in %d faces, bestN=%d",pn,bestN);//!!!
+		if(pn>5000) printf("No split in %d faces, bestN=%d",pn,buildParams.bspBestN);//!!!
 		t->plane  =space;
 		t->leaf   =NULL;
 		t->front  =NULL;
@@ -428,16 +533,30 @@ BSP_TREE *create_bsp(FACE **space, BBOX *bbox, bool kd_allowed)
 	int back_num=0;
 	for(int i=0;space[i];i++)
 	{
-		if(!kdroot && space[i]==bsproot) {plane_num++;continue;} // don't insert bsproot
-		space[i]->side = kdroot ? locate_face_kd(kdroot,axis,space[i]) : locate_face_bsp(bsproot,space[i]);
+		if(!kdroot && space[i]==bsproot) {plane_num++;continue;} // insert bsproot into plane
+		space[i]->side = kdroot ? locate_face_kd((*kdroot)[axis],axis,space[i]) : locate_face_bsp(bsproot,space[i]);
 		switch(space[i]->side) 
 		{
 			case BACK: back_num++; break;
 			case PLANE: plane_num++; break;
 			case FRONT: front_num++; break;
-			case SPLIT: back_num++; front_num++; split_num++; break;
+			case SPLIT: split_num++; break;
 		}
 	}
+	if(kdroot)
+	{
+		assert(back_num == info_kd.back);
+		assert(front_num == info_kd.front);
+		assert(plane_num == info_kd.plane);
+		assert(split_num == info_kd.split);
+	} else {
+		assert(back_num == info_bsp.back);
+		assert(front_num == info_bsp.front);
+		assert(plane_num == info_bsp.plane);
+		assert(split_num == info_bsp.split);
+	}
+	back_num += split_num;
+	front_num += split_num;
 	if(front_num>500 && back_num>500)
 		printf("[%d|%d/%d|%d]",front_num,plane_num,split_num,back_num);
 
@@ -483,8 +602,8 @@ BSP_TREE *create_bsp(FACE **space, BBOX *bbox, bool kd_allowed)
 	BBOX bbox_back =*bbox;
 	if(kdroot) 
 	{
-		bbox_front.lo[axis]=VERTEX_COMPONENT(kdroot,axis);
-		bbox_back .hi[axis]=VERTEX_COMPONENT(kdroot,axis);
+		bbox_front.lo[axis]=(*kdroot)[axis];
+		bbox_back .hi[axis]=(*kdroot)[axis];
 		t->leaf = NULL;
 		t->axis = axis;
 		t->kdroot = kdroot;
@@ -597,19 +716,14 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 {
 	BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
 
-	//bestN=BESTN_N;
 	max_skip=1;
 
 	assert(obj->face_num>0); // pozor nastava
 
-	for (int i=0;i<obj->vertex_num;i++) {
-
+	for(int i=0;i<obj->vertex_num;i++) 
+	{
 		obj->vertex[i].id=i;
 		obj->vertex[i].used=0;
-
-		/*printf("v[%d]: %f %f %f\n",i,obj->vertex[i].x,
-		obj->vertex[i].y,
-		obj->vertex[i].z);*/
 
 		bbox.hi[0]=MAX(bbox.hi[0],obj->vertex[i].x);
 		bbox.hi[1]=MAX(bbox.hi[1],obj->vertex[i].y);
@@ -619,17 +733,15 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 		bbox.lo[2]=MIN(bbox.lo[2],obj->vertex[i].z);
 	}
 
-	for (int i=0;i<obj->face_num;i++) {
+	for(int i=0;i<obj->face_num;i++) 
+	{
+		obj->face[i].fillMinMax();
 
 		create_normal(&obj->face[i]);
 
 		obj->vertex[obj->face[i].vertex[0]->id].used++;
 		obj->vertex[obj->face[i].vertex[1]->id].used++;
 		obj->vertex[obj->face[i].vertex[2]->id].used++;
-
-		/*printf("f[%d]: %d %d %d\n",i,obj->face[i].vertex[0]->id,
-		obj->face[i].vertex[1]->id,
-		obj->face[i].vertex[2]->id);*/
 	}
 
 	for (int i=0;i<obj->vertex_num;i++)
@@ -658,10 +770,10 @@ bool save_bsp(FILE *f, OBJECT *obj, BSP_TREE* bsp)
 }; // BspBuilder
 
 template IBP
-bool createAndSaveBsp(FILE *f, OBJECT *obj, int effort)
+bool createAndSaveBsp(FILE *f, OBJECT *obj, BuildParams* buildParams)
 {
 	BspBuilder* builder = new BspBuilder();
-	builder->bestN = effort;
+	builder->buildParams = *buildParams;
 	BspBuilder::BSP_TREE* bsp = builder->create_bsp(obj,BspTree::allows_kd);
 	bool ok = builder->save_bsp IBP2(f, obj, bsp);
 	builder->free_bsp(bsp);
@@ -673,7 +785,7 @@ bool createAndSaveBsp(FILE *f, OBJECT *obj, int effort)
 #define INSTANTIATE(BspTree) \
 	template bool BspBuilder::save_bsp<BspTree>(FILE *f, BSP_TREE *t);\
 	template bool BspBuilder::save_bsp<BspTree>(FILE *f, OBJECT *obj, BSP_TREE* bsp);\
-	template bool createAndSaveBsp    <BspTree>(FILE *f, OBJECT *obj, int effort)
+	template bool createAndSaveBsp    <BspTree>(FILE *f, OBJECT *obj, BuildParams* buildParams)
 
 // single-level bsp
 INSTANTIATE(BspTree21);

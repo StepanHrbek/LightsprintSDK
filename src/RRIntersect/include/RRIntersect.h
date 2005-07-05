@@ -109,7 +109,7 @@ namespace rrIntersect
 			IT_BSP_FAST,        // speed 200%, size 31
 			IT_BSP_FASTEST,     // speed 250%, size 58
 		};
-		static RRIntersect*  newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, int effort=100);
+		static RRIntersect*  newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
 
 		virtual bool         intersect(RRRay* ray) const = 0;
 		virtual unsigned     getMemorySize() const = 0;

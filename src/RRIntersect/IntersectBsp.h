@@ -5,6 +5,26 @@
 
 namespace rrIntersect
 {
+	struct BuildParams
+	{
+		unsigned size;
+		unsigned forceRebuild;
+		unsigned prizeBalance;
+		unsigned prizeSplit;
+		unsigned prizePlane;
+		unsigned bspBestN;
+		unsigned kdMinFacesInTree;
+		BuildParams()
+		{
+			size = sizeof(*this);
+			forceRebuild = 0;
+			prizeBalance = 5;
+			prizeSplit = 50;
+			prizePlane = 1;
+			bspBestN = 100;
+			kdMinFacesInTree = 20;
+		}
+	};
 
 	// single-level bps
 	template <class Ofs, class TriInfo, class Lo>
@@ -171,7 +191,7 @@ namespace rrIntersect
 	class IntersectBsp : public IntersectLinear
 	{
 	public:
-		IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique, char* ext, int effort);
+		IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique, char* ext, BuildParams* buildParams);
 		virtual ~IntersectBsp();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual unsigned  getMemorySize() const;

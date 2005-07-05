@@ -9,6 +9,7 @@ namespace rrIntersect
 	{
 		int id,side,used;
 		float x,y,z,u,v;
+		float operator [](unsigned i) const {return (&x)[i];}
 	};
 
 	struct NORMAL 
@@ -21,6 +22,9 @@ namespace rrIntersect
 		int id,side;
 		VERTEX *vertex[3];
 		NORMAL normal;
+		void fillMinMax();
+		float min[3]; // bbox min/max
+		float max[3];
 	};
 
 	struct OBJECT 
@@ -32,7 +36,7 @@ namespace rrIntersect
 	};
 
 	template IBP
-	extern bool createAndSaveBsp(FILE *f, OBJECT *obj, int effort);
+	extern bool createAndSaveBsp(FILE *f, OBJECT *obj, BuildParams* buildParams);
 }
 
 #endif
