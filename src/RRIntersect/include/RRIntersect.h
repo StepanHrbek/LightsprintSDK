@@ -106,8 +106,8 @@ namespace rrIntersect
 		{
 			IT_LINEAR,          // speed   1%, size  0
 			IT_BSP_COMPACT,     // speed 100%, size  5 bytes per triangle
-			IT_BSP_FAST,        // speed 200%, size 31
-			IT_BSP_FASTEST,     // speed 250%, size 58
+			IT_BSP_FAST,        // speed 175%, size 31
+			IT_BSP_FASTEST,     // speed 200%, size 58
 		};
 		static RRIntersect*  newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
 

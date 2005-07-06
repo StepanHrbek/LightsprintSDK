@@ -507,10 +507,13 @@ BSP_TREE *create_bsp(FACE **space, BBOX *bbox, bool kd_allowed)
 		bsproot=find_best_root_bsp(space,&info_bsp);
 	} else {
 		kdroot = find_best_root_kd(bbox,space,&axis,&info_kd);
-		bsproot = find_best_root_bsp(space,&info_bsp);
-		if(kdroot && info_kd.prize<info_bsp.prize && info_kd.front && info_kd.back+info_kd.plane) 
-			bsproot=NULL; 
-		else kdroot=NULL;
+		if(pn<buildParams.bspMaxFacesInTree || !kdroot || info_kd.front==0 || info_kd.back+info_kd.plane==0)
+		{
+			bsproot = find_best_root_bsp(space,&info_bsp);
+			if(kdroot && info_kd.prize<info_bsp.prize+pn && info_kd.front && info_kd.back+info_kd.plane) 
+				bsproot=NULL; 
+			else kdroot=NULL;
+		}
 	}
 
 	// leaf -> exit

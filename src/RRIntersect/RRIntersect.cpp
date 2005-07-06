@@ -32,7 +32,6 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 {
 	BuildParams bp;
 	if(!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
-	//intersectTechnique=IT_BSP_COMPACT;//!!!
 	switch(intersectTechnique)
 	{
 		// needs explicit instantiation at the end of IntersectBsp.cpp and bsp.cpp

@@ -12,6 +12,7 @@ namespace rrIntersect
 		unsigned prizeBalance;
 		unsigned prizeSplit;
 		unsigned prizePlane;
+		unsigned bspMaxFacesInTree;
 		unsigned bspBestN;
 		unsigned kdMinFacesInTree;
 		BuildParams()
@@ -21,7 +22,8 @@ namespace rrIntersect
 			prizeBalance = 5;
 			prizeSplit = 50;
 			prizePlane = 1;
-			bspBestN = 100;
+			bspMaxFacesInTree = 400;
+			bspBestN = 150;
 			kdMinFacesInTree = 20;
 		}
 	};

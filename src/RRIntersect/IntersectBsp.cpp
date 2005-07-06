@@ -196,7 +196,7 @@ begin:
 			}
 			// front and back
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			if(intersect_bspSRLNP(ray,(BspTree*)t->kd.getFront(),distSplit)) return true;
+			if(intersect_bspNP(ray,(BspTree*)t->kd.getFront(),distSplit)) return true;
 			ray->hitDistanceMin = distSplit;
 			t = (BspTree*)t->kd.getBack();
 			goto begin;
@@ -210,7 +210,7 @@ begin:
 			}
 			// back and front
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			if(intersect_bspSRLNP(ray,(BspTree*)t->kd.getBack(),distSplit)) return true;
+			if(intersect_bspNP(ray,(BspTree*)t->kd.getBack(),distSplit)) return true;
 			ray->hitDistanceMin = distSplit;
 			t = (BspTree*)t->kd.getFront();
 			goto begin;
