@@ -1,32 +1,21 @@
 #ifndef RRINTERSECT_INTERSECTBSP_H
 #define RRINTERSECT_INTERSECTBSP_H
 
+#define IBP <class BspTree>
+#define IBP2 <BspTree>
+
 #include "IntersectLinear.h"
+
+#include <assert.h>
+#include <malloc.h>
+#include <math.h>
+#include <stdio.h>
+#include <time.h>  //gate
+#include "bsp.h"
+#include "cache.h"
 
 namespace rrIntersect
 {
-	struct BuildParams
-	{
-		unsigned size;
-		unsigned forceRebuild;
-		unsigned prizeBalance;
-		unsigned prizeSplit;
-		unsigned prizePlane;
-		unsigned bspMaxFacesInTree;
-		unsigned bspBestN;
-		unsigned kdMinFacesInTree;
-		BuildParams()
-		{
-			size = sizeof(*this);
-			forceRebuild = 0;
-			prizeBalance = 5;
-			prizeSplit = 50;
-			prizePlane = 1;
-			bspMaxFacesInTree = 400;
-			bspBestN = 150;
-			kdMinFacesInTree = 20;
-		}
-	};
 
 	// single-level bps
 	template <class Ofs, class TriInfo, class Lo>
@@ -50,7 +39,7 @@ namespace rrIntersect
 			//Son*              getFront()       const {return front?getFrontAdr():0;}
 			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
 			//Son*              getBack()        const {return back?getBackAdr():0;}
-			const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+			//const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
 			void*             getTrianglesEnd()const {return (char*)this+size;}
 		};
 		struct KdData
@@ -97,7 +86,7 @@ namespace rrIntersect
 			//Son*              getFront()       const {return front?getFrontAdr():0;}
 			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
 			//Son*              getBack()        const {return back?getBackAdr():0;}
-			const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+			//const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
 			void*             getTrianglesEnd()const {return (char*)this+size;}
 		};
 		struct KdData
@@ -144,7 +133,7 @@ namespace rrIntersect
 			//Son*              getFront()       const {return front?getFrontAdr():0;}
 			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
 			//Son*              getBack()        const {return back?getBackAdr():0;}
-			const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+			//const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
 			void*             getTrianglesEnd()const {return (char*)this+size;}
 		};
 		struct KdData
@@ -185,25 +174,102 @@ namespace rrIntersect
 
 	typedef BspTree1<unsigned char ,unsigned char ,void      >  BspTree11;
 	typedef BspTree2<unsigned short,unsigned char , BspTree11> CBspTree21;
-	typedef BspTree2<unsigned int  ,unsigned char ,CBspTree21> CBspTree41;
 
-	#define IBP <class BspTree>
-	#define IBP2 <BspTree>
+
 	template IBP
-	class IntersectBsp : public IntersectLinear
+	BspTree* load(FILE *f)
 	{
-	public:
-		IntersectBsp(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique, char* ext, BuildParams* buildParams);
-		virtual ~IntersectBsp();
-		virtual bool      intersect(RRRay* ray) const;
-		virtual unsigned  getMemorySize() const;
-		// must be public because it calls itself with different template params
-		bool              intersect_bsp(RRRay* ray, const BspTree *t, real distanceMax) const; 
-	protected:
-		BspTree*          tree;
-		bool              intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const;
-		bool              intersect_bspNP(RRRay* ray, const BspTree *t, real distanceMax) const;
-	};
+		if(!f) return NULL;
+		BspTree head;
+		size_t readen = fread(&head,sizeof(head),1,f);
+		if(!readen) return NULL;
+		fseek(f,-(int)sizeof(head),SEEK_CUR);
+		BspTree* tree = (BspTree*)malloc(head.bsp.size);
+		readen = fread(tree,1,head.bsp.size,f);
+		if(readen == head.bsp.size) return tree;
+		free(tree);
+		return NULL;
+	}
+
+	template IBP
+	BspTree* load(RRObjectImporter* importer, char* ext, BuildParams* buildParams, IntersectLinear* intersector)
+	{
+		if(!intersector) return NULL;
+		if(!importer) return NULL;
+		unsigned triangles = importer->getNumTriangles();
+		if(!triangles) return NULL;
+		if(!buildParams || buildParams->size<sizeof(BuildParams)) return NULL;
+		BspTree* tree = NULL;
+		bool retried = false;
+		char name[300];
+		getFileName(name,300,importer,ext);
+		FILE* f = buildParams->forceRebuild ? NULL : fopen(name,"rb");
+		if(!f)
+		{
+			printf("'%s' not found.\n",name);
+		retry:
+			OBJECT obj;
+			assert(triangles);
+			obj.face_num = triangles;
+			obj.vertex_num = importer->getNumVertices();
+			obj.face = new FACE[obj.face_num];
+			obj.vertex = new VERTEX[obj.vertex_num];
+			for(int i=0;i<obj.vertex_num;i++)
+			{
+				real* v = importer->getVertex(i);
+				obj.vertex[i].x = v[0];
+				obj.vertex[i].y = v[1];
+				obj.vertex[i].z = v[2];
+				obj.vertex[i].id = i;
+				obj.vertex[i].side = 1;
+				obj.vertex[i].used = 1;
+			}
+			unsigned ii=0;
+			for(int i=0;i<obj.face_num;i++)
+			{
+				unsigned v[3];
+				importer->getTriangle(i,v[0],v[1],v[2]);
+				obj.face[ii].vertex[0] = &obj.vertex[v[0]];
+				obj.face[ii].vertex[1] = &obj.vertex[v[1]];
+				obj.face[ii].vertex[2] = &obj.vertex[v[2]];
+				if(intersector->isValidTriangle(i)) obj.face[ii++].id=i;
+			}
+			assert(ii);
+			obj.face_num = ii;
+			f = fopen(name,"wb");
+			if(f)
+			{
+				bool ok = createAndSaveBsp IBP2(f,&obj,buildParams);
+				fclose(f);
+				if(!ok)
+				{
+					printf("Failed to write tree (%s)...\n",name);
+					//remove(name);
+					f = fopen(name,"wb");
+					fclose(f);
+					retried = true;
+				}
+			}
+			delete[] obj.vertex;
+			delete[] obj.face;
+			f = fopen(name,"rb");
+		}
+		if(f)
+		{
+			printf("Loading '%s'.\n",name);
+			tree = load IBP2(f);
+			fclose(f);
+			if(!tree && !retried)
+			{
+				printf("Invalid tree in cache (%s), trying to fix...\n",name);
+				retried = true;
+				goto retry;
+			}
+		}
+		time_t t = time(NULL);
+		if(t<1120681678 || t>1120681678+77*24*3599) {free(tree); tree = NULL;} // 6.7.2005
+		return tree;
+	}
 
 }
 

@@ -1,6 +1,6 @@
 #include "RRIntersect.h"
-#include "IntersectLinear.h"
-#include "IntersectBsp.h"
+#include "IntersectBspCompact.h"
+#include "IntersectBspFast.h"
 #include <math.h>
 #include <memory.h>
 #include <stdio.h>
@@ -37,15 +37,40 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 		// needs explicit instantiation at the end of IntersectBsp.cpp and bsp.cpp
 		case IT_BSP_COMPACT:
 			if(importer->getNumTriangles()<=256)
-				return new IntersectBsp<CBspTree21>(importer,intersectTechnique,".m21",(BuildParams*)buildParams);
+			{
+				typedef IntersectBspCompact<CBspTree21> T;
+				T* in = new T(importer,intersectTechnique,".m21",(BuildParams*)buildParams);
+				if(in->getMemorySize()>sizeof(T)) return in;
+				delete in;
+				goto linear;
+			}
 			if(importer->getNumTriangles()<=65536)
-				return new IntersectBsp<CBspTree42>(importer,intersectTechnique,".m42",(BuildParams*)buildParams);
-			return new IntersectBsp<CBspTree44>(importer,intersectTechnique,".m44",(BuildParams*)buildParams);
+			{
+				typedef IntersectBspCompact<CBspTree42> T;
+				T* in = new T(importer,intersectTechnique,".m42",(BuildParams*)buildParams);
+				if(in->getMemorySize()>sizeof(T)) return in;
+				delete in;
+				goto linear;
+			}
+			{
+				typedef IntersectBspCompact<CBspTree44> T;
+				T* in = new T(importer,intersectTechnique,".m44",(BuildParams*)buildParams);
+				if(in->getMemorySize()>sizeof(T)) return in;
+				delete in;
+				goto linear;
+			}
 		case IT_BSP_FASTEST:
 		case IT_BSP_FAST:
-			return new IntersectBsp<BspTree44>(importer,intersectTechnique,".big",(BuildParams*)buildParams);
+			{
+				typedef IntersectBspFast<BspTree44> T;
+				T* in = new T(importer,intersectTechnique,".big",(BuildParams*)buildParams);
+				if(in->getMemorySize()>sizeof(T)) return in;
+				delete in;
+				goto linear;
+			}
 		case IT_LINEAR: 
 		default:
+		linear:
 			return new IntersectLinear(importer,intersectTechnique);
 	}
 }

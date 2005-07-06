@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "bsp.h"
+#include "IntersectBsp.h"
 
 //#define CHECK_KD // slow checks of kd build correctness
 
@@ -807,6 +808,5 @@ INSTANTIATE(CBspTree42);
 
 INSTANTIATE( BspTree11);
 INSTANTIATE(CBspTree21);
-INSTANTIATE(CBspTree41);
 
 } // namespace

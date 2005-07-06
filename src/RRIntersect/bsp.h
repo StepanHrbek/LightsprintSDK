@@ -1,8 +1,6 @@
 #ifndef RRINTERSECT_BSP_H
 #define RRINTERSECT_BSP_H
 
-#include "IntersectBsp.h"
-
 namespace rrIntersect
 {
 	struct VERTEX 
@@ -35,7 +33,30 @@ namespace rrIntersect
 		VERTEX   *vertex;
 	};
 
-	template IBP
+	struct BuildParams
+	{
+		unsigned size;
+		unsigned forceRebuild;
+		unsigned prizeBalance;
+		unsigned prizeSplit;
+		unsigned prizePlane;
+		unsigned bspMaxFacesInTree;
+		unsigned bspBestN;
+		unsigned kdMinFacesInTree;
+		BuildParams()
+		{
+			size = sizeof(*this);
+			forceRebuild = 0;
+			prizeBalance = 5;
+			prizeSplit = 50;
+			prizePlane = 1;
+			bspMaxFacesInTree = 400;
+			bspBestN = 150;
+			kdMinFacesInTree = 20;
+		}
+	};
+
+	template <class BspTree>
 	extern bool createAndSaveBsp(FILE *f, OBJECT *obj, BuildParams* buildParams);
 }
 

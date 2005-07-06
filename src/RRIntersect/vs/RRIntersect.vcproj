@@ -152,7 +152,10 @@
 				RelativePath="..\geometry.cpp">
 			</File>
 			<File
-				RelativePath="..\IntersectBsp.cpp">
+				RelativePath="..\IntersectBspCompact.cpp">
+			</File>
+			<File
+				RelativePath="..\IntersectBspFast.cpp">
 			</File>
 			<File
 				RelativePath="..\IntersectLinear.cpp">
@@ -178,6 +181,12 @@
 			</File>
 			<File
 				RelativePath="..\IntersectBsp.h">
+			</File>
+			<File
+				RelativePath="..\IntersectBspCompact.h">
+			</File>
+			<File
+				RelativePath="..\IntersectBspFast.h">
 			</File>
 			<File
 				RelativePath="..\IntersectLinear.h">

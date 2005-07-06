@@ -17,6 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
+#include <limits.h>
 
 #ifdef _MSC_VER
 #pragma comment(lib,"RRIntersect.lib")
