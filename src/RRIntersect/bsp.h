@@ -1,6 +1,8 @@
 #ifndef RRINTERSECT_BSP_H
 #define RRINTERSECT_BSP_H
 
+#include "RRIntersect.h"
+
 namespace rrIntersect
 {
 	struct VERTEX 
@@ -17,10 +19,12 @@ namespace rrIntersect
 
 	struct FACE 
 	{
-		int id,side;
+		int id;
 		VERTEX *vertex[3];
-		NORMAL normal;
+		void fillNormal();
 		void fillMinMax();
+		float getArea() const;
+		NORMAL normal;
 		float min[3]; // bbox min/max
 		float max[3];
 	};
@@ -43,16 +47,31 @@ namespace rrIntersect
 		unsigned bspMaxFacesInTree;
 		unsigned bspBestN;
 		unsigned kdMinFacesInTree;
-		BuildParams()
+		unsigned kdHavran;
+		BuildParams(RRIntersect::IntersectTechnique technique)
 		{
 			size = sizeof(*this);
-			forceRebuild = 0;
+			forceRebuild = 0;//!!!
 			prizeBalance = 5;
-			prizeSplit = 50;
-			prizePlane = 1;
+			prizeSplit = 40;
+			prizePlane = 10;
 			bspMaxFacesInTree = 400;
 			bspBestN = 150;
-			kdMinFacesInTree = 20;
+			kdMinFacesInTree = 5;
+			kdHavran = 0;
+			switch(technique)
+			{
+				case RRIntersect::IT_BSP_FASTEST:
+					kdHavran = 1;
+					break;
+				case RRIntersect::IT_BSP_FAST:
+					break;
+				case RRIntersect::IT_BSP_COMPACT:
+					prizeSplit = 50;
+					prizePlane = 1;
+					kdMinFacesInTree = 10;
+					break;
+			}
 		}
 	};
 

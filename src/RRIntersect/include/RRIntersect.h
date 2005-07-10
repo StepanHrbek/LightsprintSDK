@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.06.28
+// version 2005.07.11
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -448,7 +448,8 @@ namespace rrIntersect
 			: INHERITED(vbuffer,vertices,stride,ibuffer,indices) 
 		{
 			ValidIndices = 0;
-			for(unsigned i=0;i<INHERITED::Indices-2;i++)
+			unsigned numAllTriangles = INHERITED::getNumTriangles();
+			for(unsigned i=0;i<numAllTriangles;i++)
 			{
 				unsigned v0,v1,v2;
 				INHERITED::getTriangle(i,v0,v1,v2);
@@ -456,7 +457,7 @@ namespace rrIntersect
 			}
 			ValidIndex = new INDEX[ValidIndices];
 			ValidIndices = 0;
-			for(unsigned i=0;i<INHERITED::Indices-2;i++)
+			for(unsigned i=0;i<numAllTriangles;i++)
 			{
 				unsigned v0,v1,v2;
 				INHERITED::getTriangle(i,v0,v1,v2);

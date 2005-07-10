@@ -30,7 +30,7 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 
 RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams)
 {
-	BuildParams bp;
+	BuildParams bp(intersectTechnique);
 	if(!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
 	switch(intersectTechnique)
 	{
