@@ -40,7 +40,6 @@ namespace rrIntersect
 			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
 			//Son*              getBack()        const {return back?getBackAdr():0;}
 			//const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
-			void*             getTrianglesEnd()const {return (char*)this+size;}
 		};
 		struct KdData
 		{
@@ -53,12 +52,14 @@ namespace rrIntersect
 			Son*              getBack()        const {return getFront()->getNext();}
 			real              getSplitValue()  const {return *(real*)(this+1);}
 			void              setSplitValue(real r)  {*(real*)(this+1)=r;}
+			TriInfo*          getTrianglesBegin() const {return (TriInfo*)(this+1);}
 		};
 		union {
 			BspData bsp;
 			KdData  kd;
 		};
 		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
+		void*             getTrianglesEnd()const {return (char*)this+bsp.size;}
 		void              setTransition(bool t) {}
 		void              setKd(bool k)         {assert(allows_kd || !k);kd.kd=k;}
 	};
@@ -87,7 +88,6 @@ namespace rrIntersect
 			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
 			//Son*              getBack()        const {return back?getBackAdr():0;}
 			//const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
-			void*             getTrianglesEnd()const {return (char*)this+size;}
 		};
 		struct KdData
 		{
@@ -101,12 +101,14 @@ namespace rrIntersect
 			Son*              getBack()        const {return getFront()->getNext();}
 			real              getSplitValue()  const {return *(real*)(this+1);}
 			void              setSplitValue(real r)  {*(real*)(this+1)=r;}
+			TriInfo*          getTrianglesBegin() const {return (TriInfo*)(this+1);}
 		};
 		union {
 			BspData bsp;
 			KdData  kd;
 		};
 		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
+		void*             getTrianglesEnd()const {return (char*)this+bsp.size;}
 		void              setTransition(bool t) {}
 		void              setKd(bool k)         {kd.kd=k;}
 	};
@@ -134,7 +136,6 @@ namespace rrIntersect
 			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
 			//Son*              getBack()        const {return back?getBackAdr():0;}
 			//const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
-			void*             getTrianglesEnd()const {return (char*)this+size;}
 		};
 		struct KdData
 		{
@@ -147,12 +148,14 @@ namespace rrIntersect
 			Son*              getBack()        const {return getFront()->getNext();}
 			real              getSplitValue()  const {return *(real*)(this+1);}
 			void              setSplitValue(real r)  {*(real*)(this+1)=r;}
+			TriInfo*          getTrianglesBegin() const {return (TriInfo*)(this+1);}
 		};
 		union {
 			BspData bsp;
 			KdData  kd;
 		};
 		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
+		void*             getTrianglesEnd()const {return (char*)this+bsp.size;}
 		void              setTransition(bool t) {bsp.transition=t;}
 		void              setKd(bool k)         {kd.kd=k;}
 	};
@@ -192,7 +195,7 @@ namespace rrIntersect
 	}
 
 	template IBP
-	BspTree* load(RRObjectImporter* importer, char* ext, BuildParams* buildParams, IntersectLinear* intersector)
+	BspTree* load(RRObjectImporter* importer, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
 	{
 		if(!intersector) return NULL;
 		if(!importer) return NULL;

@@ -30,6 +30,7 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 
 RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams)
 {
+	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);
 	if(!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
 	switch(intersectTechnique)
@@ -39,7 +40,7 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 			if(importer->getNumTriangles()<=256)
 			{
 				typedef IntersectBspCompact<CBspTree21> T;
-				T* in = new T(importer,intersectTechnique,".m21",(BuildParams*)buildParams);
+				T* in = new T(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
 				if(in->getMemorySize()>sizeof(T)) return in;
 				delete in;
 				goto linear;
@@ -47,14 +48,14 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 			if(importer->getNumTriangles()<=65536)
 			{
 				typedef IntersectBspCompact<CBspTree42> T;
-				T* in = new T(importer,intersectTechnique,".m42",(BuildParams*)buildParams);
+				T* in = new T(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
 				if(in->getMemorySize()>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
 			{
 				typedef IntersectBspCompact<CBspTree44> T;
-				T* in = new T(importer,intersectTechnique,".m44",(BuildParams*)buildParams);
+				T* in = new T(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
 				if(in->getMemorySize()>sizeof(T)) return in;
 				delete in;
 				goto linear;
@@ -63,7 +64,7 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 		case IT_BSP_FAST:
 			{
 				typedef IntersectBspFast<BspTree44> T;
-				T* in = new T(importer,intersectTechnique,".big",(BuildParams*)buildParams);
+				T* in = new T(importer,intersectTechnique,(intersectTechnique==IT_BSP_FAST)?".fast":".fastest",(BuildParams*)buildParams);
 				if(in->getMemorySize()>sizeof(T)) return in;
 				delete in;
 				goto linear;
@@ -71,6 +72,8 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 		case IT_LINEAR: 
 		default:
 		linear:
+			assert(importer);
+			if(!importer) return NULL;
 			return new IntersectLinear(importer,intersectTechnique);
 	}
 }

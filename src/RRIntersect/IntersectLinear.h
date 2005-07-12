@@ -18,6 +18,7 @@ namespace rrIntersect
 {
 
 	void update_hitPoint3d(RRRay* ray, real distance);
+	void update_hitPlane(RRRay* ray, RRObjectImporter* importer);
 	bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t);
 
 	class IntersectLinear : public RRIntersect

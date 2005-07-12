@@ -114,7 +114,8 @@ RRScene::~RRScene()
 
 RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 {
-	assert(importer);	
+	assert(importer);
+	if(!importer) return UINT_MAX;
 	Object *obj=new Object(importer->getNumVertices(),importer->getNumTriangles());
 	obj->importer = importer;
 

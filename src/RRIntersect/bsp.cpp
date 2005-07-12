@@ -130,8 +130,9 @@ struct BSP_TREE
 {
 	BSP_TREE *front;
 	BSP_TREE *back;
-	unsigned kdnodes;// nodes in whole tree
-	unsigned bspnodes;// nodes in whole tree
+	unsigned kdnodes;// kd internal nodes in whole tree
+	unsigned kdleaves;// kd leaves in whole tree
+	unsigned bspnodes;// bsp nodes in whole tree
 	unsigned faces;// face instances in whole tree
 	// bsp
 	const FACE **plane;
@@ -157,7 +158,7 @@ struct BSP_TREE
 #undef  ABS
 #define ABS(x) (((x)>0)?(x):(-(x)))
 
-unsigned    max_skip,nodes,faces;
+unsigned    nodes,faces;
 BSP_TREE*   bsptree;
 unsigned    bsptree_id;
 BuildParams buildParams;
@@ -305,7 +306,7 @@ VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 
 	best_dee.prize = UINT_MAX;
 	best_dee.face = NULL;
-	best_havran.fprize = 1e30;
+	best_havran.fprize = 1e30f;
 	best_havran.face = NULL;
 
 	// prepare sortarrays
@@ -482,7 +483,7 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo)
 		px+=x; py+=y; pz+=z; pn++; 
 	}
 
-	if(pn<max_skip) return NULL;
+	if(!pn) return NULL;
 
 	px/=pn; py/=pn; pz/=pn;
 
@@ -560,6 +561,19 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 			else 
 				kdroot=NULL;
 		}
+	}
+	
+	// create kd leaf
+	if(buildParams.kdLeaf && bsproot && info_bsp.front==0 && info_bsp.back==0 && info_bsp.plane<3)
+	{
+		if(pn>7) printf("*%d",pn);
+		t->plane  =NULL;
+		t->leaf   =space;
+		t->front  =NULL;
+		t->back   =NULL; 
+		t->axis   =3;
+		t->kdroot =NULL; 
+		return t; 
 	}
 
 	// leaf -> exit
@@ -681,10 +695,12 @@ void guess_size_bsp(BSP_TREE *t)
 {
 	unsigned n = 0;
 	if(t->plane) for(unsigned i=0;t->plane[i];i++) n++; 
+	if(t->leaf) for(unsigned i=0;t->leaf[i];i++) n++;
 	if(t->front) guess_size_bsp(t->front);
 	if(t->back) guess_size_bsp(t->back);
-	t->bspnodes = (t->kdroot?0:1) + (t->front?t->front->bspnodes:0) + (t->back?t->back->bspnodes:0);
+	t->bspnodes = ((!t->kdroot && !t->leaf)?1:0) + (t->front?t->front->bspnodes:0) + (t->back?t->back->bspnodes:0);
 	t->kdnodes = (t->kdroot?1:0) + (t->front?t->front->kdnodes:0) + (t->back?t->back->kdnodes:0);
+	t->kdleaves = (t->leaf?1:0) + (t->front?t->front->kdleaves:0) + (t->back?t->back->kdleaves:0);
 	t->faces = n + (t->front?t->front->faces:0) + (t->back?t->back->faces:0);
 }
 
@@ -710,11 +726,22 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 		assert(t->front);
 		assert(t->back);
 	}
+	if(t->leaf)
+	{
+		assert(t->leaf[0]);
+		for(unsigned i=0;t->leaf[i];i++) 
+		{
+			typename BspTree::_TriInfo tri = t->leaf[i]->id;
+			assert(tri==t->leaf[i]->id);
+			fwrite(&tri,sizeof(tri),1,f);
+			faces++;
+		}
+	}
 
 	bool transition = false;
 	if(BspTree::allows_transition)
 	{
-		#define TREE_SIZE(tree,nodeSize,triSize) (tree ? tree->bspnodes*nodeSize + tree->kdnodes*(nodeSize+sizeof(real)) + tree->faces*triSize : 0)
+		#define TREE_SIZE(tree,nodeSize,triSize) (tree ? tree->bspnodes*nodeSize + tree->kdnodes*(nodeSize+sizeof(real)) + tree->kdleaves*nodeSize + tree->faces*triSize : 0)
 		typename first_nonvoid<typename BspTree::_Lo,BspTree>::T smallerBspTree,smallerBspTree2;
 		typename first_nonvoid<typename BspTree::_Lo,BspTree>::T::_TriInfo smallerTriInfo;
 		//unsigned frontSizeMax = TREE_SIZE(t->front,sizeof(BspTree),sizeof(typename BspTree::_TriInfo));
@@ -735,7 +762,7 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 		if(t->back) if(!save_bsp IBP2(f,t->back)) return false;
 	}
 
-	if(!t->front && !t->back) assert(n);
+	if(!t->front && !t->back) assert(n || t->leaf); // n=bsp leaf, leaf=kd leaf
 
 	if(!t->kdroot) for(unsigned i=n;i--;)
 	{
@@ -749,10 +776,10 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 	node.bsp.size = pos2-pos1;
 	if(node.bsp.size!=pos2-pos1) {assert(0);return false;}
 	node.setTransition(transition);
-	node.setKd(t->kdroot!=NULL);
-	if(t->kdroot)
+	node.setKd(t->kdroot || t->leaf);
+	if(t->kdroot || t->leaf)
 	{
-		assert(t->axis>=0 && t->axis<=2);
+		assert(t->axis>=0 && t->axis<=3);
 		node.kd.splitAxis = t->axis;
 	} else {
 		node.bsp.back = t->back?1:0;
@@ -774,8 +801,6 @@ static const FACE **make_list(OBJECT *o)
 BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 {
 	BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
-
-	max_skip=1;
 
 	assert(obj->face_num>0); // pozor nastava
 
@@ -823,7 +848,7 @@ bool save_bsp(FILE *f, OBJECT *obj, BSP_TREE* bsp)
 	assert(faces==bsp->faces);
 	int j=ftell(f);
 	if(!obj->face_num) printf("\nBSP: No faces.\n"); else
-		printf("\nBSP nodes: %d+%d(%1.1f) size: %d(%1.1f)\n",bsp->kdnodes,bsp->bspnodes,bsp->faces/(float)obj->face_num,j-i,(j-i)/(float)obj->face_num);
+		printf("\nBSP nodes: %d+%d+%d(%1.1f) size: %d(%1.1f)\n",bsp->kdnodes,bsp->bspnodes,bsp->kdleaves,bsp->faces/(float)obj->face_num,j-i,(j-i)/(float)obj->face_num);
 
 	return ok;
 }

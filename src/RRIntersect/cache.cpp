@@ -57,7 +57,7 @@ void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer)
 	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
 
-void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer, char* extension)
+void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer, const char* extension)
 {
 	if(!bufsize) return;
 	buf[0]=0;

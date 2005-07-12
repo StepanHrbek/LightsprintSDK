@@ -39,19 +39,20 @@ namespace rrIntersect
 
 	struct BuildParams
 	{
-		unsigned size;
-		unsigned forceRebuild;
-		unsigned prizeBalance;
-		unsigned prizeSplit;
-		unsigned prizePlane;
-		unsigned bspMaxFacesInTree;
-		unsigned bspBestN;
-		unsigned kdMinFacesInTree;
-		unsigned kdHavran;
+		unsigned size;              // size of this structure
+		unsigned forceRebuild;      // force rebuild of tree
+		unsigned prizeBalance;      // redox/dee heuristic: penalty for unbalanced tree
+		unsigned prizeSplit;        // redox/dee heuristic: penalty for triangle splitted by plane
+		unsigned prizePlane;        // redox/dee heuristic: penalty for triangle in plane
+		unsigned bspMaxFacesInTree; // don't even try bsp on bigger tree
+		unsigned bspBestN;          // preselect and fully test this many triangles for bsp root
+		unsigned kdMinFacesInTree;  // don't even try kd on smaller tree
+		unsigned kdHavran;          // allow havran's heuristic for fastest tree to be tried
+		unsigned kdLeaf;            // allow kd leaves in tree (supported only by compact intersector)
 		BuildParams(RRIntersect::IntersectTechnique technique)
 		{
 			size = sizeof(*this);
-			forceRebuild = 0;//!!!
+			forceRebuild = 0;
 			prizeBalance = 5;
 			prizeSplit = 40;
 			prizePlane = 10;
@@ -59,6 +60,7 @@ namespace rrIntersect
 			bspBestN = 150;
 			kdMinFacesInTree = 5;
 			kdHavran = 0;
+			kdLeaf = 0;
 			switch(technique)
 			{
 				case RRIntersect::IT_BSP_FASTEST:
@@ -70,6 +72,7 @@ namespace rrIntersect
 					prizeSplit = 50;
 					prizePlane = 1;
 					kdMinFacesInTree = 10;
+					kdLeaf = 1;
 					break;
 			}
 		}

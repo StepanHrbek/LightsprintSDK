@@ -108,6 +108,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 {
 	DBG(printf("\n"));
 	intersectStats.intersects++;
+	if(!importer) return false; // this shouldn't happen but linear is so slow that we can test it
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 
 	ray->hitDistance = ray->hitDistanceMax;
@@ -123,6 +124,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		{
 			hit = true;
 			ray->hitTriangle = t;
+			ray->hitDistanceMax = ray->hitDistance;
 		}
 	}
 	if(hit) 

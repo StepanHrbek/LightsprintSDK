@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.07.11
+// version 2005.07.12
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -141,7 +141,6 @@ namespace rrIntersect
 		// branches, many times per call
 		unsigned intersect_triangleSRLNP;
 		unsigned intersect_triangleNP;
-		unsigned intersect_triangleP;
 		unsigned intersect_triangle;
 		// helper
 		void getInfo(char *buf, unsigned len, unsigned level) const;
