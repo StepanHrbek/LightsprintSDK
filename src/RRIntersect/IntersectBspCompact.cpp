@@ -85,8 +85,8 @@ begin:
 			}
 			// front and back
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			if(intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getFront(),distSplit)) return true;
-			ray->hitDistanceMin = distSplit;
+			if(intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getFront(),distSplit+DELTA_BSP)) return true;
+			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getBack(),distanceMax);
 			t = (BspTree*)t->kd.getBack();
 			goto begin;
@@ -101,8 +101,8 @@ begin:
 			}
 			// back and front
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			if(intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getBack(),distSplit)) return true;
-			ray->hitDistanceMin = distSplit;
+			if(intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getBack(),distSplit+DELTA_BSP)) return true;
+			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getFront(),distanceMax);
 			t = (BspTree*)t->kd.getFront();
 			goto begin;
@@ -234,7 +234,8 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
-	bool hit = sphere.intersect(ray) && box.intersect(ray) && intersect_bsp(ray,tree,ray->hitDistanceMax);
+	bool hit = ((ray->flags&RRRay::SKIP_PRETESTS) || (sphere.intersect(ray) && box.intersect(ray))) 
+		&& intersect_bsp(ray,tree,ray->hitDistanceMax);
 	if(hit) intersectStats.hits++;
 	return hit;
 }

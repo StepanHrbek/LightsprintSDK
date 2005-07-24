@@ -126,6 +126,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 
 	ray->hitDistance = ray->hitDistanceMax;
 
+	if(!(ray->flags&RRRay::SKIP_PRETESTS))
 	if(!sphere.intersect(ray) || !box.intersect(ray)) return false;
 
 	bool hit = false;

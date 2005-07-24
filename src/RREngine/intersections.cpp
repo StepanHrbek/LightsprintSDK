@@ -36,7 +36,7 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 
 
 	RRRay ray;
-	ray.flags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
+	ray.flags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE|RRRay::SKIP_PRETESTS;
 	ray.rayOrigin[0] = eye.x;
 	ray.rayOrigin[1] = eye.y;
 	ray.rayOrigin[2] = eye.z;
@@ -110,7 +110,7 @@ bool Scene::intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,
 
 	bool hit=false;
 	for(unsigned o=0;o<staticObjects;o++)
-		if(object[o]->bound.intersect(eye,direction,*hitDistance))
+		if(object[o]->bound.intersect(eye,direction,*hitDistance)) // replaced by pretests in RRIntersect
 			if(object[o]->intersection(eye,direction,skip,hitTriangle,hitPoint2d,hitOuterSide,hitDistance))
 				 hit=true;
 	LOG_RAY(eye,direction,hit?*hitDistance:-1);

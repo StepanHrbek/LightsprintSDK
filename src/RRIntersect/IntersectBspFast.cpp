@@ -321,10 +321,10 @@ begin:
 			}
 			// front and back
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			TEST_RANGE(ray->hitDistanceMin,distSplit,1,t->kd.getFront());
-			TEST_RANGE(distSplit,distanceMax,1,t->kd.getBack());
-			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit)) return true;
-			ray->hitDistanceMin = distSplit;
+			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
+			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
+			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
+			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getBack();
 			goto begin;
 		} else {
@@ -338,10 +338,10 @@ begin:
 			}
 			// back and front
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			TEST_RANGE(ray->hitDistanceMin,distSplit,1,t->kd.getBack());
-			TEST_RANGE(distSplit,distanceMax,1,t->kd.getFront());
-			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit)) return true;
-			ray->hitDistanceMin = distSplit;
+			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getBack());
+			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
+			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
+			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getFront();
 			goto begin;
 		}
@@ -352,8 +352,9 @@ begin:
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle[0]].n3;
-
-	// part done with point in distance 0, part in distance plane
+#define OPLANE
+#ifdef OPLANE
+	// 0plane: part done with point in distance 0, part in distance plane
 	float distanceMinLocation = // +=point at distanceMin is in front, -=back, 0=plane
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
 		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
@@ -363,8 +364,8 @@ begin:
 	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
 		|| (distanceMinLocation==0 && nonz<0); // point at distanceMin is in plane and rayDir is from front to back
 	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
-/*
-	// all done with point in distance 0
+#else
+	// 0: all done with point in distance 0
 	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
 	real distancePlaneScaled = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d);
 	real distancePlane = distancePlaneScaled/nonz;
@@ -372,7 +373,14 @@ begin:
 	//	|| (nonz==0); // point at distanceMin is in plane and rayDir is from front to back
 	bool frontback = (ray->hitDistanceMin*nonz>distancePlaneScaled) // point at distanceMin is in front
 		|| (nonz==0); // point at distanceMin is in plane and rayDir is from front to back
-*/
+#endif
+	// number of clear_miss during 5 sec in cube debug
+	// (switch 0/0plane/plane here, switch kd/bsp/kdbsp in bsp.h)
+	//           kd   bsp  kdbsp
+	// 0		  143    63
+	// 0plane           7     4
+	// plane
+
 	// test only one half
 	// distancePlane = 1/0 (ray parallel to plane) is handled here
 	if(distancePlane<ray->hitDistanceMin || distancePlane>distanceMax)
@@ -485,8 +493,8 @@ begin:
 			}
 			// front and back
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			if(intersect_bspNP(ray,t->kd.getFront(),distSplit)) return true;
-			ray->hitDistanceMin = distSplit;
+			if(intersect_bspNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
+			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getBack();
 			goto begin;
 		} else {
@@ -499,8 +507,8 @@ begin:
 			}
 			// back and front
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			if(intersect_bspNP(ray,t->kd.getBack(),distSplit)) return true;
-			ray->hitDistanceMin = distSplit;
+			if(intersect_bspNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
+			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getFront();
 			goto begin;
 		}
@@ -657,8 +665,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
 
-	if(sphere.intersect(ray))
-	if(box.intersect(ray))
+	if((ray->flags&RRRay::SKIP_PRETESTS) || (sphere.intersect(ray) && box.intersect(ray)))
 	switch(intersectTechnique)
 	{
 		case IT_BSP_FASTEST:

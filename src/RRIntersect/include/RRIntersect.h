@@ -79,6 +79,7 @@ namespace rrIntersect
 			FILL_TRIANGLE   =(1<<4),
 			FILL_SIDE       =(1<<5),
 			TEST_SINGLESIDED=(1<<6), // detect collision only against outer side. default is to test both sides
+			SKIP_PRETESTS   =(1<<7), // skip bounding volume pretests
 		};
 		RRReal          rayOrigin[3];   // i, ray origin
 		RRReal          rayDir[3];      // i, ray direction, must be normalized

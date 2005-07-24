@@ -3,8 +3,6 @@
 
 #include "IntersectBsp.h"
 
-//#define TEST
-
 namespace rrIntersect
 {
 
