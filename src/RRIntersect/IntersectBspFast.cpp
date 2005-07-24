@@ -275,10 +275,6 @@ bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporte
 	return true;
 }
 
-#define DELTA_BSP 0.01f // tolerance to numeric errors (absolute distance in scenespace)
-// higher number = slower intersection
-// (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
-
 template IBP
 bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const
 // input:                t, rayOrigin, rayDir, skip, hitDistanceMin, hitDistanceMax

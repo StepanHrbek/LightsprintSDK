@@ -99,6 +99,8 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 	sphere.detect(vertex,vertices);
 	box.detect(vertex,vertices);
 	delete[] vertex;
+
+	DELTA_BSP = sphere.radius*1e-5f;
 }
 
 unsigned IntersectLinear::getMemorySize() const
