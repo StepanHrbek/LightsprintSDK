@@ -18,7 +18,7 @@ namespace rrIntersect
 	#define TEST_RANGE(min,max,cond,tree) if(!watch_tested && min<=watch_distance && watch_distance<=max) \
 		;//!!! assert(cond && tree->contains(watch_triangle)); // optimal triangle is to be thrown away
 #else
-	#define TEST_RANGE(min,max,tree)
+	#define TEST_RANGE(min,max,cond,tree)
 #endif
 
 #define DBG(a) //a
@@ -656,6 +656,9 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	bool hit = false;
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
+
+	if(sphere.intersect(ray))
+	if(box.intersect(ray))
 	switch(intersectTechnique)
 	{
 		case IT_BSP_FASTEST:

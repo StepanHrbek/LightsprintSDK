@@ -86,6 +86,19 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 {
 	importer = aimporter;
 	triangles = importer->getNumTriangles();
+
+	unsigned vertices = importer->getNumVertices();
+	Vec3* vertex = new Vec3[vertices];
+	for(unsigned i=0;i<vertices;i++)
+	{
+		real* v = importer->getVertex(i);
+		vertex[i].x = v[0];
+		vertex[i].y = v[1];
+		vertex[i].z = v[2];
+	}
+	sphere.detect(vertex,vertices);
+	box.detect(vertex,vertices);
+	delete[] vertex;
 }
 
 unsigned IntersectLinear::getMemorySize() const
@@ -112,6 +125,8 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 
 	ray->hitDistance = ray->hitDistanceMax;
+
+	if(!sphere.intersect(ray) || !box.intersect(ray)) return false;
 
 	bool hit = false;
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir

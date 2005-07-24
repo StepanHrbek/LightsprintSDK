@@ -234,7 +234,7 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
-	bool hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
+	bool hit = sphere.intersect(ray) && box.intersect(ray) && intersect_bsp(ray,tree,ray->hitDistanceMax);
 	if(hit) intersectStats.hits++;
 	return hit;
 }

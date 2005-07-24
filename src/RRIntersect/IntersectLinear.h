@@ -32,6 +32,8 @@ namespace rrIntersect
 	protected:
 		RRObjectImporter* importer;
 		unsigned          triangles;
+		Sphere            sphere;
+		Box               box;
 	};
 
 }

@@ -19,12 +19,6 @@ worst situations
 
 */
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX3(a,b,c) MAX(a,MAX(b,c))
-#define MIN3(a,b,c) MIN(a,MIN(b,c))
-
-
 namespace rrIntersect
 {
 
@@ -153,9 +147,7 @@ struct BSP_TREE
 };
 
 #define CACHE_SIZE 1000
-//!!! odvodit z velikosti bboxu
-float DELTA_INSIDE_PLANE; // min distance from plane to be recognized as non-plane
-#define _DELTA_INSIDE_PLANE 0.0001 // min distance from plane to be recognized as non-plane
+float   DELTA_INSIDE_PLANE; // min distance from plane to be recognized as non-plane
 #define DELTA_NORMALS_MATCH 0.001 // min distance of normals to be recognized as non-plane
 #define PLANE 0
 #define FRONT 1
@@ -180,18 +172,18 @@ BspBuilder() : buildParams(RRIntersect::IT_BSP_FASTEST)
 	bsptree_id = CACHE_SIZE;
 }
 
-BSP_TREE *new_bsp()
+BSP_TREE *new_node()
 {
 	BSP_TREE* oldbsptree=bsptree;
 	if (bsptree_id<CACHE_SIZE) return bsptree+bsptree_id++;
 	bsptree=nALLOC(BSP_TREE,CACHE_SIZE+1); bsptree[CACHE_SIZE].front=oldbsptree; bsptree_id=1; return bsptree;
 }
 
-static void free_bsp(BSP_TREE* t)
+static void free_node(BSP_TREE* t)
 {
 	free(t->plane);
-	if(t->front) free_bsp(t->front);
-	if(t->back) free_bsp(t->back);
+	if(t->front) free_node(t->front);
+	if(t->back) free_node(t->back);
 	free(t->leaf);
 }
 
@@ -208,7 +200,7 @@ static void free_bsp(BSP_TREE* t)
 static int locate_vertex_bsp(const FACE *f, const VERTEX *v, float DELTA_INSIDE_PLANE)
 {
 	float r = f->normal.a*v->x+f->normal.b*v->y+f->normal.c*v->z+f->normal.d;
-	if(ABS(r)<_DELTA_INSIDE_PLANE) return PLANE; 
+	if(ABS(r)<DELTA_INSIDE_PLANE) return PLANE; 
 	if(r>0) return FRONT; 
 	return BACK;
 }
@@ -535,7 +527,7 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo)
 			bestinfo->split = split;
 			bestinfo->prize = prize;
 			best=tmp[i].f; 
-			if(!plane) // at least best must be in plane
+			if(!plane) //!!! at least best must be in plane
 				locate_face_bsp(best,best,DELTA_INSIDE_PLANE);
 		}
 
@@ -552,7 +544,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	for(int i=0;space[i];i++) pn++;
 
 	// alloc node
-	BSP_TREE *t=new_bsp();
+	BSP_TREE *t=new_node();
 	memset(t,0,sizeof(BSP_TREE));
 
 	// select splitting plane
@@ -576,7 +568,6 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	}
 	
 	// create kd leaf
-
 	if(buildParams.kdLeaf && bsproot && info_bsp.front==0 && info_bsp.back==0 && info_bsp.plane<3)
 	{
 		if(pn>7) printf("*%d",pn);
@@ -697,6 +688,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		t->plane = plane;
 	}
 
+#ifdef TEST
 	printf(kdroot?"KD":"BSP");
 	if(plane) for(int i=0;plane[i];i++) printf(" %d",plane[i]->id);
 	printf(" Front:");
@@ -704,6 +696,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	printf(" Back:");
 	if(back) for(int i=0;back[i];i++) printf(" %d",back[i]->id);
 	printf("\n");
+#endif
 
 	t->front = front ? create_bsp(front,&bbox_front,kd_allowed) : NULL;
 	t->back = back ? create_bsp(back,&bbox_back,kd_allowed) : NULL;
@@ -816,7 +809,7 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 static const FACE **make_list(OBJECT *o)
 {
 	const FACE **l=nALLOC(const FACE*,o->face_num+1); int i;
-	for (i=0;i<o->face_num;i++) l[i]=o->face+i;
+	for(i=0;i<o->face_num;i++) l[i]=o->face+i;
 	l[o->face_num]=NULL; return l;
 }
 
@@ -854,8 +847,8 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 
 	DELTA_INSIDE_PLANE = bbox.getEdgeSize() * 1e-6f;
 
-	for (int i=0;i<obj->vertex_num;i++)
-		if (!obj->vertex[i].used) printf("warning: unused vertex %d\n",i);
+	for(int i=0;i<obj->vertex_num;i++)
+		if(!obj->vertex[i].used) printf("warning: unused vertex %d\n",i);
 
 	return create_bsp(make_list(obj),&bbox,kd_allowed);
 }
@@ -887,7 +880,7 @@ bool createAndSaveBsp(FILE *f, OBJECT *obj, BuildParams* buildParams)
 	builder->buildParams = *buildParams;
 	BspBuilder::BSP_TREE* bsp = builder->create_bsp(obj,BspTree::allows_kd);
 	bool ok = builder->save_bsp IBP2(f, obj, bsp);
-	builder->free_bsp(bsp);
+	builder->free_node(bsp);
 	delete builder;
 	return ok;
 }

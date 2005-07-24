@@ -36,7 +36,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	clock_t t0 = clock(); //start timer
 	int num_hits = 0;//number of rays that actually hit the model
 
-	const unsigned NUM_ITERS = 100000;
+	const unsigned NUM_ITERS = 200000;
 	const PoolVec3 aabb_center = PoolVec3(-0.016840f, 0.110154f, -0.001537f);
 
 	for(int i=0; i<NUM_ITERS; ++i)
