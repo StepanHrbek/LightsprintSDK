@@ -24,7 +24,7 @@ namespace rrIntersect
 	class IntersectLinear : public RRIntersect
 	{
 	public:
-		IntersectLinear(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique);
+		IntersectLinear(RRObjectImporter* aimporter);
 		virtual ~IntersectLinear();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual bool      isValidTriangle(unsigned i) const;

@@ -33,7 +33,7 @@ static int vertex_callback(p_ply_argument argument)
 	long vertindex;
 	ply_get_argument_element(argument, NULL, &vertindex);
 
-	current_mesh->verts[vertindex].pos[current_cmpnt] = ply_get_argument_value(argument);
+	current_mesh->verts[vertindex].pos[current_cmpnt] = (float)ply_get_argument_value(argument);
 
 
     return 1;

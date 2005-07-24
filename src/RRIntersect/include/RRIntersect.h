@@ -142,6 +142,16 @@ namespace rrIntersect
 		unsigned intersect_triangleSRLNP;
 		unsigned intersect_triangleNP;
 		unsigned intersect_triangle;
+		// robustness
+		unsigned diff_overlap;
+		unsigned diff_precalc_miss;
+		unsigned diff_tight_hit;
+		unsigned diff_tight_miss;
+		unsigned diff_parallel_hit;
+		unsigned diff_parallel_miss;
+		unsigned diff_clear_hit;
+		unsigned diff_clear_miss_tested;
+		unsigned diff_clear_miss_not_tested;
 		// helper
 		void getInfo(char *buf, unsigned len, unsigned level) const;
 	};

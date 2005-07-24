@@ -124,6 +124,16 @@ struct BBOX
 		assert(c>=0);
 		return 2*(a*(b+c)+b*c);
 	}
+	float getEdgeSize() const
+	{
+		float a=hi[0]-lo[0];
+		float b=hi[1]-lo[1];
+		float c=hi[2]-lo[2];
+		assert(a>=0);
+		assert(b>=0);
+		assert(c>=0);
+		return a+b+c;
+	}
 };
 
 struct BSP_TREE 
@@ -144,7 +154,8 @@ struct BSP_TREE
 
 #define CACHE_SIZE 1000
 //!!! odvodit z velikosti bboxu
-#define DELTA_INSIDE_PLANE 0.0001 // min distance from plane to be recognized as non-plane
+float DELTA_INSIDE_PLANE; // min distance from plane to be recognized as non-plane
+#define _DELTA_INSIDE_PLANE 0.0001 // min distance from plane to be recognized as non-plane
 #define DELTA_NORMALS_MATCH 0.001 // min distance of normals to be recognized as non-plane
 #define PLANE 0
 #define FRONT 1
@@ -194,16 +205,17 @@ static void free_bsp(BSP_TREE* t)
 	}
 }
 
-static int locate_vertex_bsp(const FACE *f, const VERTEX *v)
+static int locate_vertex_bsp(const FACE *f, const VERTEX *v, float DELTA_INSIDE_PLANE)
 {
 	float r = f->normal.a*v->x+f->normal.b*v->y+f->normal.c*v->z+f->normal.d;
-	if(ABS(r)<DELTA_INSIDE_PLANE) return PLANE; 
+	if(ABS(r)<_DELTA_INSIDE_PLANE) return PLANE; 
 	if(r>0) return FRONT; 
 	return BACK;
 }
 
 static int locate_vertex_kd(float splitValue, int splitAxis, const VERTEX *v)
 {
+	assert(splitAxis>=0 && splitAxis<3);
 	return ((*v)[splitAxis]>splitValue) ? FRONT : ( ((*v)[splitAxis]<splitValue) ? BACK : PLANE );
 }
 
@@ -214,12 +226,12 @@ static int normals_match(const FACE *plane, const FACE *face)
 		fabs(plane->normal.a-face->normal.a)+fabs(plane->normal.b-face->normal.b)+fabs(plane->normal.c-face->normal.c)<DELTA_NORMALS_MATCH;
 }
 
-static int locate_face_bsp(const FACE *plane, const FACE *face)
+static int locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSIDE_PLANE)
 {
 	int i,f=0,b=0,p=0;
 
 	for (i=0;i<3;i++)
-		switch (locate_vertex_bsp(plane,face->vertex[i])) 
+		switch (locate_vertex_bsp(plane,face->vertex[i],DELTA_INSIDE_PLANE))
 		{
 			case BACK:b++;break;
 			case FRONT:f++;break;
@@ -504,7 +516,7 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo)
 		int front=0,back=0,plane=0,split=0;
 
 		for(int j=0;list[j];j++)
-			switch(locate_face_bsp(tmp[i].f,list[j])) 
+			switch(locate_face_bsp(tmp[i].f,list[j],DELTA_INSIDE_PLANE)) 
 			{
 				case PLANE:plane++;break;
 				case FRONT:front++;break;
@@ -524,7 +536,7 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo)
 			bestinfo->prize = prize;
 			best=tmp[i].f; 
 			if(!plane) // at least best must be in plane
-				locate_face_bsp(best,best);
+				locate_face_bsp(best,best,DELTA_INSIDE_PLANE);
 		}
 
 	}
@@ -564,6 +576,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	}
 	
 	// create kd leaf
+
 	if(buildParams.kdLeaf && bsproot && info_bsp.front==0 && info_bsp.back==0 && info_bsp.plane<3)
 	{
 		if(pn>7) printf("*%d",pn);
@@ -602,7 +615,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	for(int i=0;space[i];i++)
 	{
 		if(!kdroot && space[i]==bsproot) {plane_num++;continue;} // insert bsproot into plane
-		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,space[i]) : locate_face_bsp(bsproot,space[i]);
+		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,space[i]) : locate_face_bsp(bsproot,space[i],DELTA_INSIDE_PLANE);
 		switch(side) 
 		{
 			case BACK: back_num++; break;
@@ -618,8 +631,8 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		assert(plane_num == info_kd.plane);
 		assert(split_num == info_kd.split);
 	} else {
-		ROOT_INFO info_bsp2;//!!!
-		const FACE* bsproot2 = find_best_root_bsp(space,&info_bsp2);//!!!
+		//ROOT_INFO info_bsp2;//!!!
+		//const FACE* bsproot2 = find_best_root_bsp(space,&info_bsp2);//!!!
 		assert(back_num == info_bsp.back);
 		assert(front_num == info_bsp.front);
 		assert(plane_num == info_bsp.plane);
@@ -652,7 +665,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	int back_id=0;
 	for(int i=0;space[i];i++) if(kdroot || space[i]!=bsproot) 
 	{
-		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,space[i]) : locate_face_bsp(bsproot,space[i]);
+		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,space[i]) : locate_face_bsp(bsproot,space[i],DELTA_INSIDE_PLANE);
 		switch(side) 
 		{
 			case PLANE: if(!kdroot) {plane[plane_id++]=space[i]; break;}
@@ -683,6 +696,15 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	} else {
 		t->plane = plane;
 	}
+
+	printf(kdroot?"KD":"BSP");
+	if(plane) for(int i=0;plane[i];i++) printf(" %d",plane[i]->id);
+	printf(" Front:");
+	if(front) for(int i=0;front[i];i++) printf(" %d",front[i]->id);
+	printf(" Back:");
+	if(back) for(int i=0;back[i];i++) printf(" %d",back[i]->id);
+	printf("\n");
+
 	t->front = front ? create_bsp(front,&bbox_front,kd_allowed) : NULL;
 	t->back = back ? create_bsp(back,&bbox_back,kd_allowed) : NULL;
 
@@ -830,6 +852,8 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 		obj->vertex[obj->face[i].vertex[2]->id].used++;
 	}
 
+	DELTA_INSIDE_PLANE = bbox.getEdgeSize() * 1e-6f;
+
 	for (int i=0;i<obj->vertex_num;i++)
 		if (!obj->vertex[i].used) printf("warning: unused vertex %d\n",i);
 
@@ -875,9 +899,6 @@ bool createAndSaveBsp(FILE *f, OBJECT *obj, BuildParams* buildParams)
 	template bool createAndSaveBsp    <BspTree>(FILE *f, OBJECT *obj, BuildParams* buildParams)
 
 // single-level bsp
-INSTANTIATE(BspTree21);
-INSTANTIATE(BspTree22);
-INSTANTIATE(BspTree42);
 INSTANTIATE(BspTree44);
 
 // multi-level bsp

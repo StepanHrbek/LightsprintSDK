@@ -82,7 +82,7 @@ bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t)
 	return true;
 }
 
-IntersectLinear::IntersectLinear(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique)
+IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 {
 	importer = aimporter;
 	triangles = importer->getNumTriangles();

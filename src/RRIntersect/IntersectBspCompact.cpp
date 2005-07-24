@@ -125,16 +125,16 @@ begin:
 	n.z = t2.r[0] * t2.l[1] - t2.r[1] * t2.l[0];
 	n.d = -(t2.s[0] * n.x + t2.s[1] * n.y + t2.s[2] * n.z);
 
-	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
-	if(nonz==0) return false; // ray parallel with plane (possibly inside)
-	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
 	bool frontback =
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
 		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
 		n[2]*(ray->rayOrigin[2]+ray->rayDir[2]*ray->hitDistanceMin)+
 		n[3]>0;
+	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
 
 	// test only one half
+	// distancePlane = 1/0 (ray parallel to plane) is handled here
 	if (distancePlane<ray->hitDistanceMin || distancePlane>distanceMax)
 	{
 		if(frontback)
@@ -149,6 +149,9 @@ begin:
 		}
 		goto begin;
 	}
+
+	// distancePlane = 0/0 (ray inside plane) is handled below
+	if(_isnan(distancePlane)/*nonz==0*/) distancePlane = 0;
 
 	// test first half
 	if(frontback)
@@ -210,7 +213,7 @@ begin:
 }
 
 template IBP
-IntersectBspCompact IBP2::IntersectBspCompact(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter, intersectTechnique)
+IntersectBspCompact IBP2::IntersectBspCompact(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
 {
 	tree = load IBP2(aimporter,ext,buildParams,this);
 	if(!tree) return;
@@ -243,12 +246,6 @@ IntersectBspCompact IBP2::~IntersectBspCompact()
 }
 
 // explicit instantiation
-
-// single-level bsp
-template class IntersectBspCompact<BspTree44>; // for size 0..2^30-1         [65537..2^32 triangles]
-template class IntersectBspCompact<BspTree42>; // for 257..65536 triangles   [size 0..2^30-1]
-template class IntersectBspCompact<BspTree22>; // for size 0..16383          [257..65536 triangles]
-template class IntersectBspCompact<BspTree21>; // for 0..256 triangles       [size 0..16383]
 
 // multi-level bsp
 template class IntersectBspCompact< BspTree14>;

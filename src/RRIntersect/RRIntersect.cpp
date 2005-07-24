@@ -35,7 +35,7 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 	if(!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
 	switch(intersectTechnique)
 	{
-		// needs explicit instantiation at the end of IntersectBsp.cpp and bsp.cpp
+		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
 		case IT_BSP_COMPACT:
 			if(importer->getNumTriangles()<=256)
 			{
@@ -74,7 +74,7 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 		linear:
 			assert(importer);
 			if(!importer) return NULL;
-			return new IntersectLinear(importer,intersectTechnique);
+			return new IntersectLinear(importer);
 	}
 }
 

@@ -35,11 +35,11 @@ namespace rrIntersect
 			Ofs               kd:1;
 			Ofs               front:1;
 			Ofs               back:1;
-			//Son*              getFrontAdr()    const {return (Son*)(this+1);}
-			//Son*              getFront()       const {return front?getFrontAdr():0;}
-			//Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->size:0));}
-			//Son*              getBack()        const {return back?getBackAdr():0;}
-			//const TriInfo*    getTriangles()   const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->size:0));}
+			Son*              getFrontAdr()    const {return (Son*)(this+1);}
+			Son*              getFront()       const {return front?getFrontAdr():0;}
+			Son*              getBackAdr()     const {return (Son*)((char*)getFrontAdr()+(front?getFrontAdr()->bsp.size:0));}
+			Son*              getBack()        const {return back?getBackAdr():0;}
+			const TriInfo*    getTrianglesBegin() const {return (const TriInfo*)((char*)getBackAdr()+(back?getBackAdr()->bsp.size:0));}
 		};
 		struct KdData
 		{
@@ -62,6 +62,15 @@ namespace rrIntersect
 		void*             getTrianglesEnd()const {return (char*)this+bsp.size;}
 		void              setTransition(bool t) {}
 		void              setKd(bool k)         {assert(allows_kd || !k);kd.kd=k;}
+		bool              contains(TriInfo tri) const
+		{
+			if(bsp.kd==1)
+				return kd.getFront()->contains(tri) || kd.getBack()->contains(tri);
+			for(const TriInfo* t=bsp.getTrianglesBegin();t<getTrianglesEnd();t++)
+				if(*t==tri) return true;
+			return (bsp.front && bsp.getFront()->contains(tri)) 
+				|| (bsp.back && bsp.getBack()->contains(tri));
+		}
 	};
 
 	// multi-level bsp (with transition in this node)
@@ -270,7 +279,7 @@ namespace rrIntersect
 			}
 		}
 		time_t t = time(NULL);
-		if(t<1120681678 || t>1120681678+77*24*3599) {free(tree); tree = NULL;} // 6.7.2005
+		if(t<1121203302 || t>1121203302+67*24*3599) {free(tree); tree = NULL;} // 12.7.2005
 		return tree;
 	}
 

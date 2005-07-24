@@ -3,6 +3,8 @@
 
 #include "IntersectBsp.h"
 
+//#define TEST
+
 namespace rrIntersect
 {
 
@@ -42,6 +44,9 @@ namespace rrIntersect
 		TriangleNP*       triangleNP;
 		TriangleSRLNP*    triangleSRLNP;
 		IntersectTechnique intersectTechnique;
+#ifdef TEST
+		IntersectLinear*  test;
+#endif
 	};
 
 }
