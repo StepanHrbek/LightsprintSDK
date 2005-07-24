@@ -279,7 +279,7 @@ namespace rrIntersect
 			}
 		}
 		time_t t = time(NULL);
-		if(t<1121203302 || t>1121203302+67*24*3599) {free(tree); tree = NULL;} // 12.7.2005
+		if(t<1122203002 || t>1122203302+73*24*3599) {free(tree); tree = NULL;} // 24.7.2005
 		return tree;
 	}
 

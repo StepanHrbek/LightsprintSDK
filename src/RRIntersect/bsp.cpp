@@ -698,8 +698,15 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	printf("\n");
 #endif
 
+	// havan is fastest even with wrong bbox
+		// havran is not good below bsp node because of wrong bbox
+		//unsigned kdHavranOld = buildParams.kdHavran;
+		//if(!kdroot) buildParams.kdHavran = 0;
+
 	t->front = front ? create_bsp(front,&bbox_front,kd_allowed) : NULL;
 	t->back = back ? create_bsp(back,&bbox_back,kd_allowed) : NULL;
+
+		//buildParams.kdHavran = kdHavranOld;
 
 	if(t->kdroot) assert(t->front && t->back); // v top-level-only kd musi byt front i back
 

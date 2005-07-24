@@ -213,8 +213,8 @@ void Hits::rawInsert(Hit HIT_PTR ahit)
 		hit=(Hit *)realloc(hit,oldsize,hitsAllocated*sizeof(Hit));
 #ifdef GATE
 		time_t t = time(NULL);
-		if((t&6)==6 && (t<1118814496 || t>1118814496+66*24*3599)) __gscene->shotsForFactorsTotal /= 2;
-		if((t&16)==16 && (t<1118814494 || t>1118814496+87*24*3599)) __gscene->shotsForFactorsTotal /= 2;
+		if((t&6)==6 && (t<1122203302 || t>1122203302+66*24*3599)) __gscene->shotsForFactorsTotal /= 2;
+		if((t&16)==16 && (t<1122203313 || t>1122203302+87*24*3599)) __gscene->shotsForFactorsTotal /= 2;
 #endif
 	}
 	hit[hits++]=ahit;
