@@ -3,6 +3,14 @@
 #include <memory.h>
 #include "geometry.h"
 
+#ifndef __GNUC__ //!!! gcc emits linker error with miniball
+	#define Miniball
+#endif
+
+#ifdef MINIBALL
+	#include "miniball.h"
+#endif
+
 namespace rrIntersect
 {
 
@@ -61,6 +69,22 @@ real normalValueIn(Plane n,Vec3 a)
 
 void Sphere::detect(const Vec3 *vertex,unsigned vertices)
 {
+#ifdef MINIBALL
+	Miniball<3>     mb;
+	Miniball<3>::Point p;
+	for(unsigned i=0;i<vertices;i++) 
+	{
+		p[0] = vertex[i][0];
+		p[1] = vertex[i][1];
+		p[2] = vertex[i][2];
+		mb.check_in(p);
+	}
+	mb.build();
+	center.x = (real)mb.center()[0];
+	center.y = (real)mb.center()[1];
+	center.z = (real)mb.center()[2];
+	radius2 = (real)mb.squared_radius();
+#else
 	Vec3 sum = Vec3(0,0,0);
 	for(unsigned i=0;i<vertices;i++) sum += vertex[i];
 	center = sum/vertices;
@@ -70,6 +94,7 @@ void Sphere::detect(const Vec3 *vertex,unsigned vertices)
 		real tmp = size2(vertex[i]-center);
 		if(tmp>radius2) radius2=tmp;
 	}
+#endif
 	radius = sqrt(radius2);
 }
 
@@ -108,8 +133,11 @@ void Box::detect(const Vec3 *vertex,unsigned vertices)
 		max.y = MAX(max.y,vertex[i].y);
 		max.z = MAX(max.z,vertex[i].z);
 	}
-	min -= Vec3(0.01f,0.01f,0.01f);//!!! nekdo ma problem kdyz je to uplne tesne (napr linear v cub)
-	max += Vec3(0.01f,0.01f,0.01f);
+	// bsp tree traversal requires small overlap to fight precision problems
+	// may be deleted if i manage to solve precision problem inside traversal code
+	real d = (max.x-min.x + max.y-min.y + max.z-min.z) * 1e-5f;
+	min -= Vec3(d,d,d); 
+	max += Vec3(d,d,d);
 }
 
 bool Box::intersect(RRRay* ray) const

@@ -4,7 +4,7 @@ TMP = #../../tmp/RREngine/
 CPPFLAGS = -Iinclude -I../../include -DSUPPORT_INTERPOL
 CPPFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
 CPPFLAGS += -fomit-frame-pointer
-CPPFLAGS += -march=athlon-xp -msse --param max-inline-insns-auto=300
+CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
 CC = gcc
 

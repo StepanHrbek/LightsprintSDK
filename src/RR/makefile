@@ -80,7 +80,7 @@ else
   CFLAGS += -fomit-frame-pointer
   # -fprofile-use
  endif
- CFLAGS += -march=athlon-xp -msse --param max-inline-insns-auto=300
+ CFLAGS += -march=athlon-xp -msse
  # CFLAGS += -mfpmath=sse
 endif
 

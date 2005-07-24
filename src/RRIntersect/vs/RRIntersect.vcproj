@@ -192,10 +192,19 @@
 				RelativePath="..\IntersectLinear.h">
 			</File>
 			<File
+				RelativePath="..\miniball.h">
+			</File>
+			<File
+				RelativePath="..\miniball_config.h">
+			</File>
+			<File
 				RelativePath="..\include\RRIntersect.h">
 			</File>
 			<File
 				RelativePath="..\sha1.h">
+			</File>
+			<File
+				RelativePath="..\wrapped_array.h">
 			</File>
 		</Filter>
 		<Filter
