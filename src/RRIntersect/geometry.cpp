@@ -108,6 +108,8 @@ void Box::detect(const Vec3 *vertex,unsigned vertices)
 		max.y = MAX(max.y,vertex[i].y);
 		max.z = MAX(max.z,vertex[i].z);
 	}
+	min -= Vec3(0.01f,0.01f,0.01f);//!!! nekdo ma problem kdyz je to uplne tesne (napr linear v cub)
+	max += Vec3(0.01f,0.01f,0.01f);
 }
 
 bool Box::intersect(RRRay* ray) const

@@ -9,7 +9,7 @@ namespace rrIntersect
 
 #define TREE_VERSION 0
 
-#define min(a,b) (((a)<(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 static unsigned getBit(unsigned char* data, unsigned bit)
 {
@@ -26,9 +26,9 @@ static unsigned getBits(unsigned char* data, unsigned bit, unsigned bits)
 void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits)
 {
 	char* letter="0123456789abcdefghijklmnopqrstuv";
-	for(unsigned i=0;i<min((bits+4)/5,bufsize-1);i++)
-		buf[i]=letter[getBits(hash, i*5, min(5,bits-i*5))];
-	buf[min((bits+4)/5,bufsize-1)]=0;
+	for(unsigned i=0;i<MIN((bits+4)/5,bufsize-1);i++)
+		buf[i]=letter[getBits(hash, i*5, MIN(5,bits-i*5))];
+	buf[MIN((bits+4)/5,bufsize-1)]=0;
 }
 
 void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer)
