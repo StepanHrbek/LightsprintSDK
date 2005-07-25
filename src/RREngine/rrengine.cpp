@@ -112,7 +112,7 @@ RRScene::~RRScene()
 	delete scene;
 }
 
-RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
+RRScene::ObjectHandle RRScene::objectCreate(RRSceneObjectImporter* importer)
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
@@ -203,7 +203,7 @@ RRScene::OBJECT_HANDLE RRScene::objectCreate(RRSceneObjectImporter* importer)
 	}
 }
 
-void RRScene::objectDestroy(OBJECT_HANDLE object)
+void RRScene::objectDestroy(ObjectHandle object)
 {
 	assert(object<scene->objects);
 	scene->objRemoveStatic(object);
@@ -217,14 +217,14 @@ void RRScene::sceneSetColorFilter(const RRReal* colorFilter)
 	scene->distribute(0.001f);
 }
 
-bool RRScene::sceneResetStatic(bool resetFactors)
+RRScene::Improvement RRScene::sceneResetStatic(bool resetFactors)
 {
 	__frameNumber++;
 	scene->updateMatrices();
 	return scene->resetStaticIllumination(resetFactors);
 }
 
-bool RRScene::sceneImproveStatic(bool endfunc(void*), void* context)
+RRScene::Improvement RRScene::sceneImproveStatic(bool endfunc(void*), void* context)
 {
 	__frameNumber++;
 	return scene->improveStatic(endfunc, context);
@@ -234,7 +234,7 @@ void RRScene::compact()
 {
 }
 
-const RRReal* RRScene::getVertexRadiantExitance(OBJECT_HANDLE object, unsigned vertex)
+const RRReal* RRScene::getVertexRadiantExitance(ObjectHandle object, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
@@ -251,7 +251,7 @@ const RRReal* RRScene::getVertexRadiantExitance(OBJECT_HANDLE object, unsigned v
 #endif
 }
 
-const RRReal* RRScene::getTriangleRadiantExitance(OBJECT_HANDLE object, unsigned triangle, unsigned vertex)
+const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
@@ -303,7 +303,7 @@ void* RRScene::getScene()
 	return _scene;
 }
 
-void* RRScene::getObject(OBJECT_HANDLE object)
+void* RRScene::getObject(ObjectHandle object)
 {
 	assert(object<scene->objects);
 	return scene->object[object];

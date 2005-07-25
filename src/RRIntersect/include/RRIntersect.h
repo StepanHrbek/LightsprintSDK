@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.07.25
+// version 2005.07.26
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -340,17 +340,17 @@ namespace rrIntersect
 		}
 		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
 		{
-			assert(t*3<Indices);
-			assert(IBuffer);
+			assert(t*3<INHERITED::Indices);
+			assert(INHERITED::IBuffer);
 			v0 = INHERITED::IBuffer[t*3+0]; assert(v0<INHERITED::Vertices);
 			v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
 			v2 = INHERITED::IBuffer[t*3+2]; assert(v2<INHERITED::Vertices);
 		}
 		virtual void getTriangleSRL(unsigned t, RRObjectImporter::TriangleSRL* tr) const
 		{
-			assert(t*3<Indices);
-			assert(VBuffer);
-			assert(IBuffer);
+			assert(t*3<INHERITED::Indices);
+			assert(INHERITED::VBuffer);
+			assert(INHERITED::IBuffer);
 			unsigned v0,v1,v2;
 			v0 = INHERITED::IBuffer[t*3+0]; assert(v0<INHERITED::Vertices);
 			v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
@@ -421,7 +421,7 @@ namespace rrIntersect
 		{
 			assert(v<UniqueVertices);
 			assert(Unique2Dupl[v]<INHERITED::Vertices);
-			assert(VBuffer);
+			assert(INHERITED::VBuffer);
 			return (RRReal*)(INHERITED::VBuffer+Unique2Dupl[v]*INHERITED::Stride);
 		}
 		virtual unsigned getPreImportVertex(unsigned postImportVertex) const

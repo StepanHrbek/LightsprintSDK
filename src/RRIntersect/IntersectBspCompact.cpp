@@ -75,15 +75,15 @@ begin:
 			// front only
 			if(pointMaxVal>=splitValue) 
 			{
-				if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getFront(),distanceMax);
+				if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getFront(),distanceMax);
 				t = (BspTree*)t->kd.getFront();
 				goto begin;
 			}
 			// front and back
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			if(intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getFront(),distSplit+DELTA_BSP)) return true;
+			if(intersect_bsp_type(BspTree::Son,ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
-			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getBack(),distanceMax);
+			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getBack(),distanceMax);
 			t = (BspTree*)t->kd.getBack();
 			goto begin;
 		} else {
@@ -91,15 +91,15 @@ begin:
 			// btw if point1[axis]==point2[axis]==splitVertex[axis], testing only back may be sufficient
 			if(pointMaxVal<=splitValue) // catches also i_direction[t->axis]==0 case
 			{
-				if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getBack(),distanceMax);
+				if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getBack(),distanceMax);
 				t = (BspTree*)t->kd.getBack();
 				goto begin;
 			}
 			// back and front
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-			if(intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getBack(),distSplit+DELTA_BSP)) return true;
+			if(intersect_bsp_type(BspTree::Son,ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
-			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,(BspTree*)t->kd.getFront(),distanceMax);
+			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getFront(),distanceMax);
 			t = (BspTree*)t->kd.getFront();
 			goto begin;
 		}
@@ -147,7 +147,14 @@ begin:
 	}
 
 	// distancePlane = 0/0 (ray inside plane) is handled below
-	if(_isnan(distancePlane)/*nonz==0*/) distancePlane = 0;
+	if(_isnan(distancePlane)/*nonz==0*/) 
+	{
+		distancePlane = ray->hitDistanceMin;
+		// this sequence of tests follows:
+		// front: hitDistanceMin..hitDistanceMin+DELTA_BSP
+		// plane
+		// back: hitDistanceMin-DELTA_BSP..hitDistanceMax
+	}
 
 	// test first half
 	if(frontback)

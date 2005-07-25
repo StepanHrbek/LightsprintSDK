@@ -4,7 +4,7 @@
 #include "geometry.h"
 
 #ifndef __GNUC__ //!!! gcc emits linker error with miniball
-	#define Miniball
+	#define MINIBALL
 #endif
 
 #ifdef MINIBALL

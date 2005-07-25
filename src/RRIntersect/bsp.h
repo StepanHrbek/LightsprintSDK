@@ -3,6 +3,8 @@
 
 #include "RRIntersect.h"
 
+//#define TEST // robustness test
+
 namespace rrIntersect
 {
 	struct VERTEX 
@@ -52,7 +54,7 @@ namespace rrIntersect
 		BuildParams(RRIntersect::IntersectTechnique technique)
 		{
 			size = sizeof(*this);
-			forceRebuild = 0;
+			forceRebuild = 0;//!!! 0=ok
 			prizeBalance = 5;
 			prizeSplit = 40;
 			prizePlane = 10;

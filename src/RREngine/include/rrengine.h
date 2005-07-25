@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.07.12
+// version 2005.07.26
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -119,41 +119,46 @@ namespace rrEngine
 		RRScene();
 		~RRScene();
 
-		typedef unsigned OBJECT_HANDLE;
+		// import geometry
+		typedef       unsigned ObjectHandle;
+		ObjectHandle  objectCreate(RRSceneObjectImporter* importer);
+		void          objectDestroy(ObjectHandle object);
+
+		// get intersection
+		typedef       bool INTERSECT(rrIntersect::RRRay*);
+		typedef       ObjectHandle ENUM_OBJECTS(rrIntersect::RRRay*, INTERSECT);
+		void          setObjectEnumerator(ENUM_OBJECTS enumerator);
+		bool          intersect(rrIntersect::RRRay* ray);
+		
+		// calculate radiosity
+		enum Improvement 
+		{
+			IMPROVED,
+			NOT_IMPROVED,
+			FINISHED
+		};
+		void          sceneSetColorFilter(const RRReal* colorFilter);
+		Improvement   sceneResetStatic(bool resetFactors);
+		Improvement   sceneImproveStatic(bool endfunc(void*), void* context);
+
+		// read results
 		struct InstantRadiosityPoint
 		{
 			RRReal pos[3];
 			RRReal norm[3];
 			RRReal col[3];
 		};
-
-		// import geometry
-		OBJECT_HANDLE objectCreate(RRSceneObjectImporter* importer);
-		void          objectDestroy(OBJECT_HANDLE object);
-
-		// get intersection
-		typedef       bool INTERSECT(rrIntersect::RRRay*);
-		typedef       OBJECT_HANDLE ENUM_OBJECTS(rrIntersect::RRRay*, INTERSECT);
-		void          setObjectEnumerator(ENUM_OBJECTS enumerator);
-		bool          intersect(rrIntersect::RRRay* ray);
-		
-		// calculate radiosity
-		void          sceneSetColorFilter(const RRReal* colorFilter);
-		bool          sceneResetStatic(bool resetFactors);
-		bool          sceneImproveStatic(bool endfunc(void*), void* context);
-
-		// read results
-		const RRReal* getVertexRadiantExitance(OBJECT_HANDLE object, unsigned vertex); // radiant exitance in watts per square meter
-		const RRReal* getTriangleRadiantExitance(OBJECT_HANDLE object, unsigned triangle, unsigned vertex); // radiant exitance in watts per square meter
+		const RRReal* getVertexRadiantExitance(ObjectHandle object, unsigned vertex); // radiant exitance in watts per square meter
+		const RRReal* getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex); // radiant exitance in watts per square meter
 		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
 
-		// misc: misc
+		// misc
 		void          compact();
 		
 		// misc: development
 		void          getInfo(char* buf, unsigned type);
 		void*         getScene();
-		void*         getObject(OBJECT_HANDLE object);
+		void*         getObject(ObjectHandle object);
 
 	private:
 		void*         _scene;

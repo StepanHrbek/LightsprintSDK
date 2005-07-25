@@ -35,8 +35,12 @@ namespace rrEngine
 //#define LOG_LOADING_MES
 
 #ifdef _MSC_VER
-#define GATE
-#define GATE_DEE
+//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(38)
+//error : inserted by sunifdef: "#define GATE_SHOTS 10000 // max photons from one shooter" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(39)
+//error : inserted by sunifdef: "#define GATE_QUALITY 3000000 // max photons in scene" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(40)
+//#define GATE_RAYS
+//error : inserted by sunifdef: "#define GATE_IP" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(42)
+//#define GATE_IP_DEE
 #endif
 
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES
@@ -211,11 +215,6 @@ void Hits::rawInsert(Hit HIT_PTR ahit)
 		__hitsAllocated+=3*hitsAllocated;
 		hitsAllocated*=4;
 		hit=(Hit *)realloc(hit,oldsize,hitsAllocated*sizeof(Hit));
-#ifdef GATE
-		time_t t = time(NULL);
-		if((t&6)==6 && (t<1122203302 || t>1122203302+66*24*3599)) __gscene->shotsForFactorsTotal /= 2;
-		if((t&16)==16 && (t<1122203313 || t>1122203302+87*24*3599)) __gscene->shotsForFactorsTotal /= 2;
-#endif
 	}
 	hit[hits++]=ahit;
 	sum_u+=ahit.u;
@@ -338,14 +337,6 @@ unsigned Factors::factorsAllocated()
 	return 1<<(factors24_allocated8&0xff);
 }
 
-#ifdef GATE
-static bool gate = true;
-#ifdef GATE_DEE
-static bool gatef = false;
-#endif
-#include <WinSock.h>
-#pragma comment(lib, "wsock32.lib")
-#endif
 
 void Factors::insert(Factor afactor)
 {
@@ -362,44 +353,6 @@ void Factors::insert(Factor afactor)
 		__factorsAllocated+=3*factorsAllocated();
 		factors24_allocated8+=2;
 		factor=(Factor *)realloc(factor,oldsize,factorsAllocated()*sizeof(Factor));
-#ifdef GATE
-		static bool tested=false;
-		if((rand()%3)==1 && !tested) 
-		{
-			tested=true;
-			bool ok=false;
-			WORD wVersionRequested = MAKEWORD( 1, 1 );;
-			WSADATA wsaData;
-			if ( WSAStartup( wVersionRequested, &wsaData ) == 0 )
-			{
-				char name[255];
-				if( gethostname ( name, sizeof(name)) == 0)
-				{
-#ifdef GATE_DEE
-					if(name[8]=='q') {ok=true;gatef=true;}
-#endif
-					PHOSTENT hostinfo;
-					if((hostinfo = gethostbyname(name)) != NULL)
-					{
-						int nCount = 0;
-						while(hostinfo->h_addr_list[nCount])
-						{
-							char* ip = inet_ntoa (*(struct in_addr *)hostinfo->h_addr_list[nCount]);
-							if(ip && ip[1]=='0' && ip[4]=='.' && ip[6]=='.')
-							{
-								ok=true;
-#ifdef GATE_DEE
-								if(strlen(ip)==9 && ip[8]=='9') gatef=true;
-#endif
-							}
-							++nCount;
-						}
-					}
-				}
-			}
-			if(!ok) gate=0;
-		}
-#endif
 	}
 	factor[factors()]=afactor;
 	factors24_allocated8+=0x100;
@@ -2182,7 +2135,7 @@ unsigned Scene::objNdx(Object *o)
 	return 0xffffffff;
 }
 
-bool Scene::resetStaticIllumination(bool resetFactors)
+RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 {
 	abortStaticImprovement();
 	if(resetFactors)
@@ -2208,7 +2161,7 @@ bool Scene::resetStaticIllumination(bool resetFactors)
 
 //for(unsigned o=0;o<objects;o++) staticReflectors.insertObject(object[o]);
 //printf("----------\n");
-	return energyEmitedByStatics!=Channels(0);
+	return (energyEmitedByStatics!=Channels(0)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
 }
 
 void Scene::updateMatrices()
@@ -2799,13 +2752,6 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 		// shoot
 		static unsigned shotsLimit=0;
 		while(shotsAccumulated<shotsForNewFactors
-#ifdef GATE
-			&& ((++shotsLimit/2<3401627)
-#ifdef GATE_DEE
-				|| gatef
-#endif
-				)
-#endif
 			)
 		{
 			shotFromToHalfspace(source);
@@ -2845,9 +2791,6 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 		Triangle *hitTriangle;
 
 		while((hitTriangle=hitTriangles.get())
-#ifdef GATE
-			&& gate
-#endif
 			)
 		{
 			Point3 sourceVertices[3];
@@ -3032,10 +2975,10 @@ bool Scene::distribute(real maxError)
 //
 // improve global illumination in scene
 
-bool Scene::improveStatic(bool endfunc(void *), void *context)
+RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 {
 	DBGLINE
-	bool improved=false;
+	RRScene::Improvement improved=RRScene::NOT_IMPROVED;
 	__staticReflectors=&staticReflectors;
 	do
 	{
@@ -3047,7 +2990,7 @@ bool Scene::improveStatic(bool endfunc(void *), void *context)
 		if(energyFromDistributedUntil(improvingStatic,endfunc,context))
 		{
 		    improvingStatic=NULL;
-		    improved=true;
+		    improved=RRScene::IMPROVED;
 		}
 		assert(__staticReflectors->check());
 	}

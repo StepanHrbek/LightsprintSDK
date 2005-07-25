@@ -28,7 +28,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	PlyMeshReader reader;
 	reader.readFile("bun_zipper.ply",mesh);
 	PlyMeshImporter importer(mesh);
-	rrIntersect::RRIntersect* intersector = rrIntersect::RRIntersect::newIntersect(&importer,rrIntersect::RRIntersect::IT_BSP_FASTEST);
+	rrIntersect::RRIntersect* intersector = rrIntersect::RRIntersect::newIntersect(&importer,rrIntersect::RRIntersect::IT_BSP_COMPACT);
 	printf("vertices=%d tris=%d\n",importer.getNumVertices(),importer.getNumTriangles());
 
 	SphereUnitVecPool vecpool;//create pool of random points

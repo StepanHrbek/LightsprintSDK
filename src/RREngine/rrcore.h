@@ -760,7 +760,7 @@ public:
 	void    objInsertStatic(Object *aobject);
 	void    objRemoveStatic(unsigned o);
 	unsigned objNdx(Object *aobject);
-	bool    improveStatic(bool endfunc(void*), void* context);
+	RRScene::Improvement improveStatic(bool endfunc(void*), void* context);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
@@ -793,7 +793,7 @@ public:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
 	void    draw(rrEngine::RRScene* scene, real quality);
-	bool    resetStaticIllumination(bool resetFactors);
+	RRScene::Improvement resetStaticIllumination(bool resetFactors);
 	void    updateMatrices();
 
 	unsigned getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point);
