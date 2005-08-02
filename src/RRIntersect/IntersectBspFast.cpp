@@ -16,7 +16,7 @@ namespace rrIntersect
 	real     watch_distance;
 	Vec3     watch_point3d;
 	#define TEST_RANGE(min,max,cond,tree) if(!watch_tested && min<=watch_distance && watch_distance<=max) \
-		;//!!! assert(cond && tree->contains(watch_triangle)); // optimal triangle is to be thrown away
+		assert(cond && tree->contains(watch_triangle)); // optimal triangle is to be thrown away
 #else
 	#define TEST_RANGE(min,max,cond,tree)
 #endif
@@ -293,7 +293,7 @@ begin:
 	// KD
 	if(t->bsp.kd)
 	{
-		intersectStats.intersect_kd++;
+		//intersectStats.intersect_kd++;
 		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf

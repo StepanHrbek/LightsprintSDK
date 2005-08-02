@@ -622,8 +622,6 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		assert(plane_num == info_kd.plane);
 		assert(split_num == info_kd.split);
 	} else {
-		//ROOT_INFO info_bsp2;//!!!
-		//const FACE* bsproot2 = find_best_root_bsp(space,&info_bsp2);//!!!
 		assert(back_num == info_bsp.back);
 		assert(front_num == info_bsp.front);
 		assert(plane_num == info_bsp.plane);

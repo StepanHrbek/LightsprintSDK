@@ -33,7 +33,7 @@
 namespace rrEngine
 {
 
-#define DBG(a) a //!!!
+#define DBG(a) //a
 #define scene ((Scene*)_scene)
 
 /*

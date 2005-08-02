@@ -28,7 +28,7 @@ begin:
 	// KD
 	if(t->bsp.kd)
 	{
-		intersectStats.intersect_kd++;
+		//intersectStats.intersect_kd++;
 		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
@@ -121,12 +121,14 @@ begin:
 	n.z = t2.r[0] * t2.l[1] - t2.r[1] * t2.l[0];
 	n.d = -(t2.s[0] * n.x + t2.s[1] * n.y + t2.s[2] * n.z);
 
-	bool frontback =
+	float distanceMinLocation = // +=point at distanceMin is in front, -=back, 0=plane
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
 		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
 		n[2]*(ray->rayOrigin[2]+ray->rayDir[2]*ray->hitDistanceMin)+
-		n[3]>0;
+		n[3];
 	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
+		|| (distanceMinLocation==0 && nonz<0); // point at distanceMin is in plane and rayDir is from front to back
 	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
 
 	// test only one half

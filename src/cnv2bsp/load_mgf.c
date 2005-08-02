@@ -263,7 +263,6 @@ static void end_object(void)
 static void *insert_vertex(FLOAT *p, FLOAT *n)
 {
  VERTEX *v=get_Vertex(mgf_vertex_id);
- //return NULL;//!!!
  //printf("v[%d]: %f %f %f\n",mgf_vertex_id,p[0],p[1],p[2]);
  v->x=p[0]; v->y=p[1]; v->z=p[2];
  return (void *)(mgf_vertex_id++);
@@ -466,7 +465,6 @@ static void insert_polygon_dee(unsigned vertices, void **vertex_id, void *materi
 
 static void insert_polygon(unsigned vertices, void **vertex_id, void *material)
 {
-	//return;//!!!
 	if(vertices<=4) insert_polygon_convex(vertices,vertex_id,material); else
 	insert_polygon_dee(vertices,vertex_id,material);
 }

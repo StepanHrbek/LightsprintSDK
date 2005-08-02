@@ -18,12 +18,12 @@ namespace rrIntersect
 //
 // 3d vector
 
-Vec3 operator -(Vec3 a)
+Vec3 operator -(const Vec3& a)
 {
 	return Vec3(-a.x,-a.y,-a.z);
 }
 
-real size(Vec3 a)
+real size(const Vec3& a)
 {
 	return sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
 }
@@ -38,7 +38,7 @@ Vec3 normalized(Vec3 a)
 	return a/size(a);
 }
 
-real dot(Vec3 a,Vec3 b)
+real dot(const Vec3& a, const Vec3& b)
 {
 	return a.x*b.x+a.y*b.y+a.z*b.z;
 }
@@ -49,7 +49,7 @@ real dot(Vec3 a,Vec3 b)
 // serazene proti smeru hodinovych rucicek.
 // jinak receno: ortogonalTo(doprava,dopredu)==nahoru
 
-Vec3 ortogonalTo(Vec3 a,Vec3 b)
+Vec3 ortogonalTo(const Vec3& a, const Vec3& b)
 {
 	return Vec3(a.y*b.z-a.z*b.y,-a.x*b.z+a.z*b.x,a.x*b.y-a.y*b.x);
 }
@@ -58,7 +58,7 @@ Vec3 ortogonalTo(Vec3 a,Vec3 b)
 //
 // plane in 3d
 
-real normalValueIn(Plane n,Vec3 a)
+real normalValueIn(Plane& n,Vec3& a)
 {
 	return a.x*n.x+a.y*n.y+a.z*n.z+n.d;
 }
@@ -140,145 +140,120 @@ void Box::detect(const Vec3 *vertex,unsigned vertices)
 	max += Vec3(d,d,d);
 }
 
-bool Box::intersect(RRRay* ray) const
-// Shrinks hitDistanceMin..hitDistanceMax to be as tight as possible.
-// Returns if intersection was detected.
+// sse ray-box intersect by Thierry Berger-Perrin
+
+#include <float.h>
+#include <math.h>
+#include <xmmintrin.h>
+
+#ifdef __GNUC__
+#define _MM_ALIGN16 __attribute__ ((aligned (16)))
+#endif
+
+struct vec_t { float x,y,z,pad; };
+
+_MM_ALIGN16 struct aabb_t { 
+	vec_t	min;
+	vec_t	max;
+};
+
+_MM_ALIGN16 struct ray_t {
+	vec_t	pos;
+	vec_t	inv_dir;
+};
+struct ray_segment_t {
+	float	t_near,t_far;
+};
+
+// turn those verbose intrinsics into something readable.
+#define loadps(mem)		_mm_load_ps((const float * const)(mem))
+#define storess(ss,mem)		_mm_store_ss((float * const)(mem),(ss))
+#define minss			_mm_min_ss
+#define maxss			_mm_max_ss
+#define minps			_mm_min_ps
+#define maxps			_mm_max_ps
+#define mulps			_mm_mul_ps
+#define subps			_mm_sub_ps
+#define rotatelps(ps)		_mm_shuffle_ps((ps),(ps), 0x39)	// a,b,c,d -> b,c,d,a
+#define muxhps(low,high)	_mm_movehl_ps((low),(high))	// low{a,b,c,d}|high{e,f,g,h} = {c,d,g,h}
+
+
+static const float flt_plus_inf = -logf(0);	// let's keep C and C++ compilers happy.
+static const float _MM_ALIGN16
+ps_cst_plus_inf[4]	= {  flt_plus_inf,  flt_plus_inf,  flt_plus_inf,  flt_plus_inf },
+ps_cst_minus_inf[4]	= { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
+
+static bool ray_box_intersect(const aabb_t &box, const ray_t &ray, ray_segment_t &rs) 
 {
-	const Vec3 &lineBaseT = *(Vec3*)ray->rayOrigin;
-	const Vec3 &lineDirT = *(Vec3*)ray->rayDir;
+	// you may already have those values hanging around somewhere
+	const __m128
+		plus_inf	= loadps(ps_cst_plus_inf),
+		minus_inf	= loadps(ps_cst_minus_inf);
 
-	float sfNumerator;
-	float sfDenominator;  
-	float Qx = min.x;
-	float Qy = min.y;
-	float Qz = min.z;
-	float nearI = 1e17f;	// min. vzdalenost pruseciku pro tento BB
-	float farI = 0;
+	// use whatever's apropriate to load.
+	const __m128
+		box_min	= loadps(&box.min),
+		box_max	= loadps(&box.max),
+		pos	= loadps(&ray.pos),
+		inv_dir	= loadps(&ray.inv_dir);
 
-	// test na to, jestli je pocatek primky uvnitr boxu
-	if(( lineBaseT.x >= min.x ) && ( lineBaseT.x <= max.x )&& 
-		( lineBaseT.y >= min.y ) && ( lineBaseT.y <= max.y )&& 
-		( lineBaseT.z >= min.z ) && ( lineBaseT.z <= max.z )) 
-	{ 
-		nearI = 0;
-	}
+	// use a div if inverted directions aren't available
+	const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
+	const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
 
-	// rovina kolma na osu Z
-	sfNumerator = Qz - lineBaseT.z;
-	sfDenominator = lineDirT.z;
-	if( sfDenominator ) 
-	{
-		float t = sfNumerator / sfDenominator;
-		if( t >= 0 )
-		{ 
-			// protnuti jen smerem dopredu dle lineDir
-			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
-			if( ( p.x >= min.x ) && ( p.x <= max.x ) && ( p.y >= min.y ) && ( p.y <= max.y ) ) 
-			{  //prusecik je v oblasti BB
-				nearI = MIN(nearI,t);
-				farI = MAX(farI,t);
-			}
-		}	
-	}
+	// the order we use for those min/max is vital to filter out
+	// NaNs that happens when an inv_dir is +/- inf and
+	// (box_min - pos) is 0. inf * 0 = NaN
+	const __m128 filtered_l1a = minps(l1, plus_inf);
+	const __m128 filtered_l2a = minps(l2, plus_inf);
 
-	// rovina kolma na osu Y
-	sfNumerator = Qy - lineBaseT.y;
-	sfDenominator = lineDirT.y;
-	if( sfDenominator ) 
-	{
-		float t = sfNumerator / sfDenominator;
-		if( t >= 0 )
-		{ 
-			// protnuti jen smerem dopredu dle lineDir
-			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
-			if( ( p.z >= min.z ) && ( p.z <= max.z ) && ( p.x >= min.x ) && ( p.x <= max.x ) )
-			{  //prusecik je v oblasti BB
-				nearI = MIN(nearI,t);
-				farI = MAX(farI,t);
-			}
-		}	
-	}
+	const __m128 filtered_l1b = maxps(l1, minus_inf);
+	const __m128 filtered_l2b = maxps(l2, minus_inf);
 
-	// rovina kolma na osu X
-	sfNumerator = Qx - lineBaseT.x;
-	sfDenominator = lineDirT.x;
-	if( sfDenominator ) 
-	{
-		float t = sfNumerator / sfDenominator;
-		if( t >= 0 )
-		{ 
-			// protnuti jen smerem dopredu dle lineDir
-			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
-			if( ( p.z >= min.z ) && ( p.z <= max.z ) && ( p.y >= min.y ) && ( p.y <= max.y ) )
-			{  //prusecik je v oblasti BB
-				nearI = MIN(nearI,t);
-				farI = MAX(farI,t);
-			}
-		}	
-	}
+	// now that we're back on our feet, test those slabs.
+	__m128 lmax = maxps(filtered_l1a, filtered_l2a);
+	__m128 lmin = minps(filtered_l1b, filtered_l2b);
 
-	//pro druhy vrchol BB
-	Qx = max.x;
-	Qy = max.y;
-	Qz = max.z;
+	// unfold back. try to hide the latency of the shufps & co.
+	const __m128 lmax0 = rotatelps(lmax);
+	const __m128 lmin0 = rotatelps(lmin);
+	lmax = minss(lmax, lmax0);
+	lmin = maxss(lmin, lmin0);
 
-	// rovina kolma na osu x
-	sfNumerator = Qx - lineBaseT.x;
-	sfDenominator = lineDirT.x;
-	if( sfDenominator )
-	{
-		float t = sfNumerator / sfDenominator;
-		if( t >= 0 )
-		{ 
-			// protnuti jen smerem dopredu dle lineDir
-			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
-			if ( ( p.z >= min.z ) && ( p.z <= max.z ) && ( p.y >= min.y ) && ( p.y <= max.y ) )
-			{  //prusecik je v oblasti BB
-				nearI = MIN(nearI,t);
-				farI = MAX(farI,t);
-			}
-		}	
-	}
+	const __m128 lmax1 = muxhps(lmax,lmax);
+	const __m128 lmin1 = muxhps(lmin,lmin);
+	lmax = minss(lmax, lmax1);
+	lmin = maxss(lmin, lmin1);
 
-	// rovina kolma na osu Y
-	sfNumerator = Qy - lineBaseT.y;
-	sfDenominator = lineDirT.y;
-	if( sfDenominator ) 
-	{
-		float t = sfNumerator / sfDenominator;
-		if( t >= 0 )
-		{ 
-			// protnuti jen smerem dopredu dle lineDir
-			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
-			if( ( p.z >= min.z ) && ( p.z <= max.z ) && ( p.x >= min.x ) && ( p.x <= max.x ) )
-			{  //prusecik je v oblasti BB
-				nearI = MIN(nearI,t);
-				farI = MAX(farI,t);
-			}
-		}	
-	}
+	const bool ret = _mm_comige_ss(lmax, _mm_setzero_ps()) & _mm_comige_ss(lmax,lmin);
 
-	// rovina kolma na osu Z
-	sfNumerator = Qz - lineBaseT.z;
-	sfDenominator = lineDirT.z;
-	if( sfDenominator )
-	{
-		float t = sfNumerator / sfDenominator;
-		if( t >= 0 )
-		{ 
-			// protnuti jen smerem dopredu dle lineDir
-			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
-			if( ( p.x >= min.x ) && ( p.x <= max.x ) && ( p.y >= min.y ) && ( p.y <= max.y ) )
-			{  //prusecik je v oblasti BB
-				nearI = MIN(nearI,t);
-				farI = MAX(farI,t);
-			}
-		}	
-	}
-	if(farI==0) return false; // test range before minmax
-	ray->hitDistanceMin = MAX(nearI,ray->hitDistanceMin);
-	ray->hitDistanceMax = MIN(farI,ray->hitDistanceMax);
-	return ray->hitDistanceMin < ray->hitDistanceMax; // test range after minmax
+	storess(lmin, &rs.t_near);
+	storess(lmax, &rs.t_far);
+
+	return  ret;
+}
+
+bool Box::intersect(RRRay* ray) const
+{
+	aabb_t box;
+	box.min.x = min.x;
+	box.min.y = min.y;
+	box.min.z = min.z;
+	box.max.x = max.x;
+	box.max.y = max.y;
+	box.max.z = max.z;
+	ray_t rayy;
+	rayy.pos.x = ray->rayOrigin[0];
+	rayy.pos.y = ray->rayOrigin[1];
+	rayy.pos.z = ray->rayOrigin[2];
+	rayy.inv_dir.x = 1/ray->rayDir[0];
+	rayy.inv_dir.y = 1/ray->rayDir[1];
+	rayy.inv_dir.z = 1/ray->rayDir[2];
+	ray_segment_t seg;
+	bool res = ray_box_intersect(box,rayy,seg);
+	ray->hitDistanceMin = MAX(seg.t_near,ray->hitDistanceMin);
+	ray->hitDistanceMax = MIN(seg.t_far,ray->hitDistanceMax);
+	return res;
 }
 
 } // namespace

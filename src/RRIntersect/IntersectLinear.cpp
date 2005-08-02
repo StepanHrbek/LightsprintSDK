@@ -30,8 +30,6 @@ void update_hitPlane(RRRay* ray, RRObjectImporter* importer)
 	ray->hitPlane[3] = -(t2.s[0] * ray->hitPlane[0] + t2.s[1] * ray->hitPlane[1] + t2.s[2] * ray->hitPlane[2]);
 }
 
-#define EPSILON 0.000001
-
 bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t)
 // input:                ray, t
 // returns:              true if ray hits t
@@ -51,21 +49,23 @@ bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t)
 	if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
 
 	// if determinant is near zero, ray lies in plane of triangle
-	if (det>-EPSILON && det<EPSILON) return false;
+	if(det==0) return false;
+	//#define EPSILON 1e-10 // 1e-6 good for all except bunny, 1e-10 good for bunny
+	//if(det>-EPSILON && det<EPSILON) return false;
 
 	// calculate distance from vert0 to ray origin
 	Vec3 tvec = *(Vec3*)ray->rayOrigin-*(Vec3*)t->s;
 
 	// calculate U parameter and test bounds
 	real u = dot(tvec,pvec)/det;
-	if (u<0 || u>1) return false;
+	if(u<0 || u>1) return false;
 
 	// prepare to test V parameter
 	Vec3 qvec = ortogonalTo(tvec,*(Vec3*)t->r);
 
 	// calculate V parameter and test bounds
 	real v = dot(*(Vec3*)ray->rayDir,qvec)/det;
-	if (v<0 || u+v>1) return false;
+	if(v<0 || u+v>1) return false;
 
 	// calculate distance where ray intersects triangle
 	real dist = dot(*(Vec3*)t->l,qvec)/det;

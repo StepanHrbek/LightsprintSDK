@@ -38,9 +38,9 @@ namespace rrEngine
 //error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(38)
 //error : inserted by sunifdef: "#define GATE_SHOTS 10000 // max photons from one shooter" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(39)
 //error : inserted by sunifdef: "#define GATE_QUALITY 3000000 // max photons in scene" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(40)
-//#define GATE_RAYS
-//error : inserted by sunifdef: "#define GATE_IP" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(42)
-//#define GATE_IP_DEE
+//error : inserted by sunifdef: "#define GATE_IP" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(41)
+//#define GATE_IP_DEE // off
+//#define GATE_RAYS // off
 #endif
 
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES

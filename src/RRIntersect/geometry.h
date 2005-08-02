@@ -28,28 +28,28 @@ namespace rrIntersect
 		real    y;
 		real    z;
 
-		Vec3()                               {}
-		Vec3(real ax,real ay,real az)        {x=ax;y=ay;z=az;}
-		Vec3 operator + (const Vec3 a) const {return Vec3(x+a.x,y+a.y,z+a.z);}
-		Vec3 operator - (const Vec3 a) const {return Vec3(x-a.x,y-a.y,z-a.z);}
-		Vec3 operator * (real f)       const {return Vec3(x*f,y*f,z*f);}
-		Vec3 operator / (real f)       const {return Vec3(x/f,y/f,z/f);}
-		Vec3 operator / (int f)        const {return Vec3(x/f,y/f,z/f);}
-		Vec3 operator / (unsigned f)   const {return Vec3(x/f,y/f,z/f);}
-		Vec3 operator +=(const Vec3 a)       {x+=a.x;y+=a.y;z+=a.z;return *this;}
-		Vec3 operator -=(const Vec3 a)       {x-=a.x;y-=a.y;z-=a.z;return *this;}
-		Vec3 operator *=(real f)             {x*=f;y*=f;z*=f;return *this;}
-		Vec3 operator /=(real f)             {x/=f;y/=f;z/=f;return *this;}
-		bool operator ==(const Vec3 a) const {return a.x==x && a.y==y && a.z==z;}
-		real operator [](int i)        const {return ((real*)this)[i];}
+		Vec3()                                {}
+		Vec3(real ax,real ay,real az)         {x=ax;y=ay;z=az;}
+		Vec3 operator + (const Vec3& a) const {return Vec3(x+a.x,y+a.y,z+a.z);}
+		Vec3 operator - (const Vec3& a) const {return Vec3(x-a.x,y-a.y,z-a.z);}
+		Vec3 operator * (real f)        const {return Vec3(x*f,y*f,z*f);}
+		Vec3 operator / (real f)        const {return Vec3(x/f,y/f,z/f);}
+		Vec3 operator / (int f)         const {return Vec3(x/f,y/f,z/f);}
+		Vec3 operator / (unsigned f)    const {return Vec3(x/f,y/f,z/f);}
+		Vec3 operator +=(const Vec3& a)       {x+=a.x;y+=a.y;z+=a.z;return *this;}
+		Vec3 operator -=(const Vec3& a)       {x-=a.x;y-=a.y;z-=a.z;return *this;}
+		Vec3 operator *=(real f)              {x*=f;y*=f;z*=f;return *this;}
+		Vec3 operator /=(real f)              {x/=f;y/=f;z/=f;return *this;}
+		bool operator ==(const Vec3& a) const {return a.x==x && a.y==y && a.z==z;}
+		real operator [](int i)         const {return ((real*)this)[i];}
 	};
 
-	Vec3 operator -(Vec3 a);
-	real size(Vec3 a);
+	Vec3 operator -(const Vec3& a);
+	real size(const Vec3& a);
 	real size2(Vec3 a);
 	Vec3 normalized(Vec3 a);
-	real dot(Vec3 a,Vec3 b);
-	Vec3 ortogonalTo(Vec3 a,Vec3 b);
+	real dot(const Vec3& a,const Vec3& b);
+	Vec3 ortogonalTo(const Vec3& a,const Vec3& b);
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -62,7 +62,7 @@ namespace rrIntersect
 		void operator =(const Vec3 a)   {x=a.x;y=a.y;z=a.z;}
 	};
 
-	real normalValueIn(const Plane n,const Vec3 a);
+	real normalValueIn(const Plane& n,const Vec3& a);
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
