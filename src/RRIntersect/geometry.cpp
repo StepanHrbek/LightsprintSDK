@@ -140,6 +140,150 @@ void Box::detect(const Vec3 *vertex,unsigned vertices)
 	max += Vec3(d,d,d);
 }
 
+// ray-box intersect for non-sse machines
+/*
+bool Box::intersect(RRRay* ray) const
+// Shrinks hitDistanceMin..hitDistanceMax to be as tight as possible.
+// Returns if intersection was detected.
+{
+	const Vec3 &lineBaseT = *(Vec3*)ray->rayOrigin;
+	const Vec3 &lineDirT = *(Vec3*)ray->rayDir;
+
+	float sfNumerator;
+	float sfDenominator;  
+	float Qx = min.x;
+	float Qy = min.y;
+	float Qz = min.z;
+	float nearI = 1e17f;	// min. vzdalenost pruseciku pro tento BB
+	float farI = 0;
+
+	// test na to, jestli je pocatek primky uvnitr boxu
+	if(( lineBaseT.x >= min.x ) && ( lineBaseT.x <= max.x )&& 
+		( lineBaseT.y >= min.y ) && ( lineBaseT.y <= max.y )&& 
+		( lineBaseT.z >= min.z ) && ( lineBaseT.z <= max.z )) 
+	{ 
+		nearI = 0;
+	}
+
+	// rovina kolma na osu Z
+	sfNumerator = Qz - lineBaseT.z;
+	sfDenominator = lineDirT.z;
+	if( sfDenominator ) 
+	{
+		float t = sfNumerator / sfDenominator;
+		if( t >= 0 )
+		{ 
+			// protnuti jen smerem dopredu dle lineDir
+			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
+			if( ( p.x >= min.x ) && ( p.x <= max.x ) && ( p.y >= min.y ) && ( p.y <= max.y ) ) 
+			{  //prusecik je v oblasti BB
+				nearI = MIN(nearI,t);
+				farI = MAX(farI,t);
+			}
+		}	
+	}
+
+	// rovina kolma na osu Y
+	sfNumerator = Qy - lineBaseT.y;
+	sfDenominator = lineDirT.y;
+	if( sfDenominator ) 
+	{
+		float t = sfNumerator / sfDenominator;
+		if( t >= 0 )
+		{ 
+			// protnuti jen smerem dopredu dle lineDir
+			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
+			if( ( p.z >= min.z ) && ( p.z <= max.z ) && ( p.x >= min.x ) && ( p.x <= max.x ) )
+			{  //prusecik je v oblasti BB
+				nearI = MIN(nearI,t);
+				farI = MAX(farI,t);
+			}
+		}	
+	}
+
+	// rovina kolma na osu X
+	sfNumerator = Qx - lineBaseT.x;
+	sfDenominator = lineDirT.x;
+	if( sfDenominator ) 
+	{
+		float t = sfNumerator / sfDenominator;
+		if( t >= 0 )
+		{ 
+			// protnuti jen smerem dopredu dle lineDir
+			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
+			if( ( p.z >= min.z ) && ( p.z <= max.z ) && ( p.y >= min.y ) && ( p.y <= max.y ) )
+			{  //prusecik je v oblasti BB
+				nearI = MIN(nearI,t);
+				farI = MAX(farI,t);
+			}
+		}	
+	}
+
+	//pro druhy vrchol BB
+	Qx = max.x;
+	Qy = max.y;
+	Qz = max.z;
+
+	// rovina kolma na osu x
+	sfNumerator = Qx - lineBaseT.x;
+	sfDenominator = lineDirT.x;
+	if( sfDenominator )
+	{
+		float t = sfNumerator / sfDenominator;
+		if( t >= 0 )
+		{ 
+			// protnuti jen smerem dopredu dle lineDir
+			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
+			if ( ( p.z >= min.z ) && ( p.z <= max.z ) && ( p.y >= min.y ) && ( p.y <= max.y ) )
+			{  //prusecik je v oblasti BB
+				nearI = MIN(nearI,t);
+				farI = MAX(farI,t);
+			}
+		}	
+	}
+
+	// rovina kolma na osu Y
+	sfNumerator = Qy - lineBaseT.y;
+	sfDenominator = lineDirT.y;
+	if( sfDenominator ) 
+	{
+		float t = sfNumerator / sfDenominator;
+		if( t >= 0 )
+		{ 
+			// protnuti jen smerem dopredu dle lineDir
+			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
+			if( ( p.z >= min.z ) && ( p.z <= max.z ) && ( p.x >= min.x ) && ( p.x <= max.x ) )
+			{  //prusecik je v oblasti BB
+				nearI = MIN(nearI,t);
+				farI = MAX(farI,t);
+			}
+		}	
+	}
+
+	// rovina kolma na osu Z
+	sfNumerator = Qz - lineBaseT.z;
+	sfDenominator = lineDirT.z;
+	if( sfDenominator )
+	{
+		float t = sfNumerator / sfDenominator;
+		if( t >= 0 )
+		{ 
+			// protnuti jen smerem dopredu dle lineDir
+			Vec3 p = lineBaseT + lineDirT * t; //prusecik primky se stranou BB
+			if( ( p.x >= min.x ) && ( p.x <= max.x ) && ( p.y >= min.y ) && ( p.y <= max.y ) )
+			{  //prusecik je v oblasti BB
+				nearI = MIN(nearI,t);
+				farI = MAX(farI,t);
+			}
+		}	
+	}
+	if(farI==0) return false; // test range before minmax
+	ray->hitDistanceMin = MAX(nearI,ray->hitDistanceMin);
+	ray->hitDistanceMax = MIN(farI,ray->hitDistanceMax);
+	return ray->hitDistanceMin < ray->hitDistanceMax; // test range after minmax
+}
+*/
+
 // sse ray-box intersect by Thierry Berger-Perrin
 
 #include <float.h>
