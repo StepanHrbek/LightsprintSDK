@@ -1,0 +1,1 @@
+@call -min make %1 %2 %3
