@@ -3,12 +3,13 @@
 #include <memory.h>
 #include "geometry.h"
 
-#ifndef __GNUC__ //!!! gcc emits linker error with miniball
-	#define MINIBALL
-#endif
-
-#ifdef MINIBALL
-	#include "miniball.h"
+#ifdef USE_SPHERE
+	#ifndef __GNUC__ //!!! gcc emits linker error with miniball
+		#define MINIBALL
+	#endif
+	#ifdef MINIBALL
+		#include "miniball.h"
+	#endif
 #endif
 
 namespace rrIntersect
@@ -67,6 +68,8 @@ real normalValueIn(Plane& n,Vec3& a)
 //
 // sphere in 3d
 
+#ifdef USE_SPHERE
+
 void Sphere::detect(const Vec3 *vertex,unsigned vertices)
 {
 #ifdef MINIBALL
@@ -116,6 +119,8 @@ bool Sphere::intersect(RRRay* ray) const
 	return true;
 }
 
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // box in 3d
@@ -140,8 +145,10 @@ void Box::detect(const Vec3 *vertex,unsigned vertices)
 	max += Vec3(d,d,d);
 }
 
+#ifndef USE_SSE
+
 // ray-box intersect for non-sse machines
-/*
+
 bool Box::intersect(RRRay* ray) const
 // Shrinks hitDistanceMin..hitDistanceMax to be as tight as possible.
 // Returns if intersection was detected.
@@ -282,32 +289,17 @@ bool Box::intersect(RRRay* ray) const
 	ray->hitDistanceMax = MIN(farI,ray->hitDistanceMax);
 	return ray->hitDistanceMin < ray->hitDistanceMax; // test range after minmax
 }
-*/
+
+#else
 
 // sse ray-box intersect by Thierry Berger-Perrin
 
 #include <float.h>
 #include <math.h>
 #include <xmmintrin.h>
-
 #ifdef __GNUC__
-#define _MM_ALIGN16 __attribute__ ((aligned (16)))
+	#define _MM_ALIGN16 __attribute__ ((aligned (16)))
 #endif
-
-struct vec_t { float x,y,z,pad; };
-
-_MM_ALIGN16 struct aabb_t { 
-	vec_t	min;
-	vec_t	max;
-};
-
-_MM_ALIGN16 struct ray_t {
-	vec_t	pos;
-	vec_t	inv_dir;
-};
-struct ray_segment_t {
-	float	t_near,t_far;
-};
 
 // turn those verbose intrinsics into something readable.
 #define loadps(mem)		_mm_load_ps((const float * const)(mem))
@@ -317,6 +309,7 @@ struct ray_segment_t {
 #define minps			_mm_min_ps
 #define maxps			_mm_max_ps
 #define mulps			_mm_mul_ps
+#define divps			_mm_div_ps
 #define subps			_mm_sub_ps
 #define rotatelps(ps)		_mm_shuffle_ps((ps),(ps), 0x39)	// a,b,c,d -> b,c,d,a
 #define muxhps(low,high)	_mm_movehl_ps((low),(high))	// low{a,b,c,d}|high{e,f,g,h} = {c,d,g,h}
@@ -327,7 +320,8 @@ static const float _MM_ALIGN16
 ps_cst_plus_inf[4]	= {  flt_plus_inf,  flt_plus_inf,  flt_plus_inf,  flt_plus_inf },
 ps_cst_minus_inf[4]	= { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
 
-static bool ray_box_intersect(const aabb_t &box, const ray_t &ray, ray_segment_t &rs) 
+bool Box::intersect(RRRay* ray) const
+//static bool ray_box_intersect(const aabb_t &box, const ray_t &ray, ray_segment_t &rs) 
 {
 	// you may already have those values hanging around somewhere
 	const __m128
@@ -336,14 +330,16 @@ static bool ray_box_intersect(const aabb_t &box, const ray_t &ray, ray_segment_t
 
 	// use whatever's apropriate to load.
 	const __m128
-		box_min	= loadps(&box.min),
-		box_max	= loadps(&box.max),
-		pos	= loadps(&ray.pos),
-		inv_dir	= loadps(&ray.inv_dir);
+		box_min	= loadps(&min),
+		box_max	= loadps(&max),
+		pos	= loadps(&ray->rayOrigin),
+		inv_dir	= loadps(&ray->rayDir);
 
 	// use a div if inverted directions aren't available
-	const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
-	const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
+	//const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
+	//const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
+	const __m128 l1 = divps(subps(box_min, pos), inv_dir);
+	const __m128 l2 = divps(subps(box_max, pos), inv_dir);
 
 	// the order we use for those min/max is vital to filter out
 	// NaNs that happens when an inv_dir is +/- inf and
@@ -369,35 +365,17 @@ static bool ray_box_intersect(const aabb_t &box, const ray_t &ray, ray_segment_t
 	lmax = minss(lmax, lmax1);
 	lmin = maxss(lmin, lmin1);
 
-	const bool ret = _mm_comige_ss(lmax, _mm_setzero_ps()) & _mm_comige_ss(lmax,lmin);
+	const bool ret = ( _mm_comige_ss(lmax, _mm_setzero_ps()) & _mm_comige_ss(lmax,lmin) ) != 0;
 
-	storess(lmin, &rs.t_near);
-	storess(lmax, &rs.t_far);
+	float t_near,t_far;
+	storess(lmin, &t_near);
+	storess(lmax, &t_far);
+	ray->hitDistanceMin = MAX(t_near,ray->hitDistanceMin);
+	ray->hitDistanceMax = MIN(t_far,ray->hitDistanceMax);
 
 	return  ret;
 }
 
-bool Box::intersect(RRRay* ray) const
-{
-	aabb_t box;
-	box.min.x = min.x;
-	box.min.y = min.y;
-	box.min.z = min.z;
-	box.max.x = max.x;
-	box.max.y = max.y;
-	box.max.z = max.z;
-	ray_t rayy;
-	rayy.pos.x = ray->rayOrigin[0];
-	rayy.pos.y = ray->rayOrigin[1];
-	rayy.pos.z = ray->rayOrigin[2];
-	rayy.inv_dir.x = 1/ray->rayDir[0];
-	rayy.inv_dir.y = 1/ray->rayDir[1];
-	rayy.inv_dir.z = 1/ray->rayDir[2];
-	ray_segment_t seg;
-	bool res = ray_box_intersect(box,rayy,seg);
-	ray->hitDistanceMin = MAX(seg.t_near,ray->hitDistanceMin);
-	ray->hitDistanceMax = MIN(seg.t_far,ray->hitDistanceMax);
-	return res;
-}
+#endif
 
 } // namespace

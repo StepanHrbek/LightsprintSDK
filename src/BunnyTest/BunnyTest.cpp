@@ -1,6 +1,8 @@
 // BunnyTest.cpp : Defines the entry point for the console application.
 //
 
+//#pragma warning(disable:4530) // exception handler used but exceptions disabled
+
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"
 #include "..\..\include\RRIntersect.h"
@@ -29,7 +31,7 @@ int main(int argc, char** argv)
 	PlyMeshReader reader;
 	reader.readFile("bun_zipper.ply",mesh);
 	PlyMeshImporter importer(mesh);
-	rrIntersect::RRIntersect* intersector = rrIntersect::RRIntersect::newIntersect(&importer,rrIntersect::RRIntersect::IT_BSP_FASTEST);
+	rrIntersect::RRIntersect* intersector = rrIntersect::RRIntersect::create(&importer,rrIntersect::RRIntersect::IT_BSP_FASTEST);
 	printf("vertices=%d tris=%d\n",importer.getNumVertices(),importer.getNumTriangles());
 
 	SphereUnitVecPool vecpool;//create pool of random points
@@ -37,12 +39,12 @@ int main(int argc, char** argv)
 	clock_t t0 = clock(); //start timer
 	int num_hits = 0;//number of rays that actually hit the model
 
-	const unsigned NUM_ITERS = 1000000;
+	const unsigned NUM_ITERS = 2000000;
 	const PoolVec3 aabb_center = PoolVec3(-0.016840f, 0.110154f, -0.001537f);
 
-	rrIntersect::RRRay ray;
-	ray.skipTriangle = UINT_MAX;
-	ray.flags = rrIntersect::RRRay::FILL_TRIANGLE | rrIntersect::RRRay::FILL_DISTANCE;
+	rrIntersect::RRRay* ray = rrIntersect::RRRay::create();
+	ray->skipTriangle = UINT_MAX;
+	ray->flags = rrIntersect::RRRay::FILL_TRIANGLE | rrIntersect::RRRay::FILL_DISTANCE;
 	const float RADIUS = 0.2f;//radius of sphere
 
 	for(unsigned i=0; i<NUM_ITERS; ++i)
@@ -54,19 +56,21 @@ int main(int argc, char** argv)
 		if(size==0) continue;
 
 		//form the ray object
-		ray.rayOrigin[0] = rayorigin.x*RADIUS+aabb_center.x;
-		ray.rayOrigin[1] = rayorigin.y*RADIUS+aabb_center.y;
-		ray.rayOrigin[2] = rayorigin.z*RADIUS+aabb_center.z;
-		ray.rayDir[0] = dir.x/size;
-		ray.rayDir[1] = dir.y/size;
-		ray.rayDir[2] = dir.z/size;
-		ray.hitDistanceMin = 0;
-		ray.hitDistanceMax = size;
+		ray->rayOrigin[0] = rayorigin.x*RADIUS+aabb_center.x;
+		ray->rayOrigin[1] = rayorigin.y*RADIUS+aabb_center.y;
+		ray->rayOrigin[2] = rayorigin.z*RADIUS+aabb_center.z;
+		ray->rayDir[0] = dir.x/size;
+		ray->rayDir[1] = dir.y/size;
+		ray->rayDir[2] = dir.z/size;
+		ray->hitDistanceMin = 0;
+		ray->hitDistanceMax = size;
 
 		//do the trace
-		if(intersector->intersect(&ray))
+		if(intersector->intersect(ray))
 			num_hits++;//count the hit.
 	}
+
+	delete ray;
 
 	clock_t t1 = clock();
 	const double speed = NUM_ITERS/((double)(t1-t0)/CLOCKS_PER_SEC);

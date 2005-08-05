@@ -119,6 +119,13 @@ RRScene::ObjectHandle RRScene::objectCreate(RRSceneObjectImporter* importer)
 	Object *obj=new Object(importer->getNumVertices(),importer->getNumTriangles());
 	obj->importer = importer;
 
+#ifdef SUPPORT_TRANSFORMS
+	obj->transformMatrix=(Matrix*)importer->getWorldMatrix();
+	obj->inverseMatrix=(Matrix*)importer->getInvWorldMatrix();
+	// vyzada si prvni transformaci
+	obj->matrixDirty=true;
+#endif
+
 	// import triangles
 	// od nuly nahoru insertuje emitory, od triangles-1 dolu ostatni
 	DBG(printf(" triangles...\n"));
@@ -145,7 +152,8 @@ RRScene::ObjectHandle RRScene::objectCreate(RRSceneObjectImporter* importer)
 		int geom=t->setGeometry(
 			(Vec3*)(importer->getVertex(v0)),
 			(Vec3*)(importer->getVertex(v1)),
-			(Vec3*)(importer->getVertex(v2)));
+			(Vec3*)(importer->getVertex(v2)),
+			obj->transformMatrix);
 		if(t->isValid) 
 		{
 			const real* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(fi);
@@ -157,12 +165,6 @@ RRScene::ObjectHandle RRScene::objectCreate(RRSceneObjectImporter* importer)
 			t->surface=NULL;
 	}
 	   
-#ifdef SUPPORT_TRANSFORMS
-	obj->transformMatrix=(Matrix*)importer->getWorldMatrix();
-	obj->inverseMatrix=(Matrix*)importer->getInvWorldMatrix();
-	// vyzada si prvni transformaci
-	obj->matrixDirty=true;
-#endif
 #ifdef SUPPORT_DYNAMIC
 	obj->trianglesEmiting=tbot;
 #endif
@@ -186,7 +188,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRSceneObjectImporter* importer)
 	obj->name=NULL;
 	// bsp tree
 	DBG(printf(" tree...\n"));
-	obj->intersector = rrIntersect::RRIntersect::newIntersect(importer,(rrIntersect::RRIntersect::IntersectTechnique)RRGetState(RRSS_INTERSECT_TECHNIQUE));
+	obj->intersector = rrIntersect::RRIntersect::create(importer,(rrIntersect::RRIntersect::IntersectTechnique)RRGetState(RRSS_INTERSECT_TECHNIQUE));
 	obj->transformBound();
 	// vlozi objekt do sceny
 #ifdef SUPPORT_DYNAMIC

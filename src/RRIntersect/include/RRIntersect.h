@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <limits.h>
+#include <new>
 
 #ifdef _MSC_VER
 #pragma comment(lib,"RRIntersect.lib")
@@ -65,9 +66,24 @@ namespace rrIntersect
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	// RRAligned
+	//
+	// On some platforms (x86+SSE), some structures need to be specially aligned in memory.
+	// This helper base class helps to align them.
+
+	struct RRAligned
+	{
+		RRAligned();
+		void* operator new(std::size_t n);
+		void operator delete(void* p, std::size_t n);
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	// RRRay - ray to intersect with object.
 
-	struct RRRay
+	struct RRRay : public RRAligned
 	{
 		// inputs
 		enum Flags
@@ -81,12 +97,12 @@ namespace rrIntersect
 			TEST_SINGLESIDED=(1<<6), // detect collision only against outer side. default is to test both sides
 			SKIP_PRETESTS   =(1<<7), // skip bounding volume pretests
 		};
-		RRReal          rayOrigin[3];   // i, ray origin
-		RRReal          rayDir[3];      // i, ray direction, must be normalized
+		RRReal          rayOrigin[3];   // i, ray origin [ALIGN16]
+		unsigned        skipTriangle;   // i, postImportTriangle to be skipped, not tested
+		RRReal          rayDir[3];      // i, ray direction, must be normalized [ALIGN16]
+		unsigned        flags;          // i, flags that specify the action
 		RRReal          hitDistanceMin; // io, test hit in range <min,max>, undefined after test
 		RRReal          hitDistanceMax; // io, test hit in range <min,max>, undefined after test
-		unsigned        skipTriangle;   // i, postImportTriangle to be skipped, not tested
-		unsigned        flags;          // i, flags that specify the action
 		// outputs
 		RRReal          hitDistance;    // o, hit -> hit distance, !hit -> undefined
 		RRReal          hitPoint3d[3];  // o, hit -> hit coordinate in object space; !hit -> undefined
@@ -94,6 +110,10 @@ namespace rrIntersect
 		RRReal          hitPlane[4];    // o, hit -> plane of hitTriangle, [0..2] is normal
 		unsigned        hitTriangle;    // o, hit -> postImportTriangle that was hit
 		bool            hitOuterSide;   // o, hit -> false when object was hit from the inner side
+		// ray creator
+		static RRRay* create() {return new RRRay();}
+	private:
+		RRRay() {} // private so no one is able to create unaligned instance
 	};
 
 
@@ -111,8 +131,7 @@ namespace rrIntersect
 			IT_BSP_FAST,        // speed 175%, size 31
 			IT_BSP_FASTEST,     // speed 200%, size 58
 		};
-		static RRIntersect*  newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
-
+		static RRIntersect*  create(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
 		virtual bool         intersect(RRRay* ray) const = 0;
 		virtual unsigned     getMemorySize() const = 0;
 		virtual ~RRIntersect() {};

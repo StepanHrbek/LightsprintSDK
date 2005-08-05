@@ -35,7 +35,7 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 #endif
 
 
-	RRRay ray;
+	RRRay& ray = *RRRay::create();
 	ray.flags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE|RRRay::SKIP_PRETESTS;
 	ray.rayOrigin[0] = eye.x;
 	ray.rayOrigin[1] = eye.y;
@@ -92,6 +92,7 @@ bool Object::intersection(Point3 eye,Vec3 direction,Triangle *skip,
 		*hitOuterSide = ray.hitOuterSide;
 		*hitDistance = ray.hitDistance;
 	}
+	delete &ray;
 	return res;
 }
 

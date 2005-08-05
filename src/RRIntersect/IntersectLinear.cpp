@@ -1,7 +1,11 @@
 #include "IntersectLinear.h"
 #include <assert.h>
+#ifndef _MSC_VER
+#include <inttypes.h> // intptr_t
+#endif
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h> // exit
 
 #define DBG(a) //a
 
@@ -84,6 +88,14 @@ bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t)
 
 IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 {
+#ifdef USE_SSE
+	if(intptr_t(&box)%16) 
+	{
+		printf("You have created unaligned structure, aborting. Try static or heap if it's on stack now.");
+		assert(!(intptr_t(&box)%16));
+		exit(2);
+	}
+#endif
 	importer = aimporter;
 	triangles = importer->getNumTriangles();
 
@@ -96,11 +108,18 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 		vertex[i].y = v[1];
 		vertex[i].z = v[2];
 	}
+#ifdef USE_SPHERE
 	sphere.detect(vertex,vertices);
+#endif
 	box.detect(vertex,vertices);
 	delete[] vertex;
 
-	DELTA_BSP = sphere.radius*1e-5f;
+	// lower number = danger of numeric errors
+	// higher number = slower intersection
+	// (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
+	//DELTA_BSP = sphere.radius*1e-5f;
+	Vec3 tmp = box.max-box.min;
+	DELTA_BSP = (tmp.x+tmp.y+tmp.z)/4*1e-5f;
 }
 
 unsigned IntersectLinear::getMemorySize() const
@@ -129,7 +148,11 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	ray->hitDistance = ray->hitDistanceMax;
 
 	if(!(ray->flags&RRRay::SKIP_PRETESTS))
-	if(!sphere.intersect(ray) || !box.intersect(ray)) return false;
+	if(
+#ifdef USE_SPHERE
+		!sphere.intersect(ray) ||
+#endif
+		!box.intersect(ray)) return false;
 
 	bool hit = false;
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir

@@ -239,7 +239,11 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
-	bool hit = ((ray->flags&RRRay::SKIP_PRETESTS) || (sphere.intersect(ray) && box.intersect(ray))) 
+	bool hit = ((ray->flags&RRRay::SKIP_PRETESTS) || (
+#ifdef USE_SPHERE
+		sphere.intersect(ray) &&
+#endif
+		box.intersect(ray))) 
 		&& intersect_bsp(ray,tree,ray->hitDistanceMax);
 	if(hit) intersectStats.hits++;
 	return hit;

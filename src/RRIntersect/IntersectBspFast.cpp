@@ -661,7 +661,11 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
 
-	if((ray->flags&RRRay::SKIP_PRETESTS) || (sphere.intersect(ray) && box.intersect(ray)))
+	if((ray->flags&RRRay::SKIP_PRETESTS) || (
+#ifdef USE_SPHERE
+		sphere.intersect(ray) &&
+#endif
+		box.intersect(ray)))
 	switch(intersectTechnique)
 	{
 		case IT_BSP_FASTEST:

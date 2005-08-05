@@ -282,7 +282,7 @@ public:
 	Node    *brother();
 
 	// geometry
-	real    area;
+	real    area; // area in worldspace
 
 #ifndef ONLY_PLAYER
 	void    reset();
@@ -450,6 +450,20 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// scale / scalovani
+//
+// objekt muze byt transformovan matici se scalem, neuniformnim, zapornym
+// scale       - asi funguje
+// neuniformni - asi funguje
+// zaporny     - asi funguje
+//
+// n3/u3/v3 je ortonormalni baze v objectspace
+// u2/v2 jsou v prostoru u3/v3
+// splituje se podle u2/v2, takze pri neuniformnim scalu neoptimalne
+// area je ve worldspace, takze nedochazi k mnozeni/mizeni energie pri distribuci
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // triangle, part of cluster and object
 //
 // init(a,b,c):
@@ -475,7 +489,7 @@ public:
 	class Object *object;
 #endif
 
-	// geometry
+	// geometry, all in objectspace
 	const Vec3* getVertex(unsigned i) {return qvertex[i];}
 	Vec3    getS3() {return *getVertex(0);} // absolute position of start of base (transformed when dynamic)
 	Vec3    getR3() {return *getVertex(1)-*getVertex(0);} // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
@@ -484,16 +498,18 @@ public:
 	Vec3    getU3() {return qu3;}
 	Vec3    getV3() {return qv3;}
 		private:
-		const Vec3 *qvertex[3];     // 3x vertex
-		Normal      qn3;             // normalised normal vector
+		const Vec3 *qvertex[3];      // 3x vertex
+		Normal      qn3;             // normalized normal vector
 		Vec3        qu3,qv3;         // ortonormal base for 2d coordinates in subtriangles
+			// hadam 95% ze je dobre ze jsou ortonormalni v objectspace
+			// hadam 5% ze by se nekomu vic hodilo world2obj(ortonormlani baze ve worldspace)
 		public:
 	struct Edge *edge[3];   // edges
 	U8      isValid      :1;// triangle is not degenerated
 	U8      isInCluster  :1;// triangle is in cluster
 	U8      isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
 	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
-	S8      setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n=NULL,int rots=-1);
+	S8      setGeometry(Vec3 *a,Vec3 *b,Vec3* c,const Matrix *obj2world,Normal *n=NULL,int rots=-1);
 	Vec3    to3d(Point2 a);
 	Vec3    to3d(int vertex);
 	SubTriangle *getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex);

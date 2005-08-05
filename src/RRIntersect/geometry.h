@@ -4,6 +4,9 @@
 #include "RRIntersect.h"
 #include <float.h> // _finite
 
+#define USE_SSE
+//#define USE_SPHERE
+
 namespace rrIntersect
 {
 	typedef RRReal real;
@@ -68,6 +71,7 @@ namespace rrIntersect
 	//
 	// sphere in 3d
 
+#ifdef USE_SPHERE
 	struct Sphere
 	{
 		Vec3    center;
@@ -76,6 +80,7 @@ namespace rrIntersect
 		void    detect(const Vec3 *vertex,unsigned vertices);
 		bool    intersect(RRRay* ray) const;
 	};
+#endif
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -84,6 +89,7 @@ namespace rrIntersect
 	struct Box
 	{
 		Vec3    min;
+		real    pad;
 		Vec3    max;
 		void    detect(const Vec3 *vertex,unsigned vertices);
 		bool    intersect(RRRay* ray) const;

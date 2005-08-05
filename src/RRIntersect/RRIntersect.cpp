@@ -3,11 +3,61 @@
 #include "IntersectBspFast.h"
 #include <math.h>
 #include <memory.h>
+#include <new> // aligned new
 #include <stdio.h>
 #include <string.h>
 
 namespace rrIntersect
 {
+
+#ifdef USE_SSE
+void* AlignedMalloc(size_t size,int byteAlign)
+{
+	void *mallocPtr = malloc(size + byteAlign + sizeof(void*));
+	size_t ptrInt = (size_t)mallocPtr;
+
+	ptrInt = (ptrInt + byteAlign + sizeof(void*)) / byteAlign * byteAlign;
+	*(((void**)ptrInt) - 1) = mallocPtr;
+
+	return (void*)ptrInt;
+}
+
+void AlignedFree(void *ptr)
+{
+	free(*(((void**)ptr) - 1));
+}
+#endif
+
+RRAligned::RRAligned()
+{
+/* u trid s necim virtualnim je this%16==4
+#ifdef USE_SSE
+	if(intptr_t(this)%16) 
+	{
+		printf("You have created unaligned structure, aborting. Try static or heap if it's on stack now.");
+		assert(!(intptr_t(this)%16));
+		exit(1);
+	}
+#endif*/
+};
+
+void* RRAligned::operator new(std::size_t n)
+{
+#ifdef USE_SSE
+	return AlignedMalloc(n,16);
+#else
+	return ::operator new(n);
+#endif
+};
+
+void RRAligned::operator delete(void* p, std::size_t n)
+{
+#ifdef USE_SSE
+	AlignedFree(p);
+#else
+	::delete(p);
+#endif
+};
 
 void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 {
@@ -28,7 +78,7 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 	t->l[2]=v[2][2]-v[0][2];
 }
 
-RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams)
+RRIntersect* RRIntersect::create(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams)
 {
 	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);
@@ -40,7 +90,7 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 			if(importer->getNumTriangles()<=256)
 			{
 				typedef IntersectBspCompact<CBspTree21> T;
-				T* in = new T(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
+				T* in = T::create(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
 				if(in->getMemorySize()>sizeof(T)) return in;
 				delete in;
 				goto linear;
@@ -48,14 +98,14 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 			if(importer->getNumTriangles()<=65536)
 			{
 				typedef IntersectBspCompact<CBspTree42> T;
-				T* in = new T(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
+				T* in = T::create(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
 				if(in->getMemorySize()>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
 			{
 				typedef IntersectBspCompact<CBspTree44> T;
-				T* in = new T(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
+				T* in = T::create(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
 				if(in->getMemorySize()>sizeof(T)) return in;
 				delete in;
 				goto linear;
@@ -64,7 +114,7 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 		case IT_BSP_FAST:
 			{
 				typedef IntersectBspFast<BspTree44> T;
-				T* in = new T(importer,intersectTechnique,(intersectTechnique==IT_BSP_FAST)?".fast":".fastest",(BuildParams*)buildParams);
+				T* in = T::create(importer,intersectTechnique,(intersectTechnique==IT_BSP_FAST)?".fast":".fastest",(BuildParams*)buildParams);
 				if(in->getMemorySize()>sizeof(T)) return in;
 				delete in;
 				goto linear;
@@ -74,7 +124,7 @@ RRIntersect* RRIntersect::newIntersect(RRObjectImporter* importer, IntersectTech
 		linear:
 			assert(importer);
 			if(!importer) return NULL;
-			return new IntersectLinear(importer);
+			return IntersectLinear::create(importer);
 	}
 }
 

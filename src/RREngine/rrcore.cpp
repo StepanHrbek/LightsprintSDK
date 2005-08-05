@@ -1091,12 +1091,25 @@ static real spicatost(real a,real b,real c) // delky stran
 	return (lo+mid-hi<=0)?1e10f:(hi/(lo+mid-hi)); // spicatost, 1..1000 pohoda, 1000..nekonecno jehla
 }
 
+// calculates triangle area from triangle vertices
+real calculateArea(Vec3 v0, Vec3 v1, Vec3 v2)
+{
+	real a=size2(v1-v0);
+	real b=size2(v2-v0);
+	real c=size2(v2-v1);
+	return sqrt(2*b*c+2*c*a+2*a*b-a*a-b*b-c*c)/4;
+}
+
 // rots muze prikazat kolikrat zarotovat, -1=autodetekce
-// vraci kolikrat zarotoval, <0=vadna geometrie, zahodit
+// vraci kolikrat zarotoval, -1..-11=vadna geometrie, zahodit
 // n=NULL .. spocita normalu sam
 // n!=NULL .. pouzije zadanou normalu, nicmene SUPPORT_DYNAMIC pri transformacich stejne zada NULL a stara je zahozena, spocita se nova
+//
+// Objekt muze byt scalovany. a/b/c ale dostavame v objectspace a tak musi zustat.
+// Pokud ale nevyscalujeme area, bude pri distribuci vznikat/zanikat energie.
+// obj2world tedy pouzijeme pouze k vypoctu area ve worldspace.
 
-S8 Triangle::setGeometry(Vec3 *a,Vec3 *b,Vec3* c,Normal *n,int rots)
+S8 Triangle::setGeometry(Vec3 *a,Vec3 *b,Vec3* c,const Matrix *obj2world,Normal *n,int rots)
 {
 	isValid=0;
 	assert(rots>=-1 && rots<=2);
@@ -1176,6 +1189,10 @@ again:
 	assert(v2.y>=0);
 
 	isNeedle = (RRGetState(RRSS_FIGHT_NEEDLES) && spicatost(lsize,rsize,size(getL3()-getR3()))>1000) ? 1 : 0;
+
+	// prepocitat area v worldspace
+	area = calculateArea(a->transformed(obj2world),b->transformed(obj2world),c->transformed(obj2world));
+	if(!IS_NUMBER(area)) return -11;
 
 	assert(IS_VEC3(getV3()));
 	isValid=1;
@@ -2161,7 +2178,7 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 
 //for(unsigned o=0;o<objects;o++) staticReflectors.insertObject(object[o]);
 //printf("----------\n");
-	return (energyEmitedByStatics!=Channels(0)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
+	return (energyEmitedByStatics!=Channels(SMALL_ENERGY)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
 }
 
 void Scene::updateMatrices()
