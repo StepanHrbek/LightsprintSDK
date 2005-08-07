@@ -40,6 +40,10 @@ WorldSceneObjectImporter::WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobjec
 	surfaces = asurfaces;
 	assert(world);
 	assert(surface);
+
+	// scale pokus
+	//for(int i=0;i<3;i++)for(int j=0;j<3;j++) object->matrix[i][j]/=4;
+	//matrix_Invert(object->matrix,object->inverse);
 }
 
 WorldSceneObjectImporter::~WorldSceneObjectImporter()

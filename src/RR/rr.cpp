@@ -471,7 +471,7 @@ bool frameCalculate(Scene *scene)
    bool change=false;
    if(!preparing_capture && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames)) {
      TIME endTime=(TIME)(GETTIME+c_dynamicFrameTime*PER_SEC);
-     change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime);
+     change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime)==rrEngine::RRScene::IMPROVED;
      if(GETTIME>endTime) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
    }
    return change || p_flyingCamera || p_flyingObjects || n_dirtyCamera || n_dirtyObject;

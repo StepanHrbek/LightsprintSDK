@@ -366,14 +366,18 @@ bool Box::intersect(RRRay* ray) const
 	lmin = maxss(lmin, lmin1);
 
 	const bool ret = ( _mm_comige_ss(lmax, _mm_setzero_ps()) & _mm_comige_ss(lmax,lmin) ) != 0;
-
+	
 	float t_near,t_far;
 	storess(lmin, &t_near);
 	storess(lmax, &t_far);
+
+	//ray->hitDistanceMin = t_near;
+	//ray->hitDistanceMax = t_far;
+	//return  ret;
+
 	ray->hitDistanceMin = MAX(t_near,ray->hitDistanceMin);
 	ray->hitDistanceMax = MIN(t_far,ray->hitDistanceMax);
-
-	return  ret;
+	return ray->hitDistanceMin<ray->hitDistanceMax;
 }
 
 #endif

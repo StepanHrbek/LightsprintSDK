@@ -302,11 +302,12 @@ struct ROOT_INFO
 	unsigned axis;
 	float    value; // position of splitting plane in axis
 	FACE*    face;
+	bool     max;
 };
 
 VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 {
-	ROOT_INFO info, best_dee, best_havran;
+	ROOT_INFO info, /*info2,*/ best_dee, best_havran;
 
 	best_dee.prize = UINT_MAX;
 	best_dee.face = NULL;
@@ -336,15 +337,63 @@ VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 		unsigned maxxi = 0;
 		while(1)
 		{
+			info.max = false;
 			info.face = minx[minxi];
 			info.value = minx[minxi]->min[axis];
 
 			// skip faces in plane splitValue
 			info.plane = 0;
-			while(maxxi<faces && info.value >= maxx[maxxi]->max[axis]) 
+			while(maxxi<faces && info.value >= maxx[maxxi]->max[axis])
 			{
 				if(info.value==maxx[maxxi]->max[axis] && 
 					maxx[maxxi]->min[axis]==maxx[maxxi]->max[axis]) info.plane++;
+
+				/*/----
+				// try to split also at upper bound of tri, not just at lower bound
+				info2 = info;
+				info2.max = true;
+				info2.face = maxx[maxxi];
+				info2.value = maxx[maxxi]->max[axis];
+				if(info2.value<bbox->lo[axis]) goto info2_done;
+				if(info2.value>bbox->hi[axis]) goto info2_done;
+				{int split_num=0;
+				int plane_num=0;
+				int front_num=0;
+				int back_num=0;
+				for(int i=0;list[i];i++)
+				{
+					switch(locate_face_kd(info2.value,axis,list[i])) 
+					{
+					case BACK: back_num++; break;
+					case PLANE: plane_num++; break;
+					case FRONT: front_num++; break;
+					case SPLIT: split_num++; break;
+					}
+				}
+				info2.back = back_num;
+				info2.front = front_num;
+				info2.split = split_num;
+				info2.plane = plane_num;
+				info2.prize = 1 + info2.split*SPLIT_PRIZE + ABS((int)info2.front-(int)(info2.back+info2.plane))*BALANCE_PRIZE;
+				}
+				// backsurface
+				{
+					float tmp = bbox->hi[axis];
+					bbox->hi[axis] = info2.value;
+					float backsurface = bbox->getSurfaceSize();
+					bbox->hi[axis] = tmp;
+					// frontsurface
+					tmp = bbox->lo[axis];
+					bbox->lo[axis] = info2.value;
+					float frontsurface = bbox->getSurfaceSize();
+					bbox->lo[axis] = tmp;
+					// prize
+					info2.fprize = (info2.front+info2.split)*frontsurface + (info2.back+info2.plane+info2.split)*backsurface;
+				}
+				if(info2.prize<best_dee.prize) best_dee = info2;
+				if(info2.fprize<best_havran.fprize) best_havran = info2;
+info2_done:			//----
+*/
 				maxxi++;
 			}
 
@@ -401,9 +450,16 @@ next:
 	assert(f);
 	if(!f) return NULL;
 	VERTEX* result;
-	if(f->min[info.axis]==(*f->vertex[0])[info.axis]) result = f->vertex[0]; else
-	if(f->min[info.axis]==(*f->vertex[1])[info.axis]) result = f->vertex[1]; else
-	{assert(f->min[info.axis]==(*f->vertex[2])[info.axis]);	result = f->vertex[2];}
+	if(info.max)
+	{
+		if(f->max[info.axis]==(*f->vertex[0])[info.axis]) result = f->vertex[0]; else
+		if(f->max[info.axis]==(*f->vertex[1])[info.axis]) result = f->vertex[1]; else
+		{assert(f->max[info.axis]==(*f->vertex[2])[info.axis]);	result = f->vertex[2];}
+	} else {
+		if(f->min[info.axis]==(*f->vertex[0])[info.axis]) result = f->vertex[0]; else
+		if(f->min[info.axis]==(*f->vertex[1])[info.axis]) result = f->vertex[1]; else
+		{assert(f->min[info.axis]==(*f->vertex[2])[info.axis]);	result = f->vertex[2];}
+	}
 	*bestinfo = info;
 
 
