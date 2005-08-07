@@ -2,6 +2,7 @@
 #define RRENGINE_RRCORE_H
 
 #define SUPPORT_TRANSFORMS
+#define SUPPORT_SCALE
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 //#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
 //#define LIGHTMAP         // generate lightmap for each Triangle + texturemapping
@@ -717,7 +718,7 @@ public:
 	rrIntersect::RRIntersect*intersector;
 	Bound   bound;
 	void    detectBounds();
-	bool    intersection(Point3 eye,Vec3 direction,Triangle *skip,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
+	Triangle* intersection(rrIntersect::RRRay& ray, const Point3& eye, const Vec3& direction);
 
 	char    *name;
 	bool    check();
@@ -765,8 +766,8 @@ public:
 		Channels energyEmitedByStatics;
 		Channels energyEmitedByDynamics;
 
-	bool    intersectionStatic(Point3 eye,Vec3 direction,Triangle *skip,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
-	bool    intersectionDynobj(Point3 eye,Vec3 direction,Triangle *skip,Object *object,Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance);
+	Triangle* intersectionStatic(rrIntersect::RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
+	Triangle* intersectionDynobj(rrIntersect::RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
 	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power=HitChannels(1));
 //	Color   rayTraceCamera(Point3 eye,Vec3 direction,Triangle *skip,Color power=Color(1,1,1));
 

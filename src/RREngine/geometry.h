@@ -116,9 +116,9 @@ struct Vec3
 	Vec3 operator /=(real f)          {x/=f;y/=f;z/=f;return *this;}
 	bool operator ==(Vec3 a)    const {return a.x==x && a.y==y && a.z==z;}
 	bool operator !=(Vec3 a)    const {return a.x!=x || a.y!=y || a.z!=z;}
-	Vec3 transformed(const Matrix *m);
+	Vec3 transformed(const Matrix *m) const;
 	Vec3 transform(const Matrix *m);
-	Vec3 rotated(const Matrix *m);
+	Vec3 rotated(const Matrix *m) const;
 	Vec3 rotate(const Matrix *m);
 	real operator [](int i)     const {return ((real*)this)[i];}
 };

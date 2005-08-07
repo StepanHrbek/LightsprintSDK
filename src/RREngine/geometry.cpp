@@ -65,7 +65,7 @@ Angle angleBetween(Vec2 a,Vec2 b)
 //
 // 3d vector
 
-Vec3 Vec3::transformed(const Matrix *m)
+Vec3 Vec3::transformed(const Matrix *m) const
 {
 	return Vec3(
 	  x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0] + (*m)[3][0],
@@ -73,7 +73,7 @@ Vec3 Vec3::transformed(const Matrix *m)
 	  x*(*m)[0][2] + y*(*m)[1][2] + z*(*m)[2][2] + (*m)[3][2]);
 }
 
-Vec3 Vec3::rotated(const Matrix *m)
+Vec3 Vec3::rotated(const Matrix *m) const
 {
 	return Vec3(
 		x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0],

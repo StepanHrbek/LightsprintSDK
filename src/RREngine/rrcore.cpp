@@ -2214,20 +2214,25 @@ Vec3 refract(Vec3 N,Vec3 I,real r)
 unsigned __hitsOuter=0;
 unsigned __hitsInner=0;
 
+rrIntersect::RRRay* __ray;
+
 HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
 {
 	assert(IS_VEC3(eye));
 	assert(IS_VEC3(direction));
-	Hit       hitPoint2d;
-	bool      hitOuterSide;
-	Triangle *hitTriangle=NULL;
-	real      hitDistance=BIG_REAL;
-	if(!intersectionStatic(eye,direction,skip,&hitTriangle,&hitPoint2d,&hitOuterSide,&hitDistance))
+	rrIntersect::RRRay& ray = *__ray;
+	ray.flags = rrIntersect::RRRay::FILL_DISTANCE|rrIntersect::RRRay::FILL_SIDE|rrIntersect::RRRay::FILL_POINT2D|rrIntersect::RRRay::FILL_TRIANGLE|rrIntersect::RRRay::SKIP_PRETESTS;
+	ray.hitDistanceMin = 0;
+	ray.hitDistanceMax = BIG_REAL;
+	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
+	if(!hitTriangle)
+	{
 		// ray left scene and vanished
 		return HitChannels(0);
-	assert(IS_NUMBER(hitDistance));
+	}
+	assert(IS_NUMBER(ray.hitDistance));
 	static unsigned s_depth = 0;
 	if(s_depth>25) 
 	{
@@ -2235,9 +2240,9 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 		return HitChannels(0);
 	}
 	s_depth++;
-	if(hitOuterSide) __hitsOuter++;else __hitsInner++;
+	if(ray.hitOuterSide) __hitsOuter++;else __hitsInner++;
 	// otherwise surface with these properties was hit
-	RRSideBits *side=&sideBits[hitTriangle->surface->sides][hitOuterSide?0:1];
+	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitOuterSide?0:1];
 	assert(side->catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
 	HitChannels  hitPower=HitChannels(0);
@@ -2250,6 +2255,16 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	if(fabs(power*hitTriangle->surface->diffuseReflectance)>0.01 /*&& !hitTriangle->isNeedle*/) // timto je mozne vypnout vypocet nad jehlama, zustanou cerny
 	{
 		hitPower+=power*hitTriangle->surface->diffuseReflectance;
+		Hit hitPoint2d;
+#ifdef HITS_FIXED
+		hitPoint2d.u=(HITS_UV_TYPE)(HITS_UV_MAX*i_hitU);
+		hitPoint2d.v=(HITS_UV_TYPE)(HITS_UV_MAX*i_hitV);
+#else
+		// prepocet u,v ze souradnic (rightside,leftside)
+		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
+		hitPoint2d.u=ray.hitPoint2d[0]*hitTriangle->u2.x+ray.hitPoint2d[1]*hitTriangle->v2.x;
+		hitPoint2d.v=ray.hitPoint2d[1]*hitTriangle->v2.y;
+#endif
 		hitPoint2d.setPower(power);
 		// put triangle among other hit triangles
 		if(!hitTriangle->hits.hits) hitTriangles.insert(hitTriangle);
@@ -2268,7 +2283,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 //	if(sqrt(power*material->specularReflectance)*rand()<RAND_MAX)
 	{
 		// calculate hitpoint
-		Point3 hitPoint3d=eye+direction*hitDistance;
+		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after ideal mirror reflection
 		Vec3 newDirection=hitTriangle->getN3()*(-2*dot(direction,hitTriangle->getN3())/size2(hitTriangle->getN3()))+direction;
 		// recursively call this function
@@ -2282,7 +2297,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 //	if(sqrt(power*material->specularTransmittance)*rand()<RAND_MAX)
 	{
 		// calculate hitpoint
-		Point3 hitPoint3d=eye+direction*hitDistance;
+		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after refraction
 		Vec3 newDirection=-refract(hitTriangle->getN3(),direction,hitTriangle->surface->refractionReal);
 		// recursively call this function
@@ -2443,11 +2458,14 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 
 #ifdef SUPPORT_TRANSFORMS
 	// transform from shooter's objectspace to scenespace
-	*src=srcPoint3.transformed(source->grandpa->object->transformMatrix);
-	*dir=normalized(rayVec3.rotated(source->grandpa->object->transformMatrix));
+	*src = srcPoint3.transformed(source->grandpa->object->transformMatrix);
+	*dir = rayVec3.rotated(source->grandpa->object->transformMatrix);
+#ifdef SUPPORT_SCALE
+	*dir = normalized(*dir);
+#endif
 #else
-	*src=srcPoint3;
-	*dir=rayVec3;
+	*src = srcPoint3;
+	*dir = rayVec3;
 #endif
 	return source->grandpa;
 }
@@ -3205,6 +3223,8 @@ void core_Done()
 	assert(__levels);
 	delete __levels;
 	__levels=NULL;
+	delete __ray;
+	__ray=NULL;
 #ifndef NDEBUG
 	if( __nodesAllocated
 	 || __subtrianglesAllocated
@@ -3244,6 +3264,7 @@ void core_Init()
 {
 	assert(!__levels);
 	__levels=new LevelHits();
+	__ray = rrIntersect::RRRay::create();
 }
 
 #endif
