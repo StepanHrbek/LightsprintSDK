@@ -205,7 +205,9 @@ void IVertex::makeDirty()
 		corner[i].node->flags|=FLAG_DIRTY_IVERTEX+FLAG_DIRTY_SOME_SUBIVERTICES;
 }
 
-Channels IVertex::exitance()
+// irradiance in W/m^2, incident power density
+// is equal in whole vertex, doesn't depend on corner material
+Channels IVertex::irradiance()
 {
 	bool getSource=RRGetState(RRSS_GET_SOURCE)!=0;
 	bool getReflected=RRGetState(RRSS_GET_REFLECTED)!=0;
@@ -218,26 +220,40 @@ Channels IVertex::exitance()
 			Node* node=corner[i].node;
 			assert(node);
 			// a=source+reflected
-			Channels a=node->energyDirect+node->getEnergyDynamic();
+			Channels a=node->energyDirectIncident+node->getEnergyDynamic();
+			assert(IS_CHANNELS(a));
 			if(node->sub[0])
 			{
 				assert(node->sub[1]);
-				a-=node->sub[0]->energyDirect+node->sub[1]->energyDirect;
+				a-=node->sub[0]->energyDirectIncident+node->sub[1]->energyDirectIncident;
 			}
+			assert(IS_CHANNELS(a));
 			// s=source
-			Channels s=IS_TRIANGLE(node) ? TRIANGLE(node)->getEnergySource() : Channels(0);
+			Channels s=IS_TRIANGLE(node) ? TRIANGLE(node)->getSourceIrradiance() : Channels(0);
+			assert(IS_CHANNELS(s));
 			// r=reflected
 			Channels r=a-s;
+			assert(IS_CHANNELS(r));
 			// w=wanted
 			Channels w=(getSource&&getReflected)?a:( getSource?s: ( getReflected?r:Channels(0) ) );
-			rad+=w/corner[i].node->area*corner[i].power;
+			rad+=w/corner[i].node->area*corner[i].power
+				/*/ *(Vec3*)(corner[i].node->grandpa->surface->diffuseReflectanceColor)*/;
+			assert(IS_CHANNELS(rad));
 		}
-		cache=powerTopLevel?rad/powerTopLevel:getClosestRadiosity();//hack for ivertices inside needle - quick search for nearest valid value
+		cache=powerTopLevel?rad/powerTopLevel:getClosestIrradiance();//hack for ivertices inside needle - quick search for nearest valid value
 		cacheTime=__frameNumber;
 		cacheValid=1;
 	}
 	clampToZero(cache); //!!! obcas tu vznikaji zaporny hodnoty coz je zcela nepripustny!
+	assert(IS_CHANNELS(cache));
 	return cache;
+}
+
+// exitance in W/m^2, exitting power density
+// differs for different corners, depends on corner material
+Channels IVertex::exitance(Node* corner)
+{
+	return irradiance()* *(Vec3*)(corner->grandpa->surface->diffuseReflectanceColor);
 }
 
 void IVertex::loadCache(Channels r)
@@ -827,7 +843,7 @@ static void iv_saveReal(SubTriangle *s,IVertex *iv,int type)
 	{
 		if(iv_realsInside)
 		{
-			Channels r=iv->exitance();
+			Channels r=iv->exitance(s);
 			iv_FW(r);
 		}
 		else
@@ -1191,8 +1207,8 @@ static real iv_error(SubTriangle *s,IVertex *iv)
 	assert(iv==s->subvertex);
 	assert(iv->loaded);
 	bool isRL=s->isRightLeft();
-	Channels r1=SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->exitance();
-	Channels r2=SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->exitance();
+	Channels r1=SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->exitance(s);
+	Channels r2=SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->exitance(s);
 	assert(s->area>=0);
 	return sum(abs(r1-r2))*s->area;
 }
@@ -1219,7 +1235,7 @@ static void iv_fillEmptyImportant(SubTriangle *s,IVertex *iv,int type)
 	{
 		assert(type==3);
 		bool isRL=s->isRightLeft();
-		Channels r=(SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->exitance()+SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->exitance())/2;
+		Channels r=(SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->exitance(s)+SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->exitance(s))/2;
 		iv->loadCache(r);
 		iv->loaded=true;
 	}
@@ -1538,8 +1554,8 @@ static void iv_findIvClosestToPos(SubTriangle *s,IVertex *iv,int type)
 	}
 }
 
-Channels IVertex::getClosestRadiosity()
-// returns radiosity of ivertex closest to this
+Channels IVertex::getClosestIrradiance()
+// returns irradiance of ivertex closest to this
 {
 	if(!RRGetState(RRSS_FIGHT_NEEDLES) || RRGetState(RRSS_NEEDLE)!=1) return Channels(0); // pokud nebojujem s jehlama, vertexum bez powerTopLevel (zrejme nekde v jehlach na okraji sceny) dame barvu 0
 	// kdyz 2 jehly sousedej, sdilej ivertex s powertoplevel==0
@@ -1566,7 +1582,7 @@ Channels IVertex::getClosestRadiosity()
 		if(!tested1) tested1=n; else tested2=n;
 	}
 	static Channels prev=Channels(1e10);
-	if(ne_bestIv) prev=ne_bestIv->exitance();
+	if(ne_bestIv) prev=ne_bestIv->irradiance();
 	return prev;
 }
 

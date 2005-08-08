@@ -107,6 +107,7 @@ struct Vec3
 	Vec3 operator *(real f)     const {return Vec3(x*f,y*f,z*f);}
 	Vec3 operator *(Vec3 a)     const {return Vec3(x*a.x,y*a.y,z*a.z);}
 	Vec3 operator /(real f)     const {return Vec3(x/f,y/f,z/f);}
+	Vec3 operator /(Vec3 a)     const {return Vec3(x/a.x,y/a.y,z/a.z);}
 	Vec3 operator /(int f)      const {return Vec3(x/f,y/f,z/f);}
 	Vec3 operator /(unsigned f) const {return Vec3(x/f,y/f,z/f);}
 	Vec3 operator +=(Vec3 a)          {x+=a.x;y+=a.y;z+=a.z;return *this;}

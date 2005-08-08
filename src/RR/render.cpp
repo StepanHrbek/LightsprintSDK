@@ -400,15 +400,15 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 
 		v=to3d(0);
 		p[1].x=v.x; p[1].y=v.y; p[1].z=v.z;
-		p[1].u=getBrightness(iv[0]->exitance());
+		p[1].u=getBrightness(iv[0]->exitance(this));
 
 		v=to3d(1);
 		p[2].x=v.x; p[2].y=v.y; p[2].z=v.z;
-		p[2].u=getBrightness(iv[1]->exitance());
+		p[2].u=getBrightness(iv[1]->exitance(this));
 
 		v=to3d(2);
 		p[3].x=v.x; p[3].y=v.y; p[3].z=v.z;
-		p[3].u=getBrightness(iv[2]->exitance());
+		p[3].u=getBrightness(iv[2]->exitance(this));
 
 		if(!d_gouraud3)
 		{
@@ -486,9 +486,9 @@ unsigned SubTriangle::printGouraud(void *f, IVertex **iv, real scale,Channels fl
 			b[0]=b[1]=b[2]=getBrightness(flatambient+(energyDirect+getEnergyDynamic())/area);
 		}  else {
 			// gouraud
-			b[0]=getBrightness(iv[0]->exitance());
-			b[1]=getBrightness(iv[1]->exitance());
-			b[2]=getBrightness(iv[2]->exitance());
+			b[0]=getBrightness(iv[0]->exitance(this));
+			b[1]=getBrightness(iv[1]->exitance(this));
+			b[2]=getBrightness(iv[2]->exitance(this));
 		}
 
 		i[0]=(3-grandpa->rotations)%3;

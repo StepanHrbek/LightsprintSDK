@@ -40,7 +40,6 @@
 #endif
 
 #include <stdarg.h>
-//#include <stdlib.h>
 #include "geometry.h"
 #include "RREngine.h"
 #include "interpol.h"
@@ -293,7 +292,8 @@ public:
 	real    accuracy();     // shots done per energy unit
 
 	// static energy acumulators
-	Channels energyDirect;   // energy received directly by this node or his subs (not by ancestors)
+	Channels energyDirect;   // exitance from energy received directly by this node or his subs (not by ancestors)
+	Channels energyDirectIncident; // irradiance received directly by this node or his subs (not by ancestors)
 	Channels radiosityIndirect();// radiosity received by ancestors
 	bool    loadEnergyFromSubs();
 	void    propagateEnergyUp();
@@ -524,9 +524,10 @@ public:
 	RRSurface *surface;     // material at outer and inner side of Triangle
 	Channels setSurface(RRSurface *s,const Vec3& additionalRadiantExitance);
 #ifndef ONLY_PLAYER
-	Channels getEnergySource() {return sourceEnergy;}
+	Channels getSourceExitance() {return sourceExitance;}
+	Channels getSourceIrradiance() {return Channels(sourceExitance.x/MAX(surface->diffuseReflectanceColor[0],0.1f),sourceExitance.y/MAX(surface->diffuseReflectanceColor[1],0.1f),sourceExitance.z/MAX(surface->diffuseReflectanceColor[2],0.1f));}
 		private:
-		Channels sourceEnergy;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
+		Channels sourceExitance;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
 		public:
 
 	// hits
@@ -694,7 +695,7 @@ public:
 };
 
 #else
-	Channels getVertexRadiosity(unsigned avertex);
+	Channels getVertexIrradiance(unsigned avertex);
 	IVertex **vertexIVertex;
 	// IVertex pool
 	IVertex *newIVertex();

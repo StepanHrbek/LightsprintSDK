@@ -7,12 +7,12 @@ namespace rrEngine
 
 /*
 INTERPOL_BETWEEN tells if it's good idea to interpolate between two triangles
- different surface -> no
+ different surface -> yes (was no, but it was in time when exitances were interpolated. now we interpolate irradiances)
  (angle too big) * (areas of too different size) -> no
 If we interpolate between areas of too different size, small dark tri + large lit tri would
- go both to grey which makes scene much r\darker than it should be.
+ go both to grey which makes scene much darker than it should be.
 */
-#define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=(MIN(t1->area,t2->area)/(t1->area+t2->area)*2+0.2f)*MAX_INTERPOL_ANGLE && t1->grandpa->surface==t2->grandpa->surface)
+#define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=(MIN(t1->area,t2->area)/(t1->area+t2->area)*2+0.2f)*MAX_INTERPOL_ANGLE /*&& t1->grandpa->surface==t2->grandpa->surface*/)
 #define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->getN3(),t2->grandpa->getN3()))
 #define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)
 
@@ -53,7 +53,8 @@ public:
 	void    splitTopLevel(Vec3 *avertex, Object *obj);
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
-	Channels exitance();
+	Channels irradiance();
+	Channels exitance(Node* corner);
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();
 	bool    check();
@@ -71,11 +72,11 @@ public:
 		U8       cacheValid:1;
 		U8       cornersAllocatedLn2:7;
 		U16      corners;
-		Channels cache;
+		Channels cache;	// cached irradiance
 		unsigned cornersAllocated();
 		real     powerTopLevel;
 		Corner   *corner; // pole corneru tvoricich tento ivertex
-		Channels getClosestRadiosity();
+		Channels getClosestIrradiance();
 };
 
 //////////////////////////////////////////////////////////////////////////////

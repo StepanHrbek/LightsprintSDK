@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.07.26
+// version 2005.08.09
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -148,8 +148,9 @@ namespace rrEngine
 			RRReal norm[3];
 			RRReal col[3];
 		};
-		const RRReal* getVertexRadiantExitance(ObjectHandle object, unsigned vertex); // radiant exitance in watts per square meter
-		const RRReal* getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex); // radiant exitance in watts per square meter
+		const RRReal* getVertexIrradiance(ObjectHandle object, unsigned vertex); // irradiance (incident power density) in watts per square meter
+		const RRReal* getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex); // irradiance (incident power density) in watts per square meter
+		const RRReal* getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex); // radiant exitance (leaving power density) in watts per square meter
 		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
 
 		// misc
@@ -176,8 +177,13 @@ namespace rrEngine
 		RRSSF_SUBDIVISION_SPEED, // speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast
 		RRSS_GET_SOURCE,         // results from getXxxRadiantExitance contain input emittances
 		RRSS_GET_REFLECTED,      // results from getXxxRadiantExitance contain additional exitances calculated by radiosity
-		RRSS_DEPTH_OVERFLOWS,    // accumulated number of depth overflows in photon tracing, caused by physically incorrect scenes
 		RRSS_INTERSECT_TECHNIQUE,// IT_XXX, 0=most compact, 4=fastest
+		// statistics
+		RRSS_IMPROVE_CALLS,
+		RRSS_BESTS,
+		RRSS_DISTRIBS,
+		RRSS_REFRESHES,
+		RRSS_DEPTH_OVERFLOWS,    // accumulated number of depth overflows in photon tracing, caused by physically incorrect scenes
 		RRSS_LAST
 	};
 

@@ -589,6 +589,7 @@ Node::Node(Node *aparent,class Triangle *agrandpa)
 void Node::reset()
 {
 	energyDirect=Channels(0);
+	energyDirectIncident=Channels(0);
 	flags=0;
 #ifdef SUPPORT_DYNAMIC
 	energyDynamicFrame=0;
@@ -631,6 +632,7 @@ bool Node::loadEnergyFromSubs()
 //        area=sub[0]->area+sub[1]->area;
 //        assert(energyDirect==0);
 	energyDirect=sub[0]->energyDirect+sub[1]->energyDirect;
+	energyDirectIncident=sub[0]->energyDirectIncident+sub[1]->energyDirectIncident;
 	assert(sub[0]->shooter);
 	assert(sub[1]->shooter);
 	Channels tmp0=sub[0]->shooter->energyToDiffuse/sub[0]->area;
@@ -1268,7 +1270,9 @@ Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalRadiantExitanc
 	shooter->energyToDiffuse=e;
 	// load received energy accumulator
 	energyDirect=e;
-	sourceEnergy=e;
+	//energyDirectIncident=e/ *(Vec3*)surface->diffuseReflectanceColor;
+	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectanceColor[0],0.1f),e.y/MAX(surface->diffuseReflectanceColor[1],0.1f),e.z/MAX(surface->diffuseReflectanceColor[2],0.1f));
+	sourceExitance=e;
 #endif
 	return e;
 }
@@ -1374,6 +1378,7 @@ bool Reflectors::check()
 Node *Reflectors::best(bool distributing,real avgAccuracy,real improveBig,real improveInaccurate)
 {
 	DBGLINE
+	RRSetState(RRSS_BESTS,RRGetState(RRSS_BESTS)+1);
 	// if cache empty, fill cache
 	if(!bests && nodes)
 	{
@@ -1861,11 +1866,11 @@ Object::Object(int avertices,int atriangles)
 	IVertexPoolItemsUsed=0;
 }
 
-Channels Object::getVertexRadiosity(unsigned avertex)
+Channels Object::getVertexIrradiance(unsigned avertex)
 {
 	assert(avertex<vertices);
 	assert(vertexIVertex[avertex]);
-	return vertexIVertex[avertex]->exitance();
+	return vertexIVertex[avertex]->irradiance();
 }
 
 void addEdgeWith(Triangle *t1,va_list ap)
@@ -2507,6 +2512,7 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	else
 		SUBTRIANGLE(destination)->makeDirty();
 
+	Channels energyIncident = energy;
 #ifdef CLEAN_FACTORS
 	assert(destination->grandpa);
 	assert(destination->grandpa->surface);
@@ -2518,6 +2524,10 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	do
 	{
 		destination->energyDirect+=energy;
+		destination->energyDirectIncident+=energyIncident;
+#ifndef CLEAN_FACTORS
+#error Filling energyDirectIncident requires CLEAN_FACTORS.
+#endif
 		destination->flags|=FLAG_DIRTY_NODE;
 		if(destination->shooter && !wasLetToDiffuse)
 		{
@@ -2941,6 +2951,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 		needsRefresh=nowAcc*(-distributionsSinceRefresh+hack)/hack<avgAcc;
 		if(needsRefresh)
 		{
+			RRSetState(RRSS_REFRESHES,RRGetState(RRSS_REFRESHES)+1);
 			distributionsSinceRefresh=0;
 			improveBig=MAX(0.3f,improveBig-0.005f);
 			improveInaccurate=MIN(2,improveInaccurate+0.005f);
@@ -2950,6 +2961,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 		}
 		else
 		{
+			RRSetState(RRSS_DISTRIBS,RRGetState(RRSS_DISTRIBS)+1);
 			if(distributionsSinceRefresh<hack/2) distributionsSinceRefresh++;
 			improveBig=MIN(1,improveBig+0.05f);
 			improveInaccurate=MAX(0.99f,improveInaccurate-0.05f);
@@ -3013,6 +3025,7 @@ bool Scene::distribute(real maxError)
 RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 {
 	DBGLINE
+	RRSetState(RRSS_IMPROVE_CALLS,RRGetState(RRSS_IMPROVE_CALLS)+1);
 	RRScene::Improvement improved=RRScene::NOT_IMPROVED;
 	__staticReflectors=&staticReflectors;
 	do
@@ -3020,7 +3033,11 @@ RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 		assert(__staticReflectors->check());
 		if(improvingStatic==NULL)
 		    improvingStatic=staticReflectors.best(false,avgAccuracy(),improveBig,improveInaccurate);
-		if(improvingStatic==NULL) break;
+		if(improvingStatic==NULL) 
+		{
+			improved = RRScene::FINISHED;
+			break;
+		}
 		assert(staticReflectors.check());
 		if(energyFromDistributedUntil(improvingStatic,endfunc,context))
 		{

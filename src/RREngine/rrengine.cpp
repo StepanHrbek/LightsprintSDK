@@ -236,24 +236,24 @@ void RRScene::compact()
 {
 }
 
-const RRReal* RRScene::getVertexRadiantExitance(ObjectHandle object, unsigned vertex)
+const RRReal* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
 #if CHANNELS==1
-	Channels rad = obj->getVertexRadiosity(vertex);
+	Channels rad = obj->getVertexIrradiance(vertex);
 	static RRColor tmp;
 	tmp[0] = rad*__colorFilter[0];
 	tmp[1] = rad*__colorFilter[1];
 	tmp[2] = rad*__colorFilter[2];
 	return tmp;
 #else
-	static Channels rad = obj->getVertexRadiosity(vertex);
+	static Channels rad = obj->getVertexIrradiance(vertex);
 	return (RRReal*)&rad;
 #endif
 }
 
-const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex)
+const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex)
 {
 	assert(object<scene->objects);
 	Object* obj = scene->object[object];
@@ -267,10 +267,10 @@ const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned 
 	if(RRGetState(RRSS_GET_REFLECTED))
 	{
 		unsigned oldSource = RRSetState(RRSS_GET_SOURCE,0);
-		refl = tri->topivertex[vertex]->exitance();
+		refl = tri->topivertex[vertex]->irradiance();
 		RRSetState(RRSS_GET_SOURCE,oldSource);
 	}
-	Channels rad = (RRGetState(RRSS_GET_SOURCE)?tri->getEnergySource()/tri->area:Channels(0)) + refl;
+	Channels rad = (RRGetState(RRSS_GET_SOURCE)?tri->getSourceIrradiance()/tri->area:Channels(0)) + refl;
 	static RRColor tmp;
 #if CHANNELS == 1
 	tmp[0] = rad*__colorFilter[0];
@@ -282,6 +282,18 @@ const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned 
 	tmp[2] = rad.z*__colorFilter[2];
 #endif
 	return tmp;
+}
+
+const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex)
+{
+	assert(object<scene->objects);
+	Object* obj = scene->object[object];
+	assert(triangle<obj->triangles);
+	Triangle* tri = &obj->triangle[triangle];
+	if(!tri->surface) return 0;
+
+	static Vec3 tmp = *(Vec3*)getTriangleIrradiance(object,triangle,vertex) * *(Vec3*)(tri->surface->diffuseReflectanceColor);
+	return &tmp.x;
 }
 
 unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)

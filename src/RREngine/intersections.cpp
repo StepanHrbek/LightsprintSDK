@@ -34,7 +34,7 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	*(Vec3*)(ray.rayDir) = direction.rotated(inverseMatrix);
 #ifdef SUPPORT_SCALE
 	// translation+rotation+scale allowed
-	real scale = size(*(Vec3*)(ray.rayDir)); // kolikrat je mesh ve worldu zvetseny
+	real scale = size(*(Vec3*)(ray.rayDir)); // kolikrat je mesh ve worldu zmenseny
 	*(Vec3*)(ray.rayDir) /= scale;
 	real hitDistanceMin = ray.hitDistanceMin;
 	real hitDistanceMax = ray.hitDistanceMax;
