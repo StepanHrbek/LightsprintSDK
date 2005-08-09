@@ -1557,7 +1557,7 @@ static void iv_findIvClosestToPos(SubTriangle *s,IVertex *iv,int type)
 Channels IVertex::getClosestIrradiance()
 // returns irradiance of ivertex closest to this
 {
-	if(!RRGetState(RRSS_FIGHT_NEEDLES) || RRGetState(RRSS_NEEDLE)!=1) return Channels(0); // pokud nebojujem s jehlama, vertexum bez powerTopLevel (zrejme nekde v jehlach na okraji sceny) dame barvu 0
+	if(RRGetState(RRSS_FIGHT_NEEDLES)<2) return Channels(0); // pokud nebojujem s jehlama, vertexum bez powerTopLevel (zrejme nekde v jehlach na okraji sceny) dame barvu 0
 	// kdyz 2 jehly sousedej, sdilej ivertex s powertoplevel==0
 	//  kde nektery cornery spadaj do jednoho, jiny do druhyho
 	// projdem vsechny

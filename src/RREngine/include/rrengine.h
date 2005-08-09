@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.08.09
+// version 2005.08.10
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -133,9 +133,10 @@ namespace rrEngine
 		// calculate radiosity
 		enum Improvement 
 		{
-			IMPROVED,
-			NOT_IMPROVED,
-			FINISHED
+			IMPROVED,       // Lighting was improved during this call.
+			NOT_IMPROVED,   // Although some calculations were done, lighting was not yet improved during this call.
+			FINISHED,       // Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
+			INTERNAL_ERROR, // Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};
 		void          sceneSetColorFilter(const RRReal* colorFilter);
 		Improvement   sceneResetStatic(bool resetFactors);
@@ -171,13 +172,16 @@ namespace rrEngine
 
 	enum RRSceneState
 	{
-		RRSS_USE_CLUSTERS,       // !0 = use clustering
-		RRSS_FIGHT_NEEDLES,      // !0 = fight needle triangles (expensive)
-		RRSS_NEEDLE,
-		RRSSF_SUBDIVISION_SPEED, // speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast
-		RRSS_GET_SOURCE,         // results from getXxxRadiantExitance contain input emittances
-		RRSS_GET_REFLECTED,      // results from getXxxRadiantExitance contain additional exitances calculated by radiosity
-		RRSS_INTERSECT_TECHNIQUE,// IT_XXX, 0=most compact, 4=fastest
+		RRSS_USE_CLUSTERS,         // !0 = use clustering
+		RRSSF_SUBDIVISION_SPEED,   // speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast
+		RRSS_GET_SOURCE,           // results from getXxxRadiantExitance contain input emittances
+		RRSS_GET_REFLECTED,        // results from getXxxRadiantExitance contain additional exitances calculated by radiosity
+		RRSS_INTERSECT_TECHNIQUE,  // IT_XXX, 0=most compact, 4=fastest
+		RRSSF_IGNORE_SMALLER_AREA, // minimal allowed area of triangle (m^2), smaller triangles are ignored
+		RRSSF_IGNORE_SMALLER_ANGLE,// minimal allowed angle in triangle (rad), sharper triangles are ignored
+		RRSS_FIGHT_NEEDLES,        // 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow)
+		RRSSF_FIGHT_SMALLER_AREA,  // smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES
+		RRSSF_FIGHT_SMALLER_ANGLE, // sharper triangles (rad) will be assimilated when FIGHT_NEEDLES
 		// statistics
 		RRSS_IMPROVE_CALLS,
 		RRSS_BESTS,

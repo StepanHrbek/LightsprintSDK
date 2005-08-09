@@ -50,13 +50,6 @@ namespace rrEngine
 #define DBGLINE
 //#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);
 
-#ifndef MAX
- #define MAX(a,b) ((a)>(b)?(a):(b))
-#endif
-#ifndef MIN
- #define MIN(a,b) ((a)<(b)?(a):(b))
-#endif
-
 #ifdef HITS_FIXED
  #define HITS_UV_TYPE       U8
  #define HITS_UV_MAX        255 // <=8bit suitable only for fast preview, diverges when triangle gets more than ~1000 hits

@@ -678,7 +678,7 @@ real Node::accuracy()
 	return shooter->accuracy();
 }
 
-Channels Node::radiosityIndirect()
+Channels Node::radiosityIndirect() // radiantExitance in W/m^2
 {
 	Channels e=Channels(0);
 	Node *node=parent;
@@ -1093,6 +1093,14 @@ static real spicatost(real a,real b,real c) // delky stran
 	return (lo+mid-hi<=0)?1e10f:(hi/(lo+mid-hi)); // spicatost, 1..1000 pohoda, 1000..nekonecno jehla
 }
 
+static real minAngle(real a,real b,real c) // delky stran
+{
+	real angleA = acos((b*b+c*c-a*a)/(2*b*c));
+	real angleB = acos((a*a+c*c-b*b)/(2*a*c));
+	real angleC = acos((a*a+b*b-c*c)/(2*a*b));
+	return MIN(MIN(angleA,angleB),angleC);
+}
+
 // calculates triangle area from triangle vertices
 real calculateArea(Vec3 v0, Vec3 v1, Vec3 v2)
 {
@@ -1152,7 +1160,7 @@ again:
 	if(1-psqr/4<=0) return -8;
 	if(sina<=0) return -6;
 	if(area<=0) return -4;
-	if(area<=SMALL_REAL) return -5;
+	if(area<=RRGetStateF(RRSSF_IGNORE_SMALLER_AREA)) return -5;
 	//assert(size(SubTriangle::to3d(2)-*vertex[2])<0.001);
 
 	// stary rotace davajici ruzny vysledky s a bez optimalizaci
@@ -1190,11 +1198,17 @@ again:
 	assert(v2.x>=0);
 	assert(v2.y>=0);
 
-	isNeedle = (RRGetState(RRSS_FIGHT_NEEDLES) && spicatost(lsize,rsize,size(getL3()-getR3()))>1000) ? 1 : 0;
+	// premerit min angle v localspace (mohlo by byt i ve world)
+	real minangle = minAngle(lsize,rsize,size(getL3()-getR3()));
+	if(!IS_NUMBER(area)) return -13;
+	if(minangle<=RRGetStateF(RRSSF_IGNORE_SMALLER_ANGLE)) return -14;
+	isNeedle = RRGetState(RRSS_FIGHT_NEEDLES) && minangle<=RRGetStateF(RRSSF_FIGHT_SMALLER_ANGLE);
 
-	// prepocitat area v worldspace
+	// premerit area v worldspace
 	area = calculateArea(a->transformed(obj2world),b->transformed(obj2world),c->transformed(obj2world));
 	if(!IS_NUMBER(area)) return -11;
+	if(area<=RRGetStateF(RRSSF_IGNORE_SMALLER_AREA)) return -12;
+	isNeedle |= RRGetState(RRSS_FIGHT_NEEDLES) && area<=RRGetStateF(RRSSF_FIGHT_SMALLER_AREA);
 
 	assert(IS_VEC3(getV3()));
 	isValid=1;
@@ -2232,7 +2246,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	ray.hitDistanceMin = 0;
 	ray.hitDistanceMax = BIG_REAL;
 	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
-	if(!hitTriangle)
+	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{
 		// ray left scene and vanished
 		return HitChannels(0);
@@ -3024,6 +3038,7 @@ bool Scene::distribute(real maxError)
 
 RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 {
+	if(!IS_CHANNELS(energyEmitedByStatics)) return RRScene::INTERNAL_ERROR; // invalid internal data
 	DBGLINE
 	RRSetState(RRSS_IMPROVE_CALLS,RRGetState(RRSS_IMPROVE_CALLS)+1);
 	RRScene::Improvement improved=RRScene::NOT_IMPROVED;

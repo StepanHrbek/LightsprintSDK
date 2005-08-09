@@ -188,8 +188,10 @@ Vec3 ortogonalTo(Vec3 a,Vec3 b)
 
 Angle angleBetweenNormalized(Vec3 a,Vec3 b)
 {
-	real r=size2(a-b);
-	return acos(1-r/2);
+	real d = dot(a,b);
+	real angle = acos(MAX(MIN(d,1),-1));
+	assert(IS_NUMBER(angle));
+	return angle;
 }
 
 Angle angleBetween(Vec3 a,Vec3 b)
