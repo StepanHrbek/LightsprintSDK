@@ -1085,14 +1085,6 @@ Triangle::Triangle() : SubTriangle(NULL,this)
 	surface=NULL; // says that setSurface wasn't called yet
 }
 
-static real spicatost(real a,real b,real c) // delky stran
-{
-	real lo=MIN(a,MIN(b,c));
-	real hi=MAX(a,MAX(b,c));
-	real mid=a+b+c-lo-hi;
-	return (lo+mid-hi<=0)?1e10f:(hi/(lo+mid-hi)); // spicatost, 1..1000 pohoda, 1000..nekonecno jehla
-}
-
 static real minAngle(real a,real b,real c) // delky stran
 {
 	real angleA = acos((b*b+c*c-a*a)/(2*b*c));
@@ -2243,7 +2235,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	assert(IS_VEC3(direction));
 	rrIntersect::RRRay& ray = *__ray;
 	ray.flags = rrIntersect::RRRay::FILL_DISTANCE|rrIntersect::RRRay::FILL_SIDE|rrIntersect::RRRay::FILL_POINT2D|rrIntersect::RRRay::FILL_TRIANGLE|rrIntersect::RRRay::SKIP_PRETESTS;
-	ray.hitDistanceMin = 0;
+	ray.hitDistanceMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	ray.hitDistanceMax = BIG_REAL;
 	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
 	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)

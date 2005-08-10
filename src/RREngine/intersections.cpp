@@ -109,9 +109,10 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 #else
 			ray.skipTriangle = ((unsigned)((U32)skip-(U32)object[o]->triangle))/sizeof(Triangle);
 #endif
-			ray.hitDistanceMin = 0;
+			real tmpMin = ray.hitDistanceMin;
 			real tmpMax = ray.hitDistanceMax;
 			Triangle* tmp = object[o]->intersection(ray,eye,direction);
+			ray.hitDistanceMin = tmpMin;
 			if(tmp) 
 			{
 				hitTriangle = tmp;
