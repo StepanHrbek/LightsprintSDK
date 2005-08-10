@@ -59,6 +59,11 @@ void RRAligned::operator delete(void* p, std::size_t n)
 #endif
 };
 
+RRRay* RRRay::create()
+{
+	return new RRRay();
+}
+
 void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 {
 	unsigned v0,v1,v2;
@@ -91,7 +96,7 @@ RRIntersect* RRIntersect::create(RRObjectImporter* importer, IntersectTechnique 
 			{
 				typedef IntersectBspCompact<CBspTree21> T;
 				T* in = T::create(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
-				if(in->getMemorySize()>sizeof(T)) return in;
+				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
@@ -99,14 +104,14 @@ RRIntersect* RRIntersect::create(RRObjectImporter* importer, IntersectTechnique 
 			{
 				typedef IntersectBspCompact<CBspTree42> T;
 				T* in = T::create(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
-				if(in->getMemorySize()>sizeof(T)) return in;
+				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
 			{
 				typedef IntersectBspCompact<CBspTree44> T;
 				T* in = T::create(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
-				if(in->getMemorySize()>sizeof(T)) return in;
+				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
@@ -115,7 +120,7 @@ RRIntersect* RRIntersect::create(RRObjectImporter* importer, IntersectTechnique 
 			{
 				typedef IntersectBspFast<BspTree44> T;
 				T* in = T::create(importer,intersectTechnique,(intersectTechnique==IT_BSP_FAST)?".fast":".fastest",(BuildParams*)buildParams);
-				if(in->getMemorySize()>sizeof(T)) return in;
+				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}

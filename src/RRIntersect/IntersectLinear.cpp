@@ -122,7 +122,7 @@ IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
 	DELTA_BSP = (tmp.x+tmp.y+tmp.z)/4*1e-5f;
 }
 
-unsigned IntersectLinear::getMemorySize() const
+unsigned IntersectLinear::getMemoryOccupied() const
 {
 	return sizeof(IntersectLinear);
 }

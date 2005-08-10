@@ -85,6 +85,8 @@ namespace rrIntersect
 
 	struct RRRay : public RRAligned
 	{
+		// create ray
+		static RRRay* create();
 		// inputs
 		enum Flags
 		{ 
@@ -110,10 +112,8 @@ namespace rrIntersect
 		RRReal          hitPlane[4];    // o, hit -> plane of hitTriangle, [0..2] is normal
 		unsigned        hitTriangle;    // o, hit -> postImportTriangle that was hit
 		bool            hitOuterSide;   // o, hit -> false when object was hit from the inner side
-		// ray creator
-		static RRRay* create() {return new RRRay();}
 	private:
-		RRRay() {} // private so no one is able to create unaligned instance
+		RRRay() {} // intentionally private so no one is able to create unaligned instance
 	};
 
 
@@ -124,6 +124,7 @@ namespace rrIntersect
 	class RRIntersect
 	{
 	public:
+		// create
 		enum IntersectTechnique
 		{
 			IT_LINEAR,          // speed   1%, size  0
@@ -132,8 +133,14 @@ namespace rrIntersect
 			IT_BSP_FASTEST,     // speed 200%, size 58
 		};
 		static RRIntersect*  create(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
+
+		// calculate intersections
 		virtual bool         intersect(RRRay* ray) const = 0;
-		virtual unsigned     getMemorySize() const = 0;
+
+		// helpers
+		virtual RRObjectImporter*  getImporter() const = 0;
+		virtual IntersectTechnique getTechnique() const = 0;
+		virtual unsigned           getMemoryOccupied() const = 0;
 		virtual ~RRIntersect() {};
 	};
 

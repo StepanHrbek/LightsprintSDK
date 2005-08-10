@@ -637,7 +637,7 @@ bool IntersectBspFast IBP2::isValidTriangle(unsigned i) const
 }
 
 template IBP
-unsigned IntersectBspFast IBP2::getMemorySize() const
+unsigned IntersectBspFast IBP2::getMemoryOccupied() const
 {
 	return sizeof(IntersectBspFast) 
 		+ (tree?tree->bsp.size:0) 

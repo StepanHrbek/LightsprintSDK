@@ -34,7 +34,8 @@ namespace rrIntersect
 		virtual ~IntersectBspFast();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual bool      isValidTriangle(unsigned i) const;
-		virtual unsigned  getMemorySize() const;
+		virtual IntersectTechnique getTechnique() const {return intersectTechnique;}
+		virtual unsigned  getMemoryOccupied() const;
 	protected:
 		IntersectBspFast(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique, const char* ext, BuildParams* buildParams);
 		bool              intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const;

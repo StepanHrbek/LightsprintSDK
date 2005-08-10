@@ -28,7 +28,9 @@ namespace rrIntersect
 		virtual ~IntersectLinear();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual bool      isValidTriangle(unsigned i) const;
-		virtual unsigned  getMemorySize() const;
+		virtual RRObjectImporter* getImporter() const {return importer;}
+		virtual IntersectTechnique getTechnique() const {return IT_LINEAR;}
+		virtual unsigned  getMemoryOccupied() const;
 	protected:
 		IntersectLinear(RRObjectImporter* aimporter);
 		RRObjectImporter* importer;

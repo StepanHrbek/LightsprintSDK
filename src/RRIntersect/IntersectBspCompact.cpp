@@ -225,7 +225,7 @@ IntersectBspCompact IBP2::IntersectBspCompact(RRObjectImporter* aimporter, Inter
 }
 
 template IBP
-unsigned IntersectBspCompact IBP2::getMemorySize() const
+unsigned IntersectBspCompact IBP2::getMemoryOccupied() const
 {
 	return sizeof(IntersectBspCompact)
 		+ (tree?tree->bsp.size:0);
