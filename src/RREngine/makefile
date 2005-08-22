@@ -2,7 +2,8 @@ LIB = ../../lib/libRREngine.a
 TMP = #../../tmp/RREngine/
 
 CPPFLAGS = -Iinclude -I../../include -DSUPPORT_INTERPOL
-CPPFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
+CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
+#CPPFLAGS += -ffast-math // zpusobuje crash v soda
 CPPFLAGS += -fomit-frame-pointer
 CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse

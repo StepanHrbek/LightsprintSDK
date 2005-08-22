@@ -159,7 +159,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRSceneObjectImporter* importer)
 			const real* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(fi);
 			const real* addExitance=importer->getTriangleAdditionalRadiantExitance(fi);
 			Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?(*(Vec3*)addExitingFlux)/t->area:Vec3(0,0,0));
-			obj->energyEmited+=abs(t->setSurface(s,sumExitance));
+			obj->objSourceExitingFlux+=abs(t->setSurface(s,sumExitance));
 		}
 		else
 			t->surface=NULL;
@@ -263,23 +263,23 @@ const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned trian
 	//if(vertex>=3) return (tri->energyDirect + tri->getEnergyDynamic()) / tri->area;
 	vertex=(vertex+3-tri->rotations)%3;
 
-	Channels refl = Channels(0);
+	Channels reflIrrad = Channels(0);
 	if(RRGetState(RRSS_GET_REFLECTED))
 	{
 		unsigned oldSource = RRSetState(RRSS_GET_SOURCE,0);
-		refl = tri->topivertex[vertex]->irradiance();
+		reflIrrad = tri->topivertex[vertex]->irradiance();
 		RRSetState(RRSS_GET_SOURCE,oldSource);
 	}
-	Channels rad = (RRGetState(RRSS_GET_SOURCE)?tri->getSourceIrradiance()/tri->area:Channels(0)) + refl;
+	Channels irrad = (RRGetState(RRSS_GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
 	static RRColor tmp;
 #if CHANNELS == 1
-	tmp[0] = rad*__colorFilter[0];
-	tmp[1] = rad*__colorFilter[1];
-	tmp[2] = rad*__colorFilter[2];
+	tmp[0] = irrad*__colorFilter[0];
+	tmp[1] = irrad*__colorFilter[1];
+	tmp[2] = irrad*__colorFilter[2];
 #else
-	tmp[0] = rad.x*__colorFilter[0];
-	tmp[1] = rad.y*__colorFilter[1];
-	tmp[2] = rad.z*__colorFilter[2];
+	tmp[0] = irrad.x*__colorFilter[0];
+	tmp[1] = irrad.y*__colorFilter[1];
+	tmp[2] = irrad.z*__colorFilter[2];
 #endif
 	return tmp;
 }
@@ -301,13 +301,18 @@ unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* 
 	return scene->getInstantRadiosityPoints(n,point);
 }
 
+void RRScene::getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const
+{
+	scene->getStats(faces,sourceExitingFlux,rays,reflectedIncidentFlux);
+}
+
 void RRScene::getInfo(char* buf, unsigned type)
 {
 	switch(type)
 	{
 	case 0: scene->infoScene(buf); break;
 	case 1: scene->infoImprovement(buf,2); break;
-	case 2: rrIntersect::intersectStats.getInfo(buf,900,2); break;
+	case 2: rrIntersect::RRIntersectStats::getInstance()->getInfo(buf,900,2); break;
 	case 3: scene->infoStructs(buf); break;
 	}
 }

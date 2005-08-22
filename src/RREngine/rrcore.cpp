@@ -1246,7 +1246,7 @@ int Scene::turnLight(int whichLight,real intensity)
 	return light;
 }
 
-Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalRadiantExitance)
+Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalExitingFlux)
 {
 	assert(area!=0);//setGeometry must be called before setSurface
 	assert(s);
@@ -1257,19 +1257,19 @@ Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalRadiantExitanc
 	real b=surface->diffuseEmittanceColor[2];
 	real filteringCoef=(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
 	Channels e=area * ( filteringCoef*surface->diffuseEmittance
-	  + __colorFilter[0]*additionalRadiantExitance.x+__colorFilter[1]*additionalRadiantExitance.y+__colorFilter[2]*additionalRadiantExitance.z );
+	  + __colorFilter[0]*additionalExitingFlux.x+__colorFilter[1]*additionalExitingFlux.y+__colorFilter[2]*additionalRadiantExitance.z );
 	assert(add>=0);
 	assert(filteringCoef>=0);
 	assert(e>=0);
 #else
 	Channels e=*(Vec3*)__colorFilter * area *
-	  ( *(Vec3*)surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalRadiantExitance );
+	  ( *(Vec3*)surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalExitingFlux );
 #endif
 	assert(surface->diffuseEmittance>=0);
 	assert(area>=0);
-	assert(additionalRadiantExitance.x>=0);
-	assert(additionalRadiantExitance.y>=0);
-	assert(additionalRadiantExitance.z>=0);
+	assert(additionalExitingFlux.x>=0);
+	assert(additionalExitingFlux.y>=0);
+	assert(additionalExitingFlux.z>=0);
 #ifndef ONLY_PLAYER
 	// load triangle shooter with energy emited by surface
 	assert(shooter);
@@ -1278,7 +1278,7 @@ Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalRadiantExitanc
 	energyDirect=e;
 	//energyDirectIncident=e/ *(Vec3*)surface->diffuseReflectanceColor;
 	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectanceColor[0],0.1f),e.y/MAX(surface->diffuseReflectanceColor[1],0.1f),e.z/MAX(surface->diffuseReflectanceColor[2],0.1f));
-	sourceExitance=e;
+	sourceExitingFlux=e;
 #endif
 	return e;
 }
@@ -1854,7 +1854,7 @@ Object::Object(int avertices,int atriangles)
 	bound.center=Point3(0,0,0);
 	bound.radius=BIG_REAL;
 	bound.radius2=BIG_REAL;
-	energyEmited=Channels(0);
+	objSourceExitingFlux=Channels(0);
 #endif
 #ifdef SUPPORT_TRANSFORMS
 	transformMatrix=NULL;
@@ -1973,13 +1973,13 @@ void Object::resetStaticIllumination()
 	for(unsigned c=0;c<clusters;c++) {U8 flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset();cluster[c].flags=flag;}
 	for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset();triangle[t].flags=flag;}
 	// nastavi akumulatory na pocatecni hodnoty
-	energyEmited=Channels(0);
+	objSourceExitingFlux=Channels(0);
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) 
 	{
 		const real* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(t);
 		const real* addExitance=importer->getTriangleAdditionalRadiantExitance(t);
 		Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?*(Vec3*)addExitingFlux/triangle[t].area:Vec3(0,0,0));
-		energyEmited+=abs(triangle[t].setSurface(triangle[t].surface,sumExitance));
+		objSourceExitingFlux+=abs(triangle[t].setSurface(triangle[t].surface,sumExitance));
 	}
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
 }
@@ -2113,8 +2113,8 @@ Scene::Scene()
 	shotsAccumulated=0;
 	shotsForFactorsTotal=0;
 	shotsTotal=0;
-	energyEmitedByStatics=Channels(SMALL_ENERGY); //to avoid division by zero in black scene
-	energyEmitedByDynamics=Channels(SMALL_ENERGY); //to avoid division by zero in black scene
+	staticSourceExitingFlux=Channels(SMALL_ENERGY); //to avoid division by zero in black scene
+	dynamicSourceExitingFlux=Channels(SMALL_ENERGY); //to avoid division by zero in black scene
 	improveBig=0.5f;
 	improveInaccurate=0.99f;
 }
@@ -2140,7 +2140,7 @@ void Scene::objInsertStatic(Object *o)
 
 	staticReflectors.insertObject(o);
 
-	energyEmitedByStatics+=o->energyEmited;
+	staticSourceExitingFlux+=o->objSourceExitingFlux;
 }
 
 void Scene::objRemoveStatic(unsigned o)
@@ -2149,7 +2149,7 @@ void Scene::objRemoveStatic(unsigned o)
 
 	staticReflectors.removeObject(object[o]);
 
-	energyEmitedByStatics-=object[o]->energyEmited;
+	staticSourceExitingFlux-=object[o]->objSourceExitingFlux;
 
 	object[o]=object[--staticObjects];
 	object[staticObjects]=object[--objects];
@@ -2171,8 +2171,8 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 		shotsForFactorsTotal=0;
 		shotsTotal=0;
 	}
-	energyEmitedByStatics=Channels(SMALL_ENERGY);
-	energyEmitedByDynamics=Channels(SMALL_ENERGY);
+	staticSourceExitingFlux=Channels(SMALL_ENERGY);
+	dynamicSourceExitingFlux=Channels(SMALL_ENERGY);
 	improveBig=0.5f;
 	improveInaccurate=0.99f;
 	staticReflectors.removeSubtriangles();
@@ -2184,12 +2184,12 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 		staticReflectors.insertObject(object[o]);
 	}
 	__preserveFactors=false;
-	for(unsigned o=0;o<staticObjects;o++) energyEmitedByStatics+=object[o]->energyEmited;
-	for(unsigned o=staticObjects;o<objects;o++) energyEmitedByDynamics+=object[o]->energyEmited;
+	for(unsigned o=0;o<staticObjects;o++) staticSourceExitingFlux+=object[o]->objSourceExitingFlux;
+	for(unsigned o=staticObjects;o<objects;o++) dynamicSourceExitingFlux+=object[o]->objSourceExitingFlux;
 
 //for(unsigned o=0;o<objects;o++) staticReflectors.insertObject(object[o]);
 //printf("----------\n");
-	return (energyEmitedByStatics!=Channels(SMALL_ENERGY)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
+	return (staticSourceExitingFlux!=Channels(SMALL_ENERGY)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
 }
 
 void Scene::updateMatrices()
@@ -2914,7 +2914,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 
 real Scene::avgAccuracy()
 {
-	return (1+shotsForFactorsTotal)/sum(abs(energyEmitedByStatics));//* nema tu byt (Statics+Dynamics)?
+	return (1+shotsForFactorsTotal)/sum(abs(staticSourceExitingFlux));//* nema tu byt (Statics+Dynamics)?
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3011,7 +3011,7 @@ bool Scene::distribute(real maxError)
 	{
 		Node *source=staticReflectors.best(true,0.000001f,0,0);
 //if(source) printf(" %f<%f\n",fabs(source->shooter->energyToDiffuse),fabs(maxError*energyEmitedByStatics));
-		if(!source || ( sum(abs(source->shooter->energyToDiffuse))<sum(abs(energyEmitedByStatics*maxError)) && !rezerva--)) break;
+		if(!source || ( sum(abs(source->shooter->energyToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
 		assert(source->shooter);
 		source->shooter->forEach(distributeEnergyViaFactor,&source->shooter->energyToDiffuse,&staticReflectors);
 		source->shooter->energyDiffused+=source->shooter->energyToDiffuse;
@@ -3030,7 +3030,7 @@ bool Scene::distribute(real maxError)
 
 RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 {
-	if(!IS_CHANNELS(energyEmitedByStatics)) return RRScene::INTERNAL_ERROR; // invalid internal data
+	if(!IS_CHANNELS(staticSourceExitingFlux)) return RRScene::INTERNAL_ERROR; // invalid internal data
 	DBGLINE
 	RRSetState(RRSS_IMPROVE_CALLS,RRGetState(RRSS_IMPROVE_CALLS)+1);
 	RRScene::Improvement improved=RRScene::NOT_IMPROVED;
@@ -3240,6 +3240,22 @@ void Scene::infoImprovement(char *buf, int infolevel)
 	sprintf(buf+strlen(buf)," meshes=%i/%i rays=(%i)%i",staticReflectors.nodes,__nodesAllocated,shotsTotal,shotsForFactorsTotal);
 	if(improvingStatic) sprintf(buf+strlen(buf),"(%i/%i->%i)",shotsAccumulated,improvingStatic->shooter->shotsForFactors,shotsForNewFactors);
 	assert((improvingStatic!=NULL) == (phase!=0));
+}
+
+void Scene::getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const
+{
+#if CHANNELS == 3
+	if(faces) 
+	{
+		*faces = 0;
+		for(unsigned i=0;i<staticObjects;i++) *faces += object[i]->triangles;
+	}
+	if(sourceExitingFlux) *sourceExitingFlux = sum(staticSourceExitingFlux);
+	if(rays) *rays = shotsTotal;
+	if(reflectedIncidentFlux) *reflectedIncidentFlux = 0;//!!!sum(staticReflectedIncidentFlux);
+#else
+	#error Only Channels=3 supported here.
+#endif
 }
 
 void core_Done()

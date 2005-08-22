@@ -1,5 +1,6 @@
-#ifndef RRINTERSECT_RRINTERSECT_H
-#define RRINTERSECT_RRINTERSECT_H
+#ifndef _RRINTERSECT_H_
+#define _RRINTERSECT_H_
+
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
@@ -16,13 +17,27 @@
 // using it without written permission from Stepan Hrbek is forbidden.
 //////////////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+	#ifdef RRINTERSECT_EXPORT
+		// build dll
+		#define RRINTERSECT_API __declspec(dllexport)
+	#elif RRINTERSECT_IMPORT
+		// use dll
+		#define RRINTERSECT_API __declspec(dllimport)
+		#pragma comment(lib,"RRIntersect.lib")
+	#else
+		// use static library
+		#define RRINTERSECT_API
+		#pragma comment(lib,"RRIntersect.lib")
+	#endif
+#else
+	// use static library
+	#define RRINTERSECT_API
+#endif
+
 #include <assert.h>
 #include <limits.h>
 #include <new>
-
-#ifdef _MSC_VER
-#pragma comment(lib,"RRIntersect.lib")
-#endif
 
 namespace rrIntersect
 {
@@ -38,7 +53,7 @@ namespace rrIntersect
 	// Derive from RRSceneObjectImporter if you want to calculate also radiosity.
 	// Data must not change during object lifetime, all results must be constant.
 
-	class RRObjectImporter
+	class RRINTERSECT_API RRObjectImporter
 	{
 	public:
 		RRObjectImporter() {}
@@ -71,7 +86,7 @@ namespace rrIntersect
 	// On some platforms (x86+SSE), some structures need to be specially aligned in memory.
 	// This helper base class helps to align them.
 
-	struct RRAligned
+	struct RRINTERSECT_API RRAligned
 	{
 		RRAligned();
 		void* operator new(std::size_t n);
@@ -83,7 +98,7 @@ namespace rrIntersect
 	//
 	// RRRay - ray to intersect with object.
 
-	struct RRRay : public RRAligned
+	struct RRINTERSECT_API RRRay : public RRAligned
 	{
 		// create ray
 		static RRRay* create();
@@ -121,7 +136,7 @@ namespace rrIntersect
 	//
 	// RRIntersect - single object able to calculate intersections.
 
-	class RRIntersect
+	class RRINTERSECT_API RRIntersect
 	{
 	public:
 		// create
@@ -149,9 +164,10 @@ namespace rrIntersect
 	//
 	// RRIntersectStats - statistics for library calls
 
-	class RRIntersectStats
+	class RRINTERSECT_API RRIntersectStats
 	{
 	public:
+		static RRIntersectStats* getInstance();
 		RRIntersectStats();
 		// data
 		unsigned loaded_triangles;
@@ -182,8 +198,6 @@ namespace rrIntersect
 		// helper
 		void getInfo(char *buf, unsigned len, unsigned level) const;
 	};
-
-	extern RRIntersectStats intersectStats;
 
 
 	//////////////////////////////////////////////////////////////////////////////

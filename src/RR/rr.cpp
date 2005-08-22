@@ -1041,7 +1041,7 @@ int main(int argc, char **argv)
      scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+5*PER_SEC));
      scene->infoImprovement(buf,__infolevel); puts(buf);
      //printf("kshot=%d kbsp=%d ktri=%d hak1=%d hak2=%d hak3=%d hak4=%d\n",__shot/1000,__bsp/1000,__tri/1000,__hak1/1000,__hak2/1000,__hak3/1000,__hak4/1000);
-     rrIntersect::intersectStats.getInfo(buf,400,1); puts(buf);
+     rrIntersect::RRIntersectStats::getInstance()->getInfo(buf,400,1); puts(buf);
      fgetc(stdin);
      return 0;
    }

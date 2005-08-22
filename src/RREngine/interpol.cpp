@@ -214,12 +214,13 @@ Channels IVertex::irradiance()
 	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid) // cacheTime is byte:5
 	{
 		//assert(powerTopLevel);
-		Channels rad=Channels(0);
+		// irrad=irradiance in W/m^2
+		Channels irrad=Channels(0);
 		for(unsigned i=0;i<corners;i++)
 		{
 			Node* node=corner[i].node;
 			assert(node);
-			// a=source+reflected
+			// a=source+reflected incident flux in watts
 			Channels a=node->energyDirectIncident+node->getEnergyDynamic();
 			assert(IS_CHANNELS(a));
 			if(node->sub[0])
@@ -228,19 +229,19 @@ Channels IVertex::irradiance()
 				a-=node->sub[0]->energyDirectIncident+node->sub[1]->energyDirectIncident;
 			}
 			assert(IS_CHANNELS(a));
-			// s=source
-			Channels s=IS_TRIANGLE(node) ? TRIANGLE(node)->getSourceIrradiance() : Channels(0);
+			// s=source incident flux in watts
+			Channels s=IS_TRIANGLE(node) ? TRIANGLE(node)->getSourceIncidentFlux() : Channels(0);
 			assert(IS_CHANNELS(s));
-			// r=reflected
+			// r=reflected incident flux in watts
 			Channels r=a-s;
 			assert(IS_CHANNELS(r));
-			// w=wanted
+			// w=wanted incident flux in watts
 			Channels w=(getSource&&getReflected)?a:( getSource?s: ( getReflected?r:Channels(0) ) );
-			rad+=w/corner[i].node->area*corner[i].power
+			irrad+=w/corner[i].node->area*corner[i].power
 				/*/ *(Vec3*)(corner[i].node->grandpa->surface->diffuseReflectanceColor)*/;
-			assert(IS_CHANNELS(rad));
+			assert(IS_CHANNELS(irrad));
 		}
-		cache=powerTopLevel?rad/powerTopLevel:getClosestIrradiance();//hack for ivertices inside needle - quick search for nearest valid value
+		cache=powerTopLevel?irrad/powerTopLevel:getClosestIrradiance();//hack for ivertices inside needle - quick search for nearest valid value
 		cacheTime=__frameNumber;
 		cacheValid=1;
 	}

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
+
 namespace rrIntersect
 {
 
@@ -142,6 +143,11 @@ RRIntersectStats intersectStats;
 RRIntersectStats::RRIntersectStats() 
 {
 	memset(this,0,sizeof(*this));
+}
+
+RRIntersectStats* RRIntersectStats::getInstance()
+{
+	return &intersectStats;
 }
 
 void RRIntersectStats::getInfo(char *buf, unsigned len, unsigned level) const

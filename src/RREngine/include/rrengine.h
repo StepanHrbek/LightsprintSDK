@@ -159,6 +159,7 @@ namespace rrEngine
 		
 		// misc: development
 		void          getInfo(char* buf, unsigned type);
+		void          getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
 		void*         getScene();
 		void*         getObject(ObjectHandle object);
 

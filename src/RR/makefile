@@ -75,7 +75,8 @@ endif
 ifdef DEBUG
  CFLAGS += -O0
 else
- CFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
+ CFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
+ CFLAGS += -ffast-math
  ifndef PROFILE
   CFLAGS += -fomit-frame-pointer
   # -fprofile-use

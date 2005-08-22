@@ -515,12 +515,14 @@ public:
 
 	// surface
 	RRSurface *surface;     // material at outer and inner side of Triangle
-	Channels setSurface(RRSurface *s,const Vec3& additionalRadiantExitance);
+	Channels setSurface(RRSurface *s,const Vec3& additionalExitingFlux); // return total exiting radiant flux in watts
 #ifndef ONLY_PLAYER
-	Channels getSourceExitance() {return sourceExitance;}
-	Channels getSourceIrradiance() {return Channels(sourceExitance.x/MAX(surface->diffuseReflectanceColor[0],0.1f),sourceExitance.y/MAX(surface->diffuseReflectanceColor[1],0.1f),sourceExitance.z/MAX(surface->diffuseReflectanceColor[2],0.1f));}
+	Channels getSourceIncidentFlux() {return Channels(sourceExitingFlux.x/MAX(surface->diffuseReflectanceColor[0],0.1f),sourceExitingFlux.y/MAX(surface->diffuseReflectanceColor[1],0.1f),sourceExitingFlux.z/MAX(surface->diffuseReflectanceColor[2],0.1f));} // source incident radiant flux in Watts
+	Channels getSourceExitingFlux() {return sourceExitingFlux;} // source exiting radiant flux in Watts
+	Channels getSourceIrradiance() {return getSourceIncidentFlux()/area;} // source irradiance in W/m^2
+	Channels getSourceExitance() {return getSourceExitingFlux()/area;} // source exitance in W/m^2
 		private:
-		Channels sourceExitance;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
+		Channels sourceExitingFlux;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
 		public:
 
 	// hits
@@ -705,7 +707,7 @@ public:
 	void    buildClusters();
 
 	// energies
-	Channels energyEmited;
+	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
 	void    resetStaticIllumination();
 
 	// intersections
@@ -757,8 +759,6 @@ public:
 	unsigned objects;
 	RRSurface *surface;
 	unsigned surfaces;
-		Channels energyEmitedByStatics;
-		Channels energyEmitedByDynamics;
 
 	Triangle* intersectionStatic(rrIntersect::RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
 	Triangle* intersectionDynobj(rrIntersect::RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
@@ -814,6 +814,7 @@ public:
 	void    infoStructs(char *buf);
 	void    infoImprovement(char *buf, int infolevel);
 	real    avgAccuracy();
+	void    getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
 
 	private:
 		friend class Hits; // GATE
@@ -828,6 +829,8 @@ public:
 		void    refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(void *),void *context);
 		bool    energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context);
 
+		Channels staticSourceExitingFlux; // primary source exiting radiant flux in Watts, sum of absolute values
+		Channels dynamicSourceExitingFlux;
 		unsigned shotsForNewFactors;
 		unsigned shotsAccumulated;
 		unsigned shotsForFactorsTotal;
