@@ -13,7 +13,7 @@
 //
 // WorldSceneImporter
 
-class WorldSceneObjectImporter : public WorldObjectImporter, public rrEngine::RRSceneObjectImporter
+class WorldSceneObjectImporter : public WorldObjectImporter, public rrEngine::RRObjectImporter
 {
 public:
 	WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces);

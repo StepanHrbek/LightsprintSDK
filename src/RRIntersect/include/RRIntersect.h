@@ -50,7 +50,7 @@ namespace rrIntersect
 	// RRMeshImporter - abstract class for importing your mesh data into RR.
 	//
 	// Derive to import YOUR geometry.
-	// Derive from RRSceneObjectImporter if you want to calculate also radiosity.
+	// Derive from RRObjectImporter if you want to calculate also radiosity.
 	// Data must not change during object lifetime, all results must be constant.
 
 	class RRINTERSECT_API RRMeshImporter

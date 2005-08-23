@@ -678,7 +678,7 @@ public:
 	unsigned id;
 
 	// object data
-	RRSceneObjectImporter* importer;
+	RRObjectImporter* importer;
 	unsigned vertices;
 	unsigned triangles; // primary emitors go first (in DObject)
 	unsigned edges;

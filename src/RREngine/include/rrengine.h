@@ -90,7 +90,7 @@ namespace rrEngine
 	// Derive to import YOUR geometry and surfaces.
 	// Can also be used to import data into RRObject.
 
-	class RRSceneObjectImporter : virtual public rrIntersect::RRMeshImporter
+	class RRObjectImporter : virtual public rrIntersect::RRMeshImporter
 	{
 	public:
 		// must not change during object lifetime
@@ -103,7 +103,7 @@ namespace rrEngine
 		virtual const RRReal* getWorldMatrix() = 0;
 		virtual const RRReal* getInvWorldMatrix() = 0;
 
-		virtual ~RRSceneObjectImporter() {};
+		virtual ~RRObjectImporter() {};
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ namespace rrEngine
 
 		// import geometry
 		typedef       unsigned ObjectHandle;
-		ObjectHandle  objectCreate(RRSceneObjectImporter* importer);
+		ObjectHandle  objectCreate(RRObjectImporter* importer);
 		void          objectDestroy(ObjectHandle object);
 
 		// get intersection

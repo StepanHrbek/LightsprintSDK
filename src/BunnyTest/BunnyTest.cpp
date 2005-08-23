@@ -1,8 +1,3 @@
-// BunnyTest.cpp : Defines the entry point for the console application.
-//
-
-//#pragma warning(disable:4530) // exception handler used but exceptions disabled
-
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"
 #include "..\..\include\RRIntersect.h"
@@ -25,7 +20,6 @@ public:
 };
 
 int main(int argc, char** argv)
-//int _tmain(int argc, _TCHAR* argv[])
 {                        
 	PlyMesh mesh;
 	PlyMeshReader reader;

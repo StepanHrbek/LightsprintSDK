@@ -112,7 +112,7 @@ RRScene::~RRScene()
 	delete scene;
 }
 
-RRScene::ObjectHandle RRScene::objectCreate(RRSceneObjectImporter* importer)
+RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
