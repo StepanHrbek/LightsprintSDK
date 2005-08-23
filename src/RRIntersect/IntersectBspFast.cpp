@@ -232,7 +232,7 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	return true;
 }
 
-bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRObjectImporter::TriangleSRL* t2)
+bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshImporter::TriangleSRL* t2)
 {
 	intersectStats.intersect_triangleNP++;
 	assert(ray);
@@ -561,7 +561,7 @@ begin:
 	void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
-		RRObjectImporter::TriangleSRL t2;
+		RRMeshImporter::TriangleSRL t2;
 		importer->getTriangleSRL(*triangle,&t2);
 		if (*triangle!=ray->skipTriangle && intersect_triangleNP(ray,triangleNP+*triangle,&t2))
 		{
@@ -591,7 +591,7 @@ begin:
 }
 
 template IBP
-IntersectBspFast IBP2::IntersectBspFast(RRObjectImporter* aimporter, IntersectTechnique aintersectTechnique, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
+IntersectBspFast IBP2::IntersectBspFast(RRMeshImporter* aimporter, IntersectTechnique aintersectTechnique, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
 {
 #ifdef TEST
 	test = new IntersectLinear(aimporter);

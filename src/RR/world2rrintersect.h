@@ -8,7 +8,7 @@
 //
 // WorldObjectImporter
 
-class WorldObjectImporter : virtual public rrIntersect::RRObjectImporter
+class WorldObjectImporter : virtual public rrIntersect::RRMeshImporter
 {
 public:
 	WorldObjectImporter(OBJECT* aobject);

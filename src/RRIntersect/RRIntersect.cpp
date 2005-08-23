@@ -65,7 +65,7 @@ RRRay* RRRay::create()
 	return new RRRay();
 }
 
-void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
+void RRMeshImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 {
 	unsigned v0,v1,v2;
 	getTriangle(i,v0,v1,v2);
@@ -84,7 +84,7 @@ void RRObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 	t->l[2]=v[2][2]-v[0][2];
 }
 
-RRIntersect* RRIntersect::create(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams)
+RRIntersect* RRIntersect::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams)
 {
 	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);

@@ -20,22 +20,22 @@ namespace rrIntersect
 	extern RRIntersectStats intersectStats;
 
 	void update_hitPoint3d(RRRay* ray, real distance);
-	void update_hitPlane(RRRay* ray, RRObjectImporter* importer);
-	bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t);
+	void update_hitPlane(RRRay* ray, RRMeshImporter* importer);
+	bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t);
 
 	class IntersectLinear : public RRIntersect, public RRAligned
 	{
 	public:
-		static IntersectLinear* create(RRObjectImporter* aimporter) {return new IntersectLinear(aimporter);}
+		static IntersectLinear* create(RRMeshImporter* aimporter) {return new IntersectLinear(aimporter);}
 		virtual ~IntersectLinear();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual bool      isValidTriangle(unsigned i) const;
-		virtual RRObjectImporter* getImporter() const {return importer;}
+		virtual RRMeshImporter* getImporter() const {return importer;}
 		virtual IntersectTechnique getTechnique() const {return IT_LINEAR;}
 		virtual unsigned  getMemoryOccupied() const;
 	protected:
-		IntersectLinear(RRObjectImporter* aimporter);
-		RRObjectImporter* importer;
+		IntersectLinear(RRMeshImporter* aimporter);
+		RRMeshImporter* importer;
 		unsigned          triangles;
 		real              DELTA_BSP; // tolerance to numeric errors (absolute distance in scenespace)
 		Box               box; // aligned + vtable(4) + importer(4) + triangles(4) + DELTA_BSP(4) = aligned

@@ -6,8 +6,8 @@
 namespace rrIntersect
 {                                                                            
 	void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits);
-	void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer);
-	void getFileName(char* buf, unsigned bufsize, RRObjectImporter* importer, const char* extension);
+	void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer);
+	void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer, const char* extension);
 }
 
 #endif

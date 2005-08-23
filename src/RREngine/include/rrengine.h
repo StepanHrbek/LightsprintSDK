@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.08.10
+// version 2005.08.22
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -90,7 +90,7 @@ namespace rrEngine
 	// Derive to import YOUR geometry and surfaces.
 	// Can also be used to import data into RRObject.
 
-	class RRSceneObjectImporter : virtual public rrIntersect::RRObjectImporter
+	class RRSceneObjectImporter : virtual public rrIntersect::RRMeshImporter
 	{
 	public:
 		// must not change during object lifetime

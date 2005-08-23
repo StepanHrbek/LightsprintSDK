@@ -19,9 +19,9 @@ void update_hitPoint3d(RRRay* ray, real distance)
 	ray->hitPoint3d[2] = ray->rayOrigin[2] + ray->rayDir[2]*distance;
 }
 
-void update_hitPlane(RRRay* ray, RRObjectImporter* importer)
+void update_hitPlane(RRRay* ray, RRMeshImporter* importer)
 {
-	RRObjectImporter::TriangleSRL t2;
+	RRMeshImporter::TriangleSRL t2;
 	importer->getTriangleSRL(ray->hitTriangle,&t2);
 	Vec3 n;
 	n.x = t2.r[1] * t2.l[2] - t2.r[2] * t2.l[1];
@@ -34,7 +34,7 @@ void update_hitPlane(RRRay* ray, RRObjectImporter* importer)
 	ray->hitPlane[3] = -(t2.s[0] * ray->hitPlane[0] + t2.s[1] * ray->hitPlane[1] + t2.s[2] * ray->hitPlane[2]);
 }
 
-bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t)
+bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t)
 // input:                ray, t
 // returns:              true if ray hits t
 // modifies when hit:    hitDistance, hitPoint2D, hitOuterSide
@@ -86,7 +86,7 @@ bool intersect_triangle(RRRay* ray, const RRObjectImporter::TriangleSRL* t)
 	return true;
 }
 
-IntersectLinear::IntersectLinear(RRObjectImporter* aimporter)
+IntersectLinear::IntersectLinear(RRMeshImporter* aimporter)
 {
 #ifdef USE_SSE
 	if(intptr_t(&box)%16) 
@@ -159,7 +159,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	intersectStats.intersect_linear++;
 	for(unsigned t=0;t<triangles;t++) if(t!=ray->skipTriangle)
 	{
-		RRObjectImporter::TriangleSRL t2;
+		RRMeshImporter::TriangleSRL t2;
 		importer->getTriangleSRL(t,&t2);
 		if(intersect_triangle(ray,&t2))
 		{

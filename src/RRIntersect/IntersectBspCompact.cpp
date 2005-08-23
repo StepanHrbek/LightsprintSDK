@@ -38,7 +38,7 @@ begin:
 			bool hit=false;
 			for(typename BspTree::_TriInfo* triangle=t->kd.getTrianglesBegin();triangle<trianglesEnd;triangle++) if(*triangle!=ray->skipTriangle)
 			{
-				RRObjectImporter::TriangleSRL srl;
+				RRMeshImporter::TriangleSRL srl;
 				importer->getTriangleSRL(*triangle,&srl);
 				if(intersect_triangle(ray,&srl))
 				{
@@ -113,7 +113,7 @@ begin:
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangle<t->getTrianglesEnd());
 
-	RRObjectImporter::TriangleSRL t2;
+	RRMeshImporter::TriangleSRL t2;
 	importer->getTriangleSRL(*triangle,&t2);
 	Plane n;
 	n.x = t2.r[1] * t2.l[2] - t2.r[2] * t2.l[1];
@@ -218,7 +218,7 @@ begin:
 }
 
 template IBP
-IntersectBspCompact IBP2::IntersectBspCompact(RRObjectImporter* aimporter, IntersectTechnique intersectTechnique, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
+IntersectBspCompact IBP2::IntersectBspCompact(RRMeshImporter* aimporter, IntersectTechnique intersectTechnique, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
 {
 	tree = load IBP2(aimporter,ext,buildParams,this);
 	if(!tree) return;

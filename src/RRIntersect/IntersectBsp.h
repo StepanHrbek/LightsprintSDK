@@ -204,7 +204,7 @@ namespace rrIntersect
 	}
 
 	template IBP
-	BspTree* load(RRObjectImporter* importer, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
+	BspTree* load(RRMeshImporter* importer, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
 	{
 		if(!intersector) return NULL;
 		if(!importer) return NULL;

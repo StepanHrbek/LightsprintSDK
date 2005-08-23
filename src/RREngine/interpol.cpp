@@ -566,18 +566,20 @@ void Cluster::removeFromIVertices(Node *node)
 
 void Object::buildTopIVertices()
 {
+	// check
 	for(unsigned t=0;t<triangles;t++)
 	{
 		assert(!triangle[t].subvertex);
 		for(int v=0;v<3;v++)
 			assert(!triangle[t].topivertex[v]);
 	}
+	// build 1 ivertex for each vertex, insert all corners
 	IVertex *topivertex=new IVertex[vertices];
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
-		unsigned un_ve[3];
+		unsigned un_ve[3]; // un_ = unrotated
 		importer->getTriangle(t,un_ve[0],un_ve[1],un_ve[2]);
-		for(int ro_v=0;ro_v<3;ro_v++)
+		for(int ro_v=0;ro_v<3;ro_v++) // ro_ = rotated 
 		{
 			unsigned un_v = un_ve[(ro_v+triangle[t].rotations)%3];
 			assert(un_v<vertices);
@@ -590,6 +592,10 @@ void Object::buildTopIVertices()
 			  );
 		}
 	}
+	// merge close ivertices into 1 big + 1 empty
+	// (empty will be later detected and reported as unused)
+	//!!!...
+	// split ivertices with too different normals
 	int unusedVertices=0;
 	for(unsigned v=0;v<vertices;v++)
 	{
@@ -597,10 +603,14 @@ void Object::buildTopIVertices()
 		if(!topivertex[v].check(*(Vec3*)vert)) unusedVertices++;
 		topivertex[v].splitTopLevel((Vec3*)vert,this);
 	}
+	// report unused vertices
 	if(unusedVertices)
 	{
 		fprintf(stderr,"Btw, scene contains %i never used vertices.\n",unusedVertices);
 	}
+	// for each vertex, store pointer to one of ivertices
+	// helper only for fast approximate render
+	memset(vertexIVertex,0,sizeof(vertexIVertex[0])*vertices);
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
 		// ro_=rotated, un_=unchanged,original from importer
@@ -615,9 +625,13 @@ void Object::buildTopIVertices()
 			vertexIVertex[un_v]=triangle[t].topivertex[ro_v]; // un[un]=ro[ro]
 		}
 	}
-
 	delete[] topivertex;
-
+	// check vertexIVertex validity
+	for(unsigned v=0;v<vertices;v++)
+	{
+		assert(vertexIVertex[v]);
+	}
+	// check triangle.topivertex validity
 	for(unsigned t=0;t<triangles;t++)
 		for(int v=0;v<3;v++)
 		{

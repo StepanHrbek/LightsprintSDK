@@ -4,7 +4,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRIntersect - library for fast "ray x mesh" intersections
-// version 2005.08.10
+// version 2005.08.22
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -47,17 +47,17 @@ namespace rrIntersect
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRObjectImporter - abstract class for importing your data into RRObject.
+	// RRMeshImporter - abstract class for importing your mesh data into RR.
 	//
 	// Derive to import YOUR geometry.
 	// Derive from RRSceneObjectImporter if you want to calculate also radiosity.
 	// Data must not change during object lifetime, all results must be constant.
 
-	class RRINTERSECT_API RRObjectImporter
+	class RRINTERSECT_API RRMeshImporter
 	{
 	public:
-		RRObjectImporter() {}
-		virtual ~RRObjectImporter() {}
+		RRMeshImporter() {}
+		virtual ~RRMeshImporter() {}
 
 		// vertices
 		virtual unsigned     getNumVertices() const = 0;
@@ -147,13 +147,13 @@ namespace rrIntersect
 			IT_BSP_FAST,        // speed 175%, size 31
 			IT_BSP_FASTEST,     // speed 200%, size 58
 		};
-		static RRIntersect*  create(RRObjectImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
+		static RRIntersect*  create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
 
 		// calculate intersections
 		virtual bool         intersect(RRRay* ray) const = 0;
 
 		// helpers
-		virtual RRObjectImporter*  getImporter() const = 0;
+		virtual RRMeshImporter*  getImporter() const = 0;
 		virtual IntersectTechnique getTechnique() const = 0;
 		virtual unsigned           getMemoryOccupied() const = 0;
 		virtual ~RRIntersect() {};
@@ -211,7 +211,7 @@ namespace rrIntersect
 	// RRIndexedTriStripImporter<INDEX> - indexed triangle strip 
 	// RRIndexedTriListImporter<INDEX>  - indexed triangle list
 
-	class RRTriStripImporter : virtual public RRObjectImporter
+	class RRTriStripImporter : virtual public RRMeshImporter
 	{
 	public:
 		RRTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride)
@@ -388,7 +388,7 @@ namespace rrIntersect
 			v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
 			v2 = INHERITED::IBuffer[t*3+2]; assert(v2<INHERITED::Vertices);
 		}
-		virtual void getTriangleSRL(unsigned t, RRObjectImporter::TriangleSRL* tr) const
+		virtual void getTriangleSRL(unsigned t, RRMeshImporter::TriangleSRL* tr) const
 		{
 			assert(t*3<INHERITED::Indices);
 			assert(INHERITED::VBuffer);
@@ -542,7 +542,7 @@ namespace rrIntersect
 					return post;
 			return UINT_MAX;
 		}
-		virtual void getTriangleSRL(unsigned t, RRObjectImporter::TriangleSRL* tr) const
+		virtual void getTriangleSRL(unsigned t, RRMeshImporter::TriangleSRL* tr) const
 		{
 			assert(t<ValidIndices);
 			INHERITED::getTriangleSRL(ValidIndex[t],tr);
