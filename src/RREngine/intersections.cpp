@@ -46,9 +46,8 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	*(Vec3*)(ray.rayOrigin) = eye;
 	*(Vec3*)(ray.rayDir) = direction;
 #endif
-	assert(intersector);
 
-	if(!intersector->intersect(&ray))
+	if(!importer->getCollider()->intersect(&ray))
 		return NULL;
 
 	// compensate scale
@@ -102,7 +101,7 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 
 	Triangle* hitTriangle = NULL;
 	for(unsigned o=0;o<staticObjects;o++)
-		if(object[o]->bound.intersect(eye,direction,ray.hitDistanceMax)) // replaced by pretests in RRIntersect
+		if(object[o]->bound.intersect(eye,direction,ray.hitDistanceMax)) // replaced by pretests in RRCollider
 		{
 #ifdef _MSC_VER
 			ray.skipTriangle = ((unsigned)((U64)skip-(U64)object[o]->triangle))/sizeof(Triangle);

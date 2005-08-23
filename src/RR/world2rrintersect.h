@@ -6,13 +6,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// WorldObjectImporter
+// WorldMeshImporter
 
-class WorldObjectImporter : virtual public rrIntersect::RRMeshImporter
+class WorldMeshImporter : virtual public rrIntersect::RRMeshImporter
 {
 public:
-	WorldObjectImporter(OBJECT* aobject);
-	virtual ~WorldObjectImporter();
+	WorldMeshImporter(OBJECT* aobject);
+	virtual ~WorldMeshImporter();
 	
 	// must not change during object lifetime
 	virtual unsigned     getNumVertices() const;

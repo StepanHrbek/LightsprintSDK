@@ -711,7 +711,6 @@ public:
 	void    resetStaticIllumination();
 
 	// intersections
-	rrIntersect::RRIntersect*intersector;
 	Bound   bound;
 	void    detectBounds();
 	Triangle* intersection(rrIntersect::RRRay& ray, const Point3& eye, const Vec3& direction);

@@ -166,7 +166,7 @@ BSP_TREE*   bsptree;
 unsigned    bsptree_id;
 BuildParams buildParams;
 
-BspBuilder() : buildParams(RRIntersect::IT_BSP_FASTEST)
+BspBuilder() : buildParams(RRCollider::IT_BSP_FASTEST)
 {
 	bsptree = NULL;
 	bsptree_id = CACHE_SIZE;

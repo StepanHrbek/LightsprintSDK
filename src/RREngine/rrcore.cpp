@@ -34,7 +34,7 @@ namespace rrEngine
 //#define DEBUK
 //#define LOG_LOADING_MES
 
-#ifdef _MSC_VER
+#ifdef xx_MSC_VER
 //error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(38)
 //error : inserted by sunifdef: "#define GATE_SHOTS 10000 // max photons from one shooter" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(39)
 //error : inserted by sunifdef: "#define GATE_QUALITY 5000000 // max photons in scene" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(40)
@@ -1929,11 +1929,12 @@ void Object::buildEdges()
 		triangle[t].edge[2]=NULL;
 	}
 	Triangles *trianglesInV=new Triangles[vertices];
+	rrIntersect::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned t=0;t<triangles;t++)
 		for(int v1=0;v1<3;v1++)
 		{
 			unsigned ve[3];
-			importer->getTriangle(t,ve[0],ve[1],ve[2]);
+			meshImporter->getTriangle(t,ve[0],ve[1],ve[2]);
 			unsigned v = ve[(v1+triangle[t].rotations)%3];
 			assert(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
 			trianglesInV[v].insert(&triangle[t]);
@@ -1952,7 +1953,6 @@ void Object::buildEdges()
 Object::~Object()
 {
 	check();
-	delete intersector;
 #ifndef ONLY_PLAYER
 	if(cluster) delete[] cluster;
 #endif
@@ -2015,9 +2015,10 @@ bool Object::contains(Node *n)
 void Object::detectBounds()
 {
 	Vec3* vertex = new Vec3[vertices];
+	rrIntersect::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned i=0;i<vertices;i++)
 	{
-		real* v = importer->getVertex(i);
+		real* v = meshImporter->getVertex(i);
 		vertex[i].x = v[0];
 		vertex[i].y = v[1];
 		vertex[i].z = v[2];

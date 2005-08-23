@@ -13,13 +13,14 @@
 //
 // WorldSceneImporter
 
-class WorldSceneObjectImporter : public WorldObjectImporter, public rrEngine::RRObjectImporter
+class WorldObjectImporter : public rrEngine::RRObjectImporter
 {
 public:
-	WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces);
-	virtual ~WorldSceneObjectImporter();
+	WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces);
+	virtual ~WorldObjectImporter();
 	
 	// must not change during object lifetime
+	virtual const rrIntersect::RRCollider* getCollider() const {return collider;}
 	virtual unsigned     getTriangleSurface(unsigned t) const;
 	virtual RRSurface*   getSurface(unsigned si);
 
@@ -29,15 +30,19 @@ public:
 
 private:
 	WORLD*      world;
+	OBJECT*     object;
 	Surface**   surface;
 	unsigned    surfaces;
+	rrIntersect::RRCollider* collider;
 };
 
-WorldSceneObjectImporter::WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces) : WorldObjectImporter(aobject)
+WorldObjectImporter::WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces)
 {
 	world = aworld;
+	object = aobject;
 	surface = asurface;
 	surfaces = asurfaces;
+	collider = rrIntersect::RRCollider::create(new WorldMeshImporter(aobject),(rrIntersect::RRCollider::IntersectTechnique)RRGetState(RRSS_INTERSECT_TECHNIQUE));
 	assert(world);
 	assert(surface);
 
@@ -46,30 +51,30 @@ WorldSceneObjectImporter::WorldSceneObjectImporter(WORLD* aworld, OBJECT* aobjec
 	//matrix_Invert(object->matrix,object->inverse);
 }
 
-WorldSceneObjectImporter::~WorldSceneObjectImporter()
+WorldObjectImporter::~WorldObjectImporter()
 {
 }
 
-unsigned WorldSceneObjectImporter::getTriangleSurface(unsigned i) const
+unsigned WorldObjectImporter::getTriangleSurface(unsigned i) const
 {
 	assert(object);
 	assert(i<object->face_num);
 	return object->face[i].material;
 }
 
-RRSurface* WorldSceneObjectImporter::getSurface(unsigned si)
+RRSurface* WorldObjectImporter::getSurface(unsigned si)
 {
 	assert(si<surfaces);
 	if(si>=surfaces) return surface[0];
 	return surface[si];
 }
 
-const float* WorldSceneObjectImporter::getWorldMatrix()
+const float* WorldObjectImporter::getWorldMatrix()
 {
 	return object->matrix[0];
 }
 
-const float* WorldSceneObjectImporter::getInvWorldMatrix()
+const float* WorldObjectImporter::getInvWorldMatrix()
 {
 	return object->inverse[0];
 }
@@ -222,7 +227,7 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf)
 	for (int o=0;o<world->object_num;o++) 
 	{
 		// dynamic = w->object[o].pos.num!=1 || w->object[o].rot.num!=1
-		WorldSceneObjectImporter* importer = new WorldSceneObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces);
+		WorldObjectImporter* importer = new WorldObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces);
 		RRScene::ObjectHandle handle = rrscene->objectCreate(importer);
 		world->object[o].obj = rrscene->getObject(handle);
 	}	

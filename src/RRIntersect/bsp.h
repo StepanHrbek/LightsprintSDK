@@ -51,7 +51,7 @@ namespace rrIntersect
 		unsigned kdMinFacesInTree;  // don't even try kd on smaller tree
 		unsigned kdHavran;          // allow havran's heuristic for fastest tree to be tried
 		unsigned kdLeaf;            // allow kd leaves in tree (supported only by compact intersector)
-		BuildParams(RRIntersect::IntersectTechnique technique)
+		BuildParams(RRCollider::IntersectTechnique technique)
 		{
 			size = sizeof(*this);
 			forceRebuild = 0;//!!! 0=ok
@@ -65,12 +65,12 @@ namespace rrIntersect
 			kdLeaf = 0;
 			switch(technique)
 			{
-				case RRIntersect::IT_BSP_FASTEST:
+				case RRCollider::IT_BSP_FASTEST:
 					kdHavran = 1;
 					break;
-				case RRIntersect::IT_BSP_FAST:
+				case RRCollider::IT_BSP_FAST:
 					break;
-				case RRIntersect::IT_BSP_COMPACT:
+				case RRCollider::IT_BSP_COMPACT:
 					prizeSplit = 50;
 					prizePlane = 1;
 					kdMinFacesInTree = 10;

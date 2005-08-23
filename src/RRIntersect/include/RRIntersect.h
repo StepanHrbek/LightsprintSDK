@@ -3,7 +3,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
-// RRIntersect - library for fast "ray x mesh" intersections
+// RRCollider - library for fast "ray x mesh" intersections
 // version 2005.08.22
 // http://dee.cz/rr
 //
@@ -134,9 +134,9 @@ namespace rrIntersect
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRIntersect - single object able to calculate intersections.
+	// RRCollider - single object able to calculate ray x trimesh intersections.
 
-	class RRINTERSECT_API RRIntersect
+	class RRINTERSECT_API RRCollider
 	{
 	public:
 		// create
@@ -147,16 +147,16 @@ namespace rrIntersect
 			IT_BSP_FAST,        // speed 175%, size 31
 			IT_BSP_FASTEST,     // speed 200%, size 58
 		};
-		static RRIntersect*  create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
+		static RRCollider*   create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
 
 		// calculate intersections
 		virtual bool         intersect(RRRay* ray) const = 0;
 
 		// helpers
-		virtual RRMeshImporter*  getImporter() const = 0;
+		virtual RRMeshImporter*    getImporter() const = 0;
 		virtual IntersectTechnique getTechnique() const = 0;
 		virtual unsigned           getMemoryOccupied() const = 0;
-		virtual ~RRIntersect() {};
+		virtual ~RRCollider() {};
 	};
 
 

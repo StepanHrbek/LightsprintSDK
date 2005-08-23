@@ -1,38 +1,38 @@
 #include <assert.h>
 #include "world2rrintersect.h"
 
-WorldObjectImporter::WorldObjectImporter(OBJECT* aobject)
+WorldMeshImporter::WorldMeshImporter(OBJECT* aobject)
 {
 	object=aobject;
 	assert(object);
 	for(int i=0;i<object->vertex_num;i++) object->vertex[i].id=i;
 }
 
-WorldObjectImporter::~WorldObjectImporter()
+WorldMeshImporter::~WorldMeshImporter()
 {
 }
 
-unsigned WorldObjectImporter::getNumVertices() const
+unsigned WorldMeshImporter::getNumVertices() const
 {
 	assert(object);
 	return object->vertex_num;
 }
 
-float* WorldObjectImporter::getVertex(unsigned i) const
+float* WorldMeshImporter::getVertex(unsigned i) const
 {
 	assert(object);
 	assert(i<object->vertex_num);
 	return &object->vertex[i].x;
 }
 
-unsigned WorldObjectImporter::getNumTriangles() const
+unsigned WorldMeshImporter::getNumTriangles() const
 {
 	assert(object);
 	assert(object->face_num);
 	return object->face_num;
 }
 
-void WorldObjectImporter::getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2) const
+void WorldMeshImporter::getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2) const
 {
 	assert(object);
 	assert(i<object->face_num);
@@ -41,7 +41,7 @@ void WorldObjectImporter::getTriangle(unsigned i, unsigned& v0, unsigned& v1, un
 	v2=object->face[i].vertex[2]->id;
 }
 
-void WorldObjectImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
+void WorldMeshImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 {
 	assert(object);
 	assert(i<object->face_num);

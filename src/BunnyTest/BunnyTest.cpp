@@ -7,8 +7,8 @@
 #include <time.h>
 
 typedef rrIntersect::RRIndexedTriListImporter<int> inherited;
-//typedef rrIntersect::RRLessVerticesImporter<rrIntersect::RRIndexedTriListImporter<int>,int> inherited;
-//typedef rrIntersect::RRLessTrianglesImporter<rrIntersect::RRLessVerticesImporter<rrIntersect::RRIndexedTriListImporter<int>,int>,int> inherited;
+//typedef rrIntersect::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int> inherited;
+//typedef rrIntersect::RRLessTrianglesImporter<RRCollider::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int>,int> inherited;
 
 class PlyMeshImporter : public inherited
 {
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	PlyMeshReader reader;
 	reader.readFile("bun_zipper.ply",mesh);
 	PlyMeshImporter importer(mesh);
-	rrIntersect::RRIntersect* intersector = rrIntersect::RRIntersect::create(&importer,rrIntersect::RRIntersect::IT_BSP_FASTEST);
+	rrIntersect::RRCollider* intersector = rrIntersect::RRCollider::create(&importer,rrIntersect::RRCollider::IT_BSP_FASTEST);
 	printf("vertices=%d tris=%d\n",importer.getNumVertices(),importer.getNumTriangles());
 
 	SphereUnitVecPool vecpool;//create pool of random points

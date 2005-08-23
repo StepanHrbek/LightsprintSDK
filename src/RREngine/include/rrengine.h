@@ -82,18 +82,24 @@ namespace rrEngine
 
 	extern RRSideBits sideBits[3][2];
 
-
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRSceneImporter - abstract class for importing your data into RRScene.
+	// RRObjectImporter - abstract class for importing your object into RRScene.
 	//
 	// Derive to import YOUR geometry and surfaces.
 	// Can also be used to import data into RRObject.
+	//
+	// RRObject -> RRObjectImporter -> RRCollider -> RRMeshImporter
+	// where A -> B means that
+	//  A has pointer to B
+	//  there is no automatic reference counting in B
+	//  there is no automatic destruction of B from A
 
-	class RRObjectImporter : virtual public rrIntersect::RRMeshImporter
+	class RRObjectImporter
 	{
 	public:
 		// must not change during object lifetime
+		virtual const rrIntersect::RRCollider* getCollider() const = 0;
 		virtual unsigned     getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*   getSurface(unsigned s) = 0;
 		virtual const RRReal* getTriangleAdditionalRadiantExitance(unsigned t) const {return 0;} // radiant exitance in watts per square meter. 

@@ -23,7 +23,7 @@ namespace rrIntersect
 	void update_hitPlane(RRRay* ray, RRMeshImporter* importer);
 	bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t);
 
-	class IntersectLinear : public RRIntersect, public RRAligned
+	class IntersectLinear : public RRCollider, public RRAligned
 	{
 	public:
 		static IntersectLinear* create(RRMeshImporter* aimporter) {return new IntersectLinear(aimporter);}

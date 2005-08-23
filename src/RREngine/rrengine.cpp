@@ -116,7 +116,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
-	Object *obj=new Object(importer->getNumVertices(),importer->getNumTriangles());
+	Object *obj=new Object(importer->getCollider()->getImporter()->getNumVertices(),importer->getCollider()->getImporter()->getNumTriangles());
 	obj->importer = importer;
 
 #ifdef SUPPORT_TRANSFORMS
@@ -134,9 +134,10 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 //#ifdef SUPPORT_DYNAMIC
 //	int ttop=obj->triangles-1;
 //#endif
+	rrIntersect::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for (unsigned fi=0;fi<obj->triangles;fi++) {
 		unsigned v0,v1,v2;
-		importer->getTriangle(fi,v0,v1,v2);
+		meshImporter->getTriangle(fi,v0,v1,v2);
 		unsigned si = importer->getTriangleSurface(fi);
 		RRSurface* s=importer->getSurface(si);
 		assert(s);
@@ -150,9 +151,9 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
 		int geom=t->setGeometry(
-			(Vec3*)(importer->getVertex(v0)),
-			(Vec3*)(importer->getVertex(v1)),
-			(Vec3*)(importer->getVertex(v2)),
+			(Vec3*)(meshImporter->getVertex(v0)),
+			(Vec3*)(meshImporter->getVertex(v1)),
+			(Vec3*)(meshImporter->getVertex(v2)),
 			obj->transformMatrix);
 		if(t->isValid) 
 		{
@@ -186,9 +187,6 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 	// priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
 	obj->id=0;//!!!
 	obj->name=NULL;
-	// bsp tree
-	DBG(printf(" tree...\n"));
-	obj->intersector = rrIntersect::RRIntersect::create(importer,(rrIntersect::RRIntersect::IntersectTechnique)RRGetState(RRSS_INTERSECT_TECHNIQUE));
 	obj->transformBound();
 	// vlozi objekt do sceny
 #ifdef SUPPORT_DYNAMIC
@@ -347,7 +345,7 @@ void RRResetStates()
 	RRSetStateF(RRSSF_SUBDIVISION_SPEED,1);
 	RRSetState(RRSS_GET_SOURCE,1);
 	RRSetState(RRSS_GET_REFLECTED,1);
-	RRSetState(RRSS_INTERSECT_TECHNIQUE,rrIntersect::RRIntersect::IT_BSP_FASTEST);
+	RRSetState(RRSS_INTERSECT_TECHNIQUE,rrIntersect::RRCollider::IT_BSP_FASTEST);
 	RRSetStateF(RRSSF_IGNORE_SMALLER_AREA,SMALL_REAL);
 	RRSetStateF(RRSSF_IGNORE_SMALLER_ANGLE,0.001f);
 	RRSetStateF(RRSSF_FIGHT_SMALLER_AREA,0.01f);

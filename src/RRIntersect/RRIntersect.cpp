@@ -84,7 +84,7 @@ void RRMeshImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 	t->l[2]=v[2][2]-v[0][2];
 }
 
-RRIntersect* RRIntersect::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams)
+RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams)
 {
 	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);
