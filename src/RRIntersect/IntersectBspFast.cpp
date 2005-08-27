@@ -295,8 +295,11 @@ begin:
 	if(t->bsp.kd)
 	{
 #ifdef SUPPORT_EMPTY_KDNODE
-		if(t->kd.size<=sizeof(BspTree)) 
-			return false; // only empty kdnode is so small
+		// exit from empty kdnode
+		// empty kdnodes are created only in FASTEST (when havran=1 && SUPPORT_EMPTY_KDNODE)
+		if(t->allows_emptykd && sizeof(typename BspTree::_Ofs)==4) // this is true only in FASTEST
+			if(t->kd.size<=sizeof(BspTree)) // only empty kdnode is so small
+				return false;
 #endif
 
 		//intersectStats.intersect_kd++;
