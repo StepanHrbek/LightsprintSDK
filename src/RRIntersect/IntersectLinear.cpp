@@ -163,9 +163,29 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		importer->getTriangleSRL(t,&t2);
 		if(intersect_triangle(ray,&t2))
 		{
-			hit = true;
 			ray->hitTriangle = t;
 			ray->hitDistanceMax = ray->hitDistance;
+			if(ray->surfaceImporter) 
+			{
+#ifdef FILL_HITPOINT3D
+				if(ray->flags&RRRay::FILL_POINT3D)
+				{
+					update_hitPoint3d(ray,ray->hitDistance);
+				}
+#endif
+#ifdef FILL_HITPLANE
+				if(ray->flags&RRRay::FILL_PLANE)
+				{
+					update_hitPlane(ray,importer);
+				}
+#endif
+				// hits are reported in random order
+				if(ray->surfaceImporter->acceptHit(ray)) hit = true;
+			}
+			else
+			{
+				hit = true;
+			}
 		}
 	}
 	if(hit) 

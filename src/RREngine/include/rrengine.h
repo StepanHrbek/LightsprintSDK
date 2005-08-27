@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.08.22
+// version 2005.08.27
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -86,16 +86,14 @@ namespace rrEngine
 	//
 	// RRObjectImporter - abstract class for importing your object into RRScene.
 	//
-	// Derive to import YOUR geometry and surfaces.
-	// Can also be used to import data into RRObject.
+	// Derive to import YOUR geometry and surfaces into RRCollider or RRScene.
 	//
 	// RRObject -> RRObjectImporter -> RRCollider -> RRMeshImporter
 	// where A -> B means that
-	//  A has pointer to B
-	//  there is no automatic reference counting in B
-	//  there is no automatic destruction of B from A
+	//  - A has pointer to B
+	//  - note that there is no automatic reference counting in B and no automatic destruction of B from A
 
-	class RRObjectImporter
+	class RRObjectImporter : public rrIntersect::RRMeshSurfaceImporter
 	{
 	public:
 		// must not change during object lifetime
@@ -108,8 +106,6 @@ namespace rrEngine
 		// may change during object lifetime
 		virtual const RRReal* getWorldMatrix() = 0;
 		virtual const RRReal* getInvWorldMatrix() = 0;
-
-		virtual ~RRObjectImporter() {};
 	};
 
 	//////////////////////////////////////////////////////////////////////////////

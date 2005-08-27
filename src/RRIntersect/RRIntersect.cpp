@@ -60,6 +60,12 @@ void RRAligned::operator delete(void* p, std::size_t n)
 #endif
 };
 
+RRRay::RRRay()
+{
+	memset(this,0,sizeof(RRRay)); // no virtuals in RRRay -> no pointer to virtual function table overwritten
+	flags = FILL_DISTANCE | FILL_POINT3D | FILL_POINT2D | FILL_PLANE | FILL_TRIANGLE | FILL_SIDE;
+}
+
 RRRay* RRRay::create()
 {
 	return new RRRay();

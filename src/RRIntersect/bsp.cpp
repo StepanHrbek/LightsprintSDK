@@ -407,6 +407,13 @@ info2_done:			//----
 			info.split = minxi-info.back; // pocet facu preseklych rezem v splitValue
 			info.prize = 1 + info.split*SPLIT_PRIZE + ABS((int)info.front-(int)(info.back+info.plane))*BALANCE_PRIZE;
 
+#ifdef SUPPORT_EMPTY_KDNODE
+			// skip planes that only cut off <15% of empty space
+			{real range = (bbox->hi[axis]-bbox->lo[axis]) * 0.15f;
+			if(info.front+info.split==0 && info.value>bbox->hi[axis]-range) goto next;
+			if(info.back+info.plane+info.split==0 && info.value<bbox->lo[axis]+range) goto next;}
+#endif
+
 			// backsurface
 			{
 			float tmp = bbox->hi[axis];
@@ -442,10 +449,15 @@ next:
 	delete[] maxx;
 
 	info = best_havran;
+#ifndef SUPPORT_EMPTY_KDNODE
 	if(!info.face || info.front==0 || info.back+info.plane==0) info = best_dee;
 	//if(!info.face || info.front<=faces/100 || info.back+info.plane<=faces/100) info = best_dee;
 	if(!info.face || info.front==0 || info.back+info.plane==0) return NULL;
-	
+#else
+	if(!info.face) info = best_dee;
+	if(!info.face) return NULL;
+#endif
+
 	FACE* f = info.face;
 	assert(f);
 	if(!f) return NULL;
@@ -612,7 +624,16 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		bsproot=find_best_root_bsp(space,&info_bsp);
 	} else {
 		kdroot = find_best_root_kd(bbox,space,&info_kd);
-		if(info_kd.front==0 || info_kd.back+info_kd.plane==0) kdroot = NULL;
+#ifndef SUPPORT_EMPTY_KDNODE
+		if(info_kd.front==0 || info_kd.back+info_kd.plane==0) kdroot = NULL; // jeden ze synu bude obsahovat stejne trianglu jako otec, nebezpeci nekonecneho rozvoje -> nebrat
+#else
+		if(kdroot)
+		{
+			if(buildParams.kdHavran==1 && (info_kd.value<=bbox->lo[info_kd.axis] || info_kd.value>=bbox->hi[info_kd.axis])) kdroot = NULL; // split je na kraji boxu, tj. jeden ze synu je stejne velky jako otec, jisty nekonecny rozvoj -> nebrat
+		}
+		if(info_kd.front==0 || info_kd.back+info_kd.plane==0) 
+			kdroot = kdroot; // riskujem nebezpeci nekonecneho rozvoje
+#endif
 		if((buildParams.kdHavran==0 && pn<buildParams.bspMaxFacesInTree) || !kdroot)
 		{
 			bsproot = find_best_root_bsp(space,&info_bsp);
@@ -696,9 +717,11 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	if(kdroot)
 	{
 		if(back_num+plane_num>0) { back=nALLOC(const FACE*,back_num+plane_num+1); back[back_num+plane_num]=NULL; }
+#ifndef SUPPORT_EMPTY_KDNODE
 		assert(front_num); // v top-level-only kd nesmi byt leaf -> musi byt front i back
 		assert(back_num+plane_num);
 		assert(front && back);
+#endif
 	} else {
 		if(back_num>0) { back=nALLOC(const FACE*,back_num+1); back[back_num]=NULL; }
 		if(plane_num>0) { plane=nALLOC(const FACE*,plane_num+1); plane[plane_num]=NULL; }
@@ -762,7 +785,9 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 
 		//buildParams.kdHavran = kdHavranOld;
 
+#ifndef SUPPORT_EMPTY_KDNODE
 	if(t->kdroot) assert(t->front && t->back); // v top-level-only kd musi byt front i back
+#endif
 
 	return t;
 }
@@ -794,13 +819,15 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 	node.bsp.size=-1;
 	fwrite(&node,sizeof(node),1,f);
 
-	if(t->kdroot)
+	if(t->kdroot && (t->front || t->back)) // pro prazdny kdnode uz nezapisuje splitValue
 	{
 		assert(t->axis>=0 && t->axis<=2);
 		real splitValue = (&t->kdroot->x)[t->axis];
 		fwrite(&splitValue,sizeof(splitValue),1,f);
+#ifndef SUPPORT_EMPTY_KDNODE
 		assert(t->front);
 		assert(t->back);
+#endif
 	}
 	if(t->leaf)
 	{
@@ -829,17 +856,55 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 		transition = smallerBspTree.bsp.size==frontSizeMin && smallerBspTree2.bsp.size==backSizeMin;
 	}
 
+#ifdef SUPPORT_EMPTY_KDNODE
+	static BSP_TREE empty = {};
+	empty.kdroot = (VERTEX*)1;
+	if(t->kdroot && t!=&empty) assert(t->front || t->back);
+	if(t->front || t->back)
+#endif
 	if(transition)
 	{
 		if(t->front) if(!save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(f,t->front)) return false;
 		if(t->back) if(!save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(f,t->back)) return false;
+		// havran(->empty kdnodes) + transition not implemented
+		// luckily we use havran only in FASTEST which uses no transitions
 	} else {
 		if(t->front) if(!save_bsp IBP2(f,t->front)) return false;
+		if(t->kdroot && !t->front) if(!save_bsp IBP2(f,&empty)) return false;
 		if(t->back) if(!save_bsp IBP2(f,t->back)) return false;
+		if(t->kdroot && !t->back) if(!save_bsp IBP2(f,&empty)) return false;
 	}
-
+#ifdef SUPPORT_EMPTY_KDNODE
+	if(!t->front && !t->back) assert(n || t->leaf || t==&empty); // n=bsp leaf, leaf=kd leaf, empty=havran's kd branch
+#else
 	if(!t->front && !t->back) assert(n || t->leaf); // n=bsp leaf, leaf=kd leaf
+#endif
+		
 
+	/*
+	// sorting triangles by area (biggest first) should help in some scenes and not hurt in others
+	// but surprisingly it's 2% slower on average
+	if(!t->kdroot)
+	{
+		// sort by area
+		FACE_Q* tmp = new FACE_Q[n];
+		for(unsigned i=n;i--;) 
+		{
+			tmp[i].f = t->plane[i];
+			tmp[i].q = tmp[i].f->getArea();
+		}
+		if(n>2) qsort(tmp+1,n-1,sizeof(FACE_Q),compare_face_q_desc); // first one defines plane, don't sort it away
+		//if(n>1) qsort(tmp,n,sizeof(FACE_Q),compare_face_q_desc);
+		// write to file
+		for(unsigned i=n;i--;) // worst
+	//	for(unsigned i=0;i<n;i++) // best
+		{
+			typename BspTree::_TriInfo info = tmp[i].f->id;
+			if(info!=tmp[i].f->id) {assert(0);return false;}
+			fwrite(&info,sizeof(info),1,f);
+		}
+		delete tmp;
+	}*/
 	if(!t->kdroot) for(unsigned i=n;i--;)
 	{
 		typename BspTree::_TriInfo info = t->plane[i]->id;
@@ -851,6 +916,9 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 	unsigned pos2 = ftell(f);
 	node.bsp.size = pos2-pos1;
 	if(node.bsp.size!=pos2-pos1) {assert(0);return false;}
+#ifdef SUPPORT_EMPTY_KDNODE
+	//if(t==&empty) assert(node.bsp.size==4);
+#endif
 	node.setTransition(transition);
 	node.setKd(t->kdroot || t->leaf);
 	if(t->kdroot || t->leaf)

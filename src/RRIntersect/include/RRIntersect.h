@@ -4,7 +4,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.08.22
+// version 2005.08.27
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -81,12 +81,37 @@ namespace rrIntersect
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	// RRMeshSurfaceImporter - defines non-trivial behaviour of mesh surfaces
+	//
+	// Derive to define behaviour of YOUR surfaces.
+	// You need it only when you want to
+	// - intersect mesh that contains both singlesided and twosided faces
+	// - iterate over multiple intersections with mesh
+	//
+	// It's intentionally not part of RRMeshImporter, so you can easily combine
+	// different surface behaviours with one geometry.
+
+	class RRINTERSECT_API RRMeshSurfaceImporter
+	{
+	public:
+		virtual ~RRMeshSurfaceImporter() {}
+
+		// acceptHit is called at each intersection with mesh
+		// return false to continue to next intersection, true to end
+		// for IT_BSP_* techniques, intersections are reported in order from the nearest one
+		// for IT_LINEAR technique, intersections go unsorted
+		virtual bool         acceptHit(class RRRay* ray) = 0;
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	// RRAligned
 	//
 	// On some platforms (x86+SSE), some structures need to be specially aligned in memory.
 	// This helper base class helps to align them.
 
-	struct RRINTERSECT_API RRAligned
+	struct RRAligned
 	{
 		RRAligned();
 		void* operator new(std::size_t n);
@@ -97,15 +122,18 @@ namespace rrIntersect
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// RRRay - ray to intersect with object.
+	//
+	// Contains all inputs and outputs for RRCollider::intersect()
 
-	struct RRINTERSECT_API RRRay : public RRAligned
+	class RRINTERSECT_API RRRay : public RRAligned
 	{
+	public:
 		// create ray
-		static RRRay* create();
+		static RRRay* create(); // all is zeroed, all FILL flags on
 		// inputs
 		enum Flags
 		{ 
-			FILL_DISTANCE   =(1<<0), // what outputs to fill
+			FILL_DISTANCE   =(1<<0), // which outputs to fill
 			FILL_POINT3D    =(1<<1), // note: some outputs might be filled even when not requested by flag.
 			FILL_POINT2D    =(1<<2),
 			FILL_PLANE      =(1<<3),
@@ -115,20 +143,21 @@ namespace rrIntersect
 			SKIP_PRETESTS   =(1<<7), // skip bounding volume pretests
 		};
 		RRReal          rayOrigin[3];   // i, ray origin [ALIGN16]
-		unsigned        skipTriangle;   // i, postImportTriangle to be skipped, not tested
+		unsigned        skipTriangle;   // i, one postImportTriangle to be skipped during tests
 		RRReal          rayDir[3];      // i, ray direction, must be normalized [ALIGN16]
 		unsigned        flags;          // i, flags that specify the action
+		RRMeshSurfaceImporter* surfaceImporter; // i, optional surface importer for user-defined surface behaviours
 		RRReal          hitDistanceMin; // io, test hit in range <min,max>, undefined after test
 		RRReal          hitDistanceMax; // io, test hit in range <min,max>, undefined after test
-		// outputs
-		RRReal          hitDistance;    // o, hit -> hit distance, !hit -> undefined
-		RRReal          hitPoint3d[3];  // o, hit -> hit coordinate in object space; !hit -> undefined
-		RRReal          hitPoint2d[2];  // o, hit -> hit coordinate in triangle space
-		RRReal          hitPlane[4];    // o, hit -> plane of hitTriangle, [0..2] is normal
-		unsigned        hitTriangle;    // o, hit -> postImportTriangle that was hit
-		bool            hitOuterSide;   // o, hit -> false when object was hit from the inner side
+		// outputs (valid after positive test, undefined otherwise)
+		RRReal          hitDistance;    // o, hit distance in object space
+		RRReal          hitPoint3d[3];  // o, hit coordinate in object space
+		RRReal          hitPoint2d[2];  // o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
+		RRReal          hitPlane[4];    // o, plane of hitTriangle in object space, [0..2] is normal
+		unsigned        hitTriangle;    // o, postImportTriangle that was hit
+		bool            hitOuterSide;   // o, true = object was hit from the outer (common) side
 	private:
-		RRRay() {} // intentionally private so no one is able to create unaligned instance
+		RRRay(); // intentionally private so no one is able to create unaligned instance
 	};
 
 
@@ -150,12 +179,14 @@ namespace rrIntersect
 		static RRCollider*   create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
 
 		// calculate intersections
+		// (When intersection is detected, ray outputs are filled and true returned.
+		// When no intersection is detected, ray outputs are undefined and false returned.)
 		virtual bool         intersect(RRRay* ray) const = 0;
 
 		// helpers
-		virtual RRMeshImporter*    getImporter() const = 0;
-		virtual IntersectTechnique getTechnique() const = 0;
-		virtual unsigned           getMemoryOccupied() const = 0;
+		virtual RRMeshImporter*    getImporter() const = 0; // identical to importer from create()
+		virtual IntersectTechnique getTechnique() const = 0; // my differ from technique requested in create()
+		virtual unsigned           getMemoryOccupied() const = 0; // total amount of system memory occupied by collider
 		virtual ~RRCollider() {};
 	};
 

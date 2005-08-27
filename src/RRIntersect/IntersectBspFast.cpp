@@ -285,6 +285,7 @@ bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, rea
 // approx 50% of runtime is spent here
 // all calls (except recursion) are inlined
 {
+#define MAX_SIZE 10000000 // max size of node, for runtime checks of consistency
 begin:
 	intersectStats.intersect_bspSRLNP++;
 	assert(ray);
@@ -293,6 +294,11 @@ begin:
 	// KD
 	if(t->bsp.kd)
 	{
+#ifdef SUPPORT_EMPTY_KDNODE
+		if(t->kd.size<=sizeof(BspTree)) 
+			return false; // only empty kdnode is so small
+#endif
+
 		//intersectStats.intersect_kd++;
 		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
@@ -311,6 +317,7 @@ begin:
 			// front only
 			if(pointMaxVal>=splitValue) 
 			{
+				assert(t->kd.getFront()->bsp.size<MAX_SIZE);
 				t = t->kd.getFront();
 				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
 				goto begin;
@@ -321,6 +328,7 @@ begin:
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
 			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
+			assert(t->kd.getBack()->bsp.size<MAX_SIZE);
 			t = t->kd.getBack();
 			goto begin;
 		} else {
@@ -328,6 +336,7 @@ begin:
 			// btw if point1[axis]==point2[axis]==splitVertex[axis], testing only back may be sufficient
 			if(pointMaxVal<=splitValue) // catches also i_direction[t->axis]==0 case
 			{
+				assert(t->kd.getBack()->bsp.size<MAX_SIZE);
 				t = t->kd.getBack();
 				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
 				goto begin;
@@ -338,6 +347,7 @@ begin:
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
 			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
+			assert(t->kd.getFront()->bsp.size<MAX_SIZE);
 			t = t->kd.getFront();
 			goto begin;
 		}
@@ -385,10 +395,12 @@ begin:
 		{
 			TEST_RANGE(ray->hitDistanceMin,distanceMax,t->bsp.front,front);
 			if(!t->bsp.front) return false;
+			assert(front->bsp.size<MAX_SIZE);
 			t=front;
 		} else {
 			TEST_RANGE(ray->hitDistanceMin,distanceMax,t->bsp.back,back);
 			if(!t->bsp.back) return false;
+			assert(back->bsp.size<MAX_SIZE);
 			t=back;
 		}
 		goto begin;
@@ -435,7 +447,7 @@ begin:
 #ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;
 #endif
-			return true;
+			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) return true;
 		}
 		triangle++;
 	}
@@ -445,10 +457,12 @@ begin:
 	{
 		TEST_RANGE(distancePlane-DELTA_BSP,distanceMax,t->bsp.back,back);
 		if(!t->bsp.back) return false;
+		assert(back->bsp.size<MAX_SIZE);
 		t=back;
 	} else {
 		TEST_RANGE(distancePlane-DELTA_BSP,distanceMax,t->bsp.front,front);
 		if(!t->bsp.front) return false;
+		assert(front->bsp.size<MAX_SIZE);
 		t=front;
 	}
 	ray->hitDistanceMin = distancePlane-DELTA_BSP;
@@ -565,6 +579,7 @@ begin:
 		importer->getTriangleSRL(*triangle,&t2);
 		if (*triangle!=ray->skipTriangle && intersect_triangleNP(ray,triangleNP+*triangle,&t2))
 		{
+			assert(IS_NUMBER(distancePlane));
 #ifdef FILL_HITTRIANGLE
 			ray->hitTriangle = *triangle;
 #endif
@@ -572,7 +587,7 @@ begin:
 			ray->hitDistance = distancePlane;
 #endif
 			DBGLINE
-			return true;
+			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) return true;
 		}
 		triangle++;
 	}

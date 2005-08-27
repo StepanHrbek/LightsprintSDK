@@ -97,31 +97,38 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	assert(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
 	// pri velkem poctu objektu by pomohlo sesortovat je podle
 	//  vzdalenosti od oka a blizsi testovat driv
-
-
 	Triangle* hitTriangle = NULL;
-	for(unsigned o=0;o<staticObjects;o++)
-		if(object[o]->bound.intersect(eye,direction,ray.hitDistanceMax)) // replaced by pretests in RRCollider
-		{
-#ifdef _MSC_VER
-			ray.skipTriangle = ((unsigned)((U64)skip-(U64)object[o]->triangle))/sizeof(Triangle);
-#else
-			ray.skipTriangle = ((unsigned)((U32)skip-(U32)object[o]->triangle))/sizeof(Triangle);
-#endif
-			real tmpMin = ray.hitDistanceMin;
-			real tmpMax = ray.hitDistanceMax;
-			Triangle* tmp = object[o]->intersection(ray,eye,direction);
-			ray.hitDistanceMin = tmpMin;
-			if(tmp) 
-			{
-				hitTriangle = tmp;
-				ray.hitDistanceMax = ray.hitDistance;
-			} else {
-				ray.hitDistanceMax = tmpMax;
-			}
-		}
-	LOG_RAY(eye,direction,hitTriangle?ray.hitDistanceMax:-1);
 
+	/* this could bring microscopic speedup, not worth it
+	if(staticObjects==1)
+	{
+		ray.skipTriangle = (unsigned)(skip-object[0]->triangle);
+		hitTriangle = object[0]->intersection(ray,eye,direction); // no intersection -> outputs get undefined 
+	}	
+	else*/
+	{       
+		U8 backup[10*sizeof(RRReal)+sizeof(unsigned)+sizeof(bool)];
+		for(unsigned o=0;o<staticObjects;o++)
+			if(object[o]->bound.intersect(eye,direction,ray.hitDistanceMax)) // replaced by pretests in RRCollider
+			{
+				ray.skipTriangle = (unsigned)(skip-object[o]->triangle);
+				real tmpMin = ray.hitDistanceMin;
+				real tmpMax = ray.hitDistanceMax;
+				Triangle* tmp = object[o]->intersection(ray,eye,direction); // no intersection -> outputs get undefined 
+				ray.hitDistanceMin = tmpMin;
+				if(tmp) 
+				{
+					hitTriangle = tmp;
+					ray.hitDistanceMax = ray.hitDistance;
+					if(staticObjects>1) memcpy(backup,&ray.hitDistance,sizeof(backup)); // backup valid outputs
+				} else {
+					ray.hitDistanceMax = tmpMax;
+				}
+			}
+		if(staticObjects>1) memcpy(&ray.hitDistance,backup,sizeof(backup)); // restore valid outputs
+	}
+
+	LOG_RAY(eye,direction,hitTriangle?ray.hitDistanceMax:-1);
 	return hitTriangle;
 }
 

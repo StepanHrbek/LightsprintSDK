@@ -4,6 +4,8 @@
 #define IBP <class BspTree>
 #define IBP2 <BspTree>
 
+#define SUPPORT_EMPTY_KDNODE // only FASTEST: typically tiny, rarely big speedup (bunny); typically a bit, rarely much slower and memory hungry build (soda)
+
 #include "IntersectLinear.h"
 
 #include <assert.h>
