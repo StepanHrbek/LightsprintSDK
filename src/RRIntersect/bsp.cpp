@@ -409,7 +409,6 @@ info2_done:			//----
 
 #ifdef SUPPORT_EMPTY_KDNODE
 			// skip planes that only cut off <15% of empty space
-			if(buildParams.kdHavran)
 			{
 				real range = (bbox->hi[axis]-bbox->lo[axis]) * 0.15f;
 				if(info.front+info.split==0 && info.value>bbox->hi[axis]-range) goto next;
