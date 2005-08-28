@@ -40,7 +40,7 @@ namespace rrIntersect
     (b)[(i) + 3] = (uint8) ( (n)       );       \
 }
 
-void sha1_starts( sha1_context *ctx )
+PRIVATE void sha1_starts( sha1_context *ctx )
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -52,7 +52,7 @@ void sha1_starts( sha1_context *ctx )
     ctx->state[4] = 0xC3D2E1F0;
 }
 
-void sha1_process( sha1_context *ctx, uint8 data[64] )
+PRIVATE void sha1_process( sha1_context *ctx, uint8 data[64] )
 {
     uint32 temp, W[16], A, B, C, D, E;
 
@@ -208,7 +208,7 @@ void sha1_process( sha1_context *ctx, uint8 data[64] )
     ctx->state[4] += E;
 }
 
-void sha1_update( sha1_context *ctx, uint8 *input, uint32 length )
+PRIVATE void sha1_update( sha1_context *ctx, uint8 *input, uint32 length )
 {
     uint32 left, fill;
 
@@ -247,7 +247,7 @@ void sha1_update( sha1_context *ctx, uint8 *input, uint32 length )
     }
 }
 
-void sha1_finish( sha1_context *ctx, uint8 digest[20] )
+PRIVATE void sha1_finish( sha1_context *ctx, uint8 digest[20] )
 {
     uint32 last, padn;
     uint32 high, low;

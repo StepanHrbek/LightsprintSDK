@@ -191,7 +191,7 @@ namespace rrIntersect
 
 
 	template IBP
-	BspTree* load(FILE *f)
+	PRIVATE BspTree* load(FILE *f)
 	{
 		if(!f) return NULL;
 		BspTree head;
@@ -206,7 +206,7 @@ namespace rrIntersect
 	}
 
 	template IBP
-	BspTree* load(RRMeshImporter* importer, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
+	PRIVATE BspTree* load(RRMeshImporter* importer, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
 	{
 		if(!intersector) return NULL;
 		if(!importer) return NULL;

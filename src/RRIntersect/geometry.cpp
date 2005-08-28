@@ -297,9 +297,6 @@ bool Box::intersect(RRRay* ray) const
 #include <float.h>
 #include <math.h>
 #include <xmmintrin.h>
-#ifdef __GNUC__
-	#define _MM_ALIGN16 __attribute__ ((aligned (16)))
-#endif
 
 // turn those verbose intrinsics into something readable.
 #define loadps(mem)		_mm_load_ps((const float * const)(mem))

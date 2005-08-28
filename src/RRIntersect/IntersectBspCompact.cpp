@@ -140,6 +140,7 @@ begin:
 	n.z = t2.r[0] * t2.l[1] - t2.r[1] * t2.l[0];
 	n.d = -(t2.s[0] * n.x + t2.s[1] * n.y + t2.s[2] * n.z);
 
+	/* Reference. Old well tested code.
 	float distanceMinLocation = // +=point at distanceMin is in front, -=back, 0=plane
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
 		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
@@ -149,6 +150,13 @@ begin:
 	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
 		|| (distanceMinLocation==0 && nonz<0); // point at distanceMin is in plane and rayDir is from front to back
 	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
+	*/
+	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
+	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
+	real distancePlane = -nDotOrigin / nDotDir;
+	float distanceMinLocation = nDotOrigin + nDotDir * ray->hitDistanceMin; // +=point at distanceMin is in front, -=back, 0=plane
+	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
+		|| (distanceMinLocation==0 && nDotDir<0); // point at distanceMin is in plane and rayDir is from front to back
 
 	// test only one half
 	// distancePlane = 1/0 (ray parallel to plane) is handled here

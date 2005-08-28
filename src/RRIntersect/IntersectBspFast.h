@@ -6,23 +6,32 @@
 namespace rrIntersect
 {
 
-	struct TriangleP
+	/*struct TriangleP
 	{
+		real    intersectReal;  // precalculated number for intersections
+		char    intersectByte;  // precalculated number for intersections, 0..8
+		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
+	};*/
+
+	struct TriangleNP
+	{
+		Plane   n3;             // triangle plane, first three components form normalised normal
 		real    intersectReal;  // precalculated number for intersections
 		char    intersectByte;  // precalculated number for intersections, 0..8
 		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
 	};
 
-	struct TriangleNP : public TriangleP
+	struct TriangleSRLNP : public RRAligned
 	{
-		Plane   n3;             // normalised normal vector
-		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
-	};
-
-	struct TriangleSRLNP : public TriangleNP
-	{
-		Vec3    s3;             // absolute position of start of base
-		Vec3    r3,l3;          // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0]
+		// all vectors are aligned at 16byte boundaries for SSE
+		Plane   n3;             // triangle plane, first three components form normalised normal
+		Vec3    s3;             // vertex[0]
+		real    intersectReal;  // precalculated number for intersections
+		Vec3    r3;             // vertex[1]-vertex[0]
+		char    intersectByte;  // precalculated number for intersections, 0..8
+		char    pad1[3];
+		Vec3    l3;             // vertex[2]-vertex[0]
+		real    pad2;
 		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
 	};
 

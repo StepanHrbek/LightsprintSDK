@@ -3,11 +3,15 @@
 
 #include "RRIntersect.h"
 
+#ifndef PRIVATE
+	#define PRIVATE
+#endif
+
 namespace rrIntersect
 {                                                                            
-	void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits);
-	void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer);
-	void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer, const char* extension);
+	PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits);
+	PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer);
+	PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer, const char* extension);
 }
 
 #endif

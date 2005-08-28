@@ -23,7 +23,7 @@ static unsigned getBits(unsigned char* data, unsigned bit, unsigned bits)
 	return tmp;
 }
 
-void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits)
+PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits)
 {
 	char* letter="0123456789abcdefghijklmnopqrstuv";
 	for(unsigned i=0;i<MIN((bits+4)/5,bufsize-1);i++)
@@ -31,7 +31,7 @@ void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits
 	buf[MIN((bits+4)/5,bufsize-1)]=0;
 }
 
-void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
+PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
 {
 	sha1_context ctx;
 	sha1_starts(&ctx);
@@ -57,7 +57,7 @@ void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
 	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
 
-void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer, const char* extension)
+PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer, const char* extension)
 {
 	if(!bufsize) return;
 	buf[0]=0;

@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	clock_t t0 = clock(); //start timer
 	int num_hits = 0;//number of rays that actually hit the model
 
-	const unsigned NUM_ITERS = 2000000;
+	const unsigned NUM_ITERS = 2000000*4;
 	const PoolVec3 aabb_center = PoolVec3(-0.016840f, 0.110154f, -0.001537f);
 
 	rrIntersect::RRRay* ray = rrIntersect::RRRay::create();

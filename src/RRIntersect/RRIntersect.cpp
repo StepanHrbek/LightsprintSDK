@@ -51,7 +51,25 @@ void* RRAligned::operator new(std::size_t n)
 #endif
 };
 
+void* RRAligned::operator new[](std::size_t n)
+{
+#ifdef USE_SSE
+	return AlignedMalloc(n,16);
+#else
+	return ::operator new(n);
+#endif
+};
+
 void RRAligned::operator delete(void* p, std::size_t n)
+{
+#ifdef USE_SSE
+	AlignedFree(p);
+#else
+	::delete(p);
+#endif
+};
+
+void RRAligned::operator delete[](void* p, std::size_t n)
 {
 #ifdef USE_SSE
 	AlignedFree(p);
@@ -63,6 +81,7 @@ void RRAligned::operator delete(void* p, std::size_t n)
 RRRay::RRRay()
 {
 	memset(this,0,sizeof(RRRay)); // no virtuals in RRRay -> no pointer to virtual function table overwritten
+	rayOrigin[3] = 1;
 	flags = FILL_DISTANCE | FILL_POINT3D | FILL_POINT2D | FILL_PLANE | FILL_TRIANGLE | FILL_SIDE;
 }
 

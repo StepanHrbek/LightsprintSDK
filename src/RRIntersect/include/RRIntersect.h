@@ -4,7 +4,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.08.27
+// version 2005.08.28
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -98,7 +98,7 @@ namespace rrIntersect
 
 		// acceptHit is called at each intersection with mesh
 		// return false to continue to next intersection, true to end
-		// for IT_BSP_* techniques, intersections are reported in order from the nearest one
+		// for IT_BSP techniques, intersections are reported in order from the nearest one
 		// for IT_LINEAR technique, intersections go unsorted
 		virtual bool         acceptHit(class RRRay* ray) = 0;
 	};
@@ -115,7 +115,9 @@ namespace rrIntersect
 	{
 		RRAligned();
 		void* operator new(std::size_t n);
+		void* operator new[](std::size_t n);
 		void operator delete(void* p, std::size_t n);
+		void operator delete[](void* p, std::size_t n);
 	};
 
 
@@ -142,9 +144,9 @@ namespace rrIntersect
 			TEST_SINGLESIDED=(1<<6), // detect collision only against outer side. default is to test both sides
 			SKIP_PRETESTS   =(1<<7), // skip bounding volume pretests
 		};
-		RRReal          rayOrigin[3];   // i, ray origin [ALIGN16]
+		RRReal          rayOrigin[4];   // i, ray origin. never modify last component, must stay 1
+		RRReal          rayDir[4];      // i, ray direction, must be normalized. never modify last component, must stay 0
 		unsigned        skipTriangle;   // i, one postImportTriangle to be skipped during tests
-		RRReal          rayDir[3];      // i, ray direction, must be normalized [ALIGN16]
 		unsigned        flags;          // i, flags that specify the action
 		RRMeshSurfaceImporter* surfaceImporter; // i, optional surface importer for user-defined surface behaviours
 		RRReal          hitDistanceMin; // io, test hit in range <min,max>, undefined after test

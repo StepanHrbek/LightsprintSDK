@@ -12,14 +12,14 @@
 namespace rrIntersect
 {
 
-void update_hitPoint3d(RRRay* ray, real distance)
+PRIVATE void update_hitPoint3d(RRRay* ray, real distance)
 {
 	ray->hitPoint3d[0] = ray->rayOrigin[0] + ray->rayDir[0]*distance;
 	ray->hitPoint3d[1] = ray->rayOrigin[1] + ray->rayDir[1]*distance;
 	ray->hitPoint3d[2] = ray->rayOrigin[2] + ray->rayDir[2]*distance;
 }
 
-void update_hitPlane(RRRay* ray, RRMeshImporter* importer)
+PRIVATE void update_hitPlane(RRRay* ray, RRMeshImporter* importer)
 {
 	RRMeshImporter::TriangleSRL t2;
 	importer->getTriangleSRL(ray->hitTriangle,&t2);
@@ -34,7 +34,7 @@ void update_hitPlane(RRRay* ray, RRMeshImporter* importer)
 	ray->hitPlane[3] = -(t2.s[0] * ray->hitPlane[0] + t2.s[1] * ray->hitPlane[1] + t2.s[2] * ray->hitPlane[2]);
 }
 
-bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t)
+PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t)
 // input:                ray, t
 // returns:              true if ray hits t
 // modifies when hit:    hitDistance, hitPoint2D, hitOuterSide

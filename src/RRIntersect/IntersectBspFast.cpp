@@ -6,6 +6,9 @@
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
+#ifdef USE_SSE
+#include <xmmintrin.h>
+#endif
 
 namespace rrIntersect
 {
@@ -16,14 +19,22 @@ namespace rrIntersect
 	real     watch_distance;
 	Vec3     watch_point3d;
 	#define TEST_RANGE(min,max,cond,tree) if(!watch_tested && min<=watch_distance && watch_distance<=max) \
-		assert(cond && tree->contains(watch_triangle)); // optimal triangle is to be thrown away
+		assert(cond && tree->contains(watch_triangle)); // assert when wanted triangle is to be thrown away from tests
+		// If you see many diff_clear_miss in stats (when TEST is on),
+		//  it means that triangle that should be very easily hit is missed,
+		//  which means that something is wrong with bsp.
+		// How does TEST work: 
+		//  1. correct result is precalculated using LINEAR and 
+		//     if it should be easily hit (not close to border), it's stored into watch_triangle
+		//  2. each time subtree is thrown away during bsp traversal, watch_triangle is expected to not be inside
+		//  3. if watch_triangle is inside and thus thrown away, it's error -> this assert is thrown
 #else
 	#define TEST_RANGE(min,max,cond,tree)
 #endif
 
 #define DBG(a) //a
 
-void TriangleP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
+/*void TriangleP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
 	intersectStats.loaded_triangles++;
 
@@ -69,7 +80,7 @@ void TriangleP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	  if(ABS(r3.y)>=ABS(r3.z))
 	    intersectByte+=6;//max=r3.y
 	}
-}
+}*/
 
 void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
@@ -185,7 +196,7 @@ void TriangleSRLNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	}
 }
 
-bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
+static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 // input:                t, hitPoint3d, rayDir
 // returns:              true if hitPoint3d is inside t
 //                       if hitPoint3d is outside t plane, resut is undefined
@@ -232,7 +243,7 @@ bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	return true;
 }
 
-bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshImporter::TriangleSRL* t2)
+static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshImporter::TriangleSRL* t2)
 {
 	intersectStats.intersect_triangleNP++;
 	assert(ray);
@@ -274,6 +285,44 @@ bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshImporter:
 #endif
 	return true;
 }
+
+#ifdef USE_SSE
+/*void mm_sum(__m128& mm0,float* res)
+// res[0] = mm0[0]+mm0[1]+mm0[2]+mm0[3]
+{
+	//_MM_ALIGN16 static float tmp[4];
+	//_mm_store_ps(tmp,mm0);
+	//return tmp[0]+tmp[1]+tmp[2]+tmp[3];
+	//movaps xmm0, xmmword ptr [eax] ; xmm0 = x y z w
+	// mm1 used without beng initialized: it IS intention, uninitialized part won't be used
+	__m128 mm1; mm1=_mm_movehl_ps(mm1,mm0); //movhlps xmm1, xmm0 ; xmm1 = z w ? ?
+	mm0=_mm_add_ps(mm0,mm1); //addps xmm0, xmm1 ; xmm0 = (x+z) (y+w) ? ?
+	mm1=_mm_shuffle_ps(mm0,mm1,1); //shufps xmm1, xmm0, 1 ; xmm1 = (y+w) ? ? ?
+	mm0=_mm_add_ss(mm0,mm1); //addss xmm0, xmm1 ; xmm0 = (x+y+z+w) ? ? ?
+	_mm_store_ss(res,mm0);//movss dword ptr [ebx], xmm0
+}*/
+void mm_sum2(__m128& mm0,__m128& mm1,float* res) // res must be aligned
+// res[0] = mm0[0]+mm0[1]+mm0[2]+mm0[3]
+// res[2] = mm1[0]+mm1[1]+mm1[2]+mm1[3]
+{
+	__m128 mm2; mm2=_mm_shuffle_ps(mm0,mm1,_MM_SHUFFLE(0,1,0,1));
+	__m128 mm3; mm3=_mm_shuffle_ps(mm0,mm1,_MM_SHUFFLE(3,2,3,2)); // mm2+mm3=0011
+	mm2=_mm_add_ps(mm2,mm3); // mm2=0011
+	mm3=_mm_shuffle_ps(mm2,mm2,_MM_SHUFFLE(3,3,1,1)); // mm2+mm3=0011
+	mm2=_mm_add_ps(mm2,mm3); // mm2=-0-1
+	_mm_store_ps(res,mm2);
+}
+void mm_sum2(__m128& mm0,__m128& mm1,__m128& mm2)
+// mm2[0] = mm0[0]+mm0[1]+mm0[2]+mm0[3]
+// mm2[2] = mm1[0]+mm1[1]+mm1[2]+mm1[3]
+{
+	mm2=_mm_shuffle_ps(mm0,mm1,_MM_SHUFFLE(0,1,0,1));
+	__m128 mm3; mm3=_mm_shuffle_ps(mm0,mm1,_MM_SHUFFLE(3,2,3,2)); // mm2+mm3=0011
+	mm2=_mm_add_ps(mm2,mm3); // mm2=0011
+	mm3=_mm_shuffle_ps(mm2,mm2,_MM_SHUFFLE(3,3,1,1)); // mm2+mm3=0011
+	mm2=_mm_add_ps(mm2,mm3); // mm2=-0-1
+}
+#endif
 
 template IBP
 bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const
@@ -361,34 +410,39 @@ begin:
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle[0]].n3;
-#define OPLANE
-#ifdef OPLANE
-	// 0plane: part done with point in distance 0, part in distance plane
+
+#ifdef USE_SSE
+	const __m128 vecN = _mm_load_ps(&n.x);
+	__m128 vecNOrigin = _mm_mul_ps(vecN,_mm_load_ps(ray->rayOrigin)),
+	          vecNDir = _mm_mul_ps(vecN,_mm_load_ps(ray->rayDir));
+	assert(ray->rayDir[3]==0);
+	assert(ray->rayOrigin[3]==1);
+	_MM_ALIGN16 static float tmpAligned[4];
+	mm_sum2(vecNOrigin,vecNDir,tmpAligned);
+	real nDotOrigin = tmpAligned[0];
+	real nDotDir = tmpAligned[2];
+#else // !SSE
+	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
+	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
+	//real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2]+ray->rayDir[3]*n[3];
+	//real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+ray->rayOrigin[3]*n[3];
+#endif // !SSE
+	real distancePlane = -nDotOrigin / nDotDir;
+	float distanceMinLocation = nDotOrigin + nDotDir * ray->hitDistanceMin; // +=point at distanceMin is in front, -=back, 0=plane
+	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
+		|| (distanceMinLocation==0 && nDotDir<0); // point at distanceMin is in plane and rayDir is from front to back
+	/*
+	Reference: Old well behaving code.
 	float distanceMinLocation = // +=point at distanceMin is in front, -=back, 0=plane
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
 		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
 		n[2]*(ray->rayOrigin[2]+ray->rayDir[2]*ray->hitDistanceMin)+
 		n[3];
-	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+	real nDotDir = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
 	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
-		|| (distanceMinLocation==0 && nonz<0); // point at distanceMin is in plane and rayDir is from front to back
-	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
-#else
-	// 0: all done with point in distance 0
-	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
-	real distancePlaneScaled = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d);
-	real distancePlane = distancePlaneScaled/nonz;
-	//bool frontback2 = ((ray->hitDistanceMin>distancePlane) == (nonz>0)) // point at distanceMin is in front
-	//	|| (nonz==0); // point at distanceMin is in plane and rayDir is from front to back
-	bool frontback = (ray->hitDistanceMin*nonz>distancePlaneScaled) // point at distanceMin is in front
-		|| (nonz==0); // point at distanceMin is in plane and rayDir is from front to back
-#endif
-	// number of clear_miss during 5 sec in cube debug
-	// (switch 0/0plane/plane here, switch kd/bsp/kdbsp in bsp.h)
-	//           kd   bsp  kdbsp
-	// 0		  143    63
-	// 0plane           7     4
-	// plane
+		|| (distanceMinLocation==0 && nDotDir<0); // point at distanceMin is in plane and rayDir is from front to back
+	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nDotDir;
+	*/
 
 	// test only one half
 	// distancePlane = 1/0 (ray parallel to plane) is handled here
@@ -410,7 +464,7 @@ begin:
 	}
 
 	// distancePlane = 0/0 (ray inside plane) is handled here
-	if(_isnan(distancePlane)/*nonz==0*/) 
+	if(_isnan(distancePlane)/*nDotDir==0*/) 
 	{
 		distancePlane = ray->hitDistanceMin;
 		// this sequence of tests follows:
@@ -532,13 +586,22 @@ begin:
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangleNP);
 	Plane& n=triangleNP[triangle[0]].n3;
+
+	/* Reference. Old well tested code.
 	bool frontback =
 		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
 		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
 		n[2]*(ray->rayOrigin[2]+ray->rayDir[2]*ray->hitDistanceMin)+
 		n[3]>0;
-	real nonz = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
-	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nonz;
+	real nDotDir = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nDotDir;
+	*/
+	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
+	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
+	real distancePlane = -nDotOrigin / nDotDir;
+	float distanceMinLocation = nDotOrigin + nDotDir * ray->hitDistanceMin; // +=point at distanceMin is in front, -=back, 0=plane
+	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
+		|| (distanceMinLocation==0 && nDotDir<0); // point at distanceMin is in plane and rayDir is from front to back
 
 	// test only one half
 	// distancePlane = 1/0 (ray parallel to plane) is handled here
@@ -556,7 +619,7 @@ begin:
 	}
 
 	// distancePlane = 0/0 (ray inside plane) is handled here
-	if(_isnan(distancePlane)/*nonz==0*/) 
+	if(_isnan(distancePlane)/*nDotDir==0*/) 
 	{
 		distancePlane = ray->hitDistanceMin;
 		// this sequence of tests follows:
@@ -671,8 +734,8 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 
 #ifdef TEST
 	ray->flags |= RRRay::FILL_PLANE + RRRay::FILL_DISTANCE;
-	RRRay rayOrig = *ray;
-	RRRay ray2 = rayOrig;
+	RRRay& rayOrig = *RRRay::create(); rayOrig = *ray;
+	RRRay& ray2 = *RRRay::create(); ray2 = rayOrig;
 	bool hit2 = test->intersect(&ray2);
 #endif
 	bool hit = false;
@@ -741,7 +804,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 			bool hit2Border = ray2.hitPoint2d[0]<delta || ray2.hitPoint2d[1]<delta || ray2.hitPoint2d[0]+ray2.hitPoint2d[1]>1-delta;
 			real tmp = ray2.rayDir[0]*ray2.hitPlane[0]+ray2.rayDir[1]*ray2.hitPlane[1]+ray2.rayDir[2]*ray2.hitPlane[2];
 			bool hit2Parallel = fabs(tmp)<delta;
-			RRRay ray5 = rayOrig;
+			RRRay& ray5 = *RRRay::create(); ray5 = rayOrig;
 			update_hitPoint3d(&ray5,ray2.hitDistance);
 			bool bspAbleToHit = intersect_triangleSRLNP(&ray5,triangleSRLNP+ray2.hitTriangle);
 			if(!bspAbleToHit)
@@ -770,10 +833,11 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 				watch_distance = ray2.hitDistance;
 				goto bad;
 			}
+			delete &ray5;
 		}
 		assert(0);
 	bad:
-		{RRRay ray3 = rayOrig;
+		{RRRay& ray3 = *RRRay::create(); ray3 = rayOrig;
 		intersect_bspSRLNP(&ray3,tree,ray3.hitDistanceMax);
 		if(!watch_tested)
 		{
@@ -781,9 +845,13 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 			intersectStats.diff_clear_miss_not_tested++;
 			watch_tested = true;
 		}
-		RRRay ray4 = rayOrig;
-		test->intersect(&ray4);}
-	ok:;
+		RRRay& ray4 = *RRRay::create(); ray4 = rayOrig;
+		test->intersect(&ray4);
+		delete &ray3;
+		delete &ray4;}
+	ok:
+		delete &rayOrig;
+		delete &ray2;
 	}
 #endif
 

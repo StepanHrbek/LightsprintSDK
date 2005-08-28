@@ -1,6 +1,10 @@
 #ifndef RRINTERSECT_SHA1_H
 #define RRINTERSECT_SHA1_H
 
+#ifndef PRIVATE
+	#define PRIVATE
+#endif
+
 namespace rrIntersect
 {
 
@@ -19,9 +23,9 @@ namespace rrIntersect
 		uint8 buffer[64];
 	};
 
-	void sha1_starts( sha1_context *ctx );
-	void sha1_update( sha1_context *ctx, uint8 *input, uint32 length );
-	void sha1_finish( sha1_context *ctx, uint8 digest[20] );
+	PRIVATE void sha1_starts( sha1_context *ctx );
+	PRIVATE void sha1_update( sha1_context *ctx, uint8 *input, uint32 length );
+	PRIVATE void sha1_finish( sha1_context *ctx, uint8 digest[20] );
 
 };
 

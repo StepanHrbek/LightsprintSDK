@@ -19,9 +19,9 @@ namespace rrIntersect
 
 	extern RRIntersectStats intersectStats;
 
-	void update_hitPoint3d(RRRay* ray, real distance);
-	void update_hitPlane(RRRay* ray, RRMeshImporter* importer);
-	bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t);
+	PRIVATE void update_hitPoint3d(RRRay* ray, real distance);
+	PRIVATE void update_hitPlane(RRRay* ray, RRMeshImporter* importer);
+	PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t);
 
 	class IntersectLinear : public RRCollider, public RRAligned
 	{

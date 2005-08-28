@@ -409,9 +409,12 @@ info2_done:			//----
 
 #ifdef SUPPORT_EMPTY_KDNODE
 			// skip planes that only cut off <15% of empty space
-			{real range = (bbox->hi[axis]-bbox->lo[axis]) * 0.15f;
-			if(info.front+info.split==0 && info.value>bbox->hi[axis]-range) goto next;
-			if(info.back+info.plane+info.split==0 && info.value<bbox->lo[axis]+range) goto next;}
+			if(buildParams.kdHavran)
+			{
+				real range = (bbox->hi[axis]-bbox->lo[axis]) * 0.15f;
+				if(info.front+info.split==0 && info.value>bbox->hi[axis]-range) goto next;
+				if(info.back+info.plane+info.split==0 && info.value<bbox->lo[axis]+range) goto next;
+			}
 #endif
 
 			// backsurface
@@ -449,14 +452,19 @@ next:
 	delete[] maxx;
 
 	info = best_havran;
-#ifndef SUPPORT_EMPTY_KDNODE
-	if(!info.face || info.front==0 || info.back+info.plane==0) info = best_dee;
-	//if(!info.face || info.front<=faces/100 || info.back+info.plane<=faces/100) info = best_dee;
-	if(!info.face || info.front==0 || info.back+info.plane==0) return NULL;
-#else
-	if(!info.face) info = best_dee;
-	if(!info.face) return NULL;
+#ifdef SUPPORT_EMPTY_KDNODE
+	if(buildParams.kdHavran)
+	{
+		if(!info.face) info = best_dee;
+		if(!info.face) return NULL;
+	} 
+	else
 #endif
+	{
+		if(!info.face || info.front==0 || info.back+info.plane==0) info = best_dee;
+		//if(!info.face || info.front<=faces/100 || info.back+info.plane<=faces/100) info = best_dee;
+		if(!info.face || info.front==0 || info.back+info.plane==0) return NULL;
+	}
 
 	FACE* f = info.face;
 	assert(f);
@@ -624,16 +632,21 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		bsproot=find_best_root_bsp(space,&info_bsp);
 	} else {
 		kdroot = find_best_root_kd(bbox,space,&info_kd);
-#ifndef SUPPORT_EMPTY_KDNODE
-		if(info_kd.front==0 || info_kd.back+info_kd.plane==0) kdroot = NULL; // jeden ze synu bude obsahovat stejne trianglu jako otec, nebezpeci nekonecneho rozvoje -> nebrat
-#else
-		if(kdroot)
+#ifdef SUPPORT_EMPTY_KDNODE
+		if(buildParams.kdHavran)
 		{
-			if(buildParams.kdHavran==1 && (info_kd.value<=bbox->lo[info_kd.axis] || info_kd.value>=bbox->hi[info_kd.axis])) kdroot = NULL; // split je na kraji boxu, tj. jeden ze synu je stejne velky jako otec, jisty nekonecny rozvoj -> nebrat
+			if(kdroot)
+			{
+				if(info_kd.value<=bbox->lo[info_kd.axis] || info_kd.value>=bbox->hi[info_kd.axis]) 
+					kdroot = NULL; // split je na kraji boxu, tj. jeden ze synu je stejne velky jako otec, jisty nekonecny rozvoj -> nebrat
+			}
 		}
-		if(info_kd.front==0 || info_kd.back+info_kd.plane==0) 
-			kdroot = kdroot; // riskujem nebezpeci nekonecneho rozvoje
+		else
 #endif
+		{
+			if(info_kd.front==0 || info_kd.back+info_kd.plane==0) 
+				kdroot = NULL; // jeden ze synu bude obsahovat stejne trianglu jako otec, nebezpeci nekonecneho rozvoje -> nebrat
+		}
 		if((buildParams.kdHavran==0 && pn<buildParams.bspMaxFacesInTree) || !kdroot)
 		{
 			bsproot = find_best_root_bsp(space,&info_bsp);
@@ -717,11 +730,14 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	if(kdroot)
 	{
 		if(back_num+plane_num>0) { back=nALLOC(const FACE*,back_num+plane_num+1); back[back_num+plane_num]=NULL; }
-#ifndef SUPPORT_EMPTY_KDNODE
-		assert(front_num); // v top-level-only kd nesmi byt leaf -> musi byt front i back
-		assert(back_num+plane_num);
-		assert(front && back);
+#ifdef SUPPORT_EMPTY_KDNODE
+		if(!buildParams.kdHavran)
 #endif
+		{
+			assert(front_num); // v top-level-only kd nesmi byt leaf -> musi byt front i back
+			assert(back_num+plane_num);
+			assert(front && back);
+		}
 	} else {
 		if(back_num>0) { back=nALLOC(const FACE*,back_num+1); back[back_num]=NULL; }
 		if(plane_num>0) { plane=nALLOC(const FACE*,plane_num+1); plane[plane_num]=NULL; }
@@ -785,9 +801,12 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 
 		//buildParams.kdHavran = kdHavranOld;
 
-#ifndef SUPPORT_EMPTY_KDNODE
-	if(t->kdroot) assert(t->front && t->back); // v top-level-only kd musi byt front i back
+#ifdef SUPPORT_EMPTY_KDNODE
+	if(!buildParams.kdHavran)
 #endif
+	{
+		if(t->kdroot) assert(t->front && t->back); // v top-level-only kd musi byt front i back
+	}
 
 	return t;
 }
@@ -824,10 +843,13 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 		assert(t->axis>=0 && t->axis<=2);
 		real splitValue = (&t->kdroot->x)[t->axis];
 		fwrite(&splitValue,sizeof(splitValue),1,f);
-#ifndef SUPPORT_EMPTY_KDNODE
-		assert(t->front);
-		assert(t->back);
+#ifdef SUPPORT_EMPTY_KDNODE
+		if(!buildParams.kdHavran)
 #endif
+		{
+			assert(t->front);
+			assert(t->back);
+		}
 	}
 	if(t->leaf)
 	{
@@ -870,9 +892,13 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 		// luckily we use havran only in FASTEST which uses no transitions
 	} else {
 		if(t->front) if(!save_bsp IBP2(f,t->front)) return false;
+#ifdef SUPPORT_EMPTY_KDNODE
 		if(t->kdroot && !t->front) if(!save_bsp IBP2(f,&empty)) return false;
+#endif
 		if(t->back) if(!save_bsp IBP2(f,t->back)) return false;
+#ifdef SUPPORT_EMPTY_KDNODE
 		if(t->kdroot && !t->back) if(!save_bsp IBP2(f,&empty)) return false;
+#endif
 	}
 #ifdef SUPPORT_EMPTY_KDNODE
 	if(!t->front && !t->back) assert(n || t->leaf || t==&empty); // n=bsp leaf, leaf=kd leaf, empty=havran's kd branch
@@ -916,9 +942,6 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 	unsigned pos2 = ftell(f);
 	node.bsp.size = pos2-pos1;
 	if(node.bsp.size!=pos2-pos1) {assert(0);return false;}
-#ifdef SUPPORT_EMPTY_KDNODE
-	//if(t==&empty) assert(node.bsp.size==4);
-#endif
 	node.setTransition(transition);
 	node.setKd(t->kdroot || t->leaf);
 	if(t->kdroot || t->leaf)

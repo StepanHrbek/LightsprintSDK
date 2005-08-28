@@ -4,8 +4,16 @@
 #include "RRIntersect.h"
 #include <float.h> // _finite
 
+#ifndef PRIVATE
+	#define PRIVATE
+#endif
+
 #define USE_SSE
 //#define USE_SPHERE
+
+#ifdef __GNUC__
+	#define _MM_ALIGN16 __attribute__ ((aligned (16)))
+#endif
 
 namespace rrIntersect
 {
