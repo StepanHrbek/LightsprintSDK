@@ -113,7 +113,6 @@ namespace rrIntersect
 
 	struct RRAligned
 	{
-		RRAligned();
 		void* operator new(std::size_t n);
 		void* operator new[](std::size_t n);
 		void operator delete(void* p, std::size_t n);
@@ -144,8 +143,8 @@ namespace rrIntersect
 			TEST_SINGLESIDED=(1<<6), // detect collision only against outer side. default is to test both sides
 			SKIP_PRETESTS   =(1<<7), // skip bounding volume pretests
 		};
-		RRReal          rayOrigin[4];   // i, ray origin. never modify last component, must stay 1
-		RRReal          rayDir[4];      // i, ray direction, must be normalized. never modify last component, must stay 0
+		RRReal          rayOrigin[4];   // i, ALIGN16 ray origin. never modify last component, must stay 1
+		RRReal          rayDir[4];      // i, ALIGN16 ray direction, must be normalized. never modify last component, must stay 0
 		unsigned        skipTriangle;   // i, one postImportTriangle to be skipped during tests
 		unsigned        flags;          // i, flags that specify the action
 		RRMeshSurfaceImporter* surfaceImporter; // i, optional surface importer for user-defined surface behaviours
@@ -153,10 +152,10 @@ namespace rrIntersect
 		RRReal          hitDistanceMax; // io, test hit in range <min,max>, undefined after test
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    // o, hit distance in object space
-		RRReal          hitPoint3d[3];  // o, hit coordinate in object space
-		RRReal          hitPoint2d[2];  // o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
-		RRReal          hitPlane[4];    // o, plane of hitTriangle in object space, [0..2] is normal
 		unsigned        hitTriangle;    // o, postImportTriangle that was hit
+		RRReal          hitPoint2d[2];  // o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
+		RRReal          hitPoint3d[3];  // o, hit coordinate in object space
+		RRReal          hitPlane[4];    // o, ALIGN16 plane of hitTriangle in object space, [0..2] is normal
 		bool            hitOuterSide;   // o, true = object was hit from the outer (common) side
 	private:
 		RRRay(); // intentionally private so no one is able to create unaligned instance

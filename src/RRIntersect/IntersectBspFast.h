@@ -3,6 +3,10 @@
 
 #include "IntersectBsp.h"
 
+#ifdef USE_SSE
+	//#define USE_SSE_FASTEST // use SSE in FASTEST technique (more memory, hardly noticeably faster)
+#endif
+
 namespace rrIntersect
 {
 
@@ -24,14 +28,18 @@ namespace rrIntersect
 	struct TriangleSRLNP : public RRAligned
 	{
 		// all vectors are aligned at 16byte boundaries for SSE
-		Plane   n3;             // triangle plane, first three components form normalised normal
-		Vec3    s3;             // vertex[0]
+		Plane   n3;             // ALIGN16 triangle plane, first three components form normalised normal
+		Vec3    s3;             // ALIGN16 vertex[0]
 		real    intersectReal;  // precalculated number for intersections
-		Vec3    r3;             // vertex[1]-vertex[0]
-		char    intersectByte;  // precalculated number for intersections, 0..8
-		char    pad1[3];
-		Vec3    l3;             // vertex[2]-vertex[0]
+		Vec3    r3;             // ALIGN16 vertex[1]-vertex[0]
+#ifdef USE_SSE_FASTEST
 		real    pad2;
+#endif
+		Vec3    l3;             // ALIGN16 vertex[2]-vertex[0]
+		char    intersectByte;  // precalculated number for intersections, 0..8
+#ifdef USE_SSE_FASTEST
+		char    pad1[3];
+#endif
 		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
 	};
 

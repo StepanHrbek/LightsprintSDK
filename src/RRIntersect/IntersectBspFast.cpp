@@ -411,22 +411,23 @@ begin:
 	assert(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle[0]].n3;
 
-#ifdef USE_SSE
+#ifdef USE_SSE_FASTEST
 	const __m128 vecN = _mm_load_ps(&n.x);
-	__m128 vecNOrigin = _mm_mul_ps(vecN,_mm_load_ps(ray->rayOrigin)),
-	          vecNDir = _mm_mul_ps(vecN,_mm_load_ps(ray->rayDir));
+	__m128 vecNOrigin = _mm_mul_ps(_mm_load_ps(ray->rayOrigin),vecN),
+	          vecNDir = _mm_mul_ps(_mm_load_ps(ray->rayDir),vecN);
 	assert(ray->rayDir[3]==0);
 	assert(ray->rayOrigin[3]==1);
-	_MM_ALIGN16 static float tmpAligned[4];
+	//_MM_ALIGN16 static float tmpAligned[4]; // static neni thread safe (tato verze SSE=mirne zrychleni)
+	#define tmpAligned ray->hitPlane	  // hitPlane je thread safe (tato verze SSE=mirne zpomaleni)
 	mm_sum2(vecNOrigin,vecNDir,tmpAligned);
 	real nDotOrigin = tmpAligned[0];
 	real nDotDir = tmpAligned[2];
-#else // !SSE
+#else // !USE_SSE_FASTEST
 	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
 	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
 	//real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2]+ray->rayDir[3]*n[3];
 	//real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+ray->rayOrigin[3]*n[3];
-#endif // !SSE
+#endif // !USE_SSE_FASTEST
 	real distancePlane = -nDotOrigin / nDotDir;
 	float distanceMinLocation = nDotOrigin + nDotDir * ray->hitDistanceMin; // +=point at distanceMin is in front, -=back, 0=plane
 	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front

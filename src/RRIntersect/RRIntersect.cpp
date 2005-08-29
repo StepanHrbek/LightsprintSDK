@@ -29,19 +29,6 @@ void AlignedFree(void *ptr)
 }
 #endif
 
-RRAligned::RRAligned()
-{
-/* u trid s necim virtualnim je this%16==4
-#ifdef USE_SSE
-	if(intptr_t(this)%16) 
-	{
-		printf("You have created unaligned structure, aborting. Try static or heap if it's on stack now.");
-		assert(!(intptr_t(this)%16));
-		exit(1);
-	}
-#endif*/
-};
-
 void* RRAligned::operator new(std::size_t n)
 {
 #ifdef USE_SSE
