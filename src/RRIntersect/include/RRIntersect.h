@@ -131,6 +131,7 @@ namespace rrIntersect
 	public:
 		// create ray
 		static RRRay* create(); // all is zeroed, all FILL flags on
+		static RRRay* create(unsigned n); // creates array
 		// inputs
 		enum Flags
 		{ 
@@ -158,6 +159,7 @@ namespace rrIntersect
 		RRReal          hitPlane[4];    // o, ALIGN16 plane of hitTriangle in object space, [0..2] is normal
 		bool            hitOuterSide;   // o, true = object was hit from the outer (common) side
 	private:
+		RRReal          pad[3]; // padding so that array of rays is still aligned
 		RRRay(); // intentionally private so no one is able to create unaligned instance
 	};
 
@@ -176,6 +178,7 @@ namespace rrIntersect
 			IT_BSP_COMPACT,     // speed 100%, size  5 bytes per triangle
 			IT_BSP_FAST,        // speed 175%, size 31
 			IT_BSP_FASTEST,     // speed 200%, size 58
+			IT_VERIFICATION,    // test using all techniques and compare
 		};
 		static RRCollider*   create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
 

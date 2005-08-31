@@ -1,6 +1,7 @@
 #include "RRIntersect.h"
 #include "IntersectBspCompact.h"
 #include "IntersectBspFast.h"
+#include "IntersectVerification.h"
 #include <math.h>
 #include <memory.h>
 #include <new> // aligned new
@@ -77,6 +78,12 @@ RRRay* RRRay::create()
 	return new RRRay();
 }
 
+RRRay* RRRay::create(unsigned n)
+{
+	assert(!(sizeof(RRRay)%16));
+	return new RRRay[n]();
+}
+
 void RRMeshImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 {
 	unsigned v0,v1,v2;
@@ -136,6 +143,10 @@ RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique inte
 				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
+			}
+		case IT_VERIFICATION:
+			{
+				return IntersectVerification::create(importer);
 			}
 		case IT_LINEAR: 
 		default:

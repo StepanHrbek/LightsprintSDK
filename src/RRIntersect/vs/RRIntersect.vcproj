@@ -240,6 +240,9 @@
 				RelativePath="..\IntersectLinear.cpp">
 			</File>
 			<File
+				RelativePath="..\IntersectVerification.cpp">
+			</File>
+			<File
 				RelativePath="..\RRIntersect.cpp">
 			</File>
 			<File
@@ -269,6 +272,9 @@
 			</File>
 			<File
 				RelativePath="..\IntersectLinear.h">
+			</File>
+			<File
+				RelativePath="..\IntersectVerification.h">
 			</File>
 			<File
 				RelativePath="..\miniball.h">

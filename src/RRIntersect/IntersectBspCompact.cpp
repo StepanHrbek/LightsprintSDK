@@ -40,7 +40,7 @@ begin:
 			{
 				RRMeshImporter::TriangleSRL srl;
 				importer->getTriangleSRL(*triangle,&srl);
-				if(intersect_triangle(ray,&srl))
+				if(intersect_triangle(ray,&srl) && ray->hitDistance<=distanceMax) // intersect_triangle tests <hitDistanceMin,hitDistanceMax>, we want to test <hitDistanceMin,distanceMax> where distanceMax<=hitDistanceMax
 				{
 					ray->hitTriangle = *triangle;
 					ray->hitDistanceMax = ray->hitDistance;
@@ -223,7 +223,7 @@ begin:
 			}
 #endif
 			DBGLINE
-			return true;
+			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) return true;
 		}
 		triangle++;
 	}

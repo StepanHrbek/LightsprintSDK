@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 	const double speed = NUM_ITERS/((double)(t1-t0)/CLOCKS_PER_SEC);
 	const double fraction_hit = (double)num_hits / (double)NUM_ITERS;
 
-	printf("speed = %d k/s   fraction_hit = %.3f\n",(int)(speed/1000),fraction_hit);
+	printf("speed = %d k/s   fraction_hit = %f\n",(int)(speed/1000),fraction_hit);
 	fgetc(stdin);
 	delete intersector;
 
