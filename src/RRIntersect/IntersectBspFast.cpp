@@ -496,7 +496,7 @@ begin:
 			watch_point3d = *(Vec3*)ray->hitPoint3d;
 		}
 #endif
-		if(*triangle!=ray->skipTriangle && intersect_triangleSRLNP(ray,triangleSRLNP+*triangle))
+		if(intersect_triangleSRLNP(ray,triangleSRLNP+*triangle))
 		{
 			assert(IS_NUMBER(distancePlane));
 #ifdef FILL_HITTRIANGLE
@@ -644,7 +644,7 @@ begin:
 	{
 		RRMeshImporter::TriangleSRL t2;
 		importer->getTriangleSRL(*triangle,&t2);
-		if (*triangle!=ray->skipTriangle && intersect_triangleNP(ray,triangleNP+*triangle,&t2))
+		if(intersect_triangleNP(ray,triangleNP+*triangle,&t2))
 		{
 			assert(IS_NUMBER(distancePlane));
 #ifdef FILL_HITTRIANGLE

@@ -62,7 +62,7 @@ bool IntersectVerification::intersect(RRRay* ray) const
 #undef DIFFERS
 		}
 	}
-	if(diffHit) printf("%c%c%c%c ",hit[0]?'+':'-',hit[1]?'+':'-',hit[2]?'+':'-',hit[3]?'+':'-');
+	if(diffHit) {diffAny = true; printf("%c%c%c%c ",hit[0]?'+':'-',hit[1]?'+':'-',hit[2]?'+':'-',hit[3]?'+':'-');}
 #define TEST_DIFF(diff,prefix,mask,expr) if(diff) {diffAny = true; printf(prefix); for(unsigned i=0;i<IT_VERIFICATION;i++) printf(mask "%c",expr,i<IT_VERIFICATION-1?'/':' ');}
 	TEST_DIFF(diffTriangle,"tri=","%d",hit[i]?rayArray[i].hitTriangle:0);
 	TEST_DIFF(diffDistance,"dist=","%f",hit[i]?rayArray[i].hitDistance:0);

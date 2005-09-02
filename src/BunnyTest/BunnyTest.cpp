@@ -37,7 +37,6 @@ int main(int argc, char** argv)
 	const PoolVec3 aabb_center = PoolVec3(-0.016840f, 0.110154f, -0.001537f);
 
 	rrIntersect::RRRay* ray = rrIntersect::RRRay::create();
-	ray->skipTriangle = UINT_MAX;
 	ray->flags = rrIntersect::RRRay::FILL_TRIANGLE | rrIntersect::RRRay::FILL_DISTANCE;
 	const float RADIUS = 0.2f;//radius of sphere
 

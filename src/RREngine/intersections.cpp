@@ -86,6 +86,17 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	return hitTriangle;
 }
 
+class SkipTriangle : public rrIntersect::RRMeshSurfaceImporter
+{
+public:
+	SkipTriangle(unsigned askip) : skip(askip) {}
+	virtual bool acceptHit(const rrIntersect::RRRay* ray)
+	{
+		return ray->hitTriangle!=skip;
+	}
+	unsigned skip;
+};
+
 #include <memory.h>
 DbgRay rrEngine::dbgRay[MAX_DBGRAYS];
 unsigned rrEngine::dbgRays=0;
@@ -98,20 +109,22 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	// pri velkem poctu objektu by pomohlo sesortovat je podle
 	//  vzdalenosti od oka a blizsi testovat driv
 	Triangle* hitTriangle = NULL;
+	static SkipTriangle skipTriangle(INT_MAX);
+	ray.surfaceImporter = &skipTriangle;
 
 	/* this could bring microscopic speedup, not worth it
 	if(staticObjects==1)
 	{
-		ray.skipTriangle = (unsigned)(skip-object[0]->triangle);
+		skipTriangle.skip = (unsigned)(skip-object[0]->triangle);
 		hitTriangle = object[0]->intersection(ray,eye,direction); // no intersection -> outputs get undefined 
 	}	
 	else*/
 	{       
-		U8 backup[10*sizeof(RRReal)+sizeof(unsigned)+sizeof(bool)];
+		U8 backup[10*sizeof(RRReal)+sizeof(unsigned)+sizeof(bool)]; //!!! may change with changes in RRRay
 		for(unsigned o=0;o<staticObjects;o++)
 			if(object[o]->bound.intersect(eye,direction,ray.hitDistanceMax)) // replaced by pretests in RRCollider
 			{
-				ray.skipTriangle = (unsigned)(skip-object[o]->triangle);
+				skipTriangle.skip = (unsigned)(skip-object[o]->triangle);
 				real tmpMin = ray.hitDistanceMin;
 				real tmpMax = ray.hitDistanceMax;
 				Triangle* tmp = object[o]->intersection(ray,eye,direction); // no intersection -> outputs get undefined 

@@ -25,7 +25,6 @@ public:
 	virtual RRSurface*   getSurface(unsigned si);
 
 	// may change during object lifetime
-	virtual bool         acceptHit(rrIntersect::RRRay* ray);
 	virtual const float* getWorldMatrix();
 	virtual const float* getInvWorldMatrix();
 
@@ -68,11 +67,6 @@ RRSurface* WorldObjectImporter::getSurface(unsigned si)
 	assert(si<surfaces);
 	if(si>=surfaces) return surface[0];
 	return surface[si];
-}
-
-bool WorldObjectImporter::acceptHit(rrIntersect::RRRay* ray)
-{
-	return true;
 }
 
 const float* WorldObjectImporter::getWorldMatrix()

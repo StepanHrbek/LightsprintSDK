@@ -3,12 +3,69 @@
 #define DBG(a) //a
 
 #include <assert.h>
+#include <cstring>
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
 
 namespace rrIntersect
 {
+
+// slightly modified version from IntersectLinear.cpp:
+//  instead of <ray->hitDistanceMin,ray->hitDistanceMax>,
+//  it tests inside <ray->hitDistanceMin,distanceMax>,
+//  which is required by kd-leaf
+PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t, RRReal distanceMax)
+// input:                ray, t
+// returns:              true if ray hits t
+// modifies when hit:    hitDistance, hitPoint2D, hitOuterSide
+// modifies when no hit: <nothing is changed>
+{
+	intersectStats.intersect_triangle++;
+	assert(ray);
+	assert(t);
+
+	// calculate determinant - also used to calculate U parameter
+	Vec3 pvec = ortogonalTo(*(Vec3*)ray->rayDir,*(Vec3*)t->l);
+	real det = dot(*(Vec3*)t->r,pvec);
+
+	// cull test
+	bool hitOuterSide = det>0;
+	if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
+
+	// if determinant is near zero, ray lies in plane of triangle
+	if(det==0) return false;
+	//#define EPSILON 1e-10 // 1e-6 good for all except bunny, 1e-10 good for bunny
+	//if(det>-EPSILON && det<EPSILON) return false;
+
+	// calculate distance from vert0 to ray origin
+	Vec3 tvec = *(Vec3*)ray->rayOrigin-*(Vec3*)t->s;
+
+	// calculate U parameter and test bounds
+	real u = dot(tvec,pvec)/det;
+	if(u<0 || u>1) return false;
+
+	// prepare to test V parameter
+	Vec3 qvec = ortogonalTo(tvec,*(Vec3*)t->r);
+
+	// calculate V parameter and test bounds
+	real v = dot(*(Vec3*)ray->rayDir,qvec)/det;
+	if(v<0 || u+v>1) return false;
+
+	// calculate distance where ray intersects triangle
+	real dist = dot(*(Vec3*)t->l,qvec)/det;
+	if(dist<ray->hitDistanceMin || dist>distanceMax) return false;
+
+	ray->hitDistance = dist;
+#ifdef FILL_HITPOINT2D
+	ray->hitPoint2d[0] = u;
+	ray->hitPoint2d[1] = v;
+#endif
+#ifdef FILL_HITSIDE
+	ray->hitOuterSide = hitOuterSide;
+#endif
+	return true;
+}
 
 template IBP
 bool IntersectBspCompact IBP2::intersect_bsp(RRRay* ray, const BspTree* t, real distanceMax) const
@@ -34,16 +91,17 @@ begin:
 		// test leaf
 		if(t->kd.isLeaf()) 
 		{
-			void *trianglesEnd=t->getTrianglesEnd();
-			bool hit=false;
-			for(typename BspTree::_TriInfo* triangle=t->kd.getTrianglesBegin();triangle<trianglesEnd;triangle++) if(*triangle!=ray->skipTriangle)
+			void *trianglesEnd = t->getTrianglesEnd();
+			bool hit = false;
+			char backup[sizeof(RRRay)];
+			if(ray->surfaceImporter) memcpy(backup,ray,sizeof(*ray)); // current best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
+			for(typename BspTree::_TriInfo* triangle=t->kd.getTrianglesBegin();triangle<trianglesEnd;triangle++)
 			{
 				RRMeshImporter::TriangleSRL srl;
 				importer->getTriangleSRL(*triangle,&srl);
-				if(intersect_triangle(ray,&srl) && ray->hitDistance<=distanceMax) // intersect_triangle tests <hitDistanceMin,hitDistanceMax>, we want to test <hitDistanceMin,distanceMax> where distanceMax<=hitDistanceMax
+				if(intersect_triangle(ray,&srl,distanceMax))
 				{
 					ray->hitTriangle = *triangle;
-					ray->hitDistanceMax = ray->hitDistance;
 					if(ray->surfaceImporter)
 					{
 #ifdef FILL_HITPOINT3D
@@ -58,16 +116,26 @@ begin:
 							update_hitPlane(ray,importer);
 						}
 #endif
-						if(ray->surfaceImporter->acceptHit(ray)) hit = true;
+						if(ray->surfaceImporter->acceptHit(ray)) 
+						{
+							memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
+							ray->hitDistanceMax = ray->hitDistance;
+							hit = true;
+						}
 					}
 					else
 					{
+						ray->hitDistanceMax = ray->hitDistance;
 						hit=true;
 					}
 				}
 			}
 			if(hit)
 			{
+				if(ray->surfaceImporter)
+				{
+					memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
+				}
 #ifdef FILL_HITPOINT3D
 				if(ray->flags&RRRay::FILL_POINT3D)
 				{
@@ -198,7 +266,7 @@ begin:
 	while(triangle<trianglesEnd)
 	{
 		importer->getTriangleSRL(*triangle,&t2);
-		if (*triangle!=ray->skipTriangle && intersect_triangle(ray,&t2))
+		if(intersect_triangle(ray,&t2))
 		{
 #ifdef FILL_HITTRIANGLE
 			ray->hitTriangle = *triangle;

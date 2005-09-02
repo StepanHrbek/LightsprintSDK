@@ -86,16 +86,18 @@ namespace rrEngine
 	//
 	// RRObjectImporter - abstract class for importing your object into RRScene.
 	//
-	// Derive to import YOUR geometry and surfaces into RRCollider or RRScene.
+	// Derive to import YOUR objects into RRScene.
 	//
 	// RRObject -> RRObjectImporter -> RRCollider -> RRMeshImporter
 	// where A -> B means that
 	//  - A has pointer to B
 	//  - note that there is no automatic reference counting in B and no automatic destruction of B from A
 
-	class RRObjectImporter : public rrIntersect::RRMeshSurfaceImporter
+	class RRObjectImporter
 	{
 	public:
+		virtual ~RRObjectImporter() {}
+
 		// must not change during object lifetime
 		virtual const rrIntersect::RRCollider* getCollider() const = 0;
 		virtual unsigned     getTriangleSurface(unsigned t) const = 0;

@@ -100,7 +100,7 @@ namespace rrIntersect
 		// return false to continue to next intersection, true to end
 		// for IT_BSP techniques, intersections are reported in order from the nearest one
 		// for IT_LINEAR technique, intersections go unsorted
-		virtual bool         acceptHit(class RRRay* ray) = 0;
+		virtual bool         acceptHit(const class RRRay* ray) = 0;
 	};
 
 
@@ -146,7 +146,6 @@ namespace rrIntersect
 		};
 		RRReal          rayOrigin[4];   // i, ALIGN16 ray origin. never modify last component, must stay 1
 		RRReal          rayDir[4];      // i, ALIGN16 ray direction, must be normalized. never modify last component, must stay 0
-		unsigned        skipTriangle;   // i, one postImportTriangle to be skipped during tests
 		unsigned        flags;          // i, flags that specify the action
 		RRMeshSurfaceImporter* surfaceImporter; // i, optional surface importer for user-defined surface behaviours
 		RRReal          hitDistanceMin; // io, test hit in range <min,max>, undefined after test
@@ -155,12 +154,11 @@ namespace rrIntersect
 		RRReal          hitDistance;    // o, hit distance in object space
 		unsigned        hitTriangle;    // o, postImportTriangle that was hit
 		RRReal          hitPoint2d[2];  // o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
-		RRReal          hitPoint3d[3];  // o, hit coordinate in object space
 		RRReal          hitPlane[4];    // o, ALIGN16 plane of hitTriangle in object space, [0..2] is normal
+		RRReal          hitPoint3d[3];  // o, hit coordinate in object space
 		bool            hitOuterSide;   // o, true = object was hit from the outer (common) side
 	private:
-		RRReal          pad[3]; // padding so that array of rays is still aligned
-		RRRay(); // intentionally private so no one is able to create unaligned instance
+		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};
 
 

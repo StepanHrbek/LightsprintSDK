@@ -18,7 +18,7 @@ namespace rrEngine
 #define real         RRReal
 #define BIG_REAL     1e20f
 #define SMALL_REAL   1e-10f
-#define SHOT_OFFSET  1e-4f  // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
+#define SHOT_OFFSET  1e-4f  //!!! offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 #define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs
 #define IS_NUMBER(n) _finite(n)//((n)>-BIG_REAL && (n)<BIG_REAL)
 #define IS_0(n)      (ABS(n)<0.001)

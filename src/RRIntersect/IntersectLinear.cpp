@@ -4,6 +4,7 @@
 #include <inttypes.h> // intptr_t
 #endif
 #include <math.h>
+#include <cstring>
 #include <stdio.h>
 #include <stdlib.h> // exit
 
@@ -162,16 +163,16 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		!box.intersect(ray)) return false;
 
 	bool hit = false;
+	char backup[sizeof(RRRay)];
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	intersectStats.intersect_linear++;
-	for(unsigned t=0;t<triangles;t++) if(t!=ray->skipTriangle)
+	for(unsigned t=0;t<triangles;t++)
 	{
 		RRMeshImporter::TriangleSRL t2;
 		importer->getTriangleSRL(t,&t2);
 		if(intersect_triangle(ray,&t2))
 		{
 			ray->hitTriangle = t;
-			ray->hitDistanceMax = ray->hitDistance;
 			if(ray->surfaceImporter) 
 			{
 #ifdef FILL_HITPOINT3D
@@ -187,16 +188,26 @@ bool IntersectLinear::intersect(RRRay* ray) const
 				}
 #endif
 				// hits are reported in random order
-				if(ray->surfaceImporter->acceptHit(ray)) hit = true;
+				if(ray->surfaceImporter->acceptHit(ray)) 
+				{
+					memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
+					ray->hitDistanceMax = ray->hitDistance;
+					hit = true;
+				}
 			}
 			else
 			{
+				ray->hitDistanceMax = ray->hitDistance;
 				hit = true;
 			}
 		}
 	}
 	if(hit) 
 	{
+		if(ray->surfaceImporter)
+		{
+			memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
+		}
 #ifdef FILL_HITPOINT3D
 		if(ray->flags&RRRay::FILL_POINT3D)
 		{
