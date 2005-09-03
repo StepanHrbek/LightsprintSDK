@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include "bsp.h"
 #include "IntersectBsp.h"
+#include "IntersectBspFast.h"
+#include "IntersectBspCompact.h"
 
 //#define CHECK_KD // slow checks of kd build correctness
 
@@ -856,8 +858,9 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 		assert(t->leaf[0]);
 		for(unsigned i=0;t->leaf[i];i++) 
 		{
-			typename BspTree::_TriInfo tri = t->leaf[i]->id;
-			assert(tri==t->leaf[i]->id);
+			typename BspTree::_TriInfo tri;
+			tri.setGeometry(t->leaf[i]->id,(Vec3*)&t->leaf[i]->vertex[0]->x,(Vec3*)&t->leaf[i]->vertex[1]->x,(Vec3*)&t->leaf[i]->vertex[2]->x);
+			assert(tri.getTriangleIndex()==t->leaf[i]->id);
 			fwrite(&tri,sizeof(tri),1,f);
 			faces++;
 		}
@@ -933,8 +936,9 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 	}*/
 	if(!t->kdroot) for(unsigned i=n;i--;)
 	{
-		typename BspTree::_TriInfo info = t->plane[i]->id;
-		if(info!=t->plane[i]->id) {assert(0);return false;}
+		typename BspTree::_TriInfo info;
+		info.setGeometry(t->plane[i]->id,(Vec3*)&t->plane[i]->vertex[0]->x,(Vec3*)&t->plane[i]->vertex[1]->x,(Vec3*)&t->plane[i]->vertex[2]->x);
+		if(info.getTriangleIndex()!=t->plane[i]->id) {assert(0);return false;}
 		fwrite(&info,sizeof(info),1,f);
 	}
 

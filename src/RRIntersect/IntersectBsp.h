@@ -5,6 +5,7 @@
 #define IBP2 <BspTree>
 
 #define SUPPORT_EMPTY_KDNODE // only FASTEST: typically tiny, rarely big speedup (bunny); typically a bit, rarely much slower and memory hungry build (soda)
+//#define BAKED_TRIANGLE
 
 #include "IntersectLinear.h"
 
@@ -171,25 +172,16 @@ namespace rrIntersect
 		void              setKd(bool k)         {kd.kd=k;}
 	};
 
-	// single-level bsp
-	typedef BspTree1<unsigned short,unsigned char ,void> BspTree21;
-	typedef BspTree1<unsigned short,unsigned short,void> BspTree22;
-	typedef BspTree1<unsigned int  ,unsigned short,void> BspTree42;
-	typedef BspTree1<unsigned int  ,unsigned int  ,void> BspTree44;
-
-	// multi-level bsp
-	typedef BspTree1<unsigned char ,unsigned int  ,void      >  BspTree14;
-	typedef BspTree2<unsigned short,unsigned int  , BspTree14> CBspTree24;
-	typedef BspTree2<unsigned int  ,unsigned int  ,CBspTree24> CBspTree44;
-
-	typedef BspTree1<unsigned char ,unsigned short,void      >  BspTree12;
-	typedef BspTree2<unsigned short,unsigned short, BspTree12> CBspTree22;
-	typedef BspTree2<unsigned int  ,unsigned short,CBspTree22> CBspTree42;
-
-	typedef BspTree1<unsigned char ,unsigned char ,void      >  BspTree11;
-	typedef BspTree2<unsigned short,unsigned char , BspTree11> CBspTree21;
-
-
+	// triangle info: only index is stored
+	// there may exist other triangle info implementations that contain more information
+	template <class Index>
+	struct TriIndex
+	{
+		void     setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3* b, const Vec3* c) {triangleIdx = atriangleIdx;}
+		Index    getTriangleIndex() const {return triangleIdx;}
+		Index    triangleIdx;
+	};
+	
 	template IBP
 	PRIVATE BspTree* load(FILE *f)
 	{

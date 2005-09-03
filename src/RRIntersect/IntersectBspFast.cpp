@@ -139,9 +139,10 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	}
 }
 
-void TriangleSRLNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
+void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3* b, const Vec3* c)
 {
 	intersectStats.loaded_triangles++;
+
 
 	// set s3,r3,l3
 	s3=*a;
@@ -409,7 +410,7 @@ begin:
 	const BspTree *back=(const BspTree *)((char*)front+(t->bsp.front?front->bsp.size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangleSRLNP);
-	Plane& n=triangleSRLNP[triangle[0]].n3;
+	Plane& n=triangleSRLNP[triangle->getTriangleIndex()].n3;
 
 #ifdef USE_SSE_FASTEST
 	const __m128 vecN = _mm_load_ps(&n.x);
@@ -496,11 +497,11 @@ begin:
 			watch_point3d = *(Vec3*)ray->hitPoint3d;
 		}
 #endif
-		if(intersect_triangleSRLNP(ray,triangleSRLNP+*triangle))
+		if(intersect_triangleSRLNP(ray,triangleSRLNP+triangle->getTriangleIndex()))
 		{
 			assert(IS_NUMBER(distancePlane));
 #ifdef FILL_HITTRIANGLE
-			ray->hitTriangle = *triangle;
+			ray->hitTriangle = triangle->getTriangleIndex();
 #endif
 #ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;
@@ -586,17 +587,8 @@ begin:
 	const BspTree *back=(const BspTree *)((char*)front+(t->bsp.front?front->bsp.size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangleNP);
-	Plane& n=triangleNP[triangle[0]].n3;
+	Plane& n=triangleNP[triangle->getTriangleIndex()].n3;
 
-	/* Reference. Old well tested code.
-	bool frontback =
-		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
-		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
-		n[2]*(ray->rayOrigin[2]+ray->rayDir[2]*ray->hitDistanceMin)+
-		n[3]>0;
-	real nDotDir = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
-	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nDotDir;
-	*/
 	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
 	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
 	real distancePlane = -nDotOrigin / nDotDir;
@@ -620,7 +612,7 @@ begin:
 	}
 
 	// distancePlane = 0/0 (ray inside plane) is handled here
-	if(_isnan(distancePlane)/*nDotDir==0*/) 
+	if(_isnan(distancePlane)) // nDotDir==0
 	{
 		distancePlane = ray->hitDistanceMin;
 		// this sequence of tests follows:
@@ -643,12 +635,12 @@ begin:
 	while(triangle<trianglesEnd)
 	{
 		RRMeshImporter::TriangleSRL t2;
-		importer->getTriangleSRL(*triangle,&t2);
-		if(intersect_triangleNP(ray,triangleNP+*triangle,&t2))
+		importer->getTriangleSRL(triangle->getTriangleIndex(),&t2);
+		if(intersect_triangleNP(ray,triangleNP+triangle->getTriangleIndex(),&t2))
 		{
 			assert(IS_NUMBER(distancePlane));
 #ifdef FILL_HITTRIANGLE
-			ray->hitTriangle = *triangle;
+			ray->hitTriangle = triangle->getTriangleIndex();
 #endif
 #ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;
@@ -705,7 +697,7 @@ IntersectBspFast IBP2::IntersectBspFast(RRMeshImporter* aimporter, IntersectTech
 			real* p1 = importer->getVertex(v1);
 			real* p2 = importer->getVertex(v2);
 			if(triangleNP) triangleNP[i].setGeometry((Vec3*)p0,(Vec3*)p1,(Vec3*)p2);
-			if(triangleSRLNP) triangleSRLNP[i].setGeometry((Vec3*)p0,(Vec3*)p1,(Vec3*)p2);
+			if(triangleSRLNP) triangleSRLNP[i].setGeometry(i,(Vec3*)p0,(Vec3*)p1,(Vec3*)p2);
 		}
 
 }
@@ -874,6 +866,6 @@ IntersectBspFast IBP2::~IntersectBspFast()
 // explicit instantiation
 
 // single-level bsp
-template class IntersectBspFast<BspTree44>; // for size 0..2^30-1         [65537..2^32 triangles]
+template class IntersectBspFast<BspTree44>;
 
 } // namespace

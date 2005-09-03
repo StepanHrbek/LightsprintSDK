@@ -98,10 +98,10 @@ begin:
 			for(typename BspTree::_TriInfo* triangle=t->kd.getTrianglesBegin();triangle<trianglesEnd;triangle++)
 			{
 				RRMeshImporter::TriangleSRL srl;
-				importer->getTriangleSRL(*triangle,&srl);
+				importer->getTriangleSRL(triangle->getTriangleIndex(),&srl);
 				if(intersect_triangle(ray,&srl,distanceMax))
 				{
-					ray->hitTriangle = *triangle;
+					ray->hitTriangle = triangle->getTriangleIndex();
 					if(ray->surfaceImporter)
 					{
 #ifdef FILL_HITPOINT3D
@@ -201,7 +201,7 @@ begin:
 	assert(triangle<t->getTrianglesEnd());
 
 	RRMeshImporter::TriangleSRL t2;
-	importer->getTriangleSRL(*triangle,&t2);
+	importer->getTriangleSRL(triangle->getTriangleIndex(),&t2);
 	Plane n;
 	n.x = t2.r[1] * t2.l[2] - t2.r[2] * t2.l[1];
 	n.y = t2.r[2] * t2.l[0] - t2.r[0] * t2.l[2];
@@ -265,11 +265,11 @@ begin:
 	void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
-		importer->getTriangleSRL(*triangle,&t2);
+		importer->getTriangleSRL(triangle->getTriangleIndex(),&t2);
 		if(intersect_triangle(ray,&t2))
 		{
 #ifdef FILL_HITTRIANGLE
-			ray->hitTriangle = *triangle;
+			ray->hitTriangle = triangle->getTriangleIndex();
 #endif
 #ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;

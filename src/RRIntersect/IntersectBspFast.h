@@ -25,7 +25,10 @@ namespace rrIntersect
 		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
 	};
 
-	struct TriangleSRLNP : public RRAligned
+	struct TriangleSRLNP
+#ifdef USE_SSE_FASTEST
+		: public RRAligned
+#endif
 	{
 		// all vectors are aligned at 16byte boundaries for SSE
 		Plane   n3;             // ALIGN16 triangle plane, first three components form normalised normal
@@ -40,8 +43,18 @@ namespace rrIntersect
 #ifdef USE_SSE_FASTEST
 		char    pad1[3];
 #endif
-		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
+		void    setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3* b, const Vec3* c);
+		unsigned getTriangleIndex() const 
+		{
+			assert(0);
+		}
 	};
+
+	// single-level bsp (FAST, FASTEST)
+	/*typedef BspTree1<unsigned short,unsigned char ,void> BspTree21;
+	typedef BspTree1<unsigned short,unsigned short,void> BspTree22;
+	typedef BspTree1<unsigned int  ,unsigned short,void> BspTree42;*/
+	typedef BspTree1<unsigned int  ,TriIndex<unsigned int  >,void> BspTree44;
 
 	template IBP
 	class IntersectBspFast : public IntersectLinear
