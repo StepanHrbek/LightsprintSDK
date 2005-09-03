@@ -49,7 +49,7 @@ namespace rrIntersect
 		unsigned bspMaxFacesInTree; // don't even try bsp on bigger tree
 		unsigned bspBestN;          // preselect and fully test this many triangles for bsp root
 		unsigned kdMinFacesInTree;  // don't even try kd on smaller tree
-		unsigned kdHavran;          // allow havran's heuristic for fastest tree to be tried
+		unsigned kdHavran;          // allow havran's splitting heuristic for fastest tree to be tried
 		unsigned kdLeaf;            // allow kd leaves in tree (supported only by compact intersector)
 		BuildParams(RRCollider::IntersectTechnique technique)
 		{

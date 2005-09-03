@@ -790,7 +790,8 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	printf("\n");
 #endif
 
-	// havan is fastest even with wrong bbox
+	// uncomment to disable havran with wrong bbox
+	// let it commented, havan is fastest even with wrong bbox
 		// havran is not good below bsp node because of wrong bbox
 		//unsigned kdHavranOld = buildParams.kdHavran;
 		//if(!kdroot) buildParams.kdHavran = 0;
