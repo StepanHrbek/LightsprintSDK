@@ -15,7 +15,7 @@ namespace rrIntersect
 //  instead of <ray->hitDistanceMin,ray->hitDistanceMax>,
 //  it tests inside <ray->hitDistanceMin,distanceMax>,
 //  which is required by kd-leaf
-PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t, RRReal distanceMax)
+static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t, RRReal distanceMax)
 // input:                ray, t
 // returns:              true if ray hits t
 // modifies when hit:    hitDistance, hitPoint2D, hitOuterSide

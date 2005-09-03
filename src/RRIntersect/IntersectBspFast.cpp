@@ -418,7 +418,7 @@ begin:
 	assert(ray->rayDir[3]==0);
 	assert(ray->rayOrigin[3]==1);
 	//_MM_ALIGN16 static float tmpAligned[4]; // static neni thread safe (tato verze SSE=mirne zrychleni)
-	#define tmpAligned ray->hitPlane	  // hitPlane je thread safe (tato verze SSE=mirne zpomaleni)
+	#define tmpAligned ray->hitPlane          // hitPlane je thread safe (tato verze SSE=mirne zpomaleni). Muzeme prepsat hitPlane protoze ve chvili kdy bude nejaky face zasazen a acceptnut, zadny dalsi prepis uz nebude, vratime spravny vysledek.
 	mm_sum2(vecNOrigin,vecNDir,tmpAligned);
 	real nDotOrigin = tmpAligned[0];
 	real nDotDir = tmpAligned[2];
