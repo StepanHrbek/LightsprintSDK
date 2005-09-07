@@ -4,12 +4,24 @@
 #include "RRIntersect.h"
 #include <float.h> // _finite
 
+#define USE_SSE
+//#define USE_SPHERE
+
+//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
+#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
+	#define FASTEST_INVERSE_DIR
+	#ifdef USE_SSE
+		#define USE_SSE_FASTEST
+	#endif
+#endif
+
+#ifdef USE_SSE
+	//#define USE_SSE_FASTEST // use SSE in FASTEST technique (more memory, hardly noticeably faster)
+#endif
+
 #ifndef PRIVATE
 	#define PRIVATE
 #endif
-
-#define USE_SSE
-//#define USE_SPHERE
 
 #ifdef __GNUC__
 	#define _MM_ALIGN16 __attribute__ ((aligned (16)))

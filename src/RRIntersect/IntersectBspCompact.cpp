@@ -291,7 +291,10 @@ begin:
 			}
 #endif
 			DBGLINE
-			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) return true;
+#ifdef SURFACE_CALLBACK
+			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) 
+#endif
+				return true;
 		}
 		triangle++;
 	}

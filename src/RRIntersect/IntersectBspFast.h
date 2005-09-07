@@ -3,10 +3,6 @@
 
 #include "IntersectBsp.h"
 
-#ifdef USE_SSE
-	//#define USE_SSE_FASTEST // use SSE in FASTEST technique (more memory, hardly noticeably faster)
-#endif
-
 namespace rrIntersect
 {
 
@@ -35,6 +31,10 @@ namespace rrIntersect
 		Vec3    s3;             // ALIGN16 vertex[0]
 		real    intersectReal;  // precalculated number for intersections
 		Vec3    r3;             // ALIGN16 vertex[1]-vertex[0]
+#ifdef USE_SSE_FASTEST
+		real    pad3;
+#endif
+		Vec3    ir3;            // ALIGN16 1/r3
 #ifdef USE_SSE_FASTEST
 		real    pad2;
 #endif

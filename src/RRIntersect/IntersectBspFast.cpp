@@ -52,18 +52,18 @@ namespace rrIntersect
 	  if(ABS(rxy)>=ABS(rzx))
 	  {
 	    intersectByte=0;
-	    intersectReal=rxy;
+	    intersectReal=1/rxy;
 	  }
 	  else
 	  {
 	    intersectByte=2;
-	    intersectReal=rzx;
+	    intersectReal=1/rzx;
 	  }
 	else
 	  if(ABS(ryz)>=ABS(rzx))
 	  {
 	    intersectByte=1;
-	    intersectReal=ryz;
+	    intersectReal=1/ryz;
 	  }
 	  else
 	  {
@@ -100,18 +100,18 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	  if(ABS(rxy)>=ABS(rzx))
 	  {
 	    intersectByte=0;
-	    intersectReal=rxy;
+	    intersectReal=1/rxy;
 	  }
 	  else
 	  {
 	    intersectByte=2;
-	    intersectReal=rzx;
+	    intersectReal=1/rzx;
 	  }
 	else
 	  if(ABS(ryz)>=ABS(rzx))
 	  {
 	    intersectByte=1;
-	    intersectReal=ryz;
+	    intersectReal=1/ryz;
 	  }
 	  else
 	  {
@@ -145,9 +145,10 @@ void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3
 
 
 	// set s3,r3,l3
-	s3=*a;
-	r3=*b-*a;
-	l3=*c-*a;
+	s3 = *a;
+	r3 = *b-*a;
+	l3 = *c-*a;
+	ir3 = Vec3(1/r3.x,1/r3.y,1/r3.z);
 
 	// set intersectByte,intersectReal,u3,v3,n3
 	// set intersectByte,intersectReal
@@ -158,18 +159,18 @@ void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3
 	  if(ABS(rxy)>=ABS(rzx))
 	  {
 	    intersectByte=0;
-	    intersectReal=rxy;
+	    intersectReal=1/rxy;
 	  }
 	  else
 	  {
 	    intersectByte=2;
-	    intersectReal=rzx;
+	    intersectReal=1/rzx;
 	  }
 	else
 	  if(ABS(ryz)>=ABS(rzx))
 	  {
 	    intersectByte=1;
-	    intersectReal=ryz;
+	    intersectReal=1/ryz;
 	  }
 	  else
 	  {
@@ -211,15 +212,15 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	real u,v;
 	switch(t->intersectByte)
 	{
-		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t->s3[Y])*t->r3[X]-(ray->hitPoint3d[X]-t->s3[X])*t->r3[Y]) / t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t->s3[Z]-t->l3[Z]*v)/t->r3[Z];                break
+		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t->s3[Y])*t->r3[X]-(ray->hitPoint3d[X]-t->s3[X])*t->r3[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t->s3[Z]-t->l3[Z]*v) * t->ir3[Z];                break
 		case 0:CASE(0,1,2);
-		case 3:CASE(0,1,0);
-		case 6:CASE(0,1,1);
 		case 1:CASE(1,2,2);
-		case 4:CASE(1,2,0);
-		case 7:CASE(1,2,1);
 		case 2:CASE(2,0,2);
+		case 3:CASE(0,1,0);
+		case 4:CASE(1,2,0);
 		case 5:CASE(2,0,0);
+		case 6:CASE(0,1,1);
+		case 7:CASE(1,2,1);
 		case 8:CASE(2,0,1);
 		default: return false;
 		#undef CASE
@@ -254,15 +255,15 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshIm
 	real u,v;
 	switch(t->intersectByte)
 	{
-		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t2->s[Y])*t2->r[X]-(ray->hitPoint3d[X]-t2->s[X])*t2->r[Y]) / t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t2->s[Z]-t2->l[Z]*v)/t2->r[Z];                break
+		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t2->s[Y])*t2->r[X]-(ray->hitPoint3d[X]-t2->s[X])*t2->r[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t2->s[Z]-t2->l[Z]*v)/t2->r[Z];                break
 		case 0:CASE(0,1,2);
-		case 3:CASE(0,1,0);
-		case 6:CASE(0,1,1);
 		case 1:CASE(1,2,2);
-		case 4:CASE(1,2,0);
-		case 7:CASE(1,2,1);
 		case 2:CASE(2,0,2);
+		case 3:CASE(0,1,0);
+		case 4:CASE(1,2,0);
 		case 5:CASE(2,0,0);
+		case 6:CASE(0,1,1);
+		case 7:CASE(1,2,1);
 		case 8:CASE(2,0,1);
 		default: return false;
 		#undef CASE
@@ -376,7 +377,11 @@ begin:
 				goto begin;
 			}
 			// front and back
+#ifdef FASTEST_INVERSE_DIR
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])*ray->rayDirInv[t->kd.splitAxis];
+#else
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+#endif
 			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
 			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
@@ -395,7 +400,11 @@ begin:
 				goto begin;
 			}
 			// back and front
+#ifdef FASTEST_INVERSE_DIR
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])*ray->rayDirInv[t->kd.splitAxis];
+#else
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+#endif
 			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getBack());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
 			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
@@ -506,7 +515,10 @@ begin:
 #ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;
 #endif
-			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) return true;
+#ifdef SURFACE_CALLBACK
+			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) 
+#endif
+				return true;
 		}
 		triangle++;
 	}
@@ -646,7 +658,10 @@ begin:
 			ray->hitDistance = distancePlane;
 #endif
 			DBGLINE
-			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) return true;
+#ifdef SURFACE_CALLBACK
+			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) 
+#endif
+				return true;
 		}
 		triangle++;
 	}
@@ -722,6 +737,13 @@ unsigned IntersectBspFast IBP2::getMemoryOccupied() const
 template IBP
 bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 {
+#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
+	if(!box.intersect(ray)) return false;
+	ray->rayDir[0] = 1/ray->rayDirInv[0];
+	ray->rayDir[1] = 1/ray->rayDirInv[1];
+	ray->rayDir[2] = 1/ray->rayDirInv[2];
+	return intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
+#endif
 	DBG(printf("\n"));
 	intersectStats.intersects++;
 
@@ -743,6 +765,11 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	switch(intersectTechnique)
 	{
 		case IT_BSP_FASTEST:
+#ifdef FASTEST_INVERSE_DIR
+			ray->rayDirInv[0] = 1/ray->rayDir[0];
+			ray->rayDirInv[1] = 1/ray->rayDir[1];
+			ray->rayDirInv[2] = 1/ray->rayDir[2];
+#endif
 			hit = intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
 			break;
 		case IT_BSP_FAST:

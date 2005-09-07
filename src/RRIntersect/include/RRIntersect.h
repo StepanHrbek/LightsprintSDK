@@ -146,6 +146,7 @@ namespace rrIntersect
 		};
 		RRReal          rayOrigin[4];   // i, ALIGN16 ray origin. never modify last component, must stay 1
 		RRReal          rayDir[4];      // i, ALIGN16 ray direction, must be normalized. never modify last component, must stay 0
+		RRReal          rayDirInv[4];   // -, ALIGN16 1/ray direction, may be filled during test
 		unsigned        flags;          // i, flags that specify the action
 		RRMeshSurfaceImporter* surfaceImporter; // i, optional surface importer for user-defined surface behaviours
 		RRReal          hitDistanceMin; // io, test hit in range <min,max>, undefined after test

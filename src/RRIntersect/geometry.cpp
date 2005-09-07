@@ -330,13 +330,19 @@ bool Box::intersect(RRRay* ray) const
 		box_min	= loadps(&min),
 		box_max	= loadps(&max),
 		pos	= loadps(&ray->rayOrigin),
-		inv_dir	= loadps(&ray->rayDir);
+#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
+		// use a mul if inverted directions are available
+		inv_dir	= loadps(&ray->rayDirInv);
 
-	// use a div if inverted directions aren't available
-	//const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
-	//const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
-	const __m128 l1 = divps(subps(box_min, pos), inv_dir);
-	const __m128 l2 = divps(subps(box_max, pos), inv_dir);
+	const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
+	const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
+#else
+		// use a div if inverted directions aren't available
+		dir	= loadps(&ray->rayDir);
+
+	const __m128 l1 = divps(subps(box_min, pos), dir);
+	const __m128 l2 = divps(subps(box_max, pos), dir);
+#endif
 
 	// the order we use for those min/max is vital to filter out
 	// NaNs that happens when an inv_dir is +/- inf and
@@ -364,17 +370,19 @@ bool Box::intersect(RRRay* ray) const
 
 	const bool ret = ( _mm_comige_ss(lmax, _mm_setzero_ps()) & _mm_comige_ss(lmax,lmin) ) != 0;
 	
+#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
+	storess(lmin, &ray->hitDistanceMin);
+	storess(lmax, &ray->hitDistanceMax);
+	return ret;
+#else
 	float t_near,t_far;
 	storess(lmin, &t_near);
 	storess(lmax, &t_far);
 
-	//ray->hitDistanceMin = t_near;
-	//ray->hitDistanceMax = t_far;
-	//return  ret;
-
 	ray->hitDistanceMin = MAX(t_near,ray->hitDistanceMin);
 	ray->hitDistanceMax = MIN(t_far,ray->hitDistanceMax);
 	return ray->hitDistanceMin<ray->hitDistanceMax;
+#endif
 }
 
 #endif

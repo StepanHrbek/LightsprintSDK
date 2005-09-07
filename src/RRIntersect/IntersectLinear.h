@@ -5,11 +5,14 @@
 #include "RRIntersect.h"
 
 #define FILL_HITDISTANCE
-#define FILL_HITPOINT3D
-#define FILL_HITPOINT2D
-#define FILL_HITPLANE
 #define FILL_HITTRIANGLE
-#define FILL_HITSIDE
+#ifndef BUNNY_BENCHMARK_OPTIMIZATIONS
+	#define FILL_HITPOINT3D
+	#define FILL_HITPOINT2D
+	#define FILL_HITPLANE
+	#define FILL_HITSIDE
+	#define SURFACE_CALLBACK
+#endif
 
 #define DBGLINE
 //#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);//fgetc(stdin);

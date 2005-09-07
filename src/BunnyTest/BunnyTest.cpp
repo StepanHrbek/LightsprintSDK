@@ -19,6 +19,16 @@ public:
 	};
 };
 
+/*struct Box
+{
+Vec3    min;
+real    pad;
+Vec3    max;
+void    detect(const Vec3 *vertex,unsigned vertices);
+bool    intersect(RRRay* ray) const;
+};
+Box box;*/
+
 int main(int argc, char** argv)
 {                        
 	PlyMesh mesh;
@@ -52,11 +62,27 @@ int main(int argc, char** argv)
 		ray->rayOrigin[0] = rayorigin.x*RADIUS+aabb_center.x;
 		ray->rayOrigin[1] = rayorigin.y*RADIUS+aabb_center.y;
 		ray->rayOrigin[2] = rayorigin.z*RADIUS+aabb_center.z;
+//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
+#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
+		ray->rayDirInv[0] = size/dir.x;
+		ray->rayDirInv[1] = size/dir.y;
+		ray->rayDirInv[2] = size/dir.z;
+#else
 		ray->rayDir[0] = dir.x/size;
 		ray->rayDir[1] = dir.y/size;
 		ray->rayDir[2] = dir.z/size;
 		ray->hitDistanceMin = 0;
 		ray->hitDistanceMax = size;
+#endif
+
+		/*if(box.intersect(ray))
+		{
+			ray->rayDir[0] = dir.x/size;
+			ray->rayDir[1] = dir.y/size;
+			ray->rayDir[2] = dir.z/size;
+			if(intersector->intersect(ray))
+				num_hits++;//count the hit.
+		}*/
 
 		//do the trace
 		if(intersector->intersect(ray))
