@@ -1,6 +1,8 @@
+#include "RRIntersect.h"
 
 #define USE_SSE // by default, code is pure ANSI C++
 //#define USE_SPHERE
+#define USE_LONGJMP
 
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
 	// limited featureset
@@ -26,6 +28,11 @@
 	#define BOX_INPUT_INVDIR // by default, box.intersect input is only DIR
 	// should be identical to allow use of already present invdir
 	#define TRAVERSAL_INPUT_DIR_INVDIR // by default, all traversals use only DIR
+#endif
+
+#ifdef USE_SSE
+	// helps only with intel compiler
+	//#define FASTEST_USES_SSE // use SSE in FASTEST technique (more memory, hardly noticeably faster)
 #endif
 
 #ifndef PRIVATE

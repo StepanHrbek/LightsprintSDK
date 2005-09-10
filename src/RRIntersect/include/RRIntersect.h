@@ -38,15 +38,10 @@
 	#define RRINTERSECT_API
 #endif
 
-//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
+#define COLLIDER_INPUT_INVDIR // by default, collider.intersect input is only DIR
+#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
 	#define COLLIDER_INPUT_UNLIMITED_DISTANCE // by default, collider.intersect expects that hitDistanceMin/Max contains range of allowed hitDistance
-	#define COLLIDER_INPUT_INVDIR // by default, collider.intersect input is only DIR
-	#ifdef USE_SSE
-		#define FASTEST_USES_SSE // use SSE in FASTEST technique (more memory, hardly noticeably faster)
-	#endif
-#else
-	#define COLLIDER_INPUT_INVDIR // by default, collider.intersect input is only DIR
 #endif
 
 #include <assert.h>
