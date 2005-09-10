@@ -2,26 +2,8 @@
 #define RRINTERSECT_GEOMETRY_H
 
 #include "RRIntersect.h"
+#include "config.h"
 #include <float.h> // _finite
-
-#define USE_SSE
-//#define USE_SPHERE
-
-//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
-#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
-	#define FASTEST_INVERSE_DIR
-	#ifdef USE_SSE
-		#define USE_SSE_FASTEST
-	#endif
-#endif
-
-#ifdef USE_SSE
-	//#define USE_SSE_FASTEST // use SSE in FASTEST technique (more memory, hardly noticeably faster)
-#endif
-
-#ifndef PRIVATE
-	#define PRIVATE
-#endif
 
 #ifdef __GNUC__
 	#define _MM_ALIGN16 __attribute__ ((aligned (16)))
@@ -113,6 +95,7 @@ namespace rrIntersect
 		Vec3    max;
 		void    detect(const Vec3 *vertex,unsigned vertices);
 		bool    intersect(RRRay* ray) const;
+		bool    intersectFast(RRRay* ray) const;
 	};
 }
 

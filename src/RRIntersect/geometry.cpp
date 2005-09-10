@@ -153,6 +153,9 @@ bool Box::intersect(RRRay* ray) const
 // Shrinks hitDistanceMin..hitDistanceMax to be as tight as possible.
 // Returns if intersection was detected.
 {
+#ifdef BOX_INPUT_INVDIR
+#error not implemented
+#endif
 	const Vec3 &lineBaseT = *(Vec3*)ray->rayOrigin;
 	const Vec3 &lineDirT = *(Vec3*)ray->rayDir;
 
@@ -318,7 +321,6 @@ ps_cst_plus_inf[4]	= {  flt_plus_inf,  flt_plus_inf,  flt_plus_inf,  flt_plus_in
 ps_cst_minus_inf[4]	= { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
 
 bool Box::intersect(RRRay* ray) const
-//static bool ray_box_intersect(const aabb_t &box, const ray_t &ray, ray_segment_t &rs) 
 {
 	// you may already have those values hanging around somewhere
 	const __m128
@@ -330,7 +332,7 @@ bool Box::intersect(RRRay* ray) const
 		box_min	= loadps(&min),
 		box_max	= loadps(&max),
 		pos	= loadps(&ray->rayOrigin),
-#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
+#ifdef BOX_INPUT_INVDIR
 		// use a mul if inverted directions are available
 		inv_dir	= loadps(&ray->rayDirInv);
 
@@ -368,9 +370,63 @@ bool Box::intersect(RRRay* ray) const
 	lmax = minss(lmax, lmax1);
 	lmin = maxss(lmin, lmin1);
 
+#ifdef COLLIDER_INPUT_UNLIMITED_DISTANCE
 	const bool ret = ( _mm_comige_ss(lmax, _mm_setzero_ps()) & _mm_comige_ss(lmax,lmin) ) != 0;
-	
-#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
+	storess(lmin, &ray->hitDistanceMin);
+	storess(lmax, &ray->hitDistanceMax);
+	return ret;
+#else
+	float t_near,t_far;
+	storess(lmin, &t_near);
+	storess(lmax, &t_far);
+
+	ray->hitDistanceMin = MAX(t_near,ray->hitDistanceMin);
+	ray->hitDistanceMax = MIN(t_far,ray->hitDistanceMax);
+	return ray->hitDistanceMin<ray->hitDistanceMax;
+#endif
+}
+
+bool Box::intersectFast(RRRay* ray) const
+// returns bogus result and bogus min/max interval when
+// (ray->rayOrigin==min || ray->rayOrigin==max) && ray->rayDir==0
+// in at least one axis.
+{
+	// use whatever's apropriate to load.
+	const __m128
+		box_min	= loadps(&min),
+		box_max	= loadps(&max),
+		pos	= loadps(&ray->rayOrigin),
+#ifdef BOX_INPUT_INVDIR
+		// use a mul if inverted directions are available
+		inv_dir	= loadps(&ray->rayDirInv);
+
+	const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
+	const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
+#else
+		// use a div if inverted directions aren't available
+		dir	= loadps(&ray->rayDir);
+
+	const __m128 l1 = divps(subps(box_min, pos), dir);
+	const __m128 l2 = divps(subps(box_max, pos), dir);
+#endif
+
+	// now that we're back on our feet, test those slabs.
+	__m128 lmax = maxps(l1, l2);
+	__m128 lmin = minps(l1, l2);
+
+	// unfold back. try to hide the latency of the shufps & co.
+	const __m128 lmax0 = rotatelps(lmax);
+	const __m128 lmin0 = rotatelps(lmin);
+	lmax = minss(lmax, lmax0);
+	lmin = maxss(lmin, lmin0);
+
+	const __m128 lmax1 = muxhps(lmax,lmax);
+	const __m128 lmin1 = muxhps(lmin,lmin);
+	lmax = minss(lmax, lmax1);
+	lmin = maxss(lmin, lmin1);
+
+#ifdef COLLIDER_INPUT_UNLIMITED_DISTANCE
+	const bool ret = ( _mm_comige_ss(lmax, _mm_setzero_ps()) & _mm_comige_ss(lmax,lmin) ) != 0;
 	storess(lmin, &ray->hitDistanceMin);
 	storess(lmax, &ray->hitDistanceMax);
 	return ret;

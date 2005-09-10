@@ -13,6 +13,22 @@
 namespace rrIntersect
 {
 
+PRIVATE bool update_rayDir(RRRay* ray)
+{
+#ifdef COLLIDER_INPUT_INVDIR
+	ray->rayDir[0] = 1/ray->rayDirInv[0];
+	ray->rayDir[1] = 1/ray->rayDirInv[1];
+	ray->rayDir[2] = 1/ray->rayDirInv[2];
+#else
+#ifdef TRAVERSAL_INPUT_DIR_INVDIR
+	ray->rayDirInv[0] = 1/ray->rayDir[0];
+	ray->rayDirInv[1] = 1/ray->rayDir[1];
+	ray->rayDirInv[2] = 1/ray->rayDir[2];
+#endif
+#endif
+	return true;
+}
+
 PRIVATE void update_hitPoint3d(RRRay* ray, real distance)
 {
 	ray->hitPoint3d[0] = ray->rayOrigin[0] + ray->rayDir[0]*distance;
@@ -41,7 +57,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t
 // modifies when hit:    hitDistance, hitPoint2D, hitOuterSide
 // modifies when no hit: <nothing is changed>
 {
-	intersectStats.intersect_triangle++;
+	FILL_STATISTIC(intersectStats.intersect_triangle++);
 	assert(ray);
 	assert(t);
 
@@ -149,7 +165,7 @@ bool IntersectLinear::isValidTriangle(unsigned i) const
 bool IntersectLinear::intersect(RRRay* ray) const
 {
 	DBG(printf("\n"));
-	intersectStats.intersects++;
+	FILL_STATISTIC(intersectStats.intersects++);
 	if(!importer) return false; // this shouldn't happen but linear is so slow that we can test it
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 
@@ -164,8 +180,9 @@ bool IntersectLinear::intersect(RRRay* ray) const
 
 	bool hit = false;
 	char backup[sizeof(RRRay)];
+	update_rayDir(ray);
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
-	intersectStats.intersect_linear++;
+	FILL_STATISTIC(intersectStats.intersect_linear++);
 	for(unsigned t=0;t<triangles;t++)
 	{
 		RRMeshImporter::TriangleSRL t2;
@@ -220,7 +237,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 			update_hitPlane(ray,importer);
 		}
 #endif
-		intersectStats.hits++;
+		FILL_STATISTIC(intersectStats.hits++);
 	}
 	return hit;
 }

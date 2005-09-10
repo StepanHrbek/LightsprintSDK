@@ -259,6 +259,9 @@
 				RelativePath="..\cache.h">
 			</File>
 			<File
+				RelativePath="..\config.h">
+			</File>
+			<File
 				RelativePath="..\geometry.h">
 			</File>
 			<File

@@ -6,6 +6,10 @@
 #include <tchar.h>
 #include <time.h>
 
+// optimizations
+//#define COLLIDER_INPUT_INVDIR
+//#define COLLIDER_INPUT_UNLIMITED_DISTANCE
+
 typedef rrIntersect::RRIndexedTriListImporter<int> inherited;
 //typedef rrIntersect::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int> inherited;
 //typedef rrIntersect::RRLessTrianglesImporter<RRCollider::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int>,int> inherited;
@@ -62,8 +66,7 @@ int main(int argc, char** argv)
 		ray->rayOrigin[0] = rayorigin.x*RADIUS+aabb_center.x;
 		ray->rayOrigin[1] = rayorigin.y*RADIUS+aabb_center.y;
 		ray->rayOrigin[2] = rayorigin.z*RADIUS+aabb_center.z;
-//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
-#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
+#ifdef COLLIDER_INPUT_INVDIR
 		ray->rayDirInv[0] = size/dir.x;
 		ray->rayDirInv[1] = size/dir.y;
 		ray->rayDirInv[2] = size/dir.z;
@@ -71,6 +74,8 @@ int main(int argc, char** argv)
 		ray->rayDir[0] = dir.x/size;
 		ray->rayDir[1] = dir.y/size;
 		ray->rayDir[2] = dir.z/size;
+#endif
+#ifndef COLLIDER_INPUT_UNLIMITED_DISTANCE
 		ray->hitDistanceMin = 0;
 		ray->hitDistanceMax = size;
 #endif
@@ -101,4 +106,3 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-

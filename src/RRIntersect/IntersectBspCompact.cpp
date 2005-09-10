@@ -21,7 +21,7 @@ static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t,
 // modifies when hit:    hitDistance, hitPoint2D, hitOuterSide
 // modifies when no hit: <nothing is changed>
 {
-	intersectStats.intersect_triangle++;
+	FILL_STATISTIC(intersectStats.intersect_triangle++);
 	assert(ray);
 	assert(t);
 
@@ -85,7 +85,7 @@ begin:
 	// KD
 	if(t->bsp.kd)
 	{
-		//intersectStats.intersect_kd++;
+		//FILL_STATISTIC(intersectStats.intersect_kd++);
 		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
@@ -148,7 +148,7 @@ begin:
 					update_hitPlane(ray,importer);
 				}
 #endif
-				intersectStats.hits++;
+				FILL_STATISTIC(intersectStats.hits++);
 			}
 			return hit;
 		}
@@ -167,7 +167,7 @@ begin:
 				goto begin;
 			}
 			// front and back
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			if(intersect_bsp_type(BspTree::Son,ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getBack(),distanceMax);
@@ -183,7 +183,7 @@ begin:
 				goto begin;
 			}
 			// back and front
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			if(intersect_bsp_type(BspTree::Son,ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			if(t->kd.transition) return intersect_bsp_type(BspTree::Son,ray,t->kd.getFront(),distanceMax);
@@ -193,7 +193,7 @@ begin:
 	}
 
 	// BSP
-	intersectStats.intersect_bsp++;
+	FILL_STATISTIC(intersectStats.intersect_bsp++);
 
 	typename BspTree::Son* front=(typename BspTree::Son*)(t+1);
 	typename BspTree::Son* back=(typename BspTree::Son*)((char*)front+(t->bsp.front?front->bsp.size:0));
@@ -333,17 +333,18 @@ template IBP
 bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 {
 	DBG(printf("\n"));
-	intersectStats.intersects++;
+	FILL_STATISTIC(intersectStats.intersects++);
 
-	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
+	//assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
 	bool hit = ((ray->flags&RRRay::SKIP_PRETESTS) || (
 #ifdef USE_SPHERE
 		sphere.intersect(ray) &&
 #endif
 		box.intersect(ray))) 
+		&& update_rayDir(ray)
 		&& intersect_bsp(ray,tree,ray->hitDistanceMax);
-	if(hit) intersectStats.hits++;
+	FILL_STATISTIC(if(hit) intersectStats.hits++);
 	return hit;
 }
 

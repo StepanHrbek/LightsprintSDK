@@ -36,7 +36,7 @@ namespace rrIntersect
 
 /*void TriangleP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
-	intersectStats.loaded_triangles++;
+	FILL_STATISTIC(intersectStats.loaded_triangles++);
 
 	// set s3,r3,l3
 	Vec3 s3=*a;
@@ -84,7 +84,7 @@ namespace rrIntersect
 
 void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
-	intersectStats.loaded_triangles++;
+	FILL_STATISTIC(intersectStats.loaded_triangles++);
 
 	// set s3,r3,l3
 	Vec3 s3=*a;
@@ -134,14 +134,14 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 
 	if(!IS_VEC3(n3)) 
 	{
-		intersectStats.invalid_triangles++;
+		FILL_STATISTIC(intersectStats.invalid_triangles++);
 		intersectByte=10;  // throw out degenerated triangle
 	}
 }
 
 void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3* b, const Vec3* c)
 {
-	intersectStats.loaded_triangles++;
+	FILL_STATISTIC(intersectStats.loaded_triangles++);
 
 
 	// set s3,r3,l3
@@ -193,7 +193,7 @@ void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3
 
 	if(!IS_VEC3(n3)) 
 	{
-		intersectStats.invalid_triangles++;
+		FILL_STATISTIC(intersectStats.invalid_triangles++);
 		intersectByte=10;  // throw out degenerated triangle
 	}
 }
@@ -205,32 +205,41 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 // modifies when hit:    hitPoint2d, hitOuterSide
 // modifies when no hit: <nothing is changed>
 {
-	intersectStats.intersect_triangleSRLNP++;
+	FILL_STATISTIC(intersectStats.intersect_triangleSRLNP++);
 	assert(ray);
 	assert(t);
 
 	real u,v;
+	#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t->s3[Y])*t->r3[X]-(ray->hitPoint3d[X]-t->s3[X])*t->r3[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t->s3[Z]-t->l3[Z]*v) * t->ir3[Z];
+#if 1
+	static const unsigned tablo[9][3] = {{0,1,2},{1,2,2},{2,0,2},{0,1,0},{1,2,0},{2,0,0},{0,1,1},{1,2,1},{2,0,1}};
+	int x=tablo[t->intersectByte][0], y=tablo[t->intersectByte][1], z=tablo[t->intersectByte][2];
+	//static const unsigned tablo[3][9] = {{0,1,2,0,1,2,0,1,2},{1,2,0,1,2,0,1,2,0},{2,2,2,0,0,0,1,1,1}};
+	//int x=tablo[0][t->intersectByte], y=tablo[1][t->intersectByte], z=tablo[2][t->intersectByte];
+	CASE(x,y,z);
+#else
 	switch(t->intersectByte)
 	{
-		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t->s3[Y])*t->r3[X]-(ray->hitPoint3d[X]-t->s3[X])*t->r3[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t->s3[Z]-t->l3[Z]*v) * t->ir3[Z];                break
-		case 0:CASE(0,1,2);
-		case 1:CASE(1,2,2);
-		case 2:CASE(2,0,2);
-		case 3:CASE(0,1,0);
-		case 4:CASE(1,2,0);
-		case 5:CASE(2,0,0);
-		case 6:CASE(0,1,1);
-		case 7:CASE(1,2,1);
-		case 8:CASE(2,0,1);
+		case 0:CASE(0,1,2);break;
+		case 1:CASE(1,2,2);break;
+		case 2:CASE(2,0,2);break;
+		case 3:CASE(0,1,0);break;
+		case 4:CASE(1,2,0);break;
+		case 5:CASE(2,0,0);break;
+		case 6:CASE(0,1,1);break;
+		case 7:CASE(1,2,1);break;
+		case 8:CASE(2,0,1);break;
 		default: return false;
-		#undef CASE
 	}
+#endif
+	#undef CASE
 	if(u<0 || u+v>1) return false;
 
 #ifdef FILL_HITSIDE
 	if(ray->flags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
-		bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
+		//bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
+		bool hitOuterSide=dot(*(Vec3*)(ray->rayDir),t->n3)<0;
 		if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitOuterSide=hitOuterSide;
 	}
@@ -247,7 +256,7 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 
 static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshImporter::TriangleSRL* t2)
 {
-	intersectStats.intersect_triangleNP++;
+	FILL_STATISTIC(intersectStats.intersect_triangleNP++);
 	assert(ray);
 	assert(t);
 	assert(t2);
@@ -273,7 +282,8 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshIm
 #ifdef FILL_HITSIDE
 	if(ray->flags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
-		bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
+		//bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
+		bool hitOuterSide=dot(*(Vec3*)(ray->rayDir),t->n3)<0;
 		if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitOuterSide=hitOuterSide;
 	}
@@ -338,7 +348,7 @@ bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, rea
 {
 #define MAX_SIZE 10000000 // max size of node, for runtime checks of consistency
 begin:
-	intersectStats.intersect_bspSRLNP++;
+	FILL_STATISTIC(intersectStats.intersect_bspSRLNP++);
 	assert(ray);
 	assert(t);
 
@@ -353,7 +363,7 @@ begin:
 				return false;
 #endif
 
-		//intersectStats.intersect_kd++;
+		//FILL_STATISTIC(intersectStats.intersect_kd++);
 		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
@@ -377,11 +387,7 @@ begin:
 				goto begin;
 			}
 			// front and back
-#ifdef FASTEST_INVERSE_DIR
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])*ray->rayDirInv[t->kd.splitAxis];
-#else
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-#endif
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
 			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
@@ -400,11 +406,7 @@ begin:
 				goto begin;
 			}
 			// back and front
-#ifdef FASTEST_INVERSE_DIR
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])*ray->rayDirInv[t->kd.splitAxis];
-#else
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
-#endif
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getBack());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
 			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
@@ -421,23 +423,10 @@ begin:
 	assert(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle->getTriangleIndex()].n3;
 
-#ifdef USE_SSE_FASTEST
-	const __m128 vecN = _mm_load_ps(&n.x);
-	__m128 vecNOrigin = _mm_mul_ps(_mm_load_ps(ray->rayOrigin),vecN),
-	          vecNDir = _mm_mul_ps(_mm_load_ps(ray->rayDir),vecN);
-	assert(ray->rayDir[3]==0);
-	assert(ray->rayOrigin[3]==1);
-	//_MM_ALIGN16 static float tmpAligned[4]; // static neni thread safe (tato verze SSE=mirne zrychleni)
-	#define tmpAligned ray->hitPlane          // hitPlane je thread safe (tato verze SSE=mirne zpomaleni). Muzeme prepsat hitPlane protoze ve chvili kdy bude nejaky face zasazen a acceptnut, zadny dalsi prepis uz nebude, vratime spravny vysledek.
-	mm_sum2(vecNOrigin,vecNDir,tmpAligned);
-	real nDotOrigin = tmpAligned[0];
-	real nDotDir = tmpAligned[2];
-#else // !USE_SSE_FASTEST
 	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
 	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
 	//real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2]+ray->rayDir[3]*n[3];
 	//real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+ray->rayOrigin[3]*n[3];
-#endif // !USE_SSE_FASTEST
 	real distancePlane = -nDotOrigin / nDotDir;
 	float distanceMinLocation = nDotOrigin + nDotDir * ray->hitDistanceMin; // +=point at distanceMin is in front, -=back, 0=plane
 	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
@@ -544,14 +533,14 @@ template IBP
 bool IntersectBspFast IBP2::intersect_bspNP(RRRay* ray, const BspTree *t, real distanceMax) const
 {
 begin:
-	intersectStats.intersect_bspNP++;
+	FILL_STATISTIC(intersectStats.intersect_bspNP++);
 	assert(ray);
 	assert(t);
 
 	// KD
 	if(t->bsp.kd)
 	{
-		intersectStats.intersect_kd++;
+		FILL_STATISTIC(intersectStats.intersect_kd++);
 		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
@@ -573,7 +562,7 @@ begin:
 				goto begin;
 			}
 			// front and back
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			if(intersect_bspNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getBack();
@@ -587,7 +576,7 @@ begin:
 				goto begin;
 			}
 			// back and front
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis])/ray->rayDir[t->kd.splitAxis];
+			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			if(intersect_bspNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getFront();
@@ -738,14 +727,13 @@ template IBP
 bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 {
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
-	if(!box.intersect(ray)) return false;
-	ray->rayDir[0] = 1/ray->rayDirInv[0];
-	ray->rayDir[1] = 1/ray->rayDirInv[1];
-	ray->rayDir[2] = 1/ray->rayDirInv[2];
-	return intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
+	return box.intersectFast(ray)
+		&& update_rayDir(ray)
+		&& intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
 #endif
+
 	DBG(printf("\n"));
-	intersectStats.intersects++;
+	FILL_STATISTIC(intersectStats.intersects++);
 
 #ifdef TEST
 	ray->flags |= RRRay::FILL_PLANE + RRRay::FILL_DISTANCE;
@@ -754,22 +742,33 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	bool hit2 = test->intersect(&ray2);
 #endif
 	bool hit = false;
-	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
 
-	if((ray->flags&RRRay::SKIP_PRETESTS) || (
+	if(ray->flags&RRRay::SKIP_PRETESTS) goto test_yes;
 #ifdef USE_SPHERE
-		sphere.intersect(ray) &&
+	if(!sphere.intersect(ray)) goto test_no;
 #endif
-		box.intersect(ray)))
+	if(!box.intersect(ray)) goto test_no;
+	/*
+	if(!box.intersectFast(ray)) goto test_no;
+	// Zridka se muze stat, ze box.intersectFast vrati true a nastavi nahodne 
+	// hitDistanceMin/Max i kdyz se s paprskem neprotina 
+	// (nastava kdyz v nejake ose (origin==min || origin==max) && dir==0)
+	// Pokud jsou nahodne Min/Max konecna cisla, vse vykryje tree traversal,
+	// ktery bude sice nadbytecny, ale nakonec vrati false.
+	// Pokud je Min/Max nekonecno, traversal vrati ?
+	// Pokud je Min/Max NaN, traversal vrati ?
+	// Pri korektnim prubehu by nekonecno ani NaN nastat nemelo
+	//  (pokud je konecny mesh, vyjde konecny interval Min/Max).
+	// Muzeme tedy nekonecno i NaN zachytit jako nasledek vyse popsane udalosti.
+	if(!_finite(ray->hitDistanceMin) || !_finite(ray->hitDistanceMax)) goto test_no;
+	*/
+test_yes:
+	update_rayDir(ray);
+	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	switch(intersectTechnique)
 	{
 		case IT_BSP_FASTEST:
-#ifdef FASTEST_INVERSE_DIR
-			ray->rayDirInv[0] = 1/ray->rayDir[0];
-			ray->rayDirInv[1] = 1/ray->rayDir[1];
-			ray->rayDirInv[2] = 1/ray->rayDir[2];
-#endif
 			hit = intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
 			break;
 		case IT_BSP_FAST:
@@ -778,6 +777,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 		default:
 			assert(0);
 	}
+test_no:
 #ifdef TEST
 	if(hit!=hit2 || (hit && hit2 && ray->hitTriangle!=ray2.hitTriangle))
 	{
@@ -785,7 +785,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 		watch_tested = true;
 		if(hit && hit2 && ray2.hitDistance==ray->hitDistance)
 		{
-			intersectStats.diff_overlap++;
+			FILL_STATISTIC(intersectStats.diff_overlap++);
 			goto ok;
 		}
 		if(hit && (!hit2 || ray2.hitDistance>ray->hitDistance)) 
@@ -801,21 +801,21 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 			if(!ableToHit)
 			{
 				// precalculated intersect_triangleSRLNP gives different result -> miss
-				intersectStats.diff_precalc_miss++;
+				FILL_STATISTIC(intersectStats.diff_precalc_miss++);
 				goto ok;
 			}*/
 			if(hitBorder)
 			{
-				intersectStats.diff_tight_hit++;
+				FILL_STATISTIC(intersectStats.diff_tight_hit++);
 				goto ok;
 			}
 			if(hitParallel)
 			{
-				intersectStats.diff_parallel_hit++;
+				FILL_STATISTIC(intersectStats.diff_parallel_hit++);
 				goto ok;
 			}
 			{
-				intersectStats.diff_clear_hit++;
+				FILL_STATISTIC(intersectStats.diff_clear_hit++);
 				goto bad;
 			}
 		}
@@ -830,24 +830,24 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 			if(!bspAbleToHit)
 			{
 				// precalculated intersect_triangleSRLNP gives different result -> miss
-				intersectStats.diff_precalc_miss++;
+				FILL_STATISTIC(intersectStats.diff_precalc_miss++);
 				goto ok;
 			}
 			if(hit2Border)
 			{
 				// extremely small numerical inprecisions -> tight miss
-				intersectStats.diff_tight_miss++;
+				FILL_STATISTIC(intersectStats.diff_tight_miss++);
 				goto ok;
 			}
 			if(hit2Parallel)
 			{
 				// ray is parallel to plane + extremely small numerical inprecisions -> miss
-				intersectStats.diff_parallel_miss++;
+				FILL_STATISTIC(intersectStats.diff_parallel_miss++);
 				goto ok;
 			}
 			{
 				// unknown problem -> miss
-				intersectStats.diff_clear_miss_tested++;
+				FILL_STATISTIC(intersectStats.diff_clear_miss_tested++);
 				watch_tested = false;
 				watch_triangle = ray2.hitTriangle;
 				watch_distance = ray2.hitDistance;
@@ -861,8 +861,8 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 		intersect_bspSRLNP(&ray3,tree,ray3.hitDistanceMax);
 		if(!watch_tested)
 		{
-			intersectStats.diff_clear_miss_tested--;
-			intersectStats.diff_clear_miss_not_tested++;
+			FILL_STATISTIC(intersectStats.diff_clear_miss_tested--);
+			FILL_STATISTIC(intersectStats.diff_clear_miss_not_tested++);
 			watch_tested = true;
 		}
 		RRRay& ray4 = *RRRay::create(); ray4 = rayOrig;
@@ -875,7 +875,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	}
 #endif
 
-	if(hit) intersectStats.hits++;
+	FILL_STATISTIC(if(hit) intersectStats.hits++);
 	return hit;
 }
 

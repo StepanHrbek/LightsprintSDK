@@ -4,14 +4,10 @@
 #include "geometry.h"
 #include "RRIntersect.h"
 
-#define FILL_HITDISTANCE
-#define FILL_HITTRIANGLE
-#ifndef BUNNY_BENCHMARK_OPTIMIZATIONS
-	#define FILL_HITPOINT3D
-	#define FILL_HITPOINT2D
-	#define FILL_HITPLANE
-	#define FILL_HITSIDE
-	#define SURFACE_CALLBACK
+#ifdef TRAVERSAL_INPUT_DIR_INVDIR
+	#define DIVIDE_BY_RAYDIR *ray->rayDirInv
+#else
+	#define DIVIDE_BY_RAYDIR /ray->rayDir
 #endif
 
 #define DBGLINE
@@ -22,6 +18,8 @@ namespace rrIntersect
 
 	extern RRIntersectStats intersectStats;
 
+
+	PRIVATE bool update_rayDir(RRRay* ray);
 	PRIVATE void update_hitPoint3d(RRRay* ray, real distance);
 	PRIVATE void update_hitPlane(RRRay* ray, RRMeshImporter* importer);
 	PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t);

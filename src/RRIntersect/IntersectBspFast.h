@@ -22,27 +22,15 @@ namespace rrIntersect
 	};
 
 	struct TriangleSRLNP
-#ifdef USE_SSE_FASTEST
-		: public RRAligned
-#endif
 	{
 		// all vectors are aligned at 16byte boundaries for SSE
 		Plane   n3;             // ALIGN16 triangle plane, first three components form normalised normal
 		Vec3    s3;             // ALIGN16 vertex[0]
 		real    intersectReal;  // precalculated number for intersections
 		Vec3    r3;             // ALIGN16 vertex[1]-vertex[0]
-#ifdef USE_SSE_FASTEST
-		real    pad3;
-#endif
 		Vec3    ir3;            // ALIGN16 1/r3
-#ifdef USE_SSE_FASTEST
-		real    pad2;
-#endif
 		Vec3    l3;             // ALIGN16 vertex[2]-vertex[0]
 		char    intersectByte;  // precalculated number for intersections, 0..8
-#ifdef USE_SSE_FASTEST
-		char    pad1[3];
-#endif
 		void    setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3* b, const Vec3* c);
 		unsigned getTriangleIndex() const 
 		{

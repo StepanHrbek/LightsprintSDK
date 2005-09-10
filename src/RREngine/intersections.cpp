@@ -46,6 +46,12 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	*(Vec3*)(ray.rayOrigin) = eye;
 	*(Vec3*)(ray.rayDir) = direction;
 #endif
+#ifdef COLLIDER_INPUT_INVDIR
+	//!!! zbytecne spocitane rayDir, neni nutno vyplnovat
+	ray.rayDirInv[0] = 1/ray.rayDir[0];
+	ray.rayDirInv[1] = 1/ray.rayDir[1];
+	ray.rayDirInv[2] = 1/ray.rayDir[2];
+#endif
 
 	if(!importer->getCollider()->intersect(&ray))
 		return NULL;
