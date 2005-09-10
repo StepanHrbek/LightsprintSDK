@@ -68,7 +68,7 @@ namespace rrIntersect
 	  else
 	  {
 	    intersectByte=2;
-	    intersectReal=rzx;
+	    intersectReal=1/rzx;
 	  }
 	if(ABS(r3.x)>=ABS(r3.y))
 	{
@@ -116,7 +116,7 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	  else
 	  {
 	    intersectByte=2;
-	    intersectReal=rzx;
+	    intersectReal=1/rzx;
 	  }
 	if(ABS(r3.x)>=ABS(r3.y))
 	{
@@ -175,7 +175,7 @@ void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3
 	  else
 	  {
 	    intersectByte=2;
-	    intersectReal=rzx;
+	    intersectReal=1/rzx;
 	  }
 	if(ABS(r3.x)>=ABS(r3.y))
 	{
