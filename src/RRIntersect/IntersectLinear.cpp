@@ -171,12 +171,14 @@ bool IntersectLinear::intersect(RRRay* ray) const
 
 	ray->hitDistance = ray->hitDistanceMax;
 
+#ifdef USE_EXPECT_HIT
 	if(ray->rayFlags&RRRay::EXPECT_HIT) 
 	{
 		ray->hitDistanceMin = ray->rayLengthMin;
 		ray->hitDistanceMax = ray->rayLengthMax;
 	}
 	else
+#endif
 	{
 		if(
 #ifdef USE_SPHERE

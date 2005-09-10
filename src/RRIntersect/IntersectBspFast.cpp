@@ -719,12 +719,14 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	bool hit = false;
 	assert(tree);
 
+#ifdef USE_EXPECT_HIT
 	if(ray->rayFlags&RRRay::EXPECT_HIT) 
 	{
 		ray->hitDistanceMin = ray->rayLengthMin;
 		ray->hitDistanceMax = ray->rayLengthMax;
 	}
 	else 
+#endif
 	{
 #ifdef USE_SPHERE
 		if(!sphere.intersect(ray)) goto test_no;
