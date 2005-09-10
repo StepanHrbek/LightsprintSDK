@@ -697,7 +697,7 @@ template IBP
 bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 {
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
-	return box.intersectFast(ray) &&
+	return box.intersect(ray) &&
 		update_rayDir(ray) &&
 		(
 #ifdef USE_LONGJMP

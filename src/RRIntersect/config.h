@@ -3,6 +3,7 @@
 #define USE_SSE // by default, code is pure ANSI C++
 //#define USE_SPHERE // everywhere -> slowdown
 //#define USE_LONGJMP // bunny+msvc -> tiny slowdown
+#define USE_FAST_BOX // fast box can't handle 2 special cases -> rare errors
 
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
 	// limited featureset

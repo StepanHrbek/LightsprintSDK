@@ -320,6 +320,7 @@ static const float _MM_ALIGN16
 ps_cst_plus_inf[4]	= {  flt_plus_inf,  flt_plus_inf,  flt_plus_inf,  flt_plus_inf },
 ps_cst_minus_inf[4]	= { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
 
+#ifndef USE_FAST_BOX
 bool Box::intersect(RRRay* ray) const
 {
 	// you may already have those values hanging around somewhere
@@ -385,8 +386,10 @@ bool Box::intersect(RRRay* ray) const
 	return ray->hitDistanceMin<ray->hitDistanceMax;
 #endif
 }
+#endif // !USE_FAST_BOX
 
-bool Box::intersectFast(RRRay* ray) const
+#ifdef USE_FAST_BOX
+bool Box::intersect(RRRay* ray) const
 // returns bogus result and bogus min/max interval when
 // (ray->rayOrigin==min || ray->rayOrigin==max) && ray->rayDir==0
 // in at least one axis.
@@ -440,6 +443,7 @@ bool Box::intersectFast(RRRay* ray) const
 	return ray->hitDistanceMin<ray->hitDistanceMax;
 #endif
 }
+#endif // USE_FAST_BOX
 
 #endif
 
