@@ -69,9 +69,11 @@
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/Qopenmp"
 				GlobalOptimizations="TRUE"
 				EnableIntrinsicFunctions="FALSE"
 				OmitFramePointers="TRUE"
+				WholeProgramOptimization="TRUE"
 				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
