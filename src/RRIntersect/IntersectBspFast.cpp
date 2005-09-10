@@ -6,8 +6,8 @@
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
-#ifdef USE_SSE
-#include <xmmintrin.h>
+#ifdef USE_LONGJMP
+#include <setjmp.h>
 #endif
 
 namespace rrIntersect
@@ -298,42 +298,12 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshIm
 	return true;
 }
 
-#ifdef USE_SSE
-/*void mm_sum(__m128& mm0,float* res)
-// res[0] = mm0[0]+mm0[1]+mm0[2]+mm0[3]
-{
-	//_MM_ALIGN16 static float tmp[4];
-	//_mm_store_ps(tmp,mm0);
-	//return tmp[0]+tmp[1]+tmp[2]+tmp[3];
-	//movaps xmm0, xmmword ptr [eax] ; xmm0 = x y z w
-	// mm1 used without beng initialized: it IS intention, uninitialized part won't be used
-	__m128 mm1; mm1=_mm_movehl_ps(mm1,mm0); //movhlps xmm1, xmm0 ; xmm1 = z w ? ?
-	mm0=_mm_add_ps(mm0,mm1); //addps xmm0, xmm1 ; xmm0 = (x+z) (y+w) ? ?
-	mm1=_mm_shuffle_ps(mm0,mm1,1); //shufps xmm1, xmm0, 1 ; xmm1 = (y+w) ? ? ?
-	mm0=_mm_add_ss(mm0,mm1); //addss xmm0, xmm1 ; xmm0 = (x+y+z+w) ? ? ?
-	_mm_store_ss(res,mm0);//movss dword ptr [ebx], xmm0
-}*/
-void mm_sum2(__m128& mm0,__m128& mm1,float* res) // res must be aligned
-// res[0] = mm0[0]+mm0[1]+mm0[2]+mm0[3]
-// res[2] = mm1[0]+mm1[1]+mm1[2]+mm1[3]
-{
-	__m128 mm2; mm2=_mm_shuffle_ps(mm0,mm1,_MM_SHUFFLE(0,1,0,1));
-	__m128 mm3; mm3=_mm_shuffle_ps(mm0,mm1,_MM_SHUFFLE(3,2,3,2)); // mm2+mm3=0011
-	mm2=_mm_add_ps(mm2,mm3); // mm2=0011
-	mm3=_mm_shuffle_ps(mm2,mm2,_MM_SHUFFLE(3,3,1,1)); // mm2+mm3=0011
-	mm2=_mm_add_ps(mm2,mm3); // mm2=-0-1
-	_mm_store_ps(res,mm2);
-}
-void mm_sum2(__m128& mm0,__m128& mm1,__m128& mm2)
-// mm2[0] = mm0[0]+mm0[1]+mm0[2]+mm0[3]
-// mm2[2] = mm1[0]+mm1[1]+mm1[2]+mm1[3]
-{
-	mm2=_mm_shuffle_ps(mm0,mm1,_MM_SHUFFLE(0,1,0,1));
-	__m128 mm3; mm3=_mm_shuffle_ps(mm0,mm1,_MM_SHUFFLE(3,2,3,2)); // mm2+mm3=0011
-	mm2=_mm_add_ps(mm2,mm3); // mm2=0011
-	mm3=_mm_shuffle_ps(mm2,mm2,_MM_SHUFFLE(3,3,1,1)); // mm2+mm3=0011
-	mm2=_mm_add_ps(mm2,mm3); // mm2=-0-1
-}
+
+#ifdef USE_LONGJMP
+	jmp_buf tmpMark;
+	#define RETURN_SUCCESS longjmp(tmpMark,1); // probably not thread safe
+#else
+	#define RETURN_SUCCESS return true;
 #endif
 
 template IBP
@@ -390,7 +360,7 @@ begin:
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
-			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
+			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			assert(t->kd.getBack()->bsp.size<MAX_SIZE);
 			t = t->kd.getBack();
@@ -409,7 +379,7 @@ begin:
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getBack());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
-			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
+			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			assert(t->kd.getFront()->bsp.size<MAX_SIZE);
 			t = t->kd.getFront();
@@ -476,10 +446,10 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->bsp.front && intersect_bspSRLNP(ray,front,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.front && intersect_bspSRLNP(ray,front,distancePlane+DELTA_BSP)) RETURN_SUCCESS;
 		TEST_RANGE(ray->hitDistanceMin,distancePlane+DELTA_BSP,t->bsp.front,front);
 	} else {
-		if(t->bsp.back && intersect_bspSRLNP(ray,back,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.back && intersect_bspSRLNP(ray,back,distancePlane+DELTA_BSP)) RETURN_SUCCESS;
 		TEST_RANGE(ray->hitDistanceMin,distancePlane+DELTA_BSP,t->bsp.back,back);
 	}
 
@@ -507,7 +477,7 @@ begin:
 #ifdef SURFACE_CALLBACK
 			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) 
 #endif
-				return true;
+				RETURN_SUCCESS;
 		}
 		triangle++;
 	}
@@ -563,7 +533,7 @@ begin:
 			}
 			// front and back
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
-			if(intersect_bspNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
+			if(intersect_bspNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getBack();
 			goto begin;
@@ -577,7 +547,7 @@ begin:
 			}
 			// back and front
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
-			if(intersect_bspNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
+			if(intersect_bspNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getFront();
 			goto begin;
@@ -625,9 +595,9 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->bsp.front && intersect_bspNP(ray,front,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.front && intersect_bspNP(ray,front,distancePlane+DELTA_BSP)) RETURN_SUCCESS;
 	} else {
-		if(t->bsp.back && intersect_bspNP(ray,back,distancePlane+DELTA_BSP)) return true;
+		if(t->bsp.back && intersect_bspNP(ray,back,distancePlane+DELTA_BSP)) RETURN_SUCCESS;
 	}
 
 	// test plane
@@ -650,7 +620,7 @@ begin:
 #ifdef SURFACE_CALLBACK
 			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) 
 #endif
-				return true;
+				RETURN_SUCCESS;
 		}
 		triangle++;
 	}
@@ -727,9 +697,14 @@ template IBP
 bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 {
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
-	return box.intersectFast(ray)
-		&& update_rayDir(ray)
-		&& intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
+	return box.intersectFast(ray) &&
+		update_rayDir(ray) &&
+		(
+#ifdef USE_LONGJMP
+			setjmp(tmpMark) || 
+#endif
+			intersect_bspSRLNP(ray,tree,ray->hitDistanceMax)
+		);
 #endif
 
 	DBG(printf("\n"));
@@ -765,6 +740,9 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	*/
 test_yes:
 	update_rayDir(ray);
+#ifdef USE_LONGJMP
+	if(setjmp(tmpMark)) return true;
+#endif
 	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	switch(intersectTechnique)
 	{

@@ -39,7 +39,7 @@
 #endif
 
 #define COLLIDER_INPUT_INVDIR // by default, collider.intersect input is only DIR
-#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
+//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
 	#define COLLIDER_INPUT_UNLIMITED_DISTANCE // by default, collider.intersect expects that hitDistanceMin/Max contains range of allowed hitDistance
 #endif

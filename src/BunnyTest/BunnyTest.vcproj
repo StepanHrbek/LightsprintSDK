@@ -152,6 +152,9 @@
 			<File
 				RelativePath=".\sphereunitvecpool.h">
 			</File>
+			<File
+				RelativePath=".\StopWatch.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

@@ -1,8 +1,8 @@
 #include "RRIntersect.h"
 
 #define USE_SSE // by default, code is pure ANSI C++
-//#define USE_SPHERE
-#define USE_LONGJMP
+//#define USE_SPHERE // everywhere -> slowdown
+//#define USE_LONGJMP // bunny+msvc -> tiny slowdown
 
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
 	// limited featureset

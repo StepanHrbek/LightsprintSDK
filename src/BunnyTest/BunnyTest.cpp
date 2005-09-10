@@ -1,5 +1,6 @@
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"
+#include "StopWatch.h"
 #include "..\..\include\RRIntersect.h"
 #include <math.h>
 #include <stdio.h>
@@ -43,17 +44,15 @@ int main(int argc, char** argv)
 	printf("vertices=%d tris=%d\n",importer.getNumVertices(),importer.getNumTriangles());
 
 	SphereUnitVecPool vecpool;//create pool of random points
-
-	clock_t t0 = clock(); //start timer
 	int num_hits = 0;//number of rays that actually hit the model
-
 	const unsigned NUM_ITERS = 2000000*4;
 	const PoolVec3 aabb_center = PoolVec3(-0.016840f, 0.110154f, -0.001537f);
+	const float RADIUS = 0.2f;//radius of sphere
 
 	rrIntersect::RRRay* ray = rrIntersect::RRRay::create();
 	ray->flags = rrIntersect::RRRay::FILL_TRIANGLE | rrIntersect::RRRay::FILL_DISTANCE;
-	const float RADIUS = 0.2f;//radius of sphere
-
+	StopWatch* watch = new StopWatch();
+	watch->Start();
 	for(unsigned i=0; i<NUM_ITERS; ++i)
 	{
 		PoolVec3 rayorigin = vecpool.getVec();//get random point on unit ball from pool
@@ -93,16 +92,16 @@ int main(int argc, char** argv)
 		if(intersector->intersect(ray))
 			num_hits++;//count the hit.
 	}
+	watch->Watch();
 
 	delete ray;
+	delete intersector;
 
-	clock_t t1 = clock();
-	const double speed = NUM_ITERS/((double)(t1-t0)/CLOCKS_PER_SEC);
 	const double fraction_hit = (double)num_hits / (double)NUM_ITERS;
-
+	const double speed = NUM_ITERS/((double)(watch->usertime)*1e-7);
+	const double speed2 = NUM_ITERS/((double)(watch->usertime+watch->kerneltime)*1e-7); // slower due to swapping etc
 	printf("speed = %d k/s   fraction_hit = %f\n",(int)(speed/1000),fraction_hit);
 	fgetc(stdin);
-	delete intersector;
 
 	return 0;
 }
