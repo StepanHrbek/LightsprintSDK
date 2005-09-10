@@ -53,12 +53,12 @@ bool IntersectVerification::intersect(RRRay* ray) const
 		{
 			real delta;
 #define DIFFERS(a,b) ( (a!=b) && fabs(a-b)>delta )
-			if(ray->flags&RRRay::FILL_TRIANGLE) if(rayArray[i].hitTriangle!=rayArray[0].hitTriangle) diffTriangle = true;
-			if(ray->flags&RRRay::FILL_SIDE)     if(rayArray[i].hitOuterSide!=rayArray[0].hitOuterSide) diffSide = true;
-			if(ray->flags&RRRay::FILL_DISTANCE) {delta=10*DELTA_BSP;if(DIFFERS(rayArray[i].hitDistance,rayArray[0].hitDistance)) diffDistance = true;}
-			if(ray->flags&RRRay::FILL_POINT2D)  {delta=0.001f;if(DIFFERS(rayArray[i].hitPoint2d[0],rayArray[0].hitPoint2d[0]) || DIFFERS(rayArray[i].hitPoint2d[1],rayArray[0].hitPoint2d[1])) diffPoint2d = true;}
-			if(ray->flags&RRRay::FILL_POINT3D)  {delta=10*DELTA_BSP;if(DIFFERS(rayArray[i].hitPoint3d[0],rayArray[0].hitPoint3d[0]) || DIFFERS(rayArray[i].hitPoint3d[1],rayArray[0].hitPoint3d[1]) || DIFFERS(rayArray[i].hitPoint3d[2],rayArray[0].hitPoint3d[2])) diffPoint3d = true;}
-			if(ray->flags&RRRay::FILL_PLANE)    {delta=0.001f;if(DIFFERS(rayArray[i].hitPlane[0],rayArray[0].hitPlane[0]) || DIFFERS(rayArray[i].hitPlane[1],rayArray[0].hitPlane[1]) || DIFFERS(rayArray[i].hitPlane[2],rayArray[0].hitPlane[2]) || DIFFERS(rayArray[i].hitPlane[3],rayArray[0].hitPlane[3])) diffPlane = true;}
+			if(ray->rayFlags&RRRay::FILL_TRIANGLE) if(rayArray[i].hitTriangle!=rayArray[0].hitTriangle) diffTriangle = true;
+			if(ray->rayFlags&RRRay::FILL_SIDE)     if(rayArray[i].hitOuterSide!=rayArray[0].hitOuterSide) diffSide = true;
+			if(ray->rayFlags&RRRay::FILL_DISTANCE) {delta=10*DELTA_BSP;if(DIFFERS(rayArray[i].hitDistance,rayArray[0].hitDistance)) diffDistance = true;}
+			if(ray->rayFlags&RRRay::FILL_POINT2D)  {delta=0.001f;if(DIFFERS(rayArray[i].hitPoint2d[0],rayArray[0].hitPoint2d[0]) || DIFFERS(rayArray[i].hitPoint2d[1],rayArray[0].hitPoint2d[1])) diffPoint2d = true;}
+			if(ray->rayFlags&RRRay::FILL_POINT3D)  {delta=10*DELTA_BSP;if(DIFFERS(rayArray[i].hitPoint3d[0],rayArray[0].hitPoint3d[0]) || DIFFERS(rayArray[i].hitPoint3d[1],rayArray[0].hitPoint3d[1]) || DIFFERS(rayArray[i].hitPoint3d[2],rayArray[0].hitPoint3d[2])) diffPoint3d = true;}
+			if(ray->rayFlags&RRRay::FILL_PLANE)    {delta=0.001f;if(DIFFERS(rayArray[i].hitPlane[0],rayArray[0].hitPlane[0]) || DIFFERS(rayArray[i].hitPlane[1],rayArray[0].hitPlane[1]) || DIFFERS(rayArray[i].hitPlane[2],rayArray[0].hitPlane[2]) || DIFFERS(rayArray[i].hitPlane[3],rayArray[0].hitPlane[3])) diffPlane = true;}
 #undef DIFFERS
 		}
 	}

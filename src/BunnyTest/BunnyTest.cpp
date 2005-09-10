@@ -7,10 +7,6 @@
 #include <tchar.h>
 #include <time.h>
 
-// optimizations
-//#define COLLIDER_INPUT_INVDIR
-//#define COLLIDER_INPUT_UNLIMITED_DISTANCE
-
 typedef rrIntersect::RRIndexedTriListImporter<int> inherited;
 //typedef rrIntersect::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int> inherited;
 //typedef rrIntersect::RRLessTrianglesImporter<RRCollider::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int>,int> inherited;
@@ -50,7 +46,7 @@ int main(int argc, char** argv)
 	const float RADIUS = 0.2f;//radius of sphere
 
 	rrIntersect::RRRay* ray = rrIntersect::RRRay::create();
-	ray->flags = rrIntersect::RRRay::FILL_TRIANGLE | rrIntersect::RRRay::FILL_DISTANCE;
+	ray->rayFlags = rrIntersect::RRRay::FILL_TRIANGLE | rrIntersect::RRRay::FILL_DISTANCE;
 	StopWatch* watch = new StopWatch();
 	watch->Start();
 	for(unsigned i=0; i<NUM_ITERS; ++i)
@@ -65,18 +61,12 @@ int main(int argc, char** argv)
 		ray->rayOrigin[0] = rayorigin.x*RADIUS+aabb_center.x;
 		ray->rayOrigin[1] = rayorigin.y*RADIUS+aabb_center.y;
 		ray->rayOrigin[2] = rayorigin.z*RADIUS+aabb_center.z;
-#ifdef COLLIDER_INPUT_INVDIR
 		ray->rayDirInv[0] = size/dir.x;
 		ray->rayDirInv[1] = size/dir.y;
 		ray->rayDirInv[2] = size/dir.z;
-#else
-		ray->rayDir[0] = dir.x/size;
-		ray->rayDir[1] = dir.y/size;
-		ray->rayDir[2] = dir.z/size;
-#endif
 #ifndef COLLIDER_INPUT_UNLIMITED_DISTANCE
-		ray->hitDistanceMin = 0;
-		ray->hitDistanceMax = size;
+		ray->rayLengthMin = 0;
+		ray->rayLengthMax = size;
 #endif
 
 		/*if(box.intersect(ray))

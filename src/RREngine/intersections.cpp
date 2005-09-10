@@ -18,7 +18,9 @@ namespace rrEngine
 unsigned __shot=0;
 
 // return first intersection with object
-// but not with *skip and not more far than *hitDistance
+//  const inputs in ray: rayLengthMin, rayLengthMax, rayFlags, surfaceImporter
+//  var inputs in ray:
+//  outputs in ray: all defined by rayFlags
 
 Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direction)
 {
@@ -28,30 +30,30 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	assert(fabs(size2(direction)-1)<0.001); // normalized dir expected
 
 	// transform from scenespace to objectspace
+	Vec3 rayDir;
 #ifdef SUPPORT_TRANSFORMS
 	// translation+rotation allowed, no scaling, so direction stays normalized
 	*(Vec3*)(ray.rayOrigin) = eye.transformed(inverseMatrix);
-	*(Vec3*)(ray.rayDir) = direction.rotated(inverseMatrix);
+	rayDir = direction.rotated(inverseMatrix);
 #ifdef SUPPORT_SCALE
 	// translation+rotation+scale allowed
-	real scale = size(*(Vec3*)(ray.rayDir)); // kolikrat je mesh ve worldu zmenseny
-	*(Vec3*)(ray.rayDir) /= scale;
-	real hitDistanceMin = ray.hitDistanceMin;
-	real hitDistanceMax = ray.hitDistanceMax;
-	ray.hitDistanceMin *= scale;
-	ray.hitDistanceMax *= scale;
+	real scale = size(rayDir); // kolikrat je mesh ve worldu zmenseny
+	real oldRayLengthMin = ray.rayLengthMin;
+	real oldRayLengthMax = ray.rayLengthMax;
+	ray.rayLengthMin *= scale;
+	ray.rayLengthMax *= scale;
+#else
+	const int scale = 1;
 #endif
 #else
 	// no transformation
+	const int scale = 1;
 	*(Vec3*)(ray.rayOrigin) = eye;
-	*(Vec3*)(ray.rayDir) = direction;
+	rayDir = direction;
 #endif
-#ifdef COLLIDER_INPUT_INVDIR
-	//!!! zbytecne spocitane rayDir, neni nutno vyplnovat
-	ray.rayDirInv[0] = 1/ray.rayDir[0];
-	ray.rayDirInv[1] = 1/ray.rayDir[1];
-	ray.rayDirInv[2] = 1/ray.rayDir[2];
-#endif
+	ray.rayDirInv[0] = scale/rayDir[0];
+	ray.rayDirInv[1] = scale/rayDir[1];
+	ray.rayDirInv[2] = scale/rayDir[2];
 
 	if(!importer->getCollider()->intersect(&ray))
 		return NULL;
@@ -60,8 +62,8 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 #ifdef SUPPORT_TRANSFORMS
 #ifdef SUPPORT_SCALE
 	ray.hitDistance /= scale;
-	ray.hitDistanceMin = hitDistanceMin;
-	ray.hitDistanceMax = hitDistanceMax;
+	ray.rayLengthMin = oldRayLengthMin;
+	ray.rayLengthMax = oldRayLengthMax;
 #endif
 #endif
 
@@ -109,6 +111,9 @@ unsigned rrEngine::dbgRays=0;
 #define LOG_RAY(aeye,adir,adist) { memcpy(dbgRay[dbgRays].eye,&aeye,sizeof(Vec3)); memcpy(dbgRay[dbgRays].dir,&adir,sizeof(Vec3)); dbgRay[dbgRays].dist=adist; ++dbgRays%=MAX_DBGRAYS; }
 
 // return first intersection with "scene minus *skip minus dynamic objects"
+//  const inputs in ray: rayLengthMin, rayLengthMax, rayFlags
+//  var inputs in ray:
+//  outputs in ray: all defined by rayFlags
 Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip)
 {
 	assert(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
@@ -128,26 +133,26 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	{       
 		U8 backup[10*sizeof(RRReal)+sizeof(unsigned)+sizeof(bool)]; //!!! may change with changes in RRRay
 		for(unsigned o=0;o<staticObjects;o++)
-			if(object[o]->bound.intersect(eye,direction,ray.hitDistanceMax)) // replaced by pretests in RRCollider
+			if(object[o]->bound.intersect(eye,direction,ray.rayLengthMax)) // replaced by pretests in RRCollider
 			{
 				skipTriangle.skip = (unsigned)(skip-object[o]->triangle);
-				real tmpMin = ray.hitDistanceMin;
-				real tmpMax = ray.hitDistanceMax;
+				real tmpMin = ray.rayLengthMin;
+				real tmpMax = ray.rayLengthMax;
 				Triangle* tmp = object[o]->intersection(ray,eye,direction); // no intersection -> outputs get undefined 
-				ray.hitDistanceMin = tmpMin;
+				ray.rayLengthMin = tmpMin;
 				if(tmp) 
 				{
 					hitTriangle = tmp;
-					ray.hitDistanceMax = ray.hitDistance;
+					ray.rayLengthMax = ray.hitDistance;
 					if(staticObjects>1) memcpy(backup,&ray.hitDistance,sizeof(backup)); // backup valid outputs
 				} else {
-					ray.hitDistanceMax = tmpMax;
+					ray.rayLengthMax = tmpMax;
 				}
 			}
 		if(staticObjects>1) memcpy(&ray.hitDistance,backup,sizeof(backup)); // restore valid outputs
 	}
 
-	LOG_RAY(eye,direction,hitTriangle?ray.hitDistanceMax:-1);
+	LOG_RAY(eye,direction,hitTriangle?ray.rayLengthMax:-1);
 	return hitTriangle;
 }
 

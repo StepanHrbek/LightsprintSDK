@@ -2235,9 +2235,9 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	assert(IS_VEC3(eye));
 	assert(IS_VEC3(direction));
 	rrIntersect::RRRay& ray = *__ray;
-	ray.flags = rrIntersect::RRRay::FILL_DISTANCE|rrIntersect::RRRay::FILL_SIDE|rrIntersect::RRRay::FILL_POINT2D|rrIntersect::RRRay::FILL_TRIANGLE|rrIntersect::RRRay::SKIP_PRETESTS;
-	ray.hitDistanceMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
-	ray.hitDistanceMax = BIG_REAL;
+	ray.rayFlags = rrIntersect::RRRay::FILL_DISTANCE|rrIntersect::RRRay::FILL_SIDE|rrIntersect::RRRay::FILL_POINT2D|rrIntersect::RRRay::FILL_TRIANGLE|rrIntersect::RRRay::EXPECT_HIT;
+	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
+	ray.rayLengthMax = BIG_REAL;
 	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
 	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{

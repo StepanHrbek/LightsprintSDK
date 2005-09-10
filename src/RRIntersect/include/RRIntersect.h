@@ -38,7 +38,6 @@
 	#define RRINTERSECT_API
 #endif
 
-#define COLLIDER_INPUT_INVDIR // by default, collider.intersect input is only DIR
 //#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
 	#define COLLIDER_INPUT_UNLIMITED_DISTANCE // by default, collider.intersect expects that hitDistanceMin/Max contains range of allowed hitDistance
@@ -117,7 +116,7 @@ namespace rrIntersect
 	//
 	// RRAligned
 	//
-	// On some platforms (x86+SSE), some structures need to be specially aligned in memory.
+	// On some platforms, some structures need to be specially aligned in memory.
 	// This helper base class helps to align them.
 
 	struct RRAligned
@@ -134,6 +133,7 @@ namespace rrIntersect
 	// RRRay - ray to intersect with object.
 	//
 	// Contains all inputs and outputs for RRCollider::intersect()
+	// All fields of at least 3 floats are aligned.
 
 	class RRINTERSECT_API RRRay : public RRAligned
 	{
@@ -141,7 +141,7 @@ namespace rrIntersect
 		// create ray
 		static RRRay* create(); // all is zeroed, all FILL flags on
 		static RRRay* create(unsigned n); // creates array
-		// inputs
+		// inputs (never modified by collider)
 		enum Flags
 		{ 
 			FILL_DISTANCE   =(1<<0), // which outputs to fill
@@ -151,22 +151,22 @@ namespace rrIntersect
 			FILL_TRIANGLE   =(1<<4),
 			FILL_SIDE       =(1<<5),
 			TEST_SINGLESIDED=(1<<6), // detect collision only against outer side. default is to test both sides
-			SKIP_PRETESTS   =(1<<7), // skip bounding volume pretests
+			EXPECT_HIT      =(1<<7), // set it to speed things up when you know, that ray will probably hit the mesh
 		};
-		RRReal          rayOrigin[4];   // i, ALIGN16 ray origin. never modify last component, must stay 1
-		RRReal          rayDir[4];      // i, ALIGN16 ray direction, must be normalized. never modify last component, must stay 0
-		RRReal          rayDirInv[4];   // -, ALIGN16 1/ray direction, may be filled during test
-		unsigned        flags;          // i, flags that specify the action
+		RRReal          rayOrigin[4];   // i, (-Inf,Inf), ray origin. never modify last component, must stay 1
+		RRReal          rayDirInv[4];   // i, <-Inf,Inf>, 1/ray direction. direction must be normalized
+		RRReal          rayLengthMin;   // i, <0,Inf), test intersection in range <min,max>
+		RRReal          rayLengthMax;   // i, <0,Inf), test intersection in range <min,max>
+		unsigned        rayFlags;       // i, flags that specify the action
 		RRMeshSurfaceImporter* surfaceImporter; // i, optional surface importer for user-defined surface behaviours
-		RRReal          hitDistanceMin; // io, test hit in range <min,max>, undefined after test
-		RRReal          hitDistanceMax; // io, test hit in range <min,max>, undefined after test
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    // o, hit distance in object space
-		unsigned        hitTriangle;    // o, postImportTriangle that was hit
+		unsigned        hitTriangle;    // o, triangle (postImport) that was hit
 		RRReal          hitPoint2d[2];  // o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
-		RRReal          hitPlane[4];    // o, ALIGN16 plane of hitTriangle in object space, [0..2] is normal
+		RRReal          hitPlane[4];    // o, plane of hitTriangle in object space, [0..2] is normal
 		RRReal          hitPoint3d[3];  // o, hit coordinate in object space
 		bool            hitOuterSide;   // o, true = object was hit from the outer (common) side
+		RRReal          hitPadding[8];  // o, undefined, never modify
 	private:
 		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};

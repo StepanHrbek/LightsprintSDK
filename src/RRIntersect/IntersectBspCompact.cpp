@@ -31,7 +31,7 @@ static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t,
 
 	// cull test
 	bool hitOuterSide = det>0;
-	if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
+	if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 
 	// if determinant is near zero, ray lies in plane of triangle
 	if(det==0) return false;
@@ -105,13 +105,13 @@ begin:
 					if(ray->surfaceImporter)
 					{
 #ifdef FILL_HITPOINT3D
-						if(ray->flags&RRRay::FILL_POINT3D)
+						if(ray->rayFlags&RRRay::FILL_POINT3D)
 						{
 							update_hitPoint3d(ray,ray->hitDistance);
 						}
 #endif
 #ifdef FILL_HITPLANE
-						if(ray->flags&RRRay::FILL_PLANE)
+						if(ray->rayFlags&RRRay::FILL_PLANE)
 						{
 							update_hitPlane(ray,importer);
 						}
@@ -137,13 +137,13 @@ begin:
 					memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
 				}
 #ifdef FILL_HITPOINT3D
-				if(ray->flags&RRRay::FILL_POINT3D)
+				if(ray->rayFlags&RRRay::FILL_POINT3D)
 				{
 					update_hitPoint3d(ray,ray->hitDistance);
 				}
 #endif
 #ifdef FILL_HITPLANE
-				if(ray->flags&RRRay::FILL_PLANE)
+				if(ray->rayFlags&RRRay::FILL_PLANE)
 				{
 					update_hitPlane(ray,importer);
 				}
@@ -275,7 +275,7 @@ begin:
 			ray->hitDistance = distancePlane;
 #endif
 #ifdef FILL_HITPLANE
-			if(ray->flags&RRRay::FILL_PLANE)
+			if(ray->rayFlags&RRRay::FILL_PLANE)
 			{
 				real siz = size(n);
 				ray->hitPlane[0] = n.x/siz;
@@ -285,7 +285,7 @@ begin:
 			}
 #endif
 #ifdef FILL_HITPOINT3D
-			if(ray->flags&RRRay::FILL_POINT3D)
+			if(ray->rayFlags&RRRay::FILL_POINT3D)
 			{
 				update_hitPoint3d(ray,distancePlane);
 			}
@@ -332,12 +332,32 @@ unsigned IntersectBspCompact IBP2::getMemoryOccupied() const
 template IBP
 bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 {
-	DBG(printf("\n"));
-	FILL_STATISTIC(intersectStats.intersects++);
-
-	//assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
 	assert(tree);
-	bool hit = ((ray->flags&RRRay::SKIP_PRETESTS) || (
+
+	FILL_STATISTIC(intersectStats.intersects++);
+	if(ray->rayFlags&RRRay::EXPECT_HIT) 
+	{
+		ray->hitDistanceMin = ray->rayLengthMin;
+		ray->hitDistanceMax = ray->rayLengthMax;
+	}
+	else
+	{
+#ifdef USE_SPHERE
+		if(!sphere.intersect(ray)) return false;
+#endif
+		if(!box.intersect(ray)) return false;
+	}
+	update_rayDir(ray);
+	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
+	bool hit;
+	{
+		hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
+	}
+	FILL_STATISTIC(if(hit) intersectStats.hits++);
+	return hit;
+
+/*
+	bool hit = ((ray->rayFlags&RRRay::EXPECT_HIT) || (
 #ifdef USE_SPHERE
 		sphere.intersect(ray) &&
 #endif
@@ -345,7 +365,7 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 		&& update_rayDir(ray)
 		&& intersect_bsp(ray,tree,ray->hitDistanceMax);
 	FILL_STATISTIC(if(hit) intersectStats.hits++);
-	return hit;
+	return hit;*/
 }
 
 template IBP

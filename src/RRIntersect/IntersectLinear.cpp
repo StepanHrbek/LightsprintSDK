@@ -67,7 +67,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t
 
 	// cull test
 	bool hitOuterSide = det>0;
-	if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
+	if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 
 	// if determinant is near zero, ray lies in plane of triangle
 	if(det==0) return false;
@@ -171,12 +171,19 @@ bool IntersectLinear::intersect(RRRay* ray) const
 
 	ray->hitDistance = ray->hitDistanceMax;
 
-	if(!(ray->flags&RRRay::SKIP_PRETESTS))
-	if(
+	if(ray->rayFlags&RRRay::EXPECT_HIT) 
+	{
+		ray->hitDistanceMin = ray->rayLengthMin;
+		ray->hitDistanceMax = ray->rayLengthMax;
+	}
+	else
+	{
+		if(
 #ifdef USE_SPHERE
-		!sphere.intersect(ray) ||
+			!sphere.intersect(ray) ||
 #endif
-		!box.intersect(ray)) return false;
+			!box.intersect(ray)) return false;
+	}
 
 	bool hit = false;
 	char backup[sizeof(RRRay)];
@@ -193,13 +200,13 @@ bool IntersectLinear::intersect(RRRay* ray) const
 			if(ray->surfaceImporter) 
 			{
 #ifdef FILL_HITPOINT3D
-				if(ray->flags&RRRay::FILL_POINT3D)
+				if(ray->rayFlags&RRRay::FILL_POINT3D)
 				{
 					update_hitPoint3d(ray,ray->hitDistance);
 				}
 #endif
 #ifdef FILL_HITPLANE
-				if(ray->flags&RRRay::FILL_PLANE)
+				if(ray->rayFlags&RRRay::FILL_PLANE)
 				{
 					update_hitPlane(ray,importer);
 				}
@@ -226,13 +233,13 @@ bool IntersectLinear::intersect(RRRay* ray) const
 			memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
 		}
 #ifdef FILL_HITPOINT3D
-		if(ray->flags&RRRay::FILL_POINT3D)
+		if(ray->rayFlags&RRRay::FILL_POINT3D)
 		{
 			update_hitPoint3d(ray,ray->hitDistance);
 		}
 #endif
 #ifdef FILL_HITPLANE
-		if(ray->flags&RRRay::FILL_PLANE)
+		if(ray->rayFlags&RRRay::FILL_PLANE)
 		{
 			update_hitPlane(ray,importer);
 		}

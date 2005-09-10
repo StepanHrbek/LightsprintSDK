@@ -23,6 +23,7 @@
 	#define FILL_STATISTIC(a) a
 #endif
 
+#define COLLIDER_INPUT_INVDIR // partially hardcoded, must stay defined
 #ifdef COLLIDER_INPUT_INVDIR
 	// must be identical, box test is always first operation
 	#define BOX_INPUT_INVDIR // by default, box.intersect input is only DIR
@@ -38,3 +39,7 @@
 #ifndef PRIVATE
 	#define PRIVATE
 #endif
+
+#define rayDir         hitPadding
+#define hitDistanceMin hitPadding[4]
+#define hitDistanceMax hitPadding[5]

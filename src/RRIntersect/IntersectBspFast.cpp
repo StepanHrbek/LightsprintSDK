@@ -236,11 +236,11 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	if(u<0 || u+v>1) return false;
 
 #ifdef FILL_HITSIDE
-	if(ray->flags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
+	if(ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
 		//bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
 		bool hitOuterSide=dot(*(Vec3*)(ray->rayDir),t->n3)<0;
-		if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
+		if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitOuterSide=hitOuterSide;
 	}
 #endif
@@ -280,11 +280,11 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshIm
 	if(u<0 || u+v>1) return false;
 
 #ifdef FILL_HITSIDE
-	if(ray->flags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
+	if(ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
 		//bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
 		bool hitOuterSide=dot(*(Vec3*)(ray->rayDir),t->n3)<0;
-		if(!hitOuterSide && (ray->flags&RRRay::TEST_SINGLESIDED)) return false;
+		if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitOuterSide=hitOuterSide;
 	}
 #endif
@@ -719,26 +719,29 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	bool hit = false;
 	assert(tree);
 
-	if(ray->flags&RRRay::SKIP_PRETESTS) goto test_yes;
+	if(ray->rayFlags&RRRay::EXPECT_HIT) 
+	{
+		ray->hitDistanceMin = ray->rayLengthMin;
+		ray->hitDistanceMax = ray->rayLengthMax;
+	}
+	else 
+	{
 #ifdef USE_SPHERE
-	if(!sphere.intersect(ray)) goto test_no;
+		if(!sphere.intersect(ray)) goto test_no;
 #endif
-	if(!box.intersect(ray)) goto test_no;
-	/*
-	if(!box.intersectFast(ray)) goto test_no;
-	// Zridka se muze stat, ze box.intersectFast vrati true a nastavi nahodne 
-	// hitDistanceMin/Max i kdyz se s paprskem neprotina 
-	// (nastava kdyz v nejake ose (origin==min || origin==max) && dir==0)
-	// Pokud jsou nahodne Min/Max konecna cisla, vse vykryje tree traversal,
-	// ktery bude sice nadbytecny, ale nakonec vrati false.
-	// Pokud je Min/Max nekonecno, traversal vrati ?
-	// Pokud je Min/Max NaN, traversal vrati ?
-	// Pri korektnim prubehu by nekonecno ani NaN nastat nemelo
-	//  (pokud je konecny mesh, vyjde konecny interval Min/Max).
-	// Muzeme tedy nekonecno i NaN zachytit jako nasledek vyse popsane udalosti.
-	if(!_finite(ray->hitDistanceMin) || !_finite(ray->hitDistanceMax)) goto test_no;
-	*/
-test_yes:
+		if(!box.intersect(ray)) goto test_no;
+		// Zridka se muze stat, ze box.intersectFast vrati true a nastavi nahodne 
+		// hitDistanceMin/Max i kdyz se s paprskem neprotina 
+		// (nastava kdyz v nejake ose (origin==min || origin==max) && dir==0)
+		// Pokud jsou nahodne Min/Max konecna cisla, vse vykryje tree traversal,
+		// ktery bude sice nadbytecny, ale nakonec vrati false.
+		// Pokud je Min/Max nekonecno, traversal vrati ?
+		// Pokud je Min/Max NaN, traversal vrati ?
+		// Pri korektnim prubehu by nekonecno ani NaN nastat nemelo
+		//  (pokud je konecny mesh, vyjde konecny interval Min/Max).
+		// Muzeme tedy nekonecno i NaN zachytit jako nasledek vyse popsane udalosti.
+		//if(!_finite(ray->hitDistanceMin) || !_finite(ray->hitDistanceMax)) goto test_no;
+	}
 	update_rayDir(ray);
 #ifdef USE_LONGJMP
 	if(setjmp(tmpMark)) return true;

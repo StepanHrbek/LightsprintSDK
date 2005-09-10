@@ -380,8 +380,8 @@ bool Box::intersect(RRRay* ray) const
 	storess(lmin, &t_near);
 	storess(lmax, &t_far);
 
-	ray->hitDistanceMin = MAX(t_near,ray->hitDistanceMin);
-	ray->hitDistanceMax = MIN(t_far,ray->hitDistanceMax);
+	ray->hitDistanceMin = MAX(t_near,ray->rayLengthMin);
+	ray->hitDistanceMax = MIN(t_far,ray->rayLengthMax);
 	return ray->hitDistanceMin<ray->hitDistanceMax;
 #endif
 }
@@ -435,8 +435,8 @@ bool Box::intersectFast(RRRay* ray) const
 	storess(lmin, &t_near);
 	storess(lmax, &t_far);
 
-	ray->hitDistanceMin = MAX(t_near,ray->hitDistanceMin);
-	ray->hitDistanceMax = MIN(t_far,ray->hitDistanceMax);
+	ray->hitDistanceMin = MAX(t_near,ray->rayLengthMin);
+	ray->hitDistanceMax = MIN(t_far,ray->rayLengthMax);
 	return ray->hitDistanceMin<ray->hitDistanceMax;
 #endif
 }
