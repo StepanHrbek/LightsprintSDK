@@ -89,26 +89,30 @@ int main(int argc, char** argv)
 	int MAX_THREADS = 1;
 	printf("OpenMP not supported by compiler.\n");
 #endif
-	rrIntersect::RRRay* ray = rrIntersect::RRRay::create(MAX_THREADS);
-	for(int i=0;i<MAX_THREADS;i++)
+	rrIntersect::RRRay* ray = rrIntersect::RRRay::create(__max(4,MAX_THREADS));
+	for(int i=0;i<__max(4,MAX_THREADS);i++)
 	{
 		ray[i].rayFlags = rrIntersect::RRRay::FILL_TRIANGLE | rrIntersect::RRRay::FILL_DISTANCE;
 		ray[i].rayLengthMin = 0;
 	}
 
-	// start watch
 	StopWatch* watch = new StopWatch();
+	const unsigned NUM_ITERS = 8000000;
+	int num_hits;
+	int j,k;
+
+	///////////////////////////////////////////////////////////////////////////
+
+	// start watch
 	watch->Start();
 
 	// cast all rays
-	const unsigned NUM_ITERS = 8000000;
-	int num_hits = 0; // number of rays that actually hit the model
+	num_hits = 0; // number of rays that actually hit the model
 #ifndef _OPENMP
 	// 1-thread version
 	for(int i=0;i<NUM_ITERS;++i) if(castOneRay(ray)) num_hits++;
 #else
 	// n-thread version
-	int j,k;
 	#pragma omp parallel for private(j,k)
 	for(int i=0; i<NUM_ITERS/10000; ++i)
 	{
@@ -127,16 +131,102 @@ int main(int argc, char** argv)
 	watch->Watch();
 
 	// report results
-	const double fraction_hit = (double)num_hits / (double)NUM_ITERS;
-	const double speed = NUM_ITERS/((double)(watch->usertime)*1e-7);
-	const double speed2 = NUM_ITERS/((double)(watch->usertime+watch->kerneltime)*1e-7); // slower due to swapping etc
-	printf("speed = %d k/s   fraction_hit = %f\n",(int)(speed/1000),fraction_hit);
-	fgetc(stdin);
+	printf("auto: wallspd=%d 1cpuspd=%d user=%f kernel=%f hits=%f\n",
+		(int)(NUM_ITERS/(watch->realtime)/1000),
+		(int)(NUM_ITERS/(watch->usertime+watch->kerneltime)/1000),
+		watch->usertime/watch->realtime,
+		watch->kerneltime/watch->realtime,
+		(double)num_hits / NUM_ITERS);
+
+	///////////////////////////////////////////////////////////////////////////
+
+	// start watch
+	watch->Start();
+
+	// cast all rays
+	num_hits = 0; // number of rays that actually hit the model
+	for(int i=0;i<NUM_ITERS;++i) if(castOneRay(ray)) num_hits++;
+
+	// stop watch
+	watch->Watch();
+
+	// report results
+	printf("1thr: wallspd=%d 1cpuspd=%d user=%f kernel=%f hits=%f\n",
+		(int)(NUM_ITERS/(watch->realtime)/1000),
+		(int)(NUM_ITERS/(watch->usertime+watch->kerneltime)/1000),
+		watch->usertime/watch->realtime,
+		watch->kerneltime/watch->realtime,
+		(double)num_hits / NUM_ITERS);
+
+	///////////////////////////////////////////////////////////////////////////
+
+	// start watch
+	watch->Start();
+
+	// cast all rays
+	num_hits = 0; // number of rays that actually hit the model
+	#pragma omp parallel for private(j,k) num_threads(2)
+	for(int i=0; i<NUM_ITERS/10000; ++i)
+	{
+		k = omp_get_thread_num(); // call once per 10000 rays to hide overhead
+		//printf("%d ",k);
+		for(j=0; j<10000; ++j)
+		{
+			if(castOneRay(ray+k))
+				#pragma omp atomic
+				num_hits++;//count the hit.
+		}
+	}
+
+	// stop watch
+	watch->Watch();
+
+	// report results
+	printf("2thr: wallspd=%d 1cpuspd=%d user=%f kernel=%f hits=%f\n",
+		(int)(NUM_ITERS/(watch->realtime)/1000),
+		(int)(NUM_ITERS/(watch->usertime+watch->kerneltime)/1000),
+		watch->usertime/watch->realtime,
+		watch->kerneltime/watch->realtime,
+		(double)num_hits / NUM_ITERS);
+
+	///////////////////////////////////////////////////////////////////////////
+
+	// start watch
+	watch->Start();
+
+	// cast all rays
+	num_hits = 0; // number of rays that actually hit the model
+	#pragma omp parallel for private(j,k) num_threads(4)
+	for(int i=0; i<NUM_ITERS/10000; ++i)
+	{
+		k = omp_get_thread_num(); // call once per 10000 rays to hide overhead
+		//printf("%d ",k);
+		for(j=0; j<10000; ++j)
+		{
+			if(castOneRay(ray+k))
+				#pragma omp atomic
+				num_hits++;//count the hit.
+		}
+	}
+
+	// stop watch
+	watch->Watch();
+
+	// report results
+	printf("4thr: wallspd=%d 1cpuspd=%d user=%f kernel=%f hits=%f\n",
+		(int)(NUM_ITERS/(watch->realtime)/1000),
+		(int)(NUM_ITERS/(watch->usertime+watch->kerneltime)/1000),
+		watch->usertime/watch->realtime,
+		watch->kerneltime/watch->realtime,
+		(double)num_hits / NUM_ITERS);
+
+	///////////////////////////////////////////////////////////////////////////
 
 	// cleanup
 	delete watch;
 	delete[] ray;
 	delete intersector;
 
+	fgetc(stdin);
 	return 0;
 }
