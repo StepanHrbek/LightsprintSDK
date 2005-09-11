@@ -9,7 +9,7 @@
 #include <string.h>
 
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 #ifdef USE_SSE

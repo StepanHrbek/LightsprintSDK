@@ -10,7 +10,7 @@
 #include <setjmp.h>
 #endif
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 #ifdef TEST

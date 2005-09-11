@@ -1,11 +1,11 @@
-#ifndef RRINTERSECT_BSP_H
-#define RRINTERSECT_BSP_H
+#ifndef COLLIDER_BSP_H
+#define COLLIDER_BSP_H
 
 #include "RRIntersect.h"
 
 //#define TEST // robustness test
 
-namespace rrIntersect
+namespace rrCollider
 {
 	struct VERTEX 
 	{

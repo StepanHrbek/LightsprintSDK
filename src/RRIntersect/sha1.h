@@ -1,11 +1,11 @@
-#ifndef RRINTERSECT_SHA1_H
-#define RRINTERSECT_SHA1_H
+#ifndef COLLIDER_SHA1_H
+#define COLLIDER_SHA1_H
 
 #ifndef PRIVATE
 	#define PRIVATE
 #endif
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 	#ifndef uint8

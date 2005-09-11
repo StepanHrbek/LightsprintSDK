@@ -21,7 +21,7 @@ worst situations
 
 */
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 

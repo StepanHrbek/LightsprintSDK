@@ -7,7 +7,7 @@
 #include <math.h>
 #include <stdio.h>
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 IntersectVerification::IntersectVerification(RRMeshImporter* importer) 

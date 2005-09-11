@@ -134,7 +134,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 //#ifdef SUPPORT_DYNAMIC
 //	int ttop=obj->triangles-1;
 //#endif
-	rrIntersect::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
+	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for (unsigned fi=0;fi<obj->triangles;fi++) {
 		unsigned v0,v1,v2;
 		meshImporter->getTriangle(fi,v0,v1,v2);
@@ -310,7 +310,7 @@ void RRScene::getInfo(char* buf, unsigned type)
 	{
 	case 0: scene->infoScene(buf); break;
 	case 1: scene->infoImprovement(buf,2); break;
-	case 2: rrIntersect::RRIntersectStats::getInstance()->getInfo(buf,900,2); break;
+	case 2: rrCollider::RRIntersectStats::getInstance()->getInfo(buf,900,2); break;
 	case 3: scene->infoStructs(buf); break;
 	}
 }
@@ -345,7 +345,7 @@ void RRResetStates()
 	RRSetStateF(RRSSF_SUBDIVISION_SPEED,1);
 	RRSetState(RRSS_GET_SOURCE,1);
 	RRSetState(RRSS_GET_REFLECTED,1);
-	RRSetState(RRSS_INTERSECT_TECHNIQUE,rrIntersect::RRCollider::IT_BSP_FASTEST);
+	RRSetState(RRSS_INTERSECT_TECHNIQUE,rrCollider::RRCollider::IT_BSP_FASTEST);
 	RRSetStateF(RRSSF_IGNORE_SMALLER_AREA,SMALL_REAL);
 	RRSetStateF(RRSSF_IGNORE_SMALLER_ANGLE,0.001f);
 	RRSetStateF(RRSSF_FIGHT_SMALLER_AREA,0.01f);

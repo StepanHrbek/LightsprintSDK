@@ -1929,7 +1929,7 @@ void Object::buildEdges()
 		triangle[t].edge[2]=NULL;
 	}
 	Triangles *trianglesInV=new Triangles[vertices];
-	rrIntersect::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
+	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned t=0;t<triangles;t++)
 		for(int v1=0;v1<3;v1++)
 		{
@@ -2015,7 +2015,7 @@ bool Object::contains(Node *n)
 void Object::detectBounds()
 {
 	Vec3* vertex = new Vec3[vertices];
-	rrIntersect::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
+	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned i=0;i<vertices;i++)
 	{
 		real* v = meshImporter->getVertex(i);
@@ -2226,7 +2226,7 @@ Vec3 refract(Vec3 N,Vec3 I,real r)
 unsigned __hitsOuter=0;
 unsigned __hitsInner=0;
 
-rrIntersect::RRRay* __ray;
+rrCollider::RRRay* __ray;
 
 HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
@@ -2234,8 +2234,8 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 {
 	assert(IS_VEC3(eye));
 	assert(IS_VEC3(direction));
-	rrIntersect::RRRay& ray = *__ray;
-	ray.rayFlags = rrIntersect::RRRay::FILL_DISTANCE|rrIntersect::RRRay::FILL_SIDE|rrIntersect::RRRay::FILL_POINT2D|rrIntersect::RRRay::FILL_TRIANGLE;
+	rrCollider::RRRay& ray = *__ray;
+	ray.rayFlags = rrCollider::RRRay::FILL_DISTANCE|rrCollider::RRRay::FILL_SIDE|rrCollider::RRRay::FILL_POINT2D|rrCollider::RRRay::FILL_TRIANGLE;
 	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	ray.rayLengthMax = BIG_REAL;
 	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
@@ -3305,7 +3305,7 @@ void core_Init()
 {
 	assert(!__levels);
 	__levels=new LevelHits();
-	__ray = rrIntersect::RRRay::create();
+	__ray = rrCollider::RRRay::create();
 }
 
 #endif

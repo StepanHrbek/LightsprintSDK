@@ -1,5 +1,5 @@
-#ifndef RRINTERSECT_CACHE_H
-#define RRINTERSECT_CACHE_H
+#ifndef COLLIDER_CACHE_H
+#define COLLIDER_CACHE_H
 
 #include "RRIntersect.h"
 
@@ -7,7 +7,7 @@
 	#define PRIVATE
 #endif
 
-namespace rrIntersect
+namespace rrCollider
 {                                                                            
 	PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits);
 	PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer);

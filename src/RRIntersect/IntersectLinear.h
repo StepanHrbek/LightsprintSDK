@@ -1,5 +1,5 @@
-#ifndef RRINTERSECT_INTERSECTLINEAR_H
-#define RRINTERSECT_INTERSECTLINEAR_H
+#ifndef COLLIDER_INTERSECTLINEAR_H
+#define COLLIDER_INTERSECTLINEAR_H
 
 #include "geometry.h"
 #include "RRIntersect.h"
@@ -13,7 +13,7 @@
 #define DBGLINE
 //#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);//fgetc(stdin);
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 	extern RRIntersectStats intersectStats;

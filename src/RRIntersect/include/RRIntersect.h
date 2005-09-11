@@ -1,10 +1,10 @@
-#ifndef _RRINTERSECT_H_
-#define _RRINTERSECT_H_
+#ifndef _COLLIDER_H_
+#define _COLLIDER_H_
 
 
 //////////////////////////////////////////////////////////////////////////////
-// RRCollider - library for fast "ray x mesh" intersections
-// version 2005.08.28
+// Collider - library for fast "ray x mesh" intersections
+// version 2005.09.12
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -21,24 +21,24 @@
 // With Inf or NaN, result is undefined.
 
 #ifdef _MSC_VER
-	#ifdef RRINTERSECT_EXPORT
+	#ifdef COLLIDER_EXPORT
 		// build dll
-		#define RRINTERSECT_API __declspec(dllexport)
-	#elif RRINTERSECT_IMPORT
+		#define COLLIDER_API __declspec(dllexport)
+	#elif COLLIDER_IMPORT
 		// use dll
-		#define RRINTERSECT_API __declspec(dllimport)
+		#define COLLIDER_API __declspec(dllimport)
 		#pragma comment(lib,"RRIntersect.lib")
 	#else
 		// use static library
-		#define RRINTERSECT_API
+		#define COLLIDER_API
 		#pragma comment(lib,"RRIntersect.lib")
 	#endif
 #else
 	// use static library
-	#define RRINTERSECT_API
+	#define COLLIDER_API
 #endif
 
-//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, breaks generality
+//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, turns off unneeded features
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
 	#define COLLIDER_INPUT_UNLIMITED_DISTANCE // by default, collider.intersect expects that hitDistanceMin/Max contains range of allowed hitDistance
 #endif
@@ -47,7 +47,7 @@
 #include <limits.h>
 #include <new>
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 	typedef float RRReal;
@@ -61,7 +61,7 @@ namespace rrIntersect
 	// Derive from RRObjectImporter if you want to calculate also radiosity.
 	// Data must not change during object lifetime, all results must be constant.
 
-	class RRINTERSECT_API RRMeshImporter
+	class COLLIDER_API RRMeshImporter
 	{
 	public:
 		RRMeshImporter() {}
@@ -99,7 +99,7 @@ namespace rrIntersect
 	// It's intentionally not part of RRMeshImporter, so you can easily combine
 	// different surface behaviours with one geometry.
 
-	class RRINTERSECT_API RRMeshSurfaceImporter
+	class COLLIDER_API RRMeshSurfaceImporter
 	{
 	public:
 		virtual ~RRMeshSurfaceImporter() {}
@@ -135,7 +135,7 @@ namespace rrIntersect
 	// Contains all inputs and outputs for RRCollider::intersect()
 	// All fields of at least 3 floats are aligned.
 
-	class RRINTERSECT_API RRRay : public RRAligned
+	class COLLIDER_API RRRay : public RRAligned
 	{
 	public:
 		// create ray
@@ -176,7 +176,7 @@ namespace rrIntersect
 	//
 	// RRCollider - single object able to calculate ray x trimesh intersections.
 
-	class RRINTERSECT_API RRCollider
+	class COLLIDER_API RRCollider
 	{
 	public:
 		// create
@@ -207,7 +207,7 @@ namespace rrIntersect
 	//
 	// RRIntersectStats - statistics for library calls
 
-	class RRINTERSECT_API RRIntersectStats
+	class COLLIDER_API RRIntersectStats
 	{
 	public:
 		static RRIntersectStats* getInstance();

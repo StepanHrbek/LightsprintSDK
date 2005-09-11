@@ -575,7 +575,7 @@ void Object::buildTopIVertices()
 	}
 	// build 1 ivertex for each vertex, insert all corners
 	IVertex *topivertex=new IVertex[vertices];
-	rrIntersect::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
+	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
 		unsigned un_ve[3]; // un_ = unrotated

@@ -1,5 +1,5 @@
-#ifndef _WORLD2RRINTERSECT_H
-#define _WORLD2RRINTERSECT_H
+#ifndef _WORLD2COLLIDER_H
+#define _WORLD2COLLIDER_H
 
 #include "World.h"
 #include "RREngine.h"
@@ -8,7 +8,7 @@
 //
 // WorldMeshImporter
 
-class WorldMeshImporter : virtual public rrIntersect::RRMeshImporter
+class WorldMeshImporter : virtual public rrCollider::RRMeshImporter
 {
 public:
 	WorldMeshImporter(OBJECT* aobject);

@@ -713,7 +713,7 @@ public:
 	// intersections
 	Bound   bound;
 	void    detectBounds();
-	Triangle* intersection(rrIntersect::RRRay& ray, const Point3& eye, const Vec3& direction);
+	Triangle* intersection(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction);
 
 	char    *name;
 	bool    check();
@@ -759,8 +759,8 @@ public:
 	RRSurface *surface;
 	unsigned surfaces;
 
-	Triangle* intersectionStatic(rrIntersect::RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
-	Triangle* intersectionDynobj(rrIntersect::RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
+	Triangle* intersectionStatic(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
+	Triangle* intersectionDynobj(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
 	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power=HitChannels(1));
 //	Color   rayTraceCamera(Point3 eye,Vec3 direction,Triangle *skip,Color power=Color(1,1,1));
 

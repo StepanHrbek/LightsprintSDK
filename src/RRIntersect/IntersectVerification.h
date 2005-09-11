@@ -1,9 +1,9 @@
-#ifndef RRINTERSECT_INTERSECTVERIFICATION_H
-#define RRINTERSECT_INTERSECTVERIFICATION_H
+#ifndef COLLIDER_INTERSECTVERIFICATION_H
+#define COLLIDER_INTERSECTVERIFICATION_H
 
 #include "IntersectLinear.h"
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 	class IntersectVerification : public IntersectLinear

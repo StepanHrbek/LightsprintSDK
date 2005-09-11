@@ -10,7 +10,7 @@
 
 #define DBG(a) //a
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 PRIVATE bool update_rayDir(RRRay* ray)

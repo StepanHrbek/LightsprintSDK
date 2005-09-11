@@ -5,7 +5,7 @@
 #include "rrcore.h"
 #include "intersections.h"
 
-using namespace rrIntersect;
+using namespace rrCollider;
 namespace rrEngine
 {
 
@@ -94,11 +94,11 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	return hitTriangle;
 }
 
-class SkipTriangle : public rrIntersect::RRMeshSurfaceImporter
+class SkipTriangle : public rrCollider::RRMeshSurfaceImporter
 {
 public:
 	SkipTriangle(unsigned askip) : skip(askip) {}
-	virtual bool acceptHit(const rrIntersect::RRRay* ray)
+	virtual bool acceptHit(const rrCollider::RRRay* ray)
 	{
 		return ray->hitTriangle!=skip;
 	}

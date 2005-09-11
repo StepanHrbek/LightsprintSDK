@@ -20,7 +20,7 @@ public:
 	virtual ~WorldObjectImporter();
 
 	// must not change during object lifetime
-	virtual const rrIntersect::RRCollider* getCollider() const {return collider;}
+	virtual const rrCollider::RRCollider* getCollider() const {return collider;}
 	virtual unsigned     getTriangleSurface(unsigned t) const;
 	virtual RRSurface*   getSurface(unsigned si);
 
@@ -33,7 +33,7 @@ private:
 	OBJECT*     object;
 	Surface**   surface;
 	unsigned    surfaces;
-	rrIntersect::RRCollider* collider;
+	rrCollider::RRCollider* collider;
 };
 
 WorldObjectImporter::WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces)
@@ -42,7 +42,7 @@ WorldObjectImporter::WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface
 	object = aobject;
 	surface = asurface;
 	surfaces = asurfaces;
-	collider = rrIntersect::RRCollider::create(new WorldMeshImporter(aobject),(rrIntersect::RRCollider::IntersectTechnique)RRGetState(RRSS_INTERSECT_TECHNIQUE));
+	collider = rrCollider::RRCollider::create(new WorldMeshImporter(aobject),(rrCollider::RRCollider::IntersectTechnique)RRGetState(RRSS_INTERSECT_TECHNIQUE));
 	assert(world);
 	assert(surface);
 

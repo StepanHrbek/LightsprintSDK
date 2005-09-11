@@ -1,5 +1,5 @@
-#ifndef RRINTERSECT_INTERSECTBSP_H
-#define RRINTERSECT_INTERSECTBSP_H
+#ifndef COLLIDER_INTERSECTBSP_H
+#define COLLIDER_INTERSECTBSP_H
 
 #define IBP <class BspTree>
 #define IBP2 <BspTree>
@@ -17,7 +17,7 @@
 #include "bsp.h"
 #include "cache.h"
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 	// single-level bps

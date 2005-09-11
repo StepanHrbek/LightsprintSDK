@@ -10,9 +10,9 @@
 #include <tchar.h>
 #include <time.h>
 
-typedef rrIntersect::RRIndexedTriListImporter<int> inherited;
-//typedef rrIntersect::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int> inherited;
-//typedef rrIntersect::RRLessTrianglesImporter<RRCollider::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int>,int> inherited;
+typedef rrCollider::RRIndexedTriListImporter<int> inherited;
+//typedef rrCollider::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int> inherited;
+//typedef rrCollider::RRLessTrianglesImporter<RRCollider::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int>,int> inherited;
 
 class PlyMeshImporter : public inherited
 {
@@ -34,9 +34,9 @@ bool    intersect(RRRay* ray) const;
 Box box;*/
 
 SphereUnitVecPool vecpool; // object able to generate random points
-rrIntersect::RRCollider* intersector; // object able to calculate intersections
+rrCollider::RRCollider* intersector; // object able to calculate intersections
 
-bool castOneRay(rrIntersect::RRRay* ray)
+bool castOneRay(rrCollider::RRRay* ray)
 {
 	static const PoolVec3 aabb_center = PoolVec3(-0.016840f, 0.110154f, -0.001537f);
 	static const float RADIUS = 0.2f;//radius of sphere
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 	PlyMeshReader reader;
 	reader.readFile("bun_zipper.ply",mesh);
 	PlyMeshImporter importer(mesh);
-	intersector = rrIntersect::RRCollider::create(&importer,rrIntersect::RRCollider::IT_BSP_FASTEST);
+	intersector = rrCollider::RRCollider::create(&importer,rrCollider::RRCollider::IT_BSP_FASTEST);
 	printf("vertices=%d tris=%d\n",importer.getNumVertices(),importer.getNumTriangles());
 
 	// create one ray for each thread
@@ -89,10 +89,10 @@ int main(int argc, char** argv)
 	int MAX_THREADS = 1;
 	printf("OpenMP not supported by compiler.\n");
 #endif
-	rrIntersect::RRRay* ray = rrIntersect::RRRay::create(__max(4,MAX_THREADS));
+	rrCollider::RRRay* ray = rrCollider::RRRay::create(__max(4,MAX_THREADS));
 	for(int i=0;i<__max(4,MAX_THREADS);i++)
 	{
-		ray[i].rayFlags = rrIntersect::RRRay::FILL_TRIANGLE | rrIntersect::RRRay::FILL_DISTANCE;
+		ray[i].rayFlags = rrCollider::RRRay::FILL_TRIANGLE | rrCollider::RRRay::FILL_DISTANCE;
 		ray[i].rayLengthMin = 0;
 	}
 

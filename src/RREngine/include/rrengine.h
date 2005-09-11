@@ -20,7 +20,7 @@
 namespace rrEngine
 {
 
-	typedef rrIntersect::RRReal RRReal;
+	typedef rrCollider::RRReal RRReal;
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ namespace rrEngine
 		virtual ~RRObjectImporter() {}
 
 		// must not change during object lifetime
-		virtual const rrIntersect::RRCollider* getCollider() const = 0;
+		virtual const rrCollider::RRCollider* getCollider() const = 0;
 		virtual unsigned     getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*   getSurface(unsigned s) = 0;
 		virtual const RRReal* getTriangleAdditionalRadiantExitance(unsigned t) const {return 0;} // radiant exitance in watts per square meter. 
@@ -129,10 +129,10 @@ namespace rrEngine
 		void          objectDestroy(ObjectHandle object);
 
 		// get intersection
-		typedef       bool INTERSECT(rrIntersect::RRRay*);
-		typedef       ObjectHandle ENUM_OBJECTS(rrIntersect::RRRay*, INTERSECT);
+		typedef       bool INTERSECT(rrCollider::RRRay*);
+		typedef       ObjectHandle ENUM_OBJECTS(rrCollider::RRRay*, INTERSECT);
 		void          setObjectEnumerator(ENUM_OBJECTS enumerator);
-		bool          intersect(rrIntersect::RRRay* ray);
+		bool          intersect(rrCollider::RRRay* ray);
 		
 		// calculate radiosity
 		enum Improvement 

@@ -1,9 +1,9 @@
-#ifndef RRINTERSECT_INTERSECTBSPCOMPACT_H
-#define RRINTERSECT_INTERSECTBSPCOMPACT_H
+#ifndef COLLIDER_INTERSECTBSPCOMPACT_H
+#define COLLIDER_INTERSECTBSPCOMPACT_H
 
 #include "IntersectBsp.h"
 
-namespace rrIntersect
+namespace rrCollider
 {
 	template IBP
 	class IntersectBspCompact : public IntersectLinear

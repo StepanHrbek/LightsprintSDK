@@ -1,4 +1,4 @@
-#ifdef RRINTERSECT_EXPORT
+#ifdef COLLIDER_EXPORT
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 	BOOL APIENTRY DllMain( HANDLE hModule, 

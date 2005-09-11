@@ -1,9 +1,9 @@
-#ifndef RRINTERSECT_INTERSECTBSPFAST_H
-#define RRINTERSECT_INTERSECTBSPFAST_H
+#ifndef COLLIDER_INTERSECTBSPFAST_H
+#define COLLIDER_INTERSECTBSPFAST_H
 
 #include "IntersectBsp.h"
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 	/*struct TriangleP

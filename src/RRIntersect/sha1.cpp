@@ -21,7 +21,7 @@
 #include <string.h>
 #include "sha1.h"
 
-namespace rrIntersect
+namespace rrCollider
 {
 
 #define GET_UINT32(n,b,i)                       \

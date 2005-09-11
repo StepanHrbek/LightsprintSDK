@@ -1,5 +1,5 @@
-#ifndef RRINTERSECT_GEOMETRY_H
-#define RRINTERSECT_GEOMETRY_H
+#ifndef COLLIDER_GEOMETRY_H
+#define COLLIDER_GEOMETRY_H
 
 #include "RRIntersect.h"
 #include "config.h"
@@ -9,7 +9,7 @@
 	#define _MM_ALIGN16 __attribute__ ((aligned (16)))
 #endif
 
-namespace rrIntersect
+namespace rrCollider
 {
 	typedef RRReal real;
 
