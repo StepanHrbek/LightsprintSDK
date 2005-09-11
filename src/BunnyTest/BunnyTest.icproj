@@ -72,8 +72,10 @@
 				Name="DebugTool"/>
 			<Tool 
 				Name="CppCmplrTool"
+				Optimization="1000"
 				GlobalOptimizations="1"
-				EnableIntrinsicFunctions="0"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="1"
 				OmitFramePointers="1"
 				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
@@ -88,7 +90,9 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="1"
 				DebugInformationFormat="3"
-				AdditionalOptions="/Qopenmp"/>
+				AdditionalOptions="/Qopenmp"
+				UseProcExt="1"
+				RequireProcExt="1"/>
 			<Tool 
 				Name="LinkerTool"
 				DelayImpLib=""

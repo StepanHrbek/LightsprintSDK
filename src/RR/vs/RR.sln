@@ -58,10 +58,10 @@ Global
 		{9CB3B0DE-3932-408F-BB9E-EC50323CBC69}.Debug.Build.0 = Debug|Win32
 		{9CB3B0DE-3932-408F-BB9E-EC50323CBC69}.Release.ActiveCfg = Release|Win32
 		{9CB3B0DE-3932-408F-BB9E-EC50323CBC69}.Release.Build.0 = Release|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release.Build.0 = Release|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release.ActiveCfg = Release|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug.Build.0 = Debug|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug.ActiveCfg = Debug|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug.Build.0 = Debug|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release.ActiveCfg = Release|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

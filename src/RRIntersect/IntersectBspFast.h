@@ -35,6 +35,7 @@ namespace rrIntersect
 		unsigned getTriangleIndex() const 
 		{
 			assert(0);
+			return 0;
 		}
 	};
 

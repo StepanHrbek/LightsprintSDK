@@ -34,8 +34,7 @@
 #endif
 
 #ifdef USE_SSE
-	// helps only with intel compiler
-	//#define FASTEST_USES_SSE // use SSE in FASTEST technique (more memory, hardly noticeably faster)
+	//#define FASTEST_USES_SSE // use SSE in FASTEST technique (more memory, slowdown)
 #endif
 
 #ifndef PRIVATE
