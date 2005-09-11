@@ -247,7 +247,7 @@
 				RelativePath="..\IntersectVerification.cpp">
 			</File>
 			<File
-				RelativePath="..\RRIntersect.cpp">
+				RelativePath="..\RRCollider.cpp">
 			</File>
 			<File
 				RelativePath="..\sha1.cpp">
@@ -290,7 +290,7 @@
 				RelativePath="..\miniball_config.h">
 			</File>
 			<File
-				RelativePath="..\include\RRIntersect.h">
+				RelativePath="..\include\RRCollider.h">
 			</File>
 			<File
 				RelativePath="..\sha1.h">

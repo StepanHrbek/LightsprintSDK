@@ -1,7 +1,7 @@
 #ifndef COLLIDER_CACHE_H
 #define COLLIDER_CACHE_H
 
-#include "RRIntersect.h"
+#include "RRCollider.h"
 
 #ifndef PRIVATE
 	#define PRIVATE

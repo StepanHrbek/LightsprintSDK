@@ -11,7 +11,7 @@
 // using it without written permission from Stepan Hrbek is forbidden.
 //////////////////////////////////////////////////////////////////////////////
 
-#include "RRIntersect.h"
+#include "RRCollider.h"
 
 #ifdef _MSC_VER
 #pragma comment(lib,"RREngine.lib")

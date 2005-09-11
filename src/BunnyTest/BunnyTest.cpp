@@ -1,7 +1,7 @@
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"
 #include "StopWatch.h"
-#include "..\..\include\RRIntersect.h"
+#include "..\..\include\RRCollider.h"
 #include <math.h>
 #ifdef _OPENMP
 	#include <omp.h>

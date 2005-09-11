@@ -1,7 +1,7 @@
 #ifndef COLLIDER_GEOMETRY_H
 #define COLLIDER_GEOMETRY_H
 
-#include "RRIntersect.h"
+#include "RRCollider.h"
 #include "config.h"
 #include <float.h> // _finite
 

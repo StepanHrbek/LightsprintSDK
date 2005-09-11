@@ -1,7 +1,7 @@
 #ifndef COLLIDER_BSP_H
 #define COLLIDER_BSP_H
 
-#include "RRIntersect.h"
+#include "RRCollider.h"
 
 //#define TEST // robustness test
 

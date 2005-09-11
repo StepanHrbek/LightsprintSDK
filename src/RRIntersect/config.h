@@ -1,4 +1,4 @@
-#include "RRIntersect.h"
+#include "RRCollider.h"
 
 #define USE_SSE // by default, code is pure ANSI C++
 //#define USE_SPHERE // everywhere -> slowdown
