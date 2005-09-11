@@ -89,8 +89,9 @@ int main(int argc, char** argv)
 	int MAX_THREADS = 1;
 	printf("OpenMP not supported by compiler.\n");
 #endif
-	rrCollider::RRRay* ray = rrCollider::RRRay::create(__max(4,MAX_THREADS));
-	for(int i=0;i<__max(4,MAX_THREADS);i++)
+	const int MAX_THREADS_INCL_FORCE = (MAX_THREADS<4)?4:MAX_THREADS;
+	rrCollider::RRRay* ray = rrCollider::RRRay::create(MAX_THREADS_INCL_FORCE);
+	for(int i=0;i<MAX_THREADS_INCL_FORCE;i++)
 	{
 		ray[i].rayFlags = rrCollider::RRRay::FILL_TRIANGLE | rrCollider::RRRay::FILL_DISTANCE;
 		ray[i].rayLengthMin = 0;
@@ -110,7 +111,7 @@ int main(int argc, char** argv)
 	num_hits = 0; // number of rays that actually hit the model
 #ifndef _OPENMP
 	// 1-thread version
-	for(int i=0;i<NUM_ITERS;++i) if(castOneRay(ray)) num_hits++;
+	for(unsigned i=0;i<NUM_ITERS;++i) if(castOneRay(ray)) num_hits++;
 #else
 	// n-thread version
 	#pragma omp parallel for private(j,k)
@@ -139,6 +140,7 @@ int main(int argc, char** argv)
 		(double)num_hits / NUM_ITERS);
 
 	///////////////////////////////////////////////////////////////////////////
+#ifdef _OPENMP
 
 	// start watch
 	watch->Start();
@@ -219,7 +221,7 @@ int main(int argc, char** argv)
 		watch->usertime/watch->realtime,
 		watch->kerneltime/watch->realtime,
 		(double)num_hits / NUM_ITERS);
-
+#endif
 	///////////////////////////////////////////////////////////////////////////
 
 	// cleanup

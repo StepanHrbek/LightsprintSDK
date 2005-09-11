@@ -27,11 +27,11 @@
 	#elif COLLIDER_IMPORT
 		// use dll
 		#define COLLIDER_API __declspec(dllimport)
-		#pragma comment(lib,"RRIntersect.lib")
+		#pragma comment(lib,"RRCollider.lib")
 	#else
 		// use static library
 		#define COLLIDER_API
-		#pragma comment(lib,"RRIntersect.lib")
+		#pragma comment(lib,"RRCollider.lib")
 	#endif
 #else
 	// use static library

@@ -1,5 +1,5 @@
-LIB = ../../lib/libRRIntersect.a
-TMP = #../../tmp/RRIntersect/
+LIB = ../../lib/libRRCollider.a
+TMP = #../../tmp/RRCollider/
 
 CPPFLAGS = -Iinclude
 CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
@@ -9,13 +9,13 @@ CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
 CC = gcc
 
-OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)geometry.o $(TMP)IntersectBspFast.o $(TMP)IntersectBspCompact.o $(TMP)IntersectLinear.o $(TMP)RRIntersect.o $(TMP)sha1.o
+OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)geometry.o $(TMP)IntersectBspFast.o $(TMP)IntersectBspCompact.o $(TMP)IntersectLinear.o $(TMP)IntersectVerification.o $(TMP)RRCollider.o $(TMP)sha1.o
 #OBJS = $(TMP)big.o
 
 all: makefile $(LIB)
 
 $(LIB): makefile $(OBJS)
-	del ..\..\lib\libRRIntersect.a
+	del ..\..\lib\libRRCollider.a
 	ar rc $(LIB) $(OBJS)
 	ranlib $(LIB)
 	copy include\*.* ..\..\include
@@ -24,11 +24,11 @@ clean:
 	del $(TMP)*.o
 	del $(LIB)
 
-$(TMP)big.o: makefile include/RRIntersect.h
+$(TMP)big.o: makefile include/RRCollider.h
 
 $(TMP)bsp.o: makefile
 
-$(TMP)cache.o $(TMP)RRIntersect.o: makefile include/RRIntersect.h
+$(TMP)cache.o $(TMP)RRCollider.o: makefile include/RRCollider.h
 
 $(TMP)geometry.o: makefile
 

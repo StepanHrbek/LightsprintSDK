@@ -19,7 +19,7 @@
 CC = gcc
 CPP = gcc
 CFLAGS = -Wall -I../../include -DSUPPORT_INTERPOL
-LIBS = -lz -lm -lmgf -lstdc++ -L../../lib -lRRIntersect -lRREngine -lWorld
+LIBS = -lz -lm -lmgf -lstdc++ -L../../lib -lRRCollider -lRREngine -lWorld
 LIBSALLEG = -lalleg_s -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
 MAKE = makefile
 BIN = ../../bin/
@@ -99,7 +99,7 @@ endif
 
 all: $(BIN)rr.exe $(BIN)dotga.exe $(BIN)dosmooth.exe
 
-$(BIN)rr.exe: $(OBJS) $(MAKE) ../../lib/libRRIntersect.a ../../lib/libRREngine.a
+$(BIN)rr.exe: $(OBJS) $(MAKE) ../../lib/libRRCollider.a ../../lib/libRREngine.a
 	gcc $(OBJS) $(LIBS) -o $(BIN)rr.exe
 
 rr.o: rr.cpp $(HHHS) $(MAKE)
