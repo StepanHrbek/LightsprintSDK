@@ -4,7 +4,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Collider - library for fast "ray x mesh" intersections
-// version 2005.09.12
+// version 2005.09.14
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -36,11 +36,6 @@
 #else
 	// use static library
 	#define COLLIDER_API
-#endif
-
-//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, turns off unneeded features
-#ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
-	#define COLLIDER_INPUT_UNLIMITED_DISTANCE // by default, collider.intersect expects that hitDistanceMin/Max contains range of allowed hitDistance
 #endif
 
 #include <assert.h>

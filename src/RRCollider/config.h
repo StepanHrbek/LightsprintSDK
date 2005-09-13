@@ -1,5 +1,7 @@
 #include "RRCollider.h"
 
+//#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, turns off unneeded features
+
 #define USE_SSE // by default, code is pure ANSI C++
 //#define USE_SPHERE // everywhere -> slowdown
 //#define USE_LONGJMP // bunny+msvc -> tiny slowdown
@@ -7,11 +9,13 @@
 //#define USE_EXPECT_HIT // always slower in rr, but may be useful for someone else later
 
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
-	// limited featureset
+	// limited outputs
 	#define FILL_HITDISTANCE
 	#define FILL_HITTRIANGLE
 	// no statistics
 	#define FILL_STATISTIC(a)
+	// limited inputs (no rayLength)
+	#define COLLIDER_INPUT_UNLIMITED_DISTANCE // by default, collider.intersect expects that hitDistanceMin/Max contains range of allowed hitDistance
 #else
 	// full featureset
 	#define FILL_HITDISTANCE

@@ -54,9 +54,7 @@ bool castOneRay(rrCollider::RRRay* ray)
 	ray->rayDirInv[0] = size/dir.x;
 	ray->rayDirInv[1] = size/dir.y;
 	ray->rayDirInv[2] = size/dir.z;
-#ifndef COLLIDER_INPUT_UNLIMITED_DISTANCE
 	ray->rayLengthMax = size;
-#endif
 
 	/*if(box.intersect(ray))
 	{
