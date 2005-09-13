@@ -154,7 +154,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;COLLIDER_EXPORT"
+				PreprocessorDefinitions="WIN32;NDEBUG;RRCOLLIDER_EXPORT"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
 				RuntimeLibrary="0"

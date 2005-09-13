@@ -136,6 +136,73 @@
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
+		<Configuration
+			Name="Release DLL|Win32"
+			OutputDirectory="..\..\..\lib"
+			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2"
+			WholeProgramOptimization="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				GlobalOptimizations="TRUE"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="TRUE"
+				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..\include; ..\..\..\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;SUPPORT_INTERPOL;RRCOLLIDER_IMPORT;RRENGINE_EXPORT"
+				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
+				RuntimeLibrary="0"
+				BufferSecurityCheck="FALSE"
+				EnableFunctionLevelLinking="TRUE"
+				EnableEnhancedInstructionSet="1"
+				DisableLanguageExtensions="FALSE"
+				ForceConformanceInForLoopScope="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(OutDir)/$(ProjectName).pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				DebugInformationFormat="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName="$(IntDir)/RREngine.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="update global include"
+				CommandLine="copy ..\include\*.* ..\..\..\include"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1029"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -165,6 +232,12 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						DisableLanguageExtensions="FALSE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						DisableLanguageExtensions="FALSE"/>

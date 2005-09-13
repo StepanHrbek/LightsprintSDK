@@ -4,7 +4,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Collider - library for fast "ray x mesh" intersections
-// version 2005.09.14
+// version 2005.09.13
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -21,21 +21,21 @@
 // With Inf or NaN, result is undefined.
 
 #ifdef _MSC_VER
-	#ifdef COLLIDER_EXPORT
+	#ifdef RRCOLLIDER_EXPORT
 		// build dll
-		#define COLLIDER_API __declspec(dllexport)
-	#elif COLLIDER_IMPORT
+		#define RRCOLLIDER_API __declspec(dllexport)
+	#elif RRCOLLIDER_IMPORT
 		// use dll
-		#define COLLIDER_API __declspec(dllimport)
+		#define RRCOLLIDER_API __declspec(dllimport)
 		#pragma comment(lib,"RRCollider.lib")
 	#else
 		// use static library
-		#define COLLIDER_API
+		#define RRCOLLIDER_API
 		#pragma comment(lib,"RRCollider.lib")
 	#endif
 #else
 	// use static library
-	#define COLLIDER_API
+	#define RRCOLLIDER_API
 #endif
 
 #include <assert.h>
@@ -56,7 +56,7 @@ namespace rrCollider
 	// Derive from RRObjectImporter if you want to calculate also radiosity.
 	// Data must not change during object lifetime, all results must be constant.
 
-	class COLLIDER_API RRMeshImporter
+	class RRCOLLIDER_API RRMeshImporter
 	{
 	public:
 		RRMeshImporter() {}
@@ -94,7 +94,7 @@ namespace rrCollider
 	// It's intentionally not part of RRMeshImporter, so you can easily combine
 	// different surface behaviours with one geometry.
 
-	class COLLIDER_API RRMeshSurfaceImporter
+	class RRCOLLIDER_API RRMeshSurfaceImporter
 	{
 	public:
 		virtual ~RRMeshSurfaceImporter() {}
@@ -114,7 +114,7 @@ namespace rrCollider
 	// On some platforms, some structures need to be specially aligned in memory.
 	// This helper base class helps to align them.
 
-	struct RRAligned
+	struct RRCOLLIDER_API RRAligned
 	{
 		void* operator new(std::size_t n);
 		void* operator new[](std::size_t n);
@@ -130,7 +130,7 @@ namespace rrCollider
 	// Contains all inputs and outputs for RRCollider::intersect()
 	// All fields of at least 3 floats are aligned.
 
-	class COLLIDER_API RRRay : public RRAligned
+	class RRCOLLIDER_API RRRay : public RRAligned
 	{
 	public:
 		// create ray
@@ -171,7 +171,7 @@ namespace rrCollider
 	//
 	// RRCollider - single object able to calculate ray x trimesh intersections.
 
-	class COLLIDER_API RRCollider
+	class RRCOLLIDER_API RRCollider
 	{
 	public:
 		// create
@@ -202,7 +202,7 @@ namespace rrCollider
 	//
 	// RRIntersectStats - statistics for library calls
 
-	class COLLIDER_API RRIntersectStats
+	class RRCOLLIDER_API RRIntersectStats
 	{
 	public:
 		static RRIntersectStats* getInstance();

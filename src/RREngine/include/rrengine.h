@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.09.12
+// version 2005.09.13
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -11,11 +11,25 @@
 // using it without written permission from Stepan Hrbek is forbidden.
 //////////////////////////////////////////////////////////////////////////////
 
-#include "RRCollider.h"
-
 #ifdef _MSC_VER
-#pragma comment(lib,"RREngine.lib")
+	#ifdef RRENGINE_EXPORT
+		// build dll
+		#define RRENGINE_API __declspec(dllexport)
+	#elif RRENGINE_IMPORT
+		// use dll
+		#define RRENGINE_API __declspec(dllimport)
+		#pragma comment(lib,"RREngine.lib")
+	#else
+		// use static library
+		#define RRENGINE_API
+		#pragma comment(lib,"RREngine.lib")
+	#endif
+#else
+	// use static library
+	#define RRENGINE_API
 #endif
+
+#include "RRCollider.h"
 
 namespace rrEngine
 {
@@ -93,7 +107,7 @@ namespace rrEngine
 	//  - A has pointer to B
 	//  - note that there is no automatic reference counting in B and no automatic destruction of B from A
 
-	class RRObjectImporter
+	class RRENGINE_API RRObjectImporter
 	{
 	public:
 		virtual ~RRObjectImporter() {}
@@ -117,7 +131,7 @@ namespace rrEngine
 	// You can create multiple RRScenes and perform independent calculations.
 	// But only serially, code is not thread safe.
 
-	class RRScene
+	class RRENGINE_API RRScene
 	{
 	public:
 		RRScene();
@@ -196,11 +210,11 @@ namespace rrEngine
 		RRSS_LAST
 	};
 
-	void          RRResetStates();
-	unsigned      RRGetState(RRSceneState state);
-	unsigned      RRSetState(RRSceneState state, unsigned value);
-	RRReal        RRGetStateF(RRSceneState state);
-	RRReal        RRSetStateF(RRSceneState state, RRReal value);
+	void     RRENGINE_API RRResetStates();
+	unsigned RRENGINE_API RRGetState(RRSceneState state);
+	unsigned RRENGINE_API RRSetState(RRSceneState state, unsigned value);
+	RRReal   RRENGINE_API RRGetStateF(RRSceneState state);
+	RRReal   RRENGINE_API RRSetStateF(RRSceneState state, RRReal value);
 
 
 	// -- temporary --
