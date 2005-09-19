@@ -7,6 +7,9 @@
    #include <iostream>
 #endif
 
+
+namespace miniball 
+{
    
    template <int d>
    class Wrapped_array {
@@ -83,5 +86,6 @@
        }
    #endif
    
+} // namespace
    
 

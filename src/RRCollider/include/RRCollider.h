@@ -1,9 +1,8 @@
 #ifndef _COLLIDER_H_
 #define _COLLIDER_H_
 
-
 //////////////////////////////////////////////////////////////////////////////
-// Collider - library for fast "ray x mesh" intersections
+// RRCollider - library for fast "ray x mesh" intersections
 // version 2005.09.13
 // http://dee.cz/rr
 //
@@ -249,7 +248,7 @@ namespace rrCollider
 	// RRIndexedTriStripImporter<INDEX> - indexed triangle strip 
 	// RRIndexedTriListImporter<INDEX>  - indexed triangle list
 
-	class RRTriStripImporter : virtual public RRMeshImporter
+	class RRTriStripImporter : public RRMeshImporter
 	{
 	public:
 		RRTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride)

@@ -33,27 +33,27 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsig
 
 PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
 {
-	sha1_context ctx;
-	sha1_starts(&ctx);
+	sha1::sha1_context ctx;
+	sha1::sha1_starts(&ctx);
 	if(TREE_VERSION)
 	{
 		uint8 ver = TREE_VERSION;
-		sha1_update(&ctx, &ver, 1);
+		sha1::sha1_update(&ctx, &ver, 1);
 	}
 	unsigned i = importer->getNumVertices();
 	while(i--)
 	{
-		sha1_update(&ctx, (unsigned char*)importer->getVertex(i), sizeof(RRReal)*3);
+		sha1::sha1_update(&ctx, (unsigned char*)importer->getVertex(i), sizeof(RRReal)*3);
 	}
 	i = importer->getNumTriangles();
 	while(i--)
 	{
 		struct S {unsigned a,b,c;} s;
 		importer->getTriangle(i,s.a,s.b,s.c);
-		sha1_update(&ctx, (unsigned char*)&s, sizeof(s));
+		sha1::sha1_update(&ctx, (unsigned char*)&s, sizeof(s));
 	}
 	unsigned char digest[20];
-	sha1_finish(&ctx, digest);
+	sha1::sha1_finish(&ctx, digest);
 	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
 

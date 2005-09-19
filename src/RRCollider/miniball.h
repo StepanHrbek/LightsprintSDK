@@ -9,6 +9,9 @@
 
 #include "wrapped_array.h"
 
+namespace miniball 
+{
+
 template <int d> class Miniball;
 template <int d> class Basis;
 
@@ -429,3 +432,4 @@ double Basis<d>::slack () const
 	return ( (min_l < 0) ? -min_l : 0);
 }
 
+} // namespace

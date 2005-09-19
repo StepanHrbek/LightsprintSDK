@@ -233,6 +233,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\fpcube.cpp">
+			</File>
+			<File
 				RelativePath="..\geometry.cpp">
 			</File>
 			<File
@@ -246,6 +249,9 @@
 			</File>
 			<File
 				RelativePath="..\IntersectVerification.cpp">
+			</File>
+			<File
+				RelativePath="..\pcube.cpp">
 			</File>
 			<File
 				RelativePath="..\RRCollider.cpp">
@@ -291,10 +297,16 @@
 				RelativePath="..\miniball_config.h">
 			</File>
 			<File
+				RelativePath="..\pcube.h">
+			</File>
+			<File
 				RelativePath="..\include\RRCollider.h">
 			</File>
 			<File
 				RelativePath="..\sha1.h">
+			</File>
+			<File
+				RelativePath="..\vec.h">
 			</File>
 			<File
 				RelativePath="..\wrapped_array.h">

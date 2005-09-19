@@ -41,17 +41,26 @@
 
     #if !defined(__sgi) //&& !defined(__GNUC__)             // assume Visual C++
         #include<cstdlib>
+        namespace miniball 
+        {
         inline void random_seed (unsigned int seed) {srand(seed);}
         inline double random_double () {return double(rand())/RAND_MAX;}
+        }
     #else                                                 // no Visual C++
         #ifndef MINIBALL_NO_STD_NAMESPACE
             #include<cstdlib>
+            namespace miniball 
+            {
             inline void random_seed (unsigned int seed){std::srand48(seed);}
             inline double random_double () {return std::drand48();}
+            }
         #else
             #include<stdlib.h>
+            namespace miniball 
+            {
             inline void random_seed (unsigned int seed){srand48(seed);}
             inline double random_double () {return drand48();}
+            }
         #endif
     #endif
 #endif

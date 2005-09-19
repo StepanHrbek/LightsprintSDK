@@ -11,6 +11,16 @@
 
 //#define CHECK_KD // slow checks of kd build correctness
 
+// more strict separation of faces into kd_front / kd_back
+// reduces subtrees -> can only make traversal faster
+// makes bunny (round shape) 0% faster, rr scenes (blocky) 5% slower(why???)
+//#define STRICT_SEPARATION 
+
+#ifdef STRICT_SEPARATION
+#include "vec.h"
+#include "pcube.h"
+#endif
+
 #define PLANE_PRIZE   (buildParams.prizePlane)   // 1
 #define SPLIT_PRIZE   (buildParams.prizeSplit)   // 150
 #define BALANCE_PRIZE (buildParams.prizeBalance) // 5
@@ -151,10 +161,11 @@ struct BSP_TREE
 #define CACHE_SIZE 1000
 float   DELTA_INSIDE_PLANE; // min distance from plane to be recognized as non-plane
 #define DELTA_NORMALS_MATCH 0.001 // min distance of normals to be recognized as non-plane
-#define PLANE 0
-#define FRONT 1
-#define BACK -1
-#define SPLIT 2
+#define PLANE 0 // 2d in splitting plane
+#define FRONT 1 // 2d in front, 1d may be in plane
+#define BACK -1 // 2d in back, 1d may be in plane
+#define SPLIT 2 // 2d partially in front, partially in back
+#define NONE  3 // 2d outside bbox, 1d may be in front or back
 
 #define nALLOC(A,B) (A *)malloc((B)*sizeof(A))
 #define ALLOC(A) nALLOC(A,1)
@@ -238,7 +249,51 @@ static int locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSI
 	return SPLIT;
 }
 
-static int locate_face_kd(float splitValue, int axis, const FACE *face)
+#ifdef STRICT_SEPARATION
+static RRReal* get_polygon_normal(RRReal normal[3], int nverts, const RRReal verts[/* nverts */][3])
+{
+	int i;
+	real tothis[3], toprev[3], cross[3];
+
+	/*
+	* Triangulate the polygon and sum up the nverts-2 triangle normals.
+	*/
+	ZEROVEC3(normal);
+	VMV3(toprev, verts[1], verts[0]);  	/* 3 subtracts */
+	for (i = 2; i <= nverts-1; ++i) {   /* n-2 times... */
+		VMV3(tothis, verts[i], verts[0]);    /* 3 subtracts */
+		VXV3(cross, toprev, tothis);         /* 3 subtracts, 6 multiplies */
+		VPV3(normal, normal, cross);         /* 3 adds */
+		SET3(toprev, tothis);
+	}
+	return normal;
+}
+
+static bool face_intersects_box(const FACE* face, BBOX* bbox)
+{
+	// find out transformation a*point+b from box to [-0.5,-0.5,-0.5]..[0.5,0.5,0.5] box
+	Vec3 a = (*(Vec3*)bbox->hi-*(Vec3*)bbox->lo);
+	a = Vec3(1/a.x,1/a.y,1/a.z);
+	Vec3 b = (*(Vec3*)bbox->lo+*(Vec3*)bbox->hi)*a*-0.5;
+	// transform face
+	real tri[3][3]; 
+	for(unsigned i=0; i<3; i++)
+		for(unsigned j=0; j<3; j++)
+			tri[i][j] = a[j]*(*face->vertex[i])[j]+b[j];
+	// Inf correction
+	assert(IS_VEC3(tri[0]) && IS_VEC3(tri[1]) && IS_VEC3(tri[2]));
+	// transform normal
+	real normal[3];
+	get_polygon_normal(normal, 3, tri);
+	// call Hatch+Green test
+	return pcube::fast_polygon_intersects_cube(3,tri,normal,0,0)!=0;
+}
+#endif
+
+int locate_face_kd(float splitValue, int axis, BBOX *bbox, const FACE *face)
+// bbox = bbox of node
+// splitValue/axis = where bbox is splited
+// face = object that needs to be located
 {
 	int i,f=0,b=0,p=0;
 
@@ -253,7 +308,32 @@ static int locate_face_kd(float splitValue, int axis, const FACE *face)
 	if (p==3) return PLANE;
 	if (f==3) return FRONT;
 	if (b==3) return BACK;
+#ifdef STRICT_SEPARATION
+	// new: verify that face really intersects both subboxes
+	BBOX bbox2 = *bbox;
+	RRReal dif = DELTA_INSIDE_PLANE;
+	for(unsigned i=0;i<3;i++)
+	{
+		// tiny grow to hit also all tringles in faces of bbox 
+		// (only some faces of box should be covered, but nevermind)
+		bbox2.lo[i] -= dif;
+		bbox2.hi[i] += dif;
+	}
+	float tmp = bbox2.lo[axis];
+	bbox2.lo[axis] = splitValue;
+	bool frontHit = face_intersects_box(face,&bbox2);
+	bbox2.lo[axis] = tmp;
+	bbox2.hi[axis] = splitValue;
+	bool backHit = face_intersects_box(face,&bbox2);
+
+	if(frontHit && backHit) return SPLIT;
+	if(frontHit) return FRONT;
+	if(backHit) return BACK;
+	return NONE; // shouldn't happen
+#else
+	// old
 	return SPLIT;
+#endif
 }
 
 static int compare_face_minx_asc( const void *p1, const void *p2 )
@@ -694,24 +774,28 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	int plane_num=0;
 	int front_num=0;
 	int back_num=0;
+	int none_num=0;
 	for(int i=0;space[i];i++)
 	{
 		if(!kdroot && space[i]==bsproot) {plane_num++;continue;} // insert bsproot into plane
-		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,space[i]) : locate_face_bsp(bsproot,space[i],DELTA_INSIDE_PLANE);
+		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],DELTA_INSIDE_PLANE);
 		switch(side) 
 		{
 			case BACK: back_num++; break;
 			case PLANE: plane_num++; break;
 			case FRONT: front_num++; break;
 			case SPLIT: split_num++; break;
+			case NONE: none_num++; break;
 		}
 	}
 	if(kdroot)
 	{
+#ifndef STRICT_SEPARATION
 		assert(back_num == info_kd.back);
 		assert(front_num == info_kd.front);
 		assert(plane_num == info_kd.plane);
 		assert(split_num == info_kd.split);
+#endif
 	} else {
 		assert(back_num == info_bsp.back);
 		assert(front_num == info_bsp.front);
@@ -750,7 +834,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	int back_id=0;
 	for(int i=0;space[i];i++) if(kdroot || space[i]!=bsproot) 
 	{
-		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,space[i]) : locate_face_bsp(bsproot,space[i],DELTA_INSIDE_PLANE);
+		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],DELTA_INSIDE_PLANE);
 		switch(side) 
 		{
 			case PLANE: if(!kdroot) {plane[plane_id++]=space[i]; break;}

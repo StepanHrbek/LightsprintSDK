@@ -20,8 +20,8 @@ namespace rrCollider
 
 	#define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs
 	#define IS_NUMBER(n) _finite(n)//((n)>-BIG_REAL && (n)<BIG_REAL)
-	#define IS_VEC2(v)   (IS_NUMBER(v.x) && IS_NUMBER(v.y))
-	#define IS_VEC3(v)   (IS_NUMBER(v.x) && IS_NUMBER(v.y) && IS_NUMBER(v.z))
+	#define IS_VEC2(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]))
+	#define IS_VEC3(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]))
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -38,6 +38,7 @@ namespace rrCollider
 		Vec3 operator + (const Vec3& a) const {return Vec3(x+a.x,y+a.y,z+a.z);}
 		Vec3 operator - (const Vec3& a) const {return Vec3(x-a.x,y-a.y,z-a.z);}
 		Vec3 operator * (real f)        const {return Vec3(x*f,y*f,z*f);}
+		Vec3 operator * (Vec3 a)        const {return Vec3(x*a.x,y*a.y,z*a.z);}
 		Vec3 operator / (real f)        const {return Vec3(x/f,y/f,z/f);}
 		Vec3 operator / (int f)         const {return Vec3(x/f,y/f,z/f);}
 		Vec3 operator / (unsigned f)    const {return Vec3(x/f,y/f,z/f);}

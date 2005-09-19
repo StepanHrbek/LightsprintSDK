@@ -5,7 +5,7 @@
 	#define PRIVATE
 #endif
 
-namespace rrCollider
+namespace sha1
 {
 
 	#ifndef uint8
