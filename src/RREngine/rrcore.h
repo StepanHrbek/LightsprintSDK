@@ -261,7 +261,6 @@ public:
 // |       nodes              |
 
 extern unsigned __nodesAllocated;
-class Triangle;
 
 class Node
 {
