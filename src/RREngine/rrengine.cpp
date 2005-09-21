@@ -36,6 +36,17 @@ namespace rrEngine
 #define DBG(a) //a
 #define scene ((Scene*)_scene)
 
+
+
+rrCollider::RRMeshImporter* RRObjectImporter::createTransformedMeshImporter()
+{
+	return new RRTransformedMeshImporter(getCollider()->getImporter(),getWorldMatrix());
+}
+
+
+
+
+
 /*
 1-sided vs 2-sided surface
 

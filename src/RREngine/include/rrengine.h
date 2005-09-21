@@ -36,7 +36,8 @@
 namespace rrEngine
 {
 
-	typedef rrCollider::RRReal RRReal;
+	typedef rrCollider::RRReal  RRReal;
+	typedef RRReal              RRMatrix[4][4];
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -124,6 +125,9 @@ namespace rrEngine
 		// may change during object lifetime
 		virtual const RRReal* getWorldMatrix() = 0;
 		virtual const RRReal* getInvWorldMatrix() = 0;
+
+		// instance creators
+		rrCollider::RRMeshImporter* createTransformedMeshImporter();
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -242,20 +246,25 @@ namespace rrEngine
 		{
 			m = matrix;
 		}
-		RRTransformedMeshImporter(RRObjectImporter* object)
+		/*RRTransformedMeshImporter(RRObjectImporter* object)
 			: RRFilteredMeshImporter(object->getCollider()->getImporter())
 		{
 			m = object->getWorldMatrix();
-		}
+		}*/
 
 		virtual RRReal*      getVertex(unsigned v) const
 		{
-			static RRReal tmp[3];
 			RRReal* objspc = importer->getVertex(v);
-			tmp[0] = m[0] * objspc[0] + m[4] * objspc[1] + m[ 8] * objspc[2] + m[12];
-			tmp[1] = m[1] * objspc[0] + m[5] * objspc[1] + m[ 9] * objspc[2] + m[13];
-			tmp[2] = m[2] * objspc[0] + m[6] * objspc[1] + m[10] * objspc[2] + m[14];
-			return tmp;
+			if(m)
+			{
+				static RRReal tmp[3];
+				tmp[0] = m[0] * objspc[0] + m[4] * objspc[1] + m[ 8] * objspc[2] + m[12];
+				tmp[1] = m[1] * objspc[0] + m[5] * objspc[1] + m[ 9] * objspc[2] + m[13];
+				tmp[2] = m[2] * objspc[0] + m[6] * objspc[1] + m[10] * objspc[2] + m[14];
+				return tmp;
+			} else {
+				return objspc;
+			}
 		}
 
 	private:
@@ -370,7 +379,7 @@ namespace rrEngine
 				{
 					// create multimesh
 					transformedMeshes = new rrCollider::RRMeshImporter*[numObjects];
-					for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = new RRTransformedMeshImporter(objects[i]);
+					for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createTransformedMeshImporter();
 					rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMultiMeshImporter::create(transformedMeshes,numObjects);
 
 					// create multicollider

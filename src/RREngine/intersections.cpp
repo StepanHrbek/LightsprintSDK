@@ -31,26 +31,31 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 
 	// transform from scenespace to objectspace
 	Vec3 rayDir;
+	real scale = 1;
+	real oldRayLengthMin;
+	real oldRayLengthMax;
 #ifdef SUPPORT_TRANSFORMS
 	// translation+rotation allowed, no scaling, so direction stays normalized
-	*(Vec3*)(ray.rayOrigin) = eye.transformed(inverseMatrix);
-	rayDir = direction.rotated(inverseMatrix);
+	if(inverseMatrix)
+	{
+		*(Vec3*)(ray.rayOrigin) = eye.transformed(inverseMatrix);
+		rayDir = direction.rotated(inverseMatrix);
 #ifdef SUPPORT_SCALE
-	// translation+rotation+scale allowed
-	real scale = size(rayDir); // kolikrat je mesh ve worldu zmenseny
-	real oldRayLengthMin = ray.rayLengthMin;
-	real oldRayLengthMax = ray.rayLengthMax;
-	ray.rayLengthMin *= scale;
-	ray.rayLengthMax *= scale;
-#else
-	const int scale = 1;
+		// translation+rotation+scale allowed
+		scale = size(rayDir); // kolikrat je mesh ve worldu zmenseny
+		oldRayLengthMin = ray.rayLengthMin;
+		oldRayLengthMax = ray.rayLengthMax;
+		ray.rayLengthMin *= scale;
+		ray.rayLengthMax *= scale;
 #endif
-#else
-	// no transformation
-	const int scale = 1;
-	*(Vec3*)(ray.rayOrigin) = eye;
-	rayDir = direction;
+	}
+	else
 #endif
+	{
+		// no transformation
+		*(Vec3*)(ray.rayOrigin) = eye;
+		rayDir = direction;
+	}
 	ray.rayDirInv[0] = scale/rayDir[0];
 	ray.rayDirInv[1] = scale/rayDir[1];
 	ray.rayDirInv[2] = scale/rayDir[2];

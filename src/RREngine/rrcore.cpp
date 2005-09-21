@@ -1197,7 +1197,10 @@ again:
 	isNeedle = RRGetState(RRSS_FIGHT_NEEDLES) && minangle<=RRGetStateF(RRSSF_FIGHT_SMALLER_ANGLE);
 
 	// premerit area v worldspace
-	area = calculateArea(a->transformed(obj2world),b->transformed(obj2world),c->transformed(obj2world));
+	if(obj2world)
+		area = calculateArea(a->transformed(obj2world),b->transformed(obj2world),c->transformed(obj2world));
+	else
+		area = calculateArea(*a,*b,*c);
 	if(!IS_NUMBER(area)) return -11;
 	if(area<=RRGetStateF(RRSSF_IGNORE_SMALLER_AREA)) return -12;
 	isNeedle |= RRGetState(RRSS_FIGHT_NEEDLES) && area<=RRGetStateF(RRSSF_FIGHT_SMALLER_AREA);
@@ -2029,7 +2032,10 @@ void Object::detectBounds()
 
 void Object::transformBound()
 {
-	bound.center=bound.centerBeforeTransformation.transformed(transformMatrix);
+	if(transformMatrix)
+		bound.center=bound.centerBeforeTransformation.transformed(transformMatrix);
+	else
+		bound.center=bound.centerBeforeTransformation;
 }
 
 void Scene::transformObjects()
@@ -2470,15 +2476,20 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 
 #ifdef SUPPORT_TRANSFORMS
 	// transform from shooter's objectspace to scenespace
-	*src = srcPoint3.transformed(source->grandpa->object->transformMatrix);
-	*dir = rayVec3.rotated(source->grandpa->object->transformMatrix);
+	if(source->grandpa->object->transformMatrix)
+	{
+		*src = srcPoint3.transformed(source->grandpa->object->transformMatrix);
+		*dir = rayVec3.rotated(source->grandpa->object->transformMatrix);
 #ifdef SUPPORT_SCALE
-	*dir = normalized(*dir);
+		*dir = normalized(*dir);
 #endif
-#else
-	*src = srcPoint3;
-	*dir = rayVec3;
+	}
+	else
 #endif
+	{
+		*src = srcPoint3;
+		*dir = rayVec3;
+	}
 	return source->grandpa;
 }
 
