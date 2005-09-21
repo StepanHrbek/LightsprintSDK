@@ -162,9 +162,9 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
 		int geom=t->setGeometry(
-			(Vec3*)(meshImporter->getVertex(v0)),
-			(Vec3*)(meshImporter->getVertex(v1)),
-			(Vec3*)(meshImporter->getVertex(v2)),
+			*(Vec3*)(meshImporter->getVertex(v0)),
+			*(Vec3*)(meshImporter->getVertex(v1)),
+			*(Vec3*)(meshImporter->getVertex(v2)),
 			obj->transformMatrix);
 		if(t->isValid) 
 		{
