@@ -37,13 +37,214 @@ namespace rrEngine
 #define scene ((Scene*)_scene)
 
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Transformed mesh importer has all vertices transformed by matrix.
 
-rrCollider::RRMeshImporter* RRObjectImporter::createTransformedMeshImporter()
+class RRTransformedMeshImporter : public rrCollider::RRFilteredMeshImporter
+{
+public:
+	RRTransformedMeshImporter(RRMeshImporter* mesh, const RRReal* matrix)
+		: RRFilteredMeshImporter(mesh)
+	{
+		m = matrix;
+	}
+	/*RRTransformedMeshImporter(RRObjectImporter* object)
+	: RRFilteredMeshImporter(object->getCollider()->getImporter())
+	{
+	m = object->getWorldMatrix();
+	}*/
+
+	virtual RRReal*      getVertex(unsigned v) const
+	{
+		RRReal* objspc = importer->getVertex(v);
+		if(m)
+		{
+			static RRReal tmp[3];
+			tmp[0] = m[0] * objspc[0] + m[4] * objspc[1] + m[ 8] * objspc[2] + m[12];
+			tmp[1] = m[1] * objspc[0] + m[5] * objspc[1] + m[ 9] * objspc[2] + m[13];
+			tmp[2] = m[2] * objspc[0] + m[6] * objspc[1] + m[10] * objspc[2] + m[14];
+			return tmp;
+		} else {
+			return objspc;
+		}
+	}
+
+private:
+	const RRReal* m;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Merges multiple object importers together.
+// Instructions for deleting
+//   ObjectImporters typically get underlying Collider as constructor parameter.
+//   They are thus not allowed to destroy it (see general rules).
+//   MultiObjectImporter creates Collider internally. To behave as others, it doesn't destroy it.
+// Limitations:
+//   All objects must share one surface numbering.
+
+class RRMultiObjectImporter : public RRObjectImporter
+{
+public:
+	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects)
+	{
+		return create(objects,numObjects,true);
+	}
+
+	virtual const rrCollider::RRCollider* getCollider() const
+	{
+		return multiCollider;
+	}
+
+	virtual unsigned     getTriangleSurface(unsigned t) const
+	{
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleSurface(t);
+		return pack[1].getImporter()->getTriangleSurface(t-pack[0].getNumTriangles());
+	}
+	virtual RRSurface*   getSurface(unsigned s)
+	{
+		// assumption: all objects share the same surface library
+		// -> this is not universal code
+		return pack[0].getImporter()->getSurface(s);
+	}
+
+	virtual const RRReal* getTriangleAdditionalRadiantExitance(unsigned t) const 
+	{
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalRadiantExitance(t);
+		return pack[1].getImporter()->getTriangleAdditionalRadiantExitance(t-pack[0].getNumTriangles());
+	}
+	virtual const RRReal* getTriangleAdditionalRadiantExitingFlux(unsigned t) const 
+	{
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalRadiantExitingFlux(t);
+		return pack[1].getImporter()->getTriangleAdditionalRadiantExitingFlux(t-pack[0].getNumTriangles());
+	}
+
+	virtual const RRReal* getWorldMatrix()
+	{
+		return NULL;
+	}
+	virtual const RRReal* getInvWorldMatrix()
+	{
+		return NULL;
+	}
+
+	virtual ~RRMultiObjectImporter()
+	{
+		// Never delete lowest level of tree = input importers.
+		// Delete only higher levels = multi mesh importers created by our create().
+		if(pack[0].getNumObjects()>1) delete pack[0].getImporter();
+		if(pack[1].getNumObjects()>1) delete pack[1].getImporter();
+		// Only for top level of tree:
+		if(multiCollider) 
+		{
+			// Delete multiMesh importer created by us.
+			delete multiCollider->getImporter();
+			// Delete multiCollider created by us.
+			delete multiCollider;
+			// Delete transformers created by us.
+			unsigned numObjects = pack[0].getNumObjects() + pack[1].getNumObjects();
+			for(unsigned i=0;i<numObjects;i++) delete transformedMeshes[i];
+			delete[] transformedMeshes;
+		}
+	}
+
+private:
+	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, bool createCollider)
+		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
+		// Array of meshes must live during this call.
+		// Meshes must live as long as created multimesh.
+	{
+		switch(numObjects)
+		{
+		case 0: 
+			return NULL;
+		case 1: 
+			assert(objects);
+			return objects[0];
+		default: 
+			assert(objects); 
+			unsigned num1 = numObjects/2;
+			unsigned num2 = numObjects-numObjects/2;
+			unsigned tris[2] = {0,0};
+			for(unsigned i=0;i<numObjects;i++) 
+			{
+				assert(objects[i]);
+				assert(objects[i]->getCollider());
+				assert(objects[i]->getCollider()->getImporter());
+				tris[(i<num1)?0:1] += objects[i]->getCollider()->getImporter()->getNumTriangles();
+			}
+
+			// only in top level of hierarchy: create multicollider
+			rrCollider::RRCollider* multiCollider = NULL;
+			rrCollider::RRMeshImporter** transformedMeshes = NULL;
+			if(createCollider)
+			{
+				// create multimesh
+				transformedMeshes = new rrCollider::RRMeshImporter*[numObjects];
+				for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
+				rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(transformedMeshes,numObjects);
+
+				// create multicollider
+				multiCollider = rrCollider::RRCollider::create(multiMesh,objects[0]->getCollider()->getTechnique());
+			}
+
+			// create multiobject
+			return new RRMultiObjectImporter(
+				create(objects,num1,false),num1,tris[0],
+				create(objects+num1,num2,false),num2,tris[1],
+				multiCollider,
+				transformedMeshes);
+		}
+	}
+
+	RRMultiObjectImporter(RRObjectImporter* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
+		RRObjectImporter* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles, 
+		rrCollider::RRCollider* collider, rrCollider::RRMeshImporter** transformers)
+	{
+		multiCollider = collider;
+		transformedMeshes = transformers;
+		pack[0].init(mesh1,mesh1Objects,mesh1Triangles);
+		pack[1].init(mesh2,mesh2Objects,mesh2Triangles);
+	}
+
+	struct ObjectPack
+	{
+		void init(RRObjectImporter* importer, unsigned objects, unsigned triangles)
+		{
+			assert(numObjects);
+			packImporter = importer;
+			numObjects = objects;
+			numTriangles = triangles;
+		}
+		RRObjectImporter* getImporter() const {return packImporter;}
+		unsigned          getNumObjects() const {return numObjects;}
+		unsigned          getNumTriangles() const {return numTriangles;}
+	private:
+		RRObjectImporter* packImporter;
+		unsigned          numObjects;
+		unsigned          numTriangles;
+	};
+
+	ObjectPack        pack[2];
+	rrCollider::RRCollider* multiCollider;
+	rrCollider::RRMeshImporter** transformedMeshes;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRObjectImporter instance factory
+
+rrCollider::RRMeshImporter* RRObjectImporter::createWorldSpaceMesh()
 {
 	return new RRTransformedMeshImporter(getCollider()->getImporter(),getWorldMatrix());
 }
 
-
+RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* objects, unsigned numObjects)
+{
+	return RRMultiObjectImporter::create(objects,numObjects);
+}
 
 
 

@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.09.13
+// version 2005.09.22
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -48,6 +48,7 @@
 
 #include <assert.h>
 #include <limits.h>
+#include <memory.h>
 #include <new>
 
 namespace rrCollider
@@ -60,14 +61,16 @@ namespace rrCollider
 	//
 	// RRMeshImporter - abstract class for importing your mesh data into RR.
 	//
-	// Derive to import YOUR geometry.
-	// Derive from RRObjectImporter if you want to calculate also radiosity.
-	// Data must not change during object lifetime, all results must be constant.
+	// Derive to import YOUR triangle mesh.
+	// All results from RRMeshImporter must be constant in time.
 
 	class RRCOLLIDER_API RRMeshImporter
 	{
 	public:
-		RRMeshImporter() {}
+		//////////////////////////////////////////////////////////////////////////////
+		// Interface
+		//////////////////////////////////////////////////////////////////////////////
+
 		virtual ~RRMeshImporter() {}
 
 		// vertices
@@ -90,6 +93,17 @@ namespace rrCollider
 		// optional for faster access
 		struct TriangleSRL   {RRReal s[3],r[3],l[3];};
 		virtual void         getTriangleSRL(unsigned i, TriangleSRL* t) const;
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools
+		//////////////////////////////////////////////////////////////////////////////
+
+		// instance factory
+		bool                   save(char* filename);
+		static RRMeshImporter* load(char* filename);
+		static RRMeshImporter* createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes);
+		RRMeshImporter*        createCopy();
 	};
 
 
@@ -181,6 +195,10 @@ namespace rrCollider
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// RRCollider - single object able to calculate ray x trimesh intersections.
+	//
+	// Mesh is defined by importer passed to create().
+	// All results from importer must be constant in time, 
+	// otherwise collision results are undefined.
 
 	class RRCOLLIDER_API RRCollider
 	{
@@ -603,161 +621,7 @@ namespace rrCollider
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
-
-	// Merges multiple mesh importers together.
-	// Space is not transformed here, underlying meshes must already share one space.
-	// Defines its own PreImportNumber, see below.
-
-	class RRMultiMeshImporter : public RRMeshImporter
-	{
-	public:
-		// creators
-		static RRMeshImporter* create(RRMeshImporter* const* mesh, unsigned numMeshes)
-			// all parameters (meshes, array of meshes) are destructed by caller, not by us
-			// array of meshes must live during this call
-			// meshes must live as long as created multimesh
-		{
-			switch(numMeshes)
-			{
-			case 0: 
-				return NULL;
-			case 1: 
-				assert(mesh);
-				return mesh[0];
-			default: 
-				assert(mesh); 
-				return new RRMultiMeshImporter(
-					create(mesh,numMeshes/2),numMeshes/2,
-					create(mesh+numMeshes/2,numMeshes-numMeshes/2),numMeshes-numMeshes/2);
-			}
-		}
-
-		// vertices
-		virtual unsigned     getNumVertices() const
-		{
-			return pack[0].getNumVertices()+pack[1].getNumVertices();
-		}
-		virtual RRReal*      getVertex(unsigned v) const
-		{
-			if(v<pack[0].getNumVertices()) return pack[0].getImporter()->getVertex(v);
-			return pack[1].getImporter()->getVertex(v-pack[0].getNumVertices());
-		}
-
-		// triangles
-		virtual unsigned     getNumTriangles() const
-		{
-			return pack[0].getNumTriangles()+pack[1].getNumTriangles();
-		}
-		virtual void         getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
-		{
-			if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangle(t,v0,v1,v2);
-			return pack[1].getImporter()->getTriangle(t-pack[0].getNumTriangles(),v0,v1,v2);
-		}
-
-		// optional for faster access
-		//!!! default is slow
-		//virtual void         getTriangleSRL(unsigned i, TriangleSRL* t) const
-		//{
-		//}
-
-		// preimport/postimport conversions
-		struct PreImportNumber 
-			// our structure of pre import number (it is independent for each implementation)
-			// (on the other hand, postimport is always plain unsigned, 0..num-1)
-			// underlying importers must use preImport values that fit into index, this is not runtime checked
-		{
-			unsigned index : sizeof(unsigned)*8-12; // 32bit: max 1M triangles/vertices in one object
-			unsigned object : 12; // 32bit: max 4k objects
-			PreImportNumber(unsigned i) {*(unsigned*)this = i;} // implicit unsigned -> PreImportNumber conversion
-			operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
-		};
-		virtual unsigned     getPreImportVertex(unsigned postImportVertex) const 
-		{
-			if(postImportVertex<pack[0].getNumVertices()) 
-			{
-				return pack[0].getImporter()->getPreImportVertex(postImportVertex);
-			} else {
-				PreImportNumber preImport = pack[1].getImporter()->getPreImportVertex(postImportVertex-pack[0].getNumVertices());
-				preImport.object += pack[0].getNumObjects();
-				preImport.index += pack[0].getNumVertices();
-				return preImport;
-			}
-		}
-		virtual unsigned     getPostImportVertex(unsigned preImportVertex) const 
-		{
-			PreImportNumber preImport = preImportVertex;
-			if(preImport.object<pack[0].getNumObjects()) 
-			{
-				return pack[0].getImporter()->getPostImportVertex(preImport);
-			} else {
-				preImport.object -= pack[0].getNumObjects();
-				preImport.index -= pack[0].getNumVertices();
-				return pack[1].getImporter()->getPostImportVertex(preImport);
-			}
-		}
-		virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const 
-		{
-			if(postImportTriangle<pack[0].getNumTriangles()) 
-			{
-				return pack[0].getImporter()->getPreImportTriangle(postImportTriangle);
-			} else {
-				PreImportNumber preImport = pack[1].getImporter()->getPreImportTriangle(postImportTriangle-pack[0].getNumTriangles());
-				preImport.object += pack[0].getNumObjects();
-				preImport.index += pack[0].getNumTriangles();
-				return preImport;
-			}
-		}
-		virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const 
-		{
-			PreImportNumber preImport = preImportTriangle;
-			if(preImport.object<pack[0].getNumObjects()) 
-			{
-				return pack[0].getImporter()->getPostImportTriangle(preImport);
-			} else {
-				preImport.object -= pack[0].getNumObjects();
-				preImport.index -= pack[0].getNumTriangles();
-				return pack[1].getImporter()->getPostImportTriangle(preImport);
-			}
-		}
-
-		virtual ~RRMultiMeshImporter()
-		{
-			// Never delete lowest level of tree = input importers.
-			// Delete only higher levels = multi mesh importers created by our create().
-			if(pack[0].getNumObjects()>1) delete pack[0].getImporter();
-			if(pack[1].getNumObjects()>1) delete pack[1].getImporter();
-		}
-	private:
-		RRMultiMeshImporter(const RRMeshImporter* mesh1, unsigned mesh1Objects, const RRMeshImporter* mesh2, unsigned mesh2Objects)
-		{
-			pack[0].init(mesh1,mesh1Objects);
-			pack[1].init(mesh2,mesh2Objects);
-		}
-		struct MeshPack
-		{
-			void init(const RRMeshImporter* importer, unsigned objects)
-			{
-				packImporter = importer;
-				numObjects = objects;
-				assert(importer);
-				numVertices = importer->getNumVertices();
-				numTriangles = importer->getNumTriangles();
-			}
-			const RRMeshImporter* getImporter() const {return packImporter;}
-			unsigned        getNumObjects() const {return numObjects;}
-			unsigned        getNumVertices() const {return numVertices;}
-			unsigned        getNumTriangles() const {return numTriangles;}
-		private:
-			const RRMeshImporter* packImporter;
-			unsigned        numObjects;
-			unsigned        numVertices;
-			unsigned        numTriangles;
-		};
-		MeshPack        pack[2];
-	};
-
-	//////////////////////////////////////////////////////////////////////////////
-
+	//
 	// Base class for mesh import filters.
 
 	class RRFilteredMeshImporter : public RRMeshImporter
@@ -766,12 +630,13 @@ namespace rrCollider
 		RRFilteredMeshImporter(const RRMeshImporter* mesh)
 		{
 			importer = mesh;
-			numVertices = importer->getNumVertices();
-			numTriangles = importer->getNumTriangles();
+			numVertices = importer ? importer->getNumVertices() : 0;
+			numTriangles = importer ? importer->getNumTriangles() : 0;
 		}
 		virtual ~RRFilteredMeshImporter()
 		{
-			//delete importer;
+			// Delete only what was created by us, not params.
+			// So don't delete importer.
 		}
 
 		// vertices
@@ -816,6 +681,71 @@ namespace rrCollider
 		const RRMeshImporter* importer;
 		unsigned        numVertices;
 		unsigned        numTriangles;
+	};
+
+	class RRInterchangeMeshImporter : public RRFilteredMeshImporter
+	{
+	public:
+		// Save importer to disk in importer binary interchange format.
+		// Check importer consistency during save so we don't have to store redundant data.
+		bool save(const char* filename)
+		{
+			//!!!
+			return false;
+		}
+
+		// Load importer from disk in importer binary interchange format.
+		bool load(const char* filename)
+		{
+			//!!!
+			return false;
+		}
+
+		RRInterchangeMeshImporter()
+			: RRFilteredMeshImporter(NULL)
+		{
+			vertex = NULL;
+			triangle = NULL;
+		}
+
+		RRInterchangeMeshImporter(RRMeshImporter* importer)
+			: RRFilteredMeshImporter(importer)
+		{
+			vertex = new RRReal[3*numVertices];
+			triangle = new unsigned[3*numTriangles];
+			for(unsigned i=0;i<numVertices;i++)
+			{
+				memcpy(&vertex[3*i],importer->getVertex(i),3*sizeof(RRReal));
+			}
+			for(unsigned i=0;i<numTriangles;i++)
+			{
+				importer->getTriangle(i,triangle[3*i],triangle[3*i+1],triangle[3*i+2]);
+			}
+			//!!! check that getTriangleSRL returns numbers consistent with getVertex/getTriangle
+		}
+
+		virtual ~RRInterchangeMeshImporter()
+		{
+			delete[] vertex;
+			delete[] triangle;
+		}
+
+		virtual RRReal*      getVertex(unsigned v) const
+		{
+			assert(v<numVertices);
+			return &vertex[3*v];
+		}
+		virtual void         getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		{
+			assert(t<numTriangles);
+			v0 = triangle[3*t];
+			v1 = triangle[3*t+1];
+			v2 = triangle[3*t+2];
+		}
+
+	protected:
+		RRReal*              vertex;
+		unsigned*            triangle;
 	};
 
 } // namespace
