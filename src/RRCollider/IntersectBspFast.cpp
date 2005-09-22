@@ -212,11 +212,18 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	real u,v;
 	#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t->s3[Y])*t->r3[X]-(ray->hitPoint3d[X]-t->s3[X])*t->r3[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t->s3[Z]-t->l3[Z]*v) * t->ir3[Z];
 #if 1
-	static const unsigned tablo[9][3] = {{0,1,2},{1,2,2},{2,0,2},{0,1,0},{1,2,0},{2,0,0},{0,1,1},{1,2,1},{2,0,1}};
+	//assert(t->intersectByte<9); // degenerated triangles are 10, others shoud be in 0..8
+	static const unsigned tablo[9+2][3] = {{0,1,2},{1,2,2},{2,0,2},{0,1,0},{1,2,0},{2,0,0},{0,1,1},{1,2,1},{2,0,1}
+		,{2,0,1},{2,0,1}}; // covers intersectByte 10 of degenerated triangles
 	int x=tablo[t->intersectByte][0], y=tablo[t->intersectByte][1], z=tablo[t->intersectByte][2];
 	//static const unsigned tablo[3][9] = {{0,1,2,0,1,2,0,1,2},{1,2,0,1,2,0,1,2,0},{2,2,2,0,0,0,1,1,1}};
 	//int x=tablo[0][t->intersectByte], y=tablo[1][t->intersectByte], z=tablo[2][t->intersectByte];
 	CASE(x,y,z);
+	assert(IS_NUMBER(u));
+	assert(IS_NUMBER(v));
+	if(u<0 || u+v>1) return false;
+	//!!! degenerated triangles should be removed at bsp build time, not here
+	if(t->intersectByte>8) return false; // throw out degenerated triangle that was hit
 #else
 	switch(t->intersectByte)
 	{
@@ -231,9 +238,9 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 		case 8:CASE(2,0,1);break;
 		default: return false;
 	}
+	if(u<0 || u+v>1) return false;
 #endif
 	#undef CASE
-	if(u<0 || u+v>1) return false;
 
 #ifdef FILL_HITSIDE
 	if(ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))

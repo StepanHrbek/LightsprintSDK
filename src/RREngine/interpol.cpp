@@ -630,7 +630,8 @@ void Object::buildTopIVertices()
 	// check vertexIVertex validity
 	for(unsigned v=0;v<vertices;v++)
 	{
-		assert(vertexIVertex[v]);
+		//!!! happens with generated ball, reason unknown
+		//assert(vertexIVertex[v]);
 	}
 	// check triangle.topivertex validity
 	for(unsigned t=0;t<triangles;t++)

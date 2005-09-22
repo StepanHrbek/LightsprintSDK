@@ -690,7 +690,7 @@ public:
 
 #else
 	Channels getVertexIrradiance(unsigned avertex);
-	IVertex **vertexIVertex;
+	IVertex **vertexIVertex; // only for fast approximative getVertexIrradiance
 	// IVertex pool
 	IVertex *newIVertex();
 	void     deleteIVertices();

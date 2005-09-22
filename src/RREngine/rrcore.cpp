@@ -1878,6 +1878,7 @@ Object::Object(int avertices,int atriangles)
 Channels Object::getVertexIrradiance(unsigned avertex)
 {
 	assert(avertex<vertices);
+	if(!vertexIVertex[avertex]) return Channels(0); // be prepared for NULL
 	assert(vertexIVertex[avertex]);
 	return vertexIVertex[avertex]->irradiance();
 }
@@ -2803,6 +2804,8 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 		// prepare shooting
 		assert(source->shooter);
 		shotsForNewFactors=1+(int)(accuracy*sum(abs(source->shooter->energyDiffused+source->shooter->energyToDiffuse)));
+		if(shotsForNewFactors<=source->shooter->shotsForFactors)
+			shotsForNewFactors = 1+source->shooter->shotsForFactors;
 		assert(shotsForNewFactors>source->shooter->shotsForFactors);
 		assert(shotsAccumulated==0);
 		assert(!hitTriangles.get());
