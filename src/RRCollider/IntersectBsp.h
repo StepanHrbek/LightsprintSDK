@@ -198,7 +198,7 @@ namespace rrCollider
 	}
 
 	template IBP
-	PRIVATE BspTree* load(RRMeshImporter* importer, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
+	PRIVATE BspTree* load(RRMeshImporter* importer, const char* cacheLocation, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
 	{
 		if(!intersector) return NULL;
 		if(!importer) return NULL;
@@ -208,7 +208,7 @@ namespace rrCollider
 		BspTree* tree = NULL;
 		bool retried = false;
 		char name[300];
-		getFileName(name,300,importer,ext);
+		getFileName(name,300,importer,cacheLocation,ext);
 		FILE* f = buildParams->forceRebuild ? NULL : fopen(name,"rb");
 		if(!f)
 		{

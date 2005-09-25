@@ -316,9 +316,9 @@ begin:
 }
 
 template IBP
-IntersectBspCompact IBP2::IntersectBspCompact(RRMeshImporter* aimporter, IntersectTechnique intersectTechnique, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
+IntersectBspCompact IBP2::IntersectBspCompact(RRMeshImporter* aimporter, IntersectTechnique intersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
 {
-	tree = load IBP2(aimporter,ext,buildParams,this);
+	tree = load IBP2(aimporter,cacheLocation,ext,buildParams,this);
 	if(!tree) return;
 }
 

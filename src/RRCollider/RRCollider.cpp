@@ -294,7 +294,7 @@ void RRMeshImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
 	t->l[2]=v[2][2]-v[0][2];
 }
 
-RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams)
+RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
 {
 	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);
@@ -306,7 +306,7 @@ RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique inte
 			if(importer->getNumTriangles()<=256)
 			{
 				typedef IntersectBspCompact<CBspTree21> T;
-				T* in = T::create(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
+				T* in = T::create(importer,intersectTechnique,cacheLocation,".compact",(BuildParams*)buildParams);
 				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
@@ -314,14 +314,14 @@ RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique inte
 			if(importer->getNumTriangles()<=65536)
 			{
 				typedef IntersectBspCompact<CBspTree42> T;
-				T* in = T::create(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
+				T* in = T::create(importer,intersectTechnique,cacheLocation,".compact",(BuildParams*)buildParams);
 				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
 			}
 			{
 				typedef IntersectBspCompact<CBspTree44> T;
-				T* in = T::create(importer,intersectTechnique,".compact",(BuildParams*)buildParams);
+				T* in = T::create(importer,intersectTechnique,cacheLocation,".compact",(BuildParams*)buildParams);
 				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;
@@ -330,7 +330,7 @@ RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique inte
 		case IT_BSP_FAST:
 			{
 				typedef IntersectBspFast<BspTree44> T;
-				T* in = T::create(importer,intersectTechnique,(intersectTechnique==IT_BSP_FAST)?".fast":".fastest",(BuildParams*)buildParams);
+				T* in = T::create(importer,intersectTechnique,cacheLocation,(intersectTechnique==IT_BSP_FAST)?".fast":".fastest",(BuildParams*)buildParams);
 				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;

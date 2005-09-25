@@ -646,7 +646,7 @@ begin:
 }
 
 template IBP
-IntersectBspFast IBP2::IntersectBspFast(RRMeshImporter* aimporter, IntersectTechnique aintersectTechnique, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
+IntersectBspFast IBP2::IntersectBspFast(RRMeshImporter* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
 {
 #ifdef TEST
 	test = new IntersectLinear(aimporter);
@@ -655,7 +655,7 @@ IntersectBspFast IBP2::IntersectBspFast(RRMeshImporter* aimporter, IntersectTech
 	triangleSRLNP = NULL;
 	intersectTechnique = aintersectTechnique;
 
-	tree = load IBP2(aimporter,ext,buildParams,this);
+	tree = load IBP2(aimporter,cacheLocation,ext,buildParams,this);
 	if(!tree) return;
 
 	switch(intersectTechnique)

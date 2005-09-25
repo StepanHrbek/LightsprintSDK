@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.09.22
+// version 2005.09.23
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -212,7 +212,7 @@ namespace rrCollider
 			IT_BSP_FASTEST,     // speed 200%, size 58
 			IT_VERIFICATION,    // test using all techniques and compare
 		};
-		static RRCollider*   create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, void* buildParams=0);
+		static RRCollider*   create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
 
 		// calculate intersections
 		// (When intersection is detected, ray outputs are filled and true returned.

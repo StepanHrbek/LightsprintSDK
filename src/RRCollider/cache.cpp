@@ -57,12 +57,12 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
 	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
 
-PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer, const char* extension)
+PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer, const char* cacheLocation, const char* extension)
 {
 	if(!bufsize) return;
 	buf[0]=0;
 	// rrcache
-	char* dir=getenv("RRCACHE");
+	const char* dir = cacheLocation?cacheLocation:getenv("RRCACHE");
 	if(dir) 
 	{
 		strncpy(buf,dir,bufsize-1);

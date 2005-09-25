@@ -235,17 +235,22 @@ static int locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSI
 {
 	int i,f=0,b=0,p=0;
 
-	for (i=0;i<3;i++)
-		switch (locate_vertex_bsp(plane,face->vertex[i],DELTA_INSIDE_PLANE))
+	for(i=0;i<3;i++)
+		switch(locate_vertex_bsp(plane,face->vertex[i],DELTA_INSIDE_PLANE))
 		{
 			case BACK:b++;break;
 			case FRONT:f++;break;
 			case PLANE:f++;b++;p++;break;
 		}
 
-	if (p==3 && normals_match(plane,face)) return PLANE;
-	if (f==3) return FRONT;
-	if (b==3) return BACK;
+	if(plane==face)
+	{
+		assert(p==3);
+		return PLANE;
+	}
+	if(p==3 && normals_match(plane,face)) return PLANE;
+	if(f==3) return FRONT;
+	if(b==3) return BACK;
 	return SPLIT;
 }
 
@@ -684,14 +689,14 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo)
 			bestinfo->split = split;
 			bestinfo->prize = prize;
 			best=tmp[i].f; 
-			if(!plane) //!!! at least best must be in plane
-				locate_face_bsp(best,best,DELTA_INSIDE_PLANE);
+			assert(plane); // at least best(triangle that makes plane) must be in plane
 		}
 
 	}
 
 	free(tmp);
 
+	assert(bestinfo->plane>=1);
 	return best;
 }
 
@@ -711,6 +716,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	if(!kd_allowed || pn<buildParams.kdMinFacesInTree)
 	{
 		bsproot=find_best_root_bsp(space,&info_bsp);
+		if(bsproot) assert(info_bsp.plane>=1);
 	} else {
 		kdroot = find_best_root_kd(bbox,space,&info_kd);
 #ifdef SUPPORT_EMPTY_KDNODE
@@ -731,6 +737,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		if((buildParams.kdHavran==0 && pn<buildParams.bspMaxFacesInTree) || !kdroot)
 		{
 			bsproot = find_best_root_bsp(space,&info_bsp);
+			if(bsproot) assert(info_bsp.plane>=1);
 			if(buildParams.kdHavran==0 && kdroot && info_kd.prize<info_bsp.prize+pn)
 				bsproot=NULL; 
 			else 
@@ -777,7 +784,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	int none_num=0;
 	for(int i=0;space[i];i++)
 	{
-		if(!kdroot && space[i]==bsproot) {plane_num++;continue;} // insert bsproot into plane
+		//if(!kdroot && space[i]==bsproot) {plane_num++;continue;} // insert bsproot into plane
 		int side = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],DELTA_INSIDE_PLANE);
 		switch(side) 
 		{
@@ -1085,6 +1092,8 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 		obj->vertex[obj->face[i].vertex[2]->id].used++;
 	}
 
+	// pri 1e-6 se vyskytl triangl, ktery udajne nebyl uvnitr vlastni roviny
+	// nicmene pak to vzdy spadlo, oboje mohlo byt nasledek jineho rozkladu
 	DELTA_INSIDE_PLANE = bbox.getEdgeSize() * 1e-6f;
 
 	for(int i=0;i<obj->vertex_num;i++)
