@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.09.26
+// version 2005.10.4
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
