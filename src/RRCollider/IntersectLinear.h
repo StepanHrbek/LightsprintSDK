@@ -22,7 +22,7 @@ namespace rrCollider
 	PRIVATE bool update_rayDir(RRRay* ray);
 	PRIVATE void update_hitPoint3d(RRRay* ray, real distance);
 	PRIVATE void update_hitPlane(RRRay* ray, RRMeshImporter* importer);
-	PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t);
+	PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t);
 
 	class IntersectLinear : public RRCollider, public RRAligned
 	{

@@ -5,8 +5,9 @@ CPPFLAGS = -Iinclude
 CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
 #CPPFLAGS += -ffast-math // zpusobuje crash v soda
 CPPFLAGS += -fomit-frame-pointer
-CPPFLAGS += -march=athlon-xp -msse
-#CPPFLAGS += -mfpmath=sse
+CPPFLAGS += -march=athlon-xp
+CPPFLAGS += -msse
+CPPFLAGS += -mfpmath=sse
 CC = gcc
 
 OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)geometry.o $(TMP)IntersectBspFast.o $(TMP)IntersectBspCompact.o $(TMP)IntersectLinear.o $(TMP)IntersectVerification.o $(TMP)RRCollider.o $(TMP)sha1.o

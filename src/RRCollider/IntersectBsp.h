@@ -222,7 +222,8 @@ namespace rrCollider
 			obj.vertex = new VERTEX[obj.vertex_num];
 			for(int i=0;i<obj.vertex_num;i++)
 			{
-				real* v = importer->getVertex(i);
+				RRMeshImporter::Vertex v;
+				importer->getVertex(i,v);
 				obj.vertex[i].x = v[0];
 				obj.vertex[i].y = v[1];
 				obj.vertex[i].z = v[2];
@@ -233,8 +234,8 @@ namespace rrCollider
 			unsigned ii=0;
 			for(int i=0;i<obj.face_num;i++)
 			{
-				unsigned v[3];
-				importer->getTriangle(i,v[0],v[1],v[2]);
+				RRMeshImporter::Triangle v;
+				importer->getTriangle(i,v);
 				obj.face[ii].vertex[0] = &obj.vertex[v[0]];
 				obj.face[ii].vertex[1] = &obj.vertex[v[1]];
 				obj.face[ii].vertex[2] = &obj.vertex[v[2]];

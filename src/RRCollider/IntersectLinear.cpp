@@ -38,20 +38,20 @@ PRIVATE void update_hitPoint3d(RRRay* ray, real distance)
 
 PRIVATE void update_hitPlane(RRRay* ray, RRMeshImporter* importer)
 {
-	RRMeshImporter::TriangleSRL t2;
-	importer->getTriangleSRL(ray->hitTriangle,&t2);
+	RRMeshImporter::TriangleBody t2;
+	importer->getTriangleBody(ray->hitTriangle,t2);
 	Vec3 n;
-	n.x = t2.r[1] * t2.l[2] - t2.r[2] * t2.l[1];
-	n.y = t2.r[2] * t2.l[0] - t2.r[0] * t2.l[2];
-	n.z = t2.r[0] * t2.l[1] - t2.r[1] * t2.l[0];
+	n.x = t2.side1[1] * t2.side2[2] - t2.side1[2] * t2.side2[1];
+	n.y = t2.side1[2] * t2.side2[0] - t2.side1[0] * t2.side2[2];
+	n.z = t2.side1[0] * t2.side2[1] - t2.side1[1] * t2.side2[0];
 	real siz = size(n);
 	ray->hitPlane[0] = n.x/siz;
 	ray->hitPlane[1] = n.y/siz;
 	ray->hitPlane[2] = n.z/siz;
-	ray->hitPlane[3] = -(t2.s[0] * ray->hitPlane[0] + t2.s[1] * ray->hitPlane[1] + t2.s[2] * ray->hitPlane[2]);
+	ray->hitPlane[3] = -(t2.vertex0[0] * ray->hitPlane[0] + t2.vertex0[1] * ray->hitPlane[1] + t2.vertex0[2] * ray->hitPlane[2]);
 }
 
-PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t)
+PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t)
 // input:                ray, t
 // returns:              true if ray hits t
 // modifies when hit:    hitDistance, hitPoint2D, hitOuterSide
@@ -62,8 +62,8 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t
 	assert(t);
 
 	// calculate determinant - also used to calculate U parameter
-	Vec3 pvec = ortogonalTo(*(Vec3*)ray->rayDir,*(Vec3*)t->l);
-	real det = dot(*(Vec3*)t->r,pvec);
+	Vec3 pvec = ortogonalTo(*(Vec3*)ray->rayDir,*(Vec3*)&t->side2);
+	real det = dot(*(Vec3*)&t->side1,pvec);
 
 	// cull test
 	bool hitOuterSide = det>0;
@@ -75,21 +75,21 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t
 	//if(det>-EPSILON && det<EPSILON) return false;
 
 	// calculate distance from vert0 to ray origin
-	Vec3 tvec = *(Vec3*)ray->rayOrigin-*(Vec3*)t->s;
+	Vec3 tvec = *(Vec3*)&ray->rayOrigin-*(Vec3*)&t->vertex0;
 
 	// calculate U parameter and test bounds
 	real u = dot(tvec,pvec)/det;
 	if(u<0 || u>1) return false;
 
 	// prepare to test V parameter
-	Vec3 qvec = ortogonalTo(tvec,*(Vec3*)t->r);
+	Vec3 qvec = ortogonalTo(tvec,*(Vec3*)&t->side1);
 
 	// calculate V parameter and test bounds
 	real v = dot(*(Vec3*)ray->rayDir,qvec)/det;
 	if(v<0 || u+v>1) return false;
 
 	// calculate distance where ray intersects triangle
-	real dist = dot(*(Vec3*)t->l,qvec)/det;
+	real dist = dot(*(Vec3*)&t->side2,qvec)/det;
 	if(dist<ray->hitDistanceMin || dist>ray->hitDistanceMax) return false;
 
 	ray->hitDistance = dist;
@@ -120,7 +120,8 @@ IntersectLinear::IntersectLinear(RRMeshImporter* aimporter)
 	Vec3* vertex = new Vec3[vertices];
 	for(unsigned i=0;i<vertices;i++)
 	{
-		real* v = importer->getVertex(i);
+		RRMeshImporter::Vertex v;
+		importer->getVertex(i,v);
 		vertex[i].x = v[0];
 		vertex[i].y = v[1];
 		vertex[i].z = v[2];
@@ -153,9 +154,9 @@ unsigned IntersectLinear::getMemoryOccupied() const
 
 bool IntersectLinear::isValidTriangle(unsigned i) const
 {
-	unsigned v[3];
-	importer->getTriangle(i,v[0],v[1],v[2]);
-	return v[0]!=v[1] && v[0]!=v[2] && v[1]!=v[2];
+	RRMeshImporter::Triangle t;
+	importer->getTriangle(i,t);
+	return t[0]!=t[1] && t[0]!=t[2] && t[1]!=t[2];
 }
 
 // return first intersection with object
@@ -194,8 +195,8 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	FILL_STATISTIC(intersectStats.intersect_linear++);
 	for(unsigned t=0;t<triangles;t++)
 	{
-		RRMeshImporter::TriangleSRL t2;
-		importer->getTriangleSRL(t,&t2);
+		RRMeshImporter::TriangleBody t2;
+		importer->getTriangleBody(t,t2);
 		if(intersect_triangle(ray,&t2))
 		{
 			ray->hitTriangle = t;

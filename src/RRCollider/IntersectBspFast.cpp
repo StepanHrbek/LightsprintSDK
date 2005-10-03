@@ -261,7 +261,7 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	return true;
 }
 
-static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshImporter::TriangleSRL* t2)
+static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshImporter::TriangleBody* t2)
 {
 	FILL_STATISTIC(intersectStats.intersect_triangleNP++);
 	assert(ray);
@@ -271,7 +271,7 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshIm
 	real u,v;
 	switch(t->intersectByte)
 	{
-		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t2->s[Y])*t2->r[X]-(ray->hitPoint3d[X]-t2->s[X])*t2->r[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t2->s[Z]-t2->l[Z]*v)/t2->r[Z];                break
+		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t2->vertex0[Y])*t2->side1[X]-(ray->hitPoint3d[X]-t2->vertex0[X])*t2->side1[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t2->vertex0[Z]-t2->side2[Z]*v)/t2->side1[Z];                break
 		case 0:CASE(0,1,2);
 		case 1:CASE(1,2,2);
 		case 2:CASE(2,0,2);
@@ -612,8 +612,8 @@ begin:
 	void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
-		RRMeshImporter::TriangleSRL t2;
-		importer->getTriangleSRL(triangle->getTriangleIndex(),&t2);
+		RRMeshImporter::TriangleBody t2;
+		importer->getTriangleBody(triangle->getTriangleIndex(),t2);
 		if(intersect_triangleNP(ray,triangleNP+triangle->getTriangleIndex(),&t2))
 		{
 			assert(IS_NUMBER(distancePlane));
@@ -672,13 +672,14 @@ IntersectBspFast IBP2::IntersectBspFast(RRMeshImporter* aimporter, IntersectTech
 	if(triangleNP||triangleSRLNP)
 		for(unsigned i=0;i<triangles;i++)
 		{
-			unsigned v0,v1,v2;
-			importer->getTriangle(i,v0,v1,v2);
-			real* p0 = importer->getVertex(v0);
-			real* p1 = importer->getVertex(v1);
-			real* p2 = importer->getVertex(v2);
-			if(triangleNP) triangleNP[i].setGeometry((Vec3*)p0,(Vec3*)p1,(Vec3*)p2);
-			if(triangleSRLNP) triangleSRLNP[i].setGeometry(i,(Vec3*)p0,(Vec3*)p1,(Vec3*)p2);
+			RRMeshImporter::Triangle t;
+			importer->getTriangle(i,t);
+			RRMeshImporter::Vertex v[3];
+			importer->getVertex(t[0],v[0]);
+			importer->getVertex(t[1],v[1]);
+			importer->getVertex(t[2],v[2]);
+			if(triangleNP) triangleNP[i].setGeometry((Vec3*)&v[0],(Vec3*)&v[1],(Vec3*)&v[2]);
+			if(triangleSRLNP) triangleSRLNP[i].setGeometry(i,(Vec3*)&v[0],(Vec3*)&v[1],(Vec3*)&v[2]);
 		}
 
 }
@@ -704,6 +705,7 @@ template IBP
 bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 {
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
+	assert(intersectTechnique==IT_BSP_FASTEST);
 	return box.intersect(ray) &&
 		update_rayDir(ray) &&
 		(
@@ -785,8 +787,8 @@ test_no:
 			bool hitParallel = fabs(tmp)<delta;
 			/*RRRay ray5 = rayOrig;
 			update_hitPoint3d(&ray5,ray->hitDistance);
-			TriangleSRL srl;
-			importer->getTriangleSRL(ray->hitTriangle,&srl);
+			TriangleBody srl;
+			importer->getTriangleBody(ray->hitTriangle,&srl);
 			bool linearAbleToHit = intersect_triangle(&ray5,&srl);
 			if(!ableToHit)
 			{

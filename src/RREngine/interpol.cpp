@@ -578,8 +578,8 @@ void Object::buildTopIVertices()
 	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
-		unsigned un_ve[3]; // un_ = unrotated
-		meshImporter->getTriangle(t,un_ve[0],un_ve[1],un_ve[2]);
+		rrCollider::RRMeshImporter::Triangle un_ve; // un_ = unrotated
+		meshImporter->getTriangle(t,un_ve);
 		for(int ro_v=0;ro_v<3;ro_v++) // ro_ = rotated 
 		{
 			unsigned un_v = un_ve[(ro_v+triangle[t].rotations)%3];
@@ -600,9 +600,10 @@ void Object::buildTopIVertices()
 	int unusedVertices=0;
 	for(unsigned v=0;v<vertices;v++)
 	{
-		real* vert = meshImporter->getVertex(v);
-		if(!topivertex[v].check(*(Vec3*)vert)) unusedVertices++;
-		topivertex[v].splitTopLevel((Vec3*)vert,this);
+		rrCollider::RRMeshImporter::Vertex vert;
+		meshImporter->getVertex(v,vert);
+		if(!topivertex[v].check(*(Vec3*)&vert)) unusedVertices++;
+		topivertex[v].splitTopLevel((Vec3*)&vert,this);
 	}
 	// report unused vertices
 	if(unusedVertices)
@@ -615,8 +616,8 @@ void Object::buildTopIVertices()
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
 		// ro_=rotated, un_=unchanged,original from importer
-		unsigned un_ve[3];
-		meshImporter->getTriangle(t,un_ve[0],un_ve[1],un_ve[2]);
+		rrCollider::RRMeshImporter::Triangle un_ve;
+		meshImporter->getTriangle(t,un_ve);
 		for(int ro_v=0;ro_v<3;ro_v++)
 		{
 			//assert(triangle[t].topivertex[v]);

@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.09.23
+// version 2005.09.26
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -74,25 +74,27 @@ namespace rrCollider
 		virtual ~RRMeshImporter() {}
 
 		// vertices
+		struct Vertex        {RRReal m[3]; RRReal&operator[](int i){return m[i];} const RRReal&operator[](int i)const{return m[i];}};
 		virtual unsigned     getNumVertices() const = 0;
-		virtual RRReal*      getVertex(unsigned v) const = 0;
+		virtual void         getVertex(unsigned v, Vertex& out) const = 0;
 
 		// triangles
+		struct Triangle      {unsigned m[3]; unsigned&operator[](int i){return m[i];} const unsigned&operator[](int i)const{return m[i];}};
 		virtual unsigned     getNumTriangles() const = 0;
-		virtual void         getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const = 0;
+		virtual void         getTriangle(unsigned t, Triangle& out) const = 0;
+
+		// optional for faster access
+		struct TriangleBody  {Vertex vertex0,side1,side2;};
+		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
 		// optional for advanced importers
 		//  post import number is always plain unsigned, 0..num-1
 		//  pre import number is implementation defined
-		//  all numbers in interface are post import, except for these:
-		virtual unsigned     getPreImportVertex(unsigned postImportVertex) const {return postImportVertex;}
-		virtual unsigned     getPostImportVertex(unsigned preImportVertex) const {return preImportVertex;}
+		//  all numbers in interface are post import, except for following preImportXxx:
+		virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const {return postImportVertex;}
+		virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const {return preImportVertex;}
 		virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const {return postImportTriangle;}
 		virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const {return preImportTriangle;}
-
-		// optional for faster access
-		struct TriangleSRL   {RRReal s[3],r[3],l[3];};
-		virtual void         getTriangleSRL(unsigned i, TriangleSRL* t) const;
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -290,24 +292,24 @@ namespace rrCollider
 		{
 			return Vertices;
 		}
-		virtual RRReal* getVertex(unsigned v) const
+		virtual void getVertex(unsigned v, Vertex& out) const
 		{
 			assert(v<Vertices);
 			assert(VBuffer);
-			return (RRReal*)(VBuffer+v*Stride);
+			out = *(Vertex*)(VBuffer+v*Stride);
 		}
 		virtual unsigned getNumTriangles() const
 		{
 			return Vertices-2;
 		}
-		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		virtual void getTriangle(unsigned t, Triangle& out) const
 		{
 			assert(t<Vertices-2);
-			v0 = t+0;
-			v1 = t+1;
-			v2 = t+2;
+			out[0] = t+0;
+			out[1] = t+1;
+			out[2] = t+2;
 		}
-		virtual void getTriangleSRL(unsigned t, TriangleSRL* tr) const
+		virtual void getTriangleBody(unsigned t, TriangleBody& out) const
 		{
 			assert(t<Vertices-2);
 			assert(VBuffer);
@@ -316,15 +318,15 @@ namespace rrCollider
 			v1 = t+1;
 			v2 = t+2;
 			#define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
-			tr->s[0] = VERTEX(v0)[0];
-			tr->s[1] = VERTEX(v0)[1];
-			tr->s[2] = VERTEX(v0)[2];
-			tr->r[0] = VERTEX(v1)[0]-tr->s[0];
-			tr->r[1] = VERTEX(v1)[1]-tr->s[1];
-			tr->r[2] = VERTEX(v1)[2]-tr->s[2];
-			tr->l[0] = VERTEX(v2)[0]-tr->s[0];
-			tr->l[1] = VERTEX(v2)[1]-tr->s[1];
-			tr->l[2] = VERTEX(v2)[2]-tr->s[2];
+			out.vertex0[0] = VERTEX(v0)[0];
+			out.vertex0[1] = VERTEX(v0)[1];
+			out.vertex0[2] = VERTEX(v0)[2];
+			out.side1[0] = VERTEX(v1)[0]-out.vertex0[0];
+			out.side1[1] = VERTEX(v1)[1]-out.vertex0[1];
+			out.side1[2] = VERTEX(v1)[2]-out.vertex0[2];
+			out.side2[0] = VERTEX(v2)[0]-out.vertex0[0];
+			out.side2[1] = VERTEX(v2)[1]-out.vertex0[1];
+			out.side2[2] = VERTEX(v2)[2]-out.vertex0[2];
 			#undef VERTEX
 		}
 
@@ -347,14 +349,14 @@ namespace rrCollider
 		{
 			return Vertices/3;
 		}
-		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		virtual void getTriangle(unsigned t, Triangle& out) const
 		{
 			assert(t*3<Vertices);
-			v0 = t*3+0;
-			v1 = t*3+1;
-			v2 = t*3+2;
+			out[0] = t*3+0;
+			out[1] = t*3+1;
+			out[2] = t*3+2;
 		}
-		virtual void getTriangleSRL(unsigned t, TriangleSRL* tr) const
+		virtual void getTriangleBody(unsigned t, TriangleBody& out) const
 		{
 			assert(t*3<Vertices);
 			assert(VBuffer);
@@ -363,15 +365,15 @@ namespace rrCollider
 			v1 = t*3+1;
 			v2 = t*3+2;
 			#define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
-			tr->s[0] = VERTEX(v0)[0];
-			tr->s[1] = VERTEX(v0)[1];
-			tr->s[2] = VERTEX(v0)[2];
-			tr->r[0] = VERTEX(v1)[0]-tr->s[0];
-			tr->r[1] = VERTEX(v1)[1]-tr->s[1];
-			tr->r[2] = VERTEX(v1)[2]-tr->s[2];
-			tr->l[0] = VERTEX(v2)[0]-tr->s[0];
-			tr->l[1] = VERTEX(v2)[1]-tr->s[1];
-			tr->l[2] = VERTEX(v2)[2]-tr->s[2];
+			out.vertex0[0] = VERTEX(v0)[0];
+			out.vertex0[1] = VERTEX(v0)[1];
+			out.vertex0[2] = VERTEX(v0)[2];
+			out.side1[0] = VERTEX(v1)[0]-out.vertex0[0];
+			out.side1[1] = VERTEX(v1)[1]-out.vertex0[1];
+			out.side1[2] = VERTEX(v1)[2]-out.vertex0[2];
+			out.side2[0] = VERTEX(v2)[0]-out.vertex0[0];
+			out.side2[1] = VERTEX(v2)[1]-out.vertex0[1];
+			out.side2[2] = VERTEX(v2)[2]-out.vertex0[2];
 			#undef VERTEX
 		}
 	};
@@ -394,15 +396,15 @@ namespace rrCollider
 		{
 			return Indices-2;
 		}
-		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		virtual void getTriangle(unsigned t, Triangle& out) const
 		{
 			assert(t<Indices-2);
 			assert(IBuffer);
-			v0 = IBuffer[t];         assert(v0<Vertices);
-			v1 = IBuffer[t+1+(t%2)]; assert(v1<Vertices);
-			v2 = IBuffer[t+2-(t%2)]; assert(v2<Vertices);
+			out[0] = IBuffer[t];         assert(out[0]<Vertices);
+			out[1] = IBuffer[t+1+(t%2)]; assert(out[1]<Vertices);
+			out[2] = IBuffer[t+2-(t%2)]; assert(out[2]<Vertices);
 		}
-		virtual void getTriangleSRL(unsigned t, TriangleSRL* tr) const
+		virtual void getTriangleBody(unsigned t, TriangleBody& out) const
 		{
 			assert(t<Indices-2);
 			assert(VBuffer);
@@ -412,15 +414,15 @@ namespace rrCollider
 			v1 = IBuffer[t+1+(t%2)]; assert(v1<Vertices);
 			v2 = IBuffer[t+2-(t%2)]; assert(v2<Vertices);
 			#define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
-			tr->s[0] = VERTEX(v0)[0];
-			tr->s[1] = VERTEX(v0)[1];
-			tr->s[2] = VERTEX(v0)[2];
-			tr->r[0] = VERTEX(v1)[0]-tr->s[0];
-			tr->r[1] = VERTEX(v1)[1]-tr->s[1];
-			tr->r[2] = VERTEX(v1)[2]-tr->s[2];
-			tr->l[0] = VERTEX(v2)[0]-tr->s[0];
-			tr->l[1] = VERTEX(v2)[1]-tr->s[1];
-			tr->l[2] = VERTEX(v2)[2]-tr->s[2];
+			out.vertex0[0] = VERTEX(v0)[0];
+			out.vertex0[1] = VERTEX(v0)[1];
+			out.vertex0[2] = VERTEX(v0)[2];
+			out.side1[0] = VERTEX(v1)[0]-out.vertex0[0];
+			out.side1[1] = VERTEX(v1)[1]-out.vertex0[1];
+			out.side1[2] = VERTEX(v1)[2]-out.vertex0[2];
+			out.side2[0] = VERTEX(v2)[0]-out.vertex0[0];
+			out.side2[1] = VERTEX(v2)[1]-out.vertex0[1];
+			out.side2[2] = VERTEX(v2)[2]-out.vertex0[2];
 			#undef VERTEX
 		}
 
@@ -447,15 +449,15 @@ namespace rrCollider
 		{
 			return INHERITED::Indices/3;
 		}
-		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
 		{
 			assert(t*3<INHERITED::Indices);
 			assert(INHERITED::IBuffer);
-			v0 = INHERITED::IBuffer[t*3+0]; assert(v0<INHERITED::Vertices);
-			v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
-			v2 = INHERITED::IBuffer[t*3+2]; assert(v2<INHERITED::Vertices);
+			out[0] = INHERITED::IBuffer[t*3+0]; assert(out[0]<INHERITED::Vertices);
+			out[1] = INHERITED::IBuffer[t*3+1]; assert(out[1]<INHERITED::Vertices);
+			out[2] = INHERITED::IBuffer[t*3+2]; assert(out[2]<INHERITED::Vertices);
 		}
-		virtual void getTriangleSRL(unsigned t, RRMeshImporter::TriangleSRL* tr) const
+		virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
 		{
 			assert(t*3<INHERITED::Indices);
 			assert(INHERITED::VBuffer);
@@ -465,15 +467,15 @@ namespace rrCollider
 			v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
 			v2 = INHERITED::IBuffer[t*3+2]; assert(v2<INHERITED::Vertices);
 			#define VERTEX(v) ((RRReal*)(INHERITED::VBuffer+v*INHERITED::Stride))
-			tr->s[0] = VERTEX(v0)[0];
-			tr->s[1] = VERTEX(v0)[1];
-			tr->s[2] = VERTEX(v0)[2];
-			tr->r[0] = VERTEX(v1)[0]-tr->s[0];
-			tr->r[1] = VERTEX(v1)[1]-tr->s[1];
-			tr->r[2] = VERTEX(v1)[2]-tr->s[2];
-			tr->l[0] = VERTEX(v2)[0]-tr->s[0];
-			tr->l[1] = VERTEX(v2)[1]-tr->s[1];
-			tr->l[2] = VERTEX(v2)[2]-tr->s[2];
+			out.vertex0[0] = VERTEX(v0)[0];
+			out.vertex0[1] = VERTEX(v0)[1];
+			out.vertex0[2] = VERTEX(v0)[2];
+			out.side1[0] = VERTEX(v1)[0]-out.vertex0[0];
+			out.side1[1] = VERTEX(v1)[1]-out.vertex0[1];
+			out.side1[2] = VERTEX(v1)[2]-out.vertex0[2];
+			out.side2[0] = VERTEX(v2)[0]-out.vertex0[0];
+			out.side2[1] = VERTEX(v2)[1]-out.vertex0[1];
+			out.side2[2] = VERTEX(v2)[2]-out.vertex0[2];
 			#undef VERTEX
 		}
 	};
@@ -501,10 +503,12 @@ namespace rrCollider
 			UniqueVertices = 0;
 			for(unsigned d=0;d<vertices;d++)
 			{
-				RRReal* dfl = INHERITED::getVertex(d);
+				Vertex dfl;
+				INHERITED::getVertex(d,dfl);
 				for(unsigned u=0;u<UniqueVertices;u++)
 				{
-					RRReal* ufl = INHERITED::getVertex(Unique2Dupl[u]);
+					Vertex ufl;
+					INHERITED::getVertex(Unique2Dupl[u],ufl);
 					if(dfl[0]==ufl[0] && dfl[1]==ufl[1] && dfl[2]==ufl[2]) 
 					{
 						Dupl2Unique[d] = u;
@@ -526,29 +530,42 @@ namespace rrCollider
 		{
 			return UniqueVertices;
 		}
-		virtual RRReal* getVertex(unsigned v) const
+		virtual void getVertex(unsigned v, RRMeshImporter::Vertex& out) const
 		{
 			assert(v<UniqueVertices);
 			assert(Unique2Dupl[v]<INHERITED::Vertices);
 			assert(INHERITED::VBuffer);
-			return (RRReal*)(INHERITED::VBuffer+Unique2Dupl[v]*INHERITED::Stride);
+			out = *(Vertex*)(INHERITED::VBuffer+Unique2Dupl[v]*INHERITED::Stride);
 		}
-		virtual unsigned getPreImportVertex(unsigned postImportVertex) const
+		virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 		{
 			assert(postImportVertex<UniqueVertices);
+
+			// exact version
+			// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
+			// use postImportTriangle to fully specify which one preImportVertex to return
+			unsigned preImportTriangle = getPreImportTriangle(postImportTriangle);
+			Triangle preImportVertices;
+			INHERITED::getTriangle(preImportTriangle,preImportVertices);
+			if(Dupl2Unique[preImportVertices[0]]==postImportVertex) return preImportVertices[0];
+			if(Dupl2Unique[preImportVertices[1]]==postImportVertex) return preImportVertices[1];
+			if(Dupl2Unique[preImportVertices[2]]==postImportVertex) return preImportVertices[2];
+			assert(0);
+
+			// fast version
 			return Unique2Dupl[postImportVertex];
 		}
-		virtual unsigned getPostImportVertex(unsigned preImportVertex) const
+		virtual unsigned getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
 		{
 			assert(preImportVertex<INHERITED::Vertices);
 			return Dupl2Unique[preImportVertex];
 		}
-		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
 		{
-			INHERITED::getTriangle(t,v0,v1,v2);
-			v0 = Dupl2Unique[v0]; assert(v0<UniqueVertices);
-			v1 = Dupl2Unique[v1]; assert(v1<UniqueVertices);
-			v2 = Dupl2Unique[v2]; assert(v2<UniqueVertices);
+			INHERITED::getTriangle(t,out);
+			out[0] = Dupl2Unique[out[0]]; assert(out[0]<UniqueVertices);
+			out[1] = Dupl2Unique[out[1]]; assert(out[1]<UniqueVertices);
+			out[2] = Dupl2Unique[out[2]]; assert(out[2]<UniqueVertices);
 		}
 
 	protected:
@@ -570,17 +587,17 @@ namespace rrCollider
 			unsigned numAllTriangles = INHERITED::getNumTriangles();
 			for(unsigned i=0;i<numAllTriangles;i++)
 			{
-				unsigned v0,v1,v2;
-				INHERITED::getTriangle(i,v0,v1,v2);
-				if(!(v0==v1 || v0==v2 || v1==v2)) ValidIndices++;
+				RRMeshImporter::Triangle t;
+				INHERITED::getTriangle(i,t);
+				if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndices++;
 			}
 			ValidIndex = new INDEX[ValidIndices];
 			ValidIndices = 0;
 			for(unsigned i=0;i<numAllTriangles;i++)
 			{
-				unsigned v0,v1,v2;
-				INHERITED::getTriangle(i,v0,v1,v2);
-				if(!(v0==v1 || v0==v2 || v1==v2)) ValidIndex[ValidIndices++] = i;
+				RRMeshImporter::Triangle t;
+				INHERITED::getTriangle(i,t);
+				if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndex[ValidIndices++] = i;
 			}
 		};
 		~RRLessTrianglesImporter()
@@ -592,10 +609,10 @@ namespace rrCollider
 		{
 			return ValidIndices;
 		}
-		virtual void getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
 		{
 			assert(t<ValidIndices);
-			INHERITED::getTriangle(ValidIndex[t],v0,v1,v2);
+			INHERITED::getTriangle(ValidIndex[t],out);
 		}
 		virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const 
 		{
@@ -609,10 +626,10 @@ namespace rrCollider
 					return post;
 			return UINT_MAX;
 		}
-		virtual void getTriangleSRL(unsigned t, RRMeshImporter::TriangleSRL* tr) const
+		virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
 		{
 			assert(t<ValidIndices);
-			INHERITED::getTriangleSRL(ValidIndex[t],tr);
+			INHERITED::getTriangleBody(ValidIndex[t],out);
 		}
 
 	protected:
@@ -644,9 +661,9 @@ namespace rrCollider
 		{
 			return numVertices;
 		}
-		virtual RRReal*      getVertex(unsigned v) const
+		virtual void         getVertex(unsigned v, Vertex& out) const
 		{
-			return importer->getVertex(v);
+			importer->getVertex(v,out);
 		}
 
 		// triangles
@@ -654,19 +671,19 @@ namespace rrCollider
 		{
 			return numTriangles;
 		}
-		virtual void         getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		virtual void         getTriangle(unsigned t, Triangle& out) const
 		{
-			return importer->getTriangle(t,v0,v1,v2);
+			importer->getTriangle(t,out);
 		}
 
 		// preimport/postimport conversions
-		virtual unsigned     getPreImportVertex(unsigned postImportVertex) const 
+		virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 		{
-			return importer->getPreImportVertex(postImportVertex);
+			return importer->getPreImportVertex(postImportVertex, postImportTriangle);
 		}
-		virtual unsigned     getPostImportVertex(unsigned preImportVertex) const 
+		virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const 
 		{
-			return importer->getPostImportVertex(preImportVertex);
+			return importer->getPostImportVertex(preImportVertex, preImportTriangle);
 		}
 		virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const 
 		{
@@ -711,17 +728,17 @@ namespace rrCollider
 		RRInterchangeMeshImporter(RRMeshImporter* importer)
 			: RRFilteredMeshImporter(importer)
 		{
-			vertex = new RRReal[3*numVertices];
-			triangle = new unsigned[3*numTriangles];
+			vertex = new Vertex[numVertices];
+			triangle = new Triangle[numTriangles];
 			for(unsigned i=0;i<numVertices;i++)
 			{
-				memcpy(&vertex[3*i],importer->getVertex(i),3*sizeof(RRReal));
+				importer->getVertex(i,vertex[i]);
 			}
 			for(unsigned i=0;i<numTriangles;i++)
 			{
-				importer->getTriangle(i,triangle[3*i],triangle[3*i+1],triangle[3*i+2]);
+				importer->getTriangle(i,triangle[i]);
 			}
-			//!!! check that getTriangleSRL returns numbers consistent with getVertex/getTriangle
+			//!!! check that getTriangleBody returns numbers consistent with getVertex/getTriangle
 		}
 
 		virtual ~RRInterchangeMeshImporter()
@@ -730,22 +747,20 @@ namespace rrCollider
 			delete[] triangle;
 		}
 
-		virtual RRReal*      getVertex(unsigned v) const
+		virtual void         getVertex(unsigned v, Vertex& out) const
 		{
 			assert(v<numVertices);
-			return &vertex[3*v];
+			out = vertex[v];
 		}
-		virtual void         getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+		virtual void         getTriangle(unsigned t, Triangle& out) const
 		{
 			assert(t<numTriangles);
-			v0 = triangle[3*t];
-			v1 = triangle[3*t+1];
-			v2 = triangle[3*t+2];
+			out = triangle[t];
 		}
 
 	protected:
-		RRReal*              vertex;
-		unsigned*            triangle;
+		Vertex*              vertex;
+		Triangle*            triangle;
 	};
 
 } // namespace

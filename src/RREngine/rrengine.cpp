@@ -55,18 +55,16 @@ public:
 	m = object->getWorldMatrix();
 	}*/
 
-	virtual RRReal*      getVertex(unsigned v) const
+	virtual void getVertex(unsigned v, Vertex& out) const
 	{
-		RRReal* objspc = importer->getVertex(v);
+		importer->getVertex(v,out);
 		if(m)
 		{
-			static RRReal tmp[3];
-			tmp[0] = m[0] * objspc[0] + m[4] * objspc[1] + m[ 8] * objspc[2] + m[12];
-			tmp[1] = m[1] * objspc[0] + m[5] * objspc[1] + m[ 9] * objspc[2] + m[13];
-			tmp[2] = m[2] * objspc[0] + m[6] * objspc[1] + m[10] * objspc[2] + m[14];
-			return tmp;
-		} else {
-			return objspc;
+			Vertex tmp;
+			tmp[0] = m[0] * out[0] + m[4] * out[1] + m[ 8] * out[2] + m[12];
+			tmp[1] = m[1] * out[0] + m[5] * out[1] + m[ 9] * out[2] + m[13];
+			tmp[2] = m[2] * out[0] + m[6] * out[1] + m[10] * out[2] + m[14];
+			out = tmp;
 		}
 	}
 
@@ -347,9 +345,10 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 //	int ttop=obj->triangles-1;
 //#endif
 	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
-	for (unsigned fi=0;fi<obj->triangles;fi++) {
-		unsigned v0,v1,v2;
-		meshImporter->getTriangle(fi,v0,v1,v2);
+	for(unsigned fi=0;fi<obj->triangles;fi++) 
+	{
+		rrCollider::RRMeshImporter::Triangle tv;
+		meshImporter->getTriangle(fi,tv);
 		unsigned si = importer->getTriangleSurface(fi);
 		RRSurface* s=importer->getSurface(si);
 		assert(s);
@@ -362,10 +361,14 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 //#endif
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
+		rrCollider::RRMeshImporter::Vertex v[3];
+		meshImporter->getVertex(tv[0],v[0]);
+		meshImporter->getVertex(tv[1],v[1]);
+		meshImporter->getVertex(tv[2],v[2]);
 		int geom=t->setGeometry(
-			*(Vec3*)(meshImporter->getVertex(v0)),
-			*(Vec3*)(meshImporter->getVertex(v1)),
-			*(Vec3*)(meshImporter->getVertex(v2)),
+			*(Vec3*)&v[0],
+			*(Vec3*)&v[1],
+			*(Vec3*)&v[2],
 			obj->transformMatrix);
 		if(t->isValid) 
 		{

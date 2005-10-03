@@ -43,14 +43,16 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
 	unsigned i = importer->getNumVertices();
 	while(i--)
 	{
-		sha1::sha1_update(&ctx, (unsigned char*)importer->getVertex(i), sizeof(RRReal)*3);
+		RRMeshImporter::Vertex v;
+		importer->getVertex(i,v);
+		sha1::sha1_update(&ctx, (unsigned char*)&v, sizeof(v));
 	}
 	i = importer->getNumTriangles();
 	while(i--)
 	{
-		struct S {unsigned a,b,c;} s;
-		importer->getTriangle(i,s.a,s.b,s.c);
-		sha1::sha1_update(&ctx, (unsigned char*)&s, sizeof(s));
+		RRMeshImporter::Triangle t;
+		importer->getTriangle(i,t);
+		sha1::sha1_update(&ctx, (unsigned char*)&t, sizeof(t));
 	}
 	unsigned char digest[20];
 	sha1::sha1_finish(&ctx, digest);

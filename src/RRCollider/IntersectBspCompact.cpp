@@ -15,7 +15,7 @@ namespace rrCollider
 //  instead of <ray->hitDistanceMin,ray->hitDistanceMax>,
 //  it tests inside <ray->hitDistanceMin,distanceMax>,
 //  which is required by kd-leaf
-static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t, RRReal distanceMax)
+static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t, RRReal distanceMax)
 // input:                ray, t
 // returns:              true if ray hits t
 // modifies when hit:    hitDistance, hitPoint2D, hitOuterSide
@@ -26,8 +26,8 @@ static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t,
 	assert(t);
 
 	// calculate determinant - also used to calculate U parameter
-	Vec3 pvec = ortogonalTo(*(Vec3*)ray->rayDir,*(Vec3*)t->l);
-	real det = dot(*(Vec3*)t->r,pvec);
+	Vec3 pvec = ortogonalTo(*(Vec3*)ray->rayDir,*(Vec3*)&t->side2);
+	real det = dot(*(Vec3*)&t->side1,pvec);
 
 	// cull test
 	bool hitOuterSide = det>0;
@@ -39,21 +39,21 @@ static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleSRL* t,
 	//if(det>-EPSILON && det<EPSILON) return false;
 
 	// calculate distance from vert0 to ray origin
-	Vec3 tvec = *(Vec3*)ray->rayOrigin-*(Vec3*)t->s;
+	Vec3 tvec = *(Vec3*)ray->rayOrigin-*(Vec3*)&t->vertex0;
 
 	// calculate U parameter and test bounds
 	real u = dot(tvec,pvec)/det;
 	if(u<0 || u>1) return false;
 
 	// prepare to test V parameter
-	Vec3 qvec = ortogonalTo(tvec,*(Vec3*)t->r);
+	Vec3 qvec = ortogonalTo(tvec,*(Vec3*)&t->side1);
 
 	// calculate V parameter and test bounds
 	real v = dot(*(Vec3*)ray->rayDir,qvec)/det;
 	if(v<0 || u+v>1) return false;
 
 	// calculate distance where ray intersects triangle
-	real dist = dot(*(Vec3*)t->l,qvec)/det;
+	real dist = dot(*(Vec3*)&t->side2,qvec)/det;
 	if(dist<ray->hitDistanceMin || dist>distanceMax) return false;
 
 	ray->hitDistance = dist;
@@ -97,8 +97,8 @@ begin:
 			if(ray->surfaceImporter) memcpy(backup,ray,sizeof(*ray)); // current best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
 			for(typename BspTree::_TriInfo* triangle=t->kd.getTrianglesBegin();triangle<trianglesEnd;triangle++)
 			{
-				RRMeshImporter::TriangleSRL srl;
-				importer->getTriangleSRL(triangle->getTriangleIndex(),&srl);
+				RRMeshImporter::TriangleBody srl;
+				importer->getTriangleBody(triangle->getTriangleIndex(),srl);
 				if(intersect_triangle(ray,&srl,distanceMax))
 				{
 					ray->hitTriangle = triangle->getTriangleIndex();
@@ -200,13 +200,13 @@ begin:
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangle<t->getTrianglesEnd());
 
-	RRMeshImporter::TriangleSRL t2;
-	importer->getTriangleSRL(triangle->getTriangleIndex(),&t2);
+	RRMeshImporter::TriangleBody t2;
+	importer->getTriangleBody(triangle->getTriangleIndex(),t2);
 	Plane n;
-	n.x = t2.r[1] * t2.l[2] - t2.r[2] * t2.l[1];
-	n.y = t2.r[2] * t2.l[0] - t2.r[0] * t2.l[2];
-	n.z = t2.r[0] * t2.l[1] - t2.r[1] * t2.l[0];
-	n.d = -(t2.s[0] * n.x + t2.s[1] * n.y + t2.s[2] * n.z);
+	n.x = t2.side1[1] * t2.side2[2] - t2.side1[2] * t2.side2[1];
+	n.y = t2.side1[2] * t2.side2[0] - t2.side1[0] * t2.side2[2];
+	n.z = t2.side1[0] * t2.side2[1] - t2.side1[1] * t2.side2[0];
+	n.d = -(t2.vertex0[0] * n.x + t2.vertex0[1] * n.y + t2.vertex0[2] * n.z);
 
 	/* Reference. Old well tested code.
 	float distanceMinLocation = // +=point at distanceMin is in front, -=back, 0=plane
@@ -265,7 +265,7 @@ begin:
 	void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
-		importer->getTriangleSRL(triangle->getTriangleIndex(),&t2);
+		importer->getTriangleBody(triangle->getTriangleIndex(),t2);
 		if(intersect_triangle(ray,&t2))
 		{
 #ifdef FILL_HITTRIANGLE

@@ -16,10 +16,10 @@ public:
 	
 	// must not change during object lifetime
 	virtual unsigned     getNumVertices() const;
-	virtual float*       getVertex(unsigned i) const;
+	virtual void         getVertex(unsigned i, Vertex& out) const;
 	virtual unsigned     getNumTriangles() const;
-	virtual void         getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2) const;
-	virtual void         getTriangleSRL(unsigned i, TriangleSRL* t) const;
+	virtual void         getTriangle(unsigned i, Triangle& out) const;
+	virtual void         getTriangleBody(unsigned i, TriangleBody& out) const;
 
 protected:
 	OBJECT* object;

@@ -1937,8 +1937,8 @@ void Object::buildEdges()
 	for(unsigned t=0;t<triangles;t++)
 		for(int v1=0;v1<3;v1++)
 		{
-			unsigned ve[3];
-			meshImporter->getTriangle(t,ve[0],ve[1],ve[2]);
+			rrCollider::RRMeshImporter::Triangle ve;
+			meshImporter->getTriangle(t,ve);
 			unsigned v = ve[(v1+triangle[t].rotations)%3];
 			assert(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
 			trianglesInV[v].insert(&triangle[t]);
@@ -2022,7 +2022,8 @@ void Object::detectBounds()
 	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned i=0;i<vertices;i++)
 	{
-		real* v = meshImporter->getVertex(i);
+		rrCollider::RRMeshImporter::Vertex v;
+		meshImporter->getVertex(i,v);
 		vertex[i].x = v[0];
 		vertex[i].y = v[1];
 		vertex[i].z = v[2];

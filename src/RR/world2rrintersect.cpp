@@ -18,11 +18,13 @@ unsigned WorldMeshImporter::getNumVertices() const
 	return object->vertex_num;
 }
 
-float* WorldMeshImporter::getVertex(unsigned i) const
+void WorldMeshImporter::getVertex(unsigned i, Vertex& out) const
 {
 	assert(object);
 	assert(i<object->vertex_num);
-	return &object->vertex[i].x;
+	out[0] = object->vertex[i].x;
+	out[1] = object->vertex[i].y;
+	out[2] = object->vertex[i].z;
 }
 
 unsigned WorldMeshImporter::getNumTriangles() const
@@ -32,29 +34,29 @@ unsigned WorldMeshImporter::getNumTriangles() const
 	return object->face_num;
 }
 
-void WorldMeshImporter::getTriangle(unsigned i, unsigned& v0, unsigned& v1, unsigned& v2) const
+void WorldMeshImporter::getTriangle(unsigned i, Triangle& out) const
 {
 	assert(object);
 	assert(i<object->face_num);
-	v0=object->face[i].vertex[0]->id;
-	v1=object->face[i].vertex[1]->id;
-	v2=object->face[i].vertex[2]->id;
+	out[0]=object->face[i].vertex[0]->id;
+	out[1]=object->face[i].vertex[1]->id;
+	out[2]=object->face[i].vertex[2]->id;
 }
 
-void WorldMeshImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
+void WorldMeshImporter::getTriangleBody(unsigned i, TriangleBody& out) const
 {
 	assert(object);
 	assert(i<object->face_num);
 	unsigned v0=object->face[i].vertex[0]->id;
 	unsigned v1=object->face[i].vertex[1]->id;
 	unsigned v2=object->face[i].vertex[2]->id;
-	t->s[0] = object->vertex[v0].x;
-	t->s[1] = object->vertex[v0].y;
-	t->s[2] = object->vertex[v0].z;
-	t->r[0] = object->vertex[v1].x-object->vertex[v0].x;
-	t->r[1] = object->vertex[v1].y-object->vertex[v0].y;
-	t->r[2] = object->vertex[v1].z-object->vertex[v0].z;
-	t->l[0] = object->vertex[v2].x-object->vertex[v0].x;
-	t->l[1] = object->vertex[v2].y-object->vertex[v0].y;
-	t->l[2] = object->vertex[v2].z-object->vertex[v0].z;
+	out.vertex0[0] = object->vertex[v0].x;
+	out.vertex0[1] = object->vertex[v0].y;
+	out.vertex0[2] = object->vertex[v0].z;
+	out.side1[0] = object->vertex[v1].x-object->vertex[v0].x;
+	out.side1[1] = object->vertex[v1].y-object->vertex[v0].y;
+	out.side1[2] = object->vertex[v1].z-object->vertex[v0].z;
+	out.side2[0] = object->vertex[v2].x-object->vertex[v0].x;
+	out.side2[1] = object->vertex[v2].y-object->vertex[v0].y;
+	out.side2[2] = object->vertex[v2].z-object->vertex[v0].z;
 }

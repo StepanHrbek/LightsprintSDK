@@ -12,6 +12,7 @@
 namespace rrCollider
 {
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRMultiMeshImporter
@@ -49,10 +50,12 @@ public:
 	{
 		return pack[0].getNumVertices()+pack[1].getNumVertices();
 	}
-	virtual RRReal*      getVertex(unsigned v) const
+	virtual void         getVertex(unsigned v, Vertex& out) const
 	{
-		if(v<pack[0].getNumVertices()) return pack[0].getImporter()->getVertex(v);
-		return pack[1].getImporter()->getVertex(v-pack[0].getNumVertices());
+		if(v<pack[0].getNumVertices()) 
+			pack[0].getImporter()->getVertex(v,out);
+		else
+			pack[1].getImporter()->getVertex(v-pack[0].getNumVertices(),out);
 	}
 
 	// triangles
@@ -60,15 +63,17 @@ public:
 	{
 		return pack[0].getNumTriangles()+pack[1].getNumTriangles();
 	}
-	virtual void         getTriangle(unsigned t, unsigned& v0, unsigned& v1, unsigned& v2) const
+	virtual void         getTriangle(unsigned t, Triangle& out) const
 	{
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangle(t,v0,v1,v2);
-		return pack[1].getImporter()->getTriangle(t-pack[0].getNumTriangles(),v0,v1,v2);
+		if(t<pack[0].getNumTriangles()) 
+			pack[0].getImporter()->getTriangle(t,out);
+		else
+			pack[1].getImporter()->getTriangle(t-pack[0].getNumTriangles(),out);
 	}
 
 	// optional for faster access
 	//!!! default is slow
-	//virtual void         getTriangleSRL(unsigned i, TriangleSRL* t) const
+	//virtual void         getTriangleBody(unsigned i, TriangleBody* t) const
 	//{
 	//}
 
@@ -84,28 +89,31 @@ public:
 		PreImportNumber(unsigned i) {*(unsigned*)this = i;} // implicit unsigned -> PreImportNumber conversion
 		operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
 	};
-	virtual unsigned     getPreImportVertex(unsigned postImportVertex) const 
+	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	{
 		if(postImportVertex<pack[0].getNumVertices()) 
 		{
-			return pack[0].getImporter()->getPreImportVertex(postImportVertex);
+			return pack[0].getImporter()->getPreImportVertex(postImportVertex, postImportTriangle);
 		} else {
-			PreImportNumber preImport = pack[1].getImporter()->getPreImportVertex(postImportVertex-pack[0].getNumVertices());
+			PreImportNumber preImport = pack[1].getImporter()->getPreImportVertex(postImportVertex-pack[0].getNumVertices(), postImportTriangle-pack[0].getNumTriangles());
 			preImport.object += pack[0].getNumObjects();
 			preImport.index += pack[0].getNumVertices();
 			return preImport;
 		}
 	}
-	virtual unsigned     getPostImportVertex(unsigned preImportVertex) const 
+	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const 
 	{
-		PreImportNumber preImport = preImportVertex;
-		if(preImport.object<pack[0].getNumObjects()) 
+		PreImportNumber preImportV = preImportVertex;
+		PreImportNumber preImportT = preImportTriangle;
+		if(preImportV.object<pack[0].getNumObjects()) 
 		{
-			return pack[0].getImporter()->getPostImportVertex(preImport);
+			return pack[0].getImporter()->getPostImportVertex(preImportV, preImportT);
 		} else {
-			preImport.object -= pack[0].getNumObjects();
-			preImport.index -= pack[0].getNumVertices();
-			return pack[1].getImporter()->getPostImportVertex(preImport);
+			preImportV.object -= pack[0].getNumObjects();
+			preImportV.index -= pack[0].getNumVertices();
+			preImportT.object -= pack[0].getNumObjects();
+			preImportT.index -= pack[0].getNumTriangles();
+			return pack[1].getImporter()->getPostImportVertex(preImportV, preImportT);
 		}
 	}
 	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const 
@@ -275,23 +283,23 @@ RRRay* RRRay::create(unsigned n)
 	return new RRRay[n]();
 }
 
-void RRMeshImporter::getTriangleSRL(unsigned i, TriangleSRL* t) const
+void RRMeshImporter::getTriangleBody(unsigned i, TriangleBody& out) const
 {
-	unsigned v0,v1,v2;
-	getTriangle(i,v0,v1,v2);
-	real* v[3];
-	v[0] = getVertex(v0);
-	v[1] = getVertex(v1);
-	v[2] = getVertex(v2);
-	t->s[0]=v[0][0];
-	t->s[1]=v[0][1];
-	t->s[2]=v[0][2];
-	t->r[0]=v[1][0]-v[0][0];
-	t->r[1]=v[1][1]-v[0][1];
-	t->r[2]=v[1][2]-v[0][2];
-	t->l[0]=v[2][0]-v[0][0];
-	t->l[1]=v[2][1]-v[0][1];
-	t->l[2]=v[2][2]-v[0][2];
+	Triangle t;
+	getTriangle(i,t);
+	Vertex v[3];
+	getVertex(t[0],v[0]);
+	getVertex(t[1],v[1]);
+	getVertex(t[2],v[2]);
+	out.vertex0[0]=v[0][0];
+	out.vertex0[1]=v[0][1];
+	out.vertex0[2]=v[0][2];
+	out.side1[0]=v[1][0]-v[0][0];
+	out.side1[1]=v[1][1]-v[0][1];
+	out.side1[2]=v[1][2]-v[0][2];
+	out.side2[0]=v[2][0]-v[0][0];
+	out.side2[1]=v[2][1]-v[0][1];
+	out.side2[2]=v[2][2]-v[0][2];
 }
 
 RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
