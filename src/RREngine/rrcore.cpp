@@ -1111,7 +1111,7 @@ real calculateArea(Vec3 v0, Vec3 v1, Vec3 v2)
 // Pokud ale nevyscalujeme area, bude pri distribuci vznikat/zanikat energie.
 // obj2world tedy pouzijeme pouze k vypoctu area ve worldspace.
 
-S8 Triangle::setGeometry(Vec3 a,Vec3 b,Vec3 c,const Matrix *obj2world,Normal *n,int rots)
+S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const Matrix *obj2world,Normal *n,int rots)
 {
 	isValid=0;
 	assert(rots>=-1 && rots<=2);
@@ -1198,9 +1198,9 @@ again:
 
 	// premerit area v worldspace
 	if(obj2world)
-		area = calculateArea(a.transformed(obj2world),b.transformed(obj2world),c.transformed(obj2world));
+		area = calculateArea(a->transformed(obj2world),b->transformed(obj2world),c->transformed(obj2world));
 	else
-		area = calculateArea(a,b,c);
+		area = calculateArea(*a,*b,*c);
 	if(!IS_NUMBER(area)) return -11;
 	if(area<=RRGetStateF(RRSSF_IGNORE_SMALLER_AREA)) return -12;
 	isNeedle |= RRGetState(RRSS_FIGHT_NEEDLES) && area<=RRGetStateF(RRSSF_FIGHT_SMALLER_AREA);
@@ -1849,6 +1849,7 @@ Object::Object(int avertices,int atriangles)
 	vertices=avertices;
 	triangles=atriangles;
 	edges=0;
+	vertex=new Vec3[vertices];
 	triangle=new Triangle[triangles];
 	edge=NULL;
 #ifndef ONLY_PLAYER
@@ -1961,6 +1962,7 @@ Object::~Object()
 	if(cluster) delete[] cluster;
 #endif
 	delete[] triangle;
+	delete[] vertex;
 	if(edge) delete[] edge;
 	delete[] vertexIVertex;
 	deleteIVertices();

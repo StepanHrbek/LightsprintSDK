@@ -483,7 +483,7 @@ public:
 #endif
 
 	// geometry, all in objectspace
-	const Vec3* getVertex(unsigned i) const {return &qvertex[i];}
+	const Vec3* getVertex(unsigned i) const {return qvertex[i];}
 	Vec3    getS3() const {return *getVertex(0);} // absolute position of start of base (transformed when dynamic)
 	Vec3    getR3() const {return *getVertex(1)-*getVertex(0);} // absolute sidevectors  r3=vertex[1]-vertex[0], l3=vertex[2]-vertex[0] (all transformed when dynamic)
 	Vec3    getL3() const {return *getVertex(2)-*getVertex(0);}
@@ -491,7 +491,7 @@ public:
 	Vec3    getU3() const {return qu3;}
 	Vec3    getV3() const {return qv3;}
 		private:
-		Vec3        qvertex[3];      // 3x vertex
+		Vec3*       qvertex[3];      // 3x vertex
 		Normal      qn3;             // normalized normal vector
 		Vec3        qu3,qv3;         // ortonormal base for 2d coordinates in subtriangles
 			// hadam 95% ze je dobre ze jsou ortonormalni v objectspace
@@ -502,7 +502,7 @@ public:
 	U8      isInCluster  :1;// triangle is in cluster
 	U8      isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
 	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
-	S8      setGeometry(Vec3 a,Vec3 b,Vec3 c,const Matrix *obj2world,Normal *n=NULL,int rots=-1);
+	S8      setGeometry(Vec3* a,Vec3* b,Vec3* c,const Matrix *obj2world,Normal *n=NULL,int rots=-1);
 	Vec3    to3d(Point2 a);
 	Vec3    to3d(int vertex);
 	SubTriangle *getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex);
@@ -681,7 +681,8 @@ public:
 	unsigned vertices;
 	unsigned triangles; // primary emitors go first (in DObject)
 	unsigned edges;
-	Triangle *triangle;
+	Vec3    *vertex;
+	Triangle*triangle;
 	Edge    *edge;
 	void    buildEdges();
 	void    buildTopIVertices();

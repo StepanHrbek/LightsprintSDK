@@ -326,8 +326,14 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
-	Object *obj=new Object(importer->getCollider()->getImporter()->getNumVertices(),importer->getCollider()->getImporter()->getNumTriangles());
+	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
+	Object *obj=new Object(meshImporter->getNumVertices(),meshImporter->getNumTriangles());
 	obj->importer = importer;
+
+	// import vertices
+	assert(sizeof(rrCollider::RRMeshImporter::Vertex)==sizeof(Vec3));
+	for(unsigned i=0;i<obj->vertices;i++) 
+		meshImporter->getVertex(i,*(rrCollider::RRMeshImporter::Vertex*)&obj->vertex[i]);
 
 #ifdef SUPPORT_TRANSFORMS
 	obj->transformMatrix=(Matrix*)importer->getWorldMatrix();
@@ -344,7 +350,6 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 //#ifdef SUPPORT_DYNAMIC
 //	int ttop=obj->triangles-1;
 //#endif
-	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned fi=0;fi<obj->triangles;fi++) 
 	{
 		rrCollider::RRMeshImporter::Triangle tv;
@@ -361,14 +366,14 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 //#endif
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
-		rrCollider::RRMeshImporter::Vertex v[3];
+/*		rrCollider::RRMeshImporter::Vertex v[3];
 		meshImporter->getVertex(tv[0],v[0]);
 		meshImporter->getVertex(tv[1],v[1]);
-		meshImporter->getVertex(tv[2],v[2]);
+		meshImporter->getVertex(tv[2],v[2]);*/
 		int geom=t->setGeometry(
-			*(Vec3*)&v[0],
-			*(Vec3*)&v[1],
-			*(Vec3*)&v[2],
+			&obj->vertex[tv[0]],
+			&obj->vertex[tv[1]],
+			&obj->vertex[tv[2]],
 			obj->transformMatrix);
 		if(t->isValid) 
 		{
