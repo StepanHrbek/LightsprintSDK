@@ -7,10 +7,170 @@
 #include <new> // aligned new
 #include <stdio.h>
 #include <string.h>
+#include <vector>
 
 
 namespace rrCollider
 {
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRCopyMeshImporter
+//
+// For creating fully owned copies of importer,
+// saving to file and loading from file.
+
+class RRCopyMeshImporter : public RRMeshImporter
+{
+public:
+	RRCopyMeshImporter()
+	{
+	}
+
+	// Save importer to disk in importer binary interchange format.
+	// Check importer consistency during save so we don't have to store redundant data.
+	bool save(const char* filename)
+	{
+		//!!!
+		return false;
+	}
+
+	// Load importer from disk in importer binary interchange format.
+	bool load(const char* filename)
+	{
+		//!!!
+		return false;
+	}
+
+	// Create copy of another importer.
+	bool load(RRMeshImporter* importer)
+	{
+		if(!importer) return false;
+
+		// copy vertices
+		unsigned numVertices = importer->getNumVertices();
+		postImportVertices.resize(numVertices);
+		for(unsigned i=0;i<numVertices;i++)
+		{
+			Vertex v;
+			importer->getVertex(i,v);
+			postImportVertices[i] = v;
+		}
+
+		// copy triangles
+		unsigned numPreImportTriangles = 0;
+		unsigned numTriangles = importer->getNumTriangles();
+		postImportTriangles.resize(numTriangles);
+		for(unsigned postImportTriangle=0;postImportTriangle<numTriangles;postImportTriangle++)
+		{
+			PostImportTriangle t;
+			// copy getPreImportTriangle
+			t.preImportTriangle = importer->getPreImportTriangle(postImportTriangle);
+			assert(t.preImportTriangle!=UINT_MAX);
+			// copy getTriangle
+			importer->getTriangle(postImportTriangle,t.postImportTriangleVertices);
+			// copy getPreImportVertex
+			for(unsigned j=0;j<3;j++)
+			{
+				assert(t.postImportTriangleVertices[j]!=UINT_MAX);
+				t.preImportTriangleVertices[j] = importer->getPreImportVertex(t.postImportTriangleVertices[j],postImportTriangle);
+			}
+			numPreImportTriangles = std::max(numPreImportTriangles,t.preImportTriangle+1);
+			postImportTriangles[postImportTriangle] = t;
+		}
+
+		// copy triangleBodies
+		for(unsigned i=0;i<numTriangles;i++)
+		{
+			TriangleBody t;
+			importer->getTriangleBody(i,t);
+			//!!! check that getTriangleBody returns numbers consistent with getVertex/getTriangle
+		}
+
+		// copy getPostImportTriangle
+		pre2postImportTriangles.resize(numPreImportTriangles);
+		for(unsigned preImportTriangle=0;preImportTriangle<numPreImportTriangles;preImportTriangle++)
+		{
+			unsigned postImportTriangle = importer->getPostImportTriangle(preImportTriangle);
+			assert(postImportTriangle==UINT_MAX || postImportTriangle<postImportTriangles.size());
+			pre2postImportTriangles[preImportTriangle] = postImportTriangle;
+		}
+
+		return true;
+	}
+
+	virtual ~RRCopyMeshImporter()
+	{
+	}
+
+	// vertices
+	virtual unsigned     getNumVerticesHere() const
+	{
+		return static_cast<unsigned>(postImportVertices.size());
+	}
+	virtual unsigned     getNumVertices() const
+	{
+		return getNumVerticesHere();
+	}
+	virtual void         getVertex(unsigned v, Vertex& out) const
+	{
+		assert(v<postImportVertices.size());
+		out = postImportVertices[v];
+	}
+
+	// triangles
+	virtual unsigned     getNumTriangles() const
+	{
+		return postImportTriangles.size();
+	}
+	virtual void         getTriangle(unsigned t, Triangle& out) const
+	{
+		assert(t<postImportTriangles.size());
+		out = postImportTriangles[t].postImportTriangleVertices;
+	}
+
+	// preimport/postimport conversions
+	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
+	{
+		assert(postImportVertex<postImportVertices.size());
+		assert(postImportTriangle<postImportTriangles.size());
+		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[0]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[0];
+		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[1]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[1];
+		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[2]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[2];
+		assert(0);
+		return UINT_MAX;
+	}
+	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
+	{
+		unsigned postImportTriangle = getPostImportTriangle(preImportTriangle);
+		if(postImportTriangles[postImportTriangle].preImportTriangleVertices[0]==preImportVertex) return postImportTriangles[postImportTriangle].postImportTriangleVertices[0];
+		if(postImportTriangles[postImportTriangle].preImportTriangleVertices[1]==preImportVertex) return postImportTriangles[postImportTriangle].postImportTriangleVertices[1];
+		if(postImportTriangles[postImportTriangle].preImportTriangleVertices[2]==preImportVertex) return postImportTriangles[postImportTriangle].postImportTriangleVertices[2];
+		assert(0);
+		return UINT_MAX;
+	}
+	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const
+	{
+		assert(postImportTriangle<postImportTriangles.size());
+		return postImportTriangles[postImportTriangle].preImportTriangle;
+	}
+	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const 
+	{
+		assert(preImportTriangle<pre2postImportTriangles.size());
+		return pre2postImportTriangles[preImportTriangle];
+	}
+
+protected:
+	std::vector<Vertex>   postImportVertices;
+	struct PostImportTriangle
+	{
+		unsigned preImportTriangle;
+		Triangle postImportTriangleVertices;
+		Triangle preImportTriangleVertices;
+	};
+	std::vector<PostImportTriangle> postImportTriangles;
+	std::vector<unsigned> pre2postImportTriangles; // sparse(inverse of preImportTriangles) -> vector is mostly ok, but multimesh probably needs map
+};
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -184,15 +344,15 @@ private:
 
 bool RRMeshImporter::save(char* filename)
 {
-	RRInterchangeMeshImporter* importer = new RRInterchangeMeshImporter(this);
-	bool res = importer->save(filename);
+	RRCopyMeshImporter* importer = new RRCopyMeshImporter();
+	bool res = importer->load(this) && importer->save(filename);
 	delete importer;
 	return res;
 }
 
 RRMeshImporter* RRMeshImporter::load(char* filename)
 {
-	RRInterchangeMeshImporter* importer = new RRInterchangeMeshImporter();
+	RRCopyMeshImporter* importer = new RRCopyMeshImporter();
 	if(importer->load(filename)) return importer;
 	delete importer;
 	return NULL;
@@ -200,7 +360,10 @@ RRMeshImporter* RRMeshImporter::load(char* filename)
 
 RRMeshImporter* RRMeshImporter::createCopy()
 {
-	return new RRInterchangeMeshImporter(this);
+	RRCopyMeshImporter* importer = new RRCopyMeshImporter();
+	if(importer->load(this)) return importer;
+	delete importer;
+	return NULL;
 }
 
 RRMeshImporter* RRMeshImporter::createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes)

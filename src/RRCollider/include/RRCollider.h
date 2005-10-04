@@ -173,7 +173,6 @@ namespace rrCollider
 			FILL_TRIANGLE   =(1<<4),
 			FILL_SIDE       =(1<<5),
 			TEST_SINGLESIDED=(1<<6), // detect collision only against outer side. default is to test both sides
-			EXPECT_HIT      =(1<<7), // set it to speed things up when you know, that ray will probably hit the mesh
 		};
 		RRReal          rayOrigin[4];   // i, (-Inf,Inf), ray origin. never modify last component, must stay 1
 		RRReal          rayDirInv[4];   // i, <-Inf,Inf>, 1/ray direction. direction must be normalized
@@ -698,69 +697,6 @@ namespace rrCollider
 		const RRMeshImporter* importer;
 		unsigned        numVertices;
 		unsigned        numTriangles;
-	};
-
-	class RRInterchangeMeshImporter : public RRFilteredMeshImporter
-	{
-	public:
-		// Save importer to disk in importer binary interchange format.
-		// Check importer consistency during save so we don't have to store redundant data.
-		bool save(const char* filename)
-		{
-			//!!!
-			return false;
-		}
-
-		// Load importer from disk in importer binary interchange format.
-		bool load(const char* filename)
-		{
-			//!!!
-			return false;
-		}
-
-		RRInterchangeMeshImporter()
-			: RRFilteredMeshImporter(NULL)
-		{
-			vertex = NULL;
-			triangle = NULL;
-		}
-
-		RRInterchangeMeshImporter(RRMeshImporter* importer)
-			: RRFilteredMeshImporter(importer)
-		{
-			vertex = new Vertex[numVertices];
-			triangle = new Triangle[numTriangles];
-			for(unsigned i=0;i<numVertices;i++)
-			{
-				importer->getVertex(i,vertex[i]);
-			}
-			for(unsigned i=0;i<numTriangles;i++)
-			{
-				importer->getTriangle(i,triangle[i]);
-			}
-			//!!! check that getTriangleBody returns numbers consistent with getVertex/getTriangle
-		}
-
-		virtual ~RRInterchangeMeshImporter()
-		{
-			delete[] vertex;
-			delete[] triangle;
-		}
-
-		virtual void         getVertex(unsigned v, Vertex& out) const
-		{
-			assert(v<numVertices);
-			out = vertex[v];
-		}
-		virtual void         getTriangle(unsigned t, Triangle& out) const
-		{
-			assert(t<numTriangles);
-			out = triangle[t];
-		}
-
-	protected:
-		Vertex*              vertex;
-		Triangle*            triangle;
 	};
 
 } // namespace
