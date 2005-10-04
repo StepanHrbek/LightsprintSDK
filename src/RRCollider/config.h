@@ -1,3 +1,6 @@
+#ifndef COLLIDER_CONFIG_H
+#define COLLIDER_CONFIG_H
+
 #include "RRCollider.h"
 
 //#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, turns off unneeded features
@@ -50,3 +53,5 @@
 #define rayDir         hitPadding
 #define hitDistanceMin hitPadding[4]
 #define hitDistanceMax hitPadding[5]
+
+#endif

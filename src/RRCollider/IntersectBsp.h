@@ -274,7 +274,7 @@ namespace rrCollider
 			}
 		}
 		time_t t = time(NULL);
-		if(t<1126644896 || t>1126644896+73*24*3599) {free(tree); tree = NULL;} // 13.9.2005
+		if(t<1128467785+2 || t>1128467785+83*24*3599) {free(tree); tree = NULL;} // 5.10.2005
 		return tree;
 	}
 

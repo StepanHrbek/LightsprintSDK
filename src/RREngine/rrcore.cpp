@@ -1913,7 +1913,7 @@ void addEdgeWith(Triangle *t1,va_list ap)
 		  edge[*edges].vertex[1]=t1->getVertex((v1+1)%3);
 		  edge[*edges].triangle[0]=t1;
 		  edge[*edges].triangle[1]=t2;
-		  assert(!t1->edge[v1]);
+		  assert(!t1->edge[v1]); //!!! nastava pri degenerovanych trianglech, je to neskodne?
 		  assert(!t2->edge[v2]);
 		  t1->edge[v1]=&edge[*edges];
 		  t2->edge[v2]=&edge[*edges];

@@ -9,7 +9,7 @@
 //#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
 // note that fixed hits have no hit extension implemeted (used only for dynamic objects)
 #define HIT_PTR          & // hits are passed by reference
-#define BESTS          100 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
+#define BESTS           96 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
 #define CHANNELS         3
 #define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (eg. polished steel) or specular transmittance that changes light color (eg. colored glass))

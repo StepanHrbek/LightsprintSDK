@@ -2,9 +2,12 @@
 #include "IntersectBspCompact.h"
 #include "IntersectBspFast.h"
 #include "IntersectVerification.h"
+#include <assert.h>
+#include <limits.h>
 #include <math.h>
 #include <memory.h>
 #include <new> // aligned new
+#include "stdint.h"
 #include <stdio.h>
 #include <string.h>
 #include <vector>
@@ -12,6 +15,376 @@
 
 namespace rrCollider
 {
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Importers from vertex/index buffers
+//
+// support indices of any size, vertex positions float[3]
+//
+// RRTriStripImporter               - triangle strip
+// RRTriListImporter                - triangle list
+// RRIndexedTriStripImporter<INDEX> - indexed triangle strip 
+// RRIndexedTriListImporter<INDEX>  - indexed triangle list
+
+class RRTriStripImporter : public RRMeshImporter
+{
+public:
+	RRTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride)
+		: VBuffer(vbuffer), Vertices(vertices), Stride(stride)
+	{
+	}
+
+	virtual unsigned getNumVertices() const
+	{
+		return Vertices;
+	}
+	virtual void getVertex(unsigned v, Vertex& out) const
+	{
+		assert(v<Vertices);
+		assert(VBuffer);
+		out = *(Vertex*)(VBuffer+v*Stride);
+	}
+	virtual unsigned getNumTriangles() const
+	{
+		return Vertices-2;
+	}
+	virtual void getTriangle(unsigned t, Triangle& out) const
+	{
+		assert(t<Vertices-2);
+		out[0] = t+0;
+		out[1] = t+1;
+		out[2] = t+2;
+	}
+	virtual void getTriangleBody(unsigned t, TriangleBody& out) const
+	{
+		assert(t<Vertices-2);
+		assert(VBuffer);
+		unsigned v0,v1,v2;
+		v0 = t+0;
+		v1 = t+1;
+		v2 = t+2;
+#define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
+		out.vertex0[0] = VERTEX(v0)[0];
+		out.vertex0[1] = VERTEX(v0)[1];
+		out.vertex0[2] = VERTEX(v0)[2];
+		out.side1[0] = VERTEX(v1)[0]-out.vertex0[0];
+		out.side1[1] = VERTEX(v1)[1]-out.vertex0[1];
+		out.side1[2] = VERTEX(v1)[2]-out.vertex0[2];
+		out.side2[0] = VERTEX(v2)[0]-out.vertex0[0];
+		out.side2[1] = VERTEX(v2)[1]-out.vertex0[1];
+		out.side2[2] = VERTEX(v2)[2]-out.vertex0[2];
+#undef VERTEX
+	}
+
+protected:
+	char*                VBuffer;
+	unsigned             Vertices;
+	unsigned             Stride;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+class RRTriListImporter : public RRTriStripImporter
+{
+public:
+	RRTriListImporter(char* vbuffer, unsigned vertices, unsigned stride)
+		: RRTriStripImporter(vbuffer,vertices,stride)
+	{
+	}
+	virtual unsigned getNumTriangles() const
+	{
+		return Vertices/3;
+	}
+	virtual void getTriangle(unsigned t, Triangle& out) const
+	{
+		assert(t*3<Vertices);
+		out[0] = t*3+0;
+		out[1] = t*3+1;
+		out[2] = t*3+2;
+	}
+	virtual void getTriangleBody(unsigned t, TriangleBody& out) const
+	{
+		assert(t*3<Vertices);
+		assert(VBuffer);
+		unsigned v0,v1,v2;
+		v0 = t*3+0;
+		v1 = t*3+1;
+		v2 = t*3+2;
+#define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
+		out.vertex0[0] = VERTEX(v0)[0];
+		out.vertex0[1] = VERTEX(v0)[1];
+		out.vertex0[2] = VERTEX(v0)[2];
+		out.side1[0] = VERTEX(v1)[0]-out.vertex0[0];
+		out.side1[1] = VERTEX(v1)[1]-out.vertex0[1];
+		out.side1[2] = VERTEX(v1)[2]-out.vertex0[2];
+		out.side2[0] = VERTEX(v2)[0]-out.vertex0[0];
+		out.side2[1] = VERTEX(v2)[1]-out.vertex0[1];
+		out.side2[2] = VERTEX(v2)[2]-out.vertex0[2];
+#undef VERTEX
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <class INDEX>
+class RRIndexedTriStripImporter : public RRTriStripImporter
+{
+public:
+	RRIndexedTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+		: RRTriStripImporter(vbuffer,vertices,stride), IBuffer(ibuffer), Indices(indices)
+	{
+		INDEX tmp = vertices;
+		tmp = tmp;
+		assert(tmp==vertices);
+	}
+
+	virtual unsigned getNumTriangles() const
+	{
+		return Indices-2;
+	}
+	virtual void getTriangle(unsigned t, Triangle& out) const
+	{
+		assert(t<Indices-2);
+		assert(IBuffer);
+		out[0] = IBuffer[t];         assert(out[0]<Vertices);
+		out[1] = IBuffer[t+1+(t%2)]; assert(out[1]<Vertices);
+		out[2] = IBuffer[t+2-(t%2)]; assert(out[2]<Vertices);
+	}
+	virtual void getTriangleBody(unsigned t, TriangleBody& out) const
+	{
+		assert(t<Indices-2);
+		assert(VBuffer);
+		assert(IBuffer);
+		unsigned v0,v1,v2;
+		v0 = IBuffer[t];         assert(v0<Vertices);
+		v1 = IBuffer[t+1+(t%2)]; assert(v1<Vertices);
+		v2 = IBuffer[t+2-(t%2)]; assert(v2<Vertices);
+#define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
+		out.vertex0[0] = VERTEX(v0)[0];
+		out.vertex0[1] = VERTEX(v0)[1];
+		out.vertex0[2] = VERTEX(v0)[2];
+		out.side1[0] = VERTEX(v1)[0]-out.vertex0[0];
+		out.side1[1] = VERTEX(v1)[1]-out.vertex0[1];
+		out.side1[2] = VERTEX(v1)[2]-out.vertex0[2];
+		out.side2[0] = VERTEX(v2)[0]-out.vertex0[0];
+		out.side2[1] = VERTEX(v2)[1]-out.vertex0[1];
+		out.side2[2] = VERTEX(v2)[2]-out.vertex0[2];
+#undef VERTEX
+	}
+
+protected:
+	INDEX*               IBuffer;
+	unsigned             Indices;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <class INDEX>
+#define INHERITED RRIndexedTriStripImporter<INDEX>
+class RRIndexedTriListImporter : public INHERITED
+{
+public:
+	RRIndexedTriListImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+		: RRIndexedTriStripImporter<INDEX>(vbuffer,vertices,stride,ibuffer,indices)
+	{
+		INDEX tmp = vertices;
+		tmp = tmp;
+		assert(tmp==vertices);
+	}
+	virtual unsigned getNumTriangles() const
+	{
+		return INHERITED::Indices/3;
+	}
+	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
+	{
+		assert(t*3<INHERITED::Indices);
+		assert(INHERITED::IBuffer);
+		out[0] = INHERITED::IBuffer[t*3+0]; assert(out[0]<INHERITED::Vertices);
+		out[1] = INHERITED::IBuffer[t*3+1]; assert(out[1]<INHERITED::Vertices);
+		out[2] = INHERITED::IBuffer[t*3+2]; assert(out[2]<INHERITED::Vertices);
+	}
+	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
+	{
+		assert(t*3<INHERITED::Indices);
+		assert(INHERITED::VBuffer);
+		assert(INHERITED::IBuffer);
+		unsigned v0,v1,v2;
+		v0 = INHERITED::IBuffer[t*3+0]; assert(v0<INHERITED::Vertices);
+		v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
+		v2 = INHERITED::IBuffer[t*3+2]; assert(v2<INHERITED::Vertices);
+#define VERTEX(v) ((RRReal*)(INHERITED::VBuffer+v*INHERITED::Stride))
+		out.vertex0[0] = VERTEX(v0)[0];
+		out.vertex0[1] = VERTEX(v0)[1];
+		out.vertex0[2] = VERTEX(v0)[2];
+		out.side1[0] = VERTEX(v1)[0]-out.vertex0[0];
+		out.side1[1] = VERTEX(v1)[1]-out.vertex0[1];
+		out.side1[2] = VERTEX(v1)[2]-out.vertex0[2];
+		out.side2[0] = VERTEX(v2)[0]-out.vertex0[0];
+		out.side2[1] = VERTEX(v2)[1]-out.vertex0[1];
+		out.side2[2] = VERTEX(v2)[2]-out.vertex0[2];
+#undef VERTEX
+	}
+};
+#undef INHERITED
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Importer filters
+//
+// RRLessVerticesImporter<IMPORTER,INDEX>  - importer filter that removes duplicate vertices
+// RRLessTrianglesImporter<IMPORTER,INDEX> - importer filter that removes degenerate triangles
+
+template <class INHERITED, class INDEX>
+class RRLessVerticesImporter : public INHERITED
+{
+public:
+	RRLessVerticesImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+		: INHERITED(vbuffer,vertices,stride,ibuffer,indices)
+	{
+		INDEX tmp = vertices;
+		assert(tmp==vertices);
+		Dupl2Unique = new INDEX[vertices];
+		Unique2Dupl = new INDEX[vertices];
+		UniqueVertices = 0;
+		for(unsigned d=0;d<vertices;d++)
+		{
+			RRMeshImporter::Vertex dfl;
+			INHERITED::getVertex(d,dfl);
+			for(unsigned u=0;u<UniqueVertices;u++)
+			{
+				RRMeshImporter::Vertex ufl;
+				INHERITED::getVertex(Unique2Dupl[u],ufl);
+				if(dfl[0]==ufl[0] && dfl[1]==ufl[1] && dfl[2]==ufl[2]) 
+				{
+					Dupl2Unique[d] = u;
+					goto dupl;
+				}
+			}
+			Unique2Dupl[UniqueVertices] = d;
+			Dupl2Unique[d] = UniqueVertices++;
+dupl:;
+		}
+	}
+	~RRLessVerticesImporter()
+	{
+		delete[] Unique2Dupl;
+		delete[] Dupl2Unique;
+	}
+
+	virtual unsigned getNumVertices() const
+	{
+		return UniqueVertices;
+	}
+	virtual void getVertex(unsigned v, RRMeshImporter::Vertex& out) const
+	{
+		assert(v<UniqueVertices);
+		assert(Unique2Dupl[v]<INHERITED::Vertices);
+		assert(INHERITED::VBuffer);
+		out = *(RRMeshImporter::Vertex*)(INHERITED::VBuffer+Unique2Dupl[v]*INHERITED::Stride);
+	}
+	virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
+	{
+		assert(postImportVertex<UniqueVertices);
+
+		// exact version
+		// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
+		// use postImportTriangle to fully specify which one preImportVertex to return
+		unsigned preImportTriangle = RRMeshImporter::getPreImportTriangle(postImportTriangle);
+		RRMeshImporter::Triangle preImportVertices;
+		INHERITED::getTriangle(preImportTriangle,preImportVertices);
+		if(Dupl2Unique[preImportVertices[0]]==postImportVertex) return preImportVertices[0];
+		if(Dupl2Unique[preImportVertices[1]]==postImportVertex) return preImportVertices[1];
+		if(Dupl2Unique[preImportVertices[2]]==postImportVertex) return preImportVertices[2];
+		assert(0);
+
+		// fast version
+		return Unique2Dupl[postImportVertex];
+	}
+	virtual unsigned getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
+	{
+		assert(preImportVertex<INHERITED::Vertices);
+		return Dupl2Unique[preImportVertex];
+	}
+	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
+	{
+		INHERITED::getTriangle(t,out);
+		out[0] = Dupl2Unique[out[0]]; assert(out[0]<UniqueVertices);
+		out[1] = Dupl2Unique[out[1]]; assert(out[1]<UniqueVertices);
+		out[2] = Dupl2Unique[out[2]]; assert(out[2]<UniqueVertices);
+	}
+
+protected:
+	INDEX*               Unique2Dupl;
+	INDEX*               Dupl2Unique;
+	unsigned             UniqueVertices;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <class INHERITED, class INDEX>
+class RRLessTrianglesImporter : public INHERITED
+{
+public:
+	RRLessTrianglesImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+		: INHERITED(vbuffer,vertices,stride,ibuffer,indices) 
+	{
+		ValidIndices = 0;
+		unsigned numAllTriangles = INHERITED::getNumTriangles();
+		for(unsigned i=0;i<numAllTriangles;i++)
+		{
+			RRMeshImporter::Triangle t;
+			INHERITED::getTriangle(i,t);
+			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndices++;
+		}
+		ValidIndex = new INDEX[ValidIndices];
+		ValidIndices = 0;
+		for(unsigned i=0;i<numAllTriangles;i++)
+		{
+			RRMeshImporter::Triangle t;
+			INHERITED::getTriangle(i,t);
+			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndex[ValidIndices++] = i;
+		}
+	};
+	~RRLessTrianglesImporter()
+	{
+		delete[] ValidIndex;
+	}
+
+	virtual unsigned getNumTriangles() const
+	{
+		return ValidIndices;
+	}
+	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
+	{
+		assert(t<ValidIndices);
+		INHERITED::getTriangle(ValidIndex[t],out);
+	}
+	virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const 
+	{
+		return ValidIndex[postImportTriangle];
+	}
+	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
+	{
+		// efficient implementation would require another translation array
+		for(unsigned post=0;post<ValidIndices-2;post++)
+			if(ValidIndex[post]==preImportTriangle)
+				return post;
+		return UINT_MAX;
+	}
+	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
+	{
+		assert(t<ValidIndices);
+		INHERITED::getTriangleBody(ValidIndex[t],out);
+	}
+
+protected:
+	INDEX*               ValidIndex;
+	unsigned             ValidIndices;
+};
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -104,13 +477,9 @@ public:
 	}
 
 	// vertices
-	virtual unsigned     getNumVerticesHere() const
-	{
-		return static_cast<unsigned>(postImportVertices.size());
-	}
 	virtual unsigned     getNumVertices() const
 	{
-		return getNumVerticesHere();
+		return static_cast<unsigned>(postImportVertices.size());
 	}
 	virtual void         getVertex(unsigned v, Vertex& out) const
 	{
@@ -121,7 +490,7 @@ public:
 	// triangles
 	virtual unsigned     getNumTriangles() const
 	{
-		return postImportTriangles.size();
+		return static_cast<unsigned>(postImportTriangles.size());
 	}
 	virtual void         getTriangle(unsigned t, Triangle& out) const
 	{
@@ -341,6 +710,100 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRMeshImporter instance factory
+
+RRMeshImporter* RRMeshImporter::create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride)
+{
+	flags &= ~(OPTIMIZED_TRIANGLES|OPTIMIZED_VERTICES); // optimizations are not implemented for non-indexed
+	switch(vertexFormat)
+	{
+		case FLOAT32:
+			switch(flags)
+			{
+				case TRI_LIST: return new RRTriListImporter((char*)vertexBuffer,vertexCount,vertexStride);
+				case TRI_STRIP: return new RRTriStripImporter((char*)vertexBuffer,vertexCount,vertexStride);
+			}
+			break;
+	}
+	return NULL;
+}
+
+RRMeshImporter* RRMeshImporter::createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount)
+{
+	unsigned triangleCount = (flags&TRI_STRIP)?vertexCount-2:(vertexCount/3);
+	switch(vertexFormat)
+	{
+	case FLOAT32:
+		switch(flags)
+		{
+			case TRI_LIST:
+				switch(indexFormat)
+				{
+					case UINT8: return new RRIndexedTriListImporter<uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRIndexedTriListImporter<uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRIndexedTriListImporter<uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+				}
+				break;
+			case TRI_STRIP:
+				switch(indexFormat)
+				{
+					case UINT8: return new RRIndexedTriStripImporter<uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRIndexedTriStripImporter<uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRIndexedTriStripImporter<uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+				}
+				break;
+			case TRI_LIST|OPTIMIZED_TRIANGLES:
+				switch(indexFormat)
+				{
+					case UINT8: return new RRLessTrianglesImporter<RRIndexedTriListImporter<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRLessTrianglesImporter<RRIndexedTriListImporter<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRLessTrianglesImporter<RRIndexedTriListImporter<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+				}
+				break;
+			case TRI_STRIP|OPTIMIZED_TRIANGLES:
+				switch(indexFormat)
+				{
+					case UINT8: return new RRLessTrianglesImporter<RRIndexedTriStripImporter<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRLessTrianglesImporter<RRIndexedTriStripImporter<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRLessTrianglesImporter<RRIndexedTriStripImporter<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+				}
+				break;
+			case TRI_LIST|OPTIMIZED_VERTICES:
+				switch(indexFormat)
+				{
+					case UINT8: return new RRLessVerticesImporter<RRIndexedTriListImporter<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRLessVerticesImporter<RRIndexedTriListImporter<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRLessVerticesImporter<RRIndexedTriListImporter<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+				}
+				break;
+			case TRI_STRIP|OPTIMIZED_VERTICES:
+				switch(indexFormat)
+				{
+					case UINT8: return new RRLessVerticesImporter<RRIndexedTriStripImporter<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRLessVerticesImporter<RRIndexedTriStripImporter<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRLessVerticesImporter<RRIndexedTriStripImporter<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+				}
+				break;
+			case TRI_LIST|OPTIMIZED_TRIANGLES|OPTIMIZED_VERTICES:
+				switch(indexFormat)
+				{
+					case UINT8: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriListImporter<uint8_t>,uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriListImporter<uint16_t>,uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriListImporter<uint32_t>,uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+				}
+				break;
+			case TRI_STRIP|OPTIMIZED_TRIANGLES|OPTIMIZED_VERTICES:
+				switch(indexFormat)
+				{
+					case UINT8: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriStripImporter<uint8_t>,uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriStripImporter<uint16_t>,uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriStripImporter<uint32_t>,uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+				}
+				break;
+		}
+		break;
+	}
+	return NULL;
+}
 
 bool RRMeshImporter::save(char* filename)
 {

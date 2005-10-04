@@ -10,18 +10,19 @@
 #include <tchar.h>
 #include <time.h>
 
-typedef rrCollider::RRIndexedTriListImporter<int> inherited;
-//typedef rrCollider::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int> inherited;
-//typedef rrCollider::RRLessTrianglesImporter<RRCollider::RRLessVerticesImporter<RRCollider::RRIndexedTriListImporter<int>,int>,int> inherited;
-
-class PlyMeshImporter : public inherited
+rrCollider::RRMeshImporter* createPlyMeshImporter(PlyMesh& mesh)
 {
-public:
-	PlyMeshImporter(PlyMesh& mesh) 
-		: inherited((char*)&*mesh.verts.begin(),(unsigned)mesh.verts.size(),sizeof(PlyMeshVert),(int*)&*mesh.tris.begin(),(unsigned)mesh.tris.size()*3)
-	{
-	};
-};
+	return rrCollider::RRMeshImporter::createIndexed(
+		rrCollider::RRMeshImporter::TRI_LIST,
+		rrCollider::RRMeshImporter::FLOAT32,
+		(void*)&*mesh.verts.begin(),
+		(unsigned)mesh.verts.size(),
+		sizeof(PlyMeshVert),
+		rrCollider::RRMeshImporter::UINT32,
+		(int*)&*mesh.tris.begin(),
+		(unsigned)mesh.tris.size()*3
+		);
+}
 
 /*struct Box
 {
@@ -75,9 +76,8 @@ int main(int argc, char** argv)
 	PlyMesh mesh;
 	PlyMeshReader reader;
 	reader.readFile("bun_zipper.ply",mesh);
-	PlyMeshImporter importer(mesh);
-	intersector = rrCollider::RRCollider::create(&importer,rrCollider::RRCollider::IT_BSP_FASTEST);
-	printf("vertices=%d tris=%d\n",importer.getNumVertices(),importer.getNumTriangles());
+	intersector = rrCollider::RRCollider::create(createPlyMeshImporter(mesh),rrCollider::RRCollider::IT_BSP_FASTEST);
+	printf("vertices=%d tris=%d\n",intersector->getImporter()->getNumVertices(),intersector->getImporter()->getNumTriangles());
 
 	// create one ray for each thread
 #ifdef _OPENMP
