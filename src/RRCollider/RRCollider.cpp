@@ -27,7 +27,7 @@ public:
 	{
 	}
 
-	// Save importer to disk in importer binary interchange format.
+	// Save importer to file.
 	// Check importer consistency during save so we don't have to store redundant data.
 	bool save(const char* filename)
 	{
@@ -35,14 +35,14 @@ public:
 		return false;
 	}
 
-	// Load importer from disk in importer binary interchange format.
+	// Load importer from file.
 	bool load(const char* filename)
 	{
 		//!!!
 		return false;
 	}
 
-	// Create copy of another importer.
+	// Load importer from another importer (create copy).
 	bool load(RRMeshImporter* importer)
 	{
 		if(!importer) return false;

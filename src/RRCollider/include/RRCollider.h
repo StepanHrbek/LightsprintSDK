@@ -22,8 +22,7 @@
 // If not otherwise specified, all inputs must be finite numbers.
 // With Inf or NaN, result is undefined.
 //
-// All parameters that need to be destructed are destructed by caller.
-// So if you forget to destruct, there's risk of leak, never risk of double destruction.
+// Parameters that need to be destructed are always destructed by caller.
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
