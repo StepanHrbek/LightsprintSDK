@@ -28,11 +28,19 @@
 	#ifdef RRENGINE_IMPORT
 		// use dll
 		#define RRENGINE_API __declspec(dllimport)
-		#pragma comment(lib,"RREngine.lib")
+		#ifdef NDEBUG
+			#pragma comment(lib,"RREngine.lib")
+		#else
+			#pragma comment(lib,"RREngine_d.lib")
+		#endif
 	#else
 		// use static library
 		#define RRENGINE_API
-		#pragma comment(lib,"RREngine.lib")
+		#ifdef NDEBUG
+			#pragma comment(lib,"RREngine_s.lib")
+		#else
+			#pragma comment(lib,"RREngine_sd.lib")
+		#endif
 	#endif
 	#endif
 #else

@@ -36,7 +36,7 @@
 				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sd.pdb"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="4"/>
 			<Tool
@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="alleg.lib odbc32.lib odbccp32.lib"
-				OutputFile="$(OutDir)\RR.exe"
+				OutputFile="$(OutDir)\RRd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="h:\c\rr\lib"

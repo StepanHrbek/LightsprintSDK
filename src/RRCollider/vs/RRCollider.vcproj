@@ -45,7 +45,7 @@
 				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(OutDir)/$(ProjectName).pdb"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_s.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -53,7 +53,8 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName)_s.lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
@@ -102,7 +103,7 @@
 				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(OutDir)/$(ProjectName).pdb"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sd.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -111,6 +112,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"

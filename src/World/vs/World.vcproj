@@ -42,7 +42,7 @@
 				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_s.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"/>
@@ -50,6 +50,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName)_s.lib"
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -99,7 +100,7 @@
 				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sd.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -107,7 +108,8 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				TypeLibraryName="$(IntDir)/World.tlb"

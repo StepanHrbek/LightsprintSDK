@@ -33,11 +33,19 @@
 	#ifdef RRCOLLIDER_IMPORT
 		// use dll
 		#define RRCOLLIDER_API __declspec(dllimport)
-		#pragma comment(lib,"RRCollider.lib")
+		#ifdef NDEBUG
+			#pragma comment(lib,"RRCollider.lib")
+		#else
+			#pragma comment(lib,"RRCollider_d.lib")
+		#endif
 	#else
 		// use static library
 		#define RRCOLLIDER_API
-		#pragma comment(lib,"RRCollider.lib")
+		#ifdef NDEBUG
+			#pragma comment(lib,"RRCollider_s.lib")
+		#else
+			#pragma comment(lib,"RRCollider_sd.lib")
+		#endif
 	#endif
 	#endif
 #else

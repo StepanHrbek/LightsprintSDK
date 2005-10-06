@@ -2,7 +2,11 @@
 #define _WORLD_H
 
 #ifdef _MSC_VER
-#pragma comment(lib,"World.lib")
+	#ifdef NDEBUG
+		#pragma comment(lib,"World_s.lib")
+	#else
+		#pragma comment(lib,"World_sd.lib")
+	#endif
 #endif
 
 #include "spline.h"
