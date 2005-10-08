@@ -339,7 +339,7 @@ public:
 			INHERITED::getTriangle(i,t);
 			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndices++;
 		}
-		ValidIndex = new INDEX[ValidIndices];
+		ValidIndex = new unsigned[ValidIndices];
 		ValidIndices = 0;
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
@@ -381,7 +381,7 @@ public:
 	}
 
 protected:
-	INDEX*               ValidIndex;
+	unsigned*            ValidIndex; // may be uint16_t when indices<64k
 	unsigned             ValidIndices;
 };
 
