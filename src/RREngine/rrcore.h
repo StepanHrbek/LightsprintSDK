@@ -3,13 +3,14 @@
 
 #define SUPPORT_TRANSFORMS
 #define SUPPORT_SCALE
+//#define SUPPORT_MIN_FEATURE_SIZE
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 //#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
 //#define LIGHTMAP         // generate lightmap for each Triangle + texturemapping
 //#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
 // note that fixed hits have no hit extension implemeted (used only for dynamic objects)
 #define HIT_PTR          & // hits are passed by reference
-#define BESTS           96 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
+#define BESTS           97 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
 #define CHANNELS         3
 #define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (eg. polished steel) or specular transmittance that changes light color (eg. colored glass))
@@ -686,6 +687,9 @@ public:
 	Edge    *edge;
 	void    buildEdges();
 	void    buildTopIVertices();
+		private:
+		unsigned mergeCloseIVertices(IVertex* ivertex);
+		public:
 #ifdef ONLY_PLAYER
 };
 

@@ -2096,9 +2096,15 @@ bool Object::check()
 	for(unsigned t=0;t<triangles;t++) assert(triangle[t].check());
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
+#ifdef SUPPORT_MIN_FEATURE_SIZE
+		assert(triangle[t].topivertex[0]->check());
+		assert(triangle[t].topivertex[1]->check());
+		assert(triangle[t].topivertex[2]->check());
+#else
 		assert(triangle[t].topivertex[0]->contains(&triangle[t]));
 		assert(triangle[t].topivertex[1]->contains(&triangle[t]));
 		assert(triangle[t].topivertex[2]->contains(&triangle[t]));
+#endif
 	}
 	return true;
 }

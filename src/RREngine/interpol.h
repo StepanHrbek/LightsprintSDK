@@ -2,6 +2,8 @@
 #ifndef RRENGINE_INTERPOL_H
 #define RRENGINE_INTERPOL_H
 
+#include <set>
+
 namespace rrEngine
 {
 
@@ -14,7 +16,12 @@ If we interpolate between areas of too different size, small dark tri + large li
 */
 #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=(MIN(t1->area,t2->area)/(t1->area+t2->area)*2+0.2f)*MAX_INTERPOL_ANGLE /*&& t1->grandpa->surface==t2->grandpa->surface*/)
 #define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->getN3(),t2->grandpa->getN3()))
-#define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)
+
+#ifdef SUPPORT_MIN_FEATURE_SIZE
+	// vypnuto protoze posouva vertexy do pozice jejich ivertexu, coz pri mergovani blizkych ivertexu neni zadouci
+#else
+	#define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)
+#endif
 
 extern real MAX_INTERPOL_ANGLE; // max angle between interpolated neighbours
 
@@ -34,11 +41,21 @@ struct Corner
 	real power;
 };
 
+struct IVertexInfo
+// used by: merge close ivertices
+{
+	void               absorb(IVertexInfo& info2); // this <- this+info2, info2 <- 0
+	class IVertex*     ivertex;                    // ivertex this information came from
+	Point3             center;                     // center of our vertices
+	std::set<unsigned> ourVertices;                // our vertices
+	std::set<unsigned> neighbourVertices;          // neighbours of our vertices (na ktere se da od nasich dojet po jedne hrane)
+};
+
 class IVertex
 {
 public:
 	IVertex();
-       ~IVertex();
+	~IVertex();
 
 	real    error;
 	void    loadCache(Channels r);
@@ -50,13 +67,19 @@ public:
 	void    insert(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	void    insertAlsoToParents(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	bool    contains(Node *node);
-	void    splitTopLevel(Vec3 *avertex, Object *obj);
+	unsigned splitTopLevel(Vec3 *avertex, Object *obj);
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
 	Channels irradiance();
 	Channels exitance(Node* corner);
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();
+
+	// used by: merge close ivertices
+	void    fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo& info);
+	void    absorb(IVertex* aivertex);
+	unsigned getNumCorners() {return corners;}
+
 	bool    check();
 	bool    check(Point3 apoint);
 #ifdef IV_POINT

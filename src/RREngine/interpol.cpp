@@ -1,4 +1,5 @@
 
+//#include <algorithm>
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
@@ -79,6 +80,8 @@ unsigned IVertex::cornersAllocated()
 
 bool IVertex::check()
 {
+	assert(corners!=0xfeee);
+	assert(corners!=0xcdcd);
 	return true;//powerTopLevel>0;
 }
 
@@ -115,7 +118,9 @@ void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 	for(unsigned i=0;i<corners;i++)
 		if(corner[i].node==node)
 		{
-			assert(!node->grandpa);// pouze clustery se smej insertovat vickrat, power od jednotlivych trianglu se akumuluje
+#ifndef SUPPORT_MIN_FEATURE_SIZE // s min feature size se i triangly smej insertovat vickrat
+			assert(!node->grandpa);// pouze clustery se smej insertovat vickrat, power se akumuluje
+#endif
 			corner[i].power+=power;
 			goto label;
 		}
@@ -140,26 +145,32 @@ bool IVertex::contains(Node *node)
 	return false;
 }
 
-void IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
+unsigned IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices
 
-	// remember all places this vertex is installed in
-	IVertex ***topivertex=new IVertex**[corners];
+	unsigned numSplitted = 0;
+	// remember all places this ivertex is installed in
+	IVertex ***topivertex=new IVertex**[3*corners];
 	for(unsigned i=0;i<corners;i++)
 	{
 		assert(corner[i].node);
 		assert(corner[i].node->grandpa);
 		assert(corner[i].node->grandpa->surface);
-		bool found=false;
+		unsigned found=0;
+		topivertex[i]=NULL;
+		topivertex[i+corners]=NULL;
+		topivertex[i+2*corners]=NULL;
 		for(int k=0;k<3;k++)
 		{
 			if(TRIANGLE(corner[i].node)->topivertex[k]==this)
 			{
+#ifndef SUPPORT_MIN_FEATURE_SIZE // s min feature size muze ukazovat vic vrcholu na jeden ivertex
 				assert(!found);
-				topivertex[i]=&TRIANGLE(corner[i].node)->topivertex[k];
-				found=true;
+#endif
+				topivertex[i+found*corners]=&TRIANGLE(corner[i].node)->topivertex[k];
+				found++;
 			}
 		}
 		assert(found);
@@ -168,7 +179,7 @@ void IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
 	for(unsigned i=0;i<corners;i++)
 	{
 		IVertex *v;
-		// search corner[j] with same reduction as corner[i]
+		// search corner[j] with the same reduction as corner[i]
 		for(unsigned j=0;j<i;j++)
 		{
 			for(unsigned k=0;k<corners;k++)
@@ -181,6 +192,7 @@ void IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
 		}
 		// make new reduction
 		v=obj->newIVertex();
+		numSplitted++;
 #ifdef IV_POINT
 		v->point=point;
 #endif
@@ -190,11 +202,14 @@ void IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
 		// install reduction
 		install_v:
 		*topivertex[i]=v;
+		if(topivertex[i+corners]) *topivertex[i+corners]=v;
+		if(topivertex[i+2*corners]) *topivertex[i+2*corners]=v;
 	}
 	// make this empty = ready for deletion
 	corners=0;
 	powerTopLevel=0;
 	delete[] topivertex;
+	return numSplitted;
 }
 
 #ifndef ONLY_PLAYER
@@ -564,6 +579,200 @@ void Cluster::removeFromIVertices(Node *node)
 }
 #endif
 
+void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo& info)
+// used by: merge close ivertices
+// fills structure with information about us
+// expects ivertex on the beginning of its life - contains all corners around 1 vertex,
+//  originalVertexIndex is index of that vertex in object->vertex array
+{
+	//assert(corners);
+	// corners==0 means ivertex without any corner
+	// it's probably in vertex that is not referenced by any triangle
+	// it's not nice, but let's try to live with such
+
+	// fill original ivertex
+	info.ivertex = this;
+	// fill our vertices
+	info.ourVertices.insert(originalVertexIndex);
+	// fill center
+	info.center = object->vertex[originalVertexIndex];
+	// fill our neighbours
+	for(unsigned c=0;c<corners;c++)
+	{
+		assert(IS_TRIANGLE(corner[c].node));
+		if(!IS_TRIANGLE(corner[c].node)) continue;
+		Triangle* tri = TRIANGLE(corner[c].node);
+		unsigned originalPresent = 0;
+		for(unsigned i=0;i<3;i++)
+		{
+			unsigned triVertex = (unsigned)(tri->getVertex(i)-object->vertex);
+			if(triVertex!=originalVertexIndex)
+				info.neighbourVertices.insert(triVertex);
+			else
+				originalPresent++;
+		}
+		assert(originalPresent==1);
+	}
+}
+
+void IVertex::absorb(IVertex* aivertex)
+// used by: merge close ivertices
+// this <- this+aivertex
+// aivertex <- 0
+{
+	while(aivertex->corners)
+	{
+		Corner* c = &aivertex->corner[--aivertex->corners];
+		insert(c->node,false,c->power);
+	}
+}
+
+void IVertexInfo::absorb(IVertexInfo& info2)
+// used by: merge close ivertices
+// this <- this+info2
+// info2 <- 0
+{
+	assert(this!=&info2);
+	// set center
+	unsigned verticesTotal = (unsigned)(ourVertices.size()+info2.ourVertices.size());
+	center = (center*(real)ourVertices.size() + info2.center*(real)info2.ourVertices.size()) / (real)verticesTotal;
+	// set ourVertices
+	ourVertices.insert(info2.ourVertices.begin(),info2.ourVertices.end());
+	info2.ourVertices.erase(info2.ourVertices.begin(),info2.ourVertices.end());
+	assert(ourVertices.size()==verticesTotal);
+	assert(info2.ourVertices.size()==0);
+	// set neighbourVertices
+	neighbourVertices.insert(info2.neighbourVertices.begin(),info2.neighbourVertices.end());
+	info2.neighbourVertices.erase(info2.neighbourVertices.begin(),info2.neighbourVertices.end());
+	assert(info2.neighbourVertices.size()==0);
+	for(std::set<unsigned>::const_iterator i=ourVertices.begin();i!=ourVertices.end();i++)
+	{
+		unsigned ourVertex = *i;
+		std::set<unsigned>::iterator invalidNeighbour = neighbourVertices.find(ourVertex);
+		if(invalidNeighbour!=neighbourVertices.end())
+		{
+			neighbourVertices.erase(invalidNeighbour);
+			//invalidNeighbour = neighbourVertices.find(ourVertex);
+			//assert(invalidNeighbour==neighbourVertices.end());
+		}
+	}
+	/*set_difference(
+		neighbourVertices.begin(),neighbourVertices.end(),
+		ourVertices.begin(),ourVertices.end(),
+		neighbourVertices.begin()
+		);*/
+	// modification of object data!
+	// ivertex absorbs corners of info2.ivertex
+	ivertex->absorb(info2.ivertex);
+}
+
+unsigned Object::mergeCloseIVertices(IVertex* ivertex)
+// merges close ivertices
+// returns number of merges (each merge = 1 ivertex reduced)
+/* first plan of algorithm:
+vertex2ivertex: kazdy vertex ma seznamek do kterych patri ivertexu
+ivertices: mam seznam ivertexu, ke kazdemu pridam
+  vaha = 1
+  seznam sousednich vertexu na ktere se da dojet po hrane
+pro kazdy ivertex najdu sousedni ivertexy a vzdalenosti
+pokud jsou nejblizsi dva ivertexy dost blizko, spojim je
+    nastavit nove teziste
+	secist vahy
+	spojit seznamy sousednich vertexu
+	vyradit ze seznamu vlastni vertexy
+	zaktualizovat vertex2ivertex
+mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle corner-plochy (miniaturni a nulovy maj mit nulovou vahu)
+  tim by se mohla zlepsit interpolace kdyz se ponechaj degenerovany triangly z tristripu
+*/
+{
+	unsigned ivertices = vertices; // it is expected that ivertex is array of length vertices
+	unsigned numReduced = 0;
+
+	// gather all source information for each ivertex
+	// - center
+	// - set of vertices
+	// - set of neighbour vertices
+	IVertexInfo* ivertexInfo = new IVertexInfo[ivertices];
+	for(unsigned i=0;i<ivertices;i++)
+	{
+		ivertex[i].fillInfo(this,i,ivertexInfo[i]);
+	}
+	unsigned* vertex2ivertex = new unsigned[vertices];
+	for(unsigned i=0;i<ivertices;i++)
+	{
+		vertex2ivertex[i] = i;
+	}
+
+	// work until done
+	while(1)
+	{
+		// find closest ivertex - ivertex pair
+		real minDist2 = 1e30f;
+		unsigned minIVert1 = 0;
+		unsigned minIVert2 = 0;
+		for(unsigned ivertex1Idx=0;ivertex1Idx<ivertices;ivertex1Idx++)
+			if(ivertexInfo[ivertex1Idx].ourVertices.size())
+		{
+			assert(ivertexInfo[ivertex1Idx].ivertex->getNumCorners()!=0xfeee);
+			assert(ivertexInfo[ivertex1Idx].ivertex->getNumCorners()!=0xcdcd);
+			// for each neighbour vertex
+			for(std::set<unsigned>::const_iterator i=ivertexInfo[ivertex1Idx].neighbourVertices.begin();i!=ivertexInfo[ivertex1Idx].neighbourVertices.end();i++)
+			{
+				// convert to neighbour ivertex
+				unsigned vertex2Idx = *i;
+				unsigned ivertex2Idx = vertex2ivertex[vertex2Idx];
+				assert(ivertex1Idx!=ivertex2Idx);
+				// measure distance
+				real dist2 = size2(ivertexInfo[ivertex1Idx].center-ivertexInfo[ivertex2Idx].center);
+				assert(dist2); // teoreticky muze nastat kdyz objekt obsahuje vic vertexu na stejnem miste
+				// store the best
+				if(dist2<minDist2)
+				{
+					minDist2 = dist2;
+					minIVert1 = ivertex1Idx;
+					minIVert2 = ivertex2Idx;
+				}
+			}
+		}
+
+		// end if not close enough
+		real minDist = sqrt(minDist2);
+		if(minDist>RRGetStateF(RRSSF_MIN_FEATURE_SIZE)) break;
+		numReduced++;
+
+		// merge ivertices: update local temporary vertex2ivertex
+		for(std::set<unsigned>::const_iterator i=ivertexInfo[minIVert2].ourVertices.begin();i!=ivertexInfo[minIVert2].ourVertices.end();i++)
+		{
+			assert(vertex2ivertex[*i] == minIVert2);
+			vertex2ivertex[*i] = minIVert1;
+		}
+
+		// merge ivertices: rehook object persistent triangle->topivertex[0..2] from absorbed ivertex to absorbant ivertex
+		// while all other code in this method modifies temporary local data,
+		//  this modifies also persistent object data
+		assert(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xfeee);
+		assert(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xcdcd);
+		for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
+		{
+			for(unsigned i=0;i<3;i++)
+			{
+				if(triangle[t].topivertex[i]==ivertexInfo[minIVert2].ivertex)
+					triangle[t].topivertex[i]=ivertexInfo[minIVert1].ivertex;
+			}
+		}
+
+		// merge ivertices: update object persistent ivertices
+		// while all other code in this method modifies temporary local data,
+		//  this modifies also persistent object data
+		ivertexInfo[minIVert1].absorb(ivertexInfo[minIVert2]);
+	}
+
+	// delete temporaries
+	delete[] vertex2ivertex;
+	delete[] ivertexInfo;
+	return numReduced;
+}
+
 void Object::buildTopIVertices()
 {
 	// check
@@ -573,6 +782,7 @@ void Object::buildTopIVertices()
 		for(int v=0;v<3;v++)
 			assert(!triangle[t].topivertex[v]);
 	}
+
 	// build 1 ivertex for each vertex, insert all corners
 	IVertex *topivertex=new IVertex[vertices];
 	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
@@ -593,9 +803,18 @@ void Object::buildTopIVertices()
 			  );
 		}
 	}
+
 	// merge close ivertices into 1 big + 1 empty
 	// (empty will be later detected and reported as unused)
-	//!!!...
+	unsigned numIVertices = vertices;
+	printf("IVertices loaded: %d\n",numIVertices);
+#ifdef SUPPORT_MIN_FEATURE_SIZE
+	check();
+	numIVertices -= mergeCloseIVertices(topivertex);
+	check();
+	printf("IVertices after merge close: %d\n",numIVertices);
+#endif
+
 	// split ivertices with too different normals
 	int unusedVertices=0;
 	for(unsigned v=0;v<vertices;v++)
@@ -603,13 +822,25 @@ void Object::buildTopIVertices()
 		rrCollider::RRMeshImporter::Vertex vert;
 		meshImporter->getVertex(v,vert);
 		if(!topivertex[v].check(*(Vec3*)&vert)) unusedVertices++;
-		topivertex[v].splitTopLevel((Vec3*)&vert,this);
+		numIVertices += topivertex[v].splitTopLevel((Vec3*)&vert,this);
+		// check that splitted topivertex is no more referenced
+		/*for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
+		{
+			for(unsigned i=0;i<3;i++)
+			{
+				assert(triangle[t].topivertex[i]!=&topivertex[v]);
+			}
+		}*/
 	}
+	printf("IVertices after splitting: %d\n",numIVertices);
+	check();
+
 	// report unused vertices
 	if(unusedVertices)
 	{
-		fprintf(stderr,"Btw, scene contains %i never used vertices.\n",unusedVertices);
+		fprintf(stderr,"Scene contains %i never used vertices.\n",unusedVertices);
 	}
+
 	// for each vertex, store pointer to one of ivertices
 	// helper only for fast approximate render
 	memset(vertexIVertex,0,sizeof(vertexIVertex[0])*vertices);
@@ -627,20 +858,42 @@ void Object::buildTopIVertices()
 			vertexIVertex[un_v]=triangle[t].topivertex[ro_v]; // un[un]=ro[ro]
 		}
 	}
+
+	// delete local array topivertex
+	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
+	{
+		for(unsigned i=0;i<3;i++)
+		{
+			// check that local array topivertex is not referenced here
+			unsigned idx = (unsigned)(triangle[t].topivertex[i]-topivertex);
+			assert(idx>=vertices);
+		}
+	}
 	delete[] topivertex;
+	check();
+
 	// check vertexIVertex validity
 	for(unsigned v=0;v<vertices;v++)
 	{
 		//!!! happens with generated ball, reason unknown
 		//assert(vertexIVertex[v]);
 	}
+
 	// check triangle.topivertex validity
+	check();
 	for(unsigned t=0;t<triangles;t++)
 		for(int v=0;v<3;v++)
 		{
 			//assert(triangle[t].topivertex[v]);
 			assert(!triangle[t].topivertex[v] || triangle[t].topivertex[v]->error!=-45);
+			if(triangle[t].topivertex[v])
+			{
+				assert(triangle[t].topivertex[v]->getNumCorners()!=0xcdcd);
+				assert(triangle[t].topivertex[v]->getNumCorners()!=0xfeee);
+			}
 		}
+
+	check();
 }
 
 
@@ -1539,9 +1792,9 @@ static void iv_findIvPos(SubTriangle *s,IVertex *iv,int type)
 {
 	if(iv==ne_iv) switch(type)
 	{
-		case 0: ne_pos=uv[0]; break;
-		case 1: ne_pos=uv[1]; break;
-		case 2: ne_pos=uv[2]; break;
+		case 0: ne_pos=s->uv[0]; break;
+		case 1: ne_pos=s->uv[1]; break;
+		case 2: ne_pos=s->uv[2]; break;
 		case 3: ne_pos=SUBTRIANGLE(s->sub[0])->uv[0]; break;
 	}
 }

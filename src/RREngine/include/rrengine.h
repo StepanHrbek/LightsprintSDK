@@ -234,6 +234,7 @@ namespace rrEngine
 		RRSS_FIGHT_NEEDLES,        // 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow)
 		RRSSF_FIGHT_SMALLER_AREA,  // smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES
 		RRSSF_FIGHT_SMALLER_ANGLE, // sharper triangles (rad) will be assimilated when FIGHT_NEEDLES
+		RRSSF_MIN_FEATURE_SIZE,    // smaller features may be lost
 		// statistics
 		RRSS_IMPROVE_CALLS,
 		RRSS_BESTS,
