@@ -637,8 +637,8 @@ void RRResetStates()
 	RRSetStateF(RRSSF_FIGHT_SMALLER_ANGLE,0.01f);
 	RRSetStateF(RRSSF_MIN_FEATURE_SIZE,0);
 
-	RRSetStateF(RRSSF_SUBDIVISION_SPEED,0);
-	RRSetStateF(RRSSF_MIN_FEATURE_SIZE,1.037f); //!!!
+	//RRSetStateF(RRSSF_SUBDIVISION_SPEED,0);
+	//RRSetStateF(RRSSF_MIN_FEATURE_SIZE,0.037f); //!!!
 }
 
 unsigned RRGetState(RRSceneState state)

@@ -3,7 +3,7 @@
 
 #define SUPPORT_TRANSFORMS
 #define SUPPORT_SCALE
-//#define SUPPORT_MIN_FEATURE_SIZE
+#define SUPPORT_MIN_FEATURE_SIZE
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 //#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
 //#define LIGHTMAP         // generate lightmap for each Triangle + texturemapping

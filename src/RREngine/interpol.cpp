@@ -620,6 +620,21 @@ void IVertex::absorb(IVertex* aivertex)
 // this <- this+aivertex
 // aivertex <- 0
 {
+	// rehook nodes referencing aivertex to us
+	for(unsigned c=0;c<aivertex->corners;c++)
+	{
+		if(IS_TRIANGLE(aivertex->corner[c].node)) // we handle only triangles as we know only triangles get here
+		{
+			Triangle* tri = TRIANGLE(aivertex->corner[c].node);
+			for(unsigned i=0;i<3;i++)
+			{
+				if(tri->topivertex[i]==aivertex)
+					tri->topivertex[i]=this;
+			}
+
+		} else assert(0);
+	}
+	// move corners
 	while(aivertex->corners)
 	{
 		Corner* c = &aivertex->corner[--aivertex->corners];
@@ -631,6 +646,7 @@ void IVertexInfo::absorb(IVertexInfo& info2)
 // used by: merge close ivertices
 // this <- this+info2
 // info2 <- 0
+// all nodes referencing info2.ivertex are rehooked to us
 {
 	assert(this!=&info2);
 	// set center
@@ -668,6 +684,7 @@ void IVertexInfo::absorb(IVertexInfo& info2)
 
 unsigned Object::mergeCloseIVertices(IVertex* ivertex)
 // merges close ivertices
+// why to do it: eliminates negative effect of needle, both triangles around needle are interpolated as if there is no needle
 // returns number of merges (each merge = 1 ivertex reduced)
 /* first plan of algorithm:
 vertex2ivertex: kazdy vertex ma seznamek do kterych patri ivertexu
@@ -704,13 +721,14 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 	}
 
 	// work until done
+	unsigned ivertex1Idx = 0;
 	while(1)
 	{
 		// find closest ivertex - ivertex pair
-		real minDist2 = 1e30f;
+		real minDist = 1e30f;
 		unsigned minIVert1 = 0;
 		unsigned minIVert2 = 0;
-		for(unsigned ivertex1Idx=0;ivertex1Idx<ivertices;ivertex1Idx++)
+		for(;ivertex1Idx<ivertices;ivertex1Idx++)
 			if(ivertexInfo[ivertex1Idx].ourVertices.size())
 		{
 			assert(ivertexInfo[ivertex1Idx].ivertex->getNumCorners()!=0xfeee);
@@ -723,20 +741,20 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 				unsigned ivertex2Idx = vertex2ivertex[vertex2Idx];
 				assert(ivertex1Idx!=ivertex2Idx);
 				// measure distance
-				real dist2 = size2(ivertexInfo[ivertex1Idx].center-ivertexInfo[ivertex2Idx].center);
-				assert(dist2); // teoreticky muze nastat kdyz objekt obsahuje vic vertexu na stejnem miste
+				real dist = size(ivertexInfo[ivertex1Idx].center-ivertexInfo[ivertex2Idx].center);
+				assert(dist); // teoreticky muze nastat kdyz objekt obsahuje vic vertexu na stejnem miste
 				// store the best
-				if(dist2<minDist2)
+				if(dist<minDist)
 				{
-					minDist2 = dist2;
+					minDist = dist;
 					minIVert1 = ivertex1Idx;
 					minIVert2 = ivertex2Idx;
 				}
 			}
+			if(minDist<=RRGetStateF(RRSSF_MIN_FEATURE_SIZE)) break;
 		}
 
 		// end if not close enough
-		real minDist = sqrt(minDist2);
 		if(minDist>RRGetStateF(RRSSF_MIN_FEATURE_SIZE)) break;
 		numReduced++;
 
@@ -752,14 +770,14 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 		//  this modifies also persistent object data
 		assert(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xfeee);
 		assert(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xcdcd);
-		for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
+		/*for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 		{
 			for(unsigned i=0;i<3;i++)
 			{
 				if(triangle[t].topivertex[i]==ivertexInfo[minIVert2].ivertex)
 					triangle[t].topivertex[i]=ivertexInfo[minIVert1].ivertex;
 			}
-		}
+		}*/
 
 		// merge ivertices: update object persistent ivertices
 		// while all other code in this method modifies temporary local data,
