@@ -33,9 +33,9 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	// transform from scenespace to objectspace
 	Vec3 rayDir;
 	real scale = 1;
+#ifdef SUPPORT_TRANSFORMS
 	real oldRayLengthMin;
 	real oldRayLengthMax;
-#ifdef SUPPORT_TRANSFORMS
 	// translation+rotation allowed, no scaling, so direction stays normalized
 	if(inverseMatrix)
 	{

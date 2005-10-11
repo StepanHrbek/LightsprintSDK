@@ -9,17 +9,25 @@ namespace rrEngine
 
 /*
 INTERPOL_BETWEEN tells if it's good idea to interpolate between two triangles
- different surface -> yes (was no, but it was in time when exitances were interpolated. now we interpolate irradiances)
- (angle too big) * (areas of too different size) -> no
-If we interpolate between areas of too different size, small dark tri + large lit tri would
- go both to grey which makes scene much darker than it should be.
+ when to not interpol?
+   obsoleted: different surface
+     was good in time when exitances were interpolated. now we interpolate irradiances
+   obsoleted: (angle too big) * (areas of too different size)
+     had following explanation:
+     "If we interpolate between areas of too different size, small dark tri + large lit tri would
+     go both to grey which makes scene much darker than it should be."
+     Now problem is solved by power*=node->area which means that smaller face makes smaller 
+	 contribution to ivertex color.
+   used: (angle too big)
 */
-#define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=(MIN(t1->area,t2->area)/(t1->area+t2->area)*2+0.2f)*MAX_INTERPOL_ANGLE /*&& t1->grandpa->surface==t2->grandpa->surface*/)
+#define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=/*(MIN(t1->area,t2->area)/(t1->area+t2->area)*2+0.2f)**/MAX_INTERPOL_ANGLE /*&& t1->grandpa->surface==t2->grandpa->surface*/)
 #define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->getN3(),t2->grandpa->getN3()))
 
 #ifdef SUPPORT_MIN_FEATURE_SIZE
-	// vypnuto protoze posouva vertexy do pozice jejich ivertexu, coz pri mergovani blizkych ivertexu neni zadouci
+	// Vypnuto protoze rendereru dava vertexy v pozici jejich ivertexu,
+	// coz pri mergovani blizkych ivertexu neni zadouci.
 #else
+	// Zapnuto.
 	#define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)
 #endif
 

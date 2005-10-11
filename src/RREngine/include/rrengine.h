@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.10.5
+// version 2005.10.12
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -28,11 +28,7 @@
 	#ifdef RRENGINE_IMPORT
 		// use dll
 		#define RRENGINE_API __declspec(dllimport)
-		#ifdef NDEBUG
-			#pragma comment(lib,"RREngine.lib")
-		#else
-			#pragma comment(lib,"RREngine_d.lib")
-		#endif
+		#pragma comment(lib,"RREngine.lib")
 	#else
 		// use static library
 		#define RRENGINE_API

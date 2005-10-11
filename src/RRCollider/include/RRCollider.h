@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.10.5
+// version 2005.10.12
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -33,11 +33,7 @@
 	#ifdef RRCOLLIDER_IMPORT
 		// use dll
 		#define RRCOLLIDER_API __declspec(dllimport)
-		#ifdef NDEBUG
-			#pragma comment(lib,"RRCollider.lib")
-		#else
-			#pragma comment(lib,"RRCollider_d.lib")
-		#endif
+		#pragma comment(lib,"RRCollider.lib")
 	#else
 		// use static library
 		#define RRCOLLIDER_API

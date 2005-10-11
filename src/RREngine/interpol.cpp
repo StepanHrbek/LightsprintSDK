@@ -1,5 +1,4 @@
 
-//#include <algorithm>
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
@@ -97,11 +96,15 @@ bool IVertex::check(Point3 apoint)
 
 void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 {
+	// new interpolation scheme "power*=node->area" now doesn't works with subdivision
+	if(RRGetStateF(RRSSF_SUBDIVISION_SPEED)==0)
+		power *= node->area;
+
 	if(node->grandpa && node->grandpa->isNeedle) power=0; // ignorovat prispevky jehel
 #ifdef IV_POINT
 	if(size2(apoint))
 	{
-		assert(power<M_PI+0.001);
+		//assert(power<M_PI+0.001); had sense before power*=node->area
 		if(size2(point)==0) point=apoint; else
 		  assert(size2(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
 	}
@@ -579,6 +582,7 @@ void Cluster::removeFromIVertices(Node *node)
 }
 #endif
 
+#ifdef SUPPORT_MIN_FEATURE_SIZE
 void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo& info)
 // used by: merge close ivertices
 // fills structure with information about us
@@ -766,22 +770,11 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 		}
 
 		// merge ivertices: rehook object persistent triangle->topivertex[0..2] from absorbed ivertex to absorbant ivertex
+		// merge ivertices: update object persistent ivertices
 		// while all other code in this method modifies temporary local data,
 		//  this modifies also persistent object data
 		assert(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xfeee);
 		assert(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xcdcd);
-		/*for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
-		{
-			for(unsigned i=0;i<3;i++)
-			{
-				if(triangle[t].topivertex[i]==ivertexInfo[minIVert2].ivertex)
-					triangle[t].topivertex[i]=ivertexInfo[minIVert1].ivertex;
-			}
-		}*/
-
-		// merge ivertices: update object persistent ivertices
-		// while all other code in this method modifies temporary local data,
-		//  this modifies also persistent object data
 		ivertexInfo[minIVert1].absorb(ivertexInfo[minIVert2]);
 	}
 
@@ -790,6 +783,7 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 	delete[] ivertexInfo;
 	return numReduced;
 }
+#endif
 
 void Object::buildTopIVertices()
 {
@@ -828,9 +822,17 @@ void Object::buildTopIVertices()
 	printf("IVertices loaded: %d\n",numIVertices);
 #ifdef SUPPORT_MIN_FEATURE_SIZE
 	check();
-	numIVertices -= mergeCloseIVertices(topivertex);
-	check();
-	printf("IVertices after merge close: %d\n",numIVertices);
+	// volano jen pokud ma neco delat -> malinka uspora casu
+	if(RRGetStateF(RRSSF_MIN_FEATURE_SIZE)>0)
+	{
+		// Pouha existence nasledujiciho radku (mergeCloseIVertices) i kdyz se nikdy neprovadi
+		// zpomaluje cube v MSVC o 8%.
+		// Nevyresena zahada.
+		// Ona fce je jedine misto pouzivajici exceptions, ale exceptions jsou vyple (jejich zapnuti zpomali o dalsich 12%).
+		numIVertices -= mergeCloseIVertices(topivertex);
+		check();
+		printf("IVertices after merge close: %d\n",numIVertices);
+	}
 #endif
 
 	// split ivertices with too different normals

@@ -439,7 +439,12 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 			&obj->vertex[tv[0]],
 			&obj->vertex[tv[1]],
 			&obj->vertex[tv[2]],
-			obj->transformMatrix);
+#ifdef SUPPORT_TRANSFORMS
+			obj->transformMatrix
+#else
+			NULL
+#endif
+			);
 		if(t->isValid) 
 		{
 			const real* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(fi);
@@ -472,7 +477,9 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 	// priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
 	obj->id=0;//!!!
 	obj->name=NULL;
+#ifdef SUPPORT_TRANSFORMS
 	obj->transformBound();
+#endif
 	// vlozi objekt do sceny
 #ifdef SUPPORT_DYNAMIC
 	if (0) 
@@ -638,7 +645,7 @@ void RRResetStates()
 	RRSetStateF(RRSSF_MIN_FEATURE_SIZE,0);
 
 	//RRSetStateF(RRSSF_SUBDIVISION_SPEED,0);
-	//RRSetStateF(RRSSF_MIN_FEATURE_SIZE,0.037f); //!!!
+	//RRSetStateF(RRSSF_MIN_FEATURE_SIZE,10.037f); //!!!
 }
 
 unsigned RRGetState(RRSceneState state)
