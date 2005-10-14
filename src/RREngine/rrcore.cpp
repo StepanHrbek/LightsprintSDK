@@ -1276,6 +1276,7 @@ Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalExitingFlux)
 #ifndef ONLY_PLAYER
 	// load triangle shooter with energy emited by surface
 	assert(shooter);
+	assert(sum(abs(e))<1e10);
 	shooter->energyToDiffuse=e;
 	// load received energy accumulator
 	energyDirect=e;

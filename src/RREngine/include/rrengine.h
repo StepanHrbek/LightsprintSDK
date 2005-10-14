@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
-// version 2005.10.12
+// version 2005.10.14
 // http://dee.cz/rr
 //
 // Copyright (C) Stepan Hrbek 1999-2005
@@ -188,6 +188,7 @@ namespace rrEngine
 		void          sceneSetColorFilter(const RRReal* colorFilter);
 		Improvement   sceneResetStatic(bool resetFactors);
 		Improvement   sceneImproveStatic(bool endfunc(void*), void* context);
+		RRReal        sceneGetAccuracy();
 
 		// read results
 		struct InstantRadiosityPoint
@@ -224,13 +225,14 @@ namespace rrEngine
 		RRSSF_SUBDIVISION_SPEED,   // speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast
 		RRSS_GET_SOURCE,           // results from getXxxRadiantExitance contain input emittances
 		RRSS_GET_REFLECTED,        // results from getXxxRadiantExitance contain additional exitances calculated by radiosity
-		RRSS_INTERSECT_TECHNIQUE,  // IT_XXX, 0=most compact, 4=fastest
+		RRSS_GET_SMOOTH,           // results from getXxxRadiantExitance are smoothed
+		RRSSF_MIN_FEATURE_SIZE,    // smaller features may be lost
+		RRSSF_MAX_SMOOTH_ANGLE,    // smaller angles between faces may be smoothed/interpolated
 		RRSSF_IGNORE_SMALLER_AREA, // minimal allowed area of triangle (m^2), smaller triangles are ignored
 		RRSSF_IGNORE_SMALLER_ANGLE,// minimal allowed angle in triangle (rad), sharper triangles are ignored
 		RRSS_FIGHT_NEEDLES,        // 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow)
 		RRSSF_FIGHT_SMALLER_AREA,  // smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES
 		RRSSF_FIGHT_SMALLER_ANGLE, // sharper triangles (rad) will be assimilated when FIGHT_NEEDLES
-		RRSSF_MIN_FEATURE_SIZE,    // smaller features may be lost
 		// statistics
 		RRSS_IMPROVE_CALLS,
 		RRSS_BESTS,

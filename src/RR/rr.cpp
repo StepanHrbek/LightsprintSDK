@@ -818,6 +818,7 @@ int main(int argc, char **argv)
 #ifdef SUPPORT_KAMIL
  bool kamil=false;
 #endif
+ rrCollider::RRCollider::IntersectTechnique intersectTechnique = rrCollider::RRCollider::IT_BSP_FASTEST;
 
  assert(sizeof(U8)==1);
  assert(sizeof(U16)==2);
@@ -857,10 +858,10 @@ int main(int argc, char **argv)
         {float tmp;if(sscanf(argv[i],"-bright%f",&tmp)==1) d_bright=tmp; else goto badarg;}
      else
      if (!strncmp(argv[i],"-it",2))
-        {int tmp;if(sscanf(argv[i],"-it%i",&tmp)==1) RRSetState(RRSS_INTERSECT_TECHNIQUE,tmp); else goto badarg;}
+        {int tmp;if(sscanf(argv[i],"-it%i",&tmp)==1) intersectTechnique = (rrCollider::RRCollider::IntersectTechnique)tmp; else goto badarg;}
      else
      if (!strncmp(argv[i],"-smooth",7))
-        {float tmp;if(sscanf(argv[i],"-smooth%f",&tmp)==1) MAX_INTERPOL_ANGLE=tmp; else goto badarg;}
+        {float tmp;if(sscanf(argv[i],"-smooth%f",&tmp)==1) RRSetStateF(RRSSF_MAX_SMOOTH_ANGLE,tmp); else goto badarg;}
      else
      if (!strcmp(argv[i],"-j"))
         c_fightNeedles=true;
@@ -955,7 +956,7 @@ int main(int argc, char **argv)
  // zkonvertuje world na scene
  strcpy(p_ffName,scenename);
  p_ffName[strlen(p_ffName)-4]=0;// do p_ffName da jmeno sceny bez pripony
- rrscene=convert_world2scene(__world,bp("%s.mgf",p_ffName));
+ rrscene=convert_world2scene(__world,bp("%s.mgf",p_ffName),intersectTechnique);
  if(!rrscene) help();
  scene=(Scene*)rrscene->getScene();
  if(!scene) help();

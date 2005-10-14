@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.10.12
+// version 2005.10.14
 // http://dee.cz/rr
 //
 // - thread safe, you can calculate any number of intersections at the same time
@@ -119,7 +119,7 @@ namespace rrCollider
 			OPTIMIZED_TRIANGLES = (1<<2), // remove degenerated triangles
 		};
 		static RRMeshImporter* create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride);
-		static RRMeshImporter* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount);
+		static RRMeshImporter* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
 		RRMeshImporter*        createCopy();
 		static RRMeshImporter* createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes);
 		bool                   save(char* filename);

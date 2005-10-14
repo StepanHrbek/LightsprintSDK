@@ -453,7 +453,10 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 			obj->objSourceExitingFlux+=abs(t->setSurface(s,sumExitance));
 		}
 		else
-			t->surface=NULL;
+		{
+			t->surface=NULL; // marks invalid triangles
+			t->area=0; // just to have consistency through all invalid triangles
+		}
 	}
 	   
 #ifdef SUPPORT_DYNAMIC
@@ -522,6 +525,11 @@ RRScene::Improvement RRScene::sceneImproveStatic(bool endfunc(void*), void* cont
 	return scene->improveStatic(endfunc, context);
 }
 
+RRReal RRScene::sceneGetAccuracy()
+{
+	return scene->avgAccuracy();
+}
+
 void RRScene::compact()
 {
 }
@@ -550,17 +558,33 @@ const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned trian
 	assert(triangle<obj->triangles);
 	Triangle* tri = &obj->triangle[triangle];
 	if(!tri->surface) return 0;
-	//if(vertex>=3) return (tri->energyDirect + tri->getEnergyDynamic()) / tri->area;
-	vertex=(vertex+3-tri->rotations)%3;
-
-	Channels reflIrrad = Channels(0);
-	if(RRGetState(RRSS_GET_REFLECTED))
+	Channels irrad;
+	if(vertex<3 && RRGetState(RRSS_GET_SMOOTH))
 	{
-		unsigned oldSource = RRSetState(RRSS_GET_SOURCE,0);
-		reflIrrad = tri->topivertex[vertex]->irradiance();
-		RRSetState(RRSS_GET_SOURCE,oldSource);
+		vertex=(vertex+3-tri->rotations)%3;
+
+		Channels reflIrrad = Channels(0);
+		if(RRGetState(RRSS_GET_REFLECTED))
+		{
+			unsigned oldSource = RRSetState(RRSS_GET_SOURCE,0);
+			reflIrrad = tri->topivertex[vertex]->irradiance();
+			RRSetState(RRSS_GET_SOURCE,oldSource);
+		}
+		irrad = (RRGetState(RRSS_GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
 	}
-	Channels irrad = (RRGetState(RRSS_GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
+	else
+	{
+		if(!RRGetState(RRSS_GET_SOURCE) && !RRGetState(RRSS_GET_REFLECTED)) 
+			irrad = Channels(0);
+		else
+		if(RRGetState(RRSS_GET_SOURCE) && !RRGetState(RRSS_GET_REFLECTED)) 
+			irrad = tri->getSourceIrradiance();
+		else
+		if(RRGetState(RRSS_GET_SOURCE) && RRGetState(RRSS_GET_REFLECTED)) 
+			irrad = (tri->energyDirectIncident + tri->getEnergyDynamic()) / tri->area;
+		else
+			irrad = (tri->energyDirectIncident + tri->getEnergyDynamic()) / tri->area - tri->getSourceIrradiance();
+	}
 	static RRColor tmp;
 #if CHANNELS == 1
 	tmp[0] = irrad*__colorFilter[0];
@@ -637,12 +661,14 @@ void RRResetStates()
 	RRSetStateF(RRSSF_SUBDIVISION_SPEED,1);
 	RRSetState(RRSS_GET_SOURCE,1);
 	RRSetState(RRSS_GET_REFLECTED,1);
-	RRSetState(RRSS_INTERSECT_TECHNIQUE,rrCollider::RRCollider::IT_BSP_FASTEST);
+	RRSetState(RRSS_GET_SMOOTH,1);
+	RRSetStateF(RRSSF_MIN_FEATURE_SIZE,0);
+	RRSetStateF(RRSSF_MAX_SMOOTH_ANGLE,M_PI/10+0.01f);
 	RRSetStateF(RRSSF_IGNORE_SMALLER_AREA,SMALL_REAL);
 	RRSetStateF(RRSSF_IGNORE_SMALLER_ANGLE,0.001f);
+	RRSetState(RRSS_FIGHT_NEEDLES,0);
 	RRSetStateF(RRSSF_FIGHT_SMALLER_AREA,0.01f);
 	RRSetStateF(RRSSF_FIGHT_SMALLER_ANGLE,0.01f);
-	RRSetStateF(RRSSF_MIN_FEATURE_SIZE,0);
 
 	//RRSetStateF(RRSSF_SUBDIVISION_SPEED,0);
 	//RRSetStateF(RRSSF_MIN_FEATURE_SIZE,10.037f); //!!!

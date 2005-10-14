@@ -13,8 +13,6 @@ namespace rrEngine
 //#define LOG_LOADING_MES
 #define MAX_NEIGHBOUR_DISTANCE 0.01
 
-real MAX_INTERPOL_ANGLE=M_PI/10+0.01f; // default max angle between interpolated neighbours
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // ivertex pool
@@ -186,7 +184,7 @@ unsigned IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
 		for(unsigned j=0;j<i;j++)
 		{
 			for(unsigned k=0;k<corners;k++)
-				if( INTERPOL_BETWEEN(corner[i].node,corner[k].node)
+				if(INTERPOL_BETWEEN(corner[i].node,corner[k].node)
 				   !=((*topivertex[j])->contains(corner[k].node)) )
 					goto j_differs_i;
 			v=*topivertex[j];

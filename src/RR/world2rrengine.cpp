@@ -16,7 +16,7 @@
 class WorldObjectImporter : public rrEngine::RRObjectImporter
 {
 public:
-	WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces);
+	WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces, rrCollider::RRCollider::IntersectTechnique intersectTechnique);
 	virtual ~WorldObjectImporter();
 
 	// must not change during object lifetime
@@ -36,13 +36,13 @@ private:
 	rrCollider::RRCollider* collider;
 };
 
-WorldObjectImporter::WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces)
+WorldObjectImporter::WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces, rrCollider::RRCollider::IntersectTechnique intersectTechnique)
 {
 	world = aworld;
 	object = aobject;
 	surface = asurface;
 	surfaces = asurfaces;
-	collider = rrCollider::RRCollider::create(new WorldMeshImporter(aobject),(rrCollider::RRCollider::IntersectTechnique)RRGetState(RRSS_INTERSECT_TECHNIQUE));
+	collider = rrCollider::RRCollider::create(new WorldMeshImporter(aobject),intersectTechnique);
 	assert(world);
 	assert(surface);
 
@@ -217,7 +217,7 @@ static void load_materials(WORLD* world, char *material_mgf)
 	}
 }
 
-RRScene *convert_world2scene(WORLD *world, char *material_mgf)
+RRScene *convert_world2scene(WORLD *world, char *material_mgf, rrCollider::RRCollider::IntersectTechnique intersectTechnique)
 {
 	// load surfaces
 	load_materials(world, material_mgf);
@@ -227,7 +227,7 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf)
 	for (int o=0;o<world->object_num;o++) 
 	{
 		// dynamic = w->object[o].pos.num!=1 || w->object[o].rot.num!=1
-		WorldObjectImporter* importer = new WorldObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces);
+		WorldObjectImporter* importer = new WorldObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces, intersectTechnique);
 		RRScene::ObjectHandle handle = rrscene->objectCreate(importer);
 		world->object[o].obj = rrscene->getObject(handle);
 	}	
