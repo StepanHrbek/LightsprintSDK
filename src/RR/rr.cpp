@@ -828,6 +828,7 @@ int main(int argc, char **argv)
  kb_init();
  glutInit(&argc,argv);
  render_init();
+ //rrCollider::CertifyLicense("Dee","Ql7VMhtY4byuXUBgsfOmJVv4riqZHRSJ00cbAeazXikryyMsEI");
 
  //char buf[400]; infoStructs(buf); puts(buf);
 

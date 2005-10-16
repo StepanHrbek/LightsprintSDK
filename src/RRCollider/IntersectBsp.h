@@ -7,18 +7,29 @@
 #define SUPPORT_EMPTY_KDNODE // only FASTEST: typically tiny, rarely big speedup (bunny); typically a bit, rarely much slower and memory hungry build (soda)
 //#define BAKED_TRIANGLE
 
-#include "IntersectLinear.h"
+#ifdef RRCOLLIDER_EXPORT
+	#define GATE_TIME 61 // tolik dni pred expiration day je licence platna
+#endif
+
 
 #include <assert.h>
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
-#include <time.h>  //gate
+
 #include "bsp.h"
 #include "cache.h"
+#include "IntersectLinear.h"
+#include "LicGen.h"
+#include "sha1.h"
 
 namespace rrCollider
 {
+
+#ifdef GATE_TIME
+	extern char licenseOwner[100];
+	extern char licenseNumber[100];
+#endif
 
 	// single-level bps
 	template <class Ofs, class TriInfo, class Lo>
@@ -209,6 +220,12 @@ namespace rrCollider
 		bool retried = false;
 		char name[300];
 		getFileName(name,300,importer,cacheLocation,ext);
+
+#ifdef GATE_TIME
+		EXTRACT_EXPIRATION_DAY;
+		if(nowDay+GATE_TIME<expDay || nowDay>expDay) return NULL;
+#endif
+
 		FILE* f = buildParams->forceRebuild ? NULL : fopen(name,"rb");
 		if(!f)
 		{
@@ -273,8 +290,7 @@ namespace rrCollider
 				goto retry;
 			}
 		}
-		time_t t = time(NULL);
-		if(t<1128467785+2 || t>1128467785+83*24*3599) {free(tree); tree = NULL;} // 5.10.2005
+
 		return tree;
 	}
 

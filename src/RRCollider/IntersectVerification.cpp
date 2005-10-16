@@ -16,7 +16,12 @@ IntersectVerification::IntersectVerification(RRMeshImporter* importer)
 	for(unsigned i=0;i<IT_VERIFICATION;i++)
 	{
 		collider[i] = RRCollider::create(importer,(RRCollider::IntersectTechnique)i);
-		assert(collider[i]->getTechnique()==i);
+		/*if(collider[i]->getTechnique()!=i)
+		{
+			assert(0);
+			delete collider[i];
+			collider[i] = RRCollider::create(importer,RRCollider::IT_LINEAR);
+		}*/
 	}
 	unsigned vertices = importer->getNumVertices();
 }

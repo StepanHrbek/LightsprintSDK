@@ -294,6 +294,9 @@
 				RelativePath="..\IntersectVerification.h">
 			</File>
 			<File
+				RelativePath="..\LicGen.h">
+			</File>
+			<File
 				RelativePath="..\miniball.h">
 			</File>
 			<File

@@ -28,6 +28,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyTest", "..\..\BunnyTes
 		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49} = {D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LicGen", "..\..\RRCollider\vs\LicGen.vcproj", "{CC592789-E5B9-4302-943E-E11BA53E0C5F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -71,6 +75,12 @@ Global
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release.Build.0 = Release|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release DLL.ActiveCfg = Release|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release DLL.Build.0 = Release|Win32
+		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Debug.ActiveCfg = Debug|Win32
+		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Debug.Build.0 = Debug|Win32
+		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release.ActiveCfg = Release|Win32
+		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release.Build.0 = Release|Win32
+		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release DLL.ActiveCfg = Release|Win32
+		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release DLL.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
