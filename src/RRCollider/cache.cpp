@@ -37,7 +37,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
 	sha1::sha1_starts(&ctx);
 	if(TREE_VERSION)
 	{
-		uint8 ver = TREE_VERSION;
+		sha1::uint8 ver = TREE_VERSION;
 		sha1::sha1_update(&ctx, &ver, 1);
 	}
 	unsigned i = importer->getNumVertices();

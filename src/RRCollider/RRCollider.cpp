@@ -13,6 +13,8 @@
 #include <vector>
 
 
+rrLicense::License* rrLicense::lic = NULL;
+
 namespace rrCollider
 {
 
@@ -1017,18 +1019,11 @@ void RRIntersectStats::getInfo(char *buf, unsigned len, unsigned level) const
 	buf[len]=0;
 }
 
-#ifdef GATE_TIME
-char licenseOwner[100] = "\0";
-char licenseNumber[100] = "\0";
-#endif
-
-void CertifyLicense(char* alicenseOwner, char* alicenseNumber)
+void CertifyLicense(char* licenseOwner, char* licenseNumber)
 {
 #ifdef GATE_TIME
-	memset(licenseOwner,0,100);
-	strncpy(licenseOwner,alicenseOwner,99);
-	memset(licenseNumber,0,100);
-	strncpy(licenseNumber,alicenseNumber,99);
+	delete rrLicense::lic;
+	rrLicense::lic = new rrLicense::License(licenseOwner,licenseNumber);
 #endif
 }
 

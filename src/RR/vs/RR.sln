@@ -12,6 +12,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cnv2bsp", "..\..\cnv2bsp\vs
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRCollider", "..\..\RRCollider\vs\RRCollider.vcproj", "{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}"
 	ProjectSection(ProjectDependencies) = postProject
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RREngine", "..\..\RREngine\vs\RREngine.vcproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
@@ -29,6 +30,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyTest", "..\..\BunnyTes
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LicGen", "..\..\RRCollider\vs\LicGen.vcproj", "{CC592789-E5B9-4302-943E-E11BA53E0C5F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSA", "..\..\..\3rd\RSA\RSA.vcproj", "{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -81,6 +87,12 @@ Global
 		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release.Build.0 = Release|Win32
 		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release DLL.ActiveCfg = Release|Win32
 		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Release DLL.Build.0 = Release|Win32
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug.ActiveCfg = Debug|Win32
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug.Build.0 = Debug|Win32
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release.ActiveCfg = Release|Win32
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release.Build.0 = Release|Win32
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release DLL.ActiveCfg = Release|Win32
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release DLL.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

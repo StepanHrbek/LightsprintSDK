@@ -26,11 +26,6 @@
 namespace rrCollider
 {
 
-#ifdef GATE_TIME
-	extern char licenseOwner[100];
-	extern char licenseNumber[100];
-#endif
-
 	// single-level bps
 	template <class Ofs, class TriInfo, class Lo>
 	struct BspTree1
@@ -219,10 +214,15 @@ namespace rrCollider
 		BspTree* tree = NULL;
 		bool retried = false;
 		char name[300];
+#ifdef GATE_TIME
+		if(!rrLicense::lic) return NULL;
+		time_t nowTime = time(NULL);
+		unsigned nowDay = (unsigned)(nowTime/24/3600);
+#endif
 		getFileName(name,300,importer,cacheLocation,ext);
 
 #ifdef GATE_TIME
-		EXTRACT_EXPIRATION_DAY;
+		unsigned expDay = rrLicense::lic->verify();
 		if(nowDay+GATE_TIME<expDay || nowDay>expDay) return NULL;
 #endif
 
@@ -294,6 +294,6 @@ namespace rrCollider
 		return tree;
 	}
 
-}
+} // namespace
 
 #endif

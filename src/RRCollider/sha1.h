@@ -8,13 +8,8 @@
 namespace sha1
 {
 
-	#ifndef uint8
-	#define uint8  unsigned char
-	#endif
-
-	#ifndef uint32
-	#define uint32 unsigned long int
-	#endif
+	typedef unsigned char uint8;
+	typedef unsigned int uint32;
 
 	struct sha1_context
 	{
