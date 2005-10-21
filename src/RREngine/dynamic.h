@@ -1,7 +1,7 @@
 #ifdef SUPPORT_DYNAMIC
 
-#ifndef RRENGINE_DYNAMIC_H
-#define RRENGINE_DYNAMIC_H
+#ifndef RRVISION_DYNAMIC_H
+#define RRVISION_DYNAMIC_H
 
 #if CHANNELS != 1
 #error dynamic.* is not adjusted for CHANNELS!=1

@@ -1,5 +1,5 @@
-#ifndef _WORLD2RRENGINE_H
-#define _WORLD2RRENGINE_H
+#ifndef _WORLD2RRVISION_H
+#define _WORLD2RRVISION_H
 
 #include "World.h"
 #include "RREngine.h"

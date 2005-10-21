@@ -1,6 +1,6 @@
 
-#ifndef RRENGINE_INTERPOL_H
-#define RRENGINE_INTERPOL_H
+#ifndef RRVISION_INTERPOL_H
+#define RRVISION_INTERPOL_H
 
 #include <set>
 

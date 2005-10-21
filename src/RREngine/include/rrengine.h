@@ -1,5 +1,5 @@
-#ifndef RRENGINE_RRENGINE_H
-#define RRENGINE_RRENGINE_H
+#ifndef RRVISION_RRVISION_H
+#define RRVISION_RRVISION_H
 
 //////////////////////////////////////////////////////////////////////////////
 // RREngine - library for realtime radiosity calculations
@@ -21,17 +21,17 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
-	#ifdef RRENGINE_EXPORT
+	#ifdef RRVISION_EXPORT
 		// build dll
-		#define RRENGINE_API __declspec(dllexport)
+		#define RRVISION_API __declspec(dllexport)
 	#else
-	#ifdef RRENGINE_IMPORT
+	#ifdef RRVISION_IMPORT
 		// use dll
-		#define RRENGINE_API __declspec(dllimport)
+		#define RRVISION_API __declspec(dllimport)
 		#pragma comment(lib,"RREngine.lib")
 	#else
 		// use static library
-		#define RRENGINE_API
+		#define RRVISION_API
 		#ifdef NDEBUG
 			#pragma comment(lib,"RREngine_s.lib")
 		#else
@@ -41,7 +41,7 @@
 	#endif
 #else
 	// use static library
-	#define RRENGINE_API
+	#define RRVISION_API
 #endif
 
 #include "RRCollider.h"
@@ -123,7 +123,7 @@ namespace rrVision
 	//  - A has pointer to B
 	//  - note that there is no automatic reference counting in B and no automatic destruction of B from A
 
-	class RRENGINE_API RRObjectImporter
+	class RRVISION_API RRObjectImporter
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
@@ -160,7 +160,7 @@ namespace rrVision
 	// You can create multiple RRScenes and perform independent calculations.
 	// But only serially, code is not thread safe.
 
-	class RRENGINE_API RRScene
+	class RRVISION_API RRScene
 	{
 	public:
 		RRScene();
@@ -242,11 +242,11 @@ namespace rrVision
 		RRSS_LAST
 	};
 
-	void     RRENGINE_API RRResetStates();
-	unsigned RRENGINE_API RRGetState(RRSceneState state);
-	unsigned RRENGINE_API RRSetState(RRSceneState state, unsigned value);
-	RRReal   RRENGINE_API RRGetStateF(RRSceneState state);
-	RRReal   RRENGINE_API RRSetStateF(RRSceneState state, RRReal value);
+	void     RRVISION_API RRResetStates();
+	unsigned RRVISION_API RRGetState(RRSceneState state);
+	unsigned RRVISION_API RRSetState(RRSceneState state, unsigned value);
+	RRReal   RRVISION_API RRGetStateF(RRSceneState state);
+	RRReal   RRVISION_API RRSetStateF(RRSceneState state, RRReal value);
 
 
 	// -- temporary --
@@ -257,8 +257,8 @@ namespace rrVision
 		RRReal dist;
 	};
 	#define MAX_DBGRAYS 10000
-	extern RRENGINE_API DbgRay dbgRay[MAX_DBGRAYS];
-	extern RRENGINE_API unsigned dbgRays;
+	extern RRVISION_API DbgRay dbgRay[MAX_DBGRAYS];
+	extern RRVISION_API unsigned dbgRays;
 
 } // namespace
 

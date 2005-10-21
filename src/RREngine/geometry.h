@@ -1,5 +1,5 @@
-#ifndef RRENGINE_GEOMETRY_H
-#define RRENGINE_GEOMETRY_H
+#ifndef RRVISION_GEOMETRY_H
+#define RRVISION_GEOMETRY_H
 
 #include "RREngine.h" // RRReal
 #include <float.h> // _finite
