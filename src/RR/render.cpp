@@ -29,7 +29,7 @@
 #endif
 #endif
 
-#include "../RREngine/rrcore.h"//!!!
+#include "../RRVision/rrcore.h"//!!!
 using namespace rrVision;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ bool    d_gouraud=true;
 bool    d_gouraud3=false;
 char    d_needle=0;             // 0=pink 1=retusovat jehly (pomale kresleni)
 char    d_meshing=2;            // 0=source faces, 1=reflector meshing, 2=receiver meshing
-char    d_engine=0;             // output via rrengine interface, no direct access
+char    d_engine=0;             // output via rrvision interface, no direct access
 float   d_details=256;
 bool    d_pointers=false;       // jako barvu pouzit pointer na subtriangle
 void   *d_factors2=NULL;        // zobrazi faktory do nodu

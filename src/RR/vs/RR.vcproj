@@ -485,7 +485,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\world2rrengine.cpp">
+				RelativePath="..\world2rrvision.cpp">
 			</File>
 			<File
 				RelativePath="..\world2rrintersect.cpp">
@@ -570,7 +570,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\world2rrengine.h">
+				RelativePath="..\world2rrvision.h">
 			</File>
 			<File
 				RelativePath="..\world2rrintersect.h">

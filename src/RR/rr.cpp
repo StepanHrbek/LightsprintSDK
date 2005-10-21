@@ -28,12 +28,12 @@
 #include "ldmgf.h"
 #include "misc.h"
 #include "render.h"
-#include "RREngine.h"
+#include "RRVision.h"
 #include "surface.h"
 #include "World.h"
-#include "world2rrengine.h"
+#include "world2rrvision.h"
 
-#include "../RREngine/rrcore.h"//!!!
+#include "../RRVision/rrcore.h"//!!!
 using namespace rrVision;
 
 WORLD  *__world=NULL;

@@ -2,7 +2,7 @@
 #define _RENDER_H
 
 #include "world.h"
-#include "RREngine.h" // rrscene
+#include "RRVision.h" // rrscene
 
 // d=draw params
 extern float   d_gamma;
@@ -12,7 +12,7 @@ extern bool    d_gouraud;
 extern bool    d_gouraud3;
 extern char    d_needle;          // 0=pink 1=retusovat jehly (pomale kresleni)
 extern char    d_meshing;         // 0=source faces, 1=reflector meshing, 2=receiver meshing
-extern char    d_engine;          // output via rrengine interface, no direct access
+extern char    d_engine;          // output via rrvision interface, no direct access
 extern float   d_details;
 extern bool    d_pointers;        // jako barvu pouzit pointer na subtriangle
 extern void   *d_factors2;        // zobrazi faktory do nodu

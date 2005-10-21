@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "ldmgf.h"
-#include "RREngine.h"
-#include "world2rrengine.h"
+#include "RRVision.h"
+#include "world2rrvision.h"
 #include "world2rrintersect.h"
 #include "surface.h"
 

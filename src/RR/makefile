@@ -19,14 +19,14 @@
 CC = gcc
 CPP = gcc
 CFLAGS = -Wall -I../../include -DSUPPORT_INTERPOL
-LIBS = -lz -lm -lmgf -lstdc++ -L../../lib -lRRCollider -lRREngine -lWorld
+LIBS = -lz -lm -lmgf -lstdc++ -L../../lib -lRRCollider -lRRVision -lWorld
 LIBSALLEG = -lalleg_s -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
 MAKE = makefile
 BIN = ../../bin/
 
-OBJS = render.o   misc.o   ldmgf.o   world2rrengine.o   world2rrintersect.o   surface.o   geometry.o   rr.o
-CPPS = render.cpp misc.cpp ldmgf.cpp world2rrengine.cpp world2rrintersect.cpp surface.cpp geometry.cpp rr.cpp
-HHHS = render.h   misc.h   ldmgf.h   world2rrengine.h   world2rrintersect.h   surface.h   geometry.h
+OBJS = render.o   misc.o   ldmgf.o   world2rrvision.o   world2rrintersect.o   surface.o   geometry.o   rr.o
+CPPS = render.cpp misc.cpp ldmgf.cpp world2rrvision.cpp world2rrintersect.cpp surface.cpp geometry.cpp rr.cpp
+HHHS = render.h   misc.h   ldmgf.h   world2rrvision.h   world2rrintersect.h   surface.h   geometry.h
 
 ifeq ($(OSTYPE), Linux)    # ...jak poznam ze jsem pod unixem?
  UNIX = yez        # klavesnice pres curses, rm misto del
@@ -99,7 +99,7 @@ endif
 
 all: $(BIN)rr.exe $(BIN)dotga.exe $(BIN)dosmooth.exe
 
-$(BIN)rr.exe: $(OBJS) $(MAKE) ../../lib/libRRCollider.a ../../lib/libRREngine.a
+$(BIN)rr.exe: $(OBJS) $(MAKE) ../../lib/libRRCollider.a ../../lib/libRRVision.a
 	gcc $(OBJS) $(LIBS) -o $(BIN)rr.exe
 
 rr.o: rr.cpp $(HHHS) $(MAKE)
@@ -124,8 +124,8 @@ subglut.o: subglut.cpp subglut.h $(MAKE)
 	gcc $(CFLAGS) -c subglut.cpp -o $@
 ldmgf.o: ldmgf.cpp ldmgf.h $(MAKE)
 	gcc $(CFLAGS) -c ldmgf.cpp -o $@
-world2rrengine.o: world2rrengine.cpp world2rrengine.h world2rrintersect.h ldmgf.h surface.h
-	gcc $(CFLAGS) -c world2rrengine.cpp -o $@
+world2rrvision.o: world2rrvision.cpp world2rrvision.h world2rrintersect.h ldmgf.h surface.h
+	gcc $(CFLAGS) -c world2rrvision.cpp -o $@
 world2rrintersect.o: world2rrintersect.cpp world2rrintersect.h surface.h
 	gcc $(CFLAGS) -c world2rrintersect.cpp -o $@
 
