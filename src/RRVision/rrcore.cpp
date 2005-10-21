@@ -35,10 +35,10 @@ namespace rrVision
 //#define LOG_LOADING_MES
 
 #ifdef xx_MSC_VER
-//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(38)
-//error : inserted by sunifdef: "#define GATE_SHOTS 10000 // max photons from one shooter" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(39)
-//error : inserted by sunifdef: "#define GATE_QUALITY 5000000 // max photons in scene" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(40)
-//error : inserted by sunifdef: "#define GATE_IP" contradicts -U at R:\work2\.git-rewrite\t\src\RREngine\rrcore.cpp~(41)
+//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(38)
+//error : inserted by sunifdef: "#define GATE_SHOTS 10000 // max photons from one shooter" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(39)
+//error : inserted by sunifdef: "#define GATE_QUALITY 5000000 // max photons in scene" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(40)
+//error : inserted by sunifdef: "#define GATE_IP" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(41)
 //#define GATE_IP_DEE // off
 //#define GATE_RAYS // off
 #endif
