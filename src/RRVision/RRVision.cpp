@@ -3,33 +3,15 @@
 #include <math.h>
 #include <memory.h>
 #include <stdio.h>
+
+#include "..\RRCollider\LicGen.h"
 #include "rrcore.h"
 #include "RRVision.h"
 
-/*
-#ifdef ONE
-#include "geometry.cpp"
-#include "rrcore.cpp"
-#include "intersections.cpp"
-#ifdef SUPPORT_INTERPOL
-#include "interpol.cpp"
-#endif
-#ifdef SUPPORT_DYNAMIC
-#include "dynamic.cpp"
-#endif
-#else
-#include "geometry.h"
-#include "rrcore.h"
-#include "intersections.h"
-#ifdef SUPPORT_INTERPOL
-#include "interpol.h"
-#endif
-#ifdef SUPPORT_DYNAMIC
-#include "dynamic.h"
-#endif
-#endif
-*/
 
+//#ifdef GATE_TIME
+rrLicense::License* rrLicense::lic = NULL;
+//#endif
 
 namespace rrVision
 {
@@ -725,5 +707,18 @@ RREngine::~RREngine()
 }
 
 static RREngine engine;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// License
+
+void RegisterLicense(char* licenseOwner, char* licenseNumber)
+{
+//#ifdef GATE_TIME
+	delete rrLicense::lic;
+	rrLicense::lic = new rrLicense::License(licenseOwner,licenseNumber);
+//#endif
+}
 
 } // namespace

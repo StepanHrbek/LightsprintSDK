@@ -1021,7 +1021,12 @@ void RRIntersectStats::getInfo(char *buf, unsigned len, unsigned level) const
 	buf[len]=0;
 }
 
-void CertifyLicense(char* licenseOwner, char* licenseNumber)
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// License
+
+void RegisterLicense(char* licenseOwner, char* licenseNumber)
 {
 #ifdef GATE_TIME
 	delete rrLicense::lic;

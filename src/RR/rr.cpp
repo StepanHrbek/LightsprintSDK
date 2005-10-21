@@ -828,7 +828,7 @@ int main(int argc, char **argv)
  kb_init();
  glutInit(&argc,argv);
  render_init();
- rrCollider::CertifyLicense(
+ rrCollider::RegisterLicense(
 	 "Illusion Softworks",
 	 "DDBDDMIDKJOLPPEDKDAIBNDHFNJLKJDMJBOOHFHEHODCHCEOMK"
 	 "ANCCFLELCLEDOFNMPJGBFNNPEBGNCELKBOLGHDKNKICCAOPJBA"

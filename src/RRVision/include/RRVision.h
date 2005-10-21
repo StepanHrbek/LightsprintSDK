@@ -260,6 +260,13 @@ namespace rrVision
 	extern RRVISION_API DbgRay dbgRay[MAX_DBGRAYS];
 	extern RRVISION_API unsigned dbgRays;
 
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// License
+
+	void RRCOLLIDER_API RegisterLicense(char* licenseOwner, char* licenseNumber);
+
 } // namespace
 
 #endif

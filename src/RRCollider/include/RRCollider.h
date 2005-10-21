@@ -285,7 +285,12 @@ namespace rrCollider
 		void getInfo(char *buf, unsigned len, unsigned level) const;
 	};
 
-	void RRCOLLIDER_API CertifyLicense(char* licenseOwner, char* licenseNumber);
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// License
+
+	void RRCOLLIDER_API RegisterLicense(char* licenseOwner, char* licenseNumber);
 
 } // namespace
 
