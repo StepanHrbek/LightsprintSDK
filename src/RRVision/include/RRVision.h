@@ -2,7 +2,7 @@
 #define RRVISION_RRVISION_H
 
 //////////////////////////////////////////////////////////////////////////////
-// RREngine - library for realtime radiosity calculations
+// RRVision - library for realtime radiosity calculations
 // version 2005.10.14
 // http://dee.cz/rr
 //
@@ -28,14 +28,14 @@
 	#ifdef RRVISION_IMPORT
 		// use dll
 		#define RRVISION_API __declspec(dllimport)
-		#pragma comment(lib,"RREngine.lib")
+		#pragma comment(lib,"RRVision.lib")
 	#else
 		// use static library
 		#define RRVISION_API
 		#ifdef NDEBUG
-			#pragma comment(lib,"RREngine_s.lib")
+			#pragma comment(lib,"RRVision_s.lib")
 		#else
-			#pragma comment(lib,"RREngine_sd.lib")
+			#pragma comment(lib,"RRVision_sd.lib")
 		#endif
 	#endif
 	#endif

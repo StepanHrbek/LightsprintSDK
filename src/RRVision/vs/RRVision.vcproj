@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="RREngine"
+	Name="RRVision"
 	ProjectGUID="{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
-	RootNamespace="RREngine"
+	RootNamespace="RRVision"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -55,7 +55,7 @@
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RREngine.tlb"
+				TypeLibraryName="$(IntDir)/RRVision.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -116,7 +116,7 @@
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RREngine.tlb"
+				TypeLibraryName="$(IntDir)/RRVision.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -156,7 +156,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;SUPPORT_INTERPOL;RRCOLLIDER_IMPORT;RRENGINE_EXPORT"
+				PreprocessorDefinitions="WIN32;NDEBUG;SUPPORT_INTERPOL;RRCOLLIDER_IMPORT;RRVISION_EXPORT"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
 				RuntimeLibrary="0"
@@ -181,7 +181,7 @@
 				Name="VCLinkerTool"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RREngine.tlb"
+				TypeLibraryName="$(IntDir)/RRVision.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -247,7 +247,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\RREngine.cpp">
+				RelativePath="..\RRVision.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -269,7 +269,7 @@
 				RelativePath="..\rrcore.h">
 			</File>
 			<File
-				RelativePath="..\include\RREngine.h">
+				RelativePath="..\include\RRVision.h">
 			</File>
 		</Filter>
 		<Filter

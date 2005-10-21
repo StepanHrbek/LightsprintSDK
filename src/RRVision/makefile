@@ -1,5 +1,5 @@
-LIB = ../../lib/libRREngine.a
-TMP = #../../tmp/RREngine/
+LIB = ../../lib/libRRVision.a
+TMP = #../../tmp/RRVision/
 
 CPPFLAGS = -Iinclude -I../../include -DSUPPORT_INTERPOL
 CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
@@ -9,7 +9,7 @@ CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
 CC = gcc
 
-OBJS = $(TMP)RREngine.o $(TMP)rrcore.o $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o
+OBJS = $(TMP)RRVision.o $(TMP)rrcore.o $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o
 
 all: makefile $(LIB)
 
@@ -32,5 +32,5 @@ $(TMP)interpol.o: makefile
 
 $(TMP)intersections.o: makefile
 
-$(TMP)RREngine.o: makefile
+$(TMP)RRVision.o: makefile
 

@@ -42,7 +42,7 @@
 
 #include <stdarg.h>
 #include "geometry.h"
-#include "RREngine.h"
+#include "RRVision.h"
 #include "interpol.h"
 
 namespace rrVision

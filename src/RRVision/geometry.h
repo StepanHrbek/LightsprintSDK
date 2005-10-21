@@ -1,7 +1,7 @@
 #ifndef RRVISION_GEOMETRY_H
 #define RRVISION_GEOMETRY_H
 
-#include "RREngine.h" // RRReal
+#include "RRVision.h" // RRReal
 #include <float.h> // _finite
 
 namespace rrVision
