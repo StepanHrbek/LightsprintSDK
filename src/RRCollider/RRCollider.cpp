@@ -13,7 +13,9 @@
 #include <vector>
 
 
+#ifdef GATE_TIME
 rrLicense::License* rrLicense::lic = NULL;
+#endif
 
 namespace rrCollider
 {
