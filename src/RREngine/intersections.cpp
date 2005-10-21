@@ -7,7 +7,7 @@
 #include "intersections.h"
 
 using namespace rrCollider;
-namespace rrEngine
+namespace rrVision
 {
 
 #define DBG(a) //a
@@ -112,8 +112,8 @@ public:
 };
 
 #include <memory.h>
-DbgRay rrEngine::dbgRay[MAX_DBGRAYS];
-unsigned rrEngine::dbgRays=0;
+DbgRay rrVision::dbgRay[MAX_DBGRAYS];
+unsigned rrVision::dbgRays=0;
 #define LOG_RAY(aeye,adir,adist) { memcpy(dbgRay[dbgRays].eye,&aeye,sizeof(Vec3)); memcpy(dbgRay[dbgRays].dir,&adir,sizeof(Vec3)); dbgRay[dbgRays].dist=adist; ++dbgRays%=MAX_DBGRAYS; }
 
 // return first intersection with "scene minus *skip minus dynamic objects"

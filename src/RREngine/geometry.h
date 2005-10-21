@@ -4,7 +4,7 @@
 #include "RREngine.h" // RRReal
 #include <float.h> // _finite
 
-namespace rrEngine
+namespace rrVision
 {
 
 #define S8           signed char

@@ -34,7 +34,7 @@
 #include "world2rrengine.h"
 
 #include "../RREngine/rrcore.h"//!!!
-using namespace rrEngine;
+using namespace rrVision;
 
 WORLD  *__world=NULL;
 MATRIX  __identity;
@@ -89,7 +89,7 @@ char *bp(char *fmt, ...)
 	return msg;
 }
 
-SubTriangle *locate_subtriangle(WORLD *w, rrEngine::RRScene* scene, int x,int y)
+SubTriangle *locate_subtriangle(WORLD *w, rrVision::RRScene* scene, int x,int y)
 {
 	raster_Clear();
 	bool old_gouraud=d_gouraud; d_gouraud=false;
@@ -109,7 +109,7 @@ void infoMisc(char *buf)
 	sprintf(buf+strlen(buf)," gamma=%0.3f bright=%0.3f",d_gamma,d_bright);
 }
 
-void Scene::draw(rrEngine::RRScene* scene, real quality)
+void Scene::draw(rrVision::RRScene* scene, real quality)
 {
  float backgroundColor[3]={0,0,0};
   //spravne ma byt =(material ve kterem je kamera)->color;
@@ -273,7 +273,7 @@ static bool endByAccuracy(void *context)
  return Accuracy>=100;
 }
 
-static void captureTgaAfter(Scene *scene,rrEngine::RRScene* rrscene,char *name,real seconds,real minimalImprovementToShorten)
+static void captureTgaAfter(Scene *scene,rrVision::RRScene* rrscene,char *name,real seconds,real minimalImprovementToShorten)
 {
  scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+seconds*PER_SEC));
  if (scene->shortenStaticImprovementIfBetterThan(minimalImprovementToShorten))
@@ -471,7 +471,7 @@ bool frameCalculate(Scene *scene)
    bool change=false;
    if(!preparing_capture && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames)) {
      TIME endTime=(TIME)(GETTIME+c_dynamicFrameTime*PER_SEC);
-     change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime)==rrEngine::RRScene::IMPROVED;
+     change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime)==rrVision::RRScene::IMPROVED;
      if(GETTIME>endTime) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
    }
    return change || p_flyingCamera || p_flyingObjects || n_dirtyCamera || n_dirtyObject;
@@ -480,7 +480,7 @@ bool frameCalculate(Scene *scene)
 
 // vykresli a pripadne grabne aktualni frame
 
-void frameDraw(Scene *scene, rrEngine::RRScene* rrscene)
+void frameDraw(Scene *scene, rrVision::RRScene* rrscene)
 {
 // d_fast=!p_flyingObjects && !p_flyingCamera && n_dirtyGeometry;
  scene->draw(rrscene,0.4);
@@ -574,7 +574,7 @@ void frameAdvance(Scene *scene)
 char  name[20];
 int   id=0;
 Scene *scene;
-rrEngine::RRScene *rrscene;
+rrVision::RRScene *rrscene;
 
 void displayFunc(void)
 {

@@ -31,7 +31,7 @@
 */
 
 
-namespace rrEngine
+namespace rrVision
 {
 
 #define DBG(a) //a

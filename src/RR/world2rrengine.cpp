@@ -13,7 +13,7 @@
 //
 // WorldSceneImporter
 
-class WorldObjectImporter : public rrEngine::RRObjectImporter
+class WorldObjectImporter : public rrVision::RRObjectImporter
 {
 public:
 	WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces, rrCollider::RRCollider::IntersectTechnique intersectTechnique);

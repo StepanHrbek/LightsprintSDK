@@ -6,7 +6,7 @@
 #include "rrcore.h"
 #include "dynamic.h"
 
-namespace rrEngine
+namespace rrVision
 {
 
 

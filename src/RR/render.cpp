@@ -30,7 +30,7 @@
 #endif
 
 #include "../RREngine/rrcore.h"//!!!
-using namespace rrEngine;
+using namespace rrVision;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -132,7 +132,7 @@ real getBrightness(Channels rad)
 }
 #endif
 
-void drawEngine(rrEngine::RRScene* scene, unsigned o, unsigned t, Triangle *f)
+void drawEngine(rrVision::RRScene* scene, unsigned o, unsigned t, Triangle *f)
 {
 	Point3 v[3];
 	real brightness[3];
@@ -852,7 +852,7 @@ void save_subtriangles(WORLD *w)
 
 // obecna fce na kresleni trianglu, pouzije tu metodu ktera je zrovna podporovana
 
-void inline draw_triangle(rrEngine::RRScene* scene, unsigned o, unsigned t, Triangle *f)
+void inline draw_triangle(rrVision::RRScene* scene, unsigned o, unsigned t, Triangle *f)
 {
 	if(!f->surface) return;
 #ifdef TEST_SCENE
@@ -884,7 +884,7 @@ void inline draw_triangle(rrEngine::RRScene* scene, unsigned o, unsigned t, Tria
 #endif
 }
 
-void render_object(rrEngine::RRScene* scene, unsigned o, Object* obj, MATRIX& im)
+void render_object(rrVision::RRScene* scene, unsigned o, Object* obj, MATRIX& im)
 {
 	//raster_BeginTriangles();
 	for (unsigned j=0;j<obj->triangles;j++) if(obj->triangle[j].isValid){
@@ -1034,7 +1034,7 @@ void renderWorld_LightsN(WORLD *w, int camera_id, unsigned useLights, bool useAc
 }
 #endif
 
-void render_world(WORLD *w, rrEngine::RRScene* scene, int camera_id, bool mirrorFrame)
+void render_world(WORLD *w, rrVision::RRScene* scene, int camera_id, bool mirrorFrame)
 {
 #ifdef RASTERGL
 	renderWorldInstantRadiosity(w,camera_id); return;

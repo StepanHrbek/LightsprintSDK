@@ -45,7 +45,7 @@
 #include "RREngine.h"
 #include "interpol.h"
 
-namespace rrEngine
+namespace rrVision
 {
 
 #define DBGLINE
@@ -740,7 +740,7 @@ public:
 #ifdef SUPPORT_DYNAMIC
 }
 #include "dynamic.h"
-namespace rrEngine
+namespace rrVision
 {
 #endif
 
@@ -806,7 +806,7 @@ public:
 	private:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
-	void    draw(rrEngine::RRScene* scene, real quality);
+	void    draw(rrVision::RRScene* scene, real quality);
 	RRScene::Improvement resetStaticIllumination(bool resetFactors);
 	void    updateMatrices();
 

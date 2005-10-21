@@ -5,7 +5,7 @@
 #include "RREngine.h"
 
 #define ColorTable unsigned * // 256 colors in common 32bit format (BGRA)
-#define Color rrEngine::RRColor
+#define Color rrVision::RRColor
 
 struct Material
 {

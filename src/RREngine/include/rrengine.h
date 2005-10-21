@@ -46,7 +46,7 @@
 
 #include "RRCollider.h"
 
-namespace rrEngine
+namespace rrVision
 {
 
 	typedef rrCollider::RRReal  RRReal;

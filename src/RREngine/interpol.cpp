@@ -7,7 +7,7 @@
 #include "rrcore.h"
 #include "interpol.h"
 
-namespace rrEngine
+namespace rrVision
 {
 
 //#define LOG_LOADING_MES
