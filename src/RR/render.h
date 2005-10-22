@@ -4,6 +4,8 @@
 #include "world.h"
 #include "RRVision.h" // rrscene
 
+#define C_INDICES 256
+
 // d=draw params
 extern float   d_gamma;
 extern float   d_bright;

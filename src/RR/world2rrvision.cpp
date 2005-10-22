@@ -1,11 +1,13 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "ldmgf.h"
+#include "render.h"
 #include "RRVision.h"
+#include "surface.h"
 #include "world2rrvision.h"
 #include "world2rrintersect.h"
-#include "surface.h"
 
 #define DBG(a) a //!!!
 

@@ -24,7 +24,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="0"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\..\..\include;.."
+				AdditionalIncludeDirectories="..\..\..\include;..;..\..\RRCollider\include;..\..\RRVision\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL"
 				MinimalRebuild="TRUE"
 				ExceptionHandling="TRUE"
@@ -100,7 +100,7 @@
 				InlineFunctionExpansion="2"
 				ImproveFloatingPointConsistency="TRUE"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\..\..\include;.."
+				AdditionalIncludeDirectories="..\..\..\include;..;..\..\RRCollider\include;..\..\RRVision\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -171,7 +171,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\..\..\include;.."
+				AdditionalIncludeDirectories="..\..\..\include;..;..\..\RRCollider\include;..\..\RRVision\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;TEST_SCENE;SUPPORT_INTERPOL;SUPPORT_DYNAMIC;RASTERGL;KB_VIA_ALLEGRO"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -485,10 +485,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\world2rrvision.cpp">
+				RelativePath="..\world2rrintersect.cpp">
 			</File>
 			<File
-				RelativePath="..\world2rrintersect.cpp">
+				RelativePath="..\world2rrvision.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -570,10 +570,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\world2rrvision.h">
+				RelativePath="..\world2rrintersect.h">
 			</File>
 			<File
-				RelativePath="..\world2rrintersect.h">
+				RelativePath="..\world2rrvision.h">
 			</File>
 		</Filter>
 		<Filter

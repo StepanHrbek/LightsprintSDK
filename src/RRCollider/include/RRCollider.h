@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
 // version 2005.10.16
-// http://dee.cz/rr
+// http://lightsprint.com/collider.php
 //
 // - thread safe, you can calculate any number of intersections at the same time
 // - you can select technique in range from maximal speed to zero memory allocated
@@ -12,8 +12,7 @@
 // - builds helper-structures and stores them in cache on disk
 //
 // Copyright (C) Stepan Hrbek 1999-2005, Daniel Sykora 1999-2004
-// This work is protected by copyright law, 
-// using it without written permission from Stepan Hrbek is forbidden.
+// All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////

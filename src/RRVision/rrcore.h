@@ -83,6 +83,30 @@ namespace rrVision
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// surface behaviour bits
+// prozatim odsunuto z verejneho headeru
+
+struct RRSideBits
+{
+	unsigned char renderFrom:1;  // is visible from that halfspace
+	unsigned char emitTo:1;      // emits energy to that halfspace
+	unsigned char catchFrom:1;   // stops rays from that halfspace and performs following operations: (otherwise ray continues as if nothing happened)
+	unsigned char receiveFrom:1; //  receives energy from that halfspace
+	unsigned char reflect:1;     //  reflects energy from that halfspace to that halfspace
+	unsigned char transmitFrom:1;//  transmits energy from that halfspace to other halfspace
+};
+
+extern RRSideBits sideBits[3][2];
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// license
+
+extern bool                     licenseStatusValid;
+extern rrVision::LicenseStatus  licenseStatus;
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // memory
 
 void* realloc(void* p,size_t oldsize,size_t newsize);

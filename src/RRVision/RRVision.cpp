@@ -1,6 +1,8 @@
 /*
 prozatim odsunuto z headeru:
 
+typedef RRReal              RRMatrix[4][4];
+
 // get intersection
 typedef       bool INTERSECT(rrCollider::RRRay*);
 typedef       ObjectHandle ENUM_OBJECTS(rrCollider::RRRay*, INTERSECT);
@@ -17,7 +19,7 @@ void          sceneSetColorFilter(const RRReal* colorFilter);
 #include <memory.h>
 #include <stdio.h>
 
-#include "..\RRCollider\LicGen.h"
+#include "LicGen.h"
 #include "rrcore.h"
 #include "RRVision.h"
 
@@ -26,9 +28,6 @@ namespace rrVision
 
 #define DBG(a) //a
 #define scene ((Scene*)_scene)
-
-bool                     licenseStatusValid = false;
-rrVision::LicenseStatus  licenseStatus;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -533,6 +532,7 @@ RRReal RRScene::sceneGetAccuracy()
 
 const RRReal* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
 {
+	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
 	if(object<0 || object>=scene->objects) 
 	{
 		assert(0);
@@ -554,6 +554,7 @@ const RRReal* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
 
 const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex)
 {
+	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
 	if(object<0 || object>=scene->objects) 
 	{
 		assert(0);
@@ -609,6 +610,7 @@ const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned trian
 
 const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex)
 {
+	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
 	if(object<0 || object>=scene->objects) 
 	{
 		assert(0);
@@ -629,6 +631,7 @@ const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned 
 
 unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)
 {
+	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
 	return scene->getInstantRadiosityPoints(n,point);
 }
 
@@ -775,7 +778,7 @@ unsigned verifyLicense(rrLicense::License* license)
 	static LicenseStatus status;
 	if(!verified)
 	{
-		int err = http_init(NULL,0,license->getOwner());
+		int err = http_init(NULL,3128,license->getOwner());//!!!80
 		if(err)
 		{
 			status = NO_INET;
@@ -784,10 +787,10 @@ unsigned verifyLicense(rrLicense::License* license)
 		{
 			// create request
 			char buf[1000];
-			_snprintf(buf,999,"/texty/a_jak_prezit.html?x=%s",license->getNumber());
+			_snprintf(buf,999,"/lsreg.php?%s","12");//license->getNumber());
 			// contact all servers if necessary
-			const int servers = 2;
-			char* server[servers+1] = {"lightsprint.com","dee.cz","81.95.103.83"};//goedel.cz/lsreg.php
+			const int servers = 1;
+			char* server[servers+3] = {"127.0.0.1","lightsprint.com","dee.cz","81.95.103.83"};//goedel.cz/lsreg.php
 			for(unsigned i=0;i<servers;i++)
 			{
 				unsigned code;
@@ -804,7 +807,10 @@ unsigned verifyLicense(rrLicense::License* license)
 					if(readen)
 					{
 						// analyze reply
-						status = VALID;
+						if(buf[0]=='1')
+							status = VALID;
+						else
+							status = WRONG;
 						goto done;
 					}
 					closesocket(s);

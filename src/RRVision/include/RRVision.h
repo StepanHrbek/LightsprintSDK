@@ -2,13 +2,17 @@
 #define RRVISION_RRVISION_H
 
 //////////////////////////////////////////////////////////////////////////////
-// RRVision - library for realtime radiosity calculations
+// RRVision - library for fast global illumination calculations
 // version 2005.10.14
-// http://dee.cz/rr
+// http://lightsprint.com/vision.php
+//
+// - optimized for speed, close to realtime environments
+// - progressive refinement with first approximative global illumination after 1ms
+// - automatic mesh optimizations
+// - display independent, purely numerical API
 //
 // Copyright (C) Stepan Hrbek 1999-2005
-// This work is protected by copyright law, 
-// using it without written permission from Stepan Hrbek is forbidden.
+// All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
@@ -44,23 +48,19 @@
 	#define RRVISION_API
 #endif
 
-#include "..\RRCollider\include\RRCollider.h"
+#include "RRCollider.h"
 
 namespace rrVision
 {
 
 	typedef rrCollider::RRReal  RRReal;
-	typedef RRReal              RRMatrix[4][4];
 
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// material aspects of space and surfaces
 
-	#define C_COMPS 3
-	#define C_INDICES 256
-
-	typedef RRReal RRColor[C_COMPS]; // r,g,b 0..1
+	typedef RRReal RRColor[3]; // r,g,b 0..1
 
 	enum RREmittanceType
 	{
@@ -96,21 +96,6 @@ namespace rrVision
 		RRReal    _ed;//needed by turnLight
 	};
 
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	// surface behaviour bits
-
-	struct RRSideBits
-	{
-		unsigned char renderFrom:1;  // is visible from that halfspace
-		unsigned char emitTo:1;      // emits energy to that halfspace
-		unsigned char catchFrom:1;   // stops rays from that halfspace and performs following operations: (otherwise ray continues as if nothing happened)
-		unsigned char receiveFrom:1; //  receives energy from that halfspace
-		unsigned char reflect:1;     //  reflects energy from that halfspace to that halfspace
-		unsigned char transmitFrom:1;//  transmits energy from that halfspace to other halfspace
-	};
-
-	extern RRSideBits sideBits[3][2];
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -172,7 +157,7 @@ namespace rrVision
 		void          objectDestroy(ObjectHandle object);
 		
 		// calculate radiosity
-		enum Improvement 
+		enum Improvement
 		{
 			IMPROVED,       // Lighting was improved during this call.
 			NOT_IMPROVED,   // Although some calculations were done, lighting was not yet improved during this call.
