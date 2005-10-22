@@ -35,7 +35,7 @@
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
 				EnableEnhancedInstructionSet="0"
-				DisableLanguageExtensions="TRUE"
+				DisableLanguageExtensions="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
@@ -60,7 +60,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="update global include"
-				CommandLine="copy ..\include\*.* ..\..\..\include"/>
+				CommandLine="rem copy ..\include\*.* ..\..\..\include"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -96,7 +96,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				BufferSecurityCheck="TRUE"
-				DisableLanguageExtensions="TRUE"
+				DisableLanguageExtensions="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
@@ -121,7 +121,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="update global include"
-				CommandLine="copy ..\include\*.* ..\..\..\include"/>
+				CommandLine="rem copy ..\include\*.* ..\..\..\include"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -186,7 +186,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="update global include"
-				CommandLine="copy ..\include\*.* ..\..\..\include"/>
+				CommandLine="rem copy ..\include\*.* ..\..\..\include"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -227,24 +227,6 @@
 			</File>
 			<File
 				RelativePath="..\rrcore.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						DisableLanguageExtensions="FALSE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						DisableLanguageExtensions="FALSE"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						DisableLanguageExtensions="FALSE"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\RRVision.cpp">

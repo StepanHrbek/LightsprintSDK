@@ -1,11 +1,15 @@
 #ifndef COLLIDER_LICGEN_H
 #define COLLIDER_LICGEN_H
 
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
+
 extern "C" {
 	#include "rsa.h"
+	#include "http.h"
 	#pragma comment(lib,"rsa.lib")
+	#pragma comment(lib,"ws2_32.lib")
 };
 
 namespace rrLicense
@@ -83,8 +87,6 @@ private:
 	char licenseNumber[numberChars];
 	char licenseExp[20];
 };
-
-extern License* lic;
 
 } // namespace
 

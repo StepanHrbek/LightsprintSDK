@@ -98,7 +98,9 @@ int main(int argc, char** argv)
 	StopWatch* watch = new StopWatch();
 	const unsigned NUM_ITERS = 8000000;
 	int num_hits;
+#ifdef _OPENMP
 	int j,k;
+#endif
 
 	///////////////////////////////////////////////////////////////////////////
 

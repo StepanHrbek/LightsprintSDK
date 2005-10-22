@@ -44,7 +44,7 @@
 	#define RRVISION_API
 #endif
 
-#include "RRCollider.h"
+#include "..\RRCollider\include\RRCollider.h"
 
 namespace rrVision
 {
@@ -170,12 +170,6 @@ namespace rrVision
 		typedef       unsigned ObjectHandle;
 		ObjectHandle  objectCreate(RRObjectImporter* importer);
 		void          objectDestroy(ObjectHandle object);
-
-		// get intersection
-		typedef       bool INTERSECT(rrCollider::RRRay*);
-		typedef       ObjectHandle ENUM_OBJECTS(rrCollider::RRRay*, INTERSECT);
-		void          setObjectEnumerator(ENUM_OBJECTS enumerator);
-		bool          intersect(rrCollider::RRRay* ray);
 		
 		// calculate radiosity
 		enum Improvement 
@@ -185,7 +179,6 @@ namespace rrVision
 			FINISHED,       // Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
 			INTERNAL_ERROR, // Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};
-		void          sceneSetColorFilter(const RRReal* colorFilter);
 		Improvement   sceneResetStatic(bool resetFactors);
 		Improvement   sceneImproveStatic(bool endfunc(void*), void* context);
 		RRReal        sceneGetAccuracy();
@@ -201,9 +194,6 @@ namespace rrVision
 		const RRReal* getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex); // irradiance (incident power density) in watts per square meter
 		const RRReal* getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex); // radiant exitance (leaving power density) in watts per square meter
 		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
-
-		// misc
-		void          compact();
 		
 		// misc: development
 		void          getInfo(char* buf, unsigned type);
@@ -265,7 +255,16 @@ namespace rrVision
 	//
 	// License
 
-	void RRCOLLIDER_API RegisterLicense(char* licenseOwner, char* licenseNumber);
+	enum LicenseStatus
+	{
+		VALID,       // Valid license.
+		EXPIRED,     // Expired license.
+		WRONG,       // Wrong license.
+		NO_INET,     // No internet connection to verify license.
+		UNAVAILABLE, // Temporarily unable to verify license. Quit and try later.
+	};
+	LicenseStatus RRCOLLIDER_API registerLicense(char* licenseOwner, char* licenseNumber);
+
 
 } // namespace
 

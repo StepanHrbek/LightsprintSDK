@@ -1,3 +1,16 @@
+/*
+prozatim odsunuto z headeru:
+
+// get intersection
+typedef       bool INTERSECT(rrCollider::RRRay*);
+typedef       ObjectHandle ENUM_OBJECTS(rrCollider::RRRay*, INTERSECT);
+void          setObjectEnumerator(ENUM_OBJECTS enumerator);
+bool          intersect(rrCollider::RRRay* ray);
+
+void          sceneSetColorFilter(const RRReal* colorFilter);
+
+*/
+
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
@@ -8,16 +21,14 @@
 #include "rrcore.h"
 #include "RRVision.h"
 
-
-//#ifdef GATE_TIME
-rrLicense::License* rrLicense::lic = NULL;
-//#endif
-
 namespace rrVision
 {
 
 #define DBG(a) //a
 #define scene ((Scene*)_scene)
+
+bool                     licenseStatusValid = false;
+rrVision::LicenseStatus  licenseStatus;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -482,10 +493,15 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 
 void RRScene::objectDestroy(ObjectHandle object)
 {
-	assert(object<scene->objects);
+	if(object<0 || object>=scene->objects) 
+	{
+		assert(0);
+		return;
+	}
 	scene->objRemoveStatic(object);
 }
 
+/*
 void RRScene::sceneSetColorFilter(const RRReal* colorFilter)
 {
 	__frameNumber++;
@@ -493,9 +509,11 @@ void RRScene::sceneSetColorFilter(const RRReal* colorFilter)
 	scene->resetStaticIllumination(false);
 	scene->distribute(0.001f);
 }
+*/
 
 RRScene::Improvement RRScene::sceneResetStatic(bool resetFactors)
 {
+	if(!licenseStatusValid || licenseStatus!=VALID) return FINISHED;
 	__frameNumber++;
 	scene->updateMatrices();
 	return scene->resetStaticIllumination(resetFactors);
@@ -503,6 +521,7 @@ RRScene::Improvement RRScene::sceneResetStatic(bool resetFactors)
 
 RRScene::Improvement RRScene::sceneImproveStatic(bool endfunc(void*), void* context)
 {
+	if(!licenseStatusValid || licenseStatus!=VALID) return FINISHED;
 	__frameNumber++;
 	return scene->improveStatic(endfunc, context);
 }
@@ -512,13 +531,13 @@ RRReal RRScene::sceneGetAccuracy()
 	return scene->avgAccuracy();
 }
 
-void RRScene::compact()
-{
-}
-
 const RRReal* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
 {
-	assert(object<scene->objects);
+	if(object<0 || object>=scene->objects) 
+	{
+		assert(0);
+		return NULL;
+	}
 	Object* obj = scene->object[object];
 #if CHANNELS==1
 	Channels rad = obj->getVertexIrradiance(vertex);
@@ -535,11 +554,19 @@ const RRReal* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
 
 const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex)
 {
-	assert(object<scene->objects);
+	if(object<0 || object>=scene->objects) 
+	{
+		assert(0);
+		return NULL;
+	}
 	Object* obj = scene->object[object];
-	assert(triangle<obj->triangles);
+	if(triangle>=obj->triangles) 
+	{
+		assert(0);
+		return NULL;
+	}
 	Triangle* tri = &obj->triangle[triangle];
-	if(!tri->surface) return 0;
+	if(!tri->surface) return NULL;
 	Channels irrad;
 	if(vertex<3 && RRGetState(RRSS_GET_SMOOTH))
 	{
@@ -582,9 +609,17 @@ const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned trian
 
 const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex)
 {
-	assert(object<scene->objects);
+	if(object<0 || object>=scene->objects) 
+	{
+		assert(0);
+		return NULL;
+	}
 	Object* obj = scene->object[object];
-	assert(triangle<obj->triangles);
+	if(triangle>=obj->triangles) 
+	{
+		assert(0);
+		return NULL;
+	}
 	Triangle* tri = &obj->triangle[triangle];
 	if(!tri->surface) return 0;
 
@@ -620,7 +655,11 @@ void* RRScene::getScene()
 
 void* RRScene::getObject(ObjectHandle object)
 {
-	assert(object<scene->objects);
+	if(object<0 || object>=scene->objects) 
+	{
+		assert(0);
+		return NULL;
+	}
 	return scene->object[object];
 }
 
@@ -658,13 +697,21 @@ void RRResetStates()
 
 unsigned RRGetState(RRSceneState state)
 {
-	assert(state>=0 && state<RRSS_LAST);
+	if(state<0 || state>=RRSS_LAST) 
+	{
+		assert(0);
+		return 0;
+	}
 	return RRSSValue[state].u;
 }
 
 unsigned RRSetState(RRSceneState state, unsigned value)
 {
-	assert(state>=0 && state<RRSS_LAST);
+	if(state<0 || state>=RRSS_LAST) 
+	{
+		assert(0);
+		return 0;
+	}
 	unsigned tmp = RRSSValue[state].u;
 	RRSSValue[state].u = value;
 	return tmp;
@@ -672,13 +719,21 @@ unsigned RRSetState(RRSceneState state, unsigned value)
 
 real RRGetStateF(RRSceneState state)
 {
-	assert(state>=0 && state<RRSS_LAST);
+	if(state<0 || state>=RRSS_LAST) 
+	{
+		assert(0);
+		return 0;
+	}
 	return RRSSValue[state].r;
 }
 
 real RRSetStateF(RRSceneState state, real value)
 {
-	assert(state>=0 && state<RRSS_LAST);
+	if(state<0 || state>=RRSS_LAST) 
+	{
+		assert(0);
+		return 0;
+	}
 	real tmp = RRSSValue[state].r;
 	RRSSValue[state].r = value;
 	return tmp;
@@ -713,11 +768,65 @@ static RREngine engine;
 //
 // License
 
-void RegisterLicense(char* licenseOwner, char* licenseNumber)
+unsigned verifyLicense(rrLicense::License* license)
+{
+	// verify only once
+	static bool verified = false;
+	static LicenseStatus status;
+	if(!verified)
+	{
+		int err = http_init(NULL,0,license->getOwner());
+		if(err)
+		{
+			status = NO_INET;
+		}
+		else
+		{
+			// create request
+			char buf[1000];
+			_snprintf(buf,999,"/texty/a_jak_prezit.html?x=%s",license->getNumber());
+			// contact all servers if necessary
+			const int servers = 2;
+			char* server[servers+1] = {"lightsprint.com","dee.cz","81.95.103.83"};//goedel.cz/lsreg.php
+			for(unsigned i=0;i<servers;i++)
+			{
+				unsigned code;
+				SOCKET s = http_get(server[i],buf,&code);
+				if(s==INVALID_SOCKET)
+				{
+					status = (code==0) ? NO_INET : UNAVAILABLE;
+				}
+				else
+				{
+					const unsigned maxlen = 1000;
+					char buf[maxlen];
+					unsigned readen = recv(s,buf,maxlen,0);
+					if(readen)
+					{
+						// analyze reply
+						status = VALID;
+						goto done;
+					}
+					closesocket(s);
+				}
+			}
+done:
+			http_done();
+		}
+		verified = true;
+	}
+	return status;
+}
+
+LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber)
 {
 //#ifdef GATE_TIME
-	delete rrLicense::lic;
-	rrLicense::lic = new rrLicense::License(licenseOwner,licenseNumber);
+	if(licenseStatusValid) return licenseStatus;
+	rrLicense::License* lic = new rrLicense::License(licenseOwner,licenseNumber);
+	licenseStatus = (LicenseStatus)verifyLicense(lic);
+	licenseStatusValid = true;
+	delete lic;
+	return licenseStatus;
 //#endif
 }
 

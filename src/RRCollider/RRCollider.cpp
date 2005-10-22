@@ -454,7 +454,7 @@ public:
 				assert(t.postImportTriangleVertices[j]!=UINT_MAX);
 				t.preImportTriangleVertices[j] = importer->getPreImportVertex(t.postImportTriangleVertices[j],postImportTriangle);
 			}
-			numPreImportTriangles = std::max(numPreImportTriangles,t.preImportTriangle+1);
+			numPreImportTriangles = MAX(numPreImportTriangles,t.preImportTriangle+1);
 			postImportTriangles[postImportTriangle] = t;
 		}
 
@@ -1026,7 +1026,7 @@ void RRIntersectStats::getInfo(char *buf, unsigned len, unsigned level) const
 //
 // License
 
-void RegisterLicense(char* licenseOwner, char* licenseNumber)
+void registerLicense(char* licenseOwner, char* licenseNumber)
 {
 #ifdef GATE_TIME
 	delete rrLicense::lic;

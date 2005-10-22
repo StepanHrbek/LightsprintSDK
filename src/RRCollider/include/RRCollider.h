@@ -290,7 +290,7 @@ namespace rrCollider
 	//
 	// License
 
-	void RRCOLLIDER_API RegisterLicense(char* licenseOwner, char* licenseNumber);
+	void RRCOLLIDER_API registerLicense(char* licenseOwner, char* licenseNumber);
 
 } // namespace
 
