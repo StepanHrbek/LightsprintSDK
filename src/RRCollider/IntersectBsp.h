@@ -7,11 +7,6 @@
 #define SUPPORT_EMPTY_KDNODE // only FASTEST: typically tiny, rarely big speedup (bunny); typically a bit, rarely much slower and memory hungry build (soda)
 //#define BAKED_TRIANGLE
 
-#ifdef RRCOLLIDER_EXPORT
-	#define GATE_TIME 61 // tolik dni pred expiration day je licence platna
-#endif
-
-
 #include <assert.h>
 #include <malloc.h>
 #include <math.h>
@@ -25,6 +20,7 @@
 
 namespace rrCollider
 {
+
 
 	// single-level bps
 	template <class Ofs, class TriInfo, class Lo>
@@ -214,17 +210,8 @@ namespace rrCollider
 		BspTree* tree = NULL;
 		bool retried = false;
 		char name[300];
-#ifdef GATE_TIME
-		if(!rrLicense::lic) return NULL;
-		time_t nowTime = time(NULL);
-		unsigned nowDay = (unsigned)(nowTime/24/3600);
-#endif
 		getFileName(name,300,importer,cacheLocation,ext);
 
-#ifdef GATE_TIME
-		unsigned expDay = rrLicense::lic->verify();
-		if(nowDay+GATE_TIME<expDay || nowDay>expDay) return NULL;
-#endif
 
 		FILE* f = buildParams->forceRebuild ? NULL : fopen(name,"rb");
 		if(!f)

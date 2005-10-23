@@ -836,7 +836,7 @@ int main(int argc, char **argv)
 	 "GEBKBJPOGOHEBFDMDNMIPJMCGJKCEADKFADEHGPBCHABHEKFKG"
 	 "FDNFCOIJANFHJNGOMEPFFJONDNDOLHFOHONAAPGKNPBMJDCMFJ"
 	 "GGCCEMNBJM");
- rrVision::registerLicense(
+ rrVision::LicenseStatus status = rrVision::registerLicense(
 	 "Illusion Softworks",
 	 "DDBDDMIDKJOLPPEDKDAIBNDHFNJLKJDMJBOOHFHEHODCHCEOMK"
 	 "ANCCFLELCLEDOFNMPJGBFNNPEBGNCELKBOLGHDKNKICCAOPJBA"
@@ -844,6 +844,13 @@ int main(int argc, char **argv)
 	 "GEBKBJPOGOHEBFDMDNMIPJMCGJKCEADKFADEHGPBCHABHEKFKG"
 	 "FDNFCOIJANFHJNGOMEPFFJONDNDOLHFOHONAAPGKNPBMJDCMFJ"
 	 "GGCCEMNBJM");
+ switch(status)
+ {
+	case EXPIRED:     printf("License expired!\n"); break;
+	case WRONG:       printf("Wrong license!\n"); break;
+	case NO_INET:     printf("No internet connection to verify license!\n"); break;
+	case UNAVAILABLE: printf("Temporarily unable to verify license, quit and try later.\n"); break;
+ }
 
  //char buf[400]; infoStructs(buf); puts(buf);
 

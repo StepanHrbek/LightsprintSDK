@@ -771,69 +771,9 @@ static RREngine engine;
 //
 // License
 
-unsigned verifyLicense(rrLicense::License* license)
-{
-	// verify only once
-	static bool verified = false;
-	static LicenseStatus status;
-	if(!verified)
-	{
-		int err = http_init(NULL,3128,license->getOwner());//!!!80
-		if(err)
-		{
-			status = NO_INET;
-		}
-		else
-		{
-			// create request
-			char buf[1000];
-			_snprintf(buf,999,"/lsreg.php?%s","12");//license->getNumber());
-			// contact all servers if necessary
-			const int servers = 1;
-			char* server[servers+3] = {"127.0.0.1","lightsprint.com","dee.cz","81.95.103.83"};//goedel.cz/lsreg.php
-			for(unsigned i=0;i<servers;i++)
-			{
-				unsigned code;
-				SOCKET s = http_get(server[i],buf,&code);
-				if(s==INVALID_SOCKET)
-				{
-					status = (code==0) ? NO_INET : UNAVAILABLE;
-				}
-				else
-				{
-					const unsigned maxlen = 1000;
-					char buf[maxlen];
-					unsigned readen = recv(s,buf,maxlen,0);
-					if(readen)
-					{
-						// analyze reply
-						if(buf[0]=='1')
-							status = VALID;
-						else
-							status = WRONG;
-						goto done;
-					}
-					closesocket(s);
-				}
-			}
-done:
-			http_done();
-		}
-		verified = true;
-	}
-	return status;
-}
 
 LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber)
 {
-//#ifdef GATE_TIME
-	if(licenseStatusValid) return licenseStatus;
-	rrLicense::License* lic = new rrLicense::License(licenseOwner,licenseNumber);
-	licenseStatus = (LicenseStatus)verifyLicense(lic);
-	licenseStatusValid = true;
-	delete lic;
-	return licenseStatus;
-//#endif
 }
 
 } // namespace

@@ -13,12 +13,9 @@
 #include <vector>
 
 
-#ifdef GATE_TIME
-rrLicense::License* rrLicense::lic = NULL;
-#endif
-
 namespace rrCollider
 {
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1028,10 +1025,6 @@ void RRIntersectStats::getInfo(char *buf, unsigned len, unsigned level) const
 
 void registerLicense(char* licenseOwner, char* licenseNumber)
 {
-#ifdef GATE_TIME
-	delete rrLicense::lic;
-	rrLicense::lic = new rrLicense::License(licenseOwner,licenseNumber);
-#endif
 }
 
 } //namespace
