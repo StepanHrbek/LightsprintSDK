@@ -12,7 +12,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cnv2bsp", "..\..\cnv2bsp\vs
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRCollider", "..\..\RRCollider\vs\RRCollider.vcproj", "{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}"
 	ProjectSection(ProjectDependencies) = postProject
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRVision", "..\..\RRVision\vs\RRVision.vcproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"

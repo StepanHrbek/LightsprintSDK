@@ -774,6 +774,7 @@ static RREngine engine;
 
 LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber)
 {
+	return VALID;
 }
 
 } // namespace

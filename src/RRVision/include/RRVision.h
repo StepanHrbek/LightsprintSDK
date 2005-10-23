@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2005.10.14
+// version 2005.10.23
 // http://lightsprint.com/vision.php
 //
 // - optimized for speed, close to realtime environments
@@ -248,7 +248,7 @@ namespace rrVision
 		NO_INET,     // No internet connection to verify license.
 		UNAVAILABLE, // Temporarily unable to verify license. Quit and try later.
 	};
-	LicenseStatus RRCOLLIDER_API registerLicense(char* licenseOwner, char* licenseNumber);
+	LicenseStatus RRVISION_API registerLicense(char* licenseOwner, char* licenseNumber);
 
 
 } // namespace
