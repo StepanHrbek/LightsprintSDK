@@ -3,10 +3,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2005.10.23
-// http://lightsprint.com/vision.php
+// version 2005.10.29
 //
-// - optimized for speed, close to realtime environments
+// - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms
 // - automatic mesh optimizations
 // - display independent, purely numerical API

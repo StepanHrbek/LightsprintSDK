@@ -851,7 +851,6 @@ int main(int argc, char **argv)
 	case NO_INET:     printf("No internet connection to verify license!\n"); break;
 	case UNAVAILABLE: printf("Temporarily unable to verify license, quit and try later.\n"); break;
  }
-
  //char buf[400]; infoStructs(buf); puts(buf);
 
  for (int i=1;i<argc;i++)
