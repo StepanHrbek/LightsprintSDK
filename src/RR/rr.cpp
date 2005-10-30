@@ -846,6 +846,7 @@ int main(int argc, char **argv)
 	 "AGOBKPOMJK");
  switch(status)
  {
+	case VALID:       break;
 	case EXPIRED:     printf("License expired!\n"); break;
 	case WRONG:       printf("Wrong license!\n"); break;
 	case NO_INET:     printf("No internet connection to verify license!\n"); break;

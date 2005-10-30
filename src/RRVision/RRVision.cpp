@@ -19,7 +19,6 @@ void          sceneSetColorFilter(const RRReal* colorFilter);
 #include <memory.h>
 #include <stdio.h>
 
-#include "LicGen.h"
 #include "rrcore.h"
 #include "RRVision.h"
 
@@ -631,7 +630,7 @@ const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned 
 
 unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)
 {
-	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
+	if(!licenseStatusValid || licenseStatus!=VALID) return 0;
 	return scene->getInstantRadiosityPoints(n,point);
 }
 

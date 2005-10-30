@@ -18,7 +18,11 @@
 #endif
 //#include "libff/ff.h"
 #include "rrcore.h"
-#include "LicGen.h" // GATE_LICENSE
+
+#ifdef _MSC_VER
+	// turn on all licensing stuff
+	#include "LicGen.h"
+#endif
 
 namespace rrVision
 {
@@ -36,7 +40,7 @@ namespace rrVision
 //#define LOG_LOADING_MES
 
 #ifdef _MSC_VER
-//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(39)
+//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(43)
 //#define GATE_SHOTS 10000 // max photons from one shooter
 //#define GATE_QUALITY 5000000 // max photons in scene
 //#define GATE_IP

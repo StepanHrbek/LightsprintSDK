@@ -7,7 +7,11 @@
 #include <math.h>
 #include <memory.h>
 #include <new> // aligned new
-#include "stdint.h"
+#ifdef _MSC_VER
+	#include "stdint.h"
+#else
+	#include <stdint.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <vector>
@@ -842,7 +846,6 @@ RRMeshImporter* RRMeshImporter::createMultiMesh(RRMeshImporter* const* meshes, u
 
 
 
-#ifdef USE_SSE
 void* AlignedMalloc(size_t size,int byteAlign)
 {
 	void *mallocPtr = malloc(size + byteAlign + sizeof(void*));
@@ -858,42 +861,25 @@ void AlignedFree(void *ptr)
 {
 	free(*(((void**)ptr) - 1));
 }
-#endif
 
 void* RRAligned::operator new(std::size_t n)
 {
-#ifdef USE_SSE
 	return AlignedMalloc(n,16);
-#else
-	return ::operator new(n);
-#endif
 };
 
 void* RRAligned::operator new[](std::size_t n)
 {
-#ifdef USE_SSE
 	return AlignedMalloc(n,16);
-#else
-	return ::operator new(n);
-#endif
 };
 
 void RRAligned::operator delete(void* p, std::size_t n)
 {
-#ifdef USE_SSE
 	AlignedFree(p);
-#else
-	::delete(p);
-#endif
 };
 
 void RRAligned::operator delete[](void* p, std::size_t n)
 {
-#ifdef USE_SSE
 	AlignedFree(p);
-#else
-	::delete(p);
-#endif
 };
 
 RRRay::RRRay()

@@ -1,1 +1,1 @@
-@-min make
+@-min make %1

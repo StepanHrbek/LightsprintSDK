@@ -4,6 +4,7 @@
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "rrcore.h"
 #include "interpol.h"
 
