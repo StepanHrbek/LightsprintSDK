@@ -233,5 +233,6 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf, rrCollider::RRCol
 		RRScene::ObjectHandle handle = rrscene->objectCreate(importer);
 		world->object[o].obj = rrscene->getObject(handle);
 	}	
+	//rrscene->sceneFreeze(true); //speedup for multiobject scenes, not necessary for rr
 	return rrscene;
 }

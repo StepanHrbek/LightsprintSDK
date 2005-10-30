@@ -130,9 +130,23 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	static SkipTriangle skipTriangle(INT_MAX);
 	ray.surfaceImporter = &skipTriangle;
 
-	/*if(multiCollider)
+	if(multiCollider)
 	{
-		//!!!skipTriangle.skip = (unsigned)(skip-object[o]->triangle);
+		struct PreImportNumber 
+		{
+			unsigned index : sizeof(unsigned)*8-12; // 32bit: max 1M triangles/vertices in one object
+			unsigned object : 12; // 32bit: max 4k objects
+			PreImportNumber() {}
+			PreImportNumber(unsigned i) {*(unsigned*)this = i;} // implicit unsigned -> PreImportNumber conversion
+			operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
+		};
+		PreImportNumber preImportSkip;
+		preImportSkip.object = skip->object->id; // we expect that object id is object index in scene
+		assert(preImportSkip.object<objects);
+		preImportSkip.index = (unsigned)(skip-object[preImportSkip.object]->triangle);
+		assert(preImportSkip.index<object[preImportSkip.object]->triangles);
+
+		skipTriangle.skip = multiCollider->getImporter()->getPostImportTriangle(preImportSkip);
 		ray.rayOrigin[0] = eye.x;
 		ray.rayOrigin[1] = eye.y;
 		ray.rayOrigin[2] = eye.z;
@@ -140,9 +154,13 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 		ray.rayDirInv[1] = 1/direction[1];
 		ray.rayDirInv[2] = 1/direction[2];
 		if(!multiCollider->intersect(&ray)) return NULL;
-		unsigned obj = ray.hitTriangle>>18; //!!!
-		unsigned tri = ray.hitTriangle&0x3ffff; //!!!
+		PreImportNumber preImportNumber = multiCollider->getImporter()->getPreImportTriangle(ray.hitTriangle);
+		unsigned obj = preImportNumber.object;
+		unsigned tri = preImportNumber.index;
+		assert(obj<staticObjects);
+		assert(tri<object[obj]->triangles);
 		hitTriangle = &object[obj]->triangle[tri];
+		assert(hitTriangle!=skip);
 
 		// compensate for our rotations
 		switch(hitTriangle->rotations)
@@ -166,7 +184,7 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 		}
 		assert(hitTriangle->u2.y==0);
 	}
-	else*/
+	else
 
 	/* this could bring microscopic speedup, not worth it
 	if(staticObjects==1)

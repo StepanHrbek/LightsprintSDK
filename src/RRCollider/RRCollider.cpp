@@ -604,7 +604,12 @@ public:
 		if(t<pack[0].getNumTriangles()) 
 			pack[0].getImporter()->getTriangle(t,out);
 		else
+		{
 			pack[1].getImporter()->getTriangle(t-pack[0].getNumTriangles(),out);
+			out[0] += pack[0].getNumVertices();
+			out[1] += pack[0].getNumVertices();
+			out[2] += pack[0].getNumVertices();
+		}
 	}
 
 	// optional for faster access
@@ -627,18 +632,20 @@ public:
 	};
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	{
+		assert(0);//!!! just mark that this code was not tested
 		if(postImportVertex<pack[0].getNumVertices()) 
 		{
 			return pack[0].getImporter()->getPreImportVertex(postImportVertex, postImportTriangle);
 		} else {
 			PreImportNumber preImport = pack[1].getImporter()->getPreImportVertex(postImportVertex-pack[0].getNumVertices(), postImportTriangle-pack[0].getNumTriangles());
+			assert(preImport.object<pack[1].getNumObjects());
 			preImport.object += pack[0].getNumObjects();
-			preImport.index += pack[0].getNumVertices();
 			return preImport;
 		}
 	}
 	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const 
 	{
+		assert(0);//!!! just mark that this code was not tested
 		PreImportNumber preImportV = preImportVertex;
 		PreImportNumber preImportT = preImportTriangle;
 		if(preImportV.object<pack[0].getNumObjects()) 
@@ -646,10 +653,10 @@ public:
 			return pack[0].getImporter()->getPostImportVertex(preImportV, preImportT);
 		} else {
 			preImportV.object -= pack[0].getNumObjects();
-			preImportV.index -= pack[0].getNumVertices();
 			preImportT.object -= pack[0].getNumObjects();
-			preImportT.index -= pack[0].getNumTriangles();
-			return pack[1].getImporter()->getPostImportVertex(preImportV, preImportT);
+			assert(preImportV.object<pack[1].getNumObjects());
+			assert(preImportT.object<pack[1].getNumObjects());
+			return pack[0].getNumVertices() + pack[1].getImporter()->getPostImportVertex(preImportV, preImportT);
 		}
 	}
 	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const 
@@ -659,8 +666,8 @@ public:
 			return pack[0].getImporter()->getPreImportTriangle(postImportTriangle);
 		} else {
 			PreImportNumber preImport = pack[1].getImporter()->getPreImportTriangle(postImportTriangle-pack[0].getNumTriangles());
+			assert(preImport.object<pack[1].getNumObjects());
 			preImport.object += pack[0].getNumObjects();
-			preImport.index += pack[0].getNumTriangles();
 			return preImport;
 		}
 	}
@@ -672,8 +679,8 @@ public:
 			return pack[0].getImporter()->getPostImportTriangle(preImport);
 		} else {
 			preImport.object -= pack[0].getNumObjects();
-			preImport.index -= pack[0].getNumTriangles();
-			return pack[1].getImporter()->getPostImportTriangle(preImport);
+			assert(preImport.object<pack[1].getNumObjects());
+			return pack[0].getNumTriangles() + pack[1].getImporter()->getPostImportTriangle(preImport);
 		}
 	}
 

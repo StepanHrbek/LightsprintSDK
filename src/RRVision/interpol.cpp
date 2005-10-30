@@ -818,7 +818,7 @@ void Object::buildTopIVertices()
 	// merge close ivertices into 1 big + 1 empty
 	// (empty will be later detected and reported as unused)
 	unsigned numIVertices = vertices;
-	printf("IVertices loaded: %d\n",numIVertices);
+	//printf("IVertices loaded: %d\n",numIVertices);
 #ifdef SUPPORT_MIN_FEATURE_SIZE
 	check();
 	// volano jen pokud ma neco delat -> malinka uspora casu
@@ -830,7 +830,7 @@ void Object::buildTopIVertices()
 		// Ona fce je jedine misto pouzivajici exceptions, ale exceptions jsou vyple (jejich zapnuti zpomali o dalsich 12%).
 		numIVertices -= mergeCloseIVertices(topivertex);
 		check();
-		printf("IVertices after merge close: %d\n",numIVertices);
+		//printf("IVertices after merge close: %d\n",numIVertices);
 	}
 #endif
 
@@ -851,7 +851,7 @@ void Object::buildTopIVertices()
 			}
 		}*/
 	}
-	printf("IVertices after splitting: %d\n",numIVertices);
+	//printf("IVertices after splitting: %d\n",numIVertices);
 	check();
 
 	// report unused vertices

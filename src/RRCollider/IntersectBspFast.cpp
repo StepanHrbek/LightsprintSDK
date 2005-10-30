@@ -219,8 +219,12 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	//static const unsigned tablo[3][9] = {{0,1,2,0,1,2,0,1,2},{1,2,0,1,2,0,1,2,0},{2,2,2,0,0,0,1,1,1}};
 	//int x=tablo[0][t->intersectByte], y=tablo[1][t->intersectByte], z=tablo[2][t->intersectByte];
 	CASE(x,y,z);
-	assert(IS_NUMBER(u));
-	assert(IS_NUMBER(v));
+	if(t->intersectByte!=10)
+	{
+		// valid (not degenerated) triangle
+		assert(IS_NUMBER(u));
+		assert(IS_NUMBER(v));
+	}
 	if(u<0 || u+v>1) return false;
 	//!!! degenerated triangles should be removed at bsp build time, not here
 	if(t->intersectByte>8) return false; // throw out degenerated triangle that was hit

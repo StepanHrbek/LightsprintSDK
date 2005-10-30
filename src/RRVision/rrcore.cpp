@@ -2152,11 +2152,7 @@ Scene::Scene()
 Scene::~Scene()
 {
 	abortStaticImprovement();
-	if(multiCollider)
-	{
-		delete multiCollider->getImporter();
-		delete multiCollider;
-	}
+	freeze(false);
 	for(unsigned o=0;o<objects;o++) delete object[o];
 	free(object);
 	delete[] surface;
@@ -2164,6 +2160,7 @@ Scene::~Scene()
 
 void Scene::objInsertStatic(Object *o)
 {
+	freeze(false);
 	if(objects==allocatedObjects)
 	{
 		size_t oldsize=allocatedObjects*sizeof(Object *);
@@ -2173,6 +2170,10 @@ void Scene::objInsertStatic(Object *o)
 	object[objects++]=object[staticObjects];
 	object[staticObjects++]=o;
 
+	// object id=index into object array
+	object[objects-1]->id = objects-1;
+	object[staticObjects-1]->id = staticObjects-1;
+
 	staticReflectors.insertObject(o);
 
 	staticSourceExitingFlux+=o->objSourceExitingFlux;
@@ -2180,6 +2181,7 @@ void Scene::objInsertStatic(Object *o)
 
 void Scene::objRemoveStatic(unsigned o)
 {
+	freeze(false);
 	assert(o<staticObjects);
 
 	staticReflectors.removeObject(object[o]);
@@ -2196,6 +2198,36 @@ unsigned Scene::objNdx(Object *o)
 	    if(object[i]==o) return i;
 	assert(0);
 	return 0xffffffff;
+}
+
+bool Scene::isFrozen()
+{
+	return multiCollider!=NULL;
+}
+
+void Scene::freeze(bool yes)
+{
+	if(yes)
+	{
+		if(!multiCollider)
+		{
+			unsigned numMeshes = staticObjects;
+			rrCollider::RRMeshImporter** meshes = new rrCollider::RRMeshImporter*[numMeshes];
+			for(unsigned i=0;i<numMeshes;i++) meshes[i] = object[i]->importer->getCollider()->getImporter();
+			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(meshes,numMeshes);
+			multiCollider = rrCollider::RRCollider::create(multiMesh,rrCollider::RRCollider::IT_BSP_FASTEST);
+			delete[] meshes;
+		}
+	}
+	else
+	{
+		if(multiCollider)
+		{
+			if(staticObjects>1) delete multiCollider->getImporter();
+			delete multiCollider;
+			multiCollider = NULL;
+		}
+	}
 }
 
 RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
@@ -2221,16 +2253,6 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 	__preserveFactors=false;
 	for(unsigned o=0;o<staticObjects;o++) staticSourceExitingFlux+=object[o]->objSourceExitingFlux;
 	for(unsigned o=staticObjects;o<objects;o++) dynamicSourceExitingFlux+=object[o]->objSourceExitingFlux;
-
-	/*if(!multiCollider)
-	{
-		unsigned numMeshes = staticObjects;
-		rrCollider::RRMeshImporter** meshes = new rrCollider::RRMeshImporter*[numMeshes];
-		for(unsigned i=0;i<numMeshes;i++) meshes[i] = object[i]->importer->getCollider()->getImporter();
-		rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(meshes,numMeshes);
-		multiCollider = rrCollider::RRCollider::create(multiMesh,rrCollider::RRCollider::IT_BSP_FASTEST);
-		delete[] meshes;
-	}*/
 
 //for(unsigned o=0;o<objects;o++) staticReflectors.insertObject(object[o]);
 //printf("----------\n");
@@ -3051,7 +3073,6 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 //
 // improve global illumination in scene by only distributing energy
 
-
 bool Scene::distribute(real maxError)
 {
 	DBGLINE
@@ -3085,6 +3106,7 @@ RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 	if(!IS_CHANNELS(staticSourceExitingFlux)) return RRScene::INTERNAL_ERROR; // invalid internal data
 	DBGLINE
 	RRSetState(RRSS_IMPROVE_CALLS,RRGetState(RRSS_IMPROVE_CALLS)+1);
+
 	RRScene::Improvement improved=RRScene::NOT_IMPROVED;
 	__staticReflectors=&staticReflectors;
 	do

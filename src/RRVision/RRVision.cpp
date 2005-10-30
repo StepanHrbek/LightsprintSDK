@@ -36,6 +36,32 @@ namespace rrVision
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRObjectImporter
+
+void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
+{
+	rrCollider::RRMeshImporter::TriangleBody tb;
+	getCollider()->getImporter()->getTriangleBody(t,tb);
+	Vec3 norm = ortogonalTo(*(Vec3*)&tb.side1,*(Vec3*)&tb.side2);
+	*(Vec3*)(out.norm[0]) = norm;
+	*(Vec3*)(out.norm[1]) = norm;
+	*(Vec3*)(out.norm[2]) = norm;
+}
+
+void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
+{
+	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
+	out.uv[0][0] = 1.0f*t/numTriangles;
+	out.uv[0][1] = 0;
+	out.uv[1][0] = 1.0f*(t+1)/numTriangles;
+	out.uv[1][1] = 0;
+	out.uv[2][0] = 1.0f*t/numTriangles;
+	out.uv[2][1] = 1;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // Base class for mesh import filters.
 
 class RRFilteredMeshImporter : public rrCollider::RRMeshImporter
@@ -289,6 +315,11 @@ private:
 	rrCollider::RRCollider* multiCollider;
 	rrCollider::RRMeshImporter** transformedMeshes;
 };
+
+void RRScene::sceneFreeze(bool yes)
+{
+	scene->freeze(yes);
+}
 
 
 //////////////////////////////////////////////////////////////////////////////

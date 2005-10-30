@@ -120,12 +120,17 @@ namespace rrVision
 		virtual const rrCollider::RRCollider* getCollider() const = 0;
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*          getSurface(unsigned s) = 0;
+		// optional
 		virtual const RRReal*       getTriangleAdditionalRadiantExitance(unsigned t) const {return 0;} // radiant exitance in watts per square meter. 
 		virtual const RRReal*       getTriangleAdditionalRadiantExitingFlux(unsigned t) const {return 0;} // radiant flux in watts. implement only one of these two methods.
+		struct TriangleNormals      {RRReal norm[3][3];}; // 3x normal in object space
+		struct TriangleMapping      {RRReal uv[3][2];}; // 3x uv
+		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out);
+		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); // unwrap
 
 		// may change during object lifetime
-		virtual const RRReal*       getWorldMatrix() = 0;
-		virtual const RRReal*       getInvWorldMatrix() = 0;
+		virtual const RRReal*       getWorldMatrix() = 0; // may return identity as NULL 
+		virtual const RRReal*       getInvWorldMatrix() = 0; // may return identity as NULL 
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -163,6 +168,7 @@ namespace rrVision
 			FINISHED,       // Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
 			INTERNAL_ERROR, // Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};
+		void          sceneFreeze(bool yes);
 		Improvement   sceneResetStatic(bool resetFactors);
 		Improvement   sceneImproveStatic(bool endfunc(void*), void* context);
 		RRReal        sceneGetAccuracy();
@@ -245,7 +251,7 @@ namespace rrVision
 		EXPIRED,     // Expired license.
 		WRONG,       // Wrong license.
 		NO_INET,     // No internet connection to verify license.
-		UNAVAILABLE, // Temporarily unable to verify license. Quit and try later.
+		UNAVAILABLE, // Temporarily unable to verify license, try later.
 	};
 	LicenseStatus RRVISION_API registerLicense(char* licenseOwner, char* licenseNumber);
 

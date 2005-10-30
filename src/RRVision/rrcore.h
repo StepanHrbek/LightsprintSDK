@@ -800,6 +800,10 @@ public:
 	void    objInsertStatic(Object *aobject);
 	void    objRemoveStatic(unsigned o);
 	unsigned objNdx(Object *aobject);
+
+	void    freeze(bool yes); // makes multi-object calculation faster, but no object insert/remove/transform is allowed then
+	bool    isFrozen();
+
 	RRScene::Improvement improveStatic(bool endfunc(void*), void* context);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
