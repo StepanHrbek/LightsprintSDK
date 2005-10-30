@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2005.10.29
+// version 2005.10.30
 //
 // - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms

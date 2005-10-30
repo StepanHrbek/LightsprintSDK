@@ -226,7 +226,7 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf, rrCollider::RRCol
 	// load geometry
 	RRScene *rrscene=new RRScene();
 	DBG(printf("Loading geometry...\n"));
-	for (int o=0;o<world->object_num;o++) 
+	for(int o=0;o<world->object_num;o++) 
 	{
 		// dynamic = w->object[o].pos.num!=1 || w->object[o].rot.num!=1
 		WorldObjectImporter* importer = new WorldObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces, intersectTechnique);

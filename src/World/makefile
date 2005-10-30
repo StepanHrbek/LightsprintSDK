@@ -15,7 +15,6 @@ all: makefile $(LIB)
 $(LIB): makefile $(OBJS)
 	ar rc $(LIB) $(OBJS)
 	ranlib $(LIB)
-	copy include\*.* ..\..\include
 
 clean:
 	del $(TMP)*.o

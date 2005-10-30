@@ -41,6 +41,7 @@
 #endif
 
 #include <stdarg.h>
+
 #include "geometry.h"
 #include "RRVision.h"
 #include "interpol.h"
@@ -786,6 +787,7 @@ public:
 	unsigned objects;
 	RRSurface *surface;
 	unsigned surfaces;
+	rrCollider::RRCollider* multiCollider;
 
 	Triangle* intersectionStatic(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
 	Triangle* intersectionDynobj(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);

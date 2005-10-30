@@ -22,6 +22,11 @@ void          sceneSetColorFilter(const RRReal* colorFilter);
 #include "rrcore.h"
 #include "RRVision.h"
 
+#ifdef _MSC_VER
+	// turn on all licensing stuff
+	#include "LicGen.h"
+#endif
+
 namespace rrVision
 {
 
@@ -809,6 +814,8 @@ const char* unmask(const char* str,char* buf)
 
 LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber)
 {
+	licenseStatusValid = true;
+	licenseStatus = VALID;
 	return VALID;
 }
 

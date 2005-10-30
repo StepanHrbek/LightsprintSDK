@@ -2146,11 +2146,17 @@ Scene::Scene()
 	dynamicSourceExitingFlux=Channels(SMALL_ENERGY); //to avoid division by zero in black scene
 	improveBig=0.5f;
 	improveInaccurate=0.99f;
+	multiCollider=NULL;
 }
 
 Scene::~Scene()
 {
 	abortStaticImprovement();
+	if(multiCollider)
+	{
+		delete multiCollider->getImporter();
+		delete multiCollider;
+	}
 	for(unsigned o=0;o<objects;o++) delete object[o];
 	free(object);
 	delete[] surface;
@@ -2215,6 +2221,16 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 	__preserveFactors=false;
 	for(unsigned o=0;o<staticObjects;o++) staticSourceExitingFlux+=object[o]->objSourceExitingFlux;
 	for(unsigned o=staticObjects;o<objects;o++) dynamicSourceExitingFlux+=object[o]->objSourceExitingFlux;
+
+	/*if(!multiCollider)
+	{
+		unsigned numMeshes = staticObjects;
+		rrCollider::RRMeshImporter** meshes = new rrCollider::RRMeshImporter*[numMeshes];
+		for(unsigned i=0;i<numMeshes;i++) meshes[i] = object[i]->importer->getCollider()->getImporter();
+		rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(meshes,numMeshes);
+		multiCollider = rrCollider::RRCollider::create(multiMesh,rrCollider::RRCollider::IT_BSP_FASTEST);
+		delete[] meshes;
+	}*/
 
 //for(unsigned o=0;o<objects;o++) staticReflectors.insertObject(object[o]);
 //printf("----------\n");

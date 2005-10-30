@@ -73,9 +73,10 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 #endif
 #endif
 
-	// compensate for our rotations
 	assert(ray.hitTriangle>=0 && ray.hitTriangle<triangles);
 	Triangle* hitTriangle=&triangle[ray.hitTriangle];
+
+	// compensate for our rotations
 	switch(hitTriangle->rotations)
 	{
 	case 0:
@@ -128,6 +129,44 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	Triangle* hitTriangle = NULL;
 	static SkipTriangle skipTriangle(INT_MAX);
 	ray.surfaceImporter = &skipTriangle;
+
+	/*if(multiCollider)
+	{
+		//!!!skipTriangle.skip = (unsigned)(skip-object[o]->triangle);
+		ray.rayOrigin[0] = eye.x;
+		ray.rayOrigin[1] = eye.y;
+		ray.rayOrigin[2] = eye.z;
+		ray.rayDirInv[0] = 1/direction[0];
+		ray.rayDirInv[1] = 1/direction[1];
+		ray.rayDirInv[2] = 1/direction[2];
+		if(!multiCollider->intersect(&ray)) return NULL;
+		unsigned obj = ray.hitTriangle>>18; //!!!
+		unsigned tri = ray.hitTriangle&0x3ffff; //!!!
+		hitTriangle = &object[obj]->triangle[tri];
+
+		// compensate for our rotations
+		switch(hitTriangle->rotations)
+		{
+		case 0:
+			break;
+		case 1:
+			{real u=ray.hitPoint2d[0];
+			real v=ray.hitPoint2d[1];
+			ray.hitPoint2d[0]=v;
+			ray.hitPoint2d[1]=1-u-v;}
+			break;
+		case 2:
+			{real u=ray.hitPoint2d[0];
+			real v=ray.hitPoint2d[1];
+			ray.hitPoint2d[0]=1-u-v;
+			ray.hitPoint2d[1]=u;}
+			break;
+		default:
+			assert(0);
+		}
+		assert(hitTriangle->u2.y==0);
+	}
+	else*/
 
 	/* this could bring microscopic speedup, not worth it
 	if(staticObjects==1)

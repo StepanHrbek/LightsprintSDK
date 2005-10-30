@@ -19,7 +19,6 @@ $(LIB): makefile $(OBJS)
 	del ..\..\lib\libRRCollider.a
 	ar rc $(LIB) $(OBJS)
 	ranlib $(LIB)
-	copy include\*.* ..\..\include
 
 clean:
 	del $(TMP)*.o
