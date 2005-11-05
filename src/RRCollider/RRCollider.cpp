@@ -1,4 +1,5 @@
 #include "RRCollider.h"
+#include "RRFilteredMeshImporter.h"
 #include "IntersectBspCompact.h"
 #include "IntersectBspFast.h"
 #include "IntersectVerification.h"
