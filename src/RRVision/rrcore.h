@@ -792,7 +792,7 @@ public:
 	Triangle* intersectionStatic(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
 	Triangle* intersectionDynobj(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
 	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power=HitChannels(1));
-//	Color   rayTraceCamera(Point3 eye,Vec3 direction,Triangle *skip,Color power=Color(1,1,1));
+//	Color   rayTraceGather(Point3 eye,Vec3 normal,Triangle *skip,Color power=Color(1,1,1)); // decreasing power is used only for termination criteria
 
 	char    selectColorFilter(int i, const real *rgb=NULL);
 	int     turnLight(int whichLight,real intensity); // turns light on/off. just material, no energies modified (use resetStaticIllumination), returns number of lights (emitting materials) in scene
@@ -871,6 +871,7 @@ public:
 		real    improveBig;
 		real    improveInaccurate;
 		TReflectors staticReflectors; // top nodes in static Triangle trees
+		rrCollider::RRMeshImporter** multiObjectMeshes4Delete; // to be deleted with multiCollider
 };
 
 void core_Init();

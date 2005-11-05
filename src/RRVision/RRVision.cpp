@@ -19,13 +19,9 @@ void          sceneSetColorFilter(const RRReal* colorFilter);
 #include <memory.h>
 #include <stdio.h>
 
+#include "LicGenOpt.h"
 #include "rrcore.h"
 #include "RRVision.h"
-
-#ifdef _MSC_VER
-	// turn on all licensing stuff
-	#include "LicGen.h"
-#endif
 
 namespace rrVision
 {

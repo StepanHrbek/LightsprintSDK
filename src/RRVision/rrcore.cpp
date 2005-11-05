@@ -17,12 +17,9 @@
  #endif
 #endif
 //#include "libff/ff.h"
+#include "LicGenOpt.h"
 #include "rrcore.h"
 
-#ifdef _MSC_VER
-	// turn on all licensing stuff
-	#include "LicGen.h"
-#endif
 
 namespace rrVision
 {
@@ -40,7 +37,7 @@ namespace rrVision
 //#define LOG_LOADING_MES
 
 #ifdef _MSC_VER
-//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(43)
+//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(40)
 //#define GATE_SHOTS 10000 // max photons from one shooter
 //#define GATE_QUALITY 5000000 // max photons in scene
 //#define GATE_IP
@@ -2147,6 +2144,7 @@ Scene::Scene()
 	improveBig=0.5f;
 	improveInaccurate=0.99f;
 	multiCollider=NULL;
+	multiObjectMeshes4Delete=NULL;
 }
 
 Scene::~Scene()
@@ -2212,11 +2210,61 @@ void Scene::freeze(bool yes)
 		if(!multiCollider)
 		{
 			unsigned numMeshes = staticObjects;
-			rrCollider::RRMeshImporter** meshes = new rrCollider::RRMeshImporter*[numMeshes];
-			for(unsigned i=0;i<numMeshes;i++) meshes[i] = object[i]->importer->getCollider()->getImporter();
-			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(meshes,numMeshes);
+			rrCollider::RRMeshImporter** multiObjectMeshes = new rrCollider::RRMeshImporter*[numMeshes];
+			assert(!multiObjectMeshes4Delete);
+			multiObjectMeshes4Delete = new rrCollider::RRMeshImporter*[numMeshes];
+			//for(unsigned i=0;i<numMeshes;i++) 
+			for(unsigned i=0;i<numMeshes;i++)
+			{
+				if(object[i]->importer->getWorldMatrix())
+				{
+					multiObjectMeshes[i] = object[i]->importer->createWorldSpaceMesh();
+					multiObjectMeshes4Delete[i] = multiObjectMeshes[i];
+				}
+				else
+				{
+					multiObjectMeshes[i] = object[i]->importer->getCollider()->getImporter();
+					multiObjectMeshes4Delete[i] = NULL;
+				}
+			}
+			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(multiObjectMeshes,numMeshes);
+			multiMesh = multiMesh->createOptimizedVertices();
+
+			/*struct PreImportNumber 
+			{
+				unsigned index : sizeof(unsigned)*8-12; // 32bit: max 1M triangles/vertices in one object
+				unsigned object : 12; // 32bit: max 4k objects
+				PreImportNumber() {}
+				PreImportNumber(unsigned i) {*(unsigned*)this = i;} // implicit unsigned -> PreImportNumber conversion
+				operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
+			};
+			unsigned numTriangles = multiMesh->getNumTriangles();
+			for(unsigned i=0;i<numTriangles;i++)
+			{
+				PreImportNumber pre = multiMesh->getPreImportTriangle(i);
+				unsigned post = multiMesh->getPostImportTriangle(pre);
+				assert(post==i);
+				rrCollider::RRMeshImporter::TriangleBody bodyObj,bodyWorld;
+				multiMesh->getTriangleBody(post,bodyWorld);
+				assert(pre.object<numMeshes);
+				object[pre.object]->importer->getCollider()->getImporter()->getTriangleBody(meshes[pre.object]->getPostImportTriangle(pre.index),bodyObj);
+				Vec3* v0w=(Vec3*)&bodyWorld.vertex0;
+				Vec3* s1w=(Vec3*)&bodyWorld.side1;
+				Vec3* s2w=(Vec3*)&bodyWorld.side2;
+				Vec3* v0o=(Vec3*)&bodyObj.vertex0;
+				Vec3* s1o=(Vec3*)&bodyObj.side1;
+				Vec3* s2o=(Vec3*)&bodyObj.side2;
+				Vec3 v0t=v0o->transformed(object[pre.object]->transformMatrix);
+				Vec3 s1t=s1o->rotated(object[pre.object]->transformMatrix);
+				Vec3 s2t=s2o->rotated(object[pre.object]->transformMatrix);
+				int ww=1;
+				assert(size(*v0w-v0t)<.1f);
+				assert(size(*s1w-s1t)<.1f);
+				assert(size(*s2w-s2t)<.1f);
+			}*/
+
 			multiCollider = rrCollider::RRCollider::create(multiMesh,rrCollider::RRCollider::IT_BSP_FASTEST);
-			delete[] meshes;
+			delete[] multiObjectMeshes;
 		}
 	}
 	else
@@ -2224,6 +2272,13 @@ void Scene::freeze(bool yes)
 		if(multiCollider)
 		{
 			if(staticObjects>1) delete multiCollider->getImporter();
+			if(multiObjectMeshes4Delete)
+			{
+				for(unsigned i=0;i<staticObjects;i++)
+					delete multiObjectMeshes4Delete[i];
+				delete[] multiObjectMeshes4Delete;
+				multiObjectMeshes4Delete = NULL;
+			}
 			delete multiCollider;
 			multiCollider = NULL;
 		}
@@ -2384,6 +2439,12 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	s_depth--;
 	return hitPower;
 }
+
+// decreasing power is used only for termination criteria
+//Color Scene::rayTraceGather(Point3 eye,Vec3 normal,Triangle *skip,Color power=Color(1,1,1))
+//{
+
+//}
 
 //////////////////////////////////////////////////////////////////////////////
 //

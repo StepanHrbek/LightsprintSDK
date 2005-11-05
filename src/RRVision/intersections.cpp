@@ -143,21 +143,32 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 		PreImportNumber preImportSkip;
 		preImportSkip.object = skip->object->id; // we expect that object id is object index in scene
 		assert(preImportSkip.object<objects);
-		preImportSkip.index = (unsigned)(skip-object[preImportSkip.object]->triangle);
-		assert(preImportSkip.index<object[preImportSkip.object]->triangles);
-
+		// get single-postimport skip
+		unsigned postImportSkip = (unsigned)(skip-object[preImportSkip.object]->triangle);
+		assert(postImportSkip<object[preImportSkip.object]->triangles);
+		// get single-preimport skip
+		preImportSkip.index = object[preImportSkip.object]->importer->getCollider()->getImporter()->getPreImportTriangle(postImportSkip);
+		// get multi-postimport skip
 		skipTriangle.skip = multiCollider->getImporter()->getPostImportTriangle(preImportSkip);
+
 		ray.rayOrigin[0] = eye.x;
 		ray.rayOrigin[1] = eye.y;
 		ray.rayOrigin[2] = eye.z;
 		ray.rayDirInv[0] = 1/direction[0];
 		ray.rayDirInv[1] = 1/direction[1];
 		ray.rayDirInv[2] = 1/direction[2];
+		// get multi-postimport ray.hitTriangle
 		if(!multiCollider->intersect(&ray)) return NULL;
+		// convert to single-preimport preImportNumber.index
 		PreImportNumber preImportNumber = multiCollider->getImporter()->getPreImportTriangle(ray.hitTriangle);
 		unsigned obj = preImportNumber.object;
-		unsigned tri = preImportNumber.index;
+		// convert to single-postimport tri
 		assert(obj<staticObjects);
+		assert(object[obj]);
+		assert(object[obj]->importer);
+		assert(object[obj]->importer->getCollider());
+		assert(object[obj]->importer->getCollider()->getImporter());
+		unsigned tri = object[obj]->importer->getCollider()->getImporter()->getPostImportTriangle(preImportNumber.index);
 		assert(tri<object[obj]->triangles);
 		hitTriangle = &object[obj]->triangle[tri];
 		assert(hitTriangle!=skip);
@@ -183,6 +194,9 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 			assert(0);
 		}
 		assert(hitTriangle->u2.y==0);
+
+		// jen kvuli logovani
+		ray.rayLengthMax = ray.hitDistance;
 	}
 	else
 

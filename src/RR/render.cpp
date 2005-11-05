@@ -1104,7 +1104,7 @@ void render_world(WORLD *w, rrVision::RRScene* scene, int camera_id, bool mirror
 	unsigned color=123456;
 	Vec3 direction=;
 	Color c={1,1,1};
-	rayTraceCamera(eye,direction,NULL,color);
+	rayTraceGather(eye,direction,NULL,color);
 	real b=getBrightness(i);
 	video_PutPixel(x,y,color);
 	}

@@ -120,6 +120,7 @@ namespace rrCollider
 		static RRMeshImporter* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
 		RRMeshImporter*        createCopy();
 		static RRMeshImporter* createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes);
+		RRMeshImporter*        createOptimizedVertices(float vertexStitchMaxDistance = 0);
 		bool                   save(char* filename);
 		static RRMeshImporter* load(char* filename);
 	};

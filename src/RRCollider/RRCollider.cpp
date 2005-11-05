@@ -324,9 +324,9 @@ dupl:;
 	}
 
 protected:
-	INDEX*               Unique2Dupl;
-	INDEX*               Dupl2Unique;
-	unsigned             UniqueVertices;
+	INDEX*               Unique2Dupl;    // small -> big number translation, one small number translates to one of many suitable big numbers
+	INDEX*               Dupl2Unique;    // big -> small number translation
+	unsigned             UniqueVertices; // small number of unique vertices, UniqueVertices<=INHERITED.getNumVertices()
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -376,7 +376,7 @@ public:
 	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
 	{
 		// efficient implementation would require another translation array
-		for(unsigned post=0;post<ValidIndices-2;post++)
+		for(unsigned post=0;post<ValidIndices;post++)
 			if(ValidIndex[post]==preImportTriangle)
 				return post;
 		return UINT_MAX;
@@ -663,7 +663,8 @@ public:
 	{
 		if(postImportTriangle<pack[0].getNumTriangles()) 
 		{
-			return pack[0].getImporter()->getPreImportTriangle(postImportTriangle);
+			PreImportNumber preImport = pack[0].getImporter()->getPreImportTriangle(postImportTriangle);
+			return preImport;
 		} else {
 			PreImportNumber preImport = pack[1].getImporter()->getPreImportTriangle(postImportTriangle-pack[0].getNumTriangles());
 			assert(preImport.object<pack[1].getNumObjects());
@@ -848,6 +849,11 @@ RRMeshImporter* RRMeshImporter::createCopy()
 RRMeshImporter* RRMeshImporter::createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes)
 {
 	return RRMultiMeshImporter::create(meshes,numMeshes);
+}
+
+RRMeshImporter* RRMeshImporter::createOptimizedVertices(float vertexStitchMaxDistance)
+{
+	return this;//!!!new RRLessVerticesImporter<RRFilteredMeshImporter,unsigned>(this,vertexStitchMaxDistance);
 }
 
 

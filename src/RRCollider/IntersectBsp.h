@@ -15,12 +15,8 @@
 #include "bsp.h"
 #include "cache.h"
 #include "IntersectLinear.h"
+#include "LicGenOpt.h"
 #include "sha1.h"
-
-#ifdef _MSC_VER
-	// turn on all licensing stuff
-	#include "LicGen.h"
-#endif
 
 namespace rrCollider
 {
