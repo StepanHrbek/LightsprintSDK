@@ -249,7 +249,7 @@ private:
 	rrCollider::RRMeshImporter** transformedMeshes;
 };
 
-void RRScene::sceneFreeze(bool yes)
+void RRScene::sceneFreezeGeometry(bool yes)
 {
 	scene->freeze(yes);
 }

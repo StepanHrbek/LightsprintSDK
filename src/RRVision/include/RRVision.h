@@ -168,7 +168,7 @@ namespace rrVision
 			FINISHED,       // Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
 			INTERNAL_ERROR, // Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};
-		void          sceneFreeze(bool yes);
+		void          sceneFreezeGeometry(bool yes);
 		Improvement   sceneResetStatic(bool resetFactors);
 		Improvement   sceneImproveStatic(bool endfunc(void*), void* context);
 		RRReal        sceneGetAccuracy();

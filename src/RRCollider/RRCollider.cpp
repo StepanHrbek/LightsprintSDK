@@ -244,6 +244,19 @@ public:
 // RRLessVerticesImporter<IMPORTER,INDEX>  - importer fast-filter that removes duplicate vertices
 // RRLessTrianglesImporter<IMPORTER,INDEX> - importer fast-filter that removes degenerate triangles
 
+int compareXyz(const void* elem1, const void* elem2)
+{
+	RRMeshImporter::Vertex& v1 = **(RRMeshImporter::Vertex**)elem1;
+	RRMeshImporter::Vertex& v2 = **(RRMeshImporter::Vertex**)elem2;
+	if(v1[0]<v2[0]) return -1;
+	if(v1[0]>v2[0]) return +1;
+	/*if(v1[1]<v2[1]) return -1;
+	if(v1[1]>v2[1]) return +1;
+	if(v1[2]<v2[2]) return -1;
+	if(v1[2]>v2[2]) return +1;*/
+	return 0;
+}
+
 template <class INDEX>
 class RRLessVerticesFilter : public RRMeshFilter
 {
@@ -251,22 +264,40 @@ public:
 	RRLessVerticesFilter(const RRMeshImporter* original, float MAX_STITCH_DISTANCE)
 		: RRMeshFilter(original)
 	{
-		unsigned vertices = importer->getNumVertices();
-		INDEX tmp = vertices;
-		assert(tmp==vertices);
-		Dupl2Unique = new INDEX[vertices];
-		Unique2Dupl = new INDEX[vertices];
+		// prepare translation arrays
+		unsigned numVertices = importer->getNumVertices();
+		INDEX tmp = numVertices;
+		assert(tmp==numVertices);
+		Dupl2Unique = new INDEX[numVertices];
+		Unique2Dupl = new INDEX[numVertices];
 		UniqueVertices = 0;
-		for(unsigned d=0;d<vertices;d++)
+
+		// build temporary x-sorted array of vertices
+		RRMeshImporter::Vertex* vertices = new RRMeshImporter::Vertex[numVertices];
+		RRMeshImporter::Vertex** sortedVertices = new RRMeshImporter::Vertex*[numVertices];
+		for(unsigned i=0;i<numVertices;i++)
 		{
-			RRMeshImporter::Vertex dfl;
-			importer->getVertex(d,dfl);
-			for(unsigned u=0;u<UniqueVertices;u++)
+			importer->getVertex(i,vertices[i]);
+			sortedVertices[i] = &vertices[i];
+		}
+		qsort(sortedVertices,numVertices,sizeof(RRMeshImporter::Vertex*),compareXyz);
+
+		// find duplicates and stitch, fill translation arrays
+		// for each vertex
+		for(unsigned ds=0;ds<numVertices;ds++) // ds=index into sortedVertices
+		{
+			unsigned d = sortedVertices[ds]-vertices; // d=prefiltered/importer vertex, index into Dupl2Unique
+			assert(d<numVertices);
+			RRMeshImporter::Vertex& dfl = vertices[d];
+			// test his distance against all already found unique vertices
+			for(unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
 			{
-				RRMeshImporter::Vertex ufl;
-				importer->getVertex(Unique2Dupl[u],ufl);
+				RRMeshImporter::Vertex& ufl = vertices[Unique2Dupl[u]];
+				// stop when testing too x-distant vertex (all close vertices were already tested)
 				//#define CLOSE(a,b) ((a)==(b))
-#define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
+				#define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
+				if(!CLOSE(dfl[0],ufl[0])) break;
+				// this is candidate for stitching, do final test
 				if(CLOSE(dfl[0],ufl[0]) && CLOSE(dfl[1],ufl[1]) && CLOSE(dfl[2],ufl[2])) 
 				{
 					Dupl2Unique[d] = u;
@@ -277,8 +308,10 @@ public:
 			Dupl2Unique[d] = UniqueVertices++;
 dupl:;
 		}
-		//arab: 35f7 -> 350f
-		//int q=1;//!!!
+
+		// delete temporaries
+		delete[] vertices;
+		delete[] sortedVertices;
 	}
 	~RRLessVerticesFilter()
 	{
@@ -336,24 +369,43 @@ template <class INHERITED, class INDEX>
 class RRLessVerticesImporter : public INHERITED
 {
 public:
-	RRLessVerticesImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices, float MAX_STITCH_DISTANCE)
-		: INHERITED(vbuffer,vertices,stride,ibuffer,indices)
+	RRLessVerticesImporter(char* vbuffer, unsigned avertices, unsigned stride, INDEX* ibuffer, unsigned indices, float MAX_STITCH_DISTANCE)
+		: INHERITED(vbuffer,avertices,stride,ibuffer,indices)
 	{
-		INDEX tmp = vertices;
-		assert(tmp==vertices);
-		Dupl2Unique = new INDEX[vertices];
-		Unique2Dupl = new INDEX[vertices];
+		INDEX tmp = avertices;
+		assert(tmp==avertices);
+		// prepare translation arrays
+		unsigned numVertices = avertices;
+		Dupl2Unique = new INDEX[numVertices];
+		Unique2Dupl = new INDEX[numVertices];
 		UniqueVertices = 0;
-		for(unsigned d=0;d<vertices;d++)
+
+		// build temporary x-sorted array of vertices
+		RRMeshImporter::Vertex* vertices = new RRMeshImporter::Vertex[numVertices];
+		RRMeshImporter::Vertex** sortedVertices = new RRMeshImporter::Vertex*[numVertices];
+		for(unsigned i=0;i<numVertices;i++)
 		{
-			RRMeshImporter::Vertex dfl;
-			INHERITED::getVertex(d,dfl);
-			for(unsigned u=0;u<UniqueVertices;u++)
+			INHERITED::getVertex(i,vertices[i]);
+			sortedVertices[i] = &vertices[i];
+		}
+		qsort(sortedVertices,numVertices,sizeof(RRMeshImporter::Vertex*),compareXyz);
+
+		// find duplicates and stitch, fill translation arrays
+		// for each vertex
+		for(unsigned ds=0;ds<numVertices;ds++) // ds=index into sortedVertices
+		{
+			unsigned d = sortedVertices[ds]-vertices; // d=prefiltered/importer vertex, index into Dupl2Unique
+			assert(d<numVertices);
+			RRMeshImporter::Vertex& dfl = vertices[d];
+			// test his distance against all already found unique vertices
+			for(unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
 			{
-				RRMeshImporter::Vertex ufl;
-				INHERITED::getVertex(Unique2Dupl[u],ufl);
-//#define CLOSE(a,b) ((a)==(b))
+				RRMeshImporter::Vertex& ufl = vertices[Unique2Dupl[u]];
+				// stop when testing too x-distant vertex (all close vertices were already tested)
+				//#define CLOSE(a,b) ((a)==(b))
 #define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
+				if(!CLOSE(dfl[0],ufl[0])) break;
+				// this is candidate for stitching, do final test
 				if(CLOSE(dfl[0],ufl[0]) && CLOSE(dfl[1],ufl[1]) && CLOSE(dfl[2],ufl[2])) 
 				{
 					Dupl2Unique[d] = u;
@@ -364,6 +416,10 @@ public:
 			Dupl2Unique[d] = UniqueVertices++;
 dupl:;
 		}
+
+		// delete temporaries
+		delete[] vertices;
+		delete[] sortedVertices;
 	}
 	~RRLessVerticesImporter()
 	{
