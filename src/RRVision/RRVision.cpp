@@ -61,15 +61,15 @@ void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
 //
 // Transformed mesh importer has all vertices transformed by matrix.
 
-class RRTransformedMeshImporter : public rrCollider::RRMeshFilter
+class RRTransformedMeshFilter : public rrCollider::RRMeshFilter
 {
 public:
-	RRTransformedMeshImporter(RRMeshImporter* mesh, const RRReal* matrix)
+	RRTransformedMeshFilter(RRMeshImporter* mesh, const RRReal* matrix)
 		: RRMeshFilter(mesh)
 	{
 		m = matrix;
 	}
-	/*RRTransformedMeshImporter(RRObjectImporter* object)
+	/*RRTransformedMeshFilter(RRObjectImporter* object)
 	: RRMeshFilter(object->getCollider()->getImporter())
 	{
 	m = object->getWorldMatrix();
@@ -261,7 +261,7 @@ void RRScene::sceneFreeze(bool yes)
 
 rrCollider::RRMeshImporter* RRObjectImporter::createWorldSpaceMesh()
 {
-	return new RRTransformedMeshImporter(getCollider()->getImporter(),getWorldMatrix());
+	return new RRTransformedMeshFilter(getCollider()->getImporter(),getWorldMatrix());
 }
 
 RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* objects, unsigned numObjects)
