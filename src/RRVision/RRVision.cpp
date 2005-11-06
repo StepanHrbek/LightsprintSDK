@@ -21,7 +21,7 @@ void          sceneSetColorFilter(const RRReal* colorFilter);
 
 #include "LicGenOpt.h"
 #include "rrcore.h"
-#include "RRFilteredMeshImporter.h"
+#include "RRMeshFilter.h"
 #include "RRVision.h"
 
 namespace rrVision
