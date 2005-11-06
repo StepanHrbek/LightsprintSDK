@@ -61,16 +61,16 @@ void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
 //
 // Transformed mesh importer has all vertices transformed by matrix.
 
-class RRTransformedMeshImporter : public rrCollider::RRFilteredMeshImporter
+class RRTransformedMeshImporter : public rrCollider::RRMeshFilter
 {
 public:
 	RRTransformedMeshImporter(RRMeshImporter* mesh, const RRReal* matrix)
-		: RRFilteredMeshImporter(mesh)
+		: RRMeshFilter(mesh)
 	{
 		m = matrix;
 	}
 	/*RRTransformedMeshImporter(RRObjectImporter* object)
-	: RRFilteredMeshImporter(object->getCollider()->getImporter())
+	: RRMeshFilter(object->getCollider()->getImporter())
 	{
 	m = object->getWorldMatrix();
 	}*/

@@ -312,6 +312,9 @@
 				RelativePath="..\include\RRCollider.h">
 			</File>
 			<File
+				RelativePath="..\include\RRMeshFilter.h">
+			</File>
+			<File
 				RelativePath="..\sha1.h">
 			</File>
 			<File

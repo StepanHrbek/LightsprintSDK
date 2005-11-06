@@ -1,5 +1,5 @@
-#ifndef COLLIDER_RRFILTEREDMESHIMPORTER_H
-#define COLLIDER_RRFILTEREDMESHIMPORTER_H
+#ifndef COLLIDER_RRMESHFILTER_H
+#define COLLIDER_RRMESHFILTER_H
 
 #include "RRCollider.h"
 
@@ -10,16 +10,16 @@ namespace rrCollider
 //
 // Base class for mesh import filters.
 
-class RRFilteredMeshImporter : public rrCollider::RRMeshImporter
+class RRMeshFilter : public rrCollider::RRMeshImporter
 {
 public:
-	RRFilteredMeshImporter(const RRMeshImporter* mesh)
+	RRMeshFilter(const RRMeshImporter* original)
 	{
-		importer = mesh;
+		importer = original;
 		numVertices = importer ? importer->getNumVertices() : 0;
 		numTriangles = importer ? importer->getNumTriangles() : 0;
 	}
-	virtual ~RRFilteredMeshImporter()
+	virtual ~RRMeshFilter()
 	{
 		// Delete only what was created by us, not params.
 		// So don't delete importer.

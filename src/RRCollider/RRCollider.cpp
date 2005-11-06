@@ -248,9 +248,10 @@ template <class INDEX>
 class RRLessVerticesFilter : public RRMeshFilter
 {
 public:
-	RRLessVerticesImporter(RRMeshImporter* original, float MAX_STITCH_DISTANCE)
+	RRLessVerticesFilter(const RRMeshImporter* original, float MAX_STITCH_DISTANCE)
 		: RRMeshFilter(original)
 	{
+		unsigned vertices = importer->getNumVertices();
 		INDEX tmp = vertices;
 		assert(tmp==vertices);
 		Dupl2Unique = new INDEX[vertices];
@@ -259,11 +260,11 @@ public:
 		for(unsigned d=0;d<vertices;d++)
 		{
 			RRMeshImporter::Vertex dfl;
-			original->getVertex(d,dfl);
+			importer->getVertex(d,dfl);
 			for(unsigned u=0;u<UniqueVertices;u++)
 			{
 				RRMeshImporter::Vertex ufl;
-				original->getVertex(Unique2Dupl[u],ufl);
+				importer->getVertex(Unique2Dupl[u],ufl);
 				//#define CLOSE(a,b) ((a)==(b))
 #define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
 				if(CLOSE(dfl[0],ufl[0]) && CLOSE(dfl[1],ufl[1]) && CLOSE(dfl[2],ufl[2])) 
@@ -276,6 +277,8 @@ public:
 			Dupl2Unique[d] = UniqueVertices++;
 dupl:;
 		}
+		//arab: 35f7 -> 350f
+		//int q=1;//!!!
 	}
 	~RRLessVerticesFilter()
 	{
@@ -290,7 +293,7 @@ dupl:;
 	virtual void getVertex(unsigned v, RRMeshImporter::Vertex& out) const
 	{
 		assert(v<UniqueVertices);
-		original->getVertex(Unique2Dupl[v],out);
+		importer->getVertex(Unique2Dupl[v],out);
 	}
 	virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
@@ -301,7 +304,7 @@ dupl:;
 		// use postImportTriangle to fully specify which one preImportVertex to return
 		unsigned preImportTriangle = RRMeshImporter::getPreImportTriangle(postImportTriangle);
 		RRMeshImporter::Triangle preImportVertices;
-		original->getTriangle(preImportTriangle,preImportVertices);
+		importer->getTriangle(preImportTriangle,preImportVertices);
 		if(Dupl2Unique[preImportVertices[0]]==postImportVertex) return preImportVertices[0];
 		if(Dupl2Unique[preImportVertices[1]]==postImportVertex) return preImportVertices[1];
 		if(Dupl2Unique[preImportVertices[2]]==postImportVertex) return preImportVertices[2];
@@ -312,12 +315,12 @@ dupl:;
 	}
 	virtual unsigned getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
 	{
-		assert(preImportVertex<INHERITED::Vertices);
+		assert(preImportVertex<importer->getNumVertices());
 		return Dupl2Unique[preImportVertex];
 	}
 	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
 	{
-		original->getTriangle(t,out);
+		importer->getTriangle(t,out);
 		out[0] = Dupl2Unique[out[0]]; assert(out[0]<UniqueVertices);
 		out[1] = Dupl2Unique[out[1]]; assert(out[1]<UniqueVertices);
 		out[2] = Dupl2Unique[out[2]]; assert(out[2]<UniqueVertices);
@@ -940,7 +943,7 @@ RRMeshImporter* RRMeshImporter::createMultiMesh(RRMeshImporter* const* meshes, u
 
 RRMeshImporter* RRMeshImporter::createOptimizedVertices(float vertexStitchMaxDistance)
 {
-	return new RRLessVerticesFilter(this,vertexStitchMaxDistance);
+	return new RRLessVerticesFilter<unsigned>(this,vertexStitchMaxDistance);
 }
 
 
