@@ -2207,7 +2207,7 @@ void Scene::freeze(bool yes)
 {
 	if(yes)
 	{
-		if(!multiCollider)
+		if(!isFrozen())
 		{
 			unsigned numMeshes = staticObjects;
 			rrCollider::RRMeshImporter** multiObjectMeshes = new rrCollider::RRMeshImporter*[numMeshes];
@@ -2269,7 +2269,7 @@ void Scene::freeze(bool yes)
 	}
 	else
 	{
-		if(multiCollider)
+		if(isFrozen())
 		{
 			if(staticObjects>1) delete multiCollider->getImporter();
 			if(multiObjectMeshes4Delete)

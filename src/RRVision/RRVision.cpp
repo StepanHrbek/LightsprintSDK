@@ -202,6 +202,8 @@ private:
 				transformedMeshes = new rrCollider::RRMeshImporter*[numObjects];
 				for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
 				rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(transformedMeshes,numObjects);
+				//!!! nebude uvolnen, vyresi refcounting
+				multiMesh = multiMesh->createOptimizedVertices(0);
 
 				// create multicollider
 				multiCollider = rrCollider::RRCollider::create(multiMesh,objects[0]->getCollider()->getTechnique());
@@ -495,7 +497,7 @@ RRScene::Improvement RRScene::sceneImproveStatic(bool endfunc(void*), void* cont
 
 RRReal RRScene::sceneGetAccuracy()
 {
-	return scene->avgAccuracy();
+	return scene->avgAccuracy()/100;
 }
 
 const RRReal* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
@@ -523,13 +525,24 @@ const RRReal* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
 const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex)
 {
 	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
+	/*/ pokus nejak kompenzovat ze jsem si ve freeze interne zrusil n objektu a nahradil je 1 multiobjektem
+	if(isFrozen())
+	{
+		if(scene->objects!=1) 
+		{
+			assert(0);
+			return NULL;
+		}
+		Object* obj = scene->object[0];
+		obj->importer->getCollider()->getImporter()->get
+	}*/
 	if(object<0 || object>=scene->objects) 
 	{
 		assert(0);
 		return NULL;
 	}
 	Object* obj = scene->object[object];
-	if(triangle>=obj->triangles) 
+	if(triangle>=obj->triangles)
 	{
 		assert(0);
 		return NULL;
