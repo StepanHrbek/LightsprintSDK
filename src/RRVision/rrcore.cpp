@@ -2228,7 +2228,7 @@ void Scene::freeze(bool yes)
 				}
 			}
 			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(multiObjectMeshes,numMeshes);
-			multiMesh = multiMesh->createOptimizedVertices();
+			//multiMesh = multiMesh->createOptimizedVertices(); optimized vertices = no help because multiMesh is used only for collisions, not for interpol
 
 			/*struct PreImportNumber 
 			{

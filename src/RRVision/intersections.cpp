@@ -67,9 +67,12 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	// compensate scale
 #ifdef SUPPORT_TRANSFORMS
 #ifdef SUPPORT_SCALE
-	ray.hitDistance /= scale;
-	ray.rayLengthMin = oldRayLengthMin;
-	ray.rayLengthMax = oldRayLengthMax;
+	if(inverseMatrix)
+	{
+		ray.hitDistance /= scale;
+		ray.rayLengthMin = oldRayLengthMin;
+		ray.rayLengthMax = oldRayLengthMax;
+	}
 #endif
 #endif
 
