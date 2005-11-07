@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2005.11.6
+// version 2005.11.7
 //
 // - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms
@@ -139,7 +139,7 @@ namespace rrVision
 
 		// instance factory
 		rrCollider::RRMeshImporter* createWorldSpaceMesh();
-		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects);
+		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation);
 	};
 
 	//////////////////////////////////////////////////////////////////////////////

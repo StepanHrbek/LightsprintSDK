@@ -105,9 +105,29 @@ private:
 class RRMultiObjectImporter : public RRObjectImporter
 {
 public:
-	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects)
+	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation)
 	{
-		return create(objects,numObjects,true);
+		// only in top level of hierarchy: create multicollider
+		rrCollider::RRCollider* multiCollider = NULL;
+		rrCollider::RRMeshImporter** transformedMeshes = NULL;
+		if(numObjects>1)
+		{
+			// create multimesh
+			transformedMeshes = new rrCollider::RRMeshImporter*[numObjects];
+			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
+			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(transformedMeshes,numObjects);
+			if(maxStitchDistance>=0) 
+			{
+				//!!! nebude uvolnen, vyresi refcounting
+				multiMesh = multiMesh->createOptimizedVertices(maxStitchDistance);
+			}
+
+			// create multicollider
+			multiCollider = rrCollider::RRCollider::create(multiMesh,intersectTechnique,cacheLocation);
+		}
+
+		// creates tree of objects
+		return create(objects,numObjects,multiCollider,transformedMeshes);
 	}
 
 	virtual const rrCollider::RRCollider* getCollider() const
@@ -168,7 +188,7 @@ public:
 	}
 
 private:
-	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, bool createCollider)
+	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider* multiCollider = NULL, rrCollider::RRMeshImporter** transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -193,37 +213,20 @@ private:
 				tris[(i<num1)?0:1] += objects[i]->getCollider()->getImporter()->getNumTriangles();
 			}
 
-			// only in top level of hierarchy: create multicollider
-			rrCollider::RRCollider* multiCollider = NULL;
-			rrCollider::RRMeshImporter** transformedMeshes = NULL;
-			if(createCollider)
-			{
-				// create multimesh
-				transformedMeshes = new rrCollider::RRMeshImporter*[numObjects];
-				for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
-				rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(transformedMeshes,numObjects);
-				//!!! nebude uvolnen, vyresi refcounting
-				multiMesh = multiMesh->createOptimizedVertices(0);
-
-				// create multicollider
-				multiCollider = rrCollider::RRCollider::create(multiMesh,objects[0]->getCollider()->getTechnique());
-			}
-
 			// create multiobject
 			return new RRMultiObjectImporter(
-				create(objects,num1,false),num1,tris[0],
-				create(objects+num1,num2,false),num2,tris[1],
-				multiCollider,
-				transformedMeshes);
+				create(objects,num1),num1,tris[0],
+				create(objects+num1,num2),num2,tris[1],
+				multiCollider,transformedMeshes);
 		}
 	}
 
 	RRMultiObjectImporter(RRObjectImporter* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
-		RRObjectImporter* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles, 
-		rrCollider::RRCollider* collider, rrCollider::RRMeshImporter** transformers)
+		RRObjectImporter* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles,
+		rrCollider::RRCollider* amultiCollider, rrCollider::RRMeshImporter** atransformedMeshes)
 	{
-		multiCollider = collider;
-		transformedMeshes = transformers;
+		multiCollider = amultiCollider;
+		transformedMeshes = atransformedMeshes;
 		pack[0].init(mesh1,mesh1Objects,mesh1Triangles);
 		pack[1].init(mesh2,mesh2Objects,mesh2Triangles);
 	}
@@ -266,9 +269,9 @@ rrCollider::RRMeshImporter* RRObjectImporter::createWorldSpaceMesh()
 	return new RRTransformedMeshFilter(getCollider()->getImporter(),getWorldMatrix());
 }
 
-RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* objects, unsigned numObjects)
+RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation)
 {
-	return RRMultiObjectImporter::create(objects,numObjects);
+	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,maxStitchDistance,cacheLocation);
 }
 
 

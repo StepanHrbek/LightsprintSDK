@@ -3,6 +3,7 @@
 #include "IntersectBspCompact.h"
 #include "IntersectBspFast.h"
 #include "IntersectVerification.h"
+
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
@@ -16,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <vector>
+#include <windows.h> // jen kvuli GetTempPath
 
 
 namespace rrCollider
@@ -1083,6 +1085,14 @@ RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique inte
 	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);
 	if(!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
+	char tmpPath[_MAX_PATH+1];
+	if(!cacheLocation)
+	{
+		GetTempPath(_MAX_PATH, tmpPath);
+		#define IS_PATHSEP(x) (((x) == '\\') || ((x) == '/'))
+		if(!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
+		cacheLocation = tmpPath;
+	}
 	switch(intersectTechnique)
 	{
 		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
