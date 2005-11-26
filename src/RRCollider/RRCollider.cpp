@@ -5,85 +5,11 @@
 
 #include <assert.h>
 #include <memory.h>
-#include <new> // aligned new
 #include <windows.h> // jen kvuli GetTempPath
 
 
 namespace rrCollider
 {
-
-void* AlignedMalloc(size_t size,int byteAlign)
-{
-	void *mallocPtr = malloc(size + byteAlign + sizeof(void*));
-	size_t ptrInt = (size_t)mallocPtr;
-
-	ptrInt = (ptrInt + byteAlign + sizeof(void*)) / byteAlign * byteAlign;
-	*(((void**)ptrInt) - 1) = mallocPtr;
-
-	return (void*)ptrInt;
-}
-
-void AlignedFree(void *ptr)
-{
-	free(*(((void**)ptr) - 1));
-}
-
-void* RRAligned::operator new(std::size_t n)
-{
-	return AlignedMalloc(n,16);
-};
-
-void* RRAligned::operator new[](std::size_t n)
-{
-	return AlignedMalloc(n,16);
-};
-
-void RRAligned::operator delete(void* p, std::size_t n)
-{
-	AlignedFree(p);
-};
-
-void RRAligned::operator delete[](void* p, std::size_t n)
-{
-	AlignedFree(p);
-};
-
-RRRay::RRRay()
-{
-	memset(this,0,sizeof(RRRay)); // no virtuals in RRRay -> no pointer to virtual function table overwritten
-	rayOrigin[3] = 1;
-	rayFlags = FILL_DISTANCE | FILL_POINT3D | FILL_POINT2D | FILL_PLANE | FILL_TRIANGLE | FILL_SIDE;
-}
-
-RRRay* RRRay::create()
-{
-	return new RRRay();
-}
-
-RRRay* RRRay::create(unsigned n)
-{
-	assert(!(sizeof(RRRay)%16));
-	return new RRRay[n]();
-}
-
-void RRMeshImporter::getTriangleBody(unsigned i, TriangleBody& out) const
-{
-	Triangle t;
-	getTriangle(i,t);
-	Vertex v[3];
-	getVertex(t[0],v[0]);
-	getVertex(t[1],v[1]);
-	getVertex(t[2],v[2]);
-	out.vertex0[0]=v[0][0];
-	out.vertex0[1]=v[0][1];
-	out.vertex0[2]=v[0][2];
-	out.side1[0]=v[1][0]-v[0][0];
-	out.side1[1]=v[1][1]-v[0][1];
-	out.side1[2]=v[1][2]-v[0][2];
-	out.side2[0]=v[2][0]-v[0][0];
-	out.side2[1]=v[2][1]-v[0][1];
-	out.side2[2]=v[2][2]-v[0][2];
-}
 
 RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
 {

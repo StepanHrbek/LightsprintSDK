@@ -10,7 +10,6 @@
 #include "MultiMesh.h"
 
 #include <assert.h>
-#include <math.h>
 #ifdef _MSC_VER
 	#include "../stdint.h"
 #else
@@ -20,6 +19,25 @@
 
 namespace rrCollider
 {
+
+void RRMeshImporter::getTriangleBody(unsigned i, TriangleBody& out) const
+{
+	Triangle t;
+	getTriangle(i,t);
+	Vertex v[3];
+	getVertex(t[0],v[0]);
+	getVertex(t[1],v[1]);
+	getVertex(t[2],v[2]);
+	out.vertex0[0]=v[0][0];
+	out.vertex0[1]=v[0][1];
+	out.vertex0[2]=v[0][2];
+	out.side1[0]=v[1][0]-v[0][0];
+	out.side1[1]=v[1][1]-v[0][1];
+	out.side1[2]=v[1][2]-v[0][2];
+	out.side2[0]=v[2][0]-v[0][0];
+	out.side2[1]=v[2][1]-v[0][1];
+	out.side2[2]=v[2][2]-v[0][2];
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //

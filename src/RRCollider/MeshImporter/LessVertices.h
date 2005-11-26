@@ -3,6 +3,7 @@
 #include "Filter.h"
 
 #include <assert.h>
+#include <math.h>
 
 
 namespace rrCollider

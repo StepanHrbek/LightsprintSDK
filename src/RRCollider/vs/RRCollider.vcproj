@@ -260,7 +260,13 @@
 				RelativePath="..\pcube.cpp">
 			</File>
 			<File
+				RelativePath="..\RRAligned.cpp">
+			</File>
+			<File
 				RelativePath="..\RRCollider.cpp">
+			</File>
+			<File
+				RelativePath="..\RRRay.cpp">
 			</File>
 			<File
 				RelativePath="..\sha1.cpp">

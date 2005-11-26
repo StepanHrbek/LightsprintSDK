@@ -10,7 +10,7 @@
 #include "IntersectBspCompact.cpp"
 #include "IntersectBspFast.cpp"
 #include "IntersectLinear.cpp"
-#include "RRIntersect.cpp"
+#include "RRCollider.cpp"
 #include "sha1.cpp"
 
 #if PRIVATE!=static
