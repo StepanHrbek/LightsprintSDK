@@ -607,12 +607,21 @@ public:
 			postImportTriangles[postImportTriangle] = t;
 		}
 
+		// handle sparse PreImport numbering
+		if(numPreImportTriangles>=0x100000 && numPreImportTriangles>10*numTriangles) //!!! fudge numbers
+		{
+			// CopyMesh is very inefficient copying MultiMesh 
+			// and other meshes with extremely sparse PreImport numbering
+			// let's rather fail
+			return false;
+		}
+
 		// copy triangleBodies
 		for(unsigned i=0;i<numTriangles;i++)
 		{
-			TriangleBody t;
-			importer->getTriangleBody(i,t);
-			//!!! check that getTriangleBody returns numbers consistent with getVertex/getTriangle
+			//TriangleBody t;
+			//importer->getTriangleBody(i,t);
+			//!!!... check that getTriangleBody returns numbers consistent with getVertex/getTriangle
 		}
 
 		// copy getPostImportTriangle
@@ -623,6 +632,9 @@ public:
 			assert(postImportTriangle==UINT_MAX || postImportTriangle<postImportTriangles.size());
 			pre2postImportTriangles[preImportTriangle] = postImportTriangle;
 		}
+
+		// check that importer equals this in all queries
+		//!!!...
 
 		return true;
 	}
@@ -652,6 +664,24 @@ public:
 		assert(t<postImportTriangles.size());
 		out = postImportTriangles[t].postImportTriangleVertices;
 	}
+	void                 getTriangleBody(unsigned i, TriangleBody& out) const
+	{
+		Triangle t;
+		RRCopyMeshImporter::getTriangle(i,t);
+		Vertex v[3];
+		RRCopyMeshImporter::getVertex(t[0],v[0]);
+		RRCopyMeshImporter::getVertex(t[1],v[1]);
+		RRCopyMeshImporter::getVertex(t[2],v[2]);
+		out.vertex0[0]=v[0][0];
+		out.vertex0[1]=v[0][1];
+		out.vertex0[2]=v[0][2];
+		out.side1[0]=v[1][0]-v[0][0];
+		out.side1[1]=v[1][1]-v[0][1];
+		out.side1[2]=v[1][2]-v[0][2];
+		out.side2[0]=v[2][0]-v[0][0];
+		out.side2[1]=v[2][1]-v[0][1];
+		out.side2[2]=v[2][2]-v[0][2];
+	}
 
 	// preimport/postimport conversions
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
@@ -680,8 +710,10 @@ public:
 	}
 	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const 
 	{
-		assert(preImportTriangle<pre2postImportTriangles.size());
-		return pre2postImportTriangles[preImportTriangle];
+		if(preImportTriangle<pre2postImportTriangles.size())
+			return pre2postImportTriangles[preImportTriangle];
+		else
+			return UINT_MAX; // invalid input
 	}
 
 protected:

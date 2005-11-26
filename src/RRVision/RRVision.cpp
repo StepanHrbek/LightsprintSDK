@@ -113,13 +113,29 @@ public:
 		if(numObjects>1)
 		{
 			// create multimesh
-			transformedMeshes = new rrCollider::RRMeshImporter*[numObjects];
+			transformedMeshes = new rrCollider::RRMeshImporter*[numObjects+2];
+				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
 			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
+			transformedMeshes[numObjects] = NULL;
+			transformedMeshes[numObjects+1] = NULL;
 			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(transformedMeshes,numObjects);
+			// stitch vertices
 			if(maxStitchDistance>=0) 
 			{
-				//!!! nebude uvolnen, vyresi refcounting
+				transformedMeshes[numObjects] = multiMesh; // remember for freeing time
 				multiMesh = multiMesh->createOptimizedVertices(maxStitchDistance);
+			}
+			// create copy (faster access)
+			// disabled because we know that current copy implementation always gives up
+			// due to low efficiency
+			if(0)
+			{
+				rrCollider::RRMeshImporter* tmp = multiMesh->createCopy();
+				if(tmp)
+				{
+					transformedMeshes[numObjects+1] = multiMesh; // remember for freeing time
+					multiMesh = tmp;
+				}
 			}
 
 			// create multicollider
@@ -182,7 +198,7 @@ public:
 			delete multiCollider;
 			// Delete transformers created by us.
 			unsigned numObjects = pack[0].getNumObjects() + pack[1].getNumObjects();
-			for(unsigned i=0;i<numObjects;i++) delete transformedMeshes[i];
+			for(unsigned i=0;i<numObjects+2;i++) delete transformedMeshes[i];
 			delete[] transformedMeshes;
 		}
 	}

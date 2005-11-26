@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.11.7
+// version 2005.11.26
 //
 // - thread safe, you can calculate any number of intersections at the same time
 // - you can select technique in range from maximal speed to zero memory allocated
@@ -15,12 +15,27 @@
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
-// General rules
+// [ General rules ]
 //
 // If not otherwise specified, all inputs must be finite numbers.
 // With Inf or NaN, result is undefined.
 //
 // Parameters that need to be destructed are always destructed by caller.
+//
+// [ Additional RRMeshImporter rules ]
+//
+// All functions getting PreImport number must support all unsigned values.
+// When such query makes no sense, they return UINT_MAX.
+// This is because valid PreImport numbers may be spread across whole unsigned 
+// range and their queries are not performance critical.
+//!!! zkontrolovat
+//
+// All function getting PostImport number may support only their 0..num-1
+// range (where num=getNumTriangles or getNumVertices).
+// When called with out of range value, result is undefined and program may crash.
+// This is because valid PostImport numbers are easy to ensure on caller side
+// and their queries are performance critical.
+//!!! zkontrolovat ze tam jsou asserty
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
