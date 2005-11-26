@@ -3,7 +3,6 @@
 #include "RRCollider.h"
 
 #include <assert.h>
-#include <limits.h>
 
 
 namespace rrCollider
@@ -64,7 +63,7 @@ public:
 		for(unsigned post=0;post<ValidIndices;post++)
 			if(ValidIndex[post]==preImportTriangle)
 				return post;
-		return UINT_MAX;
+		return UNDEFINED;
 	}
 	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
 	{

@@ -110,7 +110,11 @@ dupl:;
 	}
 	virtual unsigned getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
 	{
-		assert(preImportVertex<importer->getNumVertices());
+		if(preImportVertex>=importer->getNumVertices()) 
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 		return Dupl2Unique[preImportVertex];
 	}
 	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
@@ -220,7 +224,11 @@ dupl:;
 	}
 	virtual unsigned getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
 	{
-		assert(preImportVertex<INHERITED::Vertices);
+		if(preImportVertex>=INHERITED::Vertices) 
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 		return Dupl2Unique[preImportVertex];
 	}
 	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const

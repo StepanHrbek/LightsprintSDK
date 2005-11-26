@@ -3,7 +3,6 @@
 #include "Filter.h"
 
 #include <assert.h>
-#include <limits.h>
 #include <vector>
 
 
@@ -63,13 +62,13 @@ public:
 			PostImportTriangle t;
 			// copy getPreImportTriangle
 			t.preImportTriangle = importer->getPreImportTriangle(postImportTriangle);
-			assert(t.preImportTriangle!=UINT_MAX);
+			assert(t.preImportTriangle!=UNDEFINED);
 			// copy getTriangle
 			importer->getTriangle(postImportTriangle,t.postImportTriangleVertices);
 			// copy getPreImportVertex
 			for(unsigned j=0;j<3;j++)
 			{
-				assert(t.postImportTriangleVertices[j]!=UINT_MAX);
+				assert(t.postImportTriangleVertices[j]!=UNDEFINED);
 				t.preImportTriangleVertices[j] = importer->getPreImportVertex(t.postImportTriangleVertices[j],postImportTriangle);
 			}
 			numPreImportTriangles = __max(numPreImportTriangles,t.preImportTriangle+1);
@@ -98,7 +97,7 @@ public:
 		for(unsigned preImportTriangle=0;preImportTriangle<numPreImportTriangles;preImportTriangle++)
 		{
 			unsigned postImportTriangle = importer->getPostImportTriangle(preImportTriangle);
-			assert(postImportTriangle==UINT_MAX || postImportTriangle<postImportTriangles.size());
+			assert(postImportTriangle==UNDEFINED || postImportTriangle<postImportTriangles.size());
 			pre2postImportTriangles[preImportTriangle] = postImportTriangle;
 		}
 
@@ -161,16 +160,21 @@ public:
 		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[1]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[1];
 		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[2]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[2];
 		assert(0);
-		return UINT_MAX;
+		return UNDEFINED;
 	}
 	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
 	{
 		unsigned postImportTriangle = getPostImportTriangle(preImportTriangle);
+		if(postImportTriangle==UNDEFINED) 
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 		if(postImportTriangles[postImportTriangle].preImportTriangleVertices[0]==preImportVertex) return postImportTriangles[postImportTriangle].postImportTriangleVertices[0];
 		if(postImportTriangles[postImportTriangle].preImportTriangleVertices[1]==preImportVertex) return postImportTriangles[postImportTriangle].postImportTriangleVertices[1];
 		if(postImportTriangles[postImportTriangle].preImportTriangleVertices[2]==preImportVertex) return postImportTriangles[postImportTriangle].postImportTriangleVertices[2];
 		assert(0);
-		return UINT_MAX;
+		return UNDEFINED;
 	}
 	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const
 	{
@@ -179,10 +183,13 @@ public:
 	}
 	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const 
 	{
-		if(preImportTriangle<pre2postImportTriangles.size())
-			return pre2postImportTriangles[preImportTriangle];
-		else
-			return UINT_MAX; // invalid input
+		if(preImportTriangle>=pre2postImportTriangles.size())
+		{
+			// it is allowed by rules
+			// it happens with copy of multimesh and possibly with other sparse preimport numberings
+			return UNDEFINED;
+		}
+		return pre2postImportTriangles[preImportTriangle];
 	}
 
 protected:

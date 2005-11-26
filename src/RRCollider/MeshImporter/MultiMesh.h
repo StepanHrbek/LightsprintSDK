@@ -113,9 +113,19 @@ public:
 		} else {
 			preImportV.object -= pack[0].getNumObjects();
 			preImportT.object -= pack[0].getNumObjects();
-			assert(preImportV.object<pack[1].getNumObjects());
-			assert(preImportT.object<pack[1].getNumObjects());
-			return pack[0].getNumVertices() + pack[1].getImporter()->getPostImportVertex(preImportV, preImportT);
+			if(preImportV.object>=pack[1].getNumObjects()) 
+			{
+				assert(0); // it is allowed by rules, but also interesting to know when it happens
+				return UNDEFINED;
+			}
+			if(preImportT.object>=pack[1].getNumObjects()) 
+			{
+				assert(0); // it is allowed by rules, but also interesting to know when it happens
+				return UNDEFINED;
+			}
+			unsigned tmp = pack[1].getImporter()->getPostImportVertex(preImportV, preImportT);
+			if(tmp==UNDEFINED) return UNDEFINED;
+			return pack[0].getNumVertices() + tmp;
 		}
 	}
 	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const 
@@ -139,8 +149,14 @@ public:
 			return pack[0].getImporter()->getPostImportTriangle(preImport);
 		} else {
 			preImport.object -= pack[0].getNumObjects();
-			assert(preImport.object<pack[1].getNumObjects());
-			return pack[0].getNumTriangles() + pack[1].getImporter()->getPostImportTriangle(preImport);
+			if(preImport.object>=pack[1].getNumObjects()) 
+			{
+				assert(0); // it is allowed by rules, but also interesting to know when it happens
+				return UNDEFINED;
+			}
+			unsigned tmp = pack[1].getImporter()->getPostImportTriangle(preImport);
+			if(tmp==UNDEFINED) return UNDEFINED;
+			return pack[0].getNumTriangles() + tmp;
 		}
 	}
 

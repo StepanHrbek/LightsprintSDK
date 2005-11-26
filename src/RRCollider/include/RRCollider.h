@@ -24,17 +24,28 @@
 //
 // [ Additional RRMeshImporter rules ]
 //
-// All functions getting PreImport number must support all unsigned values.
-// When such query makes no sense, they return UINT_MAX.
-// This is because valid PreImport numbers may be spread across whole unsigned 
-// range and their queries are not performance critical.
-//!!! zkontrolovat
+// RRMeshImporter operates with vertex and triangle indices.
+// 1) PostImport indices, always 0..num-1 (where num=getNumTriangles
+//    or getNumVertices), these are used in most calls.
+//    Example: with 100-triangle mesh, triangle indices are 0..99.
+// 2) PreImport indices, optional, arbitrary numbers provided by 
+//    importer for your convenience.
+//    Example: could be offsets into your vertex buffer.
+// Pre<->Post mapping is defined by importer and is arbitrary, but constant.
+//
+// All functions getting PreImport number must accept all unsigned values.
+// When such query makes no sense, they return UNDEFINED.
+// This is because 
+// 1) valid PreImport numbers may be spread across whole unsigned 
+//    range and caller could be unaware of their validity.
+// 2) such queries are rare and not performance critical.
 //
 // All function getting PostImport number may support only their 0..num-1
-// range (where num=getNumTriangles or getNumVertices).
+// range.
 // When called with out of range value, result is undefined and program may crash.
-// This is because valid PostImport numbers are easy to ensure on caller side
-// and their queries are performance critical.
+// This is because 
+// 1) valid PostImport numbers are easy to ensure on caller side.
+// 2) such queries are very critical for performance.
 //!!! zkontrolovat ze tam jsou asserty
 //////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +73,8 @@
 	#define RRCOLLIDER_API
 #endif
 
-#include <new>
+#include <new>      // operators new/delete
+#include <limits.h> // UNDEFINED
 
 namespace rrCollider
 {
@@ -108,6 +120,7 @@ namespace rrCollider
 		virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const {return preImportVertex;}
 		virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const {return postImportTriangle;}
 		virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const {return preImportTriangle;}
+		enum {UNDEFINED = UINT_MAX};
 
 
 		//////////////////////////////////////////////////////////////////////////////
