@@ -1,3 +1,6 @@
+#ifndef COLLIDER_STDINT_H
+#define COLLIDER_STDINT_H
+
 // temporary replacement for ISO C99 stdint.h missing in Visual C++
 
 typedef unsigned __int8  uint8_t;
@@ -21,3 +24,5 @@ static union
     char   int32_t_incorrect[sizeof( int32_t) == 4];
     char  uint32_t_incorrect[sizeof(uint32_t) == 4];
 };
+
+#endif

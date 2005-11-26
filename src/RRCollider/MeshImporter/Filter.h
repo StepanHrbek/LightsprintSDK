@@ -1,5 +1,4 @@
-#ifndef COLLIDER_RRMESHFILTER_H
-#define COLLIDER_RRMESHFILTER_H
+#pragma once
 
 #include "RRCollider.h"
 
@@ -71,4 +70,3 @@ protected:
 
 }; // namespace
 
-#endif

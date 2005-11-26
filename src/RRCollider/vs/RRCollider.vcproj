@@ -328,6 +328,46 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 		</Filter>
+		<Filter
+			Name="MeshImporter"
+			Filter="">
+			<File
+				RelativePath="..\MeshImporter\CopyMesh.cpp">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\CopyMesh.h">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\IndexedTriList.h">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\IndexedTriStrip.h">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\LessTriangles.h">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\LessVertices.cpp">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\LessVertices.h">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\Mesh.cpp">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\MultiMesh.cpp">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\MultiMesh.h">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\TriList.h">
+			</File>
+			<File
+				RelativePath="..\MeshImporter\TriStrip.h">
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
