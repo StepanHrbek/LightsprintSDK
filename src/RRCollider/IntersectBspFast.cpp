@@ -354,13 +354,78 @@ begin:
 		}
 
 		// test subtrees
+//!!!
+/*/ asi by slo prepsat na takto:
+		real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
+		//!!! osetrit vsechny mezni pripady (inf, nan)
+		if(distSplit<ray->hitDistanceMin || distSplit>=ray->distanceMax)
+		{
+			// only one son
+			real pointMaxVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*distanceMax;
+			if(pointMaxVal>splitValue) 
+			//if((distSplit<ray->hitDistanceMin) == (ray->rayDir[t->kd.splitAxis]<0))
+			{
+				// front only
+				assert(t->kd.getFront()->bsp.size<MAX_SIZE);
+				t = t->kd.getFront();
+				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
+				goto begin;
+			}
+			else
+			{
+				// back only
+				assert(t->kd.getBack()->bsp.size<MAX_SIZE);
+				t = t->kd.getBack();
+				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
+				goto begin;
+			}
+		}
+		else
+		{
+			// both sons
+			if(ray->rayDir[t->kd.splitAxis]<0) // or <=0 ?
+			{
+				// front and back
+				TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
+				TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
+				if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
+				ray->hitDistanceMin = distSplit-DELTA_BSP;
+				assert(t->kd.getBack()->bsp.size<MAX_SIZE);
+				t = t->kd.getBack();
+				goto begin;
+			}
+			else
+			{
+				// back and front
+				TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getBack());
+				TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
+				if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
+				ray->hitDistanceMin = distSplit-DELTA_BSP;
+				assert(t->kd.getFront()->bsp.size<MAX_SIZE);
+				t = t->kd.getFront();
+				goto begin;
+			}
+		}
+// vyhody:
+//  asi rychlejsi
+//  nebude hazet asserty protoze nema dva ruzne vypocty davajici ruzne vysledky
+//  presnost neumim predpovedet
+*/
+
+		// all math is limited to kd.splitAxis axis
+		// kd node is split at splitValue
 		real splitValue = t->kd.getSplitValue();
+		// our ray segment is pointMinVal..pointMaxVal
 		real pointMinVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*ray->hitDistanceMin;
 		real pointMaxVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*distanceMax;
+		// kd splitting plane belongs to back(negative) son
+		// when pointMinVal==splitValue, ray segment starts at splitting plane (back)
+		// when pointMinVal>splitValue, ray segment starts in front
 		if(pointMinVal>splitValue)
 		{
 			// front only
-			if(pointMaxVal>=splitValue) 
+			if(pointMaxVal>splitValue) 
+			// WAS:	if(pointMaxVal>=splitValue) ...mohlo preskocit face v plane (back)
 			{
 				assert(t->kd.getFront()->bsp.size<MAX_SIZE);
 				t = t->kd.getFront();
@@ -376,9 +441,12 @@ begin:
 			assert(t->kd.getBack()->bsp.size<MAX_SIZE);
 			t = t->kd.getBack();
 			goto begin;
-		} else {
+		}
+		else
+		// when pointMinVal<=splitValue, ray segment starts in back
+		{
 			// back only
-			// btw if point1[axis]==point2[axis]==splitVertex[axis], testing only back may be sufficient
+			// if point1[axis]==point2[axis]==splitVertex[axis], testing only back should be sufficient
 			if(pointMaxVal<=splitValue) // catches also i_direction[t->axis]==0 case
 			{
 				assert(t->kd.getBack()->bsp.size<MAX_SIZE);
@@ -537,7 +605,8 @@ begin:
 		if(pointMinVal>splitValue) 
 		{
 			// front only
-			if(pointMaxVal>=splitValue) 
+			if(pointMaxVal>splitValue) 
+			// WAS: if(pointMaxVal>=splitValue) probably error
 			{
 				t = t->kd.getFront();
 				goto begin;

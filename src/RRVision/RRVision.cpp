@@ -40,6 +40,7 @@ void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
 	rrCollider::RRMeshImporter::TriangleBody tb;
 	getCollider()->getImporter()->getTriangleBody(t,tb);
 	Vec3 norm = ortogonalTo(*(Vec3*)&tb.side1,*(Vec3*)&tb.side2);
+	norm *= 1/size(norm);
 	*(Vec3*)(out.norm[0]) = norm;
 	*(Vec3*)(out.norm[1]) = norm;
 	*(Vec3*)(out.norm[2]) = norm;
@@ -569,6 +570,47 @@ const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned trian
 	Triangle* tri = &obj->triangle[triangle];
 	if(!tri->surface) return NULL;
 	Channels irrad;
+
+	// enhanced by final gathering
+	if(vertex<3 && RRGetState(RRSS_GET_FINAL_GATHER))
+	{
+		vertex=(vertex+3-tri->rotations)%3;
+
+		Channels reflIrrad = Channels(0);
+		if(RRGetState(RRSS_GET_REFLECTED))
+		{
+			// get normal
+			RRObjectImporter* objectImporter = obj->importer;
+			RRObjectImporter::TriangleNormals normals;
+			objectImporter->getTriangleNormals(triangle,normals);
+			Vec3 normal = *(Vec3*)(normals.norm[vertex]);
+			assert(fabs(size2(normal)-1)<0.001);
+			// get point
+			rrCollider::RRMeshImporter* meshImporter = objectImporter->getCollider()->getImporter();
+			rrCollider::RRMeshImporter::Triangle triangleIndices;
+			meshImporter->getTriangle(triangle,triangleIndices);
+			unsigned vertexIdx = triangleIndices[vertex];
+			rrCollider::RRMeshImporter::Vertex vertexBody;
+			meshImporter->getVertex(vertexIdx,vertexBody);
+			Vec3 point = *(Vec3*)&vertexBody;
+			// transform to worldspace
+			Matrix* world = (Matrix*)objectImporter->getWorldMatrix();
+			if(world)
+			{
+				point.transform(world);
+				normal.rotate(world);
+				normal *= 1/size(normal);
+				assert(fabs(size2(normal)-1)<0.001);
+			}
+			//!!! solved by fudge 1mm offset in gatherIrradiance. point += normal*0.001f; //!!! fudge number. to avoid immediate hits of other faces connected to vertex. could be done also by more advanced skipTriangle with list of all faces connected to vertex
+			// get irradiance
+			reflIrrad = scene->gatherIrradiance(point,normal,tri);
+		}
+		irrad = (RRGetState(RRSS_GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
+	}
+	else
+
+	// enhanced by smoothing
 	if(vertex<3 && RRGetState(RRSS_GET_SMOOTH))
 	{
 		vertex=(vertex+3-tri->rotations)%3;
@@ -583,6 +625,8 @@ const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned trian
 		irrad = (RRGetState(RRSS_GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
 	}
 	else
+
+	// basic, fast
 	{
 		if(!RRGetState(RRSS_GET_SOURCE) && !RRGetState(RRSS_GET_REFLECTED)) 
 			irrad = Channels(0);
@@ -595,6 +639,7 @@ const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned trian
 		else
 			irrad = (tri->energyDirectIncident + tri->getEnergyDynamic()) / tri->area - tri->getSourceIrradiance();
 	}
+
 	static RRColor tmp;
 #if CHANNELS == 1
 	tmp[0] = irrad*__colorFilter[0];
@@ -686,6 +731,7 @@ void RRResetStates()
 	RRSetState(RRSS_GET_SOURCE,1);
 	RRSetState(RRSS_GET_REFLECTED,1);
 	RRSetState(RRSS_GET_SMOOTH,1);
+	RRSetState(RRSS_GET_FINAL_GATHER,1);
 	RRSetStateF(RRSSF_MIN_FEATURE_SIZE,0);
 	RRSetStateF(RRSSF_MAX_SMOOTH_ANGLE,M_PI/10+0.01f);
 	RRSetStateF(RRSSF_IGNORE_SMALLER_AREA,SMALL_REAL);

@@ -125,8 +125,8 @@ namespace rrVision
 		virtual const RRReal*       getTriangleAdditionalRadiantExitingFlux(unsigned t) const {return 0;} // radiant flux in watts. implement only one of these two methods.
 		struct TriangleNormals      {RRReal norm[3][3];}; // 3x normal in object space
 		struct TriangleMapping      {RRReal uv[3][2];}; // 3x uv
-		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out);
-		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); // unwrap
+		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out); // normalized vertex normals in local space
+		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); // unwrap into 0..1 x 0..1 space
 
 		// may change during object lifetime
 		virtual const RRReal*       getWorldMatrix() = 0; // may return identity as NULL 
@@ -205,7 +205,8 @@ namespace rrVision
 		RRSSF_SUBDIVISION_SPEED,   // speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast
 		RRSS_GET_SOURCE,           // results from getXxxRadiantExitance contain input emittances
 		RRSS_GET_REFLECTED,        // results from getXxxRadiantExitance contain additional exitances calculated by radiosity
-		RRSS_GET_SMOOTH,           // results from getXxxRadiantExitance are smoothed
+		RRSS_GET_SMOOTH,           // results from getXxxRadiantExitance are enhanced by smoothing
+		RRSS_GET_FINAL_GATHER,     // results from getXxxRadiantExitance are enhanced by final gather
 		RRSSF_MIN_FEATURE_SIZE,    // smaller features may be lost
 		RRSSF_MAX_SMOOTH_ANGLE,    // smaller angles between faces may be smoothed/interpolated
 		RRSSF_IGNORE_SMALLER_AREA, // minimal allowed area of triangle (m^2), smaller triangles are ignored

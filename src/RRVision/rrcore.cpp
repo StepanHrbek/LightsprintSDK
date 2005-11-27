@@ -2440,11 +2440,52 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	return hitPower;
 }
 
+// returns irradiance in W/m^2 in point with normal
 // decreasing power is used only for termination criteria
-//Color Scene::rayTraceGather(Point3 eye,Vec3 normal,Triangle *skip,Color power=Color(1,1,1))
-//{
+Channels Scene::gatherIrradiance(Point3 point,Vec3 normal,Triangle *skip,Channels power)
+{
+	Channels irradiance = Channels(0);
+	unsigned numRays = 1;//!!!
+	for(unsigned i=0;i<numRays;i++)
+	{
+		Vec3 dir = normal;//!!!
+		irradiance += gatherHitExitance(point,dir,skip,power);
+	}
+	return irradiance / numRays;
+}
 
-//}
+// returns exitance in W/m^2 in intersection of ray and scene
+// decreasing power is used only for termination criteria
+Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Channels power)
+{
+	assert(IS_VEC3(eye));
+	assert(IS_VEC3(direction));
+	rrCollider::RRRay& ray = *__ray;
+	ray.rayFlags = rrCollider::RRRay::FILL_SIDE|rrCollider::RRRay::FILL_POINT2D|rrCollider::RRRay::FILL_TRIANGLE;
+	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
+	ray.rayLengthMax = BIG_REAL;
+	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
+	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
+	{
+		// ray left scene and vanished
+		return Channels(0);
+	}
+	assert(IS_NUMBER(ray.hitDistance));
+	if(ray.hitOuterSide) __hitsOuter++;else __hitsInner++;
+	// otherwise surface with these properties was hit
+	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitOuterSide?0:1];
+	assert(side->catchFrom); // check that bad side was not hit
+	if(!side->receiveFrom)
+	{
+		// ray accidentally penetrated object and hit inner side
+		return Channels(0);
+	}
+	// calculate surface exitance
+	Channels incidentPower = hitTriangle->energyDirectIncident + hitTriangle->getEnergyDynamic();
+	Channels irradiance = incidentPower / hitTriangle->area;
+	Channels exitance = irradiance * *(Vec3*)hitTriangle->surface->diffuseReflectanceColor;
+	return exitance;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
