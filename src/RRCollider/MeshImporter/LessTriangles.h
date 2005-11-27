@@ -55,6 +55,11 @@ public:
 	}
 	virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const 
 	{
+		if(postImportTriangle>=ValidIndices)
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 		return ValidIndex[postImportTriangle];
 	}
 	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 

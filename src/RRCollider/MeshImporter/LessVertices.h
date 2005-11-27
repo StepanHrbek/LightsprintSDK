@@ -92,12 +92,21 @@ dupl:;
 	}
 	virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
-		assert(postImportVertex<UniqueVertices);
+		if(postImportVertex>=UniqueVertices)
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 
 		// exact version
 		// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
 		// use postImportTriangle to fully specify which one preImportVertex to return
 		unsigned preImportTriangle = RRMeshImporter::getPreImportTriangle(postImportTriangle);
+		if(preImportTriangle==UNDEFINED)
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 		RRMeshImporter::Triangle preImportVertices;
 		importer->getTriangle(preImportTriangle,preImportVertices);
 		if(Dupl2Unique[preImportVertices[0]]==postImportVertex) return preImportVertices[0];
@@ -206,12 +215,21 @@ dupl:;
 	}
 	virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
-		assert(postImportVertex<UniqueVertices);
+		if(postImportVertex>=UniqueVertices)
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 
 		// exact version
 		// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
 		// use postImportTriangle to fully specify which one preImportVertex to return
 		unsigned preImportTriangle = RRMeshImporter::getPreImportTriangle(postImportTriangle);
+		if(preImportTriangle==UNDEFINED)
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 		RRMeshImporter::Triangle preImportVertices;
 		INHERITED::getTriangle(preImportTriangle,preImportVertices);
 		if(Dupl2Unique[preImportVertices[0]]==postImportVertex) return preImportVertices[0];

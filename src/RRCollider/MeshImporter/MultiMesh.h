@@ -97,7 +97,12 @@ public:
 			return pack[0].getImporter()->getPreImportVertex(postImportVertex, postImportTriangle);
 		} else {
 			PreImportNumber preImport = pack[1].getImporter()->getPreImportVertex(postImportVertex-pack[0].getNumVertices(), postImportTriangle-pack[0].getNumTriangles());
-			assert(preImport.object<pack[1].getNumObjects());
+			if(preImport==UNDEFINED) return UNDEFINED;
+			if(preImport.object>=pack[1].getNumObjects())
+			{
+				assert(0); // internal error
+				return UNDEFINED;
+			}
 			preImport.object += pack[0].getNumObjects();
 			return preImport;
 		}
@@ -132,11 +137,15 @@ public:
 	{
 		if(postImportTriangle<pack[0].getNumTriangles()) 
 		{
-			PreImportNumber preImport = pack[0].getImporter()->getPreImportTriangle(postImportTriangle);
-			return preImport;
+			return pack[0].getImporter()->getPreImportTriangle(postImportTriangle);
 		} else {
 			PreImportNumber preImport = pack[1].getImporter()->getPreImportTriangle(postImportTriangle-pack[0].getNumTriangles());
-			assert(preImport.object<pack[1].getNumObjects());
+			if(preImport==UNDEFINED) return UNDEFINED;
+			if(preImport.object>=pack[1].getNumObjects())
+			{
+				assert(0); // internal error
+				return UNDEFINED;
+			}
 			preImport.object += pack[0].getNumObjects();
 			return preImport;
 		}

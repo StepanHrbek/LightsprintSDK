@@ -33,20 +33,21 @@
 //    Example: could be offsets into your vertex buffer.
 // Pre<->Post mapping is defined by importer and is arbitrary, but constant.
 //
-// All functions getting PreImport number must accept all unsigned values.
-// When such query makes no sense, they return UNDEFINED.
+// All Pre-Post conversion functions must accept all unsigned values.
+// When query makes no sense, they return UNDEFINED.
 // This is because 
 // 1) valid PreImport numbers may be spread across whole unsigned 
 //    range and caller could be unaware of their validity.
 // 2) such queries are rare and not performance critical.
 //
-// All function getting PostImport number may support only their 0..num-1
-// range.
-// When called with out of range value, result is undefined and program may crash.
+// All other function use PostImport numbers and may support only 
+// their 0..num-1 range.
+// When called with out of range value, result is undefined.
+// Debug version may return arbitrary number or throw assert.
+// Release version may return arbitrary number or crash.
 // This is because 
 // 1) valid PostImport numbers are easy to ensure on caller side.
 // 2) such queries are very critical for performance.
-//!!! zkontrolovat ze tam jsou asserty
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER

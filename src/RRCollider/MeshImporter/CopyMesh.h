@@ -154,8 +154,16 @@ public:
 	// preimport/postimport conversions
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
-		assert(postImportVertex<postImportVertices.size());
-		assert(postImportTriangle<postImportTriangles.size());
+		if(postImportVertex>=postImportVertices.size())
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
+		if(postImportTriangle>=postImportTriangles.size())
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[0]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[0];
 		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[1]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[1];
 		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[2]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[2];
@@ -178,7 +186,11 @@ public:
 	}
 	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const
 	{
-		assert(postImportTriangle<postImportTriangles.size());
+		if(postImportTriangle>=postImportTriangles.size())
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return UNDEFINED;
+		}
 		return postImportTriangles[postImportTriangle].preImportTriangle;
 	}
 	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const 
