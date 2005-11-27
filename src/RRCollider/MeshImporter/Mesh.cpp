@@ -45,6 +45,8 @@ void RRMeshImporter::getTriangleBody(unsigned i, TriangleBody& out) const
 
 RRMeshImporter* RRMeshImporter::create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride)
 {
+	// each case instantiates new importer class
+	// delete cases you don't need to save several kB of memory
 	flags &= ~(OPTIMIZED_TRIANGLES|OPTIMIZED_VERTICES); // optimizations are not implemented for non-indexed
 	switch(vertexFormat)
 	{
@@ -61,6 +63,8 @@ RRMeshImporter* RRMeshImporter::create(unsigned flags, Format vertexFormat, void
 
 RRMeshImporter* RRMeshImporter::createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance)
 {
+	// each case instantiates new importer class
+	// delete cases you don't need to save several kB of memory
 	unsigned triangleCount = (flags&TRI_STRIP)?vertexCount-2:(vertexCount/3);
 	switch(vertexFormat)
 	{
