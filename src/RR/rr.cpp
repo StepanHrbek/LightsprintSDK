@@ -1069,6 +1069,17 @@ int main(int argc, char **argv)
      fgetc(stdin);
      return 0;
    }
+   if(p_test==4) // superstrucny vypis pouze automaticky benchmark
+   {
+	   char buf[400];
+	   scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+5*PER_SEC));
+	   scene->infoImprovement(buf,__infolevel); puts(buf);
+	   const rrCollider::RRCollider* collider = scene->object[0]->importer->getCollider();
+	   const rrCollider::RRMeshImporter* importer = collider->getImporter();
+	   sprintf(buf,"%5d/%03d",rrCollider::RRIntersectStats::getInstance()->intersects/1000,collider->getMemoryOccupied()/importer->getNumTriangles());
+	   fprintf(stderr,buf);
+	   return 0;
+   }
    //prehraje 5 snimku
    setRrMode(scene,false,false,0);p_flyingObjects=true;
    p_ffPlay=2;

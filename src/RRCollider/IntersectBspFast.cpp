@@ -353,17 +353,31 @@ begin:
 			assert(0);
 		}
 
+/*
 		// test subtrees
-//!!!
-/*/ asi by slo prepsat na takto:
+		// verze pocitajici vse v distance, nic v objectspace
+		// nemela by hazet asserty protoze nema dva ruzne vypocty davajici ruzne vysledky
+		// prekvapive o 2.5% pomalejsi, i kdyz vypoctu je mene
+		// presnost nezjistena
+
+		real splitValue = t->kd.getSplitValue();
 		real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 		//!!! osetrit vsechny mezni pripady (inf, nan)
-		if(distSplit<ray->hitDistanceMin || distSplit>=ray->distanceMax)
+		bool tmp1 = distSplit<ray->hitDistanceMin;
+//#define SIMPLE // mene vypoctu ale presto pomalejsi
+#ifdef SIMPLE
+		bool tmp2 = ray->rayDirInv[t->kd.splitAxis]<0; // or rayDir<=0 ?
+#endif
+		if(tmp1 || distSplit>=distanceMax)
 		{
 			// only one son
+#ifndef SIMPLE
 			real pointMaxVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*distanceMax;
 			if(pointMaxVal>splitValue) 
-			//if((distSplit<ray->hitDistanceMin) == (ray->rayDir[t->kd.splitAxis]<0))
+#endif
+#ifdef SIMPLE
+			if(tmp1 != tmp2)
+#endif
 			{
 				// front only
 				assert(t->kd.getFront()->bsp.size<MAX_SIZE);
@@ -383,7 +397,10 @@ begin:
 		else
 		{
 			// both sons
-			if(ray->rayDir[t->kd.splitAxis]<0) // or <=0 ?
+#ifndef SIMPLE
+			bool tmp2 = ray->rayDirInv[t->kd.splitAxis]<0; // or rayDir<=0 ?
+#endif
+			if(tmp2)
 			{
 				// front and back
 				TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
@@ -406,11 +423,12 @@ begin:
 				goto begin;
 			}
 		}
-// vyhody:
-//  asi rychlejsi
-//  nebude hazet asserty protoze nema dva ruzne vypocty davajici ruzne vysledky
-//  presnost neumim predpovedet
 */
+
+		// test subtrees
+		// verze pocitajici neco v distance, neco v objectspace
+		// haze asserty kdyz daji vypocty ruzne vysledky
+		// prekvapive rychlejsi, i kdyz ma vic vypoctu
 
 		// all math is limited to kd.splitAxis axis
 		// kd node is split at splitValue
