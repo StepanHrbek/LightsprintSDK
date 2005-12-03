@@ -2440,53 +2440,6 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	return hitPower;
 }
 
-// returns irradiance in W/m^2 in point with normal
-// decreasing power is used only for termination criteria
-Channels Scene::gatherIrradiance(Point3 point,Vec3 normal,Triangle *skip,Channels power)
-{
-	Channels irradiance = Channels(0);
-	unsigned numRays = 1;//!!!
-	for(unsigned i=0;i<numRays;i++)
-	{
-		Vec3 dir = normal;//!!!
-		irradiance += gatherHitExitance(point,dir,skip,power);
-	}
-	return irradiance / numRays;
-}
-
-// returns exitance in W/m^2 in intersection of ray and scene
-// decreasing power is used only for termination criteria
-Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Channels power)
-{
-	assert(IS_VEC3(eye));
-	assert(IS_VEC3(direction));
-	rrCollider::RRRay& ray = *__ray;
-	ray.rayFlags = rrCollider::RRRay::FILL_SIDE|rrCollider::RRRay::FILL_POINT2D|rrCollider::RRRay::FILL_TRIANGLE;
-	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
-	ray.rayLengthMax = BIG_REAL;
-	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
-	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
-	{
-		// ray left scene and vanished
-		return Channels(0);
-	}
-	assert(IS_NUMBER(ray.hitDistance));
-	if(ray.hitOuterSide) __hitsOuter++;else __hitsInner++;
-	// otherwise surface with these properties was hit
-	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitOuterSide?0:1];
-	assert(side->catchFrom); // check that bad side was not hit
-	if(!side->receiveFrom)
-	{
-		// ray accidentally penetrated object and hit inner side
-		return Channels(0);
-	}
-	// calculate surface exitance
-	Channels incidentPower = hitTriangle->energyDirectIncident + hitTriangle->getEnergyDynamic();
-	Channels irradiance = incidentPower / hitTriangle->area;
-	Channels exitance = irradiance * *(Vec3*)hitTriangle->surface->diffuseReflectanceColor;
-	return exitance;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // homogenous filling:
@@ -2531,7 +2484,42 @@ HomogenousFiller filler;
 //
 // random exiting ray
 
+bool getRandomExitDir(Vec3& norm, Vec3& u3, Vec3& v3, int sides, Vec3& exitDir)
+// ortonormal space: norm, u3, v3
+// sides: 1 or 2
+// returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
+{
+#ifdef HOMOGENOUS_FILL
+	real x,y;
+	real cosa=sqrt(1-filler.GetCirclePoint(&x,&y));
+#else
+	// select random vector from srcPoint3 to one halfspace
+	// power is assumed to be 1
+	real tmp=(real)rand()/RAND_MAX*SHOOT_FULL_RANGE;
+	real cosa=sqrt(1-tmp);
+#endif
+	// emit only inside?
+	if(!sideBits[sides][0].emitTo && sideBits[sides][1].emitTo)
+		cosa=-cosa;
+	// emit to both sides?
+	if(sideBits[sides][0].emitTo && sideBits[sides][1].emitTo)
+		if((rand()%2)) cosa=-cosa;
+	// don't emit?
+	if(!sideBits[sides][0].emitTo && !sideBits[sides][1].emitTo)
+		return false;
+#ifdef HOMOGENOUS_FILL
+	exitDir = norm*cosa + u3*x + v3*y;
+#else
+	real sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
+	Angle b=rand()*2*M_PI/RAND_MAX;         // b = rotation angle around normal
+	exitDir = norm*cosa + u3*(sina*cos(b)) + v3*(sina*sin(b));
+#endif
+	assert(fabs(size2(exitDir)-1)<0.001);//ocekava normalizovanej dir
+	return true;
+}
+
 Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
+// returns random point and direction exiting sourceNode
 {
 	SubTriangle *source;
 	if(IS_CLUSTER(sourceNode))
@@ -2561,35 +2549,9 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	  case diffuseLight:
 	    {
 	    //area:
-#ifdef HOMOGENOUS_FILL
-	    real x,y;
-	    real cosa=sqrt(1-filler.GetCirclePoint(&x,&y));
-#else
-	    // select random vector from srcPoint3 to one halfspace
-	    // power is assumed to be 1
-	    real tmp=(real)rand()/RAND_MAX*SHOOT_FULL_RANGE;
-	    real cosa=sqrt(1-tmp);
-#endif
-	    // emit only inside?
-	    if(!sideBits[source->grandpa->surface->sides][0].emitTo && sideBits[source->grandpa->surface->sides][1].emitTo)
-	      cosa=-cosa;
-	    // emit to both sides?
-	    if(sideBits[source->grandpa->surface->sides][0].emitTo && sideBits[source->grandpa->surface->sides][1].emitTo)
-	      if((rand()%2)) cosa=-cosa;
-	    // don't emit?
-	    if(!sideBits[source->grandpa->surface->sides][0].emitTo && !sideBits[source->grandpa->surface->sides][1].emitTo)
-	      return NULL;
-#ifdef HOMOGENOUS_FILL
-	    rayVec3=source->grandpa->getN3()*cosa
-	           +source->grandpa->getU3()*x
-	           +source->grandpa->getV3()*y;
-#else
-	    real sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
-	    Angle b=rand()*2*M_PI/RAND_MAX;         // b = rotation angle around normal
-	    rayVec3=source->grandpa->getN3()*cosa
-	           +source->grandpa->getU3()*(sina*cos(b))
-	           +source->grandpa->getV3()*(sina*sin(b));
-#endif
+		// pouziti funkce misto primeho zapisu pod vc7 prida 1.7% vykonu
+		if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->sides,rayVec3)) 
+			return NULL;
 	    break;
 	    }
 	    /*
@@ -2653,6 +2615,56 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 		*dir = rayVec3;
 	}
 	return source->grandpa;
+}
+
+// returns irradiance in W/m^2 in point with normal
+// decreasing power is used only for termination criteria
+Channels Scene::gatherIrradiance(Point3 point,Vec3 normal,Triangle *skip,Channels power)
+{
+	Channels irradiance = Channels(0);
+	unsigned numRays = RRGetState(RRSS_GET_FINAL_GATHER);
+	Vec3 u3 = normalized(ortogonalTo(normal));
+	Vec3 v3 = normalized(ortogonalTo(normal,u3));
+	Vec3 dir = Vec3(1,0,0);
+	for(unsigned i=0;i<numRays;i++)
+	{
+		getRandomExitDir(normal,u3,v3,1,dir);
+		irradiance += gatherHitExitance(point,dir,skip,power);
+	}
+	return irradiance / numRays;
+}
+
+// returns exitance in W/m^2 in intersection of ray and scene
+// decreasing power is used only for termination criteria
+Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Channels power)
+{
+	assert(IS_VEC3(eye));
+	assert(IS_VEC3(direction));
+	rrCollider::RRRay& ray = *__ray;
+	ray.rayFlags = rrCollider::RRRay::FILL_SIDE|rrCollider::RRRay::FILL_POINT2D|rrCollider::RRRay::FILL_TRIANGLE;
+	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
+	ray.rayLengthMax = BIG_REAL;
+	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
+	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
+	{
+		// ray left scene and vanished
+		return Channels(0);
+	}
+	assert(IS_NUMBER(ray.hitDistance));
+	if(ray.hitOuterSide) __hitsOuter++;else __hitsInner++;
+	// otherwise surface with these properties was hit
+	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitOuterSide?0:1];
+	assert(side->catchFrom); // check that bad side was not hit
+	if(!side->receiveFrom)
+	{
+		// ray accidentally penetrated object and hit inner side
+		return Channels(0);
+	}
+	// calculate surface exitance
+	Channels incidentPower = hitTriangle->energyDirectIncident + hitTriangle->getEnergyDynamic();
+	Channels irradiance = incidentPower / hitTriangle->area;
+	Channels exitance = irradiance * *(Vec3*)hitTriangle->surface->diffuseReflectanceColor;
+	return exitance;
 }
 
 //////////////////////////////////////////////////////////////////////////////

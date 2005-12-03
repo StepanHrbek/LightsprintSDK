@@ -805,7 +805,7 @@ void help()
  printf("\n -----------------------------------[ test ]-----------------------------------\n");
  printf(" -sides[1|2][outer|inner]:[render|emit|catch|receive|reflect|transmit]=[0|1]\n");
  printf(" -cap         ...capture scene after 0.1, 1, 10 and 100 sec, start by ' '\n");
- printf(" -tN          ...test speed (0=w/o .ora,1=&build .ora,2=test w/.ora,3=shooting)\n");
+ printf(" -tN          ...test speed (0=w/o .ora,1=&build .ora,2=test w/.ora,3/4=shooting)\n");
  exit(0);
 }
 

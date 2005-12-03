@@ -353,77 +353,7 @@ begin:
 			assert(0);
 		}
 
-/*
-		// test subtrees
-		// verze pocitajici vse v distance, nic v objectspace
-		// nemela by hazet asserty protoze nema dva ruzne vypocty davajici ruzne vysledky
-		// prekvapive o 2.5% pomalejsi, i kdyz vypoctu je mene
-		// presnost nezjistena
-
-		real splitValue = t->kd.getSplitValue();
-		real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
-		//!!! osetrit vsechny mezni pripady (inf, nan)
-		bool tmp1 = distSplit<ray->hitDistanceMin;
-//#define SIMPLE // mene vypoctu ale presto pomalejsi
-#ifdef SIMPLE
-		bool tmp2 = ray->rayDirInv[t->kd.splitAxis]<0; // or rayDir<=0 ?
-#endif
-		if(tmp1 || distSplit>=distanceMax)
-		{
-			// only one son
-#ifndef SIMPLE
-			real pointMaxVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*distanceMax;
-			if(pointMaxVal>splitValue) 
-#endif
-#ifdef SIMPLE
-			if(tmp1 != tmp2)
-#endif
-			{
-				// front only
-				assert(t->kd.getFront()->bsp.size<MAX_SIZE);
-				t = t->kd.getFront();
-				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
-				goto begin;
-			}
-			else
-			{
-				// back only
-				assert(t->kd.getBack()->bsp.size<MAX_SIZE);
-				t = t->kd.getBack();
-				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
-				goto begin;
-			}
-		}
-		else
-		{
-			// both sons
-#ifndef SIMPLE
-			bool tmp2 = ray->rayDirInv[t->kd.splitAxis]<0; // or rayDir<=0 ?
-#endif
-			if(tmp2)
-			{
-				// front and back
-				TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
-				TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
-				if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
-				ray->hitDistanceMin = distSplit-DELTA_BSP;
-				assert(t->kd.getBack()->bsp.size<MAX_SIZE);
-				t = t->kd.getBack();
-				goto begin;
-			}
-			else
-			{
-				// back and front
-				TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getBack());
-				TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
-				if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
-				ray->hitDistanceMin = distSplit-DELTA_BSP;
-				assert(t->kd.getFront()->bsp.size<MAX_SIZE);
-				t = t->kd.getFront();
-				goto begin;
-			}
-		}
-*/
+//#define DISTANCE_SPACE // pokus
 
 		// test subtrees
 		// verze pocitajici neco v distance, neco v objectspace
@@ -482,6 +412,8 @@ begin:
 			t = t->kd.getFront();
 			goto begin;
 		}
+
+
 	}
 
 	const BspTree *front=t+1;
