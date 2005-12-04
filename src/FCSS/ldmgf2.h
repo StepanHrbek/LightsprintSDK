@@ -9,4 +9,5 @@ int  mgf_load(char *scenename);
 void mgf_compile();
 void mgf_draw_onlyz();
 void mgf_draw_colored();
+void mgf_draw_indexed();
 
