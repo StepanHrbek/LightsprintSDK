@@ -10,12 +10,12 @@
 #include "ldmgf.h"
 #include "ldmgf2.h"
 
-bool COMPILE=1; // try speedup by displaylists
-int  ARRAYS =0; // try speedup by arrays, 1=small array, 2=big array
-bool BUFFERS=1; // try speedup by buffers (active only when arrays>0)
-int  SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
-bool NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
-
+bool  COMPILE=1; // try speedup by displaylists
+int   ARRAYS =0; // try speedup by arrays, 1=small array, 2=big array
+bool  BUFFERS=1; // try speedup by buffers (active only when arrays>0)
+int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
+bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
+float SCALE  =2; // scale loaded object
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -75,9 +75,9 @@ void count_triangles(unsigned vertices,void **vertex,void *material)
 void *add_vertex(FLOAT *p,FLOAT *n)
 {
  assert(mgf_vertices_loaded<mgf_vertices);
- mgf_vertex[mgf_vertices_loaded*6  ]=p[0];
- mgf_vertex[mgf_vertices_loaded*6+1]=p[1];
- mgf_vertex[mgf_vertices_loaded*6+2]=p[2];
+ mgf_vertex[mgf_vertices_loaded*6  ]=p[0]*SCALE;
+ mgf_vertex[mgf_vertices_loaded*6+1]=p[1]*SCALE;
+ mgf_vertex[mgf_vertices_loaded*6+2]=p[2]*SCALE;
  mgf_vertex[mgf_vertices_loaded*6+3]=n[0];
  mgf_vertex[mgf_vertices_loaded*6+4]=n[1];
  mgf_vertex[mgf_vertices_loaded*6+5]=n[2];

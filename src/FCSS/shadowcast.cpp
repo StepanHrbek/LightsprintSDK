@@ -210,8 +210,8 @@ int hwLittleEndian;
 int littleEndian;
 
 int vsync = 1;
-int requestedDepthMapSize = 256;
-int depthMapSize = 256;
+int requestedDepthMapSize = 512;
+int depthMapSize = 512;
 
 int requestedDepthMapRectWidth = 350;
 int requestedDepthMapRectHeight = 300;
@@ -230,7 +230,7 @@ int useCopyTexImage = 1;
 int useTextureRectangle = 0;
 int mipmapShadowMap = 0;
 int useAccum = 0;
-int useLights = 6;
+int useLights = 1;
 int useScissor = 1;
 float globalIntensity = 1;
 float ambientPower = 0;
@@ -240,20 +240,20 @@ int areaType = 0; // 0=linear, 1=square grid, 2=circle
 bool drawOnlyZ = false;
 GLfloat eye_shift[3]={0,0,0};
 GLfloat ed[3];
-char *mgf_filename="erw5\\scene10.mgf";
+char *mgf_filename="data\\scene8.mgf";
 
 int depthBias8 = 2;
 int depthBias16 = 6;
 int depthBias24 = 8;
 int depthScale8, depthScale16, depthScale24;
-GLfloat slopeScale = 1.1;
+GLfloat slopeScale = 1.8;
 
 GLfloat textureLodBias = 0.0;
 
 #define LIGHT_DIMMING 0.0
 
 GLfloat zero[] = {0.0, 0.0, 0.0, 1.0};
-GLfloat lightColor[] = {4.0, 4.0, 4.0, 1.0};
+GLfloat lightColor[] = {10.0, 10.0, 10.0, 1.0};
 GLfloat lightDimColor[] = {LIGHT_DIMMING, LIGHT_DIMMING, LIGHT_DIMMING, 1.0};
 GLfloat grayMaterial[] = {0.7, 0.7, 0.7, 1.0};
 GLfloat floor_norm[] = {0.0, 1.0, 0.0};
@@ -346,7 +346,7 @@ int forceEnvCombine = 0;
 int useDisplayLists = 1;
 int textureFloor = 0;
 int textureSpot = 0;
-int showLightViewFrustum = 0;
+int showLightViewFrustum = 1;
 int showDepthMapMSBs = 1;
 int eyeButton = GLUT_LEFT_BUTTON;
 int lightButton = GLUT_MIDDLE_BUTTON;
@@ -372,8 +372,10 @@ int maxRectangleTextureSize = 0;
 
 double winAspectRatio;
 
-GLdouble eyeFieldOfView = 50.0;
-GLdouble lightFieldOfView = 80.0;
+GLdouble eyeFieldOfView = 40.0;
+GLdouble eyeNear = 0.3;
+GLdouble eyeFar = 60.0;
+GLdouble lightFieldOfView = 50.0;
 GLdouble lightNear = 2.0;
 GLdouble lightFar = 24.0;
 
@@ -1142,14 +1144,14 @@ updateMatrices(void)
     0, 3, 0,
     0, 1, 0);
   
-  lv[0] = 8 * sin(lightAngle);
-  lv[1] = lightHeight;
-  lv[2] = 8 * cos(lightAngle);
+  lv[0] = 4 * sin(lightAngle);
+  lv[1] = 0.5 * lightHeight + 3;
+  lv[2] = 4 * cos(lightAngle);
   lv[3] = 1.0;
 
   buildLookAtMatrix(lightViewMatrix,
     lv[0], lv[1], lv[2],
-    0, 1, 0,
+    0, 3, 0,
     0, 1, 0);
 
   buildPerspectiveMatrix(lightFrustumMatrix, 
@@ -3563,9 +3565,9 @@ keyboard(unsigned char c, int x, int y)
     break;
   case 'z':
   case 'Z':
-    eyeFieldOfView = (eyeFieldOfView == 50.0) ? 25.0 : 50.0;
+    eyeFieldOfView = (eyeFieldOfView == 40.0) ? 20.0 : 40.0;
     buildPerspectiveMatrix(eyeFrustumMatrix,
-      eyeFieldOfView, 1.0/winAspectRatio, 3.0, 60.0);
+      eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
     break;
   case 'a':
     showDepthMapMSBs = !showDepthMapMSBs;
@@ -3801,7 +3803,7 @@ reshape(int w, int h)
   glViewport(0, 0, w, h);
   winAspectRatio = (double) winHeight / (double) winWidth;
   buildPerspectiveMatrix(eyeFrustumMatrix,
-    eyeFieldOfView, 1.0/winAspectRatio, 3.0, 60.0);
+    eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
 
   /* Perhaps there might have been a mode change so at window
      reshape time, redetermine the depth scale. */
@@ -4030,10 +4032,10 @@ motion(int x, int y)
     glutPostRedisplay();
   }
   if (movingLight) {
-    lightAngle = lightAngle - 0.005*(x - xLightBegin);
+    lightAngle = lightAngle + 0.005*(x - xLightBegin);
     lightHeight = lightHeight - 0.15*(y - yLightBegin);
     if (lightHeight > 12.0) lightHeight = 12.0;
-    if (lightHeight < -12.0) lightHeight = -12.0;
+    if (lightHeight < -4.0) lightHeight = -4.0;
     xLightBegin = x;
     yLightBegin = y;
     needMatrixUpdate = 1;
