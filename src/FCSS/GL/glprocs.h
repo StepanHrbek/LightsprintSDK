@@ -1041,7 +1041,7 @@ typedef struct {
   VOID (WINAPI *DeleteBufferRegionARB) (HANDLE hRegion);
   BOOL (WINAPI *SaveBufferRegionARB) (HANDLE hRegion, int x, int y, int width, int height);
   BOOL (WINAPI *RestoreBufferRegionARB) (HANDLE hRegion, int x, int y, int width, int height, int xSrc, int ySrc);
-  const (WINAPI *GetExtensionsStringARB) (HDC hdc);
+  const int (WINAPI *GetExtensionsStringARB) (HDC hdc);
   BOOL (WINAPI *GetPixelFormatAttribivARB) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int *piAttributes, int *piValues);
   BOOL (WINAPI *GetPixelFormatAttribfvARB) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int *piAttributes, FLOAT *pfValues);
   BOOL (WINAPI *ChoosePixelFormatARB) (HDC hdc, const int *piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
@@ -1059,7 +1059,7 @@ typedef struct {
   GLboolean (WINAPI *LoadDisplayColorTableEXT) (const GLushort *table, GLuint length);
   GLboolean (WINAPI *BindDisplayColorTableEXT) (GLushort id);
   VOID (WINAPI *DestroyDisplayColorTableEXT) (GLushort id);
-  const (WINAPI *GetExtensionsStringEXT) (void);
+  const int (WINAPI *GetExtensionsStringEXT) (void);
   BOOL (WINAPI *MakeContextCurrentEXT) (HDC hDrawDC, HDC hReadDC, HGLRC hglrc);
   HDC (WINAPI *GetCurrentReadDCEXT) (void);
   HPBUFFEREXT (WINAPI *CreatePbufferEXT) (HDC hDC, int iPixelFormat, int iWidth, int iHeight, const int *piAttribList);

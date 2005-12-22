@@ -1,45 +1,66 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8,00"
 	Name="RRCollider"
 	ProjectGUID="{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}"
 	RootNamespace="RRIntersect"
-	SccProjectName=""
-	SccLocalPath="">
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\..\lib"
 			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			WholeProgramOptimization="FALSE">
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="TRUE"
-				OmitFramePointers="TRUE"
-				WholeProgramOptimization="FALSE"
-				OptimizeForProcessor="0"
+				EnableIntrinsicFunctions="true"
+				OmitFramePointers="true"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include; ..\..\..\3rd\rsa;..\..\LicGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG"
-				StringPooling="TRUE"
-				ExceptionHandling="FALSE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE"
+				StringPooling="true"
+				ExceptionHandling="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="0"
-				BufferSecurityCheck="FALSE"
-				EnableFunctionLevelLinking="TRUE"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
-				ForceConformanceInForLoopScope="TRUE"
+				FloatingPointModel="2"
+				ForceConformanceInForLoopScope="true"
+				RuntimeTypeInfo="false"
+				OpenMP="false"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile=""
@@ -47,127 +68,170 @@
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_s.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(ProjectName)_s.lib"
-				AdditionalLibraryDirectories="$(OutDir)"/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
-				HeaderFileName=""/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="update global include"
-				CommandLine="rem copy ..\include\*.* ..\..\..\include"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1029"/>
+				Culture="1029"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/$(ProjectName)_s.lib"
+				AdditionalLibraryDirectories="$(OutDir)"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="update global include"
+				CommandLine="rem copy ..\include\*.* ..\..\..\include"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\..\lib"
 			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				ImproveFloatingPointConsistency="FALSE"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include; ..\..\..\3rd\rsa;..\..\LicGen\include"
-				PreprocessorDefinitions="WIN32;_DEBUG"
-				ExceptionHandling="TRUE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE"
+				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				BufferSecurityCheck="TRUE"
-				DisableLanguageExtensions="FALSE"
-				ForceConformanceInForLoopScope="TRUE"
+				BufferSecurityCheck="true"
+				DisableLanguageExtensions="false"
+				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sd.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1029"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
 				AdditionalLibraryDirectories="$(OutDir)"
-				IgnoreAllDefaultLibraries="TRUE"/>
+				IgnoreAllDefaultLibraries="true"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="update global include"
-				CommandLine="rem copy ..\include\*.* ..\..\..\include"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1029"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				CommandLine="rem copy ..\include\*.* ..\..\..\include"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release DLL|Win32"
 			OutputDirectory="..\..\..\lib"
 			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			WholeProgramOptimization="FALSE">
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="TRUE"
-				OmitFramePointers="TRUE"
+				EnableIntrinsicFunctions="true"
+				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include; ..\..\..\3rd\rsa;..\..\LicGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;RRCOLLIDER_EXPORT"
-				StringPooling="TRUE"
-				ExceptionHandling="FALSE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RRCOLLIDER_EXPORT"
+				StringPooling="true"
+				ExceptionHandling="0"
 				RuntimeLibrary="0"
-				BufferSecurityCheck="FALSE"
-				EnableFunctionLevelLinking="TRUE"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
-				DisableLanguageExtensions="FALSE"
-				ForceConformanceInForLoopScope="TRUE"
+				DisableLanguageExtensions="false"
+				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile=""
@@ -175,40 +239,51 @@
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(OutDir)/$(ProjectName).pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="0"/>
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalLibraryDirectories="$(OutDir)"/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
-				HeaderFileName=""/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="update global include"
-				CommandLine="rem copy ..\include\*.* ..\..\..\include"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1029"/>
+				Culture="1029"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				AdditionalLibraryDirectories="$(OutDir)"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="update global include"
+				CommandLine="rem copy ..\include\*.* ..\..\..\include"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -216,162 +291,213 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath="..\bsp.cpp">
+				RelativePath="..\bsp.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\cache.cpp">
+				RelativePath="..\cache.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\dll.cpp">
+				RelativePath="..\dll.cpp"
+				>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						DisableLanguageExtensions="FALSE"/>
+						DisableLanguageExtensions="false"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release DLL|Win32">
+					Name="Release DLL|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						DisableLanguageExtensions="FALSE"/>
+						DisableLanguageExtensions="false"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\fpcube.cpp">
+				RelativePath="..\fpcube.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\geometry.cpp">
+				RelativePath="..\geometry.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\IntersectBspCompact.cpp">
+				RelativePath="..\IntersectBspCompact.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\IntersectBspFast.cpp">
+				RelativePath="..\IntersectBspFast.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\IntersectLinear.cpp">
+				RelativePath="..\IntersectLinear.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\IntersectVerification.cpp">
+				RelativePath="..\IntersectVerification.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\pcube.cpp">
+				RelativePath="..\pcube.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\RRAligned.cpp">
+				RelativePath="..\RRAligned.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\RRCollider.cpp">
+				RelativePath="..\RRCollider.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\RRRay.cpp">
+				RelativePath="..\RRRay.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\sha1.cpp">
+				RelativePath="..\sha1.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath="..\bsp.h">
+				RelativePath="..\bsp.h"
+				>
 			</File>
 			<File
-				RelativePath="..\cache.h">
+				RelativePath="..\cache.h"
+				>
 			</File>
 			<File
-				RelativePath="..\config.h">
+				RelativePath="..\config.h"
+				>
 			</File>
 			<File
-				RelativePath="..\geometry.h">
+				RelativePath="..\geometry.h"
+				>
 			</File>
 			<File
-				RelativePath="..\IntersectBsp.h">
+				RelativePath="..\IntersectBsp.h"
+				>
 			</File>
 			<File
-				RelativePath="..\IntersectBspCompact.h">
+				RelativePath="..\IntersectBspCompact.h"
+				>
 			</File>
 			<File
-				RelativePath="..\IntersectBspFast.h">
+				RelativePath="..\IntersectBspFast.h"
+				>
 			</File>
 			<File
-				RelativePath="..\IntersectLinear.h">
+				RelativePath="..\IntersectLinear.h"
+				>
 			</File>
 			<File
-				RelativePath="..\IntersectVerification.h">
+				RelativePath="..\IntersectVerification.h"
+				>
 			</File>
 			<File
-				RelativePath="..\LicGen.h">
+				RelativePath="..\LicGen.h"
+				>
 			</File>
 			<File
-				RelativePath="..\miniball.h">
+				RelativePath="..\miniball.h"
+				>
 			</File>
 			<File
-				RelativePath="..\miniball_config.h">
+				RelativePath="..\miniball_config.h"
+				>
 			</File>
 			<File
-				RelativePath="..\pcube.h">
+				RelativePath="..\pcube.h"
+				>
 			</File>
 			<File
-				RelativePath="..\include\RRCollider.h">
+				RelativePath="..\include\RRCollider.h"
+				>
 			</File>
 			<File
-				RelativePath="..\include\RRMeshFilter.h">
+				RelativePath="..\include\RRMeshFilter.h"
+				>
 			</File>
 			<File
-				RelativePath="..\sha1.h">
+				RelativePath="..\sha1.h"
+				>
 			</File>
 			<File
-				RelativePath="..\vec.h">
+				RelativePath="..\vec.h"
+				>
 			</File>
 			<File
-				RelativePath="..\wrapped_array.h">
+				RelativePath="..\wrapped_array.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+			>
 		</Filter>
 		<Filter
 			Name="MeshImporter"
-			Filter="">
+			>
 			<File
-				RelativePath="..\MeshImporter\CopyMesh.cpp">
+				RelativePath="..\MeshImporter\CopyMesh.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\CopyMesh.h">
+				RelativePath="..\MeshImporter\CopyMesh.h"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\IndexedTriList.h">
+				RelativePath="..\MeshImporter\IndexedTriList.h"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\IndexedTriStrip.h">
+				RelativePath="..\MeshImporter\IndexedTriStrip.h"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\LessTriangles.h">
+				RelativePath="..\MeshImporter\LessTriangles.h"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\LessVertices.cpp">
+				RelativePath="..\MeshImporter\LessVertices.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\LessVertices.h">
+				RelativePath="..\MeshImporter\LessVertices.h"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\Mesh.cpp">
+				RelativePath="..\MeshImporter\Mesh.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\MultiMesh.cpp">
+				RelativePath="..\MeshImporter\MultiMesh.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\MultiMesh.h">
+				RelativePath="..\MeshImporter\MultiMesh.h"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\TriList.h">
+				RelativePath="..\MeshImporter\TriList.h"
+				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\TriStrip.h">
+				RelativePath="..\MeshImporter\TriStrip.h"
+				>
 			</File>
 		</Filter>
 	</Files>
