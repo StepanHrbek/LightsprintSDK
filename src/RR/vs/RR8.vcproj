@@ -56,7 +56,8 @@
 				RuntimeLibrary="1"
 				StructMemberAlignment="0"
 				BufferSecurityCheck="true"
-				DisableLanguageExtensions="true"
+				EnableEnhancedInstructionSet="0"
+				FloatingPointModel="0"
 				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=""
@@ -86,7 +87,7 @@
 				AdditionalLibraryDirectories="h:\c\rr\lib"
 				IgnoreDefaultLibraryNames="libc.lib libcd.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(IntDir)/RR.pdb"
+				ProgramDatabaseFile="$(IntDir)/RRd.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -159,7 +160,7 @@
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="0"
-				DisableLanguageExtensions="true"
+				FloatingPointModel="2"
 				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=""
@@ -169,6 +170,7 @@
 				WarningLevel="1"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -189,6 +191,8 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="h:\c\rr\lib"
 				IgnoreDefaultLibraryNames="libc.lib libcd.lib libcmtd.lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(IntDir)/RR.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>

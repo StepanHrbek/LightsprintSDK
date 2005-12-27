@@ -143,6 +143,8 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				BufferSecurityCheck="true"
+				EnableEnhancedInstructionSet="0"
+				FloatingPointModel="0"
 				DisableLanguageExtensions="false"
 				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="0"

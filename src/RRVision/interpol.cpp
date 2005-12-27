@@ -95,6 +95,7 @@ bool IVertex::check(Point3 apoint)
 
 void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 {
+	assert(this);
 	// new interpolation scheme "power*=node->area" now doesn't works with subdivision
 	if(RRGetStateF(RRSSF_SUBDIVISION_SPEED)==0)
 		power *= node->area;
@@ -329,13 +330,16 @@ IVertex *SubTriangle::ivertex(int i)
 	SubTriangle *pa=SUBTRIANGLE(parent);
 	bool right=isRight();
 	int rot=pa->getSplitVertex();
+	IVertex *tmp;
 	switch(i)
 	{
-	   case 0:return pa->ivertex(rot);
-	   case 1:if(right) return pa->ivertex((rot+1)%3); else return pa->subvertex;
+	   case 0:tmp = pa->ivertex(rot); break;
+	   case 1:if(right) tmp = pa->ivertex((rot+1)%3); else tmp = pa->subvertex; break;
 	   default:assert(i==2);
-		  if(right) return pa->subvertex; else return pa->ivertex((rot+2)%3);
+		  if(right) tmp = pa->subvertex; else tmp = pa->ivertex((rot+2)%3);
 	}
+	assert(tmp);
+	return tmp;
 }
 
 bool SubTriangle::checkVertices()
@@ -350,9 +354,12 @@ bool SubTriangle::checkVertices()
 void SubTriangle::installVertices()
 {
 	IVertex *v;
-	v=ivertex(0);assert(v);v->insert(this,false,angleBetween(u2,v2),to3d(0));
-	v=ivertex(1);assert(v);v->insert(this,false,angleBetween(v2-u2,-u2),to3d(1));
-	v=ivertex(2);assert(v);v->insert(this,false,angleBetween(-v2,u2-v2),to3d(2));
+	v=ivertex(0);assert(v);
+	v->insert(this,false,angleBetween(u2,v2),to3d(0));
+	v=ivertex(1);assert(v);
+	v->insert(this,false,angleBetween(v2-u2,-u2),to3d(1));
+	v=ivertex(2);assert(v);
+	v->insert(this,false,angleBetween(-v2,u2-v2),to3d(2));
 }
 
 SubTriangle *downWhereSideSplits(SubTriangle *s,int *side,IVertex *newVertex)
@@ -369,6 +376,7 @@ SubTriangle *downWhereSideSplits(SubTriangle *s,int *side,IVertex *newVertex)
 	}
 	while(true)
 	{
+		assert(s);
 		int splitVertex=s->getSplitVertexSlow();
 		if(*side==(splitVertex+1)%3) break;
 		s->splitGeometry(NULL);
@@ -548,6 +556,7 @@ void SubTriangle::createSubvertex(IVertex *asubvertex,int rot)
 	assert(SUBTRIANGLE(sub[0])->checkVertices());
 	assert(SUBTRIANGLE(sub[1])->checkVertices());
 	// uses subvertex->point, must be called after we set it
+	assert(this);
 	SUBTRIANGLE(sub[1])->installVertices();
 	SUBTRIANGLE(sub[0])->installVertices();
 }

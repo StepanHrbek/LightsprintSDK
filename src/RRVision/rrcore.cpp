@@ -866,6 +866,7 @@ int SubTriangle::getSplitVertex()
 
 void SubTriangle::splitGeometry(IVertex *asubvertex)
 {
+	assert(this);
 	if(sub[0]) return;
 
 	// zjisti splitvertex
@@ -945,6 +946,7 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	sub[r<0?0:1]=sb;
 	// create subvertex
 	DBGLINE
+	assert(this);
 	createSubvertex(asubvertex,rot);
 	DBGLINE
 }
