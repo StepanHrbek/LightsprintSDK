@@ -70,11 +70,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mgflib.lib gle.lib glut32.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="gle.lib glut32.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib"
 				OutputFile="$(OutDir)\FCSS.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="."
+				IgnoreDefaultLibraryNames="libc.lib"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
 				SubSystem="1"
 				TargetMachine="1"
@@ -112,7 +113,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -136,6 +137,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
+				MinimalRebuild="false"
 				RuntimeLibrary="1"
 				PrecompiledHeaderFile=".\Debug/shadowcast.pch"
 				AssemblerListingLocation="$(IntDir)/"
@@ -160,12 +162,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mgflib.lib libc.lib gle.lib glut32.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="gle.lib glut32.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib"
 				OutputFile="$(OutDir)\FCSS_d.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="."
-				IgnoreAllDefaultLibraries="true"
+				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
 				SubSystem="1"

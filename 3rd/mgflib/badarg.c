@@ -1,5 +1,10 @@
 /* Copyright (c) 1994 Regents of the University of California */
 
+int isascii(int c)
+{
+	return 1;
+}
+
 #ifndef lint
 static char SCCSid[] = "@(#)badarg.c 1.1 6/21/94 LBL";
 #endif

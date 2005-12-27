@@ -14,9 +14,9 @@
 extern "C" {
 #endif
 
-#ifdef _MSC_VER
-#pragma comment(lib,"mgflib.lib")
-#endif
+//#ifdef _MSC_VER
+//#pragma comment(lib,"mgflib.lib")
+//#endif
 
 /* must include stdio.h before us */
 

@@ -21,7 +21,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -50,7 +50,7 @@
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="..\..\..\include;..;..\..\RRCollider\include;..\..\RRVision\include;..\..\World\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL"
-				MinimalRebuild="true"
+				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"

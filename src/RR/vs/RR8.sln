@@ -4,9 +4,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RR", "RR8.vcproj", "{4B8536
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 		{AC8C9321-346C-42BB-4B36-D93E7C8D3A4A} = {AC8C9321-346C-42BB-4B36-D93E7C8D3A4A}
+		{24A70CDD-FF75-4686-B09E-F939F744F94B} = {24A70CDD-FF75-4686-B09E-F939F744F94B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cnv2bsp", "..\..\cnv2bsp\vs\cnv2bsp8.vcproj", "{A57BDEBD-5E2A-41DF-B204-357C62E18B09}"
+	ProjectSection(ProjectDependencies) = postProject
+		{24A70CDD-FF75-4686-B09E-F939F744F94B} = {24A70CDD-FF75-4686-B09E-F939F744F94B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRCollider", "..\..\RRCollider\vs\RRCollider8.vcproj", "{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}"
 EndProject
@@ -33,6 +37,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bench", "..\..\bench\bench8.vcproj", "{9B667646-EFF4-42C2-94DA-8F8388A03C47}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FCSS", "..\..\FCSS\FCSS8.vcproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
+	ProjectSection(ProjectDependencies) = postProject
+		{24A70CDD-FF75-4686-B09E-F939F744F94B} = {24A70CDD-FF75-4686-B09E-F939F744F94B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mgflib", "..\..\..\3rd\mgflib\vs\mgflib8.vcproj", "{24A70CDD-FF75-4686-B09E-F939F744F94B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -121,6 +130,14 @@ Global
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release DLL|Win32.Build.0 = Release|Win32
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release|Win32.ActiveCfg = Release|Win32
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release|Win32.Build.0 = Release|Win32
+		{24A70CDD-FF75-4686-B09E-F939F744F94B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{24A70CDD-FF75-4686-B09E-F939F744F94B}.Debug|Win32.Build.0 = Debug|Win32
+		{24A70CDD-FF75-4686-B09E-F939F744F94B}.GL Debug|Win32.ActiveCfg = Debug|Win32
+		{24A70CDD-FF75-4686-B09E-F939F744F94B}.GL Debug|Win32.Build.0 = Debug|Win32
+		{24A70CDD-FF75-4686-B09E-F939F744F94B}.Release DLL|Win32.ActiveCfg = Release|Win32
+		{24A70CDD-FF75-4686-B09E-F939F744F94B}.Release DLL|Win32.Build.0 = Release|Win32
+		{24A70CDD-FF75-4686-B09E-F939F744F94B}.Release|Win32.ActiveCfg = Release|Win32
+		{24A70CDD-FF75-4686-B09E-F939F744F94B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
