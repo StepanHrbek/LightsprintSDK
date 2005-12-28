@@ -338,6 +338,7 @@ IVertex::~IVertex()
 
 IVertex *SubTriangle::ivertex(int i)
 {
+/*
 	assert(i>=0 && i<3);
 	if(IS_TRIANGLE(this)) return TRIANGLE(this)->topivertex[i];
 	assert(parent);
@@ -355,23 +356,19 @@ IVertex *SubTriangle::ivertex(int i)
 		  if(right) tmp = pa->subvertex; else tmp = pa->ivertex((rot+2)%3);
 	}
 	return tmp;
-	/*
-	TRACE("a");
+*/
 	assert(IS_PTR(this));
 	assert(i>=0 && i<3);
 	IVertex *tmp;
 	if(IS_TRIANGLE(this))
 	{
-		TRACE("b");
 		assert(TRIANGLE(this)->surface);
 		tmp = TRIANGLE(this)->topivertex[i];
 		TRACE(FS("(%x,%d,%x,%d)",this,i,tmp,rrCollider::RRIntersectStats::getInstance()->intersects));
 		assert(tmp);
-		TRACE("B");
 	}
 	else
 	{
-		TRACE("c");
 		assert(parent);
 		assert(parent->sub[0]);
 		assert(parent->sub[1]);
@@ -381,17 +378,14 @@ IVertex *SubTriangle::ivertex(int i)
 		{
 			case 0:
 				{
-				TRACE("d");
 				SubTriangle *pa=SUBTRIANGLE(parent);
 				int rot=pa->getSplitVertex();
 				tmp = pa->ivertex(rot);
 				assert(tmp);
-				TRACE("D");
 				break;
 				}
 			case 1:
 				{
-				TRACE("e");
 				SubTriangle *pa=SUBTRIANGLE(parent);
 				if(isRight())
 				{
@@ -404,12 +398,10 @@ IVertex *SubTriangle::ivertex(int i)
 					tmp = pa->subvertex;
 					assert(tmp);
 				}
-				TRACE("E");
 				break;
 				}
 			default:
 				{
-				TRACE("f");
 				assert(i==2);
 				SubTriangle *pa=SUBTRIANGLE(parent);
 				if(isRight())
@@ -423,15 +415,11 @@ IVertex *SubTriangle::ivertex(int i)
 					tmp = pa->ivertex((rot+2)%3);
 					assert(tmp);
 				}
-				TRACE("F");
 				}
 		}
-		TRACE("C");
 	}
 	assert(tmp);
-	TRACE("A");
 	return tmp;
-*/
 }
 
 bool SubTriangle::checkVertices()
