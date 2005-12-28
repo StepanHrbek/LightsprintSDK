@@ -5,6 +5,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*#include <windows.h>
+#undef assert
+#define assert(a) {if(!(a)) DebugBreak();}
+//#define assert(a) {if(!(a) && IsDebuggerPresent()) DebugBreak();}
+char *FS(char *fmt, ...)
+{
+	static char msg[1000];
+	va_list argptr;
+	va_start (argptr,fmt);
+	vsprintf (msg,fmt,argptr);
+	va_end (argptr);
+	return msg;
+}*/
+#define TRACE(a) //{if(rrCollider::RRIntersectStats::getInstance()->intersects>=478988) OutputDebugString(a);}
+
 #include "rrcore.h"
 #include "interpol.h"
 
@@ -53,6 +68,7 @@ unsigned __cornersAllocated=0;
 
 IVertex::IVertex()
 {
+	assert(this);
 	corners=0;
 	cornersAllocatedLn2=3;
 	corner=(Corner *)malloc(cornersAllocated()*sizeof(Corner));
@@ -338,16 +354,109 @@ IVertex *SubTriangle::ivertex(int i)
 	   default:assert(i==2);
 		  if(right) tmp = pa->subvertex; else tmp = pa->ivertex((rot+2)%3);
 	}
-	assert(tmp);
 	return tmp;
+	/*
+	TRACE("a");
+	assert(IS_PTR(this));
+	assert(i>=0 && i<3);
+	IVertex *tmp;
+	if(IS_TRIANGLE(this))
+	{
+		TRACE("b");
+		assert(TRIANGLE(this)->surface);
+		tmp = TRIANGLE(this)->topivertex[i];
+		TRACE(FS("(%x,%d,%x,%d)",this,i,tmp,rrCollider::RRIntersectStats::getInstance()->intersects));
+		assert(tmp);
+		TRACE("B");
+	}
+	else
+	{
+		TRACE("c");
+		assert(parent);
+		assert(parent->sub[0]);
+		assert(parent->sub[1]);
+//		SubTriangle *pa=SUBTRIANGLE(parent);
+//		bool right=isRight();
+		switch(i)
+		{
+			case 0:
+				{
+				TRACE("d");
+				SubTriangle *pa=SUBTRIANGLE(parent);
+				int rot=pa->getSplitVertex();
+				tmp = pa->ivertex(rot);
+				assert(tmp);
+				TRACE("D");
+				break;
+				}
+			case 1:
+				{
+				TRACE("e");
+				SubTriangle *pa=SUBTRIANGLE(parent);
+				if(isRight())
+				{
+					int rot=pa->getSplitVertex();
+					tmp = pa->ivertex((rot+1)%3);
+					assert(tmp);
+				}
+				else 
+				{
+					tmp = pa->subvertex;
+					assert(tmp);
+				}
+				TRACE("E");
+				break;
+				}
+			default:
+				{
+				TRACE("f");
+				assert(i==2);
+				SubTriangle *pa=SUBTRIANGLE(parent);
+				if(isRight())
+				{
+					tmp = pa->subvertex;
+					assert(tmp);
+				}
+				else
+				{
+					int rot=pa->getSplitVertex();
+					tmp = pa->ivertex((rot+2)%3);
+					assert(tmp);
+				}
+				TRACE("F");
+				}
+		}
+		TRACE("C");
+	}
+	assert(tmp);
+	TRACE("A");
+	return tmp;
+*/
 }
 
 bool SubTriangle::checkVertices()
 {
+	assert(this);
+	if(IS_TRIANGLE(this)) assert(TRIANGLE(this)->surface);
 	IVertex *v;
-	v=ivertex(0);assert(v);v->check(to3d(0));
-	v=ivertex(1);assert(v);v->check(to3d(1));
-	v=ivertex(2);assert(v);v->check(to3d(2));
+
+	TRACE("\n0");
+	v=ivertex(0);
+	TRACE("1\n");
+	assert(this);
+	assert(v);
+	v->check(to3d(0));
+
+	v=ivertex(1);
+	assert(this);
+	assert(v);
+	v->check(to3d(1));
+
+	v=ivertex(2);
+	assert(this);
+	assert(v);
+	v->check(to3d(2));
+
 	return true;
 }
 
@@ -512,6 +621,7 @@ void SubTriangle::createSubvertex(IVertex *asubvertex,int rot)
 	assert(!subvertex);
 	if(asubvertex)
 	{
+		assert(IS_PTR(asubvertex));
 		subvertex=asubvertex;
 		assert(subvertex->check(to3d(SUBTRIANGLE(sub[0])->uv[isRightLeft()?2:1])));
 #ifdef IV_POINT
@@ -912,7 +1022,7 @@ void Object::buildTopIVertices()
 	for(unsigned t=0;t<triangles;t++)
 		for(int v=0;v<3;v++)
 		{
-			//assert(triangle[t].topivertex[v]);
+			//assert(triangle[t].topivertex[v]); no topivertex allowed for invalid triangles (surface=NULL)
 			assert(!triangle[t].topivertex[v] || triangle[t].topivertex[v]->error!=-45);
 			if(triangle[t].topivertex[v])
 			{
@@ -1367,11 +1477,15 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	  case 8:
 	  case 9:
 	    if(type==3)
+		{
 	      // zkontroluje ze deleni s odpovida tomu s jakym to bylo ulozeno
 	      assert(b==1+type+s->getSplitVertex()+(s->isRightLeft()?3:0));
+		}
 	    else
+		{
 	      // zkontroluje ze jde o odpovidajici topivertex
 	      assert(b==1+type);
+		}
 	    assert(iv);
 	    assert(iv->loaded);
 	    break;

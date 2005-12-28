@@ -20,6 +20,10 @@
 #include "LicGenOpt.h"
 #include "rrcore.h"
 
+/*/ asserts also in release
+#include <windows.h>
+#undef assert
+#define assert(a) {if(!(a)) DebugBreak();}*/
 
 namespace rrVision
 {
@@ -35,9 +39,10 @@ namespace rrVision
 #define HITS_TO_COMPACT      1000000  // if more or equal bytes may be freeed, do it after each shooting. may help to save memory for big scenes. warning: low number=+10%cpu
 //#define DEBUK
 //#define LOG_LOADING_MES
+//#define EXPENSIVE_CHECKS
 
 #ifdef _MSC_VER
-//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(40)
+//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(45)
 //#define GATE_SHOTS 10000 // max photons from one shooter
 //#define GATE_QUALITY 5000000 // max photons in scene
 //#define GATE_IP
@@ -856,6 +861,7 @@ int SubTriangle::getSplitVertexSlow()
 
 int SubTriangle::getSplitVertex()
 {
+	assert(this);
 	assert(sub[0]);
 	assert(sub[1]);
 	if(SUBTRIANGLE(sub[0])->uv[0]==uv[0]) return 0;
@@ -1388,10 +1394,6 @@ void Reflectors::removeSubtriangles()
 
 bool Reflectors::check()
 {
-	for(unsigned i=0;i<nodes;i++) if(node[i]->shooter)
-	{
-		assert(IS_CHANNELS(node[i]->shooter->energyToDiffuse));
-	}
 	return true;
 }
 
@@ -1934,6 +1936,10 @@ void addEdgeWith(Triangle *t1,va_list ap)
 }
 
 void Object::buildEdges()
+// triangles with surface=NULL get intentionally no edges
+// if they get edges, createSubvertex would go 
+//  from triangle with surface+topIVertices via edge to triangle without surface+topIVertices
+//  and operate with NULL topIVertex -> crash
 {
 	assert(!edge);
 
@@ -1947,14 +1953,15 @@ void Object::buildEdges()
 	Triangles *trianglesInV=new Triangles[vertices];
 	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned t=0;t<triangles;t++)
-		for(int v1=0;v1<3;v1++)
-		{
-			rrCollider::RRMeshImporter::Triangle ve;
-			meshImporter->getTriangle(t,ve);
-			unsigned v = ve[(v1+triangle[t].rotations)%3];
-			assert(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
-			trianglesInV[v].insert(&triangle[t]);
-		}
+		if(triangle[t].surface)
+			for(int v1=0;v1<3;v1++)
+			{
+				rrCollider::RRMeshImporter::Triangle ve;
+				meshImporter->getTriangle(t,ve);
+				unsigned v = ve[(v1+triangle[t].rotations)%3];
+				assert(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
+				trianglesInV[v].insert(&triangle[t]);
+			}
 	for(unsigned v=0;v<vertices;v++)
 	{
 		Triangle *tri;
@@ -2103,20 +2110,6 @@ void Object::buildClusters()
 
 bool Object::check()
 {
-	for(unsigned c=0;c<clusters;c++) assert(cluster[c].check());
-	for(unsigned t=0;t<triangles;t++) assert(triangle[t].check());
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
-	{
-#ifdef SUPPORT_MIN_FEATURE_SIZE
-		assert(triangle[t].topivertex[0]->check());
-		assert(triangle[t].topivertex[1]->check());
-		assert(triangle[t].topivertex[2]->check());
-#else
-		assert(triangle[t].topivertex[0]->contains(&triangle[t]));
-		assert(triangle[t].topivertex[1]->contains(&triangle[t]));
-		assert(triangle[t].topivertex[2]->contains(&triangle[t]));
-#endif
-	}
 	return true;
 }
 

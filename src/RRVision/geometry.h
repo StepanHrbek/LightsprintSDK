@@ -21,6 +21,7 @@ namespace rrVision
 #define SHOT_OFFSET  1e-4f  //!!! offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 #define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs
 #define IS_NUMBER(n) _finite(n)//((n)>-BIG_REAL && (n)<BIG_REAL)
+#define IS_PTR(p)    ((intptr_t)p>0x10000)
 #define IS_0(n)      (ABS(n)<0.001)
 #define IS_1(n)      (fabs(n-1)<0.001)
 #define IS_EQ(a,b)   (fabs(a-b)<0.001)
