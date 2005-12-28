@@ -542,7 +542,7 @@ public:
 	RRSurface *surface;     // material at outer and inner side of Triangle
 	Channels setSurface(RRSurface *s,const Vec3& additionalExitingFlux); // return total exiting radiant flux in watts
 #ifndef ONLY_PLAYER
-	Channels getSourceIncidentFlux() {return Channels(sourceExitingFlux.x/MAX(surface->diffuseReflectanceColor[0],0.1f),sourceExitingFlux.y/MAX(surface->diffuseReflectanceColor[1],0.1f),sourceExitingFlux.z/MAX(surface->diffuseReflectanceColor[2],0.1f));} // source incident radiant flux in Watts
+	Channels getSourceIncidentFlux() {return Channels(sourceExitingFlux.x/MAX(surface->diffuseReflectanceColor.m[0],0.1f),sourceExitingFlux.y/MAX(surface->diffuseReflectanceColor.m[1],0.1f),sourceExitingFlux.z/MAX(surface->diffuseReflectanceColor.m[2],0.1f));} // source incident radiant flux in Watts
 	Channels getSourceExitingFlux() {return sourceExitingFlux;} // source exiting radiant flux in Watts
 	Channels getSourceIrradiance() {return getSourceIncidentFlux()/area;} // source irradiance in W/m^2
 	Channels getSourceExitance() {return getSourceExitingFlux()/area;} // source exitance in W/m^2
@@ -805,6 +805,8 @@ public:
 	void    freeze(bool yes); // makes multi-object calculation faster, but no object insert/remove/transform is allowed then
 	bool    isFrozen();
 
+	void    setSkyLight(RRSkyLight* skyLight);
+
 	RRScene::Improvement improveStatic(bool endfunc(void*), void* context);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
@@ -873,6 +875,8 @@ public:
 		real    improveInaccurate;
 		TReflectors staticReflectors; // top nodes in static Triangle trees
 		rrCollider::RRMeshImporter** multiObjectMeshes4Delete; // to be deleted with multiCollider
+
+		RRSkyLight* skyLight;
 };
 
 void core_Init();

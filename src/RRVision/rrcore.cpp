@@ -1234,20 +1234,20 @@ char Scene::selectColorFilter(int i, const real *rgb)
 	//  static illumination for new filter
 	RRColor myColorFilter[4]={{1,0,0},{0,1,0},{0,0,1},{0.33f,0.33f,0.33f}};
 	char myColorID[4]={'r','g','b','w'};
-	__colorFilter[0]=rgb?rgb[0]:myColorFilter[i][0];
-	__colorFilter[1]=rgb?rgb[1]:myColorFilter[i][1];
-	__colorFilter[2]=rgb?rgb[2]:myColorFilter[i][2];
+	__colorFilter.m[0]=rgb?rgb[0]:myColorFilter[i].m[0];
+	__colorFilter.m[1]=rgb?rgb[1]:myColorFilter[i].m[1];
+	__colorFilter.m[2]=rgb?rgb[2]:myColorFilter[i].m[2];
 
 	// adjusts diffuseReflectance in all surfaces (faster than fixing all usages of diffuseReflectance)
 	//  to reflect only selected component (blue material to reflect only blue)
 	for(unsigned j=0;j<surfaces;j++)
 	{
 	  RRSurface *s=&surface[j];
-	  real r=s->diffuseReflectanceColor[0];
-	  real g=s->diffuseReflectanceColor[1];
-	  real b=s->diffuseReflectanceColor[2];
+	  real r=s->diffuseReflectanceColor.m[0];
+	  real g=s->diffuseReflectanceColor.m[1];
+	  real b=s->diffuseReflectanceColor.m[2];
 //        s->diffuseReflectance=s->_rd*(__colorFilter[0]*s->_rdcx+__colorFilter[1]*s->_rdcy+__colorFilter[2]*(1-s->_rdcx-s->_rdcy));
-	  s->diffuseReflectance=s->_rd*(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.001f);
+	  s->diffuseReflectance=s->_rd*(__colorFilter.m[0]*r+__colorFilter.m[1]*g+__colorFilter.m[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.001f);
 	}
 
 	return myColorID[i];
@@ -1271,18 +1271,18 @@ Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalExitingFlux)
 	assert(s);
 	surface=s;
 #if CHANNELS == 1
-	real r=surface->diffuseEmittanceColor[0];
-	real g=surface->diffuseEmittanceColor[1];
-	real b=surface->diffuseEmittanceColor[2];
-	real filteringCoef=(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
+	real r=surface->diffuseEmittanceColor.m[0];
+	real g=surface->diffuseEmittanceColor.m[1];
+	real b=surface->diffuseEmittanceColor.m[2];
+	real filteringCoef=(__colorFilter.m[0]*r+__colorFilter.m[1]*g+__colorFilter.m[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
 	Channels e=area * ( filteringCoef*surface->diffuseEmittance
-	  + __colorFilter[0]*additionalExitingFlux.x+__colorFilter[1]*additionalExitingFlux.y+__colorFilter[2]*additionalRadiantExitance.z );
+	  + __colorFilter.m[0]*additionalExitingFlux.x+__colorFilter.m[1]*additionalExitingFlux.y+__colorFilter.m[2]*additionalRadiantExitance.z );
 	assert(add>=0);
 	assert(filteringCoef>=0);
 	assert(e>=0);
 #else
-	Channels e=*(Vec3*)__colorFilter * area *
-	  ( *(Vec3*)surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalExitingFlux );
+	Channels e=*(Vec3*)&__colorFilter * area *
+	  ( *(Vec3*)&surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalExitingFlux );
 #endif
 	assert(surface->diffuseEmittance>=0);
 	assert(area>=0);
@@ -1297,7 +1297,7 @@ Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalExitingFlux)
 	// load received energy accumulator
 	energyDirect=e;
 	//energyDirectIncident=e/ *(Vec3*)surface->diffuseReflectanceColor;
-	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectanceColor[0],0.1f),e.y/MAX(surface->diffuseReflectanceColor[1],0.1f),e.z/MAX(surface->diffuseReflectanceColor[2],0.1f));
+	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectanceColor.m[0],0.1f),e.y/MAX(surface->diffuseReflectanceColor.m[1],0.1f),e.z/MAX(surface->diffuseReflectanceColor.m[2],0.1f));
 	sourceExitingFlux=e;
 #endif
 	return e;
@@ -2000,8 +2000,8 @@ void Object::resetStaticIllumination()
 	objSourceExitingFlux=Channels(0);
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) 
 	{
-		const real* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(t);
-		const real* addExitance=importer->getTriangleAdditionalRadiantExitance(t);
+		const RRColor* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(t);
+		const RRColor* addExitance=importer->getTriangleAdditionalRadiantExitance(t);
 		Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?*(Vec3*)addExitingFlux/triangle[t].area:Vec3(0,0,0));
 		objSourceExitingFlux+=abs(triangle[t].setSurface(triangle[t].surface,sumExitance));
 	}
@@ -2140,6 +2140,7 @@ Scene::Scene()
 	improveInaccurate=0.99f;
 	multiCollider=NULL;
 	multiObjectMeshes4Delete=NULL;
+	skyLight=NULL;
 }
 
 Scene::~Scene()
@@ -2278,6 +2279,11 @@ void Scene::freeze(bool yes)
 			multiCollider = NULL;
 		}
 	}
+}
+
+void Scene::setSkyLight(RRSkyLight* askyLight)
+{
+	skyLight = askyLight;
 }
 
 RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
@@ -2658,7 +2664,7 @@ Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Chann
 	// calculate surface exitance
 	Channels incidentPower = hitTriangle->energyDirectIncident + hitTriangle->getEnergyDynamic();
 	Channels irradiance = incidentPower / hitTriangle->area;
-	Channels exitance = irradiance * *(Vec3*)hitTriangle->surface->diffuseReflectanceColor;
+	Channels exitance = irradiance * *(Vec3*)&hitTriangle->surface->diffuseReflectanceColor;
 	return exitance;
 }
 
@@ -2704,7 +2710,7 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	assert(destination->grandpa);
 	assert(destination->grandpa->surface);
 	assert(IS_VEC3(*(Vec3*)destination->grandpa->surface->diffuseReflectanceColor));
-	energy *= *(Vec3*)destination->grandpa->surface->diffuseReflectanceColor;
+	energy *= *(Vec3*)&destination->grandpa->surface->diffuseReflectanceColor;
 #endif
 	// pak leze nahoru az k trianglu, do clusteru neni treba
 	bool wasLetToDiffuse=false;
@@ -3336,16 +3342,16 @@ unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::Instant
 		}
 		for(unsigned j=0;j<generatePoints;j++)
 		{
-			Triangle* t = getRandomExitRay(sortedNode[i].node,(Vec3*)point[generatedPoints].pos,(Vec3*)point[generatedPoints].norm);
-			if(dot(*(Vec3*)point[generatedPoints].norm,t->getN3())>=0)
-				*(Vec3*)point[generatedPoints].norm = t->getN3();
+			Triangle* t = getRandomExitRay(sortedNode[i].node,(Vec3*)&point[generatedPoints].pos,(Vec3*)&point[generatedPoints].norm);
+			if(dot(*(Vec3*)&point[generatedPoints].norm,t->getN3())>=0)
+				*(Vec3*)&point[generatedPoints].norm = t->getN3();
 			else
-				*(Vec3*)point[generatedPoints].norm = -t->getN3();
+				*(Vec3*)&point[generatedPoints].norm = -t->getN3();
 			Channels c = ENERGY(sortedNode[i].node)/generatePoints;
 #if CHANNELS==1
-			*(Vec3*)point[generatedPoints].col = Vec3(c,c,c);
+			*(Vec3*)&point[generatedPoints].col = Vec3(c,c,c);
 #else
-			*(Vec3*)point[generatedPoints].col = c;
+			*(Vec3*)&point[generatedPoints].col = c;
 #endif
 			generatedPoints++;
 		}

@@ -91,12 +91,12 @@ void *add_material(C_MATERIAL *m)
 	assert(mgf_materials_loaded<mgf_materials);
 	int ndx=14*mgf_materials_loaded;
 	mgf_material[ndx++]=m->sided;
-	float col[3];
+	RRColor col;
 
 	mgf2rgb(&m->ed_c,m->ed,col);
-	if(col[0]>1) col[0]=1;
-	if(col[1]>1) col[1]=1;
-	if(col[2]>1) col[2]=1;
+	if(col.m[0]>1) col.m[0]=1;
+	if(col.m[1]>1) col.m[1]=1;
+	if(col.m[2]>1) col.m[2]=1;
 	mgf_material[ndx++]=col[0]; // pouziva jako material emittance a light dif+ref
 	mgf_material[ndx++]=col[1];
 	mgf_material[ndx++]=col[2];
@@ -104,14 +104,14 @@ void *add_material(C_MATERIAL *m)
 	// pro ucely light dif+ref musi mit emitor !0, u mat.emittance je to fuk, pro ucely rozliseni co je emitor maj neemitory 0
 
 	mgf2rgb(&m->rd_c,m->rd,col);
-	mgf_material[ndx++]=col[0];
-	mgf_material[ndx++]=col[1];
-	mgf_material[ndx++]=col[2];
+	mgf_material[ndx++]=col.m[0];
+	mgf_material[ndx++]=col.m[1];
+	mgf_material[ndx++]=col.m[2];
 	mgf_material[ndx++]=1;
 	mgf2rgb(&m->rs_c,m->rs,col);
-	mgf_material[ndx++]=col[0];
-	mgf_material[ndx++]=col[1];
-	mgf_material[ndx++]=col[2];
+	mgf_material[ndx++]=col.m[0];
+	mgf_material[ndx++]=col.m[1];
+	mgf_material[ndx++]=col.m[2];
 	mgf_material[ndx++]=1;
 	mgf_material[ndx++]=m->rs_a;
 	return (void *)(mgf_materials_loaded++);

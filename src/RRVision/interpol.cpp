@@ -288,7 +288,7 @@ Channels IVertex::irradiance()
 // differs for different corners, depends on corner material
 Channels IVertex::exitance(Node* corner)
 {
-	return irradiance()* *(Vec3*)(corner->grandpa->surface->diffuseReflectanceColor);
+	return irradiance()* *(Vec3*)(&corner->grandpa->surface->diffuseReflectanceColor);
 }
 
 void IVertex::loadCache(Channels r)

@@ -27,8 +27,8 @@ public:
 	virtual RRSurface*   getSurface(unsigned si);
 
 	// may change during object lifetime
-	virtual const float* getWorldMatrix();
-	virtual const float* getInvWorldMatrix();
+	virtual const RRMatrix4x4* getWorldMatrix();
+	virtual const RRMatrix4x4* getInvWorldMatrix();
 
 private:
 	WORLD*      world;
@@ -71,14 +71,14 @@ RRSurface* WorldObjectImporter::getSurface(unsigned si)
 	return surface[si];
 }
 
-const float* WorldObjectImporter::getWorldMatrix()
+const RRMatrix4x4* WorldObjectImporter::getWorldMatrix()
 {
-	return object->matrix[0];
+	return (RRMatrix4x4*)object->matrix[0];
 }
 
-const float* WorldObjectImporter::getInvWorldMatrix()
+const RRMatrix4x4* WorldObjectImporter::getInvWorldMatrix()
 {
-	return object->inverse[0];
+	return (RRMatrix4x4*)object->inverse[0];
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -90,10 +90,10 @@ static void fillColorTable(unsigned *ct,double cx,double cy,real rs)
 {
 	for(unsigned c=0;c<C_INDICES;c++)
 	{
-		real rgb[3];
+		RRColor rgb;
 		xy2rgb(cx,cy,c/255.,rgb);
 #define FLOAT2BYTE(f) ((unsigned)((f)<0?0:(f)>=1?255:256*(f)))
-		ct[c]=(FLOAT2BYTE(rs)<<24) + (FLOAT2BYTE(rgb[0])<<16) + (FLOAT2BYTE(rgb[1])<<8) + FLOAT2BYTE(rgb[2]);
+		ct[c]=(FLOAT2BYTE(rs)<<24) + (FLOAT2BYTE(rgb.m[0])<<16) + (FLOAT2BYTE(rgb.m[1])<<8) + FLOAT2BYTE(rgb.m[2]);
 	}
 }
 
@@ -109,9 +109,9 @@ static void fillSurface(Surface *s,C_MATERIAL *m)
 	s->sides                =(m->sided==1)?1:2;
 	s->diffuseReflectance   =m->rd;
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectanceColor);
-	s->diffuseReflectanceColor[0]*=m->rd;
-	s->diffuseReflectanceColor[1]*=m->rd;
-	s->diffuseReflectanceColor[2]*=m->rd;
+	s->diffuseReflectanceColor.m[0]*=m->rd;
+	s->diffuseReflectanceColor.m[1]*=m->rd;
+	s->diffuseReflectanceColor.m[2]*=m->rd;
 	s->diffuseReflectanceColorTable=createColorTable(m->rd_c.cx,m->rd_c.cy,m->rs);
 	s->diffuseTransmittance =m->td;
 	xy2rgb(m->td_c.cx,m->td_c.cy,0.5,s->diffuseTransmittanceColor);
@@ -160,22 +160,22 @@ static void load_materials(WORLD* world, char *material_mgf)
 	static Surface s_default;
 	s_default.sides=2; // 1 if surface is 1-sided, 2 for 2-sided
 	s_default.diffuseReflectance=0.3;
-	s_default.diffuseReflectanceColor[0]=1;
-	s_default.diffuseReflectanceColor[1]=1;
-	s_default.diffuseReflectanceColor[2]=1;
+	s_default.diffuseReflectanceColor.m[0]=1;
+	s_default.diffuseReflectanceColor.m[1]=1;
+	s_default.diffuseReflectanceColor.m[2]=1;
 	s_default.diffuseReflectanceColorTable=createColorTable(0.3,0.3,0);
 	s_default.diffuseTransmittance=0;
 	//s_default.diffuseTransmittanceColor={1,1,1};
 	s_default.diffuseEmittance=1;
-	s_default.diffuseEmittanceColor[0]=1;
-	s_default.diffuseEmittanceColor[1]=1;
-	s_default.diffuseEmittanceColor[2]=1;
+	s_default.diffuseEmittanceColor.m[0]=1;
+	s_default.diffuseEmittanceColor.m[1]=1;
+	s_default.diffuseEmittanceColor.m[2]=1;
 	s_default.emittanceType=diffuseLight;
 	//s_default.emittancePoint=Vec3(0,0,0);
 	s_default.specularReflectance=0;
-	s_default.specularReflectanceColor[0]=1;
-	s_default.specularReflectanceColor[1]=1;
-	s_default.specularReflectanceColor[2]=1;
+	s_default.specularReflectanceColor.m[0]=1;
+	s_default.specularReflectanceColor.m[1]=1;
+	s_default.specularReflectanceColor.m[2]=1;
 	s_default.specularReflectanceRoughness=0.5;
 	s_default.specularTransmittance=0;
 	//s_default.specularTransmittanceColor={1,1,1};

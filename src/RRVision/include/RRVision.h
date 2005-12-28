@@ -51,15 +51,32 @@
 
 namespace rrVision
 {
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// primitives
 
 	typedef rrCollider::RRReal  RRReal;
 
+	struct RRVector2
+	{
+		RRReal m[2];
+	};
+
+	struct RRVector3
+	{
+		RRReal m[3];
+	};
+
+	struct RRMatrix4x4
+	{
+		RRReal m[4][4];
+	};
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// material aspects of space and surfaces
 
-	typedef RRReal RRColor[3]; // r,g,b 0..1
+	typedef RRVector3 RRColor; // r,g,b 0..1
 
 	enum RREmittanceType
 	{
@@ -79,7 +96,7 @@ namespace rrVision
 		RRReal        diffuseEmittance;              // \ Multiplied = Radiant emittance in watts per square meter.
 		RRColor       diffuseEmittanceColor;         // / 
 		RREmittanceType emittanceType;
-		RRReal        emittancePoint[3];
+		RRVector3     emittancePoint;
 		RRReal        specularReflectance;           // Fraction of energy that is mirror reflected (without color change).
 		RRColor       specularReflectanceColor;      // Currently not used.
 		RRReal        specularReflectanceRoughness;  // Currently not used.
@@ -121,16 +138,16 @@ namespace rrVision
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
 		virtual RRSurface*          getSurface(unsigned s) = 0;
 		// optional
-		virtual const RRReal*       getTriangleAdditionalRadiantExitance(unsigned t) const {return 0;} // radiant exitance in watts per square meter. 
-		virtual const RRReal*       getTriangleAdditionalRadiantExitingFlux(unsigned t) const {return 0;} // radiant flux in watts. implement only one of these two methods.
-		struct TriangleNormals      {RRReal norm[3][3];}; // 3x normal in object space
-		struct TriangleMapping      {RRReal uv[3][2];}; // 3x uv
+		virtual const RRColor*      getTriangleAdditionalRadiantExitance(unsigned t) const {return 0;} // radiant exitance in watts per square meter. 
+		virtual const RRColor*      getTriangleAdditionalRadiantExitingFlux(unsigned t) const {return 0;} // radiant flux in watts. implement only one of these two methods.
+		struct TriangleNormals      {RRVector3 norm[3];}; // 3x normal in object space
+		struct TriangleMapping      {RRVector2 uv[3];}; // 3x uv
 		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out); // normalized vertex normals in local space
 		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); // unwrap into 0..1 x 0..1 space
 
 		// may change during object lifetime
-		virtual const RRReal*       getWorldMatrix() = 0; // may return identity as NULL 
-		virtual const RRReal*       getInvWorldMatrix() = 0; // may return identity as NULL 
+		virtual const RRMatrix4x4*  getWorldMatrix() = 0; // may return identity as NULL 
+		virtual const RRMatrix4x4*  getInvWorldMatrix() = 0; // may return identity as NULL 
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -140,6 +157,19 @@ namespace rrVision
 		// instance factory
 		rrCollider::RRMeshImporter* createWorldSpaceMesh();
 		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation);
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// RRSkyLight - abstract class that defines skylight.
+	//
+	// Derive to import YOUR skylight into RRScene.
+
+	class RRVISION_API RRSkyLight
+	{
+	public:
+		virtual RRColor getRadiance(RRVector3 dirFromSky) const = 0;
+		virtual ~RRSkyLight() {}
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -159,6 +189,9 @@ namespace rrVision
 		typedef       unsigned ObjectHandle;
 		ObjectHandle  objectCreate(RRObjectImporter* importer);
 		void          objectDestroy(ObjectHandle object);
+
+		// import light
+		void          setSkyLight(RRSkyLight* skyLight);
 		
 		// calculate radiosity
 		enum Improvement
@@ -176,15 +209,15 @@ namespace rrVision
 		// read results
 		struct InstantRadiosityPoint
 		{
-			RRReal pos[3];
-			RRReal norm[3];
-			RRReal col[3];
+			RRVector3 pos;
+			RRVector3 norm;
+			RRColor   col;
 		};
-		const RRReal* getVertexIrradiance(ObjectHandle object, unsigned vertex); // irradiance (incident power density) in watts per square meter
-		const RRReal* getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex); // irradiance (incident power density) in watts per square meter
-		const RRReal* getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex); // radiant exitance (leaving power density) in watts per square meter
+		const RRColor* getVertexIrradiance(ObjectHandle object, unsigned vertex); // irradiance (incident power density) in watts per square meter
+		const RRColor* getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex); // irradiance (incident power density) in watts per square meter
+		const RRColor* getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex); // radiant exitance (leaving power density) in watts per square meter
 		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
-		
+
 		// misc: development
 		void          getInfo(char* buf, unsigned type);
 		void          getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;

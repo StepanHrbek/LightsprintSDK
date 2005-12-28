@@ -1,8 +1,6 @@
 /*
 prozatim odsunuto z headeru:
 
-typedef RRReal              RRMatrix[4][4];
-
 // get intersection
 typedef       bool INTERSECT(rrCollider::RRRay*);
 typedef       ObjectHandle ENUM_OBJECTS(rrCollider::RRRay*, INTERSECT);
@@ -41,20 +39,20 @@ void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
 	getCollider()->getImporter()->getTriangleBody(t,tb);
 	Vec3 norm = ortogonalTo(*(Vec3*)&tb.side1,*(Vec3*)&tb.side2);
 	norm *= 1/size(norm);
-	*(Vec3*)(out.norm[0]) = norm;
-	*(Vec3*)(out.norm[1]) = norm;
-	*(Vec3*)(out.norm[2]) = norm;
+	*(Vec3*)(&out.norm[0]) = norm;
+	*(Vec3*)(&out.norm[1]) = norm;
+	*(Vec3*)(&out.norm[2]) = norm;
 }
 
 void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
 {
 	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
-	out.uv[0][0] = 1.0f*t/numTriangles;
-	out.uv[0][1] = 0;
-	out.uv[1][0] = 1.0f*(t+1)/numTriangles;
-	out.uv[1][1] = 0;
-	out.uv[2][0] = 1.0f*t/numTriangles;
-	out.uv[2][1] = 1;
+	out.uv[0].m[0] = 1.0f*t/numTriangles;
+	out.uv[0].m[1] = 0;
+	out.uv[1].m[0] = 1.0f*(t+1)/numTriangles;
+	out.uv[1].m[1] = 0;
+	out.uv[2].m[0] = 1.0f*t/numTriangles;
+	out.uv[2].m[1] = 1;
 }
 
 
@@ -65,7 +63,7 @@ void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
 class RRTransformedMeshFilter : public rrCollider::RRMeshFilter
 {
 public:
-	RRTransformedMeshFilter(RRMeshImporter* mesh, const RRReal* matrix)
+	RRTransformedMeshFilter(RRMeshImporter* mesh, const RRMatrix4x4* matrix)
 		: RRMeshFilter(mesh)
 	{
 		m = matrix;
@@ -82,15 +80,15 @@ public:
 		if(m)
 		{
 			Vertex tmp;
-			tmp[0] = m[0] * out[0] + m[4] * out[1] + m[ 8] * out[2] + m[12];
-			tmp[1] = m[1] * out[0] + m[5] * out[1] + m[ 9] * out[2] + m[13];
-			tmp[2] = m[2] * out[0] + m[6] * out[1] + m[10] * out[2] + m[14];
+			tmp[0] = m->m[0][0] * out[0] + m->m[1][0] * out[1] + m->m[2][0] * out[2] + m->m[3][0];
+			tmp[1] = m->m[0][1] * out[0] + m->m[1][1] * out[1] + m->m[2][1] * out[2] + m->m[3][1];
+			tmp[2] = m->m[0][2] * out[0] + m->m[1][2] * out[1] + m->m[2][2] * out[2] + m->m[3][2];
 			out = tmp;
 		}
 	}
 
 private:
-	const RRReal* m;
+	const RRMatrix4x4* m;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -164,22 +162,22 @@ public:
 		return pack[0].getImporter()->getSurface(s);
 	}
 
-	virtual const RRReal* getTriangleAdditionalRadiantExitance(unsigned t) const 
+	virtual const RRColor* getTriangleAdditionalRadiantExitance(unsigned t) const 
 	{
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalRadiantExitance(t);
 		return pack[1].getImporter()->getTriangleAdditionalRadiantExitance(t-pack[0].getNumTriangles());
 	}
-	virtual const RRReal* getTriangleAdditionalRadiantExitingFlux(unsigned t) const 
+	virtual const RRColor* getTriangleAdditionalRadiantExitingFlux(unsigned t) const 
 	{
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalRadiantExitingFlux(t);
 		return pack[1].getImporter()->getTriangleAdditionalRadiantExitingFlux(t-pack[0].getNumTriangles());
 	}
 
-	virtual const RRReal* getWorldMatrix()
+	virtual const RRMatrix4x4* getWorldMatrix()
 	{
 		return NULL;
 	}
-	virtual const RRReal* getInvWorldMatrix()
+	virtual const RRMatrix4x4* getInvWorldMatrix()
 	{
 		return NULL;
 	}
@@ -429,8 +427,8 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 			);
 		if(t->isValid) 
 		{
-			const real* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(fi);
-			const real* addExitance=importer->getTriangleAdditionalRadiantExitance(fi);
+			const RRColor* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(fi);
+			const RRColor* addExitance=importer->getTriangleAdditionalRadiantExitance(fi);
 			Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?(*(Vec3*)addExitingFlux)/t->area:Vec3(0,0,0));
 			obj->objSourceExitingFlux+=abs(t->setSurface(s,sumExitance));
 		}
@@ -490,6 +488,11 @@ void RRScene::objectDestroy(ObjectHandle object)
 	scene->objRemoveStatic(object);
 }
 
+void RRScene::setSkyLight(RRSkyLight* skyLight)
+{
+	scene->setSkyLight(skyLight);
+}
+
 /*
 void RRScene::sceneSetColorFilter(const RRReal* colorFilter)
 {
@@ -520,7 +523,7 @@ RRReal RRScene::sceneGetAccuracy()
 	return scene->avgAccuracy()/100;
 }
 
-const RRReal* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
+const RRColor* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
 {
 	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
 	if(object<0 || object>=scene->objects) 
@@ -532,30 +535,30 @@ const RRReal* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
 #if CHANNELS==1
 	Channels rad = obj->getVertexIrradiance(vertex);
 	static RRColor tmp;
-	tmp[0] = rad*__colorFilter[0];
-	tmp[1] = rad*__colorFilter[1];
-	tmp[2] = rad*__colorFilter[2];
-	return tmp;
+	tmp.m[0] = rad*__colorFilter.m[0];
+	tmp.m[1] = rad*__colorFilter.m[1];
+	tmp.m[2] = rad*__colorFilter.m[2];
+	return &tmp;
 #else
 	static Channels rad = obj->getVertexIrradiance(vertex);
-	return (RRReal*)&rad;
+	return (RRColor*)&rad;
 #endif
 }
 
-const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex)
+const RRColor* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex)
 {
 	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
-	/*/ pokus nejak kompenzovat ze jsem si ve freeze interne zrusil n objektu a nahradil je 1 multiobjektem
-	if(isFrozen())
-	{
-		if(scene->objects!=1) 
-		{
-			assert(0);
-			return NULL;
-		}
-		Object* obj = scene->object[0];
-		obj->importer->getCollider()->getImporter()->get
-	}*/
+	// pokus nejak kompenzovat ze jsem si ve freeze interne zrusil n objektu a nahradil je 1 multiobjektem
+	//if(isFrozen())
+	//{
+	//	if(scene->objects!=1) 
+	//	{
+	//		assert(0);
+	//		return NULL;
+	//	}
+	//	Object* obj = scene->object[0];
+	//	obj->importer->getCollider()->getImporter()->get
+	//}
 	if(object<0 || object>=scene->objects) 
 	{
 		assert(0);
@@ -583,7 +586,7 @@ const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned trian
 			RRObjectImporter* objectImporter = obj->importer;
 			RRObjectImporter::TriangleNormals normals;
 			objectImporter->getTriangleNormals(triangle,normals);
-			Vec3 normal = *(Vec3*)(normals.norm[vertex]);
+			Vec3 normal = *(Vec3*)(&normals.norm[vertex]);
 			assert(fabs(size2(normal)-1)<0.001);
 			// get point
 			rrCollider::RRMeshImporter* meshImporter = objectImporter->getCollider()->getImporter();
@@ -642,18 +645,18 @@ const RRReal* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned trian
 
 	static RRColor tmp;
 #if CHANNELS == 1
-	tmp[0] = irrad*__colorFilter[0];
-	tmp[1] = irrad*__colorFilter[1];
-	tmp[2] = irrad*__colorFilter[2];
+	tmp.m[0] = irrad*__colorFilter.m[0];
+	tmp.m[1] = irrad*__colorFilter.m[1];
+	tmp.m[2] = irrad*__colorFilter.m[2];
 #else
-	tmp[0] = irrad.x*__colorFilter[0];
-	tmp[1] = irrad.y*__colorFilter[1];
-	tmp[2] = irrad.z*__colorFilter[2];
+	tmp.m[0] = irrad.x*__colorFilter.m[0];
+	tmp.m[1] = irrad.y*__colorFilter.m[1];
+	tmp.m[2] = irrad.z*__colorFilter.m[2];
 #endif
-	return tmp;
+	return &tmp;
 }
 
-const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex)
+const RRColor* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex)
 {
 	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
 	if(object<0 || object>=scene->objects) 
@@ -670,8 +673,8 @@ const RRReal* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned 
 	Triangle* tri = &obj->triangle[triangle];
 	if(!tri->surface) return 0;
 
-	static Vec3 tmp = *(Vec3*)getTriangleIrradiance(object,triangle,vertex) * *(Vec3*)(tri->surface->diffuseReflectanceColor);
-	return &tmp.x;
+	static Vec3 tmp = *(Vec3*)getTriangleIrradiance(object,triangle,vertex) * *(Vec3*)(&tri->surface->diffuseReflectanceColor);
+	return (RRColor*)&tmp.x;
 }
 
 unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)
