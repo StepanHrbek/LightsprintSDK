@@ -174,7 +174,7 @@ void add_polygon(unsigned vertices,void **vertex,void *material)
 
 // zatim nacita celou scenu do jednoho objektu, casem to predelam
 //  na mnozinu objektu jak jsou deklarovany v mgf
-int mgf_load(char *scenename)
+bool mgf_load(char *scenename)
 {
 	printf("Loading %s...\n",scenename);
 	mgf_vertices=0;
@@ -352,32 +352,36 @@ void mgf_draw_colored()
 	}
 }
 
-void mgf_draw_indexed()
+unsigned mgf_draw_indexed()
 {
-	if(mgf_compiled) {glCallList(INDEXED);return;}
+	static unsigned triangles;
+
+	if(mgf_compiled) {glCallList(INDEXED);return triangles;}
 
 	if(SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
 
 	unsigned i=0;
-	unsigned triangle=0;
+	triangles=0;
+	glBegin(GL_TRIANGLES);
 	while(i<mgf_polyints) 
 	{
 		i++;
 		int vertices=mgf_polyint[i++] & 0xffff;
 		assert(vertices<100);
-		glBegin(GL_TRIANGLES);
+		GLfloat* first=&mgf_vertex[6*mgf_polyint[i]];
 		for(int v=2;v<vertices;v++)
 		{
-			glColor3ub(triangle&255,triangle>>8,triangle>>16);
-			triangle++;
-			glVertex3fv(&mgf_vertex[6*mgf_polyint[i]]);
+			glColor4ub(triangles>>16,triangles>>8,triangles,255);
+			triangles++;
+			glVertex3fv(first);
 			glVertex3fv(&mgf_vertex[6*mgf_polyint[i+1]]);
 			glVertex3fv(&mgf_vertex[6*mgf_polyint[i+2]]);
 			i++;
 		}
 		i+=2;
-		glEnd();
 	}
+	glEnd();
+	return triangles;
 }
 
 void mgf_compile()

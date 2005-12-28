@@ -238,6 +238,7 @@ int softLight = -1;
 int softWidth[200],softHeight[200],softPrecision[200],softFiltering[200];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 bool drawOnlyZ = false;
+bool drawIndexed = false;
 GLfloat eye_shift[3]={0,0,0};
 GLfloat ed[3];
 char *mgf_filename="data\\scene8.mgf";
@@ -1102,7 +1103,9 @@ drawObjectConfiguration(void)
   case OC_MGF:
     // although it doesn't make sense, on GF4 Ti 4200 
     // it's slightly faster when "if(drawOnlyZ) mgf_draw_onlyz(); else" is deleted
-    if(drawOnlyZ) mgf_draw_onlyz(); else mgf_draw_colored();
+    if(drawOnlyZ) mgf_draw_onlyz();
+		else if(drawIndexed) mgf_draw_indexed();
+			else mgf_draw_colored();
     break;
   default:
     assert(0);
@@ -2722,6 +2725,62 @@ drawEyeViewShadowed(int clear)
 }
 
 void
+capturePrimary()
+{
+	//!!! needs windows at least 256x256
+	unsigned width = 256;
+	unsigned height = 256;
+
+	// Setup light view with a square aspect ratio since the texture is square.
+	setupLightView(1);
+
+	glViewport(0, 0, width, height);
+	glDisable(GL_LIGHTING);
+
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	unsigned numTriangles = mgf_draw_indexed();
+
+	// Allocate the index buffer memory as necessary.
+	GLuint* indexBuffer = (GLuint*)malloc(width * height * 4);
+	float* trianglePower = (float*)malloc(numTriangles*sizeof(float));
+
+	// Read back the index buffer to memory.
+	glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, indexBuffer);
+
+	// accumulate triangle powers into trianglePower
+	for(unsigned i=0;i<numTriangles;i++) trianglePower[i]=0;
+	unsigned pixel = 0;
+	for(unsigned j=0;j<height;j++)
+	for(unsigned i=0;i<width;i++)
+	{
+		unsigned index = indexBuffer[pixel] >> 8; // alpha was lost
+		if(index<numTriangles)
+		{
+			// modulate by spotmap
+			float pixelPower=1; //!!!
+			trianglePower[index] += pixelPower;
+		}
+		else
+		{
+			assert(0);
+		}
+		pixel++;
+	}
+
+	// debug print
+	printf("\n\n");
+	for(unsigned i=0;i<numTriangles;i++) printf("%d ",(int)trianglePower[i]);
+
+	// calculate 1 second
+	//!!!
+
+	free(trianglePower);
+	free(indexBuffer);
+	glEnable(GL_LIGHTING);
+	glViewport(0, 0, winWidth, winHeight);
+}
+
+void
 placeSoftLight(int n)
 {
   softLight=n;
@@ -3388,6 +3447,9 @@ special(int c, int x, int y)
     return;
   case GLUT_KEY_F8:
     benchmark(0);
+    return;
+  case GLUT_KEY_F9:
+    capturePrimary();
     return;
   }
   if (glutGetModifiers() & GLUT_ACTIVE_CTRL) {
