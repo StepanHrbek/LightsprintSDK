@@ -1,10 +1,6 @@
 #ifndef _LDMGF_H
 #define _LDMGF_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "parser.h"
 
 // polygons won't share vertices if you say...
@@ -24,9 +20,5 @@ C_MATERIAL *c_getmaterial(char *);
 // convert mgf color to rgb
 void xy2rgb(double cx,double cy,double intensity,float cout[3]);
 void mgf2rgb(C_COLOR *cin,double intensity,float cout[3]);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

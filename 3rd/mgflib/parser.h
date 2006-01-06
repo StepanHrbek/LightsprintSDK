@@ -8,15 +8,11 @@
 
 #ifndef MG_VMAJOR
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//#ifdef _MSC_VER
-//#pragma comment(lib,"mgflib.lib")
-//#endif
-
-/* must include stdio.h before us */
 
 #define MG_VMAJOR	2		/* major version number */
 #define MG_VMINOR	0		/* minor version number */
@@ -466,14 +462,16 @@ extern int	xf(XF *, int, char **);		/* interpret transform spec. */
 extern double	atof();
 #endif
 
+
 #ifndef MEM_PTR
 #define MEM_PTR		void *
 #endif
-
+/*
 extern MEM_PTR	malloc();
 extern MEM_PTR	calloc();
 extern MEM_PTR	realloc();
 extern void	free();
+*/
 
 #ifdef __cplusplus
 }

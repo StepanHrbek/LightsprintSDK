@@ -112,7 +112,8 @@ map precisions beyond 8 bits.
 #define M_PI 3.14159265358979323846
 #endif
 
-#include "ldmgf2.h"
+#include "mgf2rr.h"
+#include "rr2gl.h"
 #include "tga.h"      /* TGA image file loader routines */
 #include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
 #include "rc_debug.h" /* register combiners debugging routines */
@@ -1103,9 +1104,9 @@ drawObjectConfiguration(void)
   case OC_MGF:
     // although it doesn't make sense, on GF4 Ti 4200 
     // it's slightly faster when "if(drawOnlyZ) mgf_draw_onlyz(); else" is deleted
-    if(drawOnlyZ) mgf_draw_onlyz();
-		else if(drawIndexed) mgf_draw_indexed();
-			else mgf_draw_colored();
+    if(drawOnlyZ) rr2gl_draw_onlyz();
+		else if(drawIndexed) rr2gl_draw_indexed();
+			else rr2gl_draw_colored();
     break;
   default:
     assert(0);
@@ -2738,7 +2739,7 @@ capturePrimary()
 	glDisable(GL_LIGHTING);
 
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	unsigned numTriangles = mgf_draw_indexed();
+	unsigned numTriangles = rr2gl_draw_indexed();
 
 	// Allocate the index buffer memory as necessary.
 	GLuint* indexBuffer = (GLuint*)malloc(width * height * 4);
@@ -4241,17 +4242,6 @@ parseOptions(int argc, char **argv)
     }
     if (!strcmp("-nodlist", argv[i])) {
       useDisplayLists = 0;
-      // -- start of ldmgf2.cpp params --
-      extern bool COMPILE;
-      COMPILE=0;
-    }
-    if (!strcmp("-arrays1", argv[i])) {
-      extern int ARRAYS;
-      ARRAYS=1;
-    }
-    if (!strcmp("-arrays2", argv[i])) {
-      extern int ARRAYS;
-      ARRAYS=2;
     }
     if (strstr(argv[i], ".mgf")) {
       mgf_filename = argv[i];
@@ -4308,7 +4298,10 @@ main(int argc, char **argv)
   glutInitWindowSize(800, 600);
   glutInit(&argc, argv);
   parseOptions(argc, argv);
-  mgf_load(mgf_filename);
+
+  // load mgf
+  rrVision::RRObjectImporter* rrobject = new_mgf_importer(mgf_filename);
+
   if (useStencil) {
     if (useDepth24) {
       glutInitDisplayString("depth~24 rgb stencil double");
@@ -4344,7 +4337,7 @@ main(int argc, char **argv)
 
   initGL();
   loadTextures();
-  mgf_compile();
+  rr2gl_load(rrobject);
 
   glutMainLoop();
   return 0;

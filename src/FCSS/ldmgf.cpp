@@ -133,14 +133,14 @@ void xy2rgb(double cx,double cy,double intensity,float cout[3])
 	cie[1] = intensity;
 	cie[2] = intensity*(1./cy - 1.) - cie[0];
 					/* convert to RGB */
-	cout[0] = xyz2rgbmat[0][0]*cie[0] + xyz2rgbmat[0][1]*cie[1]
-			+ xyz2rgbmat[0][2]*cie[2];
+	cout[0] = (float)( xyz2rgbmat[0][0]*cie[0] + xyz2rgbmat[0][1]*cie[1]
+			+ xyz2rgbmat[0][2]*cie[2] );
 	if(cout[0] < 0.) cout[0] = 0.;
-	cout[1] = xyz2rgbmat[1][0]*cie[0] + xyz2rgbmat[1][1]*cie[1]
-			+ xyz2rgbmat[1][2]*cie[2];
+	cout[1] = (float)( xyz2rgbmat[1][0]*cie[0] + xyz2rgbmat[1][1]*cie[1]
+			+ xyz2rgbmat[1][2]*cie[2] );
 	if(cout[1] < 0.) cout[1] = 0.;
-	cout[2] = xyz2rgbmat[2][0]*cie[0] + xyz2rgbmat[2][1]*cie[1]
-			+ xyz2rgbmat[2][2]*cie[2];
+	cout[2] = (float)( xyz2rgbmat[2][0]*cie[0] + xyz2rgbmat[2][1]*cie[1]
+			+ xyz2rgbmat[2][2]*cie[2] );
 	if(cout[2] < 0.) cout[2] = 0.;
 }
 

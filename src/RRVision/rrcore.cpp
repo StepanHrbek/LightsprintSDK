@@ -2709,7 +2709,7 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 #ifdef CLEAN_FACTORS
 	assert(destination->grandpa);
 	assert(destination->grandpa->surface);
-	assert(IS_VEC3(*(Vec3*)destination->grandpa->surface->diffuseReflectanceColor));
+	assert(IS_VEC3(*(Vec3*)&destination->grandpa->surface->diffuseReflectanceColor));
 	energy *= *(Vec3*)&destination->grandpa->surface->diffuseReflectanceColor;
 #endif
 	// pak leze nahoru az k trianglu, do clusteru neni treba

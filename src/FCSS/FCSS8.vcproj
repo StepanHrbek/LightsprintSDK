@@ -22,7 +22,7 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -44,12 +44,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="1"
-				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="."
+				InlineFunctionExpansion="2"
+				OmitFramePointers="true"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories=".;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
 				StringPooling="true"
+				ExceptionHandling="1"
 				RuntimeLibrary="0"
+				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				FloatingPointModel="2"
 				PrecompiledHeaderFile=".\Release/shadowcast.pch"
@@ -138,7 +141,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="."
+				AdditionalIncludeDirectories=".;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
 				MinimalRebuild="false"
 				RuntimeLibrary="1"
@@ -228,14 +231,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\ldmgf2.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ldmgf2.h"
-			>
-		</File>
-		<File
 			RelativePath="matrix.c"
 			>
 			<FileConfiguration
@@ -265,11 +260,15 @@
 			>
 		</File>
 		<File
-			RelativePath=".\nvidia_logo.cpp"
+			RelativePath=".\mgf2rr.cpp"
 			>
 		</File>
 		<File
-			RelativePath=".\parser.h"
+			RelativePath=".\mgf2rr.h"
+			>
+		</File>
+		<File
+			RelativePath=".\nvidia_logo.cpp"
 			>
 		</File>
 		<File
@@ -299,6 +298,14 @@
 		</File>
 		<File
 			RelativePath="rc_debug.h"
+			>
+		</File>
+		<File
+			RelativePath=".\rr2gl.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\rr2gl.h"
 			>
 		</File>
 		<File
