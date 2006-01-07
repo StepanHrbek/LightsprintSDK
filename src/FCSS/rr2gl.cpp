@@ -9,7 +9,7 @@
 #include "rr2gl.h"
 
 
-int   SIDES  =2; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
+int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
 bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
 
 //////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwis
 //
 
 rrVision::RRObjectImporter* objectImporter = NULL;
-
+rrVision::RRScene* radiositySolver = NULL;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -60,50 +60,6 @@ void rr2gl_draw_onlyz()
 	glEnd();
 }
 
-void rr2gl_draw_colored()
-{
-	if(rr2gl_compiled) {glCallList(COLORED);return;}
-
-	glShadeModel(GL_SMOOTH);
-
-	rrCollider::RRMeshImporter* meshImporter = objectImporter->getCollider()->getImporter();
-
-	glBegin(GL_TRIANGLES);
-	unsigned numTriangles = meshImporter->getNumTriangles();
-	unsigned oldSurfaceIdx = UINT_MAX;
-	for(unsigned triangleIdx=0;triangleIdx<numTriangles;triangleIdx++)
-	{
-		rrCollider::RRMeshImporter::Triangle tri;
-		meshImporter->getTriangle(triangleIdx,tri);
-		unsigned surfaceIdx = objectImporter->getTriangleSurface(triangleIdx);
-		if(surfaceIdx!=oldSurfaceIdx)
-		{
-			rrVision::RRSurface* surface = objectImporter->getSurface(surfaceIdx);
-			assert(surface);
-			if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-			GLfloat emission[4] = {surface->diffuseEmittance*surface->diffuseEmittanceColor.m[0],surface->diffuseEmittance*surface->diffuseEmittanceColor.m[1],surface->diffuseEmittance*surface->diffuseEmittanceColor.m[2],1};
-			glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission);
-			GLfloat diffuse[4] = {surface->diffuseReflectanceColor.m[0],surface->diffuseReflectanceColor.m[1],surface->diffuseReflectanceColor.m[2],1};
-			glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
-			GLfloat specular[4] = {surface->specularReflectance,surface->specularReflectance,surface->specularReflectance,1};
-			glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,specular);
-		}
-		if(!NORMALS) 
-		{
-			rrVision::RRObjectImporter::TriangleNormals triangleNormals;
-			objectImporter->getTriangleNormals(triangleIdx,triangleNormals);
-			glNormal3fv(triangleNormals.norm[0].m);
-		}
-		for(int v=0;v<3;v++) 
-		{
-			rrCollider::RRMeshImporter::Vertex vertex;
-			meshImporter->getVertex(tri.m[v],vertex);
-			glVertex3fv(vertex.m);
-		}
-	}
-	glEnd();
-}
-
 unsigned rr2gl_draw_indexed()
 {
 	static unsigned triangles;
@@ -134,8 +90,69 @@ unsigned rr2gl_draw_indexed()
 	return triangles;
 }
 
-void rr2gl_compile()
+void rr2gl_draw_colored()
 {
+	if(rr2gl_compiled) {glCallList(COLORED);return;}
+
+	glShadeModel(GL_SMOOTH);
+
+	rrCollider::RRMeshImporter* meshImporter = objectImporter->getCollider()->getImporter();
+
+	glBegin(GL_TRIANGLES);
+	unsigned numTriangles = meshImporter->getNumTriangles();
+	unsigned oldSurfaceIdx = UINT_MAX;
+	GLfloat emission[4];
+	for(unsigned triangleIdx=0;triangleIdx<numTriangles;triangleIdx++)
+	{
+		rrCollider::RRMeshImporter::Triangle tri;
+		meshImporter->getTriangle(triangleIdx,tri);
+		unsigned surfaceIdx = objectImporter->getTriangleSurface(triangleIdx);
+		if(surfaceIdx!=oldSurfaceIdx)
+		{
+			rrVision::RRSurface* surface = objectImporter->getSurface(surfaceIdx);
+			assert(surface);
+			if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+			emission[0] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[0];
+			emission[1] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[1];
+			emission[2] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[2];
+			emission[3] = 0;
+			glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission);
+			GLfloat diffuse[4] = {surface->diffuseReflectanceColor.m[0],surface->diffuseReflectanceColor.m[1],surface->diffuseReflectanceColor.m[2],1};
+			glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
+			GLfloat specular[4] = {surface->specularReflectance,surface->specularReflectance,surface->specularReflectance,1};
+			glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,specular);
+		}
+		if(!NORMALS) 
+		{
+			rrVision::RRObjectImporter::TriangleNormals triangleNormals;
+			objectImporter->getTriangleNormals(triangleIdx,triangleNormals);
+			glNormal3fv(triangleNormals.norm[0].m);
+		}
+		for(int v=0;v<3;v++) 
+		{
+			rrCollider::RRMeshImporter::Vertex vertex;
+			meshImporter->getVertex(tri.m[v],vertex);
+
+			if(radiositySolver)
+			{
+				const rrVision::RRColor* indirect = radiositySolver->getTriangleRadiantExitance(0,triangleIdx,v);
+				GLfloat emission2[4];
+				emission2[0] = emission[0] + indirect->m[0]*5;
+				emission2[1] = emission[1] + indirect->m[1]*5;
+				emission2[2] = emission[2] + indirect->m[2]*5;
+				emission2[3] = 0;
+				glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission2);
+			}
+
+			glVertex3fv(vertex.m);
+		}
+	}
+	glEnd();
+}
+
+void rr2gl_recompile()
+{
+	rr2gl_compiled=false;
 	glNewList(COLORED,GL_COMPILE);
 	rr2gl_draw_colored();
 	glEndList();
@@ -154,8 +171,9 @@ void rr2gl_compile()
 // rrobject load
 //
 
-void rr2gl_load(rrVision::RRObjectImporter* aobjectImporter)
+void rr2gl_compile(rrVision::RRObjectImporter* aobjectImporter, rrVision::RRScene* aradiositySolver)
 {
 	objectImporter = aobjectImporter;
-	rr2gl_compile();
+	radiositySolver = aradiositySolver;
+//!!!	rr2gl_recompile();
 }

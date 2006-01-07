@@ -673,7 +673,8 @@ const RRColor* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned
 	Triangle* tri = &obj->triangle[triangle];
 	if(!tri->surface) return 0;
 
-	static Vec3 tmp = *(Vec3*)getTriangleIrradiance(object,triangle,vertex) * *(Vec3*)(&tri->surface->diffuseReflectanceColor);
+	static Vec3 tmp;
+	tmp = *(Vec3*)getTriangleIrradiance(object,triangle,vertex) * *(Vec3*)(&tri->surface->diffuseReflectanceColor);
 	return (RRColor*)&tmp.x;
 }
 

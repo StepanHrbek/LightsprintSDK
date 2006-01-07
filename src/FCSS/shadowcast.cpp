@@ -221,6 +221,24 @@ GLdouble lightInverseViewMatrix[16];
 GLdouble lightFrustumMatrix[16];
 GLdouble lightInverseFrustumMatrix[16];
 
+// rr related
+rrVision::RRObjectImporter* rrobject = NULL;
+rrVision::RRScene* rrscene = NULL;
+gliGenericImage* rrspot = NULL;
+float rrtimestep;
+
+#include <time.h>
+#define TIME    clock_t            
+#define GETTIME clock()
+#define PER_SEC CLOCKS_PER_SEC
+
+static bool endByTime(void *context)
+{
+ return GETTIME>(TIME)(intptr_t)context;
+}
+
+
+
 /* printGLmatrix - handy debugging routine */
 static void
 printGLmatrix(GLenum matrix, char *text)
@@ -1982,13 +2000,15 @@ capturePrimary()
 
 	// Allocate the index buffer memory as necessary.
 	GLuint* indexBuffer = (GLuint*)malloc(width * height * 4);
-	float* trianglePower = (float*)malloc(numTriangles*sizeof(float));
+	rrVision::RRColor* trianglePower = (rrVision::RRColor*)malloc(numTriangles*sizeof(rrVision::RRColor));
 
 	// Read back the index buffer to memory.
 	glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, indexBuffer);
 
 	// accumulate triangle powers into trianglePower
-	for(unsigned i=0;i<numTriangles;i++) trianglePower[i]=0;
+	for(unsigned i=0;i<numTriangles;i++) 
+		for(unsigned c=0;c<3;c++)
+			trianglePower[i].m[c]=0;
 	unsigned pixel = 0;
 	for(unsigned j=0;j<height;j++)
 	for(unsigned i=0;i<width;i++)
@@ -1996,9 +2016,19 @@ capturePrimary()
 		unsigned index = indexBuffer[pixel] >> 8; // alpha was lost
 		if(index<numTriangles)
 		{
+			rrVision::RRColor pixelPower = {1,1,1};
 			// modulate by spotmap
-			float pixelPower=1; //!!!
-			trianglePower[index] += pixelPower;
+			if(rrspot)
+			{
+				unsigned x = (i * rrspot->width / width) % rrspot->width;
+				unsigned y = (j * rrspot->height / height) % rrspot->height;
+				unsigned ofs = (x+y*rrspot->width)*rrspot->components;
+				for(unsigned c=0;c<3;c++)
+					pixelPower.m[c] *= rrspot->pixels[ofs+((rrspot->components==1)?0:c)];
+			}
+
+			for(unsigned c=0;c<3;c++)
+				trianglePower[index].m[c] += pixelPower.m[c];
 		}
 		else
 		{
@@ -2007,12 +2037,25 @@ capturePrimary()
 		pixel++;
 	}
 
-	// debug print
-	printf("\n\n");
-	for(unsigned i=0;i<numTriangles;i++) printf("%d ",(int)trianglePower[i]);
+	// copy data to object
+	float mult = 5.0f/width/height;
+	for(unsigned t=0;t<numTriangles;t++)
+	{
+		unsigned surfaceIdx = rrobject->getTriangleSurface(t);
+		rrVision::RRSurface* s = rrobject->getSurface(surfaceIdx);
+		rrVision::RRColor color;
+		for(unsigned c=0;c<3;c++)
+			color.m[c] = trianglePower[t].m[c] * mult * s->diffuseReflectanceColor.m[c] * s->diffuseReflectance;
+		set_direct_exiting_flux(rrobject,t,&color);
+	}
 
-	// calculate 1 second
-	//!!!
+	// debug print
+	//printf("\n\n");
+	//for(unsigned i=0;i<numTriangles;i++) printf("%d ",(int)trianglePower[i].m[0]);
+
+	// prepare for new calculation
+	rrscene->sceneResetStatic(true);
+	rrtimestep = 0.1f;
 
 	free(trianglePower);
 	free(indexBuffer);
@@ -2885,7 +2928,6 @@ keyboard(unsigned char c, int x, int y)
     break;
   case 'o':
     objectConfiguration = (objectConfiguration + 1) % NUM_OF_OCS;
-    glutIdleFunc(NULL);
     needDepthMapUpdate = 1;
     break;
   case 'O':
@@ -2893,7 +2935,6 @@ keyboard(unsigned char c, int x, int y)
     if (objectConfiguration < 0) {
       objectConfiguration = NUM_OF_OCS-1;
     }
-    glutIdleFunc(NULL);
     needDepthMapUpdate = 1;
     break;
   case '+':
@@ -3145,7 +3186,7 @@ readImage(char *filename)
   return image;
 }
 
-int
+gliGenericImage *
 loadTextureDecalImage(char *filename, int mipmaps)
 {
   gliGenericImage *image;
@@ -3173,7 +3214,7 @@ loadTextureDecalImage(char *filename, int mipmaps)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   }
-  return 1;
+  return image;
 }
 
 void
@@ -3183,7 +3224,8 @@ loadTextures(void)
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   glBindTexture(GL_TEXTURE_2D, TO_SPOT);
-  textureSpot = loadTextureDecalImage("spot0.tga", 1);
+  rrspot = loadTextureDecalImage("spot0.tga", 1);
+  textureSpot = rrspot!=NULL;
   useBestShadowMapClamping(GL_TEXTURE_2D);
 }
 
@@ -3206,7 +3248,8 @@ mouse(int button, int state, int x, int y)
   if (button == lightButton && state == GLUT_UP) {
     movingLight = 0;
     needDepthMapUpdate = 1;
-    glutPostRedisplay();
+	capturePrimary();
+	glutPostRedisplay();
   }
 }
 
@@ -3409,6 +3452,22 @@ setLittleEndian(void)
   littleEndian = hwLittleEndian;
 }
 
+void
+idle()
+{
+	static const float calcstep = 0.1f;
+	rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
+	static float calcsum = 0;
+	calcsum += calcstep;
+	if(calcsum>=rrtimestep)
+	{
+		calcsum = 0;
+		if(rrtimestep<1.5f) rrtimestep*=1.1f;
+		rr2gl_compile(rrobject,rrscene);
+		glutPostRedisplay();
+	}
+}
+
 int
 main(int argc, char **argv)
 {
@@ -3419,7 +3478,7 @@ main(int argc, char **argv)
   parseOptions(argc, argv);
 
   // load mgf
-  rrVision::RRObjectImporter* rrobject = new_mgf_importer(mgf_filename);
+  rrobject = new_mgf_importer(mgf_filename);
 
   if (useStencil) {
     if (useDepth24) {
@@ -3446,6 +3505,7 @@ main(int argc, char **argv)
   glutReshapeFunc(reshape);
   glutMouseFunc(mouse);
   glutMotionFunc(motion);
+  glutIdleFunc(idle);
 
   initExtensions();
 
@@ -3455,8 +3515,38 @@ main(int argc, char **argv)
 
   initGL();
   loadTextures();
-  rr2gl_load(rrobject);
 
-  glutMainLoop();
-  return 0;
+ rrCollider::registerLicense(
+	 "Illusion Softworks, a.s.",
+	 "DDEFMGDEFFBFFHJOCLBCFPMNHKENKPJNHDJFGKLCGEJFEOBMDC"
+	 "ICNMHGEJJHJACNCFBOGJKGKEKJBAJNDCFNBGIHMIBODFGMHJFI"
+	 "NJLGPKGNGOFFLLOGEIJMPBEADBJBJHGLJKGGFKOLDNIBIFENEK"
+	 "AJCOKCOALBDEEBIFIBJECMJDBPJMKOIJPCJGIOCCHGEGCJDGCD"
+	 "JDPKJEOJGMIEKNKNAOEENGMEHNCPPABBLLKGNCAPLNPAPNLCKM"
+	 "AGOBKPOMJK");
+ rrVision::LicenseStatus status = rrVision::registerLicense(
+	 "Illusion Softworks, a.s.",
+	 "DDEFMGDEFFBFFHJOCLBCFPMNHKENKPJNHDJFGKLCGEJFEOBMDC"
+	 "ICNMHGEJJHJACNCFBOGJKGKEKJBAJNDCFNBGIHMIBODFGMHJFI"
+	 "NJLGPKGNGOFFLLOGEIJMPBEADBJBJHGLJKGGFKOLDNIBIFENEK"
+	 "AJCOKCOALBDEEBIFIBJECMJDBPJMKOIJPCJGIOCCHGEGCJDGCD"
+	 "JDPKJEOJGMIEKNKNAOEENGMEHNCPPABBLLKGNCAPLNPAPNLCKM"
+	 "AGOBKPOMJK");
+ switch(status)
+ {
+	case rrVision::VALID:       break;
+	case rrVision::EXPIRED:     printf("License expired!\n"); break;
+	case rrVision::WRONG:       printf("Wrong license!\n"); break;
+	case rrVision::NO_INET:     printf("No internet connection to verify license!\n"); break;
+	case rrVision::UNAVAILABLE: printf("Temporarily unable to verify license, quit and try later.\n"); break;
+ }
+	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
+	rrscene = new rrVision::RRScene();
+	rrscene->objectCreate(rrobject);
+	rr2gl_compile(rrobject,rrscene);
+	capturePrimary();
+
+	glutMainLoop();
+	return 0;
 }
