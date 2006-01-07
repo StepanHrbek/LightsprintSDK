@@ -37,7 +37,6 @@ enum {
                                   for shadow mapping */
   TO_LOWRES_HW_DEPTH_MAP_RECT, /* low resolution hardware rectangular depth map
                                   for shadow mapping */
-  TO_FLOOR,                    /* RGB decal texture for floor */
   TO_SPOT,
   TO_SOFT_DEPTH_MAP            /* TO_SOFT_DEPTH_MAP+n = depth map for n-th light */
 };
@@ -152,63 +151,11 @@ GLfloat zero[] = {0.0, 0.0, 0.0, 1.0};
 GLfloat lightColor[] = {10.0, 10.0, 10.0, 1.0};
 GLfloat lightDimColor[] = {LIGHT_DIMMING, LIGHT_DIMMING, LIGHT_DIMMING, 1.0};
 GLfloat grayMaterial[] = {0.7, 0.7, 0.7, 1.0};
-GLfloat floor_norm[] = {0.0, 1.0, 0.0};
-GLfloat bottom_floor_norm[] = {0.0, -1.0, 0.0};
-GLboolean planarFloor = 0;
-static GLfloat floor_verts[8][3] = {
-  /* top of the floor */
-  {4.0, -0.1, -4.0},
-  {-4.0, -0.1, -4.0},
-  {-4.0, -0.1, 4.0},
-  {4.0, -0.1, 4.0},
-  /* bottom of the thick floor */
-  {4.0, -0.4, 4.0},
-  {-4.0, -0.4, 4.0},
-  {-4.0, -0.4, -4.0},
-  {4.0, -0.4, -4.0},
-  };
-GLfloat floor_texcoords[4][2] = {
-  {0.0, 0.0},
-  {1.0, 0.0},
-  {1.0, 1.0},
-  {0.0, 1.0}};
 GLfloat redMaterial[] = {0.7, 0.1, 0.2, 1.0};
 GLfloat greenMaterial[] = {0.1, 0.7, 0.4, 1.0};
 GLfloat brightGreenMaterial[] = {0.1, 0.9, 0.1, 1.0};
 GLfloat blueMaterial[] = {0.1, 0.2, 0.7, 1.0};
 GLfloat whiteMaterial[] = {1.0, 1.0, 1.0, 1.0};
-static GLfloat box_verts[6][4][3] = {
-  { {1.0, -1.0, -1.0},
-    {-1.0, -1.0, -1.0},
-    {-1.0, 1.0, -1.0},
-    {1.0, 1.0, -1.0}},
-  { {1.0, -1.0, 1.0},
-    {1.0, -1.0, -1.0},
-    {1.0, 1.0, -1.0},
-    {1.0, 1.0, 1.0}},
-  { {-1.0, -1.0, 1.0},
-    {1.0, -1.0, 1.0},
-    {1.0, 1.0, 1.0},
-    {-1.0, 1.0, 1.0}},
-  { {-1.0, -1.0, -1.0},
-    {-1.0, -1.0, 1.0},
-    {-1.0, 1.0, 1.0},
-    {-1.0, 1.0, -1.0}},
-  { {1.0, 1.0, 1.0},
-    {1.0, 1.0, -1.0},
-    {-1.0, 1.0, -1.0},
-    {-1.0, 1.0, 1.0}},
-  { {1.0, -1.0, -1.0},
-    {1.0, -1.0, 1.0},
-    {-1.0, -1.0, 1.0},
-    {-1.0, -1.0, -1.0}}};
-static GLfloat box_norm[6][3] = {
-  {0, 0, -1},
-  {1, 0, 0},
-  {0, 0, 1},
-  {-1, 0, 0},
-  {0, 1, 0},
-  {0, -1, 0}};
 
 GLfloat lv[4];  /* default light position */
 
@@ -239,7 +186,6 @@ int showHelp = 0;
 int fullscreen = 0;
 int forceEnvCombine = 0;
 int useDisplayLists = 1;
-int textureFloor = 0;
 int textureSpot = 0;
 int showLightViewFrustum = 1;
 int showDepthMapMSBs = 1;
@@ -620,160 +566,6 @@ setAmbientAndDiffuseMaterial(GLfloat *material)
   }
 }
 
-/*** DRAW THE SCENE'S FLOOR IN VARIOUS MODES ***/
-
-void
-drawLitFloorRim(void)
-{
-  setAmbientAndDiffuseMaterial(grayMaterial);
-  if (!planarFloor) {
-    int i;
-
-    glBegin(GL_QUADS);
-    glNormal3f(0,0,-1);
-    glVertex3fv(floor_verts[7]);
-    glVertex3fv(floor_verts[6]);
-    glVertex3fv(floor_verts[1]);
-    glVertex3fv(floor_verts[0]);
-    glNormal3f(0,0,1);
-    glVertex3fv(floor_verts[5]);
-    glVertex3fv(floor_verts[4]);
-    glVertex3fv(floor_verts[3]);
-    glVertex3fv(floor_verts[2]);
-    glNormal3f(-1,0,0);
-    glVertex3fv(floor_verts[6]);
-    glVertex3fv(floor_verts[5]);
-    glVertex3fv(floor_verts[2]);
-    glVertex3fv(floor_verts[1]);
-    glNormal3f(1,0,0);
-    glVertex3fv(floor_verts[4]);
-    glVertex3fv(floor_verts[7]);
-    glVertex3fv(floor_verts[0]);
-    glVertex3fv(floor_verts[3]);
-
-    glNormal3fv(bottom_floor_norm);
-    for (i = 4; i < 8; i++) {
-      glVertex3fv(floor_verts[i]);
-    }
-    glEnd();
-  }
-}
-
-void
-drawLitTexturedFloorSurface(int textureUnit)
-{
-  int i;
-
-  setAmbientAndDiffuseMaterial(grayMaterial);
-  if (planarFloor) {
-    glBegin(GL_QUADS);    /* draw infinitely thin floor */
-    glNormal3fv(floor_norm);
-    for (i = 0; i < 4; i++) {
-      glMultiTexCoord2fvARB(textureUnit, floor_texcoords[i]);
-      glVertex3fv(floor_verts[i]);
-    }
-    glEnd();
-  } else {
-    glBegin(GL_QUADS);    /* draw thick floor */
-    glNormal3fv(floor_norm);
-    for (i = 0; i < 4; i++) {
-      glMultiTexCoord2fvARB(textureUnit, floor_texcoords[i]);
-      glVertex3fv(floor_verts[i]);
-    }
-    glEnd();
-  }
-}
-
-void
-drawLitFloor(void)
-{
-  int i;
-
-  setAmbientAndDiffuseMaterial(grayMaterial);
-  if (planarFloor) {
-    glBegin(GL_QUADS);    /* draw infinitely thin floor */
-    glNormal3fv(floor_norm);
-    for (i = 0; i < 4; i++) {
-      glVertex3fv(floor_verts[i]);
-    }
-    glNormal3fv(bottom_floor_norm);
-    for (i = 3; i >= 0; i--) {
-      glVertex3fv(floor_verts[i]);
-    }
-    glEnd();
-  } else {
-    glBegin(GL_QUADS);    /* draw thick floor */
-    glNormal3fv(floor_norm);
-    for (i = 0; i < 4; i++) {
-      glVertex3fv(floor_verts[i]);
-    }
-    glNormal3fv(bottom_floor_norm);
-    for (i = 4; i < 8; i++) {
-      glVertex3fv(floor_verts[i]);
-    }
-    glNormal3f(0,0,-1);
-    glVertex3fv(floor_verts[7]);
-    glVertex3fv(floor_verts[6]);
-    glVertex3fv(floor_verts[1]);
-    glVertex3fv(floor_verts[0]);
-    glNormal3f(0,0,1);
-    glVertex3fv(floor_verts[5]);
-    glVertex3fv(floor_verts[4]);
-    glVertex3fv(floor_verts[3]);
-    glVertex3fv(floor_verts[2]);
-    glNormal3f(-1,0,0);
-    glVertex3fv(floor_verts[6]);
-    glVertex3fv(floor_verts[5]);
-    glVertex3fv(floor_verts[2]);
-    glVertex3fv(floor_verts[1]);
-    glNormal3f(1,0,0);
-    glVertex3fv(floor_verts[4]);
-    glVertex3fv(floor_verts[7]);
-    glVertex3fv(floor_verts[0]);
-    glVertex3fv(floor_verts[3]);
-    glEnd();
-  }
-}
-
-void
-drawTexturedFloor(GLenum textureUnit)
-{
-  int i;
-
-  glBegin(GL_QUADS);    /* draw the floor */
-  for (i = 0; i < 4; i++) {
-    glMultiTexCoord2fvARB(textureUnit, floor_texcoords[i]);
-    glVertex3fv(floor_verts[i]);
-  }
-  for (i = 3; i >= 0; i--) {
-    glMultiTexCoord2fvARB(textureUnit, floor_texcoords[i]);
-    glVertex3fv(floor_verts[i]);
-  }
-  glEnd();
-}
-
-void
-blendTexturedFloor(void)
-{
-  if (textureFloor) {
-    glDisable(GL_LIGHTING);
-    glEnable(GL_TEXTURE_2D);
-
-    glBlendFunc(GL_DST_COLOR, GL_ZERO);
-    glEnable(GL_BLEND);
-
-    glBindTexture(GL_TEXTURE_2D, TO_FLOOR);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glDepthFunc(GL_EQUAL);
-
-    drawTexturedFloor(GL_TEXTURE0_ARB);
-
-    glDepthFunc(GL_LEQUAL);
-    glDisable(GL_TEXTURE_2D);
-    glEnable(GL_LIGHTING);
-    glDisable(GL_BLEND);
-  }
-}
 
 /*** DRAW VARIOUS SCENES ***/
 
@@ -805,7 +597,6 @@ drawObjectConfiguration(void)
 void
 drawScene(void)
 {
-  drawLitFloor();
   drawObjectConfiguration();
 }
 
@@ -924,7 +715,6 @@ drawUnshadowedEyeView(void)
 
   drawScene();
   drawLight();
-  blendTexturedFloor();
   drawShadowMapFrustum();
 }
 
@@ -949,7 +739,6 @@ drawLightView(void)
 {
   glLightfv(GL_LIGHT0, GL_POSITION, lv);
   drawScene();
-  blendTexturedFloor();
 }
 
 void
@@ -1252,95 +1041,6 @@ updateDepthMap(void)
               width, height, 0, GL_DEPTH_COMPONENT, hwDepthMapPrecision, depthBuffer);
           }
           level++;
-        }
-      }
-    } else {
-
-      /* The border depth components (at the far clip
-         plane) for intensity and luminance/alpha textures.
-         The second and third components are ignored. */
-      static const GLfloat swBorderColor[4] = { 1.0, 0.0, 0.0, 1.0 };
-
-      /* Dual-texture shadow mapping (works on TNT and GeForce/Quadro GPUs). */
-
-      /* Allocate/reallocate the depth buffer memory as necessary. */
-      if (depthMapPrecision == GL_UNSIGNED_SHORT) {
-        bytesPerDepthValue = 2;
-      } else {
-        assert(depthMapPrecision == GL_UNSIGNED_BYTE);
-        bytesPerDepthValue = 1;
-      }
-      requiredSize = width * height * bytesPerDepthValue;
-      if (requiredSize > depthBufferSize) {
-        depthBuffer = (GLubyte *)realloc(depthBuffer, requiredSize);
-        if (depthBuffer == NULL) {
-          fprintf(stderr, "shadowcast: depth readback buffer realloc failed\n");
-          exit(1);
-        }
-        depthBufferSize = requiredSize;
-      }
-
-      /* Read back the depth buffer to memory. */
-      glReadPixels(0, 0, width, height,
-        GL_DEPTH_COMPONENT, depthMapPrecision, depthBuffer);
-      if (depthMapPrecision == GL_UNSIGNED_SHORT &&
-          littleEndian != hwLittleEndian) {
-        /* Help debug bi-endian support. */
-        swapShorts(width * height, depthBuffer);
-      }
-
-      if (lowRes) {
-        if (useTextureRectangle) {
-          target = GL_TEXTURE_RECTANGLE_NV;
-          texobj = TO_LOWRES_DEPTH_MAP_RECT;
-        } else {
-          target = GL_TEXTURE_2D;
-          texobj = TO_LOWRES_DEPTH_MAP;
-        }
-        glBindTexture(target, texobj);
-        if ((width != lastLowResWidth) ||
-            (height != lastLowResHeight) ||
-            (depthMapPrecision != lastLowResPrecision)) {
-          glTexImage2D(target, 0, depthMapInternalFormat,
-            width, height, 0, depthMapFormat, GL_UNSIGNED_BYTE, depthBuffer);
-          glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, swBorderColor);
-          glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-          glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-          useBestShadowMapClamping(target);
-          lastLowResWidth = width;
-          lastLowResHeight = height;
-          lastLowResPrecision = depthMapPrecision;
-        } else {
-          /* Texture object dimensions already initialized. */
-          glTexSubImage2D(target, 0,
-            0, 0, width, height, depthMapFormat, GL_UNSIGNED_BYTE, depthBuffer);
-        }
-      } else {
-        /* Hi-res mode. */
-        if (useTextureRectangle) {
-          target = GL_TEXTURE_RECTANGLE_NV;
-          texobj = TO_DEPTH_MAP_RECT;
-        } else {
-          target = GL_TEXTURE_2D;
-          texobj = TO_DEPTH_MAP;
-        }
-        glBindTexture(target, texobj);
-        if ((width != lastHiResWidth) ||
-            (height != lastHiResHeight) ||
-            (depthMapPrecision != lastHiResPrecision)) {
-          glTexImage2D(target, 0, depthMapInternalFormat,
-            width, height, 0, depthMapFormat, GL_UNSIGNED_BYTE, depthBuffer);
-          glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, swBorderColor);
-          glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-          glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-          useBestShadowMapClamping(target);
-          lastHiResWidth = width;
-          lastHiResHeight = height;
-          lastHiResPrecision = depthMapPrecision;
-        } else {
-          /* Texture object dimensions already initialized. */
-          glTexSubImage2D(target, 0,
-            0, 0, width, height, depthMapFormat, GL_UNSIGNED_BYTE, depthBuffer);
         }
       }
     }
@@ -2239,10 +1939,6 @@ drawHardwareShadowPass(void)
 
   configCombinersForHardwareShadowPass(0);
 
-  if (textureFloor) {
-    drawLitFloorRim();
-  }
-
   if (textureSpot) {
     configCombinersForHardwareShadowPass(2);
     glActiveTextureARB(GL_TEXTURE2_ARB);
@@ -2255,20 +1951,6 @@ drawHardwareShadowPass(void)
   } else 
     drawObjectConfiguration();
     
-  if (textureFloor) {
-    configCombinersForHardwareShadowPass(1);
-
-    glActiveTextureARB(GL_TEXTURE1_ARB);
-    glBindTexture(GL_TEXTURE_2D, TO_FLOOR);
-    glEnable(GL_TEXTURE_2D);
-
-    drawLitTexturedFloorSurface(GL_TEXTURE1_ARB);
-
-    glDisable(GL_TEXTURE_2D);
-  } else {
-    drawLitFloor();
-  }
-
   disableCombiners();
 
   glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -2491,7 +2173,6 @@ drawHelpMessage(void)
     "      (only works on GeForce, Quadro, and later NVIDIA GPUs)",
     "'9'  - toggle 16-bit and 24-bit depth map precison for hardware shadow mapping",
     "'z'  - toggle zoom in and zoom out",
-    "'x'  - toggle infinitely thin floor versus thick floor",
     "'F1' - toggle hardware shadow mapping",
     "'F2' - toggle quick light move (quater size depth map during light moves)",
     "'F3' - toggle back face culling during depth map construction",
@@ -3133,11 +2814,6 @@ keyboard(unsigned char c, int x, int y)
   case 'A':
     useAccum=1-useAccum;
     break;
-  case 'x':
-  case 'X':
-    planarFloor = !planarFloor;
-    needDepthMapUpdate = 1;
-    break;
   case 'q':
     slopeScale += 0.1;
     needDepthMapUpdate = 1;
@@ -3536,8 +3212,6 @@ loadTextures(void)
   /* Assume tightly packed textures. */
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  glBindTexture(GL_TEXTURE_2D, TO_FLOOR);
-  textureFloor = loadTextureDecalImage("nobwood.tga", 1);
   glBindTexture(GL_TEXTURE_2D, TO_SPOT);
   textureSpot = loadTextureDecalImage("spot0.tga", 1);
   useBestShadowMapClamping(GL_TEXTURE_2D);
