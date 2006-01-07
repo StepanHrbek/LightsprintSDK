@@ -4,8 +4,6 @@
 #include <math.h>
 #include <GL/glut.h>
 #include <GL/glprocs.h>
-#include <GL/tube.h>  /* the OpenGL Tubing and Extrusion library by
-                         Linas Vepstas */
 
 /* Some <math.h> files do not define M_PI... */
 #ifndef M_PI
