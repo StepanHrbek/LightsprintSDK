@@ -93,8 +93,6 @@ enum {
   ME_DEPTH_MAP_256,
   ME_DEPTH_MAP_512,
   ME_DEPTH_MAP_1024,
-  ME_PRECISION_DT_8BIT,
-  ME_PRECISION_DT_16BIT,
   ME_PRECISION_HW_16BIT,
   ME_PRECISION_HW_24BIT,
   ME_EXIT,
@@ -2643,23 +2641,6 @@ selectMenu(int item)
       updateDepthBias(0);
     }
     break;
-  case ME_PRECISION_DT_8BIT:
-    depthMapFormat = GL_LUMINANCE;
-    depthMapInternalFormat = GL_INTENSITY8;
-    depthMapPrecision = GL_UNSIGNED_BYTE;
-    updateDepthBias(0);
-    break;
-  case ME_PRECISION_DT_16BIT:
-    if (hasRegisterCombiners) {
-      depthMapFormat = GL_LUMINANCE_ALPHA;
-      depthMapInternalFormat = GL_LUMINANCE8_ALPHA8;
-      depthMapPrecision = GL_UNSIGNED_SHORT;
-      updateDepthBias(0);
-    } else {
-      printf("shadowcast: "
-        "16-bit precision depth map requires NV_register_combiners\n");
-    }
-    break;
   case ME_EXIT:
     exit(0);
     break;
@@ -3302,7 +3283,7 @@ void
 initMenus(void)
 {
   int viewMenu, frustumMenu, objectConfigMenu,
-      dualTexturePrecisionMenu, hardwarePrecisionMenu,
+      hardwarePrecisionMenu,
       depthMapMenu, depthBiasMenu;
 
   if (!fullscreen) {
@@ -3330,12 +3311,6 @@ initMenus(void)
     glutAddMenuEntry("Simple", OC_SIMPLE);
     glutAddMenuEntry("Blue pony with simple", OC_BLUE_PONY);
     glutAddMenuEntry("MGF", OC_MGF);
-
-    dualTexturePrecisionMenu = glutCreateMenu(selectMenu);
-    glutAddMenuEntry("8-bit", ME_PRECISION_DT_8BIT);
-    if (hasRegisterCombiners) {
-      glutAddMenuEntry("16-bit", ME_PRECISION_DT_16BIT);
-    }
 
     if (hasShadowMapSupport) {
       hardwarePrecisionMenu = glutCreateMenu(selectMenu);
@@ -3365,7 +3340,6 @@ initMenus(void)
     glutAddSubMenu("Object configuration", objectConfigMenu);
     glutAddSubMenu("Light frustum", frustumMenu);
     glutAddSubMenu("Depth map resolution", depthMapMenu);
-    glutAddSubMenu("Dual-texture depth map precision", dualTexturePrecisionMenu);
     if (hasShadowMapSupport) {
       glutAddSubMenu("Hardware depth map precision", hardwarePrecisionMenu);
     }
