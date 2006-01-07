@@ -211,10 +211,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\bluepony.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\Gl\glprocs.c"
 			>
 		</File>
@@ -265,10 +261,6 @@
 		</File>
 		<File
 			RelativePath=".\mgf2rr.h"
-			>
-		</File>
-		<File
-			RelativePath=".\nvidia_logo.cpp"
 			>
 		</File>
 		<File

@@ -1,103 +1,3 @@
-
-/* shadowcast.c - multi-approach shadow mapping demo */
-
-/* This demo implements both SGIX_shadow/SGIX_depth_texture "hardware"
-   hardware shadow mapping as well as GeForce/Quadro and TNT/TNT2
-   "dual-textured" shadow mapping. */
-
-/* Copyright NVIDIA Corporation, 2000, 2001. */
-
-/* $Id: //sw/main/apps/OpenGL/mjk/shadowcast/shadowcast.c#39 $ */
-
-/**********************************************************************
-
-This program demonstrates hardware shadow mapping when the SGIX_shadow
-and SGIX_depth_texture OpenGL extensions are supported.  NVIDIA supports
-these extensions on GeForce3-class or better GPUs.
-
-The specifications for the SGIX_shadow and SGIX_depth_texture extensions
-can be found at:
-
-  http://oss.sgi.com/projects/ogl-sample/registry/SGIX/shadow.txt
-  http://oss.sgi.com/projects/ogl-sample/registry/SGIX/depth_texture.txt
-
-This program also demonstrates a dual-texture shadow mapping technique
-originally described by Wolfgang Heidirch.  The example program runs on
-a TNT, TNT2, GeForce, Quadro, or later NVIDIA GPU.  The program requires
-the ARB_multitexture extension and either the EXT_texture_env_combine
-or NV_register_combiners extension.  Make sure your TNT or TNT2 has the
-latest drivers that support the EXT_texture_env_combine extension.
-
-This program also demonstrates using NV_texture_rectangle to support
-non-power of two depth textures.  The performance of shadow mapping
-algorithms is tied to the speed that depth buffers can be made available
-as a depth texture.  Usually this is with an explicit copy from the
-depth buffer to texture memory.  The more depth values copied, the
-slower the overall performance.  But if the depth texture dimensions
-are too small when projected on the scene, it leads to "blocky shadow
-boundary" artifacts.  Going from a 256x256 to a 512x512 texture is
-a large increment in overall texture resolution.  Using NV_texture_rectangle,
-increments can be made by single pixel increments so a 300x325 depth
-texture is possible.  NV_texture_rectangle works with both the hardware
-shadow mapping mode (using SGIX_shadow and SGIX_depth_texture) as well
-as the dual-textured mode.  NV_texture_rectangle is not available on
-TNT-based GPUs but is available on GeForce and later GPUs though
-NV_texture_rectangle is only supported in the Release 10 and later
-driver sets.
-
-The program uses per-vertex lighting, dual projective textures, texture
-coordinate generation, alpha testing, and extended texture environment
-functionality to implement an 8-bit precision shadow map.
-
-Because this program uses per-vertex lighting and texture coordinate
-generation, this program runs best on hardware accelerates Transform &
-Lighting (T&L) operations such as an NVIDIA GeForce or Quadro GPU.
-
-Also on a GeForce, Quadro, or later NVIDIA GPU (but not on TNT or
-TNT2), the program supports a 16-bit precision shadow map via the
-NV_register_combiners extension.  The trick is to divide the 16-bit
-shadow map precision into an upper 8-bit value and a lower 8-bit value.
-In two rendering passes, the NV_register_combiners can implement a
-digit-wise comparison of the upper and loer values.
-
-The shadow mapping technique is notable because it can accurately shadow
-all objects in the scene and automatically handles self-shadowing
-situations.  Shadow mapping relies on a pixel-precision depth map
-texture constructed via depth buffering to determine shadow occlusion
-and therefore needs no vertex-level application knowledge of the scene
-geometry for determining shadow occlusion as required by other shadow
-techniques such as stenciled shadow volumes.
-
-This program works better on a GeForce or Quadro (or later NVIDIA GPU)
-using NVIDIA's Release 5 or later Windows display drivers.  The Release
-5 GeForce/Quadro drivers have substantially improved the performance of
-depth buffer glReadPixels operation that are heavily used by this demo.
-
-This program works even better on NVIDIA GPUs using NVIDIA's Release
-10 or later Windows display drivers.  The Release 10 drivers have
-substantially improved the performance of the CopyTexImage2D and
-CopyTexSubImage2D operations.  Note that using "copy tex image"
-functionality (useCopyTexImage=1) is the default for this version of
-shadow cast.
-
-For more information about this technique see Wolfgang Heidrich's
-Doctoral thesis and SGI's projective texturing SIGGRAPH paper.
-
-  Wolfgang Heidrich, "High-quality Shading and Lighting
-  for Hardware-accelerated Rendering", PhD thesis,
-  University of Erlangen, Computer Graphics Group, 1999.
-  http://www.mpi-sb.mpg.de/~heidrich/Thesis/phd.pdf
-
-  Segal, Korobkin, van Windenfelt, Foran, and Haeberli, "Fast Shadows
-  and Lighting Effects using Texture Mapping", SIGGRAPH '92 Proceedings,
-  pages 249-252, July 1992.
-
-Thanks to Wolfgang for the inspiration for this program!  Thanks to
-Michael McCool for suggesting extending Wolfgang's technique to shadow
-map precisions beyond 8 bits.
-
-***********************************************************************/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -117,12 +17,6 @@ map precisions beyond 8 bits.
 #include "tga.h"      /* TGA image file loader routines */
 #include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
 #include "rc_debug.h" /* register combiners debugging routines */
-
-/* nvidia_logo.c */
-extern GLuint makeNVidiaLogo(GLuint dlistBase);
-
-/* bluepony.c */
-extern void DrawPony(float legAngle);
 
 #define MAX_SIZE 1024
 
@@ -321,7 +215,6 @@ GLfloat lv[4];  /* default light position */
 void *font = GLUT_BITMAP_8_BY_13;
 
 GLUquadricObj *q;
-GLuint nvidiaLogoDList;
 float eyeAngle = 1.0;
 float eyeHeight = 10.0;
 int xEyeBegin, yEyeBegin, movingEye = 0;
@@ -884,196 +777,10 @@ blendTexturedFloor(void)
 
 /*** DRAW VARIOUS SCENES ***/
 
-/* drawSimpleConfiguration - draw a red ball and green box */
-void
-drawSimpleConfiguration(void)
-{
-  int i;
-
-  glPushMatrix();
-  glTranslatef(1.0, 1.01, 1.0);
-
-  setAmbientAndDiffuseMaterial(redMaterial);
-  gluSphere(q, 1.0, 25, 25);
-  glPopMatrix();
-
-  glPushMatrix();
-  glTranslatef(-1.0, 1.01, -1.0);
-  setAmbientAndDiffuseMaterial(brightGreenMaterial);
-  for (i = 0; i < 6; i++) {
-    glBegin(GL_QUADS);
-    glNormal3fv(box_norm[i]);
-    glVertex3fv(box_verts[i][0]);
-    glVertex3fv(box_verts[i][1]);
-    glVertex3fv(box_verts[i][2]);
-    glVertex3fv(box_verts[i][3]);
-    glEnd();
-  }
-  glPopMatrix();
-}
-
 static void
 drawSphere(void)
 {
   gluSphere(q, 0.55, 16, 16);
-}
-
-static float upColumn = 0.0;
-static float spinColumn = 0.0;
-
-/* drawSphereGridConfiguration - draw a 3x3x3 grid of green and red
-   balls with white specular highlights. */
-void
-drawSphereGridConfiguration(void)
-{
-  int i, j, k;
-  float extraUp;
-
-  glMaterialfv(GL_FRONT, GL_SPECULAR, whiteMaterial);
-  glPushMatrix();
-  glRotatef(spinColumn, 0, 1, 0);
-  for (i=0; i<3; i++) {
-    for (j=0; j<3; j++) {
-      for (k=0; k<3; k++) {
-        if ((i+j+k) % 2) {
-          setAmbientAndDiffuseMaterial(redMaterial);
-        } else {
-          setAmbientAndDiffuseMaterial(greenMaterial);
-        }
-        glPushMatrix();
-          if (i!=1 && k!=1) {
-            extraUp = upColumn;
-          } else {
-            extraUp = 0.0;
-          }
-          glTranslatef(i*1.5-1.5, j*1.5+1.01 + extraUp, k*1.5-1.5);
-          if (useDisplayLists) {
-            glCallList(DL_SPHERE);
-          } else {
-            drawSphere();
-          }
-        glPopMatrix();
-      }
-    }
-  }
-  glPopMatrix();
-  glMaterialfv(GL_FRONT, GL_SPECULAR, zero);
-}
-
-void
-drawNVidiaLogo(float zOffset)
-{
-  glPushMatrix();
-    glTranslatef(0.0, 2.0, zOffset);
-    glScalef(0.6, 0.6, 0.6);
-    glCallList(nvidiaLogoDList);
-  glPopMatrix();
-}
-
-float lastx = 121.0;
-float lasty = 121.0;
-
-void
-drawWeirdHelix(float zOffset)
-{
-  double affine[2][3];
-  double delta_affine[2][3];
-
-  /* set up some matrices so that the object spins with the mouse */
-  glPushMatrix ();
-    glTranslatef(0.0, 3.0, zOffset);
-    glScalef(0.2, 0.2, 0.2);
-    glRotatef(220.0, 0.0, 1.0, 0.0);
-    glRotatef(65.0, 1.0, 0.0, 0.0);
-
-    /* Phew. FINALLY, Draw the helix  -- */
-    affine [0][0] = 1.0/ (0.01*lastx);
-    affine [1][0] = 0.0;
-    affine [0][1] = 0.0;
-    affine [1][1] = 0.01*lastx;
-    affine [0][2] = 0.0;
-    affine [1][2] = 0.0;
-
-    delta_affine [0][0] = 0.0;
-    delta_affine [1][0] = 0.03*lasty;
-    delta_affine [0][1] = -0.03*lasty;
-    delta_affine [1][1] = 0.0;
-    delta_affine [0][2] = 0.0;
-    delta_affine [1][2] = 0.0;
-
-    glMaterialfv(GL_FRONT, GL_SPECULAR, whiteMaterial);
-    setAmbientAndDiffuseMaterial(blueMaterial);
-    gleSetJoinStyle (TUBE_NORM_EDGE | TUBE_JN_ANGLE | TUBE_JN_CAP);
-    gleHelicoid (1.0, 7.0, -1.0, 
-                 -4.0, 6.0, affine, delta_affine, 0.0, 980.0);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, zero);
-  glPopMatrix ();
-}
-
-/* drawCombo - draw a scene with both the weird helix and NVIDIA logo. */
-void
-drawCombo(void)
-{
-  drawWeirdHelix(2.0);
-  drawNVidiaLogo(-2.0);
-}
-
-static int animate = 0;
-
-static float Speed = 6.0;
-
-static float LegAngleStep = 0.75;
-static float LegMaxAngle = 15.0;
-static float LegAngle = 0.0, LegDeltaAngle = 0.5;
-
-static float WalkAngle = -90.0, DeltaWalkAngle = 0.225;
-static float WalkRadius = 3.2;
-
-void
-drawPony(void)
-{
-  float xPos, zPos;
-
-  xPos = WalkRadius * cos(WalkAngle * M_PI / 180.0);
-  zPos = WalkRadius * sin(WalkAngle * M_PI / 180.0);
-  glPushMatrix();
-    glTranslatef(xPos, 1.6, zPos);
-    glRotatef(-WalkAngle + 90.0, 0.0, 1.0, 0.0);
-    DrawPony(LegAngle);
-  glPopMatrix();
-}
-
-/* idle - Make the pony walk. */
-void
-idle(void)
-{
-  /* update animation vars */
-  LegAngle += LegDeltaAngle * Speed;
-  if (LegAngle > LegMaxAngle) {
-    LegDeltaAngle = -LegAngleStep;
-  } else if (LegAngle < -LegMaxAngle) {
-    LegDeltaAngle = LegAngleStep;
-  }
-  WalkAngle += DeltaWalkAngle * Speed;
-
-  needDepthMapUpdate = 1;
-  glutPostRedisplay();
-}
-
-/* vis - Start or stop the animation based on whether the window is
-   visible or not. */
-static void
-vis(int visible)
-{
-  if (visible == GLUT_VISIBLE) {
-    if (animate) {
-      glutIdleFunc(idle);
-    }
-  } else {
-    if (animate) {
-      glutIdleFunc(NULL);
-    }
-  }
 }
 
 /* drawObjectConfiguration - draw one of the various supported object
@@ -1082,34 +789,13 @@ void
 drawObjectConfiguration(void)
 {
   switch (objectConfiguration) {
-  case OC_SIMPLE:
-    drawSimpleConfiguration();
-    break;
-  case OC_SPHERE_GRID:
-    drawSphereGridConfiguration();
-    break;
-  case OC_NVIDIA_LOGO:
-    drawNVidiaLogo(-2.0);
-    break;
-  case OC_WEIRD_HELIX:
-    drawWeirdHelix(2.0);
-    break;
-  case OC_COMBO:
-    drawCombo();
-    break;
-  case OC_BLUE_PONY:
-    drawSimpleConfiguration();
-    drawPony();
-    break;
   case OC_MGF:
+  default:
     // although it doesn't make sense, on GF4 Ti 4200 
     // it's slightly faster when "if(drawOnlyZ) mgf_draw_onlyz(); else" is deleted
     if(drawOnlyZ) rr2gl_draw_onlyz();
 		else if(drawIndexed) rr2gl_draw_indexed();
 			else rr2gl_draw_colored();
-    break;
-  default:
-    assert(0);
     break;
   }
 }
@@ -2535,117 +2221,6 @@ setLightIntensity()
 }
 
 void
-drawDualTextureShadowPasses(void)
-{
-  glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbientIntensity);
-
-  /* Draw scene with shadowed regions getting no specular illumination
-     from the shadowed light and greatly reduced diffuse illuimation.
-     Reducing the diffuse illumination to zero results in just ambient
-     light and that often makes it difficult to detect curvature in
-     shadowed regions.  Dim diffuse illumination still gives some sense
-     of curvature as well as shadowing.  */
-  glLightfv(GL_LIGHT0, GL_AMBIENT, zero);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDimColor);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, zero);
-
-  /* PASS 1: Just ambient light. */
-  drawScene();
-
-  /* Subsequent passes must match depth values of first pass. */
-  glDepthFunc(GL_EQUAL);
-
-  /* Texture 0 is depth map. */
-  glActiveTextureARB(GL_TEXTURE0_ARB);
-  configTexgen(0, 0);
-  /* Texture 1 is light Z range. */
-  glActiveTextureARB(GL_TEXTURE1_ARB);
-  configTexgen(1, 0);
-
-  setLightIntensity();
-
-  configCombiners(1);
-  if (hasRegisterCombiners) {
-    glAlphaFunc(GL_GREATER, 0.0);
-  } else {
-    glAlphaFunc(GL_GREATER, 0.5);
-  }
-  glEnable(GL_ALPHA_TEST);
-
-  if (depthMapPrecision == GL_UNSIGNED_SHORT) {
-    /* If we are actually "adding" the unshadowed contribution of
-       multiple lights into the frame buffer via frame buffer blending,
-       it is important to avoid double blending in passes 2 and 3.
-       If "useStencil" is true, we tag via stencil the pixels that we
-       draw in pass 2 as unshadowed.  Then in pass 3, we do not update
-       pixels that we have already tagged as being unshadowed.
-
-       Double unshadowing pixels occurs in cases where the most sigificant
-       bits of the depth map and light Z range indicate "unshadowed"
-       while the least signficiant bits of the depth range also indicate
-       "unshadowed".
-
-       Consider a case where the light Z range is 0x2031 and the
-       depth map is 0x2145.  The MSBs of the light Z range and depth
-       map are 0x20 and 0x21 respectively.  Based solely on the MSBs,
-       the fragment is "closer" than the depth map and determined to be
-       unshadowed and is drawn in pass 2.  But in the third pass, the
-       LSBs of the light Z range are also less than the depth map LSBs
-       (0x31 and 0x54 respectively).  The LSBs are considered when the
-       depth map MSBs are NOT less than the shadow map MSBs, ie. if the
-       comparison is equal OR greater.
-
-       In this case, we've effectively determined that the fragment is
-       unshadowed based both on the MSBs and LSBs.  This is fine if we
-       are simply replacing the pixel with the unshadowed fragment each
-       time because the two replacements have the same result.
-
-       However, if we were using additive blending to add in the
-       contribution of multiple unshadowed lights in multiple passes,
-       we need to use stencil testing to tag fragments drawn in pass 2 so
-       that these same fragments will not also be added again in pass 3.
-
-       This demo has only a single light source so "useStencil" is always
-       false. */
-
-    if (useStencil) {
-      glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-      glStencilFunc(GL_ALWAYS, 0x1, 0x1);
-      glEnable(GL_STENCIL_TEST);
-    }
-  }
-
-  /* PASS 2: Re-write unshadowed regions for 8-bit precision. */
-  drawScene();
-
-  if (depthMapPrecision == GL_UNSIGNED_SHORT) {
-    configCombiners(2);
-    if (useStencil) {
-      glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-      glStencilFunc(GL_EQUAL, 0x0, 0x1);
-    }
-
-    /* PASS 3: Re-write unshadowed regions for 16-bit precision. */
-    drawScene();
-
-    if (useStencil) {
-      glDisable(GL_STENCIL_TEST);
-    }
-  }
-
-  glDisable(GL_ALPHA_TEST);
-  glDepthFunc(GL_LEQUAL);
-
-  disableCombiners();
-
-  glActiveTextureARB(GL_TEXTURE1_ARB);
-  disableTexgen();
-  glActiveTextureARB(GL_TEXTURE0_ARB);
-  disableTexgen();
-}
-
-void
 drawHardwareShadowPass(void)
 {
   glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
@@ -2714,12 +2289,7 @@ drawEyeViewShadowed(int clear)
   setupEyeView();
   glLightfv(GL_LIGHT0, GL_POSITION, lv);
 
-  if (useShadowMapSupport) {
-    drawHardwareShadowPass();
-  } else {
-    drawDualTextureShadowPasses();
-    blendTexturedFloor();
-  }
+  drawHardwareShadowPass();
 
   drawLight();
   drawShadowMapFrustum();
@@ -2922,7 +2492,7 @@ drawHelpMessage(void)
     "'9'  - toggle 16-bit and 24-bit depth map precison for hardware shadow mapping",
     "'z'  - toggle zoom in and zoom out",
     "'x'  - toggle infinitely thin floor versus thick floor",
-    "'F1' - toggle hardware versus dual-texture shadow mapping",
+    "'F1' - toggle hardware shadow mapping",
     "'F2' - toggle quick light move (quater size depth map during light moves)",
     "'F3' - toggle back face culling during depth map construction",
     "'F4' - toggle linear/nearest hardware depth map filtering",
@@ -3079,14 +2649,12 @@ benchmark(int perFrameDepthMapUpdate)
     }
   }
   if (useTextureRectangle) {
-    printf("  RECT %dx%d:%d using %s and %s\n",
+    printf("  RECT %dx%d:%d using %s\n",
       depthMapRectWidth, depthMapRectHeight, precision,
-      useShadowMapSupport ? "SGIX_shadow" : "dual-texture",
       useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
   } else {
-    printf("  TEX2D %dx%d:%d using %s and %s\n",
+    printf("  TEX2D %dx%d:%d using %s\n",
       depthMapSize, depthMapSize, precision,
-      useShadowMapSupport ? "SGIX_shadow" : "dual-texture",
       useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
   }
   needDepthMapUpdate = 1;
@@ -3487,70 +3055,6 @@ special(int c, int x, int y)
     return;
   }
   switch (objectConfiguration) {
-  case OC_SPHERE_GRID:
-    switch (c) {
-    case GLUT_KEY_UP:
-      upColumn += 0.05;
-      needDepthMapUpdate = 1;
-      break;
-    case GLUT_KEY_DOWN:
-      upColumn -= 0.05;
-      needDepthMapUpdate = 1;
-      break;
-    case GLUT_KEY_LEFT:
-      spinColumn -= 5.0;
-      needDepthMapUpdate = 1;
-      break;
-    case GLUT_KEY_RIGHT:
-      spinColumn += 5.0;
-      needDepthMapUpdate = 1;
-      break;
-    }
-    break;
-  case OC_WEIRD_HELIX:
-  case OC_COMBO:
-    switch (c) {
-    case GLUT_KEY_RIGHT:
-      lastx += 5.0;
-      if (lastx > 211.0) {
-        lastx = 211.0;
-      }
-      needDepthMapUpdate = 1;
-      break;
-    case GLUT_KEY_LEFT:
-      lastx -= 5.0;
-      if (lastx < 61.0) {
-        lastx = 61.0;
-      }
-      needDepthMapUpdate = 1;
-      break;
-    case GLUT_KEY_UP:
-      lasty += 5.0;
-      needDepthMapUpdate = 1;
-      break;
-    case GLUT_KEY_DOWN:
-      lasty -= 5.0;
-      needDepthMapUpdate = 1;
-      break;
-    default:
-      return;
-    }
-    break;
-  case OC_BLUE_PONY:
-    switch (c) {
-    case GLUT_KEY_UP:
-      Speed += 0.2;
-      break;
-    case GLUT_KEY_DOWN:
-      Speed -= 0.2;
-      if (Speed < 0.2) {
-        Speed = 0.2;
-      }
-      break;
-    default:
-      return;
-    }
-    break;
   case OC_MGF:
     switch (c) {
     case GLUT_KEY_UP:
@@ -3585,16 +3089,6 @@ keyboard(unsigned char c, int x, int y)
   switch (c) {
   case 27:
     exit(0);
-    break;
-  case ' ':
-    if (objectConfiguration == OC_BLUE_PONY) {
-      animate = !animate;
-      if (animate) {
-        glutIdleFunc(idle);
-      } else {
-        glutIdleFunc(NULL);
-      }
-    }
     break;
   case 'b':
     updateDepthBias(+1);
@@ -3745,10 +3239,7 @@ keyboard(unsigned char c, int x, int y)
     break;
   case 'o':
     objectConfiguration = (objectConfiguration + 1) % NUM_OF_OCS;
-    if (objectConfiguration != OC_BLUE_PONY) {
-      glutIdleFunc(NULL);
-      animate = 0;
-    }
+    glutIdleFunc(NULL);
     needDepthMapUpdate = 1;
     break;
   case 'O':
@@ -3756,10 +3247,7 @@ keyboard(unsigned char c, int x, int y)
     if (objectConfiguration < 0) {
       objectConfiguration = NUM_OF_OCS-1;
     }
-    if (objectConfiguration != OC_BLUE_PONY) {
-      glutIdleFunc(NULL);
-      animate = 0;
-    }
+    glutIdleFunc(NULL);
     needDepthMapUpdate = 1;
     break;
   case '+':
@@ -3965,9 +3453,6 @@ initGL(void)
 #else
   glEnable(GL_NORMALIZE);
 #endif
-
-  /* Make the NVIDIA logo display list. */
-  nvidiaLogoDList = makeNVidiaLogo(300);
 
   q = gluNewQuadric();
   if (useDisplayLists) {
@@ -4327,7 +3812,6 @@ main(int argc, char **argv)
   glutReshapeFunc(reshape);
   glutMouseFunc(mouse);
   glutMotionFunc(motion);
-  glutVisibilityFunc(vis);
 
   initExtensions();
 
