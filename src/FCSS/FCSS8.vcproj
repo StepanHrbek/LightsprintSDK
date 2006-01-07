@@ -264,35 +264,6 @@
 			>
 		</File>
 		<File
-			RelativePath="rc_debug.c"
-			>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="2"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					BrowseInformation="1"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="rc_debug.h"
-			>
-		</File>
-		<File
 			RelativePath=".\rr2gl.cpp"
 			>
 		</File>

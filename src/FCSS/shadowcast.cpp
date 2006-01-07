@@ -16,7 +16,6 @@
 #include "rr2gl.h"
 #include "tga.h"      /* TGA image file loader routines */
 #include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
-#include "rc_debug.h" /* register combiners debugging routines */
 
 #define MAX_SIZE 1024
 
@@ -192,7 +191,6 @@ int lightButton = GLUT_MIDDLE_BUTTON;
 int useStencil = 0;
 int useDepth24 = 1;
 int drawFront = 0;
-int rcDebug = 0;
 
 int hasRegisterCombiners = 0;
 int hasTextureEnvCombine = 0;
@@ -1797,9 +1795,6 @@ configCombiners(int pass)
     glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_EXT, GL_TEXTURE);
     glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_ONE_MINUS_SRC_ALPHA);
   }
-  if (rcDebug) {
-    printRegisterCombinersState();
-  }
 }
 
 void
@@ -1895,10 +1890,6 @@ configCombinersForHardwareShadowPass(int withTexture)
   /* Alpha = 1 */
 
   glEnable(GL_REGISTER_COMBINERS_NV);
-
-  if (rcDebug) {
-    printRegisterCombinersState();
-  }
 }
 
 void
@@ -3388,9 +3379,6 @@ parseOptions(int argc, char **argv)
     }
     if (!strcmp("-novsync", argv[i])) {
       vsync = 0;
-    }
-    if (!strcmp("-rc_debug", argv[i])) {
-      rcDebug = 1;
     }
     if (!strcmp("-swapendian", argv[i])) {
       littleEndian = !littleEndian;
