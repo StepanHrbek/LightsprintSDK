@@ -8,7 +8,7 @@
 // - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms
 // - automatic mesh optimizations
-// - works with your units (screen colors or physical or anything else)
+// - works with your units (screen colors or radiometry or photometry units or anything else)
 // - display independent, purely numerical API
 //
 // Copyright (C) Stepan Hrbek 1999-2006

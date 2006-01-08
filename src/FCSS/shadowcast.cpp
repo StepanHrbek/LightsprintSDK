@@ -2073,7 +2073,8 @@ placeSoftLight(int n)
     oldLightHeight=lightHeight;
     glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 1);
     glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90); // no light behind spotlight
-    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
+    //glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.5);
     return;
   }
   if(n==-2) { // done, after all
