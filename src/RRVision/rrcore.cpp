@@ -1991,7 +1991,7 @@ Object::~Object()
 // uvede energie v objektu do stavu po nacteni sceny
 // akceptuje upravene surfacy
 
-void Object::resetStaticIllumination()
+void Object::resetStaticIllumination(RRScaler* scaler)
 {
 	// smaze akumulatory (ale necha jim flag zda jsou v reflectors)
 	for(unsigned c=0;c<clusters;c++) {U8 flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset();cluster[c].flags=flag;}
@@ -2003,6 +2003,10 @@ void Object::resetStaticIllumination()
 		const RRColor* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(t);
 		const RRColor* addExitance=importer->getTriangleAdditionalRadiantExitance(t);
 		Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?*(Vec3*)addExitingFlux/triangle[t].area:Vec3(0,0,0));
+		if(scaler) sumExitance = Vec3(
+			scaler->getOriginal(sumExitance.x), // getOriginal=getWattsPerSquareMeter
+			scaler->getOriginal(sumExitance.y),
+			scaler->getOriginal(sumExitance.z));
 		objSourceExitingFlux+=abs(triangle[t].setSurface(triangle[t].surface,sumExitance));
 	}
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
@@ -2140,6 +2144,7 @@ Scene::Scene()
 	improveInaccurate=0.99f;
 	multiCollider=NULL;
 	multiObjectMeshes4Delete=NULL;
+	scaler=NULL;
 	skyLight=NULL;
 }
 
@@ -2281,6 +2286,11 @@ void Scene::freeze(bool yes)
 	}
 }
 
+void Scene::setScaler(RRScaler* ascaler)
+{
+	scaler = ascaler;
+}
+
 void Scene::setSkyLight(RRSkyLight* askyLight)
 {
 	skyLight = askyLight;
@@ -2303,7 +2313,7 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 	staticReflectors.reset();
 	for(unsigned o=0;o<objects;o++) 
 	{
-		object[o]->resetStaticIllumination();
+		object[o]->resetStaticIllumination(scaler);
 		staticReflectors.insertObject(object[o]);
 	}
 	__preserveFactors=false;

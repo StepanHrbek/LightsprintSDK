@@ -98,6 +98,7 @@
 				Name="VCPostBuildEventTool"
 				Description="update global include"
 				CommandLine="copy ..\include\*.* ..\..\..\include"
+				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration
@@ -180,6 +181,7 @@
 				Name="VCPostBuildEventTool"
 				Description="update global include"
 				CommandLine="copy ..\include\*.* ..\..\..\include"
+				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 	</Configurations>

@@ -318,6 +318,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\RRObjectImporter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\RRScaler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\RRScene.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\RRVision.cpp"
 				>
 			</File>

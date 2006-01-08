@@ -3,14 +3,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2005.11.27
+// version 2006.1.8
 //
 // - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms
 // - automatic mesh optimizations
+// - works with your units (screen colors or physical or anything else)
 // - display independent, purely numerical API
 //
-// Copyright (C) Stepan Hrbek 1999-2005
+// Copyright (C) Stepan Hrbek 1999-2006
 // All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
@@ -168,8 +169,42 @@ namespace rrVision
 	class RRVISION_API RRSkyLight
 	{
 	public:
+		//////////////////////////////////////////////////////////////////////////////
+		// Interface
+		//////////////////////////////////////////////////////////////////////////////
+
 		virtual RRColor getRadiance(RRVector3 dirFromSky) const = 0;
 		virtual ~RRSkyLight() {}
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// RRScaler - abstract 1d space transformer.
+	//
+	// RRScaler may be used by RRScene to transform irradiance/emittance/exitance 
+	// between physical W/m^2 space and your user defined space.
+	// It is just helper for your convenience, you may easily stay without RRScaler.
+	// Without scaler, all inputs/outputs work with specified physical units.
+	// With appropriate scaler, you may directly work for example with screen colors.
+
+	class RRVISION_API RRScaler
+	{
+	public:
+		//////////////////////////////////////////////////////////////////////////////
+		// Interface
+		//////////////////////////////////////////////////////////////////////////////
+
+		virtual RRReal getScaled(RRReal original) const = 0;
+		virtual RRReal getOriginal(RRReal scaled) const = 0;
+		virtual ~RRScaler() {}
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools
+		//////////////////////////////////////////////////////////////////////////////
+
+		// instance factory
+		static RRScaler* createGammaScaler(RRReal gamma);
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -185,12 +220,15 @@ namespace rrVision
 		RRScene();
 		~RRScene();
 
+		// i/o settings (optional)
+		void          setScaler(RRScaler* scaler);
+
 		// import geometry
 		typedef       unsigned ObjectHandle;
 		ObjectHandle  objectCreate(RRObjectImporter* importer);
 		void          objectDestroy(ObjectHandle object);
 
-		// import light
+		// import light (optional)
 		void          setSkyLight(RRSkyLight* skyLight);
 		
 		// calculate radiosity

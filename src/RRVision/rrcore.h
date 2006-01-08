@@ -737,7 +737,7 @@ public:
 
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
-	void    resetStaticIllumination();
+	void    resetStaticIllumination(RRScaler* scaler);
 
 	// intersections
 	Bound   bound;
@@ -804,6 +804,9 @@ public:
 
 	void    freeze(bool yes); // makes multi-object calculation faster, but no object insert/remove/transform is allowed then
 	bool    isFrozen();
+
+	void    setScaler(RRScaler* ascaler);
+	RRScaler* scaler;
 
 	void    setSkyLight(RRSkyLight* skyLight);
 

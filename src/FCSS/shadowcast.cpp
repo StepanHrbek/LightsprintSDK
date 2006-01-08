@@ -98,7 +98,7 @@ enum {
 int hwLittleEndian;
 int littleEndian;
 
-int vsync = 1;
+int vsync = 0;
 int requestedDepthMapSize = 512;
 int depthMapSize = 512;
 
@@ -224,14 +224,14 @@ GLdouble lightInverseFrustumMatrix[16];
 // rr related
 rrVision::RRObjectImporter* rrobject = NULL;
 rrVision::RRScene* rrscene = NULL;
+rrVision::RRScaler* rrscaler = NULL;
 gliGenericImage* rrspot = NULL;
 float rrtimestep;
-
+// rr endfunc callback
 #include <time.h>
 #define TIME    clock_t            
 #define GETTIME clock()
 #define PER_SEC CLOCKS_PER_SEC
-
 static bool endByTime(void *context)
 {
  return GETTIME>(TIME)(intptr_t)context;
@@ -3418,8 +3418,8 @@ parseOptions(int argc, char **argv)
     if (!strcmp("-stencil", argv[i])) {
       useStencil = 1;
     }
-    if (!strcmp("-novsync", argv[i])) {
-      vsync = 0;
+    if (!strcmp("-vsync", argv[i])) {
+      vsync = 1;
     }
     if (!strcmp("-swapendian", argv[i])) {
       littleEndian = !littleEndian;
@@ -3543,6 +3543,8 @@ main(int argc, char **argv)
 	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	rrscene = new rrVision::RRScene();
+	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
+	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
 	rr2gl_compile(rrobject,rrscene);
 	capturePrimary();

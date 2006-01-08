@@ -11,6 +11,7 @@
 
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
 bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
+bool  COMPILE=0; // use display lists
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -137,9 +138,9 @@ void rr2gl_draw_colored()
 			{
 				const rrVision::RRColor* indirect = radiositySolver->getTriangleRadiantExitance(0,triangleIdx,v);
 				GLfloat emission2[4];
-				emission2[0] = emission[0] + indirect->m[0]*5;
-				emission2[1] = emission[1] + indirect->m[1]*5;
-				emission2[2] = emission[2] + indirect->m[2]*5;
+				emission2[0] = emission[0] + indirect->m[0];
+				emission2[1] = emission[1] + indirect->m[1];
+				emission2[2] = emission[2] + indirect->m[2];
 				emission2[3] = 0;
 				glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission2);
 			}
@@ -152,17 +153,30 @@ void rr2gl_draw_colored()
 
 void rr2gl_recompile()
 {
-	rr2gl_compiled=false;
-	glNewList(COLORED,GL_COMPILE);
-	rr2gl_draw_colored();
-	glEndList();
-	glNewList(ONLYZ,GL_COMPILE);
-	rr2gl_draw_onlyz();
-	glEndList();
-	glNewList(INDEXED,GL_COMPILE);
-	rr2gl_draw_indexed();
-	glEndList();
-	rr2gl_compiled=true;
+	if(rr2gl_compiled) 
+	{
+		// next time: recompile colored, others can't change
+		rr2gl_compiled=false;
+		glNewList(COLORED,GL_COMPILE);
+		rr2gl_draw_colored();
+		glEndList();
+		rr2gl_compiled=true;
+	}
+	else
+	{
+		// first time: compile all
+		rr2gl_compiled=false;
+		glNewList(COLORED,GL_COMPILE);
+		rr2gl_draw_colored();
+		glEndList();
+		glNewList(ONLYZ,GL_COMPILE);
+		rr2gl_draw_onlyz();
+		glEndList();
+		glNewList(INDEXED,GL_COMPILE);
+		rr2gl_draw_indexed();
+		glEndList();
+		rr2gl_compiled=true;
+	}
 }
 
 
@@ -175,5 +189,5 @@ void rr2gl_compile(rrVision::RRObjectImporter* aobjectImporter, rrVision::RRScen
 {
 	objectImporter = aobjectImporter;
 	radiositySolver = aradiositySolver;
-//!!!	rr2gl_recompile();
+	if(COMPILE) rr2gl_recompile();
 }
