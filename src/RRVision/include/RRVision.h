@@ -94,7 +94,7 @@ namespace rrVision
 		RRColor       diffuseReflectanceColor;       // Fraction of energy that is diffuse reflected (each channel separately).
 		RRReal        diffuseTransmittance;          // Currently not used.
 		RRColor       diffuseTransmittanceColor;     // Currently not used.
-		RRReal        diffuseEmittance;              // \ Multiplied = Radiant emittance in watts per square meter.
+		RRReal        diffuseEmittance;              // \ Multiplied = Radiant emittance in watts per square meter. Never scaled by RRScaler.
 		RRColor       diffuseEmittanceColor;         // / 
 		RREmittanceType emittanceType;
 		RRVector3     emittancePoint;
@@ -186,6 +186,7 @@ namespace rrVision
 	// It is just helper for your convenience, you may easily stay without RRScaler.
 	// Without scaler, all inputs/outputs work with specified physical units.
 	// With appropriate scaler, you may directly work for example with screen colors.
+	// Note that RRSurface::diffuseEmittance is never scaled.
 
 	class RRVISION_API RRScaler
 	{
