@@ -187,7 +187,7 @@ int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 int objectConfiguration = OC_MGF;
 int rangeMap = 0;
 int showHelp = 0;
-int fullscreen = 0;
+int fullscreen = 1;
 int forceEnvCombine = 0;
 int useDisplayLists = 1;
 int textureSpot = 0;
@@ -651,9 +651,9 @@ updateMatrices(void)
     0, 3, 0,
     0, 1, 0);
   
-  lv[0] = sin(lightAngle);
+  lv[0] = 2*sin(lightAngle);
   lv[1] = 0.15 * lightHeight + 3;
-  lv[2] = cos(lightAngle);
+  lv[2] = 2*cos(lightAngle);
   lv[3] = 1.0;
 
   buildLookAtMatrix(lightViewMatrix,
@@ -3333,7 +3333,6 @@ initMenus(void)
       hardwarePrecisionMenu,
       depthMapMenu, depthBiasMenu;
 
-  if (!fullscreen) {
     viewMenu = glutCreateMenu(selectMenu);
     glutAddMenuEntry("[s] Eye view with shadows", ME_EYE_VIEW_SHADOWED);
     glutAddMenuEntry("[S] Eye view with soft shadows", ME_EYE_VIEW_SOFTSHADOWED);
@@ -3405,7 +3404,6 @@ initMenus(void)
     glutAddMenuEntry("[ESC] Quit", ME_EXIT);
 
     glutAttachMenu(GLUT_RIGHT_BUTTON);
-  }
 }
 
 void
@@ -3414,8 +3412,8 @@ parseOptions(int argc, char **argv)
   int i;
 
   for (i=1; i<argc; i++) {
-    if (!strcmp("-fullscreen", argv[i])) {
-      fullscreen = 1;
+    if (!strcmp("-window", argv[i])) {
+      fullscreen = 0;
     }
     if (!strcmp("-force_envcombine", argv[i])) {
       forceEnvCombine = 1;
@@ -3508,12 +3506,8 @@ main(int argc, char **argv)
       glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
     }
   }
-  if (fullscreen) {
-    glutGameModeString("800x600:32");
-    glutEnterGameMode();
-  } else {
-    glutCreateWindow("shadowcast");
-  }
+  glutCreateWindow("shadowcast");
+  if (fullscreen) glutFullScreen();
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
   glutSpecialFunc(special);
