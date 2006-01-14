@@ -210,6 +210,86 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="glsl"
+			>
+			<File
+				RelativePath=".\glsl\Camera.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Camera.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\FrameRate.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\FrameRate.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\GLSLObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\GLSLObject.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\GLSLProgram.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\GLSLProgram.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\GLSLShader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\GLSLShader.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Light.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Light.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Scene.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Scene.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Texture.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Texture.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Torus.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\glsl\Torus.hpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Gl\glprocs.c"
 			>
@@ -290,6 +370,22 @@
 		<File
 			RelativePath=".\shadowcast.cpp"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="tga.c"

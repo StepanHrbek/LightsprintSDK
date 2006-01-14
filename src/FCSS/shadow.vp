@@ -1,0 +1,15 @@
+varying vec4 projCoord;
+
+void main()
+{
+  vec3 lightVect, trueNormal;
+  vec4 realPos = gl_ModelViewMatrix * gl_Vertex;
+  
+  lightVect = normalize(gl_LightSource[0].position.xyz - realPos.xyz);
+  trueNormal = gl_NormalMatrix * gl_Normal;
+  
+  projCoord = gl_TextureMatrix[0] * realPos;
+  gl_FrontColor = vec4(dot(lightVect, trueNormal) - 0.1);
+  
+  gl_Position = ftransform();
+}
