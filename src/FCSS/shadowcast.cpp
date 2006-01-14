@@ -613,7 +613,7 @@ drawObjectConfiguration(void)
     // it's slightly faster when "if(drawOnlyZ) mgf_draw_onlyz(); else" is deleted
     if(drawOnlyZ) rr2gl_draw_onlyz();
 		else if(drawIndexed) rr2gl_draw_indexed();
-			else rr2gl_draw_colored();
+			else rr2gl_draw_colored(true);
     break;
   }
 }
@@ -2163,6 +2163,13 @@ drawEyeViewSoftShadowed(void)
     globalIntensity=1;
     ambientPower=oldAmbientPower;
   }
+
+  // add indirect
+  /*glDisable(GL_LIGHTING);
+  glBlendFunc(GL_ONE,GL_ONE);
+  glEnable(GL_BLEND);
+  drawScene();
+  glDisable(GL_BLEND);*/
 }
 
 static void

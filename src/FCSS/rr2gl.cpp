@@ -26,9 +26,10 @@ rrVision::RRScene* radiositySolver = NULL;
 // rrobject draw
 //
 
-#define ONLYZ   10 // displaylists
-#define COLORED 11
-#define INDEXED 12
+#define ONLYZ             10 // displaylists
+#define INDEXED           11
+#define COLORED_DIRECT    12
+#define COLORED_INDIRECT  13
 
 bool    rr2gl_compiled=false;
 
@@ -91,9 +92,9 @@ unsigned rr2gl_draw_indexed()
 	return triangles;
 }
 
-void rr2gl_draw_colored()
+void rr2gl_draw_colored(bool direct)
 {
-	if(rr2gl_compiled) {glCallList(COLORED);return;}
+	if(rr2gl_compiled && direct) {glCallList(direct?COLORED_DIRECT:COLORED_INDIRECT);return;}
 
 	glShadeModel(GL_SMOOTH);
 
@@ -113,9 +114,13 @@ void rr2gl_draw_colored()
 			rrVision::RRSurface* surface = objectImporter->getSurface(surfaceIdx);
 			assert(surface);
 			if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-			emission[0] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[0];
-			emission[1] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[1];
-			emission[2] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[2];
+			// hide emission from mgf
+			//emission[0] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[0];
+			//emission[1] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[1];
+			//emission[2] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[2];
+			emission[0] = 0;
+			emission[1] = 0;
+			emission[2] = 0;
 			emission[3] = 0;
 			glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission);
 			GLfloat diffuse[4] = {surface->diffuseReflectanceColor.m[0],surface->diffuseReflectanceColor.m[1],surface->diffuseReflectanceColor.m[2],1};
@@ -134,17 +139,18 @@ void rr2gl_draw_colored()
 			rrCollider::RRMeshImporter::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
 
+			//!!! should be uncommented, but causes problem
+			// kdyz tady nenastavim emission nebo nastavim konstantu, vysledne osvetleni
+			//  se nejak zmrsi, zrejme problem s kodem v register combineru
+			// vyresit pouzitim opengl 2.0
+			//if(!direct)
 			if(radiositySolver)
 			{
 				const rrVision::RRColor* indirect = radiositySolver->getTriangleRadiantExitance(0,triangleIdx,v);
 				GLfloat emission2[4];
-				// hide emission from mgf
-				//emission2[0] = emission[0] + indirect->m[0];
-				//emission2[1] = emission[1] + indirect->m[1];
-				//emission2[2] = emission[2] + indirect->m[2];
-				emission2[0] = indirect->m[0];
-				emission2[1] = indirect->m[1];
-				emission2[2] = indirect->m[2];
+				emission2[0] = emission[0] + indirect->m[0];
+				emission2[1] = emission[1] + indirect->m[1];
+				emission2[2] = emission[2] + indirect->m[2];
 				emission2[3] = 0;
 				glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission2);
 			}
@@ -159,20 +165,25 @@ void rr2gl_recompile()
 {
 	if(rr2gl_compiled) 
 	{
-		// next time: recompile colored, others can't change
+		/*
+		// next time: recompile colored indirect, others can't change
 		rr2gl_compiled=false;
-		glNewList(COLORED,GL_COMPILE);
-		rr2gl_draw_colored();
+		glNewList(COLORED_INDIRECT,GL_COMPILE);
+		rr2gl_draw_colored_indirect();
 		glEndList();
 		rr2gl_compiled=true;
+		*/
 	}
 	else
 	{
 		// first time: compile all
 		rr2gl_compiled=false;
-		glNewList(COLORED,GL_COMPILE);
-		rr2gl_draw_colored();
+		glNewList(COLORED_DIRECT,GL_COMPILE);
+		rr2gl_draw_colored(true);
 		glEndList();
+		//glNewList(COLORED_INDIRECT,GL_COMPILE);
+		//rr2gl_draw_colored(false);
+		//glEndList();
 		glNewList(ONLYZ,GL_COMPILE);
 		rr2gl_draw_onlyz();
 		glEndList();

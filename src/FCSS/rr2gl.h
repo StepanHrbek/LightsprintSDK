@@ -9,6 +9,6 @@
 
 void     rr2gl_compile(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver);
 void     rr2gl_draw_onlyz();
-void     rr2gl_draw_colored();
 unsigned rr2gl_draw_indexed(); // returns number of triangles
+void     rr2gl_draw_colored(bool direct);
 
