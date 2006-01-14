@@ -4,6 +4,7 @@
 #define IBP <class BspTree>
 #define IBP2 <BspTree>
 
+#define MIN_TRIANGLES_FOR_SAVE 362 // smaller objects are not saved to disk
 #define SUPPORT_EMPTY_KDNODE // only FASTEST: typically tiny, rarely big speedup (bunny); typically a bit, rarely much slower and memory hungry build (soda)
 //#define BAKED_TRIANGLE
 
@@ -247,23 +248,36 @@ namespace rrCollider
 			}
 			assert(ii);
 			obj.face_num = ii;
-			f = fopen(name,"wb");
-			if(f)
+
+			if(obj.face_num<MIN_TRIANGLES_FOR_SAVE)
 			{
-				bool ok = createAndSaveBsp IBP2(f,&obj,buildParams);
-				fclose(f);
-				if(!ok)
-				{
-					printf("Failed to write tree (%s)...\n",name);
-					//remove(name);
-					f = fopen(name,"wb");
-					fclose(f);
-					retried = true;
-				}
+				// pack tree directly to ram, no saving
+				assert(!tree);
+				bool ok = createAndSaveBsp IBP2(&obj,buildParams,NULL,(void**)&tree);
 			}
+			else
+			{
+				// pack tree to file
+				f = fopen(name,"wb");
+				if(f)
+				{
+					assert(!tree);
+					bool ok = createAndSaveBsp IBP2(&obj,buildParams,f,NULL);
+					fclose(f);
+					if(!ok)
+					{
+						printf("Failed to write tree (%s)...\n",name);
+						//remove(name);
+						f = fopen(name,"wb");
+						fclose(f);
+						retried = true;
+					}
+				}
+				f = fopen(name,"rb");
+			}
+
 			delete[] obj.vertex;
 			delete[] obj.face;
-			f = fopen(name,"rb");
 		}
 		if(f)
 		{

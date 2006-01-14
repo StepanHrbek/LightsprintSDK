@@ -918,24 +918,48 @@ void guess_size_bsp(BSP_TREE *t)
 }
 
 template IBP
-bool save_bsp(FILE *f, BSP_TREE *t)
+unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
+// if(f) packs tree to file
+// if(m) packs tree to memory
+// returns total size in bytes
 {
 	unsigned n = 0; 
 	if(t->plane) for(unsigned i=0;t->plane[i];i++) n++; 
 	nodes++;
 	faces += n;
 
-	unsigned pos1 = ftell(f);
+
+	// tools for packed tree output
+	//  if(f) writes to file
+	//  if(m) writes to memory
+	//  absolute = physical position in file at the beginning of write
+	//  relative = relative position in file while writing this node, 0 at the beginning, size of node+sons at the end
+	unsigned absolute = 0;
+	unsigned relative = 0;
+	if(f) absolute = ftell(f);
+#define WRITE(x) \
+	if(f) fwrite(&x,sizeof(x),1,f); \
+	if(m) memcpy(((char*)m)+relative,&x,sizeof(x)); \
+	relative += sizeof(x);
+#define TELL() relative
+#define SEEK(pos) \
+	if(f) fseek(f,absolute+pos,SEEK_SET); \
+	relative = pos;
+#define WRITE_SUBTREE(code) \
+	unsigned written = code; \
+	if(!written) return 0; \
+	relative += written;
+#define SUBTREE_M (m?(char*)m+relative:m)
 
 	BspTree node;
 	node.bsp.size=-1;
-	fwrite(&node,sizeof(node),1,f);
+	WRITE(node);
 
 	if(t->kdroot && (t->front || t->back)) // pro prazdny kdnode uz nezapisuje splitValue
 	{
 		assert(t->axis>=0 && t->axis<=2);
 		real splitValue = (&t->kdroot->x)[t->axis];
-		fwrite(&splitValue,sizeof(splitValue),1,f);
+		WRITE(splitValue);
 #ifdef SUPPORT_EMPTY_KDNODE
 		if(!buildParams.kdHavran)
 #endif
@@ -952,7 +976,7 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 			typename BspTree::_TriInfo tri;
 			tri.setGeometry(t->leaf[i]->id,(Vec3*)&t->leaf[i]->vertex[0]->x,(Vec3*)&t->leaf[i]->vertex[1]->x,(Vec3*)&t->leaf[i]->vertex[2]->x);
 			assert(tri.getTriangleIndex()==t->leaf[i]->id);
-			fwrite(&tri,sizeof(tri),1,f);
+			WRITE(tri)
 			faces++;
 		}
 	}
@@ -980,18 +1004,42 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 #endif
 	if(transition)
 	{
-		if(t->front) if(!save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(f,t->front)) return false;
-		if(t->back) if(!save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(f,t->back)) return false;
+		if(t->front)
+		{
+			//WRITE_SUBTREE(save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(t->front,f,SUBTREE_M));
+			unsigned written = save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(t->front,f,SUBTREE_M);
+			if(!written) return 0;
+			relative += written;
+		}
+		if(t->back) 
+		{
+			//WRITE_SUBTREE(save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(t->back,f,SUBTREE_M)));
+			unsigned written = save_bsp<typename first_nonvoid<typename BspTree::_Lo,BspTree>::T>(t->back,f,SUBTREE_M);
+			if(!written) return 0;
+			relative += written;
+		}
 		// havran(->empty kdnodes) + transition not implemented
 		// luckily we use havran only in FASTEST which uses no transitions
 	} else {
-		if(t->front) if(!save_bsp IBP2(f,t->front)) return false;
+		if(t->front)
+		{
+			WRITE_SUBTREE(save_bsp IBP2(t->front,f,SUBTREE_M));
+		}
 #ifdef SUPPORT_EMPTY_KDNODE
-		if(t->kdroot && !t->front) if(!save_bsp IBP2(f,&empty)) return false;
+		if(t->kdroot && !t->front) 
+		{
+			WRITE_SUBTREE(save_bsp IBP2(&empty,f,SUBTREE_M));
+		}
 #endif
-		if(t->back) if(!save_bsp IBP2(f,t->back)) return false;
+		if(t->back) 
+		{
+			WRITE_SUBTREE(save_bsp IBP2(t->back,f,SUBTREE_M));
+		}
 #ifdef SUPPORT_EMPTY_KDNODE
-		if(t->kdroot && !t->back) if(!save_bsp IBP2(f,&empty)) return false;
+		if(t->kdroot && !t->back) 
+		{
+			WRITE_SUBTREE(save_bsp IBP2(&empty,f,SUBTREE_M));
+		}
 #endif
 	}
 #ifdef SUPPORT_EMPTY_KDNODE
@@ -1030,11 +1078,12 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 		typename BspTree::_TriInfo info;
 		info.setGeometry(t->plane[i]->id,(Vec3*)&t->plane[i]->vertex[0]->x,(Vec3*)&t->plane[i]->vertex[1]->x,(Vec3*)&t->plane[i]->vertex[2]->x);
 		if(info.getTriangleIndex()!=t->plane[i]->id) {assert(0);return false;}
-		fwrite(&info,sizeof(info),1,f);
+		WRITE(info);
 	}
 
 	// write back into empty space
-	unsigned pos2 = ftell(f);
+	unsigned pos1 = 0;
+	unsigned pos2 = TELL();
 	node.bsp.size = pos2-pos1;
 	if(node.bsp.size!=pos2-pos1) {assert(0);return false;}
 	node.setTransition(transition);
@@ -1047,10 +1096,10 @@ bool save_bsp(FILE *f, BSP_TREE *t)
 		node.bsp.back = t->back?1:0;
 		node.bsp.front = t->front?1:0;
 	}
-	fseek(f,pos1,SEEK_SET);
-	fwrite(&node,sizeof(node),1,f);
-	fseek(f,pos2,SEEK_SET);
-	return true;
+	SEEK(pos1);
+	WRITE(node);
+	SEEK(pos2);
+	return pos2;
 }
 
 static const FACE **make_list(OBJECT *o)
@@ -1103,32 +1152,55 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 }
 
 template IBP
-bool save_bsp(FILE *f, OBJECT *obj, BSP_TREE* bsp)
+unsigned save_bsp(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m)
 {
-	assert(f);
 	nodes=0; faces=0;
 
-	int i=ftell(f);
 	guess_size_bsp(bsp);
-	bool ok = save_bsp IBP2(f,bsp); 
+	unsigned savedBytes = save_bsp IBP2(bsp,f,m);
 	assert(faces==bsp->faces);
-	int j=ftell(f);
-	if(!obj->face_num) printf("\nBSP: No faces.\n"); else
-		printf("\nBSP nodes: %d+%d+%d(%1.1f) size: %d(%1.1f)\n",bsp->kdnodes,bsp->bspnodes,bsp->kdleaves,bsp->faces/(float)obj->face_num,j-i,(j-i)/(float)obj->face_num);
+	if(f || m)
+	{
+		if(!obj->face_num) printf("\nBSP: No faces.\n"); else
+			printf("\nBSP nodes: %d+%d+%d(%1.1f) size: %d(%1.1f)\n",bsp->kdnodes,bsp->bspnodes,bsp->kdleaves,bsp->faces/(float)obj->face_num,savedBytes,savedBytes/(float)obj->face_num);
+	}
 
-	return ok;
+	return savedBytes;
 }
 
 }; // BspBuilder
 
 template IBP
-bool createAndSaveBsp(FILE *f, OBJECT *obj, BuildParams* buildParams)
+bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m)
 {
+	// create
 	BspBuilder* builder = new BspBuilder();
 	assert(buildParams);
 	builder->buildParams = *buildParams;
 	BspBuilder::BSP_TREE* bsp = builder->create_bsp(obj,BspTree::allows_kd);
-	bool ok = builder->save_bsp IBP2(f, obj, bsp);
+
+	// save
+	bool ok;
+	if(m)
+	{
+		// save to memory
+		// get size
+		unsigned size = builder->save_bsp IBP2(obj, bsp, NULL, NULL);
+		ok = size!=0;
+		if(ok)
+		{
+			*m = malloc(size);
+			unsigned saved = builder->save_bsp IBP2(obj, bsp, NULL, *m);
+			assert(saved = size);
+		}
+	}
+	else
+	{
+		// save to file
+		ok = builder->save_bsp IBP2(obj, bsp, f, m)!=0;
+	}
+
+	// cleanup
 	builder->free_node(bsp);
 	delete builder;
 	return ok;
@@ -1136,9 +1208,9 @@ bool createAndSaveBsp(FILE *f, OBJECT *obj, BuildParams* buildParams)
 
 // explicit instantiation
 #define INSTANTIATE(BspTree) \
-	template bool BspBuilder::save_bsp<BspTree>(FILE *f, BSP_TREE *t);\
-	template bool BspBuilder::save_bsp<BspTree>(FILE *f, OBJECT *obj, BSP_TREE* bsp);\
-	template bool createAndSaveBsp    <BspTree>(FILE *f, OBJECT *obj, BuildParams* buildParams)
+	template unsigned BspBuilder::save_bsp<BspTree>(BSP_TREE* t, FILE* f, void* m);\
+	template unsigned BspBuilder::save_bsp<BspTree>(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m);\
+	template bool createAndSaveBsp<BspTree>(OBJECT* obj, BuildParams* buildParams, FILE* f, void** m)
 
 // single-level bsp
 INSTANTIATE(BspTree44);

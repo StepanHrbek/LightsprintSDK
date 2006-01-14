@@ -81,7 +81,7 @@ namespace rrCollider
 	};
 
 	template <class BspTree>
-	extern bool createAndSaveBsp(FILE *f, OBJECT *obj, BuildParams* buildParams);
+	extern bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m);
 }
 
 #endif
