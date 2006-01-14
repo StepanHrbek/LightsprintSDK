@@ -219,6 +219,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\GLTexture.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\GLTexture.h"
+			>
+		</File>
+		<File
 			RelativePath=".\ldmgf.cpp"
 			>
 		</File>
@@ -261,6 +269,14 @@
 		</File>
 		<File
 			RelativePath=".\mgf2rr.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Model_3DS.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Model_3DS.h"
 			>
 		</File>
 		<File

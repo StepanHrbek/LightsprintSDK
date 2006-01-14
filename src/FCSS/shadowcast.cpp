@@ -15,6 +15,15 @@
 #include "tga.h"      /* TGA image file loader routines */
 #include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
 
+//#define _3DS
+#ifdef _3DS
+#include "Model_3DS.h"
+#include "GLTexture.h"
+Model_3DS m3ds;
+char *filename_3ds="data\\sponza\\sponza.3ds";
+//char *filename_3ds="data\\raist\\koupelna2.3ds";
+#endif
+
 #define MAX_SIZE 1024
 
 /* Texture objects. */
@@ -207,12 +216,12 @@ int maxRectangleTextureSize = 0;
 
 double winAspectRatio;
 
-GLdouble eyeFieldOfView = 40.0;
+GLdouble eyeFieldOfView = 100.0;
 GLdouble eyeNear = 0.3;
 GLdouble eyeFar = 60.0;
-GLdouble lightFieldOfView = 50.0;
-GLdouble lightNear = 2.0;
-GLdouble lightFar = 24.0;
+GLdouble lightFieldOfView = 80.0;
+GLdouble lightNear = 1.0;
+GLdouble lightFar = 20.0;
 
 GLdouble eyeViewMatrix[16];
 GLdouble eyeFrustumMatrix[16];
@@ -592,6 +601,11 @@ drawSphere(void)
 void
 drawObjectConfiguration(void)
 {
+#ifdef _3DS
+  m3ds.Draw();
+  return;
+#endif
+
   switch (objectConfiguration) {
   case OC_MGF:
   default:
@@ -629,17 +643,17 @@ drawLight(void)
 void
 updateMatrices(void)
 {
-  ed[0]=15*sin(eyeAngle);
-  ed[1]=eyeHeight;
-  ed[2]=15*cos(eyeAngle);
+  ed[0]=3*sin(eyeAngle);
+  ed[1]=0.3*eyeHeight;
+  ed[2]=3*cos(eyeAngle);
   buildLookAtMatrix(eyeViewMatrix,
-    15*sin(eyeAngle), eyeHeight, 15*cos(eyeAngle),
+    ed[0], ed[1], ed[2],
     0, 3, 0,
     0, 1, 0);
   
-  lv[0] = 4 * sin(lightAngle);
-  lv[1] = 0.5 * lightHeight + 3;
-  lv[2] = 4 * cos(lightAngle);
+  lv[0] = sin(lightAngle);
+  lv[1] = 0.15 * lightHeight + 3;
+  lv[2] = cos(lightAngle);
   lv[3] = 1.0;
 
   buildLookAtMatrix(lightViewMatrix,
@@ -2024,7 +2038,7 @@ capturePrimary()
 				unsigned y = (j * rrspot->height / height) % rrspot->height;
 				unsigned ofs = (x+y*rrspot->width)*rrspot->components;
 				for(unsigned c=0;c<3;c++)
-					pixelPower.m[c] *= rrspot->pixels[ofs+((rrspot->components==1)?0:c)];
+					pixelPower.m[c] *= rrspot->pixels[ofs+((rrspot->components==1)?0:(2-c))];
 			}
 
 			for(unsigned c=0;c<3;c++)
@@ -2817,7 +2831,7 @@ keyboard(unsigned char c, int x, int y)
     break;
   case 'z':
   case 'Z':
-    eyeFieldOfView = (eyeFieldOfView == 40.0) ? 20.0 : 40.0;
+    eyeFieldOfView = (eyeFieldOfView == 100.0) ? 50.0 : 100.0;
     buildPerspectiveMatrix(eyeFrustumMatrix,
       eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
     break;
@@ -3225,7 +3239,7 @@ loadTextures(void)
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   glBindTexture(GL_TEXTURE_2D, TO_SPOT);
-  rrspot = loadTextureDecalImage("spot0.tga", 1);
+  rrspot = loadTextureDecalImage("spot3.tga", 1);
   textureSpot = rrspot!=NULL;
   useBestShadowMapClamping(GL_TEXTURE_2D);
 }
@@ -3261,7 +3275,7 @@ motion(int x, int y)
     eyeAngle = eyeAngle - 0.005*(x - xEyeBegin);
     eyeHeight = eyeHeight + 0.15*(y - yEyeBegin);
     if (eyeHeight > 20.0) eyeHeight = 20.0;
-    if (eyeHeight < -12.0) eyeHeight = -12.0;
+    if (eyeHeight < -0.0) eyeHeight = -0.0;
     xEyeBegin = x;
     yEyeBegin = y;
     needMatrixUpdate = 1;
@@ -3517,6 +3531,10 @@ main(int argc, char **argv)
   initGL();
   loadTextures();
 
+#ifdef _3DS
+  m3ds.Load(filename_3ds);
+#endif
+
  rrCollider::registerLicense(
 	 "Illusion Softworks, a.s.",
 	 "DDEFMGDEFFBFFHJOCLBCFPMNHKENKPJNHDJFGKLCGEJFEOBMDC"
@@ -3542,6 +3560,7 @@ main(int argc, char **argv)
 	case rrVision::UNAVAILABLE: printf("Temporarily unable to verify license, quit and try later.\n"); break;
  }
 	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);

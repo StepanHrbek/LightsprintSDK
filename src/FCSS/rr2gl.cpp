@@ -138,9 +138,13 @@ void rr2gl_draw_colored()
 			{
 				const rrVision::RRColor* indirect = radiositySolver->getTriangleRadiantExitance(0,triangleIdx,v);
 				GLfloat emission2[4];
-				emission2[0] = emission[0] + indirect->m[0];
-				emission2[1] = emission[1] + indirect->m[1];
-				emission2[2] = emission[2] + indirect->m[2];
+				// hide emission from mgf
+				//emission2[0] = emission[0] + indirect->m[0];
+				//emission2[1] = emission[1] + indirect->m[1];
+				//emission2[2] = emission[2] + indirect->m[2];
+				emission2[0] = indirect->m[0];
+				emission2[1] = indirect->m[1];
+				emission2[2] = indirect->m[2];
 				emission2[3] = 0;
 				glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission2);
 			}
