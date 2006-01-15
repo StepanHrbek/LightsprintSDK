@@ -1,3 +1,8 @@
+//mozne zrychleni soft shadows = pro instance pocitat jen viditelnost
+// material aplikovat az v poslednim pasu ktery zaroven pricte emisi
+// * ADD, pro instance pocitat jen viditelnost
+// * BLEND, out = buffer * diffuse_utlum_atd + (emission+indirect) * 1
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>

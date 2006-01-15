@@ -11,7 +11,8 @@
 
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
 bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
-bool  COMPILE=0; // use display lists
+bool  COMPILE=1; // use display lists
+bool  COMPILE_INDIRECT=1; // use display lists also for indirect
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -96,7 +97,11 @@ unsigned rr2gl_draw_indexed()
 
 void rr2gl_draw_colored(bool direct)
 {
-	if(rr2gl_compiled && direct) {glCallList(direct?COLORED_DIRECT:COLORED_INDIRECT);return;}
+	if(rr2gl_compiled && (direct || COMPILE_INDIRECT)) 
+	{
+		glCallList(direct?COLORED_DIRECT:COLORED_INDIRECT);
+		return;
+	}
 
 	glShadeModel(GL_SMOOTH);
 
@@ -107,7 +112,6 @@ void rr2gl_draw_colored(bool direct)
 	glBegin(GL_TRIANGLES);
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
-	GLfloat emission[4];
 	for(unsigned triangleIdx=0;triangleIdx<numTriangles;triangleIdx++)
 	{
 		rrCollider::RRMeshImporter::Triangle tri;
@@ -153,14 +157,15 @@ void rr2gl_recompile()
 {
 	if(rr2gl_compiled) 
 	{
-		/*
 		// next time: recompile colored indirect, others can't change
-		rr2gl_compiled=false;
-		glNewList(COLORED_INDIRECT,GL_COMPILE);
-		rr2gl_draw_colored_indirect();
-		glEndList();
-		rr2gl_compiled=true;
-		*/
+		if(COMPILE_INDIRECT)
+		{
+			rr2gl_compiled=false;
+			glNewList(COLORED_INDIRECT,GL_COMPILE);
+			rr2gl_draw_colored(false);
+			glEndList();
+			rr2gl_compiled=true;
+		}
 	}
 	else
 	{
@@ -169,9 +174,12 @@ void rr2gl_recompile()
 		glNewList(COLORED_DIRECT,GL_COMPILE);
 		rr2gl_draw_colored(true);
 		glEndList();
-		//glNewList(COLORED_INDIRECT,GL_COMPILE);
-		//rr2gl_draw_colored(false);
-		//glEndList();
+		if(COMPILE_INDIRECT)
+		{
+			glNewList(COLORED_INDIRECT,GL_COMPILE);
+			rr2gl_draw_colored(false);
+			glEndList();
+		}
 		glNewList(ONLYZ,GL_COMPILE);
 		rr2gl_draw_onlyz();
 		glEndList();
