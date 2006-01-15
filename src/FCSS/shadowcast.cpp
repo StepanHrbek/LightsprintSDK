@@ -34,7 +34,7 @@ using namespace std;
 //
 // 3DS
 
-//#define _3DS
+#define _3DS
 #ifdef _3DS
 #include "Model_3DS.h"
 #include "GLTexture.h"
@@ -49,7 +49,7 @@ char *filename_3ds="data\\sponza\\sponza.3ds";
 // GLSL
 
 #define MAX_INSTANCES 200 // max number of light instances aproximating one area light
-GLSLProgram *shadowProg, *lightProg, *indexedProg;
+GLSLProgram *shadowProg, *shadowDifMProg, *lightProg, *indexedProg;
 Texture *lightTex;
 FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
@@ -84,6 +84,7 @@ void updateShadowTex()
 void initShaders()
 {
 	shadowProg = new GLSLProgram("shaders\\shadow.vp", "shaders\\shadow.fp");
+	shadowDifMProg = new GLSLProgram("shaders\\shadow_DifM.vp", "shaders\\shadow_DifM.fp");
 	lightProg = new GLSLProgram("shaders\\light.vp");
 	indexedProg = new GLSLProgram("shaders\\indexed.vp", "shaders\\indexed.fp");
 }
@@ -557,15 +558,20 @@ void drawHardwareShadowPass(void)
 
 	setLightIntensity();
 
-	shadowProg->useIt();
+#ifdef _3DS
+	GLSLProgram* myProg = shadowDifMProg;
+#else
+	GLSLProgram* myProg = shadowProg;
+#endif
+	myProg->useIt();
 
 	activateTexture(GL_TEXTURE1_ARB, GL_TEXTURE_2D);
 	lightTex->bindTexture();
-	shadowProg->sendUniform("lightTex", 1);
+	myProg->sendUniform("lightTex", 1);
 
 	activateTexture(GL_TEXTURE0_ARB, GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, shadowTex[(softLight>=0)?softLight:0]);
-	shadowProg->sendUniform("shadowMap", 0);
+	myProg->sendUniform("shadowMap", 0);
 
 	glMatrixMode(GL_TEXTURE);
 	glLoadMatrixd(lightFrustumMatrix);
@@ -574,6 +580,11 @@ void drawHardwareShadowPass(void)
 	invertMatrix(eyeInverseViewMatrix,eyeViewMatrix);
 	glMultMatrixd(eyeInverseViewMatrix);
 	glMatrixMode(GL_MODELVIEW);
+
+#ifdef _3DS
+	activateTexture(GL_TEXTURE2_ARB, GL_TEXTURE_2D);
+	myProg->sendUniform("diffuseTex", 2);
+#endif
 
 	drawScene();
 
@@ -684,7 +695,7 @@ void drawEyeViewSoftShadowed(void)
 		ambientPower=oldAmbientPower;
 	}
 
-	// add indirect
+	/*/ add indirect
 	glDisable(GL_LIGHTING);
 	glBlendFunc(GL_ONE,GL_ONE);
 	glEnable(GL_BLEND);
@@ -693,6 +704,7 @@ void drawEyeViewSoftShadowed(void)
 	drawScene();
 	drawDirect = true;
 	glDisable(GL_BLEND);
+	*/
 }
 
 void

@@ -75,7 +75,7 @@
 #define warn( x )  message( __FILE__LINE__ #x "\n" ) 
 
 // You need to uncomment this if you are using MFC
-#pragma warn( You need to uncomment this if you are using MFC )
+//#pragma warn( You need to uncomment this if you are using MFC )
 //#include "stdafx.h"
 
 #include "Model_3DS.h"
@@ -278,7 +278,7 @@ void Model_3DS::Draw()
 {
 	if (visible)
 	{
-	glPushMatrix();
+/*	glPushMatrix();
 
 		// Move the model
 		glTranslatef(pos.x, pos.y, pos.z);
@@ -289,7 +289,7 @@ void Model_3DS::Draw()
 		glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
 
 		glScalef(scale, scale, scale);
-
+*/
 		// Loop through the objects
 		for (int i = 0; i < numObjects; i++)
 		{
@@ -312,7 +312,7 @@ void Model_3DS::Draw()
 			{
 				// Use the material's texture
 				Materials[Objects[i].MatFaces[j].MatIndex].tex.Use();
-
+/*
 				glPushMatrix();
 
 					// Move the model
@@ -326,13 +326,13 @@ void Model_3DS::Draw()
 					glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
 					glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
 					glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);
-
+*/
 					// Draw the faces using an index to the vertex array
 					glDrawElements(GL_TRIANGLES, Objects[i].MatFaces[j].numSubFaces, GL_UNSIGNED_SHORT, Objects[i].MatFaces[j].subFaces);
 
-				glPopMatrix();
+//				glPopMatrix();
 			}
-
+/*
 			// Show the normals?
 			if (shownormals)
 			{
@@ -360,10 +360,14 @@ void Model_3DS::Draw()
 						glEnable(GL_LIGHTING);
 				}
 			}
+*/
 		}
 
-	glPopMatrix();
+//	glPopMatrix();
 	}
+	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	//glDisableClientState(GL_NORMAL_ARRAY);
+	//glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void Model_3DS::CalculateNormals()
