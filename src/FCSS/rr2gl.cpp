@@ -114,19 +114,22 @@ void rr2gl_draw_colored(bool direct)
 			rrVision::RRSurface* surface = objectImporter->getSurface(surfaceIdx);
 			assert(surface);
 			if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-			emission[0] = 0;
+			/*emission[0] = 0;
 			emission[1] = 0;
 			emission[2] = 0;
-			emission[3] = 0;
+			emission[3] = 1;
 			// hide emission from mgf
 			emission[0] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[0];
 			emission[1] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[1];
 			emission[2] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[2];
-			glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission);
+			glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission);*/
 			GLfloat diffuse[4] = {surface->diffuseReflectanceColor.m[0],surface->diffuseReflectanceColor.m[1],surface->diffuseReflectanceColor.m[2],1};
 			glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
-			GLfloat specular[4] = {surface->specularReflectance,surface->specularReflectance,surface->specularReflectance,1};
-			glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,specular);
+			/*GLfloat specular[4] = {surface->specularReflectance,surface->specularReflectance,surface->specularReflectance,1};
+			glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,specular);*/
+			// reload uniform material properties
+			glEnd();
+			glBegin(GL_TRIANGLES);
 		}
 		if(!NORMALS) 
 		{
@@ -151,9 +154,12 @@ void rr2gl_draw_colored(bool direct)
 					emission2[0] = emission[0] + indirect->m[0];
 					emission2[1] = emission[1] + indirect->m[1];
 					emission2[2] = emission[2] + indirect->m[2];
-					emission2[3] = 0;
+					emission2[3] = 1;
 					glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission2);
 				}
+				// reload uniform material properties
+				glEnd();
+				glBegin(GL_TRIANGLES);
 			}
 
 			glVertex3fv(vertex.m);
