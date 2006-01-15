@@ -73,8 +73,8 @@ void updateShadowTex()
 
 void initShaders()
 {
-	shadowProg = new GLSLProgram("shadow.vp", "shadow.fp");
-	lightProg = new GLSLProgram("light.vp");
+	shadowProg = new GLSLProgram("shaders\\shadow.vp", "shaders\\shadow.fp");
+	lightProg = new GLSLProgram("shaders\\light.vp");
 }
 
 void glsl_init()
@@ -112,20 +112,9 @@ void activateTexture(unsigned int textureUnit, unsigned int textureType)
 /* Texture objects. */
 enum {
   TO_RESERVED = 0,             /* zero is not a valid OpenGL texture object ID */
-  TO_MAP_8BIT,                 /* 1D identity texture, s := [0,255] range */
-  TO_MAP_16BIT,                /* 2D identity texture, s*256+t := [0,65535] range */
   TO_DEPTH_MAP,                /* high resolution depth map for shadow mapping */
-  TO_LOWRES_DEPTH_MAP,         /* low resolution depth map for shadow mapping */
-  TO_DEPTH_MAP_RECT,           /* high resolution depth map for shadow mapping */
-  TO_LOWRES_DEPTH_MAP_RECT,    /* low resolution depth map for shadow mapping */
   TO_HW_DEPTH_MAP,             /* high resolution hardware depth map for shadow
                                   mapping */
-  TO_LOWRES_HW_DEPTH_MAP,      /* low resolution hardware depth map for shadow
-                                  mapping */
-  TO_HW_DEPTH_MAP_RECT,        /* high resolution hardware rectangular depth map
-                                  for shadow mapping */
-  TO_LOWRES_HW_DEPTH_MAP_RECT, /* low resolution hardware rectangular depth map
-                                  for shadow mapping */
   TO_SPOT,
   TO_SOFT_DEPTH_MAP            /* TO_SOFT_DEPTH_MAP+n = depth map for n-th light */
 };
@@ -292,7 +281,7 @@ float rrtimestep;
 #define PER_SEC CLOCKS_PER_SEC
 static bool endByTime(void *context)
 {
- return GETTIME>(TIME)(intptr_t)context;
+	return GETTIME>(TIME)(intptr_t)context;
 }
 
 
@@ -301,60 +290,55 @@ static bool endByTime(void *context)
 
 static int supports20(void)
 {
-  const char *version;
-  int major, minor;
+	const char *version;
+	int major, minor;
 
-  version = (char *) glGetString(GL_VERSION);
-  if (sscanf(version, "%d.%d", &major, &minor) == 2) {
-    return major>=2;
-  }
-  return 0;            /* OpenGL version string malformed! */
+	version = (char *) glGetString(GL_VERSION);
+	if (sscanf(version, "%d.%d", &major, &minor) == 2) {
+		return major>=2;
+	}
+	return 0;            /* OpenGL version string malformed! */
 }
 
 /* updateTitle - update the window's title bar text based on the current
    program state. */
-void
-updateTitle(void)
+void updateTitle(void)
 {
-  char title[256];
-  char *modeName;
-  int depthBits;
+	char title[256];
+	char *modeName;
+	int depthBits;
 
-  /* Only update the title is needTitleUpdate is set. */
-  if (needTitleUpdate) {
-    switch (drawMode) {
-    case DM_LIGHT_VIEW:
-      modeName = "light view";
-    case DM_EYE_VIEW_SHADOWED:
-      modeName = "eye view with shadows";
-      break;
-    case DM_EYE_VIEW_SOFTSHADOWED:
-      modeName = "eye view with soft shadows";
-      break;
-    default:
-      assert(0);
-      break;
-    }
-	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-    sprintf(title,
-      "shadowcast - %s (%dx%d %d-bit) depthBias=%d, slopeScale=%f, filter=%s",
-      modeName, depthMapSize, depthMapSize, depthBits, depthBias24 * depthScale24, slopeScale,
-      ((hwDepthMapFiltering == GL_LINEAR)) ? "LINEAR" : "NEAREST");
-    glutSetWindowTitle(title);
-    needTitleUpdate = 0;
-  }
+	/* Only update the title is needTitleUpdate is set. */
+	if (needTitleUpdate) {
+		switch (drawMode) {
+	case DM_LIGHT_VIEW:
+		modeName = "light view";
+	case DM_EYE_VIEW_SHADOWED:
+		modeName = "eye view with shadows";
+		break;
+	case DM_EYE_VIEW_SOFTSHADOWED:
+		modeName = "eye view with soft shadows";
+		break;
+	default:
+		assert(0);
+		break;
+		}
+		glGetIntegerv(GL_DEPTH_BITS, &depthBits);
+		sprintf(title,
+			"shadowcast - %s (%dx%d %d-bit) depthBias=%d, slopeScale=%f, filter=%s",
+			modeName, depthMapSize, depthMapSize, depthBits, depthBias24 * depthScale24, slopeScale,
+			((hwDepthMapFiltering == GL_LINEAR)) ? "LINEAR" : "NEAREST");
+		glutSetWindowTitle(title);
+		needTitleUpdate = 0;
+	}
 }
-
-GLfloat Ka[4];
-GLfloat globalAmbientIntensity[4] = { 0.2, 0.2, 0.2, 1.0 };
 
 
 /*** DRAW VARIOUS SCENES ***/
 
-static void
-drawSphere(void)
+static void drawSphere(void)
 {
-  gluSphere(q, 0.55, 16, 16);
+	gluSphere(q, 0.55, 16, 16);
 }
 
 
@@ -381,154 +365,146 @@ void drawScene()
 
 /* drawLight - draw a yellow sphere (disabling lighting) to represent
    the current position of the local light source. */
-void
-drawLight(void)
+void drawLight(void)
 {
-  glPushMatrix();
-    glTranslatef(lv[0], lv[1], lv[2]);
-    glDisable(GL_LIGHTING);
-    glColor3f(1,1,0);
-    gluSphere(q, 0.05, 10, 10);
-    glEnable(GL_LIGHTING);
-  glPopMatrix();
+	glPushMatrix();
+	glTranslatef(lv[0], lv[1], lv[2]);
+	glDisable(GL_LIGHTING);
+	glColor3f(1,1,0);
+	gluSphere(q, 0.05, 10, 10);
+	glEnable(GL_LIGHTING);
+	glPopMatrix();
 }
 
-void
-updateMatrices(void)
+void updateMatrices(void)
 {
-  ed[0]=3*sin(eyeAngle);
-  ed[1]=0.3*eyeHeight;
-  ed[2]=3*cos(eyeAngle);
-  buildLookAtMatrix(eyeViewMatrix,
-    ed[0], ed[1], ed[2],
-    0, 3, 0,
-    0, 1, 0);
-  //glTranslatef(eye_shift[0],eye_shift[1],eye_shift[2]);
-  
-  lv[0] = 2*sin(lightAngle);
-  lv[1] = 0.15 * lightHeight + 3;
-  lv[2] = 2*cos(lightAngle);
-  lv[3] = 1.0;
+	ed[0]=3*sin(eyeAngle);
+	ed[1]=0.3*eyeHeight;
+	ed[2]=3*cos(eyeAngle);
+	buildLookAtMatrix(eyeViewMatrix,
+		ed[0], ed[1], ed[2],
+		0, 3, 0,
+		0, 1, 0);
+	//glTranslatef(eye_shift[0],eye_shift[1],eye_shift[2]);
 
-  buildLookAtMatrix(lightViewMatrix,
-    lv[0], lv[1], lv[2],
-    0, 3, 0,
-    0, 1, 0);
+	lv[0] = 2*sin(lightAngle);
+	lv[1] = 0.15 * lightHeight + 3;
+	lv[2] = 2*cos(lightAngle);
+	lv[3] = 1.0;
 
-  buildPerspectiveMatrix(lightFrustumMatrix, 
-    lightFieldOfView, 1.0, lightNear, lightFar);
+	buildLookAtMatrix(lightViewMatrix,
+		lv[0], lv[1], lv[2],
+		0, 3, 0,
+		0, 1, 0);
 
-  if (showLightViewFrustum) {
-    invertMatrix(lightInverseViewMatrix, lightViewMatrix);
-    invertMatrix(lightInverseFrustumMatrix, lightFrustumMatrix);
-  }
+	buildPerspectiveMatrix(lightFrustumMatrix, 
+		lightFieldOfView, 1.0, lightNear, lightFar);
+
+	if (showLightViewFrustum) {
+		invertMatrix(lightInverseViewMatrix, lightViewMatrix);
+		invertMatrix(lightInverseFrustumMatrix, lightFrustumMatrix);
+	}
 }
 
-void
-setupEyeView(void)
+void setupEyeView(void)
 {
-  glMatrixMode(GL_PROJECTION);
-  glLoadMatrixd(eyeFrustumMatrix);
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixd(eyeFrustumMatrix);
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadMatrixd(eyeViewMatrix);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixd(eyeViewMatrix);
 }
 
 /* drawShadowMapFrustum - Draw dashed lines around the light's view
    frustum to help visualize the region captured by the depth map. */
-void
-drawShadowMapFrustum(void)
+void drawShadowMapFrustum(void)
 {
-  /* Go from light clip space, ie. the cube [-1,1]^3, to world space by
-     transforming each clip space cube corner by the inverse of the light
-     frustum transform, then by the inverse of the light view transform.
-     This results in world space coordinate that can then be transformed
-     by the eye view transform and eye projection matrix and on to the
-     screen. */
-  if (showLightViewFrustum) {
-    glEnable(GL_LINE_STIPPLE);
-    glPushMatrix();
-      glMultMatrixd(lightInverseViewMatrix);
-      glMultMatrixd(lightInverseFrustumMatrix);
-      glDisable(GL_LIGHTING);
-      glColor3f(1,1,1);
-      /* Draw a wire frame cube with vertices at the corners
-         of clip space.  Draw the top square, drop down to the
-         bottom square and finish it, then... */
-      glBegin(GL_LINE_STRIP);
-        glVertex3f(1,1,1);
-        glVertex3f(1,1,-1);
-        glVertex3f(-1,1,-1);
-        glVertex3f(-1,1,1);
-        glVertex3f(1,1,1);
-        glVertex3f(1,-1,1);
-        glVertex3f(-1,-1,1);
-        glVertex3f(-1,-1,-1);
-        glVertex3f(1,-1,-1);
-        glVertex3f(1,-1,1);
-      glEnd();
-      /* Draw the final three line segments connecting the top
-         and bottom squares. */
-      glBegin(GL_LINES);
-        glVertex3f(1,1,-1);
-        glVertex3f(1,-1,-1);
+	/* Go from light clip space, ie. the cube [-1,1]^3, to world space by
+	transforming each clip space cube corner by the inverse of the light
+	frustum transform, then by the inverse of the light view transform.
+	This results in world space coordinate that can then be transformed
+	by the eye view transform and eye projection matrix and on to the
+	screen. */
+	if (showLightViewFrustum) {
+		glEnable(GL_LINE_STIPPLE);
+		glPushMatrix();
+		glMultMatrixd(lightInverseViewMatrix);
+		glMultMatrixd(lightInverseFrustumMatrix);
+		glDisable(GL_LIGHTING);
+		glColor3f(1,1,1);
+		/* Draw a wire frame cube with vertices at the corners
+		of clip space.  Draw the top square, drop down to the
+		bottom square and finish it, then... */
+		glBegin(GL_LINE_STRIP);
+		glVertex3f(1,1,1);
+		glVertex3f(1,1,-1);
+		glVertex3f(-1,1,-1);
+		glVertex3f(-1,1,1);
+		glVertex3f(1,1,1);
+		glVertex3f(1,-1,1);
+		glVertex3f(-1,-1,1);
+		glVertex3f(-1,-1,-1);
+		glVertex3f(1,-1,-1);
+		glVertex3f(1,-1,1);
+		glEnd();
+		/* Draw the final three line segments connecting the top
+		and bottom squares. */
+		glBegin(GL_LINES);
+		glVertex3f(1,1,-1);
+		glVertex3f(1,-1,-1);
 
-        glVertex3f(-1,1,-1);
-        glVertex3f(-1,-1,-1);
+		glVertex3f(-1,1,-1);
+		glVertex3f(-1,-1,-1);
 
-        glVertex3f(-1,1,1);
-        glVertex3f(-1,-1,1);
-      glEnd();
-      glEnable(GL_LIGHTING);
-    glPopMatrix();
-    glDisable(GL_LINE_STIPPLE);
-  }
+		glVertex3f(-1,1,1);
+		glVertex3f(-1,-1,1);
+		glEnd();
+		glEnable(GL_LIGHTING);
+		glPopMatrix();
+		glDisable(GL_LINE_STIPPLE);
+	}
 }
 
-void
-setupLightView(int square)
+void setupLightView(int square)
 {
-  glMatrixMode(GL_PROJECTION);
-  if (square) {
-    glLoadMatrixd(lightFrustumMatrix);
-  } else {
-    glLoadIdentity();
-    glScalef(winAspectRatio, 1, 1);
-    glMultMatrixd(lightFrustumMatrix);
-  }
+	glMatrixMode(GL_PROJECTION);
+	if (square) {
+		glLoadMatrixd(lightFrustumMatrix);
+	} else {
+		glLoadIdentity();
+		glScalef(winAspectRatio, 1, 1);
+		glMultMatrixd(lightFrustumMatrix);
+	}
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadMatrixd(lightViewMatrix);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixd(lightViewMatrix);
 }
 
-void
-drawLightView(void)
+void drawLightView(void)
 {
-  glLightfv(GL_LIGHT0, GL_POSITION, lv);
-  drawScene();
+	glLightfv(GL_LIGHT0, GL_POSITION, lv);
+	drawScene();
 }
 
-void
-useBestShadowMapClamping(GLenum target)
+void useBestShadowMapClamping(GLenum target)
 {
-  if (hasTextureBorderClamp) {
-    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_ARB);
-    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_ARB);
-  } else {
-    /* We really want "clamp to border", but this may be good enough. */
-    if (hasTextureEdgeClamp) {
-      glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    } else {
-      /* A bad option, but still better than "repeat". */
-      glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP);
-      glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    }
-  }
+	if (hasTextureBorderClamp) {
+		glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_ARB);
+		glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_ARB);
+	} else {
+		/* We really want "clamp to border", but this may be good enough. */
+		if (hasTextureEdgeClamp) {
+			glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		} else {
+			/* A bad option, but still better than "repeat". */
+			glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		}
+	}
 }
 
-void
-updateDepthMap(void)
+void updateDepthMap(void)
 {
 	//if(!needDepthMapUpdate) return;
 
@@ -553,64 +529,156 @@ updateDepthMap(void)
 	if(softLight<0 || softLight==useLights-1) needDepthMapUpdate = 0;
 }
 
-void
-setLightIntensity()
+void setLightIntensity()
 {
-  GLfloat col[4]={lightColor[0]*globalIntensity,lightColor[1]*globalIntensity,lightColor[2]*globalIntensity,lightColor[3]*globalIntensity};
-  glLightfv(GL_LIGHT0, GL_AMBIENT, zero);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, col);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
+	GLfloat col[4]={lightColor[0]*globalIntensity,lightColor[1]*globalIntensity,lightColor[2]*globalIntensity,lightColor[3]*globalIntensity};
+	glLightfv(GL_LIGHT0, GL_AMBIENT, zero);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, col);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
 }
 
-void
-drawHardwareShadowPass(void)
+void drawHardwareShadowPass(void)
 {
-  glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zero);
+	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zero);
 
-  setLightIntensity();
+	setLightIntensity();
 
-  shadowProg->useIt();
+	shadowProg->useIt();
 
-  activateTexture(GL_TEXTURE1_ARB, GL_TEXTURE_2D);
-  lightTex->bindTexture();
-  shadowProg->sendUniform("lightTex", 1);
+	activateTexture(GL_TEXTURE1_ARB, GL_TEXTURE_2D);
+	lightTex->bindTexture();
+	shadowProg->sendUniform("lightTex", 1);
 
-  activateTexture(GL_TEXTURE0_ARB, GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, shadowTex);
-  shadowProg->sendUniform("shadowMap", 0);
+	activateTexture(GL_TEXTURE0_ARB, GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, shadowTex);
+	shadowProg->sendUniform("shadowMap", 0);
 
-  glMatrixMode(GL_TEXTURE);
-  glLoadMatrixd(lightFrustumMatrix);
-  glMultMatrixd(lightViewMatrix);
-  GLdouble eyeInverseViewMatrix[16];
-  invertMatrix(eyeInverseViewMatrix,eyeViewMatrix);
-  glMultMatrixd(eyeInverseViewMatrix);
-  glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_TEXTURE);
+	glLoadMatrixd(lightFrustumMatrix);
+	glMultMatrixd(lightViewMatrix);
+	GLdouble eyeInverseViewMatrix[16];
+	invertMatrix(eyeInverseViewMatrix,eyeViewMatrix);
+	glMultMatrixd(eyeInverseViewMatrix);
+	glMatrixMode(GL_MODELVIEW);
 
-  drawScene();
+	drawScene();
 
-  glActiveTextureARB(GL_TEXTURE0_ARB);
+	glActiveTextureARB(GL_TEXTURE0_ARB);
 }
 
-void
-drawEyeViewShadowed(int clear)
+void drawEyeViewShadowed(int clear)
 {
-  if (softLight<0) updateDepthMap();
+	if (softLight<0) updateDepthMap();
 
-  if (clear) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (clear) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  if (wireFrame) {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  }
+	if (wireFrame) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
 
-  setupEyeView();
-  glLightfv(GL_LIGHT0, GL_POSITION, lv);
+	setupEyeView();
+	glLightfv(GL_LIGHT0, GL_POSITION, lv);
 
-  drawHardwareShadowPass();
+	drawHardwareShadowPass();
 
-  drawLight();
-  drawShadowMapFrustum();
+	drawLight();
+	drawShadowMapFrustum();
+}
+
+void placeSoftLight(int n)
+{
+	softLight=n;
+	static float oldLightAngle,oldLightHeight;
+	if(n==-1) { // init, before all
+		oldLightAngle=lightAngle;
+		oldLightHeight=lightHeight;
+		glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 1);
+		glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90); // no light behind spotlight
+		//glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
+		glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.5);
+		return;
+	}
+	if(n==-2) { // done, after all
+		lightAngle=oldLightAngle;
+		lightHeight=oldLightHeight;
+		updateMatrices();
+		return;
+	}
+	// place one point light approximating part of area light
+	if(useLights>1) {
+		switch(areaType) {
+	  case 0: // linear
+		  lightAngle=oldLightAngle+0.2*(n/(useLights-1.)-0.5);
+		  lightHeight=oldLightHeight-0.4*n/useLights;
+		  break;
+	  case 1: // rectangular
+		  {int q=(int)sqrtf(useLights-1)+1;
+		  lightAngle=oldLightAngle+0.1*(n/q/(q-1.)-0.5);
+		  lightHeight=oldLightHeight+(n%q/(q-1.)-0.5);}
+		  break;
+	  case 2: // circular
+		  lightAngle=oldLightAngle+sin(n*2*3.14159/useLights)/20;
+		  lightHeight=oldLightHeight+cos(n*2*3.14159/useLights)/2;
+		  break;
+		}
+		updateMatrices();
+	}
+	GLfloat ld[3]={-lv[0],-lv[1],-lv[2]};
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, ld);
+}
+
+void drawEyeViewSoftShadowed(void)
+{
+	int i;
+	int oldAmbientPower=ambientPower;
+	placeSoftLight(-1);
+	for(i=0;i<useLights;i++)
+	{
+		placeSoftLight(i);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		updateDepthMap();
+	}
+	if(useAccum) {
+		glClear(GL_ACCUM_BUFFER_BIT);
+	} else {
+		globalIntensity=0;
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		setupEyeView();
+		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zero);
+		setLightIntensity();
+		drawScene();
+		globalIntensity=1./useLights;
+		ambientPower=0;
+		glBlendFunc(GL_ONE,GL_ONE);
+		glEnable(GL_BLEND);
+	}
+	for(i=0;i<useLights;i++)
+	{
+		placeSoftLight(i);
+		drawEyeViewShadowed(useAccum);
+		if(useAccum) {
+			glAccum(GL_ACCUM,1./useLights);
+		}
+	}
+	placeSoftLight(-2);
+	if(useAccum) {
+		glAccum(GL_RETURN,1);
+	} else {  
+		glDisable(GL_BLEND);
+		globalIntensity=1;
+		ambientPower=oldAmbientPower;
+	}
+
+	/*/ add indirect
+	glDisable(GL_LIGHTING);
+	glBlendFunc(GL_ONE,GL_ONE);
+	glEnable(GL_BLEND);
+	drawDirect = false;
+	drawScene();
+	drawDirect = true;
+	glDisable(GL_BLEND);*/
 }
 
 void
@@ -642,31 +710,31 @@ capturePrimary()
 			trianglePower[i].m[c]=0;
 	unsigned pixel = 0;
 	for(unsigned j=0;j<height;j++)
-	for(unsigned i=0;i<width;i++)
-	{
-		unsigned index = indexBuffer[pixel] >> 8; // alpha was lost
-		if(index<numTriangles)
+		for(unsigned i=0;i<width;i++)
 		{
-			rrVision::RRColor pixelPower = {1,1,1};
-			// modulate by spotmap
-			if(rrspot)
+			unsigned index = indexBuffer[pixel] >> 8; // alpha was lost
+			if(index<numTriangles)
 			{
-				unsigned x = (i * rrspot->width / width) % rrspot->width;
-				unsigned y = (j * rrspot->height / height) % rrspot->height;
-				unsigned ofs = (x+y*rrspot->width)*rrspot->components;
-				for(unsigned c=0;c<3;c++)
-					pixelPower.m[c] *= rrspot->pixels[ofs+((rrspot->components==1)?0:(2-c))];
-			}
+				rrVision::RRColor pixelPower = {1,1,1};
+				// modulate by spotmap
+				if(rrspot)
+				{
+					unsigned x = (i * rrspot->width / width) % rrspot->width;
+					unsigned y = (j * rrspot->height / height) % rrspot->height;
+					unsigned ofs = (x+y*rrspot->width)*rrspot->components;
+					for(unsigned c=0;c<3;c++)
+						pixelPower.m[c] *= rrspot->pixels[ofs+((rrspot->components==1)?0:(2-c))];
+				}
 
-			for(unsigned c=0;c<3;c++)
-				trianglePower[index].m[c] += pixelPower.m[c];
+				for(unsigned c=0;c<3;c++)
+					trianglePower[index].m[c] += pixelPower.m[c];
+			}
+			else
+			{
+				assert(0);
+			}
+			pixel++;
 		}
-		else
-		{
-			assert(0);
-		}
-		pixel++;
-	}
 
 	// copy data to object
 	float mult = 5.0f/width/height;
@@ -694,342 +762,235 @@ capturePrimary()
 	glViewport(0, 0, winWidth, winHeight);
 }
 
-void
-placeSoftLight(int n)
+static void output(int x, int y, char *string)
 {
-  softLight=n;
-  static float oldLightAngle,oldLightHeight;
-  if(n==-1) { // init, before all
-    oldLightAngle=lightAngle;
-    oldLightHeight=lightHeight;
-    glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 1);
-    glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90); // no light behind spotlight
-    //glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
-    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.5);
-    return;
-  }
-  if(n==-2) { // done, after all
-    lightAngle=oldLightAngle;
-    lightHeight=oldLightHeight;
-    updateMatrices();
-    return;
-  }
-  // place one point light approximating part of area light
-  if(useLights>1) {
-    switch(areaType) {
-      case 0: // linear
-        lightAngle=oldLightAngle+0.2*(n/(useLights-1.)-0.5);
-        lightHeight=oldLightHeight-0.4*n/useLights;
-        break;
-      case 1: // rectangular
-        {int q=(int)sqrtf(useLights-1)+1;
-        lightAngle=oldLightAngle+0.1*(n/q/(q-1.)-0.5);
-        lightHeight=oldLightHeight+(n%q/(q-1.)-0.5);}
-        break;
-      case 2: // circular
-        lightAngle=oldLightAngle+sin(n*2*3.14159/useLights)/20;
-        lightHeight=oldLightHeight+cos(n*2*3.14159/useLights)/2;
-        break;
-    }
-    updateMatrices();
-  }
-  GLfloat ld[3]={-lv[0],-lv[1],-lv[2]};
-  glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, ld);
+	int len, i;
+
+	glRasterPos2f(x, y);
+	len = (int) strlen(string);
+	for (i = 0; i < len; i++) {
+		glutBitmapCharacter(font, string[i]);
+	}
 }
 
-void
-drawEyeViewSoftShadowed(void)
+static void drawHelpMessage(void)
 {
-  int i;
-  int oldAmbientPower=ambientPower;
-  placeSoftLight(-1);
-  for(i=0;i<useLights;i++)
-  {
-    placeSoftLight(i);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    updateDepthMap();
-  }
-  if(useAccum) {
-    glClear(GL_ACCUM_BUFFER_BIT);
-  } else {
-    globalIntensity=0;
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    setupEyeView();
-    glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zero);
-    setLightIntensity();
-    drawScene();
-    globalIntensity=1./useLights;
-    ambientPower=0;
-    glBlendFunc(GL_ONE,GL_ONE);
-    glEnable(GL_BLEND);
-  }
-  for(i=0;i<useLights;i++)
-  {
-    placeSoftLight(i);
-    drawEyeViewShadowed(useAccum);
-    if(useAccum) {
-      glAccum(GL_ACCUM,1./useLights);
-    }
-  }
-  placeSoftLight(-2);
-  if(useAccum) {
-    glAccum(GL_RETURN,1);
-  } else {  
-    glDisable(GL_BLEND);
-    globalIntensity=1;
-    ambientPower=oldAmbientPower;
-  }
+	static char *message[] = {
+		"Help information",
+		"'h'  - shows and dismisses this message",
+		"'s'  - show eye view WITH shadows",
+		"'S'  - show eye view WITH SOFT shadows",
+		"'+/-'- soft: increase/decrease number of points",
+		"arrow- soft: move camera",
+		"'a'  - soft: toggle accumulation buffer",
+		"'g'  - soft: cycle through linear, rectangular and circular light",
+		"'w'  - toggle wire frame",
+		"'m'  - toggle whether the left or middle mouse buttons control the eye and",
+		"       view positions (helpful for systems with only a two-button mouse)",
+		"'o'  - increment object configurations",
+		"'O'  - decrement object configurations",
+		"'f'  - toggle showing the depth map frustum in dashed lines",
+		"'p'  - narrow shadow frustum field of view",
+		"'P'  - widen shadow frustum field of view",
+		"'n'  - compress shadow frustum near clip plane",
+		"'N'  - expand shadow frustum near clip plane",
+		"'c'  - compress shadow frustum far clip plane",
+		"'C'  - expand shadow frustum far clip plane",
+		"'b'  - increment the depth bias for 1st pass glPolygonOffset",
+		"'B'  - decrement the depth bias for 1st pass glPolygonOffset",
+		"'q'  - increment depth slope for 1st pass glPolygonOffset",
+		"'Q'  - increment depth slope for 1st pass glPolygonOffset",
+		"",
+		"'1' through '5' - use 64x64, 128x128, 256x256, 512x512, or 1024x1024 depth map",
+		"",
+		"'9'  - toggle 16-bit and 24-bit depth map precison for hardware shadow mapping",
+		"'z'  - toggle zoom in and zoom out",
+		"'F3' - toggle back face culling during depth map construction",
+		"'F4' - toggle linear/nearest hardware depth map filtering",
+		NULL
+	};
+	int i;
+	int x = 40, y= 42;
 
-  /*/ add indirect
-  glDisable(GL_LIGHTING);
-  glBlendFunc(GL_ONE,GL_ONE);
-  glEnable(GL_BLEND);
-  drawDirect = false;
-  drawScene();
-  drawDirect = true;
-  glDisable(GL_BLEND);*/
+	glActiveTextureARB(GL_TEXTURE1_ARB);
+	glDisable(GL_TEXTURE_2D);
+	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+
+	glPushMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(0, winWidth, winHeight, 0);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glColor4f(0.0,1.0,0.0,0.2);  /* 20% green. */
+
+	/* Drawn clockwise because the flipped Y axis flips CCW and CW. */
+	glRecti(winWidth - 30, 30, 30, winHeight - 30);
+
+	glDisable(GL_BLEND);
+
+	glColor3f(1,1,1);
+	for(i=0; message[i] != NULL; i++) {
+		if (message[i][0] == '\0') {
+			y += 7;
+		} else {
+			output(x, y, message[i]);
+			y += 14;
+		}
+	}
+
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
 }
 
-static void
-output(int x, int y, char *string)
+void display(void)
 {
-  int len, i;
+	if (needTitleUpdate) {
+		updateTitle();
+	}
 
-  glRasterPos2f(x, y);
-  len = (int) strlen(string);
-  for (i = 0; i < len; i++) {
-    glutBitmapCharacter(font, string[i]);
-  }
-}
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-static void
-drawHelpMessage(void)
-{
-  static char *message[] = {
-    "Help information",
-    "'h'  - shows and dismisses this message",
-    "'s'  - show eye view WITH shadows",
-    "'S'  - show eye view WITH SOFT shadows",
-    "'+/-'- soft: increase/decrease number of points",
-    "arrow- soft: move camera",
-    "'a'  - soft: toggle accumulation buffer",
-    "'g'  - soft: cycle through linear, rectangular and circular light",
-    "'w'  - toggle wire frame",
-    "'m'  - toggle whether the left or middle mouse buttons control the eye and",
-    "       view positions (helpful for systems with only a two-button mouse)",
-    "'o'  - increment object configurations",
-    "'O'  - decrement object configurations",
-    "'f'  - toggle showing the depth map frustum in dashed lines",
-    "'p'  - narrow shadow frustum field of view",
-    "'P'  - widen shadow frustum field of view",
-    "'n'  - compress shadow frustum near clip plane",
-    "'N'  - expand shadow frustum near clip plane",
-    "'c'  - compress shadow frustum far clip plane",
-    "'C'  - expand shadow frustum far clip plane",
-    "'b'  - increment the depth bias for 1st pass glPolygonOffset",
-    "'B'  - decrement the depth bias for 1st pass glPolygonOffset",
-    "'q'  - increment depth slope for 1st pass glPolygonOffset",
-    "'Q'  - increment depth slope for 1st pass glPolygonOffset",
-    "",
-    "'1' through '5' - use 64x64, 128x128, 256x256, 512x512, or 1024x1024 depth map",
-    "",
-    "'9'  - toggle 16-bit and 24-bit depth map precison for hardware shadow mapping",
-    "'z'  - toggle zoom in and zoom out",
-    "'F3' - toggle back face culling during depth map construction",
-    "'F4' - toggle linear/nearest hardware depth map filtering",
-    NULL
-  };
-  int i;
-  int x = 40, y= 42;
+	if (needMatrixUpdate) {
+		updateMatrices();
+	}
 
-  glActiveTextureARB(GL_TEXTURE1_ARB);
-  glDisable(GL_TEXTURE_2D);
-  glActiveTextureARB(GL_TEXTURE0_ARB);
-  glDisable(GL_TEXTURE_2D);
-  glDisable(GL_LIGHTING);
-  glDisable(GL_DEPTH_TEST);
-
-  glPushMatrix();
-    glLoadIdentity();
-
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    gluOrtho2D(0, winWidth, winHeight, 0);
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glColor4f(0.0,1.0,0.0,0.2);  /* 20% green. */
-
-    /* Drawn clockwise because the flipped Y axis flips CCW and CW. */
-    glRecti(winWidth - 30, 30, 30, winHeight - 30);
-
-    glDisable(GL_BLEND);
-
-    glColor3f(1,1,1);
-    for(i=0; message[i] != NULL; i++) {
-      if (message[i][0] == '\0') {
-        y += 7;
-      } else {
-        output(x, y, message[i]);
-        y += 14;
-      }
-    }
-
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-
-  glEnable(GL_LIGHTING);
-  glEnable(GL_DEPTH_TEST);
-}
-
-void
-display(void)
-{
-  if (needTitleUpdate) {
-    updateTitle();
-  }
-
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  if (needMatrixUpdate) {
-    updateMatrices();
-  }
-
-  switch (drawMode) {
+	switch (drawMode) {
   case DM_LIGHT_VIEW:
-    setupLightView(0);
-    if (wireFrame) {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    drawLightView();
-    break;
+	  setupLightView(0);
+	  if (wireFrame) {
+		  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	  }
+	  drawLightView();
+	  break;
   case DM_EYE_VIEW_SHADOWED:
-    /* Wire frame handled internal to this routine. */
-    drawEyeViewShadowed(1);
-    break;
+	  /* Wire frame handled internal to this routine. */
+	  drawEyeViewShadowed(1);
+	  break;
   case DM_EYE_VIEW_SOFTSHADOWED:
-    drawEyeViewSoftShadowed();
-    break;
+	  drawEyeViewSoftShadowed();
+	  break;
   default:
-    assert(0);
-    break;
-  }
+	  assert(0);
+	  break;
+	}
 
-  if (wireFrame) {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  }
+	if (wireFrame) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 
-  if (showHelp) {
-    drawHelpMessage();
-  }
-  
-  if (!drawFront) {
-    glutSwapBuffers();
-  }
+	if (showHelp) {
+		drawHelpMessage();
+	}
+
+	if (!drawFront) {
+		glutSwapBuffers();
+	}
 }
 
-static void
-benchmark(int perFrameDepthMapUpdate)
+static void benchmark(int perFrameDepthMapUpdate)
 {
-  const int numFrames = 150;
-  int precision = 0;
-  int start, stop;
-  float time;
-  int i;
+	const int numFrames = 150;
+	int precision = 0;
+	int start, stop;
+	float time;
+	int i;
 
-  needDepthMapUpdate = 1;
-  display();
+	needDepthMapUpdate = 1;
+	display();
 
-  printf("starting benchmark...\n");
-  glFinish();
+	printf("starting benchmark...\n");
+	glFinish();
 
-  start = glutGet(GLUT_ELAPSED_TIME);
-  for (i=0; i<numFrames; i++) {
-    if (perFrameDepthMapUpdate) {
-      needDepthMapUpdate = 1;
-    }
-    display();
-  }
-  glFinish();
-  stop = glutGet(GLUT_ELAPSED_TIME);
+	start = glutGet(GLUT_ELAPSED_TIME);
+	for (i=0; i<numFrames; i++) {
+		if (perFrameDepthMapUpdate) {
+			needDepthMapUpdate = 1;
+		}
+		display();
+	}
+	glFinish();
+	stop = glutGet(GLUT_ELAPSED_TIME);
 
-  time = (stop - start)/1000.0;
+	time = (stop - start)/1000.0;
 
-  printf("  perFrameDepthMapUpdate=%d, time = %f secs, fps = %f\n",
-    perFrameDepthMapUpdate, time, numFrames/time);
-  if (useTextureRectangle) {
-    printf("  RECT %dx%d:%d using %s\n",
-      depthMapRectWidth, depthMapRectHeight, precision,
-      useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
-  } else {
-    printf("  TEX2D %dx%d:%d using %s\n",
-      depthMapSize, depthMapSize, precision,
-      useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
-  }
-  needDepthMapUpdate = 1;
+	printf("  perFrameDepthMapUpdate=%d, time = %f secs, fps = %f\n",
+		perFrameDepthMapUpdate, time, numFrames/time);
+	if (useTextureRectangle) {
+		printf("  RECT %dx%d:%d using %s\n",
+			depthMapRectWidth, depthMapRectHeight, precision,
+			useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
+	} else {
+		printf("  TEX2D %dx%d:%d using %s\n",
+			depthMapSize, depthMapSize, precision,
+			useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
+	}
+	needDepthMapUpdate = 1;
 }
 
-void
-selectObjectConfig(int item)
+void selectObjectConfig(int item)
 {
-  objectConfiguration = item;
-  needDepthMapUpdate = 1;
-  glutPostRedisplay();
+	objectConfiguration = item;
+	needDepthMapUpdate = 1;
+	glutPostRedisplay();
 }
 
-void
-switchMouseControl(void)
+void switchMouseControl(void)
 {
-  if (eyeButton == GLUT_LEFT_BUTTON) {
-    eyeButton = GLUT_MIDDLE_BUTTON;
-    lightButton = GLUT_LEFT_BUTTON;
-  } else {
-    lightButton = GLUT_MIDDLE_BUTTON;
-    eyeButton = GLUT_LEFT_BUTTON;
-  }
-  movingEye = 0;
-  movingLight = 0;
+	if (eyeButton == GLUT_LEFT_BUTTON) {
+		eyeButton = GLUT_MIDDLE_BUTTON;
+		lightButton = GLUT_LEFT_BUTTON;
+	} else {
+		lightButton = GLUT_MIDDLE_BUTTON;
+		eyeButton = GLUT_LEFT_BUTTON;
+	}
+	movingEye = 0;
+	movingLight = 0;
 }
 
-void
-toggleWireFrame(void)
+void toggleWireFrame(void)
 {
-  wireFrame = !wireFrame;
-  if (wireFrame) {
-    glClearColor(0.1,0.2,0.2,0);
-  } else {
-    glClearColor(0,0,0,0);
-  }
-  glutPostRedisplay();
+	wireFrame = !wireFrame;
+	if (wireFrame) {
+		glClearColor(0.1,0.2,0.2,0);
+	} else {
+		glClearColor(0,0,0,0);
+	}
+	glutPostRedisplay();
 }
 
-void
-toggleDepthMapCulling(void)
+void toggleDepthMapCulling(void)
 {
-  depthMapBackFaceCulling = !depthMapBackFaceCulling;
-  needDepthMapUpdate = 1;
-  glutPostRedisplay();
+	depthMapBackFaceCulling = !depthMapBackFaceCulling;
+	needDepthMapUpdate = 1;
+	glutPostRedisplay();
 }
 
-void
-toggleHwShadowFiltering(void)
+void toggleHwShadowFiltering(void)
 {
-  if (hwDepthMapFiltering == GL_LINEAR) {
-    hwDepthMapFiltering = GL_NEAREST;
-  } else {
-    hwDepthMapFiltering = GL_LINEAR;
-  }
-  needTitleUpdate = 1;
-  needDepthMapUpdate = 1;
-  glutPostRedisplay();
+	if (hwDepthMapFiltering == GL_LINEAR) {
+		hwDepthMapFiltering = GL_NEAREST;
+	} else {
+		hwDepthMapFiltering = GL_LINEAR;
+	}
+	needTitleUpdate = 1;
+	needDepthMapUpdate = 1;
+	glutPostRedisplay();
 }
 
 
-void
-updateDepthBias(int delta)
+void updateDepthBias(int delta)
 {
 	GLfloat scale, bias;
 
@@ -1047,556 +1008,543 @@ updateDepthBias(int delta)
 	needDepthMapUpdate = 1;
 }
 
-void
-updateDepthMapSize(void)
+void updateDepthMapSize(void)
 {
-  int oldDepthMapSize = depthMapSize;
+	int oldDepthMapSize = depthMapSize;
 
-  depthMapSize = requestedDepthMapSize;
-  while ((winWidth < depthMapSize) || (winHeight < depthMapSize)) {
-    depthMapSize >>= 1;  // Half the depth map size
-  }
-  if (depthMapSize < 1) {
-    /* Just in case. */
-    depthMapSize = 1;
-  }
-  if (depthMapSize != requestedDepthMapSize) {
-    printf("shadowcast: reducing depth map from %d to %d based on window size %dx%d\n",
-      requestedDepthMapSize, depthMapSize, winWidth, winHeight);
-  }
-  if (!useTextureRectangle) {
-    if (oldDepthMapSize != depthMapSize) {
-      needDepthMapUpdate = 1;
-      needTitleUpdate = 1;
-      glutPostRedisplay();
-    }
-  }
+	depthMapSize = requestedDepthMapSize;
+	while ((winWidth < depthMapSize) || (winHeight < depthMapSize)) {
+		depthMapSize >>= 1;  // Half the depth map size
+	}
+	if (depthMapSize < 1) {
+		/* Just in case. */
+		depthMapSize = 1;
+	}
+	if (depthMapSize != requestedDepthMapSize) {
+		printf("shadowcast: reducing depth map from %d to %d based on window size %dx%d\n",
+			requestedDepthMapSize, depthMapSize, winWidth, winHeight);
+	}
+	if (!useTextureRectangle) {
+		if (oldDepthMapSize != depthMapSize) {
+			needDepthMapUpdate = 1;
+			needTitleUpdate = 1;
+			glutPostRedisplay();
+		}
+	}
 }
 
-void
-selectMenu(int item)
+void selectMenu(int item)
 {
-  switch (item) {
+	switch (item) {
   case ME_EYE_VIEW_SHADOWED:
-    drawMode = DM_EYE_VIEW_SHADOWED;
-    needTitleUpdate = 1;
-    break;
+	  drawMode = DM_EYE_VIEW_SHADOWED;
+	  needTitleUpdate = 1;
+	  break;
   case ME_EYE_VIEW_SOFTSHADOWED:
-    drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-    needTitleUpdate = 1;
-    break;
+	  drawMode = DM_EYE_VIEW_SOFTSHADOWED;
+	  needTitleUpdate = 1;
+	  break;
   case ME_LIGHT_VIEW:
-    drawMode = DM_LIGHT_VIEW;
-    needTitleUpdate = 1;
-    break;
+	  drawMode = DM_LIGHT_VIEW;
+	  needTitleUpdate = 1;
+	  break;
   case ME_SWITCH_MOUSE_CONTROL:
-    switchMouseControl();
-    return;  /* No redisplay needed. */
-   
+	  switchMouseControl();
+	  return;  /* No redisplay needed. */
+
   case ME_TOGGLE_WIRE_FRAME:
-    toggleWireFrame();
-    return;
+	  toggleWireFrame();
+	  return;
   case ME_TOGGLE_DEPTH_MAP_CULLING:
-    toggleDepthMapCulling();
-    return;
+	  toggleDepthMapCulling();
+	  return;
   case ME_TOGGLE_HW_SHADOW_FILTERING:
-    toggleHwShadowFiltering();
-    return;
+	  toggleHwShadowFiltering();
+	  return;
 
   case ME_TOGGLE_LIGHT_FRUSTUM:
-    showLightViewFrustum = !showLightViewFrustum;
-    if (showLightViewFrustum) {
-      needMatrixUpdate = 1;
-    }
-    break;
+	  showLightViewFrustum = !showLightViewFrustum;
+	  if (showLightViewFrustum) {
+		  needMatrixUpdate = 1;
+	  }
+	  break;
   case ME_ON_LIGHT_FRUSTUM:
-    if (!showLightViewFrustum) {
-      needMatrixUpdate = 1;
-    }
-    showLightViewFrustum = 1;
-    break;
+	  if (!showLightViewFrustum) {
+		  needMatrixUpdate = 1;
+	  }
+	  showLightViewFrustum = 1;
+	  break;
   case ME_OFF_LIGHT_FRUSTUM:
-    showLightViewFrustum = 0;
-    break;
+	  showLightViewFrustum = 0;
+	  break;
   case ME_DEPTH_MAP_64:
-    requestedDepthMapSize = 64;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 64;
+	  updateDepthMapSize();
+	  return;
   case ME_DEPTH_MAP_128:
-    requestedDepthMapSize = 128;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 128;
+	  updateDepthMapSize();
+	  return;
   case ME_DEPTH_MAP_256:
-    requestedDepthMapSize = 256;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 256;
+	  updateDepthMapSize();
+	  return;
   case ME_DEPTH_MAP_512:
-    requestedDepthMapSize = 512;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 512;
+	  updateDepthMapSize();
+	  return;
   case ME_DEPTH_MAP_1024:
-    requestedDepthMapSize = 1024;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 1024;
+	  updateDepthMapSize();
+	  return;
   case ME_EXIT:
-    exit(0);
-    break;
+	  exit(0);
+	  break;
   default:
-    assert(0);
-    break;
-  }
-  glutPostRedisplay();
+	  assert(0);
+	  break;
+	}
+	glutPostRedisplay();
 }
 
-void
-special(int c, int x, int y)
+void special(int c, int x, int y)
 {
-  switch (c) {
+	switch (c) {
   case GLUT_KEY_F3:
-    toggleDepthMapCulling();
-    return;
+	  toggleDepthMapCulling();
+	  return;
   case GLUT_KEY_F4:
-    toggleHwShadowFiltering();
-    return;
+	  toggleHwShadowFiltering();
+	  return;
   case GLUT_KEY_F7:
-    benchmark(1);
-    return;
+	  benchmark(1);
+	  return;
   case GLUT_KEY_F8:
-    benchmark(0);
-    return;
+	  benchmark(0);
+	  return;
   case GLUT_KEY_F9:
-    capturePrimary();
-    return;
-  }
-  /*if (glutGetModifiers() & GLUT_ACTIVE_CTRL) {
-    switch (c) {
-    case GLUT_KEY_UP:
-      break;
-    case GLUT_KEY_DOWN:
-      break;
-    case GLUT_KEY_LEFT:
-      break;
-    case GLUT_KEY_RIGHT:
-      break;
-    }
-    return;
-  }*/
-  switch (objectConfiguration) {
+	  capturePrimary();
+	  return;
+	}
+	/*if (glutGetModifiers() & GLUT_ACTIVE_CTRL) {
+	switch (c) {
+	case GLUT_KEY_UP:
+	break;
+	case GLUT_KEY_DOWN:
+	break;
+	case GLUT_KEY_LEFT:
+	break;
+	case GLUT_KEY_RIGHT:
+	break;
+	}
+	return;
+	}*/
+	switch (objectConfiguration) {
   case OC_MGF:
-    switch (c) {
-    case GLUT_KEY_UP:
-      for(int i=0;i<3;i++) eye_shift[i]+=ed[i]/20;
-      break;
-    case GLUT_KEY_DOWN:
-      for(int i=0;i<3;i++) eye_shift[i]-=ed[i]/20;
-      break;
-    case GLUT_KEY_LEFT:
-      eye_shift[0]+=ed[2]/20;
-      eye_shift[2]-=ed[0]/20;
-      //eye_shift[2]+=ed[1]/20;
-      break;
-    case GLUT_KEY_RIGHT:
-      eye_shift[0]-=ed[2]/20;
-      eye_shift[2]+=ed[0]/20;
-      //eye_shift[2]+=ed[1]/20;
-      break;
-    default:
-      return;
-    }
-    break;
+	  switch (c) {
+  case GLUT_KEY_UP:
+	  for(int i=0;i<3;i++) eye_shift[i]+=ed[i]/20;
+	  break;
+  case GLUT_KEY_DOWN:
+	  for(int i=0;i<3;i++) eye_shift[i]-=ed[i]/20;
+	  break;
+  case GLUT_KEY_LEFT:
+	  eye_shift[0]+=ed[2]/20;
+	  eye_shift[2]-=ed[0]/20;
+	  //eye_shift[2]+=ed[1]/20;
+	  break;
+  case GLUT_KEY_RIGHT:
+	  eye_shift[0]-=ed[2]/20;
+	  eye_shift[2]+=ed[0]/20;
+	  //eye_shift[2]+=ed[1]/20;
+	  break;
   default:
-    return;
-  }
-  glutPostRedisplay();
+	  return;
+	  }
+	  break;
+  default:
+	  return;
+	}
+	glutPostRedisplay();
 }
 
-void
-keyboard(unsigned char c, int x, int y)
+void keyboard(unsigned char c, int x, int y)
 {
-  switch (c) {
+	switch (c) {
   case 27:
-    exit(0);
-    break;
+	  exit(0);
+	  break;
   case 'b':
-    updateDepthBias(+1);
-    break;
+	  updateDepthBias(+1);
+	  break;
   case 'B':
-    updateDepthBias(-1);
-    break;
+	  updateDepthBias(-1);
+	  break;
   case 'l':
   case 'L':
-    drawMode = DM_LIGHT_VIEW;
-    needTitleUpdate = 1;
-    break;
+	  drawMode = DM_LIGHT_VIEW;
+	  needTitleUpdate = 1;
+	  break;
   case 'm':
-    switchMouseControl();
-    break;
+	  switchMouseControl();
+	  break;
   case 'h':
   case 'H':
-    showHelp = !showHelp;
-    break;
+	  showHelp = !showHelp;
+	  break;
   case 'f':
   case 'F':
-    showLightViewFrustum = !showLightViewFrustum;
-    if (showLightViewFrustum) {
-      needMatrixUpdate = 1;
-    }
-    break;
+	  showLightViewFrustum = !showLightViewFrustum;
+	  if (showLightViewFrustum) {
+		  needMatrixUpdate = 1;
+	  }
+	  break;
   case 'z':
   case 'Z':
-    eyeFieldOfView = (eyeFieldOfView == 100.0) ? 50.0 : 100.0;
-    buildPerspectiveMatrix(eyeFrustumMatrix,
-      eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
-    break;
+	  eyeFieldOfView = (eyeFieldOfView == 100.0) ? 50.0 : 100.0;
+	  buildPerspectiveMatrix(eyeFrustumMatrix,
+		  eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
+	  break;
   case 'a':
-    useAccum=1-useAccum;
-    break;
+	  useAccum=1-useAccum;
+	  break;
   case 'q':
-    slopeScale += 0.1;
-    needDepthMapUpdate = 1;
-    needTitleUpdate = 1;
-    updateDepthBias(0);
-    break;
+	  slopeScale += 0.1;
+	  needDepthMapUpdate = 1;
+	  needTitleUpdate = 1;
+	  updateDepthBias(0);
+	  break;
   case 'Q':
-    slopeScale -= 0.1;
-    if (slopeScale < 0.0) {
-      slopeScale = 0.0;
-    }
-    needDepthMapUpdate = 1;
-    needTitleUpdate = 1;
-    updateDepthBias(0);
-    break;
+	  slopeScale -= 0.1;
+	  if (slopeScale < 0.0) {
+		  slopeScale = 0.0;
+	  }
+	  needDepthMapUpdate = 1;
+	  needTitleUpdate = 1;
+	  updateDepthBias(0);
+	  break;
   case 'M':
-    mipmapShadowMap = !mipmapShadowMap;
-    break;
+	  mipmapShadowMap = !mipmapShadowMap;
+	  break;
   case '>':
-    textureLodBias += 0.2;
-    break;
+	  textureLodBias += 0.2;
+	  break;
   case '<':
-    textureLodBias -= 0.2;
-    break;
+	  textureLodBias -= 0.2;
+	  break;
   case 'w':
   case 'W':
-    toggleWireFrame();
-    return;
+	  toggleWireFrame();
+	  return;
   case 'n':
-    lightNear *= 0.8;
-    needMatrixUpdate = 1;
-    needDepthMapUpdate = 1;
-    break;
+	  lightNear *= 0.8;
+	  needMatrixUpdate = 1;
+	  needDepthMapUpdate = 1;
+	  break;
   case 'N':
-    lightNear /= 0.8;
-    needMatrixUpdate = 1;
-    needDepthMapUpdate = 1;
-    break;
+	  lightNear /= 0.8;
+	  needMatrixUpdate = 1;
+	  needDepthMapUpdate = 1;
+	  break;
   case 'c':
-    lightFar *= 1.2;
-    needMatrixUpdate = 1;
-    needDepthMapUpdate = 1;
-    break;
+	  lightFar *= 1.2;
+	  needMatrixUpdate = 1;
+	  needDepthMapUpdate = 1;
+	  break;
   case 'C':
-    lightFar /= 1.2;
-    needMatrixUpdate = 1;
-    needDepthMapUpdate = 1;
-    break;
+	  lightFar /= 1.2;
+	  needMatrixUpdate = 1;
+	  needDepthMapUpdate = 1;
+	  break;
   case 'p':
-    lightFieldOfView -= 5.0;
-    if (lightFieldOfView < 5.0) {
-      lightFieldOfView = 5.0;
-    }
-    needMatrixUpdate = 1;
-    needDepthMapUpdate = 1;
-    break;
+	  lightFieldOfView -= 5.0;
+	  if (lightFieldOfView < 5.0) {
+		  lightFieldOfView = 5.0;
+	  }
+	  needMatrixUpdate = 1;
+	  needDepthMapUpdate = 1;
+	  break;
   case 'P':
-    lightFieldOfView += 5.0;
-    if (lightFieldOfView > 160.0) {
-      lightFieldOfView = 160.0;
-    }
-    needMatrixUpdate = 1;
-    needDepthMapUpdate = 1;
-    break;
+	  lightFieldOfView += 5.0;
+	  if (lightFieldOfView > 160.0) {
+		  lightFieldOfView = 160.0;
+	  }
+	  needMatrixUpdate = 1;
+	  needDepthMapUpdate = 1;
+	  break;
   case 's':
-    drawMode = DM_EYE_VIEW_SHADOWED;
-    needTitleUpdate = 1;
-    break;
+	  drawMode = DM_EYE_VIEW_SHADOWED;
+	  needTitleUpdate = 1;
+	  break;
   case 'S':
-    drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-    needTitleUpdate = 1;
-    break;
+	  drawMode = DM_EYE_VIEW_SOFTSHADOWED;
+	  needTitleUpdate = 1;
+	  break;
   case 'o':
-    objectConfiguration = (objectConfiguration + 1) % NUM_OF_OCS;
-    needDepthMapUpdate = 1;
-    break;
+	  objectConfiguration = (objectConfiguration + 1) % NUM_OF_OCS;
+	  needDepthMapUpdate = 1;
+	  break;
   case 'O':
-    objectConfiguration = objectConfiguration - 1;
-    if (objectConfiguration < 0) {
-      objectConfiguration = NUM_OF_OCS-1;
-    }
-    needDepthMapUpdate = 1;
-    break;
+	  objectConfiguration = objectConfiguration - 1;
+	  if (objectConfiguration < 0) {
+		  objectConfiguration = NUM_OF_OCS-1;
+	  }
+	  needDepthMapUpdate = 1;
+	  break;
   case '+':
-    useLights++;
-    needDepthMapUpdate = 1;
-    break;
+	  useLights++;
+	  needDepthMapUpdate = 1;
+	  break;
   case '-':
-    if(useLights>1) {
-      useLights--;
-      needDepthMapUpdate = 1;
-    }
-    break;
+	  if(useLights>1) {
+		  useLights--;
+		  needDepthMapUpdate = 1;
+	  }
+	  break;
   case 'g':
-    ++areaType%=3;
-    needDepthMapUpdate = 1;
-    break;
+	  ++areaType%=3;
+	  needDepthMapUpdate = 1;
+	  break;
   case '1':
-    requestedDepthMapSize = 64;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 64;
+	  updateDepthMapSize();
+	  return;
   case '2':
-    requestedDepthMapSize = 128;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 128;
+	  updateDepthMapSize();
+	  return;
   case '3':
-    requestedDepthMapSize = 256;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 256;
+	  updateDepthMapSize();
+	  return;
   case '4':
-    requestedDepthMapSize = 512;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 512;
+	  updateDepthMapSize();
+	  return;
   case '5':
-    requestedDepthMapSize = 1024;
-    updateDepthMapSize();
-    return;
+	  requestedDepthMapSize = 1024;
+	  updateDepthMapSize();
+	  return;
   default:
-    return;
-  }
-  glutPostRedisplay();
+	  return;
+	}
+	glutPostRedisplay();
 }
 
-void
-updateDepthScale(void)
+void updateDepthScale(void)
 {
-  GLint depthBits;
+	GLint depthBits;
 
-  glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-  if (depthBits < 24) {
-    depthScale24 = 1;
-  } else {
-    depthScale24 = 1 << (depthBits - 24+8); // "+8" hack: on gf6600, 24bit depth seems to need +8 scale
-  }
-  if (depthBits < 16) {
-    depthScale16 = 1;
-  } else {
-    depthScale16 = 1 << (depthBits - 16);
-  }
-  needDepthMapUpdate = 1;
+	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
+	if (depthBits < 24) {
+		depthScale24 = 1;
+	} else {
+		depthScale24 = 1 << (depthBits - 24+8); // "+8" hack: on gf6600, 24bit depth seems to need +8 scale
+	}
+	if (depthBits < 16) {
+		depthScale16 = 1;
+	} else {
+		depthScale16 = 1 << (depthBits - 16);
+	}
+	needDepthMapUpdate = 1;
 }
 
-void
-reshape(int w, int h)
+void reshape(int w, int h)
 {
-  winWidth = w;
-  winHeight = h;
-  glViewport(0, 0, w, h);
-  winAspectRatio = (double) winHeight / (double) winWidth;
-  buildPerspectiveMatrix(eyeFrustumMatrix,
-    eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
+	winWidth = w;
+	winHeight = h;
+	glViewport(0, 0, w, h);
+	winAspectRatio = (double) winHeight / (double) winWidth;
+	buildPerspectiveMatrix(eyeFrustumMatrix,
+		eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
 
-  /* Perhaps there might have been a mode change so at window
-     reshape time, redetermine the depth scale. */
-  updateDepthScale();
+	/* Perhaps there might have been a mode change so at window
+	reshape time, redetermine the depth scale. */
+	updateDepthScale();
 
-  updateDepthMapSize();
+	updateDepthMapSize();
 }
 
-void
-initGL(void)
+void initGL(void)
 {
-  GLfloat globalAmbient[] = {0.5, 0.5, 0.5, 1.0};
-  GLint depthBits;
+	GLfloat globalAmbient[] = {0.5, 0.5, 0.5, 1.0};
+	GLint depthBits;
 
 #if defined(_WIN32)
-  if (hasSwapControl) {
-    if (vsync) {
-      wglSwapIntervalEXT(1);
-    } else {
-      wglSwapIntervalEXT(0);
-    }
-  }
+	if (hasSwapControl) {
+		if (vsync) {
+			wglSwapIntervalEXT(1);
+		} else {
+			wglSwapIntervalEXT(0);
+		}
+	}
 #endif
 
-  glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-  printf("depth buffer precision = %d\n", depthBits);
-  if (depthBits >= 24) {
-    hwDepthMapPrecision = GL_UNSIGNED_INT;
-  }
+	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
+	printf("depth buffer precision = %d\n", depthBits);
+	if (depthBits >= 24) {
+		hwDepthMapPrecision = GL_UNSIGNED_INT;
+	}
 
-  glClearColor(0,0,0,0);
+	glClearColor(0,0,0,0);
 
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
 
-  /* GL_LEQUAL ensures that when fragments with equal depth are
-     generated within a single rendering pass, the last fragment
-     results. */
-  glDepthFunc(GL_LEQUAL);
-  glEnable(GL_DEPTH_TEST);
+	/* GL_LEQUAL ensures that when fragments with equal depth are
+	generated within a single rendering pass, the last fragment
+	results. */
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
 
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
-  setLightIntensity();
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	setLightIntensity();
 
-  glLineStipple(1, 0xf0f0);
+	glLineStipple(1, 0xf0f0);
 
-  glMaterialf(GL_FRONT, GL_SHININESS, 30.0);
+	glMaterialf(GL_FRONT, GL_SHININESS, 30.0);
 
-  glEnable(GL_CULL_FACE);
-  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
+	glEnable(GL_CULL_FACE);
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
 #if 000
-  /* This would work too. */
-  glEnable(GL_RESCALE_NORMAL_EXT);
+	/* This would work too. */
+	glEnable(GL_RESCALE_NORMAL_EXT);
 #else
-  glEnable(GL_NORMALIZE);
+	glEnable(GL_NORMALIZE);
 #endif
 
-  q = gluNewQuadric();
-  if (useDisplayLists) {
+	q = gluNewQuadric();
+	if (useDisplayLists) {
 
-    /* Make a sphere display list. */
-    glNewList(DL_SPHERE, GL_COMPILE);
-    drawSphere();
-    glEndList();
-  }
+		/* Make a sphere display list. */
+		glNewList(DL_SPHERE, GL_COMPILE);
+		drawSphere();
+		glEndList();
+	}
 
-  updateDepthScale();
-  updateDepthBias(0);  /* Update with no offset change. */
+	updateDepthScale();
+	updateDepthBias(0);  /* Update with no offset change. */
 
-  if (drawFront) {
-    glDrawBuffer(GL_FRONT);
-    glReadBuffer(GL_FRONT);
-  }
+	if (drawFront) {
+		glDrawBuffer(GL_FRONT);
+		glReadBuffer(GL_FRONT);
+	}
 }
 
 /*** LOAD TEXTURE IMAGES ***/
 
-gliGenericImage *
-readImage(char *filename)
+gliGenericImage* readImage(char *filename)
 {
-  FILE *file;
-  gliGenericImage *image;
+	FILE *file;
+	gliGenericImage *image;
 
-  file = fopen(filename, "rb");
-  if (file == NULL) {
-    printf("shadowcast: could not open \"%s\"\n", filename);
-    return NULL;
-  }
-  image = gliReadTGA(file, filename);
-  fclose(file);
-  if (image == NULL) {
-    printf("shadowcast: could not decode file format of \"%s\"\n", filename);
-    return NULL;
-  }
-  return image;
+	file = fopen(filename, "rb");
+	if (file == NULL) {
+		printf("shadowcast: could not open \"%s\"\n", filename);
+		return NULL;
+	}
+	image = gliReadTGA(file, filename);
+	fclose(file);
+	if (image == NULL) {
+		printf("shadowcast: could not decode file format of \"%s\"\n", filename);
+		return NULL;
+	}
+	return image;
 }
 
-gliGenericImage *
-loadTextureDecalImage(char *filename, int mipmaps)
+gliGenericImage* loadTextureDecalImage(char *filename, int mipmaps)
 {
-  gliGenericImage *image;
+	gliGenericImage *image;
 
-  image = readImage(filename);
-  if (image == NULL) {
-    printf("shadowcast: failed to read \"%s\" texture.\n", filename);
-    return 0;
-  }
-  if (image->format == GL_COLOR_INDEX) {
-    /* Rambo 8-bit color index into luminance. */
-    image->format = GL_LUMINANCE;
-  }
-  if (mipmaps) {
-    gluBuild2DMipmaps(GL_TEXTURE_2D, image->components,
-      image->width, image->height,
-      image->format, GL_UNSIGNED_BYTE, image->pixels);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-      GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  } else {
-    glTexImage2D(GL_TEXTURE_2D, 0, image->components,
-      image->width, image->height, 0,
-      image->format, GL_UNSIGNED_BYTE, image->pixels);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  }
-  return image;
+	image = readImage(filename);
+	if (image == NULL) {
+		printf("shadowcast: failed to read \"%s\" texture.\n", filename);
+		return 0;
+	}
+	if (image->format == GL_COLOR_INDEX) {
+		/* Rambo 8-bit color index into luminance. */
+		image->format = GL_LUMINANCE;
+	}
+	if (mipmaps) {
+		gluBuild2DMipmaps(GL_TEXTURE_2D, image->components,
+			image->width, image->height,
+			image->format, GL_UNSIGNED_BYTE, image->pixels);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+			GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	} else {
+		glTexImage2D(GL_TEXTURE_2D, 0, image->components,
+			image->width, image->height, 0,
+			image->format, GL_UNSIGNED_BYTE, image->pixels);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+	return image;
 }
 
-void
-loadTextures(void)
+void loadTextures(void)
 {
-  /* Assume tightly packed textures. */
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	/* Assume tightly packed textures. */
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  glBindTexture(GL_TEXTURE_2D, TO_SPOT);
-  rrspot = loadTextureDecalImage("spot3.tga", 1);
-  textureSpot = rrspot!=NULL;
-  useBestShadowMapClamping(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, TO_SPOT);
+	rrspot = loadTextureDecalImage("spot3.tga", 1);
+	textureSpot = rrspot!=NULL;
+	useBestShadowMapClamping(GL_TEXTURE_2D);
 }
 
-void
-mouse(int button, int state, int x, int y)
+void mouse(int button, int state, int x, int y)
 {
-  if (button == eyeButton && state == GLUT_DOWN) {
-    movingEye = 1;
-    xEyeBegin = x;
-    yEyeBegin = y;
-  }
-  if (button == eyeButton && state == GLUT_UP) {
-    movingEye = 0;
-  }
-  if (button == lightButton && state == GLUT_DOWN) {
-    movingLight = 1;
-    xLightBegin = x;
-    yLightBegin = y;
-  }
-  if (button == lightButton && state == GLUT_UP) {
-    movingLight = 0;
-    needDepthMapUpdate = 1;
-//!!!	capturePrimary();
-	glutPostRedisplay();
-  }
+	if (button == eyeButton && state == GLUT_DOWN) {
+		movingEye = 1;
+		xEyeBegin = x;
+		yEyeBegin = y;
+	}
+	if (button == eyeButton && state == GLUT_UP) {
+		movingEye = 0;
+	}
+	if (button == lightButton && state == GLUT_DOWN) {
+		movingLight = 1;
+		xLightBegin = x;
+		yLightBegin = y;
+	}
+	if (button == lightButton && state == GLUT_UP) {
+		movingLight = 0;
+		needDepthMapUpdate = 1;
+		//!!!	capturePrimary();
+		glutPostRedisplay();
+	}
 }
 
-void
-motion(int x, int y)
+void motion(int x, int y)
 {
-  if (movingEye) {
-    eyeAngle = eyeAngle - 0.005*(x - xEyeBegin);
-    eyeHeight = eyeHeight + 0.15*(y - yEyeBegin);
-    if (eyeHeight > 20.0) eyeHeight = 20.0;
-    if (eyeHeight < -0.0) eyeHeight = -0.0;
-    xEyeBegin = x;
-    yEyeBegin = y;
-    needMatrixUpdate = 1;
-    glutPostRedisplay();
-  }
-  if (movingLight) {
-    lightAngle = lightAngle + 0.005*(x - xLightBegin);
-    lightHeight = lightHeight - 0.15*(y - yLightBegin);
-    if (lightHeight > 12.0) lightHeight = 12.0;
-    if (lightHeight < -4.0) lightHeight = -4.0;
-    xLightBegin = x;
-    yLightBegin = y;
-    needMatrixUpdate = 1;
-    needDepthMapUpdate = 1;
-    glutPostRedisplay();
-  }
+	if (movingEye) {
+		eyeAngle = eyeAngle - 0.005*(x - xEyeBegin);
+		eyeHeight = eyeHeight + 0.15*(y - yEyeBegin);
+		if (eyeHeight > 20.0) eyeHeight = 20.0;
+		if (eyeHeight < -0.0) eyeHeight = -0.0;
+		xEyeBegin = x;
+		yEyeBegin = y;
+		needMatrixUpdate = 1;
+		glutPostRedisplay();
+	}
+	if (movingLight) {
+		lightAngle = lightAngle + 0.005*(x - xLightBegin);
+		lightHeight = lightHeight - 0.15*(y - yLightBegin);
+		if (lightHeight > 12.0) lightHeight = 12.0;
+		if (lightHeight < -4.0) lightHeight = -4.0;
+		xLightBegin = x;
+		yLightBegin = y;
+		needMatrixUpdate = 1;
+		needDepthMapUpdate = 1;
+		glutPostRedisplay();
+	}
 }
 
-void
-depthBiasSelect(int depthBiasOption)
+void depthBiasSelect(int depthBiasOption)
 {
 	GLfloat scale, bias;
 
@@ -1615,111 +1563,107 @@ depthBiasSelect(int depthBiasOption)
 	glutPostRedisplay();
 }
 
-void
-initMenus(void)
+void initMenus(void)
 {
-  int viewMenu, frustumMenu, objectConfigMenu,
-      depthMapMenu, depthBiasMenu;
+	int viewMenu, frustumMenu, objectConfigMenu,
+		depthMapMenu, depthBiasMenu;
 
-    viewMenu = glutCreateMenu(selectMenu);
-    glutAddMenuEntry("[s] Eye view with shadows", ME_EYE_VIEW_SHADOWED);
-    glutAddMenuEntry("[S] Eye view with soft shadows", ME_EYE_VIEW_SOFTSHADOWED);
-    glutAddMenuEntry("[l] Light view", ME_LIGHT_VIEW);
+	viewMenu = glutCreateMenu(selectMenu);
+	glutAddMenuEntry("[s] Eye view with shadows", ME_EYE_VIEW_SHADOWED);
+	glutAddMenuEntry("[S] Eye view with soft shadows", ME_EYE_VIEW_SOFTSHADOWED);
+	glutAddMenuEntry("[l] Light view", ME_LIGHT_VIEW);
 
-    frustumMenu = glutCreateMenu(selectMenu);
-    glutAddMenuEntry("[f] Toggle", ME_TOGGLE_LIGHT_FRUSTUM);
-    glutAddMenuEntry("Show", ME_ON_LIGHT_FRUSTUM);
-    glutAddMenuEntry("Hide", ME_OFF_LIGHT_FRUSTUM);
+	frustumMenu = glutCreateMenu(selectMenu);
+	glutAddMenuEntry("[f] Toggle", ME_TOGGLE_LIGHT_FRUSTUM);
+	glutAddMenuEntry("Show", ME_ON_LIGHT_FRUSTUM);
+	glutAddMenuEntry("Hide", ME_OFF_LIGHT_FRUSTUM);
 
-    objectConfigMenu = glutCreateMenu(selectObjectConfig);
-    glutAddMenuEntry("MGF", OC_MGF);
+	objectConfigMenu = glutCreateMenu(selectObjectConfig);
+	glutAddMenuEntry("MGF", OC_MGF);
 
-    depthMapMenu = glutCreateMenu(selectMenu);
-    glutAddMenuEntry("[1] 64x64", ME_DEPTH_MAP_64);
-    glutAddMenuEntry("[2] 128x128", ME_DEPTH_MAP_128);
-    glutAddMenuEntry("[3] 256x256", ME_DEPTH_MAP_256);
-    glutAddMenuEntry("[4] 512x512", ME_DEPTH_MAP_512);
-    glutAddMenuEntry("[5] 1024x1024", ME_DEPTH_MAP_1024);
+	depthMapMenu = glutCreateMenu(selectMenu);
+	glutAddMenuEntry("[1] 64x64", ME_DEPTH_MAP_64);
+	glutAddMenuEntry("[2] 128x128", ME_DEPTH_MAP_128);
+	glutAddMenuEntry("[3] 256x256", ME_DEPTH_MAP_256);
+	glutAddMenuEntry("[4] 512x512", ME_DEPTH_MAP_512);
+	glutAddMenuEntry("[5] 1024x1024", ME_DEPTH_MAP_1024);
 
-    depthBiasMenu = glutCreateMenu(depthBiasSelect);
-    glutAddMenuEntry("2", 2);
-    glutAddMenuEntry("4", 4);
-    glutAddMenuEntry("6", 6);
-    glutAddMenuEntry("8", 8);
-    glutAddMenuEntry("10", 10);
-    glutAddMenuEntry("100", 100);
-    glutAddMenuEntry("512", 512);
-    glutAddMenuEntry("0", 0);
+	depthBiasMenu = glutCreateMenu(depthBiasSelect);
+	glutAddMenuEntry("2", 2);
+	glutAddMenuEntry("4", 4);
+	glutAddMenuEntry("6", 6);
+	glutAddMenuEntry("8", 8);
+	glutAddMenuEntry("10", 10);
+	glutAddMenuEntry("100", 100);
+	glutAddMenuEntry("512", 512);
+	glutAddMenuEntry("0", 0);
 
-    glutCreateMenu(selectMenu);
-    glutAddSubMenu("View", viewMenu);
-    glutAddSubMenu("Object configuration", objectConfigMenu);
-    glutAddSubMenu("Light frustum", frustumMenu);
-    glutAddSubMenu("Depth map resolution", depthMapMenu);
-    glutAddSubMenu("Shadow depth bias", depthBiasMenu);
-    glutAddMenuEntry("[m] Switch mouse control", ME_SWITCH_MOUSE_CONTROL);
-    glutAddMenuEntry("[w] Toggle wire frame", ME_TOGGLE_WIRE_FRAME);
-    glutAddMenuEntry("[F3] Toggle depth map back face culling", ME_TOGGLE_DEPTH_MAP_CULLING);
-    glutAddMenuEntry("[F4] Toggle hardware shadow filtering", ME_TOGGLE_HW_SHADOW_FILTERING);
-    glutAddMenuEntry("[ESC] Quit", ME_EXIT);
+	glutCreateMenu(selectMenu);
+	glutAddSubMenu("View", viewMenu);
+	glutAddSubMenu("Object configuration", objectConfigMenu);
+	glutAddSubMenu("Light frustum", frustumMenu);
+	glutAddSubMenu("Depth map resolution", depthMapMenu);
+	glutAddSubMenu("Shadow depth bias", depthBiasMenu);
+	glutAddMenuEntry("[m] Switch mouse control", ME_SWITCH_MOUSE_CONTROL);
+	glutAddMenuEntry("[w] Toggle wire frame", ME_TOGGLE_WIRE_FRAME);
+	glutAddMenuEntry("[F3] Toggle depth map back face culling", ME_TOGGLE_DEPTH_MAP_CULLING);
+	glutAddMenuEntry("[F4] Toggle hardware shadow filtering", ME_TOGGLE_HW_SHADOW_FILTERING);
+	glutAddMenuEntry("[ESC] Quit", ME_EXIT);
 
-    glutAttachMenu(GLUT_RIGHT_BUTTON);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
-void
-parseOptions(int argc, char **argv)
+void parseOptions(int argc, char **argv)
 {
-  int i;
+	int i;
 
-  for (i=1; i<argc; i++) {
-    if (!strcmp("-window", argv[i])) {
-      fullscreen = 0;
-    }
-    if (!strcmp("-nodlist", argv[i])) {
-      useDisplayLists = 0;
-    }
-    if (strstr(argv[i], ".mgf")) {
-      mgf_filename = argv[i];
-    }
-    if (!strcmp("-depth24", argv[i])) {
-      useDepth24 = 1;
-    }
-    if (!strcmp("-vsync", argv[i])) {
-      vsync = 1;
-    }
-    if (!strcmp("-swapendian", argv[i])) {
-      littleEndian = !littleEndian;
-      printf("swap endian requested, assuming %s-endian\n",
-        littleEndian ? "little" : "big");
-    }
-    if (!strcmp("-front", argv[i])) {
-      drawFront = 1;
-    }
-    if (!strcmp("-v", argv[i])) {
-      gliVerbose(1);
-    }
-  }
+	for (i=1; i<argc; i++) {
+		if (!strcmp("-window", argv[i])) {
+			fullscreen = 0;
+		}
+		if (!strcmp("-nodlist", argv[i])) {
+			useDisplayLists = 0;
+		}
+		if (strstr(argv[i], ".mgf")) {
+			mgf_filename = argv[i];
+		}
+		if (!strcmp("-depth24", argv[i])) {
+			useDepth24 = 1;
+		}
+		if (!strcmp("-vsync", argv[i])) {
+			vsync = 1;
+		}
+		if (!strcmp("-swapendian", argv[i])) {
+			littleEndian = !littleEndian;
+			printf("swap endian requested, assuming %s-endian\n",
+				littleEndian ? "little" : "big");
+		}
+		if (!strcmp("-front", argv[i])) {
+			drawFront = 1;
+		}
+		if (!strcmp("-v", argv[i])) {
+			gliVerbose(1);
+		}
+	}
 }
 
-void
-setLittleEndian(void)
+void setLittleEndian(void)
 {
-  unsigned short shortValue = 258;
-  unsigned char *byteVersion = (unsigned char*) &shortValue;
+	unsigned short shortValue = 258;
+	unsigned char *byteVersion = (unsigned char*) &shortValue;
 
-  if (byteVersion[1] == 1) {
-    assert(byteVersion[0] == 2);
-    hwLittleEndian = 1;
-  } else {
-    assert(byteVersion[0] == 1);
-    assert(byteVersion[1] == 2);
-    hwLittleEndian = 0;
-  }
-  littleEndian = hwLittleEndian;
+	if (byteVersion[1] == 1) {
+		assert(byteVersion[0] == 2);
+		hwLittleEndian = 1;
+	} else {
+		assert(byteVersion[0] == 1);
+		assert(byteVersion[1] == 2);
+		hwLittleEndian = 0;
+	}
+	littleEndian = hwLittleEndian;
 }
 
-void
-idle()
+void idle()
 {
 	static const float calcstep = 0.1f;
 	rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
