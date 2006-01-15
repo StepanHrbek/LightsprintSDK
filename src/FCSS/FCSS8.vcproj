@@ -262,31 +262,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\Main.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\glsl\Scene.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\glsl\Scene.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\glsl\Texture.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\glsl\Texture.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\glsl\Torus.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\glsl\Torus.hpp"
 				>
 			</File>
 		</Filter>
@@ -372,7 +352,6 @@
 			>
 			<FileConfiguration
 				Name="Release|Win32"
-				ExcludedFromBuild="true"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -380,7 +359,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Debug|Win32"
-				ExcludedFromBuild="true"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
