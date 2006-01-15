@@ -11,7 +11,7 @@ void main()
   vec4 lightValue = texture2D(lightTex, projectiveBiased.xy);
   
   if(shadowValue.z < projectiveBiased.z)
-    gl_FragColor = vec4(0.4);
+    gl_FragColor = vec4(0.0);
   else
     gl_FragColor = gl_Color * lightValue;
 }

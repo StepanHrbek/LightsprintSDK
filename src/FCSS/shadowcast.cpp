@@ -43,30 +43,35 @@ char *filename_3ds="data\\sponza\\sponza.3ds";
 //
 // GLSL
 
+#define MAX_INSTANCES 200 // max number of light instances aproximating one area light
 GLSLProgram *shadowProg, *lightProg;
 Texture *lightTex;
 FrameRate *counter;
-unsigned int shadowTex;
+unsigned int shadowTex[MAX_INSTANCES];
 int currentWindowSize;
 #define SHADOW_MAP_SIZE 512
+int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0
 
 void initShadowTex()
 {
-	glGenTextures(1, &shadowTex);
+	glGenTextures(MAX_INSTANCES, shadowTex);
 
-	glBindTexture(GL_TEXTURE_2D, shadowTex);
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_SIZE,
-		SHADOW_MAP_SIZE,0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+	for(unsigned i=0;i<MAX_INSTANCES;i++)
+	{
+		glBindTexture(GL_TEXTURE_2D, shadowTex[i]);
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_SIZE,
+			SHADOW_MAP_SIZE,0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	}
 }
 
 void updateShadowTex()
 {
-	glBindTexture(GL_TEXTURE_2D, shadowTex);
+	glBindTexture(GL_TEXTURE_2D, shadowTex[(softLight>=0)?softLight:0]);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0,
 		SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 }
@@ -190,7 +195,6 @@ int useLights = 1;
 int useScissor = 1;
 float globalIntensity = 1;
 float ambientPower = 0;
-int softLight = -1;
 int softWidth[200],softHeight[200],softPrecision[200],softFiltering[200];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 bool drawOnlyZ = false;
@@ -506,7 +510,7 @@ void useBestShadowMapClamping(GLenum target)
 
 void updateDepthMap(void)
 {
-	//if(!needDepthMapUpdate) return;
+	if(!needDepthMapUpdate) return;
 
 	lightProg->useIt();
 	setupLightView(1);
@@ -551,7 +555,7 @@ void drawHardwareShadowPass(void)
 	shadowProg->sendUniform("lightTex", 1);
 
 	activateTexture(GL_TEXTURE0_ARB, GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, shadowTex);
+	glBindTexture(GL_TEXTURE_2D, shadowTex[(softLight>=0)?softLight:0]);
 	shadowProg->sendUniform("shadowMap", 0);
 
 	glMatrixMode(GL_TEXTURE);
