@@ -72,8 +72,10 @@ unsigned rr2gl_draw_indexed()
 
 	rrCollider::RRMeshImporter* meshImporter = objectImporter->getCollider()->getImporter();
 
-	triangles=0;
+	glColor4ub(0,0,0,255);
+
 	glBegin(GL_TRIANGLES);
+	triangles=0;
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	for(unsigned i=0;i<numTriangles;i++)
 	{
@@ -100,6 +102,8 @@ void rr2gl_draw_colored(bool direct)
 
 	rrCollider::RRMeshImporter* meshImporter = objectImporter->getCollider()->getImporter();
 
+	glColor4ub(0,0,0,255);
+
 	glBegin(GL_TRIANGLES);
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
@@ -108,58 +112,35 @@ void rr2gl_draw_colored(bool direct)
 	{
 		rrCollider::RRMeshImporter::Triangle tri;
 		meshImporter->getTriangle(triangleIdx,tri);
-		unsigned surfaceIdx = objectImporter->getTriangleSurface(triangleIdx);
-		if(surfaceIdx!=oldSurfaceIdx)
+		if(direct)
 		{
-			rrVision::RRSurface* surface = objectImporter->getSurface(surfaceIdx);
-			assert(surface);
-			if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-			/*emission[0] = 0;
-			emission[1] = 0;
-			emission[2] = 0;
-			emission[3] = 1;
-			// hide emission from mgf
-			emission[0] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[0];
-			emission[1] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[1];
-			emission[2] = surface->diffuseEmittance*surface->diffuseEmittanceColor.m[2];
-			glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission);*/
-			GLfloat diffuse[4] = {surface->diffuseReflectanceColor.m[0],surface->diffuseReflectanceColor.m[1],surface->diffuseReflectanceColor.m[2],1};
-			glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
-			/*GLfloat specular[4] = {surface->specularReflectance,surface->specularReflectance,surface->specularReflectance,1};
-			glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,specular);*/
-			// reload uniform material properties
-			glEnd();
-			glBegin(GL_TRIANGLES);
-		}
-		if(!NORMALS) 
-		{
-			rrVision::RRObjectImporter::TriangleNormals triangleNormals;
-			objectImporter->getTriangleNormals(triangleIdx,triangleNormals);
-			glNormal3fv(triangleNormals.norm[0].m);
+			unsigned surfaceIdx = objectImporter->getTriangleSurface(triangleIdx);
+			if(surfaceIdx!=oldSurfaceIdx)
+			{
+				rrVision::RRSurface* surface = objectImporter->getSurface(surfaceIdx);
+				assert(surface);
+				if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+				glColor3fv(surface->diffuseReflectanceColor.m);
+			}
+			if(!NORMALS) 
+			{
+				rrVision::RRObjectImporter::TriangleNormals triangleNormals;
+				objectImporter->getTriangleNormals(triangleIdx,triangleNormals);
+				glNormal3fv(triangleNormals.norm[0].m);
+			}
 		}
 		for(int v=0;v<3;v++) 
 		{
 			rrCollider::RRMeshImporter::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
 
-			if(!direct)
-			if(radiositySolver)
+			if(!direct && radiositySolver)
 			{
 				const rrVision::RRColor* indirect = radiositySolver->getTriangleRadiantExitance(0,triangleIdx,v);
-				if(!indirect)
+				if(indirect)
 				{
-					glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission);
-				} else {
-					GLfloat emission2[4];
-					emission2[0] = emission[0] + indirect->m[0];
-					emission2[1] = emission[1] + indirect->m[1];
-					emission2[2] = emission[2] + indirect->m[2];
-					emission2[3] = 1;
-					glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission2);
+					glColor3fv(indirect->m);
 				}
-				// reload uniform material properties
-				glEnd();
-				glBegin(GL_TRIANGLES);
 			}
 
 			glVertex3fv(vertex.m);

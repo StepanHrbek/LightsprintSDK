@@ -99,7 +99,7 @@ static void fillSurface(rrVision::RRSurface *s,C_MATERIAL *m)
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectanceColor.m);
 	for(unsigned c=0;c<3;c++)
 	{
-		s->diffuseReflectanceColor.m[c] *= m->rd *4; //!!!
+		s->diffuseReflectanceColor.m[c] *= m->rd;
 		if(s->diffuseReflectanceColor.m[c]>0.95f) s->diffuseReflectanceColor.m[c]=0.95f;
 	}
 	s->diffuseTransmittance =m->td;

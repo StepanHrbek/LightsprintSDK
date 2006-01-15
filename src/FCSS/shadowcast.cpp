@@ -44,7 +44,7 @@ char *filename_3ds="data\\sponza\\sponza.3ds";
 // GLSL
 
 #define MAX_INSTANCES 200 // max number of light instances aproximating one area light
-GLSLProgram *shadowProg, *lightProg;
+GLSLProgram *shadowProg, *lightProg, *indexedProg;
 Texture *lightTex;
 FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
@@ -80,6 +80,7 @@ void initShaders()
 {
 	shadowProg = new GLSLProgram("shaders\\shadow.vp", "shaders\\shadow.fp");
 	lightProg = new GLSLProgram("shaders\\light.vp");
+	indexedProg = new GLSLProgram("shaders\\indexed.vp", "shaders\\indexed.fp");
 }
 
 void glsl_init()
@@ -429,6 +430,9 @@ void drawShadowMapFrustum(void)
 	This results in world space coordinate that can then be transformed
 	by the eye view transform and eye projection matrix and on to the
 	screen. */
+
+	indexedProg->useIt();
+
 	if (showLightViewFrustum) {
 		glEnable(GL_LINE_STIPPLE);
 		glPushMatrix();
@@ -675,14 +679,15 @@ void drawEyeViewSoftShadowed(void)
 		ambientPower=oldAmbientPower;
 	}
 
-	/*/ add indirect
+	// add indirect
 	glDisable(GL_LIGHTING);
 	glBlendFunc(GL_ONE,GL_ONE);
 	glEnable(GL_BLEND);
 	drawDirect = false;
+	indexedProg->useIt();
 	drawScene();
 	drawDirect = true;
-	glDisable(GL_BLEND);*/
+	glDisable(GL_BLEND);
 }
 
 void
@@ -699,6 +704,7 @@ capturePrimary()
 	glDisable(GL_LIGHTING);
 
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	indexedProg->useIt();
 	unsigned numTriangles = rr2gl_draw_indexed();
 
 	// Allocate the index buffer memory as necessary.
@@ -1518,7 +1524,7 @@ void mouse(int button, int state, int x, int y)
 	if (button == lightButton && state == GLUT_UP) {
 		movingLight = 0;
 		needDepthMapUpdate = 1;
-		//!!!	capturePrimary();
+		capturePrimary();
 		glutPostRedisplay();
 	}
 }
@@ -1687,6 +1693,23 @@ main(int argc, char **argv)
 {
 	setLittleEndian();
 
+	rrCollider::registerLicense(
+		"Illusion Softworks, a.s.",
+		"DDEFMGDEFFBFFHJOCLBCFPMNHKENKPJNHDJFGKLCGEJFEOBMDC"
+		"ICNMHGEJJHJACNCFBOGJKGKEKJBAJNDCFNBGIHMIBODFGMHJFI"
+		"NJLGPKGNGOFFLLOGEIJMPBEADBJBJHGLJKGGFKOLDNIBIFENEK"
+		"AJCOKCOALBDEEBIFIBJECMJDBPJMKOIJPCJGIOCCHGEGCJDGCD"
+		"JDPKJEOJGMIEKNKNAOEENGMEHNCPPABBLLKGNCAPLNPAPNLCKM"
+		"AGOBKPOMJK");
+	rrVision::LicenseStatus status = rrVision::registerLicense(
+		"Illusion Softworks, a.s.",
+		"DDEFMGDEFFBFFHJOCLBCFPMNHKENKPJNHDJFGKLCGEJFEOBMDC"
+		"ICNMHGEJJHJACNCFBOGJKGKEKJBAJNDCFNBGIHMIBODFGMHJFI"
+		"NJLGPKGNGOFFLLOGEIJMPBEADBJBJHGLJKGGFKOLDNIBIFENEK"
+		"AJCOKCOALBDEEBIFIBJECMJDBPJMKOIJPCJGIOCCHGEGCJDGCD"
+		"JDPKJEOJGMIEKNKNAOEENGMEHNCPPABBLLKGNCAPLNPAPNLCKM"
+		"AGOBKPOMJK");
+
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
 	parseOptions(argc, argv);
@@ -1735,9 +1758,8 @@ main(int argc, char **argv)
 	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
 	rr2gl_compile(rrobject,rrscene);
-	capturePrimary();
-
 	glsl_init();
+	capturePrimary();
 
 	glutMainLoop();
 	return 0;
