@@ -1,7 +1,22 @@
-//mozne zrychleni soft shadows = pro instance pocitat jen viditelnost
-// material aplikovat az v poslednim pasu ktery zaroven pricte emisi
-// * ADD, pro instance pocitat jen viditelnost
-// * BLEND, out = buffer * diffuse_utlum_atd + (emission+indirect) * 1
+/*
+nemit 2 ruzny textury, 1 pro render, 1 pro capture primary
+sponza je pri gamma=0.4 presvicena
+indirect modulovat texturou
+vypocet je dost pomaly, zkusit nejaky meshcopy
+zkusit zapnout drsnejsi interpolace(slucoani blizkych ivertexu)
+koupelna je uplne cerna
+dodelat podporu pro matice do 3ds2rr importeru
+stranka s vic demacema pohromade
+mozne zrychleni soft shadows = pro instance pocitat jen viditelnost
+ material aplikovat az v poslednim pasu ktery zaroven pricte emisi
+ * ADD, pro instance pocitat jen viditelnost
+ * BLEND, out = buffer * diffuse_utlum_atd + (emission+indirect) * 1
+cv:
+ gl 2.0, glsl
+ uml
+ asm i letos
+
+*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -34,7 +49,7 @@ using namespace std;
 //
 // 3DS
 
-#define _3DS
+//#define _3DS
 #ifdef _3DS
 #include "Model_3DS.h"
 #include "GLTexture.h"
@@ -50,7 +65,7 @@ char *filename_3ds="data\\sponza\\sponza.3ds";
 // GLSL
 
 #define MAX_INSTANCES 200 // max number of light instances aproximating one area light
-GLSLProgram *shadowProg, *shadowDifMProg, *lightProg, *indexedProg;
+GLSLProgram *shadowProg, *shadowDifMProg, *lightProg, *ambientProg, *ambientDifMProg;
 Texture *lightTex;
 FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
@@ -87,7 +102,8 @@ void initShaders()
 	shadowProg = new GLSLProgram("shaders\\shadow.vp", "shaders\\shadow.fp");
 	shadowDifMProg = new GLSLProgram("shaders\\shadow_DifM.vp", "shaders\\shadow_DifM.fp");
 	lightProg = new GLSLProgram("shaders\\light.vp");
-	indexedProg = new GLSLProgram("shaders\\indexed.vp", "shaders\\indexed.fp");
+	ambientProg = new GLSLProgram("shaders\\ambient.vp", "shaders\\ambient.fp");
+	ambientDifMProg = new GLSLProgram("shaders\\ambient_DifM.vp", "shaders\\ambient_DifM.fp");
 }
 
 void glsl_init()
@@ -374,9 +390,9 @@ void drawScene()
 			rr2gl_draw_colored(drawDirect);
 		else
 #ifdef _3DS
-		  m3ds.Draw();
+			m3ds.Draw(/*drawDirect?rrobject:NULL*/);
 #else
-		  rr2gl_draw_colored(drawDirect);
+			rr2gl_draw_colored(drawDirect);
 #endif
 		break;
 	}
@@ -445,7 +461,7 @@ void drawShadowMapFrustum(void)
 	by the eye view transform and eye projection matrix and on to the
 	screen. */
 
-	indexedProg->useIt();
+	ambientProg->useIt();
 
 	if (showLightViewFrustum) {
 		glEnable(GL_LINE_STIPPLE);
@@ -710,7 +726,12 @@ void drawEyeViewSoftShadowed(void)
 	glBlendFunc(GL_ONE,GL_ONE);
 	glEnable(GL_BLEND);
 	drawDirect = false;
-	indexedProg->useIt();
+#ifdef _3DS
+	//ambientDifMProg->useIt();
+	ambientProg->useIt();
+#else
+	ambientProg->useIt();
+#endif
 	drawScene();
 	drawDirect = true;
 	glDisable(GL_BLEND);
@@ -730,7 +751,7 @@ capturePrimary()
 	glDisable(GL_LIGHTING);
 
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	indexedProg->useIt();
+	ambientProg->useIt();
 	unsigned numTriangles = rr2gl_draw_indexed();
 
 	// Allocate the index buffer memory as necessary.
@@ -780,7 +801,7 @@ capturePrimary()
 		rrVision::RRSurface* s = rrobject->getSurface(surfaceIdx);
 		rrVision::RRColor color;
 		for(unsigned c=0;c<3;c++)
-			color.m[c] = trianglePower[t].m[c] * mult * s->diffuseReflectanceColor.m[c] * s->diffuseReflectance;
+			color.m[c] = trianglePower[t].m[c] * mult * s->diffuseReflectanceColor.m[c];
 		const float LIMIT = 100; for(unsigned i=0;i<3;i++) if(color.m[i]>LIMIT) color.m[i]=LIMIT;
 		rrobject->setTriangleAdditionalRadiantExitingFlux(t,&color);
 	}
@@ -1784,7 +1805,7 @@ main(int argc, char **argv)
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
-//	rrscene->setScaler(rrscaler);
+	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
 	rr2gl_compile(rrobject,rrscene);
 	glsl_init();

@@ -274,7 +274,9 @@ void Model_3DS::Load(char *name)
 	}
 }
 
-void Model_3DS::Draw()
+void Model_3DS::Draw(/*rrVision::RRObjectImporter* rrobject*/)
+// rrobject = NULL -> standard render
+// rrobject != NULL -> pass additionalExitance to gl_Color
 {
 	if (visible)
 	{

@@ -1,0 +1,8 @@
+varying vec2 diffuseCoord;
+
+void main()
+{
+  diffuseCoord = gl_MultiTexCoord0.xy;
+  gl_FrontColor = gl_Color;
+  gl_Position = ftransform();
+}
