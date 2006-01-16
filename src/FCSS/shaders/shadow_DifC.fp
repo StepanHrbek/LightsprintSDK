@@ -1,4 +1,4 @@
-uniform sampler2D shadowMap;
+uniform sampler2D shadowMap, lightTex;
 
 varying vec4 projCoord;
 
@@ -8,9 +8,10 @@ void main()
   projectiveBiased = (projectiveBiased + 1.0) * 0.5;
   
   vec4 shadowValue = texture2D(shadowMap, projectiveBiased.xy);
+  vec4 lightValue = texture2D(lightTex, projectiveBiased.xy);
   
   if(shadowValue.z < projectiveBiased.z)
     gl_FragColor = vec4(0.0);
   else
-    gl_FragColor = 1;
+    gl_FragColor = gl_Color * lightValue;
 }

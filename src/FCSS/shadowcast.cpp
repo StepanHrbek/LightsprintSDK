@@ -65,7 +65,7 @@ char *filename_3ds="data\\sponza\\sponza.3ds";
 // GLSL
 
 #define MAX_INSTANCES 200 // max number of light instances aproximating one area light
-GLSLProgram *shadowProg, *shadowDifMProg, *lightProg, *ambientProg, *ambientDifMProg;
+GLSLProgram *shadowProg, *shadowDifCProg, *shadowDifMProg, *lightProg, *ambientProg, *ambientDifMProg;
 Texture *lightTex;
 FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
@@ -100,6 +100,7 @@ void updateShadowTex()
 void initShaders()
 {
 	shadowProg = new GLSLProgram("shaders\\shadow.vp", "shaders\\shadow.fp");
+	shadowDifCProg = new GLSLProgram("shaders\\shadow_DifC.vp", "shaders\\shadow_DifC.fp");
 	shadowDifMProg = new GLSLProgram("shaders\\shadow_DifM.vp", "shaders\\shadow_DifM.fp");
 	lightProg = new GLSLProgram("shaders\\light.vp");
 	ambientProg = new GLSLProgram("shaders\\ambient.vp", "shaders\\ambient.fp");
@@ -585,7 +586,7 @@ void drawHardwareShadowPass(void)
 #ifdef _3DS
 	GLSLProgram* myProg = shadowDifMProg;
 #else
-	GLSLProgram* myProg = shadowProg;
+	GLSLProgram* myProg = shadowDifCProg;
 #endif
 	myProg->useIt();
 

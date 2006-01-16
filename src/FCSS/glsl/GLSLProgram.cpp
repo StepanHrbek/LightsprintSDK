@@ -136,6 +136,7 @@ int GLSLProgram::getLoc(const char *name)
   if(loc == -1)
     {
       cout << name << " is not a valid uniform variable name.\n";
+	  fgetc(stdin);
       exit(0);
     }
   return loc;
