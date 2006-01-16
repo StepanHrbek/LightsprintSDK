@@ -8,6 +8,7 @@
 #include "LessTriangles.h"
 #include "CopyMesh.h"
 #include "MultiMesh.h"
+#include "../geometry.h"
 
 #include <assert.h>
 #ifdef _MSC_VER
@@ -175,6 +176,131 @@ RRMeshImporter* RRMeshImporter::createMultiMesh(RRMeshImporter* const* meshes, u
 RRMeshImporter* RRMeshImporter::createOptimizedVertices(float vertexStitchMaxDistance)
 {
 	return new RRLessVerticesFilter<unsigned>(this,vertexStitchMaxDistance);
+}
+
+unsigned RRMeshImporter::verify(Reporter* reporter, void* context)
+{
+	unsigned numReports = 0;
+	static char msg[500];
+	// numVertices
+	unsigned numVertices = getNumVertices();
+	if(numVertices>=10000000)
+	{
+		sprintf(msg,"Warning: getNumVertices()==%d.",numVertices);
+		reporter(msg,context);
+		numReports++;
+	}
+	// numTriangles
+	unsigned numTriangles = getNumTriangles();
+	if(numTriangles>=10000000)
+	{
+		sprintf(msg,"Warning: getNumTriangles()==%d.",numTriangles);
+		reporter(msg,context);
+		numReports++;
+	}
+	// vertices
+	for(unsigned i=0;i<numVertices;i++)
+	{
+		Vertex vertex;
+		getVertex(i,vertex);
+		if(!IS_VEC3(vertex))
+		{
+			sprintf(msg,"Error: getVertex(%d)==%f %f %f.",i,vertex.m[0],vertex.m[1],vertex.m[2]);
+			reporter(msg,context);
+			numReports++;
+		}
+	}
+	// triangles
+	for(unsigned i=0;i<numTriangles;i++)
+	{
+		// triangle
+		Triangle triangle;
+		getTriangle(i,triangle);
+		if(triangle.m[0]>=numVertices || triangle.m[1]>=numVertices || triangle.m[2]>=numVertices)
+		{
+			sprintf(msg,"Error: getTriangle(%d)==%d %d %d, getNumVertices()==%d.",i,triangle.m[0],triangle.m[1],triangle.m[2],numVertices);
+			reporter(msg,context);
+			numReports++;
+		}
+		// triangleBody
+		TriangleBody triangleBody;
+		getTriangleBody(i,triangleBody);
+		if(!IS_VEC3(triangleBody.vertex0))
+		{
+			sprintf(msg,"Error: getTriangleBody(%d).vertex0==%f %f %f.",i,triangleBody.vertex0.m[0],triangleBody.vertex0.m[1],triangleBody.vertex0.m[2]);
+			reporter(msg,context);
+			numReports++;
+		}
+		if(!IS_VEC3(triangleBody.side1))
+		{
+			sprintf(msg,"Error: getTriangleBody(%d).side1==%f %f %f.",i,triangleBody.side1.m[0],triangleBody.side1.m[1],triangleBody.side1.m[2]);
+			reporter(msg,context);
+			numReports++;
+		}
+		if(!IS_VEC3(triangleBody.side2))
+		{
+			sprintf(msg,"Error: getTriangleBody(%d).side2==%f %f %f.",i,triangleBody.side2.m[0],triangleBody.side2.m[1],triangleBody.side2.m[2]);
+			reporter(msg,context);
+			numReports++;
+		}
+		// triangleBody equals triangle
+		Vertex vertex[3];
+		getVertex(triangle.m[0],vertex[0]);
+		getVertex(triangle.m[1],vertex[1]);
+		getVertex(triangle.m[2],vertex[2]);
+		if(triangleBody.vertex0.m[0]!=vertex[0].m[0] || triangleBody.vertex0.m[1]!=vertex[0].m[1] || triangleBody.vertex0.m[2]!=vertex[0].m[2])
+		{
+			sprintf(msg,"Error: getTriangle(%d)==%d %d %d, getTriangleBody(%d).vertex0==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.",
+				i,triangle.m[0],triangle.m[1],triangle.m[2],
+				i,triangleBody.vertex0.m[0],triangleBody.vertex0.m[1],triangleBody.vertex0.m[2],
+				triangle.m[0],vertex[0].m[0],vertex[0].m[1],vertex[0].m[2],
+				triangleBody.vertex0.m[0]-triangle.m[0],triangleBody.vertex0.m[1]-triangle.m[1],triangleBody.vertex0.m[2]-triangle.m[2]);
+			reporter(msg,context);
+			numReports++;
+		}
+		float scale =
+			fabs(vertex[1].m[0]-vertex[0].m[0])+fabs(triangleBody.side1.m[0])+
+			fabs(vertex[1].m[1]-vertex[0].m[1])+fabs(triangleBody.side1.m[1])+
+			fabs(vertex[1].m[2]-vertex[0].m[2])+fabs(triangleBody.side1.m[2]);
+		float dif =
+			fabs(vertex[1].m[0]-vertex[0].m[0]-triangleBody.side1.m[0])+
+			fabs(vertex[1].m[1]-vertex[0].m[1]-triangleBody.side1.m[1])+
+			fabs(vertex[1].m[2]-vertex[0].m[2]-triangleBody.side1.m[2]);
+		if(dif>scale*1e-5)
+		{
+			sprintf(msg,"%s: getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.",
+				(dif>scale*0.01)?"Error":"Warning",
+				i,triangle.m[0],triangle.m[1],triangle.m[2],
+				i,triangleBody.side1.m[0],triangleBody.side1.m[1],triangleBody.side1.m[2],
+				triangle.m[0],vertex[0].m[0],vertex[0].m[1],vertex[0].m[2],
+				triangle.m[1],vertex[1].m[0],vertex[1].m[1],vertex[1].m[2],
+				vertex[1].m[0]-vertex[0].m[0]-triangleBody.side1.m[0],vertex[1].m[1]-vertex[0].m[1]-triangleBody.side1.m[1],vertex[1].m[2]-vertex[0].m[2]-triangleBody.side1.m[2]);
+			reporter(msg,context);
+			numReports++;
+		}
+		scale =
+			fabs(vertex[2].m[0]-vertex[0].m[0])+fabs(triangleBody.side2.m[0])+
+			fabs(vertex[2].m[1]-vertex[0].m[1])+fabs(triangleBody.side2.m[1])+
+			fabs(vertex[2].m[2]-vertex[0].m[2])+fabs(triangleBody.side2.m[2]);
+		dif =
+			fabs(vertex[2].m[0]-vertex[0].m[0]-triangleBody.side2.m[0])+
+			fabs(vertex[2].m[1]-vertex[0].m[1]-triangleBody.side2.m[1])+
+			fabs(vertex[2].m[2]-vertex[0].m[2]-triangleBody.side2.m[2]);
+		if(dif>scale*1e-5)
+		{
+			sprintf(msg,"%s: getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.",
+				(dif>scale*0.01)?"Error":"Warning",
+				i,triangle.m[0],triangle.m[1],triangle.m[2],
+				i,triangleBody.side2.m[0],triangleBody.side2.m[1],triangleBody.side2.m[2],
+				triangle.m[0],vertex[0].m[0],vertex[0].m[1],vertex[0].m[2],
+				triangle.m[2],vertex[2].m[0],vertex[2].m[1],vertex[2].m[2],
+				vertex[2].m[0]-vertex[0].m[0]-triangleBody.side2.m[0],vertex[2].m[1]-vertex[0].m[1]-triangleBody.side2.m[1],vertex[2].m[2]-vertex[0].m[2]-triangleBody.side2.m[2]);
+			reporter(msg,context);
+			numReports++;
+		}
+		//!!! pre/post import
+	}
+	return numReports;
 }
 
 } //namespace

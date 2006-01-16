@@ -38,6 +38,7 @@ using namespace std;
 #ifdef _3DS
 #include "Model_3DS.h"
 #include "GLTexture.h"
+#include "3ds2rr.h"
 Model_3DS m3ds;
 char *filename_3ds="data\\sponza\\sponza.3ds";
 //char *filename_3ds="data\\raist\\koupelna2.3ds";
@@ -280,7 +281,7 @@ GLdouble lightFrustumMatrix[16];
 GLdouble lightInverseFrustumMatrix[16];
 
 // rr related
-rrVision::RRObjectImporter* rrobject = NULL;
+rrVision::RRAdditionalObjectImporter* rrobject = NULL;
 rrVision::RRScene* rrscene = NULL;
 rrVision::RRScaler* rrscaler = NULL;
 gliGenericImage* rrspot = NULL;
@@ -357,20 +358,27 @@ static void drawSphere(void)
    more than once per frame. */
 void drawScene()
 {
+	switch (objectConfiguration)
+	{
+		case OC_MGF:
+		default:
+		// although it doesn't make sense, on GF4 Ti 4200 
+		// it's slightly faster when "if(drawOnlyZ) mgf_draw_onlyz(); else" is deleted
+		if(drawOnlyZ) 
+			rr2gl_draw_onlyz();
+		else
+		if(drawIndexed) 
+			rr2gl_draw_indexed();
+		else
+		if(!drawDirect)
+			rr2gl_draw_colored(drawDirect);
+		else
 #ifdef _3DS
-	m3ds.Draw();
-	return;
+		  m3ds.Draw();
+#else
+		  rr2gl_draw_colored(drawDirect);
 #endif
-
-	switch (objectConfiguration) {
-  case OC_MGF:
-  default:
-	  // although it doesn't make sense, on GF4 Ti 4200 
-	  // it's slightly faster when "if(drawOnlyZ) mgf_draw_onlyz(); else" is deleted
-	  if(drawOnlyZ) rr2gl_draw_onlyz();
-	  else if(drawIndexed) rr2gl_draw_indexed();
-	  else rr2gl_draw_colored(drawDirect);
-	  break;
+		break;
 	}
 }
 
@@ -695,7 +703,9 @@ void drawEyeViewSoftShadowed(void)
 		ambientPower=oldAmbientPower;
 	}
 
-	/*/ add indirect
+	// add indirect
+	// z neznameho duvodu kdyz se toto zakomentuje, primary je nekolikrat tmavsi
+	// staci zakomentovat drawScene()
 	glDisable(GL_LIGHTING);
 	glBlendFunc(GL_ONE,GL_ONE);
 	glEnable(GL_BLEND);
@@ -704,7 +714,6 @@ void drawEyeViewSoftShadowed(void)
 	drawScene();
 	drawDirect = true;
 	glDisable(GL_BLEND);
-	*/
 }
 
 void
@@ -772,7 +781,8 @@ capturePrimary()
 		rrVision::RRColor color;
 		for(unsigned c=0;c<3;c++)
 			color.m[c] = trianglePower[t].m[c] * mult * s->diffuseReflectanceColor.m[c] * s->diffuseReflectance;
-		set_direct_exiting_flux(rrobject,t,&color);
+		const float LIMIT = 100; for(unsigned i=0;i<3;i++) if(color.m[i]>LIMIT) color.m[i]=LIMIT;
+		rrobject->setTriangleAdditionalRadiantExitingFlux(t,&color);
 	}
 
 	// debug print
@@ -1731,9 +1741,6 @@ main(int argc, char **argv)
 	glutInit(&argc, argv);
 	parseOptions(argc, argv);
 
-	// load mgf
-	rrobject = new_mgf_importer(mgf_filename);
-
 	if (useDepth24) {
 		glutInitDisplayString("depth~24 rgb double");
 	} else {
@@ -1764,7 +1771,12 @@ main(int argc, char **argv)
 	loadTextures();
 
 #ifdef _3DS
+	// load 3ds
 	m3ds.Load(filename_3ds);
+	rrobject = new_3ds_importer(&m3ds)->createAdditionalExitance();
+#else
+	// load mgf
+	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
 
 	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
@@ -1772,7 +1784,7 @@ main(int argc, char **argv)
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
-	rrscene->setScaler(rrscaler);
+//	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
 	rr2gl_compile(rrobject,rrscene);
 	glsl_init();

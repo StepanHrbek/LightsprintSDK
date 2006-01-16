@@ -271,6 +271,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\3ds2rr.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\3ds2rr.h"
+			>
+		</File>
+		<File
 			RelativePath=".\Gl\glprocs.c"
 			>
 		</File>

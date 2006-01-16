@@ -263,4 +263,105 @@ RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* o
 }
 
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRAdditionalObjectImporter
+
+class RRMyAdditionalObjectImporter : public RRAdditionalObjectImporter
+{
+public:
+	RRMyAdditionalObjectImporter(RRObjectImporter* aoriginal)
+	{
+		original = aoriginal;
+		assert(getCollider());
+		assert(getCollider()->getImporter());
+		numTriangles = getCollider()->getImporter()->getNumTriangles();
+		addExitance = new RRColor[numTriangles];
+		addFlux = new RRColor[numTriangles];
+		memset(addExitance,0,sizeof(RRColor)*numTriangles);
+		memset(addFlux,0,sizeof(RRColor)*numTriangles);
+	}
+	virtual ~RRMyAdditionalObjectImporter() 
+	{
+		delete[] addExitance;
+		delete[] addFlux;
+	}
+	virtual void setTriangleAdditionalRadiantExitance(unsigned t, const RRColor* exitance)
+	{
+		if(t>=numTriangles)
+		{
+			assert(0);
+			return;
+		}
+		addExitance[t] = *exitance;
+	}
+	virtual void setTriangleAdditionalRadiantExitingFlux(unsigned t, const RRColor* flux)
+	{
+		if(t>=numTriangles)
+		{
+			assert(0);
+			return;
+		}
+		addFlux[t] = *flux;
+	}
+	virtual const RRColor* getTriangleAdditionalRadiantExitance(unsigned t) const 
+	{
+		if(t>=numTriangles)
+		{
+			assert(0);
+			return NULL;
+		}
+		return &addExitance[t];
+	}
+	virtual const RRColor* getTriangleAdditionalRadiantExitingFlux(unsigned t) const
+	{
+		if(t>=numTriangles)
+		{
+			assert(0);
+			return NULL;
+		}
+		return &addFlux[t];
+	}
+
+	virtual const rrCollider::RRCollider* getCollider() const
+	{
+		return original->getCollider();
+	}
+	virtual unsigned getTriangleSurface(unsigned t) const
+	{
+		return original->getTriangleSurface(t);
+	}
+	virtual RRSurface* getSurface(unsigned s)
+	{
+		return original->getSurface(s);
+	}
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out)
+	{
+		return original->getTriangleNormals(t,out);
+	}
+	virtual void getTriangleMapping(unsigned t, TriangleMapping& out)
+	{
+		return original->getTriangleMapping(t,out);
+	}
+	virtual const RRMatrix4x4* getWorldMatrix()
+	{
+		return original->getWorldMatrix();
+	}
+	virtual const RRMatrix4x4* getInvWorldMatrix()
+	{
+		return original->getInvWorldMatrix();
+	}
+
+private:
+	RRObjectImporter* original;
+	unsigned numTriangles;
+	RRColor* addExitance;
+	RRColor* addFlux;
+};
+
+RRAdditionalObjectImporter* RRObjectImporter::createAdditionalExitance()
+{
+	return new RRMyAdditionalObjectImporter(this);
+}
+
 } // namespace

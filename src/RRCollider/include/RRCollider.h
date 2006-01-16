@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2005.11.27
+// version 2006.1.16
 //
 // - thread safe, you can calculate any number of intersections at the same time
 // - you can select technique in range from maximal speed to zero memory allocated
@@ -152,6 +152,10 @@ namespace rrCollider
 		RRMeshImporter*        createOptimizedVertices(float vertexStitchMaxDistance = 0);
 		bool                   save(char* filename);
 		static RRMeshImporter* load(char* filename);
+
+		// verification
+		typedef void Reporter(const char* msg, void* context);
+		unsigned               verify(Reporter* reporter, void* context); // returns number of reports
 	};
 
 

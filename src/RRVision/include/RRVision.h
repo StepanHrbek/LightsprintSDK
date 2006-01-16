@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2006.1.8
+// version 2006.1.16
 //
 // - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms
@@ -72,6 +72,7 @@ namespace rrVision
 	{
 		RRReal m[4][4];
 	};
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -158,7 +159,23 @@ namespace rrVision
 		// instance factory
 		rrCollider::RRMeshImporter* createWorldSpaceMesh();
 		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation);
+		class RRAdditionalObjectImporter* createAdditionalExitance();
 	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// RRAdditionalObjectImporter - helper interface
+	//
+	// RRObjectImporter copy with set/get-able additional per-face exitance (overrides exitance of original)
+
+	class RRAdditionalObjectImporter : public RRObjectImporter
+	{
+	public:
+		virtual void                setTriangleAdditionalRadiantExitance(unsigned t, const RRColor* exitance) = 0;
+		virtual void                setTriangleAdditionalRadiantExitingFlux(unsigned t, const RRColor* flux) = 0;
+	};
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -176,6 +193,7 @@ namespace rrVision
 		virtual RRColor getRadiance(RRVector3 dirFromSky) const = 0;
 		virtual ~RRSkyLight() {}
 	};
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -207,6 +225,7 @@ namespace rrVision
 		// instance factory
 		static RRScaler* createGammaScaler(RRReal gamma);
 	};
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -266,6 +285,7 @@ namespace rrVision
 	private:
 		void*         _scene;
 	};
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//

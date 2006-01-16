@@ -125,6 +125,7 @@ void rr2gl_draw_colored(bool direct)
 				assert(surface);
 				if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
 				glColor3fv(surface->diffuseReflectanceColor.m);
+				oldSurfaceIdx = surfaceIdx;
 			}
 			if(!NORMALS) 
 			{
