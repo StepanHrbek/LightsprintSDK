@@ -1281,8 +1281,8 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingF
 	assert(filteringCoef>=0);
 	assert(e>=0);
 #else
-	Channels e=*(Vec3*)&__colorFilter * area *
-	  ( *(Vec3*)&surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalExitingFlux );
+	Channels e=__colorFilter * area *
+	  ( surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalExitingFlux );
 #endif
 	assert(surface->diffuseEmittance>=0);
 	assert(area>=0);
@@ -1296,7 +1296,7 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingF
 	shooter->energyToDiffuse=e;
 	// load received energy accumulator
 	energyDirect=e;
-	//energyDirectIncident=e/ *(Vec3*)surface->diffuseReflectanceColor;
+	//energyDirectIncident=e/surface->diffuseReflectanceColor;
 	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectanceColor[0],0.1f),e.y/MAX(surface->diffuseReflectanceColor[1],0.1f),e.z/MAX(surface->diffuseReflectanceColor[2],0.1f));
 	sourceExitingFlux=e;
 #endif
@@ -2673,7 +2673,7 @@ Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Chann
 	// calculate surface exitance
 	Channels incidentPower = hitTriangle->energyDirectIncident + hitTriangle->getEnergyDynamic();
 	Channels irradiance = incidentPower / hitTriangle->area;
-	Channels exitance = irradiance * *(Vec3*)&hitTriangle->surface->diffuseReflectanceColor;
+	Channels exitance = irradiance * hitTriangle->surface->diffuseReflectanceColor;
 	return exitance;
 }
 
@@ -3352,15 +3352,15 @@ unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::Instant
 		for(unsigned j=0;j<generatePoints;j++)
 		{
 			Triangle* t = getRandomExitRay(sortedNode[i].node,(Vec3*)&point[generatedPoints].pos,(Vec3*)&point[generatedPoints].norm);
-			if(dot(*(Vec3*)&point[generatedPoints].norm,t->getN3())>=0)
-				*(Vec3*)&point[generatedPoints].norm = t->getN3();
+			if(dot(point[generatedPoints].norm,t->getN3())>=0)
+				point[generatedPoints].norm = t->getN3();
 			else
-				*(Vec3*)&point[generatedPoints].norm = -t->getN3();
+				point[generatedPoints].norm = -t->getN3();
 			Channels c = ENERGY(sortedNode[i].node)/generatePoints;
 #if CHANNELS==1
-			*(Vec3*)&point[generatedPoints].col = Vec3(c,c,c);
+			point[generatedPoints].col = Vec3(c,c,c);
 #else
-			*(Vec3*)&point[generatedPoints].col = c;
+			point[generatedPoints].col = c;
 #endif
 			generatedPoints++;
 		}

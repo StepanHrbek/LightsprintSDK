@@ -288,7 +288,7 @@ Channels IVertex::irradiance()
 // differs for different corners, depends on corner material
 Channels IVertex::exitance(Node* corner)
 {
-	return irradiance()* *(Vec3*)(&corner->grandpa->surface->diffuseReflectanceColor);
+	return irradiance()*corner->grandpa->surface->diffuseReflectanceColor;
 }
 
 void IVertex::loadCache(Channels r)
@@ -947,7 +947,7 @@ void Object::buildTopIVertices()
 	{
 		rrCollider::RRMeshImporter::Vertex vert;
 		meshImporter->getVertex(v,vert);
-		if(!topivertex[v].check(*(Vec3*)&vert)) unusedVertices++;
+		if(!topivertex[v].check(vert)) unusedVertices++;
 		numIVertices += topivertex[v].splitTopLevel((Vec3*)&vert,this);
 		// check that splitted topivertex is no more referenced
 		/*for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)

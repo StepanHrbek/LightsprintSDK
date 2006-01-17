@@ -60,19 +60,6 @@ RRVec3 ortogonalTo(const RRVec3& a,const RRVec3& b)
 	return RRVec3(a.y*b.z-a.z*b.y,-a.x*b.z+a.z*b.x,a.x*b.y-a.y*b.x);
 }
 
-RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b)
-{
-	RRReal d = dot(a,b);
-	RRReal angle = acos(MAX(MIN(d,1),-1));
-	assert(IS_NUMBER(angle));
-	return angle;
-}
-
-RRReal angleBetween(const RRVec3& a,const RRVec3& b)
-{
-	return angleBetweenNormalized(normalized(a),normalized(b));
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // plane in 3d

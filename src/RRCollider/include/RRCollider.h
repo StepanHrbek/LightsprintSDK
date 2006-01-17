@@ -125,8 +125,6 @@ namespace rrCollider
 	RRReal RRCOLLIDER_API dot(const RRVec3& a,const RRVec3& b);
 	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a);
 	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a,const RRVec3& b);
-	RRReal RRCOLLIDER_API angleBetween(const RRVec3& a,const RRVec3& b);
-	RRReal RRCOLLIDER_API angleBetweenNormalized(const RRVec3& a,const RRVec3& b);
 
 	struct RRVec4 : public RRVec3
 	{

@@ -148,6 +148,19 @@ void clampToZero(RRVec3& a)
 	if(a.z<0) a.z=0;
 }
 
+RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b)
+{
+	RRReal d = dot(a,b);
+	RRReal angle = acos(MAX(MIN(d,1),-1));
+	assert(IS_NUMBER(angle));
+	return angle;
+}
+
+RRReal angleBetween(const RRVec3& a,const RRVec3& b)
+{
+	return angleBetweenNormalized(normalized(a),normalized(b));
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //

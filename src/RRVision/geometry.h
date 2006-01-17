@@ -97,7 +97,7 @@ Angle angleBetweenNormalized(Vec2 a,Vec2 b);
 //
 // 3d vector
 
-#define Vec3 RRVec3
+typedef RRVec3 Vec3;
 
 RRReal abs(RRReal a);
 RRReal sum(RRReal a);
@@ -108,6 +108,9 @@ RRVec3 abs(const RRVec3& a);
 RRReal sum(const RRVec3& a);
 RRReal avg(const RRVec3& a);
 void   clampToZero(RRVec3& a);
+
+RRReal angleBetween(const RRVec3& a,const RRVec3& b);
+RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b);
 
 //////////////////////////////////////////////////////////////////////////////
 //

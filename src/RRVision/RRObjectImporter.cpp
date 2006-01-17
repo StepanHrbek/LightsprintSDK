@@ -22,7 +22,7 @@ void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
 {
 	rrCollider::RRMeshImporter::TriangleBody tb;
 	getCollider()->getImporter()->getTriangleBody(t,tb);
-	Vec3 norm = ortogonalTo(*(Vec3*)&tb.side1,*(Vec3*)&tb.side2);
+	Vec3 norm = ortogonalTo(tb.side1,tb.side2);
 	norm *= 1/size(norm);
 	out.norm[0] = norm;
 	out.norm[1] = norm;

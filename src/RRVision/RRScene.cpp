@@ -319,7 +319,7 @@ const RRColor* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned tria
 			RRObjectImporter* objectImporter = obj->importer;
 			RRObjectImporter::TriangleNormals normals;
 			objectImporter->getTriangleNormals(triangle,normals);
-			Vec3 normal = *(Vec3*)(&normals.norm[vertex]);
+			Vec3 normal = normals.norm[vertex];
 			assert(fabs(size2(normal)-1)<0.001);
 			// get point
 			rrCollider::RRMeshImporter* meshImporter = objectImporter->getCollider()->getImporter();
@@ -328,7 +328,7 @@ const RRColor* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned tria
 			unsigned vertexIdx = triangleIndices[vertex];
 			rrCollider::RRMeshImporter::Vertex vertexBody;
 			meshImporter->getVertex(vertexIdx,vertexBody);
-			Vec3 point = *(Vec3*)&vertexBody;
+			Vec3 point = vertexBody;
 			// transform to worldspace
 			Matrix* world = (Matrix*)objectImporter->getWorldMatrix();
 			if(world)
@@ -417,7 +417,7 @@ const RRColor* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned
 	if(!tri->surface) return NULL;
 
 	static Vec3 rad;
-	rad = *(Vec3*)getTriangleIrradiance(object,triangle,vertex) * *(Vec3*)(&tri->surface->diffuseReflectanceColor);
+	rad = *getTriangleIrradiance(object,triangle,vertex) * tri->surface->diffuseReflectanceColor;
 	RRScaler* scaler = scene->scaler;
 	if(scaler) rad = Vec3(scaler->getScaled(rad[0]),scaler->getScaled(rad[1]),scaler->getScaled(rad[2]));
 	return (RRColor*)&rad.x;
