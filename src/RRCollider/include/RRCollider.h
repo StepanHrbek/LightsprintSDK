@@ -10,7 +10,7 @@
 // - up to 2^32 vertices and 2^30 triangles in mesh
 // - builds helper-structures and stores them in cache on disk
 //
-// Copyright (C) Stepan Hrbek 1999-2005, Daniel Sykora 1999-2004
+// Copyright (C) Stepan Hrbek 1999-2006, Daniel Sykora 1999-2004
 // All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
@@ -74,6 +74,7 @@
 	#define RRCOLLIDER_API
 #endif
 
+#include <math.h>   // sqrt
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
 
@@ -81,6 +82,69 @@ namespace rrCollider
 {
 
 	typedef float RRReal;
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// RRVec3 - vector in 3d
+
+	struct RRVec3
+	{
+		RRReal    x;
+		RRReal    y;
+		RRReal    z;
+
+		RRVec3()                                    {}
+		explicit RRVec3(RRReal a)                            {x=a;y=a;z=a;}
+		RRVec3(RRReal ax,RRReal ay,RRReal az)       {x=ax;y=ay;z=az;}
+		RRVec3 operator + (const RRVec3& a)   const {return RRVec3(x+a.x,y+a.y,z+a.z);}
+		RRVec3 operator - (const RRVec3& a)   const {return RRVec3(x-a.x,y-a.y,z-a.z);}
+		RRVec3 operator * (RRReal f)          const {return RRVec3(x*f,y*f,z*f);}
+		RRVec3 operator * (RRVec3 a)          const {return RRVec3(x*a.x,y*a.y,z*a.z);}
+		RRVec3 operator / (RRReal f)          const {return RRVec3(x/f,y/f,z/f);}
+		RRVec3 operator / (int f)             const {return RRVec3(x/f,y/f,z/f);}
+		RRVec3 operator / (unsigned f)        const {return RRVec3(x/f,y/f,z/f);}
+		RRVec3 operator +=(const RRVec3& a)         {x+=a.x;y+=a.y;z+=a.z;return *this;}
+		RRVec3 operator -=(const RRVec3& a)         {x-=a.x;y-=a.y;z-=a.z;return *this;}
+		RRVec3 operator *=(RRReal f)                {x*=f;y*=f;z*=f;return *this;}
+		RRVec3 operator *=(const RRVec3& a)         {x*=a.x;y*=a.y;z*=a.z;return *this;}
+		RRVec3 operator /=(RRReal f)                {x/=f;y/=f;z/=f;return *this;}
+		RRVec3 operator /=(const RRVec3& a)         {x/=a.x;y/=a.y;z/=a.z;return *this;}
+		bool   operator ==(const RRVec3& a)   const {return a.x==x && a.y==y && a.z==z;}
+		bool   operator !=(const RRVec3& a)   const {return a.x!=x || a.y!=y || a.z!=z;}
+		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
+	};
+
+	RRReal RRCOLLIDER_API abs(RRReal a);
+	RRReal RRCOLLIDER_API sum(RRReal a);
+	RRReal RRCOLLIDER_API avg(RRReal a);
+	void   RRCOLLIDER_API clampToZero(RRReal& a);
+
+	RRVec3 RRCOLLIDER_API abs(const RRVec3& a);
+	RRReal RRCOLLIDER_API sum(const RRVec3& a);
+	RRReal RRCOLLIDER_API avg(const RRVec3& a);
+	void   RRCOLLIDER_API clampToZero(RRVec3& a);
+
+	RRVec3 RRCOLLIDER_API operator -(const RRVec3& a);
+	RRReal RRCOLLIDER_API size(const RRVec3& a);
+	RRReal RRCOLLIDER_API size2(const RRVec3& a);
+	RRVec3 RRCOLLIDER_API normalized(const RRVec3& a);
+	RRReal RRCOLLIDER_API dot(const RRVec3& a,const RRVec3& b);
+	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a);
+	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a,const RRVec3& b);
+	RRReal RRCOLLIDER_API angleBetween(const RRVec3& a,const RRVec3& b);
+	RRReal RRCOLLIDER_API angleBetweenNormalized(const RRVec3& a,const RRVec3& b);
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// RRVec4 - vector in 4d
+
+	struct RRVec4 : public RRVec3
+	{
+		RRReal    w;
+
+		void operator =(const RRVec3 a)   {x=a.x;y=a.y;z=a.z;}
+	};
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -100,7 +164,7 @@ namespace rrCollider
 		virtual ~RRMeshImporter() {}
 
 		// vertices
-		struct Vertex        {RRReal m[3]; RRReal&operator[](int i){return m[i];} const RRReal&operator[](int i)const{return m[i];}};
+		typedef RRVec3 Vertex;//        {RRReal m[3]; RRReal&operator[](int i){return m[i];} const RRReal&operator[](int i)const{return m[i];}};
 		virtual unsigned     getNumVertices() const = 0;
 		virtual void         getVertex(unsigned v, Vertex& out) const = 0;
 
@@ -111,7 +175,10 @@ namespace rrCollider
 
 		// optional for faster access
 		struct TriangleBody  {Vertex vertex0,side1,side2;};
+		typedef RRVec4 Plane;// {RRReal m[4]; RRReal&operator[](int i){return m[i];} const RRReal&operator[](int i)const{return m[i];}};
 		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
+		virtual bool         getTrianglePlane(unsigned t, Plane& out) const;
+		virtual RRReal       getTriangleArea(unsigned t) const;
 
 		// optional for advanced importers
 		//  post import number is always plain unsigned, 0..num-1

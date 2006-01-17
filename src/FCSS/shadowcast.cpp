@@ -387,11 +387,11 @@ void drawScene()
 		if(drawIndexed) 
 			rr2gl_draw_indexed();
 		else
-		if(!drawDirect)
-			rr2gl_draw_colored(drawDirect);
-		else
+//		if(!drawDirect)
+//			rr2gl_draw_colored(drawDirect);
+//		else
 #ifdef _3DS
-			m3ds.Draw(/*drawDirect?rrobject:NULL*/);
+			m3ds.Draw(drawDirect?NULL:rrobject);
 #else
 			rr2gl_draw_colored(drawDirect);
 #endif
@@ -728,8 +728,8 @@ void drawEyeViewSoftShadowed(void)
 	glEnable(GL_BLEND);
 	drawDirect = false;
 #ifdef _3DS
-	//ambientDifMProg->useIt();
-	ambientProg->useIt();
+	ambientDifMProg->useIt();
+	//ambientProg->useIt();
 #else
 	ambientProg->useIt();
 #endif
@@ -765,7 +765,7 @@ capturePrimary()
 	// accumulate triangle powers into trianglePower
 	for(unsigned i=0;i<numTriangles;i++) 
 		for(unsigned c=0;c<3;c++)
-			trianglePower[i].m[c]=0;
+			trianglePower[i][c]=0;
 	unsigned pixel = 0;
 	for(unsigned j=0;j<height;j++)
 		for(unsigned i=0;i<width;i++)
@@ -773,7 +773,7 @@ capturePrimary()
 			unsigned index = indexBuffer[pixel] >> 8; // alpha was lost
 			if(index<numTriangles)
 			{
-				rrVision::RRColor pixelPower = {1,1,1};
+				rrVision::RRColor pixelPower = rrVision::RRColor(1,1,1);
 				// modulate by spotmap
 				if(rrspot)
 				{
@@ -781,11 +781,11 @@ capturePrimary()
 					unsigned y = (j * rrspot->height / height) % rrspot->height;
 					unsigned ofs = (x+y*rrspot->width)*rrspot->components;
 					for(unsigned c=0;c<3;c++)
-						pixelPower.m[c] *= rrspot->pixels[ofs+((rrspot->components==1)?0:(2-c))];
+						pixelPower[c] *= rrspot->pixels[ofs+((rrspot->components==1)?0:(2-c))];
 				}
 
 				for(unsigned c=0;c<3;c++)
-					trianglePower[index].m[c] += pixelPower.m[c];
+					trianglePower[index][c] += pixelPower[c];
 			}
 			else
 			{
@@ -799,12 +799,10 @@ capturePrimary()
 	for(unsigned t=0;t<numTriangles;t++)
 	{
 		unsigned surfaceIdx = rrobject->getTriangleSurface(t);
-		rrVision::RRSurface* s = rrobject->getSurface(surfaceIdx);
-		rrVision::RRColor color;
-		for(unsigned c=0;c<3;c++)
-			color.m[c] = trianglePower[t].m[c] * mult * s->diffuseReflectanceColor.m[c];
-		const float LIMIT = 100; for(unsigned i=0;i<3;i++) if(color.m[i]>LIMIT) color.m[i]=LIMIT;
-		rrobject->setTriangleAdditionalRadiantExitingFlux(t,&color);
+		const rrVision::RRSurface* s = rrobject->getSurface(surfaceIdx);
+		rrVision::RRColor color = trianglePower[t] * mult * s->diffuseReflectanceColor;
+		//const float LIMIT = 100; for(unsigned i=0;i<3;i++) if(color.m[i]>LIMIT) color.m[i]=LIMIT;
+		rrobject->setTriangleAdditionalPower(t,rrVision::RM_EXITING_FLUX,color);
 	}
 
 	// debug print

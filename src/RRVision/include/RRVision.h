@@ -63,10 +63,7 @@ namespace rrVision
 		RRReal m[2];
 	};
 
-	struct RRVector3
-	{
-		RRReal m[3];
-	};
+	typedef rrCollider::RRVec3 RRVector3;
 
 	struct RRMatrix4x4
 	{
@@ -79,6 +76,14 @@ namespace rrVision
 	// material aspects of space and surfaces
 
 	typedef RRVector3 RRColor; // r,g,b 0..1
+
+	enum RRRadiometricMeasure
+	{
+		RM_INCIDENT_FLUX, // incoming W
+		RM_IRRADIANCE,    // incoming W/m^2
+		RM_EXITING_FLUX,  // outgoing W
+		RM_EXITANCE,      // outgoing W/m^2
+	};
 
 	enum RREmittanceType
 	{
@@ -138,14 +143,13 @@ namespace rrVision
 		// must not change during object lifetime
 		virtual const rrCollider::RRCollider* getCollider() const = 0;
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
-		virtual RRSurface*          getSurface(unsigned s) = 0;
+		virtual const RRSurface*    getSurface(unsigned s) const = 0;
 		// optional
-		virtual const RRColor*      getTriangleAdditionalRadiantExitance(unsigned t) const {return 0;} // radiant exitance in watts per square meter. 
-		virtual const RRColor*      getTriangleAdditionalRadiantExitingFlux(unsigned t) const {return 0;} // radiant flux in watts. implement only one of these two methods.
 		struct TriangleNormals      {RRVector3 norm[3];}; // 3x normal in object space
 		struct TriangleMapping      {RRVector2 uv[3];}; // 3x uv
 		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out); // normalized vertex normals in local space
 		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); // unwrap into 0..1 x 0..1 space
+		virtual void                getTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
 
 		// may change during object lifetime
 		virtual const RRMatrix4x4*  getWorldMatrix() = 0; // may return identity as NULL 
@@ -172,8 +176,7 @@ namespace rrVision
 	class RRAdditionalObjectImporter : public RRObjectImporter
 	{
 	public:
-		virtual void                setTriangleAdditionalRadiantExitance(unsigned t, const RRColor* exitance) = 0;
-		virtual void                setTriangleAdditionalRadiantExitingFlux(unsigned t, const RRColor* flux) = 0;
+		virtual bool                setTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor power) = 0;
 	};
 
 

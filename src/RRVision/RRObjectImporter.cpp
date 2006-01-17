@@ -11,15 +11,22 @@ namespace rrVision
 //
 // RRObjectImporter
 
+void RRObjectImporter::getTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+{
+	out[0] = 0;
+	out[1] = 0;
+	out[2] = 0;
+}
+
 void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
 {
 	rrCollider::RRMeshImporter::TriangleBody tb;
 	getCollider()->getImporter()->getTriangleBody(t,tb);
 	Vec3 norm = ortogonalTo(*(Vec3*)&tb.side1,*(Vec3*)&tb.side2);
 	norm *= 1/size(norm);
-	*(Vec3*)(&out.norm[0]) = norm;
-	*(Vec3*)(&out.norm[1]) = norm;
-	*(Vec3*)(&out.norm[2]) = norm;
+	out.norm[0] = norm;
+	out.norm[1] = norm;
+	out.norm[2] = norm;
 }
 
 void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
@@ -133,22 +140,17 @@ public:
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleSurface(t);
 		return pack[1].getImporter()->getTriangleSurface(t-pack[0].getNumTriangles());
 	}
-	virtual RRSurface*   getSurface(unsigned s)
+	virtual const RRSurface* getSurface(unsigned s) const
 	{
 		// assumption: all objects share the same surface library
 		// -> this is not universal code
 		return pack[0].getImporter()->getSurface(s);
 	}
 
-	virtual const RRColor* getTriangleAdditionalRadiantExitance(unsigned t) const 
+	virtual void getTriangleAdditionalPower(unsigned t, RRRadiometricMeasure format, RRColor& out) const
 	{
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalRadiantExitance(t);
-		return pack[1].getImporter()->getTriangleAdditionalRadiantExitance(t-pack[0].getNumTriangles());
-	}
-	virtual const RRColor* getTriangleAdditionalRadiantExitingFlux(unsigned t) const 
-	{
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalRadiantExitingFlux(t);
-		return pack[1].getImporter()->getTriangleAdditionalRadiantExitingFlux(t-pack[0].getNumTriangles());
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalPower(t,format,out);
+		return pack[1].getImporter()->getTriangleAdditionalPower(t-pack[0].getNumTriangles(),format,out);
 	}
 
 	virtual const RRMatrix4x4* getWorldMatrix()
@@ -276,53 +278,107 @@ public:
 		assert(getCollider());
 		assert(getCollider()->getImporter());
 		numTriangles = getCollider()->getImporter()->getNumTriangles();
-		addExitance = new RRColor[numTriangles];
-		addFlux = new RRColor[numTriangles];
-		memset(addExitance,0,sizeof(RRColor)*numTriangles);
-		memset(addFlux,0,sizeof(RRColor)*numTriangles);
+		triangleInfo = new TriangleInfo[numTriangles];
+		for(unsigned i=0;i<numTriangles;i++)
+		{
+			triangleInfo[i].irradiance[0] = 0;
+			triangleInfo[i].irradiance[1] = 0;
+			triangleInfo[i].irradiance[2] = 0;
+			triangleInfo[i].area = getCollider()->getImporter()->getTriangleArea(i);
+		}
 	}
 	virtual ~RRMyAdditionalObjectImporter() 
 	{
-		delete[] addExitance;
-		delete[] addFlux;
+		delete[] triangleInfo;
 	}
-	virtual void setTriangleAdditionalRadiantExitance(unsigned t, const RRColor* exitance)
+	virtual bool setTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor power)
 	{
 		if(t>=numTriangles)
 		{
 			assert(0);
+			return false;
+		}
+		switch(measure)
+		{
+		case RM_INCIDENT_FLUX:
+			triangleInfo[t].irradiance = power / triangleInfo[t].area;
+			break;
+		case RM_IRRADIANCE:
+			triangleInfo[t].irradiance = power;
+			break;
+		case RM_EXITING_FLUX:
+			{
+			const RRSurface* s = getSurface(getTriangleSurface(t));
+			if(!s)
+			{
+				assert(0);
+				return false;
+			}
+			triangleInfo[t].irradiance = power / triangleInfo[t].area / s->diffuseReflectance;
+			break;
+			}
+		case RM_EXITANCE:
+			{
+			const RRSurface* s = getSurface(getTriangleSurface(t));
+			if(!s)
+			{
+				assert(0);
+				return false;
+			}
+			triangleInfo[t].irradiance = power / s->diffuseReflectance;
+			break;
+			}
+		default:
+			assert(0);
+			return false;
+		}
+		return true;
+	}
+	virtual void getTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+	{
+		if(t>=numTriangles)
+		{
+			assert(0);
+			out = RRColor(0);
 			return;
 		}
-		addExitance[t] = *exitance;
-	}
-	virtual void setTriangleAdditionalRadiantExitingFlux(unsigned t, const RRColor* flux)
-	{
-		if(t>=numTriangles)
+		switch(measure)
 		{
+		case RM_INCIDENT_FLUX:
+			out = triangleInfo[t].irradiance * triangleInfo[t].area;
+			break;
+		case RM_IRRADIANCE:
+			out = triangleInfo[t].irradiance;
+		case RM_EXITING_FLUX:
+			{
+			const RRSurface* s = getSurface(getTriangleSurface(t));
+			if(!s)
+			{
+				assert(0);
+				out = RRColor(0);
+				return;
+			}
+			out = triangleInfo[t].irradiance * triangleInfo[t].area * s->diffuseReflectance;
+			break;
+			}
+		case RM_EXITANCE:
+			{
+			const RRSurface* s = getSurface(getTriangleSurface(t));
+			if(!s)
+			{
+				assert(0);
+				out = RRColor(0);
+				return;
+			}
+			out = triangleInfo[t].irradiance * s->diffuseReflectance;
+			break;
+			}
+		default:
 			assert(0);
-			return;
 		}
-		addFlux[t] = *flux;
-	}
-	virtual const RRColor* getTriangleAdditionalRadiantExitance(unsigned t) const 
-	{
-		if(t>=numTriangles)
-		{
-			assert(0);
-			return NULL;
-		}
-		return &addExitance[t];
-	}
-	virtual const RRColor* getTriangleAdditionalRadiantExitingFlux(unsigned t) const
-	{
-		if(t>=numTriangles)
-		{
-			assert(0);
-			return NULL;
-		}
-		return &addFlux[t];
 	}
 
+	// filter
 	virtual const rrCollider::RRCollider* getCollider() const
 	{
 		return original->getCollider();
@@ -331,7 +387,7 @@ public:
 	{
 		return original->getTriangleSurface(t);
 	}
-	virtual RRSurface* getSurface(unsigned s)
+	virtual const RRSurface* getSurface(unsigned s) const
 	{
 		return original->getSurface(s);
 	}
@@ -353,10 +409,14 @@ public:
 	}
 
 private:
+	struct TriangleInfo
+	{
+		RRColor irradiance;
+		RRReal area;
+	};
 	RRObjectImporter* original;
 	unsigned numTriangles;
-	RRColor* addExitance;
-	RRColor* addFlux;
+	TriangleInfo* triangleInfo;
 };
 
 RRAdditionalObjectImporter* RRObjectImporter::createAdditionalExitance()

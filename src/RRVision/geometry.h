@@ -102,6 +102,21 @@ Angle angleBetweenNormalized(Vec2 a,Vec2 b);
 //
 // 3d vector
 
+struct Vec3 : public rrCollider::RRVec3
+{
+	Vec3()                                    {}
+	explicit Vec3(RRReal a)                            {x=a;y=a;z=a;}
+	Vec3(RRReal ax,RRReal ay,RRReal az)       {x=ax;y=ay;z=az;}
+	Vec3(rrCollider::RRVec3 a)       {x=a.x;y=a.y;z=a.z;}
+	//rrCollider::RRVec3 operator =(const Vec3& a)       {return rrCollider::RRVec3(a.x,a.y,a.z);}
+
+	Vec3 transformed(const Matrix *m) const;
+	Vec3 transform(const Matrix *m);
+	Vec3 rotated(const Matrix *m) const;
+	Vec3 rotate(const Matrix *m);
+};
+//typedef rrCollider::RRVec3 Vec3;
+/*
 struct Vec3
 {
 	real    x;
@@ -146,7 +161,7 @@ Vec3 ortogonalTo(Vec3 a);
 Vec3 ortogonalTo(Vec3 a,Vec3 b);
 Angle angleBetween(Vec3 a,Vec3 b);
 Angle angleBetweenNormalized(Vec3 a,Vec3 b);
-
+*/
 //////////////////////////////////////////////////////////////////////////////
 //
 // 3d point

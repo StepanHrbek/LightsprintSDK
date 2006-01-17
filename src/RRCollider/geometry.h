@@ -22,11 +22,14 @@ namespace rrCollider
 	#define IS_NUMBER(n) _finite(n)//((n)>-BIG_REAL && (n)<BIG_REAL)
 	#define IS_VEC2(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]))
 	#define IS_VEC3(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]))
+	#define IS_VEC4(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]) && IS_NUMBER(v[3]))
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// 3d vector
 
+	typedef RRVec3 Vec3;
+	/*
 	struct Vec3
 	{
 		real    x;
@@ -56,7 +59,7 @@ namespace rrCollider
 	Vec3 normalized(Vec3 a);
 	real dot(const Vec3& a,const Vec3& b);
 	Vec3 ortogonalTo(const Vec3& a,const Vec3& b);
-
+*/
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// plane in 3d

@@ -274,10 +274,12 @@ void Model_3DS::Load(char *name)
 	}
 }
 
-void Model_3DS::Draw(/*rrVision::RRObjectImporter* rrobject*/)
-// rrobject = NULL -> standard render
-// rrobject != NULL -> pass additionalExitance to gl_Color
+void Model_3DS::Draw(rrVision::RRObjectImporter* rrobject)
+// rrobject = NULL -> color = 1
+// rrobject != NULL -> color = additionalExitance
 {
+	unsigned triangleIdx = 0;
+
 	if (visible)
 	{
 /*	glPushMatrix();
@@ -295,6 +297,37 @@ void Model_3DS::Draw(/*rrVision::RRObjectImporter* rrobject*/)
 		// Loop through the objects
 		for (int i = 0; i < numObjects; i++)
 		{
+
+			// additional exitance
+			GLfloat* colors = NULL;
+			if(rrobject)
+			{
+				unsigned numTriangles = Objects[i].numFaces/3;
+				colors = new GLfloat[numTriangles*3*4];
+				for(unsigned j=0;j<numTriangles;j++)
+				{
+					rrVision::RRColor color;
+					rrobject->getTriangleAdditionalPower(triangleIdx+j,rrVision::RM_IRRADIANCE,color);
+					for(unsigned k=0;k<3;k++)
+						colors[3*j+k] = color[k];
+					/*
+vision zajima exiting flux
+renderer s texturou zajima irradiance, renderer bez textury vyjimecne exitance
+
+fast pocita incident flux
+slow pocita exitance
+
+nekonzistence vznika kdyz u cerneho materialu ulozim outgoing a ptam se na incoming
+-> ukladat incoming
+nekonzistance vznika kdyz u degenerata ulozim flux a ptam se na irradiance
+-> ukladat irradiance
+					*/
+				}
+				glColorPointer(3, GL_FLOAT, 0, colors);
+				glEnableClientState(GL_COLOR_ARRAY);
+				triangleIdx += numTriangles;
+			}
+
 			// Enable texture coordiantes, normals, and vertices arrays
 			if (Objects[i].textured)
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -363,6 +396,12 @@ void Model_3DS::Draw(/*rrVision::RRObjectImporter* rrobject*/)
 				}
 			}
 */
+			if(rrobject)
+			{
+				glDisableClientState(GL_COLOR_ARRAY);
+				//glColorPointer(3, GL_FLOAT, 0, NULL);
+				delete[] colors;
+			}
 		}
 
 //	glPopMatrix();

@@ -122,7 +122,7 @@ real getBrightness(real color) // converts 0..infinity radiosity to 0..1 value f
 
 real getAvg(const RRColor* rad)
 {
-	return (rad->m[0]+rad->m[1]+rad->m[2])/3;
+	return avg(*rad);
 }
 
 #if CHANNELS == 3
@@ -1151,7 +1151,7 @@ void fillColorTable(unsigned *ct,double cx,double cy,real rs)
 		RRColor rgb;
 		xy2rgb(cx,cy,c/255.,rgb);
 		#define FLOAT2BYTE(f) ((unsigned)((f)<0?0:(f)>=1?255:256*(f)))
-		ct[c]=(FLOAT2BYTE(rs)<<24) + (FLOAT2BYTE(rgb.m[0])<<16) + (FLOAT2BYTE(rgb.m[1])<<8) + FLOAT2BYTE(rgb.m[2]);
+		ct[c]=(FLOAT2BYTE(rs)<<24) + (FLOAT2BYTE(rgb[0])<<16) + (FLOAT2BYTE(rgb[1])<<8) + FLOAT2BYTE(rgb[2]);
 	}
 }
 

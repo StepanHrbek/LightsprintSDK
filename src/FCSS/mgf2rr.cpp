@@ -33,14 +33,9 @@ public:
 	// RRObjectImporter
 	virtual const rrCollider::RRCollider* getCollider() const;
 	virtual unsigned                      getTriangleSurface(unsigned t) const;
-	virtual rrVision::RRSurface*          getSurface(unsigned s);
-	virtual const rrVision::RRColor*      getTriangleAdditionalRadiantExitance(unsigned t) const;
-	virtual const rrVision::RRColor*      getTriangleAdditionalRadiantExitingFlux(unsigned t) const;
+	virtual const rrVision::RRSurface*    getSurface(unsigned s) const;
 	virtual const rrVision::RRMatrix4x4*  getWorldMatrix();
 	virtual const rrVision::RRMatrix4x4*  getInvWorldMatrix();
-
-	// additional tools
-	void setTriangleAdditionalRadiantExitingFlux(unsigned triangle, const rrVision::RRColor* exitingFlux);
 
 private:
 	// geometry
@@ -53,7 +48,6 @@ private:
 	{
 		Triangle t; // triangle vertices indices
 		unsigned s; // surface index
-		rrVision::RRColor directExitingFlux; // captured direct illumination (constant per triangle) in watts
 	};
 	static void* add_vertex(FLOAT *p,FLOAT *n);
 	static void add_polygon(unsigned vertices,void **vertex,void *material);
@@ -82,12 +76,12 @@ void* MgfImporter::add_vertex(FLOAT *p,FLOAT *n)
 {
 	if(!mgfImporter) return NULL;
 	VertexInfo vi;
-	vi.v.m[0] = (float)p[0]*SCALE;
-	vi.v.m[1] = (float)p[1]*SCALE;
-	vi.v.m[2] = (float)p[2]*SCALE;
-	vi.n.m[0] = (float)n[0];
-	vi.n.m[1] = (float)n[1];
-	vi.n.m[2] = (float)n[2];
+	vi.v[0] = (float)p[0]*SCALE;
+	vi.v[1] = (float)p[1]*SCALE;
+	vi.v[2] = (float)p[2]*SCALE;
+	vi.n[0] = (float)n[0];
+	vi.n[1] = (float)n[1];
+	vi.n[2] = (float)n[2];
 	mgfImporter->vertices.push_back(vi);
 	return (void *)(mgfImporter->vertices.size()-1);
 }
@@ -96,16 +90,16 @@ static void fillSurface(rrVision::RRSurface *s,C_MATERIAL *m)
 {
 	s->sides                =(m->sided==1)?1:2;
 	s->diffuseReflectance   =m->rd;
-	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectanceColor.m);
+	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,&s->diffuseReflectanceColor.x);
 	for(unsigned c=0;c<3;c++)
 	{
-		s->diffuseReflectanceColor.m[c] *= m->rd;
-		if(s->diffuseReflectanceColor.m[c]>0.95f) s->diffuseReflectanceColor.m[c]=0.95f;
+		s->diffuseReflectanceColor[c] *= m->rd;
+		if(s->diffuseReflectanceColor[c]>0.95f) s->diffuseReflectanceColor[c]=0.95f;
 	}
 	s->diffuseTransmittance =m->td;
-	xy2rgb(m->td_c.cx,m->td_c.cy,0.5,s->diffuseTransmittanceColor.m);
+	xy2rgb(m->td_c.cx,m->td_c.cy,0.5,&s->diffuseTransmittanceColor.x);
 	s->diffuseEmittance     =m->ed/1000;
-	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,s->diffuseEmittanceColor.m);
+	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,&s->diffuseEmittanceColor.x);
 	s->emittanceType        =rrVision::diffuseLight;
 	//s->emittancePoint       =Point3(0,0,0);
 	s->specularReflectance  =m->rs;
@@ -136,9 +130,6 @@ void MgfImporter::add_polygon(unsigned vertices,void **vertex,void *material)
 		ti.t[1] = (unsigned)vertex[i-1];
 		ti.t[2] = (unsigned)vertex[i];
 		ti.s = (unsigned)material;
-		ti.directExitingFlux.m[0] = 0;
-		ti.directExitingFlux.m[1] = 0;
-		ti.directExitingFlux.m[2] = 0;
 		mgfImporter->triangles.push_back(ti);
 	}
 }
@@ -217,7 +208,7 @@ unsigned MgfImporter::getTriangleSurface(unsigned t) const
 	return s;
 }
 
-rrVision::RRSurface* MgfImporter::getSurface(unsigned s)
+const rrVision::RRSurface* MgfImporter::getSurface(unsigned s) const
 {
 	if(s>=surfaces.size()) 
 	{
@@ -225,21 +216,6 @@ rrVision::RRSurface* MgfImporter::getSurface(unsigned s)
 		return NULL;
 	}
 	return &surfaces[s];
-}
-
-const rrVision::RRColor* MgfImporter::getTriangleAdditionalRadiantExitance(unsigned t) const 
-{
-	return 0;
-}
-
-const rrVision::RRColor* MgfImporter::getTriangleAdditionalRadiantExitingFlux(unsigned t) const 
-{
-	if(t>=triangles.size())
-	{
-		assert(0);
-		return NULL;
-	}
-	return &triangles[t].directExitingFlux;
 }
 
 const rrVision::RRMatrix4x4* MgfImporter::getWorldMatrix()
@@ -255,34 +231,9 @@ const rrVision::RRMatrix4x4* MgfImporter::getInvWorldMatrix()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// MgfImporter additional tools
-
-void MgfImporter::setTriangleAdditionalRadiantExitingFlux(unsigned t, const rrVision::RRColor* exitingFlux)
-{
-	if(t>=triangles.size())
-	{
-		assert(0);
-		return;
-	}
-	if(!exitingFlux)
-	{
-		assert(0);
-		return;
-	}
-	triangles[t].directExitingFlux = *exitingFlux;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // main
 
 rrVision::RRObjectImporter* new_mgf_importer(char* filename)
 {
 	return new MgfImporter(filename);
-}
-
-void set_direct_exiting_flux(rrVision::RRObjectImporter* importer, unsigned triangle, const rrVision::RRColor* exitingFlux)
-{
-	((MgfImporter*)importer)->setTriangleAdditionalRadiantExitingFlux(triangle,exitingFlux);
 }

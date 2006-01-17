@@ -18,7 +18,7 @@ namespace rrCollider
 //////////////////////////////////////////////////////////////////////////////
 //
 // 3d vector
-
+/*
 Vec3 operator -(const Vec3& a)
 {
 	return Vec3(-a.x,-a.y,-a.z);
@@ -54,7 +54,7 @@ Vec3 ortogonalTo(const Vec3& a, const Vec3& b)
 {
 	return Vec3(a.y*b.z-a.z*b.y,-a.x*b.z+a.z*b.x,a.x*b.y-a.y*b.x);
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////////
 //
 // plane in 3d

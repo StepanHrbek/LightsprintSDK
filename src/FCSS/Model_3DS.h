@@ -159,7 +159,7 @@ public:
 	bool lit;				// True: the model is lit
 	bool visible;			// True: the model gets rendered
 	void Load(char *name);	// Loads a model
-	void Draw(/*rrVision::RRObjectImporter* rrobject*/); // Draws the model
+	void Draw(rrVision::RRObjectImporter* rrobject); // Draws the model
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor
 	virtual ~Model_3DS();	// Destructor

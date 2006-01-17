@@ -42,14 +42,9 @@ public:
 	// RRObjectImporter
 	virtual const rrCollider::RRCollider* getCollider() const;
 	virtual unsigned                      getTriangleSurface(unsigned t) const;
-	virtual rrVision::RRSurface*          getSurface(unsigned s);
-	virtual const rrVision::RRColor*      getTriangleAdditionalRadiantExitance(unsigned t) const;
-	virtual const rrVision::RRColor*      getTriangleAdditionalRadiantExitingFlux(unsigned t) const;
+	virtual const rrVision::RRSurface*    getSurface(unsigned s) const;
 	virtual const rrVision::RRMatrix4x4*  getWorldMatrix();
 	virtual const rrVision::RRMatrix4x4*  getInvWorldMatrix();
-
-	// additional tools
-	void setTriangleAdditionalRadiantExitingFlux(unsigned triangle, const rrVision::RRColor* exitingFlux);
 
 private:
 	Model_3DS* model;
@@ -59,7 +54,6 @@ private:
 	struct TriangleInfo
 	{
 		unsigned s; // surface index
-		rrVision::RRColor directExitingFlux; // captured direct illumination (constant per triangle) in watts
 	};
 	std::vector<TriangleInfo> triangles;
 
@@ -79,17 +73,17 @@ static void fillSurface(rrVision::RRSurface* s,Model_3DS::Material* m)
 {
 	s->sides                = 1;
 	s->diffuseReflectance   = (float)(m->color.r+m->color.g+m->color.b)/768.0f;
-	s->diffuseReflectanceColor.m[0] = m->color.r/256.0f;
-	s->diffuseReflectanceColor.m[1] = m->color.g/256.0f;
-	s->diffuseReflectanceColor.m[2] = m->color.b/256.0f;
+	s->diffuseReflectanceColor[0] = m->color.r/256.0f;
+	s->diffuseReflectanceColor[1] = m->color.g/256.0f;
+	s->diffuseReflectanceColor[2] = m->color.b/256.0f;
 	s->diffuseTransmittance = 0;
-	s->diffuseTransmittanceColor.m[0] = 0;
-	s->diffuseTransmittanceColor.m[1] = 0;
-	s->diffuseTransmittanceColor.m[2] = 0;
+	s->diffuseTransmittanceColor[0] = 0;
+	s->diffuseTransmittanceColor[1] = 0;
+	s->diffuseTransmittanceColor[2] = 0;
 	s->diffuseEmittance     = 0;
-	s->diffuseEmittanceColor.m[0] = 0;
-	s->diffuseEmittanceColor.m[1] = 0;
-	s->diffuseEmittanceColor.m[2] = 0;
+	s->diffuseEmittanceColor[0] = 0;
+	s->diffuseEmittanceColor[1] = 0;
+	s->diffuseEmittanceColor[2] = 0;
 	s->emittanceType        = rrVision::diffuseLight;
 	//s->emittancePoint       =Point3(0,0,0);
 	s->specularReflectance  = 0;
@@ -113,9 +107,6 @@ M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)
 	{
 		TriangleInfo ti;
 		ti.s = 0;
-		ti.directExitingFlux.m[0] = 0;
-		ti.directExitingFlux.m[1] = 0;
-		ti.directExitingFlux.m[2] = 0;
 		triangles.push_back(ti);
 	}
 
@@ -170,9 +161,9 @@ unsigned M3dsImporter::getNumVertices() const
 void M3dsImporter::getVertex(unsigned v, Vertex& out) const
 {
 	assert(v<(unsigned)object->numVerts);
-	out.m[0] = object->Vertexes[3*v];
-	out.m[1] = object->Vertexes[3*v+1];
-	out.m[2] = object->Vertexes[3*v+2];
+	out[0] = object->Vertexes[3*v];
+	out[1] = object->Vertexes[3*v+1];
+	out[2] = object->Vertexes[3*v+2];
 }
 
 unsigned M3dsImporter::getNumTriangles() const
@@ -215,7 +206,7 @@ unsigned M3dsImporter::getTriangleSurface(unsigned t) const
 	return s;
 }
 
-rrVision::RRSurface* M3dsImporter::getSurface(unsigned s)
+const rrVision::RRSurface* M3dsImporter::getSurface(unsigned s) const
 {
 	if(s>=surfaces.size()) 
 	{
@@ -223,21 +214,6 @@ rrVision::RRSurface* M3dsImporter::getSurface(unsigned s)
 		return NULL;
 	}
 	return &surfaces[s];
-}
-
-const rrVision::RRColor* M3dsImporter::getTriangleAdditionalRadiantExitance(unsigned t) const 
-{
-	return 0;
-}
-
-const rrVision::RRColor* M3dsImporter::getTriangleAdditionalRadiantExitingFlux(unsigned t) const 
-{
-	if(t>=getNumTriangles())
-	{
-		assert(0);
-		return NULL;
-	}
-	return &triangles[t].directExitingFlux;
 }
 
 const rrVision::RRMatrix4x4* M3dsImporter::getWorldMatrix()
@@ -250,26 +226,6 @@ const rrVision::RRMatrix4x4* M3dsImporter::getInvWorldMatrix()
 {
 	//!!!
 	return NULL;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// MgfImporter additional tools
-
-void M3dsImporter::setTriangleAdditionalRadiantExitingFlux(unsigned t, const rrVision::RRColor* exitingFlux)
-{
-	if(t>=getNumTriangles())
-	{
-		assert(0);
-		return;
-	}
-	if(!exitingFlux)
-	{
-		assert(0);
-		return;
-	}
-	triangles[t].directExitingFlux = *exitingFlux;
 }
 
 
@@ -296,9 +252,4 @@ rrVision::RRObjectImporter* new_3ds_importer(Model_3DS* model)
 	rrVision::RRObjectImporter* multi = rrVision::RRObjectImporter::createMultiObject(importers,model->numObjects,rrCollider::RRCollider::IT_BSP_FASTEST,0,NULL);
 	//!!! delete[] importers;
 	return multi;
-}
-
-void set_direct_exiting_flux_3ds(rrVision::RRObjectImporter* importer, unsigned triangle, const rrVision::RRColor* exitingFlux)
-{
-	((M3dsImporter*)importer)->setTriangleAdditionalRadiantExitingFlux(triangle,exitingFlux);
 }

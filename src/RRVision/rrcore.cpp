@@ -129,7 +129,7 @@ bool  __errors=false; // was there errors during batch work? used to set result
 
 unsigned  __frameNumber=1; // frame number increased after each draw
 
-RRColor __colorFilter={1,1,1}; // see rrcore.h
+RRColor __colorFilter=RRColor(1,1,1); // see rrcore.h
 
 bool  __preserveFactors=false; // preserve factors in Factors::reset(), needed if we want resetStaticIllumination() but not factors
 
@@ -1232,22 +1232,22 @@ char Scene::selectColorFilter(int i, const real *rgb)
 	// selects color component for further calculations
 	// you must resetStaticIllumination() and distribute() to get
 	//  static illumination for new filter
-	RRColor myColorFilter[4]={{1,0,0},{0,1,0},{0,0,1},{0.33f,0.33f,0.33f}};
+	RRColor myColorFilter[4]={RRColor(1,0,0),RRColor(0,1,0),RRColor(0,0,1),RRColor(0.33f,0.33f,0.33f)};
 	char myColorID[4]={'r','g','b','w'};
-	__colorFilter.m[0]=rgb?rgb[0]:myColorFilter[i].m[0];
-	__colorFilter.m[1]=rgb?rgb[1]:myColorFilter[i].m[1];
-	__colorFilter.m[2]=rgb?rgb[2]:myColorFilter[i].m[2];
+	__colorFilter[0]=rgb?rgb[0]:myColorFilter[i][0];
+	__colorFilter[1]=rgb?rgb[1]:myColorFilter[i][1];
+	__colorFilter[2]=rgb?rgb[2]:myColorFilter[i][2];
 
 	// adjusts diffuseReflectance in all surfaces (faster than fixing all usages of diffuseReflectance)
 	//  to reflect only selected component (blue material to reflect only blue)
 	for(unsigned j=0;j<surfaces;j++)
 	{
 	  RRSurface *s=&surface[j];
-	  real r=s->diffuseReflectanceColor.m[0];
-	  real g=s->diffuseReflectanceColor.m[1];
-	  real b=s->diffuseReflectanceColor.m[2];
+	  real r=s->diffuseReflectanceColor[0];
+	  real g=s->diffuseReflectanceColor[1];
+	  real b=s->diffuseReflectanceColor[2];
 //        s->diffuseReflectance=s->_rd*(__colorFilter[0]*s->_rdcx+__colorFilter[1]*s->_rdcy+__colorFilter[2]*(1-s->_rdcx-s->_rdcy));
-	  s->diffuseReflectance=s->_rd*(__colorFilter.m[0]*r+__colorFilter.m[1]*g+__colorFilter.m[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.001f);
+	  s->diffuseReflectance=s->_rd*(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.001f);
 	}
 
 	return myColorID[i];
@@ -1265,7 +1265,7 @@ int Scene::turnLight(int whichLight,real intensity)
 	return light;
 }
 
-Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalExitingFlux)
+Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingFlux)
 {
 	assert(area!=0);//setGeometry must be called before setSurface
 	assert(s);
@@ -1297,7 +1297,7 @@ Channels Triangle::setSurface(RRSurface *s, const Vec3& additionalExitingFlux)
 	// load received energy accumulator
 	energyDirect=e;
 	//energyDirectIncident=e/ *(Vec3*)surface->diffuseReflectanceColor;
-	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectanceColor.m[0],0.1f),e.y/MAX(surface->diffuseReflectanceColor.m[1],0.1f),e.z/MAX(surface->diffuseReflectanceColor.m[2],0.1f));
+	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectanceColor[0],0.1f),e.y/MAX(surface->diffuseReflectanceColor[1],0.1f),e.z/MAX(surface->diffuseReflectanceColor[2],0.1f));
 	sourceExitingFlux=e;
 #endif
 	return e;
@@ -2000,9 +2000,8 @@ void Object::resetStaticIllumination(RRScaler* scaler)
 	objSourceExitingFlux=Channels(0);
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) 
 	{
-		const RRColor* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(t);
-		const RRColor* addExitance=importer->getTriangleAdditionalRadiantExitance(t);
-		Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?*(Vec3*)addExitingFlux/triangle[t].area:Vec3(0,0,0));
+		Vec3 sumExitance;
+		importer->getTriangleAdditionalPower(t,RM_EXITANCE,*(RRColor*)&sumExitance);
 		if(scaler) sumExitance = Vec3(
 			scaler->getOriginal(sumExitance.x), // getOriginal=getWattsPerSquareMeter
 			scaler->getOriginal(sumExitance.y),
@@ -2642,7 +2641,7 @@ Channels Scene::gatherIrradiance(Point3 point,Vec3 normal,Triangle *skip,Channel
 		getRandomExitDir(normal,u3,v3,1,dir);
 		irradiance += gatherHitExitance(point,dir,skip,power);
 	}
-	return irradiance / numRays;
+	return irradiance/numRays;
 }
 
 // returns exitance in W/m^2 in intersection of ray and scene
@@ -2719,8 +2718,8 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 #ifdef CLEAN_FACTORS
 	assert(destination->grandpa);
 	assert(destination->grandpa->surface);
-	assert(IS_VEC3(*(Vec3*)&destination->grandpa->surface->diffuseReflectanceColor));
-	energy *= *(Vec3*)&destination->grandpa->surface->diffuseReflectanceColor;
+	assert(IS_VEC3(destination->grandpa->surface->diffuseReflectanceColor));
+	energy *= destination->grandpa->surface->diffuseReflectanceColor;
 #endif
 	// pak leze nahoru az k trianglu, do clusteru neni treba
 	bool wasLetToDiffuse=false;

@@ -57,7 +57,7 @@ void rr2gl_draw_onlyz()
 		{
 			rrCollider::RRMeshImporter::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
-			glVertex3fv(vertex.m);
+			glVertex3fv(&vertex.x);
 		}
 	}
 	glEnd();
@@ -88,7 +88,7 @@ unsigned rr2gl_draw_indexed()
 		{
 			rrCollider::RRMeshImporter::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
-			glVertex3fv(vertex.m);
+			glVertex3fv(&vertex.x);
 		}
 	}
 	glEnd();
@@ -121,17 +121,17 @@ void rr2gl_draw_colored(bool direct)
 			unsigned surfaceIdx = objectImporter->getTriangleSurface(triangleIdx);
 			if(surfaceIdx!=oldSurfaceIdx)
 			{
-				rrVision::RRSurface* surface = objectImporter->getSurface(surfaceIdx);
+				const rrVision::RRSurface* surface = objectImporter->getSurface(surfaceIdx);
 				assert(surface);
 				if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-				glColor3fv(surface->diffuseReflectanceColor.m);
+				glColor3fv(&surface->diffuseReflectanceColor.x);
 				oldSurfaceIdx = surfaceIdx;
 			}
 			if(!NORMALS) 
 			{
 				rrVision::RRObjectImporter::TriangleNormals triangleNormals;
 				objectImporter->getTriangleNormals(triangleIdx,triangleNormals);
-				glNormal3fv(triangleNormals.norm[0].m);
+				glNormal3fv(&triangleNormals.norm[0].x);
 			}
 		}
 		for(int v=0;v<3;v++) 
@@ -144,11 +144,11 @@ void rr2gl_draw_colored(bool direct)
 				const rrVision::RRColor* indirect = radiositySolver->getTriangleRadiantExitance(0,triangleIdx,v);
 				if(indirect)
 				{
-					glColor3fv(indirect->m);
+					glColor3fv(&indirect->x);
 				}
 			}
 
-			glVertex3fv(vertex.m);
+			glVertex3fv(&vertex.x);
 		}
 	}
 	glEnd();

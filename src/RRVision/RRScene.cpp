@@ -119,7 +119,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 		rrCollider::RRMeshImporter::Triangle tv;
 		meshImporter->getTriangle(fi,tv);
 		unsigned si = importer->getTriangleSurface(fi);
-		RRSurface* s=importer->getSurface(si);
+		const RRSurface* s=importer->getSurface(si);
 		assert(s);
 		// rozhodne zda vlozit face dolu mezi emitory nebo nahoru mezi ostatni
 		Triangle *t;
@@ -148,9 +148,8 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 		{
 			// this code is on 2 places...
 			//  delete this and rather call obj->resetStaticIllumination
-			const RRColor* addExitingFlux=importer->getTriangleAdditionalRadiantExitingFlux(fi);
-			const RRColor* addExitance=importer->getTriangleAdditionalRadiantExitance(fi);
-			Vec3 sumExitance=(addExitance?*(Vec3*)addExitance:Vec3(0,0,0)) + (addExitingFlux?(*(Vec3*)addExitingFlux)/t->area:Vec3(0,0,0));
+			Vec3 sumExitance;
+			importer->getTriangleAdditionalPower(fi,RM_EXITANCE,*(RRColor*)&sumExitance);
 			if(scene->scaler) sumExitance = Vec3(
 				scene->scaler->getOriginal(sumExitance.x), // getOriginal=getWattsPerSquareMeter
 				scene->scaler->getOriginal(sumExitance.y),
@@ -378,6 +377,8 @@ const RRColor* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned tria
 	}
 
 	static RRColor tmp;
+	tmp = __colorFilter * irrad;
+	/*
 #if CHANNELS == 1
 	tmp.m[0] = irrad*__colorFilter.m[0];
 	tmp.m[1] = irrad*__colorFilter.m[1];
@@ -387,12 +388,13 @@ const RRColor* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned tria
 	tmp.m[1] = irrad.y*__colorFilter.m[1];
 	tmp.m[2] = irrad.z*__colorFilter.m[2];
 #endif
+	*/
 	RRScaler* scaler = scene->scaler;
 	if(scaler)
 	{
-		tmp.m[0] = scaler->getScaled(tmp.m[0]);
-		tmp.m[1] = scaler->getScaled(tmp.m[1]);
-		tmp.m[2] = scaler->getScaled(tmp.m[2]);
+		tmp[0] = scaler->getScaled(tmp[0]);
+		tmp[1] = scaler->getScaled(tmp[1]);
+		tmp[2] = scaler->getScaled(tmp[2]);
 	}
 	return &tmp;
 }

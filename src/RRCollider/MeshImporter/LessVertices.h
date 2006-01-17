@@ -48,7 +48,7 @@ public:
 		// for each vertex
 		for(unsigned ds=0;ds<numVertices;ds++) // ds=index into sortedVertices
 		{
-			unsigned d = sortedVertices[ds]-vertices; // d=prefiltered/importer vertex, index into Dupl2Unique
+			unsigned d = (unsigned)(sortedVertices[ds]-vertices); // d=prefiltered/importer vertex, index into Dupl2Unique
 			assert(d<numVertices);
 			RRMeshImporter::Vertex& dfl = vertices[d];
 			// test his distance against all already found unique vertices
