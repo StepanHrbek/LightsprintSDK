@@ -62,7 +62,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* 
 	assert(t);
 
 	// calculate determinant - also used to calculate U parameter
-	Vec3 pvec = ortogonalTo(*(Vec3*)ray->rayDir,t->side2);
+	Vec3 pvec = ortogonalTo(ray->rayDir,t->side2);
 	real det = dot(t->side1,pvec);
 
 	// cull test
@@ -85,7 +85,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* 
 	Vec3 qvec = ortogonalTo(tvec,t->side1);
 
 	// calculate V parameter and test bounds
-	real v = dot(*(Vec3*)ray->rayDir,qvec)/det;
+	real v = dot(ray->rayDir,qvec)/det;
 	if(v<0 || u+v>1) return false;
 
 	// calculate distance where ray intersects triangle
@@ -191,7 +191,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	bool hit = false;
 	char backup[sizeof(RRRay)];
 	update_rayDir(ray);
-	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
+	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 	FILL_STATISTIC(intersectStats.intersect_linear++);
 	for(unsigned t=0;t<triangles;t++)
 	{

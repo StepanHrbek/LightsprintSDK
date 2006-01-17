@@ -299,7 +299,7 @@ namespace rrCollider
 		RRVec4          hitPlane;       // o, plane of hitTriangle in object space, [0..2] is normal
 		RRVec3          hitPoint3d;     // o, hit coordinate in object space
 		bool            hitOuterSide;   // o, true = object was hit from the outer (common) side
-		RRReal          hitPadding[8];  // o, undefined, never modify
+		RRVec4          hitPadding[2];  // o, undefined, never modify
 	private:
 		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};

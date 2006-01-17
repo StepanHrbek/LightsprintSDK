@@ -249,8 +249,8 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 #ifdef FILL_HITSIDE
 	if(ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
-		//bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
-		bool hitOuterSide=dot(*(Vec3*)(ray->rayDir),t->n3)<0;
+		//bool hitOuterSide=size2(ray->rayDir-t->n3)>2;
+		bool hitOuterSide=dot(ray->rayDir,t->n3)<0;
 		if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitOuterSide=hitOuterSide;
 	}
@@ -293,8 +293,8 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshIm
 #ifdef FILL_HITSIDE
 	if(ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
-		//bool hitOuterSide=size2((*(Vec3*)(ray->rayDir))-t->n3)>2;
-		bool hitOuterSide=dot(*(Vec3*)(ray->rayDir),t->n3)<0;
+		//bool hitOuterSide=size2(ray->rayDir-t->n3)>2;
+		bool hitOuterSide=dot(ray->rayDir,t->n3)<0;
 		if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitOuterSide=hitOuterSide;
 	}
@@ -780,7 +780,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 #ifdef USE_LONGJMP
 	if(setjmp(tmpMark)) return true;
 #endif
-	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
+	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 	switch(intersectTechnique)
 	{
 		case IT_BSP_FASTEST:

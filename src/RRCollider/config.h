@@ -50,8 +50,8 @@
 	#define PRIVATE
 #endif
 
-#define rayDir         hitPadding
-#define hitDistanceMin hitPadding[4]
-#define hitDistanceMax hitPadding[5]
+#define rayDir         hitPadding[0]
+#define hitDistanceMin hitPadding[1][0]
+#define hitDistanceMax hitPadding[1][1]
 
 #endif

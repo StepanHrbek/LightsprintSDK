@@ -26,7 +26,7 @@ static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t
 	assert(t);
 
 	// calculate determinant - also used to calculate U parameter
-	Vec3 pvec = ortogonalTo(*(Vec3*)ray->rayDir,t->side2);
+	Vec3 pvec = ortogonalTo(ray->rayDir,t->side2);
 	real det = dot(t->side1,pvec);
 
 	// cull test
@@ -49,7 +49,7 @@ static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t
 	Vec3 qvec = ortogonalTo(tvec,t->side1);
 
 	// calculate V parameter and test bounds
-	real v = dot(*(Vec3*)ray->rayDir,qvec)/det;
+	real v = dot(ray->rayDir,qvec)/det;
 	if(v<0 || u+v>1) return false;
 
 	// calculate distance where ray intersects triangle
@@ -350,7 +350,7 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 		if(!box.intersect(ray)) return false;
 	}
 	update_rayDir(ray);
-	assert(fabs(size2((*(Vec3*)(ray->rayDir)))-1)<0.001);//ocekava normalizovanej dir
+	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 	bool hit;
 	{
 		hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
