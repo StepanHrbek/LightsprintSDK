@@ -109,15 +109,15 @@ void Sphere::detect(const Vec3 *vertex,unsigned vertices)
 bool Sphere::intersect(RRRay* ray) const
 // Returns if intersection was detected.
 {
-	Vec3 toCenter = center-*(Vec3*)ray->rayOrigin;
+	Vec3 toCenter = center-ray->rayOrigin;
 	real distEyeCenter2 = size2(toCenter);            //3*mul
 	// eye inside sphere
 	if(distEyeCenter2-radius2<0) return true;
 	real distEyeCenter=sqrt(distEyeCenter2);             //1*sqrt
 	// sphere too far
 	if(distEyeCenter-radius>=ray->hitDistanceMax) return false;
-	assert(fabs(size2(*(Vec3*)ray->rayDir)-1)<0.001);
-	Vec3 nearCenter = *(Vec3*)ray->rayOrigin + *(Vec3*)ray->rayDir * distEyeCenter; //3*mul
+	assert(fabs(size2(ray->rayDir)-1)<0.001);
+	Vec3 nearCenter = ray->rayOrigin + ray->rayDir * distEyeCenter; //3*mul
 	real distNrcntrCenter2=size2(nearCenter-center);//3*mul
 	// probably no intersection
 	if(distNrcntrCenter2>=radius2) return false;

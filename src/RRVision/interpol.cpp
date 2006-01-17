@@ -272,7 +272,7 @@ Channels IVertex::irradiance()
 			// w=wanted incident flux in watts
 			Channels w=(getSource&&getReflected)?a:( getSource?s: ( getReflected?r:Channels(0) ) );
 			irrad+=w/corner[i].node->area*corner[i].power
-				/*/ *(Vec3*)(corner[i].node->grandpa->surface->diffuseReflectanceColor)*/;
+				/*/ corner[i].node->grandpa->surface->diffuseReflectanceColor*/;
 			assert(IS_CHANNELS(irrad));
 		}
 		cache=powerTopLevel?irrad/powerTopLevel:getClosestIrradiance();//hack for ivertices inside needle - quick search for nearest valid value

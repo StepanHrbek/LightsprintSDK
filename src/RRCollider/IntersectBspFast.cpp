@@ -491,7 +491,7 @@ begin:
 		if(!watch_tested && *triangle == watch_triangle) 
 		{
 			watch_tested = true;
-			watch_point3d = *(Vec3*)ray->hitPoint3d;
+			watch_point3d = ray->hitPoint3d;
 		}
 #endif
 		if(intersect_triangleSRLNP(ray,triangleSRLNP+triangle->getTriangleIndex()))
