@@ -333,8 +333,8 @@ const RRColor* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned tria
 			Matrix* world = (Matrix*)objectImporter->getWorldMatrix();
 			if(world)
 			{
-				point.transform(world);
-				normal.rotate(world);
+				world->transform(point);
+				world->rotate(normal);
 				normal *= 1/size(normal);
 				assert(fabs(size2(normal)-1)<0.001);
 			}

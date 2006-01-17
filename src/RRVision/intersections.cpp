@@ -39,8 +39,8 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	// translation+rotation allowed, no scaling, so direction stays normalized
 	if(inverseMatrix)
 	{
-		*(Vec3*)(ray.rayOrigin) = eye.transformed(inverseMatrix);
-		rayDir = direction.rotated(inverseMatrix);
+		*(Vec3*)(ray.rayOrigin) = inverseMatrix->transformed(eye);
+		rayDir = inverseMatrix->rotated(direction);
 #ifdef SUPPORT_SCALE
 		// translation+rotation+scale allowed
 		scale = size(rayDir); // kolikrat je mesh ve worldu zmenseny

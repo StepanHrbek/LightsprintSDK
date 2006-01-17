@@ -1214,7 +1214,7 @@ again:
 
 	// premerit area v worldspace
 	if(obj2world)
-		area = calculateArea(a->transformed(obj2world),b->transformed(obj2world),c->transformed(obj2world));
+		area = calculateArea(obj2world->transformed(*a),obj2world->transformed(*b),obj2world->transformed(*c));
 	else
 		area = calculateArea(*a,*b,*c);
 	if(!IS_NUMBER(area)) return -11;
@@ -2058,7 +2058,7 @@ void Object::detectBounds()
 void Object::transformBound()
 {
 	if(transformMatrix)
-		bound.center=bound.centerBeforeTransformation.transformed(transformMatrix);
+		bound.center=transformMatrix->transformed(bound.centerBeforeTransformation);
 	else
 		bound.center=bound.centerBeforeTransformation;
 }
@@ -2612,8 +2612,8 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	// transform from shooter's objectspace to scenespace
 	if(source->grandpa->object->transformMatrix)
 	{
-		*src = srcPoint3.transformed(source->grandpa->object->transformMatrix);
-		*dir = rayVec3.rotated(source->grandpa->object->transformMatrix);
+		*src = source->grandpa->object->transformMatrix->transformed(srcPoint3);
+		*dir = source->grandpa->object->transformMatrix->rotated(rayVec3);
 #ifdef SUPPORT_SCALE
 		*dir = normalized(*dir);
 #endif

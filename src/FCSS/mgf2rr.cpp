@@ -42,7 +42,7 @@ private:
 	struct VertexInfo
 	{
 		Vertex v; // vertex coordinates
-		rrVision::RRVector3 n; // normal coordinates
+		rrVision::RRVec3 n; // normal coordinates
 	};
 	struct TriangleInfo
 	{

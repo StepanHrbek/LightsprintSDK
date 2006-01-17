@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2006.1.16
+// version 2006.1.18
 //
 // - thread safe, you can calculate any number of intersections at the same time
 // - you can select technique in range from maximal speed to zero memory allocated
@@ -81,11 +81,15 @@
 namespace rrCollider
 {
 
-	typedef float RRReal;
-
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	// primitives
+	//
+	// RRReal - real number
 	// RRVec3 - vector in 3d
+	// RRVec4 - vector in 4d
+
+	typedef float RRReal;
 
 	struct RRVec3
 	{
@@ -94,7 +98,7 @@ namespace rrCollider
 		RRReal    z;
 
 		RRVec3()                                    {}
-		explicit RRVec3(RRReal a)                            {x=a;y=a;z=a;}
+		explicit RRVec3(RRReal a)                   {x=a;y=a;z=a;}
 		RRVec3(RRReal ax,RRReal ay,RRReal az)       {x=ax;y=ay;z=az;}
 		RRVec3 operator + (const RRVec3& a)   const {return RRVec3(x+a.x,y+a.y,z+a.z);}
 		RRVec3 operator - (const RRVec3& a)   const {return RRVec3(x-a.x,y-a.y,z-a.z);}
@@ -114,16 +118,6 @@ namespace rrCollider
 		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
 	};
 
-	RRReal RRCOLLIDER_API abs(RRReal a);
-	RRReal RRCOLLIDER_API sum(RRReal a);
-	RRReal RRCOLLIDER_API avg(RRReal a);
-	void   RRCOLLIDER_API clampToZero(RRReal& a);
-
-	RRVec3 RRCOLLIDER_API abs(const RRVec3& a);
-	RRReal RRCOLLIDER_API sum(const RRVec3& a);
-	RRReal RRCOLLIDER_API avg(const RRVec3& a);
-	void   RRCOLLIDER_API clampToZero(RRVec3& a);
-
 	RRVec3 RRCOLLIDER_API operator -(const RRVec3& a);
 	RRReal RRCOLLIDER_API size(const RRVec3& a);
 	RRReal RRCOLLIDER_API size2(const RRVec3& a);
@@ -133,11 +127,6 @@ namespace rrCollider
 	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a,const RRVec3& b);
 	RRReal RRCOLLIDER_API angleBetween(const RRVec3& a,const RRVec3& b);
 	RRReal RRCOLLIDER_API angleBetweenNormalized(const RRVec3& a,const RRVec3& b);
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	// RRVec4 - vector in 4d
 
 	struct RRVec4 : public RRVec3
 	{

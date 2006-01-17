@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2006.1.16
+// version 2006.1.18
 //
 // - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms
@@ -52,30 +52,46 @@
 
 namespace rrVision
 {
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// primitives
+	//
+	// RRReal      - real number
+	// RRVec2      - vector in 2d
+	// RRVec3      - vector in 3d
+	// RRMatrix4x4 - matrix 4x4
 
 	typedef rrCollider::RRReal  RRReal;
 
-	struct RRVector2
+	struct RRVec2
 	{
 		RRReal m[2];
 	};
 
-	typedef rrCollider::RRVec3 RRVector3;
+	typedef rrCollider::RRVec3 RRVec3;
 
 	struct RRMatrix4x4
 	{
 		RRReal m[4][4];
+
+		RRVec3 transformed(const RRVec3& a) const;
+		RRVec3& transform(RRVec3& a) const;
+		RRVec3 rotated(const RRVec3& a) const;
+		RRVec3& rotate(RRVec3& a) const;
 	};
 
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// material aspects of space and surfaces
+	//
+	// RRColor              - rgb color
+	// RRRadiometricMeasure - radiometric measure
+	// RREmittanceType      - type of emission
+	// RRSurface            - material properties of surface
 
-	typedef RRVector3 RRColor; // r,g,b 0..1
+	typedef RRVec3 RRColor; // r,g,b 0..1
 
 	enum RRRadiometricMeasure
 	{
@@ -103,7 +119,7 @@ namespace rrVision
 		RRReal        diffuseEmittance;              // \ Multiplied = Radiant emittance in watts per square meter. Never scaled by RRScaler.
 		RRColor       diffuseEmittanceColor;         // / 
 		RREmittanceType emittanceType;
-		RRVector3     emittancePoint;
+		RRVec3        emittancePoint;
 		RRReal        specularReflectance;           // Fraction of energy that is mirror reflected (without color change).
 		RRColor       specularReflectanceColor;      // Currently not used.
 		RRReal        specularReflectanceRoughness;  // Currently not used.
@@ -145,8 +161,8 @@ namespace rrVision
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
 		virtual const RRSurface*    getSurface(unsigned s) const = 0;
 		// optional
-		struct TriangleNormals      {RRVector3 norm[3];}; // 3x normal in object space
-		struct TriangleMapping      {RRVector2 uv[3];}; // 3x uv
+		struct TriangleNormals      {RRVec3 norm[3];}; // 3x normal in object space
+		struct TriangleMapping      {RRVec2 uv[3];}; // 3x uv
 		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out); // normalized vertex normals in local space
 		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); // unwrap into 0..1 x 0..1 space
 		virtual void                getTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
@@ -193,7 +209,7 @@ namespace rrVision
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		virtual RRColor getRadiance(RRVector3 dirFromSky) const = 0;
+		virtual RRColor getRadiance(RRVec3 dirFromSky) const = 0;
 		virtual ~RRSkyLight() {}
 	};
 
@@ -270,8 +286,8 @@ namespace rrVision
 		// read results
 		struct InstantRadiosityPoint
 		{
-			RRVector3 pos;
-			RRVector3 norm;
+			RRVec3    pos;
+			RRVec3    norm;
 			RRColor   col;
 		};
 		const RRColor* getVertexIrradiance(ObjectHandle object, unsigned vertex); // irradiance (incident power density) in watts per square meter

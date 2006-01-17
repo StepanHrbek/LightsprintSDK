@@ -43,11 +43,6 @@ namespace rrVision
  #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
-real abs(real a);
-real sum(real a);
-real avg(real a);
-void clampToZero(real& a);
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // angle in rad
@@ -58,7 +53,7 @@ typedef real Angle;
 //
 // matrix 4x4
 
-typedef real Matrix[4][4];
+typedef RRMatrix4x4 Matrix;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -102,66 +97,18 @@ Angle angleBetweenNormalized(Vec2 a,Vec2 b);
 //
 // 3d vector
 
-struct Vec3 : public rrCollider::RRVec3
-{
-	Vec3()                                    {}
-	explicit Vec3(RRReal a)                            {x=a;y=a;z=a;}
-	Vec3(RRReal ax,RRReal ay,RRReal az)       {x=ax;y=ay;z=az;}
-	Vec3(rrCollider::RRVec3 a)       {x=a.x;y=a.y;z=a.z;}
-	//rrCollider::RRVec3 operator =(const Vec3& a)       {return rrCollider::RRVec3(a.x,a.y,a.z);}
+#define Vec3 RRVec3
 
-	Vec3 transformed(const Matrix *m) const;
-	Vec3 transform(const Matrix *m);
-	Vec3 rotated(const Matrix *m) const;
-	Vec3 rotate(const Matrix *m);
-};
-//typedef rrCollider::RRVec3 Vec3;
-/*
-struct Vec3
-{
-	real    x;
-	real    y;
-	real    z;
+RRReal abs(RRReal a);
+RRReal sum(RRReal a);
+RRReal avg(RRReal a);
+void   clampToZero(RRReal& a);
 
-	Vec3()                            {}
-	explicit Vec3(real a)             {x=a;y=a;z=a;}
-	Vec3(real ax,real ay,real az)     {x=ax;y=ay;z=az;}
-	Vec3 operator +(Vec3 a)     const {return Vec3(x+a.x,y+a.y,z+a.z);}
-	Vec3 operator -(Vec3 a)     const {return Vec3(x-a.x,y-a.y,z-a.z);}
-	Vec3 operator *(real f)     const {return Vec3(x*f,y*f,z*f);}
-	Vec3 operator *(Vec3 a)     const {return Vec3(x*a.x,y*a.y,z*a.z);}
-	Vec3 operator /(real f)     const {return Vec3(x/f,y/f,z/f);}
-	Vec3 operator /(Vec3 a)     const {return Vec3(x/a.x,y/a.y,z/a.z);}
-	Vec3 operator /(int f)      const {return Vec3(x/f,y/f,z/f);}
-	Vec3 operator /(unsigned f) const {return Vec3(x/f,y/f,z/f);}
-	Vec3 operator +=(Vec3 a)          {x+=a.x;y+=a.y;z+=a.z;return *this;}
-	Vec3 operator -=(Vec3 a)          {x-=a.x;y-=a.y;z-=a.z;return *this;}
-	Vec3 operator *=(real f)          {x*=f;y*=f;z*=f;return *this;}
-	Vec3 operator *=(Vec3 a)          {x*=a.x;y*=a.y;z*=a.z;return *this;}
-	Vec3 operator /=(real f)          {x/=f;y/=f;z/=f;return *this;}
-	bool operator ==(Vec3 a)    const {return a.x==x && a.y==y && a.z==z;}
-	bool operator !=(Vec3 a)    const {return a.x!=x || a.y!=y || a.z!=z;}
-	Vec3 transformed(const Matrix *m) const;
-	Vec3 transform(const Matrix *m);
-	Vec3 rotated(const Matrix *m) const;
-	Vec3 rotate(const Matrix *m);
-	real operator [](int i)     const {return ((real*)this)[i];}
-};
+RRVec3 abs(const RRVec3& a);
+RRReal sum(const RRVec3& a);
+RRReal avg(const RRVec3& a);
+void   clampToZero(RRVec3& a);
 
-Vec3 operator -(Vec3 a);
-real size(Vec3 a);
-real size2(Vec3 a);
-Vec3 abs(Vec3 a);
-real sum(Vec3 a);
-real avg(Vec3 a);
-void clampToZero(Vec3& a);
-Vec3 normalized(Vec3 a);
-real dot(Vec3 a,Vec3 b);
-Vec3 ortogonalTo(Vec3 a);
-Vec3 ortogonalTo(Vec3 a,Vec3 b);
-Angle angleBetween(Vec3 a,Vec3 b);
-Angle angleBetweenNormalized(Vec3 a,Vec3 b);
-*/
 //////////////////////////////////////////////////////////////////////////////
 //
 // 3d point

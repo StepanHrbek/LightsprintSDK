@@ -18,30 +18,35 @@ namespace rrCollider
 //////////////////////////////////////////////////////////////////////////////
 //
 // 3d vector
-/*
-Vec3 operator -(const Vec3& a)
+
+RRVec3 operator -(const RRVec3& a)
 {
-	return Vec3(-a.x,-a.y,-a.z);
+	return RRVec3(-a.x,-a.y,-a.z);
 }
 
-real size(const Vec3& a)
+RRReal size(const RRVec3& a)
 {
 	return sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
 }
 
-real size2(Vec3 a)
+RRReal size2(const RRVec3& a)
 {
 	return a.x*a.x+a.y*a.y+a.z*a.z;
 }
 
-Vec3 normalized(Vec3 a)
+RRVec3 normalized(const RRVec3& a)
 {
 	return a/size(a);
 }
 
-real dot(const Vec3& a, const Vec3& b)
+RRReal dot(const RRVec3& a,const RRVec3& b)
 {
 	return a.x*b.x+a.y*b.y+a.z*b.z;
+}
+
+RRVec3 ortogonalTo(const RRVec3& a)
+{
+	return RRVec3(0,a.z,-a.y);
 }
 
 // dohoda:
@@ -50,11 +55,24 @@ real dot(const Vec3& a, const Vec3& b)
 // serazene proti smeru hodinovych rucicek.
 // jinak receno: ortogonalTo(doprava,dopredu)==nahoru
 
-Vec3 ortogonalTo(const Vec3& a, const Vec3& b)
+RRVec3 ortogonalTo(const RRVec3& a,const RRVec3& b)
 {
-	return Vec3(a.y*b.z-a.z*b.y,-a.x*b.z+a.z*b.x,a.x*b.y-a.y*b.x);
+	return RRVec3(a.y*b.z-a.z*b.y,-a.x*b.z+a.z*b.x,a.x*b.y-a.y*b.x);
 }
-*/
+
+RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b)
+{
+	RRReal d = dot(a,b);
+	RRReal angle = acos(MAX(MIN(d,1),-1));
+	assert(IS_NUMBER(angle));
+	return angle;
+}
+
+RRReal angleBetween(const RRVec3& a,const RRVec3& b)
+{
+	return angleBetweenNormalized(normalized(a),normalized(b));
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // plane in 3d

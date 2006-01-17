@@ -65,143 +65,89 @@ Angle angleBetween(Vec2 a,Vec2 b)
 //
 // 3d vector
 
-Vec3 Vec3::transformed(const Matrix *m) const
+RRVec3 RRMatrix4x4::transformed(const RRVec3& a) const
 {
 	assert(m);
 	return Vec3(
-	  x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0] + (*m)[3][0],
-	  x*(*m)[0][1] + y*(*m)[1][1] + z*(*m)[2][1] + (*m)[3][1],
-	  x*(*m)[0][2] + y*(*m)[1][2] + z*(*m)[2][2] + (*m)[3][2]);
+	  a[0]*(m)[0][0] + a[1]*(m)[1][0] + a[2]*(m)[2][0] + (m)[3][0],
+	  a[0]*(m)[0][1] + a[1]*(m)[1][1] + a[2]*(m)[2][1] + (m)[3][1],
+	  a[0]*(m)[0][2] + a[1]*(m)[1][2] + a[2]*(m)[2][2] + (m)[3][2]);
 }
 
-Vec3 Vec3::rotated(const Matrix *m) const
+Vec3 RRMatrix4x4::rotated(const RRVec3& a) const
 {
 	assert(m);
 	return Vec3(
-		x*(*m)[0][0] + y*(*m)[1][0] + z*(*m)[2][0],
-		x*(*m)[0][1] + y*(*m)[1][1] + z*(*m)[2][1],
-		x*(*m)[0][2] + y*(*m)[1][2] + z*(*m)[2][2]);
+		a[0]*(m)[0][0] + a[1]*(m)[1][0] + a[2]*(m)[2][0],
+		a[0]*(m)[0][1] + a[1]*(m)[1][1] + a[2]*(m)[2][1],
+		a[0]*(m)[0][2] + a[1]*(m)[1][2] + a[2]*(m)[2][2]);
 }
 
-Vec3 Vec3::transform(const Matrix *m)
+Vec3& RRMatrix4x4::transform(RRVec3& a) const
 {
 	assert(m);
-	real _x=x,_y=y,_z=z;
+	real _x=a.x,_y=a.y,_z=a.z;
 
-	x = _x*(*m)[0][0] + _y*(*m)[1][0] + _z*(*m)[2][0] + (*m)[3][0];
-	y = _x*(*m)[0][1] + _y*(*m)[1][1] + _z*(*m)[2][1] + (*m)[3][1];
-	z = _x*(*m)[0][2] + _y*(*m)[1][2] + _z*(*m)[2][2] + (*m)[3][2];
+	a.x = _x*(m)[0][0] + _y*(m)[1][0] + _z*(m)[2][0] + (m)[3][0];
+	a.y = _x*(m)[0][1] + _y*(m)[1][1] + _z*(m)[2][1] + (m)[3][1];
+	a.z = _x*(m)[0][2] + _y*(m)[1][2] + _z*(m)[2][2] + (m)[3][2];
 
-	return *this;
+	return a;
 }
 
-Vec3 Vec3::rotate(const Matrix *m)
+Vec3& RRMatrix4x4::rotate(RRVec3& a) const
 {
-	assert(m);
-	real _x=x,_y=y,_z=z;
+	real _x=a.x,_y=a.y,_z=a.z;
 
-	x = _x*(*m)[0][0] + _y*(*m)[1][0] + _z*(*m)[2][0];
-	y = _x*(*m)[0][1] + _y*(*m)[1][1] + _z*(*m)[2][1];
-	z = _x*(*m)[0][2] + _y*(*m)[1][2] + _z*(*m)[2][2];
+	a.x = _x*(m)[0][0] + _y*(m)[1][0] + _z*(m)[2][0];
+	a.y = _x*(m)[0][1] + _y*(m)[1][1] + _z*(m)[2][1];
+	a.z = _x*(m)[0][2] + _y*(m)[1][2] + _z*(m)[2][2];
 
-	return *this;
+	return a;
 }
 
-Vec3 operator -(Vec3 a)
-{
-	return Vec3(-a.x,-a.y,-a.z);
-}
-
-real size(Vec3 a)
-{
-	return sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
-}
-
-real size2(Vec3 a)
-{
-	return a.x*a.x+a.y*a.y+a.z*a.z;
-}
-
-real abs(real a)
+RRReal abs(RRReal a)
 {
 	return fabs(a);
 }
 
-Vec3 abs(Vec3 a)
+RRVec3 abs(const RRVec3& a)
 {
-	return Vec3(fabs(a.x),fabs(a.y),fabs(a.z));
+	return RRVec3(fabs(a.x),fabs(a.y),fabs(a.z));
 }
 
-real sum(real a)
+RRReal sum(RRReal a)
 {
 	return a;
 }
 
-real sum(Vec3 a)
+RRReal sum(const RRVec3& a)
 {
 	return a.x+a.y+a.z;
 }
 
-real avg(real a)
+RRReal avg(RRReal a)
 {
 	return a;
 }
 
-real avg(Vec3 a)
+RRReal avg(const RRVec3& a)
 {
 	return (a.x+a.y+a.z)/3;
 }
 
-void clampToZero(real& a)
+void clampToZero(RRReal& a)
 {
 	if(a<0) a=0;
 }
 
-void clampToZero(Vec3& a)
+void clampToZero(RRVec3& a)
 {
 	if(a.x<0) a.x=0;
 	if(a.y<0) a.y=0;
 	if(a.z<0) a.z=0;
 }
 
-Vec3 normalized(Vec3 a)
-{
-	return a/size(a);
-}
-
-real dot(Vec3 a,Vec3 b)
-{
-	return a.x*b.x+a.y*b.y+a.z*b.z;
-}
-
-Vec3 ortogonalTo(Vec3 a)
-{
-	return Vec3(0,a.z,-a.y);
-}
-
-// dohoda:
-// predpokladejme triangl s vrcholy 0,a,b.
-// pri pohledu na jeho vnejsi stranu (tu s normalou) vidime vrcholy
-// serazene proti smeru hodinovych rucicek.
-// jinak receno: ortogonalTo(doprava,dopredu)==nahoru
-
-Vec3 ortogonalTo(Vec3 a,Vec3 b)
-{
-	return Vec3(a.y*b.z-a.z*b.y,-a.x*b.z+a.z*b.x,a.x*b.y-a.y*b.x);
-}
-
-Angle angleBetweenNormalized(Vec3 a,Vec3 b)
-{
-	real d = dot(a,b);
-	real angle = acos(MAX(MIN(d,1),-1));
-	assert(IS_NUMBER(angle));
-	return angle;
-}
-
-Angle angleBetween(Vec3 a,Vec3 b)
-{
-	return angleBetweenNormalized(normalized(a),normalized(b));
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //
