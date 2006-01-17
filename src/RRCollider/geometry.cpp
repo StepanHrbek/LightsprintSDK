@@ -66,7 +66,7 @@ RRVec3 ortogonalTo(const RRVec3& a,const RRVec3& b)
 
 real normalValueIn(Plane& n,Vec3& a)
 {
-	return a.x*n.x+a.y*n.y+a.z*n.z+n.d;
+	return a.x*n.x+a.y*n.y+a.z*n.z+n.w;
 }
 
 //////////////////////////////////////////////////////////////////////////////

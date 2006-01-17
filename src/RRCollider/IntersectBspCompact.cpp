@@ -39,7 +39,7 @@ static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t
 	//if(det>-EPSILON && det<EPSILON) return false;
 
 	// calculate distance from vert0 to ray origin
-	Vec3 tvec = *(Vec3*)ray->rayOrigin-*(Vec3*)&t->vertex0;
+	Vec3 tvec = ray->rayOrigin-t->vertex0;
 
 	// calculate U parameter and test bounds
 	real u = dot(tvec,pvec)/det;
@@ -206,7 +206,7 @@ begin:
 	n.x = t2.side1[1] * t2.side2[2] - t2.side1[2] * t2.side2[1];
 	n.y = t2.side1[2] * t2.side2[0] - t2.side1[0] * t2.side2[2];
 	n.z = t2.side1[0] * t2.side2[1] - t2.side1[1] * t2.side2[0];
-	n.d = -(t2.vertex0[0] * n.x + t2.vertex0[1] * n.y + t2.vertex0[2] * n.z);
+	n.w = -(t2.vertex0[0] * n.x + t2.vertex0[1] * n.y + t2.vertex0[2] * n.z);
 
 	/* Reference. Old well tested code.
 	float distanceMinLocation = // +=point at distanceMin is in front, -=back, 0=plane
@@ -281,7 +281,7 @@ begin:
 				ray->hitPlane[0] = n.x/siz;
 				ray->hitPlane[1] = n.y/siz;
 				ray->hitPlane[2] = n.z/siz;
-				ray->hitPlane[3] = n.d/siz;
+				ray->hitPlane[3] = n.w/siz;
 			}
 #endif
 #ifdef FILL_HITPOINT3D

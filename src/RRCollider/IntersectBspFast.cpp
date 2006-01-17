@@ -130,7 +130,7 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 	}
 	// calculate normal
 	n3=normalized(ortogonalTo(r3,l3));
-	n3.d=-dot(s3,n3);
+	n3.w=-dot(s3,n3);
 
 	if(!IS_VEC3(n3)) 
 	{
@@ -189,7 +189,7 @@ void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3
 	}
 	// calculate normal
 	n3=normalized(ortogonalTo(r3,l3));
-	n3.d=-dot(s3,n3);
+	n3.w=-dot(s3,n3);
 
 	if(!IS_VEC3(n3)) 
 	{
@@ -260,7 +260,7 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	ray->hitPoint2d[1]=v;
 #endif
 #ifdef FILL_HITPLANE
-	*(Plane*)ray->hitPlane=t->n3;
+	ray->hitPlane=t->n3;
 #endif
 	return true;
 }
@@ -304,7 +304,7 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshIm
 	ray->hitPoint2d[1]=v;
 #endif
 #ifdef FILL_HITPLANE
-	*(Plane*)ray->hitPlane=t->n3;
+	ray->hitPlane=t->n3;
 #endif
 	return true;
 }

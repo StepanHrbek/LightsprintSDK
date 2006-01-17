@@ -86,10 +86,18 @@ namespace rrCollider
 	// primitives
 	//
 	// RRReal - real number
+	// RRVec2 - vector in 2d
 	// RRVec3 - vector in 3d
 	// RRVec4 - vector in 4d
 
 	typedef float RRReal;
+
+	struct RRVec2
+	{
+		RRReal    x;
+		RRReal    y;
+		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
+	};
 
 	struct RRVec3
 	{
@@ -278,8 +286,8 @@ namespace rrCollider
 			FILL_SIDE       =(1<<5),
 			TEST_SINGLESIDED=(1<<6), // detect collision only against outer side. default is to test both sides
 		};
-		RRReal          rayOrigin[4];   // i, (-Inf,Inf), ray origin. never modify last component, must stay 1
-		RRReal          rayDirInv[4];   // i, <-Inf,Inf>, 1/ray direction. direction must be normalized
+		RRVec4          rayOrigin;      // i, (-Inf,Inf), ray origin. never modify last component, must stay 1
+		RRVec4          rayDirInv;      // i, <-Inf,Inf>, 1/ray direction. direction must be normalized
 		RRReal          rayLengthMin;   // i, <0,Inf), test intersection in range <min,max>
 		RRReal          rayLengthMax;   // i, <0,Inf), test intersection in range <min,max>
 		unsigned        rayFlags;       // i, flags that specify the action
@@ -287,9 +295,9 @@ namespace rrCollider
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    // o, hit distance in object space
 		unsigned        hitTriangle;    // o, triangle (postImport) that was hit
-		RRReal          hitPoint2d[2];  // o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
-		RRReal          hitPlane[4];    // o, plane of hitTriangle in object space, [0..2] is normal
-		RRReal          hitPoint3d[3];  // o, hit coordinate in object space
+		RRVec2          hitPoint2d;     // o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
+		RRVec4          hitPlane;       // o, plane of hitTriangle in object space, [0..2] is normal
+		RRVec3          hitPoint3d;     // o, hit coordinate in object space
 		bool            hitOuterSide;   // o, true = object was hit from the outer (common) side
 		RRReal          hitPadding[8];  // o, undefined, never modify
 	private:

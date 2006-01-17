@@ -32,12 +32,12 @@ void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
 void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
 {
 	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
-	out.uv[0].m[0] = 1.0f*t/numTriangles;
-	out.uv[0].m[1] = 0;
-	out.uv[1].m[0] = 1.0f*(t+1)/numTriangles;
-	out.uv[1].m[1] = 0;
-	out.uv[2].m[0] = 1.0f*t/numTriangles;
-	out.uv[2].m[1] = 1;
+	out.uv[0][0] = 1.0f*t/numTriangles;
+	out.uv[0][1] = 0;
+	out.uv[1][0] = 1.0f*(t+1)/numTriangles;
+	out.uv[1][1] = 0;
+	out.uv[2][0] = 1.0f*t/numTriangles;
+	out.uv[2][1] = 1;
 }
 
 

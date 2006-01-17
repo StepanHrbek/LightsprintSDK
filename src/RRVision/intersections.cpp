@@ -39,7 +39,7 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	// translation+rotation allowed, no scaling, so direction stays normalized
 	if(inverseMatrix)
 	{
-		*(Vec3*)(ray.rayOrigin) = inverseMatrix->transformed(eye);
+		ray.rayOrigin = inverseMatrix->transformed(eye);
 		rayDir = inverseMatrix->rotated(direction);
 #ifdef SUPPORT_SCALE
 		// translation+rotation+scale allowed
@@ -54,7 +54,7 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 #endif
 	{
 		// no transformation
-		*(Vec3*)(ray.rayOrigin) = eye;
+		ray.rayOrigin = eye;
 		rayDir = direction;
 	}
 	ray.rayDirInv[0] = scale/rayDir[0];

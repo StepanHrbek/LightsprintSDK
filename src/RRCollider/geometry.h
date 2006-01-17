@@ -34,12 +34,7 @@ namespace rrCollider
 	//
 	// plane in 3d
 
-	struct Plane : public Vec3
-	{
-		real    d;
-
-		void operator =(const Vec3 a)   {x=a.x;y=a.y;z=a.z;}
-	};
+	typedef RRVec4 Plane;
 
 	real normalValueIn(const Plane& n,const Vec3& a);
 

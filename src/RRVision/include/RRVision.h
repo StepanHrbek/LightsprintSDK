@@ -62,13 +62,8 @@ namespace rrVision
 	// RRVec3      - vector in 3d
 	// RRMatrix4x4 - matrix 4x4
 
-	typedef rrCollider::RRReal  RRReal;
-
-	struct RRVec2
-	{
-		RRReal m[2];
-	};
-
+	typedef rrCollider::RRReal RRReal;
+	typedef rrCollider::RRVec2 RRVec2;
 	typedef rrCollider::RRVec3 RRVec3;
 
 	struct RRMatrix4x4
