@@ -18,6 +18,11 @@ cv:
  uml
  asm i letos
 
+POZOR
+neni tu korektni skladani primary+indirect a az nasledna gamma korekce
+ kdyz se vypne scaler(0.4) nebo indirect, primary vypada desne tmave
+ az pri secteni s indirectem (scitani produkuje prilis velke cislo) zacne vypadat akorat
+ 
 */
 
 #include <stdlib.h>

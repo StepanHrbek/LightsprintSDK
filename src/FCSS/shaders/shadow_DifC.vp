@@ -9,7 +9,7 @@ void main()
   trueNormal = gl_NormalMatrix * gl_Normal;
   
   projCoord = gl_TextureMatrix[0] * realPos;
-  gl_FrontColor = dot(lightVect, trueNormal) * gl_Color;
+  gl_FrontColor = dot(lightVect, trueNormal) * gl_Color * 2;
   
   gl_Position = ftransform();
 }
