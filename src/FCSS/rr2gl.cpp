@@ -116,6 +116,7 @@ void rr2gl_draw_colored(bool direct)
 	{
 		rrCollider::RRMeshImporter::Triangle tri;
 		meshImporter->getTriangle(triangleIdx,tri);
+		// kyz je to direct, color = barva materialu (bude se modulovat svetlem spocitanym v shaderu)
 		if(direct)
 		{
 			unsigned surfaceIdx = objectImporter->getTriangleSurface(triangleIdx);
@@ -139,6 +140,7 @@ void rr2gl_draw_colored(bool direct)
 			rrCollider::RRMeshImporter::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
 
+			// kyz je to indirect, color = exitance, tj barva materialu uz vynasobena spocitanym svetlem, v shaderu se nic nemusi pocitat
 			if(!direct && radiositySolver)
 			{
 				const rrVision::RRColor* indirect = radiositySolver->getTriangleRadiantExitance(0,triangleIdx,v);

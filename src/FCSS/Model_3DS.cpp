@@ -274,12 +274,8 @@ void Model_3DS::Load(char *name)
 	}
 }
 
-void Model_3DS::Draw(rrVision::RRObjectImporter* rrobject)
-// rrobject = NULL -> color = 1
-// rrobject != NULL -> color = additionalExitance
+void Model_3DS::Draw(GLfloat* color)
 {
-	unsigned triangleIdx = 0;
-
 	if (visible)
 	{
 /*	glPushMatrix();
@@ -299,33 +295,11 @@ void Model_3DS::Draw(rrVision::RRObjectImporter* rrobject)
 		{
 
 			// additional exitance
-			GLfloat* colors = NULL;
-			if(rrobject)
+			if(color)
 			{
-				unsigned numTriangles = Objects[i].numFaces/3;
-				colors = new GLfloat[numTriangles*3*4];
-				for(unsigned j=0;j<numTriangles;j++)
-				{
-					rrVision::RRColor color;
-					rrobject->getTriangleAdditionalPower(triangleIdx+j,rrVision::RM_IRRADIANCE,color);
-					for(unsigned k=0;k<3;k++)
-						colors[3*j+k] = color[k];
-					/*
-vision zajima exiting flux
-renderer s texturou zajima irradiance, renderer bez textury vyjimecne exitance
-
-fast pocita incident flux
-slow pocita exitance
-
-nekonzistence vznika kdyz u cerneho materialu ulozim outgoing a ptam se na incoming
--> ukladat incoming
-nekonzistance vznika kdyz u degenerata ulozim flux a ptam se na irradiance
--> ukladat irradiance
-					*/
-				}
-				glColorPointer(3, GL_FLOAT, 0, colors);
+				glColorPointer(3, GL_FLOAT, 0, color);
 				glEnableClientState(GL_COLOR_ARRAY);
-				triangleIdx += numTriangles;
+				color += 3*Objects[i].numVerts;
 			}
 
 			// Enable texture coordiantes, normals, and vertices arrays
@@ -377,8 +351,6 @@ nekonzistance vznika kdyz u degenerata ulozim flux a ptam se na irradiance
 					// Disable texturing
 					glDisable(GL_TEXTURE_2D);
 					// Disbale lighting if the model is lit
-					if (lit)
-						glDisable(GL_LIGHTING);
 					// Draw the normals blue
 					glColor3f(0.0f, 0.0f, 1.0f);
 
@@ -391,16 +363,12 @@ nekonzistance vznika kdyz u degenerata ulozim flux a ptam se na irradiance
 					// Reset the color to white
 					glColor3f(1.0f, 1.0f, 1.0f);
 					// If the model is lit then renable lighting
-					if (lit)
-						glEnable(GL_LIGHTING);
 				}
 			}
 */
-			if(rrobject)
+			if(color)
 			{
 				glDisableClientState(GL_COLOR_ARRAY);
-				//glColorPointer(3, GL_FLOAT, 0, NULL);
-				delete[] colors;
 			}
 		}
 

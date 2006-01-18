@@ -268,6 +268,20 @@ RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* o
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRAdditionalObjectImporter
+/*
+vision zajima exiting flux
+renderer s texturou zajima irradiance, renderer bez textury vyjimecne exitance
+
+fast pocita incident flux
+slow pocita exitance
+
+nekonzistence vznika kdyz u cerneho materialu ulozim outgoing a ptam se na incoming
+-> ukladat incoming
+nekonzistance vznika kdyz u degenerata ulozim flux a ptam se na irradiance
+-> ukladat irradiance
+
+RRMyAdditionalObjectImporter tedy vse co dostane prevede na irradiance
+*/
 
 class RRMyAdditionalObjectImporter : public RRAdditionalObjectImporter
 {
@@ -349,6 +363,7 @@ public:
 			break;
 		case RM_IRRADIANCE:
 			out = triangleInfo[t].irradiance;
+			break;
 		case RM_EXITING_FLUX:
 			{
 			const RRSurface* s = getSurface(getTriangleSurface(t));

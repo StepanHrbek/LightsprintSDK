@@ -149,7 +149,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 			// this code is on 2 places...
 			//  delete this and rather call obj->resetStaticIllumination
 			Vec3 sumExitance;
-			importer->getTriangleAdditionalPower(fi,RM_EXITANCE,*(RRColor*)&sumExitance);
+			importer->getTriangleAdditionalPower(fi,RM_EXITANCE,sumExitance);
 			if(scene->scaler) sumExitance = Vec3(
 				scene->scaler->getOriginal(sumExitance.x), // getOriginal=getWattsPerSquareMeter
 				scene->scaler->getOriginal(sumExitance.y),
@@ -274,7 +274,7 @@ const RRColor* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex
 	static Channels rad;
 	rad = obj->getVertexIrradiance(vertex);
 	if(scaler) rad = Vec3(scaler->getScaled(rad[0]),scaler->getScaled(rad[1]),scaler->getScaled(rad[2]));
-	return (RRColor*)&rad;
+	return &rad;
 #endif
 }
 
@@ -420,7 +420,7 @@ const RRColor* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned
 	rad = *getTriangleIrradiance(object,triangle,vertex) * tri->surface->diffuseReflectanceColor;
 	RRScaler* scaler = scene->scaler;
 	if(scaler) rad = Vec3(scaler->getScaled(rad[0]),scaler->getScaled(rad[1]),scaler->getScaled(rad[2]));
-	return (RRColor*)&rad.x;
+	return &rad;
 }
 
 unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)

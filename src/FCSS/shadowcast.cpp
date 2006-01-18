@@ -1,12 +1,14 @@
 /*
-nemit 2 ruzny textury, 1 pro render, 1 pro capture primary
+3ds: spatne cislovani trianglu takze color buffer nesedi
 sponza je pri gamma=0.4 presvicena
-indirect modulovat texturou
 vypocet je dost pomaly, zkusit nejaky meshcopy
 zkusit zapnout drsnejsi interpolace(slucoani blizkych ivertexu)
 koupelna je uplne cerna
 dodelat podporu pro matice do 3ds2rr importeru
 stranka s vic demacema pohromade
+
+z neznameho duvodu jedna varianta v capturePrimary jde a druha nejde
+nemit 2 ruzny textury, 1 pro render, 1 pro capture primary
 mozne zrychleni soft shadows = pro instance pocitat jen viditelnost
  material aplikovat az v poslednim pasu ktery zaroven pricte emisi
  * ADD, pro instance pocitat jen viditelnost
@@ -49,7 +51,7 @@ using namespace std;
 //
 // 3DS
 
-//#define _3DS
+#define _3DS
 #ifdef _3DS
 #include "Model_3DS.h"
 #include "GLTexture.h"
@@ -58,6 +60,56 @@ Model_3DS m3ds;
 char *filename_3ds="data\\sponza\\sponza.3ds";
 //char *filename_3ds="data\\raist\\koupelna2.3ds";
 #endif
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RR
+
+rrVision::RRAdditionalObjectImporter* rrobject = NULL;
+rrVision::RRScene* rrscene = NULL;
+rrVision::RRScaler* rrscaler = NULL;
+gliGenericImage* rrspot = NULL;
+float rrtimestep;
+// rr endfunc callback
+#include <time.h>
+#define TIME    clock_t            
+#define GETTIME clock()
+#define PER_SEC CLOCKS_PER_SEC
+static bool endByTime(void *context)
+{
+	return GETTIME>(TIME)(intptr_t)context;
+}
+rrVision::RRColor* indirectColors = NULL;
+void updateIndirect()
+{
+	if(!rrobject || !rrscene) return;
+
+	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
+	unsigned numTriangles = mesh->getNumTriangles();
+	unsigned numVertices = mesh->getNumVertices();
+	delete[] indirectColors;
+	indirectColors = new rrVision::RRColor[numVertices*3];
+	//for(unsigned v=0;v<numVertices;v++)
+	//	indirectColors[v] = rrVision::RRColor(1,0,0);
+
+	// 3ds has indexed trilist
+	// triangle0=indices0,1,2, triangle1=indices3,4,5...
+	for(unsigned t=0;t<numTriangles;t++) // triangle
+	{
+		// get 3*index
+		rrCollider::RRMeshImporter::Triangle triangle;
+		mesh->getTriangle(t,triangle);
+		for(unsigned v=0;v<3;v++) // vertex
+		{
+			// get 1*exitance
+			const rrVision::RRColor* indirect = rrscene->getTriangleRadiantExitance(0,t,v);
+			// write 1*exitance
+			assert(triangle[v]<numVertices);
+			indirectColors[triangle[v]] = indirect?*indirect:rrVision::RRColor(0);
+		}
+	}
+}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -111,8 +163,6 @@ void glsl_init()
 {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
 	glShadeModel(GL_SMOOTH);
 
 	glEnable(GL_DEPTH_TEST);
@@ -214,12 +264,7 @@ GLenum hwDepthMapFiltering = GL_LINEAR;
 
 int useCopyTexImage = 1;
 int useTextureRectangle = 0;
-int mipmapShadowMap = 0;
-int useAccum = 1;
 int useLights = 1;
-int useScissor = 1;
-float globalIntensity = 1;
-float ambientPower = 0;
 int softWidth[200],softHeight[200],softPrecision[200],softFiltering[200];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 bool drawOnlyZ = false;
@@ -230,16 +275,15 @@ GLfloat ed[3];
 char *mgf_filename="data\\scene8.mgf";
 
 int depthBias16 = 6;
-int depthBias24 = 16;
+int depthBias24 = 20;
 int depthScale16, depthScale24;
-GLfloat slopeScale = 1.8;
+GLfloat slopeScale = 3.0;
 
 GLfloat textureLodBias = 0.0;
 
 #define LIGHT_DIMMING 0.0
 
 GLfloat zero[] = {0.0, 0.0, 0.0, 1.0};
-GLfloat lightColor[] = {10.0, 10.0, 10.0, 1.0};
 
 GLfloat lv[4];  /* default light position */
 
@@ -296,23 +340,6 @@ GLdouble lightViewMatrix[16];
 GLdouble lightInverseViewMatrix[16];
 GLdouble lightFrustumMatrix[16];
 GLdouble lightInverseFrustumMatrix[16];
-
-// rr related
-rrVision::RRAdditionalObjectImporter* rrobject = NULL;
-rrVision::RRScene* rrscene = NULL;
-rrVision::RRScaler* rrscaler = NULL;
-gliGenericImage* rrspot = NULL;
-float rrtimestep;
-// rr endfunc callback
-#include <time.h>
-#define TIME    clock_t            
-#define GETTIME clock()
-#define PER_SEC CLOCKS_PER_SEC
-static bool endByTime(void *context)
-{
-	return GETTIME>(TIME)(intptr_t)context;
-}
-
 
 
 /*** OPENGL INITIALIZATION AND CHECKS ***/
@@ -379,22 +406,19 @@ void drawScene()
 	{
 		case OC_MGF:
 		default:
-		// although it doesn't make sense, on GF4 Ti 4200 
-		// it's slightly faster when "if(drawOnlyZ) mgf_draw_onlyz(); else" is deleted
 		if(drawOnlyZ) 
 			rr2gl_draw_onlyz();
 		else
 		if(drawIndexed) 
 			rr2gl_draw_indexed();
 		else
-//		if(!drawDirect)
-//			rr2gl_draw_colored(drawDirect);
-//		else
+		{
 #ifdef _3DS
-			m3ds.Draw(drawDirect?NULL:rrobject);
+			m3ds.Draw(drawDirect?NULL:&indirectColors[0].x);
 #else
 			rr2gl_draw_colored(drawDirect);
 #endif
+		}
 		break;
 	}
 }
@@ -403,12 +427,11 @@ void drawScene()
    the current position of the local light source. */
 void drawLight(void)
 {
+	ambientProg->useIt();
 	glPushMatrix();
 	glTranslatef(lv[0], lv[1], lv[2]);
-	glDisable(GL_LIGHTING);
 	glColor3f(1,1,0);
 	gluSphere(q, 0.05, 10, 10);
-	glEnable(GL_LIGHTING);
 	glPopMatrix();
 }
 
@@ -469,7 +492,6 @@ void drawShadowMapFrustum(void)
 		glPushMatrix();
 		glMultMatrixd(lightInverseViewMatrix);
 		glMultMatrixd(lightInverseFrustumMatrix);
-		glDisable(GL_LIGHTING);
 		glColor3f(1,1,1);
 		/* Draw a wire frame cube with vertices at the corners
 		of clip space.  Draw the top square, drop down to the
@@ -498,7 +520,6 @@ void drawShadowMapFrustum(void)
 		glVertex3f(-1,1,1);
 		glVertex3f(-1,-1,1);
 		glEnd();
-		glEnable(GL_LIGHTING);
 		glPopMatrix();
 		glDisable(GL_LINE_STIPPLE);
 	}
@@ -551,7 +572,6 @@ void updateDepthMap(void)
 	setupLightView(1);
 
 	glColorMask(0,0,0,0);
-	glDisable(GL_LIGHTING);
 	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 	drawOnlyZ = true;
 	glEnable(GL_POLYGON_OFFSET_FILL);
@@ -562,26 +582,13 @@ void updateDepthMap(void)
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	drawOnlyZ = false;
 	glViewport(0, 0, winWidth, winHeight);
-	glEnable(GL_LIGHTING);
 	glColorMask(1,1,1,1);
 
 	if(softLight<0 || softLight==useLights-1) needDepthMapUpdate = 0;
 }
 
-void setLightIntensity()
-{
-	GLfloat col[4]={lightColor[0]*globalIntensity,lightColor[1]*globalIntensity,lightColor[2]*globalIntensity,lightColor[3]*globalIntensity};
-	glLightfv(GL_LIGHT0, GL_AMBIENT, zero);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, col);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
-}
-
 void drawHardwareShadowPass(void)
 {
-	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zero);
-
-	setLightIntensity();
 
 #ifdef _3DS
 	GLSLProgram* myProg = shadowDifMProg;
@@ -616,11 +623,11 @@ void drawHardwareShadowPass(void)
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 }
 
-void drawEyeViewShadowed(int clear)
+void drawEyeViewShadowed()
 {
 	if (softLight<0) updateDepthMap();
 
-	if (clear) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (wireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -679,67 +686,46 @@ void placeSoftLight(int n)
 
 void drawEyeViewSoftShadowed(void)
 {
-	int i;
-	int oldAmbientPower=ambientPower;
+	// add direct
 	placeSoftLight(-1);
-	for(i=0;i<useLights;i++)
+	for(int i=0;i<useLights;i++)
 	{
 		placeSoftLight(i);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		updateDepthMap();
 	}
-	if(useAccum) {
-		glClear(GL_ACCUM_BUFFER_BIT);
-	} else {
-		globalIntensity=0;
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		setupEyeView();
-		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zero);
-		setLightIntensity();
-		drawScene();
-		globalIntensity=1./useLights;
-		ambientPower=0;
-		glBlendFunc(GL_ONE,GL_ONE);
-		glEnable(GL_BLEND);
-	}
-	for(i=0;i<useLights;i++)
+	glClear(GL_ACCUM_BUFFER_BIT);
+	for(int i=0;i<useLights;i++)
 	{
 		placeSoftLight(i);
-		drawEyeViewShadowed(useAccum);
-		if(useAccum) {
-			glAccum(GL_ACCUM,1./useLights);
-		}
+		drawEyeViewShadowed();
+		glAccum(GL_ACCUM,1./useLights);
 	}
 	placeSoftLight(-2);
-	if(useAccum) {
-		glAccum(GL_RETURN,1);
-	} else {  
-		glDisable(GL_BLEND);
-		globalIntensity=1;
-		ambientPower=oldAmbientPower;
-	}
 
 	// add indirect
-	// z neznameho duvodu kdyz se toto zakomentuje, primary je nekolikrat tmavsi
-	// staci zakomentovat drawScene()
-	glDisable(GL_LIGHTING);
-	glBlendFunc(GL_ONE,GL_ONE);
-	glEnable(GL_BLEND);
-	drawDirect = false;
+	if(rrscene 
 #ifdef _3DS
-	ambientDifMProg->useIt();
-	//ambientProg->useIt();
-#else
-	ambientProg->useIt();
+		&& indirectColors
 #endif
-	drawScene();
-	drawDirect = true;
-	glDisable(GL_BLEND);
+		)
+	{
+		drawDirect = false;
+#ifdef _3DS
+		ambientDifMProg->useIt();
+#else
+		ambientProg->useIt();
+#endif
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		drawScene();
+		drawDirect = true;
+		glAccum(GL_ACCUM,1);
+	}
+
+	glAccum(GL_RETURN,1);
 }
 
-void
-capturePrimary()
+void capturePrimary()
 {
 	//!!! needs windows at least 256x256
 	unsigned width = 256;
@@ -749,7 +735,6 @@ capturePrimary()
 	setupLightView(1);
 
 	glViewport(0, 0, width, height);
-	glDisable(GL_LIGHTING);
 
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	ambientProg->useIt();
@@ -798,11 +783,16 @@ capturePrimary()
 	float mult = 5.0f/width/height;
 	for(unsigned t=0;t<numTriangles;t++)
 	{
+		// melo by delat totez ale z neznameho duvodu nedela
+		//rrVision::RRColor color = trianglePower[t] * mult;
+		//rrobject->setTriangleAdditionalPower(t,rrVision::RM_INCIDENT_FLUX,color);
+
 		unsigned surfaceIdx = rrobject->getTriangleSurface(t);
 		const rrVision::RRSurface* s = rrobject->getSurface(surfaceIdx);
 		rrVision::RRColor color = trianglePower[t] * mult * s->diffuseReflectanceColor;
-		//const float LIMIT = 100; for(unsigned i=0;i<3;i++) if(color.m[i]>LIMIT) color.m[i]=LIMIT;
 		rrobject->setTriangleAdditionalPower(t,rrVision::RM_EXITING_FLUX,color);
+		// oboje je ok
+		//rrobject->setTriangleAdditionalPower(t,rrVision::RM_INCIDENT_FLUX,color/(s->diffuseReflectanceColor+rrVision::RRColor(0.01,0.01,0.01)));
 	}
 
 	// debug print
@@ -815,7 +805,6 @@ capturePrimary()
 
 	free(trianglePower);
 	free(indexBuffer);
-	glEnable(GL_LIGHTING);
 	glViewport(0, 0, winWidth, winHeight);
 }
 
@@ -839,7 +828,6 @@ static void drawHelpMessage(void)
 		"'S'  - show eye view WITH SOFT shadows",
 		"'+/-'- soft: increase/decrease number of points",
 		"arrow- soft: move camera",
-		"'a'  - soft: toggle accumulation buffer",
 		"'g'  - soft: cycle through linear, rectangular and circular light",
 		"'w'  - toggle wire frame",
 		"'m'  - toggle whether the left or middle mouse buttons control the eye and",
@@ -873,7 +861,6 @@ static void drawHelpMessage(void)
 	glDisable(GL_TEXTURE_2D);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 
 	glPushMatrix();
@@ -907,7 +894,6 @@ static void drawHelpMessage(void)
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 }
 
@@ -933,7 +919,7 @@ void display(void)
 	  break;
   case DM_EYE_VIEW_SHADOWED:
 	  /* Wire frame handled internal to this routine. */
-	  drawEyeViewShadowed(1);
+	  drawEyeViewShadowed();
 	  break;
   case DM_EYE_VIEW_SOFTSHADOWED:
 	  drawEyeViewSoftShadowed();
@@ -1262,9 +1248,6 @@ void keyboard(unsigned char c, int x, int y)
 	  buildPerspectiveMatrix(eyeFrustumMatrix,
 		  eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
 	  break;
-  case 'a':
-	  useAccum=1-useAccum;
-	  break;
   case 'q':
 	  slopeScale += 0.1;
 	  needDepthMapUpdate = 1;
@@ -1279,9 +1262,6 @@ void keyboard(unsigned char c, int x, int y)
 	  needDepthMapUpdate = 1;
 	  needTitleUpdate = 1;
 	  updateDepthBias(0);
-	  break;
-  case 'M':
-	  mipmapShadowMap = !mipmapShadowMap;
 	  break;
   case '>':
 	  textureLodBias += 0.2;
@@ -1448,21 +1428,13 @@ void initGL(void)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
-
 	/* GL_LEQUAL ensures that when fragments with equal depth are
 	generated within a single rendering pass, the last fragment
 	results. */
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	setLightIntensity();
-
 	glLineStipple(1, 0xf0f0);
-
-	glMaterialf(GL_FRONT, GL_SHININESS, 30.0);
 
 	glEnable(GL_CULL_FACE);
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
@@ -1548,7 +1520,7 @@ void loadTextures(void)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glBindTexture(GL_TEXTURE_2D, TO_SPOT);
-	rrspot = loadTextureDecalImage("spot3.tga", 1);
+	rrspot = loadTextureDecalImage("spot0.tga", 1);
 	textureSpot = rrspot!=NULL;
 	useBestShadowMapClamping(GL_TEXTURE_2D);
 }
@@ -1730,7 +1702,11 @@ void idle()
 	{
 		calcsum = 0;
 		if(rrtimestep<1.5f) rrtimestep*=1.1f;
+#ifdef _3DS
+		updateIndirect();
+#else
 		rr2gl_compile(rrobject,rrscene);
+#endif
 		glutPostRedisplay();
 	}
 }
@@ -1798,10 +1774,12 @@ main(int argc, char **argv)
 	// load mgf
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
-
+	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
 	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
 	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
+	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,0.3f);
+	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.3f);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
 	rrscene->setScaler(rrscaler);

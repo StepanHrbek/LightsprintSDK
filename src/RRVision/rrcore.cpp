@@ -2001,7 +2001,7 @@ void Object::resetStaticIllumination(RRScaler* scaler)
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) 
 	{
 		Vec3 sumExitance;
-		importer->getTriangleAdditionalPower(t,RM_EXITANCE,*(RRColor*)&sumExitance);
+		importer->getTriangleAdditionalPower(t,RM_EXITANCE,sumExitance);
 		if(scaler) sumExitance = Vec3(
 			scaler->getOriginal(sumExitance.x), // getOriginal=getWattsPerSquareMeter
 			scaler->getOriginal(sumExitance.y),

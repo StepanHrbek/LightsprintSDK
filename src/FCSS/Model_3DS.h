@@ -75,7 +75,6 @@
 // Would have greatly bloated the model class's code
 // Just replace this with your favorite texture class
 #include "GLTexture.h"
-#include "RRVision.h"
 
 #include <stdio.h>
 
@@ -159,7 +158,7 @@ public:
 	bool lit;				// True: the model is lit
 	bool visible;			// True: the model gets rendered
 	void Load(char *name);	// Loads a model
-	void Draw(rrVision::RRObjectImporter* rrobject); // Draws the model
+	void Draw(GLfloat* color); // Draws the model using given colors (3 floats per vertex)
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor
 	virtual ~Model_3DS();	// Destructor

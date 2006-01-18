@@ -113,6 +113,7 @@ namespace rrCollider
 		RRVec3 operator * (RRReal f)          const {return RRVec3(x*f,y*f,z*f);}
 		RRVec3 operator * (RRVec3 a)          const {return RRVec3(x*a.x,y*a.y,z*a.z);}
 		RRVec3 operator / (RRReal f)          const {return RRVec3(x/f,y/f,z/f);}
+		RRVec3 operator / (RRVec3 a)          const {return RRVec3(x/a.x,y/a.y,z/a.z);}
 		RRVec3 operator / (int f)             const {return RRVec3(x/f,y/f,z/f);}
 		RRVec3 operator / (unsigned f)        const {return RRVec3(x/f,y/f,z/f);}
 		RRVec3 operator +=(const RRVec3& a)         {x+=a.x;y+=a.y;z+=a.z;return *this;}
