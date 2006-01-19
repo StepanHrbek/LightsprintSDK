@@ -28,6 +28,7 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <float.h>
 #include <math.h>
 #include <GL/glut.h>
 #include <GL/glprocs.h>
@@ -95,11 +96,13 @@ void updateIndirect()
 	unsigned numVertices = mesh->getNumVertices();
 	delete[] indirectColors;
 	indirectColors = new rrVision::RRColor[numVertices*3];
-	//for(unsigned v=0;v<numVertices;v++)
-	//	indirectColors[v] = rrVision::RRColor(1,0,0);
+	for(unsigned v=0;v<numVertices;v++)
+		indirectColors[v] = rrVision::RRColor(-1);
 
 	// 3ds has indexed trilist
 	// triangle0=indices0,1,2, triangle1=indices3,4,5...
+	unsigned matches = 0;
+	unsigned misses = 0;
 	for(unsigned t=0;t<numTriangles;t++) // triangle
 	{
 		// get 3*index
@@ -108,12 +111,42 @@ void updateIndirect()
 		for(unsigned v=0;v<3;v++) // vertex
 		{
 			// get 1*exitance
+			static rrVision::RRColor black = rrVision::RRColor(1);
 			const rrVision::RRColor* indirect = rrscene->getTriangleRadiantExitance(0,t,v);
+			if(!indirect) indirect = &black;
 			// write 1*exitance
+			float indirectFactor = 0.4f; //!!! fudge factor
 			assert(triangle[v]<numVertices);
-			indirectColors[triangle[v]] = indirect?*indirect:rrVision::RRColor(0);
+			static rrVision::RRColor tmp = *indirect*indirectFactor;
+			if(indirectColors[triangle[v]]!=rrVision::RRColor(-1))
+			{
+				if(indirectColors[triangle[v]] == tmp)
+					matches++; else misses++;
+			}
+			for(unsigned i=0;i<3;i++)
+			{
+				assert(_finite(tmp[i]));
+				assert(tmp[i]>=0);
+				assert(tmp[i]<10);
+			}
+			// zpusobi ze je vse cerne
+			//indirectColors[triangle[v]] = tmp;
+			// vse je ok
+			indirectColors[triangle[v]] = *indirect*indirectFactor;
 		}
 	}
+
+	unsigned faces,rays;
+	float sourceExitingFlux,reflectedIncidentFlux;
+	rrscene->getStats(&faces,&sourceExitingFlux,&rays,&reflectedIncidentFlux);
+	printf("faces=%d sourceExitingFlux=%f rays=%d match/miss=%d/%d\n",faces,sourceExitingFlux,rays,matches,misses);
+/*	puts("");
+	for(unsigned i=0;i<4;i++)
+	{
+		char buf[1000];
+		rrscene->getInfo(buf,i);
+		puts(buf);
+	}*/
 }
 
 
@@ -700,6 +733,9 @@ void drawEyeViewSoftShadowed(void)
 		updateDepthMap();
 	}
 	glClear(GL_ACCUM_BUFFER_BIT);
+	if (wireFrame) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
 	for(int i=0;i<useLights;i++)
 	{
 		placeSoftLight(i);
@@ -741,7 +777,9 @@ void capturePrimary()
 
 	glViewport(0, 0, width, height);
 
+	glClearColor(1,1,1,1); // avoid background to contribute to triangle 0
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	glClearColor(0,0,0,1);
 	ambientProg->useIt();
 	unsigned numTriangles = rr2gl_draw_indexed();
 
@@ -779,7 +817,7 @@ void capturePrimary()
 			}
 			else
 			{
-				assert(0);
+				//assert(0);
 			}
 			pixel++;
 		}
@@ -802,7 +840,7 @@ void capturePrimary()
 
 	// debug print
 	//printf("\n\n");
-	//for(unsigned i=0;i<numTriangles;i++) printf("%d ",(int)trianglePower[i].m[0]);
+	//for(unsigned i=0;i<numTriangles;i++) printf("%d ",(int)trianglePower[i][0]);
 
 	// prepare for new calculation
 	rrscene->sceneResetStatic(true);
@@ -945,6 +983,8 @@ void display(void)
 	if (!drawFront) {
 		glutSwapBuffers();
 	}
+
+	static bool captured=false; if(!captured) {captured=true;capturePrimary();}
 }
 
 static void benchmark(int perFrameDepthMapUpdate)
@@ -1780,8 +1820,8 @@ main(int argc, char **argv)
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
-	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,0.3f);
 	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.3f);
@@ -1791,7 +1831,6 @@ main(int argc, char **argv)
 	rrscene->objectCreate(rrobject);
 	rr2gl_compile(rrobject,rrscene);
 	glsl_init();
-	capturePrimary();
 
 	glutMainLoop();
 	return 0;
