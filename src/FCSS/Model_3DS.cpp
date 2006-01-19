@@ -297,8 +297,8 @@ void Model_3DS::Draw(GLfloat* color)
 			// additional exitance
 			if(color)
 			{
-				glColorPointer(3, GL_FLOAT, 0, color);
 				glEnableClientState(GL_COLOR_ARRAY);
+				glColorPointer(3, GL_FLOAT, 0, color);
 				color += 3*Objects[i].numVerts;
 			}
 
@@ -366,10 +366,6 @@ void Model_3DS::Draw(GLfloat* color)
 				}
 			}
 */
-			if(color)
-			{
-				glDisableClientState(GL_COLOR_ARRAY);
-			}
 		}
 
 //	glPopMatrix();
@@ -377,6 +373,7 @@ void Model_3DS::Draw(GLfloat* color)
 	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	//glDisableClientState(GL_NORMAL_ARRAY);
 	//glDisableClientState(GL_VERTEX_ARRAY);
+	//glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void Model_3DS::CalculateNormals()
