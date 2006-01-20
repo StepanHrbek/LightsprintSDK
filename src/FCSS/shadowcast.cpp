@@ -1,8 +1,10 @@
+//!!! fudge factors
+float indirectFactor = 0.6f;
+// 
 /*
-3ds: spatne cislovani trianglu takze color buffer nesedi
-sponza je pri gamma=0.4 presvicena
+
 vypocet je dost pomaly, zkusit nejaky meshcopy
-zkusit zapnout drsnejsi interpolace(slucoani blizkych ivertexu)
+prozkoumat slucoani blizkych ivertexu proc tady nic nezlepsi
 koupelna je uplne cerna
 dodelat podporu pro matice do 3ds2rr importeru
 stranka s vic demacema pohromade
@@ -13,10 +15,21 @@ mozne zrychleni soft shadows = pro instance pocitat jen viditelnost
  material aplikovat az v poslednim pasu ktery zaroven pricte emisi
  * ADD, pro instance pocitat jen viditelnost
  * BLEND, out = buffer * diffuse_utlum_atd + (emission+indirect) * 1
-cv:
- gl 2.0, glsl
- uml
- asm i letos
+
+
+fast vyzaduje svetlo s korektnim utlumem.. co je 2x dal je 4x min svetly
+ prozatim vyreseno linearnim utlumem
+ zkusit fyzikalne korektni model s gammou na konci 
+ 1. umi pouze 1 svetlo
+    out = 0
+    pro kazdou instanci: out += viditelnost
+    out = gamma(out/sqr(vzdalenost_svetla)+indirect)*diffusematerial
+ 2. umi vic svetel
+    out = 0
+    pro kazde svetlo:
+      pro kazdou instanci: out += viditelnost/sqr(vzdalenost_svetla)
+    out = gamma(out+indirect)*diffusematerial
+kdyz uz by byl korektni model s gammou, pridat ovladani gammy
 
 POZOR
 neni tu korektni skladani primary+indirect a az nasledna gamma korekce
@@ -115,7 +128,6 @@ void updateIndirect()
 			const rrVision::RRColor* indirect = rrscene->getTriangleRadiantExitance(0,t,v);
 			if(!indirect) indirect = &black;
 			// write 1*exitance
-			float indirectFactor = 0.4f; //!!! fudge factor
 			assert(triangle[v]<numVertices);
 			static rrVision::RRColor tmp = *indirect*indirectFactor;
 			if(indirectColors[triangle[v]]!=rrVision::RRColor(-1))
@@ -129,7 +141,7 @@ void updateIndirect()
 				assert(tmp[i]>=0);
 				assert(tmp[i]<10);
 			}
-			// zpusobi ze je vse cerne
+			//!!! zpusobi ze je vse cerne, proc?
 			//indirectColors[triangle[v]] = tmp;
 			// vse je ok
 			indirectColors[triangle[v]] = *indirect*indirectFactor;
@@ -1820,13 +1832,13 @@ main(int argc, char **argv)
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
-	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
+	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
-	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,0.3f);
-	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.3f);
+	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,1.0f);
+	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.5f);
 	rrscene = new rrVision::RRScene();
-	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
+	rrscaler = rrVision::RRScaler::createGammaScaler(0.6f);
 	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
 	rr2gl_compile(rrobject,rrscene);
