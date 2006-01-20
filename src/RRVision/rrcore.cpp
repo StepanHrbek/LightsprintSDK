@@ -2494,7 +2494,7 @@ HomogenousFiller filler;
 //
 // random exiting ray
 
-bool getRandomExitDir(Vec3& norm, Vec3& u3, Vec3& v3, int sides, Vec3& exitDir)
+bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, int sides, Vec3& exitDir)
 // ortonormal space: norm, u3, v3
 // sides: 1 or 2
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm

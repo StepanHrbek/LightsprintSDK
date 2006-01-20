@@ -61,6 +61,7 @@
 				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
 				CompileAs="0"
 			/>
 			<Tool
@@ -82,6 +83,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="."
 				IgnoreDefaultLibraryNames="libc.lib"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
 				SubSystem="1"
 				TargetMachine="1"
@@ -284,14 +286,6 @@
 		</File>
 		<File
 			RelativePath=".\Gl\glprocs.h"
-			>
-		</File>
-		<File
-			RelativePath=".\GLTexture.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\GLTexture.h"
 			>
 		</File>
 		<File

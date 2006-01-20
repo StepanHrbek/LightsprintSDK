@@ -3,10 +3,13 @@ float indirectFactor = 0.6f;
 // 
 /*
 
+compile gcc
+autodeteknout zda mam metry nebo centimetry
 vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
 prozkoumat slucoani blizkych ivertexu proc tady nic nezlepsi
-dodelat podporu pro matice do 3ds2rr importeru
 stranka s vic demacema pohromade
+nacitat jpg
+dodelat podporu pro matice do 3ds2rr importeru
 nemit 2 ruzny textury, 1 pro render, 1 pro capture primary
 fast vyzaduje svetlo s korektnim utlumem.. co je 2x dal je 4x min svetly
  prozatim vyreseno linearnim utlumem
@@ -64,7 +67,6 @@ using namespace std;
 #define _3DS
 #ifdef _3DS
 #include "Model_3DS.h"
-#include "GLTexture.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
 //char *filename_3ds="data\\sponza\\sponza.3ds";
@@ -1804,7 +1806,7 @@ main(int argc, char **argv)
 
 #ifdef _3DS
 	// load 3ds
-	m3ds.Load(filename_3ds);
+	if(!m3ds.Load(filename_3ds)) return 1;
 	rrobject = new_3ds_importer(&m3ds)->createAdditionalExitance();
 #else
 	// load mgf

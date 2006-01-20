@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h> // qsort
 
 
 namespace rrCollider
@@ -218,17 +219,17 @@ dupl:;
 		if(postImportVertex>=UniqueVertices)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return UNDEFINED;
+			return RRMeshImporter::UNDEFINED;
 		}
 
 		// exact version
 		// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
 		// use postImportTriangle to fully specify which one preImportVertex to return
 		unsigned preImportTriangle = RRMeshImporter::getPreImportTriangle(postImportTriangle);
-		if(preImportTriangle==UNDEFINED)
+		if(preImportTriangle==RRMeshImporter::UNDEFINED)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return UNDEFINED;
+			return RRMeshImporter::UNDEFINED;
 		}
 		RRMeshImporter::Triangle preImportVertices;
 		INHERITED::getTriangle(preImportTriangle,preImportVertices);
@@ -245,7 +246,7 @@ dupl:;
 		if(preImportVertex>=INHERITED::Vertices) 
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return UNDEFINED;
+			return RRMeshImporter::UNDEFINED;
 		}
 		return Dupl2Unique[preImportVertex];
 	}

@@ -52,6 +52,7 @@ char *GLSLShader::readShader(const char *filename)
   count = temp.tellg();
   
   buf = new char[count + 1];
+  for(unsigned i=0;i<count+1;i++) buf[i]=0; // necessary in release run outside ide or debugger
   temp.seekg(0, ios::beg);
   temp.read(buf, count);
   buf[count] = 0;

@@ -18,6 +18,8 @@ public:
   Texture(unsigned char *data, int width, int height, int type,
 	  int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR, 
 	  int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
+  Texture(unsigned char* rgb, int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR,
+	  int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
   virtual ~Texture();
   void bindTexture();
   int hasAlpha() { return channels == 4; };

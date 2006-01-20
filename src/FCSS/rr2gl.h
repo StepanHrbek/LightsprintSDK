@@ -12,3 +12,4 @@ void     rr2gl_draw_onlyz();
 unsigned rr2gl_draw_indexed(); // returns number of triangles
 void     rr2gl_draw_colored(bool direct);
 
+#endif

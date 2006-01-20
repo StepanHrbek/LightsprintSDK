@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Filter.h"
+#include "../geometry.h" // MAX
 
 #include <assert.h>
 #include <vector>
@@ -71,7 +72,7 @@ public:
 				assert(t.postImportTriangleVertices[j]!=UNDEFINED);
 				t.preImportTriangleVertices[j] = importer->getPreImportVertex(t.postImportTriangleVertices[j],postImportTriangle);
 			}
-			numPreImportTriangles = __max(numPreImportTriangles,t.preImportTriangle+1);
+			numPreImportTriangles = MAX(numPreImportTriangles,t.preImportTriangle+1);
 			postImportTriangles[postImportTriangle] = t;
 		}
 

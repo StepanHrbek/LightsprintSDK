@@ -56,6 +56,26 @@ Texture::Texture(unsigned char *data, int nWidth, int nHeight, int nType,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 }
 
+Texture::Texture(unsigned char* rgb, int mag, int min, int wrapS, int wrapT)
+{
+	width = 1;
+	height = 1;
+	unsigned int type = GL_RGB;
+
+	channels = (type == GL_RGB) ? 3 : 4;
+	glGenTextures(1, &id);
+
+	bindTexture();
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, &rgb);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min); 
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag); 
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+}
+
 Texture::~Texture()
 {
   glDeleteTextures(1, &id);
@@ -84,16 +104,22 @@ void Texture::changeNameConvention(char *filename) const
 
 unsigned char *Texture::loadData(char *filename)
 {
+	// opens tga instead of jpg
+	char name[1000];
+	strncpy(name,filename,999);
+	unsigned len = strlen(name);
+	if(len>3) strcpy(name+len-3,"tga");
+
   unsigned char *data;
   try
     {
-      data = loadBmp(filename);
+      data = loadBmp(name);
     }
   catch(xNotSuchFormat e)
     {
       try
 	{
-	  data = loadTga(filename);
+	  data = loadTga(name);
 	}      
       catch(xNotSuchFormat e)
 	{
@@ -101,10 +127,10 @@ unsigned char *Texture::loadData(char *filename)
 	    {
 	      data = loadJpeg(filename);
 	    }
-	  catch(xNotSuchFormat e)
+	  catch(xNotSuchFormat e)*/
 	    {
 	      throw xNotASupportedFormat();
-	    }*/
+	    }
 	}
     }
   return data;

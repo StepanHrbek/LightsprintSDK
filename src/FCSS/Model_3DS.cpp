@@ -83,6 +83,7 @@
 #include "Model_3DS.h"
 
 #include <math.h>			// Header file for the math library
+#include <string.h>			// Header file for the math library
 #include <gl\gl.h>			// Header file for the OpenGL32 library
 
 // The chunk's id numbers
@@ -174,7 +175,7 @@ Model_3DS::~Model_3DS()
 
 }
 
-void Model_3DS::Load(char *name)
+bool Model_3DS::Load(char *name)
 {
 	// holds the main chunk header
 	ChunkHeader main;
@@ -212,6 +213,12 @@ void Model_3DS::Load(char *name)
 
 	// Load the file
 	bin3ds = fopen(name,"rb");
+
+	if(!bin3ds)
+	{
+		printf("file not found: %s\n",name);
+		return false;
+	}
 
 	// Make sure we are at the beginning
 	fseek(bin3ds, 0, SEEK_SET);
@@ -267,13 +274,15 @@ void Model_3DS::Load(char *name)
 	{
 		if (Materials[j].textured == false)
 		{
-			unsigned char r = Materials[j].color.r;
-			unsigned char g = Materials[j].color.g;
-			unsigned char b = Materials[j].color.b;
-			Materials[j].tex.BuildColorTexture(r, g, b);
+			unsigned char rgb[4];
+			rgb[0] = Materials[j].color.r;
+			rgb[1] = Materials[j].color.g;
+			rgb[2] = Materials[j].color.b;
+			Materials[j].tex = new Texture(rgb);
 			Materials[j].textured = true;
 		}
 	}
+	return true;
 }
 
 void Model_3DS::Draw(GLfloat* color)
@@ -322,7 +331,7 @@ void Model_3DS::Draw(GLfloat* color)
 			for (int j = 0; j < Objects[i].numMatFaces; j ++)
 			{
 				// Use the material's texture
-				Materials[Objects[i].MatFaces[j].MatIndex].tex.Use();
+				Materials[Objects[i].MatFaces[j].MatIndex].tex->bindTexture();
 /*
 				glPushMatrix();
 
@@ -779,7 +788,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	// Load the name and indicate that the material has a texture
 	char fullname[80];
 	sprintf(fullname, "%s%s", path, name);
-	Materials[matindex].tex.Load(fullname);
+	Materials[matindex].tex = new Texture(fullname);
 	Materials[matindex].textured = true;
 
 	// move the file pointer back to where we got it so

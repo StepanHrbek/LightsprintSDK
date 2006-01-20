@@ -1,6 +1,8 @@
 #ifndef _GLPROCS_H_
 #define _GLPROCS_H_
 
+#define _inline
+
 /*
 ** GLprocs utility for getting function addresses for OpenGL(R) 1.2, 
 ** OpenGL 1.3, OpenGL 1.4, OpenGL 1.5 and OpenGL extension functions.

@@ -58,7 +58,7 @@ public:
 		if(postImportTriangle>=ValidIndices)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return UNDEFINED;
+			return RRMeshImporter::UNDEFINED;
 		}
 		return ValidIndex[postImportTriangle];
 	}
@@ -68,7 +68,7 @@ public:
 		for(unsigned post=0;post<ValidIndices;post++)
 			if(ValidIndex[post]==preImportTriangle)
 				return post;
-		return UNDEFINED;
+		return RRMeshImporter::UNDEFINED;
 	}
 	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
 	{
