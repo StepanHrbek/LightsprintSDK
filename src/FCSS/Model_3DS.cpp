@@ -1,3 +1,5 @@
+#define SCALE 0.01f
+
 //////////////////////////////////////////////////////////////////////
 //
 // 3D Studio Model Class
@@ -373,7 +375,7 @@ void Model_3DS::Draw(GLfloat* color)
 	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	//glDisableClientState(GL_NORMAL_ARRAY);
 	//glDisableClientState(GL_VERTEX_ARRAY);
-	//glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void Model_3DS::CalculateNormals()
@@ -921,6 +923,11 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
 
 		// Change the sign of the z coordinate
 		Objects[objindex].Vertexes[i+2] = -Objects[objindex].Vertexes[i+2];
+
+		// scale
+		Objects[objindex].Vertexes[i+0] *= SCALE;
+		Objects[objindex].Vertexes[i+1] *= SCALE;
+		Objects[objindex].Vertexes[i+2] *= SCALE;
 	}
 
 	// move the file pointer back to where we got it so

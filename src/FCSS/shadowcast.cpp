@@ -3,20 +3,11 @@ float indirectFactor = 0.6f;
 // 
 /*
 
-vypocet je dost pomaly, zkusit nejaky meshcopy
+vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
 prozkoumat slucoani blizkych ivertexu proc tady nic nezlepsi
-koupelna je uplne cerna
 dodelat podporu pro matice do 3ds2rr importeru
 stranka s vic demacema pohromade
-
-z neznameho duvodu jedna varianta v capturePrimary jde a druha nejde
 nemit 2 ruzny textury, 1 pro render, 1 pro capture primary
-mozne zrychleni soft shadows = pro instance pocitat jen viditelnost
- material aplikovat az v poslednim pasu ktery zaroven pricte emisi
- * ADD, pro instance pocitat jen viditelnost
- * BLEND, out = buffer * diffuse_utlum_atd + (emission+indirect) * 1
-
-
 fast vyzaduje svetlo s korektnim utlumem.. co je 2x dal je 4x min svetly
  prozatim vyreseno linearnim utlumem
  zkusit fyzikalne korektni model s gammou na konci 
@@ -76,8 +67,8 @@ using namespace std;
 #include "GLTexture.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
-char *filename_3ds="data\\sponza\\sponza.3ds";
-//char *filename_3ds="data\\raist\\koupelna2.3ds";
+//char *filename_3ds="data\\sponza\\sponza.3ds";
+char *filename_3ds="data\\raist\\koupelna3.3ds";
 #endif
 
 
@@ -109,13 +100,9 @@ void updateIndirect()
 	unsigned numVertices = mesh->getNumVertices();
 	delete[] indirectColors;
 	indirectColors = new rrVision::RRColor[numVertices*3];
-	for(unsigned v=0;v<numVertices;v++)
-		indirectColors[v] = rrVision::RRColor(-1);
 
 	// 3ds has indexed trilist
 	// triangle0=indices0,1,2, triangle1=indices3,4,5...
-	unsigned matches = 0;
-	unsigned misses = 0;
 	for(unsigned t=0;t<numTriangles;t++) // triangle
 	{
 		// get 3*index
@@ -129,21 +116,13 @@ void updateIndirect()
 			if(!indirect) indirect = &black;
 			// write 1*exitance
 			assert(triangle[v]<numVertices);
-			static rrVision::RRColor tmp = *indirect*indirectFactor;
-			if(indirectColors[triangle[v]]!=rrVision::RRColor(-1))
-			{
-				if(indirectColors[triangle[v]] == tmp)
-					matches++; else misses++;
-			}
+			rrVision::RRColor tmp = *indirect*indirectFactor;
 			for(unsigned i=0;i<3;i++)
 			{
 				assert(_finite(tmp[i]));
 				assert(tmp[i]>=0);
-				assert(tmp[i]<10);
+				assert(tmp[i]<50);
 			}
-			//!!! zpusobi ze je vse cerne, proc?
-			//indirectColors[triangle[v]] = tmp;
-			// vse je ok
 			indirectColors[triangle[v]] = *indirect*indirectFactor;
 		}
 	}
@@ -151,7 +130,7 @@ void updateIndirect()
 	unsigned faces,rays;
 	float sourceExitingFlux,reflectedIncidentFlux;
 	rrscene->getStats(&faces,&sourceExitingFlux,&rays,&reflectedIncidentFlux);
-	printf("faces=%d sourceExitingFlux=%f rays=%d match/miss=%d/%d\n",faces,sourceExitingFlux,rays,matches,misses);
+	printf("faces=%d sourceExitingFlux=%f rays=%d\n",faces,sourceExitingFlux,rays);
 /*	puts("");
 	for(unsigned i=0;i<4;i++)
 	{
