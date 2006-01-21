@@ -58,7 +58,6 @@ using namespace std;
 
 #include "mgf2rr.h"
 #include "rr2gl.h"
-#include "tga.h"      /* TGA image file loader routines */
 #include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
 
 
@@ -113,18 +112,18 @@ void updateIndirect()
 		mesh->getTriangle(t,triangle);
 		for(unsigned v=0;v<3;v++) // vertex
 		{
-			// get 1*exitance
+			// get 1*irradiance
 			static rrVision::RRColor black = rrVision::RRColor(1);
-			const rrVision::RRColor* indirect = rrscene->getTriangleRadiantExitance(0,t,v);
+			const rrVision::RRColor* indirect = rrscene->getTriangleIrradiance(0,t,v);//rrscene->getTriangleRadiantExitance(0,t,v);
 			if(!indirect) indirect = &black;
-			// write 1*exitance
+			// write 1*irradiance
 			assert(triangle[v]<numVertices);
 			rrVision::RRColor tmp = *indirect*indirectFactor;
 			for(unsigned i=0;i<3;i++)
 			{
 				assert(_finite(tmp[i]));
 				assert(tmp[i]>=0);
-				assert(tmp[i]<50);
+				assert(tmp[i]<1500000);
 			}
 			indirectColors[triangle[v]] = *indirect*indirectFactor;
 		}
@@ -817,16 +816,8 @@ void capturePrimary()
 	float mult = 255*5.0f/width/height;
 	for(unsigned t=0;t<numTriangles;t++)
 	{
-		// melo by delat totez ale z neznameho duvodu nedela
-		//rrVision::RRColor color = trianglePower[t] * mult;
-		//rrobject->setTriangleAdditionalPower(t,rrVision::RM_INCIDENT_FLUX,color);
-
-		unsigned surfaceIdx = rrobject->getTriangleSurface(t);
-		const rrVision::RRSurface* s = rrobject->getSurface(surfaceIdx);
-		rrVision::RRColor color = trianglePower[t] * mult * s->diffuseReflectanceColor;
-		rrobject->setTriangleAdditionalPower(t,rrVision::RM_EXITING_FLUX,color);
-		// oboje je ok
-		//rrobject->setTriangleAdditionalPower(t,rrVision::RM_INCIDENT_FLUX,color/(s->diffuseReflectanceColor+rrVision::RRColor(0.01,0.01,0.01)));
+		rrVision::RRColor color = trianglePower[t] * mult;
+		rrobject->setTriangleAdditionalPower(t,rrVision::RM_INCIDENT_FLUX,color);
 	}
 
 	// debug print
@@ -1644,9 +1635,6 @@ void parseOptions(int argc, char **argv)
 		if (!strcmp("-front", argv[i])) {
 			drawFront = 1;
 		}
-		if (!strcmp("-v", argv[i])) {
-			gliVerbose(1);
-		}
 	}
 }
 
@@ -1747,13 +1735,13 @@ main(int argc, char **argv)
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
-	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
+	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,1.0f);
 	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.5f);
 	rrscene = new rrVision::RRScene();
-	rrscaler = rrVision::RRScaler::createGammaScaler(0.6f);
+	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
 	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
 	rr2gl_compile(rrobject,rrscene);

@@ -71,11 +71,31 @@ private:
 
 static void fillSurface(rrVision::RRSurface* s,Model_3DS::Material* m)
 {
+	enum {size = 8};
+
+	// average texture color
+	rrVision::RRColor avg = rrVision::RRColor(0);
+	if(m->tex)
+	{
+		for(unsigned i=0;i<size;i++)
+			for(unsigned j=0;j<size;j++)
+			{
+				rrVision::RRColor tmp;
+				m->tex->getPixel(i/size,j/size,&tmp[0]);
+				avg += tmp;
+			}
+		avg /= size*size;
+	}
+	else
+	{
+		avg[0] = m->color.r;
+		avg[1] = m->color.g;
+		avg[2] = m->color.b;
+	}
+
 	s->sides                = 1;
-	s->diffuseReflectance   = (float)(m->color.r+m->color.g+m->color.b)/768.0f;
-	s->diffuseReflectanceColor[0] = m->color.r/256.0f;
-	s->diffuseReflectanceColor[1] = m->color.g/256.0f;
-	s->diffuseReflectanceColor[2] = m->color.b/256.0f;
+	s->diffuseReflectance   = (avg[0]+avg[1]+avg[2])/3;
+	s->diffuseReflectanceColor = avg;
 	s->diffuseTransmittance = 0;
 	s->diffuseTransmittanceColor[0] = 0;
 	s->diffuseTransmittanceColor[1] = 0;
