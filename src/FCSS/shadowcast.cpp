@@ -3,7 +3,9 @@ float indirectFactor = 0.6f;
 // 
 /*
 
+prozkoumat materialy v 3ds, proc zlobi koupelna
 compile gcc
+udelat slow detekjci, tohle nejde vyladit aby fungovalo vic scen naraz
 autodeteknout zda mam metry nebo centimetry
 vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
 prozkoumat slucoani blizkych ivertexu proc tady nic nezlepsi
@@ -81,7 +83,6 @@ char *filename_3ds="data\\raist\\koupelna3.3ds";
 rrVision::RRAdditionalObjectImporter* rrobject = NULL;
 rrVision::RRScene* rrscene = NULL;
 rrVision::RRScaler* rrscaler = NULL;
-gliGenericImage* rrspot = NULL;
 float rrtimestep;
 // rr endfunc callback
 #include <time.h>
@@ -226,7 +227,6 @@ enum {
   TO_DEPTH_MAP,                /* high resolution depth map for shadow mapping */
   TO_HW_DEPTH_MAP,             /* high resolution hardware depth map for shadow
                                   mapping */
-  TO_SPOT,
   TO_SOFT_DEPTH_MAP            /* TO_SOFT_DEPTH_MAP+n = depth map for n-th light */
 };
 
@@ -306,7 +306,7 @@ GLfloat ed[3];
 char *mgf_filename="data\\scene8.mgf";
 
 int depthBias16 = 6;
-int depthBias24 = 20;
+int depthBias24 = 28;
 int depthScale16, depthScale24;
 GLfloat slopeScale = 3.0;
 
@@ -342,7 +342,6 @@ int objectConfiguration = OC_MGF;
 int showHelp = 0;
 int fullscreen = 0;
 int useDisplayLists = 1;
-int textureSpot = 0;
 int showLightViewFrustum = 1;
 int eyeButton = GLUT_LEFT_BUTTON;
 int lightButton = GLUT_MIDDLE_BUTTON;
@@ -796,13 +795,12 @@ void capturePrimary()
 			{
 				rrVision::RRColor pixelPower = rrVision::RRColor(1,1,1);
 				// modulate by spotmap
-				if(rrspot)
+				if(lightTex)
 				{
-					unsigned x = (i * rrspot->width / width) % rrspot->width;
-					unsigned y = (j * rrspot->height / height) % rrspot->height;
-					unsigned ofs = (x+y*rrspot->width)*rrspot->components;
+					float rgb[3];
+					lightTex->getPixel((float)i / width,(float)j / height,rgb);
 					for(unsigned c=0;c<3;c++)
-						pixelPower[c] *= rrspot->pixels[ofs+((rrspot->components==1)?0:(2-c))];
+						pixelPower[c] *= rgb[c];
 				}
 
 				for(unsigned c=0;c<3;c++)
@@ -816,7 +814,7 @@ void capturePrimary()
 		}
 
 	// copy data to object
-	float mult = 5.0f/width/height;
+	float mult = 255*5.0f/width/height;
 	for(unsigned t=0;t<numTriangles;t++)
 	{
 		// melo by delat totez ale z neznameho duvodu nedela
@@ -1501,68 +1499,6 @@ void initGL(void)
 	}
 }
 
-/*** LOAD TEXTURE IMAGES ***/
-
-gliGenericImage* readImage(char *filename)
-{
-	FILE *file;
-	gliGenericImage *image;
-
-	file = fopen(filename, "rb");
-	if (file == NULL) {
-		printf("shadowcast: could not open \"%s\"\n", filename);
-		return NULL;
-	}
-	image = gliReadTGA(file, filename);
-	fclose(file);
-	if (image == NULL) {
-		printf("shadowcast: could not decode file format of \"%s\"\n", filename);
-		return NULL;
-	}
-	return image;
-}
-
-gliGenericImage* loadTextureDecalImage(char *filename, int mipmaps)
-{
-	gliGenericImage *image;
-
-	image = readImage(filename);
-	if (image == NULL) {
-		printf("shadowcast: failed to read \"%s\" texture.\n", filename);
-		return 0;
-	}
-	if (image->format == GL_COLOR_INDEX) {
-		/* Rambo 8-bit color index into luminance. */
-		image->format = GL_LUMINANCE;
-	}
-	if (mipmaps) {
-		gluBuild2DMipmaps(GL_TEXTURE_2D, image->components,
-			image->width, image->height,
-			image->format, GL_UNSIGNED_BYTE, image->pixels);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-			GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	} else {
-		glTexImage2D(GL_TEXTURE_2D, 0, image->components,
-			image->width, image->height, 0,
-			image->format, GL_UNSIGNED_BYTE, image->pixels);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-	return image;
-}
-
-void loadTextures(void)
-{
-	/* Assume tightly packed textures. */
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glBindTexture(GL_TEXTURE_2D, TO_SPOT);
-	rrspot = loadTextureDecalImage("spot0.tga", 1);
-	textureSpot = rrspot!=NULL;
-	useBestShadowMapClamping(GL_TEXTURE_2D);
-}
-
 void mouse(int button, int state, int x, int y)
 {
 	if (button == eyeButton && state == GLUT_DOWN) {
@@ -1802,8 +1738,6 @@ main(int argc, char **argv)
 		return 0;
 	}
 
-	loadTextures();
-
 #ifdef _3DS
 	// load 3ds
 	if(!m3ds.Load(filename_3ds)) return 1;
@@ -1813,8 +1747,8 @@ main(int argc, char **argv)
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
-	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,1.0f);
 	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.5f);

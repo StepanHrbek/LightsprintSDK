@@ -42,6 +42,8 @@
 #ifdef _WIN32
   #include "glext.h"
   #include "wglext.h"
+//  #include <GL/glext.h>
+//  #include <GL/wglext.h>
 #else
   #include <GL/glext.h>
 #endif
