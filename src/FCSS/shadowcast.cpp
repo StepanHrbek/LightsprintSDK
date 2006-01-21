@@ -72,7 +72,7 @@ using namespace std;
 Model_3DS m3ds;
 //char *filename_3ds="data\\sponza\\sponza.3ds";
 char *filename_3ds="data\\raist\\koupelna3.3ds";
-bool renderOnlyRr = !false;
+bool renderOnlyRr = false;
 #endif
 
 

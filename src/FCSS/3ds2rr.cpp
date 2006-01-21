@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
+#include <stdint.h>
 #include <vector>
 #include "3ds2rr.h"
 
@@ -53,6 +54,7 @@ private:
 	// geometry
 	struct TriangleInfo
 	{
+		rrCollider::RRMeshImporter::Triangle t;
 		unsigned s; // surface index
 	};
 	std::vector<TriangleInfo> triangles;
@@ -132,18 +134,14 @@ M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)
 
 	for(unsigned i=0;i<(unsigned)object->numMatFaces;i++)
 	{
-		unsigned idx0 = object->MatFaces[i].subFaces - object->Faces;
-
-		//!!! hack to fix probably bad loader (or bad 3ds file?)
-		if(idx0>=numTriangles) idx0 = 0;
-
-		assert((object->MatFaces[i].numSubFaces%3)==0);
-		unsigned numSubFaces = object->MatFaces[i].numSubFaces/3;
-
-		for(unsigned j=idx0;j<(unsigned)(idx0+numSubFaces);j++)
+		for(unsigned j=0;j<(unsigned)object->MatFaces[i].numSubFaces/3;j++)
 		{
-			assert(j<numTriangles);
-			triangles[j].s = object->MatFaces[i].MatIndex;
+			TriangleInfo ti;
+			ti.t[0] = object->MatFaces[i].subFaces[3*j];
+			ti.t[1] = object->MatFaces[i].subFaces[3*j+1];
+			ti.t[2] = object->MatFaces[i].subFaces[3*j+2];
+			ti.s = object->MatFaces[i].MatIndex;
+			triangles.push_back(ti);
 		}
 	}
 
@@ -188,8 +186,7 @@ void M3dsImporter::getVertex(unsigned v, Vertex& out) const
 
 unsigned M3dsImporter::getNumTriangles() const
 {
-	assert((object->numFaces%3)==0);
-	return object->numFaces/3;
+	return triangles.size();
 }
 
 void M3dsImporter::getTriangle(unsigned t, Triangle& out) const
@@ -199,9 +196,7 @@ void M3dsImporter::getTriangle(unsigned t, Triangle& out) const
 		assert(0);
 		return;
 	}
-	out.m[0] = object->Faces[3*t];
-	out.m[1] = object->Faces[3*t+1];
-	out.m[2] = object->Faces[3*t+2];
+	out = triangles[t].t;
 }
 
 
