@@ -3,7 +3,7 @@
 
 #include <GL/glut.h>
 //#include <GL/gl.h>
-#include <GL/glprocs.h>
+#include "../GL/glprocs.h"
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32) || defined(__WIN32__))
 #include <windows.h>

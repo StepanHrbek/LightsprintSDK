@@ -31,12 +31,12 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
  az pri secteni s indirectem (scitani produkuje prilis velke cislo) zacne vypadat akorat
  
 */
-
-#include <stdlib.h>
-#include <stdio.h>
 #include <assert.h>
+//#include <crtdefs.h> // intptr_t
 #include <float.h>
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <GL/glut.h>
 #include <GL/glprocs.h>
 

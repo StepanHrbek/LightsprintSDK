@@ -45,7 +45,7 @@ void GLSLShader::compileIt()
 char *GLSLShader::readShader(const char *filename)
 {
   ifstream temp(filename);
-  int count = 0;
+  unsigned count = 0;
   char *buf;
   
   temp.seekg(0, ios::end);

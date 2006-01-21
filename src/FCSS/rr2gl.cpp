@@ -3,7 +3,7 @@
 //
 
 #include <GL/glut.h>
-#include <GL/glprocs.h>
+#include "GL/glprocs.h"
 #include <assert.h>
 #include <math.h>
 #include "rr2gl.h"

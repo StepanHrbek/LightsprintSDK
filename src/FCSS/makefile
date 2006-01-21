@@ -1,6 +1,6 @@
 CC = gcc
 CPP = gcc
-CPPFLAGS = -Wall -I../RRCollider/include -I../RRVision/include -I../LicGen/include
+CPPFLAGS = -Wall -I. -I../RRCollider/include -I../RRVision/include -I../LicGen/include
 LIBS = -lz -lm -lmgf -L../../lib -lRRCollider -lRRVision -lstdc++
 LIBS += -lopengl32 -lglu32 -lglut32
 BIN = ../../bin/
