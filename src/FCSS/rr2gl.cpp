@@ -156,6 +156,44 @@ void rr2gl_draw_colored(bool direct)
 	glEnd();
 }
 
+void RRObjectRenderer::render(ColorChannel cc)
+{
+	switch(cc)
+	{
+		case CC_NO_COLOR: 
+			rr2gl_draw_onlyz(); 
+			break;
+		case CC_TRIANGLE_INDEX: 
+			rr2gl_draw_indexed(); 
+			break;
+		case CC_DIFFUSE_REFLECTANCE:
+			rr2gl_draw_colored(true); 
+			break;
+//		case CC_SOURCE_IRRADIANCE:
+//			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
+//			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
+//			rr2gl_draw_colored(false);
+//			break;
+		case CC_SOURCE_EXITANCE:
+			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
+			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
+			rr2gl_draw_colored(false);
+			break;
+//		case CC_REFLECTED_IRRADIANCE:
+//			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+//			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+//			rr2gl_draw_colored(false);
+//			break;
+		case CC_REFLECTED_EXITANCE:
+			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+			rr2gl_draw_colored(false);
+			break;
+		default:
+			assert(0);
+	}
+}
+
 void rr2gl_recompile()
 {
 	if(rr2gl_compiled) 

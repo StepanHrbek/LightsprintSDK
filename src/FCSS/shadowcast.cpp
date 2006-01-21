@@ -1,9 +1,9 @@
 //!!! fudge factors
-float indirectFactor = 0.6f;
+#define INCIDENT_FLUX_FACTOR 255.0f
+#define INDIRECT_RENDER_FACTOR 1//0.6f
 // 
 /*
 
-opravit spatny import 3ds materialu do rr
 compile gcc
 udelat slow detekjci, tohle nejde vyladit aby fungovalo vic scen naraz
 autodeteknout zda mam metry nebo centimetry
@@ -119,14 +119,14 @@ void updateIndirect()
 			if(!indirect) indirect = &black;
 			// write 1*irradiance
 			assert(triangle[v]<numVertices);
-			rrVision::RRColor tmp = *indirect*indirectFactor;
+			rrVision::RRColor tmp = *indirect*INDIRECT_RENDER_FACTOR;
 			for(unsigned i=0;i<3;i++)
 			{
 				assert(_finite(tmp[i]));
 				assert(tmp[i]>=0);
 				assert(tmp[i]<1500000);
 			}
-			indirectColors[triangle[v]] = *indirect*indirectFactor;
+			indirectColors[triangle[v]] = *indirect*INDIRECT_RENDER_FACTOR;
 		}
 	}
 
@@ -744,7 +744,7 @@ void drawEyeViewSoftShadowed(void)
 	// add indirect
 	if(rrscene 
 #ifdef _3DS
-		&& indirectColors
+		&& (indirectColors || renderOnlyRr)
 #endif
 		)
 	{
@@ -822,7 +822,7 @@ void capturePrimary()
 		}
 
 	// copy data to object
-	float mult = 255*5.0f/width/height;
+	float mult = INCIDENT_FLUX_FACTOR/width/height;
 	for(unsigned t=0;t<numTriangles;t++)
 	{
 		rrVision::RRColor color = trianglePower[t] * mult;
@@ -1674,7 +1674,10 @@ void idle()
 		calcsum = 0;
 		if(rrtimestep<1.5f) rrtimestep*=1.1f;
 #ifdef _3DS
-		updateIndirect();
+		if(renderOnlyRr) 
+			rr2gl_compile(rrobject,rrscene);
+		else
+			updateIndirect();
 #else
 		rr2gl_compile(rrobject,rrscene);
 #endif
@@ -1744,8 +1747,8 @@ main(int argc, char **argv)
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
-	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,1.0f);
 	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.5f);

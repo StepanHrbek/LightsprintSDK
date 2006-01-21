@@ -1,5 +1,7 @@
 varying vec4 projCoord;
 
+const float lightIntensity = 2;
+
 void main()
 {
   vec3 lightVect, trueNormal;
@@ -9,7 +11,7 @@ void main()
   trueNormal = gl_NormalMatrix * gl_Normal;
   
   projCoord = gl_TextureMatrix[0] * realPos;
-  gl_FrontColor = dot(lightVect, trueNormal) * gl_Color * 2;
+  gl_FrontColor = dot(lightVect, trueNormal) * gl_Color * lightIntensity;
   
   gl_Position = ftransform();
 }
