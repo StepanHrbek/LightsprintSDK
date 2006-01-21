@@ -67,7 +67,7 @@ Texture::Texture(unsigned char* rgb, int mag, int min, int wrapS, int wrapT)
 
 	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, &rgb);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, rgb);
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min); 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag); 
