@@ -3,7 +3,7 @@ float indirectFactor = 0.6f;
 // 
 /*
 
-prozkoumat materialy v 3ds, proc zlobi koupelna
+opravit spatny import 3ds materialu do rr
 compile gcc
 udelat slow detekjci, tohle nejde vyladit aby fungovalo vic scen naraz
 autodeteknout zda mam metry nebo centimetry
@@ -72,6 +72,7 @@ using namespace std;
 Model_3DS m3ds;
 //char *filename_3ds="data\\sponza\\sponza.3ds";
 char *filename_3ds="data\\raist\\koupelna3.3ds";
+bool renderOnlyRr = !false;
 #endif
 
 
@@ -443,7 +444,10 @@ void drawScene()
 		else
 		{
 #ifdef _3DS
-			m3ds.Draw(drawDirect?NULL:&indirectColors[0].x);
+			if(renderOnlyRr)
+				rr2gl_draw_colored(drawDirect);
+			else
+				m3ds.Draw(drawDirect?NULL:&indirectColors[0].x);
 #else
 			rr2gl_draw_colored(drawDirect);
 #endif
@@ -619,10 +623,9 @@ void updateDepthMap(void)
 void drawHardwareShadowPass(void)
 {
 
-#ifdef _3DS
-	GLSLProgram* myProg = shadowDifMProg;
-#else
 	GLSLProgram* myProg = shadowDifCProg;
+#ifdef _3DS
+	if(!renderOnlyRr) myProg = shadowDifMProg;
 #endif
 	myProg->useIt();
 
@@ -643,8 +646,11 @@ void drawHardwareShadowPass(void)
 	glMatrixMode(GL_MODELVIEW);
 
 #ifdef _3DS
-	activateTexture(GL_TEXTURE2_ARB, GL_TEXTURE_2D);
-	myProg->sendUniform("diffuseTex", 2);
+	if(!renderOnlyRr)
+	{
+		activateTexture(GL_TEXTURE2_ARB, GL_TEXTURE_2D);
+		myProg->sendUniform("diffuseTex", 2);
+	}
 #endif
 
 	drawScene();
@@ -744,7 +750,10 @@ void drawEyeViewSoftShadowed(void)
 	{
 		drawDirect = false;
 #ifdef _3DS
-		ambientDifMProg->useIt();
+		if(renderOnlyRr)
+			ambientProg->useIt();
+		else
+			ambientDifMProg->useIt();
 #else
 		ambientProg->useIt();
 #endif

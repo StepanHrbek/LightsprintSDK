@@ -134,7 +134,7 @@ M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)
 	{
 		unsigned idx0 = object->MatFaces[i].subFaces - object->Faces;
 
-		// hack to fix probably bad loader (od bad 3ds file?)
+		//!!! hack to fix probably bad loader (or bad 3ds file?)
 		if(idx0>=numTriangles) idx0 = 0;
 
 		assert((object->MatFaces[i].numSubFaces%3)==0);
