@@ -312,6 +312,14 @@ void Model_3DS::Draw(GLfloat* color)
 				glColorPointer(3, GL_FLOAT, 0, color);
 				color += 3*Objects[i].numVerts;
 			}
+			/*/ additional texcoord7
+			if(texcoord7)
+			{
+				glClientActiveTexture(GL_TEXTURE7)
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(2, GL_FLOAT, 0, texcoord7);
+				texcoord7 += 2*Objects[i].numVerts;
+			}*/
 
 			// Enable texture coordiantes, normals, and vertices arrays
 			if (Objects[i].textured)

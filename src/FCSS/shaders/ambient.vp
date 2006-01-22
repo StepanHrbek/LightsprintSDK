@@ -2,4 +2,8 @@ void main()
 {
   gl_FrontColor = gl_Color;
   gl_Position = ftransform();
+
+#ifdef FORCE_2D_POSITION
+  gl_Position = gl_MultiTexCoord7.xy;
+#endif
 }

@@ -8,7 +8,7 @@
 class GLSLShader : public GLSLObject
 {
 public:
-  GLSLShader(const char *filename, GLenum shaderType = GL_FRAGMENT_SHADER_ARB);
+  GLSLShader(const char* defines, const char* filename, GLenum shaderType = GL_FRAGMENT_SHADER_ARB);
   
   void compileIt();
 private:

@@ -143,7 +143,10 @@ void rr2gl_draw_colored(bool direct)
 			// kyz je to indirect, color = exitance, tj barva materialu uz vynasobena spocitanym svetlem, v shaderu se nic nemusi pocitat
 			if(!direct && radiositySolver)
 			{
+				// mgf
 				const rrVision::RRColor* indirect = radiositySolver->getTriangleRadiantExitance(0,triangleIdx,v);
+				// 3ds
+				//const rrVision::RRColor* indirect = radiositySolver->getTriangleIrradiance(0,triangleIdx,v);
 				if(indirect)
 				{
 					glColor3fv(&indirect->x);
@@ -154,44 +157,6 @@ void rr2gl_draw_colored(bool direct)
 		}
 	}
 	glEnd();
-}
-
-void RRObjectRenderer::render(ColorChannel cc)
-{
-	switch(cc)
-	{
-		case CC_NO_COLOR: 
-			rr2gl_draw_onlyz(); 
-			break;
-		case CC_TRIANGLE_INDEX: 
-			rr2gl_draw_indexed(); 
-			break;
-		case CC_DIFFUSE_REFLECTANCE:
-			rr2gl_draw_colored(true); 
-			break;
-//		case CC_SOURCE_IRRADIANCE:
-//			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
-//			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
-//			rr2gl_draw_colored(false);
-//			break;
-		case CC_SOURCE_EXITANCE:
-			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
-			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
-			rr2gl_draw_colored(false);
-			break;
-//		case CC_REFLECTED_IRRADIANCE:
-//			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-//			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
-//			rr2gl_draw_colored(false);
-//			break;
-		case CC_REFLECTED_EXITANCE:
-			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
-			rr2gl_draw_colored(false);
-			break;
-		default:
-			assert(0);
-	}
 }
 
 void rr2gl_recompile()
@@ -242,4 +207,120 @@ void rr2gl_compile(rrVision::RRObjectImporter* aobjectImporter, rrVision::RRScen
 	objectImporter = aobjectImporter;
 	radiositySolver = aradiositySolver;
 	if(COMPILE) rr2gl_recompile();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRGLObjectRenderer
+
+
+RRGLObjectRenderer::RRGLObjectRenderer(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver)
+{
+	object = objectImporter;
+	scene = radiositySolver;
+}
+
+void RRGLObjectRenderer::render(ColorChannel cc)
+{
+	objectImporter = object;
+	radiositySolver = scene;
+	switch(cc)
+	{
+	case CC_NO_COLOR: 
+		rr2gl_draw_onlyz(); 
+		break;
+	case CC_TRIANGLE_INDEX: 
+		rr2gl_draw_indexed(); 
+		break;
+	case CC_DIFFUSE_REFLECTANCE:
+		rr2gl_draw_colored(true); 
+		break;
+	case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
+		rr2gl_draw_colored(true); 
+		break;
+		//		case CC_SOURCE_IRRADIANCE:
+		//			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
+		//			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
+		//			rr2gl_draw_colored(false);
+		//			break;
+	case CC_SOURCE_EXITANCE:
+		rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
+		rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
+		rr2gl_draw_colored(false);
+		break;
+		//		case CC_REFLECTED_IRRADIANCE:
+		//			rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+		//			rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+		//			rr2gl_draw_colored(false);
+		//			break;
+	case CC_REFLECTED_EXITANCE:
+		rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+		rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+		rr2gl_draw_colored(false);
+		break;
+	default:
+		assert(0);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRCachingRenderer
+
+RRCachingRenderer::RRCachingRenderer(RRObjectRenderer* arenderer)
+{
+	renderer = arenderer;
+	for(unsigned i=0;i<CC_LAST;i++)
+	{
+		status[i] = CS_READY_TO_COMPILE;
+		displayLists[i] = -1;
+	}
+}
+
+RRCachingRenderer::~RRCachingRenderer()
+{
+	for(unsigned i=0;i<CC_LAST;i++)
+	{
+		setStatus((ColorChannel)i,CS_NEVER_COMPILE);
+	}
+}
+
+void RRCachingRenderer::setStatus(ColorChannel cc, ChannelStatus cs)
+{
+	if(status[cc]==CS_COMPILED && cs!=CS_COMPILED)
+	{
+		assert(displayLists[cc]!=-1);
+		glDeleteLists(displayLists[cc],1);
+		displayLists[cc] = -1;
+	}
+	if(status[cc]!=CS_COMPILED && cs==CS_COMPILED)
+	{
+		assert(displayLists[cc]==-1);
+		cs = CS_READY_TO_COMPILE;
+	}
+	status[cc] = cs;
+}
+
+void RRCachingRenderer::render(ColorChannel cc)
+{
+	switch(status[cc])
+	{
+	case CS_READY_TO_COMPILE:
+		assert(displayLists[cc]==-1);
+		displayLists[cc] = glGenLists(1);
+		glNewList(displayLists[cc],GL_COMPILE);
+		renderer->render(cc);
+		glEndList();
+		// intentionally no break
+	case CS_COMPILED:
+		assert(displayLists[cc]!=-1);
+		glCallList(displayLists[cc]);
+		break;
+	case CS_NEVER_COMPILE:
+		assert(displayLists[cc]==-1);
+		renderer->render(cc);
+		break;
+	default:
+		assert(0);
+	}
 }

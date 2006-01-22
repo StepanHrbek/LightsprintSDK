@@ -6,17 +6,18 @@ using namespace std;
 
 // Public part :
 
-GLSLShader::GLSLShader(const char *filename, GLenum shaderType)
+GLSLShader::GLSLShader(const char* defines, const char* filename, GLenum shaderType)
 {
-  char *source;
+  const char *source[2];
   handle = glCreateShaderObjectARB(shaderType);
-  
-  source = readShader(filename);
-  glShaderSourceARB(handle, 1, (const GLcharARB**)&source, NULL);
+
+  source[0] = defines?defines:"";
+  source[1] = readShader(filename);
+  glShaderSourceARB(handle, 2, (const GLcharARB**)source, NULL);
   
   compileIt();
   
-  delete [] source;
+  delete [] source[1];
 }
 
 void GLSLShader::compileIt()

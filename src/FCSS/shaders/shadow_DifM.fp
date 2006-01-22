@@ -4,7 +4,7 @@ const float lightIntensity = 2;
 
 //!!! fudge factors depending on scene
 // linear decay approximates realistic attenuation + logaritmic transform in eye
-const float linearDecay = 25.0;
+//const float linearDecay = 25.0;
 
 varying vec4 projCoord;
 varying vec2 diffuseCoord;
@@ -22,7 +22,7 @@ void main()
     gl_FragColor = vec4(0.0);
   else
   {
-    float attenuation = lightIntensity-projCoord.z*(lightIntensity/linearDecay);
-    gl_FragColor = gl_Color * lightValue * diffuseValue * attenuation;
+//    float attenuation = 1-projCoord.z*(1/linearDecay);
+    gl_FragColor = gl_Color * lightValue * diffuseValue * lightIntensity;// * attenuation;
   }
 }

@@ -14,24 +14,24 @@ GLSLProgram::GLSLProgram()
   handle = glCreateProgramObjectARB();
 }
 
-GLSLProgram::GLSLProgram(const char *shader, unsigned int shaderType)
+GLSLProgram::GLSLProgram(const char* defines, const char *shader, unsigned int shaderType)
   :fragment(NULL)
 {
   handle = glCreateProgramObjectARB();
-  vertex = new GLSLShader(shader, shaderType);
+  vertex = new GLSLShader(defines, shader, shaderType);
 
   attach(vertex);
   
   linkIt();
 }
 
-GLSLProgram::GLSLProgram(const char *vertexShader, const char *fragmentShader)
+GLSLProgram::GLSLProgram(const char* defines, const char *vertexShader, const char *fragmentShader)
   :vertex(NULL), fragment(NULL)
 {
   handle = glCreateProgramObjectARB();
   
-  vertex = new GLSLShader(vertexShader, GL_VERTEX_SHADER_ARB);
-  fragment = new GLSLShader(fragmentShader, GL_FRAGMENT_SHADER_ARB);
+  vertex = new GLSLShader(defines, vertexShader, GL_VERTEX_SHADER_ARB);
+  fragment = new GLSLShader(defines, fragmentShader, GL_FRAGMENT_SHADER_ARB);
 
   attach(vertex);
   attach(fragment);
@@ -140,4 +140,24 @@ int GLSLProgram::getLoc(const char *name)
       exit(0);
     }
   return loc;
+}
+
+GLSLProgramSet::GLSLProgramSet(const char* avertexShaderFileName, const char* afragmentShaderFileName)
+{
+	vertexShaderFileName = avertexShaderFileName;
+	fragmentShaderFileName = afragmentShaderFileName;
+}
+
+GLSLProgramSet::~GLSLProgramSet()
+{
+}
+
+GLSLProgram* GLSLProgramSet::getVariant(const char* defines)
+{
+	map<const char*,GLSLProgram*>::iterator i = cache.find(defines);
+	if(i!=cache.end()) return i->second;
+	GLSLProgram* tmp = new GLSLProgram(defines,vertexShaderFileName,fragmentShaderFileName);
+	cache[defines] = tmp;
+	//cache.insert(defines,tmp);
+	return tmp;
 }

@@ -1,6 +1,7 @@
 #ifndef GLSL_PROGRAM
 #define GLSL_PROGRAM
 
+#include <map>
 #include <GL/glut.h>
 //#include <GL/gl.h>
 #include "GLSLObject.hpp"
@@ -10,8 +11,8 @@ class GLSLProgram : public GLSLObject
 {
 public:
   GLSLProgram();
-  GLSLProgram(const char *shader, unsigned int shaderType=GL_VERTEX_SHADER_ARB);
-  GLSLProgram(const char *vertexShader, const char *fragmentShader);
+  GLSLProgram(const char* defines, const char* shader, unsigned int shaderType=GL_VERTEX_SHADER_ARB);
+  GLSLProgram(const char* defines, const char* vertexShader, const char* fragmentShader);
   ~GLSLProgram();
   
   void attach(GLSLShader &shader);
@@ -33,6 +34,20 @@ private:
   int getLoc(const char *name);
 
   GLSLShader *vertex, *fragment;
+};
+
+class GLSLProgramSet
+{
+public:
+	GLSLProgramSet(const char* avertexShaderFileName, const char* afragmentShaderFileName);
+	virtual ~GLSLProgramSet();
+
+	GLSLProgram* getVariant(const char* defines);
+
+private:
+	const char* vertexShaderFileName;
+	const char* fragmentShaderFileName;
+	std::map<const char*,GLSLProgram*> cache;
 };
 
 #endif //GLSL_PROGRAM

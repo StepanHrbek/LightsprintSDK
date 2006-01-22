@@ -1,5 +1,5 @@
 //!!! fudge factors
-#define INCIDENT_FLUX_FACTOR 255.0f
+#define INCIDENT_FLUX_FACTOR 1550.0f
 #define INDIRECT_RENDER_FACTOR 1//0.6f
 // 
 /*
@@ -32,7 +32,22 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
  kdyz se vypne scaler(0.4) nebo indirect, primary vypada desne tmave
  az pri secteni s indirectem (scitani produkuje prilis velke cislo) zacne vypadat akorat
  
+
+ #include <GL/glew.h>
+ #include <GL/glut.h>
+ ...
+ glutInit(&argc, argv);
+ glutCreateWindow("GLEW Test");
+ GLenum err = glewInit();
+ if (GLEW_OK != err)
+ {
+ // Problem: glewInit failed, something is seriously wrong.
+fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+...
+}
+fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 */
+
 #include <assert.h>
 //#include <crtdefs.h> // intptr_t
 #include <float.h>
@@ -46,6 +61,7 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 #include "glsl/Light.hpp"
 #include "glsl/Camera.hpp"
 #include "glsl/GLSLProgram.hpp"
+#include "glsl/GLSLShader.hpp"
 #include "glsl/Texture.hpp"
 #include "glsl/FrameRate.hpp"
 
@@ -65,7 +81,7 @@ using namespace std;
 //
 // 3DS
 
-#define _3DS
+//#define _3DS
 #ifdef _3DS
 #include "Model_3DS.h"
 #include "3ds2rr.h"
@@ -148,8 +164,10 @@ void updateIndirect()
 //
 // GLSL
 
-#define MAX_INSTANCES 200 // max number of light instances aproximating one area light
-GLSLProgram *shadowProg, *shadowDifCProg, *shadowDifMProg, *lightProg, *ambientProg, *ambientDifMProg;
+#define MAX_INSTANCES 50 // max number of light instances aproximating one area light
+GLSLProgram *shadowProg, *lightProg, *ambientProg, *ambientDifMProg;
+GLSLProgramSet* shadowDifCProgSet;
+GLSLProgramSet* shadowDifMProgSet;
 Texture *lightTex;
 FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
@@ -183,12 +201,23 @@ void updateShadowTex()
 
 void initShaders()
 {
-	shadowProg = new GLSLProgram("shaders\\shadow.vp", "shaders\\shadow.fp");
-	shadowDifCProg = new GLSLProgram("shaders\\shadow_DifC.vp", "shaders\\shadow_DifC.fp");
-	shadowDifMProg = new GLSLProgram("shaders\\shadow_DifM.vp", "shaders\\shadow_DifM.fp");
-	lightProg = new GLSLProgram("shaders\\light.vp");
-	ambientProg = new GLSLProgram("shaders\\ambient.vp", "shaders\\ambient.fp");
-	ambientDifMProg = new GLSLProgram("shaders\\ambient_DifM.vp", "shaders\\ambient_DifM.fp");
+	shadowProg = new GLSLProgram(NULL,"shaders\\shadow.vp", "shaders\\shadow.fp");
+	shadowDifCProgSet = new GLSLProgramSet("shaders\\shadow_DifC.vp", "shaders\\shadow_DifC.fp");
+	shadowDifMProgSet = new GLSLProgramSet("shaders\\shadow_DifM.vp", "shaders\\shadow_DifM.fp");
+
+/*
+	shadowDifMProg = new GLSLProgram();
+	GLSLShader* shv1 = new GLSLShader("shaders\\shadow_DifM.vp",GL_VERTEX_SHADER_ARB);
+	GLSLShader* shf = new GLSLShader("shaders\\shadow_DifM.fp",GL_FRAGMENT_SHADER_ARB);
+	GLSLShader* shv2 = new GLSLShader("shaders\\overwrite_pos.vp",GL_VERTEX_SHADER_ARB);
+	shadowDifMProg->attach(shv2);
+	shadowDifMProg->attach(shv1);
+	shadowDifMProg->attach(shf);
+	shadowDifMProg->linkIt();
+*/
+	lightProg = new GLSLProgram(NULL,"shaders\\light.vp");
+	ambientProg = new GLSLProgram(NULL,"shaders\\ambient.vp", "shaders\\ambient.fp");
+	ambientDifMProg = new GLSLProgram(NULL,"shaders\\ambient_DifM.vp", "shaders\\ambient_DifM.fp");
 }
 
 void glsl_init()
@@ -301,6 +330,7 @@ int areaType = 0; // 0=linear, 1=square grid, 2=circle
 bool drawOnlyZ = false;
 bool drawIndexed = false;
 bool drawDirect = true;
+bool drawForce2d = false;
 GLfloat eye_shift[3]={0,0,0}; // mimo provoz
 GLfloat ed[3];
 char *mgf_filename="data\\scene8.mgf";
@@ -623,10 +653,12 @@ void updateDepthMap(void)
 void drawHardwareShadowPass(void)
 {
 
-	GLSLProgram* myProg = shadowDifCProg;
+	GLSLProgramSet* myProgSet = shadowDifCProgSet;
 #ifdef _3DS
-	if(!renderOnlyRr) myProg = shadowDifMProg;
+	if(!renderOnlyRr) myProgSet = shadowDifMProgSet;
 #endif
+	static int qq=0;
+	GLSLProgram* myProg = myProgSet->getVariant(drawForce2d?"#define FORCE_2D_POSITION\n":NULL);
 	myProg->useIt();
 
 	activateTexture(GL_TEXTURE1_ARB, GL_TEXTURE_2D);
@@ -766,7 +798,7 @@ void drawEyeViewSoftShadowed(void)
 	glAccum(GL_RETURN,1);
 }
 
-void capturePrimary()
+void capturePrimaryFast()
 {
 	//!!! needs windows at least 256x256
 	unsigned width = 256;
@@ -840,6 +872,122 @@ void capturePrimary()
 	free(trianglePower);
 	free(indexBuffer);
 	glViewport(0, 0, winWidth, winHeight);
+}
+
+void capturePrimarySlow()
+{
+	//!!! needs windows at least 256x256
+	unsigned width1 = 8;
+	unsigned height1 = 4;
+	unsigned width = 256;
+	unsigned height = 256;
+
+	// clear
+	glClearColor(0,0,0,1);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// prepare texcoords (for trilist, uvuvuv per triangle)
+	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
+	unsigned numTriangles = mesh->getNumTriangles();
+	unsigned numVertices = mesh->getNumVertices();
+	GLfloat* texcoords = new GLfloat[6*numTriangles];
+	for(unsigned i=0;i<numTriangles;i++)
+	{
+		//texcoords
+	}
+	/*
+	jak uspesne napichnout renderer?
+	1) na konci vertex shaderu prepsat 2d pozici
+	2) k tomu je nutne renderovat neindexovane
+	3) podle momentalniho stavu view matice mohou vychazet ruzne speculary
+
+	ad 2)
+	nejde tam dostat per-triangle informaci bez nabourani stavajiciho indexed trilist renderu 
+	protoze vic trianglu pouziva stejny vertex
+	je nutne za behu prekladat vse do streamu kde se vertexy neopakuji
+
+	prozatim muzu pouzit vlastni renderer a nenapichovat 3ds
+	protoze vse dulezite z 3ds (1 svetlo se stiny) lze prenest do rr2gl
+	texturu z 3ds lze zanedbat
+	*/
+
+	// setup render states
+	drawForce2d = true;
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(0);
+	glViewport(0, 0, width, height);
+
+	// render scene
+	drawHardwareShadowPass();
+
+	// Allocate the index buffer memory as necessary.
+	GLuint* indexBuffer = (GLuint*)malloc(width * height * 4);
+	rrVision::RRColor* trianglePower = (rrVision::RRColor*)malloc(numTriangles*sizeof(rrVision::RRColor));
+
+	// Read back the index buffer to memory.
+	glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, indexBuffer);
+
+	// accumulate triangle powers into trianglePower
+	for(unsigned i=0;i<numTriangles;i++) 
+		for(unsigned c=0;c<3;c++)
+			trianglePower[i][c]=0;
+	unsigned pixel = 0;
+	for(unsigned j=0;j<height;j++)
+		for(unsigned i=0;i<width;i++)
+		{
+			unsigned index = indexBuffer[pixel] >> 8; // alpha was lost
+			if(index<numTriangles)
+			{
+				rrVision::RRColor pixelPower = rrVision::RRColor(1,1,1);
+				// modulate by spotmap
+				if(lightTex)
+				{
+					float rgb[3];
+					lightTex->getPixel((float)i / width,(float)j / height,rgb);
+					for(unsigned c=0;c<3;c++)
+						pixelPower[c] *= rgb[c];
+				}
+
+				for(unsigned c=0;c<3;c++)
+					trianglePower[index][c] += pixelPower[c];
+			}
+			else
+			{
+				//assert(0);
+			}
+			pixel++;
+		}
+
+	// copy data to object
+	float mult = INCIDENT_FLUX_FACTOR/width/height;
+	for(unsigned t=0;t<numTriangles;t++)
+	{
+		rrVision::RRColor color = trianglePower[t] * mult;
+		rrobject->setTriangleAdditionalPower(t,rrVision::RM_INCIDENT_FLUX,color);
+	}
+
+	// debug print
+	//printf("\n\n");
+	//for(unsigned i=0;i<numTriangles;i++) printf("%d ",(int)trianglePower[i][0]);
+
+	// prepare for new calculation
+	rrscene->sceneResetStatic(true);
+	rrtimestep = 0.1f;
+
+	free(trianglePower);
+	free(indexBuffer);
+	delete[] texcoords;
+
+	// restore render states
+	glViewport(0, 0, winWidth, winHeight);
+	glDepthMask(1);
+	glEnable(GL_DEPTH_TEST);
+	drawForce2d = false;
+}
+
+void capturePrimary()
+{
+	capturePrimaryFast();
 }
 
 static void output(int x, int y, char *string)
@@ -1747,8 +1895,8 @@ main(int argc, char **argv)
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
-	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
+	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,1.0f);
 	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.5f);

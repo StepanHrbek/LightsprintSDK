@@ -1,3 +1,5 @@
+//#define FORCE_2D_POSITION
+
 varying vec4 projCoord;
 varying vec2 diffuseCoord;
 
@@ -11,9 +13,13 @@ void main()
   
   projCoord = gl_TextureMatrix[0] * realPos;
 
-  gl_FrontColor = dot(lightVect, trueNormal);
+  gl_FrontColor = vec4(dot(lightVect, trueNormal));
 
   diffuseCoord = gl_MultiTexCoord0.xy;
   
   gl_Position = ftransform();
+
+#ifdef FORCE_2D_POSITION
+  gl_Position.x+=1;// = gl_MultiTexCoord7.xy;
+#endif
 }

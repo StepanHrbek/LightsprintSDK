@@ -14,4 +14,8 @@ void main()
   gl_FrontColor = dot(lightVect, trueNormal) * gl_Color * lightIntensity;
   
   gl_Position = ftransform();
+
+#ifdef FORCE_2D_POSITION
+  gl_Position = gl_MultiTexCoord7.xy;
+#endif
 }
