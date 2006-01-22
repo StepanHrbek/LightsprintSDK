@@ -1,7 +1,6 @@
 #include "Light.hpp"
 #include <math.h>
 #include <GL/glut.h>
-//#include <GL/gl.h>
 
 // Public part :
 

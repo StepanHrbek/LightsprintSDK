@@ -1,7 +1,6 @@
 #include "GLSLProgram.hpp"
 #include <iostream>
 #include <GL/glut.h>
-//#include <GL/gl.h>
 #include "GLSLShader.hpp"
 
 using namespace std;

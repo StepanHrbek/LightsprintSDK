@@ -1,8 +1,8 @@
 #ifndef GLSL_SHADER
 #define GLSL_SHADER
 
+#include <GL/glew.h>
 #include <GL/glut.h>
-//#include <GL/gl.h>
 #include "GLSLObject.hpp"
 
 class GLSLShader : public GLSLObject

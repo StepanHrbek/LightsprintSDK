@@ -143,7 +143,9 @@ unsigned char *Texture::loadData(char *filename)
 			{
 				throw xNotASupportedFormat();
 			}
+			e=e;
 		}
+		e=e;
 	}
 	pixels = data;
 	return data;

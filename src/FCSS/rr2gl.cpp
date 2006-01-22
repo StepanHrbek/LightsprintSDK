@@ -2,8 +2,8 @@
 // OpenGL renderer of RRObjectImporter by Stepan Hrbek, dee@mail.cz
 //
 
+#include <GL/glew.h>
 #include <GL/glut.h>
-#include "GL/glprocs.h"
 #include <assert.h>
 #include <math.h>
 #include "rr2gl.h"
@@ -91,6 +91,8 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 						case CC_DIFFUSE_REFLECTANCE:
 						case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
 							glColor3fv(&surface->diffuseReflectanceColor.x);
+							break;
+						default:;
 					}
 					oldSurfaceIdx = surfaceIdx;
 				}
@@ -138,6 +140,7 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 					glMultiTexCoord2f(GL_TEXTURE7,x,y);
 					break;
 					}
+				default:;
 			}
 
 			glVertex3fv(&vertex.x);
@@ -157,7 +160,7 @@ RRCachingRenderer::RRCachingRenderer(RRObjectRenderer* arenderer)
 	for(unsigned i=0;i<CC_LAST;i++)
 	{
 		status[i] = CS_READY_TO_COMPILE;
-		displayLists[i] = -1;
+		displayLists[i] = UINT_MAX;
 	}
 }
 
@@ -173,13 +176,13 @@ void RRCachingRenderer::setStatus(ColorChannel cc, ChannelStatus cs)
 {
 	if(status[cc]==CS_COMPILED && cs!=CS_COMPILED)
 	{
-		assert(displayLists[cc]!=-1);
+		assert(displayLists[cc]!=UINT_MAX);
 		glDeleteLists(displayLists[cc],1);
-		displayLists[cc] = -1;
+		displayLists[cc] = UINT_MAX;
 	}
 	if(status[cc]!=CS_COMPILED && cs==CS_COMPILED)
 	{
-		assert(displayLists[cc]==-1);
+		assert(displayLists[cc]==UINT_MAX);
 		cs = CS_READY_TO_COMPILE;
 	}
 	status[cc] = cs;
@@ -190,7 +193,7 @@ void RRCachingRenderer::render(ColorChannel cc)
 	switch(status[cc])
 	{
 	case CS_READY_TO_COMPILE:
-		assert(displayLists[cc]==-1);
+		assert(displayLists[cc]==UINT_MAX);
 		displayLists[cc] = glGenLists(1);
 		glNewList(displayLists[cc],GL_COMPILE);
 		renderer->render(cc);
@@ -198,11 +201,11 @@ void RRCachingRenderer::render(ColorChannel cc)
 		status[cc] = CS_COMPILED;
 		// intentionally no break
 	case CS_COMPILED:
-		assert(displayLists[cc]!=-1);
+		assert(displayLists[cc]!=UINT_MAX);
 		glCallList(displayLists[cc]);
 		break;
 	case CS_NEVER_COMPILE:
-		assert(displayLists[cc]==-1);
+		assert(displayLists[cc]==UINT_MAX);
 		renderer->render(cc);
 		break;
 	default:

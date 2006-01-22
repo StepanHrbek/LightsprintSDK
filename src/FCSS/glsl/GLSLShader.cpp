@@ -1,6 +1,6 @@
-#include "GLSLShader.hpp"
 #include <fstream>
 #include <iostream>
+#include "GLSLShader.hpp"
 
 using namespace std;
 

@@ -48,7 +48,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=".;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -144,7 +144,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="1"
 				EnableEnhancedInstructionSet="0"
@@ -281,11 +281,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Gl\glprocs.c"
+			RelativePath=".\glew.c"
 			>
 		</File>
 		<File
-			RelativePath=".\Gl\glprocs.h"
+			RelativePath=".\GL\glew.h"
 			>
 		</File>
 		<File
@@ -351,6 +351,10 @@
 		</File>
 		<File
 			RelativePath=".\shadowcast.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\GL\wglew.h"
 			>
 		</File>
 	</Files>

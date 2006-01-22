@@ -1,5 +1,5 @@
-#include "GLSLObject.hpp"
 #include <iostream>
+#include "GLSLObject.hpp"
 using namespace std;
 
 // Public part :

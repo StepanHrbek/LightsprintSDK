@@ -50,13 +50,13 @@ fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 */
 
 #include <assert.h>
-//#include <crtdefs.h> // intptr_t
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <GL/glew.h>
+#include <GL/wglew.h>
 #include <GL/glut.h>
-#include <GL/glprocs.h>
 
 #include <iostream>
 #include "glsl/Light.hpp"
@@ -851,7 +851,6 @@ void capturePrimary() // slow
 	// prepare texcoords (for trilist, uvuvuv per triangle)
 	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
 	unsigned numTriangles = mesh->getNumTriangles();
-	unsigned numVertices = mesh->getNumVertices();
 //	GLfloat* texcoords = new GLfloat[6*numTriangles];
 	for(unsigned i=0;i<numTriangles;i++)
 	{
@@ -1530,7 +1529,6 @@ void reshape(int w, int h)
 
 void initGL(void)
 {
-	GLfloat globalAmbient[] = {0.5, 0.5, 0.5, 1.0};
 	GLint depthBits;
 
 #if defined(_WIN32)
@@ -1792,7 +1790,7 @@ main(int argc, char **argv)
 		"AJCOKCOALBDEEBIFIBJECMJDBPJMKOIJPCJGIOCCHGEGCJDGCD"
 		"JDPKJEOJGMIEKNKNAOEENGMEHNCPPABBLLKGNCAPLNPAPNLCKM"
 		"AGOBKPOMJK");
-	rrVision::LicenseStatus status = rrVision::registerLicense(
+	rrVision::registerLicense(
 		"Illusion Softworks, a.s.",
 		"DDEFMGDEFFBFFHJOCLBCFPMNHKENKPJNHDJFGKLCGEJFEOBMDC"
 		"ICNMHGEJJHJACNCFBOGJKGKEKJBAJNDCFNBGIHMIBODFGMHJFI"
@@ -1812,6 +1810,14 @@ main(int argc, char **argv)
 	}
 	glutCreateWindow("shadowcast");
 	if (fullscreen) glutFullScreen();
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+		// Problem: glewInit failed, something is seriously wrong.
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+		return 1;
+	}
+	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
