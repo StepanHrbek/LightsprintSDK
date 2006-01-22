@@ -1,6 +1,6 @@
 //!!! fudge factors
 #define INCIDENT_FLUX_FACTOR 1150.0f
-#define INDIRECT_RENDER_FACTOR 1//0.6f
+#define INDIRECT_RENDER_FACTOR 5//0.6f
 // 
 /*
 
@@ -100,7 +100,7 @@ char *filename_3ds="data\\raist\\koupelna3.3ds";
 //
 // RR
 
-bool renderOnlyRr = !false;
+bool renderOnlyRr = false;
 RRCachingRenderer* renderer = NULL;
 rrVision::RRAdditionalObjectImporter* rrobject = NULL;
 rrVision::RRScene* rrscene = NULL;
@@ -137,7 +137,7 @@ void updateIndirect()
 		{
 			// get 1*irradiance
 			static rrVision::RRColor black = rrVision::RRColor(1);
-			const rrVision::RRColor* indirect = rrscene->getTriangleIrradiance(0,t,v);//rrscene->getTriangleRadiantExitance(0,t,v);
+			const rrVision::RRColor* indirect = rrscene->getTriangleIrradiance(0,t,v);// je pouzito vzdy pro 3ds vystup, toto se jeste prenasobi difusni texturou
 			if(!indirect) indirect = &black;
 			// write 1*irradiance
 			assert(triangle[v]<numVertices);
@@ -472,7 +472,8 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 			{
 			GLSLProgramSet* progSet = shadowDifCProgSet;
 #ifdef _3DS
-			if(!renderOnlyRr) progSet = shadowDifMProgSet;
+			if(!renderOnlyRr) 
+				progSet = shadowDifMProgSet;
 #endif
 			return progSet->getVariant(NULL);
 			}
@@ -480,7 +481,9 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 			{
 			GLSLProgramSet* progSet = shadowDifCProgSet;
 #ifdef _3DS
-			if(!renderOnlyRr) progSet = shadowDifMProgSet;
+			// na detekci pouzivam RRObjectRenderer, takze bez textur
+			//if(!renderOnlyRr) 
+			//	progSet = shadowDifMProgSet;
 #endif
 			return progSet->getVariant("#define FORCE_2D_POSITION\n");
 			}
@@ -513,7 +516,7 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 		m3ds.Draw(NULL);
 		return;
 	}
-	if(!renderOnlyRr && cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE)
+	if(!renderOnlyRr && (cc==RRObjectRenderer::CC_SOURCE_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE))
 	{
 		m3ds.Draw(&indirectColors[0].x);
 		return;
@@ -524,6 +527,14 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 
 void setProgramAndDrawScene(RRObjectRenderer::ColorChannel cc)
 {
+	if(cc==RRObjectRenderer::CC_REFLECTED_AUTO)
+	{
+		cc = RRObjectRenderer::CC_REFLECTED_EXITANCE; // for colored output
+#ifdef _3DS
+		if(!renderOnlyRr)
+			cc = RRObjectRenderer::CC_REFLECTED_IRRADIANCE; // for textured 3ds output
+#endif
+	}
 	setProgram(cc);
 	drawScene(cc);
 }
@@ -710,7 +721,7 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	glMatrixMode(GL_MODELVIEW);
 
 #ifdef _3DS
-	if(!renderOnlyRr)
+	if(!renderOnlyRr && cc!=RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
 	{
 		activateTexture(GL_TEXTURE2_ARB, GL_TEXTURE_2D);
 		myProg->sendUniform("diffuseTex", 2);
@@ -813,7 +824,7 @@ void drawEyeViewSoftShadowed(void)
 		)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		setProgramAndDrawScene(RRObjectRenderer::CC_REFLECTED_EXITANCE); // pro color exitance, pro texturu irradiance
+		setProgramAndDrawScene(RRObjectRenderer::CC_REFLECTED_AUTO); // pro color exitance, pro texturu irradiance
 //		setProgramAndDrawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION); // pro color exitance, pro texturu irradiance
 		glAccum(GL_ACCUM,1);
 	}
@@ -901,7 +912,7 @@ void capturePrimaryFast()
 void capturePrimarySlow()
 {
 	//!!! needs windows at least 256x256
-	unsigned width1 = 8;
+	unsigned width1 = 4;
 	unsigned height1 = 4;
 	unsigned width = 256;
 	unsigned height = 256;
@@ -914,7 +925,7 @@ void capturePrimarySlow()
 	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
 	unsigned numTriangles = mesh->getNumTriangles();
 	unsigned numVertices = mesh->getNumVertices();
-	GLfloat* texcoords = new GLfloat[6*numTriangles];
+//	GLfloat* texcoords = new GLfloat[6*numTriangles];
 	for(unsigned i=0;i<numTriangles;i++)
 	{
 		//texcoords
@@ -924,6 +935,7 @@ void capturePrimarySlow()
 	1) na konci vertex shaderu prepsat 2d pozici
 	2) k tomu je nutne renderovat neindexovane
 	3) podle momentalniho stavu view matice mohou vychazet ruzne speculary
+	4) pouzit halfovy buffer aby se detekovalo i presviceni
 
 	ad 2)
 	nejde tam dostat per-triangle informaci bez nabourani stavajiciho indexed trilist renderu 
@@ -946,61 +958,46 @@ void capturePrimarySlow()
 
 	// Allocate the index buffer memory as necessary.
 	GLuint* indexBuffer = (GLuint*)malloc(width * height * 4);
-	rrVision::RRColor* trianglePower = (rrVision::RRColor*)malloc(numTriangles*sizeof(rrVision::RRColor));
 
 	// Read back the index buffer to memory.
 	glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, indexBuffer);
 
-	// accumulate triangle powers into trianglePower
-	for(unsigned i=0;i<numTriangles;i++) 
-		for(unsigned c=0;c<3;c++)
-			trianglePower[i][c]=0;
-	unsigned pixel = 0;
-	for(unsigned j=0;j<height;j++)
-		for(unsigned i=0;i<width;i++)
-		{
-			unsigned index = indexBuffer[pixel] >> 8; // alpha was lost
-			if(index<numTriangles)
-			{
-				rrVision::RRColor pixelPower = rrVision::RRColor(1,1,1);
-				// modulate by spotmap
-				if(lightTex)
-				{
-					float rgb[3];
-					lightTex->getPixel((float)i / width,(float)j / height,rgb);
-					for(unsigned c=0;c<3;c++)
-						pixelPower[c] *= rgb[c];
-				}
+	// dbg print
+	rrVision::RRColor suma = rrVision::RRColor(0);
 
-				for(unsigned c=0;c<3;c++)
-					trianglePower[index][c] += pixelPower[c];
-			}
-			else
-			{
-				//assert(0);
-			}
-			pixel++;
-		}
-
-	// copy data to object
-	float mult = INCIDENT_FLUX_FACTOR/width/height;
-	for(unsigned t=0;t<numTriangles;t++)
+	// accumulate triangle powers
+	for(unsigned triangleIndex=0;triangleIndex<numTriangles;triangleIndex++)
 	{
-		rrVision::RRColor color = trianglePower[t] * mult;
-		rrobject->setTriangleAdditionalPower(t,rrVision::RM_INCIDENT_FLUX,color);
-	}
+		// accumulate 1 triangle power
+		unsigned sum[3] = {0,0,0};
+		unsigned i = triangleIndex/(height/height1);
+		unsigned j = triangleIndex%(height/height1);
+		for(unsigned n=0;n<height1;n++)
+		for(unsigned m=0;m<width1;m++)
+		{
+			unsigned pixel = width*(j*height1+n) + (i*width1+m);
+			unsigned color = indexBuffer[pixel] >> 8; // alpha was lost
+			sum[0] += color>>16;
+			sum[1] += (color>>8)&255;
+			sum[2] += color&255;
+		}
+		// pass power to rrobject
+		rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
+		rrobject->setTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITANCE,avg);
 
-	// debug print
-	//printf("\n\n");
-	//for(unsigned i=0;i<numTriangles;i++) printf("%d ",(int)trianglePower[i][0]);
+		// debug print
+		rrVision::RRColor tmp = rrVision::RRColor(0);
+		rrobject->getTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
+		suma+=tmp;
+	}
+	printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
 
 	// prepare for new calculation
 	rrscene->sceneResetStatic(true);
 	rrtimestep = 0.1f;
 
-	free(trianglePower);
 	free(indexBuffer);
-	delete[] texcoords;
+//	delete[] texcoords;
 
 	// restore render states
 	glViewport(0, 0, winWidth, winHeight);
@@ -1010,7 +1007,7 @@ void capturePrimarySlow()
 
 void capturePrimary()
 {
-	capturePrimaryFast();
+	capturePrimarySlow();
 }
 
 static void output(int x, int y, char *string)
@@ -1846,10 +1843,14 @@ void idle()
 		if(rrtimestep<1.5f) rrtimestep*=1.1f;
 #ifdef _3DS
 		if(renderOnlyRr) 
+		{
+			renderer->setStatus(RRObjectRenderer::CC_SOURCE_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
 			renderer->setStatus(RRObjectRenderer::CC_REFLECTED_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
+		}
 		else
 			updateIndirect();
 #else
+		renderer->setStatus(RRObjectRenderer::CC_SOURCE_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
 		renderer->setStatus(RRObjectRenderer::CC_REFLECTED_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
 #endif
 		glutPostRedisplay();

@@ -27,7 +27,9 @@ public:
 		CC_SOURCE_EXITANCE,
 		CC_REFLECTED_IRRADIANCE,
 		CC_REFLECTED_EXITANCE,
-		CC_LAST
+		CC_LAST,
+		CC_SOURCE_AUTO,
+		CC_REFLECTED_AUTO,
 	};
 	virtual void render(ColorChannel cc) = 0;
 };

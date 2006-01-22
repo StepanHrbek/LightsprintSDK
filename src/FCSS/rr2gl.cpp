@@ -133,12 +133,8 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 					{
 					static const unsigned xmax = 64;
 					static const unsigned ymax = 64;
-					//GLfloat x = (v<2) ? -1 : 1;
-					//GLfloat x = (v<2) ? -1 : 1;
 					GLfloat x = ((float)(triangleIdx/ymax)+((v<2)?0:1)-xmax/2)/(xmax/2);
 					GLfloat y = ((float)(triangleIdx%ymax)+1-(v%2)-ymax/2)/(ymax/2);
-					//x = (v<2) ? -1 : 1;
-					//y = (v==1) ? -1 : 1;
 					glMultiTexCoord2f(GL_TEXTURE7,x,y);
 					break;
 					}
