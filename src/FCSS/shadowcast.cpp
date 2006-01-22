@@ -460,8 +460,51 @@ static void drawSphere(void)
 }
 
 
-/* drawScene - multipass shadow algorithms may need to call this routine
-   more than once per frame. */
+GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
+{
+	switch(cc)
+	{
+		case RRObjectRenderer::CC_NO_COLOR:
+			return lightProg;
+		case RRObjectRenderer::CC_TRIANGLE_INDEX:
+			return ambientProg;
+		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE:
+			{
+			GLSLProgramSet* progSet = shadowDifCProgSet;
+#ifdef _3DS
+			if(!renderOnlyRr) progSet = shadowDifMProgSet;
+#endif
+			return progSet->getVariant(NULL);
+			}
+		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
+			{
+			GLSLProgramSet* progSet = shadowDifCProgSet;
+#ifdef _3DS
+			if(!renderOnlyRr) progSet = shadowDifMProgSet;
+#endif
+			return progSet->getVariant("#define FORCE_2D_POSITION\n");
+			}
+		case RRObjectRenderer::CC_SOURCE_IRRADIANCE:
+		case RRObjectRenderer::CC_SOURCE_EXITANCE:
+		case RRObjectRenderer::CC_REFLECTED_IRRADIANCE:
+		case RRObjectRenderer::CC_REFLECTED_EXITANCE:
+#ifdef _3DS
+			if(!renderOnlyRr) return ambientDifMProg;
+#endif
+			return ambientProg;
+		default:
+			assert(0);
+			return NULL;
+	}
+}
+
+GLSLProgram* setProgram(RRObjectRenderer::ColorChannel cc)
+{
+	GLSLProgram* tmp = getProgram(cc);
+	tmp->useIt();
+	return tmp;
+}
+
 void drawScene(RRObjectRenderer::ColorChannel cc)
 {
 #ifdef _3DS
@@ -477,6 +520,12 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 	}
 #endif
 	renderer->render(cc);
+}
+
+void setProgramAndDrawScene(RRObjectRenderer::ColorChannel cc)
+{
+	setProgram(cc);
+	drawScene(cc);
 }
 
 /* drawLight - draw a yellow sphere (disabling lighting) to represent
@@ -624,14 +673,13 @@ void updateDepthMap(void)
 {
 	if(!needDepthMapUpdate) return;
 
-	lightProg->useIt();
 	setupLightView(1);
 
 	glColorMask(0,0,0,0);
 	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
-	drawScene(RRObjectRenderer::CC_NO_COLOR);
+	setProgramAndDrawScene(RRObjectRenderer::CC_NO_COLOR);
 	updateShadowTex();
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -643,14 +691,7 @@ void updateDepthMap(void)
 
 void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 {
-
-	GLSLProgramSet* myProgSet = shadowDifCProgSet;
-#ifdef _3DS
-	if(!renderOnlyRr) myProgSet = shadowDifMProgSet;
-#endif
-	static int qq=0;
-	GLSLProgram* myProg = myProgSet->getVariant((cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)?"#define FORCE_2D_POSITION\n":NULL);
-	myProg->useIt();
+	GLSLProgram* myProg = setProgram(cc);
 
 	activateTexture(GL_TEXTURE1_ARB, GL_TEXTURE_2D);
 	lightTex->bindTexture();
@@ -771,16 +812,9 @@ void drawEyeViewSoftShadowed(void)
 #endif
 		)
 	{
-#ifdef _3DS
-		if(renderOnlyRr)
-			ambientProg->useIt();
-		else
-			ambientDifMProg->useIt();
-#else
-		ambientProg->useIt();
-#endif
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		drawScene(RRObjectRenderer::CC_REFLECTED_EXITANCE); // pro color exitance, pro texturu irradiance
+		setProgramAndDrawScene(RRObjectRenderer::CC_REFLECTED_EXITANCE); // pro color exitance, pro texturu irradiance
+//		setProgramAndDrawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION); // pro color exitance, pro texturu irradiance
 		glAccum(GL_ACCUM,1);
 	}
 
@@ -907,6 +941,7 @@ void capturePrimarySlow()
 	glViewport(0, 0, width, height);
 
 	// render scene
+	renderer->setStatus(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,RRCachingRenderer::CS_NEVER_COMPILE);
 	drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
 
 	// Allocate the index buffer memory as necessary.

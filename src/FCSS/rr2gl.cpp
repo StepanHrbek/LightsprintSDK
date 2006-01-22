@@ -31,6 +31,9 @@ RRGLObjectRenderer::RRGLObjectRenderer(rrVision::RRObjectImporter* objectImporte
 
 void RRGLObjectRenderer::render(ColorChannel cc)
 {
+	glColor4ub(0,0,0,255);
+	glEnable(GL_CULL_FACE);
+
 	switch(cc)
 	{
 	case CC_NO_COLOR: 
@@ -60,7 +63,6 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 		assert(0);
 	}
 
-	glColor4ub(0,0,0,255);
 	glBegin(GL_TRIANGLES);
 	assert(object);
 	rrCollider::RRMeshImporter* meshImporter = object->getCollider()->getImporter();
@@ -75,8 +77,7 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 			case CC_TRIANGLE_INDEX:
 				glColor4ub(triangleIdx>>16,triangleIdx>>8,triangleIdx,255);
 				break;
-			case CC_DIFFUSE_REFLECTANCE:
-			case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
+			default:
 			{
 				unsigned surfaceIdx = object->getTriangleSurface(triangleIdx);
 				if(surfaceIdx!=oldSurfaceIdx)
@@ -85,7 +86,12 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 					assert(surface);
 					if(cc!=CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)
 						if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-					glColor3fv(&surface->diffuseReflectanceColor.x);
+					switch(cc)
+					{
+						case CC_DIFFUSE_REFLECTANCE:
+						case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
+							glColor3fv(&surface->diffuseReflectanceColor.x);
+					}
 					oldSurfaceIdx = surfaceIdx;
 				}
 			}
