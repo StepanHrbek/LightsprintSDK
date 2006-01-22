@@ -3,7 +3,7 @@
 // 
 /*
 
-proc ma 3ds renderer kazdy face jinak nasviceny, nejsou zle normaly?
+proc zustavaji v 3ds nespojitosti? (jakoby nemel ivertexy)
 compile gcc, prejit na glew
 smazat is licenci
 

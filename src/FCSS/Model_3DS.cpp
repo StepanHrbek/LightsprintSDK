@@ -289,6 +289,7 @@ void Model_3DS::Draw(GLfloat* color)
 {
 	if (visible)
 	{
+		glShadeModel(GL_SMOOTH);
 /*	glPushMatrix();
 
 		// Move the model
