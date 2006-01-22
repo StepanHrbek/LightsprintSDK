@@ -1,5 +1,5 @@
 //!!! fudge factors
-#define INCIDENT_FLUX_FACTOR 1550.0f
+#define INCIDENT_FLUX_FACTOR 1150.0f
 #define INDIRECT_RENDER_FACTOR 1//0.6f
 // 
 /*
@@ -7,6 +7,7 @@
 udelat render do forced 2d
 udelat slow detekjci, tohle nejde vyladit aby fungovalo vic scen naraz
 compile gcc, prejit na glew
+proc ma 3ds renderer kazdy face jinak nasviceny, nejsou zle normaly?
 
 autodeteknout zda mam metry nebo centimetry
 vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
@@ -85,12 +86,13 @@ using namespace std;
 
 #define _3DS
 #ifdef _3DS
+#undef INCIDENT_FLUX_FACTOR
+#define INCIDENT_FLUX_FACTOR 150.0f
 #include "Model_3DS.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
 //char *filename_3ds="data\\sponza\\sponza.3ds";
 char *filename_3ds="data\\raist\\koupelna3.3ds";
-bool renderOnlyRr = false;
 #endif
 
 
@@ -98,6 +100,7 @@ bool renderOnlyRr = false;
 //
 // RR
 
+bool renderOnlyRr = !false;
 RRCachingRenderer* renderer = NULL;
 rrVision::RRAdditionalObjectImporter* rrobject = NULL;
 rrVision::RRScene* rrscene = NULL;
@@ -330,10 +333,6 @@ int useTextureRectangle = 0;
 int useLights = 1;
 int softWidth[200],softHeight[200],softPrecision[200],softFiltering[200];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
-bool drawOnlyZ = false;
-bool drawIndexed = false;
-bool drawDirect = true;
-bool drawForce2d = false;
 GLfloat eye_shift[3]={0,0,0}; // mimo provoz
 GLfloat ed[3];
 char *mgf_filename="data\\scene8.mgf";
@@ -463,30 +462,21 @@ static void drawSphere(void)
 
 /* drawScene - multipass shadow algorithms may need to call this routine
    more than once per frame. */
-void drawScene()
+void drawScene(RRObjectRenderer::ColorChannel cc)
 {
-	switch (objectConfiguration)
-	{
-		case OC_MGF:
-		default:
-		if(drawOnlyZ) 
-			renderer->render(RRObjectRenderer::CC_NO_COLOR);
-		else
-		if(drawIndexed) 
-			renderer->render(RRObjectRenderer::CC_TRIANGLE_INDEX);
-		else
-		{
 #ifdef _3DS
-			if(renderOnlyRr)
-				renderer->render(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
-			else
-				m3ds.Draw(drawDirect?NULL:&indirectColors[0].x);
-#else
-			renderer->render(drawDirect?RRObjectRenderer::CC_DIFFUSE_REFLECTANCE:RRObjectRenderer::CC_REFLECTED_EXITANCE);
-#endif
-		}
-		break;
+	if(!renderOnlyRr && cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE)
+	{
+		m3ds.Draw(NULL);
+		return;
 	}
+	if(!renderOnlyRr && cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE)
+	{
+		m3ds.Draw(&indirectColors[0].x);
+		return;
+	}
+#endif
+	renderer->render(cc);
 }
 
 /* drawLight - draw a yellow sphere (disabling lighting) to represent
@@ -609,7 +599,7 @@ void setupLightView(int square)
 void drawLightView(void)
 {
 	glLightfv(GL_LIGHT0, GL_POSITION, lv);
-	drawScene();
+	drawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 }
 
 void useBestShadowMapClamping(GLenum target)
@@ -639,21 +629,19 @@ void updateDepthMap(void)
 
 	glColorMask(0,0,0,0);
 	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-	drawOnlyZ = true;
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
-	drawScene();
+	drawScene(RRObjectRenderer::CC_NO_COLOR);
 	updateShadowTex();
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
-	drawOnlyZ = false;
 	glViewport(0, 0, winWidth, winHeight);
 	glColorMask(1,1,1,1);
 
 	if(softLight<0 || softLight==useLights-1) needDepthMapUpdate = 0;
 }
 
-void drawHardwareShadowPass(void)
+void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 {
 
 	GLSLProgramSet* myProgSet = shadowDifCProgSet;
@@ -661,7 +649,7 @@ void drawHardwareShadowPass(void)
 	if(!renderOnlyRr) myProgSet = shadowDifMProgSet;
 #endif
 	static int qq=0;
-	GLSLProgram* myProg = myProgSet->getVariant(drawForce2d?"#define FORCE_2D_POSITION\n":NULL);
+	GLSLProgram* myProg = myProgSet->getVariant((cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)?"#define FORCE_2D_POSITION\n":NULL);
 	myProg->useIt();
 
 	activateTexture(GL_TEXTURE1_ARB, GL_TEXTURE_2D);
@@ -688,7 +676,7 @@ void drawHardwareShadowPass(void)
 	}
 #endif
 
-	drawScene();
+	drawScene(cc);
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 }
@@ -706,7 +694,7 @@ void drawEyeViewShadowed()
 	setupEyeView();
 	glLightfv(GL_LIGHT0, GL_POSITION, lv);
 
-	drawHardwareShadowPass();
+	drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 
 	drawLight();
 	drawShadowMapFrustum();
@@ -783,7 +771,6 @@ void drawEyeViewSoftShadowed(void)
 #endif
 		)
 	{
-		drawDirect = false;
 #ifdef _3DS
 		if(renderOnlyRr)
 			ambientProg->useIt();
@@ -793,8 +780,7 @@ void drawEyeViewSoftShadowed(void)
 		ambientProg->useIt();
 #endif
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		drawScene();
-		drawDirect = true;
+		drawScene(RRObjectRenderer::CC_REFLECTED_EXITANCE); // pro color exitance, pro texturu irradiance
 		glAccum(GL_ACCUM,1);
 	}
 
@@ -916,13 +902,12 @@ void capturePrimarySlow()
 	*/
 
 	// setup render states
-	drawForce2d = true;
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
 	glViewport(0, 0, width, height);
 
 	// render scene
-	drawHardwareShadowPass();
+	drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
 
 	// Allocate the index buffer memory as necessary.
 	GLuint* indexBuffer = (GLuint*)malloc(width * height * 4);
@@ -986,7 +971,6 @@ void capturePrimarySlow()
 	glViewport(0, 0, winWidth, winHeight);
 	glDepthMask(1);
 	glEnable(GL_DEPTH_TEST);
-	drawForce2d = false;
 }
 
 void capturePrimary()

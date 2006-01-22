@@ -1,6 +1,6 @@
 varying vec4 projCoord;
 
-const float lightIntensity = 2;
+const float lightIntensity = 2.0;
 
 void main()
 {
@@ -16,6 +16,6 @@ void main()
   gl_Position = ftransform();
 
 #ifdef FORCE_2D_POSITION
-  gl_Position = gl_MultiTexCoord7.xy;
+  gl_Position = vec4(gl_MultiTexCoord7.x,gl_MultiTexCoord7.y,0.5,1);
 #endif
 }

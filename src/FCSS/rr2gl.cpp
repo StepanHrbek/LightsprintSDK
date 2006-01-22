@@ -38,8 +38,11 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 		glShadeModel(GL_FLAT);
 		break;
 	case CC_DIFFUSE_REFLECTANCE:
+		glShadeModel(GL_SMOOTH);
+		break;
 	case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
 		glShadeModel(GL_SMOOTH);
+		glDisable(GL_CULL_FACE);
 		break;
 	case CC_SOURCE_IRRADIANCE:
 	case CC_SOURCE_EXITANCE:
@@ -53,8 +56,9 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 		rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 		glShadeModel(GL_SMOOTH);
 		break;
+	default:
+		assert(0);
 	}
-
 
 	glColor4ub(0,0,0,255);
 	glBegin(GL_TRIANGLES);
@@ -79,7 +83,8 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 				{
 					const rrVision::RRSurface* surface = object->getSurface(surfaceIdx);
 					assert(surface);
-					if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+					if(cc!=CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)
+						if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
 					glColor3fv(&surface->diffuseReflectanceColor.x);
 					oldSurfaceIdx = surfaceIdx;
 				}
@@ -96,21 +101,41 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 			rrCollider::RRMeshImporter::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
 
-			const rrVision::RRColor* color = NULL;
 			switch(cc)
 			{
 				case CC_SOURCE_IRRADIANCE:
 				case CC_REFLECTED_IRRADIANCE:
-					color = scene->getTriangleIrradiance(0,triangleIdx,v);
+					{
+					const rrVision::RRColor* color = scene->getTriangleIrradiance(0,triangleIdx,v);
+					if(color)
+					{
+						glColor3fv(&color->x);
+					}
 					break;
+					}
 				case CC_SOURCE_EXITANCE:
 				case CC_REFLECTED_EXITANCE:
-					color = scene->getTriangleRadiantExitance(0,triangleIdx,v);
+					{
+					const rrVision::RRColor* color = scene->getTriangleRadiantExitance(0,triangleIdx,v);
+					if(color)
+					{
+						glColor3fv(&color->x);
+					}
 					break;
-			}
-			if(color)
-			{
-				glColor3fv(&color->x);
+					}
+				case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
+					{
+					static const unsigned xmax = 64;
+					static const unsigned ymax = 64;
+					//GLfloat x = (v<2) ? -1 : 1;
+					//GLfloat x = (v<2) ? -1 : 1;
+					GLfloat x = ((float)(triangleIdx/ymax)+((v<2)?0:1)-xmax/2)/(xmax/2);
+					GLfloat y = ((float)(triangleIdx%ymax)+1-(v%2)-ymax/2)/(ymax/2);
+					//x = (v<2) ? -1 : 1;
+					//y = (v==1) ? -1 : 1;
+					glMultiTexCoord2f(GL_TEXTURE7,x,y);
+					break;
+					}
 			}
 
 			glVertex3fv(&vertex.x);
