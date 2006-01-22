@@ -3,9 +3,9 @@
 // 
 /*
 
-proc zustavaji v 3ds nespojitosti? (jakoby nemel ivertexy)
 compile gcc, prejit na glew
 smazat is licenci
+proc zustavaji v 3ds nespojitosti? (jakoby nemel ivertexy nebo mel hodne duplicitnich vertexu)
 
 autodeteknout zda mam metry nebo centimetry
 vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
@@ -890,7 +890,7 @@ void capturePrimary() // slow
 	glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, indexBuffer);
 
 	// dbg print
-	rrVision::RRColor suma = rrVision::RRColor(0);
+	//rrVision::RRColor suma = rrVision::RRColor(0);
 
 	// accumulate triangle powers
 	for(unsigned triangleIndex=0;triangleIndex<numTriangles;triangleIndex++)
@@ -913,11 +913,11 @@ void capturePrimary() // slow
 		rrobject->setTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITANCE,avg);
 
 		// debug print
-		rrVision::RRColor tmp = rrVision::RRColor(0);
-		rrobject->getTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
-		suma+=tmp;
+		//rrVision::RRColor tmp = rrVision::RRColor(0);
+		//rrobject->getTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
+		//suma+=tmp;
 	}
-	printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
+	//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
 
 	// prepare for new calculation
 	rrscene->sceneResetStatic(true);
