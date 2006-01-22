@@ -1,11 +1,12 @@
 //
-// high level mgf loader by Stepan Hrbek, dee@mail.cz
+// OpenGL renderer of RRObjectImporter by Stepan Hrbek, dee@mail.cz
 //
 
 #ifndef _RR2GL_H
 #define _RR2GL_H
 
 #include "RRVision.h"
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -14,7 +15,6 @@
 class RRObjectRenderer
 {
 public:
-	//RRObjectRenderer(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver) {};
 	virtual ~RRObjectRenderer() {};
 
 	enum ColorChannel
@@ -32,34 +32,24 @@ public:
 	virtual void render(ColorChannel cc) = 0;
 };
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRGLObjectRenderer - basic OpenGL renderer implementation
 
-class RRGLObjectRenderer
+class RRGLObjectRenderer : public RRObjectRenderer
 {
 public:
 	RRGLObjectRenderer(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver);
 	virtual ~RRGLObjectRenderer() {};
 
-	enum ColorChannel
-	{
-		CC_NO_COLOR,
-		CC_TRIANGLE_INDEX,
-		CC_DIFFUSE_REFLECTANCE,
-		CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,
-		CC_SOURCE_IRRADIANCE,
-		CC_SOURCE_EXITANCE,
-		CC_REFLECTED_IRRADIANCE,
-		CC_REFLECTED_EXITANCE,
-		CC_LAST
-	};
 	virtual void render(ColorChannel cc);
-	GLfloat* getChannel(ColorChannel cc);
+	//GLfloat* getChannel(ColorChannel cc);
 private:
 	rrVision::RRObjectImporter* object;
 	rrVision::RRScene* scene;
 };
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -85,15 +75,5 @@ private:
 	ChannelStatus status[CC_LAST];
 	GLuint displayLists[CC_LAST];
 };
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// old
-
-void     rr2gl_compile(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver);
-void     rr2gl_draw_onlyz();
-unsigned rr2gl_draw_indexed(); // returns number of triangles
-void     rr2gl_draw_colored(bool direct);
 
 #endif

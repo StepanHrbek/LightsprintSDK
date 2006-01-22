@@ -96,6 +96,7 @@ bool renderOnlyRr = false;
 //
 // RR
 
+RRCachingRenderer* renderer = NULL;
 rrVision::RRAdditionalObjectImporter* rrobject = NULL;
 rrVision::RRScene* rrscene = NULL;
 rrVision::RRScaler* rrscaler = NULL;
@@ -467,19 +468,19 @@ void drawScene()
 		case OC_MGF:
 		default:
 		if(drawOnlyZ) 
-			rr2gl_draw_onlyz();
+			renderer->render(RRObjectRenderer::CC_NO_COLOR);
 		else
 		if(drawIndexed) 
-			rr2gl_draw_indexed();
+			renderer->render(RRObjectRenderer::CC_TRIANGLE_INDEX);
 		else
 		{
 #ifdef _3DS
 			if(renderOnlyRr)
-				rr2gl_draw_colored(drawDirect);
+				renderer->render(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 			else
 				m3ds.Draw(drawDirect?NULL:&indirectColors[0].x);
 #else
-			rr2gl_draw_colored(drawDirect);
+			renderer->render(drawDirect?RRObjectRenderer::CC_DIFFUSE_REFLECTANCE:RRObjectRenderer::CC_REFLECTED_EXITANCE);
 #endif
 		}
 		break;
@@ -813,7 +814,8 @@ void capturePrimaryFast()
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glClearColor(0,0,0,1);
 	ambientProg->useIt();
-	unsigned numTriangles = rr2gl_draw_indexed();
+	renderer->render(RRObjectRenderer::CC_TRIANGLE_INDEX);
+	unsigned numTriangles = rrobject->getCollider()->getImporter()->getNumTriangles();
 
 	// Allocate the index buffer memory as necessary.
 	GLuint* indexBuffer = (GLuint*)malloc(width * height * 4);
@@ -1827,7 +1829,7 @@ void idle()
 		else
 			updateIndirect();
 #else
-		rr2gl_compile(rrobject,rrscene);
+		renderer->setStatus(RRObjectRenderer::CC_REFLECTED_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
 #endif
 		glutPostRedisplay();
 	}
@@ -1904,7 +1906,8 @@ main(int argc, char **argv)
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
 	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
-	rr2gl_compile(rrobject,rrscene);
+	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,rrscene));
+	//rr2gl_compile(rrobject,rrscene);
 	glsl_init();
 
 	glutMainLoop();
