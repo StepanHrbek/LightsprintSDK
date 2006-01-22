@@ -1,13 +1,11 @@
 //!!! fudge factors
-#define INCIDENT_FLUX_FACTOR 1150.0f
 #define INDIRECT_RENDER_FACTOR 5//0.6f
 // 
 /*
 
-udelat render do forced 2d
-udelat slow detekjci, tohle nejde vyladit aby fungovalo vic scen naraz
-compile gcc, prejit na glew
 proc ma 3ds renderer kazdy face jinak nasviceny, nejsou zle normaly?
+compile gcc, prejit na glew
+smazat is licenci
 
 autodeteknout zda mam metry nebo centimetry
 vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
@@ -86,8 +84,6 @@ using namespace std;
 
 #define _3DS
 #ifdef _3DS
-#undef INCIDENT_FLUX_FACTOR
-#define INCIDENT_FLUX_FACTOR 150.0f
 #include "Model_3DS.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
@@ -127,7 +123,6 @@ void updateIndirect()
 	indirectColors = new rrVision::RRColor[numVertices*3];
 
 	// 3ds has indexed trilist
-	// triangle0=indices0,1,2, triangle1=indices3,4,5...
 	for(unsigned t=0;t<numTriangles;t++) // triangle
 	{
 		// get 3*index
@@ -136,7 +131,8 @@ void updateIndirect()
 		for(unsigned v=0;v<3;v++) // vertex
 		{
 			// get 1*irradiance
-			static rrVision::RRColor black = rrVision::RRColor(1);
+			static rrVision::RRColor black;
+			black = rrVision::RRColor(1);
 			const rrVision::RRColor* indirect = rrscene->getTriangleIrradiance(0,t,v);// je pouzito vzdy pro 3ds vystup, toto se jeste prenasobi difusni texturou
 			if(!indirect) indirect = &black;
 			// write 1*irradiance
@@ -535,6 +531,14 @@ void setProgramAndDrawScene(RRObjectRenderer::ColorChannel cc)
 			cc = RRObjectRenderer::CC_REFLECTED_IRRADIANCE; // for textured 3ds output
 #endif
 	}
+	if(cc==RRObjectRenderer::CC_SOURCE_AUTO)
+	{
+		cc = RRObjectRenderer::CC_SOURCE_EXITANCE; // for colored output
+#ifdef _3DS
+		if(!renderOnlyRr)
+			cc = RRObjectRenderer::CC_SOURCE_IRRADIANCE; // for textured 3ds output
+#endif
+	}
 	setProgram(cc);
 	drawScene(cc);
 }
@@ -832,84 +836,7 @@ void drawEyeViewSoftShadowed(void)
 	glAccum(GL_RETURN,1);
 }
 
-void capturePrimaryFast()
-{
-	//!!! needs windows at least 256x256
-	unsigned width = 256;
-	unsigned height = 256;
-
-	// Setup light view with a square aspect ratio since the texture is square.
-	setupLightView(1);
-
-	glViewport(0, 0, width, height);
-
-	glClearColor(1,1,1,1); // avoid background to contribute to triangle 0
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	glClearColor(0,0,0,1);
-	ambientProg->useIt();
-	renderer->render(RRObjectRenderer::CC_TRIANGLE_INDEX);
-	unsigned numTriangles = rrobject->getCollider()->getImporter()->getNumTriangles();
-
-	// Allocate the index buffer memory as necessary.
-	GLuint* indexBuffer = (GLuint*)malloc(width * height * 4);
-	rrVision::RRColor* trianglePower = (rrVision::RRColor*)malloc(numTriangles*sizeof(rrVision::RRColor));
-
-	// Read back the index buffer to memory.
-	glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, indexBuffer);
-
-	// accumulate triangle powers into trianglePower
-	for(unsigned i=0;i<numTriangles;i++) 
-		for(unsigned c=0;c<3;c++)
-			trianglePower[i][c]=0;
-	unsigned pixel = 0;
-	for(unsigned j=0;j<height;j++)
-		for(unsigned i=0;i<width;i++)
-		{
-			unsigned index = indexBuffer[pixel] >> 8; // alpha was lost
-			if(index<numTriangles)
-			{
-				rrVision::RRColor pixelPower = rrVision::RRColor(1,1,1);
-				// modulate by spotmap
-				if(lightTex)
-				{
-					float rgb[3];
-					lightTex->getPixel((float)i / width,(float)j / height,rgb);
-					for(unsigned c=0;c<3;c++)
-						pixelPower[c] *= rgb[c];
-				}
-
-				for(unsigned c=0;c<3;c++)
-					trianglePower[index][c] += pixelPower[c];
-			}
-			else
-			{
-				//assert(0);
-			}
-			pixel++;
-		}
-
-	// copy data to object
-	float mult = INCIDENT_FLUX_FACTOR/width/height;
-	for(unsigned t=0;t<numTriangles;t++)
-	{
-		rrVision::RRColor color = trianglePower[t] * mult;
-		rrobject->setTriangleAdditionalPower(t,rrVision::RM_INCIDENT_FLUX,color);
-	}
-
-	// debug print
-	//printf("\n\n");
-	//for(unsigned i=0;i<numTriangles;i++) printf("%d ",(int)trianglePower[i][0]);
-
-	// prepare for new calculation
-	rrscene->sceneResetStatic(true);
-	rrtimestep = 0.1f;
-
-	free(trianglePower);
-	free(indexBuffer);
-	glViewport(0, 0, winWidth, winHeight);
-}
-
-void capturePrimarySlow()
+void capturePrimary() // slow
 {
 	//!!! needs windows at least 256x256
 	unsigned width1 = 4;
@@ -1003,11 +930,6 @@ void capturePrimarySlow()
 	glViewport(0, 0, winWidth, winHeight);
 	glDepthMask(1);
 	glEnable(GL_DEPTH_TEST);
-}
-
-void capturePrimary()
-{
-	capturePrimarySlow();
 }
 
 static void output(int x, int y, char *string)
