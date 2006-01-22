@@ -4,8 +4,10 @@
 // 
 /*
 
-compile gcc
+udelat render do forced 2d
 udelat slow detekjci, tohle nejde vyladit aby fungovalo vic scen naraz
+compile gcc, prejit na glew
+
 autodeteknout zda mam metry nebo centimetry
 vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
 prozkoumat slucoani blizkych ivertexu proc tady nic nezlepsi
@@ -81,7 +83,7 @@ using namespace std;
 //
 // 3DS
 
-//#define _3DS
+#define _3DS
 #ifdef _3DS
 #include "Model_3DS.h"
 #include "3ds2rr.h"
@@ -1825,7 +1827,7 @@ void idle()
 		if(rrtimestep<1.5f) rrtimestep*=1.1f;
 #ifdef _3DS
 		if(renderOnlyRr) 
-			rr2gl_compile(rrobject,rrscene);
+			renderer->setStatus(RRObjectRenderer::CC_REFLECTED_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
 		else
 			updateIndirect();
 #else
