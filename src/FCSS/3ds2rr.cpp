@@ -83,7 +83,7 @@ static void fillSurface(rrVision::RRSurface* s,Model_3DS::Material* m)
 			for(unsigned j=0;j<size;j++)
 			{
 				rrVision::RRColor tmp;
-				m->tex->getPixel(i/size,j/size,&tmp[0]);
+				m->tex->getPixel(i/(float)size,j/(float)size,&tmp[0]);
 				avg += tmp;
 			}
 		avg /= size*size;
