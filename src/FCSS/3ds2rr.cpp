@@ -123,15 +123,6 @@ M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)
 	model = amodel;
 	object = &model->Objects[objectIdx];
 
-	assert((object->numFaces%3)==0);
-	unsigned numTriangles = (unsigned)object->numFaces/3;
-	for(unsigned i=0;i<numTriangles;i++)
-	{
-		TriangleInfo ti;
-		ti.s = 0;
-		triangles.push_back(ti);
-	}
-
 	for(unsigned i=0;i<(unsigned)object->numMatFaces;i++)
 	{
 		for(unsigned j=0;j<(unsigned)object->MatFaces[i].numSubFaces/3;j++)

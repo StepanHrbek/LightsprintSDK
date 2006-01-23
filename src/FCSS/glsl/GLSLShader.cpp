@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+//#include <stdio.h>
 #include "GLSLShader.hpp"
 
 using namespace std;
@@ -45,6 +46,18 @@ void GLSLShader::compileIt()
 
 char *GLSLShader::readShader(const char *filename)
 {
+	FILE* f = fopen(filename,"rb");
+	if(!f) return NULL;
+	fseek(f,0,SEEK_END);
+	unsigned count = ftell(f);
+	char *buf;
+	buf = new char[count + 1];
+	fseek(f,0,SEEK_SET);
+	fread(buf,1,count,f);
+	fclose(f);
+	buf[count] = 0;
+	return buf;
+/*
   ifstream temp(filename);
   unsigned count = 0;
   char *buf;
@@ -56,8 +69,9 @@ char *GLSLShader::readShader(const char *filename)
   for(unsigned i=0;i<count+1;i++) buf[i]=0; // necessary in release run outside ide or debugger
   temp.seekg(0, ios::beg);
   temp.read(buf, count);
-  buf[count] = 0;
   temp.close();
-  
-  return buf;
+  buf[count] = 0;
+
+  cout << "[BEGIN:" << filename << "]" << buf << "[END]";
+  return buf;*/
 }

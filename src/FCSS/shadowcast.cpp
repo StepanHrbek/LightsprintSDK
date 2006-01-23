@@ -3,9 +3,10 @@
 // 
 /*
 
-compile gcc, prejit na glew
-smazat is licenci
 proc zustavaji v 3ds nespojitosti? (jakoby nemel ivertexy nebo mel hodne duplicitnich vertexu)
+pohyb svetla/kamery
+readme
+web
 
 autodeteknout zda mam metry nebo centimetry
 vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
@@ -88,7 +89,7 @@ using namespace std;
 #include "3ds2rr.h"
 Model_3DS m3ds;
 //char *filename_3ds="data\\sponza\\sponza.3ds";
-char *filename_3ds="data\\raist\\koupelna3.3ds";
+char *filename_3ds="koupelna\\koupelna3.3ds";
 #endif
 
 
@@ -151,7 +152,7 @@ void updateIndirect()
 	unsigned faces,rays;
 	float sourceExitingFlux,reflectedIncidentFlux;
 	rrscene->getStats(&faces,&sourceExitingFlux,&rays,&reflectedIncidentFlux);
-	printf("faces=%d sourceExitingFlux=%f rays=%d\n",faces,sourceExitingFlux,rays);
+	//printf("faces=%d sourceExitingFlux=%f rays=%d\n",faces,sourceExitingFlux,rays);
 /*	puts("");
 	for(unsigned i=0;i<4;i++)
 	{
@@ -389,7 +390,7 @@ GLdouble eyeFieldOfView = 100.0;
 GLdouble eyeNear = 0.3;
 GLdouble eyeFar = 60.0;
 GLdouble lightFieldOfView = 80.0;
-GLdouble lightNear = 1.0;
+GLdouble lightNear = 0.4;
 GLdouble lightFar = 20.0;
 
 GLdouble eyeViewMatrix[16];
@@ -423,19 +424,22 @@ void updateTitle(void)
 	int depthBits;
 
 	/* Only update the title is needTitleUpdate is set. */
-	if (needTitleUpdate) {
-		switch (drawMode) {
-	case DM_LIGHT_VIEW:
-		modeName = "light view";
-	case DM_EYE_VIEW_SHADOWED:
-		modeName = "eye view with shadows";
-		break;
-	case DM_EYE_VIEW_SOFTSHADOWED:
-		modeName = "eye view with soft shadows";
-		break;
-	default:
-		assert(0);
-		break;
+	if (needTitleUpdate) 
+	{
+		switch (drawMode) 
+		{
+		case DM_LIGHT_VIEW:
+			modeName = "light view";
+		case DM_EYE_VIEW_SHADOWED:
+			modeName = "eye view with shadows";
+			break;
+		case DM_EYE_VIEW_SOFTSHADOWED:
+			modeName = "eye view with soft shadows";
+			break;
+		default:
+			assert(0);
+			modeName = "";
+			break;
 		}
 		glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 		sprintf(title,
@@ -841,8 +845,8 @@ void capturePrimary() // slow
 	//!!! needs windows at least 256x256
 	unsigned width1 = 4;
 	unsigned height1 = 4;
-	unsigned width = 256;
-	unsigned height = 256;
+	unsigned width = 512;
+	unsigned height = 512;
 
 	// clear
 	glClearColor(0,0,0,1);
@@ -1782,22 +1786,8 @@ main(int argc, char **argv)
 {
 	setLittleEndian();
 
-	rrCollider::registerLicense(
-		"Illusion Softworks, a.s.",
-		"DDEFMGDEFFBFFHJOCLBCFPMNHKENKPJNHDJFGKLCGEJFEOBMDC"
-		"ICNMHGEJJHJACNCFBOGJKGKEKJBAJNDCFNBGIHMIBODFGMHJFI"
-		"NJLGPKGNGOFFLLOGEIJMPBEADBJBJHGLJKGGFKOLDNIBIFENEK"
-		"AJCOKCOALBDEEBIFIBJECMJDBPJMKOIJPCJGIOCCHGEGCJDGCD"
-		"JDPKJEOJGMIEKNKNAOEENGMEHNCPPABBLLKGNCAPLNPAPNLCKM"
-		"AGOBKPOMJK");
-	rrVision::registerLicense(
-		"Illusion Softworks, a.s.",
-		"DDEFMGDEFFBFFHJOCLBCFPMNHKENKPJNHDJFGKLCGEJFEOBMDC"
-		"ICNMHGEJJHJACNCFBOGJKGKEKJBAJNDCFNBGIHMIBODFGMHJFI"
-		"NJLGPKGNGOFFLLOGEIJMPBEADBJBJHGLJKGGFKOLDNIBIFENEK"
-		"AJCOKCOALBDEEBIFIBJECMJDBPJMKOIJPCJGIOCCHGEGCJDGCD"
-		"JDPKJEOJGMIEKNKNAOEENGMEHNCPPABBLLKGNCAPLNPAPNLCKM"
-		"AGOBKPOMJK");
+	rrCollider::registerLicense("","");
+	rrVision::registerLicense("","");
 
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);

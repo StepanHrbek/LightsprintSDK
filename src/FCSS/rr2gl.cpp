@@ -133,8 +133,8 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 					}
 				case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
 					{
-					static const unsigned xmax = 64;
-					static const unsigned ymax = 64;
+					static const unsigned xmax = 128;
+					static const unsigned ymax = 128;
 					GLfloat x = ((float)(triangleIdx/ymax)+((v<2)?0:1)-xmax/2)/(xmax/2);
 					GLfloat y = ((float)(triangleIdx%ymax)+1-(v%2)-ymax/2)/(ymax/2);
 					glMultiTexCoord2f(GL_TEXTURE7,x,y);

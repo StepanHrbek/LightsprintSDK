@@ -1,7 +1,13 @@
 CC = gcc
 CPP = gcc
 CPPFLAGS = -Wall -I. -I../RRCollider/include -I../RRVision/include -I../LicGen/include -DGLEW_STATIC
-LIBS = -lz -lm -lmgf -L../../lib -lRRCollider -lRRVision -lstdc++
+CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
+#CPPFLAGS += -ffast-math // zpusobuje crash v soda
+CPPFLAGS += -fomit-frame-pointer
+CPPFLAGS += -march=athlon-xp
+CPPFLAGS += -msse
+CPPFLAGS += -mfpmath=sse
+LIBS = -s -lz -lm -lmgf -L../../lib -lRRCollider -lRRVision -lstdc++
 LIBS += -lopengl32 -lglu32 -lglut32
 BIN = ../../bin/
 
