@@ -25,4 +25,5 @@ void main()
 //    float attenuation = 1-projCoord.z*(1/linearDecay);
     gl_FragColor = gl_Color * lightValue * diffuseValue * lightIntensity;// * attenuation;
   }
+//  gl_FragColor = min(gl_FragColor,1);
 }

@@ -1,10 +1,8 @@
 //!!! fudge factors
 #define INDIRECT_RENDER_FACTOR 5//0.6f
-// 
-/*
 
+/*
 proc zustavaji v 3ds nespojitosti? (jakoby nemel ivertexy nebo mel hodne duplicitnich vertexu)
-pohyb svetla/kamery
 readme
 web
 
@@ -14,40 +12,12 @@ prozkoumat slucoani blizkych ivertexu proc tady nic nezlepsi
 stranka s vic demacema pohromade
 nacitat jpg
 dodelat podporu pro matice do 3ds2rr importeru
-nemit 2 ruzny textury, 1 pro render, 1 pro capture primary
-fast vyzaduje svetlo s korektnim utlumem.. co je 2x dal je 4x min svetly
- prozatim vyreseno linearnim utlumem
- zkusit fyzikalne korektni model s gammou na konci 
- 1. umi pouze 1 svetlo
-    out = 0
-    pro kazdou instanci: out += viditelnost
-    out = gamma(out/sqr(vzdalenost_svetla)+indirect)*diffusematerial
- 2. umi vic svetel
-    out = 0
-    pro kazde svetlo:
-      pro kazdou instanci: out += viditelnost/sqr(vzdalenost_svetla)
-    out = gamma(out+indirect)*diffusematerial
 kdyz uz by byl korektni model s gammou, pridat ovladani gammy
 
 POZOR
 neni tu korektni skladani primary+indirect a az nasledna gamma korekce
  kdyz se vypne scaler(0.4) nebo indirect, primary vypada desne tmave
  az pri secteni s indirectem (scitani produkuje prilis velke cislo) zacne vypadat akorat
- 
-
- #include <GL/glew.h>
- #include <GL/glut.h>
- ...
- glutInit(&argc, argv);
- glutCreateWindow("GLEW Test");
- GLenum err = glewInit();
- if (GLEW_OK != err)
- {
- // Problem: glewInit failed, something is seriously wrong.
-fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-...
-}
-fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 */
 
 #include <assert.h>
