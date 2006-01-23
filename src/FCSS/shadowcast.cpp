@@ -2,6 +2,7 @@
 #define INDIRECT_RENDER_FACTOR 5//0.6f
 
 /*
+potlacit vypisy z collideru(nacitani bsp)
 readme
 web
 stranka s vic demacema pohromade
@@ -130,18 +131,16 @@ void updateIndirect()
 		operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
 	};
 
-	// 3ds has indexed trilist
 	unsigned numTriangles = mesh->getNumTriangles();
 	for(unsigned t=0;t<numTriangles;t++) // triangle
 	{
-		// get 3*index
 		rrCollider::RRMeshImporter::Triangle triangle;
 		mesh->getTriangle(t,triangle);
 		for(unsigned v=0;v<3;v++) // vertex
 		{
 			// get 1*irradiance
 			static rrVision::RRColor black;
-			black = rrVision::RRColor(1);
+			black = rrVision::RRColor(0);
 			const rrVision::RRColor* indirect = rrscene->getTriangleIrradiance(0,t,v);// je pouzito vzdy pro 3ds vystup, toto se jeste prenasobi difusni texturou
 			if(!indirect) indirect = &black;
 			// write 1*irradiance
@@ -160,18 +159,6 @@ void updateIndirect()
 			//indirectColors[triangle[v]] = *indirect*INDIRECT_RENDER_FACTOR;
 		}
 	}
-
-	//unsigned faces,rays;
-	//float sourceExitingFlux,reflectedIncidentFlux;
-	//rrscene->getStats(&faces,&sourceExitingFlux,&rays,&reflectedIncidentFlux);
-	//printf("faces=%d sourceExitingFlux=%f rays=%d\n",faces,sourceExitingFlux,rays);
-/*	puts("");
-	for(unsigned i=0;i<4;i++)
-	{
-		char buf[1000];
-		rrscene->getInfo(buf,i);
-		puts(buf);
-	}*/
 }
 #endif
 
@@ -402,15 +389,14 @@ GLdouble lightInverseFrustumMatrix[16];
 
 /*** OPENGL INITIALIZATION AND CHECKS ***/
 
-static int supports20(void)
+static int supports15(void)
 {
 	const char *version;
 	int major, minor;
 
 	version = (char *) glGetString(GL_VERSION);
 	if (sscanf(version, "%d.%d", &major, &minor) == 2) {
-		return major>=2;
-//		return major>=2 || (major==1 && minor>=5);
+		return major>=2 || (major==1 && minor>=5);
 	}
 	return 0;            /* OpenGL version string malformed! */
 }
@@ -1501,7 +1487,7 @@ void initGL(void)
 #endif
 
 	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-	printf("depth buffer precision = %d\n", depthBits);
+	//printf("depth buffer precision = %d\n", depthBits);
 	if (depthBits >= 24) {
 		hwDepthMapPrecision = GL_UNSIGNED_INT;
 	}
@@ -1757,6 +1743,7 @@ main(int argc, char **argv)
 	}
 	glutCreateWindow("shadowcast");
 	if (fullscreen) glutFullScreen();
+
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
@@ -1764,7 +1751,8 @@ main(int argc, char **argv)
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 		return 1;
 	}
-	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+	//fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
@@ -1780,11 +1768,11 @@ main(int argc, char **argv)
 
 	initGL();
 
-//	if(!supports20())
-//	{
-//		puts("At least OpenGL 2.0 required.");
-//		return 0;
-//	}
+	if(!supports15())
+	{
+		puts("At least OpenGL 1.5 required.");
+		return 0;
+	}
 
 #ifdef _3DS
 	// load 3ds
@@ -1798,17 +1786,16 @@ main(int argc, char **argv)
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);//!!! 1
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	//rrVision::RRSetState(rrVision::RRSS_GET_SMOOTH,0);
-	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,0.2f);
-	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.5f);
+	rrVision::RRSetStateF(rrVision::RRSSF_MIN_FEATURE_SIZE,0.1f);
+	//rrVision::RRSetStateF(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.9f);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
 	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
-	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,rrscene));
-	//rr2gl_compile(rrobject,rrscene);
 	glsl_init();
+	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,rrscene));
 
 	glutMainLoop();
 	return 0;
