@@ -1798,7 +1798,7 @@ main(int argc, char **argv)
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);//!!! 1
 	//rrVision::RRSetState(rrVision::RRSS_GET_SMOOTH,0);
 	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,0.2f);
 	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.5f);

@@ -278,6 +278,7 @@ bool Model_3DS::Load(char *name)
 			rgb[0] = Materials[j].color.r;
 			rgb[1] = Materials[j].color.g;
 			rgb[2] = Materials[j].color.b;
+			rgb[3] = 255;
 			Materials[j].tex = new Texture(rgb);
 			Materials[j].textured = true;
 		}

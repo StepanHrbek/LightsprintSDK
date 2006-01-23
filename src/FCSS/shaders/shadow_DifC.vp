@@ -1,6 +1,6 @@
 varying vec4 projCoord;
 
-const float lightIntensity = 2.0;
+const float lightIntensity = 1.0;
 
 void main()
 {

@@ -1,6 +1,6 @@
 uniform sampler2D shadowMap, lightTex, diffuseTex;
 
-const float lightIntensity = 2.0;
+const float lightIntensity = 1.0;
 
 //!!! fudge factors depending on scene
 // linear decay approximates realistic attenuation + logaritmic transform in eye
