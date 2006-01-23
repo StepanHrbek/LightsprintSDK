@@ -361,7 +361,7 @@ void Model_3DS::Draw(GLfloat* color)
 
 //				glPopMatrix();
 			}
-/*
+
 			// Show the normals?
 			if (shownormals)
 			{
@@ -385,7 +385,7 @@ void Model_3DS::Draw(GLfloat* color)
 					// If the model is lit then renable lighting
 				}
 			}
-*/
+
 		}
 
 //	glPopMatrix();

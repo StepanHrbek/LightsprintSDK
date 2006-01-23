@@ -266,10 +266,7 @@ enum {
   ME_TOGGLE_WIRE_FRAME,
   ME_TOGGLE_LIGHT_FRUSTUM,
   ME_TOGGLE_HW_SHADOW_MAPPING,
-  ME_TOGGLE_DEPTH_MAP_CULLING,
-  ME_TOGGLE_HW_SHADOW_FILTERING,
   ME_TOGGLE_HW_SHADOW_COPY_TEX_IMAGE,
-  ME_TOGGLE_QUICK_LIGHT_MOVE,
   ME_SWITCH_MOUSE_CONTROL,
   ME_ON_LIGHT_FRUSTUM,
   ME_OFF_LIGHT_FRUSTUM,
@@ -328,10 +325,6 @@ float lightAngle = 0.85;
 float lightHeight = 8.0;
 int xLightBegin, yLightBegin, movingLight = 0;
 int wireFrame = 0;
-
-/* By default, disable back face culling during depth map construction.
-   See the comment in the code. */
-int depthMapBackFaceCulling = 0;
 
 int winWidth, winHeight;
 int needMatrixUpdate = 1;
@@ -952,8 +945,6 @@ static void drawHelpMessage(void)
 		"",
 		"'9'  - toggle 16-bit and 24-bit depth map precison for hardware shadow mapping",
 		"'z'  - toggle zoom in and zoom out",
-		"'F3' - toggle back face culling during depth map construction",
-		"'F4' - toggle linear/nearest hardware depth map filtering",
 		NULL
 	};
 	int i;
@@ -1111,26 +1102,6 @@ void toggleWireFrame(void)
 	glutPostRedisplay();
 }
 
-void toggleDepthMapCulling(void)
-{
-	depthMapBackFaceCulling = !depthMapBackFaceCulling;
-	needDepthMapUpdate = 1;
-	glutPostRedisplay();
-}
-
-void toggleHwShadowFiltering(void)
-{
-	if (hwDepthMapFiltering == GL_LINEAR) {
-		hwDepthMapFiltering = GL_NEAREST;
-	} else {
-		hwDepthMapFiltering = GL_LINEAR;
-	}
-	needTitleUpdate = 1;
-	needDepthMapUpdate = 1;
-	glutPostRedisplay();
-}
-
-
 void updateDepthBias(int delta)
 {
 	GLfloat scale, bias;
@@ -1194,13 +1165,6 @@ void selectMenu(int item)
   case ME_TOGGLE_WIRE_FRAME:
 	  toggleWireFrame();
 	  return;
-  case ME_TOGGLE_DEPTH_MAP_CULLING:
-	  toggleDepthMapCulling();
-	  return;
-  case ME_TOGGLE_HW_SHADOW_FILTERING:
-	  toggleHwShadowFiltering();
-	  return;
-
   case ME_TOGGLE_LIGHT_FRUSTUM:
 	  showLightViewFrustum = !showLightViewFrustum;
 	  if (showLightViewFrustum) {
@@ -1250,12 +1214,6 @@ void special(int c, int x, int y)
 {
 	switch (c) 
 	{
-		case GLUT_KEY_F3:
-			toggleDepthMapCulling();
-			return;
-		case GLUT_KEY_F4:
-			toggleHwShadowFiltering();
-			return;
 		case GLUT_KEY_F7:
 			benchmark(1);
 			return;
@@ -1667,8 +1625,6 @@ void initMenus(void)
 	glutAddSubMenu("Shadow depth bias", depthBiasMenu);
 	glutAddMenuEntry("[m] Switch mouse control", ME_SWITCH_MOUSE_CONTROL);
 	glutAddMenuEntry("[w] Toggle wire frame", ME_TOGGLE_WIRE_FRAME);
-	glutAddMenuEntry("[F3] Toggle depth map back face culling", ME_TOGGLE_DEPTH_MAP_CULLING);
-	glutAddMenuEntry("[F4] Toggle hardware shadow filtering", ME_TOGGLE_HW_SHADOW_FILTERING);
 	glutAddMenuEntry("[ESC] Quit", ME_EXIT);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -1798,15 +1754,17 @@ main(int argc, char **argv)
 #ifdef _3DS
 	// load 3ds
 	if(!m3ds.Load(filename_3ds)) return 1;
+	//m3ds.shownormals=1;//!!!
 	rrobject = new_3ds_importer(&m3ds)->createAdditionalExitance();
 #else
 	// load mgf
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
-	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
+	//rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+	//rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+	//rrVision::RRSetState(rrVision::RRSS_GET_SMOOTH,0);
 	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,1.0f);
 	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.5f);
 	rrscene = new rrVision::RRScene();
