@@ -81,6 +81,13 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// MGF
+
+char *mgf_filename="data\\scene8.mgf";
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // 3DS
 
 #define _3DS
@@ -326,13 +333,9 @@ GLenum hwDepthMapPrecision = GL_UNSIGNED_SHORT;
 GLenum hwDepthMapFiltering = GL_LINEAR;
 
 int useCopyTexImage = 1;
-int useTextureRectangle = 0;
 int useLights = 1;
 int softWidth[200],softHeight[200],softPrecision[200],softFiltering[200];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
-GLfloat eye_shift[3]={0,0,0}; // mimo provoz
-GLfloat ed[3];
-char *mgf_filename="data\\scene8.mgf";
 
 int depthBias16 = 6;
 int depthBias24 = 28;
@@ -341,17 +344,15 @@ GLfloat slopeScale = 3.0;
 
 GLfloat textureLodBias = 0.0;
 
-#define LIGHT_DIMMING 0.0
-
-GLfloat zero[] = {0.0, 0.0, 0.0, 1.0};
-
 GLfloat lv[4];  /* default light position */
 
 void *font = GLUT_BITMAP_8_BY_13;
 
 GLUquadricObj *q;
-float eyeAngle = 1.0;
-float eyeHeight = 10.0;
+GLfloat ed[3];
+GLfloat eye_shift[3]={0,1,4};
+float eyeAngle = 3.0;
+float eyeHeight = 0.0;
 int xEyeBegin, yEyeBegin, movingEye = 0;
 float lightAngle = 0.85;
 float lightHeight = 8.0;
@@ -390,7 +391,7 @@ GLdouble eyeFieldOfView = 100.0;
 GLdouble eyeNear = 0.3;
 GLdouble eyeFar = 60.0;
 GLdouble lightFieldOfView = 80.0;
-GLdouble lightNear = 0.4;
+GLdouble lightNear = 1;
 GLdouble lightFar = 20.0;
 
 GLdouble eyeViewMatrix[16];
@@ -411,6 +412,7 @@ static int supports20(void)
 	version = (char *) glGetString(GL_VERSION);
 	if (sscanf(version, "%d.%d", &major, &minor) == 2) {
 		return major>=2;
+//		return major>=2 || (major==1 && minor>=5);
 	}
 	return 0;            /* OpenGL version string malformed! */
 }
@@ -562,13 +564,16 @@ void drawLight(void)
 void updateMatrices(void)
 {
 	ed[0]=3*sin(eyeAngle);
-	ed[1]=0.3*eyeHeight;
+	ed[1]=-0.3*eyeHeight;
 	ed[2]=3*cos(eyeAngle);
 	buildLookAtMatrix(eyeViewMatrix,
-		ed[0], ed[1], ed[2],
-		0, 3, 0,
+		eye_shift[0],eye_shift[1],eye_shift[2],
+		eye_shift[0]+ed[0], eye_shift[1]+ed[1], eye_shift[2]+ed[2],
 		0, 1, 0);
-	//glTranslatef(eye_shift[0],eye_shift[1],eye_shift[2]);
+//	buildLookAtMatrix(eyeViewMatrix,
+//		-eye_shift[0]+ed[0], -eye_shift[1]+ed[1], -eye_shift[2]+ed[2],
+//		-eye_shift[0],-eye_shift[1],-eye_shift[2],
+//		0, 1, 0);
 
 	lv[0] = 2*sin(lightAngle);
 	lv[1] = 0.15 * lightHeight + 3;
@@ -1099,15 +1104,9 @@ static void benchmark(int perFrameDepthMapUpdate)
 
 	printf("  perFrameDepthMapUpdate=%d, time = %f secs, fps = %f\n",
 		perFrameDepthMapUpdate, time, numFrames/time);
-	if (useTextureRectangle) {
-		printf("  RECT %dx%d:%d using %s\n",
-			depthMapRectWidth, depthMapRectHeight, precision,
-			useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
-	} else {
-		printf("  TEX2D %dx%d:%d using %s\n",
-			depthMapSize, depthMapSize, precision,
-			useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
-	}
+	printf("  TEX2D %dx%d:%d using %s\n",
+		depthMapSize, depthMapSize, precision,
+		useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
 	needDepthMapUpdate = 1;
 }
 
@@ -1196,12 +1195,10 @@ void updateDepthMapSize(void)
 		printf("shadowcast: reducing depth map from %d to %d based on window size %dx%d\n",
 			requestedDepthMapSize, depthMapSize, winWidth, winHeight);
 	}
-	if (!useTextureRectangle) {
-		if (oldDepthMapSize != depthMapSize) {
-			needDepthMapUpdate = 1;
-			needTitleUpdate = 1;
-			glutPostRedisplay();
-		}
+	if (oldDepthMapSize != depthMapSize) {
+		needDepthMapUpdate = 1;
+		needTitleUpdate = 1;
+		glutPostRedisplay();
 	}
 }
 
@@ -1281,22 +1278,43 @@ void selectMenu(int item)
 
 void special(int c, int x, int y)
 {
-	switch (c) {
-  case GLUT_KEY_F3:
-	  toggleDepthMapCulling();
-	  return;
-  case GLUT_KEY_F4:
-	  toggleHwShadowFiltering();
-	  return;
-  case GLUT_KEY_F7:
-	  benchmark(1);
-	  return;
-  case GLUT_KEY_F8:
-	  benchmark(0);
-	  return;
-  case GLUT_KEY_F9:
-	  capturePrimary();
-	  return;
+	switch (c) 
+	{
+		case GLUT_KEY_F3:
+			toggleDepthMapCulling();
+			return;
+		case GLUT_KEY_F4:
+			toggleHwShadowFiltering();
+			return;
+		case GLUT_KEY_F7:
+			benchmark(1);
+			return;
+		case GLUT_KEY_F8:
+			benchmark(0);
+			return;
+		case GLUT_KEY_F9:
+			capturePrimary();
+			return;
+
+		case GLUT_KEY_UP:
+			for(int i=0;i<3;i++) eye_shift[i]+=ed[i]/20;
+			break;
+		case GLUT_KEY_DOWN:
+			for(int i=0;i<3;i++) eye_shift[i]-=ed[i]/20;
+			break;
+		case GLUT_KEY_LEFT:
+			eye_shift[0]+=ed[2]/20;
+			eye_shift[2]-=ed[0]/20;
+			//eye_shift[2]+=ed[1]/20;
+			break;
+		case GLUT_KEY_RIGHT:
+			eye_shift[0]-=ed[2]/20;
+			eye_shift[2]+=ed[0]/20;
+			//eye_shift[2]+=ed[1]/20;
+			break;
+
+		default:
+			return;
 	}
 	/*if (glutGetModifiers() & GLUT_ACTIVE_CTRL) {
 	switch (c) {
@@ -1311,32 +1329,6 @@ void special(int c, int x, int y)
 	}
 	return;
 	}*/
-	switch (objectConfiguration) {
-  case OC_MGF:
-	  switch (c) {
-  case GLUT_KEY_UP:
-	  for(int i=0;i<3;i++) eye_shift[i]+=ed[i]/20;
-	  break;
-  case GLUT_KEY_DOWN:
-	  for(int i=0;i<3;i++) eye_shift[i]-=ed[i]/20;
-	  break;
-  case GLUT_KEY_LEFT:
-	  eye_shift[0]+=ed[2]/20;
-	  eye_shift[2]-=ed[0]/20;
-	  //eye_shift[2]+=ed[1]/20;
-	  break;
-  case GLUT_KEY_RIGHT:
-	  eye_shift[0]-=ed[2]/20;
-	  eye_shift[2]+=ed[0]/20;
-	  //eye_shift[2]+=ed[1]/20;
-	  break;
-  default:
-	  return;
-	  }
-	  break;
-  default:
-	  return;
-	}
 	glutPostRedisplay();
 }
 
@@ -1614,13 +1606,17 @@ void mouse(int button, int state, int x, int y)
 	}
 }
 
+void passivemotion(int x, int y)
+{
+}
+
 void motion(int x, int y)
 {
 	if (movingEye) {
 		eyeAngle = eyeAngle - 0.005*(x - xEyeBegin);
 		eyeHeight = eyeHeight + 0.15*(y - yEyeBegin);
-		if (eyeHeight > 20.0) eyeHeight = 20.0;
-		if (eyeHeight < -0.0) eyeHeight = -0.0;
+		if (eyeHeight > 10.0) eyeHeight = 10.0;
+		if (eyeHeight < -10.0) eyeHeight = -10.0;
 		xEyeBegin = x;
 		yEyeBegin = y;
 		needMatrixUpdate = 1;
@@ -1813,6 +1809,7 @@ main(int argc, char **argv)
 	glutSpecialFunc(special);
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
+	glutPassiveMotionFunc(passivemotion);
 	glutMotionFunc(motion);
 	glutIdleFunc(idle);
 
@@ -1822,11 +1819,11 @@ main(int argc, char **argv)
 
 	initGL();
 
-	if(!supports20())
-	{
-		puts("At least OpenGL 2.0 required.");
-		return 0;
-	}
+//	if(!supports20())
+//	{
+//		puts("At least OpenGL 2.0 required.");
+//		return 0;
+//	}
 
 #ifdef _3DS
 	// load 3ds
