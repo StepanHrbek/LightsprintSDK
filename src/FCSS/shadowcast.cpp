@@ -2,17 +2,17 @@
 #define INDIRECT_RENDER_FACTOR 5//0.6f
 
 /*
-proc zustavaji v 3ds nespojitosti? (jakoby nemel ivertexy nebo mel hodne duplicitnich vertexu)
 readme
 web
+stranka s vic demacema pohromade
 
 autodeteknout zda mam metry nebo centimetry
 vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
-prozkoumat slucoani blizkych ivertexu proc tady nic nezlepsi
-stranka s vic demacema pohromade
 nacitat jpg
 dodelat podporu pro matice do 3ds2rr importeru
 kdyz uz by byl korektni model s gammou, pridat ovladani gammy
+
+z mgf ze zahadnych duvodu zmizel color bleeding
 
 POZOR
 neni tu korektni skladani primary+indirect a az nasledna gamma korekce
@@ -90,17 +90,48 @@ static bool endByTime(void *context)
 	return GETTIME>(TIME)(intptr_t)context;
 }
 rrVision::RRColor* indirectColors = NULL;
+#ifdef _3DS
 void updateIndirect()
 {
 	if(!rrobject || !rrscene) return;
 
+	unsigned firstTriangleIdx[1000];//!!!
+	unsigned firstVertexIdx[1000];
+	unsigned triIdx = 0;
+	unsigned vertIdx = 0;
+	for(unsigned obj=0;obj<(unsigned)m3ds.numObjects;obj++)
+	{
+		firstTriangleIdx[obj] = triIdx;
+		firstVertexIdx[obj] = vertIdx;
+		for (int j = 0; j < m3ds.Objects[obj].numMatFaces; j ++)
+		{
+			unsigned numTriangles = m3ds.Objects[obj].MatFaces[j].numSubFaces/3;
+			triIdx += numTriangles;
+		}
+		vertIdx += m3ds.Objects[obj].numVerts;
+	}
+
 	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
-	unsigned numTriangles = mesh->getNumTriangles();
-	unsigned numVertices = mesh->getNumVertices();
+	unsigned numVertices = vertIdx;//mesh->getNumVertices();
 	delete[] indirectColors;
-	indirectColors = new rrVision::RRColor[numVertices*3];
+	indirectColors = new rrVision::RRColor[numVertices];
+	for(unsigned i=0;i<numVertices;i++)
+		indirectColors[i] = rrVision::RRColor(0);//!!! mozna zbytecne
+
+	struct PreImportNumber 
+		// our structure of pre import number (it is independent for each implementation)
+		// (on the other hand, postimport is always plain unsigned, 0..num-1)
+		// underlying importers must use preImport values that fit into index, this is not runtime checked
+	{
+		unsigned index : sizeof(unsigned)*8-12; // 32bit: max 1M triangles/vertices in one object
+		unsigned object : 12; // 32bit: max 4k objects
+		PreImportNumber() {}
+		PreImportNumber(unsigned i) {*(unsigned*)this = i;} // implicit unsigned -> PreImportNumber conversion
+		operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
+	};
 
 	// 3ds has indexed trilist
+	unsigned numTriangles = mesh->getNumTriangles();
 	for(unsigned t=0;t<numTriangles;t++) // triangle
 	{
 		// get 3*index
@@ -114,7 +145,6 @@ void updateIndirect()
 			const rrVision::RRColor* indirect = rrscene->getTriangleIrradiance(0,t,v);// je pouzito vzdy pro 3ds vystup, toto se jeste prenasobi difusni texturou
 			if(!indirect) indirect = &black;
 			// write 1*irradiance
-			assert(triangle[v]<numVertices);
 			rrVision::RRColor tmp = *indirect*INDIRECT_RENDER_FACTOR;
 			for(unsigned i=0;i<3;i++)
 			{
@@ -122,13 +152,18 @@ void updateIndirect()
 				assert(tmp[i]>=0);
 				assert(tmp[i]<1500000);
 			}
-			indirectColors[triangle[v]] = *indirect*INDIRECT_RENDER_FACTOR;
+			PreImportNumber pre = mesh->getPreImportVertex(triangle[v],t);
+			unsigned preVertexIdx = firstVertexIdx[pre.object]+pre.index;
+			assert(preVertexIdx<numVertices);
+			indirectColors[preVertexIdx] = *indirect*INDIRECT_RENDER_FACTOR;
+			//assert(triangle[v]<numVertices);
+			//indirectColors[triangle[v]] = *indirect*INDIRECT_RENDER_FACTOR;
 		}
 	}
 
-	unsigned faces,rays;
-	float sourceExitingFlux,reflectedIncidentFlux;
-	rrscene->getStats(&faces,&sourceExitingFlux,&rays,&reflectedIncidentFlux);
+	//unsigned faces,rays;
+	//float sourceExitingFlux,reflectedIncidentFlux;
+	//rrscene->getStats(&faces,&sourceExitingFlux,&rays,&reflectedIncidentFlux);
 	//printf("faces=%d sourceExitingFlux=%f rays=%d\n",faces,sourceExitingFlux,rays);
 /*	puts("");
 	for(unsigned i=0;i<4;i++)
@@ -138,6 +173,7 @@ void updateIndirect()
 		puts(buf);
 	}*/
 }
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -305,9 +341,9 @@ int softWidth[200],softHeight[200],softPrecision[200],softFiltering[200];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
 int depthBias16 = 6;
-int depthBias24 = 28;
+int depthBias24 = 36;
 int depthScale16, depthScale24;
-GLfloat slopeScale = 3.0;
+GLfloat slopeScale = 4.0;
 
 GLfloat textureLodBias = 0.0;
 
@@ -344,7 +380,6 @@ int drawFront = 0;
 int hasShadow = 0;
 int hasSwapControl = 0;
 int hasDepthTexture = 0;
-int hasSeparateSpecularColor = 0;
 int hasTextureBorderClamp = 0;
 int hasTextureEdgeClamp = 0;
 
@@ -353,7 +388,7 @@ double winAspectRatio;
 GLdouble eyeFieldOfView = 100.0;
 GLdouble eyeNear = 0.3;
 GLdouble eyeFar = 60.0;
-GLdouble lightFieldOfView = 80.0;
+GLdouble lightFieldOfView = 70.0;
 GLdouble lightNear = 1;
 GLdouble lightFar = 20.0;
 
@@ -1762,10 +1797,10 @@ main(int argc, char **argv)
 #endif
 	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
-	//rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-	//rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	//rrVision::RRSetState(rrVision::RRSS_GET_SMOOTH,0);
-	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,1.0f);
+	//rrVision::RRSetState(rrVision::RRSSF_MIN_FEATURE_SIZE,0.2f);
 	//rrVision::RRSetState(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.5f);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);

@@ -258,7 +258,7 @@ rrVision::RRObjectImporter* new_3ds_importer(Model_3DS* model)
 	// nesmi byt aplikovan LessVertices filtr, protoze by rozhodil poradi vertexu
 	// a nas pohodlny renderer se nechce zabyvat pre-post konverzema
 	// proto dame maxStitchDistance<0
-	rrVision::RRObjectImporter* multi = rrVision::RRObjectImporter::createMultiObject(importers,model->numObjects,rrCollider::RRCollider::IT_BSP_FASTEST,-1,NULL);
+	rrVision::RRObjectImporter* multi = rrVision::RRObjectImporter::createMultiObject(importers,model->numObjects,rrCollider::RRCollider::IT_BSP_FASTEST,0.1,NULL);
 	//!!! delete[] importers;
 	return multi;
 }
