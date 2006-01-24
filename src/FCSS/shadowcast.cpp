@@ -2,7 +2,8 @@
 #define INDIRECT_RENDER_FACTOR 2.5//0.6f
 
 /*
-prestat pocitat behem pohybu sipkama a mysi
+proc nedetekuje primary na podlaze sponzy
+nastelovat pozici kamery a svetla pro sponzu, optimalni prvni dojem
 jmeno 3ds volitelne z cmdlajny
 bataky na koupelnu i sponzu
 potlacit vypisy z collideru(nacitani bsp)
@@ -165,8 +166,6 @@ void updateIndirect()
 			unsigned preVertexIdx = firstVertexIdx[pre.object]+pre.index;
 			assert(preVertexIdx<numVertices);
 			indirectColors[preVertexIdx] = *indirect*INDIRECT_RENDER_FACTOR;
-			//assert(triangle[v]<numVertices);
-			//indirectColors[triangle[v]] = *indirect*INDIRECT_RENDER_FACTOR;
 		}
 	}
 }
@@ -1254,9 +1253,6 @@ void special(int c, int x, int y)
 		case GLUT_KEY_F8:
 			benchmark(0);
 			return;
-		case GLUT_KEY_F9:
-			capturePrimary();
-			return;
 
 		case GLUT_KEY_UP:
 			for(int i=0;i<3;i++) eye_shift[i]+=ed[i]/20;
@@ -1384,6 +1380,7 @@ void keyboard(unsigned char c, int x, int y)
 	  }
 	  needMatrixUpdate = 1;
 	  needDepthMapUpdate = 1;
+	  capturePrimary();
 	  break;
   case 'P':
 	  lightFieldOfView += 5.0;
@@ -1392,6 +1389,7 @@ void keyboard(unsigned char c, int x, int y)
 	  }
 	  needMatrixUpdate = 1;
 	  needDepthMapUpdate = 1;
+	  capturePrimary();
 	  break;
   case 's':
 	  drawMode = DM_EYE_VIEW_SHADOWED;
@@ -1809,7 +1807,7 @@ main(int argc, char **argv)
 	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
 	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	//rrVision::RRSetState(rrVision::RRSS_GET_SMOOTH,0);
-	rrVision::RRSetStateF(rrVision::RRSSF_MIN_FEATURE_SIZE,0.1f);
+	rrVision::RRSetStateF(rrVision::RRSSF_MIN_FEATURE_SIZE,0.3f);
 	//rrVision::RRSetStateF(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.9f);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
