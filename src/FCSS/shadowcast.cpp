@@ -52,6 +52,17 @@ using namespace std;
 #include "rr2gl.h"
 #include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// time
+
+#include <time.h>
+#define TIME    clock_t            
+#define GETTIME clock()
+#define PER_SEC CLOCKS_PER_SEC
+
+#define TIME_TO_START_IMPROVING 0.3f
+TIME lastInteractionTime = 0;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -85,10 +96,6 @@ rrVision::RRScene* rrscene = NULL;
 rrVision::RRScaler* rrscaler = NULL;
 float rrtimestep;
 // rr endfunc callback
-#include <time.h>
-#define TIME    clock_t            
-#define GETTIME clock()
-#define PER_SEC CLOCKS_PER_SEC
 static bool endByTime(void *context)
 {
 	return GETTIME>(TIME)(intptr_t)context;
@@ -1170,6 +1177,7 @@ void updateDepthMapSize(void)
 
 void selectMenu(int item)
 {
+	lastInteractionTime = GETTIME;
 	switch (item) {
   case ME_EYE_VIEW_SHADOWED:
 	  drawMode = DM_EYE_VIEW_SHADOWED;
@@ -1237,6 +1245,7 @@ void selectMenu(int item)
 
 void special(int c, int x, int y)
 {
+	lastInteractionTime = GETTIME;
 	switch (c) 
 	{
 		case GLUT_KEY_F7:
@@ -1287,6 +1296,7 @@ void special(int c, int x, int y)
 
 void keyboard(unsigned char c, int x, int y)
 {
+	lastInteractionTime = GETTIME;
 	switch (c) {
   case 27:
 	  exit(0);
@@ -1538,12 +1548,14 @@ void initGL(void)
 
 void mouse(int button, int state, int x, int y)
 {
+	lastInteractionTime = GETTIME;
 	if (button == eyeButton && state == GLUT_DOWN) {
 		movingEye = 1;
 		xEyeBegin = x;
 		yEyeBegin = y;
 	}
 	if (button == eyeButton && state == GLUT_UP) {
+		lastInteractionTime = 0;
 		movingEye = 0;
 	}
 	if (button == lightButton && state == GLUT_DOWN) {
@@ -1552,6 +1564,7 @@ void mouse(int button, int state, int x, int y)
 		yLightBegin = y;
 	}
 	if (button == lightButton && state == GLUT_UP) {
+		lastInteractionTime = 0;
 		movingLight = 0;
 		needDepthMapUpdate = 1;
 		capturePrimary();
@@ -1565,6 +1578,7 @@ void passivemotion(int x, int y)
 
 void motion(int x, int y)
 {
+	lastInteractionTime = GETTIME;
 	if (movingEye) {
 		eyeAngle = eyeAngle - 0.005*(x - xEyeBegin);
 		eyeHeight = eyeHeight + 0.15*(y - yEyeBegin);
@@ -1704,6 +1718,9 @@ void setLittleEndian(void)
 
 void idle()
 {
+	TIME now = GETTIME;
+	if((now-lastInteractionTime)/(float)PER_SEC<TIME_TO_START_IMPROVING) return;
+
 	static const float calcstep = 0.1f;
 	rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
 	static float calcsum = 0;
