@@ -1,7 +1,10 @@
 //!!! fudge factors
-#define INDIRECT_RENDER_FACTOR 5//0.6f
+#define INDIRECT_RENDER_FACTOR 2.5//0.6f
 
 /*
+prestat pocitat behem pohybu sipkama a mysi
+jmeno 3ds volitelne z cmdlajny
+bataky na koupelnu i sponzu
 potlacit vypisy z collideru(nacitani bsp)
 readme
 web
@@ -66,8 +69,8 @@ char *mgf_filename="data\\scene8.mgf";
 #include "Model_3DS.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
-//char *filename_3ds="data\\sponza\\sponza.3ds";
-char *filename_3ds="koupelna\\koupelna3.3ds";
+char *filename_3ds="data\\sponza\\sponza.3ds";
+//char *filename_3ds="koupelna\\koupelna3.3ds";
 #endif
 
 
@@ -832,8 +835,8 @@ void drawEyeViewSoftShadowed(void)
 void capturePrimary() // slow
 {
 	//!!! needs windows at least 256x256
-	unsigned width1 = 4;
-	unsigned height1 = 4;
+	unsigned width1 = 2;//!!!
+	unsigned height1 = 2;
 	unsigned width = 512;
 	unsigned height = 512;
 
@@ -891,6 +894,7 @@ void capturePrimary() // slow
 		unsigned sum[3] = {0,0,0};
 		unsigned i = triangleIndex/(height/height1);
 		unsigned j = triangleIndex%(height/height1);
+		if(triangleIndex<65536)//!!!
 		for(unsigned n=0;n<height1;n++)
 		for(unsigned m=0;m<width1;m++)
 		{
