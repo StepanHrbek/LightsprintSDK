@@ -199,6 +199,7 @@ unsigned IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
 	{
 		IVertex *v;
 		// search corner[j] with the same reduction as corner[i]
+		// this is slowest code if we open sponza, complexity corners^3 where corners~=30
 		for(unsigned j=0;j<i;j++)
 		{
 			for(unsigned k=0;k<corners;k++)

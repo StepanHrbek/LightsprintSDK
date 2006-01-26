@@ -2,11 +2,11 @@
 #define INDIRECT_RENDER_FACTOR 2.5//0.6f
 
 /*
-proc nedetekuje primary na podlaze sponzy
+pohybovat svetlem
 nastelovat pozici kamery a svetla pro sponzu, optimalni prvni dojem
 jmeno 3ds volitelne z cmdlajny
 bataky na koupelnu i sponzu
-potlacit vypisy z collideru(nacitani bsp)
+potlacit vypisy z collideru(nacitani bsp), jen "Loading and preprocessing scene..."
 readme
 web
 stranka s vic demacema pohromade
@@ -48,6 +48,8 @@ using namespace std;
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 #include "mgf2rr.h"
 #include "rr2gl.h"
@@ -91,6 +93,7 @@ char *filename_3ds="data\\sponza\\sponza.3ds";
 // RR
 
 bool renderOnlyRr = false;
+bool renderSource = false;
 RRCachingRenderer* renderer = NULL;
 rrVision::RRAdditionalObjectImporter* rrobject = NULL;
 rrVision::RRScene* rrscene = NULL;
@@ -106,6 +109,9 @@ rrVision::RRColor* indirectColors = NULL;
 void updateIndirect()
 {
 	if(!rrobject || !rrscene) return;
+
+	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,renderSource?1:0);
+	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,renderSource?0:1);
 
 	unsigned firstTriangleIdx[1000];//!!!
 	unsigned firstVertexIdx[1000];
@@ -176,7 +182,7 @@ void updateIndirect()
 //
 // GLSL
 
-#define MAX_INSTANCES 50 // max number of light instances aproximating one area light
+#define MAX_INSTANCES 5 //!!! max number of light instances aproximating one area light
 GLSLProgram *shadowProg, *lightProg, *ambientProg, *ambientDifMProg;
 GLSLProgramSet* shadowDifCProgSet;
 GLSLProgramSet* shadowDifMProgSet;
@@ -319,11 +325,6 @@ int vsync = 0;
 int requestedDepthMapSize = 512;
 int depthMapSize = 512;
 
-int requestedDepthMapRectWidth = 350;
-int requestedDepthMapRectHeight = 300;
-int depthMapRectWidth = 350;
-int depthMapRectHeight = 300;
-
 GLenum depthMapPrecision = GL_UNSIGNED_BYTE;
 GLenum depthMapFormat = GL_LUMINANCE;
 GLenum depthMapInternalFormat = GL_INTENSITY8;
@@ -333,7 +334,7 @@ GLenum hwDepthMapFiltering = GL_LINEAR;
 
 int useCopyTexImage = 1;
 int useLights = 1;
-int softWidth[200],softHeight[200],softPrecision[200],softFiltering[200];
+int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
 int depthBias16 = 6;
@@ -343,18 +344,22 @@ GLfloat slopeScale = 4.0;
 
 GLfloat textureLodBias = 0.0;
 
-GLfloat lv[4];  /* default light position */
-
 void *font = GLUT_BITMAP_8_BY_13;
+
+struct SimpleCamera
+{
+	GLfloat pos[4];
+	float angle;
+	float height;
+};
+
+// light and camera setup
+SimpleCamera eye = {{0,1,4,1},3,0};
+SimpleCamera light = {{0,0,0,1},0.85f,8};
 
 GLUquadricObj *q;
 GLfloat ed[3];
-GLfloat eye_shift[3]={0,1,4};
-float eyeAngle = 3.0;
-float eyeHeight = 0.0;
 int xEyeBegin, yEyeBegin, movingEye = 0;
-float lightAngle = 0.85;
-float lightHeight = 8.0;
 int xLightBegin, yLightBegin, movingLight = 0;
 int wireFrame = 0;
 
@@ -548,7 +553,7 @@ void drawLight(void)
 {
 	ambientProg->useIt();
 	glPushMatrix();
-	glTranslatef(lv[0], lv[1], lv[2]);
+	glTranslatef(light.pos[0], light.pos[1], light.pos[2]);
 	glColor3f(1,1,0);
 	gluSphere(q, 0.05, 10, 10);
 	glPopMatrix();
@@ -556,25 +561,21 @@ void drawLight(void)
 
 void updateMatrices(void)
 {
-	ed[0]=3*sin(eyeAngle);
-	ed[1]=-0.3*eyeHeight;
-	ed[2]=3*cos(eyeAngle);
+	ed[0]=3*sin(eye.angle);
+	ed[1]=-0.3*eye.height;
+	ed[2]=3*cos(eye.angle);
 	buildLookAtMatrix(eyeViewMatrix,
-		eye_shift[0],eye_shift[1],eye_shift[2],
-		eye_shift[0]+ed[0], eye_shift[1]+ed[1], eye_shift[2]+ed[2],
+		eye.pos[0],eye.pos[1],eye.pos[2],
+		eye.pos[0]+ed[0], eye.pos[1]+ed[1], eye.pos[2]+ed[2],
 		0, 1, 0);
-//	buildLookAtMatrix(eyeViewMatrix,
-//		-eye_shift[0]+ed[0], -eye_shift[1]+ed[1], -eye_shift[2]+ed[2],
-//		-eye_shift[0],-eye_shift[1],-eye_shift[2],
-//		0, 1, 0);
 
-	lv[0] = 2*sin(lightAngle);
-	lv[1] = 0.15 * lightHeight + 3;
-	lv[2] = 2*cos(lightAngle);
-	lv[3] = 1.0;
+	light.pos[0] = 2*sin(light.angle);
+	light.pos[1] = 0.15 * light.height + 3;
+	light.pos[2] = 2*cos(light.angle);
+	light.pos[3] = 1.0;
 
 	buildLookAtMatrix(lightViewMatrix,
-		lv[0], lv[1], lv[2],
+		light.pos[0], light.pos[1], light.pos[2],
 		0, 3, 0,
 		0, 1, 0);
 
@@ -664,7 +665,7 @@ void setupLightView(int square)
 
 void drawLightView(void)
 {
-	glLightfv(GL_LIGHT0, GL_POSITION, lv);
+	glLightfv(GL_LIGHT0, GL_POSITION, light.pos);
 	drawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 }
 
@@ -750,7 +751,7 @@ void drawEyeViewShadowed()
 	}
 
 	setupEyeView();
-	glLightfv(GL_LIGHT0, GL_POSITION, lv);
+	glLightfv(GL_LIGHT0, GL_POSITION, light.pos);
 
 	drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 
@@ -763,8 +764,8 @@ void placeSoftLight(int n)
 	softLight=n;
 	static float oldLightAngle,oldLightHeight;
 	if(n==-1) { // init, before all
-		oldLightAngle=lightAngle;
-		oldLightHeight=lightHeight;
+		oldLightAngle=light.angle;
+		oldLightHeight=light.height;
 		glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 1);
 		glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90); // no light behind spotlight
 		//glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
@@ -772,8 +773,8 @@ void placeSoftLight(int n)
 		return;
 	}
 	if(n==-2) { // done, after all
-		lightAngle=oldLightAngle;
-		lightHeight=oldLightHeight;
+		light.angle=oldLightAngle;
+		light.height=oldLightHeight;
 		updateMatrices();
 		return;
 	}
@@ -781,22 +782,22 @@ void placeSoftLight(int n)
 	if(useLights>1) {
 		switch(areaType) {
 	  case 0: // linear
-		  lightAngle=oldLightAngle+0.2*(n/(useLights-1.)-0.5);
-		  lightHeight=oldLightHeight-0.4*n/useLights;
+		  light.angle=oldLightAngle+0.2*(n/(useLights-1.)-0.5);
+		  light.height=oldLightHeight-0.4*n/useLights;
 		  break;
 	  case 1: // rectangular
 		  {int q=(int)sqrtf(useLights-1)+1;
-		  lightAngle=oldLightAngle+0.1*(n/q/(q-1.)-0.5);
-		  lightHeight=oldLightHeight+(n%q/(q-1.)-0.5);}
+		  light.angle=oldLightAngle+0.1*(n/q/(q-1.)-0.5);
+		  light.height=oldLightHeight+(n%q/(q-1.)-0.5);}
 		  break;
 	  case 2: // circular
-		  lightAngle=oldLightAngle+sin(n*2*3.14159/useLights)/20;
-		  lightHeight=oldLightHeight+cos(n*2*3.14159/useLights)/2;
+		  light.angle=oldLightAngle+sin(n*2*3.14159/useLights)/20;
+		  light.height=oldLightHeight+cos(n*2*3.14159/useLights)/2;
 		  break;
 		}
 		updateMatrices();
 	}
-	GLfloat ld[3]={-lv[0],-lv[1],-lv[2]};
+	GLfloat ld[3]={-light.pos[0],-light.pos[1],-light.pos[2]};
 	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, ld);
 }
 
@@ -831,33 +832,44 @@ void drawEyeViewSoftShadowed(void)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		setProgramAndDrawScene(RRObjectRenderer::CC_REFLECTED_AUTO); // pro color exitance, pro texturu irradiance
-//		setProgramAndDrawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION); // pro color exitance, pro texturu irradiance
+		//!!!
+		//generateForcedUv = &captureUv;
+		//captureUv.firstCapturedTriangle = 0;
+		//setProgramAndDrawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION); // pro color exitance, pro texturu irradiance
+
 		glAccum(GL_ACCUM,1);
 	}
 
 	glAccum(GL_RETURN,1);
 }
 
+// generuje uv coords pro capture
+class CaptureUv : public VertexDataGenerator
+{
+public:
+	virtual ~CaptureUv() {};
+	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
+	{
+		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
+		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
+	}
+	unsigned firstCapturedTriangle;
+	unsigned xmax, ymax;
+};
+
+CaptureUv captureUv;
+
 void capturePrimary() // slow
 {
 	//!!! needs windows at least 256x256
-	unsigned width1 = 2;//!!!
-	unsigned height1 = 2;
+	unsigned width1 = 4;//!!!
+	unsigned height1 = 4;
 	unsigned width = 512;
 	unsigned height = 512;
+	captureUv.firstCapturedTriangle = 0;
+	captureUv.xmax = width/width1;
+	captureUv.ymax = height/height1;
 
-	// clear
-	glClearColor(0,0,0,1);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	// prepare texcoords (for trilist, uvuvuv per triangle)
-	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
-	unsigned numTriangles = mesh->getNumTriangles();
-//	GLfloat* texcoords = new GLfloat[6*numTriangles];
-	for(unsigned i=0;i<numTriangles;i++)
-	{
-		//texcoords
-	}
 	/*
 	jak uspesne napichnout renderer?
 	1) na konci vertex shaderu prepsat 2d pozici
@@ -876,57 +888,68 @@ void capturePrimary() // slow
 	*/
 
 	// setup render states
+	glClearColor(0,0,0,1);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
 	glViewport(0, 0, width, height);
 
-	// render scene
-	renderer->setStatus(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,RRCachingRenderer::CS_NEVER_COMPILE);
-	drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
-
 	// Allocate the index buffer memory as necessary.
-	GLuint* indexBuffer = (GLuint*)malloc(width * height * 4);
+	GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
 
-	// Read back the index buffer to memory.
-	glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, indexBuffer);
+	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
+	unsigned numTriangles = mesh->getNumTriangles();
 
-	// dbg print
-	//rrVision::RRColor suma = rrVision::RRColor(0);
-
-	// accumulate triangle powers
-	for(unsigned triangleIndex=0;triangleIndex<numTriangles;triangleIndex++)
+	printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
+	for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
 	{
-		// accumulate 1 triangle power
-		unsigned sum[3] = {0,0,0};
-		unsigned i = triangleIndex/(height/height1);
-		unsigned j = triangleIndex%(height/height1);
-		if(triangleIndex<65536)//!!!
-		for(unsigned n=0;n<height1;n++)
-		for(unsigned m=0;m<width1;m++)
-		{
-			unsigned pixel = width*(j*height1+n) + (i*width1+m);
-			unsigned color = indexBuffer[pixel] >> 8; // alpha was lost
-			sum[0] += color>>16;
-			sum[1] += (color>>8)&255;
-			sum[2] += color&255;
-		}
-		// pass power to rrobject
-		rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-		rrobject->setTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITANCE,avg);
+		// clear
+		glClear(GL_COLOR_BUFFER_BIT);
 
-		// debug print
-		//rrVision::RRColor tmp = rrVision::RRColor(0);
-		//rrobject->getTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
-		//suma+=tmp;
+		// render scene
+		renderer->setStatus(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,RRCachingRenderer::CS_NEVER_COMPILE);
+		generateForcedUv = &captureUv;
+		drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
+		generateForcedUv = NULL;
+
+		// Read back the index buffer to memory.
+		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
+
+		// dbg print
+		//rrVision::RRColor suma = rrVision::RRColor(0);
+
+		// accumulate triangle powers
+		for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
+		{
+			// accumulate 1 triangle power
+			unsigned sum[3] = {0,0,0};
+			unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/(height/height1);
+			unsigned j = triangleIndex%(height/height1);
+			for(unsigned n=0;n<height1;n++)
+				for(unsigned m=0;m<width1;m++)
+				{
+					unsigned pixel = width*(j*height1+n) + (i*width1+m);
+					unsigned color = pixelBuffer[pixel] >> 8; // alpha was lost
+					sum[0] += color>>16;
+					sum[1] += (color>>8)&255;
+					sum[2] += color&255;
+				}
+			// pass power to rrobject
+			rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
+			rrobject->setTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITANCE,avg);
+
+			// debug print
+			//rrVision::RRColor tmp = rrVision::RRColor(0);
+			//rrobject->getTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
+			//suma+=tmp;
+		}
+		//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
 	}
-	//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
+
+	free(pixelBuffer);
 
 	// prepare for new calculation
 	rrscene->sceneResetStatic(true);
 	rrtimestep = 0.1f;
-
-	free(indexBuffer);
-//	delete[] texcoords;
 
 	// restore render states
 	glViewport(0, 0, winWidth, winHeight);
@@ -950,8 +973,8 @@ static void drawHelpMessage(void)
 	static char *message[] = {
 		"Help information",
 		"'h'  - shows and dismisses this message",
-		"'s'  - show eye view WITH shadows",
-		"'S'  - show eye view WITH SOFT shadows",
+		"'s'  - show eye view with Shadows only",
+		"'r'  - show eye view with soft shadows and Radiosity",
 		"'+/-'- soft: increase/decrease number of points",
 		"arrow- soft: move camera",
 		"'g'  - soft: cycle through linear, rectangular and circular light",
@@ -1253,22 +1276,26 @@ void special(int c, int x, int y)
 		case GLUT_KEY_F8:
 			benchmark(0);
 			return;
+		case GLUT_KEY_F9:
+			printf("\nSimpleCamera eye = {{%f,%f,%f},%f,%f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height);
+			printf("SimpleCamera light = {{%f,%f,%f},%f,%f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height);
+			return;
 
 		case GLUT_KEY_UP:
-			for(int i=0;i<3;i++) eye_shift[i]+=ed[i]/20;
+			for(int i=0;i<3;i++) eye.pos[i]+=ed[i]/20;
 			break;
 		case GLUT_KEY_DOWN:
-			for(int i=0;i<3;i++) eye_shift[i]-=ed[i]/20;
+			for(int i=0;i<3;i++) eye.pos[i]-=ed[i]/20;
 			break;
 		case GLUT_KEY_LEFT:
-			eye_shift[0]+=ed[2]/20;
-			eye_shift[2]-=ed[0]/20;
-			//eye_shift[2]+=ed[1]/20;
+			eye.pos[0]+=ed[2]/20;
+			eye.pos[2]-=ed[0]/20;
+			//eye.pos[2]+=ed[1]/20;
 			break;
 		case GLUT_KEY_RIGHT:
-			eye_shift[0]-=ed[2]/20;
-			eye_shift[2]+=ed[0]/20;
-			//eye_shift[2]+=ed[1]/20;
+			eye.pos[0]-=ed[2]/20;
+			eye.pos[2]+=ed[0]/20;
+			//eye.pos[2]+=ed[1]/20;
 			break;
 
 		default:
@@ -1380,7 +1407,7 @@ void keyboard(unsigned char c, int x, int y)
 	  }
 	  needMatrixUpdate = 1;
 	  needDepthMapUpdate = 1;
-	  capturePrimary();
+//	  capturePrimary();
 	  break;
   case 'P':
 	  lightFieldOfView += 5.0;
@@ -1389,13 +1416,13 @@ void keyboard(unsigned char c, int x, int y)
 	  }
 	  needMatrixUpdate = 1;
 	  needDepthMapUpdate = 1;
-	  capturePrimary();
+//	  capturePrimary();
 	  break;
   case 's':
 	  drawMode = DM_EYE_VIEW_SHADOWED;
 	  needTitleUpdate = 1;
 	  break;
-  case 'S':
+  case 'r':
 	  drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 	  needTitleUpdate = 1;
 	  break;
@@ -1578,20 +1605,20 @@ void motion(int x, int y)
 {
 	lastInteractionTime = GETTIME;
 	if (movingEye) {
-		eyeAngle = eyeAngle - 0.005*(x - xEyeBegin);
-		eyeHeight = eyeHeight + 0.15*(y - yEyeBegin);
-		if (eyeHeight > 10.0) eyeHeight = 10.0;
-		if (eyeHeight < -10.0) eyeHeight = -10.0;
+		eye.angle = eye.angle - 0.005*(x - xEyeBegin);
+		eye.height = eye.height + 0.15*(y - yEyeBegin);
+		if (eye.height > 10.0) eye.height = 10.0;
+		if (eye.height < -10.0) eye.height = -10.0;
 		xEyeBegin = x;
 		yEyeBegin = y;
 		needMatrixUpdate = 1;
 		glutPostRedisplay();
 	}
 	if (movingLight) {
-		lightAngle = lightAngle + 0.005*(x - xLightBegin);
-		lightHeight = lightHeight - 0.15*(y - yLightBegin);
-		if (lightHeight > 12.0) lightHeight = 12.0;
-		if (lightHeight < -4.0) lightHeight = -4.0;
+		light.angle = light.angle + 0.005*(x - xLightBegin);
+		light.height = light.height - 0.15*(y - yLightBegin);
+		if (light.height > 12.0) light.height = 12.0;
+		if (light.height < -4.0) light.height = -4.0;
 		xLightBegin = x;
 		yLightBegin = y;
 		needMatrixUpdate = 1;

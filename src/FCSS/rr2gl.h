@@ -10,6 +10,19 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// vertex data generator
+
+class VertexDataGenerator
+{
+public:
+	virtual ~VertexDataGenerator() {};
+	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) = 0; // vertexIndex=0..2
+};
+
+extern VertexDataGenerator* generateForcedUv;
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRObjectRenderer - interface
 
 class RRObjectRenderer

@@ -17,6 +17,7 @@ bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwis
 #define SIZE(a) sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2])
 #define DIV(a,b,res) res[0]=a[0]/(b);res[1]=a[1]/(b);res[2]=a[2]/(b)
 
+VertexDataGenerator* generateForcedUv = NULL;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -132,14 +133,13 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 					break;
 					}
 				case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
+					if(generateForcedUv)
 					{
-					static const unsigned xmax = 128*2;//!!!
-					static const unsigned ymax = 128*2;
-					GLfloat x = ((float)(triangleIdx/ymax)+((v<2)?0:1)-xmax/2)/(xmax/2);
-					GLfloat y = ((float)(triangleIdx%ymax)+1-(v%2)-ymax/2)/(ymax/2);
-					glMultiTexCoord2f(GL_TEXTURE7,x,y);
-					break;
+						GLfloat xy[2];
+						generateForcedUv->generateData(triangleIdx, v, xy, sizeof(xy));
+						glMultiTexCoord2f(GL_TEXTURE7,xy[0],xy[1]);
 					}
+					break;
 				default:;
 			}
 
