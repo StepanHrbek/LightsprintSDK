@@ -2,7 +2,6 @@
 #define INDIRECT_RENDER_FACTOR 2.5//0.6f
 
 /*
-pohybovat svetlem
 nastelovat pozici kamery a svetla pro sponzu, optimalni prvni dojem
 jmeno 3ds volitelne z cmdlajny
 bataky na koupelnu i sponzu
@@ -348,17 +347,28 @@ void *font = GLUT_BITMAP_8_BY_13;
 
 struct SimpleCamera
 {
-	GLfloat pos[4];
-	float angle;
-	float height;
+	// inputs
+	GLfloat  pos[3];
+	float    angle;
+	float    height;
+	// products
+	GLfloat  dir[4];
+	GLdouble viewMatrix[16];
+	// tools
+	void updateViewMatrix(float back)
+	{
+		buildLookAtMatrix(viewMatrix,
+			pos[0]-back*dir[0],pos[1]-back*dir[1],pos[2]-back*dir[2],
+			pos[0]+dir[0],pos[1]+dir[1],pos[2]+dir[2],
+			0, 1, 0);
+	}
 };
 
 // light and camera setup
-SimpleCamera eye = {{0,1,4,1},3,0};
-SimpleCamera light = {{0,0,0,1},0.85f,8};
+SimpleCamera eye = {{0,1,4},3,0};
+SimpleCamera light = {{0,3,0},0.85f,8};
 
 GLUquadricObj *q;
-GLfloat ed[3];
 int xEyeBegin, yEyeBegin, movingEye = 0;
 int xLightBegin, yLightBegin, movingLight = 0;
 int wireFrame = 0;
@@ -393,9 +403,7 @@ GLdouble lightFieldOfView = 70.0;
 GLdouble lightNear = 1;
 GLdouble lightFar = 20.0;
 
-GLdouble eyeViewMatrix[16];
 GLdouble eyeFrustumMatrix[16];
-GLdouble lightViewMatrix[16];
 GLdouble lightInverseViewMatrix[16];
 GLdouble lightFrustumMatrix[16];
 GLdouble lightInverseFrustumMatrix[16];
@@ -561,29 +569,22 @@ void drawLight(void)
 
 void updateMatrices(void)
 {
-	ed[0]=3*sin(eye.angle);
-	ed[1]=-0.3*eye.height;
-	ed[2]=3*cos(eye.angle);
-	buildLookAtMatrix(eyeViewMatrix,
-		eye.pos[0],eye.pos[1],eye.pos[2],
-		eye.pos[0]+ed[0], eye.pos[1]+ed[1], eye.pos[2]+ed[2],
-		0, 1, 0);
+	eye.dir[0] = 3*sin(eye.angle);
+	eye.dir[1] = -0.3*eye.height;
+	eye.dir[2] = 3*cos(eye.angle);
+	eye.updateViewMatrix(0);
 
-	light.pos[0] = 2*sin(light.angle);
-	light.pos[1] = 0.15 * light.height + 3;
-	light.pos[2] = 2*cos(light.angle);
-	light.pos[3] = 1.0;
-
-	buildLookAtMatrix(lightViewMatrix,
-		light.pos[0], light.pos[1], light.pos[2],
-		0, 3, 0,
-		0, 1, 0);
+	light.dir[0] = 3*sin(light.angle);
+	light.dir[1] = -0.3*light.height;
+	light.dir[2] = 3*cos(light.angle);
+	light.dir[3] = 1.0;
+	light.updateViewMatrix(0.3f);
 
 	buildPerspectiveMatrix(lightFrustumMatrix, 
 		lightFieldOfView, 1.0, lightNear, lightFar);
 
 	if (showLightViewFrustum) {
-		invertMatrix(lightInverseViewMatrix, lightViewMatrix);
+		invertMatrix(lightInverseViewMatrix, light.viewMatrix);
 		invertMatrix(lightInverseFrustumMatrix, lightFrustumMatrix);
 	}
 }
@@ -594,7 +595,7 @@ void setupEyeView(void)
 	glLoadMatrixd(eyeFrustumMatrix);
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixd(eyeViewMatrix);
+	glLoadMatrixd(eye.viewMatrix);
 }
 
 /* drawShadowMapFrustum - Draw dashed lines around the light's view
@@ -660,7 +661,7 @@ void setupLightView(int square)
 	}
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixd(lightViewMatrix);
+	glLoadMatrixd(light.viewMatrix);
 }
 
 void drawLightView(void)
@@ -721,9 +722,9 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 
 	glMatrixMode(GL_TEXTURE);
 	glLoadMatrixd(lightFrustumMatrix);
-	glMultMatrixd(lightViewMatrix);
+	glMultMatrixd(light.viewMatrix);
 	GLdouble eyeInverseViewMatrix[16];
-	invertMatrix(eyeInverseViewMatrix,eyeViewMatrix);
+	invertMatrix(eyeInverseViewMatrix,eye.viewMatrix);
 	glMultMatrixd(eyeInverseViewMatrix);
 	glMatrixMode(GL_MODELVIEW);
 
@@ -797,8 +798,7 @@ void placeSoftLight(int n)
 		}
 		updateMatrices();
 	}
-	GLfloat ld[3]={-light.pos[0],-light.pos[1],-light.pos[2]};
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, ld);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light.dir);
 }
 
 void drawEyeViewSoftShadowed(void)
@@ -1268,6 +1268,7 @@ void selectMenu(int item)
 void special(int c, int x, int y)
 {
 	lastInteractionTime = GETTIME;
+	SimpleCamera* cam = movingLight?&light:&eye;
 	switch (c) 
 	{
 		case GLUT_KEY_F7:
@@ -1282,20 +1283,18 @@ void special(int c, int x, int y)
 			return;
 
 		case GLUT_KEY_UP:
-			for(int i=0;i<3;i++) eye.pos[i]+=ed[i]/20;
+			for(int i=0;i<3;i++) cam->pos[i]+=cam->dir[i]/20;
 			break;
 		case GLUT_KEY_DOWN:
-			for(int i=0;i<3;i++) eye.pos[i]-=ed[i]/20;
+			for(int i=0;i<3;i++) cam->pos[i]-=cam->dir[i]/20;
 			break;
 		case GLUT_KEY_LEFT:
-			eye.pos[0]+=ed[2]/20;
-			eye.pos[2]-=ed[0]/20;
-			//eye.pos[2]+=ed[1]/20;
+			cam->pos[0]+=cam->dir[2]/20;
+			cam->pos[2]-=cam->dir[0]/20;
 			break;
 		case GLUT_KEY_RIGHT:
-			eye.pos[0]-=ed[2]/20;
-			eye.pos[2]+=ed[0]/20;
-			//eye.pos[2]+=ed[1]/20;
+			cam->pos[0]-=cam->dir[2]/20;
+			cam->pos[2]+=cam->dir[0]/20;
 			break;
 
 		default:
@@ -1314,6 +1313,8 @@ void special(int c, int x, int y)
 	}
 	return;
 	}*/
+	needMatrixUpdate = 1;
+	needDepthMapUpdate = 1;
 	glutPostRedisplay();
 }
 
@@ -1615,10 +1616,10 @@ void motion(int x, int y)
 		glutPostRedisplay();
 	}
 	if (movingLight) {
-		light.angle = light.angle + 0.005*(x - xLightBegin);
-		light.height = light.height - 0.15*(y - yLightBegin);
-		if (light.height > 12.0) light.height = 12.0;
-		if (light.height < -4.0) light.height = -4.0;
+		light.angle = light.angle - 0.005*(x - xLightBegin);
+		light.height = light.height + 0.15*(y - yLightBegin);
+		if (light.height > 10.0) light.height = 10.0;
+		if (light.height < -10.0) light.height = -10.0;
 		xLightBegin = x;
 		yLightBegin = y;
 		needMatrixUpdate = 1;
