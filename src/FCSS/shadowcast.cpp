@@ -1,13 +1,7 @@
 //!!! fudge factors
-#define INDIRECT_RENDER_FACTOR 2.5
+#define INDIRECT_RENDER_FACTOR 3
 
 /*
-divny vysledky:
- chyba tam kde rika shaderu smer svetla
- v koupelne nektery zdi hodne ztmavly i pro primar
- proc je nutny 2.5 faktor?
- nektery facy ve sponze odrazej min nez maj - nepouziva se scaler na fluxu?
-
 nastelovat pozici kamery a svetla pro sponzu, optimalni prvni dojem
 bataky na koupelnu i sponzu
 potlacit vypisy z collideru(nacitani bsp), jen "Loading and preprocessing scene..."
@@ -385,7 +379,7 @@ struct SimpleCamera
 
 // light and camera setup
 SimpleCamera eye = {{0,1,4},3,0};
-SimpleCamera light = {{0,0,0},0.85f,8};
+SimpleCamera light = {{0,3,0},0.85f,8};
 
 GLUquadricObj *q;
 int xEyeBegin, yEyeBegin, movingEye = 0;
