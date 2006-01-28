@@ -1,17 +1,18 @@
 varying vec4 projCoord;
+uniform vec3 lLightPos;
 
 const float lightIntensity = 1.0;
 
 void main()
 {
-  vec3 lightVect, trueNormal;
+  vec3 lLightDir, lNormal;
   vec4 realPos = gl_ModelViewMatrix * gl_Vertex;
   
-  lightVect = normalize(gl_LightSource[0].position.xyz - realPos.xyz);
-  trueNormal = gl_NormalMatrix * gl_Normal;
+  lLightDir = normalize(lLightPos - realPos.xyz);
+  lNormal = gl_Normal;
   
   projCoord = gl_TextureMatrix[0] * realPos;
-  gl_FrontColor = dot(lightVect, trueNormal) * gl_Color * lightIntensity;
+  gl_FrontColor = dot(lLightDir, lNormal) * gl_Color * lightIntensity;
   
   gl_Position = ftransform();
 

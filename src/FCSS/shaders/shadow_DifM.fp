@@ -26,4 +26,5 @@ void main()
     gl_FragColor = gl_Color * lightValue * diffuseValue * lightIntensity;// * attenuation;
   }
 //  gl_FragColor = min(gl_FragColor,1);
+//    gl_FragColor = 0.01*gl_FragColor + gl_Color;
 }

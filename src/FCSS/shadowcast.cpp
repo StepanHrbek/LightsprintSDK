@@ -1,9 +1,14 @@
 //!!! fudge factors
-#define INDIRECT_RENDER_FACTOR 2.5//0.6f
+#define INDIRECT_RENDER_FACTOR 2.5
 
 /*
+divny vysledky:
+ chyba tam kde rika shaderu smer svetla
+ v koupelne nektery zdi hodne ztmavly i pro primar
+ proc je nutny 2.5 faktor?
+ nektery facy ve sponze odrazej min nez maj - nepouziva se scaler na fluxu?
+
 nastelovat pozici kamery a svetla pro sponzu, optimalni prvni dojem
-jmeno 3ds a scale volitelne z cmdlajny
 bataky na koupelnu i sponzu
 potlacit vypisy z collideru(nacitani bsp), jen "Loading and preprocessing scene..."
 readme
@@ -23,6 +28,9 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
  kdyz se vypne scaler(0.4) nebo indirect, primary vypada desne tmave
  az pri secteni s indirectem (scitani produkuje prilis velke cislo) zacne vypadat akorat
 */
+
+//#define SHOW_CAPTURED_TRIANGLES
+//#define DEFAULT_SPONZA
 
 #include <assert.h>
 #include <float.h>
@@ -66,6 +74,17 @@ using namespace std;
 #define TIME_TO_START_IMPROVING 0.3f
 TIME lastInteractionTime = 0;
 
+
+void checkGlError()
+{
+	GLenum err = glGetError();
+	if(err!=GL_NO_ERROR)
+	{
+		printf("GLerr=%x",err);
+		printf("\n",err);
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // MGF
@@ -82,9 +101,13 @@ char *mgf_filename="data\\scene8.mgf";
 #include "Model_3DS.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
-//char* filename_3ds="data\\sponza\\sponza.3ds";
-char* filename_3ds="koupelna\\koupelna3.3ds";
-float scale_3ds = 0.01f;
+#ifdef DEFAULT_SPONZA
+	char* filename_3ds="data\\sponza\\sponza.3ds";
+	float scale_3ds = 1;
+#else
+	char* filename_3ds="koupelna\\koupelna3.3ds";
+	float scale_3ds = 0.01f;
+#endif
 #endif
 
 
@@ -156,22 +179,20 @@ void updateIndirect()
 		for(unsigned v=0;v<3;v++) // vertex
 		{
 			// get 1*irradiance
-			static rrVision::RRColor black;
-			black = rrVision::RRColor(0);
-			const rrVision::RRColor* indirect = rrscene->getTriangleIrradiance(0,t,v);// je pouzito vzdy pro 3ds vystup, toto se jeste prenasobi difusni texturou
-			if(!indirect) indirect = &black;
+			rrVision::RRColor indirect;
+			rrscene->getTriangleMeasure(0,t,v,rrVision::RM_IRRADIANCE,indirect);// je pouzito vzdy pro 3ds vystup, toto se jeste prenasobi difusni texturou
 			// write 1*irradiance
-			rrVision::RRColor tmp = *indirect*INDIRECT_RENDER_FACTOR;
+			indirect *= INDIRECT_RENDER_FACTOR;
 			for(unsigned i=0;i<3;i++)
 			{
-				assert(_finite(tmp[i]));
-				assert(tmp[i]>=0);
-				assert(tmp[i]<1500000);
+				assert(_finite(indirect[i]));
+				assert(indirect[i]>=0);
+				assert(indirect[i]<1500000);
 			}
 			PreImportNumber pre = mesh->getPreImportVertex(triangle[v],t);
 			unsigned preVertexIdx = firstVertexIdx[pre.object]+pre.index;
 			assert(preVertexIdx<numVertices);
-			indirectColors[preVertexIdx] = *indirect*INDIRECT_RENDER_FACTOR;
+			indirectColors[preVertexIdx] = indirect;
 		}
 	}
 }
@@ -364,7 +385,7 @@ struct SimpleCamera
 
 // light and camera setup
 SimpleCamera eye = {{0,1,4},3,0};
-SimpleCamera light = {{0,3,0},0.85f,8};
+SimpleCamera light = {{0,0,0},0.85f,8};
 
 GLUquadricObj *q;
 int xEyeBegin, yEyeBegin, movingEye = 0;
@@ -516,6 +537,7 @@ GLSLProgram* setProgram(RRObjectRenderer::ColorChannel cc)
 
 void drawScene(RRObjectRenderer::ColorChannel cc)
 {
+	checkGlError();
 #ifdef _3DS
 	if(!renderOnlyRr && cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE)
 	{
@@ -529,6 +551,7 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 	}
 #endif
 	renderer->render(cc);
+	checkGlError();
 }
 
 void setProgramAndDrawScene(RRObjectRenderer::ColorChannel cc)
@@ -664,7 +687,6 @@ void setupLightView(int square)
 
 void drawLightView(void)
 {
-	glLightfv(GL_LIGHT0, GL_POSITION, light.pos);
 	drawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 }
 
@@ -734,6 +756,9 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	}
 #endif
 
+	// set light pos in object space
+	myProg->sendUniform("lLightPos",light.pos[0],light.pos[1],light.pos[2]);
+
 	drawScene(cc);
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -750,7 +775,6 @@ void drawEyeViewShadowed()
 	}
 
 	setupEyeView();
-	glLightfv(GL_LIGHT0, GL_POSITION, light.pos);
 
 	drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 
@@ -765,10 +789,6 @@ void placeSoftLight(int n)
 	if(n==-1) { // init, before all
 		oldLightAngle=light.angle;
 		oldLightHeight=light.height;
-		glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 1);
-		glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90); // no light behind spotlight
-		//glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
-		glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.5);
 		return;
 	}
 	if(n==-2) { // done, after all
@@ -796,8 +816,23 @@ void placeSoftLight(int n)
 		}
 		updateMatrices();
 	}
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light.dir);
 }
+
+// generuje uv coords pro capture
+class CaptureUv : public VertexDataGenerator
+{
+public:
+	virtual ~CaptureUv() {};
+	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
+	{
+		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
+		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
+	}
+	unsigned firstCapturedTriangle;
+	unsigned xmax, ymax;
+};
+
+CaptureUv captureUv;
 
 void drawEyeViewSoftShadowed(void)
 {
@@ -828,12 +863,14 @@ void drawEyeViewSoftShadowed(void)
 #endif
 		)
 	{
+#ifdef SHOW_CAPTURED_TRIANGLES
+		generateForcedUv = &captureUv;
+		captureUv.firstCapturedTriangle = 0;
+		setProgramAndDrawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION); // pro color exitance, pro texturu irradiance
+#else
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		setProgramAndDrawScene(RRObjectRenderer::CC_REFLECTED_AUTO); // pro color exitance, pro texturu irradiance
-		//!!!
-		//generateForcedUv = &captureUv;
-		//captureUv.firstCapturedTriangle = 0;
-		//setProgramAndDrawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION); // pro color exitance, pro texturu irradiance
+#endif
 
 		glAccum(GL_ACCUM,1);
 	}
@@ -841,26 +878,10 @@ void drawEyeViewSoftShadowed(void)
 	glAccum(GL_RETURN,1);
 }
 
-// generuje uv coords pro capture
-class CaptureUv : public VertexDataGenerator
-{
-public:
-	virtual ~CaptureUv() {};
-	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
-	{
-		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
-		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
-	}
-	unsigned firstCapturedTriangle;
-	unsigned xmax, ymax;
-};
-
-CaptureUv captureUv;
-
 void capturePrimary() // slow
 {
 	//!!! needs windows at least 256x256
-	unsigned width1 = 4;//!!!
+	unsigned width1 = 4;
 	unsigned height1 = 4;
 	unsigned width = 512;
 	unsigned height = 512;
@@ -937,7 +958,7 @@ void capturePrimary() // slow
 
 			// debug print
 			//rrVision::RRColor tmp = rrVision::RRColor(0);
-			//rrobject->getTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
+			//rrobject->getTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
 			//suma+=tmp;
 		}
 		//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
@@ -1821,6 +1842,7 @@ main(int argc, char **argv)
 	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
 	glsl_init();
+	checkGlError();
 	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,rrscene));
 
 	glutMainLoop();

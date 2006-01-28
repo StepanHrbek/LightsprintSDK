@@ -149,7 +149,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 			// this code is on 2 places...
 			//  delete this and rather call obj->resetStaticIllumination
 			Vec3 sumExitance;
-			importer->getTriangleAdditionalPower(fi,RM_EXITANCE,sumExitance);
+			importer->getTriangleAdditionalMeasure(fi,RM_EXITANCE,sumExitance);
 			if(scene->scaler) sumExitance = Vec3(
 				scene->scaler->getOriginal(sumExitance.x), // getOriginal=getWattsPerSquareMeter
 				scene->scaler->getOriginal(sumExitance.y),
@@ -247,40 +247,12 @@ RRReal RRScene::sceneGetAccuracy()
 	return scene->avgAccuracy()/100;
 }
 
-const RRColor* RRScene::getVertexIrradiance(ObjectHandle object, unsigned vertex)
+bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out)
 {
-	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
-	if(object<0 || object>=scene->objects) 
-	{
-		assert(0);
-		return NULL;
-	}
-	Object* obj = scene->object[object];
-	RRScaler* scaler = scene->scaler;
-#if CHANNELS==1
-	Channels rad = obj->getVertexIrradiance(vertex);
-	static RRColor tmp;
-	tmp.m[0] = rad*__colorFilter.m[0];
-	tmp.m[1] = rad*__colorFilter.m[1];
-	tmp.m[2] = rad*__colorFilter.m[2];
-	if(scaler)
-	{
-		tmp.m[0] = scaler->getScaled(tmp.m[0]);
-		tmp.m[1] = scaler->getScaled(tmp.m[1]);
-		tmp.m[2] = scaler->getScaled(tmp.m[2]);
-	}
-	return &tmp;
-#else
-	static Channels rad;
-	rad = obj->getVertexIrradiance(vertex);
-	if(scaler) rad = Vec3(scaler->getScaled(rad[0]),scaler->getScaled(rad[1]),scaler->getScaled(rad[2]));
-	return &rad;
-#endif
-}
+	Channels irrad;
+	RRScaler* scaler;
 
-const RRColor* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex)
-{
-	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
+	if(!licenseStatusValid || licenseStatus!=VALID) goto error;
 	// pokus nejak kompenzovat ze jsem si ve freeze interne zrusil n objektu a nahradil je 1 multiobjektem
 	//if(isFrozen())
 	//{
@@ -294,18 +266,18 @@ const RRColor* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned tria
 	//}
 	if(object<0 || object>=scene->objects) 
 	{
-		assert(0);
-		return NULL;
+		goto error;
 	}
 	Object* obj = scene->object[object];
 	if(triangle>=obj->triangles)
 	{
-		assert(0);
-		return NULL;
+		goto error;
 	}
 	Triangle* tri = &obj->triangle[triangle];
-	if(!tri->surface) return NULL;
-	Channels irrad;
+	if(!tri->surface)
+	{
+		goto zero;
+	}
 
 	// enhanced by final gathering
 	if(vertex<3 && RRGetState(RRSS_GET_FINAL_GATHER))
@@ -376,51 +348,35 @@ const RRColor* RRScene::getTriangleIrradiance(ObjectHandle object, unsigned tria
 			irrad = (tri->energyDirectIncident + tri->getEnergyDynamic()) / tri->area - tri->getSourceIrradiance();
 	}
 
-	static RRColor tmp;
-	tmp = __colorFilter * irrad;
-	/*
-#if CHANNELS == 1
-	tmp.m[0] = irrad*__colorFilter.m[0];
-	tmp.m[1] = irrad*__colorFilter.m[1];
-	tmp.m[2] = irrad*__colorFilter.m[2];
-#else
-	tmp.m[0] = irrad.x*__colorFilter.m[0];
-	tmp.m[1] = irrad.y*__colorFilter.m[1];
-	tmp.m[2] = irrad.z*__colorFilter.m[2];
-#endif
-	*/
-	RRScaler* scaler = scene->scaler;
+	// __colorFilter may be applied on any measure
+	irrad *= __colorFilter;
+
+	// scaler may be applied only on irradiance/exitance
+	scaler = scene->scaler;
 	if(scaler)
 	{
-		tmp[0] = scaler->getScaled(tmp[0]);
-		tmp[1] = scaler->getScaled(tmp[1]);
-		tmp[2] = scaler->getScaled(tmp[2]);
+		irrad[0] = scaler->getScaled(irrad[0]);
+		irrad[1] = scaler->getScaled(irrad[1]);
+		irrad[2] = scaler->getScaled(irrad[2]);
 	}
-	return &tmp;
-}
-
-const RRColor* RRScene::getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex)
-{
-	if(!licenseStatusValid || licenseStatus!=VALID) return NULL;
-	if(object<0 || object>=scene->objects) 
+	switch(measure)
 	{
-		assert(0);
-		return NULL;
+		case RM_INCIDENT_FLUX:
+			goto error; // not supported yet
+		case RM_IRRADIANCE:
+			out = irrad;
+			return true;
+		case RM_EXITING_FLUX:
+			goto error; // not supported yet
+		case RM_EXITANCE:
+			out = irrad * tri->surface->diffuseReflectanceColor;
+			return true;
 	}
-	Object* obj = scene->object[object];
-	if(triangle>=obj->triangles) 
-	{
-		assert(0);
-		return NULL;
-	}
-	Triangle* tri = &obj->triangle[triangle];
-	if(!tri->surface) return NULL;
-
-	static Vec3 rad;
-	rad = *getTriangleIrradiance(object,triangle,vertex) * tri->surface->diffuseReflectanceColor;
-	RRScaler* scaler = scene->scaler;
-	if(scaler) rad = Vec3(scaler->getScaled(rad[0]),scaler->getScaled(rad[1]),scaler->getScaled(rad[2]));
-	return &rad;
+error:
+	assert(0);
+zero:
+	out = RRColor(0);
+	return false;
 }
 
 unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)

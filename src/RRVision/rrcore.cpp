@@ -2001,7 +2001,7 @@ void Object::resetStaticIllumination(RRScaler* scaler)
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) 
 	{
 		Vec3 sumExitance;
-		importer->getTriangleAdditionalPower(t,RM_EXITANCE,sumExitance);
+		importer->getTriangleAdditionalMeasure(t,RM_EXITANCE,sumExitance);
 		if(scaler) sumExitance = Vec3(
 			scaler->getOriginal(sumExitance.x), // getOriginal=getWattsPerSquareMeter
 			scaler->getOriginal(sumExitance.y),
@@ -3351,11 +3351,11 @@ unsigned Reflectors::getInstantRadiosityPoints(unsigned points, RRScene::Instant
 		}
 		for(unsigned j=0;j<generatePoints;j++)
 		{
-			Triangle* t = getRandomExitRay(sortedNode[i].node,(Vec3*)&point[generatedPoints].pos,(Vec3*)&point[generatedPoints].norm);
-			if(dot(point[generatedPoints].norm,t->getN3())>=0)
-				point[generatedPoints].norm = t->getN3();
+			Triangle* t = getRandomExitRay(sortedNode[i].node,&point[generatedPoints].pos,&point[generatedPoints].dir);
+			if(dot(point[generatedPoints].dir,t->getN3())>=0)
+				point[generatedPoints].dir = t->getN3();
 			else
-				point[generatedPoints].norm = -t->getN3();
+				point[generatedPoints].dir = -t->getN3();
 			Channels c = ENERGY(sortedNode[i].node)/generatePoints;
 #if CHANNELS==1
 			point[generatedPoints].col = Vec3(c,c,c);

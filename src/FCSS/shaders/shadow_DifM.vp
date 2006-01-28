@@ -1,19 +1,21 @@
 varying vec4 projCoord;
 varying vec2 diffuseCoord;
+uniform vec3 lLightPos;
 
 void main()
 {
-  vec3 lightVect, trueNormal;
+  vec3 lLightDir, lNormal;
   vec4 realPos = gl_ModelViewMatrix * gl_Vertex;
   
-  lightVect = normalize(gl_LightSource[0].position.xyz - realPos.xyz);
-  trueNormal = gl_NormalMatrix * gl_Normal;
+  lLightDir = normalize(lLightPos - realPos.xyz);
+  lNormal = gl_Normal;
   
   projCoord = gl_TextureMatrix[0] * realPos;
 
-  gl_FrontColor = vec4(dot(lightVect, trueNormal));
+  gl_FrontColor = dot(lLightDir, lNormal);
 
   diffuseCoord = gl_MultiTexCoord0.xy;
   
+  //gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
   gl_Position = ftransform();
 }

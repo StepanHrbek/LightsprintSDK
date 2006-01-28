@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2006.1.18
+// version 2006.1.28
 //
 // - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms
@@ -160,7 +160,7 @@ namespace rrVision
 		struct TriangleMapping      {RRVec2 uv[3];}; // 3x uv
 		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out); // normalized vertex normals in local space
 		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); // unwrap into 0..1 x 0..1 space
-		virtual void                getTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
+		virtual void                getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
 
 		// may change during object lifetime
 		virtual const RRMatrix4x4*  getWorldMatrix() = 0; // may return identity as NULL 
@@ -282,12 +282,10 @@ namespace rrVision
 		struct InstantRadiosityPoint
 		{
 			RRVec3    pos;
-			RRVec3    norm;
+			RRVec3    dir;
 			RRColor   col;
 		};
-		const RRColor* getVertexIrradiance(ObjectHandle object, unsigned vertex); // irradiance (incident power density) in watts per square meter
-		const RRColor* getTriangleIrradiance(ObjectHandle object, unsigned triangle, unsigned vertex); // irradiance (incident power density) in watts per square meter
-		const RRColor* getTriangleRadiantExitance(ObjectHandle object, unsigned triangle, unsigned vertex); // radiant exitance (leaving power density) in watts per square meter
+		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out); // vertex=0..2
 		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
 
 		// misc: development

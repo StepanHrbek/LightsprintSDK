@@ -11,6 +11,7 @@
 
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
 bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
+bool  COMPILE=0;
 
 #define MINUS(a,b,res) res[0]=a[0]-b[0];res[1]=a[1]-b[1];res[2]=a[2]-b[2]
 #define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
@@ -18,6 +19,8 @@ bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwis
 #define DIV(a,b,res) res[0]=a[0]/(b);res[1]=a[1]/(b);res[2]=a[2]/(b)
 
 VertexDataGenerator* generateForcedUv = NULL;
+
+void checkGlError();
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -64,6 +67,7 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 		assert(0);
 	}
 
+	checkGlError();
 	glBegin(GL_TRIANGLES);
 	assert(object);
 	rrCollider::RRMeshImporter* meshImporter = object->getCollider()->getImporter();
@@ -75,6 +79,8 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 		meshImporter->getTriangle(triangleIdx,tri);
 		switch(cc)
 		{
+			case CC_NO_COLOR:
+				break;
 			case CC_TRIANGLE_INDEX:
 				glColor4ub(triangleIdx>>16,triangleIdx>>8,triangleIdx,255);
 				break;
@@ -99,7 +105,7 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 				}
 			}
 		}
-		if(!NORMALS) 
+		if(!NORMALS && cc!=CC_NO_COLOR && cc!=CC_TRIANGLE_INDEX)
 		{
 			rrVision::RRObjectImporter::TriangleNormals triangleNormals;
 			object->getTriangleNormals(triangleIdx,triangleNormals);
@@ -115,21 +121,17 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 				case CC_SOURCE_IRRADIANCE:
 				case CC_REFLECTED_IRRADIANCE:
 					{
-					const rrVision::RRColor* color = scene->getTriangleIrradiance(0,triangleIdx,v);
-					if(color)
-					{
-						glColor3fv(&color->x);
-					}
+					rrVision::RRColor color;
+					scene->getTriangleMeasure(0,triangleIdx,v,rrVision::RM_IRRADIANCE,color);
+					glColor3fv(&color.x);
 					break;
 					}
 				case CC_SOURCE_EXITANCE:
 				case CC_REFLECTED_EXITANCE:
 					{
-					const rrVision::RRColor* color = scene->getTriangleRadiantExitance(0,triangleIdx,v);
-					if(color)
-					{
-						glColor3fv(&color->x);
-					}
+					rrVision::RRColor color;
+					scene->getTriangleMeasure(0,triangleIdx,v,rrVision::RM_EXITANCE,color);
+					glColor3fv(&color.x);
 					break;
 					}
 				case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
@@ -147,6 +149,7 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 		}
 	}
 	glEnd();
+	checkGlError();
 }
 
 
@@ -190,25 +193,35 @@ void RRCachingRenderer::setStatus(ColorChannel cc, ChannelStatus cs)
 
 void RRCachingRenderer::render(ColorChannel cc)
 {
+	checkGlError();
 	switch(status[cc])
 	{
 	case CS_READY_TO_COMPILE:
+		if(!COMPILE) goto never;
+		checkGlError();
 		assert(displayLists[cc]==UINT_MAX);
 		displayLists[cc] = glGenLists(1);
 		glNewList(displayLists[cc],GL_COMPILE);
 		renderer->render(cc);
 		glEndList();
 		status[cc] = CS_COMPILED;
+		checkGlError();
 		// intentionally no break
 	case CS_COMPILED:
 		assert(displayLists[cc]!=UINT_MAX);
+		checkGlError();
 		glCallList(displayLists[cc]);
+		checkGlError();
 		break;
 	case CS_NEVER_COMPILE:
+never:
 		assert(displayLists[cc]==UINT_MAX);
+		checkGlError();
 		renderer->render(cc);
+		checkGlError();
 		break;
 	default:
 		assert(0);
 	}
+	checkGlError();
 }

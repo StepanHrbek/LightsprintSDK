@@ -11,7 +11,7 @@ namespace rrVision
 //
 // RRObjectImporter
 
-void RRObjectImporter::getTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+void RRObjectImporter::getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 {
 	out[0] = 0;
 	out[1] = 0;
@@ -147,10 +147,10 @@ public:
 		return pack[0].getImporter()->getSurface(s);
 	}
 
-	virtual void getTriangleAdditionalPower(unsigned t, RRRadiometricMeasure format, RRColor& out) const
+	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure format, RRColor& out) const
 	{
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalPower(t,format,out);
-		return pack[1].getImporter()->getTriangleAdditionalPower(t-pack[0].getNumTriangles(),format,out);
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalMeasure(t,format,out);
+		return pack[1].getImporter()->getTriangleAdditionalMeasure(t-pack[0].getNumTriangles(),format,out);
 	}
 
 	virtual const RRMatrix4x4* getWorldMatrix()
@@ -352,7 +352,7 @@ public:
 		}
 		return true;
 	}
-	virtual void getTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 	{
 		if(t>=numTriangles)
 		{
