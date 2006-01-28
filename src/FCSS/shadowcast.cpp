@@ -82,8 +82,9 @@ char *mgf_filename="data\\scene8.mgf";
 #include "Model_3DS.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
-//char *filename_3ds="data\\sponza\\sponza.3ds";
-char *filename_3ds="koupelna\\koupelna3.3ds";
+//char* filename_3ds="data\\sponza\\sponza.3ds";
+char* filename_3ds="koupelna\\koupelna3.3ds";
+float scale_3ds = 0.01f;
 #endif
 
 
@@ -316,9 +317,6 @@ enum {
   ME_PRECISION_HW_24BIT,
   ME_EXIT,
 };
-
-int hwLittleEndian;
-int littleEndian;
 
 int vsync = 0;
 int requestedDepthMapSize = 512;
@@ -1703,11 +1701,15 @@ void parseOptions(int argc, char **argv)
 		if (!strcmp("-window", argv[i])) {
 			fullscreen = 0;
 		}
-		if (!strcmp("-nodlist", argv[i])) {
-			useDisplayLists = 0;
-		}
 		if (strstr(argv[i], ".mgf")) {
 			mgf_filename = argv[i];
+		}
+		if (strstr(argv[i], ".3ds")) {
+			filename_3ds = argv[i];
+			scale_3ds = 1;
+			if (strstr(argv[i], "koupelna3")) {
+				scale_3ds = 0.01f;
+			}
 		}
 		if (!strcmp("-depth24", argv[i])) {
 			useDepth24 = 1;
@@ -1715,31 +1717,10 @@ void parseOptions(int argc, char **argv)
 		if (!strcmp("-vsync", argv[i])) {
 			vsync = 1;
 		}
-		if (!strcmp("-swapendian", argv[i])) {
-			littleEndian = !littleEndian;
-			printf("swap endian requested, assuming %s-endian\n",
-				littleEndian ? "little" : "big");
-		}
 		if (!strcmp("-front", argv[i])) {
 			drawFront = 1;
 		}
 	}
-}
-
-void setLittleEndian(void)
-{
-	unsigned short shortValue = 258;
-	unsigned char *byteVersion = (unsigned char*) &shortValue;
-
-	if (byteVersion[1] == 1) {
-		assert(byteVersion[0] == 2);
-		hwLittleEndian = 1;
-	} else {
-		assert(byteVersion[0] == 1);
-		assert(byteVersion[1] == 2);
-		hwLittleEndian = 0;
-	}
-	littleEndian = hwLittleEndian;
 }
 
 void idle()
@@ -1774,8 +1755,6 @@ void idle()
 int
 main(int argc, char **argv)
 {
-	setLittleEndian();
-
 	rrCollider::registerLicense("","");
 	rrVision::registerLicense("","");
 
@@ -1823,7 +1802,7 @@ main(int argc, char **argv)
 
 #ifdef _3DS
 	// load 3ds
-	if(!m3ds.Load(filename_3ds,0.01f)) return 1;
+	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
 	//m3ds.shownormals=1;//!!!
 	rrobject = new_3ds_importer(&m3ds)->createAdditionalExitance();
 #else
