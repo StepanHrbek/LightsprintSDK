@@ -128,7 +128,7 @@ real getAvg(const RRColor* rad)
 #if CHANNELS == 3
 real getBrightness(Channels rad)
 {
-	return getBrightness(sum(rad)/3);
+	return getBrightness(avg(rad));
 }
 #endif
 

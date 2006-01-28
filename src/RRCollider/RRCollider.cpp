@@ -11,6 +11,8 @@
 namespace rrCollider
 {
 
+unsigned RRCOLLIDER_API diagnosticLevel = 0;
+
 RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
 {
 	if(!importer) return NULL;

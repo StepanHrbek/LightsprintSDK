@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2006.1.18
+// version 2006.1.28
 //
 // - thread safe, you can calculate any number of intersections at the same time
 // - you can select technique in range from maximal speed to zero memory allocated
@@ -89,6 +89,8 @@ namespace rrCollider
 	// RRVec2 - vector in 2d
 	// RRVec3 - vector in 3d
 	// RRVec4 - vector in 4d
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	typedef float RRReal;
 
@@ -149,6 +151,8 @@ namespace rrCollider
 	//
 	// Derive to import YOUR triangle mesh.
 	// All results from RRMeshImporter must be constant in time.
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRCOLLIDER_API RRMeshImporter
 	{
@@ -233,6 +237,8 @@ namespace rrCollider
 	//
 	// It's intentionally not part of RRMeshImporter, so you can easily combine
 	// different surface behaviours with one geometry.
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRCOLLIDER_API RRMeshSurfaceImporter
 	{
@@ -253,6 +259,8 @@ namespace rrCollider
 	//
 	// On some platforms, some structures need to be specially aligned in memory.
 	// This helper base class helps to align them.
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	struct RRCOLLIDER_API RRAligned
 	{
@@ -269,6 +277,8 @@ namespace rrCollider
 	//
 	// Contains all inputs and outputs for RRCollider::intersect()
 	// All fields of at least 3 floats are aligned.
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRCOLLIDER_API RRRay : public RRAligned
 	{
@@ -313,6 +323,8 @@ namespace rrCollider
 	// Mesh is defined by importer passed to create().
 	// All results from importer must be constant in time, 
 	// otherwise collision results are undefined.
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRCOLLIDER_API RRCollider
 	{
@@ -344,6 +356,8 @@ namespace rrCollider
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// RRIntersectStats - statistics for library calls
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRCOLLIDER_API RRIntersectStats
 	{
@@ -383,7 +397,18 @@ namespace rrCollider
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	// tmp
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	extern unsigned RRCOLLIDER_API diagnosticLevel;
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	// License
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	void RRCOLLIDER_API registerLicense(char* licenseOwner, char* licenseNumber);
 

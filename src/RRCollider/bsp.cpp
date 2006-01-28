@@ -748,7 +748,8 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	// create kd leaf
 	if(buildParams.kdLeaf && bsproot && info_bsp.front==0 && info_bsp.back==0 && info_bsp.plane<3)
 	{
-		if(pn>7) printf("*%d",pn);
+		if(diagnosticLevel) 
+			if(pn>7) printf("*%d",pn);
 		t->plane  =NULL;
 		t->leaf   =space;
 		t->front  =NULL;
@@ -761,7 +762,8 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	// leaf -> exit
 	if(!bsproot && !kdroot) 
 	{
-		if(pn>5000) printf("No split in %d faces, bestN=%d",pn,buildParams.bspBestN);//!!!
+		if(diagnosticLevel) 
+			if(pn>5000) printf("No split in %d faces, bestN=%d",pn,buildParams.bspBestN);//!!!
 		t->plane  =space;
 		t->leaf   =NULL;
 		t->front  =NULL;
@@ -809,8 +811,9 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		assert(plane_num == info_bsp.plane);
 		assert(split_num == info_bsp.split);
 	}
-	if(front_num>1000 || back_num>1000)
-		printf("[%d|%d/%d|%d]",front_num,plane_num,split_num,back_num);
+	if(diagnosticLevel)
+		if(front_num>1000 || back_num>1000)
+			printf("[%d|%d/%d|%d]",front_num,plane_num,split_num,back_num);
 	back_num += split_num;
 	front_num += split_num;
 
@@ -1120,8 +1123,9 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 		obj->vertex[i].id=i;
 		obj->vertex[i].used=0;
 
-		if(!IS_VEC3(obj->vertex[i])) 
-			printf("warning: invalid vertex %d\n",i);
+		if(diagnosticLevel) 
+			if(!IS_VEC3(obj->vertex[i])) 
+				printf("warning: invalid vertex %d\n",i);
 
 		bbox.hi[0]=MAX(bbox.hi[0],obj->vertex[i].x);
 		bbox.hi[1]=MAX(bbox.hi[1],obj->vertex[i].y);
@@ -1145,8 +1149,9 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 	// nicmene pak to vzdy spadlo, oboje mohlo byt nasledek jineho rozkladu
 	DELTA_INSIDE_PLANE = bbox.getEdgeSize() * 1e-6f;
 
-	for(int i=0;i<obj->vertex_num;i++)
-		if(!obj->vertex[i].used) printf("warning: unused vertex %d\n",i);
+	if(diagnosticLevel) 
+		for(int i=0;i<obj->vertex_num;i++)
+			if(!obj->vertex[i].used) printf("warning: unused vertex %d\n",i);
 
 	return create_bsp(make_list(obj),&bbox,kd_allowed);
 }
@@ -1161,8 +1166,11 @@ unsigned save_bsp(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m)
 	assert(faces==bsp->faces);
 	if(f || m)
 	{
-		if(!obj->face_num) printf("\nBSP: No faces.\n"); else
-			printf("\nBSP nodes: %d+%d+%d(%1.1f) size: %d(%1.1f)\n",bsp->kdnodes,bsp->bspnodes,bsp->kdleaves,bsp->faces/(float)obj->face_num,savedBytes,savedBytes/(float)obj->face_num);
+		if(diagnosticLevel) 
+			if(!obj->face_num) 
+				printf("\nBSP: No faces.\n"); 
+			else
+				printf("\nBSP nodes: %d+%d+%d(%1.1f) size: %d(%1.1f)\n",bsp->kdnodes,bsp->bspnodes,bsp->kdleaves,bsp->faces/(float)obj->face_num,savedBytes,savedBytes/(float)obj->face_num);
 	}
 
 	return savedBytes;

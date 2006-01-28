@@ -1,16 +1,20 @@
 //!!! fudge factors
 #define INDIRECT_RENDER_FACTOR 3
 
+#define _3DS
+//#define SHOW_CAPTURED_TRIANGLES
+#define DEFAULT_SPONZA
+
 /*
 nastelovat pozici kamery a svetla pro sponzu, optimalni prvni dojem
 bataky na koupelnu i sponzu
-potlacit vypisy z collideru(nacitani bsp), jen "Loading and preprocessing scene..."
 readme
 web
 stranka s vic demacema pohromade
 
+proc je nutno *3? nekde se asi spatne pocita r+g+b misto (r+g+b)/3
+
 autodeteknout zda mam metry nebo centimetry
-vypocet je dost pomaly, use profiler. zkusit nejaky meshcopy
 nacitat jpg
 dodelat podporu pro matice do 3ds2rr importeru
 kdyz uz by byl korektni model s gammou, pridat ovladani gammy
@@ -22,9 +26,6 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
  kdyz se vypne scaler(0.4) nebo indirect, primary vypada desne tmave
  az pri secteni s indirectem (scitani produkuje prilis velke cislo) zacne vypadat akorat
 */
-
-//#define SHOW_CAPTURED_TRIANGLES
-//#define DEFAULT_SPONZA
 
 #include <assert.h>
 #include <float.h>
@@ -74,8 +75,7 @@ void checkGlError()
 	GLenum err = glGetError();
 	if(err!=GL_NO_ERROR)
 	{
-		printf("GLerr=%x",err);
-		printf("\n",err);
+		printf("glGetError=%x\n",err);
 	}
 }
 
@@ -90,7 +90,6 @@ char *mgf_filename="data\\scene8.mgf";
 //
 // 3DS
 
-#define _3DS
 #ifdef _3DS
 #include "Model_3DS.h"
 #include "3ds2rr.h"
@@ -576,7 +575,7 @@ void drawLight(void)
 {
 	ambientProg->useIt();
 	glPushMatrix();
-	glTranslatef(light.pos[0], light.pos[1], light.pos[2]);
+	glTranslatef(light.pos[0]-0.3*light.dir[0], light.pos[1]-0.3*light.dir[1], light.pos[2]-0.3*light.dir[2]);
 	glColor3f(1,1,0);
 	gluSphere(q, 0.05, 10, 10);
 	glPopMatrix();
@@ -909,7 +908,7 @@ void capturePrimary() // slow
 	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
 	unsigned numTriangles = mesh->getNumTriangles();
 
-	printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
+	//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
 	for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
 	{
 		// clear
@@ -1186,6 +1185,7 @@ void updateDepthBias(int delta)
 
 void updateDepthMapSize(void)
 {
+	/*
 	int oldDepthMapSize = depthMapSize;
 
 	depthMapSize = requestedDepthMapSize;
@@ -1193,7 +1193,7 @@ void updateDepthMapSize(void)
 		depthMapSize >>= 1;  // Half the depth map size
 	}
 	if (depthMapSize < 1) {
-		/* Just in case. */
+		// Just in case.
 		depthMapSize = 1;
 	}
 	if (depthMapSize != requestedDepthMapSize) {
@@ -1205,6 +1205,7 @@ void updateDepthMapSize(void)
 		needTitleUpdate = 1;
 		glutPostRedisplay();
 	}
+	*/
 }
 
 void selectMenu(int item)
@@ -1324,7 +1325,7 @@ void special(int c, int x, int y)
 	return;
 	}*/
 	needMatrixUpdate = 1;
-	needDepthMapUpdate = 1;
+	if(movingLight) needDepthMapUpdate = 1;
 	glutPostRedisplay();
 }
 
@@ -1508,6 +1509,8 @@ void updateDepthScale(void)
 
 void reshape(int w, int h)
 {
+	if(w<512 || h<512)
+		printf("Window size<512 not supported in this demo, expect incorrect render!\n");
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
@@ -1716,6 +1719,7 @@ void parseOptions(int argc, char **argv)
 		if (strstr(argv[i], ".mgf")) {
 			mgf_filename = argv[i];
 		}
+#ifdef _3DS
 		if (strstr(argv[i], ".3ds")) {
 			filename_3ds = argv[i];
 			scale_3ds = 1;
@@ -1723,6 +1727,7 @@ void parseOptions(int argc, char **argv)
 				scale_3ds = 0.01f;
 			}
 		}
+#endif
 		if (!strcmp("-depth24", argv[i])) {
 			useDepth24 = 1;
 		}
@@ -1812,6 +1817,7 @@ main(int argc, char **argv)
 		return 0;
 	}
 
+	printf("Loading and preprocessing scene (~20 sec)...");
 #ifdef _3DS
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
@@ -1821,12 +1827,12 @@ main(int argc, char **argv)
 	// load mgf
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
 #endif
-	if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
+	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
 	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
 	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	//rrVision::RRSetState(rrVision::RRSS_GET_SMOOTH,0);
-	rrVision::RRSetStateF(rrVision::RRSSF_MIN_FEATURE_SIZE,0.3f);
+	rrVision::RRSetStateF(rrVision::RRSSF_MIN_FEATURE_SIZE,0.2f);
 	//rrVision::RRSetStateF(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.9f);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
@@ -1835,6 +1841,7 @@ main(int argc, char **argv)
 	glsl_init();
 	checkGlError();
 	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,rrscene));
+	printf("\n");
 
 	glutMainLoop();
 	return 0;

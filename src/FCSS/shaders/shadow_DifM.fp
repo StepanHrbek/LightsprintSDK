@@ -1,11 +1,5 @@
 uniform sampler2D shadowMap, lightTex, diffuseTex;
 
-const float lightIntensity = 1.0;
-
-//!!! fudge factors depending on scene
-// linear decay approximates realistic attenuation + logaritmic transform in eye
-//const float linearDecay = 25.0;
-
 varying vec4 projCoord;
 varying vec2 diffuseCoord;
 
@@ -21,10 +15,5 @@ void main()
   if(shadowValue.z < projectiveBiased.z)
     gl_FragColor = vec4(0.0);
   else
-  {
-//    float attenuation = 1-projCoord.z*(1/linearDecay);
-    gl_FragColor = gl_Color * lightValue * diffuseValue * lightIntensity;// * attenuation;
-  }
-//  gl_FragColor = min(gl_FragColor,1);
-//    gl_FragColor = 0.01*gl_FragColor + gl_Color;
+    gl_FragColor = gl_Color * lightValue * diffuseValue;
 }

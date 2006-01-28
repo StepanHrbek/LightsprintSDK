@@ -61,6 +61,8 @@ namespace rrVision
 	// RRVec2      - vector in 2d
 	// RRVec3      - vector in 3d
 	// RRMatrix4x4 - matrix 4x4
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	typedef rrCollider::RRReal RRReal;
 	typedef rrCollider::RRVec2 RRVec2;
@@ -85,6 +87,8 @@ namespace rrVision
 	// RRRadiometricMeasure - radiometric measure
 	// RREmittanceType      - type of emission
 	// RRSurface            - material properties of surface
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	typedef RRVec3 RRColor; // r,g,b 0..1
 
@@ -141,6 +145,8 @@ namespace rrVision
 	// where A -> B means that
 	//  - A has pointer to B
 	//  - note that there is no automatic reference counting in B and no automatic destruction of B from A
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRVISION_API RRObjectImporter
 	{
@@ -183,6 +189,8 @@ namespace rrVision
 	// RRAdditionalObjectImporter - helper interface
 	//
 	// RRObjectImporter copy with set/get-able additional per-face exitance (overrides exitance of original)
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRAdditionalObjectImporter : public RRObjectImporter
 	{
@@ -196,6 +204,8 @@ namespace rrVision
 	// RRSkyLight - abstract class that defines skylight.
 	//
 	// Derive to import YOUR skylight into RRScene.
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRVISION_API RRSkyLight
 	{
@@ -219,6 +229,8 @@ namespace rrVision
 	// Without scaler, all inputs/outputs work with specified physical units.
 	// With appropriate scaler, you may directly work for example with screen colors.
 	// Note that RRSurface::diffuseEmittance is never scaled.
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRVISION_API RRScaler
 	{
@@ -247,6 +259,8 @@ namespace rrVision
 	//
 	// You can create multiple RRScenes and perform independent calculations.
 	// But only serially, code is not thread safe.
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	class RRVISION_API RRScene
 	{
@@ -302,6 +316,8 @@ namespace rrVision
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// RRStates
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	enum RRSceneState
 	{
@@ -349,6 +365,8 @@ namespace rrVision
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// License
+	//
+	//////////////////////////////////////////////////////////////////////////////
 
 	enum LicenseStatus
 	{
