@@ -2,7 +2,6 @@ varying vec4 projCoord;
 
 void main()
 {
-  vec4 realPos = gl_ModelViewMatrix * gl_Vertex;
-  projCoord = gl_TextureMatrix[0] * realPos;
+  projCoord = gl_TextureMatrix[0] * gl_Vertex;
   gl_Position = ftransform();
 }

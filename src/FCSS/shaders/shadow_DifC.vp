@@ -5,18 +5,14 @@ const float lightIntensity = 1.0;
 
 void main()
 {
-  vec3 lLightDir, lNormal;
-  vec4 realPos = gl_ModelViewMatrix * gl_Vertex;
-  
-  lLightDir = normalize(lLightPos - realPos.xyz);
-  lNormal = gl_Normal;
-  
-  projCoord = gl_TextureMatrix[0] * realPos;
-  gl_FrontColor = dot(lLightDir, lNormal) * gl_Color * lightIntensity;
-  
-  gl_Position = ftransform();
+  projCoord = gl_TextureMatrix[0] * gl_Vertex;
 
+  vec3 lLightDir = normalize(lLightPos - gl_Vertex.xyz);
+  gl_FrontColor = dot(lLightDir, gl_Normal) * gl_Color * lightIntensity;
+  
 #ifdef FORCE_2D_POSITION
   gl_Position = vec4(gl_MultiTexCoord7.x,gl_MultiTexCoord7.y,0.5,1);
+#else
+  gl_Position = ftransform();
 #endif
 }

@@ -743,9 +743,6 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	glMatrixMode(GL_TEXTURE);
 	glLoadMatrixd(lightFrustumMatrix);
 	glMultMatrixd(light.viewMatrix);
-	GLdouble eyeInverseViewMatrix[16];
-	invertMatrix(eyeInverseViewMatrix,eye.viewMatrix);
-	glMultMatrixd(eyeInverseViewMatrix);
 	glMatrixMode(GL_MODELVIEW);
 
 #ifdef _3DS

@@ -4,15 +4,10 @@ uniform vec3 lLightPos;
 
 void main()
 {
-  vec3 lLightDir, lNormal;
-  vec4 realPos = gl_ModelViewMatrix * gl_Vertex;
-  
-  lLightDir = normalize(lLightPos - realPos.xyz);
-  lNormal = gl_Normal;
-  
-  projCoord = gl_TextureMatrix[0] * realPos;
+  projCoord = gl_TextureMatrix[0] * gl_Vertex;
 
-  gl_FrontColor = dot(lLightDir, lNormal);
+  vec3 lLightDir = normalize(lLightPos - gl_Vertex.xyz);
+  gl_FrontColor = dot(lLightDir, gl_Normal);
 
   diffuseCoord = gl_MultiTexCoord0.xy;
   
