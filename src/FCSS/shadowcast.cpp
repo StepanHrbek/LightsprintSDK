@@ -1723,9 +1723,6 @@ void parseOptions(int argc, char **argv)
 		if (strstr(argv[i], ".3ds")) {
 			filename_3ds = argv[i];
 			scale_3ds = 1;
-			if (strstr(argv[i], "koupelna3")) {
-				scale_3ds = 0.01f;
-			}
 		}
 #endif
 		if (!strcmp("-depth24", argv[i])) {
@@ -1817,6 +1814,16 @@ main(int argc, char **argv)
 		return 0;
 	}
 
+	if (strstr(filename_3ds, "koupelna3")) {
+		scale_3ds = 0.01f;
+	}
+	if (strstr(filename_3ds, "sponza"))
+	{
+		SimpleCamera sponza_eye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999};
+		SimpleCamera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001};
+		eye = sponza_eye;
+		light = sponza_light;
+	}
 	printf("Loading and preprocessing scene (~20 sec)...");
 #ifdef _3DS
 	// load 3ds
