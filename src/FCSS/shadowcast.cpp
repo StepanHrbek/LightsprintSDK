@@ -3,23 +3,22 @@
 
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
-#define DEFAULT_SPONZA
+//#define DEFAULT_SPONZA
 
 /*
-nastelovat pozici kamery a svetla pro sponzu, optimalni prvni dojem
+po startu hodne instanci, hlidat preteceni
 bataky na koupelnu i sponzu
 readme
 web
 stranka s vic demacema pohromade
+napsat hernim firmam
+nacitat jpg
 
 proc je nutno *3? nekde se asi spatne pocita r+g+b misto (r+g+b)/3
-
 autodeteknout zda mam metry nebo centimetry
-nacitat jpg
 dodelat podporu pro matice do 3ds2rr importeru
-kdyz uz by byl korektni model s gammou, pridat ovladani gammy
-
 z mgf ze zahadnych duvodu zmizel color bleeding
+kdyz uz by byl korektni model s gammou, pridat ovladani gammy
 
 POZOR
 neni tu korektni skladani primary+indirect a az nasledna gamma korekce
@@ -282,15 +281,6 @@ void activateTexture(unsigned int textureUnit, unsigned int textureType)
 
 #define MAX_SIZE 1024
 
-/* Texture objects. */
-enum {
-  TO_RESERVED = 0,             /* zero is not a valid OpenGL texture object ID */
-  TO_DEPTH_MAP,                /* high resolution depth map for shadow mapping */
-  TO_HW_DEPTH_MAP,             /* high resolution hardware depth map for shadow
-                                  mapping */
-  TO_SOFT_DEPTH_MAP            /* TO_SOFT_DEPTH_MAP+n = depth map for n-th light */
-};
-
 /* Display lists. */
 enum {
   DL_RESERVED = 0, /* zero is not a valid OpenGL display list ID */
@@ -315,20 +305,10 @@ enum {
   ME_EYE_VIEW_SHADOWED,
   ME_EYE_VIEW_SOFTSHADOWED,
   ME_LIGHT_VIEW,
+  ME_TOGGLE_GLOBAL_ILLUMINATION,
   ME_TOGGLE_WIRE_FRAME,
   ME_TOGGLE_LIGHT_FRUSTUM,
-  ME_TOGGLE_HW_SHADOW_MAPPING,
-  ME_TOGGLE_HW_SHADOW_COPY_TEX_IMAGE,
   ME_SWITCH_MOUSE_CONTROL,
-  ME_ON_LIGHT_FRUSTUM,
-  ME_OFF_LIGHT_FRUSTUM,
-  ME_DEPTH_MAP_64,
-  ME_DEPTH_MAP_128,
-  ME_DEPTH_MAP_256,
-  ME_DEPTH_MAP_512,
-  ME_DEPTH_MAP_1024,
-  ME_PRECISION_HW_16BIT,
-  ME_PRECISION_HW_24BIT,
   ME_EXIT,
 };
 
@@ -981,34 +961,29 @@ static void drawHelpMessage(void)
 {
 	static char *message[] = {
 		"Help information",
-		"'h'  - shows and dismisses this message",
-		"'s'  - show eye view with Shadows only",
-		"'r'  - show eye view with soft shadows and Radiosity",
-		"'+/-'- soft: increase/decrease number of points",
-		"arrow- soft: move camera",
-		"'g'  - soft: cycle through linear, rectangular and circular light",
-		"'w'  - toggle wire frame",
-		"'m'  - toggle whether the left or middle mouse buttons control the eye and",
-		"       view positions (helpful for systems with only a two-button mouse)",
-		"'o'  - increment object configurations",
-		"'O'  - decrement object configurations",
-		"'f'  - toggle showing the depth map frustum in dashed lines",
-		"'p'  - narrow shadow frustum field of view",
-		"'P'  - widen shadow frustum field of view",
-		"'n'  - compress shadow frustum near clip plane",
-		"'N'  - expand shadow frustum near clip plane",
-		"'c'  - compress shadow frustum far clip plane",
-		"'C'  - expand shadow frustum far clip plane",
-		"'b'  - increment the depth bias for 1st pass glPolygonOffset",
-		"'B'  - decrement the depth bias for 1st pass glPolygonOffset",
-		"'q'  - increment depth slope for 1st pass glPolygonOffset",
-		"'Q'  - increment depth slope for 1st pass glPolygonOffset",
+		"'h'   - shows and dismisses this message",
+		"mouse+left button - look around",
+		"mouse+mid button  - change light direction",
+		"arrows- move camera or light (with middle mouse pressed)",
+		"space - toggle global illumination",
+		"'z'   - toggle zoom in and zoom out",
+		"'+/-' - area light: increase/decrease number of lights",
+		"'s'   - area light: cycle through linear, rectangular and circular light",
+		"'w'   - toggle wire frame",
+		"'f'   - toggle showing the depth map frustum in dashed lines",
+		"'m'   - toggle whether the left or middle mouse buttons control the eye and",
+		"        view positions (helpful for systems with only a two-button mouse)",
 		"",
-		"'1' through '5' - use 64x64, 128x128, 256x256, 512x512, or 1024x1024 depth map",
-		"",
-		"'9'  - toggle 16-bit and 24-bit depth map precison for hardware shadow mapping",
-		"'z'  - toggle zoom in and zoom out",
-		NULL
+		"'p'   - narrow shadow frustum field of view",
+		"'P'   - widen shadow frustum field of view",
+		"'n'   - compress shadow frustum near clip plane",
+		"'N'   - expand shadow frustum near clip plane",
+		"'c'   - compress shadow frustum far clip plane",
+		"'C'   - expand shadow frustum far clip plane",
+		"'b'   - increment the depth bias for 1st pass glPolygonOffset",
+		"'B'   - decrement the depth bias for 1st pass glPolygonOffset",
+		"'q'   - increment depth slope for 1st pass glPolygonOffset",
+		"'Q'   - increment depth slope for 1st pass glPolygonOffset",
 	};
 	int i;
 	int x = 40, y= 42;
@@ -1208,6 +1183,15 @@ void updateDepthMapSize(void)
 	*/
 }
 
+void toggleGlobalIllumination()
+{
+	if(drawMode == DM_EYE_VIEW_SHADOWED)
+		drawMode = DM_EYE_VIEW_SOFTSHADOWED;
+	else
+		drawMode = DM_EYE_VIEW_SHADOWED;
+	needTitleUpdate = 1;
+}
+
 void selectMenu(int item)
 {
 	lastInteractionTime = GETTIME;
@@ -1228,6 +1212,9 @@ void selectMenu(int item)
 	  switchMouseControl();
 	  return;  /* No redisplay needed. */
 
+  case ME_TOGGLE_GLOBAL_ILLUMINATION:
+	  toggleGlobalIllumination();
+	  return;
   case ME_TOGGLE_WIRE_FRAME:
 	  toggleWireFrame();
 	  return;
@@ -1237,35 +1224,6 @@ void selectMenu(int item)
 		  needMatrixUpdate = 1;
 	  }
 	  break;
-  case ME_ON_LIGHT_FRUSTUM:
-	  if (!showLightViewFrustum) {
-		  needMatrixUpdate = 1;
-	  }
-	  showLightViewFrustum = 1;
-	  break;
-  case ME_OFF_LIGHT_FRUSTUM:
-	  showLightViewFrustum = 0;
-	  break;
-  case ME_DEPTH_MAP_64:
-	  requestedDepthMapSize = 64;
-	  updateDepthMapSize();
-	  return;
-  case ME_DEPTH_MAP_128:
-	  requestedDepthMapSize = 128;
-	  updateDepthMapSize();
-	  return;
-  case ME_DEPTH_MAP_256:
-	  requestedDepthMapSize = 256;
-	  updateDepthMapSize();
-	  return;
-  case ME_DEPTH_MAP_512:
-	  requestedDepthMapSize = 512;
-	  updateDepthMapSize();
-	  return;
-  case ME_DEPTH_MAP_1024:
-	  requestedDepthMapSize = 1024;
-	  updateDepthMapSize();
-	  return;
   case ME_EXIT:
 	  exit(0);
 	  break;
@@ -1333,158 +1291,120 @@ void keyboard(unsigned char c, int x, int y)
 {
 	lastInteractionTime = GETTIME;
 	switch (c) {
-  case 27:
-	  exit(0);
-	  break;
-  case 'b':
-	  updateDepthBias(+1);
-	  break;
-  case 'B':
-	  updateDepthBias(-1);
-	  break;
-  case 'l':
-  case 'L':
-	  drawMode = DM_LIGHT_VIEW;
-	  needTitleUpdate = 1;
-	  break;
-  case 'm':
-	  switchMouseControl();
-	  break;
-  case 'h':
-  case 'H':
-	  showHelp = !showHelp;
-	  break;
-  case 'f':
-  case 'F':
-	  showLightViewFrustum = !showLightViewFrustum;
-	  if (showLightViewFrustum) {
-		  needMatrixUpdate = 1;
-	  }
-	  break;
-  case 'z':
-  case 'Z':
-	  eyeFieldOfView = (eyeFieldOfView == 100.0) ? 50.0 : 100.0;
-	  buildPerspectiveMatrix(eyeFrustumMatrix,
-		  eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
-	  break;
-  case 'q':
-	  slopeScale += 0.1;
-	  needDepthMapUpdate = 1;
-	  needTitleUpdate = 1;
-	  updateDepthBias(0);
-	  break;
-  case 'Q':
-	  slopeScale -= 0.1;
-	  if (slopeScale < 0.0) {
-		  slopeScale = 0.0;
-	  }
-	  needDepthMapUpdate = 1;
-	  needTitleUpdate = 1;
-	  updateDepthBias(0);
-	  break;
-  case '>':
-	  textureLodBias += 0.2;
-	  break;
-  case '<':
-	  textureLodBias -= 0.2;
-	  break;
-  case 'w':
-  case 'W':
-	  toggleWireFrame();
-	  return;
-  case 'n':
-	  lightNear *= 0.8;
-	  needMatrixUpdate = 1;
-	  needDepthMapUpdate = 1;
-	  break;
-  case 'N':
-	  lightNear /= 0.8;
-	  needMatrixUpdate = 1;
-	  needDepthMapUpdate = 1;
-	  break;
-  case 'c':
-	  lightFar *= 1.2;
-	  needMatrixUpdate = 1;
-	  needDepthMapUpdate = 1;
-	  break;
-  case 'C':
-	  lightFar /= 1.2;
-	  needMatrixUpdate = 1;
-	  needDepthMapUpdate = 1;
-	  break;
-  case 'p':
-	  lightFieldOfView -= 5.0;
-	  if (lightFieldOfView < 5.0) {
-		  lightFieldOfView = 5.0;
-	  }
-	  needMatrixUpdate = 1;
-	  needDepthMapUpdate = 1;
-//	  capturePrimary();
-	  break;
-  case 'P':
-	  lightFieldOfView += 5.0;
-	  if (lightFieldOfView > 160.0) {
-		  lightFieldOfView = 160.0;
-	  }
-	  needMatrixUpdate = 1;
-	  needDepthMapUpdate = 1;
-//	  capturePrimary();
-	  break;
-  case 's':
-	  drawMode = DM_EYE_VIEW_SHADOWED;
-	  needTitleUpdate = 1;
-	  break;
-  case 'r':
-	  drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-	  needTitleUpdate = 1;
-	  break;
-  case 'o':
-	  objectConfiguration = (objectConfiguration + 1) % NUM_OF_OCS;
-	  needDepthMapUpdate = 1;
-	  break;
-  case 'O':
-	  objectConfiguration = objectConfiguration - 1;
-	  if (objectConfiguration < 0) {
-		  objectConfiguration = NUM_OF_OCS-1;
-	  }
-	  needDepthMapUpdate = 1;
-	  break;
-  case '+':
-	  useLights++;
-	  needDepthMapUpdate = 1;
-	  break;
-  case '-':
-	  if(useLights>1) {
-		  useLights--;
-		  needDepthMapUpdate = 1;
-	  }
-	  break;
-  case 'g':
-	  ++areaType%=3;
-	  needDepthMapUpdate = 1;
-	  break;
-  case '1':
-	  requestedDepthMapSize = 64;
-	  updateDepthMapSize();
-	  return;
-  case '2':
-	  requestedDepthMapSize = 128;
-	  updateDepthMapSize();
-	  return;
-  case '3':
-	  requestedDepthMapSize = 256;
-	  updateDepthMapSize();
-	  return;
-  case '4':
-	  requestedDepthMapSize = 512;
-	  updateDepthMapSize();
-	  return;
-  case '5':
-	  requestedDepthMapSize = 1024;
-	  updateDepthMapSize();
-	  return;
-  default:
-	  return;
+		case 27:
+			exit(0);
+			break;
+		case 'b':
+			updateDepthBias(+1);
+			break;
+		case 'B':
+			updateDepthBias(-1);
+			break;
+		case 'l':
+		case 'L':
+			drawMode = DM_LIGHT_VIEW;
+			needTitleUpdate = 1;
+			break;
+		case 'm':
+			switchMouseControl();
+			break;
+		case 'h':
+		case 'H':
+			showHelp = !showHelp;
+			break;
+		case 'f':
+		case 'F':
+			showLightViewFrustum = !showLightViewFrustum;
+			if (showLightViewFrustum) {
+				needMatrixUpdate = 1;
+			}
+			break;
+		case 'z':
+		case 'Z':
+			eyeFieldOfView = (eyeFieldOfView == 100.0) ? 50.0 : 100.0;
+			buildPerspectiveMatrix(eyeFrustumMatrix,
+				eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
+			break;
+		case 'q':
+			slopeScale += 0.1;
+			needDepthMapUpdate = 1;
+			needTitleUpdate = 1;
+			updateDepthBias(0);
+			break;
+		case 'Q':
+			slopeScale -= 0.1;
+			if (slopeScale < 0.0) {
+				slopeScale = 0.0;
+			}
+			needDepthMapUpdate = 1;
+			needTitleUpdate = 1;
+			updateDepthBias(0);
+			break;
+		case '>':
+			textureLodBias += 0.2;
+			break;
+		case '<':
+			textureLodBias -= 0.2;
+			break;
+		case 'w':
+		case 'W':
+			toggleWireFrame();
+			return;
+		case 'n':
+			lightNear *= 0.8;
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case 'N':
+			lightNear /= 0.8;
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case 'c':
+			lightFar *= 1.2;
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case 'C':
+			lightFar /= 1.2;
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case 'p':
+			lightFieldOfView -= 5.0;
+			if (lightFieldOfView < 5.0) {
+				lightFieldOfView = 5.0;
+			}
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case 'P':
+			lightFieldOfView += 5.0;
+			if (lightFieldOfView > 160.0) {
+				lightFieldOfView = 160.0;
+			}
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case ' ':
+			toggleGlobalIllumination();
+			break;
+		case '+':
+			useLights++;
+			needDepthMapUpdate = 1;
+			break;
+		case '-':
+			if(useLights>1) {
+				useLights--;
+				needDepthMapUpdate = 1;
+			}
+			break;
+		case 'g':
+			++areaType%=3;
+			needDepthMapUpdate = 1;
+			break;
+		default:
+			return;
 	}
 	glutPostRedisplay();
 }
@@ -1662,45 +1582,9 @@ void depthBiasSelect(int depthBiasOption)
 
 void initMenus(void)
 {
-	int viewMenu, frustumMenu, objectConfigMenu,
-		depthMapMenu, depthBiasMenu;
-
-	viewMenu = glutCreateMenu(selectMenu);
-	glutAddMenuEntry("[s] Eye view with shadows", ME_EYE_VIEW_SHADOWED);
-	glutAddMenuEntry("[S] Eye view with soft shadows", ME_EYE_VIEW_SOFTSHADOWED);
-	glutAddMenuEntry("[l] Light view", ME_LIGHT_VIEW);
-
-	frustumMenu = glutCreateMenu(selectMenu);
-	glutAddMenuEntry("[f] Toggle", ME_TOGGLE_LIGHT_FRUSTUM);
-	glutAddMenuEntry("Show", ME_ON_LIGHT_FRUSTUM);
-	glutAddMenuEntry("Hide", ME_OFF_LIGHT_FRUSTUM);
-
-	objectConfigMenu = glutCreateMenu(selectObjectConfig);
-	glutAddMenuEntry("MGF", OC_MGF);
-
-	depthMapMenu = glutCreateMenu(selectMenu);
-	glutAddMenuEntry("[1] 64x64", ME_DEPTH_MAP_64);
-	glutAddMenuEntry("[2] 128x128", ME_DEPTH_MAP_128);
-	glutAddMenuEntry("[3] 256x256", ME_DEPTH_MAP_256);
-	glutAddMenuEntry("[4] 512x512", ME_DEPTH_MAP_512);
-	glutAddMenuEntry("[5] 1024x1024", ME_DEPTH_MAP_1024);
-
-	depthBiasMenu = glutCreateMenu(depthBiasSelect);
-	glutAddMenuEntry("2", 2);
-	glutAddMenuEntry("4", 4);
-	glutAddMenuEntry("6", 6);
-	glutAddMenuEntry("8", 8);
-	glutAddMenuEntry("10", 10);
-	glutAddMenuEntry("100", 100);
-	glutAddMenuEntry("512", 512);
-	glutAddMenuEntry("0", 0);
-
 	glutCreateMenu(selectMenu);
-	glutAddSubMenu("View", viewMenu);
-	glutAddSubMenu("Object configuration", objectConfigMenu);
-	glutAddSubMenu("Light frustum", frustumMenu);
-	glutAddSubMenu("Depth map resolution", depthMapMenu);
-	glutAddSubMenu("Shadow depth bias", depthBiasMenu);
+	glutAddMenuEntry("[ ] Toggle global illumination", ME_TOGGLE_GLOBAL_ILLUMINATION);
+	glutAddMenuEntry("[f] Toggle light frustum", ME_TOGGLE_LIGHT_FRUSTUM);
 	glutAddMenuEntry("[m] Switch mouse control", ME_SWITCH_MOUSE_CONTROL);
 	glutAddMenuEntry("[w] Toggle wire frame", ME_TOGGLE_WIRE_FRAME);
 	glutAddMenuEntry("[ESC] Quit", ME_EXIT);
