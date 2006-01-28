@@ -13,6 +13,8 @@ web
 stranka s vic demacema pohromade
 napsat hernim firmam
 nacitat jpg
+spatne pocita sponza kolem degeneratu
+spatne pocita sponza podlahu
 
 proc je nutno *3? nekde se asi spatne pocita r+g+b misto (r+g+b)/3
 autodeteknout zda mam metry nebo centimetry
@@ -320,17 +322,13 @@ GLenum depthMapPrecision = GL_UNSIGNED_BYTE;
 GLenum depthMapFormat = GL_LUMINANCE;
 GLenum depthMapInternalFormat = GL_INTENSITY8;
 
-GLenum hwDepthMapPrecision = GL_UNSIGNED_SHORT;
-GLenum hwDepthMapFiltering = GL_LINEAR;
-
 int useCopyTexImage = 1;
 int useLights = 1;
 int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
-int depthBias16 = 6;
 int depthBias24 = 36;
-int depthScale16, depthScale24;
+int depthScale24;
 GLfloat slopeScale = 4.0;
 
 GLfloat textureLodBias = 0.0;
@@ -357,8 +355,10 @@ struct SimpleCamera
 };
 
 // light and camera setup
-SimpleCamera eye = {{0,1,4},3,0};
-SimpleCamera light = {{0,3,0},0.85f,8};
+//SimpleCamera eye = {{0,1,4},3,0};
+//SimpleCamera light = {{0,3,0},0.85f,8};
+SimpleCamera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500};
+SimpleCamera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996};
 
 GLUquadricObj *q;
 int xEyeBegin, yEyeBegin, movingEye = 0;
@@ -371,7 +371,7 @@ int needTitleUpdate = 1;
 int needDepthMapUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 int objectConfiguration = OC_MGF;
-int showHelp = 0;
+bool showHelp = 0;
 int fullscreen = 0;
 int useDisplayLists = 1;
 int showLightViewFrustum = 1;
@@ -420,21 +420,22 @@ static int supports15(void)
 void updateTitle(void)
 {
 	char title[256];
-	char *modeName;
-	int depthBits;
 
 	/* Only update the title is needTitleUpdate is set. */
 	if (needTitleUpdate) 
 	{
+		/*
+		char *modeName;
+		int depthBits;
 		switch (drawMode) 
 		{
 		case DM_LIGHT_VIEW:
 			modeName = "light view";
 		case DM_EYE_VIEW_SHADOWED:
-			modeName = "eye view with shadows";
+			modeName = "primary illumination";
 			break;
 		case DM_EYE_VIEW_SOFTSHADOWED:
-			modeName = "eye view with soft shadows";
+			modeName = "global illumination";
 			break;
 		default:
 			assert(0);
@@ -443,9 +444,10 @@ void updateTitle(void)
 		}
 		glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 		sprintf(title,
-			"shadowcast - %s (%dx%d %d-bit) depthBias=%d, slopeScale=%f, filter=%s",
-			modeName, depthMapSize, depthMapSize, depthBits, depthBias24 * depthScale24, slopeScale,
-			((hwDepthMapFiltering == GL_LINEAR)) ? "LINEAR" : "NEAREST");
+			"realtime radiosity viewer - %s, shadowmaps %dx%d %d-bit, depthBias=%d, slopeScale=%f",
+			modeName, depthMapSize, depthMapSize, depthBits, depthBias24, slopeScale);
+			*/
+		sprintf(title,"realtime radiosity viewer - %s",filename_3ds);
 		glutSetWindowTitle(title);
 		needTitleUpdate = 0;
 	}
@@ -957,18 +959,20 @@ static void output(int x, int y, char *string)
 	}
 }
 
-static void drawHelpMessage(void)
+static void drawHelpMessage(bool big)
 {
 	static char *message[] = {
 		"Help information",
-		"'h'   - shows and dismisses this message",
-		"mouse+left button - look around",
-		"mouse+mid button  - change light direction",
-		"arrows- move camera or light (with middle mouse pressed)",
+		"",
+		"mouse+left button - manipulate camera",
+		"mouse+mid button  - manipulate light",
+		"right button      - menu",
+		"arrows            - move camera or light (with middle mouse pressed)",
+		"",
 		"space - toggle global illumination",
 		"'z'   - toggle zoom in and zoom out",
 		"'+/-' - area light: increase/decrease number of lights",
-		"'s'   - area light: cycle through linear, rectangular and circular light",
+		"'s'   - area light: cycle through linear, rectangular and circular area",
 		"'w'   - toggle wire frame",
 		"'f'   - toggle showing the depth map frustum in dashed lines",
 		"'m'   - toggle whether the left or middle mouse buttons control the eye and",
@@ -984,6 +988,9 @@ static void drawHelpMessage(void)
 		"'B'   - decrement the depth bias for 1st pass glPolygonOffset",
 		"'q'   - increment depth slope for 1st pass glPolygonOffset",
 		"'Q'   - increment depth slope for 1st pass glPolygonOffset",
+		NULL,
+		"h - help",
+		NULL
 	};
 	int i;
 	int x = 40, y= 42;
@@ -1007,12 +1014,14 @@ static void drawHelpMessage(void)
 	glColor4f(0.0,1.0,0.0,0.2);  /* 20% green. */
 
 	/* Drawn clockwise because the flipped Y axis flips CCW and CW. */
-	glRecti(winWidth - 30, 30, 30, winHeight - 30);
+	if(big) glRecti(winWidth - 30, 30, 30, winHeight - 30);
 
 	glDisable(GL_BLEND);
 
 	glColor3f(1,1,1);
-	for(i=0; message[i] != NULL; i++) {
+	for(i=0; message[i] != NULL; i++) 
+	{
+		if(!big) i=sizeof(message)/sizeof(char*)-2;
 		if (message[i][0] == '\0') {
 			y += 7;
 		} else {
@@ -1064,9 +1073,7 @@ void display(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	if (showHelp) {
-		drawHelpMessage();
-	}
+	drawHelpMessage(showHelp);
 
 	if (!drawFront) {
 		glutSwapBuffers();
@@ -1142,45 +1149,10 @@ void toggleWireFrame(void)
 
 void updateDepthBias(int delta)
 {
-	GLfloat scale, bias;
-
-	if (hwDepthMapPrecision == GL_UNSIGNED_SHORT) {
-		depthBias16 += delta;
-		scale = slopeScale;
-		bias = depthBias16 * depthScale16;
-	} else {
-		depthBias24 += delta;
-		scale = slopeScale;
-		bias = depthBias24 * depthScale24;
-	}
-	glPolygonOffset(scale, bias);
+	depthBias24 += delta;
+	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
 	needTitleUpdate = 1;
 	needDepthMapUpdate = 1;
-}
-
-void updateDepthMapSize(void)
-{
-	/*
-	int oldDepthMapSize = depthMapSize;
-
-	depthMapSize = requestedDepthMapSize;
-	while ((winWidth < depthMapSize) || (winHeight < depthMapSize)) {
-		depthMapSize >>= 1;  // Half the depth map size
-	}
-	if (depthMapSize < 1) {
-		// Just in case.
-		depthMapSize = 1;
-	}
-	if (depthMapSize != requestedDepthMapSize) {
-		printf("shadowcast: reducing depth map from %d to %d based on window size %dx%d\n",
-			requestedDepthMapSize, depthMapSize, winWidth, winHeight);
-	}
-	if (oldDepthMapSize != depthMapSize) {
-		needDepthMapUpdate = 1;
-		needTitleUpdate = 1;
-		glutPostRedisplay();
-	}
-	*/
 }
 
 void toggleGlobalIllumination()
@@ -1419,11 +1391,6 @@ void updateDepthScale(void)
 	} else {
 		depthScale24 = 1 << (depthBits - 24+8); // "+8" hack: on gf6600, 24bit depth seems to need +8 scale
 	}
-	if (depthBits < 16) {
-		depthScale16 = 1;
-	} else {
-		depthScale16 = 1 << (depthBits - 16);
-	}
 	needDepthMapUpdate = 1;
 }
 
@@ -1441,8 +1408,6 @@ void reshape(int w, int h)
 	/* Perhaps there might have been a mode change so at window
 	reshape time, redetermine the depth scale. */
 	updateDepthScale();
-
-	updateDepthMapSize();
 }
 
 void initGL(void)
@@ -1461,9 +1426,6 @@ void initGL(void)
 
 	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 	//printf("depth buffer precision = %d\n", depthBits);
-	if (depthBits >= 24) {
-		hwDepthMapPrecision = GL_UNSIGNED_INT;
-	}
 
 	glClearColor(0,0,0,0);
 
@@ -1563,18 +1525,8 @@ void motion(int x, int y)
 
 void depthBiasSelect(int depthBiasOption)
 {
-	GLfloat scale, bias;
-
-	if (hwDepthMapPrecision == GL_UNSIGNED_SHORT) {
-		depthBias16 = depthBiasOption;
-		scale = slopeScale;
-		bias = depthBias16 * depthScale16;
-	} else {
-		depthBias24 = depthBiasOption;
-		scale = slopeScale;
-		bias = depthBias24 * depthScale24;
-	}
-	glPolygonOffset(scale, bias);
+	depthBias24 = depthBiasOption;
+	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
 	needTitleUpdate = 1;
 	needDepthMapUpdate = 1;
 	glutPostRedisplay();
