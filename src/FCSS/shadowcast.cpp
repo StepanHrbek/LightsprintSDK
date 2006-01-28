@@ -4,9 +4,10 @@
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
+#define MAX_INSTANCES 5  // max number of light instances aproximating one area light
+#define START_INSTANCES 8 // initial number of instances
 
 /*
-po startu hodne instanci, hlidat preteceni
 bataky na koupelnu i sponzu
 readme
 web
@@ -45,6 +46,10 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 #include "glsl/Texture.hpp"
 #include "glsl/FrameRate.hpp"
 
+#include "mgf2rr.h"
+#include "rr2gl.h"
+#include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
+
 using namespace std;
 
 /* Some <math.h> files do not define M_PI... */
@@ -53,10 +58,6 @@ using namespace std;
 #endif
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
-
-#include "mgf2rr.h"
-#include "rr2gl.h"
-#include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -96,7 +97,7 @@ char *mgf_filename="data\\scene8.mgf";
 #include "3ds2rr.h"
 Model_3DS m3ds;
 #ifdef DEFAULT_SPONZA
-	char* filename_3ds="data\\sponza\\sponza.3ds";
+	char* filename_3ds="sponza\\sponza.3ds";
 	float scale_3ds = 1;
 #else
 	char* filename_3ds="koupelna\\koupelna3.3ds";
@@ -197,7 +198,6 @@ void updateIndirect()
 //
 // GLSL
 
-#define MAX_INSTANCES 5 //!!! max number of light instances aproximating one area light
 GLSLProgram *shadowProg, *lightProg, *ambientProg, *ambientDifMProg;
 GLSLProgramSet* shadowDifCProgSet;
 GLSLProgramSet* shadowDifMProgSet;
@@ -323,7 +323,7 @@ GLenum depthMapFormat = GL_LUMINANCE;
 GLenum depthMapInternalFormat = GL_INTENSITY8;
 
 int useCopyTexImage = 1;
-int useLights = 1;
+int useLights = (MAX_INSTANCES>=START_INSTANCES)?8:MAX_INSTANCES;
 int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
@@ -939,7 +939,7 @@ void capturePrimary() // slow
 	free(pixelBuffer);
 
 	// prepare for new calculation
-	rrscene->sceneResetStatic(true);
+	rrscene->sceneResetStatic(false);
 	rrtimestep = 0.1f;
 
 	// restore render states
@@ -1362,11 +1362,15 @@ void keyboard(unsigned char c, int x, int y)
 			toggleGlobalIllumination();
 			break;
 		case '+':
-			useLights++;
-			needDepthMapUpdate = 1;
+			if(useLights<MAX_INSTANCES) 
+			{
+				useLights++;
+				needDepthMapUpdate = 1;
+			}
 			break;
 		case '-':
-			if(useLights>1) {
+			if(useLights>1) 
+			{
 				useLights--;
 				needDepthMapUpdate = 1;
 			}
@@ -1664,7 +1668,7 @@ main(int argc, char **argv)
 #ifdef _3DS
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
-	//m3ds.shownormals=1;//!!!
+	//m3ds.shownormals=1;
 	rrobject = new_3ds_importer(&m3ds)->createAdditionalExitance();
 #else
 	// load mgf
