@@ -3,7 +3,7 @@
 
 /*
 nastelovat pozici kamery a svetla pro sponzu, optimalni prvni dojem
-jmeno 3ds volitelne z cmdlajny
+jmeno 3ds a scale volitelne z cmdlajny
 bataky na koupelnu i sponzu
 potlacit vypisy z collideru(nacitani bsp), jen "Loading and preprocessing scene..."
 readme
@@ -82,8 +82,8 @@ char *mgf_filename="data\\scene8.mgf";
 #include "Model_3DS.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
-char *filename_3ds="data\\sponza\\sponza.3ds";
-//char *filename_3ds="koupelna\\koupelna3.3ds";
+//char *filename_3ds="data\\sponza\\sponza.3ds";
+char *filename_3ds="koupelna\\koupelna3.3ds";
 #endif
 
 
@@ -1823,7 +1823,7 @@ main(int argc, char **argv)
 
 #ifdef _3DS
 	// load 3ds
-	if(!m3ds.Load(filename_3ds)) return 1;
+	if(!m3ds.Load(filename_3ds,0.01f)) return 1;
 	//m3ds.shownormals=1;//!!!
 	rrobject = new_3ds_importer(&m3ds)->createAdditionalExitance();
 #else

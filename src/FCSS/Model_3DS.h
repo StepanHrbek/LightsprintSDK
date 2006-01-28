@@ -155,7 +155,7 @@ public:
 	float scale;			// The size you want the model scaled to
 	bool lit;				// True: the model is lit
 	bool visible;			// True: the model gets rendered
-	bool Load(char *name);	// Loads a model
+	bool Load(char *name, float scale);	// Loads a model
 	void Draw(GLfloat* color); // Draws the model using given colors (3 floats per vertex)
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor

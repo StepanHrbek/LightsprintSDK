@@ -1,4 +1,4 @@
-#define SCALE 1;//0.01f
+static float SCALE=1;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -175,8 +175,9 @@ Model_3DS::~Model_3DS()
 
 }
 
-bool Model_3DS::Load(char *name)
+bool Model_3DS::Load(char *name, float scale)
 {
+	SCALE = scale;
 	// holds the main chunk header
 	ChunkHeader main;
 
