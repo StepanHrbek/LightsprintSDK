@@ -120,14 +120,6 @@ extern bool __errors; // was there errors during batch work? used to set result
 
 extern unsigned __frameNumber; // frame number increased after each draw
 
-extern RRColor __colorFilter;
-  // set only via scene::selectColorFilter()
-  // barva svetla jehoz sireni ve scene pocitame.
-  // spocitat (grayscale) osvetleni zvlast pro r,g,b a slozit je presnejsi nez
-  // spocitat (grayscale) jen pro bilou a obarvit to barvou materialu.
-  // to proto, ze v prvnim pripade modry povrch skutecne odrazi jen modrou,
-  // kdezto ve druhem odrazi bilou.
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // hit to subtriangle

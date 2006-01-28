@@ -348,9 +348,6 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			irrad = (tri->energyDirectIncident + tri->getEnergyDynamic()) / tri->area - tri->getSourceIrradiance();
 	}
 
-	// __colorFilter may be applied on any measure
-	irrad *= __colorFilter;
-
 	// scaler may be applied only on irradiance/exitance
 	scaler = scene->scaler;
 	if(scaler)

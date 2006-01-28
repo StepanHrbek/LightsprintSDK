@@ -129,8 +129,6 @@ bool  __errors=false; // was there errors during batch work? used to set result
 
 unsigned  __frameNumber=1; // frame number increased after each draw
 
-RRColor __colorFilter=RRColor(1,1,1); // see rrcore.h
-
 bool  __preserveFactors=false; // preserve factors in Factors::reset(), needed if we want resetStaticIllumination() but not factors
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1226,33 +1224,6 @@ again:
 	return rotations;
 }
 
-char Scene::selectColorFilter(int i, const real *rgb)
-{
-	assert(i>=0 && i<4);
-	// selects color component for further calculations
-	// you must resetStaticIllumination() and distribute() to get
-	//  static illumination for new filter
-	RRColor myColorFilter[4]={RRColor(1,0,0),RRColor(0,1,0),RRColor(0,0,1),RRColor(0.33f,0.33f,0.33f)};
-	char myColorID[4]={'r','g','b','w'};
-	__colorFilter[0]=rgb?rgb[0]:myColorFilter[i][0];
-	__colorFilter[1]=rgb?rgb[1]:myColorFilter[i][1];
-	__colorFilter[2]=rgb?rgb[2]:myColorFilter[i][2];
-
-	// adjusts diffuseReflectance in all surfaces (faster than fixing all usages of diffuseReflectance)
-	//  to reflect only selected component (blue material to reflect only blue)
-	for(unsigned j=0;j<surfaces;j++)
-	{
-	  RRSurface *s=&surface[j];
-	  real r=s->diffuseReflectanceColor[0];
-	  real g=s->diffuseReflectanceColor[1];
-	  real b=s->diffuseReflectanceColor[2];
-//        s->diffuseReflectance=s->_rd*(__colorFilter[0]*s->_rdcx+__colorFilter[1]*s->_rdcy+__colorFilter[2]*(1-s->_rdcx-s->_rdcy));
-	  s->diffuseReflectance=s->_rd*(__colorFilter[0]*r+__colorFilter[1]*g+__colorFilter[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.001f);
-	}
-
-	return myColorID[i];
-}
-
 int Scene::turnLight(int whichLight,real intensity)
 {
 	int light=0;
@@ -1274,15 +1245,14 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingF
 	real r=surface->diffuseEmittanceColor.m[0];
 	real g=surface->diffuseEmittanceColor.m[1];
 	real b=surface->diffuseEmittanceColor.m[2];
-	real filteringCoef=(__colorFilter.m[0]*r+__colorFilter.m[1]*g+__colorFilter.m[2]*b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
+	real filteringCoef=(r+g+b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
 	Channels e=area * ( filteringCoef*surface->diffuseEmittance
-	  + __colorFilter.m[0]*additionalExitingFlux.x+__colorFilter.m[1]*additionalExitingFlux.y+__colorFilter.m[2]*additionalRadiantExitance.z );
+	  + additionalExitingFlux.x+additionalExitingFlux.y+additionalExitingFlux.z );
 	assert(add>=0);
 	assert(filteringCoef>=0);
 	assert(e>=0);
 #else
-	Channels e=__colorFilter * area *
-	  ( surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalExitingFlux );
+	Channels e = ( surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalExitingFlux ) * area;
 #endif
 	assert(surface->diffuseEmittance>=0);
 	assert(area>=0);
