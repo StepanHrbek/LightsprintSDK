@@ -7,6 +7,7 @@ copy koupelna\*.tga distro\koupelna
 mkdir distro\sponza
 copy sponza\sponza.3ds distro\sponza
 copy sponza\*.tga distro\sponza
+copy readme.txt distro
 copy spot0.tga distro
 copy glut32.dll distro
 copy run*.bat distro

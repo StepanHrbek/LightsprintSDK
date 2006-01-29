@@ -8,8 +8,8 @@
   Abstract
   --------
 
-  We present novel approach to integration of global illumination solver
-  into arbitrary realtime local illumination rendering systems.
+  This paper presents novel approach to integration of global illumination
+  solver into arbitrary realtime local illumination rendering systems.
   Our approach makes no assumptions about local illumination model
   and extends it to global illumination while not slowing it down.
   Our algorithm uses local illumination renderer to output specific images,
@@ -81,13 +81,13 @@
     Local illumination model can be arbitrarily changed via GLSL shaders.
 
   - Radiosity calculator with progressive refinement from [4].
-    We improved it using novel acceleration structure (to be published later)
+    We improved it using new acceleration structure (to be published later)
     and converted it into library.
 
   Complete integration of our radiosity calculator library into renderer took less than 
   two days.
-  For comparison, the same integration process with very complex realtime renderer 
-  for next generation games took approx. three weeks.
+  For comparison, the same integration process with very complex and feature-rich
+  realtime renderer for next generation games took approx. three weeks.
 
   Viewer may freely manipulate camera and light positions in scene.
   Global illumination quality is temporarily decreased after each light manipulation.
