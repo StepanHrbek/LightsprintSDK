@@ -3,19 +3,19 @@
 
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
-//#define DEFAULT_SPONZA
+#define DEFAULT_SPONZA
 #define MAX_INSTANCES 5  // max number of light instances aproximating one area light
 #define START_INSTANCES 8 // initial number of instances
 
 /*
-bataky na koupelnu i sponzu
-readme
 web
+zvysit max_instances, start ve fullscreenu
 stranka s vic demacema pohromade
 napsat hernim firmam
 nacitat jpg
 spatne pocita sponza kolem degeneratu
 spatne pocita sponza podlahu
+spatne pocita kdyz se neresetnou faktory
 
 proc je nutno *3? nekde se asi spatne pocita r+g+b misto (r+g+b)/3
 autodeteknout zda mam metry nebo centimetry
@@ -166,6 +166,7 @@ void updateIndirect()
 		operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
 	};
 
+	//rrVision::RRColor suma=rrVision::RRColor(0);//!!!
 	unsigned numTriangles = mesh->getNumTriangles();
 	for(unsigned t=0;t<numTriangles;t++) // triangle
 	{
@@ -188,8 +189,10 @@ void updateIndirect()
 			unsigned preVertexIdx = firstVertexIdx[pre.object]+pre.index;
 			assert(preVertexIdx<numVertices);
 			indirectColors[preVertexIdx] = indirect;
+	//		suma+=indirect;
 		}
 	}
+	//printf("%f %f %f\n",suma[0],suma[1],suma[2]);//!!!
 }
 #endif
 
@@ -322,8 +325,7 @@ GLenum depthMapPrecision = GL_UNSIGNED_BYTE;
 GLenum depthMapFormat = GL_LUMINANCE;
 GLenum depthMapInternalFormat = GL_INTENSITY8;
 
-int useCopyTexImage = 1;
-int useLights = (MAX_INSTANCES>=START_INSTANCES)?8:MAX_INSTANCES;
+int useLights = (MAX_INSTANCES>=START_INSTANCES)?START_INSTANCES:MAX_INSTANCES;
 int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
@@ -939,7 +941,7 @@ void capturePrimary() // slow
 	free(pixelBuffer);
 
 	// prepare for new calculation
-	rrscene->sceneResetStatic(false);
+	rrscene->sceneResetStatic(true);//!!! false by bylo rychlejsi ale nefunguje dobre
 	rrtimestep = 0.1f;
 
 	// restore render states
@@ -1110,9 +1112,8 @@ static void benchmark(int perFrameDepthMapUpdate)
 
 	printf("  perFrameDepthMapUpdate=%d, time = %f secs, fps = %f\n",
 		perFrameDepthMapUpdate, time, numFrames/time);
-	printf("  TEX2D %dx%d:%d using %s\n",
-		depthMapSize, depthMapSize, precision,
-		useCopyTexImage ? "CopyTexSubImage" : "ReadPixels/TexSubImage");
+	printf("  TEX2D %dx%d:%d\n",
+		depthMapSize, depthMapSize, precision);
 	needDepthMapUpdate = 1;
 }
 
@@ -1162,6 +1163,7 @@ void toggleGlobalIllumination()
 	else
 		drawMode = DM_EYE_VIEW_SHADOWED;
 	needTitleUpdate = 1;
+	needDepthMapUpdate = 1;
 }
 
 void selectMenu(int item)
