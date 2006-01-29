@@ -11,7 +11,7 @@
 
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
 bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
-bool  COMPILE=0;
+bool  COMPILE=1;
 
 #define MINUS(a,b,res) res[0]=a[0]-b[0];res[1]=a[1]-b[1];res[2]=a[2]-b[2]
 #define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
