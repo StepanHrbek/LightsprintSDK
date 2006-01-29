@@ -12,7 +12,7 @@ static char SCCSid[] = "@(#)xf.c 1.13 12/15/97 LBL";
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include "parser.h"
+#include "mgfparser.h"
 
 #define  d2r(a)		((PI/180.)*(a))
 

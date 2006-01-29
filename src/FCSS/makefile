@@ -33,4 +33,4 @@ $(TMP)%.o: %.c makefile
 clean:
 	del *.o
 	del glsl\*.o
-	del $(BIN)fcss.exe
+	del ..\..\bin\fcss.exe

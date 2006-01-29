@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "parser.h" // MgfLib
+#include "mgfparser.h" // MgfLib
 #include "cnv2bsp.h"
 
 FACE *face;

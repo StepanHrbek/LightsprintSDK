@@ -12,7 +12,7 @@ static char SCCSid[] = "@(#)context.c 1.26 12/15/97 LBL";
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include "parser.h"
+#include "mgfparser.h"
 #include "lookup.h"
 
 				/* default context values */

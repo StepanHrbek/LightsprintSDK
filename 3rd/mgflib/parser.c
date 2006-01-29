@@ -13,12 +13,12 @@ static char SCCSid[] = "@(#)parser.c 1.26 12/15/97 LBL";
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "parser.h"
+#include "mgfparser.h"
 #include "lookup.h"
 #include "messages.h"
 
 /*
- * Global definitions of variables declared in parser.h
+ * Global definitions of variables declared in mgfparser.h
  */
 			/* entity names */
 

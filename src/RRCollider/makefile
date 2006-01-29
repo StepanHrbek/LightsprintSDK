@@ -24,4 +24,5 @@ $(TMP)%.o: %.cpp makefile
 
 clean:
 	del $(TMP)*.o
-	del $(LIB)
+	del $(TMP)MeshImporter\*.o
+	del ..\..\lib\libRRCollider.a

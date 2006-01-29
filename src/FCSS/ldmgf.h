@@ -1,12 +1,12 @@
 #ifndef _LDMGF_H
 #define _LDMGF_H
 
-#include "parser.h"
+#include "mgfparser.h"
 
 // polygons won't share vertices if you say...
 extern bool shared_vertices;
 
-// load mgf, return codes are defined in parser.h (success=MG_OK)
+// load mgf, return codes are defined in mgfparser.h (success=MG_OK)
 int ldmgf(char *filename,
           void *add_vertex(FLOAT *p,FLOAT *n),
           void *add_surface(C_MATERIAL *material),

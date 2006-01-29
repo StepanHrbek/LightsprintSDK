@@ -142,6 +142,6 @@ $(BIN)player.exe: player.cpp geometry.cpp core.cpp core.h interpol.cpp interpol.
 
 clean:
 	$(DEL) *.o
-	$(DEL) $(BIN)rr.exe
-	$(DEL) $(BIN)dotga.exe
-	$(DEL) $(BIN)dosmooth.exe
+	$(DEL) ..\..\bin\rr.exe
+	$(DEL) ..\..\bin\dotga.exe
+	$(DEL) ..\..\bin\dosmooth.exe

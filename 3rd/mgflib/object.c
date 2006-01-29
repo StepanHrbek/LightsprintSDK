@@ -10,7 +10,7 @@ static char SCCSid[] = "@(#)object.c 1.5 11/29/95 LBL";
 
 #include <stdio.h>
 #include <string.h>
-#include "parser.h"
+#include "mgfparser.h"
 
 
 int	obj_nnames;			/* depth of name hierarchy */

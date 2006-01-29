@@ -1,6 +1,6 @@
 /* Copyright (c) 1995 Regents of the University of California */
 
-/* SCCSid "@(#)parser.h 1.32 1/16/98 LBL" */
+/* SCCSid "@(#)mgfparser.h 1.32 1/16/98 LBL" */
 
 /*
  * Header file for MGF interpreter
