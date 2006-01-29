@@ -1,1 +1,1 @@
-rrv sponza\sponza.3ds
+rrview sponza\sponza.3ds

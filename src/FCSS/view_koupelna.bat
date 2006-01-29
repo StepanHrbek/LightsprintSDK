@@ -1,1 +1,1 @@
-rrv koupelna\koupelna3.3ds
+rrview koupelna\koupelna3.3ds
