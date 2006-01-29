@@ -787,7 +787,6 @@ public:
 	Channels  gatherIrradiance(Point3 eye,Vec3 normal,Triangle *skip,Channels power=Channels(1)); // decreasing power is used only for termination criteria. returns irradiance in W/m^2
 	Channels  gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Channels power=Channels(1));
 
-	char    selectColorFilter(int i, const real *rgb=NULL);
 	int     turnLight(int whichLight,real intensity); // turns light on/off. just material, no energies modified (use resetStaticIllumination), returns number of lights (emitting materials) in scene
 
 	void    objInsertStatic(Object *aobject);

@@ -16,7 +16,6 @@ OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)fpcube.o $(TMP)geometry.o $(TMP)Intersect
 all: makefile $(LIB)
 
 $(LIB): makefile $(OBJS)
-	del ..\..\lib\libRRCollider.a
 	ar rc $(LIB) $(OBJS)
 	ranlib $(LIB)
 
@@ -24,5 +23,5 @@ $(TMP)%.o: %.cpp makefile
 
 clean:
 	del $(TMP)*.o
-	del $(TMP)MeshImporter\*.o
 	del ..\..\lib\libRRCollider.a
+

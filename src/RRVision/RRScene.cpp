@@ -217,16 +217,6 @@ void RRScene::setSkyLight(RRSkyLight* skyLight)
 	scene->setSkyLight(skyLight);
 }
 
-/*
-void RRScene::sceneSetColorFilter(const RRReal* colorFilter)
-{
-	__frameNumber++;
-	scene->selectColorFilter(0,colorFilter);
-	scene->resetStaticIllumination(false);
-	scene->distribute(0.001f);
-}
-*/
-
 RRScene::Improvement RRScene::sceneResetStatic(bool resetFactors)
 {
 	if(!licenseStatusValid || licenseStatus!=VALID) return FINISHED;

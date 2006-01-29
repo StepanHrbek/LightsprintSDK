@@ -311,7 +311,7 @@ void fakMerge(Scene *scene,unsigned frames,unsigned maxvertices)
      if(g_batchMerge && __errors) exit(__errors);
 
      char name[256];
-     sprintf(name,"%s.%c.%03i",p_ffName,scene->selectColorFilter(i),frame);
+     sprintf(name,"%s.%c.%03i",p_ffName,'w',frame);  // 'w' was scene->selectColorFilter(i)
      sprintf(info,"(kb=%i) accumulating %s...  ",(int)MEM_ALLOCATED/1024,name);
      video_WriteScreen(info);
      scene->iv_loadRealFrame(name);
@@ -355,11 +355,11 @@ void fakMerge(Scene *scene,unsigned frames,unsigned maxvertices)
  for(int component=0;component<4;component++)
  {
    // postupne ulozi data ze vsech ivertexu
-   scene->iv_startSavingBytes(frames,bp("%s.%c.tga",p_ffName,scene->selectColorFilter(component)));
+   scene->iv_startSavingBytes(frames,bp("%s.%c.tga",p_ffName,'w')); // 'w' was scene->selectColorFilter(component)
    for(unsigned frame=0;frame<frames;frame++)
    {
      char name[256];
-     sprintf(name,"%s.%c.%03i",p_ffName,scene->selectColorFilter(component),frame);
+     sprintf(name,"%s.%c.%03i",p_ffName,'w',frame); // 'w' was scene->selectColorFilter(component)
      sprintf(info,"(kb=%i) storing data from %s...  ",(int)MEM_ALLOCATED/1024,name);
      video_WriteScreen(info);
      scene->iv_loadRealFrame(name);
@@ -492,7 +492,7 @@ void frameDraw(Scene *scene, rrVision::RRScene* rrscene)
      // vybere komponentu kterou bude ukladat
      // nastavi odrazivosti
      // nastavi svitivosti
-     char c=scene->selectColorFilter(component);
+     char c='w'; // 'w' was scene->selectColorFilter(component);
 
      // vynuluje energie
      // nastavi energie k distribuci

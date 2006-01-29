@@ -1,6 +1,6 @@
 CC = gcc
 CPP = gcc
-CPPFLAGS = -Wall -I. -I../RRCollider/include -I../RRVision/include -I../LicGen/include -DGLEW_STATIC
+CPPFLAGS = -Wall -I. -I../RRCollider/include -I../RRVision/include -I../LicGen/include -I../../3rd/mgflib -DGLEW_STATIC
 CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
 #CPPFLAGS += -ffast-math // zpusobuje crash v soda
 CPPFLAGS += -fomit-frame-pointer
