@@ -12,3 +12,4 @@ copy spot0.tga distro
 copy glut32.dll distro
 copy view*.bat distro
 copy ..\..\bin\fcss.exe distro\rrview.exe
+-min upx distro\rrview.exe

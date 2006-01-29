@@ -1,19 +1,18 @@
 CC = gcc
 CPP = gcc
 CPPFLAGS = -Wall -I. -I../RRCollider/include -I../RRVision/include -I../LicGen/include -I../../3rd/mgflib -DGLEW_STATIC
-CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
-#CPPFLAGS += -ffast-math // zpusobuje crash v soda
-CPPFLAGS += -fomit-frame-pointer
-CPPFLAGS += -march=athlon-xp
-CPPFLAGS += -msse
-CPPFLAGS += -mfpmath=sse
+CPPFLAGS += -O1 -DNDEBUG
+#CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG // zpusobuje crash po pouziti upx
+ #CPPFLAGS += -ffast-math // zpusobuje crash v soda
+ #CPPFLAGS += -fomit-frame-pointer // zpusobuje crash
+ #CPPFLAGS += -march=athlon-xp
+#CPPFLAGS += -msse
+#CPPFLAGS += -mfpmath=sse
 LIBS = -s -lz -lm -lmgf -L../../lib -lRRCollider -lRRVision -lstdc++
 LIBS += -lopengl32 -lglu32 -lglut32
 BIN = ../../bin/
 
 OBJS = 3ds2rr.o glew.o ldmgf.o matrix.o mgf2rr.o Model_3DS.o rr2gl.o shadowcast.o glsl/Camera.o glsl/FrameRate.o glsl/GLSLObject.o glsl/GLSLProgram.o glsl/GLSLShader.o glsl/Light.o glsl/Texture.o
-# GL/glprocs.o 
-
 
 all: $(BIN)fcss.exe
 
