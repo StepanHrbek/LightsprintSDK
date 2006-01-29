@@ -3,13 +3,14 @@
 
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
-#define DEFAULT_SPONZA
-#define MAX_INSTANCES 5  // max number of light instances aproximating one area light
-#define START_INSTANCES 8 // initial number of instances
+//#define DEFAULT_SPONZA
+#define MAX_INSTANCES 20  // max number of light instances aproximating one area light
+#define START_INSTANCES 6 // initial number of instances
+#define AREA_SIZE 0.1f
+int fullscreen = 1;
 
 /*
 web
-zvysit max_instances, start ve fullscreenu
 stranka s vic demacema pohromade
 napsat hernim firmam
 nacitat jpg
@@ -374,7 +375,6 @@ int needDepthMapUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 int objectConfiguration = OC_MGF;
 bool showHelp = 0;
-int fullscreen = 0;
 int useDisplayLists = 1;
 int showLightViewFrustum = 1;
 int eyeButton = GLUT_LEFT_BUTTON;
@@ -775,17 +775,17 @@ void placeSoftLight(int n)
 	if(useLights>1) {
 		switch(areaType) {
 	  case 0: // linear
-		  light.angle=oldLightAngle+0.2*(n/(useLights-1.)-0.5);
+		  light.angle=oldLightAngle+2*AREA_SIZE*(n/(useLights-1.)-0.5);
 		  light.height=oldLightHeight-0.4*n/useLights;
 		  break;
 	  case 1: // rectangular
 		  {int q=(int)sqrtf(useLights-1)+1;
-		  light.angle=oldLightAngle+0.1*(n/q/(q-1.)-0.5);
+		  light.angle=oldLightAngle+AREA_SIZE*(n/q/(q-1.)-0.5);
 		  light.height=oldLightHeight+(n%q/(q-1.)-0.5);}
 		  break;
 	  case 2: // circular
-		  light.angle=oldLightAngle+sin(n*2*3.14159/useLights)/20;
-		  light.height=oldLightHeight+cos(n*2*3.14159/useLights)/2;
+		  light.angle=oldLightAngle+sin(n*2*3.14159/useLights)*0.5*AREA_SIZE;
+		  light.height=oldLightHeight+cos(n*2*3.14159/useLights)*0.5;
 		  break;
 		}
 		updateMatrices();
