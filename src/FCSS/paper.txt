@@ -2,8 +2,8 @@
 ----> work in progress - please don't spread
 
 
-  REALTIME RADIOSITY VIEWER
-  -------------------------
+  REALTIME RADIOSITY INTEGRATION
+  ------------------------------
 
   Abstract
   --------
@@ -65,14 +65,14 @@
   An example is presented in form of realtime radiosity viewer.
 
 
-  Realtime radiosity integration
-  ------------------------------
+  Integration
+  -----------
 
   (to be written)
 
 
-  Realtime radiosity viewer
-  -------------------------
+  Viewer
+  ------
 
   Our building stones were:
 

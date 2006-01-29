@@ -10,5 +10,5 @@ copy sponza\*.tga distro\sponza
 copy readme.txt distro
 copy spot0.tga distro
 copy glut32.dll distro
-copy run*.bat distro
-copy ..\..\bin\fcss.exe distro\rrv.exe
+copy view*.bat distro
+copy ..\..\bin\fcss.exe distro\rrview.exe
