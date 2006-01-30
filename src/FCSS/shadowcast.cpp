@@ -1,5 +1,5 @@
 //!!! fudge factors
-#define INDIRECT_RENDER_FACTOR 3
+#define INDIRECT_RENDER_FACTOR 2
 
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
@@ -10,8 +10,7 @@
 int fullscreen = 1;
 
 /*
-web
-stranka s vic demacema pohromade
+'t'(bez textur) - chybi interpolace
 napsat hernim firmam
 nacitat jpg
 spatne pocita sponza kolem degeneratu
@@ -153,7 +152,7 @@ void updateIndirect()
 	delete[] indirectColors;
 	indirectColors = new rrVision::RRColor[numVertices];
 	for(unsigned i=0;i<numVertices;i++)
-		indirectColors[i] = rrVision::RRColor(0);//!!! mozna zbytecne
+		indirectColors[i] = rrVision::RRColor(0);
 
 	struct PreImportNumber 
 		// our structure of pre import number (it is independent for each implementation)
@@ -189,7 +188,8 @@ void updateIndirect()
 			PreImportNumber pre = mesh->getPreImportVertex(triangle[v],t);
 			unsigned preVertexIdx = firstVertexIdx[pre.object]+pre.index;
 			assert(preVertexIdx<numVertices);
-			indirectColors[preVertexIdx] = indirect;
+			if(size2(indirect)>size2(indirectColors[preVertexIdx])) // use maximum, so degenerated black triangles are ignored
+				indirectColors[preVertexIdx] = indirect;
 	//		suma+=indirect;
 		}
 	}
@@ -330,7 +330,7 @@ int useLights = (MAX_INSTANCES>=START_INSTANCES)?START_INSTANCES:MAX_INSTANCES;
 int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
-int depthBias24 = 36;
+int depthBias24 = 42;
 int depthScale24;
 GLfloat slopeScale = 4.0;
 
@@ -1166,6 +1166,11 @@ void toggleGlobalIllumination()
 	needDepthMapUpdate = 1;
 }
 
+void toggleTextures()
+{
+	renderOnlyRr = !renderOnlyRr;
+}
+
 void selectMenu(int item)
 {
 	lastInteractionTime = GETTIME;
@@ -1362,6 +1367,9 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 		case ' ':
 			toggleGlobalIllumination();
+			break;
+		case 't':
+			toggleTextures();
 			break;
 		case '+':
 			if(useLights<MAX_INSTANCES) 
@@ -1657,7 +1665,7 @@ main(int argc, char **argv)
 	}
 
 	if (strstr(filename_3ds, "koupelna3")) {
-		scale_3ds = 0.01f;
+		scale_3ds = 0.03f;
 	}
 	if (strstr(filename_3ds, "sponza"))
 	{
