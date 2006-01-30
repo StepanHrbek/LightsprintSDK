@@ -1665,7 +1665,7 @@ main(int argc, char **argv)
 	}
 
 	if (strstr(filename_3ds, "koupelna3")) {
-		scale_3ds = 0.03f;
+		scale_3ds = 0.01f;
 	}
 	if (strstr(filename_3ds, "sponza"))
 	{
