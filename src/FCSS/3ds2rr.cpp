@@ -255,7 +255,7 @@ rrVision::RRObjectImporter* new_3ds_importer(Model_3DS* model)
 	{
 		importers[i] = new_3ds_importer(model, i);
 	}
-	rrVision::RRObjectImporter* multi = rrVision::RRObjectImporter::createMultiObject(importers,model->numObjects,rrCollider::RRCollider::IT_BSP_FASTEST,0.001f,NULL);
+	rrVision::RRObjectImporter* multi = rrVision::RRObjectImporter::createMultiObject(importers,model->numObjects,rrCollider::RRCollider::IT_BSP_FASTEST,0.01f,NULL);
 	//!!! delete[] importers;
 	return multi;
 }

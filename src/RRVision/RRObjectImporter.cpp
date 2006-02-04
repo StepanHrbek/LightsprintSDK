@@ -94,7 +94,10 @@ public:
 		// only in top level of hierarchy: create multicollider
 		rrCollider::RRCollider* multiCollider = NULL;
 		rrCollider::RRMeshImporter** transformedMeshes = NULL;
-		if(numObjects>1)
+		// optimalizace: multimesh z 1 objektu = objekt samotny
+		// lze aplikovat jen pokud se nestitchuji vertexy
+		// pokud se stitchuji, musi vse projit standardni multi-cestou
+		if(numObjects>1 || maxStitchDistance>=0)
 		{
 			// create multimesh
 			transformedMeshes = new rrCollider::RRMeshImporter*[numObjects+2];
@@ -104,7 +107,7 @@ public:
 			transformedMeshes[numObjects+1] = NULL;
 			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(transformedMeshes,numObjects);
 			// stitch vertices
-			if(maxStitchDistance>=0) 
+			if(maxStitchDistance>=0)
 			{
 				transformedMeshes[numObjects] = multiMesh; // remember for freeing time
 				multiMesh = multiMesh->createOptimizedVertices(maxStitchDistance);
@@ -194,11 +197,18 @@ private:
 			return NULL;
 		case 1: 
 			assert(objects);
-			return objects[0];
+			//  pokud nemame externe narizeny multiCollider, vratime hned jediny objekt, objects[0]
+			if(!multiCollider) return objects[0]; 
+		// pozor, return objects[0]; nestaci v pripade ze vytvarime multiObject z 1 objektu (objects[0])
+		//  a mame externe narizeny multiCollider
+		//  ignorovaly by se totiz zmeny provedene v objects[0] a nam dodane v multiCollideru (konkretne jde o vertex stitching)
+		//  musime vracet vse jako object[0], ale misto jeho collideru pouzit multiCollider
+		//  toto za nas s nepatrne snizenou efektivitou zaridi default vetev
+		// zde umyslne neni break, pokracujeme do defaultu
 		default: 
 			assert(objects); 
-			unsigned num1 = numObjects/2;
-			unsigned num2 = numObjects-numObjects/2;
+			unsigned num1 = (numObjects+1)/2; // pokud numObjects==1, musi vyjit num1=1, num2=0 (num1 nikdy nesmi byt 0 kvuli getSurface)
+			unsigned num2 = numObjects-num1;
 			unsigned tris[2] = {0,0};
 			for(unsigned i=0;i<numObjects;i++) 
 			{

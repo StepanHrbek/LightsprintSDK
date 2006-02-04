@@ -10,12 +10,10 @@
 int fullscreen = 1;
 
 /*
-'t'(bez textur) - chybi interpolace
-napsat hernim firmam
+veza - vypocet se po chvili zastavuje, best musi selhavat
 nacitat jpg
-spatne pocita sponza kolem degeneratu
 spatne pocita sponza podlahu
-spatne pocita kdyz se neresetnou faktory
+spatne pocita kdyz se neresetnou faktory (neresetovani faktoru muze zasadne zrychlit update po pohybu svetla)
 
 proc je nutno *3? nekde se asi spatne pocita r+g+b misto (r+g+b)/3
 autodeteknout zda mam metry nebo centimetry
@@ -100,8 +98,10 @@ Model_3DS m3ds;
 	char* filename_3ds="sponza\\sponza.3ds";
 	float scale_3ds = 1;
 #else
-	char* filename_3ds="koupelna\\koupelna3.3ds";
-	float scale_3ds = 0.01f;
+	char* filename_3ds="veza\\veza.3ds";
+	float scale_3ds = 1;
+	//char* filename_3ds="koupelna\\koupelna3.3ds";
+	//float scale_3ds = 0.01f;
 #endif
 #endif
 
@@ -1616,8 +1616,8 @@ void idle()
 	}
 }
 
-int
-main(int argc, char **argv)
+
+int main(int argc, char **argv)
 {
 	rrCollider::registerLicense("","");
 	rrVision::registerLicense("","");
@@ -1665,7 +1665,7 @@ main(int argc, char **argv)
 	}
 
 	if (strstr(filename_3ds, "koupelna3")) {
-		scale_3ds = 0.01f;
+		scale_3ds = 0.03f;
 	}
 	if (strstr(filename_3ds, "sponza"))
 	{
@@ -1690,7 +1690,7 @@ main(int argc, char **argv)
 	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	//rrVision::RRSetState(rrVision::RRSS_GET_SMOOTH,0);
 	rrVision::RRSetStateF(rrVision::RRSSF_MIN_FEATURE_SIZE,0.2f);
-	//rrVision::RRSetStateF(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.9f);
+	//rrVision::RRSetStateF(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.4f);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
 	rrscene->setScaler(rrscaler);
