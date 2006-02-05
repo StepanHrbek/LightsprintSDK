@@ -10,10 +10,10 @@
 int fullscreen = 1;
 
 /*
-veza - vypocet se po chvili zastavuje, best musi selhavat
+ovladani jasu (global, indirect)
+spatne pocita kdyz se neresetnou faktory (neresetovani faktoru muze zasadne zrychlit update po pohybu svetla)
 nacitat jpg
 spatne pocita sponza podlahu
-spatne pocita kdyz se neresetnou faktory (neresetovani faktoru muze zasadne zrychlit update po pohybu svetla)
 
 proc je nutno *3? nekde se asi spatne pocita r+g+b misto (r+g+b)/3
 autodeteknout zda mam metry nebo centimetry
@@ -37,7 +37,7 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 #include <GL/glut.h>
 
 #include <iostream>
-#include "glsl/Light.hpp"
+//#include "glsl/Light.hpp"
 #include "glsl/Camera.hpp"
 #include "glsl/GLSLProgram.hpp"
 #include "glsl/GLSLShader.hpp"
@@ -98,10 +98,10 @@ Model_3DS m3ds;
 	char* filename_3ds="sponza\\sponza.3ds";
 	float scale_3ds = 1;
 #else
-	char* filename_3ds="veza\\veza.3ds";
-	float scale_3ds = 1;
-	//char* filename_3ds="koupelna\\koupelna3.3ds";
-	//float scale_3ds = 0.01f;
+	//char* filename_3ds="veza\\veza.3ds";
+	//float scale_3ds = 1;
+	char* filename_3ds="koupelna4\\koupelna4.3ds";
+	float scale_3ds = 0.03f;
 #endif
 #endif
 
@@ -518,6 +518,8 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 #ifdef _3DS
 	if(!renderOnlyRr && cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE)
 	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		m3ds.Draw(NULL);
 		return;
 	}
@@ -1593,8 +1595,9 @@ void idle()
 	if((now-lastInteractionTime)/(float)PER_SEC<TIME_TO_START_IMPROVING) return;
 
 	static const float calcstep = 0.1f;
-	rrVision::RRScene::Improvement imp = rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
-	/*switch(imp)
+	rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
+	/*rrVision::RRScene::Improvement imp = rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
+	switch(imp)
 	{
 		case rrVision::RRScene::NOT_IMPROVED:printf("Not improved.\n");break;
 		case rrVision::RRScene::INTERNAL_ERROR:printf("Internal error.\n");break;
@@ -1671,7 +1674,17 @@ int main(int argc, char **argv)
 	}
 
 	if (strstr(filename_3ds, "koupelna3")) {
+		scale_3ds = 0.01f;
+	}
+	if (strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
+		eyeFieldOfView = 50.0;
+		//SimpleCamera koupelna4_eye = {{0.032202,1.659255,1.598609},10.010005,-0.150000};
+		//SimpleCamera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
+		SimpleCamera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003};
+		SimpleCamera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996};		eye = koupelna4_eye;
+		useLights = 8;
+		light = koupelna4_light;
 	}
 	if (strstr(filename_3ds, "sponza"))
 	{
@@ -1695,7 +1708,7 @@ int main(int argc, char **argv)
 	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
 	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
 	//rrVision::RRSetState(rrVision::RRSS_GET_SMOOTH,0);
-	rrVision::RRSetStateF(rrVision::RRSSF_MIN_FEATURE_SIZE,0.2f);
+	rrVision::RRSetStateF(rrVision::RRSSF_MIN_FEATURE_SIZE,0.15f);
 	//rrVision::RRSetStateF(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.4f);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);

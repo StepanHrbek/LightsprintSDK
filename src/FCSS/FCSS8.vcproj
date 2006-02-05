@@ -256,14 +256,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\Light.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\glsl\Light.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\glsl\Texture.cpp"
 				>
 			</File>
