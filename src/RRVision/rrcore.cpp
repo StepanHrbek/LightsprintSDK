@@ -42,7 +42,7 @@ namespace rrVision
 //#define EXPENSIVE_CHECKS
 
 #ifdef _MSC_VER
-//error : inserted by sunifdef: "#define GATE_DATE" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(45)
+//error : inserted by sunifdef: "#define GATE_DATE //!!! nezapomenout aktualizovat" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(45)
 //#define GATE_SHOTS 10000 // max photons from one shooter
 //#define GATE_QUALITY 5000000 // max photons in scene
 //#define GATE_IP
@@ -2957,8 +2957,15 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 		// prepare shooting
 		assert(source->shooter);
 		shotsForNewFactors=1+(int)(accuracy*sum(abs(source->shooter->energyDiffused+source->shooter->energyToDiffuse)));
+		// slabsi verze
 		if(shotsForNewFactors<=source->shooter->shotsForFactors)
+		{
+			// toto nenastava pravidelne, proto vysledek opravime jen malinko
+			// pokud by to snad nastavalo casto, vypocet bude neefektivni
 			shotsForNewFactors = 1+source->shooter->shotsForFactors;
+		}
+		// silnejsi verze, ktera prebije i nepriznive okolnosti pri selhani GATE_TIME
+		//shotsForNewFactors = MAX(shotsForNewFactors,2*source->shooter->shotsForFactors);
 		assert(shotsForNewFactors>source->shooter->shotsForFactors);
 		assert(shotsAccumulated==0);
 		assert(!hitTriangles.get());
@@ -3122,7 +3129,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 		//   (protoze nutit refresh nekomu kdo ma accuracy>2*avg vede k assertu v refreshi)
 		enum {hack=MAX(100,BESTS)};
 		static int distributionsSinceRefresh=0; // trick to prevent infinite distribution/no refresh loops
-		needsRefresh=nowAcc*(-distributionsSinceRefresh+hack)/hack<avgAcc;
+		needsRefresh=nowAcc*(hack-distributionsSinceRefresh)/hack<avgAcc;
 		if(needsRefresh)
 		{
 			RRSetState(RRSS_REFRESHES,RRGetState(RRSS_REFRESHES)+1);
@@ -3132,11 +3139,15 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 			// double reflector's current accuracy, but stick in range <avgAccuracy,2*avgAccuracy>
 			// this makes both 1-lamp and 1000-lamp scenes to converge acceptably
 			wantedAccuracy=(nowAcc<avgAcc)?MAX(2*nowAcc,avgAcc):2*avgAcc;
+			//printf((nowAcc<avgAcc)?":%f/%d":"!%f/%d",avgAcc,shotsForFactorsTotal);//!!!
+			//wantedAccuracy=MAX(2*nowAcc,avgAcc);
+			//return (1+shotsForFactorsTotal)/sum(abs(staticSourceExitingFlux));//* nema tu byt (Statics+Dynamics)?
 		}
 		else
 		{
 			RRSetState(RRSS_DISTRIBS,RRGetState(RRSS_DISTRIBS)+1);
-			if(distributionsSinceRefresh<hack/2) distributionsSinceRefresh++;
+			if(distributionsSinceRefresh<hack/2) distributionsSinceRefresh++; // mirnejsi verze, funguje ok
+			//if(distributionsSinceRefresh+1<hack) distributionsSinceRefresh++; // ostrejsi verze
 			improveBig=MIN(1,improveBig+0.05f);
 			improveInaccurate=MAX(0.99f,improveInaccurate-0.05f);
 		}

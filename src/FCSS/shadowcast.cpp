@@ -1593,7 +1593,13 @@ void idle()
 	if((now-lastInteractionTime)/(float)PER_SEC<TIME_TO_START_IMPROVING) return;
 
 	static const float calcstep = 0.1f;
-	rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
+	rrVision::RRScene::Improvement imp = rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
+	/*switch(imp)
+	{
+		case rrVision::RRScene::NOT_IMPROVED:printf("Not improved.\n");break;
+		case rrVision::RRScene::INTERNAL_ERROR:printf("Internal error.\n");break;
+		case rrVision::RRScene::FINISHED:printf("Finished.\n");break;
+	}*/
 	static float calcsum = 0;
 	calcsum += calcstep;
 	if(calcsum>=rrtimestep)
