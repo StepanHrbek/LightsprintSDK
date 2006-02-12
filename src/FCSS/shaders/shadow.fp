@@ -12,5 +12,5 @@ void main()
   if(shadowValue.z < projectiveBiased.z)
     gl_FragColor = vec4(0.0);
   else
-    gl_FragColor = 1;
+    gl_FragColor = vec4(1.0);
 }

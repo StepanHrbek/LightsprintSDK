@@ -7,7 +7,7 @@ void main()
   projCoord = gl_TextureMatrix[0] * gl_Vertex;
 
   vec3 lLightDir = normalize(lLightPos - gl_Vertex.xyz);
-  gl_FrontColor = dot(lLightDir, gl_Normal);
+  gl_FrontColor = vec4(dot(lLightDir, gl_Normal));
 
   diffuseCoord = gl_MultiTexCoord0.xy;
   

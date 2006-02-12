@@ -10,6 +10,9 @@
 int fullscreen = 1;
 
 /*
+pridat dalsi koupelny
+.3ds na cmdlajne nesmi byt .3DS
+help kontrastnejsi barvou
 ovladani jasu (global, indirect)
 spatne pocita kdyz se neresetnou faktory (neresetovani faktoru muze zasadne zrychlit update po pohybu svetla)
 nacitat jpg
