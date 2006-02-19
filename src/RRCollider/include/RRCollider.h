@@ -94,14 +94,14 @@ namespace rrCollider
 
 	typedef float RRReal;
 
-	struct RRVec2
+	struct RRCOLLIDER_API RRVec2
 	{
 		RRReal    x;
 		RRReal    y;
 		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
 	};
 
-	struct RRVec3
+	struct RRCOLLIDER_API RRVec3
 	{
 		RRReal    x;
 		RRReal    y;
@@ -137,7 +137,7 @@ namespace rrCollider
 	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a);
 	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a,const RRVec3& b);
 
-	struct RRVec4 : public RRVec3
+	struct RRCOLLIDER_API RRVec4 : public RRVec3
 	{
 		RRReal    w;
 

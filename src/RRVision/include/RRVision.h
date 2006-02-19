@@ -68,7 +68,7 @@ namespace rrVision
 	typedef rrCollider::RRVec2 RRVec2;
 	typedef rrCollider::RRVec3 RRVec3;
 
-	struct RRMatrix4x4
+	struct RRVISION_API RRMatrix4x4
 	{
 		RRReal m[4][4];
 
