@@ -202,7 +202,7 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 // input:                t, hitPoint3d, rayDir
 // returns:              true if hitPoint3d is inside t
 //                       if hitPoint3d is outside t plane, resut is undefined
-// modifies when hit:    hitPoint2d, hitOuterSide
+// modifies when hit:    hitPoint2d, hitFrontSide
 // modifies when no hit: <nothing is changed>
 {
 	FILL_STATISTIC(intersectStats.intersect_triangleSRLNP++);
@@ -249,10 +249,10 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 #ifdef FILL_HITSIDE
 	if(ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
-		//bool hitOuterSide=size2(ray->rayDir-t->n3)>2;
-		bool hitOuterSide=dot(ray->rayDir,t->n3)<0;
-		if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
-		ray->hitOuterSide=hitOuterSide;
+		//bool hitFrontSide=size2(ray->rayDir-t->n3)>2;
+		bool hitFrontSide=dot(ray->rayDir,t->n3)<0;
+		if(!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
+		ray->hitFrontSide=hitFrontSide;
 	}
 #endif
 #ifdef FILL_HITPOINT2D
@@ -293,10 +293,10 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshIm
 #ifdef FILL_HITSIDE
 	if(ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
 	{
-		//bool hitOuterSide=size2(ray->rayDir-t->n3)>2;
-		bool hitOuterSide=dot(ray->rayDir,t->n3)<0;
-		if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
-		ray->hitOuterSide=hitOuterSide;
+		//bool hitFrontSide=size2(ray->rayDir-t->n3)>2;
+		bool hitFrontSide=dot(ray->rayDir,t->n3)<0;
+		if(!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
+		ray->hitFrontSide=hitFrontSide;
 	}
 #endif
 #ifdef FILL_HITPOINT2D
@@ -321,7 +321,7 @@ template IBP
 bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const
 // input:                t, rayOrigin, rayDir, skip, hitDistanceMin, hitDistanceMax
 // returns:              true if ray hits t
-// modifies when hit:    (distanceMin, hitPoint3d) hitPoint2d, hitOuterSide, hitDistance
+// modifies when hit:    (distanceMin, hitPoint3d) hitPoint2d, hitFrontSide, hitDistance
 // modifies when no hit: (distanceMin, hitPoint3d)
 //
 // approx 50% of runtime is spent here

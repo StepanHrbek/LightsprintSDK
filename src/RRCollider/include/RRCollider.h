@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2006.1.28
+// version 2006.2.19
 //
 // - thread safe, you can calculate any number of intersections at the same time
 // - you can select technique in range from maximal speed to zero memory allocated
@@ -51,15 +51,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
-	#ifdef RRCOLLIDER_EXPORT
-		// build dll
-		#define RRCOLLIDER_API __declspec(dllexport)
-	#else
-	#ifdef RRCOLLIDER_IMPORT
-		// use dll
-		#define RRCOLLIDER_API __declspec(dllimport)
-		#pragma comment(lib,"RRCollider.lib")
-	#else
+	#ifdef RRCOLLIDER_STATIC
 		// use static library
 		#define RRCOLLIDER_API
 		#ifdef NDEBUG
@@ -67,6 +59,14 @@
 		#else
 			#pragma comment(lib,"RRCollider_sd.lib")
 		#endif
+	#else
+	#ifdef RRCOLLIDER_DLL_BUILD
+		// build dll
+		#define RRCOLLIDER_API __declspec(dllexport)
+	#else
+		// use dll
+		#define RRCOLLIDER_API __declspec(dllimport)
+		#pragma comment(lib,"RRCollider.lib")
 	#endif
 	#endif
 #else
@@ -295,7 +295,7 @@ namespace rrCollider
 			FILL_PLANE      =(1<<3),
 			FILL_TRIANGLE   =(1<<4),
 			FILL_SIDE       =(1<<5),
-			TEST_SINGLESIDED=(1<<6), // detect collision only against outer side. default is to test both sides
+			TEST_SINGLESIDED=(1<<6), // detect collision only against front side. default is to test both sides
 		};
 		RRVec4          rayOrigin;      // i, (-Inf,Inf), ray origin. never modify last component, must stay 1
 		RRVec4          rayDirInv;      // i, <-Inf,Inf>, 1/ray direction. direction must be normalized
@@ -309,7 +309,7 @@ namespace rrCollider
 		RRVec2          hitPoint2d;     // o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
 		RRVec4          hitPlane;       // o, plane of hitTriangle in object space, [0..2] is normal
 		RRVec3          hitPoint3d;     // o, hit coordinate in object space
-		bool            hitOuterSide;   // o, true = object was hit from the outer (common) side
+		bool            hitFrontSide;   // o, true = face was hit from the front side
 		RRVec4          hitPadding[2];  // o, undefined, never modify
 	private:
 		RRRay(); // intentionally private so one can't accidentally create unaligned instance

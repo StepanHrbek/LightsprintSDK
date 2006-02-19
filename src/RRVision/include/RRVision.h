@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2006.1.28
+// version 2006.2.19
 //
 // - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms
@@ -25,15 +25,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
-	#ifdef RRVISION_EXPORT
-		// build dll
-		#define RRVISION_API __declspec(dllexport)
-	#else
-	#ifdef RRVISION_IMPORT
-		// use dll
-		#define RRVISION_API __declspec(dllimport)
-		#pragma comment(lib,"RRVision.lib")
-	#else
+	#ifdef RRVISION_STATIC
 		// use static library
 		#define RRVISION_API
 		#ifdef NDEBUG
@@ -41,6 +33,14 @@
 		#else
 			#pragma comment(lib,"RRVision_sd.lib")
 		#endif
+	#else
+	#ifdef RRVISION_DLL_BUILD
+		// build dll
+		#define RRVISION_API __declspec(dllexport)
+	#else
+		// use dll
+		#define RRVISION_API __declspec(dllimport)
+		#pragma comment(lib,"RRVision.lib")
 	#endif
 	#endif
 #else

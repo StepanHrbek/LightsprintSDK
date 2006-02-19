@@ -18,7 +18,7 @@ namespace rrCollider
 static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t, RRReal distanceMax)
 // input:                ray, t
 // returns:              true if ray hits t
-// modifies when hit:    hitDistance, hitPoint2D, hitOuterSide
+// modifies when hit:    hitDistance, hitPoint2D, hitFrontSide
 // modifies when no hit: <nothing is changed>
 {
 	FILL_STATISTIC(intersectStats.intersect_triangle++);
@@ -30,8 +30,8 @@ static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t
 	real det = dot(t->side1,pvec);
 
 	// cull test
-	bool hitOuterSide = det>0;
-	if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
+	bool hitFrontSide = det>0;
+	if(!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 
 	// if determinant is near zero, ray lies in plane of triangle
 	if(det==0) return false;
@@ -62,7 +62,7 @@ static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t
 	ray->hitPoint2d[1] = v;
 #endif
 #ifdef FILL_HITSIDE
-	ray->hitOuterSide = hitOuterSide;
+	ray->hitFrontSide = hitFrontSide;
 #endif
 	return true;
 }

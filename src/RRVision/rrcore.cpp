@@ -2353,9 +2353,9 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 		return HitChannels(0);
 	}
 	s_depth++;
-	if(ray.hitOuterSide) __hitsOuter++;else __hitsInner++;
+	if(ray.hitFrontSide) __hitsOuter++;else __hitsInner++;
 	// otherwise surface with these properties was hit
-	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitOuterSide?0:1];
+	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitFrontSide?0:1];
 	assert(side->catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
 	HitChannels  hitPower=HitChannels(0);
@@ -2631,9 +2631,9 @@ Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Chann
 		return Channels(0);
 	}
 	assert(IS_NUMBER(ray.hitDistance));
-	if(ray.hitOuterSide) __hitsOuter++;else __hitsInner++;
+	if(ray.hitFrontSide) __hitsOuter++;else __hitsInner++;
 	// otherwise surface with these properties was hit
-	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitOuterSide?0:1];
+	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitFrontSide?0:1];
 	assert(side->catchFrom); // check that bad side was not hit
 	if(!side->receiveFrom)
 	{

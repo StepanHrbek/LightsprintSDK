@@ -18,7 +18,7 @@
 
 CC = gcc
 CPP = gcc
-CFLAGS = -Wall -I. -I../RRCollider/include -I../RRVision/include -I../LicGen/include -I../World/include -I../../3rd/mgflib -DSUPPORT_INTERPOL
+CFLAGS = -Wall -I. -I../RRCollider/include -I../RRVision/include -I../LicGen/include -I../World/include -I../../3rd/mgflib -DSUPPORT_INTERPOL -DRRCOLLIDER_STATIC -DRRVISION_STATIC
 LIBS = -lz -lm -lmgf -L../../lib -lRRCollider -lRRVision -lWorld -lstdc++
 LIBSALLEG = -lalleg_s -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
 MAKE = makefile

@@ -62,7 +62,7 @@ bool IntersectVerification::intersect(RRRay* ray) const
 			real delta;
 #define DIFFERS(a,b) ( (a!=b) && fabs(a-b)>delta )
 			if(ray->rayFlags&RRRay::FILL_TRIANGLE) if(rayArray[i].hitTriangle!=rayArray[0].hitTriangle) diffTriangle = true;
-			if(ray->rayFlags&RRRay::FILL_SIDE)     if(rayArray[i].hitOuterSide!=rayArray[0].hitOuterSide) diffSide = true;
+			if(ray->rayFlags&RRRay::FILL_SIDE)     if(rayArray[i].hitFrontSide!=rayArray[0].hitFrontSide) diffSide = true;
 			if(ray->rayFlags&RRRay::FILL_DISTANCE) {delta=10*DELTA_BSP;if(DIFFERS(rayArray[i].hitDistance,rayArray[0].hitDistance)) diffDistance = true;}
 			if(ray->rayFlags&RRRay::FILL_POINT2D)  {delta=0.001f;if(DIFFERS(rayArray[i].hitPoint2d[0],rayArray[0].hitPoint2d[0]) || DIFFERS(rayArray[i].hitPoint2d[1],rayArray[0].hitPoint2d[1])) diffPoint2d = true;}
 			if(ray->rayFlags&RRRay::FILL_POINT3D)  {delta=10*DELTA_BSP;if(DIFFERS(rayArray[i].hitPoint3d[0],rayArray[0].hitPoint3d[0]) || DIFFERS(rayArray[i].hitPoint3d[1],rayArray[0].hitPoint3d[1]) || DIFFERS(rayArray[i].hitPoint3d[2],rayArray[0].hitPoint3d[2])) diffPoint3d = true;}
@@ -74,7 +74,7 @@ bool IntersectVerification::intersect(RRRay* ray) const
 #define TEST_DIFF(diff,prefix,mask,expr) if(diff) {diffAny = true; printf(prefix); for(unsigned i=0;i<IT_VERIFICATION;i++) printf(mask "%c",expr,i<IT_VERIFICATION-1?'/':' ');}
 	TEST_DIFF(diffTriangle,"tri=","%d",hit[i]?rayArray[i].hitTriangle:0);
 	TEST_DIFF(diffDistance,"dist=","%f",hit[i]?rayArray[i].hitDistance:0);
-	TEST_DIFF(diffSide,"side=","%c",hit[i]?(rayArray[i].hitOuterSide?'o':'i'):'-');
+	TEST_DIFF(diffSide,"side=","%c",hit[i]?(rayArray[i].hitFrontSide?'o':'i'):'-');
 	for(unsigned j=0;j<2;j++) TEST_DIFF(diffPoint2d,"2d=","%f",hit[i]?rayArray[i].hitPoint2d[j]:0);
 	for(unsigned j=0;j<3;j++) TEST_DIFF(diffPoint3d,"3d=","%f",hit[i]?rayArray[i].hitPoint3d[j]:0);
 	for(unsigned j=0;j<4;j++) TEST_DIFF(diffPlane,"plane=","%f",hit[i]?rayArray[i].hitPlane[j]:0);

@@ -54,7 +54,7 @@ PRIVATE void update_hitPlane(RRRay* ray, RRMeshImporter* importer)
 PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t)
 // input:                ray, t
 // returns:              true if ray hits t
-// modifies when hit:    hitDistance, hitPoint2D, hitOuterSide
+// modifies when hit:    hitDistance, hitPoint2D, hitFrontSide
 // modifies when no hit: <nothing is changed>
 {
 	FILL_STATISTIC(intersectStats.intersect_triangle++);
@@ -66,8 +66,8 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* 
 	real det = dot(t->side1,pvec);
 
 	// cull test
-	bool hitOuterSide = det>0;
-	if(!hitOuterSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
+	bool hitFrontSide = det>0;
+	if(!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 
 	// if determinant is near zero, ray lies in plane of triangle
 	if(det==0) return false;
@@ -98,7 +98,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* 
 	ray->hitPoint2d[1] = v;
 #endif
 #ifdef FILL_HITSIDE
-	ray->hitOuterSide = hitOuterSide;
+	ray->hitFrontSide = hitFrontSide;
 #endif
 	return true;
 }
@@ -162,7 +162,7 @@ bool IntersectLinear::isValidTriangle(unsigned i) const
 // return first intersection with object
 // but not with *skip and not more far than *hitDistance
 //bool Object::intersection(Point3 eye,Vec3 direction,Triankle *skip,
-//  Triangle **hitTriangle,Hit *hitPoint2d,bool *hitOuterSide,real *hitDistance)
+//  Triangle **hitTriangle,Hit *hitPoint2d,bool *hitFrontSide,real *hitDistance)
 bool IntersectLinear::intersect(RRRay* ray) const
 {
 	DBG(printf("\n"));

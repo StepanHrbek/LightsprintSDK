@@ -250,7 +250,7 @@ Triangle* Scene::intersectionDynobj(RRRay& ray, Point3& eye, Vec3& direction, Ob
 	// pri velkem poctu objektu by pomohlo sesortovat je podle
 	//  vzdalenosti od oka a blizsi testovat driv
 
-	if(!dynobj->intersection(ray,eye,direction,hitTriangle,hitPoint2d,hitOuterSide,hitDistance))
+	if(!dynobj->intersection(ray,eye,direction,hitTriangle,hitPoint2d,hitFrontSide,hitDistance))
 		return false;
 	for(unsigned o=0;o<objects;o++)
 	{
@@ -258,9 +258,9 @@ Triangle* Scene::intersectionDynobj(RRRay& ray, Point3& eye, Vec3& direction, Ob
 		{
 			Triangle *hitTriangle;
 			Hit hitPoint2d;
-			bool hitOuterSide;
+			bool hitFrontSide;
 			real hitDistTmp = *hitDistance;
-			if(object[o]->intersection(ray,eye,direction,&hitTriangle,&hitPoint2d,&hitOuterSide,&hitDistTmp))
+			if(object[o]->intersection(ray,eye,direction,&hitTriangle,&hitPoint2d,&hitFrontSide,&hitDistTmp))
 				return false;
 		}
 	}

@@ -638,9 +638,9 @@ static unsigned staticToDynobjShotFunc(Scene *scene,Node *refl,Object *dynobj,Re
 	// and when successful, insert hitTriangle to hitTriangles
 	Triangle *hitTriangle;
 	Hit      hitPoint2d;
-	bool     hitOuterSide;
+	bool     hitFrontSide;
 	real     hitDistance=size(srcPoint3-dynobj->bound.center)+dynobj->bound.radius;
-	bool hit=scene->intersectionDynobj(srcPoint3,rayVec3,source->grandpa,dynobj,&hitTriangle,&hitPoint2d,&hitOuterSide,&hitDistance);
+	bool hit=scene->intersectionDynobj(srcPoint3,rayVec3,source->grandpa,dynobj,&hitTriangle,&hitPoint2d,&hitFrontSide,&hitDistance);
 	r2d->lightShots++;
 	r2d->lightShotsP+=shotPower;
 	__lightShotsPerDynamicFrame++;
