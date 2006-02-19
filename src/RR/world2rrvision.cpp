@@ -126,9 +126,6 @@ static void fillSurface(Surface *s,C_MATERIAL *m)
 	s->outside              =NULL;
 	s->inside               =NULL;
 	s->texture              =NULL;
-	s->_rd                  =m->rd;
-	s->_rdcx                =m->rd_c.cx;
-	s->_rdcy                =m->rd_c.cy;
 	s->_ed                  =m->ed/1000;
 }
 
@@ -185,9 +182,6 @@ static void load_materials(WORLD* world, char *material_mgf)
 	s_default.outside=NULL;
 	s_default.inside=NULL;
 	s_default.texture=NULL;
-	s_default._rd=0.3;//needed when calculating different illumination for different components
-	s_default._rdcx=0.3;
-	s_default._rdcy=0.3;
 	s_default._ed=0;//needed by turnLight
 	
 	for(int si=0;si<world->material_num;si++)

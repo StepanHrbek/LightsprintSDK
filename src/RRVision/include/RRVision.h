@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRVision - library for fast global illumination calculations
-// version 2006.2.19
+// version 2006.2.20
 //
 // - optimized for speed, usage in interactive environments
 // - progressive refinement with first approximative global illumination after 1ms
@@ -50,7 +50,7 @@
 
 #include "RRCollider.h"
 
-namespace rrVision
+namespace rrVision /// Encapsulates whole RRVision library.
 {
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -64,10 +64,16 @@ namespace rrVision
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
+	//! Real number used in most of calculations.
 	typedef rrCollider::RRReal RRReal;
+
+	//! Vector of 2 real numbers.
 	typedef rrCollider::RRVec2 RRVec2;
+
+	//! Vector of 3 real numbers.
 	typedef rrCollider::RRVec3 RRVec3;
 
+	//! Matrix of 4x4 real numbers.
 	struct RRVISION_API RRMatrix4x4
 	{
 		RRReal m[4][4];
@@ -90,61 +96,61 @@ namespace rrVision
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	typedef RRVec3 RRColor; // r,g,b 0..1
+	//! Color representation, r,g,b 0..1.
+	typedef RRVec3 RRColor; 
 
 	enum RRRadiometricMeasure
 	{
-		RM_INCIDENT_FLUX, // incoming W
-		RM_IRRADIANCE,    // incoming W/m^2
-		RM_EXITING_FLUX,  // outgoing W
-		RM_EXITANCE,      // outgoing W/m^2
+		RM_INCIDENT_FLUX, ///< incoming W
+		RM_IRRADIANCE,    ///< incoming W/m^2
+		RM_EXITING_FLUX,  ///< outgoing W
+		RM_EXITANCE,      ///< outgoing W/m^2
 	};
 
 	enum RREmittanceType
 	{
-		diffuseLight=0, // face emitting like ideal diffuse emitor
-		pointLight  =1, // point P emitting equally to all directions (P=diffuseEmittancePoint)
-		spotLight   =2, // face emitting only in direction from point P
-		dirLight    =3, // face emiting only in direction P
+		diffuseLight=0, ///< face emitting like ideal diffuse emitor
+		pointLight  =1, ///< point P emitting equally to all directions (P=diffuseEmittancePoint)
+		spotLight   =2, ///< face emitting only in direction from point P
+		dirLight    =3, ///< face emiting only in direction P
 	};
 
+	//! Surface description.
 	struct RRSurface
 	{
-		unsigned char sides; // 1 if surface is 1-sided, 2 for 2-sided
-		RRReal        diffuseReflectance;            // Fraction of energy that is diffuse reflected (all channels averaged).
-		RRColor       diffuseReflectanceColor;       // Fraction of energy that is diffuse reflected (each channel separately).
-		RRReal        diffuseTransmittance;          // Currently not used.
-		RRColor       diffuseTransmittanceColor;     // Currently not used.
-		RRReal        diffuseEmittance;              // \ Multiplied = Radiant emittance in watts per square meter. Never scaled by RRScaler.
-		RRColor       diffuseEmittanceColor;         // / 
+		unsigned char sides;                         ///< 1 if surface is 1-sided, 2 for 2-sided
+		RRReal        diffuseReflectance;            ///< Fraction of energy that is diffuse reflected (all channels averaged).
+		RRColor       diffuseReflectanceColor;       ///< Fraction of energy that is diffuse reflected (each channel separately).
+		RRReal        diffuseTransmittance;          ///< Currently not used.
+		RRColor       diffuseTransmittanceColor;     ///< Currently not used.
+		RRReal        diffuseEmittance;              ///< \ Multiplied = Radiant emittance in watts per square meter. Never scaled by RRScaler.
+		RRColor       diffuseEmittanceColor;         ///< / 
 		RREmittanceType emittanceType;
 		RRVec3        emittancePoint;
-		RRReal        specularReflectance;           // Fraction of energy that is mirror reflected (without color change).
-		RRColor       specularReflectanceColor;      // Currently not used.
-		RRReal        specularReflectanceRoughness;  // Currently not used.
-		RRReal        specularTransmittance;         // Fraction of energy that is transmitted (without color change).
-		RRColor       specularTransmittanceColor;    // Currently not used.
-		RRReal        specularTransmittanceRoughness;// Currently not used.
+		RRReal        specularReflectance;           ///< Fraction of energy that is mirror reflected (without color change).
+		RRColor       specularReflectanceColor;      ///< Currently not used.
+		RRReal        specularReflectanceRoughness;  ///< Currently not used.
+		RRReal        specularTransmittance;         ///< Fraction of energy that is transmitted (without color change).
+		RRColor       specularTransmittanceColor;    ///< Currently not used.
+		RRReal        specularTransmittanceRoughness;///< Currently not used.
 		RRReal        refractionReal;
-		RRReal        refractionImaginary;           // Currently not used.
+		RRReal        refractionImaginary;           ///< Currently not used.
 
-		RRReal    _rd;//needed when calculating different illumination for different components
-		RRReal    _rdcx;
-		RRReal    _rdcy;
-		RRReal    _ed;//needed by turnLight
+		RRReal        _ed;                           ///< For internal use.
 	};
 
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRObjectImporter - abstract class for importing your object into RRScene.
+	//  RRObjectImporter
+	//! Interface for importing your object into RRScene.
 	//
-	// Derive to import YOUR objects into RRScene.
-	//
-	// RRObject -> RRObjectImporter -> RRCollider -> RRMeshImporter
-	// where A -> B means that
-	//  - A has pointer to B
-	//  - note that there is no automatic reference counting in B and no automatic destruction of B from A
+	//! Derive to import YOUR objects into RRScene.
+	//!
+	//! RRObject -> RRObjectImporter -> RRCollider -> RRMeshImporter
+	//! where A -> B means that
+	//!  - A has pointer to B
+	//!  - note that there is no automatic reference counting in B and no automatic destruction of B from A
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -162,15 +168,15 @@ namespace rrVision
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
 		virtual const RRSurface*    getSurface(unsigned s) const = 0;
 		// optional
-		struct TriangleNormals      {RRVec3 norm[3];}; // 3x normal in object space
-		struct TriangleMapping      {RRVec2 uv[3];}; // 3x uv
-		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out); // normalized vertex normals in local space
-		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); // unwrap into 0..1 x 0..1 space
+		struct TriangleNormals      {RRVec3 norm[3];}; ///< 3x normal in object space
+		struct TriangleMapping      {RRVec2 uv[3];}; ///< 3x uv
+		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out); ///< normalized vertex normals in local space
+		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); ///< unwrap into 0..1 x 0..1 space
 		virtual void                getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
 
 		// may change during object lifetime
-		virtual const RRMatrix4x4*  getWorldMatrix() = 0; // may return identity as NULL 
-		virtual const RRMatrix4x4*  getInvWorldMatrix() = 0; // may return identity as NULL 
+		virtual const RRMatrix4x4*  getWorldMatrix() = 0; ///< may return identity as NULL 
+		virtual const RRMatrix4x4*  getInvWorldMatrix() = 0; ///< may return identity as NULL 
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -186,9 +192,11 @@ namespace rrVision
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRAdditionalObjectImporter - helper interface
+	//  RRAdditionalObjectImporter
+	//! Helper interface
 	//
-	// RRObjectImporter copy with set/get-able additional per-face exitance (overrides exitance of original)
+	//! RRObjectImporter copy with set/get-able additional per-face exitance 
+	//! (overrides exitance of original)
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -201,9 +209,11 @@ namespace rrVision
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRSkyLight - abstract class that defines skylight.
+	//  RRSkyLight
+	//! Interface that defines your skylight.
 	//
-	// Derive to import YOUR skylight into RRScene.
+	//! Derive to import YOUR skylight
+	//! into RRScene.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -221,14 +231,16 @@ namespace rrVision
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRScaler - abstract 1d space transformer.
+	//  RRScaler
+	//! Interface for 1d space transformer.
 	//
-	// RRScaler may be used by RRScene to transform irradiance/emittance/exitance 
-	// between physical W/m^2 space and your user defined space.
-	// It is just helper for your convenience, you may easily stay without RRScaler.
-	// Without scaler, all inputs/outputs work with specified physical units.
-	// With appropriate scaler, you may directly work for example with screen colors.
-	// Note that RRSurface::diffuseEmittance is never scaled.
+	//! RRScaler may be used by RRScene to transform irradiance/emittance/exitance 
+	//! between physical W/m^2 space and your user defined space.
+	//! It is just helper for your convenience, you may easily stay without RRScaler.
+	//! Without scaler, all inputs/outputs work with specified physical units.
+	//! With appropriate scaler, you may directly work for example with screen colors
+	//! or photometric units.
+	//! Note that RRSurface::diffuseEmittance is never scaled.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -255,10 +267,11 @@ namespace rrVision
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRScene - base for your RR calculations.
+	//  RRScene
+	//! Base for your RR calculations.
 	//
-	// You can create multiple RRScenes and perform independent calculations.
-	// But only serially, code is not thread safe.
+	//! You can create multiple RRScenes and perform independent calculations.
+	//! But only serially, code is not thread safe.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -282,10 +295,10 @@ namespace rrVision
 		// calculate radiosity
 		enum Improvement
 		{
-			IMPROVED,       // Lighting was improved during this call.
-			NOT_IMPROVED,   // Although some calculations were done, lighting was not yet improved during this call.
-			FINISHED,       // Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
-			INTERNAL_ERROR, // Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
+			IMPROVED,       ///< Lighting was improved during this call.
+			NOT_IMPROVED,   ///< Although some calculations were done, lighting was not yet improved during this call.
+			FINISHED,       ///< Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
+			INTERNAL_ERROR, ///< Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};
 		void          sceneFreezeGeometry(bool yes);
 		Improvement   sceneResetStatic(bool resetFactors);
@@ -321,25 +334,25 @@ namespace rrVision
 
 	enum RRSceneState
 	{
-		RRSS_USE_CLUSTERS,         // !0 = use clustering
-		RRSSF_SUBDIVISION_SPEED,   // speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast
-		RRSS_GET_SOURCE,           // results from getXxxRadiantExitance contain input emittances
-		RRSS_GET_REFLECTED,        // results from getXxxRadiantExitance contain additional exitances calculated by radiosity
-		RRSS_GET_SMOOTH,           // results from getXxxRadiantExitance are enhanced by smoothing
-		RRSS_GET_FINAL_GATHER,     // results from getXxxRadiantExitance are enhanced by final gather
-		RRSSF_MIN_FEATURE_SIZE,    // smaller features may be lost
-		RRSSF_MAX_SMOOTH_ANGLE,    // smaller angles between faces may be smoothed/interpolated
-		RRSSF_IGNORE_SMALLER_AREA, // minimal allowed area of triangle (m^2), smaller triangles are ignored
-		RRSSF_IGNORE_SMALLER_ANGLE,// minimal allowed angle in triangle (rad), sharper triangles are ignored
-		RRSS_FIGHT_NEEDLES,        // 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow)
-		RRSSF_FIGHT_SMALLER_AREA,  // smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES
-		RRSSF_FIGHT_SMALLER_ANGLE, // sharper triangles (rad) will be assimilated when FIGHT_NEEDLES
+		RRSS_USE_CLUSTERS,         ///< !0 = use clustering
+		RRSSF_SUBDIVISION_SPEED,   ///< speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast
+		RRSS_GET_SOURCE,           ///< results from getXxxRadiantExitance contain input emittances
+		RRSS_GET_REFLECTED,        ///< results from getXxxRadiantExitance contain additional exitances calculated by radiosity
+		RRSS_GET_SMOOTH,           ///< results from getXxxRadiantExitance are enhanced by smoothing
+		RRSS_GET_FINAL_GATHER,     ///< results from getXxxRadiantExitance are enhanced by final gather
+		RRSSF_MIN_FEATURE_SIZE,    ///< smaller features may be lost
+		RRSSF_MAX_SMOOTH_ANGLE,    ///< smaller angles between faces may be smoothed/interpolated
+		RRSSF_IGNORE_SMALLER_AREA, ///< minimal allowed area of triangle (m^2), smaller triangles are ignored
+		RRSSF_IGNORE_SMALLER_ANGLE,///< minimal allowed angle in triangle (rad), sharper triangles are ignored
+		RRSS_FIGHT_NEEDLES,        ///< 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow)
+		RRSSF_FIGHT_SMALLER_AREA,  ///< smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES
+		RRSSF_FIGHT_SMALLER_ANGLE, ///< sharper triangles (rad) will be assimilated when FIGHT_NEEDLES
 		// statistics
 		RRSS_IMPROVE_CALLS,
 		RRSS_BESTS,
 		RRSS_DISTRIBS,
 		RRSS_REFRESHES,
-		RRSS_DEPTH_OVERFLOWS,    // accumulated number of depth overflows in photon tracing, caused by physically incorrect scenes
+		RRSS_DEPTH_OVERFLOWS,      ///< accumulated number of depth overflows in photon tracing, caused by physically incorrect scenes
 		RRSS_LAST
 	};
 
@@ -370,11 +383,11 @@ namespace rrVision
 
 	enum LicenseStatus
 	{
-		VALID,       // Valid license.
-		EXPIRED,     // Expired license.
-		WRONG,       // Wrong license.
-		NO_INET,     // No internet connection to verify license.
-		UNAVAILABLE, // Temporarily unable to verify license, try later.
+		VALID,       ///< Valid license.
+		EXPIRED,     ///< Expired license.
+		WRONG,       ///< Wrong license.
+		NO_INET,     ///< No internet connection to verify license.
+		UNAVAILABLE, ///< Temporarily unable to verify license, try later.
 	};
 	LicenseStatus RRVISION_API registerLicense(char* licenseOwner, char* licenseNumber);
 

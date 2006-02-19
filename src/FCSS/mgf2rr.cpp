@@ -106,9 +106,6 @@ static void fillSurface(rrVision::RRSurface *s,C_MATERIAL *m)
 	s->specularTransmittance=m->ts;
 	s->refractionReal       =m->nr;
 	s->refractionImaginary  =m->ni;
-	s->_rd                  =m->rd;
-	s->_rdcx                =m->rd_c.cx;
-	s->_rdcy                =m->rd_c.cy;
 	s->_ed                  =m->ed/1000;
 }
 

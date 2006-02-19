@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // RRCollider - library for fast "ray x mesh" intersections
-// version 2006.2.19
+// version 2006.2.20
 //
 // - thread safe, you can calculate any number of intersections at the same time
 // - you can select technique in range from maximal speed to zero memory allocated
@@ -78,7 +78,7 @@
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
 
-namespace rrCollider
+namespace rrCollider /// Encapsulates whole #RRCollider library.
 {
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -92,8 +92,10 @@ namespace rrCollider
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
+	//! Real number used in most of calculations.
 	typedef float RRReal;
 
+	//! Vector of 2 real numbers.
 	struct RRCOLLIDER_API RRVec2
 	{
 		RRReal    x;
@@ -101,6 +103,7 @@ namespace rrCollider
 		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
 	};
 
+	//! Vector of 3 real numbers.
 	struct RRCOLLIDER_API RRVec3
 	{
 		RRReal    x;
@@ -137,6 +140,7 @@ namespace rrCollider
 	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a);
 	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a,const RRVec3& b);
 
+	//! Vector of 4 real numbers.
 	struct RRCOLLIDER_API RRVec4 : public RRVec3
 	{
 		RRReal    w;
@@ -147,10 +151,11 @@ namespace rrCollider
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRMeshImporter - abstract class for importing your mesh data into RR.
+	//  RRMeshImporter
+	//! Interface for importing your mesh data into RR.
 	//
-	// Derive to import YOUR triangle mesh.
-	// All results from RRMeshImporter must be constant in time.
+	//! Derive to import YOUR triangle mesh.
+	//! All results from RRMeshImporter must be constant in time.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -164,7 +169,7 @@ namespace rrCollider
 		virtual ~RRMeshImporter() {}
 
 		// vertices
-		typedef RRVec3 Vertex;//        {RRReal m[3]; RRReal&operator[](int i){return m[i];} const RRReal&operator[](int i)const{return m[i];}};
+		typedef RRVec3 Vertex;
 		virtual unsigned     getNumVertices() const = 0;
 		virtual void         getVertex(unsigned v, Vertex& out) const = 0;
 
@@ -175,7 +180,7 @@ namespace rrCollider
 
 		// optional for faster access
 		struct TriangleBody  {Vertex vertex0,side1,side2;};
-		typedef RRVec4 Plane;// {RRReal m[4]; RRReal&operator[](int i){return m[i];} const RRReal&operator[](int i)const{return m[i];}};
+		typedef RRVec4 Plane;
 		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 		virtual bool         getTrianglePlane(unsigned t, Plane& out) const;
 		virtual RRReal       getTriangleArea(unsigned t) const;
@@ -198,19 +203,19 @@ namespace rrCollider
 		// instance factory
 		enum Format
 		{
-			UINT8   = 0, // uint8_t
-			UINT16  = 1, // uint16_t
-			UINT32  = 2, // uint32_t
-			FLOAT16 = 3, // half
-			FLOAT32 = 4, // float
-			FLOAT64 = 5, // double
+			UINT8   = 0, ///< uint8_t
+			UINT16  = 1, ///< uint16_t
+			UINT32  = 2, ///< uint32_t
+			FLOAT16 = 3, ///< half
+			FLOAT32 = 4, ///< float
+			FLOAT64 = 5, ///< double
 		};
 		enum Flags
 		{
-			TRI_LIST            = 0,      // interpret data as triangle list
-			TRI_STRIP           = (1<<0), // interpret data as triangle strip
-			OPTIMIZED_VERTICES  = (1<<1), // remove identical and unused vertices
-			OPTIMIZED_TRIANGLES = (1<<2), // remove degenerated triangles
+			TRI_LIST            = 0,      ///< interpret data as triangle list
+			TRI_STRIP           = (1<<0), ///< interpret data as triangle strip
+			OPTIMIZED_VERTICES  = (1<<1), ///< remove identical and unused vertices
+			OPTIMIZED_TRIANGLES = (1<<2), ///< remove degenerated triangles
 		};
 		static RRMeshImporter* create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride);
 		static RRMeshImporter* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
@@ -228,15 +233,16 @@ namespace rrCollider
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRMeshSurfaceImporter - defines non-trivial behaviour of mesh surfaces
+	//  RRMeshSurfaceImporter
+	//! Interface for non-trivial behaviour of mesh surfaces.
 	//
-	// Derive to define behaviour of YOUR surfaces.
-	// You need it only when you want to
-	// - intersect mesh that contains both singlesided and twosided faces
-	// - iterate over multiple intersections with mesh
-	//
-	// It's intentionally not part of RRMeshImporter, so you can easily combine
-	// different surface behaviours with one geometry.
+	//! Derive to define behaviour of YOUR surfaces.
+	//! You need it only when you want to
+	//! - intersect mesh that contains both singlesided and twosided faces
+	//! - iterate over multiple intersections with mesh
+	//!
+	//! It's intentionally not part of RRMeshImporter, so you can easily combine
+	//! different surface behaviours with one geometry.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -245,20 +251,21 @@ namespace rrCollider
 	public:
 		virtual ~RRMeshSurfaceImporter() {}
 
-		// acceptHit is called at each intersection with mesh
-		// return false to continue to next intersection, true to end
-		// for IT_BSP techniques, intersections are reported in order from the nearest one
-		// for IT_LINEAR technique, intersections go unsorted
+		//! acceptHit is called at each intersection with mesh
+		//! return false to continue to next intersection, true to end
+		//! for IT_BSP techniques, intersections are reported in order from the nearest one
+		//! for IT_LINEAR technique, intersections go unsorted
 		virtual bool         acceptHit(const class RRRay* ray) = 0;
 	};
 
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRAligned
+	//  RRAligned
+	//! Object specially aligned in memory.
 	//
-	// On some platforms, some structures need to be specially aligned in memory.
-	// This helper base class helps to align them.
+	//! On some platforms, some structures need to be specially aligned in memory.
+	//! This helper base class helps to align them.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -273,10 +280,11 @@ namespace rrCollider
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRRay - ray to intersect with object.
+	//  RRRay
+	//! Ray to intersect with object.
 	//
-	// Contains all inputs and outputs for RRCollider::intersect()
-	// All fields of at least 3 floats are aligned.
+	//! Contains all inputs and outputs for RRCollider::intersect()
+	//! All fields of at least 3 floats are aligned.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -284,8 +292,8 @@ namespace rrCollider
 	{
 	public:
 		// create ray
-		static RRRay* create(); // all is zeroed, all FILL flags on
-		static RRRay* create(unsigned n); // creates array
+		static RRRay* create(); ///< Creates 1 RRRay. All is zeroed, all FILL flags on.
+		static RRRay* create(unsigned n); ///< Creates array of RRRays.
 		// inputs (never modified by collider)
 		enum Flags
 		{ 
@@ -295,22 +303,22 @@ namespace rrCollider
 			FILL_PLANE      =(1<<3),
 			FILL_TRIANGLE   =(1<<4),
 			FILL_SIDE       =(1<<5),
-			TEST_SINGLESIDED=(1<<6), // detect collision only against front side. default is to test both sides
+			TEST_SINGLESIDED=(1<<6), ///< detect collision only against front side. default is to test both sides
 		};
-		RRVec4          rayOrigin;      // i, (-Inf,Inf), ray origin. never modify last component, must stay 1
-		RRVec4          rayDirInv;      // i, <-Inf,Inf>, 1/ray direction. direction must be normalized
-		RRReal          rayLengthMin;   // i, <0,Inf), test intersection in range <min,max>
-		RRReal          rayLengthMax;   // i, <0,Inf), test intersection in range <min,max>
-		unsigned        rayFlags;       // i, flags that specify the action
-		RRMeshSurfaceImporter* surfaceImporter; // i, optional surface importer for user-defined surface behaviours
+		RRVec4          rayOrigin;      ///< i, (-Inf,Inf), ray origin. never modify last component, must stay 1
+		RRVec4          rayDirInv;      ///< i, <-Inf,Inf>, 1/ray direction. direction must be normalized
+		RRReal          rayLengthMin;   ///< i, <0,Inf), test intersection in range <min,max>
+		RRReal          rayLengthMax;   ///< i, <0,Inf), test intersection in range <min,max>
+		unsigned        rayFlags;       ///< i, flags that specify the action
+		RRMeshSurfaceImporter* surfaceImporter; ///< i, optional surface importer for user-defined surface behaviours
 		// outputs (valid after positive test, undefined otherwise)
-		RRReal          hitDistance;    // o, hit distance in object space
-		unsigned        hitTriangle;    // o, triangle (postImport) that was hit
-		RRVec2          hitPoint2d;     // o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
-		RRVec4          hitPlane;       // o, plane of hitTriangle in object space, [0..2] is normal
-		RRVec3          hitPoint3d;     // o, hit coordinate in object space
-		bool            hitFrontSide;   // o, true = face was hit from the front side
-		RRVec4          hitPadding[2];  // o, undefined, never modify
+		RRReal          hitDistance;    ///< o, hit distance in object space
+		unsigned        hitTriangle;    ///< o, triangle (postImport) that was hit
+		RRVec2          hitPoint2d;     ///< o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
+		RRVec4          hitPlane;       ///< o, plane of hitTriangle in object space, [0..2] is normal
+		RRVec3          hitPoint3d;     ///< o, hit coordinate in object space
+		bool            hitFrontSide;   ///< o, true = face was hit from the front side
+		RRVec4          hitPadding[2];  ///< o, undefined, never modify
 	private:
 		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};
@@ -318,11 +326,12 @@ namespace rrCollider
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRCollider - single object able to calculate ray x trimesh intersections.
+	//  RRCollider
+	//! Single object able to calculate ray x trimesh intersections.
 	//
-	// Mesh is defined by importer passed to create().
-	// All results from importer must be constant in time, 
-	// otherwise collision results are undefined.
+	//! Mesh is defined by importer passed to create().
+	//! All results from importer must be constant in time, 
+	//! otherwise collision results are undefined.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -332,11 +341,11 @@ namespace rrCollider
 		// create
 		enum IntersectTechnique
 		{
-			IT_LINEAR,          // speed   1%, size  0
-			IT_BSP_COMPACT,     // speed 100%, size  5 bytes per triangle
-			IT_BSP_FAST,        // speed 175%, size 31
-			IT_BSP_FASTEST,     // speed 200%, size 58
-			IT_VERIFICATION,    // test using all techniques and compare
+			IT_LINEAR,          ///< speed   1%, size  0
+			IT_BSP_COMPACT,     ///< speed 100%, size  5 bytes per triangle
+			IT_BSP_FAST,        ///< speed 175%, size 31
+			IT_BSP_FASTEST,     ///< speed 200%, size 58
+			IT_VERIFICATION,    ///< test using all techniques and compare
 		};
 		static RRCollider*   create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
 
@@ -346,16 +355,17 @@ namespace rrCollider
 		virtual bool         intersect(RRRay* ray) const = 0;
 
 		// helpers
-		virtual RRMeshImporter*    getImporter() const = 0; // identical to importer from create()
-		virtual IntersectTechnique getTechnique() const = 0; // my differ from technique requested in create()
-		virtual unsigned           getMemoryOccupied() const = 0; // total amount of system memory occupied by collider
+		virtual RRMeshImporter*    getImporter() const = 0; ///< identical to importer from create()
+		virtual IntersectTechnique getTechnique() const = 0; ///< my differ from technique requested in create()
+		virtual unsigned           getMemoryOccupied() const = 0; ///< total amount of system memory occupied by collider
 		virtual ~RRCollider() {};
 	};
 
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRIntersectStats - statistics for library calls
+	//  RRIntersectStats
+	//! Statistics for library calls
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

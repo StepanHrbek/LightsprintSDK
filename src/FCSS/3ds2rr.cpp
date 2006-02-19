@@ -112,9 +112,6 @@ static void fillSurface(rrVision::RRSurface* s,Model_3DS::Material* m)
 	s->specularTransmittance= 0;
 	s->refractionReal       = 1;
 	s->refractionImaginary  = 0;
-	s->_rd                  = s->diffuseReflectance;
-	s->_rdcx                = 0.33f;
-	s->_rdcy                = 0.33f;
 	s->_ed                  = 0;
 }
 
