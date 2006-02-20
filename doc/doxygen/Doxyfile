@@ -25,7 +25,9 @@ ABBREVIATE_BRIEF       = "The $name class" \
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = "C:/Documents and Settings/Dee/"
+STRIP_FROM_PATH        = "C:/Documents and Settings/Dee/Dokumenty/c/rr/src/RRCollider/include" \
+                         "C:/Documents and Settings/Dee/Dokumenty/c/rr/src/RRVision/include" \
+                         "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen"
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = NO
@@ -60,10 +62,10 @@ INLINE_INFO            = YES
 SORT_MEMBER_DOCS       = YES
 SORT_BRIEF_DOCS        = NO
 SORT_BY_SCOPE_NAME     = NO
-GENERATE_TODOLIST      = YES
-GENERATE_TESTLIST      = YES
-GENERATE_BUGLIST       = YES
-GENERATE_DEPRECATEDLIST= YES
+GENERATE_TODOLIST      = NO
+GENERATE_TESTLIST      = NO
+GENERATE_BUGLIST       = NO
+GENERATE_DEPRECATEDLIST= NO
 ENABLED_SECTIONS       = 
 MAX_INITIALIZER_LINES  = 30
 SHOW_USED_FILES        = YES
@@ -83,7 +85,8 @@ WARN_LOGFILE           =
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/src/RRCollider/include" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/src/RRVision/include"
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/src/RRVision/include" \
+                         "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/main"
 FILE_PATTERNS          = *.c \
                          *.cc \
                          *.cxx \

@@ -1,0 +1,16 @@
+/**
+
+\mainpage RR
+Welcome to RR libraries.
+\section rrcollider 1. RRCollider
+Ray-mesh intersection library RRCollider consists of
+\n File: RRCollider.h
+\n Namespace: rrCollider
+\n Core classes: rrCollider::RRCollider, rrCollider::RRMeshImporter
+\section rrvision 2. RRVision
+Radiosity library RRVision consists of
+\n File: RRVision.h
+\n Namespace: rrVision
+\n Core classes: rrVision::RRScene, rrVision::RRObjectImporter
+
+*/

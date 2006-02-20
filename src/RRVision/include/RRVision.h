@@ -2,17 +2,18 @@
 #define RRVISION_RRVISION_H
 
 //////////////////////////////////////////////////////////////////////////////
-// RRVision - library for fast global illumination calculations
-// version 2006.2.20
-//
-// - optimized for speed, usage in interactive environments
-// - progressive refinement with first approximative global illumination after 1ms
-// - automatic mesh optimizations
-// - works with your units (screen colors or radiometry or photometry units or anything else)
-// - display independent, purely numerical API
-//
-// Copyright (C) Stepan Hrbek 1999-2006
-// All rights reserved
+//! \file RRVision.h
+//! RRVision - library for fast global illumination calculations
+//! \version 2006.2.20
+//!
+//! - optimized for speed, usage in interactive environments
+//! - progressive refinement with first approximative global illumination after 1ms
+//! - automatic mesh optimizations
+//! - works with your units (screen colors or radiometry or photometry units or anything else)
+//! - display independent, purely numerical API
+//!
+//! \author Copyright (C) Stepan Hrbek 1999-2006
+//! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////

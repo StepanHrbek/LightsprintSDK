@@ -2,16 +2,17 @@
 #define COLLIDER_RRCOLLIDER_H
 
 //////////////////////////////////////////////////////////////////////////////
-// RRCollider - library for fast "ray x mesh" intersections
-// version 2006.2.20
-//
-// - thread safe, you can calculate any number of intersections at the same time
-// - you can select technique in range from maximal speed to zero memory allocated
-// - up to 2^32 vertices and 2^30 triangles in mesh
-// - builds helper-structures and stores them in cache on disk
-//
-// Copyright (C) Stepan Hrbek 1999-2006, Daniel Sykora 1999-2004
-// All rights reserved
+//! \file RRCollider.h
+//! RRCollider - library for fast "ray x mesh" intersections
+//! \version 2006.2.20
+//!
+//! - thread safe, you can calculate any number of intersections at the same time
+//! - you can select technique in range from maximal speed to zero memory allocated
+//! - up to 2^32 vertices and 2^30 triangles in mesh
+//! - builds helper-structures and stores them in cache on disk
+//!
+//! \author Copyright (C) Stepan Hrbek 1999-2006, Daniel Sykora 1999-2004
+//! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
