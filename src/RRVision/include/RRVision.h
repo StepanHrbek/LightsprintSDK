@@ -285,8 +285,12 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		unsigned numCallsRefreshFactors;
 		unsigned numCallsDistribFactors;
 		unsigned numCallsDistribFactor;
+		unsigned numCallsTriangleMeasureOk;   ///< getTriangleMeasure returned true
+		unsigned numCallsTriangleMeasureFail; ///< getTriangleMeasure returned false
+		unsigned numIrradianceCacheHits;
+		unsigned numIrradianceCacheMisses;
 		// numbers of errors
-		unsigned numDepthOverflows;        ///< accumulated number of depth overflows in photon tracing, caused by physically incorrect scenes
+		unsigned numDepthOverflows;        ///< Number of depth overflows in recursive photon tracing. Caused by physically incorrect scenes.
 		// amounts of distributed radiance
 		RRColor  distribSumInput;
 		RRReal   distribSumFactorClean;

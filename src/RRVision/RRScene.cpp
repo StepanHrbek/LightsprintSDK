@@ -352,17 +352,20 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			goto error; // not supported yet
 		case RM_IRRADIANCE:
 			out = irrad;
+			RRScene::getSceneStatistics()->numCallsTriangleMeasureOk++;
 			return true;
 		case RM_EXITING_FLUX:
 			goto error; // not supported yet
 		case RM_EXITANCE:
 			out = irrad * tri->surface->diffuseReflectanceColor;
+			RRScene::getSceneStatistics()->numCallsTriangleMeasureOk++;
 			return true;
 	}
 error:
 	assert(0);
 zero:
 	out = RRColor(0);
+	RRScene::getSceneStatistics()->numCallsTriangleMeasureFail++;
 	return false;
 }
 

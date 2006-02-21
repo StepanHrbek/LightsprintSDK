@@ -279,7 +279,11 @@ Channels IVertex::irradiance()
 		cache=powerTopLevel?irrad/powerTopLevel:getClosestIrradiance();//hack for ivertices inside needle - quick search for nearest valid value
 		cacheTime=__frameNumber;
 		cacheValid=1;
+		RRScene::getSceneStatistics()->numIrradianceCacheMisses++;
 	}
+	else
+		RRScene::getSceneStatistics()->numIrradianceCacheHits++;
+
 	clampToZero(cache); //!!! obcas tu vznikaji zaporny hodnoty coz je zcela nepripustny!
 	assert(IS_CHANNELS(cache));
 	return cache;
