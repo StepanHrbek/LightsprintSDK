@@ -1370,7 +1370,7 @@ bool Reflectors::check()
 Node *Reflectors::best(bool distributing,real avgAccuracy,real improveBig,real improveInaccurate)
 {
 	DBGLINE
-	RRSetState(RRSS_BESTS,RRGetState(RRSS_BESTS)+1);
+	RRScene::getSceneStatistics()->numCallsBest++;
 	// if cache empty, fill cache
 	if(!bests && nodes)
 	{
@@ -2349,7 +2349,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	static unsigned s_depth = 0;
 	if(s_depth>25) 
 	{
-		RRSetState(RRSS_DEPTH_OVERFLOWS,RRGetState(RRSS_DEPTH_OVERFLOWS)+1);
+		RRScene::getSceneStatistics()->numDepthOverflows++;
 		return HitChannels(0);
 	}
 	s_depth++;
@@ -2670,6 +2670,10 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	Channels energy=*va_arg(ap,Channels*);
 	Reflectors *staticReflectors=va_arg(ap,Reflectors *);
 
+	// statistics
+	RRScene::getSceneStatistics()->numCallsDistribFactor++;
+	RRScene::getSceneStatistics()->distribSumInput += energy;
+
 	Node *destination=factor->destination;
 	assert(destination);
 	assert(factor->power>=0);
@@ -2690,7 +2694,16 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	assert(destination->grandpa->surface);
 	assert(IS_VEC3(destination->grandpa->surface->diffuseReflectanceColor));
 	energy *= destination->grandpa->surface->diffuseReflectanceColor;
+
+	// statistics
+	RRScene::getSceneStatistics()->distribSumFactorClean += factor->power;
+	RRScene::getSceneStatistics()->distribSumFactorMaterial += destination->grandpa->surface->diffuseReflectanceColor * factor->power;
+#else
+	RRScene::getSceneStatistics()->distribSumFactorClean += factor->power / destination->grandpa->surface->diffuseReflectanceColor;
+	RRScene::getSceneStatistics()->distribSumFactorMaterial += factor->power;
 #endif
+	RRScene::getSceneStatistics()->distribSumOutput += energy;
+
 	// pak leze nahoru az k trianglu, do clusteru neni treba
 	bool wasLetToDiffuse=false;
 	do
@@ -3132,7 +3145,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 		needsRefresh=nowAcc*(hack-distributionsSinceRefresh)/hack<avgAcc;
 		if(needsRefresh)
 		{
-			RRSetState(RRSS_REFRESHES,RRGetState(RRSS_REFRESHES)+1);
+			RRScene::getSceneStatistics()->numCallsRefreshFactors++;
 			distributionsSinceRefresh=0;
 			improveBig=MAX(0.3f,improveBig-0.005f);
 			improveInaccurate=MIN(2,improveInaccurate+0.005f);
@@ -3145,7 +3158,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 		}
 		else
 		{
-			RRSetState(RRSS_DISTRIBS,RRGetState(RRSS_DISTRIBS)+1);
+			RRScene::getSceneStatistics()->numCallsDistribFactors++;
 			if(distributionsSinceRefresh<hack/2) distributionsSinceRefresh++; // mirnejsi verze, funguje ok
 			//if(distributionsSinceRefresh+1<hack) distributionsSinceRefresh++; // ostrejsi verze
 			improveBig=MIN(1,improveBig+0.05f);
@@ -3210,7 +3223,7 @@ RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 {
 	if(!IS_CHANNELS(staticSourceExitingFlux)) return RRScene::INTERNAL_ERROR; // invalid internal data
 	DBGLINE
-	RRSetState(RRSS_IMPROVE_CALLS,RRGetState(RRSS_IMPROVE_CALLS)+1);
+	RRScene::getSceneStatistics()->numCallsImprove++;
 
 	RRScene::Improvement improved=RRScene::NOT_IMPROVED;
 	__staticReflectors=&staticReflectors;

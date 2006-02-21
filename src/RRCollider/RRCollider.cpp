@@ -83,6 +83,11 @@ RRIntersectStats intersectStats;
 
 RRIntersectStats::RRIntersectStats() 
 {
+	Reset();
+}
+
+void RRIntersectStats::Reset() 
+{
 	memset(this,0,sizeof(*this));
 }
 

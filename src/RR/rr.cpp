@@ -1078,7 +1078,7 @@ int main(int argc, char **argv)
 	   scene->infoImprovement(buf,__infolevel); puts(buf);
 	   const rrCollider::RRCollider* collider = scene->object[0]->importer->getCollider();
 	   const rrCollider::RRMeshImporter* importer = collider->getImporter();
-	   sprintf(buf,"%5d/%03d",rrCollider::RRIntersectStats::getInstance()->intersects/1000,collider->getMemoryOccupied()/importer->getNumTriangles());
+	   sprintf(buf,"%5d/%03d",rrCollider::RRIntersectStats::getInstance()->intersect_mesh/1000,collider->getMemoryOccupied()/importer->getNumTriangles());
 	   fprintf(stderr,buf);
 	   return 0;
    }

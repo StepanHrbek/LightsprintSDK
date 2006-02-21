@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! RRVision - library for fast global illumination calculations
-//! \version 2006.2.20
+//! \version 2006.2.21
 //!
 //! - optimized for speed, usage in interactive environments
 //! - progressive refinement with first approximative global illumination after 1ms
@@ -268,6 +268,38 @@ namespace rrVision /// Encapsulates whole RRVision library.
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//  RRSceneStatistics
+	//! Statistics for scene. Retrieve by scene->getSceneStatistics().
+	//
+	//! All values are cumulative, most of them only increases.
+	//! You should manually reset them to zero at the beginning of measurement.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RRVISION_API RRSceneStatistics
+	{
+	public:
+		// numbers of calls
+		unsigned numCallsImprove;
+		unsigned numCallsBest;
+		unsigned numCallsRefreshFactors;
+		unsigned numCallsDistribFactors;
+		unsigned numCallsDistribFactor;
+		// numbers of errors
+		unsigned numDepthOverflows;        ///< accumulated number of depth overflows in photon tracing, caused by physically incorrect scenes
+		// amounts of distributed radiance
+		RRColor  distribSumInput;
+		RRReal   distribSumFactorClean;
+		RRColor  distribSumFactorMaterial;
+		RRColor  distribSumOutput;
+		// tools
+		RRSceneStatistics();               ///< Resets all values to zero.
+		void     Reset();                  ///< Resets all values to zero.
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	//  RRScene
 	//! Base for your RR calculations.
 	//
@@ -319,6 +351,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		// misc: development
 		void          getInfo(char* buf, unsigned type);
 		void          getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
+		static RRSceneStatistics* getSceneStatistics();
 		void*         getScene();
 		void*         getObject(ObjectHandle object);
 
@@ -348,12 +381,6 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		RRSS_FIGHT_NEEDLES,        ///< 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow)
 		RRSSF_FIGHT_SMALLER_AREA,  ///< smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES
 		RRSSF_FIGHT_SMALLER_ANGLE, ///< sharper triangles (rad) will be assimilated when FIGHT_NEEDLES
-		// statistics
-		RRSS_IMPROVE_CALLS,
-		RRSS_BESTS,
-		RRSS_DISTRIBS,
-		RRSS_REFRESHES,
-		RRSS_DEPTH_OVERFLOWS,      ///< accumulated number of depth overflows in photon tracing, caused by physically incorrect scenes
 		RRSS_LAST
 	};
 

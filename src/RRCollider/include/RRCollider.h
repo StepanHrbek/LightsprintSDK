@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
 //! RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.2.20
+//! \version 2006.2.21
 //!
 //! - thread safe, you can calculate any number of intersections at the same time
 //! - you can select technique in range from maximal speed to zero memory allocated
@@ -366,15 +366,13 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRIntersectStats
-	//! Statistics for library calls
+	//! Statistics for library calls. Retrieve by getInstance().
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RRCOLLIDER_API RRIntersectStats
 	{
 	public:
-		static RRIntersectStats* getInstance();
-		RRIntersectStats();
 		// data
 		unsigned loaded_triangles;
 		unsigned invalid_triangles;
@@ -401,8 +399,11 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 		unsigned diff_clear_hit;
 		unsigned diff_clear_miss_tested;
 		unsigned diff_clear_miss_not_tested;
-		// helper
+		// tools
+		RRIntersectStats();
+		void Reset();
 		void getInfo(char *buf, unsigned len, unsigned level) const;
+		static RRIntersectStats* getInstance();
 	};
 
 
