@@ -166,7 +166,7 @@ bool IntersectLinear::isValidTriangle(unsigned i) const
 bool IntersectLinear::intersect(RRRay* ray) const
 {
 	DBG(printf("\n"));
-	FILL_STATISTIC(intersectStats.intersects++);
+	FILL_STATISTIC(intersectStats.intersect_mesh++);
 	if(!importer) return false; // this shouldn't happen but linear is so slow that we can test it
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 
@@ -247,7 +247,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 			update_hitPlane(ray,importer);
 		}
 #endif
-		FILL_STATISTIC(intersectStats.hits++);
+		FILL_STATISTIC(intersectStats.hit_mesh++);
 	}
 	return hit;
 }

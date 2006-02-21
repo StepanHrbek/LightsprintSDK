@@ -148,7 +148,7 @@ begin:
 					update_hitPlane(ray,importer);
 				}
 #endif
-				FILL_STATISTIC(intersectStats.hits++);
+				//FILL_STATISTIC(intersectStats.hit_mesh++);
 			}
 			return hit;
 		}
@@ -334,7 +334,7 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 {
 	assert(tree);
 
-	FILL_STATISTIC(intersectStats.intersects++);
+	FILL_STATISTIC(intersectStats.intersect_mesh++);
 #ifdef USE_EXPECT_HIT
 	if(ray->rayFlags&RRRay::EXPECT_HIT) 
 	{
@@ -355,7 +355,7 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 	{
 		hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
 	}
-	FILL_STATISTIC(if(hit) intersectStats.hits++);
+	FILL_STATISTIC(if(hit) intersectStats.hit_mesh++);
 	return hit;
 
 /*
@@ -366,7 +366,7 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 		box.intersect(ray))) 
 		&& update_rayDir(ray)
 		&& intersect_bsp(ray,tree,ray->hitDistanceMax);
-	FILL_STATISTIC(if(hit) intersectStats.hits++);
+	FILL_STATISTIC(if(hit) intersectStats.hit_mesh++);
 	return hit;*/
 }
 

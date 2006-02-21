@@ -740,7 +740,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 #endif
 
 	DBG(printf("\n"));
-	FILL_STATISTIC(intersectStats.intersects++);
+	FILL_STATISTIC(intersectStats.intersect_mesh++);
 
 #ifdef TEST
 	ray->flags |= RRRay::FILL_PLANE + RRRay::FILL_DISTANCE;
@@ -890,7 +890,7 @@ test_no:
 	}
 #endif
 
-	FILL_STATISTIC(if(hit) intersectStats.hits++);
+	FILL_STATISTIC(if(hit) intersectStats.hit_mesh++);
 	return hit;
 }
 

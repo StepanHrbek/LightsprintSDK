@@ -379,8 +379,8 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 		unsigned loaded_triangles;
 		unsigned invalid_triangles;
 		// calls
-		unsigned intersects;
-		unsigned hits;
+		unsigned intersect_mesh;
+		unsigned hit_mesh;
 		// branches, once per call
 		unsigned intersect_bspSRLNP;
 		unsigned intersect_bspNP;
