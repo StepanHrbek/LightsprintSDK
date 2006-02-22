@@ -86,7 +86,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/src/RRCollider/include" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/src/RRVision/include" \
-                         "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/main"
+                         "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/doc"
 FILE_PATTERNS          = *.c \
                          *.cc \
                          *.cxx \

@@ -2976,7 +2976,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(
 			// pokud by to snad nastavalo casto, vypocet bude neefektivni
 			shotsForNewFactors = 1+source->shooter->shotsForFactors;
 		}
-		// silnejsi verze, ktera prebije i nepriznive okolnosti pri selhani GATE_TIME
+		// silnejsi verze, ktera prebije i nepriznive okolnosti pri selhani GATE_DATE
 		//shotsForNewFactors = MAX(shotsForNewFactors,2*source->shooter->shotsForFactors);
 		assert(shotsForNewFactors>source->shooter->shotsForFactors);
 		assert(shotsAccumulated==0);

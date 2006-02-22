@@ -6,11 +6,11 @@ Welcome to RR libraries.
 Ray-mesh intersection library RRCollider consists of
 \n File: RRCollider.h
 \n Namespace: rrCollider
-\n Core classes: rrCollider::RRCollider, rrCollider::RRMeshImporter
+\n Class that calculates collisions: rrCollider::RRCollider
 \section rrvision 2. RRVision
 Radiosity library RRVision consists of
 \n File: RRVision.h
 \n Namespace: rrVision
-\n Core classes: rrVision::RRScene, rrVision::RRObjectImporter
+\n Class that calculates radiosity: rrVision::RRScene
 
 */

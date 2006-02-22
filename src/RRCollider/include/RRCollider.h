@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
 //! RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.2.21
+//! \version 2006.2.23
 //!
 //! - thread safe, you can calculate any number of intersections at the same time
 //! - you can select technique in range from maximal speed to zero memory allocated

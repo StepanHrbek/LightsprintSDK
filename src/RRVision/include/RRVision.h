@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! RRVision - library for fast global illumination calculations
-//! \version 2006.2.21
+//! \version 2006.2.23
 //!
 //! - optimized for speed, usage in interactive environments
 //! - progressive refinement with first approximative global illumination after 1ms
