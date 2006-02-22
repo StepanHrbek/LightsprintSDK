@@ -2324,9 +2324,6 @@ Vec3 refract(Vec3 N,Vec3 I,real r)
 	}
 }
 
-unsigned __hitsOuter=0;
-unsigned __hitsInner=0;
-
 rrCollider::RRRay* __ray;
 
 HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power)
@@ -2353,9 +2350,9 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 		return HitChannels(0);
 	}
 	s_depth++;
-	if(ray.hitFrontSide) __hitsOuter++;else __hitsInner++;
+	if(ray.hitFrontSide) RRScene::getSceneStatistics()->numRayTracePhotonFrontHits++;else RRScene::getSceneStatistics()->numRayTracePhotonBackHits++;
 	// otherwise surface with these properties was hit
-	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitFrontSide?0:1];
+	RRSideBits *side=&sideBits[hitTriangle->surface->twoSided?2:1][ray.hitFrontSide?0:1];
 	assert(side->catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
 	HitChannels  hitPower=HitChannels(0);
@@ -2530,7 +2527,7 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	    {
 	    //area:
 		// pouziti funkce misto primeho zapisu pod vc7 prida 1.7% vykonu
-		if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->sides,rayVec3)) 
+			if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->twoSided?2:1,rayVec3)) 
 			return NULL;
 	    break;
 	    }
@@ -2631,9 +2628,9 @@ Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Chann
 		return Channels(0);
 	}
 	assert(IS_NUMBER(ray.hitDistance));
-	if(ray.hitFrontSide) __hitsOuter++;else __hitsInner++;
+	if(ray.hitFrontSide) RRScene::getSceneStatistics()->numGatherFrontHits++;else RRScene::getSceneStatistics()->numGatherBackHits++;
 	// otherwise surface with these properties was hit
-	RRSideBits *side=&sideBits[hitTriangle->surface->sides][ray.hitFrontSide?0:1];
+	RRSideBits *side=&sideBits[hitTriangle->surface->twoSided?2:1][ray.hitFrontSide?0:1];
 	assert(side->catchFrom); // check that bad side was not hit
 	if(!side->receiveFrom)
 	{
@@ -2672,7 +2669,7 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 
 	// statistics
 	RRScene::getSceneStatistics()->numCallsDistribFactor++;
-	RRScene::getSceneStatistics()->distribSumInput += energy;
+	RRScene::getSceneStatistics()->sumDistribInput += energy;
 
 	Node *destination=factor->destination;
 	assert(destination);
@@ -2696,13 +2693,13 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	energy *= destination->grandpa->surface->diffuseReflectanceColor;
 
 	// statistics
-	RRScene::getSceneStatistics()->distribSumFactorClean += factor->power;
-	RRScene::getSceneStatistics()->distribSumFactorMaterial += destination->grandpa->surface->diffuseReflectanceColor * factor->power;
+	RRScene::getSceneStatistics()->sumDistribFactorClean += factor->power;
+	RRScene::getSceneStatistics()->sumDistribFactorMaterial += destination->grandpa->surface->diffuseReflectanceColor * factor->power;
 #else
-	RRScene::getSceneStatistics()->distribSumFactorClean += factor->power / destination->grandpa->surface->diffuseReflectanceColor;
-	RRScene::getSceneStatistics()->distribSumFactorMaterial += factor->power;
+	RRScene::getSceneStatistics()->sumDistribFactorClean += factor->power / destination->grandpa->surface->diffuseReflectanceColor;
+	RRScene::getSceneStatistics()->sumDistribFactorMaterial += factor->power;
 #endif
-	RRScene::getSceneStatistics()->distribSumOutput += energy;
+	RRScene::getSceneStatistics()->sumDistribOutput += energy;
 
 	// pak leze nahoru az k trianglu, do clusteru neni treba
 	bool wasLetToDiffuse=false;
@@ -3420,7 +3417,7 @@ void Scene::infoImprovement(char *buf, int infolevel)
 #endif
 	int ot=kb-hi-fa-su-tr-cl-iv-co-li;
 	buf[0]=0;
-	if(infolevel>1) sprintf(buf+strlen(buf),"hits(%i/%i) ",__hitsOuter,__hitsInner);
+	if(infolevel>1) sprintf(buf+strlen(buf),"hits(%i/%i) ",RRScene::getSceneStatistics()->numRayTracePhotonFrontHits,RRScene::getSceneStatistics()->numRayTracePhotonBackHits);
 #ifdef SUPPORT_DYNAMIC
 	if(infolevel>1) sprintf(buf+strlen(buf),"dshots(%i->%i) ",__lightShotsPerDynamicFrame,__shadeShotsPerDynamicFrame);
 #endif

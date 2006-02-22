@@ -765,9 +765,6 @@ namespace rrVision
 //
 // scene
 
-extern unsigned __hitsOuter;
-extern unsigned __hitsInner;
-
 class Scene
 {
 public:

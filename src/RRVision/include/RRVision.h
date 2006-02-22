@@ -119,7 +119,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	//! Surface description.
 	struct RRSurface
 	{
-		unsigned char sides;                         ///< 1 if surface is 1-sided, 2 for 2-sided
+		unsigned char twoSided:1;                    ///< 0 if surface is single-sided, 1 for two-sided
 		RRReal        diffuseReflectance;            ///< Fraction of energy that is diffuse reflected (all channels averaged).
 		RRColor       diffuseReflectanceColor;       ///< Fraction of energy that is diffuse reflected (each channel separately).
 		RRReal        diffuseTransmittance;          ///< Currently not used.
@@ -285,6 +285,10 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		unsigned numCallsRefreshFactors;
 		unsigned numCallsDistribFactors;
 		unsigned numCallsDistribFactor;
+		unsigned numRayTracePhotonFrontHits;
+		unsigned numRayTracePhotonBackHits;
+		unsigned numGatherFrontHits;
+		unsigned numGatherBackHits;
 		unsigned numCallsTriangleMeasureOk;   ///< getTriangleMeasure returned true
 		unsigned numCallsTriangleMeasureFail; ///< getTriangleMeasure returned false
 		unsigned numIrradianceCacheHits;
@@ -292,10 +296,10 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		// numbers of errors
 		unsigned numDepthOverflows;        ///< Number of depth overflows in recursive photon tracing. Caused by physically incorrect scenes.
 		// amounts of distributed radiance
-		RRColor  distribSumInput;
-		RRReal   distribSumFactorClean;
-		RRColor  distribSumFactorMaterial;
-		RRColor  distribSumOutput;
+		RRColor  sumDistribInput;
+		RRReal   sumDistribFactorClean;
+		RRColor  sumDistribFactorMaterial;
+		RRColor  sumDistribOutput;
 		// tools
 		RRSceneStatistics();               ///< Resets all values to zero.
 		void     Reset();                  ///< Resets all values to zero.

@@ -106,7 +106,7 @@ static ColorTable createColorTable(double cx,double cy,real rs)
 
 static void fillSurface(Surface *s,C_MATERIAL *m)
 {
-	s->sides                =(m->sided==1)?1:2;
+	s->twoSided             =(m->sided==1)?0:1;
 	s->diffuseReflectance   =m->rd;
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectanceColor);
 	s->diffuseReflectanceColor[0]*=m->rd;
@@ -155,7 +155,7 @@ static void load_materials(WORLD* world, char *material_mgf)
 	ldmgf(material_mgf,NULL,scene_add_surface,NULL,NULL,NULL);// nacte knihovnu materialu	(stejne_jmeno.mgf)
 
 	static Surface s_default;
-	s_default.sides=2; // 1 if surface is 1-sided, 2 for 2-sided
+	s_default.twoSided=1;
 	s_default.diffuseReflectance=0.3;
 	s_default.diffuseReflectanceColor[0]=1;
 	s_default.diffuseReflectanceColor[1]=1;
