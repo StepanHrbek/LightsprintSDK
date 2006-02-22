@@ -2356,6 +2356,8 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	assert(side.catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
 	HitChannels  hitPower=HitChannels(0);
+	// stats
+	if(!side.receiveFrom) RRScene::getSceneStatistics()->numRayTracePhotonHitsNotReceived++;
 	// diffuse reflection
 	// no real reflection is done here, but energy is stored for further
 	//  redistribution along existing or newly calculated form factors

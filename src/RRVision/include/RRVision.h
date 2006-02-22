@@ -117,6 +117,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		dirLight    =3, ///< face emiting only in direction P
 	};
 
+	//! Boolean attributes of front or back side of surface.
 	struct RRSideBits
 	{
 		unsigned char renderFrom:1;  ///< is visible from that halfspace
@@ -127,7 +128,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		unsigned char transmitFrom:1;///<  transmits energy from that halfspace to other halfspace
 	};
 
-	//! Surface description.
+	//! Description of surface.
 	struct RRSurface
 	{
 		RRSideBits    sideBits[2];                   ///< defines surface behaviour for front(0) and back(1) side
@@ -298,6 +299,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		unsigned numCallsDistribFactor;
 		unsigned numRayTracePhotonFrontHits;
 		unsigned numRayTracePhotonBackHits;
+		unsigned numRayTracePhotonHitsNotReceived;
 		unsigned numGatherFrontHits;
 		unsigned numGatherBackHits;
 		unsigned numCallsTriangleMeasureOk;   ///< getTriangleMeasure returned true
