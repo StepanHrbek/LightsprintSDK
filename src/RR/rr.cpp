@@ -891,7 +891,7 @@ int main(int argc, char **argv)
      if (!strcmp(argv[i],"-j"))
         c_fightNeedles=true;
      else
-     if (!strncmp(argv[i],"-sides",6))
+     /*if (!strncmp(argv[i],"-sides",6))
         {int side,onoff;char inout[30],bit[30];
          if(sscanf(argv[i],"-sides%d%[^:]:%[^=]=%d",&side,inout,bit,&onoff)!=4) goto badarg;
          if(side<1 || side>2 || onoff<0 || onoff>1) goto badarg;
@@ -905,7 +905,7 @@ int main(int argc, char **argv)
          if(!strcmp(bit,"reflect")) b->reflect=onoff; else
          if(!strcmp(bit,"transmit")) b->transmitFrom=onoff; else goto badarg;
      }
-     else
+     else*/
 
      if (!strcmp(argv[i],"-cap"))
         preparing_capture=true;

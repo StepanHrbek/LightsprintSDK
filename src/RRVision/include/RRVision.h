@@ -93,6 +93,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	// RRColor              - rgb color
 	// RRRadiometricMeasure - radiometric measure
 	// RREmittanceType      - type of emission
+	// RRSideBits           - 1bit attributes of one side
 	// RRSurface            - material properties of surface
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -116,10 +117,20 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		dirLight    =3, ///< face emiting only in direction P
 	};
 
+	struct RRSideBits
+	{
+		unsigned char renderFrom:1;  ///< is visible from that halfspace
+		unsigned char emitTo:1;      ///< emits energy to that halfspace
+		unsigned char catchFrom:1;   ///< stops rays from that halfspace and performs following operations: (otherwise ray continues as if nothing happened)
+		unsigned char receiveFrom:1; ///<  receives energy from that halfspace
+		unsigned char reflect:1;     ///<  reflects energy from that halfspace to that halfspace
+		unsigned char transmitFrom:1;///<  transmits energy from that halfspace to other halfspace
+	};
+
 	//! Surface description.
 	struct RRSurface
 	{
-		unsigned char twoSided:1;                    ///< 0 if surface is single-sided, 1 for two-sided
+		RRSideBits    sideBits[2];                   ///< defines surface behaviour for front(0) and back(1) side
 		RRReal        diffuseReflectance;            ///< Fraction of energy that is diffuse reflected (all channels averaged).
 		RRColor       diffuseReflectanceColor;       ///< Fraction of energy that is diffuse reflected (each channel separately).
 		RRReal        diffuseTransmittance;          ///< Currently not used.

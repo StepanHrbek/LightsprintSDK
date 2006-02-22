@@ -2352,8 +2352,8 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	s_depth++;
 	if(ray.hitFrontSide) RRScene::getSceneStatistics()->numRayTracePhotonFrontHits++;else RRScene::getSceneStatistics()->numRayTracePhotonBackHits++;
 	// otherwise surface with these properties was hit
-	RRSideBits *side=&sideBits[hitTriangle->surface->twoSided?2:1][ray.hitFrontSide?0:1];
-	assert(side->catchFrom); // check that bad side was not hit
+	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
+	assert(side.catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
 	HitChannels  hitPower=HitChannels(0);
 	// diffuse reflection
@@ -2361,7 +2361,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	//  redistribution along existing or newly calculated form factors
 	// hits with power below 1% are ignored to save a bit of time
 	//  without visible loss of quality
-	if(side->receiveFrom)
+	if(side.receiveFrom)
 	if(fabs(power*hitTriangle->surface->diffuseReflectance)>0.01 /*&& !hitTriangle->isNeedle*/) // timto je mozne vypnout vypocet nad jehlama, zustanou cerny
 	{
 		hitPower+=power*hitTriangle->surface->diffuseReflectance;
@@ -2388,7 +2388,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	// mirror reflection
 	// speedup: weaker rays continue less often but with
 	//  proportionally increased power
-	if(side->reflect)
+	if(side.reflect)
 	if(fabs(power*hitTriangle->surface->specularReflectance)>0.1)
 //	if(sqrt(power*material->specularReflectance)*rand()<RAND_MAX)
 	{
@@ -2402,7 +2402,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	// getting through
 	// speedup: weaker rays continue less often but with
 	//  proportionally increased power
-	if(side->transmitFrom)
+	if(side.transmitFrom)
 	if(fabs(power*hitTriangle->surface->specularTransmittance)>0.1)
 //	if(sqrt(power*material->specularTransmittance)*rand()<RAND_MAX)
 	{
@@ -2461,9 +2461,8 @@ HomogenousFiller filler;
 //
 // random exiting ray
 
-bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, int sides, Vec3& exitDir)
+bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, const RRSideBits* sideBits, Vec3& exitDir)
 // ortonormal space: norm, u3, v3
-// sides: 1 or 2
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
 #ifdef HOMOGENOUS_FILL
@@ -2476,13 +2475,13 @@ bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, int side
 	real cosa=sqrt(1-tmp);
 #endif
 	// emit only inside?
-	if(!sideBits[sides][0].emitTo && sideBits[sides][1].emitTo)
+	if(!sideBits[0].emitTo && sideBits[1].emitTo)
 		cosa=-cosa;
 	// emit to both sides?
-	if(sideBits[sides][0].emitTo && sideBits[sides][1].emitTo)
+	if(sideBits[0].emitTo && sideBits[1].emitTo)
 		if((rand()%2)) cosa=-cosa;
 	// don't emit?
-	if(!sideBits[sides][0].emitTo && !sideBits[sides][1].emitTo)
+	if(!sideBits[0].emitTo && !sideBits[1].emitTo)
 		return false;
 #ifdef HOMOGENOUS_FILL
 	exitDir = norm*cosa + u3*x + v3*y;
@@ -2527,7 +2526,7 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	    {
 	    //area:
 		// pouziti funkce misto primeho zapisu pod vc7 prida 1.7% vykonu
-			if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->twoSided?2:1,rayVec3)) 
+			if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->sideBits,rayVec3)) 
 			return NULL;
 	    break;
 	    }
@@ -2603,9 +2602,10 @@ Channels Scene::gatherIrradiance(Point3 point,Vec3 normal,Triangle *skip,Channel
 	Vec3 u3 = normalized(ortogonalTo(normal));
 	Vec3 v3 = normalized(ortogonalTo(normal,u3));
 	Vec3 dir = Vec3(1,0,0);
+	RRSideBits sideBits[2] = {{1,1,1,1,1,1},{0,0,1,0,0,0}}; // standard 1sided
 	for(unsigned i=0;i<numRays;i++)
 	{
-		getRandomExitDir(normal,u3,v3,1,dir);
+		getRandomExitDir(normal,u3,v3,sideBits,dir);
 		irradiance += gatherHitExitance(point,dir,skip,power);
 	}
 	return irradiance/numRays;
@@ -2630,9 +2630,9 @@ Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Chann
 	assert(IS_NUMBER(ray.hitDistance));
 	if(ray.hitFrontSide) RRScene::getSceneStatistics()->numGatherFrontHits++;else RRScene::getSceneStatistics()->numGatherBackHits++;
 	// otherwise surface with these properties was hit
-	RRSideBits *side=&sideBits[hitTriangle->surface->twoSided?2:1][ray.hitFrontSide?0:1];
-	assert(side->catchFrom); // check that bad side was not hit
-	if(!side->receiveFrom)
+	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
+	assert(side.catchFrom); // check that bad side was not hit
+	if(!side.receiveFrom)
 	{
 		// ray accidentally penetrated object and hit inner side
 		return Channels(0);

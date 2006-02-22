@@ -68,13 +68,13 @@ Real behaviour:
     b) is available by -sides2inner:emit=1
     a) would require some coding and more memory
 
-*/
 
 RRSideBits sideBits[3][2]={
 	{{0},{0}},
-	{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (outer side, inner side)
-	{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (outer side, inner side)
+	{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (front side, back side)
+	{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (front side, back side)
 };
+*/
 
 RRScene::RRScene()
 {

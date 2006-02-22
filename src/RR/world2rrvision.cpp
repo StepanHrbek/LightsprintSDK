@@ -106,27 +106,32 @@ static ColorTable createColorTable(double cx,double cy,real rs)
 
 static void fillSurface(Surface *s,C_MATERIAL *m)
 {
-	s->twoSided             =(m->sided==1)?0:1;
-	s->diffuseReflectance   =m->rd;
+	static RRSideBits sideBits[3][2]={
+		{{0},{0}},
+		{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (front side, back side)
+		{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (front side, back side)
+	};
+	for(unsigned i=0;i<2;i++) s->sideBits[i]=sideBits[(m->sided==1)?1:2][i];
+	s->diffuseReflectance         =m->rd;
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectanceColor);
 	s->diffuseReflectanceColor[0]*=m->rd;
 	s->diffuseReflectanceColor[1]*=m->rd;
 	s->diffuseReflectanceColor[2]*=m->rd;
 	s->diffuseReflectanceColorTable=createColorTable(m->rd_c.cx,m->rd_c.cy,m->rs);
-	s->diffuseTransmittance =m->td;
+	s->diffuseTransmittance       =m->td;
 	xy2rgb(m->td_c.cx,m->td_c.cy,0.5,s->diffuseTransmittanceColor);
-	s->diffuseEmittance     =m->ed/1000;
+	s->diffuseEmittance           =m->ed/1000;
 	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,s->diffuseEmittanceColor);
-	s->emittanceType        =diffuseLight;
-	//s->emittancePoint       =Point3(0,0,0);
-	s->specularReflectance  =m->rs;
-	s->specularTransmittance=m->ts;
-	s->refractionReal       =m->nr;
-	s->refractionImaginary  =m->ni;
-	s->outside              =NULL;
-	s->inside               =NULL;
-	s->texture              =NULL;
-	s->_ed                  =m->ed/1000;
+	s->emittanceType              =diffuseLight;
+	//s->emittancePoint           =Point3(0,0,0);
+	s->specularReflectance        =m->rs;
+	s->specularTransmittance      =m->ts;
+	s->refractionReal             =m->nr;
+	s->refractionImaginary        =m->ni;
+	s->outside                    =NULL;
+	s->inside                     =NULL;
+	s->texture                    =NULL;
+	s->_ed                        =m->ed/1000;
 }
 
 unsigned    scene_surfaces;
@@ -155,7 +160,8 @@ static void load_materials(WORLD* world, char *material_mgf)
 	ldmgf(material_mgf,NULL,scene_add_surface,NULL,NULL,NULL);// nacte knihovnu materialu	(stejne_jmeno.mgf)
 
 	static Surface s_default;
-	s_default.twoSided=1;
+	static RRSideBits sideBits[2]={{1,1,1,1,1,1},{1,0,1,1,1,1}}; // definition of default 2-sided (front side, back side)
+	for(unsigned i=0;i<2;i++) s_default.sideBits[i] = sideBits[i];
 	s_default.diffuseReflectance=0.3;
 	s_default.diffuseReflectanceColor[0]=1;
 	s_default.diffuseReflectanceColor[1]=1;
