@@ -1,16 +1,76 @@
 /**
 
-\mainpage RR
-Welcome to RR libraries.
-\section rrcollider 1. RRCollider
-Ray-mesh intersection library RRCollider consists of
-\n File: RRCollider.h
-\n Namespace: rrCollider
-\n Class that calculates collisions: rrCollider::RRCollider
-\section rrvision 2. RRVision
-Radiosity library RRVision consists of
-\n File: RRVision.h
+\mainpage Lightsprint
+Welcome to Lightsprint libraries.
+
+\subpage news "What's new"
+- what's new in releases
+
+\subpage vision "Lightsprint VISION"
+- calculates radiosity / global illumination
+
+\subpage collider "Lightsprint COLLIDER"
+- finds ray-mesh intersections
+
+
+\page vision Lightsprint Vision
+Calculates radiosity / global illumination.
+\n\n Header: RRVision.h
 \n Namespace: rrVision
-\n Class that calculates radiosity: rrVision::RRScene
+\section vus Basic usage scenario
+-# Create rrVision::RRScene.
+-# Create rrVision::RRObjectImporter using your object and insert it into scene. Repeat for all objects.
+-# Calculate global illumination using scene->improveStatic().
+-# Read results using scene->getTriangleMeasure().
+
+
+\page collider Lightsprint Collider
+Finds ray-mesh intersections.
+\n\n Header: RRCollider.h
+\n Namespace: rrCollider
+\section cus Basic usage scenario
+-# Create rrCollider::RRMeshImporter using your mesh.
+-# Create rrCollider::RRCollider using your mesh importer.
+-# Create rrCollider::RRRay using your ray.
+-# Call collider->inretsect(ray) to find intersections. Repeat for all rays.
+
+
+\page news What's new
+
+\section s 2006/2/23
+
+NEW FEATURES
+
+- documentation
+- RRSideBits
+  \n precise surface behaviour control
+  \n allows to simulate new range of surfaces
+- RRScaler
+  \n automatic input and output scaling
+  \n simplifies work with any units including radiometric,
+  photometric and linear screen space
+- RRRadiometricMeasure
+  \n more general interface to many inputs and outputs
+  \n simplifies data transfers
+- RRMeshImporter::verify()
+  \n mesh importer correctness verification
+  \n simplifies testing mesh data and writing new importers
+- RRAdditionalObjectImporter
+  \n simplifies transfer of captured primary illumination
+- RRVec2, RRVec3, RRVec4, RRMatrix4x4
+  \n primitives with basic mathematics
+  \n simplifies inputs and outputs, adds type control
+- RRSceneStatistics
+  \n new statistics of scene processing
+  \n gives insight into processing when needed
+- RRSkyLight
+  \n description of light surrounding scene
+  \n will become part of solution in future versions
+
+CHANGES
+
+- +2% faster on average
+- more input data verifications during calculation
+- #define RR*_IMPORT no longer needed
 
 */
