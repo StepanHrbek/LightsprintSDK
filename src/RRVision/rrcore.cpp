@@ -213,6 +213,7 @@ void Hits::reset()
 
 void Hits::rawInsert(Hit HIT_PTR ahit)
 {
+	RRScene::getSceneStatistics()->numHitInserts++;
 	if(!hitsAllocated)
 	{
 		hitsAllocated=16;
@@ -2358,6 +2359,8 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	HitChannels  hitPower=HitChannels(0);
 	// stats
 	if(!side.receiveFrom) RRScene::getSceneStatistics()->numRayTracePhotonHitsNotReceived++;
+	RRScene::getSceneStatistics()->sumRayTracePhotonHitPower+=power;
+	RRScene::getSceneStatistics()->sumRayTracePhotonDifRefl+=hitTriangle->surface->diffuseReflectance;
 	// diffuse reflection
 	// no real reflection is done here, but energy is stored for further
 	//  redistribution along existing or newly calculated form factors
@@ -2366,6 +2369,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	if(side.receiveFrom)
 	if(fabs(power*hitTriangle->surface->diffuseReflectance)>0.01 /*&& !hitTriangle->isNeedle*/) // timto je mozne vypnout vypocet nad jehlama, zustanou cerny
 	{
+		RRScene::getSceneStatistics()->numRayTracePhotonHitsReceived++;
 		hitPower+=power*hitTriangle->surface->diffuseReflectance;
 		Hit hitPoint2d;
 #ifdef HITS_FIXED
@@ -2394,6 +2398,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	if(fabs(power*hitTriangle->surface->specularReflectance)>0.1)
 //	if(sqrt(power*material->specularReflectance)*rand()<RAND_MAX)
 	{
+		RRScene::getSceneStatistics()->numRayTracePhotonHitsReflected++;
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after ideal mirror reflection
@@ -2408,6 +2413,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	if(fabs(power*hitTriangle->surface->specularTransmittance)>0.1)
 //	if(sqrt(power*material->specularTransmittance)*rand()<RAND_MAX)
 	{
+		RRScene::getSceneStatistics()->numRayTracePhotonHitsTransmitted++;
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after refraction

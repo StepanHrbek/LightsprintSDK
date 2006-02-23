@@ -300,6 +300,10 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		unsigned numRayTracePhotonFrontHits;
 		unsigned numRayTracePhotonBackHits;
 		unsigned numRayTracePhotonHitsNotReceived;
+		unsigned numRayTracePhotonHitsReceived;
+		unsigned numRayTracePhotonHitsReflected;
+		unsigned numRayTracePhotonHitsTransmitted;
+		unsigned numHitInserts;
 		unsigned numGatherFrontHits;
 		unsigned numGatherBackHits;
 		unsigned numCallsTriangleMeasureOk;   ///< getTriangleMeasure returned true
@@ -308,7 +312,9 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		unsigned numIrradianceCacheMisses;
 		// numbers of errors
 		unsigned numDepthOverflows;        ///< Number of depth overflows in recursive photon tracing. Caused by physically incorrect scenes.
-		// amounts of distributed radiance
+		// amounts of energy
+		RRReal   sumRayTracePhotonHitPower;
+		RRReal   sumRayTracePhotonDifRefl;
 		RRColor  sumDistribInput;
 		RRReal   sumDistribFactorClean;
 		RRColor  sumDistribFactorMaterial;
