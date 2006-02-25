@@ -378,7 +378,7 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 	class RRCOLLIDER_API RRLicense
 	{
 	public:
-		static void RRCOLLIDER_API registerLicense(char* licenseOwner, char* licenseNumber);
+		static void registerLicense(char* licenseOwner, char* licenseNumber);
 	};
 
 } // namespace

@@ -95,25 +95,9 @@ static void fillSurface(rrVision::RRSurface* s,Model_3DS::Material* m)
 		avg[2] = m->color.b;
 	}
 
-	rrVision::RRSideBits sideBits[2] = {{1,1,1,1,1,1},{0,0,1,0,0,0}}; // standard 1sided
-	for(unsigned i=0;i<2;i++) s->sideBits[i] = sideBits[i];
+	s->reset(0);
 	s->diffuseReflectance   = (avg[0]+avg[1]+avg[2])/3;
 	s->diffuseReflectanceColor = avg;
-	s->diffuseTransmittance = 0;
-	s->diffuseTransmittanceColor[0] = 0;
-	s->diffuseTransmittanceColor[1] = 0;
-	s->diffuseTransmittanceColor[2] = 0;
-	s->diffuseEmittance     = 0;
-	s->diffuseEmittanceColor[0] = 0;
-	s->diffuseEmittanceColor[1] = 0;
-	s->diffuseEmittanceColor[2] = 0;
-	s->emittanceType        = rrVision::diffuseLight;
-	//s->emittancePoint       =Point3(0,0,0);
-	s->specularReflectance  = 0;
-	s->specularTransmittance= 0;
-	s->refractionReal       = 1;
-	s->refractionImaginary  = 0;
-	s->_ed                  = 0;
 }
 
 M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)

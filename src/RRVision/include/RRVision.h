@@ -93,6 +93,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		RM_EXITANCE,      ///< outgoing W/m^2
 	};
 
+#ifdef RR_DEVELOPMENT
 	enum RREmittanceType
 	{
 		diffuseLight=0, ///< face emitting like ideal diffuse emitor
@@ -100,6 +101,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		spotLight   =2, ///< face emitting only in direction from point P
 		dirLight    =3, ///< face emiting only in direction P
 	};
+#endif
 
 	//! Boolean attributes of front or back side of surface.
 	struct RRSideBits
@@ -115,25 +117,26 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	//! Description of surface.
 	struct RRSurface
 	{
-		RRSideBits    sideBits[2];                   ///< defines surface behaviour for front(0) and back(1) side
+		void          reset(bool twoSided);          ///< Resets surface to fully diffuse gray (50% reflected, 50% absorbed).
+
+		RRSideBits    sideBits[2];                   ///< Defines surface behaviour for front(0) and back(1) side.
 		RRReal        diffuseReflectance;            ///< Fraction of energy that is diffuse reflected (all channels averaged).
 		RRColor       diffuseReflectanceColor;       ///< Fraction of energy that is diffuse reflected (each channel separately).
-		RRReal        diffuseTransmittance;          ///< Currently not used.
-		RRColor       diffuseTransmittanceColor;     ///< Currently not used.
-		RRReal        diffuseEmittance;              ///< \ Multiplied = Radiant emittance in watts per square meter. Never scaled by RRScaler.
-		RRColor       diffuseEmittanceColor;         ///< / 
+		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately). Never scaled by RRScaler.
+		RRReal        specularReflectance;           ///< Fraction of energy that is mirror reflected (without color change).
+		RRReal        specularTransmittance;         ///< Fraction of energy that is transmitted (without color change).
+		RRReal        refractionReal;                ///< Refraction index.
+#ifdef RR_DEVELOPMENT
 		RREmittanceType emittanceType;
 		RRVec3        emittancePoint;
-		RRReal        specularReflectance;           ///< Fraction of energy that is mirror reflected (without color change).
-		RRColor       specularReflectanceColor;      ///< Currently not used.
-		RRReal        specularReflectanceRoughness;  ///< Currently not used.
-		RRReal        specularTransmittance;         ///< Fraction of energy that is transmitted (without color change).
-		RRColor       specularTransmittanceColor;    ///< Currently not used.
-		RRReal        specularTransmittanceRoughness;///< Currently not used.
-		RRReal        refractionReal;
-		RRReal        refractionImaginary;           ///< Currently not used.
-
-		RRReal        _ed;                           ///< For internal use.
+		RRReal        diffuseTransmittance;
+		RRColor       diffuseTransmittanceColor;
+		RRColor       specularReflectanceColor;
+		RRReal        specularReflectanceRoughness;
+		RRColor       specularTransmittanceColor;
+		RRReal        specularTransmittanceRoughness;
+		RRReal        refractionImaginary;
+#endif
 	};
 
 

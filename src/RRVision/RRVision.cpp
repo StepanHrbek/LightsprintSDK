@@ -44,6 +44,24 @@ RRSceneStatistics* RRScene::getSceneStatistics()
 	return &s;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRSurface
+
+void RRSurface::reset(bool twoSided)
+{
+	static RRSideBits sideBitsTmp[2][2]={
+		{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (front side, back side)
+		{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (front side, back side)
+	};
+	for(unsigned i=0;i<2;i++) sideBits[i] = sideBitsTmp[twoSided?1:0][i];
+	diffuseReflectance             = 0.5;
+	diffuseReflectanceColor        = RRColor(0.5);
+	diffuseEmittance               = RRColor(0);
+	specularReflectance            = 0;
+	specularTransmittance          = 0;
+	refractionReal                 = 1;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //

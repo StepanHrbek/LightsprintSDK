@@ -89,25 +89,25 @@ Welcome to Lightsprint libraries.
 NEW FEATURES
 
 - documentation
-- RRSideBits
+- rrVision::RRSideBits
   \n precise surface behaviour control
   \n allows to simulate new range of surfaces
-- RRScaler
+- rrVision::RRScaler
   \n automatic input and output scaling
   \n simplifies work with any units including radiometric,
   photometric and linear screen space
-- RRRadiometricMeasure
+- rrVision::RRRadiometricMeasure
   \n more general interface to many inputs and outputs
   \n simplifies data transfers
-- RRMeshImporter::verify()
+- rrCollider::RRMeshImporter::verify()
   \n mesh importer correctness verification
   \n simplifies testing mesh data and writing new importers
-- RRAdditionalObjectImporter
+- rrVision::RRAdditionalObjectImporter
   \n simplifies transfer of captured primary illumination
-- RRVec2, RRVec3, RRVec4, RRMatrix4x4
+- rrCollider::RRVec2, rrCollider::RRVec3, rrCollider::RRVec4, rrVision::RRMatrix4x4
   \n primitives with basic mathematics
   \n simplifies inputs and outputs, adds type control
-- RRSceneStatistics
+- rrVision::RRSceneStatistics
   \n new statistics of scene processing
   \n gives insight into processing when needed
 

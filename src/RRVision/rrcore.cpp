@@ -1228,12 +1228,14 @@ again:
 int Scene::turnLight(int whichLight,real intensity)
 {
 	int light=0;
+	/*
 	for(unsigned s=0;s<surfaces;s++)
 		if(surface[s]._ed>0)
 		{
 			if(light==whichLight) surface[s].diffuseEmittance=surface[s]._ed*intensity;
 			light++;
 		}
+		*/
 	return light;
 }
 
@@ -1243,9 +1245,9 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingF
 	assert(s);
 	surface=s;
 #if CHANNELS == 1
-	real r=surface->diffuseEmittanceColor.m[0];
-	real g=surface->diffuseEmittanceColor.m[1];
-	real b=surface->diffuseEmittanceColor.m[2];
+	real r=surface->diffuseEmittance[0];
+	real g=surface->diffuseEmittance[1];
+	real b=surface->diffuseEmittance[2];
 	real filteringCoef=(r+g+b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
 	Channels e=area * ( filteringCoef*surface->diffuseEmittance
 	  + additionalExitingFlux.x+additionalExitingFlux.y+additionalExitingFlux.z );
@@ -1253,9 +1255,11 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingF
 	assert(filteringCoef>=0);
 	assert(e>=0);
 #else
-	Channels e = ( surface->diffuseEmittanceColor * surface->diffuseEmittance + additionalExitingFlux ) * area;
+	Channels e = ( surface->diffuseEmittance + additionalExitingFlux ) * area;
 #endif
-	assert(surface->diffuseEmittance>=0);
+	assert(surface->diffuseEmittance[0]>=0);
+	assert(surface->diffuseEmittance[1]>=0);
+	assert(surface->diffuseEmittance[2]>=0);
 	assert(area>=0);
 	assert(additionalExitingFlux.x>=0);
 	assert(additionalExitingFlux.y>=0);
@@ -2523,17 +2527,23 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	Point3 srcPoint3=source->grandpa->to3d(srcPoint2);
 
 	Vec3 rayVec3;
+	if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->sideBits,rayVec3)) 
+		return NULL;
+	/*
+#ifdef RR_DEVELOPMENT
+	ostatni varianty se uz dlouho nepouzivaji
+#endif
 	switch(source->grandpa->surface->emittanceType)
 	{
 	  case diffuseLight:
 	    {
 	    //area:
 		// pouziti funkce misto primeho zapisu pod vc7 prida 1.7% vykonu
-			if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->sideBits,rayVec3)) 
+		if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->sideBits,rayVec3)) 
 			return NULL;
 	    break;
 	    }
-	    /*
+	    / *
 	  case windowhackDirect:
 	    {
 	    // hack pro okna, prime svetlo od slunce
@@ -2570,11 +2580,12 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	    Vec3 rndvec=Vec3(rand()*r*2/RAND_MAX-r,rand()*r*2/RAND_MAX-r,rand()*r*2/RAND_MAX-r);
 	    rayVec3=normalized(srcPoint3-source->grandpa->surface->diffuseEmittancePoint+rndvec);
 	    break;
-	    }*/
+	    }* /
 	  default:
 	    // jiny typy zatim nejsou podporovany
 	    assert(0);
 	}
+	*/
 	assert(IS_SIZE1(rayVec3));
 
 #ifdef SUPPORT_TRANSFORMS

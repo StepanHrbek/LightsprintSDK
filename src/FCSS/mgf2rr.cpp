@@ -88,12 +88,7 @@ void* MgfImporter::add_vertex(FLOAT *p,FLOAT *n)
 
 static void fillSurface(rrVision::RRSurface *s,C_MATERIAL *m)
 {
-	static rrVision::RRSideBits sideBits[3][2]={
-		{{0},{0}},
-		{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (front side, back side)
-		{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (front side, back side)
-	};
-	for(unsigned i=0;i<2;i++) s->sideBits[i]=sideBits[(m->sided==1)?1:2][i];
+	s->reset(m->sided==2);
 	s->diffuseReflectance   =m->rd;
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,&s->diffuseReflectanceColor.x);
 	for(unsigned c=0;c<3;c++)
@@ -101,17 +96,11 @@ static void fillSurface(rrVision::RRSurface *s,C_MATERIAL *m)
 		s->diffuseReflectanceColor[c] *= m->rd;
 		if(s->diffuseReflectanceColor[c]>0.95f) s->diffuseReflectanceColor[c]=0.95f;
 	}
-	s->diffuseTransmittance =m->td;
-	xy2rgb(m->td_c.cx,m->td_c.cy,0.5,&s->diffuseTransmittanceColor.x);
-	s->diffuseEmittance     =m->ed/1000;
-	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,&s->diffuseEmittanceColor.x);
-	s->emittanceType        =rrVision::diffuseLight;
-	//s->emittancePoint       =Point3(0,0,0);
+	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,&s->diffuseEmittance.x);
+	s->diffuseEmittance     *=m->ed/1000;
 	s->specularReflectance  =m->rs;
 	s->specularTransmittance=m->ts;
 	s->refractionReal       =m->nr;
-	s->refractionImaginary  =m->ni;
-	s->_ed                  =m->ed/1000;
 }
 
 void* MgfImporter::add_material(C_MATERIAL *m)

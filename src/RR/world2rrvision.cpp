@@ -106,32 +106,21 @@ static ColorTable createColorTable(double cx,double cy,real rs)
 
 static void fillSurface(Surface *s,C_MATERIAL *m)
 {
-	static RRSideBits sideBits[3][2]={
-		{{0},{0}},
-		{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (front side, back side)
-		{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (front side, back side)
-	};
-	for(unsigned i=0;i<2;i++) s->sideBits[i]=sideBits[(m->sided==1)?1:2][i];
+	s->reset(m->sided==2);
 	s->diffuseReflectance         =m->rd;
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectanceColor);
 	s->diffuseReflectanceColor[0]*=m->rd;
 	s->diffuseReflectanceColor[1]*=m->rd;
 	s->diffuseReflectanceColor[2]*=m->rd;
 	s->diffuseReflectanceColorTable=createColorTable(m->rd_c.cx,m->rd_c.cy,m->rs);
-	s->diffuseTransmittance       =m->td;
-	xy2rgb(m->td_c.cx,m->td_c.cy,0.5,s->diffuseTransmittanceColor);
-	s->diffuseEmittance           =m->ed/1000;
-	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,s->diffuseEmittanceColor);
-	s->emittanceType              =diffuseLight;
-	//s->emittancePoint           =Point3(0,0,0);
+	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,s->diffuseEmittance);
+	s->diffuseEmittance           *=m->ed/1000;
 	s->specularReflectance        =m->rs;
 	s->specularTransmittance      =m->ts;
 	s->refractionReal             =m->nr;
-	s->refractionImaginary        =m->ni;
 	s->outside                    =NULL;
 	s->inside                     =NULL;
 	s->texture                    =NULL;
-	s->_ed                        =m->ed/1000;
 }
 
 unsigned    scene_surfaces;
@@ -160,35 +149,16 @@ static void load_materials(WORLD* world, char *material_mgf)
 	ldmgf(material_mgf,NULL,scene_add_surface,NULL,NULL,NULL);// nacte knihovnu materialu	(stejne_jmeno.mgf)
 
 	static Surface s_default;
-	static RRSideBits sideBits[2]={{1,1,1,1,1,1},{1,0,1,1,1,1}}; // definition of default 2-sided (front side, back side)
-	for(unsigned i=0;i<2;i++) s_default.sideBits[i] = sideBits[i];
+	s_default.reset(true);
 	s_default.diffuseReflectance=0.3;
 	s_default.diffuseReflectanceColor[0]=1;
 	s_default.diffuseReflectanceColor[1]=1;
 	s_default.diffuseReflectanceColor[2]=1;
 	s_default.diffuseReflectanceColorTable=createColorTable(0.3,0.3,0);
-	s_default.diffuseTransmittance=0;
-	//s_default.diffuseTransmittanceColor={1,1,1};
-	s_default.diffuseEmittance=1;
-	s_default.diffuseEmittanceColor[0]=1;
-	s_default.diffuseEmittanceColor[1]=1;
-	s_default.diffuseEmittanceColor[2]=1;
-	s_default.emittanceType=diffuseLight;
-	//s_default.emittancePoint=Vec3(0,0,0);
-	s_default.specularReflectance=0;
-	s_default.specularReflectanceColor[0]=1;
-	s_default.specularReflectanceColor[1]=1;
-	s_default.specularReflectanceColor[2]=1;
-	s_default.specularReflectanceRoughness=0.5;
-	s_default.specularTransmittance=0;
-	//s_default.specularTransmittanceColor={1,1,1};
-	s_default.specularTransmittanceRoughness=0.5;
-	s_default.refractionReal=1;
-	s_default.refractionImaginary=0;
+	s_default.diffuseEmittance=RRColor(1);
 	s_default.outside=NULL;
 	s_default.inside=NULL;
 	s_default.texture=NULL;
-	s_default._ed=0;//needed by turnLight
 	
 	for(int si=0;si<world->material_num;si++)
 	{
