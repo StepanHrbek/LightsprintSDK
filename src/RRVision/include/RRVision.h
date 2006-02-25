@@ -358,27 +358,27 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		//! Identifier of integer scene state.
 		enum SceneStateU
 		{
-			RRSS_GET_SOURCE,           ///< Results from getTriangleMeasure contain source illumination from objects.
-			RRSS_GET_REFLECTED,        ///< Results from getTriangleMeasure contain reflected illumination calculated by library.
-			RRSS_GET_SMOOTH,           ///< Results from getTriangleMeasure are enhanced by smoothing (only reflected part).
-			// following states are development only
-			RRSS_USE_CLUSTERS,         ///< For testing only. 0 = no clustering, !0 = use clustering.
-			RRSS_GET_FINAL_GATHER,     ///< For testing only. Results from getTriangleMeasure are enhanced by final gathering.
-			RRSS_FIGHT_NEEDLES,        ///< For testing only. 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow).
-			RRSS_LAST
+			GET_SOURCE,           ///< Results from getTriangleMeasure contain source illumination from objects.
+			GET_REFLECTED,        ///< Results from getTriangleMeasure contain reflected illumination calculated by library.
+			GET_SMOOTH,           ///< Results from getTriangleMeasure are enhanced by smoothing (only reflected part).
+			// following states are for testing only
+			USE_CLUSTERS,         ///< For testing only. 0 = no clustering, !0 = use clusters.
+			GET_FINAL_GATHER,     ///< For testing only. Results from getTriangleMeasure are enhanced by final gathering.
+			FIGHT_NEEDLES,        ///< For testing only. 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow).
+			SSU_LAST
 		};
 		//! Identifier of float scene state.
 		enum SceneStateF
 		{
-			RRSSF_MIN_FEATURE_SIZE,    ///< Smaller features will be smoothed. This is kind of blur.
-			RRSSF_MAX_SMOOTH_ANGLE,    ///< Smaller angles between faces may be smoothed/interpolated.
-			// following states are development only
-			RRSSF_SUBDIVISION_SPEED,   ///< For testing only. Speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast. Currently there is no way to read subdivision results back, so let it 0.
-			RRSSF_IGNORE_SMALLER_AREA, ///< For testing only. Minimal allowed area of triangle (m^2), smaller triangles are ignored.
-			RRSSF_IGNORE_SMALLER_ANGLE,///< For testing only. Minimal allowed angle in triangle (rad), sharper triangles are ignored.
-			RRSSF_FIGHT_SMALLER_AREA,  ///< For testing only. Smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES.
-			RRSSF_FIGHT_SMALLER_ANGLE, ///< For testing only. Sharper triangles (rad) will be assimilated when FIGHT_NEEDLES.
-			RRSSF_LAST
+			MIN_FEATURE_SIZE,    ///< Smaller features will be smoothed. This is kind of blur.
+			MAX_SMOOTH_ANGLE,    ///< Smaller angles between faces may be smoothed/interpolated.
+			// following states are for testing only
+			SUBDIVISION_SPEED,   ///< For testing only. Speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast. Currently there is no way to read subdivision results back, so let it 0.
+			IGNORE_SMALLER_AREA, ///< For testing only. Minimal allowed area of triangle (m^2), smaller triangles are ignored.
+			IGNORE_SMALLER_ANGLE,///< For testing only. Minimal allowed angle in triangle (rad), sharper triangles are ignored.
+			FIGHT_SMALLER_AREA,  ///< For testing only. Smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES.
+			FIGHT_SMALLER_ANGLE, ///< For testing only. Sharper triangles (rad) will be assimilated when FIGHT_NEEDLES.
+			SSF_LAST
 		};
 		static void     ResetStates();                               ///< Reset scene states to default values.
 		static unsigned GetState(SceneStateU state);                 ///< Return one of integer scene states.
@@ -400,7 +400,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 #endif
 		
 		// calculate radiosity
-		enum Improvement
+		enum Improvement    ///< Describes result of illumination calculation.
 		{
 			IMPROVED,       ///< Lighting was improved during this call.
 			NOT_IMPROVED,   ///< Although some calculations were done, lighting was not yet improved during this call.

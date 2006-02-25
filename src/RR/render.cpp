@@ -1058,7 +1058,8 @@ void render_world(WORLD *w, rrVision::RRScene* scene, int camera_id, bool mirror
 	for (int i=0;i<w->object_num;i++) {//if(/*d_only_o<0 ||*/ (i!=336 /*|| i==279*/) /*&& (i%100)==d_only_o*/) { 
 
 		OBJECT *o=&w->object[i];
-		Object *obj=(Object *)o->obj;
+		Scene* tmp = *(Scene**)scene; // pozor, predpokladame ze prvni polozka v RRScene je pointer na Scene
+		Object *obj=tmp->object[o->objectHandle];
 		assert(obj);
 
 		if (!mirrorFrame || strcmp(o->name,"Zrcadlo")) {

@@ -26,7 +26,7 @@ INTERPOL_BETWEEN tells if it's good idea to interpolate between two triangles
 #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=MAX_INTERPOL_ANGLE)
 #define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->getN3(),t2->grandpa->getN3()))
 
-#define MAX_INTERPOL_ANGLE RRScene::GetStateF(RRScene::RRSSF_MAX_SMOOTH_ANGLE) // max angle between interpolated neighbours
+#define MAX_INTERPOL_ANGLE RRScene::GetStateF(RRScene::MAX_SMOOTH_ANGLE) // max angle between interpolated neighbours
 
 #ifdef SUPPORT_MIN_FEATURE_SIZE
 	// Vypnuto protoze rendereru dava vertexy v pozici jejich ivertexu,

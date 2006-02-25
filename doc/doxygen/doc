@@ -110,9 +110,6 @@ NEW FEATURES
 - RRSceneStatistics
   \n new statistics of scene processing
   \n gives insight into processing when needed
-- RRSkyLight
-  \n description of light surrounding scene
-  \n will become part of solution in future versions
 
 CHANGES
 

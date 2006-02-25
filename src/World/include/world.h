@@ -45,7 +45,7 @@ typedef struct {
         TRACK    pos,rot;
         FACE     *face;
         VERTEX   *vertex;
-        void     *obj;
+        unsigned objectHandle; // RRScene::ObjectHandle
         } OBJECT;
 
 typedef struct { char *name; } MATERIAL;

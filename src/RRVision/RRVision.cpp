@@ -49,36 +49,36 @@ RRSceneStatistics* RRScene::getSceneStatistics()
 //
 // set/get state
 
-static unsigned RRSSValueU[RRScene::RRSS_LAST];
-static RRReal   RRSSValueF[RRScene::RRSSF_LAST];
+static unsigned RRSSValueU[RRScene::SSU_LAST];
+static RRReal   RRSSValueF[RRScene::SSF_LAST];
 
 void RRScene::ResetStates()
 {
 	memset(RRSSValueU,0,sizeof(RRSSValueU));
 	memset(RRSSValueF,0,sizeof(RRSSValueF));
-	SetState(RRScene::RRSS_GET_SOURCE,1);
-	SetState(RRScene::RRSS_GET_REFLECTED,1);
-	SetState(RRScene::RRSS_GET_SMOOTH,1);
+	SetState(RRScene::GET_SOURCE,1);
+	SetState(RRScene::GET_REFLECTED,1);
+	SetState(RRScene::GET_SMOOTH,1);
 	// development
-	SetState(RRScene::RRSS_USE_CLUSTERS,0);
-	SetState(RRScene::RRSS_GET_FINAL_GATHER,0);
-	SetState(RRScene::RRSS_FIGHT_NEEDLES,0);
+	SetState(RRScene::USE_CLUSTERS,0);
+	SetState(RRScene::GET_FINAL_GATHER,0);
+	SetState(RRScene::FIGHT_NEEDLES,0);
 
-	SetStateF(RRScene::RRSSF_MIN_FEATURE_SIZE,0);
-	SetStateF(RRScene::RRSSF_MAX_SMOOTH_ANGLE,M_PI/10+0.01f);
+	SetStateF(RRScene::MIN_FEATURE_SIZE,0);
+	SetStateF(RRScene::MAX_SMOOTH_ANGLE,M_PI/10+0.01f);
 	// development
-	SetStateF(RRScene::RRSSF_SUBDIVISION_SPEED,0);
-	SetStateF(RRScene::RRSSF_IGNORE_SMALLER_AREA,SMALL_REAL);
-	SetStateF(RRScene::RRSSF_IGNORE_SMALLER_ANGLE,0.001f);
-	SetStateF(RRScene::RRSSF_FIGHT_SMALLER_AREA,0.01f);
-	SetStateF(RRScene::RRSSF_FIGHT_SMALLER_ANGLE,0.01f);
-	//SetStateF(RRScene::RRSSF_SUBDIVISION_SPEED,0);
-	//SetStateF(RRScene::RRSSF_MIN_FEATURE_SIZE,10.037f); //!!!
+	SetStateF(RRScene::SUBDIVISION_SPEED,0);
+	SetStateF(RRScene::IGNORE_SMALLER_AREA,SMALL_REAL);
+	SetStateF(RRScene::IGNORE_SMALLER_ANGLE,0.001f);
+	SetStateF(RRScene::FIGHT_SMALLER_AREA,0.01f);
+	SetStateF(RRScene::FIGHT_SMALLER_ANGLE,0.01f);
+	//SetStateF(RRScene::SUBDIVISION_SPEED,0);
+	//SetStateF(RRScene::MIN_FEATURE_SIZE,10.037f); //!!!
 }
 
 unsigned RRScene::GetState(SceneStateU state)
 {
-	if(state<0 || state>=RRSS_LAST) 
+	if(state<0 || state>=SSU_LAST) 
 	{
 		assert(0);
 		return 0;
@@ -88,7 +88,7 @@ unsigned RRScene::GetState(SceneStateU state)
 
 unsigned RRScene::SetState(SceneStateU state, unsigned value)
 {
-	if(state<0 || state>=RRSS_LAST) 
+	if(state<0 || state>=SSU_LAST) 
 	{
 		assert(0);
 		return 0;
@@ -100,7 +100,7 @@ unsigned RRScene::SetState(SceneStateU state, unsigned value)
 
 real RRScene::GetStateF(SceneStateF state)
 {
-	if(state<0 || state>=RRSSF_LAST) 
+	if(state<0 || state>=SSF_LAST) 
 	{
 		assert(0);
 		return 0;
@@ -110,7 +110,7 @@ real RRScene::GetStateF(SceneStateF state)
 
 real RRScene::SetStateF(SceneStateF state, real value)
 {
-	if(state<0 || state>=RRSSF_LAST) 
+	if(state<0 || state>=SSF_LAST) 
 	{
 		assert(0);
 		return 0;

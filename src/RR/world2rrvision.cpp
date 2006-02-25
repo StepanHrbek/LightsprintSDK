@@ -230,8 +230,7 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf, rrCollider::RRCol
 	{
 		// dynamic = w->object[o].pos.num!=1 || w->object[o].rot.num!=1
 		WorldObjectImporter* importer = new WorldObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces, intersectTechnique);
-		RRScene::ObjectHandle handle = rrscene->objectCreate(importer);
-		world->object[o].obj = rrscene->getObject(handle);
+		world->object[o].objectHandle = rrscene->objectCreate(importer);
 	}	
 	//rrscene->sceneFreeze(true); //speedup for multiobject scenes, not necessary for rr
 	return rrscene;
