@@ -821,6 +821,7 @@ int main(int argc, char **argv)
  bool kamil=false;
 #endif
  rrCollider::RRCollider::IntersectTechnique intersectTechnique = rrCollider::RRCollider::IT_BSP_FASTEST;
+ RRScene::SetStateF(RRScene::RRSSF_SUBDIVISION_SPEED,1);
 
  assert(sizeof(U8)==1);
  assert(sizeof(U16)==2);
@@ -874,7 +875,7 @@ int main(int argc, char **argv)
         {int tmp;if(sscanf(argv[i],"-verbose%d",&tmp)==1) __infolevel=tmp; else goto badarg;}
      else
      if (!strcmp(argv[i],"-c"))
-        RRSetState(RRSS_USE_CLUSTERS,0);
+        RRScene::SetState(RRScene::RRSS_USE_CLUSTERS,0);
      else
      if (!strncmp(argv[i],"-gamma",6))
         {float tmp;if(sscanf(argv[i],"-gamma%f",&tmp)==1) d_gamma=tmp; else goto badarg;}
@@ -886,7 +887,7 @@ int main(int argc, char **argv)
         {int tmp;if(sscanf(argv[i],"-it%i",&tmp)==1) intersectTechnique = (rrCollider::RRCollider::IntersectTechnique)tmp; else goto badarg;}
      else
      if (!strncmp(argv[i],"-smooth",7))
-        {float tmp;if(sscanf(argv[i],"-smooth%f",&tmp)==1) RRSetStateF(RRSSF_MAX_SMOOTH_ANGLE,tmp); else goto badarg;}
+        {float tmp;if(sscanf(argv[i],"-smooth%f",&tmp)==1) RRScene::SetStateF(RRScene::RRSSF_MAX_SMOOTH_ANGLE,tmp); else goto badarg;}
      else
      if (!strcmp(argv[i],"-j"))
         c_fightNeedles=true;
@@ -964,7 +965,7 @@ int main(int argc, char **argv)
  }
  g_batchGrab/=2; // zas to vynuluje pokud nebylo inkremetovano u -s i -g
  g_batchMerge/=2;// zas to vynuluje pokud nebylo inkremetovano u -v i -g
- //!!!RRSetStateF(RRSSF_SUBDIVISION_SPEED,0.0001f);
+ //!!!RRScene::SetStateF(RRSSF_SUBDIVISION_SPEED,0.0001f);
 
  // nacte world
  DBG(printf("Loading bsp...\n"));
@@ -1067,7 +1068,6 @@ int main(int argc, char **argv)
      scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+5*PER_SEC));
      scene->infoImprovement(buf,__infolevel); puts(buf);
      //printf("kshot=%d kbsp=%d ktri=%d hak1=%d hak2=%d hak3=%d hak4=%d\n",__shot/1000,__bsp/1000,__tri/1000,__hak1/1000,__hak2/1000,__hak3/1000,__hak4/1000);
-     rrCollider::RRIntersectStats::getInstance()->getInfo(buf,400,1); puts(buf);
      fgetc(stdin);
      return 0;
    }
@@ -1078,7 +1078,6 @@ int main(int argc, char **argv)
 	   scene->infoImprovement(buf,__infolevel); puts(buf);
 	   const rrCollider::RRCollider* collider = scene->object[0]->importer->getCollider();
 	   const rrCollider::RRMeshImporter* importer = collider->getImporter();
-	   sprintf(buf,"%5d/%03d",rrCollider::RRIntersectStats::getInstance()->intersect_mesh/1000,collider->getMemoryOccupied()/importer->getNumTriangles());
 	   fprintf(stderr,buf);
 	   return 0;
    }

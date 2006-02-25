@@ -53,14 +53,14 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 		break;
 	case CC_SOURCE_IRRADIANCE:
 	case CC_SOURCE_EXITANCE:
-		rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,1);
-		rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,0);
+		rrVision::RRScene::SetState(rrVision::RRScene::RRSS_GET_SOURCE,1);
+		rrVision::RRScene::SetState(rrVision::RRScene::RRSS_GET_REFLECTED,0);
 		glShadeModel(GL_SMOOTH);
 		break;
 	case CC_REFLECTED_IRRADIANCE:
 	case CC_REFLECTED_EXITANCE:
-		rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-		rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
+		rrVision::RRScene::SetState(rrVision::RRScene::RRSS_GET_SOURCE,0);
+		rrVision::RRScene::SetState(rrVision::RRScene::RRSS_GET_REFLECTED,1);
 		glShadeModel(GL_SMOOTH);
 		break;
 	default:

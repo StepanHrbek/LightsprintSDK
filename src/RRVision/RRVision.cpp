@@ -23,12 +23,6 @@ void          sceneSetColorFilter(const RRReal* colorFilter);
 namespace rrVision
 {
 
-union StateValue
-{
-	unsigned u;
-	real r;
-};
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -55,70 +49,74 @@ RRSceneStatistics* RRScene::getSceneStatistics()
 //
 // set/get state
 
-static StateValue RRSSValue[RRSS_LAST];
+static unsigned RRSSValueU[RRScene::RRSS_LAST];
+static RRReal   RRSSValueF[RRScene::RRSSF_LAST];
 
-void RRResetStates()
+void RRScene::ResetStates()
 {
-	memset(RRSSValue,0,sizeof(RRSSValue));
-	RRSetState(RRSS_USE_CLUSTERS,0);
-	RRSetStateF(RRSSF_SUBDIVISION_SPEED,1);
-	RRSetState(RRSS_GET_SOURCE,1);
-	RRSetState(RRSS_GET_REFLECTED,1);
-	RRSetState(RRSS_GET_SMOOTH,1);
-	RRSetState(RRSS_GET_FINAL_GATHER,0);
-	RRSetStateF(RRSSF_MIN_FEATURE_SIZE,0);
-	RRSetStateF(RRSSF_MAX_SMOOTH_ANGLE,M_PI/10+0.01f);
-	RRSetStateF(RRSSF_IGNORE_SMALLER_AREA,SMALL_REAL);
-	RRSetStateF(RRSSF_IGNORE_SMALLER_ANGLE,0.001f);
-	RRSetState(RRSS_FIGHT_NEEDLES,0);
-	RRSetStateF(RRSSF_FIGHT_SMALLER_AREA,0.01f);
-	RRSetStateF(RRSSF_FIGHT_SMALLER_ANGLE,0.01f);
+	memset(RRSSValueU,0,sizeof(RRSSValueU));
+	memset(RRSSValueF,0,sizeof(RRSSValueF));
+	SetState(RRScene::RRSS_GET_SOURCE,1);
+	SetState(RRScene::RRSS_GET_REFLECTED,1);
+	SetState(RRScene::RRSS_GET_SMOOTH,1);
+	// development
+	SetState(RRScene::RRSS_USE_CLUSTERS,0);
+	SetState(RRScene::RRSS_GET_FINAL_GATHER,0);
+	SetState(RRScene::RRSS_FIGHT_NEEDLES,0);
 
-	//RRSetStateF(RRSSF_SUBDIVISION_SPEED,0);
-	//RRSetStateF(RRSSF_MIN_FEATURE_SIZE,10.037f); //!!!
+	SetStateF(RRScene::RRSSF_MIN_FEATURE_SIZE,0);
+	SetStateF(RRScene::RRSSF_MAX_SMOOTH_ANGLE,M_PI/10+0.01f);
+	// development
+	SetStateF(RRScene::RRSSF_SUBDIVISION_SPEED,0);
+	SetStateF(RRScene::RRSSF_IGNORE_SMALLER_AREA,SMALL_REAL);
+	SetStateF(RRScene::RRSSF_IGNORE_SMALLER_ANGLE,0.001f);
+	SetStateF(RRScene::RRSSF_FIGHT_SMALLER_AREA,0.01f);
+	SetStateF(RRScene::RRSSF_FIGHT_SMALLER_ANGLE,0.01f);
+	//SetStateF(RRScene::RRSSF_SUBDIVISION_SPEED,0);
+	//SetStateF(RRScene::RRSSF_MIN_FEATURE_SIZE,10.037f); //!!!
 }
 
-unsigned RRGetState(RRSceneState state)
+unsigned RRScene::GetState(SceneStateU state)
 {
 	if(state<0 || state>=RRSS_LAST) 
 	{
 		assert(0);
 		return 0;
 	}
-	return RRSSValue[state].u;
+	return RRSSValueU[state];
 }
 
-unsigned RRSetState(RRSceneState state, unsigned value)
+unsigned RRScene::SetState(SceneStateU state, unsigned value)
 {
 	if(state<0 || state>=RRSS_LAST) 
 	{
 		assert(0);
 		return 0;
 	}
-	unsigned tmp = RRSSValue[state].u;
-	RRSSValue[state].u = value;
+	unsigned tmp = RRSSValueU[state];
+	RRSSValueU[state] = value;
 	return tmp;
 }
 
-real RRGetStateF(RRSceneState state)
+real RRScene::GetStateF(SceneStateF state)
 {
-	if(state<0 || state>=RRSS_LAST) 
+	if(state<0 || state>=RRSSF_LAST) 
 	{
 		assert(0);
 		return 0;
 	}
-	return RRSSValue[state].r;
+	return RRSSValueF[state];
 }
 
-real RRSetStateF(RRSceneState state, real value)
+real RRScene::SetStateF(SceneStateF state, real value)
 {
-	if(state<0 || state>=RRSS_LAST) 
+	if(state<0 || state>=RRSSF_LAST) 
 	{
 		assert(0);
 		return 0;
 	}
-	real tmp = RRSSValue[state].r;
-	RRSSValue[state].r = value;
+	real tmp = RRSSValueF[state];
+	RRSSValueF[state] = value;
 	return tmp;
 }
 
@@ -136,7 +134,7 @@ public:
 RREngine::RREngine()
 {
 	core_Init();
-	RRResetStates();
+	RRScene::ResetStates();
 }
 
 RREngine::~RREngine()

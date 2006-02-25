@@ -127,12 +127,16 @@ static bool endByTime(void *context)
 }
 rrVision::RRColor* indirectColors = NULL;
 #ifdef _3DS
+rrVision::RRReal size2(const rrVision::RRVec3& a)
+{
+	return a.x*a.x+a.y*a.y+a.z*a.z;
+}
 void updateIndirect()
 {
 	if(!rrobject || !rrscene) return;
 
-	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,renderSource?1:0);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,renderSource?0:1);
+	rrVision::RRScene::SetState(rrVision::RRScene::RRSS_GET_SOURCE,renderSource?1:0);
+	rrVision::RRScene::SetState(rrVision::RRScene::RRSS_GET_REFLECTED,renderSource?0:1);
 
 	unsigned firstTriangleIdx[1000];//!!!
 	unsigned firstVertexIdx[1000];
@@ -946,7 +950,7 @@ void capturePrimary() // slow
 	free(pixelBuffer);
 
 	// prepare for new calculation
-	rrscene->sceneResetStatic(true);//!!! false by bylo rychlejsi ale nefunguje dobre
+	rrscene->illuminationReset(true);//!!! false by bylo rychlejsi ale nefunguje dobre
 	rrtimestep = 0.1f;
 
 	// restore render states
@@ -1598,7 +1602,7 @@ void idle()
 	if((now-lastInteractionTime)/(float)PER_SEC<TIME_TO_START_IMPROVING) return;
 
 	static const float calcstep = 0.1f;
-	rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
+	rrscene->illuminationImprove(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
 	/*rrVision::RRScene::Improvement imp = rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
 	switch(imp)
 	{
@@ -1723,12 +1727,12 @@ int main(int argc, char **argv)
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalIllumination();
 #endif
 	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
-	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);
-	rrVision::RRSetState(rrVision::RRSS_GET_SOURCE,0);
-	rrVision::RRSetState(rrVision::RRSS_GET_REFLECTED,1);
-	//rrVision::RRSetState(rrVision::RRSS_GET_SMOOTH,0);
-	rrVision::RRSetStateF(rrVision::RRSSF_MIN_FEATURE_SIZE,0.15f);
-	//rrVision::RRSetStateF(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.4f);
+	rrVision::RRScene::SetStateF(rrVision::RRScene::RRSSF_SUBDIVISION_SPEED,0);
+	rrVision::RRScene::SetState(rrVision::RRScene::RRSS_GET_SOURCE,0);
+	rrVision::RRScene::SetState(rrVision::RRScene::RRSS_GET_REFLECTED,1);
+	//rrVision::RRScene::SetState(rrVision::RRSS_GET_SMOOTH,0);
+	rrVision::RRScene::SetStateF(rrVision::RRScene::RRSSF_MIN_FEATURE_SIZE,0.15f);
+	//rrVision::RRScene::SetStateF(rrVision::RRSSF_MAX_SMOOTH_ANGLE,0.4f);
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createGammaScaler(0.4f);
 	rrscene->setScaler(rrscaler);

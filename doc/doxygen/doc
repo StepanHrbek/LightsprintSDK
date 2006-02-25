@@ -17,9 +17,6 @@ Welcome to Lightsprint libraries.
 \subpage collider "Lightsprint COLLIDER"
 - finds ray-mesh intersections
 
-\subpage trial "Trial / Full version"
-- differences between trial and full version
-
 
 
 \page vision Lightsprint Vision
@@ -45,8 +42,12 @@ Welcome to Lightsprint libraries.
  -# Show your license number to RRLicense.
  -# Create rrVision::RRScene.
  -# Create rrVision::RRObjectImporter using your object and insert it into scene. Repeat for all objects.
- -# Calculate global illumination using scene->improveStatic().
+ -# Calculate global illumination using scene->illuminationImprove().
  -# Read results using scene->getTriangleMeasure().
+
+\section trial1 Trial version limits
+ All features of full version are present in trial version,
+ but maximal size of scene is limited.
 
 
 
@@ -75,15 +76,9 @@ Welcome to Lightsprint libraries.
  -# Create rrCollider::RRRay using your ray.
  -# Call collider->inretsect(ray) to find intersections. Repeat for all rays.
 
-
-
-\page trial Trial / Full version
-\section trial1 Trial version limits in Vision
- All features of full version are present in trial version,
- but maximal size of scene is limited.
-\section trial2 Trial version limits in Collider
+\section trial2 Trial version limits
  Trial version is fully functional, but collisions with very large meshes
- are not accelerated -> extremely slow.
+ are not accelerated.
 
 
 

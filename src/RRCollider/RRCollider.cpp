@@ -11,7 +11,6 @@
 namespace rrCollider
 {
 
-unsigned RRCOLLIDER_API diagnosticLevel = 0;
 
 RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
 {
@@ -79,38 +78,6 @@ RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique inte
 //
 // RRIntersectStats - statistics for library calls
 
-RRIntersectStats intersectStats;
-
-RRIntersectStats::RRIntersectStats() 
-{
-	Reset();
-}
-
-void RRIntersectStats::Reset() 
-{
-	memset(this,0,sizeof(*this));
-}
-
-RRIntersectStats* RRIntersectStats::getInstance()
-{
-	return &intersectStats;
-}
-
-void RRIntersectStats::getInfo(char *buf, unsigned len, unsigned level) const
-{
-	buf[0]=0;
-	len--;
-	if(level>=1) _snprintf(buf+strlen(buf),len-strlen(buf),"Intersect stats:\n");
-	if(intersect_mesh>100)
-	{
-		if(level>=1) _snprintf(buf+strlen(buf),len-strlen(buf)," rays=%d missed=%d(%d)\n",intersect_mesh,intersect_mesh-hit_mesh,(intersect_mesh-hit_mesh)/(intersect_mesh/100));
-		if(level>=1 && (intersect_bspSRLNP || intersect_triangleSRLNP)) _snprintf(buf+strlen(buf),len-strlen(buf)," bspSRLNP=%d(%d) triSRLNP=%d(%d)\n",intersect_bspSRLNP,intersect_bspSRLNP/intersect_mesh,intersect_triangleSRLNP,intersect_triangleSRLNP/intersect_mesh);
-		if(level>=1 && (intersect_bspNP    || intersect_triangleNP   )) _snprintf(buf+strlen(buf),len-strlen(buf)," bspNP=%d(%d) triNP=%d(%d)\n",intersect_bspNP,intersect_bspNP/intersect_mesh,intersect_bspNP,intersect_bspNP/intersect_mesh);
-	}
-	if(numTrianglesInvalid) _snprintf(buf+strlen(buf),len-strlen(buf)," numTrianglesInvalid=%d/%d\n",numTrianglesInvalid,numTrianglesLoaded);
-	if(intersect_linear) _snprintf(buf+strlen(buf),len-strlen(buf)," intersect_linear=%d\n",intersect_linear);
-	buf[len]=0;
-}
 
 
 //////////////////////////////////////////////////////////////////////////////

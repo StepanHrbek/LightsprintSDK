@@ -16,7 +16,6 @@
 namespace rrCollider
 {
 
-	extern RRIntersectStats intersectStats;
 
 
 	PRIVATE bool update_rayDir(RRRay* ray);

@@ -31,7 +31,7 @@
 	#define FILL_HITSIDE
 	#define SURFACE_CALLBACK
 	// statistics
-	#define FILL_STATISTIC(a) a
+		#define FILL_STATISTIC(a)
 #endif
 
 #define COLLIDER_INPUT_INVDIR // partially hardcoded, must stay defined

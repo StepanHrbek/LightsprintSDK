@@ -217,7 +217,6 @@ namespace rrCollider
 		FILE* f = buildParams->forceRebuild ? NULL : fopen(name,"rb");
 		if(!f)
 		{
-			if(diagnosticLevel) printf("'%s' not found.\n",name);
 		retry:
 			OBJECT obj;
 			assert(triangles);
@@ -266,7 +265,6 @@ namespace rrCollider
 					fclose(f);
 					if(!ok)
 					{
-						if(diagnosticLevel) printf("Failed to write tree (%s)...\n",name);
 						//remove(name);
 						f = fopen(name,"wb");
 						fclose(f);
@@ -281,12 +279,10 @@ namespace rrCollider
 		}
 		if(f)
 		{
-			if(diagnosticLevel) printf("Loading '%s'.\n",name);
 			tree = load IBP2(f);
 			fclose(f);
 			if(!tree && !retried)
 			{
-				if(diagnosticLevel) printf("Invalid tree in cache (%s), trying to fix...\n",name);
 				retried = true;
 				goto retry;
 			}

@@ -18,6 +18,7 @@
 		#else
 			#pragma comment(lib,"RRCollider_sd.lib")
 		#endif
+		//#define RR_DEVELOPMENT
 	#else
 	#ifdef RRCOLLIDER_DLL_BUILD
 		// build dll
@@ -31,6 +32,7 @@
 #else
 	// use static library
 	#define RRCOLLIDER_API
+	//#define RR_DEVELOPMENT
 #endif
 
 #include <math.h>   // sqrt
@@ -90,14 +92,6 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 		bool   operator !=(const RRVec3& a)   const {return a.x!=x || a.y!=y || a.z!=z;}
 		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
 	};
-
-	RRVec3 RRCOLLIDER_API operator -(const RRVec3& a);
-	RRReal RRCOLLIDER_API size(const RRVec3& a);
-	RRReal RRCOLLIDER_API size2(const RRVec3& a);
-	RRVec3 RRCOLLIDER_API normalized(const RRVec3& a);
-	RRReal RRCOLLIDER_API dot(const RRVec3& a,const RRVec3& b);
-	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a);
-	RRVec3 RRCOLLIDER_API ortogonalTo(const RRVec3& a,const RRVec3& b);
 
 	//! Vector of 4 real numbers.
 	struct RRCOLLIDER_API RRVec4 : public RRVec3
@@ -373,57 +367,6 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 	};
 
 
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRIntersectStats
-	//! Statistics for library calls. Retrieve by getInstance().
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RRCOLLIDER_API RRIntersectStats
-	{
-	public:
-		// data
-		unsigned numTrianglesLoaded;
-		unsigned numTrianglesInvalid;
-		// calls
-		unsigned intersect_mesh;
-		unsigned hit_mesh;
-		// branches, once per call
-		unsigned intersect_bspSRLNP;
-		unsigned intersect_bspNP;
-		unsigned intersect_bsp;
-		unsigned intersect_kd;
-		unsigned intersect_linear;
-		// branches, many times per call
-		unsigned intersect_triangleSRLNP;
-		unsigned intersect_triangleNP;
-		unsigned intersect_triangle;
-		// robustness
-		unsigned diff_overlap;
-		unsigned diff_precalc_miss;
-		unsigned diff_tight_hit;
-		unsigned diff_tight_miss;
-		unsigned diff_parallel_hit;
-		unsigned diff_parallel_miss;
-		unsigned diff_clear_hit;
-		unsigned diff_clear_miss_tested;
-		unsigned diff_clear_miss_not_tested;
-		// tools
-		RRIntersectStats();
-		void Reset();
-		void getInfo(char *buf, unsigned len, unsigned level) const;
-		static RRIntersectStats* getInstance();
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	// tmp
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	extern unsigned RRCOLLIDER_API diagnosticLevel;
 
 
 	//////////////////////////////////////////////////////////////////////////////

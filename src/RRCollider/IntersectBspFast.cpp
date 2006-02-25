@@ -800,7 +800,7 @@ test_no:
 		watch_tested = true;
 		if(hit && hit2 && ray2.hitDistance==ray->hitDistance)
 		{
-			FILL_STATISTIC(intersectStats.diff_overlap++);
+			FILL_STATISTIC(intersectStats.diffOverlap++);
 			goto ok;
 		}
 		if(hit && (!hit2 || ray2.hitDistance>ray->hitDistance)) 
@@ -816,21 +816,21 @@ test_no:
 			if(!ableToHit)
 			{
 				// precalculated intersect_triangleSRLNP gives different result -> miss
-				FILL_STATISTIC(intersectStats.diff_precalc_miss++);
+				FILL_STATISTIC(intersectStats.diffPrecalcMiss++);
 				goto ok;
 			}*/
 			if(hitBorder)
 			{
-				FILL_STATISTIC(intersectStats.diff_tight_hit++);
+				FILL_STATISTIC(intersectStats.diffTightHit++);
 				goto ok;
 			}
 			if(hitParallel)
 			{
-				FILL_STATISTIC(intersectStats.diff_parallel_hit++);
+				FILL_STATISTIC(intersectStats.diffParallelHit++);
 				goto ok;
 			}
 			{
-				FILL_STATISTIC(intersectStats.diff_clear_hit++);
+				FILL_STATISTIC(intersectStats.diffClearHit++);
 				goto bad;
 			}
 		}
@@ -845,24 +845,24 @@ test_no:
 			if(!bspAbleToHit)
 			{
 				// precalculated intersect_triangleSRLNP gives different result -> miss
-				FILL_STATISTIC(intersectStats.diff_precalc_miss++);
+				FILL_STATISTIC(intersectStats.diffPrecalcMiss++);
 				goto ok;
 			}
 			if(hit2Border)
 			{
 				// extremely small numerical inprecisions -> tight miss
-				FILL_STATISTIC(intersectStats.diff_tight_miss++);
+				FILL_STATISTIC(intersectStats.diffTightMiss++);
 				goto ok;
 			}
 			if(hit2Parallel)
 			{
 				// ray is parallel to plane + extremely small numerical inprecisions -> miss
-				FILL_STATISTIC(intersectStats.diff_parallel_miss++);
+				FILL_STATISTIC(intersectStats.diffParallelMiss++);
 				goto ok;
 			}
 			{
 				// unknown problem -> miss
-				FILL_STATISTIC(intersectStats.diff_clear_miss_tested++);
+				FILL_STATISTIC(intersectStats.diffClearMissTested++);
 				watch_tested = false;
 				watch_triangle = ray2.hitTriangle;
 				watch_distance = ray2.hitDistance;
@@ -876,8 +876,8 @@ test_no:
 		intersect_bspSRLNP(&ray3,tree,ray3.hitDistanceMax);
 		if(!watch_tested)
 		{
-			FILL_STATISTIC(intersectStats.diff_clear_miss_tested--);
-			FILL_STATISTIC(intersectStats.diff_clear_miss_not_tested++);
+			FILL_STATISTIC(intersectStats.diffClearMissTested--);
+			FILL_STATISTIC(intersectStats.diffClearMissNotTested++);
 			watch_tested = true;
 		}
 		RRRay& ray4 = *RRRay::create(); ray4 = rayOrig;

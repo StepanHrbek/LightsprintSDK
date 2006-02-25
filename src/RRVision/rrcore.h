@@ -615,7 +615,6 @@ public:
 	void    removeObject(Object *o);
 	void    removeSubtriangles();
 	bool    findFactorsTo(Node *n);
-	unsigned getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point);
 
 	private:
 		unsigned nodesAllocated;
@@ -780,7 +779,6 @@ public:
 	void    setScaler(RRScaler* ascaler);
 	RRScaler* scaler;
 
-	void    setSkyLight(RRSkyLight* skyLight);
 
 	RRScene::Improvement improveStatic(bool endfunc(void*), void* context);
 	void    abortStaticImprovement();
@@ -818,7 +816,6 @@ public:
 	RRScene::Improvement resetStaticIllumination(bool resetFactors);
 	void    updateMatrices();
 
-	unsigned getInstantRadiosityPoints(unsigned points, RRScene::InstantRadiosityPoint* point);
 
 	// get info
 	void    infoScene(char *buf);
@@ -851,7 +848,6 @@ public:
 		TReflectors staticReflectors; // top nodes in static Triangle trees
 		rrCollider::RRMeshImporter** multiObjectMeshes4Delete; // to be deleted with multiCollider
 
-		RRSkyLight* skyLight;
 };
 
 void core_Init();

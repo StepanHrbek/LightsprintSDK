@@ -362,6 +362,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\RRMath.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\RRRay.cpp"
 				>
 			</File>
@@ -428,6 +432,10 @@
 			</File>
 			<File
 				RelativePath="..\include\RRCollider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\RRMath.h"
 				>
 			</File>
 			<File

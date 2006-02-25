@@ -2,6 +2,7 @@
 #define COLLIDER_GEOMETRY_H
 
 #include "RRCollider.h"
+#include "RRMath.h"
 #include "config.h"
 #include <float.h> // _finite
 

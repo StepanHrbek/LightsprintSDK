@@ -10,7 +10,7 @@ CPPFLAGS += -msse
 CPPFLAGS += -mfpmath=sse
 CC = gcc
 
-OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)fpcube.o $(TMP)geometry.o $(TMP)IntersectBspCompact.o $(TMP)IntersectBspFast.o $(TMP)IntersectLinear.o $(TMP)IntersectVerification.o $(TMP)pcube.o $(TMP)RRAligned.o $(TMP)RRCollider.o $(TMP)RRRay.o $(TMP)sha1.o $(TMP)MeshImporter/CopyMesh.o $(TMP)MeshImporter/LessVertices.o $(TMP)MeshImporter/Mesh.o $(TMP)MeshImporter/MultiMesh.o
+OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)fpcube.o $(TMP)geometry.o $(TMP)IntersectBspCompact.o $(TMP)IntersectBspFast.o $(TMP)IntersectLinear.o $(TMP)IntersectVerification.o $(TMP)RRMath.o $(TMP)pcube.o $(TMP)RRAligned.o $(TMP)RRCollider.o $(TMP)RRRay.o $(TMP)sha1.o $(TMP)MeshImporter/CopyMesh.o $(TMP)MeshImporter/LessVertices.o $(TMP)MeshImporter/Mesh.o $(TMP)MeshImporter/MultiMesh.o
 #OBJS = $(TMP)big.o
 
 all: makefile $(LIB)

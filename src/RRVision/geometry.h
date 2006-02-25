@@ -2,6 +2,7 @@
 #define RRVISION_GEOMETRY_H
 
 #include "RRVision.h" // RRReal
+#include "RRMath.h" // vec3 support in rrCollider
 #include <float.h> // _finite
 
 namespace rrVision

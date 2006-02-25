@@ -221,6 +221,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	};
 
 
+#ifdef RR_DEVELOPMENT
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRSkyLight
@@ -241,6 +242,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		virtual RRColor getRadiance(RRVec3 dirFromSky) const = 0;
 		virtual ~RRSkyLight() {}
 	};
+#endif
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -306,7 +308,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		unsigned numCallsDistribFactor;
 		unsigned numRayTracePhotonFrontHits;
 		unsigned numRayTracePhotonBackHits;
-		unsigned numRayTracePhotonHitsNotReceived;
+		//unsigned numRayTracePhotonHitsNotReceived;
 		unsigned numRayTracePhotonHitsReceived;
 		unsigned numRayTracePhotonHitsReflected;
 		unsigned numRayTracePhotonHitsTransmitted;
@@ -320,12 +322,12 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		// numbers of errors
 		unsigned numDepthOverflows;        ///< Number of depth overflows in recursive photon tracing. Caused by physically incorrect scenes.
 		// amounts of energy
-		RRReal   sumRayTracePhotonHitPower;
-		RRReal   sumRayTracePhotonDifRefl;
-		RRColor  sumDistribInput;
-		RRReal   sumDistribFactorClean;
-		RRColor  sumDistribFactorMaterial;
-		RRColor  sumDistribOutput;
+		//RRReal   sumRayTracePhotonHitPower;
+		//RRReal   sumRayTracePhotonDifRefl;
+		//RRColor  sumDistribInput;
+		//RRReal   sumDistribFactorClean;
+		//RRColor  sumDistribFactorMaterial;
+		//RRColor  sumDistribOutput;
 		// photon traces
 		struct LineSegment {RRVec3 point[2];};
 		enum { MAX_LINES = 10000 };
@@ -353,16 +355,49 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		RRScene();
 		~RRScene();
 
+		//! Identifier of integer scene state.
+		enum SceneStateU
+		{
+			RRSS_GET_SOURCE,           ///< Results from getTriangleMeasure contain source illumination from objects.
+			RRSS_GET_REFLECTED,        ///< Results from getTriangleMeasure contain reflected illumination calculated by library.
+			RRSS_GET_SMOOTH,           ///< Results from getTriangleMeasure are enhanced by smoothing (only reflected part).
+			// following states are development only
+			RRSS_USE_CLUSTERS,         ///< For testing only. 0 = no clustering, !0 = use clustering.
+			RRSS_GET_FINAL_GATHER,     ///< For testing only. Results from getTriangleMeasure are enhanced by final gathering.
+			RRSS_FIGHT_NEEDLES,        ///< For testing only. 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow).
+			RRSS_LAST
+		};
+		//! Identifier of float scene state.
+		enum SceneStateF
+		{
+			RRSSF_MIN_FEATURE_SIZE,    ///< Smaller features will be smoothed. This is kind of blur.
+			RRSSF_MAX_SMOOTH_ANGLE,    ///< Smaller angles between faces may be smoothed/interpolated.
+			// following states are development only
+			RRSSF_SUBDIVISION_SPEED,   ///< For testing only. Speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast. Currently there is no way to read subdivision results back, so let it 0.
+			RRSSF_IGNORE_SMALLER_AREA, ///< For testing only. Minimal allowed area of triangle (m^2), smaller triangles are ignored.
+			RRSSF_IGNORE_SMALLER_ANGLE,///< For testing only. Minimal allowed angle in triangle (rad), sharper triangles are ignored.
+			RRSSF_FIGHT_SMALLER_AREA,  ///< For testing only. Smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES.
+			RRSSF_FIGHT_SMALLER_ANGLE, ///< For testing only. Sharper triangles (rad) will be assimilated when FIGHT_NEEDLES.
+			RRSSF_LAST
+		};
+		static void     ResetStates();                               ///< Reset scene states to default values.
+		static unsigned GetState(SceneStateU state);                 ///< Return one of integer scene states.
+		static unsigned SetState(SceneStateU state, unsigned value); ///< Set one of integer scene states.
+		static RRReal   GetStateF(SceneStateF state);                ///< Return one of float scene states.
+		static RRReal   SetStateF(SceneStateF state, RRReal value);  ///< Set one of float scene states.
+
 		// i/o settings (optional)
-		void          setScaler(RRScaler* scaler);
+		void          setScaler(RRScaler* scaler);                   ///< Set scaler used by this scene i/o operations.
 
 		// import geometry
 		typedef       unsigned ObjectHandle;
-		ObjectHandle  objectCreate(RRObjectImporter* importer);
-		//void          objectDestroy(ObjectHandle object);
+		ObjectHandle  objectCreate(RRObjectImporter* importer);      ///< Insert object into scene.
+#ifdef RR_DEVELOPMENT
+		void          objectDestroy(ObjectHandle object);
 
 		// import light (optional)
 		void          setSkyLight(RRSkyLight* skyLight);
+#endif
 		
 		// calculate radiosity
 		enum Improvement
@@ -372,27 +407,33 @@ namespace rrVision /// Encapsulates whole RRVision library.
 			FINISHED,       ///< Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
 			INTERNAL_ERROR, ///< Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};
+#ifdef RR_DEVELOPMENT
 		void          sceneFreezeGeometry(bool yes);
-		Improvement   sceneResetStatic(bool resetFactors);
-		Improvement   sceneImproveStatic(bool endfunc(void*), void* context);
-		RRReal        sceneGetAccuracy();
+#endif
+		Improvement   illuminationReset(bool resetFactors);                    ///< Reset illumination to original state.
+		Improvement   illuminationImprove(bool endfunc(void*), void* context); ///< Improve illumination until endfunc returns true.
+		RRReal        illuminationAccuracy();                                  ///< Return illumination accuracy in proprietary scene dependant units. Higher is more accurate.
 
 		// read results
+#ifdef RR_DEVELOPMENT
 		struct InstantRadiosityPoint
 		{
 			RRVec3    pos;
 			RRVec3    dir;
 			RRColor   col;
 		};
-		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out); // vertex=0..2
 		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
+#endif
+		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out); ///< Return calculated illumination measure for triangle=0..getNumTriangles and vertex=0..2.
 
 		// misc: development
+		static RRSceneStatistics* getSceneStatistics(); ///< Return pointer to scene statistics. Currently there are only one global statistics for all scenes.
+#ifdef RR_DEVELOPMENT
 		void          getInfo(char* buf, unsigned type);
 		void          getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
-		static RRSceneStatistics* getSceneStatistics();
 		void*         getScene();
 		void*         getObject(ObjectHandle object);
+#endif
 
 	private:
 		void*         _scene;
@@ -401,38 +442,11 @@ namespace rrVision /// Encapsulates whole RRVision library.
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// RRStates
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	enum RRSceneState
-	{
-		RRSS_USE_CLUSTERS,         ///< !0 = use clustering
-		RRSSF_SUBDIVISION_SPEED,   ///< speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast
-		RRSS_GET_SOURCE,           ///< results from getXxxRadiantExitance contain input emittances
-		RRSS_GET_REFLECTED,        ///< results from getXxxRadiantExitance contain additional exitances calculated by radiosity
-		RRSS_GET_SMOOTH,           ///< results from getXxxRadiantExitance are enhanced by smoothing
-		RRSS_GET_FINAL_GATHER,     ///< results from getXxxRadiantExitance are enhanced by final gather
-		RRSSF_MIN_FEATURE_SIZE,    ///< smaller features may be lost
-		RRSSF_MAX_SMOOTH_ANGLE,    ///< smaller angles between faces may be smoothed/interpolated
-		RRSSF_IGNORE_SMALLER_AREA, ///< minimal allowed area of triangle (m^2), smaller triangles are ignored
-		RRSSF_IGNORE_SMALLER_ANGLE,///< minimal allowed angle in triangle (rad), sharper triangles are ignored
-		RRSS_FIGHT_NEEDLES,        ///< 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow)
-		RRSSF_FIGHT_SMALLER_AREA,  ///< smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES
-		RRSSF_FIGHT_SMALLER_ANGLE, ///< sharper triangles (rad) will be assimilated when FIGHT_NEEDLES
-		RRSS_LAST
-	};
-
-	void     RRVISION_API RRResetStates();
-	unsigned RRVISION_API RRGetState(RRSceneState state);
-	unsigned RRVISION_API RRSetState(RRSceneState state, unsigned value);
-	RRReal   RRVISION_API RRGetStateF(RRSceneState state);
-	RRReal   RRVISION_API RRSetStateF(RRSceneState state, RRReal value);
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
+	//  RRLicense
 	//! Provide your license number before any other work with library.
+	//
+	//! Computer must be connected to internet so license number
+	//! may be verified.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
