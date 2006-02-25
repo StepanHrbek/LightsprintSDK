@@ -88,7 +88,12 @@ void* MgfImporter::add_vertex(FLOAT *p,FLOAT *n)
 
 static void fillSurface(rrVision::RRSurface *s,C_MATERIAL *m)
 {
-	s->sides                =(m->sided==1)?1:2;
+	static rrVision::RRSideBits sideBits[3][2]={
+		{{0},{0}},
+		{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (front side, back side)
+		{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (front side, back side)
+	};
+	for(unsigned i=0;i<2;i++) s->sideBits[i]=sideBits[(m->sided==1)?1:2][i];
 	s->diffuseReflectance   =m->rd;
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,&s->diffuseReflectanceColor.x);
 	for(unsigned c=0;c<3;c++)

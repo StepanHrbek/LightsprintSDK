@@ -92,7 +92,7 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 					const rrVision::RRSurface* surface = object->getSurface(surfaceIdx);
 					assert(surface);
 					if(cc!=CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)
-						if((SIDES==0 && surface->sides==1) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+						if((SIDES==0 && surface->sideBits[1].renderFrom) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
 					switch(cc)
 					{
 						case CC_DIFFUSE_REFLECTANCE:

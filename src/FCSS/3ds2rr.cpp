@@ -95,7 +95,8 @@ static void fillSurface(rrVision::RRSurface* s,Model_3DS::Material* m)
 		avg[2] = m->color.b;
 	}
 
-	s->sides                = 1;
+	rrVision::RRSideBits sideBits[2] = {{1,1,1,1,1,1},{0,0,1,0,0,0}}; // standard 1sided
+	for(unsigned i=0;i<2;i++) s->sideBits[i] = sideBits[i];
 	s->diffuseReflectance   = (avg[0]+avg[1]+avg[2])/3;
 	s->diffuseReflectanceColor = avg;
 	s->diffuseTransmittance = 0;

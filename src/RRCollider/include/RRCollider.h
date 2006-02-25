@@ -3,52 +3,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
-//! RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.2.23
-//!
-//! - thread safe, you can calculate any number of intersections at the same time
-//! - you can select technique in range from maximal speed to zero memory allocated
-//! - up to 2^32 vertices and 2^30 triangles in mesh
-//! - builds helper-structures and stores them in cache on disk
-//!
+//! \brief RRCollider - library for fast "ray x mesh" intersections
+//! \version 2006.2.26
 //! \author Copyright (C) Stepan Hrbek 1999-2006, Daniel Sykora 1999-2004
 //! All rights reserved
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-// [ General rules ]
-//
-// If not otherwise specified, all inputs must be finite numbers.
-// With Inf or NaN, result is undefined.
-//
-// Parameters that need to be destructed are always destructed by caller.
-//
-// [ Additional RRMeshImporter rules ]
-//
-// RRMeshImporter operates with vertex and triangle indices.
-// 1) PostImport indices, always 0..num-1 (where num=getNumTriangles
-//    or getNumVertices), these are used in most calls.
-//    Example: with 100-triangle mesh, triangle indices are 0..99.
-// 2) PreImport indices, optional, arbitrary numbers provided by 
-//    importer for your convenience.
-//    Example: could be offsets into your vertex buffer.
-// Pre<->Post mapping is defined by importer and is arbitrary, but constant.
-//
-// All Pre-Post conversion functions must accept all unsigned values.
-// When query makes no sense, they return UNDEFINED.
-// This is because 
-// 1) valid PreImport numbers may be spread across whole unsigned 
-//    range and caller could be unaware of their validity.
-// 2) such queries are rare and not performance critical.
-//
-// All other function use PostImport numbers and may support only 
-// their 0..num-1 range.
-// When called with out of range value, result is undefined.
-// Debug version may return arbitrary number or throw assert.
-// Release version may return arbitrary number or crash.
-// This is because 
-// 1) valid PostImport numbers are easy to ensure on caller side.
-// 2) such queries are very critical for performance.
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
@@ -153,11 +111,65 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRMeshImporter
-	//! Interface for importing your mesh data into RR.
+	//! Common interface for any standard or proprietary triangle mesh structure.
 	//
-	//! Derive to import YOUR triangle mesh.
-	//! All results from RRMeshImporter must be constant in time.
-	//
+	//! \section s4 Creating instances
+	//!
+	//! #RRMeshImporter has built-in support for standard mesh formats used by
+	//! rendering APIs - vertex and index buffers using triangle lists or
+	//! triangle strips. See create() and createIndexed().
+	//!
+	//! #RRMeshImporter has built-in support for baking multiple meshes 
+	//! into one mesh (without need for additional memory). 
+	//! This may simplify mesh oprations or improve performance in some situations.
+	//! See createMultiMesh().
+	//!
+	//! #RRMeshImporter has built-in support for creating self-contained mesh copies.
+	//! See createCopy().
+	//! While importers created from vertex buffer doesn't allocate more memory 
+	//! and depend on vertex buffer, self-contained copy contains all mesh data
+	//! and doesn't depend on any other objects.
+	//!
+	//! For proprietary mesh formats (heightfield, realtime generated etc), 
+	//! you may easily derive from #RRMeshImporter and create your own importer.
+	//! 
+	//! \section s6 Optimizations
+	//!
+	//! #RRMeshImporter may help you with mesh optimizations if requested,
+	//! for example by removing duplicate vertices or degenerated triangles.
+	//! 
+	//! \section s6 Constancy
+	//!
+	//! All data provided by #RRMeshImporter must be constant in time.
+	//! Built-in importers guarantee constancy if you don't change
+	//! their vertex/index buffers. Constancy of mesh copy is guaranteed always.
+	//!
+	//! \section s5 Indexing
+	//!
+	//! #RRMeshImporter operates with two types of vertex and triangle indices.
+	//! -# PostImport indices, always 0..num-1 (where num=getNumTriangles
+	//! or getNumVertices), these are used in most calls.
+	//! \n Example: with 100-triangle mesh, triangle indices are 0..99.
+	//! -# PreImport indices, optional, arbitrary numbers provided by 
+	//! importer for your convenience.
+	//! \n Example: could be offsets into your vertex buffer.
+	//! \n Pre<->Post mapping is defined by importer and is arbitrary, but constant.
+	//!
+	//! All Pre-Post conversion functions must accept all unsigned values.
+	//! When query makes no sense, they return UNDEFINED.
+	//! This is because 
+	//! -# valid PreImport numbers may be spread across whole unsigned 
+	//! range and caller could be unaware of their validity.
+	//! -# such queries are rare and not performance critical.
+	//!
+	//! All other function use PostImport numbers and may support only 
+	//! their 0..num-1 range.
+	//! When called with out of range value, result is undefined.
+	//! Debug version may return arbitrary number or throw assert.
+	//! Release version may return arbitrary number or crash.
+	//! This is because 
+	//! -# valid PostImport numbers are easy to ensure on caller side.
+	//! -# such queries are very critical for performance.
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RRCOLLIDER_API RRMeshImporter
@@ -263,15 +275,13 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRAligned
-	//! Object specially aligned in memory.
-	//
-	//! On some platforms, some structures need to be specially aligned in memory.
-	//! This helper base class helps to align them.
+	//! Object aligned in memory as required by SIMD instructions.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	struct RRCOLLIDER_API RRAligned
+	class RRCOLLIDER_API RRAligned
 	{
+	public:
 		void* operator new(std::size_t n);
 		void* operator new[](std::size_t n);
 		void operator delete(void* p, std::size_t n);
@@ -284,8 +294,8 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 	//  RRRay
 	//! Ray to intersect with object.
 	//
-	//! Contains all inputs and outputs for RRCollider::intersect()
-	//! All fields of at least 3 floats are aligned.
+	//! Contains all inputs and outputs for RRCollider::intersect().
+	//! All fields of at least 3 floats are aligned for SIMD.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -296,30 +306,30 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 		static RRRay* create(); ///< Creates 1 RRRay. All is zeroed, all FILL flags on.
 		static RRRay* create(unsigned n); ///< Creates array of RRRays.
 		// inputs (never modified by collider)
-		enum Flags
+		enum Flags ///< Flags define which outputs to fill. \detailed Some outputs may be filled even when not requested by flag.
 		{ 
-			FILL_DISTANCE   =(1<<0), // which outputs to fill
-			FILL_POINT3D    =(1<<1), // note: some outputs might be filled even when not requested by flag.
+			FILL_DISTANCE   =(1<<0), 
+			FILL_POINT3D    =(1<<1),
 			FILL_POINT2D    =(1<<2),
 			FILL_PLANE      =(1<<3),
 			FILL_TRIANGLE   =(1<<4),
 			FILL_SIDE       =(1<<5),
 			TEST_SINGLESIDED=(1<<6), ///< detect collision only against front side. default is to test both sides
 		};
-		RRVec4          rayOrigin;      ///< i, (-Inf,Inf), ray origin. never modify last component, must stay 1
-		RRVec4          rayDirInv;      ///< i, <-Inf,Inf>, 1/ray direction. direction must be normalized
-		RRReal          rayLengthMin;   ///< i, <0,Inf), test intersection in range <min,max>
-		RRReal          rayLengthMax;   ///< i, <0,Inf), test intersection in range <min,max>
-		unsigned        rayFlags;       ///< i, flags that specify the action
+		RRVec4          rayOrigin;      ///< in, (-Inf,Inf), ray origin. never modify last component, must stay 1
+		RRVec4          rayDirInv;      ///< in, <-Inf,Inf>, 1/ray direction. direction must be normalized
+		RRReal          rayLengthMin;   ///< in, <0,Inf), test intersection in range <min,max>
+		RRReal          rayLengthMax;   ///< in, <0,Inf), test intersection in range <min,max>
+		unsigned        rayFlags;       ///< in, flags that specify the action
 		RRMeshSurfaceImporter* surfaceImporter; ///< i, optional surface importer for user-defined surface behaviours
 		// outputs (valid after positive test, undefined otherwise)
-		RRReal          hitDistance;    ///< o, hit distance in object space
-		unsigned        hitTriangle;    ///< o, triangle (postImport) that was hit
-		RRVec2          hitPoint2d;     ///< o, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
-		RRVec4          hitPlane;       ///< o, plane of hitTriangle in object space, [0..2] is normal
-		RRVec3          hitPoint3d;     ///< o, hit coordinate in object space
-		bool            hitFrontSide;   ///< o, true = face was hit from the front side
-		RRVec4          hitPadding[2];  ///< o, undefined, never modify
+		RRReal          hitDistance;    ///< out, hit distance in object space
+		unsigned        hitTriangle;    ///< out, triangle (postImport) that was hit
+		RRVec2          hitPoint2d;     ///< out, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
+		RRVec4          hitPlane;       ///< out, plane of hitTriangle in object space, [0..2] is normal
+		RRVec3          hitPoint3d;     ///< out, hit coordinate in object space
+		bool            hitFrontSide;   ///< out, true = face was hit from the front side
+		RRVec4          hitPadding[2];  ///< out, undefined, never modify
 	private:
 		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};
@@ -374,8 +384,8 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 	{
 	public:
 		// data
-		unsigned loaded_triangles;
-		unsigned invalid_triangles;
+		unsigned numTrianglesLoaded;
+		unsigned numTrianglesInvalid;
 		// calls
 		unsigned intersect_mesh;
 		unsigned hit_mesh;
@@ -418,11 +428,15 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// License
+	//! Provide your license number before any other work with library.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	void RRCOLLIDER_API registerLicense(char* licenseOwner, char* licenseNumber);
+	class RRCOLLIDER_API RRLicense
+	{
+	public:
+		static void RRCOLLIDER_API registerLicense(char* licenseOwner, char* licenseNumber);
+	};
 
 } // namespace
 

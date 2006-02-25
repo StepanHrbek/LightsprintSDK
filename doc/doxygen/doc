@@ -1,5 +1,10 @@
 /**
 
+\file  doc
+\brief -
+
+
+
 \mainpage Lightsprint
 Welcome to Lightsprint libraries.
 
@@ -12,32 +17,79 @@ Welcome to Lightsprint libraries.
 \subpage collider "Lightsprint COLLIDER"
 - finds ray-mesh intersections
 
+\subpage trial "Trial / Full version"
+- differences between trial and full version
+
+
 
 \page vision Lightsprint Vision
-Calculates radiosity / global illumination.
-\n\n Header: RRVision.h
-\n Namespace: rrVision
-\section vus Basic usage scenario
--# Create rrVision::RRScene.
--# Create rrVision::RRObjectImporter using your object and insert it into scene. Repeat for all objects.
--# Calculate global illumination using scene->improveStatic().
--# Read results using scene->getTriangleMeasure().
+ Calculates radiosity / global illumination.
+
+ Header: RRVision.h
+ \n Namespace: rrVision
+
+\section vision1 Library overview
+ - optimized for speed, usage in interactive environments
+ - progressive refinement with first approximative global illumination after 1ms
+ - automatic mesh optimizations
+ - works with your units (screen colors or radiometry or photometry units or anything else)
+ - display independent, purely numerical API
+
+\section vision2 General rules
+ If not otherwise specified, all inputs must be finite numbers.
+ With Inf or NaN, result is undefined.
+
+ Parameters that need to be destructed are always destructed by caller.
+
+\section vision3 Basic usage scenario
+ -# Show your license number to RRLicense.
+ -# Create rrVision::RRScene.
+ -# Create rrVision::RRObjectImporter using your object and insert it into scene. Repeat for all objects.
+ -# Calculate global illumination using scene->improveStatic().
+ -# Read results using scene->getTriangleMeasure().
+
 
 
 \page collider Lightsprint Collider
-Finds ray-mesh intersections.
-\n\n Header: RRCollider.h
-\n Namespace: rrCollider
-\section cus Basic usage scenario
--# Create rrCollider::RRMeshImporter using your mesh.
--# Create rrCollider::RRCollider using your mesh importer.
--# Create rrCollider::RRRay using your ray.
--# Call collider->inretsect(ray) to find intersections. Repeat for all rays.
+ Finds ray-mesh intersections.
+
+ Header: RRCollider.h
+ \n Namespace: rrCollider
+
+\section collider1 Library overview
+ - thread safe, you can calculate any number of intersections at the same time
+ - you can select technique in range from maximal speed to zero memory allocated
+ - up to 2^32 vertices and 2^30 triangles in mesh
+ - builds helper-structures and stores them in cache on disk
+
+\section collider2 General rules
+ If not otherwise specified, all inputs must be finite numbers.
+ With Inf or NaN, result is undefined.
+
+ Parameters that need to be destructed are always destructed by caller.
+
+\section collider3 Basic usage scenario
+ -# Show your license number to RRLicense.
+ -# Create rrCollider::RRMeshImporter using your mesh.
+ -# Create rrCollider::RRCollider using your mesh importer.
+ -# Create rrCollider::RRRay using your ray.
+ -# Call collider->inretsect(ray) to find intersections. Repeat for all rays.
+
+
+
+\page trial Trial / Full version
+\section trial1 Trial version limits in Vision
+ All features of full version are present in trial version,
+ but maximal size of scene is limited.
+\section trial2 Trial version limits in Collider
+ Trial version is fully functional, but collisions with very large meshes
+ are not accelerated -> extremely slow.
+
 
 
 \page news What's new
 
-\section s 2006/2/23
+\section s 2006/2/26
 
 NEW FEATURES
 

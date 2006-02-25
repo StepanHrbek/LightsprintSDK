@@ -3,26 +3,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
-//! RRVision - library for fast global illumination calculations
-//! \version 2006.2.23
-//!
-//! - optimized for speed, usage in interactive environments
-//! - progressive refinement with first approximative global illumination after 1ms
-//! - automatic mesh optimizations
-//! - works with your units (screen colors or radiometry or photometry units or anything else)
-//! - display independent, purely numerical API
-//!
+//! \brief RRVision - library for fast global illumination calculations
+//! \version 2006.2.26
 //! \author Copyright (C) Stepan Hrbek 1999-2006
 //! All rights reserved
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-// General rules
-//
-// If not otherwise specified, all inputs must be finite numbers.
-// With Inf or NaN, result is undefined.
-//
-// Parameters that need to be destructed are always destructed by caller.
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
@@ -156,14 +140,31 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRObjectImporter
-	//! Interface for importing your object into RRScene.
+	//! Common interface for all proprietary object formats.
 	//
-	//! Derive to import YOUR objects into RRScene.
+	//! \section s1 Provided information
+	//! #RRObjectImporter provides information about
+	//! - object material properties
+	//! - object collider for fast ray-mesh intersections
+	//! - indirectly also object geometry (via getCollider()->getImporter())
+	//! - optionally object transformation matrix
+	//! - optionally unwrap (for future versions)
 	//!
-	//! RRObject -> RRObjectImporter -> RRCollider -> RRMeshImporter
-	//! where A -> B means that
+	//! \section s2 Creating instances
+	//! The only way to create first instance is to derive from #RRObjectImporter.
+	//! This is caused by lack of standard material description formats,
+	//! everyone uses different description and needs his own object importer.
+	//!
+	//! Once you have object importers, there is built-in support for 
+	//! - pretransforming mesh, see createWorldSpaceMesh()
+	//! - baking multiple objects together, see createMultiObject()
+	//! - baking additional (primary) illumination into object, see createAdditionalIllumination()
+	//!
+	//! \section s3 Links between objects
+	//! /n RRObject -> RRObjectImporter -> RRCollider -> RRMeshImporter
+	//! /n where A -> B means that
 	//!  - A has pointer to B
-	//!  - note that there is no automatic reference counting in B and no automatic destruction of B from A
+	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -199,7 +200,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		// instance factory
 		rrCollider::RRMeshImporter* createWorldSpaceMesh();
 		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation);
-		class RRAdditionalObjectImporter* createAdditionalExitance();
+		class RRAdditionalObjectImporter* createAdditionalIllumination();
 	};
 
 
@@ -281,9 +282,15 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRSceneStatistics
-	//! Statistics for scene. Retrieve by scene->getSceneStatistics().
+	//! Statistics for scene.
 	//
-	//! All values are cumulative, most of them only increases.
+	//! Statistics reflect inner states of radiosity solver and may 
+	//! arbitrarily change when solver changes in future versions.
+	//!
+	//! Retrieve them by scene->getSceneStatistics().
+	//! Currently all scenes work with the same statistics.
+	//!
+	//! All values are cumulative, most of them only increase.
 	//! You should manually reset them to zero at the beginning of measurement.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -319,6 +326,11 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		RRReal   sumDistribFactorClean;
 		RRColor  sumDistribFactorMaterial;
 		RRColor  sumDistribOutput;
+		// photon traces
+		struct LineSegment {RRVec3 point[2];};
+		enum { MAX_LINES = 10000 };
+		unsigned numLineSegments;
+		LineSegment lineSegments[MAX_LINES];
 		// tools
 		RRSceneStatistics();               ///< Resets all values to zero.
 		void     Reset();                  ///< Resets all values to zero.
@@ -328,10 +340,10 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRScene
-	//! Base for your RR calculations.
+	//! Description of your scene and radiosity solver.
 	//
-	//! You can create multiple RRScenes and perform independent calculations.
-	//! But only serially, code is not thread safe.
+	//! To be written.
+	//! 
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -347,7 +359,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		// import geometry
 		typedef       unsigned ObjectHandle;
 		ObjectHandle  objectCreate(RRObjectImporter* importer);
-		void          objectDestroy(ObjectHandle object);
+		//void          objectDestroy(ObjectHandle object);
 
 		// import light (optional)
 		void          setSkyLight(RRSkyLight* skyLight);
@@ -418,34 +430,25 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	RRReal   RRVISION_API RRSetStateF(RRSceneState state, RRReal value);
 
 
-	// -- temporary --
-	struct DbgRay
-	{
-		RRReal eye[3];
-		RRReal dir[3];
-		RRReal dist;
-	};
-	#define MAX_DBGRAYS 10000
-	extern RRVISION_API DbgRay dbgRay[MAX_DBGRAYS];
-	extern RRVISION_API unsigned dbgRays;
-
-
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// License
+	//! Provide your license number before any other work with library.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	enum LicenseStatus
+	class RRVISION_API RRLicense
 	{
-		VALID,       ///< Valid license.
-		EXPIRED,     ///< Expired license.
-		WRONG,       ///< Wrong license.
-		NO_INET,     ///< No internet connection to verify license.
-		UNAVAILABLE, ///< Temporarily unable to verify license, try later.
+	public:
+		enum LicenseStatus
+		{
+			VALID,       ///< Valid license.
+			EXPIRED,     ///< Expired license.
+			WRONG,       ///< Wrong license.
+			NO_INET,     ///< No internet connection to verify license.
+			UNAVAILABLE, ///< Temporarily unable to verify license, try later.
+		};
+		static LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber);
 	};
-	LicenseStatus RRVISION_API registerLicense(char* licenseOwner, char* licenseNumber);
-
 
 } // namespace
 

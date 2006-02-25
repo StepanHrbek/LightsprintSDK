@@ -830,7 +830,7 @@ int main(int argc, char **argv)
  kb_init();
  glutInit(&argc,argv);
  render_init();
- rrCollider::registerLicense(
+ rrCollider::RRLicense::registerLicense(
 	 "Illusion Softworks, a.s.",
 	 "EDOPGAHNOCPHFBCBAEFLAGEBKGKMIKBPGJCDENHEJEEALOHGEG"
 	 "ILIAONJLJEMCLKBKEMLEPGODOKMDCCBKMPNFGNKOKIJOBABNKE"
@@ -838,7 +838,7 @@ int main(int argc, char **argv)
 	 "IBPJIJNJBDMDBMHAJLPGNIEDCOABMJCCFAIDJOGALFBNHGCFIJ"
 	 "JLKJHEOEIEOGCCGKIJBBBIEIMGNGBFBIILGJKMPDGHGMPLLPGH"
 	 "EILICEKFLG");
- rrVision::LicenseStatus status = rrVision::registerLicense(
+ rrVision::RRLicense::LicenseStatus status = rrVision::RRLicense::registerLicense(
 	 "Illusion Softworks, a.s.",
 	 "EDOPGAHNOCPHFBCBAEFLAGEBKGKMIKBPGJCDENHEJEEALOHGEG"
 	 "ILIAONJLJEMCLKBKEMLEPGODOKMDCCBKMPNFGNKOKIJOBABNKE"
@@ -848,11 +848,11 @@ int main(int argc, char **argv)
 	 "EILICEKFLG");
  switch(status)
  {
-	case VALID:       break;
-	case EXPIRED:     printf("License expired!\n"); break;
-	case WRONG:       printf("Wrong license!\n"); break;
-	case NO_INET:     printf("No internet connection to verify license!\n"); break;
-	case UNAVAILABLE: printf("Temporarily unable to verify license, quit and try later.\n"); break;
+	case RRLicense::VALID:       break;
+	case RRLicense::EXPIRED:     printf("License expired!\n"); break;
+	case RRLicense::WRONG:       printf("Wrong license!\n"); break;
+	case RRLicense::NO_INET:     printf("No internet connection to verify license!\n"); break;
+	case RRLicense::UNAVAILABLE: printf("Temporarily unable to verify license, quit and try later.\n"); break;
  }
  //char buf[400]; infoStructs(buf); puts(buf);
 

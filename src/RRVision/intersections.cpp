@@ -116,9 +116,10 @@ public:
 };
 
 #include <memory.h>
-DbgRay dbgRay[MAX_DBGRAYS];
-unsigned dbgRays=0;
-#define LOG_RAY(aeye,adir,adist) { memcpy(dbgRay[dbgRays].eye,&aeye,sizeof(Vec3)); memcpy(dbgRay[dbgRays].dir,&adir,sizeof(Vec3)); dbgRay[dbgRays].dist=adist; ++dbgRays%=MAX_DBGRAYS; }
+#define LOG_RAY(aeye,adir,adist) { \
+	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].point[0]=aeye; \
+	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
+	++RRScene::getSceneStatistics()->numLineSegments%=RRScene::getSceneStatistics()->MAX_LINES; }
 
 // return first intersection with "scene minus *skip minus dynamic objects"
 //  const inputs in ray: rayLengthMin, rayLengthMax, rayFlags

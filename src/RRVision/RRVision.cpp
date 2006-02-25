@@ -188,7 +188,7 @@ const char* unmask(const char* str,char* buf)
 // License
 
 
-LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber)
+RRLicense::LicenseStatus RRLicense::registerLicense(char* licenseOwner, char* licenseNumber)
 {
 	licenseStatusValid = true;
 	licenseStatus = VALID;

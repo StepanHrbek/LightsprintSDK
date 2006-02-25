@@ -202,7 +202,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 	}
 }
 
-void RRScene::objectDestroy(ObjectHandle object)
+/*void RRScene::objectDestroy(ObjectHandle object)
 {
 	if(object<0 || object>=scene->objects) 
 	{
@@ -210,7 +210,7 @@ void RRScene::objectDestroy(ObjectHandle object)
 		return;
 	}
 	scene->objRemoveStatic(object);
-}
+}*/
 
 void RRScene::setSkyLight(RRSkyLight* skyLight)
 {
@@ -219,7 +219,7 @@ void RRScene::setSkyLight(RRSkyLight* skyLight)
 
 RRScene::Improvement RRScene::sceneResetStatic(bool resetFactors)
 {
-	if(!licenseStatusValid || licenseStatus!=VALID) return FINISHED;
+	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
 	scene->updateMatrices();
 	return scene->resetStaticIllumination(resetFactors);
@@ -227,7 +227,7 @@ RRScene::Improvement RRScene::sceneResetStatic(bool resetFactors)
 
 RRScene::Improvement RRScene::sceneImproveStatic(bool endfunc(void*), void* context)
 {
-	if(!licenseStatusValid || licenseStatus!=VALID) return FINISHED;
+	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
 	return scene->improveStatic(endfunc, context);
 }
@@ -242,7 +242,7 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	Channels irrad;
 	RRScaler* scaler;
 
-	if(!licenseStatusValid || licenseStatus!=VALID) goto error;
+	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) goto error;
 	// pokus nejak kompenzovat ze jsem si ve freeze interne zrusil n objektu a nahradil je 1 multiobjektem
 	//if(isFrozen())
 	//{
@@ -371,7 +371,7 @@ zero:
 
 unsigned RRScene::getPointRadiosity(unsigned n, RRScene::InstantRadiosityPoint* point)
 {
-	if(!licenseStatusValid || licenseStatus!=VALID) return 0;
+	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return 0;
 	return scene->getInstantRadiosityPoints(n,point);
 }
 

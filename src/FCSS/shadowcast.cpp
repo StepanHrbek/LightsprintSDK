@@ -1631,8 +1631,24 @@ void idle()
 
 int main(int argc, char **argv)
 {
-	rrCollider::registerLicense("","");
-	rrVision::registerLicense("","");
+	//rrCollider::registerLicense("","");
+	//rrVision::registerLicense("","");
+	rrCollider::RRLicense::registerLicense(
+		"Illusion Softworks, a.s.",
+		"DDLMBGGNLEKNHJMMPBCDKABFIAGIIFICLBOJIDAONACNEHMDJD"
+		"LEBFFOJKOGNBGCLGKMGBKAKOKABAMFNLOFJKEHOPIMGFMEADAP"
+		"CGINPCFALINABMNDKEBMIAKMIIJAEIEJPBKIOCMHEAHKBJFIDC"
+		"DBKEIAPECAJJHEDCIBMMAHHACDHNBHMFOEDDDOOLLFNPICLFLH"
+		"NFDOPKGHLHEOAIGNHNOLKBEHMLKCBCADBIOMDLIDEBFMGPEPEI"
+		"LODLLCLOEI");
+	rrVision::RRLicense::registerLicense(
+		"Illusion Softworks, a.s.",
+		"DDLMBGGNLEKNHJMMPBCDKABFIAGIIFICLBOJIDAONACNEHMDJD"
+		"LEBFFOJKOGNBGCLGKMGBKAKOKABAMFNLOFJKEHOPIMGFMEADAP"
+		"CGINPCFALINABMNDKEBMIAKMIIJAEIEJPBKIOCMHEAHKBJFIDC"
+		"DBKEIAPECAJJHEDCIBMMAHHACDHNBHMFOEDDDOOLLFNPICLFLH"
+		"NFDOPKGHLHEOAIGNHNOLKBEHMLKCBCADBIOMDLIDEBFMGPEPEI"
+		"LODLLCLOEI");
 
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
@@ -1701,10 +1717,10 @@ int main(int argc, char **argv)
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
 	//m3ds.shownormals=1;
-	rrobject = new_3ds_importer(&m3ds)->createAdditionalExitance();
+	rrobject = new_3ds_importer(&m3ds)->createAdditionalIllumination();
 #else
 	// load mgf
-	rrobject = new_mgf_importer(mgf_filename)->createAdditionalExitance();
+	rrobject = new_mgf_importer(mgf_filename)->createAdditionalIllumination();
 #endif
 	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
 	rrVision::RRSetState(rrVision::RRSSF_SUBDIVISION_SPEED,0);

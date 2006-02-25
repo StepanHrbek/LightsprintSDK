@@ -448,7 +448,7 @@ private:
 	TriangleInfo* triangleInfo;
 };
 
-RRAdditionalObjectImporter* RRObjectImporter::createAdditionalExitance()
+RRAdditionalObjectImporter* RRObjectImporter::createAdditionalIllumination()
 {
 	return new RRMyAdditionalObjectImporter(this);
 }

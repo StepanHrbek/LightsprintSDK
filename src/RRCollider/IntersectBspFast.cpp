@@ -36,7 +36,7 @@ namespace rrCollider
 
 /*void TriangleP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
-	FILL_STATISTIC(intersectStats.loaded_triangles++);
+	FILL_STATISTIC(intersectStats.numTrianglesLoaded++);
 
 	// set s3,r3,l3
 	Vec3 s3=*a;
@@ -84,7 +84,7 @@ namespace rrCollider
 
 void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 {
-	FILL_STATISTIC(intersectStats.loaded_triangles++);
+	FILL_STATISTIC(intersectStats.numTrianglesLoaded++);
 
 	// set s3,r3,l3
 	Vec3 s3=*a;
@@ -134,14 +134,14 @@ void TriangleNP::setGeometry(const Vec3* a, const Vec3* b, const Vec3* c)
 
 	if(!IS_VEC3(n3)) 
 	{
-		FILL_STATISTIC(intersectStats.invalid_triangles++);
+		FILL_STATISTIC(intersectStats.numTrianglesInvalid++);
 		intersectByte=10;  // throw out degenerated triangle
 	}
 }
 
 void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3* b, const Vec3* c)
 {
-	FILL_STATISTIC(intersectStats.loaded_triangles++);
+	FILL_STATISTIC(intersectStats.numTrianglesLoaded++);
 
 
 	// set s3,r3,l3
@@ -193,7 +193,7 @@ void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3
 
 	if(!IS_VEC3(n3)) 
 	{
-		FILL_STATISTIC(intersectStats.invalid_triangles++);
+		FILL_STATISTIC(intersectStats.numTrianglesInvalid++);
 		intersectByte=10;  // throw out degenerated triangle
 	}
 }

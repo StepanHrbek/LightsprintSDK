@@ -88,7 +88,7 @@ namespace rrVision
 // license
 
 extern bool                     licenseStatusValid;
-extern rrVision::LicenseStatus  licenseStatus;
+extern rrVision::RRLicense::LicenseStatus  licenseStatus;
 
 //////////////////////////////////////////////////////////////////////////////
 //

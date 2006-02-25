@@ -93,7 +93,7 @@ namespace rrVision
 // license
 
 bool                     licenseStatusValid = false;
-rrVision::LicenseStatus  licenseStatus = WRONG;
+RRLicense::LicenseStatus licenseStatus = RRLicense::WRONG;
 
 //////////////////////////////////////////////////////////////////////////////
 //
