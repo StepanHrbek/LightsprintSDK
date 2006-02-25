@@ -87,10 +87,10 @@ namespace rrVision /// Encapsulates whole RRVision library.
 
 	enum RRRadiometricMeasure
 	{
-		RM_INCIDENT_FLUX, ///< incoming W
-		RM_IRRADIANCE,    ///< incoming W/m^2
-		RM_EXITING_FLUX,  ///< outgoing W
-		RM_EXITANCE,      ///< outgoing W/m^2
+		RM_INCIDENT_FLUX, ///< Incoming radiant flux [W].
+		RM_IRRADIANCE,    ///< Irradiance [W/m^2].
+		RM_EXITING_FLUX,  ///< Exiting radiant flux [W].
+		RM_EXITANCE,      ///< Radiant exitance [W/m^2].
 	};
 
 #ifdef RR_DEVELOPMENT
@@ -106,12 +106,12 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	//! Boolean attributes of front or back side of surface.
 	struct RRSideBits
 	{
-		unsigned char renderFrom:1;  ///< is visible from that halfspace
-		unsigned char emitTo:1;      ///< emits energy to that halfspace
-		unsigned char catchFrom:1;   ///< stops rays from that halfspace and performs following operations: (otherwise ray continues as if nothing happened)
-		unsigned char receiveFrom:1; ///<  receives energy from that halfspace
-		unsigned char reflect:1;     ///<  reflects energy from that halfspace to that halfspace
-		unsigned char transmitFrom:1;///<  transmits energy from that halfspace to other halfspace
+		unsigned char renderFrom:1;  ///< Is visible from that halfspace?
+		unsigned char emitTo:1;      ///< Emits energy to that halfspace?
+		unsigned char catchFrom:1;   ///< Stops photons from that halfspace? If true, it performs following operations: (otherwise photon continues through)
+		unsigned char receiveFrom:1; ///<  Receives energy from that halfspace?
+		unsigned char reflect:1;     ///<  Reflects energy from that halfspace to that halfspace?
+		unsigned char transmitFrom:1;///<  Transmits energy from that halfspace to other halfspace?
 	};
 
 	//! Description of surface.
@@ -120,8 +120,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 		void          reset(bool twoSided);          ///< Resets surface to fully diffuse gray (50% reflected, 50% absorbed).
 
 		RRSideBits    sideBits[2];                   ///< Defines surface behaviour for front(0) and back(1) side.
-		RRReal        diffuseReflectance;            ///< Fraction of energy that is diffuse reflected (all channels averaged).
-		RRColor       diffuseReflectanceColor;       ///< Fraction of energy that is diffuse reflected (each channel separately).
+		RRColor       diffuseReflectance;            ///< Fraction of energy that is diffuse reflected (each channel separately).
 		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately). Never scaled by RRScaler.
 		RRReal        specularReflectance;           ///< Fraction of energy that is mirror reflected (without color change).
 		RRReal        specularTransmittance;         ///< Fraction of energy that is transmitted (without color change).

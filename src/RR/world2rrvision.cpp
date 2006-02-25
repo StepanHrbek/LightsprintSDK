@@ -107,11 +107,10 @@ static ColorTable createColorTable(double cx,double cy,real rs)
 static void fillSurface(Surface *s,C_MATERIAL *m)
 {
 	s->reset(m->sided==2);
-	s->diffuseReflectance         =m->rd;
-	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectanceColor);
-	s->diffuseReflectanceColor[0]*=m->rd;
-	s->diffuseReflectanceColor[1]*=m->rd;
-	s->diffuseReflectanceColor[2]*=m->rd;
+	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectance);
+	s->diffuseReflectance[0]*=m->rd;
+	s->diffuseReflectance[1]*=m->rd;
+	s->diffuseReflectance[2]*=m->rd;
 	s->diffuseReflectanceColorTable=createColorTable(m->rd_c.cx,m->rd_c.cy,m->rs);
 	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,s->diffuseEmittance);
 	s->diffuseEmittance           *=m->ed/1000;
@@ -150,10 +149,9 @@ static void load_materials(WORLD* world, char *material_mgf)
 
 	static Surface s_default;
 	s_default.reset(true);
-	s_default.diffuseReflectance=0.3;
-	s_default.diffuseReflectanceColor[0]=1;
-	s_default.diffuseReflectanceColor[1]=1;
-	s_default.diffuseReflectanceColor[2]=1;
+	s_default.diffuseReflectance[0]=0.3;
+	s_default.diffuseReflectance[1]=0.3;
+	s_default.diffuseReflectance[2]=0.3;
 	s_default.diffuseReflectanceColorTable=createColorTable(0.3,0.3,0);
 	s_default.diffuseEmittance=RRColor(1);
 	s_default.outside=NULL;

@@ -55,8 +55,7 @@ void RRSurface::reset(bool twoSided)
 		{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (front side, back side)
 	};
 	for(unsigned i=0;i<2;i++) sideBits[i] = sideBitsTmp[twoSided?1:0][i];
-	diffuseReflectance             = 0.5;
-	diffuseReflectanceColor        = RRColor(0.5);
+	diffuseReflectance        = RRColor(0.5);
 	diffuseEmittance               = RRColor(0);
 	specularReflectance            = 0;
 	specularTransmittance          = 0;

@@ -1271,8 +1271,8 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingF
 	shooter->energyToDiffuse=e;
 	// load received energy accumulator
 	energyDirect=e;
-	//energyDirectIncident=e/surface->diffuseReflectanceColor;
-	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectanceColor[0],0.1f),e.y/MAX(surface->diffuseReflectanceColor[1],0.1f),e.z/MAX(surface->diffuseReflectanceColor[2],0.1f));
+	//energyDirectIncident=e/surface->diffuseReflectance;
+	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectance[0],0.1f),e.y/MAX(surface->diffuseReflectance[1],0.1f),e.z/MAX(surface->diffuseReflectance[2],0.1f));
 	sourceExitingFlux=e;
 #endif
 	return e;
@@ -2366,10 +2366,10 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	// hits with power below 1% are ignored to save a bit of time
 	//  without visible loss of quality
 	if(side.receiveFrom)
-	if(fabs(power*hitTriangle->surface->diffuseReflectance)>0.01 /*&& !hitTriangle->isNeedle*/) // timto je mozne vypnout vypocet nad jehlama, zustanou cerny
+	if(sum(abs(hitTriangle->surface->diffuseReflectance*power))>0.01 /*&& !hitTriangle->isNeedle*/) // timto je mozne vypnout vypocet nad jehlama, zustanou cerny
 	{
 		RRScene::getSceneStatistics()->numRayTracePhotonHitsReceived++;
-		hitPower+=power*hitTriangle->surface->diffuseReflectance;
+		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance*power));
 		Hit hitPoint2d;
 #ifdef HITS_FIXED
 		hitPoint2d.u=(HITS_UV_TYPE)(HITS_UV_MAX*i_hitU);
@@ -2654,7 +2654,7 @@ Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Chann
 	// calculate surface exitance
 	Channels incidentPower = hitTriangle->energyDirectIncident + hitTriangle->getEnergyDynamic();
 	Channels irradiance = incidentPower / hitTriangle->area;
-	Channels exitance = irradiance * hitTriangle->surface->diffuseReflectanceColor;
+	Channels exitance = irradiance * hitTriangle->surface->diffuseReflectance;
 	return exitance;
 }
 
@@ -2703,14 +2703,14 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 #ifdef CLEAN_FACTORS
 	assert(destination->grandpa);
 	assert(destination->grandpa->surface);
-	assert(IS_VEC3(destination->grandpa->surface->diffuseReflectanceColor));
-	energy *= destination->grandpa->surface->diffuseReflectanceColor;
+	assert(IS_VEC3(destination->grandpa->surface->diffuseReflectance));
+	energy *= destination->grandpa->surface->diffuseReflectance;
 
 	// statistics
 	//RRScene::getSceneStatistics()->sumDistribFactorClean += factor->power;
-	//RRScene::getSceneStatistics()->sumDistribFactorMaterial += destination->grandpa->surface->diffuseReflectanceColor * factor->power;
+	//RRScene::getSceneStatistics()->sumDistribFactorMaterial += destination->grandpa->surface->diffuseReflectance * factor->power;
 #else
-	//RRScene::getSceneStatistics()->sumDistribFactorClean += factor->power / destination->grandpa->surface->diffuseReflectanceColor;
+	//RRScene::getSceneStatistics()->sumDistribFactorClean += factor->power / destination->grandpa->surface->diffuseReflectance;
 	//RRScene::getSceneStatistics()->sumDistribFactorMaterial += factor->power;
 #endif
 	//RRScene::getSceneStatistics()->sumDistribOutput += energy;

@@ -338,9 +338,9 @@ public:
 				assert(0);
 				return false;
 			}
-			//triangleInfo[t].irradiance = power / triangleInfo[t].area / s->diffuseReflectanceColor;
+			//triangleInfo[t].irradiance = power / triangleInfo[t].area / s->diffuseReflectance;
 			for(unsigned c=0;c<3;c++)
-				triangleInfo[t].irradiance[c] = (triangleInfo[t].area && s->diffuseReflectanceColor[c]) ? power[c] / triangleInfo[t].area / s->diffuseReflectanceColor[c] : 0;
+				triangleInfo[t].irradiance[c] = (triangleInfo[t].area && s->diffuseReflectance[c]) ? power[c] / triangleInfo[t].area / s->diffuseReflectance[c] : 0;
 			break;
 			}
 		case RM_EXITANCE:
@@ -351,9 +351,9 @@ public:
 				assert(0);
 				return false;
 			}
-			//triangleInfo[t].irradiance = power / s->diffuseReflectanceColor;
+			//triangleInfo[t].irradiance = power / s->diffuseReflectance;
 			for(unsigned c=0;c<3;c++)
-				triangleInfo[t].irradiance[c] = (s->diffuseReflectanceColor[c]) ? power[c] / s->diffuseReflectanceColor[c] : 0;
+				triangleInfo[t].irradiance[c] = (s->diffuseReflectance[c]) ? power[c] / s->diffuseReflectance[c] : 0;
 			break;
 			}
 		default:
@@ -387,7 +387,7 @@ public:
 				out = RRColor(0);
 				return;
 			}
-			out = triangleInfo[t].irradiance * triangleInfo[t].area * s->diffuseReflectanceColor;
+			out = triangleInfo[t].irradiance * triangleInfo[t].area * s->diffuseReflectance;
 			break;
 			}
 		case RM_EXITANCE:
@@ -399,7 +399,7 @@ public:
 				out = RRColor(0);
 				return;
 			}
-			out = triangleInfo[t].irradiance * s->diffuseReflectanceColor;
+			out = triangleInfo[t].irradiance * s->diffuseReflectance;
 			break;
 			}
 		default:

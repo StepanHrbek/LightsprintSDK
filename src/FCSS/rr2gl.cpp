@@ -97,7 +97,7 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 					{
 						case CC_DIFFUSE_REFLECTANCE:
 						case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
-							glColor3fv(&surface->diffuseReflectanceColor.x);
+							glColor3fv(&surface->diffuseReflectance.x);
 							break;
 						default:;
 					}

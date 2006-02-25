@@ -96,8 +96,7 @@ static void fillSurface(rrVision::RRSurface* s,Model_3DS::Material* m)
 	}
 
 	s->reset(0);
-	s->diffuseReflectance   = (avg[0]+avg[1]+avg[2])/3;
-	s->diffuseReflectanceColor = avg;
+	s->diffuseReflectance = avg;
 }
 
 M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)

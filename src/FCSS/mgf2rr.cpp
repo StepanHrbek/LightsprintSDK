@@ -89,12 +89,11 @@ void* MgfImporter::add_vertex(FLOAT *p,FLOAT *n)
 static void fillSurface(rrVision::RRSurface *s,C_MATERIAL *m)
 {
 	s->reset(m->sided==2);
-	s->diffuseReflectance   =m->rd;
-	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,&s->diffuseReflectanceColor.x);
+	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,&s->diffuseReflectance.x);
 	for(unsigned c=0;c<3;c++)
 	{
-		s->diffuseReflectanceColor[c] *= m->rd;
-		if(s->diffuseReflectanceColor[c]>0.95f) s->diffuseReflectanceColor[c]=0.95f;
+		s->diffuseReflectance[c] *= m->rd;
+		if(s->diffuseReflectance[c]>0.95f) s->diffuseReflectance[c]=0.95f;
 	}
 	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,&s->diffuseEmittance.x);
 	s->diffuseEmittance     *=m->ed/1000;
