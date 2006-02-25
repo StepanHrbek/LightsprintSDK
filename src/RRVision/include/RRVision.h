@@ -35,7 +35,7 @@
 
 #include "RRCollider.h"
 
-namespace rrVision /// Encapsulates whole RRVision library.
+namespace rrVision /// Encapsulates whole Vision library.
 {
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -145,7 +145,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	//! Common interface for all proprietary object formats.
 	//
 	//! \section s1 Provided information
-	//! #RRObjectImporter provides information about
+	//! %RRObjectImporter provides information about
 	//! - object material properties
 	//! - object collider for fast ray-mesh intersections
 	//! - indirectly also object geometry (via getCollider()->getImporter())
@@ -153,7 +153,7 @@ namespace rrVision /// Encapsulates whole RRVision library.
 	//! - optionally unwrap (for future versions)
 	//!
 	//! \section s2 Creating instances
-	//! The only way to create first instance is to derive from #RRObjectImporter.
+	//! The only way to create first instance is to derive from %RRObjectImporter.
 	//! This is caused by lack of standard material description formats,
 	//! everyone uses different description and needs his own object importer.
 	//!

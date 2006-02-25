@@ -1,9 +1,5 @@
 /**
 
-\file  doc
-\brief -
-
-
 
 \mainpage Lightsprint
 Welcome to Lightsprint libraries.
@@ -115,6 +111,6 @@ CHANGES
 
 - +2% faster on average
 - more input data verifications during calculation
-- #define RR*_IMPORT no longer needed
+- \#define RR*_IMPORT no longer needed
 
 */

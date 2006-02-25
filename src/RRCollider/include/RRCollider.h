@@ -39,7 +39,7 @@
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
 
-namespace rrCollider /// Encapsulates whole #RRCollider library.
+namespace rrCollider /// Encapsulates whole Collider library.
 {
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -109,38 +109,38 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 	//
 	//! \section s4 Creating instances
 	//!
-	//! #RRMeshImporter has built-in support for standard mesh formats used by
+	//! %RRMeshImporter has built-in support for standard mesh formats used by
 	//! rendering APIs - vertex and index buffers using triangle lists or
 	//! triangle strips. See create() and createIndexed().
 	//!
-	//! #RRMeshImporter has built-in support for baking multiple meshes 
+	//! %RRMeshImporter has built-in support for baking multiple meshes 
 	//! into one mesh (without need for additional memory). 
 	//! This may simplify mesh oprations or improve performance in some situations.
 	//! See createMultiMesh().
 	//!
-	//! #RRMeshImporter has built-in support for creating self-contained mesh copies.
+	//! %RRMeshImporter has built-in support for creating self-contained mesh copies.
 	//! See createCopy().
 	//! While importers created from vertex buffer doesn't allocate more memory 
 	//! and depend on vertex buffer, self-contained copy contains all mesh data
 	//! and doesn't depend on any other objects.
 	//!
 	//! For proprietary mesh formats (heightfield, realtime generated etc), 
-	//! you may easily derive from #RRMeshImporter and create your own importer.
+	//! you may easily derive from %RRMeshImporter and create your own importer.
 	//! 
 	//! \section s6 Optimizations
 	//!
-	//! #RRMeshImporter may help you with mesh optimizations if requested,
+	//! %RRMeshImporter may help you with mesh optimizations if requested,
 	//! for example by removing duplicate vertices or degenerated triangles.
 	//! 
 	//! \section s6 Constancy
 	//!
-	//! All data provided by #RRMeshImporter must be constant in time.
+	//! All data provided by %RRMeshImporter must be constant in time.
 	//! Built-in importers guarantee constancy if you don't change
 	//! their vertex/index buffers. Constancy of mesh copy is guaranteed always.
 	//!
 	//! \section s5 Indexing
 	//!
-	//! #RRMeshImporter operates with two types of vertex and triangle indices.
+	//! %RRMeshImporter operates with two types of vertex and triangle indices.
 	//! -# PostImport indices, always 0..num-1 (where num=getNumTriangles
 	//! or getNumVertices), these are used in most calls.
 	//! \n Example: with 100-triangle mesh, triangle indices are 0..99.
@@ -300,7 +300,7 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 		static RRRay* create(); ///< Creates 1 RRRay. All is zeroed, all FILL flags on.
 		static RRRay* create(unsigned n); ///< Creates array of RRRays.
 		// inputs (never modified by collider)
-		enum Flags ///< Flags define which outputs to fill. \detailed Some outputs may be filled even when not requested by flag.
+		enum Flags ///< Flags define which outputs to fill. (Some outputs may be filled even when not requested by flag.)
 		{ 
 			FILL_DISTANCE   =(1<<0), 
 			FILL_POINT3D    =(1<<1),
@@ -308,7 +308,7 @@ namespace rrCollider /// Encapsulates whole #RRCollider library.
 			FILL_PLANE      =(1<<3),
 			FILL_TRIANGLE   =(1<<4),
 			FILL_SIDE       =(1<<5),
-			TEST_SINGLESIDED=(1<<6), ///< detect collision only against front side. default is to test both sides
+			TEST_SINGLESIDED=(1<<6), ///< Detect collision only against front side. Default is to test both sides.
 		};
 		RRVec4          rayOrigin;      ///< in, (-Inf,Inf), ray origin. never modify last component, must stay 1
 		RRVec4          rayDirInv;      ///< in, <-Inf,Inf>, 1/ray direction. direction must be normalized
