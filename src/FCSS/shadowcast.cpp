@@ -11,8 +11,6 @@ int fullscreen = 1;
 
 /*
 pridat dalsi koupelny
-.3ds na cmdlajne nesmi byt .3DS
-help kontrastnejsi barvou
 ovladani jasu (global, indirect)
 spatne pocita kdyz se neresetnou faktory (neresetovani faktoru muze zasadne zrychlit update po pohybu svetla)
 nacitat jpg
@@ -973,7 +971,9 @@ static void output(int x, int y, char *string)
 static void drawHelpMessage(bool big)
 {
 	static char *message[] = {
-		"Help information",
+		"Realtime Radiosity Viewer",
+		" Stepan Hrbek, http://dee.cz",
+		" radiosity engine, http://lightsprint.com",
 		"",
 		"mouse+left button - manipulate camera",
 		"mouse+mid button  - manipulate light",
@@ -1006,6 +1006,8 @@ static void drawHelpMessage(bool big)
 	int i;
 	int x = 40, y= 42;
 
+	ambientProg->useIt();
+
 	glActiveTextureARB(GL_TEXTURE1_ARB);
 	glDisable(GL_TEXTURE_2D);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -1022,7 +1024,7 @@ static void drawHelpMessage(bool big)
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-	glColor4f(0.0,1.0,0.0,0.2);  /* 20% green. */
+	glColor4f(0.0,0.0,0.0,0.6);
 
 	/* Drawn clockwise because the flipped Y axis flips CCW and CW. */
 	if(big) glRecti(winWidth - 30, 30, 30, winHeight - 30);
@@ -1579,7 +1581,7 @@ void parseOptions(int argc, char **argv)
 			mgf_filename = argv[i];
 		}
 #ifdef _3DS
-		if (strstr(argv[i], ".3ds")) {
+		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS")) {
 			filename_3ds = argv[i];
 			scale_3ds = 1;
 		}

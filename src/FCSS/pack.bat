@@ -1,3 +1,4 @@
+rd /q /s distro
 mkdir distro
 mkdir distro\shaders
 copy shaders distro\shaders
@@ -15,4 +16,4 @@ copy ..\..\bin\fcss.exe distro\rrview.exe
 call -min upx distro\rrview.exe
 del rrview.rar
 cd distro
-c:\progra~1\winrar\rar a -s -r ..\rrview *.*
+c:\progra~1\winrar\rar a -s -r -m5 -md4096 ..\rrview *.*

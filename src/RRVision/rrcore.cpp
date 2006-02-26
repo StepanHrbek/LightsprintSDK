@@ -42,7 +42,6 @@ namespace rrVision
 //#define EXPENSIVE_CHECKS
 
 #ifdef _MSC_VER
-//error : inserted by sunifdef: "#define GATE_DATE //!!! nezapomenout aktualizovat" contradicts -U at R:\work2\.git-rewrite\t\src\RRVision\rrcore.cpp~(45)
 //#define GATE_SHOTS 10000 // max photons from one shooter
 //#define GATE_QUALITY 5000000 // max photons in scene
 //#define GATE_IP

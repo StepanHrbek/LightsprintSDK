@@ -22,7 +22,7 @@
   Requirements
   ------------
 
-  OpenGL 1.5 + GLSL capable graphics card is required.
+  OpenGL 2.0 capable graphics card is required.
   Tested on nVidia GeForce 6600.
 
 
@@ -37,7 +37,7 @@
 
   - Radiosity calculator with progressive refinement from [2].
     We improved it using new acceleration structure (to be published later)
-    and converted it into library.
+    and made available as library [3].
 
   Complete integration of our radiosity calculator library into renderer took less than 
   two days.
@@ -58,6 +58,7 @@
 
   [1] Hrbek,S.: Fast correct soft shadows, 2004, http://dee.cz/fcss
   [2] Hrbek,S.: Radiosity in dynamic scenes, 2000, http://dee.cz/rr/rr.pdf (Czech only)
+  [3] Lightsprint Vision, 2006, http://lightsprint.com
 
 
   Thanks to 
