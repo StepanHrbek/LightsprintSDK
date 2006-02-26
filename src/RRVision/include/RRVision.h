@@ -259,6 +259,8 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! With appropriate scaler, you may directly work for example with screen colors
 	//! or photometric units.
 	//! Note that RRSurface::diffuseEmittance is never scaled.
+	//!
+	//! Contains built-in support for standard RGB monitor space, see createPowerScaler().
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -279,7 +281,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//////////////////////////////////////////////////////////////////////////////
 
 		// instance factory
-		static RRScaler* createGammaScaler(RRReal gamma);
+		static RRScaler* createPowerScaler(RRReal power); ///< Creates standard scaler (with power=0.45) for conversion between displayable RGB values and radiometry units.
 	};
 
 
@@ -382,11 +384,11 @@ namespace rrVision /// Encapsulates whole Vision library.
 			FIGHT_SMALLER_ANGLE, ///< For testing only. Sharper triangles (rad) will be assimilated when FIGHT_NEEDLES.
 			SSF_LAST
 		};
-		static void     ResetStates();                               ///< Reset scene states to default values.
-		static unsigned GetState(SceneStateU state);                 ///< Return one of integer scene states.
-		static unsigned SetState(SceneStateU state, unsigned value); ///< Set one of integer scene states.
-		static RRReal   GetStateF(SceneStateF state);                ///< Return one of float scene states.
-		static RRReal   SetStateF(SceneStateF state, RRReal value);  ///< Set one of float scene states.
+		static void     resetStates();                               ///< Reset scene states to default values.
+		static unsigned getState(SceneStateU state);                 ///< Return one of integer scene states.
+		static unsigned setState(SceneStateU state, unsigned value); ///< Set one of integer scene states.
+		static RRReal   getStateF(SceneStateF state);                ///< Return one of float scene states.
+		static RRReal   setStateF(SceneStateF state, RRReal value);  ///< Set one of float scene states.
 
 		// i/o settings (optional)
 		void          setScaler(RRScaler* scaler);                   ///< Set scaler used by this scene i/o operations.

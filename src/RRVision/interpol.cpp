@@ -113,7 +113,7 @@ void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 {
 	assert(this);
 	// new interpolation scheme "power*=node->area" now doesn't works with subdivision
-	if(RRScene::GetStateF(RRScene::SUBDIVISION_SPEED)==0)
+	if(RRScene::getStateF(RRScene::SUBDIVISION_SPEED)==0)
 		power *= node->area;
 
 	if(node->grandpa && node->grandpa->isNeedle) power=0; // ignorovat prispevky jehel
@@ -244,8 +244,8 @@ void IVertex::makeDirty()
 // is equal in whole vertex, doesn't depend on corner material
 Channels IVertex::irradiance()
 {
-	bool getSource=RRScene::GetState(RRScene::GET_SOURCE)!=0;
-	bool getReflected=RRScene::GetState(RRScene::GET_REFLECTED)!=0;
+	bool getSource=RRScene::getState(RRScene::GET_SOURCE)!=0;
+	bool getReflected=RRScene::getState(RRScene::GET_REFLECTED)!=0;
 	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid) // cacheTime is byte:5
 	{
 		//assert(powerTopLevel);
@@ -866,11 +866,11 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 					minIVert2 = ivertex2Idx;
 				}
 			}
-			if(minDist<=RRScene::GetStateF(RRScene::MIN_FEATURE_SIZE)) break;
+			if(minDist<=RRScene::getStateF(RRScene::MIN_FEATURE_SIZE)) break;
 		}
 
 		// end if not close enough
-		if(minDist>RRScene::GetStateF(RRScene::MIN_FEATURE_SIZE)) break;
+		if(minDist>RRScene::getStateF(RRScene::MIN_FEATURE_SIZE)) break;
 		numReduced++;
 
 		// merge ivertices: update local temporary vertex2ivertex
@@ -934,7 +934,7 @@ void Object::buildTopIVertices()
 #ifdef SUPPORT_MIN_FEATURE_SIZE
 	check();
 	// volano jen pokud ma neco delat -> malinka uspora casu
-	if(RRScene::GetStateF(RRScene::MIN_FEATURE_SIZE)>0)
+	if(RRScene::getStateF(RRScene::MIN_FEATURE_SIZE)>0)
 	{
 		// Pouha existence nasledujiciho radku (mergeCloseIVertices) i kdyz se nikdy neprovadi
 		// zpomaluje cube v MSVC o 8%.
@@ -1963,7 +1963,7 @@ static void iv_findIvClosestToPos(SubTriangle *s,IVertex *iv,int type)
 Channels IVertex::getClosestIrradiance()
 // returns irradiance of ivertex closest to this
 {
-	if(RRScene::GetState(RRScene::FIGHT_NEEDLES)<2) return Channels(0); // pokud nebojujem s jehlama, vertexum bez powerTopLevel (zrejme nekde v jehlach na okraji sceny) dame barvu 0
+	if(RRScene::getState(RRScene::FIGHT_NEEDLES)<2) return Channels(0); // pokud nebojujem s jehlama, vertexum bez powerTopLevel (zrejme nekde v jehlach na okraji sceny) dame barvu 0
 	// kdyz 2 jehly sousedej, sdilej ivertex s powertoplevel==0
 	//  kde nektery cornery spadaj do jednoho, jiny do druhyho
 	// projdem vsechny

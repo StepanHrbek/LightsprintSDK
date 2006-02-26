@@ -821,7 +821,7 @@ int main(int argc, char **argv)
  bool kamil=false;
 #endif
  rrCollider::RRCollider::IntersectTechnique intersectTechnique = rrCollider::RRCollider::IT_BSP_FASTEST;
- RRScene::SetStateF(RRScene::SUBDIVISION_SPEED,1);
+ RRScene::setStateF(RRScene::SUBDIVISION_SPEED,1);
 
  assert(sizeof(U8)==1);
  assert(sizeof(U16)==2);
@@ -875,7 +875,7 @@ int main(int argc, char **argv)
         {int tmp;if(sscanf(argv[i],"-verbose%d",&tmp)==1) __infolevel=tmp; else goto badarg;}
      else
      if (!strcmp(argv[i],"-c"))
-        RRScene::SetState(RRScene::USE_CLUSTERS,0);
+        RRScene::setState(RRScene::USE_CLUSTERS,0);
      else
      if (!strncmp(argv[i],"-gamma",6))
         {float tmp;if(sscanf(argv[i],"-gamma%f",&tmp)==1) d_gamma=tmp; else goto badarg;}
@@ -887,7 +887,7 @@ int main(int argc, char **argv)
         {int tmp;if(sscanf(argv[i],"-it%i",&tmp)==1) intersectTechnique = (rrCollider::RRCollider::IntersectTechnique)tmp; else goto badarg;}
      else
      if (!strncmp(argv[i],"-smooth",7))
-        {float tmp;if(sscanf(argv[i],"-smooth%f",&tmp)==1) RRScene::SetStateF(RRScene::MAX_SMOOTH_ANGLE,tmp); else goto badarg;}
+        {float tmp;if(sscanf(argv[i],"-smooth%f",&tmp)==1) RRScene::setStateF(RRScene::MAX_SMOOTH_ANGLE,tmp); else goto badarg;}
      else
      if (!strcmp(argv[i],"-j"))
         c_fightNeedles=true;
@@ -965,7 +965,7 @@ int main(int argc, char **argv)
  }
  g_batchGrab/=2; // zas to vynuluje pokud nebylo inkremetovano u -s i -g
  g_batchMerge/=2;// zas to vynuluje pokud nebylo inkremetovano u -v i -g
- //!!!RRScene::SetStateF(SUBDIVISION_SPEED,0.0001f);
+ //!!!RRScene::setStateF(SUBDIVISION_SPEED,0.0001f);
 
  // nacte world
  DBG(printf("Loading bsp...\n"));

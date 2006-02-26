@@ -37,9 +37,9 @@ private:
 //
 // RRScaler
 
-RRScaler* RRScaler::createGammaScaler(RRReal gamma)
+RRScaler* RRScaler::createPowerScaler(RRReal power)
 {
-	return new RRGammaScaler(gamma);
+	return new RRGammaScaler(power);
 }
 
 

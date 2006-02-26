@@ -173,7 +173,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 		DBG(printf(" edges...\n"));
 		obj->buildEdges(); // build edges only for clusters and/or interpol
 	}
-	if(RRScene::GetState(USE_CLUSTERS))
+	if(RRScene::getState(USE_CLUSTERS))
 	{
 		DBG(printf(" clusters...\n"));
 		obj->buildClusters(); 
@@ -257,12 +257,12 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	}
 
 	// enhanced by final gathering
-	if(vertex<3 && RRScene::GetState(GET_FINAL_GATHER))
+	if(vertex<3 && RRScene::getState(GET_FINAL_GATHER))
 	{
 		vertex=(vertex+3-tri->rotations)%3;
 
 		Channels reflIrrad = Channels(0);
-		if(RRScene::GetState(GET_REFLECTED))
+		if(RRScene::getState(GET_REFLECTED))
 		{
 			// get normal
 			RRObjectImporter* objectImporter = obj->importer;
@@ -291,35 +291,35 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			// get irradiance
 			reflIrrad = scene->gatherIrradiance(point,normal,tri);
 		}
-		irrad = (RRScene::GetState(GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
+		irrad = (RRScene::getState(GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
 	}
 	else
 
 	// enhanced by smoothing
-	if(vertex<3 && RRScene::GetState(GET_SMOOTH))
+	if(vertex<3 && RRScene::getState(GET_SMOOTH))
 	{
 		vertex=(vertex+3-tri->rotations)%3;
 
 		Channels reflIrrad = Channels(0);
-		if(RRScene::GetState(GET_REFLECTED))
+		if(RRScene::getState(GET_REFLECTED))
 		{
-			unsigned oldSource = RRScene::SetState(GET_SOURCE,0);
+			unsigned oldSource = RRScene::setState(GET_SOURCE,0);
 			reflIrrad = tri->topivertex[vertex]->irradiance();
-			RRScene::SetState(GET_SOURCE,oldSource);
+			RRScene::setState(GET_SOURCE,oldSource);
 		}
-		irrad = (RRScene::GetState(GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
+		irrad = (RRScene::getState(GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
 	}
 	else
 
 	// basic, fast
 	{
-		if(!RRScene::GetState(GET_SOURCE) && !RRScene::GetState(GET_REFLECTED)) 
+		if(!RRScene::getState(GET_SOURCE) && !RRScene::getState(GET_REFLECTED)) 
 			irrad = Channels(0);
 		else
-		if(RRScene::GetState(GET_SOURCE) && !RRScene::GetState(GET_REFLECTED)) 
+		if(RRScene::getState(GET_SOURCE) && !RRScene::getState(GET_REFLECTED)) 
 			irrad = tri->getSourceIrradiance();
 		else
-		if(RRScene::GetState(GET_SOURCE) && RRScene::GetState(GET_REFLECTED)) 
+		if(RRScene::getState(GET_SOURCE) && RRScene::getState(GET_REFLECTED)) 
 			irrad = (tri->energyDirectIncident + tri->getEnergyDynamic()) / tri->area;
 		else
 			irrad = (tri->energyDirectIncident + tri->getEnergyDynamic()) / tri->area - tri->getSourceIrradiance();
