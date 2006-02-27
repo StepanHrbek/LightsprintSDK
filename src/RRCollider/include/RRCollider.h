@@ -18,7 +18,6 @@
 		#else
 			#pragma comment(lib,"RRCollider_sd.lib")
 		#endif
-		//#define RR_DEVELOPMENT
 	#else
 	#ifdef RRCOLLIDER_DLL_BUILD
 		// build dll
@@ -32,10 +31,9 @@
 #else
 	// use static library
 	#define RRCOLLIDER_API
-	//#define RR_DEVELOPMENT
 #endif
+//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\src\RRCollider\include\RRCollider.h~(35)
 
-#include <math.h>   // sqrt
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
 

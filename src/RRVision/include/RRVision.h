@@ -115,7 +115,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	};
 
 	//! Description of surface.
-	struct RRSurface
+	struct RRVISION_API RRSurface
 	{
 		void          reset(bool twoSided);          ///< Resets surface to fully diffuse gray (50% reflected, 50% absorbed).
 

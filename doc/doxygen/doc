@@ -42,7 +42,8 @@ Welcome to Lightsprint libraries.
  -# Read results using scene->getTriangleMeasure().
 
 \section trial1 Trial version limits
- All features of full version are present in trial version,
+ If you have a trial version,
+ all features of full version are present,
  but maximal size of scene is limited.
 
 
@@ -73,7 +74,8 @@ Welcome to Lightsprint libraries.
  -# Call collider->inretsect(ray) to find intersections. Repeat for all rays.
 
 \section trial2 Trial version limits
- Trial version is fully functional, but collisions with very large meshes
+ If you have a trial version,
+ it is fully functional, but collisions with very large meshes
  are not accelerated.
 
 
