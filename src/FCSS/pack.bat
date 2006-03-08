@@ -3,11 +3,11 @@ mkdir distro
 mkdir distro\shaders
 copy shaders distro\shaders
 mkdir distro\koupelna4
-copy koupelna4\koupelna4.3ds distro\koupelna4
-copy koupelna4\*.tga distro\koupelna4
+copy ..\..\data\3ds\koupelna4\koupelna4.3ds distro\koupelna4
+copy ..\..\data\3ds\koupelna4\*.tga distro\koupelna4
 mkdir distro\sponza
-copy sponza\sponza.3ds distro\sponza
-copy sponza\*.tga distro\sponza
+copy ..\..\data\3ds\sponza\sponza.3ds distro\sponza
+copy ..\..\data\3ds\sponza\*.tga distro\sponza
 copy readme.txt distro
 copy spot0.tga distro
 copy glut32.dll distro
