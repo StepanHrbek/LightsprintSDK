@@ -32,7 +32,7 @@
 	// use static library
 	#define RRCOLLIDER_API
 #endif
-//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\src\RRCollider\include\RRCollider.h~(35)
+//#define RR_DEVELOPMENT
 
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
@@ -54,7 +54,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//! Real number used in most of calculations.
 	typedef float RRReal;
 
-	//! Vector of 2 real numbers.
+	//! Vector of 2 real numbers plus minimalistic support.
 	struct RRCOLLIDER_API RRVec2
 	{
 		RRReal    x;
@@ -62,7 +62,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
 	};
 
-	//! Vector of 3 real numbers.
+	//! Vector of 3 real numbers plus minimalistic support.
 	struct RRCOLLIDER_API RRVec3
 	{
 		RRReal    x;
@@ -91,7 +91,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
 	};
 
-	//! Vector of 4 real numbers.
+	//! Vector of 4 real numbers plus minimalistic support.
 	struct RRCOLLIDER_API RRVec4 : public RRVec3
 	{
 		RRReal    w;
@@ -211,9 +211,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 			UINT8   = 0, ///< uint8_t
 			UINT16  = 1, ///< uint16_t
 			UINT32  = 2, ///< uint32_t
-			FLOAT16 = 3, ///< half
 			FLOAT32 = 4, ///< float
-			FLOAT64 = 5, ///< double
 		};
 		enum Flags
 		{
@@ -232,7 +230,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 
 		// verification
 		typedef void Reporter(const char* msg, void* context);
-		unsigned               verify(Reporter* reporter, void* context); // returns number of reports
+		unsigned               verify(Reporter* reporter, void* context); ///< returns number of reports
 	};
 
 
