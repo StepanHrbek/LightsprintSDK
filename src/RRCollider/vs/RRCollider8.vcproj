@@ -433,10 +433,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\include\RRCollider.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\RRMath.h"
 				>
 			</File>
@@ -456,11 +452,6 @@
 				RelativePath="..\wrapped_array.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-			>
 		</Filter>
 		<Filter
 			Name="MeshImporter"
@@ -514,6 +505,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\..\include\RRCollider.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
