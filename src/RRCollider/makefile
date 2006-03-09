@@ -1,7 +1,7 @@
 LIB = ../../lib/libRRCollider.a
 TMP = #../../tmp/RRCollider/
 
-CPPFLAGS = -Iinclude -I../LicGen/include
+CPPFLAGS = -Iinclude -I../../include -I../LicGen/include
 CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
 #CPPFLAGS += -ffast-math // zpusobuje crash v soda
 CPPFLAGS += -fomit-frame-pointer

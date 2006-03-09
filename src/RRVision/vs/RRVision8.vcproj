@@ -260,7 +260,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="..\..\..\bin\$(ProjectName).dll"
 				AdditionalLibraryDirectories="$(OutDir)"
+				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -359,7 +361,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\RRVision.h"
+				RelativePath="..\..\..\include\RRVision.h"
 				>
 			</File>
 		</Filter>

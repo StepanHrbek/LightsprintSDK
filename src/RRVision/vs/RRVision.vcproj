@@ -254,7 +254,7 @@
 				RelativePath="..\rrcore.h">
 			</File>
 			<File
-				RelativePath="..\include\RRVision.h">
+				RelativePath="..\..\..\include\RRVision.h">
 			</File>
 		</Filter>
 		<Filter

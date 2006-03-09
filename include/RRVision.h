@@ -93,15 +93,6 @@ namespace rrVision /// Encapsulates whole Vision library.
 		RM_EXITANCE,      ///< Radiant exitance [W/m^2].
 	};
 
-#ifdef RR_DEVELOPMENT
-	enum RREmittanceType
-	{
-		diffuseLight=0, ///< face emitting like ideal diffuse emitor
-		pointLight  =1, ///< point P emitting equally to all directions (P=diffuseEmittancePoint)
-		spotLight   =2, ///< face emitting only in direction from point P
-		dirLight    =3, ///< face emiting only in direction P
-	};
-#endif
 
 	//! Boolean attributes of front or back side of surface.
 	struct RRSideBits
@@ -125,17 +116,6 @@ namespace rrVision /// Encapsulates whole Vision library.
 		RRReal        specularReflectance;           ///< Fraction of energy that is mirror reflected (without color change).
 		RRReal        specularTransmittance;         ///< Fraction of energy that is transmitted (without color change).
 		RRReal        refractionReal;                ///< Refraction index.
-#ifdef RR_DEVELOPMENT
-		RREmittanceType emittanceType;
-		RRVec3        emittancePoint;
-		RRReal        diffuseTransmittance;
-		RRColor       diffuseTransmittanceColor;
-		RRColor       specularReflectanceColor;
-		RRReal        specularReflectanceRoughness;
-		RRColor       specularTransmittanceColor;
-		RRReal        specularTransmittanceRoughness;
-		RRReal        refractionImaginary;
-#endif
 	};
 
 
@@ -223,28 +203,6 @@ namespace rrVision /// Encapsulates whole Vision library.
 	};
 
 
-#ifdef RR_DEVELOPMENT
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRSkyLight
-	//! Interface that defines your skylight.
-	//
-	//! Derive to import YOUR skylight
-	//! into RRScene.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RRVISION_API RRSkyLight
-	{
-	public:
-		//////////////////////////////////////////////////////////////////////////////
-		// Interface
-		//////////////////////////////////////////////////////////////////////////////
-
-		virtual RRColor getRadiance(RRVec3 dirFromSky) const = 0;
-		virtual ~RRSkyLight() {}
-	};
-#endif
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -396,12 +354,6 @@ namespace rrVision /// Encapsulates whole Vision library.
 		// import geometry
 		typedef       unsigned ObjectHandle;
 		ObjectHandle  objectCreate(RRObjectImporter* importer);      ///< Insert object into scene.
-#ifdef RR_DEVELOPMENT
-		void          objectDestroy(ObjectHandle object);
-
-		// import light (optional)
-		void          setSkyLight(RRSkyLight* skyLight);
-#endif
 		
 		// calculate radiosity
 		enum Improvement    ///< Describes result of illumination calculation.
@@ -411,33 +363,15 @@ namespace rrVision /// Encapsulates whole Vision library.
 			FINISHED,       ///< Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
 			INTERNAL_ERROR, ///< Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};
-#ifdef RR_DEVELOPMENT
-		void          sceneFreezeGeometry(bool yes);
-#endif
 		Improvement   illuminationReset(bool resetFactors);                    ///< Reset illumination to original state.
 		Improvement   illuminationImprove(bool endfunc(void*), void* context); ///< Improve illumination until endfunc returns true.
 		RRReal        illuminationAccuracy();                                  ///< Return illumination accuracy in proprietary scene dependant units. Higher is more accurate.
 
 		// read results
-#ifdef RR_DEVELOPMENT
-		struct InstantRadiosityPoint
-		{
-			RRVec3    pos;
-			RRVec3    dir;
-			RRColor   col;
-		};
-		unsigned      getPointRadiosity(unsigned n, InstantRadiosityPoint* point);
-#endif
 		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out); ///< Return calculated illumination measure for triangle=0..getNumTriangles and vertex=0..2.
 
 		// misc: development
 		static RRSceneStatistics* getSceneStatistics(); ///< Return pointer to scene statistics. Currently there are only one global statistics for all scenes.
-#ifdef RR_DEVELOPMENT
-		void          getInfo(char* buf, unsigned type);
-		void          getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
-		void*         getScene();
-		void*         getObject(ObjectHandle object);
-#endif
 
 	private:
 		void*         _scene;

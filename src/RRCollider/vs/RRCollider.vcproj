@@ -315,7 +315,7 @@
 				RelativePath="..\pcube.h">
 			</File>
 			<File
-				RelativePath="..\include\RRCollider.h">
+				RelativePath="..\..\..\include\RRCollider.h">
 			</File>
 			<File
 				RelativePath="..\include\RRMeshFilter.h">

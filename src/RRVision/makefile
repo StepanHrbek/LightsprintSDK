@@ -1,7 +1,7 @@
 LIB = ../../lib/libRRVision.a
 TMP = #../../tmp/RRVision/
 
-CPPFLAGS = -Iinclude -I../RRCollider/include -I../LicGen/include -DSUPPORT_INTERPOL -DRRCOLLIDER_STATIC -DRRVISION_STATIC
+CPPFLAGS = -Iinclude -I../../include -I../RRCollider/include -I../LicGen/include -DSUPPORT_INTERPOL -DRRCOLLIDER_STATIC -DRRVISION_STATIC
 CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
 #CPPFLAGS += -ffast-math // zpusobuje crash v soda
 CPPFLAGS += -fomit-frame-pointer
