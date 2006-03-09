@@ -34,17 +34,16 @@ Welcome to Lightsprint libraries.
 
  Parameters that need to be destructed are always destructed by caller.
 
+ Library uses both floats and doubles.
+ It is not allowed to break double arithmetics by modifying FPU states.
+ If you use Direct3D, make sure you don't instruct it to force single precision for whole application.
+
 \section vision3 Basic usage scenario
  -# Show your license number to RRLicense.
  -# Create rrVision::RRScene.
  -# Create rrVision::RRObjectImporter using your object and insert it into scene. Repeat for all objects.
  -# Calculate global illumination using scene->illuminationImprove().
  -# Read results using scene->getTriangleMeasure().
-
-\section trial1 Trial version limits
- If you have a trial version,
- all features of full version are present,
- but maximal size of scene is limited.
 
 
 
@@ -66,6 +65,10 @@ Welcome to Lightsprint libraries.
 
  Parameters that need to be destructed are always destructed by caller.
 
+ Library uses both floats and doubles.
+ It is not allowed to break double arithmetics by modifying FPU states.
+ If you use Direct3D, make sure you don't instruct it to force single precision for whole application.
+
 \section collider3 Basic usage scenario
  -# Show your license number to RRLicense.
  -# Create rrCollider::RRMeshImporter using your mesh.
@@ -73,16 +76,20 @@ Welcome to Lightsprint libraries.
  -# Create rrCollider::RRRay using your ray.
  -# Call collider->inretsect(ray) to find intersections. Repeat for all rays.
 
-\section trial2 Trial version limits
- If you have a trial version,
- it is fully functional, but collisions with very large meshes
- are not accelerated.
-
 
 
 \page news What's new
 
-\section s 2006/2/26
+\section news2 2006/3/9
+
+NEW FEATURES
+
+- sample "HelloVision"
+  \n performs minimalistic illumination calculation
+  \n gives first insight into Vision usage
+
+
+\section news1 2006/2/26
 
 NEW FEATURES
 
