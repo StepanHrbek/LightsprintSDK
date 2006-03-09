@@ -44,7 +44,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FCSS", "..\..\FCSS\FCSS8.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mgflib", "..\..\..\3rd\mgflib\vs\mgflib8.vcproj", "{24A70CDD-FF75-4686-B09E-F939F744F94B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minimal", "..\..\s_minimal\minimal.vcproj", "{2E053151-D333-4091-9D6D-54408A6610DD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minimal", "..\..\..\samples\minimal\minimal.vcproj", "{2E053151-D333-4091-9D6D-54408A6610DD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
