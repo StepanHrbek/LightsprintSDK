@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="minimal"
+	Name="HelloVision"
 	ProjectGUID="{2E053151-D333-4091-9D6D-54408A6610DD}"
-	RootNamespace="minimal"
+	RootNamespace="HelloVision"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -180,7 +180,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\minimal.cpp"
+				RelativePath=".\HelloVision.cpp"
 				>
 			</File>
 		</Filter>
