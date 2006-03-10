@@ -1,7 +1,7 @@
 /**
 
 
-\mainpage Lightsprint
+\mainpage Lightsprint SDK
 Welcome to Lightsprint libraries.
 
 \subpage news "What's new"
@@ -22,9 +22,10 @@ Welcome to Lightsprint libraries.
  \n Namespace: rrVision
 
 \section vision1 Library overview
+ - calculates global illumination in static scene
+ - progressive refinement with permanent access to results
+ - calculated illumination is available in vertices
  - optimized for speed, usage in interactive environments
- - progressive refinement with first approximative global illumination after 1ms
- - automatic mesh optimizations
  - works with your units (screen colors or radiometry or photometry units or anything else)
  - display independent, purely numerical API
 
@@ -80,7 +81,7 @@ Welcome to Lightsprint libraries.
 
 \page news What's new
 
-\section news2 2006/3/10
+\section news2 2006.3.10
 
 NEW FEATURES
 
@@ -89,7 +90,7 @@ NEW FEATURES
   \n gives first insight into Vision usage
 
 
-\section news1 2006/2/26
+\section news1 2006.2.26
 
 NEW FEATURES
 

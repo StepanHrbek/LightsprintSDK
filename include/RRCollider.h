@@ -5,7 +5,7 @@
 //! \file RRCollider.h
 //! \brief RRCollider - library for fast "ray x mesh" intersections
 //! \version 2006.3.10
-//! \author Copyright (C) Stepan Hrbek 1999-2006, Daniel Sykora 1999-2004
+//! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
