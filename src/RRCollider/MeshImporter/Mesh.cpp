@@ -178,21 +178,6 @@ RRMeshImporter* RRMeshImporter::createIndexed(unsigned flags, Format vertexForma
 	return NULL;
 }
 
-bool RRMeshImporter::save(char* filename)
-{
-	RRCopyMeshImporter* importer = new RRCopyMeshImporter();
-	bool res = importer->load(this) && importer->save(filename);
-	delete importer;
-	return res;
-}
-
-RRMeshImporter* RRMeshImporter::load(char* filename)
-{
-	RRCopyMeshImporter* importer = new RRCopyMeshImporter();
-	if(importer->load(filename)) return importer;
-	delete importer;
-	return NULL;
-}
 
 RRMeshImporter* RRMeshImporter::createCopy()
 {

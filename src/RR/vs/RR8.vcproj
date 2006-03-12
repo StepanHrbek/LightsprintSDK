@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="RR"
 	ProjectGUID="{4B85364D-0156-4489-B606-55894A1B1813}"
+	RootNamespace="RR"
 	>
 	<Platforms>
 		<Platform
@@ -48,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="..;..\..\..\3rd\mgflib;..\..\RRCollider\include;..\..\RRVision\include;..\..\World\include;..\..\LicGen\include"
+				AdditionalIncludeDirectories="..;..\..\..\include;..\..\..\3rd\mgflib;..\..\RRCollider\include;..\..\RRVision\include;..\..\World\include;..\..\LicGen\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;RRCOLLIDER_STATIC;RRVISION_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -154,7 +155,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..;..\..\..\3rd\mgflib;..\..\RRCollider\include;..\..\RRVision\include;..\..\World\include;..\..\LicGen\include"
+				AdditionalIncludeDirectories="..;..\..\..\include;..\..\..\3rd\mgflib;..\..\RRCollider\include;..\..\RRVision\include;..\..\World\include;..\..\LicGen\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;RRCOLLIDER_STATIC;RRVISION_STATIC"
 				StringPooling="true"
 				ExceptionHandling="0"

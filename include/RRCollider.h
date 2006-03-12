@@ -32,7 +32,7 @@
 	// use static library
 	#define RRCOLLIDER_API
 #endif
-//#define RR_DEVELOPMENT
+//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRCollider.h~(35)
 
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
@@ -63,10 +63,8 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	};
 
 	//! Vector of 3 real numbers plus minimalistic support.
-	struct RRCOLLIDER_API RRVec3
+	struct RRCOLLIDER_API RRVec3 : public RRVec2
 	{
-		RRReal    x;
-		RRReal    y;
 		RRReal    z;
 
 		RRVec3()                                    {}
@@ -88,7 +86,6 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		RRVec3 operator /=(const RRVec3& a)         {x/=a.x;y/=a.y;z/=a.z;return *this;}
 		bool   operator ==(const RRVec3& a)   const {return a.x==x && a.y==y && a.z==z;}
 		bool   operator !=(const RRVec3& a)   const {return a.x!=x || a.y!=y || a.z!=z;}
-		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
 	};
 
 	//! Vector of 4 real numbers plus minimalistic support.
@@ -140,7 +137,8 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//!
 	//! %RRMeshImporter operates with two types of vertex and triangle indices.
 	//! -# PostImport indices, always 0..num-1 (where num=getNumTriangles
-	//! or getNumVertices), these are used in most calls.
+	//! or getNumVertices), these are used in most calls. When not stated else,
+	//! index is PostImport.
 	//! \n Example: with 100-triangle mesh, triangle indices are 0..99.
 	//! -# PreImport indices, optional, arbitrary numbers provided by 
 	//! importer for your convenience.
@@ -173,32 +171,78 @@ namespace rrCollider /// Encapsulates whole Collider library.
 
 		virtual ~RRMeshImporter() {}
 
+		//
 		// vertices
+		//
+		//! One vertex 3d space.
 		typedef RRVec3 Vertex;
+		//! Returns number of vertices in mesh.
 		virtual unsigned     getNumVertices() const = 0;
+		//! Writes v-th vertex in mesh to out.
+		//!
+		//! Be sure to provide valid v is in range <0..getNumVertices()-1>.
+		//! Implementators are allowed to expect valid v, so result is completely undefined for invalid v (possible crash).
 		virtual void         getVertex(unsigned v, Vertex& out) const = 0;
 
+		//
 		// triangles
+		//
+		//! One triangle in mesh, defined by indices of its vertices.
 		struct Triangle      {unsigned m[3]; unsigned&operator[](int i){return m[i];} const unsigned&operator[](int i)const{return m[i];}};
+		//! Returns number of triangles in mesh.
 		virtual unsigned     getNumTriangles() const = 0;
+
+		//! Writes t-th triangle in mesh to out.
+		//!
+		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
+		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
 		virtual void         getTriangle(unsigned t, Triangle& out) const = 0;
 
+		//
 		// optional for faster access
+		//
+		//! %Triangle in 3d space defined by one vertex and two side vectors. This representation is most suitable for intersection tests.
 		struct TriangleBody  {Vertex vertex0,side1,side2;};
+		//! Plane in 3d space defined by its normal (in x,y,z) and w so that normal*point+w=0 for all points of plane.
 		typedef RRVec4 Plane;
+		//! Writes t-th triangle in mesh to out.
+		//!
+		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
+		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
+		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
+		//! \n This call is important for performance of intersection tests.
 		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
+		//! Writes t-th triangle plane to out.
+		//!
+		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
+		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
+		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		virtual bool         getTrianglePlane(unsigned t, Plane& out) const;
+		//! Returns area of t-th triangle.
+		//!
+		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
+		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
+		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		virtual RRReal       getTriangleArea(unsigned t) const;
 
+		//
 		// optional for advanced importers
 		//  post import number is always plain unsigned, 0..num-1
 		//  pre import number is implementation defined
 		//  all numbers in interface are post import, except for following preImportXxx:
+		//
+		//! Returns PreImport index of given vertex or UNDEFINED for invalid inputs.
 		virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const {return postImportVertex;}
+		//! Returns PostImport index of given vertex or UNDEFINED for invalid inputs.
 		virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const {return preImportVertex;}
+		//! Returns PreImport index of given triangle or UNDEFINED for invalid inputs.
 		virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const {return postImportTriangle;}
+		//! Returns PostImport index of given triangle or UNDEFINED for invalid inputs.
 		virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const {return preImportTriangle;}
-		enum {UNDEFINED = UINT_MAX};
+		enum 
+		{
+			UNDEFINED = UINT_MAX ///< Index value reserved for situations where result is undefined, for example because of invalid inputs.
+		};
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -206,31 +250,95 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//////////////////////////////////////////////////////////////////////////////
 
 		// instance factory
+		//! Identifiers of data formats.
 		enum Format
 		{
-			UINT8   = 0, ///< uint8_t
-			UINT16  = 1, ///< uint16_t
-			UINT32  = 2, ///< uint32_t
-			FLOAT32 = 4, ///< float
+			UINT8   = 0, ///< Id of uint8_t.
+			UINT16  = 1, ///< Id of uint16_t.
+			UINT32  = 2, ///< Id of uint32_t.
+			FLOAT32 = 4, ///< Id of float.
 		};
+		//! Flags that help to specify your create() or createIndexed() request.
 		enum Flags
 		{
-			TRI_LIST            = 0,      ///< interpret data as triangle list
-			TRI_STRIP           = (1<<0), ///< interpret data as triangle strip
-			OPTIMIZED_VERTICES  = (1<<1), ///< remove identical and unused vertices
-			OPTIMIZED_TRIANGLES = (1<<2), ///< remove degenerated triangles
+			TRI_LIST            = 0,      ///< Interpret data as triangle list.
+			TRI_STRIP           = (1<<0), ///< Interpret data as triangle strip.
+			OPTIMIZED_VERTICES  = (1<<1), ///< Remove identical and unused vertices.
+			OPTIMIZED_TRIANGLES = (1<<2), ///< Remove degenerated triangles.
 		};
+		//! Structure of PreImport index in MultiMeshes created by createMultiMesh().
+		//!
+		//! Underlying importers must use PreImport values that fit into index, this is not runtime checked.
+		//! This implies that it is not allowed to create MultiMesh from MultiMeshes.
+		struct MultiMeshPreImportNumber 
+		{
+			unsigned index : sizeof(unsigned)*8-12; ///< Original PreImport index of element (vertex or triangle). For 32bit int: max 1M triangles/vertices in one object.
+			unsigned object : 12; ///< Index into array of original meshes. For 32bit int: max 4k objects.
+			MultiMeshPreImportNumber() {}
+			MultiMeshPreImportNumber(unsigned aobject, unsigned aindex) {index=aindex;object=aobject;}
+			MultiMeshPreImportNumber(unsigned i) {*(unsigned*)this = i;} ///< Implicit unsigned -> MultiMeshPreImportNumber conversion.
+			operator unsigned () {return *(unsigned*)this;} ///< Implicit MultiMeshPreImportNumber -> unsigned conversion.
+		};
+		//! Creates %RRMeshImporter from your vertex buffer.
+		//
+		//! \param flags See #Flags.
+		//! \param vertexFormat %Format of data in your vertex buffer. See #Format. Currently only FLOAT32 is supported.
+		//! \param vertexBuffer Your vertex buffer.
+		//! \param vertexCount Number of vertices in your vertex buffer.
+		//! \param vertexStride Distance (in bytes) between n-th and (n+1)th vertex in your vertex buffer.
+		//! \return Newly created instance of RRMeshImporter or NULL in case of unsupported or invalid inputs.
 		static RRMeshImporter* create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride);
+		//! Creates %RRMeshImporter from your vertex and index buffers.
+		//
+		//! \param flags See #Flags.
+		//! \param vertexFormat %Format of data in your your vertex buffer. See #Format. Currently only FLOAT32 is supported.
+		//! \param vertexBuffer Your vertex buffer.
+		//! \param vertexCount Number of vertices in your vertex buffer.
+		//! \param vertexStride Distance (in bytes) between n-th and (n+1)th vertex in your vertex buffer.
+		//! \param indexFormat %Format of data in your index buffer. See #Format. Only UINT8, UINT16 and UINT32 is supported.
+		//! \param indexBuffer Your index buffer.
+		//! \param indexCount Number of indices in your index buffer.
+		//! \param vertexStitchMaxDistance Max distance for vertex stitching. For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower). For negative value, no stitching is performed. For positive value, also vertices in lower or equal distance will be stitched.
+		//! \return Newly created instance of RRMeshImporter or NULL in case of unsupported or invalid inputs.
 		static RRMeshImporter* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
+		//! Creates and returns copy of your instance.
+		//!
+		//! Created copy is completely independent on any other objects and may be deleted sooner or later.
+		//! \n It is expected that your input instance is well formed (returns correct and consistent values).
+		//! \n Copy may be faster than original, but may require more memory.
 		RRMeshImporter*        createCopy();
+		//! Creates and returns union of multiple meshes (contains vertices and triangles from all meshes).
+		//!
+		//! Created instance (MultiMesh) doesn't require additional memory, 
+		//! but it depends on all meshes from array, they must stay alive for whole life of MultiMesh.
+		//! \n This may be used to accelerate calculations, as one big object is nearly always faster than multiple small objects.
+		//! \n This may be used to simplify calculations, as processing one object may be simpler than processing array of objects.
+		//! \n For array with 1 element, pointer to that element may be returned.
+		//! \n\n Accessing original triangles and vertices in MultiMesh is tricky. If you need it, you have two choices:
+		//! -# Calculate it yourself. It is granted, that both indices and vertices preserve order of meshes in array:
+		//!  lowest indices belong to meshes[0], then meshes[1] follow etc. If you create MultiMesh from 2 meshes,
+		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 in MultiMesh.
+		//! -# Use PreImpport<->PostImport conversions. PreImport number is defined as MultiMeshPreImportNumber.
+		//!  If you create MultiMesh from 2 meshes,
+		//!  vertex 2 from meshes[1] may be accessed via MultiMeshPreImportNumber with index=2 and object=1.
 		static RRMeshImporter* createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes);
+		//! Creates and returns mesh with optimized vertices.
+		//!
+		//! \param vertexStitchMaxDistance
+		//!  For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower).
+		//!  For negative value, no stitching is performed.
+		//!  For positive value, also vertices in lower or equal distance will be stitched.
 		RRMeshImporter*        createOptimizedVertices(float vertexStitchMaxDistance = 0);
-		bool                   save(char* filename);
-		static RRMeshImporter* load(char* filename);
 
 		// verification
+		//! Callback for reporting text messages.
 		typedef void Reporter(const char* msg, void* context);
-		unsigned               verify(Reporter* reporter, void* context); ///< returns number of reports
+		//! Verifies that mesh is well formed.
+		//!
+		//! \param reporter All inconsistencies are reported using this callback.
+		//! \param context This value is sent to reporter without any modifications from verify.
+		//! \returns Number of reports performed.
+		unsigned               verify(Reporter* reporter, void* context);
 	};
 
 
@@ -254,10 +362,12 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	public:
 		virtual ~RRMeshSurfaceImporter() {}
 
-		//! acceptHit is called at each intersection with mesh
-		//! return false to continue to next intersection, true to end
-		//! for IT_BSP techniques, intersections are reported in order from the nearest one
-		//! for IT_LINEAR technique, intersections go unsorted
+		//! Arbitrates whether to accept or not to accept given hit (intersection of ray x mesh).
+		//!
+		//! acceptHit is called at each intersection of ray x mesh.
+		//! \n For IT_BSP techniques, intersections are reported in order from the nearest one.
+		//! For IT_LINEAR technique, intersections go unsorted.
+		//! \returns If you want ray to continue penetrating mesh in the same direction and finding further intersections, return true.
 		virtual bool         acceptHit(const class RRRay* ray) = 0;
 	};
 
@@ -292,20 +402,22 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	class RRCOLLIDER_API RRRay : public RRAligned
 	{
 	public:
-		// create ray
-		static RRRay* create(); ///< Creates 1 RRRay. All is zeroed, all FILL flags on.
-		static RRRay* create(unsigned n); ///< Creates array of RRRays.
-		// inputs (never modified by collider)
-		enum Flags ///< Flags define which outputs to fill. (Some outputs may be filled even when not requested by flag.)
+		//! Creates 1 RRRay. All is zeroed, all FILL flags on.
+		static RRRay* create();
+		//! Creates array of RRRays.
+		static RRRay* create(unsigned n);
+		//! Flags define which outputs to fill. (Some outputs may be filled even when not requested by flag.)
+		enum Flags
 		{ 
-			FILL_DISTANCE   =(1<<0), 
-			FILL_POINT3D    =(1<<1),
-			FILL_POINT2D    =(1<<2),
-			FILL_PLANE      =(1<<3),
-			FILL_TRIANGLE   =(1<<4),
-			FILL_SIDE       =(1<<5),
+			FILL_DISTANCE   =(1<<0), ///< Fill hitDistance.
+			FILL_POINT3D    =(1<<1), ///< Fill hitPoint3d.
+			FILL_POINT2D    =(1<<2), ///< Fill hitPoint2d.
+			FILL_PLANE      =(1<<3), ///< Fill hitPlane.
+			FILL_TRIANGLE   =(1<<4), ///< Fill hitTriangle.
+			FILL_SIDE       =(1<<5), ///< Fill hitFrontSide.
 			TEST_SINGLESIDED=(1<<6), ///< Detect collision only against front side. Default is to test both sides.
 		};
+		// inputs
 		RRVec4          rayOrigin;      ///< in, (-Inf,Inf), ray origin. never modify last component, must stay 1
 		RRVec4          rayDirInv;      ///< in, <-Inf,Inf>, 1/ray direction. direction must be normalized
 		RRReal          rayLengthMin;   ///< in, <0,Inf), test intersection in range <min,max>
@@ -342,23 +454,40 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		// create
 		enum IntersectTechnique
 		{
-			IT_LINEAR,          ///< speed   1%, size  0
-			IT_BSP_COMPACT,     ///< speed 100%, size  5 bytes per triangle
-			IT_BSP_FAST,        ///< speed 175%, size 31
-			IT_BSP_FASTEST,     ///< speed 200%, size 58
-			IT_VERIFICATION,    ///< test using all techniques and compare
+			IT_LINEAR,          ///< Speed   1%, size   0. Fallback technique when better one fails.
+			IT_BSP_COMPACT,     ///< Speed 100%, size  ~5 bytes per triangle. Optimal for platforms with limited memory.
+			IT_BSP_FAST,        ///< Speed 175%, size ~31 bytes per triangle.
+			IT_BSP_FASTEST,     ///< Speed 200%, size ~58 bytes per triangle.
+			IT_VERIFICATION,    ///< Only for verification purposes, performs tests using all known techniques and compares results.
 		};
+		//! Creates and returns collider, acceleration structure for finding ray x mesh intersections.
+		//!
+		//! \param importer Importer of mesh you want to collide with.
+		//! \param intersectTechnique Technique used for accelerating collision searches. See #IntersectTechnique.
+		//! \param cacheLocation Optional location of cache, path to directory where acceleration structures may be cached.
+		//! \param buildParams Optional additional parameters, specific for each technique and not revealed for public use.
 		static RRCollider*   create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
 
-		// calculate intersections
-		// (When intersection is detected, ray outputs are filled and true returned.
-		// When no intersection is detected, ray outputs are undefined and false returned.)
+		//! Finds ray x mesh intersections.
+		//!
+		//! When intersection is detected, ray outputs are filled and true returned.
+		//! When no intersection is detected, ray outputs are undefined and false returned.
+		//! \n\n You are encouraged to find multiple intersections in multiple threads at the same time.
+		//! This will improve your performance on multicore CPUs. \n Even with Intel's hyperthreading,
+		//! which is inferior to two fully-fledged cores, searching multiple intersections at the same time brings
+		//! surprisingly high performance bonus.
+		//! \n All you need is one RRRay for each thread, mesh and collider may be the same.
+		//! \n If you don't know OpenMP, be sure to check it. With OpenMP, searching multiple intersections
+		//! at the same time is matter of one or few lines of code.
 		virtual bool         intersect(RRRay* ray) const = 0;
 
 		// helpers
-		virtual RRMeshImporter*    getImporter() const = 0; ///< identical to importer from create()
-		virtual IntersectTechnique getTechnique() const = 0; ///< my differ from technique requested in create()
-		virtual unsigned           getMemoryOccupied() const = 0; ///< total amount of system memory occupied by collider
+		//! \returns Importer that was passed to create().
+		virtual RRMeshImporter*    getImporter() const = 0; 
+		//! \returns Technique used by collider. May differ from technique requested in create().
+		virtual IntersectTechnique getTechnique() const = 0;
+		//! \returns Total amount of system memory occupied by collider.
+		virtual unsigned           getMemoryOccupied() const = 0;
 		virtual ~RRCollider() {};
 	};
 
