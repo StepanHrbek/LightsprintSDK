@@ -47,7 +47,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
+				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC;RRCOLLIDER_STATIC;RRVISION_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -143,7 +143,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
+				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC;RRCOLLIDER_STATIC;RRVISION_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="1"

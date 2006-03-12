@@ -2203,18 +2203,11 @@ void Scene::freeze(bool yes)
 			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(multiObjectMeshes,numMeshes);
 			//multiMesh = multiMesh->createOptimizedVertices(); optimized vertices = no help because multiMesh is used only for collisions, not for interpol
 
-			/*struct PreImportNumber 
-			{
-				unsigned index : sizeof(unsigned)*8-12; // 32bit: max 1M triangles/vertices in one object
-				unsigned object : 12; // 32bit: max 4k objects
-				PreImportNumber() {}
-				PreImportNumber(unsigned i) {*(unsigned*)this = i;} // implicit unsigned -> PreImportNumber conversion
-				operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
-			};
+			/*
 			unsigned numTriangles = multiMesh->getNumTriangles();
 			for(unsigned i=0;i<numTriangles;i++)
 			{
-				PreImportNumber pre = multiMesh->getPreImportTriangle(i);
+				RRMeshImporter::MultiMeshPreImportNumber pre = multiMesh->getPreImportTriangle(i);
 				unsigned post = multiMesh->getPostImportTriangle(pre);
 				assert(post==i);
 				rrCollider::RRMeshImporter::TriangleBody bodyObj,bodyWorld;

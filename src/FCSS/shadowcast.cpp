@@ -159,18 +159,6 @@ void updateIndirect()
 	for(unsigned i=0;i<numVertices;i++)
 		indirectColors[i] = rrVision::RRColor(0);
 
-	struct PreImportNumber 
-		// our structure of pre import number (it is independent for each implementation)
-		// (on the other hand, postimport is always plain unsigned, 0..num-1)
-		// underlying importers must use preImport values that fit into index, this is not runtime checked
-	{
-		unsigned index : sizeof(unsigned)*8-12; // 32bit: max 1M triangles/vertices in one object
-		unsigned object : 12; // 32bit: max 4k objects
-		PreImportNumber() {}
-		PreImportNumber(unsigned i) {*(unsigned*)this = i;} // implicit unsigned -> PreImportNumber conversion
-		operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
-	};
-
 	//rrVision::RRColor suma=rrVision::RRColor(0);//!!!
 	unsigned numTriangles = mesh->getNumTriangles();
 	for(unsigned t=0;t<numTriangles;t++) // triangle
@@ -190,7 +178,7 @@ void updateIndirect()
 				assert(indirect[i]>=0);
 				assert(indirect[i]<1500000);
 			}
-			PreImportNumber pre = mesh->getPreImportVertex(triangle[v],t);
+			rrCollider::RRMeshImporter::MultiMeshPreImportNumber pre = mesh->getPreImportVertex(triangle[v],t);
 			unsigned preVertexIdx = firstVertexIdx[pre.object]+pre.index;
 			assert(preVertexIdx<numVertices);
 			if(size2(indirect)>size2(indirectColors[preVertexIdx])) // use maximum, so degenerated black triangles are ignored

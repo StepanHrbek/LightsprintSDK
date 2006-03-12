@@ -136,15 +136,7 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 
 	if(multiCollider)
 	{
-		struct PreImportNumber 
-		{
-			unsigned index : sizeof(unsigned)*8-12; // 32bit: max 1M triangles/vertices in one object
-			unsigned object : 12; // 32bit: max 4k objects
-			PreImportNumber() {}
-			PreImportNumber(unsigned i) {*(unsigned*)this = i;} // implicit unsigned -> PreImportNumber conversion
-			operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
-		};
-		PreImportNumber preImportSkip;
+		RRMeshImporter::MultiMeshPreImportNumber preImportSkip;
 		preImportSkip.object = skip->object->id; // we expect that object id is object index in scene
 		assert(preImportSkip.object<objects);
 		// get single-postimport skip
@@ -165,7 +157,7 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 		// get multi-postimport ray.hitTriangle
 		if(!multiCollider->intersect(&ray)) return NULL;
 		// convert to single-preimport preImportNumber.index
-		PreImportNumber preImportNumber = multiCollider->getImporter()->getPreImportTriangle(ray.hitTriangle);
+		RRMeshImporter::MultiMeshPreImportNumber preImportNumber = multiCollider->getImporter()->getPreImportTriangle(ray.hitTriangle);
 		assert(preImportNumber!=RRMeshImporter::UNDEFINED);
 		unsigned obj = preImportNumber.object;
 		// convert to single-postimport tri

@@ -14,7 +14,6 @@ namespace rrCollider
 //
 // Merges multiple mesh importers together.
 // Space is not transformed here, underlying meshes must already share one space.
-// Defines its own PreImportNumber, see below.
 
 class RRMultiMeshImporter : public RRMeshImporter
 {
@@ -77,18 +76,6 @@ public:
 	//{
 	//}
 
-	// preimport/postimport conversions
-	struct PreImportNumber 
-		// our structure of pre import number (it is independent for each implementation)
-		// (on the other hand, postimport is always plain unsigned, 0..num-1)
-		// underlying importers must use preImport values that fit into index, this is not runtime checked
-	{
-		unsigned index : sizeof(unsigned)*8-12; // 32bit: max 1M triangles/vertices in one object
-		unsigned object : 12; // 32bit: max 4k objects
-		PreImportNumber() {}
-		PreImportNumber(unsigned i) {*(unsigned*)this = i;} // implicit unsigned -> PreImportNumber conversion
-		operator unsigned () {return *(unsigned*)this;} // implicit PreImportNumber -> unsigned conversion
-	};
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	{
 		assert(0);//!!! just mark that this code was not tested
@@ -96,7 +83,7 @@ public:
 		{
 			return pack[0].getImporter()->getPreImportVertex(postImportVertex, postImportTriangle);
 		} else {
-			PreImportNumber preImport = pack[1].getImporter()->getPreImportVertex(postImportVertex-pack[0].getNumVertices(), postImportTriangle-pack[0].getNumTriangles());
+			MultiMeshPreImportNumber preImport = pack[1].getImporter()->getPreImportVertex(postImportVertex-pack[0].getNumVertices(), postImportTriangle-pack[0].getNumTriangles());
 			if(preImport==UNDEFINED) return UNDEFINED;
 			if(preImport.object>=pack[1].getNumObjects())
 			{
@@ -110,8 +97,8 @@ public:
 	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const 
 	{
 		assert(0);//!!! just mark that this code was not tested
-		PreImportNumber preImportV = preImportVertex;
-		PreImportNumber preImportT = preImportTriangle;
+		MultiMeshPreImportNumber preImportV = preImportVertex;
+		MultiMeshPreImportNumber preImportT = preImportTriangle;
 		if(preImportV.object<pack[0].getNumObjects()) 
 		{
 			return pack[0].getImporter()->getPostImportVertex(preImportV, preImportT);
@@ -139,7 +126,7 @@ public:
 		{
 			return pack[0].getImporter()->getPreImportTriangle(postImportTriangle);
 		} else {
-			PreImportNumber preImport = pack[1].getImporter()->getPreImportTriangle(postImportTriangle-pack[0].getNumTriangles());
+			MultiMeshPreImportNumber preImport = pack[1].getImporter()->getPreImportTriangle(postImportTriangle-pack[0].getNumTriangles());
 			if(preImport==UNDEFINED) return UNDEFINED;
 			if(preImport.object>=pack[1].getNumObjects())
 			{
@@ -152,7 +139,7 @@ public:
 	}
 	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const 
 	{
-		PreImportNumber preImport = preImportTriangle;
+		MultiMeshPreImportNumber preImport = preImportTriangle;
 		if(preImport.object<pack[0].getNumObjects()) 
 		{
 			return pack[0].getImporter()->getPostImportTriangle(preImport);
