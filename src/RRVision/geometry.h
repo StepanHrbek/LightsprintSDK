@@ -54,23 +54,7 @@ typedef real Angle;
 //
 // 2d vector
 
-struct Vec2
-{
-	real    x;
-	real    y;
-
-	Vec2()                         {}
-	Vec2(real ax,real ay)          {x=ax;y=ay;}
-	Vec2 operator + (Vec2 a) const {return Vec2(x+a.x,y+a.y);}
-	Vec2 operator - (Vec2 a) const {return Vec2(x-a.x,y-a.y);}
-	Vec2 operator * (real f) const {return Vec2(x*f,y*f);}
-	Vec2 operator / (real f) const {return Vec2(x/f,y/f);}
-	Vec2 operator +=(Vec2 a)       {x+=a.x;y+=a.y;return *this;}
-	Vec2 operator -=(Vec2 a)       {x-=a.x;y-=a.y;return *this;}
-	Vec2 operator *=(real f)       {x*=f;y*=f;return *this;}
-	Vec2 operator /=(real f)       {x/=f;y/=f;return *this;}
-	bool operator ==(Vec2 a) const {return a.x==x && a.y==y;}
-};
+typedef RRVec2 Vec2;
 
 Vec2 operator -(Vec2 a);
 real size(Vec2 a);
@@ -86,7 +70,7 @@ Angle angleBetweenNormalized(Vec2 a,Vec2 b);
 //
 // 2d point
 
-#define Point2 Vec2
+typedef RRVec2 Point2;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -111,18 +95,13 @@ RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b);
 //
 // 3d point
 
-#define Point3 Vec3
+typedef RRVec3 Point3;
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // normal in 3d
 
-struct Normal : public Vec3
-{
-	real    d;
-
-	void operator =(Vec3 a)   {x=a.x;y=a.y;z=a.z;}
-};
+typedef RRVec4 Normal;
 
 real normalValueIn(Normal n,Point3 a);
 

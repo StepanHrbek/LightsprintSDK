@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! \brief RRVision - library for fast global illumination calculations
-//! \version 2006.3.10
+//! \version 2006.3.13
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,9 @@ namespace rrVision /// Encapsulates whole Vision library.
 
 	//! Vector of 3 real numbers.
 	typedef rrCollider::RRVec3 RRVec3;
+
+	//! Vector of 4 real numbers.
+	typedef rrCollider::RRVec4 RRVec4;
 
 	//! Matrix of 3x4 real numbers in row-major order.
 	//!

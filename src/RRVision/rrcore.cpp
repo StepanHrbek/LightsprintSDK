@@ -1140,7 +1140,7 @@ again:
 
 	// set u3,v3,n3
 	qn3=normalized(ortogonalTo(getR3(),getL3()));
-	qn3.d=-dot(getS3(),getN3());
+	qn3.w=-dot(getS3(),getN3());
 	if(!IS_VEC3(getN3())) return -3; // throw out degenerated triangle
 	qu3=normalized(getR3());
 	qv3=ortogonalTo(getN3(),getU3());

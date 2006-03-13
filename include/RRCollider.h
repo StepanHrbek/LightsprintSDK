@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
 //! \brief RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.3.10
+//! \version 2006.3.13
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -54,28 +54,46 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//! Real number used in most of calculations.
 	typedef float RRReal;
 
-	//! Vector of 2 real numbers plus minimalistic support.
+	//! Vector of 2 real numbers plus basic support.
 	struct RRCOLLIDER_API RRVec2
 	{
 		RRReal    x;
 		RRReal    y;
-		RRReal& operator [](int i)            const {return ((RRReal*)this)[i];}
+		RRReal& operator [](int i)          const {return ((RRReal*)this)[i];}
+
+		RRVec2()                                  {}
+		explicit RRVec2(RRReal a)                 {x=y=a;}
+		RRVec2(RRReal ax,RRReal ay)               {x=ax;y=ay;}
+		RRVec2 operator + (const RRVec2& a) const {return RRVec2(x+a.x,y+a.y);}
+		RRVec2 operator - (const RRVec2& a) const {return RRVec2(x-a.x,y-a.y);}
+		RRVec2 operator * (RRReal f)        const {return RRVec2(x*f,y*f);}
+		RRVec2 operator * (const RRVec2& a) const {return RRVec2(x*a.x,y*a.y);}
+		RRVec2 operator / (RRReal f)        const {return RRVec2(x/f,y/f);}
+		RRVec2 operator / (const RRVec2& a) const {return RRVec2(x/a.x,y/a.y);}
+		RRVec2 operator +=(const RRVec2& a)       {x+=a.x;y+=a.y;return *this;}
+		RRVec2 operator -=(const RRVec2& a)       {x-=a.x;y-=a.y;return *this;}
+		RRVec2 operator *=(RRReal f)              {x*=f;y*=f;return *this;}
+		RRVec2 operator *=(const RRVec2& a)       {x*=a.x;y*=a.y;return *this;}
+		RRVec2 operator /=(RRReal f)              {x/=f;y/=f;return *this;}
+		RRVec2 operator /=(const RRVec2& a)       {x/=a.x;y/=a.y;return *this;}
+		bool   operator ==(const RRVec2& a) const {return a.x==x && a.y==y;}
+		bool   operator !=(const RRVec2& a) const {return a.x!=x || a.y!=y;}
 	};
 
-	//! Vector of 3 real numbers plus minimalistic support.
+	//! Vector of 3 real numbers plus basic support.
 	struct RRCOLLIDER_API RRVec3 : public RRVec2
 	{
 		RRReal    z;
 
 		RRVec3()                                    {}
-		explicit RRVec3(RRReal a)                   {x=a;y=a;z=a;}
+		explicit RRVec3(RRReal a)                   {x=y=z=a;}
 		RRVec3(RRReal ax,RRReal ay,RRReal az)       {x=ax;y=ay;z=az;}
 		RRVec3 operator + (const RRVec3& a)   const {return RRVec3(x+a.x,y+a.y,z+a.z);}
 		RRVec3 operator - (const RRVec3& a)   const {return RRVec3(x-a.x,y-a.y,z-a.z);}
 		RRVec3 operator * (RRReal f)          const {return RRVec3(x*f,y*f,z*f);}
-		RRVec3 operator * (RRVec3 a)          const {return RRVec3(x*a.x,y*a.y,z*a.z);}
+		RRVec3 operator * (const RRVec3& a)   const {return RRVec3(x*a.x,y*a.y,z*a.z);}
 		RRVec3 operator / (RRReal f)          const {return RRVec3(x/f,y/f,z/f);}
-		RRVec3 operator / (RRVec3 a)          const {return RRVec3(x/a.x,y/a.y,z/a.z);}
+		RRVec3 operator / (const RRVec3& a)   const {return RRVec3(x/a.x,y/a.y,z/a.z);}
 		RRVec3 operator / (int f)             const {return RRVec3(x/f,y/f,z/f);}
 		RRVec3 operator / (unsigned f)        const {return RRVec3(x/f,y/f,z/f);}
 		RRVec3 operator +=(const RRVec3& a)         {x+=a.x;y+=a.y;z+=a.z;return *this;}
@@ -88,7 +106,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		bool   operator !=(const RRVec3& a)   const {return a.x!=x || a.y!=y || a.z!=z;}
 	};
 
-	//! Vector of 4 real numbers plus minimalistic support.
+	//! Vector of 4 real numbers plus basic support.
 	struct RRCOLLIDER_API RRVec4 : public RRVec3
 	{
 		RRReal    w;

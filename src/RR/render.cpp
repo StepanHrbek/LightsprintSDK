@@ -890,7 +890,7 @@ void render_object(rrVision::RRScene* scene, unsigned o, Object* obj, MATRIX& im
 	//raster_BeginTriangles();
 	for (unsigned j=0;j<obj->triangles;j++) if(obj->triangle[j].isValid){
 		Normal n=obj->triangle[j].getN3();
-		U8 fromOut=n.d+im[3][0]*n.x+im[3][1]*n.y+im[3][2]*n.z>0;
+		U8 fromOut=n.w+im[3][0]*n.x+im[3][1]*n.y+im[3][2]*n.z>0;
 		if ((d_forceSides==0 && obj->triangle[j].surface->sideBits[fromOut?0:1].renderFrom) ||
 			(d_forceSides==1 && fromOut) ||
 			(d_forceSides==2))
