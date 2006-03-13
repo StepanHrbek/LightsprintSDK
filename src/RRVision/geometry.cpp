@@ -65,7 +65,7 @@ Angle angleBetween(Vec2 a,Vec2 b)
 //
 // 3d vector
 
-RRVec3 RRMatrix4x4::transformed(const RRVec3& a) const
+RRVec3 RRMatrix4x4::transformedPosition(const RRVec3& a) const
 {
 	assert(m);
 	return Vec3(
@@ -74,7 +74,7 @@ RRVec3 RRMatrix4x4::transformed(const RRVec3& a) const
 	  a[0]*(m)[0][2] + a[1]*(m)[1][2] + a[2]*(m)[2][2] + (m)[3][2]);
 }
 
-Vec3 RRMatrix4x4::rotated(const RRVec3& a) const
+Vec3 RRMatrix4x4::transformedDirection(const RRVec3& a) const
 {
 	assert(m);
 	return Vec3(
@@ -83,7 +83,7 @@ Vec3 RRMatrix4x4::rotated(const RRVec3& a) const
 		a[0]*(m)[0][2] + a[1]*(m)[1][2] + a[2]*(m)[2][2]);
 }
 
-Vec3& RRMatrix4x4::transform(RRVec3& a) const
+Vec3& RRMatrix4x4::transformPosition(RRVec3& a) const
 {
 	assert(m);
 	real _x=a.x,_y=a.y,_z=a.z;
@@ -95,7 +95,7 @@ Vec3& RRMatrix4x4::transform(RRVec3& a) const
 	return a;
 }
 
-Vec3& RRMatrix4x4::rotate(RRVec3& a) const
+Vec3& RRMatrix4x4::transformDirection(RRVec3& a) const
 {
 	real _x=a.x,_y=a.y,_z=a.z;
 

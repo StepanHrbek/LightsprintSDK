@@ -282,8 +282,8 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			Matrix* world = (Matrix*)objectImporter->getWorldMatrix();
 			if(world)
 			{
-				world->transform(point);
-				world->rotate(normal);
+				world->transformPosition(point);
+				world->transformDirection(normal);
 				normal *= 1/size(normal);
 				assert(fabs(size2(normal)-1)<0.001);
 			}

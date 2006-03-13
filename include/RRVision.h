@@ -58,15 +58,33 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! Vector of 3 real numbers.
 	typedef rrCollider::RRVec3 RRVec3;
 
+	//! Matrix of 3x4 real numbers in row-major order.
+	//!
+	//! Translation is stored in m[x][3].
+	//! Rotation and scale in the rest.
+	struct RRVISION_API RRMatrix3x4
+	{
+		RRReal m[3][4];
+
+		//! Returns position in 3d space transformed by matrix.
+		RRVec3 transformedPosition(const RRVec3& a) const;
+		//! Transforms position in 3d space by matrix.
+		RRVec3& transformPosition(RRVec3& a) const;
+		//! Returns direction in 3d space transformed by matrix.
+		RRVec3 transformedDirection(const RRVec3& a) const;
+		//! Transforms direction in 3d space by matrix.
+		RRVec3& transformDirection(RRVec3& a) const;
+	};
+
 	//! Matrix of 4x4 real numbers.
 	struct RRVISION_API RRMatrix4x4
 	{
 		RRReal m[4][4];
 
-		RRVec3 transformed(const RRVec3& a) const;
-		RRVec3& transform(RRVec3& a) const;
-		RRVec3 rotated(const RRVec3& a) const;
-		RRVec3& rotate(RRVec3& a) const;
+		RRVec3 transformedPosition(const RRVec3& a) const;
+		RRVec3& transformPosition(RRVec3& a) const;
+		RRVec3 transformedDirection(const RRVec3& a) const;
+		RRVec3& transformDirection(RRVec3& a) const;
 	};
 
 

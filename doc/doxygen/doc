@@ -123,6 +123,7 @@ NEW FEATURES
 
 CHANGES
 
+- column-major RRMatrix4x4 replaced by row-major RRMatrix3x4
 - enhanced documentation, 20kB of descriptions added
 - on several places, behaviour is defined for invalid inputs
 

@@ -1212,7 +1212,7 @@ again:
 
 	// premerit area v worldspace
 	if(obj2world)
-		area = calculateArea(obj2world->transformed(*a),obj2world->transformed(*b),obj2world->transformed(*c));
+		area = calculateArea(obj2world->transformedPosition(*a),obj2world->transformedPosition(*b),obj2world->transformedPosition(*c));
 	else
 		area = calculateArea(*a,*b,*c);
 	if(!IS_NUMBER(area)) return -11;
@@ -2032,7 +2032,7 @@ void Object::detectBounds()
 void Object::transformBound()
 {
 	if(transformMatrix)
-		bound.center=transformMatrix->transformed(bound.centerBeforeTransformation);
+		bound.center=transformMatrix->transformedPosition(bound.centerBeforeTransformation);
 	else
 		bound.center=bound.centerBeforeTransformation;
 }
@@ -2220,9 +2220,9 @@ void Scene::freeze(bool yes)
 				Vec3* v0o=(Vec3*)&bodyObj.vertex0;
 				Vec3* s1o=(Vec3*)&bodyObj.side1;
 				Vec3* s2o=(Vec3*)&bodyObj.side2;
-				Vec3 v0t=v0o->transformed(object[pre.object]->transformMatrix);
-				Vec3 s1t=s1o->rotated(object[pre.object]->transformMatrix);
-				Vec3 s2t=s2o->rotated(object[pre.object]->transformMatrix);
+				Vec3 v0t=v0o->transformedPosition(object[pre.object]->transformMatrix);
+				Vec3 s1t=s1o->transformedDirection(object[pre.object]->transformMatrix);
+				Vec3 s2t=s2o->transformedDirection(object[pre.object]->transformMatrix);
 				int ww=1;
 				assert(size(*v0w-v0t)<.1f);
 				assert(size(*s1w-s1t)<.1f);
@@ -2584,8 +2584,8 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	// transform from shooter's objectspace to scenespace
 	if(source->grandpa->object->transformMatrix)
 	{
-		*src = source->grandpa->object->transformMatrix->transformed(srcPoint3);
-		*dir = source->grandpa->object->transformMatrix->rotated(rayVec3);
+		*src = source->grandpa->object->transformMatrix->transformedPosition(srcPoint3);
+		*dir = source->grandpa->object->transformMatrix->transformedDirection(rayVec3);
 #ifdef SUPPORT_SCALE
 		*dir = normalized(*dir);
 #endif

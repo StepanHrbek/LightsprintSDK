@@ -555,7 +555,7 @@ static unsigned staticToDynobjShotFunc(Scene *scene,Node *refl,Object *dynobj,Re
 
 	// transform from shooter's objectspace to scenespace
 	Point3 srcPoint3o=srcPoint3;
-	srcPoint3.transform(source->grandpa->object->transformMatrix);
+	srcPoint3.transformPosition(source->grandpa->object->transformMatrix);
 
 	// vyber nahodneho vektoru ze srcPoint3 ke kouli,
 	// urceni jeho sily,
@@ -629,7 +629,7 @@ static unsigned staticToDynobjShotFunc(Scene *scene,Node *refl,Object *dynobj,Re
 	}
 
 	// transform from shooter's objectspace to scenespace
-	rayVec3=(srcPoint3o+rayVec3).transformed(source->grandpa->object->transformMatrix)-srcPoint3;
+	rayVec3=(srcPoint3o+rayVec3).transformedPosition(source->grandpa->object->transformMatrix)-srcPoint3;
 
 	assert(r2d->powerR2DSum>=0);
 	assert(powerR2D>=0 && powerR2D<=1);
