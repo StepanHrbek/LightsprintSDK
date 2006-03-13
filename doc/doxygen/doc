@@ -82,6 +82,12 @@ Welcome to Lightsprint libraries.
  -# Calculate global illumination using rrVision::RRScene::illuminationImprove().
  -# Read results using rrVision::RRScene::getTriangleMeasure().
 
+\section vision4 Notes
+ - Although whole documentation talks in radiometry terms,
+   it is possible to work in photometry units, screen colors 
+   or any other units. Everything you need is to setup appropriate
+   convertor, see rrVision::RRScaler.
+
 
 
 \page collider Lightsprint Collider
@@ -109,9 +115,16 @@ Welcome to Lightsprint libraries.
 
 \section news3 2006.3.xx
 
+NEW FEATURES
+
+- RRMeshImporter::MultiMeshPreImportNumber
+  \n defines format of PreImport index in MultiMesh
+  \n simplifies work with MultiMeshes created by rrCollider::RRMeshImporter::createMultiMesh()
+
 CHANGES
 
-- enhanced documentation
+- enhanced documentation, 20kB of descriptions added
+- on several places, behaviour is defined for invalid inputs
 
 
 \section news2 2006.3.10

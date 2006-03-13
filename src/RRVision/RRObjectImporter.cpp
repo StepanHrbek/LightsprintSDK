@@ -20,6 +20,11 @@ void RRObjectImporter::getTriangleAdditionalMeasure(unsigned t, RRRadiometricMea
 
 void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
 {
+	if(t>=getCollider()->getNumTriangles())
+	{
+		assert(0);
+		return;
+	}
 	rrCollider::RRMeshImporter::TriangleBody tb;
 	getCollider()->getImporter()->getTriangleBody(t,tb);
 	Vec3 norm = ortogonalTo(tb.side1,tb.side2);
@@ -31,6 +36,11 @@ void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
 
 void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
 {
+	if(t>=getCollider()->getNumTriangles())
+	{
+		assert(0);
+		return;
+	}
 	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
 	out.uv[0][0] = 1.0f*t/numTriangles;
 	out.uv[0][1] = 0;

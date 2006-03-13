@@ -105,7 +105,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		unsigned char transmitFrom:1;///<  Transmits energy from that halfspace to other halfspace?
 	};
 
-	//! Description of surface.
+	//! Description of surface material properties.
 	struct RRVISION_API RRSurface
 	{
 		void          reset(bool twoSided);          ///< Resets surface to fully diffuse gray (50% reflected, 50% absorbed).
@@ -159,20 +159,68 @@ namespace rrVision /// Encapsulates whole Vision library.
 
 		virtual ~RRObjectImporter() {}
 
+		//
 		// must not change during object lifetime
+		//
+		//! Returns collider of underlying mesh. It is also access to mesh itself (via collider->getImporter()).
 		virtual const rrCollider::RRCollider* getCollider() const = 0;
+		//! Returns triangle's surface index.
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
+		//! Returns s-th surface material description.
+		//!
+		//! \param s Index of surface. Valid s is any number returned by getTriangleSurface() for valid t.
+		//! \returns For valid s, pointer to s-th surface. For invalid s, pointer to any surface. 
+		//!  In both cases, surface must exist for whole life of object.
 		virtual const RRSurface*    getSurface(unsigned s) const = 0;
+		//
 		// optional
-		struct TriangleNormals      {RRVec3 norm[3];}; ///< 3x normal in object space
-		struct TriangleMapping      {RRVec2 uv[3];}; ///< 3x uv
-		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out); ///< normalized vertex normals in local space
-		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out); ///< unwrap into 0..1 x 0..1 space
+		//
+		//! Three normals for three vertices in triangle. In object space.
+		struct TriangleNormals      {RRVec3 norm[3];};
+		//! Three uv-coords for three vertices in triangle.
+		struct TriangleMapping      {RRVec2 uv[3];};
+		//! Writes to out vertex normals of triangle. In object space.
+		//!
+		//! Future versions of Vision may use normals for smoothing results. Currently they are not used, smoothing is automatic.
+		//! \n There is default implementation that writes all vertex normals equal to triangle plane normal.
+		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
+		//! \param out Caller provided storage for result.
+		//!  For valid t, requested normals are written to out. For invalid t, out stays unmodified.
+		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out);
+		//! Writes t-th triangle mapping for object unwrap into 0..1 x 0..1 space.
+		//!
+		//! Future versions of Vision may use mapping for returning results in texture. Currently it is not used.
+		//! \n There is default implementation that automatically generates objects unwrap of low quality.
+		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
+		//! \param out Caller provided storage for result.
+		//!  For valid t, requested mapping is written to out. For invalid t, out stays unmodified.
+		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out);
+		//! Writes t-th triangle additional measure to out.
+		//!
+		//! Although each triangle has its RRSurface::diffuseEmittance,
+		//! it may be inconvenient to create new RRSurface for each triangle when only emissions differ.
+		//! So this is way how to provide additional emissivity for each triangle separately.
+		//! \n There is default implementation that always returns 0.
+		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
+		//! \param measure Specifies requested radiometric measure.
+		//! \param out Caller provided storage for result.
+		//!  For valid t, requested measure is written to out. For invalid t, out stays unmodified.
 		virtual void                getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
 
+		//
 		// may change during object lifetime
-		virtual const RRMatrix4x4*  getWorldMatrix() = 0; ///< may return identity as NULL 
-		virtual const RRMatrix4x4*  getInvWorldMatrix() = 0; ///< may return identity as NULL 
+		//
+		//! Returns object transformation.
+		//!
+		//! Allowed transformations are composed of translation, rotation, scale.
+		//! Scale has not been extensively tested yet, problems with negative or non-uniform scale are feasible.
+		//! \returns Pointer to matrix that transforms object space to world space.
+		//!  May return NULL for identity/no transformation. 
+		//!  Pointer must be constant and stay valid for whole life of object.
+		//!  Matrix may change during object life.
+		virtual const RRMatrix4x4*  getWorldMatrix() = 0;
+		//! Returns matrix inverse to getWorldMatrix(). Other rules stay the same.
+		virtual const RRMatrix4x4*  getInvWorldMatrix() = 0;
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -180,6 +228,10 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//////////////////////////////////////////////////////////////////////////////
 
 		// instance factory
+		//! Creates and returns RRMeshImporter that describes object after transformation to world space.
+		//!
+		//! Newly created instance allocates no additional memory, but depends on
+		//! original object, so it is not allowed to let new instance live longer than original object.
 		rrCollider::RRMeshImporter* createWorldSpaceMesh();
 		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation);
 		class RRAdditionalObjectImporter* createAdditionalIllumination();
