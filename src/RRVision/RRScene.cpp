@@ -100,8 +100,8 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 		meshImporter->getVertex(i,*(rrCollider::RRMeshImporter::Vertex*)&obj->vertex[i]);
 
 #ifdef SUPPORT_TRANSFORMS
-	obj->transformMatrix=(Matrix*)importer->getWorldMatrix();
-	obj->inverseMatrix=(Matrix*)importer->getInvWorldMatrix();
+	obj->transformMatrix=importer->getWorldMatrix();
+	obj->inverseMatrix=importer->getInvWorldMatrix();
 	// vyzada si prvni transformaci
 	obj->matrixDirty=true;
 #endif
@@ -279,7 +279,7 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			meshImporter->getVertex(vertexIdx,vertexBody);
 			Vec3 point = vertexBody;
 			// transform to worldspace
-			Matrix* world = (Matrix*)objectImporter->getWorldMatrix();
+			const RRMatrix3x4* world = objectImporter->getWorldMatrix();
 			if(world)
 			{
 				world->transformPosition(point);

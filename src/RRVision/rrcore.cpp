@@ -1125,7 +1125,7 @@ real calculateArea(Vec3 v0, Vec3 v1, Vec3 v2)
 // Pokud ale nevyscalujeme area, bude pri distribuci vznikat/zanikat energie.
 // obj2world tedy pouzijeme pouze k vypoctu area ve worldspace.
 
-S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const Matrix *obj2world,Normal *n,int rots)
+S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,int rots)
 {
 	isValid=0;
 	assert(rots>=-1 && rots<=2);
@@ -1989,8 +1989,8 @@ void Object::updateMatrices()
 {
 	// updatne matice
 #ifdef SUPPORT_TRANSFORMS
-	transformMatrix=(Matrix*)importer->getWorldMatrix();
-	inverseMatrix=(Matrix*)importer->getInvWorldMatrix();
+	transformMatrix=importer->getWorldMatrix();
+	inverseMatrix=importer->getInvWorldMatrix();
 	// vyzada si prvni transformaci
 	matrixDirty=true;
 #endif

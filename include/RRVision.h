@@ -45,7 +45,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	// RRReal      - real number
 	// RRVec2      - vector in 2d
 	// RRVec3      - vector in 3d
-	// RRMatrix4x4 - matrix 4x4
+	// RRMatrix3x4 - matrix 3x4
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +62,8 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//!
 	//! Translation is stored in m[x][3].
 	//! Rotation and scale in the rest.
+	//! \n We have chosen this format because it contains only what we need, is smaller than 4x4
+	//! and its shape makes no room for row or column major ambiguity.
 	struct RRVISION_API RRMatrix3x4
 	{
 		RRReal m[3][4];
@@ -73,17 +75,6 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Returns direction in 3d space transformed by matrix.
 		RRVec3 transformedDirection(const RRVec3& a) const;
 		//! Transforms direction in 3d space by matrix.
-		RRVec3& transformDirection(RRVec3& a) const;
-	};
-
-	//! Matrix of 4x4 real numbers.
-	struct RRVISION_API RRMatrix4x4
-	{
-		RRReal m[4][4];
-
-		RRVec3 transformedPosition(const RRVec3& a) const;
-		RRVec3& transformPosition(RRVec3& a) const;
-		RRVec3 transformedDirection(const RRVec3& a) const;
 		RRVec3& transformDirection(RRVec3& a) const;
 	};
 
@@ -232,13 +223,14 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//!
 		//! Allowed transformations are composed of translation, rotation, scale.
 		//! Scale has not been extensively tested yet, problems with negative or non-uniform scale are feasible.
+		//! \n There is default implementation that returns NULL for no transformation.
 		//! \returns Pointer to matrix that transforms object space to world space.
 		//!  May return NULL for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.
 		//!  Matrix may change during object life.
-		virtual const RRMatrix4x4*  getWorldMatrix() = 0;
+		virtual const RRMatrix3x4*  getWorldMatrix();
 		//! Returns matrix inverse to getWorldMatrix(). Other rules stay the same.
-		virtual const RRMatrix4x4*  getInvWorldMatrix() = 0;
+		virtual const RRMatrix3x4*  getInvWorldMatrix();
 
 
 		//////////////////////////////////////////////////////////////////////////////

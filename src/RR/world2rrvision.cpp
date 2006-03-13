@@ -27,8 +27,8 @@ public:
 	virtual const RRSurface*   getSurface(unsigned si) const;
 
 	// may change during object lifetime
-	virtual const RRMatrix4x4* getWorldMatrix();
-	virtual const RRMatrix4x4* getInvWorldMatrix();
+	virtual const RRMatrix3x4* getWorldMatrix();
+	virtual const RRMatrix3x4* getInvWorldMatrix();
 
 private:
 	WORLD*      world;
@@ -36,6 +36,8 @@ private:
 	Surface**   surface;
 	unsigned    surfaces;
 	rrCollider::RRCollider* collider;
+	RRMatrix3x4 matrix;
+	RRMatrix3x4 inverse;
 };
 
 WorldObjectImporter::WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces, rrCollider::RRCollider::IntersectTechnique intersectTechnique)
@@ -71,14 +73,22 @@ const RRSurface* WorldObjectImporter::getSurface(unsigned si) const
 	return surface[si];
 }
 
-const RRMatrix4x4* WorldObjectImporter::getWorldMatrix()
+const RRMatrix3x4* WorldObjectImporter::getWorldMatrix()
 {
-	return (RRMatrix4x4*)object->matrix[0];
+	// from WORLD's column-major to Lightsprint's row-major
+	for(unsigned j=0;j<3;j++)
+		for(unsigned i=0;i<4;i++)
+			matrix.m[j][i] = object->matrix[i][j];
+	return &matrix;
 }
 
-const RRMatrix4x4* WorldObjectImporter::getInvWorldMatrix()
+const RRMatrix3x4* WorldObjectImporter::getInvWorldMatrix()
 {
-	return (RRMatrix4x4*)object->inverse[0];
+	// from WORLD's column-major to Lightsprint's row-major
+	for(unsigned j=0;j<3;j++)
+		for(unsigned i=0;i<4;i++)
+			inverse.m[j][i] = object->inverse[i][j];
+	return &inverse;
 }
 
 //////////////////////////////////////////////////////////////////////////////

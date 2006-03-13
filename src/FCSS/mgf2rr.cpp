@@ -34,8 +34,6 @@ public:
 	virtual const rrCollider::RRCollider* getCollider() const;
 	virtual unsigned                      getTriangleSurface(unsigned t) const;
 	virtual const rrVision::RRSurface*    getSurface(unsigned s) const;
-	virtual const rrVision::RRMatrix4x4*  getWorldMatrix();
-	virtual const rrVision::RRMatrix4x4*  getInvWorldMatrix();
 
 private:
 	// geometry
@@ -206,16 +204,6 @@ const rrVision::RRSurface* MgfImporter::getSurface(unsigned s) const
 		return NULL;
 	}
 	return &surfaces[s];
-}
-
-const rrVision::RRMatrix4x4* MgfImporter::getWorldMatrix()
-{
-	return NULL;
-}
-
-const rrVision::RRMatrix4x4* MgfImporter::getInvWorldMatrix()
-{
-	return NULL;
 }
 
 

@@ -51,6 +51,16 @@ void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
 	out.uv[2][1] = 1;
 }
 
+const RRMatrix3x4* RRObjectImporter::getWorldMatrix()
+{
+	return NULL;
+}
+
+const RRMatrix3x4* RRObjectImporter::getInvWorldMatrix()
+{
+	return NULL;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -59,7 +69,7 @@ void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
 class RRTransformedMeshFilter : public rrCollider::RRMeshFilter
 {
 public:
-	RRTransformedMeshFilter(RRMeshImporter* mesh, const RRMatrix4x4* matrix)
+	RRTransformedMeshFilter(RRMeshImporter* mesh, const RRMatrix3x4* matrix)
 		: RRMeshFilter(mesh)
 	{
 		m = matrix;
@@ -75,16 +85,12 @@ public:
 		importer->getVertex(v,out);
 		if(m)
 		{
-			Vertex tmp;
-			tmp[0] = m->m[0][0] * out[0] + m->m[1][0] * out[1] + m->m[2][0] * out[2] + m->m[3][0];
-			tmp[1] = m->m[0][1] * out[0] + m->m[1][1] * out[1] + m->m[2][1] * out[2] + m->m[3][1];
-			tmp[2] = m->m[0][2] * out[0] + m->m[1][2] * out[1] + m->m[2][2] * out[2] + m->m[3][2];
-			out = tmp;
+			m->transformPosition(out);
 		}
 	}
 
 private:
-	const RRMatrix4x4* m;
+	const RRMatrix3x4* m;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -165,15 +171,6 @@ public:
 	{
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalMeasure(t,format,out);
 		return pack[1].getImporter()->getTriangleAdditionalMeasure(t-pack[0].getNumTriangles(),format,out);
-	}
-
-	virtual const RRMatrix4x4* getWorldMatrix()
-	{
-		return NULL;
-	}
-	virtual const RRMatrix4x4* getInvWorldMatrix()
-	{
-		return NULL;
 	}
 
 	virtual ~RRMultiObjectImporter()
@@ -439,11 +436,11 @@ public:
 	{
 		return original->getTriangleMapping(t,out);
 	}
-	virtual const RRMatrix4x4* getWorldMatrix()
+	virtual const RRMatrix3x4* getWorldMatrix()
 	{
 		return original->getWorldMatrix();
 	}
-	virtual const RRMatrix4x4* getInvWorldMatrix()
+	virtual const RRMatrix3x4* getInvWorldMatrix()
 	{
 		return original->getInvWorldMatrix();
 	}

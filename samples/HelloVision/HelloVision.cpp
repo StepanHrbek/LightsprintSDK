@@ -52,16 +52,6 @@ public:
 		// return 0,0,0 for triangle 0 and 1,1,1 for triangle 1. this will make triangle 1 slightly shining
 		out = RRColor(t?1.0f:0.0f);
 	}
-	virtual const rrVision::RRMatrix4x4* getWorldMatrix()
-	{
-		// no mesh transformation
-		return NULL;
-	}
-	virtual const rrVision::RRMatrix4x4* getInvWorldMatrix()
-	{
-		// no mesh transformation
-		return NULL;
-	}
 	virtual const rrCollider::RRCollider* getCollider() const 
 	{
 		// public access to underlying collider and mesh

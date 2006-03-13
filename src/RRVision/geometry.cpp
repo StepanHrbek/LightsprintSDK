@@ -65,43 +65,43 @@ Angle angleBetween(Vec2 a,Vec2 b)
 //
 // 3d vector
 
-RRVec3 RRMatrix4x4::transformedPosition(const RRVec3& a) const
+RRVec3 RRMatrix3x4::transformedPosition(const RRVec3& a) const
 {
 	assert(m);
 	return Vec3(
-	  a[0]*(m)[0][0] + a[1]*(m)[1][0] + a[2]*(m)[2][0] + (m)[3][0],
-	  a[0]*(m)[0][1] + a[1]*(m)[1][1] + a[2]*(m)[2][1] + (m)[3][1],
-	  a[0]*(m)[0][2] + a[1]*(m)[1][2] + a[2]*(m)[2][2] + (m)[3][2]);
+	  a[0]*(m)[0][0] + a[1]*(m)[0][1] + a[2]*(m)[0][2] + (m)[0][3],
+	  a[0]*(m)[1][0] + a[1]*(m)[1][1] + a[2]*(m)[1][2] + (m)[1][3],
+	  a[0]*(m)[2][0] + a[1]*(m)[2][1] + a[2]*(m)[2][2] + (m)[2][3]);
 }
 
-Vec3 RRMatrix4x4::transformedDirection(const RRVec3& a) const
+Vec3 RRMatrix3x4::transformedDirection(const RRVec3& a) const
 {
 	assert(m);
 	return Vec3(
-		a[0]*(m)[0][0] + a[1]*(m)[1][0] + a[2]*(m)[2][0],
-		a[0]*(m)[0][1] + a[1]*(m)[1][1] + a[2]*(m)[2][1],
-		a[0]*(m)[0][2] + a[1]*(m)[1][2] + a[2]*(m)[2][2]);
+		a[0]*(m)[0][0] + a[1]*(m)[0][1] + a[2]*(m)[0][2],
+		a[0]*(m)[1][0] + a[1]*(m)[1][1] + a[2]*(m)[1][2],
+		a[0]*(m)[2][0] + a[1]*(m)[2][1] + a[2]*(m)[2][2]);
 }
 
-Vec3& RRMatrix4x4::transformPosition(RRVec3& a) const
+Vec3& RRMatrix3x4::transformPosition(RRVec3& a) const
 {
 	assert(m);
 	real _x=a.x,_y=a.y,_z=a.z;
 
-	a.x = _x*(m)[0][0] + _y*(m)[1][0] + _z*(m)[2][0] + (m)[3][0];
-	a.y = _x*(m)[0][1] + _y*(m)[1][1] + _z*(m)[2][1] + (m)[3][1];
-	a.z = _x*(m)[0][2] + _y*(m)[1][2] + _z*(m)[2][2] + (m)[3][2];
+	a.x = _x*(m)[0][0] + _y*(m)[0][1] + _z*(m)[0][2] + (m)[0][3];
+	a.y = _x*(m)[1][0] + _y*(m)[1][1] + _z*(m)[1][2] + (m)[1][3];
+	a.z = _x*(m)[2][0] + _y*(m)[2][1] + _z*(m)[2][2] + (m)[2][3];
 
 	return a;
 }
 
-Vec3& RRMatrix4x4::transformDirection(RRVec3& a) const
+Vec3& RRMatrix3x4::transformDirection(RRVec3& a) const
 {
 	real _x=a.x,_y=a.y,_z=a.z;
 
-	a.x = _x*(m)[0][0] + _y*(m)[1][0] + _z*(m)[2][0];
-	a.y = _x*(m)[0][1] + _y*(m)[1][1] + _z*(m)[2][1];
-	a.z = _x*(m)[0][2] + _y*(m)[1][2] + _z*(m)[2][2];
+	a.x = _x*(m)[0][0] + _y*(m)[0][1] + _z*(m)[0][2];
+	a.y = _x*(m)[1][0] + _y*(m)[1][1] + _z*(m)[1][2];
+	a.z = _x*(m)[2][0] + _y*(m)[2][1] + _z*(m)[2][2];
 
 	return a;
 }
@@ -233,12 +233,6 @@ bool Bound::intersect(Point3 eye,Vec3 direction,real maxDistance)
 	// intersection beyond eye
 	if(size2(toCenter+direction*distEyeCenter)<size2(toCenter-direction*distEyeCenter)) return false;
 #endif
-	return true;
-}
-
-bool Bound::visible(const Matrix *camera)
-{
-	//...
 	return true;
 }
 

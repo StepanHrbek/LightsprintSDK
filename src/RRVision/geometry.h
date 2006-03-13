@@ -52,12 +52,6 @@ typedef real Angle;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// matrix 4x4
-
-typedef RRMatrix4x4 Matrix;
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // 2d vector
 
 struct Vec2
@@ -144,7 +138,6 @@ struct Bound
 	real    radius2;
 	void    detect(const Vec3 *vertex,unsigned vertices);
 	bool    intersect(Point3 eye,Vec3 direction,real maxDistance);
-	bool    visible(const Matrix *camera);
 };
 
 } // namespace

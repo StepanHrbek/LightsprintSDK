@@ -504,7 +504,7 @@ public:
 	U8      isInCluster  :1;// triangle is in cluster
 	U8      isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
 	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
-	S8      setGeometry(Vec3* a,Vec3* b,Vec3* c,const Matrix *obj2world,Normal *n=NULL,int rots=-1);
+	S8      setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n=NULL,int rots=-1);
 	Vec3    to3d(Point2 a);
 	Vec3    to3d(int vertex);
 	SubTriangle *getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex);
@@ -724,8 +724,8 @@ public:
 
 #ifdef SUPPORT_TRANSFORMS
 	// transformations
-	const Matrix  *transformMatrix;
-	const Matrix  *inverseMatrix;
+	const RRMatrix3x4  *transformMatrix;
+	const RRMatrix3x4  *inverseMatrix;
 	bool    matrixDirty;
 	void    transformBound();
 	void    updateMatrices();
