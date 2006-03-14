@@ -923,7 +923,7 @@ void capturePrimary() // slow
 				}
 			// pass power to rrobject
 			rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-			rrobject->setTriangleAdditionalPower(triangleIndex,rrVision::RM_EXITANCE,avg);
+			rrobject->setTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITANCE,avg);
 
 			// debug print
 			//rrVision::RRColor tmp = rrVision::RRColor(0);
@@ -1724,7 +1724,7 @@ int main(int argc, char **argv)
 	rrVision::RRScene::setStateF(rrVision::RRScene::MIN_FEATURE_SIZE,0.15f);
 	//rrVision::RRScene::setStateF(rrVision::MAX_SMOOTH_ANGLE,0.4f);
 	rrscene = new rrVision::RRScene();
-	rrscaler = rrVision::RRScaler::createPowerScaler(0.4f);
+	rrscaler = rrVision::RRScaler::createRgbScaler();
 	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
 	glsl_init();

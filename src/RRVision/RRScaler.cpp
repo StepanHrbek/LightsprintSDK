@@ -21,11 +21,11 @@ public:
 	{
 		gamma = agamma;
 	}
-	virtual RRReal getScaled(RRReal original) const
+	virtual RRReal getScaled(RRReal standard) const
 	{
-		return pow(original,gamma);
+		return pow(standard,gamma);
 	}
-	virtual RRReal getOriginal(RRReal scaled) const
+	virtual RRReal getStandard(RRReal scaled) const
 	{
 		return pow(scaled,1/gamma);
 	}
@@ -37,7 +37,7 @@ private:
 //
 // RRScaler
 
-RRScaler* RRScaler::createPowerScaler(RRReal power)
+RRScaler* RRScaler::createRgbScaler(RRReal power)
 {
 	return new RRGammaScaler(power);
 }

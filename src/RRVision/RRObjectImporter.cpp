@@ -323,7 +323,7 @@ public:
 	{
 		delete[] triangleInfo;
 	}
-	virtual bool setTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor power)
+	virtual bool setTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor power)
 	{
 		if(t>=numTriangles)
 		{

@@ -151,9 +151,9 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 			Vec3 sumExitance;
 			importer->getTriangleAdditionalMeasure(fi,RM_EXITANCE,sumExitance);
 			if(scene->scaler) sumExitance = Vec3(
-				scene->scaler->getOriginal(sumExitance.x), // getOriginal=getWattsPerSquareMeter
-				scene->scaler->getOriginal(sumExitance.y),
-				scene->scaler->getOriginal(sumExitance.z));
+				scene->scaler->getStandard(sumExitance.x), // getOriginal=getWattsPerSquareMeter
+				scene->scaler->getStandard(sumExitance.y),
+				scene->scaler->getStandard(sumExitance.z));
 			obj->objSourceExitingFlux+=abs(t->setSurface(s,sumExitance));
 		}
 		else

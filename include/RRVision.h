@@ -62,7 +62,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	typedef rrCollider::RRVec4 RRVec4;
 
 	//! Matrix of 3x4 real numbers in row-major order.
-	//!
+	//
 	//! Translation is stored in m[x][3].
 	//! Rotation and scale in the rest.
 	//! \n We have chosen this format because it contains only what we need, is smaller than 4x4
@@ -97,6 +97,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! Color representation, r,g,b 0..1.
 	typedef RRVec3 RRColor; 
 
+	// Identifiers for radiometric measures.
 	enum RRRadiometricMeasure
 	{
 		RM_INCIDENT_FLUX, ///< Incoming radiant flux [W].
@@ -155,8 +156,8 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! - baking additional (primary) illumination into object, see createAdditionalIllumination()
 	//!
 	//! \section s3 Links between objects
-	//! /n RRObject -> RRObjectImporter -> RRCollider -> RRMeshImporter
-	//! /n where A -> B means that
+	//! \n RRScene -> RRObjectImporter -> RRCollider -> RRMeshImporter
+	//! \n where A -> B means that
 	//!  - A has pointer to B
 	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
 	//
@@ -179,7 +180,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Returns triangle's surface index.
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
 		//! Returns s-th surface material description.
-		//!
+		//
 		//! \param s Index of surface. Valid s is any number returned by getTriangleSurface() for valid t.
 		//! \returns For valid s, pointer to s-th surface. For invalid s, pointer to any surface. 
 		//!  In both cases, surface must exist for whole life of object.
@@ -192,7 +193,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Three uv-coords for three vertices in triangle.
 		struct TriangleMapping      {RRVec2 uv[3];};
 		//! Writes to out vertex normals of triangle. In object space.
-		//!
+		//
 		//! Future versions of Vision may use normals for smoothing results. Currently they are not used, smoothing is automatic.
 		//! \n There is default implementation that writes all vertex normals equal to triangle plane normal.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
@@ -200,7 +201,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//!  For valid t, requested normals are written to out. For invalid t, out stays unmodified.
 		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out);
 		//! Writes t-th triangle mapping for object unwrap into 0..1 x 0..1 space.
-		//!
+		//
 		//! Future versions of Vision may use mapping for returning results in texture. Currently it is not used.
 		//! \n There is default implementation that automatically generates objects unwrap of low quality.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
@@ -208,7 +209,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//!  For valid t, requested mapping is written to out. For invalid t, out stays unmodified.
 		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out);
 		//! Writes t-th triangle additional measure to out.
-		//!
+		//
 		//! Although each triangle has its RRSurface::diffuseEmittance,
 		//! it may be inconvenient to create new RRSurface for each triangle when only emissions differ.
 		//! So this is way how to provide additional emissivity for each triangle separately.
@@ -223,7 +224,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		// may change during object lifetime
 		//
 		//! Returns object transformation.
-		//!
+		//
 		//! Allowed transformations are composed of translation, rotation, scale.
 		//! Scale has not been extensively tested yet, problems with negative or non-uniform scale are feasible.
 		//! \n There is default implementation that returns NULL for no transformation.
@@ -232,7 +233,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//!  Pointer must be constant and stay valid for whole life of object.
 		//!  Matrix may change during object life.
 		virtual const RRMatrix3x4*  getWorldMatrix();
-		//! Returns matrix inverse to getWorldMatrix(). Other rules stay the same.
+		//! Differs from getWorldMatrix() only by returning _inverse_ matrix.
 		virtual const RRMatrix3x4*  getInvWorldMatrix();
 
 
@@ -242,11 +243,26 @@ namespace rrVision /// Encapsulates whole Vision library.
 
 		// instance factory
 		//! Creates and returns RRMeshImporter that describes object after transformation to world space.
-		//!
+		//
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
 		rrCollider::RRMeshImporter* createWorldSpaceMesh();
+		//! Creates and returns union of multiple objects (contains geometry and surfaces from all objects).
+		//
+		//! Created instance (MultiObject) doesn't require additional memory, 
+		//! but it depends on all objects from array, they must stay alive for whole life of MultiObject.
+		//! \n This can be used to accelerate calculations, as one big object is nearly always faster than multiple small objects.
+		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
+		//! \n For array with 1 element, pointer to that element may be returned.
+		//! \n\n For description how to access original triangles and vertices in MultiObject, 
+		//!  see rrCollider::RRMeshImporter::createMultiMesh(). Note that for non-negative maxStitchDistance,
+		//!  some vertices may be optimized out, so prefer PreImpport<->PostImport conversions.
 		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation);
+		//! Creates and returns object importer with space for per-triangle user-defined additional illumination.
+		//!
+		//! Created instance depends on original object, so it is not allowed to delete original object before newly created instance.
+		//! \n Created instance contains buffer for per-triangle additional illumination that is initialized to 0 and changeable via setTriangleAdditionalMeasure.
+		//! Illumination defined here overrides original object's illumination.
 		class RRAdditionalObjectImporter* createAdditionalIllumination();
 	};
 
@@ -254,17 +270,23 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRAdditionalObjectImporter
-	//! Helper interface
+	//! Interface for object importer with user-defined additional per-triangle illumination.
 	//
-	//! RRObjectImporter copy with set/get-able additional per-face exitance 
-	//! (overrides exitance of original)
+	//! Helper interface.
+	//! Instance may be created by RRMeshImporter::createAdditionalIllumination().
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RRAdditionalObjectImporter : public RRObjectImporter
 	{
 	public:
-		virtual bool                setTriangleAdditionalPower(unsigned t, RRRadiometricMeasure measure, RRColor power) = 0;
+		//! Sets additional illumination for triangle.
+		//
+		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
+		//! \param measure Radiometric measure used for power.
+		//! \param power Amount of additional illumination for triangle t in units specified by measure.
+		//! \returns True on success, false on invalid inputs.
+		virtual bool                setTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor power) = 0;
 	};
 
 
@@ -281,9 +303,10 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! Without scaler, all inputs/outputs work with specified physical units.
 	//! With appropriate scaler, you may directly work for example with screen colors
 	//! or photometric units.
-	//! Note that RRSurface::diffuseEmittance is never scaled.
 	//!
-	//! Contains built-in support for standard RGB monitor space, see createPowerScaler().
+	//! RRSurface::diffuseEmittance is never scaled.
+	//!
+	//! Contains built-in support for standard RGB monitor space, see createRgbScaler().
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -294,8 +317,10 @@ namespace rrVision /// Encapsulates whole Vision library.
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		virtual RRReal getScaled(RRReal original) const = 0;
-		virtual RRReal getOriginal(RRReal scaled) const = 0;
+		//! Converts standard space (W/m^2) value to scaled space.
+		virtual RRReal getScaled(RRReal standard) const = 0;
+		//! Converts scaled space value to standard space (W/m^2).
+		virtual RRReal getStandard(RRReal scaled) const = 0;
 		virtual ~RRScaler() {}
 
 
@@ -303,8 +328,15 @@ namespace rrVision /// Encapsulates whole Vision library.
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
+		//
 		// instance factory
-		static RRScaler* createPowerScaler(RRReal power); ///< Creates standard scaler (with power=0.45) for conversion between displayable RGB values and radiometry units.
+		//
+		//! Creates and returns scaler for standard RGB monitor space.
+		//
+		//! Scaler converts between radiometry units (W/m^2) and displayable RGB values.
+		//! It is only approximation, but good enough.
+		//! \param power Exponent in formula screenSpace = physicalSpace^power.
+		static RRScaler* createRgbScaler(RRReal power=0.45f);
 	};
 
 
@@ -314,7 +346,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! Statistics for scene.
 	//
 	//! Statistics reflect inner states of radiosity solver and may 
-	//! arbitrarily change when solver changes in future versions.
+	//! arbitrarily change in future versions.
 	//!
 	//! Retrieve them by scene->getSceneStatistics().
 	//! Currently all scenes work with the same statistics.

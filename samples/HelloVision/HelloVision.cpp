@@ -42,7 +42,7 @@ public:
 	}
 	virtual const rrVision::RRSurface* getSurface(unsigned si) const
 	{
-		// return surface 0 which is gray with difuse reflectance 50%, no specular, no transmittance
+		// return surface 0 which is gray with diffuse reflectance 50%, no specular, no transmittance
 		static RRSurface surface;
 		surface.reset(false);
 		return &surface;

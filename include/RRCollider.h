@@ -197,7 +197,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//! Returns number of vertices in mesh.
 		virtual unsigned     getNumVertices() const = 0;
 		//! Writes v-th vertex in mesh to out.
-		//!
+		//
 		//! Be sure to provide valid v is in range <0..getNumVertices()-1>.
 		//! Implementators are allowed to expect valid v, so result is completely undefined for invalid v (possible crash).
 		virtual void         getVertex(unsigned v, Vertex& out) const = 0;
@@ -211,7 +211,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		virtual unsigned     getNumTriangles() const = 0;
 
 		//! Writes t-th triangle in mesh to out.
-		//!
+		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
 		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
 		virtual void         getTriangle(unsigned t, Triangle& out) const = 0;
@@ -224,20 +224,20 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//! Plane in 3d space defined by its normal (in x,y,z) and w so that normal*point+w=0 for all points of plane.
 		typedef RRVec4 Plane;
 		//! Writes t-th triangle in mesh to out.
-		//!
+		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
 		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		//! \n This call is important for performance of intersection tests.
 		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 		//! Writes t-th triangle plane to out.
-		//!
+		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
 		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		virtual bool         getTrianglePlane(unsigned t, Plane& out) const;
 		//! Returns area of t-th triangle.
-		//!
+		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
 		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
@@ -285,7 +285,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 			OPTIMIZED_TRIANGLES = (1<<2), ///< Remove degenerated triangles.
 		};
 		//! Structure of PreImport index in MultiMeshes created by createMultiMesh().
-		//!
+		//
 		//! Underlying importers must use PreImport values that fit into index, this is not runtime checked.
 		//! This implies that it is not allowed to create MultiMesh from MultiMeshes.
 		struct MultiMeshPreImportNumber 
@@ -320,28 +320,28 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//! \return Newly created instance of RRMeshImporter or NULL in case of unsupported or invalid inputs.
 		static RRMeshImporter* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
 		//! Creates and returns copy of your instance.
-		//!
+		//
 		//! Created copy is completely independent on any other objects and may be deleted sooner or later.
 		//! \n It is expected that your input instance is well formed (returns correct and consistent values).
 		//! \n Copy may be faster than original, but may require more memory.
 		RRMeshImporter*        createCopy();
 		//! Creates and returns union of multiple meshes (contains vertices and triangles from all meshes).
-		//!
+		//
 		//! Created instance (MultiMesh) doesn't require additional memory, 
 		//! but it depends on all meshes from array, they must stay alive for whole life of MultiMesh.
-		//! \n This may be used to accelerate calculations, as one big object is nearly always faster than multiple small objects.
-		//! \n This may be used to simplify calculations, as processing one object may be simpler than processing array of objects.
+		//! \n This can be used to accelerate calculations, as one big object is nearly always faster than multiple small objects.
+		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
 		//! \n For array with 1 element, pointer to that element may be returned.
-		//! \n\n Accessing original triangles and vertices in MultiMesh is tricky. If you need it, you have two choices:
-		//! -# Calculate it yourself. It is granted, that both indices and vertices preserve order of meshes in array:
-		//!  lowest indices belong to meshes[0], then meshes[1] follow etc. If you create MultiMesh from 2 meshes,
-		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 in MultiMesh.
-		//! -# Use PreImpport<->PostImport conversions. PreImport number is defined as MultiMeshPreImportNumber.
-		//!  If you create MultiMesh from 2 meshes,
-		//!  vertex 2 from meshes[1] may be accessed via MultiMeshPreImportNumber with index=2 and object=1.
+		//! \n\n If you need to locate original triangles and vertices in MultiMesh, you have two choices:
+		//! -# Use PreImpport<->PostImport conversions. PreImport number for MultiMesh is defined as MultiMeshPreImportNumber.
+		//!  If you want to access triangle 2 in meshes[1], calculate index of triangle in MultiMesh as
+		//!  indexOfTriangle = multiMesh->getPostImportTriangle(MultiMeshPreImportNumber(2,1)).
+		//! -# Convert indices yourself. It is granted, that both indices and vertices preserve order of meshes in array:
+		//!  lowest indices belong to meshes[0], meshes[1] follow etc. If you create MultiMesh from 2 meshes,
+		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 vertices in MultiMesh.
 		static RRMeshImporter* createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes);
 		//! Creates and returns mesh with optimized vertices.
-		//!
+		//
 		//! \param vertexStitchMaxDistance
 		//!  For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower).
 		//!  For negative value, no stitching is performed.
@@ -352,7 +352,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//! Callback for reporting text messages.
 		typedef void Reporter(const char* msg, void* context);
 		//! Verifies that mesh is well formed.
-		//!
+		//
 		//! \param reporter All inconsistencies are reported using this callback.
 		//! \param context This value is sent to reporter without any modifications from verify.
 		//! \returns Number of reports performed.
@@ -381,7 +381,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		virtual ~RRMeshSurfaceImporter() {}
 
 		//! Arbitrates whether to accept or not to accept given hit (intersection of ray x mesh).
-		//!
+		//
 		//! acceptHit is called at each intersection of ray x mesh.
 		//! \n For IT_BSP techniques, intersections are reported in order from the nearest one.
 		//! For IT_LINEAR technique, intersections go unsorted.
@@ -479,7 +479,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 			IT_VERIFICATION,    ///< Only for verification purposes, performs tests using all known techniques and compares results.
 		};
 		//! Creates and returns collider, acceleration structure for finding ray x mesh intersections.
-		//!
+		//
 		//! \param importer Importer of mesh you want to collide with.
 		//! \param intersectTechnique Technique used for accelerating collision searches. See #IntersectTechnique.
 		//! \param cacheLocation Optional location of cache, path to directory where acceleration structures may be cached.
@@ -487,7 +487,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		static RRCollider*   create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
 
 		//! Finds ray x mesh intersections.
-		//!
+		//
 		//! When intersection is detected, ray outputs are filled and true returned.
 		//! When no intersection is detected, ray outputs are undefined and false returned.
 		//! \n\n You are encouraged to find multiple intersections in multiple threads at the same time.

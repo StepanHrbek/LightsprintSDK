@@ -1977,9 +1977,9 @@ void Object::resetStaticIllumination(RRScaler* scaler)
 		Vec3 sumExitance;
 		importer->getTriangleAdditionalMeasure(t,RM_EXITANCE,sumExitance);
 		if(scaler) sumExitance = Vec3(
-			scaler->getOriginal(sumExitance.x), // getOriginal=getWattsPerSquareMeter
-			scaler->getOriginal(sumExitance.y),
-			scaler->getOriginal(sumExitance.z));
+			scaler->getStandard(sumExitance.x), // getOriginal=getWattsPerSquareMeter
+			scaler->getStandard(sumExitance.y),
+			scaler->getStandard(sumExitance.z));
 		objSourceExitingFlux+=abs(triangle[t].setSurface(triangle[t].surface,sumExitance));
 	}
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
