@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
 //! \brief RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.3.13
+//! \version 2006.3.15
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -137,9 +137,11 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//! and depend on vertex buffer, self-contained copy contains all mesh data
 	//! and doesn't depend on any other objects.
 	//!
-	//! For proprietary mesh formats (heightfield, realtime generated etc), 
+	//! For other mesh formats (heightfield, realtime generated etc), 
 	//! you may easily derive from %RRMeshImporter and create your own importer.
 	//! 
+	//! You may also ask us for supporting your format.
+	//!
 	//! \section s6 Optimizations
 	//!
 	//! %RRMeshImporter may help you with mesh optimizations if requested,
@@ -490,13 +492,16 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//
 		//! When intersection is detected, ray outputs are filled and true returned.
 		//! When no intersection is detected, ray outputs are undefined and false returned.
-		//! \n\n You are encouraged to find multiple intersections in multiple threads at the same time.
+		//!
+		//! You are encouraged to find multiple intersections in multiple threads at the same time.
 		//! This will improve your performance on multicore CPUs. \n Even with Intel's hyperthreading,
 		//! which is inferior to two fully-fledged cores, searching multiple intersections at the same time brings
 		//! surprisingly high performance bonus.
-		//! \n All you need is one RRRay for each thread, mesh and collider may be the same.
-		//! \n If you don't know OpenMP, be sure to check it. With OpenMP, searching multiple intersections
-		//! at the same time is matter of one or few lines of code.
+		//! \n All you need is one RRRay for each thread, other structures like mesh and collider
+		//!  may be accessed by arbitrary number of threads simultaneously.
+		//! \n If you are not familiar with OpenMP, be sure to examine it. With OpenMP, which is built-in 
+		//!  feature of modern compilers, searching multiple intersections
+		//!  at the same time is matter of one or few lines of code.
 		virtual bool         intersect(RRRay* ray) const = 0;
 
 		// helpers
@@ -514,6 +519,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//  RRLicense
 	//! Provide your license number before any other work with library.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -521,6 +527,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	class RRCOLLIDER_API RRLicense
 	{
 	public:
+		//! Call this before any other work with library, using your license info.
 		static void registerLicense(char* licenseOwner, char* licenseNumber);
 	};
 

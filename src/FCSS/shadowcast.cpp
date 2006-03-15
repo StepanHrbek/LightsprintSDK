@@ -1703,6 +1703,10 @@ int main(int argc, char **argv)
 	{
 		SimpleCamera sponza_eye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999};
 		SimpleCamera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001};
+		//SimpleCamera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
+		//SimpleCamera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
+		//lightFieldOfView += 10.0;
+		//eyeFieldOfView = 50.0;
 		eye = sponza_eye;
 		light = sponza_light;
 	}

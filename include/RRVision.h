@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! \brief RRVision - library for fast global illumination calculations
-//! \version 2006.3.13
+//! \version 2006.3.15
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -160,6 +160,8 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! \n where A -> B means that
 	//!  - A has pointer to B
 	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
+	//! \n This means you may have multiple objects sharing one collider and mesh
+	//! (eg. green box here, another green box there and blue box over there).
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -226,8 +228,9 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Returns object transformation.
 		//
 		//! Allowed transformations are composed of translation, rotation, scale.
-		//! Scale has not been extensively tested yet, problems with negative or non-uniform scale are feasible.
-		//! \n There is default implementation that returns NULL for no transformation.
+		//! Scale has not been extensively tested yet, problems with negative or non-uniform 
+		//! scale may eventually appear, but they would be fixed in future versions.
+		//! \n There is default implementation that always returns NULL, meaning no transformation.
 		//! \returns Pointer to matrix that transforms object space to world space.
 		//!  May return NULL for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.
@@ -401,10 +404,30 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRScene
-	//! Description of your scene and radiosity solver.
+	//! 3d scene where illumination can be calculated.
 	//
-	//! To be written.
-	//! 
+	//! %RRScene covers the most important functionality of library -
+	//! illumination calculation. It allows you to setup multiple objects in space,
+	//! setup other states that affect calculations, perform calculations
+	//! and read back results.
+	//!
+	//! Common scenario is to perform calculations while allowing 
+	//! user to continue work and see illumination improving on the background.
+	//! This could be done by inserting following code into your main loop
+	//! \code
+	//    if(!paused) {
+	//      scene->illuminationImprove(endIfUserWantsToInteract);
+	//      if(once a while) read back results using scene->getTriangleMeasure();
+	//    } \endcode
+	//! \n For smooth integration without feel of slowing down, it is good to pause 
+	//! calculation after each user interaction and resume it again once there is
+	//! no user interaction for at least 0.5 sec.
+	//! \n When user modifies scene, calculation may be restarted using illuminationReset().
+	//!  For scenes small enough, this creates global illumination in dynamic scene 
+	//!  with full interactivity.
+	//!
+	//! In future versions, it will be possible to have multiple scenes and work
+	//! with them independently. For now, this option hasn't been tested.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -417,9 +440,9 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Identifier of integer scene state.
 		enum SceneStateU
 		{
-			GET_SOURCE,           ///< Results from getTriangleMeasure contain source illumination from objects.
-			GET_REFLECTED,        ///< Results from getTriangleMeasure contain reflected illumination calculated by library.
-			GET_SMOOTH,           ///< Results from getTriangleMeasure are enhanced by smoothing (only reflected part).
+			GET_SOURCE,           ///< True = Results from getTriangleMeasure() contain source illumination from objects.
+			GET_REFLECTED,        ///< True = Results from getTriangleMeasure() contain reflected illumination calculated by library.
+			GET_SMOOTH,           ///< True = Results from getTriangleMeasure() are enhanced by smoothing (only reflected part).
 			// following states are for testing only
 			USE_CLUSTERS,         ///< For testing only. 0 = no clustering, !0 = use clusters.
 			GET_FINAL_GATHER,     ///< For testing only. Results from getTriangleMeasure are enhanced by final gathering.
@@ -429,8 +452,8 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Identifier of float scene state.
 		enum SceneStateF
 		{
-			MIN_FEATURE_SIZE,    ///< Smaller features will be smoothed. This is kind of blur.
-			MAX_SMOOTH_ANGLE,    ///< Smaller angles between faces may be smoothed/interpolated.
+			MIN_FEATURE_SIZE,    ///< Smaller features will be smoothed. This could be imagined as kind of blur.
+			MAX_SMOOTH_ANGLE,    ///< Smaller angles between faces may be smoothed out. This controls automatic smoothgrouping.
 			// following states are for testing only
 			SUBDIVISION_SPEED,   ///< For testing only. Speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast. Currently there is no way to read subdivision results back, so let it 0.
 			IGNORE_SMALLER_AREA, ///< For testing only. Minimal allowed area of triangle (m^2), smaller triangles are ignored.
@@ -439,36 +462,92 @@ namespace rrVision /// Encapsulates whole Vision library.
 			FIGHT_SMALLER_ANGLE, ///< For testing only. Sharper triangles (rad) will be assimilated when FIGHT_NEEDLES.
 			SSF_LAST
 		};
-		static void     resetStates();                               ///< Reset scene states to default values.
-		static unsigned getState(SceneStateU state);                 ///< Return one of integer scene states.
-		static unsigned setState(SceneStateU state, unsigned value); ///< Set one of integer scene states.
-		static RRReal   getStateF(SceneStateF state);                ///< Return one of float scene states.
-		static RRReal   setStateF(SceneStateF state, RRReal value);  ///< Set one of float scene states.
+		//! Reset scene states to default values.
+		static void     resetStates();
+		//! Return one of integer scene states.
+		static unsigned getState(SceneStateU state);
+		//! Set one of integer scene states.
+		static unsigned setState(SceneStateU state, unsigned value);
+		//! Return one of float scene states.
+		static RRReal   getStateF(SceneStateF state);
+		//! Set one of float scene states.
+		static RRReal   setStateF(SceneStateF state, RRReal value);
 
+		//
 		// i/o settings (optional)
-		void          setScaler(RRScaler* scaler);                   ///< Set scaler used by this scene i/o operations.
+		//
+		//! Set scaler used by this scene i/o operations. This is option for your convenience. See RRScaler for details.
+		void          setScaler(RRScaler* scaler);
 
+		//
 		// import geometry
+		//
+		//! Identifier of object in scene.
 		typedef       unsigned ObjectHandle;
-		ObjectHandle  objectCreate(RRObjectImporter* importer);      ///< Insert object into scene.
+		//! Inserts object into scene.
+		//
+		//! For highest performance, stay with low number of possibly big objects 
+		//! rather than high number of small ones.
+		//! One big object can be created out of many small ones using RRObjectImporter::createMultiObject().
+		//!
+		//! Different objects always belong to different smoothgroups. So with flat wall cut into two objects,
+		//! unsmoothed edge will possibly apear between them.
+		//! This can be fixed by merging standalone objects into one object using RRObjectImporter::createMultiObject().
+		ObjectHandle  objectCreate(RRObjectImporter* importer);
 		
 		// calculate radiosity
-		enum Improvement    ///< Describes result of illumination calculation.
+		//! Describes result of illumination calculation.
+		enum Improvement
 		{
 			IMPROVED,       ///< Lighting was improved during this call.
 			NOT_IMPROVED,   ///< Although some calculations were done, lighting was not yet improved during this call.
 			FINISHED,       ///< Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
 			INTERNAL_ERROR, ///< Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};
-		Improvement   illuminationReset(bool resetFactors);                    ///< Reset illumination to original state.
-		Improvement   illuminationImprove(bool endfunc(void*), void* context); ///< Improve illumination until endfunc returns true.
-		RRReal        illuminationAccuracy();                                  ///< Return illumination accuracy in proprietary scene dependant units. Higher is more accurate.
+		//! Reset illumination to original state defined by objects.
+		//
+		//! There is no need to reset illumination right after scene creation, it is already reset.
+		//! \param resetFactors For this time, set always true.
+		//!  Resetting also factors means complete restart of calculation with all expenses.
+		//!  With factors preserved, part of calculation is reused, but you must ensure, that
+		//!  geometry and surfaces were not modified. This is especially handy when only primary
+		//!  lights move, but objects and materials stay unchanged.
+		//! \returns Calculation state, see Improvement.
+		Improvement   illuminationReset(bool resetFactors);
+		//! Improve illumination until endfunc returns true.
+		//
+		//! If you want calculation as fast as possible, make sure that most of time
+		//! is spent here. You may want to interleave calculation by reading results, rendering and processing
+		//! event queue, but stop rendering and idle looping when nothing changes and user doesn't interact,
+		//! don't read results too often etc.
+		//! \param endfunc Callback used to determine whether to stop or continue calculating.
+		//!  It should be very fast, just checking system variables like time or event queue length.
+		//!  It is called very often, slow endfunc may have big impact on performance.
+		//! \param context Value is passed to endfunc without any modification.
+		//! \returns Calculation state, see Improvement.
+		Improvement   illuminationImprove(bool endfunc(void*), void* context);
+		//! Returns illumination accuracy in proprietary scene dependent units. Higher is more accurate.
+		RRReal        illuminationAccuracy();
 
 		// read results
-		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out); ///< Return calculated illumination measure for triangle=0..getNumTriangles and vertex=0..2.
+		//! Reads illumination of triangle's vertex in units given by measure.
+		//
+		//! See also SceneStateU and SceneStateF for list of states, that may have influence
+		//! on reading results.
+		//! \param object Handle of object you want to get results for.
+		//! \param triangle Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
+		//! \param vertex Index of triangle's vertex you want to get results for. Valid vertices are 0, 1, 2.
+		//!  For invalid vertex number, average value for whole triangle is taken instead of smoothed value in vertex.
+		//! \param measure Measure of illumination you want to know.
+		//! \param out For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
+		//! \returns True when out was successfully filled. False may be caused by invalid inputs.
+		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out);
 
-		// misc: development
-		static RRSceneStatistics* getSceneStatistics(); ///< Return pointer to scene statistics. Currently there are only one global statistics for all scenes.
+		//
+		// misc
+		//
+		//! Return pointer to scene statistics. Currently there are only one global statistics for all scenes.
+		static RRSceneStatistics* getSceneStatistics();
 
 	private:
 		void*         _scene;
@@ -488,6 +567,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	class RRVISION_API RRLicense
 	{
 	public:
+		//! Codes for status of your license.
 		enum LicenseStatus
 		{
 			VALID,       ///< Valid license.
@@ -496,6 +576,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 			NO_INET,     ///< No internet connection to verify license.
 			UNAVAILABLE, ///< Temporarily unable to verify license, try later.
 		};
+		//! Call this before any other work with library, using your license info.
 		static LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber);
 	};
 
