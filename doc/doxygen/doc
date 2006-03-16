@@ -62,12 +62,16 @@ Welcome to Lightsprint libraries.
 
 
 \page vision Lightsprint Vision
- Calculates radiosity / global illumination.
+ In typical situation, you have your own renderer with direct illumination.
+ Vision can enhance it by adding indirect illumination.
+
+ In atypical sutuation, Vision is also able to calculate global illumination
+ without any relation to your renderer, however this case is not officially supported.
 
  Header: RRVision.h
  \n Namespace: rrVision
 
-\section vision1 Library overview
+\section vision_overview Library overview
  - calculates global illumination in static scene
  - progressive refinement with permanent access to results
  - calculated illumination is available in vertices
@@ -75,17 +79,103 @@ Welcome to Lightsprint libraries.
  - works with your units (screen colors or radiometry or photometry units or anything else)
  - display independent, purely numerical API
 
-\section vision3 Basic usage scenario
+\section vision_integration Integration with renderer
+ Three steps to integrate Vision with your renderer are described in
+ <a href="http://dee.cz/rri">Realtime Radiosity Integration article</a>.
+
+ This will be further documented in examples later.
+
+ After reading article, you may want to get familiar with some interfaces.
+ Sample HelloVision shows you some of them on the most simple use case:
  -# Show your license number to rrVision::RRLicense.
  -# Create rrVision::RRScene.
  -# Create rrVision::RRObjectImporter using your object and insert it into scene. Repeat for all objects.
  -# Calculate global illumination using rrVision::RRScene::illuminationImprove().
  -# Read results using rrVision::RRScene::getTriangleMeasure().
 
-\section vision4 Notes
- - Although whole documentation talks in radiometry terms,
+\section vision_static Static scenes
+ It is recommended to integrate Vision to your editor,
+ precalculate illumination there (using any target quality you need),
+ store it and use only precalculated data in your final product.
+ This way you don't need to link Vision libraries to your product, only to your editor.
+
+\section vision_dynamic Dynamic scenes
+ Vision can quickly recalculate illumination after each change in dynamic scene.
+ However quality oscilates, so this is feasible only for few applications.
+
+ For games and most of other applications with absolutely strict requirements 
+ for illumination quality, it is necessary to precalculate wisely in editor 
+ and use only precalculated data in final product.
+
+ This is very application dependant, but some general hints apply for everyone.
+
+ \subsection independent_lights Independent lights
+   You can have multiple lightsources which can be turned on/off independently.
+   In this case, precalculate indirect illumination for each one separately.
+   Later in final product render only contributions of those lights turned on.
+   For renderer, this requires only summing several numbers for each vertex.
+   Sums can also be precalculated, because they change rarely, so this would
+   have no impact on rendering speed.
+
+ \subsection moving_lights Moving lights
+   You can have lights moving in some known area, eg. sun with known trajectory or
+   hanging lamp swinging in multiple directions.
+   In this case, select few points on trajectory and precalculate indirect illumination 
+   for those samples.
+   Later in final product interpolate between closest samples, depending on light
+   position. This can be precalculated for slowly moving lights (sun) and have no
+   impact on rendering speed. For quickly moving lights, this must be done in vertex
+   shader, but as it is only linear interpolation of (typically) two numbers, 
+   it has nearly no impact on performance.
+   
+ \subsection moving_objects Moving objects
+   For most of objects, changes in indirect illumination while they move are so small, 
+   that it is often adequate to ignore their contribution.
+   However there are cases when moving object makes fundamental change in illumination.
+   This could be door from lit room to dark room. When they are closed, dark room is
+   completely dark. As they open, dark room receives lots of indirect illumination.
+   In this case, select few points on door trajectory and precalculate indirect illumination 
+   for those samples.
+   Later in final product interpolate between closest samples, depending on door
+   position. This requires only linear interpolation of two numbers,
+   so it has nearly no impact on performance.
+
+\section vision_storage Data formats
+ Illumination levels are calculated for all surfaces in your scene.
+ Several ways how to access these information and how to store them exist,
+ each with advantages and disadvantages.
+ \subsection vertices Vertices
+   Now you may read illumination levels in face vertices.
+   It is expected that illumination inside face will be interpolated
+   from values in vertices.
+   \n This representation has several advantages:
+   - It is cheap for storing. It requires only few bytes of space per vertex.
+   - It is cheap for rendering.
+     No sampler resources are consumed.
+     It can be arbitrarily postprocessed in vertex shader.
+     You may have for example multiple layers of precalculated indirect illumination 
+     and mix them in vertex shader according to changes in scene.
+
+   On the other hand, there are all known disadvantages of vertex illumination:
+   - Details are missing in areas without vertices.
+     For good results, you have to add vertices to places where you miss details.
+   - Seams around T vertices and other degenerated geometries.
+     You have to make your meshes clean, avoid degeneracies.
+   - Long narrow triangles often create visible artifacts.
+     You should avoid them.
+ \subsection textures Textures
+   In future versions, it will be possible to store illumination levels
+   into texture covering all surfaces.
+   This representation is more expensive for processing, storage and rendering
+   (any postprocessing must be done per pixel and it consumes sampler resources),
+   but avoids disadvantages of vertex illumination.
+
+\section vision_units Units
+   Although whole documentation talks in radiometry terms,
    it is possible to work in photometry units, screen colors 
-   or any other units. Everything you need is to setup appropriate
+   or any other units.
+   In typical situations, it is most straightforward to work and think 
+   in screen colors. Everything you need is to setup appropriate
    convertor, see rrVision::RRScene::setScaler().
 
 
@@ -113,7 +203,7 @@ Welcome to Lightsprint libraries.
 
 \page news What's new
 
-\section news3 2006.3.xx
+\section news3 2006.x.xx
 
 NEW FEATURES
 
@@ -127,7 +217,7 @@ CHANGES
 
 - column-major RRMatrix4x4 replaced by row-major rrVision::RRMatrix3x4
 - on several places, behaviour is defined for invalid inputs
-- documentation, 20kB of new texts written
+- improved documentation
 
 
 \section news2 2006.3.10

@@ -28,21 +28,6 @@ namespace rrVision
 //
 // statistics
 
-RRSceneStatistics::RRSceneStatistics()
-{
-	Reset();
-}
-
-void RRSceneStatistics::Reset()
-{
-	memset(this,0,sizeof(*this));
-}
-
-RRSceneStatistics* RRScene::getSceneStatistics()
-{
-	static RRSceneStatistics s;
-	return &s;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //

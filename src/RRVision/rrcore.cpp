@@ -212,7 +212,7 @@ void Hits::reset()
 
 void Hits::rawInsert(Hit HIT_PTR ahit)
 {
-	RRScene::getSceneStatistics()->numHitInserts++;
+	STATISTIC_INC(numHitInserts);
 	if(!hitsAllocated)
 	{
 		hitsAllocated=16;
@@ -1374,7 +1374,7 @@ bool Reflectors::check()
 Node *Reflectors::best(bool distributing,real avgAccuracy,real improveBig,real improveInaccurate)
 {
 	DBGLINE
-	RRScene::getSceneStatistics()->numCallsBest++;
+	STATISTIC_INC(numCallsBest);
 	// if cache empty, fill cache
 	if(!bests && nodes)
 	{
@@ -2338,11 +2338,11 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	static unsigned s_depth = 0;
 	if(s_depth>25) 
 	{
-		RRScene::getSceneStatistics()->numDepthOverflows++;
+		STATISTIC_INC(numDepthOverflows);
 		return HitChannels(0);
 	}
 	s_depth++;
-	if(ray.hitFrontSide) RRScene::getSceneStatistics()->numRayTracePhotonFrontHits++;else RRScene::getSceneStatistics()->numRayTracePhotonBackHits++;
+	if(ray.hitFrontSide) STATISTIC_INC(numRayTracePhotonFrontHits); else STATISTIC_INC(numRayTracePhotonBackHits);
 	// otherwise surface with these properties was hit
 	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
 	assert(side.catchFrom); // check that bad side was not hit
@@ -2360,7 +2360,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	if(side.receiveFrom)
 	if(sum(abs(hitTriangle->surface->diffuseReflectance*power))>0.01 /*&& !hitTriangle->isNeedle*/) // timto je mozne vypnout vypocet nad jehlama, zustanou cerny
 	{
-		RRScene::getSceneStatistics()->numRayTracePhotonHitsReceived++;
+		STATISTIC_INC(numRayTracePhotonHitsReceived);
 		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance*power));
 		Hit hitPoint2d;
 #ifdef HITS_FIXED
@@ -2389,7 +2389,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	if(fabs(power*hitTriangle->surface->specularReflectance)>0.1)
 //	if(sqrt(power*material->specularReflectance)*rand()<RAND_MAX)
 	{
-		RRScene::getSceneStatistics()->numRayTracePhotonHitsReflected++;
+		STATISTIC_INC(numRayTracePhotonHitsReflected);
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after ideal mirror reflection
@@ -2404,7 +2404,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 	if(fabs(power*hitTriangle->surface->specularTransmittance)>0.1)
 //	if(sqrt(power*material->specularTransmittance)*rand()<RAND_MAX)
 	{
-		RRScene::getSceneStatistics()->numRayTracePhotonHitsTransmitted++;
+		STATISTIC_INC(numRayTracePhotonHitsTransmitted);
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after refraction
@@ -2634,7 +2634,7 @@ Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Chann
 		return Channels(0);
 	}
 	assert(IS_NUMBER(ray.hitDistance));
-	if(ray.hitFrontSide) RRScene::getSceneStatistics()->numGatherFrontHits++;else RRScene::getSceneStatistics()->numGatherBackHits++;
+	if(ray.hitFrontSide) STATISTIC_INC(numGatherFrontHits); else STATISTIC_INC(numGatherBackHits);
 	// otherwise surface with these properties was hit
 	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
 	assert(side.catchFrom); // check that bad side was not hit
@@ -2674,7 +2674,7 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	Reflectors *staticReflectors=va_arg(ap,Reflectors *);
 
 	// statistics
-	RRScene::getSceneStatistics()->numCallsDistribFactor++;
+	STATISTIC_INC(numCallsDistribFactor);
 	//RRScene::getSceneStatistics()->sumDistribInput += energy;
 
 	Node *destination=factor->destination;
@@ -3148,7 +3148,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 		needsRefresh=nowAcc*(hack-distributionsSinceRefresh)/hack<avgAcc;
 		if(needsRefresh)
 		{
-			RRScene::getSceneStatistics()->numCallsRefreshFactors++;
+			STATISTIC_INC(numCallsRefreshFactors);
 			distributionsSinceRefresh=0;
 			improveBig=MAX(0.3f,improveBig-0.005f);
 			improveInaccurate=MIN(2,improveInaccurate+0.005f);
@@ -3161,7 +3161,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 		}
 		else
 		{
-			RRScene::getSceneStatistics()->numCallsDistribFactors++;
+			STATISTIC_INC(numCallsDistribFactors);
 			if(distributionsSinceRefresh<hack/2) distributionsSinceRefresh++; // mirnejsi verze, funguje ok
 			//if(distributionsSinceRefresh+1<hack) distributionsSinceRefresh++; // ostrejsi verze
 			improveBig=MIN(1,improveBig+0.05f);
@@ -3226,7 +3226,7 @@ RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 {
 	if(!IS_CHANNELS(staticSourceExitingFlux)) return RRScene::INTERNAL_ERROR; // invalid internal data
 	DBGLINE
-	RRScene::getSceneStatistics()->numCallsImprove++;
+	STATISTIC_INC(numCallsImprove);
 
 	RRScene::Improvement improved=RRScene::NOT_IMPROVED;
 	__staticReflectors=&staticReflectors;
@@ -3366,7 +3366,7 @@ void Scene::infoImprovement(char *buf, int infolevel)
 #endif
 	int ot=kb-hi-fa-su-tr-cl-iv-co-li;
 	buf[0]=0;
-	if(infolevel>1) sprintf(buf+strlen(buf),"hits(%i/%i) ",RRScene::getSceneStatistics()->numRayTracePhotonFrontHits,RRScene::getSceneStatistics()->numRayTracePhotonBackHits);
+	STATISTIC(if(infolevel>1) sprintf(buf+strlen(buf),"hits(%i/%i) ",RRScene::getSceneStatistics()->numRayTracePhotonFrontHits,RRScene::getSceneStatistics()->numRayTracePhotonBackHits));
 #ifdef SUPPORT_DYNAMIC
 	if(infolevel>1) sprintf(buf+strlen(buf),"dshots(%i->%i) ",__lightShotsPerDynamicFrame,__shadeShotsPerDynamicFrame);
 #endif

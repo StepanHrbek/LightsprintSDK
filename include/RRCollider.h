@@ -32,7 +32,7 @@
 	// use static library
 	#define RRCOLLIDER_API
 #endif
-//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRCollider.h~(35)
+//#define RR_DEVELOPMENT
 
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
@@ -139,8 +139,6 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//!
 	//! For other mesh formats (heightfield, realtime generated etc), 
 	//! you may easily derive from %RRMeshImporter and create your own importer.
-	//! 
-	//! You may also ask us for supporting your format.
 	//!
 	//! \section s6 Optimizations
 	//!
@@ -395,16 +393,20 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRAligned
-	//! Object aligned in memory as required by SIMD instructions.
+	//! Base class for objects aligned in memory as required by SIMD instructions.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RRCOLLIDER_API RRAligned
 	{
 	public:
+		//! Allocates aligned space for instance of any derived class.
 		void* operator new(std::size_t n);
+		//! Allocates aligned space for array of instances of any derived class.
 		void* operator new[](std::size_t n);
+		//! Frees aligned space allocated by new.
 		void operator delete(void* p, std::size_t n);
+		//! Frees aligned space allocated by new[].
 		void operator delete[](void* p, std::size_t n);
 	};
 
@@ -422,9 +424,9 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	class RRCOLLIDER_API RRRay : public RRAligned
 	{
 	public:
-		//! Creates 1 RRRay. All is zeroed, all FILL flags on.
+		//! Creates 1 RRRay. All is zeroed, all FILL flags on. You may destroy it by delete.
 		static RRRay* create();
-		//! Creates array of RRRays.
+		//! Creates array of RRRays. You may destroy them by delete[].
 		static RRRay* create(unsigned n);
 		//! Flags define which outputs to fill. (Some outputs may be filled even when not requested by flag.)
 		enum Flags
@@ -438,20 +440,20 @@ namespace rrCollider /// Encapsulates whole Collider library.
 			TEST_SINGLESIDED=(1<<6), ///< Detect collision only against front side. Default is to test both sides.
 		};
 		// inputs
-		RRVec4          rayOrigin;      ///< in, (-Inf,Inf), ray origin. never modify last component, must stay 1
-		RRVec4          rayDirInv;      ///< in, <-Inf,Inf>, 1/ray direction. direction must be normalized
-		RRReal          rayLengthMin;   ///< in, <0,Inf), test intersection in range <min,max>
-		RRReal          rayLengthMax;   ///< in, <0,Inf), test intersection in range <min,max>
-		unsigned        rayFlags;       ///< in, flags that specify the action
-		RRMeshSurfaceImporter* surfaceImporter; ///< i, optional surface importer for user-defined surface behaviours
+		RRVec4          rayOrigin;      ///< In. (-Inf,Inf), ray origin. Never modify last component, it must stay 1.
+		RRVec4          rayDirInv;      ///< In. <-Inf,Inf>, 1/ray direction. Direction must be normalized.
+		RRReal          rayLengthMin;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
+		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
+		unsigned        rayFlags;       ///< In. Flags that specify what to find.
+		RRMeshSurfaceImporter* surfaceImporter; ///< In. Optional surface importer for user-defined surface behaviour.
 		// outputs (valid after positive test, undefined otherwise)
-		RRReal          hitDistance;    ///< out, hit distance in object space
-		unsigned        hitTriangle;    ///< out, triangle (postImport) that was hit
-		RRVec2          hitPoint2d;     ///< out, hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1)
-		RRVec4          hitPlane;       ///< out, plane of hitTriangle in object space, [0..2] is normal
-		RRVec3          hitPoint3d;     ///< out, hit coordinate in object space
-		bool            hitFrontSide;   ///< out, true = face was hit from the front side
-		RRVec4          hitPadding[2];  ///< out, undefined, never modify
+		RRReal          hitDistance;    ///< Out. Hit distance in object space.
+		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.
+		RRVec2          hitPoint2d;     ///< Out. Hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1).
+		RRVec4          hitPlane;       ///< Out. Plane of hitTriangle in object space. RRVec3 part is normalized.
+		RRVec3          hitPoint3d;     ///< Out. Hit coordinate in object space.
+		bool            hitFrontSide;   ///< Out. True = face was hit from the front side.
+		RRVec4          hitPadding[2];  ///< Out. Undefined, never modify.
 	private:
 		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};
@@ -490,9 +492,29 @@ namespace rrCollider /// Encapsulates whole Collider library.
 
 		//! Finds ray x mesh intersections.
 		//
-		//! When intersection is detected, ray outputs are filled and true returned.
-		//! When no intersection is detected, ray outputs are undefined and false returned.
+		//! \param ray All inputs and outputs for search.
+		//! \returns Whether intersection was found and reported into ray.
 		//!
+		//! Finds nearest intersection of ray and mesh in distance
+		//! <ray->rayLengthMin,ray->rayLengthMax> and fills output attributes in ray
+		//! specified by ray->rayFlags.
+		//! \n When ray->surfaceImporter!=NULL, it is called and it may accept or refuse intersection.
+		//! \n When intersection is accepted, true is returned.
+		//! When intersection is rejected, search continues.
+		//! \n False is returned when there is no accepted intersection.
+		//!
+		//! There is exception for IntersectTechnique IT_LINEAR, intersections are found in random order.
+		//!
+		//! \section SurfaceImporter
+		//! Ray->surfaceImporter may be used
+		//! - To gather all intersections instead of just first one. SurfaceImporter may gather 
+		//!   or immediately process them. This is faster and more precise approach than multiple
+		//!   calls of %intersect() with increasing rayLengthMin to distance of last intersection.
+		//! - To not collide with optional parts of mesh that are turned off at this moment.
+		//! - To find pixel precise collisions with alpha keyed textures.
+		//! - To collide with specific probability.
+		//!
+		//! \section Multithreading
 		//! You are encouraged to find multiple intersections in multiple threads at the same time.
 		//! This will improve your performance on multicore CPUs. \n Even with Intel's hyperthreading,
 		//! which is inferior to two fully-fledged cores, searching multiple intersections at the same time brings
@@ -520,14 +542,16 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRLicense
-	//! Provide your license number before any other work with library.
+	//! Everything related to your license number.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RRCOLLIDER_API RRLicense
 	{
 	public:
-		//! Call this before any other work with library, using your license info.
+		//! Lets you present your license information.
+		//
+		//! This must be called before any other work with library.
 		static void registerLicense(char* licenseOwner, char* licenseNumber);
 	};
 

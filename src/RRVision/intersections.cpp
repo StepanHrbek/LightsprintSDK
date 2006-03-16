@@ -117,9 +117,10 @@ public:
 
 #include <memory.h>
 #define LOG_RAY(aeye,adir,adist) { \
+	STATISTIC( \
 	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].point[0]=aeye; \
 	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
-	++RRScene::getSceneStatistics()->numLineSegments%=RRScene::getSceneStatistics()->MAX_LINES; }
+	++RRScene::getSceneStatistics()->numLineSegments%=RRScene::getSceneStatistics()->MAX_LINES; ) }
 
 // return first intersection with "scene minus *skip minus dynamic objects"
 //  const inputs in ray: rayLengthMin, rayLengthMax, rayFlags

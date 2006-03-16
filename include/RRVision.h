@@ -110,12 +110,12 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! Boolean attributes of front or back side of surface.
 	struct RRSideBits
 	{
-		unsigned char renderFrom:1;  ///< Is visible from that halfspace?
-		unsigned char emitTo:1;      ///< Emits energy to that halfspace?
-		unsigned char catchFrom:1;   ///< Stops photons from that halfspace? If true, it performs following operations: (otherwise photon continues through)
-		unsigned char receiveFrom:1; ///<  Receives energy from that halfspace?
-		unsigned char reflect:1;     ///<  Reflects energy from that halfspace to that halfspace?
-		unsigned char transmitFrom:1;///<  Transmits energy from that halfspace to other halfspace?
+		unsigned char renderFrom:1;  ///< When rendering, is visible from that halfspace?
+		unsigned char emitTo:1;      ///< When emitting, emit energy to that halfspace?
+		unsigned char catchFrom:1;   ///< When propagating light, catch photons from that halfspace? When photon is catched, receiveFrom, reflect and transmitFrom are tested.
+		unsigned char receiveFrom:1; ///< When photon is catched, receive energy?
+		unsigned char reflect:1;     ///< When photon is catched, reflect energy to that halfspace?
+		unsigned char transmitFrom:1;///< When photon is catched, transmit energy to other halfspace?
 	};
 
 	//! Description of surface material properties.
@@ -156,12 +156,11 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! - baking additional (primary) illumination into object, see createAdditionalIllumination()
 	//!
 	//! \section s3 Links between objects
-	//! \n RRScene -> RRObjectImporter -> RRCollider -> RRMeshImporter
+	//! RRScene -> RRObjectImporter -> rrCollider::RRCollider -> rrCollider::RRMeshImporter
 	//! \n where A -> B means that
 	//!  - A has pointer to B
 	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
-	//! \n This means you may have multiple objects sharing one collider and mesh
-	//! (eg. green box here, another green box there and blue box over there).
+	//! \n This means you may have multiple objects sharing one collider and mesh.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -293,8 +292,6 @@ namespace rrVision /// Encapsulates whole Vision library.
 	};
 
 
-
-
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRScaler
@@ -337,68 +334,13 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Creates and returns scaler for standard RGB monitor space.
 		//
 		//! Scaler converts between radiometry units (W/m^2) and displayable RGB values.
-		//! It is only approximation, but good enough.
+		//! It is only approximation, exact conversion would depend on individual monitor 
+		//! and eye attributes.
 		//! \param power Exponent in formula screenSpace = physicalSpace^power.
 		static RRScaler* createRgbScaler(RRReal power=0.45f);
 	};
 
 
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRSceneStatistics
-	//! Statistics for scene.
-	//
-	//! Statistics reflect inner states of radiosity solver and may 
-	//! arbitrarily change in future versions.
-	//!
-	//! Retrieve them by scene->getSceneStatistics().
-	//! Currently all scenes work with the same statistics.
-	//!
-	//! All values are cumulative, most of them only increase.
-	//! You should manually reset them to zero at the beginning of measurement.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RRVISION_API RRSceneStatistics
-	{
-	public:
-		// numbers of calls
-		unsigned numCallsImprove;
-		unsigned numCallsBest;
-		unsigned numCallsRefreshFactors;
-		unsigned numCallsDistribFactors;
-		unsigned numCallsDistribFactor;
-		unsigned numRayTracePhotonFrontHits;
-		unsigned numRayTracePhotonBackHits;
-		//unsigned numRayTracePhotonHitsNotReceived;
-		unsigned numRayTracePhotonHitsReceived;
-		unsigned numRayTracePhotonHitsReflected;
-		unsigned numRayTracePhotonHitsTransmitted;
-		unsigned numHitInserts;
-		unsigned numGatherFrontHits;
-		unsigned numGatherBackHits;
-		unsigned numCallsTriangleMeasureOk;   ///< getTriangleMeasure returned true
-		unsigned numCallsTriangleMeasureFail; ///< getTriangleMeasure returned false
-		unsigned numIrradianceCacheHits;
-		unsigned numIrradianceCacheMisses;
-		// numbers of errors
-		unsigned numDepthOverflows;        ///< Number of depth overflows in recursive photon tracing. Caused by physically incorrect scenes.
-		// amounts of energy
-		//RRReal   sumRayTracePhotonHitPower;
-		//RRReal   sumRayTracePhotonDifRefl;
-		//RRColor  sumDistribInput;
-		//RRReal   sumDistribFactorClean;
-		//RRColor  sumDistribFactorMaterial;
-		//RRColor  sumDistribOutput;
-		// photon traces
-		struct LineSegment {RRVec3 point[2];};
-		enum { MAX_LINES = 10000 };
-		unsigned numLineSegments;
-		LineSegment lineSegments[MAX_LINES];
-		// tools
-		RRSceneStatistics();               ///< Resets all values to zero.
-		void     Reset();                  ///< Resets all values to zero.
-	};
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -543,11 +485,6 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! \returns True when out was successfully filled. False may be caused by invalid inputs.
 		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out);
 
-		//
-		// misc
-		//
-		//! Return pointer to scene statistics. Currently there are only one global statistics for all scenes.
-		static RRSceneStatistics* getSceneStatistics();
 
 	private:
 		void*         _scene;
@@ -557,10 +494,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRLicense
-	//! Provide your license number before any other work with library.
-	//
-	//! Computer must be connected to internet so license number
-	//! may be verified.
+	//! Everything related to your license number.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -576,7 +510,9 @@ namespace rrVision /// Encapsulates whole Vision library.
 			NO_INET,     ///< No internet connection to verify license.
 			UNAVAILABLE, ///< Temporarily unable to verify license, try later.
 		};
-		//! Call this before any other work with library, using your license info.
+		//! Lets you present your license information.
+		//
+		//! This must be called before any other work with library.
 		static LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber);
 	};
 

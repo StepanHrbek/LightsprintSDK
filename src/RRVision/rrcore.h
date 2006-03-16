@@ -46,6 +46,9 @@
 #include "RRVision.h"
 #include "interpol.h"
 
+#define STATISTIC(a)
+#define STATISTIC_INC(a) STATISTIC(RRScene::getSceneStatistics()->a++)
+
 namespace rrVision
 {
 
