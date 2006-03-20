@@ -6,7 +6,7 @@
 //#define DEFAULT_SPONZA
 #define MAX_INSTANCES 20  // max number of light instances aproximating one area light
 #define START_INSTANCES 6 // initial number of instances
-#define AREA_SIZE 0.1f
+#define AREA_SIZE 0.15f
 int fullscreen = 1;
 
 /*
@@ -372,7 +372,7 @@ int useDisplayLists = 1;
 int showLightViewFrustum = 1;
 int eyeButton = GLUT_LEFT_BUTTON;
 int lightButton = GLUT_MIDDLE_BUTTON;
-int useDepth24 = 1;
+int useDepth24 = 0;
 int drawFront = 0;
 
 int hasShadow = 0;
@@ -398,14 +398,14 @@ GLdouble lightInverseFrustumMatrix[16];
 
 /*** OPENGL INITIALIZATION AND CHECKS ***/
 
-static int supports15(void)
+static int supports20(void)
 {
 	const char *version;
 	int major, minor;
 
 	version = (char *) glGetString(GL_VERSION);
 	if (sscanf(version, "%d.%d", &major, &minor) == 2) {
-		return major>=2 || (major==1 && minor>=5);
+		return major>=2;// || (major==1 && minor>=5);
 	}
 	return 0;            /* OpenGL version string malformed! */
 }
@@ -1625,9 +1625,8 @@ void idle()
 
 int main(int argc, char **argv)
 {
-	//rrCollider::registerLicense("","");
-	//rrVision::registerLicense("","");
-	rrCollider::RRLicense::registerLicense(
+	rrVision::RRLicense::registerLicense("","");
+	/*rrCollider::RRLicense::registerLicense(
 		"Illusion Softworks, a.s.",
 		"DDLMBGGNLEKNHJMMPBCDKABFIAGIIFICLBOJIDAONACNEHMDJD"
 		"LEBFFOJKOGNBGCLGKMGBKAKOKABAMFNLOFJKEHOPIMGFMEADAP"
@@ -1642,14 +1641,14 @@ int main(int argc, char **argv)
 		"CGINPCFALINABMNDKEBMIAKMIIJAEIEJPBKIOCMHEAHKBJFIDC"
 		"DBKEIAPECAJJHEDCIBMMAHHACDHNBHMFOEDDDOOLLFNPICLFLH"
 		"NFDOPKGHLHEOAIGNHNOLKBEHMLKCBCADBIOMDLIDEBFMGPEPEI"
-		"LODLLCLOEI");
+		"LODLLCLOEI");*/
 
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
 	parseOptions(argc, argv);
 
 	if (useDepth24) {
-		glutInitDisplayString("depth~24 rgb double");
+		glutInitDisplayString("depth~24 rgb double accum");
 	} else {
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
 	}
@@ -1680,9 +1679,9 @@ int main(int argc, char **argv)
 
 	initGL();
 
-	if(!supports15())
+	if(!supports20())
 	{
-		puts("At least OpenGL 1.5 required.");
+		puts("At least OpenGL 2.0 required.");
 		return 0;
 	}
 
