@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
 //! \brief RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.3.15
+//! \version 2006.3.23
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -528,7 +528,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 
 		// helpers
 		//! \returns Importer that was passed to create().
-		virtual RRMeshImporter*    getImporter() const = 0; 
+		virtual RRMeshImporter*    getImporter() const = 0;
 		//! \returns Technique used by collider. May differ from technique requested in create().
 		virtual IntersectTechnique getTechnique() const = 0;
 		//! \returns Total amount of system memory occupied by collider.

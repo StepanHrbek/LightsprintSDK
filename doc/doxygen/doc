@@ -64,6 +64,7 @@ Welcome to Lightsprint libraries.
 \page vision Lightsprint Vision
  In typical situation, you have your own renderer with direct illumination.
  Vision can enhance it by adding indirect illumination.
+ (\subpage vision_types "explanation")
 
  In atypical sutuation, Vision is also able to calculate global illumination
  without any relation to your renderer, however this case is not officially supported.
@@ -75,11 +76,64 @@ Welcome to Lightsprint libraries.
  - calculates global illumination in static scene
  - progressive refinement with permanent access to results
  - calculated illumination is available in vertices
+ - applications can calculate illumination in realtime or use precalculated data
  - optimized for speed, usage in interactive environments
  - works with your units (screen colors or radiometry or photometry units or anything else)
  - display independent, purely numerical API
 
-\section vision_integration Integration with renderer
+\subpage vision_types "Illumination types" and where is Vision
+
+\subpage vision_integration "Integration with renderer" and how to start
+
+\subpage vision_static "Static scenes"
+
+\subpage vision_dynamic "Dynamic scenes"
+
+\subpage vision_storage "Data formats"
+
+\subpage vision_units "Units"
+
+\page vision_types Illumination types
+ In our real world, we see visible light coming mostly from special surfaces 
+ (hot wolfram fibre in bulb, luminofor of fluorescent lamp)
+ or from whole volumes of plasma (sun, fire).
+ We call these surfaces and volumes <b>source of direct illumination</b>.
+
+ Light from sources of direct illumination reaches other surfaces 
+ where part of light is absorbed and part is reflected.
+ Reflected part is what makes objects look lit.
+ We call reflected part <b>direct illumination</b>.
+
+ Light from direct illumination reaches other surfaces, partially reflects,
+ reaches other surfaces, partially reflects etc.
+ We call sum of reflected parts <b>indirect illumination</b>.
+
+ Illumination is sum of direct and indirect illumination.
+
+ Computer graphics tries to simulate this process in order to generate realistic images.
+ This is however very time consuming process.
+ So realtime computer graphics in 99% of cases resigns to real-world sources of direct 
+ illumination and uses imaginary <b>"point" or "directional" lights</b>.
+ These fictitious sources of direct illumination
+ allow realtime computer graphics to calculate direct illumination very quickly.
+ This process includes calculation of <b>shadows in direct illumination</b>.
+ There are many realtime techniques for calculating shadows in direct illumination,
+ most notably shadow mapping.
+
+ There is however still problem with indirect illumination, which remains
+ hard to compute quickly.
+
+ You are expected to <b>have renderer with direct illumination and shadows</b> in 
+ direct illumination. This is very modest expectation, as there are
+ many realtime renderers having it, both commercial and open source.
+
+ <b>Vision is a tool for calculating indirect illumination</b> for such renderer.
+
+ Vision is also able to calculate complete illumination (direct+indirect)
+ from real-world direct light sources - surfaces. However we don't encourage
+ this use case, library is not optimized for this task.
+
+\page vision_integration Integration with renderer
  Three steps to integrate Vision with your renderer are described in
  <a href="http://dee.cz/rri">Realtime Radiosity Integration article</a>.
 
@@ -93,13 +147,13 @@ Welcome to Lightsprint libraries.
  -# Calculate global illumination using rrVision::RRScene::illuminationImprove().
  -# Read results using rrVision::RRScene::getTriangleMeasure().
 
-\section vision_static Static scenes
+\page vision_static Static scenes
  It is recommended to integrate Vision to your editor,
  precalculate illumination there (using any target quality you need),
  store it and use only precalculated data in your final product.
  This way you don't need to link Vision libraries to your product, only to your editor.
 
-\section vision_dynamic Dynamic scenes
+\page vision_dynamic Dynamic scenes
  Vision can quickly recalculate illumination after each change in dynamic scene.
  However quality oscilates, so this is feasible only for few applications.
 
@@ -109,7 +163,7 @@ Welcome to Lightsprint libraries.
 
  This is very application dependant, but some general hints apply for everyone.
 
- \subsection independent_lights Independent lights
+ \section independent_lights Independent lights
    You can have multiple lightsources which can be turned on/off independently.
    In this case, precalculate indirect illumination for each one separately.
    Later in final product render only contributions of those lights turned on.
@@ -117,7 +171,7 @@ Welcome to Lightsprint libraries.
    Sums can also be precalculated, because they change rarely, so this would
    have no impact on rendering speed.
 
- \subsection moving_lights Moving lights
+ \section moving_lights Moving lights
    You can have lights moving in some known area, eg. sun with known trajectory or
    hanging lamp swinging in multiple directions.
    In this case, select few points on trajectory and precalculate indirect illumination 
@@ -128,7 +182,7 @@ Welcome to Lightsprint libraries.
    shader, but as it is only linear interpolation of (typically) two numbers, 
    it has nearly no impact on performance.
    
- \subsection moving_objects Moving objects
+ \section moving_objects Moving objects
    For most of objects, changes in indirect illumination while they move are so small, 
    that it is often adequate to ignore their contribution.
    However there are cases when moving object makes fundamental change in illumination.
@@ -140,11 +194,11 @@ Welcome to Lightsprint libraries.
    position. This requires only linear interpolation of two numbers,
    so it has nearly no impact on performance.
 
-\section vision_storage Data formats
+\page vision_storage Data formats
  Illumination levels are calculated for all surfaces in your scene.
  Several ways how to access these information and how to store them exist,
  each with advantages and disadvantages.
- \subsection vertices Vertices
+ \section vertices Vertices
    Now you may read illumination levels in face vertices.
    It is expected that illumination inside face will be interpolated
    from values in vertices.
@@ -163,14 +217,14 @@ Welcome to Lightsprint libraries.
      You have to make your meshes clean, avoid degeneracies.
    - Long narrow triangles often create visible artifacts.
      You should avoid them.
- \subsection textures Textures
+ \section textures Textures
    In future versions, it will be possible to store illumination levels
    into texture covering all surfaces.
    This representation is more expensive for processing, storage and rendering
    (any postprocessing must be done per pixel and it consumes sampler resources),
    but avoids disadvantages of vertex illumination.
 
-\section vision_units Units
+\page vision_units Units
    Although whole documentation talks in radiometry terms,
    it is possible to work in photometry units, screen colors 
    or any other units.
@@ -203,7 +257,7 @@ Welcome to Lightsprint libraries.
 
 \page news What's new
 
-\section news3 2006.x.xx
+\section news3 2006.3.23
 
 NEW FEATURES
 
@@ -248,7 +302,7 @@ NEW FEATURES
   \n mesh importer correctness verification
   \n simplifies testing mesh data and writing new importers
 - rrVision::RRAdditionalObjectImporter
-  \n simplifies transfer of captured primary illumination
+  \n simplifies transfer of captured direct illumination
 - rrCollider::RRVec2, rrCollider::RRVec3, rrCollider::RRVec4, rrVision::RRMatrix4x4
   \n primitives with basic mathematics
   \n simplifies inputs and outputs, adds type control

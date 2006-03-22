@@ -83,13 +83,9 @@ bool endAtTime(void* context)
 int main()
 {
 	// provide license information
-	rrVision::RRLicense::registerLicense("ICIDO GmbH",
-		"DDNPDOJJKJANDAPDGIIBBEONPNOJHPLGCLOAJPFPGAECGIGCFJ"
-		"MMGCADMPOIGMBBFPHHGPJJIACBGJPKCJNGKLJJGMKCAJEADOHB"
-		"DLNLOJMLOFCBBIPLLBMDHKIEEEPCHHOCNKEOPLLKFBHKMPGMIL"
-		"OHMGOCLMHBEHABFBOBHLLGBBJOPDHNDJGJPAGLJHEOOIKPBHPN"
-		"BFMEEIFLJAHFBJGEGNMBLDHLODNMDFNMBEANLIMFICHEJBJNLD"
-		"AFHPPFEPDL");
+	// replace strings by your license information
+	if(rrVision::RRLicense::registerLicense("your license name","your license number")!=rrVision::RRLicense::VALID)
+		printf("Invalid license, nothing will be computed.\n");
 
 	// create mesh importer (contains only geometry)
 	RRMeshImporter* mesh = RRMeshImporter::create(
