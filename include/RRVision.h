@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
-	#ifdef RRVISION_STATIC
+#	ifdef RRVISION_STATIC
 		// use static library
 		#define RRVISION_API
 		#ifdef NDEBUG
@@ -18,16 +18,15 @@
 		#else
 			#pragma comment(lib,"RRVision_sd.lib")
 		#endif
-	#else
-	#ifdef RRVISION_DLL_BUILD
+#	else
+#	ifdef RRVISION_DLL_BUILD
 		// build dll
 		#define RRVISION_API __declspec(dllexport)
-	#else
-		// use dll
-		#define RRVISION_API __declspec(dllimport)
-		#pragma comment(lib,"RRVision.lib")
-	#endif
-	#endif
+#	else // use dll
+#define RRVISION_API __declspec(dllimport)
+#pragma comment(lib,"RRVision.lib")
+#	endif
+#	endif
 #else
 	// use static library
 	#define RRVISION_API

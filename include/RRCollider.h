@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
-	#ifdef RRCOLLIDER_STATIC
+#	ifdef RRCOLLIDER_STATIC
 		// use static library
 		#define RRCOLLIDER_API
 		#ifdef NDEBUG
@@ -18,16 +18,15 @@
 		#else
 			#pragma comment(lib,"RRCollider_sd.lib")
 		#endif
-	#else
-	#ifdef RRCOLLIDER_DLL_BUILD
+#	else
+#	ifdef RRCOLLIDER_DLL_BUILD
 		// build dll
 		#define RRCOLLIDER_API __declspec(dllexport)
-	#else
-		// use dll
-		#define RRCOLLIDER_API __declspec(dllimport)
-		#pragma comment(lib,"RRCollider.lib")
-	#endif
-	#endif
+#	else // use dll
+#define RRCOLLIDER_API __declspec(dllimport)
+#pragma comment(lib,"RRCollider.lib")
+#	endif
+#	endif
 #else
 	// use static library
 	#define RRCOLLIDER_API
