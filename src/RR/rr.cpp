@@ -1076,7 +1076,6 @@ int main(int argc, char **argv)
 	   char buf[400];
 	   scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+5*PER_SEC));
 	   scene->infoImprovement(buf,__infolevel); puts(buf);
-	   fprintf(stderr,buf);
 	   return 0;
    }
    //prehraje 5 snimku

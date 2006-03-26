@@ -19,11 +19,21 @@
   Press 'h' for built-in help.
 
 
+  Commandline options
+  -------------------
+
+  scene.3ds   tries to opens specified scene, not tested on other scenes
+  -window     runs in window instead of fullscreen
+  -forcerun   runs even when OpenGL 2.0 is not present, but may crash
+  -vsync      enables vertical synchronization
+
+
   Requirements
   ------------
 
   OpenGL 2.0 capable graphics card is required.
-  Tested on nVidia GeForce 6600.
+  Tested on nVidia GeForce 6600, ATI Radeon 9700 Pro, ATI X850PE,
+  all with latest drivers.
 
 
   Notes
