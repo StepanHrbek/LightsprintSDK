@@ -311,6 +311,7 @@ enum {
   ME_EXIT,
 };
 
+bool forcerun = 0;
 int vsync = 0;
 int requestedDepthMapSize = 512;
 int depthMapSize = 512;
@@ -1561,7 +1562,11 @@ void parseOptions(int argc, char **argv)
 {
 	int i;
 
-	for (i=1; i<argc; i++) {
+	for (i=1; i<argc; i++) 
+	{
+		if (!strcmp("-forcerun", argv[i])) {
+			forcerun = 1;
+		}
 		if (!strcmp("-window", argv[i])) {
 			fullscreen = 0;
 		}
@@ -1626,22 +1631,6 @@ void idle()
 int main(int argc, char **argv)
 {
 	rrVision::RRLicense::registerLicense("","");
-	/*rrCollider::RRLicense::registerLicense(
-		"Illusion Softworks, a.s.",
-		"DDLMBGGNLEKNHJMMPBCDKABFIAGIIFICLBOJIDAONACNEHMDJD"
-		"LEBFFOJKOGNBGCLGKMGBKAKOKABAMFNLOFJKEHOPIMGFMEADAP"
-		"CGINPCFALINABMNDKEBMIAKMIIJAEIEJPBKIOCMHEAHKBJFIDC"
-		"DBKEIAPECAJJHEDCIBMMAHHACDHNBHMFOEDDDOOLLFNPICLFLH"
-		"NFDOPKGHLHEOAIGNHNOLKBEHMLKCBCADBIOMDLIDEBFMGPEPEI"
-		"LODLLCLOEI");
-	rrVision::RRLicense::registerLicense(
-		"Illusion Softworks, a.s.",
-		"DDLMBGGNLEKNHJMMPBCDKABFIAGIIFICLBOJIDAONACNEHMDJD"
-		"LEBFFOJKOGNBGCLGKMGBKAKOKABAMFNLOFJKEHOPIMGFMEADAP"
-		"CGINPCFALINABMNDKEBMIAKMIIJAEIEJPBKIOCMHEAHKBJFIDC"
-		"DBKEIAPECAJJHEDCIBMMAHHACDHNBHMFOEDDDOOLLFNPICLFLH"
-		"NFDOPKGHLHEOAIGNHNOLKBEHMLKCBCADBIOMDLIDEBFMGPEPEI"
-		"LODLLCLOEI");*/
 
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
@@ -1679,7 +1668,7 @@ int main(int argc, char **argv)
 
 	initGL();
 
-	if(!supports20())
+	if(!forcerun && !supports20())
 	{
 		puts("At least OpenGL 2.0 required.");
 		return 0;

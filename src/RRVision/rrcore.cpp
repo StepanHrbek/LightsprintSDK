@@ -1370,6 +1370,71 @@ bool Reflectors::check()
 {
 	return true;
 }
+/*
+best() - vraci nejlepsi node pro dalsi zpracovani (distrib nebo refresh)
+
+Stary system a proc v nem nefunguje reset se zachovanim faktoru
+---------------------------------------------------------------
+Kdyz se posune lampa a resetne vse krome faktoru, 
+zustane velka accuracy
+nasledujici refreshe jsou vsechny strasne drahe
+a protoze po pohybu lampy mohou cekat stovky akutnich refreshu aby se obraz dostal z nejhorsiho, muze to trvat i minutu.
+Navic i veci ktere by stacilo pro zacatek jen distribnout se refreshuji.
+Mely by se nejdriv udelat akutni distriby
+a pak zacit refreshovat jako pri nizke accuracy a postupne ji zvysovat.
+Best bude zpocatku vybirat nody s nizkou accuracy a zajisti rychle dostani se z nejhorsiho.
+Po case ale nepujde vybrat nic k refreshi,
+je nutne to zdetekovat a umele zvysit accuracy.
+
+Novy system, navrh 1
+--------------------
+(Scene) Accuracy bude nezavisla na mnozstvi nastrilenych fotonu.
+Po resetu se zachovanim faktoru se vynuluje.
+Je nutny kvalitni regulator aby se po posunu lampy bez resetu faktoru zaclo 99% distribuci
+a postupne preslo na 99% refreshe.
+Podle ceho regulovat?
+
+Novy system, navrh 2
+--------------------
+(Scene) Accuracy zustane zavisla na mnozstvi nastrilenych fotonu.
+Po resetu se zachovanim faktoru se nezmeni.
+Nebude ale dovolene refreshnout na vic jak 4nasobek i kdyby to podle accuracy vypadalo rozumne.
+Tim se zajisti ze se nezastavi v tune drahych refreshu.
+Jak ale zajistit ze provede rychle sadu distribu?
+
+Optimalizace
+Kdyz mam jednoho ktery chce refreshnout z 0 na 10000 a ostatni jsou proti nemu nedulezity,
+dovolit i vetsi skok nez na 4x.
+
+Novy system, navrh 3 YES
+--------------------
+Prestat pouzivat scene accuracy.
+Nechat ji jen pro statistiky a pridat do statistik i min/max facove accuracy.
+
+Pri resetu se zachovanim faktoru vynulovat bestarray.
+
+Distribuovat vzdy okamzite kdyz to pohne s aspon 0.001 energie ve scene.
+Cislo 0.001 pro jistotu nechat nastavitelne zvenci, v supernasekane scene by mohlo byt moc velke.
+(Jak implementovat: kdyz best najde neco pro distrib, zahodit vse pro refresh)
+
+Vsechny ostatni posoudit pro refresh.
+Vse s accuracy vic jak 2x vetsi nez best[0] zahodit, at jsou vsichni pro refresh stejny chudaci.
+To co zustalo refreshnout na 2x. (2x nechat zvenci volitelny)
+
+Jak radit kandidaty na refresh?
+Podle jejich accuracy, cim mensi, tim lepsi kandidat.
+
+Zrusit omezene regulujici hacky vykryvajici kolapsy stareho systemu.
+
+Dotazy a odpovedi
+-----------------
+Q:
+Co takhle jit s kazdym refreshem na 2x fotonu (proti minulemu refreshi tehoz facu),
+nastrilet jen polovinu a zprumerovat s minulym faktorem?
+A:
+Pravdepodobne problem pri zaplych subtrianglech nebo clusterech.
+
+*/
 
 Node *Reflectors::best(bool distributing,real avgAccuracy,real improveBig,real improveInaccurate)
 {
