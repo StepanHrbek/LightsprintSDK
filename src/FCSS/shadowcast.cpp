@@ -937,7 +937,7 @@ void capturePrimary() // slow
 	free(pixelBuffer);
 
 	// prepare for new calculation
-	rrscene->illuminationReset(true);//!!! false by bylo rychlejsi ale nefunguje dobre
+	rrscene->illuminationReset(false);
 	rrtimestep = 0.1f;
 
 	// restore render states

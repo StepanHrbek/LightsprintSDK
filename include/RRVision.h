@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! \brief RRVision - library for fast global illumination calculations
-//! \version 2006.3.23
+//! \version 2006.3.26
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -448,7 +448,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Reset illumination to original state defined by objects.
 		//
 		//! There is no need to reset illumination right after scene creation, it is already reset.
-		//! \param resetFactors For this time, set always true.
+		//! \param resetFactors
 		//!  Resetting also factors means complete restart of calculation with all expenses.
 		//!  With factors preserved, part of calculation is reused, but you must ensure, that
 		//!  geometry and surfaces were not modified. This is especially handy when only primary

@@ -10,7 +10,7 @@
 //#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
 // note that fixed hits have no hit extension implemeted (used only for dynamic objects)
 #define HIT_PTR          & // hits are passed by reference
-#define BESTS           97 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
+#define BESTS           200 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 
 #define CHANNELS         3
 #define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (eg. polished steel) or specular transmittance that changes light color (eg. colored glass))
@@ -39,6 +39,8 @@
 #else
 #error unsupported FACTORCHANNELS
 #endif
+
+#pragma warning(disable:4530) // exceptions thrown but disabled, may crash
 
 #include <stdarg.h>
 
@@ -612,7 +614,8 @@ public:
 	void    reset();
 
 	bool    check();
-	Node    *best(bool distributing,real avgAccuracy,real improveBig,real improveInaccurate);
+	Node    *best(real allEnergyInScene);
+	bool    lastBestWantsRefresh() {return refreshing;}
 	bool    insert(Node *anode); // returns true when node was inserted (=appended)
 	void    insertObject(Object *o);
 	void    removeObject(Object *o);
@@ -627,6 +630,7 @@ public:
 		// pack of best reflectors (internal cache for best())
 		unsigned bests;
 		Node *bestNode[BESTS];
+		bool refreshing; // false = all nodes were selected for distrib, true = for refresh
 };
 
 #endif
@@ -837,7 +841,7 @@ public:
 		Factors improvingFactors;
 		Factors candidatesForClustering;
 		void    shotFromToHalfspace(Node *sourceNode);
-		void    refreshFormFactorsFromUntil(Node *source,real accuracy,bool endfunc(void *),void *context);
+		void    refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *context);
 		bool    energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context);
 
 		Channels staticSourceExitingFlux; // primary source exiting radiant flux in Watts, sum of absolute values
@@ -846,8 +850,6 @@ public:
 		unsigned shotsAccumulated;
 		unsigned shotsForFactorsTotal;
 		unsigned shotsTotal;
-		real    improveBig;
-		real    improveInaccurate;
 		TReflectors staticReflectors; // top nodes in static Triangle trees
 		rrCollider::RRMeshImporter** multiObjectMeshes4Delete; // to be deleted with multiCollider
 

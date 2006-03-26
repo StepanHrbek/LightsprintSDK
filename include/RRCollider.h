@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
 //! \brief RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.3.23
+//! \version 2006.3.26
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@
 	// use static library
 	#define RRCOLLIDER_API
 #endif
-//#define RR_DEVELOPMENT
+//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRCollider.h~(34)
 
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED

@@ -345,7 +345,7 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			goto error; // not supported yet
 		case RM_EXITANCE:
 			out = irrad * tri->surface->diffuseReflectance;
-			STATISTIC_INC(numCallsTriangleMeasureOk++);
+			STATISTIC_INC(numCallsTriangleMeasureOk);
 			return true;
 	}
 error:

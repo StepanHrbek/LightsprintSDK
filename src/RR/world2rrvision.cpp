@@ -116,14 +116,12 @@ static ColorTable createColorTable(double cx,double cy,real rs)
 
 static void fillSurface(Surface *s,C_MATERIAL *m)
 {
-	s->reset(m->sided==2);
+	s->reset(m->sided==2 || m->ts); // pruhledne by melo reagovat z obou stran, pokud to klient nechce tak mu to vnutime
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectance);
-	s->diffuseReflectance[0]*=m->rd;
-	s->diffuseReflectance[1]*=m->rd;
-	s->diffuseReflectance[2]*=m->rd;
+	s->diffuseReflectance        *=m->rd;
 	s->diffuseReflectanceColorTable=createColorTable(m->rd_c.cx,m->rd_c.cy,m->rs);
 	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,s->diffuseEmittance);
-	s->diffuseEmittance           *=m->ed/1000;
+	s->diffuseEmittance          *=m->ed/1000;
 	s->specularReflectance        =m->rs;
 	s->specularTransmittance      =m->ts;
 	s->refractionReal             =m->nr;
