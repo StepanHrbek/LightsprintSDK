@@ -37,9 +37,11 @@ namespace rrVision
 #define MAX_CLUSTER_ANGLE_B  (M_PI/2-0.01)// max angle between neighbours in cluster (big)
 #define MAX_CLUSTER_ANGLE_S  (M_PI/4-0.01)// max angle between neighbours in cluster (small)
 #define HITS_TO_COMPACT      1000000 // if more or equal bytes may be freeed, do it after each shooting. may help to save memory for big scenes. warning: low number=+10%cpu
-#define REFRESH_FIRST        1       // first refresh has this number of photons (zahada: vyssi cislo rrbench zpomaluje misto zrychluje)
-#define REFRESH_MULTIPLY     3       // next refresh has multiplied number of photons
-#define DISTRIB_LEVEL        0.001   // higher fraction of scene energy found in one node is distributed immediately
+#define REFRESH_FIRST          1     // first refresh has this number of photons (zahada: vyssi cislo rrbench zpomaluje misto zrychluje)
+#define REFRESH_MULTIPLY       4     // next refresh has multiplied number of photons
+#define MAX_REFRESH_DISBALANCE 5     // higher = faster, but more dangerous
+#define DISTRIB_LEVEL_HIGH     0.003 // higher fraction of scene energy found in one node starts distribution
+#define DISTRIB_LEVEL_LOW      0.0001// lower fraction of scene energy found in one node is ignored
 //#define DEBUK
 //#define LOG_LOADING_MES
 //#define EXPENSIVE_CHECKS
@@ -1458,7 +1460,7 @@ restart:
 			real q;
 			real toDiffuse=sum(abs(node[i]->shooter->energyToDiffuse));
 			// distributor found -> switch from accumulating refreshers to accumulating distributors
-			if(refreshing && node[i]->shooter->factors() && toDiffuse>DISTRIB_LEVEL*allEnergyInScene)
+			if(refreshing && node[i]->shooter->factors() && toDiffuse>DISTRIB_LEVEL_HIGH*allEnergyInScene)
 			{
 				refreshing=0;
 				bests=0;
@@ -1468,16 +1470,17 @@ restart:
 			if(!refreshing)
 			{
 				if(!node[i]->shooter->factors()) continue;
-				if(toDiffuse==0) continue;
+				if(toDiffuse<DISTRIB_LEVEL_LOW*abs(allEnergyInScene)) continue;
 				q=toDiffuse;
 			}
 			else
 			// calculate quality of refresher
 			{
-				q=-node[i]->accuracy();
+				//q=-node[i]->accuracy();
+				q=sum(abs(node[i]->shooter->energyDiffused+node[i]->shooter->energyToDiffuse))/(node[i]->shooter->shotsForFactors+0.5f);
 			}
 
-			// sort [q,node] into best cache
+			// sort [q,node] into best cache, bestQ[0] is highest
 			unsigned pos=bests;
 			while(pos>0 && bestQ[pos-1]<q)
 			{
@@ -1497,9 +1500,10 @@ restart:
 		}
 
 		// throw out nodes too good for refreshing
+		// 1.6% faster when deleted, but danger of infinitely unbalanced refreshing
 		if(refreshing)
 		{
-			while(bests && bestQ[bests-1]<REFRESH_MULTIPLY*bestQ[0]) bests--;
+			while(bests && bestQ[bests-1]*REFRESH_MULTIPLY*MAX_REFRESH_DISBALANCE<bestQ[0]) bests--;
 		}
 
 		//printf(refreshing?"*%d ":">%d ",bests);
