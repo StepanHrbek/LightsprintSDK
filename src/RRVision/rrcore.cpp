@@ -1449,7 +1449,7 @@ Node *Reflectors::best(real allEnergyInScene)
 	{
 		// start accumulating nodes for refresh
 		refreshing=1;
-
+restart:
 		// search reflector with low accuracy, high energyToDiffuse etc
 		real bestQ[BESTS];
 		for(unsigned i=0;i<nodes;i++) if(node[i]->shooter)
@@ -1462,6 +1462,7 @@ Node *Reflectors::best(real allEnergyInScene)
 			{
 				refreshing=0;
 				bests=0;
+				goto restart;
 			}
 			// calculate quality of distributor
 			if(!refreshing)
