@@ -257,6 +257,16 @@ Welcome to Lightsprint libraries.
 
 \page news What's new
 
+\section news3 2006.4.xx
+
+NEW FEATURES
+
+CHANGES
+
+- new scheduler in radiosity solver
+  \n rrVision::RRScene::illuminationReset() supports preserving factors
+  \n 5% faster calculation on average
+
 \section news3 2006.3.23
 
 NEW FEATURES

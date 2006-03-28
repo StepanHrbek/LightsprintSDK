@@ -131,11 +131,11 @@ world2rrintersect.o: world2rrintersect.cpp world2rrintersect.h surface.h
 
 $(BIN)dotga.exe: dotga.c
 	gcc -s dotga.c -o $(BIN)dotga.exe $(LIBSALLEG)
-	upx $(BIN)dotga.exe
+	rem upx $(BIN)dotga.exe
 
 $(BIN)dosmooth.exe: dosmooth.c
 	gcc -s dosmooth.c -o $(BIN)dosmooth.exe $(LIBSALLEG)
-	upx $(BIN)dosmooth.exe
+	rem upx $(BIN)dosmooth.exe
 
 $(BIN)player.exe: player.cpp geometry.cpp core.cpp core.h interpol.cpp interpol.h ldbsp.o spline.o raster.o video.o
 	gcc player.cpp -o $(BIN)player.exe ldbsp.o spline.o raster.o video.o

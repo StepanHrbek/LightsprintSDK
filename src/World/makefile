@@ -1,12 +1,17 @@
+DEBUG = 
+
+
 LIB = ../../lib/libWorld.a
 TMP = #../../tmp/World/
 
+CC = gcc
 CPPFLAGS = -Iinclude
+ifndef DEBUG
 CPPFLAGS += -O3 -finline -finline-functions -ffast-math -D__OPTIMIZE__ -DNDEBUG
 CPPFLAGS += -fomit-frame-pointer
 CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
-CC = gcc
+endif
 
 OBJS = $(TMP)spline.o $(TMP)LoadWorld.o $(TMP)LoadWorldR3d.o
 

@@ -31,13 +31,13 @@ mgf2inv:	libmgf.a mgf2inv.o cvrgb.o
 clean:
 	set nonomatch ; rm -f *.o libmgf.a mgfilt mgf2inv 3ds2mgf
 
-parser.o context.o xf.o object.o fvect.o mgf2inv.o cvrgb.o:	parser.h
+parser.o context.o xf.o object.o fvect.o mgf2inv.o cvrgb.o:	mgfparser.h
 
 parser.o context.o lookup.o:	lookup.h
 
 parser.o:	messages.h
 
-mgfilt.o:	parser.h
+mgfilt.o:	mgfparser.h
 
 3ds2mgf.o rayopt.o:	rayopt.h
 

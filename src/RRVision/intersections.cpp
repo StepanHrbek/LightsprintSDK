@@ -144,8 +144,9 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 		unsigned postImportSkip = (unsigned)(skip-object[preImportSkip.object]->triangle);
 		assert(postImportSkip<object[preImportSkip.object]->triangles);
 		// get single-preimport skip
-		preImportSkip.index = object[preImportSkip.object]->importer->getCollider()->getImporter()->getPreImportTriangle(postImportSkip);
-		assert(preImportSkip.index!=RRMeshImporter::UNDEFINED);
+		unsigned tmp = object[preImportSkip.object]->importer->getCollider()->getImporter()->getPreImportTriangle(postImportSkip);
+		assert(tmp!=RRMeshImporter::UNDEFINED);
+		preImportSkip.index = tmp;
 		// get multi-postimport skip
 		skipTriangle.skip = multiCollider->getImporter()->getPostImportTriangle(preImportSkip);
 

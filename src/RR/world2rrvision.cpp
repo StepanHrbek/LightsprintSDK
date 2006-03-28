@@ -62,7 +62,7 @@ WorldObjectImporter::~WorldObjectImporter()
 unsigned WorldObjectImporter::getTriangleSurface(unsigned i) const
 {
 	assert(object);
-	assert(i<object->face_num);
+	assert(i<(unsigned)object->face_num);
 	return object->face[i].material;
 }
 

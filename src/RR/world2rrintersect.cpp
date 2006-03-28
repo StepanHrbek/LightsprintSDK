@@ -21,7 +21,7 @@ unsigned WorldMeshImporter::getNumVertices() const
 void WorldMeshImporter::getVertex(unsigned i, Vertex& out) const
 {
 	assert(object);
-	assert(i<object->vertex_num);
+	assert(i<(unsigned)object->vertex_num);
 	out[0] = object->vertex[i].x;
 	out[1] = object->vertex[i].y;
 	out[2] = object->vertex[i].z;
@@ -37,7 +37,7 @@ unsigned WorldMeshImporter::getNumTriangles() const
 void WorldMeshImporter::getTriangle(unsigned i, Triangle& out) const
 {
 	assert(object);
-	assert(i<object->face_num);
+	assert(i<(unsigned)object->face_num);
 	out[0]=object->face[i].vertex[0]->id;
 	out[1]=object->face[i].vertex[1]->id;
 	out[2]=object->face[i].vertex[2]->id;
@@ -46,7 +46,7 @@ void WorldMeshImporter::getTriangle(unsigned i, Triangle& out) const
 void WorldMeshImporter::getTriangleBody(unsigned i, TriangleBody& out) const
 {
 	assert(object);
-	assert(i<object->face_num);
+	assert(i<(unsigned)object->face_num);
 	unsigned v0=object->face[i].vertex[0]->id;
 	unsigned v1=object->face[i].vertex[1]->id;
 	unsigned v2=object->face[i].vertex[2]->id;

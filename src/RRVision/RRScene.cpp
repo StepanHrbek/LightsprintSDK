@@ -228,6 +228,8 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 {
 	Channels irrad;
 	RRScaler* scaler;
+	Object* obj;
+	Triangle* tri;
 
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) goto error;
 	// pokus nejak kompenzovat ze jsem si ve freeze interne zrusil n objektu a nahradil je 1 multiobjektem
@@ -245,12 +247,12 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	{
 		goto error;
 	}
-	Object* obj = scene->object[object];
+	obj = scene->object[object];
 	if(triangle>=obj->triangles)
 	{
 		goto error;
 	}
-	Triangle* tri = &obj->triangle[triangle];
+	tri = &obj->triangle[triangle];
 	if(!tri->surface)
 	{
 		goto zero;

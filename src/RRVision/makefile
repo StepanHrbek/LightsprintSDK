@@ -1,13 +1,18 @@
+DEBUG = 
+
+
 LIB = ../../lib/libRRVision.a
 TMP = #../../tmp/RRVision/
 
+CC = gcc
 CPPFLAGS = -Iinclude -I../../include -I../RRCollider/include -I../LicGen/include -DSUPPORT_INTERPOL -DRRCOLLIDER_STATIC -DRRVISION_STATIC
+ifndef DEBUG
 CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
 #CPPFLAGS += -ffast-math // zpusobuje crash v soda
 CPPFLAGS += -fomit-frame-pointer
 CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
-CC = gcc
+endif
 
 OBJS = $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o $(TMP)rrcore.o $(TMP)RRObjectImporter.o $(TMP)RRScaler.o $(TMP)RRScene.o $(TMP)RRVision.o
 

@@ -7,7 +7,6 @@ CFLAGS += -fomit-frame-pointer
 CFLAGS += -march=athlon-xp -msse
 CPPFLAGS = $(CFLAGS)
 BIN = ./
-#../../bin/
 MAKE = makefile
 
 OBJS = BunnyTest.o plymeshreader.o rply.o sphereunitvecpool.o
