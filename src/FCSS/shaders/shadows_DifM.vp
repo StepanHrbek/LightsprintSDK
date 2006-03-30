@@ -1,5 +1,3 @@
-#define MAPS 6
-
 varying vec4 projCoord[MAPS];
 varying vec2 diffuseCoord;
 uniform vec3 lLightPos;

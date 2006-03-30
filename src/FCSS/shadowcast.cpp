@@ -4,9 +4,9 @@
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
-#define INSTANCES_PER_PASS 6
+unsigned INSTANCES_PER_PASS=6;
 #define START_INSTANCES    INSTANCES_PER_PASS // initial number of instances
-#define MAX_INSTANCES      10*INSTANCES_PER_PASS  // max number of light instances aproximating one area light
+#define MAX_INSTANCES      50  // max number of light instances aproximating one area light
 #define AREA_SIZE 0.15f
 int fullscreen = 1;
 
@@ -489,7 +489,9 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 					progSet = shadowDifMProgSet;
 			}
 #endif
-			return progSet->getVariant(useShadow2D?"#define SHADOW\n":NULL);
+			static char tmp[100];
+			sprintf(tmp,"#define MAPS %d\n%s",INSTANCES_PER_PASS,useShadow2D?"#define SHADOW\n":"");
+			return progSet->getVariant(tmp);
 			}
 		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
 			{
@@ -518,7 +520,9 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 GLSLProgram* setProgram(RRObjectRenderer::ColorChannel cc)
 {
 	GLSLProgram* tmp = getProgram(cc);
+	checkGlError();
 	tmp->useIt();
+	checkGlError();
 	return tmp;
 }
 
@@ -756,19 +760,23 @@ void placeSoftLight(int n)
 
 void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 {
+	checkGlError();
 	GLSLProgram* myProg = setProgram(cc);
+	checkGlError();
 
 	// shadowMap[], gl_TextureMatrix[]
 	glMatrixMode(GL_TEXTURE);
+	checkGlError();
 	GLdouble tmp[16]={
 		1,0,0,0,
 		0,1,0,0,
 		0,0,1,0,
 		1,1,1,2
 	};
-	GLint samplers[INSTANCES_PER_PASS];
+	GLint samplers[100];
 	int softLightBase = softLight;
 	int instances = (softLight>=0 && cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE)?INSTANCES_PER_PASS:1;
+	checkGlError();
 	for(int i=0;i<instances;i++)
 	{
 		glActiveTextureARB(GL_TEXTURE0_ARB+i);
@@ -788,9 +796,9 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	glMatrixMode(GL_MODELVIEW);
 
 	// lightTex
-	activateTexture(GL_TEXTURE6_ARB, GL_TEXTURE_2D);
+	activateTexture(GL_TEXTURE10_ARB, GL_TEXTURE_2D);
 	lightTex->bindTexture();
-	myProg->sendUniform("lightTex", 6);
+	myProg->sendUniform("lightTex", 10);
 
 	// lLightPos (light pos in object space)
 	myProg->sendUniform("lLightPos",light.pos[0],light.pos[1],light.pos[2]);
@@ -799,8 +807,8 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 #ifdef _3DS
 	if(!renderOnlyRr && cc!=RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
 	{
-		activateTexture(GL_TEXTURE7_ARB, GL_TEXTURE_2D);
-		myProg->sendUniform("diffuseTex", 7);
+		activateTexture(GL_TEXTURE11_ARB, GL_TEXTURE_2D);
+		myProg->sendUniform("diffuseTex", 11);
 	}
 #endif
 
@@ -1418,7 +1426,7 @@ void keyboard(unsigned char c, int x, int y)
 			}
 			break;
 		case '-':
-			if(useLights>INSTANCES_PER_PASS) 
+			if(useLights>(int)INSTANCES_PER_PASS) 
 			{
 				useLights-=INSTANCES_PER_PASS;
 				needDepthMapUpdate = 1;
@@ -1603,6 +1611,17 @@ void parseOptions(int argc, char **argv)
 
 	for (i=1; i<argc; i++) 
 	{
+		{
+			int tmp;
+			if(sscanf(argv[i],"%d",&tmp)==1)
+			{
+				if(tmp>1 && tmp<=20) 
+				{
+					INSTANCES_PER_PASS = tmp;
+					useLights = START_INSTANCES;
+				}
+			}
+		}
 		if (!strcmp("-shadow", argv[i])) {
 			useShadow2D = 1;
 		}

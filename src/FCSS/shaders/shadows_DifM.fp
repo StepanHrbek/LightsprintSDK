@@ -1,5 +1,3 @@
-#define MAPS 6
-
 #ifdef SHADOW  
 uniform sampler2DShadow shadowMap[MAPS];
 #else
