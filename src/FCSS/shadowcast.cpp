@@ -195,15 +195,17 @@ void updateIndirect()
 //
 // GLSL
 
-GLSLProgram *shadowProg, *lightProg, *ambientProg, *ambientDifMProg;
+GLSLProgram /**shadowProg,*/ *lightProg, *ambientProg, *ambientDifMProg;
 GLSLProgramSet* shadowDifCProgSet;
 GLSLProgramSet* shadowDifMProgSet;
+GLSLProgramSet* shadowsDifMProgSet;
 Texture *lightTex;
 FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
 int currentWindowSize;
 #define SHADOW_MAP_SIZE 512
 int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0
+bool useShadow2D = false;
 
 void initShadowTex()
 {
@@ -219,6 +221,13 @@ void initShadowTex()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+		if(useShadow2D)
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+		}
 	}
 }
 
@@ -231,9 +240,10 @@ void updateShadowTex()
 
 void initShaders()
 {
-	shadowProg = new GLSLProgram(NULL,"shaders\\shadow.vp", "shaders\\shadow.fp");
+	//shadowProg = new GLSLProgram(useShadow2D?"#define SHADOW\n":NULL,"shaders\\shadow.vp", "shaders\\shadow.fp");
 	shadowDifCProgSet = new GLSLProgramSet("shaders\\shadow_DifC.vp", "shaders\\shadow_DifC.fp");
 	shadowDifMProgSet = new GLSLProgramSet("shaders\\shadow_DifM.vp", "shaders\\shadow_DifM.fp");
+	shadowsDifMProgSet = new GLSLProgramSet("shaders\\shadows_DifM.vp", "shaders\\shadows_DifM.fp");
 
 /*
 	shadowDifMProg = new GLSLProgram();
@@ -473,7 +483,7 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 			if(!renderOnlyRr) 
 				progSet = shadowDifMProgSet;
 #endif
-			return progSet->getVariant(NULL);
+			return progSet->getVariant(useShadow2D?"#define SHADOW\n":NULL);
 			}
 		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
 			{
@@ -483,7 +493,7 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 			//if(!renderOnlyRr) 
 			//	progSet = shadowDifMProgSet;
 #endif
-			return progSet->getVariant("#define FORCE_2D_POSITION\n");
+			return progSet->getVariant(useShadow2D?"#define SHADOW\n#define FORCE_2D_POSITION\n":"#define FORCE_2D_POSITION\n");
 			}
 		case RRObjectRenderer::CC_SOURCE_IRRADIANCE:
 		case RRObjectRenderer::CC_SOURCE_EXITANCE:
@@ -714,7 +724,14 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	myProg->sendUniform("shadowMap", 0);
 
 	glMatrixMode(GL_TEXTURE);
-	glLoadMatrixd(lightFrustumMatrix);
+	GLdouble tmp[16]={
+		1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
+		1,1,1,2
+	};
+	glLoadMatrixd(tmp);
+	glMultMatrixd(lightFrustumMatrix);
 	glMultMatrixd(light.viewMatrix);
 	glMatrixMode(GL_MODELVIEW);
 
@@ -1564,6 +1581,9 @@ void parseOptions(int argc, char **argv)
 
 	for (i=1; i<argc; i++) 
 	{
+		if (!strcmp("-shadow", argv[i])) {
+			useShadow2D = 1;
+		}
 		if (!strcmp("-forcerun", argv[i])) {
 			forcerun = 1;
 		}
