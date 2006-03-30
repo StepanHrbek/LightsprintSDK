@@ -481,7 +481,7 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 			GLSLProgramSet* progSet = shadowDifCProgSet;
 #ifdef _3DS
 			if(!renderOnlyRr) 
-				progSet = shadowDifMProgSet;
+				progSet = shadowsDifMProgSet;
 #endif
 			return progSet->getVariant(useShadow2D?"#define SHADOW\n":NULL);
 			}
