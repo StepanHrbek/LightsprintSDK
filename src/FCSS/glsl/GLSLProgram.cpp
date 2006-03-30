@@ -87,6 +87,11 @@ void GLSLProgram::sendUniform(const char *name, float x, float y, float z,
   glUniform4fARB(getLoc(name), x, y, z, w);
 }
 
+void GLSLProgram::sendUniform(const char *name, int count, const GLint* x)
+{
+	glUniform1ivARB(getLoc(name), count, x);
+}
+
 void GLSLProgram::sendUniform(const char *name, int x)
 {
   glUniform1iARB(getLoc(name), x);

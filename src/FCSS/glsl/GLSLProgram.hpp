@@ -24,6 +24,7 @@ public:
   void sendUniform(const char *name, float x, float y);
   void sendUniform(const char *name, float x, float y, float z);
   void sendUniform(const char *name, float x, float y, float z, float w);
+  void sendUniform(const char *name, int count, const GLint* x);
   void sendUniform(const char *name, int x);
   void sendUniform(const char *name, int x, int y);
   void sendUniform(const char *name, int x, int y, int z);

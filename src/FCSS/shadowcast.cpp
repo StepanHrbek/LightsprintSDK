@@ -4,8 +4,9 @@
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
-#define MAX_INSTANCES 20  // max number of light instances aproximating one area light
-#define START_INSTANCES 6 // initial number of instances
+#define INSTANCES_PER_PASS 6
+#define START_INSTANCES    INSTANCES_PER_PASS // initial number of instances
+#define MAX_INSTANCES      10*INSTANCES_PER_PASS  // max number of light instances aproximating one area light
 #define AREA_SIZE 0.15f
 int fullscreen = 1;
 
@@ -204,8 +205,8 @@ FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
 int currentWindowSize;
 #define SHADOW_MAP_SIZE 512
+bool useShadow2D = false; // use shadow2D() glsl func?
 int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0
-bool useShadow2D = false;
 
 void initShadowTex()
 {
@@ -330,7 +331,7 @@ GLenum depthMapPrecision = GL_UNSIGNED_BYTE;
 GLenum depthMapFormat = GL_LUMINANCE;
 GLenum depthMapInternalFormat = GL_INTENSITY8;
 
-int useLights = (MAX_INSTANCES>=START_INSTANCES)?START_INSTANCES:MAX_INSTANCES;
+int useLights = START_INSTANCES;
 int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
@@ -480,8 +481,13 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 			{
 			GLSLProgramSet* progSet = shadowDifCProgSet;
 #ifdef _3DS
-			if(!renderOnlyRr) 
-				progSet = shadowsDifMProgSet;
+			if(!renderOnlyRr)
+			{
+				if(softLight>=0)
+					progSet = shadowsDifMProgSet;
+				else
+					progSet = shadowDifMProgSet;
+			}
 #endif
 			return progSet->getVariant(useShadow2D?"#define SHADOW\n":NULL);
 			}
@@ -711,66 +717,9 @@ void updateDepthMap(void)
 	if(softLight<0 || softLight==useLights-1) needDepthMapUpdate = 0;
 }
 
-void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
-{
-	GLSLProgram* myProg = setProgram(cc);
-
-	activateTexture(GL_TEXTURE1_ARB, GL_TEXTURE_2D);
-	lightTex->bindTexture();
-	myProg->sendUniform("lightTex", 1);
-
-	activateTexture(GL_TEXTURE0_ARB, GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, shadowTex[(softLight>=0)?softLight:0]);
-	myProg->sendUniform("shadowMap", 0);
-
-	glMatrixMode(GL_TEXTURE);
-	GLdouble tmp[16]={
-		1,0,0,0,
-		0,1,0,0,
-		0,0,1,0,
-		1,1,1,2
-	};
-	glLoadMatrixd(tmp);
-	glMultMatrixd(lightFrustumMatrix);
-	glMultMatrixd(light.viewMatrix);
-	glMatrixMode(GL_MODELVIEW);
-
-#ifdef _3DS
-	if(!renderOnlyRr && cc!=RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
-	{
-		activateTexture(GL_TEXTURE2_ARB, GL_TEXTURE_2D);
-		myProg->sendUniform("diffuseTex", 2);
-	}
-#endif
-
-	// set light pos in object space
-	myProg->sendUniform("lLightPos",light.pos[0],light.pos[1],light.pos[2]);
-
-	drawScene(cc);
-
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-}
-
-void drawEyeViewShadowed()
-{
-	if (softLight<0) updateDepthMap();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (wireFrame) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
-
-	setupEyeView();
-
-	drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
-
-	drawLight();
-	drawShadowMapFrustum();
-}
-
 void placeSoftLight(int n)
 {
+	printf("%d ",n);
 	softLight=n;
 	static float oldLightAngle,oldLightHeight;
 	if(n==-1) { // init, before all
@@ -805,6 +754,79 @@ void placeSoftLight(int n)
 	}
 }
 
+void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
+{
+	GLSLProgram* myProg = setProgram(cc);
+
+	// shadowMap[], gl_TextureMatrix[]
+	glMatrixMode(GL_TEXTURE);
+	GLdouble tmp[16]={
+		1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
+		1,1,1,2
+	};
+	GLint samplers[INSTANCES_PER_PASS];
+	int softLightBase = softLight;
+	int instances = (softLight>=0 && cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE)?INSTANCES_PER_PASS:1;
+	for(int i=0;i<instances;i++)
+	{
+		glActiveTextureARB(GL_TEXTURE0_ARB+i);
+		// prepare samplers
+		glBindTexture(GL_TEXTURE_2D, shadowTex[((softLight>=0)?softLightBase:0)+i]);
+		samplers[i]=i;
+		// prepare and send matrices
+		if(i && softLight>=0)
+			placeSoftLight(softLightBase+i); // calculate light position
+		glLoadMatrixd(tmp);
+		glMultMatrixd(lightFrustumMatrix);
+		glMultMatrixd(light.viewMatrix);
+	}
+	checkGlError();
+	myProg->sendUniform("shadowMap", instances, samplers);
+	checkGlError();
+	glMatrixMode(GL_MODELVIEW);
+
+	// lightTex
+	activateTexture(GL_TEXTURE6_ARB, GL_TEXTURE_2D);
+	lightTex->bindTexture();
+	myProg->sendUniform("lightTex", 6);
+
+	// lLightPos (light pos in object space)
+	myProg->sendUniform("lLightPos",light.pos[0],light.pos[1],light.pos[2]);
+
+	// diffuseTex (last before drawScene, must stay active)
+#ifdef _3DS
+	if(!renderOnlyRr && cc!=RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
+	{
+		activateTexture(GL_TEXTURE7_ARB, GL_TEXTURE_2D);
+		myProg->sendUniform("diffuseTex", 7);
+	}
+#endif
+
+	drawScene(cc);
+
+	glActiveTextureARB(GL_TEXTURE0_ARB);
+}
+
+void drawEyeViewShadowed()
+{
+	if (softLight<0) updateDepthMap();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	if (wireFrame) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
+	setupEyeView();
+
+	drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
+
+	drawLight();
+	drawShadowMapFrustum();
+}
+
 // generuje uv coords pro capture
 class CaptureUv : public VertexDataGenerator
 {
@@ -835,11 +857,11 @@ void drawEyeViewSoftShadowed(void)
 	if (wireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
-	for(int i=0;i<useLights;i++)
+	for(int i=0;i<useLights;i+=INSTANCES_PER_PASS)
 	{
 		placeSoftLight(i);
 		drawEyeViewShadowed();
-		glAccum(GL_ACCUM,1./useLights);
+		glAccum(GL_ACCUM,1./(useLights/INSTANCES_PER_PASS));
 	}
 	placeSoftLight(-2);
 
@@ -1389,16 +1411,16 @@ void keyboard(unsigned char c, int x, int y)
 			toggleTextures();
 			break;
 		case '+':
-			if(useLights<MAX_INSTANCES) 
+			if(useLights+INSTANCES_PER_PASS<=MAX_INSTANCES) 
 			{
-				useLights++;
+				useLights+=INSTANCES_PER_PASS;
 				needDepthMapUpdate = 1;
 			}
 			break;
 		case '-':
-			if(useLights>1) 
+			if(useLights>INSTANCES_PER_PASS) 
 			{
-				useLights--;
+				useLights-=INSTANCES_PER_PASS;
 				needDepthMapUpdate = 1;
 			}
 			break;
@@ -1704,7 +1726,6 @@ int main(int argc, char **argv)
 		//SimpleCamera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
 		SimpleCamera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003};
 		SimpleCamera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996};		eye = koupelna4_eye;
-		useLights = 8;
 		light = koupelna4_light;
 	}
 	if (strstr(filename_3ds, "sponza"))

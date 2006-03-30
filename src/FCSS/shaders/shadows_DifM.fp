@@ -1,4 +1,4 @@
-#define MAPS 1
+#define MAPS 6
 
 #ifdef SHADOW  
 uniform sampler2DShadow shadowMap[MAPS];
@@ -21,7 +21,7 @@ void main()
 #ifdef SHADOW
       shadow2DProj(shadowMap[i], projCoord[i]);
 #else  
-      (texture2DProj(shadowMap[i], projCoord[i]) >= projCoord[i].z/projCoord[i].w) ? 1.0 : 0.0;
+      (texture2DProj(shadowMap[i], projCoord[i]).z >= projCoord[i].z/projCoord[i].w) ? 1.0 : 0.0;
 #endif
   gl_FragColor = shadowValue/float(MAPS) * gl_Color * lightValue * diffuseValue;
 }
