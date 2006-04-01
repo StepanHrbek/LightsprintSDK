@@ -4,5 +4,6 @@ void main()
 {
   diffuseCoord = gl_MultiTexCoord0.xy;
   gl_FrontColor = gl_Color;
+  gl_FrontColor *= 2; // bost indirect brightness. this is not realistic
   gl_Position = ftransform();
 }

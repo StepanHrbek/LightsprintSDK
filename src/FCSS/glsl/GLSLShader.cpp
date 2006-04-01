@@ -23,23 +23,23 @@ GLSLShader::GLSLShader(const char* defines, const char* filename, GLenum shaderT
 
 void GLSLShader::compileIt()
 {
-  GLint compiled;
-  
-  glCompileShaderARB(handle);
-  getParameteri(GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
-  
-  if(!compiled)
-    {
-      GLcharARB *debug;
-      GLint debugLength;
-      getParameteri(GL_OBJECT_INFO_LOG_LENGTH_ARB, &debugLength);
-      
-      debug = new GLcharARB[debugLength];
-      glGetInfoLogARB(handle, debugLength, &debugLength, debug);
+	GLint compiled;
 
-      cout << debug;
-      delete [] debug;
-    }
+	glCompileShaderARB(handle);
+	getParameteri(GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
+
+	if(!compiled)
+	{
+		GLcharARB *debug;
+		GLint debugLength;
+		getParameteri(GL_OBJECT_INFO_LOG_LENGTH_ARB, &debugLength);
+
+		debug = new GLcharARB[debugLength];
+		glGetInfoLogARB(handle, debugLength, &debugLength, debug);
+
+		cout << debug;
+		delete [] debug;
+	}
 }
 
 // Private part :

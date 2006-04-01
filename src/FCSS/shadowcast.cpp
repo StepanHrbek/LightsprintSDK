@@ -1,11 +1,7 @@
-//!!! fudge factors
-#define INDIRECT_RENDER_FACTOR 2
-
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
-unsigned INSTANCES_PER_PASS=6;
-#define START_INSTANCES    INSTANCES_PER_PASS // initial number of instances
+unsigned INSTANCES_PER_PASS=7;
 #define MAX_INSTANCES      50  // max number of light instances aproximating one area light
 #define AREA_SIZE 0.15f
 int fullscreen = 1;
@@ -172,7 +168,6 @@ void updateIndirect()
 			rrVision::RRColor indirect;
 			rrscene->getTriangleMeasure(0,t,v,rrVision::RM_IRRADIANCE,indirect);// je pouzito vzdy pro 3ds vystup, toto se jeste prenasobi difusni texturou
 			// write 1*irradiance
-			indirect *= INDIRECT_RENDER_FACTOR;
 			for(unsigned i=0;i<3;i++)
 			{
 				assert(_finite(indirect[i]));
@@ -205,7 +200,7 @@ FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
 int currentWindowSize;
 #define SHADOW_MAP_SIZE 512
-bool useShadow2D = false; // use shadow2D() glsl func?
+bool useShadow2D = 1; // use shadow2D() glsl func?
 int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0
 
 void initShadowTex()
@@ -246,16 +241,6 @@ void initShaders()
 	shadowDifMProgSet = new GLSLProgramSet("shaders\\shadow_DifM.vp", "shaders\\shadow_DifM.fp");
 	shadowsDifMProgSet = new GLSLProgramSet("shaders\\shadows_DifM.vp", "shaders\\shadows_DifM.fp");
 
-/*
-	shadowDifMProg = new GLSLProgram();
-	GLSLShader* shv1 = new GLSLShader("shaders\\shadow_DifM.vp",GL_VERTEX_SHADER_ARB);
-	GLSLShader* shf = new GLSLShader("shaders\\shadow_DifM.fp",GL_FRAGMENT_SHADER_ARB);
-	GLSLShader* shv2 = new GLSLShader("shaders\\overwrite_pos.vp",GL_VERTEX_SHADER_ARB);
-	shadowDifMProg->attach(shv2);
-	shadowDifMProg->attach(shv1);
-	shadowDifMProg->attach(shf);
-	shadowDifMProg->linkIt();
-*/
 	lightProg = new GLSLProgram(NULL,"shaders\\light.vp");
 	ambientProg = new GLSLProgram(NULL,"shaders\\ambient.vp", "shaders\\ambient.fp");
 	ambientDifMProg = new GLSLProgram(NULL,"shaders\\ambient_DifM.vp", "shaders\\ambient_DifM.fp");
@@ -331,7 +316,7 @@ GLenum depthMapPrecision = GL_UNSIGNED_BYTE;
 GLenum depthMapFormat = GL_LUMINANCE;
 GLenum depthMapInternalFormat = GL_INTENSITY8;
 
-int useLights = START_INSTANCES;
+int useLights = INSTANCES_PER_PASS;
 int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
@@ -469,7 +454,7 @@ static void drawSphere(void)
 }
 
 
-GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
+GLSLProgram* getProgramCore(RRObjectRenderer::ColorChannel cc)
 {
 	switch(cc)
 	{
@@ -490,8 +475,18 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 			}
 #endif
 			static char tmp[100];
+retry:
 			sprintf(tmp,"#define MAPS %d\n%s",INSTANCES_PER_PASS,useShadow2D?"#define SHADOW\n":"");
-			return progSet->getVariant(tmp);
+			GLSLProgram* prog = progSet->getVariant(tmp);
+			if(!prog && INSTANCES_PER_PASS>1)
+			{
+				printf("MAPS_PER_PASS=%d too much, trying %d...\n",INSTANCES_PER_PASS,INSTANCES_PER_PASS-1);
+				INSTANCES_PER_PASS--;
+				useLights = INSTANCES_PER_PASS;
+				needDepthMapUpdate = 1; // zmenilo se rozlozeni instanci v prostoru
+				goto retry;
+			}
+			return prog;
 			}
 		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
 			{
@@ -515,6 +510,19 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 			assert(0);
 			return NULL;
 	}
+}
+GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
+{
+	checkGlError();
+	GLSLProgram* tmp = getProgramCore(cc);
+	checkGlError();
+	if(!tmp)
+	{
+		printf("getProgram failed, your card and driver is not capable enough.\nTry to update driver or simplify program.");
+		//fgetc(stdin);
+		exit(0);
+	}
+	return tmp;
 }
 
 GLSLProgram* setProgram(RRObjectRenderer::ColorChannel cc)
@@ -701,29 +709,9 @@ void useBestShadowMapClamping(GLenum target)
 	}
 }
 
-void updateDepthMap(void)
-{
-	if(!needDepthMapUpdate) return;
-
-	setupLightView(1);
-
-	glColorMask(0,0,0,0);
-	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-
-	setProgramAndDrawScene(RRObjectRenderer::CC_NO_COLOR);
-	updateShadowTex();
-
-	glDisable(GL_POLYGON_OFFSET_FILL);
-	glViewport(0, 0, winWidth, winHeight);
-	glColorMask(1,1,1,1);
-
-	if(softLight<0 || softLight==useLights-1) needDepthMapUpdate = 0;
-}
-
 void placeSoftLight(int n)
 {
-	printf("%d ",n);
+	//printf("%d ",n);
 	softLight=n;
 	static float oldLightAngle,oldLightHeight;
 	if(n==-1) { // init, before all
@@ -755,6 +743,35 @@ void placeSoftLight(int n)
 		  break;
 		}
 		updateMatrices();
+	}
+}
+
+void updateDepthMap(int mapIndex)
+{
+	if(!needDepthMapUpdate) return;
+
+	if(mapIndex>=0)
+	{
+		placeSoftLight(mapIndex);
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+
+	setupLightView(1);
+
+	glColorMask(0,0,0,0);
+	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+
+	setProgramAndDrawScene(RRObjectRenderer::CC_NO_COLOR);
+	updateShadowTex();
+
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	glViewport(0, 0, winWidth, winHeight);
+	glColorMask(1,1,1,1);
+
+	if(softLight<0 || softLight==useLights-1) 
+	{
+		needDepthMapUpdate = 0;
 	}
 }
 
@@ -819,7 +836,7 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 
 void drawEyeViewShadowed()
 {
-	if (softLight<0) updateDepthMap();
+	if (softLight<0) updateDepthMap(softLight);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -857,9 +874,7 @@ void drawEyeViewSoftShadowed(void)
 	placeSoftLight(-1);
 	for(int i=0;i<useLights;i++)
 	{
-		placeSoftLight(i);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		updateDepthMap();
+		updateDepthMap(i);
 	}
 	glClear(GL_ACCUM_BUFFER_BIT);
 	if (wireFrame) {
@@ -1017,11 +1032,11 @@ static void drawHelpMessage(bool big)
 		"arrows            - move camera or light (with middle mouse pressed)",
 		"",
 		"space - toggle global illumination",
-		"'z'   - toggle zoom in and zoom out",
 		"'+/-' - area light: increase/decrease number of lights",
-		"'s'   - area light: cycle through linear, rectangular and circular area",
+		"'a'   - area light: cycle through linear, rectangular and circular area",
+		"'z'   - toggle zoom",
 		"'w'   - toggle wire frame",
-		"'f'   - toggle showing the depth map frustum in dashed lines",
+		"'f'   - toggle showing spotlight frustum",
 		"'m'   - toggle whether the left or middle mouse buttons control the eye and",
 		"        view positions (helpful for systems with only a two-button mouse)",
 		"",
@@ -1309,7 +1324,10 @@ void special(int c, int x, int y)
 	return;
 	}*/
 	needMatrixUpdate = 1;
-	if(movingLight) needDepthMapUpdate = 1;
+	if(movingLight) 
+	{
+		needDepthMapUpdate = 1;
+	}
 	glutPostRedisplay();
 }
 
@@ -1432,7 +1450,7 @@ void keyboard(unsigned char c, int x, int y)
 				needDepthMapUpdate = 1;
 			}
 			break;
-		case 'g':
+		case 'a':
 			++areaType%=3;
 			needDepthMapUpdate = 1;
 			break;
@@ -1615,15 +1633,15 @@ void parseOptions(int argc, char **argv)
 			int tmp;
 			if(sscanf(argv[i],"%d",&tmp)==1)
 			{
-				if(tmp>1 && tmp<=20) 
+				if(tmp>=1 && tmp<=10) 
 				{
 					INSTANCES_PER_PASS = tmp;
-					useLights = START_INSTANCES;
+					useLights = INSTANCES_PER_PASS;
 				}
 			}
 		}
 		if (!strcmp("-shadow", argv[i])) {
-			useShadow2D = 1;
+			useShadow2D = 0;
 		}
 		if (!strcmp("-forcerun", argv[i])) {
 			forcerun = 1;
