@@ -72,7 +72,6 @@ Welcome to Lightsprint libraries.
  Header: RRVision.h
  \n Namespace: rrVision
 
-\section vision_overview Library overview
  - calculates global illumination in static scene
  - progressive refinement with permanent access to results
  - calculated illumination is available in vertices
@@ -92,6 +91,8 @@ Welcome to Lightsprint libraries.
 \subpage vision_storage "Data formats"
 
 \subpage vision_units "Units"
+
+\image html ClassDiagram.png
 
 \page vision_types Illumination types
  In our real world, we see visible light coming mostly from special surfaces 
