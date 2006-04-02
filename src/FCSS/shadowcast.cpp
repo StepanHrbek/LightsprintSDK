@@ -28,20 +28,21 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 #include <assert.h>
 #include <float.h>
 #include <math.h>
+#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/glut.h>
 
-#include <iostream>
+#include "RRVisionApp.h"
+
 //#include "glsl/Light.hpp"
 #include "glsl/Camera.hpp"
 #include "glsl/GLSLProgram.hpp"
 #include "glsl/GLSLShader.hpp"
 #include "glsl/Texture.hpp"
 #include "glsl/FrameRate.hpp"
-
 #include "mgf2rr.h"
 #include "rr2gl.h"
 #include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
@@ -1706,10 +1707,45 @@ void idle()
 	}
 }
 
+class MyApp : public rrVision::RRAppFramework
+{
+protected:
+	virtual void detectMaterials()
+	{
+		//!!!
+	}
+	virtual void detectDirectIllumination()
+	{
+		//!!!
+		/*
+		for each object
+			generate pos-override channel
+			render with pos-override
+		prubezne pri kazdem naplneni textury
+			zmensi texturu na gpu
+			zkopiruj texturu do cpu
+			uloz vysledky do AdditionalObjectImporteru
+			*/
+	}
+	virtual void reportAction(const char* action) const
+	{
+		printf("%s\n",action);
+	}
+};
+
+void test() //!!!
+{
+	MyApp app;
+	MyApp::Objects objects;
+	//objects.push_back();
+	app.setObjects(objects);
+	app.calculate();
+}
 
 int main(int argc, char **argv)
 {
 	rrVision::RRLicense::registerLicense("","");
+	test();//!!!
 
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
