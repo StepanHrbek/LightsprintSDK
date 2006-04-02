@@ -14,7 +14,7 @@
 //
 // Verificiation
 
-#define VERIFY
+//#define VERIFY
 #ifdef VERIFY
 void reporter(const char* msg, void* context)
 {
@@ -129,7 +129,7 @@ M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)
 #endif
 
 	// create collider
-	collider = rrCollider::RRCollider::create(this,rrCollider::RRCollider::IT_BSP_FASTEST);
+	collider = rrCollider::RRCollider::create(this,rrCollider::RRCollider::IT_LINEAR);
 }
 
 

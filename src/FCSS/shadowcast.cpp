@@ -67,7 +67,7 @@ using namespace std;
 
 #define TIME_TO_START_IMPROVING 0.3f
 TIME lastInteractionTime = 0;
-
+float rrtimestep;
 
 void checkGlError()
 {
@@ -115,7 +115,6 @@ RRCachingRenderer* renderer = NULL;
 rrVision::RRAdditionalObjectImporter* rrobject = NULL;
 rrVision::RRScene* rrscene = NULL;
 rrVision::RRScaler* rrscaler = NULL;
-float rrtimestep;
 // rr endfunc callback
 static bool endByTime(void *context)
 {
@@ -1180,6 +1179,34 @@ static void benchmark(int perFrameDepthMapUpdate)
 	needDepthMapUpdate = 1;
 }
 
+class MyApp : public rrVision::RRAppFramework
+{
+protected:
+	virtual void detectMaterials()
+	{
+		//!!!
+	}
+	virtual void detectDirectIllumination()
+	{
+		//!!!
+		/*
+		for each object
+		generate pos-override channel
+		render with pos-override
+		prubezne pri kazdem naplneni textury
+		zmensi texturu na gpu
+		zkopiruj texturu do cpu
+		uloz vysledky do AdditionalObjectImporteru
+		*/
+	}
+	virtual void reportAction(const char* action) const
+	{
+		printf("%s\n",action);
+	}
+};
+
+MyApp app;
+
 void selectObjectConfig(int item)
 {
 	objectConfiguration = item;
@@ -1237,6 +1264,7 @@ void toggleTextures()
 void selectMenu(int item)
 {
 	lastInteractionTime = GETTIME;
+	app.reportInteraction();
 	switch (item) {
   case ME_EYE_VIEW_SHADOWED:
 	  drawMode = DM_EYE_VIEW_SHADOWED;
@@ -1279,6 +1307,7 @@ void selectMenu(int item)
 void special(int c, int x, int y)
 {
 	lastInteractionTime = GETTIME;
+	app.reportInteraction();
 	SimpleCamera* cam = movingLight?&light:&eye;
 	switch (c) 
 	{
@@ -1335,6 +1364,7 @@ void special(int c, int x, int y)
 void keyboard(unsigned char c, int x, int y)
 {
 	lastInteractionTime = GETTIME;
+	app.reportInteraction();
 	switch (c) {
 		case 27:
 			exit(0);
@@ -1550,13 +1580,14 @@ void initGL(void)
 void mouse(int button, int state, int x, int y)
 {
 	lastInteractionTime = GETTIME;
+	app.reportInteraction();
 	if (button == eyeButton && state == GLUT_DOWN) {
 		movingEye = 1;
 		xEyeBegin = x;
 		yEyeBegin = y;
 	}
 	if (button == eyeButton && state == GLUT_UP) {
-		lastInteractionTime = 0;
+		//!!!lastInteractionTime = 0;
 		movingEye = 0;
 	}
 	if (button == lightButton && state == GLUT_DOWN) {
@@ -1565,7 +1596,7 @@ void mouse(int button, int state, int x, int y)
 		yLightBegin = y;
 	}
 	if (button == lightButton && state == GLUT_UP) {
-		lastInteractionTime = 0;
+		//!!!lastInteractionTime = 0;
 		movingLight = 0;
 		needDepthMapUpdate = 1;
 		capturePrimary();
@@ -1580,6 +1611,7 @@ void passivemotion(int x, int y)
 void motion(int x, int y)
 {
 	lastInteractionTime = GETTIME;
+	app.reportInteraction();
 	if (movingEye) {
 		eye.angle = eye.angle - 0.005*(x - xEyeBegin);
 		eye.height = eye.height + 0.15*(y - yEyeBegin);
@@ -1673,6 +1705,7 @@ void parseOptions(int argc, char **argv)
 
 void idle()
 {
+//!!!	app.calculate();
 	TIME now = GETTIME;
 	if((now-lastInteractionTime)/(float)PER_SEC<TIME_TO_START_IMPROVING) return;
 
@@ -1681,9 +1714,9 @@ void idle()
 	/*rrVision::RRScene::Improvement imp = rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
 	switch(imp)
 	{
-		case rrVision::RRScene::NOT_IMPROVED:printf("Not improved.\n");break;
-		case rrVision::RRScene::INTERNAL_ERROR:printf("Internal error.\n");break;
-		case rrVision::RRScene::FINISHED:printf("Finished.\n");break;
+	case rrVision::RRScene::NOT_IMPROVED:printf("Not improved.\n");break;
+	case rrVision::RRScene::INTERNAL_ERROR:printf("Internal error.\n");break;
+	case rrVision::RRScene::FINISHED:printf("Finished.\n");break;
 	}*/
 	static float calcsum = 0;
 	calcsum += calcstep;
@@ -1707,45 +1740,9 @@ void idle()
 	}
 }
 
-class MyApp : public rrVision::RRAppFramework
-{
-protected:
-	virtual void detectMaterials()
-	{
-		//!!!
-	}
-	virtual void detectDirectIllumination()
-	{
-		//!!!
-		/*
-		for each object
-			generate pos-override channel
-			render with pos-override
-		prubezne pri kazdem naplneni textury
-			zmensi texturu na gpu
-			zkopiruj texturu do cpu
-			uloz vysledky do AdditionalObjectImporteru
-			*/
-	}
-	virtual void reportAction(const char* action) const
-	{
-		printf("%s\n",action);
-	}
-};
-
-void test() //!!!
-{
-	MyApp app;
-	MyApp::Objects objects;
-	//objects.push_back();
-	app.setObjects(objects);
-	app.calculate();
-}
-
 int main(int argc, char **argv)
 {
 	rrVision::RRLicense::registerLicense("","");
-	test();//!!!
 
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
@@ -1812,7 +1809,7 @@ int main(int argc, char **argv)
 		eye = sponza_eye;
 		light = sponza_light;
 	}
-	printf("Loading and preprocessing scene (~20 sec)...");
+	printf("Loading and preprocessing scene (~10 sec)...");
 #ifdef _3DS
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
@@ -1822,6 +1819,12 @@ int main(int argc, char **argv)
 	// load mgf
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalIllumination();
 #endif
+/*
+	rrVision::RRObjectIllumination* objectIllumination = new rrVision::RRObjectIllumination(rrobject);
+	MyApp::Objects objects;
+	objects.push_back(objectIllumination);
+	app.setObjects(objects);
+*/
 	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
 	rrVision::RRScene::setStateF(rrVision::RRScene::SUBDIVISION_SPEED,0);
 	rrVision::RRScene::setState(rrVision::RRScene::GET_SOURCE,0);

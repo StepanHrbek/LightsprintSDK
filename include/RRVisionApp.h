@@ -9,6 +9,8 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
+#pragma warning(disable:4530) // exceptions thrown but disabled, may crash
+
 #include <map>
 #include <vector>
 #include "RRVision.h"
@@ -148,6 +150,8 @@ namespace rrVision
 		void reportGeometryChange();
 		//! Reports to framework that position/rotation/shape of one or more lights has changed.
 		void reportLightChange();
+		//! Reports to framework that user interacts.
+		void reportInteraction();
 
 	protected:
 		//! Autodetects material properties of all materials present in scene. To be implemented by you.
@@ -164,10 +168,14 @@ namespace rrVision
 		RRSurface* surfaces;
 		RRScene* scene;
 	private:
+		void readResults();
 		unsigned resultChannelIndex;
 		bool dirtyMaterials;
 		bool dirtyGeometry;
 		bool dirtyLights;
+		long lastInteractionTime;
+		float readingResultsPeriod;
+		float calcTimeSinceReadingResults;
 	};
 
 } // namespace
