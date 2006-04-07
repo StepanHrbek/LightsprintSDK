@@ -7,8 +7,39 @@ void main()
   vec3 lLightDir = normalize(lLightPos - gl_Vertex.xyz);
   gl_FrontColor = vec4(dot(lLightDir, gl_Normal));
 
-  for(int i=0;i<MAPS;i++)
-    projCoord[i] = gl_TextureMatrix[i] * gl_Vertex;
+  //for(int i=0;i<MAPS;i++)
+  //  projCoord[i] = gl_TextureMatrix[i] * gl_Vertex;
+  // ATI is reported to fail on previous cycle, unrolled version is ok:
+#if MAPS>0
+  projCoord[0] = gl_TextureMatrix[0] * gl_Vertex;
+#endif
+#if MAPS>1
+  projCoord[1] = gl_TextureMatrix[1] * gl_Vertex;
+#endif
+#if MAPS>2
+  projCoord[2] = gl_TextureMatrix[2] * gl_Vertex;
+#endif
+#if MAPS>3
+  projCoord[3] = gl_TextureMatrix[3] * gl_Vertex;
+#endif
+#if MAPS>4
+  projCoord[4] = gl_TextureMatrix[4] * gl_Vertex;
+#endif
+#if MAPS>5
+  projCoord[5] = gl_TextureMatrix[5] * gl_Vertex;
+#endif
+#if MAPS>6
+  projCoord[6] = gl_TextureMatrix[6] * gl_Vertex;
+#endif
+#if MAPS>7
+  projCoord[7] = gl_TextureMatrix[7] * gl_Vertex;
+#endif
+#if MAPS>8
+  projCoord[8] = gl_TextureMatrix[8] * gl_Vertex;
+#endif
+#if MAPS>9
+  projCoord[9] = gl_TextureMatrix[9] * gl_Vertex;
+#endif
 
   diffuseCoord = gl_MultiTexCoord0.xy;
   

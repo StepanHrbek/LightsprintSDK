@@ -74,7 +74,7 @@ namespace rrVision
 			Format   format; //! May be requested to change.
 			unsigned stride; //! May be requested to change.
 			unsigned numVertices; //! Never changes during lifetime.
-			void*    vertices;
+			char*    vertices;
 		};
 		struct PixelBuffer
 		{
@@ -95,7 +95,7 @@ namespace rrVision
 			unsigned stride; //! May be requested to change.
 			unsigned mapWidth; //! May be requested to change.
 			unsigned mapHeight; //! May be requested to change.
-			void*    pixels;
+			char*    pixels;
 		};
 		struct Channel
 		{
@@ -124,16 +124,16 @@ namespace rrVision
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRAppFramework
+	//  RRVisionApp
 	//! Framework for Vision application.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRVISION_API RRAppFramework
+	class RRVISION_API RRVisionApp
 	{
 	public:
-		RRAppFramework();
-		~RRAppFramework();
+		RRVisionApp();
+		virtual ~RRVisionApp();
 
 		//! Defines objects present in scene.
 		typedef std::vector<RRObjectIllumination*> Objects;

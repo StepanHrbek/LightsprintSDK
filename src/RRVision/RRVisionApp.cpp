@@ -13,7 +13,7 @@ namespace rrVision
 #define PAUSE_AFTER_INTERACTION 0.3f
 #define CALC_STEP 0.1f
 
-RRAppFramework::RRAppFramework()
+RRVisionApp::RRVisionApp()
 {
 	surfaces = NULL;
 	scene = NULL;
@@ -24,48 +24,48 @@ RRAppFramework::RRAppFramework()
 	calcTimeSinceReadingResults = 0;
 }
 
-RRAppFramework::~RRAppFramework()
+RRVisionApp::~RRVisionApp()
 {
 	delete scene;
 	delete surfaces;
 }
 
-void RRAppFramework::setObjects(Objects& aobjects)
+void RRVisionApp::setObjects(Objects& aobjects)
 {
 	objects = aobjects;
 	dirtyGeometry = true;
 }
 
-void RRAppFramework::setResultChannel(unsigned channelIndex)
+void RRVisionApp::setResultChannel(unsigned channelIndex)
 {
 	resultChannelIndex = channelIndex;
 }
 
-void RRAppFramework::adjustScene()
+void RRVisionApp::adjustScene()
 {
 	scene->setScaler(RRScaler::createRgbScaler());
 }
 
-void RRAppFramework::reportAction(const char* action) const
+void RRVisionApp::reportAction(const char* action) const
 {
 }
 
-void RRAppFramework::reportMaterialChange()
+void RRVisionApp::reportMaterialChange()
 {
 	dirtyMaterials = true;
 }
 
-void RRAppFramework::reportGeometryChange()
+void RRVisionApp::reportGeometryChange()
 {
 	dirtyGeometry = true;
 }
 
-void RRAppFramework::reportLightChange()
+void RRVisionApp::reportLightChange()
 {
 	dirtyLights = true;
 }
 
-void RRAppFramework::reportInteraction()
+void RRVisionApp::reportInteraction()
 {
 	lastInteractionTime = GETTIME;
 }
@@ -75,7 +75,7 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
-void RRAppFramework::readResults()
+void RRVisionApp::readResults()
 {
 	//!!! multiobjekt
 	/*unsigned firstTriangleIdx[1000];//!!!
@@ -142,7 +142,7 @@ void RRAppFramework::readResults()
 	}
 }
 
-void RRAppFramework::calculate()
+void RRVisionApp::calculate()
 {
 	TIME now = GETTIME;
 	if((now-lastInteractionTime)/(float)PER_SEC<PAUSE_AFTER_INTERACTION) return;

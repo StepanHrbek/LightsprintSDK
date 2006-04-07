@@ -3,6 +3,7 @@
 //#define DEFAULT_SPONZA
 unsigned INSTANCES_PER_PASS=7;
 #define MAX_INSTANCES      50  // max number of light instances aproximating one area light
+#define MAX_INSTANCES_PER_PASS 10
 #define AREA_SIZE 0.15f
 int fullscreen = 1;
 
@@ -200,7 +201,6 @@ FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
 int currentWindowSize;
 #define SHADOW_MAP_SIZE 512
-bool useShadow2D = 1; // use shadow2D() glsl func?
 int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0
 
 void initShadowTex()
@@ -218,12 +218,10 @@ void initShadowTex()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-		if(useShadow2D)
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-		}
+		// for shadow2D() instead of texture2D()
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
 	}
 }
 
@@ -236,7 +234,7 @@ void updateShadowTex()
 
 void initShaders()
 {
-	//shadowProg = new GLSLProgram(useShadow2D?"#define SHADOW\n":NULL,"shaders\\shadow.vp", "shaders\\shadow.fp");
+	//shadowProg = new GLSLProgram(NULL,"shaders\\shadow.vp", "shaders\\shadow.fp");
 	shadowDifCProgSet = new GLSLProgramSet("shaders\\shadow_DifC.vp", "shaders\\shadow_DifC.fp");
 	shadowDifMProgSet = new GLSLProgramSet("shaders\\shadow_DifM.vp", "shaders\\shadow_DifM.fp");
 	shadowsDifMProgSet = new GLSLProgramSet("shaders\\shadows_DifM.vp", "shaders\\shadows_DifM.fp");
@@ -476,7 +474,7 @@ GLSLProgram* getProgramCore(RRObjectRenderer::ColorChannel cc)
 #endif
 			static char tmp[100];
 retry:
-			sprintf(tmp,"#define MAPS %d\n%s",INSTANCES_PER_PASS,useShadow2D?"#define SHADOW\n":"");
+			sprintf(tmp,"#define MAPS %d\n",INSTANCES_PER_PASS);
 			GLSLProgram* prog = progSet->getVariant(tmp);
 			if(!prog && INSTANCES_PER_PASS>1)
 			{
@@ -496,7 +494,7 @@ retry:
 			//if(!renderOnlyRr) 
 			//	progSet = shadowDifMProgSet;
 #endif
-			return progSet->getVariant(useShadow2D?"#define SHADOW\n#define FORCE_2D_POSITION\n":"#define FORCE_2D_POSITION\n");
+			return progSet->getVariant("#define FORCE_2D_POSITION\n");
 			}
 		case RRObjectRenderer::CC_SOURCE_IRRADIANCE:
 		case RRObjectRenderer::CC_SOURCE_EXITANCE:
@@ -1179,7 +1177,7 @@ static void benchmark(int perFrameDepthMapUpdate)
 	needDepthMapUpdate = 1;
 }
 
-class MyApp : public rrVision::RRAppFramework
+class MyApp : public rrVision::RRVisionApp
 {
 protected:
 	virtual void detectMaterials()
@@ -1666,15 +1664,14 @@ void parseOptions(int argc, char **argv)
 			int tmp;
 			if(sscanf(argv[i],"%d",&tmp)==1)
 			{
-				if(tmp>=1 && tmp<=10) 
+				if(tmp>=1 && tmp<=MAX_INSTANCES_PER_PASS) 
 				{
 					INSTANCES_PER_PASS = tmp;
 					useLights = INSTANCES_PER_PASS;
 				}
+				else
+					printf("Out of range, 1 to 10 allowed.\n");
 			}
-		}
-		if (!strcmp("-shadow", argv[i])) {
-			useShadow2D = 0;
 		}
 		if (!strcmp("-forcerun", argv[i])) {
 			forcerun = 1;
@@ -1809,7 +1806,7 @@ int main(int argc, char **argv)
 		eye = sponza_eye;
 		light = sponza_light;
 	}
-	printf("Loading and preprocessing scene (~10 sec)...");
+	printf("Loading and preprocessing scene (~15 sec)...");
 #ifdef _3DS
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;

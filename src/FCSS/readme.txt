@@ -13,8 +13,6 @@
   --------
 
   Run view_koupelna or view_sponza to view specific scene.
-  It may work with other .3ds scenes ("rrview myscene.3ds"), 
-  but it wasn't tested.
 
   Press 'h' for built-in help.
 
@@ -22,7 +20,7 @@
   Commandline options
   -------------------
 
-  scene.3ds   tries to opens specified scene, not tested on other scenes
+  scene.3ds   tries to open specified scene, not tested on other scenes
   -window     runs in window instead of fullscreen
   -forcerun   runs even when OpenGL 2.0 is not present, but may crash
   -vsync      enables vertical synchronization
