@@ -316,10 +316,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\RRAppFramework.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\rrcore.cpp"
 				>
 			</File>
@@ -337,6 +333,10 @@
 			</File>
 			<File
 				RelativePath="..\RRVision.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\RRVisionApp.cpp"
 				>
 			</File>
 		</Filter>

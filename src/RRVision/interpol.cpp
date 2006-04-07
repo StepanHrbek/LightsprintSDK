@@ -1,5 +1,6 @@
 
 #include <assert.h>
+#include <list>
 #include <math.h>
 #include <memory.h>
 #include <stdio.h>
@@ -164,10 +165,15 @@ bool IVertex::contains(Node *node)
 	return false;
 }
 
-unsigned IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
+unsigned IVertex::splitTopLevelOld(Vec3 *avertex, Object *obj)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices
+	// return: number of new ivertices
+
+	// stara verze s chybou projevujici se na gaucich v IS
+	// pokud je chyba jen pri min feature size>0,
+	// znamena to ze tento alg neni pripraveny na nodu ktera ma v ivertexu vic nez jeden corner
 
 	unsigned numSplitted = 0;
 	// remember all places this ivertex is installed in
@@ -229,6 +235,70 @@ unsigned IVertex::splitTopLevel(Vec3 *avertex, Object *obj)
 	corners=0;
 	powerTopLevel=0;
 	delete[] topivertex;
+	return numSplitted;
+}
+
+unsigned IVertex::splitTopLevelNew(Vec3 *avertex, Object *obj)
+{
+	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
+	// job: remove this ivertex and install new reduced ivertices
+	// return: number of new ivertices
+
+	//while zbyvaji cornery
+	// set=empty
+	// for each zbyvajici corner
+	//  kdyz ma normalu dost blizkou aspon jednomu corneru ze setu, vloz ho do setu
+	//  zaloz ivertex s timto setem corneru
+	//  NEDOKONALE, vrchol jehlanu bude mit jednu barvu
+
+	unsigned numSplitted = 0;
+	//while zbyvaji cornery
+	std::list<Corner*> cornersLeft;
+	for(unsigned i=0;i<corners;i++) cornersLeft.push_back(&corner[i]);
+	while(cornersLeft.size())
+	{
+		// set=empty
+		// zaloz ivertex s timto setem corneru
+		IVertex *v = obj->newIVertex();
+		numSplitted++;
+#ifdef IV_POINT
+		v->point = point;
+#endif
+		// for each zbyvajici corner
+restart_iter:
+		for(std::list<Corner*>::iterator i=cornersLeft.begin();i!=cornersLeft.end();i++)
+		{
+			unsigned j;
+			//  kdyz ma normalu dost blizkou aspon jednomu corneru ze setu, vloz ho do setu
+			if(!v->corners)
+				goto insert_i;
+			for(j=0;j<v->corners;j++)
+				if(INTERPOL_BETWEEN((*i)->node,v->corner[j].node))
+			{
+insert_i:
+				// vloz corner do noveho ivertexu
+				v->insertAlsoToParents((*i)->node,true,(*i)->power);
+				// oprav pointery z nodu na stary ivertex
+				Node* node = (*i)->node;
+				if(IS_TRIANGLE(node))
+				{
+					Triangle* triangle = TRIANGLE(node);
+					for(unsigned k=0;k<3;k++)
+						if(triangle->topivertex[k]==this)
+							triangle->topivertex[k] = v;
+				}
+				else
+					assert(0);
+				// odeber z corneru zbyvajicich ke zpracovani
+				cornersLeft.erase(i);
+				// pro jistotu restartni iteraci, iterator muze byt dead
+				goto restart_iter;
+			}
+		}
+	}
+	// make this empty = ready for deletion
+	corners=0;
+	powerTopLevel=0;
 	return numSplitted;
 }
 
@@ -953,7 +1023,7 @@ void Object::buildTopIVertices()
 		rrCollider::RRMeshImporter::Vertex vert;
 		meshImporter->getVertex(v,vert);
 		if(!topivertex[v].check(vert)) unusedVertices++;
-		numIVertices += topivertex[v].splitTopLevel((Vec3*)&vert,this);
+		numIVertices += topivertex[v].splitTopLevelNew((Vec3*)&vert,this);
 		// check that splitted topivertex is no more referenced
 		/*for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 		{
