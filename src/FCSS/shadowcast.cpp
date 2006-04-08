@@ -193,8 +193,8 @@ void updateIndirect()
 //
 // GLSL
 
-GLSLProgram *lightProg, *ambientProg, *ambientDifMProg;
-GLSLProgramSet* shadowsDifMProgSet;
+GLSLProgram *lightProg, *ambientProg;
+GLSLProgramSet* ubershaderProgSet;
 Texture *lightTex;
 FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
@@ -233,11 +233,9 @@ void updateShadowTex()
 
 void initShaders()
 {
-	shadowsDifMProgSet = new GLSLProgramSet("shaders\\shadows_DifM.vp", "shaders\\shadows_DifM.fp");
-
-	lightProg = new GLSLProgram(NULL,"shaders\\light.vp");
+	ubershaderProgSet = new GLSLProgramSet("shaders\\ubershader.vp", "shaders\\ubershader.fp");
+	lightProg = new GLSLProgram(NULL,"shaders\\shadowmap.vp");
 	ambientProg = new GLSLProgram(NULL,"shaders\\ambient.vp", "shaders\\ambient.fp");
-	ambientDifMProg = new GLSLProgram(NULL,"shaders\\ambient_DifM.vp", "shaders\\ambient_DifM.fp");
 }
 
 void glsl_init()
@@ -457,15 +455,19 @@ GLSLProgram* getProgramCore(RRObjectRenderer::ColorChannel cc)
 			return ambientProg;
 		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE:
 		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
+		case RRObjectRenderer::CC_REFLECTED_IRRADIANCE:
+		case RRObjectRenderer::CC_REFLECTED_EXITANCE:
 			{
-			GLSLProgramSet* progSet = shadowsDifMProgSet;
+			GLSLProgramSet* progSet = ubershaderProgSet;
 			static char tmp[200];
 			bool force2d = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
+			bool forceAmbient = cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_EXITANCE;
 retry:
-			sprintf(tmp,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s",
-				(force2d || softLight<0)?1:MIN(useLights,INSTANCES_PER_PASS),
-				(force2d || softLight<0)?1:shadowSamples,//(useLights<=MAX_FILTERED_INSTANCES)?shadowSamples:1,
-				(force2d || softLight<0 || useLights>INSTANCES_PER_PASS)?"":"#define INDIRECT_LIGHT\n",
+			sprintf(tmp,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s",
+				(forceAmbient || force2d || softLight<0)?1:MIN(useLights,INSTANCES_PER_PASS),
+				forceAmbient?0:((force2d || softLight<0)?1:shadowSamples),
+				(forceAmbient)?"":"#define DIRECT_LIGHT\n",
+				(!forceAmbient && (force2d || softLight<0 || useLights>INSTANCES_PER_PASS))?"":"#define INDIRECT_LIGHT\n",
 				(force2d || !renderDiffuseTexture)?"":"#define DIFFUSE_MAP\n",
 				(force2d)?"#define FORCE_2D_POSITION\n":""
 				);
@@ -480,14 +482,6 @@ retry:
 			}
 			return prog;
 			}
-		case RRObjectRenderer::CC_SOURCE_IRRADIANCE:
-		case RRObjectRenderer::CC_SOURCE_EXITANCE:
-		case RRObjectRenderer::CC_REFLECTED_IRRADIANCE:
-		case RRObjectRenderer::CC_REFLECTED_EXITANCE:
-#ifdef _3DS
-			if(!renderOnlyRr) return ambientDifMProg;
-#endif
-			return ambientProg;
 		default:
 			assert(0);
 			return NULL;
@@ -541,19 +535,17 @@ void setProgramAndDrawScene(RRObjectRenderer::ColorChannel cc)
 {
 	if(cc==RRObjectRenderer::CC_REFLECTED_AUTO)
 	{
-		cc = RRObjectRenderer::CC_REFLECTED_EXITANCE; // for colored output
-#ifdef _3DS
-		if(!renderOnlyRr)
+		if(renderDiffuseTexture)
 			cc = RRObjectRenderer::CC_REFLECTED_IRRADIANCE; // for textured 3ds output
-#endif
+		else
+			cc = RRObjectRenderer::CC_REFLECTED_EXITANCE; // for colored output
 	}
 	if(cc==RRObjectRenderer::CC_SOURCE_AUTO)
 	{
-		cc = RRObjectRenderer::CC_SOURCE_EXITANCE; // for colored output
-#ifdef _3DS
-		if(!renderOnlyRr)
+		if(renderDiffuseTexture)
 			cc = RRObjectRenderer::CC_SOURCE_IRRADIANCE; // for textured 3ds output
-#endif
+		else
+			cc = RRObjectRenderer::CC_SOURCE_EXITANCE; // for colored output
 	}
 	setProgram(cc);
 	drawScene(cc);

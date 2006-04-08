@@ -3,12 +3,16 @@
 // options controlled by program:
 //  #define SHADOW_MAPS 6
 //  #define SHADOW_SAMPLES 4
+//  #define DIRECT_LIGHT
 //  #define INDIRECT_LIGHT
-//  #define FORCE_2D_POSITION
 //  #define DIFFUSE_MAP
+//  #define FORCE_2D_POSITION
 
 varying vec4 projCoord[SHADOW_MAPS];
+
+#ifdef DIRECT_LIGHT
 uniform vec3 lLightPos;
+#endif
 
 #ifdef INDIRECT_LIGHT
 varying vec4 ambientIrradiance;
@@ -20,14 +24,15 @@ varying vec2 diffuseCoord;
 
 void main()
 {
+#ifdef DIRECT_LIGHT
   // direct light
   vec3 lLightDir = normalize(lLightPos - gl_Vertex.xyz);
   gl_FrontColor = vec4(dot(lLightDir, gl_Normal));
+#endif
 
 #ifdef INDIRECT_LIGHT
   // indirect light
-  // *2.0 makes it more visible, less realistic
-  ambientIrradiance = gl_Color * 2.0;
+  ambientIrradiance = gl_Color;
 #endif
 
   //for(int i=0;i<SHADOW_MAPS;i++)

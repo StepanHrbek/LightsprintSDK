@@ -3,17 +3,20 @@
 // options controlled by program:
 //  #define SHADOW_MAPS 6
 //  #define SHADOW_SAMPLES 4
+//  #define DIRECT_LIGHT
 //  #define INDIRECT_LIGHT
-//  #define FORCE_2D_POSITION
 //  #define DIFFUSE_MAP
+//  #define FORCE_2D_POSITION
 
 #if SHADOW_SAMPLES>0
 uniform sampler2DShadow shadowMap[SHADOW_MAPS];
 #endif
 
-uniform sampler2D lightTex;
-
 varying vec4 projCoord[SHADOW_MAPS];
+
+#ifdef DIRECT_LIGHT
+uniform sampler2D lightTex;
+#endif
 
 #ifdef INDIRECT_LIGHT
 varying vec4 ambientIrradiance;
@@ -26,7 +29,6 @@ varying vec2 diffuseCoord;
 
 void main()
 {
-  vec4 lightValue = texture2DProj(lightTex, projCoord[SHADOW_MAPS/2]);
 
 #if SHADOW_SAMPLES
   float shadowValue = 0.0;
@@ -59,9 +61,12 @@ void main()
 #ifdef DIFFUSE_MAP
     texture2D(diffuseTex, diffuseCoord) * 
 #endif
-    ( lightValue * gl_Color
-#if SHADOW_SAMPLES>0
+    ( gl_Color
+#if SHADOW_SAMPLES*SHADOW_MAPS>0
       * shadowValue/float(SHADOW_SAMPLES*SHADOW_MAPS)
+#endif
+#ifdef DIRECT_LIGHT
+      * texture2DProj(lightTex, projCoord[SHADOW_MAPS/2])
 #endif
 #ifdef INDIRECT_LIGHT
       + ambientIrradiance
