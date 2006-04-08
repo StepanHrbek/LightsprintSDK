@@ -267,6 +267,8 @@ CHANGES
 - new scheduler in radiosity solver
   \n rrVision::RRScene::illuminationReset() supports preserving factors
   \n 5% faster calculation on average
+- fixed smoothing on complicated meshes
+
 
 \section news3 2006.3.23
 

@@ -168,7 +168,7 @@ bool IVertex::contains(Node *node)
 unsigned IVertex::splitTopLevelOld(Vec3 *avertex, Object *obj)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
-	// job: remove this ivertex and install new reduced ivertices
+	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
 	// return: number of new ivertices
 
 	// stara verze s chybou projevujici se na gaucich v IS
@@ -241,7 +241,7 @@ unsigned IVertex::splitTopLevelOld(Vec3 *avertex, Object *obj)
 unsigned IVertex::splitTopLevelNew(Vec3 *avertex, Object *obj)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
-	// job: remove this ivertex and install new reduced ivertices
+	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
 	// return: number of new ivertices
 
 	//while zbyvaji cornery
