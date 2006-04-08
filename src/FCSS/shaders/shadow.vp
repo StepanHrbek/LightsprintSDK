@@ -1,7 +1,0 @@
-varying vec4 projCoord;
-
-void main()
-{
-  projCoord = gl_TextureMatrix[0] * gl_Vertex;
-  gl_Position = ftransform();
-}

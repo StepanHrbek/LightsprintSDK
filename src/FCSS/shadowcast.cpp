@@ -1,23 +1,23 @@
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
-unsigned INSTANCES_PER_PASS=7;
-#define MAX_INSTANCES      50  // max number of light instances aproximating one area light
+//#define MAX_FILTERED_INSTANCES 12  // max number of light instances with shadow filtering enabled
+#define MAX_INSTANCES          50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS 10
+unsigned INSTANCES_PER_PASS=7;
+unsigned initialPasses=1;
 #define AREA_SIZE 0.15f
 int fullscreen = 1;
+int shadowSamples = 4;
 
 /*
 pridat dalsi koupelny
 ovladani jasu (global, indirect)
-spatne pocita kdyz se neresetnou faktory (neresetovani faktoru muze zasadne zrychlit update po pohybu svetla)
 nacitat jpg
 spatne pocita sponza podlahu
 
-proc je nutno *3? nekde se asi spatne pocita r+g+b misto (r+g+b)/3
 autodeteknout zda mam metry nebo centimetry
 dodelat podporu pro matice do 3ds2rr importeru
-z mgf ze zahadnych duvodu zmizel color bleeding
 kdyz uz by byl korektni model s gammou, pridat ovladani gammy
 
 POZOR
@@ -110,6 +110,7 @@ Model_3DS m3ds;
 //
 // RR
 
+bool renderDiffuseTexture = true;
 bool renderOnlyRr = false;
 bool renderSource = false;
 RRCachingRenderer* renderer = NULL;
@@ -192,9 +193,7 @@ void updateIndirect()
 //
 // GLSL
 
-GLSLProgram /**shadowProg,*/ *lightProg, *ambientProg, *ambientDifMProg;
-GLSLProgramSet* shadowDifCProgSet;
-GLSLProgramSet* shadowDifMProgSet;
+GLSLProgram *lightProg, *ambientProg, *ambientDifMProg;
 GLSLProgramSet* shadowsDifMProgSet;
 Texture *lightTex;
 FrameRate *counter;
@@ -234,9 +233,6 @@ void updateShadowTex()
 
 void initShaders()
 {
-	//shadowProg = new GLSLProgram(NULL,"shaders\\shadow.vp", "shaders\\shadow.fp");
-	shadowDifCProgSet = new GLSLProgramSet("shaders\\shadow_DifC.vp", "shaders\\shadow_DifC.fp");
-	shadowDifMProgSet = new GLSLProgramSet("shaders\\shadow_DifM.vp", "shaders\\shadow_DifM.fp");
 	shadowsDifMProgSet = new GLSLProgramSet("shaders\\shadows_DifM.vp", "shaders\\shadows_DifM.fp");
 
 	lightProg = new GLSLProgram(NULL,"shaders\\light.vp");
@@ -314,7 +310,7 @@ GLenum depthMapPrecision = GL_UNSIGNED_BYTE;
 GLenum depthMapFormat = GL_LUMINANCE;
 GLenum depthMapInternalFormat = GL_INTENSITY8;
 
-int useLights = INSTANCES_PER_PASS;
+unsigned useLights = initialPasses*INSTANCES_PER_PASS;
 int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
@@ -371,7 +367,6 @@ int useDepth24 = 0;
 int drawFront = 0;
 
 int hasShadow = 0;
-int hasSwapControl = 0;
 int hasDepthTexture = 0;
 int hasTextureBorderClamp = 0;
 int hasTextureEdgeClamp = 0;
@@ -461,40 +456,29 @@ GLSLProgram* getProgramCore(RRObjectRenderer::ColorChannel cc)
 		case RRObjectRenderer::CC_TRIANGLE_INDEX:
 			return ambientProg;
 		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE:
+		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
 			{
-			GLSLProgramSet* progSet = shadowDifCProgSet;
-#ifdef _3DS
-			if(!renderOnlyRr)
-			{
-				if(softLight>=0)
-					progSet = shadowsDifMProgSet;
-				else
-					progSet = shadowDifMProgSet;
-			}
-#endif
-			static char tmp[100];
+			GLSLProgramSet* progSet = shadowsDifMProgSet;
+			static char tmp[200];
+			bool force2d = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
 retry:
-			sprintf(tmp,"#define MAPS %d\n",INSTANCES_PER_PASS);
+			sprintf(tmp,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s",
+				(force2d || softLight<0)?1:MIN(useLights,INSTANCES_PER_PASS),
+				(force2d || softLight<0)?1:shadowSamples,//(useLights<=MAX_FILTERED_INSTANCES)?shadowSamples:1,
+				(force2d || softLight<0 || useLights>INSTANCES_PER_PASS)?"":"#define INDIRECT_LIGHT\n",
+				(force2d || !renderDiffuseTexture)?"":"#define DIFFUSE_MAP\n",
+				(force2d)?"#define FORCE_2D_POSITION\n":""
+				);
 			GLSLProgram* prog = progSet->getVariant(tmp);
 			if(!prog && INSTANCES_PER_PASS>1)
 			{
 				printf("MAPS_PER_PASS=%d too much, trying %d...\n",INSTANCES_PER_PASS,INSTANCES_PER_PASS-1);
 				INSTANCES_PER_PASS--;
-				useLights = INSTANCES_PER_PASS;
+				useLights = initialPasses*INSTANCES_PER_PASS;
 				needDepthMapUpdate = 1; // zmenilo se rozlozeni instanci v prostoru
 				goto retry;
 			}
 			return prog;
-			}
-		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
-			{
-			GLSLProgramSet* progSet = shadowDifCProgSet;
-#ifdef _3DS
-			// na detekci pouzivam RRObjectRenderer, takze bez textur
-			//if(!renderOnlyRr) 
-			//	progSet = shadowDifMProgSet;
-#endif
-			return progSet->getVariant("#define FORCE_2D_POSITION\n");
 			}
 		case RRObjectRenderer::CC_SOURCE_IRRADIANCE:
 		case RRObjectRenderer::CC_SOURCE_EXITANCE:
@@ -517,7 +501,7 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 	if(!tmp)
 	{
 		printf("getProgram failed, your card and driver is not capable enough.\nTry to update driver or simplify program.");
-		//fgetc(stdin);
+		fgetc(stdin);
 		exit(0);
 	}
 	return tmp;
@@ -540,7 +524,7 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		m3ds.Draw(NULL);
+		m3ds.Draw((useLights<=INSTANCES_PER_PASS)?&indirectColors[0].x:NULL); // optimalizovay render->s ambientem, jinak bez
 		return;
 	}
 	if(!renderOnlyRr && (cc==RRObjectRenderer::CC_SOURCE_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE))
@@ -790,7 +774,7 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	};
 	GLint samplers[100];
 	int softLightBase = softLight;
-	int instances = (softLight>=0 && cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE)?INSTANCES_PER_PASS:1;
+	int instances = (softLight>=0 && cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE)?MIN(useLights,INSTANCES_PER_PASS):1;
 	checkGlError();
 	for(int i=0;i<instances;i++)
 	{
@@ -820,7 +804,7 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 
 	// diffuseTex (last before drawScene, must stay active)
 #ifdef _3DS
-	if(!renderOnlyRr && cc!=RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
+	if(renderDiffuseTexture && cc!=RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
 	{
 		activateTexture(GL_TEXTURE11_ARB, GL_TEXTURE_2D);
 		myProg->sendUniform("diffuseTex", 11);
@@ -836,7 +820,7 @@ void drawEyeViewShadowed()
 {
 	if (softLight<0) updateDepthMap(softLight);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(/*GL_COLOR_BUFFER_BIT |*/ GL_DEPTH_BUFFER_BIT);
 
 	if (wireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -868,9 +852,26 @@ CaptureUv captureUv;
 
 void drawEyeViewSoftShadowed(void)
 {
+	// optimized path without accum
+	if(useLights<=INSTANCES_PER_PASS)
+	{
+		placeSoftLight(-1);
+		for(unsigned i=0;i<useLights;i++)
+		{
+			updateDepthMap(i);
+		}
+		if (wireFrame) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
+		placeSoftLight(0);
+		drawEyeViewShadowed();
+		placeSoftLight(-2);
+		return;
+	}
+
 	// add direct
 	placeSoftLight(-1);
-	for(int i=0;i<useLights;i++)
+	for(unsigned i=0;i<useLights;i++)
 	{
 		updateDepthMap(i);
 	}
@@ -878,7 +879,7 @@ void drawEyeViewSoftShadowed(void)
 	if (wireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
-	for(int i=0;i<useLights;i+=INSTANCES_PER_PASS)
+	for(unsigned i=0;i<useLights;i+=INSTANCES_PER_PASS)
 	{
 		placeSoftLight(i);
 		drawEyeViewShadowed();
@@ -1030,8 +1031,9 @@ static void drawHelpMessage(bool big)
 		"arrows            - move camera or light (with middle mouse pressed)",
 		"",
 		"space - toggle global illumination",
-		"'+/-' - area light: increase/decrease number of lights",
-		"'a'   - area light: cycle through linear, rectangular and circular area",
+		"'+ -' - increase/decrease penumbra (soft shadow) precision",
+		"'* /' - increase/decrease penumbra (soft shadow) smoothness",
+		"'a'   - cycle through linear, rectangular and circular area light",
 		"'z'   - toggle zoom",
 		"'w'   - toggle wire frame",
 		"'f'   - toggle showing spotlight frustum",
@@ -1257,6 +1259,7 @@ void toggleGlobalIllumination()
 void toggleTextures()
 {
 	renderOnlyRr = !renderOnlyRr;
+	renderDiffuseTexture = !renderDiffuseTexture;
 }
 
 void selectMenu(int item)
@@ -1465,17 +1468,29 @@ void keyboard(unsigned char c, int x, int y)
 		case 't':
 			toggleTextures();
 			break;
+		case '*':
+			if(shadowSamples<4) shadowSamples *= 2;
+			break;
+		case '/':
+			if(shadowSamples>1) shadowSamples /= 2;
+			break;
 		case '+':
 			if(useLights+INSTANCES_PER_PASS<=MAX_INSTANCES) 
 			{
-				useLights+=INSTANCES_PER_PASS;
+				if(useLights==1) 
+					useLights = INSTANCES_PER_PASS;
+				else
+					useLights += INSTANCES_PER_PASS;
 				needDepthMapUpdate = 1;
 			}
 			break;
 		case '-':
-			if(useLights>(int)INSTANCES_PER_PASS) 
+			if(useLights>1) 
 			{
-				useLights-=INSTANCES_PER_PASS;
+				if(useLights>INSTANCES_PER_PASS) 
+					useLights -= INSTANCES_PER_PASS;
+				else
+					useLights = 1;
 				needDepthMapUpdate = 1;
 			}
 			break;
@@ -1523,12 +1538,10 @@ void initGL(void)
 	GLint depthBits;
 
 #if defined(_WIN32)
-	if (hasSwapControl) {
-		if (vsync) {
-			wglSwapIntervalEXT(1);
-		} else {
-			wglSwapIntervalEXT(0);
-		}
+	if (vsync) {
+		wglSwapIntervalEXT(1);
+	} else {
+		wglSwapIntervalEXT(0);
 	}
 #endif
 
@@ -1647,8 +1660,8 @@ void initMenus(void)
 	glutCreateMenu(selectMenu);
 	glutAddMenuEntry("[ ] Toggle global illumination", ME_TOGGLE_GLOBAL_ILLUMINATION);
 	glutAddMenuEntry("[f] Toggle light frustum", ME_TOGGLE_LIGHT_FRUSTUM);
-	glutAddMenuEntry("[m] Switch mouse control", ME_SWITCH_MOUSE_CONTROL);
 	glutAddMenuEntry("[w] Toggle wire frame", ME_TOGGLE_WIRE_FRAME);
+	glutAddMenuEntry("[m] Switch mouse control", ME_SWITCH_MOUSE_CONTROL);
 	glutAddMenuEntry("[ESC] Quit", ME_EXIT);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
