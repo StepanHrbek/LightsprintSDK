@@ -6,6 +6,7 @@
 //  #define DIRECT_LIGHT
 //  #define INDIRECT_LIGHT
 //  #define DIFFUSE_MAP
+//  #define DIFFUSE_COLOR
 //  #define FORCE_2D_POSITION
 
 #if SHADOW_SAMPLES>0
@@ -25,6 +26,10 @@ varying vec4 ambientIrradiance;
 #ifdef DIFFUSE_MAP
 uniform sampler2D diffuseTex;
 varying vec2 diffuseCoord;
+#endif
+
+#ifdef DIFFUSE_COLOR
+varying vec4 diffuseColor;
 #endif
 
 void main()
@@ -60,6 +65,9 @@ void main()
   gl_FragColor =
 #ifdef DIFFUSE_MAP
     texture2D(diffuseTex, diffuseCoord) * 
+#endif
+#ifdef DIFFUSE_COLOR
+    diffuseColor * 
 #endif
     ( gl_Color
 #if SHADOW_SAMPLES*SHADOW_MAPS>0

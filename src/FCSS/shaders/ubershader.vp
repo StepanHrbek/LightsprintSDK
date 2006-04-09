@@ -6,6 +6,7 @@
 //  #define DIRECT_LIGHT
 //  #define INDIRECT_LIGHT
 //  #define DIFFUSE_MAP
+//  #define DIFFUSE_COLOR
 //  #define FORCE_2D_POSITION
 
 varying vec4 projCoord[SHADOW_MAPS];
@@ -22,6 +23,10 @@ varying vec4 ambientIrradiance;
 varying vec2 diffuseCoord;
 #endif
 
+#ifdef DIFFUSE_COLOR
+varying vec4 diffuseColor;
+#endif
+
 void main()
 {
 #ifdef DIRECT_LIGHT
@@ -33,6 +38,14 @@ void main()
 #ifdef INDIRECT_LIGHT
   // indirect light
   ambientIrradiance = gl_Color;
+#endif
+
+#ifdef DIFFUSE_MAP
+  diffuseCoord = gl_MultiTexCoord0.xy;
+#endif
+
+#ifdef DIFFUSE_COLOR
+  diffuseColor = gl_Color;
 #endif
 
   //for(int i=0;i<SHADOW_MAPS;i++)
@@ -67,10 +80,6 @@ void main()
 #endif
 #if SHADOW_MAPS>9
   projCoord[9] = gl_TextureMatrix[9] * gl_Vertex;
-#endif
-
-#ifdef DIFFUSE_MAP
-  diffuseCoord = gl_MultiTexCoord0.xy;
 #endif
   
 #ifdef FORCE_2D_POSITION

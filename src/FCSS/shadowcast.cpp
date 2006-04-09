@@ -281,12 +281,6 @@ enum {
   DM_EYE_VIEW_SOFTSHADOWED,
 };
 
-/* Object configurations. */
-enum {
-  OC_MGF,
-  NUM_OF_OCS,
-};
-
 /* Menu items. */
 enum {
   ME_EYE_VIEW_SHADOWED,
@@ -355,7 +349,6 @@ int needMatrixUpdate = 1;
 int needTitleUpdate = 1;
 int needDepthMapUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-int objectConfiguration = OC_MGF;
 bool showHelp = 0;
 int useDisplayLists = 1;
 int showLightViewFrustum = 1;
@@ -462,13 +455,15 @@ GLSLProgram* getProgramCore(RRObjectRenderer::ColorChannel cc)
 			static char tmp[200];
 			bool force2d = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
 			bool forceAmbient = cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_EXITANCE;
+			bool hasDiffuseColor = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
 retry:
-			sprintf(tmp,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s",
+			sprintf(tmp,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s",
 				(forceAmbient || force2d || softLight<0)?1:MIN(useLights,INSTANCES_PER_PASS),
 				forceAmbient?0:((force2d || softLight<0)?1:shadowSamples),
 				(forceAmbient)?"":"#define DIRECT_LIGHT\n",
 				(!forceAmbient && (force2d || softLight<0 || useLights>INSTANCES_PER_PASS))?"":"#define INDIRECT_LIGHT\n",
-				(force2d || !renderDiffuseTexture)?"":"#define DIFFUSE_MAP\n",
+				(renderDiffuseTexture && !hasDiffuseColor)?"#define DIFFUSE_MAP\n":"",
+				(hasDiffuseColor)?"#define DIFFUSE_COLOR\n":"",
 				(force2d)?"#define FORCE_2D_POSITION\n":""
 				);
 			GLSLProgram* prog = progSet->getVariant(tmp);
@@ -743,7 +738,7 @@ void updateDepthMap(int mapIndex)
 	glViewport(0, 0, winWidth, winHeight);
 	glColorMask(1,1,1,1);
 
-	if(softLight<0 || softLight==useLights-1) 
+	if(softLight<0 || softLight==(int)(useLights-1)) 
 	{
 		needDepthMapUpdate = 0;
 	}
@@ -795,13 +790,11 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	myProg->sendUniform("lLightPos",light.pos[0],light.pos[1],light.pos[2]);
 
 	// diffuseTex (last before drawScene, must stay active)
-#ifdef _3DS
 	if(renderDiffuseTexture && cc!=RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
 	{
 		activateTexture(GL_TEXTURE11_ARB, GL_TEXTURE_2D);
 		myProg->sendUniform("diffuseTex", 11);
 	}
-#endif
 
 	drawScene(cc);
 
@@ -810,9 +803,9 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 
 void drawEyeViewShadowed()
 {
-	if (softLight<0) updateDepthMap(softLight);
+	if(softLight<0) updateDepthMap(softLight);
 
-	glClear(/*GL_COLOR_BUFFER_BIT |*/ GL_DEPTH_BUFFER_BIT);
+	if(softLight<=0) glClear(/*GL_COLOR_BUFFER_BIT |*/ GL_DEPTH_BUFFER_BIT);
 
 	if (wireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -903,7 +896,7 @@ void drawEyeViewSoftShadowed(void)
 
 void capturePrimary() // slow
 {
-	//!!! needs windows at least 256x256
+	//!!! needs windows at least 512x512
 	unsigned width1 = 4;
 	unsigned height1 = 4;
 	unsigned width = 512;
@@ -1095,45 +1088,42 @@ static void drawHelpMessage(bool big)
 
 void display(void)
 {
-	if (needTitleUpdate) {
+	if(needTitleUpdate)
 		updateTitle();
-	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (needMatrixUpdate) {
+	if(needMatrixUpdate)
 		updateMatrices();
+
+	switch(drawMode)
+	{
+		case DM_LIGHT_VIEW:
+			setupLightView(0);
+			if (wireFrame) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			drawLightView();
+			break;
+		case DM_EYE_VIEW_SHADOWED:
+			/* Wire frame handled internal to this routine. */
+			drawEyeViewShadowed();
+			break;
+		case DM_EYE_VIEW_SOFTSHADOWED:
+			drawEyeViewSoftShadowed();
+			break;
+		default:
+			assert(0);
+			break;
 	}
 
-	switch (drawMode) {
-  case DM_LIGHT_VIEW:
-	  setupLightView(0);
-	  if (wireFrame) {
-		  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	  }
-	  drawLightView();
-	  break;
-  case DM_EYE_VIEW_SHADOWED:
-	  /* Wire frame handled internal to this routine. */
-	  drawEyeViewShadowed();
-	  break;
-  case DM_EYE_VIEW_SOFTSHADOWED:
-	  drawEyeViewSoftShadowed();
-	  break;
-  default:
-	  assert(0);
-	  break;
-	}
-
-	if (wireFrame) {
+	if(wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
 
 	drawHelpMessage(showHelp);
 
-	if (!drawFront) {
+	if(!drawFront)
 		glutSwapBuffers();
-	}
 
 	static bool captured=false; if(!captured) {captured=true;capturePrimary();}
 }
@@ -1198,13 +1188,6 @@ protected:
 };
 
 MyApp app;
-
-void selectObjectConfig(int item)
-{
-	objectConfiguration = item;
-	needDepthMapUpdate = 1;
-	glutPostRedisplay();
-}
 
 void switchMouseControl(void)
 {
