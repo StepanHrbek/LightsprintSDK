@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
 //! \brief RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.4.2
+//! \version 2006.4.9
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -324,7 +324,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//! \n It is expected that your input instance is well formed (returns correct and consistent values).
 		//! \n Copy may be faster than original, but may require more memory.
 		RRMeshImporter*        createCopy();
-		//! Creates and returns union of multiple meshes (contains vertices and triangles from all meshes).
+		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).
 		//
 		//! Created instance (MultiMesh) doesn't require additional memory, 
 		//! but it depends on all meshes from array, they must stay alive for whole life of MultiMesh.
@@ -339,13 +339,15 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//!  lowest indices belong to meshes[0], meshes[1] follow etc. If you create MultiMesh from 2 meshes,
 		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 vertices in MultiMesh.
 		static RRMeshImporter* createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes);
-		//! Creates and returns mesh with optimized vertices.
+		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
 		//
 		//! \param vertexStitchMaxDistance
 		//!  For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower).
 		//!  For negative value, no stitching is performed.
 		//!  For positive value, also vertices in lower or equal distance will be stitched.
 		RRMeshImporter*        createOptimizedVertices(float vertexStitchMaxDistance = 0);
+		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
+		RRMeshImporter*        createOptimizedTriangles();
 
 		// verification
 		//! Callback for reporting text messages.

@@ -2201,8 +2201,8 @@ Scene::Scene()
 	shotsAccumulated=0;
 	shotsForFactorsTotal=0;
 	shotsTotal=0;
-	staticSourceExitingFlux=Channels(SMALL_ENERGY); //to avoid division by zero in black scene
-	dynamicSourceExitingFlux=Channels(SMALL_ENERGY); //to avoid division by zero in black scene
+	staticSourceExitingFlux=Channels(0);
+	dynamicSourceExitingFlux=Channels(0);
 	multiCollider=NULL;
 	multiObjectMeshes4Delete=NULL;
 	scaler=NULL;
@@ -2353,8 +2353,8 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 		shotsForFactorsTotal=0;
 		shotsTotal=0;
 	}
-	staticSourceExitingFlux=Channels(SMALL_ENERGY);
-	dynamicSourceExitingFlux=Channels(SMALL_ENERGY);
+	staticSourceExitingFlux=Channels(0);
+	dynamicSourceExitingFlux=Channels(0);
 	staticReflectors.removeSubtriangles();
 	__preserveFactors=!resetFactors;
 	staticReflectors.reset();
@@ -2369,7 +2369,7 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 
 //for(unsigned o=0;o<objects;o++) staticReflectors.insertObject(object[o]);
 //printf("----------\n");
-	return (staticSourceExitingFlux!=Channels(SMALL_ENERGY)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
+	return (staticSourceExitingFlux!=Channels(0)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
 }
 
 void Scene::updateMatrices()

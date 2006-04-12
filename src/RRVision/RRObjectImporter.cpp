@@ -106,7 +106,7 @@ private:
 class RRMultiObjectImporter : public RRObjectImporter
 {
 public:
-	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation)
+	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
 	{
 		// only in top level of hierarchy: create multicollider
 		rrCollider::RRCollider* multiCollider = NULL;
@@ -114,20 +114,27 @@ public:
 		// optimalizace: multimesh z 1 objektu = objekt samotny
 		// lze aplikovat jen pokud se nestitchuji vertexy
 		// pokud se stitchuji, musi vse projit standardni multi-cestou
-		if(numObjects>1 || maxStitchDistance>=0)
+		if(numObjects>1 || maxStitchDistance>=0 || optimizeTriangles)
 		{
 			// create multimesh
-			transformedMeshes = new rrCollider::RRMeshImporter*[numObjects+2];
+			transformedMeshes = new rrCollider::RRMeshImporter*[numObjects+3];
 				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
 			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
 			transformedMeshes[numObjects] = NULL;
 			transformedMeshes[numObjects+1] = NULL;
+			transformedMeshes[numObjects+2] = NULL;
 			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(transformedMeshes,numObjects);
 			// stitch vertices
 			if(maxStitchDistance>=0)
 			{
 				transformedMeshes[numObjects] = multiMesh; // remember for freeing time
 				multiMesh = multiMesh->createOptimizedVertices(maxStitchDistance);
+			}
+			// remove degenerated triangles
+			if(optimizeTriangles)
+			{
+				transformedMeshes[numObjects+2] = multiMesh; // remember for freeing time
+				multiMesh = multiMesh->createOptimizedTriangles();
 			}
 			// create copy (faster access)
 			// disabled because we know that current copy implementation always gives up
@@ -188,7 +195,7 @@ public:
 			delete multiCollider;
 			// Delete transformers created by us.
 			unsigned numObjects = pack[0].getNumObjects() + pack[1].getNumObjects();
-			for(unsigned i=0;i<numObjects+2;i++) delete transformedMeshes[i];
+			for(unsigned i=0;i<numObjects+3;i++) delete transformedMeshes[i];
 			delete[] transformedMeshes;
 		}
 	}
@@ -277,9 +284,9 @@ rrCollider::RRMeshImporter* RRObjectImporter::createWorldSpaceMesh()
 	return new RRTransformedMeshFilter(getCollider()->getImporter(),getWorldMatrix());
 }
 
-RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation)
+RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
 {
-	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,maxStitchDistance,cacheLocation);
+	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,maxStitchDistance,optimizeTriangles,cacheLocation);
 }
 
 

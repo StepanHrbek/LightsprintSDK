@@ -8,6 +8,78 @@
 namespace rrCollider
 {
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Importer filters
+//
+// RRLessTrianglesFilter - importer slow-filter that removes degenerate triangles
+
+class RRLessTrianglesFilter : public RRMeshFilter
+{
+public:
+	RRLessTrianglesFilter(const RRMeshImporter* original)
+		: RRMeshFilter(original)
+	{
+		ValidIndices = 0;
+		unsigned numAllTriangles = importer->getNumTriangles();
+		for(unsigned i=0;i<numAllTriangles;i++)
+		{
+			RRMeshImporter::Triangle t;
+			importer->getTriangle(i,t);
+			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndices++;
+		}
+		ValidIndex = new unsigned[ValidIndices];
+		ValidIndices = 0;
+		for(unsigned i=0;i<numAllTriangles;i++)
+		{
+			RRMeshImporter::Triangle t;
+			importer->getTriangle(i,t);
+			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndex[ValidIndices++] = i;
+		}
+	};
+	~RRLessTrianglesFilter()
+	{
+		delete[] ValidIndex;
+	}
+
+	virtual unsigned getNumTriangles() const
+	{
+		return ValidIndices;
+	}
+	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
+	{
+		assert(t<ValidIndices);
+		importer->getTriangle(ValidIndex[t],out);
+	}
+	virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const
+	{
+		if(postImportTriangle>=ValidIndices)
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return RRMeshImporter::UNDEFINED;
+		}
+		return ValidIndex[postImportTriangle];
+	}
+	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
+	{
+		// check that this slow code is not called often
+		assert(0);
+		// efficient implementation would require another translation array
+		for(unsigned post=0;post<ValidIndices;post++)
+			if(ValidIndex[post]==preImportTriangle)
+				return post;
+		return RRMeshImporter::UNDEFINED;
+	}
+	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
+	{
+		assert(t<ValidIndices);
+		importer->getTriangleBody(ValidIndex[t],out);
+	}
+
+protected:
+	unsigned*            ValidIndex; // may be uint16_t when indices<64k
+	unsigned             ValidIndices;
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -64,6 +136,8 @@ public:
 	}
 	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
 	{
+		// check that this slow code is not called often
+		assert(0);
 		// efficient implementation would require another translation array
 		for(unsigned post=0;post<ValidIndices;post++)
 			if(ValidIndex[post]==preImportTriangle)

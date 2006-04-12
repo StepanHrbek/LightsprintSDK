@@ -1710,17 +1710,16 @@ void idle()
 		calcsum = 0;
 		if(rrtimestep<1.5f) rrtimestep*=1.1f;
 #ifdef _3DS
-		if(renderOnlyRr) 
+		if(!renderOnlyRr)
+		{
+			updateIndirect();
+		}
+		else
+#endif
 		{
 			renderer->setStatus(RRObjectRenderer::CC_SOURCE_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
 			renderer->setStatus(RRObjectRenderer::CC_REFLECTED_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
 		}
-		else
-			updateIndirect();
-#else
-		renderer->setStatus(RRObjectRenderer::CC_SOURCE_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
-		renderer->setStatus(RRObjectRenderer::CC_REFLECTED_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
-#endif
 		glutPostRedisplay();
 	}
 }

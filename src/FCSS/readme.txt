@@ -8,6 +8,9 @@
   It allows you to freely manipulate camera and light positions in scene
   and see global illumination effects calculated on background.
 
+  You can adjust shadow quality to much higher speed or much higher quality,
+  see built-in help.
+
 
   Controls
   --------

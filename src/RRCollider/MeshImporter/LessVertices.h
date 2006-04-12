@@ -10,13 +10,11 @@
 namespace rrCollider
 {
 
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Importer filters
 //
-// RRLessVerticesFilter<INDEX>             - importer slow-filter that removes duplicate vertices
-// RRLessVerticesImporter<IMPORTER,INDEX>  - importer fast-filter that removes duplicate vertices
+// RRLessVerticesFilter<INDEX> - importer slow-filter that removes duplicate vertices
 
 int compareXyz(const void* elem1, const void* elem2);
 
@@ -27,6 +25,7 @@ public:
 	RRLessVerticesFilter(const RRMeshImporter* original, float MAX_STITCH_DISTANCE)
 		: RRMeshFilter(original)
 	{
+		assert(MAX_STITCH_DISTANCE>=0); // negative value would remove no vertices -> no improvement
 		// prepare translation arrays
 		unsigned numVertices = importer->getNumVertices();
 		INDEX tmp = numVertices;
@@ -140,6 +139,12 @@ protected:
 	INDEX*               Dupl2Unique;    // big -> small number translation
 	unsigned             UniqueVertices; // small number of unique vertices, UniqueVertices<=INHERITED.getNumVertices()
 };
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Importer filters
+//
+// RRLessVerticesImporter<IMPORTER,INDEX> - importer fast-filter that removes duplicate vertices
 
 template <class INHERITED, class INDEX>
 class RRLessVerticesImporter : public INHERITED

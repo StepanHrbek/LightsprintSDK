@@ -37,7 +37,7 @@ void main()
 
 #ifdef INDIRECT_LIGHT
   // indirect light
-  ambientIrradiance = gl_Color;
+  ambientIrradiance = gl_Color * 2.0; // 2.0 makes indirect more visible, not realistic
 #endif
 
 #ifdef DIFFUSE_MAP

@@ -194,7 +194,13 @@ RRMeshImporter* RRMeshImporter::createMultiMesh(RRMeshImporter* const* meshes, u
 
 RRMeshImporter* RRMeshImporter::createOptimizedVertices(float vertexStitchMaxDistance)
 {
+	if(vertexStitchMaxDistance<0) return this;
 	return new RRLessVerticesFilter<unsigned>(this,vertexStitchMaxDistance);
+}
+
+RRMeshImporter* RRMeshImporter::createOptimizedTriangles()
+{
+	return new RRLessTrianglesFilter(this);
 }
 
 unsigned RRMeshImporter::verify(Reporter* reporter, void* context)

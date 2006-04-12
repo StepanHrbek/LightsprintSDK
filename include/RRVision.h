@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! \brief RRVision - library for fast global illumination calculations
-//! \version 2006.4.2
+//! \version 2006.4.9
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -258,7 +258,24 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! \n\n For description how to access original triangles and vertices in MultiObject, 
 		//!  see rrCollider::RRMeshImporter::createMultiMesh(). Note that for non-negative maxStitchDistance,
 		//!  some vertices may be optimized out, so prefer PreImpport<->PostImport conversions.
-		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, char* cacheLocation);
+		//! \param objects
+		//!  Array of objects you want to create multiobject from.
+		//!  Objects from array should stay alive for whole life of multiobjects (this is your responsibility).
+		//!  Array alone may be destructed immediately by you.
+		//! \param numObjects
+		//!  Number of objects in array.
+		//! \param intersectTechnique
+		//!  Technique used for collider construction.
+		//! \param maxStitchDistance
+		//!  Vertices with lower or equal distance will be stitched into one vertex.
+		//!  Zero stitches only identical vertices, negative value means no action.
+		//! \param optimizeTriangles
+		//!  True removes degenerated triangles.
+		//!  It is always good to get rid of degenerated triangles (true), but sometimes you know
+		//!  there are no degenerated triangles at all and you can save few cycles by setting false.
+		//! \param cacheLocation
+		//!  Directory for caching intermediate files used by RRCollider.
+		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation);
 		//! Creates and returns object importer with space for per-triangle user-defined additional illumination.
 		//!
 		//! Created instance depends on original object, so it is not allowed to delete original object before newly created instance.

@@ -262,11 +262,15 @@ Welcome to Lightsprint libraries.
 
 NEW FEATURES
 
+- rrCollider::RRMeshImporter::createOptimizedTriangles()
+
 CHANGES
 
 - new scheduler in radiosity solver
   \n rrVision::RRScene::illuminationReset() supports preserving factors
   \n 5% faster calculation on average
+- rrVision::RRObjectImporter::createMultiObject()
+  \n can optimize triangles
 - fixed smoothing on complicated meshes
 
 
