@@ -17,8 +17,9 @@ public:
 
 	void attach(GLSLShader &shader);
 	void attach(GLSLShader *shader);
-	bool linkIt();
-	void useIt();
+	void linkIt();
+	bool isReady(); // true after successful link
+	void useIt(); // must be ready before use
 
 	void sendUniform(const char *name, float x);
 	void sendUniform(const char *name, float x, float y);
@@ -31,11 +32,11 @@ public:
 	void sendUniform(const char *name, int x, int y, int z, int w);
 	void sendUniform(const char *name, float *m, bool transp=false, int size=4);
 
-	bool linked;
 private:
 	int getLoc(const char *name);
 
 	GLSLShader *vertex, *fragment;
+	bool ready;
 };
 
 class GLSLProgramSet

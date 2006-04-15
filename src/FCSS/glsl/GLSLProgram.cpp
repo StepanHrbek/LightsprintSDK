@@ -11,7 +11,7 @@ GLSLProgram::GLSLProgram()
   :vertex(NULL), fragment(NULL)
 {
 	handle = glCreateProgramObjectARB();
-	linked = false;
+	ready = false;
 }
 
 GLSLProgram::GLSLProgram(const char* defines, const char *shader, unsigned int shaderType)
@@ -22,7 +22,7 @@ GLSLProgram::GLSLProgram(const char* defines, const char *shader, unsigned int s
 
 	attach(vertex);
 
-	linked = linkIt();
+	linkIt();
 }
 
 extern void checkGlError();
@@ -39,7 +39,7 @@ GLSLProgram::GLSLProgram(const char* defines, const char *vertexShader, const ch
 	attach(vertex);
 	attach(fragment);
 
-	linked = linkIt();
+	linkIt();
 }
 
 GLSLProgram::~GLSLProgram()
@@ -60,11 +60,12 @@ void GLSLProgram::attach(GLSLShader *shader)
 	attach(*shader);
 }
 
-bool GLSLProgram::linkIt()
+void GLSLProgram::linkIt()
 {
+	// link
 	glLinkProgramARB(handle);
-	GLint inked;
-	glGetProgramiv(handle,GL_LINK_STATUS,&inked);
+	GLint linked;
+	glGetProgramiv(handle,GL_LINK_STATUS,&linked);
 	/*if(!linked)
 	{
 		GLcharARB *debug;
@@ -77,7 +78,17 @@ bool GLSLProgram::linkIt()
 		cout << debug;
 		delete [] debug;
 	}*/
-	return inked!=0;
+	// validate
+	glValidateProgram(handle);
+	GLint valid;
+	glGetProgramiv(handle,GL_VALIDATE_STATUS,&valid);
+	// store result
+	ready = linked && valid;
+}
+
+bool GLSLProgram::isReady()
+{
+	return ready;
 }
 
 void GLSLProgram::useIt()
@@ -185,7 +196,7 @@ GLSLProgram* GLSLProgramSet::getVariant(const char* defines)
 	map<unsigned,GLSLProgram*>::iterator i = cache.find(hash);
 	if(i!=cache.end()) return i->second;
 	GLSLProgram* tmp = new GLSLProgram(defines,vertexShaderFileName,fragmentShaderFileName);
-	if(!tmp->linked)
+	if(!tmp->isReady())
 	{
 		delete tmp;
 		tmp=NULL;

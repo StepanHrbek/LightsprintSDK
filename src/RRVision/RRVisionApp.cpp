@@ -16,6 +16,7 @@ namespace rrVision
 RRVisionApp::RRVisionApp()
 {
 	surfaces = NULL;
+	numSurfaces = 0;
 	scene = NULL;
 	resultChannelIndex = 0;
 	dirtyMaterials = true;

@@ -164,18 +164,20 @@ namespace rrVision
 		//! Framework reports event to you. May be reimplemented by you.
 		virtual void reportAction(const char* action) const;
 
-		Objects objects;
+		Objects    objects;
 		RRSurface* surfaces;
-		RRScene* scene;
+		unsigned   numSurfaces;
+		RRScene*   scene;
+
 	private:
-		void readResults();
-		unsigned resultChannelIndex;
-		bool dirtyMaterials;
-		bool dirtyGeometry;
-		bool dirtyLights;
-		long lastInteractionTime;
-		float readingResultsPeriod;
-		float calcTimeSinceReadingResults;
+		void       readResults();
+		unsigned   resultChannelIndex;
+		bool       dirtyMaterials;
+		bool       dirtyGeometry;
+		bool       dirtyLights;
+		long       lastInteractionTime;
+		float      readingResultsPeriod;
+		float      calcTimeSinceReadingResults;
 	};
 
 } // namespace

@@ -1161,12 +1161,22 @@ static void benchmark(int perFrameDepthMapUpdate)
 	needDepthMapUpdate = 1;
 }
 
+// external dependencies of MyApp:
+// z m3ds detekuje materialy
+// do rrobject zapisuje nasnimany direct
 class MyApp : public rrVision::RRVisionApp
 {
 protected:
 	virtual void detectMaterials()
 	{
-		//!!!
+		delete[] surfaces;
+		numSurfaces = m3ds.numMaterials;
+		surfaces = new rrVision::RRSurface[numSurfaces];
+		for(unsigned i=0;i<numSurfaces;i++)
+		{
+			surfaces[i].reset(false);
+			surfaces[i].diffuseReflectance = rrVision::RRColor(m3ds.Materials[i].color.r/255.0,m3ds.Materials[i].color.g/255.0,m3ds.Materials[i].color.b/255.0);
+		}
 	}
 	virtual void detectDirectIllumination()
 	{
@@ -1180,6 +1190,83 @@ protected:
 		zkopiruj texturu do cpu
 		uloz vysledky do AdditionalObjectImporteru
 		*/
+		//!!! needs windows at least 512x512
+		unsigned width1 = 4;
+		unsigned height1 = 4;
+		unsigned width = 512;
+		unsigned height = 512;
+		captureUv.firstCapturedTriangle = 0;
+		captureUv.xmax = width/width1;
+		captureUv.ymax = height/height1;
+
+		// setup render states
+		glClearColor(0,0,0,1);
+		glDisable(GL_DEPTH_TEST);
+		glDepthMask(0);
+		glViewport(0, 0, width, height);
+
+		// Allocate the index buffer memory as necessary.
+		GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
+
+		rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
+		unsigned numTriangles = mesh->getNumTriangles();
+
+		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
+		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
+		{
+			// clear
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			// render scene
+			renderer->setStatus(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,RRCachingRenderer::CS_NEVER_COMPILE);
+			generateForcedUv = &captureUv;
+			drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
+			generateForcedUv = NULL;
+
+			// Read back the index buffer to memory.
+			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
+
+			// dbg print
+			//rrVision::RRColor suma = rrVision::RRColor(0);
+
+			// accumulate triangle powers
+			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
+			{
+				// accumulate 1 triangle power
+				unsigned sum[3] = {0,0,0};
+				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/(height/height1);
+				unsigned j = triangleIndex%(height/height1);
+				for(unsigned n=0;n<height1;n++)
+					for(unsigned m=0;m<width1;m++)
+					{
+						unsigned pixel = width*(j*height1+n) + (i*width1+m);
+						unsigned color = pixelBuffer[pixel] >> 8; // alpha was lost
+						sum[0] += color>>16;
+						sum[1] += (color>>8)&255;
+						sum[2] += color&255;
+					}
+					// pass power to rrobject
+					rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
+					rrobject->setTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITANCE,avg);
+
+					// debug print
+					//rrVision::RRColor tmp = rrVision::RRColor(0);
+					//rrobject->getTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
+					//suma+=tmp;
+			}
+			//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
+		}
+
+		free(pixelBuffer);
+
+		// prepare for new calculation
+//		rrscene->illuminationReset(false);
+//		rrtimestep = 0.1f;
+
+		// restore render states
+		glViewport(0, 0, winWidth, winHeight);
+		glDepthMask(1);
+		glEnable(GL_DEPTH_TEST);
 	}
 	virtual void reportAction(const char* action) const
 	{
