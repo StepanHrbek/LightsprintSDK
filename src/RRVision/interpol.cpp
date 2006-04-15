@@ -1,4 +1,7 @@
 
+#include "rrcore.h"
+#include "interpol.h"
+
 #include <assert.h>
 #include <list>
 #include <math.h>
@@ -20,9 +23,6 @@ char *FS(char *fmt, ...)
 	return msg;
 }*/
 #define TRACE(a) //{if(rrCollider::RRIntersectStats::getInstance()->intersects>=478988) OutputDebugString(a);}
-
-#include "rrcore.h"
-#include "interpol.h"
 
 namespace rrVision
 {
@@ -165,7 +165,7 @@ bool IVertex::contains(Node *node)
 	return false;
 }
 
-unsigned IVertex::splitTopLevelOld(Vec3 *avertex, Object *obj)
+unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
@@ -238,7 +238,7 @@ unsigned IVertex::splitTopLevelOld(Vec3 *avertex, Object *obj)
 	return numSplitted;
 }
 
-unsigned IVertex::splitTopLevelNew(Vec3 *avertex, Object *obj)
+unsigned IVertex::splitTopLevelByAngleNew(Vec3 *avertex, Object *obj)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
@@ -301,6 +301,89 @@ insert_i:
 	powerTopLevel=0;
 	return numSplitted;
 }
+
+/*
+unsigned IVertex::splitTopLevelByNormals(Vec3 *avertex, Object *obj)
+{
+	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
+	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
+	// return: number of new ivertices
+
+	// vsechny cornery vlozi do setu radiciho podle normaly
+	// vzniknou skupinky se stejnou normalou
+	// z kazde skupinky udela jeden ivertex
+
+	// spoleha se tu na to, ze multiObjekt kdyz slouci vic vertexu do jednoho,
+	//  vsem trianglevertexum ktere je sdilely da stejnou normalu, nejlepe vzniklou zprumerovanim starych
+	// multiObjekt to ale nedela
+	// spoleha se tedy na to, ze se vzdy slouci jen vertexy uvnitr roviny
+	//  pro vertexy mimo rovinu (napr na valci) budou vysledky spatne, vznikne nesesmoothovana hrana
+
+	// pro kazdy corner si zjistime jeho normalu
+	struct CornerNormal
+	{
+		Corner* corner;
+		Vec3 normal;
+		int operator <(const CornerNormal& b) const
+		{
+			return memcmp(&normal,&b.normal,sizeof(normal));
+		}
+	};
+	std::set<CornerNormal> cornersLeft;
+	for(unsigned i=0;i<corners;i++) 
+	{
+		CornerNormal tmp;
+		tmp.corner = &corner[i];
+		RRObjectImporter::TriangleNormals normals;
+		obj->importer->getTriangleNormals(obj->getTriangleIndex(corner[i].node->grandpa),normals);
+		tmp.normal = normals[?]; nemam u corneru ulozeno ktery vrchol nody to je, zde to uz nelze zjistit, bylo by nutne to sem nekudy pracne protlacit
+		cornersLeft.insert(tmp);
+	}
+	unsigned numSplitted = 0;
+	//while zbyvaji cornery
+	while(cornersLeft.size())
+	{
+		// set=empty
+		// zaloz ivertex s timto setem corneru
+		IVertex *v = obj->newIVertex();
+		Vec3 vNormal;
+		numSplitted++;
+#ifdef IV_POINT
+		v->point = point;
+#endif
+		// for each zbyvajici corner
+restart_iter:
+		for(std::set<CornerNormal>::iterator i=cornersLeft.begin();i!=cornersLeft.end();i++)
+		{
+			if(!v->corners || (*i).normal==vNormal)
+			{
+					vNormal = (*i).normal;
+					// vloz corner do noveho ivertexu
+					v->insertAlsoToParents((*i).corner->node,true,(*i).corner->power);
+					// oprav pointery z nodu na stary ivertex
+					Node* node = (*i).corner->node;
+					if(IS_TRIANGLE(node))
+					{
+						Triangle* triangle = TRIANGLE(node);
+						for(unsigned k=0;k<3;k++)
+							if(triangle->topivertex[k]==this)
+								triangle->topivertex[k] = v;
+					}
+					else
+						assert(0);
+					// odeber z corneru zbyvajicich ke zpracovani
+					cornersLeft.erase(i);
+					// pro jistotu restartni iteraci, iterator muze byt dead
+					goto restart_iter;
+			}
+		}
+	}
+	// make this empty = ready for deletion
+	corners=0;
+	powerTopLevel=0;
+	return numSplitted;
+}
+*/
 
 #ifndef ONLY_PLAYER
 
@@ -966,7 +1049,7 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 }
 #endif
 
-void Object::buildTopIVertices()
+void Object::buildTopIVertices(unsigned smoothMode)
 {
 	// check
 	for(unsigned t=0;t<triangles;t++)
@@ -1023,7 +1106,18 @@ void Object::buildTopIVertices()
 		rrCollider::RRMeshImporter::Vertex vert;
 		meshImporter->getVertex(v,vert);
 		if(!topivertex[v].check(vert)) unusedVertices++;
-		numIVertices += topivertex[v].splitTopLevelNew((Vec3*)&vert,this);
+		switch(smoothMode)
+		{
+			case 0:
+				numIVertices += topivertex[v].splitTopLevelByAngleOld((Vec3*)&vert,this);
+				break;
+			case 1:
+			default:
+				numIVertices += topivertex[v].splitTopLevelByAngleNew((Vec3*)&vert,this);
+				break;
+//			default:
+//				numIVertices += topivertex[v].splitTopLevelByNormals((Vec3*)&vert,this);
+		}
 		// check that splitted topivertex is no more referenced
 		/*for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 		{

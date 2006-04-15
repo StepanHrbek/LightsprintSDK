@@ -86,7 +86,7 @@ RRScene::~RRScene()
 	delete scene;
 }
 
-RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
+RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer, unsigned smoothMode)
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
@@ -180,7 +180,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer)
 		// clusters first, ivertices then (see comment in Cluster::insert)
 	}
 	DBG(printf(" ivertices...\n"));
-	obj->buildTopIVertices();
+	obj->buildTopIVertices(smoothMode);
 	// priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
 	obj->id=0;//!!!
 	obj->name=NULL;

@@ -694,7 +694,7 @@ public:
 	Triangle*triangle;
 	Edge    *edge;
 	void    buildEdges();
-	void    buildTopIVertices();
+	void    buildTopIVertices(unsigned smoothMode);
 		private:
 		unsigned mergeCloseIVertices(IVertex* ivertex);
 		public:
@@ -703,6 +703,7 @@ public:
 
 #else
 	Channels getVertexIrradiance(unsigned avertex);
+	unsigned getTriangleIndex(Triangle* t); // return index of triangle in object, UINT_MAX for invalid input
 	IVertex **vertexIVertex; // only for fast approximative getVertexIrradiance
 	// IVertex pool
 	IVertex *newIVertex();

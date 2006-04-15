@@ -188,11 +188,11 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//
 		// optional
 		//
-		//! Three normals for three vertices in triangle. In object space.
+		//! Three normals for three vertices in triangle. In object space, normalized.
 		struct TriangleNormals      {RRVec3 norm[3];};
 		//! Three uv-coords for three vertices in triangle.
 		struct TriangleMapping      {RRVec2 uv[3];};
-		//! Writes to out vertex normals of triangle. In object space.
+		//! Writes to out vertex normals of triangle. In object space, normalized.
 		//
 		//! Future versions of Vision may use normals for smoothing results. Currently they are not used, smoothing is automatic.
 		//! \n There is default implementation that writes all vertex normals equal to triangle plane normal.
@@ -451,7 +451,14 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Different objects always belong to different smoothgroups. So with flat wall cut into two objects,
 		//! unsmoothed edge will possibly apear between them.
 		//! This can be fixed by merging standalone objects into one object using RRObjectImporter::createMultiObject().
-		ObjectHandle  objectCreate(RRObjectImporter* importer);
+		//! \param importer
+		//!  Object importer that defines object shape and material.
+		//! \param smoothMode
+		//!  Selects smoothing mode, valid options are: 0,1,2.
+		//!  \n 0 = Normal independent smoothing, old. Depends on MAX_SMOOTH_ANGLE.
+		//!  \n 1 = Normal independent smoothing, new. Depends on MAX_SMOOTH_ANGLE.
+		//!  \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed.
+		ObjectHandle  objectCreate(RRObjectImporter* importer, unsigned smoothMode=2);
 		
 		// calculate radiosity
 		//! Describes result of illumination calculation.

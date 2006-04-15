@@ -1961,6 +1961,12 @@ Channels Object::getVertexIrradiance(unsigned avertex)
 	return vertexIVertex[avertex]->irradiance();
 }
 
+unsigned Object::getTriangleIndex(Triangle* t)
+{
+	unsigned idx = (unsigned)(t-triangle);
+	return (idx<triangles)?idx:UINT_MAX;
+}
+
 void addEdgeWith(Triangle *t1,va_list ap)
 {
 	Triangle *t2      =va_arg(ap,Triangle *);

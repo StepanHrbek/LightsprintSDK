@@ -79,8 +79,9 @@ public:
 	void    insert(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	void    insertAlsoToParents(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	bool    contains(Node *node);
-	unsigned splitTopLevelOld(Vec3 *avertex, Object *obj);
-	unsigned splitTopLevelNew(Vec3 *avertex, Object *obj);
+	unsigned splitTopLevelByAngleOld(Vec3 *avertex, Object *obj);
+	unsigned splitTopLevelByAngleNew(Vec3 *avertex, Object *obj);
+	unsigned splitTopLevelByNormals(Vec3 *avertex, Object *obj);
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
 	Channels irradiance();
