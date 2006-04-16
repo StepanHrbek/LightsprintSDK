@@ -91,6 +91,54 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
+void RRVisionApp::updateLookupTable()
+// prepare lookup tables preImportVertex -> [postImportTriangle,vertex0..2] for all objects
+{
+	preVertex2PostTriangleVertex.resize(objects.size());
+	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
+	{
+		RRObjectIllumination* illumination = getIllumination(objectHandle);
+		rrCollider::RRMeshImporter* mesh =
+#ifdef MULTIOBJECT
+			multiObject->getCollider()->getImporter();
+#else
+			object->getCollider()->getImporter();
+#endif
+		unsigned numPostImportVertices = mesh->getNumVertices();
+		unsigned numPostImportTriangles = mesh->getNumTriangles();
+		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
+
+		preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,std::pair<unsigned,unsigned>(rrCollider::RRMeshImporter::UNDEFINED,rrCollider::RRMeshImporter::UNDEFINED));
+
+		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+		{
+			rrCollider::RRMeshImporter::Triangle postImportTriangleVertices;
+			mesh->getTriangle(postImportTriangle,postImportTriangleVertices);
+			for(unsigned v=0;v<3;v++)
+			{
+				unsigned postImportVertex = postImportTriangleVertices[v];
+				if(postImportVertex<numPostImportVertices)
+				{
+					unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
+#ifdef MULTIOBJECT
+					rrCollider::RRMeshImporter::MultiMeshPreImportNumber preVertexMulti = preVertex;
+					if(preVertexMulti.object==objectHandle)
+						preVertex = preVertexMulti.index;
+					else
+						continue; // skip asserts
+#endif
+					if(preVertex<numPreImportVertices)
+						preVertex2PostTriangleVertex[objectHandle][preVertex] = std::pair<unsigned,unsigned>(postImportTriangle,v);
+					else
+						assert(0);
+				}
+				else
+					assert(0);
+			}
+		}
+	}
+}
+
 void RRVisionApp::readResults()
 {
 	//!!! multiobjekt
@@ -132,7 +180,7 @@ void RRVisionApp::readResults()
 		assert(vertexBuffer->format==RRObjectIllumination::RGB32F);
 
 		//vertexBuffer->setToZero();
-
+/*
 		// prepare lookup table preImportVertex -> [postImportTriangle,vertex0..2]
 		std::pair<unsigned,unsigned>* preVertex2PostTriangleVertex = new std::pair<unsigned,unsigned>[numPreImportVertices];
 		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
@@ -162,12 +210,12 @@ void RRVisionApp::readResults()
 				else
 					assert(0);
 			}
-		}
+		}*/
 		// load measure into each preImportVertex
 		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
 		{
-			unsigned t = preVertex2PostTriangleVertex[preImportVertex].first;
-			unsigned v = preVertex2PostTriangleVertex[preImportVertex].second;
+			unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
+			unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
 			RRColor indirect = RRColor(0);
 #ifdef MULTIOBJECT
 			scene->getTriangleMeasure(0,t,v,RM_IRRADIANCE,indirect);
@@ -183,7 +231,7 @@ void RRVisionApp::readResults()
 			((RRColor*)vertexBuffer->vertices)[preImportVertex] = indirect;
 		}
 		// delete lookup table
-		delete[] preVertex2PostTriangleVertex;
+		//delete[] preVertex2PostTriangleVertex;
 
 /*
 		for(unsigned t=0;t<numTriangles;t++) // triangle
@@ -258,6 +306,7 @@ RRScene::Improvement RRVisionApp::calculate()
 		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
 			scene->objectCreate((*i).first);
 #endif
+		updateLookupTable();
 	}
 	if(dirtyLights)
 	{

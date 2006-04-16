@@ -167,6 +167,8 @@ namespace rrVision
 
 	private:
 		void       readResults();
+		void       updateLookupTable();
+		std::vector<std::vector<std::pair<unsigned,unsigned>>> preVertex2PostTriangleVertex; ///< readResults lookup table
 		unsigned   resultChannelIndex;
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;

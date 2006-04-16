@@ -517,7 +517,7 @@ protected:
 	}
 };
 
-MyApp app;
+MyApp* app = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -659,7 +659,7 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 #ifdef APP
-		m3ds.Draw(NULL,(useLights<=INSTANCES_PER_PASS)?&app:NULL); // optimalizovay render->s ambientem, jinak bez
+		m3ds.Draw(NULL,(useLights<=INSTANCES_PER_PASS)?app:NULL); // optimalizovay render->s ambientem, jinak bez
 #else
 		m3ds.Draw((useLights<=INSTANCES_PER_PASS)?&indirectColors[0].x:NULL,NULL); // optimalizovay render->s ambientem, jinak bez
 #endif
@@ -668,7 +668,7 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 	if(!renderOnlyRr && (cc==RRObjectRenderer::CC_SOURCE_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE))
 	{
 #ifdef APP
-		m3ds.Draw(NULL,&app);
+		m3ds.Draw(NULL,app);
 #else
 		m3ds.Draw(&indirectColors[0].x,NULL);
 #endif
@@ -1010,16 +1010,6 @@ void drawEyeViewSoftShadowed(void)
 	placeSoftLight(-2);
 
 	// add indirect
-	if(
-#ifdef APP
-		1
-#else
-		rrscene
-#endif
-#ifdef _3DS
-		&& (indirectColors || renderOnlyRr)
-#endif
-		)
 	{
 #ifdef SHOW_CAPTURED_TRIANGLES
 		generateForcedUv = &captureUv;
@@ -1039,7 +1029,7 @@ void drawEyeViewSoftShadowed(void)
 void capturePrimary() // slow
 {
 #ifdef APP
-	app.reportLightChange();
+	app->reportLightChange();
 #else
 	//!!! needs windows at least 512x512
 	unsigned width1 = 4;
@@ -1358,7 +1348,7 @@ void toggleTextures()
 void selectMenu(int item)
 {
 	lastInteractionTime = GETTIME;
-	app.reportInteraction();
+	app->reportInteraction();
 	switch (item) {
   case ME_EYE_VIEW_SHADOWED:
 	  drawMode = DM_EYE_VIEW_SHADOWED;
@@ -1401,7 +1391,7 @@ void selectMenu(int item)
 void special(int c, int x, int y)
 {
 	lastInteractionTime = GETTIME;
-	app.reportInteraction();
+	app->reportInteraction();
 	SimpleCamera* cam = movingLight?&light:&eye;
 	switch (c) 
 	{
@@ -1458,7 +1448,7 @@ void special(int c, int x, int y)
 void keyboard(unsigned char c, int x, int y)
 {
 	lastInteractionTime = GETTIME;
-	app.reportInteraction();
+	app->reportInteraction();
 	switch (c) {
 		case 27:
 			exit(0);
@@ -1684,7 +1674,7 @@ void initGL(void)
 void mouse(int button, int state, int x, int y)
 {
 	lastInteractionTime = GETTIME;
-	app.reportInteraction();
+	app->reportInteraction();
 	if (button == eyeButton && state == GLUT_DOWN) {
 		movingEye = 1;
 		xEyeBegin = x;
@@ -1715,7 +1705,7 @@ void passivemotion(int x, int y)
 void motion(int x, int y)
 {
 	lastInteractionTime = GETTIME;
-	app.reportInteraction();
+	app->reportInteraction();
 	if (movingEye) {
 		eye.angle = eye.angle - 0.005*(x - xEyeBegin);
 		eye.height = eye.height + 0.15*(y - yEyeBegin);
@@ -1809,7 +1799,7 @@ void parseOptions(int argc, char **argv)
 void idle()
 {
 #ifdef APP
-	if(app.calculate()==rrVision::RRScene::IMPROVED)
+	if(app->calculate()==rrVision::RRScene::IMPROVED)
 		glutPostRedisplay();;
 #else
 	TIME now = GETTIME;
@@ -1931,7 +1921,8 @@ int main(int argc, char **argv)
 	//m3ds.shownormals=1;
 	//m3ds.numObjects=2;//!!!
 #ifdef APP
-	new_3ds_importer(&m3ds,&app);
+	app = new MyApp();
+	new_3ds_importer(&m3ds,app);
 #else
 	rrobject = new_3ds_importer(&m3ds,NULL)->createAdditionalIllumination();
 	rrscene = new rrVision::RRScene();
@@ -1947,13 +1938,16 @@ int main(int argc, char **argv)
 	checkGlError();
 #ifdef APP
 	renderer = NULL;
-	app.calculate();
-	renderer = new RRCachingRenderer(new RRGLObjectRenderer(app.multiObject,app.scene));
+	app->calculate();
+	renderer = new RRCachingRenderer(new RRGLObjectRenderer(app->multiObject,app->scene));
 #else
 	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,rrscene));
 #endif
 	printf("\n");
 
 	glutMainLoop();
+#ifdef APP
+	delete app;
+#endif
 	return 0;
 }
