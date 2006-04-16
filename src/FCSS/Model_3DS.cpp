@@ -315,6 +315,9 @@ void Model_3DS::Draw(GLfloat* color)
 				glColorPointer(3, GL_FLOAT, 0, color);
 				color += 3*Objects[i].numVerts;
 			}
+			else
+				glColor3f(0,0,0);
+
 			/*/ additional texcoord7
 			if(texcoord7)
 			{

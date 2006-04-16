@@ -904,7 +904,7 @@ void drawEyeViewSoftShadowed(void)
 
 // external dependencies of MyApp:
 // z m3ds detekuje materialy
-// do rrobject zapisuje nasnimany direct
+// renderer je pouzit k captureDirect
 class MyApp : public rrVision::RRVisionApp
 {
 protected:
@@ -921,6 +921,8 @@ protected:
 	}
 	virtual void detectDirectIllumination()
 	{
+		if(!renderer) return;
+
 		//!!!
 		/*
 		for each object
@@ -1909,8 +1911,9 @@ int main(int argc, char **argv)
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
 	//m3ds.shownormals=1;
+	//m3ds.numObjects=2;//!!!
 #ifdef APP
-	rrVision::RRObjectImporter* rrobject = new_3ds_importer(&m3ds,&app);
+	new_3ds_importer(&m3ds,&app);
 #else
 	rrobject = new_3ds_importer(&m3ds,NULL)->createAdditionalIllumination();
 	rrscene = new rrVision::RRScene();
@@ -1925,7 +1928,9 @@ int main(int argc, char **argv)
 	glsl_init();
 	checkGlError();
 #ifdef APP
-	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,app.scene));
+	renderer = NULL;
+	app.calculate();
+	renderer = new RRCachingRenderer(new RRGLObjectRenderer(app.multiObject,app.scene));
 #else
 	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,rrscene));
 #endif
