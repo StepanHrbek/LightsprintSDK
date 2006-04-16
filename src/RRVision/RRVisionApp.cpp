@@ -103,7 +103,12 @@ void RRVisionApp::readResults()
 	{
 		RRObjectImporter* object = (*obji).first;
 		RRObjectIllumination* illumination = (*obji).second;
-		rrCollider::RRMeshImporter* mesh = object->getCollider()->getImporter();
+		rrCollider::RRMeshImporter* mesh =
+#ifdef MULTIOBJECT
+			multiObject->getCollider()->getImporter();
+#else
+			object->getCollider()->getImporter();
+#endif
 		unsigned numPostImportVertices = mesh->getNumVertices();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
@@ -116,8 +121,7 @@ void RRVisionApp::readResults()
 
 		//vertexBuffer->setToZero();
 
-		//!!! adaptovat na multimesh
-		// prepare lookup table postImportVertex -> [postImportTriangle,vertex0..2]
+		// prepare lookup table preImportVertex -> [postImportTriangle,vertex0..2]
 		std::pair<unsigned,unsigned>* preVertex2PostTriangleVertex = new std::pair<unsigned,unsigned>[numPreImportVertices];
 		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
 			preVertex2PostTriangleVertex[preImportVertex] = std::pair<unsigned,unsigned>(rrCollider::RRMeshImporter::UNDEFINED,rrCollider::RRMeshImporter::UNDEFINED);
@@ -131,6 +135,13 @@ void RRVisionApp::readResults()
 				if(postImportVertex<numPostImportVertices)
 				{
 					unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
+#ifdef MULTIOBJECT
+					rrCollider::RRMeshImporter::MultiMeshPreImportNumber preVertexMulti = preVertex;
+					if(preVertexMulti.object==objectHandle)
+						preVertex = preVertexMulti.index;
+					else
+						continue; // skip asserts
+#endif
 					if(preVertex<numPreImportVertices)
 						preVertex2PostTriangleVertex[preVertex] = std::pair<unsigned,unsigned>(postImportTriangle,v);
 					else

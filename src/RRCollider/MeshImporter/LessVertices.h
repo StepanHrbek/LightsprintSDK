@@ -101,17 +101,19 @@ dupl:;
 		// exact version
 		// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
 		// use postImportTriangle to fully specify which one preImportVertex to return
-		unsigned preImportTriangle = RRMeshImporter::getPreImportTriangle(postImportTriangle);
-		if(preImportTriangle==UNDEFINED)
+		unsigned midImportTriangle = postImportTriangle; // triangle numbering is not changed by us
+		if(midImportTriangle==UNDEFINED)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
-		RRMeshImporter::Triangle preImportVertices;
-		importer->getTriangle(preImportTriangle,preImportVertices);
-		if(Dupl2Unique[preImportVertices[0]]==postImportVertex) return preImportVertices[0];
-		if(Dupl2Unique[preImportVertices[1]]==postImportVertex) return preImportVertices[1];
-		if(Dupl2Unique[preImportVertices[2]]==postImportVertex) return preImportVertices[2];
+		RRMeshImporter::Triangle midImportVertices;
+		importer->getTriangle(midImportTriangle,midImportVertices);
+		for(unsigned v=0;v<3;v++)
+		{
+			if(Dupl2Unique[midImportVertices[v]]==postImportVertex)
+				return importer->getPreImportVertex(midImportVertices[v],midImportTriangle);
+		}
 		assert(0);
 
 		// fast version
@@ -230,17 +232,19 @@ dupl:;
 		// exact version
 		// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
 		// use postImportTriangle to fully specify which one preImportVertex to return
-		unsigned preImportTriangle = RRMeshImporter::getPreImportTriangle(postImportTriangle);
-		if(preImportTriangle==RRMeshImporter::UNDEFINED)
+		unsigned midImportTriangle = postImportTriangle; // triangle numbering is not changed by us
+		if(midImportTriangle==RRMeshImporter::UNDEFINED)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMeshImporter::UNDEFINED;
 		}
-		RRMeshImporter::Triangle preImportVertices;
-		INHERITED::getTriangle(preImportTriangle,preImportVertices);
-		if(Dupl2Unique[preImportVertices[0]]==postImportVertex) return preImportVertices[0];
-		if(Dupl2Unique[preImportVertices[1]]==postImportVertex) return preImportVertices[1];
-		if(Dupl2Unique[preImportVertices[2]]==postImportVertex) return preImportVertices[2];
+		RRMeshImporter::Triangle midImportVertices;
+		INHERITED::getTriangle(midImportTriangle,midImportVertices);
+		for(unsigned v=0;v<3;v++)
+		{
+			if(Dupl2Unique[midImportVertices[v]]==postImportVertex)
+				return INHERITED::getPreImportVertex(midImportVertices[v],midImportTriangle);
+		}
 		assert(0);
 
 		// fast version

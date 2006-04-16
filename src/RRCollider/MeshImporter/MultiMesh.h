@@ -78,7 +78,7 @@ public:
 
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	{
-		assert(0);//!!! just mark that this code was not tested
+//		assert(0);//!!! just mark that this code was not tested
 		if(postImportVertex<pack[0].getNumVertices()) 
 		{
 			return pack[0].getImporter()->getPreImportVertex(postImportVertex, postImportTriangle);
