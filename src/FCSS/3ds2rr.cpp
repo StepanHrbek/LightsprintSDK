@@ -141,7 +141,7 @@ M3dsImporter::~M3dsImporter()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// MgfImporter implements RRMeshImporter
+// M3dsImporter implements RRMeshImporter
 
 unsigned M3dsImporter::getNumVertices() const
 {
@@ -174,7 +174,7 @@ void M3dsImporter::getTriangle(unsigned t, Triangle& out) const
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// MgfImporter implements RRObjectImporter
+// M3dsImporter implements RRObjectImporter
 
 const rrCollider::RRCollider* M3dsImporter::getCollider() const
 {
@@ -229,17 +229,12 @@ rrVision::RRObjectImporter* new_3ds_importer(Model_3DS* model, unsigned objectId
 	return importer;
 }
 
-rrVision::RRObjectImporter* new_3ds_importer(Model_3DS* model,rrVision::RRVisionApp* app)
+void new_3ds_importer(Model_3DS* model,rrVision::RRVisionApp* app)
 {
 	rrVision::RRVisionApp::Objects objects;
-	rrVision::RRObjectImporter** importers = new rrVision::RRObjectImporter*[model->numObjects];
 	for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 	{
-		importers[i] = new_3ds_importer(model, i);
-		objects.push_back(rrVision::RRVisionApp::Object(importers[i],new rrVision::RRObjectIllumination(model->Objects[i].numVerts)));
+		objects.push_back(rrVision::RRVisionApp::Object(new_3ds_importer(model,i),new rrVision::RRObjectIllumination(model->Objects[i].numVerts)));
 	}
-	rrVision::RRObjectImporter* multi = rrVision::RRObjectImporter::createMultiObject(importers,model->numObjects,rrCollider::RRCollider::IT_BSP_FASTEST,0.01f,false,NULL);
-	//!!! delete[] importers;
 	if(app) app->setObjects(objects);
-	return multi;
 }

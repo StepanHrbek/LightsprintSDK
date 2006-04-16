@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVisionApp.h
 //! \brief RRVision - library for fast global illumination calculations
-//! \version 2006.4.2
+//! \version 2006.4.16
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -132,6 +132,7 @@ namespace rrVision
 		void setObjects(Objects& objects);
 		RRObjectImporter* getObject(unsigned i);
 		RRObjectIllumination* getIllumination(unsigned i);
+		
 		//! Selects channel for storing results, 0 is default.
 		void setResultChannel(unsigned channelIndex);
 

@@ -1,4 +1,3 @@
-#define APP
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
@@ -12,6 +11,8 @@ int fullscreen = 1;
 int shadowSamples = 4;
 
 /*
+obcas je po spusteni indirect svetlejsi nez by mel byt, po prvnim pohybu svetla se srovna
+
 pridat dalsi koupelny
 ovladani jasu (global, indirect)
 nacitat jpg
@@ -58,27 +59,6 @@ using namespace std;
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// time
-
-#include <time.h>
-#define TIME    clock_t            
-#define GETTIME clock()
-#define PER_SEC CLOCKS_PER_SEC
-
-#define TIME_TO_START_IMPROVING 0.3f
-TIME lastInteractionTime = 0;
-float rrtimestep;
-
-void checkGlError()
-{
-	GLenum err = glGetError();
-	if(err!=GL_NO_ERROR)
-	{
-		printf("glGetError=%x\n",err);
-	}
-}
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -115,81 +95,6 @@ bool renderDiffuseTexture = true;
 bool renderOnlyRr = false;
 bool renderSource = false;
 RRCachingRenderer* renderer = NULL;
-rrVision::RRColor* indirectColors = NULL;
-#ifndef APP
-rrVision::RRAdditionalObjectImporter* rrobject = NULL;
-rrVision::RRScene* rrscene = NULL;
-rrVision::RRScaler* rrscaler = NULL;
-// rr endfunc callback
-static bool endByTime(void *context)
-{
-	return GETTIME>(TIME)(intptr_t)context;
-}
-#ifdef _3DS
-rrVision::RRReal size2(const rrVision::RRVec3& a)
-{
-	return a.x*a.x+a.y*a.y+a.z*a.z;
-}
-void updateIndirect()
-{
-	if(!rrobject || !rrscene) return;
-
-	rrVision::RRScene::setState(rrVision::RRScene::GET_SOURCE,renderSource?1:0);
-	rrVision::RRScene::setState(rrVision::RRScene::GET_REFLECTED,renderSource?0:1);
-
-	unsigned firstTriangleIdx[1000];//!!!
-	unsigned firstVertexIdx[1000];
-	unsigned triIdx = 0;
-	unsigned vertIdx = 0;
-	for(unsigned obj=0;obj<(unsigned)m3ds.numObjects;obj++)
-	{
-		firstTriangleIdx[obj] = triIdx;
-		firstVertexIdx[obj] = vertIdx;
-		for (int j = 0; j < m3ds.Objects[obj].numMatFaces; j ++)
-		{
-			unsigned numTriangles = m3ds.Objects[obj].MatFaces[j].numSubFaces/3;
-			triIdx += numTriangles;
-		}
-		vertIdx += m3ds.Objects[obj].numVerts;
-	}
-
-	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
-	unsigned numVertices = vertIdx;//mesh->getNumVertices();
-	delete[] indirectColors;
-	indirectColors = new rrVision::RRColor[numVertices];
-	for(unsigned i=0;i<numVertices;i++)
-		indirectColors[i] = rrVision::RRColor(0);
-
-	//rrVision::RRColor suma=rrVision::RRColor(0);//!!!
-	unsigned numTriangles = mesh->getNumTriangles();
-	for(unsigned t=0;t<numTriangles;t++) // triangle
-	{
-		rrCollider::RRMeshImporter::Triangle triangle;
-		mesh->getTriangle(t,triangle);
-		for(unsigned v=0;v<3;v++) // vertex
-		{
-			// get 1*irradiance
-			rrVision::RRColor indirect;
-			rrscene->getTriangleMeasure(0,t,v,rrVision::RM_IRRADIANCE,indirect);// je pouzito vzdy pro 3ds vystup, toto se jeste prenasobi difusni texturou
-			// write 1*irradiance
-			for(unsigned i=0;i<3;i++)
-			{
-				assert(_finite(indirect[i]));
-				assert(indirect[i]>=0);
-				assert(indirect[i]<1500000);
-			}
-			rrCollider::RRMeshImporter::MultiMeshPreImportNumber pre = mesh->getPreImportVertex(triangle[v],t);
-			unsigned preVertexIdx = firstVertexIdx[pre.object]+pre.index;
-			assert(preVertexIdx<numVertices);
-			if(size2(indirect)>size2(indirectColors[preVertexIdx])) // use maximum, so degenerated black triangles are ignored
-				indirectColors[preVertexIdx] = indirect;
-	//		suma+=indirect;
-		}
-	}
-	//printf("%f %f %f\n",suma[0],suma[1],suma[2]);//!!!
-}
-#endif
-#endif
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -204,6 +109,15 @@ unsigned int shadowTex[MAX_INSTANCES];
 int currentWindowSize;
 #define SHADOW_MAP_SIZE 512
 int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0
+
+void checkGlError()
+{
+	GLenum err = glGetError();
+	if(err!=GL_NO_ERROR)
+	{
+		printf("glGetError=%x\n",err);
+	}
+}
 
 void initShadowTex()
 {
@@ -502,10 +416,6 @@ protected:
 
 		free(pixelBuffer);
 
-		// prepare for new calculation
-		//		rrscene->illuminationReset(false);
-		//		rrtimestep = 0.1f;
-
 		// restore render states
 		glViewport(0, 0, winWidth, winHeight);
 		glDepthMask(1);
@@ -658,20 +568,12 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-#ifdef APP
 		m3ds.Draw(NULL,(useLights<=INSTANCES_PER_PASS)?app:NULL); // optimalizovay render->s ambientem, jinak bez
-#else
-		m3ds.Draw((useLights<=INSTANCES_PER_PASS)?&indirectColors[0].x:NULL,NULL); // optimalizovay render->s ambientem, jinak bez
-#endif
 		return;
 	}
 	if(!renderOnlyRr && (cc==RRObjectRenderer::CC_SOURCE_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE))
 	{
-#ifdef APP
 		m3ds.Draw(NULL,app);
-#else
-		m3ds.Draw(&indirectColors[0].x,NULL);
-#endif
 		return;
 	}
 #endif
@@ -1026,106 +928,9 @@ void drawEyeViewSoftShadowed(void)
 	glAccum(GL_RETURN,1);
 }
 
-void capturePrimary() // slow
+void capturePrimary()
 {
-#ifdef APP
 	app->reportLightChange();
-#else
-	//!!! needs windows at least 512x512
-	unsigned width1 = 4;
-	unsigned height1 = 4;
-	unsigned width = 512;
-	unsigned height = 512;
-	captureUv.firstCapturedTriangle = 0;
-	captureUv.xmax = width/width1;
-	captureUv.ymax = height/height1;
-
-	/*
-	jak uspesne napichnout renderer?
-	1) na konci vertex shaderu prepsat 2d pozici
-	2) k tomu je nutne renderovat neindexovane
-	3) podle momentalniho stavu view matice mohou vychazet ruzne speculary
-	4) pouzit halfovy buffer aby se detekovalo i presviceni
-
-	ad 2)
-	nejde tam dostat per-triangle informaci bez nabourani stavajiciho indexed trilist renderu 
-	protoze vic trianglu pouziva stejny vertex
-	je nutne za behu prekladat vse do streamu kde se vertexy neopakuji
-
-	prozatim muzu pouzit vlastni renderer a nenapichovat 3ds
-	protoze vse dulezite z 3ds (1 svetlo se stiny) lze prenest do rr2gl
-	texturu z 3ds lze zanedbat
-	*/
-
-	// setup render states
-	glClearColor(0,0,0,1);
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(0);
-	glViewport(0, 0, width, height);
-
-	// Allocate the index buffer memory as necessary.
-	GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
-
-	rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
-	unsigned numTriangles = mesh->getNumTriangles();
-
-	//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
-	for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
-	{
-		// clear
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		// render scene
-		renderer->setStatus(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,RRCachingRenderer::CS_NEVER_COMPILE);
-		generateForcedUv = &captureUv;
-		drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
-		generateForcedUv = NULL;
-
-		// Read back the index buffer to memory.
-		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
-
-		// dbg print
-		//rrVision::RRColor suma = rrVision::RRColor(0);
-
-		// accumulate triangle powers
-		for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
-		{
-			// accumulate 1 triangle power
-			unsigned sum[3] = {0,0,0};
-			unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/(height/height1);
-			unsigned j = triangleIndex%(height/height1);
-			for(unsigned n=0;n<height1;n++)
-				for(unsigned m=0;m<width1;m++)
-				{
-					unsigned pixel = width*(j*height1+n) + (i*width1+m);
-					unsigned color = pixelBuffer[pixel] >> 8; // alpha was lost
-					sum[0] += color>>16;
-					sum[1] += (color>>8)&255;
-					sum[2] += color&255;
-				}
-			// pass power to rrobject
-			rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-			rrobject->setTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITANCE,avg);
-
-			// debug print
-			//rrVision::RRColor tmp = rrVision::RRColor(0);
-			//rrobject->getTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
-			//suma+=tmp;
-		}
-		//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
-	}
-
-	free(pixelBuffer);
-
-	// prepare for new calculation
-	rrscene->illuminationReset(false);
-	rrtimestep = 0.1f;
-
-	// restore render states
-	glViewport(0, 0, winWidth, winHeight);
-	glDepthMask(1);
-	glEnable(GL_DEPTH_TEST);
-#endif
 }
 
 static void output(int x, int y, char *string)
@@ -1347,7 +1152,6 @@ void toggleTextures()
 
 void selectMenu(int item)
 {
-	lastInteractionTime = GETTIME;
 	app->reportInteraction();
 	switch (item) {
   case ME_EYE_VIEW_SHADOWED:
@@ -1390,7 +1194,6 @@ void selectMenu(int item)
 
 void special(int c, int x, int y)
 {
-	lastInteractionTime = GETTIME;
 	app->reportInteraction();
 	SimpleCamera* cam = movingLight?&light:&eye;
 	switch (c) 
@@ -1447,10 +1250,10 @@ void special(int c, int x, int y)
 
 void keyboard(unsigned char c, int x, int y)
 {
-	lastInteractionTime = GETTIME;
 	app->reportInteraction();
 	switch (c) {
 		case 27:
+			//delete app; throws asser in freeing node from ivertex
 			exit(0);
 			break;
 		case 'b':
@@ -1673,7 +1476,6 @@ void initGL(void)
 
 void mouse(int button, int state, int x, int y)
 {
-	lastInteractionTime = GETTIME;
 	app->reportInteraction();
 	if (button == eyeButton && state == GLUT_DOWN) {
 		movingEye = 1;
@@ -1704,7 +1506,6 @@ void passivemotion(int x, int y)
 
 void motion(int x, int y)
 {
-	lastInteractionTime = GETTIME;
 	app->reportInteraction();
 	if (movingEye) {
 		eye.angle = eye.angle - 0.005*(x - xEyeBegin);
@@ -1744,7 +1545,7 @@ void initMenus(void)
 	glutAddMenuEntry("[ ] Toggle global illumination", ME_TOGGLE_GLOBAL_ILLUMINATION);
 	glutAddMenuEntry("[f] Toggle light frustum", ME_TOGGLE_LIGHT_FRUSTUM);
 	glutAddMenuEntry("[w] Toggle wire frame", ME_TOGGLE_WIRE_FRAME);
-	glutAddMenuEntry("[m] Switch mouse control", ME_SWITCH_MOUSE_CONTROL);
+	glutAddMenuEntry("[m] Switch mouse buttons", ME_SWITCH_MOUSE_CONTROL);
 	glutAddMenuEntry("[ESC] Quit", ME_EXIT);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -1798,42 +1599,8 @@ void parseOptions(int argc, char **argv)
 
 void idle()
 {
-#ifdef APP
 	if(app->calculate()==rrVision::RRScene::IMPROVED)
 		glutPostRedisplay();;
-#else
-	TIME now = GETTIME;
-	if((now-lastInteractionTime)/(float)PER_SEC<TIME_TO_START_IMPROVING) return;
-
-	static const float calcstep = 0.1f;
-	rrscene->illuminationImprove(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
-	/*rrVision::RRScene::Improvement imp = rrscene->sceneImproveStatic(endByTime,(void*)(intptr_t)(GETTIME+calcstep*PER_SEC));
-	switch(imp)
-	{
-	case rrVision::RRScene::NOT_IMPROVED:printf("Not improved.\n");break;
-	case rrVision::RRScene::INTERNAL_ERROR:printf("Internal error.\n");break;
-	case rrVision::RRScene::FINISHED:printf("Finished.\n");break;
-	}*/
-	static float calcsum = 0;
-	calcsum += calcstep;
-	if(calcsum>=rrtimestep)
-	{
-		calcsum = 0;
-		if(rrtimestep<1.5f) rrtimestep*=1.1f;
-#ifdef _3DS
-		if(!renderOnlyRr)
-		{
-			updateIndirect();
-		}
-		else
-#endif
-		{
-			renderer->setStatus(RRObjectRenderer::CC_SOURCE_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
-			renderer->setStatus(RRObjectRenderer::CC_REFLECTED_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
-		}
-		glutPostRedisplay();
-	}
-#endif
 }
 
 int main(int argc, char **argv)
@@ -1920,34 +1687,19 @@ int main(int argc, char **argv)
 	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
 	//m3ds.shownormals=1;
 	//m3ds.numObjects=2;//!!!
-#ifdef APP
 	app = new MyApp();
 	new_3ds_importer(&m3ds,app);
-#else
-	rrobject = new_3ds_importer(&m3ds,NULL)->createAdditionalIllumination();
-	rrscene = new rrVision::RRScene();
-	rrscaler = rrVision::RRScaler::createRgbScaler();
-	rrscene->setScaler(rrscaler);
-	rrscene->objectCreate(rrobject);
-#endif
 #else
 	// load mgf
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalIllumination();
 #endif
+	printf("\n");
 	glsl_init();
 	checkGlError();
-#ifdef APP
 	renderer = NULL;
 	app->calculate();
 	renderer = new RRCachingRenderer(new RRGLObjectRenderer(app->multiObject,app->scene));
-#else
-	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,rrscene));
-#endif
-	printf("\n");
 
 	glutMainLoop();
-#ifdef APP
-	delete app;
-#endif
 	return 0;
 }

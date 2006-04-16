@@ -3478,6 +3478,7 @@ void core_Done()
 	  fprintf(stderr," lightmaps   =         %8dK\n",
 	    __lightmapsAllocated/1024);
 	#endif
+	  //fgetc(stdin);
 	}
 #endif
 
