@@ -1,5 +1,6 @@
 #pragma once
 
+#include <assert.h>
 #include "RRCollider.h"
 
 namespace rrCollider
@@ -15,6 +16,7 @@ public:
 	RRMeshFilter(const RRMeshImporter* original)
 	{
 		importer = original;
+		assert(importer);
 		numVertices = importer ? importer->getNumVertices() : 0;
 		numTriangles = importer ? importer->getNumTriangles() : 0;
 	}

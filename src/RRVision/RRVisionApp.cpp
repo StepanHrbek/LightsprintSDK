@@ -1,3 +1,5 @@
+#define MULTIOBJECT // creates multiObject to accelerate calculation
+
 #include <assert.h>
 #include <float.h> // _finite
 #include <time.h>
@@ -15,6 +17,7 @@ namespace rrVision
 
 RRVisionApp::RRVisionApp()
 {
+	multiObject = NULL;
 	surfaces = NULL;
 	numSurfaces = 0;
 	scene = NULL;
@@ -96,21 +99,70 @@ void RRVisionApp::readResults()
 	}*/
 
 	unsigned objectHandle=0;//!!!
-	for(Objects::iterator i=objects.begin();i!=objects.end();i++)
+	for(Objects::iterator obji=objects.begin();obji!=objects.end();obji++)
 	{
-		RRObjectIllumination* objectIllumination = *i;
-		RRObjectImporter* object = objectIllumination->getObjectImporter();
+		RRObjectImporter* object = (*obji).first;
+		RRObjectIllumination* illumination = (*obji).second;
 		rrCollider::RRMeshImporter* mesh = object->getCollider()->getImporter();
-		unsigned numVertices = mesh->getNumVertices();
-		unsigned numTriangles = mesh->getNumTriangles();
-		RRObjectIllumination::Channel* channel = objectIllumination->getChannel(resultChannelIndex);
+		unsigned numPostImportVertices = mesh->getNumVertices();
+		unsigned numPostImportTriangles = mesh->getNumTriangles();
+		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
+		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
 		RRObjectIllumination::VertexBuffer* vertexBuffer = &channel->vertexBuffer;
 
 		assert(vertexBuffer->vertices);
+		assert(vertexBuffer->numPreImportVertices==numPreImportVertices);
 		assert(vertexBuffer->format==RRObjectIllumination::RGB32F);
 
 		//vertexBuffer->setToZero();
 
+		//!!! adaptovat na multimesh
+		// prepare lookup table postImportVertex -> [postImportTriangle,vertex0..2]
+		std::pair<unsigned,unsigned>* preVertex2PostTriangleVertex = new std::pair<unsigned,unsigned>[numPreImportVertices];
+		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
+			preVertex2PostTriangleVertex[preImportVertex] = std::pair<unsigned,unsigned>(rrCollider::RRMeshImporter::UNDEFINED,rrCollider::RRMeshImporter::UNDEFINED);
+		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+		{
+			rrCollider::RRMeshImporter::Triangle postImportTriangleVertices;
+			mesh->getTriangle(postImportTriangle,postImportTriangleVertices);
+			for(unsigned v=0;v<3;v++)
+			{
+				unsigned postImportVertex = postImportTriangleVertices[v];
+				if(postImportVertex<numPostImportVertices)
+				{
+					unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
+					if(preVertex<numPreImportVertices)
+						preVertex2PostTriangleVertex[preVertex] = std::pair<unsigned,unsigned>(postImportTriangle,v);
+					else
+						assert(0);
+				}
+				else
+					assert(0);
+			}
+		}
+		// load measure into each preImportVertex
+		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
+		{
+			unsigned t = preVertex2PostTriangleVertex[preImportVertex].first;
+			unsigned v = preVertex2PostTriangleVertex[preImportVertex].second;
+			RRColor indirect = RRColor(0);
+#ifdef MULTIOBJECT
+			scene->getTriangleMeasure(0,t,v,RM_IRRADIANCE,indirect);
+#else
+			scene->getTriangleMeasure(objectHandle,t,v,RM_IRRADIANCE,indirect);
+#endif
+			for(unsigned i=0;i<3;i++)
+			{
+				assert(_finite(indirect[i]));
+				assert(indirect[i]>=0);
+				assert(indirect[i]<1500000);
+			}
+			((RRColor*)vertexBuffer->vertices)[preImportVertex] = indirect;
+		}
+		// delete lookup table
+		delete[] preVertex2PostTriangleVertex;
+
+/*
 		for(unsigned t=0;t<numTriangles;t++) // triangle
 		{
 			rrCollider::RRMeshImporter::Triangle triangle;
@@ -128,17 +180,17 @@ void RRVisionApp::readResults()
 					assert(indirect[i]<1500000);
 				}
 				unsigned preVertexIdx = mesh->getPreImportVertex(triangle[v],t);
-				assert(preVertexIdx<vertexBuffer->numVertices);
+				assert(preVertexIdx<vertexBuffer->numPreImportVertices);
 				((RRColor*)vertexBuffer)[preVertexIdx] = indirect;
 				/*
 				rrCollider::RRMeshImporter::MultiMeshPreImportNumber pre = mesh->getPreImportVertex(triangle[v],t);
 				unsigned preVertexIdx = firstVertexIdx[pre.object]+pre.index;
-				assert(preVertexIdx<numVertices);
+				assert(preVertexIdx<numPostImportVertices);
 				if(size2(indirect)>size2(indirectColors[preVertexIdx])) // use maximum, so degenerated black triangles are ignored
 					indirectColors[preVertexIdx] = indirect;
-					*/
+					* /
 			}
-		}
+		}*/
 		objectHandle++;
 	}
 }
@@ -162,13 +214,27 @@ void RRVisionApp::calculate()
 		dirtyGeometry = false;
 		dirtyLights = true;
 		dirtyFactors = true;
-		reportAction("Closing old radiosity solver.");
-		delete scene;
+		if(scene)
+		{
+			reportAction("Closing old radiosity solver.");
+			delete scene;
+		}
 		reportAction("Opening new radiosity solver.");
 		scene = new RRScene;
+#ifdef MULTIOBJECT
+		rrVision::RRObjectImporter** importers = new rrVision::RRObjectImporter*[objects.size()];
+		for(unsigned i=0;i<(unsigned)objects.size();i++)
+		{
+			importers[i] = objects.at(i).first;
+		}
+		RRObjectImporter* object = RRObjectImporter::createMultiObject(importers,(unsigned)objects.size(),rrCollider::RRCollider::IT_BSP_FASTEST,0.01f,false,NULL);
+		multiObject = object ? object->createAdditionalIllumination() : NULL;
+		//!!! delete[] importers;
+		scene->objectCreate(multiObject);
+#else
 		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
-			scene->objectCreate((*i)->getObjectImporter());
-		//!!! slepit multiobject
+			scene->objectCreate((*i).first);
+#endif
 	}
 	if(dirtyLights)
 	{

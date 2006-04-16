@@ -5,11 +5,11 @@
 #ifndef _3DS2RR_H
 #define _3DS2RR_H
 
-#include "RRVision.h"
+#include "RRVisionApp.h"
 #include "Model_3DS.h"
 
 // you may load object from mgf
-rrVision::RRObjectImporter* new_3ds_importer(Model_3DS* model);
+rrVision::RRObjectImporter* new_3ds_importer(Model_3DS* model,rrVision::RRVisionApp* app);
 
 // and you may set direct exiting flux (not present in file) later
 // (direct means that flux was caused by spotlight shining on face and face reflects part of power)

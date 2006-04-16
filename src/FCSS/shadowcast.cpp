@@ -1,3 +1,4 @@
+//#define APP
 #define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
@@ -114,6 +115,8 @@ bool renderDiffuseTexture = true;
 bool renderOnlyRr = false;
 bool renderSource = false;
 RRCachingRenderer* renderer = NULL;
+rrVision::RRColor* indirectColors = NULL;
+#ifndef APP
 rrVision::RRAdditionalObjectImporter* rrobject = NULL;
 rrVision::RRScene* rrscene = NULL;
 rrVision::RRScaler* rrscaler = NULL;
@@ -122,7 +125,6 @@ static bool endByTime(void *context)
 {
 	return GETTIME>(TIME)(intptr_t)context;
 }
-rrVision::RRColor* indirectColors = NULL;
 #ifdef _3DS
 rrVision::RRReal size2(const rrVision::RRVec3& a)
 {
@@ -186,6 +188,7 @@ void updateIndirect()
 	}
 	//printf("%f %f %f\n",suma[0],suma[1],suma[2]);//!!!
 }
+#endif
 #endif
 
 
@@ -873,7 +876,12 @@ void drawEyeViewSoftShadowed(void)
 	placeSoftLight(-2);
 
 	// add indirect
-	if(rrscene 
+	if(
+#ifdef APP
+		1
+#else
+		rrscene
+#endif
 #ifdef _3DS
 		&& (indirectColors || renderOnlyRr)
 #endif
@@ -894,8 +902,126 @@ void drawEyeViewSoftShadowed(void)
 	glAccum(GL_RETURN,1);
 }
 
+// external dependencies of MyApp:
+// z m3ds detekuje materialy
+// do rrobject zapisuje nasnimany direct
+class MyApp : public rrVision::RRVisionApp
+{
+protected:
+	virtual void detectMaterials()
+	{
+		delete[] surfaces;
+		numSurfaces = m3ds.numMaterials;
+		surfaces = new rrVision::RRSurface[numSurfaces];
+		for(unsigned i=0;i<numSurfaces;i++)
+		{
+			surfaces[i].reset(false);
+			surfaces[i].diffuseReflectance = rrVision::RRColor(m3ds.Materials[i].color.r/255.0,m3ds.Materials[i].color.g/255.0,m3ds.Materials[i].color.b/255.0);
+		}
+	}
+	virtual void detectDirectIllumination()
+	{
+		//!!!
+		/*
+		for each object
+		generate pos-override channel
+		render with pos-override
+		prubezne pri kazdem naplneni textury
+		zmensi texturu na gpu
+		zkopiruj texturu do cpu
+		uloz vysledky do AdditionalObjectImporteru
+		*/
+		//!!! needs windows at least 512x512
+		unsigned width1 = 4;
+		unsigned height1 = 4;
+		unsigned width = 512;
+		unsigned height = 512;
+		captureUv.firstCapturedTriangle = 0;
+		captureUv.xmax = width/width1;
+		captureUv.ymax = height/height1;
+
+		// setup render states
+		glClearColor(0,0,0,1);
+		glDisable(GL_DEPTH_TEST);
+		glDepthMask(0);
+		glViewport(0, 0, width, height);
+
+		// Allocate the index buffer memory as necessary.
+		GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
+
+		rrCollider::RRMeshImporter* mesh = multiObject->getCollider()->getImporter();
+		unsigned numTriangles = mesh->getNumTriangles();
+
+		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
+		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
+		{
+			// clear
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			// render scene
+			renderer->setStatus(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,RRCachingRenderer::CS_NEVER_COMPILE);
+			generateForcedUv = &captureUv;
+			drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
+			generateForcedUv = NULL;
+
+			// Read back the index buffer to memory.
+			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
+
+			// dbg print
+			//rrVision::RRColor suma = rrVision::RRColor(0);
+
+			// accumulate triangle powers
+			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
+			{
+				// accumulate 1 triangle power
+				unsigned sum[3] = {0,0,0};
+				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/(height/height1);
+				unsigned j = triangleIndex%(height/height1);
+				for(unsigned n=0;n<height1;n++)
+					for(unsigned m=0;m<width1;m++)
+					{
+						unsigned pixel = width*(j*height1+n) + (i*width1+m);
+						unsigned color = pixelBuffer[pixel] >> 8; // alpha was lost
+						sum[0] += color>>16;
+						sum[1] += (color>>8)&255;
+						sum[2] += color&255;
+					}
+					// pass power to rrobject
+					rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
+					multiObject->setTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITANCE,avg);
+
+					// debug print
+					//rrVision::RRColor tmp = rrVision::RRColor(0);
+					//rrobject->getTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
+					//suma+=tmp;
+			}
+			//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
+		}
+
+		free(pixelBuffer);
+
+		// prepare for new calculation
+		//		rrscene->illuminationReset(false);
+		//		rrtimestep = 0.1f;
+
+		// restore render states
+		glViewport(0, 0, winWidth, winHeight);
+		glDepthMask(1);
+		glEnable(GL_DEPTH_TEST);
+	}
+	virtual void reportAction(const char* action) const
+	{
+		printf("%s\n",action);
+	}
+};
+
+MyApp app;
+
 void capturePrimary() // slow
 {
+#ifdef APP
+	app.reportLightChange();
+#else
 	//!!! needs windows at least 512x512
 	unsigned width1 = 4;
 	unsigned height1 = 4;
@@ -990,6 +1116,7 @@ void capturePrimary() // slow
 	glViewport(0, 0, winWidth, winHeight);
 	glDepthMask(1);
 	glEnable(GL_DEPTH_TEST);
+#endif
 }
 
 static void output(int x, int y, char *string)
@@ -1160,121 +1287,6 @@ static void benchmark(int perFrameDepthMapUpdate)
 		depthMapSize, depthMapSize, precision);
 	needDepthMapUpdate = 1;
 }
-
-// external dependencies of MyApp:
-// z m3ds detekuje materialy
-// do rrobject zapisuje nasnimany direct
-class MyApp : public rrVision::RRVisionApp
-{
-protected:
-	virtual void detectMaterials()
-	{
-		delete[] surfaces;
-		numSurfaces = m3ds.numMaterials;
-		surfaces = new rrVision::RRSurface[numSurfaces];
-		for(unsigned i=0;i<numSurfaces;i++)
-		{
-			surfaces[i].reset(false);
-			surfaces[i].diffuseReflectance = rrVision::RRColor(m3ds.Materials[i].color.r/255.0,m3ds.Materials[i].color.g/255.0,m3ds.Materials[i].color.b/255.0);
-		}
-	}
-	virtual void detectDirectIllumination()
-	{
-		//!!!
-		/*
-		for each object
-		generate pos-override channel
-		render with pos-override
-		prubezne pri kazdem naplneni textury
-		zmensi texturu na gpu
-		zkopiruj texturu do cpu
-		uloz vysledky do AdditionalObjectImporteru
-		*/
-		//!!! needs windows at least 512x512
-		unsigned width1 = 4;
-		unsigned height1 = 4;
-		unsigned width = 512;
-		unsigned height = 512;
-		captureUv.firstCapturedTriangle = 0;
-		captureUv.xmax = width/width1;
-		captureUv.ymax = height/height1;
-
-		// setup render states
-		glClearColor(0,0,0,1);
-		glDisable(GL_DEPTH_TEST);
-		glDepthMask(0);
-		glViewport(0, 0, width, height);
-
-		// Allocate the index buffer memory as necessary.
-		GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
-
-		rrCollider::RRMeshImporter* mesh = rrobject->getCollider()->getImporter();
-		unsigned numTriangles = mesh->getNumTriangles();
-
-		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
-		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
-		{
-			// clear
-			glClear(GL_COLOR_BUFFER_BIT);
-
-			// render scene
-			renderer->setStatus(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,RRCachingRenderer::CS_NEVER_COMPILE);
-			generateForcedUv = &captureUv;
-			drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
-			generateForcedUv = NULL;
-
-			// Read back the index buffer to memory.
-			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
-
-			// dbg print
-			//rrVision::RRColor suma = rrVision::RRColor(0);
-
-			// accumulate triangle powers
-			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
-			{
-				// accumulate 1 triangle power
-				unsigned sum[3] = {0,0,0};
-				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/(height/height1);
-				unsigned j = triangleIndex%(height/height1);
-				for(unsigned n=0;n<height1;n++)
-					for(unsigned m=0;m<width1;m++)
-					{
-						unsigned pixel = width*(j*height1+n) + (i*width1+m);
-						unsigned color = pixelBuffer[pixel] >> 8; // alpha was lost
-						sum[0] += color>>16;
-						sum[1] += (color>>8)&255;
-						sum[2] += color&255;
-					}
-					// pass power to rrobject
-					rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-					rrobject->setTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITANCE,avg);
-
-					// debug print
-					//rrVision::RRColor tmp = rrVision::RRColor(0);
-					//rrobject->getTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
-					//suma+=tmp;
-			}
-			//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
-		}
-
-		free(pixelBuffer);
-
-		// prepare for new calculation
-//		rrscene->illuminationReset(false);
-//		rrtimestep = 0.1f;
-
-		// restore render states
-		glViewport(0, 0, winWidth, winHeight);
-		glDepthMask(1);
-		glEnable(GL_DEPTH_TEST);
-	}
-	virtual void reportAction(const char* action) const
-	{
-		printf("%s\n",action);
-	}
-};
-
-MyApp app;
 
 void switchMouseControl(void)
 {
@@ -1777,7 +1789,9 @@ void parseOptions(int argc, char **argv)
 
 void idle()
 {
-//!!!	app.calculate();
+#ifdef APP
+	app.calculate();
+#else
 	TIME now = GETTIME;
 	if((now-lastInteractionTime)/(float)PER_SEC<TIME_TO_START_IMPROVING) return;
 
@@ -1809,6 +1823,7 @@ void idle()
 		}
 		glutPostRedisplay();
 	}
+#endif
 }
 
 int main(int argc, char **argv)
@@ -1880,22 +1895,7 @@ int main(int argc, char **argv)
 		eye = sponza_eye;
 		light = sponza_light;
 	}
-	printf("Loading and preprocessing scene (~15 sec)...");
-#ifdef _3DS
-	// load 3ds
-	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
-	//m3ds.shownormals=1;
-	rrobject = new_3ds_importer(&m3ds)->createAdditionalIllumination();
-#else
-	// load mgf
-	rrobject = new_mgf_importer(mgf_filename)->createAdditionalIllumination();
-#endif
-/*
-	rrVision::RRObjectIllumination* objectIllumination = new rrVision::RRObjectIllumination(rrobject);
-	MyApp::Objects objects;
-	objects.push_back(objectIllumination);
-	app.setObjects(objects);
-*/
+
 	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
 	rrVision::RRScene::setStateF(rrVision::RRScene::SUBDIVISION_SPEED,0);
 	rrVision::RRScene::setState(rrVision::RRScene::GET_SOURCE,0);
@@ -1903,13 +1903,32 @@ int main(int argc, char **argv)
 	//rrVision::RRScene::setState(rrVision::GET_SMOOTH,0);
 	rrVision::RRScene::setStateF(rrVision::RRScene::MIN_FEATURE_SIZE,0.15f);
 	//rrVision::RRScene::setStateF(rrVision::MAX_SMOOTH_ANGLE,0.4f);
+
+	printf("Loading and preprocessing scene (~15 sec)...");
+#ifdef _3DS
+	// load 3ds
+	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
+	//m3ds.shownormals=1;
+#ifdef APP
+	rrVision::RRObjectImporter* rrobject = new_3ds_importer(&m3ds,&app);
+#else
+	rrobject = new_3ds_importer(&m3ds,NULL)->createAdditionalIllumination();
 	rrscene = new rrVision::RRScene();
 	rrscaler = rrVision::RRScaler::createRgbScaler();
 	rrscene->setScaler(rrscaler);
 	rrscene->objectCreate(rrobject);
+#endif
+#else
+	// load mgf
+	rrobject = new_mgf_importer(mgf_filename)->createAdditionalIllumination();
+#endif
 	glsl_init();
 	checkGlError();
+#ifdef APP
+	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,app.scene));
+#else
 	renderer = new RRCachingRenderer(new RRGLObjectRenderer(rrobject,rrscene));
+#endif
 	printf("\n");
 
 	glutMainLoop();

@@ -108,6 +108,7 @@ class RRMultiObjectImporter : public RRObjectImporter
 public:
 	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
 	{
+		if(!numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
 		rrCollider::RRCollider* multiCollider = NULL;
 		rrCollider::RRMeshImporter** transformedMeshes = NULL;
@@ -314,6 +315,7 @@ public:
 	RRMyAdditionalObjectImporter(RRObjectImporter* aoriginal)
 	{
 		original = aoriginal;
+		assert(original);
 		assert(getCollider());
 		assert(getCollider()->getImporter());
 		numTriangles = getCollider()->getImporter()->getNumTriangles();

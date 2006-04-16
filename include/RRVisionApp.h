@@ -31,25 +31,14 @@ namespace rrVision
 	class RRVISION_API RRObjectIllumination
 	{
 	public:
-		//! For editor.
-		RRObjectIllumination(RRObjectImporter* aimporter)
+		//! Enter PreImport number of vertices, length of vertex buffer for rendering.
+		//! Vertex buffer will be created for PreImport vertices, so it is not suitable for MultiObject.
+		RRObjectIllumination(unsigned anumPreImportVertices)
 		{
-			importer = aimporter->createAdditionalIllumination();
-			numVertices = aimporter->getCollider()->getImporter()->getNumVertices();
-		}
-		//! For game.
-		RRObjectIllumination(unsigned anumVertices)
-		{
-			importer = NULL;
-			numVertices = anumVertices;
+			numPreImportVertices = anumPreImportVertices;
 		}
 		~RRObjectIllumination()
 		{
-			delete importer;
-		}
-		RRObjectImporter* getObjectImporter()
-		{
-			return importer;
 		}
 		enum Format
 		{
@@ -59,13 +48,13 @@ namespace rrVision
 		};
 		struct VertexBuffer
 		{
-			VertexBuffer(Format aformat, unsigned anumVertices)
+			VertexBuffer(Format aformat, unsigned anumPreImportVertices)
 			{
 				memset(this,0,sizeof(*this));
 				format = aformat;
 				stride = (format==ARGB8)?4:((format==RGB32F)?12:0);
-				numVertices = anumVertices;
-				vertices = stride ? new char[stride*numVertices] : NULL;
+				numPreImportVertices = anumPreImportVertices;
+				vertices = stride ? new char[stride*numPreImportVertices] : NULL;
 			}
 			~VertexBuffer()
 			{
@@ -73,7 +62,7 @@ namespace rrVision
 			}
 			Format   format; //! May be requested to change.
 			unsigned stride; //! May be requested to change.
-			unsigned numVertices; //! Never changes during lifetime.
+			unsigned numPreImportVertices; //! Never changes during lifetime.
 			char*    vertices;
 		};
 		struct PixelBuffer
@@ -99,8 +88,8 @@ namespace rrVision
 		};
 		struct Channel
 		{
-			Channel(unsigned anumVertices)
-				: vertexBuffer(RGB32F,anumVertices), pixelBuffer(NONE,0,0)
+			Channel(unsigned anumPreImportVertices)
+				: vertexBuffer(RGB32F,anumPreImportVertices), pixelBuffer(NONE,0,0)
 			{
 			}
 			VertexBuffer vertexBuffer;
@@ -110,15 +99,17 @@ namespace rrVision
 		{
 			std::map<unsigned,Channel*>::iterator i = channels.find(channelIndex);
 			if(i!=channels.end()) return i->second;
-			Channel* tmp = new Channel(numVertices);
+			Channel* tmp = new Channel(numPreImportVertices);
 			channels[channelIndex] = tmp;
 			return tmp;
 		}
+		unsigned getNumPreImportVertices()
+		{
+			return numPreImportVertices;
+		}
 	private:
-		unsigned numVertices;
-		std::map<unsigned,Channel*> channels;
-		//! Only in editor, not in final game.
-		RRAdditionalObjectImporter* importer;
+		unsigned numPreImportVertices; ///< PreImport number of vertices, length of vertex buffer for rendering.
+		std::map<unsigned,Channel*> channels; ///< Calculated illumination.
 	};
 
 
@@ -136,7 +127,8 @@ namespace rrVision
 		virtual ~RRVisionApp();
 
 		//! Defines objects present in scene.
-		typedef std::vector<RRObjectIllumination*> Objects;
+		typedef std::pair<RRObjectImporter*,RRObjectIllumination*> Object;
+		typedef std::vector<Object> Objects;
 		void setObjects(Objects& objects);
 		//! Selects channel for storing results, 0 is default.
 		void setResultChannel(unsigned channelIndex);
@@ -153,6 +145,9 @@ namespace rrVision
 		//! Reports to framework that user interacts.
 		void reportInteraction();
 
+		//!!!
+		RRAdditionalObjectImporter* multiObject;
+		RRScene*   scene;
 	protected:
 		//! Autodetects material properties of all materials present in scene. To be implemented by you.
 		virtual void detectMaterials() = 0;
@@ -167,7 +162,6 @@ namespace rrVision
 		Objects    objects;
 		RRSurface* surfaces;
 		unsigned   numSurfaces;
-		RRScene*   scene;
 
 	private:
 		void       readResults();
