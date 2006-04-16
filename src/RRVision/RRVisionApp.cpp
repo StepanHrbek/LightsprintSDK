@@ -40,6 +40,18 @@ void RRVisionApp::setObjects(Objects& aobjects)
 	dirtyGeometry = true;
 }
 
+RRObjectImporter* RRVisionApp::getObject(unsigned i)
+{
+	if(i>=objects.size()) return NULL;
+	return objects.at(i).first;
+}
+
+RRObjectIllumination* RRVisionApp::getIllumination(unsigned i)
+{
+	if(i>=objects.size()) return NULL;
+	return objects.at(i).second;
+}
+
 void RRVisionApp::setResultChannel(unsigned channelIndex)
 {
 	resultChannelIndex = channelIndex;
@@ -206,10 +218,10 @@ void RRVisionApp::readResults()
 	}
 }
 
-void RRVisionApp::calculate()
+RRScene::Improvement RRVisionApp::calculate()
 {
 	TIME now = GETTIME;
-	if((now-lastInteractionTime)/(float)PER_SEC<PAUSE_AFTER_INTERACTION) return;
+	if((now-lastInteractionTime)/(float)PER_SEC<PAUSE_AFTER_INTERACTION) return RRScene::NOT_IMPROVED;
 
 	bool dirtyFactors = false;
 	bool dirtyEnergies = false;
@@ -272,7 +284,9 @@ void RRVisionApp::calculate()
 	reportAction("Calculating.");
 	calcTimeSinceReadingResults += CALC_STEP;
 	TIME end = (TIME)(now+CALC_STEP*PER_SEC);
-	scene->illuminationImprove(endByTime,(void*)&end);
+	RRScene::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
+	if(improvement==RRScene::FINISHED || improvement==RRScene::INTERNAL_ERROR)
+		return improvement;
 
 	if(calcTimeSinceReadingResults>=readingResultsPeriod)
 	{
@@ -280,7 +294,9 @@ void RRVisionApp::calculate()
 		calcTimeSinceReadingResults = 0;
 		if(readingResultsPeriod<1.5f) readingResultsPeriod*=1.1f;
 		readResults();
+		return RRScene::IMPROVED;
 	}
+	return RRScene::NOT_IMPROVED;
 }
 
 } // namespace

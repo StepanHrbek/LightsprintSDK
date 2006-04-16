@@ -130,11 +130,13 @@ namespace rrVision
 		typedef std::pair<RRObjectImporter*,RRObjectIllumination*> Object;
 		typedef std::vector<Object> Objects;
 		void setObjects(Objects& objects);
+		RRObjectImporter* getObject(unsigned i);
+		RRObjectIllumination* getIllumination(unsigned i);
 		//! Selects channel for storing results, 0 is default.
 		void setResultChannel(unsigned channelIndex);
 
 		//! Calculates, improves indirect illumination on objects, stores into given channel.
-		void calculate();
+		RRScene::Improvement calculate();
 
 		//! Reports to framework that appearance of one or more materials has changed.
 		void reportMaterialChange();

@@ -71,6 +71,7 @@
 #ifndef MODEL_3DS_H
 #define MODEL_3DS_H
 
+#include "RRVisionApp.h"
 #include "glsl/Texture.hpp"
 
 #include <stdio.h>
@@ -156,7 +157,7 @@ public:
 	bool lit;				// True: the model is lit
 	bool visible;			// True: the model gets rendered
 	bool Load(char *name, float scale);	// Loads a model
-	void Draw(GLfloat* color); // Draws the model using given colors (3 floats per vertex)
+	void Draw(GLfloat* color, rrVision::RRVisionApp* app); // Draws the model using given colors (3 floats per vertex)
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor
 	virtual ~Model_3DS();	// Destructor

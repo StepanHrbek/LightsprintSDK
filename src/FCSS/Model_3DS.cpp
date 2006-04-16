@@ -287,7 +287,7 @@ bool Model_3DS::Load(char *name, float scale)
 	return true;
 }
 
-void Model_3DS::Draw(GLfloat* color)
+void Model_3DS::Draw(GLfloat* color, rrVision::RRVisionApp* app)
 {
 	if (visible)
 	{
@@ -315,8 +315,15 @@ void Model_3DS::Draw(GLfloat* color)
 				glColorPointer(3, GL_FLOAT, 0, color);
 				color += 3*Objects[i].numVerts;
 			}
+			else if(app)
+			{
+				glEnableClientState(GL_COLOR_ARRAY);
+				glColorPointer(3, GL_FLOAT, 0, app->getIllumination(i)->getChannel(0)->vertexBuffer.vertices);
+			}
 			else
+			{
 				glColor3f(0,0,0);
+			}
 
 			/*/ additional texcoord7
 			if(texcoord7)
