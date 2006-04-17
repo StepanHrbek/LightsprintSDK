@@ -89,7 +89,7 @@ namespace rrVision
 		struct Channel
 		{
 			Channel(unsigned anumPreImportVertices)
-				: vertexBuffer(RGB32F,anumPreImportVertices), pixelBuffer(NONE,0,0)
+				: vertexBuffer(RGB32F,anumPreImportVertices), pixelBuffer(ARGB8,256,256)
 			{
 			}
 			VertexBuffer vertexBuffer;
@@ -167,16 +167,19 @@ namespace rrVision
 		unsigned   numSurfaces;
 
 	private:
-		void       readResults();
-		void       updateLookupTable();
-		std::vector<std::vector<std::pair<unsigned,unsigned>>> preVertex2PostTriangleVertex; ///< readResults lookup table
-		unsigned   resultChannelIndex;
+		// calculate
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;
 		bool       dirtyLights;
 		long       lastInteractionTime;
 		float      readingResultsPeriod;
 		float      calcTimeSinceReadingResults;
+		// read results
+		void       updateVertexLookupTable();
+		std::vector<std::vector<std::pair<unsigned,unsigned>>> preVertex2PostTriangleVertex; ///< readResults lookup table
+		void       readVertexResults();
+		void       readPixelResults();
+		unsigned   resultChannelIndex;
 	};
 
 } // namespace

@@ -413,7 +413,6 @@ struct SubtriangleIlluminationContext
 	RRScaler*                              scaler;
 	RRScene::SubtriangleIlluminationEater* clientCallback;
 	void*                                  clientContext;
-	unsigned                               subtrianglesProcessed;
 };
 
 void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatambient, void* context)
@@ -505,9 +504,7 @@ unsigned  RRScene::getSubtriangleMeasure(ObjectHandle object, unsigned triangle,
 	sic.scaler = scene->scaler;
 	sic.clientCallback = callback;
 	sic.clientContext = context;
-	sic.subtrianglesProcessed = 0;
-	tri->enumSubtriangles(buildSubtriangleIllumination,&sic);
-	return sic.subtrianglesProcessed;
+	return tri->enumSubtriangles(buildSubtriangleIllumination,&sic);
 }
 
 

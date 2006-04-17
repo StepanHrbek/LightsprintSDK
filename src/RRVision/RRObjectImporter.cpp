@@ -163,7 +163,7 @@ public:
 		return multiCollider;
 	}
 
-	virtual unsigned     getTriangleSurface(unsigned t) const
+	virtual unsigned getTriangleSurface(unsigned t) const
 	{
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleSurface(t);
 		return pack[1].getImporter()->getTriangleSurface(t-pack[0].getNumTriangles());
@@ -173,6 +173,17 @@ public:
 		// assumption: all objects share the same surface library
 		// -> this is not universal code
 		return pack[0].getImporter()->getSurface(s);
+	}
+
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out)
+	{
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleNormals(t,out);
+		return pack[1].getImporter()->getTriangleNormals(t-pack[0].getNumTriangles(),out);
+	}
+	virtual void getTriangleMapping(unsigned t, TriangleMapping& out)
+	{
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMapping(t,out);
+		return pack[1].getImporter()->getTriangleMapping(t-pack[0].getNumTriangles(),out);
 	}
 
 	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure format, RRColor& out) const

@@ -91,7 +91,7 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
-void RRVisionApp::updateLookupTable()
+void RRVisionApp::updateVertexLookupTable()
 // prepare lookup tables preImportVertex -> [postImportTriangle,vertex0..2] for all objects
 {
 	preVertex2PostTriangleVertex.resize(objects.size());
@@ -139,8 +139,9 @@ void RRVisionApp::updateLookupTable()
 	}
 }
 
-void RRVisionApp::readResults()
+void RRVisionApp::readVertexResults()
 {
+	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
@@ -170,6 +171,69 @@ void RRVisionApp::readResults()
 				assert(indirect[i]<1500000);
 			}
 			((RRColor*)vertexBuffer->vertices)[preImportVertex] = indirect;
+		}
+	}
+}
+
+struct RenderSubtriangleContext
+{
+	RRObjectIllumination::PixelBuffer* pixelBuffer;
+	RRObjectImporter::TriangleMapping triangleMapping;
+};
+
+void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context)
+{
+	RenderSubtriangleContext* context2 = (RenderSubtriangleContext*)context;
+	//!!!
+	/*
+	for(unsigned i=0;i<3;i++)
+	{
+		assert(_finite(indirect[i]));
+		assert(indirect[i]>=0);
+		assert(indirect[i]<1500000);
+	}
+	((RRColor*)vertexBuffer->vertices)[preImportVertex] = indirect;
+	*/
+}
+
+void RRVisionApp::readPixelResults()
+{
+	// for each object
+	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
+	{
+#ifdef MULTIOBJECT
+		RRObjectImporter* object = multiObject;
+#else
+		RRObjectImporter* object = getObject(objectHandle);
+#endif
+		rrCollider::RRMeshImporter* mesh = object->getCollider()->getImporter();
+		unsigned numPostImportTriangles = mesh->getNumTriangles();
+		RRObjectIllumination* illumination = getIllumination(objectHandle);
+		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
+		RRObjectIllumination::PixelBuffer* pixelBuffer = &channel->pixelBuffer;
+
+		assert(pixelBuffer->pixels);
+		assert(pixelBuffer->format==RRObjectIllumination::ARGB8);
+		assert(pixelBuffer->mapWidth && pixelBuffer->mapHeight);
+
+		// for each triangle
+		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+		{
+			// render all subtriangles into pixelBuffer using object's unwrap
+			RenderSubtriangleContext rsc;
+			rsc.pixelBuffer = pixelBuffer;
+			object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
+#ifdef MULTIOBJECT
+			// multiObject must preserve mapping (all objects overlap in one map)
+			//!!! this is satisfied now, but it may change in future
+			rrCollider::RRMeshImporter::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
+			if(preImportTriangle.object==objectHandle)
+			{
+				scene->getSubtriangleMeasure(0,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc);
+			}
+#else
+			scene->getSubtriangleMeasure(objectHandle,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc)
+#endif
 		}
 	}
 }
@@ -214,7 +278,7 @@ RRScene::Improvement RRVisionApp::calculate()
 		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
 			scene->objectCreate((*i).first);
 #endif
-		updateLookupTable();
+		updateVertexLookupTable();
 	}
 	if(dirtyLights)
 	{
@@ -250,7 +314,8 @@ RRScene::Improvement RRVisionApp::calculate()
 		reportAction("Reading results.");
 		calcTimeSinceReadingResults = 0;
 		if(readingResultsPeriod<1.5f) readingResultsPeriod*=1.1f;
-		readResults();
+		readVertexResults();
+		readPixelResults();//!!!
 		return RRScene::IMPROVED;
 	}
 	return RRScene::NOT_IMPROVED;
