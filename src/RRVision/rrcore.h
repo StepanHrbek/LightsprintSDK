@@ -391,6 +391,9 @@ public:
 	void    splitHits(Hits* phits,Hits *phits2);
 	bool    wishesToSplitReflector();
 #endif
+	// enumeration of all subtriangles
+	typedef void (EnumSubtrianglesCallback)(SubTriangle* s, IVertex **iv, Channels flatambient, void* context);
+	unsigned enumSubtriangles(IVertex **iv, Channels flatambient, EnumSubtrianglesCallback* callback, void* context);
 
 	SubTriangle *brotherSub();
 	bool    isRight();
@@ -488,6 +491,8 @@ public:
 #ifdef SUPPORT_TRANSFORMS
 	class Object *object;
 #endif
+	// enumeration of all subtriangles
+	unsigned enumSubtriangles(EnumSubtrianglesCallback* callback, void* context);
 
 	// geometry, all in objectspace
 	const Vec3* getVertex(unsigned i) const {return qvertex[i];}

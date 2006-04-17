@@ -86,6 +86,11 @@ RRScene::~RRScene()
 	delete scene;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// import geometry
+
 RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer, unsigned smoothMode)
 {
 	assert(importer);
@@ -204,6 +209,10 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer, unsigned
 
 
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// calculate radiosity
+
 RRScene::Improvement RRScene::illuminationReset(bool resetFactors)
 {
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
@@ -224,6 +233,11 @@ RRReal RRScene::illuminationAccuracy()
 	return scene->avgAccuracy()/100;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// read results
+
 bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out)
 {
 	Channels irrad;
@@ -231,7 +245,6 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	Object* obj;
 	Triangle* tri;
 
-	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) goto error;
 	// pokus nejak kompenzovat ze jsem si ve freeze interne zrusil n objektu a nahradil je 1 multiobjektem
 	//if(isFrozen())
 	//{
@@ -249,6 +262,10 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	}
 	obj = scene->object[object];
 	if(triangle>=obj->triangles)
+	{
+		goto error;
+	}
+	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID)
 	{
 		goto error;
 	}
@@ -358,10 +375,221 @@ zero:
 	return false;
 }
 
+unsigned Triangle::enumSubtriangles(EnumSubtrianglesCallback* callback, void* context)
+{
+	return SubTriangle::enumSubtriangles(topivertex,Channels(0),callback,context);
+}
+
+unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, EnumSubtrianglesCallback* callback, void* context)
+{
+	if(sub[0])
+	{
+		IVertex *iv0[3];
+		IVertex *iv1[3];
+		bool rightleft=isRightLeft();
+		int rot=getSplitVertex();
+		assert(subvertex);
+		assert(subvertex->check());
+		iv0[0]=iv[rot];
+		iv0[1]=iv[(rot+1)%3];
+		iv0[2]=subvertex;
+		iv1[0]=iv[rot];
+		iv1[1]=subvertex;
+		iv1[2]=iv[(rot+2)%3];
+		flatambient+=(energyDirect+getEnergyDynamic()-sub[0]->energyDirect-sub[1]->energyDirect)/area;
+		return SUBTRIANGLE(sub[rightleft?0:1])->enumSubtriangles(iv0,flatambient,callback,context)+
+			SUBTRIANGLE(sub[rightleft?1:0])->enumSubtriangles(iv1,flatambient,callback,context);
+	}
+	if(callback)
+	{
+		callback(this,iv,flatambient,context);
+	}
+	return 1;
+}
+
+struct SubtriangleIlluminationContext
+{
+	RRRadiometricMeasure                   measure;
+	RRScaler*                              scaler;
+	RRScene::SubtriangleIlluminationEater* clientCallback;
+	void*                                  clientContext;
+	unsigned                               subtrianglesProcessed;
+};
+
+void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatambient, void* context)
+{
+	SubtriangleIlluminationContext* context2 = (SubtriangleIlluminationContext*)context;
+	RRScene::SubtriangleIllumination si;
+	for(unsigned i=0;i<3;i++)
+	{
+		// fill coord
+		si.texCoord[i] = s->uv[(i+3-s->grandpa->rotations)%3];
+		// fill irradiance
+		if(RRScene::getState(RRScene::GET_SMOOTH))
+			si.measure[i] = iv[i]->irradiance();
+		else
+			si.measure[i] = flatambient+s->energyDirect/s->area;
+		// scale irradiance
+		if(context2->scaler)
+		{
+			for(unsigned j=0;j<3;j++)
+			{
+				si.measure[i][j] = context2->scaler->getScaled(si.measure[i][j]);
+			}
+		}
+		if(!context2 || licenseStatus!=RRLicense::VALID)
+		{
+			assert(0);
+			return;
+		}
+		// convert irradiance to measure
+		switch(context2->measure)
+		{
+			case RM_INCIDENT_FLUX:
+				assert(0);
+				STATISTIC_INC(numCallsTriangleMeasureFail);
+				break;
+			case RM_IRRADIANCE:
+				STATISTIC_INC(numCallsTriangleMeasureOk);
+				break;
+			case RM_EXITING_FLUX:
+				assert(0);
+				STATISTIC_INC(numCallsTriangleMeasureFail);
+				break;
+			case RM_EXITANCE:
+				si.measure[i] *= s->grandpa->surface->diffuseReflectance;
+				STATISTIC_INC(numCallsTriangleMeasureOk);
+				break;
+		}
+	}
+	context2->clientCallback(si,context2->clientContext);
+}
+
+unsigned  RRScene::getSubtriangleMeasure(ObjectHandle object, unsigned triangle, RRRadiometricMeasure measure, SubtriangleIlluminationEater* callback, void* context)
+{
+	Object* obj;
+	Triangle* tri;
+
+	if(object<0 || object>=scene->objects) 
+	{
+		assert(0);
+		return 0;
+	}
+	obj = scene->object[object];
+	if(triangle>=obj->triangles)
+	{
+		assert(0);
+		return 0;
+	}
+	tri = &obj->triangle[triangle];
+	if(!tri->surface)
+	{
+		SubtriangleIllumination si;
+		si.texCoord[0] = Vec2(0,0);
+		si.texCoord[1] = Vec2(1,0);
+		si.texCoord[2] = Vec2(0,1);
+		si.measure[0] = Vec3(0);
+		si.measure[1] = Vec3(0);
+		si.measure[2] = Vec3(0);
+		if(callback) callback(si,context);
+		return 1;
+	}
+	if(!licenseStatusValid)
+	{
+		assert(0);
+		return 0;
+	}
+
+	SubtriangleIlluminationContext sic;
+	sic.measure = measure;
+	sic.scaler = scene->scaler;
+	sic.clientCallback = callback;
+	sic.clientContext = context;
+	sic.subtrianglesProcessed = 0;
+	tri->enumSubtriangles(buildSubtriangleIllumination,&sic);
+	return sic.subtrianglesProcessed;
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// misc settings
 
 void RRScene::setScaler(RRScaler* scaler)
 {
 	scene->setScaler(scaler);
+}
+
+static unsigned RRSSValueU[RRScene::SSU_LAST];
+static RRReal   RRSSValueF[RRScene::SSF_LAST];
+
+void RRScene::resetStates()
+{
+	memset(RRSSValueU,0,sizeof(RRSSValueU));
+	memset(RRSSValueF,0,sizeof(RRSSValueF));
+	setState(RRScene::GET_SOURCE,1);
+	setState(RRScene::GET_REFLECTED,1);
+	setState(RRScene::GET_SMOOTH,1);
+	// development
+	setState(RRScene::USE_CLUSTERS,0);
+	setState(RRScene::GET_FINAL_GATHER,0);
+	setState(RRScene::FIGHT_NEEDLES,0);
+
+	setStateF(RRScene::MIN_FEATURE_SIZE,0);
+	setStateF(RRScene::MAX_SMOOTH_ANGLE,M_PI/10+0.01f);
+	// development
+	setStateF(RRScene::SUBDIVISION_SPEED,0);
+	setStateF(RRScene::IGNORE_SMALLER_AREA,SMALL_REAL);
+	setStateF(RRScene::IGNORE_SMALLER_ANGLE,0.001f);
+	setStateF(RRScene::FIGHT_SMALLER_AREA,0.01f);
+	setStateF(RRScene::FIGHT_SMALLER_ANGLE,0.01f);
+	//setStateF(RRScene::SUBDIVISION_SPEED,0);
+	//setStateF(RRScene::MIN_FEATURE_SIZE,10.037f); //!!!
+}
+
+unsigned RRScene::getState(SceneStateU state)
+{
+	if(state<0 || state>=SSU_LAST) 
+	{
+		assert(0);
+		return 0;
+	}
+	return RRSSValueU[state];
+}
+
+unsigned RRScene::setState(SceneStateU state, unsigned value)
+{
+	if(state<0 || state>=SSU_LAST) 
+	{
+		assert(0);
+		return 0;
+	}
+	unsigned tmp = RRSSValueU[state];
+	RRSSValueU[state] = value;
+	return tmp;
+}
+
+real RRScene::getStateF(SceneStateF state)
+{
+	if(state<0 || state>=SSF_LAST) 
+	{
+		assert(0);
+		return 0;
+	}
+	return RRSSValueF[state];
+}
+
+real RRScene::setStateF(SceneStateF state, real value)
+{
+	if(state<0 || state>=SSF_LAST) 
+	{
+		assert(0);
+		return 0;
+	}
+	real tmp = RRSSValueF[state];
+	RRSSValueF[state] = value;
+	return tmp;
 }
 
 

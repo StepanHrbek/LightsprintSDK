@@ -395,6 +395,123 @@ namespace rrVision /// Encapsulates whole Vision library.
 		RRScene();
 		~RRScene();
 
+		//////////////////////////////////////////////////////////////////////////////
+		//
+		// import geometry
+		//
+
+		//! Identifier of object in scene.
+		typedef       unsigned ObjectHandle;
+		//! Inserts object into scene.
+		//
+		//! For highest performance, stay with low number of possibly big objects 
+		//! rather than high number of small ones.
+		//! One big object can be created out of many small ones using RRObjectImporter::createMultiObject().
+		//!
+		//! Different objects always belong to different smoothgroups. So with flat wall cut into two objects,
+		//! unsmoothed edge will possibly apear between them.
+		//! This can be fixed by merging standalone objects into one object using RRObjectImporter::createMultiObject().
+		//! \param importer
+		//!  Object importer that defines object shape and material.
+		//! \param smoothMode
+		//!  Selects smoothing mode, valid options are: 0,1,2.
+		//!  \n 0 = Normal independent smoothing, old. Depends on MAX_SMOOTH_ANGLE.
+		//!  \n 1 = Normal independent smoothing, new. Depends on MAX_SMOOTH_ANGLE.
+		//!  \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed.
+		ObjectHandle  objectCreate(RRObjectImporter* importer, unsigned smoothMode=2);
+		
+		//////////////////////////////////////////////////////////////////////////////
+		//
+		// calculate radiosity
+		//
+
+		//! Describes result of illumination calculation.
+		enum Improvement
+		{
+			IMPROVED,       ///< Lighting was improved during this call.
+			NOT_IMPROVED,   ///< Although some calculations were done, lighting was not yet improved during this call.
+			FINISHED,       ///< Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
+			INTERNAL_ERROR, ///< Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
+		};
+		//! Reset illumination to original state defined by objects.
+		//
+		//! There is no need to reset illumination right after scene creation, it is already reset.
+		//! \param resetFactors
+		//!  Resetting also factors means complete restart of calculation with all expenses.
+		//!  With factors preserved, part of calculation is reused, but you must ensure, that
+		//!  geometry and surfaces were not modified. This is especially handy when only primary
+		//!  lights move, but objects and materials stay unchanged.
+		//! \returns Calculation state, see Improvement.
+		Improvement   illuminationReset(bool resetFactors);
+		//! Improve illumination until endfunc returns true.
+		//
+		//! If you want calculation as fast as possible, make sure that most of time
+		//! is spent here. You may want to interleave calculation by reading results, rendering and processing
+		//! event queue, but stop rendering and idle looping when nothing changes and user doesn't interact,
+		//! don't read results too often etc.
+		//! \param endfunc Callback used to determine whether to stop or continue calculating.
+		//!  It should be very fast, just checking system variables like time or event queue length.
+		//!  It is called very often, slow endfunc may have big impact on performance.
+		//! \param context Value is passed to endfunc without any modification.
+		//! \returns Calculation state, see Improvement.
+		Improvement   illuminationImprove(bool endfunc(void*), void* context);
+		//! Returns illumination accuracy in proprietary scene dependent units. Higher is more accurate.
+		RRReal        illuminationAccuracy();
+
+		//////////////////////////////////////////////////////////////////////////////
+		//
+		// read results
+		//
+
+		//! Reads illumination of triangle's vertex in units given by measure.
+		//
+		//! Reads results in format suitable for fast vertex based rendering without subdivision.
+		//! See also SceneStateU and SceneStateF for list of states, that may have influence
+		//! on reading results.
+		//! \param object Handle of object you want to get results for.
+		//! \param triangle Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
+		//! \param vertex Index of triangle's vertex you want to get results for. Valid vertices are 0, 1, 2.
+		//!  For invalid vertex number, average value for whole triangle is taken instead of smoothed value in vertex.
+		//! \param measure Measure of illumination you want to get.
+		//! \param out For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
+		//! \returns True when out was successfully filled. False may be caused by invalid inputs.
+		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out);
+
+		//! Illumination information for triangle's subtriangle.
+		//
+		//! Subtriangle is triangular area inside triangle given by three 2d coordinates in triangle space.
+		//! If triangle has no subdivision, the only subtriangle fills whole triangle with following coordinates:
+		//!  RRVec2(0,0), RRVec2(1,0), RRVec2(0,1)
+		//! Illumination is recorded in subtriangle vertices.
+		struct SubtriangleIllumination
+		{
+			RRVec2 texCoord[3];
+			RRColor measure[3];
+		};
+		//! Callback for passing multiple SubtriangleIlluminations to you.
+		typedef void (SubtriangleIlluminationEater)(const SubtriangleIllumination& si, void* context);
+		//! Reads illumination of triangle's subtriangles in units given by measure.
+		//
+		//! Reads results in format suitable for high quality texture based rendering (with adaptive subdivision).
+		//! See also SceneStateU and SceneStateF for list of states, that may have influence
+		//! on reading results.
+		//! \param object Handle of object you want to get results for.
+		//! \param triangle Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
+		//! \param measure Measure of illumination you want to get.
+		//! \param callback Your callback that will be called for each triangle's subtriangle.
+		//! \param context Value is passed to callback without any modification.
+		//! \returns Number of subtriangles processed.
+		unsigned      getSubtriangleMeasure(ObjectHandle object, unsigned triangle, RRRadiometricMeasure measure, SubtriangleIlluminationEater* callback, void* context);
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		//
+		// misc settings (optional)
+		//
+
+		//! Set scaler used by this scene i/o operations. This is option for your convenience. See RRScaler for details.
+		void          setScaler(RRScaler* scaler);
+
 		//! Identifier of integer scene state.
 		enum SceneStateU
 		{
@@ -430,83 +547,6 @@ namespace rrVision /// Encapsulates whole Vision library.
 		static RRReal   getStateF(SceneStateF state);
 		//! Set one of float scene states.
 		static RRReal   setStateF(SceneStateF state, RRReal value);
-
-		//
-		// i/o settings (optional)
-		//
-		//! Set scaler used by this scene i/o operations. This is option for your convenience. See RRScaler for details.
-		void          setScaler(RRScaler* scaler);
-
-		//
-		// import geometry
-		//
-		//! Identifier of object in scene.
-		typedef       unsigned ObjectHandle;
-		//! Inserts object into scene.
-		//
-		//! For highest performance, stay with low number of possibly big objects 
-		//! rather than high number of small ones.
-		//! One big object can be created out of many small ones using RRObjectImporter::createMultiObject().
-		//!
-		//! Different objects always belong to different smoothgroups. So with flat wall cut into two objects,
-		//! unsmoothed edge will possibly apear between them.
-		//! This can be fixed by merging standalone objects into one object using RRObjectImporter::createMultiObject().
-		//! \param importer
-		//!  Object importer that defines object shape and material.
-		//! \param smoothMode
-		//!  Selects smoothing mode, valid options are: 0,1,2.
-		//!  \n 0 = Normal independent smoothing, old. Depends on MAX_SMOOTH_ANGLE.
-		//!  \n 1 = Normal independent smoothing, new. Depends on MAX_SMOOTH_ANGLE.
-		//!  \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed.
-		ObjectHandle  objectCreate(RRObjectImporter* importer, unsigned smoothMode=2);
-		
-		// calculate radiosity
-		//! Describes result of illumination calculation.
-		enum Improvement
-		{
-			IMPROVED,       ///< Lighting was improved during this call.
-			NOT_IMPROVED,   ///< Although some calculations were done, lighting was not yet improved during this call.
-			FINISHED,       ///< Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
-			INTERNAL_ERROR, ///< Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
-		};
-		//! Reset illumination to original state defined by objects.
-		//
-		//! There is no need to reset illumination right after scene creation, it is already reset.
-		//! \param resetFactors
-		//!  Resetting also factors means complete restart of calculation with all expenses.
-		//!  With factors preserved, part of calculation is reused, but you must ensure, that
-		//!  geometry and surfaces were not modified. This is especially handy when only primary
-		//!  lights move, but objects and materials stay unchanged.
-		//! \returns Calculation state, see Improvement.
-		Improvement   illuminationReset(bool resetFactors);
-		//! Improve illumination until endfunc returns true.
-		//
-		//! If you want calculation as fast as possible, make sure that most of time
-		//! is spent here. You may want to interleave calculation by reading results, rendering and processing
-		//! event queue, but stop rendering and idle looping when nothing changes and user doesn't interact,
-		//! don't read results too often etc.
-		//! \param endfunc Callback used to determine whether to stop or continue calculating.
-		//!  It should be very fast, just checking system variables like time or event queue length.
-		//!  It is called very often, slow endfunc may have big impact on performance.
-		//! \param context Value is passed to endfunc without any modification.
-		//! \returns Calculation state, see Improvement.
-		Improvement   illuminationImprove(bool endfunc(void*), void* context);
-		//! Returns illumination accuracy in proprietary scene dependent units. Higher is more accurate.
-		RRReal        illuminationAccuracy();
-
-		// read results
-		//! Reads illumination of triangle's vertex in units given by measure.
-		//
-		//! See also SceneStateU and SceneStateF for list of states, that may have influence
-		//! on reading results.
-		//! \param object Handle of object you want to get results for.
-		//! \param triangle Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
-		//! \param vertex Index of triangle's vertex you want to get results for. Valid vertices are 0, 1, 2.
-		//!  For invalid vertex number, average value for whole triangle is taken instead of smoothed value in vertex.
-		//! \param measure Measure of illumination you want to know.
-		//! \param out For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
-		//! \returns True when out was successfully filled. False may be caused by invalid inputs.
-		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out);
 
 
 	private:
