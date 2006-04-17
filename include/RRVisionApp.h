@@ -20,6 +20,140 @@ namespace rrVision
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//! Interface - Illumination storage based on vertex buffer.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RRVISION_API RRIlluminationVertexBuffer
+	{
+	public:
+		//! Sets size of buffer. Content may be lost.
+		virtual void setSize(unsigned numVertices) = 0;
+		//! Sets value of one element of buffer.
+		virtual void setVertex(unsigned vertex, const RRColor& color) = 0;
+		virtual ~RRIlluminationVertexBuffer();
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Illumination storage in vertex buffer in memory.
+	//
+	//! Template parameter Color specifies format of one element in vertex buffer.
+	//! It can be for example RRColor.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	template <class Color>
+	class RRIlluminationVertexBufferInMemory : public RRIlluminationVertexBuffer
+	{
+	public:
+		RRIlluminationVertexBufferInMemory(unsigned anumVertices)
+		{
+			vertices = NULL;
+			RRIlluminationVertexBufferInMemory::setSize(anumVertices);
+		}
+		virtual void setSize(unsigned anumVertices)
+		{
+			delete vertices;
+			numVertices = anumVertices;
+			vertices = new Color[numVertices];
+		}
+		const Color* getVertices()
+		{
+			return vertices;
+		}
+		virtual void setVertex(unsigned vertex, const RRColor& color)
+		{
+			if(!vertices)
+			{
+				assert(0);
+				return;
+			}
+			if(!vertex>=numVertices)
+			{
+				assert(0);
+				return;
+			}
+			vertices[vertex] = color;
+		}
+		virtual ~RRIlluminationVertexBufferInMemory()
+		{
+			delete[] vertices;
+		}
+	private:
+		unsigned numVertices;
+		Color* vertices;
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Interface - Illumination storage based on pixel buffer.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RRVISION_API RRIlluminationPixelBuffer
+	{
+	public:
+		//! Sets size of buffer. Content may be lost.
+		virtual void setSize(unsigned width, unsigned height) = 0;
+		//! Marks all pixels as unused. Content may be lost.
+		virtual void markAllUnused() {};
+		//! Renders one triangle into map. Marks all triangle pixels as used. All other pixels stay unchanged.
+		virtual void renderTriangle(const RRScene::SubtriangleIllumination& si) = 0;
+		//! Filters map so that unused pixels close to used pixels get their color (may be also marked as used). Used pixels stay unchanged.
+		virtual void growUsed() {};
+		virtual ~RRIlluminationPixelBuffer();
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Illumination storage in pixel buffer in memory.
+	//
+	//! Template parameter Color specifies format of one element in pixel buffer.
+	//! It can be for example RRColor.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	template <class Color>
+	class RRIlluminationPixelBufferInMemory : public RRIlluminationPixelBuffer
+	{
+	public:
+		RRIlluminationPixelBufferInMemory(unsigned awidth, unsigned aheight)
+		{
+			pixels = NULL;
+			RRIlluminationPixelBufferInMemory::setSize(awidth,aheight);
+		}
+		virtual void setSize(unsigned awidth, unsigned aheight)
+		{
+			delete pixels;
+			width = awidth;
+			height = aheight;
+			pixels = new Color[width*height];
+		}
+		virtual void markAllUnused()
+		{
+			//!!!
+		}
+		virtual void renderTriangle(const RRScene::SubtriangleIllumination& si)
+		{
+			//!!!
+		}
+		virtual void growUsed()
+		{
+			//!!!
+		}
+		~RRIlluminationPixelBufferInMemory()
+		{
+			delete[] pixels;
+		}
+	private:
+		unsigned width;
+		unsigned height;
+		Color*   pixels;
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	//! Storage for object's indirect illumination.
 	//
 	//! Editor stores calculated illumination here.
