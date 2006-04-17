@@ -147,11 +147,7 @@ void RRVisionApp::readVertexResults()
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
-		RRObjectIllumination::VertexBuffer* vertexBuffer = &channel->vertexBuffer;
-
-		assert(vertexBuffer->vertices);
-		assert(vertexBuffer->numPreImportVertices==numPreImportVertices);
-		assert(vertexBuffer->format==RRObjectIllumination::RGB32F);
+		RRIlluminationVertexBuffer* vertexBuffer = channel->vertexBuffer;
 
 		// load measure into each preImportVertex
 		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
@@ -170,14 +166,14 @@ void RRVisionApp::readVertexResults()
 				assert(indirect[i]>=0);
 				assert(indirect[i]<1500000);
 			}
-			((RRColor*)vertexBuffer->vertices)[preImportVertex] = indirect;
+			vertexBuffer->setVertex(preImportVertex,indirect);
 		}
 	}
 }
 
 struct RenderSubtriangleContext
 {
-	RRObjectIllumination::PixelBuffer* pixelBuffer;
+	RRIlluminationPixelBuffer* pixelBuffer;
 	RRObjectImporter::TriangleMapping triangleMapping;
 };
 
@@ -210,11 +206,7 @@ void RRVisionApp::readPixelResults()
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
-		RRObjectIllumination::PixelBuffer* pixelBuffer = &channel->pixelBuffer;
-
-		assert(pixelBuffer->pixels);
-		assert(pixelBuffer->format==RRObjectIllumination::ARGB8);
-		assert(pixelBuffer->mapWidth && pixelBuffer->mapHeight);
+		RRIlluminationPixelBuffer* pixelBuffer = channel->pixelBuffer;
 
 		// for each triangle
 		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)

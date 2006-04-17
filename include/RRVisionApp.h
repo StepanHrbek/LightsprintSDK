@@ -11,6 +11,7 @@
 
 #pragma warning(disable:4530) // exceptions thrown but disabled, may crash
 
+#include <cassert>
 #include <map>
 #include <vector>
 #include "RRVision.h"
@@ -31,12 +32,12 @@ namespace rrVision
 		virtual void setSize(unsigned numVertices) = 0;
 		//! Sets value of one element of buffer.
 		virtual void setVertex(unsigned vertex, const RRColor& color) = 0;
-		virtual ~RRIlluminationVertexBuffer();
+		virtual ~RRIlluminationVertexBuffer() {};
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Illumination storage in vertex buffer in memory.
+	//! Illumination storage in vertex buffer in system memory.
 	//
 	//! Template parameter Color specifies format of one element in vertex buffer.
 	//! It can be for example RRColor.
@@ -69,7 +70,7 @@ namespace rrVision
 				assert(0);
 				return;
 			}
-			if(!vertex>=numVertices)
+			if(vertex>=numVertices)
 			{
 				assert(0);
 				return;
@@ -102,12 +103,12 @@ namespace rrVision
 		virtual void renderTriangle(const RRScene::SubtriangleIllumination& si) = 0;
 		//! Filters map so that unused pixels close to used pixels get their color (may be also marked as used). Used pixels stay unchanged.
 		virtual void growUsed() {};
-		virtual ~RRIlluminationPixelBuffer();
+		virtual ~RRIlluminationPixelBuffer() {};
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Illumination storage in pixel buffer in memory.
+	//! Illumination storage in pixel buffer in system memory.
 	//
 	//! Template parameter Color specifies format of one element in pixel buffer.
 	//! It can be for example RRColor.
@@ -174,60 +175,15 @@ namespace rrVision
 		~RRObjectIllumination()
 		{
 		}
-		enum Format
-		{
-			NONE,
-			ARGB8,
-			RGB32F,
-		};
-		struct VertexBuffer
-		{
-			VertexBuffer(Format aformat, unsigned anumPreImportVertices)
-			{
-				memset(this,0,sizeof(*this));
-				format = aformat;
-				stride = (format==ARGB8)?4:((format==RGB32F)?12:0);
-				numPreImportVertices = anumPreImportVertices;
-				vertices = stride ? new char[stride*numPreImportVertices] : NULL;
-			}
-			~VertexBuffer()
-			{
-				delete[] vertices;
-			}
-			Format   format; //! May be requested to change.
-			unsigned stride; //! May be requested to change.
-			unsigned numPreImportVertices; //! Never changes during lifetime.
-			char*    vertices;
-		};
-		struct PixelBuffer
-		{
-			PixelBuffer(Format aformat, unsigned amapWidth, unsigned amapHeight)
-			{
-				memset(this,0,sizeof(*this));
-				format = aformat;
-				stride = (format==ARGB8)?4:((format==RGB32F)?12:0);
-				mapWidth = amapWidth;
-				mapHeight = amapHeight;
-				pixels = stride ? new char[stride*mapWidth*mapHeight] : NULL;
-			}
-			~PixelBuffer()
-			{
-				delete[] pixels;
-			}
-			Format   format; //! May be requested to change.
-			unsigned stride; //! May be requested to change.
-			unsigned mapWidth; //! May be requested to change.
-			unsigned mapHeight; //! May be requested to change.
-			char*    pixels;
-		};
 		struct Channel
 		{
-			Channel(unsigned anumPreImportVertices)
-				: vertexBuffer(RGB32F,anumPreImportVertices), pixelBuffer(ARGB8,256,256)
+			Channel(unsigned anumVertices)
 			{
+				vertexBuffer = new RRIlluminationVertexBufferInMemory<RRColor>(anumVertices);
+				pixelBuffer = new RRIlluminationPixelBufferInMemory<RRColor>(256,256);
 			}
-			VertexBuffer vertexBuffer;
-			PixelBuffer pixelBuffer;
+			RRIlluminationVertexBuffer* vertexBuffer;
+			RRIlluminationPixelBuffer* pixelBuffer;
 		};
 		Channel* getChannel(unsigned channelIndex)
 		{
