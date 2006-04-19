@@ -133,7 +133,10 @@ namespace rrVision
 		}
 		virtual void markAllUnused()
 		{
-			//!!!
+			for(unsigned i=0;i<width*height;i++)
+			{
+				pixels[i] = Color(1,1,0);
+			}
 		}
 		virtual void renderTriangle(const RRScene::SubtriangleIllumination& si)
 		{
@@ -141,7 +144,24 @@ namespace rrVision
 		}
 		virtual void growUsed()
 		{
-			//!!!
+			for(unsigned j=0;j<height-1;j++)
+			for(unsigned i=0;i<width-1;i++)
+			{
+				if(pixels[width*j+i]==Color(1,1,0))
+				{
+					if(pixels[width*j+i+1]!=Color(1,1,0)) pixels[width*j+i] = pixels[width*j+i+1]; else
+					if(pixels[width*(j+1)+i]!=Color(1,1,0)) pixels[width*j+i] = pixels[width*(j+1)+i];
+				}
+			}
+			for(unsigned j=height;--j>0;)
+			for(unsigned i=width;--i>0;)
+			{
+				if(pixels[width*j+i]==Color(1,1,0))
+				{
+					if(pixels[width*j+i-1]!=Color(1,1,0)) pixels[width*j+i] = pixels[width*j+i-1]; else
+					if(pixels[width*(j-1)+i]!=Color(1,1,0)) pixels[width*j+i] = pixels[width*(j-1)+i];
+				}
+			}
 		}
 		~RRIlluminationPixelBufferInMemory()
 		{

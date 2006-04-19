@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! \brief RRVision - library for fast global illumination calculations
-//! \version 2006.4.16
+//! \version 2006.4.19
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -485,8 +485,8 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Illumination is recorded in subtriangle vertices.
 		struct SubtriangleIllumination
 		{
-			RRVec2 texCoord[3];
-			RRColor measure[3];
+			RRVec2 texCoord[3]; ///< Subtriangle vertices positions in triangle space, triangle vertex0 is in 0,0, vertex1 is in 1,0, vertex2 is in 0,1.
+			RRColor measure[3]; ///< Subtriangle vertices illumination.
 		};
 		//! Callback for passing multiple SubtriangleIlluminations to you.
 		typedef void (SubtriangleIlluminationEater)(const SubtriangleIllumination& si, void* context);

@@ -375,11 +375,6 @@ zero:
 	return false;
 }
 
-unsigned Triangle::enumSubtriangles(EnumSubtrianglesCallback* callback, void* context)
-{
-	return SubTriangle::enumSubtriangles(topivertex,Channels(0),callback,context);
-}
-
 unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, EnumSubtrianglesCallback* callback, void* context)
 {
 	if(sub[0])
@@ -407,6 +402,11 @@ unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, EnumS
 	return 1;
 }
 
+unsigned Triangle::enumSubtriangles(EnumSubtrianglesCallback* callback, void* context)
+{
+	return SubTriangle::enumSubtriangles(topivertex,Channels(0),callback,context);
+}
+
 struct SubtriangleIlluminationContext
 {
 	RRRadiometricMeasure                   measure;
@@ -421,8 +421,13 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 	RRScene::SubtriangleIllumination si;
 	for(unsigned i=0;i<3;i++)
 	{
-		// fill coord
+		// fill 2d coords in triangle space
+		//  start with uv[] with ortonormal base
 		si.texCoord[i] = s->uv[(i+3-s->grandpa->rotations)%3];
+		//  and transform to triangle space
+		//  x , y -> x/u2.x-y*v2.x/u2.x/v2.y , y/v2.y
+		//  u2,v2 jsou brane z Triangle
+		si.texCoord[i] = Vec2(si.texCoord[i][0]/s->grandpa->u2[0]-si.texCoord[i][1]*s->grandpa->v2[0]/s->grandpa->u2[0]/s->grandpa->v2[1],si.texCoord[i][1]/s->grandpa->v2[1]);
 		// fill irradiance
 		if(RRScene::getState(RRScene::GET_SMOOTH))
 			si.measure[i] = iv[i]->irradiance();

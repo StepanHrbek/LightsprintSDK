@@ -180,16 +180,22 @@ struct RenderSubtriangleContext
 void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context)
 {
 	RenderSubtriangleContext* context2 = (RenderSubtriangleContext*)context;
-	//!!!
-	/*
+	RRScene::SubtriangleIllumination si2;
 	for(unsigned i=0;i<3;i++)
 	{
-		assert(_finite(indirect[i]));
-		assert(indirect[i]>=0);
-		assert(indirect[i]<1500000);
+		si2.measure[i] = si.measure[i];
+		// si.texCoord 0,0 prevest na context2->triangleMapping.uv[0]
+		// si.texCoord 1,0 prevest na context2->triangleMapping.uv[1]
+		// si.texCoord 0,1 prevest na context2->triangleMapping.uv[2]
+		si2.texCoord[i] = context2->triangleMapping.uv[0] + context2->triangleMapping.uv[1]*si.texCoord[i][0] + context2->triangleMapping.uv[2]*si.texCoord[i][1];
+		for(unsigned j=0;j<3;j++)
+		{
+			assert(_finite(si2.measure[i][j]));
+			assert(si2.measure[i][j]>=0);
+			assert(si2.measure[i][j]<1500000);
+		}
 	}
-	((RRColor*)vertexBuffer->vertices)[preImportVertex] = indirect;
-	*/
+	context2->pixelBuffer->renderTriangle(si2);
 }
 
 void RRVisionApp::readPixelResults()
@@ -207,6 +213,8 @@ void RRVisionApp::readPixelResults()
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
 		RRIlluminationPixelBuffer* pixelBuffer = channel->pixelBuffer;
+
+		pixelBuffer->markAllUnused();
 
 		// for each triangle
 		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
@@ -227,6 +235,7 @@ void RRVisionApp::readPixelResults()
 			scene->getSubtriangleMeasure(objectHandle,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc)
 #endif
 		}
+		pixelBuffer->growUsed();
 	}
 }
 

@@ -375,7 +375,7 @@ public:
 
 	// geometry, SubTriangle position in Triangle space
 	Point2  uv[3]; // uv of our vertices in grandpa->u3,v3 ortogonal space
-	Vec2    u2,v2; // u2=uv[1]-uv[0], v2=uv[2]=uv[0], helps to speed up some calculations
+	Vec2    u2,v2; // u2=uv[1]-uv[0], v2=uv[2]-uv[0], helps to speed up some calculations
 	real    perimeter();
 	Point3  to3d(Point2 a);
 	Point3  to3d(int vertex);
