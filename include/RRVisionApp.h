@@ -19,6 +19,64 @@
 namespace rrVision
 {
 
+// *******************************************************************************
+// nezavisle na rrvision, mozno pouzit ve final hre
+// *******************************************************************************
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! 8bit intensity - One of color formats for vertex and pixel buffers.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	struct RRColorI8
+	{
+		RRColorI8()
+		{
+			color = 0;
+		}
+		RRColorI8(RRReal r,RRReal g,RRReal b)
+		{
+			color = (unsigned char)(255/3*(r+g+b));
+		}
+		bool operator ==(const RRColorI8& a)
+		{
+			return color==a.color;
+		}
+		bool operator !=(const RRColorI8& a)
+		{
+			return color!=a.color;
+		}
+		unsigned char color;
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! RGBA8, total 32bits - One of color formats for vertex and pixel buffers.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	struct RRColorRGBA8
+	{
+		RRColorRGBA8()
+		{
+			color = 0;
+		}
+		RRColorRGBA8(RRReal r,RRReal g,RRReal b)
+		{
+			color = ((unsigned char)(255*r)&255) + (((unsigned char)(255*g)&255)<<8) + (((unsigned char)(255*b)&255)<<16);
+		}
+		bool operator ==(const RRColorI8& a)
+		{
+			return color==a.color;
+		}
+		bool operator !=(const RRColorI8& a)
+		{
+			return color!=a.color;
+		}
+		unsigned color;
+	};
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//! Interface - Illumination storage based on vertex buffer.
@@ -176,38 +234,34 @@ namespace rrVision
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//
+	//! Illumination storage in pixel buffer in OpenGL texture. Plus texture coords.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	struct RRColorI8
+	class RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBufferInMemory<RRColorI8>
 	{
-		RRColorI8()
+	public:
+		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, RRObjectImporter* object, unsigned anumPreImportVertices)
+			: RRIlluminationPixelBufferInMemory(awidth,aheight)
 		{
-			color = 0;
+			texCoord = NULL;
+			numVertices = anumPreImportVertices;
 		}
-		RRColorI8(RRReal r,RRReal g,RRReal b)
+		RRVec2* getTexCoord(bool update)
 		{
-			color = (unsigned char)(255/3*(r+g+b));
+			if(!texCoord)
+			{
+				texCoord = new RRVec2[numVertices];
+				update=true;
+			}
 		}
-		/*RRColorI8(RRColor a)
+		~RRIlluminationPixelBufferInOpenGL()
 		{
-			color = (unsigned char)(255/3*(a[0]+a[1]+a[2]));
+			delete[] texCoord;
 		}
-		bool operator ==(const RRColor& a)
-		{
-			const RRColorI8 b = a;
-			return color==b.color;
-		}*/
-		bool operator ==(const RRColorI8& a)
-		{
-			return color==a.color;
-		}
-		bool operator !=(const RRColorI8& a)
-		{
-			return color!=a.color;
-		}
-		unsigned char color;
+	private:
+		unsigned numVertices;
+		RRVec2* texCoord;
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -216,6 +270,7 @@ namespace rrVision
 	//
 	//! Editor stores calculated illumination here.
 	//! Renderer reads illumination from here.
+	//! Also unwrap for illumination maps may be stored here.
 	//! Add one instance to each of your objects.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -228,9 +283,7 @@ namespace rrVision
 		RRObjectIllumination(unsigned anumPreImportVertices)
 		{
 			numPreImportVertices = anumPreImportVertices;
-		}
-		~RRObjectIllumination()
-		{
+			pixelBufferUnwrap = NULL;
 		}
 		struct Channel
 		{
@@ -254,11 +307,65 @@ namespace rrVision
 		{
 			return numPreImportVertices;
 		}
-	private:
+		const RRVec2* getPixelBufferUnwrap()
+		{
+			return pixelBufferUnwrap;
+		}
+		~RRObjectIllumination()
+		{
+			delete[] pixelBufferUnwrap;
+		}
+	protected:
 		unsigned numPreImportVertices; ///< PreImport number of vertices, length of vertex buffer for rendering.
 		std::map<unsigned,Channel*> channels; ///< Calculated illumination.
+		RRVec2* pixelBufferUnwrap; ///< Optional unwrap for illumination in pixel buffers.
 	};
 
+
+// *******************************************************************************
+// zavisle na rrvision, pouze pro editor
+// *******************************************************************************
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Storage for object's indirect illumination, extended for editor.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RRVISION_API RRObjectIlluminationForEditor : public RRObjectIllumination
+	{
+	public:
+		RRObjectIlluminationForEditor(unsigned anumPreImportVertices)
+			: RRObjectIllumination(anumPreImportVertices)
+		{
+		}
+		void createPixelBufferUnwrap(RRObjectImporter* object)
+		{
+			if(pixelBufferUnwrap)
+				delete[] pixelBufferUnwrap;
+			pixelBufferUnwrap = new RRVec2[numPreImportVertices];
+			rrCollider::RRMeshImporter* mesh = object->getCollider()->getImporter();
+			unsigned numPostImportTriangles = mesh->getNumTriangles();
+			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+			{
+				RRObjectImporter::TriangleMapping triangleMapping;
+				object->getTriangleMapping(postImportTriangle,triangleMapping);
+				rrCollider::RRMeshImporter::Triangle triangle;
+				mesh->getTriangle(postImportTriangle,triangle);
+				for(unsigned v=0;v<3;v++)
+				{
+					//!!!
+					// muj nouzovy primitivni unwrap vetsinou nejde prevest z trianglu do vertexBufferu,
+					// protoze jeden vertex je casto pouzit vice triangly v meshi
+					unsigned preImportVertex = mesh->getPreImportVertex(triangle[v],postImportTriangle);
+					if(preImportVertex<numPreImportVertices)
+						pixelBufferUnwrap[preImportVertex] = triangleMapping.uv[v];
+					else
+						assert(0);
+				}
+			}
+		}
+	};
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -274,11 +381,11 @@ namespace rrVision
 		virtual ~RRVisionApp();
 
 		//! Defines objects present in scene.
-		typedef std::pair<RRObjectImporter*,RRObjectIllumination*> Object;
+		typedef std::pair<RRObjectImporter*,RRObjectIlluminationForEditor*> Object;
 		typedef std::vector<Object> Objects;
 		void setObjects(Objects& objects);
 		RRObjectImporter* getObject(unsigned i);
-		RRObjectIllumination* getIllumination(unsigned i);
+		RRObjectIlluminationForEditor* getIllumination(unsigned i);
 		
 		//! Selects channel for storing results, 0 is default.
 		void setResultChannel(unsigned channelIndex);

@@ -3,6 +3,7 @@
 // options controlled by program:
 //  #define SHADOW_MAPS 6
 //  #define SHADOW_SAMPLES 4
+//  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_COLOR
 //  #define LIGHT_INDIRECT_MAP
@@ -12,7 +13,9 @@
 
 varying vec4 shadowCoord[SHADOW_MAPS];
 
+#ifdef LIGHT_DIRECT
 uniform vec3 lightDirectPos;
+#endif
 
 #ifdef LIGHT_INDIRECT_COLOR
 varying vec4 lightIndirectColor;
@@ -28,9 +31,11 @@ varying vec4 materialDiffuseColor;
 
 void main()
 {
+#ifdef LIGHT_DIRECT
   // direct light
   vec3 lightDirectDir = normalize(lightDirectPos - gl_Vertex.xyz);
   gl_FrontColor = vec4(dot(lightDirectDir, gl_Normal));
+#endif
 
 #ifdef LIGHT_INDIRECT_COLOR
   // indirect light

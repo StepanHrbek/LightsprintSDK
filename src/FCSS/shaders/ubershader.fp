@@ -3,6 +3,7 @@
 // options controlled by program:
 //  #define SHADOW_MAPS 6
 //  #define SHADOW_SAMPLES 4
+//  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_COLOR
 //  #define LIGHT_INDIRECT_MAP
@@ -75,12 +76,15 @@ void main()
 #ifdef MATERIAL_DIFFUSE_COLOR
     materialDiffuseColor * 
 #endif
-    ( gl_Color
+    ( 
+#ifdef LIGHT_DIRECT
+      gl_Color
+#ifdef LIGHT_DIRECT_MAP
+      * texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
+#endif
 #if SHADOW_SAMPLES*SHADOW_MAPS>0
       * shadowValue/float(SHADOW_SAMPLES*SHADOW_MAPS)
 #endif
-#ifdef LIGHT_DIRECT_MAP
-      * texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
 #endif
 #ifdef LIGHT_INDIRECT_COLOR
       + lightIndirectColor

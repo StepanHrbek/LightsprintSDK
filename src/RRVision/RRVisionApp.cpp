@@ -76,7 +76,7 @@ RRObjectImporter* RRVisionApp::getObject(unsigned i)
 	return objects.at(i).first;
 }
 
-RRObjectIllumination* RRVisionApp::getIllumination(unsigned i)
+RRObjectIlluminationForEditor* RRVisionApp::getIllumination(unsigned i)
 {
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).second;

@@ -287,7 +287,7 @@ bool Model_3DS::Load(char *name, float scale)
 	return true;
 }
 
-void Model_3DS::Draw(GLfloat* color, rrVision::RRVisionApp* app)
+void Model_3DS::Draw(GLfloat* color, rrVision::RRVisionApp* app, bool lightIndirectMap)
 {
 	if (visible)
 	{
@@ -317,22 +317,40 @@ void Model_3DS::Draw(GLfloat* color, rrVision::RRVisionApp* app)
 			}
 			else if(app)
 			{
-				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(3, GL_FLOAT, 0, ((rrVision::RRIlluminationVertexBufferInMemory<rrVision::RRColor>*)app->getIllumination(i)->getChannel(0)->vertexBuffer)->lock());
+				if(!lightIndirectMap)
+				{
+					rrVision::RRIlluminationVertexBuffer* vertexBuffer = app->getIllumination(i)->getChannel(0)->vertexBuffer;
+					glEnableClientState(GL_COLOR_ARRAY);
+					glColorPointer(3, GL_FLOAT, 0, ((rrVision::RRIlluminationVertexBufferInMemory<rrVision::RRColor>*)vertexBuffer)->lock());
+				}
+				else
+				{
+					assert(0);
+					// not implemented
+					/*
+					// setup light indirect texture
+					rrVision::RRIlluminationPixelBuffer* pixelBuffer = app->getIllumination(i)->getChannel(0)->pixelBuffer;
+					const rrVision::RRColorI8* pixels = ((rrVision::RRIlluminationPixelBufferInMemory<rrVision::RRColorI8>*)pixelBuffer)->lock();
+					glActiveTextureARB(GL_TEXTURE12_ARB); // used by lightIndirectMap
+					...
+					?->bindTexture();
+					glActiveTextureARB(GL_TEXTURE11_ARB); // used by materialDiffuseMap
+					// if not created yet, create unwrap buffer
+					rrVision::RRObjectIllumination& illum = app->getIllumination(i);
+					if(!illum.pixelBufferUnwrap)
+					{
+						illum.createPixelBufferUnwrap(app->getObject(i));
+					}
+					// setup light indirect texture coords
+					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					glTexCoordPointer(2, GL_FLOAT, 0, ?);
+					*/
+				}
 			}
 			else
 			{
 				glColor3f(0,0,0);
 			}
-
-			/*/ additional texcoord7
-			if(texcoord7)
-			{
-				glClientActiveTexture(GL_TEXTURE7)
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				glTexCoordPointer(2, GL_FLOAT, 0, texcoord7);
-				texcoord7 += 2*Objects[i].numVerts;
-			}*/
 
 			// Enable texture coordiantes, normals, and vertices arrays
 			if (Objects[i].textured)

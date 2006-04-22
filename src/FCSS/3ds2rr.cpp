@@ -234,7 +234,7 @@ void new_3ds_importer(Model_3DS* model,rrVision::RRVisionApp* app)
 	rrVision::RRVisionApp::Objects objects;
 	for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 	{
-		objects.push_back(rrVision::RRVisionApp::Object(new_3ds_importer(model,i),new rrVision::RRObjectIllumination(model->Objects[i].numVerts)));
+		objects.push_back(rrVision::RRVisionApp::Object(new_3ds_importer(model,i),new rrVision::RRObjectIlluminationForEditor(model->Objects[i].numVerts)));
 	}
 	if(app) app->setObjects(objects);
 }
