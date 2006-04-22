@@ -40,7 +40,7 @@ namespace rrVision
 	//! Illumination storage in vertex buffer in system memory.
 	//
 	//! Template parameter Color specifies format of one element in vertex buffer.
-	//! It can be for example RRColor.
+	//! It can be RRColor, RRColorI8.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +59,7 @@ namespace rrVision
 			numVertices = anumVertices;
 			vertices = new Color[numVertices];
 		}
-		const Color* getVertices()
+		const Color* lock()
 		{
 			return vertices;
 		}
@@ -111,7 +111,7 @@ namespace rrVision
 	//! Illumination storage in pixel buffer in system memory.
 	//
 	//! Template parameter Color specifies format of one element in pixel buffer.
-	//! It can be for example RRColor.
+	//! It can be RRColor, RRColorI8.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -131,6 +131,10 @@ namespace rrVision
 			height = aheight;
 			pixels = new Color[width*height];
 		}
+		const Color* lock()
+		{
+			return pixels;
+		}
 		virtual void markAllUnused()
 		{
 			for(unsigned i=0;i<width*height;i++)
@@ -138,10 +142,7 @@ namespace rrVision
 				pixels[i] = Color(1,1,0);
 			}
 		}
-		virtual void renderTriangle(const RRScene::SubtriangleIllumination& si)
-		{
-			//!!!
-		}
+		virtual void renderTriangle(const RRScene::SubtriangleIllumination& si);
 		virtual void growUsed()
 		{
 			for(unsigned j=0;j<height-1;j++)
@@ -175,6 +176,42 @@ namespace rrVision
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	struct RRColorI8
+	{
+		RRColorI8()
+		{
+			color = 0;
+		}
+		RRColorI8(RRReal r,RRReal g,RRReal b)
+		{
+			color = (unsigned char)(255/3*(r+g+b));
+		}
+		/*RRColorI8(RRColor a)
+		{
+			color = (unsigned char)(255/3*(a[0]+a[1]+a[2]));
+		}
+		bool operator ==(const RRColor& a)
+		{
+			const RRColorI8 b = a;
+			return color==b.color;
+		}*/
+		bool operator ==(const RRColorI8& a)
+		{
+			return color==a.color;
+		}
+		bool operator !=(const RRColorI8& a)
+		{
+			return color!=a.color;
+		}
+		unsigned char color;
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	//! Storage for object's indirect illumination.
 	//
 	//! Editor stores calculated illumination here.
@@ -200,7 +237,7 @@ namespace rrVision
 			Channel(unsigned anumVertices)
 			{
 				vertexBuffer = new RRIlluminationVertexBufferInMemory<RRColor>(anumVertices);
-				pixelBuffer = new RRIlluminationPixelBufferInMemory<RRColor>(256,256);
+				pixelBuffer = new RRIlluminationPixelBufferInMemory<RRColorI8>(256,256);
 			}
 			RRIlluminationVertexBuffer* vertexBuffer;
 			RRIlluminationPixelBuffer* pixelBuffer;
@@ -286,7 +323,7 @@ namespace rrVision
 		float      calcTimeSinceReadingResults;
 		// read results
 		void       updateVertexLookupTable();
-		std::vector<std::vector<std::pair<unsigned,unsigned>>> preVertex2PostTriangleVertex; ///< readResults lookup table
+		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
 		void       readVertexResults();
 		void       readPixelResults();
 		unsigned   resultChannelIndex;

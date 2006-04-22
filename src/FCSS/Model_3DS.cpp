@@ -318,7 +318,7 @@ void Model_3DS::Draw(GLfloat* color, rrVision::RRVisionApp* app)
 			else if(app)
 			{
 				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(3, GL_FLOAT, 0, ((rrVision::RRIlluminationVertexBufferInMemory<rrVision::RRColor>*)app->getIllumination(i)->getChannel(0)->vertexBuffer)->getVertices());
+				glColorPointer(3, GL_FLOAT, 0, ((rrVision::RRIlluminationVertexBufferInMemory<rrVision::RRColor>*)app->getIllumination(i)->getChannel(0)->vertexBuffer)->lock());
 			}
 			else
 			{

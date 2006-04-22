@@ -9,7 +9,7 @@ unsigned initialPasses=1;
 #define AREA_SIZE 0.15f
 int fullscreen = 1;
 int shadowSamples = 4;
-
+bool indirectMap = 0;//!!!
 /*
 obcas je po spusteni indirect svetlejsi nez by mel byt, po prvnim pohybu svetla se srovna
 
@@ -512,13 +512,14 @@ GLSLProgram* getProgramCore(RRObjectRenderer::ColorChannel cc)
 			bool forceAmbient = cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_EXITANCE;
 			bool hasDiffuseColor = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
 retry:
-			sprintf(tmp,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s",
+			sprintf(tmp,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s",
 				(forceAmbient || force2d || softLight<0)?1:MIN(useLights,INSTANCES_PER_PASS),
 				forceAmbient?0:((force2d || softLight<0)?1:shadowSamples),
-				(forceAmbient)?"":"#define DIRECT_LIGHT\n",
-				(!forceAmbient && (force2d || softLight<0 || useLights>INSTANCES_PER_PASS))?"":"#define INDIRECT_LIGHT\n",
-				(renderDiffuseTexture && !hasDiffuseColor)?"#define DIFFUSE_MAP\n":"",
-				(hasDiffuseColor)?"#define DIFFUSE_COLOR\n":"",
+				(forceAmbient)?"":"#define LIGHT_DIRECT_MAP\n",
+				(!forceAmbient && (force2d || softLight<0 || useLights>INSTANCES_PER_PASS))?"":"#define LIGHT_INDIRECT_COLOR\n",
+				(indirectMap)?"#define LIGHT_INDIRECT_MAP\n":"",
+				(renderDiffuseTexture && !hasDiffuseColor)?"#define MATERIAL_DIFFUSE_MAP\n":"",
+				(hasDiffuseColor)?"#define MATERIAL_DIFFUSE_COLOR\n":"",
 				(force2d)?"#define FORCE_2D_POSITION\n":""
 				);
 			GLSLProgram* prog = progSet->getVariant(tmp);
@@ -839,16 +840,16 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	// lightTex
 	activateTexture(GL_TEXTURE10_ARB, GL_TEXTURE_2D);
 	lightTex->bindTexture();
-	myProg->sendUniform("lightTex", 10);
+	myProg->sendUniform("lightDirectMap", 10);
 
 	// lLightPos (light pos in object space)
-	myProg->sendUniform("lLightPos",light.pos[0],light.pos[1],light.pos[2]);
+	myProg->sendUniform("lightDirectPos",light.pos[0],light.pos[1],light.pos[2]);
 
 	// diffuseTex (last before drawScene, must stay active)
 	if(renderDiffuseTexture && cc!=RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
 	{
 		activateTexture(GL_TEXTURE11_ARB, GL_TEXTURE_2D);
-		myProg->sendUniform("diffuseTex", 11);
+		myProg->sendUniform("materialDiffuseMap", 11);
 	}
 
 	drawScene(cc);
@@ -1600,7 +1601,7 @@ void parseOptions(int argc, char **argv)
 void idle()
 {
 	if(app->calculate()==rrVision::RRScene::IMPROVED)
-		glutPostRedisplay();;
+		glutPostRedisplay();
 }
 
 int main(int argc, char **argv)

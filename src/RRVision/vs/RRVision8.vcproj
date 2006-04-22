@@ -339,6 +339,10 @@
 				RelativePath="..\RRVisionApp.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\swraster.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -362,6 +366,10 @@
 			</File>
 			<File
 				RelativePath="..\rrcore.h"
+				>
+			</File>
+			<File
+				RelativePath="..\swraster.h"
 				>
 			</File>
 		</Filter>

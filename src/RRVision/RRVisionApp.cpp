@@ -5,8 +5,38 @@
 #include <time.h>
 #include "RRVisionApp.h"
 
+// odsunout do RRIlluminationPixelBuffer.cpp
+#include "swraster.h" // RRIlluminationPixelBufferInMemory
+
 namespace rrVision
 {
+
+// odsunout do RRIlluminationPixelBuffer.cpp
+#define CLAMP(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
+template <class Color>
+void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const RRScene::SubtriangleIllumination& si)
+{
+	raster_VERTEX vertex[3];
+	raster_POLYGON polygon[3];
+	for(unsigned i=0;i<3;i++)
+	{
+		vertex[i].sx = CLAMP(si.texCoord[i][0],0,1)*width;
+		vertex[i].sy = CLAMP(si.texCoord[i][1],0,1)*height;
+		vertex[i].u = (si.measure[i][0]+si.measure[i][1]+si.measure[i][2])/3;//!!!
+		assert(vertex[i].sx>=0);
+		assert(vertex[i].sx<=width);
+		assert(vertex[i].sy>=0);
+		assert(vertex[i].sy<=height);
+	}
+	polygon[0].point = &vertex[0];
+	polygon[0].next = &polygon[1];
+	polygon[1].point = &vertex[1];
+	polygon[1].next = &polygon[2];
+	polygon[2].point = &vertex[2];
+	polygon[2].next = NULL;
+	raster_LGouraud(polygon,(raster_COLOR*)pixels,width);
+}
+
 
 #define TIME    clock_t
 #define GETTIME clock()
