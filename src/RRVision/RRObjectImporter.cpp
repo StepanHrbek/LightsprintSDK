@@ -18,7 +18,7 @@ void RRObjectImporter::getTriangleAdditionalMeasure(unsigned t, RRRadiometricMea
 	out[2] = 0;
 }
 
-void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
+void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
 	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
 	if(t>=numTriangles)
@@ -35,7 +35,7 @@ void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out)
 	out.norm[2] = norm;
 }
 
-void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out)
+void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out) const
 {
 	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
 	if(t>=numTriangles)
@@ -175,12 +175,12 @@ public:
 		return pack[0].getImporter()->getSurface(s);
 	}
 
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out)
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleNormals(t,out);
 		return pack[1].getImporter()->getTriangleNormals(t-pack[0].getNumTriangles(),out);
 	}
-	virtual void getTriangleMapping(unsigned t, TriangleMapping& out)
+	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
 	{
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMapping(t,out);
 		return pack[1].getImporter()->getTriangleMapping(t-pack[0].getNumTriangles(),out);
@@ -448,11 +448,11 @@ public:
 	{
 		return original->getSurface(s);
 	}
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out)
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
 		return original->getTriangleNormals(t,out);
 	}
-	virtual void getTriangleMapping(unsigned t, TriangleMapping& out)
+	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
 	{
 		return original->getTriangleMapping(t,out);
 	}

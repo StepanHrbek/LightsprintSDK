@@ -4,15 +4,16 @@
 //#define MAX_FILTERED_INSTANCES 12  // max number of light instances with shadow filtering enabled
 #define MAX_INSTANCES          50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS 10
-unsigned INSTANCES_PER_PASS=7;
+unsigned INSTANCES_PER_PASS=1;//!!!7
 unsigned initialPasses=1;
 #define AREA_SIZE 0.15f
-int fullscreen = 1;
-int shadowSamples = 4;
+int fullscreen = 0;//!!!1
+int shadowSamples = 1;//!!!4
 bool lightIndirectMap = 0;//!!!
+bool renderOnlyRr = !false;//!!!
+bool renderDiffuseTexture = !true;//!!!
 /*
 rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
-rr renderer: pridat normaly aby to smoothovalo direct
 
 pridat dalsi koupelny
 ovladani jasu (global, indirect)
@@ -92,8 +93,6 @@ Model_3DS m3ds;
 //
 // RR
 
-bool renderDiffuseTexture = true;
-bool renderOnlyRr = false;
 bool renderSource = false;
 RRCachingRenderer* renderer = NULL;
 
@@ -113,11 +112,13 @@ int softLight = -1; // current instance number 0..199, -1 = hard shadows, use in
 
 void checkGlError()
 {
+	/*
 	GLenum err = glGetError();
 	if(err!=GL_NO_ERROR)
 	{
 		printf("glGetError=%x\n",err);
 	}
+	*/
 }
 
 void initShadowTex()
@@ -493,6 +494,18 @@ static void drawSphere(void)
 	gluSphere(q, 0.55, 16, 16);
 }
 
+//unsigned define_shadowMaps = 0;
+//unsigned define_shadowSamples = 0;
+//bool define_lightDirect = false;
+//bool define_lightDirectMap = false;
+bool define_lightIndirectXxx = false;
+//v rendru bez textur se materialColor i indirectColor nacitaj z gl_Color
+//je nutne (pri vyplych texturach) vypnout optimalizaci - slouceni primary a indirectu do 1 passu
+//bool define_lightIndirectColor = false;
+//bool define_lightIndirectMap = false;
+//bool define_materialDiffuseColor = false;
+//bool define_materialDiffuseMap = false;
+//bool define_force2dPosition = false;
 
 GLSLProgram* getProgramCore(RRObjectRenderer::ColorChannel cc)
 {
@@ -511,10 +524,11 @@ GLSLProgram* getProgramCore(RRObjectRenderer::ColorChannel cc)
 			static char tmp[200];
 			bool force2d = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
 			bool lightIndirect1 = cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_EXITANCE;
-			bool lightIndirect2 = lightIndirect1 || (!force2d && softLight>=0 && useLights<=INSTANCES_PER_PASS);
-			bool lightIndirectColor1 = lightIndirect2 && !lightIndirectMap;
-			bool lightIndirectMap1 = lightIndirect2 && lightIndirectMap;
-			bool hasDiffuseColor = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
+			bool lightIndirectColor1 = define_lightIndirectXxx && !lightIndirectMap;
+			bool lightIndirectMap1 = define_lightIndirectXxx && lightIndirectMap;
+			bool materialDiffuseColor = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION || (!lightIndirectColor1 && !renderDiffuseTexture);
+			bool materialDiffuseMap = !materialDiffuseColor && renderDiffuseTexture;
+			assert(!lightIndirectColor1 || !materialDiffuseColor);
 retry:
 			sprintf(tmp,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s",
 				(lightIndirect1 || force2d || softLight<0)?1:MIN(useLights,INSTANCES_PER_PASS),
@@ -522,9 +536,9 @@ retry:
 				lightIndirect1?"":"#define LIGHT_DIRECT\n#define LIGHT_DIRECT_MAP\n",
 				lightIndirectColor1?"#define LIGHT_INDIRECT_COLOR\n":"",
 				lightIndirectMap1?"#define LIGHT_INDIRECT_MAP\n":"",
-				(renderDiffuseTexture && !hasDiffuseColor)?"#define MATERIAL_DIFFUSE_MAP\n":"",
-				(hasDiffuseColor)?"#define MATERIAL_DIFFUSE_COLOR\n":"",
-				(force2d)?"#define FORCE_2D_POSITION\n":""
+				materialDiffuseColor?"#define MATERIAL_DIFFUSE_COLOR\n":"",
+				materialDiffuseMap?"#define MATERIAL_DIFFUSE_MAP\n":"",
+				force2d?"#define FORCE_2D_POSITION\n":""
 				);
 			GLSLProgram* prog = progSet->getVariant(tmp);
 			if(!prog && INSTANCES_PER_PASS>1)
@@ -573,7 +587,7 @@ void drawScene(RRObjectRenderer::ColorChannel cc)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		m3ds.Draw(NULL,(useLights<=INSTANCES_PER_PASS)?app:NULL,lightIndirectMap); // optimalizovay render->s ambientem, jinak bez
+		m3ds.Draw(NULL,define_lightIndirectXxx?app:NULL,lightIndirectMap);
 		return;
 	}
 	if(!renderOnlyRr && (cc==RRObjectRenderer::CC_SOURCE_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE))
@@ -888,9 +902,10 @@ void drawEyeViewShadowed()
 
 void drawEyeViewSoftShadowed(void)
 {
-	// optimized path without accum
-	if(useLights<=INSTANCES_PER_PASS)
+	// optimized path without accum, only for m3ds, rrrenderer can't render both materialColor and indirectColor
+	if(useLights<=INSTANCES_PER_PASS && !renderOnlyRr)
 	{
+		define_lightIndirectXxx = false;
 		placeSoftLight(-1);
 		for(unsigned i=0;i<useLights;i++)
 		{
@@ -900,12 +915,15 @@ void drawEyeViewSoftShadowed(void)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 		placeSoftLight(0);
+		define_lightIndirectXxx = true;
 		drawEyeViewShadowed();
 		placeSoftLight(-2);
+		define_lightIndirectXxx = false;
 		return;
 	}
 
 	// add direct
+	define_lightIndirectXxx = false;
 	placeSoftLight(-1);
 	for(unsigned i=0;i<useLights;i++)
 	{
@@ -925,6 +943,7 @@ void drawEyeViewSoftShadowed(void)
 
 	// add indirect
 	{
+		define_lightIndirectXxx = true;
 #ifdef SHOW_CAPTURED_TRIANGLES
 		generateForcedUv = &captureUv;
 		captureUv.firstCapturedTriangle = 0;
@@ -935,6 +954,7 @@ void drawEyeViewSoftShadowed(void)
 #endif
 
 		glAccum(GL_ACCUM,1);
+		define_lightIndirectXxx = false;
 	}
 
 	glAccum(GL_RETURN,1);
@@ -1375,7 +1395,7 @@ void keyboard(unsigned char c, int x, int y)
 		case '+':
 			if(useLights+INSTANCES_PER_PASS<=MAX_INSTANCES) 
 			{
-				if(useLights==1) 
+				if(useLights==1 && useLights<INSTANCES_PER_PASS)
 					useLights = INSTANCES_PER_PASS;
 				else
 					useLights += INSTANCES_PER_PASS;
@@ -1612,7 +1632,11 @@ void parseOptions(int argc, char **argv)
 void idle()
 {
 	if(app->calculate()==rrVision::RRScene::IMPROVED)
+	{
+		renderer->setStatus(RRObjectRenderer::CC_REFLECTED_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
+		renderer->setStatus(RRObjectRenderer::CC_REFLECTED_IRRADIANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
 		glutPostRedisplay();
+	}
 }
 
 int main(int argc, char **argv)
@@ -1629,7 +1653,10 @@ int main(int argc, char **argv)
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
 	}
 	glutCreateWindow("shadowcast");
-	if (fullscreen) glutFullScreen();
+	if(fullscreen)
+	{
+		glutFullScreen();
+	}
 
 	GLenum err = glewInit();
 	if (GLEW_OK != err)

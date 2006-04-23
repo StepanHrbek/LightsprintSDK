@@ -44,6 +44,7 @@ public:
 	virtual const rrCollider::RRCollider* getCollider() const;
 	virtual unsigned                      getTriangleSurface(unsigned t) const;
 	virtual const rrVision::RRSurface*    getSurface(unsigned s) const;
+	virtual void                          getTriangleNormals(unsigned t, TriangleNormals& out) const;
 	virtual const rrVision::RRMatrix3x4*  getWorldMatrix();
 	virtual const rrVision::RRMatrix3x4*  getInvWorldMatrix();
 
@@ -201,6 +202,23 @@ const rrVision::RRSurface* M3dsImporter::getSurface(unsigned s) const
 		return NULL;
 	}
 	return &surfaces[s];
+}
+
+void M3dsImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
+{
+	if(t>=getNumTriangles())
+	{
+		assert(0);
+		return;
+	}
+	Triangle triangle;
+	getTriangle(t,triangle);
+	for(unsigned v=0;v<3;v++)
+	{
+		out.norm[v][0] = object->Normals[3*triangle[v]];
+		out.norm[v][1] = object->Normals[3*triangle[v]+1];
+		out.norm[v][2] = object->Normals[3*triangle[v]+2];
+	}
 }
 
 const rrVision::RRMatrix3x4* M3dsImporter::getWorldMatrix()

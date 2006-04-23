@@ -199,7 +199,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
 		//! \param out Caller provided storage for result.
 		//!  For valid t, requested normals are written to out. For invalid t, out stays unmodified.
-		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out);
+		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out) const;
 		//! Writes t-th triangle mapping for object unwrap into 0..1 x 0..1 space.
 		//
 		//! Future versions of Vision may use mapping for returning results in texture. Currently it is not used.
@@ -207,7 +207,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
 		//! \param out Caller provided storage for result.
 		//!  For valid t, requested mapping is written to out. For invalid t, out stays unmodified.
-		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out);
+		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out) const;
 		//! Writes t-th triangle additional measure to out.
 		//
 		//! Although each triangle has its RRSurface::diffuseEmittance,

@@ -10,7 +10,7 @@
 
 
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
-bool  NORMALS=0; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
+bool  SMOOTH =1; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
 bool  COMPILE=1;
 
 #define MINUS(a,b,res) res[0]=a[0]-b[0];res[1]=a[1]-b[1];res[2]=a[2]-b[2]
@@ -36,7 +36,9 @@ RRGLObjectRenderer::RRGLObjectRenderer(rrVision::RRObjectImporter* objectImporte
 void RRGLObjectRenderer::render(ColorChannel cc)
 {
 	glColor4ub(0,0,0,255);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	if(SIDES==0) glDisable(GL_CULL_FACE);
+	if(SIDES==1) glEnable(GL_CULL_FACE);
 
 	switch(cc)
 	{
@@ -91,8 +93,10 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 				{
 					const rrVision::RRSurface* surface = object->getSurface(surfaceIdx);
 					assert(surface);
-					if(cc!=CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)
-						if((SIDES==0 && surface->sideBits[1].renderFrom) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+					// nastavuje culling podle materialu
+					// vypnuto protoze kdyz to na nvidii vlozim do display listu, pri jeho provadeni hlasi error
+					//if(cc!=CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)
+					//	if((SIDES==0 && surface->sideBits[1].renderFrom) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
 					switch(cc)
 					{
 						case CC_DIFFUSE_REFLECTANCE:
@@ -105,14 +109,18 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 				}
 			}
 		}
-		if(!NORMALS && cc!=CC_NO_COLOR && cc!=CC_TRIANGLE_INDEX)
+		rrVision::RRObjectImporter::TriangleNormals triangleNormals;
+		bool setNormals = cc!=CC_NO_COLOR && cc!=CC_TRIANGLE_INDEX;
+		if(setNormals)
 		{
-			rrVision::RRObjectImporter::TriangleNormals triangleNormals;
 			object->getTriangleNormals(triangleIdx,triangleNormals);
-			glNormal3fv(&triangleNormals.norm[0].x);
 		}
 		for(int v=0;v<3;v++) 
 		{
+			if(setNormals && (SMOOTH || v==0))
+			{
+				glNormal3fv(&triangleNormals.norm[v].x);
+			}
 			rrCollider::RRMeshImporter::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
 

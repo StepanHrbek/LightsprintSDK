@@ -25,12 +25,9 @@ GLSLProgram::GLSLProgram(const char* defines, const char *shader, unsigned int s
 	linkIt();
 }
 
-extern void checkGlError();
-
 GLSLProgram::GLSLProgram(const char* defines, const char *vertexShader, const char *fragmentShader)
   :vertex(NULL), fragment(NULL)
 {
-	checkGlError();
 	handle = glCreateProgramObjectARB();
 
 	vertex = new GLSLShader(defines, vertexShader, GL_VERTEX_SHADER_ARB);
