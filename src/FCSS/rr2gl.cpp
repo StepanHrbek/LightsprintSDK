@@ -2,14 +2,14 @@
 // OpenGL renderer of RRObjectImporter by Stepan Hrbek, dee@mail.cz
 //
 
+#include "rr2gl.h"
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <assert.h>
 #include <math.h>
-#include "rr2gl.h"
 
 
-int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by mgf
+int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by surface
 bool  SMOOTH =1; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
 bool  COMPILE=1;
 
@@ -17,30 +17,53 @@ bool  COMPILE=1;
 #define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
 #define SIZE(a) sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2])
 #define DIV(a,b,res) res[0]=a[0]/(b);res[1]=a[1]/(b);res[2]=a[2]/(b)
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 VertexDataGenerator* generateForcedUv = NULL;
 
 void checkGlError();
 
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRRenderer
+
+const void* RRRenderer::getParams(unsigned& length) const
+{
+	length = 0;
+	return NULL;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRGLObjectRenderer
 
-
 RRGLObjectRenderer::RRGLObjectRenderer(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver)
 {
-	object = objectImporter;
-	scene = radiositySolver;
+	params.object = objectImporter;
+	params.scene = radiositySolver;
 }
 
-void RRGLObjectRenderer::render(ColorChannel cc)
+void RRGLObjectRenderer::setChannel(ColorChannel cc)
+{
+	params.cc = cc;
+}
+
+const void* RRGLObjectRenderer::getParams(unsigned& length) const
+{
+	length = sizeof(params);
+	return &params;
+}
+
+void RRGLObjectRenderer::render()
 {
 	glColor4ub(0,0,0,255);
 	//glEnable(GL_CULL_FACE);
-	if(SIDES==0) glDisable(GL_CULL_FACE);
 	if(SIDES==1) glEnable(GL_CULL_FACE);
+	if(SIDES==2) glDisable(GL_CULL_FACE);
 
-	switch(cc)
+	switch(params.cc)
 	{
 	case CC_NO_COLOR: 
 	case CC_TRIANGLE_INDEX: 
@@ -71,15 +94,15 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 
 	checkGlError();
 	glBegin(GL_TRIANGLES);
-	assert(object);
-	rrCollider::RRMeshImporter* meshImporter = object->getCollider()->getImporter();
+	assert(params.object);
+	rrCollider::RRMeshImporter* meshImporter = params.object->getCollider()->getImporter();
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
 	for(unsigned triangleIdx=0;triangleIdx<numTriangles;triangleIdx++)
 	{
 		rrCollider::RRMeshImporter::Triangle tri;
 		meshImporter->getTriangle(triangleIdx,tri);
-		switch(cc)
+		switch(params.cc)
 		{
 			case CC_NO_COLOR:
 				break;
@@ -88,16 +111,16 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 				break;
 			default:
 			{
-				unsigned surfaceIdx = object->getTriangleSurface(triangleIdx);
+				unsigned surfaceIdx = params.object->getTriangleSurface(triangleIdx);
 				if(surfaceIdx!=oldSurfaceIdx)
 				{
-					const rrVision::RRSurface* surface = object->getSurface(surfaceIdx);
+					const rrVision::RRSurface* surface = params.object->getSurface(surfaceIdx);
 					assert(surface);
 					// nastavuje culling podle materialu
 					// vypnuto protoze kdyz to na nvidii vlozim do display listu, pri jeho provadeni hlasi error
 					//if(cc!=CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)
 					//	if((SIDES==0 && surface->sideBits[1].renderFrom) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-					switch(cc)
+					switch(params.cc)
 					{
 						case CC_DIFFUSE_REFLECTANCE:
 						case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
@@ -110,10 +133,10 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 			}
 		}
 		rrVision::RRObjectImporter::TriangleNormals triangleNormals;
-		bool setNormals = cc!=CC_NO_COLOR && cc!=CC_TRIANGLE_INDEX;
+		bool setNormals = params.cc!=CC_NO_COLOR && params.cc!=CC_TRIANGLE_INDEX;
 		if(setNormals)
 		{
-			object->getTriangleNormals(triangleIdx,triangleNormals);
+			params.object->getTriangleNormals(triangleIdx,triangleNormals);
 		}
 		for(int v=0;v<3;v++) 
 		{
@@ -124,13 +147,13 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 			rrCollider::RRMeshImporter::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
 
-			switch(cc)
+			switch(params.cc)
 			{
 				case CC_SOURCE_IRRADIANCE:
 				case CC_REFLECTED_IRRADIANCE:
 					{
 					rrVision::RRColor color;
-					scene->getTriangleMeasure(0,triangleIdx,v,rrVision::RM_IRRADIANCE,color);
+					params.scene->getTriangleMeasure(0,triangleIdx,v,rrVision::RM_IRRADIANCE,color);
 					glColor3fv(&color.x);
 					break;
 					}
@@ -138,7 +161,7 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 				case CC_REFLECTED_EXITANCE:
 					{
 					rrVision::RRColor color;
-					scene->getTriangleMeasure(0,triangleIdx,v,rrVision::RM_EXITANCE,color);
+					params.scene->getTriangleMeasure(0,triangleIdx,v,rrVision::RM_EXITANCE,color);
 					glColor3fv(&color.x);
 					break;
 					}
@@ -163,73 +186,83 @@ void RRGLObjectRenderer::render(ColorChannel cc)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRCachingRenderer
+// RRGLCachingRenderer
 
-RRCachingRenderer::RRCachingRenderer(RRObjectRenderer* arenderer)
+RRGLCachingRenderer::RRGLCachingRenderer(RRRenderer* arenderer)
 {
 	renderer = arenderer;
-	for(unsigned i=0;i<CC_LAST;i++)
+}
+
+RRGLCachingRenderer::~RRGLCachingRenderer()
+{
+	for(Map::iterator i=mapa.begin();i!=mapa.end();i++)
 	{
-		status[i] = CS_READY_TO_COMPILE;
-		displayLists[i] = UINT_MAX;
+		setStatus(CS_NEVER_COMPILE,i->second);
 	}
 }
 
-RRCachingRenderer::~RRCachingRenderer()
+RRGLCachingRenderer::Info& RRGLCachingRenderer::findInfo()
 {
-	for(unsigned i=0;i<CC_LAST;i++)
+	Key key;
+	memset(&key,0,sizeof(key));
+	unsigned length;
+	const void* params = renderer->getParams(length);
+	if(length)
 	{
-		setStatus((ColorChannel)i,CS_NEVER_COMPILE);
+		//!!! params delsi nez 16 jsou oriznuty
+		memcpy(&key,params,MIN(length,sizeof(key)));
 	}
+//	Map::iterator i = mapa.find(key);
+//	if(i!=mapa.end())
+//		return (Info&)i->second;
+	return mapa[key];
 }
 
-void RRCachingRenderer::setStatus(ColorChannel cc, ChannelStatus cs)
+void RRGLCachingRenderer::setStatus(ChannelStatus cs,RRGLCachingRenderer::Info& info)
 {
-	if(status[cc]==CS_COMPILED && cs!=CS_COMPILED)
+	if(info.status==CS_COMPILED && cs!=CS_COMPILED)
 	{
-		assert(displayLists[cc]!=UINT_MAX);
-		glDeleteLists(displayLists[cc],1);
-		displayLists[cc] = UINT_MAX;
+		assert(info.displayList!=UINT_MAX);
+		glDeleteLists(info.displayList,1);
+		info.displayList = UINT_MAX;
 	}
-	if(status[cc]!=CS_COMPILED && cs==CS_COMPILED)
+	if(info.status!=CS_COMPILED && cs==CS_COMPILED)
 	{
-		assert(displayLists[cc]==UINT_MAX);
+		assert(info.displayList==UINT_MAX);
 		cs = CS_READY_TO_COMPILE;
 	}
-	status[cc] = cs;
+	info.status = cs;
 }
 
-void RRCachingRenderer::render(ColorChannel cc)
+void RRGLCachingRenderer::setStatus(ChannelStatus cs)
 {
-	checkGlError();
-	switch(status[cc])
+	setStatus(cs,findInfo());
+}
+
+void RRGLCachingRenderer::render()
+{
+	RRGLCachingRenderer::Info& info = findInfo();
+	switch(info.status)
 	{
 	case CS_READY_TO_COMPILE:
 		if(!COMPILE) goto never;
-		checkGlError();
-		assert(displayLists[cc]==UINT_MAX);
-		displayLists[cc] = glGenLists(1);
-		glNewList(displayLists[cc],GL_COMPILE);
-		renderer->render(cc);
+		assert(info.displayList==UINT_MAX);
+		info.displayList = glGenLists(1);
+		glNewList(info.displayList,GL_COMPILE);
+		renderer->render();
 		glEndList();
-		status[cc] = CS_COMPILED;
-		checkGlError();
+		info.status = CS_COMPILED;
 		// intentionally no break
 	case CS_COMPILED:
-		assert(displayLists[cc]!=UINT_MAX);
-		checkGlError();
-		glCallList(displayLists[cc]);
-		checkGlError();
+		assert(info.displayList!=UINT_MAX);
+		glCallList(info.displayList);
 		break;
 	case CS_NEVER_COMPILE:
 never:
-		assert(displayLists[cc]==UINT_MAX);
-		checkGlError();
-		renderer->render(cc);
-		checkGlError();
+		assert(info.displayList==UINT_MAX);
+		renderer->render();
 		break;
 	default:
 		assert(0);
 	}
-	checkGlError();
 }

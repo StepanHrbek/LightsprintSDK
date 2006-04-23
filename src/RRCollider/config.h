@@ -3,7 +3,9 @@
 
 #include "RRCollider.h"
 
+#ifdef _MSC_VER
 #pragma warning(disable:4530) // exceptions thrown but disabled, may crash
+#endif
 
 //#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, turns off unneeded features
 

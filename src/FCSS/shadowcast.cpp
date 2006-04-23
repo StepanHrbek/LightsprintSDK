@@ -4,15 +4,16 @@
 //#define MAX_FILTERED_INSTANCES 12  // max number of light instances with shadow filtering enabled
 #define MAX_INSTANCES          50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS 10
-unsigned INSTANCES_PER_PASS=1;//!!!7
+unsigned INSTANCES_PER_PASS=7;
 unsigned initialPasses=1;
 #define AREA_SIZE 0.15f
-int fullscreen = 0;//!!!1
-int shadowSamples = 1;//!!!4
-bool lightIndirectMap = 0;//!!!
-bool renderOnlyRr = !false;//!!!
-bool renderDiffuseTexture = !true;//!!!
+int fullscreen = 1;
+int shadowSamples = 4;
+bool lightIndirectMap = 0;
+bool renderOnlyRr = false;
+bool renderDiffuseTexture = true;
 /*
+! v gcc dela m3ds renderer spatny indirect na koulich (na zdi je ok, v msvc je ok, v rrrendereru je ok)
 rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
 
 pridat dalsi koupelny
@@ -94,7 +95,8 @@ Model_3DS m3ds;
 // RR
 
 bool renderSource = false;
-RRCachingRenderer* renderer = NULL;
+RRGLObjectRenderer* rendererNonCaching = NULL;
+RRGLCachingRenderer* rendererCaching = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -300,7 +302,7 @@ GLdouble lightInverseFrustumMatrix[16];
 //
 // MyApp
 
-void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc);
+void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc);
 
 // generuje uv coords pro capture
 class CaptureUv : public VertexDataGenerator
@@ -337,7 +339,7 @@ protected:
 	}
 	virtual void detectDirectIllumination()
 	{
-		if(!renderer) return;
+		if(!rendererCaching) return;
 
 		//!!!
 		/*
@@ -377,9 +379,10 @@ protected:
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// render scene
-			renderer->setStatus(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,RRCachingRenderer::CS_NEVER_COMPILE);
+			rendererNonCaching->setChannel(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
+			rendererCaching->setStatus(RRGLCachingRenderer::CS_NEVER_COMPILE);
 			generateForcedUv = &captureUv;
-			drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
+			drawHardwareShadowPass(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
 			generateForcedUv = NULL;
 
 			// Read back the index buffer to memory.
@@ -507,26 +510,26 @@ bool define_lightIndirectXxx = false;
 //bool define_materialDiffuseMap = false;
 //bool define_force2dPosition = false;
 
-GLSLProgram* getProgramCore(RRObjectRenderer::ColorChannel cc)
+GLSLProgram* getProgramCore(RRGLObjectRenderer::ColorChannel cc)
 {
 	switch(cc)
 	{
-		case RRObjectRenderer::CC_NO_COLOR:
+		case RRGLObjectRenderer::CC_NO_COLOR:
 			return lightProg;
-		case RRObjectRenderer::CC_TRIANGLE_INDEX:
+		case RRGLObjectRenderer::CC_TRIANGLE_INDEX:
 			return ambientProg;
-		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE:
-		case RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
-		case RRObjectRenderer::CC_REFLECTED_IRRADIANCE:
-		case RRObjectRenderer::CC_REFLECTED_EXITANCE:
+		case RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE:
+		case RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
+		case RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE:
+		case RRGLObjectRenderer::CC_REFLECTED_EXITANCE:
 			{
 			GLSLProgramSet* progSet = ubershaderProgSet;
 			static char tmp[200];
-			bool force2d = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
-			bool lightIndirect1 = cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_EXITANCE;
+			bool force2d = cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
+			bool lightIndirect1 = cc==RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE || cc==RRGLObjectRenderer::CC_REFLECTED_EXITANCE;
 			bool lightIndirectColor1 = define_lightIndirectXxx && !lightIndirectMap;
 			bool lightIndirectMap1 = define_lightIndirectXxx && lightIndirectMap;
-			bool materialDiffuseColor = cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION || (!lightIndirectColor1 && !renderDiffuseTexture);
+			bool materialDiffuseColor = cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION || (!lightIndirectColor1 && !renderDiffuseTexture);
 			bool materialDiffuseMap = !materialDiffuseColor && renderDiffuseTexture;
 			assert(!lightIndirectColor1 || !materialDiffuseColor);
 retry:
@@ -556,7 +559,7 @@ retry:
 			return NULL;
 	}
 }
-GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
+GLSLProgram* getProgram(RRGLObjectRenderer::ColorChannel cc)
 {
 	checkGlError();
 	GLSLProgram* tmp = getProgramCore(cc);
@@ -570,7 +573,7 @@ GLSLProgram* getProgram(RRObjectRenderer::ColorChannel cc)
 	return tmp;
 }
 
-GLSLProgram* setProgram(RRObjectRenderer::ColorChannel cc)
+GLSLProgram* setProgram(RRGLObjectRenderer::ColorChannel cc)
 {
 	GLSLProgram* tmp = getProgram(cc);
 	checkGlError();
@@ -579,42 +582,43 @@ GLSLProgram* setProgram(RRObjectRenderer::ColorChannel cc)
 	return tmp;
 }
 
-void drawScene(RRObjectRenderer::ColorChannel cc)
+void drawScene(RRGLObjectRenderer::ColorChannel cc)
 {
 	checkGlError();
 #ifdef _3DS
-	if(!renderOnlyRr && cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE)
+	if(!renderOnlyRr && cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		m3ds.Draw(NULL,define_lightIndirectXxx?app:NULL,lightIndirectMap);
 		return;
 	}
-	if(!renderOnlyRr && (cc==RRObjectRenderer::CC_SOURCE_IRRADIANCE || cc==RRObjectRenderer::CC_REFLECTED_IRRADIANCE))
+	if(!renderOnlyRr && (cc==RRGLObjectRenderer::CC_SOURCE_IRRADIANCE || cc==RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE))
 	{
 		m3ds.Draw(NULL,app,lightIndirectMap);
 		return;
 	}
 #endif
-	renderer->render(cc);
+	rendererNonCaching->setChannel(cc);
+	rendererCaching->render();
 	checkGlError();
 }
 
-void setProgramAndDrawScene(RRObjectRenderer::ColorChannel cc)
+void setProgramAndDrawScene(RRGLObjectRenderer::ColorChannel cc)
 {
-	if(cc==RRObjectRenderer::CC_REFLECTED_AUTO)
+	if(cc==RRGLObjectRenderer::CC_REFLECTED_AUTO)
 	{
 		if(renderDiffuseTexture)
-			cc = RRObjectRenderer::CC_REFLECTED_IRRADIANCE; // for textured 3ds output
+			cc = RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE; // for textured 3ds output
 		else
-			cc = RRObjectRenderer::CC_REFLECTED_EXITANCE; // for colored output
+			cc = RRGLObjectRenderer::CC_REFLECTED_EXITANCE; // for colored output
 	}
-	if(cc==RRObjectRenderer::CC_SOURCE_AUTO)
+	if(cc==RRGLObjectRenderer::CC_SOURCE_AUTO)
 	{
 		if(renderDiffuseTexture)
-			cc = RRObjectRenderer::CC_SOURCE_IRRADIANCE; // for textured 3ds output
+			cc = RRGLObjectRenderer::CC_SOURCE_IRRADIANCE; // for textured 3ds output
 		else
-			cc = RRObjectRenderer::CC_SOURCE_EXITANCE; // for colored output
+			cc = RRGLObjectRenderer::CC_SOURCE_EXITANCE; // for colored output
 	}
 	setProgram(cc);
 	drawScene(cc);
@@ -731,7 +735,7 @@ void setupLightView(int square)
 
 void drawLightView(void)
 {
-	drawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
+	drawScene(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 }
 
 void useBestShadowMapClamping(GLenum target)
@@ -805,7 +809,7 @@ void updateDepthMap(int mapIndex)
 	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
-	setProgramAndDrawScene(RRObjectRenderer::CC_NO_COLOR);
+	setProgramAndDrawScene(RRGLObjectRenderer::CC_NO_COLOR);
 	updateShadowTex();
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -818,7 +822,7 @@ void updateDepthMap(int mapIndex)
 	}
 }
 
-void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
+void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 {
 	checkGlError();
 	GLSLProgram* myProg = setProgram(cc);
@@ -835,7 +839,7 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	};
 	GLint samplers[100];
 	int softLightBase = softLight;
-	int instances = (softLight>=0 && cc==RRObjectRenderer::CC_DIFFUSE_REFLECTANCE)?MIN(useLights,INSTANCES_PER_PASS):1;
+	int instances = (softLight>=0 && cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE)?MIN(useLights,INSTANCES_PER_PASS):1;
 	checkGlError();
 	for(int i=0;i<instances;i++)
 	{
@@ -871,7 +875,7 @@ void drawHardwareShadowPass(RRObjectRenderer::ColorChannel cc)
 	}
 
 	// materialDiffuseMap (last before drawScene, must stay active)
-	if(renderDiffuseTexture && cc!=RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
+	if(renderDiffuseTexture && cc!=RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
 	{
 		activateTexture(GL_TEXTURE11_ARB, GL_TEXTURE_2D);
 		myProg->sendUniform("materialDiffuseMap", 11);
@@ -894,7 +898,7 @@ void drawEyeViewShadowed()
 
 	setupEyeView();
 
-	drawHardwareShadowPass(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE);
+	drawHardwareShadowPass(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 
 	drawLight();
 	drawShadowMapFrustum();
@@ -947,10 +951,10 @@ void drawEyeViewSoftShadowed(void)
 #ifdef SHOW_CAPTURED_TRIANGLES
 		generateForcedUv = &captureUv;
 		captureUv.firstCapturedTriangle = 0;
-		setProgramAndDrawScene(RRObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION); // pro color exitance, pro texturu irradiance
+		setProgramAndDrawScene(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION); // pro color exitance, pro texturu irradiance
 #else
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		setProgramAndDrawScene(RRObjectRenderer::CC_REFLECTED_AUTO); // pro color exitance, pro texturu irradiance
+		setProgramAndDrawScene(RRGLObjectRenderer::CC_REFLECTED_AUTO); // pro color exitance, pro texturu irradiance
 #endif
 
 		glAccum(GL_ACCUM,1);
@@ -1633,8 +1637,10 @@ void idle()
 {
 	if(app->calculate()==rrVision::RRScene::IMPROVED)
 	{
-		renderer->setStatus(RRObjectRenderer::CC_REFLECTED_EXITANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
-		renderer->setStatus(RRObjectRenderer::CC_REFLECTED_IRRADIANCE,RRCachingRenderer::CS_READY_TO_COMPILE);
+		rendererNonCaching->setChannel(RRGLObjectRenderer::CC_REFLECTED_EXITANCE);
+		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
+		rendererNonCaching->setChannel(RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE);
+		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
 		glutPostRedisplay();
 	}
 }
@@ -1735,10 +1741,9 @@ int main(int argc, char **argv)
 	printf("\n");
 	glsl_init();
 	checkGlError();
-	renderer = NULL;
 	app->calculate();
-	renderer = new RRCachingRenderer(new RRGLObjectRenderer(app->multiObject,app->scene));
-
+	rendererNonCaching = new RRGLObjectRenderer(app->multiObject,app->scene);
+	rendererCaching = new RRGLCachingRenderer(rendererNonCaching);
 	glutMainLoop();
 	return 0;
 }

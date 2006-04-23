@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include "spline.h"
 
+#ifdef _MSC_VER
 #pragma warning(disable:4244) // there are lots of float-double conversions
+#endif
 
 #define EPSILON 1.0E-06
 #define M_PI		3.14159265358979323846

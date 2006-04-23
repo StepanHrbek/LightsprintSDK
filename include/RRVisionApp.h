@@ -9,7 +9,9 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
 #pragma warning(disable:4530) // exceptions thrown but disabled, may crash
+#endif
 
 #include <cassert>
 #include <map>
@@ -242,7 +244,7 @@ namespace rrVision
 	{
 	public:
 		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, RRObjectImporter* object, unsigned anumPreImportVertices)
-			: RRIlluminationPixelBufferInMemory(awidth,aheight)
+			: RRIlluminationPixelBufferInMemory<RRColorI8>(awidth,aheight)
 		{
 			texCoord = NULL;
 			numVertices = anumPreImportVertices;
@@ -254,6 +256,7 @@ namespace rrVision
 				texCoord = new RRVec2[numVertices];
 				update=true;
 			}
+			return texCoord;
 		}
 		~RRIlluminationPixelBufferInOpenGL()
 		{

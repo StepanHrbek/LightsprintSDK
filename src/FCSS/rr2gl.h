@@ -5,7 +5,26 @@
 #ifndef _RR2GL_H
 #define _RR2GL_H
 
+#include <map>
+#include <GL/glew.h>
+#include <GL/glut.h>
 #include "RRVision.h"
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//! RRRenderer - interface
+
+class RRRenderer
+{
+public:
+	//! Renders.
+	virtual void render() = 0;
+	//! When renderer instance has parameters that modify output, this returns them.
+	//! By default, renderer is expected to have no parameters and render always the same.
+	virtual const void* getParams(unsigned& length) const;
+	virtual ~RRRenderer() {};
+};
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -21,15 +40,15 @@ public:
 
 extern VertexDataGenerator* generateForcedUv;
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectRenderer - interface
+// RRGLObjectRenderer - basic OpenGL renderer implementation
 
-class RRObjectRenderer
+class RRGLObjectRenderer : public RRRenderer
 {
 public:
-	virtual ~RRObjectRenderer() {};
-
+	RRGLObjectRenderer(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver);
 	enum ColorChannel
 	{
 		CC_NO_COLOR,
@@ -46,51 +65,62 @@ public:
 		CC_SOURCE_AUTO,
 		CC_REFLECTED_AUTO,
 	};
-	virtual void render(ColorChannel cc) = 0;
-};
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRGLObjectRenderer - basic OpenGL renderer implementation
-
-class RRGLObjectRenderer : public RRObjectRenderer
-{
-public:
-	RRGLObjectRenderer(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver);
+	virtual void setChannel(ColorChannel cc);
+	virtual const void* getParams(unsigned& length) const;
+	virtual void render();
 	virtual ~RRGLObjectRenderer() {};
-
-	virtual void render(ColorChannel cc);
-	//GLfloat* getChannel(ColorChannel cc);
 private:
-	rrVision::RRObjectImporter* object;
-	rrVision::RRScene* scene;
+	struct Params
+	{
+		rrVision::RRObjectImporter* object;
+		rrVision::RRScene* scene;
+		ColorChannel cc;
+	};
+	Params params;
 };
 
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRCachingRenderer - filter that adds caching into underlying renderer
+// RRGLCachingRenderer - filter that adds caching into underlying renderer
 
-class RRCachingRenderer : public RRObjectRenderer
+class RRGLCachingRenderer : public RRRenderer
 {
 public:
-	RRCachingRenderer(RRObjectRenderer* renderer);
-	virtual ~RRCachingRenderer();
-
-	virtual void render(ColorChannel cc);
-
+	RRGLCachingRenderer(RRRenderer* renderer);
 	enum ChannelStatus
 	{
 		CS_READY_TO_COMPILE,
 		CS_COMPILED,
 		CS_NEVER_COMPILE,
 	};
-	void setStatus(ColorChannel cc, ChannelStatus cs);
+	void setStatus(ChannelStatus cs);
+	virtual void render();
+	virtual ~RRGLCachingRenderer();
 private:
-	RRObjectRenderer* renderer;
-	ChannelStatus status[CC_LAST];
-	GLuint displayLists[CC_LAST];
+	RRRenderer* renderer;
+	struct Key
+	{
+		unsigned char params[16];
+		bool operator <(const Key& key) const
+		{
+			return memcmp(params,key.params,sizeof(Key))<0;
+		};
+	};
+	struct Info
+	{
+		Info()
+		{
+			status = CS_READY_TO_COMPILE;
+			displayList = UINT_MAX;
+		};
+		ChannelStatus status;
+		GLuint displayList;
+	};
+	typedef std::map<Key,Info> Map;
+	Map mapa;
+	Info& findInfo();
+	void setStatus(ChannelStatus cs,Info& info);
 };
 
 #endif

@@ -346,7 +346,7 @@ RRScene::Improvement RRVisionApp::calculate()
 		calcTimeSinceReadingResults = 0;
 		if(readingResultsPeriod<1.5f) readingResultsPeriod*=1.1f;
 		readVertexResults();
-		readPixelResults();//!!!
+		//readPixelResults();//!!!
 		return RRScene::IMPROVED;
 	}
 	return RRScene::NOT_IMPROVED;
