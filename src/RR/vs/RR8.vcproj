@@ -81,7 +81,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="alleg.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="alleg.lib"
 				OutputFile="$(OutDir)\RRd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -189,7 +189,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="alleg.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="alleg.lib"
 				OutputFile="$(OutDir)\RR.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -287,7 +287,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="alleg.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="alleg.lib"
 				OutputFile="$(OutDir)\RR.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

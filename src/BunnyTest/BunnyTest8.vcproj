@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\include;..\RRCollider\include"
+				AdditionalIncludeDirectories="..\..\include;..\RRCollider\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RRCOLLIDER_STATIC"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -127,7 +127,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\..\..\include;..\RRCollider\include"
+				AdditionalIncludeDirectories="..\..\include;..\RRCollider\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RRCOLLIDER_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"

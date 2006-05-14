@@ -3,7 +3,7 @@ TMP = #../../tmp/RRCollider/
 
 CC = gcc
 CPPFLAGS = -Iinclude -I../../include -I../LicGen/include
-CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
+CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG -DRRCOLLIDER_STATIC
 #CPPFLAGS += -ffast-math # zpusobuje crash v soda
 CPPFLAGS += -fomit-frame-pointer
 CPPFLAGS += -march=athlon-xp

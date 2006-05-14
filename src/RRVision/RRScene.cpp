@@ -258,15 +258,18 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	//}
 	if(object<0 || object>=scene->objects) 
 	{
+		assert(0);
 		goto error;
 	}
 	obj = scene->object[object];
 	if(triangle>=obj->triangles)
 	{
+		assert(0);
 		goto error;
 	}
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID)
 	{
+		assert(0);
 		goto error;
 	}
 	tri = &obj->triangle[triangle];

@@ -85,10 +85,11 @@ dupl:;
 	{
 		return UniqueVertices;
 	}
-	virtual void getVertex(unsigned v, RRMeshImporter::Vertex& out) const
+	virtual void getVertex(unsigned postImportVertex, RRMeshImporter::Vertex& out) const
 	{
-		assert(v<UniqueVertices);
-		importer->getVertex(Unique2Dupl[v],out);
+		assert(postImportVertex<UniqueVertices);
+		unsigned midImportVertex = Unique2Dupl[postImportVertex];
+		importer->getVertex(midImportVertex,out);
 	}
 	virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
@@ -114,19 +115,20 @@ dupl:;
 			if(Dupl2Unique[midImportVertices[v]]==postImportVertex)
 				return importer->getPreImportVertex(midImportVertices[v],midImportTriangle);
 		}
-		assert(0);
+		assert(0); // nastalo kdyz byla chyba v LessTrianglesFilter a postNumber se nezkonvertilo na midNumber
 
 		// fast version
 		return Unique2Dupl[postImportVertex];
 	}
 	virtual unsigned getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
 	{
-		if(preImportVertex>=importer->getNumVertices()) 
+		unsigned midImportVertex = importer->getPostImportVertex(preImportVertex,preImportTriangle);
+		if(midImportVertex>=importer->getNumVertices()) 
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
-		return Dupl2Unique[preImportVertex];
+		return Dupl2Unique[midImportVertex];
 	}
 	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
 	{
@@ -214,12 +216,14 @@ dupl:;
 	{
 		return UniqueVertices;
 	}
-	virtual void getVertex(unsigned v, RRMeshImporter::Vertex& out) const
+	virtual void getVertex(unsigned postImportVertex, RRMeshImporter::Vertex& out) const
 	{
-		assert(v<UniqueVertices);
-		assert(Unique2Dupl[v]<INHERITED::Vertices);
-		assert(INHERITED::VBuffer);
-		out = *(RRMeshImporter::Vertex*)(INHERITED::VBuffer+Unique2Dupl[v]*INHERITED::Stride);
+		assert(postImportVertex<UniqueVertices);
+		unsigned midImportVertex = Unique2Dupl[postImportVertex];
+		//assert(midImportVertex<INHERITED::Vertices);
+		//assert(INHERITED::VBuffer);
+		INHERITED::getVertex(midImportVertex,out);
+		//out = *(RRMeshImporter::Vertex*)(INHERITED::VBuffer+midImportVertex*INHERITED::Stride);
 	}
 	virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
@@ -252,12 +256,13 @@ dupl:;
 	}
 	virtual unsigned getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
 	{
-		if(preImportVertex>=INHERITED::Vertices) 
+		unsigned midImportVertex = INHERITED::getPostImportVertex(preImportVertex,preImportTriangle);
+		if(midImportVertex>=INHERITED::getNumVertices()) 
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMeshImporter::UNDEFINED;
+			return UNDEFINED;
 		}
-		return Dupl2Unique[preImportVertex];
+		return Dupl2Unique[midImportVertex];
 	}
 	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
 	{

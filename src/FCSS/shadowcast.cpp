@@ -14,6 +14,7 @@ bool renderOnlyRr = false;
 bool renderDiffuseTexture = true;
 /*
 ! v gcc dela m3ds renderer spatny indirect na koulich (na zdi je ok, v msvc je ok, v rrrendereru je ok)
+! rr renderer presvetluje kdyz po startu zmacknu t-
 rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
 
 pridat dalsi koupelny
@@ -303,6 +304,7 @@ GLdouble lightInverseFrustumMatrix[16];
 // MyApp
 
 void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc);
+void updateDepthMap(int mapIndex);
 
 // generuje uv coords pro capture
 class CaptureUv : public VertexDataGenerator
@@ -340,6 +342,13 @@ protected:
 	virtual void detectDirectIllumination()
 	{
 		if(!rendererCaching) return;
+
+		// prepare 1 depth map for faster hard-shadow capture
+		unsigned oldDrawMode = drawMode;
+		drawMode = DM_EYE_VIEW_SHADOWED;
+		needDepthMapUpdate = 1;
+		updateDepthMap(0);
+		drawMode = oldDrawMode;
 
 		//!!!
 		/*
@@ -407,14 +416,14 @@ protected:
 						sum[1] += (color>>8)&255;
 						sum[2] += color&255;
 					}
-					// pass power to rrobject
-					rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-					multiObject->setTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITANCE,avg);
+				// pass power to rrobject
+				rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
+				multiObject->setTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITANCE,avg);
 
-					// debug print
-					//rrVision::RRColor tmp = rrVision::RRColor(0);
-					//rrobject->getTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
-					//suma+=tmp;
+				// debug print
+				//rrVision::RRColor tmp = rrVision::RRColor(0);
+				//rrobject->getTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
+				//suma+=tmp;
 			}
 			//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
 		}

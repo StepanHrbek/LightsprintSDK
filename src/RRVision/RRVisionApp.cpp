@@ -185,16 +185,19 @@ void RRVisionApp::readVertexResults()
 			unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
 			unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
 			RRColor indirect = RRColor(0);
-#ifdef MULTIOBJECT
-			scene->getTriangleMeasure(0,t,v,RM_IRRADIANCE,indirect);
-#else
-			scene->getTriangleMeasure(objectHandle,t,v,RM_IRRADIANCE,indirect);
-#endif
-			for(unsigned i=0;i<3;i++)
+			if(t!=rrCollider::RRMeshImporter::UNDEFINED && v!=rrCollider::RRMeshImporter::UNDEFINED)
 			{
-				assert(_finite(indirect[i]));
-				assert(indirect[i]>=0);
-				assert(indirect[i]<1500000);
+#ifdef MULTIOBJECT
+				scene->getTriangleMeasure(0,t,v,RM_IRRADIANCE,indirect);
+#else
+				scene->getTriangleMeasure(objectHandle,t,v,RM_IRRADIANCE,indirect);
+#endif
+				for(unsigned i=0;i<3;i++)
+				{
+					assert(_finite(indirect[i]));
+					assert(indirect[i]>=0);
+					assert(indirect[i]<1500000);
+				}
 			}
 			vertexBuffer->setVertex(preImportVertex,indirect);
 		}

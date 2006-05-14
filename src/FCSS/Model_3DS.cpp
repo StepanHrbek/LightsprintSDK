@@ -738,8 +738,8 @@ void Model_3DS::FloatColorChunkProcessor(long length, long findex, int matindex)
 	fread(&b,sizeof(b),1,bin3ds);
 
 	Materials[matindex].color.r = (unsigned char)(r*255.0f);
-	Materials[matindex].color.g = (unsigned char)(r*255.0f);
-	Materials[matindex].color.b = (unsigned char)(r*255.0f);
+	Materials[matindex].color.g = (unsigned char)(g*255.0f);
+	Materials[matindex].color.b = (unsigned char)(b*255.0f);
 	Materials[matindex].color.a = 255;
 
 	// move the file pointer back to where we got it so

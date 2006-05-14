@@ -58,17 +58,31 @@ public:
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMeshImporter::UNDEFINED;
 		}
-		return ValidIndex[postImportTriangle];
+		unsigned midImportTriangle = ValidIndex[postImportTriangle];
+		return importer->getPreImportTriangle(midImportTriangle);
 	}
 	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
 	{
 		// check that this slow code is not called often
 		assert(0);
 		// efficient implementation would require another translation array
+		unsigned midImportTriangle = importer->getPostImportTriangle(preImportTriangle);
 		for(unsigned post=0;post<ValidIndices;post++)
-			if(ValidIndex[post]==preImportTriangle)
+			if(ValidIndex[post]==midImportTriangle)
 				return post;
 		return RRMeshImporter::UNDEFINED;
+	}
+	virtual unsigned  getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	// getPreImportVertex: postImportTriangle must be converted to midImportTriangle before calling inherited importer
+	// getPostImportVertex:  no conversion needed
+	{
+		if(postImportTriangle>=ValidIndices)
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return RRMeshImporter::UNDEFINED;
+		}
+		unsigned midImportTriangle = ValidIndex[postImportTriangle];
+		return importer->getPreImportVertex(postImportVertex, midImportTriangle);
 	}
 	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
 	{
@@ -132,17 +146,32 @@ public:
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMeshImporter::UNDEFINED;
 		}
-		return ValidIndex[postImportTriangle];
+		//return ValidIndex[postImportTriangle];
+		unsigned midImportTriangle = ValidIndex[postImportTriangle];
+		return INHERITED::getPreImportTriangle(midImportTriangle);
 	}
 	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
 	{
 		// check that this slow code is not called often
 		assert(0);
 		// efficient implementation would require another translation array
+		unsigned midImportTriangle = INHERITED::getPostImportTriangle(preImportTriangle);
 		for(unsigned post=0;post<ValidIndices;post++)
-			if(ValidIndex[post]==preImportTriangle)
+			if(ValidIndex[post]==midImportTriangle)
 				return post;
 		return RRMeshImporter::UNDEFINED;
+	}
+	virtual unsigned  getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	// getPreImportVertex: postImportTriangle must be converted to midImportTriangle before calling inherited importer
+	// getPostImportVertex:  no conversion needed
+	{
+		if(postImportTriangle>=ValidIndices)
+		{
+			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			return RRMeshImporter::UNDEFINED;
+		}
+		unsigned midImportTriangle = ValidIndex[postImportTriangle];
+		return INHERITED::getPreImportVertex(postImportVertex, midImportTriangle);
 	}
 	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
 	{

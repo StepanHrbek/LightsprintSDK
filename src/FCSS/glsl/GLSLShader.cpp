@@ -14,6 +14,12 @@ GLSLShader::GLSLShader(const char* defines, const char* filename, GLenum shaderT
 
   source[0] = defines?defines:"";
   source[1] = readShader(filename);
+  if(!source[1])
+  {
+	  printf("Shader %s not found.\nPress enter to end...",filename);
+	  fgetc(stdin);
+	  exit(1);
+  }
   glShaderSourceARB(handle, 2, (const GLcharARB**)source, NULL);
   
   compileIt();

@@ -10,10 +10,10 @@
 //#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);
 
 #ifndef MAX
- #define MAX(a,b) ((a)>(b)?(a):(b))
+ #define MAX(a,b) (((a)>(b))?(a):(b))
 #endif
 #ifndef MIN
- #define MIN(a,b) ((a)<(b)?(a):(b))
+ #define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
 
 extern bool allegro_inited;
