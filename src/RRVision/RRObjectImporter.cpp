@@ -481,4 +481,29 @@ RRAdditionalObjectImporter* RRObjectImporter::createAdditionalIllumination()
 	return new RRMyAdditionalObjectImporter(this);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRObjectSurfaceImporter
+
+class RRObjectSurfaceImporter : public rrCollider::RRMeshSurfaceImporter
+{
+public:
+	RRObjectSurfaceImporter(RRObjectImporter* aobject)
+	{
+		object = aobject;
+	}
+	virtual bool acceptHit(const rrCollider::RRRay* ray)
+	{
+		const RRSurface* surface = object->getSurface(object->getTriangleSurface(ray->hitTriangle));
+		return surface && surface->sideBits[ray->hitFrontSide?0:1].catchFrom;
+	}
+private:
+	RRObjectImporter* object;
+};
+
+rrCollider::RRMeshSurfaceImporter* RRObjectImporter::createSurfaceImporter()
+{
+	return new RRObjectSurfaceImporter(this);
+}
+
 } // namespace

@@ -258,11 +258,12 @@ Welcome to Lightsprint libraries.
 
 \page news What's new
 
-\section news3 2006.4.xx
+\section news3 2006.5.xx
 
 NEW FEATURES
 
 - rrCollider::RRMeshImporter::createOptimizedTriangles()
+- rrVision::RRObjectImporter::createSurfaceImporter()
 
 CHANGES
 

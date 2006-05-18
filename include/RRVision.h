@@ -282,6 +282,10 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! \n Created instance contains buffer for per-triangle additional illumination that is initialized to 0 and changeable via setTriangleAdditionalMeasure.
 		//! Illumination defined here overrides original object's illumination.
 		class RRAdditionalObjectImporter* createAdditionalIllumination();
+
+		// collision helper
+		//! Creates and returns surface importer, that accepts hits according to material sideBit 'catchFrom'.
+		rrCollider::RRMeshSurfaceImporter* createSurfaceImporter();
 	};
 
 
