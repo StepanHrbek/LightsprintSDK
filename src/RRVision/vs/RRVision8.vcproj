@@ -370,10 +370,30 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="ObjectImporter"
+			Name="RRObject"
 			>
 			<File
-				RelativePath="..\RRObjectImporter.cpp"
+				RelativePath="..\RRObject\RRMeshFilterTransformed.h"
+				>
+			</File>
+			<File
+				RelativePath="..\RRObject\RRObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\RRObject\RRObjectFilter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\RRObject\RRObjectFilterAdditionalMeasure.h"
+				>
+			</File>
+			<File
+				RelativePath="..\RRObject\RRObjectFilterTransformed.h"
+				>
+			</File>
+			<File
+				RelativePath="..\RRObject\RRObjectMulti.h"
 				>
 			</File>
 		</Filter>
