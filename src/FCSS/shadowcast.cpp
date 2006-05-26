@@ -13,6 +13,7 @@ bool lightIndirectMap = 0;
 bool renderOnlyRr = false;
 bool renderDiffuseTexture = true;
 /*
+! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava
 ! v gcc dela m3ds renderer spatny indirect na koulich (na zdi je ok, v msvc je ok, v rrrendereru je ok)
 ! rr renderer presvetluje kdyz po startu zmacknu t-
 rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap

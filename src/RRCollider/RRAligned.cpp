@@ -34,12 +34,12 @@ void* RRAligned::operator new[](std::size_t n)
 
 void RRAligned::operator delete(void* p, std::size_t n)
 {
-	AlignedFree(p);
+	if(p) AlignedFree(p);
 };
 
 void RRAligned::operator delete[](void* p, std::size_t n)
 {
-	AlignedFree(p);
+	if(p) AlignedFree(p);
 };
 
 } //namespace

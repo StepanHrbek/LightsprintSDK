@@ -320,10 +320,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\RRObjectImporter.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\RRScaler.cpp"
 				>
 			</File>
@@ -370,6 +366,14 @@
 			</File>
 			<File
 				RelativePath="..\swraster.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="ObjectImporter"
+			>
+			<File
+				RelativePath="..\RRObjectImporter.cpp"
 				>
 			</File>
 		</Filter>

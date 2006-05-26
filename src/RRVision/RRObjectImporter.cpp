@@ -64,6 +64,55 @@ const RRMatrix3x4* RRObjectImporter::getInvWorldMatrix()
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRObjectFilter
+
+class RRObjectFilter : public RRObjectImporter
+{
+public:
+	RRObjectFilter(RRObjectImporter* object)
+	{
+		base = object;
+	}
+	virtual const rrCollider::RRCollider* getCollider() const
+	{
+		return base->getCollider();
+	}
+	virtual unsigned getTriangleSurface(unsigned t) const
+	{
+		return base->getTriangleSurface(t);
+	}
+	virtual const RRSurface* getSurface(unsigned s) const
+	{
+		return base->getSurface(s);
+	}
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	{
+		return base->getTriangleNormals(t,out);
+	}
+	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
+	{
+		return base->getTriangleMapping(t,out);
+	}
+	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+	{
+		return base->getTriangleAdditionalMeasure(t,measure,out);
+	}
+	virtual const RRMatrix3x4* getWorldMatrix()
+	{
+		return base->getWorldMatrix();
+	}
+	virtual const RRMatrix3x4* getInvWorldMatrix()
+	{
+		return base->getInvWorldMatrix();
+	}
+
+protected:
+	RRObjectImporter* base;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // Transformed mesh importer has all vertices transformed by matrix.
 
 class RRTransformedMeshFilter : public rrCollider::RRMeshFilter
@@ -88,9 +137,64 @@ public:
 			m->transformPosition(out);
 		}
 	}
-
 private:
 	const RRMatrix3x4* m;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Transformed object importer has all vertices transformed by matrix.
+
+class RRTransformedObjectFilter : public RRObjectFilter
+{
+public:
+	RRTransformedObjectFilter(RRObjectImporter* aobject, rrCollider::RRCollider::IntersectTechnique intersectTechnique)
+		: RRObjectFilter(aobject)
+	{
+		collider = NULL;
+		const RRMatrix3x4* m = base->getWorldMatrix();
+		assert(m);
+		rrCollider::RRMeshImporter* mesh = new RRTransformedMeshFilter(base->getCollider()->getImporter(),m);
+		collider = rrCollider::RRCollider::create(mesh,intersectTechnique);
+	}
+	virtual ~RRTransformedObjectFilter()
+	{
+		delete collider->getImporter();
+		delete collider;
+	}
+	// We want to compensate possible negative scale in transformation.
+	// way 1
+	//  hook in getTriangle and getTriangleBody and possibly also in pre-post conversions
+	//  and return triangle vertices in opposite order
+	// way 2 YES
+	//  hook in getSurface and return sideBits in opposite order
+	virtual const RRSurface* getSurface(unsigned s) const
+	{
+		const RRSurface* surf = base->getSurface(s);
+		if(!surf) return surf;
+		const RRMatrix3x4* m = base->getWorldMatrix();
+		if(!m) return surf;
+		bool negScale = m->determinant3x3()<0;
+		if(!negScale) return surf;
+		//!!! neni thread safe
+		static RRSurface surf2 = *surf;
+		surf2.sideBits[0] = surf->sideBits[1];
+		surf2.sideBits[1] = surf->sideBits[0];
+		return &surf2;
+	}
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	{
+		base->getTriangleNormals(t,out);
+		const RRMatrix3x4* m = base->getWorldMatrix();
+		if(m)
+			for(unsigned i=0;i<3;i++)
+			{
+				m->transformDirection(out.norm[i]);
+			}
+	}
+private:
+	rrCollider::RRCollider* collider;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -293,7 +397,14 @@ private:
 
 rrCollider::RRMeshImporter* RRObjectImporter::createWorldSpaceMesh()
 {
+	//!!! az bude refcounting, muzu vracet getCollider()->getImporter()
 	return new RRTransformedMeshFilter(getCollider()->getImporter(),getWorldMatrix());
+}
+
+RRObjectImporter* RRObjectImporter::createWorldSpaceObject(rrCollider::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
+{
+	//!!! az bude refcounting, muzu vracet this
+	return new RRTransformedObjectFilter(this,intersectTechnique);
 }
 
 RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
@@ -485,25 +596,25 @@ RRAdditionalObjectImporter* RRObjectImporter::createAdditionalIllumination()
 //
 // RRObjectSurfaceImporter
 
-class RRObjectSurfaceImporter : public rrCollider::RRMeshSurfaceImporter
+class RRAcceptFirstVisibleSurfaceImporter : public rrCollider::RRMeshSurfaceImporter
 {
 public:
-	RRObjectSurfaceImporter(RRObjectImporter* aobject)
+	RRAcceptFirstVisibleSurfaceImporter(RRObjectImporter* aobject)
 	{
 		object = aobject;
 	}
 	virtual bool acceptHit(const rrCollider::RRRay* ray)
 	{
 		const RRSurface* surface = object->getSurface(object->getTriangleSurface(ray->hitTriangle));
-		return surface && surface->sideBits[ray->hitFrontSide?0:1].catchFrom;
+		return surface && surface->sideBits[ray->hitFrontSide?0:1].renderFrom;
 	}
 private:
 	RRObjectImporter* object;
 };
 
-rrCollider::RRMeshSurfaceImporter* RRObjectImporter::createSurfaceImporter()
+rrCollider::RRMeshSurfaceImporter* RRObjectImporter::createAcceptFirstVisibleSurfaceImporter()
 {
-	return new RRObjectSurfaceImporter(this);
+	return new RRAcceptFirstVisibleSurfaceImporter(this);
 }
 
 } // namespace

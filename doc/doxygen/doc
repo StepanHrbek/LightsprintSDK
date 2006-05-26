@@ -263,7 +263,8 @@ Welcome to Lightsprint libraries.
 NEW FEATURES
 
 - rrCollider::RRMeshImporter::createOptimizedTriangles()
-- rrVision::RRObjectImporter::createSurfaceImporter()
+- rrVision::RRObjectImporter::createWorldSpaceObject()
+- rrVision::RRObjectImporter::createAcceptFirstVisibleSurfaceImporter()
 
 CHANGES
 
@@ -273,7 +274,7 @@ CHANGES
 - rrVision::RRObjectImporter::createMultiObject()
   \n can optimize triangles
 - fixed smoothing on complicated meshes
-
+- fixed delete 0 on rrCollider::RRAligned
 
 \section news3 2006.3.23
 

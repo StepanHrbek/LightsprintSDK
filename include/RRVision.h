@@ -78,6 +78,8 @@ namespace rrVision /// Encapsulates whole Vision library.
 		RRVec3 transformedDirection(const RRVec3& a) const;
 		//! Transforms direction in 3d space by matrix.
 		RRVec3& transformDirection(RRVec3& a) const;
+		//! Returns determinant of first 3x3 elements.
+		RRReal determinant3x3() const;
 	};
 
 
@@ -243,11 +245,20 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//////////////////////////////////////////////////////////////////////////////
 
 		// instance factory
-		//! Creates and returns RRMeshImporter that describes object after transformation to world space.
+		//! Creates and returns RRMeshImporter that describes mesh after transformation to world space.
 		//
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
 		rrCollider::RRMeshImporter* createWorldSpaceMesh();
+		//! Creates and returns RRObjectImporter that describes object after transformation to world space.
+		//
+		//! Newly created instance allocates no additional memory, but depends on
+		//! original object, so it is not allowed to let new instance live longer than original object.
+		//! \param intersectTechnique
+		//!  Technique used for collider construction.
+		//! \param cacheLocation
+		//!  Directory for caching intermediate files used by RRCollider.
+		RRObjectImporter* createWorldSpaceObject(rrCollider::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
 		//! Creates and returns union of multiple objects (contains geometry and surfaces from all objects).
 		//
 		//! Created instance (MultiObject) doesn't require additional memory, 
@@ -284,8 +295,8 @@ namespace rrVision /// Encapsulates whole Vision library.
 		class RRAdditionalObjectImporter* createAdditionalIllumination();
 
 		// collision helper
-		//! Creates and returns surface importer, that accepts hits according to material sideBit 'catchFrom'.
-		rrCollider::RRMeshSurfaceImporter* createSurfaceImporter();
+		//! Creates and returns surface importer, that accepts first hit to visible side (according to material sideBit 'render').
+		rrCollider::RRMeshSurfaceImporter* createAcceptFirstVisibleSurfaceImporter();
 	};
 
 
