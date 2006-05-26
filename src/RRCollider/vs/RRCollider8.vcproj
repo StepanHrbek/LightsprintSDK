@@ -457,51 +457,55 @@
 			Name="MeshImporter"
 			>
 			<File
-				RelativePath="..\MeshImporter\CopyMesh.cpp"
+				RelativePath="..\MeshImporter\RRMesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\CopyMesh.h"
+				RelativePath="..\MeshImporter\RRMeshCopy.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\IndexedTriList.h"
+				RelativePath="..\MeshImporter\RRMeshCopy.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\IndexedTriStrip.h"
+				RelativePath="..\MeshImporter\RRMeshFilter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\LessTriangles.h"
+				RelativePath="..\MeshImporter\RRMeshIndexedTriList.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\LessVertices.cpp"
+				RelativePath="..\MeshImporter\RRMeshIndexedTriStrip.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\LessVertices.h"
+				RelativePath="..\MeshImporter\RRMeshLessTriangles.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\Mesh.cpp"
+				RelativePath="..\MeshImporter\RRMeshLessVertices.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\MultiMesh.cpp"
+				RelativePath="..\MeshImporter\RRMeshLessVertices.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\MultiMesh.h"
+				RelativePath="..\MeshImporter\RRMeshMulti.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\TriList.h"
+				RelativePath="..\MeshImporter\RRMeshMulti.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\TriStrip.h"
+				RelativePath="..\MeshImporter\RRMeshTriList.h"
+				>
+			</File>
+			<File
+				RelativePath="..\MeshImporter\RRMeshTriStrip.h"
 				>
 			</File>
 		</Filter>

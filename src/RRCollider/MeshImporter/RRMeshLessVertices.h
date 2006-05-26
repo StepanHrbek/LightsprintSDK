@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Filter.h"
+#include "RRMeshFilter.h"
 
 #include <assert.h>
 #include <math.h>
@@ -260,7 +260,7 @@ dupl:;
 		if(midImportVertex>=INHERITED::getNumVertices()) 
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return UNDEFINED;
+			return RRMeshImporter::UNDEFINED;
 		}
 		return Dupl2Unique[midImportVertex];
 	}

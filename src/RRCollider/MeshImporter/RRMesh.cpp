@@ -1,13 +1,13 @@
 #include "RRCollider.h"
 
-#include "TriStrip.h"
-#include "TriList.h"
-#include "IndexedTriStrip.h"
-#include "IndexedTriList.h"
-#include "LessVertices.h"
-#include "LessTriangles.h"
-#include "CopyMesh.h"
-#include "MultiMesh.h"
+#include "RRMeshTriStrip.h"
+#include "RRMeshTriList.h"
+#include "RRMeshIndexedTriStrip.h"
+#include "RRMeshIndexedTriList.h"
+#include "RRMeshLessVertices.h"
+#include "RRMeshLessTriangles.h"
+#include "RRMeshCopy.h"
+#include "RRMeshMulti.h"
 #include "../geometry.h"
 
 #include <assert.h>

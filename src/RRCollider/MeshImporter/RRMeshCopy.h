@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Filter.h"
+#include "RRMeshFilter.h"
 #include "../geometry.h" // MAX
 
 #include <assert.h>
