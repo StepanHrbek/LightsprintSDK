@@ -454,58 +454,58 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="MeshImporter"
+			Name="RRMesh"
 			>
 			<File
-				RelativePath="..\MeshImporter\RRMesh.cpp"
+				RelativePath="..\RRMesh\RRMesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshCopy.cpp"
+				RelativePath="..\RRMesh\RRMeshCopy.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshCopy.h"
+				RelativePath="..\RRMesh\RRMeshCopy.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshFilter.h"
+				RelativePath="..\RRMesh\RRMeshFilter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshIndexedTriList.h"
+				RelativePath="..\RRMesh\RRMeshIndexedTriList.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshIndexedTriStrip.h"
+				RelativePath="..\RRMesh\RRMeshIndexedTriStrip.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshLessTriangles.h"
+				RelativePath="..\RRMesh\RRMeshLessTriangles.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshLessVertices.cpp"
+				RelativePath="..\RRMesh\RRMeshLessVertices.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshLessVertices.h"
+				RelativePath="..\RRMesh\RRMeshLessVertices.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshMulti.cpp"
+				RelativePath="..\RRMesh\RRMeshMulti.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshMulti.h"
+				RelativePath="..\RRMesh\RRMeshMulti.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshTriList.h"
+				RelativePath="..\RRMesh\RRMeshTriList.h"
 				>
 			</File>
 			<File
-				RelativePath="..\MeshImporter\RRMeshTriStrip.h"
+				RelativePath="..\RRMesh\RRMeshTriStrip.h"
 				>
 			</File>
 		</Filter>

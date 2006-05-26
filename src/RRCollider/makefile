@@ -12,7 +12,7 @@ CPPFLAGS += -mfpmath=sse
 #CPPFLAGS += -ftree-vectorize -ftree-vectorizer-verbose=5
 #CPPFLAGS += -funsafe-loop-optimizations
 
-OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)fpcube.o $(TMP)geometry.o $(TMP)IntersectBspCompact.o $(TMP)IntersectBspFast.o $(TMP)IntersectLinear.o $(TMP)IntersectVerification.o $(TMP)RRMath.o $(TMP)pcube.o $(TMP)RRAligned.o $(TMP)RRCollider.o $(TMP)RRRay.o $(TMP)sha1.o $(TMP)MeshImporter/RRMeshCopy.o $(TMP)MeshImporter/RRMeshLessVertices.o $(TMP)MeshImporter/RRMesh.o $(TMP)MeshImporter/RRMeshMulti.o
+OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)fpcube.o $(TMP)geometry.o $(TMP)IntersectBspCompact.o $(TMP)IntersectBspFast.o $(TMP)IntersectLinear.o $(TMP)IntersectVerification.o $(TMP)RRMath.o $(TMP)pcube.o $(TMP)RRAligned.o $(TMP)RRCollider.o $(TMP)RRRay.o $(TMP)sha1.o $(TMP)RRMesh/RRMeshCopy.o $(TMP)RRMesh/RRMeshLessVertices.o $(TMP)RRMesh/RRMesh.o $(TMP)RRMesh/RRMeshMulti.o
 #OBJS = $(TMP)big.o
 
 all: makefile $(LIB)
