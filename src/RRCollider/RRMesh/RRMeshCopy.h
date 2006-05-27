@@ -12,15 +12,15 @@ namespace rrCollider
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRCopyMeshImporter
+// RRMeshCopy
 //
 // For creating fully owned copies of importer,
 // saving to file and loading from file.
 
-class RRCopyMeshImporter : public RRMeshImporter
+class RRMeshCopy : public RRMesh
 {
 public:
-	RRCopyMeshImporter()
+	RRMeshCopy()
 	{
 	}
 
@@ -40,7 +40,7 @@ public:
 	}
 
 	// Load importer from another importer (create copy).
-	bool load(RRMeshImporter* importer)
+	bool load(RRMesh* importer)
 	{
 		if(!importer) return false;
 
@@ -108,7 +108,7 @@ public:
 		return true;
 	}
 
-	virtual ~RRCopyMeshImporter()
+	virtual ~RRMeshCopy()
 	{
 	}
 
@@ -136,11 +136,11 @@ public:
 	virtual void         getTriangleBody(unsigned i, TriangleBody& out) const
 	{
 		Triangle t;
-		RRCopyMeshImporter::getTriangle(i,t);
+		RRMeshCopy::getTriangle(i,t);
 		Vertex v[3];
-		RRCopyMeshImporter::getVertex(t[0],v[0]);
-		RRCopyMeshImporter::getVertex(t[1],v[1]);
-		RRCopyMeshImporter::getVertex(t[2],v[2]);
+		RRMeshCopy::getVertex(t[0],v[0]);
+		RRMeshCopy::getVertex(t[1],v[1]);
+		RRMeshCopy::getVertex(t[2],v[2]);
 		out.vertex0[0]=v[0][0];
 		out.vertex0[1]=v[0][1];
 		out.vertex0[2]=v[0][2];

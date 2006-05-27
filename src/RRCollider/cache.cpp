@@ -31,7 +31,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsig
 	buf[MIN((bits+4)/5,bufsize-1)]=0;
 }
 
-PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
+PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer)
 {
 	sha1::sha1_context ctx;
 	sha1::sha1_starts(&ctx);
@@ -43,14 +43,14 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
 	unsigned i = importer->getNumVertices();
 	while(i--)
 	{
-		RRMeshImporter::Vertex v;
+		RRMesh::Vertex v;
 		importer->getVertex(i,v);
 		sha1::sha1_update(&ctx, (unsigned char*)&v, sizeof(v));
 	}
 	i = importer->getNumTriangles();
 	while(i--)
 	{
-		RRMeshImporter::Triangle t;
+		RRMesh::Triangle t;
 		importer->getTriangle(i,t);
 		sha1::sha1_update(&ctx, (unsigned char*)&t, sizeof(t));
 	}
@@ -59,7 +59,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer)
 	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
 
-PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer, const char* cacheLocation, const char* extension)
+PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer, const char* cacheLocation, const char* extension)
 {
 	if(!bufsize) return;
 	buf[0]=0;

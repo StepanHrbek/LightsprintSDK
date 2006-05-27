@@ -1061,10 +1061,10 @@ void Object::buildTopIVertices(unsigned smoothMode)
 
 	// build 1 ivertex for each vertex, insert all corners
 	IVertex *topivertex=new IVertex[vertices];
-	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
+	rrCollider::RRMesh* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
-		rrCollider::RRMeshImporter::Triangle un_ve; // un_ = unrotated
+		rrCollider::RRMesh::Triangle un_ve; // un_ = unrotated
 		meshImporter->getTriangle(t,un_ve);
 		for(int ro_v=0;ro_v<3;ro_v++) // ro_ = rotated 
 		{
@@ -1103,7 +1103,7 @@ void Object::buildTopIVertices(unsigned smoothMode)
 	int unusedVertices=0;
 	for(unsigned v=0;v<vertices;v++)
 	{
-		rrCollider::RRMeshImporter::Vertex vert;
+		rrCollider::RRMesh::Vertex vert;
 		meshImporter->getVertex(v,vert);
 		if(!topivertex[v].check(vert)) unusedVertices++;
 		switch(smoothMode)
@@ -1142,7 +1142,7 @@ void Object::buildTopIVertices(unsigned smoothMode)
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
 		// ro_=rotated, un_=unchanged,original from importer
-		rrCollider::RRMeshImporter::Triangle un_ve;
+		rrCollider::RRMesh::Triangle un_ve;
 		meshImporter->getTriangle(t,un_ve);
 		for(int ro_v=0;ro_v<3;ro_v++)
 		{

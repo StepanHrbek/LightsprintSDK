@@ -20,22 +20,22 @@ namespace rrCollider
 
 	PRIVATE bool update_rayDir(RRRay* ray);
 	PRIVATE void update_hitPoint3d(RRRay* ray, real distance);
-	PRIVATE void update_hitPlane(RRRay* ray, RRMeshImporter* importer);
-	PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t);
+	PRIVATE void update_hitPlane(RRRay* ray, RRMesh* importer);
+	PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t);
 
 	class IntersectLinear : public RRCollider, public RRAligned
 	{
 	public:
-		static IntersectLinear* create(RRMeshImporter* aimporter) {return new IntersectLinear(aimporter);}
+		static IntersectLinear* create(RRMesh* aimporter) {return new IntersectLinear(aimporter);}
 		virtual ~IntersectLinear();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual bool      isValidTriangle(unsigned i) const;
-		virtual RRMeshImporter* getImporter() const {return importer;}
+		virtual RRMesh* getImporter() const {return importer;}
 		virtual IntersectTechnique getTechnique() const {return IT_LINEAR;}
 		virtual unsigned  getMemoryOccupied() const;
 	protected:
-		IntersectLinear(RRMeshImporter* aimporter);
-		RRMeshImporter*   importer;
+		IntersectLinear(RRMesh* aimporter);
+		RRMesh*   importer;
 		unsigned          triangles;
 		real              DELTA_BSP; // tolerance to numeric errors (absolute distance in scenespace)
 		Box               box; // aligned + vtable(4) + importer(4) + triangles(4) + DELTA_BSP(4) = aligned

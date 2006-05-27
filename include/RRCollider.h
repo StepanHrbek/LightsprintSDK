@@ -116,43 +116,43 @@ namespace rrCollider /// Encapsulates whole Collider library.
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRMeshImporter
+	//  RRMesh
 	//! Common interface for any standard or proprietary triangle mesh structure.
 	//
 	//! \section s4 Creating instances
 	//!
-	//! %RRMeshImporter has built-in support for standard mesh formats used by
+	//! %RRMesh has built-in support for standard mesh formats used by
 	//! rendering APIs - vertex and index buffers using triangle lists or
 	//! triangle strips. See create() and createIndexed().
 	//!
-	//! %RRMeshImporter has built-in support for baking multiple meshes 
+	//! %RRMesh has built-in support for baking multiple meshes 
 	//! into one mesh (without need for additional memory). 
 	//! This may simplify mesh oprations or improve performance in some situations.
 	//! See createMultiMesh().
 	//!
-	//! %RRMeshImporter has built-in support for creating self-contained mesh copies.
+	//! %RRMesh has built-in support for creating self-contained mesh copies.
 	//! See createCopy().
 	//! While importers created from vertex buffer doesn't allocate more memory 
 	//! and depend on vertex buffer, self-contained copy contains all mesh data
 	//! and doesn't depend on any other objects.
 	//!
 	//! For other mesh formats (heightfield, realtime generated etc), 
-	//! you may easily derive from %RRMeshImporter and create your own importer.
+	//! you may easily derive from %RRMesh and create your own importer.
 	//!
 	//! \section s6 Optimizations
 	//!
-	//! %RRMeshImporter may help you with mesh optimizations if requested,
+	//! %RRMesh may help you with mesh optimizations if requested,
 	//! for example by removing duplicate vertices or degenerated triangles.
 	//! 
 	//! \section s6 Constancy
 	//!
-	//! All data provided by %RRMeshImporter must be constant in time.
+	//! All data provided by %RRMesh must be constant in time.
 	//! Built-in importers guarantee constancy if you don't change
 	//! their vertex/index buffers. Constancy of mesh copy is guaranteed always.
 	//!
 	//! \section s5 Indexing
 	//!
-	//! %RRMeshImporter operates with two types of vertex and triangle indices.
+	//! %RRMesh operates with two types of vertex and triangle indices.
 	//! -# PostImport indices, always 0..num-1 (where num=getNumTriangles
 	//! or getNumVertices), these are used in most calls. When not stated else,
 	//! index is PostImport.
@@ -179,14 +179,14 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//! -# such queries are very critical for performance.
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRMeshImporter
+	class RRCOLLIDER_API RRMesh
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		virtual ~RRMeshImporter() {}
+		virtual ~RRMesh() {}
 
 		//
 		// vertices
@@ -296,16 +296,16 @@ namespace rrCollider /// Encapsulates whole Collider library.
 			MultiMeshPreImportNumber(unsigned i) {*(unsigned*)this = i;} ///< Implicit unsigned -> MultiMeshPreImportNumber conversion.
 			operator unsigned () {return *(unsigned*)this;} ///< Implicit MultiMeshPreImportNumber -> unsigned conversion.
 		};
-		//! Creates %RRMeshImporter from your vertex buffer.
+		//! Creates %RRMesh from your vertex buffer.
 		//
 		//! \param flags See #Flags.
 		//! \param vertexFormat %Format of data in your vertex buffer. See #Format. Currently only FLOAT32 is supported.
 		//! \param vertexBuffer Your vertex buffer.
 		//! \param vertexCount Number of vertices in your vertex buffer.
 		//! \param vertexStride Distance (in bytes) between n-th and (n+1)th vertex in your vertex buffer.
-		//! \return Newly created instance of RRMeshImporter or NULL in case of unsupported or invalid inputs.
-		static RRMeshImporter* create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride);
-		//! Creates %RRMeshImporter from your vertex and index buffers.
+		//! \return Newly created instance of RRMesh or NULL in case of unsupported or invalid inputs.
+		static RRMesh* create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride);
+		//! Creates %RRMesh from your vertex and index buffers.
 		//
 		//! \param flags See #Flags.
 		//! \param vertexFormat %Format of data in your your vertex buffer. See #Format. Currently only FLOAT32 is supported.
@@ -316,14 +316,14 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//! \param indexBuffer Your index buffer.
 		//! \param indexCount Number of indices in your index buffer.
 		//! \param vertexStitchMaxDistance Max distance for vertex stitching. For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower). For negative value, no stitching is performed. For positive value, also vertices in lower or equal distance will be stitched.
-		//! \return Newly created instance of RRMeshImporter or NULL in case of unsupported or invalid inputs.
-		static RRMeshImporter* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
+		//! \return Newly created instance of RRMesh or NULL in case of unsupported or invalid inputs.
+		static RRMesh* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
 		//! Creates and returns copy of your instance.
 		//
 		//! Created copy is completely independent on any other objects and may be deleted sooner or later.
 		//! \n It is expected that your input instance is well formed (returns correct and consistent values).
 		//! \n Copy may be faster than original, but may require more memory.
-		RRMeshImporter*        createCopy();
+		RRMesh*        createCopy();
 		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).
 		//
 		//! Created instance (MultiMesh) doesn't require additional memory, 
@@ -338,16 +338,16 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//! -# Convert indices yourself. It is granted, that both indices and vertices preserve order of meshes in array:
 		//!  lowest indices belong to meshes[0], meshes[1] follow etc. If you create MultiMesh from 2 meshes,
 		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 vertices in MultiMesh.
-		static RRMeshImporter* createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes);
+		static RRMesh* createMultiMesh(RRMesh* const* meshes, unsigned numMeshes);
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
 		//
 		//! \param vertexStitchMaxDistance
 		//!  For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower).
 		//!  For negative value, no stitching is performed.
 		//!  For positive value, also vertices in lower or equal distance will be stitched.
-		RRMeshImporter*        createOptimizedVertices(float vertexStitchMaxDistance = 0);
+		RRMesh*        createOptimizedVertices(float vertexStitchMaxDistance = 0);
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
-		RRMeshImporter*        createOptimizedTriangles();
+		RRMesh*        createOptimizedTriangles();
 
 		// verification
 		//! Callback for reporting text messages.
@@ -371,7 +371,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//! - intersect mesh that contains both singlesided and twosided faces
 	//! - iterate over multiple intersections with mesh
 	//!
-	//! It's intentionally not part of RRMeshImporter, so you can easily combine
+	//! It's intentionally not part of RRMesh, so you can easily combine
 	//! different surface behaviours with one geometry.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -489,7 +489,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		//! \param intersectTechnique Technique used for accelerating collision searches. See #IntersectTechnique.
 		//! \param cacheLocation Optional location of cache, path to directory where acceleration structures may be cached.
 		//! \param buildParams Optional additional parameters, specific for each technique and not revealed for public use.
-		static RRCollider*   create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
+		static RRCollider*   create(RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
 
 		//! Finds ray x mesh intersections.
 		//
@@ -529,7 +529,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 
 		// helpers
 		//! \returns Importer that was passed to create().
-		virtual RRMeshImporter*    getImporter() const = 0;
+		virtual RRMesh*    getImporter() const = 0;
 		//! \returns Technique used by collider. May differ from technique requested in create().
 		virtual IntersectTechnique getTechnique() const = 0;
 		//! \returns Total amount of system memory occupied by collider.

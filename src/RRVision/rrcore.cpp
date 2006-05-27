@@ -2021,12 +2021,12 @@ void Object::buildEdges()
 		triangle[t].edge[2]=NULL;
 	}
 	Triangles *trianglesInV=new Triangles[vertices];
-	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
+	rrCollider::RRMesh* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned t=0;t<triangles;t++)
 		if(triangle[t].surface)
 			for(int v1=0;v1<3;v1++)
 			{
-				rrCollider::RRMeshImporter::Triangle ve;
+				rrCollider::RRMesh::Triangle ve;
 				meshImporter->getTriangle(t,ve);
 				unsigned v = ve[(v1+triangle[t].rotations)%3];
 				assert(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
@@ -2112,10 +2112,10 @@ bool Object::contains(Node *n)
 void Object::detectBounds()
 {
 	Vec3* vertex = new Vec3[vertices];
-	rrCollider::RRMeshImporter* meshImporter = importer->getCollider()->getImporter();
+	rrCollider::RRMesh* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned i=0;i<vertices;i++)
 	{
-		rrCollider::RRMeshImporter::Vertex v;
+		rrCollider::RRMesh::Vertex v;
 		meshImporter->getVertex(i,v);
 		vertex[i].x = v[0];
 		vertex[i].y = v[1];
@@ -2277,9 +2277,9 @@ void Scene::freeze(bool yes)
 		if(!isFrozen())
 		{
 			unsigned numMeshes = staticObjects;
-			rrCollider::RRMeshImporter** multiObjectMeshes = new rrCollider::RRMeshImporter*[numMeshes];
+			rrCollider::RRMesh** multiObjectMeshes = new rrCollider::RRMesh*[numMeshes];
 			assert(!multiObjectMeshes4Delete);
-			multiObjectMeshes4Delete = new rrCollider::RRMeshImporter*[numMeshes];
+			multiObjectMeshes4Delete = new rrCollider::RRMesh*[numMeshes];
 			//for(unsigned i=0;i<numMeshes;i++) 
 			for(unsigned i=0;i<numMeshes;i++)
 			{
@@ -2294,17 +2294,17 @@ void Scene::freeze(bool yes)
 					multiObjectMeshes4Delete[i] = NULL;
 				}
 			}
-			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(multiObjectMeshes,numMeshes);
+			rrCollider::RRMesh* multiMesh = rrCollider::RRMesh::createMultiMesh(multiObjectMeshes,numMeshes);
 			//multiMesh = multiMesh->createOptimizedVertices(); optimized vertices = no help because multiMesh is used only for collisions, not for interpol
 
 			/*
 			unsigned numTriangles = multiMesh->getNumTriangles();
 			for(unsigned i=0;i<numTriangles;i++)
 			{
-				RRMeshImporter::MultiMeshPreImportNumber pre = multiMesh->getPreImportTriangle(i);
+				RRMesh::MultiMeshPreImportNumber pre = multiMesh->getPreImportTriangle(i);
 				unsigned post = multiMesh->getPostImportTriangle(pre);
 				assert(post==i);
-				rrCollider::RRMeshImporter::TriangleBody bodyObj,bodyWorld;
+				rrCollider::RRMesh::TriangleBody bodyObj,bodyWorld;
 				multiMesh->getTriangleBody(post,bodyWorld);
 				assert(pre.object<numMeshes);
 				object[pre.object]->importer->getCollider()->getImporter()->getTriangleBody(meshes[pre.object]->getPostImportTriangle(pre.index),bodyObj);

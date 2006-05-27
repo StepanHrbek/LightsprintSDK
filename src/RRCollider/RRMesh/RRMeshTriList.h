@@ -8,11 +8,11 @@
 namespace rrCollider
 {
 
-class RRTriListImporter : public RRTriStripImporter
+class RRMeshTriList : public RRMeshTriStrip
 {
 public:
-	RRTriListImporter(char* vbuffer, unsigned vertices, unsigned stride)
-		: RRTriStripImporter(vbuffer,vertices,stride)
+	RRMeshTriList(char* vbuffer, unsigned vertices, unsigned stride)
+		: RRMeshTriStrip(vbuffer,vertices,stride)
 	{
 	}
 	virtual unsigned getNumTriangles() const

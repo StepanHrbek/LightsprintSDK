@@ -860,7 +860,7 @@ public:
 		unsigned shotsForFactorsTotal;
 		unsigned shotsTotal;
 		TReflectors staticReflectors; // top nodes in static Triangle trees
-		rrCollider::RRMeshImporter** multiObjectMeshes4Delete; // to be deleted with multiCollider
+		rrCollider::RRMesh** multiObjectMeshes4Delete; // to be deleted with multiCollider
 
 };
 

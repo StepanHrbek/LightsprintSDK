@@ -10,12 +10,12 @@ namespace rrCollider
 
 
 template <class INDEX>
-#define INHERITED RRIndexedTriStripImporter<INDEX>
-class RRIndexedTriListImporter : public INHERITED
+#define INHERITED RRMeshIndexedTriStrip<INDEX>
+class RRMeshIndexedTriList : public INHERITED
 {
 public:
-	RRIndexedTriListImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
-		: RRIndexedTriStripImporter<INDEX>(vbuffer,vertices,stride,ibuffer,indices)
+	RRMeshIndexedTriList(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+		: RRMeshIndexedTriStrip<INDEX>(vbuffer,vertices,stride,ibuffer,indices)
 	{
 		INDEX tmp = vertices;
 		tmp = tmp;
@@ -25,7 +25,7 @@ public:
 	{
 		return INHERITED::Indices/3;
 	}
-	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
+	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
 		assert(t*3<INHERITED::Indices);
 		assert(INHERITED::IBuffer);
@@ -33,7 +33,7 @@ public:
 		out[1] = INHERITED::IBuffer[t*3+1]; assert(out[1]<INHERITED::Vertices);
 		out[2] = INHERITED::IBuffer[t*3+2]; assert(out[2]<INHERITED::Vertices);
 	}
-	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
+	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const
 	{
 		assert(t*3<INHERITED::Indices);
 		assert(INHERITED::VBuffer);

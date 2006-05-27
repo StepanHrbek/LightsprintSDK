@@ -16,14 +16,14 @@ float SCALE  = 2; // scale loaded object
 //
 // MgfImporter class
 
-class MgfImporter : public rrVision::RRObjectImporter, rrCollider::RRMeshImporter
+class MgfImporter : public rrVision::RRObjectImporter, rrCollider::RRMesh
 {
 public:
 	MgfImporter(char* filename);
 
 	virtual ~MgfImporter();
 
-	// RRMeshImporter
+	// RRMesh
 	virtual unsigned     getNumVertices() const;
 	virtual void         getVertex(unsigned v, Vertex& out) const;
 	virtual unsigned     getNumTriangles() const;
@@ -146,7 +146,7 @@ MgfImporter::~MgfImporter()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// MgfImporter implements RRMeshImporter
+// MgfImporter implements RRMesh
 
 unsigned MgfImporter::getNumVertices() const
 {

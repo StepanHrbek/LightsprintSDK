@@ -22,7 +22,7 @@ template <class INDEX>
 class RRLessVerticesFilter : public RRMeshFilter
 {
 public:
-	RRLessVerticesFilter(const RRMeshImporter* original, float MAX_STITCH_DISTANCE)
+	RRLessVerticesFilter(const RRMesh* original, float MAX_STITCH_DISTANCE)
 		: RRMeshFilter(original)
 	{
 		assert(MAX_STITCH_DISTANCE>=0); // negative value would remove no vertices -> no improvement
@@ -35,14 +35,14 @@ public:
 		UniqueVertices = 0;
 
 		// build temporary x-sorted array of vertices
-		RRMeshImporter::Vertex* vertices = new RRMeshImporter::Vertex[numVertices];
-		RRMeshImporter::Vertex** sortedVertices = new RRMeshImporter::Vertex*[numVertices];
+		RRMesh::Vertex* vertices = new RRMesh::Vertex[numVertices];
+		RRMesh::Vertex** sortedVertices = new RRMesh::Vertex*[numVertices];
 		for(unsigned i=0;i<numVertices;i++)
 		{
 			importer->getVertex(i,vertices[i]);
 			sortedVertices[i] = &vertices[i];
 		}
-		qsort(sortedVertices,numVertices,sizeof(RRMeshImporter::Vertex*),compareXyz);
+		qsort(sortedVertices,numVertices,sizeof(RRMesh::Vertex*),compareXyz);
 
 		// find duplicates and stitch, fill translation arrays
 		// for each vertex
@@ -50,11 +50,11 @@ public:
 		{
 			unsigned d = (unsigned)(sortedVertices[ds]-vertices); // d=prefiltered/importer vertex, index into Dupl2Unique
 			assert(d<numVertices);
-			RRMeshImporter::Vertex& dfl = vertices[d];
+			RRMesh::Vertex& dfl = vertices[d];
 			// test his distance against all already found unique vertices
 			for(unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
 			{
-				RRMeshImporter::Vertex& ufl = vertices[Unique2Dupl[u]];
+				RRMesh::Vertex& ufl = vertices[Unique2Dupl[u]];
 				// stop when testing too x-distant vertex (all close vertices were already tested)
 				//#define CLOSE(a,b) ((a)==(b))
 				#define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
@@ -85,7 +85,7 @@ dupl:;
 	{
 		return UniqueVertices;
 	}
-	virtual void getVertex(unsigned postImportVertex, RRMeshImporter::Vertex& out) const
+	virtual void getVertex(unsigned postImportVertex, RRMesh::Vertex& out) const
 	{
 		assert(postImportVertex<UniqueVertices);
 		unsigned midImportVertex = Unique2Dupl[postImportVertex];
@@ -108,7 +108,7 @@ dupl:;
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
-		RRMeshImporter::Triangle midImportVertices;
+		RRMesh::Triangle midImportVertices;
 		importer->getTriangle(midImportTriangle,midImportVertices);
 		for(unsigned v=0;v<3;v++)
 		{
@@ -130,7 +130,7 @@ dupl:;
 		}
 		return Dupl2Unique[midImportVertex];
 	}
-	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
+	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
 		importer->getTriangle(t,out);
 		out[0] = Dupl2Unique[out[0]]; assert(out[0]<UniqueVertices);
@@ -166,14 +166,14 @@ public:
 		UniqueVertices = 0;
 
 		// build temporary x-sorted array of vertices
-		RRMeshImporter::Vertex* vertices = new RRMeshImporter::Vertex[numVertices];
-		RRMeshImporter::Vertex** sortedVertices = new RRMeshImporter::Vertex*[numVertices];
+		RRMesh::Vertex* vertices = new RRMesh::Vertex[numVertices];
+		RRMesh::Vertex** sortedVertices = new RRMesh::Vertex*[numVertices];
 		for(unsigned i=0;i<numVertices;i++)
 		{
 			INHERITED::getVertex(i,vertices[i]);
 			sortedVertices[i] = &vertices[i];
 		}
-		qsort(sortedVertices,numVertices,sizeof(RRMeshImporter::Vertex*),compareXyz);
+		qsort(sortedVertices,numVertices,sizeof(RRMesh::Vertex*),compareXyz);
 
 		// find duplicates and stitch, fill translation arrays
 		// for each vertex
@@ -181,11 +181,11 @@ public:
 		{
 			unsigned d = (unsigned)(sortedVertices[ds]-vertices); // d=prefiltered/importer vertex, index into Dupl2Unique
 			assert(d<numVertices);
-			RRMeshImporter::Vertex& dfl = vertices[d];
+			RRMesh::Vertex& dfl = vertices[d];
 			// test his distance against all already found unique vertices
 			for(unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
 			{
-				RRMeshImporter::Vertex& ufl = vertices[Unique2Dupl[u]];
+				RRMesh::Vertex& ufl = vertices[Unique2Dupl[u]];
 				// stop when testing too x-distant vertex (all close vertices were already tested)
 				//#define CLOSE(a,b) ((a)==(b))
 #define CLOSE(a,b) (fabs((a)-(b))<=MAX_STITCH_DISTANCE)
@@ -216,33 +216,33 @@ dupl:;
 	{
 		return UniqueVertices;
 	}
-	virtual void getVertex(unsigned postImportVertex, RRMeshImporter::Vertex& out) const
+	virtual void getVertex(unsigned postImportVertex, RRMesh::Vertex& out) const
 	{
 		assert(postImportVertex<UniqueVertices);
 		unsigned midImportVertex = Unique2Dupl[postImportVertex];
 		//assert(midImportVertex<INHERITED::Vertices);
 		//assert(INHERITED::VBuffer);
 		INHERITED::getVertex(midImportVertex,out);
-		//out = *(RRMeshImporter::Vertex*)(INHERITED::VBuffer+midImportVertex*INHERITED::Stride);
+		//out = *(RRMesh::Vertex*)(INHERITED::VBuffer+midImportVertex*INHERITED::Stride);
 	}
 	virtual unsigned getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
 		if(postImportVertex>=UniqueVertices)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMeshImporter::UNDEFINED;
+			return RRMesh::UNDEFINED;
 		}
 
 		// exact version
 		// postImportVertex is not full information, because one postImportVertex translates to many preImportVertex
 		// use postImportTriangle to fully specify which one preImportVertex to return
 		unsigned midImportTriangle = postImportTriangle; // triangle numbering is not changed by us
-		if(midImportTriangle==RRMeshImporter::UNDEFINED)
+		if(midImportTriangle==RRMesh::UNDEFINED)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMeshImporter::UNDEFINED;
+			return RRMesh::UNDEFINED;
 		}
-		RRMeshImporter::Triangle midImportVertices;
+		RRMesh::Triangle midImportVertices;
 		INHERITED::getTriangle(midImportTriangle,midImportVertices);
 		for(unsigned v=0;v<3;v++)
 		{
@@ -260,11 +260,11 @@ dupl:;
 		if(midImportVertex>=INHERITED::getNumVertices()) 
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMeshImporter::UNDEFINED;
+			return RRMesh::UNDEFINED;
 		}
 		return Dupl2Unique[midImportVertex];
 	}
-	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
+	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
 		INHERITED::getTriangle(t,out);
 		out[0] = Dupl2Unique[out[0]]; assert(out[0]<UniqueVertices);

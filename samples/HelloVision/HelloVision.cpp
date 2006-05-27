@@ -88,9 +88,9 @@ int main()
 		printf("Invalid license, nothing will be computed.\n");
 
 	// create mesh importer (contains only geometry)
-	RRMeshImporter* mesh = RRMeshImporter::create(
-		RRMeshImporter::TRI_LIST|RRMeshImporter::OPTIMIZED_VERTICES|RRMeshImporter::OPTIMIZED_TRIANGLES,
-		RRMeshImporter::FLOAT32,vertexArray,6,3*sizeof(float));
+	RRMesh* mesh = RRMesh::create(
+		RRMesh::TRI_LIST|RRMesh::OPTIMIZED_VERTICES|RRMesh::OPTIMIZED_TRIANGLES,
+		RRMesh::FLOAT32,vertexArray,6,3*sizeof(float));
 
 	// create collider (able to find intersections with mesh)
 	RRCollider* collider = RRCollider::create(mesh,RRCollider::IT_BSP_FAST);

@@ -15,7 +15,7 @@ namespace rrCollider
 //  instead of <ray->hitDistanceMin,ray->hitDistanceMax>,
 //  it tests inside <ray->hitDistanceMin,distanceMax>,
 //  which is required by kd-leaf
-static bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t, RRReal distanceMax)
+static bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t, RRReal distanceMax)
 // input:                ray, t
 // returns:              true if ray hits t
 // modifies when hit:    hitDistance, hitPoint2D, hitFrontSide
@@ -97,7 +97,7 @@ begin:
 			if(ray->surfaceImporter) memcpy(backup,ray,sizeof(*ray)); // current best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
 			for(typename BspTree::_TriInfo* triangle=t->kd.getTrianglesBegin();triangle<trianglesEnd;triangle++)
 			{
-				RRMeshImporter::TriangleBody srl;
+				RRMesh::TriangleBody srl;
 				importer->getTriangleBody(triangle->getTriangleIndex(),srl);
 				if(intersect_triangle(ray,&srl,distanceMax))
 				{
@@ -200,7 +200,7 @@ begin:
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
 	assert(triangle<t->getTrianglesEnd());
 
-	RRMeshImporter::TriangleBody t2;
+	RRMesh::TriangleBody t2;
 	importer->getTriangleBody(triangle->getTriangleIndex(),t2);
 	Plane n;
 	n.x = t2.side1[1] * t2.side2[2] - t2.side1[2] * t2.side2[1];
@@ -316,7 +316,7 @@ begin:
 }
 
 template IBP
-IntersectBspCompact IBP2::IntersectBspCompact(RRMeshImporter* aimporter, IntersectTechnique intersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
+IntersectBspCompact IBP2::IntersectBspCompact(RRMesh* aimporter, IntersectTechnique intersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
 {
 	tree = load IBP2(aimporter,cacheLocation,ext,buildParams,this);
 	if(!tree) return;

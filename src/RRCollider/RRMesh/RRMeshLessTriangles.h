@@ -17,14 +17,14 @@ namespace rrCollider
 class RRLessTrianglesFilter : public RRMeshFilter
 {
 public:
-	RRLessTrianglesFilter(const RRMeshImporter* original)
+	RRLessTrianglesFilter(const RRMesh* original)
 		: RRMeshFilter(original)
 	{
 		ValidIndices = 0;
 		unsigned numAllTriangles = importer->getNumTriangles();
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
-			RRMeshImporter::Triangle t;
+			RRMesh::Triangle t;
 			importer->getTriangle(i,t);
 			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndices++;
 		}
@@ -32,7 +32,7 @@ public:
 		ValidIndices = 0;
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
-			RRMeshImporter::Triangle t;
+			RRMesh::Triangle t;
 			importer->getTriangle(i,t);
 			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndex[ValidIndices++] = i;
 		}
@@ -46,7 +46,7 @@ public:
 	{
 		return ValidIndices;
 	}
-	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
+	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
 		assert(t<ValidIndices);
 		importer->getTriangle(ValidIndex[t],out);
@@ -56,7 +56,7 @@ public:
 		if(postImportTriangle>=ValidIndices)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMeshImporter::UNDEFINED;
+			return RRMesh::UNDEFINED;
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
 		return importer->getPreImportTriangle(midImportTriangle);
@@ -70,7 +70,7 @@ public:
 		for(unsigned post=0;post<ValidIndices;post++)
 			if(ValidIndex[post]==midImportTriangle)
 				return post;
-		return RRMeshImporter::UNDEFINED;
+		return RRMesh::UNDEFINED;
 	}
 	virtual unsigned  getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	// getPreImportVertex: postImportTriangle must be converted to midImportTriangle before calling inherited importer
@@ -79,12 +79,12 @@ public:
 		if(postImportTriangle>=ValidIndices)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMeshImporter::UNDEFINED;
+			return RRMesh::UNDEFINED;
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
 		return importer->getPreImportVertex(postImportVertex, midImportTriangle);
 	}
-	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
+	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const
 	{
 		assert(t<ValidIndices);
 		importer->getTriangleBody(ValidIndex[t],out);
@@ -112,7 +112,7 @@ public:
 		unsigned numAllTriangles = INHERITED::getNumTriangles();
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
-			RRMeshImporter::Triangle t;
+			RRMesh::Triangle t;
 			INHERITED::getTriangle(i,t);
 			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndices++;
 		}
@@ -120,7 +120,7 @@ public:
 		ValidIndices = 0;
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
-			RRMeshImporter::Triangle t;
+			RRMesh::Triangle t;
 			INHERITED::getTriangle(i,t);
 			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndex[ValidIndices++] = i;
 		}
@@ -134,7 +134,7 @@ public:
 	{
 		return ValidIndices;
 	}
-	virtual void getTriangle(unsigned t, RRMeshImporter::Triangle& out) const
+	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
 		assert(t<ValidIndices);
 		INHERITED::getTriangle(ValidIndex[t],out);
@@ -144,7 +144,7 @@ public:
 		if(postImportTriangle>=ValidIndices)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMeshImporter::UNDEFINED;
+			return RRMesh::UNDEFINED;
 		}
 		//return ValidIndex[postImportTriangle];
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
@@ -159,7 +159,7 @@ public:
 		for(unsigned post=0;post<ValidIndices;post++)
 			if(ValidIndex[post]==midImportTriangle)
 				return post;
-		return RRMeshImporter::UNDEFINED;
+		return RRMesh::UNDEFINED;
 	}
 	virtual unsigned  getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	// getPreImportVertex: postImportTriangle must be converted to midImportTriangle before calling inherited importer
@@ -168,12 +168,12 @@ public:
 		if(postImportTriangle>=ValidIndices)
 		{
 			assert(0); // it is allowed by rules, but also interesting to know when it happens
-			return RRMeshImporter::UNDEFINED;
+			return RRMesh::UNDEFINED;
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
 		return INHERITED::getPreImportVertex(postImportVertex, midImportTriangle);
 	}
-	virtual void getTriangleBody(unsigned t, RRMeshImporter::TriangleBody& out) const
+	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const
 	{
 		assert(t<ValidIndices);
 		INHERITED::getTriangleBody(ValidIndex[t],out);

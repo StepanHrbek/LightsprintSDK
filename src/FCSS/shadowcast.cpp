@@ -379,7 +379,7 @@ protected:
 		// Allocate the index buffer memory as necessary.
 		GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
 
-		rrCollider::RRMeshImporter* mesh = multiObject->getCollider()->getImporter();
+		rrCollider::RRMesh* mesh = multiObject->getCollider()->getImporter();
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);

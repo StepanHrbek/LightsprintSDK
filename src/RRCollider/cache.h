@@ -10,8 +10,8 @@
 namespace rrCollider
 {                                                                            
 	PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits);
-	PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer);
-	PRIVATE void getFileName(char* buf, unsigned bufsize, RRMeshImporter* importer, const char* cacheLocation, const char* extension);
+	PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer);
+	PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer, const char* cacheLocation, const char* extension);
 }
 
 #endif

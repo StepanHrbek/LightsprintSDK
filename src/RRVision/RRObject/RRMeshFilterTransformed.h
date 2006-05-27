@@ -12,7 +12,7 @@ namespace rrVision
 class RRTransformedMeshFilter : public rrCollider::RRMeshFilter
 {
 public:
-	RRTransformedMeshFilter(RRMeshImporter* mesh, const RRMatrix3x4* matrix)
+	RRTransformedMeshFilter(RRMesh* mesh, const RRMatrix3x4* matrix)
 		: RRMeshFilter(mesh)
 	{
 		m = matrix;

@@ -265,7 +265,7 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	return true;
 }
 
-static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMeshImporter::TriangleBody* t2)
+static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMesh::TriangleBody* t2)
 {
 	FILL_STATISTIC(intersectStats.intersect_triangleNP++);
 	assert(ray);
@@ -635,7 +635,7 @@ begin:
 	void* trianglesEnd=t->getTrianglesEnd();
 	while(triangle<trianglesEnd)
 	{
-		RRMeshImporter::TriangleBody t2;
+		RRMesh::TriangleBody t2;
 		importer->getTriangleBody(triangle->getTriangleIndex(),t2);
 		if(intersect_triangleNP(ray,triangleNP+triangle->getTriangleIndex(),&t2))
 		{
@@ -669,7 +669,7 @@ begin:
 }
 
 template IBP
-IntersectBspFast IBP2::IntersectBspFast(RRMeshImporter* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
+IntersectBspFast IBP2::IntersectBspFast(RRMesh* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) : IntersectLinear(aimporter)
 {
 #ifdef TEST
 	test = new IntersectLinear(aimporter);
@@ -695,9 +695,9 @@ IntersectBspFast IBP2::IntersectBspFast(RRMeshImporter* aimporter, IntersectTech
 	if(triangleNP||triangleSRLNP)
 		for(unsigned i=0;i<triangles;i++)
 		{
-			RRMeshImporter::Triangle t;
+			RRMesh::Triangle t;
 			importer->getTriangle(i,t);
-			RRMeshImporter::Vertex v[3];
+			RRMesh::Vertex v[3];
 			importer->getVertex(t[0],v[0]);
 			importer->getVertex(t[1],v[1]);
 			importer->getVertex(t[2],v[2]);

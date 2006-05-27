@@ -201,7 +201,7 @@ namespace rrCollider
 	}
 
 	template IBP
-	PRIVATE BspTree* load(RRMeshImporter* importer, const char* cacheLocation, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
+	PRIVATE BspTree* load(RRMesh* importer, const char* cacheLocation, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
 	{
 		if(!intersector) return NULL;
 		if(!importer) return NULL;
@@ -226,7 +226,7 @@ namespace rrCollider
 			obj.vertex = new VERTEX[obj.vertex_num];
 			for(int i=0;i<obj.vertex_num;i++)
 			{
-				RRMeshImporter::Vertex v;
+				RRMesh::Vertex v;
 				importer->getVertex(i,v);
 				obj.vertex[i].x = v[0];
 				obj.vertex[i].y = v[1];
@@ -238,7 +238,7 @@ namespace rrCollider
 			unsigned ii=0;
 			for(int i=0;i<obj.face_num;i++)
 			{
-				RRMeshImporter::Triangle v;
+				RRMesh::Triangle v;
 				importer->getTriangle(i,v);
 				obj.face[ii].vertex[0] = &obj.vertex[v[0]];
 				obj.face[ii].vertex[1] = &obj.vertex[v[1]];

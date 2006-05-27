@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RRCollider.h"
+#include "RRMeshTriStrip.h"
 
 #include <assert.h>
 
@@ -10,11 +10,11 @@ namespace rrCollider
 
 
 template <class INDEX>
-class RRIndexedTriStripImporter : public RRTriStripImporter
+class RRMeshIndexedTriStrip : public RRMeshTriStrip
 {
 public:
-	RRIndexedTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
-		: RRTriStripImporter(vbuffer,vertices,stride), IBuffer(ibuffer), Indices(indices)
+	RRMeshIndexedTriStrip(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
+		: RRMeshTriStrip(vbuffer,vertices,stride), IBuffer(ibuffer), Indices(indices)
 	{
 		INDEX tmp = vertices;
 		tmp = tmp;

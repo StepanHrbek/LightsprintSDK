@@ -347,13 +347,13 @@ namespace rrVision
 			if(pixelBufferUnwrap)
 				delete[] pixelBufferUnwrap;
 			pixelBufferUnwrap = new RRVec2[numPreImportVertices];
-			rrCollider::RRMeshImporter* mesh = object->getCollider()->getImporter();
+			rrCollider::RRMesh* mesh = object->getCollider()->getImporter();
 			unsigned numPostImportTriangles = mesh->getNumTriangles();
 			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 			{
 				RRObjectImporter::TriangleMapping triangleMapping;
 				object->getTriangleMapping(postImportTriangle,triangleMapping);
-				rrCollider::RRMeshImporter::Triangle triangle;
+				rrCollider::RRMesh::Triangle triangle;
 				mesh->getTriangle(postImportTriangle,triangle);
 				for(unsigned v=0;v<3;v++)
 				{

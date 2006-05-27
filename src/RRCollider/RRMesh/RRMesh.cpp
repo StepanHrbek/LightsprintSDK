@@ -21,7 +21,7 @@
 namespace rrCollider
 {
 
-void RRMeshImporter::getTriangleBody(unsigned i, TriangleBody& out) const
+void RRMesh::getTriangleBody(unsigned i, TriangleBody& out) const
 {
 	Triangle t;
 	getTriangle(i,t);
@@ -40,7 +40,7 @@ void RRMeshImporter::getTriangleBody(unsigned i, TriangleBody& out) const
 	out.side2[2]=v[2][2]-v[0][2];
 }
 
-bool RRMeshImporter::getTrianglePlane(unsigned i, Plane& out) const
+bool RRMesh::getTrianglePlane(unsigned i, Plane& out) const
 {
 	Triangle t;
 	getTriangle(i,t);
@@ -62,7 +62,7 @@ real calculateArea(RRVec3 v0, RRVec3 v1, RRVec3 v2)
 	return sqrt(2*b*c+2*c*a+2*a*b-a*a-b*b-c*c)/4;
 }
 
-RRReal RRMeshImporter::getTriangleArea(unsigned i) const
+RRReal RRMesh::getTriangleArea(unsigned i) const
 {
 	Triangle t;
 	getTriangle(i,t);
@@ -76,9 +76,9 @@ RRReal RRMeshImporter::getTriangleArea(unsigned i) const
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRMeshImporter instance factory
+// RRMesh instance factory
 
-RRMeshImporter* RRMeshImporter::create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride)
+RRMesh* RRMesh::create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride)
 {
 	// each case instantiates new importer class
 	// delete cases you don't need to save several kB of memory
@@ -88,15 +88,15 @@ RRMeshImporter* RRMeshImporter::create(unsigned flags, Format vertexFormat, void
 		case FLOAT32:
 			switch(flags)
 			{
-				case TRI_LIST: return new RRTriListImporter((char*)vertexBuffer,vertexCount,vertexStride);
-				case TRI_STRIP: return new RRTriStripImporter((char*)vertexBuffer,vertexCount,vertexStride);
+				case TRI_LIST: return new RRMeshTriList((char*)vertexBuffer,vertexCount,vertexStride);
+				case TRI_STRIP: return new RRMeshTriStrip((char*)vertexBuffer,vertexCount,vertexStride);
 			}
 			break;
 	}
 	return NULL;
 }
 
-RRMeshImporter* RRMeshImporter::createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance)
+RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance)
 {
 	// each case instantiates new importer class
 	// delete cases you don't need to save several kB of memory
@@ -109,67 +109,67 @@ RRMeshImporter* RRMeshImporter::createIndexed(unsigned flags, Format vertexForma
 			case TRI_LIST:
 				switch(indexFormat)
 				{
-					case UINT8: return new RRIndexedTriListImporter<uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
-					case UINT16: return new RRIndexedTriListImporter<uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
-					case UINT32: return new RRIndexedTriListImporter<uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+					case UINT8: return new RRMeshIndexedTriList<uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRMeshIndexedTriList<uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRMeshIndexedTriList<uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
 				}
 				break;
 			case TRI_STRIP:
 				switch(indexFormat)
 				{
-					case UINT8: return new RRIndexedTriStripImporter<uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
-					case UINT16: return new RRIndexedTriStripImporter<uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
-					case UINT32: return new RRIndexedTriStripImporter<uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+					case UINT8: return new RRMeshIndexedTriStrip<uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRMeshIndexedTriStrip<uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRMeshIndexedTriStrip<uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
 				}
 				break;
 			case TRI_LIST|OPTIMIZED_TRIANGLES:
 				switch(indexFormat)
 				{
-					case UINT8: return new RRLessTrianglesImporter<RRIndexedTriListImporter<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
-					case UINT16: return new RRLessTrianglesImporter<RRIndexedTriListImporter<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
-					case UINT32: return new RRLessTrianglesImporter<RRIndexedTriListImporter<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+					case UINT8: return new RRLessTrianglesImporter<RRMeshIndexedTriList<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRLessTrianglesImporter<RRMeshIndexedTriList<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRLessTrianglesImporter<RRMeshIndexedTriList<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
 				}
 				break;
 			case TRI_STRIP|OPTIMIZED_TRIANGLES:
 				switch(indexFormat)
 				{
-					case UINT8: return new RRLessTrianglesImporter<RRIndexedTriStripImporter<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
-					case UINT16: return new RRLessTrianglesImporter<RRIndexedTriStripImporter<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
-					case UINT32: return new RRLessTrianglesImporter<RRIndexedTriStripImporter<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
+					case UINT8: return new RRLessTrianglesImporter<RRMeshIndexedTriStrip<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount);
+					case UINT16: return new RRLessTrianglesImporter<RRMeshIndexedTriStrip<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount);
+					case UINT32: return new RRLessTrianglesImporter<RRMeshIndexedTriStrip<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount);
 				}
 				break;
 			case TRI_LIST|OPTIMIZED_VERTICES:
 				switch(indexFormat)
 				{
-					case UINT8: return new RRLessVerticesImporter<RRIndexedTriListImporter<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
-					case UINT16: return new RRLessVerticesImporter<RRIndexedTriListImporter<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
-					case UINT32: return new RRLessVerticesImporter<RRIndexedTriListImporter<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT8: return new RRLessVerticesImporter<RRMeshIndexedTriList<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT16: return new RRLessVerticesImporter<RRMeshIndexedTriList<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT32: return new RRLessVerticesImporter<RRMeshIndexedTriList<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
 				}
 				break;
 			case TRI_STRIP|OPTIMIZED_VERTICES:
 				switch(indexFormat)
 				{
-					case UINT8: return new RRLessVerticesImporter<RRIndexedTriStripImporter<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
-					case UINT16: return new RRLessVerticesImporter<RRIndexedTriStripImporter<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
-					case UINT32: return new RRLessVerticesImporter<RRIndexedTriStripImporter<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT8: return new RRLessVerticesImporter<RRMeshIndexedTriStrip<uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT16: return new RRLessVerticesImporter<RRMeshIndexedTriStrip<uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT32: return new RRLessVerticesImporter<RRMeshIndexedTriStrip<uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
 				}
 				break;
 			case TRI_LIST|OPTIMIZED_TRIANGLES|OPTIMIZED_VERTICES:
 				switch(indexFormat)
 				{
 					//!!! opacne, chci nejdriv zmergovat vertexy a az pak odstranit nove vznikle degeneraty
-					case UINT8: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriListImporter<uint8_t>,uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
-					case UINT16: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriListImporter<uint16_t>,uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
-					case UINT32: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriListImporter<uint32_t>,uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT8: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRMeshIndexedTriList<uint8_t>,uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT16: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRMeshIndexedTriList<uint16_t>,uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT32: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRMeshIndexedTriList<uint32_t>,uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
 				}
 				break;
 			case TRI_STRIP|OPTIMIZED_TRIANGLES|OPTIMIZED_VERTICES:
 				switch(indexFormat)
 				{
 					//!!! opacne, chci nejdriv zmergovat vertexy a az pak odstranit nove vznikle degeneraty
-					case UINT8: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriStripImporter<uint8_t>,uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
-					case UINT16: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriStripImporter<uint16_t>,uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
-					case UINT32: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRIndexedTriStripImporter<uint32_t>,uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT8: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRMeshIndexedTriStrip<uint8_t>,uint8_t>,uint8_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint8_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT16: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRMeshIndexedTriStrip<uint16_t>,uint16_t>,uint16_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint16_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
+					case UINT32: return new RRLessVerticesImporter<RRLessTrianglesImporter<RRMeshIndexedTriStrip<uint32_t>,uint32_t>,uint32_t>((char*)vertexBuffer,vertexCount,vertexStride,(uint32_t*)indexBuffer,indexCount,vertexStitchMaxDistance);
 				}
 				break;
 		}
@@ -179,31 +179,31 @@ RRMeshImporter* RRMeshImporter::createIndexed(unsigned flags, Format vertexForma
 }
 
 
-RRMeshImporter* RRMeshImporter::createCopy()
+RRMesh* RRMesh::createCopy()
 {
-	RRCopyMeshImporter* importer = new RRCopyMeshImporter();
+	RRMeshCopy* importer = new RRMeshCopy();
 	if(importer->load(this)) return importer;
 	delete importer;
 	return NULL;
 }
 
-RRMeshImporter* RRMeshImporter::createMultiMesh(RRMeshImporter* const* meshes, unsigned numMeshes)
+RRMesh* RRMesh::createMultiMesh(RRMesh* const* meshes, unsigned numMeshes)
 {
-	return RRMultiMeshImporter::create(meshes,numMeshes);
+	return RRMeshMulti::create(meshes,numMeshes);
 }
 
-RRMeshImporter* RRMeshImporter::createOptimizedVertices(float vertexStitchMaxDistance)
+RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance)
 {
 	if(vertexStitchMaxDistance<0) return this;
 	return new RRLessVerticesFilter<unsigned>(this,vertexStitchMaxDistance);
 }
 
-RRMeshImporter* RRMeshImporter::createOptimizedTriangles()
+RRMesh* RRMesh::createOptimizedTriangles()
 {
 	return new RRLessTrianglesFilter(this);
 }
 
-unsigned RRMeshImporter::verify(Reporter* reporter, void* context)
+unsigned RRMesh::verify(Reporter* reporter, void* context)
 {
 	unsigned numReports = 0;
 	static char msg[500];

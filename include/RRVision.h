@@ -157,7 +157,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! - baking additional (primary) illumination into object, see createAdditionalIllumination()
 	//!
 	//! \section s3 Links between objects
-	//! RRScene -> RRObjectImporter -> rrCollider::RRCollider -> rrCollider::RRMeshImporter
+	//! RRScene -> RRObjectImporter -> rrCollider::RRCollider -> rrCollider::RRMesh
 	//! \n where A -> B means that
 	//!  - A has pointer to B
 	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
@@ -245,11 +245,11 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//////////////////////////////////////////////////////////////////////////////
 
 		// instance factory
-		//! Creates and returns RRMeshImporter that describes mesh after transformation to world space.
+		//! Creates and returns RRMesh that describes mesh after transformation to world space.
 		//
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
-		rrCollider::RRMeshImporter* createWorldSpaceMesh();
+		rrCollider::RRMesh* createWorldSpaceMesh();
 		//! Creates and returns RRObjectImporter that describes object after transformation to world space.
 		//
 		//! Newly created instance allocates no additional memory, but depends on
@@ -267,7 +267,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
 		//! \n For array with 1 element, pointer to that element may be returned.
 		//! \n\n For description how to access original triangles and vertices in MultiObject, 
-		//!  see rrCollider::RRMeshImporter::createMultiMesh(). Note that for non-negative maxStitchDistance,
+		//!  see rrCollider::RRMesh::createMultiMesh(). Note that for non-negative maxStitchDistance,
 		//!  some vertices may be optimized out, so prefer PreImpport<->PostImport conversions.
 		//! \param objects
 		//!  Array of objects you want to create multiobject from.
@@ -306,7 +306,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! Interface for object importer with user-defined additional per-triangle illumination.
 	//
 	//! Helper interface.
-	//! Instance may be created by RRMeshImporter::createAdditionalIllumination().
+	//! Instance may be created by RRMesh::createAdditionalIllumination().
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

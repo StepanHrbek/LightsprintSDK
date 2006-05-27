@@ -10,7 +10,7 @@
 namespace rrCollider
 {
 
-IntersectVerification::IntersectVerification(RRMeshImporter* importer) 
+IntersectVerification::IntersectVerification(RRMesh* importer) 
 	: IntersectLinear(importer)
 {
 	for(unsigned i=0;i<IT_VERIFICATION;i++)

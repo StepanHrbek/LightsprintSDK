@@ -10,16 +10,16 @@ namespace rrCollider
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRMultiMeshImporter
+// RRMeshMulti
 //
 // Merges multiple mesh importers together.
 // Space is not transformed here, underlying meshes must already share one space.
 
-class RRMultiMeshImporter : public RRMeshImporter
+class RRMeshMulti : public RRMesh
 {
 public:
 	// creators
-	static RRMeshImporter* create(RRMeshImporter* const* mesh, unsigned numMeshes)
+	static RRMesh* create(RRMesh* const* mesh, unsigned numMeshes)
 		// all parameters (meshes, array of meshes) are destructed by caller, not by us
 		// array of meshes must live during this call
 		// meshes must live as long as created multimesh
@@ -33,7 +33,7 @@ public:
 			return mesh[0];
 		default: 
 			assert(mesh); 
-			return new RRMultiMeshImporter(
+			return new RRMeshMulti(
 				create(mesh,numMeshes/2),numMeshes/2,
 				create(mesh+numMeshes/2,numMeshes-numMeshes/2),numMeshes-numMeshes/2);
 		}
@@ -156,7 +156,7 @@ public:
 		}
 	}
 
-	virtual ~RRMultiMeshImporter()
+	virtual ~RRMeshMulti()
 	{
 		// Never delete lowest level of tree = input importers.
 		// Delete only higher levels = multi mesh importers created by our create().
@@ -164,14 +164,14 @@ public:
 		if(pack[1].getNumObjects()>1) delete pack[1].getImporter();
 	}
 private:
-	RRMultiMeshImporter(const RRMeshImporter* mesh1, unsigned mesh1Objects, const RRMeshImporter* mesh2, unsigned mesh2Objects)
+	RRMeshMulti(const RRMesh* mesh1, unsigned mesh1Objects, const RRMesh* mesh2, unsigned mesh2Objects)
 	{
 		pack[0].init(mesh1,mesh1Objects);
 		pack[1].init(mesh2,mesh2Objects);
 	}
 	struct MeshPack
 	{
-		void init(const RRMeshImporter* importer, unsigned objects)
+		void init(const RRMesh* importer, unsigned objects)
 		{
 			packImporter = importer;
 			numObjects = objects;
@@ -179,12 +179,12 @@ private:
 			numVertices = importer->getNumVertices();
 			numTriangles = importer->getNumTriangles();
 		}
-		const RRMeshImporter* getImporter() const {return packImporter;}
+		const RRMesh* getImporter() const {return packImporter;}
 		unsigned        getNumObjects() const {return numObjects;}
 		unsigned        getNumVertices() const {return numVertices;}
 		unsigned        getNumTriangles() const {return numTriangles;}
 	private:
-		const RRMeshImporter* packImporter;
+		const RRMesh* packImporter;
 		unsigned        numObjects;
 		unsigned        numVertices;
 		unsigned        numTriangles;

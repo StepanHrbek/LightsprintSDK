@@ -19,7 +19,7 @@ public:
 		collider = NULL;
 		const RRMatrix3x4* m = base->getWorldMatrix();
 		assert(m);
-		rrCollider::RRMeshImporter* mesh = new RRTransformedMeshFilter(base->getCollider()->getImporter(),m);
+		rrCollider::RRMesh* mesh = new RRTransformedMeshFilter(base->getCollider()->getImporter(),m);
 		collider = rrCollider::RRCollider::create(mesh,intersectTechnique);
 	}
 	virtual ~RRTransformedObjectFilter()

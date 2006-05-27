@@ -15,15 +15,15 @@ namespace rrCollider
 //
 // support indices of any size, vertex positions float[3]
 //
-// RRTriStripImporter               - triangle strip
-// RRTriListImporter                - triangle list
-// RRIndexedTriStripImporter<INDEX> - indexed triangle strip 
-// RRIndexedTriListImporter<INDEX>  - indexed triangle list
+// RRMeshTriStrip               - triangle strip
+// RRMeshTriList                - triangle list
+// RRMeshIndexedTriStrip<INDEX> - indexed triangle strip 
+// RRMeshIndexedTriList<INDEX>  - indexed triangle list
 
-class RRTriStripImporter : public RRMeshImporter
+class RRMeshTriStrip : public RRMesh
 {
 public:
-	RRTriStripImporter(char* vbuffer, unsigned vertices, unsigned stride)
+	RRMeshTriStrip(char* vbuffer, unsigned vertices, unsigned stride)
 		: VBuffer(vbuffer), Vertices(vertices), Stride(stride)
 	{
 	}

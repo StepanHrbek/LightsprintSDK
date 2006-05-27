@@ -10,10 +10,10 @@ namespace rrCollider
 //
 // Base class for mesh import filters.
 
-class RRMeshFilter : public rrCollider::RRMeshImporter
+class RRMeshFilter : public rrCollider::RRMesh
 {
 public:
-	RRMeshFilter(const RRMeshImporter* original)
+	RRMeshFilter(const RRMesh* original)
 	{
 		importer = original;
 		assert(importer);
@@ -65,7 +65,7 @@ public:
 	}
 
 protected:
-	const RRMeshImporter* importer;
+	const RRMesh* importer;
 	unsigned        numVertices;
 	unsigned        numTriangles;
 };

@@ -26,14 +26,14 @@ void reporter(const char* msg, void* context)
 //
 // MgfImporter class
 
-class M3dsImporter : public rrVision::RRObjectImporter, rrCollider::RRMeshImporter
+class M3dsImporter : public rrVision::RRObjectImporter, rrCollider::RRMesh
 {
 public:
 	M3dsImporter(Model_3DS* model, unsigned objectIdx);
 
 	virtual ~M3dsImporter();
 
-	// RRMeshImporter
+	// RRMesh
 	virtual unsigned     getNumVertices() const;
 	virtual void         getVertex(unsigned v, Vertex& out) const;
 	virtual unsigned     getNumTriangles() const;
@@ -55,7 +55,7 @@ private:
 	// geometry
 	struct TriangleInfo
 	{
-		rrCollider::RRMeshImporter::Triangle t;
+		rrCollider::RRMesh::Triangle t;
 		unsigned s; // surface index
 	};
 	std::vector<TriangleInfo> triangles;
@@ -142,7 +142,7 @@ M3dsImporter::~M3dsImporter()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// M3dsImporter implements RRMeshImporter
+// M3dsImporter implements RRMesh
 
 unsigned M3dsImporter::getNumVertices() const
 {

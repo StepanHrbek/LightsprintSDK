@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../../RRCollider/MeshImporter/Filter.h"
+#include "../../RRCollider/RRMesh/RRMeshFilter.h"
 #include "../rrcore.h"
 #include "RRVision.h"
 #include "RRObjectFilter.h"
@@ -31,7 +31,7 @@ void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out) cons
 		assert(0);
 		return;
 	}
-	rrCollider::RRMeshImporter::TriangleBody tb;
+	rrCollider::RRMesh::TriangleBody tb;
 	getCollider()->getImporter()->getTriangleBody(t,tb);
 	Vec3 norm = ortogonalTo(tb.side1,tb.side2);
 	norm *= 1/size(norm);
@@ -71,7 +71,7 @@ const RRMatrix3x4* RRObjectImporter::getInvWorldMatrix()
 //
 // RRObjectImporter instance factory
 
-rrCollider::RRMeshImporter* RRObjectImporter::createWorldSpaceMesh()
+rrCollider::RRMesh* RRObjectImporter::createWorldSpaceMesh()
 {
 	//!!! az bude refcounting, muzu vracet getCollider()->getImporter()
 	return new RRTransformedMeshFilter(getCollider()->getImporter(),getWorldMatrix());

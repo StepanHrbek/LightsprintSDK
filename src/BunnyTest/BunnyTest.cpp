@@ -10,15 +10,15 @@
 #include <tchar.h>
 #include <time.h>
 
-rrCollider::RRMeshImporter* createPlyMeshImporter(PlyMesh& mesh)
+rrCollider::RRMesh* createPlyMeshImporter(PlyMesh& mesh)
 {
-	return rrCollider::RRMeshImporter::createIndexed(
-		rrCollider::RRMeshImporter::TRI_LIST,
-		rrCollider::RRMeshImporter::FLOAT32,
+	return rrCollider::RRMesh::createIndexed(
+		rrCollider::RRMesh::TRI_LIST,
+		rrCollider::RRMesh::FLOAT32,
 		(void*)&*mesh.verts.begin(),
 		(unsigned)mesh.verts.size(),
 		sizeof(PlyMeshVert),
-		rrCollider::RRMeshImporter::UINT32,
+		rrCollider::RRMesh::UINT32,
 		(int*)&*mesh.tris.begin(),
 		(unsigned)mesh.tris.size()*3
 		);

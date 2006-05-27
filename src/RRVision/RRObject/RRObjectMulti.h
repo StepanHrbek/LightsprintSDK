@@ -24,20 +24,20 @@ public:
 		if(!numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
 		rrCollider::RRCollider* multiCollider = NULL;
-		rrCollider::RRMeshImporter** transformedMeshes = NULL;
+		rrCollider::RRMesh** transformedMeshes = NULL;
 		// optimalizace: multimesh z 1 objektu = objekt samotny
 		// lze aplikovat jen pokud se nestitchuji vertexy
 		// pokud se stitchuji, musi vse projit standardni multi-cestou
 		if(numObjects>1 || maxStitchDistance>=0 || optimizeTriangles)
 		{
 			// create multimesh
-			transformedMeshes = new rrCollider::RRMeshImporter*[numObjects+3];
+			transformedMeshes = new rrCollider::RRMesh*[numObjects+3];
 				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
 			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
 			transformedMeshes[numObjects] = NULL;
 			transformedMeshes[numObjects+1] = NULL;
 			transformedMeshes[numObjects+2] = NULL;
-			rrCollider::RRMeshImporter* multiMesh = rrCollider::RRMeshImporter::createMultiMesh(transformedMeshes,numObjects);
+			rrCollider::RRMesh* multiMesh = rrCollider::RRMesh::createMultiMesh(transformedMeshes,numObjects);
 			// stitch vertices
 			if(maxStitchDistance>=0)
 			{
@@ -55,7 +55,7 @@ public:
 			// due to low efficiency
 			if(0)
 			{
-				rrCollider::RRMeshImporter* tmp = multiMesh->createCopy();
+				rrCollider::RRMesh* tmp = multiMesh->createCopy();
 				if(tmp)
 				{
 					transformedMeshes[numObjects+1] = multiMesh; // remember for freeing time
@@ -126,7 +126,7 @@ public:
 	}
 
 private:
-	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider* multiCollider = NULL, rrCollider::RRMeshImporter** transformedMeshes = NULL)
+	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider* multiCollider = NULL, rrCollider::RRMesh** transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -168,7 +168,7 @@ private:
 
 	RRMultiObjectImporter(RRObjectImporter* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
 		RRObjectImporter* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles,
-		rrCollider::RRCollider* amultiCollider, rrCollider::RRMeshImporter** atransformedMeshes)
+		rrCollider::RRCollider* amultiCollider, rrCollider::RRMesh** atransformedMeshes)
 	{
 		multiCollider = amultiCollider;
 		transformedMeshes = atransformedMeshes;
@@ -196,7 +196,7 @@ private:
 
 	ObjectPack        pack[2];
 	rrCollider::RRCollider* multiCollider;
-	rrCollider::RRMeshImporter** transformedMeshes;
+	rrCollider::RRMesh** transformedMeshes;
 };
 
 }; // namespace

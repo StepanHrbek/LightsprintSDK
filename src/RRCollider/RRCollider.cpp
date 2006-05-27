@@ -12,7 +12,7 @@ namespace rrCollider
 {
 
 
-RRCollider* RRCollider::create(RRMeshImporter* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
+RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation, void* buildParams)
 {
 	if(!importer) return NULL;
 	BuildParams bp(intersectTechnique);

@@ -36,9 +36,9 @@ PRIVATE void update_hitPoint3d(RRRay* ray, real distance)
 	ray->hitPoint3d[2] = ray->rayOrigin[2] + ray->rayDir[2]*distance;
 }
 
-PRIVATE void update_hitPlane(RRRay* ray, RRMeshImporter* importer)
+PRIVATE void update_hitPlane(RRRay* ray, RRMesh* importer)
 {
-	RRMeshImporter::TriangleBody t2;
+	RRMesh::TriangleBody t2;
 	importer->getTriangleBody(ray->hitTriangle,t2);
 	Vec3 n;
 	n.x = t2.side1[1] * t2.side2[2] - t2.side1[2] * t2.side2[1];
@@ -51,7 +51,7 @@ PRIVATE void update_hitPlane(RRRay* ray, RRMeshImporter* importer)
 	ray->hitPlane[3] = -(t2.vertex0[0] * ray->hitPlane[0] + t2.vertex0[1] * ray->hitPlane[1] + t2.vertex0[2] * ray->hitPlane[2]);
 }
 
-PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* t)
+PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 // input:                ray, t
 // returns:              true if ray hits t
 // modifies when hit:    hitDistance, hitPoint2D, hitFrontSide
@@ -103,7 +103,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMeshImporter::TriangleBody* 
 	return true;
 }
 
-IntersectLinear::IntersectLinear(RRMeshImporter* aimporter)
+IntersectLinear::IntersectLinear(RRMesh* aimporter)
 {
 #ifdef USE_SSE
 	if(intptr_t(&box)%16) 
@@ -120,7 +120,7 @@ IntersectLinear::IntersectLinear(RRMeshImporter* aimporter)
 	Vec3* vertex = new Vec3[vertices];
 	for(unsigned i=0;i<vertices;i++)
 	{
-		RRMeshImporter::Vertex v;
+		RRMesh::Vertex v;
 		importer->getVertex(i,v);
 		vertex[i].x = v[0];
 		vertex[i].y = v[1];
@@ -154,7 +154,7 @@ unsigned IntersectLinear::getMemoryOccupied() const
 
 bool IntersectLinear::isValidTriangle(unsigned i) const
 {
-	RRMeshImporter::Triangle t;
+	RRMesh::Triangle t;
 	importer->getTriangle(i,t);
 	return t[0]!=t[1] && t[0]!=t[2] && t[1]!=t[2];
 }
@@ -195,7 +195,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	FILL_STATISTIC(intersectStats.intersect_linear++);
 	for(unsigned t=0;t<triangles;t++)
 	{
-		RRMeshImporter::TriangleBody t2;
+		RRMesh::TriangleBody t2;
 		importer->getTriangleBody(t,t2);
 		if(intersect_triangle(ray,&t2))
 		{

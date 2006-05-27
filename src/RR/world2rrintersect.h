@@ -8,7 +8,7 @@
 //
 // WorldMeshImporter
 
-class WorldMeshImporter : virtual public rrCollider::RRMeshImporter
+class WorldMeshImporter : virtual public rrCollider::RRMesh
 {
 public:
 	WorldMeshImporter(OBJECT* aobject);

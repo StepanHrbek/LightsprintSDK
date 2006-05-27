@@ -95,12 +95,12 @@ void RRGLObjectRenderer::render()
 	checkGlError();
 	glBegin(GL_TRIANGLES);
 	assert(params.object);
-	rrCollider::RRMeshImporter* meshImporter = params.object->getCollider()->getImporter();
+	rrCollider::RRMesh* meshImporter = params.object->getCollider()->getImporter();
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
 	for(unsigned triangleIdx=0;triangleIdx<numTriangles;triangleIdx++)
 	{
-		rrCollider::RRMeshImporter::Triangle tri;
+		rrCollider::RRMesh::Triangle tri;
 		meshImporter->getTriangle(triangleIdx,tri);
 		switch(params.cc)
 		{
@@ -144,7 +144,7 @@ void RRGLObjectRenderer::render()
 			{
 				glNormal3fv(&triangleNormals.norm[v].x);
 			}
-			rrCollider::RRMeshImporter::Vertex vertex;
+			rrCollider::RRMesh::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
 
 			switch(params.cc)

@@ -9,7 +9,7 @@ namespace rrCollider
 	class IntersectBspCompact : public IntersectLinear
 	{
 	public:
-		static IntersectBspCompact* create(RRMeshImporter* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) {return new IntersectBspCompact(aimporter,aintersectTechnique,cacheLocation,ext,buildParams);}
+		static IntersectBspCompact* create(RRMesh* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams) {return new IntersectBspCompact(aimporter,aintersectTechnique,cacheLocation,ext,buildParams);}
 		virtual ~IntersectBspCompact();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual IntersectTechnique getTechnique() const {return IT_BSP_COMPACT;}
@@ -17,7 +17,7 @@ namespace rrCollider
 		// must be public because it calls itself with different template params
 		bool              intersect_bsp(RRRay* ray, const BspTree *t, real distanceMax) const; 
 	protected:
-		IntersectBspCompact(RRMeshImporter* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams);
+		IntersectBspCompact(RRMesh* aimporter, IntersectTechnique aintersectTechnique, const char* cacheLocation, const char* ext, BuildParams* buildParams);
 		BspTree*          tree;
 	};
 
