@@ -70,7 +70,7 @@ void RRVisionApp::setObjects(Objects& aobjects)
 	dirtyGeometry = true;
 }
 
-RRObjectImporter* RRVisionApp::getObject(unsigned i)
+RRObject* RRVisionApp::getObject(unsigned i)
 {
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).first;
@@ -207,7 +207,7 @@ void RRVisionApp::readVertexResults()
 struct RenderSubtriangleContext
 {
 	RRIlluminationPixelBuffer* pixelBuffer;
-	RRObjectImporter::TriangleMapping triangleMapping;
+	RRObject::TriangleMapping triangleMapping;
 };
 
 void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context)
@@ -237,9 +237,9 @@ void RRVisionApp::readPixelResults()
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
 #ifdef MULTIOBJECT
-		RRObjectImporter* object = multiObject;
+		RRObject* object = multiObject;
 #else
-		RRObjectImporter* object = getObject(objectHandle);
+		RRObject* object = getObject(objectHandle);
 #endif
 		rrCollider::RRMesh* mesh = object->getCollider()->getImporter();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
@@ -299,12 +299,12 @@ RRScene::Improvement RRVisionApp::calculate()
 		reportAction("Opening new radiosity solver.");
 		scene = new RRScene;
 #ifdef MULTIOBJECT
-		rrVision::RRObjectImporter** importers = new rrVision::RRObjectImporter*[objects.size()];
+		rrVision::RRObject** importers = new rrVision::RRObject*[objects.size()];
 		for(unsigned i=0;i<(unsigned)objects.size();i++)
 		{
 			importers[i] = objects.at(i).first;
 		}
-		RRObjectImporter* object = RRObjectImporter::createMultiObject(importers,(unsigned)objects.size(),rrCollider::RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
+		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),rrCollider::RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
 		multiObject = object ? object->createAdditionalIllumination() : NULL;
 		delete[] importers;
 		scene->objectCreate(multiObject);

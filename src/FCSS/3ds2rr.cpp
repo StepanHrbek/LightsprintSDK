@@ -26,7 +26,7 @@ void reporter(const char* msg, void* context)
 //
 // MgfImporter class
 
-class M3dsImporter : public rrVision::RRObjectImporter, rrCollider::RRMesh
+class M3dsImporter : public rrVision::RRObject, rrCollider::RRMesh
 {
 public:
 	M3dsImporter(Model_3DS* model, unsigned objectIdx);
@@ -40,7 +40,7 @@ public:
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
 //	virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
-	// RRObjectImporter
+	// RRObject
 	virtual const rrCollider::RRCollider* getCollider() const;
 	virtual unsigned                      getTriangleSurface(unsigned t) const;
 	virtual const rrVision::RRSurface*    getSurface(unsigned s) const;
@@ -175,7 +175,7 @@ void M3dsImporter::getTriangle(unsigned t, Triangle& out) const
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// M3dsImporter implements RRObjectImporter
+// M3dsImporter implements RRObject
 
 const rrCollider::RRCollider* M3dsImporter::getCollider() const
 {
@@ -238,9 +238,9 @@ const rrVision::RRMatrix3x4* M3dsImporter::getInvWorldMatrix()
 //
 // main
 
-rrVision::RRObjectImporter* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
+rrVision::RRObject* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
 {
-	rrVision::RRObjectImporter* importer = new M3dsImporter(model, objectIdx);
+	rrVision::RRObject* importer = new M3dsImporter(model, objectIdx);
 #ifdef VERIFY
 	importer->getCollider()->getImporter()->verify(reporter,NULL);
 #endif

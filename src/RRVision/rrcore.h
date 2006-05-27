@@ -693,7 +693,7 @@ public:
 	unsigned id;
 
 	// object data
-	RRObjectImporter* importer;
+	RRObject* importer;
 	unsigned vertices;
 	unsigned triangles; // primary emitors go first (in DObject)
 	unsigned edges;

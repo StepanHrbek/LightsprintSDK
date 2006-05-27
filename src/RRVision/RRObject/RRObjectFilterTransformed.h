@@ -13,7 +13,7 @@ namespace rrVision
 class RRTransformedObjectFilter : public RRObjectFilter
 {
 public:
-	RRTransformedObjectFilter(RRObjectImporter* aobject, rrCollider::RRCollider::IntersectTechnique intersectTechnique)
+	RRTransformedObjectFilter(RRObject* aobject, rrCollider::RRCollider::IntersectTechnique intersectTechnique)
 		: RRObjectFilter(aobject)
 	{
 		collider = NULL;

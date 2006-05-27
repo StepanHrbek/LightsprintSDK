@@ -1,5 +1,5 @@
 //
-// OpenGL renderer of RRObjectImporter by Stepan Hrbek, dee@mail.cz
+// OpenGL renderer of RRObject by Stepan Hrbek, dee@mail.cz
 //
 
 #ifndef _RR2GL_H
@@ -48,7 +48,7 @@ extern VertexDataGenerator* generateForcedUv;
 class RRGLObjectRenderer : public RRRenderer
 {
 public:
-	RRGLObjectRenderer(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver);
+	RRGLObjectRenderer(rrVision::RRObject* objectImporter, rrVision::RRScene* radiositySolver);
 	enum ColorChannel
 	{
 		CC_NO_COLOR,
@@ -72,7 +72,7 @@ public:
 private:
 	struct Params
 	{
-		rrVision::RRObjectImporter* object;
+		rrVision::RRObject* object;
 		rrVision::RRScene* scene;
 		ColorChannel cc;
 	};

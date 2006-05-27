@@ -16,7 +16,7 @@ float SCALE  = 2; // scale loaded object
 //
 // MgfImporter class
 
-class MgfImporter : public rrVision::RRObjectImporter, rrCollider::RRMesh
+class MgfImporter : public rrVision::RRObject, rrCollider::RRMesh
 {
 public:
 	MgfImporter(char* filename);
@@ -30,7 +30,7 @@ public:
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
 //	virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
-	// RRObjectImporter
+	// RRObject
 	virtual const rrCollider::RRCollider* getCollider() const;
 	virtual unsigned                      getTriangleSurface(unsigned t) const;
 	virtual const rrVision::RRSurface*    getSurface(unsigned s) const;
@@ -177,7 +177,7 @@ void MgfImporter::getTriangle(unsigned t, Triangle& out) const
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// MgfImporter implements RRObjectImporter
+// MgfImporter implements RRObject
 
 const rrCollider::RRCollider* MgfImporter::getCollider() const
 {
@@ -211,7 +211,7 @@ const rrVision::RRSurface* MgfImporter::getSurface(unsigned s) const
 //
 // main
 
-rrVision::RRObjectImporter* new_mgf_importer(char* filename)
+rrVision::RRObject* new_mgf_importer(char* filename)
 {
 	return new MgfImporter(filename);
 }

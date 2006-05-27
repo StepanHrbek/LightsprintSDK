@@ -28,7 +28,7 @@ float vertexArray[18] =
 };
 
 // implements interface to position/rotation and material properties of our mesh
-class MyObject : public RRObjectImporter
+class MyObject : public RRObject
 {
 public:
 	MyObject(RRCollider* acollider) 
@@ -96,7 +96,7 @@ int main()
 	RRCollider* collider = RRCollider::create(mesh,RRCollider::IT_BSP_FAST);
 
 	// create object importer (position/rotation and material properties attached to mesh)
-	RRObjectImporter* object = new MyObject(collider);
+	RRObject* object = new MyObject(collider);
 
 	// create scene
 	RRScene* scene = new RRScene;

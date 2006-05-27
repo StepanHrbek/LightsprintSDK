@@ -91,7 +91,7 @@ RRScene::~RRScene()
 //
 // import geometry
 
-RRScene::ObjectHandle RRScene::objectCreate(RRObjectImporter* importer, unsigned smoothMode)
+RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothMode)
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
@@ -287,8 +287,8 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 		if(RRScene::getState(GET_REFLECTED))
 		{
 			// get normal
-			RRObjectImporter* objectImporter = obj->importer;
-			RRObjectImporter::TriangleNormals normals;
+			RRObject* objectImporter = obj->importer;
+			RRObject::TriangleNormals normals;
 			objectImporter->getTriangleNormals(triangle,normals);
 			Vec3 normal = normals.norm[vertex];
 			assert(fabs(size2(normal)-1)<0.001);

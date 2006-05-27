@@ -1,5 +1,5 @@
 //
-// OpenGL renderer of RRObjectImporter by Stepan Hrbek, dee@mail.cz
+// OpenGL renderer of RRObject by Stepan Hrbek, dee@mail.cz
 //
 
 #include "rr2gl.h"
@@ -39,7 +39,7 @@ const void* RRRenderer::getParams(unsigned& length) const
 //
 // RRGLObjectRenderer
 
-RRGLObjectRenderer::RRGLObjectRenderer(rrVision::RRObjectImporter* objectImporter, rrVision::RRScene* radiositySolver)
+RRGLObjectRenderer::RRGLObjectRenderer(rrVision::RRObject* objectImporter, rrVision::RRScene* radiositySolver)
 {
 	params.object = objectImporter;
 	params.scene = radiositySolver;
@@ -132,7 +132,7 @@ void RRGLObjectRenderer::render()
 				}
 			}
 		}
-		rrVision::RRObjectImporter::TriangleNormals triangleNormals;
+		rrVision::RRObject::TriangleNormals triangleNormals;
 		bool setNormals = params.cc!=CC_NO_COLOR && params.cc!=CC_TRIANGLE_INDEX;
 		if(setNormals)
 		{

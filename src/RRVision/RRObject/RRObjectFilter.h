@@ -10,10 +10,10 @@ namespace rrVision
 //
 // RRObjectFilter
 
-class RRObjectFilter : public RRObjectImporter
+class RRObjectFilter : public RRObject
 {
 public:
-	RRObjectFilter(RRObjectImporter* object)
+	RRObjectFilter(RRObject* object)
 	{
 		base = object;
 	}
@@ -51,7 +51,7 @@ public:
 	}
 
 protected:
-	RRObjectImporter* base;
+	RRObject* base;
 };
 
 }; // namespace

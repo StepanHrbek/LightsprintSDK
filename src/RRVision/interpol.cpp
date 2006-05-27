@@ -334,7 +334,7 @@ unsigned IVertex::splitTopLevelByNormals(Vec3 *avertex, Object *obj)
 	{
 		CornerNormal tmp;
 		tmp.corner = &corner[i];
-		RRObjectImporter::TriangleNormals normals;
+		RRObject::TriangleNormals normals;
 		obj->importer->getTriangleNormals(obj->getTriangleIndex(corner[i].node->grandpa),normals);
 		tmp.normal = normals[?]; nemam u corneru ulozeno ktery vrchol nody to je, zde to uz nelze zjistit, bylo by nutne to sem nekudy pracne protlacit
 		cornersLeft.insert(tmp);

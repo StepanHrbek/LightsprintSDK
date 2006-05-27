@@ -16,10 +16,10 @@ namespace rrVision
 // Limitations:
 //   All objects must share one surface numbering.
 
-class RRMultiObjectImporter : public RRObjectImporter
+class RRMultiObjectImporter : public RRObject
 {
 public:
-	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
 	{
 		if(!numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
@@ -126,7 +126,7 @@ public:
 	}
 
 private:
-	static RRObjectImporter* create(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider* multiCollider = NULL, rrCollider::RRMesh** transformedMeshes = NULL)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, rrCollider::RRCollider* multiCollider = NULL, rrCollider::RRMesh** transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -166,8 +166,8 @@ private:
 		}
 	}
 
-	RRMultiObjectImporter(RRObjectImporter* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
-		RRObjectImporter* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles,
+	RRMultiObjectImporter(RRObject* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
+		RRObject* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles,
 		rrCollider::RRCollider* amultiCollider, rrCollider::RRMesh** atransformedMeshes)
 	{
 		multiCollider = amultiCollider;
@@ -178,18 +178,18 @@ private:
 
 	struct ObjectPack
 	{
-		void init(RRObjectImporter* importer, unsigned objects, unsigned triangles)
+		void init(RRObject* importer, unsigned objects, unsigned triangles)
 		{
 			assert(numObjects);
 			packImporter = importer;
 			numObjects = objects;
 			numTriangles = triangles;
 		}
-		RRObjectImporter* getImporter() const {return packImporter;}
+		RRObject* getImporter() const {return packImporter;}
 		unsigned          getNumObjects() const {return numObjects;}
 		unsigned          getNumTriangles() const {return numTriangles;}
 	private:
-		RRObjectImporter* packImporter;
+		RRObject* packImporter;
 		unsigned          numObjects;
 		unsigned          numTriangles;
 	};

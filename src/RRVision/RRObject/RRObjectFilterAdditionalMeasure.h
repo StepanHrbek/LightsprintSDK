@@ -8,7 +8,7 @@ namespace rrVision
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRAdditionalObjectImporter
+// RRObjectAdditionalIllumination
 /*
 vision zajima exiting flux
 renderer s texturou zajima irradiance, renderer bez textury vyjimecne exitance
@@ -21,13 +21,13 @@ nekonzistence vznika kdyz u cerneho materialu ulozim outgoing a ptam se na incom
 nekonzistance vznika kdyz u degenerata ulozim flux a ptam se na irradiance
 -> ukladat irradiance
 
-RRMyAdditionalObjectImporter tedy vse co dostane prevede na irradiance
+RRObjectAdditionalIlluminationImpl tedy vse co dostane prevede na irradiance
 */
 
-class RRMyAdditionalObjectImporter : public RRAdditionalObjectImporter
+class RRObjectAdditionalIlluminationImpl : public RRObjectAdditionalIllumination
 {
 public:
-	RRMyAdditionalObjectImporter(RRObjectImporter* aoriginal)
+	RRObjectAdditionalIlluminationImpl(RRObject* aoriginal)
 	{
 		original = aoriginal;
 		assert(original);
@@ -43,7 +43,7 @@ public:
 			triangleInfo[i].area = getCollider()->getImporter()->getTriangleArea(i);
 		}
 	}
-	virtual ~RRMyAdditionalObjectImporter() 
+	virtual ~RRObjectAdditionalIlluminationImpl() 
 	{
 		delete[] triangleInfo;
 	}
@@ -175,7 +175,7 @@ private:
 		RRColor irradiance;
 		RRReal area;
 	};
-	RRObjectImporter* original;
+	RRObject* original;
 	unsigned numTriangles;
 	TriangleInfo* triangleInfo;
 };

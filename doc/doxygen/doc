@@ -275,6 +275,9 @@ CHANGES
   \n can optimize triangles
 - fixed smoothing on complicated meshes
 - fixed delete 0 on rrCollider::RRAligned
+- renamed RRMeshImporter -> RRMesh
+- renamed RRObjectImporter -> RRObject
+- renamed RRAdditionalObjectImporter -> RRObjectAdditionalIllumination
 
 \section news3 2006.3.23
 

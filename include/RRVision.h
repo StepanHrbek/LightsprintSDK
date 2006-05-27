@@ -135,11 +135,11 @@ namespace rrVision /// Encapsulates whole Vision library.
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRObjectImporter
+	//  RRObject
 	//! Common interface for all proprietary object formats.
 	//
 	//! \section s1 Provided information
-	//! %RRObjectImporter provides information about
+	//! %RRObject provides information about
 	//! - object material properties
 	//! - object collider for fast ray-mesh intersections
 	//! - indirectly also object geometry (via getCollider()->getImporter())
@@ -147,7 +147,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! - optionally unwrap (for future versions)
 	//!
 	//! \section s2 Creating instances
-	//! The only way to create first instance is to derive from %RRObjectImporter.
+	//! The only way to create first instance is to derive from %RRObject.
 	//! This is caused by lack of standard material description formats,
 	//! everyone uses different description and needs his own object importer.
 	//!
@@ -157,7 +157,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! - baking additional (primary) illumination into object, see createAdditionalIllumination()
 	//!
 	//! \section s3 Links between objects
-	//! RRScene -> RRObjectImporter -> rrCollider::RRCollider -> rrCollider::RRMesh
+	//! RRScene -> RRObject -> rrCollider::RRCollider -> rrCollider::RRMesh
 	//! \n where A -> B means that
 	//!  - A has pointer to B
 	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
@@ -165,14 +165,14 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRVISION_API RRObjectImporter
+	class RRVISION_API RRObject
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		virtual ~RRObjectImporter() {}
+		virtual ~RRObject() {}
 
 		//
 		// must not change during object lifetime
@@ -250,7 +250,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
 		rrCollider::RRMesh* createWorldSpaceMesh();
-		//! Creates and returns RRObjectImporter that describes object after transformation to world space.
+		//! Creates and returns RRObject that describes object after transformation to world space.
 		//
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
@@ -258,7 +258,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//!  Technique used for collider construction.
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
-		RRObjectImporter* createWorldSpaceObject(rrCollider::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
+		RRObject* createWorldSpaceObject(rrCollider::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
 		//! Creates and returns union of multiple objects (contains geometry and surfaces from all objects).
 		//
 		//! Created instance (MultiObject) doesn't require additional memory, 
@@ -286,13 +286,13 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//!  there are no degenerated triangles at all and you can save few cycles by setting false.
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
-		static RRObjectImporter*    createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation);
+		static RRObject*    createMultiObject(RRObject* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation);
 		//! Creates and returns object importer with space for per-triangle user-defined additional illumination.
 		//!
 		//! Created instance depends on original object, so it is not allowed to delete original object before newly created instance.
 		//! \n Created instance contains buffer for per-triangle additional illumination that is initialized to 0 and changeable via setTriangleAdditionalMeasure.
 		//! Illumination defined here overrides original object's illumination.
-		class RRAdditionalObjectImporter* createAdditionalIllumination();
+		class RRObjectAdditionalIllumination* createAdditionalIllumination();
 
 		// collision helper
 		//! Creates and returns surface importer, that accepts first hit to visible side (according to material sideBit 'render').
@@ -302,7 +302,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRAdditionalObjectImporter
+	//  RRObjectAdditionalIllumination
 	//! Interface for object importer with user-defined additional per-triangle illumination.
 	//
 	//! Helper interface.
@@ -310,7 +310,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRAdditionalObjectImporter : public RRObjectImporter
+	class RRObjectAdditionalIllumination : public RRObject
 	{
 	public:
 		//! Sets additional illumination for triangle.
@@ -421,11 +421,11 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//
 		//! For highest performance, stay with low number of possibly big objects 
 		//! rather than high number of small ones.
-		//! One big object can be created out of many small ones using RRObjectImporter::createMultiObject().
+		//! One big object can be created out of many small ones using RRObject::createMultiObject().
 		//!
 		//! Different objects always belong to different smoothgroups. So with flat wall cut into two objects,
 		//! unsmoothed edge will possibly apear between them.
-		//! This can be fixed by merging standalone objects into one object using RRObjectImporter::createMultiObject().
+		//! This can be fixed by merging standalone objects into one object using RRObject::createMultiObject().
 		//! \param importer
 		//!  Object importer that defines object shape and material.
 		//! \param smoothMode
@@ -433,7 +433,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//!  \n 0 = Normal independent smoothing, old. Depends on MAX_SMOOTH_ANGLE.
 		//!  \n 1 = Normal independent smoothing, new. Depends on MAX_SMOOTH_ANGLE.
 		//!  \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed.
-		ObjectHandle  objectCreate(RRObjectImporter* importer, unsigned smoothMode=2);
+		ObjectHandle  objectCreate(RRObject* importer, unsigned smoothMode=2);
 		
 		//////////////////////////////////////////////////////////////////////////////
 		//

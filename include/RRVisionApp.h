@@ -243,7 +243,7 @@ namespace rrVision
 	class RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBufferInMemory<RRColorI8>
 	{
 	public:
-		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, RRObjectImporter* object, unsigned anumPreImportVertices)
+		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, RRObject* object, unsigned anumPreImportVertices)
 			: RRIlluminationPixelBufferInMemory<RRColorI8>(awidth,aheight)
 		{
 			texCoord = NULL;
@@ -342,7 +342,7 @@ namespace rrVision
 			: RRObjectIllumination(anumPreImportVertices)
 		{
 		}
-		void createPixelBufferUnwrap(RRObjectImporter* object)
+		void createPixelBufferUnwrap(RRObject* object)
 		{
 			if(pixelBufferUnwrap)
 				delete[] pixelBufferUnwrap;
@@ -351,7 +351,7 @@ namespace rrVision
 			unsigned numPostImportTriangles = mesh->getNumTriangles();
 			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 			{
-				RRObjectImporter::TriangleMapping triangleMapping;
+				RRObject::TriangleMapping triangleMapping;
 				object->getTriangleMapping(postImportTriangle,triangleMapping);
 				rrCollider::RRMesh::Triangle triangle;
 				mesh->getTriangle(postImportTriangle,triangle);
@@ -384,10 +384,10 @@ namespace rrVision
 		virtual ~RRVisionApp();
 
 		//! Defines objects present in scene.
-		typedef std::pair<RRObjectImporter*,RRObjectIlluminationForEditor*> Object;
+		typedef std::pair<RRObject*,RRObjectIlluminationForEditor*> Object;
 		typedef std::vector<Object> Objects;
 		void setObjects(Objects& objects);
-		RRObjectImporter* getObject(unsigned i);
+		RRObject* getObject(unsigned i);
 		RRObjectIlluminationForEditor* getIllumination(unsigned i);
 		
 		//! Selects channel for storing results, 0 is default.
@@ -406,7 +406,7 @@ namespace rrVision
 		void reportInteraction();
 
 		//!!!
-		RRAdditionalObjectImporter* multiObject;
+		RRObjectAdditionalIllumination* multiObject;
 		RRScene*   scene;
 	protected:
 		//! Autodetects material properties of all materials present in scene. To be implemented by you.

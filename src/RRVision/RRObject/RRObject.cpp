@@ -14,16 +14,16 @@ namespace rrVision
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectImporter
+// RRObject
 
-void RRObjectImporter::getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+void RRObject::getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 {
 	out[0] = 0;
 	out[1] = 0;
 	out[2] = 0;
 }
 
-void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
+void RRObject::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
 	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
 	if(t>=numTriangles)
@@ -40,7 +40,7 @@ void RRObjectImporter::getTriangleNormals(unsigned t, TriangleNormals& out) cons
 	out.norm[2] = norm;
 }
 
-void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out) const
+void RRObject::getTriangleMapping(unsigned t, TriangleMapping& out) const
 {
 	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
 	if(t>=numTriangles)
@@ -56,12 +56,12 @@ void RRObjectImporter::getTriangleMapping(unsigned t, TriangleMapping& out) cons
 	out.uv[2][1] = 1;
 }
 
-const RRMatrix3x4* RRObjectImporter::getWorldMatrix()
+const RRMatrix3x4* RRObject::getWorldMatrix()
 {
 	return NULL;
 }
 
-const RRMatrix3x4* RRObjectImporter::getInvWorldMatrix()
+const RRMatrix3x4* RRObject::getInvWorldMatrix()
 {
 	return NULL;
 }
@@ -69,29 +69,28 @@ const RRMatrix3x4* RRObjectImporter::getInvWorldMatrix()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectImporter instance factory
+// RRObject instance factory
 
-rrCollider::RRMesh* RRObjectImporter::createWorldSpaceMesh()
+rrCollider::RRMesh* RRObject::createWorldSpaceMesh()
 {
 	//!!! az bude refcounting, muzu vracet getCollider()->getImporter()
 	return new RRTransformedMeshFilter(getCollider()->getImporter(),getWorldMatrix());
 }
 
-RRObjectImporter* RRObjectImporter::createWorldSpaceObject(rrCollider::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
+RRObject* RRObject::createWorldSpaceObject(rrCollider::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
 {
 	//!!! az bude refcounting, muzu vracet this
 	return new RRTransformedObjectFilter(this,intersectTechnique);
 }
 
-RRObjectImporter* RRObjectImporter::createMultiObject(RRObjectImporter* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
+RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
 {
 	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,maxStitchDistance,optimizeTriangles,cacheLocation);
 }
 
-
-RRAdditionalObjectImporter* RRObjectImporter::createAdditionalIllumination()
+RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination()
 {
-	return new RRMyAdditionalObjectImporter(this);
+	return new RRObjectAdditionalIlluminationImpl(this);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -101,7 +100,7 @@ RRAdditionalObjectImporter* RRObjectImporter::createAdditionalIllumination()
 class RRAcceptFirstVisibleSurfaceImporter : public rrCollider::RRMeshSurfaceImporter
 {
 public:
-	RRAcceptFirstVisibleSurfaceImporter(RRObjectImporter* aobject)
+	RRAcceptFirstVisibleSurfaceImporter(RRObject* aobject)
 	{
 		object = aobject;
 	}
@@ -111,10 +110,10 @@ public:
 		return surface && surface->sideBits[ray->hitFrontSide?0:1].renderFrom;
 	}
 private:
-	RRObjectImporter* object;
+	RRObject* object;
 };
 
-rrCollider::RRMeshSurfaceImporter* RRObjectImporter::createAcceptFirstVisibleSurfaceImporter()
+rrCollider::RRMeshSurfaceImporter* RRObject::createAcceptFirstVisibleSurfaceImporter()
 {
 	return new RRAcceptFirstVisibleSurfaceImporter(this);
 }
