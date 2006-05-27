@@ -15,43 +15,43 @@ class RRObjectFilter : public RRObject
 public:
 	RRObjectFilter(RRObject* object)
 	{
-		base = object;
+		inherited = object;
 	}
 	virtual const rrCollider::RRCollider* getCollider() const
 	{
-		return base->getCollider();
+		return inherited->getCollider();
 	}
 	virtual unsigned getTriangleSurface(unsigned t) const
 	{
-		return base->getTriangleSurface(t);
+		return inherited->getTriangleSurface(t);
 	}
 	virtual const RRSurface* getSurface(unsigned s) const
 	{
-		return base->getSurface(s);
+		return inherited->getSurface(s);
 	}
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
-		return base->getTriangleNormals(t,out);
+		return inherited->getTriangleNormals(t,out);
 	}
 	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
 	{
-		return base->getTriangleMapping(t,out);
+		return inherited->getTriangleMapping(t,out);
 	}
 	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 	{
-		return base->getTriangleAdditionalMeasure(t,measure,out);
+		return inherited->getTriangleAdditionalMeasure(t,measure,out);
 	}
 	virtual const RRMatrix3x4* getWorldMatrix()
 	{
-		return base->getWorldMatrix();
+		return inherited->getWorldMatrix();
 	}
 	virtual const RRMatrix3x4* getInvWorldMatrix()
 	{
-		return base->getInvWorldMatrix();
+		return inherited->getInvWorldMatrix();
 	}
 
 protected:
-	RRObject* base;
+	RRObject* inherited;
 };
 
 }; // namespace

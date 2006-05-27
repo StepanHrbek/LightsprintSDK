@@ -15,10 +15,10 @@ class RRMeshFilter : public rrCollider::RRMesh
 public:
 	RRMeshFilter(const RRMesh* original)
 	{
-		importer = original;
-		assert(importer);
-		numVertices = importer ? importer->getNumVertices() : 0;
-		numTriangles = importer ? importer->getNumTriangles() : 0;
+		inherited = original;
+		assert(inherited);
+		numVertices = inherited ? inherited->getNumVertices() : 0;
+		numTriangles = inherited ? inherited->getNumTriangles() : 0;
 	}
 	virtual ~RRMeshFilter()
 	{
@@ -33,7 +33,7 @@ public:
 	}
 	virtual void         getVertex(unsigned v, Vertex& out) const
 	{
-		importer->getVertex(v,out);
+		inherited->getVertex(v,out);
 	}
 
 	// triangles
@@ -43,29 +43,29 @@ public:
 	}
 	virtual void         getTriangle(unsigned t, Triangle& out) const
 	{
-		importer->getTriangle(t,out);
+		inherited->getTriangle(t,out);
 	}
 
 	// preimport/postimport conversions
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	{
-		return importer->getPreImportVertex(postImportVertex, postImportTriangle);
+		return inherited->getPreImportVertex(postImportVertex, postImportTriangle);
 	}
 	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const 
 	{
-		return importer->getPostImportVertex(preImportVertex, preImportTriangle);
+		return inherited->getPostImportVertex(preImportVertex, preImportTriangle);
 	}
 	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const 
 	{
-		return importer->getPreImportTriangle(postImportTriangle);
+		return inherited->getPreImportTriangle(postImportTriangle);
 	}
 	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const 
 	{
-		return importer->getPostImportTriangle(preImportTriangle);
+		return inherited->getPostImportTriangle(preImportTriangle);
 	}
 
 protected:
-	const RRMesh* importer;
+	const RRMesh*   inherited;
 	unsigned        numVertices;
 	unsigned        numTriangles;
 };

@@ -21,11 +21,11 @@ public:
 		: RRMeshFilter(original)
 	{
 		ValidIndices = 0;
-		unsigned numAllTriangles = importer->getNumTriangles();
+		unsigned numAllTriangles = inherited->getNumTriangles();
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
 			RRMesh::Triangle t;
-			importer->getTriangle(i,t);
+			inherited->getTriangle(i,t);
 			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndices++;
 		}
 		ValidIndex = new unsigned[ValidIndices];
@@ -33,7 +33,7 @@ public:
 		for(unsigned i=0;i<numAllTriangles;i++)
 		{
 			RRMesh::Triangle t;
-			importer->getTriangle(i,t);
+			inherited->getTriangle(i,t);
 			if(!(t[0]==t[1] || t[0]==t[2] || t[1]==t[2])) ValidIndex[ValidIndices++] = i;
 		}
 	};
@@ -49,7 +49,7 @@ public:
 	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
 		assert(t<ValidIndices);
-		importer->getTriangle(ValidIndex[t],out);
+		inherited->getTriangle(ValidIndex[t],out);
 	}
 	virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const
 	{
@@ -59,14 +59,14 @@ public:
 			return RRMesh::UNDEFINED;
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
-		return importer->getPreImportTriangle(midImportTriangle);
+		return inherited->getPreImportTriangle(midImportTriangle);
 	}
 	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
 	{
 		// check that this slow code is not called often
 		assert(0);
 		// efficient implementation would require another translation array
-		unsigned midImportTriangle = importer->getPostImportTriangle(preImportTriangle);
+		unsigned midImportTriangle = inherited->getPostImportTriangle(preImportTriangle);
 		for(unsigned post=0;post<ValidIndices;post++)
 			if(ValidIndex[post]==midImportTriangle)
 				return post;
@@ -82,12 +82,12 @@ public:
 			return RRMesh::UNDEFINED;
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
-		return importer->getPreImportVertex(postImportVertex, midImportTriangle);
+		return inherited->getPreImportVertex(postImportVertex, midImportTriangle);
 	}
 	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const
 	{
 		assert(t<ValidIndices);
-		importer->getTriangleBody(ValidIndex[t],out);
+		inherited->getTriangleBody(ValidIndex[t],out);
 	}
 
 protected:

@@ -25,7 +25,7 @@ public:
 
 	virtual void getVertex(unsigned v, Vertex& out) const
 	{
-		importer->getVertex(v,out);
+		inherited->getVertex(v,out);
 		if(m)
 		{
 			m->transformPosition(out);

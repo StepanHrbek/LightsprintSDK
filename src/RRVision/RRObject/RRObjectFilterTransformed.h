@@ -17,9 +17,9 @@ public:
 		: RRObjectFilter(aobject)
 	{
 		collider = NULL;
-		const RRMatrix3x4* m = base->getWorldMatrix();
+		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		assert(m);
-		rrCollider::RRMesh* mesh = new RRTransformedMeshFilter(base->getCollider()->getImporter(),m);
+		rrCollider::RRMesh* mesh = new RRTransformedMeshFilter(inherited->getCollider()->getImporter(),m);
 		collider = rrCollider::RRCollider::create(mesh,intersectTechnique);
 	}
 	virtual ~RRTransformedObjectFilter()
@@ -35,9 +35,9 @@ public:
 	//  hook in getSurface and return sideBits in opposite order
 	virtual const RRSurface* getSurface(unsigned s) const
 	{
-		const RRSurface* surf = base->getSurface(s);
+		const RRSurface* surf = inherited->getSurface(s);
 		if(!surf) return surf;
-		const RRMatrix3x4* m = base->getWorldMatrix();
+		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		if(!m) return surf;
 		bool negScale = m->determinant3x3()<0;
 		if(!negScale) return surf;
@@ -49,8 +49,8 @@ public:
 	}
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
-		base->getTriangleNormals(t,out);
-		const RRMatrix3x4* m = base->getWorldMatrix();
+		inherited->getTriangleNormals(t,out);
+		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		if(m)
 			for(unsigned i=0;i<3;i++)
 			{
