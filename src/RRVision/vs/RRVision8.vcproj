@@ -381,11 +381,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\RRObject\RRObjectFilter.h"
+				RelativePath="..\RRObject\RRObjectAdditionalIllumination.h"
 				>
 			</File>
 			<File
-				RelativePath="..\RRObject\RRObjectFilterAdditionalMeasure.h"
+				RelativePath="..\RRObject\RRObjectFilter.h"
 				>
 			</File>
 			<File

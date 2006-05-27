@@ -7,7 +7,7 @@
 #include "RRMeshFilterTransformed.h"
 #include "RRObjectFilterTransformed.h"
 #include "RRObjectMulti.h"
-#include "RRObjectFilterAdditionalMeasure.h"
+#include "RRObjectAdditionalIllumination.h"
 
 namespace rrVision
 {
