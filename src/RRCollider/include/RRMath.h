@@ -3,7 +3,7 @@
 
 #include "RRCollider.h"
 
-namespace rrCollider
+namespace rr
 {
 
 	RRVec3 RRCOLLIDER_API operator -(const RRVec3& a);

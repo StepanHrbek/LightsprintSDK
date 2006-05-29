@@ -19,7 +19,7 @@
 #include "LicGenOpt.h"
 #include "sha1.h"
 
-namespace rrCollider
+namespace rr
 {
 
 

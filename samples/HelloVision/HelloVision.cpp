@@ -11,8 +11,8 @@
 #include "stdio.h"
 #include "time.h"
 
-using namespace rrCollider;
-using namespace rrVision;
+using namespace rr;
+using namespace rr;
 
 // simple mesh used for demonstration
 float vertexArray[18] =
@@ -40,19 +40,19 @@ public:
 		// all triangles are from material 0
 		return 0;
 	}
-	virtual const rrVision::RRSurface* getSurface(unsigned si) const
+	virtual const rr::RRSurface* getSurface(unsigned si) const
 	{
 		// return surface 0 which is gray with diffuse reflectance 50%, no specular, no transmittance
 		static RRSurface surface;
 		surface.reset(false);
 		return &surface;
 	}
-	virtual void getTriangleAdditionalMeasure(unsigned t, rrVision::RRRadiometricMeasure measure, rrVision::RRColor& out) const
+	virtual void getTriangleAdditionalMeasure(unsigned t, rr::RRRadiometricMeasure measure, rr::RRColor& out) const
 	{
 		// return 0,0,0 for triangle 0 and 1,1,1 for triangle 1. this will make triangle 1 slightly shining
 		out = RRColor(t?1.0f:0.0f);
 	}
-	virtual const rrCollider::RRCollider* getCollider() const 
+	virtual const rr::RRCollider* getCollider() const 
 	{
 		// public access to underlying collider and mesh
 		return collider;
@@ -84,7 +84,7 @@ int main()
 {
 	// provide license information
 	// replace strings by your license information
-	if(rrVision::RRLicense::registerLicense("your license name","your license number")!=rrVision::RRLicense::VALID)
+	if(rr::RRLicense::registerLicense("your license name","your license number")!=rr::RRLicense::VALID)
 		printf("Invalid license, nothing will be computed.\n");
 
 	// create mesh importer (contains only geometry)

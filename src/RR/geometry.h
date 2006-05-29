@@ -2,6 +2,6 @@
 #define _GEOMETRY_H
 
 #include "../RRVision/geometry.h"
-using namespace rrVision;
+using namespace rr;
 
 #endif

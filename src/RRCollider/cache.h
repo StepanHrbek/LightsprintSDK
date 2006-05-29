@@ -7,7 +7,7 @@
 	#define PRIVATE
 #endif
 
-namespace rrCollider
+namespace rr
 {                                                                            
 	PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits);
 	PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer);

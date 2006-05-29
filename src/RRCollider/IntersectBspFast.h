@@ -3,7 +3,7 @@
 
 #include "IntersectBsp.h"
 
-namespace rrCollider
+namespace rr
 {
 
 	/*struct TriangleP

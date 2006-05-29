@@ -4,6 +4,6 @@
 #include "World.h"
 #include "RRVision.h"
 
-rrVision::RRScene *convert_world2scene(WORLD *w, char *material_mgf, rrCollider::RRCollider::IntersectTechnique intersectTechnique);
+rr::RRScene *convert_world2scene(WORLD *w, char *material_mgf, rr::RRCollider::IntersectTechnique intersectTechnique);
 
 #endif

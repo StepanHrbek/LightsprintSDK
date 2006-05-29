@@ -275,11 +275,12 @@ CHANGES
   \n can optimize triangles
 - fixed smoothing on complicated meshes
 - fixed delete 0 on rrCollider::RRAligned
+- renamed namespaces rrCollider and rrVision -> rr
 - renamed RRMeshImporter -> RRMesh
 - renamed RRObjectImporter -> RRObject
 - renamed RRAdditionalObjectImporter -> RRObjectAdditionalIllumination
 - renamed RRMeshSurfaceImporter -> RRAcceptHit
-- renamed rrCollider::RRLicense -> RRLicenseCollider
+- renamed RRLicense -> RRLicenseCollider
 
 \section news3 2006.3.23
 

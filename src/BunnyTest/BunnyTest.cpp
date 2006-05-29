@@ -10,15 +10,15 @@
 #include <tchar.h>
 #include <time.h>
 
-rrCollider::RRMesh* createPlyMeshImporter(PlyMesh& mesh)
+rr::RRMesh* createPlyMeshImporter(PlyMesh& mesh)
 {
-	return rrCollider::RRMesh::createIndexed(
-		rrCollider::RRMesh::TRI_LIST,
-		rrCollider::RRMesh::FLOAT32,
+	return rr::RRMesh::createIndexed(
+		rr::RRMesh::TRI_LIST,
+		rr::RRMesh::FLOAT32,
 		(void*)&*mesh.verts.begin(),
 		(unsigned)mesh.verts.size(),
 		sizeof(PlyMeshVert),
-		rrCollider::RRMesh::UINT32,
+		rr::RRMesh::UINT32,
 		(int*)&*mesh.tris.begin(),
 		(unsigned)mesh.tris.size()*3
 		);
@@ -35,9 +35,9 @@ bool    intersect(RRRay* ray) const;
 Box box;*/
 
 SphereUnitVecPool vecpool; // object able to generate random points
-rrCollider::RRCollider* intersector; // object able to calculate intersections
+rr::RRCollider* intersector; // object able to calculate intersections
 
-bool castOneRay(rrCollider::RRRay* ray)
+bool castOneRay(rr::RRRay* ray)
 {
 	static const PoolVec3 aabb_center = PoolVec3(-0.016840f, 0.110154f, -0.001537f);
 	static const float RADIUS = 0.2f;//radius of sphere
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 	PlyMesh mesh;
 	PlyMeshReader reader;
 	reader.readFile("bun_zipper.ply",mesh);
-	intersector = rrCollider::RRCollider::create(createPlyMeshImporter(mesh),rrCollider::RRCollider::IT_BSP_FASTEST);
+	intersector = rr::RRCollider::create(createPlyMeshImporter(mesh),rr::RRCollider::IT_BSP_FASTEST);
 	printf("vertices=%d tris=%d\n",intersector->getImporter()->getNumVertices(),intersector->getImporter()->getNumTriangles());
 
 	// create one ray for each thread
@@ -88,10 +88,10 @@ int main(int argc, char** argv)
 	printf("OpenMP not supported by compiler.\n");
 #endif
 	const int MAX_THREADS_INCL_FORCE = (MAX_THREADS<4)?4:MAX_THREADS;
-	rrCollider::RRRay* ray = rrCollider::RRRay::create(MAX_THREADS_INCL_FORCE);
+	rr::RRRay* ray = rr::RRRay::create(MAX_THREADS_INCL_FORCE);
 	for(int i=0;i<MAX_THREADS_INCL_FORCE;i++)
 	{
-		ray[i].rayFlags = rrCollider::RRRay::FILL_TRIANGLE | rrCollider::RRRay::FILL_DISTANCE;
+		ray[i].rayFlags = rr::RRRay::FILL_TRIANGLE | rr::RRRay::FILL_DISTANCE;
 		ray[i].rayLengthMin = 0;
 	}
 

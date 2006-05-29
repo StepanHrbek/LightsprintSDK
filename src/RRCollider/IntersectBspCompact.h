@@ -3,7 +3,7 @@
 
 #include "IntersectBsp.h"
 
-namespace rrCollider
+namespace rr
 {
 	template IBP
 	class IntersectBspCompact : public IntersectLinear

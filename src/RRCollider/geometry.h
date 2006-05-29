@@ -10,7 +10,7 @@
 	#define _MM_ALIGN16 __attribute__ ((aligned (16)))
 #endif
 
-namespace rrCollider
+namespace rr
 {
 	typedef RRReal real;
 

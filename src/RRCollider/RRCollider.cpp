@@ -8,7 +8,7 @@
 #include <windows.h> // jen kvuli GetTempPath
 
 
-namespace rrCollider
+namespace rr
 {
 
 

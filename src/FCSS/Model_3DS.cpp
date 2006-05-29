@@ -287,7 +287,7 @@ bool Model_3DS::Load(char *name, float scale)
 	return true;
 }
 
-void Model_3DS::Draw(GLfloat* color, rrVision::RRVisionApp* app, bool lightIndirectMap)
+void Model_3DS::Draw(GLfloat* color, rr::RRVisionApp* app, bool lightIndirectMap)
 {
 	if (visible)
 	{
@@ -319,9 +319,9 @@ void Model_3DS::Draw(GLfloat* color, rrVision::RRVisionApp* app, bool lightIndir
 			{
 				if(!lightIndirectMap)
 				{
-					rrVision::RRIlluminationVertexBuffer* vertexBuffer = app->getIllumination(i)->getChannel(0)->vertexBuffer;
+					rr::RRIlluminationVertexBuffer* vertexBuffer = app->getIllumination(i)->getChannel(0)->vertexBuffer;
 					glEnableClientState(GL_COLOR_ARRAY);
-					glColorPointer(3, GL_FLOAT, 0, ((rrVision::RRIlluminationVertexBufferInMemory<rrVision::RRColor>*)vertexBuffer)->lock());
+					glColorPointer(3, GL_FLOAT, 0, ((rr::RRIlluminationVertexBufferInMemory<rr::RRColor>*)vertexBuffer)->lock());
 				}
 				else
 				{
@@ -329,14 +329,14 @@ void Model_3DS::Draw(GLfloat* color, rrVision::RRVisionApp* app, bool lightIndir
 					// not implemented
 					/*
 					// setup light indirect texture
-					rrVision::RRIlluminationPixelBuffer* pixelBuffer = app->getIllumination(i)->getChannel(0)->pixelBuffer;
-					const rrVision::RRColorI8* pixels = ((rrVision::RRIlluminationPixelBufferInMemory<rrVision::RRColorI8>*)pixelBuffer)->lock();
+					rr::RRIlluminationPixelBuffer* pixelBuffer = app->getIllumination(i)->getChannel(0)->pixelBuffer;
+					const rr::RRColorI8* pixels = ((rr::RRIlluminationPixelBufferInMemory<rr::RRColorI8>*)pixelBuffer)->lock();
 					glActiveTextureARB(GL_TEXTURE12_ARB); // used by lightIndirectMap
 					...
 					?->bindTexture();
 					glActiveTextureARB(GL_TEXTURE11_ARB); // used by materialDiffuseMap
 					// if not created yet, create unwrap buffer
-					rrVision::RRObjectIllumination& illum = app->getIllumination(i);
+					rr::RRObjectIllumination& illum = app->getIllumination(i);
 					if(!illum.pixelBufferUnwrap)
 					{
 						illum.createPixelBufferUnwrap(app->getObject(i));

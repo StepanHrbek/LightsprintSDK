@@ -31,7 +31,7 @@ worst situations
 
 */
 
-namespace rrCollider
+namespace rr
 {
 
 

@@ -48,7 +48,7 @@ extern VertexDataGenerator* generateForcedUv;
 class RRGLObjectRenderer : public RRRenderer
 {
 public:
-	RRGLObjectRenderer(rrVision::RRObject* objectImporter, rrVision::RRScene* radiositySolver);
+	RRGLObjectRenderer(rr::RRObject* objectImporter, rr::RRScene* radiositySolver);
 	enum ColorChannel
 	{
 		CC_NO_COLOR,
@@ -72,8 +72,8 @@ public:
 private:
 	struct Params
 	{
-		rrVision::RRObject* object;
-		rrVision::RRScene* scene;
+		rr::RRObject* object;
+		rr::RRScene* scene;
 		ColorChannel cc;
 	};
 	Params params;

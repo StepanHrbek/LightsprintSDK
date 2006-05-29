@@ -22,9 +22,9 @@ char *FS(char *fmt, ...)
 	va_end (argptr);
 	return msg;
 }*/
-#define TRACE(a) //{if(rrCollider::RRIntersectStats::getInstance()->intersects>=478988) OutputDebugString(a);}
+#define TRACE(a) //{if(rr::RRIntersectStats::getInstance()->intersects>=478988) OutputDebugString(a);}
 
-namespace rrVision
+namespace rr
 {
 
 //#define LOG_LOADING_MES
@@ -522,7 +522,7 @@ IVertex *SubTriangle::ivertex(int i)
 	{
 		assert(TRIANGLE(this)->surface);
 		tmp = TRIANGLE(this)->topivertex[i];
-		TRACE(FS("(%x,%d,%x,%d)",this,i,tmp,rrCollider::RRIntersectStats::getInstance()->intersects));
+		TRACE(FS("(%x,%d,%x,%d)",this,i,tmp,rr::RRIntersectStats::getInstance()->intersects));
 		assert(tmp);
 	}
 	else
@@ -1061,10 +1061,10 @@ void Object::buildTopIVertices(unsigned smoothMode)
 
 	// build 1 ivertex for each vertex, insert all corners
 	IVertex *topivertex=new IVertex[vertices];
-	rrCollider::RRMesh* meshImporter = importer->getCollider()->getImporter();
+	rr::RRMesh* meshImporter = importer->getCollider()->getImporter();
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
-		rrCollider::RRMesh::Triangle un_ve; // un_ = unrotated
+		rr::RRMesh::Triangle un_ve; // un_ = unrotated
 		meshImporter->getTriangle(t,un_ve);
 		for(int ro_v=0;ro_v<3;ro_v++) // ro_ = rotated 
 		{
@@ -1103,7 +1103,7 @@ void Object::buildTopIVertices(unsigned smoothMode)
 	int unusedVertices=0;
 	for(unsigned v=0;v<vertices;v++)
 	{
-		rrCollider::RRMesh::Vertex vert;
+		rr::RRMesh::Vertex vert;
 		meshImporter->getVertex(v,vert);
 		if(!topivertex[v].check(vert)) unusedVertices++;
 		switch(smoothMode)
@@ -1142,7 +1142,7 @@ void Object::buildTopIVertices(unsigned smoothMode)
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
 		// ro_=rotated, un_=unchanged,original from importer
-		rrCollider::RRMesh::Triangle un_ve;
+		rr::RRMesh::Triangle un_ve;
 		meshImporter->getTriangle(t,un_ve);
 		for(int ro_v=0;ro_v<3;ro_v++)
 		{

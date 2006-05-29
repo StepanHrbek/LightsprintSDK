@@ -26,7 +26,7 @@ void reporter(const char* msg, void* context)
 //
 // MgfImporter class
 
-class M3dsImporter : public rrVision::RRObject, rrCollider::RRMesh
+class M3dsImporter : public rr::RRObject, rr::RRMesh
 {
 public:
 	M3dsImporter(Model_3DS* model, unsigned objectIdx);
@@ -41,12 +41,12 @@ public:
 //	virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
 	// RRObject
-	virtual const rrCollider::RRCollider* getCollider() const;
+	virtual const rr::RRCollider* getCollider() const;
 	virtual unsigned                      getTriangleSurface(unsigned t) const;
-	virtual const rrVision::RRSurface*    getSurface(unsigned s) const;
+	virtual const rr::RRSurface*    getSurface(unsigned s) const;
 	virtual void                          getTriangleNormals(unsigned t, TriangleNormals& out) const;
-	virtual const rrVision::RRMatrix3x4*  getWorldMatrix();
-	virtual const rrVision::RRMatrix3x4*  getInvWorldMatrix();
+	virtual const rr::RRMatrix3x4*  getWorldMatrix();
+	virtual const rr::RRMatrix3x4*  getInvWorldMatrix();
 
 private:
 	Model_3DS* model;
@@ -55,16 +55,16 @@ private:
 	// geometry
 	struct TriangleInfo
 	{
-		rrCollider::RRMesh::Triangle t;
+		rr::RRMesh::Triangle t;
 		unsigned s; // surface index
 	};
 	std::vector<TriangleInfo> triangles;
 
 	// surfaces
-	std::vector<rrVision::RRSurface> surfaces;
+	std::vector<rr::RRSurface> surfaces;
 	
 	// collider
-	rrCollider::RRCollider*      collider;
+	rr::RRCollider*      collider;
 };
 
 
@@ -72,18 +72,18 @@ private:
 //
 // M3dsImporter load
 
-static void fillSurface(rrVision::RRSurface* s,Model_3DS::Material* m)
+static void fillSurface(rr::RRSurface* s,Model_3DS::Material* m)
 {
 	enum {size = 8};
 
 	// average texture color
-	rrVision::RRColor avg = rrVision::RRColor(0);
+	rr::RRColor avg = rr::RRColor(0);
 	if(m->tex)
 	{
 		for(unsigned i=0;i<size;i++)
 			for(unsigned j=0;j<size;j++)
 			{
-				rrVision::RRColor tmp;
+				rr::RRColor tmp;
 				m->tex->getPixel(i/(float)size,j/(float)size,&tmp[0]);
 				avg += tmp;
 			}
@@ -120,7 +120,7 @@ M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)
 
 	for(unsigned i=0;i<(unsigned)model->numMaterials;i++)
 	{
-		rrVision::RRSurface s;
+		rr::RRSurface s;
 		fillSurface(&s,&model->Materials[i]);
 		surfaces.push_back(s);
 	}
@@ -130,7 +130,7 @@ M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)
 #endif
 
 	// create collider
-	collider = rrCollider::RRCollider::create(this,rrCollider::RRCollider::IT_LINEAR);
+	collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR);
 }
 
 
@@ -177,7 +177,7 @@ void M3dsImporter::getTriangle(unsigned t, Triangle& out) const
 //
 // M3dsImporter implements RRObject
 
-const rrCollider::RRCollider* M3dsImporter::getCollider() const
+const rr::RRCollider* M3dsImporter::getCollider() const
 {
 	return collider;
 }
@@ -194,7 +194,7 @@ unsigned M3dsImporter::getTriangleSurface(unsigned t) const
 	return s;
 }
 
-const rrVision::RRSurface* M3dsImporter::getSurface(unsigned s) const
+const rr::RRSurface* M3dsImporter::getSurface(unsigned s) const
 {
 	if(s>=surfaces.size()) 
 	{
@@ -221,13 +221,13 @@ void M3dsImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	}
 }
 
-const rrVision::RRMatrix3x4* M3dsImporter::getWorldMatrix()
+const rr::RRMatrix3x4* M3dsImporter::getWorldMatrix()
 {
 	//!!!
 	return NULL;
 }
 
-const rrVision::RRMatrix3x4* M3dsImporter::getInvWorldMatrix()
+const rr::RRMatrix3x4* M3dsImporter::getInvWorldMatrix()
 {
 	//!!!
 	return NULL;
@@ -238,21 +238,21 @@ const rrVision::RRMatrix3x4* M3dsImporter::getInvWorldMatrix()
 //
 // main
 
-rrVision::RRObject* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
+rr::RRObject* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
 {
-	rrVision::RRObject* importer = new M3dsImporter(model, objectIdx);
+	rr::RRObject* importer = new M3dsImporter(model, objectIdx);
 #ifdef VERIFY
 	importer->getCollider()->getImporter()->verify(reporter,NULL);
 #endif
 	return importer;
 }
 
-void new_3ds_importer(Model_3DS* model,rrVision::RRVisionApp* app)
+void new_3ds_importer(Model_3DS* model,rr::RRVisionApp* app)
 {
-	rrVision::RRVisionApp::Objects objects;
+	rr::RRVisionApp::Objects objects;
 	for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 	{
-		objects.push_back(rrVision::RRVisionApp::Object(new_3ds_importer(model,i),new rrVision::RRObjectIlluminationForEditor(model->Objects[i].numVerts)));
+		objects.push_back(rr::RRVisionApp::Object(new_3ds_importer(model,i),new rr::RRObjectIlluminationForEditor(model->Objects[i].numVerts)));
 	}
 	if(app) app->setObjects(objects);
 }

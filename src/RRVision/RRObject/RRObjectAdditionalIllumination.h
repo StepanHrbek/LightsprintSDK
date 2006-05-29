@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "RRVision.h"
 
-namespace rrVision
+namespace rr
 {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ public:
 	}
 
 	// filter
-	virtual const rrCollider::RRCollider* getCollider() const
+	virtual const rr::RRCollider* getCollider() const
 	{
 		return original->getCollider();
 	}

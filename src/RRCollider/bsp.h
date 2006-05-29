@@ -5,7 +5,7 @@
 
 //#define TEST // robustness test
 
-namespace rrCollider
+namespace rr
 {
 	struct VERTEX 
 	{

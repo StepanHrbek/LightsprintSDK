@@ -15,14 +15,14 @@
 //
 // WorldSceneImporter
 
-class WorldObjectImporter : public rrVision::RRObject
+class WorldObjectImporter : public rr::RRObject
 {
 public:
-	WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces, rrCollider::RRCollider::IntersectTechnique intersectTechnique);
+	WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces, rr::RRCollider::IntersectTechnique intersectTechnique);
 	virtual ~WorldObjectImporter();
 
 	// must not change during object lifetime
-	virtual const rrCollider::RRCollider* getCollider() const {return collider;}
+	virtual const rr::RRCollider* getCollider() const {return collider;}
 	virtual unsigned           getTriangleSurface(unsigned t) const;
 	virtual const RRSurface*   getSurface(unsigned si) const;
 
@@ -35,18 +35,18 @@ private:
 	OBJECT*     object;
 	Surface**   surface;
 	unsigned    surfaces;
-	rrCollider::RRCollider* collider;
+	rr::RRCollider* collider;
 	RRMatrix3x4 matrix;
 	RRMatrix3x4 inverse;
 };
 
-WorldObjectImporter::WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces, rrCollider::RRCollider::IntersectTechnique intersectTechnique)
+WorldObjectImporter::WorldObjectImporter(WORLD* aworld, OBJECT* aobject, Surface** asurface, unsigned asurfaces, rr::RRCollider::IntersectTechnique intersectTechnique)
 {
 	world = aworld;
 	object = aobject;
 	surface = asurface;
 	surfaces = asurfaces;
-	collider = rrCollider::RRCollider::create(new WorldMeshImporter(aobject),intersectTechnique);
+	collider = rr::RRCollider::create(new WorldMeshImporter(aobject),intersectTechnique);
 	assert(world);
 	assert(surface);
 
@@ -195,7 +195,7 @@ static void load_materials(WORLD* world, char *material_mgf)
 	}
 }
 
-RRScene *convert_world2scene(WORLD *world, char *material_mgf, rrCollider::RRCollider::IntersectTechnique intersectTechnique)
+RRScene *convert_world2scene(WORLD *world, char *material_mgf, rr::RRCollider::IntersectTechnique intersectTechnique)
 {
 	// load surfaces
 	load_materials(world, material_mgf);

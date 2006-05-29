@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-namespace rrCollider
+namespace rr
 {
 
 #define TREE_VERSION 0

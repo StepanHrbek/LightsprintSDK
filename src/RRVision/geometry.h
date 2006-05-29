@@ -5,7 +5,7 @@
 #include "RRMath.h" // vec3 support in rrCollider
 #include <float.h> // _finite
 
-namespace rrVision
+namespace rr
 {
 
 #define S8           signed char

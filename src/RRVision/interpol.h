@@ -4,7 +4,7 @@
 
 #include <set>
 
-namespace rrVision
+namespace rr
 {
 
 /*

@@ -3,14 +3,14 @@
 #include <assert.h>
 #include "RRCollider.h"
 
-namespace rrCollider
+namespace rr
 {
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // Base class for mesh import filters.
 
-class RRMeshFilter : public rrCollider::RRMesh
+class RRMeshFilter : public RRMesh
 {
 public:
 	RRMeshFilter(const RRMesh* original)

@@ -16,7 +16,7 @@ float SCALE  = 2; // scale loaded object
 //
 // MgfImporter class
 
-class MgfImporter : public rrVision::RRObject, rrCollider::RRMesh
+class MgfImporter : public rr::RRObject, rr::RRMesh
 {
 public:
 	MgfImporter(char* filename);
@@ -31,16 +31,16 @@ public:
 //	virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
 	// RRObject
-	virtual const rrCollider::RRCollider* getCollider() const;
+	virtual const rr::RRCollider* getCollider() const;
 	virtual unsigned                      getTriangleSurface(unsigned t) const;
-	virtual const rrVision::RRSurface*    getSurface(unsigned s) const;
+	virtual const rr::RRSurface*    getSurface(unsigned s) const;
 
 private:
 	// geometry
 	struct VertexInfo
 	{
 		Vertex v; // vertex coordinates
-		rrVision::RRVec3 n; // normal coordinates
+		rr::RRVec3 n; // normal coordinates
 	};
 	struct TriangleInfo
 	{
@@ -53,11 +53,11 @@ private:
 	std::vector<TriangleInfo> triangles;
 
 	// surfaces
-	std::vector<rrVision::RRSurface> surfaces;
+	std::vector<rr::RRSurface> surfaces;
 	static void* add_material(C_MATERIAL *m);
 	
 	// collider
-	rrCollider::RRCollider*      collider;
+	rr::RRCollider*      collider;
 };
 
 
@@ -84,7 +84,7 @@ void* MgfImporter::add_vertex(FLOAT *p,FLOAT *n)
 	return (void *)(mgfImporter->vertices.size()-1);
 }
 
-static void fillSurface(rrVision::RRSurface *s,C_MATERIAL *m)
+static void fillSurface(rr::RRSurface *s,C_MATERIAL *m)
 {
 	s->reset(m->sided==2);
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,&s->diffuseReflectance.x);
@@ -103,7 +103,7 @@ static void fillSurface(rrVision::RRSurface *s,C_MATERIAL *m)
 void* MgfImporter::add_material(C_MATERIAL *m)
 {
 	if(!mgfImporter) return NULL;
-	rrVision::RRSurface s;
+	rr::RRSurface s;
 	fillSurface(&s,m);
 	mgfImporter->surfaces.push_back(s);
 	return (void *)(mgfImporter->surfaces.size()-1);
@@ -134,7 +134,7 @@ MgfImporter::MgfImporter(char* filename)
 	//printf("materials: %i\n",getNumSurfaces());
 
 	// create collider
-	collider = rrCollider::RRCollider::create(this,rrCollider::RRCollider::IT_BSP_FASTEST);
+	collider = rr::RRCollider::create(this,rr::RRCollider::IT_BSP_FASTEST);
 }
 
 
@@ -179,7 +179,7 @@ void MgfImporter::getTriangle(unsigned t, Triangle& out) const
 //
 // MgfImporter implements RRObject
 
-const rrCollider::RRCollider* MgfImporter::getCollider() const
+const rr::RRCollider* MgfImporter::getCollider() const
 {
 	return collider;
 }
@@ -196,7 +196,7 @@ unsigned MgfImporter::getTriangleSurface(unsigned t) const
 	return s;
 }
 
-const rrVision::RRSurface* MgfImporter::getSurface(unsigned s) const
+const rr::RRSurface* MgfImporter::getSurface(unsigned s) const
 {
 	if(s>=surfaces.size()) 
 	{
@@ -211,7 +211,7 @@ const rrVision::RRSurface* MgfImporter::getSurface(unsigned s) const
 //
 // main
 
-rrVision::RRObject* new_mgf_importer(char* filename)
+rr::RRObject* new_mgf_importer(char* filename)
 {
 	return new MgfImporter(filename);
 }

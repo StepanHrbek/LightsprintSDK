@@ -326,18 +326,18 @@ CaptureUv captureUv;
 // external dependencies of MyApp:
 // z m3ds detekuje materialy
 // renderer je pouzit k captureDirect
-class MyApp : public rrVision::RRVisionApp
+class MyApp : public rr::RRVisionApp
 {
 protected:
 	virtual void detectMaterials()
 	{
 		delete[] surfaces;
 		numSurfaces = m3ds.numMaterials;
-		surfaces = new rrVision::RRSurface[numSurfaces];
+		surfaces = new rr::RRSurface[numSurfaces];
 		for(unsigned i=0;i<numSurfaces;i++)
 		{
 			surfaces[i].reset(false);
-			surfaces[i].diffuseReflectance = rrVision::RRColor(m3ds.Materials[i].color.r/255.0,m3ds.Materials[i].color.g/255.0,m3ds.Materials[i].color.b/255.0);
+			surfaces[i].diffuseReflectance = rr::RRColor(m3ds.Materials[i].color.r/255.0,m3ds.Materials[i].color.g/255.0,m3ds.Materials[i].color.b/255.0);
 		}
 	}
 	virtual void detectDirectIllumination()
@@ -379,7 +379,7 @@ protected:
 		// Allocate the index buffer memory as necessary.
 		GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
 
-		rrCollider::RRMesh* mesh = multiObject->getCollider()->getImporter();
+		rr::RRMesh* mesh = multiObject->getCollider()->getImporter();
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
@@ -399,7 +399,7 @@ protected:
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
 
 			// dbg print
-			//rrVision::RRColor suma = rrVision::RRColor(0);
+			//rr::RRColor suma = rr::RRColor(0);
 
 			// accumulate triangle powers
 			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
@@ -418,12 +418,12 @@ protected:
 						sum[2] += color&255;
 					}
 				// pass power to rrobject
-				rrVision::RRColor avg = rrVision::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-				multiObject->setTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITANCE,avg);
+				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
+				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITANCE,avg);
 
 				// debug print
-				//rrVision::RRColor tmp = rrVision::RRColor(0);
-				//rrobject->getTriangleAdditionalMeasure(triangleIndex,rrVision::RM_EXITING_FLUX,tmp);
+				//rr::RRColor tmp = rr::RRColor(0);
+				//rrobject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
 				//suma+=tmp;
 			}
 			//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
@@ -1645,7 +1645,7 @@ void parseOptions(int argc, char **argv)
 
 void idle()
 {
-	if(app->calculate()==rrVision::RRScene::IMPROVED)
+	if(app->calculate()==rr::RRScene::IMPROVED)
 	{
 		rendererNonCaching->setChannel(RRGLObjectRenderer::CC_REFLECTED_EXITANCE);
 		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
@@ -1657,7 +1657,7 @@ void idle()
 
 int main(int argc, char **argv)
 {
-	rrVision::RRLicense::registerLicense("","");
+	rr::RRLicense::registerLicense("","");
 
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
@@ -1729,12 +1729,12 @@ int main(int argc, char **argv)
 	}
 
 	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
-	rrVision::RRScene::setStateF(rrVision::RRScene::SUBDIVISION_SPEED,0);
-	rrVision::RRScene::setState(rrVision::RRScene::GET_SOURCE,0);
-	rrVision::RRScene::setState(rrVision::RRScene::GET_REFLECTED,1);
-	//rrVision::RRScene::setState(rrVision::GET_SMOOTH,0);
-	rrVision::RRScene::setStateF(rrVision::RRScene::MIN_FEATURE_SIZE,0.15f);
-	//rrVision::RRScene::setStateF(rrVision::MAX_SMOOTH_ANGLE,0.4f);
+	rr::RRScene::setStateF(rr::RRScene::SUBDIVISION_SPEED,0);
+	rr::RRScene::setState(rr::RRScene::GET_SOURCE,0);
+	rr::RRScene::setState(rr::RRScene::GET_REFLECTED,1);
+	//rr::RRScene::setState(rr::GET_SMOOTH,0);
+	rr::RRScene::setStateF(rr::RRScene::MIN_FEATURE_SIZE,0.15f);
+	//rr::RRScene::setStateF(rr::MAX_SMOOTH_ANGLE,0.4f);
 
 	printf("Loading and preprocessing scene (~15 sec)...");
 #ifdef _3DS

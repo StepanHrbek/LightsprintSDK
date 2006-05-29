@@ -39,7 +39,7 @@ const void* RRRenderer::getParams(unsigned& length) const
 //
 // RRGLObjectRenderer
 
-RRGLObjectRenderer::RRGLObjectRenderer(rrVision::RRObject* objectImporter, rrVision::RRScene* radiositySolver)
+RRGLObjectRenderer::RRGLObjectRenderer(rr::RRObject* objectImporter, rr::RRScene* radiositySolver)
 {
 	params.object = objectImporter;
 	params.scene = radiositySolver;
@@ -78,14 +78,14 @@ void RRGLObjectRenderer::render()
 		break;
 	case CC_SOURCE_IRRADIANCE:
 	case CC_SOURCE_EXITANCE:
-		rrVision::RRScene::setState(rrVision::RRScene::GET_SOURCE,1);
-		rrVision::RRScene::setState(rrVision::RRScene::GET_REFLECTED,0);
+		rr::RRScene::setState(rr::RRScene::GET_SOURCE,1);
+		rr::RRScene::setState(rr::RRScene::GET_REFLECTED,0);
 		glShadeModel(GL_SMOOTH);
 		break;
 	case CC_REFLECTED_IRRADIANCE:
 	case CC_REFLECTED_EXITANCE:
-		rrVision::RRScene::setState(rrVision::RRScene::GET_SOURCE,0);
-		rrVision::RRScene::setState(rrVision::RRScene::GET_REFLECTED,1);
+		rr::RRScene::setState(rr::RRScene::GET_SOURCE,0);
+		rr::RRScene::setState(rr::RRScene::GET_REFLECTED,1);
 		glShadeModel(GL_SMOOTH);
 		break;
 	default:
@@ -95,12 +95,12 @@ void RRGLObjectRenderer::render()
 	checkGlError();
 	glBegin(GL_TRIANGLES);
 	assert(params.object);
-	rrCollider::RRMesh* meshImporter = params.object->getCollider()->getImporter();
+	rr::RRMesh* meshImporter = params.object->getCollider()->getImporter();
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
 	for(unsigned triangleIdx=0;triangleIdx<numTriangles;triangleIdx++)
 	{
-		rrCollider::RRMesh::Triangle tri;
+		rr::RRMesh::Triangle tri;
 		meshImporter->getTriangle(triangleIdx,tri);
 		switch(params.cc)
 		{
@@ -114,7 +114,7 @@ void RRGLObjectRenderer::render()
 				unsigned surfaceIdx = params.object->getTriangleSurface(triangleIdx);
 				if(surfaceIdx!=oldSurfaceIdx)
 				{
-					const rrVision::RRSurface* surface = params.object->getSurface(surfaceIdx);
+					const rr::RRSurface* surface = params.object->getSurface(surfaceIdx);
 					assert(surface);
 					// nastavuje culling podle materialu
 					// vypnuto protoze kdyz to na nvidii vlozim do display listu, pri jeho provadeni hlasi error
@@ -132,7 +132,7 @@ void RRGLObjectRenderer::render()
 				}
 			}
 		}
-		rrVision::RRObject::TriangleNormals triangleNormals;
+		rr::RRObject::TriangleNormals triangleNormals;
 		bool setNormals = params.cc!=CC_NO_COLOR && params.cc!=CC_TRIANGLE_INDEX;
 		if(setNormals)
 		{
@@ -144,7 +144,7 @@ void RRGLObjectRenderer::render()
 			{
 				glNormal3fv(&triangleNormals.norm[v].x);
 			}
-			rrCollider::RRMesh::Vertex vertex;
+			rr::RRMesh::Vertex vertex;
 			meshImporter->getVertex(tri.m[v],vertex);
 
 			switch(params.cc)
@@ -152,16 +152,16 @@ void RRGLObjectRenderer::render()
 				case CC_SOURCE_IRRADIANCE:
 				case CC_REFLECTED_IRRADIANCE:
 					{
-					rrVision::RRColor color;
-					params.scene->getTriangleMeasure(0,triangleIdx,v,rrVision::RM_IRRADIANCE,color);
+					rr::RRColor color;
+					params.scene->getTriangleMeasure(0,triangleIdx,v,rr::RM_IRRADIANCE,color);
 					glColor3fv(&color.x);
 					break;
 					}
 				case CC_SOURCE_EXITANCE:
 				case CC_REFLECTED_EXITANCE:
 					{
-					rrVision::RRColor color;
-					params.scene->getTriangleMeasure(0,triangleIdx,v,rrVision::RM_EXITANCE,color);
+					rr::RRColor color;
+					params.scene->getTriangleMeasure(0,triangleIdx,v,rr::RM_EXITANCE,color);
 					glColor3fv(&color.x);
 					break;
 					}

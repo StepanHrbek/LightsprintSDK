@@ -18,7 +18,7 @@
 #include <vector>
 #include "RRVision.h"
 
-namespace rrVision
+namespace rr
 {
 
 // *******************************************************************************
@@ -347,13 +347,13 @@ namespace rrVision
 			if(pixelBufferUnwrap)
 				delete[] pixelBufferUnwrap;
 			pixelBufferUnwrap = new RRVec2[numPreImportVertices];
-			rrCollider::RRMesh* mesh = object->getCollider()->getImporter();
+			rr::RRMesh* mesh = object->getCollider()->getImporter();
 			unsigned numPostImportTriangles = mesh->getNumTriangles();
 			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 			{
 				RRObject::TriangleMapping triangleMapping;
 				object->getTriangleMapping(postImportTriangle,triangleMapping);
-				rrCollider::RRMesh::Triangle triangle;
+				rr::RRMesh::Triangle triangle;
 				mesh->getTriangle(postImportTriangle,triangle);
 				for(unsigned v=0;v<3;v++)
 				{

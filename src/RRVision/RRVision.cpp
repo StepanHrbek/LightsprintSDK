@@ -2,10 +2,10 @@
 prozatim odsunuto z headeru:
 
 // get intersection
-typedef       bool INTERSECT(rrCollider::RRRay*);
-typedef       ObjectHandle ENUM_OBJECTS(rrCollider::RRRay*, INTERSECT);
+typedef       bool INTERSECT(rr::RRRay*);
+typedef       ObjectHandle ENUM_OBJECTS(rr::RRRay*, INTERSECT);
 void          setObjectEnumerator(ENUM_OBJECTS enumerator);
-bool          intersect(rrCollider::RRRay* ray);
+bool          intersect(rr::RRRay* ray);
 
 void          sceneSetColorFilter(const RRReal* colorFilter);
 */
@@ -20,7 +20,7 @@ void          sceneSetColorFilter(const RRReal* colorFilter);
 #include "rrcore.h"
 #include "RRVision.h"
 
-namespace rrVision
+namespace rr
 {
 
 

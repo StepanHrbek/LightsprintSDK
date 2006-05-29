@@ -4,7 +4,7 @@
 #include "rrcore.h"
 #include "RRVision.h"
 
-namespace rrVision
+namespace rr
 {
 
 #define DBG(a) //a
@@ -95,14 +95,14 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
-	rrCollider::RRMesh* meshImporter = importer->getCollider()->getImporter();
+	rr::RRMesh* meshImporter = importer->getCollider()->getImporter();
 	Object *obj=new Object(meshImporter->getNumVertices(),meshImporter->getNumTriangles());
 	obj->importer = importer;
 
 	// import vertices
-	assert(sizeof(rrCollider::RRMesh::Vertex)==sizeof(Vec3));
+	assert(sizeof(rr::RRMesh::Vertex)==sizeof(Vec3));
 	for(unsigned i=0;i<obj->vertices;i++) 
-		meshImporter->getVertex(i,*(rrCollider::RRMesh::Vertex*)&obj->vertex[i]);
+		meshImporter->getVertex(i,*(rr::RRMesh::Vertex*)&obj->vertex[i]);
 
 #ifdef SUPPORT_TRANSFORMS
 	obj->transformMatrix=importer->getWorldMatrix();
@@ -121,7 +121,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 //#endif
 	for(unsigned fi=0;fi<obj->triangles;fi++) 
 	{
-		rrCollider::RRMesh::Triangle tv;
+		rr::RRMesh::Triangle tv;
 		meshImporter->getTriangle(fi,tv);
 		unsigned si = importer->getTriangleSurface(fi);
 		const RRSurface* s=importer->getSurface(si);
@@ -135,7 +135,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 //#endif
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
-/*		rrCollider::RRMesh::Vertex v[3];
+/*		rr::RRMesh::Vertex v[3];
 		meshImporter->getVertex(tv[0],v[0]);
 		meshImporter->getVertex(tv[1],v[1]);
 		meshImporter->getVertex(tv[2],v[2]);*/
@@ -293,11 +293,11 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			Vec3 normal = normals.norm[vertex];
 			assert(fabs(size2(normal)-1)<0.001);
 			// get point
-			rrCollider::RRMesh* meshImporter = objectImporter->getCollider()->getImporter();
-			rrCollider::RRMesh::Triangle triangleIndices;
+			rr::RRMesh* meshImporter = objectImporter->getCollider()->getImporter();
+			rr::RRMesh::Triangle triangleIndices;
 			meshImporter->getTriangle(triangle,triangleIndices);
 			unsigned vertexIdx = triangleIndices[vertex];
-			rrCollider::RRMesh::Vertex vertexBody;
+			rr::RRMesh::Vertex vertexBody;
 			meshImporter->getVertex(vertexIdx,vertexBody);
 			Vec3 point = vertexBody;
 			// transform to worldspace

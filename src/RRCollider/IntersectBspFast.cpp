@@ -10,7 +10,7 @@
 #include <setjmp.h>
 #endif
 
-namespace rrCollider
+namespace rr
 {
 
 #ifdef TEST

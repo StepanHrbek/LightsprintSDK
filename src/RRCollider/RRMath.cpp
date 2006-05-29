@@ -2,7 +2,7 @@
 
 #include <math.h> // sqrt
 
-namespace rrCollider
+namespace rr
 {
 
 RRVec3 operator -(const RRVec3& a)

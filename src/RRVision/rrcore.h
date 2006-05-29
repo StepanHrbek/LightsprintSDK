@@ -53,7 +53,7 @@
 #define STATISTIC(a)
 #define STATISTIC_INC(a) STATISTIC(RRScene::getSceneStatistics()->a++)
 
-namespace rrVision
+namespace rr
 {
 
 #define DBGLINE
@@ -95,7 +95,7 @@ namespace rrVision
 // license
 
 extern bool                     licenseStatusValid;
-extern rrVision::RRLicense::LicenseStatus  licenseStatus;
+extern rr::RRLicense::LicenseStatus  licenseStatus;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -733,7 +733,7 @@ public:
 	// intersections
 	Bound   bound;
 	void    detectBounds();
-	Triangle* intersection(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction);
+	Triangle* intersection(rr::RRRay& ray, const Point3& eye, const Vec3& direction);
 
 	char    *name;
 	bool    check();
@@ -756,7 +756,7 @@ public:
 #ifdef SUPPORT_DYNAMIC
 }
 #include "dynamic.h"
-namespace rrVision
+namespace rr
 {
 #endif
 
@@ -775,10 +775,10 @@ public:
 	unsigned objects;
 	RRSurface *surface;
 	unsigned surfaces;
-	rrCollider::RRCollider* multiCollider;
+	rr::RRCollider* multiCollider;
 
-	Triangle* intersectionStatic(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
-	Triangle* intersectionDynobj(rrCollider::RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
+	Triangle* intersectionStatic(rr::RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
+	Triangle* intersectionDynobj(rr::RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
 	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power=HitChannels(1));
 	Channels  gatherIrradiance(Point3 eye,Vec3 normal,Triangle *skip,Channels power=Channels(1)); // decreasing power is used only for termination criteria. returns irradiance in W/m^2
 	Channels  gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Channels power=Channels(1));
@@ -828,7 +828,7 @@ public:
 	private:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
-	void    draw(rrVision::RRScene* scene, real quality);
+	void    draw(rr::RRScene* scene, real quality);
 	RRScene::Improvement resetStaticIllumination(bool resetFactors);
 	void    updateMatrices();
 
@@ -860,7 +860,7 @@ public:
 		unsigned shotsForFactorsTotal;
 		unsigned shotsTotal;
 		TReflectors staticReflectors; // top nodes in static Triangle trees
-		rrCollider::RRMesh** multiObjectMeshes4Delete; // to be deleted with multiCollider
+		rr::RRMesh** multiObjectMeshes4Delete; // to be deleted with multiCollider
 
 };
 

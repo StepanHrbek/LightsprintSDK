@@ -18,7 +18,7 @@
 #endif
 
 
-namespace rrCollider
+namespace rr
 {
 
 void RRMesh::getTriangleBody(unsigned i, TriangleBody& out) const
@@ -54,7 +54,7 @@ bool RRMesh::getTrianglePlane(unsigned i, Plane& out) const
 }
 
 // calculates triangle area from triangle vertices
-real calculateArea(RRVec3 v0, RRVec3 v1, RRVec3 v2)
+RRReal calculateArea2(RRVec3 v0, RRVec3 v1, RRVec3 v2)
 {
 	RRReal a=size2(v1-v0);
 	RRReal b=size2(v2-v0);
@@ -70,7 +70,7 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 	getVertex(t[0],v[0]);
 	getVertex(t[1],v[1]);
 	getVertex(t[2],v[2]);
-	RRReal area = calculateArea(v[0],v[1],v[2]);
+	RRReal area = calculateArea2(v[0],v[1],v[2]);
 	return area;
 }
 

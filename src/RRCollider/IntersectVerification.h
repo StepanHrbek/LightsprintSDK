@@ -3,7 +3,7 @@
 
 #include "IntersectLinear.h"
 
-namespace rrCollider
+namespace rr
 {
 
 	class IntersectVerification : public IntersectLinear

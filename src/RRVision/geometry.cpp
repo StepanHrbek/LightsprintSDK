@@ -3,7 +3,7 @@
 #include <memory.h>
 #include "geometry.h"
 
-namespace rrVision
+namespace rr
 {
 
 //#define FAST_BOUND                // fast approximate bounding sphere intersection

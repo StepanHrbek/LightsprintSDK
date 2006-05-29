@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "RRVision.h"
 
-namespace rrVision
+namespace rr
 {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ public:
 	{
 		inherited = object;
 	}
-	virtual const rrCollider::RRCollider* getCollider() const
+	virtual const rr::RRCollider* getCollider() const
 	{
 		return inherited->getCollider();
 	}

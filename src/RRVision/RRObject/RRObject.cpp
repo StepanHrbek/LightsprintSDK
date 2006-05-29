@@ -9,7 +9,7 @@
 #include "RRObjectMulti.h"
 #include "RRObjectAdditionalIllumination.h"
 
-namespace rrVision
+namespace rr
 {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ void RRObject::getTriangleNormals(unsigned t, TriangleNormals& out) const
 		assert(0);
 		return;
 	}
-	rrCollider::RRMesh::TriangleBody tb;
+	rr::RRMesh::TriangleBody tb;
 	getCollider()->getImporter()->getTriangleBody(t,tb);
 	Vec3 norm = ortogonalTo(tb.side1,tb.side2);
 	norm *= 1/size(norm);
@@ -71,19 +71,19 @@ const RRMatrix3x4* RRObject::getInvWorldMatrix()
 //
 // RRObject instance factory
 
-rrCollider::RRMesh* RRObject::createWorldSpaceMesh()
+rr::RRMesh* RRObject::createWorldSpaceMesh()
 {
 	//!!! az bude refcounting, muzu vracet getCollider()->getImporter()
 	return new RRTransformedMeshFilter(getCollider()->getImporter(),getWorldMatrix());
 }
 
-RRObject* RRObject::createWorldSpaceObject(rrCollider::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
+RRObject* RRObject::createWorldSpaceObject(rr::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
 {
 	//!!! az bude refcounting, muzu vracet this
 	return new RRTransformedObjectFilter(this,intersectTechnique);
 }
 
-RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
+RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, rr::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
 {
 	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,maxStitchDistance,optimizeTriangles,cacheLocation);
 }
@@ -97,14 +97,14 @@ RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination()
 //
 // RRObjectSurfaceImporter
 
-class RRAcceptFirstVisibleSurfaceImporter : public rrCollider::RRAcceptHit
+class RRAcceptFirstVisibleSurfaceImporter : public rr::RRAcceptHit
 {
 public:
 	RRAcceptFirstVisibleSurfaceImporter(RRObject* aobject)
 	{
 		object = aobject;
 	}
-	virtual bool acceptHit(const rrCollider::RRRay* ray)
+	virtual bool acceptHit(const rr::RRRay* ray)
 	{
 		const RRSurface* surface = object->getSurface(object->getTriangleSurface(ray->hitTriangle));
 		return surface && surface->sideBits[ray->hitFrontSide?0:1].renderFrom;
@@ -113,7 +113,7 @@ private:
 	RRObject* object;
 };
 
-rrCollider::RRAcceptHit* RRObject::createAcceptFirstVisibleSurfaceImporter()
+rr::RRAcceptHit* RRObject::createAcceptFirstVisibleSurfaceImporter()
 {
 	return new RRAcceptFirstVisibleSurfaceImporter(this);
 }

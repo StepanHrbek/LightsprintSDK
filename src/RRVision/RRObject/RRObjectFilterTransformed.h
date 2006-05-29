@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "RRVision.h"
 
-namespace rrVision
+namespace rr
 {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -13,14 +13,14 @@ namespace rrVision
 class RRTransformedObjectFilter : public RRObjectFilter
 {
 public:
-	RRTransformedObjectFilter(RRObject* aobject, rrCollider::RRCollider::IntersectTechnique intersectTechnique)
+	RRTransformedObjectFilter(RRObject* aobject, rr::RRCollider::IntersectTechnique intersectTechnique)
 		: RRObjectFilter(aobject)
 	{
 		collider = NULL;
 		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		assert(m);
-		rrCollider::RRMesh* mesh = new RRTransformedMeshFilter(inherited->getCollider()->getImporter(),m);
-		collider = rrCollider::RRCollider::create(mesh,intersectTechnique);
+		rr::RRMesh* mesh = new RRTransformedMeshFilter(inherited->getCollider()->getImporter(),m);
+		collider = rr::RRCollider::create(mesh,intersectTechnique);
 	}
 	virtual ~RRTransformedObjectFilter()
 	{
@@ -58,7 +58,7 @@ public:
 			}
 	}
 private:
-	rrCollider::RRCollider* collider;
+	rr::RRCollider* collider;
 };
 
 }; // namespace

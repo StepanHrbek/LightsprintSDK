@@ -1,6 +1,6 @@
 #include "RRMeshLessVertices.h"
 
-namespace rrCollider
+namespace rr
 {
 
 int compareXyz(const void* elem1, const void* elem2)

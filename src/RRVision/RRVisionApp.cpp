@@ -8,7 +8,7 @@
 // odsunout do RRIlluminationPixelBuffer.cpp
 #include "swraster.h" // RRIlluminationPixelBufferInMemory
 
-namespace rrVision
+namespace rr
 {
 
 // odsunout do RRIlluminationPixelBuffer.cpp
@@ -128,7 +128,7 @@ void RRVisionApp::updateVertexLookupTable()
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
-		rrCollider::RRMesh* mesh =
+		rr::RRMesh* mesh =
 #ifdef MULTIOBJECT
 			multiObject->getCollider()->getImporter();
 #else
@@ -138,11 +138,11 @@ void RRVisionApp::updateVertexLookupTable()
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 
-		preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,std::pair<unsigned,unsigned>(rrCollider::RRMesh::UNDEFINED,rrCollider::RRMesh::UNDEFINED));
+		preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,std::pair<unsigned,unsigned>(rr::RRMesh::UNDEFINED,rr::RRMesh::UNDEFINED));
 
 		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 		{
-			rrCollider::RRMesh::Triangle postImportTriangleVertices;
+			rr::RRMesh::Triangle postImportTriangleVertices;
 			mesh->getTriangle(postImportTriangle,postImportTriangleVertices);
 			for(unsigned v=0;v<3;v++)
 			{
@@ -151,7 +151,7 @@ void RRVisionApp::updateVertexLookupTable()
 				{
 					unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
 #ifdef MULTIOBJECT
-					rrCollider::RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
+					rr::RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
 					if(preVertexMulti.object==objectHandle)
 						preVertex = preVertexMulti.index;
 					else
@@ -185,7 +185,7 @@ void RRVisionApp::readVertexResults()
 			unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
 			unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
 			RRColor indirect = RRColor(0);
-			if(t!=rrCollider::RRMesh::UNDEFINED && v!=rrCollider::RRMesh::UNDEFINED)
+			if(t!=rr::RRMesh::UNDEFINED && v!=rr::RRMesh::UNDEFINED)
 			{
 #ifdef MULTIOBJECT
 				scene->getTriangleMeasure(0,t,v,RM_IRRADIANCE,indirect);
@@ -241,7 +241,7 @@ void RRVisionApp::readPixelResults()
 #else
 		RRObject* object = getObject(objectHandle);
 #endif
-		rrCollider::RRMesh* mesh = object->getCollider()->getImporter();
+		rr::RRMesh* mesh = object->getCollider()->getImporter();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
@@ -259,7 +259,7 @@ void RRVisionApp::readPixelResults()
 #ifdef MULTIOBJECT
 			// multiObject must preserve mapping (all objects overlap in one map)
 			//!!! this is satisfied now, but it may change in future
-			rrCollider::RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
+			rr::RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
 			if(preImportTriangle.object==objectHandle)
 			{
 				scene->getSubtriangleMeasure(0,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc);
@@ -299,12 +299,12 @@ RRScene::Improvement RRVisionApp::calculate()
 		reportAction("Opening new radiosity solver.");
 		scene = new RRScene;
 #ifdef MULTIOBJECT
-		rrVision::RRObject** importers = new rrVision::RRObject*[objects.size()];
+		rr::RRObject** importers = new rr::RRObject*[objects.size()];
 		for(unsigned i=0;i<(unsigned)objects.size();i++)
 		{
 			importers[i] = objects.at(i).first;
 		}
-		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),rrCollider::RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
+		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),rr::RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
 		multiObject = object ? object->createAdditionalIllumination() : NULL;
 		delete[] importers;
 		scene->objectCreate(multiObject);

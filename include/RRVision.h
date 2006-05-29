@@ -34,31 +34,16 @@
 
 #include "RRCollider.h"
 
-namespace rrVision /// Encapsulates whole Vision library.
+namespace rr /// Encapsulates whole Vision library.
 {
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// primitives
 	//
-	// RRReal      - real number
-	// RRVec2      - vector in 2d
-	// RRVec3      - vector in 3d
 	// RRMatrix3x4 - matrix 3x4
 	//
 	//////////////////////////////////////////////////////////////////////////////
-
-	//! Real number used in most of calculations.
-	typedef rrCollider::RRReal RRReal;
-
-	//! Vector of 2 real numbers.
-	typedef rrCollider::RRVec2 RRVec2;
-
-	//! Vector of 3 real numbers.
-	typedef rrCollider::RRVec3 RRVec3;
-
-	//! Vector of 4 real numbers.
-	typedef rrCollider::RRVec4 RRVec4;
 
 	//! Matrix of 3x4 real numbers in row-major order.
 	//
@@ -157,7 +142,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 	//! - baking additional (primary) illumination into object, see createAdditionalIllumination()
 	//!
 	//! \section s3 Links between objects
-	//! RRScene -> RRObject -> rrCollider::RRCollider -> rrCollider::RRMesh
+	//! RRScene -> RRObject -> RRCollider -> RRMesh
 	//! \n where A -> B means that
 	//!  - A has pointer to B
 	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
@@ -178,7 +163,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		// must not change during object lifetime
 		//
 		//! Returns collider of underlying mesh. It is also access to mesh itself (via collider->getImporter()).
-		virtual const rrCollider::RRCollider* getCollider() const = 0;
+		virtual const RRCollider* getCollider() const = 0;
 		//! Returns triangle's surface index.
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
 		//! Returns s-th surface material description.
@@ -249,7 +234,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
-		rrCollider::RRMesh* createWorldSpaceMesh();
+		RRMesh* createWorldSpaceMesh();
 		//! Creates and returns RRObject that describes object after transformation to world space.
 		//
 		//! Newly created instance allocates no additional memory, but depends on
@@ -258,7 +243,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//!  Technique used for collider construction.
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
-		RRObject* createWorldSpaceObject(rrCollider::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
+		RRObject* createWorldSpaceObject(RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
 		//! Creates and returns union of multiple objects (contains geometry and surfaces from all objects).
 		//
 		//! Created instance (MultiObject) doesn't require additional memory, 
@@ -267,7 +252,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
 		//! \n For array with 1 element, pointer to that element may be returned.
 		//! \n\n For description how to access original triangles and vertices in MultiObject, 
-		//!  see rrCollider::RRMesh::createMultiMesh(). Note that for non-negative maxStitchDistance,
+		//!  see RRMesh::createMultiMesh(). Note that for non-negative maxStitchDistance,
 		//!  some vertices may be optimized out, so prefer PreImpport<->PostImport conversions.
 		//! \param objects
 		//!  Array of objects you want to create multiobject from.
@@ -286,7 +271,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 		//!  there are no degenerated triangles at all and you can save few cycles by setting false.
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
-		static RRObject*    createMultiObject(RRObject* const* objects, unsigned numObjects, rrCollider::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation);
+		static RRObject*    createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation);
 		//! Creates and returns object importer with space for per-triangle user-defined additional illumination.
 		//!
 		//! Created instance depends on original object, so it is not allowed to delete original object before newly created instance.
@@ -296,7 +281,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 
 		// collision helper
 		//! Creates and returns surface importer, that accepts first hit to visible side (according to material sideBit 'render').
-		rrCollider::RRAcceptHit* createAcceptFirstVisibleSurfaceImporter();
+		RRAcceptHit* createAcceptFirstVisibleSurfaceImporter();
 	};
 
 

@@ -36,7 +36,7 @@
 #include "world2rrvision.h"
 
 #include "../RRVision/rrcore.h"//!!!
-using namespace rrVision;
+using namespace rr;
 
 WORLD  *__world=NULL;
 MATRIX  __identity;
@@ -91,7 +91,7 @@ char *bp(char *fmt, ...)
 	return msg;
 }
 
-SubTriangle *locate_subtriangle(WORLD *w, rrVision::RRScene* scene, int x,int y)
+SubTriangle *locate_subtriangle(WORLD *w, RRScene* scene, int x,int y)
 {
 	raster_Clear();
 	bool old_gouraud=d_gouraud; d_gouraud=false;
@@ -111,7 +111,7 @@ void infoMisc(char *buf)
 	sprintf(buf+strlen(buf)," gamma=%0.3f bright=%0.3f",d_gamma,d_bright);
 }
 
-void Scene::draw(rrVision::RRScene* scene, real quality)
+void Scene::draw(RRScene* scene, real quality)
 {
  float backgroundColor[3]={0,0,0};
   //spravne ma byt =(material ve kterem je kamera)->color;
@@ -275,7 +275,7 @@ static bool endByAccuracy(void *context)
  return Accuracy>=100;
 }
 
-static void captureTgaAfter(Scene *scene,rrVision::RRScene* rrscene,char *name,real seconds,real minimalImprovementToShorten)
+static void captureTgaAfter(Scene *scene,RRScene* rrscene,char *name,real seconds,real minimalImprovementToShorten)
 {
  scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+seconds*PER_SEC));
  if (scene->shortenStaticImprovementIfBetterThan(minimalImprovementToShorten))
@@ -473,7 +473,7 @@ bool frameCalculate(Scene *scene)
    bool change=false;
    if(!preparing_capture && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames)) {
      TIME endTime=(TIME)(GETTIME+c_dynamicFrameTime*PER_SEC);
-     change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime)==rrVision::RRScene::IMPROVED;
+     change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime)==RRScene::IMPROVED;
      if(GETTIME>endTime) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
    }
    return change || p_flyingCamera || p_flyingObjects || n_dirtyCamera || n_dirtyObject;
@@ -482,7 +482,7 @@ bool frameCalculate(Scene *scene)
 
 // vykresli a pripadne grabne aktualni frame
 
-void frameDraw(Scene *scene, rrVision::RRScene* rrscene)
+void frameDraw(Scene *scene, RRScene* rrscene)
 {
 // d_fast=!p_flyingObjects && !p_flyingCamera && n_dirtyGeometry;
  scene->draw(rrscene,0.4);
@@ -576,7 +576,7 @@ void frameAdvance(Scene *scene)
 char  name[20];
 int   id=0;
 Scene *scene;
-rrVision::RRScene *rrscene;
+RRScene *rrscene;
 
 void displayFunc(void)
 {
@@ -820,7 +820,7 @@ int main(int argc, char **argv)
 #ifdef SUPPORT_KAMIL
  bool kamil=false;
 #endif
- rrCollider::RRCollider::IntersectTechnique intersectTechnique = rrCollider::RRCollider::IT_BSP_FASTEST;
+ RRCollider::IntersectTechnique intersectTechnique = RRCollider::IT_BSP_FASTEST;
  RRScene::setStateF(RRScene::SUBDIVISION_SPEED,1);
 
  assert(sizeof(U8)==1);
@@ -831,7 +831,7 @@ int main(int argc, char **argv)
  kb_init();
  glutInit(&argc,argv);
  render_init();
- rrCollider::RRLicenseCollider::registerLicense(
+ RRLicenseCollider::registerLicense(
 	 "Illusion Softworks, a.s.",
 	 "EDOPGAHNOCPHFBCBAEFLAGEBKGKMIKBPGJCDENHEJEEALOHGEG"
 	 "ILIAONJLJEMCLKBKEMLEPGODOKMDCCBKMPNFGNKOKIJOBABNKE"
@@ -839,7 +839,7 @@ int main(int argc, char **argv)
 	 "IBPJIJNJBDMDBMHAJLPGNIEDCOABMJCCFAIDJOGALFBNHGCFIJ"
 	 "JLKJHEOEIEOGCCGKIJBBBIEIMGNGBFBIILGJKMPDGHGMPLLPGH"
 	 "EILICEKFLG");
- rrVision::RRLicense::LicenseStatus status = rrVision::RRLicense::registerLicense(
+ RRLicense::LicenseStatus status = RRLicense::registerLicense(
 	 "Illusion Softworks, a.s.",
 	 "EDOPGAHNOCPHFBCBAEFLAGEBKGKMIKBPGJCDENHEJEEALOHGEG"
 	 "ILIAONJLJEMCLKBKEMLEPGODOKMDCCBKMPNFGNKOKIJOBABNKE"
@@ -884,7 +884,7 @@ int main(int argc, char **argv)
         {float tmp;if(sscanf(argv[i],"-bright%f",&tmp)==1) d_bright=tmp; else goto badarg;}
      else
      if (!strncmp(argv[i],"-it",2))
-        {int tmp;if(sscanf(argv[i],"-it%i",&tmp)==1) intersectTechnique = (rrCollider::RRCollider::IntersectTechnique)tmp; else goto badarg;}
+        {int tmp;if(sscanf(argv[i],"-it%i",&tmp)==1) intersectTechnique = (RRCollider::IntersectTechnique)tmp; else goto badarg;}
      else
      if (!strncmp(argv[i],"-smooth",7))
         {float tmp;if(sscanf(argv[i],"-smooth%f",&tmp)==1) RRScene::setStateF(RRScene::MAX_SMOOTH_ANGLE,tmp); else goto badarg;}

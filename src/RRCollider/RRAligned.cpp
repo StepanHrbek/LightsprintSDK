@@ -3,7 +3,7 @@
 #include <stdlib.h> // malloc, free
 
 
-namespace rrCollider
+namespace rr
 {
 
 void* AlignedMalloc(size_t size,int byteAlign)

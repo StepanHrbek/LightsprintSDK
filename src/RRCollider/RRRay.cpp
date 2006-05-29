@@ -4,7 +4,7 @@
 #include <memory.h>
 
 
-namespace rrCollider
+namespace rr
 {
 
 RRRay::RRRay()

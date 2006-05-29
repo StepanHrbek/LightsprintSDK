@@ -8,7 +8,7 @@
 #include <math.h>
 #include <stdio.h>
 
-namespace rrCollider
+namespace rr
 {
 
 // slightly modified version from IntersectLinear.cpp:

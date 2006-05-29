@@ -36,7 +36,7 @@
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
 
-namespace rrCollider /// Encapsulates whole Collider library.
+namespace rr /// Encapsulates whole Collider library.
 {
 
 	//////////////////////////////////////////////////////////////////////////////

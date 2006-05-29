@@ -6,8 +6,8 @@
 #include "rrcore.h"
 #include "intersections.h"
 
-using namespace rrCollider;
-namespace rrVision
+using namespace rr;
+namespace rr
 {
 
 #define DBG(a) //a
@@ -104,11 +104,11 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	return hitTriangle;
 }
 
-class SkipTriangle : public rrCollider::RRAcceptHit
+class SkipTriangle : public rr::RRAcceptHit
 {
 public:
 	SkipTriangle(unsigned askip) : skip(askip) {}
-	virtual bool acceptHit(const rrCollider::RRRay* ray)
+	virtual bool acceptHit(const rr::RRRay* ray)
 	{
 		return ray->hitTriangle!=skip;
 	}
