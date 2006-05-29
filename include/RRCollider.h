@@ -114,6 +114,8 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	};
 
 
+
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRMesh
@@ -363,7 +365,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRMeshSurfaceImporter
+	//  RRAcceptHit
 	//! Interface for non-trivial behaviour of mesh surfaces.
 	//
 	//! Derive to define behaviour of YOUR surfaces.
@@ -376,10 +378,10 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRMeshSurfaceImporter
+	class RRCOLLIDER_API RRAcceptHit
 	{
 	public:
-		virtual ~RRMeshSurfaceImporter() {}
+		virtual ~RRAcceptHit() {}
 
 		//! Arbitrates whether to accept or not to accept given hit (intersection of ray x mesh).
 		//
@@ -446,7 +448,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 		RRReal          rayLengthMin;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		unsigned        rayFlags;       ///< In. Flags that specify what to find.
-		RRMeshSurfaceImporter* surfaceImporter; ///< In. Optional surface importer for user-defined surface behaviour.
+		RRAcceptHit* surfaceImporter; ///< In. Optional surface importer for user-defined surface behaviour.
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
 		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.

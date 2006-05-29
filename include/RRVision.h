@@ -296,7 +296,7 @@ namespace rrVision /// Encapsulates whole Vision library.
 
 		// collision helper
 		//! Creates and returns surface importer, that accepts first hit to visible side (according to material sideBit 'render').
-		rrCollider::RRMeshSurfaceImporter* createAcceptFirstVisibleSurfaceImporter();
+		rrCollider::RRAcceptHit* createAcceptFirstVisibleSurfaceImporter();
 	};
 
 

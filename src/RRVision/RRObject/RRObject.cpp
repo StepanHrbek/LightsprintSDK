@@ -97,7 +97,7 @@ RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination()
 //
 // RRObjectSurfaceImporter
 
-class RRAcceptFirstVisibleSurfaceImporter : public rrCollider::RRMeshSurfaceImporter
+class RRAcceptFirstVisibleSurfaceImporter : public rrCollider::RRAcceptHit
 {
 public:
 	RRAcceptFirstVisibleSurfaceImporter(RRObject* aobject)
@@ -113,7 +113,7 @@ private:
 	RRObject* object;
 };
 
-rrCollider::RRMeshSurfaceImporter* RRObject::createAcceptFirstVisibleSurfaceImporter()
+rrCollider::RRAcceptHit* RRObject::createAcceptFirstVisibleSurfaceImporter()
 {
 	return new RRAcceptFirstVisibleSurfaceImporter(this);
 }

@@ -104,7 +104,7 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	return hitTriangle;
 }
 
-class SkipTriangle : public rrCollider::RRMeshSurfaceImporter
+class SkipTriangle : public rrCollider::RRAcceptHit
 {
 public:
 	SkipTriangle(unsigned askip) : skip(askip) {}

@@ -278,6 +278,7 @@ CHANGES
 - renamed RRMeshImporter -> RRMesh
 - renamed RRObjectImporter -> RRObject
 - renamed RRAdditionalObjectImporter -> RRObjectAdditionalIllumination
+- renamed RRMeshSurfaceImporter -> RRAcceptHit
 
 \section news3 2006.3.23
 
