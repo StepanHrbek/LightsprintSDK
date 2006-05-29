@@ -144,7 +144,7 @@ Welcome to Lightsprint libraries.
  Sample HelloVision shows you some of them on the most simple use case:
  -# Show your license number to rrVision::RRLicense.
  -# Create rrVision::RRScene.
- -# Create rrVision::RRObjectImporter using your object and insert it into scene. Repeat for all objects.
+ -# Create rrVision::RRObject using your object and insert it into scene. Repeat for all objects.
  -# Calculate global illumination using rrVision::RRScene::illuminationImprove().
  -# Read results using rrVision::RRScene::getTriangleMeasure().
 
@@ -249,8 +249,8 @@ Welcome to Lightsprint libraries.
 
 \section collider3 Basic usage scenario
  -# Show your license number to rrCollider::RRLicense.
- -# Create rrCollider::RRMeshImporter using your mesh.
- -# Create rrCollider::RRCollider using your mesh importer.
+ -# Create rrCollider::RRMesh using your mesh.
+ -# Create rrCollider::RRCollider using your mesh.
  -# Create rrCollider::RRRay using your ray.
  -# Call rrCollider::RRCollider::intersect() to find intersections. Repeat for all rays.
 
@@ -262,9 +262,9 @@ Welcome to Lightsprint libraries.
 
 NEW FEATURES
 
-- rrCollider::RRMeshImporter::createOptimizedTriangles()
-- rrVision::RRObjectImporter::createWorldSpaceObject()
-- rrVision::RRObjectImporter::createAcceptFirstVisibleSurfaceImporter()
+- rrCollider::RRMesh::createOptimizedTriangles()
+- rrVision::RRObject::createWorldSpaceObject()
+- rrVision::RRObject::createAcceptFirstVisible()
 
 CHANGES
 

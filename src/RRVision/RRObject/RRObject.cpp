@@ -97,10 +97,10 @@ RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination()
 //
 // RRObjectSurfaceImporter
 
-class RRAcceptFirstVisibleSurfaceImporter : public rr::RRAcceptHit
+class RRAcceptFirstVisible : public rr::RRAcceptHit
 {
 public:
-	RRAcceptFirstVisibleSurfaceImporter(RRObject* aobject)
+	RRAcceptFirstVisible(RRObject* aobject)
 	{
 		object = aobject;
 	}
@@ -113,9 +113,9 @@ private:
 	RRObject* object;
 };
 
-rr::RRAcceptHit* RRObject::createAcceptFirstVisibleSurfaceImporter()
+rr::RRAcceptHit* RRObject::createAcceptFirstVisible()
 {
-	return new RRAcceptFirstVisibleSurfaceImporter(this);
+	return new RRAcceptFirstVisible(this);
 }
 
 } // namespace

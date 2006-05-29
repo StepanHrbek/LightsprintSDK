@@ -281,7 +281,7 @@ namespace rr /// Encapsulates whole Vision library.
 
 		// collision helper
 		//! Creates and returns surface importer, that accepts first hit to visible side (according to material sideBit 'render').
-		RRAcceptHit* createAcceptFirstVisibleSurfaceImporter();
+		RRAcceptHit* createAcceptFirstVisible();
 	};
 
 
