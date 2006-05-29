@@ -549,7 +549,7 @@ namespace rrCollider /// Encapsulates whole Collider library.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRLicense
+	class RRCOLLIDER_API RRLicenseCollider
 	{
 	public:
 		//! Lets you present your license information.

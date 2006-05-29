@@ -85,7 +85,7 @@ RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTec
 // License
 
 
-void RRLicense::registerLicense(char* licenseOwner, char* licenseNumber)
+void RRLicenseCollider::registerLicense(char* licenseOwner, char* licenseNumber)
 {
 }
 

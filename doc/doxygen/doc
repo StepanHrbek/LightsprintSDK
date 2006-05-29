@@ -279,6 +279,7 @@ CHANGES
 - renamed RRObjectImporter -> RRObject
 - renamed RRAdditionalObjectImporter -> RRObjectAdditionalIllumination
 - renamed RRMeshSurfaceImporter -> RRAcceptHit
+- renamed rrCollider::RRLicense -> RRLicenseCollider
 
 \section news3 2006.3.23
 
