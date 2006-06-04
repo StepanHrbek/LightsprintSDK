@@ -74,6 +74,15 @@ RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTec
 	}
 }
 
+void RRCollider::intersectBatch(RRRay* ray, unsigned numRays)
+{
+	#pragma omp parallel for schedule(static,1)
+	for(unsigned i=0;i<numRays;i++)
+	{
+		if(!intersect(ray+i)) ray[i].hitDistance = -1;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRIntersectStats - statistics for library calls

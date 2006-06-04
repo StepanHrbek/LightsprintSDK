@@ -378,7 +378,7 @@ namespace rr /// Encapsulates whole Collider library.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRAcceptHit
+	class RRCOLLIDER_API RRAcceptHit // RRIntersectionHandler
 	{
 	public:
 		virtual ~RRAcceptHit() {}
@@ -448,7 +448,7 @@ namespace rr /// Encapsulates whole Collider library.
 		RRReal          rayLengthMin;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		unsigned        rayFlags;       ///< In. Flags that specify what to find.
-		RRAcceptHit* surfaceImporter; ///< In. Optional surface importer for user-defined surface behaviour.
+		RRAcceptHit*    surfaceImporter;///< In. Optional surface importer for user-defined surface behaviour.
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
 		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.
@@ -491,7 +491,7 @@ namespace rr /// Encapsulates whole Collider library.
 		//! \param intersectTechnique Technique used for accelerating collision searches. See #IntersectTechnique.
 		//! \param cacheLocation Optional location of cache, path to directory where acceleration structures may be cached.
 		//! \param buildParams Optional additional parameters, specific for each technique and not revealed for public use.
-		static RRCollider*   create(RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
+		static RRCollider* create(RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
 
 		//! Finds ray x mesh intersections.
 		//
@@ -527,15 +527,26 @@ namespace rr /// Encapsulates whole Collider library.
 		//! \n If you are not familiar with OpenMP, be sure to examine it. With OpenMP, which is built-in 
 		//!  feature of modern compilers, searching multiple intersections
 		//!  at the same time is matter of one or few lines of code.
-		virtual bool         intersect(RRRay* ray) const = 0;
+		virtual bool intersect(RRRay* ray) const = 0;
+		//! Intersects mesh with batch of rays at once.
+		//
+		//! Using batch intersections makes use of all available cores/processors.
+		//! It is faster to use one big batch compared to several small ones.
+		//! \param ray
+		//!  Array of rays. Each ray contains both inputs and outputs.
+		//!  For each ray, hitDistance=-1 says that ray had no intersection with mesh,
+		//!  any other value means that intersection was detected.
+		//! \param numRays
+		//!  Number of rays in array.
+		void intersectBatch(RRRay* ray, unsigned numRays);
 
 		// helpers
 		//! \returns Importer that was passed to create().
-		virtual RRMesh*    getImporter() const = 0;
+		virtual RRMesh* getImporter() const = 0;
 		//! \returns Technique used by collider. May differ from technique requested in create().
 		virtual IntersectTechnique getTechnique() const = 0;
 		//! \returns Total amount of system memory occupied by collider.
-		virtual unsigned           getMemoryOccupied() const = 0;
+		virtual unsigned getMemoryOccupied() const = 0;
 		virtual ~RRCollider() {};
 	};
 

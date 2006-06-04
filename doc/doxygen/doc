@@ -262,19 +262,20 @@ Welcome to Lightsprint libraries.
 
 NEW FEATURES
 
-- rrCollider::RRMesh::createOptimizedTriangles()
-- rrVision::RRObject::createWorldSpaceObject()
-- rrVision::RRObject::createAcceptFirstVisible()
+- rr::RRMesh::createOptimizedTriangles()
+- rr::RRObject::createWorldSpaceObject()
+- rr::RRObject::createAcceptFirstVisible()
+- rr:RRCollider::intersectBatch()
 
 CHANGES
 
 - new scheduler in radiosity solver
-  \n rrVision::RRScene::illuminationReset() supports preserving factors
+  \n rr::RRScene::illuminationReset() supports preserving factors
   \n 5% faster calculation on average
-- rrVision::RRObjectImporter::createMultiObject()
+- rr::RRObjectImporter::createMultiObject()
   \n can optimize triangles
 - fixed smoothing on complicated meshes
-- fixed delete 0 on rrCollider::RRAligned
+- fixed delete 0 on rr::RRAligned
 - renamed namespaces rrCollider and rrVision -> rr
 - renamed RRMeshImporter -> RRMesh
 - renamed RRObjectImporter -> RRObject
