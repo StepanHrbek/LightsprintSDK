@@ -2691,27 +2691,9 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	return source->grandpa;
 }
 
-// returns irradiance in W/m^2 in point with normal
+//! Returns radiance of distant point in given direction, in W/sr/m^2.
 // decreasing power is used only for termination criteria
-Channels Scene::gatherIrradiance(Point3 point,Vec3 normal,Triangle *skip,Channels power)
-{
-	Channels irradiance = Channels(0);
-	unsigned numRays = RRScene::getState(RRScene::GET_FINAL_GATHER);
-	Vec3 u3 = normalized(ortogonalTo(normal));
-	Vec3 v3 = normalized(ortogonalTo(normal,u3));
-	Vec3 dir = Vec3(1,0,0);
-	RRSideBits sideBits[2] = {{1,1,1,1,1,1},{0,0,1,0,0,0}}; // standard 1sided
-	for(unsigned i=0;i<numRays;i++)
-	{
-		getRandomExitDir(normal,u3,v3,sideBits,dir);
-		irradiance += gatherHitExitance(point,dir,skip,power);
-	}
-	return irradiance/numRays;
-}
-
-// returns exitance in W/m^2 in intersection of ray and scene
-// decreasing power is used only for termination criteria
-Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Channels power)
+Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels power)
 {
 	assert(IS_VEC3(eye));
 	assert(IS_VEC3(direction));
@@ -2740,6 +2722,24 @@ Channels Scene::gatherHitExitance(Point3 eye,Vec3 direction,Triangle *skip,Chann
 	Channels irradiance = incidentPower / hitTriangle->area;
 	Channels exitance = irradiance * hitTriangle->surface->diffuseReflectance;
 	return exitance;
+}
+
+// returns irradiance in W/m^2 in point with normal
+// decreasing power is used only for termination criteria
+Channels Scene::gatherIrradiance(Point3 point,Vec3 normal,Triangle *skip,Channels power)
+{
+	Channels irradiance = Channels(0);
+	unsigned numRays = RRScene::getState(RRScene::GET_FINAL_GATHER);
+	Vec3 u3 = normalized(ortogonalTo(normal));
+	Vec3 v3 = normalized(ortogonalTo(normal,u3));
+	Vec3 dir = Vec3(1,0,0);
+	RRSideBits sideBits[2] = {{1,1,1,1,1,1},{0,0,1,0,0,0}}; // standard 1sided
+	for(unsigned i=0;i<numRays;i++)
+	{
+		getRandomExitDir(normal,u3,v3,sideBits,dir);
+		irradiance += getRadiance(point,dir,skip,power);
+	}
+	return irradiance/numRays;
 }
 
 //////////////////////////////////////////////////////////////////////////////

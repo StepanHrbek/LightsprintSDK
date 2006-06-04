@@ -36,7 +36,7 @@
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
 
-namespace rr /// Encapsulates whole Collider library.
+namespace rr /// Encapsulates all Lightsprint libraries.
 {
 
 	//////////////////////////////////////////////////////////////////////////////

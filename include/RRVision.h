@@ -34,7 +34,7 @@
 
 #include "RRCollider.h"
 
-namespace rr /// Encapsulates whole Vision library.
+namespace rr /// Encapsulates all Lightsprint libraries.
 {
 
 	//////////////////////////////////////////////////////////////////////////////
