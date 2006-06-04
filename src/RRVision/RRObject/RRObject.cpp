@@ -97,10 +97,10 @@ RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination()
 //
 // RRObjectSurfaceImporter
 
-class RRAcceptFirstVisible : public rr::RRAcceptHit
+class RRCollisionHandlerFirstVisible : public rr::RRCollisionHandler
 {
 public:
-	RRAcceptFirstVisible(RRObject* aobject)
+	RRCollisionHandlerFirstVisible(RRObject* aobject)
 	{
 		object = aobject;
 	}
@@ -113,9 +113,9 @@ private:
 	RRObject* object;
 };
 
-rr::RRAcceptHit* RRObject::createAcceptFirstVisible()
+rr::RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible()
 {
-	return new RRAcceptFirstVisible(this);
+	return new RRCollisionHandlerFirstVisible(this);
 }
 
 } // namespace

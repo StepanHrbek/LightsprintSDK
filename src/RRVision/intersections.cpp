@@ -19,7 +19,7 @@ namespace rr
 unsigned __shot=0;
 
 // return first intersection with object
-//  const inputs in ray: rayLengthMin, rayLengthMax, rayFlags, surfaceImporter
+//  const inputs in ray: rayLengthMin, rayLengthMax, rayFlags, collisionHandler
 //  var inputs in ray:
 //  outputs in ray: all defined by rayFlags
 
@@ -104,7 +104,7 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	return hitTriangle;
 }
 
-class SkipTriangle : public rr::RRAcceptHit
+class SkipTriangle : public rr::RRCollisionHandler
 {
 public:
 	SkipTriangle(unsigned askip) : skip(askip) {}
@@ -133,7 +133,7 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	//  vzdalenosti od oka a blizsi testovat driv
 	Triangle* hitTriangle = NULL;
 	static SkipTriangle skipTriangle(INT_MAX);
-	ray.surfaceImporter = &skipTriangle;
+	ray.collisionHandler = &skipTriangle;
 
 	if(multiCollider)
 	{

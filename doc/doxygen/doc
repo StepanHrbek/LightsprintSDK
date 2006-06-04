@@ -258,13 +258,13 @@ Welcome to Lightsprint libraries.
 
 \page news What's new
 
-\section news3 2006.5.xx
+\section news4 2006.6.xx
 
 NEW FEATURES
 
 - rr::RRMesh::createOptimizedTriangles()
 - rr::RRObject::createWorldSpaceObject()
-- rr::RRObject::createAcceptFirstVisible()
+- rr::RRObject::createCollisionHandlerFirstVisible()
 - rr:RRCollider::intersectBatch()
 
 CHANGES
@@ -274,14 +274,18 @@ CHANGES
   \n 5% faster calculation on average
 - rr::RRObjectImporter::createMultiObject()
   \n can optimize triangles
+- name changes
+  \n namespaces rrCollider and rrVision -> rr
+  \n RRMeshImporter -> RRMesh
+  \n RRObjectImporter -> RRObject
+  \n RRAdditionalObjectImporter -> RRObjectAdditionalIllumination
+  \n RRMeshSurfaceImporter -> RRCollisionHandler
+  \n RRLicense -> RRLicenseCollider
+
+BUGFIXES
+
 - fixed smoothing on complicated meshes
 - fixed delete 0 on rr::RRAligned
-- renamed namespaces rrCollider and rrVision -> rr
-- renamed RRMeshImporter -> RRMesh
-- renamed RRObjectImporter -> RRObject
-- renamed RRAdditionalObjectImporter -> RRObjectAdditionalIllumination
-- renamed RRMeshSurfaceImporter -> RRAcceptHit
-- renamed RRLicense -> RRLicenseCollider
 
 \section news3 2006.3.23
 

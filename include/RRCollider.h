@@ -365,7 +365,7 @@ namespace rr /// Encapsulates whole Collider library.
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRAcceptHit
+	//  RRCollisionHandler
 	//! Interface for non-trivial behaviour of mesh surfaces.
 	//
 	//! Derive to define behaviour of YOUR surfaces.
@@ -378,10 +378,10 @@ namespace rr /// Encapsulates whole Collider library.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRAcceptHit // RRIntersectionHandler
+	class RRCOLLIDER_API RRCollisionHandler
 	{
 	public:
-		virtual ~RRAcceptHit() {}
+		virtual ~RRCollisionHandler() {}
 
 		//! Arbitrates whether to accept or not to accept given hit (intersection of ray x mesh).
 		//
@@ -448,7 +448,7 @@ namespace rr /// Encapsulates whole Collider library.
 		RRReal          rayLengthMin;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		unsigned        rayFlags;       ///< In. Flags that specify what to find.
-		RRAcceptHit*    surfaceImporter;///< In. Optional surface importer for user-defined surface behaviour.
+		RRCollisionHandler*    collisionHandler;///< In. Optional surface importer for user-defined surface behaviour.
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
 		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.
@@ -501,16 +501,16 @@ namespace rr /// Encapsulates whole Collider library.
 		//! Finds nearest intersection of ray and mesh in distance
 		//! <ray->rayLengthMin,ray->rayLengthMax> and fills output attributes in ray
 		//! specified by ray->rayFlags.
-		//! \n When ray->surfaceImporter!=NULL, it is called and it may accept or refuse intersection.
+		//! \n When ray->collisionHandler!=NULL, it is called and it may accept or refuse intersection.
 		//! \n When intersection is accepted, true is returned.
 		//! When intersection is rejected, search continues.
 		//! \n False is returned when there is no accepted intersection.
 		//!
 		//! There is exception for IntersectTechnique IT_LINEAR, intersections are found in random order.
 		//!
-		//! \section SurfaceImporter
-		//! Ray->surfaceImporter may be used
-		//! - To gather all intersections instead of just first one. SurfaceImporter may gather 
+		//! \section CollisionHandler
+		//! Ray->collisionHandler can be used
+		//! - To gather all intersections instead of just first one. CollisionHandler can gather
 		//!   or immediately process them. This is faster and more precise approach than multiple
 		//!   calls of %intersect() with increasing rayLengthMin to distance of last intersection.
 		//! - To not collide with optional parts of mesh that are turned off at this moment.

@@ -504,7 +504,7 @@ begin:
 			ray->hitDistance = distancePlane;
 #endif
 #ifdef SURFACE_CALLBACK
-			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) 
+			if(!ray->collisionHandler || ray->collisionHandler->acceptHit(ray)) 
 #endif
 				RETURN_SUCCESS;
 		}
@@ -648,7 +648,7 @@ begin:
 #endif
 			DBGLINE
 #ifdef SURFACE_CALLBACK
-			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) 
+			if(!ray->collisionHandler || ray->collisionHandler->acceptHit(ray)) 
 #endif
 				RETURN_SUCCESS;
 		}

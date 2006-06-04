@@ -200,7 +200,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		if(intersect_triangle(ray,&t2))
 		{
 			ray->hitTriangle = t;
-			if(ray->surfaceImporter) 
+			if(ray->collisionHandler) 
 			{
 #ifdef FILL_HITPOINT3D
 				if(ray->rayFlags&RRRay::FILL_POINT3D)
@@ -215,7 +215,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 				}
 #endif
 				// hits are reported in random order
-				if(ray->surfaceImporter->acceptHit(ray)) 
+				if(ray->collisionHandler->acceptHit(ray)) 
 				{
 					memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
 					ray->hitDistanceMax = ray->hitDistance;
@@ -231,7 +231,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	}
 	if(hit) 
 	{
-		if(ray->surfaceImporter)
+		if(ray->collisionHandler)
 		{
 			memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
 		}

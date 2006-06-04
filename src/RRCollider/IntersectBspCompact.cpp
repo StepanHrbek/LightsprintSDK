@@ -94,7 +94,7 @@ begin:
 			void *trianglesEnd = t->getTrianglesEnd();
 			bool hit = false;
 			char backup[sizeof(RRRay)];
-			if(ray->surfaceImporter) memcpy(backup,ray,sizeof(*ray)); // current best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
+			if(ray->collisionHandler) memcpy(backup,ray,sizeof(*ray)); // current best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
 			for(typename BspTree::_TriInfo* triangle=t->kd.getTrianglesBegin();triangle<trianglesEnd;triangle++)
 			{
 				RRMesh::TriangleBody srl;
@@ -102,7 +102,7 @@ begin:
 				if(intersect_triangle(ray,&srl,distanceMax))
 				{
 					ray->hitTriangle = triangle->getTriangleIndex();
-					if(ray->surfaceImporter)
+					if(ray->collisionHandler)
 					{
 #ifdef FILL_HITPOINT3D
 						if(ray->rayFlags&RRRay::FILL_POINT3D)
@@ -116,7 +116,7 @@ begin:
 							update_hitPlane(ray,importer);
 						}
 #endif
-						if(ray->surfaceImporter->acceptHit(ray)) 
+						if(ray->collisionHandler->acceptHit(ray)) 
 						{
 							memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
 							ray->hitDistanceMax = ray->hitDistance;
@@ -132,7 +132,7 @@ begin:
 			}
 			if(hit)
 			{
-				if(ray->surfaceImporter)
+				if(ray->collisionHandler)
 				{
 					memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
 				}
@@ -292,7 +292,7 @@ begin:
 #endif
 			DBGLINE
 #ifdef SURFACE_CALLBACK
-			if(!ray->surfaceImporter || ray->surfaceImporter->acceptHit(ray)) 
+			if(!ray->collisionHandler || ray->collisionHandler->acceptHit(ray)) 
 #endif
 				return true;
 		}
