@@ -14,7 +14,7 @@ namespace rr
 // odsunout do RRIlluminationPixelBuffer.cpp
 #define CLAMP(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 template <class Color>
-void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const RRScene::SubtriangleIllumination& si)
+void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const SubtriangleIllumination& si)
 {
 	raster_VERTEX vertex[3];
 	raster_POLYGON polygon[3];
@@ -213,7 +213,7 @@ struct RenderSubtriangleContext
 void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context)
 {
 	RenderSubtriangleContext* context2 = (RenderSubtriangleContext*)context;
-	RRScene::SubtriangleIllumination si2;
+	RRIlluminationPixelBuffer::SubtriangleIllumination si2;
 	for(unsigned i=0;i<3;i++)
 	{
 		si2.measure[i] = si.measure[i];

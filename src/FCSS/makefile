@@ -1,6 +1,6 @@
 CC = gcc
 CPP = gcc
-CPPFLAGS = -Wall -I. -I../../include -I../RRCollider/include -I../RRVision/include -I../LicGen/include -I../../3rd/mgflib -DGLEW_STATIC -DRRCOLLIDER_STATIC -DRRVISION_STATIC
+CPPFLAGS = -Wall -I. -I../../include -I../RRCollider/include -I../RRVision/include -I../LicGen/include -I../../3rd/mgflib -DGLEW_STATIC -DRR_STATIC
 CPPFLAGS += -O1 -DNDEBUG
 #CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG // zpusobuje crash po pouziti upx
  #CPPFLAGS += -ffast-math // zpusobuje crash v soda

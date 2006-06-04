@@ -1,9 +1,9 @@
-#ifndef RRVISION_RRVISIONAPP_H
-#define RRVISION_RRVISIONAPP_H
+#ifndef ILLUMPRECALCULATED_H
+#define ILLUMPRECALCULATED_H
 
 //////////////////////////////////////////////////////////////////////////////
-//! \file RRVisionApp.h
-//! \brief RRVision - library for fast global illumination calculations
+//! \file RRIllumPrecalculated.h
+//! \brief RRIllumPrecalculated - library for accessing precalculated illumination
 //! \version 2006.4.16
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
@@ -15,15 +15,38 @@
 
 #include <cassert>
 #include <map>
-#include <vector>
-#include "RRVision.h"
-
+#include "RRMath.h"
+/*
+#ifdef _MSC_VER
+#	ifdef RR_STATIC
+		// use static library
+		#ifdef NDEBUG
+			#pragma comment(lib,"RRIllumPrecalculated_s.lib")
+		#else
+			#pragma comment(lib,"RRIllumPrecalculated_sd.lib")
+		#endif
+#	else
+#	ifdef RR_DLL_BUILD_PRECALCULATED
+		// build dll
+#		undef RR_API
+#		define RR_API __declspec(dllexport)
+#	else // use dll
+#pragma comment(lib,"RRIllumPrecalculated.lib")
+#	endif
+#	endif
+#endif
+*/
 namespace rr
 {
 
-// *******************************************************************************
-// nezavisle na rrvision, mozno pouzit ve final hre
-// *******************************************************************************
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Float RGB - One of color formats for vertex and pixel buffers.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	typedef RRVec3 RRColorRGBF;
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -52,6 +75,7 @@ namespace rr
 		unsigned char color;
 	};
 
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//! RGBA8, total 32bits - One of color formats for vertex and pixel buffers.
@@ -79,28 +103,30 @@ namespace rr
 		unsigned color;
 	};
 
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//! Interface - Illumination storage based on vertex buffer.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRVISION_API RRIlluminationVertexBuffer
+	class RR_API RRIlluminationVertexBuffer
 	{
 	public:
 		//! Sets size of buffer. Content may be lost.
 		virtual void setSize(unsigned numVertices) = 0;
 		//! Sets value of one element of buffer.
-		virtual void setVertex(unsigned vertex, const RRColor& color) = 0;
+		virtual void setVertex(unsigned vertex, const RRColorRGBF& color) = 0;
 		virtual ~RRIlluminationVertexBuffer() {};
 	};
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//! Illumination storage in vertex buffer in system memory.
 	//
 	//! Template parameter Color specifies format of one element in vertex buffer.
-	//! It can be RRColor, RRColorI8.
+	//! It can be RRColorRGBF, RRColorRGBA8, RRColorI8.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -123,7 +149,7 @@ namespace rr
 		{
 			return vertices;
 		}
-		virtual void setVertex(unsigned vertex, const RRColor& color)
+		virtual void setVertex(unsigned vertex, const RRColorRGBF& color)
 		{
 			if(!vertices)
 			{
@@ -146,32 +172,39 @@ namespace rr
 		Color* vertices;
 	};
 
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//! Interface - Illumination storage based on pixel buffer.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRVISION_API RRIlluminationPixelBuffer
+	class RR_API RRIlluminationPixelBuffer
 	{
 	public:
 		//! Sets size of buffer. Content may be lost.
 		virtual void setSize(unsigned width, unsigned height) = 0;
 		//! Marks all pixels as unused. Content may be lost.
 		virtual void markAllUnused() {};
+		struct SubtriangleIllumination
+		{
+			RRVec2 texCoord[3]; ///< Subtriangle vertices positions in triangle space, triangle vertex0 is in 0,0, vertex1 is in 1,0, vertex2 is in 0,1.
+			RRColorRGBF measure[3]; ///< Subtriangle vertices illumination.
+		};
 		//! Renders one triangle into map. Marks all triangle pixels as used. All other pixels stay unchanged.
-		virtual void renderTriangle(const RRScene::SubtriangleIllumination& si) = 0;
+		virtual void renderTriangle(const SubtriangleIllumination& si) = 0;
 		//! Filters map so that unused pixels close to used pixels get their color (may be also marked as used). Used pixels stay unchanged.
 		virtual void growUsed() {};
 		virtual ~RRIlluminationPixelBuffer() {};
 	};
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//! Illumination storage in pixel buffer in system memory.
 	//
 	//! Template parameter Color specifies format of one element in pixel buffer.
-	//! It can be RRColor, RRColorI8.
+	//! It can be RRColorRGBF, RRColorRGBA8, RRColorI8.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -202,7 +235,7 @@ namespace rr
 				pixels[i] = Color(1,1,0);
 			}
 		}
-		virtual void renderTriangle(const RRScene::SubtriangleIllumination& si);
+		virtual void renderTriangle(const SubtriangleIllumination& si);
 		virtual void growUsed()
 		{
 			for(unsigned j=0;j<height-1;j++)
@@ -234,27 +267,28 @@ namespace rr
 		Color*   pixels;
 	};
 
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//! Illumination storage in pixel buffer in OpenGL texture. Plus texture coords.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBufferInMemory<RRColorI8>
+	class RR_API RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBufferInMemory<RRColorI8>
 	{
 	public:
-		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, RRObject* object, unsigned anumPreImportVertices)
+		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, unsigned anumPreImportVertices)
 			: RRIlluminationPixelBufferInMemory<RRColorI8>(awidth,aheight)
 		{
 			texCoord = NULL;
 			numVertices = anumPreImportVertices;
 		}
-		RRVec2* getTexCoord(bool update)
+		RRVec2* getTexCoord(bool update) //!!! co znamena update?
 		{
 			if(!texCoord)
 			{
 				texCoord = new RRVec2[numVertices];
-				update=true;
+				update=true; //!!! no op
 			}
 			return texCoord;
 		}
@@ -267,6 +301,7 @@ namespace rr
 		RRVec2* texCoord;
 	};
 
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//! Storage for object's indirect illumination.
@@ -278,7 +313,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRVISION_API RRObjectIllumination
+	class RR_API RRObjectIllumination
 	{
 	public:
 		//! Enter PreImport number of vertices, length of vertex buffer for rendering.
@@ -292,7 +327,7 @@ namespace rr
 		{
 			Channel(unsigned anumVertices)
 			{
-				vertexBuffer = new RRIlluminationVertexBufferInMemory<RRColor>(anumVertices);
+				vertexBuffer = new RRIlluminationVertexBufferInMemory<RRColorRGBF>(anumVertices);
 				pixelBuffer = new RRIlluminationPixelBufferInMemory<RRColorI8>(256,256);
 			}
 			RRIlluminationVertexBuffer* vertexBuffer;
@@ -322,121 +357,6 @@ namespace rr
 		unsigned numPreImportVertices; ///< PreImport number of vertices, length of vertex buffer for rendering.
 		std::map<unsigned,Channel*> channels; ///< Calculated illumination.
 		RRVec2* pixelBufferUnwrap; ///< Optional unwrap for illumination in pixel buffers.
-	};
-
-
-// *******************************************************************************
-// zavisle na rrvision, pouze pro editor
-// *******************************************************************************
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//! Storage for object's indirect illumination, extended for editor.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RRVISION_API RRObjectIlluminationForEditor : public RRObjectIllumination
-	{
-	public:
-		RRObjectIlluminationForEditor(unsigned anumPreImportVertices)
-			: RRObjectIllumination(anumPreImportVertices)
-		{
-		}
-		void createPixelBufferUnwrap(RRObject* object)
-		{
-			if(pixelBufferUnwrap)
-				delete[] pixelBufferUnwrap;
-			pixelBufferUnwrap = new RRVec2[numPreImportVertices];
-			rr::RRMesh* mesh = object->getCollider()->getImporter();
-			unsigned numPostImportTriangles = mesh->getNumTriangles();
-			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
-			{
-				RRObject::TriangleMapping triangleMapping;
-				object->getTriangleMapping(postImportTriangle,triangleMapping);
-				rr::RRMesh::Triangle triangle;
-				mesh->getTriangle(postImportTriangle,triangle);
-				for(unsigned v=0;v<3;v++)
-				{
-					//!!!
-					// muj nouzovy primitivni unwrap vetsinou nejde prevest z trianglu do vertexBufferu,
-					// protoze jeden vertex je casto pouzit vice triangly v meshi
-					unsigned preImportVertex = mesh->getPreImportVertex(triangle[v],postImportTriangle);
-					if(preImportVertex<numPreImportVertices)
-						pixelBufferUnwrap[preImportVertex] = triangleMapping.uv[v];
-					else
-						assert(0);
-				}
-			}
-		}
-	};
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRVisionApp
-	//! Framework for Vision application.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RRVISION_API RRVisionApp
-	{
-	public:
-		RRVisionApp();
-		virtual ~RRVisionApp();
-
-		//! Defines objects present in scene.
-		typedef std::pair<RRObject*,RRObjectIlluminationForEditor*> Object;
-		typedef std::vector<Object> Objects;
-		void setObjects(Objects& objects);
-		RRObject* getObject(unsigned i);
-		RRObjectIlluminationForEditor* getIllumination(unsigned i);
-		
-		//! Selects channel for storing results, 0 is default.
-		void setResultChannel(unsigned channelIndex);
-
-		//! Calculates, improves indirect illumination on objects, stores into given channel.
-		RRScene::Improvement calculate();
-
-		//! Reports to framework that appearance of one or more materials has changed.
-		void reportMaterialChange();
-		//! Reports to framework that position/rotation/shape of one or more objects has changed.
-		void reportGeometryChange();
-		//! Reports to framework that position/rotation/shape of one or more lights has changed.
-		void reportLightChange();
-		//! Reports to framework that user interacts.
-		void reportInteraction();
-
-		//!!!
-		RRObjectAdditionalIllumination* multiObject;
-		RRScene*   scene;
-	protected:
-		//! Autodetects material properties of all materials present in scene. To be implemented by you.
-		virtual void detectMaterials() = 0;
-		//! Autodetects direct illumination on all faces in scene. To be implemented by you.
-		virtual void detectDirectIllumination() = 0;
-
-		//! Adjusts RRScene parameters each time new scene is created. May be reimplemented by you.
-		virtual void adjustScene();
-		//! Framework reports event to you. May be reimplemented by you.
-		virtual void reportAction(const char* action) const;
-
-		Objects    objects;
-		RRSurface* surfaces;
-		unsigned   numSurfaces;
-
-	private:
-		// calculate
-		bool       dirtyMaterials;
-		bool       dirtyGeometry;
-		bool       dirtyLights;
-		long       lastInteractionTime;
-		float      readingResultsPeriod;
-		float      calcTimeSinceReadingResults;
-		// read results
-		void       updateVertexLookupTable();
-		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
-		void       readVertexResults();
-		void       readPixelResults();
-		unsigned   resultChannelIndex;
 	};
 
 } // namespace

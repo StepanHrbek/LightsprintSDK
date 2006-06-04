@@ -9,6 +9,23 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+#pragma warning(disable:4251) // it is not true that "RRVec* needs dll-interface"
+#endif
+
+#ifdef _MSC_VER
+#	ifdef RR_STATIC
+		// use static library
+		#define RR_API
+#	else // use dll
+#define RR_API __declspec(dllimport)
+#	endif
+#else
+	// use static library
+	#define RR_API
+#endif
+//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRMath.h~(27)
+
 namespace rr /// Encapsulates all Lightsprint libraries.
 {
 

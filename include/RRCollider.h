@@ -9,33 +9,28 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
+#include "RRMath.h"
+#include <new>      // operators new/delete
+#include <limits.h> // UNDEFINED
+
 #ifdef _MSC_VER
-#	ifdef RRCOLLIDER_STATIC
+#	ifdef RR_STATIC
 		// use static library
-		#define RRCOLLIDER_API
 		#ifdef NDEBUG
 			#pragma comment(lib,"RRCollider_s.lib")
 		#else
 			#pragma comment(lib,"RRCollider_sd.lib")
 		#endif
 #	else
-#	ifdef RRCOLLIDER_DLL_BUILD
+#	ifdef RR_DLL_BUILD_COLLIDER
 		// build dll
-		#define RRCOLLIDER_API __declspec(dllexport)
+#		undef RR_API
+#		define RR_API __declspec(dllexport)
 #	else // use dll
-#define RRCOLLIDER_API __declspec(dllimport)
 #pragma comment(lib,"RRCollider.lib")
 #	endif
 #	endif
-#else
-	// use static library
-	#define RRCOLLIDER_API
 #endif
-//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRCollider.h~(34)
-
-#include "RRMath.h"
-#include <new>      // operators new/delete
-#include <limits.h> // UNDEFINED
 
 namespace rr /// Encapsulates all Lightsprint libraries.
 {
@@ -112,7 +107,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//! -# such queries are very critical for performance.
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRMesh
+	class RR_API RRMesh
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
@@ -313,7 +308,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRCollisionHandler
+	class RR_API RRCollisionHandler
 	{
 	public:
 		virtual ~RRCollisionHandler() {}
@@ -348,7 +343,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRAligned
+	class RR_API RRAligned
 	{
 	public:
 		//! Allocates aligned space for instance of any derived class.
@@ -374,7 +369,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRRay : public RRAligned
+	class RR_API RRRay : public RRAligned
 	{
 	public:
 		//! Creates 1 RRRay. All is zeroed, all FILL flags on. You may destroy it by delete.
@@ -425,7 +420,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRCollider
+	class RR_API RRCollider
 	{
 	public:
 		// create
@@ -513,7 +508,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRCOLLIDER_API RRLicenseCollider
+	class RR_API RRLicenseCollider
 	{
 	public:
 		//! Lets you present your license information.

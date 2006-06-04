@@ -9,30 +9,26 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
+#include "RRCollider.h"
+
 #ifdef _MSC_VER
-#	ifdef RRVISION_STATIC
+#	ifdef RR_STATIC
 		// use static library
-		#define RRVISION_API
 		#ifdef NDEBUG
 			#pragma comment(lib,"RRVision_s.lib")
 		#else
 			#pragma comment(lib,"RRVision_sd.lib")
 		#endif
 #	else
-#	ifdef RRVISION_DLL_BUILD
+#	ifdef RR_DLL_BUILD_VISION
 		// build dll
-		#define RRVISION_API __declspec(dllexport)
+#		undef RR_API
+#		define RR_API __declspec(dllexport)
 #	else // use dll
-#define RRVISION_API __declspec(dllimport)
 #pragma comment(lib,"RRVision.lib")
 #	endif
 #	endif
-#else
-	// use static library
-	#define RRVISION_API
 #endif
-
-#include "RRCollider.h"
 
 namespace rr /// Encapsulates all Lightsprint libraries.
 {
@@ -51,7 +47,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//! Rotation and scale in the rest.
 	//! \n We have chosen this format because it contains only what we need, is smaller than 4x4
 	//! and its shape makes no room for row or column major ambiguity.
-	struct RRVISION_API RRMatrix3x4
+	struct RR_API RRMatrix3x4
 	{
 		RRReal m[3][4];
 
@@ -105,7 +101,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	};
 
 	//! Description of surface material properties.
-	struct RRVISION_API RRSurface
+	struct RR_API RRSurface
 	{
 		void          reset(bool twoSided);          ///< Resets surface to fully diffuse gray (50% reflected, 50% absorbed).
 
@@ -150,7 +146,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRVISION_API RRObject
+	class RR_API RRObject
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
@@ -326,7 +322,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRVISION_API RRScaler
+	class RR_API RRScaler
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
@@ -389,7 +385,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRVISION_API RRScene
+	class RR_API RRScene
 	{
 	public:
 		RRScene();
@@ -561,7 +557,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRVISION_API RRLicense
+	class RR_API RRLicense
 	{
 	public:
 		//! Codes for status of your license.

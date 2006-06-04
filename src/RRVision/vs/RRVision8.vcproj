@@ -49,7 +49,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include; ..\..\..\3rd\rsa;..\..\RRCollider\include;..\..\LicGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RRCOLLIDER_STATIC;RRVISION_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC"
 				StringPooling="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
@@ -137,7 +137,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include; ..\..\..\3rd\rsa;..\..\RRCollider\include;..\..\LicGen\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RRCOLLIDER_STATIC;RRVISION_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -227,7 +227,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\include; ..\..\..\include; ..\..\..\3rd\rsa;..\..\RRCollider\include;..\..\LicGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RRCOLLIDER_DLL;RRVISION_DLL_BUILD"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL;RR_DLL_BUILD_VISION"
 				StringPooling="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -398,11 +398,15 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\..\include\RRVision.h"
+			RelativePath="..\..\..\include\RRIllumCalculator.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\include\RRVisionApp.h"
+			RelativePath="..\..\..\include\RRIllumPrecalculated.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\include\RRVision.h"
 			>
 		</File>
 	</Files>
