@@ -433,7 +433,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\RRMath.h"
+				RelativePath="..\..\..\include\RRMath.h"
 				>
 			</File>
 			<File
@@ -511,6 +511,10 @@
 		</Filter>
 		<File
 			RelativePath="..\..\..\include\RRCollider.h"
+			>
+		</File>
+		<File
+			RelativePath="..\include\RRMath.h"
 			>
 		</File>
 	</Files>
