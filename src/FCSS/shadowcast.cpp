@@ -43,7 +43,7 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 #include <GL/wglew.h>
 #include <GL/glut.h>
 
-#include "RRVisionApp.h"
+#include "RRIllumCalculator.h"
 
 //#include "glsl/Light.hpp"
 #include "glsl/Camera.hpp"

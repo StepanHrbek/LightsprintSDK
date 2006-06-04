@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <float.h> // _finite
 #include <time.h>
-#include "RRVisionApp.h"
+#include "RRIllumCalculator.h"
 
 // odsunout do RRIlluminationPixelBuffer.cpp
 #include "swraster.h" // RRIlluminationPixelBufferInMemory

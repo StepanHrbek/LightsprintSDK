@@ -5,7 +5,7 @@
 #ifndef _3DS2RR_H
 #define _3DS2RR_H
 
-#include "RRVisionApp.h"
+#include "RRIllumCalculator.h"
 #include "Model_3DS.h"
 
 // you may load object from mgf

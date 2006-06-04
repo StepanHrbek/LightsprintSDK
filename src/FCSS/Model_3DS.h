@@ -71,7 +71,7 @@
 #ifndef MODEL_3DS_H
 #define MODEL_3DS_H
 
-#include "RRVisionApp.h"
+#include "RRIllumCalculator.h"
 #include "glsl/Texture.hpp"
 
 #include <stdio.h>
