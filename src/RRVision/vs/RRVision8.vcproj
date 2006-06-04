@@ -406,6 +406,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\include\RRIllumPrecalculatedSpace.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\include\RRIllumPrecalculatedSurface.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\include\RRVision.h"
 			>
 		</File>

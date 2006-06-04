@@ -1,5 +1,5 @@
-#ifndef ILLUMCALCULATOR_H
-#define ILLUMCALCULATOR_H
+#ifndef RRILLUMCALCULATOR_H
+#define RRILLUMCALCULATOR_H
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRIllumCalculator.h
@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
-#pragma warning(disable:4530) // exceptions thrown but disabled, may crash
+#pragma warning(disable:4530) // exceptions thrown but disabled
 #endif
 
 #include <cassert>

@@ -1,41 +1,22 @@
-#ifndef ILLUMPRECALCULATED_H
-#define ILLUMPRECALCULATED_H
+#ifndef RRILLUMPRECALCULATEDSURFACE_H
+#define RRILLUMPRECALCULATEDSURFACE_H
 
 //////////////////////////////////////////////////////////////////////////////
-//! \file RRIllumPrecalculated.h
+//! \file RRIllumPrecalculatedSurface.h
 //! \brief RRIllumPrecalculated - library for accessing precalculated illumination
 //! \version 2006.4.16
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef _MSC_VER
-#pragma warning(disable:4530) // exceptions thrown but disabled, may crash
-#endif
-
 #include <cassert>
 #include <map>
 #include "RRMath.h"
-/*
+
 #ifdef _MSC_VER
-#	ifdef RR_STATIC
-		// use static library
-		#ifdef NDEBUG
-			#pragma comment(lib,"RRIllumPrecalculated_s.lib")
-		#else
-			#pragma comment(lib,"RRIllumPrecalculated_sd.lib")
-		#endif
-#	else
-#	ifdef RR_DLL_BUILD_PRECALCULATED
-		// build dll
-#		undef RR_API
-#		define RR_API __declspec(dllexport)
-#	else // use dll
-#pragma comment(lib,"RRIllumPrecalculated.lib")
-#	endif
-#	endif
+#pragma warning(disable:4530) // exceptions thrown but disabled
 #endif
-*/
+
 namespace rr
 {
 
