@@ -1,4 +1,4 @@
-#include "RRMath.h"
+#include "RRMathPrivate.h"
 
 #include <math.h> // sqrt
 

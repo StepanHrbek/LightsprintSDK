@@ -1,5 +1,5 @@
-#ifndef COLLIDER_RRCOLLIDER_H
-#define COLLIDER_RRCOLLIDER_H
+#ifndef RRCOLLIDER_H
+#define RRCOLLIDER_H
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
@@ -33,12 +33,13 @@
 #endif
 //error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRCollider.h~(34)
 
+#include "RRMath.h"
 #include <new>      // operators new/delete
 #include <limits.h> // UNDEFINED
 
 namespace rr /// Encapsulates all Lightsprint libraries.
 {
-
+/*
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// primitives
@@ -112,7 +113,7 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 
 		void operator =(const RRVec3 a)   {x=a.x;y=a.y;z=a.z;}
 	};
-
+*/
 
 
 
@@ -121,6 +122,9 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 	//  RRMesh
 	//! Common interface for any standard or proprietary triangle mesh structure.
 	//
+	//! RRMesh is typically only several bytes big adaptor, it provides unified 
+	//! interface to your mesh, but it uses your mesh data, no data are duplicated.
+	//!
 	//! \section s4 Creating instances
 	//!
 	//! %RRMesh has built-in support for standard mesh formats used by

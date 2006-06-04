@@ -1,5 +1,5 @@
-#ifndef RRVISION_RRVISION_H
-#define RRVISION_RRVISION_H
+#ifndef RRVISION_H
+#define RRVISION_H
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
