@@ -25,5 +25,6 @@ $(TMP)%.o: %.cpp makefile
 
 clean:
 	del $(TMP)*.o
+	del $(TMP)RRMesh\*.o
 	del ..\..\lib\libRRCollider.a
 

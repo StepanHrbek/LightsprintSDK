@@ -26,5 +26,6 @@ $(TMP)%.o: %.cpp makefile
 
 clean:
 	del $(TMP)*.o
+	del $(TMP)RRObject\*.o
 	del ..\..\lib\libRRVision.a
 
