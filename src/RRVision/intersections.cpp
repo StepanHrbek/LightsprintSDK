@@ -108,11 +108,22 @@ class SkipTriangle : public rr::RRCollisionHandler
 {
 public:
 	SkipTriangle(unsigned askip) : skip(askip) {}
-	virtual bool acceptHit(const rr::RRRay* ray)
+	virtual void init()
 	{
+		result = false;
+	}
+	virtual bool collides(const rr::RRRay* ray)
+	{
+		result = result || (ray->hitTriangle!=skip);
 		return ray->hitTriangle!=skip;
 	}
+	virtual bool done()
+	{
+		return result;
+	}
 	unsigned skip;
+private:
+	bool result;
 };
 
 #include <memory.h>

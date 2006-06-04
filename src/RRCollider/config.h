@@ -33,7 +33,7 @@
 	#define FILL_HITPOINT2D
 	#define FILL_HITPLANE
 	#define FILL_HITSIDE
-	#define SURFACE_CALLBACK
+	#define COLLISION_HANDLER
 	// statistics
 		#define FILL_STATISTIC(a)
 #endif

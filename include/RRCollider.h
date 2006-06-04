@@ -152,6 +152,8 @@ namespace rr /// Encapsulates whole Collider library.
 	//! Built-in importers guarantee constancy if you don't change
 	//! their vertex/index buffers. Constancy of mesh copy is guaranteed always.
 	//!
+	//! Thread safe: yes, stateless, may be accessed by any number of threads simultaneously.
+	//!
 	//! \section s5 Indexing
 	//!
 	//! %RRMesh operates with two types of vertex and triangle indices.
@@ -366,15 +368,19 @@ namespace rr /// Encapsulates whole Collider library.
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRCollisionHandler
-	//! Interface for non-trivial behaviour of mesh surfaces.
+	//! Interface for non-trivial handling of collisions in collision test.
 	//
-	//! Derive to define behaviour of YOUR surfaces.
-	//! You need it only when you want to
+	//! You can use it to
 	//! - intersect mesh that contains both singlesided and twosided faces
-	//! - iterate over multiple intersections with mesh
+	//! - intersect mesh with layers that can be independently turned on/off
+	//! - gather all intersections with one mesh
 	//!
 	//! It's intentionally not part of RRMesh, so you can easily combine
-	//! different surface behaviours with one geometry.
+	//! different collision handlers with one geometry.
+	//! \n It's intentionally not part of RRRay, so you can easily combine
+	//! different collision handlers at runtime.
+	//!
+	//! Thread safe: no, holds state, may be accessed by one thread at moment.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -383,13 +389,26 @@ namespace rr /// Encapsulates whole Collider library.
 	public:
 		virtual ~RRCollisionHandler() {}
 
-		//! Arbitrates whether to accept or not to accept given hit (intersection of ray x mesh).
+		//! Prepares for single intersection test.
 		//
-		//! acceptHit is called at each intersection of ray x mesh.
+		//! Is called at the beginning of 
+		//! RRCollider::intersect().
+		virtual void init() = 0;
+
+		//! Handles each collision detected by single intersection test.
+		//
+		//! Is called at each triangle hit inside RRCollider::intersect().
+		//! Positive result stops further searching, negative makes it continue.
 		//! \n For IT_BSP techniques, intersections are reported in order from the nearest one.
 		//! For IT_LINEAR technique, intersections go unsorted.
 		//! \returns If you want ray to continue penetrating mesh in the same direction and finding further intersections, return true.
-		virtual bool         acceptHit(const class RRRay* ray) = 0;
+		virtual bool collides(const class RRRay* ray) = 0;
+
+		//! Cleans up after single intersection test.
+		//
+		//! Is called at the end of RRCollider::intersect().
+		//! Result is returned as result from RRCollider::intersect().
+		virtual bool done() = 0;
 	};
 
 
@@ -421,6 +440,8 @@ namespace rr /// Encapsulates whole Collider library.
 	//
 	//! Contains all inputs and outputs for RRCollider::intersect().
 	//! All fields of at least 3 floats are aligned for SIMD.
+	//!
+	//! Thread safe: no, holds state, may be accessed by one thread at moment.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -467,6 +488,8 @@ namespace rr /// Encapsulates whole Collider library.
 	//  RRCollider
 	//! Single object able to calculate ray x trimesh intersections.
 	//
+	//! Thread safe: yes, stateless, may be accessed by any number of threads simultaneously.
+	//!
 	//! Mesh is defined by importer passed to create().
 	//! All results from importer must be constant in time, 
 	//! otherwise collision results are undefined.
@@ -522,7 +545,8 @@ namespace rr /// Encapsulates whole Collider library.
 		//! This will improve your performance on multicore CPUs. \n Even with Intel's hyperthreading,
 		//! which is inferior to two fully-fledged cores, searching multiple intersections at the same time brings
 		//! surprisingly high performance bonus.
-		//! \n All you need is one RRRay for each thread, other structures like mesh and collider
+		//! \n All you need is one RRRay and optionally one RRCollisionHandler for each thread, 
+		//!  other structures like RRMesh and RRCollider are stateless and
 		//!  may be accessed by arbitrary number of threads simultaneously.
 		//! \n If you are not familiar with OpenMP, be sure to examine it. With OpenMP, which is built-in 
 		//!  feature of modern compilers, searching multiple intersections

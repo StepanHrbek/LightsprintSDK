@@ -503,8 +503,8 @@ begin:
 #ifdef FILL_HITDISTANCE
 			ray->hitDistance = distancePlane;
 #endif
-#ifdef SURFACE_CALLBACK
-			if(!ray->collisionHandler || ray->collisionHandler->acceptHit(ray)) 
+#ifdef COLLISION_HANDLER
+			if(!ray->collisionHandler || ray->collisionHandler->collides(ray)) 
 #endif
 				RETURN_SUCCESS;
 		}
@@ -647,8 +647,8 @@ begin:
 			ray->hitDistance = distancePlane;
 #endif
 			DBGLINE
-#ifdef SURFACE_CALLBACK
-			if(!ray->collisionHandler || ray->collisionHandler->acceptHit(ray)) 
+#ifdef COLLISION_HANDLER
+			if(!ray->collisionHandler || ray->collisionHandler->collides(ray)) 
 #endif
 				RETURN_SUCCESS;
 		}
@@ -781,6 +781,10 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	if(setjmp(tmpMark)) return true;
 #endif
 	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
+#ifdef COLLISION_HANDLER
+	if(ray->collisionHandler)
+		ray->collisionHandler->init();
+#endif
 	switch(intersectTechnique)
 	{
 		case IT_BSP_FASTEST:
@@ -792,6 +796,10 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 		default:
 			assert(0);
 	}
+#ifdef COLLISION_HANDLER
+	if(ray->collisionHandler)
+		hit = ray->collisionHandler->done();
+#endif
 test_no:
 #ifdef TEST
 	if(hit!=hit2 || (hit && hit2 && ray->hitTriangle!=ray2.hitTriangle))

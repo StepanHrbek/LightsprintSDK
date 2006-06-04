@@ -104,12 +104,21 @@ public:
 	{
 		object = aobject;
 	}
-	virtual bool acceptHit(const rr::RRRay* ray)
+	virtual void init()
+	{
+		result = false;
+	}
+	virtual bool collides(const rr::RRRay* ray)
 	{
 		const RRSurface* surface = object->getSurface(object->getTriangleSurface(ray->hitTriangle));
 		return surface && surface->sideBits[ray->hitFrontSide?0:1].renderFrom;
 	}
+	virtual bool done()
+	{
+		return result;
+	}
 private:
+	bool result;
 	RRObject* object;
 };
 

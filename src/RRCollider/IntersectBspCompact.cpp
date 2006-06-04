@@ -94,7 +94,9 @@ begin:
 			void *trianglesEnd = t->getTrianglesEnd();
 			bool hit = false;
 			char backup[sizeof(RRRay)];
-			if(ray->collisionHandler) memcpy(backup,ray,sizeof(*ray)); // current best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
+#ifdef COLLISION_HANDLER
+			if(ray->collisionHandler) memcpy(backup,ray,sizeof(*ray)); // current best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides()
+#endif
 			for(typename BspTree::_TriInfo* triangle=t->kd.getTrianglesBegin();triangle<trianglesEnd;triangle++)
 			{
 				RRMesh::TriangleBody srl;
@@ -102,6 +104,7 @@ begin:
 				if(intersect_triangle(ray,&srl,distanceMax))
 				{
 					ray->hitTriangle = triangle->getTriangleIndex();
+#ifdef COLLISION_HANDLER
 					if(ray->collisionHandler)
 					{
 #ifdef FILL_HITPOINT3D
@@ -116,14 +119,15 @@ begin:
 							update_hitPlane(ray,importer);
 						}
 #endif
-						if(ray->collisionHandler->acceptHit(ray)) 
+						if(ray->collisionHandler->collides(ray)) 
 						{
-							memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
+							memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides
 							ray->hitDistanceMax = ray->hitDistance;
 							hit = true;
 						}
 					}
 					else
+#endif
 					{
 						ray->hitDistanceMax = ray->hitDistance;
 						hit=true;
@@ -132,10 +136,12 @@ begin:
 			}
 			if(hit)
 			{
+#ifdef COLLISION_HANDLER
 				if(ray->collisionHandler)
 				{
 					memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
 				}
+#endif
 #ifdef FILL_HITPOINT3D
 				if(ray->rayFlags&RRRay::FILL_POINT3D)
 				{
@@ -291,8 +297,8 @@ begin:
 			}
 #endif
 			DBGLINE
-#ifdef SURFACE_CALLBACK
-			if(!ray->collisionHandler || ray->collisionHandler->acceptHit(ray)) 
+#ifdef COLLISION_HANDLER
+			if(!ray->collisionHandler || ray->collisionHandler->collides(ray)) 
 #endif
 				return true;
 		}
@@ -353,7 +359,15 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 	bool hit;
 	{
+#ifdef COLLISION_HANDLER
+		if(ray->collisionHandler)
+			ray->collisionHandler->init();
+#endif
 		hit = intersect_bsp(ray,tree,ray->hitDistanceMax);
+#ifdef COLLISION_HANDLER
+		if(ray->collisionHandler)
+			hit = ray->collisionHandler->done();
+#endif
 	}
 	FILL_STATISTIC(if(hit) intersectStats.hit_mesh++);
 	return hit;

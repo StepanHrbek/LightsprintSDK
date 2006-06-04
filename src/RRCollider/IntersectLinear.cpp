@@ -193,6 +193,10 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	update_rayDir(ray);
 	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 	FILL_STATISTIC(intersectStats.intersect_linear++);
+#ifdef COLLISION_HANDLER
+	if(ray->collisionHandler)
+		ray->collisionHandler->init();
+#endif
 	for(unsigned t=0;t<triangles;t++)
 	{
 		RRMesh::TriangleBody t2;
@@ -200,6 +204,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 		if(intersect_triangle(ray,&t2))
 		{
 			ray->hitTriangle = t;
+#ifdef COLLISION_HANDLER
 			if(ray->collisionHandler) 
 			{
 #ifdef FILL_HITPOINT3D
@@ -215,26 +220,33 @@ bool IntersectLinear::intersect(RRRay* ray) const
 				}
 #endif
 				// hits are reported in random order
-				if(ray->collisionHandler->acceptHit(ray)) 
+				if(ray->collisionHandler->collides(ray)) 
 				{
-					memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by acceptHit
+					memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides
 					ray->hitDistanceMax = ray->hitDistance;
 					hit = true;
 				}
 			}
 			else
+#endif
 			{
 				ray->hitDistanceMax = ray->hitDistance;
 				hit = true;
 			}
 		}
 	}
+#ifdef COLLISION_HANDLER
+	if(ray->collisionHandler)
+		hit = ray->collisionHandler->done();
+#endif
 	if(hit) 
 	{
+#ifdef COLLISION_HANDLER
 		if(ray->collisionHandler)
 		{
 			memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
 		}
+#endif
 #ifdef FILL_HITPOINT3D
 		if(ray->rayFlags&RRRay::FILL_POINT3D)
 		{
