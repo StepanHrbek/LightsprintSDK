@@ -296,84 +296,6 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
-			>
-			<File
-				RelativePath="..\dynamic.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\geometry.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\interpol.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\intersections.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\rrcore.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\RRMath\RRMathPrivate.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\RRScaler.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\RRScene.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\RRVision.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\RRVisionApp.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\swraster.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl"
-			>
-			<File
-				RelativePath="..\dynamic.h"
-				>
-			</File>
-			<File
-				RelativePath="..\geometry.h"
-				>
-			</File>
-			<File
-				RelativePath="..\interpol.h"
-				>
-			</File>
-			<File
-				RelativePath="..\intersections.h"
-				>
-			</File>
-			<File
-				RelativePath="..\rrcore.h"
-				>
-			</File>
-			<File
-				RelativePath="..\swraster.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="RRObject"
 			>
 			<File
@@ -402,19 +324,59 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\..\include\RRIllumCalculator.h"
+			RelativePath="..\dynamic.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\include\RRIllumPrecalculated.h"
+			RelativePath="..\dynamic.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\include\RRIllumPrecalculatedSpace.h"
+			RelativePath="..\geometry.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\include\RRIllumPrecalculatedSurface.h"
+			RelativePath="..\geometry.h"
+			>
+		</File>
+		<File
+			RelativePath="..\interpol.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\interpol.h"
+			>
+		</File>
+		<File
+			RelativePath="..\intersections.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\intersections.h"
+			>
+		</File>
+		<File
+			RelativePath="..\rrcore.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\rrcore.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\RRMath\RRMathPrivate.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\RRScaler.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\RRScene.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\RRVision.cpp"
 			>
 		</File>
 		<File

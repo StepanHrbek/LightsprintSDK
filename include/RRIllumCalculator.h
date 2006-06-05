@@ -16,8 +16,7 @@
 #include <cassert>
 #include <vector>
 #include "RRVision.h"
-#include "RRIllumPrecalculated.h"
-/*
+
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
 		// use static library
@@ -36,7 +35,9 @@
 #	endif
 #	endif
 #endif
-*/
+
+#include "RRIllumPrecalculated.h"
+
 namespace rr
 {
 
