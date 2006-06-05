@@ -513,6 +513,10 @@
 			RelativePath="..\..\..\include\RRMath.h"
 			>
 		</File>
+		<File
+			RelativePath="..\..\..\include\RRMesh.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
