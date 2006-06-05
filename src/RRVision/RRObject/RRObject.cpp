@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../../RRCollider/RRMesh/RRMeshFilter.h"
+#include "../../RRMesh/RRMeshFilter.h"
 #include "../rrcore.h"
 #include "RRVision.h"
 #include "RRObjectFilter.h"

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <assert.h>
-#include "RRCollider.h"
+#include "RRMesh.h"
+
+#include <cassert>
 
 namespace rr
 {

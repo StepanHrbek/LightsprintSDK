@@ -8,11 +8,11 @@
 #include "RRMeshLessTriangles.h"
 #include "RRMeshCopy.h"
 #include "RRMeshMulti.h"
-#include "../geometry.h"
+#include "../RRMath/RRMathPrivate.h"
 
-#include <assert.h>
+#include <cassert>
 #ifdef _MSC_VER
-	#include "../stdint.h"
+	#include "../RRCollider/stdint.h"
 #else
 	#include <stdint.h> // sizes of imported vertex/index arrays
 #endif

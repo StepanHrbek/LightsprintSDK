@@ -10,8 +10,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRMath.h"
-#include <limits.h> // UNDEFINED
-/*
+#include <climits> // UNDEFINED
+
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
 		// use static library
@@ -30,7 +30,7 @@
 #	endif
 #	endif
 #endif
-*/
+
 namespace rr /// Encapsulates all Lightsprint libraries.
 {
 

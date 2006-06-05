@@ -2,9 +2,9 @@
 
 #include "RRMeshFilter.h"
 
-#include <assert.h>
-#include <math.h>
-#include <stdlib.h> // qsort
+#include <cassert>
+#include <cmath>
+#include <cstdlib> // qsort
 
 
 namespace rr

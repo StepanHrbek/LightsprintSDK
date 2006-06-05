@@ -2,7 +2,7 @@
 
 #include "RRMeshTriStrip.h"
 
-#include <assert.h>
+#include <cassert>
 
 
 namespace rr

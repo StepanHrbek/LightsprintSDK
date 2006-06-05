@@ -2,7 +2,7 @@
 #define RRVISION_GEOMETRY_H
 
 #include "RRVision.h" // RRReal
-#include "RRMathPrivate.h" // vec3 support in rrCollider
+#include "../RRMath/RRMathPrivate.h" // vec3 support in rrCollider
 #include <float.h> // _finite
 
 namespace rr
@@ -26,8 +26,8 @@ namespace rr
 #define IS_0(n)      (ABS(n)<0.001)
 #define IS_1(n)      (fabs(n-1)<0.001)
 #define IS_EQ(a,b)   (fabs(a-b)<0.001)
-#define IS_VEC2(v)   (IS_NUMBER(v.x) && IS_NUMBER(v.y))
-#define IS_VEC3(v)   (IS_NUMBER((v).x) && IS_NUMBER((v).y) && IS_NUMBER((v).z))
+//#define IS_VEC2(v)   (IS_NUMBER(v.x) && IS_NUMBER(v.y))
+//#define IS_VEC3(v)   (IS_NUMBER((v).x) && IS_NUMBER((v).y) && IS_NUMBER((v).z))
 #define IS_SIZE1(v)  IS_1(size2(v))
 #define IS_SIZE0(v)  IS_0(size2(v))
 
@@ -36,14 +36,14 @@ namespace rr
 #else
  #define IS_CHANNELS(n) (IS_NUMBER(n.x) && IS_NUMBER(n.y) && IS_NUMBER(n.z))
 #endif
-
+/*
 #ifndef MAX
  #define MAX(a,b) (((a)>(b))?(a):(b))
 #endif
 #ifndef MIN
  #define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
-
+*/
 //////////////////////////////////////////////////////////////////////////////
 //
 // angle in rad

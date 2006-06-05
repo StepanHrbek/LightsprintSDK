@@ -1,11 +1,12 @@
 #pragma once
 
 #include "RRMeshFilter.h"
-#include "../geometry.h" // MAX
 
-#include <assert.h>
+#include <cassert>
 #include <vector>
 
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 namespace rr
 {
