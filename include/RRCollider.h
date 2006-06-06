@@ -11,7 +11,7 @@
 
 #include "RRMesh.h"
 #include <new>      // operators new/delete
-#include <limits.h> // UNDEFINED
+#include <climits> // UNDEFINED
 
 #ifdef _MSC_VER
 #	ifdef RR_STATIC

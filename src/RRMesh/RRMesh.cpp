@@ -1,5 +1,4 @@
-#include "RRCollider.h"
-
+#include "RRMesh.h"
 #include "RRMeshTriStrip.h"
 #include "RRMeshTriList.h"
 #include "RRMeshIndexedTriStrip.h"

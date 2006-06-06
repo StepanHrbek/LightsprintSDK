@@ -20,14 +20,14 @@ namespace rr
 #define BIG_REAL     1e20f
 #define SMALL_REAL   1e-10f
 #define SHOT_OFFSET  1e-4f  //!!! offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
-#define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs
-#define IS_NUMBER(n) _finite(n)//((n)>-BIG_REAL && (n)<BIG_REAL)
+#define ABS(A)       fabs(A)
+#define IS_NUMBER(n) _finite(n)
 #define IS_PTR(p)    ((intptr_t)p>0x10000)
 #define IS_0(n)      (ABS(n)<0.001)
 #define IS_1(n)      (fabs(n-1)<0.001)
 #define IS_EQ(a,b)   (fabs(a-b)<0.001)
-//#define IS_VEC2(v)   (IS_NUMBER(v.x) && IS_NUMBER(v.y))
-//#define IS_VEC3(v)   (IS_NUMBER((v).x) && IS_NUMBER((v).y) && IS_NUMBER((v).z))
+#define IS_VEC2(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]))
+#define IS_VEC3(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]))
 #define IS_SIZE1(v)  IS_1(size2(v))
 #define IS_SIZE0(v)  IS_0(size2(v))
 
@@ -36,14 +36,14 @@ namespace rr
 #else
  #define IS_CHANNELS(n) (IS_NUMBER(n.x) && IS_NUMBER(n.y) && IS_NUMBER(n.z))
 #endif
-/*
+
 #ifndef MAX
  #define MAX(a,b) (((a)>(b))?(a):(b))
 #endif
 #ifndef MIN
  #define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
-*/
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // angle in rad

@@ -12,8 +12,8 @@ namespace rr
 	#define MAX3(a,b,c) MAX(a,MAX(b,c))
 	#define MIN3(a,b,c) MIN(a,MIN(b,c))
 
-	#define ABS(A)       fabs(A) //((A)>0?(A):-(A)) ReDoxovi pomaha toto, u me je rychlejsi fabs
-	#define IS_NUMBER(n) _finite(n)//((n)>-BIG_REAL && (n)<BIG_REAL)
+	#define ABS(A)       fabs(A)
+	#define IS_NUMBER(n) _finite(n)
 	#define IS_VEC2(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]))
 	#define IS_VEC3(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]))
 	#define IS_VEC4(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]) && IS_NUMBER(v[3]))
