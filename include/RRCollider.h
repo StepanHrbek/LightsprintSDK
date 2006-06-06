@@ -4,14 +4,13 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
 //! \brief RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.4.16
+//! \version 2006.6.6
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRMesh.h"
-#include <new>      // operators new/delete
-#include <climits> // UNDEFINED
+#include <new> // operators new/delete
 
 #ifdef _MSC_VER
 #	ifdef RR_STATIC

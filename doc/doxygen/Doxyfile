@@ -82,7 +82,9 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRCollider.h" \
+INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRMath.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRMesh.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRCollider.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRVision.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/doc"
 FILE_PATTERNS          = *.c \

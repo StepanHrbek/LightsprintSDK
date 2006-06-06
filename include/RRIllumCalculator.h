@@ -4,14 +4,10 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRIllumCalculator.h
 //! \brief RRIllumCalculator - high level library for calculating global illumination
-//! \version 2006.4.16
+//! \version 2006.6.6
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
-
-#ifdef _MSC_VER
-#pragma warning(disable:4530) // exceptions thrown but disabled
-#endif
 
 #include <cassert>
 #include <vector>

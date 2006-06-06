@@ -175,6 +175,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4530"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

@@ -70,6 +70,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4530"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -242,6 +243,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"
+				DisableSpecificWarnings="4251;4530"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

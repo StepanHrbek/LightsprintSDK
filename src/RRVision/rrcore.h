@@ -40,10 +40,6 @@
 #error unsupported FACTORCHANNELS
 #endif
 
-#ifdef _MSC_VER
-#pragma warning(disable:4530) // exceptions thrown but disabled, may crash
-#endif
-
 #include <stdarg.h>
 
 #include "geometry.h"

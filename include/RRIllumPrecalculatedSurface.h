@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRIllumPrecalculatedSurface.h
 //! \brief RRIllumPrecalculated - library for accessing precalculated illumination
-//! \version 2006.4.16
+//! \version 2006.6.6
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -12,10 +12,6 @@
 #include <cassert>
 #include <map>
 #include "RRMath.h"
-
-#ifdef _MSC_VER
-#pragma warning(disable:4530) // exceptions thrown but disabled
-#endif
 
 namespace rr
 {
