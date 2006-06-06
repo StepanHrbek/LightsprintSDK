@@ -16,9 +16,9 @@
 #	ifdef RR_STATIC
 		// use static library
 		#ifdef NDEBUG
-//			#pragma comment(lib,"RRMesh_s.lib")
+			#pragma comment(lib,"RRMesh_s.lib")
 		#else
-//			#pragma comment(lib,"RRMesh_sd.lib")
+			#pragma comment(lib,"RRMesh_sd.lib")
 		#endif
 #	else
 #	ifdef RR_DLL_BUILD_MESH
@@ -26,7 +26,7 @@
 #		undef RR_API
 #		define RR_API __declspec(dllexport)
 #	else // use dll
-//#pragma comment(lib,"RRMesh.lib")
+#pragma comment(lib,"RRMesh.lib")
 #	endif
 #	endif
 #endif

@@ -225,7 +225,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\LicGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_DLL;RR_DLL_BUILD_COLLIDER;RR_DLL_BUILD_MESH"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_DLL;RR_DLL_BUILD_COLLIDER"
 				StringPooling="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -336,66 +336,6 @@
 			</File>
 			<File
 				RelativePath="vec.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="RRMesh"
-			>
-			<File
-				RelativePath="..\RRMesh\RRMesh.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\RRMesh.h"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshCopy.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshCopy.h"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshFilter.h"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshIndexedTriList.h"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshIndexedTriStrip.h"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshLessTriangles.h"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshLessVertices.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshLessVertices.h"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshMulti.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshMulti.h"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshTriList.h"
-				>
-			</File>
-			<File
-				RelativePath="..\RRMesh\RRMeshTriStrip.h"
 				>
 			</File>
 		</Filter>
