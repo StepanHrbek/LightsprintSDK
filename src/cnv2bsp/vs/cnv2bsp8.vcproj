@@ -209,57 +209,42 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+		<File
+			RelativePath="..\cnv2bsp.c"
 			>
-			<File
-				RelativePath="..\cnv2bsp.c"
-				>
-			</File>
-			<File
-				RelativePath="..\load_3ds.c"
-				>
-			</File>
-			<File
-				RelativePath="..\load_mgf.c"
-				>
-			</File>
-			<File
-				RelativePath="..\viewer.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						DisableLanguageExtensions="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						DisableLanguageExtensions="false"
-					/>
-				</FileConfiguration>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl"
+		</File>
+		<File
+			RelativePath="..\cnv2bsp.h"
 			>
-			<File
-				RelativePath="..\cnv2bsp.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+		</File>
+		<File
+			RelativePath="..\load_3ds.c"
 			>
-		</Filter>
+		</File>
+		<File
+			RelativePath="..\load_mgf.c"
+			>
+		</File>
+		<File
+			RelativePath="..\viewer.cpp"
+			>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					DisableLanguageExtensions="false"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					DisableLanguageExtensions="false"
+				/>
+			</FileConfiguration>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

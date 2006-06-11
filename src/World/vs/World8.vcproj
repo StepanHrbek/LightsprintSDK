@@ -188,41 +188,26 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+		<File
+			RelativePath="..\LoadWorld.cpp"
 			>
-			<File
-				RelativePath="..\LoadWorld.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\LoadWorldR3d.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\spline.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl"
+		</File>
+		<File
+			RelativePath="..\LoadWorldR3d.cpp"
 			>
-			<File
-				RelativePath="..\include\spline.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\World.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+		</File>
+		<File
+			RelativePath="..\spline.cpp"
 			>
-		</Filter>
+		</File>
+		<File
+			RelativePath="..\include\spline.h"
+			>
+		</File>
+		<File
+			RelativePath="..\include\World.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
