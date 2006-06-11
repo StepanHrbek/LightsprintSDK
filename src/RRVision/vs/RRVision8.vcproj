@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\..\lib"
-			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="..\..\lib"
+			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -48,7 +48,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\include; ..\..\..\include; ..\..\..\3rd\rsa;..\..\RRCollider\include;..\..\LicGen\include"
+				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -103,14 +103,12 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="update global include"
-				CommandLine="rem copy ..\include\*.* ..\..\..\include"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\..\lib"
-			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="..\..\lib"
+			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -137,7 +135,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include; ..\..\..\include; ..\..\..\3rd\rsa;..\..\RRCollider\include;..\..\LicGen\include"
+				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -190,14 +188,12 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="update global include"
-				CommandLine="rem copy ..\include\*.* ..\..\..\include"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release DLL|Win32"
-			OutputDirectory="..\..\..\lib"
-			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="..\..\lib"
+			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -227,7 +223,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\include; ..\..\..\include; ..\..\..\3rd\rsa;..\..\RRCollider\include;..\..\LicGen\include"
+				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL;RR_DLL_BUILD_VISION"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -262,7 +258,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\bin\$(ProjectName).dll"
+				OutputFile="..\..\bin\$(ProjectName).dll"
 				AdditionalLibraryDirectories="$(OutDir)"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>
@@ -289,8 +285,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="update global include"
-				CommandLine="rem copy ..\include\*.* ..\..\..\include"
 			/>
 		</Configuration>
 	</Configurations>
@@ -301,88 +295,88 @@
 			Name="RRObject"
 			>
 			<File
-				RelativePath="..\RRObject\RRMeshFilterTransformed.h"
+				RelativePath="RRObject\RRMeshFilterTransformed.h"
 				>
 			</File>
 			<File
-				RelativePath="..\RRObject\RRObject.cpp"
+				RelativePath="RRObject\RRObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\RRObject\RRObjectAdditionalIllumination.h"
+				RelativePath="RRObject\RRObjectAdditionalIllumination.h"
 				>
 			</File>
 			<File
-				RelativePath="..\RRObject\RRObjectFilter.h"
+				RelativePath="RRObject\RRObjectFilter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\RRObject\RRObjectFilterTransformed.h"
+				RelativePath="RRObject\RRObjectFilterTransformed.h"
 				>
 			</File>
 			<File
-				RelativePath="..\RRObject\RRObjectMulti.h"
+				RelativePath="RRObject\RRObjectMulti.h"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\dynamic.cpp"
+			RelativePath="dynamic.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\dynamic.h"
+			RelativePath="dynamic.h"
 			>
 		</File>
 		<File
-			RelativePath="..\geometry.cpp"
+			RelativePath="geometry.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\geometry.h"
+			RelativePath="geometry.h"
 			>
 		</File>
 		<File
-			RelativePath="..\interpol.cpp"
+			RelativePath="interpol.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\interpol.h"
+			RelativePath="interpol.h"
 			>
 		</File>
 		<File
-			RelativePath="..\intersections.cpp"
+			RelativePath="intersections.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\intersections.h"
+			RelativePath="intersections.h"
 			>
 		</File>
 		<File
-			RelativePath="..\rrcore.cpp"
+			RelativePath="rrcore.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\rrcore.h"
+			RelativePath="rrcore.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\RRMath\RRMathPrivate.cpp"
+			RelativePath="..\RRMath\RRMathPrivate.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\RRScaler.cpp"
+			RelativePath="RRScaler.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\RRScene.cpp"
+			RelativePath="RRScene.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\RRVision.cpp"
+			RelativePath="RRVision.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\include\RRVision.h"
+			RelativePath="..\..\include\RRVision.h"
 			>
 		</File>
 	</Files>
