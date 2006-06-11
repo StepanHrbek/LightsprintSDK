@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! \brief RRVision - library for fast global illumination calculations
-//! \version 2006.6.6
+//! \version 2006.6.12
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -236,7 +236,9 @@ namespace rr
 		RRMesh* createWorldSpaceMesh();
 		//! Creates and returns RRObject that describes object after transformation to world space.
 		//
-		//! Newly created instance allocates no additional memory, but depends on
+		//! Newly created instance has no transformation matrix, but it is still on the same 
+		//! place in world space, because all vertices are transformed.
+		//! \n Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
 		//! \param negScaleMakesOuterInner
 		//!  After negative scale, singlesided box visible only from outside will be visible only from inside.
@@ -253,6 +255,16 @@ namespace rr
 		//!  It is more efficient to share the mesh and change surfaces.
 		//!  So transformed object shares the mesh but when it detects negative scale,
 		//!  it switches sideBits[0] and sideBits[1] in all surfaces.
+		//!  \n\n Note that shared RRMesh knows nothing about your local negScaleMakesOuterInner setting,
+		//!  it is encoded in RRObject surfaces,
+		//!  so if you calculate singlesided collision on mesh from newly created object,
+		//!  give it a collision handler object->createCollisionHandlerFirstVisible()
+		//!  which scans object's surfaces and responds to your local negScaleMakesOuterInner.
+		//!  \n\n With negScaleMakesOuterInner=false, all surfaces sideBits are switched,
+		//!  so where your system processes hits to front side on original object, it processes 
+		//!  hits to back side on negatively scaled object.
+		//!  Note that forced singlesided test (simple test without collision handler, see RRRay::TEST_SINGLESIDED) 
+		//!  detects always front sides, so it won't work with negative scale and negScaleMakesOuterInner=false.
 		//! \param intersectTechnique
 		//!  Technique used for collider construction.
 		//! \param cacheLocation

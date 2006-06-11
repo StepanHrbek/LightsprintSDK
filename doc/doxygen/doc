@@ -86,7 +86,6 @@ Welcome to Lightsprint libraries.
  without any relation to your renderer, however this case is not officially supported.
 
  Header: RRVision.h
- \n Namespace: rrVision
 
  - calculates global illumination in static scene
  - progressive refinement with permanent access to results
@@ -104,11 +103,12 @@ Welcome to Lightsprint libraries.
 
 \subpage vision_dynamic "Dynamic scenes"
 
-\subpage vision_storage "Data formats"
+\subpage vision_storage "Data formats (vertices, textures)"
 
-\subpage vision_units "Units"
+\subpage vision_units "Units (radiometry, photometry)"
 
 \image html ClassDiagram.png
+
 
 \page vision_types Illumination types
  In our real world, we see visible light coming mostly from special surfaces 
@@ -150,6 +150,7 @@ Welcome to Lightsprint libraries.
  from real-world direct light sources - surfaces. However we don't encourage
  this use case, library is not optimized for this task.
 
+
 \page vision_integration Integration with renderer
  Three steps to integrate Vision with your renderer are described in
  <a href="http://dee.cz/rri">Realtime Radiosity Integration article</a>.
@@ -158,17 +159,21 @@ Welcome to Lightsprint libraries.
 
  After reading article, you may want to get familiar with some interfaces.
  Sample HelloVision shows you some of them on the most simple use case:
- -# Show your license number to rrVision::RRLicense.
- -# Create rrVision::RRScene.
- -# Create rrVision::RRObject using your object and insert it into scene. Repeat for all objects.
- -# Calculate global illumination using rrVision::RRScene::illuminationImprove().
- -# Read results using rrVision::RRScene::getTriangleMeasure().
+ -# Show your license number to rr::RRLicense.
+ -# Create rr::RRScene.
+ -# Create rr::RRObject using your object and insert it into scene. Repeat for all objects.
+ -# Calculate global illumination using rr::RRScene::illuminationImprove().
+ -# Read results using rr::RRScene::getTriangleMeasure().
 
 \page vision_static Static scenes
- It is recommended to integrate Vision to your editor,
+ Approach for illumination in static scenes is absolutely straightforward.
+ \n\n It is recommended to integrate Vision to your editor,
  precalculate illumination there (using any target quality you need),
  store it and use only precalculated data in your final product.
  This way you don't need to link Vision libraries to your product, only to your editor.
+ \n\n See rr::RRScene and samples for details how to calculate illumination
+ in static scene.
+
 
 \page vision_dynamic Dynamic scenes
  Vision can quickly recalculate illumination after each change in dynamic scene.
@@ -211,6 +216,7 @@ Welcome to Lightsprint libraries.
    position. This requires only linear interpolation of two numbers,
    so it has nearly no impact on performance.
 
+
 \page vision_storage Data formats
  Illumination levels are calculated for all surfaces in your scene.
  Several ways how to access these information and how to store them exist,
@@ -241,13 +247,14 @@ Welcome to Lightsprint libraries.
    (any postprocessing must be done per pixel and it consumes sampler resources),
    but avoids disadvantages of vertex illumination.
 
+
 \page vision_units Units
    Although whole documentation talks in radiometry terms,
    it is possible to work in photometry units, screen colors 
    or any other units.
    In typical situations, it is most straightforward to work and think 
    in screen colors. Everything you need is to setup appropriate
-   convertor, see rrVision::RRScene::setScaler().
+   convertor, see rr::RRScene::setScaler().
 
 
 
@@ -255,7 +262,6 @@ Welcome to Lightsprint libraries.
  Finds ray-mesh intersections.
 
  Header: RRCollider.h
- \n Namespace: rrCollider
 
 \section collider1 Library overview
  - thread safe, you can calculate any number of intersections at the same time
@@ -264,17 +270,17 @@ Welcome to Lightsprint libraries.
  - builds helper-structures and stores them in cache on disk
 
 \section collider3 Basic usage scenario
- -# Show your license number to rrCollider::RRLicense.
- -# Create rrCollider::RRMesh using your mesh.
- -# Create rrCollider::RRCollider using your mesh.
- -# Create rrCollider::RRRay using your ray.
- -# Call rrCollider::RRCollider::intersect() to find intersections. Repeat for all rays.
+ -# Show your license number to rr::RRLicenseCollider.
+ -# Create rr::RRMesh using your mesh.
+ -# Create rr::RRCollider using your mesh.
+ -# Create rr::RRRay using your ray.
+ -# Call rr::RRCollider::intersect() to find intersections. Repeat for all rays.
 
 
 
 \page news What's new
 
-\section news4 ------------------------------------- 2006.6 -------------------------------------
+\section news4 ------------------------------------- 2006.6.12 -------------------------------------
 
 NEW FEATURES
 
