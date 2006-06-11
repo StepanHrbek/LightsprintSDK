@@ -15,12 +15,13 @@
 		#define RR_API
 #	else // use dll
 #define RR_API __declspec(dllimport)
+#pragma warning(disable:4251) // stop false MS warnings
 #	endif
 #else
 	// use static library
 	#define RR_API
 #endif
-//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRMath.h~(23)
+//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRMath.h~(24)
 
 namespace rr /// Encapsulates all Lightsprint libraries.
 {

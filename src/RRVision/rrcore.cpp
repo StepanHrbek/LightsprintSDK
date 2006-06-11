@@ -1087,7 +1087,14 @@ Lightmap::~Lightmap()
 unsigned __trianglesAllocated=0;
 unsigned __trianglesWithBadNormal=0;
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4355)
+#endif
 Triangle::Triangle() : SubTriangle(NULL,this)
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 {
 	__trianglesAllocated++;
 #ifdef SUPPORT_LIGHTMAP

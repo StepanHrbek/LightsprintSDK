@@ -258,7 +258,7 @@ Welcome to Lightsprint libraries.
 
 \page news What's new
 
-\section news4 2006.6.xx
+\section news4 ------------------------------------- 2006.6 -------------------------------------
 
 NEW FEATURES
 
@@ -287,7 +287,7 @@ BUGFIXES
 - fixed smoothing on complicated meshes
 - fixed delete 0 on rr::RRAligned
 
-\section news3 2006.3.23
+\section news3 ------------------------------------- 2006.3.23 -------------------------------------
 
 NEW FEATURES
 
@@ -304,7 +304,7 @@ CHANGES
 - improved documentation
 
 
-\section news2 2006.3.10
+\section news2 ------------------------------------- 2006.3.10 -------------------------------------
 
 NEW FEATURES
 
@@ -313,7 +313,7 @@ NEW FEATURES
   \n gives first insight into Vision usage
 
 
-\section news1 2006.2.26
+\section news1 ------------------------------------- 2006.2.26 -------------------------------------
 
 NEW FEATURES
 
