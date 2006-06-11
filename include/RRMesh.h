@@ -31,7 +31,7 @@
 #	endif
 #endif
 
-namespace rr /// Encapsulates all Lightsprint libraries.
+namespace rr
 {
 
 

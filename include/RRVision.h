@@ -30,7 +30,7 @@
 #	endif
 #endif
 
-namespace rr /// Encapsulates all Lightsprint libraries.
+namespace rr
 {
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -160,11 +160,14 @@ namespace rr /// Encapsulates all Lightsprint libraries.
 		//
 		//! Returns collider of underlying mesh. It is also access to mesh itself (via collider->getImporter()).
 		virtual const RRCollider* getCollider() const = 0;
-		//! Returns triangle's surface index.
+		//! Returns triangle's surface id.
+		//
+		//! It is not necessary for triangle surface ids to be small numbers,
+		//! and thus no one is expected to create array of all surfaces indexed by surface id.
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
 		//! Returns s-th surface material description.
 		//
-		//! \param s Index of surface. Valid s is any number returned by getTriangleSurface() for valid t.
+		//! \param s Id of surface. Valid s is any number returned by getTriangleSurface() for valid t.
 		//! \returns For valid s, pointer to s-th surface. For invalid s, pointer to any surface. 
 		//!  In both cases, surface must exist for whole life of object.
 		virtual const RRSurface*    getSurface(unsigned s) const = 0;

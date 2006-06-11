@@ -127,10 +127,11 @@ private:
 };
 
 #include <memory.h>
-#define LOG_RAY(aeye,adir,adist) { \
+#define LOG_RAY(aeye,adir,adist,hit) { \
 	STATISTIC( \
 	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].point[0]=aeye; \
 	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
+	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].infinite=!hit; \
 	++RRScene::getSceneStatistics()->numLineSegments%=RRScene::getSceneStatistics()->MAX_LINES; ) }
 
 // return first intersection with "scene minus *skip minus dynamic objects"
@@ -240,7 +241,7 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 		if(staticObjects>1) memcpy(&ray.hitDistance,backup,sizeof(backup)); // restore valid outputs
 	}
 
-	LOG_RAY(eye,direction,hitTriangle?ray.rayLengthMax:-1);
+	LOG_RAY(eye,direction,hitTriangle?ray.rayLengthMax:0.2f,hitTriangle);
 	return hitTriangle;
 }
 
