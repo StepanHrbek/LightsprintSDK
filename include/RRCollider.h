@@ -138,7 +138,7 @@ namespace rr
 		RRReal          rayLengthMin;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		unsigned        rayFlags;       ///< In. Flags that specify what to find.
-		RRCollisionHandler*    collisionHandler;///< In. Optional surface importer for user-defined surface behaviour.
+		RRCollisionHandler*    collisionHandler;///< In. Optional collision handler for user-defined surface behaviour.
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
 		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.
@@ -193,6 +193,7 @@ namespace rr
 		//! Finds nearest intersection of ray and mesh in distance
 		//! <ray->rayLengthMin,ray->rayLengthMax> and fills output attributes in ray
 		//! specified by ray->rayFlags.
+		//! \n See RRRay for more details on inputs, especially flags that further specify collision test.
 		//! \n When ray->collisionHandler!=NULL, it is called and it may accept or refuse intersection.
 		//! \n When intersection is accepted, true is returned.
 		//! When intersection is rejected, search continues.

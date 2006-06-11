@@ -73,14 +73,14 @@ const RRMatrix3x4* RRObject::getInvWorldMatrix()
 
 rr::RRMesh* RRObject::createWorldSpaceMesh()
 {
-	//!!! az bude refcounting, muzu vracet getCollider()->getImporter()
+	//!!! az bude refcounting, muzu pri identite vracet getCollider()->getImporter()
 	return new RRTransformedMeshFilter(getCollider()->getImporter(),getWorldMatrix());
 }
 
-RRObject* RRObject::createWorldSpaceObject(rr::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
+RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, rr::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
 {
-	//!!! az bude refcounting, muzu vracet this
-	return new RRTransformedObjectFilter(this,intersectTechnique);
+	//!!! az bude refcounting, muzu pri identite vracet this
+	return new RRTransformedObjectFilter(this,negScaleMakesOuterInner,intersectTechnique,cacheLocation);
 }
 
 RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, rr::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
@@ -95,7 +95,7 @@ RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectSurfaceImporter
+// RRCollisionHandler
 
 class RRCollisionHandlerFirstVisible : public rr::RRCollisionHandler
 {

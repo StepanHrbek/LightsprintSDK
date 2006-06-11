@@ -13,8 +13,8 @@ Welcome to Lightsprint libraries.
 \subpage collider "Lightsprint COLLIDER"
  - finds ray-mesh intersections
 
-\subpage rules "Coding rules"
- - general rules for programming with SDK
+\subpage rules "Common"
+ - information regarding floats, ownership, scale...
 
 \subpage platforms "Supported platforms"
  - platforms supported by Lightsprint
@@ -50,16 +50,32 @@ Welcome to Lightsprint libraries.
 
 
  
-\page rules Coding rules
+\page rules Common
  These rules apply to all interfaces in SDK:
- - If not otherwise specified, all inputs must be finite numbers.
+\section gfinite Finite numbers
+   If not otherwise specified, all inputs must be finite numbers.
    With Inf or NaN, result is undefined.
- - Parameters that need to be destructed are always destructed by caller.
- - Library uses both floats and doubles.
+\section gflodoub Floats and doubles
+   Library uses both floats and doubles.
    It is not allowed to break double arithmetics by modifying FPU states.
-   If you use Direct3D, make sure you don't instruct it to force single precision for whole application.
-
-
+   If you use Direct3D, make sure you don't instruct it to force single precision for whole application
+   which breaks double precision arithmetics in whole program and libraries.
+\section gdestr Ownership
+   Objects are never adopted, ownership never changes.
+   \n This means that parameters that need to be destructed are never destructed inside call,
+   responsibility for object is never passed to someone else.
+   When you create object (using create() etc.), be sure that you delete it later.
+\section gscale Scale
+   Lightsprint libraries support scaled objects.
+   \n\n
+   RRMesh and Collider support all scaled objects: positively or negatively, uniformly or non-uniformly scaled.
+   \n\n
+   RRObject and Vision support typical scaled objects: positively or negatively, uniformly scaled.
+   \n Negative scale is supported with both possible interpretations:
+   Singlesided box visible from outside transformed with scale -1
+   can stay visible form the outside or become visible only from inside,
+   see rr::RRObject::createWorldSpaceObject().
+   
 
 \page vision Lightsprint Vision
  In typical situation, you have your own renderer with direct illumination.
@@ -262,25 +278,31 @@ Welcome to Lightsprint libraries.
 
 NEW FEATURES
 
-- rr::RRMesh::createOptimizedTriangles()
+- rr::RRCollider::intersectBatch()
+  \n searches collisions on all cores/CPUs at once
 - rr::RRObject::createWorldSpaceObject()
+  \n creates object transformed to worldspace
+  \n brings negative scale support
 - rr::RRObject::createCollisionHandlerFirstVisible()
-- rr:RRCollider::intersectBatch()
+  \n finds collision with first visible surface,
+  \n supports even objects mixing both single and doublesided surfaces
+- rr::RRMesh::createOptimizedTriangles()
+  \n creates optimized mesh without degenerated triangles
 
 CHANGES
 
 - new scheduler in radiosity solver
   \n rr::RRScene::illuminationReset() supports preserving factors
   \n 5% faster calculation on average
-- rr::RRObjectImporter::createMultiObject()
+- rr::RRObject::createMultiObject()
   \n can optimize triangles
 - name changes
   \n namespaces rrCollider and rrVision -> rr
-  \n RRMeshImporter -> RRMesh
-  \n RRObjectImporter -> RRObject
-  \n RRAdditionalObjectImporter -> RRObjectAdditionalIllumination
-  \n RRMeshSurfaceImporter -> RRCollisionHandler
-  \n RRLicense -> RRLicenseCollider
+  \n RRMeshImporter -> rr::RRMesh
+  \n RRObjectImporter -> rr::RRObject
+  \n RRAdditionalObjectImporter -> rr::RRObjectAdditionalIllumination
+  \n RRMeshSurfaceImporter -> rr::RRCollisionHandler
+  \n RRLicense -> rr::RRLicenseCollider
 
 BUGFIXES
 

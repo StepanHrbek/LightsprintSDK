@@ -238,11 +238,26 @@ namespace rr
 		//
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
+		//! \param negScaleMakesOuterInner
+		//!  After negative scale, singlesided box visible only from outside will be visible only from inside.
+		//!  \n\n Implementation details:
+		//!  \n Both original and transformed object share the same mesh and materials, so both 
+		//!  objects contain triangles with the same vertex order (eg. ABC, 
+		//!  not ACB) and materials visible for example from outside.
+		//!  Negative scale naturally makes the object visible from inside
+		//!  and rays collide with the inner side.
+		//!  \n However one may want to change this behaviour.
+		//!  \n To get the transformed object visible from the opposite side and rays collide with the opposite side,
+		//!  one can change the mesh (vertex order in all triangles) and share surfaces 
+		//!  or share the mesh and change surfaces.
+		//!  It is more efficient to share the mesh and change surfaces.
+		//!  So transformed object shares the mesh but when it detects negative scale,
+		//!  it switches sideBits[0] and sideBits[1] in all surfaces.
 		//! \param intersectTechnique
 		//!  Technique used for collider construction.
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
-		RRObject* createWorldSpaceObject(RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
+		RRObject* createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
 		//! Creates and returns union of multiple objects (contains geometry and surfaces from all objects).
 		//
 		//! Created instance (MultiObject) doesn't require additional memory, 
@@ -279,7 +294,7 @@ namespace rr
 		class RRObjectAdditionalIllumination* createAdditionalIllumination();
 
 		// collision helper
-		//! Creates and returns surface importer, that accepts first hit to visible side (according to material sideBit 'render').
+		//! Creates and returns collision handler, that accepts first hit to visible side (according to surface sideBit 'render').
 		RRCollisionHandler* createCollisionHandlerFirstVisible();
 	};
 
