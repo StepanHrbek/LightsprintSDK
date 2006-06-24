@@ -18,7 +18,7 @@ public:
 		m = matrix;
 	}
 	/*RRTransformedMeshFilter(RRObject* object)
-	: RRMeshFilter(object->getCollider()->getImporter())
+	: RRMeshFilter(object->getCollider()->getMesh())
 	{
 	m = object->getWorldMatrix();
 	}*/

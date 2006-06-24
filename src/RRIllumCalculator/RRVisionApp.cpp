@@ -130,9 +130,9 @@ void RRVisionApp::updateVertexLookupTable()
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		rr::RRMesh* mesh =
 #ifdef MULTIOBJECT
-			multiObject->getCollider()->getImporter();
+			multiObject->getCollider()->getMesh();
 #else
-			object->getCollider()->getImporter();
+			object->getCollider()->getMesh();
 #endif
 		unsigned numPostImportVertices = mesh->getNumVertices();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
@@ -241,7 +241,7 @@ void RRVisionApp::readPixelResults()
 #else
 		RRObject* object = getObject(objectHandle);
 #endif
-		rr::RRMesh* mesh = object->getCollider()->getImporter();
+		rr::RRMesh* mesh = object->getCollider()->getMesh();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);

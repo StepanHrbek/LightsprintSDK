@@ -32,15 +32,15 @@ public:
 		original = aoriginal;
 		assert(original);
 		assert(getCollider());
-		assert(getCollider()->getImporter());
-		numTriangles = getCollider()->getImporter()->getNumTriangles();
+		assert(getCollider()->getMesh());
+		numTriangles = getCollider()->getMesh()->getNumTriangles();
 		triangleInfo = new TriangleInfo[numTriangles];
 		for(unsigned i=0;i<numTriangles;i++)
 		{
 			triangleInfo[i].irradiance[0] = 0;
 			triangleInfo[i].irradiance[1] = 0;
 			triangleInfo[i].irradiance[2] = 0;
-			triangleInfo[i].area = getCollider()->getImporter()->getTriangleArea(i);
+			triangleInfo[i].area = getCollider()->getMesh()->getTriangleArea(i);
 		}
 	}
 	virtual ~RRObjectAdditionalIlluminationImpl() 

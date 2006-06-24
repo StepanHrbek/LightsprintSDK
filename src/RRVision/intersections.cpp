@@ -156,11 +156,11 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 		unsigned postImportSkip = (unsigned)(skip-object[preImportSkip.object]->triangle);
 		assert(postImportSkip<object[preImportSkip.object]->triangles);
 		// get single-preimport skip
-		unsigned tmp = object[preImportSkip.object]->importer->getCollider()->getImporter()->getPreImportTriangle(postImportSkip);
+		unsigned tmp = object[preImportSkip.object]->importer->getCollider()->getMesh()->getPreImportTriangle(postImportSkip);
 		assert(tmp!=RRMesh::UNDEFINED);
 		preImportSkip.index = tmp;
 		// get multi-postimport skip
-		skipTriangle.skip = multiCollider->getImporter()->getPostImportTriangle(preImportSkip);
+		skipTriangle.skip = multiCollider->getMesh()->getPostImportTriangle(preImportSkip);
 
 		ray.rayOrigin[0] = eye.x;
 		ray.rayOrigin[1] = eye.y;
@@ -171,7 +171,7 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 		// get multi-postimport ray.hitTriangle
 		if(!multiCollider->intersect(&ray)) return NULL;
 		// convert to single-preimport preImportNumber.index
-		RRMesh::MultiMeshPreImportNumber preImportNumber = multiCollider->getImporter()->getPreImportTriangle(ray.hitTriangle);
+		RRMesh::MultiMeshPreImportNumber preImportNumber = multiCollider->getMesh()->getPreImportTriangle(ray.hitTriangle);
 		assert(preImportNumber!=RRMesh::UNDEFINED);
 		unsigned obj = preImportNumber.object;
 		// convert to single-postimport tri
@@ -179,8 +179,8 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 		assert(object[obj]);
 		assert(object[obj]->importer);
 		assert(object[obj]->importer->getCollider());
-		assert(object[obj]->importer->getCollider()->getImporter());
-		unsigned tri = object[obj]->importer->getCollider()->getImporter()->getPostImportTriangle(preImportNumber.index);
+		assert(object[obj]->importer->getCollider()->getMesh());
+		unsigned tri = object[obj]->importer->getCollider()->getMesh()->getPostImportTriangle(preImportNumber.index);
 		assert(tri<object[obj]->triangles);
 		hitTriangle = &object[obj]->triangle[tri];
 		assert(hitTriangle!=skip);

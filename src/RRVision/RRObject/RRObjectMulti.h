@@ -115,7 +115,7 @@ public:
 		if(multiCollider) 
 		{
 			// Delete multiMesh importer created by us.
-			delete multiCollider->getImporter();
+			delete multiCollider->getMesh();
 			// Delete multiCollider created by us.
 			delete multiCollider;
 			// Delete transformers created by us.
@@ -154,8 +154,8 @@ private:
 			{
 				assert(objects[i]);
 				assert(objects[i]->getCollider());
-				assert(objects[i]->getCollider()->getImporter());
-				tris[(i<num1)?0:1] += objects[i]->getCollider()->getImporter()->getNumTriangles();
+				assert(objects[i]->getCollider()->getMesh());
+				tris[(i<num1)?0:1] += objects[i]->getCollider()->getMesh()->getNumTriangles();
 			}
 
 			// create multiobject

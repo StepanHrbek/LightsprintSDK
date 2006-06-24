@@ -25,14 +25,14 @@ void RRObject::getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure mea
 
 void RRObject::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
-	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
+	unsigned numTriangles = getCollider()->getMesh()->getNumTriangles();
 	if(t>=numTriangles)
 	{
 		assert(0);
 		return;
 	}
 	rr::RRMesh::TriangleBody tb;
-	getCollider()->getImporter()->getTriangleBody(t,tb);
+	getCollider()->getMesh()->getTriangleBody(t,tb);
 	Vec3 norm = ortogonalTo(tb.side1,tb.side2);
 	norm *= 1/size(norm);
 	out.norm[0] = norm;
@@ -42,7 +42,7 @@ void RRObject::getTriangleNormals(unsigned t, TriangleNormals& out) const
 
 void RRObject::getTriangleMapping(unsigned t, TriangleMapping& out) const
 {
-	unsigned numTriangles = getCollider()->getImporter()->getNumTriangles();
+	unsigned numTriangles = getCollider()->getMesh()->getNumTriangles();
 	if(t>=numTriangles)
 	{
 		assert(0);
@@ -73,8 +73,8 @@ const RRMatrix3x4* RRObject::getInvWorldMatrix()
 
 rr::RRMesh* RRObject::createWorldSpaceMesh()
 {
-	//!!! az bude refcounting, muzu pri identite vracet getCollider()->getImporter()
-	return new RRTransformedMeshFilter(getCollider()->getImporter(),getWorldMatrix());
+	//!!! az bude refcounting, muzu pri identite vracet getCollider()->getMesh()
+	return new RRTransformedMeshFilter(getCollider()->getMesh(),getWorldMatrix());
 }
 
 RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, rr::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)

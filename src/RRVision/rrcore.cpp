@@ -2028,7 +2028,7 @@ void Object::buildEdges()
 		triangle[t].edge[2]=NULL;
 	}
 	Triangles *trianglesInV=new Triangles[vertices];
-	RRMesh* meshImporter = importer->getCollider()->getImporter();
+	RRMesh* meshImporter = importer->getCollider()->getMesh();
 	for(unsigned t=0;t<triangles;t++)
 		if(triangle[t].surface)
 			for(int v1=0;v1<3;v1++)
@@ -2119,7 +2119,7 @@ bool Object::contains(Node *n)
 void Object::detectBounds()
 {
 	Vec3* vertex = new Vec3[vertices];
-	RRMesh* meshImporter = importer->getCollider()->getImporter();
+	RRMesh* meshImporter = importer->getCollider()->getMesh();
 	for(unsigned i=0;i<vertices;i++)
 	{
 		RRMesh::Vertex v;
@@ -2297,7 +2297,7 @@ void Scene::freeze(bool yes)
 				}
 				else
 				{
-					multiObjectMeshes[i] = object[i]->importer->getCollider()->getImporter();
+					multiObjectMeshes[i] = object[i]->importer->getCollider()->getMesh();
 					multiObjectMeshes4Delete[i] = NULL;
 				}
 			}
@@ -2314,7 +2314,7 @@ void Scene::freeze(bool yes)
 				RRMesh::TriangleBody bodyObj,bodyWorld;
 				multiMesh->getTriangleBody(post,bodyWorld);
 				assert(pre.object<numMeshes);
-				object[pre.object]->importer->getCollider()->getImporter()->getTriangleBody(meshes[pre.object]->getPostImportTriangle(pre.index),bodyObj);
+				object[pre.object]->importer->getCollider()->getMesh()->getTriangleBody(meshes[pre.object]->getPostImportTriangle(pre.index),bodyObj);
 				Vec3* v0w=(Vec3*)&bodyWorld.vertex0;
 				Vec3* s1w=(Vec3*)&bodyWorld.side1;
 				Vec3* s2w=(Vec3*)&bodyWorld.side2;
@@ -2338,7 +2338,7 @@ void Scene::freeze(bool yes)
 	{
 		if(isFrozen())
 		{
-			if(staticObjects>1) delete multiCollider->getImporter();
+			if(staticObjects>1) delete multiCollider->getMesh();
 			if(multiObjectMeshes4Delete)
 			{
 				for(unsigned i=0;i<staticObjects;i++)

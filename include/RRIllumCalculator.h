@@ -55,7 +55,7 @@ namespace rr
 			if(pixelBufferUnwrap)
 				delete[] pixelBufferUnwrap;
 			pixelBufferUnwrap = new RRVec2[numPreImportVertices];
-			rr::RRMesh* mesh = object->getCollider()->getImporter();
+			rr::RRMesh* mesh = object->getCollider()->getMesh();
 			unsigned numPostImportTriangles = mesh->getNumTriangles();
 			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 			{

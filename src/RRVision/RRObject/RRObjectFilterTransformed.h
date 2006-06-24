@@ -20,7 +20,7 @@ public:
 		collider = NULL;
 		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		assert(m);
-		rr::RRMesh* mesh = new RRTransformedMeshFilter(inherited->getCollider()->getImporter(),m);
+		rr::RRMesh* mesh = new RRTransformedMeshFilter(inherited->getCollider()->getMesh(),m);
 		// it would be possible to reuse collider of aobject, our collider would transform
 		//  both inputs and outputs and call aobject's collider with complicated collisionHandler
 		// quite complicated and slower, let's rather create new collider
@@ -28,7 +28,7 @@ public:
 	}
 	virtual ~RRTransformedObjectFilter()
 	{
-		delete collider->getImporter();
+		delete collider->getMesh();
 		delete collider;
 	}
 	// We want to compensate possible negative scale in transformation.

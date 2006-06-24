@@ -1076,7 +1076,7 @@ void Object::buildTopIVertices(unsigned smoothMode)
 
 	// build 1 ivertex for each vertex, insert all corners
 	IVertex *topivertex=new IVertex[vertices];
-	rr::RRMesh* meshImporter = importer->getCollider()->getImporter();
+	rr::RRMesh* meshImporter = importer->getCollider()->getMesh();
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
 	{
 		rr::RRMesh::Triangle un_ve; // un_ = unrotated

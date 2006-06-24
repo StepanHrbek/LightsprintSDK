@@ -379,7 +379,7 @@ protected:
 		// Allocate the index buffer memory as necessary.
 		GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
 
-		rr::RRMesh* mesh = multiObject->getCollider()->getImporter();
+		rr::RRMesh* mesh = multiObject->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
@@ -1728,7 +1728,7 @@ int main(int argc, char **argv)
 		light = sponza_light;
 	}
 
-	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getImporter()->getNumVertices(),rrobject->getCollider()->getImporter()->getNumTriangles());
+	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getMesh()->getNumVertices(),rrobject->getCollider()->getMesh()->getNumTriangles());
 	rr::RRScene::setStateF(rr::RRScene::SUBDIVISION_SPEED,0);
 	rr::RRScene::setState(rr::RRScene::GET_SOURCE,0);
 	rr::RRScene::setState(rr::RRScene::GET_REFLECTED,1);
@@ -1748,8 +1748,8 @@ int main(int argc, char **argv)
 	// load mgf
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalIllumination();
 #endif
-	printf(app->getObject(0)->getCollider()->getImporter()->save("c:\\a")?"saved":"not saved");
-	printf(app->getObject(0)->getCollider()->getImporter()->load("c:\\a")?" / loaded":" / not loaded");
+	printf(app->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
+	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
 	printf("\n");
 	glsl_init();
 	checkGlError();

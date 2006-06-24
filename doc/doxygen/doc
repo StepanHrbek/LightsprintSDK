@@ -280,7 +280,7 @@ Welcome to Lightsprint libraries.
 
 \page news What's new
 
-\section news4 ------------------------------------- 2006.6.12 -------------------------------------
+\section news4 ------------------------------------- 2006.6 -------------------------------------
 
 NEW FEATURES
 
@@ -294,6 +294,8 @@ NEW FEATURES
   \n supports even objects mixing both single and doublesided surfaces
 - rr::RRMesh::createOptimizedTriangles()
   \n creates optimized mesh without degenerated triangles
+- rr::RRMesh::save(), rr::RRMesh::load()
+  \n any mesh can be saved to file and loaded later
 
 CHANGES
 
@@ -309,6 +311,7 @@ CHANGES
   \n RRAdditionalObjectImporter -> rr::RRObjectAdditionalIllumination
   \n RRMeshSurfaceImporter -> rr::RRCollisionHandler
   \n RRLicense -> rr::RRLicenseCollider
+  \n RRCollider::getImporter() -> rr::RRCollider::getMesh()
 
 BUGFIXES
 

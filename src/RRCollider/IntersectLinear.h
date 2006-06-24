@@ -30,7 +30,7 @@ namespace rr
 		virtual ~IntersectLinear();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual bool      isValidTriangle(unsigned i) const;
-		virtual RRMesh* getImporter() const {return importer;}
+		virtual RRMesh* getMesh() const {return importer;}
 		virtual IntersectTechnique getTechnique() const {return IT_LINEAR;}
 		virtual unsigned  getMemoryOccupied() const;
 	protected:

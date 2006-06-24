@@ -96,7 +96,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
-	rr::RRMesh* meshImporter = importer->getCollider()->getImporter();
+	rr::RRMesh* meshImporter = importer->getCollider()->getMesh();
 	Object *obj=new Object(meshImporter->getNumVertices(),meshImporter->getNumTriangles());
 	obj->importer = importer;
 
@@ -255,7 +255,7 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	//		return NULL;
 	//	}
 	//	Object* obj = scene->object[0];
-	//	obj->importer->getCollider()->getImporter()->get
+	//	obj->importer->getCollider()->getMesh()->get
 	//}
 	if(object<0 || object>=scene->objects) 
 	{
@@ -294,7 +294,7 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			Vec3 normal = normals.norm[vertex];
 			assert(fabs(size2(normal)-1)<0.001);
 			// get point
-			rr::RRMesh* meshImporter = objectImporter->getCollider()->getImporter();
+			rr::RRMesh* meshImporter = objectImporter->getCollider()->getMesh();
 			rr::RRMesh::Triangle triangleIndices;
 			meshImporter->getTriangle(triangle,triangleIndices);
 			unsigned vertexIdx = triangleIndices[vertex];

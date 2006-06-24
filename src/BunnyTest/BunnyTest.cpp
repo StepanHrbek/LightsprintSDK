@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 	PlyMeshReader reader;
 	reader.readFile("bun_zipper.ply",mesh);
 	intersector = rr::RRCollider::create(createPlyMeshImporter(mesh),rr::RRCollider::IT_BSP_FASTEST);
-	printf("vertices=%d tris=%d\n",intersector->getImporter()->getNumVertices(),intersector->getImporter()->getNumTriangles());
+	printf("vertices=%d tris=%d\n",intersector->getMesh()->getNumVertices(),intersector->getMesh()->getNumTriangles());
 
 	// create one ray for each thread
 #ifdef _OPENMP

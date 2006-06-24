@@ -95,7 +95,7 @@ void RRGLObjectRenderer::render()
 	checkGlError();
 	glBegin(GL_TRIANGLES);
 	assert(params.object);
-	rr::RRMesh* meshImporter = params.object->getCollider()->getImporter();
+	rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
 	for(unsigned triangleIdx=0;triangleIdx<numTriangles;triangleIdx++)

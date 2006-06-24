@@ -123,7 +123,7 @@ namespace rr
 	//! %RRObject provides information about
 	//! - object material properties
 	//! - object collider for fast ray-mesh intersections
-	//! - indirectly also object geometry (via getCollider()->getImporter())
+	//! - indirectly also object geometry (via getCollider()->getMesh())
 	//! - optionally object transformation matrix
 	//! - optionally unwrap (for future versions)
 	//!
@@ -158,7 +158,7 @@ namespace rr
 		//
 		// must not change during object lifetime
 		//
-		//! Returns collider of underlying mesh. It is also access to mesh itself (via collider->getImporter()).
+		//! Returns collider of underlying mesh. It is also access to mesh itself (via collider->getMesh()).
 		virtual const RRCollider* getCollider() const = 0;
 		//! Returns triangle's surface id.
 		//

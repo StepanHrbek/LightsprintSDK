@@ -235,8 +235,8 @@ namespace rr
 		void intersectBatch(RRRay* ray, unsigned numRays);
 
 		// helpers
-		//! \returns Importer that was passed to create().
-		virtual RRMesh* getImporter() const = 0;
+		//! \returns Mesh that was passed to create().
+		virtual RRMesh* getMesh() const = 0;
 		//! \returns Technique used by collider. May differ from technique requested in create().
 		virtual IntersectTechnique getTechnique() const = 0;
 		//! \returns Total amount of system memory occupied by collider.

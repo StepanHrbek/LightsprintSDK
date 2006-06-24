@@ -242,7 +242,7 @@ rr::RRObject* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
 {
 	rr::RRObject* importer = new M3dsImporter(model, objectIdx);
 #ifdef VERIFY
-	importer->getCollider()->getImporter()->verify(reporter,NULL);
+	importer->getCollider()->getMesh()->verify(reporter,NULL);
 #endif
 	return importer;
 }
