@@ -2,8 +2,6 @@
 #ifndef RRVISION_INTERPOL_H
 #define RRVISION_INTERPOL_H
 
-#include <set>
-
 namespace rr
 {
 
@@ -53,16 +51,6 @@ struct Corner
 	real power;
 };
 
-struct IVertexInfo
-// used by: merge close ivertices
-{
-	void               absorb(IVertexInfo& info2); // this <- this+info2, info2 <- 0
-	class IVertex*     ivertex;                    // ivertex this information came from
-	Point3             center;                     // center of our vertices
-	std::set<unsigned> ourVertices;                // our vertices
-	std::set<unsigned> neighbourVertices;          // neighbours of our vertices (na ktere se da od nasich dojet po jedne hrane)
-};
-
 class IVertex
 {
 public:
@@ -90,7 +78,7 @@ public:
 	bool    isEmpty();
 
 	// used by: merge close ivertices
-	void    fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo& info);
+	void    fillInfo(Object* object, unsigned originalVertexIndex, struct IVertexInfo& info);
 	void    absorb(IVertex* aivertex);
 	unsigned getNumCorners() {return corners;}
 

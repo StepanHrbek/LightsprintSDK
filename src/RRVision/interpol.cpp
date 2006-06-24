@@ -1,4 +1,8 @@
 
+#ifdef _MSC_VER
+#pragma warning(disable:4530) // rucim za mistni operace se std::set a std::list ze nehodi exception. s vypnutymi exceptions je rr o 2.5% rychlejsi
+#endif
+
 #include "rrcore.h"
 #include "interpol.h"
 
@@ -6,6 +10,7 @@
 #include <list>
 #include <math.h>
 #include <memory.h>
+#include <set>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,6 +31,16 @@ char *FS(char *fmt, ...)
 
 namespace rr
 {
+
+struct IVertexInfo
+// used by: merge close ivertices
+{
+	void               absorb(IVertexInfo& info2); // this <- this+info2, info2 <- 0
+	class IVertex*     ivertex;                    // ivertex this information came from
+	Point3             center;                     // center of our vertices
+	std::set<unsigned> ourVertices;                // our vertices
+	std::set<unsigned> neighbourVertices;          // neighbours of our vertices (na ktere se da od nasich dojet po jedne hrane)
+};
 
 //#define LOG_LOADING_MES
 #define MAX_NEIGHBOUR_DISTANCE 0.01

@@ -153,7 +153,7 @@ public:
 	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
 	{
 		// check that this slow code is not called often
-		assert(0);
+		//assert(0); // called from RRMeshCopy
 		// efficient implementation would require another translation array
 		unsigned midImportTriangle = INHERITED::getPostImportTriangle(preImportTriangle);
 		for(unsigned post=0;post<ValidIndices;post++)

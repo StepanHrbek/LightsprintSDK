@@ -72,7 +72,6 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4530"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -243,7 +242,6 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"
-				DisableSpecificWarnings="4251;4530"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -314,6 +312,22 @@
 		<File
 			RelativePath="RRMeshCopy.cpp"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="1"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release DLL|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="1"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="RRMeshCopy.h"

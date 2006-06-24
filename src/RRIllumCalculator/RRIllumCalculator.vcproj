@@ -51,7 +51,7 @@
 				AdditionalIncludeDirectories="..\..\include;..\..\3rd\rsa;..\RRCollider\include;..\LicGen\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC"
 				StringPooling="true"
-				ExceptionHandling="0"
+				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
@@ -70,7 +70,6 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4530"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -226,7 +225,7 @@
 				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL;RR_DLL_BUILD_CALCULATOR"
 				StringPooling="true"
-				ExceptionHandling="0"
+				ExceptionHandling="1"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
@@ -243,7 +242,6 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"
-				DisableSpecificWarnings="4251;4530"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

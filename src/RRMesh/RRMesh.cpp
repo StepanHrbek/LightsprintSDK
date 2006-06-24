@@ -5,11 +5,11 @@
 #include "RRMeshIndexedTriList.h"
 #include "RRMeshLessVertices.h"
 #include "RRMeshLessTriangles.h"
-#include "RRMeshCopy.h"
 #include "RRMeshMulti.h"
 #include "../RRMath/RRMathPrivate.h"
 
 #include <cassert>
+#include <cstdio>
 #ifdef _MSC_VER
 	#include "../RRCollider/stdint.h"
 #else
@@ -174,15 +174,6 @@ RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexB
 		}
 		break;
 	}
-	return NULL;
-}
-
-
-RRMesh* RRMesh::createCopy()
-{
-	RRMeshCopy* importer = new RRMeshCopy();
-	if(importer->load(this)) return importer;
-	delete importer;
 	return NULL;
 }
 

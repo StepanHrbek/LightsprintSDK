@@ -274,6 +274,20 @@ namespace rr
 		RRMesh*        createOptimizedVertices(float vertexStitchMaxDistance = 0);
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
 		RRMesh*        createOptimizedTriangles();
+		//! Saves mesh to file.
+		//
+		//! \param filename
+		//!  Filename for saved mesh. Format is platform specific (eg. "c:\\mymesh" or "/pub/mymesh").
+		//! \return True on successful save.
+		bool           save(char* filename);
+		//! Loads mesh from file to newly created instance.
+		//
+		//! Loaded mesh represents the same geometry as saved mesh, but internal implementation (speed, 
+		//! occupied memory) may differ.
+		//! \param filename
+		//!  Filename of mesh to load.
+		//! \return Newly created instance or NULL when load failed.
+		static RRMesh* load(char* filename);
 
 		// verification
 		//! Callback for reporting text messages.

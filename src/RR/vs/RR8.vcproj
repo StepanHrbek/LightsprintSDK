@@ -175,7 +175,6 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4530"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -565,6 +564,14 @@
 		<File
 			RelativePath="..\render.cpp"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="0"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\render.h"
@@ -590,6 +597,7 @@
 					Name="VCCLCompilerTool"
 					Optimization="2"
 					PreprocessorDefinitions=""
+					ExceptionHandling="0"
 				/>
 			</FileConfiguration>
 			<FileConfiguration

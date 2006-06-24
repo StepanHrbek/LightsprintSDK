@@ -1748,6 +1748,8 @@ int main(int argc, char **argv)
 	// load mgf
 	rrobject = new_mgf_importer(mgf_filename)->createAdditionalIllumination();
 #endif
+	printf(app->getObject(0)->getCollider()->getImporter()->save("c:\\a")?"saved":"not saved");
+	printf(app->getObject(0)->getCollider()->getImporter()->load("c:\\a")?" / loaded":" / not loaded");
 	printf("\n");
 	glsl_init();
 	checkGlError();

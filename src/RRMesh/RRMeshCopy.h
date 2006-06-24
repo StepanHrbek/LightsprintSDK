@@ -27,18 +27,10 @@ public:
 
 	// Save importer to file.
 	// Check importer consistency during save so we don't have to store redundant data.
-	bool save(const char* filename)
-	{
-		//!!!
-		return false;
-	}
+	bool save(const char* filename) const;
 
 	// Load importer from file.
-	bool load(const char* filename)
-	{
-		//!!!
-		return false;
-	}
+	bool load(const char* filename);
 
 	// Load importer from another importer (create copy).
 	bool load(RRMesh* importer)
@@ -206,7 +198,8 @@ public:
 		return pre2postImportTriangles[preImportTriangle];
 	}
 
-protected:
+// the rest stays public to allow non intrusive serialization
+//protected:
 	std::vector<Vertex>   postImportVertices;
 	struct PostImportTriangle
 	{
