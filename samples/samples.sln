@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloVision", "HelloVision\HelloVision.vcproj", "{2E053151-D333-4091-9D6D-54408A6610DD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider", "HelloCollider\HelloCollider.vcproj", "{E2577A53-4812-1091-E37F-794832BA1DFE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh", "HelloMesh\HelloMesh.vcproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +17,14 @@ Global
 		{2E053151-D333-4091-9D6D-54408A6610DD}.Debug|Win32.Build.0 = Debug|Win32
 		{2E053151-D333-4091-9D6D-54408A6610DD}.Release|Win32.ActiveCfg = Release|Win32
 		{2E053151-D333-4091-9D6D-54408A6610DD}.Release|Win32.Build.0 = Release|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug|Win32.Build.0 = Debug|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release|Win32.ActiveCfg = Release|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release|Win32.Build.0 = Release|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug|Win32.Build.0 = Debug|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release|Win32.ActiveCfg = Release|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

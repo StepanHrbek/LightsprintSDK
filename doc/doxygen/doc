@@ -296,6 +296,10 @@ NEW FEATURES
   \n creates optimized mesh without degenerated triangles
 - rr::RRMesh::save(), rr::RRMesh::load()
   \n any mesh can be saved to file and loaded later
+- HelloMesh sample
+  \n demonstrates how to create simple mesh
+- HelloCollider sample
+  \n demonstrates how to detect ray-mesh collision
 
 CHANGES
 

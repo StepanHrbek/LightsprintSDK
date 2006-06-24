@@ -8,10 +8,9 @@
 // All rights reserved
 
 #include "RRVision.h"
-#include "stdio.h"
-#include "time.h"
+#include <stdio.h>
+#include <time.h>
 
-using namespace rr;
 using namespace rr;
 
 // simple mesh used for demonstration
@@ -88,9 +87,7 @@ int main()
 		printf("Invalid license, nothing will be computed.\n");
 
 	// create mesh importer (contains only geometry)
-	RRMesh* mesh = RRMesh::create(
-		RRMesh::TRI_LIST|RRMesh::OPTIMIZED_VERTICES|RRMesh::OPTIMIZED_TRIANGLES,
-		RRMesh::FLOAT32,vertexArray,6,3*sizeof(float));
+	RRMesh* mesh = RRMesh::create(RRMesh::TRI_LIST,RRMesh::FLOAT32,vertexArray,6,3*sizeof(float));
 
 	// create collider (able to find intersections with mesh)
 	RRCollider* collider = RRCollider::create(mesh,RRCollider::IT_BSP_FAST);
@@ -118,7 +115,7 @@ int main()
 	// Second triangle is slightly lit by its own light reflected by first triangle (increase by 0.02).
 	printf("After calculation:");
 	printIllumination(scene);
-	printf("\nPress enter...");
+	printf("\nPress enter to end...");
 	fgetc(stdin);
 
 	// cleanup

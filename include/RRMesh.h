@@ -224,7 +224,7 @@ namespace rr
 		};
 		//! Creates %RRMesh from your vertex buffer.
 		//
-		//! \param flags See #Flags.
+		//! \param flags See #Flags. Note that optimizations are not implemented for triangle lists, OPTIMIZE_XXX flags will be silently ignored.
 		//! \param vertexFormat %Format of data in your vertex buffer. See #Format. Currently only FLOAT32 is supported.
 		//! \param vertexBuffer Your vertex buffer.
 		//! \param vertexCount Number of vertices in your vertex buffer.
