@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="BunnyTest"
+	Name="BunnyBenchmark"
 	ProjectGUID="{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
 	Keyword="Win32Proj"
 	>
@@ -64,11 +64,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/BunnyTest_sd.exe"
+				OutputFile="$(OutDir)/BunnyBenchmark_sd.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="h:\c\rr\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/BunnyTest.pdb"
+				ProgramDatabaseFile="$(OutDir)/BunnyBenchmark.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -157,7 +157,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/BunnyTest_s.exe"
+				OutputFile="$(OutDir)/BunnyBenchmark_s.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="h:\c\rr\lib"
 				GenerateDebugInformation="true"
@@ -251,7 +251,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/BunnyTest.exe"
+				OutputFile="$(OutDir)/BunnyBenchmark.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="h:\c\rr\lib"
 				GenerateDebugInformation="true"
@@ -290,7 +290,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\BunnyTest.cpp"
+			RelativePath=".\BunnyBenchmark.cpp"
 			>
 		</File>
 		<File
