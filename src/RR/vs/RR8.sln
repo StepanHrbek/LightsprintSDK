@@ -25,11 +25,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRVision", "..\..\RRVision\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "World", "..\..\World\vs\World8.vcproj", "{AC8C9321-346C-42BB-4B36-D93E7C8D3A4A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyTest", "..\..\BunnyTest\BunnyTest8.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49} = {D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LicGen", "..\..\LicGen\vs\LicGen8.vcproj", "{CC592789-E5B9-4302-943E-E11BA53E0C5F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
@@ -68,6 +63,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider", "..\..\..\s
 	ProjectSection(ProjectDependencies) = postProject
 		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49} = {D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyTest", "..\..\..\samples\BunnyBenchmark\BunnyBenchmark.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -116,14 +113,6 @@ Global
 		{AC8C9321-346C-42BB-4B36-D93E7C8D3A4A}.Release DLL|Win32.Build.0 = Release|Win32
 		{AC8C9321-346C-42BB-4B36-D93E7C8D3A4A}.Release|Win32.ActiveCfg = Release|Win32
 		{AC8C9321-346C-42BB-4B36-D93E7C8D3A4A}.Release|Win32.Build.0 = Release|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug|Win32.Build.0 = Debug|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.GL Debug|Win32.ActiveCfg = Debug|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.GL Debug|Win32.Build.0 = Debug|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release DLL|Win32.Build.0 = Release DLL|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release|Win32.ActiveCfg = Release|Win32
-		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release|Win32.Build.0 = Release|Win32
 		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.Debug|Win32.Build.0 = Debug|Win32
 		{CC592789-E5B9-4302-943E-E11BA53E0C5F}.GL Debug|Win32.ActiveCfg = Debug|Win32
@@ -199,6 +188,14 @@ Global
 		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release DLL|Win32.Build.0 = Release|Win32
 		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release|Win32.ActiveCfg = Release|Win32
 		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release|Win32.Build.0 = Release|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug|Win32.Build.0 = Debug|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.GL Debug|Win32.ActiveCfg = Debug|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.GL Debug|Win32.Build.0 = Debug|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release|Win32.ActiveCfg = Release|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
