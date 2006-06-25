@@ -15,7 +15,7 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Debug|Win32"
+			Name="Debug static|Win32"
 			OutputDirectory="..\..\bin"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
@@ -66,7 +66,7 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/BunnyBenchmark_sd.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="h:\c\rr\lib"
+				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/BunnyBenchmark.pdb"
 				SubSystem="1"
@@ -98,7 +98,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
+			Name="Release static|Win32"
 			OutputDirectory="..\..\bin"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
@@ -159,7 +159,7 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/BunnyBenchmark_s.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="h:\c\rr\lib"
+				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -253,7 +253,7 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/BunnyBenchmark.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="h:\c\rr\lib"
+				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
