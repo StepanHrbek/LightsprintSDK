@@ -189,11 +189,11 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	}
 
 	bool hit = false;
-	char backup[sizeof(RRRay)];
 	update_rayDir(ray);
 	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 	FILL_STATISTIC(intersectStats.intersect_linear++);
 #ifdef COLLISION_HANDLER
+	char backup[sizeof(RRRay)];
 	if(ray->collisionHandler)
 		ray->collisionHandler->init();
 #endif

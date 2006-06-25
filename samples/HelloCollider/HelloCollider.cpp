@@ -35,7 +35,7 @@ int main()
 	// create collider (able to find ray x mesh intersections)
 	RRCollider* collider = RRCollider::create(mesh,RRCollider::IT_BSP_FAST);
 
-	// create ray (contains both ray and results)
+	// create ray (contains both ray and intersection results)
 	RRRay* ray = RRRay::create();
 	ray->rayOrigin[0] = 0;
 	ray->rayOrigin[1] = -1;

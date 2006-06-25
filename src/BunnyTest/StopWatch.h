@@ -1,3 +1,8 @@
+// StopWatch for time interval measurement.
+// Windows only implementation.
+//
+// Lightsprint, 2006
+
 #include <assert.h>
 #include <windows.h>
 

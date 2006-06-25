@@ -89,10 +89,10 @@ void PlyMeshReader::readFile(const std::string& pathname,
     p_ply ply = ply_open(pathname.c_str(), NULL);
 
     if(!ply) 
-		throw PlyMeshReaderExcep("could not open file '" + pathname + "' for reading.");
+		throw new PlyMeshReaderExcep("could not open file '" + pathname + "' for reading.");
     
 	if(!ply_read_header(ply))
-		throw PlyMeshReaderExcep("could not read header.");
+		throw new PlyMeshReaderExcep("could not read header.");
 		
     const long nvertices = ply_set_read_cb(ply, "vertex", "x", vertex_callback, &mesh_out, 0);
 
@@ -106,7 +106,7 @@ void PlyMeshReader::readFile(const std::string& pathname,
 	mesh_out.tris.resize(ntriangles);
 	
     if(!ply_read(ply)) 
-		throw PlyMeshReaderExcep("read of body failed.");
+		throw new PlyMeshReaderExcep("read of body failed.");
 
     ply_close(ply);
 }
