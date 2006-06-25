@@ -300,6 +300,8 @@ NEW FEATURES
   \n demonstrates how to create simple mesh
 - HelloCollider sample
   \n demonstrates how to detect ray-mesh collision
+- BunnyBenchmark sample
+  \n measures Collider's score in Stanford Bunny Benchmark
 
 CHANGES
 
