@@ -13,7 +13,7 @@ bool lightIndirectMap = 0;
 bool renderOnlyRr = false;
 bool renderDiffuseTexture = true;
 /*
-! ati: s texturami je spatne shadowmaps>1, bez textur je spatne shadowmaps=1
+! ati: pri shadowmaps>1 asi nesedi cisla sampleru, chybny rendr s materialDiffuse texturami i bez nich
 ! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava
 ! v gcc dela m3ds renderer spatny indirect na koulich (na zdi je ok, v msvc je ok, v rrrendereru je ok)
 ! rr renderer presvetluje kdyz po startu zmacknu t-
@@ -777,7 +777,7 @@ void drawEyeViewSoftShadowed(void)
 	{
 		placeSoftLight(i);
 		drawEyeViewShadowed();
-		glAccum(GL_ACCUM,1./(useLights/INSTANCES_PER_PASS));
+		glAccum(GL_ACCUM,1./(useLights/MIN(INSTANCES_PER_PASS,useLights)));
 	}
 	placeSoftLight(-2);
 
