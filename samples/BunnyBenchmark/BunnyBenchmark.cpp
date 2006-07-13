@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 		(int)(NUM_RAYS/(watch->realtime)),
 		(double)num_hits / NUM_RAYS
 		);
-	printf("Note that statically linked version is faster by 15%%.\n");
+	printf("Note that statically linked version is faster by 10-30%%.\n");
 	printf("\nMeasured speed: wallspd=%d 1cpuspd=%d user=%f kernel=%f hits=%f\n",
 		(int)(NUM_RAYS/(watch->realtime)/1000),
 		(int)(NUM_RAYS/(watch->usertime+watch->kerneltime)/1000),
