@@ -25,8 +25,6 @@
 
   scene.3ds   tries to open specified scene, not tested on other scenes
   -window     runs in window instead of fullscreen
-  -forcerun   runs even when OpenGL 2.0 is not present, but may crash
-  -vsync      enables vertical synchronization
 
 
   Requirements

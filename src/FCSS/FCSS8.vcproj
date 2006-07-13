@@ -224,14 +224,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\FrameRate.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\glsl\FrameRate.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\glsl\GLSLObject.cpp"
 				>
 			</File>
@@ -281,14 +273,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\ldmgf.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ldmgf.h"
-			>
-		</File>
-		<File
 			RelativePath="matrix.c"
 			>
 			<FileConfiguration
@@ -318,14 +302,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\mgf2rr.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\mgf2rr.h"
-			>
-		</File>
-		<File
 			RelativePath=".\Model_3DS.cpp"
 			>
 		</File>
@@ -343,10 +319,6 @@
 		</File>
 		<File
 			RelativePath=".\shadowcast.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\GL\wglew.h"
 			>
 		</File>
 	</Files>

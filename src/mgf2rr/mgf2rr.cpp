@@ -98,6 +98,11 @@ static void fillSurface(rr::RRSurface *s,C_MATERIAL *m)
 	s->specularReflectance  =m->rs;
 	s->specularTransmittance=m->ts;
 	s->refractionReal       =m->nr;
+#ifdef RR_DEVELOPMENT
+	s->diffuseTransmittance =m->td;
+	xy2rgb(m->td_c.cx,m->td_c.cy,0.5,&s->diffuseTransmittanceColor.x);
+	s->refractionImaginary  =m->ni;
+#endif
 }
 
 void* MgfImporter::add_material(C_MATERIAL *m)

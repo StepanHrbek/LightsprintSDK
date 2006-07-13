@@ -1,18 +1,19 @@
-#define _3DS
 //#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
-//#define MAX_FILTERED_INSTANCES 12  // max number of light instances with shadow filtering enabled
-#define MAX_INSTANCES          50  // max number of light instances aproximating one area light
-#define MAX_INSTANCES_PER_PASS 10
-unsigned INSTANCES_PER_PASS=7;
-unsigned initialPasses=1;
-#define AREA_SIZE 0.15f
-int fullscreen = 1;
-int shadowSamples = 4;
+//#define MAX_FILTERED_INSTANCES   12  // max number of light instances with shadow filtering enabled
+#define MAX_INSTANCES              50  // max number of light instances aproximating one area light
+#define MAX_INSTANCES_PER_PASS     10
+unsigned INSTANCES_PER_PASS = 2;//!!!7
+#define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
+#define INITIAL_PASSES             1
+#define AREA_SIZE                  0.15f
+int fullscreen = 0;
+int shadowSamples = 1;
 bool lightIndirectMap = 0;
 bool renderOnlyRr = false;
 bool renderDiffuseTexture = true;
 /*
+! ati: s texturami je spatne shadowmaps>1, bez textur je spatne shadowmaps=1
 ! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava
 ! v gcc dela m3ds renderer spatny indirect na koulich (na zdi je ok, v msvc je ok, v rrrendereru je ok)
 ! rr renderer presvetluje kdyz po startu zmacknu t-
@@ -40,7 +41,6 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 #include <stdlib.h>
 #include <stdio.h>
 #include <GL/glew.h>
-#include <GL/wglew.h>
 #include <GL/glut.h>
 
 #include "RRIllumCalculator.h"
@@ -50,8 +50,6 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 #include "glsl/GLSLProgram.hpp"
 #include "glsl/GLSLShader.hpp"
 #include "glsl/Texture.hpp"
-#include "glsl/FrameRate.hpp"
-#include "mgf2rr.h"
 #include "rr2gl.h"
 #include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
 
@@ -64,19 +62,13 @@ using namespace std;
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// MGF
-
-char *mgf_filename="data\\scene8.mgf";
+#define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // 3DS
 
-#ifdef _3DS
 #include "Model_3DS.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
@@ -88,7 +80,6 @@ Model_3DS m3ds;
 	//float scale_3ds = 1;
 	char* filename_3ds="koupelna4\\koupelna4.3ds";
 	float scale_3ds = 0.03f;
-#endif
 #endif
 
 
@@ -108,7 +99,6 @@ RRGLCachingRenderer* rendererCaching = NULL;
 GLSLProgram *lightProg, *ambientProg;
 GLSLProgramSet* ubershaderProgSet;
 Texture *lightDirectMap;
-FrameRate *counter;
 unsigned int shadowTex[MAX_INSTANCES];
 int currentWindowSize;
 #define SHADOW_MAP_SIZE 512
@@ -137,8 +127,8 @@ void initShadowTex()
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); // if not avail, use clamp_to_edge. if not avail, use clamp
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
 		// for shadow2D() instead of texture2D()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
@@ -175,7 +165,6 @@ void glsl_init()
 	initShadowTex();
 	initShaders();
 
-	counter = new FrameRate("hello");
 	lightDirectMap = new Texture("spot0.tga", GL_LINEAR,
 		GL_LINEAR, GL_CLAMP, GL_CLAMP);
 }
@@ -199,16 +188,12 @@ enum {
 
 /* Draw modes. */
 enum {
-  DM_LIGHT_VIEW,
   DM_EYE_VIEW_SHADOWED,
   DM_EYE_VIEW_SOFTSHADOWED,
 };
 
 /* Menu items. */
 enum {
-  ME_EYE_VIEW_SHADOWED,
-  ME_EYE_VIEW_SOFTSHADOWED,
-  ME_LIGHT_VIEW,
   ME_TOGGLE_GLOBAL_ILLUMINATION,
   ME_TOGGLE_WIRE_FRAME,
   ME_TOGGLE_LIGHT_FRUSTUM,
@@ -216,8 +201,6 @@ enum {
   ME_EXIT,
 };
 
-bool forcerun = 0;
-int vsync = 0;
 int requestedDepthMapSize = 512;
 int depthMapSize = 512;
 
@@ -225,7 +208,7 @@ GLenum depthMapPrecision = GL_UNSIGNED_BYTE;
 GLenum depthMapFormat = GL_LUMINANCE;
 GLenum depthMapInternalFormat = GL_INTENSITY8;
 
-unsigned useLights = initialPasses*INSTANCES_PER_PASS;
+unsigned useLights = INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS;
 int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 
@@ -262,7 +245,7 @@ struct SimpleCamera
 SimpleCamera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500};
 SimpleCamera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996};
 
-GLUquadricObj *q;
+GLUquadricObj *quadric;
 int xEyeBegin, yEyeBegin, movingEye = 0;
 int xLightBegin, yLightBegin, movingLight = 0;
 int wireFrame = 0;
@@ -279,11 +262,6 @@ int eyeButton = GLUT_LEFT_BUTTON;
 int lightButton = GLUT_MIDDLE_BUTTON;
 int useDepth24 = 0;
 int drawFront = 0;
-
-int hasShadow = 0;
-int hasDepthTexture = 0;
-int hasTextureBorderClamp = 0;
-int hasTextureEdgeClamp = 0;
 
 double winAspectRatio;
 
@@ -465,34 +443,9 @@ static int supports20(void)
    program state. */
 void updateTitle(void)
 {
-	char title[256];
-
-	/* Only update the title is needTitleUpdate is set. */
 	if (needTitleUpdate) 
 	{
-		/*
-		char *modeName;
-		int depthBits;
-		switch (drawMode) 
-		{
-		case DM_LIGHT_VIEW:
-			modeName = "light view";
-		case DM_EYE_VIEW_SHADOWED:
-			modeName = "primary illumination";
-			break;
-		case DM_EYE_VIEW_SOFTSHADOWED:
-			modeName = "global illumination";
-			break;
-		default:
-			assert(0);
-			modeName = "";
-			break;
-		}
-		glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-		sprintf(title,
-			"realtime radiosity viewer - %s, shadowmaps %dx%d %d-bit, depthBias=%d, slopeScale=%f",
-			modeName, depthMapSize, depthMapSize, depthBits, depthBias24, slopeScale);
-			*/
+		char title[256];
 		sprintf(title,"realtime radiosity viewer - %s",filename_3ds);
 		glutSetWindowTitle(title);
 		needTitleUpdate = 0;
@@ -504,21 +457,33 @@ void updateTitle(void)
 
 static void drawSphere(void)
 {
-	gluSphere(q, 0.55, 16, 16);
+	gluSphere(quadric, 0.55, 16, 16);
 }
 
-//unsigned define_shadowMaps = 0;
-//unsigned define_shadowSamples = 0;
-//bool define_lightDirect = false;
-//bool define_lightDirectMap = false;
+/*
+struct UbershaderDefines
+{
+	// these values are directly passed into ubershader defines
+	unsigned SHADOW_MAPS            :8;
+	unsigned SHADOW_SAMPLES         :8;
+	bool     LIGHT_DIRECT           :1;
+	bool     LIGHT_DIRECT_MAP       :1;
+	bool     LIGHT_INDIRECT_COLOR   :1;
+	bool     LIGHT_INDIRECT_MAP     :1;
+	bool     MATERIAL_DIFFUSE_COLOR :1;
+	bool     MATERIAL_DIFFUSE_MAP   :1;
+	bool     FORCE_2D_POSITION      :1;
+
+	UbershaderConfig()
+	{
+		memset(this,0,sizeof(*this));
+	}
+};
+*/
+
 bool define_lightIndirectXxx = false;
 //v rendru bez textur se materialColor i indirectColor nacitaj z gl_Color
 //je nutne (pri vyplych texturach) vypnout optimalizaci - slouceni primary a indirectu do 1 passu
-//bool define_lightIndirectColor = false;
-//bool define_lightIndirectMap = false;
-//bool define_materialDiffuseColor = false;
-//bool define_materialDiffuseMap = false;
-//bool define_force2dPosition = false;
 
 GLSLProgram* getProgramCore(RRGLObjectRenderer::ColorChannel cc)
 {
@@ -558,7 +523,7 @@ retry:
 			{
 				printf("MAPS_PER_PASS=%d too much, trying %d...\n",INSTANCES_PER_PASS,INSTANCES_PER_PASS-1);
 				INSTANCES_PER_PASS--;
-				useLights = initialPasses*INSTANCES_PER_PASS;
+				useLights = INITIAL_PASSES*INSTANCES_PER_PASS;
 				needDepthMapUpdate = 1; // zmenilo se rozlozeni instanci v prostoru
 				goto retry;
 			}
@@ -595,7 +560,7 @@ GLSLProgram* setProgram(RRGLObjectRenderer::ColorChannel cc)
 void drawScene(RRGLObjectRenderer::ColorChannel cc)
 {
 	checkGlError();
-#ifdef _3DS
+
 	if(!renderOnlyRr && cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE)
 	{
 		glEnable(GL_CULL_FACE);
@@ -608,7 +573,7 @@ void drawScene(RRGLObjectRenderer::ColorChannel cc)
 		m3ds.Draw(NULL,app,lightIndirectMap);
 		return;
 	}
-#endif
+
 	rendererNonCaching->setChannel(cc);
 	rendererCaching->render();
 	checkGlError();
@@ -642,7 +607,7 @@ void drawLight(void)
 	glPushMatrix();
 	glTranslatef(light.pos[0]-0.3*light.dir[0], light.pos[1]-0.3*light.dir[1], light.pos[2]-0.3*light.dir[2]);
 	glColor3f(1,1,0);
-	gluSphere(q, 0.05, 10, 10);
+	gluSphere(quadric, 0.05, 10, 10);
 	glPopMatrix();
 }
 
@@ -746,24 +711,6 @@ void setupLightView(int square)
 void drawLightView(void)
 {
 	drawScene(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE);
-}
-
-void useBestShadowMapClamping(GLenum target)
-{
-	if (hasTextureBorderClamp) {
-		glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_ARB);
-		glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_ARB);
-	} else {
-		/* We really want "clamp to border", but this may be good enough. */
-		if (hasTextureEdgeClamp) {
-			glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		} else {
-			/* A bad option, but still better than "repeat". */
-			glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		}
-	}
 }
 
 void placeSoftLight(int n)
@@ -994,8 +941,8 @@ static void drawHelpMessage(bool big)
 {
 	static char *message[] = {
 		"Realtime Radiosity Viewer",
-		" Stepan Hrbek, http://dee.cz",
-		" radiosity engine, http://lightsprint.com",
+		"        Stepan Hrbek, http://dee.cz",
+		"        radiosity engine, http://lightsprint.com",
 		"",
 		"mouse+left button - manipulate camera",
 		"mouse+mid button  - manipulate light",
@@ -1085,15 +1032,7 @@ void display(void)
 
 	switch(drawMode)
 	{
-		case DM_LIGHT_VIEW:
-			setupLightView(0);
-			if (wireFrame) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
-			drawLightView();
-			break;
 		case DM_EYE_VIEW_SHADOWED:
-			/* Wire frame handled internal to this routine. */
 			drawEyeViewShadowed();
 			break;
 		case DM_EYE_VIEW_SOFTSHADOWED:
@@ -1112,7 +1051,7 @@ void display(void)
 	if(!drawFront)
 		glutSwapBuffers();
 
-	static bool captured=false; if(!captured) {captured=true;capturePrimary();}
+	LIMITED_TIMES(1,capturePrimary());
 }
 
 static void benchmark(int perFrameDepthMapUpdate)
@@ -1200,18 +1139,6 @@ void selectMenu(int item)
 {
 	app->reportInteraction();
 	switch (item) {
-  case ME_EYE_VIEW_SHADOWED:
-	  drawMode = DM_EYE_VIEW_SHADOWED;
-	  needTitleUpdate = 1;
-	  break;
-  case ME_EYE_VIEW_SOFTSHADOWED:
-	  drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-	  needTitleUpdate = 1;
-	  break;
-  case ME_LIGHT_VIEW:
-	  drawMode = DM_LIGHT_VIEW;
-	  needTitleUpdate = 1;
-	  break;
   case ME_SWITCH_MOUSE_CONTROL:
 	  switchMouseControl();
 	  return;  /* No redisplay needed. */
@@ -1297,7 +1224,8 @@ void special(int c, int x, int y)
 void keyboard(unsigned char c, int x, int y)
 {
 	app->reportInteraction();
-	switch (c) {
+	switch (c)
+	{
 		case 27:
 			//delete app; throws asser in freeing node from ivertex
 			exit(0);
@@ -1307,11 +1235,6 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 		case 'B':
 			updateDepthBias(-1);
-			break;
-		case 'l':
-		case 'L':
-			drawMode = DM_LIGHT_VIEW;
-			needTitleUpdate = 1;
 			break;
 		case 'm':
 			switchMouseControl();
@@ -1469,14 +1392,6 @@ void initGL(void)
 {
 	GLint depthBits;
 
-#if defined(_WIN32)
-	if (vsync) {
-		wglSwapIntervalEXT(1);
-	} else {
-		wglSwapIntervalEXT(0);
-	}
-#endif
-
 	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 	//printf("depth buffer precision = %d\n", depthBits);
 
@@ -1495,14 +1410,9 @@ void initGL(void)
 
 	glEnable(GL_CULL_FACE);
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
-#if 000
-	/* This would work too. */
-	glEnable(GL_RESCALE_NORMAL_EXT);
-#else
 	glEnable(GL_NORMALIZE);
-#endif
 
-	q = gluNewQuadric();
+	quadric = gluNewQuadric();
 	if (useDisplayLists) {
 
 		/* Make a sphere display list. */
@@ -1616,26 +1526,15 @@ void parseOptions(int argc, char **argv)
 					printf("Out of range, 1 to 10 allowed.\n");
 			}
 		}
-		if (!strcmp("-forcerun", argv[i])) {
-			forcerun = 1;
-		}
 		if (!strcmp("-window", argv[i])) {
 			fullscreen = 0;
 		}
-		if (strstr(argv[i], ".mgf")) {
-			mgf_filename = argv[i];
-		}
-#ifdef _3DS
 		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS")) {
 			filename_3ds = argv[i];
 			scale_3ds = 1;
 		}
-#endif
 		if (!strcmp("-depth24", argv[i])) {
 			useDepth24 = 1;
-		}
-		if (!strcmp("-vsync", argv[i])) {
-			vsync = 1;
 		}
 		if (!strcmp("-front", argv[i])) {
 			drawFront = 1;
@@ -1698,7 +1597,7 @@ int main(int argc, char **argv)
 
 	initGL();
 
-	if(!forcerun && !supports20())
+	if(!supports20())
 	{
 		puts("At least OpenGL 2.0 required.");
 		return 0;
@@ -1737,17 +1636,14 @@ int main(int argc, char **argv)
 	//rr::RRScene::setStateF(rr::MAX_SMOOTH_ANGLE,0.4f);
 
 	printf("Loading and preprocessing scene (~15 sec)...");
-#ifdef _3DS
+
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
 	//m3ds.shownormals=1;
 	//m3ds.numObjects=2;//!!!
 	app = new MyApp();
 	new_3ds_importer(&m3ds,app);
-#else
-	// load mgf
-	rrobject = new_mgf_importer(mgf_filename)->createAdditionalIllumination();
-#endif
+
 //	printf(app->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
 //	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
 	printf("\n");

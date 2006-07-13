@@ -76,11 +76,11 @@ void GLSLProgram::linkIt()
 		delete [] debug;
 	}*/
 	// validate
-	glValidateProgram(handle);
-	GLint valid;
-	glGetProgramiv(handle,GL_VALIDATE_STATUS,&valid);
+//	glValidateProgram(handle);
+//	GLint valid;
+//	glGetProgramiv(handle,GL_VALIDATE_STATUS,&valid);
 	// store result
-	ready = linked && valid;
+	ready = linked!=0 ;//&& valid;
 }
 
 bool GLSLProgram::isReady()
