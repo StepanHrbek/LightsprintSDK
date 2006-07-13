@@ -213,46 +213,66 @@
 	</References>
 	<Files>
 		<Filter
-			Name="glsl"
+			Name="GL"
 			>
 			<File
-				RelativePath=".\glsl\Camera.cpp"
+				RelativePath=".\GL\Camera.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\Camera.hpp"
+				RelativePath=".\GL\Camera.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\Program.cpp"
+				RelativePath=".\GL\glew.c"
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\Program.h"
+				RelativePath=".\GL\glew.h"
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\Shader.cpp"
+				RelativePath=".\GL\glut.h"
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\Shader.h"
+				RelativePath=".\GL\matrix.c"
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\Texture.cpp"
+				RelativePath=".\GL\matrix.h"
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\Texture.hpp"
+				RelativePath=".\GL\Program.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\UberProgram.cpp"
+				RelativePath=".\GL\Program.h"
 				>
 			</File>
 			<File
-				RelativePath=".\glsl\UberProgram.h"
+				RelativePath=".\GL\Shader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GL\Shader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GL\Texture.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GL\Texture.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GL\UberProgram.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GL\UberProgram.h"
 				>
 			</File>
 		</Filter>
@@ -262,43 +282,6 @@
 		</File>
 		<File
 			RelativePath=".\3ds2rr.h"
-			>
-		</File>
-		<File
-			RelativePath=".\glew.c"
-			>
-		</File>
-		<File
-			RelativePath=".\GL\glew.h"
-			>
-		</File>
-		<File
-			RelativePath="matrix.c"
-			>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="2"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					BrowseInformation="1"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="matrix.h"
 			>
 		</File>
 		<File

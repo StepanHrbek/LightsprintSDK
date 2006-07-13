@@ -16,7 +16,6 @@ bool renderDiffuseTexture = true;
 ! ati: pri shadowmaps>1 asi nesedi cisla sampleru, chybny rendr s materialDiffuse texturami i bez nich
 ! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava
 ! v gcc dela m3ds renderer spatny indirect na koulich (na zdi je ok, v msvc je ok, v rrrendereru je ok)
-! rr renderer presvetluje kdyz po startu zmacknu t-
 rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
 
 pridat dalsi koupelny
@@ -45,9 +44,9 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 
 #include "RRIllumCalculator.h"
 
-#include "glsl/Camera.hpp"
-#include "glsl/Texture.hpp"
-#include "glsl/UberProgram.h"
+#include "GL/Camera.hpp"
+#include "GL/Texture.hpp"
+#include "GL/UberProgram.h"
 #include "rr2gl.h"
 
 using namespace std;
