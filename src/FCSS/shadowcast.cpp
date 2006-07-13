@@ -45,7 +45,6 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 
 #include "RRIllumCalculator.h"
 
-//#include "glsl/Light.hpp"
 #include "glsl/Camera.hpp"
 #include "glsl/GLSLProgram.hpp"
 #include "glsl/GLSLShader.hpp"
@@ -96,11 +95,7 @@ RRGLCachingRenderer* rendererCaching = NULL;
 //
 // GLSL
 
-GLSLProgram *lightProg, *ambientProg;
-GLSLProgramSet* ubershaderProgSet;
-Texture *lightDirectMap;
 int currentWindowSize;
-#define SHADOW_MAP_SIZE 512
 int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0
 
 void checkGlError()
@@ -118,6 +113,8 @@ void checkGlError()
 /////////////////////////////////////////////////////////////////////////////
 //
 // Texture for shadow map
+
+#define SHADOW_MAP_SIZE 512
 
 class TextureShadowMap : public Texture
 {
@@ -144,35 +141,29 @@ public:
 
 
 /////////////////////////////////////////////////////////////////////////////
+//
+// our OpenGL resources
 
+GLUquadricObj *quadric;
 TextureShadowMap* shadowMaps = NULL;
+Texture *lightDirectMap;
+GLSLProgram *lightProg, *ambientProg;
+GLSLProgramSet* ubershaderProgSet;
 
-
-void initShaders()
+void init_gl_resources()
 {
+	quadric = gluNewQuadric();
+
+	shadowMaps = new TextureShadowMap[MAX_INSTANCES];
+	lightDirectMap = new Texture("spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+
 	ubershaderProgSet = new GLSLProgramSet("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	lightProg = new GLSLProgram(NULL,"shaders\\shadowmap.vp");
 	ambientProg = new GLSLProgram(NULL,"shaders\\ambient.vp", "shaders\\ambient.fp");
 }
 
-void glsl_init()
-{
-	glClearColor(0.0, 0.0, 0.0, 0.0);
 
-	glShadeModel(GL_SMOOTH);
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-
-	//shadowMaps.create();
-	shadowMaps = new TextureShadowMap[MAX_INSTANCES];
-	initShaders();
-
-	lightDirectMap = new Texture("spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-}
-
+/////////////////////////////////////////////////////////////////////////////
 
 
 /* Draw modes. */
@@ -208,7 +199,6 @@ void *font = GLUT_BITMAP_8_BY_13;
 Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
 Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
 
-GLUquadricObj *quadric;
 int xEyeBegin, yEyeBegin, movingEye = 0;
 int xLightBegin, yLightBegin, movingLight = 0;
 int wireFrame = 0;
@@ -754,7 +744,7 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	glActiveTexture(GL_TEXTURE0_ARB);
+	glActiveTexture(GL_TEXTURE0);
 }
 
 void drawEyeViewShadowed()
@@ -893,9 +883,9 @@ static void drawHelpMessage(bool big)
 
 	ambientProg->useIt();
 
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glActiveTexture(GL_TEXTURE0);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 
@@ -1300,41 +1290,6 @@ void reshape(int w, int h)
 	updateDepthScale();
 }
 
-void initGL(void)
-{
-	GLint depthBits;
-
-	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-	//printf("depth buffer precision = %d\n", depthBits);
-
-	glClearColor(0,0,0,0);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
-	/* GL_LEQUAL ensures that when fragments with equal depth are
-	generated within a single rendering pass, the last fragment
-	results. */
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
-
-	glLineStipple(1, 0xf0f0);
-
-	glEnable(GL_CULL_FACE);
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
-	glEnable(GL_NORMALIZE);
-
-	quadric = gluNewQuadric();
-
-	updateDepthScale();
-	updateDepthBias(0);  /* Update with no offset change. */
-
-	if (drawFront) {
-		glDrawBuffer(GL_FRONT);
-		glReadBuffer(GL_FRONT);
-	}
-}
-
 void mouse(int button, int state, int x, int y)
 {
 	app->reportInteraction();
@@ -1359,10 +1314,6 @@ void mouse(int button, int state, int x, int y)
 		capturePrimary();
 		glutPostRedisplay();
 	}
-}
-
-void passivemotion(int x, int y)
-{
 }
 
 void motion(int x, int y)
@@ -1391,6 +1342,18 @@ void motion(int x, int y)
 	}
 }
 
+void idle()
+{
+	if(app->calculate()==rr::RRScene::IMPROVED)
+	{
+		rendererNonCaching->setChannel(RRGLObjectRenderer::CC_REFLECTED_EXITANCE);
+		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
+		rendererNonCaching->setChannel(RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE);
+		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
+		glutPostRedisplay();
+	}
+}
+
 void depthBiasSelect(int depthBiasOption)
 {
 	depthBias24 = depthBiasOption;
@@ -1398,6 +1361,46 @@ void depthBiasSelect(int depthBiasOption)
 	needTitleUpdate = 1;
 	needDepthMapUpdate = 1;
 	glutPostRedisplay();
+}
+
+void init_gl_states()
+{
+	GLint depthBits;
+
+	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
+	//printf("depth buffer precision = %d\n", depthBits);
+
+	glClearColor(0,0,0,0);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+	/* GL_LEQUAL ensures that when fragments with equal depth are
+	generated within a single rendering pass, the last fragment
+	results. */
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+
+	glLineStipple(1, 0xf0f0);
+
+	glEnable(GL_CULL_FACE);
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
+	glEnable(GL_NORMALIZE);
+
+	updateDepthScale();
+	updateDepthBias(0);  /* Update with no offset change. */
+
+	if (drawFront) {
+		glDrawBuffer(GL_FRONT);
+		glReadBuffer(GL_FRONT);
+	}
+
+	glShadeModel(GL_SMOOTH);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
 }
 
 void initMenus(void)
@@ -1447,18 +1450,6 @@ void parseOptions(int argc, char **argv)
 	}
 }
 
-void idle()
-{
-	if(app->calculate()==rr::RRScene::IMPROVED)
-	{
-		rendererNonCaching->setChannel(RRGLObjectRenderer::CC_REFLECTED_EXITANCE);
-		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
-		rendererNonCaching->setChannel(RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE);
-		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
-		glutPostRedisplay();
-	}
-}
-
 int main(int argc, char **argv)
 {
 	rr::RRLicense::registerLicense("","");
@@ -1492,21 +1483,12 @@ int main(int argc, char **argv)
 	glutSpecialFunc(special);
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
-	glutPassiveMotionFunc(passivemotion);
 	glutMotionFunc(motion);
 	glutIdleFunc(idle);
 
 	/* Menu initialization depends on knowing what extensions are
 	supported. */
 	initMenus();
-
-	initGL();
-
-	if(!supports20())
-	{
-		puts("At least OpenGL 2.0 required.");
-		return 0;
-	}
 
 	if (strstr(filename_3ds, "koupelna3")) {
 		scale_3ds = 0.01f;
@@ -1540,6 +1522,16 @@ int main(int argc, char **argv)
 	rr::RRScene::setStateF(rr::RRScene::MIN_FEATURE_SIZE,0.15f);
 	//rr::RRScene::setStateF(rr::MAX_SMOOTH_ANGLE,0.4f);
 
+	init_gl_states();
+	init_gl_resources();
+
+	if(!supports20())
+	{
+		puts("At least OpenGL 2.0 required.\n\nHit enter to close...");
+		fgetc(stdin);
+		exit(0);
+	}
+
 	printf("Loading and preprocessing scene (~15 sec)...");
 
 	// load 3ds
@@ -1552,8 +1544,6 @@ int main(int argc, char **argv)
 //	printf(app->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
 //	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
 	printf("\n");
-	glsl_init();
-	checkGlError();
 	app->calculate();
 	rendererNonCaching = new RRGLObjectRenderer(app->multiObject,app->scene);
 	rendererCaching = new RRGLCachingRenderer(rendererNonCaching);
