@@ -44,8 +44,8 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 
 #include "RRIllumCalculator.h"
 
-#include "GL/Camera.hpp"
-#include "GL/Texture.hpp"
+#include "GL/Camera.h"
+#include "GL/Texture.h"
 #include "GL/UberProgram.h"
 #include "rr2gl.h"
 
