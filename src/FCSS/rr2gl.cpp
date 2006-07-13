@@ -21,8 +21,6 @@ bool  COMPILE=1;
 
 VertexDataGenerator* generateForcedUv = NULL;
 
-void checkGlError();
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -92,7 +90,6 @@ void RRGLObjectRenderer::render()
 		assert(0);
 	}
 
-	checkGlError();
 	glBegin(GL_TRIANGLES);
 	assert(params.object);
 	rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
@@ -180,7 +177,6 @@ void RRGLObjectRenderer::render()
 		}
 	}
 	glEnd();
-	checkGlError();
 }
 
 

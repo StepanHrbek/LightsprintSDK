@@ -4,7 +4,7 @@
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
 unsigned INSTANCES_PER_PASS = 2;//!!!7
-#define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
+#define INITIAL_INSTANCES_PER_PASS 1//INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define AREA_SIZE                  0.15f
 int fullscreen = 0;
@@ -46,11 +46,9 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce
 #include "RRIllumCalculator.h"
 
 #include "glsl/Camera.hpp"
-#include "glsl/GLSLProgram.hpp"
-#include "glsl/GLSLShader.hpp"
 #include "glsl/Texture.hpp"
+#include "glsl/UberProgram.h"
 #include "rr2gl.h"
-#include "matrix.h"   /* OpenGL-style 4x4 matrix manipulation routines */
 
 using namespace std;
 
@@ -98,17 +96,6 @@ RRGLCachingRenderer* rendererCaching = NULL;
 int currentWindowSize;
 int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0
 
-void checkGlError()
-{
-	/*
-	GLenum err = glGetError();
-	if(err!=GL_NO_ERROR)
-	{
-		printf("glGetError=%x\n",err);
-	}
-	*/
-}
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -147,8 +134,8 @@ public:
 GLUquadricObj *quadric;
 TextureShadowMap* shadowMaps = NULL;
 Texture *lightDirectMap;
-GLSLProgram *lightProg, *ambientProg;
-GLSLProgramSet* ubershaderProgSet;
+Program *lightProg, *ambientProg;
+UberProgram* ubershaderProgSet;
 
 void init_gl_resources()
 {
@@ -157,9 +144,9 @@ void init_gl_resources()
 	shadowMaps = new TextureShadowMap[MAX_INSTANCES];
 	lightDirectMap = new Texture("spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
-	ubershaderProgSet = new GLSLProgramSet("shaders\\ubershader.vp", "shaders\\ubershader.fp");
-	lightProg = new GLSLProgram(NULL,"shaders\\shadowmap.vp");
-	ambientProg = new GLSLProgram(NULL,"shaders\\ambient.vp", "shaders\\ambient.fp");
+	ubershaderProgSet = new UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
+	lightProg = new Program(NULL,"shaders\\shadowmap.vp");
+	ambientProg = new Program(NULL,"shaders\\ambient.vp", "shaders\\ambient.fp");
 }
 
 
@@ -425,7 +412,7 @@ bool define_lightIndirectXxx = false;
 //v rendru bez textur se materialColor i indirectColor nacitaj z gl_Color
 //je nutne (pri vyplych texturach) vypnout optimalizaci - slouceni primary a indirectu do 1 passu
 
-GLSLProgram* getProgramCore(RRGLObjectRenderer::ColorChannel cc)
+Program* getProgramCore(RRGLObjectRenderer::ColorChannel cc)
 {
 	switch(cc)
 	{
@@ -438,7 +425,7 @@ GLSLProgram* getProgramCore(RRGLObjectRenderer::ColorChannel cc)
 		case RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE:
 		case RRGLObjectRenderer::CC_REFLECTED_EXITANCE:
 			{
-			GLSLProgramSet* progSet = ubershaderProgSet;
+			UberProgram* progSet = ubershaderProgSet;
 			static char tmp[200];
 			bool force2d = cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION;
 			bool lightIndirect1 = cc==RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE || cc==RRGLObjectRenderer::CC_REFLECTED_EXITANCE;
@@ -458,7 +445,7 @@ retry:
 				materialDiffuseMap?"#define MATERIAL_DIFFUSE_MAP\n":"",
 				force2d?"#define FORCE_2D_POSITION\n":""
 				);
-			GLSLProgram* prog = progSet->getVariant(tmp);
+			Program* prog = progSet->getVariant(tmp);
 			if(!prog && INSTANCES_PER_PASS>1)
 			{
 				printf("MAPS_PER_PASS=%d too much, trying %d...\n",INSTANCES_PER_PASS,INSTANCES_PER_PASS-1);
@@ -474,11 +461,9 @@ retry:
 			return NULL;
 	}
 }
-GLSLProgram* getProgram(RRGLObjectRenderer::ColorChannel cc)
+Program* getProgram(RRGLObjectRenderer::ColorChannel cc)
 {
-	checkGlError();
-	GLSLProgram* tmp = getProgramCore(cc);
-	checkGlError();
+	Program* tmp = getProgramCore(cc);
 	if(!tmp)
 	{
 		printf("getProgram failed, your card and driver is not capable enough.\nTry to update driver or simplify program.");
@@ -488,19 +473,15 @@ GLSLProgram* getProgram(RRGLObjectRenderer::ColorChannel cc)
 	return tmp;
 }
 
-GLSLProgram* setProgram(RRGLObjectRenderer::ColorChannel cc)
+Program* setProgram(RRGLObjectRenderer::ColorChannel cc)
 {
-	GLSLProgram* tmp = getProgram(cc);
-	checkGlError();
+	Program* tmp = getProgram(cc);
 	tmp->useIt();
-	checkGlError();
 	return tmp;
 }
 
 void drawScene(RRGLObjectRenderer::ColorChannel cc)
 {
-	checkGlError();
-
 	if(!renderOnlyRr && cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE)
 	{
 		glEnable(GL_CULL_FACE);
@@ -516,7 +497,6 @@ void drawScene(RRGLObjectRenderer::ColorChannel cc)
 
 	rendererNonCaching->setChannel(cc);
 	rendererCaching->render();
-	checkGlError();
 }
 
 void setProgramAndDrawScene(RRGLObjectRenderer::ColorChannel cc)
@@ -674,13 +654,10 @@ void updateDepthMap(int mapIndex)
 
 void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 {
-	checkGlError();
-	GLSLProgram* myProg = setProgram(cc);
-	checkGlError();
+	Program* myProg = setProgram(cc);
 
 	// shadowMap[], gl_TextureMatrix[]
 	glMatrixMode(GL_TEXTURE);
-	checkGlError();
 	GLdouble tmp[16]={
 		1,0,0,0,
 		0,1,0,0,
@@ -690,7 +667,6 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 	GLint samplers[100];
 	int softLightBase = softLight;
 	int instances = (softLight>=0 && cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE)?MIN(useLights,INSTANCES_PER_PASS):1;
-	checkGlError();
 	for(int i=0;i<instances;i++)
 	{
 		glActiveTexture(GL_TEXTURE0+i);
@@ -705,9 +681,7 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 		glMultMatrixd(light.frustumMatrix);
 		glMultMatrixd(light.viewMatrix);
 	}
-	checkGlError();
 	myProg->sendUniform("shadowMap", instances, samplers);
-	checkGlError();
 	glMatrixMode(GL_MODELVIEW);
 
 	// lightDirectPos (in object space)
