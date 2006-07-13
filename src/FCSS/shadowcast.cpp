@@ -99,7 +99,6 @@ RRGLCachingRenderer* rendererCaching = NULL;
 GLSLProgram *lightProg, *ambientProg;
 GLSLProgramSet* ubershaderProgSet;
 Texture *lightDirectMap;
-unsigned int shadowTex[MAX_INSTANCES];
 int currentWindowSize;
 #define SHADOW_MAP_SIZE 512
 int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0
@@ -115,34 +114,37 @@ void checkGlError()
 	*/
 }
 
-void initShadowTex()
-{
-	glGenTextures(MAX_INSTANCES, shadowTex);
+/////////////////////////////////////////////////////////////////////////////
+//
+// Texture for shadow map
 
-	for(unsigned i=0;i<MAX_INSTANCES;i++)
+class TextureShadowMap : public Texture
+{
+public:
+	TextureShadowMap()
+		: Texture(NULL, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, GL_DEPTH, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
 	{
-		glBindTexture(GL_TEXTURE_2D, shadowTex[i]);
 		glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_SIZE,
 			SHADOW_MAP_SIZE,0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); // if not avail, use clamp_to_edge. if not avail, use clamp
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
+		channels = 1;
 		// for shadow2D() instead of texture2D()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 		glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
 	}
-}
+	// sideeffect: binds texture
+	void readFromBackbuffer()
+	{
+		//glGetIntegerv(GL_TEXTURE_2D,&oldTextureObject);
+		bindTexture();
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+	}
+};
 
-void updateShadowTex()
-{
-	glBindTexture(GL_TEXTURE_2D, shadowTex[(softLight>=0)?softLight:0]);
-	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0,
-		SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-}
+/////////////////////////////////////////////////////////////////////////////
+
+TextureShadowMap* shadowMaps = NULL;
+
 
 void initShaders()
 {
@@ -162,29 +164,14 @@ void glsl_init()
 	glFrontFace(GL_CCW);
 	glEnable(GL_CULL_FACE);
 
-	initShadowTex();
+	//shadowMaps.create();
+	shadowMaps = new TextureShadowMap[MAX_INSTANCES];
 	initShaders();
 
-	lightDirectMap = new Texture("spot0.tga", GL_LINEAR,
-		GL_LINEAR, GL_CLAMP, GL_CLAMP);
-}
-
-void activateTexture(unsigned int textureUnit, unsigned int textureType)
-{
-	glActiveTextureARB(textureUnit);
-	glEnable(textureType);
+	lightDirectMap = new Texture("spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 }
 
 
-
-
-#define MAX_SIZE 1024
-
-/* Display lists. */
-enum {
-  DL_RESERVED = 0, /* zero is not a valid OpenGL display list ID */
-  DL_SPHERE,       /* sphere display list */
-};
 
 /* Draw modes. */
 enum {
@@ -200,13 +187,6 @@ enum {
   ME_SWITCH_MOUSE_CONTROL,
   ME_EXIT,
 };
-
-int requestedDepthMapSize = 512;
-int depthMapSize = 512;
-
-GLenum depthMapPrecision = GL_UNSIGNED_BYTE;
-GLenum depthMapFormat = GL_LUMINANCE;
-GLenum depthMapInternalFormat = GL_INTENSITY8;
 
 unsigned useLights = INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS;
 int softWidth[MAX_INSTANCES],softHeight[MAX_INSTANCES],softPrecision[MAX_INSTANCES],softFiltering[MAX_INSTANCES];
@@ -256,7 +236,6 @@ int needTitleUpdate = 1;
 int needDepthMapUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 bool showHelp = 0;
-int useDisplayLists = 1;
 int showLightViewFrustum = 1;
 int eyeButton = GLUT_LEFT_BUTTON;
 int lightButton = GLUT_MIDDLE_BUTTON;
@@ -322,13 +301,15 @@ protected:
 	{
 		if(!rendererCaching) return;
 
-		// prepare 1 depth map for faster hard-shadow capture
-		unsigned oldDrawMode = drawMode;
-		drawMode = DM_EYE_VIEW_SHADOWED;
+		/*/ prepare 1 depth map for faster hard-shadow capture
+		zda se ze neni nutne, protoze drawHardwareShadowPass() pouzije pozici svetla 0, ktera koresponduje
+		 s shadowmapou 0 a je dostatecne podobna prumerne shadowmape		 
+		unsigned oldShadowMaps = useLights;
+		useLights = 1;
 		needDepthMapUpdate = 1;
 		updateDepthMap(0);
-		drawMode = oldDrawMode;
-
+		useLights = oldShadowMaps;*/
+		
 		//!!!
 		/*
 		for each object
@@ -767,7 +748,7 @@ void updateDepthMap(int mapIndex)
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
 	setProgramAndDrawScene(RRGLObjectRenderer::CC_NO_COLOR);
-	updateShadowTex();
+	shadowMaps[(softLight>=0)?softLight:0].readFromBackbuffer();
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glViewport(0, 0, winWidth, winHeight);
@@ -800,9 +781,10 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 	checkGlError();
 	for(int i=0;i<instances;i++)
 	{
-		glActiveTextureARB(GL_TEXTURE0_ARB+i);
+		glActiveTexture(GL_TEXTURE0+i);
+		glEnable(GL_TEXTURE_2D);
 		// prepare samplers
-		glBindTexture(GL_TEXTURE_2D, shadowTex[((softLight>=0)?softLightBase:0)+i]);
+		shadowMaps[((softLight>=0)?softLightBase:0)+i].bindTexture();
 		samplers[i]=i;
 		// prepare and send matrices
 		if(i && softLight>=0)
@@ -820,27 +802,37 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 	myProg->sendUniform("lightDirectPos",light.pos[0],light.pos[1],light.pos[2]);
 
 	// lightDirectMap
-	activateTexture(GL_TEXTURE10_ARB, GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE10);
+	glEnable(GL_TEXTURE_2D);
 	lightDirectMap->bindTexture();
 	myProg->sendUniform("lightDirectMap", 10);
 
 	// lightIndirectMap
 	if(lightIndirectMap)
 	{
-		activateTexture(GL_TEXTURE12_ARB, GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE12);
+		glEnable(GL_TEXTURE_2D);
 		myProg->sendUniform("lightIndirectMap", 12);
 	}
 
 	// materialDiffuseMap (last before drawScene, must stay active)
 	if(renderDiffuseTexture && cc!=RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
 	{
-		activateTexture(GL_TEXTURE11_ARB, GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE11);
+		glEnable(GL_TEXTURE_2D);
 		myProg->sendUniform("materialDiffuseMap", 11);
 	}
 
 	drawScene(cc);
 
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	// disable texturing
+	for(unsigned i=0;i<13;i++)
+	{
+		glActiveTexture(GL_TEXTURE0+i);
+		glDisable(GL_TEXTURE_2D);
+	}
+
+	glActiveTexture(GL_TEXTURE0_ARB);
 }
 
 void drawEyeViewShadowed()
@@ -1082,8 +1074,6 @@ static void benchmark(int perFrameDepthMapUpdate)
 
 	printf("  perFrameDepthMapUpdate=%d, time = %f secs, fps = %f\n",
 		perFrameDepthMapUpdate, time, numFrames/time);
-	printf("  TEX2D %dx%d:%d\n",
-		depthMapSize, depthMapSize, precision);
 	needDepthMapUpdate = 1;
 }
 
@@ -1138,29 +1128,30 @@ void toggleTextures()
 void selectMenu(int item)
 {
 	app->reportInteraction();
-	switch (item) {
-  case ME_SWITCH_MOUSE_CONTROL:
-	  switchMouseControl();
-	  return;  /* No redisplay needed. */
+	switch (item) 
+	{
+		case ME_SWITCH_MOUSE_CONTROL:
+			switchMouseControl();
+			return;  /* No redisplay needed. */
 
-  case ME_TOGGLE_GLOBAL_ILLUMINATION:
-	  toggleGlobalIllumination();
-	  return;
-  case ME_TOGGLE_WIRE_FRAME:
-	  toggleWireFrame();
-	  return;
-  case ME_TOGGLE_LIGHT_FRUSTUM:
-	  showLightViewFrustum = !showLightViewFrustum;
-	  if (showLightViewFrustum) {
-		  needMatrixUpdate = 1;
-	  }
-	  break;
-  case ME_EXIT:
-	  exit(0);
-	  break;
-  default:
-	  assert(0);
-	  break;
+		case ME_TOGGLE_GLOBAL_ILLUMINATION:
+			toggleGlobalIllumination();
+			return;
+		case ME_TOGGLE_WIRE_FRAME:
+			toggleWireFrame();
+			return;
+		case ME_TOGGLE_LIGHT_FRUSTUM:
+			showLightViewFrustum = !showLightViewFrustum;
+			if (showLightViewFrustum) {
+				needMatrixUpdate = 1;
+			}
+			break;
+		case ME_EXIT:
+			exit(0);
+			break;
+		default:
+			assert(0);
+			break;
 	}
 	glutPostRedisplay();
 }
@@ -1413,13 +1404,6 @@ void initGL(void)
 	glEnable(GL_NORMALIZE);
 
 	quadric = gluNewQuadric();
-	if (useDisplayLists) {
-
-		/* Make a sphere display list. */
-		glNewList(DL_SPHERE, GL_COMPILE);
-		drawSphere();
-		glEndList();
-	}
 
 	updateDepthScale();
 	updateDepthBias(0);  /* Update with no offset change. */
