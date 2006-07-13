@@ -114,6 +114,7 @@ void checkGlError()
 	*/
 }
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Texture for shadow map
@@ -140,6 +141,7 @@ public:
 		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
 	}
 };
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -200,30 +202,11 @@ GLfloat textureLodBias = 0.0;
 
 void *font = GLUT_BITMAP_8_BY_13;
 
-struct SimpleCamera
-{
-	// inputs
-	GLfloat  pos[3];
-	float    angle;
-	float    height;
-	// products
-	GLfloat  dir[4];
-	GLdouble viewMatrix[16];
-	// tools
-	void updateViewMatrix(float back)
-	{
-		buildLookAtMatrix(viewMatrix,
-			pos[0]-back*dir[0],pos[1]-back*dir[1],pos[2]-back*dir[2],
-			pos[0]+dir[0],pos[1]+dir[1],pos[2]+dir[2],
-			0, 1, 0);
-	}
-};
-
 // light and camera setup
-//SimpleCamera eye = {{0,1,4},3,0};
-//SimpleCamera light = {{0,3,0},0.85f,8};
-SimpleCamera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500};
-SimpleCamera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996};
+//Camera eye = {{0,1,4},3,0};
+//Camera light = {{0,3,0},0.85f,8};
+Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
+Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
 
 GLUquadricObj *quadric;
 int xEyeBegin, yEyeBegin, movingEye = 0;
@@ -241,20 +224,6 @@ int eyeButton = GLUT_LEFT_BUTTON;
 int lightButton = GLUT_MIDDLE_BUTTON;
 int useDepth24 = 0;
 int drawFront = 0;
-
-double winAspectRatio;
-
-GLdouble eyeFieldOfView = 100.0;
-GLdouble eyeNear = 0.3;
-GLdouble eyeFar = 60.0;
-GLdouble lightFieldOfView = 70.0;
-GLdouble lightNear = 1;
-GLdouble lightFar = 20.0;
-
-GLdouble eyeFrustumMatrix[16];
-GLdouble lightInverseViewMatrix[16];
-GLdouble lightFrustumMatrix[16];
-GLdouble lightInverseFrustumMatrix[16];
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -594,33 +563,8 @@ void drawLight(void)
 
 void updateMatrices(void)
 {
-	eye.dir[0] = 3*sin(eye.angle);
-	eye.dir[1] = -0.3*eye.height;
-	eye.dir[2] = 3*cos(eye.angle);
-	eye.updateViewMatrix(0);
-
-	light.dir[0] = 3*sin(light.angle);
-	light.dir[1] = -0.3*light.height;
-	light.dir[2] = 3*cos(light.angle);
-	light.dir[3] = 1.0;
-	light.updateViewMatrix(0.3f);
-
-	buildPerspectiveMatrix(lightFrustumMatrix, 
-		lightFieldOfView, 1.0, lightNear, lightFar);
-
-	if (showLightViewFrustum) {
-		invertMatrix(lightInverseViewMatrix, light.viewMatrix);
-		invertMatrix(lightInverseFrustumMatrix, lightFrustumMatrix);
-	}
-}
-
-void setupEyeView(void)
-{
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixd(eyeFrustumMatrix);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixd(eye.viewMatrix);
+	eye.update(0);
+	light.update(0.3f);
 }
 
 /* drawShadowMapFrustum - Draw dashed lines around the light's view
@@ -636,62 +580,40 @@ void drawShadowMapFrustum(void)
 
 	ambientProg->useIt();
 
-	if (showLightViewFrustum) {
-		glEnable(GL_LINE_STIPPLE);
-		glPushMatrix();
-		glMultMatrixd(lightInverseViewMatrix);
-		glMultMatrixd(lightInverseFrustumMatrix);
-		glColor3f(1,1,1);
-		/* Draw a wire frame cube with vertices at the corners
-		of clip space.  Draw the top square, drop down to the
-		bottom square and finish it, then... */
-		glBegin(GL_LINE_STRIP);
-		glVertex3f(1,1,1);
-		glVertex3f(1,1,-1);
-		glVertex3f(-1,1,-1);
-		glVertex3f(-1,1,1);
-		glVertex3f(1,1,1);
-		glVertex3f(1,-1,1);
-		glVertex3f(-1,-1,1);
-		glVertex3f(-1,-1,-1);
-		glVertex3f(1,-1,-1);
-		glVertex3f(1,-1,1);
-		glEnd();
-		/* Draw the final three line segments connecting the top
-		and bottom squares. */
-		glBegin(GL_LINES);
-		glVertex3f(1,1,-1);
-		glVertex3f(1,-1,-1);
+	glEnable(GL_LINE_STIPPLE);
+	glPushMatrix();
+	glMultMatrixd(light.inverseViewMatrix);
+	glMultMatrixd(light.inverseFrustumMatrix);
+	glColor3f(1,1,1);
+	/* Draw a wire frame cube with vertices at the corners
+	of clip space.  Draw the top square, drop down to the
+	bottom square and finish it, then... */
+	glBegin(GL_LINE_STRIP);
+	glVertex3f(1,1,1);
+	glVertex3f(1,1,-1);
+	glVertex3f(-1,1,-1);
+	glVertex3f(-1,1,1);
+	glVertex3f(1,1,1);
+	glVertex3f(1,-1,1);
+	glVertex3f(-1,-1,1);
+	glVertex3f(-1,-1,-1);
+	glVertex3f(1,-1,-1);
+	glVertex3f(1,-1,1);
+	glEnd();
+	/* Draw the final three line segments connecting the top
+	and bottom squares. */
+	glBegin(GL_LINES);
+	glVertex3f(1,1,-1);
+	glVertex3f(1,-1,-1);
 
-		glVertex3f(-1,1,-1);
-		glVertex3f(-1,-1,-1);
+	glVertex3f(-1,1,-1);
+	glVertex3f(-1,-1,-1);
 
-		glVertex3f(-1,1,1);
-		glVertex3f(-1,-1,1);
-		glEnd();
-		glPopMatrix();
-		glDisable(GL_LINE_STIPPLE);
-	}
-}
-
-void setupLightView(int square)
-{
-	glMatrixMode(GL_PROJECTION);
-	if (square) {
-		glLoadMatrixd(lightFrustumMatrix);
-	} else {
-		glLoadIdentity();
-		glScalef(winAspectRatio, 1, 1);
-		glMultMatrixd(lightFrustumMatrix);
-	}
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixd(light.viewMatrix);
-}
-
-void drawLightView(void)
-{
-	drawScene(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE);
+	glVertex3f(-1,1,1);
+	glVertex3f(-1,-1,1);
+	glEnd();
+	glPopMatrix();
+	glDisable(GL_LINE_STIPPLE);
 }
 
 void placeSoftLight(int n)
@@ -741,7 +663,7 @@ void updateDepthMap(int mapIndex)
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 
-	setupLightView(1);
+	light.setupForRender();
 
 	glColorMask(0,0,0,0);
 	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
@@ -790,7 +712,7 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 		if(i && softLight>=0)
 			placeSoftLight(softLightBase+i); // calculate light position
 		glLoadMatrixd(tmp);
-		glMultMatrixd(lightFrustumMatrix);
+		glMultMatrixd(light.frustumMatrix);
 		glMultMatrixd(light.viewMatrix);
 	}
 	checkGlError();
@@ -846,12 +768,12 @@ void drawEyeViewShadowed()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	setupEyeView();
+	eye.setupForRender();
 
 	drawHardwareShadowPass(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE);
 
 	drawLight();
-	drawShadowMapFrustum();
+	if (showLightViewFrustum) drawShadowMapFrustum();
 }
 
 void drawEyeViewSoftShadowed(void)
@@ -1160,7 +1082,7 @@ void selectMenu(int item)
 void special(int c, int x, int y)
 {
 	app->reportInteraction();
-	SimpleCamera* cam = movingLight?&light:&eye;
+	Camera* cam = movingLight?&light:&eye;
 	switch (c) 
 	{
 		case GLUT_KEY_F7:
@@ -1170,8 +1092,8 @@ void special(int c, int x, int y)
 			benchmark(0);
 			return;
 		case GLUT_KEY_F9:
-			printf("\nSimpleCamera eye = {{%f,%f,%f},%f,%f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height);
-			printf("SimpleCamera light = {{%f,%f,%f},%f,%f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height);
+			printf("\nCamera eye = {{%f,%f,%f},%f,%f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height);
+			printf("Camera light = {{%f,%f,%f},%f,%f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height);
 			return;
 
 		case GLUT_KEY_UP:
@@ -1244,9 +1166,8 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 		case 'z':
 		case 'Z':
-			eyeFieldOfView = (eyeFieldOfView == 100.0) ? 50.0 : 100.0;
-			buildPerspectiveMatrix(eyeFrustumMatrix,
-				eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
+			eye.fieldOfView = (eye.fieldOfView == 100.0) ? 50.0 : 100.0;
+			needMatrixUpdate = true;
 			break;
 		case 'q':
 			slopeScale += 0.1;
@@ -1274,37 +1195,37 @@ void keyboard(unsigned char c, int x, int y)
 			toggleWireFrame();
 			return;
 		case 'n':
-			lightNear *= 0.8;
+			light.anear *= 0.8;
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
 		case 'N':
-			lightNear /= 0.8;
+			light.anear /= 0.8;
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
 		case 'c':
-			lightFar *= 1.2;
+			light.afar *= 1.2;
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
 		case 'C':
-			lightFar /= 1.2;
+			light.afar /= 1.2;
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
 		case 'p':
-			lightFieldOfView -= 5.0;
-			if (lightFieldOfView < 5.0) {
-				lightFieldOfView = 5.0;
+			light.fieldOfView -= 5.0;
+			if (light.fieldOfView < 5.0) {
+				light.fieldOfView = 5.0;
 			}
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
 		case 'P':
-			lightFieldOfView += 5.0;
-			if (lightFieldOfView > 160.0) {
-				lightFieldOfView = 160.0;
+			light.fieldOfView += 5.0;
+			if (light.fieldOfView > 160.0) {
+				light.fieldOfView = 160.0;
 			}
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
@@ -1371,9 +1292,8 @@ void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	winAspectRatio = (double) winHeight / (double) winWidth;
-	buildPerspectiveMatrix(eyeFrustumMatrix,
-		eyeFieldOfView, 1.0/winAspectRatio, eyeNear, eyeFar);
+	eye.aspect = (double) winWidth / (double) winHeight;
+	needMatrixUpdate = true;
 
 	/* Perhaps there might have been a mode change so at window
 	reshape time, redetermine the depth scale. */
@@ -1593,19 +1513,19 @@ int main(int argc, char **argv)
 	}
 	if (strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
-		eyeFieldOfView = 50.0;
-		//SimpleCamera koupelna4_eye = {{0.032202,1.659255,1.598609},10.010005,-0.150000};
-		//SimpleCamera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
-		SimpleCamera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003};
-		SimpleCamera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996};		eye = koupelna4_eye;
+		//Camera koupelna4_eye = {{0.032202,1.659255,1.598609},10.010005,-0.150000};
+		//Camera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
+		Camera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,50.,0.3,60.};
+		Camera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
+		eye = koupelna4_eye;
 		light = koupelna4_light;
 	}
 	if (strstr(filename_3ds, "sponza"))
 	{
-		SimpleCamera sponza_eye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999};
-		SimpleCamera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001};
-		//SimpleCamera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
-		//SimpleCamera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
+		Camera sponza_eye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
+		Camera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,20.};
+		//Camera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
+		//Camera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
 		//lightFieldOfView += 10.0;
 		//eyeFieldOfView = 50.0;
 		eye = sponza_eye;

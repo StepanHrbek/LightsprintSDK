@@ -1,42 +1,25 @@
 #include "Camera.hpp"
-#include <GL/glut.h>
 #include "matrix.h"
+#include <math.h>
 
-// Public part :
-
-Camera::Camera(float posX, float posY, float posZ)
+void Camera::update(float back)
 {
-  pos[0] = posX;
-  pos[1] = posY;
-  pos[2] = posZ;
-
-  computeInvViewMatrix();
+	dir[0] = 3*sin(angle);
+	dir[1] = -0.3*height;
+	dir[2] = 3*cos(angle);
+	dir[3] = 1.0;
+	buildLookAtMatrix(viewMatrix,
+		pos[0]-back*dir[0],pos[1]-back*dir[1],pos[2]-back*dir[2],
+		pos[0]+dir[0],pos[1]+dir[1],pos[2]+dir[2],
+		0, 1, 0);
+	buildPerspectiveMatrix(frustumMatrix, fieldOfView, aspect, anear, afar);
+	invertMatrix(inverseViewMatrix, viewMatrix);
+	invertMatrix(inverseFrustumMatrix, frustumMatrix);
 }
-
-Camera::~Camera()
+void Camera::setupForRender()
 {
-}
-
-void Camera::placeIt()
-{
-  gluLookAt(pos[0], pos[1], pos[2],  0.0, 0.0, 0.0,  0.0, 1.0, 0.0);
-}
-
-GLdouble *Camera::getInvViewMatrix()
-{
-  return invViewMatrix;
-}
-
-// Private part :
-
-void Camera::computeInvViewMatrix()
-{
-  glMatrixMode(GL_TEXTURE);
-  glLoadIdentity();
-  placeIt();
-  GLdouble viewMatrix[16];
-  glGetDoublev(GL_TEXTURE_MATRIX, viewMatrix);
-  glMatrixMode(GL_MODELVIEW);
-
-  invertMatrix(invViewMatrix, viewMatrix);
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixd(frustumMatrix);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixd(viewMatrix);
 }

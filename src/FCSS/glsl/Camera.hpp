@@ -3,19 +3,33 @@
 
 #include <GL/glut.h>
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Camera
+
 class Camera
 {
 public:
-  Camera(float posX, float posY, float posZ);
-  ~Camera();
+	// inputs
+	GLfloat  pos[3];
+	float    angle;
+	float    height;
+	GLdouble aspect;
+	GLdouble fieldOfView;
+	GLdouble anear;
+	GLdouble afar;
 
-  void placeIt();
-  GLdouble *getInvViewMatrix();
-private:
-  void computeInvViewMatrix();
+	// outputs
+	GLfloat  dir[4];
+	GLdouble viewMatrix[16];
+	GLdouble inverseViewMatrix[16];
+	GLdouble frustumMatrix[16];
+	GLdouble inverseFrustumMatrix[16];
 
-  float pos[3];
-  GLdouble invViewMatrix[16];
+	// tools
+	void update(float back); // converts inputs to outputs
+	void setupForRender();
 };
 
 #endif //CAMERA_H
