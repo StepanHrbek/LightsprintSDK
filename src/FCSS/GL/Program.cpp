@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include "Program.h"
 
@@ -9,7 +10,7 @@ Program::Program()
   :vertex(NULL), fragment(NULL)
 {
 	handle = glCreateProgram();
-	ready = false;
+	linked = false;
 }
 
 Program::Program(const char* defines, const char *shader, unsigned int shaderType)
@@ -60,19 +61,24 @@ void Program::linkIt()
 {
 	// link
 	glLinkProgram(handle);
-	GLint linked;
-	glGetProgramiv(handle,GL_LINK_STATUS,&linked);
-	// validate
-//	glValidateProgram(handle);
-//	GLint valid;
-//	glGetProgramiv(handle,GL_VALIDATE_STATUS,&valid);
+	GLint alinked;
+	glGetProgramiv(handle,GL_LINK_STATUS,&alinked);
 	// store result
-	ready = linked!=0 ;//&& valid;
+	linked = alinked!=0;
 }
 
-bool Program::isReady()
+bool Program::isLinked()
 {
-	return ready;
+	return linked;
+}
+
+bool Program::isValid()
+{
+	// validate
+	glValidateProgram(handle);
+	GLint valid;
+	glGetProgramiv(handle,GL_VALIDATE_STATUS,&valid);
+	return valid!=0;
 }
 
 void Program::useIt()

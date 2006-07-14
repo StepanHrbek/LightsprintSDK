@@ -14,7 +14,8 @@ public:
 	void attach(Shader &shader);
 	void attach(Shader *shader);
 	void linkIt();
-	bool isReady(); // true after successful link
+	bool isLinked(); // true when successfully linked
+	bool isValid(); // true when successfully linked and all variables correctly set
 	void useIt(); // must be ready before use
 
 	void sendUniform(const char *name, float x);
@@ -33,7 +34,7 @@ private:
 
 	Shader *vertex, *fragment;
 	GLuint handle;
-	bool ready;
+	bool linked;
 };
 
 #endif

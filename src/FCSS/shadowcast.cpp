@@ -106,10 +106,9 @@ class TextureShadowMap : public Texture
 {
 public:
 	TextureShadowMap()
-		: Texture(NULL, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, GL_DEPTH, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
+		: Texture(NULL, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, GL_DEPTH_COMPONENT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
 	{
-		glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_SIZE,
-			SHADOW_MAP_SIZE,0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 		channels = 1;
 		// for shadow2D() instead of texture2D()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
@@ -653,6 +652,13 @@ void updateDepthMap(int mapIndex)
 
 void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 {
+	// disable texturing
+	for(unsigned i=0;i<13;i++)
+	{
+		glActiveTexture(GL_TEXTURE0+i);
+		glDisable(GL_TEXTURE_2D);
+	}
+
 	Program* myProg = setProgram(cc);
 
 	// shadowMap[], gl_TextureMatrix[]
@@ -687,26 +693,31 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc)
 	myProg->sendUniform("lightDirectPos",light.pos[0],light.pos[1],light.pos[2]);
 
 	// lightDirectMap
-	glActiveTexture(GL_TEXTURE10);
+	int id=10;
+	glActiveTexture(GL_TEXTURE0+id);
 	glEnable(GL_TEXTURE_2D);
 	lightDirectMap->bindTexture();
-	myProg->sendUniform("lightDirectMap", 10);
+	myProg->sendUniform("lightDirectMap", id);
 
 	// lightIndirectMap
+	id=12;
 	if(lightIndirectMap)
 	{
-		glActiveTexture(GL_TEXTURE12);
+		glActiveTexture(GL_TEXTURE0+id);
 		glEnable(GL_TEXTURE_2D);
-		myProg->sendUniform("lightIndirectMap", 12);
+		myProg->sendUniform("lightIndirectMap", id);
 	}
 
 	// materialDiffuseMap (last before drawScene, must stay active)
+	id=11;
 	if(renderDiffuseTexture && cc!=RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION) // kdyz detekuju source (->force 2d), pouzivam RRObjectRenderer, takze jedem bez difus textur
 	{
-		glActiveTexture(GL_TEXTURE11);
+		glActiveTexture(GL_TEXTURE0+id);
 		glEnable(GL_TEXTURE_2D);
-		myProg->sendUniform("materialDiffuseMap", 11);
+		myProg->sendUniform("materialDiffuseMap", id);
 	}
+
+	assert(myProg->isValid());
 
 	drawScene(cc);
 
@@ -1342,6 +1353,11 @@ void init_gl_states()
 
 	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 	//printf("depth buffer precision = %d\n", depthBits);
+
+	GLint samplers1=0,samplers2=0;
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &samplers1);
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &samplers2);
+	printf("GPU limits: samplers=%d / %d\n",samplers1,samplers2);
 
 	glClearColor(0,0,0,0);
 

@@ -23,7 +23,7 @@ Program* UberProgram::getVariant(const char* defines)
 	map<unsigned,Program*>::iterator i = cache.find(hash);
 	if(i!=cache.end()) return i->second;
 	Program* tmp = new Program(defines,vertexShaderFileName,fragmentShaderFileName);
-	if(!tmp->isReady())
+	if(!tmp->isLinked())
 	{
 		delete tmp;
 		tmp=NULL;
