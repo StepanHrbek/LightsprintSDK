@@ -10,7 +10,7 @@ public:
 	UberProgram(const char* avertexShaderFileName, const char* afragmentShaderFileName);
 	virtual ~UberProgram();
 
-	Program* getVariant(const char* defines);
+	Program* getProgram(const char* defines);
 
 private:
 	const char* vertexShaderFileName;

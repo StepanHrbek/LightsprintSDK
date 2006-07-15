@@ -62,8 +62,6 @@ public:
 		//CC_REFLECTED_IRRADIANCE__DIFFUSE_UV,
 		CC_REFLECTED_EXITANCE,
 		CC_LAST,
-		CC_SOURCE_AUTO,
-		CC_REFLECTED_AUTO,
 	};
 	virtual void setChannel(ColorChannel cc);
 	virtual const void* getParams(unsigned& length) const;

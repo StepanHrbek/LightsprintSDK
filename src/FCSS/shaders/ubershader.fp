@@ -1,8 +1,8 @@
 // Realtime Radiosity Viewer ubershader
 //
 // options controlled by program:
-//  #define SHADOW_MAPS 6
-//  #define SHADOW_SAMPLES 4
+//  #define SHADOW_MAPS [0..n]
+//  #define SHADOW_SAMPLES [0|1|2|4]
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_COLOR
@@ -11,18 +11,24 @@
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define FORCE_2D_POSITION
 
-#if SHADOW_SAMPLES>0
+#if SHADOW_MAPS*SHADOW_SAMPLES>0
 uniform sampler2DShadow shadowMap[SHADOW_MAPS];
 #endif
 
+#if SHADOW_MAPS>0
 varying vec4 shadowCoord[SHADOW_MAPS];
+#endif
+
+#ifdef LIGHT_DIRECT
+varying vec4 lightDirectColor;
+#endif
 
 #ifdef LIGHT_DIRECT_MAP
 uniform sampler2D lightDirectMap;
 #endif
 
 #ifdef LIGHT_INDIRECT_COLOR
-varying vec4 lightIndirectColor;
+varying vec4 lightIndirectColor; // passed rather through gl_Color, anything other fails on buggy ATI Catalyst 6.6
 #endif
 
 #ifdef LIGHT_INDIRECT_MAP
@@ -42,7 +48,7 @@ varying vec2 materialDiffuseCoord;
 void main()
 {
 
-#if SHADOW_SAMPLES
+#if SHADOW_SAMPLES*SHADOW_MAPS>0
   float shadowValue = 0.0;
 #if SHADOW_SAMPLES==1
   // hard shadows with 1 lookup
@@ -78,7 +84,7 @@ void main()
 #endif
     ( 
 #ifdef LIGHT_DIRECT
-      gl_Color
+      lightDirectColor
 #ifdef LIGHT_DIRECT_MAP
       * texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
 #endif
@@ -87,7 +93,7 @@ void main()
 #endif
 #endif
 #ifdef LIGHT_INDIRECT_COLOR
-      + lightIndirectColor
+      + gl_Color
 #endif
 #ifdef LIGHT_INDIRECT_MAP
       + texture2D(lightIndirectMap, lightIndirectCoord)

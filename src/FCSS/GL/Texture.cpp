@@ -3,7 +3,7 @@
 #include <string.h>
 //#include <jpeglib.h>
 #include <GL/glut.h>
-#include "Texture.hpp"
+#include "Texture.h"
 
 using namespace std;
 

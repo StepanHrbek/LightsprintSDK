@@ -13,7 +13,7 @@ UberProgram::~UberProgram()
 {
 }
 
-Program* UberProgram::getVariant(const char* defines)
+Program* UberProgram::getProgram(const char* defines)
 {
 	unsigned hash = 0;
 	for(const char* tmp = defines;tmp && *tmp;tmp++)
