@@ -37,7 +37,7 @@ void main()
 #ifdef LIGHT_DIRECT
   // direct light
   vec3 lightDirectDir = normalize(lightDirectPos - gl_Vertex.xyz);
-  lightDirectColor = vec4(dot(lightDirectDir, gl_Normal));
+  lightDirectColor = vec4(max(dot(lightDirectDir, normalize(gl_Normal)),0.0));
 #endif
 
 #ifdef LIGHT_INDIRECT_COLOR

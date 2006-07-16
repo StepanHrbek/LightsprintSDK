@@ -220,7 +220,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GL\Camera.hpp"
+				RelativePath=".\GL\Camera.h"
 				>
 			</File>
 			<File
@@ -264,7 +264,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GL\Texture.hpp"
+				RelativePath=".\GL\Texture.h"
 				>
 			</File>
 			<File

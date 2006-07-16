@@ -17,6 +17,7 @@ public:
 	bool isLinked(); // true when successfully linked
 	bool isValid(); // true when successfully linked and all variables correctly set
 	void useIt(); // must be ready before use
+	void enumVariables();
 
 	void sendUniform(const char *name, float x);
 	void sendUniform(const char *name, float x, float y);

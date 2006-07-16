@@ -10,6 +10,8 @@ unsigned INSTANCES_PER_PASS = 2;//!!!7
 int fullscreen = 0;
 /*
 ! ati: pri shadowmaps>1 asi nesedi cisla sampleru, chybny rendr s materialDiffuse texturami i bez nich
+! bez textur pri vic jak 1 shadowmape nepromita spotmapu
+! bez textur je indirect slabsi
 ! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava
 ! v gcc dela m3ds renderer spatny indirect na koulich (na zdi je ok, v msvc je ok, v rrrendereru je ok)
 rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
@@ -79,7 +81,6 @@ Model_3DS m3ds;
 //
 // RR
 
-bool renderSource = false;
 RRGLObjectRenderer* rendererNonCaching = NULL;
 RRGLCachingRenderer* rendererCaching = NULL;
 
@@ -108,60 +109,9 @@ public:
 	{
 		//glGetIntegerv(GL_TEXTURE_2D,&oldTextureObject);
 		bindTexture();
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height); // painfully slow on ATI (X800 PRO, Catalyst 6.6)
 	}
 };
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-/* Draw modes. */
-enum {
-  DM_EYE_VIEW_SHADOWED,
-  DM_EYE_VIEW_SOFTSHADOWED,
-};
-
-/* Menu items. */
-enum {
-  ME_TOGGLE_GLOBAL_ILLUMINATION,
-  ME_TOGGLE_WIRE_FRAME,
-  ME_TOGGLE_LIGHT_FRUSTUM,
-  ME_SWITCH_MOUSE_CONTROL,
-  ME_EXIT,
-};
-
-unsigned useLights = INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS; //!!! zrusit, pouzit uberProgramGlobalConfig.SHADOW_MAPS
-int areaType = 0; // 0=linear, 1=square grid, 2=circle
-int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0 //!!! zrusit
-
-int depthBias24 = 42;
-int depthScale24;
-GLfloat slopeScale = 4.0;
-
-GLfloat textureLodBias = 0.0;
-
-// light and camera setup
-//Camera eye = {{0,1,4},3,0};
-//Camera light = {{0,3,0},0.85f,8};
-Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
-
-int xEyeBegin, yEyeBegin, movingEye = 0;
-int xLightBegin, yLightBegin, movingLight = 0;
-int wireFrame = 0;
-
-int winWidth, winHeight;
-int needMatrixUpdate = 1;
-int needTitleUpdate = 1;
-int needDepthMapUpdate = 1;
-int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-bool showHelp = 0;
-int showLightViewFrustum = 1;
-int eyeButton = GLUT_LEFT_BUTTON;
-int lightButton = GLUT_MIDDLE_BUTTON;
-int useDepth24 = 0;
-int drawFront = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -214,8 +164,6 @@ struct UberProgramSetup
 	}
 };
 
-UberProgramSetup uberProgramGlobalSetup;
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -241,6 +189,10 @@ void init_gl_resources()
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 }
 
+
+
+UberProgramSetup uberProgramGlobalSetup;
+int winWidth, winHeight;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -343,8 +295,8 @@ protected:
 			//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true; //!!! prepnuto z 3ds na rr render, protoze 3ds s tristripem nezvlada forced 2d pos
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false; // -"-
 			uberProgramSetup.FORCE_2D_POSITION = true;
 			drawHardwareShadowPass(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,uberProgramSetup);
 			generateForcedUv = NULL;
@@ -400,6 +352,56 @@ MyApp* app = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
+
+
+/* Draw modes. */
+enum {
+	DM_EYE_VIEW_SHADOWED,
+	DM_EYE_VIEW_SOFTSHADOWED,
+};
+
+/* Menu items. */
+enum {
+	ME_TOGGLE_GLOBAL_ILLUMINATION,
+	ME_TOGGLE_WIRE_FRAME,
+	ME_TOGGLE_LIGHT_FRUSTUM,
+	ME_SWITCH_MOUSE_CONTROL,
+	ME_EXIT,
+};
+
+unsigned useLights = INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS; //!!! zrusit, pouzit uberProgramGlobalConfig.SHADOW_MAPS
+int areaType = 0; // 0=linear, 1=square grid, 2=circle
+int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0 //!!! zrusit
+
+int depthBias24 = 42;
+int depthScale24;
+GLfloat slopeScale = 4.0;
+
+GLfloat textureLodBias = 0.0;
+
+// light and camera setup
+//Camera eye = {{0,1,4},3,0};
+//Camera light = {{0,3,0},0.85f,8};
+Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
+Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
+
+int xEyeBegin, yEyeBegin, movingEye = 0;
+int xLightBegin, yLightBegin, movingLight = 0;
+int wireFrame = 0;
+
+int needMatrixUpdate = 1;
+int needTitleUpdate = 1;
+int needDepthMapUpdate = 1;
+int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
+bool showHelp = 0;
+int showLightViewFrustum = 1;
+int eyeButton = GLUT_LEFT_BUTTON;
+int lightButton = GLUT_MIDDLE_BUTTON;
+int useDepth24 = 0;
+int drawFront = 0;
+
+
+/////////////////////////////////////////////////////////////////////////////
 //
 // OPENGL INITIALIZATION AND CHECKS
 
@@ -430,24 +432,16 @@ void updateTitle(void)
 
 Program* getProgramCore(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup)
 {
-	switch(cc)
+	// optimized for rendering depth, no fragment shader
+	if(cc==RRGLObjectRenderer::CC_NO_COLOR)
 	{
-		case RRGLObjectRenderer::CC_NO_COLOR:
-			return shadowProgram;
-		case RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE:
-		case RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
-		case RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE:
-		case RRGLObjectRenderer::CC_REFLECTED_EXITANCE:
-			{
-			const char* setup = uberProgramSetup.getSetupString();
-			Program* prog = uberProgram->getProgram(setup);
-			return prog;
-			}
-		default:
-			assert(0);
-			return NULL;
+		return shadowProgram;
 	}
+	// anything other is part of uberprogram
+	const char* setup = uberProgramSetup.getSetupString();
+	return uberProgram->getProgram(setup);
 }
+
 Program* getProgram(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup)
 {
 	Program* tmp = getProgramCore(cc,uberProgramSetup);
@@ -637,14 +631,9 @@ void updateDepthMap(int mapIndex)
 
 void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup)
 {
-	// disable texturing
-	for(unsigned i=0;i<13;i++)
-	{
-		glActiveTexture(GL_TEXTURE0+i);
-		glDisable(GL_TEXTURE_2D);
-	}
-
 	Program* myProg = setProgram(cc,uberProgramSetup);
+
+	//myProg->enumVariables();
 
 	// shadowMap[], gl_TextureMatrix[]
 	glMatrixMode(GL_TEXTURE);
@@ -660,7 +649,6 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup
 	for(int i=0;i<instances;i++)
 	{
 		glActiveTexture(GL_TEXTURE0+i);
-		glEnable(GL_TEXTURE_2D);
 		// prepare samplers
 		shadowMaps[((softLight>=0)?softLightBase:0)+i].bindTexture();
 		samplers[i]=i;
@@ -675,43 +663,39 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup
 	glMatrixMode(GL_MODELVIEW);
 
 	// lightDirectPos (in object space)
-	myProg->sendUniform("lightDirectPos",light.pos[0],light.pos[1],light.pos[2]);
+	if(uberProgramSetup.LIGHT_DIRECT)
+	{
+		myProg->sendUniform("lightDirectPos",light.pos[0],light.pos[1],light.pos[2]);
+	}
 
 	// lightDirectMap
-	int id=10;
-	glActiveTexture(GL_TEXTURE0+id);
-	glEnable(GL_TEXTURE_2D);
-	lightDirectMap->bindTexture();
-	myProg->sendUniform("lightDirectMap", id);
+	if(uberProgramSetup.LIGHT_DIRECT_MAP)
+	{
+		int id=10;
+		glActiveTexture(GL_TEXTURE0+id);
+		lightDirectMap->bindTexture();
+		myProg->sendUniform("lightDirectMap", id);
+	}
 
 	// lightIndirectMap
-	id=12;
 	if(uberProgramSetup.LIGHT_INDIRECT_MAP)
 	{
-		glActiveTexture(GL_TEXTURE0+id);
-		glEnable(GL_TEXTURE_2D);
+		int id=12;
+		//glActiveTexture(GL_TEXTURE0+id);
 		myProg->sendUniform("lightIndirectMap", id);
 	}
 
-	// materialDiffuseMap (last before drawScene, must stay active)
-	id=11;
+	// materialDiffuseMap
 	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
-		glActiveTexture(GL_TEXTURE0+id);
-		glEnable(GL_TEXTURE_2D);
+		int id=11;
+		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active
 		myProg->sendUniform("materialDiffuseMap", id);
 	}
 
-	assert(myProg->isValid());
+	//assert(myProg->isValid());
 
 	drawScene(cc,uberProgramSetup);
-
-	// disable texturing
-	for(unsigned i=0;i<13;i++)
-	{
-		glActiveTexture(GL_TEXTURE0+i);
-		glDisable(GL_TEXTURE_2D);
-	}
 
 	glActiveTexture(GL_TEXTURE0);
 }
@@ -753,8 +737,8 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.SHADOW_MAPS = useLights;
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
-		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
+		uberProgramSetup.LIGHT_DIRECT_MAP = false;//!!! zakomentovano
+		uberProgramSetup.LIGHT_INDIRECT_COLOR = !true;//!!! true
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
@@ -881,10 +865,6 @@ static void drawHelpMessage(bool big)
 
 	ambientProgram->useIt();
 
-	glActiveTexture(GL_TEXTURE1);
-	glDisable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE0);
-	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 
 	glPushMatrix();
@@ -1412,7 +1392,6 @@ void init_gl_states()
 	glShadeModel(GL_SMOOTH);
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
 	glFrontFace(GL_CCW);
 	glEnable(GL_CULL_FACE);
 }

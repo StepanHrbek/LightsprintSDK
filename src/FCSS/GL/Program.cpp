@@ -166,3 +166,41 @@ int Program::getLoc(const char *name)
 	return loc;
 }
 
+const char* getTypeName(unsigned type)
+{
+	unsigned types[] = {GL_FLOAT, GL_FLOAT_VEC2, GL_FLOAT_VEC3, GL_FLOAT_VEC4, GL_INT, GL_INT_VEC2, GL_INT_VEC3, GL_INT_VEC4,
+		GL_BOOL, GL_BOOL_VEC2, GL_BOOL_VEC3, GL_BOOL_VEC4, GL_FLOAT_MAT2, GL_FLOAT_MAT3,
+		GL_FLOAT_MAT4, GL_SAMPLER_1D, GL_SAMPLER_2D, GL_SAMPLER_3D, GL_SAMPLER_CUBE,
+		GL_SAMPLER_1D_SHADOW, GL_SAMPLER_2D_SHADOW };
+	const char* typeNames[] = {"FLOAT", "FLOAT_VEC2", "FLOAT_VEC3", "FLOAT_VEC4", "INT", "INT_VEC2", "INT_VEC3", "INT_VEC4",
+		"BOOL", "BOOL_VEC2", "BOOL_VEC3", "BOOL_VEC4", "FLOAT_MAT2", "FLOAT_MAT3",
+		"FLOAT_MAT4", "SAMPLER_1D", "SAMPLER_2D", "SAMPLER_3D", "SAMPLER_CUBE",
+		"SAMPLER_1D_SHADOW", "SAMPLER_2D_SHADOW"};
+	for(unsigned i=0;i<sizeof(types)/sizeof(types[0]);i++)
+		if(types[i]==type)
+			return typeNames[i];
+	return "?";
+}
+
+void Program::enumVariables()
+{
+	GLint count = 0;
+	glGetProgramiv(handle,GL_ACTIVE_ATTRIBUTES,&count);
+	for(int i=0;i<count;i++)
+	{
+		char name[64] = "";
+		int size = 0;
+		GLenum type = 0;
+		glGetActiveAttrib(handle,i,50,NULL,&size,&type,name);
+		printf(" attrib  %s %d %s\n",name,size,getTypeName(type));
+	}
+	glGetProgramiv(handle,GL_ACTIVE_UNIFORMS,&count);
+	for(int i=0;i<count;i++)
+	{
+		char name[64] = "";
+		int size = 0;
+		GLenum type = 0;
+		glGetActiveUniform(handle,i,50,NULL,&size,&type,name);
+		printf(" uniform %s %d %s\n",name,size,getTypeName(type));
+	}
+}
