@@ -8,6 +8,8 @@
   It allows you to freely manipulate camera and light positions in scene
   and see global illumination effects calculated on background.
 
+  It uses no precomputed data.
+
   You can adjust shadow quality to much higher speed or much higher quality,
   see built-in help.
 
@@ -31,8 +33,8 @@
   ------------
 
   OpenGL 2.0 capable graphics card is required.
-  Tested on nVidia GeForce 6600, ATI Radeon 9700 Pro, ATI X850PE,
-  all with latest drivers.
+  Should run on NVIDIA GeForce 6xxx/7xxx, ATI Radeon Xxxx/X1xxx
+  with latest drivers.
 
 
   Notes
@@ -73,7 +75,7 @@
   Thanks to 
   ---------
 
-  - Petr Stastny for koupelna3 scene
+  - Petr Stastny for koupelna scene
   - Marko Dabrovic for Sponza atrium scene
   - Matthew Fairfax for .3ds loader and renderer
 

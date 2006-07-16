@@ -8,6 +8,7 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 nebo 8 je max pro 6
 #define AREA_SIZE                  0.15f
 int fullscreen = 1;
 /*
+! spatne pocita sponza podlahu
 ! bez textur je indirect slabsi
 ! pri 2 instancich je levy okraj spotmapy oriznuty
 ! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava
@@ -17,16 +18,14 @@ rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
 pridat dalsi koupelny
 ovladani jasu (global, indirect)
 nacitat jpg
-spatne pocita sponza podlahu
 
 autodeteknout zda mam metry nebo centimetry
 dodelat podporu pro matice do 3ds2rr importeru
 kdyz uz by byl korektni model s gammou, pridat ovladani gammy
 
 POZOR
-neni tu korektni skladani primary+indirect a az nasledna gamma korekce
- kdyz se vypne scaler(0.4) nebo indirect, primary vypada desne tmave
- az pri secteni s indirectem (scitani produkuje prilis velke cislo) zacne vypadat akorat
+neni tu korektni skladani primary+indirect a az nasledna gamma korekce (komplikovane pri multipass renderu)
+scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista jsou svetlejsi nez maji byt
 */
 
 #include <assert.h>
