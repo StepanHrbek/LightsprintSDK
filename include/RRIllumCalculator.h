@@ -55,13 +55,13 @@ namespace rr
 			if(pixelBufferUnwrap)
 				delete[] pixelBufferUnwrap;
 			pixelBufferUnwrap = new RRVec2[numPreImportVertices];
-			rr::RRMesh* mesh = object->getCollider()->getMesh();
+			RRMesh* mesh = object->getCollider()->getMesh();
 			unsigned numPostImportTriangles = mesh->getNumTriangles();
 			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 			{
 				RRObject::TriangleMapping triangleMapping;
 				object->getTriangleMapping(postImportTriangle,triangleMapping);
-				rr::RRMesh::Triangle triangle;
+				RRMesh::Triangle triangle;
 				mesh->getTriangle(postImportTriangle,triangle);
 				for(unsigned v=0;v<3;v++)
 				{

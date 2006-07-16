@@ -32,6 +32,7 @@ class RRIrradiancePointSH
 		irradiance = RRVec3(0);
 	}
 	//! Irradiance in point in space in W/m^2.
+	//!!!
 	RRVec3 irradiance;
 };
 
@@ -66,7 +67,7 @@ class RRIrradianceGrid
 			return RRIrradiancePoint();
 		}
 		// position outside grid -> clamp
-		localPos.clamp(RRVec3(-1),RRVec3(1));
+//!!!		localPos.clamp(RRVec3(-1),RRVec3(1));
 		// for each axis find nearest coord
 		unsigned nearestCoord[3];
 		for(unsigned axis=0;axis<3;axis++)
@@ -112,7 +113,7 @@ class RRIrradianceGridTransformed : public RRIrradianceGrid<RRIrradiancePoint>
 	}
 	RRIrradiancePoint getIrradiancePoint(const RRVec3& worldPos) const
 	{
-		return RRIrradianceGrid::getIrradiancePoint(worldMatrixInv.transformedPosition(worldPos));
+		return RRIrradianceGrid<RRIrradiancePoint>::getIrradiancePoint(worldMatrixInv.transformedPosition(worldPos));
 	}
 protected:
 	RRMatrix3x4 worldMatrix;

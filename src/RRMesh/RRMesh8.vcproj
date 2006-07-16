@@ -294,10 +294,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\RRMath\RRMathPrivate.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\RRMath\RRMathPrivate.h"
 			>
 		</File>

@@ -23,6 +23,6 @@ $(LIB): makefile $(OBJS)
 
 clean:
 	del $(TMP)*.o
-	del $(LIB)
+	del ..\..\lib\libWorld.a
 
 $(TMP)spline.o $(TMP)LoadWorld.o $(TMP)LoadWorldR3d.o: makefile include/spline.h include/World.h

@@ -31,7 +31,7 @@ void RRObject::getTriangleNormals(unsigned t, TriangleNormals& out) const
 		assert(0);
 		return;
 	}
-	rr::RRMesh::TriangleBody tb;
+	RRMesh::TriangleBody tb;
 	getCollider()->getMesh()->getTriangleBody(t,tb);
 	Vec3 norm = ortogonalTo(tb.side1,tb.side2);
 	norm *= 1/size(norm);
@@ -71,19 +71,19 @@ const RRMatrix3x4* RRObject::getInvWorldMatrix()
 //
 // RRObject instance factory
 
-rr::RRMesh* RRObject::createWorldSpaceMesh()
+RRMesh* RRObject::createWorldSpaceMesh()
 {
 	//!!! az bude refcounting, muzu pri identite vracet getCollider()->getMesh()
 	return new RRTransformedMeshFilter(getCollider()->getMesh(),getWorldMatrix());
 }
 
-RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, rr::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
+RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
 {
 	//!!! az bude refcounting, muzu pri identite vracet this
 	return new RRTransformedObjectFilter(this,negScaleMakesOuterInner,intersectTechnique,cacheLocation);
 }
 
-RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, rr::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
+RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
 {
 	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,maxStitchDistance,optimizeTriangles,cacheLocation);
 }
@@ -97,7 +97,7 @@ RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination()
 //
 // RRCollisionHandler
 
-class RRCollisionHandlerFirstVisible : public rr::RRCollisionHandler
+class RRCollisionHandlerFirstVisible : public RRCollisionHandler
 {
 public:
 	RRCollisionHandlerFirstVisible(RRObject* aobject)
@@ -108,7 +108,7 @@ public:
 	{
 		result = false;
 	}
-	virtual bool collides(const rr::RRRay* ray)
+	virtual bool collides(const RRRay* ray)
 	{
 		const RRSurface* surface = object->getSurface(object->getTriangleSurface(ray->hitTriangle));
 		return surface && surface->sideBits[ray->hitFrontSide?0:1].renderFrom;
@@ -122,7 +122,7 @@ private:
 	RRObject* object;
 };
 
-rr::RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible()
+RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible()
 {
 	return new RRCollisionHandlerFirstVisible(this);
 }

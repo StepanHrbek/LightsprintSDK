@@ -1,8 +1,8 @@
-LIB = ../../lib/libRRCollider.a
-TMP = #../../tmp/RRCollider/
+LIB = ../../lib/libRRMesh.a
+TMP = #../../tmp/RRMesh/
 
 CC = gcc
-CPPFLAGS = -Iinclude -I../../include -I../LicGen/include
+CPPFLAGS = -Iinclude -I../../include
 CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG -DRR_STATIC
 #CPPFLAGS += -ffast-math # zpusobuje crash v soda
 CPPFLAGS += -fomit-frame-pointer
@@ -12,7 +12,7 @@ CPPFLAGS += -mfpmath=sse
 #CPPFLAGS += -ftree-vectorize -ftree-vectorizer-verbose=5
 #CPPFLAGS += -funsafe-loop-optimizations
 
-OBJS = $(TMP)bsp.o $(TMP)cache.o $(TMP)fpcube.o $(TMP)geometry.o $(TMP)IntersectBspCompact.o $(TMP)IntersectBspFast.o $(TMP)IntersectLinear.o $(TMP)IntersectVerification.o $(TMP)pcube.o $(TMP)RRAligned.o $(TMP)RRCollider.o $(TMP)RRRay.o $(TMP)sha1.o
+OBJS = $(TMP)RRMesh.o $(TMP)RRMeshCopy.o $(TMP)RRMeshLessVertices.o $(TMP)RRMeshMulti.o
 
 all: makefile $(LIB)
 
@@ -24,5 +24,5 @@ $(TMP)%.o: %.cpp makefile
 
 clean:
 	del $(TMP)*.o
-	del ..\..\lib\libRRCollider.a
+	del ..\..\lib\libRRMesh.a
 

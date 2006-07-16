@@ -13,18 +13,18 @@ namespace rr
 class RRTransformedObjectFilter : public RRObjectFilter
 {
 public:
-	RRTransformedObjectFilter(RRObject* aobject, bool anegScaleMakesOuterInner, rr::RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
+	RRTransformedObjectFilter(RRObject* aobject, bool anegScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)
 		: RRObjectFilter(aobject)
 	{
 		negScaleMakesOuterInner = anegScaleMakesOuterInner;
 		collider = NULL;
 		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		assert(m);
-		rr::RRMesh* mesh = new RRTransformedMeshFilter(inherited->getCollider()->getMesh(),m);
+		RRMesh* mesh = new RRTransformedMeshFilter(inherited->getCollider()->getMesh(),m);
 		// it would be possible to reuse collider of aobject, our collider would transform
 		//  both inputs and outputs and call aobject's collider with complicated collisionHandler
 		// quite complicated and slower, let's rather create new collider
-		collider = rr::RRCollider::create(mesh,intersectTechnique,cacheLocation);
+		collider = RRCollider::create(mesh,intersectTechnique,cacheLocation);
 	}
 	virtual ~RRTransformedObjectFilter()
 	{
@@ -62,7 +62,7 @@ public:
 			}
 	}
 private:
-	rr::RRCollider* collider;
+	RRCollider* collider;
 	bool negScaleMakesOuterInner;
 };
 

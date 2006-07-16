@@ -5,7 +5,9 @@
 
 #include <assert.h>
 #include <memory.h>
-#include <omp.h> // error in msvc manifest code, needs omp.h even when using only pragmas
+#ifdef _OPENMP
+	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
+#endif
 #include <windows.h> // jen kvuli GetTempPath
 
 

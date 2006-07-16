@@ -128,7 +128,7 @@ void RRVisionApp::updateVertexLookupTable()
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
-		rr::RRMesh* mesh =
+		RRMesh* mesh =
 #ifdef MULTIOBJECT
 			multiObject->getCollider()->getMesh();
 #else
@@ -138,11 +138,11 @@ void RRVisionApp::updateVertexLookupTable()
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 
-		preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,std::pair<unsigned,unsigned>(rr::RRMesh::UNDEFINED,rr::RRMesh::UNDEFINED));
+		preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,std::pair<unsigned,unsigned>(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
 
 		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 		{
-			rr::RRMesh::Triangle postImportTriangleVertices;
+			RRMesh::Triangle postImportTriangleVertices;
 			mesh->getTriangle(postImportTriangle,postImportTriangleVertices);
 			for(unsigned v=0;v<3;v++)
 			{
@@ -151,7 +151,7 @@ void RRVisionApp::updateVertexLookupTable()
 				{
 					unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
 #ifdef MULTIOBJECT
-					rr::RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
+					RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
 					if(preVertexMulti.object==objectHandle)
 						preVertex = preVertexMulti.index;
 					else
@@ -185,7 +185,7 @@ void RRVisionApp::readVertexResults()
 			unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
 			unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
 			RRColor indirect = RRColor(0);
-			if(t!=rr::RRMesh::UNDEFINED && v!=rr::RRMesh::UNDEFINED)
+			if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 			{
 #ifdef MULTIOBJECT
 				scene->getTriangleMeasure(0,t,v,RM_IRRADIANCE,indirect);
@@ -241,7 +241,7 @@ void RRVisionApp::readPixelResults()
 #else
 		RRObject* object = getObject(objectHandle);
 #endif
-		rr::RRMesh* mesh = object->getCollider()->getMesh();
+		RRMesh* mesh = object->getCollider()->getMesh();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
@@ -259,7 +259,7 @@ void RRVisionApp::readPixelResults()
 #ifdef MULTIOBJECT
 			// multiObject must preserve mapping (all objects overlap in one map)
 			//!!! this is satisfied now, but it may change in future
-			rr::RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
+			RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
 			if(preImportTriangle.object==objectHandle)
 			{
 				scene->getSubtriangleMeasure(0,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc);
@@ -299,12 +299,12 @@ RRScene::Improvement RRVisionApp::calculate()
 		reportAction("Opening new radiosity solver.");
 		scene = new RRScene;
 #ifdef MULTIOBJECT
-		rr::RRObject** importers = new rr::RRObject*[objects.size()];
+		RRObject** importers = new RRObject*[objects.size()];
 		for(unsigned i=0;i<(unsigned)objects.size();i++)
 		{
 			importers[i] = objects.at(i).first;
 		}
-		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),rr::RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
+		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
 		multiObject = object ? object->createAdditionalIllumination() : NULL;
 		delete[] importers;
 		scene->objectCreate(multiObject);

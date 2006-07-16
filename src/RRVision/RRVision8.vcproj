@@ -361,10 +361,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\RRMath\RRMathPrivate.cpp"
-			>
-		</File>
-		<File
 			RelativePath="RRScaler.cpp"
 			>
 		</File>

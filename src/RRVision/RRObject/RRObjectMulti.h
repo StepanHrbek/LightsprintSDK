@@ -19,25 +19,25 @@ namespace rr
 class RRMultiObjectImporter : public RRObject
 {
 public:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, rr::RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
 	{
 		if(!numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
-		rr::RRCollider* multiCollider = NULL;
-		rr::RRMesh** transformedMeshes = NULL;
+		RRCollider* multiCollider = NULL;
+		RRMesh** transformedMeshes = NULL;
 		// optimalizace: multimesh z 1 objektu = objekt samotny
 		// lze aplikovat jen pokud se nestitchuji vertexy
 		// pokud se stitchuji, musi vse projit standardni multi-cestou
 		if(numObjects>1 || maxStitchDistance>=0 || optimizeTriangles)
 		{
 			// create multimesh
-			transformedMeshes = new rr::RRMesh*[numObjects+3];
+			transformedMeshes = new RRMesh*[numObjects+3];
 				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
 			for(unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
 			transformedMeshes[numObjects] = NULL;
 			transformedMeshes[numObjects+1] = NULL;
 			transformedMeshes[numObjects+2] = NULL;
-			rr::RRMesh* multiMesh = rr::RRMesh::createMultiMesh(transformedMeshes,numObjects);
+			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects);
 			// stitch vertices
 			if(maxStitchDistance>=0)
 			{
@@ -55,7 +55,7 @@ public:
 			// due to low efficiency
 			if(0)
 			{
-				rr::RRMesh* tmp = multiMesh->createCopy();
+				RRMesh* tmp = multiMesh->createCopy();
 				if(tmp)
 				{
 					transformedMeshes[numObjects+1] = multiMesh; // remember for freeing time
@@ -64,14 +64,14 @@ public:
 			}
 
 			// create multicollider
-			multiCollider = rr::RRCollider::create(multiMesh,intersectTechnique,cacheLocation);
+			multiCollider = RRCollider::create(multiMesh,intersectTechnique,cacheLocation);
 		}
 
 		// creates tree of objects
 		return create(objects,numObjects,multiCollider,transformedMeshes);
 	}
 
-	virtual const rr::RRCollider* getCollider() const
+	virtual const RRCollider* getCollider() const
 	{
 		return multiCollider;
 	}
@@ -126,7 +126,7 @@ public:
 	}
 
 private:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, rr::RRCollider* multiCollider = NULL, rr::RRMesh** transformedMeshes = NULL)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider* multiCollider = NULL, RRMesh** transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -168,7 +168,7 @@ private:
 
 	RRMultiObjectImporter(RRObject* mesh1, unsigned mesh1Objects, unsigned mesh1Triangles, 
 		RRObject* mesh2, unsigned mesh2Objects, unsigned mesh2Triangles,
-		rr::RRCollider* amultiCollider, rr::RRMesh** atransformedMeshes)
+		RRCollider* amultiCollider, RRMesh** atransformedMeshes)
 	{
 		multiCollider = amultiCollider;
 		transformedMeshes = atransformedMeshes;
@@ -195,8 +195,8 @@ private:
 	};
 
 	ObjectPack        pack[2];
-	rr::RRCollider* multiCollider;
-	rr::RRMesh** transformedMeshes;
+	RRCollider* multiCollider;
+	RRMesh** transformedMeshes;
 };
 
 }; // namespace

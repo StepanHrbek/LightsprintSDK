@@ -6,24 +6,16 @@ CFLAGS += -ffast-math # vypnuto protoze bunny pada.. nicmene to nepomohlo, pada 
 CFLAGS += -fomit-frame-pointer
 CFLAGS += -march=athlon-xp -msse
 CPPFLAGS = $(CFLAGS)
-BIN = ./
+BIN = 
 MAKE = makefile
 
-OBJS = BunnyTest.o plymeshreader.o rply.o sphereunitvecpool.o
+OBJS = BunnyBenchmark.o plymeshreader.o rply.o sphereunitvecpool.o
 
-all: $(BIN)BunnyTest.exe
+all: $(BIN)BunnyBenchmark.exe
 
-$(BIN)BunnyTest.exe: $(OBJS) $(MAKE) ../../lib/libRRCollider.a
-	gcc $(OBJS) ../../lib/libRRCollider.a -lstdc++ -o $(BIN)BunnyTest.exe
-
-BunnyTest.o: $(MAKE)
-
-plymeshreader.o: $(MAKE)
-
-rply.o: $(MAKE)
-
-sphereunitvecpool.o:	$(MAKE)
+$(BIN)BunnyBenchmark.exe: $(OBJS) $(MAKE) ../../lib/libRRMesh.a ../../lib/libRRCollider.a
+	gcc $(OBJS) ../../lib/libRRMesh.a ../../lib/libRRCollider.a -lstdc++ -o $(BIN)BunnyBenchmark.exe
 
 clean:
 	del *.o
-	del $(BIN)BunnyTest.exe
+	del $(BIN)BunnyBenchmark.exe

@@ -17,7 +17,7 @@ public:
 	{
 		inherited = object;
 	}
-	virtual const rr::RRCollider* getCollider() const
+	virtual const RRCollider* getCollider() const
 	{
 		return inherited->getCollider();
 	}

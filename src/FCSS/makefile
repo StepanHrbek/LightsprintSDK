@@ -1,6 +1,6 @@
 CC = gcc
 CPP = gcc
-CPPFLAGS = -Wall -I. -I../../include -I../RRCollider/include -I../RRVision/include -I../LicGen/include -I../../3rd/mgflib -DGLEW_STATIC -DRR_STATIC
+CPPFLAGS = -Wall -I. -I../../include -I../../3rd/mgflib -DGLEW_STATIC -DRR_STATIC
 CPPFLAGS += -O1 -DNDEBUG
 #CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG // zpusobuje crash po pouziti upx
  #CPPFLAGS += -ffast-math // zpusobuje crash v soda
@@ -8,11 +8,11 @@ CPPFLAGS += -O1 -DNDEBUG
  #CPPFLAGS += -march=athlon-xp
 #CPPFLAGS += -msse
 #CPPFLAGS += -mfpmath=sse
-LIBS = -s -lz -lm -lmgf -L../../lib -lRRCollider -lRRVision -lstdc++
+LIBS = -s -lz -lm -lmgf -L../../lib -lRRMesh -lRRCollider -lRRVision -lstdc++
 LIBS += -lopengl32 -lglu32 -lglut32
 BIN = ../../bin/
 
-OBJS = 3ds2rr.o glew.o ldmgf.o matrix.o mgf2rr.o Model_3DS.o rr2gl.o shadowcast.o glsl/Camera.o glsl/FrameRate.o glsl/GLSLObject.o glsl/GLSLProgram.o glsl/GLSLShader.o glsl/Texture.o
+OBJS = 3ds2rr.o Model_3DS.o rr2gl.o shadowcast.o gl/Camera.o gl/glew.o glsl/matrix.o glsl/Program.o glsl/Shader.o glsl/Texture.o glsl/UberProgram.o
 
 all: $(BIN)fcss.exe
 
@@ -31,5 +31,5 @@ $(TMP)%.o: %.c makefile
 
 clean:
 	del *.o
-	del glsl\*.o
+	del gl\*.o
 	del ..\..\bin\fcss.exe

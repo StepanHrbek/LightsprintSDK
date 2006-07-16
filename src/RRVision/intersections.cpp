@@ -104,7 +104,7 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	return hitTriangle;
 }
 
-class SkipTriangle : public rr::RRCollisionHandler
+class SkipTriangle : public RRCollisionHandler
 {
 public:
 	SkipTriangle(unsigned askip) : skip(askip) {}
@@ -112,7 +112,7 @@ public:
 	{
 		result = false;
 	}
-	virtual bool collides(const rr::RRRay* ray)
+	virtual bool collides(const RRRay* ray)
 	{
 		result = result || (ray->hitTriangle!=skip);
 		return ray->hitTriangle!=skip;

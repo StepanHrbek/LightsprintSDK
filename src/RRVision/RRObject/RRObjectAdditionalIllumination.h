@@ -140,7 +140,7 @@ public:
 	}
 
 	// filter
-	virtual const rr::RRCollider* getCollider() const
+	virtual const RRCollider* getCollider() const
 	{
 		return original->getCollider();
 	}
