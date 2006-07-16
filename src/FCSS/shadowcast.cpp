@@ -1,17 +1,16 @@
 //#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
-//#define MAX_FILTERED_INSTANCES   12  // max number of light instances with shadow filtering enabled
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
-unsigned INSTANCES_PER_PASS = 2;//!!!7
+unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 nebo 8 je max pro 6600
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define AREA_SIZE                  0.15f
-int fullscreen = 0;
+int fullscreen = 1;
 /*
-! ati: pri shadowmaps>1 asi nesedi cisla sampleru, chybny rendr s materialDiffuse texturami i bez nich
-! bez textur pri vic jak 1 shadowmape nepromita spotmapu
+! zda se ze nikdo nenastavil scaler, proto je indirect moc tmavy
 ! bez textur je indirect slabsi
+! pri 2 instancich je levy okraj spotmapy oriznuty
 ! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava
 ! v gcc dela m3ds renderer spatny indirect na koulich (na zdi je ok, v msvc je ok, v rrrendereru je ok)
 rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
@@ -175,6 +174,14 @@ Texture *lightDirectMap;
 Program *shadowProgram, *ambientProgram;
 UberProgram* uberProgram;
 
+void fatal_error(const char* message)
+{
+	printf(message);
+	printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card is too old.\nSome cards that should work: NVIDIA 6xxx/7xxx, ATI Xxxx/X1xxx\n\nHit enter to close...");
+	fgetc(stdin);
+	exit(0);
+}
+
 void init_gl_resources()
 {
 	quadric = gluNewQuadric();
@@ -187,6 +194,9 @@ void init_gl_resources()
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
+
+	if(!ambientProgram)
+		fatal_error("\nFailed to compile or link GLSL program.\n");
 }
 
 
@@ -447,9 +457,7 @@ Program* getProgram(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberPro
 	Program* tmp = getProgramCore(cc,uberProgramSetup);
 	if(!tmp)
 	{
-		printf("getProgram failed, your card and driver is not capable enough.\nTry to update driver or simplify program.");
-		fgetc(stdin);
-		exit(0);
+		fatal_error("Failed to compile or link GLSL program.\n");
 	}
 	return tmp;
 }
@@ -643,7 +651,7 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup
 		0,0,1,0,
 		1,1,1,2
 	};
-	GLint samplers[100];
+	//GLint samplers[100]; // for array of samplers (needs OpenGL 2.0 compliant card)
 	int softLightBase = softLight;
 	int instances = (softLight>=0 && cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE)?MIN(useLights,INSTANCES_PER_PASS):1;
 	for(int i=0;i<instances;i++)
@@ -651,7 +659,10 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup
 		glActiveTexture(GL_TEXTURE0+i);
 		// prepare samplers
 		shadowMaps[((softLight>=0)?softLightBase:0)+i].bindTexture();
-		samplers[i]=i;
+		//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
+		char name[] = "shadowMap0"; // for individual samplers (works on buggy ATI)
+		name[9] = '0'+i; // for individual samplers (works on buggy ATI)
+		myProg->sendUniform(name, i); // for individual samplers (works on buggy ATI)
 		// prepare and send matrices
 		if(i && softLight>=0)
 			placeSoftLight(softLightBase+i); // calculate light position
@@ -659,7 +670,7 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup
 		glMultMatrixd(light.frustumMatrix);
 		glMultMatrixd(light.viewMatrix);
 	}
-	myProg->sendUniform("shadowMap", instances, samplers);
+	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
 	glMatrixMode(GL_MODELVIEW);
 
 	// lightDirectPos (in object space)
@@ -737,8 +748,8 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.SHADOW_MAPS = useLights;
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_DIRECT_MAP = false;//!!! zakomentovano
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = !true;//!!! true
+		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
+		uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
@@ -1359,10 +1370,10 @@ void init_gl_states()
 	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 	//printf("depth buffer precision = %d\n", depthBits);
 
-	GLint samplers1=0,samplers2=0;
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &samplers1);
-	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &samplers2);
-	printf("GPU limits: samplers=%d / %d\n",samplers1,samplers2);
+	//GLint samplers1=0,samplers2=0;
+	//glGetIntegerv(GL_MAX_TEXTURE_UNITS, &samplers1);
+	//glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &samplers2);
+	//printf("GPU limits: samplers=%d / %d\n",samplers1,samplers2);
 
 	glClearColor(0,0,0,0);
 
@@ -1520,13 +1531,11 @@ int main(int argc, char **argv)
 
 	if(!supports20())
 	{
-		puts("At least OpenGL 2.0 required.\n\nHit enter to close...");
-		fgetc(stdin);
-		exit(0);
+		fatal_error("OpenGL 2.0 capable graphics card is required.\n");
 	}
 
-	uberProgramGlobalSetup.SHADOW_MAPS = 2;
-	uberProgramGlobalSetup.SHADOW_SAMPLES = 1;
+	uberProgramGlobalSetup.SHADOW_MAPS = 1;
+	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_COLOR = true;
@@ -1535,7 +1544,8 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
 
-	/*/ adjust INSTANCES_PER_PASS to GPU
+	// adjust INSTANCES_PER_PASS to GPU
+	printf("Max maps processed at once: %d -> ", INSTANCES_PER_PASS); // this is our initial guess
 retry:
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = INSTANCES_PER_PASS;
@@ -1548,15 +1558,19 @@ retry:
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.FORCE_2D_POSITION = false;
 	Program* prog = getProgramCore(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE,uberProgramSetup);
-	if(!prog && INSTANCES_PER_PASS>1)
+	if(!prog)
 	{
-		printf("MAPS_PER_PASS=%d too much, trying %d...\n",INSTANCES_PER_PASS,INSTANCES_PER_PASS-1);
-		INSTANCES_PER_PASS--;
-		goto retry;
+		if(--INSTANCES_PER_PASS)
+			goto retry;
+		fatal_error("0\n");
 	}
-	*/
-
-	printf("Loading and preprocessing scene (~15 sec)...");
+	printf("%d -> ", INSTANCES_PER_PASS); // this seems working, but fails on ATI
+	if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
+	if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
+	printf("%d\n", INSTANCES_PER_PASS); // this is further reduced by 2
+	useLights = INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS;
+	
+	printf("Loading scene...");
 
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
