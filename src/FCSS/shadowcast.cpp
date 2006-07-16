@@ -8,7 +8,6 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 nebo 8 je max pro 6
 #define AREA_SIZE                  0.15f
 int fullscreen = 1;
 /*
-! zda se ze nikdo nenastavil scaler, proto je indirect moc tmavy
 ! bez textur je indirect slabsi
 ! pri 2 instancich je levy okraj spotmapy oriznuty
 ! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava

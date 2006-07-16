@@ -312,6 +312,7 @@ RRScene::Improvement RRVisionApp::calculate()
 		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
 			scene->objectCreate((*i).first);
 #endif
+		adjustScene();
 		updateVertexLookupTable();
 	}
 	if(dirtyLights)
