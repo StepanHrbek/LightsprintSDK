@@ -406,7 +406,6 @@ int showLightViewFrustum = 1;
 int eyeButton = GLUT_LEFT_BUTTON;
 int lightButton = GLUT_MIDDLE_BUTTON;
 int useDepth24 = 0;
-int drawFront = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -951,9 +950,9 @@ void display(void)
 
 	drawHelpMessage(showHelp);
 
-	if(!drawFront)
-		glutSwapBuffers();
+	glutSwapBuffers();
 
+	// z nejakeho duvodu se uvodni capturePrimary po spusteni musi zavolat az takhle pozde
 	LIMITED_TIMES(1,capturePrimary());
 }
 
@@ -1393,11 +1392,6 @@ void init_gl_states()
 	updateDepthScale();
 	updateDepthBias(0);  /* Update with no offset change. */
 
-	if (drawFront) {
-		glDrawBuffer(GL_FRONT);
-		glReadBuffer(GL_FRONT);
-	}
-
 	glShadeModel(GL_SMOOTH);
 
 	glEnable(GL_DEPTH_TEST);
@@ -1445,9 +1439,6 @@ void parseOptions(int argc, char **argv)
 		}
 		if (!strcmp("-depth24", argv[i])) {
 			useDepth24 = 1;
-		}
-		if (!strcmp("-front", argv[i])) {
-			drawFront = 1;
 		}
 	}
 }

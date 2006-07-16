@@ -20,9 +20,25 @@ namespace rr
 	//
 	//! Float RGB - One of color formats for vertex and pixel buffers.
 	//
+	// All color formats have default constructor that sets black color.
+	// This makes vertex and pixels buffers black after construction.
+	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	typedef RRVec3 RRColorRGBF;
+	class RRColorRGBF : public RRVec3
+	{
+	public:
+		RRColorRGBF()
+		{
+			x = y = z = 0;
+		}
+		RRColorRGBF(const RRVec3& a)
+		{
+			x = a.x;
+			y = a.y;
+			z = a.z;
+		}
+	};
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -118,7 +134,7 @@ namespace rr
 		}
 		virtual void setSize(unsigned anumVertices)
 		{
-			delete vertices;
+			delete[] vertices;
 			numVertices = anumVertices;
 			vertices = new Color[numVertices];
 		}
@@ -196,7 +212,7 @@ namespace rr
 		}
 		virtual void setSize(unsigned awidth, unsigned aheight)
 		{
-			delete pixels;
+			delete[] pixels;
 			width = awidth;
 			height = aheight;
 			pixels = new Color[width*height];
