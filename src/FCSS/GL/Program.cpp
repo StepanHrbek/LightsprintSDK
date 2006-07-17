@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <cstdio>
 #include "Program.h"
 
 using namespace std;

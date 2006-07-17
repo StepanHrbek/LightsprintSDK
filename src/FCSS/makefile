@@ -8,7 +8,7 @@ CPPFLAGS = -Wall -I. -I../../include -DGLEW_STATIC -DRR_STATIC
  #CPPFLAGS += -march=athlon-xp
 #CPPFLAGS += -msse
 #CPPFLAGS += -mfpmath=sse
-LIBS = -s -lz -lm -L../../lib -lRRMesh -lRRCollider -lRRVision -lstdc++
+LIBS = -s -lz -lm -L../../lib -lRRIllumCalculator -lRRMesh -lRRCollider -lRRVision -lstdc++
 LIBS += -lopengl32 -lglu32 -lglut32
 BIN = ../../bin/
 

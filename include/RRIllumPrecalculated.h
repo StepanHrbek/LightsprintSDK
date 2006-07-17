@@ -33,6 +33,6 @@
 */
 
 #include "RRIllumPrecalculatedSurface.h"
-#include "RRIllumPrecalculatedSpace.h"
+//!!!#include "RRIllumPrecalculatedSpace.h"
 
 #endif

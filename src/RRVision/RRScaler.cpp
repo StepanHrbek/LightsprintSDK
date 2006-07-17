@@ -11,7 +11,7 @@ namespace rr
 //
 // With GammaScaler, you may directly work for example with 
 // approximate screen colors.
-// gamma=0.4 approximates screen colors
+// gamma=0.45 approximates screen colors
 // gamma=1 makes no difference
 
 class RRGammaScaler : public RRScaler

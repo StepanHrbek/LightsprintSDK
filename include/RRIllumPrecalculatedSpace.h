@@ -17,6 +17,7 @@ namespace rr
 
 class RRIrradiancePointAmbient
 {
+public:
 	RRIrradiancePointAmbient()
 	{
 		irradiance = RRVec3(0);
@@ -27,6 +28,7 @@ class RRIrradiancePointAmbient
 
 class RRIrradiancePointSH
 {
+public:
 	RRIrradiancePointSH()
 	{
 		irradiance = RRVec3(0);
@@ -42,6 +44,7 @@ class RRIrradiancePointSH
 template <class RRIrradiancePoint>
 class RRIrradianceGrid
 {
+public:
 	RRIrradianceGrid()
 	{
 		size[0] = size[1] = size[2] = 0;
@@ -106,6 +109,7 @@ protected:
 template <class RRIrradiancePoint>
 class RRIrradianceGridTransformed : public RRIrradianceGrid<RRIrradiancePoint>
 {
+public:
 	void setTransformation(RRMatrix3x4* aworldMatrix, RRMatrix3x4* aworldMatrixInv)
 	{
 		worldMatrix = *aworldMatrix;

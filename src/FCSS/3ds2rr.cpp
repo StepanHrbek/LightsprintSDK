@@ -5,7 +5,6 @@
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
-#include <stdint.h>
 #include <vector>
 #include "3ds2rr.h"
 
@@ -256,3 +255,4 @@ void new_3ds_importer(Model_3DS* model,rr::RRVisionApp* app)
 	}
 	if(app) app->setObjects(objects);
 }
+

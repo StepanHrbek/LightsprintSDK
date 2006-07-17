@@ -959,7 +959,6 @@ void display(void)
 static void benchmark(int perFrameDepthMapUpdate)
 {
 	const int numFrames = 150;
-	int precision = 0;
 	int start, stop;
 	float time;
 	int i;
