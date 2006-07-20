@@ -2,18 +2,17 @@
 //#define DEFAULT_SPONZA
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
-unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 nebo 8 je max pro 6600
+unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define AREA_SIZE                  0.15f
 int fullscreen = 1;
 /*
+rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
 ! spatne pocita sponza podlahu
 ! bez textur je indirect slabsi
 ! pri 2 instancich je levy okraj spotmapy oriznuty
 ! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava
-! v gcc dela m3ds renderer spatny indirect na koulich (na zdi je ok, v msvc je ok, v rrrendereru je ok)
-rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
 
 pridat dalsi koupelny
 ovladani jasu (global, indirect)
@@ -472,12 +471,12 @@ void drawScene(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramS
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		m3ds.Draw(NULL,uberProgramSetup.LIGHT_INDIRECT_COLOR?app:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
+		m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?app:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
 		return;
 	}
 	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && (cc==RRGLObjectRenderer::CC_SOURCE_IRRADIANCE || cc==RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE))
 	{
-		m3ds.Draw(NULL,app,uberProgramSetup.LIGHT_INDIRECT_MAP);
+		m3ds.Draw(app,uberProgramSetup.LIGHT_INDIRECT_MAP);
 		return;
 	}
 

@@ -287,7 +287,7 @@ bool Model_3DS::Load(char *name, float scale)
 	return true;
 }
 
-void Model_3DS::Draw(GLfloat* color, rr::RRVisionApp* app, bool lightIndirectMap)
+void Model_3DS::Draw(rr::RRVisionApp* app, bool lightIndirectMap)
 {
 	if (visible)
 	{
@@ -309,19 +309,13 @@ void Model_3DS::Draw(GLfloat* color, rr::RRVisionApp* app, bool lightIndirectMap
 		{
 
 			// additional exitance
-			if(color)
-			{
-				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(3, GL_FLOAT, 0, color);
-				color += 3*Objects[i].numVerts;
-			}
-			else if(app)
+			if(app)
 			{
 				if(!lightIndirectMap)
 				{
 					rr::RRIlluminationVertexBuffer* vertexBuffer = app->getIllumination(i)->getChannel(0)->vertexBuffer;
 					glEnableClientState(GL_COLOR_ARRAY);
-					glColorPointer(3, GL_FLOAT, 0, ((rr::RRIlluminationVertexBufferInMemory<rr::RRColor>*)vertexBuffer)->lock());
+					glColorPointer(3, GL_FLOAT, 0, ((rr::RRIlluminationVertexBufferInMemory<rr::RRColor>*)vertexBuffer)->lock()); //!!!
 				}
 				else
 				{
