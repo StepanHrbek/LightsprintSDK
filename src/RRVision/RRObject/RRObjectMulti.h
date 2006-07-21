@@ -76,6 +76,40 @@ public:
 		return multiCollider;
 	}
 
+	void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+	{
+		// all objects have the same channels, so let's simply ask object[0].
+		// equality must be ensured by creator of multiobject.
+		pack[0].getImporter()->getChannelSize(channelId,numItems,itemSize);
+	}
+
+	bool getChannelData(unsigned channelId, unsigned itemIndex, void* item) const
+	{
+		unsigned pack0Items = 0;
+		switch(channelId>>12)
+		{
+		case 0: // vertex
+			assert(0); //!!! not used yet
+			//pack0Items = pack[0].getNumVertices();
+			break;
+		case 1: // triangle
+			pack0Items = pack[0].getNumTriangles();
+			break;
+		case 2: // surface
+			//pack0Items = pack[0].getNumSurfaces();
+			//break;
+			//!!! assumption: all objects share the same surface library
+			pack0Items = 0;
+		case 3: // object
+			pack0Items = pack[0].getNumObjects();
+			break;
+		default:
+			return false;
+		}
+		if(itemIndex<pack0Items) return pack[0].getImporter()->getChannelData(channelId,itemIndex,item);
+		return pack[1].getImporter()->getChannelData(channelId,itemIndex-pack0Items,item);
+	}
+
 	virtual unsigned getTriangleSurface(unsigned t) const
 	{
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleSurface(t);
@@ -83,8 +117,7 @@ public:
 	}
 	virtual const RRSurface* getSurface(unsigned s) const
 	{
-		// assumption: all objects share the same surface library
-		// -> this is not universal code
+		//!!! assumption: all objects share the same surface library
 		return pack[0].getImporter()->getSurface(s);
 	}
 
@@ -186,17 +219,17 @@ private:
 			numTriangles = triangles;
 		}
 		RRObject* getImporter() const {return packImporter;}
-		unsigned          getNumObjects() const {return numObjects;}
-		unsigned          getNumTriangles() const {return numTriangles;}
+		unsigned  getNumObjects() const {return numObjects;}
+		unsigned  getNumTriangles() const {return numTriangles;}
 	private:
 		RRObject* packImporter;
-		unsigned          numObjects;
-		unsigned          numTriangles;
+		unsigned  numObjects;
+		unsigned  numTriangles;
 	};
 
-	ObjectPack        pack[2];
-	RRCollider* multiCollider;
-	RRMesh** transformedMeshes;
+	ObjectPack    pack[2];
+	RRCollider*   multiCollider;
+	RRMesh**      transformedMeshes;
 };
 
 }; // namespace

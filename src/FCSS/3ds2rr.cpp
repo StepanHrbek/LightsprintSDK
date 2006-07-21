@@ -21,9 +21,10 @@ void reporter(const char* msg, void* context)
 }
 #endif
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
-// MgfImporter class
+// M3dsImporter
 
 class M3dsImporter : public rr::RRObject, rr::RRMesh
 {
@@ -31,6 +32,10 @@ public:
 	M3dsImporter(Model_3DS* model, unsigned objectIdx);
 
 	virtual ~M3dsImporter();
+
+	// RRChanneledData
+	virtual void         getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
+	virtual bool         getChannelData(unsigned channelId, unsigned itemIndex, void* item) const;
 
 	// RRMesh
 	virtual unsigned     getNumVertices() const;
@@ -138,6 +143,66 @@ M3dsImporter::~M3dsImporter()
 	delete collider;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// M3dsImporter implements RRChanneledData
+
+void M3dsImporter::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+{
+	switch(channelId)
+	{
+		case CHANNEL_SURFACE_DIF_TEX:
+			if(numItems) *numItems = model->numMaterials;
+			if(itemSize) *itemSize = sizeof(Texture*);
+			return;
+		case CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+			if(numItems) *numItems = getNumTriangles();
+			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
+			return;
+		default:
+			assert(0); // legal, but shouldn't happen in well coded program
+			if(numItems) *numItems = 0;
+			if(itemSize) *itemSize = 0;
+	}
+}
+
+bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData) const
+{
+	switch(channelId)
+	{
+	case CHANNEL_SURFACE_DIF_TEX:
+		{
+			if(itemIndex>=(unsigned)model->numMaterials)
+			{
+				assert(0); // legal, but shouldn't happen in well coded program
+				return false;
+			}
+			Texture*& out = *(Texture**)itemData;
+			out = model->Materials[itemIndex].tex;
+			return true;
+		}
+	case CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+		{
+			if(itemIndex>=getNumTriangles())
+			{
+				assert(0); // legal, but shouldn't happen in well coded program
+				return false;
+			}
+			rr::RRVec2* out = (rr::RRVec2*)itemData;
+			Triangle triangle;
+			getTriangle(itemIndex,triangle);
+			for(unsigned v=0;v<3;v++)
+			{
+				out[v][0] = object->TexCoords[2*triangle[v]];
+				out[v][1] = object->TexCoords[2*triangle[v]+1];
+			}
+			return true;
+		}
+	default:
+		assert(0); // legal, but shouldn't happen in well coded program
+		return false;
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //

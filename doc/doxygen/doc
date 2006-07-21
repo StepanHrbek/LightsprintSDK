@@ -286,6 +286,9 @@ NEW FEATURES
 
 - rr::RRCollider::intersectBatch()
   \n searches collisions on all cores/CPUs at once
+- rr::RRChanneledData
+  \n extends rr::RRMesh and rr::RRObject to allow storage of
+     additional data of user defined types
 - rr::RRObject::createWorldSpaceObject()
   \n creates object transformed to worldspace
   \n brings negative scale support

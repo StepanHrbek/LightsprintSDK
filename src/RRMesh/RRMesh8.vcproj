@@ -290,6 +290,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\RRChanneledData.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\RRMath.h"
 			>
 		</File>

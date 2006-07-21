@@ -10,11 +10,7 @@
 
 #include <cassert>
 #include <cstdio>
-#ifdef _MSC_VER
-	#include "../RRCollider/stdint.h"
-#else
-	#include <stdint.h> // sizes of imported vertex/index arrays
-#endif
+#include <stdint.h> // sizes of imported vertex/index arrays
 
 
 namespace rr

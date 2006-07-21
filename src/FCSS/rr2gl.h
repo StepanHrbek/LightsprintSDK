@@ -8,6 +8,7 @@
 #include <map>
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include "GL/Texture.h"
 #include "RRVision.h"
 
 
@@ -55,6 +56,7 @@ public:
 		//CC_NO_COLOR__DIFFUSE_UV,
 		CC_TRIANGLE_INDEX,
 		CC_DIFFUSE_REFLECTANCE,
+		//CC_DIFFUSE_REFLECTANCE_TEXTURED,
 		CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,
 		CC_SOURCE_IRRADIANCE,
 		CC_SOURCE_EXITANCE,

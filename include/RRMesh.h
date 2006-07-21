@@ -35,6 +35,48 @@ namespace rr
 {
 
 
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//  RRChanneledData
+	//! Common interface for data stored in channels - arrays of implementation defined size and type.
+	//
+	//! It is common in computer graphics applications to store many different kinds of data
+	//! for each vertex in mesh, other kind of data for each triangle in mesh etc.
+	//!
+	//! This interface gives access to all such informations and is extensible enough
+	//! so we don't need to know types of data now. Each implementation defines its own data types.
+
+	class RRChanneledData
+	{
+	public:
+		//! Returns size of selected channel.
+		//
+		//! \param channelId Id of channel, eg. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
+		//!  Each class that implements this method (eg. RRMesh, RRObject) defines supported channel ids
+		//!  CHANNEL_xxx.
+		//! \param numItems When not NULL, it is filled with number of items. Items are indexed by 0..numItems-1.
+		//!  Zero is filled for unknown channel.
+		//! \param itemSize When not NULL, it is filled with size of one item in bytes.
+		//!  Item type (and thus size) for each channel is part of each CHANNEL_xxx description.
+		//!  Zero is filled for unknown channel.
+		virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
+		//! Copies one data item from selected channel into buffer provided by you.
+		//
+		//! \param channelId Id of channel, eg. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
+		//!  Each class that implements this method (eg. RRMesh, RRObject) defines supported channel ids
+		//!  CHANNEL_xxx.
+		//! \param itemIndex Index of intem inside channel. Items are indexed from 0 to numItems-1,
+		//!  see getChannelSize for numItems.
+		//! \param item When not NULL, data item from selected channel and index is copied to it.
+		//!  It is your responsibility to provide big enough buffer.
+		//!  See getChannelSize for size of one item.
+		//! \return True when item exists and was copied, false when item doesn't exist and nothing was copied.
+		virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* item) const;
+		virtual ~RRChanneledData() {};
+	};
+
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRMesh
@@ -105,9 +147,10 @@ namespace rr
 	//! -# such queries are very critical for performance.
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRMesh
+	class RR_API RRMesh //: public RRChanneledData
 	{
 	public:
+
 		//////////////////////////////////////////////////////////////////////////////
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
