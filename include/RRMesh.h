@@ -153,7 +153,7 @@ namespace rr
 	//! -# such queries are very critical for performance.
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRMesh //: public RRChanneledData
+	class RR_API RRMesh : public RRChanneledData
 	{
 	public:
 

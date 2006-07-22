@@ -111,42 +111,6 @@ public:
 		t = unoptimizedMesh->getPostImportTriangle(t);
 	}
 
-	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
-	{
-		// all objects have the same channels, so let's simply ask object[0].
-		// equality must be ensured by creator of multiobject.
-		pack[0].getImporter()->getChannelSize(channelId,numItems,itemSize);
-	}
-
-	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
-	{
-		unsigned pack0Items = 0;
-		switch(channelId>>12)
-		{
-		case 0: // vertex
-			//!!!unoptimizeVertex(itemIndex);
-			assert(0); //!!! not used yet
-			//pack0Items = pack[0].getNumVertices();
-			break;
-		case 1: // triangle
-			unoptimizeTriangle(itemIndex);
-			pack0Items = pack[0].getNumTriangles();
-			break;
-		case 2: // surface
-			//pack0Items = pack[0].getNumSurfaces();
-			//!!! assumption: all objects share the same surface library
-			pack0Items = UINT_MAX;
-			break;
-		case 3: // object
-			pack0Items = pack[0].getNumObjects();
-			break;
-		default:
-			return false;
-		}
-		if(itemIndex<pack0Items) return pack[0].getImporter()->getChannelData(channelId,itemIndex,itemData,itemSize);
-		return pack[1].getImporter()->getChannelData(channelId,itemIndex-pack0Items,itemData,itemSize);
-	}
-
 	virtual unsigned getTriangleSurface(unsigned t) const
 	{
 		unoptimizeTriangle(t);

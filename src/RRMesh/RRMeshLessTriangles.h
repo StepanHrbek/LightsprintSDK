@@ -42,6 +42,24 @@ public:
 		delete[] ValidIndex;
 	}
 
+	// channels
+	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
+	{
+		if((channelId&0x7ffff000) == INDEXED_BY_TRIANGLE)
+		{
+			if(itemIndex<ValidIndices)
+			{
+				itemIndex = ValidIndex[itemIndex];
+			}
+			else
+			{
+				assert(0);
+				return false;
+			}
+		}
+		return inherited->getChannelData(channelId,itemIndex,itemData,itemSize);
+	}
+
 	virtual unsigned getNumTriangles() const
 	{
 		return ValidIndices;

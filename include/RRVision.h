@@ -146,7 +146,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRObject : public RRChanneledData
+	class RR_API RRObject
 	{
 	public:
 

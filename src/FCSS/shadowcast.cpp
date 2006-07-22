@@ -8,11 +8,6 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 #define AREA_SIZE                  0.15f
 int fullscreen = 1;
 /*
-
-ChanneledData prestehovat do meshe
- +zrychli se tim multiobject, nebude muset slozite prekladat vsechny indexy, jen nektery
- -nepujde vyrobit objekt z obecneho meshe
- 
 ! sponza v rr renderu neni vysmoothovana
   - hledat chybu, nejaka tam asi je
   - smoothovat podle normal

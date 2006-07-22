@@ -104,7 +104,7 @@ void RRGLObjectRenderer::render()
 					if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 					{
 						Texture* tex = NULL;
-						params.object->getChannelData(CHANNEL_SURFACE_DIF_TEX,surfaceIdx,&tex,sizeof(tex));
+						params.object->getCollider()->getMesh()->getChannelData(CHANNEL_SURFACE_DIF_TEX,surfaceIdx,&tex,sizeof(tex));
 						if(tex)
 						{
 							glEnd();
@@ -169,7 +169,7 @@ void RRGLObjectRenderer::render()
 			{
 				rr::RRVec2 uv[3];
 				//!!! getnout jednou, ne trikrat (viz setNormals)
-				if(params.object->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,triangleIdx,&uv,sizeof(uv)))
+				if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,triangleIdx,&uv,sizeof(uv)))
 					glMultiTexCoord2f(GL_TEXTURE0,uv[v][0],uv[v][1]);
 				else
 					assert(0); // expected data are missing
