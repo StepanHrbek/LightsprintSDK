@@ -68,11 +68,17 @@ namespace rr
 		//!  CHANNEL_xxx.
 		//! \param itemIndex Index of intem inside channel. Items are indexed from 0 to numItems-1,
 		//!  see getChannelSize for numItems.
-		//! \param item When not NULL, data item from selected channel and index is copied to it.
-		//!  It is your responsibility to provide big enough buffer.
+		//! \param itemData When not NULL, data item from selected channel and index
+		//!  is copied to it. It is your responsibility to provide big enough buffer. 
+		//!  Item will be copied into first itemSize bytes of buffer.
 		//!  See getChannelSize for size of one item.
-		//! \return True when item exists and was copied, false when item doesn't exist and nothing was copied.
-		virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* item) const;
+		//! \param itemSize Size of one item. Both you and implementation must know 
+		//!  this value, this parameter exists only for security reasons. If your size 
+		//!  doesn't match what implementation expects, item is not copied.
+		//!  See getChannelSize for what implementation thinks about item size.
+		//! \return True when itemSize is ok, item exists and was copied.
+		//!  False when item doesn't exist or itemSize doesn't fit and nothing was copied.
+		virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
 		virtual ~RRChanneledData() {};
 	};
 

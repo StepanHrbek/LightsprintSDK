@@ -38,6 +38,11 @@ public:
 			transformedMeshes[numObjects+1] = NULL;
 			transformedMeshes[numObjects+2] = NULL;
 			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects);
+
+			// NOW: multiMesh is unoptimized = concatenated meshes
+			// kdyz jsou zaple tyto optimalizace, pristup k objektu je pomalejsi,
+			//  protoze je nutne preindexovavat analogicky k obecne optimalizaci v meshi
+			//!!! kdyz jsou zaple tyto optimalizace, "fcss koupelna" gcc hodi assert u m3ds v getTriangleSurface, moc velky trianglIndex. kdyz ho ignoruju, crashne. v msvc se nepodarilo navodit.
 			// stitch vertices
 			if(maxStitchDistance>=0)
 			{
@@ -50,6 +55,8 @@ public:
 				transformedMeshes[numObjects+2] = multiMesh; // remember for freeing time
 				multiMesh = multiMesh->createOptimizedTriangles();
 			}
+			// NOW: multiMesh is optimized, object indexing must be optimized too via calls to unoptimizeTriangle()
+
 			// create copy (faster access)
 			// disabled because we know that current copy implementation always gives up
 			// due to low efficiency
@@ -76,42 +83,73 @@ public:
 		return multiCollider;
 	}
 
-	void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+	/*void unoptimizeVertex(unsigned& v) const
+	{
+		if(!transformedMeshes) return;
+		unsigned numObjects = pack[0].getNumObjects()+pack[1].getNumObjects();
+		RRMesh* unoptimizedMesh;
+		if(transformedMeshes[numObjects]) unoptimizedMesh = transformedMeshes[numObjects]; else
+			if(transformedMeshes[numObjects+2]) unoptimizedMesh = transformedMeshes[numObjects+2]; else
+				return;
+		// <unoptimized> is mesh after concatenation of multiple meshes/objects
+		// <this> is after concatenation and optimizations
+		v = getCollider()->getMesh()->getPreImportVertex(v,?);
+		v = unoptimizedMesh->getPostImportVertex(v,?);
+	}*/
+
+	void unoptimizeTriangle(unsigned& t) const
+	{
+		if(!transformedMeshes) return;
+		unsigned numObjects = pack[0].getNumObjects()+pack[1].getNumObjects();
+		RRMesh* unoptimizedMesh;
+		if(transformedMeshes[numObjects]) unoptimizedMesh = transformedMeshes[numObjects]; else
+			if(transformedMeshes[numObjects+2]) unoptimizedMesh = transformedMeshes[numObjects+2]; else
+				return;
+		// <unoptimized> is mesh after concatenation of multiple meshes/objects
+		// <this> is after concatenation and optimizations
+		t = getCollider()->getMesh()->getPreImportTriangle(t);
+		t = unoptimizedMesh->getPostImportTriangle(t);
+	}
+
+	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 	{
 		// all objects have the same channels, so let's simply ask object[0].
 		// equality must be ensured by creator of multiobject.
 		pack[0].getImporter()->getChannelSize(channelId,numItems,itemSize);
 	}
 
-	bool getChannelData(unsigned channelId, unsigned itemIndex, void* item) const
+	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
 		unsigned pack0Items = 0;
 		switch(channelId>>12)
 		{
 		case 0: // vertex
+			//!!!unoptimizeVertex(itemIndex);
 			assert(0); //!!! not used yet
 			//pack0Items = pack[0].getNumVertices();
 			break;
 		case 1: // triangle
+			unoptimizeTriangle(itemIndex);
 			pack0Items = pack[0].getNumTriangles();
 			break;
 		case 2: // surface
 			//pack0Items = pack[0].getNumSurfaces();
-			//break;
 			//!!! assumption: all objects share the same surface library
-			pack0Items = 0;
+			pack0Items = UINT_MAX;
+			break;
 		case 3: // object
 			pack0Items = pack[0].getNumObjects();
 			break;
 		default:
 			return false;
 		}
-		if(itemIndex<pack0Items) return pack[0].getImporter()->getChannelData(channelId,itemIndex,item);
-		return pack[1].getImporter()->getChannelData(channelId,itemIndex-pack0Items,item);
+		if(itemIndex<pack0Items) return pack[0].getImporter()->getChannelData(channelId,itemIndex,itemData,itemSize);
+		return pack[1].getImporter()->getChannelData(channelId,itemIndex-pack0Items,itemData,itemSize);
 	}
 
 	virtual unsigned getTriangleSurface(unsigned t) const
 	{
+		unoptimizeTriangle(t);
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleSurface(t);
 		return pack[1].getImporter()->getTriangleSurface(t-pack[0].getNumTriangles());
 	}
@@ -123,17 +161,20 @@ public:
 
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
+		unoptimizeTriangle(t);
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleNormals(t,out);
 		return pack[1].getImporter()->getTriangleNormals(t-pack[0].getNumTriangles(),out);
 	}
 	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
 	{
+		unoptimizeTriangle(t);
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMapping(t,out);
 		return pack[1].getImporter()->getTriangleMapping(t-pack[0].getNumTriangles(),out);
 	}
 
 	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure format, RRColor& out) const
 	{
+		unoptimizeTriangle(t);
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalMeasure(t,format,out);
 		return pack[1].getImporter()->getTriangleAdditionalMeasure(t-pack[0].getNumTriangles(),format,out);
 	}

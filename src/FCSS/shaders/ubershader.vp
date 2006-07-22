@@ -1,7 +1,7 @@
 // Realtime Radiosity Viewer ubershader
 //
 // options controlled by program:
-//  #define SHADOW_MAPS [0..n]
+//  #define SHADOW_MAPS [0..10]
 //  #define SHADOW_SAMPLES [0|1|2|4]
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
@@ -50,7 +50,7 @@ void main()
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
-  materialDiffuseColor = gl_Color;
+  materialDiffuseColor = gl_SecondaryColor;
 #endif
 
   //for(int i=0;i<SHADOW_MAPS;i++)

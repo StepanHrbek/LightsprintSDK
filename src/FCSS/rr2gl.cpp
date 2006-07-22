@@ -7,6 +7,7 @@
 #include <GL/glut.h>
 #include <assert.h>
 #include <math.h>
+#include "3ds2rr.h" // additional diffuse_texture channels in RRObject
 
 
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by surface
@@ -43,9 +44,9 @@ RRGLObjectRenderer::RRGLObjectRenderer(rr::RRObject* objectImporter, rr::RRScene
 	params.scene = radiositySolver;
 }
 
-void RRGLObjectRenderer::setChannel(ColorChannel cc)
+void RRGLObjectRenderer::setRenderedChannels(RenderedChannels renderedChannels)
 {
-	params.cc = cc;
+	params.renderedChannels = renderedChannels;
 }
 
 const void* RRGLObjectRenderer::getParams(unsigned& length) const
@@ -61,35 +62,6 @@ void RRGLObjectRenderer::render()
 	if(SIDES==1) glEnable(GL_CULL_FACE);
 	if(SIDES==2) glDisable(GL_CULL_FACE);
 
-	switch(params.cc)
-	{
-	case CC_NO_COLOR: 
-	case CC_TRIANGLE_INDEX: 
-		glShadeModel(GL_FLAT);
-		break;
-	case CC_DIFFUSE_REFLECTANCE:
-		glShadeModel(GL_SMOOTH);
-		break;
-	case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
-		glShadeModel(GL_SMOOTH);
-		glDisable(GL_CULL_FACE);
-		break;
-	case CC_SOURCE_IRRADIANCE:
-	case CC_SOURCE_EXITANCE:
-		rr::RRScene::setState(rr::RRScene::GET_SOURCE,1);
-		rr::RRScene::setState(rr::RRScene::GET_REFLECTED,0);
-		glShadeModel(GL_SMOOTH);
-		break;
-	case CC_REFLECTED_IRRADIANCE:
-	case CC_REFLECTED_EXITANCE:
-		rr::RRScene::setState(rr::RRScene::GET_SOURCE,0);
-		rr::RRScene::setState(rr::RRScene::GET_REFLECTED,1);
-		glShadeModel(GL_SMOOTH);
-		break;
-	default:
-		assert(0);
-	}
-
 	glBegin(GL_TRIANGLES);
 	assert(params.object);
 	rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
@@ -99,80 +71,124 @@ void RRGLObjectRenderer::render()
 	{
 		rr::RRMesh::Triangle tri;
 		meshImporter->getTriangle(triangleIdx,tri);
-		switch(params.cc)
+
+		if(params.renderedChannels.MATERIAL_DIFFUSE_COLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 		{
-			case CC_NO_COLOR:
-				break;
-			case CC_TRIANGLE_INDEX:
-				glColor4ub(triangleIdx>>16,triangleIdx>>8,triangleIdx,255);
-				break;
-			default:
-			{
 				unsigned surfaceIdx = params.object->getTriangleSurface(triangleIdx);
 				if(surfaceIdx!=oldSurfaceIdx)
 				{
-					const rr::RRSurface* surface = params.object->getSurface(surfaceIdx);
-					assert(surface);
+					oldSurfaceIdx = surfaceIdx;
+
+					// material culling
 					// nastavuje culling podle materialu
 					// vypnuto protoze kdyz to na nvidii vlozim do display listu, pri jeho provadeni hlasi error
+					// !!! mozna byl error proto ze je to zakazane uvnitr glBegin/End
 					//if(cc!=CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)
 					//	if((SIDES==0 && surface->sideBits[1].renderFrom) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-					switch(params.cc)
+
+					// material diffuse color
+					if(params.renderedChannels.MATERIAL_DIFFUSE_COLOR)
 					{
-						case CC_DIFFUSE_REFLECTANCE:
-						case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
-							glColor3fv(&surface->diffuseReflectance.x);
-							break;
-						default:;
+						const rr::RRSurface* surface = params.object->getSurface(surfaceIdx);
+						if(surface)
+						{
+							glSecondaryColor3fv(&surface->diffuseReflectance.x);
+						}
+						else
+						{
+							assert(0); // expected data are missing
+						}
 					}
-					oldSurfaceIdx = surfaceIdx;
+
+					// material diffuse map - bind texture
+					if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
+					{
+						Texture* tex = NULL;
+						params.object->getChannelData(CHANNEL_SURFACE_DIF_TEX,surfaceIdx,&tex,sizeof(tex));
+						if(tex)
+						{
+							glEnd();
+							tex->bindTexture();
+							glBegin(GL_TRIANGLES);
+						}
+						else
+						{			
+							assert(0); // expected data are missing
+						}
+					}
 				}
-			}
 		}
+
+		// mesh normals - prepare data
+		bool setNormals = params.renderedChannels.LIGHT_DIRECT;
 		rr::RRObject::TriangleNormals triangleNormals;
-		bool setNormals = params.cc!=CC_NO_COLOR && params.cc!=CC_TRIANGLE_INDEX;
 		if(setNormals)
 		{
 			params.object->getTriangleNormals(triangleIdx,triangleNormals);
 		}
-		for(int v=0;v<3;v++) 
+
+		for(int v=0;v<3;v++)
 		{
+			// mesh normals - set
 			if(setNormals && (SMOOTH || v==0))
 			{
 				glNormal3fv(&triangleNormals.norm[v].x);
 			}
-			rr::RRMesh::Vertex vertex;
-			meshImporter->getVertex(tri.m[v],vertex);
 
-			switch(params.cc)
+			// light indirect color
+			if(params.renderedChannels.LIGHT_INDIRECT_COLOR)
 			{
-				case CC_SOURCE_IRRADIANCE:
-				case CC_REFLECTED_IRRADIANCE:
-					{
-					rr::RRColor color;
-					params.scene->getTriangleMeasure(0,triangleIdx,v,rr::RM_IRRADIANCE,color);
-					glColor3fv(&color.x);
-					break;
-					}
-				case CC_SOURCE_EXITANCE:
-				case CC_REFLECTED_EXITANCE:
-					{
-					rr::RRColor color;
-					params.scene->getTriangleMeasure(0,triangleIdx,v,rr::RM_EXITANCE,color);
-					glColor3fv(&color.x);
-					break;
-					}
-				case CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION:
-					if(generateForcedUv)
-					{
-						GLfloat xy[2];
-						generateForcedUv->generateData(triangleIdx, v, xy, sizeof(xy));
-						glMultiTexCoord2f(GL_TEXTURE7,xy[0],xy[1]);
-					}
-					break;
-				default:;
+				rr::RRColor color;				
+				params.scene->getTriangleMeasure(0,triangleIdx,v,rr::RM_IRRADIANCE,color);
+				glColor3fv(&color.x);
 			}
 
+			// light indirect map
+			//!!! not implemented
+			/*
+			// setup light indirect texture
+			rr::RRIlluminationPixelBuffer* pixelBuffer = app->getIllumination(i)->getChannel(0)->pixelBuffer;
+			const rr::RRColorI8* pixels = ((rr::RRIlluminationPixelBufferInMemory<rr::RRColorI8>*)pixelBuffer)->lock();
+			glActiveTextureARB(GL_TEXTURE12_ARB); // used by lightIndirectMap
+			...
+			?->bindTexture();
+			glActiveTextureARB(GL_TEXTURE11_ARB); // used by materialDiffuseMap
+			// if not created yet, create unwrap buffer
+			rr::RRObjectIllumination& illum = app->getIllumination(i);
+			if(!illum.pixelBufferUnwrap)
+			{
+			illum.createPixelBufferUnwrap(app->getObject(i));
+			}
+			// setup light indirect texture coords
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(2, GL_FLOAT, 0, ?);
+			*/
+
+			// material diffuse map - uv
+			if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
+			{
+				rr::RRVec2 uv[3];
+				//!!! getnout jednou, ne trikrat (viz setNormals)
+				if(params.object->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,triangleIdx,&uv,sizeof(uv)))
+					glMultiTexCoord2f(GL_TEXTURE0,uv[v][0],uv[v][1]);
+				else
+					assert(0); // expected data are missing
+			}
+
+			// forced 2d position
+			if(params.renderedChannels.FORCE_2D_POSITION)
+			{
+				if(generateForcedUv)
+				{
+					GLfloat xy[2];
+					generateForcedUv->generateData(triangleIdx, v, xy, sizeof(xy));
+					glMultiTexCoord2f(GL_TEXTURE7,xy[0],xy[1]);
+				}
+			}
+
+			// mesh positions
+			rr::RRMesh::Vertex vertex;
+			meshImporter->getVertex(tri.m[v],vertex);
 			glVertex3fv(&vertex.x);
 		}
 	}

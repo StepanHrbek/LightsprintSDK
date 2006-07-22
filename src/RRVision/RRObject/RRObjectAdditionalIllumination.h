@@ -47,6 +47,14 @@ public:
 	{
 		delete[] triangleInfo;
 	}
+	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+	{
+		original->getChannelSize(channelId,numItems,itemSize);
+	}
+	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
+	{
+		return original->getChannelData(channelId,itemIndex,itemData,itemSize);
+	}
 	virtual bool setTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor power)
 	{
 		if(t>=numTriangles)

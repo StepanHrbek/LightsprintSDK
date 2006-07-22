@@ -8,11 +8,21 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 #define AREA_SIZE                  0.15f
 int fullscreen = 1;
 /*
-rr renderer: pridat lightmapu aby aspon nekde behal muj primitivni unwrap
+
+ChanneledData prestehovat do meshe
+ +zrychli se tim multiobject, nebude muset slozite prekladat vsechny indexy, jen nektery
+ -nepujde vyrobit objekt z obecneho meshe
+ 
+! sponza v rr renderu neni vysmoothovana
+  - hledat chybu, nejaka tam asi je
+  - smoothovat podle normal
+  - vertex blur
+
+! prvni capture nekdy vygeneruje svetlejsi indirect
+rr renderer: pridat indirect mapu
 ! spatne pocita sponza podlahu
-! bez textur je indirect slabsi
 ! pri 2 instancich je levy okraj spotmapy oriznuty
-! msvc: kdyz hybu svetlem, na konci hybani se smer kam sviti trochu zarotuje doprava
+! msvc: kdyz hybu svetlcem, na konci hybani se smer kam sviti trochu zarotuje doprava
 
 pridat dalsi koupelny
 ovladani jasu (global, indirect)
@@ -168,7 +178,7 @@ struct UberProgramSetup
 GLUquadricObj *quadric;
 TextureShadowMap* shadowMaps = NULL;
 Texture *lightDirectMap;
-Program *shadowProgram, *ambientProgram;
+Program *ambientProgram;
 UberProgram* uberProgram;
 
 void fatal_error(const char* message)
@@ -187,7 +197,6 @@ void init_gl_resources()
 	lightDirectMap = new Texture("spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
 	uberProgram = new UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
-	shadowProgram = new Program(NULL,"shaders\\shadowmap.vp");
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
@@ -205,7 +214,7 @@ int winWidth, winHeight;
 //
 // MyApp
 
-void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup);
+void drawHardwareShadowPass(UberProgramSetup uberProgramSetup);
 void updateDepthMap(int mapIndex);
 
 // generuje uv coords pro capture
@@ -292,7 +301,15 @@ protected:
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// render scene
-			rendererNonCaching->setChannel(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
+			//rendererNonCaching->setChannel(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
+			RRGLObjectRenderer::RenderedChannels rendererChannels;
+			rendererChannels.LIGHT_DIRECT = true; //!!! zautomatizovat, odvodit z nastaveni o kousek niz
+			rendererChannels.LIGHT_INDIRECT_COLOR = false;
+			rendererChannels.LIGHT_INDIRECT_MAP = false;
+			rendererChannels.MATERIAL_DIFFUSE_COLOR = true;
+			rendererChannels.MATERIAL_DIFFUSE_MAP = false;
+			rendererChannels.FORCE_2D_POSITION = true;
+			rendererNonCaching->setRenderedChannels(rendererChannels);
 			rendererCaching->setStatus(RRGLCachingRenderer::CS_NEVER_COMPILE);
 			generateForcedUv = &captureUv;
 			UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
@@ -302,10 +319,10 @@ protected:
 			//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true; //!!! prepnuto z 3ds na rr render, protoze 3ds s tristripem nezvlada forced 2d pos
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true; // prumerna barva textury nam vetsinou staci -> mirne urychleni
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false; // -"-
 			uberProgramSetup.FORCE_2D_POSITION = true;
-			drawHardwareShadowPass(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,uberProgramSetup);
+			drawHardwareShadowPass(uberProgramSetup);
 			generateForcedUv = NULL;
 
 			// Read back the index buffer to memory.
@@ -436,21 +453,15 @@ void updateTitle(void)
 	}
 }
 
-Program* getProgramCore(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup)
+Program* getProgramCore(UberProgramSetup uberProgramSetup)
 {
-	// optimized for rendering depth, no fragment shader
-	if(cc==RRGLObjectRenderer::CC_NO_COLOR)
-	{
-		return shadowProgram;
-	}
-	// anything other is part of uberprogram
 	const char* setup = uberProgramSetup.getSetupString();
 	return uberProgram->getProgram(setup);
 }
 
-Program* getProgram(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup)
+Program* getProgram(UberProgramSetup uberProgramSetup)
 {
-	Program* tmp = getProgramCore(cc,uberProgramSetup);
+	Program* tmp = getProgramCore(uberProgramSetup);
 	if(!tmp)
 	{
 		fatal_error("Failed to compile or link GLSL program.\n");
@@ -458,36 +469,45 @@ Program* getProgram(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberPro
 	return tmp;
 }
 
-Program* setProgram(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup)
+Program* setProgram(UberProgramSetup uberProgramSetup)
 {
-	Program* tmp = getProgram(cc,uberProgramSetup);
+	Program* tmp = getProgram(uberProgramSetup);
 	tmp->useIt();
 	return tmp;
 }
 
-void drawScene(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup)
+void drawScene(UberProgramSetup uberProgramSetup)
 {
-	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE)
+	// lze smazat, stejnou praci dokaze i rrrenderer
+	// nicmene m3ds.Draw stale jeste
+	// 1) lip smoothuje (pouziva min vertexu)
+	// 2) slouzi jako test ze RRIllumCalculator spravne generuje vertex buffer s indirectem
+	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
+	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
+	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?app:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
 		return;
 	}
-	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && (cc==RRGLObjectRenderer::CC_SOURCE_IRRADIANCE || cc==RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE))
-	{
-		m3ds.Draw(app,uberProgramSetup.LIGHT_INDIRECT_MAP);
-		return;
-	}
 
-	rendererNonCaching->setChannel(cc);
+	RRGLObjectRenderer::RenderedChannels renderedChannels;
+	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
+	renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
+	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
+	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
+	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
+	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
+	rendererNonCaching->setRenderedChannels(renderedChannels);
+
 	rendererCaching->render();
 }
 
-void setProgramAndDrawScene(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup)
+void setProgramAndDrawScene(UberProgramSetup uberProgramSetup)
 {
-	setProgram(cc,uberProgramSetup);
-	drawScene(cc,uberProgramSetup);
+	setProgram(uberProgramSetup);
+	drawScene(uberProgramSetup);
 }
 
 /* drawLight - draw a yellow sphere (disabling lighting) to represent
@@ -620,7 +640,7 @@ void updateDepthMap(int mapIndex)
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
-	setProgramAndDrawScene(RRGLObjectRenderer::CC_NO_COLOR,uberProgramSetup);
+	setProgramAndDrawScene(uberProgramSetup);
 	shadowMaps[(mapIndex>=0)?mapIndex:0].readFromBackbuffer();
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -633,9 +653,9 @@ void updateDepthMap(int mapIndex)
 	}
 }
 
-void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup uberProgramSetup)
+void drawHardwareShadowPass(UberProgramSetup uberProgramSetup)
 {
-	Program* myProg = setProgram(cc,uberProgramSetup);
+	Program* myProg = setProgram(uberProgramSetup);
 
 	//myProg->enumVariables();
 
@@ -649,7 +669,7 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup
 	};
 	//GLint samplers[100]; // for array of samplers (needs OpenGL 2.0 compliant card)
 	int softLightBase = softLight;
-	int instances = (softLight>=0 && cc==RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE)?MIN(useLights,INSTANCES_PER_PASS):1;
+	int instances = (softLight>=0 && !uberProgramSetup.FORCE_2D_POSITION)?MIN(useLights,INSTANCES_PER_PASS):1;
 	for(int i=0;i<instances;i++)
 	{
 		glActiveTexture(GL_TEXTURE0+i);
@@ -702,7 +722,7 @@ void drawHardwareShadowPass(RRGLObjectRenderer::ColorChannel cc,UberProgramSetup
 
 	//assert(myProg->isValid());
 
-	drawScene(cc,uberProgramSetup);
+	drawScene(uberProgramSetup);
 
 	glActiveTexture(GL_TEXTURE0);
 }
@@ -720,7 +740,7 @@ void drawEyeViewShadowed(UberProgramSetup uberProgramSetup)
 
 	eye.setupForRender();
 
-	drawHardwareShadowPass(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE, uberProgramSetup);
+	drawHardwareShadowPass(uberProgramSetup);
 
 	drawLight();
 	if (showLightViewFrustum) drawShadowMapFrustum();
@@ -796,12 +816,13 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 #ifdef SHOW_CAPTURED_TRIANGLES
+		uberProgramSetup.FORCE_2D_POSITION = true;
 		generateForcedUv = &captureUv;
 		captureUv.firstCapturedTriangle = 0;
-		setProgramAndDrawScene(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,uberProgramSetup); // pro color exitance, pro texturu irradiance
+		setProgramAndDrawScene(uberProgramSetup); // pro color exitance, pro texturu irradiance
 #else
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		setProgramAndDrawScene(uberProgramSetup.MATERIAL_DIFFUSE_MAP?RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE:RRGLObjectRenderer::CC_REFLECTED_EXITANCE,uberProgramSetup); // pro color exitance, pro texturu irradiance
+		setProgramAndDrawScene(uberProgramSetup);
 #endif
 
 		glAccum(GL_ACCUM,1);
@@ -1341,9 +1362,8 @@ void idle()
 {
 	if(app->calculate()==rr::RRScene::IMPROVED)
 	{
-		rendererNonCaching->setChannel(RRGLObjectRenderer::CC_REFLECTED_EXITANCE);
-		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
-		rendererNonCaching->setChannel(RRGLObjectRenderer::CC_REFLECTED_IRRADIANCE);
+		//!!! nastavit renderedChannels aby se spravne promazla cache
+		// spolehame na to ze je nastaveno zrovna to co chceme
 		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
 		glutPostRedisplay();
 	}
@@ -1389,8 +1409,6 @@ void init_gl_states()
 
 	updateDepthScale();
 	updateDepthBias(0);  /* Update with no offset change. */
-
-	glShadeModel(GL_SMOOTH);
 
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
@@ -1544,7 +1562,7 @@ retry:
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.FORCE_2D_POSITION = false;
-	Program* prog = getProgramCore(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE,uberProgramSetup);
+	Program* prog = getProgramCore(uberProgramSetup);
 	if(!prog)
 	{
 		if(--INSTANCES_PER_PASS)

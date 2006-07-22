@@ -50,22 +50,20 @@ class RRGLObjectRenderer : public RRRenderer
 {
 public:
 	RRGLObjectRenderer(rr::RRObject* objectImporter, rr::RRScene* radiositySolver);
-	enum ColorChannel
+	struct RenderedChannels
 	{
-		CC_NO_COLOR,
-		//CC_NO_COLOR__DIFFUSE_UV,
-		CC_TRIANGLE_INDEX,
-		CC_DIFFUSE_REFLECTANCE,
-		//CC_DIFFUSE_REFLECTANCE_TEXTURED,
-		CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION,
-		CC_SOURCE_IRRADIANCE,
-		CC_SOURCE_EXITANCE,
-		CC_REFLECTED_IRRADIANCE,
-		//CC_REFLECTED_IRRADIANCE__DIFFUSE_UV,
-		CC_REFLECTED_EXITANCE,
-		CC_LAST,
+		bool     LIGHT_DIRECT           :1; // gl_Normal (normals are necessary only for direct lighting)
+		bool     LIGHT_INDIRECT_COLOR   :1; // gl_Color
+		bool     LIGHT_INDIRECT_MAP     :1; //
+		bool     MATERIAL_DIFFUSE_COLOR :1; // gl_SecondaryColor
+		bool     MATERIAL_DIFFUSE_MAP   :1; // gl_MultiTexCoord0, current sampler
+		bool     FORCE_2D_POSITION      :1; // gl_MultiTexCoord7
+		RenderedChannels()
+		{
+			memset(this,0,sizeof(*this));
+		}
 	};
-	virtual void setChannel(ColorChannel cc);
+	void setRenderedChannels(RenderedChannels renderedChannels);
 	virtual const void* getParams(unsigned& length) const;
 	virtual void render();
 	virtual ~RRGLObjectRenderer() {};
@@ -74,7 +72,7 @@ private:
 	{
 		rr::RRObject* object;
 		rr::RRScene* scene;
-		ColorChannel cc;
+		RenderedChannels renderedChannels;
 	};
 	Params params;
 };

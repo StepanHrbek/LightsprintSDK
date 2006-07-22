@@ -1,7 +1,7 @@
 // Realtime Radiosity Viewer ubershader
 //
 // options controlled by program:
-//  #define SHADOW_MAPS [0..n]
+//  #define SHADOW_MAPS [0..10]
 //  #define SHADOW_SAMPLES [0|1|2|4]
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
@@ -261,6 +261,7 @@ void main()
 #endif
 #endif
 
+#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP)
   gl_FragColor =
 #ifdef MATERIAL_DIFFUSE_MAP
     texture2D(materialDiffuseMap, materialDiffuseCoord) * 
@@ -285,4 +286,5 @@ void main()
       + texture2D(lightIndirectMap, lightIndirectCoord)
 #endif
     );
+#endif
 }
