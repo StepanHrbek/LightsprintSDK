@@ -42,8 +42,8 @@ void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const SubtriangleI
 #define GETTIME clock()
 #define PER_SEC CLOCKS_PER_SEC
 
-#define PAUSE_AFTER_INTERACTION 0.03f
-#define CALC_STEP 0.1f
+#define PAUSE_AFTER_INTERACTION 0.001f // stops calculating after each interaction, improves responsiveness
+#define CALC_STEP 0.1f // length of one calculation step
 
 RRVisionApp::RRVisionApp()
 {
@@ -304,8 +304,7 @@ RRScene::Improvement RRVisionApp::calculate()
 		{
 			importers[i] = objects.at(i).first;
 		}
-//!!!		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
-		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,-1,false,NULL); // no vertex stitching and no removal of degeneracies created by stitching -> no unoptimize -> speedup. lze zrychlit i jinak, presunutim objektovych kanalu do meshe
+		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
 		multiObject = object ? object->createAdditionalIllumination() : NULL;
 		delete[] importers;
 		scene->objectCreate(multiObject);

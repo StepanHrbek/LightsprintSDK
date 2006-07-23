@@ -10,6 +10,8 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 int fullscreen = 1;
 bool renderer3ds = true;
 /*
+!veza.3ds: (s crt.dll) v releasu mimo debugger spadne (v debuggeru nikdy, asi ze nuluje naalokovanou pamet)
+ 
 ! sponza v rr renderu je spatne vysmoothovana
   - spis je to vlastnost stavajiciho smoothovani, ne chyba
   - smoothovat podle normal
@@ -19,7 +21,6 @@ bool renderer3ds = true;
 rr renderer: pridat indirect mapu
 ! spatne pocita sponza podlahu
 ! pri 2 instancich je levy okraj spotmapy oriznuty
-! msvc: kdyz hybu svetlcem, na konci hybani se smer kam sviti trochu zarotuje doprava
 
 pridat dalsi koupelny
 ovladani jasu (global, indirect)
@@ -178,10 +179,12 @@ Texture *lightDirectMap;
 Program *ambientProgram;
 UberProgram* uberProgram;
 
-void fatal_error(const char* message)
+void fatal_error(const char* message, bool gfxRelated)
 {
 	printf(message);
-	printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card is too old.\nSome cards that should work: NVIDIA 6xxx/7xxx, ATI Xxxx/X1xxx\n\nHit enter to close...");
+	if(gfxRelated)
+		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card is too old.\nSome cards that should work: NVIDIA 6xxx/7xxx, ATI Xxxx/X1xxx");
+	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);
 }
@@ -199,7 +202,7 @@ void init_gl_resources()
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
 	if(!ambientProgram)
-		fatal_error("\nFailed to compile or link GLSL program.\n");
+		fatal_error("\nFailed to compile or link GLSL program.\n",true);
 }
 
 
@@ -478,7 +481,7 @@ Program* getProgram(UberProgramSetup uberProgramSetup)
 	Program* tmp = getProgramCore(uberProgramSetup);
 	if(!tmp)
 	{
-		fatal_error("Failed to compile or link GLSL program.\n");
+		fatal_error("Failed to compile or link GLSL program.\n",true);
 	}
 	return tmp;
 }
@@ -1372,7 +1375,7 @@ void motion(int x, int y)
 
 void idle()
 {
-	if(app->calculate()==rr::RRScene::IMPROVED)
+	if(!movingEye && !movingLight && app->calculate()==rr::RRScene::IMPROVED)
 	{
 		//!!! nastavit renderedChannels aby se spravne promazla cache
 		// spolehame na to ze je nastaveno zrovna to co chceme
@@ -1548,7 +1551,7 @@ int main(int argc, char **argv)
 
 	if(!supports20())
 	{
-		fatal_error("OpenGL 2.0 capable graphics card is required.\n");
+		fatal_error("OpenGL 2.0 capable graphics card is required.\n",true);
 	}
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
@@ -1579,7 +1582,7 @@ retry:
 	{
 		if(--INSTANCES_PER_PASS)
 			goto retry;
-		fatal_error("0\n");
+		fatal_error("0\n",true);
 	}
 	printf("%d -> ", INSTANCES_PER_PASS); // this seems working, but fails on ATI
 	if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
@@ -1590,7 +1593,9 @@ retry:
 	printf("Loading scene...");
 
 	// load 3ds
-	if(!m3ds.Load(filename_3ds,scale_3ds)) return 1;
+	if(!m3ds.Load(filename_3ds,scale_3ds))
+		fatal_error("",false);
+	printf(" ok.");
 	//m3ds.shownormals=1;
 	//m3ds.numObjects=2;//!!!
 	app = new MyApp();

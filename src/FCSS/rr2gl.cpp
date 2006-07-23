@@ -63,7 +63,7 @@ void RRGLObjectRenderer::render()
 	if(SIDES==2) glDisable(GL_CULL_FACE);
 
 	glBegin(GL_TRIANGLES);
-	assert(params.object);
+	assert(params.object); //!!! rrview514/gcc ho hodi u raista
 	rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
