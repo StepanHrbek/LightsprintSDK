@@ -7,6 +7,7 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 #define INITIAL_PASSES             1
 #define AREA_SIZE                  0.15f
 int fullscreen = 1;
+bool renderer3ds = true;
 /*
 ! sponza v rr renderu neni vysmoothovana
   - hledat chybu, nejaka tam asi je
@@ -479,7 +480,7 @@ void drawScene(UberProgramSetup uberProgramSetup)
 	// 2) slouzi jako test ze RRIllumCalculator spravne generuje vertex buffer s indirectem
 	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
-	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+	if(renderer3ds && uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -1043,12 +1044,6 @@ void toggleGlobalIllumination()
 	needDepthMapUpdate = 1;
 }
 
-void toggleTextures()
-{
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
-}
-
 void selectMenu(int item)
 {
 	app->reportInteraction();
@@ -1235,7 +1230,11 @@ void keyboard(unsigned char c, int x, int y)
 			toggleGlobalIllumination();
 			break;
 		case 't':
-			toggleTextures();
+			uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;
+			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
+			break;
+		case 'r':
+			renderer3ds = !renderer3ds;
 			break;
 		case '*':
 			if(uberProgramGlobalSetup.SHADOW_SAMPLES<4) uberProgramGlobalSetup.SHADOW_SAMPLES *= 2;
