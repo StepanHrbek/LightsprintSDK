@@ -13,6 +13,8 @@ copy spot0.tga distro
 copy glut32.dll distro
 copy view*.bat distro
 copy ..\..\bin\fcss.exe distro\rrview.exe
+rem copy "C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\*.*" distro
+rem copy "C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.OPENMP\*.*" distro
 call -min upx distro\rrview.exe
 del rrview.rar
 cd distro
