@@ -304,6 +304,10 @@
 			RelativePath=".\shadowcast.cpp"
 			>
 		</File>
+		<File
+			RelativePath="..\..\samples\BunnyBenchmark\StopWatch.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

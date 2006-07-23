@@ -6,11 +6,12 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define AREA_SIZE                  0.15f
+#define PRIMARY_SCAN_PRECISION     1 // 1/2/3
 int fullscreen = 1;
 bool renderer3ds = true;
 /*
-! sponza v rr renderu neni vysmoothovana
-  - hledat chybu, nejaka tam asi je
+! sponza v rr renderu je spatne vysmoothovana
+  - spis je to vlastnost stavajiciho smoothovani, ne chyba
   - smoothovat podle normal
   - vertex blur
 
@@ -232,6 +233,7 @@ CaptureUv captureUv;
 // external dependencies of MyApp:
 // z m3ds detekuje materialy
 // renderer je pouzit k captureDirect
+//#include "../../samples/bunnybenchmark/StopWatch.h"
 class MyApp : public rr::RRVisionApp
 {
 protected:
@@ -249,6 +251,8 @@ protected:
 	virtual void detectDirectIllumination()
 	{
 		if(!rendererCaching) return;
+		
+		//StopWatch w;w.Start();
 
 		/*/ prepare 1 depth map for faster hard-shadow capture
 		zda se ze neni nutne, protoze drawHardwareShadowPass() pouzije pozici svetla 0, ktera koresponduje
@@ -269,14 +273,19 @@ protected:
 		zkopiruj texturu do cpu
 		uloz vysledky do AdditionalObjectImporteru
 		*/
-		//!!! needs windows at least 512x512
+
+		rr::RRMesh* mesh = multiObject->getCollider()->getMesh();
+		unsigned numTriangles = mesh->getNumTriangles();
+
+		// adjust captured texture size so we don't waste pixels
 		unsigned width1 = 4;
 		unsigned height1 = 4;
-		unsigned width = 512;
-		unsigned height = 512;
 		captureUv.firstCapturedTriangle = 0;
-		captureUv.xmax = width/width1;
-		captureUv.ymax = height/height1;
+		captureUv.xmax = winWidth/width1;
+		captureUv.ymax = winHeight/height1;
+		while(captureUv.xmax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/((captureUv.xmax-1)*captureUv.ymax)) captureUv.xmax--;
+		unsigned width = captureUv.xmax*width1;
+		unsigned height = captureUv.ymax*height1;
 
 		// setup render states
 		glClearColor(0,0,0,1);
@@ -287,9 +296,6 @@ protected:
 		// Allocate the index buffer memory as necessary.
 		GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
 
-		rr::RRMesh* mesh = multiObject->getCollider()->getMesh();
-		unsigned numTriangles = mesh->getNumTriangles();
-
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
 		{
@@ -297,13 +303,20 @@ protected:
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// render scene
-			//rendererNonCaching->setChannel(RRGLObjectRenderer::CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION);
 			RRGLObjectRenderer::RenderedChannels rendererChannels;
 			rendererChannels.LIGHT_DIRECT = true; //!!! zautomatizovat, odvodit z nastaveni o kousek niz
 			rendererChannels.LIGHT_INDIRECT_COLOR = false;
 			rendererChannels.LIGHT_INDIRECT_MAP = false;
+#if PRIMARY_SCAN_PRECISION==1 // 110ms
+			rendererChannels.MATERIAL_DIFFUSE_COLOR = false;
+			rendererChannels.MATERIAL_DIFFUSE_MAP = false;
+#elif PRIMARY_SCAN_PRECISION==2 // 150ms
 			rendererChannels.MATERIAL_DIFFUSE_COLOR = true;
 			rendererChannels.MATERIAL_DIFFUSE_MAP = false;
+#else // PRIMARY_SCAN_PRECISION==3 // 220ms
+			rendererChannels.MATERIAL_DIFFUSE_COLOR = false;
+			rendererChannels.MATERIAL_DIFFUSE_MAP = true;
+#endif
 			rendererChannels.FORCE_2D_POSITION = true;
 			rendererNonCaching->setRenderedChannels(rendererChannels);
 			rendererCaching->setStatus(RRGLCachingRenderer::CS_NEVER_COMPILE);
@@ -315,8 +328,8 @@ protected:
 			//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true; // prumerna barva textury nam vetsinou staci -> mirne urychleni
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false; // -"-
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = rendererChannels.MATERIAL_DIFFUSE_COLOR;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = rendererChannels.MATERIAL_DIFFUSE_MAP;
 			uberProgramSetup.FORCE_2D_POSITION = true;
 			drawHardwareShadowPass(uberProgramSetup);
 			generateForcedUv = NULL;
@@ -345,7 +358,11 @@ protected:
 					}
 				// pass power to rrobject
 				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
+#if PRIMARY_SCAN_PRECISION==1
+				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE,avg);
+#else
 				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITANCE,avg);
+#endif
 
 				// debug print
 				//rr::RRColor tmp = rr::RRColor(0);
@@ -361,6 +378,7 @@ protected:
 		glViewport(0, 0, winWidth, winHeight);
 		glDepthMask(1);
 		glEnable(GL_DEPTH_TEST);
+		//printf("primary scan (%d-pass (%f)) took............ %d ms\n",numTriangles/(captureUv.xmax*captureUv.ymax)+1,(float)numTriangles/(captureUv.xmax*captureUv.ymax),(int)(1000*w.Watch()));
 	}
 	virtual void reportAction(const char* action) const
 	{
@@ -480,7 +498,7 @@ void drawScene(UberProgramSetup uberProgramSetup)
 	// 2) slouzi jako test ze RRIllumCalculator spravne generuje vertex buffer s indirectem
 	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
-	if(renderer3ds && uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+	if(renderer3ds && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);

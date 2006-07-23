@@ -42,7 +42,7 @@ void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const SubtriangleI
 #define GETTIME clock()
 #define PER_SEC CLOCKS_PER_SEC
 
-#define PAUSE_AFTER_INTERACTION 0.3f
+#define PAUSE_AFTER_INTERACTION 0.03f
 #define CALC_STEP 0.1f
 
 RRVisionApp::RRVisionApp()
@@ -304,7 +304,8 @@ RRScene::Improvement RRVisionApp::calculate()
 		{
 			importers[i] = objects.at(i).first;
 		}
-		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
+//!!!		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
+		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,-1,false,NULL); // no vertex stitching and no removal of degeneracies created by stitching -> no unoptimize -> speedup. lze zrychlit i jinak, presunutim objektovych kanalu do meshe
 		multiObject = object ? object->createAdditionalIllumination() : NULL;
 		delete[] importers;
 		scene->objectCreate(multiObject);
@@ -339,6 +340,7 @@ RRScene::Improvement RRVisionApp::calculate()
 
 	reportAction("Calculating.");
 	calcTimeSinceReadingResults += CALC_STEP;
+	now = GETTIME; // ignore time spent on rare events, start calculating now, so first calculation after rare event is not too short (eg. too dark indirect after light movement in rrview)
 	TIME end = (TIME)(now+CALC_STEP*PER_SEC);
 	RRScene::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
 	if(improvement==RRScene::FINISHED || improvement==RRScene::INTERNAL_ERROR)
