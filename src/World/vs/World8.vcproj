@@ -56,6 +56,7 @@
 				EnableEnhancedInstructionSet="1"
 				FloatingPointModel="2"
 				ForceConformanceInForLoopScope="true"
+				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile=""

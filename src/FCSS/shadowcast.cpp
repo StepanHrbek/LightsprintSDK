@@ -10,8 +10,6 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 int fullscreen = 1;
 bool renderer3ds = true;
 /*
-!veza.3ds: (s crt.dll) v releasu mimo debugger spadne (v debuggeru nikdy, asi ze nuluje naalokovanou pamet)
- 
 ! sponza v rr renderu je spatne vysmoothovana
   - spis je to vlastnost stavajiciho smoothovani, ne chyba
   - smoothovat podle normal
@@ -210,11 +208,63 @@ void init_gl_resources()
 UberProgramSetup uberProgramGlobalSetup;
 int winWidth, winHeight;
 
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/* Draw modes. */
+enum {
+	DM_EYE_VIEW_SHADOWED,
+	DM_EYE_VIEW_SOFTSHADOWED,
+};
+
+/* Menu items. */
+enum {
+	ME_TOGGLE_GLOBAL_ILLUMINATION,
+	ME_TOGGLE_WIRE_FRAME,
+	ME_TOGGLE_LIGHT_FRUSTUM,
+	ME_SWITCH_MOUSE_CONTROL,
+	ME_EXIT,
+};
+
+unsigned useLights = INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS; //!!! zrusit, pouzit uberProgramGlobalConfig.SHADOW_MAPS
+int areaType = 0; // 0=linear, 1=square grid, 2=circle
+int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0 //!!! zrusit
+
+int depthBias24 = 42;
+int depthScale24;
+GLfloat slopeScale = 4.0;
+
+GLfloat textureLodBias = 0.0;
+
+// light and camera setup
+//Camera eye = {{0,1,4},3,0};
+//Camera light = {{0,3,0},0.85f,8};
+Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
+Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
+
+int xEyeBegin, yEyeBegin, movingEye = 0;
+int xLightBegin, yLightBegin, movingLight = 0;
+int wireFrame = 0;
+
+int needMatrixUpdate = 1;
+int needTitleUpdate = 1;
+int needDepthMapUpdate = 1;
+int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
+bool showHelp = 0;
+int showLightViewFrustum = 1;
+int eyeButton = GLUT_LEFT_BUTTON;
+int lightButton = GLUT_MIDDLE_BUTTON;
+int useDepth24 = 0;
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // MyApp
 
 void drawHardwareShadowPass(UberProgramSetup uberProgramSetup);
+void updateMatrices();
 void updateDepthMap(int mapIndex);
 
 // generuje uv coords pro capture
@@ -251,20 +301,23 @@ protected:
 			surfaces[i].diffuseReflectance = rr::RRColor(m3ds.Materials[i].color.r/255.0,m3ds.Materials[i].color.g/255.0,m3ds.Materials[i].color.b/255.0);
 		}
 	}
-	virtual void detectDirectIllumination()
+	virtual bool detectDirectIllumination()
 	{
-		if(!rendererCaching) return;
+		// renderer not ready yet, fail
+		if(!rendererCaching) return false;
+
+		// first time illumination is detected, no shadowmap has been created yet
+		if(needDepthMapUpdate)
+		{
+			unsigned oldShadowMaps = useLights;
+			useLights = 1;
+			updateMatrices(); // placeSoftLight to nevim proc neudela
+			updateDepthMap(0);
+			needDepthMapUpdate = 1; // aby si pote soft pregeneroval svych 7 map a nespolehal na nasi jednu
+			useLights = oldShadowMaps;
+		}
 		
 		//StopWatch w;w.Start();
-
-		/*/ prepare 1 depth map for faster hard-shadow capture
-		zda se ze neni nutne, protoze drawHardwareShadowPass() pouzije pozici svetla 0, ktera koresponduje
-		 s shadowmapou 0 a je dostatecne podobna prumerne shadowmape		 
-		unsigned oldShadowMaps = useLights;
-		useLights = 1;
-		needDepthMapUpdate = 1;
-		updateDepthMap(0);
-		useLights = oldShadowMaps;*/
 		
 		//!!!
 		/*
@@ -382,6 +435,7 @@ protected:
 		glDepthMask(1);
 		glEnable(GL_DEPTH_TEST);
 		//printf("primary scan (%d-pass (%f)) took............ %d ms\n",numTriangles/(captureUv.xmax*captureUv.ymax)+1,(float)numTriangles/(captureUv.xmax*captureUv.ymax),(int)(1000*w.Watch()));
+		return true;
 	}
 	virtual void reportAction(const char* action) const
 	{
@@ -390,55 +444,6 @@ protected:
 };
 
 MyApp* app = NULL;
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-/* Draw modes. */
-enum {
-	DM_EYE_VIEW_SHADOWED,
-	DM_EYE_VIEW_SOFTSHADOWED,
-};
-
-/* Menu items. */
-enum {
-	ME_TOGGLE_GLOBAL_ILLUMINATION,
-	ME_TOGGLE_WIRE_FRAME,
-	ME_TOGGLE_LIGHT_FRUSTUM,
-	ME_SWITCH_MOUSE_CONTROL,
-	ME_EXIT,
-};
-
-unsigned useLights = INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS; //!!! zrusit, pouzit uberProgramGlobalConfig.SHADOW_MAPS
-int areaType = 0; // 0=linear, 1=square grid, 2=circle
-int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0 //!!! zrusit
-
-int depthBias24 = 42;
-int depthScale24;
-GLfloat slopeScale = 4.0;
-
-GLfloat textureLodBias = 0.0;
-
-// light and camera setup
-//Camera eye = {{0,1,4},3,0};
-//Camera light = {{0,3,0},0.85f,8};
-Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
-
-int xEyeBegin, yEyeBegin, movingEye = 0;
-int xLightBegin, yLightBegin, movingLight = 0;
-int wireFrame = 0;
-
-int needMatrixUpdate = 1;
-int needTitleUpdate = 1;
-int needDepthMapUpdate = 1;
-int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-bool showHelp = 0;
-int showLightViewFrustum = 1;
-int eyeButton = GLUT_LEFT_BUTTON;
-int lightButton = GLUT_MIDDLE_BUTTON;
-int useDepth24 = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -988,9 +993,6 @@ void display(void)
 	drawHelpMessage(showHelp);
 
 	glutSwapBuffers();
-
-	// z nejakeho duvodu se uvodni capturePrimary po spusteni musi zavolat az takhle pozde
-	LIMITED_TIMES(1,capturePrimary());
 }
 
 static void benchmark(int perFrameDepthMapUpdate)
@@ -1330,7 +1332,7 @@ void mouse(int button, int state, int x, int y)
 		yEyeBegin = y;
 	}
 	if (button == eyeButton && state == GLUT_UP) {
-		//!!!lastInteractionTime = 0;
+		app->reportEndOfInteractions();
 		movingEye = 0;
 	}
 	if (button == lightButton && state == GLUT_DOWN) {
@@ -1339,7 +1341,7 @@ void mouse(int button, int state, int x, int y)
 		yLightBegin = y;
 	}
 	if (button == lightButton && state == GLUT_UP) {
-		//!!!lastInteractionTime = 0;
+		app->reportEndOfInteractions();
 		movingLight = 0;
 		needDepthMapUpdate = 1;
 		capturePrimary();
@@ -1595,7 +1597,6 @@ retry:
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds))
 		fatal_error("",false);
-	printf(" ok.");
 	//m3ds.shownormals=1;
 	//m3ds.numObjects=2;//!!!
 	app = new MyApp();
@@ -1604,9 +1605,20 @@ retry:
 //	printf(app->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
 //	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
 	printf("\n");
+
+	// creates radiosity solver with multiobject
+	// without renderer, no primary light is detected
 	app->calculate();
+
+	if(!app->multiObject)
+		fatal_error("No objects in scene.",false);
+
+	// creates renderer
 	rendererNonCaching = new RRGLObjectRenderer(app->multiObject,app->scene);
 	rendererCaching = new RRGLCachingRenderer(rendererNonCaching);
+	// next calculate will use renderer to detect primary illum
+	// must be called from mainloop, we don't know winWidth/winHeight yet
+
 	glutMainLoop();
 	return 0;
 }

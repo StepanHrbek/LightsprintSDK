@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
 		// use static library
-		#ifdef NDEBUG
+		#if defined(RR_RELEASE) || (defined(NDEBUG) && !defined(RR_DEBUG))
 			#pragma comment(lib,"RRMesh_s.lib")
 		#else
 			#pragma comment(lib,"RRMesh_sd.lib")

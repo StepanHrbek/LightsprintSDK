@@ -42,20 +42,26 @@ void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const SubtriangleI
 #define GETTIME clock()
 #define PER_SEC CLOCKS_PER_SEC
 
-#define PAUSE_AFTER_INTERACTION 0.001f // stops calculating after each interaction, improves responsiveness
+#define PAUSE_AFTER_INTERACTION 0.2f // stops calculating after each interaction, improves responsiveness
 #define CALC_STEP 0.1f // length of one calculation step
+#define READING_RESULTS_PERIOD_MIN 0.1f // how often results are readen back. this is increased *1.1 at each read without interaction
+#define READING_RESULTS_PERIOD_MAX 1.5f //
 
 RRVisionApp::RRVisionApp()
 {
 	multiObject = NULL;
+	scene = NULL;
+	//objects zeroed by constructor
 	surfaces = NULL;
 	numSurfaces = 0;
-	scene = NULL;
-	resultChannelIndex = 0;
 	dirtyMaterials = true;
 	dirtyGeometry = true;
 	dirtyLights = true;
+	lastInteractionTime = 0;
+	readingResultsPeriod = 0;
 	calcTimeSinceReadingResults = 0;
+	//preVertex2PostTriangleVertex zeroed by constructor
+	resultChannelIndex = 0;
 }
 
 RRVisionApp::~RRVisionApp()
@@ -114,6 +120,11 @@ void RRVisionApp::reportLightChange()
 void RRVisionApp::reportInteraction()
 {
 	lastInteractionTime = GETTIME;
+}
+
+void RRVisionApp::reportEndOfInteractions()
+{
+	lastInteractionTime = (TIME)(GETTIME-2*CALC_STEP*PER_SEC);
 }
 
 static bool endByTime(void *context)
@@ -319,9 +330,19 @@ RRScene::Improvement RRVisionApp::calculate()
 	{
 		dirtyLights = false;
 		dirtyEnergies = true;
-		readingResultsPeriod = 0.1f;
+		readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
 		reportAction("Detecting direct illumination.");
-		detectDirectIllumination();
+		if(!detectDirectIllumination())
+		{
+			// detection has failed, ensure these points:
+			// 1) detection will be tried next time
+			dirtyLights = true;
+			// 2) eventual dirtyFactors = true; won't be forgotten
+			// let normal dirtyFactors handler work, exit later
+			// 3) no calculations on invalid primaries will be wasted
+			// exit before resetting energies, will be changed by next direct.illum
+			// exit before factor calculation and energy propagation
+		}
 	}
 	if(dirtyFactors)
 	{
@@ -329,6 +350,11 @@ RRScene::Improvement RRVisionApp::calculate()
 		dirtyEnergies = false;
 		reportAction("Resetting solver energies and factors.");
 		scene->illuminationReset(true);
+	}
+	if(dirtyLights)
+	{
+		// exit in response to unsuccessful detectDirectIllumination
+		return RRScene::NOT_IMPROVED;
 	}
 	if(dirtyEnergies)
 	{
@@ -349,7 +375,7 @@ RRScene::Improvement RRVisionApp::calculate()
 	{
 		reportAction("Reading results.");
 		calcTimeSinceReadingResults = 0;
-		if(readingResultsPeriod<1.5f) readingResultsPeriod*=1.1f;
+		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod*=1.1f;
 		readVertexResults();
 		//readPixelResults();//!!!
 		return RRScene::IMPROVED;

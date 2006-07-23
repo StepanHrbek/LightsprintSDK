@@ -55,6 +55,7 @@
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				FloatingPointModel="2"
+				RuntimeTypeInfo="false"
 				PrecompiledHeaderFile=".\Release/shadowcast.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
@@ -77,7 +78,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gle.lib glut32.lib glu32.lib opengl32.lib "
+				AdditionalDependencies="gle.lib glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\FCSS.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

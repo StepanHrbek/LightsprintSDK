@@ -16,7 +16,7 @@
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
 		// use static library
-		#ifdef NDEBUG
+		#if defined(RR_RELEASE) || (defined(NDEBUG) && !defined(RR_DEBUG))
 			#pragma comment(lib,"RRIllumCalculator_s.lib")
 		#else
 			#pragma comment(lib,"RRIllumCalculator_sd.lib")
@@ -112,6 +112,8 @@ namespace rr
 		void reportLightChange();
 		//! Reports to framework that user interacts.
 		void reportInteraction();
+		//! Reports to framework that user stops interacting.
+		void reportEndOfInteractions();
 
 		//!!!
 		RRObjectAdditionalIllumination* multiObject;
@@ -119,8 +121,8 @@ namespace rr
 	protected:
 		//! Autodetects material properties of all materials present in scene. To be implemented by you.
 		virtual void detectMaterials() = 0;
-		//! Autodetects direct illumination on all faces in scene. To be implemented by you.
-		virtual void detectDirectIllumination() = 0;
+		//! Autodetects direct illumination on all faces in scene. To be implemented by you. You may fail by returning false, you will get next try next time.
+		virtual bool detectDirectIllumination() = 0;
 
 		//! Adjusts RRScene parameters each time new scene is created. May be reimplemented by you.
 		virtual void adjustScene();

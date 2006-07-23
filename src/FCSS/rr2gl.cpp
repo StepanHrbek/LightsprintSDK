@@ -9,7 +9,6 @@
 #include <math.h>
 #include "3ds2rr.h" // additional diffuse_texture channels in RRObject
 
-
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by surface
 bool  SMOOTH =1; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
 bool  COMPILE=1;
@@ -57,13 +56,15 @@ const void* RRGLObjectRenderer::getParams(unsigned& length) const
 
 void RRGLObjectRenderer::render()
 {
+	assert(params.object);
+	if(!params.object) return;
+
 	glColor4ub(0,0,0,255);
 	//glEnable(GL_CULL_FACE);
 	if(SIDES==1) glEnable(GL_CULL_FACE);
 	if(SIDES==2) glDisable(GL_CULL_FACE);
 
 	glBegin(GL_TRIANGLES);
-	assert(params.object); //!!! rrview514/gcc ho hodi u raista
 	rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;

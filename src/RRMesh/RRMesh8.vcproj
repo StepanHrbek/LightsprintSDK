@@ -60,7 +60,7 @@
 				EnableEnhancedInstructionSet="1"
 				FloatingPointModel="2"
 				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="false"
+				RuntimeTypeInfo="true"
 				OpenMP="false"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
