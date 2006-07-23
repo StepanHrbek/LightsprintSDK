@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RRMesh.h"
-
 #include <cassert>
 
 
@@ -185,7 +184,10 @@ public:
 				return UNDEFINED;
 			}
 			unsigned tmp = pack[1].getMesh()->getPostImportTriangle(preImport);
-			if(tmp==UNDEFINED) return UNDEFINED;
+			if(tmp==UNDEFINED) 
+			{
+				return UNDEFINED;
+			}
 			return pack[0].getNumTriangles() + tmp;
 		}
 	}

@@ -156,7 +156,7 @@ void M3dsImporter::getChannelSize(unsigned channelId, unsigned* numItems, unsign
 			if(itemSize) *itemSize = sizeof(Texture*);
 			return;
 		case CHANNEL_TRIANGLE_VERTICES_DIF_UV:
-			if(numItems) *numItems = getNumTriangles();
+			if(numItems) *numItems = M3dsImporter::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
 		default:
@@ -199,7 +199,7 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 				assert(0);
 				return false;
 			}
-			if(itemIndex>=getNumTriangles())
+			if(itemIndex>=M3dsImporter::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
@@ -212,7 +212,7 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 				return false;
 			}
 			Triangle triangle;
-			getTriangle(itemIndex,triangle);
+			M3dsImporter::getTriangle(itemIndex,triangle);
 			for(unsigned v=0;v<3;v++)
 			{
 				(*out)[v][0] = object->TexCoords[2*triangle[v]];
@@ -250,7 +250,7 @@ unsigned M3dsImporter::getNumTriangles() const
 
 void M3dsImporter::getTriangle(unsigned t, Triangle& out) const
 {
-	if(t>=getNumTriangles()) 
+	if(t>=M3dsImporter::getNumTriangles()) 
 	{
 		assert(0);
 		return;
@@ -270,7 +270,7 @@ const rr::RRCollider* M3dsImporter::getCollider() const
 
 unsigned M3dsImporter::getTriangleSurface(unsigned t) const
 {
-	if(t>=getNumTriangles())
+	if(t>=M3dsImporter::getNumTriangles())
 	{
 		assert(0);
 		return UINT_MAX;
@@ -292,13 +292,13 @@ const rr::RRSurface* M3dsImporter::getSurface(unsigned s) const
 
 void M3dsImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
-	if(t>=getNumTriangles())
+	if(t>=M3dsImporter::getNumTriangles())
 	{
 		assert(0);
 		return;
 	}
 	Triangle triangle;
-	getTriangle(t,triangle);
+	M3dsImporter::getTriangle(t,triangle);
 	for(unsigned v=0;v<3;v++)
 	{
 		out.norm[v][0] = object->Normals[3*triangle[v]];

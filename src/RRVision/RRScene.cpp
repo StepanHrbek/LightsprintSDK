@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
-
 #include "rrcore.h"
 #include "RRVision.h"
 

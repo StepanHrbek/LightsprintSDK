@@ -268,8 +268,14 @@ namespace rr
 			unsigned object : 12; ///< Index into array of original meshes. For 32bit int: max 4k objects.
 			MultiMeshPreImportNumber() {}
 			MultiMeshPreImportNumber(unsigned aobject, unsigned aindex) {index=aindex;object=aobject;}
-			MultiMeshPreImportNumber(unsigned i) {*(unsigned*)this = i;} ///< Implicit unsigned -> MultiMeshPreImportNumber conversion.
-			operator unsigned () {return *(unsigned*)this;} ///< Implicit MultiMeshPreImportNumber -> unsigned conversion.
+			MultiMeshPreImportNumber(unsigned i) {
+				//*(unsigned*)this = i; // not safe with gcc 3.4.5
+				index = i; object = i>>(sizeof(unsigned)*8-12);
+				} ///< Implicit unsigned -> MultiMeshPreImportNumber conversion.
+			operator unsigned () {
+				//return *(unsigned*)this; // not safe with gcc 3.4.5
+				return index + (object<<(sizeof(unsigned)*8-12));
+				} ///< Implicit MultiMeshPreImportNumber -> unsigned conversion.
 		};
 		//! Creates %RRMesh from your vertex buffer.
 		//

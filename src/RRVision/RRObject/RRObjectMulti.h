@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include "RRVision.h"
-
 namespace rr
 {
 
