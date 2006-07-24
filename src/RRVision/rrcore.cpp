@@ -58,39 +58,6 @@ namespace rr
 #define TWOSIDED_EMIT_TO_BOTH_SIDES
 #define ONESIDED_TRANSMIT_ENERGY
 
-#define PHOTOMETRIC_R        1//0.265f
-#define PHOTOMETRIC_G        1//0.670f
-#define PHOTOMETRIC_B        1//0.065f
-
-// vyznam ve vypoctu odrazene energie je podil prislusne komponenty v namerene
-// hodnote photometric reflectance. spravne hodnoty mi nejsou znamy.
-//   Photometric reflectance is measured according to v(lambda)
-//   response function of the 1931 CIE standard 2
-//   degree observer, and assumes an equal-energy white light source.
-
-// vyznam ve vypoctu emitovane energie je podil prislusne komponenty v namerene
-// hodnote photometric emittance. spravne hodnoty mi nejsou znamy.
-//   Set the diffuse emittance for the current material to epsilon_d
-//   lumens per square meter using the current color to determine the
-//   spectral characteristics.
-//   Note that this is emittance rather than exitance, and therefore
-//   does not include reflected or transmitted light, which is a function
-//   of the other material settings and the illuminated environment.
-
-// pravdepodobne jsem nasel spravne hodnoty photometric brightness:
-//   cmix entity sums together two or more named colors using specified
-//   weighting coefficients, which correspond to the relative
-//   photometric brightness of each.
-//   # Define RGB primaries for a standard color monitor
-//   c R =
-// 	cxy 0.640 0.330
-//   c G =
-// 	cxy 0.290 0.600
-//   c B =
-// 	cxy 0.150 0.060
-//   # Mix them together in appropriate amounts for white
-//   c white =
-// 	cmix 0.265 R 0.670 G 0.065 B
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -132,8 +99,6 @@ void* realloc(void* p,size_t oldsize,size_t newsize)
 bool  __errors=false; // was there errors during batch work? used to set result
 
 unsigned  __frameNumber=1; // frame number increased after each draw
-
-bool  __preserveFactors=false; // preserve factors in Factors::reset(), needed if we want resetStaticIllumination() but not factors
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -467,12 +432,12 @@ Factors::~Factors()
 
 Shooter::Shooter()
 {
-	reset();
+	reset(true);
 }
 
-void Shooter::reset()
+void Shooter::reset(bool resetFactors)
 {
-	if(!__preserveFactors)
+	if(resetFactors)
 	{
 		Factors::reset();
 		shotsForFactors=0;
@@ -598,11 +563,11 @@ Node::Node(Node *aparent,class Triangle *agrandpa)
 	shooter=parent?NULL:new Shooter();
 	sub[0]=NULL;
 	sub[1]=NULL;
-	reset();
+	reset(true);
 	__nodesAllocated++;
 }
 
-void Node::reset()
+void Node::reset(bool resetFactors)
 {
 	energyDirect=Channels(0);
 	energyDirectIncident=Channels(0);
@@ -617,8 +582,8 @@ void Node::reset()
 	// clean subtriangles
 	if(!IS_CLUSTER(this) && sub[0])
 	{
-		sub[0]->reset();
-		sub[1]->reset();
+		sub[0]->reset(resetFactors);
+		sub[1]->reset(resetFactors);
 	}
 	// delete unwanted subtriangle shooters
 	if(IS_SUBTRIANGLE(this))
@@ -630,7 +595,7 @@ void Node::reset()
 	else
 	{
 		assert(shooter);
-		shooter->reset();
+		shooter->reset(resetFactors);
 	}
 }
 
@@ -1250,7 +1215,14 @@ int Scene::turnLight(int whichLight,real intensity)
 	return light;
 }
 
-Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingFlux)
+// resetPropagation = true
+//  nastavi skoro vse na vychozi hodnoty zacatku vypoctu -> pouze primaries maji energie, jinde jsou nuly
+//  u nekterych promennych predpoklada ze uz jsou vynulovane
+// resetPropagation = false
+//  spoleha na to ze promenne uz jsou naplnene probihajicim vypoctem
+//  pouze zaktualizuje primary illum energie podle surfacu a additionalExitingFlux
+// return new primary exiting radiant flux in watts
+Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingFlux, bool resetPropagation)
 {
 	assert(area!=0);//setGeometry must be called before setSurface
 	assert(s);
@@ -1279,14 +1251,31 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingF
 	// load triangle shooter with energy emited by surface
 	assert(shooter);
 	assert(sum(abs(e))<1e10);
-	shooter->energyToDiffuse=e;
-	// load received energy accumulator
-	energyDirect=e;
-	//energyDirectIncident=e/surface->diffuseReflectance;
-	energyDirectIncident=Channels(e.x/MAX(surface->diffuseReflectance[0],0.1f),e.y/MAX(surface->diffuseReflectance[1],0.1f),e.z/MAX(surface->diffuseReflectance[2],0.1f));
-	sourceExitingFlux=e;
+	// set this primary illum
+	Channels primaryNew = e;
+	Channels primaryOld = sourceExitingFlux;
+	Channels primaryAdd = primaryNew-primaryOld;
+	if(resetPropagation)
+	{
+		// set primary illum
+		shooter->energyToDiffuse = primaryNew;
+		// load received energy accumulator
+		energyDirect = primaryNew;
+		//energyDirectIncident = e/surface->diffuseReflectance;
+		energyDirectIncident = Channels(primaryNew.x/MAX(surface->diffuseReflectance[0],0.1f),primaryNew.y/MAX(surface->diffuseReflectance[1],0.1f),primaryNew.z/MAX(surface->diffuseReflectance[2],0.1f));
+		sourceExitingFlux = primaryNew; // backup primary illum (surfaceEmission+additionalIllum)
+	}
+	else
+	{
+		// add primary illum
+		shooter->energyToDiffuse += primaryAdd;
+		// load received energy accumulator
+		energyDirect += primaryAdd;
+		energyDirectIncident += Channels(primaryAdd.x/MAX(surface->diffuseReflectance[0],0.1f),primaryAdd.y/MAX(surface->diffuseReflectance[1],0.1f),primaryAdd.z/MAX(surface->diffuseReflectance[2],0.1f)); //!!! vyjde spatne pokud se zmenila diffuseReflectance
+		sourceExitingFlux = primaryNew; // backup primary illum (surfaceEmission+additionalIllum)
+	}
 #endif
-	return e;
+	return primaryNew;
 }
 
 Point3 Triangle::to3d(Point2 a)
@@ -1328,6 +1317,12 @@ void Reflectors::reset()
 {
 	for(int i=nodes;i--;) remove(i);
 	nodes=0;
+	bests=0;
+	refreshing=1;
+}
+
+void Reflectors::resetBest()
+{
 	bests=0;
 	refreshing=1;
 }
@@ -2065,14 +2060,23 @@ Object::~Object()
 
 #ifndef ONLY_PLAYER
 
-// uvede energie v objektu do stavu po nacteni sceny
-// akceptuje upravene surfacy
+// resetPropagation = true
+//  uvede energie v objektu do stavu po nacteni sceny
+//  akceptuje upravene surfacy
+// resetPropagation = false
+//  trianglum zaktualizuje vychozi energie
+//  akceptuje upravene surfacy
+//  nesaha na subtriangly, coz je asi v poradku
+//  nesaha na clustery, coz muze byt chyba //!!! opravit pokud nekdy budu pouzivat clustery
 
-void Object::resetStaticIllumination(RRScaler* scaler)
+void Object::resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool resetPropagation)
 {
 	// smaze akumulatory (ale necha jim flag zda jsou v reflectors)
-	for(unsigned c=0;c<clusters;c++) {U8 flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset();cluster[c].flags=flag;}
-	for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset();triangle[t].flags=flag;}
+	if(resetPropagation)
+	{
+		for(unsigned c=0;c<clusters;c++) {U8 flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset(resetFactors);cluster[c].flags=flag;}
+		for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset(resetFactors);triangle[t].flags=flag;}
+	}
 	// nastavi akumulatory na pocatecni hodnoty
 	objSourceExitingFlux=Channels(0);
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) 
@@ -2080,12 +2084,15 @@ void Object::resetStaticIllumination(RRScaler* scaler)
 		Vec3 sumExitance;
 		importer->getTriangleAdditionalMeasure(t,RM_EXITANCE,sumExitance);
 		if(scaler) sumExitance = Vec3(
-			scaler->getStandard(sumExitance.x), // getOriginal=getWattsPerSquareMeter
+			scaler->getStandard(sumExitance.x), // getStandard=getWattsPerSquareMeter
 			scaler->getStandard(sumExitance.y),
 			scaler->getStandard(sumExitance.z));
-		objSourceExitingFlux+=abs(triangle[t].setSurface(triangle[t].surface,sumExitance));
+		objSourceExitingFlux+=abs(triangle[t].setSurface(triangle[t].surface,sumExitance,resetPropagation));
 	}
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
+	if(resetPropagation)
+	{
+		for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
+	}
 }
 
 void Object::updateMatrices()
@@ -2360,7 +2367,23 @@ void Scene::setScaler(RRScaler* ascaler)
 
 RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 {
-	abortStaticImprovement();
+	bool resetPropagation = true;
+	if(!resetFactors)
+	{
+		// zde dokazu zdetekovat zda se primaries prilis nezmenily
+		// a tudiz neni nutne resetovat jiz zpropagovanou energii
+		//!!!
+//		resetPropagation = false;
+	}
+
+	// probihajici vypocet faktoru nebo probihajici distribuce 
+	// muze bezet dal pokud jen updatuji primaries.
+	// v opacnem pripade je nutny abort.
+	if(resetPropagation)
+	{
+		abortStaticImprovement();
+	}
+
 	if(resetFactors)
 	{
 		shotsForFactorsTotal=0;
@@ -2368,20 +2391,37 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 	}
 	staticSourceExitingFlux=Channels(0);
 	dynamicSourceExitingFlux=Channels(0);
-	staticReflectors.removeSubtriangles();
-	__preserveFactors=!resetFactors;
-	staticReflectors.reset();
-	for(unsigned o=0;o<objects;o++) 
+
+	// subtriangly vznikle behem predchoziho vypoctu zrusim, abych setril pamet a pomohl bidne interpolaci.
+	// pokud ale vypocet nerusim a dal propaguji, necham si je.
+	if(resetPropagation)
 	{
-		object[o]->resetStaticIllumination(scaler);
+		staticReflectors.removeSubtriangles();
+	}
+
+	// pokud rusim probihajici propagaci, reflektory zanikaji, pozdeji si vyrobim nove z priparies.
+	// pokud nerusim probihajici propagaci, reflektory musi byt dal evidovane. je ale nutne resetnout predpocitany best()
+	if(resetPropagation)
+	{
+		staticReflectors.reset();
+	}
+	else
+	{
+		staticReflectors.resetBest();
+	}
+
+	for(unsigned o=0;o<objects;o++)
+	{
+		object[o]->resetStaticIllumination(scaler,resetFactors,resetPropagation);
+
+		// pokud jsem smazal stare reflektory, vlozim nove.
+		// pokud jsem stare zachoval, vlozim nove. vlozeni jiz vlozeneho nevadi, to je ohlidane.
 		staticReflectors.insertObject(object[o]);
 	}
-	__preserveFactors=false;
+
 	for(unsigned o=0;o<staticObjects;o++) staticSourceExitingFlux+=object[o]->objSourceExitingFlux;
 	for(unsigned o=staticObjects;o<objects;o++) dynamicSourceExitingFlux+=object[o]->objSourceExitingFlux;
 
-//for(unsigned o=0;o<objects;o++) staticReflectors.insertObject(object[o]);
-//printf("----------\n");
 	return (staticSourceExitingFlux!=Channels(0)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
 }
 

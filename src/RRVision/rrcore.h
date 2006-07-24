@@ -242,7 +242,7 @@ class Shooter : public Factors
 public:
 	Shooter();
 	~Shooter();
-	void    reset();
+	void    reset(bool resetFactors);
 
 	Channels energyDiffused;
 	Channels energyToDiffuse;
@@ -282,7 +282,7 @@ public:
 	real    area; // area in worldspace
 
 #ifndef ONLY_PLAYER
-	void    reset();
+	void    reset(bool resetFactors);
 
 	// form factors and how many shots they were calculated with
 	Shooter *shooter;
@@ -524,7 +524,7 @@ public:
 
 	// surface
 	const RRSurface *surface;     // material at outer and inner side of Triangle
-	Channels setSurface(const RRSurface *s,const Vec3& additionalExitingFlux); // return total exiting radiant flux in watts
+	Channels setSurface(const RRSurface *s,const Vec3& additionalExitingFlux, bool resetPropagation);
 #ifndef ONLY_PLAYER
 	Channels getSourceIncidentFlux() {return Channels(sourceExitingFlux.x/MAX(surface->diffuseReflectance[0],0.1f),sourceExitingFlux.y/MAX(surface->diffuseReflectance[1],0.1f),sourceExitingFlux.z/MAX(surface->diffuseReflectance[2],0.1f));} // source incident radiant flux in Watts
 	Channels getSourceExitingFlux() {return sourceExitingFlux;} // source exiting radiant flux in Watts
@@ -614,7 +614,8 @@ public:
 
 	Reflectors();
 	~Reflectors();
-	void    reset();
+	void    reset(); // remove all reflectors
+	void    resetBest(); // reset acceleration structures for best(), call after big update of primary energies
 
 	bool    check();
 	Node    *best(real allEnergyInScene);
@@ -724,7 +725,7 @@ public:
 
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
-	void    resetStaticIllumination(RRScaler* scaler);
+	void    resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool resetPropagation);
 
 	// intersections
 	Bound   bound;

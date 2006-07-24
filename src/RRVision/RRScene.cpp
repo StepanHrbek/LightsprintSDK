@@ -159,7 +159,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 				scene->scaler->getStandard(sumExitance.x), // getOriginal=getWattsPerSquareMeter
 				scene->scaler->getStandard(sumExitance.y),
 				scene->scaler->getStandard(sumExitance.z));
-			obj->objSourceExitingFlux+=abs(t->setSurface(s,sumExitance));
+			obj->objSourceExitingFlux+=abs(t->setSurface(s,sumExitance,true));
 		}
 		else
 		{

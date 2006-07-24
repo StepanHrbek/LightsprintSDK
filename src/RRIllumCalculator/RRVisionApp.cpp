@@ -12,6 +12,8 @@ namespace rr
 {
 
 // odsunout do RRIlluminationPixelBuffer.cpp
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
 #define CLAMP(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 template <class Color>
 void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const SubtriangleIllumination& si)
@@ -42,8 +44,10 @@ void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const SubtriangleI
 #define GETTIME clock()
 #define PER_SEC CLOCKS_PER_SEC
 
-#define PAUSE_AFTER_INTERACTION 0.2f // stops calculating after each interaction, improves responsiveness
-#define CALC_STEP 0.1f // length of one calculation step
+#define PAUSE_AFTER_CRITICAL_INTERACTION 0.2f // stops calculating after each interaction, improves responsiveness
+#define IMPROVE_STEP_NO_INTERACTION 0.1f // length of one improve step when there are no interactions from user
+#define IMPROVE_STEP_MIN 0.005f
+#define IMPROVE_STEP_MAX 0.1f
 #define READING_RESULTS_PERIOD_MIN 0.1f // how often results are readen back. this is increased *1.1 at each read without interaction
 #define READING_RESULTS_PERIOD_MAX 1.5f //
 
@@ -57,9 +61,14 @@ RRVisionApp::RRVisionApp()
 	dirtyMaterials = true;
 	dirtyGeometry = true;
 	dirtyLights = true;
-	lastInteractionTime = 0;
+	lastIlluminationUseTime = 0;
+	lastCriticalInteractionTime = 0;
+	lastCalcEndTime = 0;
+	lastReadingResultsTime = 0;
+	userStep = 0;
+	calcStep = 0;
+	improveStep = 0;
 	readingResultsPeriod = 0;
-	calcTimeSinceReadingResults = 0;
 	//preVertex2PostTriangleVertex zeroed by constructor
 	resultChannelIndex = 0;
 }
@@ -117,14 +126,19 @@ void RRVisionApp::reportLightChange()
 	dirtyLights = true;
 }
 
-void RRVisionApp::reportInteraction()
+void RRVisionApp::reportIlluminationUse()
 {
-	lastInteractionTime = GETTIME;
+	lastIlluminationUseTime = GETTIME;
+}
+
+void RRVisionApp::reportCriticalInteraction()
+{
+	lastCriticalInteractionTime = GETTIME;
 }
 
 void RRVisionApp::reportEndOfInteractions()
 {
-	lastInteractionTime = (TIME)(GETTIME-2*CALC_STEP*PER_SEC);
+	lastCriticalInteractionTime = 0;
 }
 
 static bool endByTime(void *context)
@@ -283,11 +297,10 @@ void RRVisionApp::readPixelResults()
 	}
 }
 
-RRScene::Improvement RRVisionApp::calculate()
-{
-	TIME now = GETTIME;
-	if((now-lastInteractionTime)/(float)PER_SEC<PAUSE_AFTER_INTERACTION) return RRScene::NOT_IMPROVED;
+#include "../../samples/bunnybenchmark/StopWatch.h"//!!!
 
+RRScene::Improvement RRVisionApp::calculateCore(float improveStep)
+{
 	bool dirtyFactors = false;
 	bool dirtyEnergies = false;
 	if(dirtyMaterials)
@@ -328,6 +341,7 @@ RRScene::Improvement RRVisionApp::calculate()
 	}
 	if(dirtyLights)
 	{
+		StopWatch w; w.Start();
 		dirtyLights = false;
 		dirtyEnergies = true;
 		readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
@@ -335,14 +349,15 @@ RRScene::Improvement RRVisionApp::calculate()
 		if(!detectDirectIllumination())
 		{
 			// detection has failed, ensure these points:
-			// 1) detection will be tried next time
+			// 1) detection will be detected again next time
 			dirtyLights = true;
 			// 2) eventual dirtyFactors = true; won't be forgotten
-			// let normal dirtyFactors handler work, exit later
-			// 3) no calculations on invalid primaries will be wasted
-			// exit before resetting energies, will be changed by next direct.illum
+			// let normal dirtyFactors handler work now, exit later
+			// 3) no calculations on current obsoleted primaries will be wasted
+			// exit before resetting energies
 			// exit before factor calculation and energy propagation
 		}
+		printf("%d\n",(int)(w.Watch()*1000));
 	}
 	if(dirtyFactors)
 	{
@@ -358,29 +373,95 @@ RRScene::Improvement RRVisionApp::calculate()
 	}
 	if(dirtyEnergies)
 	{
+		StopWatch w; w.Start();
 		dirtyEnergies = false;
-		reportAction("Resetting solver energies.");
+		reportAction("Updating solver energies.");
 		scene->illuminationReset(false);
+		printf("%d\n",(int)(w.Watch()*1000));
 	}
 
+	StopWatch w; w.Start();
 	reportAction("Calculating.");
-	calcTimeSinceReadingResults += CALC_STEP;
-	now = GETTIME; // ignore time spent on rare events, start calculating now, so first calculation after rare event is not too short (eg. too dark indirect after light movement in rrview)
-	TIME end = (TIME)(now+CALC_STEP*PER_SEC);
+	TIME now = GETTIME;
+	TIME end = (TIME)(now+improveStep*PER_SEC);
 	RRScene::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
 	if(improvement==RRScene::FINISHED || improvement==RRScene::INTERNAL_ERROR)
 		return improvement;
+	printf("  (imp=%f / calc=%f / user=%f)  ",improveStep,calcStep,userStep);
+	printf("%d\n",(int)(w.Watch()*1000));
 
-	if(calcTimeSinceReadingResults>=readingResultsPeriod)
+	if(now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
 	{
+		StopWatch w; w.Start();
 		reportAction("Reading results.");
-		calcTimeSinceReadingResults = 0;
+		lastReadingResultsTime = now;
 		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod*=1.1f;
 		readVertexResults();
+		printf("%d\n",(int)(w.Watch()*1000));
 		//readPixelResults();//!!!
 		return RRScene::IMPROVED;
 	}
 	return RRScene::NOT_IMPROVED;
+}
+
+RRScene::Improvement RRVisionApp::calculate()
+{
+	TIME calcBeginTime = GETTIME;
+	bool illuminationUse = lastIlluminationUseTime && lastIlluminationUseTime>=lastCalcEndTime;
+
+	// pause during critical interactions
+	if(lastCriticalInteractionTime)
+	{
+		if((calcBeginTime-lastCriticalInteractionTime)/(float)PER_SEC<PAUSE_AFTER_CRITICAL_INTERACTION)
+		{
+			//lastCalcEndTime = 0;
+			return RRScene::NOT_IMPROVED;
+		}
+	}
+
+	// adjust userStep
+	if(illuminationUse)
+	{
+		float lastUserStep = (calcBeginTime-lastCalcEndTime)/(float)PER_SEC;
+		if(lastCalcEndTime && lastUserStep<1.0f)
+		{
+			if(!userStep)
+				userStep = lastUserStep;
+			else
+				userStep = 0.6f*userStep + 0.4f*lastUserStep;
+		}
+	}
+
+	// adjust improveStep
+	if(!userStep || !calcStep || !improveStep || !illuminationUse)
+	{
+		improveStep = IMPROVE_STEP_NO_INTERACTION;
+	}
+	else
+	{		
+		// try to balance our (calculate) time and user time 1:1
+		improveStep *= (calcStep>userStep)?0.8f:1.2f;
+		// never spend more than 50% of time in reading results etc, always improve at least 50% of our (calculate) time
+		improveStep = MAX(improveStep,0.5f*calcStep);
+		// stick in interactive bounds
+		improveStep = CLAMP(improveStep,IMPROVE_STEP_MIN,IMPROVE_STEP_MAX);
+	}
+
+	// calculate
+	RRScene::Improvement result = calculateCore(improveStep);
+
+	// adjust calcStep
+	lastCalcEndTime = GETTIME;
+	float lastCalcStep = (lastCalcEndTime-calcBeginTime)/(float)PER_SEC;
+	if(lastCalcStep<1.0)
+	{
+		if(!calcStep)
+			calcStep = lastCalcStep;
+		else
+			calcStep = 0.6f*calcStep + 0.4f*lastCalcStep;
+	}
+
+	return result;
 }
 
 } // namespace

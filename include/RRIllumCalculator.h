@@ -110,9 +110,11 @@ namespace rr
 		void reportGeometryChange();
 		//! Reports to framework that position/rotation/shape of one or more lights has changed.
 		void reportLightChange();
-		//! Reports to framework that user interacts.
-		void reportInteraction();
-		//! Reports to framework that user stops interacting.
+		//! Reports to framework that illumination has been used (eg. for rendering). Without such report, framework can update results less often.
+		void reportIlluminationUse();
+		//! Reports to framework that user interacts and needs maximal responsiveness. Framework stops all actions for short time.
+		void reportCriticalInteraction();
+		//! Reports to framework that critical interactions end. Framework can immediately start its activities.
 		void reportEndOfInteractions();
 
 		//!!!
@@ -138,9 +140,15 @@ namespace rr
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;
 		bool       dirtyLights;
-		long       lastInteractionTime;
+		long       lastIlluminationUseTime;
+		long       lastCriticalInteractionTime;
+		long       lastCalcEndTime;
+		long       lastReadingResultsTime;
+		float      userStep; // avg time spent outside calculate().
+		float      calcStep; // avg time spent in calculate().
+		float      improveStep; // time to be spent in improve in calculate()
 		float      readingResultsPeriod;
-		float      calcTimeSinceReadingResults;
+		RRScene::Improvement calculateCore(float improveStep);
 		// read results
 		void       updateVertexLookupTable();
 		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table

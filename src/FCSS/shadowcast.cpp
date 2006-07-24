@@ -6,10 +6,26 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define AREA_SIZE                  0.15f
-#define PRIMARY_SCAN_PRECISION     1 // 1/2/3
+#define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 int fullscreen = 1;
 bool renderer3ds = true;
 /*
+casy:
+ 80 detect primary
+110 reset energies .. spadne na 80 kdyz se neresetuje propagace, to ale jeste nefunguje
+110 improve
+ 60 read results
+ 50 user - render
+
+po spusteni je pod kouli svetlo.
+po resetStaticIllum zmizi a uz se nikdy neobjevi.
+pokud v resetStaticIllum jen updatuju, zustane tam a zmizi az kdyz posvitim extremne do cerna.
+jak se tam vzalo?
+ze by pocatecni nevynulovane energie v rr?
+ale reset hned po nahrani sceny nepomaha, to az rucni reset o 1sec pozdeji.
+
+volat detekci vzdy jen na kousek sceny -> nutne zrychleni pro sponzu
+
 ! sponza v rr renderu je spatne vysmoothovana
   - spis je to vlastnost stavajiciho smoothovani, ne chyba
   - smoothovat podle normal
@@ -17,7 +33,6 @@ bool renderer3ds = true;
 
 ! prvni capture nekdy vygeneruje svetlejsi indirect
 rr renderer: pridat indirect mapu
-! spatne pocita sponza podlahu
 ! pri 2 instancich je levy okraj spotmapy oriznuty
 
 pridat dalsi koupelny
@@ -359,24 +374,6 @@ protected:
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// render scene
-			RRGLObjectRenderer::RenderedChannels rendererChannels;
-			rendererChannels.LIGHT_DIRECT = true; //!!! zautomatizovat, odvodit z nastaveni o kousek niz
-			rendererChannels.LIGHT_INDIRECT_COLOR = false;
-			rendererChannels.LIGHT_INDIRECT_MAP = false;
-#if PRIMARY_SCAN_PRECISION==1 // 110ms
-			rendererChannels.MATERIAL_DIFFUSE_COLOR = false;
-			rendererChannels.MATERIAL_DIFFUSE_MAP = false;
-#elif PRIMARY_SCAN_PRECISION==2 // 150ms
-			rendererChannels.MATERIAL_DIFFUSE_COLOR = true;
-			rendererChannels.MATERIAL_DIFFUSE_MAP = false;
-#else // PRIMARY_SCAN_PRECISION==3 // 220ms
-			rendererChannels.MATERIAL_DIFFUSE_COLOR = false;
-			rendererChannels.MATERIAL_DIFFUSE_MAP = true;
-#endif
-			rendererChannels.FORCE_2D_POSITION = true;
-			rendererNonCaching->setRenderedChannels(rendererChannels);
-			rendererCaching->setStatus(RRGLCachingRenderer::CS_NEVER_COMPILE);
-			generateForcedUv = &captureUv;
 			UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
@@ -384,10 +381,21 @@ protected:
 			//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = rendererChannels.MATERIAL_DIFFUSE_COLOR;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = rendererChannels.MATERIAL_DIFFUSE_MAP;
+#if PRIMARY_SCAN_PRECISION==1 // 110ms
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
+#elif PRIMARY_SCAN_PRECISION==2 // 150ms
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
+#else // PRIMARY_SCAN_PRECISION==3 // 220ms
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+#endif
 			uberProgramSetup.FORCE_2D_POSITION = true;
+			generateForcedUv = &captureUv;
+			rendererNonCaching->setFirstCapturedTriangle(captureUv.firstCapturedTriangle); // set param for cache so it creates different displaylists
 			drawHardwareShadowPass(uberProgramSetup);
+			rendererNonCaching->setFirstCapturedTriangle(0);
 			generateForcedUv = NULL;
 
 			// Read back the index buffer to memory.
@@ -469,7 +477,7 @@ void updateTitle(void)
 	if (needTitleUpdate) 
 	{
 		char title[256];
-		sprintf(title,"realtime radiosity viewer - %s",filename_3ds);
+		sprintf(title,"Realtime Radiosity Viewer - %s",filename_3ds);
 		glutSetWindowTitle(title);
 		needTitleUpdate = 0;
 	}
@@ -853,11 +861,6 @@ void drawEyeViewSoftShadowed(void)
 	glAccum(GL_RETURN,1);
 }
 
-void capturePrimary()
-{
-	app->reportLightChange();
-}
-
 static void output(int x, int y, char *string)
 {
 	glRasterPos2i(x, y);
@@ -954,6 +957,10 @@ static void drawHelpMessage(bool big)
 
 void display(void)
 {
+	if(!winWidth) return; // can't work without window
+
+	app->reportIlluminationUse();
+
 	if(needTitleUpdate)
 		updateTitle();
 
@@ -1069,7 +1076,7 @@ void toggleGlobalIllumination()
 
 void selectMenu(int item)
 {
-	app->reportInteraction();
+	app->reportCriticalInteraction();
 	switch (item) 
 	{
 		case ME_SWITCH_MOUSE_CONTROL:
@@ -1100,7 +1107,7 @@ void selectMenu(int item)
 
 void special(int c, int x, int y)
 {
-	app->reportInteraction();
+	if(!movingLight) app->reportCriticalInteraction();
 	Camera* cam = movingLight?&light:&eye;
 	switch (c) 
 	{
@@ -1117,17 +1124,21 @@ void special(int c, int x, int y)
 
 		case GLUT_KEY_UP:
 			for(int i=0;i<3;i++) cam->pos[i]+=cam->dir[i]/20;
+			if(movingLight) app->reportLightChange();
 			break;
 		case GLUT_KEY_DOWN:
 			for(int i=0;i<3;i++) cam->pos[i]-=cam->dir[i]/20;
+			if(movingLight) app->reportLightChange();
 			break;
 		case GLUT_KEY_LEFT:
 			cam->pos[0]+=cam->dir[2]/20;
 			cam->pos[2]-=cam->dir[0]/20;
+			if(movingLight) app->reportLightChange();
 			break;
 		case GLUT_KEY_RIGHT:
 			cam->pos[0]-=cam->dir[2]/20;
 			cam->pos[2]+=cam->dir[0]/20;
+			if(movingLight) app->reportLightChange();
 			break;
 
 		default:
@@ -1156,7 +1167,6 @@ void special(int c, int x, int y)
 
 void keyboard(unsigned char c, int x, int y)
 {
-	app->reportInteraction();
 	switch (c)
 	{
 		case 27:
@@ -1311,7 +1321,7 @@ void updateDepthScale(void)
 void reshape(int w, int h)
 {
 	if(w<512 || h<512)
-		printf("Window size<512 not supported in this demo, expect incorrect render!\n");
+		LIMITED_TIMES(5,printf("Window size<512 not supported in this demo, expect incorrect render!\n"));
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
@@ -1325,7 +1335,6 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-	app->reportInteraction();
 	if (button == eyeButton && state == GLUT_DOWN) {
 		movingEye = 1;
 		xEyeBegin = x;
@@ -1344,15 +1353,14 @@ void mouse(int button, int state, int x, int y)
 		app->reportEndOfInteractions();
 		movingLight = 0;
 		needDepthMapUpdate = 1;
-		capturePrimary();
 		glutPostRedisplay();
 	}
 }
 
 void motion(int x, int y)
 {
-	app->reportInteraction();
 	if (movingEye) {
+		app->reportCriticalInteraction();
 		eye.angle = eye.angle - 0.005*(x - xEyeBegin);
 		eye.height = eye.height + 0.15*(y - yEyeBegin);
 		if (eye.height > 10.0) eye.height = 10.0;
@@ -1371,12 +1379,16 @@ void motion(int x, int y)
 		yLightBegin = y;
 		needMatrixUpdate = 1;
 		needDepthMapUpdate = 1;
-		glutPostRedisplay();
+		app->reportLightChange();
+		app->calculate();
+		display();
 	}
 }
 
 void idle()
 {
+	if(!winWidth) return; // can't work without window
+
 	if(!movingEye && !movingLight && app->calculate()==rr::RRScene::IMPROVED)
 	{
 		//!!! nastavit renderedChannels aby se spravne promazla cache

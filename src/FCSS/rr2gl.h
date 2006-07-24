@@ -64,6 +64,7 @@ public:
 		}
 	};
 	void setRenderedChannels(RenderedChannels renderedChannels);
+	void setFirstCapturedTriangle(unsigned afirstCapturedTriangle);
 	virtual const void* getParams(unsigned& length) const;
 	virtual void render();
 	virtual ~RRGLObjectRenderer() {};
@@ -73,6 +74,7 @@ private:
 		rr::RRObject* object;
 		rr::RRScene* scene;
 		RenderedChannels renderedChannels;
+		unsigned firstCapturedTriangle;
 	};
 	Params params;
 };

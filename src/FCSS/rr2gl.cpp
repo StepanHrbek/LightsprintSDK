@@ -41,11 +41,18 @@ RRGLObjectRenderer::RRGLObjectRenderer(rr::RRObject* objectImporter, rr::RRScene
 {
 	params.object = objectImporter;
 	params.scene = radiositySolver;
+	//params.renderedChannels = ... set to default by constructor
+	params.firstCapturedTriangle = 0;
 }
 
 void RRGLObjectRenderer::setRenderedChannels(RenderedChannels renderedChannels)
 {
 	params.renderedChannels = renderedChannels;
+}
+
+void RRGLObjectRenderer::setFirstCapturedTriangle(unsigned afirstCapturedTriangle)
+{
+	params.firstCapturedTriangle = afirstCapturedTriangle;
 }
 
 const void* RRGLObjectRenderer::getParams(unsigned& length) const
