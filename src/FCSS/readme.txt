@@ -10,7 +10,7 @@
 
   It uses no precomputed data.
 
-  You can adjust shadow quality to much higher speed or much higher quality,
+  You can adjust shadow quality to higher speed or higher quality,
   see built-in help.
 
 
@@ -25,8 +25,10 @@
   Commandline options
   -------------------
 
-  scene.3ds   tries to open specified scene, not tested on other scenes
-  -window     runs in window instead of fullscreen
+  scene.3ds    tries to open specified scene, not tested on other scenes
+  -window      runs in window instead of fullscreen
+  -noAreaLight starts with basic spotlight instead of area light
+  -lazyUpdates updates radiosity less often
 
 
   Requirements
@@ -84,4 +86,4 @@
   ------
 
   Stepan Hrbek <dee@dee.cz> http://dee.cz
-  January 2006
+  January 2006, updated July 2006

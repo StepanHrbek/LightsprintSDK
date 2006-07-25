@@ -9,11 +9,29 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 int fullscreen = 1;
 bool renderer3ds = true;
+bool updateDuringLightMovement = 1;
+bool startWithSoftShadows = 1;
 /*
+plan:
+zkusit trochu zrychlit
+otestovat na mageu
+naplanovat ruzne licence a dat na web cenik
+dat na web demo, na titulni stranku obrazek+odkaz, na demostranku not optimized for ATI, no precalc, precalc is also possible
+announcement 1.srpna
+napsat licence
+
+co jeste pomuze:
+2% za 4h: presunout kanaly z objektu do meshe
+10% za 3 dny: opravit kontinualni vypocet bez resetu propagace
+30% za 3 dny: detect+reset po castech, kratsi improve
+20% za 8 dnu:
+ thread0: renderovat prechod mezi kanalem 0 a 1 podle toho v jake fazi je thread1
+ thread1: vlastni gl kontext a nekonecny cyklus: detekce, update, 0.2s vypoctu, read results do kanalu k, k=1-k
+
 casy:
 80 detect primary
 110 reset energies .. spadne na 80 kdyz se neresetuje propagace, to ale jeste nefunguje
-110 improve
+80 improve
 60 read results
 50 user - render
 
@@ -24,19 +42,7 @@ jak se tam vzalo?
 ze by pocatecni nevynulovane energie v rr?
 ale reset hned po nahrani sceny nepomaha, to az rucni reset o 1sec pozdeji.
 
-jak brutalne zrychlit (sponza: maximum bez radiosity je 15fps)
-1)
- opravit kontinualni vypocet bez resetu propagace
- vsechny kroky delat po castech aby se stihlo prolozit vic renderu
-  - read results po castech bez diskontinuit nelze
- 3fps -> 7fps
-2)
- kontinualni improve v druhem threadu
- mainloop vzdy jen 
-
 !kdyz nenactu textury a vse je bile, vypocet se velmi rychle zastavi, mozna distribuuje ale nerefreshuje
-
-volat detekci vzdy jen na kousek sceny -> nutne zrychleni pro sponzu
 
 ! sponza v rr renderu je spatne vysmoothovana
   - spis je to vlastnost stavajiciho smoothovani, ne chyba
@@ -67,6 +73,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <stdlib.h>
 #include <stdio.h>
 #include <GL/glew.h>
+#include <GL/wglew.h>
 #include <GL/glut.h>
 
 #include "RRIllumCalculator.h"
@@ -255,7 +262,7 @@ enum {
 	ME_EXIT,
 };
 
-unsigned useLights = INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS; //!!! zrusit, pouzit uberProgramGlobalConfig.SHADOW_MAPS
+unsigned useLights = 1; //!!! zrusit, pouzit uberProgramGlobalConfig.SHADOW_MAPS
 int areaType = 0; // 0=linear, 1=square grid, 2=circle
 int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0 //!!! zrusit
 
@@ -1367,6 +1374,7 @@ void mouse(int button, int state, int x, int y)
 	}
 	if (button == lightButton && state == GLUT_UP) {
 		app->reportEndOfInteractions();
+		app->reportLightChange();
 		movingLight = 0;
 		needDepthMapUpdate = 1;
 		glutPostRedisplay();
@@ -1394,7 +1402,10 @@ void motion(int x, int y)
 		yLightBegin = y;
 		needMatrixUpdate = 1;
 		needDepthMapUpdate = 1;
-		app->reportLightChange();
+		if(updateDuringLightMovement)
+			app->reportLightChange();
+		else
+			app->reportCriticalInteraction();
 	}
 }
 
@@ -1402,11 +1413,12 @@ void idle()
 {
 	if(!winWidth) return; // can't work without window
 
-	if(app->calculate()==rr::RRScene::IMPROVED || movingEye)
+	bool rrOn = drawMode == DM_EYE_VIEW_SOFTSHADOWED;
+	if((rrOn && app->calculate()==rr::RRScene::IMPROVED) || movingEye || ((!rrOn || !updateDuringLightMovement) && movingLight))
 	{
-		//!!! nastavit renderedChannels aby se spravne promazla cache
-		// spolehame na to ze je nastaveno zrovna to co chceme
-		rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
+		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache
+		// nutne predtim nastavit params (renderedChannels apod)
+		//!!! rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
 		glutPostRedisplay();
 	}
 }
@@ -1455,6 +1467,10 @@ void init_gl_states()
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
 	glEnable(GL_CULL_FACE);
+
+#if defined(_WIN32)
+	wglSwapIntervalEXT(0);
+#endif
 }
 
 void initMenus(void)
@@ -1490,6 +1506,12 @@ void parseOptions(int argc, char **argv)
 		}
 		if (!strcmp("-window", argv[i])) {
 			fullscreen = 0;
+		}
+		if (!strcmp("-noAreaLight", argv[i])) {
+			startWithSoftShadows = 0;
+		}
+		if (!strcmp("-lazyUpdates", argv[i])) {
+			updateDuringLightMovement = 0;
 		}
 		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS")) {
 			filename_3ds = argv[i];
@@ -1615,7 +1637,7 @@ retry:
 	if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	printf("%d\n", INSTANCES_PER_PASS); // this is further reduced by 2
-	useLights = INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS;
+	useLights = startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1;
 	
 	printf("Loading scene...");
 
