@@ -119,6 +119,28 @@ struct Bound
 	bool    intersect(Point3 eye,Vec3 direction,real maxDistance);
 };
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// trigonometry
+
+inline RRReal fast_acos(RRReal fValue)
+{
+#if 1
+	RRReal fRoot = sqrtf(1.0f-fValue);
+	RRReal fResult = -0.0187293f;
+	fResult *= fValue;
+	fResult += 0.0742610f;
+	fResult *= fValue;
+	fResult -= 0.2121144f;
+	fResult *= fValue;
+	fResult += 1.5707288f;
+	fResult *= fRoot;
+	return fResult; 
+#else
+	return acos(fValue);
+#endif
+}
+
 } // namespace
 
 #endif

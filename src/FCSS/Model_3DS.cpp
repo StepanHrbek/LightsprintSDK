@@ -159,7 +159,7 @@ Model_3DS::Model_3DS()
 	rot.z = 0.0f;
 
 	// Set up the path
-	path = new char[80];
+	path = new char[580];
 	path[0] = 0;//sprintf(path, "");
 
 	// Zero out our counters for MFC
@@ -198,8 +198,7 @@ bool Model_3DS::Load(char *name, float scale)
 			temp = strrchr(name, '\\');
 
 		// Allocate space for the path
-		path = new char[strlen(name)-strlen(temp)+1];
-
+		path = new char[strlen(name)-strlen(temp)+10];
 		// Get a pointer to the end of the path and name
 		char *src = name + strlen(name) - 1;
 
@@ -656,7 +655,7 @@ void Model_3DS::MaterialNameChunkProcessor(long length, long findex, int matinde
 	fseek(bin3ds, findex, SEEK_SET);
 
 	// Read the material's name
-	for (int i = 0; i < 80; i++)
+	for (int i = 0; i < 580; i++)
 	{
 		Materials[matindex].name[i] = fgetc(bin3ds);
 		if (Materials[matindex].name[i] == 0)
@@ -801,14 +800,14 @@ void Model_3DS::TextureMapChunkProcessor(long length, long findex, int matindex)
 
 void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 {
-	char name[80];
+	char name[580];
 
 	// move the file pointer to the beginning of the main
 	// chunk's data findex + the size of the header
 	fseek(bin3ds, findex, SEEK_SET);
 
 	// Read the name of the texture
-	for (int i = 0; i < 80; i++)
+	for (int i = 0; i < 580; i++)
 	{
 		name[i] = fgetc(bin3ds);
 		if (name[i] == 0)
@@ -819,10 +818,19 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	}
 
 	// Load the name and indicate that the material has a texture
-	char fullname[80];
+	char fullname[580];
 	sprintf(fullname, "%s%s", path, name);
-	Materials[matindex].tex = new Texture(fullname);
-	Materials[matindex].textured = true;
+	try
+	{
+		Materials[matindex].tex = new Texture(fullname);
+		Materials[matindex].textured = true;
+	}
+	catch (...)
+	{
+		printf("Texture %s not found.\n",fullname);
+		Materials[matindex].tex = NULL;
+		Materials[matindex].textured = false;
+	}
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
@@ -839,7 +847,7 @@ void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
 	fseek(bin3ds, findex, SEEK_SET);
 
 	// Load the object's name
-	for (int i = 0; i < 80; i++)
+	for (int i = 0; i < 580; i++)
 	{
 		Objects[objindex].name[i] = fgetc(bin3ds);
 		if (Objects[objindex].name[i] == 0)
@@ -1154,7 +1162,7 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 
 void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int objindex, int subfacesindex)
 {
-	char name[80];				// The material's name
+	char name[580];				// The material's name
 	unsigned short numEntries;	// The number of faces associated with this material
 	unsigned short Face;		// Holds the faces as they are read
 	int material;				// An index to the Materials array for this material
@@ -1164,7 +1172,7 @@ void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int o
 	fseek(bin3ds, findex, SEEK_SET);
 
 	// Read the material's name
-	for (int i = 0; i < 80; i++)
+	for (int i = 0; i < 580; i++)
 	{
 		name[i] = fgetc(bin3ds);
 		if (name[i] == 0)

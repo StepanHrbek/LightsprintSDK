@@ -53,7 +53,7 @@ Angle angleBetweenNormalized(Vec2 a,Vec2 b)
 	assert(fabs(size(a)-1)<0.001);
 	assert(fabs(size(b)-1)<0.001);
 	real r=size2(a-b);
-	return acos(1-r/2);
+	return fast_acos(1-r/2);
 }
 
 Angle angleBetween(Vec2 a,Vec2 b)
@@ -156,7 +156,7 @@ void clampToZero(RRVec3& a)
 RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b)
 {
 	RRReal d = dot(a,b);
-	RRReal angle = acos(MAX(MIN(d,1),-1));
+	RRReal angle = fast_acos(MAX(MIN(d,1),-1));
 	assert(IS_NUMBER(angle));
 	return angle;
 }

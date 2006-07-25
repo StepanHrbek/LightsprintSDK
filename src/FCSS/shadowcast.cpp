@@ -24,6 +24,8 @@ jak se tam vzalo?
 ze by pocatecni nevynulovane energie v rr?
 ale reset hned po nahrani sceny nepomaha, to az rucni reset o 1sec pozdeji.
 
+!kdyz nenactu textury a vse je bile, vypocet se velmi rychle zastavi, mozna distribuuje ale nerefreshuje
+
 volat detekci vzdy jen na kousek sceny -> nutne zrychleni pro sponzu
 
 ! sponza v rr renderu je spatne vysmoothovana
@@ -289,6 +291,10 @@ public:
 	virtual ~CaptureUv() {};
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
+		if(!xmax || !ymax)
+		{
+			fatal_error("No window, internal error.",false);
+		}
 		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
 		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
 	}

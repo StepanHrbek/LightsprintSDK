@@ -100,6 +100,7 @@ bool  __errors=false; // was there errors during batch work? used to set result
 
 unsigned  __frameNumber=1; // frame number increased after each draw
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // hit to subtriangle
@@ -1078,9 +1079,9 @@ Triangle::Triangle() : SubTriangle(NULL,this)
 
 static real minAngle(real a,real b,real c) // delky stran
 {
-	real angleA = acos((b*b+c*c-a*a)/(2*b*c));
-	real angleB = acos((a*a+c*c-b*b)/(2*a*c));
-	real angleC = acos((a*a+b*b-c*c)/(2*a*b));
+	real angleA = fast_acos((b*b+c*c-a*a)/(2*b*c));
+	real angleB = fast_acos((a*a+c*c-b*b)/(2*a*c));
+	real angleC = fast_acos((a*a+b*b-c*c)/(2*a*b));
 	return MIN(MIN(angleA,angleB),angleC);
 }
 
@@ -1133,7 +1134,7 @@ again:
 	if(psqr>=4) {psqr=3.9999f;printf("Low numerical quality, fixing area=0 triangle.\n");}
 	#endif
 	real cosa=1-psqr/2;
-	real sina=sqrt(psqr*(1-psqr/4));//sin(acos(cosa)); //first is probably faster
+	real sina=sqrt(psqr*(1-psqr/4));//sin(fast_acos(cosa)); //first is probably faster
 	uv[0]=Vec2(0,0);
 	uv[1]=u2=Vec2(rsize,0);
 	uv[2]=v2=Vec2(cosa,sina)*lsize;
@@ -2825,10 +2826,13 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	//...
 	// nastavi nektery dirty
 	//...mozna by jednou stacilo DIRTY_ALL_SUBNODES na cluster a nedistribuovat to dolu do trianglu
-	if(IS_CLUSTER(destination))
-		CLUSTER(destination)->makeDirty();
-	else
-		SUBTRIANGLE(destination)->makeDirty();
+	// ve sponze zralo vetsinu vykonu 
+	// flagy pouziva pouze externi rr\render.cpp, interne nejsou potreba
+	// at si to rr\render.cpp zaridi jinak
+	//if(IS_CLUSTER(destination))
+	//	CLUSTER(destination)->makeDirty();
+	//else
+	//	SUBTRIANGLE(destination)->makeDirty();
 
 	Channels energyIncident = energy;
 #ifdef CLEAN_FACTORS
