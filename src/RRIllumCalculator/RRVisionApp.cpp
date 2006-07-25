@@ -11,6 +11,21 @@
 namespace rr
 {
 
+#define TIME    clock_t
+#define GETTIME clock()
+#define PER_SEC CLOCKS_PER_SEC
+
+// times in seconds
+#define PAUSE_AFTER_CRITICAL_INTERACTION 0.2f // stops calculating after each interaction, improves responsiveness
+#define IMPROVE_STEP_NO_INTERACTION 0.1f // length of one improve step when there are no interactions from user
+#define IMPROVE_STEP_MIN 0.005f
+#define IMPROVE_STEP_MAX 0.08f
+#define READING_RESULTS_PERIOD_MIN 0.1f // how often results are readen back. this is increased *1.1 at each read without interaction
+#define READING_RESULTS_PERIOD_MAX 1.5f //
+// portions in <0..1>
+#define MIN_PORTION_SPENT_IMPROVING 0.4f // at least 40% of our time is spent in improving
+
+
 // odsunout do RRIlluminationPixelBuffer.cpp
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -39,17 +54,6 @@ void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const SubtriangleI
 	raster_LGouraud(polygon,(raster_COLOR*)pixels,width);
 }
 
-
-#define TIME    clock_t
-#define GETTIME clock()
-#define PER_SEC CLOCKS_PER_SEC
-
-#define PAUSE_AFTER_CRITICAL_INTERACTION 0.2f // stops calculating after each interaction, improves responsiveness
-#define IMPROVE_STEP_NO_INTERACTION 0.1f // length of one improve step when there are no interactions from user
-#define IMPROVE_STEP_MIN 0.005f
-#define IMPROVE_STEP_MAX 0.1f
-#define READING_RESULTS_PERIOD_MIN 0.1f // how often results are readen back. this is increased *1.1 at each read without interaction
-#define READING_RESULTS_PERIOD_MAX 1.5f //
 
 RRVisionApp::RRVisionApp()
 {
@@ -441,8 +445,8 @@ RRScene::Improvement RRVisionApp::calculate()
 	{		
 		// try to balance our (calculate) time and user time 1:1
 		improveStep *= (calcStep>userStep)?0.8f:1.2f;
-		// never spend more than 50% of time in reading results etc, always improve at least 50% of our (calculate) time
-		improveStep = MAX(improveStep,0.5f*calcStep);
+		// always spend at least 40% of our time in improve, don't spend too much by reading results etc
+		improveStep = MAX(improveStep,MIN_PORTION_SPENT_IMPROVING*calcStep);
 		// stick in interactive bounds
 		improveStep = CLAMP(improveStep,IMPROVE_STEP_MIN,IMPROVE_STEP_MAX);
 	}

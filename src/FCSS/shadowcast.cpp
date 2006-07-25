@@ -11,11 +11,11 @@ int fullscreen = 1;
 bool renderer3ds = true;
 /*
 casy:
- 80 detect primary
+80 detect primary
 110 reset energies .. spadne na 80 kdyz se neresetuje propagace, to ale jeste nefunguje
 110 improve
- 60 read results
- 50 user - render
+60 read results
+50 user - render
 
 po spusteni je pod kouli svetlo.
 po resetStaticIllum zmizi a uz se nikdy neobjevi.
@@ -23,6 +23,16 @@ pokud v resetStaticIllum jen updatuju, zustane tam a zmizi az kdyz posvitim extr
 jak se tam vzalo?
 ze by pocatecni nevynulovane energie v rr?
 ale reset hned po nahrani sceny nepomaha, to az rucni reset o 1sec pozdeji.
+
+jak brutalne zrychlit (sponza: maximum bez radiosity je 15fps)
+1)
+ opravit kontinualni vypocet bez resetu propagace
+ vsechny kroky delat po castech aby se stihlo prolozit vic renderu
+  - read results po castech bez diskontinuit nelze
+ 3fps -> 7fps
+2)
+ kontinualni improve v druhem threadu
+ mainloop vzdy jen 
 
 !kdyz nenactu textury a vse je bile, vypocet se velmi rychle zastavi, mozna distribuuje ale nerefreshuje
 
@@ -1374,7 +1384,6 @@ void motion(int x, int y)
 		xEyeBegin = x;
 		yEyeBegin = y;
 		needMatrixUpdate = 1;
-		glutPostRedisplay();
 	}
 	if (movingLight) {
 		light.angle = light.angle - 0.005*(x - xLightBegin);
@@ -1386,8 +1395,6 @@ void motion(int x, int y)
 		needMatrixUpdate = 1;
 		needDepthMapUpdate = 1;
 		app->reportLightChange();
-		app->calculate();
-		display();
 	}
 }
 
@@ -1395,7 +1402,7 @@ void idle()
 {
 	if(!winWidth) return; // can't work without window
 
-	if(!movingEye && !movingLight && app->calculate()==rr::RRScene::IMPROVED)
+	if(app->calculate()==rr::RRScene::IMPROVED || movingEye)
 	{
 		//!!! nastavit renderedChannels aby se spravne promazla cache
 		// spolehame na to ze je nastaveno zrovna to co chceme

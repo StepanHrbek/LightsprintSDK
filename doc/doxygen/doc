@@ -297,6 +297,10 @@ NEW FEATURES
   \n supports even objects mixing both single and doublesided surfaces
 - rr::RRMesh::createOptimizedTriangles()
   \n creates optimized mesh without degenerated triangles
+- rr::RRScene::illuminationReset() supports preserving factors
+  \n allows realtime radiosity in static scene without precalculations
+- rr::RRObject::createMultiObject() can optimize triangles
+  \n simplifies work with multiple objects
 - rr::RRMesh::save(), rr::RRMesh::load()
   \n any mesh can be saved to file and loaded later
 - HelloMesh sample
@@ -308,11 +312,8 @@ NEW FEATURES
 
 CHANGES
 
-- new scheduler in radiosity solver
-  \n rr::RRScene::illuminationReset() supports preserving factors
-  \n 5% faster calculation on average
-- rr::RRObject::createMultiObject()
-  \n can optimize triangles
+- new scheduler and other optimizations in radiosity solver
+  \n 10% faster radiosity calculation on average
 - name changes
   \n namespaces rrCollider and rrVision -> rr
   \n RRMeshImporter -> rr::RRMesh
