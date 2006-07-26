@@ -12,6 +12,12 @@ bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 /*
+!po zmene spotmapy 's' je jiny indirect nez po nepatrnem pohybu svetlem, kazdy asi zdetekuje jiny direct
+ rozdil je nejspis v tom ze nekdy pouziju jakousi existujici sm, nekdy si ji sam generuju
+
+!pri 2 instancich je levy okraj spotmapy oriznuty
+ protoze spotmapa se promita pres sm[0], ne sm[num/2]
+
 plan:
 zkusit trochu zrychlit
 otestovat na mageu
@@ -51,7 +57,6 @@ ale reset hned po nahrani sceny nepomaha, to az rucni reset o 1sec pozdeji.
 
 ! prvni capture nekdy vygeneruje svetlejsi indirect
 rr renderer: pridat indirect mapu
-! pri 2 instancich je levy okraj spotmapy oriznuty
 
 pridat dalsi koupelny
 ovladani jasu (global, indirect)
@@ -207,7 +212,9 @@ struct UberProgramSetup
 
 GLUquadricObj *quadric;
 TextureShadowMap* shadowMaps = NULL;
-Texture *lightDirectMap;
+#define lightDirectMaps 3
+Texture *lightDirectMap[lightDirectMaps];
+unsigned lightDirectMapIdx = 0;
 Program *ambientProgram;
 UberProgram* uberProgram;
 
@@ -226,7 +233,12 @@ void init_gl_resources()
 	quadric = gluNewQuadric();
 
 	shadowMaps = new TextureShadowMap[MAX_INSTANCES];
-	lightDirectMap = new Texture("spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	for(unsigned i=0;i<lightDirectMaps;i++)
+	{
+		char name[]="spot0.tga";
+		name[4] = '0'+i;
+		lightDirectMap[i] = new Texture(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	}
 
 	uberProgram = new UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	UberProgramSetup uberProgramSetup;
@@ -256,6 +268,7 @@ enum {
 /* Menu items. */
 enum {
 	ME_TOGGLE_GLOBAL_ILLUMINATION,
+	ME_CHANGE_SPOTLIGHT,
 	ME_TOGGLE_WIRE_FRAME,
 	ME_TOGGLE_LIGHT_FRUSTUM,
 	ME_SWITCH_MOUSE_CONTROL,
@@ -753,7 +766,7 @@ void drawHardwareShadowPass(UberProgramSetup uberProgramSetup)
 	{
 		int id=10;
 		glActiveTexture(GL_TEXTURE0+id);
-		lightDirectMap->bindTexture();
+		lightDirectMap[lightDirectMapIdx]->bindTexture();
 		myProg->sendUniform("lightDirectMap", id);
 	}
 
@@ -903,8 +916,8 @@ static void drawHelpMessage(bool big)
 		"",
 		"Purpose:",
 		" Show radiosity integration into arbitrary interactive 3d app",
-		" using NO PRECALCULATIONS, eg. into game editor.",
-		" Game demos using precalculated data are coming.",
+		" using NO PRECALCULATIONS.",
+		" Demos using precalculated data are coming.",
 		"",
 		"Controls:",
 		" mouse+left button - manipulate camera",
@@ -913,6 +926,7 @@ static void drawHelpMessage(bool big)
 		" arrows            - move camera or light (with middle mouse pressed)",
 		"",
 		" space - toggle global illumination",
+		" 's'   - change spotlight",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
 		" 'a'   - cycle through linear, rectangular and circular area light",
@@ -1097,6 +1111,15 @@ void toggleGlobalIllumination()
 	needDepthMapUpdate = 1;
 }
 
+void changeSpotlight()
+{
+	lightDirectMapIdx = (lightDirectMapIdx+1)%lightDirectMaps;
+	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
+	needDepthMapUpdate = 1;
+	app->reportLightChange();
+	app->reportEndOfInteractions(); // force update even in movingEye mode
+}
+
 void selectMenu(int item)
 {
 	app->reportCriticalInteraction();
@@ -1108,10 +1131,13 @@ void selectMenu(int item)
 
 		case ME_TOGGLE_GLOBAL_ILLUMINATION:
 			toggleGlobalIllumination();
-			return;
+			break;
+		case ME_CHANGE_SPOTLIGHT:
+			changeSpotlight();
+			break;
 		case ME_TOGGLE_WIRE_FRAME:
 			toggleWireFrame();
-			return;
+			break;
 		case ME_TOGGLE_LIGHT_FRUSTUM:
 			showLightViewFrustum = !showLightViewFrustum;
 			if (showLightViewFrustum) {
@@ -1284,6 +1310,9 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 		case ' ':
 			toggleGlobalIllumination();
+			break;
+		case 's':
+			changeSpotlight();
 			break;
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;
@@ -1477,6 +1506,7 @@ void initMenus(void)
 {
 	glutCreateMenu(selectMenu);
 	glutAddMenuEntry("[ ] Toggle global illumination", ME_TOGGLE_GLOBAL_ILLUMINATION);
+	glutAddMenuEntry("[s] Change spotlight", ME_CHANGE_SPOTLIGHT);
 	glutAddMenuEntry("[f] Toggle light frustum", ME_TOGGLE_LIGHT_FRUSTUM);
 	glutAddMenuEntry("[w] Toggle wire frame", ME_TOGGLE_WIRE_FRAME);
 	glutAddMenuEntry("[m] Switch mouse buttons", ME_SWITCH_MOUSE_CONTROL);

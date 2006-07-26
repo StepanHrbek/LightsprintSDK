@@ -108,7 +108,7 @@ void RRVisionApp::setResultChannel(unsigned channelIndex)
 
 void RRVisionApp::adjustScene()
 {
-	scene->setScaler(RRScaler::createRgbScaler());
+	scene->setScaler(RRScaler::createRgbScaler(0.4f));
 }
 
 void RRVisionApp::reportAction(const char* action) const
