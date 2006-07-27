@@ -1,4 +1,3 @@
-//#define SHOW_CAPTURED_TRIANGLES
 //#define DEFAULT_SPONZA
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
@@ -12,17 +11,21 @@ bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 /*
-!po zmene spotmapy 's' je jiny indirect nez po nepatrnem pohybu svetlem, kazdy asi zdetekuje jiny direct
- rozdil je nejspis v tom ze nekdy pouziju jakousi existujici sm, nekdy si ji sam generuju
+detekovat kdy illum update, kdy illum reset
+
+zkusit ve sponze update 1x za sec i pri lazyUpdates
 
 !pri 2 instancich je levy okraj spotmapy oriznuty
  protoze spotmapa se promita pres sm[0], ne sm[num/2]
+
+!vadna geometrie v koupelne
 
 plan:
 zkusit trochu zrychlit
 otestovat na mageu
 naplanovat ruzne licence a dat na web cenik
-dat na web demo, na titulni stranku obrazek+odkaz, na demostranku not optimized for ATI, no precalc, precalc is also possible
+dat na web demo,
+ na titulni stranku obrazek+odkaz, na demostranku not optimized for ATI, no precalc, we offer also precalc
 announcement 1.srpna
 napsat licence
 
@@ -40,13 +43,6 @@ casy:
 80 improve
 60 read results
 50 user - render
-
-po spusteni je pod kouli svetlo.
-po resetStaticIllum zmizi a uz se nikdy neobjevi.
-pokud v resetStaticIllum jen updatuju, zustane tam a zmizi az kdyz posvitim extremne do cerna.
-jak se tam vzalo?
-ze by pocatecni nevynulovane energie v rr?
-ale reset hned po nahrani sceny nepomaha, to az rucni reset o 1sec pozdeji.
 
 !kdyz nenactu textury a vse je bile, vypocet se velmi rychle zastavi, mozna distribuuje ale nerefreshuje
 
@@ -86,6 +82,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "GL/Camera.h"
 #include "GL/Texture.h"
 #include "GL/UberProgram.h"
+#include "GL/MultiLight.h"
 #include "rr2gl.h"
 
 using namespace std;
@@ -124,35 +121,6 @@ Model_3DS m3ds;
 
 RRGLObjectRenderer* rendererNonCaching = NULL;
 RRGLCachingRenderer* rendererCaching = NULL;
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Texture for shadow map
-
-#define SHADOW_MAP_SIZE 512
-
-class TextureShadowMap : public Texture
-{
-public:
-	TextureShadowMap()
-		: Texture(NULL, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, GL_DEPTH_COMPONENT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
-	{
-		glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-		channels = 1;
-		// for shadow2D() instead of texture2D()
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-		glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-	}
-	// sideeffect: binds texture
-	void readFromBackbuffer()
-	{
-		//glGetIntegerv(GL_TEXTURE_2D,&oldTextureObject);
-		bindTexture();
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height); // painfully slow on ATI (X800 PRO, Catalyst 6.6)
-	}
-};
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -206,12 +174,15 @@ struct UberProgramSetup
 };
 
 
+Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
+Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // our OpenGL resources
 
 GLUquadricObj *quadric;
-TextureShadowMap* shadowMaps = NULL;
+AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
 Texture *lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
@@ -232,7 +203,8 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	shadowMaps = new TextureShadowMap[MAX_INSTANCES];
+	areaLight = new AreaLight();
+
 	for(unsigned i=0;i<lightDirectMaps;i++)
 	{
 		char name[]="spot0.tga";
@@ -275,21 +247,11 @@ enum {
 	ME_EXIT,
 };
 
-unsigned useLights = 1; //!!! zrusit, pouzit uberProgramGlobalConfig.SHADOW_MAPS
-int areaType = 0; // 0=linear, 1=square grid, 2=circle
-int softLight = -1; // current instance number 0..199, -1 = hard shadows, use instance 0 //!!! zrusit
-
 int depthBias24 = 42;
 int depthScale24;
 GLfloat slopeScale = 4.0;
 
 GLfloat textureLodBias = 0.0;
-
-// light and camera setup
-//Camera eye = {{0,1,4},3,0};
-//Camera light = {{0,3,0},0.85f,8};
-Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
 
 int xEyeBegin, yEyeBegin, movingEye = 0;
 int xLightBegin, yLightBegin, movingLight = 0;
@@ -310,9 +272,9 @@ int useDepth24 = 0;
 //
 // MyApp
 
-void drawHardwareShadowPass(UberProgramSetup uberProgramSetup);
+void drawHardwareShadowPass(UberProgramSetup uberProgramSetup, unsigned firstInstance);
 void updateMatrices();
-void updateDepthMap(int mapIndex);
+void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
 // generuje uv coords pro capture
 class CaptureUv : public VertexDataGenerator
@@ -360,26 +322,11 @@ protected:
 		// first time illumination is detected, no shadowmap has been created yet
 		if(needDepthMapUpdate)
 		{
-			unsigned oldShadowMaps = useLights;
-			useLights = 1;
-			updateMatrices(); // placeSoftLight to nevim proc neudela
-			updateDepthMap(0);
+			updateDepthMap(0,0);
 			needDepthMapUpdate = 1; // aby si pote soft pregeneroval svych 7 map a nespolehal na nasi jednu
-			useLights = oldShadowMaps;
 		}
 		
 		//StopWatch w;w.Start();
-		
-		//!!!
-		/*
-		for each object
-		generate pos-override channel
-		render with pos-override
-		prubezne pri kazdem naplneni textury
-		zmensi texturu na gpu
-		zkopiruj texturu do cpu
-		uloz vysledky do AdditionalObjectImporteru
-		*/
 
 		rr::RRMesh* mesh = multiObject->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
@@ -430,7 +377,7 @@ protected:
 			uberProgramSetup.FORCE_2D_POSITION = true;
 			generateForcedUv = &captureUv;
 			rendererNonCaching->setFirstCapturedTriangle(captureUv.firstCapturedTriangle); // set param for cache so it creates different displaylists
-			drawHardwareShadowPass(uberProgramSetup);
+			drawHardwareShadowPass(uberProgramSetup,0);
 			rendererNonCaching->setFirstCapturedTriangle(0);
 			generateForcedUv = NULL;
 
@@ -643,57 +590,16 @@ void drawShadowMapFrustum(void)
 	glDisable(GL_LINE_STIPPLE);
 }
 
-void placeSoftLight(int n)
-{
-	//printf("%d ",n);
-	softLight=n;
-	static float oldLightAngle,oldLightHeight;
-	if(n==-1) { // init, before all
-		oldLightAngle=light.angle;
-		oldLightHeight=light.height;
-		return;
-	}
-	if(n==-2) { // done, after all
-		light.angle=oldLightAngle;
-		light.height=oldLightHeight;
-		updateMatrices();
-		return;
-	}
-	// place one point light approximating part of area light
-	if(useLights>1) {
-		switch(areaType) {
-	  case 0: // linear
-		  light.angle=oldLightAngle+2*AREA_SIZE*(n/(useLights-1.)-0.5);
-		  light.height=oldLightHeight-0.4*n/useLights;
-		  break;
-	  case 1: // rectangular
-		  {int q=(int)sqrtf(useLights-1)+1;
-		  light.angle=oldLightAngle+AREA_SIZE*(n/q/(q-1.)-0.5);
-		  light.height=oldLightHeight+(n%q/(q-1.)-0.5);}
-		  break;
-	  case 2: // circular
-		  light.angle=oldLightAngle+sin(n*2*3.14159/useLights)*0.5*AREA_SIZE;
-		  light.height=oldLightHeight+cos(n*2*3.14159/useLights)*0.5;
-		  break;
-		}
-		updateMatrices();
-	}
-}
-
-void updateDepthMap(int mapIndex)
+void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 {
 	if(!needDepthMapUpdate) return;
 
-	if(mapIndex>=0)
-	{
-		placeSoftLight(mapIndex);
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
-
-	light.setupForRender();
+	assert(mapIndex>=0);
+	areaLight->getInstance(mapIndex)->setupForRender();
 
 	glColorMask(0,0,0,0);
 	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
 	UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
@@ -707,19 +613,19 @@ void updateDepthMap(int mapIndex)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
 	setProgramAndDrawScene(uberProgramSetup);
-	shadowMaps[(mapIndex>=0)?mapIndex:0].readFromBackbuffer();
+	areaLight->getShadowMap((mapIndex>=0)?mapIndex:0)->readFromBackbuffer();
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glViewport(0, 0, winWidth, winHeight);
 	glColorMask(1,1,1,1);
 
-	if(mapIndex<0 || mapIndex==(int)(useLights-1)) 
+	if(mapIndex==mapIndices-1) 
 	{
 		needDepthMapUpdate = 0;
 	}
 }
 
-void drawHardwareShadowPass(UberProgramSetup uberProgramSetup)
+void drawHardwareShadowPass(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	Program* myProg = setProgram(uberProgramSetup);
 
@@ -734,23 +640,20 @@ void drawHardwareShadowPass(UberProgramSetup uberProgramSetup)
 		1,1,1,2
 	};
 	//GLint samplers[100]; // for array of samplers (needs OpenGL 2.0 compliant card)
-	int softLightBase = softLight;
-	int instances = (softLight>=0 && !uberProgramSetup.FORCE_2D_POSITION)?MIN(useLights,INSTANCES_PER_PASS):1;
-	for(int i=0;i<instances;i++)
+	for(unsigned i=0;i<uberProgramSetup.SHADOW_MAPS;i++)
 	{
 		glActiveTexture(GL_TEXTURE0+i);
 		// prepare samplers
-		shadowMaps[((softLight>=0)?softLightBase:0)+i].bindTexture();
+		areaLight->getShadowMap(firstInstance+i)->bindTexture();
 		//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
 		char name[] = "shadowMap0"; // for individual samplers (works on buggy ATI)
 		name[9] = '0'+i; // for individual samplers (works on buggy ATI)
-		myProg->sendUniform(name, i); // for individual samplers (works on buggy ATI)
+		myProg->sendUniform(name, (int)i); // for individual samplers (works on buggy ATI)
 		// prepare and send matrices
-		if(i && softLight>=0)
-			placeSoftLight(softLightBase+i); // calculate light position
+		Camera* lightInstance = areaLight->getInstance(firstInstance+i);
 		glLoadMatrixd(tmp);
-		glMultMatrixd(light.frustumMatrix);
-		glMultMatrixd(light.viewMatrix);
+		glMultMatrixd(lightInstance->frustumMatrix);
+		glMultMatrixd(lightInstance->viewMatrix);
 	}
 	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
 	glMatrixMode(GL_MODELVIEW);
@@ -793,12 +696,10 @@ void drawHardwareShadowPass(UberProgramSetup uberProgramSetup)
 	glActiveTexture(GL_TEXTURE0);
 }
 
-void drawEyeViewShadowed(UberProgramSetup uberProgramSetup)
+void drawEyeViewShadowed(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
-	if(softLight<0) updateDepthMap(softLight);
-
 	glClear(GL_COLOR_BUFFER_BIT);
-	if(softLight<=0) glClear(GL_DEPTH_BUFFER_BIT);
+	if(firstInstance==0) glClear(GL_DEPTH_BUFFER_BIT);
 
 	if (wireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -806,7 +707,7 @@ void drawEyeViewShadowed(UberProgramSetup uberProgramSetup)
 
 	eye.setupForRender();
 
-	drawHardwareShadowPass(uberProgramSetup);
+	drawHardwareShadowPass(uberProgramSetup,firstInstance);
 
 	drawLight();
 	if (showLightViewFrustum) drawShadowMapFrustum();
@@ -814,20 +715,20 @@ void drawEyeViewShadowed(UberProgramSetup uberProgramSetup)
 
 void drawEyeViewSoftShadowed(void)
 {
-	// optimized path without accum, only for m3ds, rrrenderer can't render both materialColor and indirectColor
-	if(useLights<=INSTANCES_PER_PASS && uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP)
+	unsigned numInstances = areaLight->getNumInstances();
+	for(unsigned i=0;i<numInstances;i++)
 	{
-		placeSoftLight(-1);
-		for(unsigned i=0;i<useLights;i++)
-		{
-			updateDepthMap(i);
-		}
-		if (wireFrame) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		placeSoftLight(0);
+		updateDepthMap(i,numInstances);
+	}
+	if (wireFrame) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
+	// optimized path without accum, only for m3ds, rrrenderer can't render both materialColor and indirectColor
+	if(numInstances<=INSTANCES_PER_PASS && uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP)
+	{
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-		uberProgramSetup.SHADOW_MAPS = useLights;
+		uberProgramSetup.SHADOW_MAPS = numInstances;
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
@@ -836,26 +737,17 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
-		drawEyeViewShadowed(uberProgramSetup);
-		placeSoftLight(-2);
+		drawEyeViewShadowed(uberProgramSetup,0);
 		return;
 	}
 
-	// add direct
-	placeSoftLight(-1);
-	for(unsigned i=0;i<useLights;i++)
-	{
-		updateDepthMap(i);
-	}
 	glClear(GL_ACCUM_BUFFER_BIT);
-	if (wireFrame) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
-	for(unsigned i=0;i<useLights;i+=INSTANCES_PER_PASS)
+
+	// add direct
+	for(unsigned i=0;i<numInstances;i+=INSTANCES_PER_PASS)
 	{
-		placeSoftLight(i);
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-		uberProgramSetup.SHADOW_MAPS = MIN(INSTANCES_PER_PASS,useLights);
+		uberProgramSetup.SHADOW_MAPS = MIN(INSTANCES_PER_PASS,numInstances);
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
@@ -864,11 +756,9 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
-		drawEyeViewShadowed(uberProgramSetup);
-		glAccum(GL_ACCUM,1./(useLights/MIN(INSTANCES_PER_PASS,useLights)));
+		drawEyeViewShadowed(uberProgramSetup,i);
+		glAccum(GL_ACCUM,1./(numInstances/MIN(INSTANCES_PER_PASS,numInstances)));
 	}
-	placeSoftLight(-2);
-
 	// add indirect
 	{
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
@@ -881,16 +771,8 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
-#ifdef SHOW_CAPTURED_TRIANGLES
-		uberProgramSetup.FORCE_2D_POSITION = true;
-		generateForcedUv = &captureUv;
-		captureUv.firstCapturedTriangle = 0;
-		setProgramAndDrawScene(uberProgramSetup); // pro color exitance, pro texturu irradiance
-#else
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		setProgramAndDrawScene(uberProgramSetup);
-#endif
-
 		glAccum(GL_ACCUM,1);
 	}
 
@@ -1010,6 +892,7 @@ void display(void)
 	{
 		case DM_EYE_VIEW_SHADOWED:
 			{
+				updateDepthMap(0,0);
 				UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 				uberProgramSetup.SHADOW_MAPS = 1;
 				uberProgramSetup.SHADOW_SAMPLES = 1;
@@ -1020,7 +903,7 @@ void display(void)
 				//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 				uberProgramSetup.FORCE_2D_POSITION = false;
-				drawEyeViewShadowed(uberProgramSetup);
+				drawEyeViewShadowed(uberProgramSetup,0);
 				break;
 			}
 		case DM_EYE_VIEW_SOFTSHADOWED:
@@ -1314,6 +1197,9 @@ void keyboard(unsigned char c, int x, int y)
 		case 's':
 			changeSpotlight();
 			break;
+		case 'S':
+			app->reportLightChange();
+			break;
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
@@ -1328,27 +1214,35 @@ void keyboard(unsigned char c, int x, int y)
 			if(uberProgramGlobalSetup.SHADOW_SAMPLES>1) uberProgramGlobalSetup.SHADOW_SAMPLES /= 2;
 			break;
 		case '+':
-			if(useLights+INSTANCES_PER_PASS<=MAX_INSTANCES) 
 			{
-				if(useLights==1 && useLights<INSTANCES_PER_PASS)
-					useLights = INSTANCES_PER_PASS;
-				else
-					useLights += INSTANCES_PER_PASS;
-				needDepthMapUpdate = 1;
+				unsigned numInstances = areaLight->getNumInstances();
+				if(numInstances+INSTANCES_PER_PASS<=MAX_INSTANCES) 
+				{
+					if(numInstances==1 && numInstances<INSTANCES_PER_PASS)
+						numInstances = INSTANCES_PER_PASS;
+					else
+						numInstances += INSTANCES_PER_PASS;
+					needDepthMapUpdate = 1;
+					areaLight->setNumInstances(numInstances);
+				}
 			}
 			break;
 		case '-':
-			if(useLights>1) 
 			{
-				if(useLights>INSTANCES_PER_PASS) 
-					useLights -= INSTANCES_PER_PASS;
-				else
-					useLights = 1;
-				needDepthMapUpdate = 1;
+				unsigned numInstances = areaLight->getNumInstances();
+				if(numInstances>1) 
+				{
+					if(numInstances>INSTANCES_PER_PASS) 
+						numInstances -= INSTANCES_PER_PASS;
+					else
+						numInstances = 1;
+					needDepthMapUpdate = 1;
+					areaLight->setNumInstances(numInstances);
+				}
 			}
 			break;
 		case 'a':
-			++areaType%=3;
+			++areaLight->areaType%=3;
 			needDepthMapUpdate = 1;
 			break;
 		default:
@@ -1528,7 +1422,6 @@ void parseOptions(int argc, char **argv)
 				if(tmp>=1 && tmp<=MAX_INSTANCES_PER_PASS) 
 				{
 					INSTANCES_PER_PASS = tmp;
-					useLights = INSTANCES_PER_PASS;
 				}
 				else
 					printf("Out of range, 1 to 10 allowed.\n");
@@ -1617,6 +1510,8 @@ int main(int argc, char **argv)
 		light = sponza_light;
 	}
 
+	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
+
 	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getMesh()->getNumVertices(),rrobject->getCollider()->getMesh()->getNumTriangles());
 	rr::RRScene::setStateF(rr::RRScene::SUBDIVISION_SPEED,0);
 	rr::RRScene::setState(rr::RRScene::GET_SOURCE,0);
@@ -1667,8 +1562,9 @@ retry:
 	if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	printf("%d\n", INSTANCES_PER_PASS); // this is further reduced by 2
-	useLights = startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1;
-	
+	areaLight->attachTo(&light);
+	areaLight->setNumInstances(startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1);
+
 	printf("Loading scene...");
 
 	// load 3ds

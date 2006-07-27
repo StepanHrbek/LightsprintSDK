@@ -102,6 +102,12 @@ static void fillSurface(rr::RRSurface* s,Model_3DS::Material* m)
 
 	s->reset(0);
 	s->diffuseReflectance = avg;
+#ifdef VERIFY
+	if(s->validate())
+		reporter("Surface adjusted to physically valid.",NULL)
+#else
+	s->validate();
+#endif
 }
 
 M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)

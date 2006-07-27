@@ -14,7 +14,7 @@ CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
 endif
 
-OBJS = $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o $(TMP)rrcore.o $(TMP)RRObject/RRObject.o $(TMP)RRScaler.o $(TMP)RRScene.o $(TMP)RRVision.o
+OBJS = $(TMP)dynamic.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o $(TMP)rrcore.o $(TMP)RRObject/RRObject.o $(TMP)RRScaler.o $(TMP)RRScene.o $(TMP)RRSurface.o $(TMP)RRVision.o
 
 all: makefile $(LIB)
 

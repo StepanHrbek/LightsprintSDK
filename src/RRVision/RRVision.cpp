@@ -31,25 +31,6 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRSurface
-
-void RRSurface::reset(bool twoSided)
-{
-	memset(this,0,sizeof(*this));
-	RRSideBits sideBitsTmp[2][2]={
-		{{1,1,1,1,1,1},{0,0,1,0,0,0}}, // definition of default 1-sided (front side, back side)
-		{{1,1,1,1,1,1},{1,0,1,1,1,1}}, // definition of default 2-sided (front side, back side)
-	};
-	for(unsigned i=0;i<2;i++) sideBits[i] = sideBitsTmp[twoSided?1:0][i];
-	diffuseReflectance             = RRColor(0.5);
-	diffuseEmittance               = RRColor(0);
-	specularReflectance            = 0;
-	specularTransmittance          = 0;
-	refractionReal                 = 1;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // global init/done
 
 class RREngine

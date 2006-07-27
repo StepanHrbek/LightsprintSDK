@@ -297,6 +297,8 @@ NEW FEATURES
   \n supports even objects mixing both single and doublesided surfaces
 - rr::RRMesh::createOptimizedTriangles()
   \n creates optimized mesh without degenerated triangles
+- rr::RRSurface::validate() makes surface physically correct
+  \n helps you prepare valid data before start of calculation
 - rr::RRScene::illuminationReset() supports preserving factors
   \n allows realtime radiosity in static scene without precalculations
 - rr::RRObject::createMultiObject() can optimize triangles

@@ -122,8 +122,10 @@ namespace rr
 		RRScene*   scene;
 	protected:
 		//! Autodetects material properties of all materials present in scene. To be implemented by you.
+		//! New values must appear in RRObjects already present in scene.
 		virtual void detectMaterials() = 0;
-		//! Autodetects direct illumination on all faces in scene. To be implemented by you. You may fail by returning false, you will get next try next time.
+		//! Autodetects direct illumination on all faces in scene. To be implemented by you.
+		//! You may fail by returning false, you will get another chance next time.
 		virtual bool detectDirectIllumination() = 0;
 
 		//! Adjusts RRScene parameters each time new scene is created. May be reimplemented by you.

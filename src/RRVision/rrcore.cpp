@@ -40,8 +40,14 @@ namespace rr
 #define REFRESH_FIRST          1     // first refresh has this number of photons (zahada: vyssi cislo rrbench zpomaluje misto zrychluje)
 #define REFRESH_MULTIPLY       4     // next refresh has multiplied number of photons
 #define MAX_REFRESH_DISBALANCE 5     // higher = faster, but more dangerous
-#define DISTRIB_LEVEL_HIGH     0.003 // higher fraction of scene energy found in one node starts distribution
-#define DISTRIB_LEVEL_LOW      0.0001// lower fraction of scene energy found in one node is ignored
+#define DISTRIB_LEVEL_HIGH     0.0003 // higher fraction of scene energy found in one node starts distribution
+#define DISTRIB_LEVEL_LOW      0.00003// lower fraction of scene energy found in one node is ignored
+// byvaly DISTRIB_LEVEL 0.003 / 0.0001 selhal ve fcss/koupelne.
+// popis: po spusteni je pod kouli moc svetla.
+//  po resetStaticIllum ve chvili kdy mam jeste primitivni faktory se zas objevi moc svetla.
+//  i kdyz necham dlouho zlepsovat faktory, svetla zustane moc.
+//  po resetStaticIllum ve chvili kdyz uz mam dobry faktory zmizi a uz trvale zustane moc malo svetla.
+//  pokud v resetStaticIllum jen updatuju, nadbytecne svetlo zustane prilepene a zmizi az kdyz hlavni lampou posvitim extremne do cerna.
 //#define DEBUK
 //#define LOG_LOADING_MES
 //#define EXPENSIVE_CHECKS
@@ -57,7 +63,6 @@ namespace rr
 #define TWOSIDED_RECEIVE_FROM_BOTH_SIDES
 #define TWOSIDED_EMIT_TO_BOTH_SIDES
 #define ONESIDED_TRANSMIT_ENERGY
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1229,15 +1234,7 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalExitingF
 	assert(s);
 	surface=s;
 #if CHANNELS == 1
-	real r=surface->diffuseEmittance[0];
-	real g=surface->diffuseEmittance[1];
-	real b=surface->diffuseEmittance[2];
-	real filteringCoef=(r+g+b)/(PHOTOMETRIC_R*r+PHOTOMETRIC_G*g+PHOTOMETRIC_B*b+0.01f);
-	Channels e=area * ( filteringCoef*surface->diffuseEmittance
-	  + additionalExitingFlux.x+additionalExitingFlux.y+additionalExitingFlux.z );
-	assert(add>=0);
-	assert(filteringCoef>=0);
-	assert(e>=0);
+	#error CHANNELS == 1 not supported here.
 #else
 	Channels e = ( surface->diffuseEmittance + additionalExitingFlux ) * area;
 #endif
@@ -2374,7 +2371,7 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
 		// zde dokazu zdetekovat zda se primaries prilis nezmenily
 		// a tudiz neni nutne resetovat jiz zpropagovanou energii
 		//!!!
-//		resetPropagation = false;
+		resetPropagation = false;
 	}
 
 	// probihajici vypocet faktoru nebo probihajici distribuce 

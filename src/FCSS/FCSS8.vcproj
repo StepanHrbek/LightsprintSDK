@@ -245,6 +245,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GL\MultiInstance.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GL\MultiLight.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GL\Program.cpp"
 				>
 			</File>
@@ -266,6 +274,10 @@
 			</File>
 			<File
 				RelativePath=".\GL\Texture.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GL\TextureShadowMap.h"
 				>
 			</File>
 			<File

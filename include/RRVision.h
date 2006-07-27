@@ -104,6 +104,7 @@ namespace rr
 	struct RR_API RRSurface
 	{
 		void          reset(bool twoSided);          ///< Resets surface to fully diffuse gray (50% reflected, 50% absorbed).
+		bool          validate();                    ///< Changes surface to closest physically possible values. Returns if any changes were made.
 
 		RRSideBits    sideBits[2];                   ///< Defines surface behaviour for front(0) and back(1) side.
 		RRColor       diffuseReflectance;            ///< Fraction of energy that is diffuse reflected (each channel separately).
@@ -436,7 +437,7 @@ namespace rr
 		//! One big object can be created out of many small ones using RRObject::createMultiObject().
 		//!
 		//! Different objects always belong to different smoothgroups. So with flat wall cut into two objects,
-		//! unsmoothed edge will possibly apear between them.
+		//! sharp edge will possibly appear between them.
 		//! This can be fixed by merging standalone objects into one object using RRObject::createMultiObject().
 		//! \param importer
 		//!  Object importer that defines object shape and material.
@@ -445,6 +446,7 @@ namespace rr
 		//!  \n 0 = Normal independent smoothing, old. Depends on MAX_SMOOTH_ANGLE.
 		//!  \n 1 = Normal independent smoothing, new. Depends on MAX_SMOOTH_ANGLE.
 		//!  \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed.
+		//! \return ObjectHandle for accessing created object.
 		ObjectHandle  objectCreate(RRObject* importer, unsigned smoothMode=2);
 		
 		//////////////////////////////////////////////////////////////////////////////

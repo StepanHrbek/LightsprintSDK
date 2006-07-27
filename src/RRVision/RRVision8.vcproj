@@ -369,6 +369,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRSurface.cpp"
+			>
+		</File>
+		<File
 			RelativePath="RRVision.cpp"
 			>
 		</File>

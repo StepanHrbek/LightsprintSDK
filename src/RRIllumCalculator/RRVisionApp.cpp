@@ -80,7 +80,7 @@ RRVisionApp::RRVisionApp()
 RRVisionApp::~RRVisionApp()
 {
 	delete scene;
-	delete surfaces;
+	delete[] surfaces;
 }
 
 void RRVisionApp::setObjects(Objects& aobjects)
