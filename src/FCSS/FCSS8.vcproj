@@ -277,6 +277,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GL\TextureShadowMap.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GL\TextureShadowMap.h"
 				>
 			</File>

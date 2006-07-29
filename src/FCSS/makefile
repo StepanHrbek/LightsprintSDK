@@ -12,7 +12,7 @@ LIBS = -s -lz -lm -L../../lib -lRRIllumCalculator -lRRMesh -lRRCollider -lRRVisi
 LIBS += -lopengl32 -lglu32 -lglut32
 BIN = ../../bin/
 
-OBJS = 3ds2rr.o Model_3DS.o rr2gl.o shadowcast.o gl/Camera.o gl/glew.o gl/matrix.o gl/Program.o gl/Shader.o gl/Texture.o gl/UberProgram.o
+OBJS = 3ds2rr.o Model_3DS.o rr2gl.o shadowcast.o gl/Camera.o gl/glew.o gl/matrix.o gl/Program.o gl/Shader.o gl/Texture.o gl/TextureShadowmap.o gl/UberProgram.o
 
 all: $(BIN)fcss.exe
 

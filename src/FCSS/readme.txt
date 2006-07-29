@@ -2,8 +2,8 @@
   REALTIME RADIOSITY VIEWER
   -------------------------
 
-  This scene viewer demonstrates concept described in
-  "Realtime radiosity integration", http://dee.cz/rri.
+  This .3ds scene viewer demonstrates concept described in
+  "Realtime Radiosity Integration", http://dee.cz/rri.
 
   It allows you to freely manipulate camera and light positions in scene
   and see global illumination effects calculated on background.
@@ -25,7 +25,7 @@
   Commandline options
   -------------------
 
-  scene.3ds    tries to open specified scene, not tested on other scenes
+  scene.3ds    tries to open specified scene
   -window      runs in window instead of fullscreen
   -noAreaLight starts with basic spotlight instead of area light
   -lazyUpdates updates radiosity less often
@@ -35,8 +35,14 @@
   ------------
 
   OpenGL 2.0 capable graphics card is required.
-  Should run on NVIDIA GeForce 6xxx/7xxx, ATI Radeon Xxxx/X1xxx
+  Should run on NVIDIA GeForce 6xxx/7xxx, ATI Radeon 95xx+/Xxxx/X1xxx
   with latest drivers.
+
+  CPU with SSE instructions is required.
+  (from Intel: Pentium III or newer, from AMD: Athlon XP or newer)
+
+  Windows OS is required.
+  Tested only on Win XP and Win XP 64bit.
 
 
   Notes

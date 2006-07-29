@@ -101,8 +101,6 @@ using namespace std;
 #define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 #define CLAMP(a,min,max) (a)=(((a)<(min))?min:(((a)>(max)?(max):(a))))
 
-#define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -193,10 +191,33 @@ void fatal_error(const char* message, bool gfxRelated)
 {
 	printf(message);
 	if(gfxRelated)
-		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card may be too old.\nSome cards that should work: NVIDIA 6xxx/7xxx, ATI Xxxx/X1xxx");
+		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card may be too old.\nCards that should work: NVIDIA 6xxx/7xxx, ATI 95xx+/Xxxx/X1xxx");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);
+}
+
+int depthBias24 = 42;
+int depthScale24;
+GLfloat slopeScale = 4.0;
+int needDepthMapUpdate = 1;
+
+void updateDepthBias(int delta)
+{
+	depthBias24 += delta;
+	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
+	needDepthMapUpdate = 1;
+}
+
+void updateDepthScale(void)
+{
+	GLint shadowDepthBits = TextureShadowMap::getDepthBits();
+	if (shadowDepthBits < 24) {
+		depthScale24 = 1;
+	} else {
+		depthScale24 = 1 << (shadowDepthBits - 24+8); // "+8" hack: on gf6600, 24bit depth seems to need +8 scale
+	}
+	needDepthMapUpdate = 1;
 }
 
 void init_gl_resources()
@@ -204,6 +225,10 @@ void init_gl_resources()
 	quadric = gluNewQuadric();
 
 	areaLight = new AreaLight();
+
+	// update states, but must be done after initing shadowmaps (inside arealight)
+	updateDepthScale();
+	updateDepthBias(0);  /* Update with no offset change. */
 
 	for(unsigned i=0;i<lightDirectMaps;i++)
 	{
@@ -247,10 +272,6 @@ enum {
 	ME_EXIT,
 };
 
-int depthBias24 = 42;
-int depthScale24;
-GLfloat slopeScale = 4.0;
-
 GLfloat textureLodBias = 0.0;
 
 int xEyeBegin, yEyeBegin, movingEye = 0;
@@ -259,7 +280,6 @@ int wireFrame = 0;
 
 int needMatrixUpdate = 1;
 int needTitleUpdate = 1;
-int needDepthMapUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 bool showHelp = 0;
 int showLightViewFrustum = 1;
@@ -597,8 +617,10 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	assert(mapIndex>=0);
 	areaLight->getInstance(mapIndex)->setupForRender();
 
+
 	glColorMask(0,0,0,0);
 	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+	areaLight->getShadowMap((mapIndex>=0)?mapIndex:0)->renderingToInit();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
@@ -613,11 +635,12 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
 	setProgramAndDrawScene(uberProgramSetup);
-	areaLight->getShadowMap((mapIndex>=0)?mapIndex:0)->readFromBackbuffer();
+	areaLight->getShadowMap((mapIndex>=0)?mapIndex:0)->renderingToDone();
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glViewport(0, 0, winWidth, winHeight);
 	glColorMask(1,1,1,1);
+
 
 	if(mapIndex==mapIndices-1) 
 	{
@@ -977,14 +1000,6 @@ void toggleWireFrame(void)
 	glutPostRedisplay();
 }
 
-void updateDepthBias(int delta)
-{
-	depthBias24 += delta;
-	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
-	needTitleUpdate = 1;
-	needDepthMapUpdate = 1;
-}
-
 void toggleGlobalIllumination()
 {
 	if(drawMode == DM_EYE_VIEW_SHADOWED)
@@ -1269,19 +1284,6 @@ void keyboard(unsigned char c, int x, int y)
 	glutPostRedisplay();
 }
 
-void updateDepthScale(void)
-{
-	GLint depthBits;
-
-	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-	if (depthBits < 24) {
-		depthScale24 = 1;
-	} else {
-		depthScale24 = 1 << (depthBits - 24+8); // "+8" hack: on gf6600, 24bit depth seems to need +8 scale
-	}
-	needDepthMapUpdate = 1;
-}
-
 void reshape(int w, int h)
 {
 	if(w<512 || h<512)
@@ -1404,9 +1406,6 @@ void init_gl_states()
 	glEnable(GL_CULL_FACE);
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
 	glEnable(GL_NORMALIZE);
-
-	updateDepthScale();
-	updateDepthBias(0);  /* Update with no offset change. */
 
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
