@@ -1,0 +1,1 @@
+rrview koupelna\koupelna3.3ds

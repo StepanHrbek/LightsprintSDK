@@ -4,6 +4,7 @@
 #include <float.h> // _finite
 #include <time.h>
 #include "RRIllumCalculator.h"
+#include "RRTimer.h"
 
 // odsunout do RRIlluminationPixelBuffer.cpp
 #include "swraster.h" // RRIlluminationPixelBufferInMemory
@@ -11,20 +12,20 @@
 namespace rr
 {
 
-#define TIME    clock_t
-#define GETTIME clock()
-#define PER_SEC CLOCKS_PER_SEC
-
 // times in seconds
 #define PAUSE_AFTER_CRITICAL_INTERACTION 0.2f // stops calculating after each interaction, improves responsiveness
 #define IMPROVE_STEP_NO_INTERACTION 0.1f // length of one improve step when there are no interactions from user
 #define IMPROVE_STEP_MIN 0.005f
 #define IMPROVE_STEP_MAX 0.08f
-#define READING_RESULTS_PERIOD_MIN 0.1f // how often results are readen back. this is increased *1.1 at each read without interaction
+#define READING_RESULTS_PERIOD_MIN 0.1f // how often results are readen back when scene doesn't change
 #define READING_RESULTS_PERIOD_MAX 1.5f //
+#define READING_RESULTS_PERIOD_GROWTH 1.3f // reading results period is increased this times at each read since scene change
 // portions in <0..1>
 #define MIN_PORTION_SPENT_IMPROVING 0.4f // at least 40% of our time is spent in improving
 
+#define REPORT(a)       //a
+#define REPORT_BEGIN(a) REPORT( RRTimer timer; timer.Start(); reportAction(a ## ".."); )
+#define REPORT_END      REPORT( {char buf[10]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
 
 // odsunout do RRIlluminationPixelBuffer.cpp
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -54,7 +55,6 @@ void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const SubtriangleI
 	raster_LGouraud(polygon,(raster_COLOR*)pixels,width);
 }
 
-
 RRVisionApp::RRVisionApp()
 {
 	multiObject = NULL;
@@ -62,9 +62,10 @@ RRVisionApp::RRVisionApp()
 	//objects zeroed by constructor
 	surfaces = NULL;
 	numSurfaces = 0;
+	stitchDistance = -1;
 	dirtyMaterials = true;
 	dirtyGeometry = true;
-	dirtyLights = true;
+	dirtyLights = BIG_CHANGE;
 	lastIlluminationUseTime = 0;
 	lastCriticalInteractionTime = 0;
 	lastCalcEndTime = 0;
@@ -83,9 +84,10 @@ RRVisionApp::~RRVisionApp()
 	delete[] surfaces;
 }
 
-void RRVisionApp::setObjects(Objects& aobjects)
+void RRVisionApp::setObjects(Objects& aobjects, float astitchDistance)
 {
 	objects = aobjects;
+	stitchDistance = astitchDistance;
 	dirtyGeometry = true;
 }
 
@@ -117,31 +119,37 @@ void RRVisionApp::reportAction(const char* action) const
 
 void RRVisionApp::reportMaterialChange()
 {
+	REPORT(reportAction("<MaterialChange>"));
 	dirtyMaterials = true;
 }
 
 void RRVisionApp::reportGeometryChange()
 {
+	REPORT(reportAction("<GeometryChange>"));
 	dirtyGeometry = true;
 }
 
-void RRVisionApp::reportLightChange()
+void RRVisionApp::reportLightChange(bool strong)
 {
-	dirtyLights = true;
+	REPORT(reportAction(strong?"<LightChangeStrong>":"LightChange"));
+	dirtyLights = strong?BIG_CHANGE:SMALL_CHANGE;
 }
 
 void RRVisionApp::reportIlluminationUse()
 {
+	REPORT(reportAction("<IlluminationUse>"));
 	lastIlluminationUseTime = GETTIME;
 }
 
 void RRVisionApp::reportCriticalInteraction()
 {
+	REPORT(reportAction("<CriticalInteraction>"));
 	lastCriticalInteractionTime = GETTIME;
 }
 
 void RRVisionApp::reportEndOfInteractions()
 {
+	REPORT(reportAction("<EndOfInteractions>"));
 	lastCriticalInteractionTime = 0;
 }
 
@@ -301,30 +309,30 @@ void RRVisionApp::readPixelResults()
 	}
 }
 
-#include "../../samples/bunnybenchmark/StopWatch.h"//!!!
-
 RRScene::Improvement RRVisionApp::calculateCore(float improveStep)
 {
 	bool dirtyFactors = false;
-	bool dirtyEnergies = false;
+	ChangeStrength dirtyEnergies = NO_CHANGE;
 	if(dirtyMaterials)
 	{
 		dirtyMaterials = false;
 		dirtyFactors = true;
-		reportAction("Detecting material properties.");
+		REPORT_BEGIN("Detecting material properties.");
 		detectMaterials();
+		REPORT_END;
 	}
 	if(dirtyGeometry)
 	{
 		dirtyGeometry = false;
-		dirtyLights = true;
+		dirtyLights = BIG_CHANGE;
 		dirtyFactors = true;
 		if(scene)
 		{
-			reportAction("Closing old radiosity solver.");
+			REPORT_BEGIN("Closing old radiosity solver.");
 			delete scene;
+			REPORT_END;
 		}
-		reportAction("Opening new radiosity solver.");
+		REPORT_BEGIN("Opening new radiosity solver.");
 		scene = new RRScene;
 #ifdef MULTIOBJECT
 		RRObject** importers = new RRObject*[objects.size()];
@@ -332,7 +340,11 @@ RRScene::Improvement RRVisionApp::calculateCore(float improveStep)
 		{
 			importers[i] = objects.at(i).first;
 		}
-		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,0.01f,true,NULL);
+		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,stitchDistance,stitchDistance>=0,NULL);
+		//scene->setStateF(RRScene::IGNORE_SMALLER_ANGLE,-1);
+		//scene->setStateF(RRScene::IGNORE_SMALLER_AREA,-1);
+		//scene->setStateF(RRScene::MAX_SMOOTH_ANGLE,0.6f);
+		//scene->setStateF(RRScene::MIN_FEATURE_SIZE,-0.1f);
 		multiObject = object ? object->createAdditionalIllumination() : NULL;
 		delete[] importers;
 		scene->objectCreate(multiObject);
@@ -342,66 +354,64 @@ RRScene::Improvement RRVisionApp::calculateCore(float improveStep)
 #endif
 		adjustScene();
 		updateVertexLookupTable();
+		REPORT_END;
 	}
-	if(dirtyLights)
+	if(dirtyLights!=NO_CHANGE)
 	{
-		StopWatch w; w.Start();
-		dirtyLights = false;
-		dirtyEnergies = true;
+		dirtyEnergies = dirtyLights;
+		dirtyLights = NO_CHANGE;
 		readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
-		reportAction("Detecting direct illumination.");
+		REPORT_BEGIN("Detecting direct illumination.");
 		if(!detectDirectIllumination())
 		{
 			// detection has failed, ensure these points:
 			// 1) detection will be detected again next time
-			dirtyLights = true;
+			dirtyLights = BIG_CHANGE;
 			// 2) eventual dirtyFactors = true; won't be forgotten
 			// let normal dirtyFactors handler work now, exit later
 			// 3) no calculations on current obsoleted primaries will be wasted
 			// exit before resetting energies
 			// exit before factor calculation and energy propagation
 		}
-		printf("%d\n",(int)(w.Watch()*1000));
+		REPORT_END;
 	}
 	if(dirtyFactors)
 	{
 		dirtyFactors = false;
-		dirtyEnergies = false;
-		reportAction("Resetting solver energies and factors.");
-		scene->illuminationReset(true);
+		dirtyEnergies = NO_CHANGE;
+		REPORT_BEGIN("Resetting solver energies and factors.");
+		scene->illuminationReset(true,true);
+		REPORT_END;
 	}
-	if(dirtyLights)
+	if(dirtyLights!=NO_CHANGE)
 	{
 		// exit in response to unsuccessful detectDirectIllumination
 		return RRScene::NOT_IMPROVED;
 	}
-	if(dirtyEnergies)
+	if(dirtyEnergies!=NO_CHANGE)
 	{
-		StopWatch w; w.Start();
-		dirtyEnergies = false;
-		reportAction("Updating solver energies.");
-		scene->illuminationReset(false);
-		printf("%d\n",(int)(w.Watch()*1000));
+		REPORT_BEGIN("Updating solver energies.");
+		scene->illuminationReset(false,dirtyEnergies==BIG_CHANGE);
+		REPORT_END;
+		dirtyEnergies = NO_CHANGE;
 	}
 
-	StopWatch w; w.Start();
-	reportAction("Calculating.");
+	REPORT_BEGIN("Calculating.");
 	TIME now = GETTIME;
 	TIME end = (TIME)(now+improveStep*PER_SEC);
 	RRScene::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
 	if(improvement==RRScene::FINISHED || improvement==RRScene::INTERNAL_ERROR)
 		return improvement;
-	printf("  (imp=%f / calc=%f / user=%f)  ",improveStep,calcStep,userStep);
-	printf("%d\n",(int)(w.Watch()*1000));
+	REPORT(printf(" (imp=%f / calc=%f / user=%f) ",improveStep,calcStep,userStep));
+	REPORT_END;
 
 	if(now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
 	{
-		StopWatch w; w.Start();
-		reportAction("Reading results.");
+		REPORT_BEGIN("Reading results.");
 		lastReadingResultsTime = now;
-		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod*=1.1f;
+		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
 		readVertexResults();
-		printf("%d\n",(int)(w.Watch()*1000));
+		REPORT_END;
 		//readPixelResults();//!!!
 		return RRScene::IMPROVED;
 	}
@@ -412,6 +422,7 @@ RRScene::Improvement RRVisionApp::calculate()
 {
 	TIME calcBeginTime = GETTIME;
 	bool illuminationUse = lastIlluminationUseTime && lastIlluminationUseTime>=lastCalcEndTime;
+	//printf("%f %f %f\n",calcBeginTime*1.0f,lastIlluminationUseTime*1.0f,lastCalcEndTime*1.0f);
 
 	// pause during critical interactions
 	if(lastCriticalInteractionTime)

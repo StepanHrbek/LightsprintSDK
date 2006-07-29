@@ -827,7 +827,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	}
 	catch (...)
 	{
-		printf("Texture %s not found.\n",fullname);
+		printf("Texture %s not found. (Please convert all textures to .tga truecolor format.)\n",fullname);
 		Materials[matindex].tex = NULL;
 		Materials[matindex].textured = false;
 	}

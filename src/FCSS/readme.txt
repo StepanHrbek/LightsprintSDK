@@ -17,7 +17,7 @@
   Controls
   --------
 
-  Run view_koupelna or view_sponza to view specific scene.
+  Run view_koupelna, view_sponza or view_sibenik to view specific scene.
 
   Press 'h' for built-in help.
 
@@ -65,6 +65,9 @@
   but it may be added in future version, since it would make only small 
   performance loss.
 
+  If you see wrong illumination in Sibenik scene, it is caused by wrong normals
+  in original scene, not by radiosity solver.
+
 
   References
   ----------
@@ -77,8 +80,8 @@
   Thanks to 
   ---------
 
-  - Petr Stastny for koupelna scene
-  - Marko Dabrovic for Sponza atrium scene
+  - Petr Stastny for koupelna scenes
+  - Marko Dabrovic for Sponza atrium and Sibenik cathedral scenes
   - Matthew Fairfax for .3ds loader and renderer
 
 

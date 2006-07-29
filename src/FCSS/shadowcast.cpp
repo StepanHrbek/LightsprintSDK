@@ -1,4 +1,3 @@
-//#define DEFAULT_SPONZA
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
 unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
@@ -11,14 +10,13 @@ bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 /*
-detekovat kdy illum update, kdy illum reset
+natipat screenshoty sibeniku
 
-zkusit ve sponze update 1x za sec i pri lazyUpdates
-
-!pri 2 instancich je levy okraj spotmapy oriznuty
- protoze spotmapa se promita pres sm[0], ne sm[num/2]
-
-!vadna geometrie v koupelne
+na web:
+loads scene in .3ds format
+k obrazkum pocet trianglu
+sponza=66454
+sibenik=80479
 
 plan:
 zkusit trochu zrychlit
@@ -27,12 +25,15 @@ naplanovat ruzne licence a dat na web cenik
 dat na web demo,
  na titulni stranku obrazek+odkaz, na demostranku not optimized for ATI, no precalc, we offer also precalc
 announcement 1.srpna
+ gamasutra.com
+ gamedev.net
+ opengl.org
+ upload do sponza rendery freestyle
 napsat licence
 
 co jeste pomuze:
-2% za 4h: presunout kanaly z objektu do meshe
-10% za 3 dny: opravit kontinualni vypocet bez resetu propagace
 30% za 3 dny: detect+reset po castech, kratsi improve
+1% za 4h: presunout kanaly z objektu do meshe
 20% za 8 dnu:
  thread0: renderovat prechod mezi kanalem 0 a 1 podle toho v jake fazi je thread1
  thread1: vlastni gl kontext a nekonecny cyklus: detekce, update, 0.2s vypoctu, read results do kanalu k, k=1-k
@@ -51,12 +52,16 @@ casy:
   - smoothovat podle normal
   - vertex blur
 
-! prvni capture nekdy vygeneruje svetlejsi indirect
 rr renderer: pridat indirect mapu
 
-pridat dalsi koupelny
 ovladani jasu (global, indirect)
 nacitat jpg
+
+!vadna zed v koupelne4, zajizdi do podlahy
+!vadne normaly sibenik
+
+pri 2 instancich je levy okraj spotmapy oriznuty
+ pri arealight by spotmapa potrebovala malinko mensi fov nez shadowmapy aby nezabirala mista kde konci stin
 
 autodeteknout zda mam metry nebo centimetry
 dodelat podporu pro matice do 3ds2rr importeru
@@ -93,6 +98,8 @@ using namespace std;
 #endif
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
+#define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
+#define CLAMP(a,min,max) (a)=(((a)<(min))?min:(((a)>(max)?(max):(a))))
 
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 
@@ -104,15 +111,8 @@ using namespace std;
 #include "Model_3DS.h"
 #include "3ds2rr.h"
 Model_3DS m3ds;
-#ifdef DEFAULT_SPONZA
-	char* filename_3ds="sponza\\sponza.3ds";
-	float scale_3ds = 1;
-#else
-	//char* filename_3ds="veza\\veza.3ds";
-	//float scale_3ds = 1;
-	char* filename_3ds="koupelna4\\koupelna4.3ds";
-	float scale_3ds = 0.03f;
-#endif
+char* filename_3ds="koupelna\\koupelna4.3ds";
+float scale_3ds = 0.03f;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -193,7 +193,7 @@ void fatal_error(const char* message, bool gfxRelated)
 {
 	printf(message);
 	if(gfxRelated)
-		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card is too old.\nSome cards that should work: NVIDIA 6xxx/7xxx, ATI Xxxx/X1xxx");
+		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card may be too old.\nSome cards that should work: NVIDIA 6xxx/7xxx, ATI Xxxx/X1xxx");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);
@@ -299,7 +299,7 @@ CaptureUv captureUv;
 // external dependencies of MyApp:
 // z m3ds detekuje materialy
 // renderer je pouzit k captureDirect
-//#include "../../samples/bunnybenchmark/StopWatch.h"
+//#include "RRTimer.h"
 class MyApp : public rr::RRVisionApp
 {
 protected:
@@ -326,7 +326,7 @@ protected:
 			needDepthMapUpdate = 1; // aby si pote soft pregeneroval svych 7 map a nespolehal na nasi jednu
 		}
 		
-		//StopWatch w;w.Start();
+		//RRTimer w;w.Start();
 
 		rr::RRMesh* mesh = multiObject->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
@@ -430,7 +430,7 @@ protected:
 	}
 	virtual void reportAction(const char* action) const
 	{
-		printf("%s\n",action);
+		printf(action);
 	}
 };
 
@@ -876,6 +876,7 @@ static void drawHelpMessage(bool big)
 
 void display(void)
 {
+//	printf("Display.\n");//!!!
 	if(!winWidth) return; // can't work without window
 
 	app->reportIlluminationUse();
@@ -999,7 +1000,7 @@ void changeSpotlight()
 	lightDirectMapIdx = (lightDirectMapIdx+1)%lightDirectMaps;
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
 	needDepthMapUpdate = 1;
-	app->reportLightChange();
+	app->reportLightChange(true);
 	app->reportEndOfInteractions(); // force update even in movingEye mode
 }
 
@@ -1037,6 +1038,23 @@ void selectMenu(int item)
 	glutPostRedisplay();
 }
 
+void reportLightMovement()
+{
+	if(updateDuringLightMovement)
+	{
+		// Behem pohybu svetla v male scene dava lepsi vysledky update (false)
+		//  scena neni behem pohybu tmavsi, setrvacnost je neznatelna.
+		// Ve velke scene dava lepsi vysledky reset (true),
+		//  scena sice behem pohybu ztmavne,
+		//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
+		app->reportLightChange(app->multiObject->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+	}
+	else
+	{
+		app->reportCriticalInteraction();
+	}
+}
+
 void special(int c, int x, int y)
 {
 	if(!movingLight) app->reportCriticalInteraction();
@@ -1050,27 +1068,27 @@ void special(int c, int x, int y)
 			benchmark(0);
 			return;
 		case GLUT_KEY_F9:
-			printf("\nCamera eye = {{%f,%f,%f},%f,%f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height);
-			printf("Camera light = {{%f,%f,%f},%f,%f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height);
+			printf("\nCamera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+			printf("Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
 			return;
 
 		case GLUT_KEY_UP:
 			for(int i=0;i<3;i++) cam->pos[i]+=cam->dir[i]/20;
-			if(movingLight) app->reportLightChange();
+			if(movingLight) reportLightMovement();
 			break;
 		case GLUT_KEY_DOWN:
 			for(int i=0;i<3;i++) cam->pos[i]-=cam->dir[i]/20;
-			if(movingLight) app->reportLightChange();
+			if(movingLight) reportLightMovement();
 			break;
 		case GLUT_KEY_LEFT:
 			cam->pos[0]+=cam->dir[2]/20;
 			cam->pos[2]-=cam->dir[0]/20;
-			if(movingLight) app->reportLightChange();
+			if(movingLight) reportLightMovement();
 			break;
 		case GLUT_KEY_RIGHT:
 			cam->pos[0]-=cam->dir[2]/20;
 			cam->pos[2]+=cam->dir[0]/20;
-			if(movingLight) app->reportLightChange();
+			if(movingLight) reportLightMovement();
 			break;
 
 		default:
@@ -1198,7 +1216,7 @@ void keyboard(unsigned char c, int x, int y)
 			changeSpotlight();
 			break;
 		case 'S':
-			app->reportLightChange();
+			app->reportLightChange(true);
 			break;
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;
@@ -1297,7 +1315,7 @@ void mouse(int button, int state, int x, int y)
 	}
 	if (button == lightButton && state == GLUT_UP) {
 		app->reportEndOfInteractions();
-		app->reportLightChange();
+		if(!updateDuringLightMovement) app->reportLightChange(true);
 		movingLight = 0;
 		needDepthMapUpdate = 1;
 		glutPostRedisplay();
@@ -1310,8 +1328,7 @@ void motion(int x, int y)
 		app->reportCriticalInteraction();
 		eye.angle = eye.angle - 0.005*(x - xEyeBegin);
 		eye.height = eye.height + 0.15*(y - yEyeBegin);
-		if (eye.height > 10.0) eye.height = 10.0;
-		if (eye.height < -10.0) eye.height = -10.0;
+		CLAMP(eye.height,-13,13);
 		xEyeBegin = x;
 		yEyeBegin = y;
 		needMatrixUpdate = 1;
@@ -1319,30 +1336,34 @@ void motion(int x, int y)
 	if (movingLight) {
 		light.angle = light.angle - 0.005*(x - xLightBegin);
 		light.height = light.height + 0.15*(y - yLightBegin);
-		if (light.height > 10.0) light.height = 10.0;
-		if (light.height < -10.0) light.height = -10.0;
+		CLAMP(light.height,-13,13);
 		xLightBegin = x;
 		yLightBegin = y;
 		needMatrixUpdate = 1;
 		needDepthMapUpdate = 1;
-		if(updateDuringLightMovement)
-			app->reportLightChange();
-		else
-			app->reportCriticalInteraction();
+		reportLightMovement();
 	}
 }
+
+//#include "RRTimer.h"
+//rr::RRTimer timer;
 
 void idle()
 {
 	if(!winWidth) return; // can't work without window
-
+//	LIMITED_TIMES(1,timer.Start());
 	bool rrOn = drawMode == DM_EYE_VIEW_SOFTSHADOWED;
-	if((rrOn && app->calculate()==rr::RRScene::IMPROVED) || movingEye || ((!rrOn || !updateDuringLightMovement) && movingLight))
+//	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
+	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
+	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
+	if((rrOn && app->calculate()==rr::RRScene::IMPROVED) || movingEye || movingLight)
 	{
+//		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache
 		// nutne predtim nastavit params (renderedChannels apod)
 		//!!! rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
 		glutPostRedisplay();
+//printf("coll=%.1fM coll/sec=%fk\n",rr::RRIntersectStats::getInstance()->intersect_mesh/1000000.0f,rr::RRIntersectStats::getInstance()->intersect_mesh/1000.0f/timer.Watch());//!!!
 	}
 }
 
@@ -1448,6 +1469,8 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	float stitchDistance = 0.01f;
+
 	rr::RRLicense::registerLicense("","");
 
 	glutInitWindowSize(800, 600);
@@ -1486,9 +1509,6 @@ int main(int argc, char **argv)
 	supported. */
 	initMenus();
 
-	if (strstr(filename_3ds, "koupelna3")) {
-		scale_3ds = 0.01f;
-	}
 	if (strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
 		//Camera koupelna4_eye = {{0.032202,1.659255,1.598609},10.010005,-0.150000};
@@ -1498,16 +1518,59 @@ int main(int argc, char **argv)
 		eye = koupelna4_eye;
 		light = koupelna4_light;
 	}
+	if (strstr(filename_3ds, "koupelna3")) {
+		scale_3ds = 0.01f;
+		//lightDirectMapIdx = 1;
+		//Camera tmpeye = {{0.822,1.862,6.941},9.400,-0.450,1.3,50.0,0.3,60.0};
+		//Camera tmplight = {{1.906,1.349,1.838},4.085,0.700,1.0,70.0,1.0,20.0};
+		Camera tmpeye = {{0.822,1.862,6.941},9.400,-0.450,1.3,50.0,0.3,60.0};
+		Camera tmplight = {{1.906,1.349,1.838},3.930,0.100,1.0,70.0,1.0,20.0};
+		//Camera tmpeye = {{6.172,3.741,1.522},4.370,1.150,1.3,100.0,0.3,60.0};
+		//Camera tmplight = {{-2.825,4.336,3.259},-4.315,3.850,1.0,70.0,1.0,20.0};
+		//Camera tmpeye = {{6.031,3.724,1.471},4.350,1.450,1.3,100.0,0.3,60.0};
+		//Camera tmplight = {{-0.718,4.366,-0.145},-12.175,6.550,1.0,70.0,1.0,20.0};
+		eye = tmpeye;
+		light = tmplight;
+	}
+	if (strstr(filename_3ds, "koupelna5")) {
+		scale_3ds = 0.03f;
+		//Camera tmpeye = {{6.172,3.741,1.522},4.340,1.600,1.3,100.0,0.3,60.0};
+		//Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
+		Camera tmpeye = {{5.735,2.396,1.479},4.405,0.100,1.3,100.0,0.3,60.0};
+		Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
+		eye = tmpeye;
+		light = tmplight;
+	}
 	if (strstr(filename_3ds, "sponza"))
 	{
 		Camera sponza_eye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
-		Camera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,20.};
+		Camera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
 		//Camera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
 		//Camera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
 		//lightFieldOfView += 10.0;
 		//eyeFieldOfView = 50.0;
 		eye = sponza_eye;
 		light = sponza_light;
+	}
+
+	if (strstr(filename_3ds, "sibenik"))
+	{
+		stitchDistance = 0.05f;
+		// zacatek nevhodny pouze kvuli spatnym normalam
+//		Camera tmpeye = {{-8.777,3.117,0.492},1.145,-0.400,1.3,50.0,0.3,80.0};
+//		Camera tmplight = {{-0.310,2.952,-0.532},5.550,3.200,1.0,70.0,1.0,40.0};
+		// dalsi zacatek kde je videt zmrsena normala
+		Camera tmpeye = {{-3.483,5.736,2.755},7.215,2.050,1.3,50.0,0.3,80.0};
+		Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
+		// detail vadne normaly
+		//Camera tmpeye = {{3.078,5.093,4.675},7.995,-1.700,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
+		/* na screenshoty
+		Camera tmpeye = {{-8.777,3.117,0.492},1.630,-13.000,1.3,50.0,0.3,80.0};
+		Camera tmplight = {{-0.310,2.952,-0.532},4.670,-13.000,1.0,70.0,1.0,40.0};
+		*/
+		eye = tmpeye;
+		light = tmplight;
 	}
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
@@ -1573,15 +1636,18 @@ retry:
 	//m3ds.shownormals=1;
 	//m3ds.numObjects=2;//!!!
 	app = new MyApp();
-	new_3ds_importer(&m3ds,app);
+	new_3ds_importer(&m3ds,app,stitchDistance);
 
 //	printf(app->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
 //	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
+
 	printf("\n");
 
 	// creates radiosity solver with multiobject
 	// without renderer, no primary light is detected
 	app->calculate();
+
+//printf(" %d triangles\n",app->multiObject?app->multiObject->getCollider()->getMesh()->getNumTriangles():0);
 
 	if(!app->multiObject)
 		fatal_error("No objects in scene.",false);

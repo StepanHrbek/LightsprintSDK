@@ -41,13 +41,19 @@ namespace rr
 #define REFRESH_MULTIPLY       4     // next refresh has multiplied number of photons
 #define MAX_REFRESH_DISBALANCE 5     // higher = faster, but more dangerous
 #define DISTRIB_LEVEL_HIGH     0.0003 // higher fraction of scene energy found in one node starts distribution
-#define DISTRIB_LEVEL_LOW      0.00003// lower fraction of scene energy found in one node is ignored
-// byvaly DISTRIB_LEVEL 0.003 / 0.0001 selhal ve fcss/koupelne.
-// popis: po spusteni je pod kouli moc svetla.
+#define DISTRIB_LEVEL_LOW      0.000003// lower fraction of scene energy found in one node is ignored
+// DISTRIB_LEVEL 0.003 / 0.0001 byl moc velky ve fcss/koupelne.
+//  popis: po spusteni je pod kouli moc svetla.
 //  po resetStaticIllum ve chvili kdy mam jeste primitivni faktory se zas objevi moc svetla.
 //  i kdyz necham dlouho zlepsovat faktory, svetla zustane moc.
 //  po resetStaticIllum ve chvili kdyz uz mam dobry faktory zmizi a uz trvale zustane moc malo svetla.
 //  pokud v resetStaticIllum jen updatuju, nadbytecne svetlo zustane prilepene a zmizi az kdyz hlavni lampou posvitim extremne do cerna.
+// DISTRIB_LEVEL_LOW 0.00003 byl moc velky v sibeniku
+//  popis: po spocitani indirectu a presunu svetla jinam indirect nezmizel, protoze byl asi prilis slaby
+// DISTRIB_LEVEL_HIGH 0.00003 byl moc maly v sibeniku
+//  po kazdem refreshi nasledovala tuna distribu, brutalni zpomaleni
+// !!! nutno resit adaptivne
+//  pri priprave bestu vzdy skouknout refreshe i distriby a rozhodnout se kteri jsou ted lepsi
 //#define DEBUK
 //#define LOG_LOADING_MES
 //#define EXPENSIVE_CHECKS
@@ -2363,24 +2369,15 @@ void Scene::setScaler(RRScaler* ascaler)
 }
 
 
-RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors)
+RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 {
-	bool resetPropagation = true;
-	if(!resetFactors)
-	{
-		// zde dokazu zdetekovat zda se primaries prilis nezmenily
-		// a tudiz neni nutne resetovat jiz zpropagovanou energii
-		//!!!
-		resetPropagation = false;
-	}
+	if(resetFactors)
+		resetPropagation = true;
 
-	// probihajici vypocet faktoru nebo probihajici distribuce 
-	// muze bezet dal pokud jen updatuji primaries.
-	// v opacnem pripade je nutny abort.
-	if(resetPropagation)
-	{
-		abortStaticImprovement();
-	}
+	// probihajici vypocet faktoru nebo probihajici distribuce
+	// teoreticky muze bezet dal pokud neresetuji propagaci,
+	// ale zmeny v primaries je nutne zacit zpracovavat hned, takze v kazdem pripade abort.
+	abortStaticImprovement();
 
 	if(resetFactors)
 	{

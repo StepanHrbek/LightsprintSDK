@@ -466,12 +466,20 @@ namespace rr
 		//
 		//! There is no need to reset illumination right after scene creation, it is already reset.
 		//! \param resetFactors
-		//!  Resetting also factors means complete restart of calculation with all expenses.
-		//!  With factors preserved, part of calculation is reused, but you must ensure, that
+		//!  True: Resetting factors at any moment means complete restart of calculation with all expenses.
+		//!  \n False: With factors preserved, part of calculation is reused, but you must ensure, that
 		//!  geometry and surfaces were not modified. This is especially handy when only primary
 		//!  lights move, but objects and materials stay unchanged.
+		//! \param resetPropagation
+		//!  Both options work well in typical situations, but well choosen value may improve performance.
+		//!  \n True: Illumination already propagated using old factors is reset.
+		//!     It is faster option when illumination changes 
+		//!     significantly -> use after big light movement, light on/off.
+		//!  \n False: Illumination already propagated using old factors is preserved for 
+		//!     future calculation. It is only updated. It is faster option when illumination 
+		//!     changes by small amount -> use after tiny light movement, small color/intensity change.
 		//! \returns Calculation state, see Improvement.
-		Improvement   illuminationReset(bool resetFactors);
+		Improvement   illuminationReset(bool resetFactors, bool resetPropagation);
 		//! Improve illumination until endfunc returns true.
 		//
 		//! If you want calculation as fast as possible, make sure that most of time

@@ -94,7 +94,7 @@ namespace rr
 		//! Defines objects present in scene.
 		typedef std::pair<RRObject*,RRObjectIlluminationForEditor*> Object;
 		typedef std::vector<Object> Objects;
-		void setObjects(Objects& objects);
+		void setObjects(Objects& objects, float stitchDistance = 0.01f);
 		RRObject* getObject(unsigned i);
 		RRObjectIlluminationForEditor* getIllumination(unsigned i);
 		
@@ -109,8 +109,8 @@ namespace rr
 		//! Reports to framework that position/rotation/shape of one or more objects has changed.
 		void reportGeometryChange();
 		//! Reports to framework that position/rotation/shape of one or more lights has changed.
-		void reportLightChange();
-		//! Reports to framework that illumination has been used (eg. for rendering). Without such report, framework can update results less often.
+		void reportLightChange(bool strong);
+		//! Reports to framework that illumination has been used (eg. for rendering). Without such report, illumination is updated less often, which saves time for calculations.
 		void reportIlluminationUse();
 		//! Reports to framework that user interacts and needs maximal responsiveness. Framework stops all actions for short time.
 		void reportCriticalInteraction();
@@ -138,10 +138,17 @@ namespace rr
 		unsigned   numSurfaces;
 
 	private:
+		enum ChangeStrength
+		{
+			NO_CHANGE,
+			SMALL_CHANGE,
+			BIG_CHANGE,
+		};
 		// calculate
+		float      stitchDistance;
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;
-		bool       dirtyLights;
+		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
 		long       lastIlluminationUseTime;
 		long       lastCriticalInteractionTime;
 		long       lastCalcEndTime;

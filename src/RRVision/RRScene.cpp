@@ -237,12 +237,12 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 //
 // calculate radiosity
 
-RRScene::Improvement RRScene::illuminationReset(bool resetFactors)
+RRScene::Improvement RRScene::illuminationReset(bool resetFactors, bool resetPropagation)
 {
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
 	scene->updateMatrices();
-	return scene->resetStaticIllumination(resetFactors);
+	return scene->resetStaticIllumination(resetFactors,resetPropagation);
 }
 
 RRScene::Improvement RRScene::illuminationImprove(bool endfunc(void*), void* context)

@@ -21,7 +21,7 @@
 	// use static library
 	#define RR_API
 #endif
-//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRMath.h~(24)
+//#define RR_DEVELOPMENT
 
 namespace rr /// Encapsulates all Lightsprint libraries.
 {

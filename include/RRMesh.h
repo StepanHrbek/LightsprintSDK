@@ -158,6 +158,23 @@ namespace rr
 	public:
 
 		//////////////////////////////////////////////////////////////////////////////
+		// Channels
+		//////////////////////////////////////////////////////////////////////////////
+
+		enum
+		{
+			INDEXED_BY_VERTEX                = 0x0000,
+			INDEXED_BY_TRIANGLE              = 0x1000,
+			INDEXED_BY_SURFACE               = 0x2000,
+			INDEXED_BY_OBJECT                = 0x3000,
+			// If we decide later that some information from RRMesh
+			// should be provided via new RRChanneledData interface,
+			// these channel numbers will be used.
+			//CHANNEL_VERTEX_POS               = INDEXED_BY_VERTEX+0, //! RRVec3
+			//CHANNEL_TRIANGLE_VERTICES_IDX    = INDEXED_BY_TRIANGLE+0, //! unsigned[3]
+		};
+
+		//////////////////////////////////////////////////////////////////////////////
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 

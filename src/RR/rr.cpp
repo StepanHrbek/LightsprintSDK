@@ -427,7 +427,7 @@ void frameSetup(Scene *scene)
  #endif
  if(c_staticReinit)
  {
-   scene->resetStaticIllumination(false);
+   scene->resetStaticIllumination(false,true);
    n_dirtyColor=true;
  }
 }
@@ -498,7 +498,7 @@ void frameDraw(Scene *scene, RRScene* rrscene)
 
      // vynuluje energie
      // nastavi energie k distribuci
-     scene->resetStaticIllumination(true/*preserveFactors*/);
+     scene->resetStaticIllumination(true/*preserveFactors*/,true);
 
      // rozdistribuuje energii
      scene->distribute(0.00001);

@@ -339,13 +339,16 @@ rr::RRObject* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
 	return importer;
 }
 
-void new_3ds_importer(Model_3DS* model,rr::RRVisionApp* app)
+void new_3ds_importer(Model_3DS* model,rr::RRVisionApp* app,float stitchDistance)
 {
 	rr::RRVisionApp::Objects objects;
+	//unsigned t=0;
 	for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 	{
+		//t+=model->Objects[i].numFaces;
 		objects.push_back(rr::RRVisionApp::Object(new_3ds_importer(model,i),new rr::RRObjectIlluminationForEditor(model->Objects[i].numVerts)));
 	}
-	if(app) app->setObjects(objects);
+	//printf("tris=%f \n",t/3.0f);
+	if(app) app->setObjects(objects,stitchDistance);
 }
 

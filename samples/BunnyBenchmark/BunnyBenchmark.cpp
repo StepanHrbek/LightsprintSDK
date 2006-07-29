@@ -7,7 +7,7 @@
 
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"
-#include "StopWatch.h"
+#include "RRTimer.h"
 #include "RRCollider.h"
 #include <math.h>
 #ifdef _OPENMP
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 	RRCollider* collider = RRCollider::create(rrMesh,RRCollider::IT_BSP_FASTEST);
 
 	// start watch
-	StopWatch* watch = new StopWatch();
+	RRTimer* watch = new RRTimer();
 	watch->Start();
 
 	// cast all rays

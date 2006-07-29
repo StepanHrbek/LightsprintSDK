@@ -314,11 +314,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\shadowcast.cpp"
+			RelativePath="..\..\include\RRTimer.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\samples\BunnyBenchmark\StopWatch.h"
+			RelativePath=".\shadowcast.cpp"
 			>
 		</File>
 	</Files>

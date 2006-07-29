@@ -826,7 +826,7 @@ public:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
 	void    draw(RRScene* scene, real quality);
-	RRScene::Improvement resetStaticIllumination(bool resetFactors);
+	RRScene::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation);
 	void    updateMatrices();
 
 
