@@ -59,9 +59,9 @@ public:
 	}
 	virtual Class* getInstance(unsigned instance)
 	{
-		if(!parent || instance>numInstances)
+		if(!MultiInstanceWithParent<Class>::parent || instance>numInstances)
 			return NULL;
-		Class* c = new Class(*parent);
+		Class* c = new Class(*MultiInstanceWithParent<Class>::parent);
 		if(!c)
 			return NULL;
 		instanceMakeup(*c,instance);

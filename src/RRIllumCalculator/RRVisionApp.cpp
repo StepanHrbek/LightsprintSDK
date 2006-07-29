@@ -24,7 +24,7 @@ namespace rr
 #define MIN_PORTION_SPENT_IMPROVING 0.4f // at least 40% of our time is spent in improving
 
 #define REPORT(a)       //a
-#define REPORT_BEGIN(a) REPORT( RRTimer timer; timer.Start(); reportAction(a ## ".."); )
+#define REPORT_BEGIN(a) REPORT( RRTimer timer; timer.Start(); reportAction(a ".."); )
 #define REPORT_END      REPORT( {char buf[10]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
 
 // odsunout do RRIlluminationPixelBuffer.cpp
