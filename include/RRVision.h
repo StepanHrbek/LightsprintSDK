@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! \brief RRVision - library for fast global illumination calculations
-//! \version 2006.6.12
+//! \version 2006.8
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -249,8 +249,8 @@ namespace rr
 		//!  objects contain triangles with the same vertex order (eg. ABC, 
 		//!  not ACB) and materials visible for example from outside.
 		//!  Negative scale naturally makes the object visible from inside
-		//!  and rays collide with the inner side.
-		//!  \n However one may want to change this behaviour.
+		//!  and rays collide with the inner side. This is the case of negScaleMakesOuterInner=true.
+		//!  \n However one may want to change this behaviour. 
 		//!  \n To get the transformed object visible from the opposite side and rays collide with the opposite side,
 		//!  one can change the mesh (vertex order in all triangles) and share surfaces 
 		//!  or share the mesh and change surfaces.

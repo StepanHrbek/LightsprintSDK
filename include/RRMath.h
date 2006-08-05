@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRMath.h
 //! \brief RRMath - basic math used by Lightsprint libraries
-//! \version 2006.6.12
+//! \version 2006.8
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@
 #endif
 //#define RR_DEVELOPMENT
 
-namespace rr /// Encapsulates all Lightsprint libraries.
+namespace rr /// Encapsulates whole Lightsprint SDK. "rr" historically stands for Realtime Radiosity.
 {
 
 	//////////////////////////////////////////////////////////////////////////////

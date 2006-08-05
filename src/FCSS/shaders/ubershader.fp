@@ -2,7 +2,7 @@
 //
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
-//  #define SHADOW_SAMPLES [0|1|2|4]
+//  #define SHADOW_SAMPLES [0|1|2|4|8]
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_COLOR
@@ -11,13 +11,13 @@
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define FORCE_2D_POSITION
 
-// for array of samplers (needs OpenGL 2.0 compliant card)
+// for array of samplers (for any OpenGL 2.0 compliant card)
 //#if SHADOW_MAPS*SHADOW_SAMPLES>0
 //uniform sampler2DShadow shadowMap[SHADOW_MAPS];
 //#endif
 
-// for individual samplers (works on buggy ATI)
-//#if SHADOW_SAMPLES>0 // this if doesn't work on buggy ATI
+// for individual samplers (ATI fails on array)
+//#if SHADOW_SAMPLES>0 // ATI fails on this line
 #if SHADOW_MAPS>0
 uniform sampler2DShadow shadowMap0;
 #endif
@@ -63,7 +63,7 @@ uniform sampler2D lightDirectMap;
 #endif
 
 #ifdef LIGHT_INDIRECT_COLOR
-varying vec4 lightIndirectColor; // passed rather through gl_Color, anything other fails on buggy ATI Catalyst 6.6
+varying vec4 lightIndirectColor; // passed rather through gl_Color, ATI fails on anything else
 #endif
 
 #ifdef LIGHT_INDIRECT_MAP
@@ -88,11 +88,11 @@ void main()
 #if SHADOW_SAMPLES==1
   // hard shadows with 1 lookup
 
-// for array of samplers (needs OpenGL 2.0 compliant card)
+// for array of samplers (for any OpenGL 2.0 compliant card)
 //  for(int i=0;i<SHADOW_MAPS;i++)
 //    shadowValue += shadow2DProj(shadowMap[i], shadowCoord[i]).z;
 
-  // for individual samplers (works on buggy ATI)
+  // for individual samplers (ATI fails on for cycle)
 #if SHADOW_MAPS>0
   shadowValue += shadow2DProj(shadowMap0, shadowCoord[0]).z;
 #endif
@@ -124,14 +124,14 @@ void main()
   shadowValue += shadow2DProj(shadowMap9, shadowCoord[9]).z;
 #endif
   
-#else
+#else // SHADOW_SAMPLES!=1
   // blurred hard shadows (often called 'soft') with 2 or 4 lookups in rotating kernel
   float noise = 8.1*gl_FragCoord.x+5.7*gl_FragCoord.y;
   vec3 sc = vec3(sin(noise),cos(noise),0);
   vec3 shift1 = sc*0.003;
   vec3 shift2 = sc.yxz*vec3(0.006,-0.006,0);
 
-// for array of samplers (needs OpenGL 2.0 compliant card)
+// for array of samplers (for any OpenGL 2.0 compliant card)
 //  for(int i=0;i<SHADOW_MAPS;i++)
 //  {
 //    vec3 center = shadowCoord[i].xyz/shadowCoord[i].w;
@@ -145,121 +145,72 @@ void main()
 //      ;
 //  }
 
-// for individual samplers (works on buggy ATI)
+// for individual samplers (ATI fails on array)
+#if SHADOW_SAMPLES==2
+ #define SHADOWMAP_LOOKUP_CENTER(shadowMap,center) \
+  shadowValue += \
+       shadow2D(shadowMap, center+shift1).z \
+      +shadow2D(shadowMap, center-shift1).z \
+      ;
+#elif SHADOW_SAMPLES==4
+ #define SHADOWMAP_LOOKUP_CENTER(shadowMap,center) \
+  shadowValue += \
+       shadow2D(shadowMap, center+shift1).z \
+      +shadow2D(shadowMap, center-shift1).z \
+      +shadow2D(shadowMap, center+shift2).z \
+      +shadow2D(shadowMap, center-shift2).z \
+      ;
+#elif SHADOW_SAMPLES==8
+ #define SHADOWMAP_LOOKUP_CENTER(shadowMap,center) \
+  shadowValue += \
+       shadow2D(shadowMap, center+shift1).z \
+      +shadow2D(shadowMap, center-shift1).z \
+      +shadow2D(shadowMap, center+1.8*shift1).z \
+      +shadow2D(shadowMap, center-1.8*shift1).z \
+      +shadow2D(shadowMap, center+shift2).z \
+      +shadow2D(shadowMap, center-shift2).z \
+      +shadow2D(shadowMap, center+0.6*shift2).z \
+      +shadow2D(shadowMap, center-0.6*shift2).z \
+      ;
+#endif
+#define SHADOWMAP_LOOKUP(shadowMap,index) \
+  center = shadowCoord[index].xyz/shadowCoord[index].w; \
+  SHADOWMAP_LOOKUP_CENTER(shadowMap,center)
+
   vec3 center;
 #if SHADOW_MAPS>0
-  center = shadowCoord[0].xyz/shadowCoord[0].w;
-  shadowValue +=
-       shadow2D(shadowMap0, center+shift1).z
-      +shadow2D(shadowMap0, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap0, center+shift2).z
-      +shadow2D(shadowMap0, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap0,0);
 #endif
 #if SHADOW_MAPS>1
-  center = shadowCoord[1].xyz/shadowCoord[1].w;
-  shadowValue +=
-       shadow2D(shadowMap1, center+shift1).z
-      +shadow2D(shadowMap1, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap1, center+shift2).z
-      +shadow2D(shadowMap1, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap1,1);
 #endif
 #if SHADOW_MAPS>2
-  center = shadowCoord[2].xyz/shadowCoord[2].w;
-  shadowValue +=
-       shadow2D(shadowMap2, center+shift1).z
-      +shadow2D(shadowMap2, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap2, center+shift2).z
-      +shadow2D(shadowMap2, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap2,2);
 #endif
 #if SHADOW_MAPS>3
-  center = shadowCoord[3].xyz/shadowCoord[3].w;
-  shadowValue +=
-       shadow2D(shadowMap3, center+shift1).z
-      +shadow2D(shadowMap3, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap3, center+shift2).z
-      +shadow2D(shadowMap3, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap3,3);
 #endif
 #if SHADOW_MAPS>4
-  center = shadowCoord[4].xyz/shadowCoord[4].w;
-  shadowValue +=
-       shadow2D(shadowMap4, center+shift1).z
-      +shadow2D(shadowMap4, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap4, center+shift2).z
-      +shadow2D(shadowMap4, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap4,4);
 #endif
 #if SHADOW_MAPS>5
-  center = shadowCoord[5].xyz/shadowCoord[5].w;
-  shadowValue +=
-       shadow2D(shadowMap5, center+shift1).z
-      +shadow2D(shadowMap5, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap5, center+shift2).z
-      +shadow2D(shadowMap5, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap5,5);
 #endif
 #if SHADOW_MAPS>6
-  center = shadowCoord[6].xyz/shadowCoord[6].w;
-  shadowValue +=
-       shadow2D(shadowMap6, center+shift1).z
-      +shadow2D(shadowMap6, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap6, center+shift2).z
-      +shadow2D(shadowMap6, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap6,6);
 #endif
 #if SHADOW_MAPS>7
-  center = shadowCoord[7].xyz/shadowCoord[7].w;
-  shadowValue +=
-       shadow2D(shadowMap7, center+shift1).z
-      +shadow2D(shadowMap7, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap7, center+shift2).z
-      +shadow2D(shadowMap7, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap7,7);
 #endif
 #if SHADOW_MAPS>8
-  center = shadowCoord[8].xyz/shadowCoord[8].w;
-  shadowValue +=
-       shadow2D(shadowMap8, center+shift1).z
-      +shadow2D(shadowMap8, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap8, center+shift2).z
-      +shadow2D(shadowMap8, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap8,8);
 #endif
 #if SHADOW_MAPS>9
-  center = shadowCoord[9].xyz/shadowCoord[9].w;
-  shadowValue +=
-       shadow2D(shadowMap9, center+shift1).z
-      +shadow2D(shadowMap9, center-shift1).z
-#if SHADOW_SAMPLES==4
-      +shadow2D(shadowMap9, center+shift2).z
-      +shadow2D(shadowMap9, center-shift2).z
-#endif
-      ;
+  SHADOWMAP_LOOKUP(shadowMap9,9);
 #endif
 
-#endif
-#endif
+#endif // SHADOW_SAMPLES!=1
+#endif // SHADOW_SAMPLES*SHADOW_MAPS>0
 
 #if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP)
   gl_FragColor =

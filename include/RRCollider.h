@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
 //! \brief RRCollider - library for fast "ray x mesh" intersections
-//! \version 2006.6.12
+//! \version 2006.8
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -155,7 +155,7 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRCollider
-	//! Single object able to calculate ray x trimesh intersections.
+	//! Finds ray - trianglemesh intersections.
 	//
 	//! Thread safe: yes, stateless, may be accessed by any number of threads simultaneously.
 	//!
@@ -195,20 +195,20 @@ namespace rr
 		//! specified by ray->rayFlags.
 		//! \n See RRRay for more details on inputs, especially flags that further specify collision test.
 		//! \n When ray->collisionHandler!=NULL, it is called and it may accept or refuse intersection.
-		//! \n When intersection is accepted, true is returned.
-		//! When intersection is rejected, search continues.
-		//! \n False is returned when there is no accepted intersection.
+		//! \n When collisionHandler accepts intersection, true is returned.
+		//! When collisionHandler rejects intersection, search continues.
+		//! \n False is returned when there were no accepted intersection.
 		//!
-		//! There is exception for IntersectTechnique IT_LINEAR, intersections are found in random order.
+		//! There is an exception for IntersectTechnique IT_LINEAR: intersections are found in random order.
 		//!
 		//! \section CollisionHandler
-		//! Ray->collisionHandler can be used
-		//! - To gather all intersections instead of just first one. CollisionHandler can gather
+		//! Ray->collisionHandler can be used to:
+		//! - gather all intersections instead of just first one. CollisionHandler can gather
 		//!   or immediately process them. This is faster and more precise approach than multiple
 		//!   calls of %intersect() with increasing rayLengthMin to distance of last intersection.
-		//! - To not collide with optional parts of mesh that are turned off at this moment.
-		//! - To find pixel precise collisions with alpha keyed textures.
-		//! - To collide with specific probability.
+		//! - not collide with optional parts of mesh (layers) that are turned off at this moment.
+		//! - find pixel precise collisions with alpha keyed textures.
+		//! - collide with specific probability.
 		//!
 		//! \section Multithreading
 		//! You are encouraged to find multiple intersections in multiple threads at the same time.

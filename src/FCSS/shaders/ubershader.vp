@@ -2,7 +2,7 @@
 //
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
-//  #define SHADOW_SAMPLES [0|1|2|4]
+//  #define SHADOW_SAMPLES [0|1|2|4|8]
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_COLOR
@@ -21,7 +21,7 @@ varying vec4 lightDirectColor;
 #endif
 
 #ifdef LIGHT_INDIRECT_COLOR
-varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, anything other fails on buggy ATI Catalyst 6.6
+varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI fails on anything else
 #endif
 
 #ifdef MATERIAL_DIFFUSE_MAP
@@ -53,9 +53,10 @@ void main()
   materialDiffuseColor = gl_SecondaryColor;
 #endif
 
+  // for cycle (for any OpenGL 2.0 compliant card)
   //for(int i=0;i<SHADOW_MAPS;i++)
   //  shadowCoord[i] = gl_TextureMatrix[i] * gl_Vertex;
-  // ATI is reported to fail on previous cycle, unrolled version is ok:
+  // unrolled version (ATI fails on for cycle)
 #if SHADOW_MAPS>0
   shadowCoord[0] = gl_TextureMatrix[0] * gl_Vertex;
 #endif

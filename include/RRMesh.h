@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRMesh.h
 //! \brief RRMesh - unified mesh interface
-//! \version 2006.6.12
+//! \version 2006.8
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ namespace rr
 	class RRChanneledData
 	{
 	public:
-		//! Returns size of selected channel.
+		//! Writes size of selected channel into numItems and itemSize.
 		//
 		//! \param channelId Id of channel, eg. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
 		//!  Each class that implements this method (eg. RRMesh, RRObject) defines supported channel ids
@@ -76,7 +76,7 @@ namespace rr
 		//!  this value, this parameter exists only for security reasons. If your size 
 		//!  doesn't match what implementation expects, item is not copied.
 		//!  See getChannelSize for what implementation thinks about item size.
-		//! \return True when itemSize is ok, item exists and was copied.
+		//! \return True when itemSize is correct, item exists and was copied.
 		//!  False when item doesn't exist or itemSize doesn't fit and nothing was copied.
 		virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
 		virtual ~RRChanneledData() {};
@@ -321,7 +321,7 @@ namespace rr
 		//! Created copy is completely independent on any other objects and may be deleted sooner or later.
 		//! \n It is expected that your input instance is well formed (returns correct and consistent values).
 		//! \n Copy may be faster than original, but may require more memory.
-		RRMesh*        createCopy();
+		RRMesh* createCopy();
 		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).
 		//
 		//! Created instance (MultiMesh) doesn't require additional memory, 
@@ -343,15 +343,15 @@ namespace rr
 		//!  For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower).
 		//!  For negative value, no stitching is performed.
 		//!  For positive value, also vertices in lower or equal distance will be stitched.
-		RRMesh*        createOptimizedVertices(float vertexStitchMaxDistance = 0);
+		RRMesh* createOptimizedVertices(float vertexStitchMaxDistance = 0);
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
-		RRMesh*        createOptimizedTriangles();
+		RRMesh* createOptimizedTriangles();
 		//! Saves mesh to file.
 		//
 		//! \param filename
 		//!  Filename for saved mesh. Format is platform specific (eg. "c:\\mymesh" or "/pub/mymesh").
 		//! \return True on successful save.
-		bool           save(char* filename);
+		bool save(char* filename);
 		//! Loads mesh from file to newly created instance.
 		//
 		//! Loaded mesh represents the same geometry as saved mesh, but internal implementation (speed, 
@@ -369,7 +369,7 @@ namespace rr
 		//! \param reporter All inconsistencies are reported using this callback.
 		//! \param context This value is sent to reporter without any modifications from verify.
 		//! \returns Number of reports performed.
-		unsigned               verify(Reporter* reporter, void* context);
+		unsigned verify(Reporter* reporter, void* context);
 	};
 
 } // namespace

@@ -10,26 +10,25 @@ bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 /*
-natipat screenshoty sibeniku
+                   math mesh collider vision channel rr chstorage chmixer
+Basic     edition: +    +    +        +      -          -
+Day       edition: +    +    +        +      +       +  D         D
+Night     edition: +    +    +        +*     D       D# -               *bude umet ulozit faktory na disk   #interne pojede nad faktory a ivertexy ulozenymi visionem, ne nad RRScene
+Architect edition: D    D    D        D      D       D  -
 
-na web:
-loads scene in .3ds format
-k obrazkum pocet trianglu
-sponza=66454
-sibenik=80479
+ukoly:
+ rename illumCalculator->RRRealtimeRadiosity
+ rename illumPrecalculated->RRChannel
+ new RRChannelStorage, potomek RRChannel s boostim save/load
+ new RRChannelMixer, z vic channelu udela jeden channel, popr rekne gpu jak je mixovat
+ new RRChannelFactory, vyrabi channely pro rr
+ do RRRealtimeRadiosity se bude strkat RRChannelFactory, nekdo kdo vyrabi RRChannely (pripadne jeho potomky, RRChannelStorage)
 
-plan:
-zkusit trochu zrychlit
-otestovat na mageu
-naplanovat ruzne licence a dat na web cenik
-dat na web demo,
- na titulni stranku obrazek+odkaz, na demostranku not optimized for ATI, no precalc, we offer also precalc
-announcement 1.srpna
- gamasutra.com
- gamedev.net
- opengl.org
- upload do sponza rendery freestyle
-napsat licence
+vyrobit trial pack, zjistit co chybi (fcss jako sampl?)
+dalsi announcementy
+mailnout do limy
+sehnat bankovni spojeni
+napsat zadani na final gather
 
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve
@@ -58,7 +57,6 @@ ovladani jasu (global, indirect)
 nacitat jpg
 
 !vadna zed v koupelne4, zajizdi do podlahy
-!vadne normaly sibenik
 
 pri 2 instancich je levy okraj spotmapy oriznuty
  pri arealight by spotmapa potrebovala malinko mensi fov nez shadowmapy aby nezabirala mista kde konci stin
@@ -835,7 +833,7 @@ static void drawHelpMessage(bool big)
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
 		" 'a'   - cycle through linear, rectangular and circular area light",
-		" 'z'   - toggle zoom",
+		" 'z/Z' - zoom in/out",
 		" 'w'   - toggle wire frame",
 		" 'f'   - toggle showing spotlight frustum",
 		" 'm'   - toggle whether the left or middle mouse buttons control the eye and",
@@ -1158,9 +1156,12 @@ void keyboard(unsigned char c, int x, int y)
 				needMatrixUpdate = 1;
 			}
 			break;
-		case 'z':
 		case 'Z':
-			eye.fieldOfView = (eye.fieldOfView == 100.0) ? 50.0 : 100.0;
+			if(eye.fieldOfView<100) eye.fieldOfView+=25;
+			needMatrixUpdate = true;
+			break;
+		case 'z':
+			if(eye.fieldOfView>25) eye.fieldOfView -= 25;
 			needMatrixUpdate = true;
 			break;
 		case 'q':
@@ -1241,9 +1242,11 @@ void keyboard(unsigned char c, int x, int y)
 			renderer3ds = !renderer3ds;
 			break;
 		case '*':
-			if(uberProgramGlobalSetup.SHADOW_SAMPLES<4) uberProgramGlobalSetup.SHADOW_SAMPLES *= 2;
+			if(uberProgramGlobalSetup.SHADOW_SAMPLES<8) uberProgramGlobalSetup.SHADOW_SAMPLES *= 2;
+			//	else uberProgramGlobalSetup.SHADOW_SAMPLES=9;
 			break;
 		case '/':
+			//if(uberProgramGlobalSetup.SHADOW_SAMPLES==9) uberProgramGlobalSetup.SHADOW_SAMPLES=8; else
 			if(uberProgramGlobalSetup.SHADOW_SAMPLES>1) uberProgramGlobalSetup.SHADOW_SAMPLES /= 2;
 			break;
 		case '+':
@@ -1554,7 +1557,7 @@ int main(int argc, char **argv)
 
 	if (strstr(filename_3ds, "sibenik"))
 	{
-		stitchDistance = 0.05f;
+		stitchDistance = 0.01f;
 		// zacatek nevhodny pouze kvuli spatnym normalam
 //		Camera tmpeye = {{-8.777,3.117,0.492},1.145,-0.400,1.3,50.0,0.3,80.0};
 //		Camera tmplight = {{-0.310,2.952,-0.532},5.550,3.200,1.0,70.0,1.0,40.0};
@@ -1573,6 +1576,11 @@ int main(int argc, char **argv)
 		//Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
 		//Camera tmpeye = {{-5.876,10.169,6.378},8.110,7.150,1.3,50.0,0.3,80.0};
 		//Camera tmplight = {{-1.872,5.494,0.481},0.550,0.500,1.0,70.0,1.6,40.0};
+		// shot
+		//Camera tmpeye = {{12.158,-0.433,-3.413},11.835,-9.850,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{21.907,0.387,1.443},-7.395,-4.450,1.0,70.0,1.0,40.0};
+		//Camera tmpeye = {{-10.518,8.224,-0.298},7.820,-0.100,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{-1.455,12.912,-2.926},13.130,13.000,1.0,70.0,1.6,40.0};
 		eye = tmpeye;
 		light = tmplight;
 	}

@@ -2,28 +2,37 @@
 
 
 \mainpage Lightsprint SDK
-Welcome to Lightsprint libraries.
+ Welcome to Lightsprint libraries.
 
-\subpage news "What's new"
+ \subpage news "What's new"
  - what's new in releases
 
-\subpage vision "Lightsprint VISION"
- - calculates radiosity / global illumination
+ \subpage rr "Lightsprint REALTIME RADIOSITY"
+ - calculates realtime radiosity in dynamic scene
 
-\subpage collider "Lightsprint COLLIDER"
+ \subpage vision "Lightsprint VISION"
+ - calculates radiosity in static scene
+
+ \subpage collider "Lightsprint COLLIDER"
  - finds ray-mesh intersections
 
-\subpage rules "Common"
+ \subpage mesh "Lightsprint MESH"
+ - unifies access to triangle meshes
+
+ \subpage math "Lightsprint MATH"
+ - basic math
+
+ \subpage rules "Common"
  - information regarding floats, ownership, scale...
 
-\subpage platforms "Supported platforms"
+ \subpage platforms "Supported platforms"
  - platforms supported by Lightsprint
 
 
 
 \page platforms Supported platforms
 
-\section plat_bin Platforms for binaries
+ \section plat_bin Platforms for binaries
  At least parts of both \ref vision "Vision" and \ref collider "Collider" are
  delivered in compiled binary form.
 
@@ -38,7 +47,7 @@ Welcome to Lightsprint libraries.
  - Visual C++ 2003
  - Visual C++ 2005
 
-\section plat_src Platforms for source code
+ \section plat_src Platforms for source code
  With appropriate license, \ref collider "Collider" may be delivered 
  also in form of source code.
 
@@ -52,20 +61,20 @@ Welcome to Lightsprint libraries.
  
 \page rules Common
  These rules apply to all interfaces in SDK:
-\section gfinite Finite numbers
+ \section gfinite Finite numbers
    If not otherwise specified, all inputs must be finite numbers.
    With Inf or NaN, result is undefined.
-\section gflodoub Floats and doubles
+ \section gflodoub Floats and doubles
    Library uses both floats and doubles.
    It is not allowed to break double arithmetics by modifying FPU states.
    If you use Direct3D, make sure you don't instruct it to force single precision for whole application
    which breaks double precision arithmetics in whole program and libraries.
-\section gdestr Ownership
+ \section gdestr Ownership
    Objects are never adopted, ownership never changes.
    \n This means that parameters that need to be destructed are never destructed inside call,
    responsibility for object is never passed to someone else.
    When you create object (using create() etc.), be sure that you delete it later.
-\section gscale Scale
+ \section gscale Scale
    Lightsprint libraries support scaled objects.
    \n\n
    RRMesh and Collider support all scaled objects: positively or negatively, uniformly or non-uniformly scaled.
@@ -77,105 +86,47 @@ Welcome to Lightsprint libraries.
    see rr::RRObject::createWorldSpaceObject().
    
 
-\page vision Lightsprint Vision
- In typical situation, you have your own renderer with direct illumination.
- Vision can enhance it by adding indirect illumination.
- (\subpage vision_types "explanation")
 
- In atypical sutuation, Vision is also able to calculate global illumination
- without any relation to your renderer, however this case is not officially supported.
+\page rr Lightsprint Realtime Radiosity
+ Realtime Radiosity extends your renderer by adding realtime computed or
+ partially precomputed radiosity. In both cases, illumination can respond to user actions.
 
- Header: RRVision.h
+ Header: RRIllumPrecalculated.h
+ \n Header: RRIllumPrecalculatedSurface.h
+ \n Header: RRIllumPrecalculatedSpace.h
+ \n Header: RRIllumCalculator.h
 
- - calculates global illumination in static scene
- - progressive refinement with permanent access to results
- - calculated illumination is available in vertices
- - applications can calculate illumination in realtime or use precalculated data
- - optimized for speed, usage in interactive environments
- - works with your units (screen colors or radiometry or photometry units or anything else)
- - display independent, purely numerical API
+ \subpage rr_basic "Basic edition"
 
-\subpage vision_types "Illumination types" and where is Vision
+ \subpage rr_day "Day edition"
 
-\subpage vision_integration "Integration with renderer" and how to start
+ \subpage rr_night "Night edition"
 
-\subpage vision_static "Static scenes"
-
-\subpage vision_dynamic "Dynamic scenes"
-
-\subpage vision_storage "Data formats (vertices, textures)"
-
-\subpage vision_units "Units (radiometry, photometry)"
-
-\image html ClassDiagram.png
+ \subpage rr_architect "Architect edition"
 
 
-\page vision_types Illumination types
- In our real world, we see visible light coming mostly from special surfaces 
- (hot wolfram fibre in bulb, luminofor of fluorescent lamp)
- or from whole volumes of plasma (sun, fire).
- We call these surfaces and volumes <b>source of direct illumination</b>.
+\page rr_basic Basic edition
+ Basic edition targets games with scenes mostly static.
 
- Light from sources of direct illumination reaches other surfaces 
- where part of light is absorbed and part is reflected.
- Reflected part is what makes objects look lit.
- We call reflected part <b>direct illumination</b>.
-
- Light from direct illumination reaches other surfaces, partially reflects,
- reaches other surfaces, partially reflects etc.
- We call sum of reflected parts <b>indirect illumination</b>.
-
- Illumination is sum of direct and indirect illumination.
-
- Computer graphics tries to simulate this process in order to generate realistic images.
- This is however very time consuming process.
- So realtime computer graphics in 99% of cases resigns to real-world sources of direct 
- illumination and uses imaginary <b>"point" or "directional" lights</b>.
- These fictitious sources of direct illumination
- allow realtime computer graphics to calculate direct illumination very quickly.
- This process includes calculation of <b>shadows in direct illumination</b>.
- There are many realtime techniques for calculating shadows in direct illumination,
- most notably shadow mapping.
-
- There is however still problem with indirect illumination, which remains
- hard to compute quickly.
-
- You are expected to <b>have renderer with direct illumination and shadows</b> in 
- direct illumination. This is very modest expectation, as there are
- many realtime renderers having it, both commercial and open source.
-
- <b>Vision is a tool for calculating indirect illumination</b> for such renderer.
-
- Vision is also able to calculate complete illumination (direct+indirect)
- from real-world direct light sources - surfaces. However we don't encourage
- this use case, library is not optimized for this task.
-
-
-\page vision_integration Integration with renderer
- Three steps to integrate Vision with your renderer are described in
- <a href="http://dee.cz/rri">Realtime Radiosity Integration article</a>.
-
- This will be further documented in examples later.
-
- After reading article, you may want to get familiar with some interfaces.
- Sample HelloVision shows you some of them on the most simple use case:
- -# Show your license number to rr::RRLicense.
- -# Create rr::RRScene.
- -# Create rr::RRObject using your object and insert it into scene. Repeat for all objects.
- -# Calculate global illumination using rr::RRScene::illuminationImprove().
- -# Read results using rr::RRScene::getTriangleMeasure().
-
-\page vision_static Static scenes
- Approach for illumination in static scenes is absolutely straightforward.
- \n\n It is recommended to integrate Vision to your editor,
+ Approach for illumination in static scenes is straightforward. 
+ It is recommended to integrate Vision to your editor,
  precalculate illumination there (using any target quality you need),
  store it and use only precalculated data in your final product.
  This way you don't need to link Vision libraries to your product, only to your editor.
- \n\n See rr::RRScene and samples for details how to calculate illumination
+
+ Illumination save/load is not present in Basic edition, so when illumination
+ is calculated, use your own format for storage of precomputed illumination.
+ 
+ See rr::RRScene and Vision samples for details how to calculate illumination
  in static scene.
 
 
-\page vision_dynamic Dynamic scenes
+\page rr_day Day edition
+ --- under construction ---
+
+ Day edition targets games with the strongest light sources restricted in movement
+ (daylight, interiors with lights).
+
  Vision can quickly recalculate illumination after each change in dynamic scene.
  However quality oscilates, so this is feasible only for few applications.
 
@@ -215,6 +166,104 @@ Welcome to Lightsprint libraries.
    Later in final product interpolate between closest samples, depending on door
    position. This requires only linear interpolation of two numbers,
    so it has nearly no impact on performance.
+
+\page rr_night Night edition
+ --- under construction ---
+
+ Night edition targets games with the strongest light sources freely moving
+ (player's spotlight in dark room).
+
+\page rr_architect Architect edition
+ --- under construction ---
+
+ Architect edition targets architectural modeling application.
+ It allows for absolute freedom.
+
+
+
+\page vision Lightsprint Vision
+ In typical situation, you have your own renderer with direct illumination.
+ Vision can enhance it by adding indirect illumination.
+ (\subpage vision_types "explanation")
+
+ In atypical sutuation, Vision can calculate global illumination
+ without any relation to your renderer.
+
+ Header: RRVision.h
+
+ - calculates global illumination in static scene
+ - progressive refinement with permanent access to results
+ - calculated illumination is available in vertices
+ - applications can calculate illumination in realtime or use precalculated data
+ - optimized for speed, usage in interactive environments
+ - works with your units (screen colors or radiometry or photometry units or anything else)
+ - display independent, purely numerical API
+
+ \subpage vision_types "Illumination types" and where is Vision
+
+ \subpage vision_integration "Integration with renderer" and how to start
+
+ \subpage vision_storage "Data formats (vertices, textures)"
+
+ \subpage vision_units "Units (radiometry, photometry)"
+
+ \image html ClassDiagram.png
+
+
+\page vision_types Illumination types
+ In our real world, we see visible light coming mostly from special surfaces 
+ (hot wolfram fibre in bulb, luminofor of fluorescent lamp)
+ or from whole volumes of plasma (sun, fire).
+ We call these surfaces and volumes <b>source of direct illumination</b>.
+
+ Light from sources of direct illumination reaches other surfaces 
+ where part of light is absorbed and part is reflected.
+ Reflected part is what makes objects look lit.
+ When we see the reflected part, we call it <b>direct illumination</b>.
+
+ Light from direct illumination reaches other surfaces, partially reflects,
+ reaches other surfaces, partially reflects etc.
+ We call sum of reflected parts <b>indirect illumination</b>.
+
+ Illumination we see in real world is sum of direct and indirect illumination.
+
+ Computer graphics tries to simulate this process in order to generate realistic images.
+ This is however very time consuming process.
+ So realtime computer graphics in 99% of cases resigns to real-world sources of direct 
+ illumination and uses imaginary <b>"point" or "directional" lights</b>.
+ These fictitious sources of direct illumination
+ allow realtime computer graphics to calculate direct illumination very quickly.
+ This process includes calculation of <b>shadows in direct illumination</b>.
+ There are many realtime techniques for calculating shadows in direct illumination,
+ most notably shadow mapping.
+
+ There is however still problem with indirect illumination, which remains
+ hard to compute quickly.
+
+ You are expected to <b>have renderer with direct illumination and shadows</b> in 
+ direct illumination. This is very modest expectation, as there are
+ many realtime renderers having it, both commercial and open source.
+
+ <b>Vision is a tool for calculating indirect illumination</b> for such renderer.
+
+ Vision is also able to calculate complete illumination (direct+indirect)
+ from real-world direct light sources - surfaces. However we don't encourage
+ this use case as it's not suitable for interactive application.
+
+
+\page vision_integration Integration with renderer
+ Three steps to integrate Vision with your renderer are described in
+ <a href="http://dee.cz/rri">Realtime Radiosity Integration article</a>.
+
+ This will be further documented in examples later.
+
+ After reading article, you may want to get familiar with some interfaces.
+ Sample HelloVision shows you some of them on the most simple use case:
+ -# Show your license number to rr::RRLicense.
+ -# Create rr::RRScene.
+ -# Create rr::RRObject using your object and insert it into scene. Repeat for all objects.
+ -# Calculate global illumination using rr::RRScene::illuminationImprove().
+ -# Read results using rr::RRScene::getTriangleMeasure().
 
 
 \page vision_storage Data formats
@@ -263,24 +312,56 @@ Welcome to Lightsprint libraries.
 
  Header: RRCollider.h
 
-\section collider1 Library overview
+ \section collider1 Library features
  - thread safe, you can calculate any number of intersections at the same time
  - you can select technique in range from maximal speed to zero memory allocated
  - up to 2^32 vertices and 2^30 triangles in mesh
  - builds helper-structures and stores them in cache on disk
 
-\section collider3 Basic usage scenario
+ \section collider3 Basic usage scenario
  -# Show your license number to rr::RRLicenseCollider.
- -# Create rr::RRMesh using your mesh.
+ -# Create rr::RRMesh using your vertex/index buffers.
  -# Create rr::RRCollider using your mesh.
  -# Create rr::RRRay using your ray.
  -# Call rr::RRCollider::intersect() to find intersections. Repeat for all rays.
 
 
 
+\page mesh Lightsprint Mesh
+ Powerful interface to triangle mesh.
+
+ Header: RRMesh.h
+
+ \section mesh1 RRMesh features
+ - knows tristrips, trilists, indexed or not (rr::RRMesh::create, rr::RRMesh::createIndexed)
+ - can optimize:
+   - vertex stitching (rr::RRMesh::createOptimizedVertices)
+   - removes degenerated triangles (rr::RRMesh::createOptimizedTriangles)
+ - merges many small meshes into one big mesh without additional memory (rr::RRMesh::createMultiMesh)
+ - saves/loads to disk (rr::RRMesh::save, rr::RRMesh::load)
+ - extensible, you can add new channels like texture coords (rr::RRChanneledData)
+ - allows for procedural meshes, requires no memory (implementing your rr::RRMesh takes few minutes)
+ - up to 2^32-2 vertices and 2^32-2 triangles in mesh
+ - thread safe, you can use mesh in any number of threads at the same time
+
+
+
+\page math Lightsprint Math
+ Basic math classes used by whole Lightsprint SDK.
+
+ Header: RRMath.h
+
+ \section math1 Library overview
+ - rr::RRReal holds one real number, which is float at the moment
+ - rr::RRVec2 is vector of 2 real numbers
+ - rr::RRVec3 is vector of 3 real numbers
+ - rr::RRVec4 is vector of 4 real numbers
+
+
+
 \page news What's new
 
-\section news4 ------------------------------------- 2006.6 -------------------------------------
+\section news4 ------------------------------------- 2006.8 -------------------------------------
 
 NEW FEATURES
 
@@ -316,6 +397,7 @@ CHANGES
 
 - new scheduler and other optimizations in radiosity solver
   \n 10% faster radiosity calculation on average
+- Math and Mesh become standalone libraries, were part of Collider
 - name changes
   \n namespaces rrCollider and rrVision -> rr
   \n RRMeshImporter -> rr::RRMesh
