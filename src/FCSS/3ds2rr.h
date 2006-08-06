@@ -15,11 +15,7 @@ enum
 	CHANNEL_TRIANGLE_VERTICES_DIF_UV = 0x1005, //! RRVec2[3]
 };
 
-// you may load object from mgf
+// you may load object from 3ds
 void new_3ds_importer(Model_3DS* model,rr::RRVisionApp* app, float stitchDistance);
-
-// and you may set direct exiting flux (not present in file) later
-// (direct means that flux was caused by spotlight shining on face and face reflects part of power)
-//void set_direct_exiting_flux_3ds(rr::RRObject* importer, unsigned triangle, const rr::RRColor* exitingFlux);
 
 #endif
