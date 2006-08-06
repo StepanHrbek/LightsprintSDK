@@ -6,7 +6,7 @@
 #include <math.h>
 #include <memory.h>
 #include <vector>
-#include "3ds2rr.h"
+#include "DemoEngine/3ds2rr.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -251,7 +251,7 @@ void M3dsImporter::getVertex(unsigned v, Vertex& out) const
 
 unsigned M3dsImporter::getNumTriangles() const
 {
-	return triangles.size();
+	return (unsigned)triangles.size();
 }
 
 void M3dsImporter::getTriangle(unsigned t, Triangle& out) const

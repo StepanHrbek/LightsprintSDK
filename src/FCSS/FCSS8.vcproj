@@ -85,7 +85,7 @@
 				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_sr.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -180,7 +180,7 @@
 				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_sd.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -244,7 +244,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -274,14 +274,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DemoEngine_sr.lib glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies="DemoEngine_dr.lib glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\FCSS_dr.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_dr.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -314,30 +314,6 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath=".\3ds2rr.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\3ds2rr.h"
-			>
-		</File>
-		<File
-			RelativePath=".\Model_3DS.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Model_3DS.h"
-			>
-		</File>
-		<File
-			RelativePath=".\rr2gl.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\rr2gl.h"
-			>
-		</File>
 		<File
 			RelativePath=".\shadowcast.cpp"
 			>

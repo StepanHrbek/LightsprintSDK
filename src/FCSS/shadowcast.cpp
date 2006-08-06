@@ -74,7 +74,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgram.h"
 #include "DemoEngine/MultiLight.h"
-#include "rr2gl.h"
 
 using namespace std;
 
@@ -92,8 +91,9 @@ using namespace std;
 //
 // 3DS
 
-#include "Model_3DS.h"
-#include "3ds2rr.h"
+#include "DemoEngine/Model_3DS.h"
+#include "DemoEngine/3ds2rr.h"
+
 Model_3DS m3ds;
 char* filename_3ds="koupelna\\koupelna4.3ds";
 float scale_3ds = 0.03f;
@@ -103,8 +103,11 @@ float scale_3ds = 0.03f;
 //
 // RR
 
-RRGLObjectRenderer* rendererNonCaching = NULL;
-RRGLCachingRenderer* rendererCaching = NULL;
+#include "DemoEngine/RendererWithCache.h"
+#include "DemoEngine/RendererOfRRObject.h"
+
+RendererOfRRObject* rendererNonCaching = NULL;
+RendererWithCache* rendererCaching = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -380,11 +383,9 @@ protected:
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 #endif
 			uberProgramSetup.FORCE_2D_POSITION = true;
-			generateForcedUv = &captureUv;
-			rendererNonCaching->setFirstCapturedTriangle(captureUv.firstCapturedTriangle); // set param for cache so it creates different displaylists
+			rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle); // set param for cache so it creates different displaylists
 			drawHardwareShadowPass(uberProgramSetup,0);
-			rendererNonCaching->setFirstCapturedTriangle(0);
-			generateForcedUv = NULL;
+			rendererNonCaching->setCapture(NULL,0);
 
 			// Read back the index buffer to memory.
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
@@ -497,7 +498,7 @@ void drawScene(UberProgramSetup uberProgramSetup)
 		return;
 	}
 
-	RRGLObjectRenderer::RenderedChannels renderedChannels;
+	RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
 	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
@@ -1635,8 +1636,8 @@ retry:
 		fatal_error("No objects in scene.",false);
 
 	// creates renderer
-	rendererNonCaching = new RRGLObjectRenderer(app->multiObject,app->scene);
-	rendererCaching = new RRGLCachingRenderer(rendererNonCaching);
+	rendererNonCaching = new RendererOfRRObject(app->multiObject,app->scene);
+	rendererCaching = new RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum
 	// must be called from mainloop, we don't know winWidth/winHeight yet
 

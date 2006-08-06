@@ -1,7 +1,7 @@
 #ifndef TEXTURE
 #define TEXTURE
 
-#include <stdio.h>
+#include <cstdio>
 #include <GL/glut.h>
 //#include <jpeglib.h>
 

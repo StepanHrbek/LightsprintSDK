@@ -12,7 +12,7 @@ LIBS = -s -lz -lm -L../../lib -lDemoEngine -lRRIllumCalculator -lRRMesh -lRRColl
 LIBS += -lopengl32 -lglu32 -lglut32
 BIN = ../../bin/
 
-OBJS = 3ds2rr.o Model_3DS.o rr2gl.o shadowcast.o
+OBJS = shadowcast.o
 
 all: $(BIN)fcss.exe
 
@@ -25,5 +25,4 @@ $(TMP)%.o: %.c makefile
 
 clean:
 	del *.o
-	del gl\*.o
 	del ..\..\bin\fcss.exe

@@ -1,67 +1,41 @@
-//
-// OpenGL renderer of RRObject by Stepan Hrbek, dee@mail.cz
-//
-
-#include "rr2gl.h"
-#include <GL/glew.h>
-#include <GL/glut.h>
 #include <assert.h>
-#include <math.h>
-#include "3ds2rr.h" // additional diffuse_texture channels in RRObject
+#include <GL/glew.h>
+#include "DemoEngine/3ds2rr.h" // CHANNEL_SURFACE_DIF_TEX
+#include <GL/glut.h>
+#include "DemoEngine/RendererOfRRObject.h"
+#include "DemoEngine/Texture.h"
 
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by surface
 bool  SMOOTH =1; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
-bool  COMPILE=1;
-
-#define MINUS(a,b,res) res[0]=a[0]-b[0];res[1]=a[1]-b[1];res[2]=a[2]-b[2]
-#define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
-#define SIZE(a) sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2])
-#define DIV(a,b,res) res[0]=a[0]/(b);res[1]=a[1]/(b);res[2]=a[2]/(b)
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
-VertexDataGenerator* generateForcedUv = NULL;
 
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRRenderer
-
-const void* RRRenderer::getParams(unsigned& length) const
-{
-	length = 0;
-	return NULL;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRGLObjectRenderer
-
-RRGLObjectRenderer::RRGLObjectRenderer(rr::RRObject* objectImporter, rr::RRScene* radiositySolver)
+RendererOfRRObject::RendererOfRRObject(rr::RRObject* objectImporter, rr::RRScene* radiositySolver)
 {
 	params.object = objectImporter;
 	params.scene = radiositySolver;
 	//params.renderedChannels = ... set to default by constructor
+	params.generateForcedUv = NULL;
 	params.firstCapturedTriangle = 0;
 }
 
-void RRGLObjectRenderer::setRenderedChannels(RenderedChannels renderedChannels)
+void RendererOfRRObject::setRenderedChannels(RenderedChannels renderedChannels)
 {
 	params.renderedChannels = renderedChannels;
 }
 
-void RRGLObjectRenderer::setFirstCapturedTriangle(unsigned afirstCapturedTriangle)
+void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle)
 {
+	params.generateForcedUv = capture;
 	params.firstCapturedTriangle = afirstCapturedTriangle;
 }
 
-const void* RRGLObjectRenderer::getParams(unsigned& length) const
+const void* RendererOfRRObject::getParams(unsigned& length) const
 {
 	length = sizeof(params);
 	return &params;
 }
 
-void RRGLObjectRenderer::render()
+void RendererOfRRObject::render()
 {
 	assert(params.object);
 	if(!params.object) return;
@@ -186,10 +160,10 @@ void RRGLObjectRenderer::render()
 			// forced 2d position
 			if(params.renderedChannels.FORCE_2D_POSITION)
 			{
-				if(generateForcedUv)
+				if(params.generateForcedUv)
 				{
 					GLfloat xy[2];
-					generateForcedUv->generateData(triangleIdx, v, xy, sizeof(xy));
+					params.generateForcedUv->generateData(triangleIdx, v, xy, sizeof(xy));
 					glMultiTexCoord2f(GL_TEXTURE7,xy[0],xy[1]);
 				}
 			}
@@ -203,86 +177,3 @@ void RRGLObjectRenderer::render()
 	glEnd();
 }
 
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRGLCachingRenderer
-
-RRGLCachingRenderer::RRGLCachingRenderer(RRRenderer* arenderer)
-{
-	renderer = arenderer;
-}
-
-RRGLCachingRenderer::~RRGLCachingRenderer()
-{
-	for(Map::iterator i=mapa.begin();i!=mapa.end();i++)
-	{
-		setStatus(CS_NEVER_COMPILE,i->second);
-	}
-}
-
-RRGLCachingRenderer::Info& RRGLCachingRenderer::findInfo()
-{
-	Key key;
-	memset(&key,0,sizeof(key));
-	unsigned length;
-	const void* params = renderer->getParams(length);
-	if(length)
-	{
-		//!!! params delsi nez 16 jsou oriznuty
-		memcpy(&key,params,MIN(length,sizeof(key)));
-	}
-//	Map::iterator i = mapa.find(key);
-//	if(i!=mapa.end())
-//		return (Info&)i->second;
-	return mapa[key];
-}
-
-void RRGLCachingRenderer::setStatus(ChannelStatus cs,RRGLCachingRenderer::Info& info)
-{
-	if(info.status==CS_COMPILED && cs!=CS_COMPILED)
-	{
-		assert(info.displayList!=UINT_MAX);
-		glDeleteLists(info.displayList,1);
-		info.displayList = UINT_MAX;
-	}
-	if(info.status!=CS_COMPILED && cs==CS_COMPILED)
-	{
-		assert(info.displayList==UINT_MAX);
-		cs = CS_READY_TO_COMPILE;
-	}
-	info.status = cs;
-}
-
-void RRGLCachingRenderer::setStatus(ChannelStatus cs)
-{
-	setStatus(cs,findInfo());
-}
-
-void RRGLCachingRenderer::render()
-{
-	RRGLCachingRenderer::Info& info = findInfo();
-	switch(info.status)
-	{
-	case CS_READY_TO_COMPILE:
-		if(!COMPILE) goto never;
-		assert(info.displayList==UINT_MAX);
-		info.displayList = glGenLists(1);
-		glNewList(info.displayList,GL_COMPILE);
-		renderer->render();
-		glEndList();
-		info.status = CS_COMPILED;
-		// intentionally no break
-	case CS_COMPILED:
-		assert(info.displayList!=UINT_MAX);
-		glCallList(info.displayList);
-		break;
-	case CS_NEVER_COMPILE:
-never:
-		assert(info.displayList==UINT_MAX);
-		renderer->render();
-		break;
-	default:
-		assert(0);
-	}
-}

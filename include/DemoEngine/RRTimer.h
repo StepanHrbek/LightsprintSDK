@@ -10,7 +10,7 @@
 // Lightsprint, 2006
 //////////////////////////////////////////////////////////////////////////////
 
-#include <assert.h>
+#include <cassert>
 
 #ifdef _WIN32
 	#define WINDOWS_TIME

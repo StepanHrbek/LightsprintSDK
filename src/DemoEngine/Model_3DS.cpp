@@ -80,11 +80,11 @@ static float SCALE=1;
 //#pragma warn( You need to uncomment this if you are using MFC )
 //#include "stdafx.h"
 
-#include "Model_3DS.h"
+#include "DemoEngine/Model_3DS.h"
 
 #include <math.h>			// Header file for the math library
 #include <string.h>			// Header file for the math library
-#include <gl\gl.h>			// Header file for the OpenGL32 library
+#include <GL/GL.h>			// Header file for the OpenGL32 library
 
 // The chunk's id numbers
 #define MAIN3DS				0x4D4D

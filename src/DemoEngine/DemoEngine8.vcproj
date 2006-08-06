@@ -49,7 +49,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;GLEW_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;GLEW_STATIC;RR_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
@@ -136,7 +136,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;GLEW_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;GLEW_STATIC;RR_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -294,6 +294,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\3ds2rr.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\3ds2rr.h"
+			>
+		</File>
+		<File
 			RelativePath=".\Camera.cpp"
 			>
 		</File>
@@ -314,6 +322,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Model_3DS.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\Model_3DS.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\DemoEngine\MultiInstance.h"
 			>
 		</File>
@@ -327,6 +343,26 @@
 		</File>
 		<File
 			RelativePath="..\..\include\DemoEngine\Program.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\Renderer.h"
+			>
+		</File>
+		<File
+			RelativePath=".\RendererOfRRObject.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\RendererOfRRObject.h"
+			>
+		</File>
+		<File
+			RelativePath=".\RendererWithCache.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\RendererWithCache.h"
 			>
 		</File>
 		<File
@@ -363,6 +399,10 @@
 		</File>
 		<File
 			RelativePath="..\..\include\DemoEngine\UberProgram.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\VertexDataGenerator.h"
 			>
 		</File>
 	</Files>

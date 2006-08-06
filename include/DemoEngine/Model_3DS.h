@@ -72,7 +72,7 @@
 #define MODEL_3DS_H
 
 #include "RRIllumCalculator.h"
-#include "DemoEngine/Texture.h"
+#include "Texture.h"
 
 #include <stdio.h>
 
