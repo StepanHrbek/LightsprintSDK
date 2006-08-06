@@ -1,5 +1,5 @@
 #include "DemoEngine/Camera.h"
-#include "DemoEngine/matrix.h"
+#include "matrix.h"
 #include <math.h>
 
 void Camera::update(float back)

@@ -47,7 +47,7 @@ namespace rr
 	//! This interface gives access to all such informations and is extensible enough
 	//! so we don't need to know types of data now. Each implementation defines its own data types.
 
-	class RRChanneledData
+	class RR_API RRChanneledData
 	{
 	public:
 		//! Writes size of selected channel into numItems and itemSize.

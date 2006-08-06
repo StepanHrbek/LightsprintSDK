@@ -82,7 +82,7 @@
 				OutputFile="$(OutDir)\FCSS.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".;..\..\lib"
+				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"

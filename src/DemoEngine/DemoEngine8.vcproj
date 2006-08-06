@@ -225,7 +225,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;GLEW_BUILD"
 				StringPooling="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -309,7 +309,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\matrix.h"
+			RelativePath=".\matrix.h"
 			>
 		</File>
 		<File
