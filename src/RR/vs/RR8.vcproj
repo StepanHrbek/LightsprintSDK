@@ -15,7 +15,7 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Debug|Win32"
+			Name="Debug static|Win32"
 			OutputDirectory="..\..\..\bin"
 			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
@@ -118,7 +118,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
+			Name="Release static|Win32"
 			OutputDirectory="..\..\..\bin"
 			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
@@ -340,7 +340,7 @@
 			RelativePath="..\Gl\glprocs.c"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -348,7 +348,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -368,7 +368,7 @@
 			RelativePath="..\ldmgf.cpp"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -378,7 +378,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -405,7 +405,7 @@
 			RelativePath="..\ldmgf2.cpp"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -414,7 +414,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -439,7 +439,7 @@
 			RelativePath="..\misc.cpp"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -450,7 +450,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -479,7 +479,7 @@
 			RelativePath="..\raster.cpp"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -489,7 +489,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -525,7 +525,7 @@
 			RelativePath="..\rastergl.cpp"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -533,7 +533,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -545,7 +545,7 @@
 			RelativePath="..\rastergl.h"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -553,7 +553,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -565,7 +565,7 @@
 			RelativePath="..\render.cpp"
 			>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -581,7 +581,7 @@
 			RelativePath="..\rr.cpp"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -591,7 +591,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -615,7 +615,7 @@
 			RelativePath="..\subglut.cpp"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -625,7 +625,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -669,7 +669,7 @@
 			RelativePath="..\video.cpp"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -680,7 +680,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -718,7 +718,7 @@
 			RelativePath="..\videogl.cpp"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -726,7 +726,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -738,7 +738,7 @@
 			RelativePath="..\videogl.h"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Debug static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -746,7 +746,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Release static|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
