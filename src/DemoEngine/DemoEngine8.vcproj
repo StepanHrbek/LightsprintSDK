@@ -85,7 +85,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(ProjectName)_s.lib"
+				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
 				AdditionalLibraryDirectories="$(OutDir)"
 				IgnoreAllDefaultLibraries="true"
 			/>
@@ -260,7 +260,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="..\..\3rd\glut\glut32.lib"
-				OutputFile="..\..\bin\$(ProjectName).dll"
+				OutputFile="..\..\bin\$(ProjectName)_dr.dll"
 				AdditionalLibraryDirectories="$(OutDir)"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>

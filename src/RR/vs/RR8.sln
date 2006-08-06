@@ -125,7 +125,8 @@ Global
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Debug static|Win32.Build.0 = Debug static|Win32
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.GL Debug|Win32.ActiveCfg = Debug static|Win32
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.GL Debug|Win32.Build.0 = Debug static|Win32
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release DLL|Win32.ActiveCfg = Release static|Win32
+		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release static|Win32.ActiveCfg = Release static|Win32
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release static|Win32.Build.0 = Release static|Win32
 		{24A70CDD-FF75-4686-B09E-F939F744F94B}.Debug static|Win32.ActiveCfg = Debug static|Win32
@@ -155,8 +156,8 @@ Global
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Debug static|Win32.Build.0 = Debug static|Win32
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.GL Debug|Win32.ActiveCfg = Debug static|Win32
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.GL Debug|Win32.Build.0 = Debug static|Win32
-		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
-		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release DLL|Win32.ActiveCfg = Release static|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release DLL|Win32.Build.0 = Release static|Win32
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release static|Win32.ActiveCfg = Release static|Win32
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release static|Win32.Build.0 = Release static|Win32
 	EndGlobalSection
