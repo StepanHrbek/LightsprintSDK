@@ -70,10 +70,10 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 
 #include "RRIllumCalculator.h"
 
-#include "GL/Camera.h"
-#include "GL/Texture.h"
-#include "GL/UberProgram.h"
-#include "GL/MultiLight.h"
+#include "DemoEngine/Camera.h"
+#include "DemoEngine/Texture.h"
+#include "DemoEngine/UberProgram.h"
+#include "DemoEngine/MultiLight.h"
 #include "rr2gl.h"
 
 using namespace std;

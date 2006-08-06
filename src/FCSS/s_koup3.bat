@@ -1,0 +1,1 @@
+@..\..\bin\fcss ../../data/3ds/koupelna4/koupelna3.3ds %1 %2 %3

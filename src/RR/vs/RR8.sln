@@ -36,6 +36,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bench", "..\..\bench\bench8
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FCSS", "..\..\FCSS\FCSS8.vcproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
 	ProjectSection(ProjectDependencies) = postProject
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
 		{C221978C-C364-A24B-136B-1237C8D93341} = {C221978C-C364-A24B-136B-1237C8D93341}
 	EndProjectSection
 EndProject
@@ -47,6 +48,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRIllumCalculator", "..\..\
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRMesh", "..\..\RRMesh\RRMesh8.vcproj", "{3D9C18C8-C363-B4B7-9B63-830D1C3AEA49}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoEngine", "..\..\DemoEngine\DemoEngine8.vcproj", "{259AA93C-416C-DAC2-3943-B73E93A91A4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -149,6 +152,14 @@ Global
 		{3D9C18C8-C363-B4B7-9B63-830D1C3AEA49}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{3D9C18C8-C363-B4B7-9B63-830D1C3AEA49}.Release|Win32.ActiveCfg = Release|Win32
 		{3D9C18C8-C363-B4B7-9B63-830D1C3AEA49}.Release|Win32.Build.0 = Release|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Debug|Win32.Build.0 = Debug|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.GL Debug|Win32.ActiveCfg = Debug|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.GL Debug|Win32.Build.0 = Debug|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release|Win32.ActiveCfg = Release|Win32
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

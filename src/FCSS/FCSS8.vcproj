@@ -78,11 +78,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gle.lib glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies="DemoEngine_s.lib glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\FCSS.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="."
+				AdditionalLibraryDirectories=".;..\..\lib"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
@@ -173,11 +173,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gle.lib glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies="DemoEngine_sd.lib glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\FCSS_d.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="."
+				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
@@ -213,86 +213,6 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="GL"
-			>
-			<File
-				RelativePath=".\GL\Camera.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\Camera.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\glew.c"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\glew.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\glut.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\matrix.c"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\matrix.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\MultiInstance.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\MultiLight.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\Program.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\Program.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\Shader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\Shader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\Texture.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\Texture.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\TextureShadowMap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\TextureShadowMap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\UberProgram.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GL\UberProgram.h"
-				>
-			</File>
-		</Filter>
 		<File
 			RelativePath=".\3ds2rr.cpp"
 			>
@@ -315,10 +235,6 @@
 		</File>
 		<File
 			RelativePath=".\rr2gl.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\RRTimer.h"
 			>
 		</File>
 		<File

@@ -1,0 +1,1 @@
+@..\..\bin\fcss ../../data/3ds/koupelna4/koupelna5.3ds -noAreaLight %1 %2 %3

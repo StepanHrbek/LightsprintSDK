@@ -14,7 +14,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#include "matrix.h"
+#include "DemoEngine/matrix.h"
 
 /*** MATRIX MANIPULATION ***/
 

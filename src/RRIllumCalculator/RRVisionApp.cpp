@@ -4,7 +4,7 @@
 #include <float.h> // _finite
 #include <time.h>
 #include "RRIllumCalculator.h"
-#include "RRTimer.h"
+#include "DemoEngine/RRTimer.h"
 
 // odsunout do RRIlluminationPixelBuffer.cpp
 #include "swraster.h" // RRIlluminationPixelBufferInMemory

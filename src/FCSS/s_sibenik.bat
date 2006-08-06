@@ -1,0 +1,1 @@
+@..\..\bin\fcss ../../data/3ds/sibenik/sibenik.3ds -noAreaLight -lazyUpdates %1 %2 %3

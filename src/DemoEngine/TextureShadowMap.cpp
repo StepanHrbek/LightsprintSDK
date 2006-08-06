@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <GL/glew.h>
-#include "TextureShadowmap.h"
+#include "DemoEngine/TextureShadowmap.h"
 
 bool   TextureShadowMap::useFBO = false;
 GLuint TextureShadowMap::fb = 0;

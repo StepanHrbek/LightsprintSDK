@@ -3,7 +3,7 @@
 #include <string.h>
 //#include <jpeglib.h>
 #include <GL/glut.h>
-#include "Texture.h"
+#include "DemoEngine/Texture.h"
 
 using namespace std;
 
@@ -122,7 +122,7 @@ unsigned char *Texture::loadData(char *filename)
 	// opens tga instead of jpg
 	char name[1000];
 	strncpy(name,filename,999);
-	unsigned len = strlen(name);
+	size_t len = strlen(name);
 	if(len>3) strcpy(name+len-3,"tga");
 
 	unsigned char *data;

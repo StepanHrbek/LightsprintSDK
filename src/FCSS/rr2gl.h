@@ -8,7 +8,7 @@
 #include <map>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "GL/Texture.h"
+#include "DemoEngine/Texture.h"
 #include "RRVision.h"
 
 

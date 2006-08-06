@@ -1,0 +1,1 @@
+@..\..\bin\fcss ../../data/3ds/veza/veza.3ds %1 %2 %3
