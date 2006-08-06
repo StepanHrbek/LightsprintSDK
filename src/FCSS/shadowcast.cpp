@@ -10,21 +10,9 @@ bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 /*
-                   math mesh collider vision channel rr chstorage chmixer
-Basic     edition: +    +    +        +      -          -
-Day       edition: +    +    +        +      +       +  D         D
-Night     edition: +    +    +        +*     D       D# -               *bude umet ulozit faktory na disk   #interne pojede nad faktory a ivertexy ulozenymi visionem, ne nad RRScene
-Architect edition: D    D    D        D      D       D  -
+zacistit fcss a presunout mezi samply
 
-ukoly:
- rename illumCalculator->RRRealtimeRadiosity
- rename illumPrecalculated->RRChannel
- new RRChannelStorage, potomek RRChannel s boostim save/load
- new RRChannelMixer, z vic channelu udela jeden channel, popr rekne gpu jak je mixovat
- new RRChannelFactory, vyrabi channely pro rr
- do RRRealtimeRadiosity se bude strkat RRChannelFactory, nekdo kdo vyrabi RRChannely (pripadne jeho potomky, RRChannelStorage)
-
-vyrobit trial pack, zjistit co chybi (fcss jako sampl?)
+vyrobit trial pack, zjistit co jeste chybi
 dalsi announcementy
 mailnout do limy
 sehnat bankovni spojeni
@@ -277,7 +265,6 @@ int xLightBegin, yLightBegin, movingLight = 0;
 int wireFrame = 0;
 
 int needMatrixUpdate = 1;
-int needTitleUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 bool showHelp = 0;
 int showLightViewFrustum = 1;
@@ -469,19 +456,6 @@ static int supports20(void)
 		return major>=2;// || (major==1 && minor>=5);
 	}
 	return 0;            /* OpenGL version string malformed! */
-}
-
-/* updateTitle - update the window's title bar text based on the current
-   program state. */
-void updateTitle(void)
-{
-	if (needTitleUpdate) 
-	{
-		char title[256];
-		sprintf(title,"Realtime Radiosity Viewer - %s",filename_3ds);
-		glutSetWindowTitle(title);
-		needTitleUpdate = 0;
-	}
 }
 
 Program* getProgramCore(UberProgramSetup uberProgramSetup)
@@ -902,9 +876,6 @@ void display(void)
 
 	app->reportIlluminationUse();
 
-	if(needTitleUpdate)
-		updateTitle();
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if(needMatrixUpdate)
@@ -1004,7 +975,6 @@ void toggleGlobalIllumination()
 		drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 	else
 		drawMode = DM_EYE_VIEW_SHADOWED;
-	needTitleUpdate = 1;
 	needDepthMapUpdate = 1;
 }
 
@@ -1167,7 +1137,6 @@ void keyboard(unsigned char c, int x, int y)
 		case 'q':
 			slopeScale += 0.1;
 			needDepthMapUpdate = 1;
-			needTitleUpdate = 1;
 			updateDepthBias(0);
 			break;
 		case 'Q':
@@ -1176,7 +1145,6 @@ void keyboard(unsigned char c, int x, int y)
 				slopeScale = 0.0;
 			}
 			needDepthMapUpdate = 1;
-			needTitleUpdate = 1;
 			updateDepthBias(0);
 			break;
 		case '>':
@@ -1376,7 +1344,6 @@ void depthBiasSelect(int depthBiasOption)
 {
 	depthBias24 = depthBiasOption;
 	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
-	needTitleUpdate = 1;
 	needDepthMapUpdate = 1;
 	glutPostRedisplay();
 }
@@ -1654,6 +1621,9 @@ retry:
 //	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
 
 	printf("\n");
+	char title[256];
+	sprintf(title,"Realtime Radiosity Viewer - %s",filename_3ds);
+	glutSetWindowTitle(title);
 
 	// creates radiosity solver with multiobject
 	// without renderer, no primary light is detected

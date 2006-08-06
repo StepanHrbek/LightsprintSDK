@@ -12,7 +12,7 @@
 class Shader
 {
 public:
-  Shader(const char* defines, const char* filename, GLenum shaderType = GL_FRAGMENT_SHADER_ARB);
+  Shader(const char* defines, const char* filename, GLenum shaderType = GL_FRAGMENT_SHADER);
   ~Shader();
   
   void compileIt();

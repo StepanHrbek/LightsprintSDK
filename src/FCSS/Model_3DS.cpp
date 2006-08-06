@@ -324,10 +324,10 @@ void Model_3DS::Draw(rr::RRVisionApp* app, bool lightIndirectMap)
 					// setup light indirect texture
 					rr::RRIlluminationPixelBuffer* pixelBuffer = app->getIllumination(i)->getChannel(0)->pixelBuffer;
 					const rr::RRColorI8* pixels = ((rr::RRIlluminationPixelBufferInMemory<rr::RRColorI8>*)pixelBuffer)->lock();
-					glActiveTextureARB(GL_TEXTURE12_ARB); // used by lightIndirectMap
+					glActiveTextureARB(GL_TEXTURE12); // used by lightIndirectMap
 					...
 					?->bindTexture();
-					glActiveTextureARB(GL_TEXTURE11_ARB); // used by materialDiffuseMap
+					glActiveTextureARB(GL_TEXTURE11); // used by materialDiffuseMap
 					// if not created yet, create unwrap buffer
 					rr::RRObjectIllumination& illum = app->getIllumination(i);
 					if(!illum.pixelBufferUnwrap)
