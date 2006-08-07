@@ -1,7 +1,3 @@
-//
-// 3ds to rrobject loader by Stepan Hrbek, dee@mail.cz
-//
-
 #ifndef _3DS2RR_H
 #define _3DS2RR_H
 
