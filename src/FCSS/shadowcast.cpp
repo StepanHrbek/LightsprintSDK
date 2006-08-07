@@ -9,8 +9,7 @@ bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 /*
-prestehovat shader do demoenginu
-vyrobit z fcss sampl, zajistit aby fcss i sampl sahali na spravny misto pro data
+vyrobit z fcss sampl
 
 necim zmerit memory leaky
 
@@ -115,7 +114,7 @@ enum {
 // globals
 
 Model_3DS m3ds;
-char* filename_3ds="koupelna\\koupelna4.3ds";
+char* filename_3ds="3ds\\koupelna\\koupelna4.3ds";
 float scale_3ds = 0.03f;
 RendererOfRRObject* rendererNonCaching = NULL;
 RendererWithCache* rendererCaching = NULL;
@@ -188,9 +187,18 @@ void init_gl_resources()
 
 	for(unsigned i=0;i<lightDirectMaps;i++)
 	{
-		char name[]="spot0.tga";
-		name[4] = '0'+i;
-		lightDirectMap[i] = new Texture(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		char name[]="maps\\spot0.tga";
+		name[9] = '0'+i;
+		try
+		{
+			lightDirectMap[i] = new Texture(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		}
+		catch (...)
+		{
+			printf("Texture %s not found or not supported (supported = truecolor .tga).\n",name);
+			error("",false);
+		}
+
 	}
 
 	uberProgram = new UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");

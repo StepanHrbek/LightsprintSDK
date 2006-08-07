@@ -1,18 +1,20 @@
 rd /q /s distro
 mkdir distro
 mkdir distro\shaders
-copy shaders distro\shaders
-mkdir distro\koupelna
-copy ..\..\data\3ds\koupelna4\*.3ds distro\koupelna
-copy ..\..\data\3ds\koupelna4\*.tga distro\koupelna
-mkdir distro\sponza
-copy ..\..\data\3ds\sponza\*.3ds distro\sponza
-copy ..\..\data\3ds\sponza\*.tga distro\sponza
-mkdir distro\sibenik
-copy ..\..\data\3ds\sibenik\*.3ds distro\sibenik
-copy ..\..\data\3ds\sibenik\*.tga distro\sibenik
+copy ..\..\data\shaders\ubershader.* distro\shaders
+mkdir distro\maps
+copy ..\..\data\maps\spot?.tga distro\maps
+mkdir distro\3ds
+mkdir distro\3ds\koupelna
+copy ..\..\data\3ds\koupelna4\*.3ds distro\3ds\koupelna
+copy ..\..\data\3ds\koupelna4\*.tga distro\3ds\koupelna
+mkdir distro\3ds\sponza
+copy ..\..\data\3ds\sponza\*.3ds distro\3ds\sponza
+copy ..\..\data\3ds\sponza\*.tga distro\3ds\sponza
+mkdir distro\3ds\sibenik
+copy ..\..\data\3ds\sibenik\*.3ds distro\3ds\sibenik
+copy ..\..\data\3ds\sibenik\*.tga distro\3ds\sibenik
 copy readme.txt distro
-copy spot?.tga distro
 copy glut32.dll distro
 copy view_*.bat distro
 copy ..\..\bin\fcss.exe distro\rrview.exe
