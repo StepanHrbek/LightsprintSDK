@@ -3,7 +3,6 @@
 unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
-#define AREA_SIZE                  0.15f
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 int fullscreen = 1;
 bool renderer3ds = true;
@@ -213,7 +212,7 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	areaLight = new AreaLight();
+	areaLight = new AreaLight(MAX_INSTANCES);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
 	updateDepthScale();
@@ -877,8 +876,6 @@ void display(void)
 
 	app->reportIlluminationUse();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	if(needMatrixUpdate)
 		updateMatrices();
 
@@ -897,6 +894,7 @@ void display(void)
 				//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 				uberProgramSetup.FORCE_2D_POSITION = false;
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				drawEyeViewShadowed(uberProgramSetup,0);
 				break;
 			}
@@ -1375,12 +1373,9 @@ void init_gl_states()
 	glLineStipple(1, 0xf0f0);
 
 	glEnable(GL_CULL_FACE);
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
 	glEnable(GL_NORMALIZE);
 
-	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
 
 #if defined(_WIN32)
 	wglSwapIntervalEXT(0);

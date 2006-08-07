@@ -11,8 +11,8 @@
 // new channels supported by our RRObjects
 enum
 {
-	CHANNEL_SURFACE_DIF_TEX          = 0x2001, //! Texture*
-	CHANNEL_TRIANGLE_VERTICES_DIF_UV = 0x1005, //! RRVec2[3]
+	CHANNEL_SURFACE_DIF_TEX          = rr::RRMesh::INDEXED_BY_SURFACE+1, //! Texture*
+	CHANNEL_TRIANGLE_VERTICES_DIF_UV = rr::RRMesh::INDEXED_BY_TRIANGLE+5, //! RRVec2[3]
 };
 
 // you may load object from 3ds
