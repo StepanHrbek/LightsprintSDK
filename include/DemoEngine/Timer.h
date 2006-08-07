@@ -1,5 +1,5 @@
-#ifndef RRTIMER_H
-#define RRTIMER_H
+#ifndef TIMER_H
+#define TIMER_H
 
 //////////////////////////////////////////////////////////////////////////////
 // Simple timer for time interval measurement.
@@ -27,11 +27,11 @@
 namespace rr
 {
 
-	class RRTimer
+	class Timer
 	{
 	public:
 
-		RRTimer()
+		Timer()
 		{
 #ifdef WINDOWS_TIME
 			QueryPerformanceFrequency((LARGE_INTEGER *)&perffreq);

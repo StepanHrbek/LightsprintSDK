@@ -402,6 +402,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\DemoEngine\UberProgramSetup.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\DemoEngine\VertexDataGenerator.h"
 			>
 		</File>

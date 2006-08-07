@@ -4,7 +4,7 @@
 #include <float.h> // _finite
 #include <time.h>
 #include "RRIllumCalculator.h"
-#include "DemoEngine/RRTimer.h"
+#include "DemoEngine/Timer.h"
 
 // odsunout do RRIlluminationPixelBuffer.cpp
 #include "swraster.h" // RRIlluminationPixelBufferInMemory
@@ -24,7 +24,7 @@ namespace rr
 #define MIN_PORTION_SPENT_IMPROVING 0.4f // at least 40% of our time is spent in improving
 
 #define REPORT(a)       //a
-#define REPORT_BEGIN(a) REPORT( RRTimer timer; timer.Start(); reportAction(a ".."); )
+#define REPORT_BEGIN(a) REPORT( Timer timer; timer.Start(); reportAction(a ".."); )
 #define REPORT_END      REPORT( {char buf[10]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
 
 // odsunout do RRIlluminationPixelBuffer.cpp
@@ -76,6 +76,9 @@ RRVisionApp::RRVisionApp()
 	readingResultsPeriod = 0;
 	//preVertex2PostTriangleVertex zeroed by constructor
 	resultChannelIndex = 0;
+	rr::RRScene::setStateF(rr::RRScene::SUBDIVISION_SPEED,0);
+	rr::RRScene::setState(rr::RRScene::GET_SOURCE,0);
+	rr::RRScene::setStateF(rr::RRScene::MIN_FEATURE_SIZE,0.15f);
 }
 
 RRVisionApp::~RRVisionApp()

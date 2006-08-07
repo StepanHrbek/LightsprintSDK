@@ -9,7 +9,10 @@ bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 /*
-zacistit fcss a presunout mezi samply
+prestehovat shader do demoenginu
+vyrobit z fcss sampl, zajistit aby fcss i sampl sahali na spravny misto pro data
+
+necim zmerit memory leaky
 
 vyrobit trial pack, zjistit co jeste chybi
 dalsi announcementy
@@ -66,17 +69,19 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/glut.h>
-
 #include "RRIllumCalculator.h"
-
 #include "DemoEngine/Camera.h"
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgram.h"
 #include "DemoEngine/MultiLight.h"
+#include "DemoEngine/Model_3DS.h"
+#include "DemoEngine/3ds2rr.h"
+#include "DemoEngine/RendererWithCache.h"
+#include "DemoEngine/RendererOfRRObject.h"
+#include "DemoEngine/UberProgramSetup.h"
 
 using namespace std;
 
-/* Some <math.h> files do not define M_PI... */
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -87,86 +92,35 @@ using namespace std;
 
 
 /////////////////////////////////////////////////////////////////////////////
-//
-// 3DS
 
-#include "DemoEngine/Model_3DS.h"
-#include "DemoEngine/3ds2rr.h"
+/* Draw modes. */
+enum {
+	DM_EYE_VIEW_SHADOWED,
+	DM_EYE_VIEW_SOFTSHADOWED,
+};
+
+/* Menu items. */
+enum {
+	ME_TOGGLE_GLOBAL_ILLUMINATION,
+	ME_CHANGE_SPOTLIGHT,
+	ME_TOGGLE_WIRE_FRAME,
+	ME_TOGGLE_LIGHT_FRUSTUM,
+	ME_SWITCH_MOUSE_CONTROL,
+	ME_EXIT,
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// globals
 
 Model_3DS m3ds;
 char* filename_3ds="koupelna\\koupelna4.3ds";
 float scale_3ds = 0.03f;
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// RR
-
-#include "DemoEngine/RendererWithCache.h"
-#include "DemoEngine/RendererOfRRObject.h"
-
 RendererOfRRObject* rendererNonCaching = NULL;
 RendererWithCache* rendererCaching = NULL;
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// UberProgramSetup
-
-struct UberProgramSetup
-{
-	// these values are passed to UberProgram which sets them to shader #defines
-	// UberProgram[UberProgramSetup] = Program
-	unsigned SHADOW_MAPS            :8;
-	unsigned SHADOW_SAMPLES         :8;
-	bool     LIGHT_DIRECT           :1;
-	bool     LIGHT_DIRECT_MAP       :1;
-	bool     LIGHT_INDIRECT_COLOR   :1;
-	bool     LIGHT_INDIRECT_MAP     :1;
-	bool     MATERIAL_DIFFUSE_COLOR :1;
-	bool     MATERIAL_DIFFUSE_MAP   :1;
-	bool     FORCE_2D_POSITION      :1;
-
-	UberProgramSetup()
-	{
-		memset(this,0,sizeof(*this));
-	}
-
-	const char* getSetupString()
-	{
-		static char setup[300];
-		sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s",
-			SHADOW_MAPS,
-			SHADOW_SAMPLES,
-			LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
-			LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
-			LIGHT_INDIRECT_COLOR?"#define LIGHT_INDIRECT_COLOR\n":"",
-			LIGHT_INDIRECT_MAP?"#define LIGHT_INDIRECT_MAP\n":"",
-			MATERIAL_DIFFUSE_COLOR?"#define MATERIAL_DIFFUSE_COLOR\n":"",
-			MATERIAL_DIFFUSE_MAP?"#define MATERIAL_DIFFUSE_MAP\n":"",
-			FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":""
-			);
-		return setup;
-	}
-
-	bool operator ==(const UberProgramSetup& a) const
-	{
-		return memcmp(this,&a,sizeof(*this))==0;
-	}
-	bool operator !=(const UberProgramSetup& a) const
-	{
-		return memcmp(this,&a,sizeof(*this))!=0;
-	}
-};
-
-
 Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
 Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// our OpenGL resources
-
 GLUquadricObj *quadric;
 AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
@@ -174,8 +128,27 @@ Texture *lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
 Program *ambientProgram;
 UberProgram* uberProgram;
+UberProgramSetup uberProgramGlobalSetup;
+int winWidth, winHeight;
+int depthBias24 = 42;
+int depthScale24;
+GLfloat slopeScale = 4.0;
+int needDepthMapUpdate = 1;
+int xEyeBegin, yEyeBegin, movingEye = 0;
+int xLightBegin, yLightBegin, movingLight = 0;
+int wireFrame = 0;
+int needMatrixUpdate = 1;
+int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
+bool showHelp = 0;
+int showLightViewFrustum = 1;
+int eyeButton = GLUT_LEFT_BUTTON;
+int lightButton = GLUT_MIDDLE_BUTTON;
+int useDepth24 = 0;
 
-void fatal_error(const char* message, bool gfxRelated)
+
+/////////////////////////////////////////////////////////////////////////////
+
+void error(const char* message, bool gfxRelated)
 {
 	printf(message);
 	if(gfxRelated)
@@ -184,11 +157,6 @@ void fatal_error(const char* message, bool gfxRelated)
 	fgetc(stdin);
 	exit(0);
 }
-
-int depthBias24 = 42;
-int depthScale24;
-GLfloat slopeScale = 4.0;
-int needDepthMapUpdate = 1;
 
 void updateDepthBias(int delta)
 {
@@ -231,55 +199,15 @@ void init_gl_resources()
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
 	if(!ambientProgram)
-		fatal_error("\nFailed to compile or link GLSL program.\n",true);
+		error("\nFailed to compile or link GLSL program.\n",true);
 }
-
-
-
-UberProgramSetup uberProgramGlobalSetup;
-int winWidth, winHeight;
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-/* Draw modes. */
-enum {
-	DM_EYE_VIEW_SHADOWED,
-	DM_EYE_VIEW_SOFTSHADOWED,
-};
-
-/* Menu items. */
-enum {
-	ME_TOGGLE_GLOBAL_ILLUMINATION,
-	ME_CHANGE_SPOTLIGHT,
-	ME_TOGGLE_WIRE_FRAME,
-	ME_TOGGLE_LIGHT_FRUSTUM,
-	ME_SWITCH_MOUSE_CONTROL,
-	ME_EXIT,
-};
-
-GLfloat textureLodBias = 0.0;
-
-int xEyeBegin, yEyeBegin, movingEye = 0;
-int xLightBegin, yLightBegin, movingLight = 0;
-int wireFrame = 0;
-
-int needMatrixUpdate = 1;
-int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-bool showHelp = 0;
-int showLightViewFrustum = 1;
-int eyeButton = GLUT_LEFT_BUTTON;
-int lightButton = GLUT_MIDDLE_BUTTON;
-int useDepth24 = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // MyApp
 
-void drawHardwareShadowPass(UberProgramSetup uberProgramSetup, unsigned firstInstance);
+void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance);
 void updateMatrices();
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
@@ -292,7 +220,7 @@ public:
 	{
 		if(!xmax || !ymax)
 		{
-			fatal_error("No window, internal error.",false);
+			error("No window, internal error.",false);
 		}
 		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
 		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
@@ -301,12 +229,10 @@ public:
 	unsigned xmax, ymax;
 };
 
-CaptureUv captureUv;
-
 // external dependencies of MyApp:
 // z m3ds detekuje materialy
 // renderer je pouzit k captureDirect
-//#include "RRTimer.h"
+//#include "Timer.h"
 class MyApp : public rr::RRVisionApp
 {
 protected:
@@ -333,12 +259,13 @@ protected:
 			needDepthMapUpdate = 1; // aby si pote soft pregeneroval svych 7 map a nespolehal na nasi jednu
 		}
 		
-		//RRTimer w;w.Start();
+		//Timer w;w.Start();
 
 		rr::RRMesh* mesh = multiObject->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		// adjust captured texture size so we don't waste pixels
+		static CaptureUv captureUv;
 		unsigned width1 = 4;
 		unsigned height1 = 4;
 		captureUv.firstCapturedTriangle = 0;
@@ -355,7 +282,7 @@ protected:
 		glViewport(0, 0, width, height);
 
 		// Allocate the index buffer memory as necessary.
-		GLuint* pixelBuffer = (GLuint*)malloc(width * height * 4);
+		GLuint* pixelBuffer = new GLuint[width * height];
 
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
@@ -383,7 +310,7 @@ protected:
 #endif
 			uberProgramSetup.FORCE_2D_POSITION = true;
 			rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle); // set param for cache so it creates different displaylists
-			drawHardwareShadowPass(uberProgramSetup,0);
+			renderScene(uberProgramSetup,0);
 			rendererNonCaching->setCapture(NULL,0);
 
 			// Read back the index buffer to memory.
@@ -424,7 +351,7 @@ protected:
 			//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
 		}
 
-		free(pixelBuffer);
+		delete[] pixelBuffer;
 
 		// restore render states
 		glViewport(0, 0, winWidth, winHeight);
@@ -443,77 +370,6 @@ MyApp* app = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
-//
-// OPENGL INITIALIZATION AND CHECKS
-
-static int supports20(void)
-{
-	const char *version;
-	int major, minor;
-
-	version = (char *) glGetString(GL_VERSION);
-	if (sscanf(version, "%d.%d", &major, &minor) == 2) {
-		return major>=2;// || (major==1 && minor>=5);
-	}
-	return 0;            /* OpenGL version string malformed! */
-}
-
-Program* getProgramCore(UberProgramSetup uberProgramSetup)
-{
-	const char* setup = uberProgramSetup.getSetupString();
-	return uberProgram->getProgram(setup);
-}
-
-Program* getProgram(UberProgramSetup uberProgramSetup)
-{
-	Program* tmp = getProgramCore(uberProgramSetup);
-	if(!tmp)
-	{
-		fatal_error("Failed to compile or link GLSL program.\n",true);
-	}
-	return tmp;
-}
-
-Program* setProgram(UberProgramSetup uberProgramSetup)
-{
-	Program* tmp = getProgram(uberProgramSetup);
-	tmp->useIt();
-	return tmp;
-}
-
-void drawScene(UberProgramSetup uberProgramSetup)
-{
-	// lze smazat, stejnou praci dokaze i rrrenderer
-	// nicmene m3ds.Draw stale jeste
-	// 1) lip smoothuje (pouziva min vertexu)
-	// 2) slouzi jako test ze RRIllumCalculator spravne generuje vertex buffer s indirectem
-	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
-	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
-	if(renderer3ds && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
-	{
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?app:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
-		return;
-	}
-
-	RendererOfRRObject::RenderedChannels renderedChannels;
-	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
-	renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
-	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
-	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
-	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
-	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
-	rendererNonCaching->setRenderedChannels(renderedChannels);
-
-	rendererCaching->render();
-}
-
-void setProgramAndDrawScene(UberProgramSetup uberProgramSetup)
-{
-	setProgram(uberProgramSetup);
-	drawScene(uberProgramSetup);
-}
 
 /* drawLight - draw a yellow sphere (disabling lighting) to represent
    the current position of the local light source. */
@@ -582,6 +438,35 @@ void drawShadowMapFrustum(void)
 	glDisable(GL_LINE_STIPPLE);
 }
 
+void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
+{
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+		error("Failed to compile or link GLSL program.\n",true);
+
+	// lze smazat, stejnou praci dokaze i rrrenderer
+	// nicmene m3ds.Draw stale jeste
+	// 1) lip smoothuje (pouziva min vertexu)
+	// 2) slouzi jako test ze RRIllumCalculator spravne generuje vertex buffer s indirectem
+	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
+	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
+	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?app:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
+		return;
+	}
+	RendererOfRRObject::RenderedChannels renderedChannels;
+	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
+	renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
+	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
+	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
+	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
+	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
+	rendererNonCaching->setRenderedChannels(renderedChannels);
+	rendererCaching->render();
+}
+
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 {
 	if(!needDepthMapUpdate) return;
@@ -606,7 +491,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
-	setProgramAndDrawScene(uberProgramSetup);
+	renderScene(uberProgramSetup,0);
 	areaLight->getShadowMap((mapIndex>=0)?mapIndex:0)->renderingToDone();
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -620,77 +505,6 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	}
 }
 
-void drawHardwareShadowPass(UberProgramSetup uberProgramSetup, unsigned firstInstance)
-{
-	Program* myProg = setProgram(uberProgramSetup);
-
-	//myProg->enumVariables();
-
-	// shadowMap[], gl_TextureMatrix[]
-	glMatrixMode(GL_TEXTURE);
-	GLdouble tmp[16]={
-		1,0,0,0,
-		0,1,0,0,
-		0,0,1,0,
-		1,1,1,2
-	};
-	//GLint samplers[100]; // for array of samplers (needs OpenGL 2.0 compliant card)
-	for(unsigned i=0;i<uberProgramSetup.SHADOW_MAPS;i++)
-	{
-		glActiveTexture(GL_TEXTURE0+i);
-		// prepare samplers
-		areaLight->getShadowMap(firstInstance+i)->bindTexture();
-		//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
-		char name[] = "shadowMap0"; // for individual samplers (works on buggy ATI)
-		name[9] = '0'+i; // for individual samplers (works on buggy ATI)
-		myProg->sendUniform(name, (int)i); // for individual samplers (works on buggy ATI)
-		// prepare and send matrices
-		Camera* lightInstance = areaLight->getInstance(firstInstance+i);
-		glLoadMatrixd(tmp);
-		glMultMatrixd(lightInstance->frustumMatrix);
-		glMultMatrixd(lightInstance->viewMatrix);
-	}
-	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
-	glMatrixMode(GL_MODELVIEW);
-
-	// lightDirectPos (in object space)
-	if(uberProgramSetup.LIGHT_DIRECT)
-	{
-		myProg->sendUniform("lightDirectPos",light.pos[0],light.pos[1],light.pos[2]);
-	}
-
-	// lightDirectMap
-	if(uberProgramSetup.LIGHT_DIRECT_MAP)
-	{
-		int id=10;
-		glActiveTexture(GL_TEXTURE0+id);
-		lightDirectMap[lightDirectMapIdx]->bindTexture();
-		myProg->sendUniform("lightDirectMap", id);
-	}
-
-	// lightIndirectMap
-	if(uberProgramSetup.LIGHT_INDIRECT_MAP)
-	{
-		int id=12;
-		//glActiveTexture(GL_TEXTURE0+id);
-		myProg->sendUniform("lightIndirectMap", id);
-	}
-
-	// materialDiffuseMap
-	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-	{
-		int id=11;
-		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active
-		myProg->sendUniform("materialDiffuseMap", id);
-	}
-
-	//assert(myProg->isValid());
-
-	drawScene(uberProgramSetup);
-
-	glActiveTexture(GL_TEXTURE0);
-}
-
 void drawEyeViewShadowed(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -702,7 +516,7 @@ void drawEyeViewShadowed(UberProgramSetup uberProgramSetup, unsigned firstInstan
 
 	eye.setupForRender();
 
-	drawHardwareShadowPass(uberProgramSetup,firstInstance);
+	renderScene(uberProgramSetup,firstInstance);
 
 	drawLight();
 	if (showLightViewFrustum) drawShadowMapFrustum();
@@ -767,7 +581,7 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		setProgramAndDrawScene(uberProgramSetup);
+		renderScene(uberProgramSetup,0);
 		glAccum(GL_ACCUM,1);
 	}
 
@@ -1146,12 +960,6 @@ void keyboard(unsigned char c, int x, int y)
 			needDepthMapUpdate = 1;
 			updateDepthBias(0);
 			break;
-		case '>':
-			textureLodBias += 0.2;
-			break;
-		case '<':
-			textureLodBias -= 0.2;
-			break;
 		case 'w':
 		case 'W':
 			toggleWireFrame();
@@ -1317,8 +1125,8 @@ void motion(int x, int y)
 	}
 }
 
-//#include "RRTimer.h"
-//rr::RRTimer timer;
+//#include "Timer.h"
+//rr::Timer timer;
 
 void idle()
 {
@@ -1561,10 +1369,9 @@ int main(int argc, char **argv)
 	init_gl_states();
 	init_gl_resources();
 
-	if(!supports20())
-	{
-		fatal_error("OpenGL 2.0 capable graphics card is required.\n",true);
-	}
+	int major, minor;
+	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+		error("OpenGL 2.0 capable graphics card is required.\n",true);
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
@@ -1577,29 +1384,9 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
 
 	// adjust INSTANCES_PER_PASS to GPU
-	printf("Max maps processed at once: %d -> ", INSTANCES_PER_PASS); // this is our initial guess
-retry:
-	UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = INSTANCES_PER_PASS;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
-	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
-	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
-	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	uberProgramSetup.FORCE_2D_POSITION = false;
-	Program* prog = getProgramCore(uberProgramSetup);
-	if(!prog)
-	{
-		if(--INSTANCES_PER_PASS)
-			goto retry;
-		fatal_error("0\n",true);
-	}
-	printf("%d -> ", INSTANCES_PER_PASS); // this seems working, but fails on ATI
-	if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
-	if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
-	printf("%d\n", INSTANCES_PER_PASS); // this is further reduced by 2
+	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram);
+	if(!INSTANCES_PER_PASS) error("",true);
+
 	areaLight->attachTo(&light);
 	areaLight->setNumInstances(startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1);
 
@@ -1607,7 +1394,7 @@ retry:
 
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds))
-		fatal_error("",false);
+		error("",false);
 	//m3ds.shownormals=1;
 	//m3ds.numObjects=2;//!!!
 	app = new MyApp();
@@ -1628,7 +1415,7 @@ retry:
 //printf(" %d triangles\n",app->multiObject?app->multiObject->getCollider()->getMesh()->getNumTriangles():0);
 
 	if(!app->multiObject)
-		fatal_error("No objects in scene.",false);
+		error("No objects in scene.",false);
 
 	// creates renderer
 	rendererNonCaching = new RendererOfRRObject(app->multiObject,app->scene);

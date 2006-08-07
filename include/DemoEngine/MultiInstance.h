@@ -38,6 +38,10 @@ public:
 			parent = aparent;
 		}
 	}
+	virtual const Class* getParent()
+	{
+		return parent;
+	}
 protected:
 	const Class* parent;
 	bool parentChanged;
