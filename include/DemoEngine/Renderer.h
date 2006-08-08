@@ -1,12 +1,13 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "DemoEngine.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
 //! Renderer - interface
 
-class Renderer
+class RR_API Renderer
 {
 public:
 	//! Renders.

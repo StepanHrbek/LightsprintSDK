@@ -1,6 +1,7 @@
 #ifndef UBERPROGRAM_H
 #define UBERPROGRAM_H
 
+#include "DemoEngine.h"
 #include "Program.h"
 #include <map>
 
@@ -9,7 +10,7 @@
 //
 // UberProgram
 
-class UberProgram
+class RR_API UberProgram
 {
 public:
 	UberProgram(const char* avertexShaderFileName, const char* afragmentShaderFileName);

@@ -71,12 +71,13 @@
 #ifndef MODEL_3DS_H
 #define MODEL_3DS_H
 
+#include "DemoEngine.h"
 #include "RRIllumCalculator.h"
 #include "Texture.h"
 
 #include <stdio.h>
 
-class Model_3DS  
+class RR_API Model_3DS  
 {
 public:
 	// A VERY simple vector struct

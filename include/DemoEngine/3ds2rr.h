@@ -1,6 +1,7 @@
 #ifndef _3DS2RR_H
 #define _3DS2RR_H
 
+#include "DemoEngine.h"
 #include "RRIllumCalculator.h"
 #include "Model_3DS.h"
 
@@ -12,6 +13,6 @@ enum
 };
 
 // you may load object from 3ds
-void new_3ds_importer(Model_3DS* model,rr::RRVisionApp* app, float stitchDistance);
+void RR_API new_3ds_importer(Model_3DS* model,rr::RRVisionApp* app, float stitchDistance);
 
 #endif

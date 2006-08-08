@@ -1,6 +1,7 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
+#include "DemoEngine.h"
 #include "Shader.h"
 
 
@@ -8,7 +9,7 @@
 //
 // Program
 
-class Program
+class RR_API Program
 {
 public:
 	Program();

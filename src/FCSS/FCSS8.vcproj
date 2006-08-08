@@ -78,7 +78,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DemoEngine_sr.lib glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\FCSS_sr.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -173,7 +173,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DemoEngine_sd.lib glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\FCSS_sd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -274,7 +274,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DemoEngine_dr.lib glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\FCSS_dr.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

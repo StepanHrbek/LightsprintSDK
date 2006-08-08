@@ -1,6 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "DemoEngine.h"
 #include <GL/glut.h>
 
 
@@ -8,7 +9,7 @@
 //
 // Camera
 
-class Camera
+class RR_API Camera
 {
 public:
 	// inputs

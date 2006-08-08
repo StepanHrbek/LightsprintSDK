@@ -1,12 +1,13 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include "DemoEngine.h"
 #include <cstdio>
 #include <GL/glut.h>
 //#include <jpeglib.h>
 
 /*
-class Texture
+class RR_API Texture
 {
 public:
 	Texture(unsigned width, unsigned height, unsigned type,
@@ -21,7 +22,7 @@ protected:
 	int height;
 };
 
-class TextureFromDisk : public Texture
+class RR_API TextureFromDisk : public Texture
 {
 public:
 	class xFileNotFound {};
@@ -46,7 +47,7 @@ protected:
 };
 */
 
-class Texture
+class RR_API Texture
 {
 public:
 	class xFileNotFound {};

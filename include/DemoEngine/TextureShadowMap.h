@@ -1,10 +1,10 @@
 #ifndef TEXTURESHADOWMAP_H
 #define TEXTURESHADOWMAP_H
 
+#include "DemoEngine.h"
 #include "Texture.h"
 
 #define SHADOW_MAP_SIZE 512
-
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 
 
@@ -12,7 +12,7 @@
 //
 // TextureShadowMap
 
-class TextureShadowMap : public Texture
+class RR_API TextureShadowMap : public Texture
 {
 public:
 	TextureShadowMap();
