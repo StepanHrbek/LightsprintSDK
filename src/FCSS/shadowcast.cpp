@@ -9,15 +9,15 @@ bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 /*
-vyrobit z fcss sampl
-
-necim zmerit memory leaky
-
-vyrobit trial pack, zjistit co jeste chybi
 dalsi announcementy
+vyrabet demoengine.dll
+zjistit co jeste chybi v distru
+
 mailnout do limy
-sehnat bankovni spojeni
 napsat zadani na final gather
+
+sehnat bankovni spojeni
+zmerit memory leaky
 
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve

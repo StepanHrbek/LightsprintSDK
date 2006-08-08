@@ -184,7 +184,7 @@ protected:
 
 void renderScene(UberProgramSetup uberProgramSetup)
 {
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,lightDirectMap))
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
 		error("Failed to compile or link GLSL program.\n",true);
 	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
 	{
@@ -412,16 +412,15 @@ int main(int argc, char **argv)
 
 	// init textures
 	try {
-		lightDirectMap = new Texture("spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		lightDirectMap = new Texture("maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	} catch (...) {
-		printf("Texture %s not found or not supported (supported = truecolor .tga).\n","spot0.tga");
-		error("",false);
+		error("Texture maps\\spot0.tga not found or not supported (supported = truecolor .tga).\n",false);
 	}
 	areaLight = new AreaLight(shadowmapsPerPass);
 	areaLight->attachTo(&light);
 
 	// init .3ds scene
-	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna4\\koupelna4.3ds",0.03f))
+	if(!m3ds.Load("3ds\\koupelna4\\koupelna4.3ds",0.03f))
 		error("",false);
 
 	// init radiosity solver

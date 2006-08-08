@@ -7,7 +7,7 @@
 
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"
-#include "RRTimer.h"
+#include "DemoEngine/Timer.h"
 #include "RRCollider.h"
 #include <math.h>
 #ifdef _OPENMP
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 	RRCollider* collider = RRCollider::create(rrMesh,RRCollider::IT_BSP_FASTEST);
 
 	// start watch
-	RRTimer* watch = new RRTimer();
+	Timer* watch = new Timer();
 	watch->Start();
 
 	// cast all rays
@@ -105,19 +105,20 @@ int main(int argc, char** argv)
 	}
 
 	// stop watch
-	watch->Watch();
+	double realtime, usertime, kerneltime;
+	realtime = watch->Watch(&usertime,&kerneltime);
 
 	// report results
 	printf("\nDetected speed: %d intersections per second (hit ratio=%f)\n",
-		(int)(NUM_RAYS/(watch->realtime)),
+		(int)(NUM_RAYS/realtime),
 		(double)num_hits / NUM_RAYS
 		);
 	printf("Note that statically linked version is faster by 10-30%%.\n");
 	printf("\nMeasured speed: wallspd=%d 1cpuspd=%d user=%f kernel=%f hits=%f\n",
-		(int)(NUM_RAYS/(watch->realtime)/1000),
-		(int)(NUM_RAYS/(watch->usertime+watch->kerneltime)/1000),
-		watch->usertime/watch->realtime,
-		watch->kerneltime/watch->realtime,
+		(int)(NUM_RAYS/realtime/1000),
+		(int)(NUM_RAYS/(usertime+kerneltime)/1000),
+		usertime/realtime,
+		kerneltime/realtime,
 		(double)num_hits / NUM_RAYS);
 
 	// cleanup

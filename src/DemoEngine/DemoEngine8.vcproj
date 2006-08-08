@@ -260,7 +260,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="..\..\3rd\glut\glut32.lib"
-				OutputFile="..\..\bin\$(ProjectName)_dr.dll"
+				OutputFile="..\..\bin\$(ProjectName).dll"
 				AdditionalLibraryDirectories="$(OutDir)"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>

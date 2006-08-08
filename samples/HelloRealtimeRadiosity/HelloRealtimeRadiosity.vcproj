@@ -2,10 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="BunnyBenchmark"
-	ProjectGUID="{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
-	RootNamespace="BunnyBenchmark"
-	Keyword="Win32Proj"
+	Name="HelloRealtimeRadiosity"
+	ProjectGUID="{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
 	>
 	<Platforms>
 		<Platform
@@ -16,12 +14,15 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Debug static|Win32"
+			Name="Release static|Win32"
 			OutputDirectory="..\..\bin"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="0"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -37,39 +38,54 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				TypeLibraryName=".\Release/HelloRealtimeRadiosity.tlb"
+				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\RRCollider\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC"
-				MinimalRebuild="false"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				EnableEnhancedInstructionSet="0"
-				FloatingPointModel="0"
-				OpenMP="true"
-				UsePrecompiledHeader="0"
+				Optimization="2"
+				InlineFunctionExpansion="2"
+				OmitFramePointers="true"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC;RR_STATIC"
+				StringPooling="true"
+				ExceptionHandling="1"
+				RuntimeLibrary="0"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
+				RuntimeTypeInfo="false"
+				PrecompiledHeaderFile=".\Release/HelloRealtimeRadiosity.pch"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName)_sd.exe"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalDependencies="DemoEngine_sr.lib glut32.lib glu32.lib opengl32.lib"
+				OutputFile="$(OutDir)\$(ProjectName)_sr.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
+				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sd.pdb"
+				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sr.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -99,13 +115,14 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release static|Win32"
+			Name="Debug static|Win32"
 			OutputDirectory="..\..\bin"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -121,50 +138,50 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				TypeLibraryName=".\Debug/HelloRealtimeRadiosity.tlb"
+				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				OmitFramePointers="true"
-				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\..\include;..\RRCollider\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC"
-				StringPooling="true"
-				ExceptionHandling="1"
-				RuntimeLibrary="0"
-				StructMemberAlignment="0"
-				BufferSecurityCheck="false"
-				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="1"
-				FloatingPointModel="2"
-				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="false"
-				OpenMP="true"
-				UsePrecompiledHeader="0"
+				Optimization="0"
+				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC;RR_STATIC"
+				MinimalRebuild="false"
+				RuntimeLibrary="1"
+				EnableEnhancedInstructionSet="0"
+				FloatingPointModel="0"
+				PrecompiledHeaderFile=".\Debug/HelloRealtimeRadiosity.pch"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
+				BrowseInformation="1"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="4"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName)_sr.exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalDependencies="DemoEngine_sd.lib glut32.lib glu32.lib opengl32.lib"
+				OutputFile="$(OutDir)\$(ProjectName)_sd.exe"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
+				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sd.pdb"
 				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -198,8 +215,10 @@
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -215,50 +234,55 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				TypeLibraryName=".\Release/HelloRealtimeRadiosity.tlb"
+				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\..\include;..\RRCollider\include"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
-				StructMemberAlignment="0"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="1"
 				FloatingPointModel="2"
-				ForceConformanceInForLoopScope="true"
 				RuntimeTypeInfo="false"
-				OpenMP="true"
-				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\Release/HelloRealtimeRadiosity.pch"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="DemoEngine.lib glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\lib"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
+				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
 				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -292,6 +316,8 @@
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="0"
 			>
 			<Tool
@@ -308,37 +334,47 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				TypeLibraryName=".\Debug/HelloRealtimeRadiosity.tlb"
+				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\RRCollider\include"
+				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
 				MinimalRebuild="false"
-				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				OpenMP="true"
-				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\Debug/HelloRealtimeRadiosity.pch"
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
+				BrowseInformation="1"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="DemoEngine.lib glut32.lib glu32.lib opengl32.lib"
 				OutputFile="$(OutDir)\$(ProjectName)_dd.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\lib"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
+				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dd.pdb"
 				SubSystem="1"
@@ -374,35 +410,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\BunnyBenchmark.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\plymeshreader.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\plymeshreader.h"
-			>
-		</File>
-		<File
-			RelativePath=".\rply.c"
-			>
-		</File>
-		<File
-			RelativePath=".\rply.h"
-			>
-		</File>
-		<File
-			RelativePath=".\sphereunitvecpool.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\sphereunitvecpool.h"
-			>
-		</File>
-		<File
-			RelativePath=".\StopWatch.h"
+			RelativePath=".\HelloRealtimeRadiosity.cpp"
 			>
 		</File>
 	</Files>
