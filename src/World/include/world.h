@@ -3,7 +3,7 @@
 
 #ifdef _MSC_VER
 	#ifdef NDEBUG
-		#pragma comment(lib,"World_s.lib")
+		#pragma comment(lib,"World_sr.lib")
 	#else
 		#pragma comment(lib,"World_sd.lib")
 	#endif

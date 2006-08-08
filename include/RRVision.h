@@ -15,7 +15,7 @@
 #	ifdef RR_STATIC
 		// use static library
 		#if defined(RR_RELEASE) || (defined(NDEBUG) && !defined(RR_DEBUG))
-			#pragma comment(lib,"RRVision_s.lib")
+			#pragma comment(lib,"RRVision_sr.lib")
 		#else
 			#pragma comment(lib,"RRVision_sd.lib")
 		#endif

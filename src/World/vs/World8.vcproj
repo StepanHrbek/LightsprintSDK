@@ -62,7 +62,7 @@
 				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_s.pdb"
+				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sr.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
@@ -80,7 +80,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/$(ProjectName)_s.lib"
+				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool

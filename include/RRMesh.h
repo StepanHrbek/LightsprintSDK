@@ -16,7 +16,7 @@
 #	ifdef RR_STATIC
 		// use static library
 		#if defined(RR_RELEASE) || (defined(NDEBUG) && !defined(RR_DEBUG))
-			#pragma comment(lib,"RRMesh_s.lib")
+			#pragma comment(lib,"RRMesh_sr.lib")
 		#else
 			#pragma comment(lib,"RRMesh_sd.lib")
 		#endif
