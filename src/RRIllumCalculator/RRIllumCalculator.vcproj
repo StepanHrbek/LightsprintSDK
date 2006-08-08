@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release static|Win32"
-			OutputDirectory="..\..\lib"
+			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -106,7 +106,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug static|Win32"
-			OutputDirectory="..\..\lib"
+			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -191,7 +191,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release DLL|Win32"
-			OutputDirectory="..\..\lib"
+			OutputDirectory="..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -256,7 +256,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\bin\$(ProjectName).dll"
+				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
 				AdditionalLibraryDirectories="$(OutDir)"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>

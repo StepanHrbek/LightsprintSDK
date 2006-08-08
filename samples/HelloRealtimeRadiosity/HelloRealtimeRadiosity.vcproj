@@ -15,7 +15,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release static|Win32"
-			OutputDirectory="..\..\bin"
+			OutputDirectory="..\..\bin\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -82,7 +82,7 @@
 				OutputFile="$(OutDir)\$(ProjectName)_sr.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
+				AdditionalLibraryDirectories=".;..\..\lib\$(PlatformName);..\..\3rd\glut"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sr.pdb"
@@ -116,7 +116,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug static|Win32"
-			OutputDirectory="..\..\bin"
+			OutputDirectory="..\..\bin\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -177,7 +177,7 @@
 				OutputFile="$(OutDir)\$(ProjectName)_sd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
+				AdditionalLibraryDirectories=".;..\..\lib\$(PlatformName);..\..\3rd\glut"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sd.pdb"
@@ -211,7 +211,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release DLL|Win32"
-			OutputDirectory="..\..\bin"
+			OutputDirectory="..\..\bin\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -278,7 +278,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
+				AdditionalLibraryDirectories=".;..\..\lib\$(PlatformName);..\..\3rd\glut"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
@@ -312,7 +312,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug DLL|Win32"
-			OutputDirectory="..\..\bin"
+			OutputDirectory="..\..\bin\$(PlatformName)"
 			IntermediateDirectory="..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -373,7 +373,7 @@
 				OutputFile="$(OutDir)\$(ProjectName)_dd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".;..\..\lib;..\..\3rd\glut"
+				AdditionalLibraryDirectories=".;..\..\lib\$(PlatformName);..\..\3rd\glut"
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_dd.pdb"

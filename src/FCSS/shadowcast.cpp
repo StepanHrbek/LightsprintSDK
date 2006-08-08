@@ -9,9 +9,8 @@ bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 /*
-dalsi announcementy
-vyrabet demoengine.dll
 zjistit co jeste chybi v distru
+dalsi announcementy
 
 mailnout do limy
 napsat zadani na final gather

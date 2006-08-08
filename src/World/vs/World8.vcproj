@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release static|Win32"
-			OutputDirectory="..\..\..\lib"
+			OutputDirectory="..\..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -104,7 +104,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug static|Win32"
-			OutputDirectory="..\..\..\lib"
+			OutputDirectory="..\..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
