@@ -406,21 +406,21 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST);
 
 	// init shaders
-	uberProgram = new UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
+	uberProgram = new UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
 	unsigned shadowmapsPerPass = UberProgramSetup::detectMaxShadowmaps(uberProgram);
 	if(!shadowmapsPerPass) error("",true);
 
 	// init textures
 	try {
-		lightDirectMap = new Texture("maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		lightDirectMap = new Texture("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	} catch (...) {
-		error("Texture maps\\spot0.tga not found or not supported (supported = truecolor .tga).\n",false);
+		error("Texture ..\\..\\data\\maps\\spot0.tga not found or not supported (supported = truecolor .tga).\n",false);
 	}
 	areaLight = new AreaLight(shadowmapsPerPass);
 	areaLight->attachTo(&light);
 
 	// init .3ds scene
-	if(!m3ds.Load("3ds\\koupelna4\\koupelna4.3ds",0.03f))
+	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna4\\koupelna4.3ds",0.03f))
 		error("",false);
 
 	// init radiosity solver
