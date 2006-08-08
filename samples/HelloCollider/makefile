@@ -5,11 +5,12 @@ CPPFLAGS = $(CFLAGS)
 MAKE = makefile
 
 OBJS = HelloCollider.o
+LIBS = ../../lib/libRRMesh.a ../../lib/libRRCollider.a
 
 all: HelloCollider.exe
 
-$(BIN)HelloCollider.exe: $(OBJS) $(MAKE) ../../lib/libRRMesh.a ../../lib/libRRCollider.a
-	gcc $(OBJS) ../../lib/libRRMesh.a ../../lib/libRRCollider.a -lstdc++ -o HelloCollider.exe
+HelloCollider.exe: $(OBJS) $(MAKE) $(LIBS)
+	gcc $(OBJS) $(LIBS) -lstdc++ -o HelloCollider.exe
 
 clean:
 	del *.o

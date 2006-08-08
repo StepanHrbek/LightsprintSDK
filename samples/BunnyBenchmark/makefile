@@ -10,11 +10,12 @@ BIN =
 MAKE = makefile
 
 OBJS = BunnyBenchmark.o plymeshreader.o rply.o sphereunitvecpool.o
+LIBS = ../../lib/libRRMesh.a ../../lib/libRRCollider.a
 
 all: $(BIN)BunnyBenchmark.exe
 
-$(BIN)BunnyBenchmark.exe: $(OBJS) $(MAKE) ../../lib/libRRMesh.a ../../lib/libRRCollider.a
-	gcc $(OBJS) ../../lib/libRRMesh.a ../../lib/libRRCollider.a -lstdc++ -o $(BIN)BunnyBenchmark.exe
+$(BIN)BunnyBenchmark.exe: $(OBJS) $(MAKE) $(LIBS)
+	gcc $(OBJS) $(LIBS) -lstdc++ -o $(BIN)BunnyBenchmark.exe
 
 clean:
 	del *.o

@@ -3,7 +3,7 @@ TMP = #../../tmp/RRVision/
 
 CC = gcc
 CPPFLAGS = -I../../include
-CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG -DGLEW_STATIC
+CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG -DGLEW_STATIC -DRR_STATIC
 #CPPFLAGS += -ffast-math // zpusobuje crash v soda
 CPPFLAGS += -fomit-frame-pointer
 CPPFLAGS += -march=athlon-xp -msse

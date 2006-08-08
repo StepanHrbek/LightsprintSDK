@@ -5,11 +5,12 @@ CPPFLAGS = $(CFLAGS)
 MAKE = makefile
 
 OBJS = HelloMesh.o
+LIBS = ../../lib/libRRMesh.a
 
 all: HelloMesh.exe
 
-$(BIN)HelloMesh.exe: $(OBJS) $(MAKE) ../../lib/libRRMesh.a
-	gcc $(OBJS) ../../lib/libRRMesh.a -lstdc++ -o HelloMesh.exe
+HelloMesh.exe: $(OBJS) $(MAKE) $(LIBS)
+	gcc $(OBJS) $(LIBS) -lstdc++ -o HelloMesh.exe
 
 clean:
 	del *.o

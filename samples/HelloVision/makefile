@@ -5,11 +5,12 @@ CPPFLAGS = $(CFLAGS)
 MAKE = makefile
 
 OBJS = HelloVision.o
+LIBS = ../../lib/libRRMesh.a ../../lib/libRRCollider.a ../../lib/libRRVision.a
 
 all: HelloVision.exe
 
-$(BIN)HelloVision.exe: $(OBJS) $(MAKE) ../../lib/libRRMesh.a ../../lib/libRRCollider.a ../../lib/libRRVision.a
-	gcc $(OBJS) ../../lib/libRRMesh.a ../../lib/libRRCollider.a ../../lib/libRRVision.a -lstdc++ -o HelloVision.exe
+HelloVision.exe: $(OBJS) $(MAKE) $(LIBS)
+	gcc $(OBJS) $(LIBS) -lstdc++ -o HelloVision.exe
 
 clean:
 	del *.o
