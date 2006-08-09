@@ -81,7 +81,16 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRVisionApp
-	//! Framework for Vision application.
+	//! Radiosity solver for interactive applications.
+	//
+	//! Usage: Create one instance at the beginning of interactive session
+	//! and load it with scene objects.
+	//! Call calculate() at each frame, it will spend some time
+	//! by improving illumination.
+	//! When scene changes, report it using report* methods.
+	//!
+	//! Few methods remain to be implemented by you.
+	//! You can see what happens inside if you reimplement reportAction().
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
