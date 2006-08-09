@@ -2,7 +2,7 @@
 #define _3DS2RR_H
 
 #include "DemoEngine.h"
-#include "RRIllumCalculator.h"
+#include "RRRealtimeRadiosity.h"
 #include "Model_3DS.h"
 
 // new channels supported by our RRObjects

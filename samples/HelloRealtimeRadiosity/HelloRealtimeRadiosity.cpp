@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "RRIllumCalculator.h"
+#include "RRRealtimeRadiosity.h"
 #include "DemoEngine/Camera.h"
 #include "DemoEngine/UberProgram.h"
 #include "DemoEngine/MultiLight.h"

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="RRIllumCalculator"
+	Name="RRRealtimeRadiosity"
 	ProjectGUID="{C221978C-C364-A24B-136B-1237C8D93341}"
-	RootNamespace="RRIllumCalculator"
+	RootNamespace="RRRealtimeRadiosity"
 	>
 	<Platforms>
 		<Platform
@@ -39,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRIllumCalculator.tlb"
+				TypeLibraryName="$(IntDir)/RRRealtimeRadiosity.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -290,7 +290,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\include\RRIllumCalculator.h"
+			RelativePath="..\..\include\RRRealtimeRadiosity.h"
 			>
 		</File>
 		<File

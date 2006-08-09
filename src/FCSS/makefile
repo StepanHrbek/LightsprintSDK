@@ -8,7 +8,7 @@ CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
  CPPFLAGS += -march=athlon-xp
 CPPFLAGS += -msse
 #CPPFLAGS += -mfpmath=sse
-LIBS = -s -lz -lm -L../../lib -lDemoEngine -lRRIllumCalculator -lRRMesh -lRRCollider -lRRVision -lstdc++
+LIBS = -s -lz -lm -L../../lib -lDemoEngine -lRRRealtimeRadiosity -lRRMesh -lRRCollider -lRRVision -lstdc++
 LIBS += -lopengl32 -lglu32 -lglut32
 BIN = ../../bin/
 

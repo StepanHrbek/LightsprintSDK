@@ -43,7 +43,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FCSS", "FCSS\FCSS8.vcproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mgflib", "..\3rd\mgflib\vs\mgflib8.vcproj", "{24A70CDD-FF75-4686-B09E-F939F744F94B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRIllumCalculator", "RRIllumCalculator\RRIllumCalculator.vcproj", "{C221978C-C364-A24B-136B-1237C8D93341}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRRealtimeRadiosity", "RRRealtimeRadiosity\RRRealtimeRadiosity.vcproj", "{C221978C-C364-A24B-136B-1237C8D93341}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection

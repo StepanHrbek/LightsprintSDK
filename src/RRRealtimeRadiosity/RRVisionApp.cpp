@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <float.h> // _finite
 #include <time.h>
-#include "RRIllumCalculator.h"
+#include "RRRealtimeRadiosity.h"
 #include "DemoEngine/Timer.h"
 
 // odsunout do RRIlluminationPixelBuffer.cpp

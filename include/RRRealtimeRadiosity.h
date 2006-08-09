@@ -1,9 +1,9 @@
-#ifndef RRILLUMCALCULATOR_H
-#define RRILLUMCALCULATOR_H
+#ifndef RRREALTIMERADIOSITY_H
+#define RRREALTIMERADIOSITY_H
 
 //////////////////////////////////////////////////////////////////////////////
-//! \file RRIllumCalculator.h
-//! \brief RRIllumCalculator - high level library for calculating global illumination
+//! \file RRRealtimeRadiosity.h
+//! \brief RRRealtimeRadiosity - high level library for calculating global illumination
 //! \version 2006.8
 //! \author Copyright (C) Lightsprint
 //! All rights reserved
@@ -17,9 +17,9 @@
 #	ifdef RR_STATIC
 		// use static library
 		#if defined(RR_RELEASE) || (defined(NDEBUG) && !defined(RR_DEBUG))
-			#pragma comment(lib,"RRIllumCalculator_sr.lib")
+			#pragma comment(lib,"RRRealtimeRadiosity_sr.lib")
 		#else
-			#pragma comment(lib,"RRIllumCalculator_sd.lib")
+			#pragma comment(lib,"RRRealtimeRadiosity_sd.lib")
 		#endif
 #	else
 #	ifdef RR_DLL_BUILD_CALCULATOR
@@ -27,7 +27,7 @@
 #		undef RR_API
 #		define RR_API __declspec(dllexport)
 #	else // use dll
-#pragma comment(lib,"RRIllumCalculator.lib")
+#pragma comment(lib,"RRRealtimeRadiosity.lib")
 #	endif
 #	endif
 #endif

@@ -67,7 +67,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/glut.h>
-#include "RRIllumCalculator.h"
+#include "RRRealtimeRadiosity.h"
 #include "DemoEngine/Camera.h"
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgram.h"
@@ -453,7 +453,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	// lze smazat, stejnou praci dokaze i rrrenderer
 	// nicmene m3ds.Draw stale jeste
 	// 1) lip smoothuje (pouziva min vertexu)
-	// 2) slouzi jako test ze RRIllumCalculator spravne generuje vertex buffer s indirectem
+	// 2) slouzi jako test ze RRRealtimeRadiosity spravne generuje vertex buffer s indirectem
 	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
 	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)

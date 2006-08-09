@@ -1,5 +1,5 @@
-LIB = ../../lib/libRRIllumCalculator.a
-TMP = #../../tmp/RRIllumCalculator/
+LIB = ../../lib/libRRRealtimeRadiosity.a
+TMP = #../../tmp/RRRealtimeRadiosity/
 
 CC = gcc
 CPPFLAGS = -I../../include -DRR_STATIC
@@ -21,5 +21,5 @@ $(TMP)%.o: %.cpp makefile
 
 clean:
 	del $(TMP)*.o
-	del ..\..\lib\libRRIllumCalculator.a
+	del ..\..\lib\libRRRealtimeRadiosity.a
 

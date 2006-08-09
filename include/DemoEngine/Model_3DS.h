@@ -72,7 +72,7 @@
 #define MODEL_3DS_H
 
 #include "DemoEngine.h"
-#include "RRIllumCalculator.h"
+#include "RRRealtimeRadiosity.h"
 #include "Texture.h"
 
 #include <stdio.h>
