@@ -1251,7 +1251,8 @@ int main(int argc, char **argv)
 {
 	float stitchDistance = 0.01f;
 
-	rr::RRLicense::registerLicense("","");
+	if(rr::RRLicense::loadLicense("license_number")!=rr::RRLicense::VALID)
+		error("Problem with license number.",false);
 
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);

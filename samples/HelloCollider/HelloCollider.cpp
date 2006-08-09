@@ -13,8 +13,7 @@ using namespace rr;
 int main()
 {
 	// provide license information
-	// replace strings by your license information
-	rr::RRLicenseCollider::registerLicense("your license name","your license number");
+	RRLicenseCollider::loadLicense("..\\..\\data\\license_number");
 
 	// simple mesh used for demonstration
 	float vertexArray[18] =

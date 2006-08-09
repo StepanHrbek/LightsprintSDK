@@ -432,6 +432,7 @@ CHANGES
 - new scheduler and other optimizations in radiosity solver
   \n 10% faster radiosity calculation on average
 - Math and Mesh become standalone libraries, were part of Collider
+- license info is retrieved from file, not from two char*
 - name changes
   \n namespaces rrCollider and rrVision -> rr
   \n RRMeshImporter -> rr::RRMesh

@@ -39,19 +39,19 @@ public:
 		// all triangles are from material 0
 		return 0;
 	}
-	virtual const rr::RRSurface* getSurface(unsigned si) const
+	virtual const RRSurface* getSurface(unsigned si) const
 	{
 		// return surface 0 which is gray with diffuse reflectance 50%, no specular, no transmittance
 		static RRSurface surface;
 		surface.reset(false);
 		return &surface;
 	}
-	virtual void getTriangleAdditionalMeasure(unsigned t, rr::RRRadiometricMeasure measure, rr::RRColor& out) const
+	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 	{
 		// return 0,0,0 for triangle 0 and 1,1,1 for triangle 1. this will make triangle 1 slightly shining
 		out = RRColor(t?1.0f:0.0f);
 	}
-	virtual const rr::RRCollider* getCollider() const 
+	virtual const RRCollider* getCollider() const 
 	{
 		// public access to underlying collider and mesh
 		return collider;
@@ -82,8 +82,7 @@ bool endAtTime(void* context)
 int main()
 {
 	// provide license information
-	// replace strings by your license information
-	if(rr::RRLicense::registerLicense("your license name","your license number")!=rr::RRLicense::VALID)
+	if(RRLicense::loadLicense("..\\..\\data\\license_number")!=RRLicense::VALID)
 		printf("Invalid license, nothing will be computed.\n");
 
 	// create mesh importer (contains only geometry)

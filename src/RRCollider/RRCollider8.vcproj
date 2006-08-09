@@ -426,10 +426,6 @@
 			>
 		</File>
 		<File
-			RelativePath="LicGen.h"
-			>
-		</File>
-		<File
 			RelativePath="RRAligned.cpp"
 			>
 		</File>

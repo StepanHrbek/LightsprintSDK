@@ -424,7 +424,8 @@ int main(int argc, char **argv)
 		error("",false);
 
 	// init radiosity solver
-	rr::RRLicense::registerLicense("","");
+	if(rr::RRLicense::loadLicense("..\\..\\data\\license_number")!=rr::RRLicense::VALID)
+		error("Problem with license number.\n", false);
 	app = new MyApp();
 	new_3ds_importer(&m3ds,app,0.01f);
 	app->calculate();

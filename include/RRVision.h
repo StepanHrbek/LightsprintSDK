@@ -601,7 +601,7 @@ namespace rr
 	class RR_API RRLicense
 	{
 	public:
-		//! Codes for status of your license.
+		//! States of your license.
 		enum LicenseStatus
 		{
 			VALID,       ///< Valid license.
@@ -610,10 +610,11 @@ namespace rr
 			NO_INET,     ///< No internet connection to verify license.
 			UNAVAILABLE, ///< Temporarily unable to verify license, try later.
 		};
-		//! Lets you present your license information.
+		//! Loads license from file.
 		//
 		//! This must be called before any other work with library.
-		static LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber);
+		//! \return Result of license check.
+		static LicenseStatus loadLicense(char* filename);
 	};
 
 } // namespace

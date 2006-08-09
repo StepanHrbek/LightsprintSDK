@@ -95,11 +95,21 @@ const char* unmask(const char* str,char* buf)
 // License
 
 
-RRLicense::LicenseStatus RRLicense::registerLicense(char* licenseOwner, char* licenseNumber)
+RRLicense::LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber)
 {
 	licenseStatusValid = true;
-	licenseStatus = VALID;
-	return VALID;
+	licenseStatus = RRLicense::VALID;
+	return RRLicense::VALID;
+}
+
+RRLicense::LicenseStatus RRLicense::loadLicense(char* filename)
+{
+	RRLicenseCollider::loadLicense(filename);
+	char* owner = NULL;
+	char* number = NULL;
+	RRLicense::LicenseStatus status = registerLicense(owner,number);
+	delete[] owner;
+	return status;
 }
 
 } // namespace

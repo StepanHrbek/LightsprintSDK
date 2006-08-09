@@ -257,10 +257,12 @@ namespace rr
 	class RR_API RRLicenseCollider
 	{
 	public:
-		//! Lets you present your license information.
+		//! Loads license from file.
 		//
-		//! This must be called before any other work with library.
-		static void registerLicense(char* licenseOwner, char* licenseNumber);
+		//! This should be called before any other work with library.
+		//! When not called or called with invalid license,
+		//! collision detections won't be accelerated.
+		static void loadLicense(char* filename);
 	};
 
 } // namespace
