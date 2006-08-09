@@ -5,7 +5,7 @@
 void Camera::update(float back)
 {
 	dir[0] = 3*sin(angle);
-	dir[1] = -0.3*height;
+	dir[1] = -0.3f*height;
 	dir[2] = 3*cos(angle);
 	dir[3] = 1.0;
 	buildLookAtMatrix(viewMatrix,

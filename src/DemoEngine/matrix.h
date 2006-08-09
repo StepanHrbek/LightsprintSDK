@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#include <GL/glut.h>
+#include <GL/glew.h>
 
 extern GLboolean invertMatrix(GLdouble *out, const GLdouble *m);
 extern void transposeMatrix(GLdouble dst[16], GLdouble src[16]);

@@ -1,7 +1,6 @@
 #include <cassert>
 #include "DemoEngine/RendererWithCache.h"
 #include <GL/glew.h>
-#include <GL/glut.h>
 
 bool  COMPILE=1;
 

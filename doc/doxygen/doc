@@ -7,6 +7,9 @@
  \subpage news "What's new"
  - what's new in releases
 
+ \subpage overview "Overview"
+ - overview of Lightsprint SDK architecture
+
  \subpage rr "Lightsprint REALTIME RADIOSITY"
  - calculates realtime radiosity in dynamic scene
 
@@ -30,13 +33,40 @@
 
 
 
+\page overview Overview
+
+ Lightsprint libraries are simply layered.
+ Each layer solves new unique problem using lower layers.
+ Depending on your project, you can use all layers or just one.
+
+ Mesh provides unified interface and manipulation for all 3d triangle meshes.
+ \n Collider calculates ray x mesh intersections and depends on Mesh.
+ \n Vision calculates radiosity in static scene and depends on Collider.
+ \n IllumCalculator calculates radiosity in dynamic scene and depends on Vision.
+
+ All radiosity calculation libraries (IllumCalculator, Vision)
+ and their support (Collider, Mesh) are purely numerical,
+ they are OpenGL/DirectX independent.
+
+ DemoEngine provides simple support for loading and rendering 3d scenes.
+ It depends on OpenGL, GLU and IllumCalculator. It has built-in GLEW.
+
+ Sample HelloRealtimeRadiosity uses IllumCalculator, OpenGL and GLUT
+ for demonstrating realtime radiosity in scene with dynamic light.
+ It uses DemoEngine for common tasks that can be used later by other samples.
+
+ \image html libraries.png
+
+ Other samples depend only on appropriate libraries, eg. HelloCollider on Collider.
+
+ BunnyBenchmark measures Collider performance for comparison with other engines.
+
+
+
 \page platforms Supported platforms
 
  \section plat_bin Platforms for binaries
- At least parts of both \ref vision "Vision" and \ref collider "Collider" are
- delivered in compiled binary form.
-
- Supported platforms are
+ For binary libraries, supported platforms are
  - Win32
  - (fully tested also under Windows XP x64, where it runs in 32bit)
 
@@ -48,11 +78,8 @@
  - Visual C++ 2005
 
  \section plat_src Platforms for source code
- With appropriate license, \ref collider "Collider" may be delivered 
- also in form of source code.
-
  Our source code conforms to standard <b>ISO C++</b>, so you should be 
- able to use Collider on nearly <b>any platform</b>.
+ able to use it on nearly any platform (consoles, linux etc).
 
  There are optional optimizations, that use SSE instructions on x86 CPUs,
  but they may be omitted on other platforms.
@@ -61,19 +88,6 @@
  
 \page rules Common
  These rules apply to all interfaces in SDK:
- \section gfinite Finite numbers
-   If not otherwise specified, all inputs must be finite numbers.
-   With Inf or NaN, result is undefined.
- \section gflodoub Floats and doubles
-   Library uses both floats and doubles.
-   It is not allowed to break double arithmetics by modifying FPU states.
-   If you use Direct3D, make sure you don't instruct it to force single precision for whole application
-   which breaks double precision arithmetics in whole program and libraries.
- \section gdestr Ownership
-   Objects are never adopted, ownership never changes.
-   \n This means that parameters that need to be destructed are never destructed inside call,
-   responsibility for object is never passed to someone else.
-   When you create object (using create() etc.), be sure that you delete it later.
  \section gscale Scale
    Lightsprint libraries support scaled objects.
    \n\n
@@ -84,6 +98,23 @@
    Singlesided box visible from outside transformed with scale -1
    can stay visible form the outside or become visible only from inside,
    see rr::RRObject::createWorldSpaceObject().
+ \section gdestr Ownership
+   Dynamically created objects (using new) are never adopted, ownership never changes.
+   \n This means that parameters that need to be destructed are never destructed inside call,
+   responsibility for object is never passed to someone else.
+   When you create object (using create() etc.), be sure that you delete it later.
+ \section gdestr Reference counting
+   There is no internal reference counting, so if you create collider out of mesh,
+   you are not allowed to destroy mesh before destroying collider. This danger should be
+   mentioned on all appropriate places.
+ \section gfinite Finite numbers
+   If not otherwise specified, all inputs must be finite numbers.
+   With Inf or NaN, result is undefined.
+ \section gflodoub Floats and doubles
+   Library uses both floats and doubles.
+   It is not allowed to break double arithmetics by modifying FPU states.
+   If you use Direct3D, make sure you don't instruct it to force single precision for whole application
+   which breaks double precision arithmetics in whole program and libraries.
    
 
 
@@ -93,7 +124,6 @@
 
  Header: RRIllumPrecalculated.h
  \n Header: RRIllumPrecalculatedSurface.h
- \n Header: RRIllumPrecalculatedSpace.h
  \n Header: RRIllumCalculator.h
 
  \subpage rr_basic "Basic edition"
@@ -206,8 +236,6 @@
  \subpage vision_storage "Data formats (vertices, textures)"
 
  \subpage vision_units "Units (radiometry, photometry)"
-
- \image html ClassDiagram.png
 
 
 \page vision_types Illumination types
@@ -390,6 +418,8 @@ NEW FEATURES
   \n simplifies work with multiple objects
 - rr::RRMesh::save(), rr::RRMesh::load()
   \n any mesh can be saved to file and loaded later
+- HelloRealtimeRadiosity sample
+  \n demonstrates realtime radiosity with one dynamic light
 - HelloMesh sample
   \n demonstrates how to create simple mesh
 - HelloCollider sample

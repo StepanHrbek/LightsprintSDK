@@ -274,7 +274,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DemoEngine.lib glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies="DemoEngine.lib glut32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

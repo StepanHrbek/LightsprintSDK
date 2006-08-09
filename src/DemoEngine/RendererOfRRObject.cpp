@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <GL/glew.h>
 #include "DemoEngine/3ds2rr.h" // CHANNEL_SURFACE_DIF_TEX
-#include <GL/glut.h>
+#include <GL/glew.h>
 #include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/Texture.h"
 

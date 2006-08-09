@@ -3,7 +3,7 @@
 
 #include "DemoEngine.h"
 #include <cstdio>
-#include <GL/glut.h>
+#include <GL/glew.h>
 //#include <jpeglib.h>
 
 /*

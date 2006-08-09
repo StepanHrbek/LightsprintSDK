@@ -259,7 +259,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\3rd\glut\glut32.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
 				AdditionalLibraryDirectories="$(OutDir)"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"

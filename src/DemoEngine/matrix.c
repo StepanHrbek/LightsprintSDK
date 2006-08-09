@@ -7,7 +7,7 @@
 
 #include <math.h>
 #include <stdio.h>
-#include <GL/glut.h>
+#include <GL/glew.h>
 
 /* Some <math.h> files do not define M_PI... */
 #ifndef M_PI
