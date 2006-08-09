@@ -365,6 +365,10 @@
 
 NEW FEATURES
 
+- IllumCalculator library
+  \n computes radiosity in dynamic scenes
+- DemoEngine library
+  \n engine replacement for writing demos
 - rr::RRCollider::intersectBatch()
   \n searches collisions on all cores/CPUs at once
 - rr::RRChanneledData
