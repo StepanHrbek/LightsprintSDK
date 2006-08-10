@@ -286,7 +286,7 @@ bool Model_3DS::Load(char *name, float scale)
 	return true;
 }
 
-void Model_3DS::Draw(rr::RRVisionApp* app, bool lightIndirectMap)
+void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 {
 	if (visible)
 	{

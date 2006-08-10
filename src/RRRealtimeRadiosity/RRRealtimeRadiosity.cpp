@@ -55,7 +55,7 @@ void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const SubtriangleI
 	raster_LGouraud(polygon,(raster_COLOR*)pixels,width);
 }
 
-RRVisionApp::RRVisionApp()
+RRRealtimeRadiosity::RRRealtimeRadiosity()
 {
 	multiObject = NULL;
 	scene = NULL;
@@ -81,76 +81,76 @@ RRVisionApp::RRVisionApp()
 	rr::RRScene::setStateF(rr::RRScene::MIN_FEATURE_SIZE,0.15f);
 }
 
-RRVisionApp::~RRVisionApp()
+RRRealtimeRadiosity::~RRRealtimeRadiosity()
 {
 	delete scene;
 	delete[] surfaces;
 }
 
-void RRVisionApp::setObjects(Objects& aobjects, float astitchDistance)
+void RRRealtimeRadiosity::setObjects(Objects& aobjects, float astitchDistance)
 {
 	objects = aobjects;
 	stitchDistance = astitchDistance;
 	dirtyGeometry = true;
 }
 
-RRObject* RRVisionApp::getObject(unsigned i)
+RRObject* RRRealtimeRadiosity::getObject(unsigned i)
 {
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).first;
 }
 
-RRObjectIlluminationForEditor* RRVisionApp::getIllumination(unsigned i)
+RRObjectIlluminationForEditor* RRRealtimeRadiosity::getIllumination(unsigned i)
 {
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).second;
 }
 
-void RRVisionApp::setResultChannel(unsigned channelIndex)
+void RRRealtimeRadiosity::setResultChannel(unsigned channelIndex)
 {
 	resultChannelIndex = channelIndex;
 }
 
-void RRVisionApp::adjustScene()
+void RRRealtimeRadiosity::adjustScene()
 {
 	scene->setScaler(RRScaler::createRgbScaler(0.4f));
 }
 
-void RRVisionApp::reportAction(const char* action) const
+void RRRealtimeRadiosity::reportAction(const char* action) const
 {
 }
 
-void RRVisionApp::reportMaterialChange()
+void RRRealtimeRadiosity::reportMaterialChange()
 {
 	REPORT(reportAction("<MaterialChange>"));
 	dirtyMaterials = true;
 }
 
-void RRVisionApp::reportGeometryChange()
+void RRRealtimeRadiosity::reportGeometryChange()
 {
 	REPORT(reportAction("<GeometryChange>"));
 	dirtyGeometry = true;
 }
 
-void RRVisionApp::reportLightChange(bool strong)
+void RRRealtimeRadiosity::reportLightChange(bool strong)
 {
 	REPORT(reportAction(strong?"<LightChangeStrong>":"LightChange"));
 	dirtyLights = strong?BIG_CHANGE:SMALL_CHANGE;
 }
 
-void RRVisionApp::reportIlluminationUse()
+void RRRealtimeRadiosity::reportIlluminationUse()
 {
 	REPORT(reportAction("<IlluminationUse>"));
 	lastIlluminationUseTime = GETTIME;
 }
 
-void RRVisionApp::reportCriticalInteraction()
+void RRRealtimeRadiosity::reportCriticalInteraction()
 {
 	REPORT(reportAction("<CriticalInteraction>"));
 	lastCriticalInteractionTime = GETTIME;
 }
 
-void RRVisionApp::reportEndOfInteractions()
+void RRRealtimeRadiosity::reportEndOfInteractions()
 {
 	REPORT(reportAction("<EndOfInteractions>"));
 	lastCriticalInteractionTime = 0;
@@ -161,7 +161,7 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
-void RRVisionApp::updateVertexLookupTable()
+void RRRealtimeRadiosity::updateVertexLookupTable()
 // prepare lookup tables preImportVertex -> [postImportTriangle,vertex0..2] for all objects
 {
 	preVertex2PostTriangleVertex.resize(objects.size());
@@ -209,7 +209,7 @@ void RRVisionApp::updateVertexLookupTable()
 	}
 }
 
-void RRVisionApp::readVertexResults()
+void RRRealtimeRadiosity::readVertexResults()
 {
 	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
@@ -271,7 +271,7 @@ void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context
 	context2->pixelBuffer->renderTriangle(si2);
 }
 
-void RRVisionApp::readPixelResults()
+void RRRealtimeRadiosity::readPixelResults()
 {
 	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
@@ -312,7 +312,7 @@ void RRVisionApp::readPixelResults()
 	}
 }
 
-RRScene::Improvement RRVisionApp::calculateCore(float improveStep)
+RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 {
 	bool dirtyFactors = false;
 	ChangeStrength dirtyEnergies = NO_CHANGE;
@@ -421,7 +421,7 @@ RRScene::Improvement RRVisionApp::calculateCore(float improveStep)
 	return RRScene::NOT_IMPROVED;
 }
 
-RRScene::Improvement RRVisionApp::calculate()
+RRScene::Improvement RRRealtimeRadiosity::calculate()
 {
 	TIME calcBeginTime = GETTIME;
 	bool illuminationUse = lastIlluminationUseTime && lastIlluminationUseTime>=lastCalcEndTime;

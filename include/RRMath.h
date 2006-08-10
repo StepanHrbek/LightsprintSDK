@@ -23,7 +23,7 @@
 #endif
 //#define RR_DEVELOPMENT
 
-namespace rr /// Encapsulates whole Lightsprint SDK. "rr" historically stands for Realtime Radiosity.
+namespace rr /// Encapsulates whole Lightsprint SDK.
 {
 
 	//////////////////////////////////////////////////////////////////////////////

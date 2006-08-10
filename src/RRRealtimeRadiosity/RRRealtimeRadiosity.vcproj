@@ -306,7 +306,7 @@
 			>
 		</File>
 		<File
-			RelativePath="RRVisionApp.cpp"
+			RelativePath="RRRealtimeRadiosity.cpp"
 			>
 		</File>
 		<File

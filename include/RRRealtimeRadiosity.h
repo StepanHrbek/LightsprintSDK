@@ -80,7 +80,7 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRVisionApp
+	//  RRRealtimeRadiosity
 	//! Radiosity solver for interactive applications.
 	//
 	//! Usage: Create one instance at the beginning of interactive session
@@ -94,11 +94,11 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRVisionApp
+	class RR_API RRRealtimeRadiosity
 	{
 	public:
-		RRVisionApp();
-		virtual ~RRVisionApp();
+		RRRealtimeRadiosity();
+		virtual ~RRRealtimeRadiosity();
 
 		//! Defines objects present in scene.
 		typedef std::pair<RRObject*,RRObjectIlluminationForEditor*> Object;

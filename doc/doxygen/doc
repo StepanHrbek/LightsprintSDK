@@ -194,13 +194,13 @@
 
  <b>What was necessary to do to integrate realtime radiosity into 3d scene viewer:</b>
  - create rr::RRObject wrappers around 3d objects (2 hours)
- - change renderer so that it reads ambient from vertex stream provided by rr::RRVisionApp (1 hour)
+ - change renderer so that it reads ambient from vertex stream provided by rr::RRRealtimeRadiosity (1 hour)
  - remove constant ambient (5 minutes)
- - implement abstract methods in rr::RRVisionApp (2 days)
- - create rr::RRVisionApp and call its methods on appropriate places (1 hour)
+ - implement abstract methods in rr::RRRealtimeRadiosity (2 days)
+ - create rr::RRRealtimeRadiosity and call its methods on appropriate places (1 hour)
 
- You can see that the only nontrivial task was implementing abstract methods in rr::RRVisionApp.
- More precisely rr::RRVisionApp::detectDirectIllumination().
+ You can see that the only nontrivial task was implementing abstract methods in rr::RRRealtimeRadiosity.
+ More precisely rr::RRRealtimeRadiosity::detectDirectIllumination().
  
  <b>What needs to be detected:</b> simply said, average color of each face;
  how does it looks lit by your direct (not ambient) point, spot and directional lights

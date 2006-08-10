@@ -240,7 +240,7 @@ public:
 // z m3ds detekuje materialy
 // renderer je pouzit k captureDirect
 //#include "Timer.h"
-class MyApp : public rr::RRVisionApp
+class MyApp : public rr::RRRealtimeRadiosity
 {
 protected:
 	virtual void detectMaterials()

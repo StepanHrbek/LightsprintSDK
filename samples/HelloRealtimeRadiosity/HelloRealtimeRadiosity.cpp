@@ -82,7 +82,7 @@ public:
 	unsigned xmax, ymax;
 };
 
-class MyApp : public rr::RRVisionApp
+class MyApp : public rr::RRRealtimeRadiosity
 {
 protected:
 	virtual void detectMaterials() {}

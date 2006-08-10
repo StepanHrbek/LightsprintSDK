@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // DemoEngine
-// Imports .3ds model into RRVisionApp
+// Imports .3ds model into RRRealtimeRadiosity
 // Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
 // --------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ enum
 	CHANNEL_TRIANGLE_VERTICES_DIF_UV = rr::RRMesh::INDEXED_BY_TRIANGLE+5, //! RRVec2[3]
 };
 
-// imports all 3d objects from model into RRVisionApp
-void RR_API new_3ds_importer(Model_3DS* model,rr::RRVisionApp* app, float stitchDistance);
+// imports all 3d objects from model into RRRealtimeRadiosity
+void RR_API new_3ds_importer(Model_3DS* model,rr::RRRealtimeRadiosity* app, float stitchDistance);
 
 #endif
