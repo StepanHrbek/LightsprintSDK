@@ -262,7 +262,7 @@ RRReal RRScene::illuminationAccuracy()
 //
 // read results
 
-bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out)
+bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out) const
 {
 	Channels irrad;
 	RRScaler* scaler;

@@ -1,4 +1,4 @@
-// Realtime Radiosity Viewer ubershader
+// Realtime Radiosity Viewer vertex ubershader
 //
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
@@ -10,6 +10,8 @@
 //  #define MATERIAL_DIFFUSE_COLOR
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define FORCE_2D_POSITION
+//
+// Workarounds for driver bugs of one vendor made it a mess, sorry.
 
 #if SHADOW_MAPS>0
 varying vec4 shadowCoord[SHADOW_MAPS];

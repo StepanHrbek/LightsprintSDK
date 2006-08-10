@@ -512,7 +512,7 @@ namespace rr
 		//! \param measure Measure of illumination you want to get.
 		//! \param out For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
 		//! \returns True when out was successfully filled. False may be caused by invalid inputs.
-		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out);
+		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out) const;
 
 		//! Illumination information for triangle's subtriangle.
 		//

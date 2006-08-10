@@ -245,14 +245,6 @@ class MyApp : public rr::RRRealtimeRadiosity
 protected:
 	virtual void detectMaterials()
 	{
-		delete[] surfaces;
-		numSurfaces = m3ds.numMaterials;
-		surfaces = new rr::RRSurface[numSurfaces];
-		for(unsigned i=0;i<numSurfaces;i++)
-		{
-			surfaces[i].reset(false);
-			surfaces[i].diffuseReflectance = rr::RRColor(m3ds.Materials[i].color.r/255.0,m3ds.Materials[i].color.g/255.0,m3ds.Materials[i].color.b/255.0);
-		}
 	}
 	virtual bool detectDirectIllumination()
 	{
@@ -850,7 +842,7 @@ void reportLightMovement()
 		// Ve velke scene dava lepsi vysledky reset (true),
 		//  scena sice behem pohybu ztmavne,
 		//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
-		app->reportLightChange(app->multiObject->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+		app->reportLightChange(app->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
 	}
 	else
 	{
@@ -1422,11 +1414,11 @@ int main(int argc, char **argv)
 
 //printf(" %d triangles\n",app->multiObject?app->multiObject->getCollider()->getMesh()->getNumTriangles():0);
 
-	if(!app->multiObject)
+	if(!app->getMultiObject())
 		error("No objects in scene.",false);
 
 	// creates renderer
-	rendererNonCaching = new RendererOfRRObject(app->multiObject,app->scene);
+	rendererNonCaching = new RendererOfRRObject(app->getMultiObject(),app->getScene());
 	rendererCaching = new RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum
 	// must be called from mainloop, we don't know winWidth/winHeight yet

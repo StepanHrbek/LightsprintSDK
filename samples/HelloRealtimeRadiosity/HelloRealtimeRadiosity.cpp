@@ -233,7 +233,7 @@ void reportLightMovement()
 {
 	if(updateRadiosityDuringLightMovement)
 	{
-		app->reportLightChange(app->multiObject->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+		app->reportLightChange(app->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
 	}
 	else
 	{
@@ -422,7 +422,7 @@ int main(int argc, char **argv)
 	areaLight->attachTo(&light);
 
 	// init .3ds scene
-	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna4\\koupelna4.3ds",0.03f))
+	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna\\koupelna4.3ds",0.03f))
 		error("",false);
 
 	// init radiosity solver
@@ -431,11 +431,11 @@ int main(int argc, char **argv)
 	app = new MyApp();
 	new_3ds_importer(&m3ds,app,0.01f);
 	app->calculate();
-	if(!app->multiObject)
+	if(!app->getMultiObject())
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new RendererOfRRObject(app->multiObject,app->scene);
+	rendererNonCaching = new RendererOfRRObject(app->getMultiObject(),app->getScene());
 	rendererCaching = new RendererWithCache(rendererNonCaching);
 
 	glutMainLoop();

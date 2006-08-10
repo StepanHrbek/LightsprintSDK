@@ -9,7 +9,7 @@ int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by su
 bool  SMOOTH =1; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
 
 
-RendererOfRRObject::RendererOfRRObject(rr::RRObject* objectImporter, rr::RRScene* radiositySolver)
+RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver)
 {
 	params.object = objectImporter;
 	params.scene = radiositySolver;
