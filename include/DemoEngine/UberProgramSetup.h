@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// UberProgramSetup, parameter management for our UberProgram in UberShader.vp/fp.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
 #ifndef UBERPROGRAMSETUP_H
 #define UBERPROGRAMSETUP_H
 

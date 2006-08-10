@@ -1,14 +1,11 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// Timer, measures real time, processor time in userspace and in kernel.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
 #ifndef TIMER_H
 #define TIMER_H
-
-//////////////////////////////////////////////////////////////////////////////
-// Simple timer for time interval measurement.
-//
-// Measures real time, processor time spent in userspace and processor time spent in kernel.
-// Note that processor time may be higher than real time on multicore/processor machines.
-//
-// Lightsprint, 2006
-//////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 
@@ -58,7 +55,10 @@ namespace rr
 			}
 		};
 
-		double Watch(double* usertime=NULL, double* kerneltime=NULL) // user time from Start in 100ns units, approx 1ms precision in windows xp
+		// Returns real time spent from Start.
+		// Optionally fills also processor times in user/kernel space.
+		// Note that user+kernel time may be higher than real time on multicore/processor machines.
+		double Watch(double* usertime=NULL, double* kerneltime=NULL)
 		{
 #ifdef WINDOWS_TIME
 			if(usertime || kerneltime)

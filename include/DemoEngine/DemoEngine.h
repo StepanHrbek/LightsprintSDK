@@ -1,7 +1,11 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// Settings, to be included in all DemoEngine public headers.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
 #ifndef DEMOENGINE_H
 #define DEMOENGINE_H
-
-// To be included in all DemoEngine public headers.
 
 #include "RRMath.h" // defines RR_API
 

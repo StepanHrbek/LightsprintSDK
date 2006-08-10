@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// Imports .3ds model into RRVisionApp
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
 #ifndef _3DS2RR_H
 #define _3DS2RR_H
 
@@ -12,7 +18,7 @@ enum
 	CHANNEL_TRIANGLE_VERTICES_DIF_UV = rr::RRMesh::INDEXED_BY_TRIANGLE+5, //! RRVec2[3]
 };
 
-// you may load object from 3ds
+// imports all 3d objects from model into RRVisionApp
 void RR_API new_3ds_importer(Model_3DS* model,rr::RRVisionApp* app, float stitchDistance);
 
 #endif

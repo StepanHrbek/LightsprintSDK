@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// Program, OpenGL 2.0 object with optional vertex and fragment shaders.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
 #ifndef PROGRAM_H
 #define PROGRAM_H
 

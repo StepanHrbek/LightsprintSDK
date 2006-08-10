@@ -2,6 +2,8 @@
 //
 // You should be familiar with GLUT and OpenGL.
 // Controls: move mouse with left or right button pressed.
+//
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006
 
 #include <assert.h>
 #include <float.h>

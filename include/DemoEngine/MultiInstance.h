@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// MultiInstance, provides multiple (possibly generated) instances of Class.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
 #ifndef MULTIINSTANCE_H
 #define MULTIINSTANCE_H
 

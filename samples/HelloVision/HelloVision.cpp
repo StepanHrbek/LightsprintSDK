@@ -4,8 +4,7 @@
 // After quick calculation, we see that measures of illumination
 // on both triangles are higher - light has been distributed.
 //
-// Copyright (C) Lightsprint, 2006
-// All rights reserved
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006
 
 #include "RRVision.h"
 #include <stdio.h>

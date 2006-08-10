@@ -3,7 +3,7 @@
 // Stanford Bunny model with 69451 triangles is loaded from disk,
 // intersections with random rays are detected, speed is measured.
 //
-// Lightsprint, 2005-2006
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
 
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"
@@ -117,12 +117,6 @@ int main(int argc, char** argv)
 		(double)num_hits / NUM_RAYS
 		);
 	printf("Note that statically linked version is faster by 10-30%%.\n");
-	printf("\nMeasured speed: wallspd=%d 1cpuspd=%d user=%f kernel=%f hits=%f\n",
-		(int)(NUM_RAYS/realtime/1000),
-		(int)(NUM_RAYS/(usertime+kerneltime)/1000),
-		usertime/realtime,
-		kerneltime/realtime,
-		(double)num_hits / NUM_RAYS);
 
 	// cleanup
 	delete watch;

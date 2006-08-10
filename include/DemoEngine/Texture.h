@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// Texture, OpenGL 2.0 object. Able to load truecolor .tga from disk.
+// Publicly available code of forgotten author.
+// --------------------------------------------------------------------------
+
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
