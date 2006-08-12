@@ -406,6 +406,7 @@ int main(int argc, char **argv)
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
+	glClearDepth(0.999999); // prevents backprojection, tested on nvidia geforce 6600
 
 	// init shaders
 	uberProgram = new UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");

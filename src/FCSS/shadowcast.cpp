@@ -473,10 +473,10 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	assert(mapIndex>=0);
 	areaLight->getInstance(mapIndex)->setupForRender();
 
-
 	glColorMask(0,0,0,0);
 	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 	areaLight->getShadowMap((mapIndex>=0)?mapIndex:0)->renderingToInit();
+	glClearDepth(0.999999); // prevents backprojection, tested on nvidia geforce 6600
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
@@ -1288,6 +1288,8 @@ int main(int argc, char **argv)
 		//Camera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
 		Camera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,50.,0.3,60.};
 		Camera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
+		//Camera koupelna4_eye = {{0.823,1.500,-0.672},11.055,-0.050,1.3,100.0,0.3,60.0};//wrong backprojection
+		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
 		eye = koupelna4_eye;
 		light = koupelna4_light;
 	}
