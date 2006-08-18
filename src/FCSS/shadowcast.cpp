@@ -1185,7 +1185,7 @@ void init_gl_states()
 	glFrontFace(GL_CCW);
 
 #if defined(_WIN32)
-	wglSwapIntervalEXT(0);
+	if(wglSwapIntervalEXT) wglSwapIntervalEXT(0);
 #endif
 }
 
@@ -1278,8 +1278,6 @@ int main(int argc, char **argv)
 	glutMotionFunc(motion);
 	glutIdleFunc(idle);
 
-	/* Menu initialization depends on knowing what extensions are
-	supported. */
 	initMenus();
 
 	if (strstr(filename_3ds, "koupelna4")) {
@@ -1322,8 +1320,8 @@ int main(int argc, char **argv)
 		Camera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
 		//Camera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
 		//Camera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
-		//lightFieldOfView += 10.0;
-		//eyeFieldOfView = 50.0;
+		//Camera sponza_eye = {{13.924,7.606,1.007},7.920,-0.150,1.3,100.0,0.3,60.0};// shows face with bad indirect
+		//Camera sponza_light = {{-8.042,7.690,-0.954},1.990,0.800,1.0,70.0,1.0,30.0};
 		eye = sponza_eye;
 		light = sponza_light;
 	}
@@ -1368,12 +1366,12 @@ int main(int argc, char **argv)
 	rr::RRScene::setStateF(rr::RRScene::MIN_FEATURE_SIZE,0.15f);
 	//rr::RRScene::setStateF(rr::MAX_SMOOTH_ANGLE,0.4f);
 
-	init_gl_states();
-	init_gl_resources();
-
 	int major, minor;
 	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 		error("OpenGL 2.0 capable graphics card is required.\n",true);
+
+	init_gl_states();
+	init_gl_resources();
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;

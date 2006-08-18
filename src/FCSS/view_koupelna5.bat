@@ -1,1 +1,1 @@
-rrview 3ds\koupelna\koupelna5.3ds
+rrview 3ds\koupelna\koupelna5.3ds -noAreaLight
