@@ -15,7 +15,7 @@ rem mkdir distro\3ds\sibenik
 rem copy ..\..\data\3ds\sibenik\*.3ds distro\3ds\sibenik
 rem copy ..\..\data\3ds\sibenik\*.tga distro\3ds\sibenik
 copy readme.txt distro
-copy glut32.dll distro
+copy ..\..\3rd\glut\glut32.dll distro
 copy view_koupelna3.bat distro
 copy view_koupelna4.bat distro
 copy view_koupelna5.bat distro
