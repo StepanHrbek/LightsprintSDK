@@ -21,9 +21,6 @@
 	#define PER_SEC CLOCKS_PER_SEC
 #endif
 
-namespace rr
-{
-
 	class Timer
 	{
 	public:
@@ -91,7 +88,5 @@ namespace rr
 #endif
 		TIME timestart;
 	};
-
-} // namespace
 
 #endif

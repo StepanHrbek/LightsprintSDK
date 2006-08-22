@@ -315,6 +315,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\Bugs.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Bugs.h"
+			>
+		</File>
+		<File
 			RelativePath=".\shadowcast.cpp"
 			>
 		</File>

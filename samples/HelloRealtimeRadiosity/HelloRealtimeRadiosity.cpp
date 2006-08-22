@@ -57,9 +57,8 @@ bool                needDepthMapUpdate = 1;
 RendererOfRRObject* rendererNonCaching = NULL;
 RendererWithCache*  rendererCaching = NULL;
 class MyApp*        app = NULL;
-int                 xEyeBegin, yEyeBegin, movingEye = 0;
-int                 xLightBegin, yLightBegin, movingLight = 0;
-
+bool                modeMovingEye = true;
+bool                needRedisplay = false;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -227,6 +226,7 @@ void updateShadowmap(unsigned mapIndex)
 void reportEyeMovement()
 {
 	app->reportCriticalInteraction();
+	needRedisplay = true;
 }
 
 void reportLightMovement()
@@ -240,6 +240,7 @@ void reportLightMovement()
 		app->reportCriticalInteraction();
 	}
 	needDepthMapUpdate = 1;
+	needRedisplay = true;
 }
 
 
@@ -250,6 +251,7 @@ void reportLightMovement()
 void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
+	needRedisplay = false;
 	app->reportIlluminationUse();
 	eye.update(0);
 	light.update(0.3f);
@@ -274,8 +276,8 @@ void display(void)
 
 void special(int c, int x, int y)
 {
-	if(!movingLight) app->reportCriticalInteraction();
-	Camera* cam = movingLight?&light:&eye;
+	if(modeMovingEye) app->reportCriticalInteraction();
+	Camera* cam = modeMovingEye?&eye:&light;
 	switch (c) 
 	{
 		case GLUT_KEY_UP:
@@ -295,7 +297,7 @@ void special(int c, int x, int y)
 		default:
 			return;
 	}
-	if(movingLight) reportLightMovement(); else reportEyeMovement();
+	if(modeMovingEye) reportEyeMovement(); else reportLightMovement();
 	glutPostRedisplay();
 }
 
@@ -321,53 +323,40 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		movingEye = 1;
-		xEyeBegin = x;
-		yEyeBegin = y;
-	}
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
-		app->reportEndOfInteractions();
-		movingEye = 0;
-	}
-	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
-		movingLight = 1;
-		xLightBegin = x;
-		yLightBegin = y;
-	}
-	if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP) {
-		app->reportEndOfInteractions();
-		if(!updateRadiosityDuringLightMovement) app->reportLightChange(true);
-		movingLight = 0;
-		needDepthMapUpdate = 1;
-		glutPostRedisplay();
-	}
+	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+		modeMovingEye = !modeMovingEye;
 }
 
-void motion(int x, int y)
+void passive(int x, int y)
 {
-	if (movingEye) {
-		eye.angle = eye.angle - 0.005*(x - xEyeBegin);
-		eye.height = eye.height + 0.15*(y - yEyeBegin);
-		CLAMP(eye.height,-13,13);
-		xEyeBegin = x;
-		yEyeBegin = y;
-		reportEyeMovement();
-	}
-	if (movingLight) {
-		light.angle = light.angle - 0.005*(x - xLightBegin);
-		light.height = light.height + 0.15*(y - yLightBegin);
-		CLAMP(light.height,-13,13);
-		xLightBegin = x;
-		yLightBegin = y;
-		reportLightMovement();
+	if(!winWidth || !winHeight) return;
+	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
+	x -= winWidth/2;
+	y -= winHeight/2;
+	if(x || y)
+	{
+		if(modeMovingEye)
+		{
+			eye.angle = eye.angle - 0.005*x;
+			eye.height = eye.height + 0.15*y;
+			CLAMP(eye.height,-13,13);
+			reportEyeMovement();
+		}
+		else
+		{
+			light.angle = light.angle - 0.005*x;
+			light.height = light.height + 0.15*y;
+			CLAMP(light.height,-13,13);
+			reportLightMovement();
+		}
+		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 }
 
 void idle()
 {
 	if(!winWidth) return; // can't work without window
-	if(app->calculate()==rr::RRScene::IMPROVED || movingEye || movingLight)
+	if(app->calculate()==rr::RRScene::IMPROVED || needRedisplay)
 	{
 		glutPostRedisplay();
 	}
@@ -384,14 +373,15 @@ int main(int argc, char **argv)
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutCreateWindow("Hello Realtime Radiosity, http://lightsprint.com");
-	glutFullScreen(); // comment out if you want window instead of fullscreen
+	glutGameModeString("800x600:32");
+	glutEnterGameMode();
+	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
-	glutMotionFunc(motion);
+	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
 
 	// init GLEW

@@ -8,8 +8,15 @@ int fullscreen = 1;
 bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
+bool gameOn = 1;
 /*
-zjistit co jeste chybi v distru
+vypisovat kolik % casu
+ -detect&resetillum
+ -improve
+ -readresults
+ -game render
+ -idle
+
 dalsi announcementy
 
 mailnout do limy
@@ -44,8 +51,6 @@ rr renderer: pridat indirect mapu
 ovladani jasu (global, indirect)
 nacitat jpg
 
-!vadna zed v koupelne4, zajizdi do podlahy
-
 pri 2 instancich je levy okraj spotmapy oriznuty
  pri arealight by spotmapa potrebovala malinko mensi fov nez shadowmapy aby nezabirala mista kde konci stin
 
@@ -68,6 +73,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/wglew.h>
 #include <GL/glut.h>
 #include "RRRealtimeRadiosity.h"
+#include "DemoEngine/Timer.h"
 #include "DemoEngine/Camera.h"
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgram.h"
@@ -77,6 +83,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/RendererWithCache.h"
 #include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/UberProgramSetup.h"
+#include "Bugs.h"
 
 using namespace std;
 
@@ -95,16 +102,6 @@ using namespace std;
 enum {
 	DM_EYE_VIEW_SHADOWED,
 	DM_EYE_VIEW_SOFTSHADOWED,
-};
-
-/* Menu items. */
-enum {
-	ME_TOGGLE_GLOBAL_ILLUMINATION,
-	ME_CHANGE_SPOTLIGHT,
-	ME_TOGGLE_WIRE_FRAME,
-	ME_TOGGLE_LIGHT_FRUSTUM,
-	ME_SWITCH_MOUSE_CONTROL,
-	ME_EXIT,
 };
 
 
@@ -132,17 +129,18 @@ int depthBias24 = 42;
 int depthScale24;
 GLfloat slopeScale = 4.0;
 int needDepthMapUpdate = 1;
-int xEyeBegin, yEyeBegin, movingEye = 0;
-int xLightBegin, yLightBegin, movingLight = 0;
 int wireFrame = 0;
 int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 bool showHelp = 0;
 int showLightViewFrustum = 1;
-int eyeButton = GLUT_LEFT_BUTTON;
-int lightButton = GLUT_MIDDLE_BUTTON;
 int useDepth24 = 0;
-
+class Bugs* bugs = NULL;
+bool paused = false;
+int resolutionx = 640;
+int resolutiony = 480;
+bool modeMovingEye = true;
+bool needRedisplay = false;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -517,6 +515,18 @@ void drawEyeViewShadowed(UberProgramSetup uberProgramSetup, unsigned firstInstan
 
 	renderScene(uberProgramSetup,firstInstance);
 
+	if(gameOn)
+	{
+		static Timer t;
+		static bool runs = false;
+		float seconds = runs?t.Watch():0.1f;
+		CLAMP(seconds,0.001f,0.5f);
+		t.Start();
+		runs = true;
+		if(!paused) bugs->tick(seconds);
+		bugs->render();
+	}
+
 	drawLight();
 	if (showLightViewFrustum) drawShadowMapFrustum();
 }
@@ -599,6 +609,8 @@ static void output(int x, int y, char *string)
 
 static void drawHelpMessage(bool big)
 {
+	if(!big && gameOn) return;
+
 	static char *message[] = {
 		"Realtime Radiosity Viewer",
 		" Stepan Hrbek, http://dee.cz",
@@ -610,10 +622,9 @@ static void drawHelpMessage(bool big)
 		" Demos using precalculated data are coming.",
 		"",
 		"Controls:",
-		" mouse+left button - manipulate camera",
-		" mouse+mid button  - manipulate light",
-		" right button      - menu",
-		" arrows            - move camera or light (with middle mouse pressed)",
+		" mouse       - look",
+		" arrows      - move",
+		" left button - toggle camera/light",
 		"",
 		" space - toggle global illumination",
 		" 's'   - change spotlight",
@@ -623,8 +634,6 @@ static void drawHelpMessage(bool big)
 		" 'z/Z' - zoom in/out",
 		" 'w'   - toggle wire frame",
 		" 'f'   - toggle showing spotlight frustum",
-		" 'm'   - toggle whether the left or middle mouse buttons control the eye and",
-		"         view positions (helpful for systems with only a two-button mouse)",
 /*		"",
 		"'p'   - narrow shadow frustum field of view",
 		"'P'   - widen shadow frustum field of view",
@@ -637,7 +646,7 @@ static void drawHelpMessage(bool big)
 		"'q'   - increment depth slope for 1st pass glPolygonOffset",
 		"'Q'   - increment depth slope for 1st pass glPolygonOffset",*/
 		NULL,
-		"h - help",
+		"F1 - help",
 		NULL
 	};
 	int i;
@@ -686,6 +695,7 @@ void display(void)
 {
 //	printf("Display.\n");//!!!
 	if(!winWidth) return; // can't work without window
+	needRedisplay = false;
 
 	app->reportIlluminationUse();
 
@@ -727,49 +737,6 @@ void display(void)
 	glutSwapBuffers();
 }
 
-static void benchmark(int perFrameDepthMapUpdate)
-{
-	const int numFrames = 150;
-	int start, stop;
-	float time;
-	int i;
-
-	needDepthMapUpdate = 1;
-	display();
-
-	printf("starting benchmark...\n");
-	glFinish();
-
-	start = glutGet(GLUT_ELAPSED_TIME);
-	for (i=0; i<numFrames; i++) {
-		if (perFrameDepthMapUpdate) {
-			needDepthMapUpdate = 1;
-		}
-		display();
-	}
-	glFinish();
-	stop = glutGet(GLUT_ELAPSED_TIME);
-
-	time = (stop - start)/1000.0;
-
-	printf("  perFrameDepthMapUpdate=%d, time = %f secs, fps = %f\n",
-		perFrameDepthMapUpdate, time, numFrames/time);
-	needDepthMapUpdate = 1;
-}
-
-void switchMouseControl(void)
-{
-	if (eyeButton == GLUT_LEFT_BUTTON) {
-		eyeButton = GLUT_MIDDLE_BUTTON;
-		lightButton = GLUT_LEFT_BUTTON;
-	} else {
-		lightButton = GLUT_MIDDLE_BUTTON;
-		eyeButton = GLUT_LEFT_BUTTON;
-	}
-	movingEye = 0;
-	movingLight = 0;
-}
-
 void toggleWireFrame(void)
 {
 	wireFrame = !wireFrame;
@@ -799,38 +766,11 @@ void changeSpotlight()
 	app->reportEndOfInteractions(); // force update even in movingEye mode
 }
 
-void selectMenu(int item)
+void reportEyeMovement()
 {
 	app->reportCriticalInteraction();
-	switch (item) 
-	{
-		case ME_SWITCH_MOUSE_CONTROL:
-			switchMouseControl();
-			return;  /* No redisplay needed. */
-
-		case ME_TOGGLE_GLOBAL_ILLUMINATION:
-			toggleGlobalIllumination();
-			break;
-		case ME_CHANGE_SPOTLIGHT:
-			changeSpotlight();
-			break;
-		case ME_TOGGLE_WIRE_FRAME:
-			toggleWireFrame();
-			break;
-		case ME_TOGGLE_LIGHT_FRUSTUM:
-			showLightViewFrustum = !showLightViewFrustum;
-			if (showLightViewFrustum) {
-				needMatrixUpdate = 1;
-			}
-			break;
-		case ME_EXIT:
-			exit(0);
-			break;
-		default:
-			assert(0);
-			break;
-	}
-	glutPostRedisplay();
+	needMatrixUpdate = 1;
+	needRedisplay = 1;
 }
 
 void reportLightMovement()
@@ -848,20 +788,22 @@ void reportLightMovement()
 	{
 		app->reportCriticalInteraction();
 	}
+	needDepthMapUpdate = 1;
+	needMatrixUpdate = 1;
+	needRedisplay = 1;
 }
 
 void special(int c, int x, int y)
 {
-	if(!movingLight) app->reportCriticalInteraction();
-	Camera* cam = movingLight?&light:&eye;
+	Camera* cam = modeMovingEye?&eye:&light;
 	switch (c) 
 	{
-		case GLUT_KEY_F7:
-			benchmark(1);
-			return;
-		case GLUT_KEY_F8:
-			benchmark(0);
-			return;
+		case GLUT_KEY_F1:
+			showHelp = !showHelp;
+			break;
+		case GLUT_KEY_F10:
+			exit(0);
+			break;
 		case GLUT_KEY_F9:
 			printf("\nCamera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 			printf("Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
@@ -869,43 +811,25 @@ void special(int c, int x, int y)
 
 		case GLUT_KEY_UP:
 			for(int i=0;i<3;i++) cam->pos[i]+=cam->dir[i]/20;
-			if(movingLight) reportLightMovement();
+			if(cam==&light) reportLightMovement(); else reportEyeMovement();
 			break;
 		case GLUT_KEY_DOWN:
 			for(int i=0;i<3;i++) cam->pos[i]-=cam->dir[i]/20;
-			if(movingLight) reportLightMovement();
+			if(cam==&light) reportLightMovement(); else reportEyeMovement();
 			break;
 		case GLUT_KEY_LEFT:
 			cam->pos[0]+=cam->dir[2]/20;
 			cam->pos[2]-=cam->dir[0]/20;
-			if(movingLight) reportLightMovement();
+			if(cam==&light) reportLightMovement(); else reportEyeMovement();
 			break;
 		case GLUT_KEY_RIGHT:
 			cam->pos[0]-=cam->dir[2]/20;
 			cam->pos[2]+=cam->dir[0]/20;
-			if(movingLight) reportLightMovement();
+			if(cam==&light) reportLightMovement(); else reportEyeMovement();
 			break;
 
 		default:
 			return;
-	}
-	/*if (glutGetModifiers() & GLUT_ACTIVE_CTRL) {
-	switch (c) {
-	case GLUT_KEY_UP:
-	break;
-	case GLUT_KEY_DOWN:
-	break;
-	case GLUT_KEY_LEFT:
-	break;
-	case GLUT_KEY_RIGHT:
-	break;
-	}
-	return;
-	}*/
-	needMatrixUpdate = 1;
-	if(movingLight) 
-	{
-		needDepthMapUpdate = 1;
 	}
 	glutPostRedisplay();
 }
@@ -918,18 +842,17 @@ void keyboard(unsigned char c, int x, int y)
 			//delete app; throws asser in freeing node from ivertex
 			exit(0);
 			break;
+		case 9:
+			modeMovingEye = !modeMovingEye;
+			break;
+		case 'p':
+			paused = !paused;
+			break;
 		case 'b':
 			updateDepthBias(+1);
 			break;
 		case 'B':
 			updateDepthBias(-1);
-			break;
-		case 'm':
-			switchMouseControl();
-			break;
-		case 'h':
-		case 'H':
-			showHelp = !showHelp;
 			break;
 		case 'f':
 		case 'F':
@@ -983,7 +906,7 @@ void keyboard(unsigned char c, int x, int y)
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
-		case 'p':
+		/*case 'p':
 			light.fieldOfView -= 5.0;
 			if (light.fieldOfView < 5.0) {
 				light.fieldOfView = 5.0;
@@ -998,7 +921,7 @@ void keyboard(unsigned char c, int x, int y)
 			}
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
-			break;
+			break;*/
 		case ' ':
 			toggleGlobalIllumination();
 			break;
@@ -1078,19 +1001,12 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-	if (button == eyeButton && state == GLUT_DOWN) {
-		movingEye = 1;
-		xEyeBegin = x;
-		yEyeBegin = y;
-	}
+	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+		modeMovingEye = !modeMovingEye;
+	/*
 	if (button == eyeButton && state == GLUT_UP) {
 		app->reportEndOfInteractions();
 		movingEye = 0;
-	}
-	if (button == lightButton && state == GLUT_DOWN) {
-		movingLight = 1;
-		xLightBegin = x;
-		yLightBegin = y;
 	}
 	if (button == lightButton && state == GLUT_UP) {
 		app->reportEndOfInteractions();
@@ -1099,33 +1015,34 @@ void mouse(int button, int state, int x, int y)
 		needDepthMapUpdate = 1;
 		glutPostRedisplay();
 	}
+	*/
 }
 
-void motion(int x, int y)
+void passive(int x, int y)
 {
-	if (movingEye) {
-		app->reportCriticalInteraction();
-		eye.angle = eye.angle - 0.005*(x - xEyeBegin);
-		eye.height = eye.height + 0.15*(y - yEyeBegin);
-		CLAMP(eye.height,-13,13);
-		xEyeBegin = x;
-		yEyeBegin = y;
-		needMatrixUpdate = 1;
-	}
-	if (movingLight) {
-		light.angle = light.angle - 0.005*(x - xLightBegin);
-		light.height = light.height + 0.15*(y - yLightBegin);
-		CLAMP(light.height,-13,13);
-		xLightBegin = x;
-		yLightBegin = y;
-		needMatrixUpdate = 1;
-		needDepthMapUpdate = 1;
-		reportLightMovement();
+	if(!winWidth || !winHeight) return;
+	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
+	x -= winWidth/2;
+	y -= winHeight/2;
+	if(x || y)
+	{
+		if(modeMovingEye)
+		{
+			eye.angle = eye.angle - 0.005*x;
+			eye.height = eye.height + 0.15*y;
+			CLAMP(eye.height,-13,13);
+			reportEyeMovement();
+		}
+		else
+		{
+			light.angle = light.angle - 0.005*x;
+			light.height = light.height + 0.15*y;
+			CLAMP(light.height,-13,13);
+			reportLightMovement();
+		}
+		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 }
-
-//#include "Timer.h"
-//rr::Timer timer;
 
 void idle()
 {
@@ -1135,7 +1052,7 @@ void idle()
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	if((rrOn && app->calculate()==rr::RRScene::IMPROVED) || movingEye || movingLight)
+	if((rrOn && app->calculate()==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
 	{
 //		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache
@@ -1189,19 +1106,6 @@ void init_gl_states()
 #endif
 }
 
-void initMenus(void)
-{
-	glutCreateMenu(selectMenu);
-	glutAddMenuEntry("[ ] Toggle global illumination", ME_TOGGLE_GLOBAL_ILLUMINATION);
-	glutAddMenuEntry("[s] Change spotlight", ME_CHANGE_SPOTLIGHT);
-	glutAddMenuEntry("[f] Toggle light frustum", ME_TOGGLE_LIGHT_FRUSTUM);
-	glutAddMenuEntry("[w] Toggle wire frame", ME_TOGGLE_WIRE_FRAME);
-	glutAddMenuEntry("[m] Switch mouse buttons", ME_SWITCH_MOUSE_CONTROL);
-	glutAddMenuEntry("[ESC] Quit", ME_EXIT);
-
-	glutAttachMenu(GLUT_RIGHT_BUTTON);
-}
-
 void parseOptions(int argc, char **argv)
 {
 	int i;
@@ -1219,6 +1123,12 @@ void parseOptions(int argc, char **argv)
 				else
 					printf("Out of range, 1 to 10 allowed.\n");
 			}
+		}
+		if (!strcmp("rx", argv[i])) {
+			resolutionx = atoi(argv[++i]);
+		}
+		if (!strcmp("ry", argv[i])) {
+			resolutiony = atoi(argv[++i]);
 		}
 		if (!strcmp("-window", argv[i])) {
 			fullscreen = 0;
@@ -1246,19 +1156,28 @@ int main(int argc, char **argv)
 	if(rr::RRLicense::loadLicense("license_number")!=rr::RRLicense::VALID)
 		error("Problem with license number.",false);
 
-	glutInitWindowSize(800, 600);
-	glutInit(&argc, argv);
 	parseOptions(argc, argv);
+
+	glutInitWindowSize(resolutionx,resolutiony);
+	glutInit(&argc, argv);
 
 	if (useDepth24) {
 		glutInitDisplayString("depth~24 rgb double accum");
 	} else {
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
 	}
-	glutCreateWindow("shadowcast");
 	if(fullscreen)
 	{
-		glutFullScreen();
+		char buf[100];
+		sprintf(buf,"%dx%d:32",resolutionx,resolutiony);
+		glutGameModeString(buf);
+		glutEnterGameMode();
+		glutSetCursor(GLUT_CURSOR_NONE);
+	}
+	else
+	{
+		glutCreateWindow("Realtime Radiosity");
+		//glutFullScreen();
 	}
 
 	GLenum err = glewInit();
@@ -1275,10 +1194,8 @@ int main(int argc, char **argv)
 	glutSpecialFunc(special);
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
-	glutMotionFunc(motion);
+	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
-
-	initMenus();
 
 	if (strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
@@ -1338,10 +1255,9 @@ int main(int argc, char **argv)
 		// detail vadne normaly
 		//Camera tmpeye = {{3.078,5.093,4.675},7.995,-1.700,1.3,50.0,0.3,80.0};
 		//Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
-		/* na screenshoty
-		Camera tmpeye = {{-8.777,3.117,0.492},1.630,-13.000,1.3,50.0,0.3,80.0};
-		Camera tmplight = {{-0.310,2.952,-0.532},4.670,-13.000,1.0,70.0,1.0,40.0};
-		*/
+		// na screenshoty
+		//Camera tmpeye = {{-8.777,3.117,0.492},1.630,-13.000,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{-0.310,2.952,-0.532},4.670,-13.000,1.0,70.0,1.0,40.0};
 		// kandidati na init
 		//Camera tmpeye = {{-3.768,5.543,2.697},7.380,-0.050,1.3,50.0,0.3,80.0};
 		//Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
@@ -1390,7 +1306,7 @@ int main(int argc, char **argv)
 	areaLight->attachTo(&light);
 	areaLight->setNumInstances(startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1);
 
-	printf("Loading scene...");
+	printf("Loading %s...",filename_3ds);
 
 	// load 3ds
 	if(!m3ds.Load(filename_3ds,scale_3ds))
@@ -1423,6 +1339,7 @@ int main(int argc, char **argv)
 	// next calculate will use renderer to detect primary illum
 	// must be called from mainloop, we don't know winWidth/winHeight yet
 
+	bugs = Bugs::create(app->getScene(),app->getMultiObject(),100);
 	glutMainLoop();
 	return 0;
 }

@@ -12,7 +12,7 @@ LIBS = -s -lz -lm -L../../lib -lDemoEngine -lRRRealtimeRadiosity -lRRMesh -lRRCo
 LIBS += -lopengl32 -lglu32 -lglut32
 BIN = ../../bin/
 
-OBJS = shadowcast.o
+OBJS = shadowcast.o Bugs.o
 
 all: $(BIN)fcss.exe
 
