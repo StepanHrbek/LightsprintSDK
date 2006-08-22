@@ -1,3 +1,4 @@
+#define BUGS
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
 unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
@@ -8,8 +9,19 @@ int fullscreen = 1;
 bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
-bool gameOn = 1;
+
 /*
+do eg
+-vystup presmerovat do log.txt
+-pod f5 kreslit obrazek
+-renderovat svetlusku z 3ds
+-preskakovani mezi levely na klavesu
+-obrazek loadingt behem loadingyu
+-nechat ho o 1sec dyl a 1sec pocitat
+-omrknout memory leaky aby to nezkolabovalo pri delsim spusteni
+-zlepsit chovani bugu aby sly pustit ve sponze
+-zjistit proc v 640x480 funguje i kdyz shadowmapa je 512
+
 vypisovat kolik % casu
  -detect&resetillum
  -improve
@@ -141,6 +153,11 @@ int resolutionx = 640;
 int resolutiony = 480;
 bool modeMovingEye = true;
 bool needRedisplay = false;
+#ifdef BUGS
+bool gameOn = 1;
+#else
+bool gameOn = 0;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -612,7 +629,11 @@ static void drawHelpMessage(bool big)
 	if(!big && gameOn) return;
 
 	static char *message[] = {
+#ifdef BUGS
+		"Realtime Radiosity Bugs",
+#else
 		"Realtime Radiosity Viewer",
+#endif
 		" Stepan Hrbek, http://dee.cz",
 		" radiosity engine, http://lightsprint.com",
 		"",
@@ -622,19 +643,20 @@ static void drawHelpMessage(bool big)
 		" Demos using precalculated data are coming.",
 		"",
 		"Controls:",
-		" mouse       - look",
-		" arrows      - move",
-		" left button - toggle camera/light",
+		" mouse            - look",
+		" arrows/wsad/1235 - move",
+		" left button      - toggle camera/light",
 		"",
 		" space - toggle global illumination",
-		" 's'   - change spotlight",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
-		" 'a'   - cycle through linear, rectangular and circular area light",
 		" 'z/Z' - zoom in/out",
-		" 'w'   - toggle wire frame",
 		" 'f'   - toggle showing spotlight frustum",
-/*		"",
+/*
+		" 'a'   - cycle through linear, rectangular and circular area light",
+		" 's'   - change spotlight",
+		" 'w'   - toggle wire frame",
+		"",
 		"'p'   - narrow shadow frustum field of view",
 		"'P'   - widen shadow frustum field of view",
 		"'n'   - compress shadow frustum near clip plane",
@@ -796,6 +818,7 @@ void reportLightMovement()
 void special(int c, int x, int y)
 {
 	Camera* cam = modeMovingEye?&eye:&light;
+	Camera::Move move = NULL;
 	switch (c) 
 	{
 		case GLUT_KEY_F1:
@@ -810,26 +833,31 @@ void special(int c, int x, int y)
 			return;
 
 		case GLUT_KEY_UP:
-			for(int i=0;i<3;i++) cam->pos[i]+=cam->dir[i]/20;
-			if(cam==&light) reportLightMovement(); else reportEyeMovement();
+			move = &Camera::moveForward;
 			break;
 		case GLUT_KEY_DOWN:
-			for(int i=0;i<3;i++) cam->pos[i]-=cam->dir[i]/20;
-			if(cam==&light) reportLightMovement(); else reportEyeMovement();
+			move = &Camera::moveBack;
 			break;
 		case GLUT_KEY_LEFT:
-			cam->pos[0]+=cam->dir[2]/20;
-			cam->pos[2]-=cam->dir[0]/20;
-			if(cam==&light) reportLightMovement(); else reportEyeMovement();
+			move = &Camera::moveLeft;
 			break;
 		case GLUT_KEY_RIGHT:
-			cam->pos[0]-=cam->dir[2]/20;
-			cam->pos[2]+=cam->dir[0]/20;
-			if(cam==&light) reportLightMovement(); else reportEyeMovement();
+			move = &Camera::moveRight;
 			break;
 
 		default:
 			return;
+	}
+	if(move)
+	{
+		int modif = glutGetModifiers();
+		float scale = 1;
+		if(modif&GLUT_ACTIVE_SHIFT) scale=10;
+		if(modif&GLUT_ACTIVE_CTRL) scale=3;
+		if(modif&GLUT_ACTIVE_ALT) scale=0.1f;
+		#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
+		CALL_MEMBER_FN(*cam,move)(0.05f*scale);
+		if(cam==&light) reportLightMovement(); else reportEyeMovement();
 	}
 	glutPostRedisplay();
 }
@@ -848,11 +876,25 @@ void keyboard(unsigned char c, int x, int y)
 		case 'p':
 			paused = !paused;
 			break;
-		case 'b':
-			updateDepthBias(+1);
+		case '1':
+		case 'a':
+		case 'A':
+			special(GLUT_KEY_LEFT,0,0);
 			break;
-		case 'B':
-			updateDepthBias(-1);
+		case '2':
+		case 's':
+		case 'S':
+			special(GLUT_KEY_DOWN,0,0);
+			break;
+		case '3':
+		case 'd':
+		case 'D':
+			special(GLUT_KEY_RIGHT,0,0);
+			break;
+		case '5':
+		case 'w':
+		case 'W':
+			special(GLUT_KEY_UP,0,0);
 			break;
 		case 'f':
 		case 'F':
@@ -869,6 +911,27 @@ void keyboard(unsigned char c, int x, int y)
 			if(eye.fieldOfView>25) eye.fieldOfView -= 25;
 			needMatrixUpdate = true;
 			break;
+			/*
+		case 'a':
+			++areaLight->areaType%=3;
+			needDepthMapUpdate = 1;
+			break;
+		case 's':
+			changeSpotlight();
+			break;
+		case 'S':
+			app->reportLightChange(true);
+			break;
+		case 'w':
+		case 'W':
+			toggleWireFrame();
+			return;
+		case 'b':
+			updateDepthBias(+1);
+			break;
+		case 'B':
+			updateDepthBias(-1);
+			break;
 		case 'q':
 			slopeScale += 0.1;
 			needDepthMapUpdate = 1;
@@ -882,10 +945,6 @@ void keyboard(unsigned char c, int x, int y)
 			needDepthMapUpdate = 1;
 			updateDepthBias(0);
 			break;
-		case 'w':
-		case 'W':
-			toggleWireFrame();
-			return;
 		case 'n':
 			light.anear *= 0.8;
 			needMatrixUpdate = 1;
@@ -906,7 +965,7 @@ void keyboard(unsigned char c, int x, int y)
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
-		/*case 'p':
+		case 'p':
 			light.fieldOfView -= 5.0;
 			if (light.fieldOfView < 5.0) {
 				light.fieldOfView = 5.0;
@@ -924,12 +983,6 @@ void keyboard(unsigned char c, int x, int y)
 			break;*/
 		case ' ':
 			toggleGlobalIllumination();
-			break;
-		case 's':
-			changeSpotlight();
-			break;
-		case 'S':
-			app->reportLightChange(true);
 			break;
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;
@@ -973,10 +1026,6 @@ void keyboard(unsigned char c, int x, int y)
 					areaLight->setNumInstances(numInstances);
 				}
 			}
-			break;
-		case 'a':
-			++areaLight->areaType%=3;
-			needDepthMapUpdate = 1;
 			break;
 		default:
 			return;

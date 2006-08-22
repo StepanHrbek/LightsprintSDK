@@ -35,6 +35,11 @@ public:
 	GLdouble inverseFrustumMatrix[16];
 
 	// tools
+	typedef void (Camera::*Move)(float units);
+	void moveForward(float units);
+	void moveBack(float units);
+	void moveRight(float units);
+	void moveLeft(float units);
 	void update(float back); // converts inputs to outputs
 	void setupForRender();
 };

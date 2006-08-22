@@ -281,18 +281,16 @@ void special(int c, int x, int y)
 	switch (c) 
 	{
 		case GLUT_KEY_UP:
-			for(int i=0;i<3;i++) cam->pos[i]+=cam->dir[i]/20;
+			cam->moveForward(0.05f);
 			break;
 		case GLUT_KEY_DOWN:
-			for(int i=0;i<3;i++) cam->pos[i]-=cam->dir[i]/20;
+			cam->moveBack(0.05f);
 			break;
 		case GLUT_KEY_LEFT:
-			cam->pos[0]+=cam->dir[2]/20;
-			cam->pos[2]-=cam->dir[0]/20;
+			cam->moveLeft(0.05f);
 			break;
 		case GLUT_KEY_RIGHT:
-			cam->pos[0]-=cam->dir[2]/20;
-			cam->pos[2]+=cam->dir[0]/20;
+			cam->moveRight(0.05f);
 			break;
 		default:
 			return;

@@ -23,3 +23,25 @@ void Camera::setupForRender()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixd(viewMatrix);
 }
+
+void Camera::moveForward(float units)
+{
+	for(int i=0;i<3;i++) pos[i]+=dir[i]*units;
+}
+
+void Camera::moveBack(float units)
+{
+	for(int i=0;i<3;i++) pos[i]-=dir[i]*units;
+}
+
+void Camera::moveRight(float units)
+{
+	pos[0]-=dir[2]*units;
+	pos[2]+=dir[0]*units;
+}
+
+void Camera::moveLeft(float units)
+{
+	pos[0]+=dir[2]*units;
+	pos[2]-=dir[0]*units;
+}
