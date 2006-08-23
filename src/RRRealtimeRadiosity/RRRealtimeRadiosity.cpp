@@ -57,6 +57,8 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 RRRealtimeRadiosity::~RRRealtimeRadiosity()
 {
 	delete scene;
+	delete multiObject;
+	delete multiObjectBase;
 }
 
 void RRRealtimeRadiosity::setObjects(Objects& aobjects, float astitchDistance)
@@ -249,6 +251,8 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 		{
 			REPORT_BEGIN("Closing old radiosity solver.");
 			delete scene;
+			delete multiObject;
+			delete multiObjectBase;
 			REPORT_END;
 		}
 		REPORT_BEGIN("Opening new radiosity solver.");
@@ -259,12 +263,12 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 		{
 			importers[i] = objects.at(i).first;
 		}
-		RRObject* object = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,stitchDistance,stitchDistance>=0,NULL);
+		multiObjectBase = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,stitchDistance,stitchDistance>=0,NULL);
 		//scene->setStateF(RRScene::IGNORE_SMALLER_ANGLE,-1);
 		//scene->setStateF(RRScene::IGNORE_SMALLER_AREA,-1);
 		//scene->setStateF(RRScene::MAX_SMOOTH_ANGLE,0.6f);
 		//scene->setStateF(RRScene::MIN_FEATURE_SIZE,-0.1f);
-		multiObject = object ? object->createAdditionalIllumination() : NULL;
+		multiObject = multiObjectBase ? multiObjectBase->createAdditionalIllumination() : NULL;
 		delete[] importers;
 		scene->objectCreate(multiObject);
 #else

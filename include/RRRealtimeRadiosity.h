@@ -180,6 +180,7 @@ namespace rr
 		float      calcStep; // avg time spent in calculate().
 		float      improveStep; // time to be spent in improve in calculate()
 		float      readingResultsPeriod;
+		RRObject*  multiObjectBase;
 		RRScene::Improvement calculateCore(float improveStep);
 		// read results
 		void       updateVertexLookupTable();
