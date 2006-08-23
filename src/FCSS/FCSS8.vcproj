@@ -323,6 +323,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\LevelSequence.h"
+			>
+		</File>
+		<File
 			RelativePath=".\shadowcast.cpp"
 			>
 		</File>

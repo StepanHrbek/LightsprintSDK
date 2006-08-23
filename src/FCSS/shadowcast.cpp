@@ -12,13 +12,13 @@ bool startWithSoftShadows = 1;
 
 /*
 do eg
--dodelat a zdokumentovat 'n' jako next level
+-zlepsit chovani bugu aby sly pustit ve sponze
 -obrazek "loading"
 -plynule rekace na sipky, ne pauza po prvnim stisku
--zlepsit chovani bugu aby sly pustit ve sponze
 -pod f5 kreslit obrazek
 -zjistit proc v 640x480 funguje i kdyz shadowmapa je 512
 -renderovat svetlusku z 3ds
+-nahodit fullscreen
 
 vypisovat kolik % casu
  -detect&resetillum
@@ -73,12 +73,13 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce (kompliko
 scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista jsou svetlejsi nez maji byt
 */
 
-#include <assert.h>
-#include <float.h>
-#include <math.h>
+#include <cassert>
+#include <cfloat>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
 #include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
+#include <list>
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/glut.h>
@@ -94,6 +95,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/UberProgramSetup.h"
 #include "Bugs.h"
+#include "LevelSequence.h"
 
 using namespace std;
 
@@ -138,7 +140,6 @@ public:
 //
 // globals
 
-char* filename_3ds="3ds\\koupelna\\koupelna4.3ds";
 Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
 Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
 GLUquadricObj *quadric;
@@ -158,18 +159,23 @@ int wireFrame = 0;
 int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 bool showHelp = 0;
-int showLightViewFrustum = 1;
+int showLightViewFrustum = 0;
 bool paused = false;
 int resolutionx = 640;
 int resolutiony = 480;
 bool modeMovingEye = true;
+unsigned movingEye = 0;
+unsigned movingLight = 0;
 bool needRedisplay = false;
+bool needReportEyeChange = 0;
+bool needReportLightChange = 0;
 #ifdef BUGS
 bool gameOn = 1;
 #else
 bool gameOn = 0;
 #endif
 Level* level = NULL;
+LevelSequence levelSequence;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -349,7 +355,7 @@ protected:
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
 
 			// dbg print
-			rr::RRColor suma = rr::RRColor(0);
+			//rr::RRColor suma = rr::RRColor(0);
 
 			// accumulate triangle powers
 			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
@@ -376,11 +382,11 @@ protected:
 #endif
 
 				// debug print
-				rr::RRColor tmp = rr::RRColor(0);
-				multiObject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
-				suma+=tmp;
+				//rr::RRColor tmp = rr::RRColor(0);
+				//multiObject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
+				//suma+=tmp;
 			}
-			printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
+			//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
 		}
 
 		delete[] pixelBuffer;
@@ -481,6 +487,7 @@ void drawShadowMapFrustum(void)
 
 void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
+	if(!level) return;
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
 		error("Failed to compile or link GLSL program.\n",true);
 
@@ -550,6 +557,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 
 void drawEyeViewShadowed(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
+	if(!level) return;
 	glClear(GL_COLOR_BUFFER_BIT);
 	if(firstInstance==0) glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -676,13 +684,16 @@ static void drawHelpMessage(bool big)
 		"Controls:",
 		" mouse            - look",
 		" arrows/wsad/1235 - move",
-		" left button      - toggle camera/light",
+		" left button      - switch between camera/light",
+		" right button     - next scene",
 		"",
+		"Extras for experts:",
 		" space - toggle global illumination",
+		" 'z/Z' - zoom in/out",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
-		" 'z/Z' - zoom in/out",
 		" 'f'   - toggle showing spotlight frustum",
+		" 'l'   - toggle lazy updates",
 /*
 		" 'a'   - cycle through linear, rectangular and circular area light",
 		" 's'   - change spotlight",
@@ -775,6 +786,8 @@ Level::Level(const char* filename_3ds)
 		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
 		eye = koupelna4_eye;
 		light = koupelna4_light;
+		updateDuringLightMovement = 1;
+		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
 	if(strstr(filename_3ds, "koupelna3")) {
 		scale_3ds = 0.01f;
@@ -789,6 +802,8 @@ Level::Level(const char* filename_3ds)
 		//Camera tmplight = {{-0.718,4.366,-0.145},-12.175,6.550,1.0,70.0,1.0,20.0};
 		eye = tmpeye;
 		light = tmplight;
+		updateDuringLightMovement = 1;
+		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
 	if(strstr(filename_3ds, "koupelna5")) {
 		scale_3ds = 0.03f;
@@ -798,6 +813,8 @@ Level::Level(const char* filename_3ds)
 		Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
 		eye = tmpeye;
 		light = tmplight;
+		updateDuringLightMovement = 1;
+		if(areaLight) areaLight->setNumInstances(1);
 	}
 	if(strstr(filename_3ds, "sponza"))
 	{
@@ -809,6 +826,8 @@ Level::Level(const char* filename_3ds)
 		//Camera sponza_light = {{-8.042,7.690,-0.954},1.990,0.800,1.0,70.0,1.0,30.0};
 		eye = sponza_eye;
 		light = sponza_light;
+		updateDuringLightMovement = 0;
+		if(areaLight) areaLight->setNumInstances(1);
 	}
 	if(strstr(filename_3ds, "sibenik"))
 	{
@@ -836,6 +855,8 @@ Level::Level(const char* filename_3ds)
 		//Camera tmplight = {{-1.455,12.912,-2.926},13.130,13.000,1.0,70.0,1.6,40.0};
 		eye = tmpeye;
 		light = tmplight;
+		updateDuringLightMovement = 0;
+		if(areaLight) areaLight->setNumInstances(1);
 	}
 
 	printf("Loading %s...",filename_3ds);
@@ -865,6 +886,10 @@ Level::Level(const char* filename_3ds)
 #ifdef BUGS
 	bugs = Bugs::create(app->getScene(),app->getMultiObject(),100);
 #endif
+
+	needMatrixUpdate = true;
+	needDepthMapUpdate = true;
+	needRedisplay = true;
 }
 
 Level::~Level()
@@ -882,14 +907,12 @@ Level::~Level()
 
 void display(void)
 {
-//	printf("Display.\n");//!!!
 	if(!winWidth) return; // can't work without window
 	if(!level)
 	{
 		//!!! zobrazit loading
-		level = new Level(filename_3ds);
+		level = new Level(levelSequence.getNextLevel());
 	}
-	needRedisplay = false;
 
 	level->app->reportIlluminationUse();
 
@@ -956,19 +979,30 @@ void changeSpotlight()
 	lightDirectMapIdx = (lightDirectMapIdx+1)%lightDirectMaps;
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
 	needDepthMapUpdate = 1;
+	if(!level) return;
 	level->app->reportLightChange(true);
 	level->app->reportEndOfInteractions(); // force update even in movingEye mode
 }
 
 void reportEyeMovement()
 {
+	if(!level) return;
 	level->app->reportCriticalInteraction();
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
+	movingEye = 4;
+}
+
+void reportEyeMovementEnd()
+{
+	if(!level) return;
+	level->app->reportEndOfInteractions();
+	movingEye = 0;
 }
 
 void reportLightMovement()
 {
+	if(!level) return;
 	if(updateDuringLightMovement)
 	{
 		// Behem pohybu svetla v male scene dava lepsi vysledky update (false)
@@ -985,6 +1019,21 @@ void reportLightMovement()
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
+	movingLight = 3;
+}
+
+void reportLightMovementEnd()
+{
+	if(!level) return;
+	level->app->reportEndOfInteractions();
+	if(!updateDuringLightMovement)
+	{
+		level->app->reportLightChange(true);
+		needDepthMapUpdate = 1;
+		needMatrixUpdate = 1;
+		needRedisplay = 1;
+	}
+	movingLight = 0;
 }
 
 void special(int c, int x, int y)
@@ -1068,6 +1117,10 @@ void keyboard(unsigned char c, int x, int y)
 		case 'w':
 		case 'W':
 			special(GLUT_KEY_UP,0,0);
+			break;
+
+		case 'l':
+			updateDuringLightMovement = !updateDuringLightMovement;
 			break;
 		case 'f':
 		case 'F':
@@ -1157,10 +1210,6 @@ void keyboard(unsigned char c, int x, int y)
 		case ' ':
 			toggleGlobalIllumination();
 			break;
-		case 'n':
-			delete level;
-			level = NULL;
-			break;
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
@@ -1227,20 +1276,15 @@ void reshape(int w, int h)
 void mouse(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
 		modeMovingEye = !modeMovingEye;
-	/*
-	if (button == eyeButton && state == GLUT_UP) {
-		app->reportEndOfInteractions();
-		movingEye = 0;
 	}
-	if (button == lightButton && state == GLUT_UP) {
-		app->reportEndOfInteractions();
-		if(!updateDuringLightMovement) app->reportLightChange(true);
-		movingLight = 0;
-		needDepthMapUpdate = 1;
-		glutPostRedisplay();
+	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	{
+		//!!! obrazek 'loading...'
+		delete level;
+		level = NULL;
 	}
-	*/
 }
 
 void passive(int x, int y)
@@ -1272,13 +1316,20 @@ void passive(int x, int y)
 void idle()
 {
 	if(!winWidth) return; // can't work without window
-	if(!level) return;
+	if(movingEye && !--movingEye)
+	{
+		reportEyeMovementEnd();
+	}
+	if(movingLight && !--movingLight)
+	{
+		reportLightMovementEnd();
+	}
 //	LIMITED_TIMES(1,timer.Start());
 	bool rrOn = drawMode == DM_EYE_VIEW_SOFTSHADOWED;
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	if((rrOn && level->app->calculate()==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
+	if(!level || (rrOn && level->app->calculate()==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
 	{
 //		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache
@@ -1366,7 +1417,7 @@ void parseOptions(int argc, char **argv)
 			updateDuringLightMovement = 0;
 		}
 		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS")) {
-			filename_3ds = argv[i];
+			levelSequence.insertLevelFront(argv[i]);
 		}
 	}
 }
