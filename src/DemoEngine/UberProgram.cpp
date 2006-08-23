@@ -11,6 +11,12 @@ UberProgram::UberProgram(const char* avertexShaderFileName, const char* afragmen
 
 UberProgram::~UberProgram()
 {
+	// delete all programs in cache
+	while(cache.begin()!=cache.end())
+	{
+		delete cache.begin()->second;
+		cache.erase(cache.begin());
+	}
 }
 
 Program* UberProgram::getProgram(const char* defines)
@@ -22,14 +28,14 @@ Program* UberProgram::getProgram(const char* defines)
 	}
 	map<unsigned,Program*>::iterator i = cache.find(hash);
 	if(i!=cache.end()) return i->second;
-	Program* tmp = new Program(defines,vertexShaderFileName,fragmentShaderFileName);
-	if(!tmp->isLinked())
+	Program* program = new Program(defines,vertexShaderFileName,fragmentShaderFileName);
+	if(!program->isLinked())
 	{
-		delete tmp;
-		tmp=NULL;
+		delete program;
+		program = NULL;
 	}
-	cache[hash] = tmp;
+	cache[hash] = program;
 	//cache.insert(defines,tmp);
-	return tmp;
+	return program;
 }
 

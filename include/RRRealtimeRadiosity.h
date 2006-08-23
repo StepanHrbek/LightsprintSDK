@@ -68,6 +68,8 @@ namespace rr
 		typedef std::vector<Object> Objects;
 		//! Sets contents of scene, all objects at once.
 		void setObjects(Objects& objects, float stitchDistance = 0.01f);
+		//! Returns number of objects in scene.
+		unsigned getNumObjects();
 		//! Returns i-th object in scene.
 		RRObject* getObject(unsigned i);
 		//! Returns illumination of i-th object in scene.

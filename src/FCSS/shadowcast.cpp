@@ -5,18 +5,18 @@ unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
-int fullscreen = 1;
+int fullscreen = 0;
 bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 
 /*
 do eg
--preskakovani mezi levely na klavesu
+-leak 20mb na koupelnu
+-dodelat a zdokumentovat 'n' jako next level
+-obrazek "loading"
+-plynule rekace na sipky, ne pauza po prvnim stisku
 -zlepsit chovani bugu aby sly pustit ve sponze
--obrazek loadingt behem loadingyu
--nechat ho o 1sec dyl a 1sec pocitat
--omrknout memory leaky aby to nezkolabovalo pri delsim spusteni
 -pod f5 kreslit obrazek
 -zjistit proc v 640x480 funguje i kdyz shadowmapa je 512
 -renderovat svetlusku z 3ds
@@ -116,15 +116,30 @@ enum {
 };
 
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Level
+
+class Level
+{
+public:
+	Model_3DS m3ds;
+	class MyApp* app;
+	class Bugs* bugs;
+	RendererOfRRObject* rendererNonCaching;
+	RendererWithCache* rendererCaching;
+
+	Level(const char* filename_3ds);
+	~Level();
+};
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // globals
 
-Model_3DS m3ds;
 char* filename_3ds="3ds\\koupelna\\koupelna4.3ds";
-float scale_3ds = 0.03f;
-RendererOfRRObject* rendererNonCaching = NULL;
-RendererWithCache* rendererCaching = NULL;
 Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
 Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
 GLUquadricObj *quadric;
@@ -145,7 +160,6 @@ int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 bool showHelp = 0;
 int showLightViewFrustum = 1;
-class Bugs* bugs = NULL;
 bool paused = false;
 int resolutionx = 640;
 int resolutiony = 480;
@@ -156,6 +170,8 @@ bool gameOn = 1;
 #else
 bool gameOn = 0;
 #endif
+Level* level = NULL;
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -219,6 +235,14 @@ void init_gl_resources()
 		error("\nFailed to compile or link GLSL program.\n",true);
 }
 
+void done_gl_resources()
+{
+	//delete ambientProgram;
+	delete uberProgram;
+	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
+	delete areaLight;
+	gluDeleteQuadric(quadric);
+}
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -259,7 +283,7 @@ protected:
 	virtual bool detectDirectIllumination()
 	{
 		// renderer not ready yet, fail
-		if(!rendererCaching) return false;
+		if(!level || !level->rendererCaching) return false;
 
 		// first time illumination is detected, no shadowmap has been created yet
 		if(needDepthMapUpdate)
@@ -318,15 +342,15 @@ protected:
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 #endif
 			uberProgramSetup.FORCE_2D_POSITION = true;
-			rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle); // set param for cache so it creates different displaylists
+			level->rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle); // set param for cache so it creates different displaylists
 			renderScene(uberProgramSetup,0);
-			rendererNonCaching->setCapture(NULL,0);
+			level->rendererNonCaching->setCapture(NULL,0);
 
 			// Read back the index buffer to memory.
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
 
 			// dbg print
-			//rr::RRColor suma = rr::RRColor(0);
+			rr::RRColor suma = rr::RRColor(0);
 
 			// accumulate triangle powers
 			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
@@ -353,11 +377,11 @@ protected:
 #endif
 
 				// debug print
-				//rr::RRColor tmp = rr::RRColor(0);
-				//rrobject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
-				//suma+=tmp;
+				rr::RRColor tmp = rr::RRColor(0);
+				multiObject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
+				suma+=tmp;
 			}
-			//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
+			printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
 		}
 
 		delete[] pixelBuffer;
@@ -373,9 +397,17 @@ protected:
 	{
 		printf(action);
 	}
+public:
+	virtual ~MyApp()
+	{
+		// delete objects and illumination
+		for(unsigned i=0;i<getNumObjects();i++)
+		{
+			delete getIllumination(i);
+			delete getObject(i);
+		}
+	}
 };
-
-MyApp* app = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -394,6 +426,7 @@ void drawLight(void)
 
 void updateMatrices(void)
 {
+	eye.aspect = winHeight ? (float) winWidth / (float) winHeight : 1;
 	eye.update(0);
 	light.update(0.3f);
 }
@@ -462,7 +495,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?app:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
+		level->m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?level->app:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
 		return;
 	}
 	RendererOfRRObject::RenderedChannels renderedChannels;
@@ -472,8 +505,8 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
-	rendererNonCaching->setRenderedChannels(renderedChannels);
-	rendererCaching->render();
+	level->rendererNonCaching->setRenderedChannels(renderedChannels);
+	level->rendererCaching->render();
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -536,8 +569,8 @@ void drawEyeViewShadowed(UberProgramSetup uberProgramSetup, unsigned firstInstan
 		CLAMP(seconds,0.001f,0.5f);
 		t.Start();
 		runs = true;
-		if(!paused) bugs->tick(seconds);
-		bugs->render();
+		if(!paused) level->bugs->tick(seconds);
+		level->bugs->render();
 	}
 #endif
 
@@ -710,13 +743,154 @@ static void drawHelpMessage(bool big)
 	glEnable(GL_DEPTH_TEST);
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Level body
+
+Level::Level(const char* filename_3ds)
+{
+	app = NULL;
+	bugs = NULL;
+	rendererNonCaching = NULL;
+	rendererCaching = NULL;
+
+	//!!! zobrazit loading
+
+	float scale_3ds = 1;
+	{
+		Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
+		Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
+		eye = tmpeye;
+		light = tmplight;
+	}
+	if(strstr(filename_3ds, "koupelna4")) {
+		scale_3ds = 0.03f;
+		//Camera koupelna4_eye = {{0.032202,1.659255,1.598609},10.010005,-0.150000};
+		//Camera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
+		Camera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,50.,0.3,60.};
+		Camera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
+		//Camera koupelna4_eye = {{0.823,1.500,-0.672},11.055,-0.050,1.3,100.0,0.3,60.0};//wrong backprojection
+		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
+		eye = koupelna4_eye;
+		light = koupelna4_light;
+	}
+	if(strstr(filename_3ds, "koupelna3")) {
+		scale_3ds = 0.01f;
+		//lightDirectMapIdx = 1;
+		//Camera tmpeye = {{0.822,1.862,6.941},9.400,-0.450,1.3,50.0,0.3,60.0};
+		//Camera tmplight = {{1.906,1.349,1.838},4.085,0.700,1.0,70.0,1.0,20.0};
+		Camera tmpeye = {{0.822,1.862,6.941},9.400,-0.450,1.3,50.0,0.3,60.0};
+		Camera tmplight = {{1.906,1.349,1.838},3.930,0.100,1.0,70.0,1.0,20.0};
+		//Camera tmpeye = {{6.172,3.741,1.522},4.370,1.150,1.3,100.0,0.3,60.0};
+		//Camera tmplight = {{-2.825,4.336,3.259},-4.315,3.850,1.0,70.0,1.0,20.0};
+		//Camera tmpeye = {{6.031,3.724,1.471},4.350,1.450,1.3,100.0,0.3,60.0};
+		//Camera tmplight = {{-0.718,4.366,-0.145},-12.175,6.550,1.0,70.0,1.0,20.0};
+		eye = tmpeye;
+		light = tmplight;
+	}
+	if(strstr(filename_3ds, "koupelna5")) {
+		scale_3ds = 0.03f;
+		//Camera tmpeye = {{6.172,3.741,1.522},4.340,1.600,1.3,100.0,0.3,60.0};
+		//Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
+		Camera tmpeye = {{5.735,2.396,1.479},4.405,0.100,1.3,100.0,0.3,60.0};
+		Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
+		eye = tmpeye;
+		light = tmplight;
+	}
+	if(strstr(filename_3ds, "sponza"))
+	{
+		Camera sponza_eye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
+		Camera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
+		//Camera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
+		//Camera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
+		//Camera sponza_eye = {{13.924,7.606,1.007},7.920,-0.150,1.3,100.0,0.3,60.0};// shows face with bad indirect
+		//Camera sponza_light = {{-8.042,7.690,-0.954},1.990,0.800,1.0,70.0,1.0,30.0};
+		eye = sponza_eye;
+		light = sponza_light;
+	}
+	if(strstr(filename_3ds, "sibenik"))
+	{
+		// zacatek nevhodny pouze kvuli spatnym normalam
+		//		Camera tmpeye = {{-8.777,3.117,0.492},1.145,-0.400,1.3,50.0,0.3,80.0};
+		//		Camera tmplight = {{-0.310,2.952,-0.532},5.550,3.200,1.0,70.0,1.0,40.0};
+		// dalsi zacatek kde je videt zmrsena normala
+		Camera tmpeye = {{-3.483,5.736,2.755},7.215,2.050,1.3,50.0,0.3,80.0};
+		Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
+		// detail vadne normaly
+		//Camera tmpeye = {{3.078,5.093,4.675},7.995,-1.700,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
+		// na screenshoty
+		//Camera tmpeye = {{-8.777,3.117,0.492},1.630,-13.000,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{-0.310,2.952,-0.532},4.670,-13.000,1.0,70.0,1.0,40.0};
+		// kandidati na init
+		//Camera tmpeye = {{-3.768,5.543,2.697},7.380,-0.050,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
+		//Camera tmpeye = {{-5.876,10.169,6.378},8.110,7.150,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{-1.872,5.494,0.481},0.550,0.500,1.0,70.0,1.6,40.0};
+		// shot
+		//Camera tmpeye = {{12.158,-0.433,-3.413},11.835,-9.850,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{21.907,0.387,1.443},-7.395,-4.450,1.0,70.0,1.0,40.0};
+		//Camera tmpeye = {{-10.518,8.224,-0.298},7.820,-0.100,1.3,50.0,0.3,80.0};
+		//Camera tmplight = {{-1.455,12.912,-2.926},13.130,13.000,1.0,70.0,1.6,40.0};
+		eye = tmpeye;
+		light = tmplight;
+	}
+
+	printf("Loading %s...",filename_3ds);
+
+	// init .3ds scene
+	if(!m3ds.Load(filename_3ds,scale_3ds))
+		error("",false);
+
+	//	printf(app->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
+	//	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
+
+	printf("\n");
+
+	// init radiosity solver
+	app = new MyApp();
+	new_3ds_importer(&m3ds,app,0.01f);
+	app->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
+	if(!app->getMultiObject())
+		error("No objects in scene.",false);
+
+	// init renderer
+	rendererNonCaching = new RendererOfRRObject(app->getMultiObject(),app->getScene());
+	rendererCaching = new RendererWithCache(rendererNonCaching);
+	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
+
+	// init bugs
+#ifdef BUGS
+	bugs = Bugs::create(app->getScene(),app->getMultiObject(),100);
+#endif
+}
+
+Level::~Level()
+{
+	delete bugs;
+	delete rendererCaching;
+	delete rendererNonCaching;
+	delete app;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// GLUT callbacks
+
 void display(void)
 {
 //	printf("Display.\n");//!!!
 	if(!winWidth) return; // can't work without window
+	if(!level)
+	{
+		//!!! zobrazit loading
+		level = new Level(filename_3ds);
+	}
 	needRedisplay = false;
 
-	app->reportIlluminationUse();
+	level->app->reportIlluminationUse();
 
 	if(needMatrixUpdate)
 		updateMatrices();
@@ -781,13 +955,13 @@ void changeSpotlight()
 	lightDirectMapIdx = (lightDirectMapIdx+1)%lightDirectMaps;
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
 	needDepthMapUpdate = 1;
-	app->reportLightChange(true);
-	app->reportEndOfInteractions(); // force update even in movingEye mode
+	level->app->reportLightChange(true);
+	level->app->reportEndOfInteractions(); // force update even in movingEye mode
 }
 
 void reportEyeMovement()
 {
-	app->reportCriticalInteraction();
+	level->app->reportCriticalInteraction();
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
 }
@@ -801,11 +975,11 @@ void reportLightMovement()
 		// Ve velke scene dava lepsi vysledky reset (true),
 		//  scena sice behem pohybu ztmavne,
 		//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
-		app->reportLightChange(app->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+		level->app->reportLightChange(level->app->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
 	}
 	else
 	{
-		app->reportCriticalInteraction();
+		level->app->reportCriticalInteraction();
 	}
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
@@ -864,7 +1038,7 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case 27:
-			//delete app; throws asser in freeing node from ivertex
+			delete level; // throws assert in freeing node from ivertex
 			exit(0);
 			break;
 		case 9:
@@ -981,6 +1155,10 @@ void keyboard(unsigned char c, int x, int y)
 		case ' ':
 			toggleGlobalIllumination();
 			break;
+		case 'n':
+			delete level;
+			level = NULL;
+			break;
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
@@ -1037,7 +1215,6 @@ void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	eye.aspect = (double) winWidth / (double) winHeight;
 	needMatrixUpdate = true;
 
 	/* Perhaps there might have been a mode change so at window
@@ -1093,12 +1270,13 @@ void passive(int x, int y)
 void idle()
 {
 	if(!winWidth) return; // can't work without window
+	if(!level) return;
 //	LIMITED_TIMES(1,timer.Start());
 	bool rrOn = drawMode == DM_EYE_VIEW_SOFTSHADOWED;
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	if((rrOn && app->calculate()==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
+	if((rrOn && level->app->calculate()==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
 	{
 //		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache
@@ -1187,87 +1365,24 @@ void parseOptions(int argc, char **argv)
 		}
 		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS")) {
 			filename_3ds = argv[i];
-			scale_3ds = 1;
 		}
-	}
-
-	if (strstr(filename_3ds, "koupelna4")) {
-		scale_3ds = 0.03f;
-		//Camera koupelna4_eye = {{0.032202,1.659255,1.598609},10.010005,-0.150000};
-		//Camera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
-		Camera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,50.,0.3,60.};
-		Camera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
-		//Camera koupelna4_eye = {{0.823,1.500,-0.672},11.055,-0.050,1.3,100.0,0.3,60.0};//wrong backprojection
-		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
-		eye = koupelna4_eye;
-		light = koupelna4_light;
-	}
-	if (strstr(filename_3ds, "koupelna3")) {
-		scale_3ds = 0.01f;
-		//lightDirectMapIdx = 1;
-		//Camera tmpeye = {{0.822,1.862,6.941},9.400,-0.450,1.3,50.0,0.3,60.0};
-		//Camera tmplight = {{1.906,1.349,1.838},4.085,0.700,1.0,70.0,1.0,20.0};
-		Camera tmpeye = {{0.822,1.862,6.941},9.400,-0.450,1.3,50.0,0.3,60.0};
-		Camera tmplight = {{1.906,1.349,1.838},3.930,0.100,1.0,70.0,1.0,20.0};
-		//Camera tmpeye = {{6.172,3.741,1.522},4.370,1.150,1.3,100.0,0.3,60.0};
-		//Camera tmplight = {{-2.825,4.336,3.259},-4.315,3.850,1.0,70.0,1.0,20.0};
-		//Camera tmpeye = {{6.031,3.724,1.471},4.350,1.450,1.3,100.0,0.3,60.0};
-		//Camera tmplight = {{-0.718,4.366,-0.145},-12.175,6.550,1.0,70.0,1.0,20.0};
-		eye = tmpeye;
-		light = tmplight;
-	}
-	if (strstr(filename_3ds, "koupelna5")) {
-		scale_3ds = 0.03f;
-		//Camera tmpeye = {{6.172,3.741,1.522},4.340,1.600,1.3,100.0,0.3,60.0};
-		//Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
-		Camera tmpeye = {{5.735,2.396,1.479},4.405,0.100,1.3,100.0,0.3,60.0};
-		Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
-		eye = tmpeye;
-		light = tmplight;
-	}
-	if (strstr(filename_3ds, "sponza"))
-	{
-		Camera sponza_eye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
-		Camera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
-		//Camera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
-		//Camera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
-		//Camera sponza_eye = {{13.924,7.606,1.007},7.920,-0.150,1.3,100.0,0.3,60.0};// shows face with bad indirect
-		//Camera sponza_light = {{-8.042,7.690,-0.954},1.990,0.800,1.0,70.0,1.0,30.0};
-		eye = sponza_eye;
-		light = sponza_light;
-	}
-
-	if (strstr(filename_3ds, "sibenik"))
-	{
-		// zacatek nevhodny pouze kvuli spatnym normalam
-		//		Camera tmpeye = {{-8.777,3.117,0.492},1.145,-0.400,1.3,50.0,0.3,80.0};
-		//		Camera tmplight = {{-0.310,2.952,-0.532},5.550,3.200,1.0,70.0,1.0,40.0};
-		// dalsi zacatek kde je videt zmrsena normala
-		Camera tmpeye = {{-3.483,5.736,2.755},7.215,2.050,1.3,50.0,0.3,80.0};
-		Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
-		// detail vadne normaly
-		//Camera tmpeye = {{3.078,5.093,4.675},7.995,-1.700,1.3,50.0,0.3,80.0};
-		//Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
-		// na screenshoty
-		//Camera tmpeye = {{-8.777,3.117,0.492},1.630,-13.000,1.3,50.0,0.3,80.0};
-		//Camera tmplight = {{-0.310,2.952,-0.532},4.670,-13.000,1.0,70.0,1.0,40.0};
-		// kandidati na init
-		//Camera tmpeye = {{-3.768,5.543,2.697},7.380,-0.050,1.3,50.0,0.3,80.0};
-		//Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
-		//Camera tmpeye = {{-5.876,10.169,6.378},8.110,7.150,1.3,50.0,0.3,80.0};
-		//Camera tmplight = {{-1.872,5.494,0.481},0.550,0.500,1.0,70.0,1.6,40.0};
-		// shot
-		//Camera tmpeye = {{12.158,-0.433,-3.413},11.835,-9.850,1.3,50.0,0.3,80.0};
-		//Camera tmplight = {{21.907,0.387,1.443},-7.395,-4.450,1.0,70.0,1.0,40.0};
-		//Camera tmpeye = {{-10.518,8.224,-0.298},7.820,-0.100,1.3,50.0,0.3,80.0};
-		//Camera tmplight = {{-1.455,12.912,-2.926},13.130,13.000,1.0,70.0,1.6,40.0};
-		eye = tmpeye;
-		light = tmplight;
 	}
 }
 
 int main(int argc, char **argv)
 {
+	/*
+	// Get current flag
+	int tmpFlag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
+	// Turn on leak-checking bit
+	tmpFlag |= _CRTDBG_LEAK_CHECK_DF;
+	// Turn off CRT block checking bit
+	tmpFlag &= ~_CRTDBG_CHECK_CRT_DF;
+	// Set flag to the new value
+	_CrtSetDbgFlag( tmpFlag );
+	//_crtBreakAlloc = 408;
+	*/
+
 	parseOptions(argc, argv);
 
 	// init GLUT
@@ -1328,36 +1443,14 @@ int main(int argc, char **argv)
 	areaLight->attachTo(&light);
 	areaLight->setNumInstances(startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1);
 
-	printf("Loading %s...",filename_3ds);
-
-	// init .3ds scene
-	if(!m3ds.Load(filename_3ds,scale_3ds))
-		error("",false);
-
-//	printf(app->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
-//	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
-
-	printf("\n");
-
-	// init radiosity solver
 	if(rr::RRLicense::loadLicense("license_number")!=rr::RRLicense::VALID)
 		error("Problem with license number.",false);
-	app = new MyApp();
-	new_3ds_importer(&m3ds,app,0.01f);
-	app->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
-	if(!app->getMultiObject())
-		error("No objects in scene.",false);
-
-	// init renderer
-	rendererNonCaching = new RendererOfRRObject(app->getMultiObject(),app->getScene());
-	rendererCaching = new RendererWithCache(rendererNonCaching);
-	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
-
-	// init bugs
-#ifdef BUGS
-	bugs = Bugs::create(app->getScene(),app->getMultiObject(),100);
-#endif
-
+/*
+	level = new Level(filename_3ds); 
+	delete level;
+	done_gl_resources();
+	return 0;//!!!
+*/
 	glutMainLoop();
 	return 0;
 }

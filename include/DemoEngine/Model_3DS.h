@@ -110,7 +110,14 @@ public:
 		Texture* tex;	// The texture (this is the only outside reference in this class)
 		bool textured;	// whether or not it is textured
 		Color4i color;
-		Material() {tex=NULL;}
+		Material()
+		{
+			tex=NULL;
+		}
+		~Material()
+		{
+			delete tex;
+		}
 	};
 
 	// Every chunk in the 3ds file starts with this struct
@@ -124,6 +131,14 @@ public:
 		unsigned short *subFaces;	// Index to our vertex array of all the faces that use this material
 		int numSubFaces;			// The number of faces
 		int MatIndex;				// An index to our materials
+		MaterialFaces()
+		{
+			subFaces = NULL;
+		}
+		~MaterialFaces()
+		{
+			delete[] subFaces;
+		}
 	};
 
 	// The 3ds file can be made up of several objects
@@ -141,6 +156,22 @@ public:
 		MaterialFaces *MatFaces;	// The faces are divided by materials
 		Vector pos;					// The position to move the object to
 		Vector rot;					// The angles to rotate the object
+		Object()
+		{
+			Vertexes = NULL;
+			Normals = NULL;
+			TexCoords = NULL;
+			Faces = NULL;
+			MatFaces = NULL;
+		}
+		~Object()
+		{
+			delete[] Vertexes;
+			delete[] Normals;
+			delete[] TexCoords;
+			delete[] Faces;
+			delete[] MatFaces;
+		}
 	};
 
 	char *modelname;		// The name of the model
@@ -157,7 +188,7 @@ public:
 	float scale;			// The size you want the model scaled to
 	bool lit;				// True: the model is lit
 	bool visible;			// True: the model gets rendered
-	bool Load(char *name, float scale);	// Loads a model
+	bool Load(const char *name, float scale);	// Loads a model
 	void Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap); // Draws the model using given colors (3 floats per vertex)
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor

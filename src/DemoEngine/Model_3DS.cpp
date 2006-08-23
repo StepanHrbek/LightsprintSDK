@@ -172,11 +172,18 @@ Model_3DS::Model_3DS()
 
 Model_3DS::~Model_3DS()
 {
-
+	delete[] path;
+	delete[] Materials;
+	delete[] Objects;
 }
 
-bool Model_3DS::Load(char *name, float scale)
+bool Model_3DS::Load(const char *filename, float scale)
 {
+	char buf[500];
+	strncpy(buf,filename,499);
+	buf[499]=0;
+	char* name = buf;
+
 	SCALE = scale;
 	// holds the main chunk header
 	ChunkHeader main;
@@ -198,6 +205,7 @@ bool Model_3DS::Load(char *name, float scale)
 			temp = strrchr(name, '\\');
 
 		// Allocate space for the path
+		delete[] path;
 		path = new char[strlen(name)-strlen(temp)+10];
 		// Get a pointer to the end of the path and name
 		char *src = name + strlen(name) - 1;

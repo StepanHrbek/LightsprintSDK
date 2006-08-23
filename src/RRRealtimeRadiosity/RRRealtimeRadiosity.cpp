@@ -66,6 +66,11 @@ void RRRealtimeRadiosity::setObjects(Objects& aobjects, float astitchDistance)
 	dirtyGeometry = true;
 }
 
+unsigned RRRealtimeRadiosity::getNumObjects()
+{
+	return (unsigned)objects.size();
+}
+
 RRObject* RRRealtimeRadiosity::getObject(unsigned i)
 {
 	if(i>=objects.size()) return NULL;
