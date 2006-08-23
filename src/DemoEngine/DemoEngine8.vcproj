@@ -370,10 +370,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\RRTimer.h"
-			>
-		</File>
-		<File
 			RelativePath=".\Shader.cpp"
 			>
 		</File>
@@ -395,6 +391,10 @@
 		</File>
 		<File
 			RelativePath="..\..\include\DemoEngine\TextureShadowMap.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\Timer.h"
 			>
 		</File>
 		<File

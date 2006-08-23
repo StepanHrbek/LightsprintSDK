@@ -23,7 +23,7 @@ namespace rr
 
 #define REPORT(a)       //a
 #define REPORT_BEGIN(a) REPORT( Timer timer; timer.Start(); reportAction(a ".."); )
-#define REPORT_END      REPORT( {char buf[10]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
+#define REPORT_END      REPORT( {char buf[20]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
 
 // odsunout do RRIlluminationPixelBuffer.cpp
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -112,7 +112,7 @@ void RRRealtimeRadiosity::reportGeometryChange()
 
 void RRRealtimeRadiosity::reportLightChange(bool strong)
 {
-	REPORT(reportAction(strong?"<LightChangeStrong>":"LightChange"));
+	REPORT(reportAction(strong?"<LightChangeStrong>":"<LightChange>"));
 	dirtyLights = strong?BIG_CHANGE:SMALL_CHANGE;
 }
 
@@ -316,7 +316,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 	RRScene::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
 	if(improvement==RRScene::FINISHED || improvement==RRScene::INTERNAL_ERROR)
 		return improvement;
-	REPORT(printf(" (imp=%f / calc=%f / user=%f) ",improveStep,calcStep,userStep));
+	REPORT(printf(" (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 	REPORT_END;
 
 	if(now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
@@ -352,6 +352,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculate()
 	if(illuminationUse)
 	{
 		float lastUserStep = (calcBeginTime-lastCalcEndTime)/(float)PER_SEC;
+		REPORT(printf("User %d ms.\n",(int)(1000*lastUserStep)));
 		if(lastCalcEndTime && lastUserStep<1.0f)
 		{
 			if(!userStep)

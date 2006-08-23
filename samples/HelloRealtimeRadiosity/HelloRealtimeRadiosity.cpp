@@ -34,7 +34,7 @@ void error(const char* message, bool gfxRelated)
 {
 	printf(message);
 	if(gfxRelated)
-		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card may be too old.\nCards that should work: NVIDIA 6xxx/7xxx, ATI 95xx+/Xxxx/X1xxx");
+		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card may be too old.\nCards known to work: GEFORCE 6xxx/7xxx, RADEON 95xx+/Xxxx/X1xxx");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);

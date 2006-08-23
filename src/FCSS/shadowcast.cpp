@@ -12,14 +12,14 @@ bool startWithSoftShadows = 1;
 
 /*
 do eg
--pod f5 kreslit obrazek
--renderovat svetlusku z 3ds
 -preskakovani mezi levely na klavesu
+-zlepsit chovani bugu aby sly pustit ve sponze
 -obrazek loadingt behem loadingyu
 -nechat ho o 1sec dyl a 1sec pocitat
 -omrknout memory leaky aby to nezkolabovalo pri delsim spusteni
--zlepsit chovani bugu aby sly pustit ve sponze
+-pod f5 kreslit obrazek
 -zjistit proc v 640x480 funguje i kdyz shadowmapa je 512
+-renderovat svetlusku z 3ds
 
 vypisovat kolik % casu
  -detect&resetillum
@@ -163,7 +163,7 @@ void error(const char* message, bool gfxRelated)
 {
 	printf(message);
 	if(gfxRelated)
-		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card may be too old.\nCards that should work: NVIDIA 6xxx/7xxx, ATI 95xx+/Xxxx/X1xxx");
+		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card may be too old.\nCards known to work: GEFORCE 6xxx/7xxx, RADEON 95xx+/Xxxx/X1xxx");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);
