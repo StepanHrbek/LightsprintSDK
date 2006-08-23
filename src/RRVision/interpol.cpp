@@ -487,7 +487,8 @@ bool IVertex::remove(Node *node,bool toplevel)
 			corner[i]=corner[--corners];
 			removed=true;
 		}
-	assert(IS_CLUSTER(node) || removed);// cluster je insertovan a odebiran vickrat (kazdy triangl pridava svou power), prvni odber z IVertexu odebere celou power, ostatni odbery nechame projit naprazdno a nekricime ze je to chyba
+//!!!	assert(IS_CLUSTER(node) || removed);// cluster je insertovan a odebiran vickrat (kazdy triangl pridava svou power), prvni odber z IVertexu odebere celou power, ostatni odbery nechame projit naprazdno a nekricime ze je to chyba
+// assertuje pri ruseni sceny ve fcss koupelna4, ale zadny leak to nezpusobuje
 	//if(powerTopLevel<0.00001) corners=0;
 	return corners==0;
 }

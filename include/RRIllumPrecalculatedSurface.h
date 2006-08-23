@@ -193,6 +193,10 @@ namespace rr
 			{
 				vertexBuffer = new RRIlluminationVertexBufferInMemory<RRColorRGBF>(anumVertices);
 			}
+			~Channel()
+			{
+				delete vertexBuffer;
+			}
 			RRIlluminationVertexBuffer* vertexBuffer;
 		};
 		Channel* getChannel(unsigned channelIndex)
@@ -209,6 +213,11 @@ namespace rr
 		}
 		~RRObjectIllumination()
 		{
+			while(channels.begin()!=channels.end())
+			{
+				delete channels.begin()->second;
+				channels.erase(channels.begin());
+			}
 		}
 	protected:
 		unsigned numPreImportVertices; ///< PreImport number of vertices, length of vertex buffer for rendering.

@@ -550,6 +550,11 @@ void RRScene::setScaler(RRScaler* scaler)
 	scene->setScaler(scaler);
 }
 
+RRScaler* RRScene::getScaler()
+{
+	return scene->scaler;
+}
+
 static unsigned RRSSValueU[RRScene::SSU_LAST];
 static RRReal   RRSSValueF[RRScene::SSF_LAST];
 

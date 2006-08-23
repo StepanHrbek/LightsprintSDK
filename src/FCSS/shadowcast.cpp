@@ -12,7 +12,6 @@ bool startWithSoftShadows = 1;
 
 /*
 do eg
--leak 20mb na koupelnu
 -dodelat a zdokumentovat 'n' jako next level
 -obrazek "loading"
 -plynule rekace na sipky, ne pauza po prvnim stisku
@@ -514,7 +513,9 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	if(!needDepthMapUpdate) return;
 
 	assert(mapIndex>=0);
-	areaLight->getInstance(mapIndex)->setupForRender();
+	Camera* lightInstance = areaLight->getInstance(mapIndex);
+	lightInstance->setupForRender();
+	delete lightInstance;
 
 	glColorMask(0,0,0,0);
 	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
@@ -1039,6 +1040,7 @@ void keyboard(unsigned char c, int x, int y)
 	{
 		case 27:
 			delete level; // throws assert in freeing node from ivertex
+			done_gl_resources();
 			exit(0);
 			break;
 		case 9:
@@ -1380,8 +1382,9 @@ int main(int argc, char **argv)
 	tmpFlag &= ~_CRTDBG_CHECK_CRT_DF;
 	// Set flag to the new value
 	_CrtSetDbgFlag( tmpFlag );
-	//_crtBreakAlloc = 408;
+	//_crtBreakAlloc = 31299;
 	*/
+
 
 	parseOptions(argc, argv);
 
@@ -1445,12 +1448,7 @@ int main(int argc, char **argv)
 
 	if(rr::RRLicense::loadLicense("license_number")!=rr::RRLicense::VALID)
 		error("Problem with license number.",false);
-/*
-	level = new Level(filename_3ds); 
-	delete level;
-	done_gl_resources();
-	return 0;//!!!
-*/
+
 	glutMainLoop();
 	return 0;
 }

@@ -56,6 +56,7 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 
 RRRealtimeRadiosity::~RRRealtimeRadiosity()
 {
+	delete scene->getScaler();
 	delete scene;
 	delete multiObject;
 	delete multiObjectBase;
@@ -98,6 +99,7 @@ RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
 
 void RRRealtimeRadiosity::adjustScene()
 {
+	delete scene->getScaler();
 	scene->setScaler(RRScaler::createRgbScaler(0.4f));
 }
 

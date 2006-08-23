@@ -95,6 +95,7 @@ public:
 
 	virtual ~MyBugs()
 	{
+		for(unsigned i=0;i<bugMaps;i++) delete bugMap[i];
 		delete[] bugs;
 		delete ray;
 	}

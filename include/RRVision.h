@@ -548,6 +548,8 @@ namespace rr
 
 		//! Set scaler used by this scene i/o operations. This is option for your convenience. See RRScaler for details.
 		void          setScaler(RRScaler* scaler);
+		//! Returns scaler used by this scene i/o operations.
+		RRScaler*     getScaler();
 
 		//! Identifier of integer scene state.
 		enum SceneStateU
