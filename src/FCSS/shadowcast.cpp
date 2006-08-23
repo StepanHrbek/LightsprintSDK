@@ -12,7 +12,6 @@ bool startWithSoftShadows = 1;
 
 /*
 do eg
--vystup presmerovat do log.txt
 -pod f5 kreslit obrazek
 -renderovat svetlusku z 3ds
 -preskakovani mezi levely na klavesu
@@ -146,7 +145,6 @@ int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 bool showHelp = 0;
 int showLightViewFrustum = 1;
-int useDepth24 = 0;
 class Bugs* bugs = NULL;
 bool paused = false;
 int resolutionx = 640;
@@ -203,11 +201,8 @@ void init_gl_resources()
 	{
 		char name[]="maps\\spot0.tga";
 		name[9] = '0'+i;
-		try
-		{
-			lightDirectMap[i] = new Texture(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-		}
-		catch (...)
+		lightDirectMap[i] = Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		if(!lightDirectMap[i])
 		{
 			printf("Texture %s not found or not supported (supported = truecolor .tga).\n",name);
 			error("",false);
@@ -532,6 +527,7 @@ void drawEyeViewShadowed(UberProgramSetup uberProgramSetup, unsigned firstInstan
 
 	renderScene(uberProgramSetup,firstInstance);
 
+#ifdef BUGS
 	if(gameOn)
 	{
 		static Timer t;
@@ -543,6 +539,7 @@ void drawEyeViewShadowed(UberProgramSetup uberProgramSetup, unsigned firstInstan
 		if(!paused) bugs->tick(seconds);
 		bugs->render();
 	}
+#endif
 
 	drawLight();
 	if (showLightViewFrustum) drawShadowMapFrustum();
@@ -1192,59 +1189,7 @@ void parseOptions(int argc, char **argv)
 			filename_3ds = argv[i];
 			scale_3ds = 1;
 		}
-		if (!strcmp("-depth24", argv[i])) {
-			useDepth24 = 1;
-		}
 	}
-}
-
-int main(int argc, char **argv)
-{
-	float stitchDistance = 0.01f;
-
-	if(rr::RRLicense::loadLicense("license_number")!=rr::RRLicense::VALID)
-		error("Problem with license number.",false);
-
-	parseOptions(argc, argv);
-
-	glutInitWindowSize(resolutionx,resolutiony);
-	glutInit(&argc, argv);
-
-	if (useDepth24) {
-		glutInitDisplayString("depth~24 rgb double accum");
-	} else {
-		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
-	}
-	if(fullscreen)
-	{
-		char buf[100];
-		sprintf(buf,"%dx%d:32",resolutionx,resolutiony);
-		glutGameModeString(buf);
-		glutEnterGameMode();
-		glutSetCursor(GLUT_CURSOR_NONE);
-	}
-	else
-	{
-		glutCreateWindow("Realtime Radiosity");
-		//glutFullScreen();
-	}
-
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
-	{
-		// Problem: glewInit failed, something is seriously wrong.
-		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-		return 1;
-	}
-	//fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
-
-	glutDisplayFunc(display);
-	glutKeyboardFunc(keyboard);
-	glutSpecialFunc(special);
-	glutReshapeFunc(reshape);
-	glutMouseFunc(mouse);
-	glutPassiveMotionFunc(passive);
-	glutIdleFunc(idle);
 
 	if (strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
@@ -1294,10 +1239,9 @@ int main(int argc, char **argv)
 
 	if (strstr(filename_3ds, "sibenik"))
 	{
-		stitchDistance = 0.01f;
 		// zacatek nevhodny pouze kvuli spatnym normalam
-//		Camera tmpeye = {{-8.777,3.117,0.492},1.145,-0.400,1.3,50.0,0.3,80.0};
-//		Camera tmplight = {{-0.310,2.952,-0.532},5.550,3.200,1.0,70.0,1.0,40.0};
+		//		Camera tmpeye = {{-8.777,3.117,0.492},1.145,-0.400,1.3,50.0,0.3,80.0};
+		//		Camera tmplight = {{-0.310,2.952,-0.532},5.550,3.200,1.0,70.0,1.0,40.0};
 		// dalsi zacatek kde je videt zmrsena normala
 		Camera tmpeye = {{-3.483,5.736,2.755},7.215,2.050,1.3,50.0,0.3,80.0};
 		Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
@@ -1320,22 +1264,51 @@ int main(int argc, char **argv)
 		eye = tmpeye;
 		light = tmplight;
 	}
+}
 
-	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
+int main(int argc, char **argv)
+{
+	parseOptions(argc, argv);
 
-	//if(rrobject) printf("vertices=%d triangles=%d\n",rrobject->getCollider()->getMesh()->getNumVertices(),rrobject->getCollider()->getMesh()->getNumTriangles());
-	rr::RRScene::setStateF(rr::RRScene::SUBDIVISION_SPEED,0);
-	rr::RRScene::setState(rr::RRScene::GET_SOURCE,0);
-	rr::RRScene::setState(rr::RRScene::GET_REFLECTED,1);
-	//rr::RRScene::setState(rr::GET_SMOOTH,0);
-	rr::RRScene::setStateF(rr::RRScene::MIN_FEATURE_SIZE,0.15f);
-	//rr::RRScene::setStateF(rr::MAX_SMOOTH_ANGLE,0.4f);
+	// init GLUT
+	glutInitWindowSize(resolutionx,resolutiony);
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
+	if(fullscreen)
+	{
+		char buf[100];
+		sprintf(buf,"%dx%d:32",resolutionx,resolutiony);
+		glutGameModeString(buf);
+		glutEnterGameMode();
+		glutSetCursor(GLUT_CURSOR_NONE);
+	}
+	else
+	{
+		glutCreateWindow("Realtime Radiosity");
+		//glutFullScreen();
+	}
+	glutDisplayFunc(display);
+	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(special);
+	glutReshapeFunc(reshape);
+	glutMouseFunc(mouse);
+	glutPassiveMotionFunc(passive);
+	glutIdleFunc(idle);
 
+	// init GLEW
+	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
+
+	// init GL
 	int major, minor;
 	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 		error("OpenGL 2.0 capable graphics card is required.\n",true);
-
 	init_gl_states();
+
+	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
+
+
+	// init shaders
+	// init textures
 	init_gl_resources();
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
@@ -1357,38 +1330,34 @@ int main(int argc, char **argv)
 
 	printf("Loading %s...",filename_3ds);
 
-	// load 3ds
+	// init .3ds scene
 	if(!m3ds.Load(filename_3ds,scale_3ds))
 		error("",false);
-	//m3ds.shownormals=1;
-	//m3ds.numObjects=2;//!!!
-	app = new MyApp();
-	new_3ds_importer(&m3ds,app,stitchDistance);
 
 //	printf(app->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
 //	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
 
 	printf("\n");
-	char title[256];
-	sprintf(title,"Realtime Radiosity Viewer - %s",filename_3ds);
-	glutSetWindowTitle(title);
 
-	// creates radiosity solver with multiobject
-	// without renderer, no primary light is detected
-	app->calculate();
-
-//printf(" %d triangles\n",app->multiObject?app->multiObject->getCollider()->getMesh()->getNumTriangles():0);
-
+	// init radiosity solver
+	if(rr::RRLicense::loadLicense("license_number")!=rr::RRLicense::VALID)
+		error("Problem with license number.",false);
+	app = new MyApp();
+	new_3ds_importer(&m3ds,app,0.01f);
+	app->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!app->getMultiObject())
 		error("No objects in scene.",false);
 
-	// creates renderer
+	// init renderer
 	rendererNonCaching = new RendererOfRRObject(app->getMultiObject(),app->getScene());
 	rendererCaching = new RendererWithCache(rendererNonCaching);
-	// next calculate will use renderer to detect primary illum
-	// must be called from mainloop, we don't know winWidth/winHeight yet
+	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 
+	// init bugs
+#ifdef BUGS
 	bugs = Bugs::create(app->getScene(),app->getMultiObject(),100);
+#endif
+
 	glutMainLoop();
 	return 0;
 }

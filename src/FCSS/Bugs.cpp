@@ -1,4 +1,5 @@
 #include "Bugs.h"
+#include <cstdio> // printf
 #include <cstdlib> // rand
 
 using namespace rr;
@@ -83,11 +84,8 @@ public:
 		{
 			char name[]="maps\\bug0.tga";
 			name[8] = '0'+i;
-			try
-			{
-				bugMap[i] = new Texture(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-			}
-			catch (...)
+			bugMap[i] = Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+			if(!bugMap[i])
 			{
 				printf("Texture %s not found or not supported (supported = truecolor .tga).\n",name);
 				error("",false);

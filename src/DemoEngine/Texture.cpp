@@ -7,30 +7,10 @@
 
 using namespace std;
 
-// Public part :
 
-Texture::Texture(char *filename, int mag, int min, int wrapS, int wrapT)
-{
-	unsigned int type;
-
-	pixels = loadData(filename);
-
-	glGenTextures(1, &id);
-
-	bindTexture();
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	type = (channels == 3) ? GL_RGB : GL_RGBA;
-	// Very strange : before the first type was channels. If don't work try
-	// changing it back.
-	gluBuild2DMipmaps(GL_TEXTURE_2D, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-}
+/////////////////////////////////////////////////////////////////////////////
+//
+// Texture
 
 Texture::Texture(unsigned char *data, int nWidth, int nHeight, int nType,
 				 int mag, int min, int wrapS, int wrapT)
@@ -57,57 +37,82 @@ Texture::Texture(unsigned char *data, int nWidth, int nHeight, int nType,
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 }
 
-Texture::Texture(unsigned char* rgb, int mag, int min, int wrapS, int wrapT)
-{
-	pixels = new unsigned char[4];
-	memcpy(pixels,rgb,4);
-	width = 1;
-	height = 1;
-	unsigned int type = GL_RGB;
-
-	channels = (type == GL_RGB) ? 3 : 4;
-	glGenTextures(1, &id);
-
-	bindTexture();
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, pixels);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min); 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag); 
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-}
-
 Texture::~Texture()
 {
 	glDeleteTextures(1, &id);
 	delete[] pixels;
 }
 
-void Texture::bindTexture()
+void Texture::bindTexture() const
 {
 	glBindTexture(GL_TEXTURE_2D, id);
 }
 
-void Texture::getPixel(float x01, float y01, float* rgb)
+bool Texture::getPixel(float x01, float y01, float* rgb)
 {
-	if(!pixels) return;
+	if(!pixels) return false;
 	unsigned x = unsigned(x01 * (width)) % width;
 	unsigned y = unsigned(y01 * (height)) % height;
 	unsigned ofs = (x+y*width)*channels;
 	rgb[0] = pixels[ofs+((channels==1)?0:0)]/255.0f;
 	rgb[1] = pixels[ofs+((channels==1)?0:1)]/255.0f;
 	rgb[2] = pixels[ofs+((channels==1)?0:2)]/255.0f;
+	return true;
 }
 
-// Protected part :
 
-// Just the hidden default constructor, for the inheritance compatibility...
-Texture::Texture()
-{}
+/////////////////////////////////////////////////////////////////////////////
+//
+// TextureFromDisk
 
-void Texture::changeNameConvention(char *filename) const
+class RR_API TextureFromDisk : public Texture
+{
+public:
+	class xFileNotFound {};
+	class xNotSuchFormat {};
+	class xNotASupportedFormat {};
+
+	TextureFromDisk(char *filename, int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR,
+		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
+protected:
+	void changeNameConvention(char *filename) const;
+	unsigned char *loadData(char *filename);
+	//unsigned char *loadJpeg(char *filename);
+	//unsigned char *decodeJpeg(struct jpeg_decompress_struct *cinfo);
+	unsigned char *loadBmp(char *filename);
+	unsigned char *loadBmpData(FILE *file);
+	unsigned char *loadTga(char *filename);
+	void checkFileOpened(FILE *file);
+
+	const static char *JPG_EXT;
+	const static char *BMP_EXT;
+};
+
+TextureFromDisk::TextureFromDisk(char *filename, int mag, int min, int wrapS, int wrapT)
+	: Texture(NULL,1,1,GL_RGB)
+{
+	unsigned int type;
+
+	pixels = loadData(filename);
+
+	glGenTextures(1, &id);
+
+	bindTexture();
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	type = (channels == 3) ? GL_RGB : GL_RGBA;
+	// Very strange : before the first type was channels. If don't work try
+	// changing it back.
+	gluBuild2DMipmaps(GL_TEXTURE_2D, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+}
+
+void TextureFromDisk::changeNameConvention(char *filename) const
 {
 	while(*filename)
 	{
@@ -117,7 +122,7 @@ void Texture::changeNameConvention(char *filename) const
 	}
 }
 
-unsigned char *Texture::loadData(char *filename)
+unsigned char *TextureFromDisk::loadData(char *filename)
 {
 	// opens tga instead of jpg
 	char name[1000];
@@ -205,7 +210,7 @@ jpeg_finish_decompress(cinfo);
 return data;
 }*/
 
-unsigned char *Texture::loadBmp(char *filename)
+unsigned char *TextureFromDisk::loadBmp(char *filename)
 {
 	short numBits;
 	int i, num, fileSize, headerSize;
@@ -243,7 +248,7 @@ unsigned char *Texture::loadBmp(char *filename)
 	return loadBmpData(file);
 }
 
-unsigned char *Texture::loadBmpData(FILE *file)
+unsigned char *TextureFromDisk::loadBmpData(FILE *file)
 {
 	int i, j;
 	unsigned char temp;
@@ -271,7 +276,7 @@ unsigned char *Texture::loadBmpData(FILE *file)
 	return data;
 }
 
-unsigned char *Texture::loadTga(char *filename)
+unsigned char *TextureFromDisk::loadTga(char *filename)
 {
 	unsigned char TGA_RGB = 2, TGA_A = 3, TGA_RLE = 10;
 
@@ -420,12 +425,21 @@ unsigned char *Texture::loadTga(char *filename)
 	return data;
 }
 
-void Texture::checkFileOpened(FILE *file)
+void TextureFromDisk::checkFileOpened(FILE *file)
 {
 	if(!file)
 		throw xFileNotFound();
 }
 
-const char *Texture::JPG_EXT = ".jpg";
-const char *Texture::BMP_EXT = ".bmp";
+const char *TextureFromDisk::JPG_EXT = ".jpg";
+const char *TextureFromDisk::BMP_EXT = ".bmp";
 
+
+Texture* Texture::load(char *filename,int mag,int min,int wrapS,int wrapT)
+{
+	try {
+		return new TextureFromDisk(filename,mag,min,wrapS,wrapT);
+	} catch(...) {
+		return NULL;
+	}
+}

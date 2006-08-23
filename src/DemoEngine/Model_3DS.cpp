@@ -274,12 +274,12 @@ bool Model_3DS::Load(char *name, float scale)
 	{
 		if (Materials[j].textured == false)
 		{
-			unsigned char rgb[4];
+			unsigned char* rgb = new unsigned char[4];
 			rgb[0] = Materials[j].color.r;
 			rgb[1] = Materials[j].color.g;
 			rgb[2] = Materials[j].color.b;
 			rgb[3] = 255;
-			Materials[j].tex = new Texture(rgb);
+			Materials[j].tex = new Texture(rgb,1,1,GL_RGB);
 			Materials[j].textured = true;
 		}
 	}
@@ -820,17 +820,10 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	// Load the name and indicate that the material has a texture
 	char fullname[580];
 	sprintf(fullname, "%s%s", path, name);
-	try
-	{
-		Materials[matindex].tex = new Texture(fullname);
-		Materials[matindex].textured = true;
-	}
-	catch (...)
-	{
+	Materials[matindex].tex = Texture::load(fullname);
+	Materials[matindex].textured = Materials[matindex].tex!=NULL;
+	if(!Materials[matindex].textured)
 		printf("Texture %s not found. (Please convert all textures to .tga truecolor format.)\n",fullname);
-		Materials[matindex].tex = NULL;
-		Materials[matindex].textured = false;
-	}
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read

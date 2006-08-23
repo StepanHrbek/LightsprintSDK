@@ -1,4 +1,5 @@
-#include <assert.h>
+#include <cassert>
+#include <cstdio>
 #include <GL/glew.h>
 #include "DemoEngine/TextureShadowmap.h"
 

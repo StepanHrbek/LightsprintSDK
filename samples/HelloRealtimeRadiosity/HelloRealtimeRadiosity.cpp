@@ -383,8 +383,7 @@ int main(int argc, char **argv)
 	glutIdleFunc(idle);
 
 	// init GLEW
-	GLenum err = glewInit();
-	if(err!=GLEW_OK) error("GLEW init failed.\n",true);
+	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
 	// init GL
 	int major, minor;
@@ -402,11 +401,9 @@ int main(int argc, char **argv)
 	if(!shadowmapsPerPass) error("",true);
 
 	// init textures
-	try {
-		lightDirectMap = new Texture("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	} catch (...) {
+	lightDirectMap = Texture::load("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.tga not found or not supported (supported = truecolor .tga).\n",false);
-	}
 	areaLight = new AreaLight(shadowmapsPerPass);
 	areaLight->attachTo(&light);
 
