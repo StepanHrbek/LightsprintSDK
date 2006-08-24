@@ -1,1 +1,0 @@
-rrview 3ds\sponza\sponza.3ds -noAreaLight -lazyUpdates

@@ -1,1 +1,0 @@
-rrview 3ds\sibenik\sibenik.3ds -noAreaLight -lazyUpdates

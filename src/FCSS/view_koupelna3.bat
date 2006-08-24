@@ -1,1 +1,0 @@
-rrview 3ds\koupelna\koupelna3.3ds

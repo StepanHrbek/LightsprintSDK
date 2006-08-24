@@ -82,8 +82,8 @@ public:
 		ray = RRRay::create();
 		for(unsigned i=0;i<bugMaps;i++)
 		{
-			char name[]="maps\\bug0.tga";
-			name[8] = '0'+i;
+			char name[]="maps\\rrbugs_bug0.tga";
+			name[15] = '0'+i;
 			bugMap[i] = Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 			if(!bugMap[i])
 			{

@@ -20,6 +20,8 @@ namespace rr
 #define READING_RESULTS_PERIOD_GROWTH 1.3f // reading results period is increased this times at each read since scene change
 // portions in <0..1>
 #define MIN_PORTION_SPENT_IMPROVING 0.4f // at least 40% of our time is spent in improving
+// kdyz se jen renderuje a improvuje (rrbugs), az do 0.6 roste vytizeni cpu(dualcore) a nesnizi se fps
+// kdyz se navic detekuje primary, kazde zvyseni snizi fps
 
 #define REPORT(a)       //a
 #define REPORT_BEGIN(a) REPORT( Timer timer; timer.Start(); reportAction(a ".."); )

@@ -65,10 +65,10 @@ struct UberProgramSetup
 		return uberProgram->getProgram(getSetupString());
 	}
 
-	static unsigned detectMaxShadowmaps(UberProgram* uberProgram)
+	static unsigned detectMaxShadowmaps(UberProgram* uberProgram, unsigned startWith=10)
 	{
 		unsigned INSTANCES_PER_PASS;
-		for(INSTANCES_PER_PASS=10;--INSTANCES_PER_PASS;)
+		for(INSTANCES_PER_PASS=startWith;INSTANCES_PER_PASS;INSTANCES_PER_PASS--)
 		{
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = INSTANCES_PER_PASS;

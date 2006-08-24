@@ -1,24 +1,21 @@
 #define BUGS
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
-unsigned INSTANCES_PER_PASS = 10; // 5 je max pro X800pro, 7 je max pro 6600
+unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 je max pro 6600
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
-int fullscreen = 0;
+int fullscreen = 1;
 bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
-
+bool singlecore = 0;
 /*
 do eg
+-prodlouzit prvni vypocet ve sponze po resetu, na rychly karte je moc rychly
 -zlepsit chovani bugu aby sly pustit ve sponze
--obrazek "loading"
 -plynule rekace na sipky, ne pauza po prvnim stisku
--pod f5 kreslit obrazek
--zjistit proc v 640x480 funguje i kdyz shadowmapa je 512
--renderovat svetlusku z 3ds
--nahodit fullscreen
+-spatne vyrenderovany uvodni loading
 
 vypisovat kolik % casu
  -detect&resetillum
@@ -145,8 +142,10 @@ Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.}
 GLUquadricObj *quadric;
 AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
-Texture *lightDirectMap[lightDirectMaps];
+Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
+Texture* loadingMap = NULL;
+Texture* hintMap = NULL;
 Program *ambientProgram;
 UberProgram* uberProgram;
 UberProgramSetup uberProgramGlobalSetup;
@@ -159,14 +158,15 @@ int wireFrame = 0;
 int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 bool showHelp = 0;
+bool showHint = 0;
 int showLightViewFrustum = 0;
-bool paused = false;
+bool paused = 0;
 int resolutionx = 640;
 int resolutiony = 480;
 bool modeMovingEye = true;
 unsigned movingEye = 0;
 unsigned movingLight = 0;
-bool needRedisplay = false;
+bool needRedisplay = 0;
 bool needReportEyeChange = 0;
 bool needReportLightChange = 0;
 #ifdef BUGS
@@ -228,8 +228,9 @@ void init_gl_resources()
 			printf("Texture %s not found or not supported (supported = truecolor .tga).\n",name);
 			error("",false);
 		}
-
 	}
+	loadingMap = Texture::load("maps\\rrbugs_loading.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	hintMap = Texture::load("maps\\rrbugs_hint.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
 	uberProgram = new UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	UberProgramSetup uberProgramSetup;
@@ -244,6 +245,8 @@ void done_gl_resources()
 {
 	//delete ambientProgram;
 	delete uberProgram;
+	delete loadingMap;
+	delete hintMap;
 	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
 	delete areaLight;
 	gluDeleteQuadric(quadric);
@@ -679,22 +682,25 @@ static void drawHelpMessage(bool big)
 		"Purpose:",
 		" Show radiosity integration into arbitrary interactive 3d app",
 		" using NO PRECALCULATIONS.",
+#ifndef BUGS
 		" Demos using precalculated data are coming.",
+#endif
 		"",
 		"Controls:",
 		" mouse            - look",
 		" arrows/wsad/1235 - move",
 		" left button      - switch between camera/light",
 		" right button     - next scene",
+		" F5               - hint",
 		"",
 		"Extras for experts:",
 		" space - toggle global illumination",
 		" 'z/Z' - zoom in/out",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
-		" 'f'   - toggle showing spotlight frustum",
 		" 'l'   - toggle lazy updates",
 /*
+		" 'f'   - toggle showing spotlight frustum",
 		" 'a'   - cycle through linear, rectangular and circular area light",
 		" 's'   - change spotlight",
 		" 'w'   - toggle wire frame",
@@ -755,6 +761,37 @@ static void drawHelpMessage(bool big)
 	glEnable(GL_DEPTH_TEST);
 }
 
+void showImage(const Texture* tex)
+{
+	glUseProgram(0);
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
+	tex->bindTexture();
+	glDisable(GL_CULL_FACE);
+	glColor3f(1,1,1);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+
+	glBegin(GL_POLYGON);
+	glTexCoord2f(0,0);
+	glVertex2f(-1,-1);
+	glTexCoord2f(1,0);
+	glVertex2f(1,-1);
+	glTexCoord2f(1,1);
+	glVertex2f(1,1);
+	glTexCoord2f(0,1);
+	glVertex2f(-1,1);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glutSwapBuffers();
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -766,8 +803,6 @@ Level::Level(const char* filename_3ds)
 	bugs = NULL;
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
-
-	//!!! zobrazit loading
 
 	float scale_3ds = 1;
 	{
@@ -910,8 +945,13 @@ void display(void)
 	if(!winWidth) return; // can't work without window
 	if(!level)
 	{
-		//!!! zobrazit loading
+		showImage(loadingMap);
 		level = new Level(levelSequence.getNextLevel());
+	}
+	if(showHint)
+	{
+		showImage(hintMap);
+		return;
 	}
 
 	level->app->reportIlluminationUse();
@@ -987,7 +1027,7 @@ void changeSpotlight()
 void reportEyeMovement()
 {
 	if(!level) return;
-	level->app->reportCriticalInteraction();
+	if(singlecore) level->app->reportCriticalInteraction();
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
 	movingEye = 4;
@@ -996,7 +1036,7 @@ void reportEyeMovement()
 void reportEyeMovementEnd()
 {
 	if(!level) return;
-	level->app->reportEndOfInteractions();
+	if(singlecore) level->app->reportEndOfInteractions();
 	movingEye = 0;
 }
 
@@ -1014,7 +1054,7 @@ void reportLightMovement()
 	}
 	else
 	{
-		level->app->reportCriticalInteraction();
+		if(singlecore) level->app->reportCriticalInteraction();
 	}
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
@@ -1025,7 +1065,7 @@ void reportLightMovement()
 void reportLightMovementEnd()
 {
 	if(!level) return;
-	level->app->reportEndOfInteractions();
+	if(singlecore) level->app->reportEndOfInteractions();
 	if(!updateDuringLightMovement)
 	{
 		level->app->reportLightChange(true);
@@ -1038,12 +1078,20 @@ void reportLightMovementEnd()
 
 void special(int c, int x, int y)
 {
+	if(showHint)
+	{
+		showHint = false;
+		return;
+	}
 	Camera* cam = modeMovingEye?&eye:&light;
 	Camera::Move move = NULL;
 	switch (c) 
 	{
 		case GLUT_KEY_F1:
 			showHelp = !showHelp;
+			break;
+		case GLUT_KEY_F5:
+			showHint = 1;
 			break;
 		case GLUT_KEY_F10:
 			exit(0);
@@ -1085,6 +1133,11 @@ void special(int c, int x, int y)
 
 void keyboard(unsigned char c, int x, int y)
 {
+	if(showHint)
+	{
+		showHint = false;
+		return;
+	}
 	switch (c)
 	{
 		case 27:
@@ -1261,8 +1314,9 @@ void keyboard(unsigned char c, int x, int y)
 
 void reshape(int w, int h)
 {
-	if(w<512 || h<512)
-		LIMITED_TIMES(5,printf("Window size<512 not supported in this demo, expect incorrect render!\n"));
+	// nevim proc ale funguje i s mensim oknem
+	//if(w<512 || h<512) LIMITED_TIMES(5,printf("Window size<512 not supported in this demo, expect incorrect render!\n"));
+
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
@@ -1275,13 +1329,18 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
+	if(showHint)
+	{
+		showHint = false;
+		return;
+	}
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		modeMovingEye = !modeMovingEye;
 	}
 	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
-		//!!! obrazek 'loading...'
+		showImage(loadingMap);
 		delete level;
 		level = NULL;
 	}
@@ -1491,7 +1550,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
 
 	// adjust INSTANCES_PER_PASS to GPU
-	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram);
+	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
 	if(!INSTANCES_PER_PASS) error("",true);
 
 	areaLight->attachTo(&light);
