@@ -15,7 +15,10 @@ do eg
 -prodlouzit prvni vypocet ve sponze po resetu, na rychly karte je moc rychly
 -zlepsit chovani bugu aby sly pustit ve sponze
 -plynule rekace na sipky, ne pauza po prvnim stisku
--spatne vyrenderovany uvodni loading
+
+-gamma korekce (do rrscaleru)
+-kontrast korekce (pred rendrem)
+-jas korekce (pred rendrem)
 
 vypisovat kolik % casu
  -detect&resetillum
@@ -296,6 +299,7 @@ protected:
 		// first time illumination is detected, no shadowmap has been created yet
 		if(needDepthMapUpdate)
 		{
+			assert(!needMatrixUpdate);
 			updateDepthMap(0,0);
 			needDepthMapUpdate = 1; // aby si pote soft pregeneroval svych 7 map a nespolehal na nasi jednu
 		}
@@ -437,6 +441,7 @@ void updateMatrices(void)
 	eye.aspect = winHeight ? (float) winWidth / (float) winHeight : 1;
 	eye.update(0);
 	light.update(0.3f);
+	needMatrixUpdate = false;
 }
 
 /* drawShadowMapFrustum - Draw dashed lines around the light's view
@@ -922,7 +927,7 @@ Level::Level(const char* filename_3ds)
 	bugs = Bugs::create(app->getScene(),app->getMultiObject(),100);
 #endif
 
-	needMatrixUpdate = true;
+	updateMatrices();
 	needDepthMapUpdate = true;
 	needRedisplay = true;
 }
@@ -945,8 +950,12 @@ void display(void)
 	if(!winWidth) return; // can't work without window
 	if(!level)
 	{
+		updateDepthMap(0,0); // bez tohoto neni uvodni loading spravne vyrenderovany, neznamo proc
 		showImage(loadingMap);
 		level = new Level(levelSequence.getNextLevel());
+		level->app->reportEndOfInteractions();
+		for(unsigned i=0;i<6;i++)
+			level->app->calculate();
 	}
 	if(showHint)
 	{
@@ -1184,11 +1193,11 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 		case 'Z':
 			if(eye.fieldOfView<100) eye.fieldOfView+=25;
-			needMatrixUpdate = true;
+			needMatrixUpdate = 1;
 			break;
 		case 'z':
 			if(eye.fieldOfView>25) eye.fieldOfView -= 25;
-			needMatrixUpdate = true;
+			needMatrixUpdate = 1;
 			break;
 			/*
 		case 'a':
@@ -1320,7 +1329,7 @@ void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	needMatrixUpdate = true;
+	needMatrixUpdate = 1;
 
 	/* Perhaps there might have been a mode change so at window
 	reshape time, redetermine the depth scale. */
