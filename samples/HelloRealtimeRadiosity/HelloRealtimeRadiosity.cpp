@@ -155,7 +155,7 @@ protected:
 				// accumulate 1 triangle power
 				unsigned sum[3] = {0,0,0};
 				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/(height/height1);
-				unsigned j = triangleIndex%(height/height1);
+				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)%(height/height1);
 				for(unsigned n=0;n<height1;n++)
 					for(unsigned m=0;m<width1;m++)
 					{

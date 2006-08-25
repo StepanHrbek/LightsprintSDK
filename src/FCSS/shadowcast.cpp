@@ -11,6 +11,9 @@ bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 bool singlecore = 0;
 /*
+do eg:
+-spatne detekuje primary kdyz musi na ctyrikrat
+
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)
 -jas korekce (pred rendrem)
@@ -271,6 +274,7 @@ public:
 		}
 		if(triangleIndex<firstCapturedTriangle || triangleIndex>lastCapturedTriangle)
 		{
+			assert(0);
 			((GLfloat*)vertexData)[0] = -1;
 			((GLfloat*)vertexData)[1] = -1;
 		} else {
@@ -332,7 +336,7 @@ protected:
 		GLuint* pixelBuffer = new GLuint[width * height];
 
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
-//printf("\n ============================================================= ");
+printf("\n ============================================================= ");
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
 		{
 			captureUv.lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax)-1;
@@ -375,7 +379,7 @@ protected:
 				// accumulate 1 triangle power
 				unsigned sum[3] = {0,0,0};
 				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/captureUv.ymax;
-				unsigned j = triangleIndex%captureUv.ymax;
+				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)%captureUv.ymax;
 				for(unsigned n=0;n<height1;n++)
 					for(unsigned m=0;m<width1;m++)
 					{
@@ -397,10 +401,10 @@ protected:
 				//rr::RRColor tmp = rr::RRColor(0);
 				//multiObject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
 				//suma+=tmp;
-//				if((int)(10000*avg.avg())) printf("%d ",(int)(255*avg.avg()));
+				if((int)(10000*avg.avg())) printf("%d:%d ",triangleIndex,(int)(255*avg.avg()));
 			}
 			//printf("%d ",(int)(255*suma.avg()));
-//			printf("\n ----- ");
+			printf("\n ----- ");
 		}
 
 		delete[] pixelBuffer;
@@ -865,14 +869,18 @@ Level::Level(const char* filename_3ds)
 	}
 	if(strstr(filename_3ds, "sponza"))
 	{
-		Camera sponza_eye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
-		Camera sponza_light = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
+		Camera tmpeye = {{-5.730,3.424,1.522},4.495,-0.650,1.3,100.0,0.3,60.0};
+		Camera tmplight = {{-15.820,2.595,4.207},-1.285,3.250,1.0,70.0,1.0,30.0};
+//		Camera tmpeye = {{-5.950,3.313,1.424},4.600,-3.200,1.3,100.0,0.3,60.0};
+//		Camera tmplight = {{-14.680,2.945,4.266},-1.285,3.400,1.0,70.0,1.0,30.0};
+//!!!		Camera tmpeye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
+//		Camera tmplight = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
 		//Camera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
 		//Camera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
 		//Camera sponza_eye = {{13.924,7.606,1.007},7.920,-0.150,1.3,100.0,0.3,60.0};// shows face with bad indirect
 		//Camera sponza_light = {{-8.042,7.690,-0.954},1.990,0.800,1.0,70.0,1.0,30.0};
-		eye = sponza_eye;
-		light = sponza_light;
+		eye = tmpeye;
+		light = tmplight;
 		updateDuringLightMovement = 0;
 		if(areaLight) areaLight->setNumInstances(1);
 	}
