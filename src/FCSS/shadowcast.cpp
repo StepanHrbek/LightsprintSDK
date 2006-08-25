@@ -301,7 +301,7 @@ protected:
 		// first time illumination is detected, no shadowmap has been created yet
 		if(needDepthMapUpdate)
 		{
-			assert(!needMatrixUpdate);
+			if(needMatrixUpdate) updateMatrices(); // probably not necessary
 			updateDepthMap(0,0);
 			needDepthMapUpdate = 1; // aby si pote soft pregeneroval svych 7 map a nespolehal na nasi jednu
 		}
@@ -335,8 +335,8 @@ protected:
 //printf("\n ============================================================= ");
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
 		{
-			captureUv.lastCapturedTriangle = captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax-1;
-
+			captureUv.lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax)-1;
+			
 			// clear
 			glClear(GL_COLOR_BUFFER_BIT);
 
@@ -359,9 +359,9 @@ protected:
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 #endif
 			uberProgramSetup.FORCE_2D_POSITION = true;
-			level->rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle); // set param for cache so it creates different displaylists
+			level->rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,captureUv.lastCapturedTriangle); // set param for cache so it creates different displaylists
 			renderScene(uberProgramSetup,0);
-			level->rendererNonCaching->setCapture(NULL,0);
+			level->rendererNonCaching->setCapture(NULL,0,numTriangles-1);
 
 			// Read back the index buffer to memory.
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
@@ -370,7 +370,7 @@ protected:
 			//rr::RRColor suma = rr::RRColor(0);
 
 			// accumulate triangle powers
-			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
+			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<=captureUv.lastCapturedTriangle;triangleIndex++)
 			{
 				// accumulate 1 triangle power
 				unsigned sum[3] = {0,0,0};
@@ -397,10 +397,10 @@ protected:
 				//rr::RRColor tmp = rr::RRColor(0);
 				//multiObject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
 				//suma+=tmp;
-				//if((int)(10000*avg.avg())) printf("%d ",(int)(255*avg.avg()));
+//				if((int)(10000*avg.avg())) printf("%d ",(int)(255*avg.avg()));
 			}
 			//printf("%d ",(int)(255*suma.avg()));
-			//printf("\n ----- ");
+//			printf("\n ----- ");
 		}
 
 		delete[] pixelBuffer;

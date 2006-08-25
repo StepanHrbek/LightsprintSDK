@@ -74,10 +74,17 @@ public:
 	virtual ~CaptureUv() {};
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
-		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
-		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
+		if(triangleIndex<firstCapturedTriangle || triangleIndex>lastCapturedTriangle)
+		{
+			((GLfloat*)vertexData)[0] = -1;
+			((GLfloat*)vertexData)[1] = -1;
+		} else {
+			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
+			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
+		}
 	}
 	unsigned firstCapturedTriangle;
+	unsigned lastCapturedTriangle;
 	unsigned xmax, ymax;
 };
 
@@ -135,9 +142,9 @@ protected:
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 			uberProgramSetup.FORCE_2D_POSITION = true;
-			rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle); // set param for cache so it creates different displaylists
+			rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,captureUv.lastCapturedTriangle); // set param for cache so it creates different displaylists
 			renderScene(uberProgramSetup);
-			rendererNonCaching->setCapture(NULL,0);
+			rendererNonCaching->setCapture(NULL,0,numTriangles-1);
 
 			// Read back the index buffer to memory.
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);

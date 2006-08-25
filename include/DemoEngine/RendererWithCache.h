@@ -34,7 +34,7 @@ private:
 	Renderer* renderer;
 	struct Key
 	{
-		unsigned char params[20];
+		unsigned char params[24];
 		bool operator <(const Key& key) const
 		{
 			return memcmp(params,key.params,sizeof(Key))<0;

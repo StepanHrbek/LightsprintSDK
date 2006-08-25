@@ -36,7 +36,7 @@ public:
 		}
 	};
 	void setRenderedChannels(RenderedChannels renderedChannels);
-	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle);
+	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTriangle);
 	virtual const void* getParams(unsigned& length) const;
 	virtual void render();
 	virtual ~RendererOfRRObject() {};
@@ -48,6 +48,7 @@ private:
 		RenderedChannels renderedChannels;
 		VertexDataGenerator* generateForcedUv;
 		unsigned firstCapturedTriangle;
+		unsigned lastCapturedTriangle;
 	};
 	Params params;
 };
