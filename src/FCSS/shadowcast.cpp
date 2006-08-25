@@ -12,7 +12,6 @@ bool startWithSoftShadows = 1;
 bool singlecore = 0;
 /*
 do eg
--prodlouzit prvni vypocet ve sponze po resetu, na rychly karte je moc rychly
 -zlepsit chovani bugu aby sly pustit ve sponze
 -plynule rekace na sipky, ne pauza po prvnim stisku
 
