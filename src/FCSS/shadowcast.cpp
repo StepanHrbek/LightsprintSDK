@@ -836,7 +836,7 @@ Level::Level(const char* filename_3ds)
 		eye = koupelna4_eye;
 		light = koupelna4_light;
 		updateDuringLightMovement = 1;
-		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
+//		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
 	if(strstr(filename_3ds, "koupelna3")) {
 		scale_3ds = 0.01f;
@@ -852,7 +852,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 1;
-		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
+//		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
 	if(strstr(filename_3ds, "koupelna5")) {
 		scale_3ds = 0.03f;
@@ -863,7 +863,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 1;
-		if(areaLight) areaLight->setNumInstances(1);
+//		if(areaLight) areaLight->setNumInstances(1);
 	}
 	if(strstr(filename_3ds, "sponza"))
 	{
@@ -876,7 +876,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 0;
-		if(areaLight) areaLight->setNumInstances(1);
+//		if(areaLight) areaLight->setNumInstances(1);
 	}
 	if(strstr(filename_3ds, "sibenik"))
 	{
@@ -905,7 +905,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 0;
-		if(areaLight) areaLight->setNumInstances(1);
+//		if(areaLight) areaLight->setNumInstances(1);
 	}
 
 	printf("Loading %s...",filename_3ds);
