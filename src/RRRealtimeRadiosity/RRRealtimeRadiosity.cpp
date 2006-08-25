@@ -24,7 +24,7 @@ namespace rr
 // kdyz se jen renderuje a improvuje (rrbugs), az do 0.6 roste vytizeni cpu(dualcore) a nesnizi se fps
 // kdyz se navic detekuje primary, kazde zvyseni snizi fps
 
-#define REPORT(a)       //a
+#define REPORT(a)       a
 #define REPORT_BEGIN(a) REPORT( Timer timer; timer.Start(); reportAction(a ".."); )
 #define REPORT_END      REPORT( {char buf[20]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
 
@@ -372,6 +372,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculate()
 	if(illuminationUse)
 	{
 		float lastUserStep = (calcBeginTime-lastCalcEndTime)/(float)PER_SEC;
+		if(!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial 0 means 'unknown yet'
 		REPORT(printf("User %d ms.\n",(int)(1000*lastUserStep)));
 		if(lastCalcEndTime && lastUserStep<1.0f)
 		{

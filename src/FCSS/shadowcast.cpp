@@ -13,7 +13,6 @@ bool singlecore = 0;
 /*
 do eg
 -zlepsit chovani bugu aby sly pustit ve sponze
--plynule rekace na sipky, ne pauza po prvnim stisku
 
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)
@@ -944,9 +943,10 @@ Level::~Level()
 //
 // GLUT callbacks
 
-void display(void)
+void display()
 {
 	if(!winWidth) return; // can't work without window
+	//printf("<Display.>");
 	if(!level)
 	{
 		updateDepthMap(0,0); // bez tohoto neni uvodni loading spravne vyrenderovany, neznamo proc
@@ -1084,6 +1084,11 @@ void reportLightMovementEnd()
 	movingLight = 0;
 }
 
+float speedForward = 0;
+float speedBack = 0;
+float speedRight = 0;
+float speedLeft = 0;
+
 void special(int c, int x, int y)
 {
 	if(showHint)
@@ -1091,8 +1096,13 @@ void special(int c, int x, int y)
 		showHint = false;
 		return;
 	}
-	Camera* cam = modeMovingEye?&eye:&light;
-	Camera::Move move = NULL;
+
+	int modif = glutGetModifiers();
+	float scale = 1;
+	if(modif&GLUT_ACTIVE_SHIFT) scale=10;
+	if(modif&GLUT_ACTIVE_CTRL) scale=3;
+	if(modif&GLUT_ACTIVE_ALT) scale=0.1f;
+
 	switch (c) 
 	{
 		case GLUT_KEY_F1:
@@ -1110,33 +1120,42 @@ void special(int c, int x, int y)
 			return;
 
 		case GLUT_KEY_UP:
-			move = &Camera::moveForward;
+			speedForward = scale;
 			break;
 		case GLUT_KEY_DOWN:
-			move = &Camera::moveBack;
+			speedBack = scale;
 			break;
 		case GLUT_KEY_LEFT:
-			move = &Camera::moveLeft;
+			speedLeft = scale;
 			break;
 		case GLUT_KEY_RIGHT:
-			move = &Camera::moveRight;
+			speedRight = scale;
 			break;
 
 		default:
 			return;
 	}
-	if(move)
-	{
-		int modif = glutGetModifiers();
-		float scale = 1;
-		if(modif&GLUT_ACTIVE_SHIFT) scale=10;
-		if(modif&GLUT_ACTIVE_CTRL) scale=3;
-		if(modif&GLUT_ACTIVE_ALT) scale=0.1f;
-		#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
-		CALL_MEMBER_FN(*cam,move)(0.05f*scale);
-		if(cam==&light) reportLightMovement(); else reportEyeMovement();
-	}
+
 	glutPostRedisplay();
+}
+
+void specialUp(int c, int x, int y)
+{
+	switch (c) 
+	{
+		case GLUT_KEY_UP:
+			speedForward = 0;
+			break;
+		case GLUT_KEY_DOWN:
+			speedBack = 0;
+			break;
+		case GLUT_KEY_LEFT:
+			speedLeft = 0;
+			break;
+		case GLUT_KEY_RIGHT:
+			speedRight = 0;
+			break;
+	}
 }
 
 void keyboard(unsigned char c, int x, int y)
@@ -1320,6 +1339,33 @@ void keyboard(unsigned char c, int x, int y)
 	glutPostRedisplay();
 }
 
+void keyboardUp(unsigned char c, int x, int y)
+{
+	switch(c)
+	{
+		case '1':
+		case 'a':
+		case 'A':
+			specialUp(GLUT_KEY_LEFT,0,0);
+			break;
+		case '2':
+		case 's':
+		case 'S':
+			specialUp(GLUT_KEY_DOWN,0,0);
+			break;
+		case '3':
+		case 'd':
+		case 'D':
+			specialUp(GLUT_KEY_RIGHT,0,0);
+			break;
+		case '5':
+		case 'w':
+		case 'W':
+			specialUp(GLUT_KEY_UP,0,0);
+			break;
+	}
+}
+
 void reshape(int w, int h)
 {
 	// nevim proc ale funguje i s mensim oknem
@@ -1383,6 +1429,27 @@ void passive(int x, int y)
 void idle()
 {
 	if(!winWidth) return; // can't work without window
+
+	// keyboard movements with key repeat turned off
+	static TIME prev = 0;
+	TIME now = GETTIME;
+	if(prev && now!=prev)
+	{
+		float seconds = (now-prev)/(float)PER_SEC;//timer.Watch();
+		CLAMP(seconds,0.001f,0.3f);
+		Camera* cam = modeMovingEye?&eye:&light;
+		if(speedForward) cam->moveForward(speedForward*seconds);
+		if(speedBack) cam->moveBack(speedBack*seconds);
+		if(speedRight) cam->moveRight(speedRight*seconds);
+		if(speedLeft) cam->moveLeft(speedLeft*seconds);
+		if(speedForward || speedBack || speedRight || speedLeft)
+		{
+			//printf(" %f ",seconds);
+			if(cam==&light) reportLightMovement(); else reportEyeMovement();
+		}
+	}
+	prev = now;
+
 	if(movingEye && !--movingEye)
 	{
 		reportEyeMovementEnd();
@@ -1524,8 +1591,11 @@ int main(int argc, char **argv)
 		//glutFullScreen();
 	}
 	glutDisplayFunc(display);
+	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 	glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(keyboardUp);
 	glutSpecialFunc(special);
+	glutSpecialUpFunc(specialUp);
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(passive);
