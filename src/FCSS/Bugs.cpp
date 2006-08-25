@@ -14,13 +14,13 @@ class Bug
 public:
 	Bug() 
 	{
-		pos = RRVec3(0);//-2,1,-3);
+		pos = RRVec3(0);
 		dir = RRVec3(0);
 		dist = 0;
 		face = 0;
 		for(unsigned i=0;i<4;i++) col[i]=rand();
 	}
-	void tick(float seconds, const RRScene* scene, const RRObject* object, RRRay* ray)
+	void tick(float seconds, const RRScene* scene, const RRObject* object, RRRay* ray, float avgFaceArea)
 	{
 		//if(face!=UINT_MAX)
 		{
@@ -41,7 +41,11 @@ public:
 			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_DISTANCE|RRRay::TEST_SINGLESIDED;
 			unsigned face2 = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
 			if(face2!=UINT_MAX)
+			{
 				scene->getTriangleMeasure(0,face2,3,RM_IRRADIANCE,light2);
+				float area = object->getCollider()->getMesh()->getTriangleArea(face2);
+				if(area<avgFaceArea/5) face2 = UINT_MAX;
+			}
 			// switch to darker dir
 			if(face==UINT_MAX // escaping
 				|| (face2!=UINT_MAX && light2.sum()<light1.sum())) // dir2 is darker
@@ -91,6 +95,18 @@ public:
 				error("",false);
 			}
 		}
+		avgFaceArea = 0;
+		RRMesh* mesh = object->getCollider()->getMesh();
+		unsigned numTriangles = mesh->getNumTriangles();
+		if(numTriangles)
+		{
+			for(unsigned t=0;t<numTriangles;t++) avgFaceArea += mesh->getTriangleArea(t);
+			avgFaceArea /= numTriangles;
+			//unsigned numDwarfs = 0;
+			//for(unsigned t=0;t<numTriangles;t++) if(mesh->getTriangleArea(t)<avgFaceArea) numDwarfs++;
+		}
+		else
+			avgFaceArea = 1;
 	}
 
 	virtual ~MyBugs()
@@ -104,7 +120,7 @@ public:
 	{
 		RRScene::setState(RRScene::GET_SOURCE,1);
 		for(unsigned i=0;i<numBugs;i++)
-			bugs[i].tick(seconds,scene,object,ray);
+			bugs[i].tick(seconds,scene,object,ray,avgFaceArea);
 		RRScene::setState(RRScene::GET_SOURCE,0);
 	}
 
@@ -141,6 +157,7 @@ private:
 	const rr::RRObject* object;
 	rr::RRRay* ray;
 	Texture* bugMap[2];
+	float avgFaceArea;
 };
 
 Bugs* Bugs::create(const rr::RRScene* ascene, const rr::RRObject* aobject, unsigned anumBugs)

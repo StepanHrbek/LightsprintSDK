@@ -12,7 +12,7 @@ bool startWithSoftShadows = 1;
 bool singlecore = 0;
 /*
 do eg
--zlepsit chovani bugu aby sly pustit ve sponze
+-chybne osvetlena sponza pokud se pri detectu nevejde vsechno na jednu obrazovku
 
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)

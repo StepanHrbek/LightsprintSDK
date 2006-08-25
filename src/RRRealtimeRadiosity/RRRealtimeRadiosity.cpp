@@ -372,7 +372,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculate()
 	if(illuminationUse)
 	{
 		float lastUserStep = (calcBeginTime-lastCalcEndTime)/(float)PER_SEC;
-		if(!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial 0 means 'unknown yet'
+		if(!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial userStep=0 means 'unknown yet' which forces too long improve (IMPROVE_STEP_NO_INTERACTION)
 		REPORT(printf("User %d ms.\n",(int)(1000*lastUserStep)));
 		if(lastCalcEndTime && lastUserStep<1.0f)
 		{
@@ -404,6 +404,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculate()
 	// adjust calcStep
 	lastCalcEndTime = GETTIME;
 	float lastCalcStep = (lastCalcEndTime-calcBeginTime)/(float)PER_SEC;
+	if(!lastCalcStep) lastCalcStep = 0.00001f; // fight low timer precision, avoid 0, initial calcStep=0 means 'unknown yet'
 	if(lastCalcStep<1.0)
 	{
 		if(!calcStep)
