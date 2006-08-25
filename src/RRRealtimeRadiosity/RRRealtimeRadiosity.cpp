@@ -24,7 +24,7 @@ namespace rr
 // kdyz se jen renderuje a improvuje (rrbugs), az do 0.6 roste vytizeni cpu(dualcore) a nesnizi se fps
 // kdyz se navic detekuje primary, kazde zvyseni snizi fps
 
-#define REPORT(a)       a
+#define REPORT(a)       //a
 #define REPORT_BEGIN(a) REPORT( Timer timer; timer.Start(); reportAction(a ".."); )
 #define REPORT_END      REPORT( {char buf[20]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
 
@@ -42,6 +42,7 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	dirtyMaterials = true;
 	dirtyGeometry = true;
 	dirtyLights = BIG_CHANGE;
+	dirtyResults = true;
 	lastIlluminationUseTime = 0;
 	lastCriticalInteractionTime = 0;
 	lastCalcEndTime = 0;
@@ -307,6 +308,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 	{
 		dirtyFactors = false;
 		dirtyEnergies = NO_CHANGE;
+		dirtyResults = true;
 		REPORT_BEGIN("Resetting solver energies and factors.");
 		scene->illuminationReset(true,true);
 		REPORT_END;
@@ -328,19 +330,31 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 			improveStep = MAX(improveStep,IMPROVE_STEP_MIN_AFTER_BIG_RESET);
 		}
 		dirtyEnergies = NO_CHANGE;
+		dirtyResults = true;
 	}
 
 	REPORT_BEGIN("Calculating.");
 	TIME now = GETTIME;
 	TIME end = (TIME)(now+improveStep*PER_SEC);
 	RRScene::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
-	if(improvement==RRScene::FINISHED || improvement==RRScene::INTERNAL_ERROR)
-		return improvement;
 	REPORT(printf(" (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 	REPORT_END;
-
-	if(now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
+	switch(improvement)
 	{
+		case RRScene::IMPROVED:
+			dirtyResults = true;
+			break;
+		case RRScene::NOT_IMPROVED:
+			break;
+		case RRScene::FINISHED:
+		case RRScene::INTERNAL_ERROR:
+			if(!dirtyResults) return improvement;
+			break;
+	}
+
+	if(dirtyResults && now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
+	{
+		dirtyResults = false;
 		REPORT_BEGIN("Reading results.");
 		lastReadingResultsTime = now;
 		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;

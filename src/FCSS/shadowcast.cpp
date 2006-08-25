@@ -13,6 +13,7 @@ bool singlecore = 0;
 /*
 do eg
 -chybne osvetlena sponza pokud se pri detectu nevejde vsechno na jednu obrazovku
+-uvodni loading se nekdy spatne renderuje, zkusit glintercept
 
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)
@@ -272,10 +273,17 @@ public:
 		{
 			error("No window, internal error.",false);
 		}
-		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
-		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
+		if(triangleIndex<firstCapturedTriangle || triangleIndex>lastCapturedTriangle)
+		{
+			((GLfloat*)vertexData)[0] = -1;
+			((GLfloat*)vertexData)[1] = -1;
+		} else {
+			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
+			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
+		}
 	}
 	unsigned firstCapturedTriangle;
+	unsigned lastCapturedTriangle;
 	unsigned xmax, ymax;
 };
 
@@ -311,10 +319,10 @@ protected:
 		static CaptureUv captureUv;
 		unsigned width1 = 4;
 		unsigned height1 = 4;
-		captureUv.firstCapturedTriangle = 0;
 		captureUv.xmax = winWidth/width1;
 		captureUv.ymax = winHeight/height1;
-		while(captureUv.xmax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/((captureUv.xmax-1)*captureUv.ymax)) captureUv.xmax--;
+		while(captureUv.xmax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/((captureUv.xmax-1)*captureUv.ymax))
+			captureUv.xmax--;
 		unsigned width = captureUv.xmax*width1;
 		unsigned height = captureUv.ymax*height1;
 
@@ -328,8 +336,11 @@ protected:
 		GLuint* pixelBuffer = new GLuint[width * height];
 
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
+//printf("\n ============================================================= ");
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
 		{
+			captureUv.lastCapturedTriangle = captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax-1;
+
 			// clear
 			glClear(GL_COLOR_BUFFER_BIT);
 
@@ -367,8 +378,8 @@ protected:
 			{
 				// accumulate 1 triangle power
 				unsigned sum[3] = {0,0,0};
-				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/(height/height1);
-				unsigned j = triangleIndex%(height/height1);
+				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/captureUv.ymax;
+				unsigned j = triangleIndex%captureUv.ymax;
 				for(unsigned n=0;n<height1;n++)
 					for(unsigned m=0;m<width1;m++)
 					{
@@ -390,8 +401,10 @@ protected:
 				//rr::RRColor tmp = rr::RRColor(0);
 				//multiObject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
 				//suma+=tmp;
+				//if((int)(10000*avg.avg())) printf("%d ",(int)(255*avg.avg()));
 			}
-			//printf("sum = %f/%f/%f\n",suma[0],suma[1],suma[2]);
+			//printf("%d ",(int)(255*suma.avg()));
+			//printf("\n ----- ");
 		}
 
 		delete[] pixelBuffer;
