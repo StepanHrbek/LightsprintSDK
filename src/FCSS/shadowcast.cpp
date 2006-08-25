@@ -275,11 +275,11 @@ public:
 		if(triangleIndex<firstCapturedTriangle || triangleIndex>lastCapturedTriangle)
 		{
 			assert(0);
-			((GLfloat*)vertexData)[0] = -1;
-			((GLfloat*)vertexData)[1] = -1;
+			((GLfloat*)vertexData)[0] = 0;
+			((GLfloat*)vertexData)[1] = 0;
 		} else {
-			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
-			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
+			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%xmax)+((vertexIndex<2)?0:1)-xmax*0.5f)/(xmax*0.5f);
+			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/xmax)+1-(vertexIndex%2)-ymax*0.5f)/(ymax*0.5f);
 		}
 	}
 	unsigned firstCapturedTriangle;
@@ -321,8 +321,8 @@ protected:
 		unsigned height1 = 4;
 		captureUv.xmax = winWidth/width1;
 		captureUv.ymax = winHeight/height1;
-		while(captureUv.xmax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/((captureUv.xmax-1)*captureUv.ymax))
-			captureUv.xmax--;
+		while(captureUv.ymax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/(captureUv.xmax*(captureUv.ymax-1)))
+			captureUv.ymax--;
 		unsigned width = captureUv.xmax*width1;
 		unsigned height = captureUv.ymax*height1;
 
@@ -336,7 +336,7 @@ protected:
 		GLuint* pixelBuffer = new GLuint[width * height];
 
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
-printf("\n ============================================================= ");
+//printf("\n ============================================================= ");
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
 		{
 			captureUv.lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax)-1;
@@ -371,15 +371,15 @@ printf("\n ============================================================= ");
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
 
 			// dbg print
-			//rr::RRColor suma = rr::RRColor(0);
+			rr::RRColor suma = rr::RRColor(0);
 
 			// accumulate triangle powers
 			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<=captureUv.lastCapturedTriangle;triangleIndex++)
 			{
 				// accumulate 1 triangle power
 				unsigned sum[3] = {0,0,0};
-				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/captureUv.ymax;
-				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)%captureUv.ymax;
+				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)%captureUv.xmax;
+				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)/captureUv.xmax;
 				for(unsigned n=0;n<height1;n++)
 					for(unsigned m=0;m<width1;m++)
 					{
@@ -400,11 +400,11 @@ printf("\n ============================================================= ");
 				// debug print
 				//rr::RRColor tmp = rr::RRColor(0);
 				//multiObject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
-				//suma+=tmp;
-				if((int)(10000*avg.avg())) printf("%d:%d ",triangleIndex,(int)(255*avg.avg()));
+//				suma+=avg;
+//				if((int)(10000*avg.avg())) printf("%d:%d ",triangleIndex,(int)(255*avg.avg()));
 			}
-			//printf("%d ",(int)(255*suma.avg()));
-			printf("\n ----- ");
+//			printf("sum=%f ",suma.avg());
+//			printf("\n ----- ");
 		}
 
 		delete[] pixelBuffer;

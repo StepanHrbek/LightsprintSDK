@@ -79,8 +79,8 @@ public:
 			((GLfloat*)vertexData)[0] = -1;
 			((GLfloat*)vertexData)[1] = -1;
 		} else {
-			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax/2)/(xmax/2);
-			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax/2)/(ymax/2);
+			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/ymax)+((vertexIndex<2)?0:1)-xmax*0.5f)/(xmax*0.5f);
+			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%ymax)+1-(vertexIndex%2)-ymax*0.5f)/(ymax*0.5f);
 		}
 	}
 	unsigned firstCapturedTriangle;
@@ -150,12 +150,12 @@ protected:
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
 
 			// accumulate triangle powers
-			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax);triangleIndex++)
+			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<=captureUv.lastCapturedTriangle;triangleIndex++)
 			{
 				// accumulate 1 triangle power
 				unsigned sum[3] = {0,0,0};
-				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/(height/height1);
-				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)%(height/height1);
+				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)/captureUv.ymax;
+				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)%captureUv.ymax;
 				for(unsigned n=0;n<height1;n++)
 					for(unsigned m=0;m<width1;m++)
 					{
