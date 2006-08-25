@@ -9,11 +9,8 @@ int fullscreen = 1;
 bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
-bool singlecore = 0;
+bool cores = 2;
 /*
-do eg:
--spatne detekuje primary kdyz musi na ctyrikrat
-
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)
 -jas korekce (pred rendrem)
@@ -869,12 +866,8 @@ Level::Level(const char* filename_3ds)
 	}
 	if(strstr(filename_3ds, "sponza"))
 	{
-		Camera tmpeye = {{-5.730,3.424,1.522},4.495,-0.650,1.3,100.0,0.3,60.0};
-		Camera tmplight = {{-15.820,2.595,4.207},-1.285,3.250,1.0,70.0,1.0,30.0};
-//		Camera tmpeye = {{-5.950,3.313,1.424},4.600,-3.200,1.3,100.0,0.3,60.0};
-//		Camera tmplight = {{-14.680,2.945,4.266},-1.285,3.400,1.0,70.0,1.0,30.0};
-//!!!		Camera tmpeye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
-//		Camera tmplight = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
+		Camera tmpeye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
+		Camera tmplight = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
 		//Camera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
 		//Camera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
 		//Camera sponza_eye = {{13.924,7.606,1.007},7.920,-0.150,1.3,100.0,0.3,60.0};// shows face with bad indirect
@@ -1052,7 +1045,7 @@ void changeSpotlight()
 void reportEyeMovement()
 {
 	if(!level) return;
-	if(singlecore) level->app->reportCriticalInteraction();
+	if(cores==1) level->app->reportCriticalInteraction();
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
 	movingEye = 4;
@@ -1061,7 +1054,7 @@ void reportEyeMovement()
 void reportEyeMovementEnd()
 {
 	if(!level) return;
-	if(singlecore) level->app->reportEndOfInteractions();
+	if(cores==1) level->app->reportEndOfInteractions();
 	movingEye = 0;
 }
 
@@ -1079,7 +1072,7 @@ void reportLightMovement()
 	}
 	else
 	{
-		if(singlecore) level->app->reportCriticalInteraction();
+		if(cores==1) level->app->reportCriticalInteraction();
 	}
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
@@ -1090,7 +1083,7 @@ void reportLightMovement()
 void reportLightMovementEnd()
 {
 	if(!level) return;
-	if(singlecore) level->app->reportEndOfInteractions();
+	if(cores==1) level->app->reportEndOfInteractions();
 	if(!updateDuringLightMovement)
 	{
 		level->app->reportLightChange(true);
