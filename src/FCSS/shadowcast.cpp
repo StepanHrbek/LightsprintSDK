@@ -12,7 +12,6 @@ bool startWithSoftShadows = 1;
 bool singlecore = 0;
 /*
 do eg
--chybne osvetlena sponza pokud se pri detectu nevejde vsechno na jednu obrazovku
 -uvodni loading se nekdy spatne renderuje, zkusit glintercept
 
 -gamma korekce (do rrscaleru)

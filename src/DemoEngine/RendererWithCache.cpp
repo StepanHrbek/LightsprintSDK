@@ -27,7 +27,10 @@ RendererWithCache::Info& RendererWithCache::findInfo()
 	if(length)
 	{
 		if(length>sizeof(key))
+		{
+			assert(0);
 			length = sizeof(key); //!!! params delsi nez 16 jsou oriznuty
+		}
 		memcpy(&key,params,length);
 	}
 //	Map::iterator i = mapa.find(key);
