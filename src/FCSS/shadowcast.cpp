@@ -161,7 +161,7 @@ int showLightViewFrustum = 0;
 bool paused = 0;
 int resolutionx = 640;
 int resolutiony = 480;
-bool modeMovingEye = true;
+bool modeMovingEye = 0;
 unsigned movingEye = 0;
 unsigned movingLight = 0;
 bool needRedisplay = 0;
@@ -783,6 +783,7 @@ void showImage(const Texture* tex)
 	tex->bindTexture();
 	glDisable(GL_CULL_FACE);
 	glColor3f(1,1,1);
+	glDisable(GL_DEPTH_TEST);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -802,6 +803,7 @@ void showImage(const Texture* tex)
 	glVertex2f(-1,1);
 	glEnd();
 
+	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 	glutSwapBuffers();
 }
@@ -829,12 +831,14 @@ Level::Level(const char* filename_3ds)
 		scale_3ds = 0.03f;
 		//Camera koupelna4_eye = {{0.032202,1.659255,1.598609},10.010005,-0.150000};
 		//Camera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
-		Camera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,50.,0.3,60.};
-		Camera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
+//		Camera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,50.,0.3,60.};
+//		Camera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
+		Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,75.0,0.3,60.0};
+		Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};
 		//Camera koupelna4_eye = {{0.823,1.500,-0.672},11.055,-0.050,1.3,100.0,0.3,60.0};//wrong backprojection
 		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
-		eye = koupelna4_eye;
-		light = koupelna4_light;
+		eye = tmpeye;
+		light = tmplight;
 		updateDuringLightMovement = 1;
 //		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
