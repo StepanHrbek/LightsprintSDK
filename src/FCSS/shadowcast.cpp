@@ -11,9 +11,6 @@ bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 bool singlecore = 0;
 /*
-do eg
--uvodni loading se nekdy spatne renderuje, zkusit glintercept
-
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)
 -jas korekce (pred rendrem)
@@ -961,8 +958,8 @@ void display()
 	//printf("<Display.>");
 	if(!level)
 	{
-		updateDepthMap(0,0); // bez tohoto neni uvodni loading spravne vyrenderovany, neznamo proc
 		showImage(loadingMap);
+		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
 		level = new Level(levelSequence.getNextLevel());
 		level->app->reportEndOfInteractions();
 		for(unsigned i=0;i<6;i++)
