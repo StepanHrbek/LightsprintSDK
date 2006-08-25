@@ -9,7 +9,7 @@ int fullscreen = 1;
 bool renderer3ds = true;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
-bool cores = 2;
+unsigned cores = 2;
 /*
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)
@@ -712,6 +712,7 @@ static void drawHelpMessage(bool big)
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
 		" 'l'   - toggle lazy updates",
+		" enter - change spotlight texture",
 /*
 		" 'f'   - toggle showing spotlight frustum",
 		" 'a'   - cycle through linear, rectangular and circular area light",
@@ -1227,13 +1228,13 @@ void keyboard(unsigned char c, int x, int y)
 			if(eye.fieldOfView>25) eye.fieldOfView -= 25;
 			needMatrixUpdate = 1;
 			break;
+		case 13:
+			changeSpotlight();
+			break;
 			/*
 		case 'a':
 			++areaLight->areaType%=3;
 			needDepthMapUpdate = 1;
-			break;
-		case 's':
-			changeSpotlight();
 			break;
 		case 'S':
 			app->reportLightChange(true);
