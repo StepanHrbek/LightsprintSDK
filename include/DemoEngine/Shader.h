@@ -24,7 +24,6 @@ public:
   void compileIt();
   GLuint getHandle();
 private:
-  char *readShader(const char *filename);
   GLuint handle;
 };
 

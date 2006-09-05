@@ -374,6 +374,19 @@
 
 \page news What's new
 
+\section news5 ------------------------------------- 2006.9 -------------------------------------
+
+CHANGES
+
+- HelloRealtimeRadiosity sample controls changed to FPS classic
+- HelloRealtimeRadiosity improved performance on multicore CPU
+
+BUGFIXES
+
+- RealtimeRadiosity: not updated vertex buffers when primary light completely disappears
+- HelloRealtimeRadiosity: incorrect illum if you loaded something 50+ x bigger than sample scene
+- HelloRealtimeRadiosity: backprojection from spotlight
+
 \section news4 ------------------------------------- 2006.8 -------------------------------------
 
 NEW FEATURES

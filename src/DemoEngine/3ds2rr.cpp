@@ -1,6 +1,8 @@
-//
-// 3ds to rrobject loader by Stepan Hrbek, dee@mail.cz
-//
+// --------------------------------------------------------------------------
+// DemoEngine
+// Imports Model_3DS into RRRealtimeRadiosity
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
 
 #include <assert.h>
 #include <math.h>
@@ -42,7 +44,6 @@ public:
 	virtual void         getVertex(unsigned v, Vertex& out) const;
 	virtual unsigned     getNumTriangles() const;
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
-//	virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
@@ -315,7 +316,7 @@ void M3dsImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
 
 const rr::RRMatrix3x4* M3dsImporter::getWorldMatrix()
 {
-	//!!!
+	//!!! matrices from 3ds are ignored yet
 	return NULL;
 }
 
@@ -339,7 +340,7 @@ rr::RRObject* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
 	return importer;
 }
 
-void new_3ds_importer(Model_3DS* model,rr::RRRealtimeRadiosity* app,float stitchDistance)
+void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,float stitchDistance)
 {
 	rr::RRRealtimeRadiosity::Objects objects;
 	//unsigned t=0;

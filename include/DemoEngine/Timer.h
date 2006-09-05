@@ -21,72 +21,77 @@
 	#define PER_SEC CLOCKS_PER_SEC
 #endif
 
-	class Timer
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Timer
+
+class Timer
+{
+public:
+
+	Timer()
 	{
-	public:
-
-		Timer()
-		{
 #ifdef WINDOWS_TIME
-			QueryPerformanceFrequency((LARGE_INTEGER *)&perffreq);
-			proc = GetCurrentProcess();
+		QueryPerformanceFrequency((LARGE_INTEGER *)&perffreq);
+		proc = GetCurrentProcess();
 #endif
-		}
+	}
 
-		void Start()
-		{
+	void Start()
+	{
 #ifdef WINDOWS_TIME
-			MyFILETIME creationtime,exittime;
-			if(!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kernelstart.ft,&userstart.ft))
+		MyFILETIME creationtime,exittime;
+		if(!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kernelstart.ft,&userstart.ft))
+		{
+			assert(0);
+		}
+		if(perffreq)
+		{
+			QueryPerformanceCounter((LARGE_INTEGER *)&perfstart);
+		}
+		else
+#endif
+		{
+			timestart = GETTIME;
+		}
+	};
+
+	// Returns real time spent from Start.
+	// Optionally fills also processor times in user/kernel space.
+	// Note that user+kernel time may be higher than real time on multicore/processor machines.
+	double Watch(double* usertime=NULL, double* kerneltime=NULL)
+	{
+#ifdef WINDOWS_TIME
+		if(usertime || kerneltime)
+		{
+			MyFILETIME creationtime,exittime,kerneltime2,usertime2;
+			if(!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kerneltime2.ft,&usertime2.ft))
 			{
 				assert(0);
 			}
-			if(perffreq)
-			{
-				QueryPerformanceCounter((LARGE_INTEGER *)&perfstart);
-			}
-			else
-#endif
-			{
-				timestart = GETTIME;
-			}
-		};
-
-		// Returns real time spent from Start.
-		// Optionally fills also processor times in user/kernel space.
-		// Note that user+kernel time may be higher than real time on multicore/processor machines.
-		double Watch(double* usertime=NULL, double* kerneltime=NULL)
+			if(kerneltime) *kerneltime = (kerneltime2.u-kernelstart.u)*1e-7;
+			if(usertime) *usertime = (usertime2.u-userstart.u)*1e-7;
+		}
+		if(perffreq)
 		{
-#ifdef WINDOWS_TIME
-			if(usertime || kerneltime)
-			{
-				MyFILETIME creationtime,exittime,kerneltime2,usertime2;
-				if(!GetProcessTimes(proc,&creationtime.ft,&exittime.ft,&kerneltime2.ft,&usertime2.ft))
-				{
-					assert(0);
-				}
-				if(kerneltime) *kerneltime = (kerneltime2.u-kernelstart.u)*1e-7;
-				if(usertime) *usertime = (usertime2.u-userstart.u)*1e-7;
-			}
-			if(perffreq)
-			{
-				__int64 perftime;
-				QueryPerformanceCounter((LARGE_INTEGER *)&perftime);
-				return (perftime-perfstart)/(double)perffreq;
-			}
+			__int64 perftime;
+			QueryPerformanceCounter((LARGE_INTEGER *)&perftime);
+			return (perftime-perfstart)/(double)perffreq;
+		}
 #endif
-			return (GETTIME-timestart)/(double)PER_SEC;
-		};
-
-	private:
-#ifdef WINDOWS_TIME
-		typedef unsigned __int64 uint64_t;
-		union MyFILETIME {FILETIME ft; uint64_t u;};
-		HANDLE proc;
-		MyFILETIME kernelstart,userstart;
-		__int64 perffreq, perfstart;
-#endif
-		TIME timestart;
+		return (GETTIME-timestart)/(double)PER_SEC;
 	};
+
+private:
+#ifdef WINDOWS_TIME
+	typedef unsigned __int64 uint64_t;
+	union MyFILETIME {FILETIME ft; uint64_t u;};
+	HANDLE proc;
+	MyFILETIME kernelstart,userstart;
+	__int64 perffreq, perfstart;
+#endif
+	TIME timestart;
+};
 
 #endif

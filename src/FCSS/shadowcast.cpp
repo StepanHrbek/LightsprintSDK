@@ -92,8 +92,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Bugs.h"
 #include "LevelSequence.h"
 
-using namespace std;
-
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -121,7 +119,7 @@ class Level
 {
 public:
 	Model_3DS m3ds;
-	class MyApp* app;
+	class Solver* solver;
 	class Bugs* bugs;
 	RendererOfRRObject* rendererNonCaching;
 	RendererWithCache* rendererCaching;
@@ -147,7 +145,8 @@ Texture* hintMap = NULL;
 Program *ambientProgram;
 UberProgram* uberProgram;
 UberProgramSetup uberProgramGlobalSetup;
-int winWidth, winHeight;
+int winWidth = 0;
+int winHeight = 0;
 int depthBias24 = 42;
 int depthScale24;
 GLfloat slopeScale = 4.0;
@@ -252,7 +251,7 @@ void done_gl_resources()
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// MyApp
+// Solver
 
 void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance);
 void updateMatrices();
@@ -262,7 +261,6 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 class CaptureUv : public VertexDataGenerator
 {
 public:
-	virtual ~CaptureUv() {};
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
 		if(!xmax || !ymax)
@@ -284,12 +282,22 @@ public:
 	unsigned xmax, ymax;
 };
 
-// external dependencies of MyApp:
+// external dependencies of Solver:
 // z m3ds detekuje materialy
 // renderer je pouzit k captureDirect
 //#include "Timer.h"
-class MyApp : public rr::RRRealtimeRadiosity
+class Solver : public rr::RRRealtimeRadiosity
 {
+public:
+	virtual ~Solver()
+	{
+		// delete objects and illumination
+		for(unsigned i=0;i<getNumObjects();i++)
+		{
+			delete getIllumination(i);
+			delete getObject(i);
+		}
+	}
 protected:
 	virtual void detectMaterials()
 	{
@@ -313,7 +321,6 @@ protected:
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		// adjust captured texture size so we don't waste pixels
-		static CaptureUv captureUv;
 		unsigned width1 = 4;
 		unsigned height1 = 4;
 		captureUv.xmax = winWidth/width1;
@@ -329,7 +336,7 @@ protected:
 		glDepthMask(0);
 		glViewport(0, 0, width, height);
 
-		// Allocate the index buffer memory as necessary.
+		// allocate the index buffer memory as necessary
 		GLuint* pixelBuffer = new GLuint[width * height];
 
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
@@ -364,7 +371,7 @@ protected:
 			renderScene(uberProgramSetup,0);
 			level->rendererNonCaching->setCapture(NULL,0,numTriangles-1);
 
-			// Read back the index buffer to memory.
+			// read back the index buffer to memory
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
 
 			// dbg print
@@ -417,16 +424,8 @@ protected:
 	{
 		printf(action);
 	}
-public:
-	virtual ~MyApp()
-	{
-		// delete objects and illumination
-		for(unsigned i=0;i<getNumObjects();i++)
-		{
-			delete getIllumination(i);
-			delete getObject(i);
-		}
-	}
+private:
+	CaptureUv captureUv;
 };
 
 
@@ -517,7 +516,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		level->m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?level->app:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
+		level->m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?level->solver:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
 		return;
 	}
 	RendererOfRRObject::RenderedChannels renderedChannels;
@@ -815,7 +814,7 @@ void showImage(const Texture* tex)
 
 Level::Level(const char* filename_3ds)
 {
-	app = NULL;
+	solver = NULL;
 	bugs = NULL;
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
@@ -918,26 +917,26 @@ Level::Level(const char* filename_3ds)
 	if(!m3ds.Load(filename_3ds,scale_3ds))
 		error("",false);
 
-	//	printf(app->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
-	//	printf(app->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
+	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
+	//	printf(solver->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
 
 	printf("\n");
 
 	// init radiosity solver
-	app = new MyApp();
-	new_3ds_importer(&m3ds,app,0.01f);
-	app->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
-	if(!app->getMultiObject())
+	solver = new Solver();
+	provideObjectsFrom3dsToRR(&m3ds,solver,0.01f);
+	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
+	if(!solver->getMultiObject())
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new RendererOfRRObject(app->getMultiObject(),app->getScene());
+	rendererNonCaching = new RendererOfRRObject(solver->getMultiObject(),solver->getScene());
 	rendererCaching = new RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 
 	// init bugs
 #ifdef BUGS
-	bugs = Bugs::create(app->getScene(),app->getMultiObject(),100);
+	bugs = Bugs::create(solver->getScene(),solver->getMultiObject(),100);
 #endif
 
 	updateMatrices();
@@ -950,7 +949,7 @@ Level::~Level()
 	delete bugs;
 	delete rendererCaching;
 	delete rendererNonCaching;
-	delete app;
+	delete solver;
 }
 
 
@@ -967,9 +966,9 @@ void display()
 		showImage(loadingMap);
 		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
 		level = new Level(levelSequence.getNextLevel());
-		level->app->reportEndOfInteractions();
+		level->solver->reportEndOfInteractions();
 		for(unsigned i=0;i<6;i++)
-			level->app->calculate();
+			level->solver->calculate();
 	}
 	if(showHint)
 	{
@@ -977,7 +976,7 @@ void display()
 		return;
 	}
 
-	level->app->reportIlluminationUse();
+	level->solver->reportIlluminationUse();
 
 	if(needMatrixUpdate)
 		updateMatrices();
@@ -1043,14 +1042,14 @@ void changeSpotlight()
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
 	needDepthMapUpdate = 1;
 	if(!level) return;
-	level->app->reportLightChange(true);
-	level->app->reportEndOfInteractions(); // force update even in movingEye mode
+	level->solver->reportLightChange(true);
+	level->solver->reportEndOfInteractions(); // force update even in movingEye mode
 }
 
 void reportEyeMovement()
 {
 	if(!level) return;
-	if(cores==1) level->app->reportCriticalInteraction();
+	if(cores==1) level->solver->reportCriticalInteraction();
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
 	movingEye = 4;
@@ -1059,7 +1058,7 @@ void reportEyeMovement()
 void reportEyeMovementEnd()
 {
 	if(!level) return;
-	if(cores==1) level->app->reportEndOfInteractions();
+	if(cores==1) level->solver->reportEndOfInteractions();
 	movingEye = 0;
 }
 
@@ -1073,11 +1072,11 @@ void reportLightMovement()
 		// Ve velke scene dava lepsi vysledky reset (true),
 		//  scena sice behem pohybu ztmavne,
 		//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
-		level->app->reportLightChange(level->app->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+		level->solver->reportLightChange(level->solver->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
 	}
 	else
 	{
-		if(cores==1) level->app->reportCriticalInteraction();
+		if(cores==1) level->solver->reportCriticalInteraction();
 	}
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
@@ -1088,10 +1087,10 @@ void reportLightMovement()
 void reportLightMovementEnd()
 {
 	if(!level) return;
-	if(cores==1) level->app->reportEndOfInteractions();
+	if(cores==1) level->solver->reportEndOfInteractions();
 	if(!updateDuringLightMovement)
 	{
-		level->app->reportLightChange(true);
+		level->solver->reportLightChange(true);
 		needDepthMapUpdate = 1;
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
@@ -1241,7 +1240,7 @@ void keyboard(unsigned char c, int x, int y)
 			needDepthMapUpdate = 1;
 			break;
 		case 'S':
-			app->reportLightChange(true);
+			solver->reportLightChange(true);
 			break;
 		case 'w':
 		case 'W':
@@ -1478,7 +1477,7 @@ void idle()
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	if(!level || (rrOn && level->app->calculate()==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
+	if(!level || (rrOn && level->solver->calculate()==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
 	{
 //		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache

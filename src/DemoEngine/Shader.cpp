@@ -5,6 +5,21 @@
 
 using namespace std;
 
+char* readShader(const char *filename)
+{
+	FILE* f = fopen(filename,"rb");
+	if(!f) return NULL;
+	fseek(f,0,SEEK_END);
+	unsigned count = ftell(f);
+	char *buf;
+	buf = new char[count + 1];
+	fseek(f,0,SEEK_SET);
+	fread(buf,1,count,f);
+	fclose(f);
+	buf[count] = 0;
+	return buf;
+}
+
 // Public part :
 
 Shader::Shader(const char* defines, const char* filename, GLenum shaderType)
@@ -49,21 +64,6 @@ void Shader::compileIt()
 }
 
 // Private part :
-
-char *Shader::readShader(const char *filename)
-{
-	FILE* f = fopen(filename,"rb");
-	if(!f) return NULL;
-	fseek(f,0,SEEK_END);
-	unsigned count = ftell(f);
-	char *buf;
-	buf = new char[count + 1];
-	fseek(f,0,SEEK_SET);
-	fread(buf,1,count,f);
-	fclose(f);
-	buf[count] = 0;
-	return buf;
-}
 
 GLuint Shader::getHandle()
 {

@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // Texture, OpenGL 2.0 object. Able to load truecolor .tga from disk.
-// Based on publicly available code of forgotten author.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
 // --------------------------------------------------------------------------
 
 #ifndef TEXTURE_H
@@ -9,6 +9,11 @@
 
 #include "DemoEngine.h"
 #include <GL/glew.h>
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Texture
 
 class RR_API Texture
 {

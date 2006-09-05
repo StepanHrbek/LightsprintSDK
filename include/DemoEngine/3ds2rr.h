@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // DemoEngine
-// Imports .3ds model into RRRealtimeRadiosity
+// Imports Model_3DS into RRRealtimeRadiosity
 // Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
 // --------------------------------------------------------------------------
 
@@ -19,6 +19,6 @@ enum
 };
 
 // imports all 3d objects from model into RRRealtimeRadiosity
-void RR_API new_3ds_importer(Model_3DS* model,rr::RRRealtimeRadiosity* app, float stitchDistance);
+void RR_API provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app, float stitchDistance);
 
 #endif
