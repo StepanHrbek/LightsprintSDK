@@ -128,6 +128,8 @@
  - integrates with existing engines
  - uses no precalculations -> illumination quality varies, "architect edition"
  - techniques based on partial precalculations will follow -> quality boost, "day/night editions"
+ - you can ask RealtimeRadiosity for complete vertex buffers (or lightmaps in future);
+   for information on individual triangles (even adaptively subdivided), call underlying Vision library
 
  \subpage rr_dir_indir "Direct vs indirect; Realtime Radiosity position"
 
@@ -260,6 +262,8 @@
  - calculated illumination is available in vertices
  - works with your units (screen colors or radiometry or photometry units or anything else)
  - display independent, purely numerical API
+ - you can ask Vision about individual triangles, even adaptively subdivided;
+   for complete vertex buffers (or lightmaps in future), see RealtimeRadiosity library
 
  \subpage vision_units "Units (radiometry, photometry)"
 
