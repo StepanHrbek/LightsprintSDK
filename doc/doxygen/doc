@@ -376,10 +376,14 @@
 
 \section news5 ------------------------------------- 2006.9 -------------------------------------
 
+NEW FEATURES
+
+- Math: components(), sum(), avg(), length(), length2(), normalize(), normalized() on rr::RRVec2, rr::RRVec3
+
 CHANGES
 
-- HelloRealtimeRadiosity sample controls changed to FPS classic
-- HelloRealtimeRadiosity improved performance on multicore CPU
+- HelloRealtimeRadiosity: controls changed to FPS classic
+- HelloRealtimeRadiosity: improved performance on multicore CPU
 
 BUGFIXES
 
