@@ -1,4 +1,4 @@
-#define BUGS
+//#define BUGS
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
 unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 je max pro 6600
@@ -514,7 +514,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	// 2) slouzi jako test ze RRRealtimeRadiosity spravne generuje vertex buffer s indirectem
 	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
-	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
+	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -529,6 +529,8 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 	level->rendererNonCaching->setRenderedChannels(renderedChannels);
+	if(renderedChannels.LIGHT_INDIRECT_COLOR) // turn off caching for renders with indirect color, because it changes often
+		level->rendererCaching->setStatus(RendererWithCache::CS_NEVER_COMPILE);
 	level->rendererCaching->render();
 }
 
