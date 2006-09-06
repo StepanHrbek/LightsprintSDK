@@ -226,7 +226,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL;RR_DLL_BUILD_CALCULATOR"
 				StringPooling="true"
 				ExceptionHandling="1"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
@@ -290,10 +290,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\include\RRRealtimeRadiosity.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\include\RRIllumPrecalculated.h"
 			>
 		</File>
@@ -307,6 +303,10 @@
 		</File>
 		<File
 			RelativePath="RRRealtimeRadiosity.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\RRRealtimeRadiosity.h"
 			>
 		</File>
 		<File

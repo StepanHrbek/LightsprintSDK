@@ -354,3 +354,15 @@ void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,flo
 	if(app) app->setObjects(objects,stitchDistance);
 }
 
+/*
+void RR_API deleteObjectsFromRR(rr::RRRealtimeRadiosity* app)
+{
+	// delete objects and illumination
+	if(app)
+	for(unsigned i=0;i<app->getNumObjects();i++)
+	{
+		delete app->getIllumination(i);
+		delete app->getObject(i);
+	}
+}
+*/

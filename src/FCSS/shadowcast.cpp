@@ -297,6 +297,8 @@ public:
 			delete getIllumination(i);
 			delete getObject(i);
 		}
+		// delete objects and illumination from the same context where they were created
+		//deleteObjectsFromRR(this);
 	}
 protected:
 	virtual void detectMaterials()
