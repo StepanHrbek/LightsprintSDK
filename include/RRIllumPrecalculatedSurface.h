@@ -57,6 +57,10 @@ namespace rr
 		{
 			color = (unsigned char)(255/3*(r+g+b));
 		}
+		const RRColorI8& operator =(const RRColorRGBF& a)
+		{
+			return *this = RRColorI8(a[0],a[1],a[2]);
+		}
 		bool operator ==(const RRColorI8& a)
 		{
 			return color==a.color;
@@ -85,6 +89,10 @@ namespace rr
 		{
 			color = ((unsigned char)(255*r)&255) + (((unsigned char)(255*g)&255)<<8) + (((unsigned char)(255*b)&255)<<16);
 		}
+		const RRColorRGBA8& operator =(const RRColorRGBF& a)
+		{
+			return *this = RRColorRGBA8(a[0],a[1],a[2]);
+		}
 		bool operator ==(const RRColorI8& a)
 		{
 			return color==a.color;
@@ -106,11 +114,15 @@ namespace rr
 	class RR_API RRIlluminationVertexBuffer
 	{
 	public:
-		//! Sets size of buffer. Content may be lost.
+		//! Sets size of the buffer. Content may be lost.
 		virtual void setSize(unsigned numVertices) = 0;
-		//! Sets value of one element of buffer.
+		//! Sets value of one element of the buffer.
 		virtual void setVertex(unsigned vertex, const RRColorRGBF& color) = 0;
-		virtual ~RRIlluminationVertexBuffer() {};
+		//! Locks the buffer for seeing array of all vertices at once. Optional, may return NULL.
+		virtual const RRColorRGBF* lock() {return NULL;}
+		//! Unlocks previously locked buffer.
+		virtual void unlock() {}
+		virtual ~RRIlluminationVertexBuffer() {}
 	};
 
 
@@ -138,10 +150,6 @@ namespace rr
 			numVertices = anumVertices;
 			vertices = new Color[numVertices];
 		}
-		const Color* lock()
-		{
-			return vertices;
-		}
 		virtual void setVertex(unsigned vertex, const RRColorRGBF& color)
 		{
 			if(!vertices)
@@ -160,10 +168,25 @@ namespace rr
 		{
 			delete[] vertices;
 		}
-	private:
+	protected:
 		unsigned numVertices;
 		Color* vertices;
 	};
+
+	//! Lockable RRIlluminationVertexBufferInMemory<RRColorRGBF>
+	class RRIlluminationVertexBufferRGBFInMemory : public RRIlluminationVertexBufferInMemory<RRColorRGBF>
+	{
+	public:
+		RRIlluminationVertexBufferRGBFInMemory(unsigned anumVertices)
+			: RRIlluminationVertexBufferInMemory<RRColorRGBF>(anumVertices)
+		{
+		}
+		virtual const RRColorRGBF* lock()
+		{
+			return vertices;
+		}
+	};
+	
 
 
 
@@ -191,7 +214,7 @@ namespace rr
 		{
 			Channel(unsigned anumVertices)
 			{
-				vertexBuffer = new RRIlluminationVertexBufferInMemory<RRColorRGBF>(anumVertices);
+				vertexBuffer = NULL;
 			}
 			~Channel()
 			{

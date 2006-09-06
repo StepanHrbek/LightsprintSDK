@@ -200,6 +200,11 @@ void RRRealtimeRadiosity::updateVertexLookupTable()
 	}
 }
 
+RRIlluminationVertexBuffer* RRRealtimeRadiosity::newVertexBuffer(unsigned numVertices)
+{
+	return new RRIlluminationVertexBufferRGBFInMemory(numVertices);
+}
+
 void RRRealtimeRadiosity::readVertexResults()
 {
 	// for each object
@@ -208,6 +213,7 @@ void RRRealtimeRadiosity::readVertexResults()
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
+		if(!channel->vertexBuffer) channel->vertexBuffer = newVertexBuffer(numPreImportVertices);
 		RRIlluminationVertexBuffer* vertexBuffer = channel->vertexBuffer;
 
 		// load measure into each preImportVertex

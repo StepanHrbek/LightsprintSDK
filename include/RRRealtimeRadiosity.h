@@ -153,6 +153,13 @@ namespace rr
 		//! Debugging aid.
 		virtual void reportAction(const char* action) const;
 
+		//! Returns new vertex buffer (for indirect illumination) in your custom format.
+		//
+		//! Default implementation allocates 3 floats per vertex in RAM.
+		//! This is good for editor, but you may want to use 4 bytes per vertex in game to save memory.
+		//! You may even use monochromatic (1 float) format if you don't need color bleeding.
+		virtual RRIlluminationVertexBuffer* newVertexBuffer(unsigned numVertices);
+
 		//! All objects in scene.
 		Objects    objects;
 		//! The multiObject created by merging all objects.

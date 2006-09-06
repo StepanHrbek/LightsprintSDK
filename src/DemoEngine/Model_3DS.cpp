@@ -321,8 +321,16 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 				if(!lightIndirectMap)
 				{
 					rr::RRIlluminationVertexBuffer* vertexBuffer = app->getIllumination(i)->getChannel(0)->vertexBuffer;
-					glEnableClientState(GL_COLOR_ARRAY);
-					glColorPointer(3, GL_FLOAT, 0, ((rr::RRIlluminationVertexBufferInMemory<rr::RRColor>*)vertexBuffer)->lock()); //!!!
+					if(vertexBuffer)
+					{
+						const rr::RRColorRGBF* lock = vertexBuffer->lock();
+						if(lock)
+						{
+							glEnableClientState(GL_COLOR_ARRAY);
+							glColorPointer(3, GL_FLOAT, 0, lock);
+							vertexBuffer->unlock();
+						}
+					}
 				}
 				else
 				{
