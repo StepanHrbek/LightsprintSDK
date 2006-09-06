@@ -19,4 +19,5 @@ copy ..\..\bin\fcss.exe distro\run.exe
 call -min upx distro\run.exe
 del rrbugs.zip
 cd distro
-7za a -r -tzip -mx=9 ..\RRBugs *.*
+rem 7za a -r -tzip -mx=9 ..\RRBugs *.*
+c:\progra~1\winrar\rar a -s -r -m5 -md4096 ..\RRBugs *.*
