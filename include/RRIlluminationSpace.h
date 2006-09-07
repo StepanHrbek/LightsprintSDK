@@ -1,9 +1,9 @@
-#ifndef RRILLUMPRECALCULATEDSPACE_H
-#define RRILLUMPRECALCULATEDSPACE_H
+#ifndef RRILLUMINATIONSPACE_H
+#define RRILLUMINATIONSPACE_H
 
 //////////////////////////////////////////////////////////////////////////////
-//! \file RRIllumPrecalculatedSpace.h
-//! \brief RRIllumPrecalculated - library for accessing precalculated illumination
+//! \file RRIlluminationSpace.h
+//! \brief RRIllumination - library for calculated illumination storage
 //! \version 2006.9
 //! \author Copyright (C) Lightsprint
 //! All rights reserved

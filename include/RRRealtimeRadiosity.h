@@ -32,11 +32,55 @@
 #	endif
 #endif
 
-#include "RRIllumPrecalculated.h"
+#include "RRIllumination.h"
 
 namespace rr
 {
 
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+	//!!! cele zrusit pokud se ukaze ze nebudu vyrabet unwrap
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Storage for object's indirect illumination, extended for editor.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RR_API RRObjectIlluminationForEditor : public RRObjectIllumination
+	{
+	public:
+		RRObjectIlluminationForEditor(unsigned anumPreImportVertices)
+			: RRObjectIllumination(anumPreImportVertices)
+		{
+		}
+		/*void createPixelBufferUnwrap(RRObject* object)
+		{
+			if(pixelBufferUnwrap)
+				delete[] pixelBufferUnwrap;
+			pixelBufferUnwrap = new RRVec2[numPreImportVertices];
+			RRMesh* mesh = object->getCollider()->getMesh();
+			unsigned numPostImportTriangles = mesh->getNumTriangles();
+			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+			{
+				RRObject::TriangleMapping triangleMapping;
+				object->getTriangleMapping(postImportTriangle,triangleMapping);
+				RRMesh::Triangle triangle;
+				mesh->getTriangle(postImportTriangle,triangle);
+				for(unsigned v=0;v<3;v++)
+				{
+					//!!!
+					// muj nouzovy primitivni unwrap vetsinou nejde prevest z trianglu do vertexBufferu,
+					// protoze jeden vertex je casto pouzit vice triangly v meshi
+					unsigned preImportVertex = mesh->getPreImportVertex(triangle[v],postImportTriangle);
+					if(preImportVertex<numPreImportVertices)
+						pixelBufferUnwrap[preImportVertex] = triangleMapping.uv[v];
+					else
+						assert(0);
+				}
+			}
+		}*/
+	};
+#endif
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -63,7 +107,11 @@ namespace rr
 		virtual ~RRRealtimeRadiosity();
 
 		//! One 3d object with storage space for calculated illumination.
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+		typedef std::pair<RRObject*,RRObjectIlluminationForEditor*> Object;
+#else
 		typedef std::pair<RRObject*,RRObjectIllumination*> Object;
+#endif
 		//! Container for all objects present in scene.
 		typedef std::vector<Object> Objects;
 		//! Sets contents of scene, all objects at once.
@@ -73,7 +121,11 @@ namespace rr
 		//! Returns i-th object in scene.
 		RRObject* getObject(unsigned i);
 		//! Returns illumination of i-th object in scene.
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+		RRObjectIlluminationForEditor* getIllumination(unsigned i);
+#else
 		RRObjectIllumination* getIllumination(unsigned i);
+#endif
 
 
 		//! Calculates and improves indirect illumination on objects.
@@ -117,9 +169,7 @@ namespace rr
 		//! Reports that user interacts and needs maximal responsiveness.
 		//
 		//! This can be used for example when user walks through scene where nothing changes.
-		//!
-		//! If you regularly call calculate(), it stops all actions for short period 
-		//! of time and gives 100% of CPU time to you.
+		//! Calculate() stops all actions for short period of time and gives 100% of CPU time to you.
 		void reportCriticalInteraction();
 		//! Reports that critical interactions end.
 		//
@@ -159,6 +209,11 @@ namespace rr
 		//! This is good for editor, but you may want to use 4 bytes per vertex in game to save memory.
 		//! You may even use monochromatic (1 float) format if you don't need color bleeding.
 		virtual RRIlluminationVertexBuffer* newVertexBuffer(unsigned numVertices);
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+		//! Returns new pixel buffer (for lightmap) in your custom format.
+		//! Default implementation allocates 256x256x8bit in RAM. 
+		virtual RRIlluminationPixelBuffer* newPixelBuffer();
+#endif
 
 		//! All objects in scene.
 		Objects    objects;
@@ -194,6 +249,9 @@ namespace rr
 		void       updateVertexLookupTable();
 		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
 		void       readVertexResults();
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+		void       readPixelResults();
+#endif
 		unsigned   resultChannelIndex;
 	};
 

@@ -111,6 +111,36 @@ void RendererOfRRObject::render()
 			params.object->getTriangleNormals(triangleIdx,triangleNormals);
 		}
 
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+		/*/ light indirect map
+		if(params.renderedChannels.LIGHT_INDIRECT_MAP)
+		{
+			//!!! not implemented
+			rr::RRObjectIllumination& illum = params.app->getIllumination(i);
+			// setup light indirect texture
+			rr::RRIlluminationPixelBuffer* pixelBuffer = illum->getChannel(0)->pixelBuffer;
+			assert(pixelBuffer);
+			if(pixelBuffer)
+			{
+				glActiveTextureARB(GL_TEXTURE12); // used by lightIndirectMap
+				...
+				glEnd();
+				pixelBuffer->bindTexture();
+				glBegin(GL_TRIANGLES);
+				glActiveTextureARB(GL_TEXTURE11); // used by materialDiffuseMap
+				// if not created yet, create unwrap buffer
+				if(!illum.pixelBufferUnwrap)
+				{
+					illum.createPixelBufferUnwrap(app->getObject(i));
+				}
+				// setup light indirect texture coords
+				//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				//glTexCoordPointer(2, GL_FLOAT, 0, ?);
+			}
+		}
+		*/
+#endif
+
 		for(int v=0;v<3;v++)
 		{
 			// mesh normals - set
@@ -127,26 +157,15 @@ void RendererOfRRObject::render()
 				glColor3fv(&color.x);
 			}
 
-			// light indirect map
-			//!!! not implemented
-			/*
-			// setup light indirect texture
-			rr::RRIlluminationPixelBuffer* pixelBuffer = app->getIllumination(i)->getChannel(0)->pixelBuffer;
-			const rr::RRColorI8* pixels = ((rr::RRIlluminationPixelBufferInMemory<rr::RRColorI8>*)pixelBuffer)->lock();
-			glActiveTextureARB(GL_TEXTURE12); // used by lightIndirectMap
-			...
-			?->bindTexture();
-			glActiveTextureARB(GL_TEXTURE11); // used by materialDiffuseMap
-			// if not created yet, create unwrap buffer
-			rr::RRObjectIllumination& illum = app->getIllumination(i);
-			if(!illum.pixelBufferUnwrap)
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+			// light indirect map uv
+			if(params.renderedChannels.LIGHT_INDIRECT_MAP)
 			{
-			illum.createPixelBufferUnwrap(app->getObject(i));
+				rr::RRObject::TriangleMapping tm;
+				params.object->getTriangleMapping(triangleIdx,tm);
+				glTexCoord2f(tm.uv[v][0],tm.uv[v][1]);
 			}
-			// setup light indirect texture coords
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(2, GL_FLOAT, 0, ?);
-			*/
+#endif
 
 			// material diffuse map - uv
 			if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)

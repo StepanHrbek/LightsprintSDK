@@ -42,7 +42,8 @@
  Mesh provides unified interface and manipulation for all 3d triangle meshes.
  \n Collider calculates ray x mesh intersections and depends on Mesh.
  \n Vision calculates radiosity in static scene and depends on Collider.
- \n RealtimeRadiosity calculates radiosity in dynamic scene and depends on Vision.
+ \n Illumination manages calculated illumination in vertex buffers.
+ \n RealtimeRadiosity calculates radiosity in dynamic scene and depends on Vision and Illumination.
 
  All radiosity calculation libraries (RealtimeRadiosity, Vision)
  and their support (Collider, Mesh) are purely numerical,
@@ -122,7 +123,7 @@
  Realtime Radiosity extends your renderer by adding realtime computed
  indirect illumination.
 
- Headers: RRRealtimeRadiosity.h, RRIllumPrecalculatedSurface.h
+ Headers: RRRealtimeRadiosity.h, RRIllumination.h
 
  - adds indirect illumination to dynamic scenes
  - integrates with existing engines
@@ -373,6 +374,19 @@
 
 
 \page news What's new
+
+\section news6 ------------------------------------- 2006.10 -------------------------------------
+
+NEW FEATURES
+
+- Illumination library
+  \n calculated illumination storage
+  \n extends code previously placed in RRIllumPrecalculated.h and RRIllumPrecalculatedSurface.h
+
+CHANGES
+
+- libraries depend on msvcrt80.dll, use for example
+  Microsoft's public vcredist_x86.exe to install it on your machines
 
 \section news5 ------------------------------------- 2006.9 -------------------------------------
 

@@ -348,7 +348,11 @@ void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,flo
 	{
 		//t+=model->Objects[i].numFaces;
 		objects.push_back(rr::RRRealtimeRadiosity::Object(new_3ds_importer(model,i),new rr::
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+		RRObjectIlluminationForEditor(model->Objects[i].numVerts)));
+#else
 		RRObjectIllumination(model->Objects[i].numVerts)));
+#endif
 	}
 	//printf("tris=%f \n",t/3.0f);
 	if(app) app->setObjects(objects,stitchDistance);

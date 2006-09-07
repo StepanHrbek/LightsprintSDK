@@ -5,11 +5,12 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
-int fullscreen = 1;
-bool renderer3ds = true;
+int fullscreen = 1;//!!! switch all these to test lightmaps
+bool renderer3ds = 1;//!!!
 bool updateDuringLightMovement = 1;
-bool startWithSoftShadows = 1;
+bool startWithSoftShadows = 1;//!!!
 unsigned cores = 2;
+bool renderLightmaps = 0;//!!!
 /*
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)
@@ -625,8 +626,8 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
@@ -659,8 +660,8 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.SHADOW_SAMPLES = 0;
 		uberProgramSetup.LIGHT_DIRECT = false;
 		uberProgramSetup.LIGHT_DIRECT_MAP = false;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
@@ -1639,8 +1640,8 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_COLOR = true;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = false;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;

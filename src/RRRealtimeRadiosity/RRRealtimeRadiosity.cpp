@@ -6,7 +6,6 @@
 #include "RRRealtimeRadiosity.h"
 #include "DemoEngine/Timer.h"
 
-
 namespace rr
 {
 
@@ -28,7 +27,6 @@ namespace rr
 #define REPORT_BEGIN(a) REPORT( Timer timer; timer.Start(); reportAction(a ".."); )
 #define REPORT_END      REPORT( {char buf[20]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
 
-// odsunout do RRIlluminationPixelBuffer.cpp
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define CLAMP(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
@@ -94,7 +92,11 @@ const RRScene* RRRealtimeRadiosity::getScene()
 	return scene;
 }
 
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+RRObjectIlluminationForEditor* RRRealtimeRadiosity::getIllumination(unsigned i)
+#else
 RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
+#endif
 {
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).second;
@@ -202,7 +204,7 @@ void RRRealtimeRadiosity::updateVertexLookupTable()
 
 RRIlluminationVertexBuffer* RRRealtimeRadiosity::newVertexBuffer(unsigned numVertices)
 {
-	return new RRIlluminationVertexBufferRGBFInMemory(numVertices);
+	return RRIlluminationVertexBuffer::createInSystemMemory(numVertices);
 }
 
 void RRRealtimeRadiosity::readVertexResults()
@@ -241,6 +243,83 @@ void RRRealtimeRadiosity::readVertexResults()
 	}
 }
 
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+
+struct RenderSubtriangleContext
+{
+	RRIlluminationPixelBuffer* pixelBuffer;
+	RRObject::TriangleMapping triangleMapping;
+};
+
+void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context)
+{
+	RenderSubtriangleContext* context2 = (RenderSubtriangleContext*)context;
+	RRIlluminationPixelBuffer::IlluminatedTriangle si2;
+	for(unsigned i=0;i<3;i++)
+	{
+		si2.measure[i] = si.measure[i];
+		// si.texCoord 0,0 prevest na context2->triangleMapping.uv[0]
+		// si.texCoord 1,0 prevest na context2->triangleMapping.uv[1]
+		// si.texCoord 0,1 prevest na context2->triangleMapping.uv[2]
+		si2.texCoord[i] = context2->triangleMapping.uv[0] + context2->triangleMapping.uv[1]*si.texCoord[i][0] + context2->triangleMapping.uv[2]*si.texCoord[i][1];
+		for(unsigned j=0;j<3;j++)
+		{
+			assert(_finite(si2.measure[i][j]));
+			assert(si2.measure[i][j]>=0);
+			assert(si2.measure[i][j]<1500000);
+		}
+	}
+	context2->pixelBuffer->renderTriangle(si2);
+}
+
+RRIlluminationPixelBuffer* RRRealtimeRadiosity::newPixelBuffer()
+{
+	return RRIlluminationPixelBuffer::createInSystemMemory(256,256);
+}
+
+void RRRealtimeRadiosity::readPixelResults()
+{
+	// for each object
+	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
+	{
+#ifdef MULTIOBJECT
+		RRObject* object = multiObject;
+#else
+		RRObject* object = getObject(objectHandle);
+#endif
+		RRMesh* mesh = object->getCollider()->getMesh();
+		unsigned numPostImportTriangles = mesh->getNumTriangles();
+		RRObjectIllumination* illumination = getIllumination(objectHandle);
+		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
+		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer();
+		RRIlluminationPixelBuffer* pixelBuffer = channel->pixelBuffer;
+
+		pixelBuffer->renderBegin();
+
+		// for each triangle
+		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+		{
+			// render all subtriangles into pixelBuffer using object's unwrap
+			RenderSubtriangleContext rsc;
+			rsc.pixelBuffer = pixelBuffer;
+			object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
+#ifdef MULTIOBJECT
+			// multiObject must preserve mapping (all objects overlap in one map)
+			//!!! this is satisfied now, but it may change in future
+			RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
+			if(preImportTriangle.object==objectHandle)
+			{
+				scene->getSubtriangleMeasure(0,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc);
+			}
+#else
+			scene->getSubtriangleMeasure(objectHandle,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc)
+#endif
+		}
+		pixelBuffer->renderEnd();
+	}
+}
+
+#endif // RR_DEVELOPMENT_LIGHTMAP
 
 RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 {

@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Lightsprint
-PROJECT_NUMBER         = 2006.9
+PROJECT_NUMBER         = 2006.10
 OUTPUT_DIRECTORY       = "C:/Documents and Settings/Dee/Dokumenty/C/rr/doc/doxygen"
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -86,9 +86,7 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/R
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRMesh.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRCollider.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRVision.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRIllumPrecalculated.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRIllumPrecalculatedSurface.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRIllumPrecalculatedSpace.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRIllumination.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRRealtimeRadiosity.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/doc"
 FILE_PATTERNS          = *.c \
