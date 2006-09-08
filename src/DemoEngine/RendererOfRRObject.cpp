@@ -51,6 +51,7 @@ void RendererOfRRObject::render()
 	rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
+	rr::RRObjectIllumination* oldIllumination = NULL;
 	for(unsigned triangleIdx=params.firstCapturedTriangle;triangleIdx<=params.lastCapturedTriangle;triangleIdx++)
 	{
 		rr::RRMesh::Triangle tri;
@@ -112,33 +113,64 @@ void RendererOfRRObject::render()
 		}
 
 #ifdef RR_DEVELOPMENT_LIGHTMAP
-		/*/ light indirect map
+		// light indirect map
 		if(params.renderedChannels.LIGHT_INDIRECT_MAP)
 		{
-			//!!! not implemented
-			rr::RRObjectIllumination& illum = params.app->getIllumination(i);
-			// setup light indirect texture
-			rr::RRIlluminationPixelBuffer* pixelBuffer = illum->getChannel(0)->pixelBuffer;
-			assert(pixelBuffer);
-			if(pixelBuffer)
+			// ask object/face for lightmap
+			// why this design:
+			//  Jdu po trianglech multiobjektu, ale lightmapy jsou kvuli externim rendererum
+			//  vyrabeny pro orig objekty, takze musim 
+			//  1. z indexu do multiobjektu ziskat orig objekt a index do nej
+			//  2. sahnout pro lightmapu a uv do orig objektu
+			//  Bohuzel neni samozrejme ze by vse transparentne zaridil multiobjekt a 
+			//  tady bych o multiobjektizaci vubec nevedel,
+			//  protoze objekty samy o svych lightmapach nevedi, ty podle indexu objektu
+			//  drzi RRRealtimeRadiosity.
+			//  Q: Muzu lightmapy dodatecne prilepit k multiobjektu (do ChanneledData),
+			//     takze by to preci jen poresila multiobjektizace?
+			//  A: Ne, lightmap muze byt mnoho na jeden objekt.
+			//     Je ukol RRObjectIllumination je nejak zmixovat a poskytnout vysledek.
+			//  Q: Muzu tedy prilepit RRObjectIllumination k objektu?
+			//  A: Ano. Ale je to vyhodne?
+			//     Prilepeny RRObjectIllumination k objektu: YES
+			//      + tento renderer bude univerzalni 
+			//      - trocha prace s lepenim
+			//        Lepsi nez lepici filtr ktery by vsechno zpomalil o 1 indirect call
+			//        je vyrobit RRObjectIllumination primo v me implementaci RRObjectu,
+			//        zde v M3dsImporter; a tamtez ho natlacit do RRRealtimeRadiosity, tamtez ho deletovat.
+			//     Demultiobjektizovat lokalne zde:
+			//      - trocha prace zde
+			//      - nutne dotahnout sem RRRealtimeRadiosity (jako zdroj orig objektu a lightmap)
+			//        coz vytvari oboustrannou vazbu mezi RRRealtimeRadiosity a nami(DemoEngine)
+			//  Q: Jak bude renderovat klient ktery ma ke hre linkle jen RRIllumination?
+			//  A: Pouzije vlastni unwrap a mnou serializovany RRObjectIllumination
+			//     (nebo si i sam muze ukladat lightmapy).
+			//  Q: Nemel by tedy Model_3ds (jako priklad externiho rendereru) zaviset jen na RRIllumination?
+			//  A: Ano, mel. RRRealtimeRadiosity pouziva jen pro pristup ke spravnym RRObjectIllumination,
+			//     neni tezke to predelat.
+
+			rr::RRObjectIllumination* objectIllumination = NULL;
+			if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_OBJECT_ILLUMINATION,triangleIdx,&objectIllumination,sizeof(objectIllumination))
+				&& objectIllumination!=oldIllumination)
 			{
-				glActiveTextureARB(GL_TEXTURE12); // used by lightIndirectMap
-				...
-				glEnd();
-				pixelBuffer->bindTexture();
-				glBegin(GL_TRIANGLES);
-				glActiveTextureARB(GL_TEXTURE11); // used by materialDiffuseMap
-				// if not created yet, create unwrap buffer
-				if(!illum.pixelBufferUnwrap)
+				oldIllumination = objectIllumination;
+				// setup light indirect texture
+				//!!! later use channel mixer instead of channel 0
+				rr::RRIlluminationPixelBuffer* pixelBuffer = objectIllumination->getChannel(0)->pixelBuffer;
+				if(pixelBuffer)
 				{
-					illum.createPixelBufferUnwrap(app->getObject(i));
+					glEnd();
+					glActiveTextureARB(GL_TEXTURE12); //!!! used by lightIndirectMap
+					pixelBuffer->bindTexture();
+					glActiveTextureARB(GL_TEXTURE11); //!!! used by materialDiffuseMap
+					glBegin(GL_TRIANGLES);
 				}
-				// setup light indirect texture coords
-				//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				//glTexCoordPointer(2, GL_FLOAT, 0, ?);
+				else
+				{
+					//assert(0);
+				}
 			}
 		}
-		*/
 #endif
 
 		for(int v=0;v<3;v++)

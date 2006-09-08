@@ -370,6 +370,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRIlluminationPixelBufferInOpenGL.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\RRIlluminationPixelBufferInOpenGL.h"
+			>
+		</File>
+		<File
 			RelativePath=".\Shader.cpp"
 			>
 		</File>

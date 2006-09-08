@@ -5,12 +5,12 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
-int fullscreen = 1;//!!! switch all these to test lightmaps
-bool renderer3ds = 1;//!!!
+int fullscreen = 0;//!!! switch all these to test lightmaps
+bool renderer3ds = 0;//!!!
 bool updateDuringLightMovement = 1;
-bool startWithSoftShadows = 1;//!!!
+bool startWithSoftShadows = 0;//!!!
 unsigned cores = 2;
-bool renderLightmaps = 0;//!!!
+bool renderLightmaps = 1;//!!!
 /*
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)
@@ -90,6 +90,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/RendererWithCache.h"
 #include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/UberProgramSetup.h"
+#include "DemoEngine/RRIlluminationPixelBufferInOpenGL.h"
 #include "Bugs.h"
 #include "LevelSequence.h"
 
@@ -293,15 +294,13 @@ public:
 	virtual ~Solver()
 	{
 		// delete objects and illumination
-		for(unsigned i=0;i<getNumObjects();i++)
-		{
-			delete getIllumination(i);
-			delete getObject(i);
-		}
-		// delete objects and illumination from the same context where they were created
-		//deleteObjectsFromRR(this);
+		deleteObjectsFromRR(this);
 	}
 protected:
+	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer()
+	{
+		return new rr::RRIlluminationPixelBufferInOpenGL(256,256);
+	}
 	virtual void detectMaterials()
 	{
 	}

@@ -37,6 +37,7 @@
 namespace rr
 {
 
+/*
 #ifdef RR_DEVELOPMENT_LIGHTMAP
 	//!!! cele zrusit pokud se ukaze ze nebudu vyrabet unwrap
 
@@ -53,7 +54,7 @@ namespace rr
 			: RRObjectIllumination(anumPreImportVertices)
 		{
 		}
-		/*void createPixelBufferUnwrap(RRObject* object)
+		void createPixelBufferUnwrap(RRObject* object)
 		{
 			if(pixelBufferUnwrap)
 				delete[] pixelBufferUnwrap;
@@ -78,10 +79,10 @@ namespace rr
 						assert(0);
 				}
 			}
-		}*/
+		}
 	};
 #endif
-
+*/
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRRealtimeRadiosity
@@ -107,11 +108,7 @@ namespace rr
 		virtual ~RRRealtimeRadiosity();
 
 		//! One 3d object with storage space for calculated illumination.
-#ifdef RR_DEVELOPMENT_LIGHTMAP
-		typedef std::pair<RRObject*,RRObjectIlluminationForEditor*> Object;
-#else
 		typedef std::pair<RRObject*,RRObjectIllumination*> Object;
-#endif
 		//! Container for all objects present in scene.
 		typedef std::vector<Object> Objects;
 		//! Sets contents of scene, all objects at once.
@@ -121,11 +118,7 @@ namespace rr
 		//! Returns i-th object in scene.
 		RRObject* getObject(unsigned i);
 		//! Returns illumination of i-th object in scene.
-#ifdef RR_DEVELOPMENT_LIGHTMAP
-		RRObjectIlluminationForEditor* getIllumination(unsigned i);
-#else
 		RRObjectIllumination* getIllumination(unsigned i);
-#endif
 
 
 		//! Calculates and improves indirect illumination on objects.

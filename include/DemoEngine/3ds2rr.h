@@ -16,6 +16,7 @@ enum
 {
 	CHANNEL_SURFACE_DIF_TEX          = rr::RRMesh::INDEXED_BY_SURFACE+1, //! Texture*
 	CHANNEL_TRIANGLE_VERTICES_DIF_UV = rr::RRMesh::INDEXED_BY_TRIANGLE+5, //! RRVec2[3]
+	CHANNEL_TRIANGLE_OBJECT_ILLUMINATION = rr::RRMesh::INDEXED_BY_TRIANGLE+6, //! RRObjectIllumination*
 };
 
 // imports all 3d objects from model into RRRealtimeRadiosity
@@ -23,7 +24,6 @@ void RR_API provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* 
 
 // if you import 3d objects to RRRealtimeRadiosity with provideObjectsFrom3dsToRR(),
 // unimport them with deleteObjectsFromRR()
-// (it's most secure when object's new and delete are issued by the same dll)
-//void RR_API deleteObjectsFromRR(rr::RRRealtimeRadiosity* app);
+void RR_API deleteObjectsFromRR(rr::RRRealtimeRadiosity* app);
 
 #endif

@@ -92,11 +92,7 @@ const RRScene* RRRealtimeRadiosity::getScene()
 	return scene;
 }
 
-#ifdef RR_DEVELOPMENT_LIGHTMAP
-RRObjectIlluminationForEditor* RRRealtimeRadiosity::getIllumination(unsigned i)
-#else
 RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
-#endif
 {
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).second;
@@ -257,16 +253,16 @@ void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context
 	RRIlluminationPixelBuffer::IlluminatedTriangle si2;
 	for(unsigned i=0;i<3;i++)
 	{
-		si2.measure[i] = si.measure[i];
+		si2.iv[i].measure = si.measure[i];
 		// si.texCoord 0,0 prevest na context2->triangleMapping.uv[0]
 		// si.texCoord 1,0 prevest na context2->triangleMapping.uv[1]
 		// si.texCoord 0,1 prevest na context2->triangleMapping.uv[2]
-		si2.texCoord[i] = context2->triangleMapping.uv[0] + context2->triangleMapping.uv[1]*si.texCoord[i][0] + context2->triangleMapping.uv[2]*si.texCoord[i][1];
+		si2.iv[i].texCoord = context2->triangleMapping.uv[0] + context2->triangleMapping.uv[1]*si.texCoord[i][0] + context2->triangleMapping.uv[2]*si.texCoord[i][1];
 		for(unsigned j=0;j<3;j++)
 		{
-			assert(_finite(si2.measure[i][j]));
-			assert(si2.measure[i][j]>=0);
-			assert(si2.measure[i][j]<1500000);
+			assert(_finite(si2.iv[i].measure[j]));
+			assert(si2.iv[i].measure[j]>=0);
+			assert(si2.iv[i].measure[j]<1500000);
 		}
 	}
 	context2->pixelBuffer->renderTriangle(si2);
@@ -274,7 +270,7 @@ void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context
 
 RRIlluminationPixelBuffer* RRRealtimeRadiosity::newPixelBuffer()
 {
-	return RRIlluminationPixelBuffer::createInSystemMemory(256,256);
+	return NULL;
 }
 
 void RRRealtimeRadiosity::readPixelResults()
@@ -294,28 +290,31 @@ void RRRealtimeRadiosity::readPixelResults()
 		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer();
 		RRIlluminationPixelBuffer* pixelBuffer = channel->pixelBuffer;
 
-		pixelBuffer->renderBegin();
-
-		// for each triangle
-		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+		if(pixelBuffer)
 		{
-			// render all subtriangles into pixelBuffer using object's unwrap
-			RenderSubtriangleContext rsc;
-			rsc.pixelBuffer = pixelBuffer;
-			object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
-#ifdef MULTIOBJECT
-			// multiObject must preserve mapping (all objects overlap in one map)
-			//!!! this is satisfied now, but it may change in future
-			RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
-			if(preImportTriangle.object==objectHandle)
+			pixelBuffer->renderBegin();
+
+			// for each triangle
+			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 			{
-				scene->getSubtriangleMeasure(0,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc);
-			}
+				// render all subtriangles into pixelBuffer using object's unwrap
+				RenderSubtriangleContext rsc;
+				rsc.pixelBuffer = pixelBuffer;
+				object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
+#ifdef MULTIOBJECT
+				// multiObject must preserve mapping (all objects overlap in one map)
+				//!!! this is satisfied now, but it may change in future
+				RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
+				if(preImportTriangle.object==objectHandle)
+				{
+					scene->getSubtriangleMeasure(0,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc);
+				}
 #else
-			scene->getSubtriangleMeasure(objectHandle,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc)
+				scene->getSubtriangleMeasure(objectHandle,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc)
 #endif
+			}
+			pixelBuffer->renderEnd();
 		}
-		pixelBuffer->renderEnd();
 	}
 }
 
@@ -444,8 +443,10 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 		lastReadingResultsTime = now;
 		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
 		readVertexResults();
+#ifdef RR_DEVELOPMENT_LIGHTMAP
+		readPixelResults();
+#endif
 		REPORT_END;
-		//readPixelResults();//!!!
 		return RRScene::IMPROVED;
 	}
 	return RRScene::NOT_IMPROVED;

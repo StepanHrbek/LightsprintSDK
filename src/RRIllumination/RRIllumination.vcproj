@@ -294,19 +294,15 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRIlluminationPixelBuffer.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\RRIlluminationPixelBufferInMemory.cpp"
 			>
 		</File>
 		<File
 			RelativePath=".\RRIlluminationPixelBufferInMemory.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationPixelBufferInOpenGL.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationPixelBufferInOpenGL.h"
 			>
 		</File>
 		<File

@@ -185,17 +185,24 @@ namespace rr
 
 		//! Sets size of buffer. Content may be lost.
 		virtual void setSize(unsigned width, unsigned height) = 0;
-		//! Marks all pixels as unused. Content may be lost.
+		//! Begins rendering of triangles into lightmap. Must be paired with renderEnd().
 		virtual void renderBegin() {};
+		//! Description of one illuminated vertex.
+		struct IlluminatedVertex
+		{
+			RRVec2 texCoord; ///< Triangle vertex positions in lightmap.
+			RRColorRGBF measure; ///< Triangle vertex illumination.
+		};
 		//! Description of one illuminated triangle.
 		struct IlluminatedTriangle
 		{
-			RRVec2 texCoord[3]; ///< Triangle vertices positions in triangle space, triangle vertex0 is in 0,0, vertex1 is in 1,0, vertex2 is in 0,1.
-			RRColorRGBF measure[3]; ///< Triangle vertices illumination.
+			IlluminatedVertex iv[3]; ///< Three illuminated vertices forming triangle.
 		};
-		//! Renders one triangle into map. Marks all triangle pixels as used. All other pixels stay unchanged.
+		//! Renders one triangle into map. Must be called inside renderBegin() / renderEnd().
 		virtual void renderTriangle(const IlluminatedTriangle& it) = 0;
-		//! Filters map so that unused pixels close to used pixels get their color (may be also marked as used). Used pixels stay unchanged.
+		//! Renders many triangles into map. Must be called inside renderBegin() / renderEnd().
+		virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
+		//! Finishes rendering of triangles into lightmap. Must be paired with renderBegin().
 		virtual void renderEnd() {};
 
 		// Pixel buffer use
@@ -217,7 +224,7 @@ namespace rr
 		// Creates and returns pixel buffer in system memory. It is graphics API independent.
 		static RRIlluminationPixelBuffer* createInSystemMemory(unsigned width, unsigned height);
 		// Creates and returns pixel buffer in OpenGL texture. Is bindable. Depends on OpenGL.
-		static RRIlluminationPixelBuffer* createInOpenGL(unsigned width, unsigned height);
+		//static RRIlluminationPixelBuffer* createInOpenGL(unsigned width, unsigned height);
 	};
 #endif
 

@@ -335,14 +335,16 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 				else
 				{
 					assert(0);
-					// not implemented
+					// not implemented because there's no unwrap available in 3ds
 					/*
 					// setup light indirect texture
 					rr::RRIlluminationPixelBuffer* pixelBuffer = app->getIllumination(i)->getChannel(0)->pixelBuffer;
-					glActiveTextureARB(GL_TEXTURE12); // used by lightIndirectMap
-					...
-					pixelBuffer->bindTexture();
-					glActiveTextureARB(GL_TEXTURE11); // used by materialDiffuseMap
+					if(pixelBuffer)
+					{
+						glActiveTextureARB(GL_TEXTURE12); // used by lightIndirectMap
+						pixelBuffer->bindTexture();
+						glActiveTextureARB(GL_TEXTURE11); // used by materialDiffuseMap
+					}
 					// if not created yet, create unwrap buffer
 					rr::RRObjectIllumination& illum = app->getIllumination(i);
 					if(!illum.pixelBufferUnwrap)

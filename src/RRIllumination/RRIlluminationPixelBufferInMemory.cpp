@@ -13,9 +13,9 @@ void RRIlluminationPixelBufferInMemory<Color>::renderTriangle(const IlluminatedT
 	raster_POLYGON polygon[3];
 	for(unsigned i=0;i<3;i++)
 	{
-		vertex[i].sx = CLAMP(it.texCoord[i][0],0,1)*width;
-		vertex[i].sy = CLAMP(it.texCoord[i][1],0,1)*height;
-		vertex[i].u = (it.measure[i][0]+it.measure[i][1]+it.measure[i][2])/3;//!!!
+		vertex[i].sx = CLAMP(it.iv[i].texCoord[0],0,1)*width;
+		vertex[i].sy = CLAMP(it.iv[i].texCoord[1],0,1)*height;
+		vertex[i].u = (it.iv[i].measure[0]+it.iv[i].measure[1]+it.iv[i].measure[2])/3;//!!!
 		assert(vertex[i].sx>=0);
 		assert(vertex[i].sx<=width);
 		assert(vertex[i].sy>=0);

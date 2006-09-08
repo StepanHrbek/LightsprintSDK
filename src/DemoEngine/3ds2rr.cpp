@@ -9,6 +9,7 @@
 #include <memory.h>
 #include <vector>
 #include "DemoEngine/3ds2rr.h"
+#include "RRIllumination.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -32,7 +33,7 @@ class M3dsImporter : public rr::RRObject, rr::RRMesh
 {
 public:
 	M3dsImporter(Model_3DS* model, unsigned objectIdx);
-
+	rr::RRObjectIllumination* getIllumination();
 	virtual ~M3dsImporter();
 
 	// RRChanneledData
@@ -69,7 +70,10 @@ private:
 	std::vector<rr::RRSurface> surfaces;
 	
 	// collider
-	rr::RRCollider*      collider;
+	rr::RRCollider* collider;
+
+	// illumination (lightmaps etc)
+	rr::RRObjectIllumination* illumination;
 };
 
 
@@ -142,11 +146,19 @@ M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)
 
 	// create collider
 	collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR);
+
+	// create illumination
+	illumination = new rr::RRObjectIllumination((unsigned)object->numVerts);
 }
 
+rr::RRObjectIllumination* M3dsImporter::getIllumination()
+{
+	return illumination;
+}
 
 M3dsImporter::~M3dsImporter()
 {
+	delete illumination;
 	delete collider;
 }
 
@@ -175,15 +187,15 @@ void M3dsImporter::getChannelSize(unsigned channelId, unsigned* numItems, unsign
 
 bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 {
+	if(!itemData)
+	{
+		assert(0);
+		return false;
+	}
 	switch(channelId)
 	{
 	case CHANNEL_SURFACE_DIF_TEX:
 		{
-			if(!itemData)
-			{
-				assert(0);
-				return false;
-			}
 			if(itemIndex>=(unsigned)model->numMaterials)
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
@@ -201,11 +213,6 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 		}
 	case CHANNEL_TRIANGLE_VERTICES_DIF_UV:
 		{
-			if(!itemData)
-			{
-				assert(0);
-				return false;
-			}
 			if(itemIndex>=M3dsImporter::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
@@ -225,6 +232,23 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 				(*out)[v][0] = object->TexCoords[2*triangle[v]];
 				(*out)[v][1] = object->TexCoords[2*triangle[v]+1];
 			}
+			return true;
+		}
+	case CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
+		{
+			if(itemIndex>=M3dsImporter::getNumTriangles())
+			{
+				assert(0); // legal, but shouldn't happen in well coded program
+				return false;
+			}
+			typedef rr::RRObjectIllumination* Out;
+			Out* out = (Out*)itemData;
+			if(sizeof(*out)!=itemSize)
+			{
+				assert(0);
+				return false;
+			}
+			*out = illumination;
 			return true;
 		}
 	default:
@@ -331,9 +355,9 @@ const rr::RRMatrix3x4* M3dsImporter::getInvWorldMatrix()
 //
 // main
 
-rr::RRObject* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
+M3dsImporter* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
 {
-	rr::RRObject* importer = new M3dsImporter(model, objectIdx);
+	M3dsImporter* importer = new M3dsImporter(model, objectIdx);
 #ifdef VERIFY
 	importer->getCollider()->getMesh()->verify(reporter,NULL);
 #endif
@@ -342,31 +366,33 @@ rr::RRObject* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
 
 void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,float stitchDistance)
 {
-	rr::RRRealtimeRadiosity::Objects objects;
-	//unsigned t=0;
-	for(unsigned i=0;i<(unsigned)model->numObjects;i++)
+	if(app)
 	{
-		//t+=model->Objects[i].numFaces;
-		objects.push_back(rr::RRRealtimeRadiosity::Object(new_3ds_importer(model,i),new rr::
-#ifdef RR_DEVELOPMENT_LIGHTMAP
-		RRObjectIlluminationForEditor(model->Objects[i].numVerts)));
-#else
-		RRObjectIllumination(model->Objects[i].numVerts)));
-#endif
+		rr::RRRealtimeRadiosity::Objects objects;
+		//unsigned t=0;
+		for(unsigned i=0;i<(unsigned)model->numObjects;i++)
+		{
+			//t+=model->Objects[i].numFaces;
+			M3dsImporter* object = new_3ds_importer(model,i);
+			objects.push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
+		}
+		//printf("tris=%f \n",t/3.0f);
+		app->setObjects(objects,stitchDistance);
 	}
-	//printf("tris=%f \n",t/3.0f);
-	if(app) app->setObjects(objects,stitchDistance);
 }
 
-/*
+// Why this function?
+// 1. it's most secure when object's new and delete are issued by the same dll
+// 2. only we know that illumination doesn't need to be deleted
 void RR_API deleteObjectsFromRR(rr::RRRealtimeRadiosity* app)
 {
 	// delete objects and illumination
 	if(app)
-	for(unsigned i=0;i<app->getNumObjects();i++)
 	{
-		delete app->getIllumination(i);
-		delete app->getObject(i);
+		for(unsigned i=0;i<app->getNumObjects();i++)
+		{
+			//delete app->getIllumination(i); no need to delete, it is part of object
+			delete app->getObject(i);
+		}
 	}
 }
-*/
