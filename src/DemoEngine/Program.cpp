@@ -3,8 +3,6 @@
 #include <cstdio>
 #include "DemoEngine/Program.h"
 
-using namespace std;
-
 // Public part :
 
 Program::Program()
@@ -160,7 +158,7 @@ int Program::getLoc(const char *name)
 	int loc = glGetUniformLocation(handle, name);
 	if(loc == -1)
 	{
-		cout << name << " is not a valid uniform variable name.\n";
+		std::cout << name << " is not a valid uniform variable name.\n";
 		fgetc(stdin);
 		exit(0);
 	}

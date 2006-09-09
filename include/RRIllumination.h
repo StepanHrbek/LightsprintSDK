@@ -142,8 +142,6 @@ namespace rr
 
 		// Vertex buffer creation
 
-		//! Sets size of the buffer. Content may be lost.
-		virtual void setSize(unsigned numVertices) = 0;
 		//! Sets value of one element of the buffer.
 		virtual void setVertex(unsigned vertex, const RRColorRGBF& color) = 0;
 
@@ -183,8 +181,6 @@ namespace rr
 
 		// Pixel buffer creation
 
-		//! Sets size of buffer. Content may be lost.
-		virtual void setSize(unsigned width, unsigned height) = 0;
 		//! Begins rendering of triangles into lightmap. Must be paired with renderEnd().
 		virtual void renderBegin() {};
 		//! Description of one illuminated vertex.

@@ -386,11 +386,15 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Texture.cpp"
+			RelativePath="..\..\include\DemoEngine\Texture.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\Texture.h"
+			RelativePath=".\TextureGL.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\TextureGL.h"
 			>
 		</File>
 		<File
@@ -398,7 +402,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\TextureShadowMap.h"
+			RelativePath=".\TextureShadowMap.h"
 			>
 		</File>
 		<File

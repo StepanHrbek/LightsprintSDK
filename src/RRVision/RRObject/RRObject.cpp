@@ -48,12 +48,27 @@ void RRObject::getTriangleMapping(unsigned t, TriangleMapping& out) const
 		assert(0);
 		return;
 	}
-	out.uv[0][0] = 1.0f*t/numTriangles;
-	out.uv[0][1] = 0;
-	out.uv[1][0] = 1.0f*(t+1)/numTriangles;
-	out.uv[1][1] = 0;
-	out.uv[2][0] = 1.0f*t/numTriangles;
-	out.uv[2][1] = 1;
+	//x    19 20 21 24 25 26
+	//sqrt 4+ 4+ 4+ 4+ 5  5+
+	//w    5  5  5  5  5  6   (unsigned)sqrtf(numTriangles-1)+1;
+	//h     4  4  5  5  5  5  (numTriangles-1)/w+1
+	//cil  54 54 55 55 55 65
+	unsigned w = (unsigned)sqrtf((float)(numTriangles-1))+1;
+	unsigned h = (numTriangles-1)/w+1;
+	unsigned x = t%w;
+	unsigned y = t/w;
+	out.uv[0][0] = 1.0f*x/w;
+	out.uv[0][1] = 1.0f*y/h;
+	out.uv[1][0] = 1.0f*(x+1)/w;
+	out.uv[1][1] = 1.0f*y/h;
+	out.uv[2][0] = 1.0f*x/w;
+	out.uv[2][1] = 1.0f*(y+1)/h;
+	//out.uv[0][0] = 1.0f*t/numTriangles;
+	//out.uv[0][1] = 0;
+	//out.uv[1][0] = 1.0f*(t+1)/numTriangles;
+	//out.uv[1][1] = 0;
+	//out.uv[2][0] = 1.0f*t/numTriangles;
+	//out.uv[2][1] = 1;
 }
 
 const RRMatrix3x4* RRObject::getWorldMatrix()

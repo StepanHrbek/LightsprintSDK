@@ -19,12 +19,6 @@ namespace rr
 	public:
 		RRIlluminationPixelBufferInMemory(unsigned awidth, unsigned aheight)
 		{
-			pixels = NULL;
-			RRIlluminationPixelBufferInMemory::setSize(awidth,aheight);
-		}
-		virtual void setSize(unsigned awidth, unsigned aheight)
-		{
-			delete[] pixels;
 			width = awidth;
 			height = aheight;
 			pixels = new Color[width*height];

@@ -387,6 +387,8 @@ CHANGES
 
 - libraries depend on msvcrt80.dll, use for example
   Microsoft's public vcredist_x86.exe to install it on your machines
+- RRObject::getTriangleMapping() default implementation
+  generates improved unwrap (still very simple)
 
 \section news5 ------------------------------------- 2006.9 -------------------------------------
 
@@ -413,6 +415,9 @@ NEW FEATURES
   \n computes radiosity in dynamic scenes
 - DemoEngine library
   \n engine replacement for writing demos
+- RRScene::getSubtriangleMeasure()
+  \n provides detailed info on illumination of adaptively subdivided mesh
+  \n allows for custom generation of lightmaps
 - rr::RRCollider::intersectBatch()
   \n searches collisions on all cores/CPUs at once
 - rr::RRChanneledData

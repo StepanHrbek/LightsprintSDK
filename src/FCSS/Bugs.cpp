@@ -4,9 +4,6 @@
 
 using namespace rr;
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
 extern void error(const char* message, bool gfxRelated);
 
 class Bug

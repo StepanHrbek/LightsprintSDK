@@ -11,6 +11,22 @@
 #include "MultiLight.h"
 
 
+enum
+{
+	// textures assigned for UberProgram
+	// 0..9 are reserved for shadowmaps
+	TEXTURE_2D_LIGHT_DIRECT        = 10,
+	TEXTURE_2D_MATERIAL_DIFFUSE    = 11,
+	TEXTURE_2D_LIGHT_INDIRECT      = 12,
+
+	// texcoords assigned for UberProgram
+	// these constants are hardcoded in shaders
+	MULTITEXCOORD_MATERIAL_DIFFUSE = 0,
+	MULTITEXCOORD_LIGHT_INDIRECT   = 1,
+	MULTITEXCOORD_FORCED_2D        = 7,
+};
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // UberProgramSetup - options for UberShader.vp+fp
@@ -135,7 +151,7 @@ struct UberProgramSetup
 		if(LIGHT_DIRECT_MAP)
 		{
 			if(!lightDirectMap) return false;
-			int id=10;
+			int id=TEXTURE_2D_LIGHT_DIRECT;
 			glActiveTexture(GL_TEXTURE0+id);
 			lightDirectMap->bindTexture();
 			program->sendUniform("lightDirectMap", id);
@@ -144,7 +160,7 @@ struct UberProgramSetup
 		// lightIndirectMap
 		if(LIGHT_INDIRECT_MAP)
 		{
-			int id=12;
+			int id=TEXTURE_2D_LIGHT_INDIRECT;
 			//glActiveTexture(GL_TEXTURE0+id);
 			program->sendUniform("lightIndirectMap", id);
 		}
@@ -152,7 +168,7 @@ struct UberProgramSetup
 		// materialDiffuseMap
 		if(MATERIAL_DIFFUSE_MAP)
 		{
-			int id=11;
+			int id=TEXTURE_2D_MATERIAL_DIFFUSE;
 			glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active
 			program->sendUniform("materialDiffuseMap", id);
 		}

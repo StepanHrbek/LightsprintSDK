@@ -3,8 +3,6 @@
 #include <iostream>
 #include "DemoEngine/Shader.h"
 
-using namespace std;
-
 char* readShader(const char *filename)
 {
 	FILE* f = fopen(filename,"rb");
@@ -58,7 +56,7 @@ void Shader::compileIt()
 		debug = new GLcharARB[debugLength];
 		glGetShaderInfoLog(handle, debugLength, &debugLength, debug);
 
-		cout << debug;
+		std::cout << debug;
 		delete [] debug;
 	}
 }

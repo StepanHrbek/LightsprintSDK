@@ -1,8 +1,7 @@
 // Hello Realtime Radiosity sample
 //
-// Use of RealtimeRadiosity is demonstrated and explained.
-// Use of DemoEngine is not commented, but it is simple and intuitive.
-// You should be familiar with GLUT and OpenGL, they are not explained here.
+// Use of RealtimeRadiosity is demonstrated on .3ds scene viewer.
+// You should be familiar with GLUT and OpenGL.
 //
 // Controls:
 //  move = look around
@@ -25,9 +24,6 @@
 #include "DemoEngine/RendererWithCache.h"
 #include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/UberProgramSetup.h"
-
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define CLAMP(a,min,max) (a)=(((a)<(min))?min:(((a)>(max)?(max):(a))))
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -97,13 +93,14 @@ void updateShadowmap(unsigned mapIndex)
 	lightInstance->setupForRender();
 	delete lightInstance;
 	glColorMask(0,0,0,0);
-	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-	areaLight->getShadowMap(mapIndex)->renderingToInit();
+	Texture* shadowmap = areaLight->getShadowMap(mapIndex);
+	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
+	shadowmap->renderingToBegin();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
 	renderScene(uberProgramSetup);
-	areaLight->getShadowMap(mapIndex)->renderingToDone();
+	shadowmap->renderingToEnd();
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glViewport(0, 0, winWidth, winHeight);
 	glColorMask(1,1,1,1);
@@ -318,7 +315,7 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = (double) winWidth / (double) winHeight;
-	GLint shadowDepthBits = TextureShadowMap::getDepthBits();
+	GLint shadowDepthBits = areaLight->getShadowMap(0)->getDepthBits();
 	glPolygonOffset(4, 42 * ( (shadowDepthBits>=24) ? 1 << (shadowDepthBits - 16) : 1 ));
 	needDepthMapUpdate = 1;
 }
@@ -408,7 +405,7 @@ int main(int argc, char **argv)
 	lightDirectMap = Texture::load("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.tga not found or not supported (supported = truecolor .tga).\n",false);
-	areaLight = new AreaLight(shadowmapsPerPass);
+	areaLight = new AreaLight(shadowmapsPerPass,512);
 	areaLight->attachTo(&light);
 
 	// init .3ds scene

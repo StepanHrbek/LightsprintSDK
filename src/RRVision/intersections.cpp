@@ -6,7 +6,6 @@
 #include "rrcore.h"
 #include "intersections.h"
 
-using namespace rr;
 namespace rr
 {
 

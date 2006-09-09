@@ -26,12 +26,16 @@ varying vec4 lightDirectColor;
 varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI fails on anything else
 #endif
 
-#ifdef MATERIAL_DIFFUSE_MAP
-varying vec2 materialDiffuseCoord;
+#ifdef LIGHT_INDIRECT_MAP
+varying vec2 lightIndirectCoord;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
 varying vec4 materialDiffuseColor;
+#endif
+
+#ifdef MATERIAL_DIFFUSE_MAP
+varying vec2 materialDiffuseCoord;
 #endif
 
 void main()
@@ -45,6 +49,10 @@ void main()
 #ifdef LIGHT_INDIRECT_COLOR
   // indirect light
   gl_FrontColor = gl_Color;
+#endif
+
+#ifdef LIGHT_INDIRECT_MAP
+  lightIndirectCoord = gl_MultiTexCoord1.xy;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_MAP

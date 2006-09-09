@@ -1,17 +1,23 @@
 #include <cassert>
 #include <cstdio>
 #include <GL/glew.h>
-#include "DemoEngine/TextureShadowmap.h"
+#include "TextureShadowmap.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// TextureShadowMap
+
+#define SHADOW_MAP_SIZE_MAX 512 //!!! hlidat preteceni
 
 bool   TextureShadowMap::useFBO = false;
 GLuint TextureShadowMap::fb = 0;
 GLuint TextureShadowMap::depth_rb = 0;
 GLint  TextureShadowMap::depthBits = 0;
 
-TextureShadowMap::TextureShadowMap()
-	: Texture(NULL, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, GL_DEPTH_COMPONENT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
+TextureShadowMap::TextureShadowMap(unsigned awidth, unsigned aheight)
+	: TextureGL(NULL, awidth, aheight, GL_DEPTH_COMPONENT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
 {
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 	channels = 1;
 	LIMITED_TIMES(1,oneTimeFBOInit());
 	// for shadow2D() instead of texture2D()
@@ -38,7 +44,7 @@ TextureShadowMap::TextureShadowMap()
 	} \
 }
 
-void TextureShadowMap::renderingToInit()
+void TextureShadowMap::renderingToBegin()
 {
 	if(useFBO)
 	{
@@ -58,7 +64,7 @@ void TextureShadowMap::renderingToInit()
 	}
 }
 
-void TextureShadowMap::renderingToDone()
+void TextureShadowMap::renderingToEnd()
 {
 	if(useFBO)
 	{
@@ -93,7 +99,7 @@ void TextureShadowMap::oneTimeFBOInit()
 		// initialize depth renderbuffer
 		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
 		glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,
-			GL_DEPTH_COMPONENT, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+			GL_DEPTH_COMPONENT, SHADOW_MAP_SIZE_MAX, SHADOW_MAP_SIZE_MAX);
 		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
 			GL_DEPTH_ATTACHMENT_EXT,
 			GL_RENDERBUFFER_EXT, depth_rb);
@@ -126,4 +132,13 @@ unsigned TextureShadowMap::getDepthBits()
 {
 	assert(depthBits);
 	return depthBits;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Texture
+
+Texture* Texture::createShadowmap(unsigned width, unsigned height)
+{
+	return new TextureShadowMap(width,height);
 }

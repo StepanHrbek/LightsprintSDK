@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/Texture.h"
+#include "DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
 
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by surface
 bool  SMOOTH =1; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
@@ -112,7 +113,6 @@ void RendererOfRRObject::render()
 			params.object->getTriangleNormals(triangleIdx,triangleNormals);
 		}
 
-#ifdef RR_DEVELOPMENT_LIGHTMAP
 		// light indirect map
 		if(params.renderedChannels.LIGHT_INDIRECT_MAP)
 		{
@@ -160,18 +160,18 @@ void RendererOfRRObject::render()
 				if(pixelBuffer)
 				{
 					glEnd();
-					glActiveTextureARB(GL_TEXTURE12); //!!! used by lightIndirectMap
+					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 					pixelBuffer->bindTexture();
-					glActiveTextureARB(GL_TEXTURE11); //!!! used by materialDiffuseMap
+					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 					glBegin(GL_TRIANGLES);
 				}
 				else
 				{
-					//assert(0);
+					//!!! kdyz se dostane sem a vysledek zacachuje, bude to uz vzdycky renderovat blbe
+					assert(0);
 				}
 			}
 		}
-#endif
 
 		for(int v=0;v<3;v++)
 		{
@@ -189,15 +189,14 @@ void RendererOfRRObject::render()
 				glColor3fv(&color.x);
 			}
 
-#ifdef RR_DEVELOPMENT_LIGHTMAP
 			// light indirect map uv
 			if(params.renderedChannels.LIGHT_INDIRECT_MAP)
 			{
 				rr::RRObject::TriangleMapping tm;
+				//!!! getnout jednou, ne trikrat (viz setNormals)
 				params.object->getTriangleMapping(triangleIdx,tm);
-				glTexCoord2f(tm.uv[v][0],tm.uv[v][1]);
+				glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT,tm.uv[v][0],tm.uv[v][1]);
 			}
-#endif
 
 			// material diffuse map - uv
 			if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
@@ -205,7 +204,7 @@ void RendererOfRRObject::render()
 				rr::RRVec2 uv[3];
 				//!!! getnout jednou, ne trikrat (viz setNormals)
 				if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,triangleIdx,&uv,sizeof(uv)))
-					glMultiTexCoord2f(GL_TEXTURE0,uv[v][0],uv[v][1]);
+					glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE,uv[v][0],uv[v][1]);
 				else
 					assert(0); // expected data are missing
 			}
@@ -217,7 +216,7 @@ void RendererOfRRObject::render()
 				{
 					GLfloat xy[2];
 					params.generateForcedUv->generateData(triangleIdx, v, xy, sizeof(xy));
-					glMultiTexCoord2f(GL_TEXTURE7,xy[0],xy[1]);
+					glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D,xy[0],xy[1]);
 				}
 			}
 

@@ -1,4 +1,4 @@
-#include "RRIlluminationPixelBufferInOpenGL.h"
+#include "DemoEngine/RRIlluminationPixelBufferInOpenGL.h"
 
 namespace rr
 {

@@ -3,16 +3,14 @@
 #include <string.h>
 //#include <jpeglib.h>
 #include <GL/glew.h>
-#include "DemoEngine/Texture.h"
-
-using namespace std;
+#include "TextureGL.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Texture
+// TextureGL
 
-Texture::Texture(unsigned char *data, int nWidth, int nHeight, int nType,
+TextureGL::TextureGL(unsigned char *data, int nWidth, int nHeight, int nType,
 				 int mag, int min, int wrapS, int wrapT)
 {
 	pixels = data;
@@ -23,12 +21,13 @@ Texture::Texture(unsigned char *data, int nWidth, int nHeight, int nType,
 	channels = (type == GL_RGB) ? 3 : 4;
 	glGenTextures(1, &id);
 
-	bindTexture();
+	glBindTexture(GL_TEXTURE_2D, id);
 	if(data)
 	{
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, data);
 	}
+	//glTexImage2D(GL_TEXTURE_2D,0,type,width,height,0,type,GL_UNSIGNED_BYTE,data);//!!!
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min); 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag); 
@@ -37,18 +36,18 @@ Texture::Texture(unsigned char *data, int nWidth, int nHeight, int nType,
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 }
 
-Texture::~Texture()
+TextureGL::~TextureGL()
 {
 	glDeleteTextures(1, &id);
 	delete[] pixels;
 }
 
-void Texture::bindTexture() const
+void TextureGL::bindTexture() const
 {
 	glBindTexture(GL_TEXTURE_2D, id);
 }
 
-bool Texture::getPixel(float x01, float y01, float* rgb)
+bool TextureGL::getPixel(float x01, float y01, float* rgb) const
 {
 	if(!pixels) return false;
 	unsigned x = unsigned(x01 * (width)) % width;
@@ -65,7 +64,7 @@ bool Texture::getPixel(float x01, float y01, float* rgb)
 //
 // TextureFromDisk
 
-class RR_API TextureFromDisk : public Texture
+class RR_API TextureFromDisk : public TextureGL
 {
 public:
 	class xFileNotFound {};
@@ -89,7 +88,7 @@ protected:
 };
 
 TextureFromDisk::TextureFromDisk(char *filename, int mag, int min, int wrapS, int wrapT)
-	: Texture(NULL,1,1,GL_RGB)
+	: TextureGL(NULL,1,1,GL_RGB)
 {
 	unsigned int type;
 
@@ -434,6 +433,15 @@ void TextureFromDisk::checkFileOpened(FILE *file)
 const char *TextureFromDisk::JPG_EXT = ".jpg";
 const char *TextureFromDisk::BMP_EXT = ".bmp";
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Texture
+
+Texture* Texture::create(unsigned char *data, int width, int height, int type,int mag,int min,int wrapS,int wrapT)
+{
+	return new TextureGL(data,width,height,type,mag,min,wrapS,wrapT);
+}
 
 Texture* Texture::load(char *filename,int mag,int min,int wrapS,int wrapT)
 {

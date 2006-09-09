@@ -3,6 +3,7 @@
 #include <memory.h>
 #include "rrcore.h"
 #include "RRVision.h"
+#include <stdio.h> // dbg printf
 
 namespace rr
 {
@@ -455,6 +456,26 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 		//  x , y -> x/u2.x-y*v2.x/u2.x/v2.y , y/v2.y
 		//  u2,v2 jsou brane z Triangle
 		si.texCoord[i] = Vec2(si.texCoord[i][0]/s->grandpa->u2[0]-si.texCoord[i][1]*s->grandpa->v2[0]/s->grandpa->u2[0]/s->grandpa->v2[1],si.texCoord[i][1]/s->grandpa->v2[1]);
+		if(si.texCoord[i][0]<0)
+		{
+			if(si.texCoord[i][0]<-0.1) {DBG(printf("a%f ",si.texCoord[i][0]));assert(0);}
+			si.texCoord[i][0] = 0;
+		} else
+		if(si.texCoord[i][0]>1)
+		{
+			if(si.texCoord[i][0]>1.1) {DBG(printf("b%f ",si.texCoord[i][0]));assert(0);}
+			si.texCoord[i][0] = 1;
+		}
+		if(si.texCoord[i][1]<0)
+		{
+			if(si.texCoord[i][1]<-0.1) {DBG(printf("c%f ",si.texCoord[i][1]));assert(0);}
+			si.texCoord[i][1] = 0;
+		} else
+		if(si.texCoord[i][1]>1)
+		{
+			if(si.texCoord[i][1]>1.1) {DBG(printf("d%f ",si.texCoord[i][1]));assert(0);}
+			si.texCoord[i][1] = 1;
+		}
 		// fill irradiance
 		if(RRScene::getState(RRScene::GET_SMOOTH))
 			si.measure[i] = iv[i]->irradiance();

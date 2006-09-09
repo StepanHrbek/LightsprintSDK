@@ -1,10 +1,11 @@
-//#define BUGS
+#define BUGS
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
 unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 je max pro 6600
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
+#define SHADOW_MAP_SIZE            512
 int fullscreen = 0;//!!! switch all these to test lightmaps
 bool renderer3ds = 0;//!!!
 bool updateDuringLightMovement = 1;
@@ -12,6 +13,8 @@ bool startWithSoftShadows = 0;//!!!
 unsigned cores = 2;
 bool renderLightmaps = 1;//!!!
 /*
+crashne po esc v s_veza/gcc
+
 -gamma korekce (do rrscaleru)
 -kontrast korekce (pred rendrem)
 -jas korekce (pred rendrem)
@@ -94,14 +97,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Bugs.h"
 #include "LevelSequence.h"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
-#define CLAMP(a,min,max) (a)=(((a)<(min))?min:(((a)>(max)?(max):(a))))
-
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -110,7 +105,6 @@ enum {
 	DM_EYE_VIEW_SHADOWED,
 	DM_EYE_VIEW_SOFTSHADOWED,
 };
-
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -198,7 +192,7 @@ void updateDepthBias(int delta)
 
 void updateDepthScale(void)
 {
-	GLint shadowDepthBits = TextureShadowMap::getDepthBits();
+	GLint shadowDepthBits = areaLight->getShadowMap(0)->getDepthBits();
 	if (shadowDepthBits < 24) {
 		depthScale24 = 1;
 	} else {
@@ -211,7 +205,7 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	areaLight = new AreaLight(MAX_INSTANCES);
+	areaLight = new AreaLight(MAX_INSTANCES,SHADOW_MAP_SIZE);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
 	updateDepthScale();
@@ -299,7 +293,7 @@ public:
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer()
 	{
-		return new rr::RRIlluminationPixelBufferInOpenGL(256,256);
+		return new rr::RRIlluminationPixelBufferInOpenGL(512,512);
 	}
 	virtual void detectMaterials()
 	{
@@ -544,8 +538,9 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	delete lightInstance;
 
 	glColorMask(0,0,0,0);
-	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-	areaLight->getShadowMap((mapIndex>=0)?mapIndex:0)->renderingToInit();
+	Texture* shadowmap = areaLight->getShadowMap((mapIndex>=0)?mapIndex:0);
+	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
+	shadowmap->renderingToBegin();
 	glClearDepth(0.999999); // prevents backprojection, tested on nvidia geforce 6600
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
@@ -561,7 +556,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
 	renderScene(uberProgramSetup,0);
-	areaLight->getShadowMap((mapIndex>=0)?mapIndex:0)->renderingToDone();
+	shadowmap->renderingToEnd();
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glViewport(0, 0, winWidth, winHeight);
@@ -778,12 +773,15 @@ static void drawHelpMessage(bool big)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void showImage(const Texture* tex)
+void showImageBegin()
 {
 	glUseProgram(0);
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
-	tex->bindTexture();
+}
+
+void showImageEnd()
+{
 	glDisable(GL_CULL_FACE);
 	glColor3f(1,1,1);
 	glDisable(GL_DEPTH_TEST);
@@ -809,6 +807,13 @@ void showImage(const Texture* tex)
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 	glutSwapBuffers();
+}
+
+void showImage(const Texture* tex)
+{
+	showImageBegin();
+	tex->bindTexture();
+	showImageEnd();
 }
 
 
@@ -971,8 +976,10 @@ void display()
 		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
 		level = new Level(levelSequence.getNextLevel());
 		level->solver->reportEndOfInteractions();
+#ifdef BUGS
 		for(unsigned i=0;i<6;i++)
 			level->solver->calculate();
+#endif
 	}
 	if(showHint)
 	{
@@ -1476,6 +1483,7 @@ void idle()
 	{
 		reportLightMovementEnd();
 	}
+
 //	LIMITED_TIMES(1,timer.Start());
 	bool rrOn = drawMode == DM_EYE_VIEW_SOFTSHADOWED;
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
@@ -1576,8 +1584,7 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-	/*
-	// Get current flag
+/*	// Get current flag
 	int tmpFlag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
 	// Turn on leak-checking bit
 	tmpFlag |= _CRTDBG_LEAK_CHECK_DF;
@@ -1585,9 +1592,8 @@ int main(int argc, char **argv)
 	tmpFlag &= ~_CRTDBG_CHECK_CRT_DF;
 	// Set flag to the new value
 	_CrtSetDbgFlag( tmpFlag );
-	//_crtBreakAlloc = 31299;
-	*/
-
+//	_crtBreakAlloc = 80;
+*/
 
 	parseOptions(argc, argv);
 

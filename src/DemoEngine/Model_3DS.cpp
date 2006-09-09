@@ -287,7 +287,7 @@ bool Model_3DS::Load(const char *filename, float scale)
 			rgb[1] = Materials[j].color.g;
 			rgb[2] = Materials[j].color.b;
 			rgb[3] = 255;
-			Materials[j].tex = new Texture(rgb,1,1,GL_RGB);
+			Materials[j].tex = Texture::create(rgb,1,1,GL_RGB);
 			Materials[j].textured = true;
 		}
 	}
@@ -341,9 +341,9 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 					rr::RRIlluminationPixelBuffer* pixelBuffer = app->getIllumination(i)->getChannel(0)->pixelBuffer;
 					if(pixelBuffer)
 					{
-						glActiveTextureARB(GL_TEXTURE12); // used by lightIndirectMap
+						glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 						pixelBuffer->bindTexture();
-						glActiveTextureARB(GL_TEXTURE11); // used by materialDiffuseMap
+						glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 					}
 					// if not created yet, create unwrap buffer
 					rr::RRObjectIllumination& illum = app->getIllumination(i);

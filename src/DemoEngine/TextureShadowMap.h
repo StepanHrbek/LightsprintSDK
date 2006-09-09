@@ -7,24 +7,21 @@
 #ifndef TEXTURESHADOWMAP_H
 #define TEXTURESHADOWMAP_H
 
-#include "DemoEngine.h"
-#include "Texture.h"
-
-#define SHADOW_MAP_SIZE 512
-#define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
+#include "TextureGL.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // TextureShadowMap
 
-class RR_API TextureShadowMap : public Texture
+class TextureShadowMap : public TextureGL
 {
 public:
-	TextureShadowMap();
-	void renderingToInit();
-	void renderingToDone(); // sideeffect: binds texture
-	static unsigned getDepthBits(); // number of bits in texture depth channel
+	TextureShadowMap(unsigned awidth, unsigned aheight);
+	virtual void renderingToBegin();
+	virtual void renderingToEnd(); // sideeffect: binds texture
+	virtual unsigned getDepthBits(); // number of bits in texture depth channel
+	virtual ~TextureShadowMap() {};
 private:
 	static bool useFBO;
 	static GLuint fb;

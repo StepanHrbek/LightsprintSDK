@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include "DemoEngine/UberProgram.h"
 
-using namespace std;
-
 UberProgram::UberProgram(const char* avertexShaderFileName, const char* afragmentShaderFileName)
 {
 	vertexShaderFileName = avertexShaderFileName;
@@ -26,7 +24,7 @@ Program* UberProgram::getProgram(const char* defines)
 	{
 		hash=(hash<<5)+(hash>>27)+*tmp;
 	}
-	map<unsigned,Program*>::iterator i = cache.find(hash);
+	std::map<unsigned,Program*>::iterator i = cache.find(hash);
 	if(i!=cache.end()) return i->second;
 	Program* program = new Program(defines,vertexShaderFileName,fragmentShaderFileName);
 	if(!program->isLinked())

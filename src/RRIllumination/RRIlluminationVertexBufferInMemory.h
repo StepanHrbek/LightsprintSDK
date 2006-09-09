@@ -18,12 +18,6 @@ namespace rr
 	public:
 		RRIlluminationVertexBufferInMemory(unsigned anumVertices)
 		{
-			vertices = NULL;
-			RRIlluminationVertexBufferInMemory::setSize(anumVertices);
-		}
-		virtual void setSize(unsigned anumVertices)
-		{
-			delete[] vertices;
 			numVertices = anumVertices;
 			vertices = new Color[numVertices];
 		}

@@ -297,14 +297,6 @@
 			RelativePath="..\..\include\RRRealtimeRadiosity.h"
 			>
 		</File>
-		<File
-			RelativePath=".\swraster.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\swraster.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
