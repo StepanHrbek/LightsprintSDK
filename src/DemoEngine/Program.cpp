@@ -12,37 +12,30 @@ Program::Program()
 	linked = false;
 }
 
-Program::Program(const char* defines, const char *shader, unsigned int shaderType)
-  :fragment(NULL)
-{
-	handle = glCreateProgram();
-	vertex = new Shader(defines, shader, shaderType);
-
-	attach(vertex);
-
-	linkIt();
-}
-
 Program::Program(const char* defines, const char *vertexShader, const char *fragmentShader)
   :vertex(NULL), fragment(NULL)
 {
 	handle = glCreateProgram();
 
-	vertex = new Shader(defines, vertexShader, GL_VERTEX_SHADER);
-	fragment = new Shader(defines, fragmentShader, GL_FRAGMENT_SHADER);
+	if(vertexShader)
+	{
+		vertex = new Shader(defines, vertexShader, GL_VERTEX_SHADER);
+		attach(vertex);
+	}
 
-	attach(vertex);
-	attach(fragment);
+	if(fragmentShader)
+	{
+		fragment = new Shader(defines, fragmentShader, GL_FRAGMENT_SHADER);
+		attach(fragment);
+	}
 
 	linkIt();
 }
 
 Program::~Program()
 {
-	if(vertex)
-		delete vertex;
-	if(fragment)
-		delete fragment;
+	delete vertex;
+	delete fragment;
 	glDeleteProgram(handle);
 }
 

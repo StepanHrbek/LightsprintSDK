@@ -1600,7 +1600,7 @@ int main(int argc, char **argv)
 	// init GLUT
 	glutInitWindowSize(resolutionx,resolutiony);
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ACCUM | GLUT_ALPHA); //accum na high quality soft shadows, alpha na filtrovani lightmap
 	if(fullscreen)
 	{
 		char buf[100];

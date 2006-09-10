@@ -13,21 +13,18 @@
 TextureGL::TextureGL(unsigned char *data, int nWidth, int nHeight, int nType,
 				 int mag, int min, int wrapS, int wrapT)
 {
-	pixels = data;
 	width = nWidth;
 	height = nHeight;
 	unsigned int type = nType;
-
 	channels = (type == GL_RGB) ? 3 : 4;
+	if(!data) data = new unsigned char[nWidth*nHeight*channels]; //!!! eliminovat
+	pixels = data;
 	glGenTextures(1, &id);
 
 	glBindTexture(GL_TEXTURE_2D, id);
-	if(data)
-	{
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, data);
-	}
-	//glTexImage2D(GL_TEXTURE_2D,0,type,width,height,0,type,GL_UNSIGNED_BYTE,data);//!!!
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, pixels); //!!! eliminovat
+	//glTexImage2D(GL_TEXTURE_2D,0,type,width,height,0,type,GL_UNSIGNED_BYTE,pixels);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min); 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag); 

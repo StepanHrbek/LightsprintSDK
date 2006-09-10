@@ -99,7 +99,7 @@ void main()
 #endif
   
 #ifdef FORCE_2D_POSITION
-  gl_Position = vec4(gl_MultiTexCoord7.x,gl_MultiTexCoord7.y,0.5,1);
+  gl_Position = vec4(gl_MultiTexCoord7.x,gl_MultiTexCoord7.y,0.5,1.0);
 #else
   gl_Position = ftransform();
 #endif

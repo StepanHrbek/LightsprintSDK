@@ -19,7 +19,6 @@ class RR_API Program
 {
 public:
 	Program();
-	Program(const char* defines, const char* shader, unsigned int shaderType=GL_VERTEX_SHADER);
 	Program(const char* defines, const char* vertexShader, const char* fragmentShader);
 	~Program();
 
