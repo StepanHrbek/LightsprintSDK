@@ -27,11 +27,11 @@ namespace rr
 		virtual ~RRIlluminationPixelBufferInOpenGL();
 	private:
 		Texture* texture;
-		bool usePBO;
 		// state backup
 		bool rendering;
 		GLint viewport[4];
 		GLboolean depthTest, scissorTest, depthMask;
+		GLfloat clearcolor[4];
 		// static
 		static unsigned numInstances; // number of living instances
 	};

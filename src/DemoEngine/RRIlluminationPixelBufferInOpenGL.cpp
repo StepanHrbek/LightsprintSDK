@@ -51,8 +51,6 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned aw
 	numInstances++;
 
 	texture = Texture::create(NULL,awidth,aheight,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
-
-	usePBO = true;
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderBegin()
@@ -68,11 +66,11 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
 	scissorTest = glIsEnabled(GL_SCISSOR_TEST);
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
-	if(usePBO)
-	{
-		helpers->tempTexture->renderingToBegin();
-		//texture->renderingToBegin();
-	}
+	glGetFloatv(GL_COLOR_CLEAR_VALUE,clearcolor);
+
+	//helpers->tempTexture->renderingToBegin();
+	texture->renderingToBegin();
+
 	glViewport(0,0,texture->getWidth(),texture->getHeight());
 	glScissor(0,0,texture->getWidth(),texture->getHeight());
 	glEnable(GL_SCISSOR_TEST);
@@ -121,43 +119,39 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	rendering = false;
 	//!!! potrebuju aby tempTexture mela presne stejnej rozmer jako texture
 	assert(texture->getWidth()==helpers->tempTexture->getWidth());
-	if(usePBO)
-	{
-		//texture->renderingToEnd();
-		helpers->tempTexture->renderingToEnd();
-		texture->renderingToBegin();
-		helpers->tempTexture->bindTexture();
-	}
-	else
-	{
-		helpers->tempTexture->bindTexture();
-		glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,texture->getWidth(),texture->getHeight());
-		//!!! kricet pokud je okno mensi nez textura, v lightmape pak je kus bily s facy sviti
-	}
 
 	// fill unused pixels (alpha==0)
 	//!!! use alpha test
 	helpers->filterProgram->useIt();
 	helpers->filterProgram->sendUniform("lightmap",0);
 	helpers->filterProgram->sendUniform("pixelDistance",1.0f/texture->getWidth(),1.0f/texture->getHeight());
+
+	helpers->tempTexture->renderingToBegin();
+	texture->bindTexture();
+
 	glBegin(GL_POLYGON);
 	glVertex2f(-1,-1);
 	glVertex2f(1,-1);
 	glVertex2f(1,1);
 	glVertex2f(-1,1);
 	glEnd();
-	glDisable(GL_TEXTURE_2D);
-	bindTexture();
-	if(usePBO)
-	{
-		texture->renderingToEnd();
-	} else {
-		glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,texture->getWidth(),texture->getHeight());
-	}
+
+	texture->renderingToBegin();
+	helpers->tempTexture->bindTexture();
+
+	glBegin(GL_POLYGON);
+	glVertex2f(-1,-1);
+	glVertex2f(1,-1);
+	glVertex2f(1,1);
+	glVertex2f(-1,1);
+	glEnd();
+
+	texture->renderingToEnd();
 
 	// restore pipeline
-	if(!scissorTest) glDisable(GL_SCISSOR_TEST);
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+	glClearColor(clearcolor[0],clearcolor[1],clearcolor[2],clearcolor[3]);
+	if(!scissorTest) glDisable(GL_SCISSOR_TEST);
 	if(depthTest) glEnable(GL_DEPTH_TEST);
 	if(depthMask) glDepthMask(GL_TRUE);
 }
