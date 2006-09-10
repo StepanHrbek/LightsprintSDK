@@ -38,7 +38,6 @@ namespace rr
 {
 
 /*
-#ifdef RR_DEVELOPMENT_LIGHTMAP
 	//!!! cele zrusit pokud se ukaze ze nebudu vyrabet unwrap
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -81,7 +80,6 @@ namespace rr
 			}
 		}
 	};
-#endif
 */
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -202,11 +200,9 @@ namespace rr
 		//! This is good for editor, but you may want to use 4 bytes per vertex in game to save memory.
 		//! You may even use monochromatic (1 float) format if you don't need color bleeding.
 		virtual RRIlluminationVertexBuffer* newVertexBuffer(unsigned numVertices);
-#ifdef RR_DEVELOPMENT_LIGHTMAP
-		//! Returns new pixel buffer (for lightmap) in your custom format.
-		//! Default implementation allocates 256x256x8bit in RAM. 
+		//! Returns new pixel buffer (for indirect illum lightmap) in your custom format.
+		//! Default implementation returns NULL.
 		virtual RRIlluminationPixelBuffer* newPixelBuffer();
-#endif
 
 		//! All objects in scene.
 		Objects    objects;
@@ -242,9 +238,7 @@ namespace rr
 		void       updateVertexLookupTable();
 		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
 		void       readVertexResults();
-#ifdef RR_DEVELOPMENT_LIGHTMAP
 		void       readPixelResults();
-#endif
 		unsigned   resultChannelIndex;
 	};
 

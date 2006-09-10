@@ -17,7 +17,7 @@ RRObjectIllumination::Channel* RRObjectIllumination::getChannel(unsigned channel
 {
 	ChannelsType::iterator i = channels->find(channelIndex);
 	if(i!=channels->end()) return i->second;
-	Channel* tmp = new Channel(numPreImportVertices);
+	Channel* tmp = new Channel();
 	(*channels)[channelIndex] = tmp;
 	return tmp;
 }

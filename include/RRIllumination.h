@@ -33,8 +33,6 @@
 #endif
 
 
-#define RR_DEVELOPMENT_LIGHTMAP //!!!
-
 namespace rr
 {
 
@@ -164,8 +162,6 @@ namespace rr
 	};
 
 
-
-#ifdef RR_DEVELOPMENT_LIGHTMAP
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//! Interface to illumination storage based on pixel buffer, lightmap.
@@ -222,7 +218,7 @@ namespace rr
 		// Creates and returns pixel buffer in OpenGL texture. Is bindable. Depends on OpenGL.
 		//static RRIlluminationPixelBuffer* createInOpenGL(unsigned width, unsigned height);
 	};
-#endif
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -244,24 +240,18 @@ namespace rr
 
 		struct Channel
 		{
-			Channel(unsigned anumVertices)
+			Channel()
 			{
 				vertexBuffer = NULL;
-#ifdef RR_DEVELOPMENT_LIGHTMAP
 				pixelBuffer = NULL;
-#endif
 			}
 			~Channel()
 			{
 				delete vertexBuffer;
-#ifdef RR_DEVELOPMENT_LIGHTMAP
 				delete pixelBuffer;
-#endif
 			}
 			RRIlluminationVertexBuffer* vertexBuffer;
-#ifdef RR_DEVELOPMENT_LIGHTMAP
 			RRIlluminationPixelBuffer* pixelBuffer;
-#endif
 		};
 
 		Channel* getChannel(unsigned channelIndex);

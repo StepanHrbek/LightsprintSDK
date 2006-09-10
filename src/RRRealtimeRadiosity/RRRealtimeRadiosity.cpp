@@ -239,8 +239,6 @@ void RRRealtimeRadiosity::readVertexResults()
 	}
 }
 
-#ifdef RR_DEVELOPMENT_LIGHTMAP
-
 struct RenderSubtriangleContext
 {
 	RRIlluminationPixelBuffer* pixelBuffer;
@@ -327,8 +325,6 @@ void RRRealtimeRadiosity::readPixelResults()
 		}
 	}
 }
-
-#endif // RR_DEVELOPMENT_LIGHTMAP
 
 RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 {
@@ -453,9 +449,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 		lastReadingResultsTime = now;
 		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
 		readVertexResults();
-#ifdef RR_DEVELOPMENT_LIGHTMAP
 		readPixelResults();
-#endif
 		REPORT_END;
 		return RRScene::IMPROVED;
 	}
