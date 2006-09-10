@@ -9,7 +9,7 @@ CPPFLAGS += -fomit-frame-pointer
 CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
 
-OBJS = $(TMP)3ds2rr.o $(TMP)camera.o $(TMP)glew.o $(TMP)matrix.o $(TMP)Model_3DS.o $(TMP)Program.o $(TMP)RendererOfRRObject.o $(TMP)RendererWithCache.o $(TMP)RRIlluminationPixelBufferInOpenGL.o $(TMP)Shader.o $(TMP)TextureGL.o $(TMP)TextureShadowMap.o $(TMP)UberProgram.o
+OBJS = $(TMP)3ds2rr.o $(TMP)camera.o $(TMP)glew.o $(TMP)matrix.o $(TMP)Model_3DS.o $(TMP)Program.o $(TMP)RendererOfRRObject.o $(TMP)RendererWithCache.o $(TMP)RRIlluminationPixelBufferInOpenGL.o $(TMP)Shader.o $(TMP)TextureFromDisk.o $(TMP)TextureGL.o $(TMP)TextureShadowMap.o $(TMP)UberProgram.o
 
 all: makefile $(LIB)
 

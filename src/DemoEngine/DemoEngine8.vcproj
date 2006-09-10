@@ -390,6 +390,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\TextureFromDisk.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\TextureFromDisk.h"
+			>
+		</File>
+		<File
 			RelativePath=".\TextureGL.cpp"
 			>
 		</File>
