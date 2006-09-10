@@ -451,7 +451,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 	{
 		// fill 2d coords in triangle space
 		//  start with uv[] with ortonormal base
-		si.texCoord[i] = s->uv[(i+3-s->grandpa->rotations)%3];
+		si.texCoord[i] = s->uv[(i+s->grandpa->rotations)%3];
 		//  and transform to triangle space
 		//  x , y -> x/u2.x-y*v2.x/u2.x/v2.y , y/v2.y
 		//  u2,v2 jsou brane z Triangle

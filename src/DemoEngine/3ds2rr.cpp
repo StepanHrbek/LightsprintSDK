@@ -8,8 +8,8 @@
 #include <math.h>
 #include <memory.h>
 #include <vector>
-#include "DemoEngine/3ds2rr.h"
 #include "RRIllumination.h"
+#include "DemoEngine/3ds2rr.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

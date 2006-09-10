@@ -77,8 +77,8 @@
 #ifndef MODEL_3DS_H
 #define MODEL_3DS_H
 
-#include "DemoEngine.h"
 #include "RRRealtimeRadiosity.h"
+#include "DemoEngine.h"
 #include "Texture.h"
 
 #include <stdio.h>

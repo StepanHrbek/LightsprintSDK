@@ -61,7 +61,7 @@ bool TextureGL::getPixel(float x01, float y01, float* rgb) const
 //
 // TextureFromDisk
 
-class RR_API TextureFromDisk : public TextureGL
+class TextureFromDisk : public TextureGL
 {
 public:
 	class xFileNotFound {};

@@ -29,6 +29,10 @@ namespace rr
 		Texture* texture;
 		//GLuint textureId;
 		bool usePBO;
+		// state backup
+		bool rendering;
+		GLint viewport[4];
+		GLboolean depthTest, scissorTest, depthMask;
 		// static
 		static unsigned numInstances; // number of living instances
 	};

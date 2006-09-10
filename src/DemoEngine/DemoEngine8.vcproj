@@ -225,7 +225,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;GLEW_BUILD;RR_DLL_BUILD_DEMOENGINE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;GLEW_BUILD;RR_DLL;RR_DLL_BUILD_DEMOENGINE"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"

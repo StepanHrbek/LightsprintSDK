@@ -119,7 +119,11 @@
    It is not allowed to break double arithmetics by modifying FPU states.
    If you use Direct3D, make sure you don't instruct it to force single precision for whole application
    which breaks double precision arithmetics in whole program and libraries.
-   
+ \section gnull NULL
+   Although NULL is obsoleted by C++ and some discourage from using it,
+   we continue using it to distinguish zeros for pointers and zeros for non-pointers.
+   So eg. if you see var=0, be sure that var is NOT a pointer. On the other side,
+   var=NULL makes sure that var IS a pointer.
 
 
 \page rr Lightsprint Realtime Radiosity

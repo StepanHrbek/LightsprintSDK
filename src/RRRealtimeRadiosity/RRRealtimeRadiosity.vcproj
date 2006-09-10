@@ -223,7 +223,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL;RR_DLL_BUILD_CALCULATOR"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL;RR_DLL_BUILD_REALTIMERADIOSITY"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"

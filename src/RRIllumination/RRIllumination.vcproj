@@ -298,14 +298,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\RRIlluminationPixelBufferInMemory.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationPixelBufferInMemory.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\include\RRIlluminationSpace.h"
 			>
 		</File>
@@ -340,14 +332,6 @@
 					ExceptionHandling="1"
 				/>
 			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\swraster.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\swraster.h"
-			>
 		</File>
 	</Files>
 	<Globals>

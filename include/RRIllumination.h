@@ -207,16 +207,6 @@ namespace rr
 		virtual void bindTexture() {};
 
 		virtual ~RRIlluminationPixelBuffer() {};
-
-
-		//////////////////////////////////////////////////////////////////////////////
-		// Tools
-		//////////////////////////////////////////////////////////////////////////////
-
-		// Creates and returns pixel buffer in system memory. It is graphics API independent.
-		static RRIlluminationPixelBuffer* createInSystemMemory(unsigned width, unsigned height);
-		// Creates and returns pixel buffer in OpenGL texture. Is bindable. Depends on OpenGL.
-		//static RRIlluminationPixelBuffer* createInOpenGL(unsigned width, unsigned height);
 	};
 
 

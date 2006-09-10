@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <GL/glew.h>
+#include "RRIllumination.h"
 #include "DemoEngine/3ds2rr.h" // CHANNEL_SURFACE_DIF_TEX
 #include <GL/glew.h>
 #include "DemoEngine/RendererOfRRObject.h"

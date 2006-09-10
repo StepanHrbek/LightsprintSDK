@@ -22,7 +22,7 @@
 			#pragma comment(lib,"RRRealtimeRadiosity_sd.lib")
 		#endif
 #	else
-#	ifdef RR_DLL_BUILD_CALCULATOR
+#	ifdef RR_DLL_BUILD_REALTIMERADIOSITY
 		// build dll
 #		undef RR_API
 #		define RR_API __declspec(dllexport)
@@ -37,50 +37,6 @@
 namespace rr
 {
 
-/*
-	//!!! cele zrusit pokud se ukaze ze nebudu vyrabet unwrap
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//! Storage for object's indirect illumination, extended for editor.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RR_API RRObjectIlluminationForEditor : public RRObjectIllumination
-	{
-	public:
-		RRObjectIlluminationForEditor(unsigned anumPreImportVertices)
-			: RRObjectIllumination(anumPreImportVertices)
-		{
-		}
-		void createPixelBufferUnwrap(RRObject* object)
-		{
-			if(pixelBufferUnwrap)
-				delete[] pixelBufferUnwrap;
-			pixelBufferUnwrap = new RRVec2[numPreImportVertices];
-			RRMesh* mesh = object->getCollider()->getMesh();
-			unsigned numPostImportTriangles = mesh->getNumTriangles();
-			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
-			{
-				RRObject::TriangleMapping triangleMapping;
-				object->getTriangleMapping(postImportTriangle,triangleMapping);
-				RRMesh::Triangle triangle;
-				mesh->getTriangle(postImportTriangle,triangle);
-				for(unsigned v=0;v<3;v++)
-				{
-					//!!!
-					// muj nouzovy primitivni unwrap vetsinou nejde prevest z trianglu do vertexBufferu,
-					// protoze jeden vertex je casto pouzit vice triangly v meshi
-					unsigned preImportVertex = mesh->getPreImportVertex(triangle[v],postImportTriangle);
-					if(preImportVertex<numPreImportVertices)
-						pixelBufferUnwrap[preImportVertex] = triangleMapping.uv[v];
-					else
-						assert(0);
-				}
-			}
-		}
-	};
-*/
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRRealtimeRadiosity

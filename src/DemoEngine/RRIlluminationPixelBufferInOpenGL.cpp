@@ -45,6 +45,8 @@ unsigned RRIlluminationPixelBufferInOpenGL::numInstances = 0;
 
 RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight)
 {
+	rendering = false;
+
 	if(!numInstances) helpers = new Helpers();
 	numInstances++;
 
@@ -70,6 +72,17 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned aw
 
 void RRIlluminationPixelBufferInOpenGL::renderBegin()
 {
+	if(rendering) 
+	{
+		assert(!rendering);
+		return;
+	}
+	rendering = true;
+	// backup pipeline
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	depthTest = glIsEnabled(GL_DEPTH_TEST);
+	scissorTest = glIsEnabled(GL_SCISSOR_TEST);
+	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
 	if(usePBO)
 	{
 		//!!! set texture as render target using PBO
@@ -97,6 +110,8 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 
 void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle& it)
 {
+	assert(rendering);
+	if(!rendering) return;
 	glBegin(GL_TRIANGLES);
 	for(unsigned v=0;v<3;v++)
 	{
@@ -108,11 +123,19 @@ void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle
 
 //void RRIlluminationPixelBufferInOpenGL::renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles)
 //{
+//	assert(rendering);
+//	if(!rendering) return;
 //!!! optimized version with interleaved array
 //}
 
 void RRIlluminationPixelBufferInOpenGL::renderEnd()
 {
+	if(!rendering) 
+	{
+		assert(rendering);
+		return;
+	}
+	rendering = false;
 	if(usePBO)
 	{
 		//!!! unset texture as render target using PBO
@@ -122,18 +145,13 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 		assert(texture->getWidth()==helpers->tempTexture->getWidth());
 		helpers->tempTexture->bindTexture();
 		glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,texture->getWidth(),texture->getHeight());
+		//!!! kricet pokud je okno mensi nez textura, v lightmape pak je kus bily s facy sviti
 	}
 
-	//!!! fill unused(pink) pixels
+	// fill unused(pink) pixels
 	//!!! use alpha test
 	helpers->filterProgram->useIt();
 	helpers->filterProgram->sendUniform("lightmap",0);
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
-	//glMatrixMode(GL_TEXTURE);
-	//glLoadIdentity();
 	helpers->filterProgram->sendUniform("pixelDistance",1.0f/texture->getWidth(),1.0f/texture->getHeight());
 	glBegin(GL_POLYGON);
 	glVertex2f(-1,-1);
@@ -146,11 +164,10 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,texture->getWidth(),texture->getHeight());
 
 	// restore pipeline
-	//!!! hack for fcss
-	glDisable(GL_SCISSOR_TEST);
-	glViewport(0,0,640,480);
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
+	if(!scissorTest) glDisable(GL_SCISSOR_TEST);
+	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+	if(depthTest) glEnable(GL_DEPTH_TEST);
+	if(depthMask) glDepthMask(GL_TRUE);
 }
 
 void RRIlluminationPixelBufferInOpenGL::bindTexture()
