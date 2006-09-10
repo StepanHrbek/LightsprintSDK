@@ -10,6 +10,9 @@
  \subpage rr "Lightsprint REALTIME RADIOSITY"
  - calculates realtime radiosity in dynamic scene
 
+ \subpage illumination "Lightsprint ILLUMINATION"
+ - storage for calculated illumination
+
  \subpage vision "Lightsprint VISION"
  - calculates radiosity in static scene
 
@@ -46,7 +49,7 @@
  \n RealtimeRadiosity calculates radiosity in dynamic scene and depends on Vision and Illumination.
 
  All radiosity calculation libraries (RealtimeRadiosity, Vision)
- and their support (Collider, Mesh) are purely numerical,
+ and their support (Illumination, Collider, Mesh) are purely numerical,
  they are OpenGL/DirectX independent.
 
  DemoEngine provides simple support for loading and rendering 3d scenes.
@@ -123,13 +126,13 @@
  Realtime Radiosity extends your renderer by adding realtime computed
  indirect illumination.
 
- Headers: RRRealtimeRadiosity.h, RRIllumination.h
+ Headers: RRRealtimeRadiosity.h
 
  - adds indirect illumination to dynamic scenes
  - integrates with existing engines
  - uses no precalculations -> illumination quality varies, "architect edition"
  - techniques based on partial precalculations will follow -> quality boost, "day/night editions"
- - you can ask RealtimeRadiosity for complete vertex buffers (or lightmaps in future);
+ - you can ask RealtimeRadiosity for complete vertex buffers or lightmaps;
    for information on individual triangles (even adaptively subdivided), call underlying Vision library
 
  \subpage rr_dir_indir "Direct vs indirect; Realtime Radiosity position"
@@ -246,7 +249,24 @@
    - m3ds.Draw is original indexed tristrip path
    - rendererCaching->render() is new non-indexed trilist path 
      written only for purpose of this detection
- 
+
+
+
+
+\page illumination Lightsprint Illumination
+ Illumination provides you with storage suitable for illumination
+ calculated by RealtimeRadiosity.
+
+ Headers: RRIllumination.h
+
+ - illumination storage in lightmap: rr::RRIlluminationPixelBuffer
+ - illumination storage in vertex buffer: rr::RRIlluminationVertexBuffer
+ - storage of multiple illumination channels: rr::RRObjectIllumination
+ - allows for custom implementation -> smoothly integrates with other engines
+
+ Sample HelloRealtimeRadiosity shows RRIllumination in action.
+
+
 
 
 \page vision Lightsprint Vision
@@ -291,11 +311,12 @@
 
 \page vision_storage Data formats
  Illumination levels are calculated for all surfaces in your scene.
- Several ways how to access these information and how to store them exist,
+ Multiple ways how to access these information and how to store them exist,
  each with advantages and disadvantages.
+ Choice what to use is only up to you.
  \section vertices Vertices
-   Now you may read illumination levels in face vertices.
-   It is expected that illumination inside face will be interpolated
+   You may read illumination levels in face vertices.
+   It is expected that illumination inside face will be linearly interpolated
    from values in vertices.
    \n This representation has several advantages:
    - It is cheap for storing. It requires only few bytes of space per vertex.
@@ -310,14 +331,15 @@
      For good results, you have to add vertices to places where you miss details.
    - Seams around T vertices and other degenerated geometries.
      You have to make your meshes clean, avoid degeneracies.
-   - Long narrow triangles often create visible artifacts.
+   - Long narrow triangles (needles) often create visible artifacts.
      You should avoid them.
  \section textures Textures
-   In future versions, it will be possible to store illumination levels
-   into texture covering all surfaces.
+   You may read illumination levels in adaptively subdivided triangles
+   and create lightmaps or let higher level library (Realtime Radiosity)
+   do it for you very efficiantly on GPU.
    This representation is more expensive for processing, storage and rendering
    (any postprocessing must be done per pixel and it consumes sampler resources),
-   but avoids disadvantages of vertex illumination.
+   but it avoids disadvantages of vertex illumination.
 
 
 
@@ -382,13 +404,16 @@ NEW FEATURES
 - Illumination library
   \n calculated illumination storage
   \n extends code previously placed in RRIllumPrecalculated.h and RRIllumPrecalculatedSurface.h
+- lightmap support via rr::RRIlluminationPixelBuffer
+- rr::RRIlluminationPixelBufferInOpenGL
+  \n implementation of lightmap in OpenGL
 
 CHANGES
 
 - libraries depend on msvcrt80.dll, use for example
   Microsoft's public vcredist_x86.exe to install it on your machines
 - RRObject::getTriangleMapping() default implementation
-  generates improved unwrap (still very simple)
+  generates improved unwrap
 
 \section news5 ------------------------------------- 2006.9 -------------------------------------
 

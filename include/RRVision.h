@@ -190,7 +190,7 @@ namespace rr
 		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out) const;
 		//! Writes t-th triangle mapping for object unwrap into 0..1 x 0..1 space.
 		//
-		//! Future versions of Vision may use mapping for returning results in texture. Currently it is not used.
+		//! Unwrap may be used for returning results in texture (lightmap).
 		//! \n There is default implementation that automatically generates objects unwrap of low quality.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
 		//! \param out Caller provided storage for result.
