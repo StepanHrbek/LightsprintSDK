@@ -27,7 +27,6 @@ namespace rr
 		virtual ~RRIlluminationPixelBufferInOpenGL();
 	private:
 		Texture* texture;
-		//GLuint textureId;
 		bool usePBO;
 		// state backup
 		bool rendering;

@@ -314,6 +314,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\FBO.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\FBO.h"
+			>
+		</File>
+		<File
 			RelativePath=".\glew.c"
 			>
 		</File>

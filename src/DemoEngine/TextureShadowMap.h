@@ -19,15 +19,9 @@ class TextureShadowMap : public TextureGL
 public:
 	TextureShadowMap(unsigned awidth, unsigned aheight);
 	virtual void renderingToBegin();
-	virtual void renderingToEnd(); // sideeffect: binds texture
+	virtual void renderingToEnd();
 	virtual unsigned getDepthBits(); // number of bits in texture depth channel
 	virtual ~TextureShadowMap() {};
-private:
-	static bool useFBO;
-	static GLuint fb;
-	static GLuint depth_rb;
-	static GLint depthBits;
-	static void oneTimeFBOInit();
 };
 
 

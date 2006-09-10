@@ -6,7 +6,7 @@ namespace rr
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Helpers
+// Helpers, one instance for all RRIlluminationPixelBufferInOpenGL
 
 class Helpers
 {
@@ -52,22 +52,7 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned aw
 
 	texture = Texture::create(NULL,awidth,aheight,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 
-	/*
-	glGenTextures(1, &textureId);
-	glBindTexture(GL_TEXTURE_2D,textureId);
-
-	//glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
-	unsigned char* buf = new unsigned char[awidth*aheight*3];
-	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, awidth, aheight, GL_RGB, GL_UNSIGNED_BYTE, buf);
-	delete[] buf;
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	*/
-
-	usePBO = false;
+	usePBO = true;
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderBegin()
@@ -85,14 +70,12 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
 	if(usePBO)
 	{
-		//!!! set texture as render target using PBO
+		helpers->tempTexture->renderingToBegin();
+		//texture->renderingToBegin();
 	}
-	else
-	{
-		glViewport(0,0,texture->getWidth(),texture->getHeight());
-		glScissor(0,0,texture->getWidth(),texture->getHeight());
-		glEnable(GL_SCISSOR_TEST);
-	}
+	glViewport(0,0,texture->getWidth(),texture->getHeight());
+	glScissor(0,0,texture->getWidth(),texture->getHeight());
+	glEnable(GL_SCISSOR_TEST);
 	// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
 	glClearColor(1,0,1,0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -136,19 +119,23 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 		return;
 	}
 	rendering = false;
+	//!!! potrebuju aby tempTexture mela presne stejnej rozmer jako texture
+	assert(texture->getWidth()==helpers->tempTexture->getWidth());
 	if(usePBO)
 	{
-		//!!! unset texture as render target using PBO
+		//texture->renderingToEnd();
+		helpers->tempTexture->renderingToEnd();
+		texture->renderingToBegin();
+		helpers->tempTexture->bindTexture();
 	}
 	else
 	{
-		assert(texture->getWidth()==helpers->tempTexture->getWidth());
 		helpers->tempTexture->bindTexture();
 		glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,texture->getWidth(),texture->getHeight());
 		//!!! kricet pokud je okno mensi nez textura, v lightmape pak je kus bily s facy sviti
 	}
 
-	// fill unused(pink) pixels
+	// fill unused pixels (alpha==0)
 	//!!! use alpha test
 	helpers->filterProgram->useIt();
 	helpers->filterProgram->sendUniform("lightmap",0);
@@ -161,7 +148,12 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 	bindTexture();
-	glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,texture->getWidth(),texture->getHeight());
+	if(usePBO)
+	{
+		texture->renderingToEnd();
+	} else {
+		glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,texture->getWidth(),texture->getHeight());
+	}
 
 	// restore pipeline
 	if(!scissorTest) glDisable(GL_SCISSOR_TEST);
@@ -173,13 +165,11 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 void RRIlluminationPixelBufferInOpenGL::bindTexture()
 {
 	texture->bindTexture();
-	//glBindTexture(GL_TEXTURE_2D, textureId);
 }
 
 RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 {
 	delete texture;
-	//glDeleteTextures(1, &textureId);
 
 	numInstances--;
 	if(!numInstances)
@@ -188,6 +178,5 @@ RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 		helpers = NULL;
 	}
 }
-
 
 } // namespace

@@ -1,18 +1,20 @@
-#include <iostream>
 #include <stdio.h>
 #include <string.h>
-//#include <jpeglib.h>
 #include <GL/glew.h>
 #include "TextureGL.h"
-
+#include "FBO.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // TextureGL
 
+unsigned TextureGL::numInstances = 0;
+
 TextureGL::TextureGL(unsigned char *data, int nWidth, int nHeight, int nType,
 				 int mag, int min, int wrapS, int wrapT)
 {
+	numInstances++;
+
 	width = nWidth;
 	height = nHeight;
 	unsigned int type = nType;
@@ -33,12 +35,6 @@ TextureGL::TextureGL(unsigned char *data, int nWidth, int nHeight, int nType,
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 }
 
-TextureGL::~TextureGL()
-{
-	glDeleteTextures(1, &id);
-	delete[] pixels;
-}
-
 void TextureGL::bindTexture() const
 {
 	glBindTexture(GL_TEXTURE_2D, id);
@@ -54,6 +50,33 @@ bool TextureGL::getPixel(float x01, float y01, float* rgb) const
 	rgb[1] = pixels[ofs+((channels==1)?0:1)]/255.0f;
 	rgb[2] = pixels[ofs+((channels==1)?0:2)]/255.0f;
 	return true;
+}
+
+static FBO* fbo = NULL;
+
+void TextureGL::renderingToBegin()
+{
+	if(!fbo) fbo = new FBO(512,512,true,false);
+	//!!! lepe urcovat rozmery
+	fbo->setRenderTarget(id,0);
+}
+
+void TextureGL::renderingToEnd()
+{
+	fbo->restoreDefaultRenderTarget();
+}
+
+TextureGL::~TextureGL()
+{
+	glDeleteTextures(1, &id);
+	delete[] pixels;
+
+	numInstances--;
+	if(!numInstances)
+	{
+		delete fbo;
+		fbo = NULL;
+	}
 }
 
 
