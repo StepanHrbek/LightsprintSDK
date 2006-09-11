@@ -6,6 +6,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define INITIAL_PASSES             1
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SHADOW_MAP_SIZE            512
+#define LIGHTMAP_SIZE              512
 int fullscreen = 0;//!!! switch all these to test lightmaps
 bool renderer3ds = 0;//!!!
 bool updateDuringLightMovement = 1;
@@ -155,7 +156,7 @@ bool showHint = 0;
 int showLightViewFrustum = 0;
 bool paused = 0;
 int resolutionx = 640;
-int resolutiony = 512; // musi byt aspon 512 jinak je spodek lightmap bily (vyresi to FBO)
+int resolutiony = 480;
 bool modeMovingEye = 0;
 unsigned movingEye = 0;
 unsigned movingLight = 0;
@@ -293,7 +294,7 @@ public:
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer()
 	{
-		return new rr::RRIlluminationPixelBufferInOpenGL(512,512);
+		return new rr::RRIlluminationPixelBufferInOpenGL(LIGHTMAP_SIZE,LIGHTMAP_SIZE);
 	}
 	virtual void detectMaterials()
 	{
@@ -1393,9 +1394,6 @@ void keyboardUp(unsigned char c, int x, int y)
 
 void reshape(int w, int h)
 {
-	// nevim proc ale funguje i s mensim oknem
-	//if(w<512 || h<512) LIMITED_TIMES(5,printf("Window size<512 not supported in this demo, expect incorrect render!\n"));
-
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);

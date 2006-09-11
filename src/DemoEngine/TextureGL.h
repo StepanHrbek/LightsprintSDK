@@ -20,7 +20,7 @@ class TextureGL : public Texture
 {
 public:
 	TextureGL(unsigned char *data, int width, int height, int type, // data are adopted and delete[]d later
-		int mag=GL_LINEAR, int min = GL_LINEAR,//!!!_MIPMAP_LINEAR, 
+		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR, 
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
 	virtual unsigned getWidth() const {return width;}
@@ -29,8 +29,8 @@ public:
 
 	virtual void bindTexture() const;
 
-	virtual void renderingToBegin();
-	virtual void renderingToEnd();
+	virtual void renderingToBegin(); ///< If more textures call this repeatedly, it is faster when they have the same resolution.
+	virtual void renderingToEnd(); ///< Can be omitted if you follow with another renderingToBegin().
 
 	virtual ~TextureGL();
 

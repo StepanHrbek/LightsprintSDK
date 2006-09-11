@@ -22,6 +22,8 @@ public:
 	~FBO();
 	void setRenderTarget(unsigned color_id, unsigned depth_id);
 	void restoreDefaultRenderTarget();
+	unsigned getWidth();
+	unsigned getHeight();
 	unsigned getDepthBits();
 private:
 	unsigned width;

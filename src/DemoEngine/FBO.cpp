@@ -93,6 +93,18 @@ void FBO::restoreDefaultRenderTarget()
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
+unsigned FBO::getWidth()
+{
+	assert(width);
+	return width;
+}
+
+unsigned FBO::getHeight()
+{
+	assert(height);
+	return height;
+}
+
 unsigned FBO::getDepthBits()
 {
 	assert(depthBits);

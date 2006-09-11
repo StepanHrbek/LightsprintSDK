@@ -56,8 +56,11 @@ static FBO* fbo = NULL;
 
 void TextureGL::renderingToBegin()
 {
-	if(!fbo) fbo = new FBO(512,512,true,false);
-	//!!! lepe urcovat rozmery
+	if(!fbo || fbo->getWidth()!=width || fbo->getHeight()!=height)
+	{
+		delete fbo;
+		fbo = new FBO(width,height,true,false);
+	}
 	fbo->setRenderTarget(id,0);
 }
 
