@@ -78,22 +78,26 @@ unsigned RRRealtimeRadiosity::getNumObjects()
 
 RRObject* RRRealtimeRadiosity::getObject(unsigned i)
 {
+	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).first;
 }
 
 const RRObjectAdditionalIllumination* RRRealtimeRadiosity::getMultiObject()
 {
+	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return multiObject;
 }
 
 const RRScene* RRRealtimeRadiosity::getScene()
 {
+	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return scene;
 }
 
 RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
 {
+	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).second;
 }
@@ -326,7 +330,7 @@ void RRRealtimeRadiosity::readPixelResults()
 	}
 }
 
-RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
+RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float improveStep)
 {
 	bool dirtyFactors = false;
 	ChangeStrength dirtyEnergies = NO_CHANGE;
@@ -442,7 +446,8 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 			break;
 	}
 
-	if(dirtyResults && now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
+	if((dirtyResults && now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
+		|| (requests&(UPDATE_VERTEX_BUFFERS|UPDATE_PIXEL_BUFFERS)) )
 	{
 		dirtyResults = false;
 		REPORT_BEGIN("Reading results.");
@@ -456,14 +461,15 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(float improveStep)
 	return RRScene::NOT_IMPROVED;
 }
 
-RRScene::Improvement RRRealtimeRadiosity::calculate()
+RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 {
 	TIME calcBeginTime = GETTIME;
 	bool illuminationUse = lastIlluminationUseTime && lastIlluminationUseTime>=lastCalcEndTime;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastIlluminationUseTime*1.0f,lastCalcEndTime*1.0f);
 
 	// pause during critical interactions
-	if(lastCriticalInteractionTime)
+	//  but avoid early return in case update was manually requested
+	if(lastCriticalInteractionTime && !(requests&(UPDATE_VERTEX_BUFFERS|UPDATE_PIXEL_BUFFERS)))
 	{
 		if((calcBeginTime-lastCriticalInteractionTime)/(float)PER_SEC<PAUSE_AFTER_CRITICAL_INTERACTION)
 		{
@@ -503,7 +509,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculate()
 	}
 
 	// calculate
-	RRScene::Improvement result = calculateCore(improveStep);
+	RRScene::Improvement result = calculateCore(requests,improveStep);
 
 	// adjust calcStep
 	lastCalcEndTime = GETTIME;

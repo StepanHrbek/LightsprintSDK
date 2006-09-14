@@ -129,9 +129,9 @@ void main()
 #else // SHADOW_SAMPLES!=1
   // blurred hard shadows (often called 'soft') with 2 or 4 lookups in rotating kernel
   float noise = 8.1*gl_FragCoord.x+5.7*gl_FragCoord.y;
-  vec3 sc = vec3(sin(noise),cos(noise),0);
+  vec3 sc = vec3(sin(noise),cos(noise),0.0);
   vec3 shift1 = sc*0.003;
-  vec3 shift2 = sc.yxz*vec3(0.006,-0.006,0);
+  vec3 shift2 = sc.yxz*vec3(0.006,-0.006,0.0);
 
 // for array of samplers (for any OpenGL 2.0 compliant card)
 //  for(int i=0;i<SHADOW_MAPS;i++)

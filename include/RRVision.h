@@ -457,8 +457,8 @@ namespace rr
 		//! Describes result of illumination calculation.
 		enum Improvement
 		{
-			IMPROVED,       ///< Lighting was improved during this call.
-			NOT_IMPROVED,   ///< Although some calculations were done, lighting was not yet improved during this call.
+			IMPROVED,       ///< Illumination was improved during this call.
+			NOT_IMPROVED,   ///< Although some calculations were done, illumination was not yet improved during this call.
 			FINISHED,       ///< Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
 			INTERNAL_ERROR, ///< Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};

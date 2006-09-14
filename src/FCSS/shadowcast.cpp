@@ -8,11 +8,11 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SHADOW_MAP_SIZE            512
 #define LIGHTMAP_SIZE              512
 int fullscreen = 0;//!!! switch all these to test lightmaps
-bool renderer3ds = 0;//!!!
+bool renderer3ds = 1;
 bool updateDuringLightMovement = 1;
-bool startWithSoftShadows = 0;//!!!
+bool startWithSoftShadows = 1;
 unsigned cores = 2;
-bool renderLightmaps = 1;//!!!
+bool renderLightmaps = 0;
 /*
 crashne po esc v s_veza/gcc
 
@@ -148,6 +148,7 @@ int depthBias24 = 42;
 int depthScale24;
 GLfloat slopeScale = 4.0;
 int needDepthMapUpdate = 1;
+bool needLightmapCacheUpdate = false;
 int wireFrame = 0;
 int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
@@ -294,7 +295,8 @@ public:
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer()
 	{
-		return new rr::RRIlluminationPixelBufferInOpenGL(LIGHTMAP_SIZE,LIGHTMAP_SIZE);
+		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
+		return renderLightmaps ? new rr::RRIlluminationPixelBufferInOpenGL(LIGHTMAP_SIZE,LIGHTMAP_SIZE) : NULL;
 	}
 	virtual void detectMaterials()
 	{
@@ -509,7 +511,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	// 2) slouzi jako test ze RRRealtimeRadiosity spravne generuje vertex buffer s indirectem
 	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
-	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds)
+	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -524,8 +526,22 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 	level->rendererNonCaching->setRenderedChannels(renderedChannels);
-	if(renderedChannels.LIGHT_INDIRECT_COLOR) // turn off caching for renders with indirect color, because it changes often
+	if(renderedChannels.LIGHT_INDIRECT_COLOR)
+	{
+		// turn off caching for renders with indirect color, because it changes often
 		level->rendererCaching->setStatus(RendererWithCache::CS_NEVER_COMPILE);
+	}
+	if(renderedChannels.LIGHT_INDIRECT_MAP && needLightmapCacheUpdate)
+	{
+		// refresh cache for renders with lightmap after any lightmam reallocation
+		needLightmapCacheUpdate = false;
+		level->rendererCaching->setStatus(RendererWithCache::CS_READY_TO_COMPILE);
+	}
+	if(renderedChannels.LIGHT_INDIRECT_MAP && !level->solver->getIllumination(0)->getChannel(0)->pixelBuffer)
+	{
+		// create lightmaps if they are needed for render
+		level->solver->calculate(rr::RRRealtimeRadiosity::UPDATE_PIXEL_BUFFERS);
+	}
 	level->rendererCaching->render();
 }
 
@@ -1225,6 +1241,19 @@ void keyboard(unsigned char c, int x, int y)
 			special(GLUT_KEY_UP,0,0);
 			break;
 
+		case 'v':
+			renderLightmaps = !renderLightmaps;
+			if(!renderLightmaps)
+			{
+				needLightmapCacheUpdate = true;
+				for(unsigned i=0;i<level->solver->getNumObjects();i++)
+				{
+					//!!! doresit obecne, ne jen pro channel 0
+					delete level->solver->getIllumination(i)->getChannel(0)->pixelBuffer;
+					level->solver->getIllumination(i)->getChannel(0)->pixelBuffer = NULL;
+				}
+			}
+			break;
 		case 'l':
 			updateDuringLightMovement = !updateDuringLightMovement;
 			break;

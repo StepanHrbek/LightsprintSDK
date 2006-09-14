@@ -75,23 +75,36 @@ namespace rr
 		RRObjectIllumination* getIllumination(unsigned i);
 
 
+		//! Optional request codes for calculate().
+		//! Calculate() knows when to update which buffer etc,
+		//! but you can override his logic by these manual requests.
+		enum Request
+		{
+			UPDATE_VERTEX_BUFFERS = 1,
+			UPDATE_PIXEL_BUFFERS = 2,
+		};
 		//! Calculates and improves indirect illumination on objects.
 		//
 		//! To be called once per frame while rendering. To be called even when
 		//! rendering is paused, calculation runs on background.
 		//!
-		//! With architect edition (no precalculations), it's expected that there are 
-		//! periods when scene doesn't change so you don't even render it.
+		//! With architect edition (no precalculations), it helps to improve performance if
+		//! you don't repeatedly render scene that doesn't change.
+		//! Note that user can't see any difference, as image stays unchanged in both cases.
 		//! We use these periods for more intense calculations (99% of time is spent here).
 		//! We recognize these periods from you not calling reportLightChange() and reportIlluminationUse().
+		//! Longer time spent in calculation() leads to higher quality.
 		//!
-		//! When scene is rendered permanently, only 20-50% of time is spent calculating
-		//! and quality goes down.
+		//! When scene is rendered permanently, only 20-50% of time is spent calculating.
 		//!
 		//! Night edition will add partial precalculations running transparently on background.
-		//! Without changes in your code, you will get much higher quality especially when
-		//! scene is rendered permanently.
-		RRScene::Improvement calculate();
+		//! Without changes in your code, you will get much higher quality.
+		//! \param requests
+		//!  Sum of manual requests. See enum Request for all possible individual requests.
+		//! \return
+		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
+		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
+		RRScene::Improvement calculate(unsigned requests=0);
 
 		//! Reports that appearance of one or more materials has changed.
 		//!
@@ -189,7 +202,7 @@ namespace rr
 		float      improveStep; // time to be spent in improve in calculate()
 		float      readingResultsPeriod;
 		RRObject*  multiObjectBase;
-		RRScene::Improvement calculateCore(float improveStep);
+		RRScene::Improvement calculateCore(unsigned requests, float improveStep);
 		// read results
 		void       updateVertexLookupTable();
 		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
