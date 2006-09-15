@@ -10,23 +10,26 @@
 
 unsigned TextureGL::numInstances = 0;
 
-TextureGL::TextureGL(unsigned char *data, int nWidth, int nHeight, int nType,
+TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, int type,
 				 int mag, int min, int wrapS, int wrapT)
 {
 	numInstances++;
 
-	width = nWidth;
-	height = nHeight;
-	unsigned int type = nType;
+	width = awidth;
+	height = aheight;
 	channels = (type == GL_RGB) ? 3 : 4;
-	if(!data) data = new unsigned char[nWidth*nHeight*channels]; //!!! eliminovat
+	if(!data && type!=GL_DEPTH_COMPONENT) data = new unsigned char[width*height*channels]; //!!! eliminovat
 	pixels = data;
 	glGenTextures(1, &id);
 
 	glBindTexture(GL_TEXTURE_2D, id);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, pixels); //!!! eliminovat
-	//glTexImage2D(GL_TEXTURE_2D,0,type,width,height,0,type,GL_UNSIGNED_BYTE,pixels);
+	if(type==GL_DEPTH_COMPONENT)
+		glTexImage2D(GL_TEXTURE_2D,0,type,width,height,0,type,GL_UNSIGNED_BYTE,NULL);
+	else
+	{
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, pixels); //!!! eliminovat
+	}
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min); 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag); 
@@ -56,11 +59,7 @@ static FBO* fbo = NULL;
 
 void TextureGL::renderingToBegin()
 {
-	if(!fbo || fbo->getWidth()!=width || fbo->getHeight()!=height)
-	{
-		delete fbo;
-		fbo = new FBO(width,height,true,false);
-	}
+	if(!fbo) fbo = new FBO();
 	fbo->setRenderTarget(id,0);
 }
 

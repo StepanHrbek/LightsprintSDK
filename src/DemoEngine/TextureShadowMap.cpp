@@ -24,11 +24,7 @@ TextureShadowMap::TextureShadowMap(unsigned awidth, unsigned aheight)
 
 void TextureShadowMap::renderingToBegin()
 {
-	if(!fbo || fbo->getWidth()!=width || fbo->getHeight()!=height)
-	{
-		delete fbo;
-		fbo = new FBO(width,height,false,true);
-	}
+	if(!fbo) fbo = new FBO();
 	fbo->setRenderTarget(0,id);
 }
 
@@ -39,8 +35,10 @@ void TextureShadowMap::renderingToEnd()
 
 unsigned TextureShadowMap::getDepthBits()
 {
-	if(!fbo) fbo = new FBO(256,256,false,true);
-	return fbo->getDepthBits();
+	GLint bits = 0;
+	bindTexture();
+	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_DEPTH_SIZE,&bits);
+	return bits;
 }
 
 /////////////////////////////////////////////////////////////////////////////

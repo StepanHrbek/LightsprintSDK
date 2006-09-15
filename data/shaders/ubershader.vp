@@ -17,6 +17,10 @@
 varying vec4 shadowCoord[SHADOW_MAPS];
 #endif
 
+#if SHADOW_SAMPLES>=2
+varying vec2 fragCoord; // ATI switches to sw raster on gl_FragCoord
+#endif
+
 #ifdef LIGHT_DIRECT
 uniform vec3 lightDirectPos;
 varying vec4 lightDirectColor;
@@ -102,5 +106,8 @@ void main()
   gl_Position = vec4(gl_MultiTexCoord7.x,gl_MultiTexCoord7.y,0.5,1.0);
 #else
   gl_Position = ftransform();
+#if SHADOW_SAMPLES>=2
+  fragCoord = gl_Position.xy*vec2(800.0,600.0);
+#endif
 #endif
 }

@@ -18,6 +18,7 @@ enum
 	TEXTURE_2D_LIGHT_DIRECT        = 10,
 	TEXTURE_2D_MATERIAL_DIFFUSE    = 11,
 	TEXTURE_2D_LIGHT_INDIRECT      = 12,
+	TEXTURE_2D_NOISE               = 13,
 
 	// texcoords assigned for UberProgram
 	// these constants are hardcoded in shaders
@@ -103,7 +104,7 @@ struct UberProgramSetup
 		return INSTANCES_PER_PASS;
 	}
 
-	bool useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap)
+	bool useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap, Texture* noiseMap)
 	{
 		Program* program = getProgram(uberProgram);
 		if(!program) return false;
@@ -137,6 +138,15 @@ struct UberProgramSetup
 		}
 		//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
 		glMatrixMode(GL_MODELVIEW);
+
+		if(SHADOW_MAPS && SHADOW_SAMPLES>=2)
+		{
+			if(!noiseMap) return false;
+			int id=TEXTURE_2D_NOISE;
+			glActiveTexture(GL_TEXTURE0+id);
+			noiseMap->bindTexture();
+			program->sendUniform("noiseMap",id);
+		}
 
 		// lightDirectPos (in object space)
 		if(LIGHT_DIRECT)

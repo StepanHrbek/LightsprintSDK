@@ -4,6 +4,7 @@ mkdir distro\shaders
 copy ..\..\data\shaders\ubershader.* distro\shaders
 mkdir distro\maps
 copy ..\..\data\maps\spot?.tga distro\maps
+copy ..\..\data\maps\noise.tga distro\maps
 mkdir distro\3ds
 mkdir distro\3ds\koupelna
 copy ..\..\data\3ds\koupelna\*.* distro\3ds\koupelna

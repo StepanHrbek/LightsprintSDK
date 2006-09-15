@@ -50,6 +50,7 @@ Camera              eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,5
 Camera              light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
 AreaLight*          areaLight = NULL;
 Texture*            lightDirectMap = NULL;
+Texture*            noiseMap = NULL;
 UberProgram*        uberProgram = NULL;
 RendererOfRRObject* rendererNonCaching = NULL;
 RendererWithCache*  rendererCaching = NULL;
@@ -67,7 +68,7 @@ bool                needRedisplay = true;
 
 void renderScene(UberProgramSetup uberProgramSetup)
 {
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,noiseMap))
 		error("Failed to compile or link GLSL program.\n",true);
 	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
 	{
@@ -394,7 +395,7 @@ int main(int argc, char **argv)
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
-	glClearDepth(0.999999); // prevents backprojection, tested on nvidia geforce 6600
+	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
 	uberProgram = new UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
@@ -403,8 +404,9 @@ int main(int argc, char **argv)
 
 	// init textures
 	lightDirectMap = Texture::load("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	if(!lightDirectMap)
-		error("Texture ..\\..\\data\\maps\\spot0.tga not found or not supported (supported = truecolor .tga).\n",false);
+	noiseMap = Texture::load("..\\..\\data\\maps\\noise.tga", GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
+	if(!lightDirectMap || !noiseMap)
+		error("Texture ..\\..\\data\\maps\\spot0.tga or noise.tga not found.\n",false);
 	areaLight = new AreaLight(shadowmapsPerPass,512);
 	areaLight->attachTo(&light);
 

@@ -7,7 +7,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SHADOW_MAP_SIZE            512
 #define LIGHTMAP_SIZE              512
-int fullscreen = 0;//!!! switch all these to test lightmaps
+int fullscreen = 1;
 bool renderer3ds = 1;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
@@ -137,6 +137,7 @@ AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
 Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
+Texture* noiseMap = NULL;
 Texture* loadingMap = NULL;
 Texture* hintMap = NULL;
 Program *ambientProgram;
@@ -224,6 +225,7 @@ void init_gl_resources()
 			error("",false);
 		}
 	}
+	noiseMap = Texture::load("maps\\noise.tga", GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
 	loadingMap = Texture::load("maps\\rrbugs_loading.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	hintMap = Texture::load("maps\\rrbugs_hint.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
@@ -502,7 +504,7 @@ void drawShadowMapFrustum(void)
 void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
 		error("Failed to compile or link GLSL program.\n",true);
 
 	// lze smazat, stejnou praci dokaze i rrrenderer
@@ -558,7 +560,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	Texture* shadowmap = areaLight->getShadowMap((mapIndex>=0)?mapIndex:0);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
-	glClearDepth(0.999999); // prevents backprojection, tested on nvidia geforce 6600
+	glClearDepth(0.9999); // prevents backprojection
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
@@ -854,12 +856,16 @@ Level::Level(const char* filename_3ds)
 	}
 	if(strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
+		// backlight
+		//Camera tmpeye = {{-0.273,4.571,3.438},10.085,9.250,1.3,75.0,0.3,60.0};
+		//Camera tmplight = {{-2.379,2.074,3.170},0.495,-0.100,1.0,70.0,1.0,20.0};
+		// dobry zacatek
+		Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,75.0,0.3,60.0};
+		Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};
 		//Camera koupelna4_eye = {{0.032202,1.659255,1.598609},10.010005,-0.150000};
 		//Camera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
 //		Camera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,50.,0.3,60.};
 //		Camera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
-		Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,75.0,0.3,60.0};
-		Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};
 		//Camera koupelna4_eye = {{0.823,1.500,-0.672},11.055,-0.050,1.3,100.0,0.3,60.0};//wrong backprojection
 		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
 		eye = tmpeye;
@@ -1609,6 +1615,8 @@ void parseOptions(int argc, char **argv)
 	}
 }
 
+#include "../DemoEngine/TextureShadowMap.h"
+
 int main(int argc, char **argv)
 {
 /*	// Get current flag
@@ -1662,7 +1670,6 @@ int main(int argc, char **argv)
 	init_gl_states();
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
-
 
 	// init shaders
 	// init textures

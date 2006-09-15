@@ -18,19 +18,12 @@
 class FBO
 {
 public:
-	FBO(unsigned awidth, unsigned aheight, bool acolor, bool adepth);
+	FBO();
 	~FBO();
 	void setRenderTarget(unsigned color_id, unsigned depth_id);
 	void restoreDefaultRenderTarget();
-	unsigned getWidth();
-	unsigned getHeight();
-	unsigned getDepthBits();
 private:
-	unsigned width;
-	unsigned height;
 	GLuint fb;
-	GLuint depth_rb;
-	GLint depthBits;
 };
 
 #endif
