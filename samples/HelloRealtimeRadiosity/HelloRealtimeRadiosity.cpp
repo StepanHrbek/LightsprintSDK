@@ -179,6 +179,7 @@ protected:
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
+			uberProgramSetup.NOISE_MAP = 0;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_DIRECT_MAP = true;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
@@ -265,6 +266,7 @@ void display(void)
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.NOISE_MAP = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;

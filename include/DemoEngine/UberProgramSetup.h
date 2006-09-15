@@ -38,6 +38,7 @@ struct UberProgramSetup
 	// UberProgram + UberProgramSetup = Program
 	unsigned SHADOW_MAPS            :8;
 	unsigned SHADOW_SAMPLES         :8;
+	bool     NOISE_MAP              :1;
 	bool     LIGHT_DIRECT           :1;
 	bool     LIGHT_DIRECT_MAP       :1;
 	bool     LIGHT_INDIRECT_COLOR   :1;
@@ -54,9 +55,10 @@ struct UberProgramSetup
 	const char* getSetupString()
 	{
 		static char setup[300];
-		sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s",
+		sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s",
 			SHADOW_MAPS,
 			SHADOW_SAMPLES,
+			NOISE_MAP?"#define NOISE_MAP\n":"",
 			LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
 			LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
 			LIGHT_INDIRECT_COLOR?"#define LIGHT_INDIRECT_COLOR\n":"",
@@ -84,24 +86,33 @@ struct UberProgramSetup
 
 	static unsigned detectMaxShadowmaps(UberProgram* uberProgram, unsigned startWith=10)
 	{
-		unsigned INSTANCES_PER_PASS;
-		for(INSTANCES_PER_PASS=startWith;INSTANCES_PER_PASS;INSTANCES_PER_PASS--)
+		unsigned instancesPerPass;
+		for(instancesPerPass=startWith;instancesPerPass;instancesPerPass--)
 		{
+			// maximize use of samplers
 			UberProgramSetup uberProgramSetup;
-			uberProgramSetup.SHADOW_MAPS = INSTANCES_PER_PASS;
+			uberProgramSetup.SHADOW_MAPS = instancesPerPass;
 			uberProgramSetup.SHADOW_SAMPLES = 4;
+			uberProgramSetup.NOISE_MAP = true;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_DIRECT_MAP = true;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
+			uberProgramSetup.FORCE_2D_POSITION = false;
+			if(!uberProgramSetup.getProgram(uberProgram)) continue;
+			// maximize use of interpolators
+			uberProgramSetup.NOISE_MAP = false;
+			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
+			uberProgramSetup.LIGHT_INDIRECT_MAP = true;
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-			uberProgramSetup.FORCE_2D_POSITION = false;
 			if(uberProgramSetup.getProgram(uberProgram)) break;
 		}
-		if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
-		if(INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
-		return INSTANCES_PER_PASS;
+//		if(instancesPerPass>1) instancesPerPass--;
+//		if(instancesPerPass>1) instancesPerPass--;
+		return instancesPerPass;
 	}
 
 	bool useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap, Texture* noiseMap)
@@ -139,7 +150,7 @@ struct UberProgramSetup
 		//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
 		glMatrixMode(GL_MODELVIEW);
 
-		if(SHADOW_MAPS && SHADOW_SAMPLES>=2)
+		if(NOISE_MAP)
 		{
 			if(!noiseMap) return false;
 			int id=TEXTURE_2D_NOISE;
