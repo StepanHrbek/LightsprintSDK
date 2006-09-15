@@ -7,6 +7,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SHADOW_MAP_SIZE            512
 #define LIGHTMAP_SIZE              512
+bool ati = 0;
 int fullscreen = 1;
 bool renderer3ds = 1;
 bool updateDuringLightMovement = 1;
@@ -353,7 +354,7 @@ protected:
 			UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
-			uberProgramSetup.NOISE_MAP = 0;
+			uberProgramSetup.NOISE_MAP = false;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
@@ -639,7 +640,7 @@ void drawEyeViewSoftShadowed(void)
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
 		//uberProgramSetup.SHADOW_SAMPLES = ;
-		if(uberProgramSetup.SHADOW_SAMPLES<2) uberProgramSetup.NOISE_MAP = 0;
+		if(uberProgramSetup.SHADOW_SAMPLES<2) uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
@@ -659,7 +660,7 @@ void drawEyeViewSoftShadowed(void)
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = MIN(INSTANCES_PER_PASS,numInstances);
 		//uberProgramSetup.SHADOW_SAMPLES = ;
-		if(uberProgramSetup.SHADOW_SAMPLES<2) uberProgramSetup.NOISE_MAP = 0;
+		if(uberProgramSetup.SHADOW_SAMPLES<2) uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
@@ -675,7 +676,7 @@ void drawEyeViewSoftShadowed(void)
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0;
-		uberProgramSetup.NOISE_MAP = 0;
+		uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_DIRECT = false;
 		uberProgramSetup.LIGHT_DIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
@@ -730,7 +731,6 @@ static void drawHelpMessage(bool big)
 		"",
 		"Extras for experts:",
 		" space - toggle global illumination",
-		" 'n'   - toggle noise (big help on NVIDIA)",
 		" 'z/Z' - zoom in/out",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
@@ -877,7 +877,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 1;
-		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
+//		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
 	if(strstr(filename_3ds, "koupelna3")) {
 		scale_3ds = 0.01f;
@@ -893,7 +893,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 1;
-		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
+//		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
 	if(strstr(filename_3ds, "koupelna5")) {
 		scale_3ds = 0.03f;
@@ -904,7 +904,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 1;
-		if(areaLight) areaLight->setNumInstances(1);
+//		if(areaLight) areaLight->setNumInstances(1);
 	}
 	if(strstr(filename_3ds, "sponza"))
 	{
@@ -917,7 +917,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 0;
-		if(areaLight) areaLight->setNumInstances(1);
+//		if(areaLight) areaLight->setNumInstances(1);
 	}
 	if(strstr(filename_3ds, "sibenik"))
 	{
@@ -946,7 +946,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 0;
-		if(areaLight) areaLight->setNumInstances(1);
+//		if(areaLight) areaLight->setNumInstances(1);
 	}
 
 	printf("Loading %s...",filename_3ds);
@@ -1029,7 +1029,7 @@ void display()
 				UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 				uberProgramSetup.SHADOW_MAPS = 1;
 				uberProgramSetup.SHADOW_SAMPLES = 1;
-				uberProgramSetup.NOISE_MAP = 0;
+				uberProgramSetup.NOISE_MAP = false;
 				uberProgramSetup.LIGHT_DIRECT = true;
 				uberProgramSetup.LIGHT_DIRECT_MAP = true;
 				uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
@@ -1610,6 +1610,9 @@ void parseOptions(int argc, char **argv)
 		if (!strcmp("ry", argv[i])) {
 			resolutiony = atoi(argv[++i]);
 		}
+		if (!strcmp("-ATI", argv[i])) {
+			ati = 1;
+		}
 		if (!strcmp("-window", argv[i])) {
 			fullscreen = 0;
 		}
@@ -1687,7 +1690,7 @@ int main(int argc, char **argv)
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
-	uberProgramGlobalSetup.NOISE_MAP = 1;
+	uberProgramGlobalSetup.NOISE_MAP = ati;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
@@ -1698,6 +1701,7 @@ int main(int argc, char **argv)
 
 	// adjust INSTANCES_PER_PASS to GPU
 	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
+	if(ati && INSTANCES_PER_PASS) INSTANCES_PER_PASS--;
 	if(!INSTANCES_PER_PASS) error("",true);
 
 	areaLight->attachTo(&light);

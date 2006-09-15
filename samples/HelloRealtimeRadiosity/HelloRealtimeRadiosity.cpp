@@ -8,6 +8,10 @@
 //  arrows = move around
 //  left button = switch between camera and light
 //
+// NOISE_MAP=false gives much better results. 
+// It is temporarily =true to avoid ATI's driver problem.
+// Feel free to put it back to false on NVIDIA.
+//
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006
 
 #include <assert.h>
@@ -179,7 +183,7 @@ protected:
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
-			uberProgramSetup.NOISE_MAP = 0;
+			uberProgramSetup.NOISE_MAP = false; // search next one, this is always false
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_DIRECT_MAP = true;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
@@ -266,7 +270,7 @@ void display(void)
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
-	uberProgramSetup.NOISE_MAP = 1;
+	uberProgramSetup.NOISE_MAP = true; // here, false=much better on NVIDIA
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;

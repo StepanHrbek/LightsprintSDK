@@ -16,8 +16,8 @@ copy bugs\*.* distro
 mkdir distro\images
 copy bugs\images\*.* distro\images
 copy ..\..\3rd\glut\glut32.dll distro
-copy ..\..\bin\fcss.exe distro\run.exe
-call -min upx distro\run.exe
+copy ..\..\bin\fcss.exe distro\run_NVIDIA.exe
+call -min upx distro\run_NVIDIA.exe
 del rrbugs.zip
 cd distro
 rem 7za a -r -tzip -mx=9 ..\RRBugs *.*
