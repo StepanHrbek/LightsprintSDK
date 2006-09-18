@@ -74,6 +74,7 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce (kompliko
 scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista jsou svetlejsi nez maji byt
 */
 
+#include "DemoEngine/Timer.h"
 #include <cassert>
 #include <cfloat>
 #include <cmath>
@@ -85,7 +86,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/wglew.h>
 #include <GL/glut.h>
 #include "RRRealtimeRadiosity.h"
-#include "DemoEngine/Timer.h"
 #include "DemoEngine/Camera.h"
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgram.h"
