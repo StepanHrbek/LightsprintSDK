@@ -18,7 +18,7 @@ namespace rr
 	class RR_API RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBuffer
 	{
 	public:
-		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight);
+		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders);
 		virtual void renderBegin();
 		virtual void renderTriangle(const IlluminatedTriangle& it);
 		//virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
@@ -30,7 +30,7 @@ namespace rr
 		// state backup
 		bool rendering;
 		GLint viewport[4];
-		GLboolean depthTest, scissorTest, depthMask;
+		GLboolean depthTest, depthMask;
 		GLfloat clearcolor[4];
 		// static
 		static unsigned numInstances; // number of living instances

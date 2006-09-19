@@ -5,6 +5,6 @@ varying vec2 lightmapCoord;
 
 void main()
 {
-	lightmapCoord = gl_Vertex.xy*0.5 + vec2(0.5,0.5);
-	gl_Position = gl_Vertex;
+	lightmapCoord = gl_Vertex.xy;
+	gl_Position = gl_Vertex*2.0 - vec4(1.0,1.0,0.0,1.0);
 }

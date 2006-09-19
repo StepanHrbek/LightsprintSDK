@@ -68,16 +68,12 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 	// backup pipeline
 	glGetIntegerv(GL_VIEWPORT,viewport);
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
-	scissorTest = glIsEnabled(GL_SCISSOR_TEST);
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
 	glGetFloatv(GL_COLOR_CLEAR_VALUE,clearcolor);
 
-	//helpers->tempTexture->renderingToBegin();
 	texture->renderingToBegin();
 
 	glViewport(0,0,texture->getWidth(),texture->getHeight());
-	glScissor(0,0,texture->getWidth(),texture->getHeight());
-	glEnable(GL_SCISSOR_TEST);
 	// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
 	glClearColor(1,0,1,0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -131,27 +127,28 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	helpers->filterProgram->sendUniform("pixelDistance",1.0f/texture->getWidth(),1.0f/texture->getHeight());
 
 	helpers->tempTexture->renderingToBegin();
-	//glViewport(0,0,texture->getWidth(),texture->getHeight());//!!!
-	//glScissor(0,0,texture->getWidth(),texture->getHeight());
+glViewport(0,0,texture->getWidth(),texture->getHeight());//!!!
 	texture->bindTexture();
 
 	glBegin(GL_POLYGON);
-	glVertex2f(-1,-1);
-	glVertex2f(1,-1);
+	glVertex2f(0,0);
+	glVertex2f(0,1);
 	glVertex2f(1,1);
-	glVertex2f(-1,1);
+	glVertex2f(1,0);
 	glEnd();
 
 	texture->renderingToBegin();
-	//glViewport(0,0,texture->getWidth(),texture->getHeight());//!!!
-	//glScissor(0,0,texture->getWidth(),texture->getHeight());
+glViewport(0,0,texture->getWidth(),texture->getHeight());//!!!
 	helpers->tempTexture->bindTexture();
+helpers->filterProgram->sendUniform("pixelDistance",1.0f/helpers->tempTexture->getWidth(),1.0f/helpers->tempTexture->getHeight());
 
+	float fracx = 1.0f*texture->getWidth()/helpers->tempTexture->getWidth();
+	float fracy = 1.0f*texture->getHeight()/helpers->tempTexture->getHeight();
 	glBegin(GL_POLYGON);
-	glVertex2f(-1,-1);
-	glVertex2f(1,-1);
-	glVertex2f(1,1);
-	glVertex2f(-1,1);
+	glVertex2f(0,0);
+	glVertex2f(0,fracy);
+	glVertex2f(fracx,fracy);
+	glVertex2f(fracx,0);
 	glEnd();
 
 	texture->renderingToEnd();
@@ -159,7 +156,6 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	// restore pipeline
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 	glClearColor(clearcolor[0],clearcolor[1],clearcolor[2],clearcolor[3]);
-	if(!scissorTest) glDisable(GL_SCISSOR_TEST);
 	if(depthTest) glEnable(GL_DEPTH_TEST);
 	if(depthMask) glDepthMask(GL_TRUE);
 }
