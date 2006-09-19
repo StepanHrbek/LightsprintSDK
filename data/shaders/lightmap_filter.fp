@@ -2,8 +2,8 @@
 // Copyright (C) Lightsprint 2006
 
 uniform sampler2D lightmap;
-varying vec2 lightmapCoord;
 uniform vec2 pixelDistance;
+varying vec2 lightmapCoord;
 
 void main()
 {

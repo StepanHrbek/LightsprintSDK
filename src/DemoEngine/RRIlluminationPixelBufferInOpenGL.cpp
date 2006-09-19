@@ -13,8 +13,8 @@ class Helpers
 {
 public:
 	enum {
-		MAX_LIGHTMAP_WIDTH = 512, //!!! hlidat shodu/preteceni
-		MAX_LIGHTMAP_HEIGHT = 512,
+		MAX_LIGHTMAP_WIDTH = 2048, // for bigger lightmaps, filtering is turned off
+		MAX_LIGHTMAP_HEIGHT = 2048,
 	};
 	Helpers(const char* pathToShaders)
 	{
@@ -117,41 +117,55 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 		return;
 	}
 	rendering = false;
-	//!!! potrebuju aby tempTexture mela presne stejnej rozmer jako texture
-//	assert(texture->getWidth()==helpers->tempTexture->getWidth());
 
-	// fill unused pixels (alpha==0)
-	//!!! use alpha test
-	helpers->filterProgram->useIt();
-	helpers->filterProgram->sendUniform("lightmap",0);
-	helpers->filterProgram->sendUniform("pixelDistance",1.0f/texture->getWidth(),1.0f/texture->getHeight());
+	// tempTexture nesmi byt mensi nez texture
+	if(texture->getWidth()<=helpers->tempTexture->getWidth() && texture->getHeight()<=helpers->tempTexture->getHeight())
+	{
+		// fill unused pixels (alpha==0)
+		//!!! use alpha test
+		helpers->filterProgram->useIt();
+		helpers->filterProgram->sendUniform("lightmap",0);
+		helpers->filterProgram->sendUniform("pixelDistance",1.0f/texture->getWidth(),1.0f/texture->getHeight());
 
-	helpers->tempTexture->renderingToBegin();
-glViewport(0,0,texture->getWidth(),texture->getHeight());//!!!
-	texture->bindTexture();
+		helpers->tempTexture->renderingToBegin();
+		glViewport(0,0,texture->getWidth(),texture->getHeight());
+		texture->bindTexture();
 
-	glBegin(GL_POLYGON);
-	glVertex2f(0,0);
-	glVertex2f(0,1);
-	glVertex2f(1,1);
-	glVertex2f(1,0);
-	glEnd();
+		glBegin(GL_POLYGON);
+		glMultiTexCoord2f(0,0,0);
+		glVertex2f(-1,-1);
+		glMultiTexCoord2f(0,0,1);
+		glVertex2f(-1,1);
+		glMultiTexCoord2f(0,1,1);
+		glVertex2f(1,1);
+		glMultiTexCoord2f(0,1,0);
+		glVertex2f(1,-1);
+		glEnd();
 
-	texture->renderingToBegin();
-glViewport(0,0,texture->getWidth(),texture->getHeight());//!!!
-	helpers->tempTexture->bindTexture();
-helpers->filterProgram->sendUniform("pixelDistance",1.0f/helpers->tempTexture->getWidth(),1.0f/helpers->tempTexture->getHeight());
+		texture->renderingToBegin();
+		helpers->tempTexture->bindTexture();
+		helpers->filterProgram->sendUniform("pixelDistance",1.0f/helpers->tempTexture->getWidth(),1.0f/helpers->tempTexture->getHeight());
 
-	float fracx = 1.0f*texture->getWidth()/helpers->tempTexture->getWidth();
-	float fracy = 1.0f*texture->getHeight()/helpers->tempTexture->getHeight();
-	glBegin(GL_POLYGON);
-	glVertex2f(0,0);
-	glVertex2f(0,fracy);
-	glVertex2f(fracx,fracy);
-	glVertex2f(fracx,0);
-	glEnd();
+		float fracx = 1.0f*texture->getWidth()/helpers->tempTexture->getWidth();
+		float fracy = 1.0f*texture->getHeight()/helpers->tempTexture->getHeight();
+		glBegin(GL_POLYGON);
+		glMultiTexCoord2f(0,0,0);
+		glVertex2f(-1,-1);
+		glMultiTexCoord2f(0,0,fracy);
+		glVertex2f(-1,1);
+		glMultiTexCoord2f(0,fracx,fracy);
+		glVertex2f(1,1);
+		glMultiTexCoord2f(0,fracx,0);
+		glVertex2f(1,-1);
+		glEnd();
 
-	texture->renderingToEnd();
+		texture->renderingToEnd();
+	}
+	else
+	{
+		assert(0);
+	}
+
 
 	// restore pipeline
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
