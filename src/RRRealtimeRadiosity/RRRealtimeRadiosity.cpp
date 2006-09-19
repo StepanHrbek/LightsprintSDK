@@ -281,7 +281,7 @@ void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context
 	context2->pixelBuffer->renderTriangle(si2);
 }
 
-RRIlluminationPixelBuffer* RRRealtimeRadiosity::newPixelBuffer()
+RRIlluminationPixelBuffer* RRRealtimeRadiosity::newPixelBuffer(RRObject* object)
 {
 	return NULL;
 }
@@ -300,7 +300,7 @@ void RRRealtimeRadiosity::readPixelResults()
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
-		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer();
+		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(object);
 		RRIlluminationPixelBuffer* pixelBuffer = channel->pixelBuffer;
 
 		if(pixelBuffer)

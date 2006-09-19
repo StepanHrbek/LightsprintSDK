@@ -171,7 +171,7 @@ namespace rr
 		virtual RRIlluminationVertexBuffer* newVertexBuffer(unsigned numVertices);
 		//! Returns new pixel buffer (for indirect illum lightmap) in your custom format.
 		//! Default implementation returns NULL.
-		virtual RRIlluminationPixelBuffer* newPixelBuffer();
+		virtual RRIlluminationPixelBuffer* newPixelBuffer(RRObject* object);
 
 		//! All objects in scene.
 		Objects    objects;

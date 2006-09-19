@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "DemoEngine/RRIlluminationPixelBufferInOpenGL.h"
 #include "DemoEngine/Program.h"
 
@@ -15,10 +16,13 @@ public:
 		MAX_LIGHTMAP_WIDTH = 512, //!!! hlidat shodu/preteceni
 		MAX_LIGHTMAP_HEIGHT = 512,
 	};
-	Helpers()
+	Helpers(const char* pathToShaders)
 	{
 		tempTexture = Texture::create(NULL,MAX_LIGHTMAP_WIDTH,MAX_LIGHTMAP_HEIGHT,GL_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
-		filterProgram = new Program(NULL,"shaders/lightmap_filter.vp","shaders/lightmap_filter.fp");
+		char buf1[1000],buf2[1000];
+		_snprintf(buf1,999,"%s%s",pathToShaders?pathToShaders:"","shaders/lightmap_filter.vp");
+		_snprintf(buf2,999,"%s%s",pathToShaders?pathToShaders:"","shaders/lightmap_filter.fp");
+		filterProgram = new Program(NULL,buf1,buf2);
 	}
 	~Helpers()
 	{
@@ -43,11 +47,11 @@ unsigned RRIlluminationPixelBufferInOpenGL::numInstances = 0;
 //	return new RRIlluminationPixelBufferInOpenGL(width,height);
 //}
 
-RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight)
+RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders)
 {
 	rendering = false;
 
-	if(!numInstances) helpers = new Helpers();
+	if(!numInstances) helpers = new Helpers(pathToShaders);
 	numInstances++;
 
 	texture = Texture::create(NULL,awidth,aheight,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
@@ -118,7 +122,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	}
 	rendering = false;
 	//!!! potrebuju aby tempTexture mela presne stejnej rozmer jako texture
-	assert(texture->getWidth()==helpers->tempTexture->getWidth());
+//	assert(texture->getWidth()==helpers->tempTexture->getWidth());
 
 	// fill unused pixels (alpha==0)
 	//!!! use alpha test
@@ -127,6 +131,8 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	helpers->filterProgram->sendUniform("pixelDistance",1.0f/texture->getWidth(),1.0f/texture->getHeight());
 
 	helpers->tempTexture->renderingToBegin();
+	//glViewport(0,0,texture->getWidth(),texture->getHeight());//!!!
+	//glScissor(0,0,texture->getWidth(),texture->getHeight());
 	texture->bindTexture();
 
 	glBegin(GL_POLYGON);
@@ -137,6 +143,8 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	glEnd();
 
 	texture->renderingToBegin();
+	//glViewport(0,0,texture->getWidth(),texture->getHeight());//!!!
+	//glScissor(0,0,texture->getWidth(),texture->getHeight());
 	helpers->tempTexture->bindTexture();
 
 	glBegin(GL_POLYGON);

@@ -296,10 +296,10 @@ public:
 		deleteObjectsFromRR(this);
 	}
 protected:
-	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer()
+	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
-		return renderLightmaps ? new rr::RRIlluminationPixelBufferInOpenGL(LIGHTMAP_SIZE,LIGHTMAP_SIZE) : NULL;
+		return renderLightmaps ? new rr::RRIlluminationPixelBufferInOpenGL(LIGHTMAP_SIZE,LIGHTMAP_SIZE,NULL) : NULL;
 	}
 	virtual void detectMaterials()
 	{
