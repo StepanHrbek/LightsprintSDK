@@ -54,6 +54,7 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	rr::RRScene::setStateF(rr::RRScene::SUBDIVISION_SPEED,0);
 	rr::RRScene::setState(rr::RRScene::GET_SOURCE,0);
 	rr::RRScene::setStateF(rr::RRScene::MIN_FEATURE_SIZE,0.15f);
+	timeBeginPeriod(1); // improves performance of demoengine's GETTIME
 }
 
 RRRealtimeRadiosity::~RRRealtimeRadiosity()

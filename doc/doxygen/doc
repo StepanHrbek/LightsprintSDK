@@ -31,9 +31,6 @@
  \subpage platforms "Supported platforms"
  - platforms supported by Lightsprint
 
- \subpage news "History"
- - what's new in releases
-
 
 
 \page overview Overview
@@ -45,7 +42,7 @@
  Mesh provides unified interface and manipulation for all 3d triangle meshes.
  \n Collider calculates ray x mesh intersections and depends on Mesh.
  \n Vision calculates radiosity in static scene and depends on Collider.
- \n Illumination manages calculated illumination in vertex buffers.
+ \n Illumination manages calculated illumination in lightmaps or vertex buffers.
  \n RealtimeRadiosity calculates radiosity in dynamic scene and depends on Vision and Illumination.
 
  All radiosity calculation libraries (RealtimeRadiosity, Vision)
@@ -71,11 +68,14 @@
 
  \section plat_bin Platforms for binaries
  For binary libraries, supported platforms are
- - Win32
- - (fully tested also under Windows XP x64, where it runs in 32bit)
+ - Win32 with Visual C++ 2005 multithreaded runtime library (use for example
+   Microsoft's public vcredist_x86.exe to install it)
+ - tested also under Windows XP x64, where it runs in 32bit
+ - ask for more
 
  Supported CPUs are
  - x86 compatible with SSE
+ - ask for more
 
  Binaries may work with multiple compilers, but only these are tested:
  - Visual C++ 2005
@@ -86,7 +86,7 @@
  able to use it on nearly any platform (consoles, linux etc).
 
  There are optional optimizations, that use SSE instructions on x86 CPUs,
- but they may be omitted on other platforms.
+ but they can be omitted on other platforms.
 
 
  
@@ -288,7 +288,7 @@
  - works with your units (screen colors or radiometry or photometry units or anything else)
  - display independent, purely numerical API
  - you can ask Vision about individual triangles, even adaptively subdivided;
-   for complete vertex buffers (or lightmaps in future), see RealtimeRadiosity library
+   for complete vertex buffers or lightmaps, see RealtimeRadiosity library
 
  \subpage vision_units "Units (radiometry, photometry)"
 
@@ -396,164 +396,5 @@
  - rr::RRVec2 is vector of 2 real numbers
  - rr::RRVec3 is vector of 3 real numbers
  - rr::RRVec4 is vector of 4 real numbers
-
-
-
-\page news What's new
-
-\section news6 ------------------------------------- 2006.10 -------------------------------------
-
-NEW FEATURES
-
-- Illumination library
-  \n calculated illumination storage
-  \n extends code previously placed in RRIllumPrecalculated.h and RRIllumPrecalculatedSurface.h
-- lightmap support via rr::RRIlluminationPixelBuffer
-- rr::RRIlluminationPixelBufferInOpenGL
-  \n implementation of lightmap in OpenGL
-
-CHANGES
-
-- libraries depend on msvcrt80.dll, use for example
-  Microsoft's public vcredist_x86.exe to install it on your machines
-- RRObject::getTriangleMapping() default implementation
-  generates improved unwrap
-
-\section news5 ------------------------------------- 2006.9 -------------------------------------
-
-NEW FEATURES
-
-- Math: components(), sum(), avg(), length(), length2(), normalize(), normalized() on rr::RRVec2, rr::RRVec3
-
-CHANGES
-
-- HelloRealtimeRadiosity: controls changed to FPS classic
-- HelloRealtimeRadiosity: improved performance on multicore CPU
-
-BUGFIXES
-
-- RealtimeRadiosity: not updated vertex buffers when primary light completely disappears
-- HelloRealtimeRadiosity: incorrect illum if you loaded something 50+ x bigger than sample scene
-- HelloRealtimeRadiosity: backprojection from spotlight
-
-\section news4 ------------------------------------- 2006.8 -------------------------------------
-
-NEW FEATURES
-
-- RealtimeRadiosity library
-  \n computes radiosity in dynamic scenes
-- DemoEngine library
-  \n engine replacement for writing demos
-- RRScene::getSubtriangleMeasure()
-  \n provides detailed info on illumination of adaptively subdivided mesh
-  \n allows for custom generation of lightmaps
-- rr::RRCollider::intersectBatch()
-  \n searches collisions on all cores/CPUs at once
-- rr::RRChanneledData
-  \n extends rr::RRMesh and rr::RRObject to allow storage of
-     additional data of user defined types
-- rr::RRObject::createWorldSpaceObject()
-  \n creates object transformed to worldspace
-  \n brings negative scale support
-- rr::RRObject::createCollisionHandlerFirstVisible()
-  \n finds collision with first visible surface,
-  \n supports even objects mixing both single and doublesided surfaces
-- rr::RRMesh::createOptimizedTriangles()
-  \n creates optimized mesh without degenerated triangles
-- rr::RRSurface::validate() makes surface physically correct
-  \n helps you prepare valid data before start of calculation
-- rr::RRScene::illuminationReset() supports preserving factors
-  \n allows realtime radiosity in static scene without precalculations
-- rr::RRObject::createMultiObject() can optimize triangles
-  \n simplifies work with multiple objects
-- rr::RRMesh::save(), rr::RRMesh::load()
-  \n any mesh can be saved to file and loaded later
-- HelloRealtimeRadiosity sample
-  \n demonstrates realtime radiosity with one dynamic light
-- HelloMesh sample
-  \n demonstrates how to create simple mesh
-- HelloCollider sample
-  \n demonstrates how to detect ray-mesh collision
-- BunnyBenchmark sample
-  \n measures Collider's score in Stanford Bunny Benchmark
-
-CHANGES
-
-- new scheduler and other optimizations in radiosity solver
-  \n 10% faster radiosity calculation on average
-- Math and Mesh become standalone libraries, were part of Collider
-- license info is retrieved from file, not from two char*
-- name changes
-  \n namespaces rrCollider and rrVision -> rr
-  \n RRMeshImporter -> rr::RRMesh
-  \n RRObjectImporter -> rr::RRObject
-  \n RRAdditionalObjectImporter -> rr::RRObjectAdditionalIllumination
-  \n RRMeshSurfaceImporter -> rr::RRCollisionHandler
-  \n RRLicense -> rr::RRLicenseCollider
-  \n RRCollider::getImporter() -> rr::RRCollider::getMesh()
-
-BUGFIXES
-
-- fixed smoothing on complicated meshes
-- fixed delete 0 on rr::RRAligned
-
-\section news3 ------------------------------------- 2006.3.23 -------------------------------------
-
-NEW FEATURES
-
-- rrCollider::RRMeshImporter::MultiMeshPreImportNumber
-  \n defines format of PreImport index in MultiMesh
-  \n simplifies work with MultiMeshes created by rrCollider::RRMeshImporter::createMultiMesh()
-- rrCollider::RRVec2 newly equipped with arithmetic operators
-  \n simplifies work with 2d vectors
-
-CHANGES
-
-- column-major RRMatrix4x4 replaced by row-major rrVision::RRMatrix3x4
-- on several places, behaviour is defined for invalid inputs
-- improved documentation
-
-
-\section news2 ------------------------------------- 2006.3.10 -------------------------------------
-
-NEW FEATURES
-
-- sample "HelloVision"
-  \n performs minimalistic illumination calculation
-  \n gives first insight into Vision usage
-
-
-\section news1 ------------------------------------- 2006.2.26 -------------------------------------
-
-NEW FEATURES
-
-- documentation
-- rrVision::RRSideBits
-  \n precise surface behaviour control
-  \n allows to simulate new range of surfaces
-- rrVision::RRScaler
-  \n automatic input and output scaling
-  \n simplifies work with any units including radiometric,
-  photometric and linear screen space
-- rrVision::RRRadiometricMeasure
-  \n more general interface to many inputs and outputs
-  \n simplifies data transfers
-- rrCollider::RRMeshImporter::verify()
-  \n mesh importer correctness verification
-  \n simplifies testing mesh data and writing new importers
-- rrVision::RRAdditionalObjectImporter
-  \n simplifies transfer of captured direct illumination
-- rrCollider::RRVec2, rrCollider::RRVec3, rrCollider::RRVec4, rrVision::RRMatrix4x4
-  \n primitives with basic mathematics
-  \n simplifies inputs and outputs, adds type control
-- rrVision::RRSceneStatistics
-  \n new statistics of scene processing
-  \n gives insight into processing when needed
-
-CHANGES
-
-- +2% faster on average
-- more input data verifications during calculation
-- \#define RR*_IMPORT no longer needed
 
 */

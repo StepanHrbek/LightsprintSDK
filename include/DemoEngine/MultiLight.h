@@ -7,6 +7,7 @@
 #ifndef MULTILIGHT_H
 #define MULTILIGHT_H
 
+#include <cassert>
 #include "MultiInstance.h"
 #include "Camera.h"
 #include "Texture.h"

@@ -434,6 +434,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\UberProgramSetup.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\DemoEngine\UberProgramSetup.h"
 			>
 		</File>

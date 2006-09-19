@@ -13,7 +13,7 @@
 	#define WINDOWS_TIME
 	#include <windows.h>
 	#define TIME    DWORD
-	#define GETTIME GetTickCount()
+	#define GETTIME timeGetTime()
 	#define PER_SEC 1000
 #else
 	#define TIME    clock_t
