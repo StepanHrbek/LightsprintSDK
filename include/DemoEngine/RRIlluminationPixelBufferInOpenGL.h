@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// OpenGL implementation of lightmap interface rr::RRIlluminationPixelBuffer.
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// --------------------------------------------------------------------------
+
 #include "RRIllumination.h"
 #include "DemoEngine/Texture.h"
 #include <GL/glew.h>

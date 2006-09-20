@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // UberProgramSetup, parameter management for our UberProgram in UberShader.vp/fp.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
 #ifndef UBERPROGRAMSETUP_H
@@ -32,7 +32,7 @@ enum
 //
 // UberProgramSetup - options for UberShader.vp+fp
 
-struct UberProgramSetup
+struct RR_API UberProgramSetup
 {
 	// these values are passed to UberProgram which sets them to shader #defines
 	// UberProgram + UberProgramSetup = Program

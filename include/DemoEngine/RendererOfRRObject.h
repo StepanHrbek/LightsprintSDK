@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // RendererOfRRObject, Renderer implementation that renders RRObject instance.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
 #ifndef RENDEREROFRROBJECT_H

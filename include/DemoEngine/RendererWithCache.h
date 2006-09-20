@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // RendererWithCache, Renderer implementation that accelerates other renderer using display list.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
 #ifndef RENDERERWITHCACHE_H

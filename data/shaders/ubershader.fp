@@ -13,6 +13,8 @@
 //  #define FORCE_2D_POSITION
 //
 // Workarounds for driver bugs of one vendor made it a mess, sorry.
+//
+// Copyright (C) Stepan Hrbek, Lightsprint 2006
 
 // for array of samplers (for any OpenGL 2.0 compliant card)
 //#if SHADOW_MAPS*SHADOW_SAMPLES>0

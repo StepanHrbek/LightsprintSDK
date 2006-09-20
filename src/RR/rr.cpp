@@ -831,7 +831,7 @@ int main(int argc, char **argv)
  kb_init();
  glutInit(&argc,argv);
  render_init();
- RRLicense::LicenseStatus status = rr::RRLicense::loadLicense("..\\..\\data\\license_number");
+ RRLicense::LicenseStatus status = rr::RRLicense::loadLicense("..\\..\\data\\licence_number");
  switch(status)
  {
 	case RRLicense::VALID:       break;

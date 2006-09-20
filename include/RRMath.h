@@ -4,8 +4,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRMath.h
 //! \brief RRMath - basic math used by Lightsprint libraries
-//! \version 2006.9.19
-//! \author Copyright (C) Lightsprint
+//! \version 2006.9.20
+//! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 

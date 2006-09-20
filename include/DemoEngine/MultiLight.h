@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // AreaLight, provides multiple generated instances of light for area light simulation.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
 #ifndef MULTILIGHT_H

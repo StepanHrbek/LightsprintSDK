@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // Shader, OpenGL 2.0 object.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
 #ifndef SHADER_H

@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // Timer, measures real time, processor time in userspace and in kernel.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
 #ifndef TIMER_H
@@ -15,6 +15,9 @@
 	#define TIME    DWORD
 	#define GETTIME timeGetTime()
 	#define PER_SEC 1000
+	#ifdef _MSC_VER
+		#pragma comment(lib,"winmm.lib")
+	#endif
 #else
 	#define TIME    clock_t
 	#define GETTIME clock()

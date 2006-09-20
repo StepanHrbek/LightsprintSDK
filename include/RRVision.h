@@ -4,8 +4,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
 //! \brief RRVision - library for fast global illumination calculations
-//! \version 2006.9.19
-//! \author Copyright (C) Lightsprint
+//! \version 2006.9.20
+//! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 

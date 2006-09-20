@@ -450,7 +450,7 @@ int main(int argc, char **argv)
 		error("",false);
 
 	// init realtime radiosity solver
-	if(rr::RRLicense::loadLicense("..\\..\\data\\license_number")!=rr::RRLicense::VALID)
+	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
 		error("Problem with license number.\n", false);
 	solver = new Solver();
 	provideObjectsFrom3dsToRR(&m3ds,solver,0.01f);

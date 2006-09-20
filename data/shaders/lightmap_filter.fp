@@ -1,5 +1,6 @@
 // Lightmap postprocess
-// Copyright (C) Lightsprint 2006
+// Used by rr::RRIlluminationPixelBufferInOpenGL
+// Copyright (C) Stepan Hrbek, Lightsprint 2006
 
 uniform sampler2D lightmap;
 uniform vec2 pixelDistance;

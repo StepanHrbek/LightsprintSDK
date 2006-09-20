@@ -5,7 +5,7 @@
 //! \file RRIlluminationSpace.h
 //! \brief RRIllumination - library for calculated illumination storage
 //! \version 2006.9
-//! \author Copyright (C) Lightsprint
+//! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 

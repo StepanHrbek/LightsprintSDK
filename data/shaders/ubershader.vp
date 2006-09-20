@@ -13,6 +13,8 @@
 //  #define FORCE_2D_POSITION
 //
 // Workarounds for driver bugs of one vendor made it a mess, sorry.
+//
+// Copyright (C) Stepan Hrbek, Lightsprint 2006
 
 #if SHADOW_MAPS>0
 varying vec4 shadowCoord[SHADOW_MAPS];
