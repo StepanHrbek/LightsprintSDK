@@ -185,7 +185,7 @@
  Multiple ways how to access these levels and how to store them exist.
 
  \section vertices Vertices, Vertex arrays
-   You may read illumination levels in individual face vertices
+   You can read illumination levels in individual face vertices
    (rr::RRScene::getTriangleMeasure)
    or let RealtimeRadiosity generate complete vertex arrays for you
    (rr::RRRealtimeRadiosity::calculate).
@@ -217,7 +217,7 @@
    and it is used by default (by rr::RRRealtimeRadiosity::newVertexBuffer).
 
  \section textures Lightmaps
-   You may read illumination levels in adaptively subdivided triangles
+   You can read illumination levels in adaptively subdivided triangles
    (rr::RRScene::getSubtriangleMeasure)
    and create lightmaps out of them or let Realtime Radiosity
    do it for you (rr::RRRealtimeRadiosity::calculate).
@@ -241,7 +241,7 @@
    or implement your own.
 
  \section faces Faces
-   You may read illumination levels in individual faces
+   You can read illumination levels in individual faces
    (rr::RRScene::getTriangleMeasure with vertex=3).
    This is good for example for AI trying to find dark place for hiding.
    Reading illumination level on face is slightly faster than reading
