@@ -2,150 +2,25 @@
 
 
 \mainpage Lightsprint SDK
- Welcome to Lightsprint libraries.
-
- \subpage overview "Overview"
- - overview of Lightsprint SDK components
-
- \subpage rr "Lightsprint REALTIME RADIOSITY"
- - calculates realtime radiosity in dynamic scene
-
- \subpage illumination "Lightsprint ILLUMINATION"
- - storage for calculated illumination
-
- \subpage vision "Lightsprint VISION"
- - calculates radiosity in static scene
-
- \subpage collider "Lightsprint COLLIDER"
- - finds ray-mesh intersections
-
- \subpage mesh "Lightsprint MESH"
- - unifies access to triangle meshes
-
- \subpage math "Lightsprint MATH"
- - basic math
-
- \subpage rules "Common"
- - information regarding floats, ownership, scale...
-
- \subpage platforms "Supported platforms"
- - platforms supported by Lightsprint
-
-
-
-\page overview Overview
-
- Lightsprint libraries are simply layered.
- Each layer solves new unique problem using lower layers.
- Depending on your project, you can use all layers or just one.
-
- Mesh provides unified interface and manipulation for all 3d triangle meshes.
- \n Collider calculates ray x mesh intersections and depends on Mesh.
- \n Vision calculates radiosity in static scene and depends on Collider.
- \n Illumination manages calculated illumination in lightmaps or vertex buffers.
- \n RealtimeRadiosity calculates radiosity in dynamic scene and depends on Vision and Illumination.
-
- All radiosity calculation libraries (RealtimeRadiosity, Vision)
- and their support (Illumination, Collider, Mesh) are purely numerical,
- they are OpenGL/DirectX independent.
-
- DemoEngine provides simple support for loading and rendering 3d scenes.
- It depends on OpenGL, GLU and RealtimeRadiosity. It has built-in GLEW.
-
- Sample HelloRealtimeRadiosity uses RealtimeRadiosity, OpenGL and GLUT
- for demonstrating realtime radiosity in scene with dynamic light.
- It uses DemoEngine for common tasks that can be used later by other samples.
-
- \image html libraries.png
-
- Other samples depend only on appropriate libraries, eg. HelloCollider on Collider.
-
- BunnyBenchmark measures Collider performance for comparison with other engines.
-
-
-
-\page platforms Supported platforms
-
- \section plat_bin Platforms for binaries
- For binary libraries, supported platforms are
- - Win32 with Visual C++ 2005 multithreaded runtime library (use for example
-   Microsoft's public vcredist_x86.exe to install it)
- - tested also under Windows XP x64, where it runs in 32bit
- - ask for more
-
- Supported CPUs are
- - x86 compatible with SSE
- - ask for more
-
- Binaries may work with multiple compilers, but only these are tested:
- - Visual C++ 2005
- - Visual C++ 2003
-
- \section plat_src Platforms for source code
- Our source code conforms to standard <b>ISO C++</b>, so you should be 
- able to use it on nearly any platform (consoles, linux etc).
-
- There are optional optimizations, that use SSE instructions on x86 CPUs,
- but they can be omitted on other platforms.
-
-
- 
-\page rules Common
- These rules apply to all interfaces in SDK:
- \section gscale Scale
-   Lightsprint libraries support scaled objects.
-   \n\n
-   RRMesh and Collider support all scaled objects: positively or negatively, uniformly or non-uniformly scaled.
-   \n\n
-   RRObject and Vision support typical scaled objects: positively or negatively, uniformly scaled.
-   \n Negative scale is supported with both possible interpretations:
-   Singlesided box visible from outside transformed with scale -1
-   can stay visible form the outside or become visible only from inside,
-   see rr::RRObject::createWorldSpaceObject().
- \section gowner Ownership
-   Dynamically created objects (using new) are never adopted, ownership never changes.
-   \n This means that parameters that need to be destructed are never destructed inside call,
-   responsibility for object is never passed to someone else.
-   When you create object (using create() etc.), be sure that you delete it later.
- \section gref Reference counting
-   There is no internal reference counting, so if you create collider out of mesh,
-   you are not allowed to destroy mesh before destroying collider. This danger should be
-   mentioned on all appropriate places.
- \section gfinite Finite numbers
-   If not otherwise specified, all inputs must be finite numbers.
-   With Inf or NaN, result is undefined.
- \section gflodoub Floats and doubles
-   Library uses both floats and doubles.
-   It is not allowed to break double arithmetics by modifying FPU states.
-   If you use Direct3D, make sure you don't instruct it to force single precision for whole application
-   which breaks double precision arithmetics in whole program and libraries.
- \section gnull NULL
-   Although NULL is obsoleted by C++ and some discourage from using it,
-   we continue using it to distinguish zeros for pointers and zeros for non-pointers.
-   So eg. if you see var=0, be sure that var is NOT a pointer. On the other side,
-   var=NULL makes sure that var IS a pointer.
-
-
-\page rr Lightsprint Realtime Radiosity
- Realtime Radiosity extends your renderer by adding realtime computed
- indirect illumination.
-
- Headers: RRRealtimeRadiosity.h
-
- - adds indirect illumination to dynamic scenes
- - integrates with existing engines
- - uses no precalculations -> illumination quality varies, "architect edition"
- - techniques based on partial precalculations will follow -> quality boost, "day/night editions"
- - you can ask RealtimeRadiosity for complete vertex buffers or lightmaps;
-   for information on individual triangles (even adaptively subdivided), call underlying Vision library
+ Welcome to Lightsprint SDK.
 
  \subpage rr_dir_indir "Direct vs indirect; Realtime Radiosity position"
 
- \subpage rr_integration "Integration with renderer" and how to start
+ \subpage scenarios "Usage scenarios"
 
- Sample HelloRealtimeRadiosity shows the result of integration,
- interactive .3ds scene viewer with radiosity immediately responding
- to light movements.
+ \subpage rr_integration "Integration with renderer"
+
+ \subpage vision_storage "Data formats (vertex arrays, lightmaps)"
+
+ \subpage rules "Conventions (units, scale, floats...)"
+
+ \subpage platforms "Supported platforms"
+
+ \subpage api "API reference"
+
+ \image html all-rr.png
+
+
 
 
 \page rr_dir_indir Direct vs indirect; Realtime Radiosity position
@@ -187,6 +62,54 @@
  Vision is also able to calculate complete illumination (direct+indirect)
  from real-world direct light sources - surfaces. However we don't prefer
  this use case as it's not suitable for interactive application.
+
+ \image html all-ambient.png
+ Today's games with moving lights approximate indirect illumination
+ by constant ambient. Rarely, they render no indirect illumination
+ at all (left column).
+
+ \image html all-rr.png
+ Lightsprint calculates physically correct indirect illumination
+ (realtime radiosity) as a replacement for constant ambient.
+
+
+
+
+\page scenarios Usage scenarios
+
+ \section scenario2 Realtime radiosity integrated into editor. Game uses precalculated lightmaps / vertex arrays
+
+  - Saves months of work to graphics artists and designers,
+    previously spent in lightmap rebuilds or fake light placement.
+
+  - Allows artists to find visually more attractive positions / settings for lights.
+
+  - Saves months spent in adapting your data for external global illumination
+    tools. Other tools don't support arbitrary materials and lights.
+
+  - Simple path for incorporating realtime radiosity into future games.
+
+ \section scenario1 Realtime radiosity integrated into game
+
+  - Greatly improves realism and visual appeal.
+
+  - Requires no level preprocessing, saves time previously spent on infinite levels builds.
+
+  - Simplifies integration of mods and other user provided assets.
+
+  - Supports arbitrary materials / shaders, even those writen by modders
+    after game release.
+
+  - Publicity, be first with realtime global illumination in game.
+
+  - See <a href="http://dee.cz/rrb">Realtime Radiosity Bugs</a>
+    as an example. It's not a real game, but it shows innovative use 
+    of realtime radiosity in game. It doesn't have to be just eye candy.
+    
+ \image html rrbugs_hint.jpg
+
+
+
 
 
 \page rr_integration Integration with renderer
@@ -257,7 +180,224 @@
 
 
 
-\page illumination Lightsprint Illumination
+\page vision_storage Data formats
+ Illumination levels are calculated for all surfaces in your scene.
+ Multiple ways how to access these levels and how to store them exist.
+
+ \section vertices Vertices, Vertex arrays
+   You may read illumination levels in individual face vertices
+   (rr::RRScene::getTriangleMeasure)
+   or let RealtimeRadiosity generate complete vertex arrays for you
+   (rr::RRRealtimeRadiosity::calculate).
+   It is expected that illumination inside face will be linearly interpolated
+   from values in vertices.
+   \n This representation has several advantages:
+   - Compact representation. It requires only few bytes per vertex.
+     Default implementation stores illumination as 3 floats, but you
+     can easily add arbitrary compression.
+   - Fast rendering.
+     No sampler resources are consumed.
+     It can be arbitrarily postprocessed in vertex shader.
+     You may have for example multiple layers of precalculated indirect illumination 
+     and mix them in vertex shader according to changes in scene.
+
+   On the other hand, there are also disadvantages of vertex illumination:
+   - Details are missing in areas without vertices.
+     For good results, you have to add vertices to places where you miss details.
+   - Seams around T vertices and other degenerated geometries.
+     You have to make your meshes clean, avoid degeneracies.
+   - Long narrow triangles (needles) often create visible artifacts.
+     This is often problem also for physical engine,
+     so your 3d artisis probably know they should avoid them.
+
+   Vertex arrays are stored by rr::RRIlluminationVertexBuffer
+   interface.
+   Implementation is provided 
+   (rr::RRIlluminationVertexBuffer::createInSystemMemory)
+   and it is used by default (by rr::RRRealtimeRadiosity::newVertexBuffer).
+
+ \section textures Lightmaps
+   You may read illumination levels in adaptively subdivided triangles
+   (rr::RRScene::getSubtriangleMeasure)
+   and create lightmaps out of them or let Realtime Radiosity
+   do it for you (rr::RRRealtimeRadiosity::calculate).
+   This representation is more expensive for processing, storage and rendering
+   (any postprocessing must be done per pixel and it consumes sampler resources),
+   but it avoids some disadvantages of vertex illumination
+   (needle triangles cause problems to both vertex arrays and lightmaps).
+
+   At the moment, adaptive subdivision is turned off by default, 
+   and lightmaps contain no additional details compared to vertex arrays.
+   This will be fixed soon. API won't change, you'll just get more 
+   detailed lightmaps.
+
+   Lightmaps are stored by rr::RRIlluminationPixelBuffer
+   interface.
+   No implementation is present in platform independent core libraries
+   (default rr::RRRealtimeRadiosity::newPixelBuffer returns NULL),
+   so lightmaps are not generated by default.
+   However you can use OpenGL accelerated implementation from DemoEngine
+   (rr::RRIlluminationPixelBufferInOpenGL)
+   or implement your own.
+
+ \section faces Faces
+   You may read illumination levels in individual faces
+   (rr::RRScene::getTriangleMeasure with vertex=3).
+   This is good for example for AI trying to find dark place for hiding.
+   Reading illumination level on face is slightly faster than reading
+   it in vertex.
+   
+
+
+\page platforms Supported platforms
+
+ \section plat_bin Platforms for binaries
+ For binary libraries, supported platforms are
+ - Win32 with Visual C++ 2005 multithreaded runtime library (use for example
+   Microsoft's public vcredist_x86.exe to install it)
+ - tested also under Windows XP x64, where it runs in 32bit
+ - ask for more
+
+ Supported CPUs are
+ - x86 compatible with SSE
+ - ask for more
+
+ Binaries may work with multiple compilers, but only these are tested:
+ - Visual C++ 2005
+ - Visual C++ 2003
+
+ \section plat_src Platforms for source code
+ Our source code conforms to standard <b>ISO C++</b>, so you should be 
+ able to use it on nearly any platform (consoles, linux etc).
+
+ There are optional optimizations, that use SSE instructions on x86 CPUs,
+ but they can be omitted on other platforms.
+
+
+ 
+\page rules Conventions
+
+ \section gunits Units (radiometry, photometry, screen)
+   Although whole documentation talks in radiometry terms,
+   it is possible to work in photometry units, screen colors 
+   or any other units.
+   In typical situations, it is most straightforward to work and think 
+   in screen colors. Everything you need is to setup appropriate
+   convertor, see rr::RRScene::setScaler().
+
+ \section gscale Scale
+   Lightsprint libraries support scaled objects.
+   \n\n
+   RRMesh and Collider support all scaled objects: positively or negatively, uniformly or non-uniformly scaled.
+   \n\n
+   RRObject and Vision support typical scaled objects: positively or negatively, uniformly scaled.
+   \n Negative scale is supported with both possible interpretations
+   for singlesided faces:
+   Singlesided box visible from outside transformed with scale -1
+   can stay visible form the outside or become visible only from inside,
+   see rr::RRObject::createWorldSpaceObject().
+ \section gowner Ownership
+   Dynamically created objects (using new) are never adopted, ownership never changes.
+   \n This means that parameters that need to be destructed are never destructed inside call,
+   responsibility for object is never passed to someone else.
+   When you create object (using create() etc.), be sure that you delete it when
+   no longer needed.
+ \section gref Reference counting
+   There is no internal reference counting, so if you create collider out of mesh,
+   you are not allowed to destroy mesh before destroying collider. This danger should be
+   mentioned on all appropriate places.
+ \section gfinite Finite numbers
+   If not otherwise specified, all inputs must be finite numbers.
+   With Inf or NaN on input, result of any operation is undefined.
+ \section gflodoub Floats and doubles
+   Library uses both floats and doubles.
+   It is not allowed to break double arithmetics by modifying FPU states.
+   If you use Direct3D, make sure you don't instruct it to force single precision for whole application
+   which breaks double precision arithmetics in whole program and libraries.
+ \section gnull NULL
+   Although NULL is obsoleted by C++ and some discourage from using it,
+   we continue using it to distinguish zeros for pointers and zeros for non-pointers.
+   So eg. if you see var=0, be sure that var is NOT a pointer. On the other side,
+   var=NULL makes sure that var IS a pointer.
+
+
+
+
+
+
+\page api API
+
+ \subpage rr "REALTIME RADIOSITY"
+ - library, calculates realtime radiosity in dynamic scene
+
+ \subpage illumination "ILLUMINATION"
+ - library, storage for calculated illumination
+
+ \subpage vision "VISION"
+ - library, calculates radiosity in static scene
+
+ \subpage collider "COLLIDER"
+ - library, finds ray-mesh intersections
+
+ \subpage mesh "MESH"
+ - library, unifies access to triangle meshes
+
+ \subpage math "MATH"
+ - header, basic math
+
+ Lightsprint libraries are simply layered.
+ Each layer solves new unique problem using lower layers.
+ Depending on your project, you can use all layers or just one.
+
+ Mesh provides unified interface and manipulation for all 3d triangle meshes.
+ \n Collider calculates ray x mesh intersections and depends on Mesh.
+ \n Vision calculates radiosity in static scene and depends on Collider.
+ \n Illumination manages calculated illumination in lightmaps or vertex buffers.
+ \n RealtimeRadiosity calculates radiosity in dynamic scene and depends on Vision and Illumination.
+
+ All core libraries (white boxes in scheme, RealtimeRadiosity, Illumination,
+ Vision, Collider, Mesh) are purely numerical,
+ they are OpenGL/DirectX independent.
+
+ DemoEngine provides simple support for loading and rendering 3d scenes.
+ It depends on OpenGL, GLU and RealtimeRadiosity. It has built-in GLEW.
+
+ Sample HelloRealtimeRadiosity uses RealtimeRadiosity, OpenGL and GLUT
+ for demonstrating realtime radiosity in scene with dynamic light.
+ It uses DemoEngine for common tasks that can be used later by other samples.
+
+ \image html libraries.png
+
+ Other samples depend only on appropriate libraries, eg. HelloCollider on Collider.
+
+ BunnyBenchmark measures Collider performance for comparison with other engines.
+
+
+
+
+
+\page rr Realtime Radiosity
+ Realtime Radiosity extends your renderer by adding realtime computed
+ indirect illumination.
+
+ Headers: RRRealtimeRadiosity.h
+
+ - adds indirect illumination to dynamic scenes
+ - integrates with existing engines
+ - uses no precalculations -> illumination quality varies, "architect edition"
+ - techniques based on partial precalculations will follow -> quality boost, "day/night editions"
+ - you can ask RealtimeRadiosity for complete vertex buffers or lightmaps;
+   for information on individual triangles (even adaptively subdivided), call underlying Vision library
+
+ Sample HelloRealtimeRadiosity shows the result of integration,
+ interactive .3ds scene viewer with radiosity immediately responding
+ to light movements.
+
+
+
+
+
+\page illumination Illumination
  Illumination provides you with storage suitable for illumination
  calculated by RealtimeRadiosity.
 
@@ -273,7 +413,7 @@
 
 
 
-\page vision Lightsprint Vision
+\page vision Vision
  In typical situation, you have your own renderer with direct illumination.
  Vision can enhance it by adding indirect illumination.
 
@@ -290,10 +430,6 @@
  - you can ask Vision about individual triangles, even adaptively subdivided;
    for complete vertex buffers or lightmaps, see RealtimeRadiosity library
 
- \subpage vision_units "Units (radiometry, photometry)"
-
- \subpage vision_storage "Data formats (vertices, textures)"
-
  Sample HelloVision shows you the most simple use case:
  -# Create rr::RRScene.
  -# Create rr::RRObject using your object and insert it into scene. Repeat for all objects.
@@ -304,50 +440,8 @@
  library Realtime Radiosity.
 
 
-\page vision_units Units
-   Although whole documentation talks in radiometry terms,
-   it is possible to work in photometry units, screen colors 
-   or any other units.
-   In typical situations, it is most straightforward to work and think 
-   in screen colors. Everything you need is to setup appropriate
-   convertor, see rr::RRScene::setScaler().
 
-
-\page vision_storage Data formats
- Illumination levels are calculated for all surfaces in your scene.
- Multiple ways how to access these information and how to store them exist,
- each with advantages and disadvantages.
- Choice what to use is only up to you.
- \section vertices Vertices
-   You may read illumination levels in face vertices.
-   It is expected that illumination inside face will be linearly interpolated
-   from values in vertices.
-   \n This representation has several advantages:
-   - It is cheap for storing. It requires only few bytes of space per vertex.
-   - It is cheap for rendering.
-     No sampler resources are consumed.
-     It can be arbitrarily postprocessed in vertex shader.
-     You may have for example multiple layers of precalculated indirect illumination 
-     and mix them in vertex shader according to changes in scene.
-
-   On the other hand, there are all known disadvantages of vertex illumination:
-   - Details are missing in areas without vertices.
-     For good results, you have to add vertices to places where you miss details.
-   - Seams around T vertices and other degenerated geometries.
-     You have to make your meshes clean, avoid degeneracies.
-   - Long narrow triangles (needles) often create visible artifacts.
-     You should avoid them.
- \section textures Textures
-   You may read illumination levels in adaptively subdivided triangles
-   and create lightmaps or let higher level library (Realtime Radiosity)
-   do it for you very efficiantly on GPU.
-   This representation is more expensive for processing, storage and rendering
-   (any postprocessing must be done per pixel and it consumes sampler resources),
-   but it avoids disadvantages of vertex illumination.
-
-
-
-\page collider Lightsprint Collider
+\page collider Collider
  Finds ray-mesh intersections.
 
  Header: RRCollider.h
@@ -367,7 +461,7 @@
  CPUs/cores at once.
 
 
-\page mesh Lightsprint Mesh
+\page mesh Mesh
  Powerful interface to 3d triangle mesh.
 
  Header: RRMesh.h
@@ -387,7 +481,7 @@
  mesh is created out of existing array of vertices.
 
 
-\page math Lightsprint Math
+\page math Math
  Basic math classes used by whole Lightsprint SDK.
 
  Header: RRMath.h
