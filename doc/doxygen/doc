@@ -125,15 +125,18 @@
 
  Final result is demonstrated in HelloRealtimeRadiosity example.
 
- <b>What was necessary to do to integrate realtime radiosity into 3d scene viewer:</b>
- - create rr::RRObject wrappers around 3d objects (2 hours)
- - change renderer so that it reads ambient from vertex stream provided by rr::RRRealtimeRadiosity (1 hour)
- - remove constant ambient (5 minutes)
- - implement abstract methods in rr::RRRealtimeRadiosity (2 days)
- - create rr::RRRealtimeRadiosity and call its methods on appropriate places (1 hour)
+ \section rr_integration_1 Detailed list of tasks
+ What was necessary to do to integrate realtime radiosity into 3d scene viewer:
+ - create rr::RRObject wrappers around 3d objects, see example in src/DemoEngine/3ds2rr.cpp (2 hours)
+ - in your renderer: remove constant ambient (5 minutes)
+ - in your renderer: add ambient readen from vertex stream or lightmap in rr::RRObjectIllumination (1 hour)
+ - implement abstract methods in rr::RRRealtimeRadiosity, see example in samples/HelloRealtimeRadiosity/HelloRealtimeRadiosity.cpp (2 days)
+ - create rr::RRRealtimeRadiosity and call its methods on appropriate places, see example in samples/HelloRealtimeRadiosity/HelloRealtimeRadiosity.cpp (1 hour)
+
+ \section rr_integration_2 Implementation of detectDirectIllumination()
 
  You can see that the only nontrivial task was implementing abstract methods in rr::RRRealtimeRadiosity.
- More precisely rr::RRRealtimeRadiosity::detectDirectIllumination().
+ More precisely one of them, rr::RRRealtimeRadiosity::detectDirectIllumination().
  
  <b>What needs to be detected:</b> simply said, average color of each face;
  how does it looks lit by your direct (not ambient) point, spot and directional lights
@@ -154,7 +157,7 @@
  It can be optimized by ignoring material diffuse textures.
  Detected average face colors then correspond to intensity of light reaching 
  face (irradiance) instead of intensity of light leaving face (exitance),
- so detected color is passed to setTriangleAdditionalMeasure with rr::RM_IRRADIANCE
+ so detected color is passed to rr::RRObjectAdditionalIllumination::setTriangleAdditionalMeasure with rr::RM_IRRADIANCE
  instead of rr::RM_EXITANCE.
 
  <b>How HelloRealtimeRadiosity implements it:</b> rendering faces into texture

@@ -216,7 +216,6 @@ namespace rr
 	//
 	//! Editor stores calculated illumination here.
 	//! Renderer reads illumination from here.
-	//! Also unwrap for illumination maps may be stored here.
 	//! Add one instance to each of your objects.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -224,31 +223,46 @@ namespace rr
 	class RR_API RRObjectIllumination
 	{
 	public:
-		//! Enter PreImport number of vertices, length of vertex buffer for rendering.
-		//! Vertex buffer will be created for PreImport vertices, so it is not suitable for MultiObject.
+		//! \param anumPreImportVertices
+		//!  PreImport number of vertices, length of vertex buffer for rendering.
 		RRObjectIllumination(unsigned anumPreImportVertices);
 
+		//! Holds single illumination levels for whole object.
+		//! Illumination can be stored in vertex stream, lightmap or both.
 		struct Channel
 		{
+			//! Constructs new channel, always empty.
+			//! You can insert vertex array or lightmap or both later.
 			Channel()
 			{
 				vertexBuffer = NULL;
 				pixelBuffer = NULL;
 			}
+			//! Destructs channel, deleting remaining vertex array or lightmap.
 			~Channel()
 			{
 				delete vertexBuffer;
 				delete pixelBuffer;
 			}
+			//! Custom vertex array holding illumination levels for whole object.
+			//! May be NULL in which case vertex arrays are not generated and not rendered.
 			RRIlluminationVertexBuffer* vertexBuffer;
+			//! Custom lightmap holding illumination levels for whole object.
+			//! May be NULL in which case lightmaps are not generated and not rendered.
 			RRIlluminationPixelBuffer* pixelBuffer;
 		};
 
+		//! \param channelIndex
+		//!  Index of channel you would like to get. Arbitrary unsigned number.
+		//! \return Channel of channelIndex. If it doesn't exist yet, it is created.
 		Channel* getChannel(unsigned channelIndex);
+		//! \return PreImport number of vertices, length of vertex buffer for rendering.
 		unsigned getNumPreImportVertices();
 		~RRObjectIllumination();
 	protected:
-		unsigned numPreImportVertices; ///< PreImport number of vertices, length of vertex buffer for rendering.
+		//! PreImport number of vertices, length of vertex buffer for rendering.
+		unsigned numPreImportVertices;
+		//! Container with all channels.
 		void* hiddenChannels;
 	};
 
