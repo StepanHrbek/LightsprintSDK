@@ -168,7 +168,7 @@ protected:
 			updateShadowmap(0);
 		}
 
-		rr::RRMesh* mesh = multiObject->getCollider()->getMesh();
+		rr::RRMesh* mesh = getMultiObject()->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		// adjust captured texture size so we don't waste pixels
@@ -237,7 +237,7 @@ protected:
 				// pass irradiance to rrobject
 				// (default implementation of adjustScene() has globally switched unit from W/m^2 to screen rgb)
 				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE,avg);
+				getMultiObject()->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE,avg);
 			}
 		}
 
@@ -451,7 +451,7 @@ int main(int argc, char **argv)
 
 	// init realtime radiosity solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
-		error("Problem with license number.\n", false);
+		error("Problem with licence number.\n", false);
 	solver = new Solver();
 	provideObjectsFrom3dsToRR(&m3ds,solver,0.01f);
 	solver->calculate();

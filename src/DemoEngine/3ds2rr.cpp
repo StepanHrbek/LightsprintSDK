@@ -5,13 +5,17 @@
 // --------------------------------------------------------------------------
 //
 // If you plan to integrate Lightsprint with your engine,
+// you need to implement data wrappers so Lightsprint can access
+// your meshes, objects, materials.
 // M3dsImporter shows the simplest possible way.
-// You can start with this code and adapt it to work with your data.
+// You can start with this code and adapt it to work with your format
+// instead of Model_3DS.
 //
 // This is sufficient for demonstration purposes, but for production code
 // more memory can be saved:
 // 1) Don't duplicate data into this object. Reimplement methods like getVertex
-//    so that they read from your original mesh, sizeof this class can be several bytes.
+//    so that they read from your original mesh, sizeof this class can go down
+//    to several bytes.
 // 2) Split class into one that implements RRMesh + one that implements RRObject.
 //    You can then reuse meshes and colliders, multiple objects
 //    (instances of geometry in scene) will share the same collider and mesh.

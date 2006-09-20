@@ -1710,7 +1710,7 @@ int main(int argc, char **argv)
 	areaLight->setNumInstances(startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1);
 
 	if(rr::RRLicense::loadLicense("licence_number")!=rr::RRLicense::VALID)
-		error("Problem with license number.",false);
+		error("Problem with licence number.",false);
 
 	glutMainLoop();
 	return 0;

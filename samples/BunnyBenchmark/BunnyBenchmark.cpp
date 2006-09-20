@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 	printf("Stanford Bunny Benchmark\n\n");
 
 	// provide license information
-	RRLicenseCollider::loadLicense("..\\..\\data\\license_number");
+	RRLicenseCollider::loadLicense("..\\..\\data\\licence_number");
 
 	// load mesh from disk
 	PlyMesh plyMesh;

@@ -80,9 +80,9 @@ bool endAtTime(void* context)
 
 int main()
 {
-	// provide license information
-	if(RRLicense::loadLicense("..\\..\\data\\license_number")!=RRLicense::VALID)
-		printf("Invalid license, nothing will be computed.\n");
+	// provide licence information
+	if(RRLicense::loadLicense("..\\..\\data\\licence_number")!=RRLicense::VALID)
+		printf("Invalid licence, nothing will be computed.\n");
 
 	// create mesh importer (contains only geometry)
 	RRMesh* mesh = RRMesh::create(RRMesh::TRI_LIST,RRMesh::FLOAT32,vertexArray,6,3*sizeof(float));

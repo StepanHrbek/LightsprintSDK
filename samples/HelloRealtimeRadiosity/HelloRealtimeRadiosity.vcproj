@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="HelloRealtimeRadiosity"
-	ProjectGUID="{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
+	ProjectGUID="{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
 	>
 	<Platforms>
 		<Platform
@@ -343,7 +343,7 @@
 				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
 				MinimalRebuild="false"
-				RuntimeLibrary="1"
+				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
 				PrecompiledHeaderFile=".\Debug/HelloRealtimeRadiosity.pch"

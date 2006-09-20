@@ -140,7 +140,7 @@ namespace rr
 
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is not created before you insert objects and call calculate().
-		const RRObjectAdditionalIllumination* getMultiObject();
+		RRObjectAdditionalIllumination* getMultiObject();
 		//! Returns the scene.
 		//! Scene is not created before you insert objects and call calculate().
 		const RRScene* getScene();
