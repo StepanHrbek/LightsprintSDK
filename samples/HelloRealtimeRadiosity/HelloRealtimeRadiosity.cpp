@@ -205,6 +205,7 @@ protected:
 			uberProgramSetup.NOISE_MAP = false; // search next one, this should be always false
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_DIRECT_MAP = true;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
@@ -292,6 +293,7 @@ void display(void)
 	uberProgramSetup.NOISE_MAP = true; // false=much better on NVIDIA
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 #ifdef LIGHTMAPS // here we say: render with lightmaps
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 	uberProgramSetup.LIGHT_INDIRECT_MAP = true;

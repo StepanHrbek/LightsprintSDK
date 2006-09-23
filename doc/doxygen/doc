@@ -257,7 +257,8 @@
  \section plat_bin Platforms for binaries
  For binary libraries, supported platforms are
  - Win32 with Visual C++ 2005 multithreaded runtime library (use for example
-   Microsoft's public vcredist_x86.exe to install it)
+   Microsoft's public <a href="http://www.microsoft.com/downloads/details.aspx?displaylang=en&FamilyID=32BC1BEE-A3F9-4C13-9C99-220B62A191EE">vcredist_x86.exe</a>
+   to install it)
  - tested also under Windows XP x64, where it runs in 32bit
  - ask for more
 

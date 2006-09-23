@@ -357,6 +357,7 @@ protected:
 			uberProgramSetup.NOISE_MAP = false;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			//uberProgramSetup.LIGHT_DIRECT_MAP = ;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 #if PRIMARY_SCAN_PRECISION==1 // 110ms
@@ -572,6 +573,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.NOISE_MAP = false;
 	uberProgramSetup.LIGHT_DIRECT = false;
 	uberProgramSetup.LIGHT_DIRECT_MAP = false;
+	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
@@ -643,6 +645,7 @@ void drawEyeViewSoftShadowed(void)
 		if(uberProgramSetup.SHADOW_SAMPLES<2) uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
@@ -663,6 +666,7 @@ void drawEyeViewSoftShadowed(void)
 		if(uberProgramSetup.SHADOW_SAMPLES<2) uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
@@ -679,6 +683,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_DIRECT = false;
 		uberProgramSetup.LIGHT_DIRECT_MAP = false;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
@@ -860,6 +865,9 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 	}
+	if(strstr(filename_3ds, "quake") || strstr(filename_3ds, "QUAKE")) {
+		scale_3ds = 0.05f;
+	}
 	if(strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
 		// dobry zacatek
@@ -1034,6 +1042,7 @@ void display()
 				uberProgramSetup.NOISE_MAP = false;
 				uberProgramSetup.LIGHT_DIRECT = true;
 				uberProgramSetup.LIGHT_DIRECT_MAP = true;
+				uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 				uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 				uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 				//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
@@ -1695,6 +1704,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.NOISE_MAP = ati;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = false;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = false;

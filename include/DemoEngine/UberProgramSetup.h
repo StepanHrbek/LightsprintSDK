@@ -41,6 +41,7 @@ struct RR_API UberProgramSetup
 	bool     NOISE_MAP              :1;
 	bool     LIGHT_DIRECT           :1;
 	bool     LIGHT_DIRECT_MAP       :1;
+	bool     LIGHT_INDIRECT_CONST   :1;
 	bool     LIGHT_INDIRECT_COLOR   :1;
 	bool     LIGHT_INDIRECT_MAP     :1;
 	bool     MATERIAL_DIFFUSE_COLOR :1;

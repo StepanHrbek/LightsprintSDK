@@ -9,12 +9,13 @@
 const char* UberProgramSetup::getSetupString()
 {
 	static char setup[300];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		NOISE_MAP?"#define NOISE_MAP\n":"",
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
+		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
 		LIGHT_INDIRECT_COLOR?"#define LIGHT_INDIRECT_COLOR\n":"",
 		LIGHT_INDIRECT_MAP?"#define LIGHT_INDIRECT_MAP\n":"",
 		MATERIAL_DIFFUSE_COLOR?"#define MATERIAL_DIFFUSE_COLOR\n":"",
@@ -50,6 +51,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.NOISE_MAP = true;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		uberProgramSetup.LIGHT_DIRECT_MAP = true;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true;
@@ -58,6 +60,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		if(!uberProgramSetup.getProgram(uberProgram)) continue;
 		// maximize use of interpolators
 		uberProgramSetup.NOISE_MAP = false;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
@@ -130,6 +133,11 @@ bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight
 		glActiveTexture(GL_TEXTURE0+id);
 		lightDirectMap->bindTexture();
 		program->sendUniform("lightDirectMap", id);
+	}
+
+	if(LIGHT_INDIRECT_CONST)
+	{
+		program->sendUniform("lightIndirectConst",0.15f,0.15f,0.15f,0.0f);
 	}
 
 	// lightIndirectMap

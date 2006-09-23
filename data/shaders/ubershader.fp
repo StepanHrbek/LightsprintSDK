@@ -6,6 +6,7 @@
 //  #define NOISE_MAP
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
+//  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_COLOR
 //  #define LIGHT_INDIRECT_MAP
 //  #define MATERIAL_DIFFUSE_COLOR
@@ -70,6 +71,10 @@ varying vec4 lightDirectColor;
 
 #ifdef LIGHT_DIRECT_MAP
 uniform sampler2D lightDirectMap;
+#endif
+
+#ifdef LIGHT_INDIRECT_CONST
+uniform vec4 lightIndirectConst;
 #endif
 
 #ifdef LIGHT_INDIRECT_COLOR
@@ -228,7 +233,7 @@ void main()
 #endif // SHADOW_SAMPLES!=1
 #endif // SHADOW_SAMPLES*SHADOW_MAPS>0
 
-#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP)
+#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP)
   gl_FragColor =
 #ifdef MATERIAL_DIFFUSE_MAP
     texture2D(materialDiffuseMap, materialDiffuseCoord) * 
@@ -245,6 +250,9 @@ void main()
 #if SHADOW_SAMPLES*SHADOW_MAPS>0
       * shadowValue/float(SHADOW_SAMPLES*SHADOW_MAPS)
 #endif
+#endif
+#ifdef LIGHT_INDIRECT_CONST
+      + lightIndirectConst
 #endif
 #ifdef LIGHT_INDIRECT_COLOR
       + gl_Color
