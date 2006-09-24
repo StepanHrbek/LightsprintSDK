@@ -124,7 +124,7 @@ static void fillSurface(Surface *s,C_MATERIAL *m)
 	s->diffuseEmittance          *=m->ed/1000;
 	s->specularReflectance        =m->rs;
 	s->specularTransmittance      =m->ts;
-	s->refractionReal             =m->nr;
+	s->refractionIndex             =m->nr;
 	s->outside                    =NULL;
 	s->inside                     =NULL;
 	s->texture                    =NULL;

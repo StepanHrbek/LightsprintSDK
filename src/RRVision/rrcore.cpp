@@ -2542,7 +2542,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 		// calculate hitpoint
 		Point3 hitPoint3d=eye+direction*ray.hitDistance;
 		// calculate new direction after refraction
-		Vec3 newDirection=-refract(hitTriangle->getN3(),direction,hitTriangle->surface->refractionReal);
+		Vec3 newDirection=-refract(hitTriangle->getN3(),direction,hitTriangle->surface->refractionIndex);
 		// recursively call this function
 		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,hitExtension,/*sqrt*/(power*hitTriangle->surface->specularTransmittance));
 	}

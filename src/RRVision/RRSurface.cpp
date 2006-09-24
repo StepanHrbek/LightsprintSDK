@@ -22,7 +22,7 @@ void RRSurface::reset(bool twoSided)
 	diffuseEmittance               = RRColor(0);
 	specularReflectance            = 0;
 	specularTransmittance          = 0;
-	refractionReal                 = 1;
+	refractionIndex                 = 1;
 }
 
 bool clamp(RRReal& vec, RRReal min, RRReal max)
