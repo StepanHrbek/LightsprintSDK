@@ -127,10 +127,10 @@ namespace rr
 
  -# \subpage integration_step_1
  -# \subpage integration_step_2
- -# Stop rendering constant ambient
- -# Start rendering ambient from vertex stream or ambient map provided by RRRealtimeRadiosity::getIllumination()->getChannel(0)
  -# \subpage integration_step_5
  -# \subpage integration_step_6
+ -# Stop rendering constant ambient
+ -# Start rendering ambient from vertex stream or ambient map provided by RRRealtimeRadiosity::getIllumination()->getChannel(0)
 
  Concept behind realtime radiosity integration is also described in
  <a href="http://dee.cz/rri">Realtime Radiosity Integration article</a>.
@@ -248,6 +248,11 @@ namespace rr
     cars with the same geometry, different position and possibly different color;
     they are different objects sharing one mesh).
     \n\n
+    Default RRObject::getTriangleMapping() returns realtime generated
+    unwrap of low quality, for any serious use of ambient maps, you should override
+    RRObject::getTriangleMapping() and provide your own unwrap.
+    This is not necessary if you use vertex arrays instead of ambient maps.
+    \n\n
     Once you have RRObject instance, most convenient way to remember it
     for later use is to attach it to your object.
 
@@ -255,7 +260,7 @@ namespace rr
 
 
 
-\page integration_step_5 Subclass RRRealtimeRadiosity
+\page integration_step_5 Detect direct illumination in RRRealtimeRadiosity subclass
 
  RRRealtimeRadiosity contains several abstract methods, derive your class from RRRealtimeRadiosity
  and implement these methods.
