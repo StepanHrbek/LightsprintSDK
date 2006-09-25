@@ -117,19 +117,19 @@ void RendererOfRRObject::render()
 		// light indirect map
 		if(params.renderedChannels.LIGHT_INDIRECT_MAP)
 		{
-			// ask object/face for lightmap
+			// ask object/face for ambient map
 			// why this design:
-			//  Jdu po trianglech multiobjektu, ale lightmapy jsou kvuli externim rendererum
+			//  Jdu po trianglech multiobjektu, ale ambient mapy jsou kvuli externim rendererum
 			//  vyrabeny pro orig objekty, takze musim 
 			//  1. z indexu do multiobjektu ziskat orig objekt a index do nej
-			//  2. sahnout pro lightmapu a uv do orig objektu
+			//  2. sahnout pro ambient mapu a uv do orig objektu
 			//  Bohuzel neni samozrejme ze by vse transparentne zaridil multiobjekt a 
 			//  tady bych o multiobjektizaci vubec nevedel,
-			//  protoze objekty samy o svych lightmapach nevedi, ty podle indexu objektu
+			//  protoze objekty samy o svych ambient mapach nevedi, ty podle indexu objektu
 			//  drzi RRRealtimeRadiosity.
-			//  Q: Muzu lightmapy dodatecne prilepit k multiobjektu (do ChanneledData),
+			//  Q: Muzu ambient mapy dodatecne prilepit k multiobjektu (do ChanneledData),
 			//     takze by to preci jen poresila multiobjektizace?
-			//  A: Ne, lightmap muze byt mnoho na jeden objekt.
+			//  A: Ne, ambient map muze byt mnoho na jeden objekt.
 			//     Je ukol RRObjectIllumination je nejak zmixovat a poskytnout vysledek.
 			//  Q: Muzu tedy prilepit RRObjectIllumination k objektu?
 			//  A: Ano. Ale je to vyhodne?
@@ -141,11 +141,11 @@ void RendererOfRRObject::render()
 			//        zde v M3dsImporter; a tamtez ho natlacit do RRRealtimeRadiosity, tamtez ho deletovat.
 			//     Demultiobjektizovat lokalne zde:
 			//      - trocha prace zde
-			//      - nutne dotahnout sem RRRealtimeRadiosity (jako zdroj orig objektu a lightmap)
+			//      - nutne dotahnout sem RRRealtimeRadiosity (jako zdroj orig objektu a ambient map)
 			//        coz vytvari oboustrannou vazbu mezi RRRealtimeRadiosity a nami(DemoEngine)
 			//  Q: Jak bude renderovat klient ktery ma ke hre linkle jen RRIllumination?
 			//  A: Pouzije vlastni unwrap a mnou serializovany RRObjectIllumination
-			//     (nebo si i sam muze ukladat lightmapy).
+			//     (nebo si i sam muze ukladat ambient mapy).
 			//  Q: Nemel by tedy Model_3ds (jako priklad externiho rendereru) zaviset jen na RRIllumination?
 			//  A: Ano, mel. RRRealtimeRadiosity pouziva jen pro pristup ke spravnym RRObjectIllumination,
 			//     neni tezke to predelat.

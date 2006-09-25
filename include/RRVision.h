@@ -92,12 +92,12 @@ namespace rr
 	//! Boolean attributes of front or back side of surface.
 	struct RRSideBits
 	{
-		unsigned char renderFrom:1;  ///< When rendering, is visible from that halfspace?
-		unsigned char emitTo:1;      ///< When emitting, emit energy to that halfspace?
-		unsigned char catchFrom:1;   ///< When propagating light, catch photons from that halfspace? When photon is catched, receiveFrom, reflect and transmitFrom are tested.
-		unsigned char receiveFrom:1; ///< When photon is catched, receive energy?
-		unsigned char reflect:1;     ///< When photon is catched, reflect energy to that halfspace?
-		unsigned char transmitFrom:1;///< When photon is catched, transmit energy to other halfspace?
+		unsigned char renderFrom:1;  ///< Should surface be visible from that halfspace? Information only for renderer, not for radiosity solver.
+		unsigned char emitTo:1;      ///< Should surface emit energy to that halfspace?
+		unsigned char catchFrom:1;   ///< Should surface catch photons incoming from that halfspace? When photon is catched, receiveFrom, reflect and transmitFrom are tested.
+		unsigned char receiveFrom:1; ///< When photon is catched, should surface receive energy?
+		unsigned char reflect:1;     ///< When photon is catched, should surface reflect energy to that halfspace?
+		unsigned char transmitFrom:1;///< When photon is catched, should surface transmit energy to other halfspace?
 	};
 
 	//! Description of surface material properties.
@@ -107,11 +107,11 @@ namespace rr
 		bool          validate();                    ///< Changes surface to closest physically possible values. Returns if any changes were made.
 
 		RRSideBits    sideBits[2];                   ///< Defines surface behaviour for front(0) and back(1) side.
-		RRColor       diffuseReflectance;            ///< Fraction of energy that is diffuse reflected (each channel separately).
+		RRColor       diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
 		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately). Never scaled by RRScaler.
-		RRReal        specularReflectance;           ///< Fraction of energy that is mirror reflected (without color change).
-		RRReal        specularTransmittance;         ///< Fraction of energy that is transmitted (without color change).
-		RRReal        refractionReal;                ///< Refraction index.
+		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
+		RRReal        specularTransmittance;         ///< Fraction of energy that continues through surface (without color change).
+		RRReal        refractionIndex;               ///< Refractive index of material in front of surface divided by refractive index of material behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 	};
 
 
@@ -190,7 +190,7 @@ namespace rr
 		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out) const;
 		//! Writes t-th triangle mapping for object unwrap into 0..1 x 0..1 space.
 		//
-		//! Unwrap may be used for returning results in texture (lightmap).
+		//! Unwrap may be used for returning results in texture (ambient map).
 		//! \n There is default implementation that automatically generates objects unwrap of low quality.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
 		//! \param out Caller provided storage for result.

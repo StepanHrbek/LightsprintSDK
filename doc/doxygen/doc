@@ -7,17 +7,17 @@ namespace rr
 \mainpage Lightsprint SDK
  Welcome to Lightsprint SDK.
 
- \subpage rr_dir_indir "Direct vs indirect; Realtime Radiosity position"
+ \subpage rr_dir_indir
 
- \subpage scenarios "Usage scenarios"
+ \subpage scenarios
 
- \subpage rr_integration "Integration with renderer"
+ \subpage rr_integration "Integration (with editor, game)"
 
- \subpage vision_storage "Data formats (vertex arrays, lightmaps)"
+ \subpage vision_storage "Data formats (vertex arrays, ambient maps)"
 
  \subpage rules "Conventions (units, scale, floats...)"
 
- \subpage platforms "Supported platforms"
+ \subpage platforms
 
  \subpage api "API reference"
 
@@ -116,21 +116,21 @@ namespace rr
 
 
 
-\page rr_integration Integration with renderer
+\page rr_integration Integration
 
  You can quickly start playing with your data
  if you convert them to .3ds and load into HelloRealtimeRadiosity.
- (Only truecolor .tga textures are supported.)
+ (Use 1m units, truecolor .tga textures and no transformations.)
 
- However for integration with your renderer (for use in game or editor),
- following steps must be done.
+ To integrate realtime radiosity into your editor, game or any other application,
+ follow these steps:
 
- -# \subpage integration_step_1 (1 hour)
- -# \subpage integration_step_2 (2 hours)
- -# Turn off constant ambient (5 minutes)
- -# Render ambient readen from vertex stream or lightmap provided by rr::RRObjectIllumination (1 hour)
- -# \subpage integration_step_5 (2 days)
- -# \subpage integration_step_6 (1 hour)
+ -# \subpage integration_step_1
+ -# \subpage integration_step_2
+ -# Stop rendering constant ambient
+ -# Start rendering ambient from vertex stream or ambient map provided by RRRealtimeRadiosity::getIllumination()->getChannel(0)
+ -# \subpage integration_step_5
+ -# \subpage integration_step_6
 
  Concept behind realtime radiosity integration is also described in
  <a href="http://dee.cz/rri">Realtime Radiosity Integration article</a>.
@@ -146,7 +146,7 @@ namespace rr
 
  Realtime radiosity is based on physically correct calculation of light transport.
  For such calculation it's necessary to know physical properties of surfaces.
- See rr::RRSurface for list of all properties.
+ See RRSurface for list of all properties.
 
  Fortunately you don't have to study advanced laws of physics for good results,
  you don't even need any additional information provided by artists who
@@ -154,36 +154,39 @@ namespace rr
 
  In <b>special case</b> of HelloRealtimeRadiosity example, materials contain diffuse texture
  without specular and transparency, so whole detection was reduced to calculating
- average color of diffuse texture and storing it into rr::RRSurface::diffuseReflectance.
+ average color of diffuse texture and storing it into RRSurface::diffuseReflectance.
  This took 1 hour.
 
  In <b>more general case</b> with known set of shaders,
  you can extend this approach and get all values by analyzing textures and other inputs
  used by shaders.
  This can take you few hours.
+ Viability of this approach highly depends on your shaders and can't be decided here.
+ If you are not sure, describe us your shaders and we will help you.
 
  In <b>fully general case</b>, you don't need any information about shaders.
  It will work even if you let modders create new shaders, their properties will be detected.
- Everything you need is ability to render simple scene into small texture (8x8 pixels
+ Everything you need is ability to render simple scene into small texture (16x16 pixels
  is typically enough)
  and calculate average color of rendered image. Follow these steps for each material
 
- -# Create empty scene and place rectangle with material in front of camera (so it covers whole 8x8 pixels).
+ -# Create empty scene and place rectangle covered by material in front of camera
+    (so it covers whole viewport, but nothing more).
     If it has uv coordinates for textures, use whole texture space from 0,0 to 1,1 in rectangle.
- -# Clear to black and render scene.
-    Store acquired average color as rr::RRSurface::diffuseEmittance.
- -# Clear to white and render scene.
-    Store acquired average color minus emittance as rr::RRSurface::specularTransmittance.
- -# Add white light to the same position as camera.
-    Clear to black and render scene.
-    Store acquired average color minus emittance as rr::RRSurface::diffuseReflectance.
- -# Call rr::RRSurface::validate() to clamp values to physically correct bounds.
+ -# Clear to black and render rectangle.
+    Store acquired average color as RRSurface::diffuseEmittance.
+ -# Clear to white and render rectangle.
+    Store acquired average color minus emittance as RRSurface::specularTransmittance.
+ -# Add white light without distance attenuation to the same position as camera.
+    Clear to black and render rectangle.
+    Store acquired average color minus emittance as RRSurface::diffuseReflectance.
+ -# Call RRSurface::validate() to clamp values to physically correct bounds.
     This is necessary to prevent damage from materials that eg. reflect more light
     than they receive. Such behaviour is not possible in real world and may cause
     unexpected results in calculation such as infinitely high indirect illumination.
 
- This automatic approach can be further extended to detect approximate specular reflectance 
- or complete BRDF.
+ This automatic approach can be further extended to differentiate between
+ diffuse and specular reflectance or even to detect complete BRDF.
 
  Of course you are allowed to use any other approach, eg. let graphics artists
  enter all values by hand.
@@ -201,55 +204,70 @@ namespace rr
  so you don't have to duplicate any data. This may save you huge amounts of memory,
  however you must provide wrappers that access your structures.
 
- For <b>simple case<b>, see src/DemoEngine/3ds2rr.cpp. It is source code
+ For <b>simple case</b>, see src/DemoEngine/3ds2rr.cpp. It is source code
  of everything necessary to load .3ds model into realtime radiosity.
  It is simple because .3ds doesn't support geometry instancing.
  On the other hand, support for custom data is demonstrated
  on diffuse textures and uv coordinates.
+ For sake of simplicity, it duplicates some data.
 
  For <b>fully general</b> engine with geometry instancing, follow these steps:
 
- -# Create rr::RRMesh for every triangle mesh in your engine.
+ -  Create RRMesh for every triangle mesh in your engine.
+    \n\n
     You can immediately create them 
     from trilists, tristrips, indexed trilists, indexed tristrips
-    using single call to rr::RRMesh::create() or rr::RRMesh::createIndexed().
-    You can also implement your own rr::RRMesh, which is very very simple.
+    using single call to RRMesh::create() or RRMesh::createIndexed().
+    For other formats ask for our support or implement your own RRMesh,
+    which is very simple.
+    \n\n
     Note that these wrappers don't duplicate your data
     and they support mesh optimizations and mesh aggregation,
-    see rr::RRMesh for details.
- -# Once you have rr::RRMesh instance, create collider using
-    rr::RRCollider::create(). Most convenient way to remember it is to
+    see RRMesh for details.
+    \n\n
+    Once you have RRMesh instance, create RRCollider using
+    RRCollider::create().
+    RRCollider::IT_LINEAR technique with minimal overhead is sufficient 
+    for current version of RealtimeRadiosity.
+    \n\n
+    Most convenient way to remember collider for later use is to
     attach it to your triangle mesh.
-    You don't need to store pointer to rr::RRMesh,
-    it is available from collider using rr::RRCollider::getMesh().
-    Realtime radiosity uses collider to calculate ray-mesh collisions,
-    but it is availeble also for you.
- -# Create rr::RRObject for every object in your scene.
+    You don't need to store pointer to RRMesh,
+    it is available from collider using RRCollider::getMesh().
+    \n\n
+    Realtime radiosity may use collider to calculate ray-mesh collisions,
+    but it is available also to you via RRCollider::intersect().
+    If you plan to use it and its performance is critical, use 
+    other technique than RRCollider::IT_LINEAR.
+
+ -  Implement your own RRObject and
+    create its instance for every object in your scene.
+    \n\n
     By objects we understand identical meshes placed on different
     positions in scene, possibly using different materials (eg. several
     cars with the same geometry, different position and possibly different color;
     they are different objects sharing one mesh).
-    Implement your own rr::RRObject.
-    Once you have rr::RRObject instance, most convenient way to remember it
-    is to attach it to your object.
+    \n\n
+    Once you have RRObject instance, most convenient way to remember it
+    for later use is to attach it to your object.
 
 
 
 
 
-\page integration_step_5 Subclass rr::RRRealtimeRadiosity
+\page integration_step_5 Subclass RRRealtimeRadiosity
 
- rr::RRRealtimeRadiosity contains several pure methods, derive your class from rr::RRRealtimeRadiosity
+ RRRealtimeRadiosity contains several abstract methods, derive your class from RRRealtimeRadiosity
  and implement these methods.
 
  Check example implementation in HelloRealtimeRadiosity.
- You can see that the only nontrivial task was implementing abstract methods in rr::RRRealtimeRadiosity.
- More precisely one of them, rr::RRRealtimeRadiosity::detectDirectIllumination().
+ You can see that the only nontrivial task was implementing 
+ RRRealtimeRadiosity::detectDirectIllumination().
  
  <b>What needs to be detected:</b> simply said, average color of each face;
  how does it looks lit by your direct (not ambient) point, spot and directional lights
  and shadowed by your shadows.
- In fact, it is optional if you detect face irradiance, incoming flux,
+ It is optional if you detect face irradiance, incoming flux,
  exitance or exiting flux.
 
  <b>Why is it important:</b> we have no other knowledge about your lights.
@@ -257,45 +275,87 @@ namespace rr
  You can arbitrarily change them. No problem. Just let us know what are the results -
  average colors produced by your shader.
 
- <b>How to implement it:</b> turn off ambient/radiosity, render all scene faces into texture,
- read it to the system memory and extract average colors for each face.
+ <b>How to implement it:</b> turn off ambient/radiosity, render all scene faces,
+ read rendered image to system memory and extract average color for each face.
  This is the most simple and universal approach (works with any number of any lights),
  however you can think about alternatives. This depends highly on your renderer.
 
- It can be optimized by ignoring material diffuse textures.
- Detected average face colors then correspond to intensity of light reaching 
- face (irradiance) instead of intensity of light leaving face (exitance),
- so detected color is passed to rr::RRObjectAdditionalIllumination::setTriangleAdditionalMeasure with rr::RM_IRRADIANCE
- instead of rr::RM_EXITANCE.
+ \image html detect-dif.png
+ Image shows arrangement of faces in matrix that makes extraction of average color/exitance simple.
+ It wouldn't help to render faces in their original 3d positions, some would be probably
+ hidden behind other faces. You can see that some faces are black, those are partially
+ in shadow or completely unlit.
+ You can also see that only 50% of texture space is used, triangles may be rearranged so that
+ 100% of space is used, however averaging face color would become more expensive.
 
- <b>How HelloRealtimeRadiosity implements it:</b> rendering faces into texture
+ <b>Possible implementation in detail:</b> rendering faces into matrix
  requires one renderer enhancement - 2d position override - ability to render
- triangles to specified 2d positions.
-
- This can be very easily implemented in shader on next generation GPUs with "primitive index".
+ triangles to specified 2d positions while preserving their original look.
 
  For current generation GPUs, implemention has two steps:
- - Triangle positions in texture are generated into new vertex stream.
-   Just before end of vertex shader, original vertex position is replaced by
-   new position readen from new vertex stream.
+ - Triangle positions in matrix are generated by CPU into new vertex stream.
+   At the end of vertex shader, vertex position passed to fragment shader is replaced by
+   position readen from additional vertex stream.
  - For purpose of detection, scene is rendered using non-indexed triangle list.
    This is necessary because if we want to render triangles with shared
    vertices to completely different positions in texture, we have to split 
    that vertices.
-   In our case, this is handled by branch in renderScene():
-   when shader is set, two paths for specifying vertex data follow,
+   In case of HelloRealtimeRadiosity, this is handled by branch in renderScene():
+   after setting shader, two paths for specifying vertex data follow,
    - m3ds.Draw is original indexed tristrip path
    - rendererCaching->render() is new non-indexed trilist path 
      written only for purpose of this detection
 
+ <i>
+ <b>Optional reading:</b>
+ for next generation GPUs with "primitive index", solution is uncomparably easier.
+ Render as usual, using any combination of trilist/strip/indexed/nonindexed data,
+ but at the end of vertex shader, override
+ vertex position passed to fragment shader by new 2d triangle position
+ calculated right there from primitive index.
+
+ <b>Faster detection:</b>
+ for simple materials with diffuse texture only (such as in .3ds)
+ process can be optimized by ignoring diffuse textures, thus rendering incoming light
+ not multiplied by diffuse texture.
+ Detected average face colors then correspond to intensity of light reaching 
+ face (irradiance) instead of intensity of light leaving face (exitance),
+ so detected color is passed to RRObjectAdditionalIllumination::setTriangleAdditionalMeasure with RM_IRRADIANCE
+ instead of RM_EXITANCE.
+
+ \image html detect-nodif.png
+ Image above shows optimized detection, faces are not modulated by material
+ so irradiance is detected. You can see mostly white faces, because scene is lit by white spotlight.
+ Few orange pixels come from orange logo projected by spotlight.
+
+ Optimized approach is not suitable for engines with texture atlases.
+ If your material properties change very significantly over uv space,
+ use original unoptimized approach for higher precision.
+ </i>
 
 
 
 
-\page integration_step_6 Use rr::RRRealtimeRadiosity subclass
 
- To finish integration, create instance of your rr::RRRealtimeRadiosity subclass
- and call its methods on appropriate places of your application.
+\page integration_step_6 Use RRRealtimeRadiosity subclass
+
+ To finish integration with your application (editor or game),
+ create instance of your RRRealtimeRadiosity subclass
+ and call its several methods on appropriate places of your application
+ as described here:
+
+ To start radiosity calculation, call RRRealtimeRadiosity::setObjects()
+ with set of objects participating in calculation.
+
+ Call RRRealtimeRadiosity::calculate() often. If main loop of your
+ application contains rendering of one frame, add one call to RRRealtimeRadiosity::calculate().
+ If you render scene only when it has changed,
+ still call RRRealtimeRadiosity::calculate() in every iteration of main loop,
+ but if it returns true, take it as signal that scene has changed.
+
+ Use "reportSomething" methods to report events, see RRRealtimeRadiosity for details.
+
+ Use RRRealtimeRadiosity::getIllumination() to acquire object's indirect illumination during render.
 
  See example in samples/HelloRealtimeRadiosity/HelloRealtimeRadiosity.cpp.
 
@@ -309,9 +369,9 @@ namespace rr
 
  \section vertices Vertices, Vertex arrays
    You can read illumination levels in individual face vertices
-   (rr::RRScene::getTriangleMeasure)
+   (RRScene::getTriangleMeasure)
    or let RealtimeRadiosity generate complete vertex arrays for you
-   (rr::RRRealtimeRadiosity::calculate).
+   (RRRealtimeRadiosity::calculate).
    It is expected that illumination inside face will be linearly interpolated
    from values in vertices.
    \n This representation has several advantages:
@@ -333,39 +393,39 @@ namespace rr
      This is often problem also for physical engine,
      so your 3d artisis probably know they should avoid them.
 
-   Vertex arrays are stored by rr::RRIlluminationVertexBuffer
+   Vertex arrays are stored by RRIlluminationVertexBuffer
    interface.
    Implementation is provided 
-   (rr::RRIlluminationVertexBuffer::createInSystemMemory)
-   and it is used by default (by rr::RRRealtimeRadiosity::newVertexBuffer).
+   (RRIlluminationVertexBuffer::createInSystemMemory)
+   and it is used by default (by RRRealtimeRadiosity::newVertexBuffer).
 
- \section textures Lightmaps
+ \section textures Ambient maps
    You can read illumination levels in adaptively subdivided triangles
-   (rr::RRScene::getSubtriangleMeasure)
-   and create lightmaps out of them or let Realtime Radiosity
-   do it for you (rr::RRRealtimeRadiosity::calculate).
+   (RRScene::getSubtriangleMeasure)
+   and create ambient maps out of them or let Realtime Radiosity
+   do it for you (RRRealtimeRadiosity::calculate).
    This representation is more expensive for processing, storage and rendering
    (any postprocessing must be done per pixel and it consumes sampler resources),
    but it avoids some disadvantages of vertex illumination
-   (needle triangles cause problems to both vertex arrays and lightmaps).
+   (needle triangles cause problems to both vertex arrays and ambient maps).
 
    At the moment, adaptive subdivision is turned off by default, 
-   and lightmaps contain no additional details compared to vertex arrays.
+   and ambient maps contain no additional details compared to vertex arrays.
    This will be fixed soon. API won't change, you'll just get more 
-   detailed lightmaps.
+   detailed ambient maps.
 
-   Lightmaps are stored by rr::RRIlluminationPixelBuffer
+   Ambient maps are stored by RRIlluminationPixelBuffer
    interface.
    No implementation is present in platform independent core libraries
-   (default rr::RRRealtimeRadiosity::newPixelBuffer returns NULL),
-   so lightmaps are not generated by default.
+   (default RRRealtimeRadiosity::newPixelBuffer returns NULL),
+   so ambient maps are not generated by default.
    However you can use OpenGL accelerated implementation from DemoEngine
-   (rr::RRIlluminationPixelBufferInOpenGL)
+   (RRIlluminationPixelBufferInOpenGL)
    or implement your own.
 
  \section faces Faces
    You can read illumination levels in individual faces
-   (rr::RRScene::getTriangleMeasure with vertex=3).
+   (RRScene::getTriangleMeasure with vertex=3).
    This is good for example for AI trying to find dark place for hiding.
    Reading illumination level on face is slightly faster than reading
    it in vertex.
@@ -407,7 +467,7 @@ namespace rr
    or any other units.
    In typical situations, it is most straightforward to work and think 
    in screen colors. Everything you need is to setup appropriate
-   convertor, see rr::RRScene::setScaler().
+   convertor, see RRScene::setScaler().
 
  \section gscale Scale
    Lightsprint libraries support scaled objects.
@@ -419,7 +479,7 @@ namespace rr
    for singlesided faces:
    Singlesided box visible from outside transformed with scale -1
    can stay visible form the outside or become visible only from inside,
-   see rr::RRObject::createWorldSpaceObject().
+   see RRObject::createWorldSpaceObject().
  \section gowner Ownership
    Dynamically created objects (using new) are never adopted, ownership never changes.
    \n This means that parameters that need to be destructed are never destructed inside call,
@@ -476,7 +536,7 @@ namespace rr
  Mesh provides unified interface and manipulation for all 3d triangle meshes.
  \n Collider calculates ray x mesh intersections and depends on Mesh.
  \n Vision calculates radiosity in static scene and depends on Collider.
- \n Illumination manages calculated illumination in lightmaps or vertex buffers.
+ \n Illumination manages calculated illumination in ambient maps or vertex buffers.
  \n RealtimeRadiosity calculates radiosity in dynamic scene and depends on Vision and Illumination.
 
  All core libraries (white boxes in scheme, RealtimeRadiosity, Illumination,
@@ -510,7 +570,7 @@ namespace rr
  - integrates with existing engines
  - uses no precalculations -> illumination quality varies, "architect edition"
  - techniques based on partial precalculations will follow -> quality boost, "day/night editions"
- - you can ask RealtimeRadiosity for complete vertex buffers or lightmaps;
+ - you can ask RealtimeRadiosity for complete vertex buffers or ambient maps;
    for information on individual triangles (even adaptively subdivided), call underlying Vision library
 
  Sample HelloRealtimeRadiosity shows the result of integration,
@@ -527,9 +587,9 @@ namespace rr
 
  Headers: RRIllumination.h
 
- - illumination storage in lightmap: rr::RRIlluminationPixelBuffer
- - illumination storage in vertex buffer: rr::RRIlluminationVertexBuffer
- - storage of multiple illumination channels: rr::RRObjectIllumination
+ - illumination storage in ambient map: RRIlluminationPixelBuffer
+ - illumination storage in vertex buffer: RRIlluminationVertexBuffer
+ - storage of multiple illumination channels: RRObjectIllumination
  - allows for custom implementation -> smoothly integrates with other engines
 
  Sample HelloRealtimeRadiosity shows RRIllumination in action.
@@ -552,13 +612,13 @@ namespace rr
  - works with your units (screen colors or radiometry or photometry units or anything else)
  - display independent, purely numerical API
  - you can ask Vision about individual triangles, even adaptively subdivided;
-   for complete vertex buffers or lightmaps, see RealtimeRadiosity library
+   for complete vertex buffers or ambient maps, see RealtimeRadiosity library
 
  Sample HelloVision shows you the most simple use case:
- -# Create rr::RRScene.
- -# Create rr::RRObject using your object and insert it into scene. Repeat for all objects.
- -# Calculate global illumination using rr::RRScene::illuminationImprove().
- -# Read results using rr::RRScene::getTriangleMeasure().
+ -# Create RRScene.
+ -# Create RRObject using your object and insert it into scene. Repeat for all objects.
+ -# Calculate global illumination using RRScene::illuminationImprove().
+ -# Read results using RRScene::getTriangleMeasure().
 
  For integration with renderer, you may want to use some techniques from higher-level
  library Realtime Radiosity.
@@ -576,10 +636,10 @@ namespace rr
  - builds helper-structures and stores them in cache on disk
 
  Sample HelloCollider shows the most simple usage scenario:
- -# Create rr::RRMesh using your vertex/index buffers.
- -# Create rr::RRCollider using your mesh.
- -# Create rr::RRRay using your ray.
- -# Call rr::RRCollider::intersect() to find intersections. Repeat for all rays.
+ -# Create RRMesh using your vertex/index buffers.
+ -# Create RRCollider using your mesh.
+ -# Create RRRay using your ray.
+ -# Call RRCollider::intersect() to find intersections. Repeat for all rays.
 
  Sample BunnyBenchmark shows how to detect collisions on all available
  CPUs/cores at once.
@@ -590,14 +650,14 @@ namespace rr
 
  Header: RRMesh.h
 
- - knows tristrips, trilists, indexed or not (rr::RRMesh::create, rr::RRMesh::createIndexed)
+ - knows tristrips, trilists, indexed or not (RRMesh::create, RRMesh::createIndexed)
  - can optimize:
-   - vertex stitching (rr::RRMesh::createOptimizedVertices)
-   - removes degenerated triangles (rr::RRMesh::createOptimizedTriangles)
- - merges many small meshes into one big mesh without additional memory (rr::RRMesh::createMultiMesh)
- - saves/loads to disk (rr::RRMesh::save, rr::RRMesh::load)
- - extensible, you can add new channels like texture coords (rr::RRChanneledData)
- - allows for procedural meshes, requires no memory (implementing your rr::RRMesh takes few minutes)
+   - vertex stitching (RRMesh::createOptimizedVertices)
+   - removes degenerated triangles (RRMesh::createOptimizedTriangles)
+ - merges many small meshes into one big mesh without additional memory (RRMesh::createMultiMesh)
+ - saves/loads to disk (RRMesh::save, RRMesh::load)
+ - extensible, you can add new channels like texture coords (RRChanneledData)
+ - allows for procedural meshes, requires no memory (implementing your RRMesh takes few minutes)
  - up to 2^32-2 vertices and 2^32-2 triangles in mesh
  - thread safe, you can use mesh in any number of threads at the same time
 
@@ -610,10 +670,10 @@ namespace rr
 
  Header: RRMath.h
 
- - rr::RRReal holds one real number, which is float at the moment
- - rr::RRVec2 is vector of 2 real numbers
- - rr::RRVec3 is vector of 3 real numbers
- - rr::RRVec4 is vector of 4 real numbers
+ - RRReal holds one real number, which is float at the moment
+ - RRVec2 is vector of 2 real numbers
+ - RRVec3 is vector of 3 real numbers
+ - RRVec4 is vector of 4 real numbers
 
 */
 

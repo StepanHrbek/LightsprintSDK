@@ -95,7 +95,7 @@ private:
 	// collider
 	rr::RRCollider* collider;
 
-	// illumination (lightmaps etc)
+	// illumination (ambient maps etc)
 	rr::RRObjectIllumination* illumination;
 };
 

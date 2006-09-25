@@ -25,7 +25,7 @@
 
 #include <cmath>
 
-namespace rr /// Encapsulates whole Lightsprint SDK.
+namespace rr /// Encapsulates Lightsprint SDK core libraries.
 {
 
 	//////////////////////////////////////////////////////////////////////////////

@@ -169,7 +169,7 @@ namespace rr
 		//! This is good for editor, but you may want to use 4 bytes per vertex in game to save memory.
 		//! You may even use monochromatic (1 float) format if you don't need color bleeding.
 		virtual RRIlluminationVertexBuffer* newVertexBuffer(unsigned numVertices);
-		//! Returns new pixel buffer (for indirect illum lightmap) in your custom format.
+		//! Returns new pixel buffer (for ambient map) in your custom format.
 		//! Default implementation returns NULL.
 		virtual RRIlluminationPixelBuffer* newPixelBuffer(RRObject* object);
 

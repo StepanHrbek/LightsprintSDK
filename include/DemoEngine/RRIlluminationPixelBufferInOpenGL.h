@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // DemoEngine
-// OpenGL implementation of lightmap interface rr::RRIlluminationPixelBuffer.
+// OpenGL implementation of ambient map interface rr::RRIlluminationPixelBuffer.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 

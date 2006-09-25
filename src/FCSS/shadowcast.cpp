@@ -274,8 +274,8 @@ public:
 			((GLfloat*)vertexData)[0] = 0;
 			((GLfloat*)vertexData)[1] = 0;
 		} else {
-			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%xmax)+((vertexIndex<2)?0:1)-xmax*0.5f)/(xmax*0.5f);
-			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/xmax)+1-(vertexIndex%2)-ymax*0.5f)/(ymax*0.5f);
+			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%xmax)+((vertexIndex==2)?1:0)-xmax*0.5f)/(xmax*0.5f);
+			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/xmax)+((vertexIndex==0)?1:0)-ymax*0.5f)/(ymax*0.5f);
 		}
 	}
 	unsigned firstCapturedTriangle;
@@ -327,8 +327,7 @@ protected:
 		unsigned height1 = 4;
 		captureUv.xmax = winWidth/width1;
 		captureUv.ymax = winHeight/height1;
-		while(captureUv.ymax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/(captureUv.xmax*(captureUv.ymax-1)))
-			captureUv.ymax--;
+		while(captureUv.ymax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/(captureUv.xmax*(captureUv.ymax-1))) captureUv.ymax--;
 		unsigned width = captureUv.xmax*width1;
 		unsigned height = captureUv.ymax*height1;
 
@@ -340,7 +339,7 @@ protected:
 
 		// allocate the index buffer memory as necessary
 		GLuint* pixelBuffer = new GLuint[width * height];
-
+for(int q=1;q<3;q++)//!!!
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
 //printf("\n ============================================================= ");
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
@@ -381,10 +380,11 @@ protected:
 			// dbg print
 			rr::RRColor suma = rr::RRColor(0);
 
-			// accumulate triangle powers
+			// accumulate triangle irradiances
 			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<=captureUv.lastCapturedTriangle;triangleIndex++)
 			{
-				// accumulate 1 triangle power
+				// accumulate 1 triangle power from square region in texture
+				// (square coordinate calculation is in match with CaptureUv uv generator)
 				unsigned sum[3] = {0,0,0};
 				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)%captureUv.xmax;
 				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)/captureUv.xmax;
@@ -413,6 +413,8 @@ protected:
 			}
 //			printf("sum=%f ",suma.avg());
 //			printf("\n ----- ");
+
+			glutSwapBuffers();
 		}
 
 		delete[] pixelBuffer;

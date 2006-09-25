@@ -164,7 +164,7 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Interface to illumination storage based on pixel buffer, lightmap.
+	//! Interface to illumination storage based on pixel buffer, ambient map.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -177,12 +177,12 @@ namespace rr
 
 		// Pixel buffer creation
 
-		//! Begins rendering of triangles into lightmap. Must be paired with renderEnd().
+		//! Begins rendering of triangles into ambient map. Must be paired with renderEnd().
 		virtual void renderBegin() {};
 		//! Description of one illuminated vertex.
 		struct IlluminatedVertex
 		{
-			RRVec2 texCoord; ///< Triangle vertex positions in lightmap.
+			RRVec2 texCoord; ///< Triangle vertex positions in ambient map.
 			RRColorRGBF measure; ///< Triangle vertex illumination.
 		};
 		//! Description of one illuminated triangle.
@@ -194,7 +194,7 @@ namespace rr
 		virtual void renderTriangle(const IlluminatedTriangle& it) = 0;
 		//! Renders many triangles into map. Must be called inside renderBegin() / renderEnd().
 		virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
-		//! Finishes rendering of triangles into lightmap. Must be paired with renderBegin().
+		//! Finishes rendering of triangles into ambient map. Must be paired with renderBegin().
 		virtual void renderEnd() {};
 
 		// Pixel buffer use
@@ -227,18 +227,20 @@ namespace rr
 		//!  PreImport number of vertices, length of vertex buffer for rendering.
 		RRObjectIllumination(unsigned anumPreImportVertices);
 
-		//! Holds single illumination levels for whole object.
-		//! Illumination can be stored in vertex stream, lightmap or both.
+		//! One layer of illumination values, covers whole object.
+		//
+		//! Illumination can be stored in vertex array, ambient map or both.
+		//! Multiple channels (eg. each channel for different light source) can be mixed by renderer.
 		struct Channel
 		{
 			//! Constructs new channel, always empty.
-			//! You can insert vertex array or lightmap or both later.
+			//! You can insert vertex array or ambient map or both later.
 			Channel()
 			{
 				vertexBuffer = NULL;
 				pixelBuffer = NULL;
 			}
-			//! Destructs channel, deleting remaining vertex array or lightmap.
+			//! Destructs channel, deleting remaining vertex array or ambient map.
 			~Channel()
 			{
 				delete vertexBuffer;
@@ -247,8 +249,8 @@ namespace rr
 			//! Custom vertex array holding illumination levels for whole object.
 			//! May be NULL in which case vertex arrays are not generated and not rendered.
 			RRIlluminationVertexBuffer* vertexBuffer;
-			//! Custom lightmap holding illumination levels for whole object.
-			//! May be NULL in which case lightmaps are not generated and not rendered.
+			//! Custom ambient map holding illumination levels for whole object.
+			//! May be NULL in which case ambient maps are not generated and not rendered.
 			RRIlluminationPixelBuffer* pixelBuffer;
 		};
 
