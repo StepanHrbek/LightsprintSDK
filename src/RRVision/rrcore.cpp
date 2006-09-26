@@ -10,12 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>     // gate
-//#define SUPPORT_PNG
-#ifdef SUPPORT_LIGHTMAP
- #ifdef SUPPORT_PNG
-  #include <png.h>
- #endif
-#endif
 //#include "libff/ff.h"
 #include "LicGenOpt.h"
 #include "rrcore.h"
@@ -718,9 +712,6 @@ SubTriangle::SubTriangle(SubTriangle *aparent,class Triangle *agrandpa) : Node(a
 {
 	__subtrianglesAllocated++;
 	subvertex=NULL;
-#ifdef SUPPORT_LIGHTMAP
-	if(grandpa) grandpa->subtriangles++;
-#endif
 	splitVertex_rightLeft=-2;//=dunno, ask somebody else
 }
 
@@ -982,80 +973,9 @@ SubTriangle::~SubTriangle()
 		IVertex *iv=ivertex(i);
 		if(iv) iv->remove(this,false);
 	}
-#ifdef SUPPORT_LIGHTMAP
-	if(grandpa) grandpa->subtriangles--;
-#endif
 	__subtrianglesAllocated--;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// lightmap
-
-#ifdef SUPPORT_LIGHTMAP
-
-unsigned __lightmapsAllocated=0;
-
-Lightmap::Lightmap()
-{
-	w=0;
-	h=0;
-	bitmap=NULL;
-	isClean=true;
-}
-
-void Lightmap::setSize(unsigned aw,unsigned ah)
-{
-	if(w==aw && h==ah) return;
-	__lightmapsAllocated-=w*h;
-	delete[] bitmap;
-	w=aw;
-	h=ah;
-	if(!aw||!ah) bitmap=NULL; else bitmap=new byte[w*h];
-	memset(bitmap,0,w*h);
-	__lightmapsAllocated+=w*h;
-	isClean=true;
-}
-
-void Lightmap::Save(char *name)
-{
-#ifdef SUPPORT_PNG
- png_struct *png_ptr; png_info *info_ptr;
- png_byte **row_pointers; unsigned i;
-
- FILE *png_file=fopen(name,"wb");
-
- png_ptr=png_create_write_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
- info_ptr=png_create_info_struct(png_ptr);
-
- setjmp(png_jmpbuf(png_ptr));
-
- png_init_io(png_ptr,png_file);
- png_set_IHDR(png_ptr,info_ptr,w,h,8,PNG_COLOR_TYPE_GRAY,
- PNG_INTERLACE_NONE,PNG_COMPRESSION_TYPE_BASE,PNG_FILTER_TYPE_BASE);
-
- png_write_info(png_ptr,info_ptr);
-
- row_pointers=(png_byte **)malloc(h*sizeof(png_byte*));
- row_pointers[0]=bitmap;
-
- for (i=1;i<h;i++) row_pointers[i]=row_pointers[i-1]+w;
-
- png_write_image(png_ptr,row_pointers);
- png_write_end(png_ptr,info_ptr);
- png_destroy_write_struct(&png_ptr,(png_infopp) NULL);
-
- fclose(png_file); free(row_pointers);
-#endif
-}
-
-Lightmap::~Lightmap()
-{
-	delete[] bitmap;
-	__lightmapsAllocated-=w*h;
-}
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1074,9 +994,6 @@ Triangle::Triangle() : SubTriangle(NULL,this)
 #endif
 {
 	__trianglesAllocated++;
-#ifdef SUPPORT_LIGHTMAP
-	subtriangles=0;
-#endif
 	topivertex[0]=NULL;
 	topivertex[1]=NULL;
 	topivertex[2]=NULL;
@@ -3191,9 +3108,6 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 			}
 			// pokud je treba setrit pameti, uvolni buffer po hitech
 			hitTriangle->compact();
-#ifdef SUPPORT_LIGHTMAP
-			hitTriangle->updateLightmapSize(false);
-#endif
 			if(endfunc(context)) return;
 		}
 		// kandidati oznacej vsechny svy predky ze zvazujou clustering
@@ -3454,21 +3368,17 @@ void Scene::infoImprovement(char *buf, int infolevel)
 	int cl=sizeof(Cluster)*__clustersAllocated;
 	int iv=0;
 	int co=0;
-	int li=0;
 	iv=sizeof(IVertex)*__iverticesAllocated;
 	co=sizeof(Corner)*__cornersAllocated;
-#ifdef SUPPORT_LIGHTMAP
-	li=__lightmapsAllocated;
-#endif
-	int ot=kb-hi-fa-su-tr-cl-iv-co-li;
+	int ot=kb-hi-fa-su-tr-cl-iv-co;
 	buf[0]=0;
 	STATISTIC(if(infolevel>1) sprintf(buf+strlen(buf),"hits(%i/%i) ",RRScene::getSceneStatistics()->numRayTracePhotonFrontHits,RRScene::getSceneStatistics()->numRayTracePhotonBackHits));
 #ifdef SUPPORT_DYNAMIC
 	if(infolevel>1) sprintf(buf+strlen(buf),"dshots(%i->%i) ",__lightShotsPerDynamicFrame,__shadeShotsPerDynamicFrame);
 #endif
 	//sprintf(buf+strlen(buf),"kb=%i",kb/1024);
-	if(infolevel>1) sprintf(buf+strlen(buf),"(hi=%i,fa=%i,su=%i,tr=%i,cl=%i,iv=%i,co=%i,li=%i,ot=%i)",
-		hi/1024,fa/1024,su/1024,tr/1024,cl/1024,iv/1024,co/1024,li/1024,ot/1024);
+	if(infolevel>1) sprintf(buf+strlen(buf),"(hi=%i,fa=%i,su=%i,tr=%i,cl=%i,iv=%i,co=%i,ot=%i)",
+		hi/1024,fa/1024,su/1024,tr/1024,cl/1024,iv/1024,co/1024,ot/1024);
 	sprintf(buf+strlen(buf)," meshes=%i/%i rays=(%i)%i",staticReflectors.nodes,__nodesAllocated,shotsTotal,shotsForFactorsTotal);
 	if(improvingStatic) sprintf(buf+strlen(buf),"(%i/%i->%i)",shotsAccumulated,improvingStatic->shooter->shotsForFactors,shotsForNewFactors);
 	assert((improvingStatic!=NULL) == (phase!=0));
@@ -3507,9 +3417,6 @@ void core_Done()
 	 || __factorsAllocated
 	 || __iverticesAllocated
 	 || __cornersAllocated
-	#ifdef SUPPORT_LIGHTMAP
-	 || __lightmapsAllocated
-	#endif
 	  )
 	{
 	  fprintf(stderr," nodes       =%8d %8dK\n subtriangles=%8d %8dK\n triangles   =%8d %8dK\n clusters    =%8d %8dK\n edges       =%8d %8dK\n hits        =%8d %8dK\n factors     =%8d %8dK\n",
@@ -3523,10 +3430,6 @@ void core_Done()
 	  fprintf(stderr," ivertices   =%8d %8dK\n corners     =%8d %8dK\n",
 	    __iverticesAllocated,__iverticesAllocated*sizeof(IVertex)/1024,
 	    __cornersAllocated,__cornersAllocated*sizeof(Corner)/1024);
-	#ifdef SUPPORT_LIGHTMAP
-	  fprintf(stderr," lightmaps   =         %8dK\n",
-	    __lightmapsAllocated/1024);
-	#endif
 	  //fgetc(stdin);
 	}
 #endif

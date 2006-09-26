@@ -637,11 +637,7 @@ void keyboardFunc(unsigned char key, int x, int y)
   case '(': if(d_factors2 && ((Node*)d_factors2)->sub[0]) d_factors2=((Node*)d_factors2)->sub[0]; n_dirtyColor=true;break;
   case ')': if(d_factors2 && ((Node*)d_factors2)->parent) d_factors2=((Node*)d_factors2)->parent; n_dirtyColor=true;break;
   
-#ifdef SUPPORT_LIGHTMAP
-  case '@': save_lightmaps(__world);break;
-#else
   case '@': save_subtriangles(__world);break;
-#endif
 
   case '5': setRrMode(scene,false,false,0);p_flyingObjects=false;break;
   case '6': setRrMode(scene,true ,false,0);p_flyingObjects=true;break;
@@ -789,11 +785,7 @@ void help()
 #endif
  printf(" -verboseLEVEL...0=less prints, 2=more prints (1)\n");
  printf("\n ----------------------------------[ export ]----------------------------------\n");
-#ifdef SUPPORT_LIGHTMAP
- printf(" -lightmapsQ  ...calculate static scene to quality Q and export lightmaps\n");
-#else
  printf(" -qualityQ    ...calculate static scene to quality Q and export subtriangles\n");
-#endif
  printf(" -export:NAME ...export only faces from material NAME (*)\n");
  printf(" -dontexport:NAME...but dont export faces from material NAME ()\n");
  printf("\n ----------------------------[ animation precalc ]-----------------------------\n");
@@ -905,15 +897,9 @@ int main(int argc, char **argv)
      if (!strncmp(argv[i],"-3ds",2))
         {float tmp;if(sscanf(argv[i],"-3ds%f",&tmp)==1) {p_3dsFrameEnd=tmp;printf("using only first %f 3ds frames\n",p_3dsFrameEnd);} else goto badarg;}
      else
-#ifdef SUPPORT_LIGHTMAP
-     if (!strncmp(argv[i],"-lightmaps%f",10))
-        {float tmp;if(sscanf(argv[i],"-lightmaps%f",&tmp)==1) endAccuracy=tmp; else goto badarg;}
-     else
-#else
      if (!strncmp(argv[i],"-quality%f",8))
         {float tmp;if(sscanf(argv[i],"-quality%f",&tmp)==1) endAccuracy=tmp; else goto badarg;}
      else
-#endif
      if (!strncmp(argv[i],"-l",2))
         {int li;if(sscanf(argv[i],"-l%i",&li)==1) g_separLights=li!=1; else goto badarg;}
      else
@@ -1006,11 +992,7 @@ int main(int argc, char **argv)
    if (kamil) cnt=new Counter(20);
 #endif
    scene->improveStatic(endByAccuracy,scene);
-#ifdef SUPPORT_LIGHTMAP
-   save_lightmaps(__world);
-#else
    save_subtriangles(__world);
-#endif
    if(!gfx) return 0;
  }
 

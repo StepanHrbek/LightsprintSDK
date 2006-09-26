@@ -31,9 +31,6 @@ void raster_SetFOV(float xfov, float yfov);
 void raster_SetMatrix(raster_MATRIX *cam, raster_MATRIX *inv);
 
 int raster_ZGouraud(raster_POLYGON *p, unsigned *col);
-int raster_LGouraud(raster_POLYGON *p, int w, U8 *lightmap);
 int raster_ZFlat(raster_POLYGON *p, unsigned *col, float brightness);
-int raster_LFlat(raster_POLYGON *p, int w, U8 *lightmap, float brightness);
-int raster_ZTexture(raster_POLYGON *p, int w, U8 *lightmap, unsigned *col);
 
 #endif

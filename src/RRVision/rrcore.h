@@ -6,7 +6,6 @@
 #define SUPPORT_MIN_FEATURE_SIZE // support merging of near ivertices (to fight needles, hide features smaller than limit)
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 //#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
-//#define LIGHTMAP         // generate lightmap for each Triangle + texturemapping
 //#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
 // note that fixed hits have no hit extension implemeted (used only for dynamic objects)
 #define HIT_PTR          & // hits are passed by reference
@@ -179,9 +178,6 @@ public:
 	public:
 	void    insert(Hit ahit,void *extension);
 	real    convertDHitsToHits();
-#ifdef SUPPORT_LIGHTMAP
-	void    convertDHitsToLightmap(class Lightmap *l,real zoomToLightmap);
-#endif
 #endif
 };
 
@@ -421,34 +417,7 @@ public:
 
 // DF=draw flags
 #define DF_REFRESHALL 1
-#define DF_TOLIGHTMAP 2
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// lightmap
-
-#ifdef SUPPORT_LIGHTMAP
-
-extern unsigned __lightmapsAllocated;
-
-class Lightmap
-{
-public:
-	unsigned w;
-	unsigned h;
-	Point2  uv[3];
-	U8      *bitmap;
-
-	bool    isClean;
-
-	Lightmap();
-	~Lightmap();
-
-	void setSize(unsigned aw,unsigned ah);
-	void Save(char *name);
-};
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -474,7 +443,6 @@ public:
 //   =2: init(c,a,b) is called
 //  vertex[3] is filled by {a,b,c}
 //  s3,r3,l3 is filled by a,b-a,c-a
-//  lightmap.x1,x2,x3 is filled by a,b,c
 
 extern unsigned __trianglesAllocated;
 extern unsigned __trianglesWithBadNormal;
@@ -541,17 +509,6 @@ public:
 
 	// hits
 	Hits    hits;           // the most memory consuming struct: set of hits
-#endif
-
-#ifdef SUPPORT_LIGHTMAP
-	// lightmap
-	unsigned subtriangles;  // number of subtriangles
-	Lightmap lightmap;      // lightmap
-	real    zoomToLightmap; // zoom to fit in lightmap
-	void    setLightmapSize(unsigned w);
-	void    updateLightmapSize(bool forExport);
-	void    updateLightmap();
-	void    drawLightmap();
 #endif
 };
 

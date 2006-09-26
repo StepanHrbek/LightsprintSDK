@@ -72,51 +72,6 @@ real Hits::convertDHitsToHits()
 	return maxEnergyInHit;
 }
 
-#ifdef SUPPORT_LIGHTMAP
-
-void Hits::convertDHitsToLightmap(Lightmap *l,real zoomToLightmap)
-{
-	assert(l);
-	assert(l->bitmap);
-	assert(isDynamic || !hits);
-	assert((hits&1)==0);
-	for(unsigned i=0;i<hits;i+=2)
-	{
-		ReflToDynobj *r2d=(ReflToDynobj *)(hit[i+1].getExtensionP());
-		assert(r2d);
-		assert(r2d->lightShots);
-		assert(r2d->energyR>=0);
-		assert(r2d->powerR2DSum>=0);
-		assert(r2d->lightShots>0);
-		assert(r2d->powerR2DSum/r2d->lightShots<=1);
-		// energie vyletajici z reflektoru ke kouli
-		real energyToSphere=r2d->energyR*(r2d->powerR2DSum/r2d->lightShots);
-		// jak velkou jeji cast nese tento zasah
-		real powerInHit;
-		if(hit[i].getPower()>0)
-			powerInHit=hit[i].getPower()/r2d->lightShotsP;
-		else    powerInHit=hit[i].getPower()/r2d->shadeShotsP;
-		// energie v jednom zasahu
-		real energyInHit=energyToSphere*powerInHit;
-		// zakresli hit do lightmapy
-#ifdef HIT_12BIT
- #error only float hits supported here
-#endif
-#ifdef HIT_WORD
- #error only float hits supported here
-#endif
-		unsigned x=(unsigned)(hit[i].u*zoomToLightmap);
-		unsigned y=(unsigned)(hit[i].v*zoomToLightmap);
-		assert(x<l->w);
-		assert(y<l->h);
-		real limit=200;
-		if(energyInHit<-limit) energyInHit=-limit;
-		else if(energyInHit>limit) energyInHit=limit;
-		l->bitmap[x+y*l->w]=(U8)((energyInHit/limit+1)*127.9);
-	}
-}
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -788,9 +743,6 @@ void Scene::improveDynamic(bool endfunc(void *),void *context)
 		// convert triangle hits to energyDynamic in subtriangles
 		// (clustering skipped here)
 		convertHitsToEnergyDynamic(hitTriangle,&hitTriangle->hits,e);
-#ifdef SUPPORT_LIGHTMAP
-		hitTriangle->updateLightmapSize(false);
-#endif
 /*
 		// distribute energyDynamic via static factors
 		// (in other words - apply one diffuse reflection)

@@ -23,12 +23,6 @@
  #include <zlib.h>
 #endif
 
-#ifdef RASTERGL
-#ifdef SUPPORT_LIGHTMAP
-#error accelerated lightmaps not supported
-#endif
-#endif
-
 #include "../RRVision/rrcore.h"//!!!
 using namespace rr;
 
@@ -172,7 +166,7 @@ void SubTriangle::drawFlat(Channels ambient,int df)
 	bool is_source=d_factors2 && shooter && (tmp=shooter->contains(d_factorsTo))!=-1;
 	//if(is_source) printf("pwr=%f ",tmp);//!!!
 	if(is_destination || is_source) ; else
-		if((!d_fast || (df&DF_TOLIGHTMAP)) && sub[0] && ((d_meshing==1 && sub[0]->shooter) || d_meshing==2))
+		if((!d_fast) && sub[0] && ((d_meshing==1 && sub[0]->shooter) || d_meshing==2))
 		{
 			ambient+=(energyDirect+getEnergyDynamic()-sub[0]->energyDirect-sub[1]->energyDirect)/area;
 			SUBTRIANGLE(sub[0])->drawFlat(ambient,df);
@@ -201,36 +195,6 @@ void SubTriangle::drawFlat(Channels ambient,int df)
 		p1.point=&p[0]; p1.next=&p2;
 		p2.point=&p[1]; p2.next=&p3;
 		p3.point=&p[2]; p3.next=NULL;
-
-#ifdef SUPPORT_LIGHTMAP
-		if(df&DF_TOLIGHTMAP)
-		{
-			assert(grandpa);
-			int WIDTH=grandpa->lightmap.w;
-			real zoom=grandpa->zoomToLightmap;
-
-			real x1=uv[0].x*zoom;
-			real y1=uv[0].y*zoom;
-			real x2=uv[1].x*zoom;
-			real y2=uv[1].y*zoom;
-			real x3=uv[2].x*zoom;
-			real y3=uv[2].y*zoom;
-
-#ifndef NDEBUG
-			int HEIGHT=grandpa->lightmap.h;
-			assert(x1>=0 && x1<WIDTH && y1>=0 && y1<HEIGHT);
-			assert(x2>=0 && x2<WIDTH && y2>=0 && y2<HEIGHT);
-			assert(x3>=0 && x3<WIDTH && y3>=0 && y3<HEIGHT);
-#endif
-
-			p[0].sx=x1; p[0].sy=y1;
-			p[1].sx=x2; p[1].sy=y2;
-			p[2].sx=x3; p[2].sy=y3;
-
-			raster_LFlat(&p1,WIDTH,grandpa->lightmap.bitmap,brightness);
-		}
-		else
-#endif
 
 		{
 			Vec3 v;
@@ -280,7 +244,7 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 	assert(iv[0]->check(to3d(0)));
 	assert(iv[1]->check(to3d(1)));
 	assert(iv[2]->check(to3d(2)));
-	if((!d_fast || (df&DF_TOLIGHTMAP)) && sub[0] && ((d_meshing==1 && sub[0]->shooter) || d_meshing==2)
+	if((!d_fast) && sub[0] && ((d_meshing==1 && sub[0]->shooter) || d_meshing==2)
 		&& (p_ffPlay!=2 || subvertex->error<d_details)
 		&& (p_ffPlay==0 || subvertex->loaded))//kdyz ffPlayuje=loaduje z disku, loaduje jen nektery ivertexy, ostatni zustanou nevyplneny a kdybysme se jich ptali, sectou si a vratej nam energii z corneru kde ted zadna neni
 	{
@@ -327,74 +291,6 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 	p2.next=&p3;
 	p3.next=NULL;
 
-#ifdef SUPPORT_LIGHTMAP
-	if(df&DF_TOLIGHTMAP)
-	{
-
-		int WIDTH=grandpa->lightmap.w;
-		real zoom=grandpa->zoomToLightmap;
-		real x1=uv[0].x*zoom;
-		real y1=uv[0].y*zoom;
-		real x2=uv[1].x*zoom;
-		real y2=uv[1].y*zoom;
-		real x3=uv[2].x*zoom;
-		real y3=uv[2].y*zoom;
-
-		//  #define OMEZ(var,min,max) if(var<min) var=min; else if(var>=max) var=max-0.01
-		//  OMEZ(x1,0,WIDTH);OMEZ(y1,0,HEIGHT);
-		//  OMEZ(x2,0,WIDTH);OMEZ(y2,0,HEIGHT);
-		//  OMEZ(x3,0,WIDTH);OMEZ(y3,0,HEIGHT);
-		//  #undef OMEZ
-
-#ifndef NDEBUG
-		int HEIGHT=grandpa->lightmap.h;
-		assert(x1>=0 && x1<WIDTH && y1>=0 && y1<HEIGHT);
-		assert(x2>=0 && x2<WIDTH && y2>=0 && y2<HEIGHT);
-		assert(x3>=0 && x3<WIDTH && y3>=0 && y3<HEIGHT);
-#endif
-
-		p[1].sx=x1; p[1].sy=y1; p[1].tz=1; p[1].u=getBrightness(iv[0]->exitance());
-		p[2].sx=x2; p[2].sy=y2; p[2].tz=1; p[2].u=getBrightness(iv[1]->exitance());
-		p[3].sx=x3; p[3].sy=y3; p[3].tz=1; p[3].u=getBrightness(iv[2]->exitance());
-
-		if(!d_gouraud3)
-		{
-			p1.point=&p[1];
-			p2.point=&p[2];
-			p3.point=&p[3];
-
-			raster_LGouraud(&p1,WIDTH,grandpa->lightmap.bitmap);
-		}
-		else
-		{
-			real xc=(uv[0].x+(u2.x+v2.x)/3)*zoom;
-			real yc=(uv[0].y+(u2.y+v2.y)/3)*zoom;
-
-			p[0].sx=xc; p[0].sy=yc; p[0].tz=1;
-			p[0].u=getBrightness(ambient+(energyDirect+getEnergyDynamic())/area);
-
-			p1.point=&p[1];
-			p2.point=&p[2];
-			p3.point=&p[0];
-
-			raster_LGouraud(&p1,WIDTH,grandpa->lightmap.bitmap);
-
-			p1.point=&p[1];
-			p2.point=&p[0];
-			p3.point=&p[3];
-
-			raster_LGouraud(&p1,WIDTH,grandpa->lightmap.bitmap);
-
-			p1.point=&p[0];
-			p2.point=&p[2];
-			p3.point=&p[3];
-
-			raster_LGouraud(&p1,WIDTH,grandpa->lightmap.bitmap);
-		}
-
-	}
-	else
-#endif
 	{
 
 		Vec3 v;
@@ -508,240 +404,6 @@ unsigned SubTriangle::printGouraud(void *f, IVertex **iv, real scale,Channels fl
 }
 
 
-#ifdef SUPPORT_LIGHTMAP
-
-// aktualizuje velikost lightmapy
-
-void Triangle::setLightmapSize(unsigned w)
-{
-	if(lightmap.w==w) return;
-	if(w==0)
-	{
-		lightmap.setSize(0,0);
-		return;
-	}
-	assert(uv[0].x==0 && uv[0].y==0);
-	zoomToLightmap=(w-1)/MAX(u2.x,v2.x);
-	//pokud vychazi h treba 5.9999,
-	// u2,v2 v subtrianglu semtam nepatrne naroste a melo by se kreslit do 6,
-	// proto musime udelat vysku 7 (tedy pricist 1+MAXERROR)
-	int h=(int)(MAX(u2.y,v2.y)*zoomToLightmap+1.5);
-
-	// kdyz by byla lightmapa moc rozplacla, neni potreba ji zvetsovat,
-	// proste se vypusti a nakresli se to primo do screenu
-	if(h<8)
-	{
-		lightmap.setSize(0,0);
-		return;
-	}
-
-	lightmap.setSize(w,h);
-
-	// spocita souradnice ktery se budou predavat texturemapperu
-	lightmap.uv[0]=Point2(0,0);assert(uv[0].x==0);assert(uv[0].y==0);
-	lightmap.uv[1]=uv[1]*zoomToLightmap;
-	lightmap.uv[2]=uv[2]*zoomToLightmap;
-	/*
-	// a ohackuje je
-	lightmap.uv[0].y+=0.1;
-	lightmap.uv[1].y+=0.1;
-	lightmap.uv[2].y-=2.1;
-
-	if(lightmap.uv[2].x<lightmap.uv[1].x*0.3) {lightmap.uv[0].x+=1;lightmap.uv[1].x-=1;lightmap.uv[2].x+=1;} else
-	if(lightmap.uv[2].x>lightmap.uv[1].x*0.7) {lightmap.uv[0].x+=1;lightmap.uv[1].x-=1;lightmap.uv[2].x-=1;} else
-	{lightmap.uv[0].x+=1;lightmap.uv[1].x-=1;}
-	*/
-	// proveri ze nic nebude pretejkat
-	assert(IS_VEC2(lightmap.uv[0]));
-	assert(IS_VEC2(lightmap.uv[1]));
-	assert(IS_VEC2(lightmap.uv[2]));
-	assert(lightmap.uv[0].x>=0 && lightmap.uv[0].x<lightmap.w && lightmap.uv[0].y>=0 && lightmap.uv[0].y<lightmap.h);
-	assert(lightmap.uv[1].x>=0 && lightmap.uv[1].x<lightmap.w && lightmap.uv[1].y>=0 && lightmap.uv[1].y<lightmap.h);
-	assert(lightmap.uv[2].x>=0 && lightmap.uv[2].x<lightmap.w && lightmap.uv[2].y>=0 && lightmap.uv[2].y<lightmap.h);
-
-	flags|=FLAG_DIRTY_ALL_SUBNODES;
-}
-
-// podle poctu subtrianglu nastavi vhodnou velikost lightmapy
-// pri dost malem mnozstvi ji i zrusi
-// problem: po reinitu je plno subtrianglu ale prazdnejch
-
-void Triangle::updateLightmapSize(bool forExport)
-{
-	//  if(d_fast) return;
-#if 1
-	const int lightmapSizes=6;
-	const unsigned lightmapWidth[lightmapSizes]=  {0,16,32,64,128,256    };
-	const unsigned maxSubsForWidth[lightmapSizes]={1,6,24,100,400,INT_MAX};
-#else
-	const int lightmapSizes=4;
-	const unsigned lightmapWidth[lightmapSizes]=  { 0,64,128,256    };
-	const unsigned maxSubsForWidth[lightmapSizes]={10,40,120,INT_MAX};
-#endif
-	// v prvnim poli jsou mozne sirky lightmapy
-	// druhe pole rika kolik nejvys subtrianglu se do tak siroke lightmapy
-	//  vejde (kdyz se nevejdou, nastavi se vetsi sirka)
-	// dusledek: prvni prvek druheho pole rika pri kolika jeste subtrianglech
-	//  se triangl kresli primo do screeny bez pouziti lightmapy
-	// pri exportu se lightmapa generuje uz pri 2 subtrianglech
-	for(int i=0;i<lightmapSizes;i++)
-		if(subtriangles<= ((!i&&forExport)?1:maxSubsForWidth[i]) )
-		{
-			setLightmapSize(lightmapWidth[i]);
-			break;
-		}
-}
-
-// aktualizuje obsah lightmapy
-
-void Triangle::updateLightmap()
-{
-#ifdef SUPPORT_DYNAMIC
-	if(c_dynamic && d_drawDynamicHits) setLightmapSize(64);
-#endif
-
-	//  if (lightmap.isClean || n_dirtyColor)
-	//     memset(lightmap.bitmap,0,lightmap.w*lightmap.h);
-
-	real ambient=radiosityIndirect();
-	int df=DF_TOLIGHTMAP+(n_dirtyColor?DF_REFRESHALL:0);
-	if(d_gouraud) drawGouraud(ambient,topivertex,df); else
-		drawFlat(ambient,df);
-
-#ifdef SUPPORT_DYNAMIC
-	// naflaka do lightmapy hity
-	if(c_dynamic && d_drawDynamicHits)
-	{
-		hits.convertDHitsToLightmap(&lightmap,zoomToLightmap);
-	}
-#endif
-
-	/*tenhle hack nekdy lightmapu divne kazi, konkretne dyn.stiny
-	if (lightmap.isClean || n_dirtyColor) {
-	byte c;
-	for (int y=0;y<lightmap.h;y++) {
-	int yw=y*lightmap.w;
-	for (int x=0;x<lightmap.w;x++) {
-	if ((c=lightmap.bitmap[x+yw])) {
-	for (int i=0;i<x;i++) lightmap.bitmap[i+yw]=c;
-	break;
-	}
-	}
-	for (int x=lightmap.w-1;x>=0;x--) {
-	if ((c=lightmap.bitmap[x+yw])) {
-	for (int i=lightmap.w-1;i>x;i--) lightmap.bitmap[i+yw]=c;
-	break;
-	}
-	}
-	}
-	for (int x=0;x<lightmap.w;x++) {
-	int w=lightmap.w;
-	for (int y=0;y<lightmap.h;y++) {
-	if ((c=lightmap.bitmap[x+y*w])) {
-	for (int i=0;i<y;i++) lightmap.bitmap[x+i*w]=c;
-	break;
-	}
-	}
-	for (int y=lightmap.h-1;y>=0;y--) {
-	if ((c=lightmap.bitmap[x+y*w])) {
-	for (int i=lightmap.h-1;i>y;i--) lightmap.bitmap[x+i*w]=c;
-	break;
-	}
-	}
-	}
-	lightmap.isClean=false;
-	}*/
-	lightmap.isClean=false;
-}
-
-// kresli celou lightmapu
-
-void Triangle::drawLightmap()
-{
-	assert(lightmap.w);
-
-	if(!d_fast || lightmap.isClean) updateLightmap();
-
-	raster_POINT p1,p2,p3;
-	raster_VERTEX v1,v2,v3;
-	raster_POLYGON *p;
-
-	p1.x=vertex[0]->x; p2.x=vertex[1]->x; p3.x=vertex[2]->x;
-	p1.y=vertex[0]->y; p2.y=vertex[1]->y; p3.y=vertex[2]->y;
-	p1.z=vertex[0]->z; p2.z=vertex[1]->z; p3.z=vertex[2]->z;
-
-	v1.point=&p1; v1.next=&v2;
-	v2.point=&p2; v2.next=&v3;
-	v3.point=&p3; v3.next=NULL; p=&v1;
-
-	p1.u=lightmap.uv[0].x; p2.u=lightmap.uv[1].x; p3.u=lightmap.uv[2].x;
-	p1.v=lightmap.uv[0].y; p2.v=lightmap.uv[1].y; p3.v=lightmap.uv[2].y;
-	assert(p1.u>=0);
-	assert(p1.u<lightmap.w);
-	assert(p2.u>=0);
-	assert(p2.u<lightmap.w);
-	assert(p3.u>=0);
-	assert(p3.u<lightmap.w);
-	assert(p1.v>=0);
-	assert(p1.v<lightmap.h);
-	assert(p2.v>=0);
-	assert(p2.v<lightmap.h);
-	assert(p3.v>=0);
-	assert(p3.v<lightmap.h);
-	raster_ZTexture(p,lightmap.w,lightmap.bitmap,((Surface*)surface)->diffuseReflectanceColorTable);
-}
-
-void save_lightmaps(WORLD *w)
-{
-	d_fast=false; int oldNeedle=d_needle; d_needle=1;
-	video_WriteScreen("saving lightmaps...");
-
-	for (int i=0;i<w->object_num;i++) { OBJECT *o=&w->object[i];
-
-	for (int j=0;j<o->face_num;j++) { char obj_name[256],log_name[256];
-
-	strcpy(obj_name,w->material[o->face[j].material].name+1);
-	sprintf(log_name,"%s/lmap.log",obj_name);
-	FILE *lightmap_log=fopen(log_name,"a");
-
-	if (lightmap_log) { char face_name[256];
-
-	Triangle *t=(Triangle *)o->face[j].source_triangle;
-
-	if (!t) fprintf(lightmap_log,"%d INVALID!\n",o->face[j].id); else
-		if (!t->surface) /*fprintf(lightmap_log,"%d hidden\n",o->face[j].id)*/; else {
-
-			sprintf(face_name,"%s/f%05d.png",obj_name,o->face[j].id);
-
-			t->updateLightmapSize(true);
-
-			if (t->lightmap.w) {
-				t->updateLightmap();
-				fprintf(lightmap_log,"%d %f %f %f %f %f %f\n",o->face[j].id,
-					t->lightmap.uv[(3-t->rotations)%3].x,t->lightmap.uv[(3-t->rotations)%3].y, // (n-rots)%3 ... compensate rotations done by Triangle::setGeometry
-					t->lightmap.uv[(4-t->rotations)%3].x,t->lightmap.uv[(4-t->rotations)%3].y,
-					t->lightmap.uv[(5-t->rotations)%3].x,t->lightmap.uv[(5-t->rotations)%3].y); 
-				t->lightmap.Save(face_name);
-				t->lightmap.setSize(0,0);
-			} else {
-				fprintf(lightmap_log,"%d %f 0 %f 0 %f 0\n",o->face[j].id,
-					getBrightness(t->topivertex[0]->exitance()),
-					getBrightness(t->topivertex[1]->exitance()),
-					getBrightness(t->topivertex[2]->exitance()));
-			}
-		}
-
-		fclose(lightmap_log);
-
-	}
-	}
-	}
-
-	video_WriteScreen("done! ");
-	d_needle=oldNeedle;
-}
-
-#endif //SUPPORT_LIGHTMAP
 
 #ifdef SUPPORT_REGEX
 // regular expression match
@@ -867,19 +529,9 @@ void inline draw_triangle(rr::RRScene* scene, unsigned o, unsigned t, Triangle *
 	if(d_gouraud) f->drawGouraud(ambient,f->topivertex,DF_REFRESHALL); else
 		f->drawFlat(ambient,DF_REFRESHALL);
 #else
-#ifdef SUPPORT_LIGHTMAP
-	if(p_ffPlay) f->updateLightmapSize(false);
-	if(f->lightmap.w)
-		f->drawLightmap();
-	else
-#endif
 	{
 		Channels ambient=f->radiosityIndirect();
-		if(d_gouraud
-#ifndef SUPPORT_LIGHTMAP
-			&& !d_fast
-#endif
-			) f->drawGouraud(ambient,f->topivertex,DF_REFRESHALL); else
+		if(d_gouraud && !d_fast) f->drawGouraud(ambient,f->topivertex,DF_REFRESHALL); else
 			f->drawFlat(ambient,true);
 	}
 #endif

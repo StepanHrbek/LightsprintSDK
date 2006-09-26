@@ -547,7 +547,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	}
 	if(renderedChannels.LIGHT_INDIRECT_MAP && needLightmapCacheUpdate)
 	{
-		// refresh cache for renders with lightmap after any lightmam reallocation
+		// refresh cache for renders with ambient map after any ambient map reallocation
 		needLightmapCacheUpdate = false;
 		level->rendererCaching->setStatus(RendererWithCache::CS_READY_TO_COMPILE);
 	}
@@ -1673,7 +1673,7 @@ int main(int argc, char **argv)
 	// init GLUT
 	glutInitWindowSize(resolutionx,resolutiony);
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ACCUM | GLUT_ALPHA); //accum na high quality soft shadows, alpha na filtrovani lightmap
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ACCUM | GLUT_ALPHA); //accum na high quality soft shadows, alpha na filtrovani ambient map
 	if(fullscreen)
 	{
 		char buf[100];

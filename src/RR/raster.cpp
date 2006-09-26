@@ -301,22 +301,6 @@ static int raster_CreateEdges(raster_POLYGON *p)
 
 //************************ Linear interpolation ***********************
 
-static int raster_TextureInit(raster_POLYGON *p)
-{
- float x[3],y[3],z[3],u[3],v[3],c; int i;
-
- for (i=0;i<3;i++) {
-     z[i] = -1 / p->point->tz;
-     u[i] = p->point->u * z[i];
-     v[i] = p->point->v * z[i];
-     x[i] = p->point->sx;
-     y[i] = p->point->sy;
-     p = p->next;
-     }
-
- XY DU DV DZ return 1;
-}
-
 static int raster_GouraudInit(raster_POLYGON *p)
 {
  float x[3],y[3],z[3],u[3],c; int j;
@@ -348,55 +332,6 @@ static int raster_FlatInit(raster_POLYGON *p)
 
 //************************ Span rasterization ***************************
 
-static inline void raster_ZTextureSpan(float u, float v, float z,
-                                       int len, int *out, float *zbuf)
-{
- float z1=FIX/z,zi=z; int *s,u1=ROUND(u*z1),v1=ROUND(v*z1),du,u2,v2,dv;
-
- while (len>=STEP) {
-       u+=dudx16; v+=dvdx16; z+=dzdx16; z1=FIX/z; s=out+STEP;
-       u2=ROUND(u*z1); du=(u2-u1)/STEP; v2=ROUND(v*z1); dv=(v2-v1)/STEP;
-       while (out<s) {
-             if (zi<*zbuf) { *zbuf=zi;
-                switch (raster_TextureWidth) {
-                       OUT_16(u1,v1)  OUT_32(u1,v1)  OUT_64(u1,v1)
-                       OUT_128(u1,v1) OUT_256(u1,v1) OUT_512(u1,v1) }
-                }
-             u1+=du; v1+=dv; zi+=dzdx; out++; zbuf++;
-             }
-       len-=STEP; u1=u2; v1=v2;
-       }
-
- if (len>0) {
-    u+=dudx*len; v+=dvdx*len; z+=dzdx*len; z1=FIX/z; s=out+len;
-    u2=ROUND(u*z1); du=(u2-u1)/len; v2=ROUND(v*z1); dv=(v2-v1)/len;
-    while (out<s) {
-          if (zi<*zbuf) { *zbuf=zi;
-             switch (raster_TextureWidth) {
-                    OUT_16(u1,v1)  OUT_32(u1,v1)  OUT_64(u1,v1)
-                    OUT_128(u1,v1) OUT_256(u1,v1) OUT_512(u1,v1) }
-             }
-          u1+=du; v1+=dv; zi+=dzdx; out++; zbuf++;
-          }
-    }
-}
-
-static inline void raster_LGouraudSpan(float u, float z, int len, U8 *out)
-{
- U8 *s; float z1=FIX/z;int u1=ROUND(u*z1),u2,du;
-
- while (len>=STEP) { u+=dudx16; z+=dzdx16; z1=FIX/z;
-       u2=ROUND(u*z1); du=(u2-u1)/STEP; s=out+STEP;
-       while (out<s) { *out++=INT(u1); u1+=du; }
-       len-=STEP; u1=u2;
-       }
-
- if (len>0) { u+=dudx*len; z+=dzdx*len; z1=FIX/z;
-    u2=ROUND(u*z1);du=(u2-u1)/len; s=out+len;
-    while (out<s) { *out++=INT(u1); u1+=du; }
-    }
-}
-
 static inline void raster_ZGouraudSpan(float u, float z, int len,
                                        int *out, float *zbuf)
 {
@@ -424,60 +359,6 @@ static inline void raster_ZGouraudSpan(float u, float z, int len,
 
 //********************** Polygon rasterization ************************
 
-extern int raster_ZTexture(raster_POLYGON *p, int w, U8 *lightmap, unsigned *col)
-{
- int start_y,i,l_x,r_x,l_dxdy,r_dxdy,l_num,r_num,l,c,s; float u,v,z;
- int *out=raster_Output; float *zbuf=raster_Zbuffer;
-
- raster_Light=(int *)col;
-
- raster_Texture=lightmap;
- raster_TextureWidth=w;
- raster_WIDTH=raster_XRES;
-
- if (!(p=raster_Visibility(p))) return 0;
- if (!raster_TextureInit(p)) return 0;
- if (!raster_CreateEdges(p)) return 0;
-
- INIT
-
- out+=start_y*raster_WIDTH;
- zbuf+=start_y*raster_WIDTH;
-
- u = orgu + start_y*dudy;
- v = orgv + start_y*dvdy;
- z = orgz + start_y*dzdy;
-
- while (i>0) {
-       SPAN raster_ZTextureSpan(u+l*dudx,v+l*dvdx,z+l*dzdx,c,out+l,zbuf+l);
-       u+=dudy; v+=dvdy; z+=dzdy; out+=raster_WIDTH; zbuf+=raster_WIDTH;
-       NEXT
-       }
-
- return 1;
-}
-
-extern int raster_LGouraud(raster_POLYGON *p, int w, U8 *lightmap)
-{
- int start_y,i,l_x,r_x,l_dxdy,r_dxdy,l_num,r_num,l,c,s;
- float u,z; U8 *out=lightmap; raster_WIDTH=w;
-
- if (!raster_GouraudInit(p)) return 0;
- if (!raster_CreateEdges(p)) return 0;
-
- INIT out+=start_y*raster_WIDTH;
-
- u = orgu + start_y*dudy;
- z = orgz + start_y*dzdy;
-
- while (i>0) {
-       SPAN raster_LGouraudSpan(u+l*dudx,z+l*dzdx,c,out+l);
-       u+=dudy; z+=dzdy; out+=raster_WIDTH; NEXT
-       }
-
- return 1;
-}
-
 extern int raster_ZGouraud(raster_POLYGON *p, unsigned *col)
 {
  int start_y,i,l_x,r_x,l_dxdy,r_dxdy,l_num,r_num,l,c,s;
@@ -503,18 +384,6 @@ extern int raster_ZGouraud(raster_POLYGON *p, unsigned *col)
        SPAN raster_ZGouraudSpan(u+l*dudx,z+l*dzdx,c,out+l,zbuf+l);
        u+=dudy; z+=dzdy; out+=raster_WIDTH; zbuf+=raster_WIDTH; NEXT
        }
-
- return 1;
-}
-
-extern int raster_LFlat(raster_POLYGON *p, int w, U8 *lightmap, float brightness)
-{
- int start_y,i,l_x,r_x,l_dxdy,r_dxdy,l_num,r_num,l,c,s;
- U8 *out=lightmap,col=ROUND(255*brightness); raster_WIDTH=w;
-
- if (!raster_CreateEdges(p)) return 0; INIT out+=start_y*raster_WIDTH;
-
- while (i>0) { SPAN memset(out+l,col,c); out+=raster_WIDTH; NEXT }
 
  return 1;
 }
