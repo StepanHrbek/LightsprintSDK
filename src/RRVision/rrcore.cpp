@@ -2000,24 +2000,40 @@ void Object::resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool r
 	if(resetPropagation)
 	{
 		for(unsigned c=0;c<clusters;c++) {U8 flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset(resetFactors);cluster[c].flags=flag;}
-		for(unsigned t=0;t<triangles;t++) {U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset(resetFactors);triangle[t].flags=flag;}
 	}
 	// nastavi akumulatory na pocatecni hodnoty
-	objSourceExitingFlux=Channels(0);
-	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) 
+	//objSourceExitingFlux=Channels(0);
+	RRReal tmpx = 0;
+	RRReal tmpy = 0;
+	RRReal tmpz = 0;
+#pragma omp parallel for schedule(static,1) reduction(+:tmpx,tmpy,tmpz)
+	for(int t=0;(unsigned)t<triangles;t++) if(triangle[t].surface) 
 	{
+		// smaze akumulatory (ale necha jim flag zda jsou v reflectors)
+		if(resetPropagation)
+		{
+			U8 flag=triangle[t].flags&FLAG_IS_REFLECTOR;triangle[t].reset(resetFactors);triangle[t].flags=flag;
+		}
+
+		// nastavi akumulatory na pocatecni hodnoty
 		Vec3 sumExitance;
 		importer->getTriangleAdditionalMeasure(t,RM_EXITANCE,sumExitance);
 		if(scaler) sumExitance = Vec3(
 			scaler->getStandard(sumExitance.x), // getStandard=getWattsPerSquareMeter
 			scaler->getStandard(sumExitance.y),
 			scaler->getStandard(sumExitance.z));
-		objSourceExitingFlux+=abs(triangle[t].setSurface(triangle[t].surface,sumExitance,resetPropagation));
+		Channels tmp = abs(triangle[t].setSurface(triangle[t].surface,sumExitance,resetPropagation));
+		//objSourceExitingFlux += tmp;
+		tmpx += tmp.x;
+		tmpy += tmp.y;
+		tmpz += tmp.z;
+
+		if(resetPropagation)
+		{
+			if(triangle[t].surface) triangle[t].propagateEnergyUp();
+		}
 	}
-	if(resetPropagation)
-	{
-		for(unsigned t=0;t<triangles;t++) if(triangle[t].surface) triangle[t].propagateEnergyUp();
-	}
+	objSourceExitingFlux = Channels(tmpx,tmpy,tmpz);
 }
 
 void Object::updateMatrices()

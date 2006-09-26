@@ -221,7 +221,8 @@ void RRRealtimeRadiosity::readVertexResults()
 		RRIlluminationVertexBuffer* vertexBuffer = channel->vertexBuffer;
 
 		// load measure into each preImportVertex
-		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
+#pragma omp parallel for schedule(static,1)
+		for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 		{
 			unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
 			unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;

@@ -141,6 +141,7 @@ namespace rr
 		// Vertex buffer creation
 
 		//! Sets value of one element of the buffer.
+		//! Must be thread safe.
 		virtual void setVertex(unsigned vertex, const RRColorRGBF& color) = 0;
 
 		// Vertex buffer use

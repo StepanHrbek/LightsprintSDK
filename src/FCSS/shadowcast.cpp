@@ -390,7 +390,8 @@ protected:
 			rr::RRColor suma = rr::RRColor(0);
 
 			// accumulate triangle irradiances
-			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<=captureUv.lastCapturedTriangle;triangleIndex++)
+#pragma omp parallel for schedule(static,1)
+			for(int triangleIndex=captureUv.firstCapturedTriangle;(unsigned)triangleIndex<=captureUv.lastCapturedTriangle;triangleIndex++)
 			{
 				// accumulate 1 triangle power from square region in texture
 				// (square coordinate calculation is in match with CaptureUv uv generator)
