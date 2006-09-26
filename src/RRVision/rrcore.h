@@ -11,6 +11,7 @@
 // note that fixed hits have no hit extension implemeted (used only for dynamic objects)
 #define HIT_PTR          & // hits are passed by reference
 #define BESTS           200 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
+#define ROTATIONS
 
 #define CHANNELS         3
 #define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (eg. polished steel) or specular transmittance that changes light color (eg. colored glass))
@@ -372,7 +373,7 @@ public:
 	~SubTriangle();
 
 	// geometry, SubTriangle position in Triangle space
-	Point2  uv[3]; // uv of our vertices in grandpa->u3,v3 ortogonal space
+	Point2  uv[3]; // uv of our vertices in grandpa->u3,v3 ortogonal space. uv[0]=(0,0) neodpovida vertexu 0 ale rots
 	Vec2    u2,v2; // u2=uv[1]-uv[0], v2=uv[2]-uv[0], helps to speed up some calculations
 	real    perimeter();
 	Point3  to3d(Point2 a);
@@ -511,7 +512,11 @@ public:
 	U8      isValid      :1;// triangle is not degenerated
 	U8      isInCluster  :1;// triangle is in cluster
 	U8      isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
+#ifdef ROTATIONS
 	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
+#else
+	enum    {rotations=0};
+#endif
 	S8      setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n=NULL,int rots=-1);
 	Vec3    to3d(Point2 a);
 	Vec3    to3d(int vertex);

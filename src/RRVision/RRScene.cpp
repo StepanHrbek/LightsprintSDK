@@ -449,13 +449,16 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 	RRScene::SubtriangleIllumination si;
 	for(unsigned i=0;i<3;i++)
 	{
+		//!!! je zde chyba ktera se projevi jen pri nekterych typech subdivision
 		// fill 2d coords in triangle space
 		//  start with uv[] with ortonormal base
 		si.texCoord[i] = s->uv[(i+s->grandpa->rotations)%3];
 		//  and transform to triangle space
 		//  x , y -> x/u2.x-y*v2.x/u2.x/v2.y , y/v2.y
 		//  u2,v2 jsou brane z Triangle
-		si.texCoord[i] = Vec2(si.texCoord[i][0]/s->grandpa->u2[0]-si.texCoord[i][1]*s->grandpa->v2[0]/s->grandpa->u2[0]/s->grandpa->v2[1],si.texCoord[i][1]/s->grandpa->v2[1]);
+		si.texCoord[i] = Vec2(
+			si.texCoord[i][0]/s->grandpa->u2[0]-si.texCoord[i][1]*s->grandpa->v2[0]/s->grandpa->u2[0]/s->grandpa->v2[1],
+			si.texCoord[i][1]/s->grandpa->v2[1]);
 		if(si.texCoord[i][0]<0)
 		{
 			if(si.texCoord[i][0]<-0.1) {DBG(printf("a%f ",si.texCoord[i][0]));assert(0);}

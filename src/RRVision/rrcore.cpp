@@ -1118,10 +1118,13 @@ S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,No
 {
 	isValid=0;
 	assert(rots>=-1 && rots<=2);
+#ifdef ROTATIONS
 	if(rots==-1) rotations=0; else rotations=rots;
-
 again:
 	assert(rotations<=2);
+#else
+	assert(rots==-1);
+#endif
 
 	qvertex[(3-rotations)%3]=a;
 	qvertex[(4-rotations)%3]=b;
@@ -1157,7 +1160,7 @@ again:
 	if(area<=0) return -4;
 	if(area<=RRScene::getStateF(RRScene::IGNORE_SMALLER_AREA)) return -5;
 	//assert(size(SubTriangle::to3d(2)-*vertex[2])<0.001);
-
+#ifdef ROTATIONS
 	// stary rotace davajici ruzny vysledky s a bez optimalizaci
 	//if(v2.x<0) setGeometry(b,c,a);// to avoid negative coordinates
 	//if(v2.y>MAX(u2.x,v2.x)) setGeometry(b,c,a);// to avoid high lightmaps like 512*1000000
@@ -1188,9 +1191,10 @@ again:
 	}
 
 	if(u2.x<0 || u2.y!=0 || v2.x<0 || v2.y<0) return -2; // throw out degenerated triangle
+	assert(v2.x>=0);
+#endif
 	assert(u2.x>=0);
 	assert(u2.y==0);
-	assert(v2.x>=0);
 	assert(v2.y>=0);
 
 	// premerit min angle v localspace (mohlo by byt i ve world)

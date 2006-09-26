@@ -8,7 +8,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SHADOW_MAP_SIZE            512
 #define LIGHTMAP_SIZE              512
 bool ati = 0;
-int fullscreen = 1;
+int fullscreen = 0;
 bool renderer3ds = 1;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
@@ -303,6 +303,16 @@ protected:
 	}
 	virtual void detectMaterials()
 	{
+/*#ifdef RR_DEVELOPMENT
+		delete[] surfaces;
+		numSurfaces = level->m3ds.numMaterials;
+		surfaces = new rr::RRSurface[numSurfaces];
+		for(unsigned i=0;i<numSurfaces;i++)
+		{
+			surfaces[i].reset(false);
+			surfaces[i].diffuseReflectance = rr::RRColor(m3ds.Materials[i].color.r/255.0,m3ds.Materials[i].color.g/255.0,m3ds.Materials[i].color.b/255.0);
+		}
+#endif*/
 	}
 	virtual bool detectDirectIllumination()
 	{
@@ -339,7 +349,6 @@ protected:
 
 		// allocate the index buffer memory as necessary
 		GLuint* pixelBuffer = new GLuint[width * height];
-for(int q=1;q<3;q++)//!!!
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
 //printf("\n ============================================================= ");
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
@@ -413,8 +422,6 @@ for(int q=1;q<3;q++)//!!!
 			}
 //			printf("sum=%f ",suma.avg());
 //			printf("\n ----- ");
-
-			glutSwapBuffers();
 		}
 
 		delete[] pixelBuffer;
@@ -875,6 +882,11 @@ Level::Level(const char* filename_3ds)
 		// dobry zacatek
 		Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,75.0,0.3,60.0};
 		Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};
+		// bad lmap
+//		Camera tmpeye = {{1.910,1.298,1.580},6.650,2.350,1.3,75.0,0.3,60.0};
+//		Camera tmplight = {{2.950,0.899,3.149},7.405,13.000,1.0,70.0,1.0,20.0};
+//		Camera tmpeye = {{-3.118,1.626,-1.334},11.025,-0.650,1.3,75.0,0.3,60.0};
+//		Camera tmplight = {{-1.802,0.715,0.850},3.495,0.650,1.0,70.0,1.0,20.0};
 		// shoty do doxy
 		//Camera tmpeye = {{-3.842,1.429,-0.703},8.165,-0.050,1.3,100.0,0.3,60.0}; // red
 		//Camera tmplight = {{-1.802,0.715,0.850},1.250,0.050,1.0,70.0,1.0,20.0};
