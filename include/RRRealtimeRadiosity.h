@@ -52,6 +52,8 @@ namespace rr
 	//! You can get reports what happens inside if you reimplement reportAction().
 	//!
 	//! You can check sample HelloRealtimeRadiosity where we use it.
+	//!
+	//! It is not allowed to create multiple instances at the same time.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

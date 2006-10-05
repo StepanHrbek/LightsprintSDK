@@ -221,4 +221,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		AMDCaProjectFile = C:\Documents and Settings\Dee\Dokumenty\C\rr\src\FCSS\FCSS8.caw
+	EndGlobalSection
 EndGlobal
