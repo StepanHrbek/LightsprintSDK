@@ -4,6 +4,9 @@
 #endif
 #include <math.h>
 #include <memory.h>
+#ifdef _OPENMP
+#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
+#endif
 #include <stdarg.h>
 #include <stddef.h>   // intptr_t
 #include <stdio.h>    // printf na debugink

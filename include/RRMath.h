@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRMath.h
 //! \brief RRMath - basic math used by Lightsprint libraries
-//! \version 2006.9.20
+//! \version 2006.10.5
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 	// use static library
 	#define RR_API
 #endif
-//error : inserted by sunifdef: "#define RR_DEVELOPMENT" contradicts -U at R:\work2\.git-rewrite\t\include\RRMath.h~(24)
+//#define RR_DEVELOPMENT
 
 #include <cmath>
 

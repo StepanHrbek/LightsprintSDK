@@ -217,9 +217,10 @@ public:
 	unsigned factors();
 	void    insert(Factor afactor);
 	void    insert(Factors *afactors);
-	Factor  get();
-	void    remove(Factor *afactor);
-	real    contains(Node *destination);
+	const Factor* get(unsigned i) {return &factor[i];} // returns i-th factor
+	Factor  get(); // returns one factor and and removes it from container
+	void    remove(Factor *afactor); // O(1)
+	real    contains(Node *destination); // O(n)
 	void    forEach(void (*func)(Factor *factor,va_list ap),...);
 	void    forEachDestination(void (*func)(Node *node,va_list ap),...);
 	void    removeZeroFactors();

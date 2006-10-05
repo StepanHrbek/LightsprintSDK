@@ -2,6 +2,9 @@
 
 #include <assert.h>
 #include <float.h> // _finite
+#ifdef _OPENMP
+#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
+#endif
 #include <time.h>
 #include "RRRealtimeRadiosity.h"
 #include "DemoEngine/Timer.h"

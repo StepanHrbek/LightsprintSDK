@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRRealtimeRadiosity.h
 //! \brief RRRealtimeRadiosity - library for calculating radiosity in dynamic scenes
-//! \version 2006.9.20
+//! \version 2006.10.5
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ namespace rr
 	//!
 	//! You can check sample HelloRealtimeRadiosity where we use it.
 	//!
-	//! It is not allowed to create multiple instances at the same time.
+	//! It is not allowed to create and use multiple instances at the same time.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -177,7 +177,7 @@ namespace rr
 
 		//! All objects in scene.
 		Objects    objects;
-		//! The multiObject created by merging all objects.
+		//! The multiObject created by merge of all objects.
 		RRObjectAdditionalIllumination* multiObject;
 		//! The scene used for radiosity calculations.
 		RRScene*   scene;

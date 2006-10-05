@@ -12,7 +12,7 @@
 //
 // vertex data generator
 //
-// (can we replace this by channel in RRChanneledData?)
+// (can we replace this later by channel in RRChanneledData?)
 
 class VertexDataGenerator
 {
