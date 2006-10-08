@@ -11,7 +11,7 @@
 // TextureFromDisk
 
 TextureFromDisk::TextureFromDisk(char *filename, int mag, int min, int wrapS, int wrapT)
-	: TextureGL(NULL,1,1,GL_RGB)
+	: TextureGL(NULL,1,1,false,GL_RGB)
 {
 	unsigned int type;
 

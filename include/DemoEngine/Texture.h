@@ -39,7 +39,7 @@ public:
 	// tools
 	/////////////////////////////////////////////////////////////////////////
 
-	static Texture* create(unsigned char *data, int width, int height, int type, // data are adopted and delete[]d in destructor
+	static Texture* create(unsigned char *data, int width, int height, bool cube, int type, // data are adopted and delete[]d in destructor
 		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR, 
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 	static Texture* createShadowmap(unsigned width, unsigned height);

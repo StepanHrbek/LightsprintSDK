@@ -10,37 +10,47 @@
 
 unsigned TextureGL::numInstances = 0;
 
-TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, int type,
+TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, bool acube, int type,
 				 int mag, int min, int wrapS, int wrapT)
 {
 	numInstances++;
 
 	width = awidth;
 	height = aheight;
+	cubeOr2d = acube?GL_TEXTURE_CUBE_MAP:GL_TEXTURE_2D;
 	channels = (type == GL_RGB) ? 3 : 4;
 	if(!data && type!=GL_DEPTH_COMPONENT) data = new unsigned char[width*height*channels]; //!!! eliminovat
 	pixels = data;
 	glGenTextures(1, &id);
 
-	glBindTexture(GL_TEXTURE_2D, id);
+	glBindTexture(cubeOr2d, id);
 	if(type==GL_DEPTH_COMPONENT)
+	{
+		// depthmap -> init with no data
 		glTexImage2D(GL_TEXTURE_2D,0,type,width,height,0,type,GL_UNSIGNED_BYTE,NULL);
+	}
+	else
+	if(acube)
+	{
+		// cube -> don't init
+	}
 	else
 	{
+		// 2d -> init with data, build mipmaps
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, pixels); //!!! eliminovat
+		gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, pixels);
 	}
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min); 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag); 
+	glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, min); 
+	glTexParameteri(cubeOr2d, GL_TEXTURE_MAG_FILTER, mag); 
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_S, wrapS);
+	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, wrapT);
 }
 
 void TextureGL::bindTexture() const
 {
-	glBindTexture(GL_TEXTURE_2D, id);
+	glBindTexture(cubeOr2d, id);
 }
 
 bool TextureGL::getPixel(float x01, float y01, float* rgb) const
@@ -86,7 +96,7 @@ TextureGL::~TextureGL()
 //
 // Texture
 
-Texture* Texture::create(unsigned char *data, int width, int height, int type,int mag,int min,int wrapS,int wrapT)
+Texture* Texture::create(unsigned char *data, int width, int height, bool cube, int type,int mag,int min,int wrapS,int wrapT)
 {
-	return new TextureGL(data,width,height,type,mag,min,wrapS,wrapT);
+	return new TextureGL(data,width,height,cube,type,mag,min,wrapS,wrapT);
 }

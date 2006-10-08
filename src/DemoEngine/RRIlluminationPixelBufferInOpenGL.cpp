@@ -18,7 +18,7 @@ public:
 	};
 	Helpers(const char* pathToShaders)
 	{
-		tempTexture = Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,GL_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		tempTexture = Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,GL_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		char buf1[1000],buf2[1000];
 		_snprintf(buf1,999,"%s%s",pathToShaders?pathToShaders:"","shaders/lightmap_filter.vp");
 		_snprintf(buf2,999,"%s%s",pathToShaders?pathToShaders:"","shaders/lightmap_filter.fp");
@@ -54,7 +54,7 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned aw
 	if(!numInstances) helpers = new Helpers(pathToShaders);
 	numInstances++;
 
-	texture = Texture::create(NULL,awidth,aheight,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	texture = Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderBegin()

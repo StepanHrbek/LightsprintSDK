@@ -17,7 +17,6 @@ namespace rr
 	//
 	//! Uses OpenGL rasterizer.
 	//! Depends on OpenGL, can't be used on Xbox and Xbox 360.
-	//! Warning: doesn't restore changed GL states.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

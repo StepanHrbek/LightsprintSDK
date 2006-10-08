@@ -378,6 +378,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\RRIlluminationEnvironmentMapInOpenGL.h"
+			>
+		</File>
+		<File
 			RelativePath=".\RRIlluminationPixelBufferInOpenGL.cpp"
 			>
 		</File>

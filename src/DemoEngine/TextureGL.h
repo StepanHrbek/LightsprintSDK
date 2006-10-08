@@ -19,7 +19,7 @@
 class TextureGL : public Texture
 {
 public:
-	TextureGL(unsigned char *data, int width, int height, int type, // data are adopted and delete[]d later
+	TextureGL(unsigned char *data, int width, int height, bool cube, int type, // data are adopted and delete[]d later
 		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR, 
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
@@ -37,6 +37,7 @@ public:
 protected:
 	unsigned int id;
 	int channels;
+	int cubeOr2d; // GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP
 	int width;
 	int height;
 	unsigned char* pixels;
