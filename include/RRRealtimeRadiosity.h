@@ -63,17 +63,17 @@ namespace rr
 		RRRealtimeRadiosity();
 		virtual ~RRRealtimeRadiosity();
 
-		//! One 3d object with storage space for calculated illumination.
+		//! One static 3d object with storage space for calculated illumination.
 		typedef std::pair<RRObject*,RRObjectIllumination*> Object;
-		//! Container for all objects present in scene.
+		//! Container for all static objects present in scene.
 		typedef std::vector<Object> Objects;
-		//! Sets contents of scene, all objects at once.
+		//! Sets static contents of scene, all objects at once.
 		void setObjects(Objects& objects, float stitchDistance = 0.01f);
-		//! Returns number of objects in scene.
-		unsigned getNumObjects();
-		//! Returns i-th object in scene.
+		//! Returns number of static objects in scene.
+		unsigned getNumObjects() const;
+		//! Returns i-th static object in scene.
 		RRObject* getObject(unsigned i);
-		//! Returns illumination of i-th object in scene.
+		//! Returns illumination of i-th static object in scene.
 		RRObjectIllumination* getIllumination(unsigned i);
 
 
@@ -85,7 +85,7 @@ namespace rr
 			UPDATE_VERTEX_BUFFERS = 1,
 			UPDATE_PIXEL_BUFFERS = 2,
 		};
-		//! Calculates and improves indirect illumination on objects.
+		//! Calculates and improves indirect illumination on static objects.
 		//
 		//! To be called once per frame while rendering. To be called even when
 		//! rendering is paused, calculation runs on background.

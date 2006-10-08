@@ -230,12 +230,18 @@ namespace rr
 		//!  PreImport number of vertices, length of vertex buffer for rendering.
 		RRObjectIllumination(unsigned anumPreImportVertices);
 
-		//! One layer of illumination values, covers whole object.
+		//! One layer of illumination (irradiance) values for whole object.
 		//
 		//! Illumination can be stored in vertex array, ambient map or both.
 		//! Multiple channels (eg. each channel for different light source) can be mixed by renderer.
 		struct Channel
 		{
+			//! Custom vertex array with illumination levels for all object vertices.
+			//! May be NULL in which case vertex arrays are not generated and not used by render.
+			RRIlluminationVertexBuffer* vertexBuffer;
+			//! Custom ambient map with illumination levels for object surface.
+			//! May be NULL in which case ambient maps are not generated and not used by render.
+			RRIlluminationPixelBuffer* pixelBuffer;
 			//! Constructs new channel, always empty.
 			//! You can insert vertex array or ambient map or both later.
 			Channel()
@@ -249,12 +255,6 @@ namespace rr
 				delete vertexBuffer;
 				delete pixelBuffer;
 			}
-			//! Custom vertex array holding illumination levels for whole object.
-			//! May be NULL in which case vertex arrays are not generated and not rendered.
-			RRIlluminationVertexBuffer* vertexBuffer;
-			//! Custom ambient map holding illumination levels for whole object.
-			//! May be NULL in which case ambient maps are not generated and not rendered.
-			RRIlluminationPixelBuffer* pixelBuffer;
 		};
 
 		//! \param channelIndex

@@ -99,6 +99,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/UberProgramSetup.h"
 #include "DemoEngine/RRIlluminationPixelBufferInOpenGL.h"
+#include "DemoEngine/RRIlluminationEnvironmentMapInOpenGL.h"
 #include "Bugs.h"
 #include "LevelSequence.h"
 
@@ -176,6 +177,8 @@ bool gameOn = 0;
 #endif
 Level* level = NULL;
 LevelSequence levelSequence;
+Model_3DS dynaobject;
+rr::RRIlluminationEnvironmentMap* environmentMap = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -371,6 +374,7 @@ protected:
 			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 #if PRIMARY_SCAN_PRECISION==1 // 110ms
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
@@ -517,7 +521,7 @@ void drawShadowMapFrustum(void)
 	glDisable(GL_LINE_STIPPLE);
 }
 
-void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
+void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
@@ -540,6 +544,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
 	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
+	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
 	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
@@ -561,6 +566,40 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 		level->solver->calculate(rr::RRRealtimeRadiosity::UPDATE_PIXEL_BUFFERS);
 	}
 	level->rendererCaching->render();
+}
+
+void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
+{
+	renderSceneStatic(uberProgramSetup,firstInstance);
+	
+	if(uberProgramSetup.FORCE_2D_POSITION) return;
+
+	// render dynaobject
+	//!!! nekam ukladat objektovou matici
+	//!!! upravit vsechny matice aby slo s objektem hybat
+	if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
+	{
+		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
+		uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
+		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
+		uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
+		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
+			error("Failed to compile or link GLSL program with envmap.\n",true);
+	}
+	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+	{
+		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT);
+		level->solver->updateEnvironmentMap(environmentMap,rr::RRVec3(0));
+		environmentMap->bindTexture();
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+		Program* program = uberProgramSetup.getProgram(uberProgram);
+		float m[9];
+		for(unsigned i=0;i<3;i++)
+			for(unsigned j=0;j<3;j++)
+				m[i+3*j] = (i==j)?1:0;//(float)(light.inverseViewMatrix[i+4*j]);
+		program->sendUniform("worldMatrix",m,false,3);
+	}
+	dynaobject.Draw(NULL,false);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -589,6 +628,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
@@ -661,6 +701,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
@@ -682,6 +723,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
@@ -699,6 +741,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		uberProgramSetup.FORCE_2D_POSITION = false;
@@ -1063,6 +1106,7 @@ void display()
 				uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 				uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 				uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+				uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 				//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 				uberProgramSetup.FORCE_2D_POSITION = false;
@@ -1713,6 +1757,11 @@ int main(int argc, char **argv)
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
+	// init dynaobject
+	if(!dynaobject.Load("3ds\\objects\\rubic_cube.3ds",0.01f))
+		error("",false);
+	environmentMap = new rr::RRIlluminationEnvironmentMapInOpenGL(1);
+
 	// init shaders
 	// init textures
 	init_gl_resources();
@@ -1725,6 +1774,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = false;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;

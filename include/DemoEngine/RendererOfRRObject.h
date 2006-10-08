@@ -24,9 +24,10 @@ public:
 	RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver);
 	struct RenderedChannels
 	{
-		bool     LIGHT_DIRECT           :1; // gl_Normal (normals are necessary only for direct lighting)
+		bool     LIGHT_DIRECT           :1; // gl_Normal
 		bool     LIGHT_INDIRECT_COLOR   :1; // gl_Color
 		bool     LIGHT_INDIRECT_MAP     :1; //
+		bool     LIGHT_INDIRECT_ENV     :1; // gl_Normal
 		bool     MATERIAL_DIFFUSE_COLOR :1; // gl_SecondaryColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; // gl_MultiTexCoord0, current sampler
 		bool     FORCE_2D_POSITION      :1; // gl_MultiTexCoord7

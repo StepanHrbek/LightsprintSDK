@@ -97,6 +97,7 @@ void renderScene(UberProgramSetup uberProgramSetup)
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
 	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
+	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
 	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
@@ -207,6 +208,7 @@ protected:
 			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 			uberProgramSetup.FORCE_2D_POSITION = true;
@@ -304,6 +306,7 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 #endif
+	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.FORCE_2D_POSITION = false;

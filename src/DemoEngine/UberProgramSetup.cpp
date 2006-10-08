@@ -9,7 +9,7 @@
 const char* UberProgramSetup::getSetupString()
 {
 	static char setup[300];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		NOISE_MAP?"#define NOISE_MAP\n":"",
@@ -18,6 +18,7 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
 		LIGHT_INDIRECT_COLOR?"#define LIGHT_INDIRECT_COLOR\n":"",
 		LIGHT_INDIRECT_MAP?"#define LIGHT_INDIRECT_MAP\n":"",
+		LIGHT_INDIRECT_ENV?"#define LIGHT_INDIRECT_ENV\n":"",
 		MATERIAL_DIFFUSE_COLOR?"#define MATERIAL_DIFFUSE_COLOR\n":"",
 		MATERIAL_DIFFUSE_MAP?"#define MATERIAL_DIFFUSE_MAP\n":"",
 		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":""
@@ -54,6 +55,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 		uberProgramSetup.FORCE_2D_POSITION = false;
@@ -63,6 +65,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
+		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		if(uberProgramSetup.getProgram(uberProgram)) break;
@@ -146,6 +149,14 @@ bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight
 		int id=TEXTURE_2D_LIGHT_INDIRECT;
 		//glActiveTexture(GL_TEXTURE0+id);
 		program->sendUniform("lightIndirectMap", id);
+	}
+
+	// lightIndirectEnvMap
+	if(LIGHT_INDIRECT_ENV)
+	{
+		int id=TEXTURE_CUBE_LIGHT_INDIRECT;
+		//glActiveTexture(GL_TEXTURE0+id);
+		program->sendUniform("lightIndirectEnvMap", id);
 	}
 
 	// materialDiffuseMap

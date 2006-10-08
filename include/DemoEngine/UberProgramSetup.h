@@ -19,6 +19,7 @@ enum
 	TEXTURE_2D_MATERIAL_DIFFUSE    = 11,
 	TEXTURE_2D_LIGHT_INDIRECT      = 12,
 	TEXTURE_2D_NOISE               = 13,
+	TEXTURE_CUBE_LIGHT_INDIRECT    = 14,
 
 	// texcoords assigned to UberProgram
 	// these constants are hardcoded in shaders
@@ -44,6 +45,7 @@ struct RR_API UberProgramSetup
 	bool     LIGHT_INDIRECT_CONST   :1;
 	bool     LIGHT_INDIRECT_COLOR   :1;
 	bool     LIGHT_INDIRECT_MAP     :1;
+	bool     LIGHT_INDIRECT_ENV     :1;
 	bool     MATERIAL_DIFFUSE_COLOR :1;
 	bool     MATERIAL_DIFFUSE_MAP   :1;
 	bool     FORCE_2D_POSITION      :1;

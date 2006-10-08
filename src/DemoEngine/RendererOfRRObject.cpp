@@ -107,7 +107,7 @@ void RendererOfRRObject::render()
 		}
 
 		// mesh normals - prepare data
-		bool setNormals = params.renderedChannels.LIGHT_DIRECT;
+		bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV;
 		rr::RRObject::TriangleNormals triangleNormals;
 		if(setNormals)
 		{
@@ -173,6 +173,33 @@ void RendererOfRRObject::render()
 				}
 			}
 		}
+
+		/*/ light indirect env map
+		if(params.renderedChannels.LIGHT_INDIRECT_ENV)
+		{
+			rr::RRObjectIllumination* objectIllumination = NULL;
+			if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_OBJECT_ILLUMINATION,triangleIdx,&objectIllumination,sizeof(objectIllumination))
+				&& objectIllumination!=oldIllumination)
+			{
+				oldIllumination = objectIllumination;
+				// setup light indirect texture
+				//!!! later use channel mixer instead of channel 0
+				rr::RRIlluminationEnvironmentMap* environmentMap = objectIllumination->getChannel(0)->environmentMap;
+				if(environmentMap)
+				{
+					glEnd();
+					glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT);
+					environmentMap->bindTexture();
+					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+					glBegin(GL_TRIANGLES);
+				}
+				else
+				{
+					//!!! kdyz se dostane sem a vysledek zacachuje, bude to uz vzdycky renderovat blbe
+					assert(0);
+				}
+			}
+		}*/
 
 		for(int v=0;v<3;v++)
 		{

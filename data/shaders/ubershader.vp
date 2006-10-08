@@ -9,6 +9,7 @@
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_COLOR
 //  #define LIGHT_INDIRECT_MAP
+//  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE_COLOR
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define FORCE_2D_POSITION
@@ -38,6 +39,11 @@ varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI fai
 varying vec2 lightIndirectCoord;
 #endif
 
+#ifdef LIGHT_INDIRECT_ENV
+uniform mat3 worldMatrix;
+varying vec3 worldNormal;
+#endif
+
 #ifdef MATERIAL_DIFFUSE_COLOR
 varying vec4 materialDiffuseColor;
 #endif
@@ -61,6 +67,10 @@ void main()
 
 #ifdef LIGHT_INDIRECT_MAP
   lightIndirectCoord = gl_MultiTexCoord1.xy;
+#endif
+
+#ifdef LIGHT_INDIRECT_ENV
+  worldNormal = normalize( worldMatrix * gl_Normal );
 #endif
 
 #ifdef MATERIAL_DIFFUSE_MAP

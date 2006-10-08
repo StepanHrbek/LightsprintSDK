@@ -9,6 +9,7 @@
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_COLOR
 //  #define LIGHT_INDIRECT_MAP
+//  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE_COLOR
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define FORCE_2D_POSITION
@@ -84,6 +85,11 @@ varying vec4 lightIndirectColor; // passed rather through gl_Color, ATI fails on
 #ifdef LIGHT_INDIRECT_MAP
 uniform sampler2D lightIndirectMap;
 varying vec2 lightIndirectCoord;
+#endif
+
+#ifdef LIGHT_INDIRECT_ENV
+uniform samplerCube lightIndirectEnvMap;
+varying vec3 worldNormal;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
@@ -259,6 +265,9 @@ void main()
 #endif
 #ifdef LIGHT_INDIRECT_MAP
       + texture2D(lightIndirectMap, lightIndirectCoord)
+#endif
+#ifdef LIGHT_INDIRECT_ENV
+      + textureCube(lightIndirectEnvMap, worldNormal)
 #endif
     );
 #endif

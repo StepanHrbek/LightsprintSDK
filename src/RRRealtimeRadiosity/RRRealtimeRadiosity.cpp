@@ -76,7 +76,7 @@ void RRRealtimeRadiosity::setObjects(Objects& aobjects, float astitchDistance)
 	dirtyGeometry = true;
 }
 
-unsigned RRRealtimeRadiosity::getNumObjects()
+unsigned RRRealtimeRadiosity::getNumObjects() const
 {
 	return (unsigned)objects.size();
 }
@@ -530,6 +530,20 @@ RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 	}
 
 	return result;
+}
+
+void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, RRVec3 objectCenterWorld)
+{
+	if(!environmentMap) return;
+	RRColorRGBA8 irradiances[6];
+	//!!! dopsat korektni vypocet
+	irradiances[0].color = (rand()&1)?0xff0000:0x770000;
+	irradiances[1].color = (rand()&1)?0x00ff00:0x007700;
+	irradiances[2].color = 0x0000ff;
+	irradiances[3].color = 0xffffff;
+	irradiances[4].color = 0x00ffff;
+	irradiances[5].color = 0xff00ff;
+	environmentMap->setValues(1,irradiances);
 }
 
 } // namespace
