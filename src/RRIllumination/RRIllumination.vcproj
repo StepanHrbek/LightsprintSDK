@@ -294,6 +294,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRIlluminationEnvironmentMap.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\RRIlluminationPixelBuffer.cpp"
 			>
 		</File>
