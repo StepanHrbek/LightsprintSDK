@@ -1728,7 +1728,7 @@ int main(int argc, char **argv)
 
 	// adjust INSTANCES_PER_PASS to GPU
 	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
-	if(ati && INSTANCES_PER_PASS) INSTANCES_PER_PASS--;
+	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(!INSTANCES_PER_PASS) error("",true);
 
 	areaLight->attachTo(&light);
