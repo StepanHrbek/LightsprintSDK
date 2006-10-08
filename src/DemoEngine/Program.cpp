@@ -132,14 +132,14 @@ void Program::sendUniform(const char *name, float *matrix, bool transpose,
 
 	switch(size)
 	{
-	case '2':
-		glUniformMatrix2fv(loc, 0, transpose, matrix);
+	case 2:
+		glUniformMatrix2fv(loc, 1, transpose, matrix);
 		break;
-	case '3':
-		glUniformMatrix3fv(loc, 0, transpose, matrix);
+	case 3:
+		glUniformMatrix3fv(loc, 1, transpose, matrix);
 		break;
-	case '4':
-		glUniformMatrix4fv(loc, 0, transpose, matrix);
+	case 4:
+		glUniformMatrix4fv(loc, 1, transpose, matrix);
 		break;
 	}
 }

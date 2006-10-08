@@ -48,14 +48,13 @@ static int *raster_Light;
 static float *raster_Zbuffer;
 static raster_MATRIX *raster_Camera, *raster_Matrix;
 static int raster_XRES,raster_YRES,raster_WIDTH;
-static int led_num,red_num,raster_TextureWidth;
+static int led_num,red_num;
 static raster_EDGE led_buf[EDGES],red_buf[EDGES],*led,*red;
 static raster_PLANE pp[4],*p0=pp,*p1=pp+1,*p2=pp+2,*p3=pp+3;
-static U8 *raster_Texture,raster_Memory[MAXMEM],*raster_MemNext,
+static U8 raster_Memory[MAXMEM],*raster_MemNext,
           *raster_MemEnd=raster_Memory+MAXMEM;
 
 static float dudx, dudy, orgu, dudx16,
-             dvdx, dvdy, orgv, dvdx16,
              dzdx, dzdy, orgz, dzdx16;
 
 //********************** Clipping & Transformation ********************
