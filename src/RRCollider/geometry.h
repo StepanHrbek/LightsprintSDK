@@ -25,8 +25,6 @@ namespace rr
 
 	typedef RRVec4 Plane;
 
-	real normalValueIn(const Plane& n,const Vec3& a);
-
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// sphere in 3d

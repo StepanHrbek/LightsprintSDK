@@ -83,10 +83,24 @@ RRReal sum(RRReal a);
 RRReal avg(RRReal a);
 void   clampToZero(RRReal& a);
 
-RRVec3 abs(const RRVec3& a);
-RRReal sum(const RRVec3& a);
-RRReal avg(const RRVec3& a);
-void   clampToZero(RRVec3& a);
+inline RRVec3 abs(const RRVec3& a)
+{
+	return RRVec3(fabs(a.x),fabs(a.y),fabs(a.z));
+}
+inline RRReal sum(const RRVec3& a)
+{
+	return a.x+a.y+a.z;
+}
+inline RRReal avg(const RRVec3& a)
+{
+	return (a.x+a.y+a.z)/3;
+}
+inline void clampToZero(RRVec3& a)
+{
+	if(a.x<0) a.x=0;
+	if(a.y<0) a.y=0;
+	if(a.z<0) a.z=0;
+}
 
 RRReal angleBetween(const RRVec3& a,const RRVec3& b);
 RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b);

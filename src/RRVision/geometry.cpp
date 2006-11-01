@@ -116,19 +116,9 @@ RRReal abs(RRReal a)
 	return fabs(a);
 }
 
-RRVec3 abs(const RRVec3& a)
-{
-	return RRVec3(fabs(a.x),fabs(a.y),fabs(a.z));
-}
-
 RRReal sum(RRReal a)
 {
 	return a;
-}
-
-RRReal sum(const RRVec3& a)
-{
-	return a.x+a.y+a.z;
 }
 
 RRReal avg(RRReal a)
@@ -136,21 +126,9 @@ RRReal avg(RRReal a)
 	return a;
 }
 
-RRReal avg(const RRVec3& a)
-{
-	return (a.x+a.y+a.z)/3;
-}
-
 void clampToZero(RRReal& a)
 {
 	if(a<0) a=0;
-}
-
-void clampToZero(RRVec3& a)
-{
-	if(a.x<0) a.x=0;
-	if(a.y<0) a.y=0;
-	if(a.z<0) a.z=0;
 }
 
 RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b)
@@ -166,15 +144,6 @@ RRReal angleBetween(const RRVec3& a,const RRVec3& b)
 	return angleBetweenNormalized(normalized(a),normalized(b));
 }
 
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// normal in 3d
-
-real normalValueIn(Normal n,Point3 a)
-{
-	return a.x*n.x+a.y*n.y+a.z*n.z+n.w;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //
