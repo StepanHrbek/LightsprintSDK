@@ -168,14 +168,14 @@ void SubTriangle::drawFlat(Channels ambient,int df)
 	if(is_destination || is_source) ; else
 		if((!d_fast) && sub[0] && ((d_meshing==1 && sub[0]->shooter) || d_meshing==2))
 		{
-			ambient+=(energyDirect+getEnergyDynamic()-sub[0]->energyDirect-sub[1]->energyDirect)/area;
+			ambient+=(energyDirect/*+getEnergyDynamic()*/-sub[0]->energyDirect-sub[1]->energyDirect)/area;
 			SUBTRIANGLE(sub[0])->drawFlat(ambient,df);
 			SUBTRIANGLE(sub[1])->drawFlat(ambient,df);
 			return;
 		}
 		if(d_factors2 && !is_source && !is_destination) return;
 
-		real brightness=getBrightness(ambient+(energyDirect+getEnergyDynamic())/area);
+		real brightness=getBrightness(ambient+(energyDirect/*+getEnergyDynamic()*/)/area);
 
 #ifdef RASTERGL
 
@@ -248,7 +248,7 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 		&& (p_ffPlay!=2 || subvertex->error<d_details)
 		&& (p_ffPlay==0 || subvertex->loaded))//kdyz ffPlayuje=loaduje z disku, loaduje jen nektery ivertexy, ostatni zustanou nevyplneny a kdybysme se jich ptali, sectou si a vratej nam energii z corneru kde ted zadna neni
 	{
-		ambient+=(energyDirect+getEnergyDynamic()-sub[0]->energyDirect-sub[1]->energyDirect)/area;
+		ambient+=(energyDirect/*+getEnergyDynamic()*/-sub[0]->energyDirect-sub[1]->energyDirect)/area;
 		IVertex *iv0[3];
 		IVertex *iv1[3];
 		bool rightleft=isRightLeft();
@@ -319,7 +319,7 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 		{
 			v=to3d(uv[0]+(u2+v2)/3);
 			p[0].x=v.x; p[0].y=v.y; p[0].z=v.z;
-			p[0].u=getBrightness(ambient+(energyDirect+getEnergyDynamic())/area);
+			p[0].u=getBrightness(ambient+(energyDirect/*+getEnergyDynamic()*/)/area);
 
 			p1.point=&p[1];
 			p2.point=&p[2];
@@ -362,7 +362,7 @@ unsigned SubTriangle::printGouraud(void *f, IVertex **iv, real scale,Channels fl
 		iv1[0]=iv[rot];
 		iv1[1]=subvertex;
 		iv1[2]=iv[(rot+2)%3];
-		flatambient+=(energyDirect+getEnergyDynamic()-sub[0]->energyDirect-sub[1]->energyDirect)/area;
+		flatambient+=(energyDirect/*+getEnergyDynamic()*/-sub[0]->energyDirect-sub[1]->energyDirect)/area;
 		return SUBTRIANGLE(sub[rightleft?0:1])->printGouraud(f,iv0,scale,flatambient)+
 			SUBTRIANGLE(sub[rightleft?1:0])->printGouraud(f,iv1,scale,flatambient);
 	}
@@ -380,7 +380,7 @@ unsigned SubTriangle::printGouraud(void *f, IVertex **iv, real scale,Channels fl
 
 		if (flatambient!=Channels(0)) {
 			// flat
-			b[0]=b[1]=b[2]=getBrightness(flatambient+(energyDirect+getEnergyDynamic())/area);
+			b[0]=b[1]=b[2]=getBrightness(flatambient+(energyDirect/*+getEnergyDynamic()*/)/area);
 		}  else {
 			// gouraud
 			b[0]=getBrightness(iv[0]->exitance(this));

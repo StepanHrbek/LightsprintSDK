@@ -424,7 +424,7 @@ Channels IVertex::irradiance()
 			Node* node=corner[i].node;
 			assert(node);
 			// a=source+reflected incident flux in watts
-			Channels a=node->energyDirectIncident+node->getEnergyDynamic();
+			Channels a=node->energyDirectIncident/*+node->getEnergyDynamic()*/;
 			assert(IS_CHANNELS(a));
 			if(node->sub[0])
 			{
@@ -440,7 +440,7 @@ Channels IVertex::irradiance()
 			assert(IS_CHANNELS(r));
 			// w=wanted incident flux in watts
 			Channels w=(getSource&&getReflected)?a:( getSource?s: ( getReflected?r:Channels(0) ) );
-			irrad+=w/corner[i].node->area*corner[i].power
+			irrad+=w*(corner[i].power/corner[i].node->area)
 				/*/ corner[i].node->grandpa->surface->diffuseReflectance*/;
 			assert(IS_CHANNELS(irrad));
 		}

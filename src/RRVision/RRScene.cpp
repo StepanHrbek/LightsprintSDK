@@ -367,9 +367,9 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			irrad = tri->getSourceIrradiance();
 		else
 		if(RRScene::getState(GET_SOURCE) && RRScene::getState(GET_REFLECTED)) 
-			irrad = (tri->energyDirectIncident + tri->getEnergyDynamic()) / tri->area;
+			irrad = (tri->energyDirectIncident /*+ tri->getEnergyDynamic()*/) / tri->area;
 		else
-			irrad = (tri->energyDirectIncident + tri->getEnergyDynamic()) / tri->area - tri->getSourceIrradiance();
+			irrad = (tri->energyDirectIncident /*+ tri->getEnergyDynamic()*/) / tri->area - tri->getSourceIrradiance();
 	}
 
 	// scaler may be applied only on irradiance/exitance
@@ -419,7 +419,7 @@ unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, EnumS
 		iv1[0]=iv[rot];
 		iv1[1]=subvertex;
 		iv1[2]=iv[(rot+2)%3];
-		flatambient+=(energyDirect+getEnergyDynamic()-sub[0]->energyDirect-sub[1]->energyDirect)/area;
+		flatambient+=(energyDirect/*+getEnergyDynamic()*/-sub[0]->energyDirect-sub[1]->energyDirect)/area;
 		return SUBTRIANGLE(sub[rightleft?0:1])->enumSubtriangles(iv0,flatambient,callback,context)+
 			SUBTRIANGLE(sub[rightleft?1:0])->enumSubtriangles(iv1,flatambient,callback,context);
 	}

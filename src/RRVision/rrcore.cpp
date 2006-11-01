@@ -655,12 +655,12 @@ void Node::propagateEnergyUp()
 	while(node && node->loadEnergyFromSubs()) node=node->parent;
 }
 
-#ifndef SUPPORT_DYNAMIC
+/*#ifndef SUPPORT_DYNAMIC
 Channels Node::getEnergyDynamic()
 {
 	return Channels(0);
 }
-#endif
+#endif*/
 
 real Node::accuracy()
 {
@@ -2700,7 +2700,7 @@ Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels po
 		return Channels(0);
 	}
 	// calculate surface exitance
-	Channels incidentPower = hitTriangle->energyDirectIncident + hitTriangle->getEnergyDynamic();
+	Channels incidentPower = hitTriangle->energyDirectIncident;// + hitTriangle->getEnergyDynamic();
 	Channels irradiance = incidentPower / hitTriangle->area;
 	Channels exitance = irradiance * hitTriangle->surface->diffuseReflectance;
 	return exitance;

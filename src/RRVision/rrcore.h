@@ -292,7 +292,7 @@ public:
 	Channels radiosityIndirect();// radiosity received by ancestors
 	bool    loadEnergyFromSubs();
 	void    propagateEnergyUp();
-	Channels getEnergyDynamic(); // gets all energy averaged in more frames
+	//Channels getEnergyDynamic(); // gets all energy averaged in more frames
 
 	// dynamic energy acumulators
 #ifdef SUPPORT_DYNAMIC
