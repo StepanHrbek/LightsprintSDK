@@ -117,8 +117,6 @@ typedef RRVec3 Point3;
 
 typedef RRVec4 Normal;
 
-real normalValueIn(Normal n,Point3 a);
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // bounding object (sphere)
