@@ -1,7 +1,6 @@
 //#define RASTERGL     // raster+video via openGL
 #define LOGARITMIC_TGA // v tga jsou zlogaritmovane hodnoty
 //#define ARCTAN_COLOR // spocitany jas pred zobrazenim prozene pres arctan()
-//#define SUPPORT_Z
 
 #include <assert.h>
 #include <math.h>
@@ -18,9 +17,6 @@
 #else
  #include "video.h"
  #include "raster.h"
-#endif
-#ifdef SUPPORT_Z
- #include <zlib.h>
 #endif
 
 #include "../RRVision/rrcore.h"//!!!
@@ -60,18 +56,6 @@ char *__hidematerial3=NULL;
 char *__exportmaterial="*";
 char *__dontexportmaterial=NULL;
 char  __infolevel=1;
-
-void gzfprintf(void *f, char *fmt, ...)
-{
-#ifdef SUPPORT_Z
-	static char msg[1024];
-	va_list argptr;
-	va_start (argptr,fmt);
-	vsprintf (msg,fmt,argptr);
-	va_end (argptr);
-	gzwrite(f,msg,strlen(msg));
-#endif
-}
 
 const int g_logScale=15; // rozumny kompromis, vejdou se i svetla nekolikrat jasnejsi nez 255
 
@@ -346,77 +330,8 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 #endif
 }
 
-unsigned SubTriangle::printGouraud(void *f, IVertex **iv, real scale,Channels flatambient)
-{
-	if(sub[0])
-	{
-		IVertex *iv0[3];
-		IVertex *iv1[3];
-		bool rightleft=isRightLeft();
-		int rot=getSplitVertex();
-		assert(subvertex);
-		assert(subvertex->check());
-		iv0[0]=iv[rot];
-		iv0[1]=iv[(rot+1)%3];
-		iv0[2]=subvertex;
-		iv1[0]=iv[rot];
-		iv1[1]=subvertex;
-		iv1[2]=iv[(rot+2)%3];
-		flatambient+=(energyDirect/*+getEnergyDynamic()*/-sub[0]->energyDirect-sub[1]->energyDirect)/area;
-		return SUBTRIANGLE(sub[rightleft?0:1])->printGouraud(f,iv0,scale,flatambient)+
-			SUBTRIANGLE(sub[rightleft?1:0])->printGouraud(f,iv1,scale,flatambient);
-	}
-
-	if (f) {
-
-		real u[3],v[3],b[3]; unsigned i[3];
-
-		u[0]=uv[0].x*scale;
-		v[0]=uv[0].y*scale;
-		u[1]=uv[1].x*scale;
-		v[1]=uv[1].y*scale;
-		u[2]=uv[2].x*scale;
-		v[2]=uv[2].y*scale;
-
-		if (flatambient!=Channels(0)) {
-			// flat
-			b[0]=b[1]=b[2]=getBrightness(flatambient+(energyDirect/*+getEnergyDynamic()*/)/area);
-		}  else {
-			// gouraud
-			b[0]=getBrightness(iv[0]->exitance(this));
-			b[1]=getBrightness(iv[1]->exitance(this));
-			b[2]=getBrightness(iv[2]->exitance(this));
-		}
-
-		i[0]=(3-grandpa->rotations)%3;
-		i[1]=(4-grandpa->rotations)%3;
-		i[2]=(5-grandpa->rotations)%3;
-
-		gzfprintf(f,"        subFace\n");
-		gzfprintf(f,"        {\n");
-		gzfprintf(f,"          vertices [ %f %f 0, %f %f 0, %f %f 0]\n",u[i[0]],v[i[0]],u[i[1]],v[i[1]],u[i[2]],v[i[2]]);
-		gzfprintf(f,"          intensities [ %f, %f, %f]\n",b[i[0]],b[i[1]],b[i[2]]);
-		gzfprintf(f,"        }\n");
-
-	}
-
-	return 1;
-}
 
 
-
-#ifdef SUPPORT_REGEX
-// regular expression match
-// http://publibn.boulder.ibm.com/doc_link/en_US/a_doc_lib/aixprggd/genprogc/internationalized_reg_expression_subr.htm
-#include <regex.h>
-bool expmatch(char *str,char *pattern,regex_t *re)
-{
-	int status=regcomp(re,pattern,REG_EXTENDED);
-	if(status) return false;
-	status=regexec(re,str,0,NULL,0);
-	return status==0;
-}
-#else
 // returns if str matches expression exp (exp may start or end with *, funk matches "funk" "*nk" "f*")
 bool expmatch(char *str,char *exp)
 {
@@ -427,90 +342,6 @@ bool expmatch(char *str,char *exp)
 	if(exp[0]=='*') return strlen(str)>=strlen(exp)-1 && !strcmp(str+strlen(str)-strlen(exp)+1,exp+1);
 	if(exp[strlen(exp)-1]=='*') return strlen(str)>=strlen(exp)-1 && !memcmp(str,exp,strlen(exp)-1);
 	return false;
-}
-#endif
-
-void save_subtriangles(WORLD *w)
-{
-#ifdef SUPPORT_Z
-	d_fast=false; int oldNeedle=d_needle; d_needle=1; 
-	if(__infolevel) video_WriteScreen("saving sub-triangles...");
-
-	void *f=gzopen(bp("%s.log",p_ffName),"wb9");
-
-	for (int k=0;k<w->material_num;k++) { char *m=w->material[k].name;
-
-	if(!expmatch(m,__exportmaterial)) continue;
-	if(expmatch(m,__dontexportmaterial)) continue;
-
-	gzfprintf(f,"Mesh\n");
-	gzfprintf(f,"{\n");
-
-	gzfprintf(f,"  name ""%s""\n",m+1); unsigned num=0; if(__infolevel) video_WriteScreen(m);
-
-	for (int i=0;i<w->object_num;i++) { OBJECT *o=&w->object[i];
-	for (int j=0;j<o->face_num;j++) if (o->face[j].material==k) num++; }
-
-	gzfprintf(f,"  faceN %d\n",num);
-	gzfprintf(f,"  faces\n");
-	gzfprintf(f,"  [\n");
-
-	for (int i=0;i<w->object_num;i++) { OBJECT *o=&w->object[i];
-	for (int j=0;j<o->face_num;j++) if (o->face[j].material==k) {
-
-		Triangle *t=(Triangle *)o->face[j].source_triangle;
-
-		gzfprintf(f,"    face\n");
-		gzfprintf(f,"    {\n");
-		gzfprintf(f,"      index %d\n",o->face[j].id);
-
-		if (!t) {
-
-			gzfprintf(f,"      INVALID!\n");
-
-		} else if (!t->surface) {
-
-			//gzfprintf(f,"      hidden\n");
-
-		} else {
-
-			// normalize uv
-			real scale=1/MAX(MAX(t->uv[1].x,t->uv[2].x),t->uv[2].y); // max(u,v)==1
-			// real scale=1/MAX(t->uv[1].x,t->uv[2].x); // max(u)==1, max(v)<1.11
-			assert(t->uv[1].y==0);
-
-			gzfprintf(f,"      vertices [ %f %f 0, %f %f 0, %f %f 0]\n",
-				t->uv[(3-t->rotations)%3].x*scale,t->uv[(3-t->rotations)%3].y*scale,
-				t->uv[(4-t->rotations)%3].x*scale,t->uv[(4-t->rotations)%3].y*scale,
-				t->uv[(5-t->rotations)%3].x*scale,t->uv[(5-t->rotations)%3].y*scale);
-
-			num=t->printGouraud(0,t->topivertex,scale);
-
-			gzfprintf(f,"      subFaceN %d\n",num);
-			gzfprintf(f,"      subFaces\n");
-			gzfprintf(f,"      [\n");
-
-			t->printGouraud(f,t->topivertex,scale);
-
-			gzfprintf(f,"      ]\n");
-
-		}
-
-		gzfprintf(f,"    }\n");
-
-	}
-	}
-
-	gzfprintf(f,"  ]\n");
-	gzfprintf(f,"}\n");
-
-	}
-
-	gzclose(f);
-
-	if(__infolevel) video_WriteScreen("done! ");
-	d_needle=oldNeedle;
-#endif
 }
 
 // obecna fce na kresleni trianglu, pouzije tu metodu ktera je zrovna podporovana
@@ -550,142 +381,6 @@ void render_object(rr::RRScene* scene, unsigned o, Object* obj, MATRIX& im)
 	}
 	//raster_EndTriangles();
 }
-
-#ifdef RASTERGL
-void renderWorld_Lights0(WORLD *w, int camera_id)
-{
-	for (int i=0;i<w->object_num;i++) 
-	{
-		if(camera_id>=0) 
-		{
-			MATRIX cm,im,om;
-			OBJECT *o=&w->object[i];
-			matrix_Copy(w->camera[camera_id].inverse,cm);
-			matrix_Copy(o->transform,om);
-			matrix_Mul(cm,om);
-			matrix_Invert(cm,im);
-			raster_SetMatrix(&cm,&im);
-		}
-		mgf_draw_colored();
-		return;
-	}
-}
-
-void renderWorld_Lights1(WORLD *w, int camera_id)
-{
-	if (softLight<0) updateDepthMap();
-
-	if (clear) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (wireFrame) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
-
-	setupEyeView();
-	glLightfv(GL_LIGHT0, GL_POSITION, lv);
-
-	if (useShadowMapSupport) {
-		drawHardwareShadowPass();
-	} else {
-		drawDualTextureShadowPasses();
-		blendTexturedFloor();
-	}
-
-	drawLight();
-	drawShadowMapFrustum();
-}
-
-void placeSoftLight(int n)
-{
-	softLight=n;
-	static float oldLightAngle,oldLightHeight;
-	if(n==-1) { // init, before all
-		oldLightAngle=lightAngle;
-		oldLightHeight=lightHeight;
-		glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 1);
-		glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90); // no light behind spotlight
-		glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01);
-		return;
-	}
-	if(n==-2) { // done, after all
-		lightAngle=oldLightAngle;
-		lightHeight=oldLightHeight;
-		updateMatrices();
-		return;
-	}
-	// place one point light approximating part of area light
-	if(useLights>1) {
-		switch(areaType) {
-      case 0: // linear
-	      lightAngle=oldLightAngle+0.2*(n/(useLights-1.)-0.5);
-	      lightHeight=oldLightHeight-0.4*n/useLights;
-	      break;
-      case 1: // rectangular
-	      {int q=(int)sqrtf(useLights-1)+1;
-	      lightAngle=oldLightAngle+0.1*(n/q/(q-1.)-0.5);
-	      lightHeight=oldLightHeight+(n%q/(q-1.)-0.5);}
-	      break;
-      case 2: // circular
-	      lightAngle=oldLightAngle+sin(n*2*3.14159/useLights)/20;
-	      lightHeight=oldLightHeight+cos(n*2*3.14159/useLights)/2;
-	      break;
-		}
-		updateMatrices();
-	}
-	GLfloat ld[3]={-lv[0],-lv[1],-lv[2]};
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, ld);
-}
-
-void setLightIntensity(float* col)
-{
-	float zero[4]={1,0,0,1};
-	float col[4];
-	glLightfv(GL_LIGHT0, GL_AMBIENT, zero);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, col);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
-}
-
-void renderWorld_LightsN(WORLD *w, int camera_id, unsigned useLights, bool useAccum)
-{
-	int i;
-	placeSoftLight(-1);
-	for(i=0;i<useLights;i++)
-	{
-		placeSoftLight(i);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		renderWorld_Depth(i);
-	}
-	if(useAccum) {
-		glClear(GL_ACCUM_BUFFER_BIT);
-	} else {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		setupEyeView();
-		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zero);
-		glDisable(GL_LIGHTING)
-		renderWorld_Lights0(w,camera_id);
-		glEnable(GL_LIGHTING)
-		globalIntensity=1./useLights;
-		glBlendFunc(GL_ONE,GL_ONE);
-		glEnable(GL_BLEND);
-	}
-	for(i=0;i<useLights;i++)
-	{
-		placeSoftLight(i);
-		renderWorld_Lights1(useAccum);
-		if(useAccum) {
-			glAccum(GL_ACCUM,1./useLights);
-		}
-	}
-	placeSoftLight(-2);
-	if(useAccum) {
-		glAccum(GL_RETURN,1);
-	} else {  
-		glDisable(GL_BLEND);
-		globalIntensity=1;
-	}
-}
-#endif
 
 void render_world(WORLD *w, rr::RRScene* scene, int camera_id, bool mirrorFrame)
 {
@@ -766,37 +461,6 @@ void render_world(WORLD *w, rr::RRScene* scene, int camera_id, bool mirrorFrame)
 	*/
 	// printf("render=%dms\n",GETTIME-t0);
 }
-/*
-void render_from_light(WORLD *w)
-{
-	// nastavit pohled ze svetla
-	Point3 tmp1=Point3(0,1,0);
-	raster_SetMatrix(tmp1,tmp1);
-	raster_SetFOV(60,60);
-
-	// rict	ze budem rendrovat jen Z
-	bool old_gouraud=d_gouraud; d_gouraud=false;
-	char old_meshing=d_meshing; d_meshing=2;
-	glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-
-	// vyrendrovat scenu poprve, +queries, +Z, -Color
-	queries.Reset(true);
-	render_world(w,-1,false);
-
-	// nastrkat do faces celou scenu
-	SubTriangles faces;
-
-	// pro vsechny facy zjistit jak	moc jsou videt
-	while(faces.count)
-	{
-	}
-
-	// obnovit puvodni stav
-	glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-	d_meshing=old_meshing;
-	d_gouraud=old_gouraud;
-}
-*/
 
 void fillColorTable(unsigned *ct,double cx,double cy,real rs)
 {
@@ -813,4 +477,3 @@ void render_init()
 {
 	fillColorTable(__needle_ct,.5,.1,.8);
 }
-

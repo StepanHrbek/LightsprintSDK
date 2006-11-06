@@ -11,7 +11,6 @@
 # output
 
   OPENGL      =    # opengl instead of sw rasterizer
-  LIGHTMAP    =    # output cached via lightmaps
 
 ##########################################################################
 
@@ -58,11 +57,6 @@ ifdef ALLEGRO
  # s allegrem 3 tady staci LIBS+=-lalleg_s, s allegrem 4 je nutny cely seznam
  LIBS += $(LIBSALLEG) 
  CFLAGS += -DKB_VIA_ALLEGRO -DALLEGRO_STATICLINK
-endif
-
-ifdef LIGHTMAP
- CFLAGS += -DSUPPORT_LIGHTMAP
- LIBS += -lpng -lz
 endif
 
 ifdef PROFILE

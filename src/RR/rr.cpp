@@ -1,7 +1,5 @@
 //vypocet se zastavuje, jako by best nemoh najit dalsi praci na zlepseni
 
-//#define SUPPORT_KAMIL
-//#define SUPPORT_REGEX
 //#define NDEBUG       // no asserts, no debug code
 #define DBG(a) //a
 #define WAIT //fgetc(stdin) // program ceka na stisk, pro ladeni spotreby pameti
@@ -238,41 +236,6 @@ static bool endByTime(void *context)
 static bool endByTimeOrInput(void *context)
 {
  return kb_hit() || GETTIME>(TIME)(intptr_t)context || mouse_hit();
-}
-
-static real   endAccuracy=-1;
-
-/*static void endSetAccuracy(real accuracy)
-{
- endAccuracy=accuracy;
-}*/
-
-#ifdef SUPPORT_KAMIL
-#include "counter.h"
-static Counter *cnt=0;
-#endif
-
-static int oAccuracy=0;
-
-static bool endByAccuracy(void *context)
-{
- Scene* scene = (Scene*)context;
- int Accuracy=(int)(100.0*scene->avgAccuracy()/endAccuracy);
- 
- if (oAccuracy+5<=Accuracy) { oAccuracy=Accuracy;
-#ifdef SUPPORT_KAMIL
-    if (cnt) cnt->Next(); else 
-#endif
-    { char info[256];
-       sprintf(info,"%d%%",Accuracy);
-       video_WriteScreen(info);
-       }
-    }
-
-#ifdef SUPPORT_KAMIL
- if (cnt && Accuracy>=100) cnt->End();
-#endif
- return Accuracy>=100;
 }
 
 static void captureTgaAfter(Scene *scene,RRScene* rrscene,char *name,real seconds,real minimalImprovementToShorten)
@@ -637,8 +600,6 @@ void keyboardFunc(unsigned char key, int x, int y)
   case '(': if(d_factors2 && ((Node*)d_factors2)->sub[0]) d_factors2=((Node*)d_factors2)->sub[0]; n_dirtyColor=true;break;
   case ')': if(d_factors2 && ((Node*)d_factors2)->parent) d_factors2=((Node*)d_factors2)->parent; n_dirtyColor=true;break;
   
-  case '@': save_subtriangles(__world);break;
-
   case '5': setRrMode(scene,false,false,0);p_flyingObjects=false;break;
   case '6': setRrMode(scene,true ,false,0);p_flyingObjects=true;break;
   case '7': setRrMode(scene,false,true ,0);p_flyingObjects=true;break;
@@ -780,12 +741,8 @@ void help()
  printf(" -nogfx       ...no gfx display, stay in console\n");
  printf(" -gammaN      ...set gamma correction (0.35)\n");
  printf(" -brightN     ...set brightness (1.2)\n");
-#ifdef SUPPORT_KAMIL
- printf(" -kamil       ...Kamilos hyper progress bar\n");
-#endif
  printf(" -verboseLEVEL...0=less prints, 2=more prints (1)\n");
  printf("\n ----------------------------------[ export ]----------------------------------\n");
- printf(" -qualityQ    ...calculate static scene to quality Q and export subtriangles\n");
  printf(" -export:NAME ...export only faces from material NAME (*)\n");
  printf(" -dontexport:NAME...but dont export faces from material NAME ()\n");
  printf("\n ----------------------------[ animation precalc ]-----------------------------\n");
@@ -809,9 +766,6 @@ int main(int argc, char **argv)
  char *scenename=NULL;
  int p_test=0;
  bool gfx=true;//set gfx mode?,could be turned off by -nogfx
-#ifdef SUPPORT_KAMIL
- bool kamil=false;
-#endif
  RRCollider::IntersectTechnique intersectTechnique = RRCollider::IT_BSP_FASTEST;
  RRScene::setStateF(RRScene::SUBDIVISION_SPEED,1);
 
@@ -897,9 +851,6 @@ int main(int argc, char **argv)
      if (!strncmp(argv[i],"-3ds",2))
         {float tmp;if(sscanf(argv[i],"-3ds%f",&tmp)==1) {p_3dsFrameEnd=tmp;printf("using only first %f 3ds frames\n",p_3dsFrameEnd);} else goto badarg;}
      else
-     if (!strncmp(argv[i],"-quality%f",8))
-        {float tmp;if(sscanf(argv[i],"-quality%f",&tmp)==1) endAccuracy=tmp; else goto badarg;}
-     else
      if (!strncmp(argv[i],"-l",2))
         {int li;if(sscanf(argv[i],"-l%i",&li)==1) g_separLights=li!=1; else goto badarg;}
      else
@@ -924,11 +875,6 @@ int main(int argc, char **argv)
      if (!strcmp(argv[i],"-nogfx"))
         gfx=false;
      else
-#ifdef SUPPORT_KAMIL
-     if (!strcmp(argv[i],"-kamil"))
-        kamil=true;
-     else
-#endif
      if (!strcmp(argv[i]+strlen(argv[i])-4,".bsp") || !strcmp(argv[i]+strlen(argv[i])-4,".BSP") || !strcmp(argv[i]+strlen(argv[i])-4,".r3d") || !strcmp(argv[i]+strlen(argv[i])-4,".R3D"))
         scenename=argv[i];
      else
@@ -987,45 +933,10 @@ int main(int argc, char **argv)
 
  if(preparing_capture) scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+0.1*PER_SEC));
 
- if(endAccuracy>=0) {
-#ifdef SUPPORT_KAMIL
-   if (kamil) cnt=new Counter(20);
-#endif
-   scene->improveStatic(endByAccuracy,scene);
-   save_subtriangles(__world);
-   if(!gfx) return 0;
- }
-
  if(g_batchGrab) kb_put('g');//{displayFunc();keyboardFunc('g',0,0);}
  else
  if(g_batchMerge) kb_put('h');//{displayFunc();keyboardFunc('h',0,0);}
 
-/*
- if(p_ffGrab)
- {
-   // grabne jeden snimek a skonci
-   // behem vypoctu ho kazdych 5 sekund zobrazi
-   setRrMode(scene,true,false,0);
-   p_ffGrab=true;
-   p_flyingObjects=true;
-   frameSetup(scene);
-   real step=5;
-   while(c_frameTime>step && !kb_hit())
-   {
-     scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)(GETTIME+step*PER_SEC));
-     scene->draw(0.4);
-     c_frameTime-=step;
-     __frameNumber++;
-   }
-   // ulozi ho jen kdyz nebyl prerusen
-   if(!kb_hit())
-   {
-     frameCalculate(scene);
-     frameDraw(scene);
-   }
- }
- else
-*/
  if(p_test)
  {
    if(p_test==3)

@@ -407,7 +407,6 @@ public:
 	bool    checkVertices();
 	void    installVertices();
 
-	unsigned printGouraud(void *f, IVertex **iv,real scale,Channels flatambient=Channels(0));
 	void    drawGouraud(Channels ambient,IVertex **iv,int df);
 	void    drawFlat(Channels ambient,int df);
 

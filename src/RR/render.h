@@ -34,6 +34,4 @@ extern char  __infolevel;
 void render_init();
 void render_world(WORLD *w, rr::RRScene* scene, int camera_id, bool mirrorFrame);
 
-void save_subtriangles(WORLD *w);
-
 #endif
