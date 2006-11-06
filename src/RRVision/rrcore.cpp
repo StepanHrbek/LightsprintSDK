@@ -2773,6 +2773,10 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	assert(destination->grandpa);
 	assert(destination->grandpa->surface);
 	assert(IS_VEC3(destination->grandpa->surface->diffuseReflectance));
+	// kdyz se aspon polovinu casu hybe svetly (hodne se distribuuje),
+	//  tento radek je nejvetsi zrout CPU z celeho rr.
+	// pri predelani cele matematiky na sse se vyrazne zrychli, ale jine vypocty 
+	//  zpomali, protoze msvc neumi volaci konvence s predavanim sse registru.
 	energy *= destination->grandpa->surface->diffuseReflectance;
 
 	// statistics

@@ -78,6 +78,7 @@ typedef RRVec2 Point2;
 
 typedef RRVec3 Vec3;
 
+// pri zinlinovani i techto msvc o 5% zpomali
 RRReal abs(RRReal a);
 RRReal sum(RRReal a);
 RRReal avg(RRReal a);
