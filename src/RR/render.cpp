@@ -384,21 +384,6 @@ void render_object(rr::RRScene* scene, unsigned o, Object* obj, MATRIX& im)
 
 void render_world(WORLD *w, rr::RRScene* scene, int camera_id, bool mirrorFrame)
 {
-#ifdef RASTERGL
-	renderWorldInstantRadiosity(w,camera_id); return;
-
-	float col[4]={1,1,1,1};
-	setLightIntensity(col);
-	glLightfv(GL_LIGHT0, GL_POSITION, col);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	renderWorldGeometry(w,camera_id);
-	return;
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//setupEyeView();
-	//drawShadowMapFrustum();
-#endif
-
 	// TIME t0=GETTIME;
 	MATRIX cm,im,om;
 
