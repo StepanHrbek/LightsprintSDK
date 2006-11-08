@@ -299,7 +299,7 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 	if (visible)
 	{
 		glShadeModel(GL_SMOOTH);
-/*	glPushMatrix();
+		glPushMatrix();
 
 		// Move the model
 		glTranslatef(pos.x, pos.y, pos.z);
@@ -310,7 +310,7 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 		glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
 
 		glScalef(scale, scale, scale);
-*/
+
 		// Loop through the objects
 		for (int i = 0; i < numObjects; i++)
 		{
@@ -381,7 +381,7 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 			{
 				// Use the material's texture
 				Materials[Objects[i].MatFaces[j].MatIndex].tex->bindTexture();
-/*
+
 				glPushMatrix();
 
 					// Move the model
@@ -395,11 +395,11 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 					glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
 					glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
 					glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);
-*/
+
 					// Draw the faces using an index to the vertex array
 					glDrawElements(GL_TRIANGLES, Objects[i].MatFaces[j].numSubFaces, GL_UNSIGNED_SHORT, Objects[i].MatFaces[j].subFaces);
 
-//				glPopMatrix();
+				glPopMatrix();
 			}
 
 			// Show the normals?
@@ -428,7 +428,7 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 
 		}
 
-//	glPopMatrix();
+	glPopMatrix();
 	}
 	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	//glDisableClientState(GL_NORMAL_ARRAY);

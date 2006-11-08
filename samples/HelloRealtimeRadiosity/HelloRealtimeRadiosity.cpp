@@ -100,6 +100,7 @@ void renderScene(UberProgramSetup uberProgramSetup)
 	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
 	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
+	renderedChannels.OBJECT_SPACE = uberProgramSetup.OBJECT_SPACE;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 	rendererNonCaching->setRenderedChannels(renderedChannels);
 	rendererCaching->render();
@@ -211,6 +212,7 @@ protected:
 			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
+			uberProgramSetup.OBJECT_SPACE = false;
 			uberProgramSetup.FORCE_2D_POSITION = true;
 			rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,lastCapturedTriangle); // set param for cache so it creates different displaylists
 			renderScene(uberProgramSetup);
@@ -309,6 +311,7 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+	uberProgramSetup.OBJECT_SPACE = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
 	renderScene(uberProgramSetup);
 	glutSwapBuffers();

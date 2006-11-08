@@ -12,6 +12,7 @@
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE_COLOR
 //  #define MATERIAL_DIFFUSE_MAP
+//  #define OBJECT_SPACE
 //  #define FORCE_2D_POSITION
 //
 // Workarounds for driver bugs of one vendor made it a mess, sorry.

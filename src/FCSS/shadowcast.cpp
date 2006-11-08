@@ -385,6 +385,7 @@ protected:
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 #endif
+			//uberProgramSetup.OBJECT_SPACE = false;
 			uberProgramSetup.FORCE_2D_POSITION = true;
 			level->rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,captureUv.lastCapturedTriangle); // set param for cache so it creates different displaylists
 			renderScene(uberProgramSetup,0);
@@ -547,6 +548,7 @@ void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance
 	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
 	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
+	renderedChannels.OBJECT_SPACE = uberProgramSetup.OBJECT_SPACE;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 	level->rendererNonCaching->setRenderedChannels(renderedChannels);
 	if(renderedChannels.LIGHT_INDIRECT_COLOR)
@@ -570,35 +572,57 @@ void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance
 
 void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
+	// render static scene
+	assert(!uberProgramSetup.OBJECT_SPACE); 
 	renderSceneStatic(uberProgramSetup,firstInstance);
 	
 	if(uberProgramSetup.FORCE_2D_POSITION) return;
 
 	// render dynaobject
-	//!!! nekam ukladat objektovou matici
-	//!!! upravit vsechny matice aby slo s objektem hybat
+	// - set program
+	uberProgramSetup.OBJECT_SPACE = true;
 	if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
 	{
 		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
-		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
-			error("Failed to compile or link GLSL program with envmap.\n",true);
 	}
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
+		error("Failed to compile or link GLSL program with envmap.\n",true);
+	// - set sampler
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT);
 		level->solver->updateEnvironmentMap(environmentMap,rr::RRVec3(0));
 		environmentMap->bindTexture();
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-		Program* program = uberProgramSetup.getProgram(uberProgram);
-		float m[9];
-		for(unsigned i=0;i<3;i++)
-			for(unsigned j=0;j<3;j++)
-				m[i+3*j] = (i==j)?1:0;//(float)(light.inverseViewMatrix[i+4*j]);
-		program->sendUniform("worldMatrix",m,false,3);
 	}
+	// - set matrices
+	Program* program = uberProgramSetup.getProgram(uberProgram);
+	static float a=0,b=0,c=0;
+	a+=0.012f;
+	b+=0.01f;
+	c+=0.008f; //needDepthMapUpdate=true;
+	float m[16];
+	m[0] = cos(b)*cos(c);
+	m[1] = sin(a)*sin(b)*cos(c)+cos(a)*sin(c);
+	m[2] = -cos(a)*sin(b)*cos(c)+sin(a)*sin(c);
+	m[3] = 0;
+	m[4] = -cos(b)*sin(c);
+	m[5] = -sin(a)*sin(b)*sin(c)+cos(a)*cos(c);
+	m[6] = cos(a)*sin(b)*sin(c)+sin(a)*cos(c);
+	m[7] = 0;
+	m[8] = sin(b);
+	m[9] = -sin(a)*cos(b);
+	m[10] = cos(a)*cos(b);
+	m[11] = 0;
+	m[12] = 0;
+	m[13] = 1;
+	m[14] = 0;
+	m[15] = 1;
+	program->sendUniform("worldMatrix",m,false,4);
+	// - render
 	dynaobject.Draw(NULL,false);
 }
 
@@ -631,6 +655,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
+	//uberProgramSetup.OBJECT_SPACE = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
 	renderScene(uberProgramSetup,0);
 	shadowmap->renderingToEnd();
@@ -704,6 +729,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
+		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,0);
 		return;
@@ -726,6 +752,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
+		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,i);
 		glAccum(GL_ACCUM,1./(numInstances/MIN(INSTANCES_PER_PASS,numInstances)));
@@ -744,6 +771,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
+		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		renderScene(uberProgramSetup,0);
@@ -1109,6 +1137,7 @@ void display()
 				uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 				//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
+				//uberProgramSetup.OBJECT_SPACE = false;
 				uberProgramSetup.FORCE_2D_POSITION = false;
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				drawEyeViewShadowed(uberProgramSetup,0);
@@ -1777,6 +1806,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
+	uberProgramGlobalSetup.OBJECT_SPACE = false;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
 
 	// adjust INSTANCES_PER_PASS to GPU

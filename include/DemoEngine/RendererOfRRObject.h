@@ -30,6 +30,7 @@ public:
 		bool     LIGHT_INDIRECT_ENV     :1; // gl_Normal
 		bool     MATERIAL_DIFFUSE_COLOR :1; // gl_SecondaryColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; // gl_MultiTexCoord0, current sampler
+		bool     OBJECT_SPACE           :1; // worldMatrix
 		bool     FORCE_2D_POSITION      :1; // gl_MultiTexCoord7
 		RenderedChannels()
 		{
