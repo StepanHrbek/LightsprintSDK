@@ -142,6 +142,7 @@ public:
 			bugs[i].render();
 		}
 		
+		glPointSize(1); // nutne na ATI, jinak prepne do sw pri pristim pouziti gl_FragCoord
 		glDisable(GL_POINT_SPRITE);
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);

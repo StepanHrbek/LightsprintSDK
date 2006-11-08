@@ -1797,7 +1797,7 @@ int main(int argc, char **argv)
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
-	uberProgramGlobalSetup.NOISE_MAP = ati;
+	uberProgramGlobalSetup.NOISE_MAP = false;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = false;
@@ -1811,6 +1811,7 @@ int main(int argc, char **argv)
 
 	// adjust INSTANCES_PER_PASS to GPU
 	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
+	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(!INSTANCES_PER_PASS) error("",true);
 

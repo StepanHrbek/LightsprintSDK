@@ -8,9 +8,8 @@
 //  arrows = move around
 //  left button = switch between camera and light
 //
-// NOISE_MAP=false gives much better results. 
-// It is temporarily true to avoid ATI's driver problem.
-// Feel free to put it back to false on NVIDIA.
+// Soft shadow quality is reduced due to bug in ATI drivers.
+// Improve it on NVIDIA by deleting two lines with NVIDIA in comment.
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006
 
@@ -203,7 +202,7 @@ protected:
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
-			uberProgramSetup.NOISE_MAP = false; // search next one, this should be always false
+			uberProgramSetup.NOISE_MAP = false;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_DIRECT_MAP = true;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -293,7 +292,7 @@ void display(void)
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
-	uberProgramSetup.NOISE_MAP = true; // false=much better on NVIDIA
+	uberProgramSetup.NOISE_MAP = false;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -442,8 +441,9 @@ int main(int argc, char **argv)
 	uberProgram = new UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
 	unsigned shadowmapsPerPass = UberProgramSetup::detectMaxShadowmaps(uberProgram);
 	if(shadowmapsPerPass) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
+	if(shadowmapsPerPass) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(!shadowmapsPerPass) error("",true);
-
+	
 	// init textures
 	lightDirectMap = Texture::load("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	noiseMap = Texture::load("..\\..\\data\\maps\\noise.tga", GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
