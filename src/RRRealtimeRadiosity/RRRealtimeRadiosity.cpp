@@ -532,18 +532,121 @@ RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 	return result;
 }
 
+// inputs:
+//  iSize - input cube size
+//  iIrradiance - array with 6*iSize*iSize pixels of cube
+// outputs:
+//  if successful:
+//   oSize - new filtered cube size
+//   oIrradiance - new array with filtered cube, to be deleted by caller
+//  else
+//   not modified
+static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& oSize, RRColorRGBA8*& oIrradiance)
+{
+	unsigned iPixels = iSize*iSize*6;
+	if(iSize==1)
+	{
+		// navaznost hran v cubemape:
+		// side0top   = side2right
+		// side0left  = side4right
+		// side0right = side5left
+		// side0bot   = side3right
+		// side1top   = side2left
+		// side1left  = side5right
+		// side1right = side4left
+		// side1bot   = side3left
+		// side2top   = side5top
+		// side2left  = side1top
+		// side2right = side0top
+		// side2bot   = side4top
+		// side3top   = side4bot
+		// side3left  = side1bot
+		// side3right = side0bot
+		// side3bot   = side5bot
+		// side4top   = side2bot
+		// side4left  = side1right
+		// side4right = side0left
+		// side4bot   = side3top
+		// side5top   = side2top
+		// side5left  = side0right
+		// side5right = side1left
+		// side5bot   = side3bot
+		const signed char filteringTable[] = {
+			//0 1 2 3 4 5
+			// side0
+			1,0,1,0,1,0,
+			1,0,1,0,0,1,
+			1,0,0,1,1,0,
+			1,0,0,1,0,1,
+			// side1
+			0,1,1,0,0,1,
+			0,1,1,0,1,0,
+			0,1,0,1,0,1,
+			0,1,0,1,1,0,
+			// side2
+			0,1,1,0,0,1,
+			1,0,1,0,0,1,
+			0,1,1,0,1,0,
+			1,0,1,0,1,0,
+			// side3
+			0,1,0,1,1,0,
+			1,0,0,1,1,0,
+			0,1,0,1,0,1,
+			1,0,0,1,0,1,
+			// side4
+			0,1,1,0,1,0,
+			1,0,1,0,1,0,
+			0,1,0,1,1,0,
+			1,0,0,1,1,0,
+			// side5
+			1,0,1,0,0,1,
+			0,1,1,0,0,1,
+			1,0,0,1,0,1,
+			0,1,0,1,0,1,
+		};
+		oSize = 2;
+		unsigned oPixels = 6*oSize*oSize;
+		oIrradiance = new RRColorRGBA8[oPixels];
+		for(unsigned i=0;i<oPixels;i++)
+		{
+			RRColorRGBF sum = RRColorRGBF(0);
+			unsigned points = 0;
+			for(unsigned j=0;j<iPixels;j++)
+			{
+				sum += iIrradiance[j].toRRColorRGBF() * filteringTable[iPixels*i+j];
+				points += filteringTable[iPixels*i+j];
+			}
+			assert(points);
+			oIrradiance[i] = sum / (points?points:1);
+		}
+	}
+}
+
 void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, RRVec3 objectCenterWorld)
 {
 	if(!environmentMap) return;
-	RRColorRGBA8 irradiances[6];
+
+	// gather irradiances
+	const unsigned iSize = 1;
+	RRColorRGBA8 iIrradiance[6*iSize*iSize];
 	//!!! dopsat korektni vypocet
-	irradiances[0].color = (rand()&1)?0xff0000:0x770000;
-	irradiances[1].color = (rand()&1)?0x00ff00:0x007700;
-	irradiances[2].color = 0x0000ff;
-	irradiances[3].color = 0xffffff;
-	irradiances[4].color = 0x00ffff;
-	irradiances[5].color = 0xff00ff;
-	environmentMap->setValues(1,irradiances);
+	iIrradiance[0].color = (rand()&1)?0xff0000:0x770000;
+	iIrradiance[1].color = (rand()&1)?0x00ff00:0x007700;
+	iIrradiance[2].color = 0x0000ff;
+	iIrradiance[3].color = 0xffffff;
+	iIrradiance[4].color = 0x00ffff;
+	iIrradiance[5].color = 0xff00ff;
+
+	// filter cubemap
+	unsigned oSize = 0;
+	RRColorRGBA8* oIrradiance = NULL;
+	cubeMapFilter(1,iIrradiance,oSize,oIrradiance);
+
+	// pass cubemap to client
+	environmentMap->setValues(oSize?oSize:iSize,oIrradiance?oIrradiance:iIrradiance);
+
+	// cleanup
+	delete oIrradiance;
 }
 
 } // namespace

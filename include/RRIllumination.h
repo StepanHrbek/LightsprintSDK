@@ -48,9 +48,15 @@ namespace rr
 	class RRColorRGBF : public RRVec3
 	{
 	public:
-		RRColorRGBF()
+		RRColorRGBF(RRReal a = 0)
 		{
-			x = y = z = 0;
+			x = y = z = a;
+		}
+		RRColorRGBF(RRReal r,RRReal g,RRReal b)
+		{
+			x = r;
+			y = g;
+			z = b;
 		}
 		RRColorRGBF(const RRVec3& a)
 		{
@@ -89,6 +95,14 @@ namespace rr
 		{
 			return color!=a.color;
 		}
+		RRReal operator [](int i) const 
+		{
+			return color/255.0f;
+		}
+		RRColorRGBF toRRColorRGBF() const
+		{
+			return RRColorRGBF((*this)[0],(*this)[1],(*this)[2]);
+		}
 		unsigned char color;
 	};
 
@@ -120,6 +134,14 @@ namespace rr
 		bool operator !=(const RRColorRGBA8& a)
 		{
 			return color!=a.color;
+		}
+		RRReal operator [](int i) const 
+		{
+			return ((color>>(i*8))&255)/255.0f;
+		}
+		RRColorRGBF toRRColorRGBF() const
+		{
+			return RRColorRGBF((*this)[0],(*this)[1],(*this)[2]);
 		}
 		unsigned color;
 	};

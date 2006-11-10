@@ -18,20 +18,10 @@ void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, RRColorRGBA8
 {
 	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	for(unsigned i=0; i<6; i++) 
+	for(unsigned side=0; side<6; side++)
 	{
-		gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, GL_RGBA8, size, size, GL_RGBA, GL_UNSIGNED_BYTE, &irradiance[size*size*i].color);
-		/*
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-			0,                  //level
-			GL_RGBA8,           //internal format
-			size,               //width
-			size,               //height
-			0,                  //border
-			GL_RGBA,            //format
-			GL_UNSIGNED_BYTE,   //type
-			&irradiance[size*size*i].color); // pixel data
-		*/
+		//gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X + side, GL_RGBA8, size, size, GL_RGBA, GL_UNSIGNED_BYTE, &irradiance[size*size*side].color);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,size,size,0,GL_RGBA,GL_UNSIGNED_BYTE,&irradiance[size*size*side].color);
 	}
 }
 
