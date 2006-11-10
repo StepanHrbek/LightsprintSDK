@@ -532,6 +532,80 @@ RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 	return result;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cube maps
+
+// navaznost hran v cubemape:
+// side0top   = side2right
+// side0left  = side4right
+// side0right = side5left
+// side0bot   = side3right
+// side1top   = side2left
+// side1left  = side5right
+// side1right = side4left
+// side1bot   = side3left
+// side2top   = side5top
+// side2left  = side1top
+// side2right = side0top
+// side2bot   = side4top
+// side3top   = side4bot
+// side3left  = side1bot
+// side3right = side0bot
+// side3bot   = side5bot
+// side4top   = side2bot
+// side4left  = side1right
+// side4right = side0left
+// side4bot   = side3top
+// side5top   = side2top
+// side5left  = side0right
+// side5right = side1left
+// side5bot   = side3bot
+
+enum Edge {TOP=0, LEFT, RIGHT, BOTTOM};
+
+struct CubeSide
+{
+	signed char dir[3];
+	struct Neighbour
+	{
+		char side;
+		char edge;
+	};
+	Neighbour neighbour[4]; // indexed by Edge
+
+	RRVec3 getDir() const
+	{
+		return RRVec3(dir[0],dir[1],dir[2]);
+	}
+
+	// returns direction from cube center to cube texel center.
+	// texel coordinates: -1..1
+	RRVec3 getTexelDir(RRVec2 uv) const;
+
+	// returns direction from cube center to cube texel center.
+	// texel coordinates: 0..size-1
+	RRVec3 getTexelDir(unsigned size, unsigned x, unsigned y) const
+	{
+		return getTexelDir(RRVec2( RRReal(1+2*x-size)/size , RRReal(1+2*y-size)/size ));
+	}
+};
+
+static const CubeSide cubeSide[6] =
+{
+	{{ 1, 0, 0}, {{2,RIGHT },{4,RIGHT },{5,LEFT  },{3,RIGHT }}},
+	{{-1, 0, 0}, {{2,LEFT  },{5,RIGHT },{4,LEFT  },{3,LEFT  }}},
+	{{ 0, 1, 0}, {{5,TOP   },{1,TOP   },{0,TOP   },{4,TOP   }}},
+	{{ 0,-1, 0}, {{4,BOTTOM},{1,BOTTOM},{0,BOTTOM},{5,BOTTOM}}},
+	{{ 0, 0, 1}, {{2,BOTTOM},{1,RIGHT },{0,LEFT  },{3,TOP   }}},
+	{{ 0, 0,-1}, {{2,TOP   },{0,RIGHT },{1,LEFT  },{3,BOTTOM}}}
+};
+
+RRVec3 CubeSide::getTexelDir(RRVec2 uv) const
+{
+	return getDir()+cubeSide[neighbour[RIGHT].side].getDir()*uv[0]+cubeSide[neighbour[BOTTOM].side].getDir()*uv[1];
+}
+
 // inputs:
 //  iSize - input cube size
 //  iIrradiance - array with 6*iSize*iSize pixels of cube
@@ -546,33 +620,7 @@ static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& o
 	unsigned iPixels = iSize*iSize*6;
 	if(iSize==1)
 	{
-		// navaznost hran v cubemape:
-		// side0top   = side2right
-		// side0left  = side4right
-		// side0right = side5left
-		// side0bot   = side3right
-		// side1top   = side2left
-		// side1left  = side5right
-		// side1right = side4left
-		// side1bot   = side3left
-		// side2top   = side5top
-		// side2left  = side1top
-		// side2right = side0top
-		// side2bot   = side4top
-		// side3top   = side4bot
-		// side3left  = side1bot
-		// side3right = side0bot
-		// side3bot   = side5bot
-		// side4top   = side2bot
-		// side4left  = side1right
-		// side4right = side0left
-		// side4bot   = side3top
-		// side5top   = side2top
-		// side5left  = side0right
-		// side5right = side1left
-		// side5bot   = side3bot
-		const signed char filteringTable[] = {
-			//0 1 2 3 4 5
+		static const signed char filteringTable[] = {
 			// side0
 			1,0,1,0,1,0,
 			1,0,1,0,0,1,
@@ -622,6 +670,52 @@ static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& o
 	}
 }
 
+// thread safe: yes
+void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, unsigned size, RRColorRGBA8* irradiance)
+{
+/*
+	irradiance[0].color = (rand()&1)?0xff0000:0x770000;
+	irradiance[1].color = (rand()&1)?0x00ff00:0x007700;
+	irradiance[2].color = 0x0000ff;
+	irradiance[3].color = 0xffffff;
+	irradiance[4].color = 0x00ffff;
+	irradiance[5].color = 0xff00ff;
+*/
+	RRRay* ray = RRRay::create();
+	for(unsigned side=0;side<6;side++)
+	{
+		for(unsigned i=0;i<size;i++)
+			for(unsigned j=0;j<size;j++)
+			{
+				RRVec3 dir = cubeSide[side].getTexelDir(size,i,j);
+				RRReal dirsize = dir.length();
+				// find face
+				ray->rayOrigin = center;
+				ray->rayDirInv[0] = dirsize/dir[0];
+				ray->rayDirInv[1] = dirsize/dir[1];
+				ray->rayDirInv[2] = dirsize/dir[2];
+				ray->rayLengthMin = 0;
+				ray->rayLengthMax = 10000; //!!! hard limit
+				ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
+				unsigned face = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
+				// read irradiance on sky
+				RRVec3 irrad;
+				if(face==UINT_MAX)
+				{
+					irrad = RRVec3(0); //!!! add sky
+				}
+				else
+				// read irradiance on face
+				{
+					scene->getTriangleMeasure(0,face,3,RM_IRRADIANCE,irrad);
+				}
+				// write result
+				*irradiance++ = irrad;
+			}
+	}
+	delete ray;
+}
+
 void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, RRVec3 objectCenterWorld)
 {
 	if(!environmentMap) return;
@@ -629,13 +723,7 @@ void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* env
 	// gather irradiances
 	const unsigned iSize = 1;
 	RRColorRGBA8 iIrradiance[6*iSize*iSize];
-	//!!! dopsat korektni vypocet
-	iIrradiance[0].color = (rand()&1)?0xff0000:0x770000;
-	iIrradiance[1].color = (rand()&1)?0x00ff00:0x007700;
-	iIrradiance[2].color = 0x0000ff;
-	iIrradiance[3].color = 0xffffff;
-	iIrradiance[4].color = 0x00ffff;
-	iIrradiance[5].color = 0xff00ff;
+	cubeMapGather(scene,multiObject,objectCenterWorld,iSize,iIrradiance);
 
 	// filter cubemap
 	unsigned oSize = 0;

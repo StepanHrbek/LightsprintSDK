@@ -619,7 +619,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	m[11] = 0;
 	m[12] = 0;
 	m[13] = 1;
-	m[14] = 0;
+	m[14] = 1;
 	m[15] = 1;
 	program->sendUniform("worldMatrix",m,false,4);
 	// - render
