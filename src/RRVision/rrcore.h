@@ -388,8 +388,8 @@ public:
 	bool    wishesToSplitReflector();
 #endif
 	// enumeration of all subtriangles
-	typedef void (EnumSubtrianglesCallback)(SubTriangle* s, IVertex **iv, Channels flatambient, void* context);
-	unsigned enumSubtriangles(IVertex **iv, Channels flatambient, EnumSubtrianglesCallback* callback, void* context);
+	typedef void (EnumSubtrianglesCallback)(SubTriangle* s, IVertex **iv, Channels flatambient, RRReal subarea, void* context);
+	unsigned enumSubtriangles(IVertex **iv, Channels flatambient, RRReal subarea, EnumSubtrianglesCallback* callback, void* context);
 
 	SubTriangle *brotherSub();
 	bool    isRight();

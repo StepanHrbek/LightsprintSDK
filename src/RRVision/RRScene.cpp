@@ -383,13 +383,19 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	switch(measure)
 	{
 		case RM_INCIDENT_FLUX:
-			goto error; // not supported yet
+			assert(0); // should be ok, but never tested
+			out = irrad * tri->area;
+			STATISTIC_INC(numCallsTriangleMeasureOk);
+			return true;
 		case RM_IRRADIANCE:
 			out = irrad;
 			STATISTIC_INC(numCallsTriangleMeasureOk);
 			return true;
 		case RM_EXITING_FLUX:
-			goto error; // not supported yet
+			assert(0); // should be ok, but never tested
+			out = irrad * tri->surface->diffuseReflectance * tri->area;
+			STATISTIC_INC(numCallsTriangleMeasureOk);
+			return true;
 		case RM_EXITANCE:
 			out = irrad * tri->surface->diffuseReflectance;
 			STATISTIC_INC(numCallsTriangleMeasureOk);
@@ -403,7 +409,7 @@ zero:
 	return false;
 }
 
-unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, EnumSubtrianglesCallback* callback, void* context)
+unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, RRReal subarea, EnumSubtrianglesCallback* callback, void* context)
 {
 	if(sub[0])
 	{
@@ -420,19 +426,19 @@ unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, EnumS
 		iv1[1]=subvertex;
 		iv1[2]=iv[(rot+2)%3];
 		flatambient+=(energyDirect/*+getEnergyDynamic()*/-sub[0]->energyDirect-sub[1]->energyDirect)/area;
-		return SUBTRIANGLE(sub[rightleft?0:1])->enumSubtriangles(iv0,flatambient,callback,context)+
-			SUBTRIANGLE(sub[rightleft?1:0])->enumSubtriangles(iv1,flatambient,callback,context);
+		return SUBTRIANGLE(sub[rightleft?0:1])->enumSubtriangles(iv0,flatambient,subarea/2,callback,context)+
+			SUBTRIANGLE(sub[rightleft?1:0])->enumSubtriangles(iv1,flatambient,subarea/2,callback,context);
 	}
 	if(callback)
 	{
-		callback(this,iv,flatambient,context);
+		callback(this,iv,flatambient,subarea,context);
 	}
 	return 1;
 }
 
 unsigned Triangle::enumSubtriangles(EnumSubtrianglesCallback* callback, void* context)
 {
-	return SubTriangle::enumSubtriangles(topivertex,Channels(0),callback,context);
+	return SubTriangle::enumSubtriangles(topivertex,Channels(0),area,callback,context);
 }
 
 struct SubtriangleIlluminationContext
@@ -443,7 +449,7 @@ struct SubtriangleIlluminationContext
 	void*                                  clientContext;
 };
 
-void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatambient, void* context)
+void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatambient, RRReal subarea, void* context)
 {
 	SubtriangleIlluminationContext* context2 = (SubtriangleIlluminationContext*)context;
 	RRScene::SubtriangleIllumination si;
@@ -501,15 +507,17 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 		switch(context2->measure)
 		{
 			case RM_INCIDENT_FLUX:
-				assert(0);
-				STATISTIC_INC(numCallsTriangleMeasureFail);
+				assert(0); // should be ok, but not tested yet
+				si.measure[i] *= subarea;
+				STATISTIC_INC(numCallsTriangleMeasureOk);
 				break;
 			case RM_IRRADIANCE:
 				STATISTIC_INC(numCallsTriangleMeasureOk);
 				break;
 			case RM_EXITING_FLUX:
-				assert(0);
-				STATISTIC_INC(numCallsTriangleMeasureFail);
+				assert(0); // should be ok, but not tested yet
+				si.measure[i] *= s->grandpa->surface->diffuseReflectance * subarea;
+				STATISTIC_INC(numCallsTriangleMeasureOk);
 				break;
 			case RM_EXITANCE:
 				si.measure[i] *= s->grandpa->surface->diffuseReflectance;

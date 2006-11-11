@@ -587,12 +587,16 @@ struct CubeSide
 	// texel coordinates: 0..size-1
 	RRVec3 getTexelDir(unsigned size, unsigned x, unsigned y) const
 	{
-		return getTexelDir(RRVec2( RRReal(1+2*x-size)/size , RRReal(1+2*y-size)/size ));
+		return getTexelDir(RRVec2( RRReal(int(1+2*x-size))/size , RRReal(int(1+2*y-size))/size ));
 	}
+
+	// returns nearest texel index (in format side*size*size+j*size+i) to x,y inside side reached from this via edge
+	int getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigned y) const;
 };
 
 static const CubeSide cubeSide[6] =
 {
+	// describes cubemap sides in opengl
 	{{ 1, 0, 0}, {{2,RIGHT },{4,RIGHT },{5,LEFT  },{3,RIGHT }}},
 	{{-1, 0, 0}, {{2,LEFT  },{5,RIGHT },{4,LEFT  },{3,LEFT  }}},
 	{{ 0, 1, 0}, {{5,TOP   },{1,TOP   },{0,TOP   },{4,TOP   }}},
@@ -603,7 +607,55 @@ static const CubeSide cubeSide[6] =
 
 RRVec3 CubeSide::getTexelDir(RRVec2 uv) const
 {
-	return getDir()+cubeSide[neighbour[RIGHT].side].getDir()*uv[0]+cubeSide[neighbour[BOTTOM].side].getDir()*uv[1];
+	return getDir()+cubeSide[neighbour[RIGHT].side].getDir()*uv[1]+cubeSide[neighbour[BOTTOM].side].getDir()*uv[0];
+}
+
+int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigned y) const
+{
+	// input texel x,y is in this, close to edge
+	// looking for output neighbour texel i,j in neighbour[edge].side, close to neighbour[edge].edge
+	// 4 possible ways how i,j is derived from x,y:
+	//  x,y -> size-1-x,y (TOP-TOP, BOTTOM-BOTTOM, LEFT-RIGHT, RIGHT-LEFT)
+	//  x,y -> x,size-1-y (LEFT-LEFT, RIGHT-RIGHT, TOP-BOTTOM, BOTTOM-TOP)
+	//  x,y -> y,x (TOP-LEFT, BOTTOM-RIGHT, RIGHT-BOTTOM, LEFT-TOP)
+	//  x,y -> size-1-y,size-1-x (TOP-RIGHT, BOTTOM-LEFT, RIGHT-TOP, LEFT-BOTTOM)
+	unsigned i,j;
+	#define TWO_EDGES(edge1,edge2) ((edge1)*4+(edge2))
+	switch(TWO_EDGES(edge,neighbour[edge].edge))
+	{
+		case TWO_EDGES(TOP,TOP):
+		case TWO_EDGES(BOTTOM,BOTTOM):
+		case TWO_EDGES(LEFT,RIGHT):
+		case TWO_EDGES(RIGHT,LEFT):
+			i = size-1-x;
+			j = y;
+			break;
+		case TWO_EDGES(TOP,BOTTOM):
+		case TWO_EDGES(BOTTOM,TOP):
+		case TWO_EDGES(LEFT,LEFT):
+		case TWO_EDGES(RIGHT,RIGHT):
+			i = x;
+			j = size-1-y;
+			break;
+		case TWO_EDGES(TOP,LEFT):
+		case TWO_EDGES(BOTTOM,RIGHT):
+		case TWO_EDGES(LEFT,TOP):
+		case TWO_EDGES(RIGHT,BOTTOM):
+			i = y;
+			j = x;
+			break;
+		case TWO_EDGES(TOP,RIGHT):
+		case TWO_EDGES(BOTTOM,LEFT):
+		case TWO_EDGES(LEFT,BOTTOM):
+		case TWO_EDGES(RIGHT,TOP):
+			i = size-1-y;
+			j = size-1-x;
+			break;
+		default:
+			assert(0);
+	}
+	#undef TWO_EDGES
+	return neighbour[edge].side*size*size+j*size+i;
 }
 
 // inputs:
@@ -615,11 +667,13 @@ RRVec3 CubeSide::getTexelDir(RRVec2 uv) const
 //   oIrradiance - new array with filtered cube, to be deleted by caller
 //  else
 //   not modified
+// thread safe: yes
 static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& oSize, RRColorRGBA8*& oIrradiance)
 {
 	unsigned iPixels = iSize*iSize*6;
-	if(iSize==1)
+	if(iSize==1) // 1 -> 2, prumeruje rohy
 	{
+		// pri zmene cubeSide[6] nutno zmenit i tuto tabulku
 		static const signed char filteringTable[] = {
 			// side0
 			1,0,1,0,1,0,
@@ -661,6 +715,7 @@ static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& o
 			unsigned points = 0;
 			for(unsigned j=0;j<iPixels;j++)
 			{
+				//!!! scitat v HDR
 				sum += iIrradiance[j].toRRColorRGBF() * filteringTable[iPixels*i+j];
 				points += filteringTable[iPixels*i+j];
 			}
@@ -668,19 +723,79 @@ static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& o
 			oIrradiance[i] = sum / (points?points:1);
 		}
 	}
+	if(iSize==2) // 2 -> 2, prumeruje rohy
+	{
+		static signed char filteringTable[24][3];
+		static bool inited = false;
+		if(!inited)
+		{
+			for(unsigned side=0;side<6;side++)
+			{
+				for(unsigned i=0;i<2;i++)
+					for(unsigned j=0;j<2;j++)
+					{
+						filteringTable[4*side+2*j+i][0] = 4*side+2*j+i;
+						filteringTable[4*side+2*j+i][1] = cubeSide[side].getNeighbourTexelIndex(2,i?RIGHT:LEFT,i,j);
+						filteringTable[4*side+2*j+i][2] = cubeSide[side].getNeighbourTexelIndex(2,j?BOTTOM:TOP,i,j);
+					}
+			}
+			inited=true;
+		}
+		oSize = 2;
+		unsigned oPixels = 6*oSize*oSize;
+		oIrradiance = new RRColorRGBA8[oPixels];
+		for(unsigned i=0;i<oPixels;i++)
+		{
+			//!!! scitat v HDR
+			// pokud tady prumeruju vic pixelu,
+			//  neprumerovat ve screenspacu
+			// asi vedle RM_IRRADIANCE(_SCALED) pridat RM_IRRADIANCE_HDR,
+			//  tady nacitat RM_IRRADIANCE_HDR a po zprumerovani si rucne pozadat o scale
+			oIrradiance[i] = (iIrradiance[filteringTable[i][0]].toRRColorRGBF()+iIrradiance[filteringTable[i][1]].toRRColorRGBF()+iIrradiance[filteringTable[i][2]].toRRColorRGBF()) * 0.333333f;
+		}
+	}
+	if(iSize>2) // n -> n, prumeruje 1-pix hrany a rohy
+	{
+		// process only x+/x- corners&edges and y+/y- edges
+		for(unsigned side=0;side<4;side++)
+		{
+			// process all 4 edges			
+			for(unsigned edge=0;edge<4;edge++)
+			{
+				for(unsigned a=(side<2)?0:1;a<iSize-1;a++)
+				{
+					unsigned i,j,edge2; // edge2: hrana stykajici se s edge v rohu, proti smeru hod.rucicek
+					switch(edge)
+					{
+						case TOP: i=a;j=0;edge2=LEFT;break;
+						case RIGHT: i=iSize-1;j=a;edge2=TOP;break;
+						case BOTTOM: i=iSize-1-a;j=iSize-1;edge2=RIGHT;break;
+						case LEFT: i=0;j=iSize-1-a;edge2=BOTTOM;break;
+						default: assert(0);
+					}
+					unsigned idx1 = side*iSize*iSize+j*iSize+i;
+					unsigned idx2 = cubeSide[side].getNeighbourTexelIndex(iSize,(Edge)edge,i,j);
+					if(a==0)
+					{
+						// process corner (a+b+c)/3
+						unsigned idx3 = cubeSide[side].getNeighbourTexelIndex(iSize,(Edge)edge2,i,j);
+						iIrradiance[idx1] = iIrradiance[idx2] = iIrradiance[idx3] = (iIrradiance[idx1].toRRColorRGBF()+iIrradiance[idx2].toRRColorRGBF()+iIrradiance[idx3].toRRColorRGBF())*0.333333f;
+					}
+					else
+					{
+						// process edge: (a+b)/2
+						iIrradiance[idx1] = iIrradiance[idx2] = (iIrradiance[idx1].toRRColorRGBF()+iIrradiance[idx2].toRRColorRGBF())*0.5f;
+					}
+				}
+			}
+			
+		}
+	}
 }
 
 // thread safe: yes
 void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, unsigned size, RRColorRGBA8* irradiance)
 {
-/*
-	irradiance[0].color = (rand()&1)?0xff0000:0x770000;
-	irradiance[1].color = (rand()&1)?0x00ff00:0x007700;
-	irradiance[2].color = 0x0000ff;
-	irradiance[3].color = 0xffffff;
-	irradiance[4].color = 0x00ffff;
-	irradiance[5].color = 0xff00ff;
-*/
 	RRRay* ray = RRRay::create();
 	for(unsigned side=0;side<6;side++)
 	{
@@ -708,6 +823,9 @@ void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, 
 				// read irradiance on face
 				{
 					scene->getTriangleMeasure(0,face,3,RM_IRRADIANCE,irrad);
+					// na pokusy: misto irradiance bere barvu materialu
+					//const RRSurface* surface = object->getSurface(object->getTriangleSurface(face));
+					//if(surface) irrad = surface->diffuseReflectance;
 				}
 				// write result
 				*irradiance++ = irrad;
@@ -716,25 +834,29 @@ void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, 
 	delete ray;
 }
 
-void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, RRVec3 objectCenterWorld)
+// thread safe: yes
+void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, unsigned maxSize, RRVec3 objectCenterWorld)
 {
 	if(!environmentMap) return;
 
 	// gather irradiances
-	const unsigned iSize = 1;
-	RRColorRGBA8 iIrradiance[6*iSize*iSize];
+	const unsigned iSize = maxSize?maxSize:1;
+	RRColorRGBA8* iIrradiance = new RRColorRGBA8[6*iSize*iSize];
 	cubeMapGather(scene,multiObject,objectCenterWorld,iSize,iIrradiance);
 
 	// filter cubemap
 	unsigned oSize = 0;
 	RRColorRGBA8* oIrradiance = NULL;
-	cubeMapFilter(1,iIrradiance,oSize,oIrradiance);
+	cubeMapFilter(iSize,iIrradiance,oSize,oIrradiance);
 
 	// pass cubemap to client
+	unsigned old = scene->setState(RRScene::GET_SOURCE,1);//!!! neni thread safe, pridat do vsech dotazu parametr [src|refl|src+refl]
 	environmentMap->setValues(oSize?oSize:iSize,oIrradiance?oIrradiance:iIrradiance);
+	scene->setState(RRScene::GET_SOURCE,old);
 
 	// cleanup
 	delete oIrradiance;
+	delete iIrradiance;
 }
 
 } // namespace
