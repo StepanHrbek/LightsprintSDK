@@ -137,18 +137,6 @@ void RRRealtimeRadiosity::reportIlluminationUse()
 }
 
 
-void RRRealtimeRadiosity::reportCriticalInteraction()
-{
-	REPORT(reportAction("<CriticalInteraction>"));
-	lastCriticalInteractionTime = GETTIME;
-}
-
-void RRRealtimeRadiosity::reportEndOfInteractions()
-{
-	REPORT(reportAction("<EndOfInteractions>"));
-	lastCriticalInteractionTime = 0;
-}
-
 static bool endByTime(void *context)
 {
 	return GETTIME>*(TIME*)context;

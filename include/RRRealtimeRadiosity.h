@@ -140,17 +140,6 @@ namespace rr
 		//! Call at each render where you use calculated radiosity.
 		//! Without such report, illumination is updated less often, which saves time for calculations.
 		void reportIlluminationUse();
-		//! Reports that user interacts and needs maximal responsiveness.
-		//
-		//! This can be used for example when user walks through scene where nothing changes.
-		//! Calculate() stops all actions for short period of time and gives 100% of CPU time to you.
-		void reportCriticalInteraction();
-		//! Reports that critical interactions end.
-		//
-		//! This can be used for example at the end of user's walk through or manipulation with scene.
-		//! If you regularly call calculate(), it immediately restarts its activities
-		//! and spends more CPU time.
-		void reportEndOfInteractions();
 
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is not created before you insert objects and call calculate().

@@ -318,7 +318,6 @@ void display(void)
 
 void special(int c, int x, int y)
 {
-	if(modeMovingEye) solver->reportCriticalInteraction();
 	Camera* cam = modeMovingEye?&eye:&light;
 	switch (c) 
 	{

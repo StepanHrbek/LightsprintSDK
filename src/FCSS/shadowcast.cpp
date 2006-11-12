@@ -12,7 +12,6 @@ int fullscreen = 0;
 bool renderer3ds = 1;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
-unsigned cores = 2;
 bool renderLightmaps = 0;
 /*
 crashne po esc v s_veza/gcc
@@ -1103,7 +1102,6 @@ void display()
 		showImage(loadingMap);
 		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
 		level = new Level(levelSequence.getNextLevel());
-		level->solver->reportEndOfInteractions();
 #ifdef BUGS
 		for(unsigned i=0;i<6;i++)
 			level->solver->calculate();
@@ -1186,13 +1184,11 @@ void changeSpotlight()
 	needDepthMapUpdate = 1;
 	if(!level) return;
 	level->solver->reportLightChange(true);
-	level->solver->reportEndOfInteractions(); // force update even in movingEye mode
 }
 
 void reportEyeMovement()
 {
 	if(!level) return;
-	if(cores==1) level->solver->reportCriticalInteraction();
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
 	movingEye = 4;
@@ -1201,7 +1197,6 @@ void reportEyeMovement()
 void reportEyeMovementEnd()
 {
 	if(!level) return;
-	if(cores==1) level->solver->reportEndOfInteractions();
 	movingEye = 0;
 }
 
@@ -1217,10 +1212,6 @@ void reportLightMovement()
 		//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
 		level->solver->reportLightChange(level->solver->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
 	}
-	else
-	{
-		if(cores==1) level->solver->reportCriticalInteraction();
-	}
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
@@ -1230,7 +1221,6 @@ void reportLightMovement()
 void reportLightMovementEnd()
 {
 	if(!level) return;
-	if(cores==1) level->solver->reportEndOfInteractions();
 	if(!updateDuringLightMovement)
 	{
 		level->solver->reportLightChange(true);
