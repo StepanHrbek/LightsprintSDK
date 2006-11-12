@@ -7,19 +7,21 @@ namespace rr
 \mainpage Lightsprint SDK
  Welcome to Lightsprint SDK.
 
+ <b>
  \subpage rr_dir_indir
 
  \subpage scenarios
 
  \subpage rr_integration "Integration (with editor, game)"
 
- \subpage vision_storage "Data formats (vertex arrays, ambient maps)"
+ \subpage vision_storage "Data formats (vertex arrays, ambient maps, environment maps)"
 
  \subpage rules "Conventions (units, scale, floats...)"
 
  \subpage platforms
 
  \subpage api "API reference"
+ </b>
 
  \image html all-rr.png
 
@@ -104,7 +106,7 @@ namespace rr
   - Supports arbitrary materials / shaders, even those writen by modders
     after game release.
 
-  - Publicity, be first with realtime global illumination in game.
+  - Publicity, be first with realtime global illumination in your game type.
 
   - See <a href="http://dee.cz/rrb/RRBugs.rar">Realtime Radiosity Bugs</a>
     as an example. It's not a real game, but it shows innovative use 
@@ -130,7 +132,7 @@ namespace rr
  -# \subpage integration_step_5
  -# \subpage integration_step_6
  -# Stop rendering constant ambient
- -# Start rendering ambient from vertex stream or ambient map provided by RRRealtimeRadiosity::getIllumination()->getChannel(0)
+ -# \subpage integration_step_7
 
  Concept behind realtime radiosity integration is also described in
  <a href="http://dee.cz/rri">Realtime Radiosity Integration article</a>.
@@ -368,6 +370,87 @@ namespace rr
 
 
 
+\page integration_step_7 Start rendering our illumination
+
+ Process our illumination data so that they appear as a new light source 
+ in your lighting equations, contributing to total lighting
+ together with your realtime spotlights, directional lights etc.
+
+ \section render_static Static objects  
+
+  Read ambient illumination values from vertex buffer or ambient map.
+  There is no need to change your lightning equation,
+  simply use our ambient data instead of constant ambient.
+  Ambient values don't depend on view angle, so rendering them is very fast.
+
+  Using ambient illumination stored in <b>vertex buffer</b>:
+  \n - DATA_SOURCE: RRRealtimeRadiosity::getIllumination()->getChannel(0)->vertexBuffer
+  \n - DATA_USAGE: declare buffer as your second vertex stream and read ambient values from it
+       in each vertex
+  \n - DATA_STORAGE:
+  Platform independent vertex buffer is provided by 
+  RRIlluminationVertexBuffer::createInSystemMemory().
+  However, you are free to implement your own vertex buffer, see RRIlluminationVertexBuffer interface.
+
+  Using ambient illumination stored in <b>ambient map</b>:
+  \n - DATA_SOURCE: RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer
+  \n - DATA_USAGE: map our ambient texture to your object using your unwrap
+       (you already had to provide unwrap to ambient map generator)
+       and read ambient value from it in each pixel
+  \n - DATA_STORAGE:
+  OpenGL pixel buffer is implemented in RRIlluminationPixelBufferInOpenGL in DemoEngine,
+  and you are free to use it.
+  With commercial licence, source code is available in src/DemoEngine/RRIlluminationPixelBufferInOpenGL.cpp.
+  For Direct3D you are expected to implement
+  your own pixel buffer, see RRIlluminationPixelBuffer interface.
+  We will provide Direct3D implementation in future version.
+
+ \section render_dynamic Dynamic objects
+
+  Many rendering techniques are based on faked precomputed environment maps.
+  Here you get realtime computed <b>environment maps</b>, and you are free to use them
+  for any purpose.
+
+  -# At init time, create one RRIlluminationEnvironmentMap
+     for each dynamic object. Use RRIlluminationEnvironmentMapInOpenGL or implement your own.
+  -# If object is visible by your camera, call RRRealtimeRadiosity::updateEnvironmentMap()
+     before rendering.
+  -# Do image based lighting in shader.
+  
+  DATA_SOURCE: your objects updated by RRRealtimeRadiosity::updateEnvironmentMap().
+
+  DATA_USAGE: We propose you image based lighting in pixel shader:
+  \n For rough surface with mostly <b>diffuse</b> reflection,
+  read value from environment map, small LOD (of size 2 or 4), coordinate 'surface normal'.
+  This single instruction gives you 'diffuse' illumination of pixel.
+  Multiply it by material color to get final color.
+  \n For smooth surface with <b>specular</b> reflection,
+  read value from environment map, big LOD (of size 8 or 16), coordinate 
+  'eye direction reflected by surface'.
+  These few instructions give you 'specular' illumination of pixel.
+  Don't modulate it by material color, you already have final color.
+  \n You can use <b>roughness map</b> to select per pixel which one
+  of two techniques use or how to mix both together.
+
+  Global illumination can be further improved if you use <b>ambient occlusion map</b>
+  for your dynamic object. Multiply global illumination readen from environment map
+  by ambient occlusion readen from ambient occlusion map to get more precise result.
+  Ambient occlusion maps are not generated by Lightsprint, but they are well integrated
+  into many content creation tools, so there is good chance you can add them to
+  your dynamic objects.
+
+  DATA_STORAGE: OpenGL environment map is implemented in RRIlluminationEnvironmentMapInOpenGL
+  in DemoEngine, and you are free to use it.
+  For Direct3D you are expected to implement
+  your own environment map, see RRIlluminationEnvironmentMap interface.
+  OpenGL implementation is available in src/DemoEngine/RRIlluminationEnvironmentMapInOpenGL.cpp.
+  \n Note that environment maps may be implemented in many different ways.
+  The most efficient one is a cube map, however you are free to implement your
+  own format.
+
+
+
+
 \page vision_storage Data formats
  Illumination levels are calculated for all surfaces in your scene.
  Multiple ways how to access these levels and how to store them exist.
@@ -398,8 +481,7 @@ namespace rr
      This is often problem also for physical engine,
      so your 3d artisis probably know they should avoid them.
 
-   Vertex arrays are stored by RRIlluminationVertexBuffer
-   interface.
+   Vertex arrays are stored by RRIlluminationVertexBuffer interface.
    Implementation is provided 
    (RRIlluminationVertexBuffer::createInSystemMemory)
    and it is used by default (by RRRealtimeRadiosity::newVertexBuffer).
@@ -418,7 +500,7 @@ namespace rr
 
    At the moment, adaptive subdivision is turned off by default, 
    and ambient maps contain no additional details compared to vertex arrays.
-   This will be fixed soon. API won't change, you'll just get more 
+   This will be fixed. API won't change, you'll just get more 
    detailed ambient maps.
 
    Ambient maps are stored by RRIlluminationPixelBuffer
@@ -440,6 +522,16 @@ namespace rr
    place for hiding.
    Reading illumination level on face is slightly faster than reading
    it in vertex.
+
+ \section envmaps Environment maps
+   You can request environment map to be generated for any point in space
+   (RRRealtimeRadiosity::updateEnvironmentMap).
+   Environment (cube) map may be later used by GPU to add high quality
+   image based global illumination to diffuse and specular surfaces close to
+   given point in space.
+
+   Environment maps are suitable for dynamic objects.
+   This is described in greater detail in \ref integration_step_7.
    
 
 
@@ -600,6 +692,7 @@ namespace rr
 
  - illumination storage in ambient map: RRIlluminationPixelBuffer
  - illumination storage in vertex buffer: RRIlluminationVertexBuffer
+ - illumination storage in environment map: RRIlluminationEnvironmentMap
  - storage of multiple illumination channels: RRObjectIllumination
  - allows for custom implementation -> smoothly integrates with other engines
 

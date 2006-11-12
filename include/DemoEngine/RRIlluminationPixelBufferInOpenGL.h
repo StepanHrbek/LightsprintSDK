@@ -16,7 +16,9 @@ namespace rr
 	//! Illumination storage in pixel buffer in OpenGL texture.
 	//
 	//! Uses OpenGL rasterizer.
-	//! Depends on OpenGL, can't be used on Xbox and Xbox 360.
+	//!
+	//! Requires files: lightmap_filter.vp, lightmap_filter.fp.
+	//! Pass pathToShaders with ending slash to constructor OR "" for default path.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

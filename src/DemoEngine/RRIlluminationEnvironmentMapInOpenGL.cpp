@@ -1,4 +1,9 @@
-#include <cstdio>
+// --------------------------------------------------------------------------
+// DemoEngine
+// Implementation of RRIlluminationEnvironmentMapInOpenGL
+// Copyright (C) Stepan Hrbek, Lightsprint, 2006
+// --------------------------------------------------------------------------
+
 #include "DemoEngine/RRIlluminationEnvironmentMapInOpenGL.h"
 #include "DemoEngine/Program.h"
 
@@ -11,6 +16,7 @@ namespace rr
 
 RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(unsigned asize)
 {
+	// creates cube map
 	texture = Texture::create(NULL,asize,asize,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 }
 

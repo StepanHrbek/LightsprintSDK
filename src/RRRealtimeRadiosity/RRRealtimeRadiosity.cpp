@@ -124,12 +124,6 @@ void RRRealtimeRadiosity::reportMaterialChange()
 	dirtyMaterials = true;
 }
 
-void RRRealtimeRadiosity::reportGeometryChange()
-{
-	REPORT(reportAction("<GeometryChange>"));
-	dirtyGeometry = true;
-}
-
 void RRRealtimeRadiosity::reportLightChange(bool strong)
 {
 	REPORT(reportAction(strong?"<LightChangeStrong>":"<LightChange>"));
@@ -141,6 +135,7 @@ void RRRealtimeRadiosity::reportIlluminationUse()
 	REPORT(reportAction("<IlluminationUse>"));
 	lastIlluminationUseTime = GETTIME;
 }
+
 
 void RRRealtimeRadiosity::reportCriticalInteraction()
 {

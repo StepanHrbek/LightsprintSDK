@@ -16,7 +16,8 @@ namespace rr
 	//! Illumination storage in environment map in OpenGL texture.
 	//
 	//! Uses OpenGL.
-	//! Depends on OpenGL, can't be used on Xbox and Xbox 360.
+	//! Very simple to reimplement for example for Direct3D,
+	//! you can look at .cpp in source directory.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

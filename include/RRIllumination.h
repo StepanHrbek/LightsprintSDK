@@ -217,7 +217,7 @@ namespace rr
 		virtual void renderTriangle(const IlluminatedTriangle& it) = 0;
 		//! Renders many triangles into map. Must be called inside renderBegin() / renderEnd().
 		virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
-		//! Finishes rendering of triangles into ambient map. Must be paired with renderBegin().
+		//! Finishes rendering of triangles into ambient map (could filter map). Must be paired with renderBegin().
 		virtual void renderEnd() {};
 
 		// Pixel buffer use
@@ -233,6 +233,41 @@ namespace rr
 	};
 
 
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Interface to illumination storage based on environment map.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RR_API RRIlluminationEnvironmentMap
+	{
+	public:
+		//////////////////////////////////////////////////////////////////////////////
+		// Interface
+		//////////////////////////////////////////////////////////////////////////////
+
+		// Environment map creation
+
+		//! Sets illumination values in map.
+		//! \param size
+		//!  Width and height of one side of cube map.
+		//! \param irradiance
+		//!  Array of 6*size*size irradiance values in this order:
+		//!  \n size*size values for POSITIVE_X side,
+		//!  \n size*size values for NEGATIVE_X side,
+		//!  \n size*size values for POSITIVE_Y side,
+		//!  \n size*size values for NEGATIVE_Y side,
+		//!  \n size*size values for POSITIVE_Z side,
+		//!  \n size*size values for NEGATIVE_Z side.
+		virtual void setValues(unsigned size, RRColorRGBA8* irradiance) = 0;
+
+		// Environment map use
+
+		//! Binds texture for rendering. Various implementations may do OpenGL bind, DirectX bind or nothing.
+		virtual void bindTexture() {};
+
+		virtual ~RRIlluminationEnvironmentMap() {};
+	};
 
 
 	//////////////////////////////////////////////////////////////////////////////

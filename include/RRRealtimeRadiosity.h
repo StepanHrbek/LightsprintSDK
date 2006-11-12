@@ -43,7 +43,7 @@ namespace rr
 	//! Radiosity solver for interactive applications.
 	//
 	//! Usage: Create one instance at the beginning of interactive session
-	//! and load it with scene objects.
+	//! and load it with all static objects in scene.
 	//! Call calculate() at each frame, it will spend some time
 	//! by improving illumination.
 	//! When scene changes, report it using report* methods.
@@ -107,16 +107,28 @@ namespace rr
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
 		RRScene::Improvement calculate(unsigned requests=0);
+		//! Calculates and updates environment map for dynamic object at given position.
+		//
+		//! Generates multiple LODs, with max size selected by you, smallest size always 2.
+		//! \n You can use multiple LODs for roughness mapping - select LOD for each pixel according to roughness map.
+		//! \n Using smaller LOD creates effect of rough surface with diffuse reflection,
+		//! using greater LOD creates effect of smooth surface with specular reflection.
+		//! \param environmentMap
+		//!  Your custom environment map. To be filled with calculated data.
+		//! \param maxSize
+		//!  Size of maximal LOD of cubemap to be calculated; containing 6*size*size pixels.
+		//!  If your custom environmentMap requires size to be power of two, make sure you enter correct size here.
+		//!  Use smaller size for faster update.
+		//!  Size 4 is optimal for diffuse reflection.
+		//!  Size 16 is optimal for both diffuse and specular reflections.
+		//! \param objectCenter
+		//!  Center of your dynamic object in world space coordinates.
+		void updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, unsigned maxSize, RRVec3 objectCenter);
 
 		//! Reports that appearance of one or more materials has changed.
 		//!
 		//! Call this when you change material properties in your material editor.
 		void reportMaterialChange();
-		//! Reports that position/rotation/shape of one or more objects has changed.
-		//
-		//! Call this when some object in scene moves or changes shape.
-		//! Not used in any demo yet, not fully tested. This will be fixed in next version.
-		void reportGeometryChange();
 		//! Reports that position/rotation/shape of one or more lights has changed.
 		//
 		//! Call this when any light in scene changes any property, so that direct illumination changes.
