@@ -319,6 +319,12 @@ protected:
 		}
 #endif*/
 	}
+	// switch inputs and outputs from HDR physical scale to RGB screenspace
+	virtual void onSceneInit()
+	{
+		delete scene->getScaler();
+		scene->setScaler(rr::RRScaler::createRgbScaler(0.4f));
+	}
 	virtual bool detectDirectIllumination()
 	{
 		// renderer not ready yet, fail

@@ -155,6 +155,12 @@ protected:
 		return new rr::RRIlluminationPixelBufferInOpenGL(512,512,"..\\..\\data\\");
 	}
 #endif
+	// switch inputs and outputs from HDR physical scale to RGB screenspace
+	virtual void onSceneInit()
+	{
+		delete scene->getScaler();
+		scene->setScaler(rr::RRScaler::createRgbScaler(0.4f));
+	}
 	// skipped, material properties were already readen from .3ds and never change
 	virtual void detectMaterials() {}
 	// detects direct illumination level on all faces in scene
@@ -238,7 +244,6 @@ protected:
 						sum[2] += color&255;
 					}
 				// pass irradiance to rrobject
-				// (default implementation of adjustScene() has globally switched unit from W/m^2 to screen rgb)
 				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
 				getMultiObject()->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE,avg);
 			}

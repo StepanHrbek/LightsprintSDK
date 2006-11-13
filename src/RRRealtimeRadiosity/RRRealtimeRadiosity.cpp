@@ -108,13 +108,7 @@ RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
 }
 
 
-void RRRealtimeRadiosity::adjustScene()
-{
-	delete scene->getScaler();
-	scene->setScaler(RRScaler::createRgbScaler(0.4f));
-}
-
-void RRRealtimeRadiosity::reportAction(const char* action) const
+void RRRealtimeRadiosity::onSceneInit()
 {
 }
 
@@ -364,7 +358,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
 			scene->objectCreate((*i).first);
 #endif
-		adjustScene();
+		onSceneInit();
 		updateVertexLookupTable();
 		REPORT_END;
 	}

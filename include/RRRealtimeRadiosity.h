@@ -160,11 +160,10 @@ namespace rr
 		//! \return You may fail by returning false, you will get another chance next time.
 		virtual bool detectDirectIllumination() = 0;
 
-		//! Adjusts RRScene parameters each time new scene is created. May be reimplemented by you.
-		virtual void adjustScene();
-		//! Called automatically for each interesting event, you may reimplement it and watch what happens inside.
-		//! Debugging aid.
-		virtual void reportAction(const char* action) const;
+		//! Called each time new RRScene is created (could be more than once per life).
+		//! Default implementation is empty.
+		//! You can reimplement it for example to change scene scaler.
+		virtual void onSceneInit();
 
 		//! Returns new vertex buffer (for indirect illumination) in your custom format.
 		//
