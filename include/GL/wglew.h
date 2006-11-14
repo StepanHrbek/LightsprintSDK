@@ -1,7 +1,7 @@
 /*
 ** The OpenGL Extension Wrangler Library
-** Copyright (C) 2002-2005, Milan Ikits <milan ikits[]ieee org>
-** Copyright (C) 2002-2005, Marcelo E. Magallon <mmagallo[]debian org>
+** Copyright (C) 2002-2006, Milan Ikits <milan ikits[]ieee org>
+** Copyright (C) 2002-2006, Marcelo E. Magallon <mmagallo[]debian org>
 ** Copyright (C) 2002, Lev Povalahev
 ** All rights reserved.
 ** 
@@ -40,7 +40,9 @@
 #define __wglext_h_
 
 #if !defined(APIENTRY) && !defined(__CYGWIN__)
-#define WIN32_LEAN_AND_MEAN 1
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN 1
+#  endif
 #include <windows.h>
 #endif
 
@@ -73,6 +75,24 @@ extern "C" {
 #define WGLEW_3DFX_multisample WGLEW_GET_VAR(__WGLEW_3DFX_multisample)
 
 #endif /* WGL_3DFX_multisample */
+
+/* ------------------------- WGL_3DL_stereo_control ------------------------ */
+
+#ifndef WGL_3DL_stereo_control
+#define WGL_3DL_stereo_control 1
+
+#define WGL_STEREO_EMITTER_ENABLE_3DL 0x2055
+#define WGL_STEREO_EMITTER_DISABLE_3DL 0x2056
+#define WGL_STEREO_POLARITY_NORMAL_3DL 0x2057
+#define WGL_STEREO_POLARITY_INVERT_3DL 0x2058
+
+typedef BOOL (WINAPI * PFNWGLSETSTEREOEMITTERSTATE3DLPROC) (HDC hDC, UINT uState);
+
+#define wglSetStereoEmitterState3DL WGLEW_GET_FUN(__wglewSetStereoEmitterState3DL)
+
+#define WGLEW_3DL_stereo_control WGLEW_GET_VAR(__WGLEW_3DL_stereo_control)
+
+#endif /* WGL_3DL_stereo_control */
 
 /* ------------------------- WGL_ARB_buffer_region ------------------------- */
 
@@ -366,6 +386,17 @@ typedef const char* (WINAPI * PFNWGLGETEXTENSIONSSTRINGEXTPROC) (void);
 
 #endif /* WGL_EXT_extensions_string */
 
+/* ------------------------ WGL_EXT_framebuffer_sRGB ----------------------- */
+
+#ifndef WGL_EXT_framebuffer_sRGB
+#define WGL_EXT_framebuffer_sRGB 1
+
+#define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x20A9
+
+#define WGLEW_EXT_framebuffer_sRGB WGLEW_GET_VAR(__WGLEW_EXT_framebuffer_sRGB)
+
+#endif /* WGL_EXT_framebuffer_sRGB */
+
 /* ----------------------- WGL_EXT_make_current_read ----------------------- */
 
 #ifndef WGL_EXT_make_current_read
@@ -488,6 +519,17 @@ typedef BOOL (WINAPI * PFNWGLGETPIXELFORMATATTRIBIVEXTPROC) (HDC hdc, int iPixel
 #define WGLEW_EXT_pixel_format WGLEW_GET_VAR(__WGLEW_EXT_pixel_format)
 
 #endif /* WGL_EXT_pixel_format */
+
+/* ------------------- WGL_EXT_pixel_format_packed_float ------------------- */
+
+#ifndef WGL_EXT_pixel_format_packed_float
+#define WGL_EXT_pixel_format_packed_float 1
+
+#define WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT 0x20A8
+
+#define WGLEW_EXT_pixel_format_packed_float WGLEW_GET_VAR(__WGLEW_EXT_pixel_format_packed_float)
+
+#endif /* WGL_EXT_pixel_format_packed_float */
 
 /* -------------------------- WGL_EXT_swap_control ------------------------- */
 
@@ -750,6 +792,8 @@ struct WGLEWContextStruct
 {
 #endif /* GLEW_MX */
 
+WGLEW_EXPORT PFNWGLSETSTEREOEMITTERSTATE3DLPROC __wglewSetStereoEmitterState3DL;
+
 WGLEW_EXPORT PFNWGLCREATEBUFFERREGIONARBPROC __wglewCreateBufferRegionARB;
 WGLEW_EXPORT PFNWGLDELETEBUFFERREGIONARBPROC __wglewDeleteBufferRegionARB;
 WGLEW_EXPORT PFNWGLRESTOREBUFFERREGIONARBPROC __wglewRestoreBufferRegionARB;
@@ -843,6 +887,7 @@ WGLEW_EXPORT PFNWGLSWAPLAYERBUFFERSMSCOMLPROC __wglewSwapLayerBuffersMscOML;
 WGLEW_EXPORT PFNWGLWAITFORMSCOMLPROC __wglewWaitForMscOML;
 WGLEW_EXPORT PFNWGLWAITFORSBCOMLPROC __wglewWaitForSbcOML;
 WGLEW_EXPORT GLboolean __WGLEW_3DFX_multisample;
+WGLEW_EXPORT GLboolean __WGLEW_3DL_stereo_control;
 WGLEW_EXPORT GLboolean __WGLEW_ARB_buffer_region;
 WGLEW_EXPORT GLboolean __WGLEW_ARB_extensions_string;
 WGLEW_EXPORT GLboolean __WGLEW_ARB_make_current_read;
@@ -856,10 +901,12 @@ WGLEW_EXPORT GLboolean __WGLEW_ATI_render_texture_rectangle;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_depth_float;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_display_color_table;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_extensions_string;
+WGLEW_EXPORT GLboolean __WGLEW_EXT_framebuffer_sRGB;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_make_current_read;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_multisample;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_pbuffer;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_pixel_format;
+WGLEW_EXPORT GLboolean __WGLEW_EXT_pixel_format_packed_float;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_swap_control;
 WGLEW_EXPORT GLboolean __WGLEW_I3D_digital_video_control;
 WGLEW_EXPORT GLboolean __WGLEW_I3D_gamma;
