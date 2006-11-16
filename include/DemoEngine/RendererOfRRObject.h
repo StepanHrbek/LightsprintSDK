@@ -7,10 +7,9 @@
 #ifndef RENDEREROFRROBJECT_H
 #define RENDEREROFRROBJECT_H
 
-#include "DemoEngine.h"
 #include <cstring> // memset
-#include "Renderer.h"
 #include "RRVision.h"
+#include "Renderer.h"
 #include "VertexDataGenerator.h"
 
 
@@ -18,7 +17,7 @@
 //
 // RendererOfRRObject - basic OpenGL renderer implementation
 
-class RR_API RendererOfRRObject : public Renderer
+class DE_API RendererOfRRObject : public Renderer
 {
 public:
 	RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver);

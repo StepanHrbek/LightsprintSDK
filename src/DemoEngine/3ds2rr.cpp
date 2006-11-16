@@ -27,9 +27,8 @@
 // it is never accessed by radiosity solver, you can delete it from your implementation.
 
 
-#include <assert.h>
-#include <math.h>
-#include <memory.h>
+#include <cassert>
+#include <cmath>
 #include <vector>
 #include "RRIllumination.h"
 #include "DemoEngine/3ds2rr.h"
@@ -407,7 +406,7 @@ void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,flo
 // Why this function?
 // 1. it's most secure when object's new and delete are issued by the same dll
 // 2. only we know that illumination doesn't need to be deleted
-void RR_API deleteObjectsFromRR(rr::RRRealtimeRadiosity* app)
+void deleteObjectsFromRR(rr::RRRealtimeRadiosity* app)
 {
 	// delete objects and illumination
 	if(app)

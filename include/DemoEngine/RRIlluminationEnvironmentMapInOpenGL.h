@@ -4,9 +4,12 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2006
 // --------------------------------------------------------------------------
 
+#ifndef RRILLUMINATIONENVIRONMENTMAPINOPENGL_H
+#define RRILLUMINATIONENVIRONMENTMAPINOPENGL_H
+
+#include <GL/glew.h>
 #include "RRIllumination.h"
 #include "DemoEngine/Texture.h"
-#include <GL/glew.h>
 
 namespace rr
 {
@@ -21,7 +24,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRIlluminationEnvironmentMapInOpenGL : public RRIlluminationEnvironmentMap
+	class DE_API RRIlluminationEnvironmentMapInOpenGL : public RRIlluminationEnvironmentMap
 	{
 	public:
 		RRIlluminationEnvironmentMapInOpenGL(unsigned asize);
@@ -33,3 +36,5 @@ namespace rr
 	};
 
 } // namespace
+
+#endif

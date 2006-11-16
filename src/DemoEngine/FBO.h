@@ -7,8 +7,8 @@
 #ifndef FBO_H
 #define FBO_H
 
-#include "DemoEngine/DemoEngine.h"
 #include <GL/glew.h>
+#include "DemoEngine/DemoEngine.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

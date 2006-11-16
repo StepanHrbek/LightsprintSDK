@@ -1,7 +1,11 @@
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-//#include <jpeglib.h>
+// --------------------------------------------------------------------------
+// DemoEngine
+// Texture implementation that loads image from disk.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
+#include <cstdio>
+#include <cstring>
 #include <GL/glew.h>
 #include "TextureFromDisk.h"
 
@@ -23,8 +27,6 @@ TextureFromDisk::TextureFromDisk(char *filename, int mag, int min, int wrapS, in
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	type = (channels == 3) ? GL_RGB : GL_RGBA;
-	// Very strange : before the first type was channels. If don't work try
-	// changing it back.
 	gluBuild2DMipmaps(GL_TEXTURE_2D, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min);
@@ -32,16 +34,6 @@ TextureFromDisk::TextureFromDisk(char *filename, int mag, int min, int wrapS, in
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-}
-
-void TextureFromDisk::changeNameConvention(char *filename) const
-{
-	while(*filename)
-	{
-		if(*filename == '\\')
-			*filename = '/';
-		filename++;
-	}
 }
 
 unsigned char *TextureFromDisk::loadData(char *filename)
@@ -55,146 +47,14 @@ unsigned char *TextureFromDisk::loadData(char *filename)
 	unsigned char *data;
 	try
 	{
-		data = loadBmp(name);
-	}
+		data = loadTga(name);
+	}      
 	catch(xNotSuchFormat e)
 	{
-		try
-		{
-			data = loadTga(name);
-		}      
-		catch(xNotSuchFormat e)
-		{
-			/*  try
-			{
-			data = loadJpeg(filename);
-			}
-			catch(xNotSuchFormat e)*/
-			{
-				throw xNotASupportedFormat();
-			}
-			e=e;
-		}
+		throw xNotASupportedFormat();
 		e=e;
 	}
 	pixels = data;
-	return data;
-}
-
-/*unsigned char *Texture::loadJpeg(char *filename)
-{
-struct jpeg_decompress_struct cinfo;
-unsigned char *data;
-FILE *file = fopen(filename, "rb");
-
-checkFileOpened(file); 
-jpeg_error_mgr jerr;
-cinfo.err = jpeg_std_error(&jerr);
-jpeg_create_decompress(&cinfo);
-jpeg_stdio_src(&cinfo, file);
-
-data = decodeJpeg(&cinfo);
-
-jpeg_destroy_decompress(&cinfo);
-fclose(file);
-
-return data; 
-}
-
-unsigned char *Texture::decodeJpeg(struct jpeg_decompress_struct *cinfo)
-{
-unsigned char *data;
-if(!jpeg_read_header(cinfo, TRUE))
-throw xNotSuchFormat();
-
-jpeg_start_decompress(cinfo);
-
-channels = cinfo->num_components;
-width = cinfo->image_width;
-height = cinfo->image_height;
-
-int rowSpan = cinfo->image_width * cinfo->num_components;
-
-data = new unsigned char[rowSpan * height];
-unsigned char** rowPtr = new unsigned char*[height];
-
-for (int i = 0; i < height; i++)
-rowPtr[i] = &(data[i * rowSpan]);
-
-int rowsRead = 0;
-while (cinfo->output_scanline < cinfo->output_height) 
-{
-rowsRead += jpeg_read_scanlines(cinfo, 
-&rowPtr[rowsRead], cinfo->output_height - rowsRead);
-}
-delete [] rowPtr;
-jpeg_finish_decompress(cinfo);
-return data;
-}*/
-
-unsigned char *TextureFromDisk::loadBmp(char *filename)
-{
-	short numBits;
-	int i, num, fileSize, headerSize;
-	unsigned char h1, h2;
-	FILE *file = fopen(filename, "rb");
-
-	channels = 3;
-
-	checkFileOpened(file);
-	fread(&h1, sizeof(h1), 1, file);
-	fread(&h2, sizeof(h2), 1, file);
-	if(h1 != 'B' || h2 != 'M')
-	{
-		fclose(file);
-		throw xNotSuchFormat();
-	}
-
-	fread(&fileSize, sizeof(fileSize), 1, file);
-	fread(&num, sizeof(num), 1, file);
-	fread(&headerSize, sizeof(headerSize), 1, file);
-	fread(&num, sizeof(num), 1, file);
-
-	fread(&width, sizeof(width), 1, file);
-	fread(&height, sizeof(height), 1, file);
-	fread(&numBits, sizeof(numBits), 1, file);
-	fread(&numBits, sizeof(numBits), 1, file);
-	if(numBits != 24)
-	{
-		fclose(file);
-		throw xNotASupportedFormat();
-	}
-	for(i = 0; i < 6; i++)
-		fread(&num, sizeof(num), 1, file);
-
-	return loadBmpData(file);
-}
-
-unsigned char *TextureFromDisk::loadBmpData(FILE *file)
-{
-	int i, j;
-	unsigned char temp;
-	unsigned char bred, bblue, bgreen;
-	unsigned char *data, *pTemp;
-
-	data = new unsigned char[width * height * channels];
-
-	pTemp = data;
-	for(i = 0; i < height; i++)
-	{
-		for(j = 0; j < width; j++)
-		{
-			fread(&bred, sizeof(bred), 1, file);
-			fread(&bgreen, sizeof(bgreen), 1, file);
-			fread(&bblue, sizeof(bblue), 1, file);
-
-			*pTemp++ = bblue;
-			*pTemp++ = bgreen;
-			*pTemp++ = bred;
-		}
-		for(j = 0; j < width % 4; j++)
-			fread(&temp, sizeof(temp), 1, file);
-	}
 	return data;
 }
 
@@ -212,7 +72,7 @@ unsigned char *TextureFromDisk::loadTga(char *filename)
 	int stride = 0;
 	int i = 0;
 
-	checkFileOpened(pFile);  
+	if(!pFile) throw xFileNotFound();
 
 	fread(&length, sizeof(unsigned char), 1, pFile);
 	fseek(pFile,1,SEEK_CUR); 
@@ -346,15 +206,6 @@ unsigned char *TextureFromDisk::loadTga(char *filename)
 
 	return data;
 }
-
-void TextureFromDisk::checkFileOpened(FILE *file)
-{
-	if(!file)
-		throw xFileNotFound();
-}
-
-const char *TextureFromDisk::JPG_EXT = ".jpg";
-const char *TextureFromDisk::BMP_EXT = ".bmp";
 
 
 /////////////////////////////////////////////////////////////////////////////

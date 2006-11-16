@@ -1,6 +1,12 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// Program, OpenGL 2.0 object with optional vertex and fragment shaders.
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// --------------------------------------------------------------------------
+
 #include <cassert>
-#include <iostream>
 #include <cstdio>
+#include <cstdlib>
 #include "DemoEngine/Program.h"
 
 // Public part :
@@ -93,8 +99,7 @@ void Program::sendUniform(const char *name, float x, float y, float z)
 	glUniform3f(getLoc(name), x, y, z);
 }
 
-void Program::sendUniform(const char *name, float x, float y, float z,
-							  float w)
+void Program::sendUniform(const char *name, float x, float y, float z, float w)
 {
 	glUniform4f(getLoc(name), x, y, z, w);
 }
@@ -125,8 +130,7 @@ void Program::sendUniform(const char *name, int x, int y, int z,
 	glUniform4i(getLoc(name), x, y, z, w);
 }
 
-void Program::sendUniform(const char *name, float *matrix, bool transpose,
-							  int size)
+void Program::sendUniform(const char *name, float *matrix, bool transpose, int size)
 {
 	int loc = getLoc(name);
 
@@ -151,7 +155,7 @@ int Program::getLoc(const char *name)
 	int loc = glGetUniformLocation(handle, name);
 	if(loc == -1)
 	{
-		std::cout << name << " is not a valid uniform variable name.\n";
+		printf("%s is not a valid uniform variable name.\n",name);
 		fgetc(stdin);
 		exit(0);
 	}

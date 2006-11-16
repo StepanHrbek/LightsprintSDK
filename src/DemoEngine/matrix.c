@@ -7,7 +7,6 @@
 
 #include <math.h>
 #include <stdio.h>
-#include <GL/glew.h>
 
 /* Some <math.h> files do not define M_PI... */
 #ifndef M_PI
@@ -150,83 +149,6 @@ invertMatrix(GLdouble *out, const GLdouble *m)
 #undef SWAP_ROWS
 }
 
-/* dst = transpose(src) */
-void
-transposeMatrix(GLdouble dst[16], GLdouble src[16])
-{
-  dst[0] = src[0];
-  dst[1] = src[4];
-  dst[2] = src[8];
-  dst[3] = src[12];
-
-  dst[4] = src[1];
-  dst[5] = src[5];
-  dst[6] = src[9];
-  dst[7] = src[13];
-
-  dst[8] = src[2];
-  dst[9] = src[6];
-  dst[10] = src[10];
-  dst[11] = src[14];
-
-  dst[12] = src[3];
-  dst[13] = src[7];
-  dst[14] = src[11];
-  dst[15] = src[15];
-}
-
-/* dst = a + b */
-void
-addMatrices(GLdouble dst[16], GLdouble a[16], GLdouble b[16])
-{
-  dst[0] = a[0] + b[0];
-  dst[1] = a[1] + b[1];
-  dst[2] = a[2] + b[2];
-  dst[3] = a[3] + b[3];
-
-  dst[4] = a[4] + b[4];
-  dst[5] = a[5] + b[5];
-  dst[6] = a[6] + b[6];
-  dst[7] = a[7] + b[7];
-
-  dst[8] = a[8] + b[8];
-  dst[9] = a[9] + b[9];
-  dst[10] = a[10] + b[10];
-  dst[11] = a[11] + b[11];
-
-  dst[12] = a[12] + b[12];
-  dst[13] = a[13] + b[13];
-  dst[14] = a[14] + b[14];
-  dst[15] = a[15] + b[15];
-}
-
-/* dst = a * b */
-void
-multMatrices(GLdouble dst[16], const GLdouble a[16], const GLdouble b[16])
-{
-  int i, j;
-
-  for (i = 0; i < 4; i++) {
-    for (j = 0; j < 4; j++) {
-      dst[i * 4 + j] =
-        b[i * 4 + 0] * a[0 * 4 + j] +
-        b[i * 4 + 1] * a[1 * 4 + j] +
-        b[i * 4 + 2] * a[2 * 4 + j] +
-        b[i * 4 + 3] * a[3 * 4 + j];
-    }
-  }
-}
-
-void
-copyMatrix(GLdouble dst[16], GLdouble src[16])
-{
-  int i;
-
-  for (i=0; i<16; i++) {
-    dst[i] = src[i];
-  }
-}
-
 void
 buildFrustumMatrix(GLdouble m[16],
                    GLdouble l, GLdouble r, GLdouble b, GLdouble t,
@@ -335,15 +257,3 @@ buildLookAtMatrix(GLdouble m[16],
    M(3,0) = 0.0;   M(3,1) = 0.0;   M(3,2) = 0.0;   M(3,3) = 1.0;
 #undef M
 }
-
-/* For debugging purposes. */
-void
-printMatrix(char *msg, GLdouble m[16])
-{
-  printf("%s\n", msg);
-  printf(" [ %f %f %f %f ]\n", m[0], m[4], m[8], m[12]);
-  printf(" [ %f %f %f %f ]\n", m[1], m[5], m[9], m[13]);
-  printf(" [ %f %f %f %f ]\n", m[2], m[6], m[10], m[14]);
-  printf(" [ %f %f %f %f ]\n\n", m[3], m[7], m[11], m[15]);
-}
-

@@ -1,5 +1,11 @@
-#include <stdio.h>
-#include <string.h>
+// --------------------------------------------------------------------------
+// DemoEngine
+// Texture, OpenGL 2.0 object.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
+#include <cstdio>
+#include <cstring>
 #include <GL/glew.h>
 #include "TextureGL.h"
 #include "FBO.h"

@@ -1,6 +1,12 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// Camera with adjustable pos, dir, aspect, fov, near, far.
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// --------------------------------------------------------------------------
+
+#include <cmath>
 #include "DemoEngine/Camera.h"
 #include "matrix.h"
-#include <math.h>
 
 void Camera::update(float back)
 {

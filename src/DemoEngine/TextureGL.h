@@ -8,8 +8,8 @@
 #define TEXTUREGL_H
 
 #include <cassert>
-#include "DemoEngine/Texture.h"
 #include <GL/glew.h>
+#include "DemoEngine/Texture.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

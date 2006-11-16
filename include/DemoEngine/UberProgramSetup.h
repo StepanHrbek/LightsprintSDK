@@ -33,7 +33,7 @@ enum
 //
 // UberProgramSetup - options for UberShader.vp+fp
 
-struct RR_API UberProgramSetup
+struct DE_API UberProgramSetup
 {
 	// these values are passed to UberProgram which sets them to shader #defines
 	// UberProgram + UberProgramSetup = Program

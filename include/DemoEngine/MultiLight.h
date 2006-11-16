@@ -8,15 +8,17 @@
 #define MULTILIGHT_H
 
 #include <cassert>
+#include <cmath>
 #include "MultiInstance.h"
 #include "Camera.h"
 #include "Texture.h"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // MultiLightWithShadowmaps
 
-class MultiLightWithShadowmaps : public MultiInstanceWithParentAndInstances<Camera>
+class DE_API MultiLightWithShadowmaps : public MultiInstanceWithParentAndInstances<Camera>
 {
 public:
 	MultiLightWithShadowmaps(unsigned anumInstances, unsigned shadowmapSize)
@@ -52,7 +54,7 @@ protected:
 //
 // AreaLight
 
-class AreaLight : public MultiLightWithShadowmaps
+class DE_API AreaLight : public MultiLightWithShadowmaps
 {
 public:
 	AreaLight(unsigned anumInstances, unsigned shadowmapSize)

@@ -7,7 +7,6 @@
 #ifndef _3DS2RR_H
 #define _3DS2RR_H
 
-#include "DemoEngine.h"
 #include "RRRealtimeRadiosity.h"
 #include "Model_3DS.h"
 
@@ -20,10 +19,10 @@ enum
 };
 
 // imports all 3d objects from model into RRRealtimeRadiosity
-void RR_API provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app, float stitchDistance);
+void DE_API provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app, float stitchDistance);
 
 // if you import 3d objects to RRRealtimeRadiosity with provideObjectsFrom3dsToRR(),
 // unimport them with deleteObjectsFromRR()
-void RR_API deleteObjectsFromRR(rr::RRRealtimeRadiosity* app);
+void DE_API deleteObjectsFromRR(rr::RRRealtimeRadiosity* app);
 
 #endif

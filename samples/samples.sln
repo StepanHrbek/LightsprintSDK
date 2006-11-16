@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh", "HelloMesh\Hell
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloVision", "HelloVision\HelloVision.vcproj", "{2E053151-D333-4091-9D6D-54408A6610DD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloRealtimeRadiosity", "HelloRealtimeRadiosity\HelloRealtimeRadiosity.vcproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloRealtimeRadiosity", "HelloRealtimeRadiosity\HelloRealtimeRadiosity.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,14 +45,14 @@ Global
 		{2E053151-D333-4091-9D6D-54408A6610DD}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
 		{2E053151-D333-4091-9D6D-54408A6610DD}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{2E053151-D333-4091-9D6D-54408A6610DD}.Release static|Win32.ActiveCfg = Release DLL|Win32
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Debug static|Win32.Build.0 = Debug static|Win32
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release DLL|Win32.Build.0 = Release DLL|Win32
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release static|Win32.ActiveCfg = Release static|Win32
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Release static|Win32.Build.0 = Release static|Win32
+		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Debug static|Win32.ActiveCfg = Debug static|Win32
+		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Debug static|Win32.Build.0 = Debug static|Win32
+		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release static|Win32.ActiveCfg = Release static|Win32
+		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release static|Win32.Build.0 = Release static|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

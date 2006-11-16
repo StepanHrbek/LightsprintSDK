@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRRealtimeRadiosity.h
 //! \brief RRRealtimeRadiosity - library for calculating radiosity in dynamic scenes
-//! \version 2006.10.5
+//! \version 2006.11.16
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -212,6 +212,36 @@ namespace rr
 		void       readPixelResults();
 		unsigned   resultChannelIndex;
 	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// Sanity checks.
+	//
+	// First step of your application should be
+	//   if(!RR_INTERFACE_OK) terminate_with_message(RR_INTERFACE_MISMATCH_MSG);
+	//////////////////////////////////////////////////////////////////////////////
+
+	//! Returns id of interface offered by library.
+	RR_API unsigned RR_INTERFACE_ID_LIB();
+	// Returns id of interface expected by app.
+	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRRealtimeRadiosity) + 0 )
+	//! Returns if interface matches. False = dll mismatch, app should be terminated.
+	#define RR_INTERFACE_OK (RR_INTERFACE_ID_APP()==rr::RR_INTERFACE_ID_LIB())
+	//! Returns description of interface offered by library + compile date.
+	RR_API char* RR_INTERFACE_DESC_LIB();
+	// Returns description of interface expected by app + compile date.
+	#if defined(NDEBUG) && defined(RR_STATIC)
+	#define RR_INTERFACE_DESC_APP() "RELEASE_STATIC (" __DATE__ " " __TIME__ ")"
+	#elif defined(NDEBUG) && !defined(RR_STATIC)
+	#define RR_INTERFACE_DESC_APP() "RELEASE_DLL (" __DATE__ " " __TIME__ ")"
+	#elif !defined(NDEBUG) && defined(RR_STATIC)
+	#define RR_INTERFACE_DESC_APP() "DEBUG_STATIC (" __DATE__ " " __TIME__ ")"
+	#elif !defined(NDEBUG) && !defined(RR_STATIC)
+	#define RR_INTERFACE_DESC_APP() "DEBUG_DLL (" __DATE__ " " __TIME__ ")"
+	#endif
+	// Returns description of version mismatch.
+	#define RR_INTERFACE_MISMATCH_MSG "RRRealtimeRadiosity version mismatch.\nLibrary has interface: %s\nApplication expects  : %s\n",rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_DESC_APP()
 
 } // namespace
 

@@ -7,6 +7,8 @@
 #ifndef VERTEXDATAGENERATOR_H
 #define VERTEXDATAGENERATOR_H
 
+#include "DemoEngine.h"
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -14,7 +16,7 @@
 //
 // (can we replace this later by channel in RRChanneledData?)
 
-class VertexDataGenerator
+class DE_API VertexDataGenerator
 {
 public:
 	virtual ~VertexDataGenerator() {};

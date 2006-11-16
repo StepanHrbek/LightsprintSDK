@@ -1,8 +1,13 @@
-#include <assert.h>
+// --------------------------------------------------------------------------
+// DemoEngine
+// RendererOfRRObject, Renderer implementation that renders RRObject instance.
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// --------------------------------------------------------------------------
+
+#include <cassert>
 #include <GL/glew.h>
 #include "RRIllumination.h"
 #include "DemoEngine/3ds2rr.h" // CHANNEL_SURFACE_DIF_TEX
-#include <GL/glew.h>
 #include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments

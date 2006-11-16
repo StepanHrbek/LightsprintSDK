@@ -502,7 +502,7 @@ namespace rr
 \page data_environment_map Environment map
 
  \section d31 Suitable for
-   - static objects: NO
+   - static objects: YES
    - dynamic objects: YES
    - realtime calculated illumination: YES
    - precalculated illumination: YES
@@ -511,8 +511,7 @@ namespace rr
    - offers global illumination with both specular and diffuse reflections
 
  \section d33 Disadvantages
-   - if used for relatively large object,
-     approximation implied by technique could be visible
+   - precision decreases with size of object, suitable for items, not for buildings
 
  \section d34 Data source
    - stored in: your instances of RRIlluminationEnvironmentMap

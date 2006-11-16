@@ -1,6 +1,11 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// Shader, OpenGL 2.0 object.
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// --------------------------------------------------------------------------
+
 #include <cstdio>
-#include <fstream>
-#include <iostream>
+#include <cstdlib>
 #include "DemoEngine/Shader.h"
 
 char* readShader(const char *filename)
@@ -56,7 +61,7 @@ void Shader::compileIt()
 		debug = new GLcharARB[debugLength];
 		glGetShaderInfoLog(handle, debugLength, &debugLength, debug);
 
-		std::cout << debug;
+		printf(debug);
 		delete [] debug;
 	}
 }

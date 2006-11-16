@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// OpenGL implementation of ambient map interface rr::RRIlluminationPixelBuffer.
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// --------------------------------------------------------------------------
+
 #include <cstdio>
 #include "DemoEngine/RRIlluminationPixelBufferInOpenGL.h"
 #include "DemoEngine/Program.h"

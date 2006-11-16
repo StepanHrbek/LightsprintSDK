@@ -63,8 +63,11 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 
 RRRealtimeRadiosity::~RRRealtimeRadiosity()
 {
-	delete scene->getScaler();
-	delete scene;
+	if(scene)
+	{
+		delete scene->getScaler();
+		delete scene;
+	}
 	delete multiObject;
 	delete multiObjectBase;
 }
@@ -139,13 +142,18 @@ static bool endByTime(void *context)
 void RRRealtimeRadiosity::updateVertexLookupTable()
 // prepare lookup tables preImportVertex -> [postImportTriangle,vertex0..2] for all objects
 {
+	if(!getMultiObject())
+	{
+		assert(0);
+		return;
+	}
 	preVertex2PostTriangleVertex.resize(objects.size());
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		RRMesh* mesh =
 #ifdef MULTIOBJECT
-			multiObject->getCollider()->getMesh();
+			getMultiObject()->getCollider()->getMesh();
 #else
 			object->getCollider()->getMesh();
 #endif
@@ -191,6 +199,11 @@ RRIlluminationVertexBuffer* RRRealtimeRadiosity::newVertexBuffer(unsigned numVer
 
 void RRRealtimeRadiosity::readVertexResults()
 {
+	if(!scene)
+	{
+		assert(0);
+		return;
+	}
 	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
@@ -270,14 +283,24 @@ RRIlluminationPixelBuffer* RRRealtimeRadiosity::newPixelBuffer(RRObject* object)
 
 void RRRealtimeRadiosity::readPixelResults()
 {
+	if(!scene)
+	{
+		assert(0);
+		return;
+	}
 	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
 #ifdef MULTIOBJECT
-		RRObject* object = multiObject;
+		RRObject* object = getMultiObject();
 #else
 		RRObject* object = getObject(objectHandle);
 #endif
+		if(!object)
+		{
+			assert(0);
+			return;
+		}
 		RRMesh* mesh = object->getCollider()->getMesh();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
@@ -387,7 +410,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		dirtyEnergies = NO_CHANGE;
 		dirtyResults = true;
 		REPORT_BEGIN("Resetting solver energies and factors.");
-		scene->illuminationReset(true,true);
+		if(scene) scene->illuminationReset(true,true);
 		REPORT_END;
 	}
 	if(dirtyLights!=NO_CHANGE)
@@ -398,7 +421,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 	if(dirtyEnergies!=NO_CHANGE)
 	{
 		REPORT_BEGIN("Updating solver energies.");
-		scene->illuminationReset(false,dirtyEnergies==BIG_CHANGE);
+		if(scene) scene->illuminationReset(false,dirtyEnergies==BIG_CHANGE);
 		REPORT_END;
 		if(dirtyEnergies==BIG_CHANGE)
 		{
@@ -413,7 +436,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 	REPORT_BEGIN("Calculating.");
 	TIME now = GETTIME;
 	TIME end = (TIME)(now+improveStep*PER_SEC);
-	RRScene::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
+	RRScene::Improvement improvement = scene ? scene->illuminationImprove(endByTime,(void*)&end) : RRScene::FINISHED;
 	REPORT(printf(" (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 	REPORT_END;
 	switch(improvement)
@@ -773,6 +796,21 @@ static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& o
 // thread safe: yes
 void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, unsigned size, RRColorRGBA8* irradiance)
 {
+	if(!scene)
+	{
+		assert(0);
+		return;
+	}
+	if(!object)
+	{
+		assert(0);
+		return;
+	}
+	if(!irradiance)
+	{
+		assert(0);
+		return;
+	}
 	RRRay* ray = RRRay::create();
 	for(unsigned side=0;side<6;side++)
 	{
@@ -815,11 +853,21 @@ void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, 
 void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, unsigned maxSize, RRVec3 objectCenterWorld)
 {
 	if(!environmentMap) return;
+	if(!scene)
+	{
+		assert(0);
+		return;
+	}
+	if(!getMultiObject())
+	{
+		assert(0);
+		return;
+	}
 
 	// gather irradiances
 	const unsigned iSize = maxSize?maxSize:1;
 	RRColorRGBA8* iIrradiance = new RRColorRGBA8[6*iSize*iSize];
-	cubeMapGather(scene,multiObject,objectCenterWorld,iSize,iIrradiance);
+	cubeMapGather(scene,getMultiObject(),objectCenterWorld,iSize,iIrradiance);
 
 	// filter cubemap
 	unsigned oSize = 0;
@@ -834,6 +882,16 @@ void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* env
 	// cleanup
 	delete oIrradiance;
 	delete iIrradiance;
+}
+
+unsigned RR_INTERFACE_ID_LIB()
+{
+	return RR_INTERFACE_ID_APP();
+}
+
+char* RR_INTERFACE_DESC_LIB()
+{
+	return RR_INTERFACE_DESC_APP();
 }
 
 } // namespace

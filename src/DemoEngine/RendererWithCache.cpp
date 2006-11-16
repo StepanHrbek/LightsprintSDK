@@ -1,6 +1,12 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// RendererWithCache, Renderer implementation that accelerates other renderer using display list.
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// --------------------------------------------------------------------------
+
 #include <cassert>
-#include "DemoEngine/RendererWithCache.h"
 #include <GL/glew.h>
+#include "DemoEngine/RendererWithCache.h"
 
 bool  COMPILE=1;
 
@@ -33,9 +39,6 @@ RendererWithCache::Info& RendererWithCache::findInfo()
 		}
 		memcpy(&key,params,length);
 	}
-//	Map::iterator i = mapa.find(key);
-//	if(i!=mapa.end())
-//		return (Info&)i->second;
 	return mapa[key];
 }
 

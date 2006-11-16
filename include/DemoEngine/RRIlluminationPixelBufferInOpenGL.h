@@ -4,9 +4,12 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
+#ifndef RRILLUMINATIONPIXELBUFFERINOPENGL_H
+#define RRILLUMINATIONPIXELBUFFERINOPENGL_H
+
+#include <GL/glew.h>
 #include "RRIllumination.h"
 #include "DemoEngine/Texture.h"
-#include <GL/glew.h>
 
 namespace rr
 {
@@ -22,7 +25,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBuffer
+	class DE_API RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBuffer
 	{
 	public:
 		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders);
@@ -44,3 +47,5 @@ namespace rr
 	};
 
 } // namespace
+
+#endif

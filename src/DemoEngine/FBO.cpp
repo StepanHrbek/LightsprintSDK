@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// FBO, OpenGL framebuffer object, GL_EXT_framebuffer_object.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>

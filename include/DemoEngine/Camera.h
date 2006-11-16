@@ -7,15 +7,15 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "DemoEngine.h"
 #include <GL/glew.h>
+#include "DemoEngine.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Camera
 
-class RR_API Camera
+class DE_API Camera
 {
 public:
 	// inputs

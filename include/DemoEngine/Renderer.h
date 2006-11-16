@@ -9,11 +9,12 @@
 
 #include "DemoEngine.h"
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Renderer - interface
 
-class RR_API Renderer
+class DE_API Renderer
 {
 public:
 	//! Renders.

@@ -1,5 +1,3 @@
-static float SCALE=1;
-
 //////////////////////////////////////////////////////////////////////
 //
 // 3D Studio Model Class
@@ -76,15 +74,10 @@ static float SCALE=1;
 #define __FILE__LINE__ __FILE__ "(" QUOTE(__LINE__) ") : "
 #define warn( x )  message( __FILE__LINE__ #x "\n" ) 
 
-// You need to uncomment this if you are using MFC
-//#pragma warn( You need to uncomment this if you are using MFC )
-//#include "stdafx.h"
-
+#include <cmath>
+#include <cstring>
+#include <GL/glew.h>
 #include "DemoEngine/Model_3DS.h"
-
-#include <math.h>			// Header file for the math library
-#include <string.h>			// Header file for the math library
-#include <GL/GL.h>			// Header file for the OpenGL32 library
 
 // The chunk's id numbers
 #define MAIN3DS				0x4D4D
@@ -177,14 +170,14 @@ Model_3DS::~Model_3DS()
 	delete[] Objects;
 }
 
-bool Model_3DS::Load(const char *filename, float scale)
+bool Model_3DS::Load(const char *filename, float ascale)
 {
 	char buf[500];
 	strncpy(buf,filename,499);
 	buf[499]=0;
 	char* name = buf;
 
-	SCALE = scale;
+	scale = ascale;
 	// holds the main chunk header
 	ChunkHeader main;
 
@@ -294,7 +287,7 @@ bool Model_3DS::Load(const char *filename, float scale)
 	return true;
 }
 
-void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
+void Model_3DS::Draw(rr::RRRealtimeRadiosity* app)
 {
 	if (visible)
 	{
@@ -309,7 +302,7 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 		glRotatef(rot.y, 0.0f, 1.0f, 0.0f);
 		glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
 
-		glScalef(scale, scale, scale);
+		//glScalef(scale, scale, scale);
 
 		// Loop through the objects
 		for (int i = 0; i < numObjects; i++)
@@ -318,43 +311,16 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app, bool lightIndirectMap)
 			// additional exitance
 			if(app)
 			{
-				if(!lightIndirectMap)
+				rr::RRIlluminationVertexBuffer* vertexBuffer = app->getIllumination(i)->getChannel(0)->vertexBuffer;
+				if(vertexBuffer)
 				{
-					rr::RRIlluminationVertexBuffer* vertexBuffer = app->getIllumination(i)->getChannel(0)->vertexBuffer;
-					if(vertexBuffer)
+					const rr::RRColorRGBF* lock = vertexBuffer->lock();
+					if(lock)
 					{
-						const rr::RRColorRGBF* lock = vertexBuffer->lock();
-						if(lock)
-						{
-							glEnableClientState(GL_COLOR_ARRAY);
-							glColorPointer(3, GL_FLOAT, 0, lock);
-							vertexBuffer->unlock();
-						}
+						glEnableClientState(GL_COLOR_ARRAY);
+						glColorPointer(3, GL_FLOAT, 0, lock);
+						vertexBuffer->unlock();
 					}
-				}
-				else
-				{
-					assert(0);
-					// not implemented because there's no unwrap available in 3ds
-					/*
-					// setup light indirect texture
-					rr::RRIlluminationPixelBuffer* pixelBuffer = app->getIllumination(i)->getChannel(0)->pixelBuffer;
-					if(pixelBuffer)
-					{
-						glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
-						pixelBuffer->bindTexture();
-						glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-					}
-					// if not created yet, create unwrap buffer
-					rr::RRObjectIllumination& illum = app->getIllumination(i);
-					if(!illum.pixelBufferUnwrap)
-					{
-						illum.createPixelBufferUnwrap(app->getObject(i));
-					}
-					// setup light indirect texture coords
-					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-					glTexCoordPointer(2, GL_FLOAT, 0, ?);
-					*/
 				}
 			}
 			else
@@ -984,10 +950,10 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
 		// Change the sign of the z coordinate
 		Objects[objindex].Vertexes[i+2] = -Objects[objindex].Vertexes[i+2];
 
-		// scale
-		Objects[objindex].Vertexes[i+0] *= SCALE;
-		Objects[objindex].Vertexes[i+1] *= SCALE;
-		Objects[objindex].Vertexes[i+2] *= SCALE;
+		// Scale
+		Objects[objindex].Vertexes[i+0] *= scale;
+		Objects[objindex].Vertexes[i+1] *= scale;
+		Objects[objindex].Vertexes[i+2] *= scale;
 	}
 
 	// move the file pointer back to where we got it so

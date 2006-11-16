@@ -79,7 +79,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
-#include <iostream>
 #include <list>
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
@@ -543,7 +542,7 @@ void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		level->m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?level->solver:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
+		level->m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?level->solver:NULL);
 		return;
 	}
 	RendererOfRRObject::RenderedChannels renderedChannels;
@@ -628,7 +627,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	m[15] = 1;
 	program->sendUniform("worldMatrix",m,false,4);
 	// - render
-	dynaobject.Draw(NULL,false);
+	dynaobject.Draw(NULL);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -1740,6 +1739,12 @@ int main(int argc, char **argv)
 	_CrtSetDbgFlag( tmpFlag );
 //	_crtBreakAlloc = 80;
 */
+	// check for version mismatch
+	if(!RR_INTERFACE_OK)
+	{
+		printf(RR_INTERFACE_MISMATCH_MSG);
+		error("",false);
+	}
 
 	parseOptions(argc, argv);
 

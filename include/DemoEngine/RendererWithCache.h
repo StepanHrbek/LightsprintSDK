@@ -7,7 +7,6 @@
 #ifndef RENDERERWITHCACHE_H
 #define RENDERERWITHCACHE_H
 
-#include "DemoEngine.h"
 #include <cmath>
 #include <map>
 #include "Renderer.h"
@@ -17,7 +16,7 @@
 //
 // RendererWithCache - filter that adds caching into underlying renderer
 
-class RR_API RendererWithCache : public Renderer
+class DE_API RendererWithCache : public Renderer
 {
 public:
 	RendererWithCache(Renderer* renderer);

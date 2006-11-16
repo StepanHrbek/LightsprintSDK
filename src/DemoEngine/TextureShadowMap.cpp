@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------
+// DemoEngine
+// TextureShadowMap, Texture that can hold shadowmap, uses FBO when available.
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// --------------------------------------------------------------------------
+
 #include <cassert>
 #include <cstdio>
 #include <GL/glew.h>

@@ -82,12 +82,13 @@ void renderScene(UberProgramSetup uberProgramSetup)
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,noiseMap))
 		error("Failed to compile or link GLSL program.\n",true);
 #ifndef AMBIENT_MAPS
-	// m3ds.Draw uses tristrips -> fast but can't be used with added ambient map unwrap
+	// m3ds.Draw uses tristrips incompatible with ambient map uv channel, doesn't render properly with ambient maps
+	//  could be fixed with better uv or simple geometry shader
 	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?solver:NULL,uberProgramSetup.LIGHT_INDIRECT_MAP);
+		m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?solver:NULL);
 		return;
 	}
 #endif
@@ -413,6 +414,13 @@ void idle()
 
 int main(int argc, char **argv)
 {
+	// check for version mismatch
+	if(!RR_INTERFACE_OK)
+	{
+		printf(RR_INTERFACE_MISMATCH_MSG);
+		error("",false);
+	}
+
 	// init GLUT
 	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);

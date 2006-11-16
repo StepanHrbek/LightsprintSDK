@@ -15,10 +15,6 @@ extern "C" {
 #include <GL/glew.h>
 
 extern GLboolean invertMatrix(GLdouble *out, const GLdouble *m);
-extern void transposeMatrix(GLdouble dst[16], GLdouble src[16]);
-extern void copyMatrix(GLdouble dst[16], GLdouble src[16]);
-extern void addMatrices(GLdouble dst[16], GLdouble a[16], GLdouble b[16]);
-extern void multMatrices(GLdouble dst[16], const GLdouble a[16], const GLdouble b[16]);
 extern void buildFrustumMatrix(GLdouble m[16],
                                GLdouble l, GLdouble r, GLdouble b, GLdouble t,
                                GLdouble n, GLdouble f);
@@ -29,7 +25,6 @@ extern void buildLookAtMatrix(GLdouble m[16],
                               GLdouble eyex, GLdouble eyey, GLdouble eyez,
                               GLdouble centerx, GLdouble centery, GLdouble centerz,
                               GLdouble upx, GLdouble upy, GLdouble upz);
-extern void printMatrix(char *msg, GLdouble m[16]);
 
 #ifdef __cplusplus
 }
