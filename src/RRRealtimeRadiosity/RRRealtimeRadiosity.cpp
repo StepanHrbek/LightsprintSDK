@@ -45,7 +45,6 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	dirtyLights = BIG_CHANGE;
 	dirtyResults = true;
 	lastIlluminationUseTime = 0;
-	lastCriticalInteractionTime = 0;
 	lastCalcEndTime = 0;
 	lastReadingResultsTime = 0;
 	userStep = 0;
@@ -336,6 +335,8 @@ void RRRealtimeRadiosity::readPixelResults()
 	}
 }
 
+// calculates radiosity in existing times (improveStep = time to spend in improving),
+//  does no timing adjustments
 RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float improveStep)
 {
 	bool dirtyFactors = false;
@@ -467,47 +468,53 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 	return RRScene::NOT_IMPROVED;
 }
 
+// adjusts timing, does no radiosity calculation (but calls calculateCore that does)
 RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 {
 	TIME calcBeginTime = GETTIME;
 	bool illuminationUse = lastIlluminationUseTime && lastIlluminationUseTime>=lastCalcEndTime;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastIlluminationUseTime*1.0f,lastCalcEndTime*1.0f);
 
-	// pause during critical interactions
-	//  but avoid early return in case update was manually requested
-	if(lastCriticalInteractionTime && !(requests&(UPDATE_VERTEX_BUFFERS|UPDATE_PIXEL_BUFFERS)))
-	{
-		if((calcBeginTime-lastCriticalInteractionTime)/(float)PER_SEC<PAUSE_AFTER_CRITICAL_INTERACTION)
-		{
-			//lastCalcEndTime = 0;
-			return RRScene::NOT_IMPROVED;
-		}
-	}
 
 	// adjust userStep
+	float lastUserStep = (calcBeginTime-lastCalcEndTime)/(float)PER_SEC;
+	if(!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial userStep=0 means 'unknown yet' which forces too long improve (IMPROVE_STEP_NO_INTERACTION)
 	if(illuminationUse)
 	{
-		float lastUserStep = (calcBeginTime-lastCalcEndTime)/(float)PER_SEC;
-		if(!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial userStep=0 means 'unknown yet' which forces too long improve (IMPROVE_STEP_NO_INTERACTION)
-		REPORT(printf("User %d ms.\n",(int)(1000*lastUserStep)));
 		if(lastCalcEndTime && lastUserStep<1.0f)
 		{
-			if(!userStep)
+			//if(!userStep)
 				userStep = lastUserStep;
-			else
-				userStep = 0.6f*userStep + 0.4f*lastUserStep;
+			//else
+			//	userStep = 0.6f*userStep + 0.4f*lastUserStep;
 		}
+		REPORT(printf("User %d ms (+i smoothed to %d).\n",(int)(1000*lastUserStep),(int)(1000*userStep)));
+	} else {
+		// no reportIlluminationUse was called between this and previous calculate
+		// -> increase userStep
+		//    (this slowly increases calculation time)
+		userStep = lastIlluminationUseTime ?
+			(lastCalcEndTime-lastIlluminationUseTime)/(float)PER_SEC // time from last interaction (if there was at least one)
+			: IMPROVE_STEP_NO_INTERACTION; // safety time for situations there was no interaction yet
+		REPORT(printf("User %d ms (-i smoothed to %d).\n",(int)(1000*lastUserStep),(int)(1000*userStep)));
 	}
 
 	// adjust improveStep
-	if(!userStep || !calcStep || !improveStep || !illuminationUse)
+	if(!userStep || !calcStep || !improveStep)
 	{
+		REPORT(printf("Reset to NO_INTERACT(%f,%f,%f,%d).",userStep,calcStep,improveStep,illuminationUse?1:0));
 		improveStep = IMPROVE_STEP_NO_INTERACTION;
 	}
 	else
 	{		
 		// try to balance our (calculate) time and user time 1:1
-		improveStep *= (calcStep>userStep)?0.8f:1.2f;
+		improveStep *= 
+			// kdyz byl userTime 1000 a nahle spadne na 1 (protoze user hmatnul na klavesy),
+			// toto zajisti rychly pad improveStep z 80 na male hodnoty zajistujici plynuly render,
+			// takze napr. rozjezd kamery nezacne strasnym cukanim
+			(calcStep>6*userStep)?0.4f: 
+			// standardni vyvazovani s tlumenim prudkych vykyvu
+			( (calcStep>userStep)?0.8f:1.2f );
 		// always spend at least 40% of our time in improve, don't spend too much by reading results etc
 		improveStep = MAX(improveStep,MIN_PORTION_SPENT_IMPROVING*calcStep);
 		// stick in interactive bounds

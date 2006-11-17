@@ -196,7 +196,6 @@ namespace rr
 		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
 		bool       dirtyResults;
 		long       lastIlluminationUseTime;
-		long       lastCriticalInteractionTime;
 		long       lastCalcEndTime;
 		long       lastReadingResultsTime;
 		float      userStep; // avg time spent outside calculate().

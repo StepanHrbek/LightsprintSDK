@@ -1,4 +1,4 @@
-#define BUGS
+//#define BUGS
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
 unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 je max pro 6600
@@ -1122,6 +1122,8 @@ void display()
 
 	if(needMatrixUpdate)
 		updateMatrices();
+
+	needRedisplay = 0;
 
 	switch(drawMode)
 	{
