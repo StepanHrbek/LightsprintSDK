@@ -249,7 +249,7 @@ namespace rr
 	#define RR_INTERFACE_DESC_APP() "DEBUG_DLL (" __DATE__ " " __TIME__ ")"
 	#endif
 	// Returns description of version mismatch.
-	#define RR_INTERFACE_MISMATCH_MSG "RRRealtimeRadiosity version mismatch.\nLibrary has interface: %s\nApplication expects  : %s\n",rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_DESC_APP()
+	#define RR_INTERFACE_MISMATCH_MSG "RRRealtimeRadiosity version mismatch.\nLibrary has interface: %d %s\nApplication expects  : %d %s\n",rr::RR_INTERFACE_ID_LIB(),rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_ID_APP(),RR_INTERFACE_DESC_APP()
 
 } // namespace
 

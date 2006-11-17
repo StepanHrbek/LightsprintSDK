@@ -401,10 +401,6 @@
 			RelativePath=".\sphereunitvecpool.h"
 			>
 		</File>
-		<File
-			RelativePath=".\StopWatch.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
