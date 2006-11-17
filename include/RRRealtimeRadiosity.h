@@ -91,13 +91,14 @@ namespace rr
 		//! rendering is paused, calculation runs on background.
 		//!
 		//! With architect edition (no precalculations), it helps to improve performance if
-		//! you don't repeatedly render scene that doesn't change.
-		//! Note that user can't see any difference, as image stays unchanged in both cases.
-		//! We use these periods for more intense calculations (99% of time is spent here).
-		//! We recognize these periods from you not calling reportLightChange() and reportIlluminationUse().
-		//! Longer time spent in calculation() leads to higher quality.
+		//! you don't repeatedly render scene that doesn't change, for example in game editor.
+		//! Note that user can't see any difference, you only save time and power 
+		//! by not rendering the same image again.
+		//! Calculation() uses these periods for more intense calculations,
+		//! creating higher quality illumination.
+		//! It detects these periods from you not calling reportLightChange() and reportInteraction().
 		//!
-		//! When scene is rendered permanently, only 20-50% of time is spent calculating.
+		//! When scene is rendered permanently, only 20-50% of CPU time is spent calculating.
 		//!
 		//! Night edition will add partial precalculations running transparently on background.
 		//! Without changes in your code, you will get much higher quality.
@@ -135,11 +136,19 @@ namespace rr
 		//! \param strong Hint for solver, was change in illumination strong, does illumination 
 		//!  change significantly? Good hint improves performance.
 		void reportLightChange(bool strong);
-		//! Reports that calculated illumination has been used (eg. for rendering).
+		//! Reports interaction between user and application.
 		//
-		//! Call at each render where you use calculated radiosity.
-		//! Without such report, illumination is updated less often, which saves time for calculations.
-		void reportIlluminationUse();
+		//! This is useful for better CPU utilization in non-interactive periods of life
+		//! of your application.
+		//! Call it each time user hits key, moves mouse etc, or animation frame is played.
+		//! \n\n When called often,
+		//! solver calculates illumination in small batches to preserve realtime performance.
+		//! This is typical mode for games.
+		//! \n\n When not called at all,
+		//! there's no interaction between user and application
+		//! and solver increases calculation batches up to 100ms at once to better utilize CPU.
+		//! This happens for example in game editor, when level designer stops moving mouse.
+		void reportInteraction();
 
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is not created before you insert objects and call calculate().
@@ -195,7 +204,7 @@ namespace rr
 		bool       dirtyGeometry;
 		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
 		bool       dirtyResults;
-		long       lastIlluminationUseTime;
+		long       lastInteractionTime;
 		long       lastCalcEndTime;
 		long       lastReadingResultsTime;
 		float      userStep; // avg time spent outside calculate().

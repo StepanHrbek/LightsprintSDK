@@ -269,7 +269,7 @@ private:
 // called each time eye moves
 void reportEyeMovement()
 {
-	// solver->reportCriticalInteraction(); // improves responsiveness on singlecore machine
+	solver->reportInteraction();
 	needRedisplay = true;
 }
 
@@ -278,6 +278,7 @@ void reportLightMovement()
 {
 	// reports light change with hint on how big the change was. it's better to report big change for big scene
 	solver->reportLightChange(solver->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+	solver->reportInteraction();
 	needDepthMapUpdate = 1;
 	needRedisplay = true;
 }
@@ -291,7 +292,6 @@ void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
 	needRedisplay = false;
-	solver->reportIlluminationUse();
 	eye.update(0);
 	light.update(0.3f);
 	unsigned numInstances = areaLight->getNumInstances();

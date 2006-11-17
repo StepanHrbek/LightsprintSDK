@@ -44,7 +44,7 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	dirtyGeometry = true;
 	dirtyLights = BIG_CHANGE;
 	dirtyResults = true;
-	lastIlluminationUseTime = 0;
+	lastInteractionTime = 0;
 	lastCalcEndTime = 0;
 	lastReadingResultsTime = 0;
 	userStep = 0;
@@ -126,10 +126,10 @@ void RRRealtimeRadiosity::reportLightChange(bool strong)
 	dirtyLights = strong?BIG_CHANGE:SMALL_CHANGE;
 }
 
-void RRRealtimeRadiosity::reportIlluminationUse()
+void RRRealtimeRadiosity::reportInteraction()
 {
-	REPORT(reportAction("<IlluminationUse>"));
-	lastIlluminationUseTime = GETTIME;
+	REPORT(reportAction("<Interaction>"));
+	lastInteractionTime = GETTIME;
 }
 
 
@@ -472,37 +472,34 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 {
 	TIME calcBeginTime = GETTIME;
-	bool illuminationUse = lastIlluminationUseTime && lastIlluminationUseTime>=lastCalcEndTime;
-	//printf("%f %f %f\n",calcBeginTime*1.0f,lastIlluminationUseTime*1.0f,lastCalcEndTime*1.0f);
+	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
 
 
 	// adjust userStep
 	float lastUserStep = (calcBeginTime-lastCalcEndTime)/(float)PER_SEC;
 	if(!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial userStep=0 means 'unknown yet' which forces too long improve (IMPROVE_STEP_NO_INTERACTION)
-	if(illuminationUse)
+	if(lastInteractionTime && lastInteractionTime>=lastCalcEndTime)
 	{
+		// reportInteraction was called between this and previous calculate
 		if(lastCalcEndTime && lastUserStep<1.0f)
 		{
-			//if(!userStep)
-				userStep = lastUserStep;
-			//else
-			//	userStep = 0.6f*userStep + 0.4f*lastUserStep;
+			userStep = lastUserStep;
 		}
-		REPORT(printf("User %d ms (+i smoothed to %d).\n",(int)(1000*lastUserStep),(int)(1000*userStep)));
+		REPORT(printf("User %d ms.\n",(int)(1000*lastUserStep)));
 	} else {
-		// no reportIlluminationUse was called between this and previous calculate
+		// no reportInteraction was called between this and previous calculate
 		// -> increase userStep
 		//    (this slowly increases calculation time)
-		userStep = lastIlluminationUseTime ?
-			(lastCalcEndTime-lastIlluminationUseTime)/(float)PER_SEC // time from last interaction (if there was at least one)
+		userStep = lastInteractionTime ?
+			(lastCalcEndTime-lastInteractionTime)/(float)PER_SEC // time from last interaction (if there was at least one)
 			: IMPROVE_STEP_NO_INTERACTION; // safety time for situations there was no interaction yet
-		REPORT(printf("User %d ms (-i smoothed to %d).\n",(int)(1000*lastUserStep),(int)(1000*userStep)));
+		REPORT(printf("User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*userStep)));
 	}
 
 	// adjust improveStep
 	if(!userStep || !calcStep || !improveStep)
 	{
-		REPORT(printf("Reset to NO_INTERACT(%f,%f,%f,%d).",userStep,calcStep,improveStep,illuminationUse?1:0));
+		REPORT(printf("Reset to NO_INTERACT(%f,%f,%f,%d).",userStep,calcStep,improveStep));
 		improveStep = IMPROVE_STEP_NO_INTERACTION;
 	}
 	else

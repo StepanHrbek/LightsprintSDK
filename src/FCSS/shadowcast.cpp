@@ -1118,7 +1118,11 @@ void display()
 		return;
 	}
 
-	level->solver->reportIlluminationUse();
+	// pro jednoduchost je to tady
+	// kdyby to bylo u vsech stisku/pusteni/pohybu klaves/mysi a animaci,
+	//  nevolalo by se to zbytecne v situaci kdy redisplay vyvola calculate() hlaskou ze zlepsil osvetleni
+	// zisk by ale byl miniaturni
+	level->solver->reportInteraction();
 
 	if(needMatrixUpdate)
 		updateMatrices();
