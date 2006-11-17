@@ -16,7 +16,7 @@
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
 		// use static library
-		#if defined(RR_RELEASE) || (defined(NDEBUG) && !defined(RR_DEBUG))
+		#ifdef NDEBUG
 			#pragma comment(lib,"RRRealtimeRadiosity_sr.lib")
 		#else
 			#pragma comment(lib,"RRRealtimeRadiosity_sd.lib")
@@ -27,7 +27,11 @@
 #		undef RR_API
 #		define RR_API __declspec(dllexport)
 #	else // use dll
-#pragma comment(lib,"RRRealtimeRadiosity.lib")
+#ifdef NDEBUG
+	#pragma comment(lib,"RRRealtimeRadiosity.lib")
+#else
+	#pragma comment(lib,"RRRealtimeRadiosity_dd.lib")
+#endif
 #	endif
 #	endif
 #endif

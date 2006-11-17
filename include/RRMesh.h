@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
 		// use static library
-		#if defined(RR_RELEASE) || (defined(NDEBUG) && !defined(RR_DEBUG))
+		#ifdef NDEBUG
 			#pragma comment(lib,"RRMesh_sr.lib")
 		#else
 			#pragma comment(lib,"RRMesh_sd.lib")
@@ -26,7 +26,11 @@
 #		undef RR_API
 #		define RR_API __declspec(dllexport)
 #	else // use dll
-#pragma comment(lib,"RRMesh.lib")
+#ifdef NDEBUG
+	#pragma comment(lib,"RRMesh.lib")
+#else
+	#pragma comment(lib,"RRMesh_dd.lib")
+#endif
 #	endif
 #	endif
 #endif

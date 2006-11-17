@@ -24,11 +24,11 @@
 		#else
 			// use dll
 			#define DE_API __declspec(dllimport)
-			//#ifdef NDEBUG
+			#ifdef NDEBUG
 				#pragma comment(lib,"DemoEngine.lib")
-			//#else
-			//	#pragma comment(lib,"DemoEngine_dd.lib")
-			//#endif
+			#else
+				#pragma comment(lib,"DemoEngine_dd.lib")
+			#endif
 		#endif
 	#endif
 #else
