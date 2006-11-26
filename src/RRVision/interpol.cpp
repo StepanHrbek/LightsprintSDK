@@ -1940,7 +1940,7 @@ void Scene::iv_markImportants_saveMeshing(unsigned maxvertices,char *namemes)
 	qsort(iv_array,iv_subs,sizeof(IVertex *),iv_cmperr);
 
 	// zjisti kolik subvertexu bude ukladat
-	iv_savesubs=MAX(0,MIN(maxvertices-iv_tops,iv_subs));
+	iv_savesubs=(unsigned)MAX(0,MIN((int)(maxvertices-iv_tops),(int)iv_subs));
 
 	// ukladanejm subvertexum nastavi error
 	// tak aby mel prvni 0 az linearne k poslednimu 255.
