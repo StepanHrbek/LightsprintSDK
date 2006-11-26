@@ -69,6 +69,7 @@ public:
 		{
 			power = triangleInfo[t].area ? power / triangleInfo[t].area : RRColor(0);
 		}
+		assert(measure.scaled);
 		triangleInfo[t].irradiance = power;
 		return true;
 	}
@@ -96,6 +97,7 @@ public:
 		{
 			power *= triangleInfo[t].area;
 		}
+		assert(measure.scaled);
 		out = power;
 	}
 
@@ -132,7 +134,7 @@ public:
 private:
 	struct TriangleInfo
 	{
-		RRColor irradiance;
+		RRColor irradiance; // always scaled
 		RRReal area;
 	};
 	RRObject* original;

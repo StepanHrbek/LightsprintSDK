@@ -179,7 +179,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 			// this code is on 2 places...
 			//  delete this and rather call obj->resetStaticIllumination
 			Vec3 sumExitance;
-			importer->getTriangleAdditionalMeasure(fi,RM_EXITANCE,sumExitance);
+			importer->getTriangleAdditionalMeasure(fi,RM_EXITANCE_SCALED,sumExitance);
 			if(scene->scaler) sumExitance = Vec3(
 				scene->scaler->getStandard(sumExitance.x), // getOriginal=getWattsPerSquareMeter
 				scene->scaler->getStandard(sumExitance.y),

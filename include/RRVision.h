@@ -86,17 +86,21 @@ namespace rr
 	//! Specification of radiometric measure; what is measured and what units are used.
 	struct RRRadiometricMeasure
 	{
-		RRRadiometricMeasure(bool aexiting, bool aflux, bool adirect, bool aindirect)
-			: exiting(aexiting), flux(aflux), direct(adirect), indirect(aindirect) {};
-		bool exiting : 1; ///< Selects between [0] incoming and [1] exiting radiation. \n Typical setting: 0.
+		RRRadiometricMeasure(bool aexiting, bool aflux, bool ascaled, bool adirect, bool aindirect)
+			: exiting(aexiting), flux(aflux), scaled(ascaled), direct(adirect), indirect(aindirect) {};
+		bool exiting : 1; ///< Selects between [0] incoming radiation and [1] exiting radiation. \n Typical setting: 0.
 		bool flux    : 1; ///< Selects between [0] radiant intensity (W/m^2) and [1] radiant flux (W). \n Typical setting: 0.
+		bool scaled  : 1; ///< Selects between [0] physical scale and [1] user defined scale set via RRScene::setScaler. \n Typical setting: 1.
 		bool direct  : 1; ///< Makes direct radiation (your input) part of result. \n Typical setting: 0.
 		bool indirect: 1; ///< Makes indirect radiation (computed) part of result. \n Typical setting: 1.
 	};
-	#define RM_INCIDENT_FLUX RRRadiometricMeasure(0,1,0,1)
-	#define RM_IRRADIANCE    RRRadiometricMeasure(0,0,0,1)
-	#define RM_EXITING_FLUX  RRRadiometricMeasure(1,1,0,1)
-	#define RM_EXITANCE      RRRadiometricMeasure(1,0,0,1)
+	//#define RM_INCIDENT_FLUX      RRRadiometricMeasure(0,1,1,0,1)
+	//#define RM_EXITING_FLUX       RRRadiometricMeasure(1,1,1,0,1)
+	#define RM_IRRADIANCE_SCALED          RRRadiometricMeasure(0,0,1,+0,+0) // don't care if it's direct or indirect
+	#define RM_IRRADIANCE_ALL             RRRadiometricMeasure(0,0,+0,1,1) // don't care if it's scaled or not
+	#define RM_IRRADIANCE_SCALED_ALL      RRRadiometricMeasure(0,0,1,1,1)
+	#define RM_IRRADIANCE_SCALED_INDIRECT RRRadiometricMeasure(0,0,1,0,1)
+	#define RM_EXITANCE_SCALED            RRRadiometricMeasure(1,0,1,+0,+0) // don't care if it's direct or indirect
 
 
 	//! Boolean attributes of front or back side of surface.
@@ -213,7 +217,7 @@ namespace rr
 		//! So this is way how to provide additional emissivity for each triangle separately.
 		//! \n There is default implementation that always returns 0.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
-		//! \param measure Specifies requested radiometric measure.
+		//! \param measure Specifies requested radiometric measure. (optimization hint: always called with RM_EXITANCE_SCALED)
 		//! \param out Caller provided storage for result.
 		//!  For valid t, requested measure is written to out. For invalid t, out stays unmodified.
 		virtual void                getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;

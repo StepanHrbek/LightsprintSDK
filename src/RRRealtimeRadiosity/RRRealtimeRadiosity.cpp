@@ -222,9 +222,9 @@ void RRRealtimeRadiosity::readVertexResults()
 			if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 			{
 #ifdef MULTIOBJECT
-				scene->getTriangleMeasure(0,t,v,RM_IRRADIANCE,indirect);
+				scene->getTriangleMeasure(0,t,v,RM_IRRADIANCE_SCALED_INDIRECT,indirect);
 #else
-				scene->getTriangleMeasure(objectHandle,t,v,RM_IRRADIANCE,indirect);
+				scene->getTriangleMeasure(objectHandle,t,v,RM_IRRADIANCE_SCALED_INDIRECT,indirect);
 #endif
 				for(unsigned i=0;i<3;i++)
 				{
@@ -324,10 +324,10 @@ void RRRealtimeRadiosity::readPixelResults()
 				RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
 				if(preImportTriangle.object==objectHandle)
 				{
-					scene->getSubtriangleMeasure(0,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc);
+					scene->getSubtriangleMeasure(0,postImportTriangle,RM_IRRADIANCE_SCALED_INDIRECT,renderSubtriangle,&rsc);
 				}
 #else
-				scene->getSubtriangleMeasure(objectHandle,postImportTriangle,RM_IRRADIANCE,renderSubtriangle,&rsc)
+				scene->getSubtriangleMeasure(objectHandle,postImportTriangle,RM_IRRADIANCE_SCALED_INDIRECT,renderSubtriangle,&rsc)
 #endif
 			}
 			pixelBuffer->renderEnd();
@@ -753,8 +753,8 @@ static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& o
 			//!!! scitat v HDR
 			// pokud tady prumeruju vic pixelu,
 			//  neprumerovat ve screenspacu
-			// asi vedle RM_IRRADIANCE(_SCALED) pridat RM_IRRADIANCE_HDR,
-			//  tady nacitat RM_IRRADIANCE_HDR a po zprumerovani si rucne pozadat o scale
+			// nacitat RM_IRRADIANCE_PHYSICAL_INDIRECT
+			//  a po zprumerovani si rucne pozadat o scale
 			oIrradiance[i] = (iIrradiance[filteringTable[i][0]].toRRColorRGBF()+iIrradiance[filteringTable[i][1]].toRRColorRGBF()+iIrradiance[filteringTable[i][2]].toRRColorRGBF()) * 0.333333f;
 		}
 	}
@@ -841,7 +841,7 @@ void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, 
 				else
 				// read irradiance on face
 				{
-					scene->getTriangleMeasure(0,face,3,RM_IRRADIANCE,irrad);
+					scene->getTriangleMeasure(0,face,3,RM_IRRADIANCE_SCALED_ALL,irrad);
 					// na pokusy: misto irradiance bere barvu materialu
 					//const RRSurface* surface = object->getSurface(object->getTriangleSurface(face));
 					//if(surface) irrad = surface->diffuseReflectance;

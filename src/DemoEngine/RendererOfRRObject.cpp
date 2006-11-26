@@ -218,7 +218,7 @@ void RendererOfRRObject::render()
 			if(params.renderedChannels.LIGHT_INDIRECT_COLOR)
 			{
 				rr::RRColor color;				
-				params.scene->getTriangleMeasure(0,triangleIdx,v,rr::RM_IRRADIANCE,color);
+				params.scene->getTriangleMeasure(0,triangleIdx,v,rr::RM_IRRADIANCE_SCALED_INDIRECT,color);
 				glColor3fv(&color.x);
 			}
 

@@ -2005,6 +2005,7 @@ void Object::resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool r
 		for(unsigned c=0;c<clusters;c++) {U8 flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset(resetFactors);cluster[c].flags=flag;}
 	}
 	// nastavi akumulatory na pocatecni hodnoty
+	// separated to three floats because of openmp
 	//objSourceExitingFlux=Channels(0);
 	RRReal tmpx = 0;
 	RRReal tmpy = 0;
@@ -2020,7 +2021,7 @@ void Object::resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool r
 
 		// nastavi akumulatory na pocatecni hodnoty
 		Vec3 sumExitance;
-		importer->getTriangleAdditionalMeasure(t,RM_EXITANCE,sumExitance);
+		importer->getTriangleAdditionalMeasure(t,RM_EXITANCE_SCALED,sumExitance);
 		if(scaler) sumExitance = Vec3(
 			scaler->getStandard(sumExitance.x), // getStandard=getWattsPerSquareMeter
 			scaler->getStandard(sumExitance.y),

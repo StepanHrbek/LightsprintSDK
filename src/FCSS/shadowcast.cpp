@@ -7,7 +7,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SHADOW_MAP_SIZE            512
 #define LIGHTMAP_SIZE              512
-bool ati = 0;
+bool ati = 1;
 int fullscreen = 0;
 bool renderer3ds = 1;
 bool updateDuringLightMovement = 1;
@@ -422,9 +422,9 @@ protected:
 				// pass power to rrobject
 				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
 #if PRIMARY_SCAN_PRECISION==1
-				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE,avg);
+				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE_SCALED,avg);
 #else
-				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITANCE,avg);
+				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITANCE_SCALED,avg);
 #endif
 
 				// debug print
