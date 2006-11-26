@@ -54,44 +54,22 @@ public:
 			assert(0);
 			return false;
 		}
-		switch(measure)
+		if(measure.exiting)
 		{
-		case RM_INCIDENT_FLUX:
-			triangleInfo[t].irradiance = triangleInfo[t].area ? power / triangleInfo[t].area : RRColor(0);
-			break;
-		case RM_IRRADIANCE:
-			triangleInfo[t].irradiance = power;
-			break;
-		case RM_EXITING_FLUX:
-			{
 			const RRSurface* s = getSurface(getTriangleSurface(t));
 			if(!s)
 			{
 				assert(0);
 				return false;
 			}
-			//triangleInfo[t].irradiance = power / triangleInfo[t].area / s->diffuseReflectance;
 			for(unsigned c=0;c<3;c++)
-				triangleInfo[t].irradiance[c] = (triangleInfo[t].area && s->diffuseReflectance[c]) ? power[c] / triangleInfo[t].area / s->diffuseReflectance[c] : 0;
-			break;
-			}
-		case RM_EXITANCE:
-			{
-			const RRSurface* s = getSurface(getTriangleSurface(t));
-			if(!s)
-			{
-				assert(0);
-				return false;
-			}
-			//triangleInfo[t].irradiance = power / s->diffuseReflectance;
-			for(unsigned c=0;c<3;c++)
-				triangleInfo[t].irradiance[c] = (s->diffuseReflectance[c]) ? power[c] / s->diffuseReflectance[c] : 0;
-			break;
-			}
-		default:
-			assert(0);
-			return false;
+				power[c] = (s->diffuseReflectance[c]) ? power[c] / s->diffuseReflectance[c] : 0;
 		}
+		if(measure.flux)
+		{
+			power = triangleInfo[t].area ? power / triangleInfo[t].area : RRColor(0);
+		}
+		triangleInfo[t].irradiance = power;
 		return true;
 	}
 	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
@@ -102,16 +80,9 @@ public:
 			out = RRColor(0);
 			return;
 		}
-		switch(measure)
+		RRColor power = triangleInfo[t].irradiance;
+		if(measure.exiting)
 		{
-		case RM_INCIDENT_FLUX:
-			out = triangleInfo[t].irradiance * triangleInfo[t].area;
-			break;
-		case RM_IRRADIANCE:
-			out = triangleInfo[t].irradiance;
-			break;
-		case RM_EXITING_FLUX:
-			{
 			const RRSurface* s = getSurface(getTriangleSurface(t));
 			if(!s)
 			{
@@ -119,24 +90,13 @@ public:
 				out = RRColor(0);
 				return;
 			}
-			out = triangleInfo[t].irradiance * triangleInfo[t].area * s->diffuseReflectance;
-			break;
-			}
-		case RM_EXITANCE:
-			{
-			const RRSurface* s = getSurface(getTriangleSurface(t));
-			if(!s)
-			{
-				assert(0);
-				out = RRColor(0);
-				return;
-			}
-			out = triangleInfo[t].irradiance * s->diffuseReflectance;
-			break;
-			}
-		default:
-			assert(0);
+			power *= s->diffuseReflectance;
 		}
+		if(measure.flux)
+		{
+			power *= triangleInfo[t].area;
+		}
+		out = power;
 	}
 
 	// filter

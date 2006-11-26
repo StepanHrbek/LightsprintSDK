@@ -83,14 +83,20 @@ namespace rr
 	//! Color representation, r,g,b 0..1.
 	typedef RRVec3 RRColor; 
 
-	// Identifiers for radiometric measures.
-	enum RRRadiometricMeasure
+	//! Specification of radiometric measure; what is measured and what units are used.
+	struct RRRadiometricMeasure
 	{
-		RM_INCIDENT_FLUX, ///< Incoming radiant flux [W].
-		RM_IRRADIANCE,    ///< Irradiance [W/m^2].
-		RM_EXITING_FLUX,  ///< Exiting radiant flux [W].
-		RM_EXITANCE,      ///< Radiant exitance [W/m^2].
+		RRRadiometricMeasure(bool aexiting, bool aflux, bool adirect, bool aindirect)
+			: exiting(aexiting), flux(aflux), direct(adirect), indirect(aindirect) {};
+		bool exiting : 1; ///< Selects between [0] incoming and [1] exiting radiation. \n Typical setting: 0.
+		bool flux    : 1; ///< Selects between [0] radiant intensity (W/m^2) and [1] radiant flux (W). \n Typical setting: 0.
+		bool direct  : 1; ///< Makes direct radiation (your input) part of result. \n Typical setting: 0.
+		bool indirect: 1; ///< Makes indirect radiation (computed) part of result. \n Typical setting: 1.
 	};
+	#define RM_INCIDENT_FLUX RRRadiometricMeasure(0,1,0,1)
+	#define RM_IRRADIANCE    RRRadiometricMeasure(0,0,0,1)
+	#define RM_EXITING_FLUX  RRRadiometricMeasure(1,1,0,1)
+	#define RM_EXITANCE      RRRadiometricMeasure(1,0,0,1)
 
 
 	//! Boolean attributes of front or back side of surface.

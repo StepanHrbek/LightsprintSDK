@@ -380,27 +380,17 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 		irrad[1] = scaler->getScaled(irrad[1]);
 		irrad[2] = scaler->getScaled(irrad[2]);
 	}
-	switch(measure)
+	if(measure.exiting)
 	{
-		case RM_INCIDENT_FLUX:
-			assert(0); // should be ok, but never tested
-			out = irrad * tri->area;
-			STATISTIC_INC(numCallsTriangleMeasureOk);
-			return true;
-		case RM_IRRADIANCE:
-			out = irrad;
-			STATISTIC_INC(numCallsTriangleMeasureOk);
-			return true;
-		case RM_EXITING_FLUX:
-			assert(0); // should be ok, but never tested
-			out = irrad * tri->surface->diffuseReflectance * tri->area;
-			STATISTIC_INC(numCallsTriangleMeasureOk);
-			return true;
-		case RM_EXITANCE:
-			out = irrad * tri->surface->diffuseReflectance;
-			STATISTIC_INC(numCallsTriangleMeasureOk);
-			return true;
+		irrad *= tri->surface->diffuseReflectance;
 	}
+	if(measure.flux)
+	{
+		irrad *= tri->area;
+	}
+	out = irrad;
+	STATISTIC_INC(numCallsTriangleMeasureOk);
+	return true;
 error:
 	assert(0);
 zero:
@@ -443,6 +433,7 @@ unsigned Triangle::enumSubtriangles(EnumSubtrianglesCallback* callback, void* co
 
 struct SubtriangleIlluminationContext
 {
+	SubtriangleIlluminationContext(RRRadiometricMeasure ameasure) : measure(ameasure) {};
 	RRRadiometricMeasure                   measure;
 	RRScaler*                              scaler;
 	RRScene::SubtriangleIlluminationEater* clientCallback;
@@ -504,26 +495,15 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 			return;
 		}
 		// convert irradiance to measure
-		switch(context2->measure)
+		if(context2->measure.exiting)
 		{
-			case RM_INCIDENT_FLUX:
-				assert(0); // should be ok, but not tested yet
-				si.measure[i] *= subarea;
-				STATISTIC_INC(numCallsTriangleMeasureOk);
-				break;
-			case RM_IRRADIANCE:
-				STATISTIC_INC(numCallsTriangleMeasureOk);
-				break;
-			case RM_EXITING_FLUX:
-				assert(0); // should be ok, but not tested yet
-				si.measure[i] *= s->grandpa->surface->diffuseReflectance * subarea;
-				STATISTIC_INC(numCallsTriangleMeasureOk);
-				break;
-			case RM_EXITANCE:
-				si.measure[i] *= s->grandpa->surface->diffuseReflectance;
-				STATISTIC_INC(numCallsTriangleMeasureOk);
-				break;
+			si.measure[i] *= s->grandpa->surface->diffuseReflectance;
 		}
+		if(context2->measure.flux)
+		{
+			si.measure[i] *= subarea;
+		}
+		STATISTIC_INC(numCallsTriangleMeasureOk);
 	}
 	context2->clientCallback(si,context2->clientContext);
 }
@@ -563,7 +543,7 @@ unsigned  RRScene::getSubtriangleMeasure(ObjectHandle object, unsigned triangle,
 		return 0;
 	}
 
-	SubtriangleIlluminationContext sic;
+	SubtriangleIlluminationContext sic(measure);
 	sic.measure = measure;
 	sic.scaler = scene->scaler;
 	sic.clientCallback = callback;
