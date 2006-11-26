@@ -217,7 +217,7 @@ namespace rr
 		//! So this is way how to provide additional emissivity for each triangle separately.
 		//! \n There is default implementation that always returns 0.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
-		//! \param measure Specifies requested radiometric measure. (optimization hint: always called with RM_EXITANCE_SCALED)
+		//! \param measure Specifies requested radiometric measure. Scaled must be 1. Direct/indirect may be ignored.
 		//! \param out Caller provided storage for result.
 		//!  For valid t, requested measure is written to out. For invalid t, out stays unmodified.
 		virtual void                getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
@@ -343,7 +343,7 @@ namespace rr
 		//! Sets additional illumination for triangle.
 		//
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
-		//! \param measure Radiometric measure used for power.
+		//! \param measure Radiometric measure used for power. Scaled must be 1. Direct/indirect may be ignored.
 		//! \param power Amount of additional illumination for triangle t in units specified by measure.
 		//! \returns True on success, false on invalid inputs.
 		virtual bool                setTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor power) = 0;
