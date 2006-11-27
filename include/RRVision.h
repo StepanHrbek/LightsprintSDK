@@ -101,6 +101,7 @@ namespace rr
 	#define RM_IRRADIANCE_SCALED_ALL      RRRadiometricMeasure(0,0,1,1,1)
 	#define RM_IRRADIANCE_SCALED_INDIRECT RRRadiometricMeasure(0,0,1,0,1)
 	#define RM_EXITANCE_SCALED            RRRadiometricMeasure(1,0,1,+0,+0) // don't care if it's direct or indirect
+	#define RM_ALL                        RRRadiometricMeasure(+0,+0,+0,1,1) // don't care if it's exiting, flux or scaled
 
 
 	//! Boolean attributes of front or back side of surface.
@@ -568,8 +569,6 @@ namespace rr
 		//! Identifier of integer scene state.
 		enum SceneStateU
 		{
-			GET_SOURCE,           ///< True = Results from getTriangleMeasure() contain source illumination from objects.
-			GET_REFLECTED,        ///< True = Results from getTriangleMeasure() contain reflected illumination calculated by library.
 			GET_SMOOTH,           ///< True = Results from getTriangleMeasure() are enhanced by smoothing (only reflected part).
 			// following states are for testing only
 			USE_CLUSTERS,         ///< For testing only. 0 = no clustering, !0 = use clusters.

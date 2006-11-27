@@ -115,10 +115,8 @@ public:
 
 	virtual void tick(float seconds)
 	{
-		RRScene::setState(RRScene::GET_SOURCE,1);
 		for(unsigned i=0;i<numBugs;i++)
 			bugs[i].tick(seconds,scene,object,ray,avgFaceArea);
-		RRScene::setState(RRScene::GET_SOURCE,0);
 	}
 
 	virtual void render()

@@ -668,9 +668,9 @@ public:
 };
 
 #else
-	Channels getVertexIrradiance(unsigned avertex);
+	//Channels getVertexIrradiance(unsigned avertex,RRRadiometricMeasure measure); // only direct+indirect is used
 	unsigned getTriangleIndex(Triangle* t); // return index of triangle in object, UINT_MAX for invalid input
-	IVertex **vertexIVertex; // only for fast approximative getVertexIrradiance
+	//IVertex **vertexIVertex; // only for fast approximative getVertexIrradiance
 	// IVertex pool
 	IVertex *newIVertex();
 	void     deleteIVertices();

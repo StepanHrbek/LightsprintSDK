@@ -1166,6 +1166,7 @@ void display()
 	drawHelpMessage(showHelp);
 
 	glutSwapBuffers();
+	//printf("cache: hits=%d misses=%d",rr::RRScene::getSceneStatistics()->numIrradianceCacheHits,rr::RRScene::getSceneStatistics()->numIrradianceCacheMisses);
 }
 
 void toggleWireFrame(void)
@@ -1794,7 +1795,7 @@ int main(int argc, char **argv)
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
 	// init dynaobject
-	if(!dynaobject.Load("3ds\\objects\\rubic_cube.3ds",0.01f))
+	if(!dynaobject.Load("3ds\\objects\\basketball.3ds",0.01f))
 		error("",false);
 	environmentMap = new rr::RRIlluminationEnvironmentMapInOpenGL(1);
 

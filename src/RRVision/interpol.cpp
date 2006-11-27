@@ -410,11 +410,9 @@ void IVertex::makeDirty()
 
 // irradiance in W/m^2, incident power density
 // is equal in whole vertex, doesn't depend on corner material
-Channels IVertex::irradiance()
+Channels IVertex::irradiance(RRRadiometricMeasure measure)
 {
-	bool getSource=RRScene::getState(RRScene::GET_SOURCE)!=0;
-	bool getReflected=RRScene::getState(RRScene::GET_REFLECTED)!=0;
-	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid) // cacheTime is byte:5
+	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid || cacheDirect!=measure.direct || cacheIndirect!=measure.indirect) // cacheTime is byte:5
 	{
 		//assert(powerTopLevel);
 		// irrad=irradiance in W/m^2
@@ -439,13 +437,15 @@ Channels IVertex::irradiance()
 			Channels r=a-s;
 			assert(IS_CHANNELS(r));
 			// w=wanted incident flux in watts
-			Channels w=(getSource&&getReflected)?a:( getSource?s: ( getReflected?r:Channels(0) ) );
+			Channels w=(measure.direct&&measure.indirect)?a:( measure.direct?s: ( measure.indirect?r:Channels(0) ) );
 			irrad+=w*(corner[i].power/corner[i].node->area)
 				/*/ corner[i].node->grandpa->surface->diffuseReflectance*/;
 			assert(IS_CHANNELS(irrad));
 		}
-		cache=powerTopLevel?irrad/powerTopLevel:getClosestIrradiance();//hack for ivertices inside needle - quick search for nearest valid value
+		cache=powerTopLevel?irrad/powerTopLevel:getClosestIrradiance(measure);//hack for ivertices inside needle - quick search for nearest valid value
 		cacheTime=__frameNumber;
+		cacheDirect=measure.direct;
+		cacheIndirect=measure.indirect;
 		cacheValid=1;
 		STATISTIC_INC(numIrradianceCacheMisses);
 	}
@@ -461,7 +461,7 @@ Channels IVertex::irradiance()
 // differs for different corners, depends on corner material
 Channels IVertex::exitance(Node* corner)
 {
-	return irradiance()*corner->grandpa->surface->diffuseReflectance;
+	return irradiance(RM_ALL)*corner->grandpa->surface->diffuseReflectance;
 }
 
 void IVertex::loadCache(Channels r)
@@ -1152,7 +1152,7 @@ void Object::buildTopIVertices(unsigned smoothMode)
 		fprintf(stderr,"Scene contains %i never used vertices.\n",unusedVertices);
 	}
 
-	// for each vertex, store pointer to one of ivertices
+	/*/ for each vertex, store pointer to one of ivertices
 	// helper only for fast approximate render
 	memset(vertexIVertex,0,sizeof(vertexIVertex[0])*vertices);
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
@@ -1168,7 +1168,7 @@ void Object::buildTopIVertices(unsigned smoothMode)
 			assert(un_v<vertices);
 			vertexIVertex[un_v]=triangle[t].topivertex[ro_v]; // un[un]=ro[ro]
 		}
-	}
+	}*/
 
 	// delete local array topivertex
 	for(unsigned t=0;t<triangles;t++) if(triangle[t].surface)
@@ -2140,7 +2140,7 @@ static void iv_findIvClosestToPos(SubTriangle *s,IVertex *iv,int type)
 	}
 }
 
-Channels IVertex::getClosestIrradiance()
+Channels IVertex::getClosestIrradiance(RRRadiometricMeasure measure)
 // returns irradiance of ivertex closest to this
 {
 	if(RRScene::getState(RRScene::FIGHT_NEEDLES)<2) return Channels(0); // pokud nebojujem s jehlama, vertexum bez powerTopLevel (zrejme nekde v jehlach na okraji sceny) dame barvu 0
@@ -2168,7 +2168,7 @@ Channels IVertex::getClosestIrradiance()
 		if(!tested1) tested1=n; else tested2=n;
 	}
 	static Channels prev=Channels(1e10);
-	if(ne_bestIv) prev=ne_bestIv->irradiance();
+	if(ne_bestIv) prev=ne_bestIv->irradiance(measure);
 	return prev;
 }
 

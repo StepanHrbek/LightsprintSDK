@@ -72,8 +72,8 @@ public:
 	unsigned splitTopLevelByNormals(Vec3 *avertex, Object *obj);
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
-	Channels irradiance();
-	Channels exitance(Node* corner);
+	Channels irradiance(RRRadiometricMeasure measure); // only direct+indirect is used
+	Channels exitance(Node* corner); // returns direct+indirect. used only by iv_xxx
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();
 
@@ -88,20 +88,22 @@ public:
 	Point3  point; // higher comfort, +2%space (+60%IVertex)
 #endif
 
-	bool    loaded:1;   // jen pro ucely grabovani/loadovani fak
-	bool    saved:1;    // jen pro ucely grabovani/loadovani fak
-	bool    important:1;// jen pro ucely grabovani/loadovani fak
+	U8      loaded:1;   // jen pro ucely grabovani/loadovani fak
+	U8      saved:1;    // jen pro ucely grabovani/loadovani fak
+	U8      important:1;// jen pro ucely grabovani/loadovani fak
 
 	private:
 		U8       cacheTime:5; // fix __frameNumber&0x1f if you change :5
 		U8       cacheValid:1;
 		U8       cornersAllocatedLn2:7;
+		U8       cacheDirect:1;
+		U8       cacheIndirect:1;
 		U16      corners;
 		Channels cache;	// cached irradiance
 		unsigned cornersAllocated();
 		real     powerTopLevel;
 		Corner   *corner; // pole corneru tvoricich tento ivertex
-		Channels getClosestIrradiance();
+		Channels getClosestIrradiance(RRRadiometricMeasure measure); // only direct+indirect is used
 };
 
 //////////////////////////////////////////////////////////////////////////////

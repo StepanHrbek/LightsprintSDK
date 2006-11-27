@@ -55,7 +55,6 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	//preVertex2PostTriangleVertex zeroed by constructor
 	resultChannelIndex = 0;
 	rr::RRScene::setStateF(rr::RRScene::SUBDIVISION_SPEED,0);
-	rr::RRScene::setState(rr::RRScene::GET_SOURCE,0);
 	rr::RRScene::setStateF(rr::RRScene::MIN_FEATURE_SIZE,0.15f);
 	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
 }
@@ -879,9 +878,7 @@ void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* env
 	cubeMapFilter(iSize,iIrradiance,oSize,oIrradiance);
 
 	// pass cubemap to client
-	unsigned old = scene->setState(RRScene::GET_SOURCE,1);//!!! neni thread safe, pridat do vsech dotazu parametr [src|refl|src+refl]
 	environmentMap->setValues(oSize?oSize:iSize,oIrradiance?oIrradiance:iIrradiance);
-	scene->setState(RRScene::GET_SOURCE,old);
 
 	// cleanup
 	delete oIrradiance;

@@ -13,6 +13,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+// timeBeginPeriod
+#include <windows.h>
+#pragma comment(lib,"winmm.lib")
+
 #ifdef RASTERGL
  #include "ldmgf2.h"
  #include "videogl.h"
@@ -777,6 +782,7 @@ int main(int argc, char **argv)
  kb_init();
  glutInit(&argc,argv);
  render_init();
+ timeBeginPeriod(1); // improves precision of demoengine's GETTIME
  RRLicense::LicenseStatus status = rr::RRLicense::loadLicense("..\\..\\data\\licence_number");
  switch(status)
  {

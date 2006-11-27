@@ -307,9 +307,8 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	if(vertex<3 && RRScene::getState(GET_FINAL_GATHER))
 	{
 		vertex=(vertex+3-tri->rotations)%3;
-
-		Channels reflIrrad = Channels(0);
-		if(RRScene::getState(GET_REFLECTED))
+		irrad = Channels(0);
+		if(measure.indirect)
 		{
 			// get normal
 			RRObject* objectImporter = obj->importer;
@@ -336,9 +335,12 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			}
 			//!!! solved by fudge 1mm offset in gatherIrradiance. point += normal*0.001f; //!!! fudge number. to avoid immediate hits of other faces connected to vertex. could be done also by more advanced skipTriangle with list of all faces connected to vertex
 			// get irradiance
-			reflIrrad = scene->gatherIrradiance(point,normal,tri);
+			irrad += scene->gatherIrradiance(point,normal,tri);
 		}
-		irrad = (RRScene::getState(GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
+		if(measure.direct)
+		{
+			irrad += tri->getSourceIrradiance();
+		}
 	}
 	else
 
@@ -346,27 +348,19 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	if(vertex<3 && RRScene::getState(GET_SMOOTH))
 	{
 		vertex=(vertex+3-tri->rotations)%3;
-
-		Channels reflIrrad = Channels(0);
-		if(RRScene::getState(GET_REFLECTED))
-		{
-			unsigned oldSource = RRScene::setState(GET_SOURCE,0);
-			reflIrrad = tri->topivertex[vertex]->irradiance();
-			RRScene::setState(GET_SOURCE,oldSource);
-		}
-		irrad = (RRScene::getState(GET_SOURCE)?tri->getSourceIrradiance():Channels(0)) + reflIrrad; // irradiance in W/m^2
+		irrad = tri->topivertex[vertex]->irradiance(measure);
 	}
 	else
 
 	// basic, fast
 	{
-		if(!RRScene::getState(GET_SOURCE) && !RRScene::getState(GET_REFLECTED)) 
+		if(!measure.direct && !measure.indirect) 
 			irrad = Channels(0);
 		else
-		if(RRScene::getState(GET_SOURCE) && !RRScene::getState(GET_REFLECTED)) 
+		if(measure.direct && !measure.indirect) 
 			irrad = tri->getSourceIrradiance();
 		else
-		if(RRScene::getState(GET_SOURCE) && RRScene::getState(GET_REFLECTED)) 
+		if(measure.direct && measure.indirect) 
 			irrad = (tri->energyDirectIncident /*+ tri->getEnergyDynamic()*/) / tri->area;
 		else
 			irrad = (tri->energyDirectIncident /*+ tri->getEnergyDynamic()*/) / tri->area - tri->getSourceIrradiance();
@@ -478,7 +472,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 		}
 		// fill irradiance
 		if(RRScene::getState(RRScene::GET_SMOOTH))
-			si.measure[i] = iv[i]->irradiance();
+			si.measure[i] = iv[i]->irradiance(context2->measure);
 		else
 			si.measure[i] = flatambient+s->energyDirect/s->area;
 		// scale irradiance
@@ -574,8 +568,6 @@ void RRScene::resetStates()
 {
 	memset(RRSSValueU,0,sizeof(RRSSValueU));
 	memset(RRSSValueF,0,sizeof(RRSSValueF));
-	setState(RRScene::GET_SOURCE,1);
-	setState(RRScene::GET_REFLECTED,1);
 	setState(RRScene::GET_SMOOTH,1);
 	// development
 	setState(RRScene::USE_CLUSTERS,0);

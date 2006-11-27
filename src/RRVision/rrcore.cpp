@@ -1876,21 +1876,25 @@ Object::Object(int avertices,int atriangles)
 #ifdef SUPPORT_DYNAMIC
 	trianglesEmiting=0;
 #endif
-	vertexIVertex=new IVertex*[vertices];
-	memset(vertexIVertex,0,sizeof(void*)*vertices);
+	//vertexIVertex=new IVertex*[vertices];
+	//memset(vertexIVertex,0,sizeof(void*)*vertices);
 	IVertexPool=NULL;
 	IVertexPoolItems=0;
 	IVertexPoolItemsUsed=0;
 }
-
-Channels Object::getVertexIrradiance(unsigned avertex)
+/*
+Channels Object::getVertexIrradiance(unsigned avertex,RRRadiometricMeasure measure)
 {
+#ifdef SUPPORT_INTERPOL
 	assert(avertex<vertices);
 	if(!vertexIVertex[avertex]) return Channels(0); // be prepared for NULL
 	assert(vertexIVertex[avertex]);
-	return vertexIVertex[avertex]->irradiance();
+	return vertexIVertex[avertex]->irradiance(measure);
+#else
+	return Channels((real)(rand()%1000)); // not implemented for non-interpol mode
+#endif
 }
-
+*/
 unsigned Object::getTriangleIndex(Triangle* t)
 {
 	unsigned idx = (unsigned)(t-triangle);
@@ -1982,7 +1986,7 @@ Object::~Object()
 	delete[] triangle;
 	delete[] vertex;
 	if(edge) delete[] edge;
-	delete[] vertexIVertex;
+	//delete[] vertexIVertex;
 	deleteIVertices();
 }
 
