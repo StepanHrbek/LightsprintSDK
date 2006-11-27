@@ -21,13 +21,21 @@ public:
 	{
 		gamma = agamma;
 	}
-	virtual RRReal getScaled(RRReal standard) const
+	virtual void getUserScale(RRColor& color) const
 	{
-		return pow(standard,gamma);
+		color = RRColor(
+			pow(color[0],gamma),
+			pow(color[1],gamma),
+			pow(color[2],gamma)
+			);
 	}
-	virtual RRReal getStandard(RRReal scaled) const
+	virtual void getPhysicalScale(RRColor& color) const
 	{
-		return pow(scaled,1/gamma);
+		color = RRColor(
+			pow(color[0],1/gamma),
+			pow(color[1],1/gamma),
+			pow(color[2],1/gamma)
+			);
 	}
 private:
 	RRReal gamma;

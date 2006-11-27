@@ -2026,10 +2026,11 @@ void Object::resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool r
 		// nastavi akumulatory na pocatecni hodnoty
 		Vec3 sumExitance;
 		importer->getTriangleAdditionalMeasure(t,RM_EXITANCE_SCALED,sumExitance);
-		if(scaler) sumExitance = Vec3(
-			scaler->getStandard(sumExitance.x), // getStandard=getWattsPerSquareMeter
-			scaler->getStandard(sumExitance.y),
-			scaler->getStandard(sumExitance.z));
+		if(scaler) 
+		{
+			// scaler applied on exitance
+			scaler->getPhysicalScale(sumExitance); // getPhysicalScale=getWattsPerSquareMeter
+		}
 		Channels tmp = abs(triangle[t].setSurface(triangle[t].surface,sumExitance,resetPropagation));
 		//objSourceExitingFlux += tmp;
 		tmpx += tmp.x;

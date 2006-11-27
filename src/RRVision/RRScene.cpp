@@ -180,10 +180,11 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 			//  delete this and rather call obj->resetStaticIllumination
 			Vec3 sumExitance;
 			importer->getTriangleAdditionalMeasure(fi,RM_EXITANCE_SCALED,sumExitance);
-			if(scene->scaler) sumExitance = Vec3(
-				scene->scaler->getStandard(sumExitance.x), // getOriginal=getWattsPerSquareMeter
-				scene->scaler->getStandard(sumExitance.y),
-				scene->scaler->getStandard(sumExitance.z));
+			if(scene->scaler)
+			{
+				// scaler applied on exitance
+				scene->scaler->getPhysicalScale(sumExitance); // getPhysicalScale=getWattsPerSquareMeter
+			}
 			obj->objSourceExitingFlux+=abs(t->setSurface(s,sumExitance,true));
 		}
 		else
@@ -266,7 +267,6 @@ RRReal RRScene::illuminationAccuracy()
 bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out) const
 {
 	Channels irrad;
-	RRScaler* scaler;
 	Object* obj;
 	Triangle* tri;
 
@@ -366,17 +366,14 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 			irrad = (tri->energyDirectIncident /*+ tri->getEnergyDynamic()*/) / tri->area - tri->getSourceIrradiance();
 	}
 
-	// scaler may be applied only on irradiance/exitance
-	scaler = scene->scaler;
-	if(scaler)
-	{
-		irrad[0] = scaler->getScaled(irrad[0]);
-		irrad[1] = scaler->getScaled(irrad[1]);
-		irrad[2] = scaler->getScaled(irrad[2]);
-	}
 	if(measure.exiting)
 	{
 		irrad *= tri->surface->diffuseReflectance;
+	}
+	if(measure.scaled && scene->scaler)
+	{
+		// scaler applied on exitance
+		scene->scaler->getUserScale(irrad);
 	}
 	if(measure.flux)
 	{
@@ -470,28 +467,25 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 			if(si.texCoord[i][1]>1.1) {DBG(printf("d%f ",si.texCoord[i][1]));assert(0);}
 			si.texCoord[i][1] = 1;
 		}
-		// fill irradiance
-		if(RRScene::getState(RRScene::GET_SMOOTH))
-			si.measure[i] = iv[i]->irradiance(context2->measure);
-		else
-			si.measure[i] = flatambient+s->energyDirect/s->area;
-		// scale irradiance
-		if(context2->scaler)
-		{
-			for(unsigned j=0;j<3;j++)
-			{
-				si.measure[i][j] = context2->scaler->getScaled(si.measure[i][j]);
-			}
-		}
 		if(!context2 || licenseStatus!=RRLicense::VALID)
 		{
 			assert(0);
 			return;
 		}
+		// fill irradiance
+		if(RRScene::getState(RRScene::GET_SMOOTH))
+			si.measure[i] = iv[i]->irradiance(context2->measure);
+		else
+			si.measure[i] = flatambient+s->energyDirect/s->area;
 		// convert irradiance to measure
 		if(context2->measure.exiting)
 		{
 			si.measure[i] *= s->grandpa->surface->diffuseReflectance;
+		}
+		if(context2->measure.scaled && context2->scaler)
+		{
+			// scaler applied on exitance
+			context2->scaler->getUserScale(si.measure[i]);
 		}
 		if(context2->measure.flux)
 		{

@@ -354,7 +354,7 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRScaler
-	//! Interface for 1d space transformer.
+	//! Interface for 3d space transformer.
 	//
 	//! RRScaler may be used by RRScene to transform irradiance/emittance/exitance 
 	//! between physical W/m^2 space and your user defined space.
@@ -376,10 +376,10 @@ namespace rr
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Converts standard space (W/m^2) value to scaled space.
-		virtual RRReal getScaled(RRReal standard) const = 0;
-		//! Converts scaled space value to standard space (W/m^2).
-		virtual RRReal getStandard(RRReal scaled) const = 0;
+		//! Converts color from physical scale (W/m^2) value to user defined scale.
+		virtual void getUserScale(RRColor& physicalScale) const = 0;
+		//! Converts color from user defined scale to physical scale (W/m^2).
+		virtual void getPhysicalScale(RRColor& userScale) const = 0;
 		virtual ~RRScaler() {}
 
 
