@@ -851,9 +851,6 @@ void Triangle::removeFromIVertices(Node *node)
 	SubTriangle::removeFromIVertices(node);
 }
 
-#ifndef ONLY_PLAYER
-#endif
-
 #ifdef SUPPORT_MIN_FEATURE_SIZE
 void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo& info)
 // used by: merge close ivertices

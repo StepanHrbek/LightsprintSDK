@@ -16,6 +16,7 @@
 //#include "libff/ff.h"
 #include "LicGenOpt.h"
 #include "rrcore.h"
+#include "clusters.h"
 
 /*/ asserts also in release
 #include <windows.h>
@@ -1604,15 +1605,6 @@ Edges::~Edges()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// cluster, set of triangles, part of object
-
-#ifndef ONLY_PLAYER
-
-
-#endif // !ONLY_PLAYER
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // object, part of scene
 
 Object::Object(int avertices,int atriangles)
@@ -1819,12 +1811,11 @@ bool Object::contains(Triangle *t)
 	return (t>=&triangle[0]) && (t<&triangle[triangles]);
 }
 
-
 bool Object::contains(Node *n)
 {
 	return 
-	       (IS_TRIANGLE(n) && contains(TRIANGLE(n))) ||
-	       (IS_SUBTRIANGLE(n) && contains(n->grandpa));
+		(IS_TRIANGLE(n) && contains(TRIANGLE(n))) ||
+		(IS_SUBTRIANGLE(n) && contains(n->grandpa));
 }
 
 void Object::detectBounds()
@@ -1864,7 +1855,6 @@ void Scene::transformObjects()
 		}
 	}
 }
-
 
 bool Object::check()
 {

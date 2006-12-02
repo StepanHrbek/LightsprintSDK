@@ -20,6 +20,7 @@
 #endif
 
 #include "../RRVision/rrcore.h"//!!!
+#include "../RRVision/clusters.h"//!!!
 using namespace rr;
 
 //////////////////////////////////////////////////////////////////////////////

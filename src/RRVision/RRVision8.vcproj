@@ -321,6 +321,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\clusters.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\clusters.h"
+			>
+		</File>
+		<File
 			RelativePath="dynamic.cpp"
 			>
 		</File>

@@ -2,6 +2,7 @@
 #include <math.h>
 #include <memory.h>
 #include "rrcore.h"
+#include "clusters.h"
 #include "RRVision.h"
 #include <stdio.h> // dbg printf
 
