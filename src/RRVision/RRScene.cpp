@@ -345,7 +345,7 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	else
 
 	// enhanced by smoothing
-	if(vertex<3 && RRScene::getState(GET_SMOOTH))
+	if(vertex<3 && measure.smoothed)
 	{
 		vertex=(vertex+3-tri->rotations)%3;
 		irrad = tri->topivertex[vertex]->irradiance(measure);
@@ -473,7 +473,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 			return;
 		}
 		// fill irradiance
-		if(RRScene::getState(RRScene::GET_SMOOTH))
+		if(context2->measure.smoothed)
 			si.measure[i] = iv[i]->irradiance(context2->measure);
 		else
 			si.measure[i] = flatambient+s->energyDirect/s->area;
@@ -562,7 +562,6 @@ void RRScene::resetStates()
 {
 	memset(RRSSValueU,0,sizeof(RRSSValueU));
 	memset(RRSSValueF,0,sizeof(RRSSValueF));
-	setState(RRScene::GET_SMOOTH,1);
 	// development
 	setState(RRScene::USE_CLUSTERS,0);
 	setState(RRScene::GET_FINAL_GATHER,0);

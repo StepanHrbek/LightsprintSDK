@@ -93,6 +93,7 @@ namespace rr
 		bool scaled  : 1; ///< Selects between [0] physical scale and [1] user defined scale set via RRScene::setScaler. \n Typical setting: 1.
 		bool direct  : 1; ///< Makes direct radiation (your input) part of result. \n Typical setting: 0.
 		bool indirect: 1; ///< Makes indirect radiation (computed) part of result. \n Typical setting: 1.
+		bool smoothed: 1; ///< Selects between [0] raw results for debugging purposes and [1] smoothed results.
 	};
 	//#define RM_INCIDENT_FLUX      RRRadiometricMeasure(0,1,1,0,1)
 	//#define RM_EXITING_FLUX       RRRadiometricMeasure(1,1,1,0,1)
@@ -568,7 +569,6 @@ namespace rr
 		//! Identifier of integer scene state.
 		enum SceneStateU
 		{
-			GET_SMOOTH,           ///< True = Results from getTriangleMeasure() are enhanced by smoothing (only reflected part).
 			// following states are for testing only
 			USE_CLUSTERS,         ///< For testing only. 0 = no clustering, !0 = use clusters.
 			GET_FINAL_GATHER,     ///< For testing only. Results from getTriangleMeasure are enhanced by final gathering.
