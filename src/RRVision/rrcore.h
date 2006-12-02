@@ -660,9 +660,9 @@ public:
 	Triangle*triangle;
 	Edge    *edge;
 	void    buildEdges();
-	void    buildTopIVertices(unsigned smoothMode);
+	void    buildTopIVertices(unsigned smoothMode, float minFeatureSize);
 		private:
-		unsigned mergeCloseIVertices(IVertex* ivertex);
+		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize);
 		public:
 #ifdef ONLY_PLAYER
 };

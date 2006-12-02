@@ -50,7 +50,6 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	//preVertex2PostTriangleVertex zeroed by constructor
 	resultChannelIndex = 0;
 	rr::RRScene::setStateF(rr::RRScene::SUBDIVISION_SPEED,0);
-	rr::RRScene::setStateF(rr::RRScene::MIN_FEATURE_SIZE,0.15f);
 	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
 }
 
@@ -65,10 +64,11 @@ RRRealtimeRadiosity::~RRRealtimeRadiosity()
 	delete multiObjectBase;
 }
 
-void RRRealtimeRadiosity::setObjects(Objects& aobjects, float astitchDistance)
+void RRRealtimeRadiosity::setObjects(Objects& aobjects, float astitchDistance, float aminFeatureSize)
 {
 	objects = aobjects;
 	stitchDistance = astitchDistance;
+	minFeatureSize = aminFeatureSize;
 	dirtyGeometry = true;
 }
 
@@ -171,13 +171,12 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		//scene->setStateF(RRScene::IGNORE_SMALLER_ANGLE,-1);
 		//scene->setStateF(RRScene::IGNORE_SMALLER_AREA,-1);
 		//scene->setStateF(RRScene::MAX_SMOOTH_ANGLE,0.6f);
-		//scene->setStateF(RRScene::MIN_FEATURE_SIZE,-0.1f);
 		multiObject = multiObjectBase ? multiObjectBase->createAdditionalIllumination() : NULL;
 		delete[] importers;
-		scene->objectCreate(multiObject);
+		scene->objectCreate(multiObject,minFeatureSize);
 #else
 		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
-			scene->objectCreate((*i).first);
+			scene->objectCreate((*i).first,minFeatureSize);
 #endif
 		onSceneInit();
 		updateVertexLookupTable();

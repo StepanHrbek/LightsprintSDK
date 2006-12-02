@@ -307,7 +307,7 @@ namespace rr
 		//! \param intersectTechnique
 		//!  Technique used for collider construction.
 		//! \param maxStitchDistance
-		//!  Vertices with lower or equal distance will be stitched into one vertex.
+		//!  Distance in world units. Vertices with lower or equal distance will be stitched into one vertex.
 		//!  Zero stitches only identical vertices, negative value means no action.
 		//! \param optimizeTriangles
 		//!  True removes degenerated triangles.
@@ -456,13 +456,18 @@ namespace rr
 		//! This can be fixed by merging standalone objects into one object using RRObject::createMultiObject().
 		//! \param importer
 		//!  Object importer that defines object shape and material.
+		//! \param minFeatureSize
+		//!  Distance in world units. Smaller features will be smoothed. This could be imagined as a kind of blur.
+		//!  Use 0 for no smoothing and watch for possible artifacts in areas with small geometry details
+		//!  and 'needle' triangles. Increase until artifacts disappear.
+		//!  15cm (0.15 for game with 1m units) could be good for typical interior game.
 		//! \param smoothMode
 		//!  Selects smoothing mode, valid options are: 0,1,2.
 		//!  \n 0 = Normal independent smoothing, old. Depends on MAX_SMOOTH_ANGLE.
 		//!  \n 1 = Normal independent smoothing, new. Depends on MAX_SMOOTH_ANGLE.
 		//!  \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed.
 		//! \return ObjectHandle for accessing created object.
-		ObjectHandle  objectCreate(RRObject* importer, unsigned smoothMode=2);
+		ObjectHandle  objectCreate(RRObject* importer, float minFeatureSize, unsigned smoothMode=2);
 		
 		//////////////////////////////////////////////////////////////////////////////
 		//
@@ -578,7 +583,6 @@ namespace rr
 		//! Identifier of float scene state.
 		enum SceneStateF
 		{
-			MIN_FEATURE_SIZE,    ///< Smaller features will be smoothed. This could be imagined as kind of blur.
 			MAX_SMOOTH_ANGLE,    ///< Smaller angles between faces may be smoothed out. This controls automatic smoothgrouping.
 			// following states are for testing only
 			SUBDIVISION_SPEED,   ///< For testing only. Speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast. Currently there is no way to read subdivision results back, so let it 0.

@@ -966,7 +966,7 @@ void IVertexInfo::absorb(IVertexInfo& info2)
 	ivertex->absorb(info2.ivertex);
 }
 
-unsigned Object::mergeCloseIVertices(IVertex* ivertex)
+unsigned Object::mergeCloseIVertices(IVertex* ivertex, float minFeatureSize)
 // merges close ivertices
 // why to do it: eliminates negative effect of needle, both triangles around needle are interpolated as if there is no needle
 // returns number of merges (each merge = 1 ivertex reduced)
@@ -1035,11 +1035,11 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 					minIVert2 = ivertex2Idx;
 				}
 			}
-			if(minDist<=RRScene::getStateF(RRScene::MIN_FEATURE_SIZE)) break;
+			if(minDist<=minFeatureSize) break;
 		}
 
 		// end if not close enough
-		if(minDist>RRScene::getStateF(RRScene::MIN_FEATURE_SIZE)) break;
+		if(minDist>minFeatureSize) break;
 		numReduced++;
 
 		// merge ivertices: update local temporary vertex2ivertex
@@ -1065,7 +1065,7 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 }
 #endif
 
-void Object::buildTopIVertices(unsigned smoothMode)
+void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize)
 {
 	// check
 	for(unsigned t=0;t<triangles;t++)
@@ -1103,13 +1103,13 @@ void Object::buildTopIVertices(unsigned smoothMode)
 #ifdef SUPPORT_MIN_FEATURE_SIZE
 	check();
 	// volano jen pokud ma neco delat -> malinka uspora casu
-	if(RRScene::getStateF(RRScene::MIN_FEATURE_SIZE)>0)
+	if(minFeatureSize>0)
 	{
 		// Pouha existence nasledujiciho radku (mergeCloseIVertices) i kdyz se nikdy neprovadi
 		// zpomaluje cube v MSVC o 8%.
 		// Nevyresena zahada.
 		// Ona fce je jedine misto pouzivajici exceptions, ale exceptions jsou vyple (jejich zapnuti zpomali o dalsich 12%).
-		numIVertices -= mergeCloseIVertices(topivertex);
+		numIVertices -= mergeCloseIVertices(topivertex,minFeatureSize);
 		check();
 		//printf("IVertices after merge close: %d\n",numIVertices);
 	}
