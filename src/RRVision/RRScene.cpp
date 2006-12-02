@@ -373,7 +373,7 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	if(measure.scaled && scene->scaler)
 	{
 		// scaler applied on exitance
-		scene->scaler->getUserScale(irrad);
+		scene->scaler->getCustomScale(irrad);
 	}
 	if(measure.flux)
 	{
@@ -485,7 +485,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 		if(context2->measure.scaled && context2->scaler)
 		{
 			// scaler applied on exitance
-			context2->scaler->getUserScale(si.measure[i]);
+			context2->scaler->getCustomScale(si.measure[i]);
 		}
 		if(context2->measure.flux)
 		{
@@ -550,7 +550,7 @@ void RRScene::setScaler(RRScaler* scaler)
 	scene->setScaler(scaler);
 }
 
-RRScaler* RRScene::getScaler()
+const RRScaler* RRScene::getScaler() const
 {
 	return scene->scaler;
 }

@@ -357,15 +357,14 @@ namespace rr
 	//! Interface for 3d space transformer.
 	//
 	//! RRScaler may be used by RRScene to transform irradiance/emittance/exitance 
-	//! between physical W/m^2 space and your user defined space.
-	//! It is just helper for your convenience, you may easily stay without RRScaler.
+	//! between physical W/m^2 space and custom user defined space.
 	//! Without scaler, all inputs/outputs work with specified physical units.
 	//! With appropriate scaler, you may directly work for example with screen colors
 	//! or photometric units.
 	//!
 	//! RRSurface::diffuseEmittance is never scaled.
 	//!
-	//! Contains built-in support for standard RGB monitor space, see createRgbScaler().
+	//! Contains built-in support for typical RGB monitor space, see createRgbScaler().
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -377,9 +376,9 @@ namespace rr
 		//////////////////////////////////////////////////////////////////////////////
 
 		//! Converts color from physical scale (W/m^2) value to user defined scale.
-		virtual void getUserScale(RRColor& physicalScale) const = 0;
+		virtual void getCustomScale(RRColor& physicalScale) const = 0;
 		//! Converts color from user defined scale to physical scale (W/m^2).
-		virtual void getPhysicalScale(RRColor& userScale) const = 0;
+		virtual void getPhysicalScale(RRColor& customScale) const = 0;
 		virtual ~RRScaler() {}
 
 
@@ -564,7 +563,7 @@ namespace rr
 		//! Set scaler used by this scene i/o operations. This is option for your convenience. See RRScaler for details.
 		void          setScaler(RRScaler* scaler);
 		//! Returns scaler used by this scene i/o operations.
-		RRScaler*     getScaler();
+		const RRScaler* getScaler() const;
 
 		//! Identifier of integer scene state.
 		enum SceneStateU

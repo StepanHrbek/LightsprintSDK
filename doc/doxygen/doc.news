@@ -8,19 +8,31 @@
 
 \section news8 ------------------------------------- 2006.11.x -------------------------------------
 
+CHANGES
+
+- RRRadiometricMeasure extended to support optional scale and direct/indirect
+  \n simplifies access to physical scale values
+  \n obsoletes global GET_SOURCE and GET_REFLECTED
+- RRScaler interface changed from scalar to more efficient vector operation
+
+\section news8 ------------------------------------- 2006.11.16 -------------------------------------
+
 NEW FEATURES
 
 - dynamic object illumination, see RRIlluminationEnvironmentMap
+- RR_INTERFACE_OK
+  \n check whether correct dll is used
 
 CHANGES
 
 - 5% faster radiosity solver
+- smoother HelloRealtimeRadiosity sample
 
 \section news7 ------------------------------------- 2006.10.5 -------------------------------------
 
 CHANGES
 
-- parallelized parts of code, up to 30% faster on dualcore
+- parallelized parts of code, up to 30% faster on dualcore CPU
 
 \section news6 ------------------------------------- 2006.9.20 -------------------------------------
 

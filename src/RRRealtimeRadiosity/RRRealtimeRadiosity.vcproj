@@ -292,11 +292,23 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\ambientMap.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\environmentMap.cpp"
+			>
+		</File>
+		<File
 			RelativePath="RRRealtimeRadiosity.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\include\RRRealtimeRadiosity.h"
+			>
+		</File>
+		<File
+			RelativePath=".\vertexBuffer.cpp"
 			>
 		</File>
 	</Files>

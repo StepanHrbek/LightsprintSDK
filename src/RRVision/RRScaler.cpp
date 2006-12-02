@@ -21,7 +21,7 @@ public:
 	{
 		gamma = agamma;
 	}
-	virtual void getUserScale(RRColor& color) const
+	virtual void getCustomScale(RRColor& color) const
 	{
 		color = RRColor(
 			pow(color[0],gamma),
