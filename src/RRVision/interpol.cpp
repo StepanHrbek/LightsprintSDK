@@ -180,7 +180,7 @@ bool IVertex::contains(Node *node)
 	return false;
 }
 
-unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj)
+unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj, float maxSmoothAngle)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
@@ -253,7 +253,7 @@ unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj)
 	return numSplitted;
 }
 
-unsigned IVertex::splitTopLevelByAngleNew(Vec3 *avertex, Object *obj)
+unsigned IVertex::splitTopLevelByAngleNew(Vec3 *avertex, Object *obj, float maxSmoothAngle)
 {
 	// input: ivertex filled with triangle corners (ivertex is installed in all his corners)
 	// job: remove this ivertex and install new reduced ivertices (split big into set of smaller)
@@ -1065,7 +1065,7 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 }
 #endif
 
-void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize)
+void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float maxSmoothAngle)
 {
 	// check
 	for(unsigned t=0;t<triangles;t++)
@@ -1125,11 +1125,11 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize)
 		switch(smoothMode)
 		{
 			case 0:
-				numIVertices += topivertex[v].splitTopLevelByAngleOld((Vec3*)&vert,this);
+				numIVertices += topivertex[v].splitTopLevelByAngleOld((Vec3*)&vert,this,maxSmoothAngle);
 				break;
 			case 1:
 			default:
-				numIVertices += topivertex[v].splitTopLevelByAngleNew((Vec3*)&vert,this);
+				numIVertices += topivertex[v].splitTopLevelByAngleNew((Vec3*)&vert,this,maxSmoothAngle);
 				break;
 //			default:
 //				numIVertices += topivertex[v].splitTopLevelByNormals((Vec3*)&vert,this);

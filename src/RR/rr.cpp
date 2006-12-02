@@ -736,7 +736,6 @@ void help()
  printf(" Realtime Radiosity                                   Dee & ReDox (C) 1999-2004\n");
  printf(" -------------------------------[ calculation ]--------------------------------\n");
  printf(" scene.bsp    ...load scene\n");
- printf(" -smoothRAD   ...smoothen edges between surfaces in plane +-RAD (0.3)\n");
  printf(" -hide:NAME   ...hide all faces from material NAME ()\n");
  printf(" -j           ...fight needles ('j' toggles needles: highlighted, masked)\n");
  printf(" -c           ...don't use clusters\n");
@@ -822,9 +821,6 @@ int main(int argc, char **argv)
      else
      if (!strncmp(argv[i],"-it",2))
         {int tmp;if(sscanf(argv[i],"-it%i",&tmp)==1) intersectTechnique = (RRCollider::IntersectTechnique)tmp; else goto badarg;}
-     else
-     if (!strncmp(argv[i],"-smooth",7))
-        {float tmp;if(sscanf(argv[i],"-smooth%f",&tmp)==1) RRScene::setStateF(RRScene::MAX_SMOOTH_ANGLE,tmp); else goto badarg;}
      else
      if (!strcmp(argv[i],"-j"))
         c_fightNeedles=true;

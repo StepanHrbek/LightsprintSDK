@@ -10,9 +10,12 @@
 
 CHANGES
 
-- RRRadiometricMeasure extended to support optional scale and direct/indirect
+- RRRadiometricMeasure extended to support optional
+  scale, direct/indirect, smooth
   \n simplifies access to physical scale values
-  \n obsoletes global GET_SOURCE and GET_REFLECTED
+  \n obsoletes global GET_SOURCE, GET_REFLECTED, GET_SMOOTH
+- RRScene::objectCreate has new parameters
+  \n obsoletes MIN_FEATURE_SIZE and MAX_SMOOTH_ANGLE
 - RRScaler interface changed from scalar to more efficient vector operation
 
 \section news8 ------------------------------------- 2006.11.16 -------------------------------------

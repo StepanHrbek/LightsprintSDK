@@ -659,8 +659,8 @@ public:
 	Vec3    *vertex;
 	Triangle*triangle;
 	Edge    *edge;
-	void    buildEdges();
-	void    buildTopIVertices(unsigned smoothMode, float minFeatureSize);
+	void    buildEdges(float maxSmoothAngle);
+	void    buildTopIVertices(unsigned smoothMode, float minFeatureSize, float maxSmoothAngle);
 		private:
 		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize);
 		public:

@@ -116,7 +116,7 @@ RRScene::~RRScene()
 // c) zkontrolovat na zacatku a pak duverovat
 //    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRSurface::validate();
    
-RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, float minFeatureSize, unsigned smoothMode)
+RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothMode, float minFeatureSize, float maxSmoothAngle)
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
@@ -202,7 +202,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, float minFeature
 	obj->detectBounds();
 	{
 		DBG(printf(" edges...\n"));
-		obj->buildEdges(); // build edges only for clusters and/or interpol
+		obj->buildEdges(maxSmoothAngle); // build edges only for clusters and/or interpol
 	}
 	if(RRScene::getState(USE_CLUSTERS))
 	{
@@ -211,7 +211,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, float minFeature
 		// clusters first, ivertices then (see comment in Cluster::insert)
 	}
 	DBG(printf(" ivertices...\n"));
-	obj->buildTopIVertices(smoothMode,minFeatureSize);
+	obj->buildTopIVertices(smoothMode,minFeatureSize,maxSmoothAngle);
 	// priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
 	obj->id=0;//!!!
 	obj->name=NULL;
@@ -567,7 +567,6 @@ void RRScene::resetStates()
 	setState(RRScene::GET_FINAL_GATHER,0);
 	setState(RRScene::FIGHT_NEEDLES,0);
 
-	setStateF(RRScene::MAX_SMOOTH_ANGLE,M_PI/10+0.01f);
 	// development
 	setStateF(RRScene::SUBDIVISION_SPEED,0);
 	setStateF(RRScene::IGNORE_SMALLER_AREA,SMALL_REAL);

@@ -1907,6 +1907,7 @@ void addEdgeWith(Triangle *t1,va_list ap)
 	Edge     *edge    =va_arg(ap,Edge *);
 	unsigned *edges   =va_arg(ap,unsigned *);
 	unsigned maxedges =va_arg(ap,unsigned);
+	float    maxSmoothAngle =va_arg(ap,float);
 
 	for(unsigned v1=0;v1<3;v1++)
 	  if(!t1->edge[v1])
@@ -1939,7 +1940,7 @@ void addEdgeWith(Triangle *t1,va_list ap)
 	}
 }
 
-void Object::buildEdges()
+void Object::buildEdges(float maxSmoothAngle)
 // triangles with surface=NULL get intentionally no edges
 // if they get edges, createSubvertex would go 
 //  from triangle with surface+topIVertices via edge to triangle without surface+topIVertices
@@ -1971,7 +1972,7 @@ void Object::buildEdges()
 		Triangle *tri;
 		while((tri=trianglesInV[v].get()))
 		{
-			trianglesInV[v].forEach(addEdgeWith,tri,edge,&edges,(unsigned)(triangles*3/2));
+			trianglesInV[v].forEach(addEdgeWith,tri,edge,&edges,(unsigned)(triangles*3/2),maxSmoothAngle);
 		}
 	}
 	delete[] trianglesInV;

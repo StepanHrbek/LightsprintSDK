@@ -64,11 +64,12 @@ RRRealtimeRadiosity::~RRRealtimeRadiosity()
 	delete multiObjectBase;
 }
 
-void RRRealtimeRadiosity::setObjects(Objects& aobjects, float astitchDistance, float aminFeatureSize)
+void RRRealtimeRadiosity::setObjects(Objects& aobjects, float astitchDistance, float aminFeatureSize, float amaxSmoothAngle)
 {
 	objects = aobjects;
 	stitchDistance = astitchDistance;
 	minFeatureSize = aminFeatureSize;
+	maxSmoothAngle = amaxSmoothAngle;
 	dirtyGeometry = true;
 }
 
@@ -173,10 +174,10 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		//scene->setStateF(RRScene::MAX_SMOOTH_ANGLE,0.6f);
 		multiObject = multiObjectBase ? multiObjectBase->createAdditionalIllumination() : NULL;
 		delete[] importers;
-		scene->objectCreate(multiObject,minFeatureSize);
+		scene->objectCreate(multiObject,2,minFeatureSize,maxSmoothAngle);
 #else
 		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
-			scene->objectCreate((*i).first,minFeatureSize);
+			scene->objectCreate((*i).first,2,minFeatureSize,maxSmoothAngle);
 #endif
 		onSceneInit();
 		updateVertexLookupTable();

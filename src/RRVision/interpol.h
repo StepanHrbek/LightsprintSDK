@@ -24,7 +24,7 @@ INTERPOL_BETWEEN tells if it's good idea to interpolate between two triangles
 #define INTERPOL_BETWEEN_A(t1,t2,angle) (angle<=MAX_INTERPOL_ANGLE)
 #define INTERPOL_BETWEEN(t1,t2)         INTERPOL_BETWEEN_A(t1,t2,angleBetweenNormalized(t1->grandpa->getN3(),t2->grandpa->getN3()))
 
-#define MAX_INTERPOL_ANGLE RRScene::getStateF(RRScene::MAX_SMOOTH_ANGLE) // max angle between interpolated neighbours
+#define MAX_INTERPOL_ANGLE maxSmoothAngle // max angle between interpolated neighbours
 
 #ifdef SUPPORT_MIN_FEATURE_SIZE
 	// Vypnuto protoze rendereru dava vertexy v pozici jejich ivertexu,
@@ -67,8 +67,8 @@ public:
 	void    insert(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	void    insertAlsoToParents(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	bool    contains(Node *node);
-	unsigned splitTopLevelByAngleOld(Vec3 *avertex, Object *obj);
-	unsigned splitTopLevelByAngleNew(Vec3 *avertex, Object *obj);
+	unsigned splitTopLevelByAngleOld(Vec3 *avertex, Object *obj, float maxSmoothAngle);
+	unsigned splitTopLevelByAngleNew(Vec3 *avertex, Object *obj, float maxSmoothAngle);
 	unsigned splitTopLevelByNormals(Vec3 *avertex, Object *obj);
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
