@@ -31,8 +31,6 @@ namespace rr
 #define MESHING              RRScene::getStateF(RRScene::SUBDIVISION_SPEED)    // 0.3=few meshes, 1=default, 3=many meshes (noise)
 #define REFLECTOR_MESHING    2.5     // 1=no subreflectors, 10=possibility of many meshes
 #define SHOOT_FULL_RANGE     1       // 89/90=ignore 1 degree near surface, shoot only away from surface (to avoid occasional shots inside object)
-#define MAX_CLUSTER_ANGLE_B  (M_PI/2-0.01)// max angle between neighbours in cluster (big)
-#define MAX_CLUSTER_ANGLE_S  (M_PI/4-0.01)// max angle between neighbours in cluster (small)
 #define HITS_TO_COMPACT      1000000 // if more or equal bytes may be freeed, do it after each shooting. may help to save memory for big scenes. warning: low number=+10%cpu
 #define REFRESH_FIRST          1     // first refresh has this number of photons (zahada: vyssi cislo rrbench zpomaluje misto zrychluje)
 #define REFRESH_MULTIPLY       4     // next refresh has multiplied number of photons
@@ -240,7 +238,7 @@ real Hits::difBtwAvgHitAnd(Point2 a,Triangle *base)
 
 bool Hits::doSplit(Point2 centre,real perimeter,Triangle *base)
 {
-	return perimeter>1 && difBtwAvgHitAnd(centre,base)*hits>perimeter/MESHING;
+	return perimeter>1 && perimeter<difBtwAvgHitAnd(centre,base)*hits*base->object->subdivisionSpeed;
 }
 
 /*real Hits::avgDifBtwHitAnd(Point2 a)
@@ -453,7 +451,6 @@ void Shooter::reset(bool resetFactors)
 	}
 	energyDiffused=Channels(0);
 	energyToDiffuse=Channels(0);
-	tmpFactor=NULL;
 }
 
 real Shooter::accuracy()
@@ -1003,7 +1000,6 @@ Triangle::Triangle() : SubTriangle(NULL,this)
 	edge[0]=NULL;
 	edge[1]=NULL;
 	edge[2]=NULL;
-	isInCluster=0;
 	area=0;       // says that setGeometry wasn't called yet
 	surface=NULL; // says that setSurface wasn't called yet
 }
@@ -1034,7 +1030,7 @@ real calculateArea(Vec3 v0, Vec3 v1, Vec3 v2)
 // Pokud ale nevyscalujeme area, bude pri distribuci vznikat/zanikat energie.
 // obj2world tedy pouzijeme pouze k vypoctu area ve worldspace.
 
-S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,int rots)
+S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,int rots,float ignoreSmallerAngle,float ignoreSmallerArea)
 {
 	isValid=0;
 	assert(rots>=-1 && rots<=2);
@@ -1078,7 +1074,7 @@ again:
 	if(1-psqr/4<=0) return -8;
 	if(sina<=0) return -6;
 	if(area<=0) return -4;
-	if(area<=RRScene::getStateF(RRScene::IGNORE_SMALLER_AREA)) return -5;
+	if(area<=ignoreSmallerArea) return -5;
 	//assert(size(SubTriangle::to3d(2)-*vertex[2])<0.001);
 #ifdef ROTATIONS
 	// stary rotace davajici ruzny vysledky s a bez optimalizaci
@@ -1120,8 +1116,7 @@ again:
 	// premerit min angle v localspace (mohlo by byt i ve world)
 	real minangle = minAngle(lsize,rsize,size(getL3()-getR3()));
 	if(!IS_NUMBER(area)) return -13;
-	if(minangle<=RRScene::getStateF(RRScene::IGNORE_SMALLER_ANGLE)) return -14;
-	isNeedle = RRScene::getState(RRScene::FIGHT_NEEDLES) && minangle<=RRScene::getStateF(RRScene::FIGHT_SMALLER_ANGLE);
+	if(minangle<=ignoreSmallerAngle) return -14;
 
 	// premerit area v worldspace
 	if(obj2world)
@@ -1129,8 +1124,7 @@ again:
 	else
 		area = calculateArea(*a,*b,*c);
 	if(!IS_NUMBER(area)) return -11;
-	if(area<=RRScene::getStateF(RRScene::IGNORE_SMALLER_AREA)) return -12;
-	isNeedle |= RRScene::getState(RRScene::FIGHT_NEEDLES) && area<=RRScene::getStateF(RRScene::FIGHT_SMALLER_AREA);
+	if(area<=ignoreSmallerArea) return -12;
 
 	assert(IS_VEC3(getV3()));
 	isValid=1;
@@ -1287,7 +1281,6 @@ void Reflectors::remove(unsigned n)
 void Reflectors::insertObject(Object *o)
 {
 	for(unsigned i=0;i<o->triangles;i++) insert(&o->triangle[i]);
-	for(unsigned i=0;i<o->clusters;i++) insert(&o->cluster[i]);
 }
 
 void Reflectors::removeObject(Object *o)
@@ -1615,237 +1608,8 @@ Edges::~Edges()
 
 #ifndef ONLY_PLAYER
 
-unsigned __clustersAllocated=0;
 
-Cluster::Cluster() : Node(NULL,NULL)
-{
-	area=0;
-	__clustersAllocated++;
-}
-
-void SubTriangle::makeDirty()
-{
-	for(int i=0;i<3;i++)
-	{
-		IVertex *v=ivertex(i);
-		assert(v);
-		v->makeDirty();
-	}
-	flags|=FLAG_DIRTY_ALL_SUBNODES;
-}
-
-void Cluster::makeDirty()
-{
-	assert(sub[0]);
-	if(IS_CLUSTER(sub[0])) CLUSTER(sub[0])->makeDirty(); else SUBTRIANGLE(sub[0])->makeDirty();
-	if(IS_CLUSTER(sub[1])) CLUSTER(sub[1])->makeDirty(); else SUBTRIANGLE(sub[1])->makeDirty();
-}
-
-void Cluster::insert(Triangle *t,Triangles *triangles)
-{
-	if(t->isInCluster) return;
-	t->isInCluster=1;
-	assert(!t->parent);
-	triangles->insert(t);
-	assert(!t->topivertex[0]); // buildTopIVertices can't go before buildClusters
-	assert(!t->topivertex[1]); // (why?)
-	assert(!t->topivertex[2]);
-}
-
-void insertFreeNeighboursTo(Triangle *triangle,va_list ap)
-{
-	Cluster *cluster=va_arg(ap,Cluster *);
-	Triangles *triangles=va_arg(ap,Triangles *);
-	int *edges=va_arg(ap,int *);
-
-	for(int e1=0;e1<3;e1++)
-	{
-		Edge *e=triangle->edge[e1];
-		if(e && e->free)
-		{
-			(*edges)++;
-			e->free=false;
-			cluster->insert(e->triangle[0],triangles);
-			cluster->insert(e->triangle[1],triangles);
-		}
-	}
-}
-
-real findMostDistantPoints(Point3 *p,unsigned points,unsigned *far1,unsigned *far2)
-{
-	assert(points>=2);
-	for(unsigned i=0;i<points;i++) assert(IS_VEC3(p[i]));
-	real maxdist=-1;
-	for(unsigned i=0;i<points-1;i++)
-	  for(unsigned j=i+1;j<points;j++)
-	  {
-	    real dist=size2(p[i]-p[j]);
-	    assert(dist>=0);
-	    if(dist>maxdist)
-	    {
-	      maxdist=dist;
-	      *far1=i;
-	      *far2=j;
-	    }
-	  }
-	assert(maxdist>=0);
-	return sqrt(maxdist);
-}
-
-Node *Triangles::buildClusterHierarchy(bool differentNormals,Cluster *aparent,Cluster *cluster,unsigned *c,unsigned maxc)
-{
-	// build cluster hierarchy
-	// -> sekat aby mel rez co nejvetsi angly a neshody v diffuseEmittance (50%)
-	//    vysledny clustery mely co nejpodobnejsi plochu (30%)
-	//    rez byl co nejkratsi (20%)
-	// -> nelze efektivne implementovat
-	//    nicmoc pokus s radou problemu (napr u torusu) je hladovej algac: najdi nejvetsi angle a pripojuj nejvetsi ze sousednich
-	// -> jiny, implementovatelny algac:
-	//    0. ma-li 1 triangl, nebuilduj cluster ale vrat triangl
-	//    1. kdykoliv obsahuje prilis ruznorody normaly (rozdil>=PI/4), vybrat rovinu (dospecifikovat; !aby blbe nefik kostku) a rozseknout na 2 clustery podle ni
-	//    2. kdykoliv obsahuje nesouvisly oblasti, rozdelit je do 2 clusteru
-	//    3. vybrat rovinu (kolmou na spoj nejvzdalenejsich vertexu) a rozseknout na 2 clustery podle ni
-
-	for(unsigned i=0;i<triangles;i++) assert(IS_VEC3(triangle[i]->getN3()));
-
-	// 0. if triangles==1, skip building and return triangle
-	assert(triangles>0);
-	if(triangles==1)
-	{
-		assert(!triangle[0]->parent);
-		triangle[0]->parent=aparent;
-		return triangle[0];
-	}
-	Cluster *thisCluster=&cluster[*c];
-	thisCluster->parent=aparent;
-	assert(thisCluster->shooter);
-	//thisCluster->shooter=new Shooter;
-	assert(*c<maxc);
-	(*c)++;
-
-	// 1. if normals are too different, select plane and split
-	if(differentNormals)/**/
-	{
-		Point3 *norm=new Point3[triangles];
-		for(unsigned i=0;i<triangles;i++) norm[i]=triangle[i]->getN3();
-		unsigned t0;
-		unsigned t1;
-		for(unsigned i=0;i<triangles;i++) assert(IS_VEC3(norm[i]));
-		findMostDistantPoints(norm,triangles,&t0,&t1);
-		assert(t0<triangles);
-		assert(t1<triangles);
-		Angle angle=angleBetweenNormalized(norm[t0],norm[t1]);
-		if(angle>MAX_CLUSTER_ANGLE_S)
-		{
-			Triangles tri0;
-			Triangles tri1;
-			for(unsigned t=0;t<triangles;t++)
-				((size2(norm[t]-norm[t0])<size2(norm[t]-norm[t1]))?tri0:tri1).insert(triangle[t]);
-			assert(tri0.triangles>0);
-			assert(tri1.triangles>0);
-			thisCluster->sub[0]=tri0.buildClusterHierarchy(true,thisCluster,cluster,c,maxc);
-			thisCluster->sub[1]=tri1.buildClusterHierarchy(true,thisCluster,cluster,c,maxc);
-			//thisCluster->sub[0]->parent=this;
-			//thisCluster->sub[1]->parent=this;
-			assert(thisCluster->area==0);
-			thisCluster->area=thisCluster->sub[0]->area+thisCluster->sub[1]->area;
-
-			// propagate energy to higher levels
-			thisCluster->loadEnergyFromSubs();
-			return thisCluster;
-		}
-		delete[] norm;
-	}
-
-	// 2. if cluster has more areas, split cluster
-
-	// 3. find most distant vertices, select plane between them and split
-	Point3 *mid=new Point3[triangles];
-	for(unsigned i=0;i<triangles;i++)
-	{
-		assert(triangle[i]);
-		//mid[i]=*(triangle[i]->vertex[0])+*(triangle[i]->vertex[1])+*(triangle[i]->vertex[2]);
-		Triangle *t=triangle[i];
-		mid[i]=*t->getVertex(0)+*t->getVertex(1)+*t->getVertex(2);
-		assert(IS_VEC3(mid[i]));
-	}
-//  for(unsigned i=0;i<triangles;i++) printf("mid[%i]= %f %f %f\n",i,(double)mid[i].x,(double)mid[i].y,(double)mid[i].z);
-	unsigned t0;
-	unsigned t1;
-	findMostDistantPoints(mid,triangles,&t0,&t1);
-	assert(t0>=0 && t0<triangles);
-	assert(t1>=0 && t1<triangles);
-	Triangles tri0;
-	Triangles tri1;
-	for(unsigned t=0;t<triangles;t++)
-		((size2(mid[t]-mid[t0])<size2(mid[t]-mid[t1]))?tri0:tri1).insert(triangle[t]);
-//printf("splitting cluster %i -> %i + %i\n",triangles,tri0.triangles,tri1.triangles);
-//GETCH;
-	assert(tri0.triangles>0);
-	assert(tri1.triangles>0);
-	thisCluster->sub[0]=tri0.buildClusterHierarchy(false,thisCluster,cluster,c,maxc);
-	thisCluster->sub[1]=tri1.buildClusterHierarchy(false,thisCluster,cluster,c,maxc);
-	assert(thisCluster->sub[0]->parent==thisCluster);
-	assert(thisCluster->sub[1]->parent==thisCluster);
-	assert(thisCluster->area==0);
-	thisCluster->area=thisCluster->sub[0]->area+thisCluster->sub[1]->area;
-
-	// propagate energy to higher levels
-	thisCluster->loadEnergyFromSubs();
-		delete[] mid;
-	return thisCluster;
-}
-
-int Cluster::buildAround(Edge *e,Cluster *cluster,unsigned *c,unsigned maxc)
-{
-	assert(this==&cluster[*c]);
-	Triangles triangles;
-	int edges=1;
-	e->free=false;
-	insert(e->triangle[0],&triangles);
-	insert(e->triangle[1],&triangles);
-	triangles.forEach(insertFreeNeighboursTo,this,&triangles,&edges);
-	triangles.buildClusterHierarchy(true,NULL,cluster,c,maxc);
-	return edges;
-}
-
-Triangle *Cluster::getTriangle(real a)
-{
-	assert(sub[0]);
-	if(a<sub[0]->area)
-	{
-		if(!IS_CLUSTER(sub[0])) return TRIANGLE(sub[0]);
-		return CLUSTER(sub[0])->getTriangle(a);
-	}
-	if(!IS_CLUSTER(sub[1])) return TRIANGLE(sub[1]);
-	return CLUSTER(sub[1])->getTriangle(a-sub[0]->area);
-}
-
-Triangle *Cluster::randomTriangle()
-{
-	return getTriangle(rand()*area/RAND_MAX);
-}
-
-Cluster::~Cluster()
-{
-//!	for(unsigned t=0;t<triangles;t++)
-//!		triangle[t]->removeFromIVertices(this);
-	if(parent) parent->sub[(parent->sub[0]==this)?0:1]=NULL;
-	//removeFromIVertices(this);
-	if(sub[0])
-	{
-		sub[0]->parent=NULL;
-		sub[0]=NULL;
-	}
-	if(sub[1])
-	{
-		sub[1]->parent=NULL;
-		sub[1]=NULL;
-	}
-	__clustersAllocated--;
-}
-
-#endif
+#endif // !ONLY_PLAYER
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1860,8 +1624,6 @@ Object::Object(int avertices,int atriangles)
 	triangle=new Triangle[triangles];
 	edge=NULL;
 #ifndef ONLY_PLAYER
-	clusters=0;
-	cluster=NULL;
 	bound.center=Point3(0,0,0);
 	bound.radius=BIG_REAL;
 	bound.radius2=BIG_REAL;
@@ -1881,6 +1643,7 @@ Object::Object(int avertices,int atriangles)
 	IVertexPool=NULL;
 	IVertexPoolItems=0;
 	IVertexPoolItemsUsed=0;
+	subdivisionSpeed = 0;
 }
 /*
 Channels Object::getVertexIrradiance(unsigned avertex,RRRadiometricMeasure measure)
@@ -1907,7 +1670,7 @@ void addEdgeWith(Triangle *t1,va_list ap)
 	Edge     *edge    =va_arg(ap,Edge *);
 	unsigned *edges   =va_arg(ap,unsigned *);
 	unsigned maxedges =va_arg(ap,unsigned);
-	float    maxSmoothAngle =va_arg(ap,float);
+	float    maxSmoothAngle =*va_arg(ap,float*);
 
 	for(unsigned v1=0;v1<3;v1++)
 	  if(!t1->edge[v1])
@@ -1917,7 +1680,7 @@ void addEdgeWith(Triangle *t1,va_list ap)
 	         t1->getVertex((v1+1)%3)==t2->getVertex(v2))
 	{
 		Angle angle=angleBetweenNormalized(t1->getN3(),t2->getN3());
-		if(angle<MAX(MAX_CLUSTER_ANGLE_B,MAX_INTERPOL_ANGLE))
+		if(angle<MAX_INTERPOL_ANGLE)
 		{
 		  assert(*edges<maxedges);
 		  if(*edges>=maxedges)
@@ -1972,7 +1735,7 @@ void Object::buildEdges(float maxSmoothAngle)
 		Triangle *tri;
 		while((tri=trianglesInV[v].get()))
 		{
-			trianglesInV[v].forEach(addEdgeWith,tri,edge,&edges,(unsigned)(triangles*3/2),maxSmoothAngle);
+			trianglesInV[v].forEach(addEdgeWith,tri,edge,&edges,(unsigned)(triangles*3/2),&maxSmoothAngle);
 		}
 	}
 	delete[] trianglesInV;
@@ -1982,7 +1745,6 @@ Object::~Object()
 {
 	check();
 #ifndef ONLY_PLAYER
-	if(cluster) delete[] cluster;
 #endif
 	delete[] triangle;
 	delete[] vertex;
@@ -2004,11 +1766,6 @@ Object::~Object()
 
 void Object::resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool resetPropagation)
 {
-	// smaze akumulatory (ale necha jim flag zda jsou v reflectors)
-	if(resetPropagation)
-	{
-		for(unsigned c=0;c<clusters;c++) {U8 flag=cluster[c].flags&FLAG_IS_REFLECTOR;cluster[c].reset(resetFactors);cluster[c].flags=flag;}
-	}
 	// nastavi akumulatory na pocatecni hodnoty
 	// separated to three floats because of openmp
 	//objSourceExitingFlux=Channels(0);
@@ -2062,14 +1819,10 @@ bool Object::contains(Triangle *t)
 	return (t>=&triangle[0]) && (t<&triangle[triangles]);
 }
 
-bool Object::contains(Cluster *c)
-{
-	return (c>=&cluster[0]) && (c<&cluster[clusters]);
-}
 
 bool Object::contains(Node *n)
 {
-	return (IS_CLUSTER(n) && contains(CLUSTER(n))) ||
+	return 
 	       (IS_TRIANGLE(n) && contains(TRIANGLE(n))) ||
 	       (IS_SUBTRIANGLE(n) && contains(n->grandpa));
 }
@@ -2112,39 +1865,6 @@ void Scene::transformObjects()
 	}
 }
 
-void Object::buildClusters()
-{
-	assert(edge);
-	assert(!cluster);
-
-	// build toplevel (maximal size) clusters plus subclusters
-	clusters=0;
-	cluster=new Cluster[2*edges];
-	int freeEdges=0;
-	for(unsigned e=0;e<edges;e++)
-	{
-		edge[e].free=edge[e].angle<=MAX_CLUSTER_ANGLE_B;
-		if(edge[e].free) freeEdges++;
-	}
-	for(unsigned t=0;t<triangles;t++)
-	{
-		assert(!triangle[t].isInCluster);
-		assert(!triangle[t].parent);
-	}
-	while(freeEdges)
-	{
-		assert(clusters<2*edges);
-		for(unsigned e=0;e<edges;e++) if(edge[e].free)
-		{
-			// find toplevel and split to subclusters
-			int cledges=cluster[clusters].buildAround(&edge[e],cluster,&clusters,2*edges);
-			freeEdges-=cledges;
-			break;
-		}
-		//clusters++;
-	}
-
-}
 
 bool Object::check()
 {
@@ -2182,7 +1902,6 @@ Scene::Scene()
 Scene::~Scene()
 {
 	abortStaticImprovement();
-	freeze(false);
 	for(unsigned o=0;o<objects;o++) delete object[o];
 	free(object);
 	delete[] surface;
@@ -2190,7 +1909,6 @@ Scene::~Scene()
 
 void Scene::objInsertStatic(Object *o)
 {
-	freeze(false);
 	if(objects==allocatedObjects)
 	{
 		size_t oldsize=allocatedObjects*sizeof(Object *);
@@ -2211,7 +1929,6 @@ void Scene::objInsertStatic(Object *o)
 
 void Scene::objRemoveStatic(unsigned o)
 {
-	freeze(false);
 	assert(o<staticObjects);
 
 	staticReflectors.removeObject(object[o]);
@@ -2228,86 +1945,6 @@ unsigned Scene::objNdx(Object *o)
 	    if(object[i]==o) return i;
 	assert(0);
 	return 0xffffffff;
-}
-
-bool Scene::isFrozen()
-{
-	return multiCollider!=NULL;
-}
-
-void Scene::freeze(bool yes)
-{
-	if(yes)
-	{
-		if(!isFrozen())
-		{
-			unsigned numMeshes = staticObjects;
-			RRMesh** multiObjectMeshes = new RRMesh*[numMeshes];
-			assert(!multiObjectMeshes4Delete);
-			multiObjectMeshes4Delete = new RRMesh*[numMeshes];
-			//for(unsigned i=0;i<numMeshes;i++) 
-			for(unsigned i=0;i<numMeshes;i++)
-			{
-				if(object[i]->importer->getWorldMatrix())
-				{
-					multiObjectMeshes[i] = object[i]->importer->createWorldSpaceMesh();
-					multiObjectMeshes4Delete[i] = multiObjectMeshes[i];
-				}
-				else
-				{
-					multiObjectMeshes[i] = object[i]->importer->getCollider()->getMesh();
-					multiObjectMeshes4Delete[i] = NULL;
-				}
-			}
-			RRMesh* multiMesh = RRMesh::createMultiMesh(multiObjectMeshes,numMeshes);
-			//multiMesh = multiMesh->createOptimizedVertices(); optimized vertices = no help because multiMesh is used only for collisions, not for interpol
-
-			/*
-			unsigned numTriangles = multiMesh->getNumTriangles();
-			for(unsigned i=0;i<numTriangles;i++)
-			{
-				RRMesh::MultiMeshPreImportNumber pre = multiMesh->getPreImportTriangle(i);
-				unsigned post = multiMesh->getPostImportTriangle(pre);
-				assert(post==i);
-				RRMesh::TriangleBody bodyObj,bodyWorld;
-				multiMesh->getTriangleBody(post,bodyWorld);
-				assert(pre.object<numMeshes);
-				object[pre.object]->importer->getCollider()->getMesh()->getTriangleBody(meshes[pre.object]->getPostImportTriangle(pre.index),bodyObj);
-				Vec3* v0w=(Vec3*)&bodyWorld.vertex0;
-				Vec3* s1w=(Vec3*)&bodyWorld.side1;
-				Vec3* s2w=(Vec3*)&bodyWorld.side2;
-				Vec3* v0o=(Vec3*)&bodyObj.vertex0;
-				Vec3* s1o=(Vec3*)&bodyObj.side1;
-				Vec3* s2o=(Vec3*)&bodyObj.side2;
-				Vec3 v0t=v0o->transformedPosition(object[pre.object]->transformMatrix);
-				Vec3 s1t=s1o->transformedDirection(object[pre.object]->transformMatrix);
-				Vec3 s2t=s2o->transformedDirection(object[pre.object]->transformMatrix);
-				int ww=1;
-				assert(size(*v0w-v0t)<.1f);
-				assert(size(*s1w-s1t)<.1f);
-				assert(size(*s2w-s2t)<.1f);
-			}*/
-
-			multiCollider = RRCollider::create(multiMesh,RRCollider::IT_BSP_FASTEST);
-			delete[] multiObjectMeshes;
-		}
-	}
-	else
-	{
-		if(isFrozen())
-		{
-			if(staticObjects>1) delete multiCollider->getMesh();
-			if(multiObjectMeshes4Delete)
-			{
-				for(unsigned i=0;i<staticObjects;i++)
-					delete multiObjectMeshes4Delete[i];
-				delete[] multiObjectMeshes4Delete;
-				multiObjectMeshes4Delete = NULL;
-			}
-			delete multiCollider;
-			multiCollider = NULL;
-		}
-	}
 }
 
 void Scene::setScaler(RRScaler* ascaler)
@@ -2578,11 +2215,6 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 // returns random point and direction exiting sourceNode
 {
 	SubTriangle *source;
-	if(IS_CLUSTER(sourceNode))
-	{
-		source=CLUSTER(sourceNode)->randomTriangle();
-	}
-	else
 	{
 		source=SUBTRIANGLE(sourceNode);
 	}
@@ -2713,23 +2345,6 @@ Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels po
 	return exitance;
 }
 
-// returns irradiance in W/m^2 in point with normal
-// decreasing power is used only for termination criteria
-Channels Scene::gatherIrradiance(Point3 point,Vec3 normal,Triangle *skip,Channels power)
-{
-	Channels irradiance = Channels(0);
-	unsigned numRays = RRScene::getState(RRScene::GET_FINAL_GATHER);
-	Vec3 u3 = normalized(ortogonalTo(normal));
-	Vec3 v3 = normalized(ortogonalTo(normal,u3));
-	Vec3 dir = Vec3(1,0,0);
-	RRSideBits sideBits[2] = {{1,1,1,1,1,1},{0,0,1,0,0,0}}; // standard 1sided
-	for(unsigned i=0;i<numRays;i++)
-	{
-		getRandomExitDir(normal,u3,v3,sideBits,dir);
-		irradiance += getRadiance(point,dir,skip,power);
-	}
-	return irradiance/numRays;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2878,174 +2493,6 @@ static bool setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *f
 	}
 }
 
-// vraci jestli se k nodu (trianglu nebo clusteru) existuje nejaka oflagovana
-//  cesta zdola od trianglu
-
-bool isFlagAccessible(Node *node)
-{
-	return IS_TRIANGLE(node) ||
-	       ((node->sub[0]->flags&FLAGS_CLUSTERING) && isFlagAccessible(node->sub[0])) ||
-	       ((node->sub[1]->flags&FLAGS_CLUSTERING) && isFlagAccessible(node->sub[1]));
-}
-
-// oznaci tento node a predky za zamitace clusteringu
-
-static void markPath_deniesClustering(Node *node,va_list ap)
-{
-	assert(isFlagAccessible(node));
-	while(node && !(node->flags&FLAG_DENIES_CLUSTERING))
-	{
-		node->flags&=~FLAGS_CLUSTERING;
-		node->flags|=FLAG_DENIES_CLUSTERING;
-		node=node->parent;
-
-	}
-}
-
-// oznaci node ze nabizi clustering a vsechny predky ze zvazujou
-
-static void markPath_weighsClustering(Factor *factor,va_list ap)
-{
-	Node *node=factor->destination;
-	assert(isFlagAccessible(node));
-	assert(!(node->flags&FLAGS_CLUSTERING));
-	node->flags|=FLAG_OFFERS_CLUSTERING;
-	assert(!node->shooter->tmpFactor);
-	node->shooter->tmpFactor=factor;
-	while(node->parent && !(node->parent->flags&FLAGS_CLUSTERING))
-	{
-		node=node->parent;
-		node->flags|=FLAG_WEIGHS_CLUSTERING;
-	}
-}
-
-// vycisti flagy tomuto nodu a vsem jeho predkum
-
-static void markPath_clean(Triangle *triangle,va_list ap)
-{
-	Node *node=triangle;
-	do
-	{
-		node->flags&=~FLAGS_CLUSTERING;
-		assert(node->shooter);
-		node->shooter->tmpFactor=NULL;
-		node=node->parent;
-	}
-	while(node && (node->flags&FLAGS_CLUSTERING));
-}
-
-#ifndef CLEAN_FACTORS
-static void goCandidateGo(Factor *factor,va_list ap)
-{
-	unsigned shots=va_arg(ap,unsigned);
-
-	// kdo jsou candidates?
-	//  nody ktery nabizej slouceni(clustering)
-	//   zpocatku jen slabe zasazeny triangly
-	//   pozdeji nektery vypadavaj a jsou nahrazeny clusterem
-	// zpracovani candidates
-	//  parent zamita slouceni -> koncime tam kde jsme
-	//  bratr vaha -> zastavime kde jsme, bratr nas pozdejc vyveze
-	//   az pojede sam nahoru nebo nas necha kdyz nepojede
-	//  bratr nabizi -> lze se spojit a jit nahoru
-	//  bratr neoflagovany -> nebyl zasazen, lze jit nahoru
-	Node *node=factor->destination;
-	// "smazany" faktor ignorujeme
-	if(!factor->destination) return;
-	//Factors *candidatesForClustering=va_arg(ap,Factors *);
-go_node_go:
-	// [node nabizi propagaci nahoru]
-	assert(node->parent);
-	assert(!(node->flags&FLAG_DENIES_CLUSTERING));
-	// co na to parent?
-	if(node->parent->flags&FLAG_DENIES_CLUSTERING)
-	{
-		// [bratr spojeni odmita (od nej to vi parent)]
-		// nas faktor nechame v candidatesForClustering kde uz zustane
-		return;
-	}
-	Node *brother=node->brother();
-	if(brother->flags&FLAG_WEIGHS_CLUSTERING)
-	{
-		// [bratr vaha]
-		// nas faktor nechame v candidatesForClustering,
-		//  bratr si ho pozdejc muze vyzvednout a vyvezt nas vys
-		//  ted jen oznamime ze nabizime clustering
-		assert((node->parent->flags&FLAGS_CLUSTERING)==FLAG_WEIGHS_CLUSTERING);
-		node->flags&=~FLAGS_CLUSTERING;
-		node->flags|=FLAG_OFFERS_CLUSTERING;
-		// aby nas pak mel kdo smazat, musi byt oflagovano dole
-		assert(isFlagAccessible(node));
-		//  a kde mame faktor
-		assert(!node->shooter->tmpFactor || node->shooter->tmpFactor==factor);
-		node->shooter->tmpFactor=factor;
-		return;
-	}
-	Factor *brotherFactor;
-	real brotherPower;
-	if(brother->flags&FLAG_OFFERS_CLUSTERING)
-	{
-		// [bratr nabizi spojeni]
-		// mohlo by se jit nahoru
-		// zjistime faktor bratra, je kdesi v candidatesForClustering
-		brotherFactor=brother->shooter->tmpFactor;
-		assert(brotherFactor);
-		assert(brotherFactor->power);
-		assert(brotherFactor->destination==brother);
-		brotherPower=brotherFactor->power;
-	}
-	else
-	{
-		// [bratr vubec nezasazen]
-		// mohlo by se jit nahoru
-		assert((brother->flags&FLAGS_CLUSTERING)==0);
-		assert((node->parent->flags&FLAGS_CLUSTERING)==FLAG_WEIGHS_CLUSTERING);
-		brotherFactor=NULL;
-		brotherPower=0;
-	}
-	// spocitame zda je vhodne slouceni
-	bool propagate=ABS(factor->power-brotherPower)*shots<=1;
-//	bool propagate=fabs(factor->power/node->surface->diffuseReflectance
-//	                      -brotherPower/brother->surface->diffuseReflectance)*shots<=1;
-/*
-bug: kdyz ma cluster casti o ruzny difuznosti, strilej=svitej vsechny stejne!
-naprava: faktor by mel byt opravdu faktor a energie se prenasobit
-	 shooter_surface.diffuseReflectance az pri strileni,
-	 misto energyToDiffuse mit energyReceivedToDiffuse,
-	 misto energyDiffused mit energyReceivedDiffused,
-	 ale problem: u clusteru nejde stanovit accuracy protoze nevi kolik
-	  ma opravdu vystrilet
-fake naprava: zakazat clustery z ruznych materialu
-*/
-	if(!propagate)
-	{
-		// [spojeni by slo ale neni vhodne]
-		// oznamime, ze tady se uz nepropaguje
-		markPath_deniesClustering(node,ap);
-	}
-	else
-	{
-		// [je cas nas a bratra zclusterovat]
-		// nasemu faktoru v candidates predelame destination
-		factor->destination=node->parent;
-		// nasemu faktoru v candidates predelame power
-		factor->power+=brotherPower;
-		// odstranime bratra z candidatesForClustering
-		if(brotherFactor)
-		{
-			// jen oznacime faktor k pozdejsimu smazani
-			// zatim na faktory existuji odkazy, nemuzeme
-			//  posledni faktor vzit a prepsat jim tenhle
-			//  protoze nevime jestli na posledni nekdo neukazuje
-			brotherFactor->power=0;
-			brotherFactor->destination=NULL;
-		}
-		// provedeme s parentem totez cim prosel node
-		node=node->parent;
-		if(node->parent) goto go_node_go;
-	}
-}
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -3088,7 +2535,6 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 		// kontrola ze jsou flagy opravdu vsude ciste
 		for(unsigned o=0;o<objects;o++) assert(object[o]->check());
 		assert(improvingFactors.factors()==0);
-		assert(candidatesForClustering.factors()==0);
 		hitTriangles.holdAmulet();
 		phase=3;
 	}
@@ -3126,35 +2572,11 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 			// do improvingFactors sype generovane faktory
 			if(setFormFactorsTo(source,sourceVerticesPtr,&improvingFactors,hitTriangle,&hitTriangle->hits,shotsAccumulated) && hitTriangle->parent)
 			{
-				// pokud nevedou do subtrianglu (krtci),
-				// preradi je do candidatesForClustering
-				candidatesForClustering.insert(improvingFactors.get());
-			}
-			else
-			{       // pokud vedou do subtrianglu,
-				// oznaci vsechny predky ze zamitaj clustering
-				va_list ap=0;
-				markPath_deniesClustering(hitTriangle,ap);
 			}
 			// pokud je treba setrit pameti, uvolni buffer po hitech
 			hitTriangle->compact();
 			if(endfunc(context)) return;
 		}
-		// kandidati oznacej vsechny svy predky ze zvazujou clustering
-		candidatesForClustering.forEach(markPath_weighsClustering);
-#ifdef CLEAN_FACTORS
-		// pri clean_factors nesmi faktor mirit do clusteru, protoze
-		//  potrebujeme energii prenasobit krome sily faktoru jeste odrazivosti cile
-		//  a clustery nemaj material (resp kazdy triangl muze mit jiny)
-#else
-		// propagace candidates
-		candidatesForClustering.forEach(goCandidateGo,shotsAccumulated);
-#endif
-		// skutecny odstraneni "smazanejch" candidates
-		candidatesForClustering.removeZeroFactors();
-		// hitTriangles a vsechny clustery nad nima si vycistej flagy
-		hitTriangles.resurrect();
-		hitTriangles.forEach(markPath_clean);
 		hitTriangles.reset();
 		// kontrola ze jsou flagy opravdu vsude ciste
 		for(unsigned o=0;o<objects;o++) assert(object[o]->check());
@@ -3172,8 +2594,6 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 		source->shooter->Factors::reset();
 		source->shooter->insert(&improvingFactors);
 		improvingFactors.reset();
-		source->shooter->insert(&candidatesForClustering);
-		candidatesForClustering.reset();
 		phase=0;
 	}
 	DBGLINE
@@ -3303,11 +2723,8 @@ void Scene::abortStaticImprovement()
 	{
 		Triangle *hitTriangle;
 		while((hitTriangle=hitTriangles.get())) hitTriangle->hits.reset();
-		hitTriangles.resurrect();
-		hitTriangles.forEach(markPath_clean);
 		hitTriangles.reset();
 		improvingFactors.reset();
-		candidatesForClustering.reset();
 		shotsAccumulated=0;
 		phase=0;
 		improvingStatic=NULL;
@@ -3374,7 +2791,7 @@ void Scene::infoScene(char *buf)
 void Scene::infoStructs(char *buf)
 {
 	int no=sizeof(Node);
-	int cl=sizeof(Cluster);
+	int cl=0;
 	int su=sizeof(SubTriangle);
 	int tr=sizeof(Triangle);
 	int hi=sizeof(Hit);
@@ -3395,7 +2812,7 @@ void Scene::infoImprovement(char *buf, int infolevel)
 	int fa=sizeof(Factor)*__factorsAllocated;
 	int su=sizeof(SubTriangle)*(__subtrianglesAllocated-__trianglesAllocated);
 	int tr=sizeof(Triangle)*__trianglesAllocated;
-	int cl=sizeof(Cluster)*__clustersAllocated;
+	int cl=0;
 	int iv=0;
 	int co=0;
 	iv=sizeof(IVertex)*__iverticesAllocated;

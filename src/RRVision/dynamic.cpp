@@ -660,7 +660,7 @@ static void convertHitsToEnergyDynamic(SubTriangle *destination,Hits *phits,real
 	if(phits->hits==0) return;
 	Point2 triCentre=destination->uv[0]+(destination->u2+destination->v2)/3;
 	real perimeter=destination->perimeter();
-	bool doSplit=phits->doSplit(triCentre,perimeter,destination->grandpa);
+	bool doSplit=phits->doSplit(triCentre,perimeter,destination->grandpa,MESHING);
 	if(doSplit)
 	{
 		// i na deleni stacej relativni udaje o energii

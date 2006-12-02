@@ -43,7 +43,6 @@ public:
 RREngine::RREngine()
 {
 	core_Init();
-	RRScene::resetStates();
 }
 
 RREngine::~RREngine()

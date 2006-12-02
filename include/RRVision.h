@@ -435,7 +435,9 @@ namespace rr
 	class RR_API RRScene
 	{
 	public:
+		//! Creates new static scene.
 		RRScene();
+		//! Destructs static scene.
 		~RRScene();
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -445,6 +447,55 @@ namespace rr
 
 		//! Identifier of object in scene.
 		typedef       unsigned ObjectHandle;
+		//! Illumination smoothing parameters.
+		struct        SmoothingParameters
+		{
+			//! Speed of surface subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast.
+			//! \n Set 0 for the fastest results and realtime responsiveness. Illumination will be available in scene vertices.
+			//! \n Set 1 for high quality, precalculations. Illumination will be available in adaptively subdivided surfaces.
+			//!    You can set slower subdivision for higher quality results with less noise, calculation will be slower.
+			//!    If you set higher speed, calculation will be faster, but results will contain high frequency noise.
+			float subdivisionSpeed;
+			//! Selects smoothing mode, valid options are: 0,1,2.
+			//! \n 0 = Normal independent smoothing, old. Depends on maxSmoothAngle.
+			//! \n 1 = Normal independent smoothing, new. Depends on maxSmoothAngle.
+			//! \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed.
+			unsigned smoothMode;
+			//! Distance in world units. Vertices with lower or equal distance will be internally stitched into one vertex.
+			//! Zero stitches only identical vertices, negative value generates no action.
+			//! Non-stitched vertices at the same location create illumination discontinuity.
+			//! \n If your geometry is clean and needs no stitching, make sure to set negative value, calculation will be faster.
+			float stitchDistance;
+			//! Distance in world units. Smaller features will be smoothed. This could be imagined as a kind of blur.
+			//! Use 0 for no smoothing and watch for possible artifacts in areas with small geometry details
+			//! and 'needle' triangles. Increase until artifacts disappear.
+			//! 15cm (0.15 for game with 1m units) could be good for typical interior game.
+			float minFeatureSize;
+			//! Angle in radians, controls automatic smoothgrouping.
+			//! Edges with smaller angle between face normals are smoothed out.
+			//! Optimal value depends on your geometry, but reasonable value could be 0.33.
+			float maxSmoothAngle;
+			//! Minimal allowed angle in triangle (rad), sharper triangles are ignored.
+			//! Helps prevent problems from degenerated triangles.
+			//! 0.001 is reasonable value.
+			float ignoreSmallerAngle;
+			//! Minimal allowed area of triangle, smaller triangles are ignored.
+			//! Helps prevent problems from degenerated triangles.
+			//! For typical game interior scenes and world in 1m units, 1e-10 is reasonable value.
+			float ignoreSmallerArea;
+			//! Sets default values at creation time.
+			//! These values are suitable for typical interior scenes with 1m units.
+			SmoothingParameters()
+			{
+				subdivisionSpeed = 0;
+				smoothMode = 2;
+				stitchDistance = 0.01f;
+				minFeatureSize = 0.15f;
+				maxSmoothAngle = 0.33f;
+				ignoreSmallerAngle = 0.001f;
+				ignoreSmallerArea = 1e-10f;
+			}
+		};
 		//! Inserts object into scene.
 		//
 		//! For highest performance, stay with low number of possibly big objects 
@@ -456,22 +507,10 @@ namespace rr
 		//! This can be fixed by merging standalone objects into one object using RRObject::createMultiObject().
 		//! \param importer
 		//!  Object importer that defines object shape and material.
-		//! \param smoothMode
-		//!  Selects smoothing mode, valid options are: 0,1,2.
-		//!  \n 0 = Normal independent smoothing, old. Depends on maxSmoothAngle.
-		//!  \n 1 = Normal independent smoothing, new. Depends on maxSmoothAngle.
-		//!  \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed.
-		//! \param minFeatureSize
-		//!  Distance in world units. Smaller features will be smoothed. This could be imagined as a kind of blur.
-		//!  Use 0 for no smoothing and watch for possible artifacts in areas with small geometry details
-		//!  and 'needle' triangles. Increase until artifacts disappear.
-		//!  15cm (0.15 for game with 1m units) could be good for typical interior game.
-		//! \param maxSmoothAngle
-		//!  Angle in radians, controls automatic smoothgrouping.
-		//!  Edges with smaller angle between face normals are smoothed out.
-		//!  Optimal value depends on your geometry, but reasonable value could be 0.33.
+		//! \param smoothing
+		//!  Illumination smoothing parameters.
 		//! \return ObjectHandle for accessing created object.
-		ObjectHandle  objectCreate(RRObject* importer, unsigned smoothMode, float minFeatureSize, float maxSmoothAngle);
+		ObjectHandle  objectCreate(RRObject* importer, const SmoothingParameters* smoothing);
 		
 		//////////////////////////////////////////////////////////////////////////////
 		//
@@ -574,37 +613,6 @@ namespace rr
 		void          setScaler(RRScaler* scaler);
 		//! Returns scaler used by this scene i/o operations.
 		const RRScaler* getScaler() const;
-
-		//! Identifier of integer scene state.
-		enum SceneStateU
-		{
-			// following states are for testing only
-			USE_CLUSTERS,         ///< For testing only. 0 = no clustering, !0 = use clusters.
-			GET_FINAL_GATHER,     ///< For testing only. Results from getTriangleMeasure are enhanced by final gathering.
-			FIGHT_NEEDLES,        ///< For testing only. 0 = normal, 1 = try to hide artifacts cause by needle triangles(must be set before objects are created, no slowdown), 2 = as 1 but enhanced quality while reading results (reading may be slow).
-			SSU_LAST
-		};
-		//! Identifier of float scene state.
-		enum SceneStateF
-		{
-			// following states are for testing only
-			SUBDIVISION_SPEED,   ///< For testing only. Speed of subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast. Currently there is no way to read subdivision results back, so let it 0.
-			IGNORE_SMALLER_AREA, ///< For testing only. Minimal allowed area of triangle (m^2), smaller triangles are ignored.
-			IGNORE_SMALLER_ANGLE,///< For testing only. Minimal allowed angle in triangle (rad), sharper triangles are ignored.
-			FIGHT_SMALLER_AREA,  ///< For testing only. Smaller triangles (m^2) will be assimilated when FIGHT_NEEDLES.
-			FIGHT_SMALLER_ANGLE, ///< For testing only. Sharper triangles (rad) will be assimilated when FIGHT_NEEDLES.
-			SSF_LAST
-		};
-		//! Reset scene states to default values.
-		static void     resetStates();
-		//! Return one of integer scene states.
-		static unsigned getState(SceneStateU state);
-		//! Set one of integer scene states.
-		static unsigned setState(SceneStateU state, unsigned value);
-		//! Return one of float scene states.
-		static RRReal   getStateF(SceneStateF state);
-		//! Set one of float scene states.
-		static RRReal   setStateF(SceneStateF state, RRReal value);
 
 
 	private:

@@ -128,11 +128,10 @@ bool IVertex::check(Point3 apoint)
 void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 {
 	assert(this);
-	// new interpolation scheme "power*=node->area" now doesn't works with subdivision
-	if(RRScene::getStateF(RRScene::SUBDIVISION_SPEED)==0)
+	// new interpolation scheme "power*=node->area" now doesn't work with subdivision
+	if(node->grandpa->object->subdivisionSpeed==0)
 		power *= node->area;
 
-	if(node->grandpa && node->grandpa->isNeedle) power=0; // ignorovat prispevky jehel
 #ifdef IV_POINT
 	if(size2(apoint))
 	{
@@ -853,13 +852,6 @@ void Triangle::removeFromIVertices(Node *node)
 }
 
 #ifndef ONLY_PLAYER
-void Cluster::removeFromIVertices(Node *node)
-{
-	assert(sub[0]);
-	assert(sub[1]);
-	if(IS_CLUSTER(sub[0])) CLUSTER(sub[0])->removeFromIVertices(node); else TRIANGLE(sub[0])->removeFromIVertices(node);
-	if(IS_CLUSTER(sub[1])) CLUSTER(sub[1])->removeFromIVertices(node); else TRIANGLE(sub[1])->removeFromIVertices(node);
-}
 #endif
 
 #ifdef SUPPORT_MIN_FEATURE_SIZE
@@ -2143,33 +2135,7 @@ static void iv_findIvClosestToPos(SubTriangle *s,IVertex *iv,int type)
 Channels IVertex::getClosestIrradiance(RRRadiometricMeasure measure)
 // returns irradiance of ivertex closest to this
 {
-	if(RRScene::getState(RRScene::FIGHT_NEEDLES)<2) return Channels(0); // pokud nebojujem s jehlama, vertexum bez powerTopLevel (zrejme nekde v jehlach na okraji sceny) dame barvu 0
-	// kdyz 2 jehly sousedej, sdilej ivertex s powertoplevel==0
-	//  kde nektery cornery spadaj do jednoho, jiny do druhyho
-	// projdem vsechny
-	ne_iv=this;
-	ne_bestIv=NULL;
-	ne_bestDist=1e20f;
-	Node *tested1=NULL;
-	Node *tested2=NULL;
-	for(unsigned i=0;i<corners;i++)
-	{
-		Node *n=corner[i].node;
-		if(!n || !n->grandpa) continue;
-		if(n==tested1 || n==tested2) continue;
-#ifdef IV_POINT
-		ne_pos=point;
-#else
-		ne_pos.x=-1024;
-		iv_callIvertices(n->grandpa,iv_findIvPos);
-		assert(ne_pos.x!=-1024);
-#endif
-		iv_callIvertices(n->grandpa,iv_findIvClosestToPos);
-		if(!tested1) tested1=n; else tested2=n;
-	}
-	static Channels prev=Channels(1e10);
-	if(ne_bestIv) prev=ne_bestIv->irradiance(measure);
-	return prev;
+	return Channels(0);
 }
 
 #endif

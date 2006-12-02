@@ -6,17 +6,23 @@
 
 \page news What's new
 
-\section news8 ------------------------------------- 2006.11.x -------------------------------------
+\section news8 ------------------------------------- 2006.12.x -------------------------------------
+
+NEWS
+
+- RRScene::SmoothingParameters 
+  \n illumination smoothing parameters, set per object
+  \n obsoletes RRScene states MIN_FEATURE_SIZE and MAX_SMOOTH_ANGLE
 
 CHANGES
 
 - RRRadiometricMeasure extended to support optional
   scale, direct/indirect, smooth
   \n simplifies access to physical scale values
-  \n obsoletes global GET_SOURCE, GET_REFLECTED, GET_SMOOTH
-- RRScene::objectCreate has new parameters
-  \n obsoletes MIN_FEATURE_SIZE and MAX_SMOOTH_ANGLE
+  \n obsoletes RRScene states GET_SOURCE, GET_REFLECTED, GET_SMOOTH
 - RRScaler interface changed from scalar to more efficient vector operation
+- RRScene states removed
+  \n (SceneStateU, SceneStateF, resetStates, getState, setState, getStateF, setStateF)
 
 \section news8 ------------------------------------- 2006.11.16 -------------------------------------
 

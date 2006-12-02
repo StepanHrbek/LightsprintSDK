@@ -19,7 +19,7 @@ enum
 };
 
 // imports all 3d objects from model into RRRealtimeRadiosity
-void DE_API provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app, float stitchDistance);
+void DE_API provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app, const rr::RRScene::SmoothingParameters* smoothing);
 
 // if you import 3d objects to RRRealtimeRadiosity with provideObjectsFrom3dsToRR(),
 // unimport them with deleteObjectsFromRR()

@@ -72,19 +72,13 @@ namespace rr
 		//! Container for all static objects present in scene.
 		typedef std::vector<Object> Objects;
 		//! Sets static contents of scene, all objects at once.
-		//! \param stitchDistance
-		//!  Distance in world units. Vertices with lower or equal distance will be stitched into one vertex.
-		//!  Zero stitches only identical vertices, negative value means no action.
-		//! \param minFeatureSize
-		//!  Distance in world units. Smaller features will be smoothed. This could be imagined as a kind of blur.
-		//!  Use 0 for no smoothing and watch for possible artifacts in areas with small geometry details
-		//!  and 'needle' triangles. Increase until artifacts disappear.
-		//!  15cm (0.15 for game with 1m units) could be good for typical interior game.
-		//! \param maxSmoothAngle
-		//!  Angle in radians, controls automatic smoothgrouping.
-		//!  Edges with smaller angle between face normals are smoothed out.
-		//!  Optimal value depends on your geometry, but reasonable value could be 0.33.
-		void setObjects(Objects& objects, float stitchDistance = 0.01f, float minFeatureSize = 0.15f, float maxSmoothAngle = 0.33f);
+		//! \param objects
+		//!  Static contents of your scene, set of static objects.
+		//!  These objects should not move during our lifetime.
+		//! \param smoothing
+		//!  Static scene illumination smoothing.
+		//!  Set NULL for default values.
+		void setObjects(Objects& objects, const RRScene::SmoothingParameters* smoothing);
 		//! Returns number of static objects in scene.
 		unsigned getNumObjects() const;
 		//! Returns i-th static object in scene.
@@ -215,9 +209,7 @@ namespace rr
 			BIG_CHANGE,
 		};
 		// calculate
-		float      stitchDistance;
-		float      minFeatureSize;
-		float      maxSmoothAngle;
+		RRScene::SmoothingParameters smoothing;
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;
 		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change

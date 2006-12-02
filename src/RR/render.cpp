@@ -145,7 +145,7 @@ void SubTriangle::drawFlat(Channels ambient,int df)
 	flags&=~FLAGS_DIRTY;
 	Node* d_factorsTo = (Node*)d_factors2;
 	bool is_destination=(this==d_factors2)
-		|| (d_factorsTo && IS_CLUSTER(d_factorsTo) && IS_TRIANGLE(this) && CLUSTER(d_factorsTo)->contains(TRIANGLE(this)));
+		;
 	real tmp=0;
 	bool is_source=d_factors2 && shooter && (tmp=shooter->contains(d_factorsTo))!=-1;
 	//if(is_source) printf("pwr=%f ",tmp);//!!!
@@ -297,7 +297,8 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 			p2.point=&p[2];
 			p3.point=&p[3];
 
-			raster_ZGouraud(&p1,(d_needle==0 && grandpa->isNeedle)?__needle_ct:((Surface*)grandpa->surface)->diffuseReflectanceColorTable);
+			raster_ZGouraud(&p1,
+				((Surface*)grandpa->surface)->diffuseReflectanceColorTable);
 		}
 		else
 		{

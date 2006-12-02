@@ -1065,7 +1065,7 @@ Level::Level(const char* filename_3ds)
 
 	// init radiosity solver
 	solver = new Solver();
-	provideObjectsFrom3dsToRR(&m3ds,solver,0.01f);
+	provideObjectsFrom3dsToRR(&m3ds,solver,NULL);
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObject())
 		error("No objects in scene.",false);

@@ -34,7 +34,6 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	//objects zeroed by constructor
 	multiObject = NULL;
 	scene = NULL;
-	stitchDistance = -1;
 	dirtyMaterials = true;
 	dirtyGeometry = true;
 	dirtyLights = BIG_CHANGE;
@@ -49,7 +48,6 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	multiObjectBase = NULL;
 	//preVertex2PostTriangleVertex zeroed by constructor
 	resultChannelIndex = 0;
-	rr::RRScene::setStateF(rr::RRScene::SUBDIVISION_SPEED,0);
 	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
 }
 
@@ -64,12 +62,10 @@ RRRealtimeRadiosity::~RRRealtimeRadiosity()
 	delete multiObjectBase;
 }
 
-void RRRealtimeRadiosity::setObjects(Objects& aobjects, float astitchDistance, float aminFeatureSize, float amaxSmoothAngle)
+void RRRealtimeRadiosity::setObjects(Objects& aobjects, const RRScene::SmoothingParameters* asmoothing)
 {
 	objects = aobjects;
-	stitchDistance = astitchDistance;
-	minFeatureSize = aminFeatureSize;
-	maxSmoothAngle = amaxSmoothAngle;
+	smoothing = asmoothing ? *asmoothing : RRScene::SmoothingParameters();
 	dirtyGeometry = true;
 }
 
@@ -161,23 +157,20 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 			REPORT_END;
 		}
 		REPORT_BEGIN("Opening new radiosity solver.");
-		scene = new RRScene;
+		scene = new RRScene();
 #ifdef MULTIOBJECT
 		RRObject** importers = new RRObject*[objects.size()];
 		for(unsigned i=0;i<(unsigned)objects.size();i++)
 		{
 			importers[i] = objects.at(i).first;
 		}
-		multiObjectBase = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,stitchDistance,stitchDistance>=0,NULL);
-		//scene->setStateF(RRScene::IGNORE_SMALLER_ANGLE,-1);
-		//scene->setStateF(RRScene::IGNORE_SMALLER_AREA,-1);
-		//scene->setStateF(RRScene::MAX_SMOOTH_ANGLE,0.6f);
+		multiObjectBase = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
 		multiObject = multiObjectBase ? multiObjectBase->createAdditionalIllumination() : NULL;
 		delete[] importers;
-		scene->objectCreate(multiObject,2,minFeatureSize,maxSmoothAngle);
+		scene->objectCreate(multiObject,&smoothing);
 #else
 		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
-			scene->objectCreate((*i).first,2,minFeatureSize,maxSmoothAngle);
+			scene->objectCreate((*i).first,smoothing);
 #endif
 		onSceneInit();
 		updateVertexLookupTable();

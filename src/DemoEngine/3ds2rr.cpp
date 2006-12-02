@@ -386,7 +386,7 @@ M3dsImporter* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
 	return importer;
 }
 
-void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,float stitchDistance)
+void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
 {
 	if(app)
 	{
@@ -399,7 +399,7 @@ void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,flo
 			objects.push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
 		}
 		//printf("tris=%f \n",t/3.0f);
-		app->setObjects(objects,stitchDistance);
+		app->setObjects(objects,smoothing);
 	}
 }
 

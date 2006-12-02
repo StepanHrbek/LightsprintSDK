@@ -9,7 +9,7 @@ namespace rr
 {
 
 #define DBG(a) //a
-#define scene ((Scene*)_scene)
+#define SCENE ((Scene*)_scene)
 
 /*
 1-sided vs 2-sided surface
@@ -84,7 +84,7 @@ RRScene::RRScene()
 
 RRScene::~RRScene()
 {
-	delete scene;
+	delete SCENE;
 }
 
 
@@ -116,12 +116,15 @@ RRScene::~RRScene()
 // c) zkontrolovat na zacatku a pak duverovat
 //    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRSurface::validate();
    
-RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothMode, float minFeatureSize, float maxSmoothAngle)
+RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, const SmoothingParameters* smoothing)
 {
 	assert(importer);
 	if(!importer) return UINT_MAX;
+	SmoothingParameters defaultSmoothing;
+	if(!smoothing) smoothing = &defaultSmoothing;
 	RRMesh* meshImporter = importer->getCollider()->getMesh();
 	Object *obj=new Object(meshImporter->getNumVertices(),meshImporter->getNumTriangles());
+	obj->subdivisionSpeed = smoothing->subdivisionSpeed;
 	obj->importer = importer;
 
 	// import vertices
@@ -169,10 +172,11 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 			&obj->vertex[tv[1]],
 			&obj->vertex[tv[2]],
 #ifdef SUPPORT_TRANSFORMS
-			obj->transformMatrix
+			obj->transformMatrix,
 #else
-			NULL
+			NULL,
 #endif
+			NULL,-1,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea
 			);
 		if(t->isValid) 
 		{
@@ -180,10 +184,10 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 			//  delete this and rather call obj->resetStaticIllumination
 			Vec3 sumExitance;
 			importer->getTriangleAdditionalMeasure(fi,RM_EXITANCE_SCALED,sumExitance);
-			if(scene->scaler)
+			if(SCENE->scaler)
 			{
 				// scaler applied on exitance
-				scene->scaler->getPhysicalScale(sumExitance); // getPhysicalScale=getWattsPerSquareMeter
+				SCENE->scaler->getPhysicalScale(sumExitance); // getPhysicalScale=getWattsPerSquareMeter
 			}
 			obj->objSourceExitingFlux+=abs(t->setSurface(s,sumExitance,true));
 		}
@@ -202,16 +206,10 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 	obj->detectBounds();
 	{
 		DBG(printf(" edges...\n"));
-		obj->buildEdges(maxSmoothAngle); // build edges only for clusters and/or interpol
-	}
-	if(RRScene::getState(USE_CLUSTERS))
-	{
-		DBG(printf(" clusters...\n"));
-		obj->buildClusters(); 
-		// clusters first, ivertices then (see comment in Cluster::insert)
+		obj->buildEdges(smoothing->maxSmoothAngle); // build edges only for clusters and/or interpol
 	}
 	DBG(printf(" ivertices...\n"));
-	obj->buildTopIVertices(smoothMode,minFeatureSize,maxSmoothAngle);
+	obj->buildTopIVertices(smoothing->smoothMode,smoothing->minFeatureSize,smoothing->maxSmoothAngle);
 	// priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
 	obj->id=0;//!!!
 	obj->name=NULL;
@@ -222,14 +220,14 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, unsigned smoothM
 #ifdef SUPPORT_DYNAMIC
 	if (0) 
 	{
-		scene->objInsertDynamic(obj); 
-		return -1-scene->objects;
+		SCENE->objInsertDynamic(obj); 
+		return -1-SCENE->objects;
 	}
 	else
 #endif
 	{
-		scene->objInsertStatic(obj);
-		return scene->objects-1;
+		SCENE->objInsertStatic(obj);
+		return SCENE->objects-1;
 	}
 }
 
@@ -243,20 +241,20 @@ RRScene::Improvement RRScene::illuminationReset(bool resetFactors, bool resetPro
 {
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
-	scene->updateMatrices();
-	return scene->resetStaticIllumination(resetFactors,resetPropagation);
+	SCENE->updateMatrices();
+	return SCENE->resetStaticIllumination(resetFactors,resetPropagation);
 }
 
 RRScene::Improvement RRScene::illuminationImprove(bool endfunc(void*), void* context)
 {
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
-	return scene->improveStatic(endfunc, context);
+	return SCENE->improveStatic(endfunc, context);
 }
 
 RRReal RRScene::illuminationAccuracy()
 {
-	return scene->avgAccuracy()/100;
+	return SCENE->avgAccuracy()/100;
 }
 
 
@@ -273,20 +271,20 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	// pokus nejak kompenzovat ze jsem si ve freeze interne zrusil n objektu a nahradil je 1 multiobjektem
 	//if(isFrozen())
 	//{
-	//	if(scene->objects!=1) 
+	//	if(SCENE->objects!=1) 
 	//	{
 	//		assert(0);
 	//		return NULL;
 	//	}
-	//	Object* obj = scene->object[0];
+	//	Object* obj = SCENE->object[0];
 	//	obj->importer->getCollider()->getMesh()->get
 	//}
-	if(object<0 || object>=scene->objects) 
+	if(object<0 || object>=SCENE->objects) 
 	{
 		assert(0);
 		goto error;
 	}
-	obj = scene->object[object];
+	obj = SCENE->object[object];
 	if(triangle>=obj->triangles)
 	{
 		assert(0);
@@ -303,46 +301,6 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 		goto zero;
 	}
 
-	// enhanced by final gathering
-	if(vertex<3 && RRScene::getState(GET_FINAL_GATHER))
-	{
-		vertex=(vertex+3-tri->rotations)%3;
-		irrad = Channels(0);
-		if(measure.indirect)
-		{
-			// get normal
-			RRObject* objectImporter = obj->importer;
-			RRObject::TriangleNormals normals;
-			objectImporter->getTriangleNormals(triangle,normals);
-			Vec3 normal = normals.norm[vertex];
-			assert(fabs(size2(normal)-1)<0.001);
-			// get point
-			RRMesh* meshImporter = objectImporter->getCollider()->getMesh();
-			RRMesh::Triangle triangleIndices;
-			meshImporter->getTriangle(triangle,triangleIndices);
-			unsigned vertexIdx = triangleIndices[vertex];
-			RRMesh::Vertex vertexBody;
-			meshImporter->getVertex(vertexIdx,vertexBody);
-			Vec3 point = vertexBody;
-			// transform to worldspace
-			const RRMatrix3x4* world = objectImporter->getWorldMatrix();
-			if(world)
-			{
-				world->transformPosition(point);
-				world->transformDirection(normal);
-				normal *= 1/size(normal);
-				assert(fabs(size2(normal)-1)<0.001);
-			}
-			//!!! solved by fudge 1mm offset in gatherIrradiance. point += normal*0.001f; //!!! fudge number. to avoid immediate hits of other faces connected to vertex. could be done also by more advanced skipTriangle with list of all faces connected to vertex
-			// get irradiance
-			irrad += scene->gatherIrradiance(point,normal,tri);
-		}
-		if(measure.direct)
-		{
-			irrad += tri->getSourceIrradiance();
-		}
-	}
-	else
 
 	// enhanced by smoothing
 	if(vertex<3 && measure.smoothed)
@@ -370,10 +328,10 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	{
 		irrad *= tri->surface->diffuseReflectance;
 	}
-	if(measure.scaled && scene->scaler)
+	if(measure.scaled && SCENE->scaler)
 	{
 		// scaler applied on exitance
-		scene->scaler->getCustomScale(irrad);
+		SCENE->scaler->getCustomScale(irrad);
 	}
 	if(measure.flux)
 	{
@@ -501,12 +459,12 @@ unsigned  RRScene::getSubtriangleMeasure(ObjectHandle object, unsigned triangle,
 	Object* obj;
 	Triangle* tri;
 
-	if(object<0 || object>=scene->objects) 
+	if(object<0 || object>=SCENE->objects) 
 	{
 		assert(0);
 		return 0;
 	}
-	obj = scene->object[object];
+	obj = SCENE->object[object];
 	if(triangle>=obj->triangles)
 	{
 		assert(0);
@@ -533,7 +491,7 @@ unsigned  RRScene::getSubtriangleMeasure(ObjectHandle object, unsigned triangle,
 
 	SubtriangleIlluminationContext sic(measure);
 	sic.measure = measure;
-	sic.scaler = scene->scaler;
+	sic.scaler = SCENE->scaler;
 	sic.clientCallback = callback;
 	sic.clientContext = context;
 	return tri->enumSubtriangles(buildSubtriangleIllumination,&sic);
@@ -547,77 +505,12 @@ unsigned  RRScene::getSubtriangleMeasure(ObjectHandle object, unsigned triangle,
 
 void RRScene::setScaler(RRScaler* scaler)
 {
-	scene->setScaler(scaler);
+	SCENE->setScaler(scaler);
 }
 
 const RRScaler* RRScene::getScaler() const
 {
-	return scene->scaler;
-}
-
-static unsigned RRSSValueU[RRScene::SSU_LAST];
-static RRReal   RRSSValueF[RRScene::SSF_LAST];
-
-void RRScene::resetStates()
-{
-	memset(RRSSValueU,0,sizeof(RRSSValueU));
-	memset(RRSSValueF,0,sizeof(RRSSValueF));
-	// development
-	setState(RRScene::USE_CLUSTERS,0);
-	setState(RRScene::GET_FINAL_GATHER,0);
-	setState(RRScene::FIGHT_NEEDLES,0);
-
-	// development
-	setStateF(RRScene::SUBDIVISION_SPEED,0);
-	setStateF(RRScene::IGNORE_SMALLER_AREA,SMALL_REAL);
-	setStateF(RRScene::IGNORE_SMALLER_ANGLE,0.001f);
-	setStateF(RRScene::FIGHT_SMALLER_AREA,0.01f);
-	setStateF(RRScene::FIGHT_SMALLER_ANGLE,0.01f);
-	//setStateF(RRScene::SUBDIVISION_SPEED,0);
-}
-
-unsigned RRScene::getState(SceneStateU state)
-{
-	if(state<0 || state>=SSU_LAST) 
-	{
-		assert(0);
-		return 0;
-	}
-	return RRSSValueU[state];
-}
-
-unsigned RRScene::setState(SceneStateU state, unsigned value)
-{
-	if(state<0 || state>=SSU_LAST) 
-	{
-		assert(0);
-		return 0;
-	}
-	unsigned tmp = RRSSValueU[state];
-	RRSSValueU[state] = value;
-	return tmp;
-}
-
-real RRScene::getStateF(SceneStateF state)
-{
-	if(state<0 || state>=SSF_LAST) 
-	{
-		assert(0);
-		return 0;
-	}
-	return RRSSValueF[state];
-}
-
-real RRScene::setStateF(SceneStateF state, real value)
-{
-	if(state<0 || state>=SSF_LAST) 
-	{
-		assert(0);
-		return 0;
-	}
-	real tmp = RRSSValueF[state];
-	RRSSValueF[state] = value;
-	return tmp;
+	return SCENE->scaler;
 }
 
 

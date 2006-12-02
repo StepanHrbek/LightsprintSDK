@@ -4,6 +4,7 @@
 #define SUPPORT_TRANSFORMS
 #define SUPPORT_SCALE
 #define SUPPORT_MIN_FEATURE_SIZE // support merging of near ivertices (to fight needles, hide features smaller than limit)
+//#define SUPPORT_CLUSTERS
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
 //#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
 //#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
@@ -246,7 +247,6 @@ public:
 	Channels energyToDiffuse;
 	unsigned shotsForFactors;
 
-	Factor  *tmpFactor;     // used only during clustering
 
 	real    accuracy();     // shots done per energy unit
 };
@@ -324,18 +324,13 @@ public:
 #define FLAG_DIRTY_ALL_SUBNODES      4
 #define FLAG_DIRTY_SOME_SUBIVERTICES 8 // used only when interpolation is turned on
 #define FLAGS_DIRTY                 15
-#define FLAG_OFFERS_CLUSTERING      16
-#define FLAG_DENIES_CLUSTERING      32
-#define FLAG_WEIGHS_CLUSTERING      64
-#define FLAGS_CLUSTERING           112
 #define FLAG_IS_REFLECTOR          128
 #define FLAG_IS_IN_ORA             256
 
-#define IS_CLUSTER(node)     (!(node)->grandpa)
+#define IS_CLUSTER(node)     0
 #define IS_TRIANGLE(node)    ((node)==(node)->grandpa)
 #define IS_SUBTRIANGLE(node) ((node)->grandpa && (node)!=(node)->grandpa)
 
-#define CLUSTER(node)        ((Cluster *)(node))
 #define TRIANGLE(node)       ((Triangle *)(node))
 #define SUBTRIANGLE(node)    ((SubTriangle *)(node))
 
@@ -478,14 +473,12 @@ public:
 		public:
 	struct Edge *edge[3];   // edges
 	U8      isValid      :1;// triangle is not degenerated
-	U8      isInCluster  :1;// triangle is in cluster
-	U8      isNeedle     :1;// triangle is needle-shaped, try to hide it by interpolation
 #ifdef ROTATIONS
 	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
 #else
 	enum    {rotations=0};
 #endif
-	S8      setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n=NULL,int rots=-1);
+	S8      setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,int rots,float ignoreSmallerAngle,float ignoreSmallerArea);
 	Vec3    to3d(Point2 a);
 	Vec3    to3d(int vertex);
 	SubTriangle *getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex);
@@ -516,7 +509,6 @@ public:
 //
 // set of triangles
 
-class Cluster;
 
 class Triangles
 {
@@ -531,7 +523,6 @@ public:
 	void    forEach(void (*func)(Triangle *key,va_list ap),...);
 	void    holdAmulet();
 	void    resurrect();
-	Node    *buildClusterHierarchy(bool differentNormals,Cluster *aparent,Cluster *cluster,unsigned *c,unsigned maxc);
 
 	private:
 		unsigned trianglesAllocated;
@@ -547,21 +538,6 @@ public:
 //
 // cluster, set of triangles, part of object
 
-extern unsigned __clustersAllocated;
-
-class Cluster : public Node
-{
-public:
-	Cluster();
-	~Cluster();
-
-	void    makeDirty();
-	void    insert(Triangle *t,Triangles *triangles);
-	int     buildAround(Edge *e,Cluster *cluster,unsigned *c,unsigned maxc);
-	Triangle *getTriangle(real a);
-	Triangle *randomTriangle();
-	void    removeFromIVertices(Node *node);
-};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -678,12 +654,10 @@ public:
 	unsigned IVertexPoolItems;
 	unsigned IVertexPoolItemsUsed;
 
-	unsigned clusters;
-	Cluster *cluster;
 	bool    contains(Triangle *t);
-	bool    contains(Cluster *c);
 	bool    contains(Node *n);
-	void    buildClusters();
+
+	float   subdivisionSpeed;
 
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
@@ -740,7 +714,6 @@ public:
 	Triangle* intersectionDynobj(RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
 	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power=HitChannels(1));
 	Channels  getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels power=Channels(1));
-	Channels  gatherIrradiance(Point3 eye,Vec3 normal,Triangle *skip,Channels power=Channels(1)); // decreasing power is used only for termination criteria. returns irradiance in W/m^2
 
 	int     turnLight(int whichLight,real intensity); // turns light on/off. just material, no energies modified (use resetStaticIllumination), returns number of lights (emitting materials) in scene
 
@@ -748,13 +721,11 @@ public:
 	void    objRemoveStatic(unsigned o);
 	unsigned objNdx(Object *aobject);
 
-	void    freeze(bool yes); // makes multi-object calculation faster, but no object insert/remove/transform is allowed then
-	bool    isFrozen();
-
 	void    setScaler(RRScaler* ascaler);
 	RRScaler* scaler;
 
 
+	RRScene::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation);
 	RRScene::Improvement improveStatic(bool endfunc(void*), void* context);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
@@ -788,7 +759,6 @@ public:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
 	void    draw(RRScene* scene, real quality);
-	RRScene::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation);
 	void    updateMatrices();
 
 
@@ -807,7 +777,6 @@ public:
 		Node    *improvingStatic;
 		Triangles hitTriangles;
 		Factors improvingFactors;
-		Factors candidatesForClustering;
 		void    shotFromToHalfspace(Node *sourceNode);
 		void    refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *context);
 		bool    energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context);
