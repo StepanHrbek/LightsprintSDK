@@ -41,7 +41,8 @@ public:
 			// NOW: multiMesh is unoptimized = concatenated meshes
 			// kdyz jsou zaple tyto optimalizace, pristup k objektu je pomalejsi,
 			//  protoze je nutne preindexovavat analogicky k obecne optimalizaci v meshi
-			//!!! kdyz jsou zaple tyto optimalizace, "fcss koupelna" gcc hodi assert u m3ds v getTriangleSurface, moc velky trianglIndex. kdyz ho ignoruju, crashne. v msvc se nepodarilo navodit.
+			//!!! kdyz jsou zaple tyto optimalizace, "fcss koupelna" gcc hodi assert u m3ds v getTriangleSurface,
+			//    moc velky trianglIndex. kdyz ho ignoruju, crashne. v msvc se nepodarilo navodit.
 			// stitch vertices
 			if(maxStitchDistance>=0)
 			{
@@ -96,6 +97,8 @@ public:
 		v = unoptimizedMesh->getPostImportVertex(v,?);
 	}*/
 
+	// converts t from "post" to "mid"
+	// (from "post" after optimizations to "post" of unoptimized mesh)
 	void unoptimizeTriangle(unsigned& t) const
 	{
 		if(!transformedMeshes) return;
@@ -106,7 +109,9 @@ public:
 				return;
 		// <unoptimized> is mesh after concatenation of multiple meshes/objects
 		// <this> is after concatenation and optimizations
+		// convert t from "post" to "pre"
 		t = getCollider()->getMesh()->getPreImportTriangle(t);
+		// convert t from "pre" to "mid"
 		t = unoptimizedMesh->getPostImportTriangle(t);
 	}
 

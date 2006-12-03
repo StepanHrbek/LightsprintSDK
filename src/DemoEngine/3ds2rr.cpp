@@ -391,14 +391,11 @@ void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,con
 	if(app)
 	{
 		rr::RRRealtimeRadiosity::Objects objects;
-		//unsigned t=0;
 		for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
-			//t+=model->Objects[i].numFaces;
 			M3dsImporter* object = new_3ds_importer(model,i);
 			objects.push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
 		}
-		//printf("tris=%f \n",t/3.0f);
 		app->setObjects(objects,smoothing);
 	}
 }
