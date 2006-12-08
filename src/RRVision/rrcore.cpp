@@ -1525,8 +1525,8 @@ Object::Object(int avertices,int atriangles)
 	transformMatrix=NULL;
 	inverseMatrix=NULL;
 	matrixDirty=false;
-	for(unsigned t=0;t<triangles;t++) triangle[t].object=this;
 #endif
+	for(unsigned t=0;t<triangles;t++) triangle[t].object=this;
 	//vertexIVertex=new IVertex*[vertices];
 	//memset(vertexIVertex,0,sizeof(void*)*vertices);
 	IVertexPool=NULL;
@@ -1683,17 +1683,6 @@ void Object::resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool r
 	objSourceExitingFlux = Channels(tmpx,tmpy,tmpz);
 }
 
-void Object::updateMatrices()
-{
-	// updatne matice
-#ifdef SUPPORT_TRANSFORMS
-	transformMatrix=importer->getWorldMatrix();
-	inverseMatrix=importer->getInvWorldMatrix();
-	// vyzada si prvni transformaci
-	matrixDirty=true;
-#endif
-}
-
 bool Object::contains(Triangle *t)
 {
 	return (t>=&triangle[0]) && (t<&triangle[triangles]);
@@ -1706,20 +1695,14 @@ bool Object::contains(Node *n)
 		(IS_SUBTRIANGLE(n) && contains(n->grandpa));
 }
 
-void Object::detectBounds()
+#ifdef SUPPORT_TRANSFORMS
+void Object::updateMatrices()
 {
-	Vec3* vertex = new Vec3[vertices];
-	RRMesh* meshImporter = importer->getCollider()->getMesh();
-	for(unsigned i=0;i<vertices;i++)
-	{
-		RRMesh::Vertex v;
-		meshImporter->getVertex(i,v);
-		vertex[i].x = v[0];
-		vertex[i].y = v[1];
-		vertex[i].z = v[2];
-	}
-	bound.detect(vertex,vertices);
-	delete vertex;
+	// updatne matice
+	transformMatrix=importer->getWorldMatrix();
+	inverseMatrix=importer->getInvWorldMatrix();
+	// vyzada si prvni transformaci
+	matrixDirty=true;
 }
 
 void Object::transformBound()
@@ -1742,6 +1725,23 @@ void Scene::transformObjects()
 			object[o]->matrixDirty=false;
 		}
 	}
+}
+#endif
+
+void Object::detectBounds()
+{
+	Vec3* vertex = new Vec3[vertices];
+	RRMesh* meshImporter = importer->getCollider()->getMesh();
+	for(unsigned i=0;i<vertices;i++)
+	{
+		RRMesh::Vertex v;
+		meshImporter->getVertex(i,v);
+		vertex[i].x = v[0];
+		vertex[i].y = v[1];
+		vertex[i].z = v[2];
+	}
+	bound.detect(vertex,vertices);
+	delete vertex;
 }
 
 bool Object::check()
@@ -1878,10 +1878,12 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors, bool rese
 
 void Scene::updateMatrices()
 {
+#ifdef SUPPORT_TRANSFORMS
 	for(unsigned o=0;o<objects;o++) 
 	{
 		object[o]->updateMatrices();
 	}
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

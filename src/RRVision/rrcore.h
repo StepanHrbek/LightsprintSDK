@@ -1,8 +1,8 @@
 #ifndef RRVISION_RRCORE_H
 #define RRVISION_RRCORE_H
 
-#define SUPPORT_TRANSFORMS
-#define SUPPORT_SCALE
+//#define SUPPORT_TRANSFORMS
+//#define SUPPORT_SCALE
 #define SUPPORT_MIN_FEATURE_SIZE // support merging of near ivertices (to fight needles, hide features smaller than limit)
 //#define SUPPORT_CLUSTERS
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
@@ -408,9 +408,8 @@ public:
 	void    compact();
 
 	// genealogy
-#ifdef SUPPORT_TRANSFORMS
-	class Object *object;
-#endif
+	class Object *object; // potrebuji ho kvuli SUPPORT_TRANSFORMS a subdivisionSpeed
+
 	// enumeration of all subtriangles
 	unsigned enumSubtriangles(EnumSubtrianglesCallback* callback, void* context);
 

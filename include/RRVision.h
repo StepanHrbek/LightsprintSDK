@@ -517,12 +517,14 @@ namespace rr
 		//! Different objects always belong to different smoothgroups. So with flat wall cut into two objects,
 		//! sharp edge will possibly appear between them.
 		//! This can be fixed by merging standalone objects into one object using RRObject::createMultiObject().
-		//! \param importer
-		//!  Object importer that defines object shape and material.
+		//! \param object
+		//!  World-space object wrapper that defines object shape and material.
+		//!  If object has transformation different from identity, pass object->createWorldSpaceObject()
+		//!  rather than object itself, otherwise object transformation will be ignored.
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
 		//! \return ObjectHandle for accessing created object.
-		ObjectHandle  objectCreate(RRObject* importer, const SmoothingParameters* smoothing);
+		ObjectHandle  objectCreate(RRObject* object, const SmoothingParameters* smoothing);
 		
 		//////////////////////////////////////////////////////////////////////////////
 		//
