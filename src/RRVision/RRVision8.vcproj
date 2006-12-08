@@ -329,14 +329,6 @@
 			>
 		</File>
 		<File
-			RelativePath="dynamic.cpp"
-			>
-		</File>
-		<File
-			RelativePath="dynamic.h"
-			>
-		</File>
-		<File
 			RelativePath="geometry.cpp"
 			>
 		</File>

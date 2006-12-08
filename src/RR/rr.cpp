@@ -49,7 +49,6 @@ int __obj=0,__mirror=0,*__mirrorOutput;
 // c=calculation params
 bool    c_fightNeedles=false;   // specialne hackovat jehlovite triangly?
 bool    c_staticReinit=false;   // pocita se kazdy snimek samostatne?
-bool    c_dynamic=false;        // pocita dynamicke osvetleni misto statickeho?
 real    c_frameTime=0.5;        // cas na jeden snimek (zvetsujici se pri nemenne geometrii a kamere)
 real    c_dynamicFrameTime=0.5; // zvetsujici se cas na jeden dynamickej snimek
 
@@ -202,34 +201,6 @@ void matrix_Create(CAMERA *camera, float t)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// mgf input
-//
-
-// zmeni dynamicky objekty na staticky
-
-void objMakeAllStatic(Scene *scene)
-{
- #ifdef SUPPORT_DYNAMIC
- for(unsigned o=scene->staticObjects;o<scene->objects;o++) scene->objMakeStatic(o);
- #endif
-}
-
-// vrati to zpatky, zas budou dynamicky
-
-void objReturnDynamic(Scene *scene)
-{
- #ifdef SUPPORT_DYNAMIC
- for(unsigned o=0;o<scene->objects;o++)
-   if(__world->object[o].pos.num!=1 || __world->object[o].rot.num!=1)
-   {
-     unsigned ndx=scene->objNdx((Object *)(__world->object[o].obj));
-     if(ndx>=0 && ndx<scene->staticObjects) scene->objMakeDynamic(ndx);
-   }
- #endif
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // misc
 //
 
@@ -258,11 +229,6 @@ void setRrMode(Scene *scene,bool staticreinit,bool dynamic,int drawdynamichits)
  if(scene->shortenStaticImprovementIfBetterThan(1)) scene->finishStaticImprovement();
  else scene->abortStaticImprovement();
  c_staticReinit=staticreinit;
- if(staticreinit) objMakeAllStatic(scene); else objReturnDynamic(scene);
- c_dynamic=dynamic;
- #ifdef SUPPORT_DYNAMIC
- d_drawDynamicHits=drawdynamichits;
- #endif
  p_ffGrab=false;
  p_ffPlay=0;
 }
@@ -390,9 +356,6 @@ void frameSetup(Scene *scene)
    matrix_Invert(__world->camera[0].matrix,__world->camera[0].inverse);
    //n_dirtyCamera=false; musime jeste nechat dirty at vynuti prekresleni obrazu
  }
- #ifdef SUPPORT_DYNAMIC
- scene->transformObjects();
- #endif
  if(c_staticReinit)
  {
    scene->resetStaticIllumination(false,true);
@@ -421,31 +384,18 @@ bool frameCalculate(Scene *scene)
  if(p_flyingObjects || p_flyingCamera || n_dirtyGeometry) c_dynamicFrameTime=c_frameTime;
 #ifdef RASTERGL
  // od glut 3.7 / win32 se nedovime ze user poslal event, musime pocitat po malejch chvilkach aby probihal glut mainloop
- if(!c_dynamic && !p_flyingObjects && !p_flyingCamera && n_dirtyGeometry) c_dynamicFrameTime=0.05;
+ if(!p_flyingObjects && !p_flyingCamera && n_dirtyGeometry) c_dynamicFrameTime=0.05;
  if(c_dynamicFrameTime>MAX_UNINTERACT_TIME) c_dynamicFrameTime=MAX_UNINTERACT_TIME;
 #endif
 
-#ifdef SUPPORT_DYNAMIC
- if(c_dynamic)
- {
-   TIME endTime=(GETTIME+c_dynamicFrameTime*PER_SEC);
-   scene->improveDynamic(endByTimeOrInput,(void*)(intptr_t)endTime);
+ if(!p_flyingCamera && !p_flyingObjects && (n_dirtyCamera || n_dirtyObject)) return true; // jednorazova zmena sceny klavesnici nebo mysi -> okamzity redraw
+ bool change=false;
+ if(!preparing_capture && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames)) {
+   TIME endTime=(TIME)(GETTIME+c_dynamicFrameTime*PER_SEC);
+   change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime)==RRScene::IMPROVED;
    if(GETTIME>endTime) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
-   n_dirtyColor=true;
-   return true;
  }
- else
-#endif
- {
-   if(!p_flyingCamera && !p_flyingObjects && (n_dirtyCamera || n_dirtyObject)) return true; // jednorazova zmena sceny klavesnici nebo mysi -> okamzity redraw
-   bool change=false;
-   if(!preparing_capture && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames)) {
-     TIME endTime=(TIME)(GETTIME+c_dynamicFrameTime*PER_SEC);
-     change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime)==RRScene::IMPROVED;
-     if(GETTIME>endTime) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
-   }
-   return change || p_flyingCamera || p_flyingObjects || n_dirtyCamera || n_dirtyObject;
- }
+ return change || p_flyingCamera || p_flyingObjects || n_dirtyCamera || n_dirtyObject;
 }
 
 // vykresli a pripadne grabne aktualni frame

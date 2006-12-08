@@ -63,7 +63,7 @@ const int g_logScale=15; // rozumny kompromis, vejdou se i svetla nekolikrat jas
 real getBrightness(real color) // converts 0..infinity radiosity to 0..1 value for display
 {
 	assert(IS_NUMBER(color));
-	if(color<0) return 0; //dynamicky stin muze zpusobit ze prijde zaporna radiosita
+	if(color<0) return 0;
 	assert(color>=0);
 
 	if(p_ffPlay==2)
@@ -153,14 +153,14 @@ void SubTriangle::drawFlat(Channels ambient,int df)
 	if(is_destination || is_source) ; else
 		if((!d_fast) && sub[0] && ((d_meshing==1 && sub[0]->shooter) || d_meshing==2))
 		{
-			ambient+=(totalExitingFlux/*+getEnergyDynamic()*/-sub[0]->totalExitingFlux-sub[1]->totalExitingFlux)/area;
+			ambient+=(totalExitingFlux-sub[0]->totalExitingFlux-sub[1]->totalExitingFlux)/area;
 			SUBTRIANGLE(sub[0])->drawFlat(ambient,df);
 			SUBTRIANGLE(sub[1])->drawFlat(ambient,df);
 			return;
 		}
 		if(d_factors2 && !is_source && !is_destination) return;
 
-		real brightness=getBrightness(ambient+(totalExitingFlux/*+getEnergyDynamic()*/)/area);
+		real brightness=getBrightness(ambient+totalExitingFlux/area);
 
 #ifdef RASTERGL
 
@@ -233,7 +233,7 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 		&& (p_ffPlay!=2 || subvertex->error<d_details)
 		&& (p_ffPlay==0 || subvertex->loaded))//kdyz ffPlayuje=loaduje z disku, loaduje jen nektery ivertexy, ostatni zustanou nevyplneny a kdybysme se jich ptali, sectou si a vratej nam energii z corneru kde ted zadna neni
 	{
-		ambient+=(totalExitingFlux/*+getEnergyDynamic()*/-sub[0]->totalExitingFlux-sub[1]->totalExitingFlux)/area;
+		ambient+=(totalExitingFlux-sub[0]->totalExitingFlux-sub[1]->totalExitingFlux)/area;
 		IVertex *iv0[3];
 		IVertex *iv1[3];
 		bool rightleft=isRightLeft();
@@ -305,7 +305,7 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 		{
 			v=to3d(uv[0]+(u2+v2)/3);
 			p[0].x=v.x; p[0].y=v.y; p[0].z=v.z;
-			p[0].u=getBrightness(ambient+(totalExitingFlux/*+getEnergyDynamic()*/)/area);
+			p[0].u=getBrightness(ambient+totalExitingFlux/area);
 
 			p1.point=&p[1];
 			p2.point=&p[2];
@@ -400,10 +400,8 @@ void render_world(WORLD *w, rr::RRScene* scene, int camera_id, bool mirrorFrame)
 
 			if(camera_id>=0) 
 			{
-#ifndef SUPPORT_DYNAMIC
 				// vsechny objekty jsou ve scenespacu, vsechny matice jsou identity
 				// takze by to tady mohlo jit o neco rychlejc i bez transformaci
-#endif
 				matrix_Copy(w->camera[camera_id].inverse,cm);
 				matrix_Copy(o->transform,om);
 				if (mirrorFrame) {

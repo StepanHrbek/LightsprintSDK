@@ -421,7 +421,7 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 			Node* node=corner[i].node;
 			assert(node);
 			// a=source+reflected incident flux in watts
-			Channels a=node->totalIncidentFlux/*+node->getEnergyDynamic()*/;
+			Channels a=node->totalIncidentFlux;
 			assert(IS_CHANNELS(a));
 			if(node->sub[0])
 			{
@@ -1436,11 +1436,7 @@ void Scene::iv_saveRealFrame(char *name)
 	if(!iv_f) {fprintf(stderr,"Unable to grab to %s.\n",name);__errors=1;return;}
 	// zapise dulezity parametry prostredi
 	iv_FW(shotsTotal);//kolik statickejch paprsku vystrelil na frame
-	#ifdef SUPPORT_DYNAMIC
-	iv_FW(__lightShotsPerDynamicFrame); //kolik dynamickejch paprsku vystrelil na frame
-	#else
-	int tmp0=0; iv_FW(tmp0);
-	#endif
+	int tmp0=0; iv_FW(tmp0);//tykalo se jen dynamicky sceny
 	// vsechny ivertexy oznaci za neulozeny a dulezity
 	iv_forEach(iv_cleanFlags);
 	iv_forEach(iv_setFlagImportant);

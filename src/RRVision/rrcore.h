@@ -6,9 +6,7 @@
 #define SUPPORT_MIN_FEATURE_SIZE // support merging of near ivertices (to fight needles, hide features smaller than limit)
 //#define SUPPORT_CLUSTERS
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
-//#define SUPPORT_DYNAMIC  // support dynamic objects/shadows. off=all vertices in scenespace, no transformations
 //#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
-// note that fixed hits have no hit extension implemeted (used only for dynamic objects)
 #define HIT_PTR          & // hits are passed by reference
 #define BESTS           200 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
 #define ROTATIONS
@@ -78,12 +76,6 @@ namespace rr
 //  reset() uvadi objekt do stavu po konstruktoru
 //  resetStaticIllumination() uvadi objekt do stavu po nacteni sceny
 
-#ifdef SUPPORT_DYNAMIC
- #define TReflectors DReflectors
-#else
- #define TReflectors Reflectors
-#endif
-
 #ifndef ONLY_PLAYER
 
 
@@ -125,10 +117,6 @@ struct Hit
 #endif
 	void    setPower(HitChannels apower);
 	HitChannels getPower();
-	void    setExtensionP(void *ext);
-	void   *getExtensionP();
-	void    setExtensionR(real r);
-	real    getExtensionR();
 };
 
 #define IS_POWER(n) ((n)>=-1 && (n)<=1)
@@ -173,13 +161,6 @@ public:
 		HitChannels sum_power;
 #endif
 		unsigned hitsAllocated;
-
-#ifdef SUPPORT_DYNAMIC
-		bool isDynamic;
-	public:
-	void    insert(Hit ahit,void *extension);
-	real    convertDHitsToHits();
-#endif
 };
 
 Hits   *allocHitsLevel();
@@ -292,21 +273,6 @@ public:
 	Channels radiosityIndirect();// radiosity received by ancestors
 	bool    loadEnergyFromSubs();
 	void    propagateEnergyUp();
-	//Channels getEnergyDynamic(); // gets all energy averaged in more frames
-
-	// dynamic energy acumulators
-#ifdef SUPPORT_DYNAMIC
-	void    addEnergyDynamic(real e); // adds bit of energy for current frame
-	private:
-		real    energyDynamicFrame;  // dynamic energy acumulated during one frame
-		real    energyDynamicSmooth;  // the same value smoothed using previous value and variance
-		real    energyDynamicVariance;
-		U8      energyDynamicFrameTime;
-		U8      energyDynamicSmoothTime;
-	public:
-	real    importanceForDynamicShadows();
-	real    importanceForDynamicShadows(Bound *objectBound);
-#endif
 
 	bool    check();
 #endif
@@ -675,19 +641,7 @@ public:
 	void    transformBound();
 	void    updateMatrices();
 #endif
-#ifdef SUPPORT_DYNAMIC
-	// access to primary emitors
-	unsigned trianglesEmiting; // number of first triangles that are primary emitors
-#endif
-
 };
-
-#ifdef SUPPORT_DYNAMIC
-}
-#include "dynamic.h"
-namespace rr
-{
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -699,16 +653,16 @@ public:
 	Scene();
 	~Scene();
 
-	Object **object;        // array of objects, first static, then dynamic
-	unsigned staticObjects;
-	unsigned objects;
+	Object **object;        // array of static objects
+	unsigned staticObjects; // number of static objects
+	unsigned objects;       // number of objects, always equals staticObjects
 	RRSurface *surface;
 	unsigned surfaces;
 	RRCollider* multiCollider;
 
 	Triangle* intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
 	Triangle* intersectionDynobj(RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
-	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power=HitChannels(1));
+	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power=HitChannels(1));
 	Channels  getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels power=Channels(1));
 
 	int     turnLight(int whichLight,real intensity); // turns light on/off. just material, no energies modified (use resetStaticIllumination), returns number of lights (emitting materials) in scene
@@ -729,13 +683,6 @@ public:
 	bool    distribute(real maxError);//skonci kdyz nejvetsi mnozstvi nerozdistribuovane energie na jednom facu nepresahuje takovou cast energie lamp (0.001 is ok)
 #ifdef SUPPORT_TRANSFORMS
 	void    transformObjects();
-#endif
-#ifdef SUPPORT_DYNAMIC
-	void    objInsertDynamic(Object *aobject);
-	void    objRemoveDynamic(unsigned o);
-	void    objMakeStatic(unsigned o);
-	void    objMakeDynamic(unsigned o);
-	void    improveDynamic(bool endfunc(void *),void *context);
 #endif
 	void    iv_forEach(void callback(SubTriangle *s,IVertex *iv,int type));
 	void    iv_saveRealFrame(char *name);
@@ -778,12 +725,11 @@ public:
 		bool    energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context);
 
 		Channels staticSourceExitingFlux; // primary source exiting radiant flux in Watts, sum of absolute values
-		Channels dynamicSourceExitingFlux;
 		unsigned shotsForNewFactors;
 		unsigned shotsAccumulated;
 		unsigned shotsForFactorsTotal;
 		unsigned shotsTotal;
-		TReflectors staticReflectors; // top nodes in static Triangle trees
+		Reflectors staticReflectors; // top nodes in static Triangle trees
 		RRMesh** multiObjectMeshes4Delete; // to be deleted with multiCollider
 
 };

@@ -156,13 +156,9 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, const SmoothingP
 #endif
 
 	// import triangles
-	// od nuly nahoru insertuje emitory, od triangles-1 dolu ostatni
+	// vzdy vklada/cisluje od nuly nahoru
 	DBG(printf(" triangles...\n"));
 	int tbot=0;
-// bohuzel pak nesedej triangle_handly, poradi se ted uz nesmi menit
-//#ifdef SUPPORT_DYNAMIC
-//	int ttop=obj->triangles-1;
-//#endif
 	for(unsigned fi=0;fi<obj->triangles;fi++) 
 	{
 		RRMesh::Triangle tv;
@@ -172,11 +168,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, const SmoothingP
 		assert(s);
 		// rozhodne zda vlozit face dolu mezi emitory nebo nahoru mezi ostatni
 		Triangle *t;
-//#ifdef SUPPORT_DYNAMIC
-//		if(s && s->diffuseEmittance) t=&obj->triangle[tbot++]; else t=&obj->triangle[ttop--];
-//#else
 		t=&obj->triangle[tbot++];
-//#endif
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
 /*		RRMesh::Vertex v[3];
@@ -209,9 +201,6 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, const SmoothingP
 		}
 	}
 	   
-#ifdef SUPPORT_DYNAMIC
-	obj->trianglesEmiting=tbot;
-#endif
 	// preprocessuje objekt
 	DBG(printf(" bounds...\n"));
 	obj->detectBounds();
@@ -228,18 +217,8 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, const SmoothingP
 	obj->transformBound();
 #endif
 	// vlozi objekt do sceny
-#ifdef SUPPORT_DYNAMIC
-	if (0) 
-	{
-		SCENE->objInsertDynamic(obj); 
-		return -1-SCENE->objects;
-	}
-	else
-#endif
-	{
-		SCENE->objInsertStatic(obj);
-		return SCENE->objects-1;
-	}
+	SCENE->objInsertStatic(obj);
+	return SCENE->objects-1;
 }
 
 
@@ -335,7 +314,7 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 		else
 		if(measure.direct && measure.indirect) 
 		{
-			irrad = (tri->totalIncidentFlux /*+ tri->getEnergyDynamic()*/) / tri->area;
+			irrad = tri->totalIncidentFlux / tri->area;
 			// Zde mohl po chvili vypoctu vyplout zaporny vysledek.
 			// Neni to hezke, ale zaporne hodnoty muze dodat i klient, takze je tolerujme.
 			// Chyba vznika po chvili vypoctu fcss, ale bez pohybu=resetu, porad se jen zlepsuje,
@@ -343,7 +322,7 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 		}
 		else
 		{
-			irrad = (tri->totalIncidentFlux /*+ tri->getEnergyDynamic()*/ - tri->getSourceIncidentFlux()) / tri->area;
+			irrad = (tri->totalIncidentFlux - tri->getSourceIncidentFlux()) / tri->area;
 			// Zde mohl zaokrouhlovaci chybou vzniknout zaporny vysledek.
 			// Neni to hezke, ale zaporne hodnoty muze dodat i klient, takze je tolerujme.
 			// Chyba vznika podezrele snadno, prakticky okamzite na zacatku vypoctu,
@@ -392,7 +371,7 @@ unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, RRRea
 		iv1[0]=iv[rot];
 		iv1[1]=subvertex;
 		iv1[2]=iv[(rot+2)%3];
-		flatambient+=(totalExitingFlux/*+getEnergyDynamic()*/-sub[0]->totalExitingFlux-sub[1]->totalExitingFlux)/area;
+		flatambient+=(totalExitingFlux-sub[0]->totalExitingFlux-sub[1]->totalExitingFlux)/area;
 		return SUBTRIANGLE(sub[rightleft?0:1])->enumSubtriangles(iv0,flatambient,subarea/2,callback,context)+
 			SUBTRIANGLE(sub[rightleft?1:0])->enumSubtriangles(iv1,flatambient,subarea/2,callback,context);
 	}

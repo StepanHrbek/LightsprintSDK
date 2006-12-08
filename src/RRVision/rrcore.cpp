@@ -131,37 +131,6 @@ void Hit::setPower(real apower)
 #endif
 }
 
-void Hit::setExtensionP(void *ext)
-{
-#ifdef HITS_FIXED
-#else
-	power=*(real *)&ext;
-#endif
-}
-
-void *Hit::getExtensionP()
-{
-#ifdef HITS_FIXED
-	#ifdef SUPPORT_DYNAMIC
-	  #error HITS_FIXED + SUPPORT_DYNAMIC not allowed
-	#endif
-	return NULL; // won't be called
-#else
-	return *(void **)&power;
-#endif
-}
-
-void Hit::setExtensionR(real r)
-{
-	setExtensionP(*((void **)&r));
-}
-
-real Hit::getExtensionR()
-{
-	void *p=getExtensionP();
-	return *((real *)&p);
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // hits to one subtriangle
@@ -182,10 +151,6 @@ void Hits::reset()
 	sum_u=0;
 	sum_v=0;
 	sum_power=0;
-#ifdef SUPPORT_DYNAMIC
-	// jen pro klid, nemuselo by se cistit
-	isDynamic=false;
-#endif
 }
 
 void Hits::rawInsert(Hit HIT_PTR ahit)
@@ -216,10 +181,6 @@ void Hits::rawInsert(Hit HIT_PTR ahit)
 
 void Hits::insert(Hit HIT_PTR ahit)
 {
-#ifdef SUPPORT_DYNAMIC
-	assert(!isDynamic || !hits);
-	isDynamic=false;
-#endif
 	rawInsert(ahit);
 }
 
@@ -578,13 +539,6 @@ void Node::reset(bool resetFactors)
 	totalExitingFlux=Channels(0);
 	totalIncidentFlux=Channels(0);
 	flags=0;
-#ifdef SUPPORT_DYNAMIC
-	energyDynamicFrame=0;
-	energyDynamicSmooth=0;
-	energyDynamicVariance=0;
-	energyDynamicFrameTime=0;
-	energyDynamicSmoothTime=0;
-#endif
 	// clean subtriangles
 	if(!IS_CLUSTER(this) && sub[0])
 	{
@@ -651,13 +605,6 @@ void Node::propagateEnergyUp()
 	Node *node=parent;
 	while(node && node->loadEnergyFromSubs()) node=node->parent;
 }
-
-/*#ifndef SUPPORT_DYNAMIC
-Channels Node::getEnergyDynamic()
-{
-	return Channels(0);
-}
-#endif*/
 
 real Node::accuracy()
 {
@@ -1022,7 +969,7 @@ real calculateArea(Vec3 v0, Vec3 v1, Vec3 v2)
 // rots muze prikazat kolikrat zarotovat, -1=autodetekce
 // vraci kolikrat zarotoval, -1..-11=vadna geometrie, zahodit
 // n=NULL .. spocita normalu sam
-// n!=NULL .. pouzije zadanou normalu, nicmene SUPPORT_DYNAMIC pri transformacich stejne zada NULL a stara je zahozena, spocita se nova
+// n!=NULL .. pouzije zadanou normalu
 //
 // Objekt muze byt scalovany. a/b/c ale dostavame v objectspace a tak musi zustat.
 // Pokud ale nevyscalujeme area, bude pri distribuci vznikat/zanikat energie.
@@ -1625,9 +1572,6 @@ Object::Object(int avertices,int atriangles)
 	matrixDirty=false;
 	for(unsigned t=0;t<triangles;t++) triangle[t].object=this;
 #endif
-#ifdef SUPPORT_DYNAMIC
-	trianglesEmiting=0;
-#endif
 	//vertexIVertex=new IVertex*[vertices];
 	//memset(vertexIVertex,0,sizeof(void*)*vertices);
 	IVertexPool=NULL;
@@ -1859,9 +1803,6 @@ bool Object::check()
 // scene
 
 Scene::Scene()
-#ifdef SUPPORT_DYNAMIC
- : staticReflectors(this)
-#endif
 {
 	allocatedObjects=16;
 	object=(Object **)malloc(allocatedObjects*sizeof(Object *));
@@ -1876,7 +1817,6 @@ Scene::Scene()
 	shotsForFactorsTotal=0;
 	shotsTotal=0;
 	staticSourceExitingFlux=Channels(0);
-	dynamicSourceExitingFlux=Channels(0);
 	multiCollider=NULL;
 	multiObjectMeshes4Delete=NULL;
 	scaler=NULL;
@@ -1952,8 +1892,7 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors, bool rese
 		shotsTotal=0;
 	}
 	staticSourceExitingFlux=Channels(0);
-	dynamicSourceExitingFlux=Channels(0);
-
+	
 	// subtriangly vznikle behem predchoziho vypoctu zrusim, abych setril pamet a pomohl bidne interpolaci.
 	// pokud ale vypocet nerusim a dal propaguji, necham si je.
 	if(resetPropagation)
@@ -1981,8 +1920,7 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors, bool rese
 		staticReflectors.insertObject(object[o]);
 	}
 
-	for(unsigned o=0;o<staticObjects;o++) staticSourceExitingFlux+=object[o]->objSourceExitingFlux;
-	for(unsigned o=staticObjects;o<objects;o++) dynamicSourceExitingFlux+=object[o]->objSourceExitingFlux;
+	for(unsigned o=0;o<objects;o++) staticSourceExitingFlux+=object[o]->objSourceExitingFlux;
 
 	return (staticSourceExitingFlux!=Channels(0)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
 }
@@ -2019,7 +1957,7 @@ Vec3 refract(Vec3 N,Vec3 I,real r)
 
 RRRay* __ray;
 
-HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void *hitExtension,HitChannels power)
+HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
 {
@@ -2077,11 +2015,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 		// put triangle among other hit triangles
 		if(!hitTriangle->hits.hits) hitTriangles.insert(hitTriangle);
 		// inform subtriangle where and how powerfully it was hit
-#ifdef SUPPORT_DYNAMIC
-		if(hitExtension) hitTriangle->hits.insert(hitPoint2d,hitExtension);
-		else
-#endif
-			hitTriangle->hits.insert(hitPoint2d);
+		hitTriangle->hits.insert(hitPoint2d);
 	}
 	// mirror reflection
 	// speedup: weaker rays continue less often but with
@@ -2096,7 +2030,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 		// calculate new direction after ideal mirror reflection
 		Vec3 newDirection=hitTriangle->getN3()*(-2*dot(direction,hitTriangle->getN3())/size2(hitTriangle->getN3()))+direction;
 		// recursively call this function
-		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,hitExtension,/*sqrt*/(power*hitTriangle->surface->specularReflectance));
+		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularReflectance));
 	}
 	// getting through
 	// speedup: weaker rays continue less often but with
@@ -2111,7 +2045,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,void 
 		// calculate new direction after refraction
 		Vec3 newDirection=-refract(hitTriangle->getN3(),direction,hitTriangle->surface->refractionIndex);
 		// recursively call this function
-		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,hitExtension,/*sqrt*/(power*hitTriangle->surface->specularTransmittance));
+		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance));
 	}
 	s_depth--;
 	return hitPower;
@@ -2322,7 +2256,7 @@ Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels po
 		return Channels(0);
 	}
 	// calculate surface exitance
-	Channels incidentPower = hitTriangle->totalIncidentFlux;// + hitTriangle->getEnergyDynamic();
+	Channels incidentPower = hitTriangle->totalIncidentFlux;
 	Channels irradiance = incidentPower / hitTriangle->area;
 	Channels exitance = irradiance * hitTriangle->surface->diffuseReflectance;
 	return exitance;
@@ -2339,7 +2273,7 @@ void Scene::shotFromToHalfspace(Node *sourceNode)
 	Vec3 srcPoint3,rayVec3;
 	Triangle* tri=getRandomExitRay(sourceNode,&srcPoint3,&rayVec3);
 	// cast ray
-	if(tri) rayTracePhoton(srcPoint3,rayVec3,tri,NULL);
+	if(tri) rayTracePhoton(srcPoint3,rayVec3,tri);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2584,7 +2518,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 
 real Scene::avgAccuracy()
 {
-	return (1+shotsForFactorsTotal)/sum(abs(staticSourceExitingFlux));//* nema tu byt (Statics+Dynamics)?
+	return (1+shotsForFactorsTotal)/sum(abs(staticSourceExitingFlux));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2803,9 +2737,6 @@ void Scene::infoImprovement(char *buf, int infolevel)
 	int ot=kb-hi-fa-su-tr-cl-iv-co;
 	buf[0]=0;
 	STATISTIC(if(infolevel>1) sprintf(buf+strlen(buf),"hits(%i/%i) ",RRScene::getSceneStatistics()->numRayTracePhotonFrontHits,RRScene::getSceneStatistics()->numRayTracePhotonBackHits));
-#ifdef SUPPORT_DYNAMIC
-	if(infolevel>1) sprintf(buf+strlen(buf),"dshots(%i->%i) ",__lightShotsPerDynamicFrame,__shadeShotsPerDynamicFrame);
-#endif
 	//sprintf(buf+strlen(buf),"kb=%i",kb/1024);
 	if(infolevel>1) sprintf(buf+strlen(buf),"(hi=%i,fa=%i,su=%i,tr=%i,cl=%i,iv=%i,co=%i,ot=%i)",
 		hi/1024,fa/1024,su/1024,tr/1024,cl/1024,iv/1024,co/1024,ot/1024);
@@ -2875,3 +2806,12 @@ void core_Init()
 #endif
 
 } // namespace
+
+/*
+buga v interpolaci na vrsku 8stennyho bodaku
+pocitat pri gouraudu i totalExitingFlux z clusteru
+pocitat pri flatu i totalExitingFlux z clusteru
+reflector meshing je pomalej protoze pulreflektory nemaj energii na strileni, musi se odebrat reflektoru a dat jim.
+Factor *factor alokovat az pri prvnim insertu
+co pujde z Shooter presunout do Scene
+*/

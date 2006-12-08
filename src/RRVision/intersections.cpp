@@ -133,7 +133,7 @@ private:
 	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].infinite=!hit; \
 	++RRScene::getSceneStatistics()->numLineSegments%=RRScene::getSceneStatistics()->MAX_LINES; ) }
 
-// return first intersection with "scene minus *skip minus dynamic objects"
+// return first intersection with "scene minus *skip"
 //  const inputs in ray: rayLengthMin, rayLengthMax, rayFlags
 //  var inputs in ray:
 //  outputs in ray: all defined by rayFlags
@@ -243,39 +243,5 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	LOG_RAY(eye,direction,hitTriangle?ray.rayLengthMax:0.2f,hitTriangle);
 	return hitTriangle;
 }
-
-#ifdef SUPPORT_DYNAMIC
-
-// return first intersection with scene
-// but only when that intersection is with dynobj
-// sideeffect: inserts hit to triangle and triangle to hitTriangles
-
-Triangle* Scene::intersectionDynobj(RRRay& ray, Point3& eye, Vec3& direction, Object *dynobj, Triangle* skip)
-{
-	assert(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
-	// pri velkem poctu objektu by pomohlo sesortovat je podle
-	//  vzdalenosti od oka a blizsi testovat driv
-
-	if(!dynobj->intersection(ray,eye,direction,hitTriangle,hitPoint2d,hitFrontSide,hitDistance))
-		return false;
-	for(unsigned o=0;o<objects;o++)
-	{
-		if(object[o]!=dynobj && object[o]->bound.intersect(eye,direction,*hitDistance))
-		{
-			Triangle *hitTriangle;
-			Hit hitPoint2d;
-			bool hitFrontSide;
-			real hitDistTmp = *hitDistance;
-			if(object[o]->intersection(ray,eye,direction,&hitTriangle,&hitPoint2d,&hitFrontSide,&hitDistTmp))
-				return false;
-		}
-	}
-
-	// inserts hit triangle to hitTriangles
-	if(!(*hitTriangle)->hits.hits) hitTriangles.insert(*hitTriangle);
-	return true;
-}
-
-#endif
 
 } // namespace

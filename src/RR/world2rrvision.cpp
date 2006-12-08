@@ -204,7 +204,6 @@ RRScene *convert_world2scene(WORLD *world, char *material_mgf, rr::RRCollider::I
 	DBG(printf("Loading geometry...\n"));
 	for(int o=0;o<world->object_num;o++) 
 	{
-		// dynamic = w->object[o].pos.num!=1 || w->object[o].rot.num!=1
 		WorldObjectImporter* importer = new WorldObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces, intersectTechnique);
 		RRScene::SmoothingParameters smoothing;
 		smoothing.subdivisionSpeed = 1;
