@@ -37,8 +37,15 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 // Verificiation
+//
+// Define VERIFY to enable code that verifies your wrappers and data.
+// Once your code/data are verified and don't emit messages via reporter(),
+// turn verifications off.
+// If you encounter strange behaviour with new data later,
+// reenable verifications to check that your data are ok.
 
 //#define VERIFY
+
 #ifdef VERIFY
 void reporter(const char* msg, void* context)
 {
