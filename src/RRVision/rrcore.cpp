@@ -77,8 +77,6 @@ RRLicense::LicenseStatus licenseStatus = RRLicense::WRONG;
 //
 // memory
 
-#ifndef ONLY_PLAYER
-
 #define SIMULATE_REALLOC
 
 void* realloc(void* p,size_t oldsize,size_t newsize)
@@ -490,38 +488,11 @@ void freeHitsLevel()
 	__levels->freeLevel();
 }
 
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // node in hierarchy of clusters, triangles and subtriangles
 
 unsigned __nodesAllocated=0;
-
-#ifdef ONLY_PLAYER
-
-Node::Node(Node *aparent,class Triangle *agrandpa)
-{
-	parent=aparent;
-	grandpa=agrandpa;
-	sub[0]=NULL;
-	sub[1]=NULL;
-	flags=0;
-	__nodesAllocated++;
-}
-
-Node *Node::brother()
-{
-	assert(parent);
-	return parent->sub[(this==parent->sub[0])?1:0];
-}
-
-Node::~Node()
-{
-	__nodesAllocated--;
-}
-
-#else
 
 Node::Node(Node *aparent,class Triangle *agrandpa)
 {
@@ -644,8 +615,6 @@ Node::~Node()
 	if(shooter) delete shooter;
 	__nodesAllocated--;
 }
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -873,8 +842,6 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	DBGLINE
 }
 
-#ifndef ONLY_PLAYER
-
 void SubTriangle::splitHits(Hits* phits,Hits *phits2)
 {
 	assert(sub[0]);
@@ -901,8 +868,6 @@ bool SubTriangle::wishesToSplitReflector()
 	real edif=fabs(e0-e1);
 	return edif>esum/REFLECTOR_MESHING;
 }
-
-#endif
 
 SubTriangle::~SubTriangle()
 {
@@ -1117,7 +1082,6 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalIrradian
 	assert(additionalIrradiance.x>=0); // teoreticky by melo jit i se zapornou
 	assert(additionalIrradiance.y>=0);
 	assert(additionalIrradiance.z>=0);
-#ifndef ONLY_PLAYER
 	// load triangle shooter with energy emited by surface
 	assert(shooter);
 	// set this primary illum
@@ -1142,7 +1106,6 @@ Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalIrradian
 		totalIncidentFlux += addSourceIncidentFlux;
 	}
 	sourceIncidentFlux = newSourceIncidentFlux;
-#endif
 	return newSourceExitingFlux;
 }
 
@@ -1153,9 +1116,7 @@ Point3 Triangle::to3d(Point2 a)
 
 void Triangle::compact()
 {
-#ifndef ONLY_PLAYER
 	hits.compact();
-#endif
 }
 
 Triangle::~Triangle()
@@ -1170,8 +1131,6 @@ Triangle::~Triangle()
 //////////////////////////////////////////////////////////////////////////////
 //
 // reflectors (light sources and things that reflect light)
-
-#ifndef ONLY_PLAYER
 
 Reflectors::Reflectors()
 {
@@ -1425,8 +1384,6 @@ Reflectors::~Reflectors()
 	if(node) free(node);
 }
 
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // set of triangles
@@ -1560,12 +1517,10 @@ Object::Object(int avertices,int atriangles)
 	vertex=new Vec3[vertices];
 	triangle=new Triangle[triangles];
 	edge=NULL;
-#ifndef ONLY_PLAYER
 	bound.center=Point3(0,0,0);
 	bound.radius=BIG_REAL;
 	bound.radius2=BIG_REAL;
 	objSourceExitingFlux=Channels(0);
-#endif
 #ifdef SUPPORT_TRANSFORMS
 	transformMatrix=NULL;
 	inverseMatrix=NULL;
@@ -1678,16 +1633,12 @@ void Object::buildEdges(float maxSmoothAngle)
 Object::~Object()
 {
 	check();
-#ifndef ONLY_PLAYER
-#endif
 	delete[] triangle;
 	delete[] vertex;
 	if(edge) delete[] edge;
 	//delete[] vertexIVertex;
 	deleteIVertices();
 }
-
-#ifndef ONLY_PLAYER
 
 // resetPropagation = true
 //  uvede energie v objektu do stavu po nacteni sceny
@@ -2802,8 +2753,6 @@ void core_Init()
 	__levels=new LevelHits();
 	__ray = RRRay::create();
 }
-
-#endif
 
 } // namespace
 

@@ -59,10 +59,6 @@ public:
 
 	real    error;
 	void    loadCache(Channels r);
-#ifdef ONLY_PLAYER
-	Channels player_cache;
-	U8      player_detail;
-#endif
 
 	void    insert(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));
 	void    insertAlsoToParents(Node *node,bool toplevel,real power,Point3 apoint=Point3(0,0,0));

@@ -399,8 +399,6 @@ restart_iter:
 }
 */
 
-#ifndef ONLY_PLAYER
-
 void IVertex::makeDirty()
 {
 	for(unsigned i=0;i<corners;i++)
@@ -469,8 +467,6 @@ void IVertex::loadCache(Channels r)
 	cacheTime=__frameNumber;
 	cacheValid=1;
 }
-
-#endif
 
 bool IVertex::remove(Node *node,bool toplevel)
 // returns true when last corner removed (-> ivertex should be deleted)
@@ -1199,8 +1195,6 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 
 
 
-
-#ifndef ONLY_PLAYER
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2130,8 +2124,6 @@ Channels IVertex::getClosestIrradiance(RRRadiometricMeasure measure)
 {
 	return Channels(0);
 }
-
-#endif
 
 } // namespace
 

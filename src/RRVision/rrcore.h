@@ -76,8 +76,6 @@ namespace rr
 //  reset() uvadi objekt do stavu po konstruktoru
 //  resetStaticIllumination() uvadi objekt do stavu po nacteni sceny
 
-#ifndef ONLY_PLAYER
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -232,8 +230,6 @@ public:
 	real    accuracy();     // shots done per energy unit
 };
 
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // node in hierarchy of clusters, triangles and subtriangles
@@ -260,7 +256,6 @@ public:
 	// geometry
 	real    area; // area in worldspace
 
-#ifndef ONLY_PLAYER
 	void    reset(bool resetFactors);
 
 	// form factors and how many shots they were calculated with
@@ -275,7 +270,6 @@ public:
 	void    propagateEnergyUp();
 
 	bool    check();
-#endif
 
 	// subnodes
 	Node    *sub[2];
@@ -344,10 +338,8 @@ public:
 	// if sub[0] then this triangle is splitted into sub[0] and sub[1]
 	//  so that { hit.u,v | splita*u+splitb*v>1 } is sub[0]
 	void    splitGeometry(IVertex *asubvertex);
-#ifndef ONLY_PLAYER
 	void    splitHits(Hits* phits,Hits *phits2);
 	bool    wishesToSplitReflector();
-#endif
 	// enumeration of all subtriangles
 	typedef void (EnumSubtrianglesCallback)(SubTriangle* s, IVertex **iv, Channels flatambient, RRReal subarea, void* context);
 	unsigned enumSubtriangles(IVertex **iv, Channels flatambient, RRReal subarea, EnumSubtrianglesCallback* callback, void* context);
@@ -457,7 +449,6 @@ public:
 	// surface
 	const RRSurface *surface;     // material at outer and inner side of Triangle
 	Channels setSurface(const RRSurface *s,const Vec3& additionalIrradiance, bool resetPropagation);
-#ifndef ONLY_PLAYER
 	// source values entered by client app, not calculated by us,
 	// typically direct illumination values
 	Channels getSourceIncidentFlux() {return sourceIncidentFlux;}
@@ -470,7 +461,6 @@ public:
 
 	// hits
 	Hits    hits;           // the most memory consuming struct: set of hits
-#endif
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -498,8 +488,6 @@ public:
 		unsigned triangles;
 		Triangle **triangle;
 };
-
-#ifndef ONLY_PLAYER
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -537,8 +525,6 @@ public:
 		Node *bestNode[BESTS];
 		bool refreshing; // false = all nodes were selected for distrib, true = for refresh
 };
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -602,10 +588,6 @@ public:
 		private:
 		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize);
 		public:
-#ifdef ONLY_PLAYER
-};
-
-#else
 	//Channels getVertexIrradiance(unsigned avertex,RRRadiometricMeasure measure); // only direct+indirect is used
 	unsigned getTriangleIndex(Triangle* t); // return index of triangle in object, UINT_MAX for invalid input
 	//IVertex **vertexIVertex; // only for fast approximative getVertexIrradiance
@@ -736,8 +718,6 @@ public:
 
 void core_Init();
 void core_Done();
-
-#endif
 
 } // namespace
 

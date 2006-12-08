@@ -3,7 +3,5 @@
 
 #include "rrcore.h"
 
-#ifndef ONLY_PLAYER
-#endif
 
 #endif
