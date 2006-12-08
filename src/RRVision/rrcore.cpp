@@ -113,7 +113,7 @@ unsigned  __frameNumber=1; // frame number increased after each draw
 real Hit::getPower()
 {
 #ifdef HITS_FIXED
-	return power/(HITS_P_MAX*1.0);
+	return power/(real)(HITS_P_MAX);
 #else
 	return power;
 #endif
@@ -216,7 +216,7 @@ bool Hits::doSplit(Point2 centre,real perimeter,Triangle *base)
 real Hits::totalPower()
 {
 #ifdef HITS_FIXED
-	return sum_power/(HITS_P_MAX*1.0);
+	return sum_power/(real)(HITS_P_MAX);
 #else
 	assert(IS_NUMBER(sum_power));
 	return sum_power;
@@ -1956,8 +1956,8 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance*power));
 		Hit hitPoint2d;
 #ifdef HITS_FIXED
-		hitPoint2d.u=(HITS_UV_TYPE)(HITS_UV_MAX*i_hitU);
-		hitPoint2d.v=(HITS_UV_TYPE)(HITS_UV_MAX*i_hitV);
+		hitPoint2d.u=(HITS_UV_TYPE)(HITS_UV_MAX*ray.hitPoint2d[0]);
+		hitPoint2d.v=(HITS_UV_TYPE)(HITS_UV_MAX*ray.hitPoint2d[1]);
 #else
 		// prepocet u,v ze souradnic (rightside,leftside)
 		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
