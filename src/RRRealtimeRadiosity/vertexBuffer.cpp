@@ -1,6 +1,7 @@
 #define MULTIOBJECT // creates multiObject to accelerate calculation
 
-#include <assert.h>
+#include <cassert>
+#include <cfloat>
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
@@ -97,10 +98,12 @@ void RRRealtimeRadiosity::readVertexResults()
 #else
 				scene->getTriangleMeasure(objectHandle,t,v,RM_IRRADIANCE_SCALED_INDIRECT,indirect);
 #endif
+				// make it optional when negative values are supported
+				//for(unsigned i=0;i<3;i++)
+				//	indirect[i] = MAX(0,indirect[i]);
 				for(unsigned i=0;i<3;i++)
 				{
 					assert(_finite(indirect[i]));
-					assert(indirect[i]>=0);
 					assert(indirect[i]<1500000);
 				}
 			}

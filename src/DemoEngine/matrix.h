@@ -1,16 +1,5 @@
-
-/* matrix.h - matrix routines for GeForce/Quadro shadow mapping demo */
-
-/* Copyright NVIDIA Corporation, 2000. */
-
-/* $Id: //sw/main/apps/OpenGL/mjk/shadowcast/matrix.h#2 $ */
-
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include <GL/glew.h>
 
@@ -26,8 +15,4 @@ extern void buildLookAtMatrix(GLdouble m[16],
                               GLdouble centerx, GLdouble centery, GLdouble centerz,
                               GLdouble upx, GLdouble upy, GLdouble upz);
 
-#ifdef __cplusplus
-}
 #endif
-
-#endif  /* __MATRIX_H__ */

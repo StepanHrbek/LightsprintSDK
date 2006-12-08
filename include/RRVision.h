@@ -95,11 +95,12 @@ namespace rr
 		bool indirect: 1; ///< Makes indirect radiation (computed) part of result. \n Typical setting: 1.
 		bool smoothed: 1; ///< Selects between [0] raw results for debugging purposes and [1] smoothed results.
 	};
-	//#define RM_INCIDENT_FLUX      RRRadiometricMeasure(0,1,1,0,1)
-	//#define RM_EXITING_FLUX       RRRadiometricMeasure(1,1,1,0,1)
+	//!!! odstranit z rls
 	#define RM_IRRADIANCE_SCALED          RRRadiometricMeasure(0,0,1,+0,+0) // don't care if it's direct or indirect
+	#define RM_IRRADIANCE_PHYSICAL        RRRadiometricMeasure(0,0,0,+0,+0) // don't care if it's direct or indirect
 	#define RM_IRRADIANCE_ALL             RRRadiometricMeasure(0,0,+0,1,1) // don't care if it's scaled or not
-	#define RM_IRRADIANCE_SCALED_ALL      RRRadiometricMeasure(0,0,1,1,1)
+	#define RM_EXITANCE_SCALED_ALL        RRRadiometricMeasure(1,0,1,1,1)
+	#define RM_EXITANCE_PHYSICAL_ALL      RRRadiometricMeasure(1,0,0,1,1)
 	#define RM_IRRADIANCE_SCALED_INDIRECT RRRadiometricMeasure(0,0,1,0,1)
 	#define RM_EXITANCE_SCALED            RRRadiometricMeasure(1,0,1,+0,+0) // don't care if it's direct or indirect
 	#define RM_ALL                        RRRadiometricMeasure(+0,+0,+0,1,1) // don't care if it's exiting, flux or scaled
@@ -124,6 +125,7 @@ namespace rr
 
 		RRSideBits    sideBits[2];                   ///< Defines surface behaviour for front(0) and back(1) side.
 		RRColor       diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
+		RRColor       diffuseReflectanceCustom;//!!! odstranit z rls
 		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately). Never scaled by RRScaler.
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
 		RRReal        specularTransmittance;         ///< Fraction of energy that continues through surface (without color change).
@@ -318,10 +320,13 @@ namespace rr
 		static RRObject*    createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation);
 		//! Creates and returns object importer with space for per-triangle user-defined additional illumination.
 		//!
-		//! Created instance depends on original object, so it is not allowed to delete original object before newly created instance.
+		//! Created instance depends on original object and scaler, so it is not allowed to delete original object and scaler before deleting newly created instance.
 		//! \n Created instance contains buffer for per-triangle additional illumination that is initialized to 0 and changeable via setTriangleAdditionalMeasure.
 		//! Illumination defined here overrides original object's illumination.
-		class RRObjectAdditionalIllumination* createAdditionalIllumination();
+		//! \param scaler
+		//!  Scaler used for physical scale <-> custom scale conversions.
+		//!  Provide the same scaler you created for RRScene.
+		class RRObjectAdditionalIllumination* createAdditionalIllumination(const class RRScaler* scaler);
 
 		// collision helper
 		//! Creates and returns collision handler, that accepts first hit to visible side (according to surface sideBit 'render').
@@ -362,6 +367,13 @@ namespace rr
 	//! Without scaler, all inputs/outputs work with specified physical units.
 	//! With appropriate scaler, you may directly work for example with screen colors
 	//! or photometric units.
+	//!
+	//! When implementing your own scaler, double check you don't generate NaNs or INFs,
+	//! for negative inputs.
+	//!
+	//! For best results, scaler should satisfy following conditions for any x,y:
+	//! \n getCustomScale(getPhysicalScale(x))=x
+	//! \n getCustomScale(x)*getCustomScale(y)=getCustomScale(x*y)
 	//!
 	//! RRSurface::diffuseEmittance is never scaled.
 	//!

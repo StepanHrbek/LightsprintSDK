@@ -1,8 +1,22 @@
-#include <assert.h>
+#include <cassert>
 #include "RRRealtimeRadiosity.h"
+
+#define HDR
 
 namespace rr
 {
+
+#ifdef HDR
+	// podporuje custom scaler (i odlisny od sceny)
+	// korektni filtrovani v physical space
+	// nikde se neclampuje
+	typedef RRColorRGBF CubeColor;
+#else
+	// fixed scaler ze sceny
+	// filtrovani je nekorektni, v custom space
+	// clampuje se z custom space do 8bit
+	typedef RRColorRGBA8 CubeColor;
+#endif
 
 // navaznost hran v cubemape:
 // side0top   = side2right
@@ -128,18 +142,23 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 
 // inputs:
 //  iSize - input cube size
-//  iIrradiance - array with 6*iSize*iSize pixels of cube
+//  iIrradiance - array with 6*iSize*iSize pixels of cube. should be in physical space, otherwise filtering is incorrect
 // outputs:
-//  if successful:
+//  scale: custom using scaler; physical if no scaler provided
+//  a)
 //   oSize - new filtered cube size
-//   oIrradiance - new array with filtered cube, to be deleted by caller
-//  else
-//   not modified
+//   oIrradiance - new array with filtered cube, to be deleted by caller (in the same space, should be physical)
+//  b)
+//   *iIrradiance - modified values in input array
+//  c)
+//   no changes
 // thread safe: yes
-static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& oSize, RRColorRGBA8*& oIrradiance)
+static void cubeMapFilter(unsigned iSize, CubeColor* iIrradiance, unsigned& oSize, CubeColor*& oIrradiance, const RRScaler* scaler)
 {
 	unsigned iPixels = iSize*iSize*6;
-	if(iSize==1) // 1 -> 2, prumeruje rohy
+
+	// 1 -> 2, prumeruje rohy
+	if(iSize==1)
 	{
 		// pri zmene cubeSide[6] nutno zmenit i tuto tabulku
 		static const signed char filteringTable[] = {
@@ -176,22 +195,26 @@ static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& o
 		};
 		oSize = 2;
 		unsigned oPixels = 6*oSize*oSize;
-		oIrradiance = new RRColorRGBA8[oPixels];
+		oIrradiance = new CubeColor[oPixels];
 		for(unsigned i=0;i<oPixels;i++)
 		{
 			RRColorRGBF sum = RRColorRGBF(0);
 			unsigned points = 0;
 			for(unsigned j=0;j<iPixels;j++)
 			{
-				//!!! scitat v HDR
 				sum += iIrradiance[j].toRRColorRGBF() * filteringTable[iPixels*i+j];
 				points += filteringTable[iPixels*i+j];
 			}
 			assert(points);
 			oIrradiance[i] = sum / (points?points:1);
+#ifdef HDR
+			if(scaler) scaler->getCustomScale(oIrradiance[i]);
+#endif
 		}
 	}
-	if(iSize==2) // 2 -> 2, prumeruje rohy
+
+	// 2 -> 2, prumeruje rohy
+	if(iSize==2)
 	{
 		static signed char filteringTable[24][3];
 		static bool inited = false;
@@ -211,18 +234,18 @@ static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& o
 		}
 		oSize = 2;
 		unsigned oPixels = 6*oSize*oSize;
-		oIrradiance = new RRColorRGBA8[oPixels];
+		oIrradiance = new CubeColor[oPixels];
 		for(unsigned i=0;i<oPixels;i++)
 		{
-			//!!! scitat v HDR
-			// pokud tady prumeruju vic pixelu,
-			//  neprumerovat ve screenspacu
-			// nacitat RM_IRRADIANCE_PHYSICAL_INDIRECT
-			//  a po zprumerovani si rucne pozadat o scale
 			oIrradiance[i] = (iIrradiance[filteringTable[i][0]].toRRColorRGBF()+iIrradiance[filteringTable[i][1]].toRRColorRGBF()+iIrradiance[filteringTable[i][2]].toRRColorRGBF()) * 0.333333f;
+#ifdef HDR
+			if(scaler) scaler->getCustomScale(oIrradiance[i]);
+#endif
 		}
 	}
-	if(iSize>2) // n -> n, prumeruje 1-pix hrany a rohy
+
+	// n -> n, prumeruje 1-pix hrany a rohy
+	if(iSize>2)
 	{
 		// process only x+/x- corners&edges and y+/y- edges
 		for(unsigned side=0;side<4;side++)
@@ -256,13 +279,21 @@ static void cubeMapFilter(unsigned iSize, RRColorRGBA8* iIrradiance, unsigned& o
 					}
 				}
 			}
-			
 		}
+#ifdef HDR
+		if(scaler)
+		{
+			for(unsigned i=0;i<iPixels;i++)
+			{
+				scaler->getCustomScale(iIrradiance[i]);
+			}
+		}
+#endif
 	}
 }
 
 // thread safe: yes
-static void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, unsigned size, RRColorRGBA8* irradiance)
+static void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, unsigned size, CubeColor* irradiance)
 {
 	if(!scene)
 	{
@@ -297,21 +328,26 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 c
 				ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
 				unsigned face = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
 				// read irradiance on sky
-				RRVec3 irrad;
 				if(face==UINT_MAX)
 				{
-					irrad = RRVec3(0); //!!! add sky
+					*irradiance = RRVec3(0); //!!! add sky
 				}
 				else
-				// read irradiance on face
+				// read cube irradiance as face exitance
 				{
-					scene->getTriangleMeasure(0,face,3,RM_IRRADIANCE_SCALED_ALL,irrad);
+#ifdef HDR
+					scene->getTriangleMeasure(0,face,3,RM_EXITANCE_PHYSICAL_ALL,*irradiance);
+#else
+					RRVec3 irrad;
+					scene->getTriangleMeasure(0,face,3,RM_EXITANCE_SCALED_ALL,irrad);
+					*irradiance = irrad;
+#endif
 					// na pokusy: misto irradiance bere barvu materialu
 					//const RRSurface* surface = object->getSurface(object->getTriangleSurface(face));
-					//if(surface) irrad = surface->diffuseReflectance;
+					//if(surface) *irradiance = surface->diffuseReflectance;
 				}
-				// write result
-				*irradiance++ = irrad;
+				// go to next pixel
+				irradiance++;
 			}
 	}
 	delete ray;
@@ -334,13 +370,13 @@ void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* env
 
 	// gather irradiances
 	const unsigned iSize = maxSize?maxSize:1;
-	RRColorRGBA8* iIrradiance = new RRColorRGBA8[6*iSize*iSize];
+	CubeColor* iIrradiance = new CubeColor[6*iSize*iSize];
 	cubeMapGather(scene,getMultiObject(),objectCenterWorld,iSize,iIrradiance);
 
 	// filter cubemap
 	unsigned oSize = 0;
-	RRColorRGBA8* oIrradiance = NULL;
-	cubeMapFilter(iSize,iIrradiance,oSize,oIrradiance);
+	CubeColor* oIrradiance = NULL;
+	cubeMapFilter(iSize,iIrradiance,oSize,oIrradiance,scene->getScaler());
 
 	// pass cubemap to client
 	environmentMap->setValues(oSize?oSize:iSize,oIrradiance?oIrradiance:iIrradiance);

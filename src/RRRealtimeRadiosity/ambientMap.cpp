@@ -1,6 +1,7 @@
 #define MULTIOBJECT // creates multiObject to accelerate calculation
 
-#include <assert.h>
+#include <cassert>
+#include <cfloat>
 #include "RRRealtimeRadiosity.h"
 
 namespace rr

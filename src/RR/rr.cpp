@@ -297,7 +297,7 @@ void fakMerge(Scene *scene,unsigned frames,unsigned maxvertices)
 
  // postupne spocita a ulozi do .tga jednotlivy barevny komponenty
     // 1. mozny pristup k tomu aby cervena stena odrazela jen cervene svetlo
-    //    energyDirect [25 vyskytu] rozdelit na energyDirectR/G/B
+    //    totalExitingFlux [25 vyskytu] rozdelit na energyDirectR/G/B
     //    exitance() rozdelit na radiosityR/G/B()
     //    + bezny vypocet by jel ve vyssi kvalite
     //    - pomalejsi, zere vic pameti
@@ -319,7 +319,7 @@ void fakMerge(Scene *scene,unsigned frames,unsigned maxvertices)
     //    do .000 ukladat misto 1 realu vzdy 3 realy
     //    + vhodne i pri generovani truecolor .tga a .jpg
     //    + pri playovani 'b' lze menit jas/kontrast
-    //    - nutno roztrojit energyDirect, sezere vic pameti
+    //    - nutno roztrojit totalExitingFlux, sezere vic pameti
 
  d_saving_tga=true;
  for(int component=0;component<4;component++)

@@ -31,6 +31,17 @@ void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, RRColorRGBA8
 	}
 }
 
+void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, RRColorRGBF* irradiance)
+{
+	bindTexture();
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	for(unsigned side=0; side<6; side++)
+	{
+		//gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X + side, GL_RGBA8, size, size, GL_RGBA, GL_UNSIGNED_BYTE, &irradiance[size*size*side].color);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGB,size,size,0,GL_RGB,GL_FLOAT,&irradiance[size*size*side].x);
+	}
+}
+
 void RRIlluminationEnvironmentMapInOpenGL::bindTexture()
 {
 	texture->bindTexture();

@@ -158,6 +158,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		}
 		REPORT_BEGIN("Opening new radiosity solver.");
 		scene = new RRScene();
+		onSceneInit(); // must be called before objectCreate, because it sets scaler used by objectCreate
 #ifdef MULTIOBJECT
 		RRObject** importers = new RRObject*[objects.size()];
 		for(unsigned i=0;i<(unsigned)objects.size();i++)
@@ -165,14 +166,13 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 			importers[i] = objects.at(i).first;
 		}
 		multiObjectBase = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
-		multiObject = multiObjectBase ? multiObjectBase->createAdditionalIllumination() : NULL;
+		multiObject = multiObjectBase ? multiObjectBase->createAdditionalIllumination(scene->getScaler()) : NULL;
 		delete[] importers;
 		scene->objectCreate(multiObject,&smoothing);
 #else
 		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
 			scene->objectCreate((*i).first,smoothing);
 #endif
-		onSceneInit();
 		updateVertexLookupTable();
 		REPORT_END;
 	}

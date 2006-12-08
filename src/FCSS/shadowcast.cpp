@@ -322,7 +322,7 @@ protected:
 	virtual void onSceneInit()
 	{
 		delete scene->getScaler();
-		scene->setScaler(rr::RRScaler::createRgbScaler(0.4f));
+		scene->setScaler(rr::RRScaler::createRgbScaler());
 	}
 	virtual bool detectDirectIllumination()
 	{
@@ -360,7 +360,6 @@ protected:
 		// allocate the index buffer memory as necessary
 		GLuint* pixelBuffer = new GLuint[width * height];
 		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
-//printf("\n ============================================================= ");
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
 		{
 			captureUv.lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax)-1;
@@ -398,9 +397,6 @@ protected:
 			// read back the index buffer to memory
 			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
 
-			// dbg print
-			rr::RRColor suma = rr::RRColor(0);
-
 			// accumulate triangle irradiances
 #pragma omp parallel for schedule(static,1)
 			for(int triangleIndex=captureUv.firstCapturedTriangle;(unsigned)triangleIndex<=captureUv.lastCapturedTriangle;triangleIndex++)
@@ -427,14 +423,7 @@ protected:
 				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITANCE_SCALED,avg);
 #endif
 
-				// debug print
-				//rr::RRColor tmp = rr::RRColor(0);
-				//multiObject->getTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITING_FLUX,tmp);
-//				suma+=avg;
-//				if((int)(10000*avg.avg())) printf("%d:%d ",triangleIndex,(int)(255*avg.avg()));
 			}
-//			printf("sum=%f ",suma.avg());
-//			printf("\n ----- ");
 		}
 
 		delete[] pixelBuffer;
@@ -598,7 +587,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT);
-		level->solver->updateEnvironmentMap(environmentMap,4,rr::RRVec3(0,1,1));//!!! worldpos
+		level->solver->updateEnvironmentMap(environmentMap,16,rr::RRVec3(0,1,1));//!!! worldpos
 		environmentMap->bindTexture();
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 	}

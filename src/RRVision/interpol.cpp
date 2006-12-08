@@ -421,12 +421,12 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 			Node* node=corner[i].node;
 			assert(node);
 			// a=source+reflected incident flux in watts
-			Channels a=node->energyDirectIncident/*+node->getEnergyDynamic()*/;
+			Channels a=node->totalIncidentFlux/*+node->getEnergyDynamic()*/;
 			assert(IS_CHANNELS(a));
 			if(node->sub[0])
 			{
 				assert(node->sub[1]);
-				a-=node->sub[0]->energyDirectIncident+node->sub[1]->energyDirectIncident;
+				a-=node->sub[0]->totalIncidentFlux+node->sub[1]->totalIncidentFlux;
 			}
 			assert(IS_CHANNELS(a));
 			// s=source incident flux in watts

@@ -243,8 +243,8 @@ public:
 	~Shooter();
 	void    reset(bool resetFactors);
 
-	Channels energyDiffused;
-	Channels energyToDiffuse;
+	Channels totalExitingFluxDiffused;
+	Channels totalExitingFluxToDiffuse;
 	unsigned shotsForFactors;
 
 
@@ -287,8 +287,8 @@ public:
 	real    accuracy();     // shots done per energy unit
 
 	// static energy acumulators
-	Channels energyDirect;   // exitance from energy received directly by this node or his subs (not by ancestors)
-	Channels energyDirectIncident; // irradiance received directly by this node or his subs (not by ancestors)
+	Channels totalExitingFlux;   // exitance from energy received directly by this node or his subs (not by parents)
+	Channels totalIncidentFlux;  // irradiance received directly by this node or his subs (not by parents)
 	Channels radiosityIndirect();// radiosity received by ancestors
 	bool    loadEnergyFromSubs();
 	void    propagateEnergyUp();
@@ -490,14 +490,16 @@ public:
 
 	// surface
 	const RRSurface *surface;     // material at outer and inner side of Triangle
-	Channels setSurface(const RRSurface *s,const Vec3& additionalExitingFlux, bool resetPropagation);
+	Channels setSurface(const RRSurface *s,const Vec3& additionalIrradiance, bool resetPropagation);
 #ifndef ONLY_PLAYER
-	Channels getSourceIncidentFlux() {return Channels(sourceExitingFlux.x/MAX(surface->diffuseReflectance[0],0.1f),sourceExitingFlux.y/MAX(surface->diffuseReflectance[1],0.1f),sourceExitingFlux.z/MAX(surface->diffuseReflectance[2],0.1f));} // source incident radiant flux in Watts
-	Channels getSourceExitingFlux() {return sourceExitingFlux;} // source exiting radiant flux in Watts
+	// source values entered by client app, not calculated by us,
+	// typically direct illumination values
+	Channels getSourceIncidentFlux() {return sourceIncidentFlux;}
+	Channels getSourceExitingFlux() {return getSourceIncidentFlux()*surface->diffuseReflectance;} // source exiting radiant flux in Watts
 	Channels getSourceIrradiance() {return getSourceIncidentFlux()/area;} // source irradiance in W/m^2
-	Channels getSourceExitance() {return getSourceExitingFlux()/area;} // source exitance in W/m^2
+	//Channels getSourceExitance() {return getSourceExitingFlux()/area;} // source exitance in W/m^2
 		private:
-		Channels sourceExitingFlux;   // backup of all scene energy in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlyPrimary or onlySecondary".
+		Channels sourceIncidentFlux;   // backup of total incidentFlux in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlySource or onlyReflected".
 		public:
 
 	// hits

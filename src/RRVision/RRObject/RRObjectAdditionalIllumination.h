@@ -27,9 +27,10 @@ RRObjectAdditionalIlluminationImpl tedy vse co dostane prevede na irradiance
 class RRObjectAdditionalIlluminationImpl : public RRObjectAdditionalIllumination
 {
 public:
-	RRObjectAdditionalIlluminationImpl(RRObject* aoriginal)
+	RRObjectAdditionalIlluminationImpl(RRObject* aoriginal, const RRScaler* ascaler)
 	{
 		original = aoriginal;
+		scaler = ascaler;
 		assert(original);
 		assert(getCollider());
 		assert(getCollider()->getMesh());
@@ -54,6 +55,15 @@ public:
 			assert(0);
 			return false;
 		}
+		if(measure.flux)
+		{
+			power = triangleInfo[t].area ? power / triangleInfo[t].area : RRColor(0);
+		}
+		if(measure.scaled && scaler)
+		{
+			// scaler applied on density, not flux
+			scaler->getPhysicalScale(power);
+		}
 		if(measure.exiting)
 		{
 			const RRSurface* s = getSurface(getTriangleSurface(t));
@@ -63,13 +73,9 @@ public:
 				return false;
 			}
 			for(unsigned c=0;c<3;c++)
+				// diffuse applied on physical scale, not custom scale
 				power[c] = (s->diffuseReflectance[c]) ? power[c] / s->diffuseReflectance[c] : 0;
 		}
-		if(measure.flux)
-		{
-			power = triangleInfo[t].area ? power / triangleInfo[t].area : RRColor(0);
-		}
-		assert(measure.scaled);
 		triangleInfo[t].irradiance = power;
 		return true;
 	}
@@ -91,13 +97,18 @@ public:
 				out = RRColor(0);
 				return;
 			}
+			// diffuse applied on physical scale, not custom scale
 			power *= s->diffuseReflectance;
+		}
+		if(measure.scaled && scaler)
+		{
+			// scaler applied on density, not flux
+			scaler->getCustomScale(power);
 		}
 		if(measure.flux)
 		{
 			power *= triangleInfo[t].area;
 		}
-		assert(measure.scaled);
 		out = power;
 	}
 
@@ -134,10 +145,11 @@ public:
 private:
 	struct TriangleInfo
 	{
-		RRColor irradiance; // always scaled
+		RRColor irradiance; // always in physical scale
 		RRReal area;
 	};
 	RRObject* original;
+	const RRScaler* scaler;
 	unsigned numTriangles;
 	TriangleInfo* triangleInfo;
 };

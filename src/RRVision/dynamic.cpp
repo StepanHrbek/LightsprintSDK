@@ -114,7 +114,7 @@ real Node::importanceForDynamicShadows()
 	// importance of reflector when dyn.object size/distance is unknown
 	// big energy -> high importance
 	// small area (energy more concentrated) -> higher importance
-	return fabs(shooter->energyDiffused+shooter->energyToDiffuse)
+	return fabs(shooter->totalExitingFluxDiffused+shooter->totalExitingFluxToDiffuse)
 	       /(sqrt(area)+SMALL_OBJECT_SIZE);
 }
 
@@ -130,7 +130,7 @@ real Node::importanceForDynamicShadows(Bound *objectBound)
 	if(IS_CLUSTER(this)) point=CLUSTER(this)->randomTriangle()->getS3();else
 	 if(IS_SUBTRIANGLE(this)) point=SUBTRIANGLE(this)->to3d(0);else
 	  point=TRIANGLE(this)->getS3();
-	return fabs(shooter->energyDiffused+shooter->energyToDiffuse)
+	return fabs(shooter->totalExitingFluxDiffused+shooter->totalExitingFluxToDiffuse)
 	       /(sqrt(area)+SMALL_OBJECT_SIZE)
 	       *(objectBound->radius+SMALL_OBJECT_SIZE)
 	       /(size2(objectBound->center-point)+SMALL_OBJECT_SIZE);
@@ -150,7 +150,7 @@ void ReflToDynobj::initFrame(Node *refl)
 	// poznamena si kolik energie celkem leti z reflektoru
 	assert(refl);
 	assert(refl->shooter);
-	energyR=refl->shooter->energyDiffused+refl->shooter->energyToDiffuse;
+	energyR=refl->shooter->totalExitingFluxDiffused+refl->shooter->totalExitingFluxToDiffuse;
 	// ostatni nuluje
 	powerR2DSum=0;
 	lightShots=0;
@@ -167,7 +167,7 @@ void ReflToDynobj::initFrame(Node *refl)
 void ReflToDynobj::updateLightAccuracy(Shooter *reflector)
 {
 	assert(reflector);
-	rawAccuracy=lightShots/(fabs(reflector->energyDiffused+reflector->energyToDiffuse)+SMALL_ENERGY);
+	rawAccuracy=lightShots/(fabs(reflector->totalExitingFluxDiffused+reflector->totalExitingFluxToDiffuse)+SMALL_ENERGY);
 	real importance=( (visible?PREFER_LIGHT:0) + shadeHitsP/(shadeShotsP+DYN_STABILITY) )/(PREFER_LIGHT+1);
 	lightAccuracy=rawAccuracy* lightShotsP/( lightHitsP*importance+DYN_STABILITY );
 }
@@ -810,8 +810,8 @@ void Scene::objMakeDynamic(unsigned o)
 
 /*
 buga v interpolaci na vrsku 8stennyho bodaku
-pocitat pri gouraudu i energyDirect z clusteru
-pocitat pri flatu i energyDirect z clusteru
+pocitat pri gouraudu i totalExitingFlux z clusteru
+pocitat pri flatu i totalExitingFlux z clusteru
 reflector meshing je pomalej protoze pulreflektory nemaj energii na strileni, musi se odebrat reflektoru a dat jim.
 Factor *factor alokovat az pri prvnim insertu
 co pujde z Shooter presunout do Scene

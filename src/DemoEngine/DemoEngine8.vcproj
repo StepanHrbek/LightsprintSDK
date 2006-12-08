@@ -326,7 +326,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\matrix.c"
+			RelativePath=".\matrix.cpp"
 			>
 		</File>
 		<File

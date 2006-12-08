@@ -131,9 +131,9 @@ RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObje
 	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,maxStitchDistance,optimizeTriangles,cacheLocation);
 }
 
-RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination()
+RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination(const RRScaler* scaler)
 {
-	return new RRObjectAdditionalIlluminationImpl(this);
+	return new RRObjectAdditionalIlluminationImpl(this,scaler);
 }
 
 //////////////////////////////////////////////////////////////////////////////

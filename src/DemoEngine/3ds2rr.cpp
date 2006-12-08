@@ -135,7 +135,10 @@ static void fillSurface(rr::RRSurface* s,Model_3DS::Material* m)
 	}
 
 	s->reset(0);
-	s->diffuseReflectance = avg;
+	s->diffuseReflectanceCustom = s->diffuseReflectance = avg;
+	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();//!!!
+	scaler->getPhysicalScale(s->diffuseReflectance);
+	delete scaler;
 #ifdef VERIFY
 	if(s->validate())
 		reporter("Surface adjusted to physically valid.",NULL)

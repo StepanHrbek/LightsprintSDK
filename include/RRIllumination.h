@@ -37,6 +37,8 @@
 #endif
 
 
+#define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
+
 namespace rr
 {
 
@@ -68,6 +70,10 @@ namespace rr
 			y = a.y;
 			z = a.z;
 		}
+		RRColorRGBF toRRColorRGBF() const
+		{
+			return *this;
+		}
 	};
 
 
@@ -85,7 +91,7 @@ namespace rr
 		}
 		RRColorI8(RRReal r,RRReal g,RRReal b)
 		{
-			color = (unsigned char)(255/3*(r+g+b));
+			color = (unsigned char)CLAMPED(85*(r+g+b),0,255);
 		}
 		const RRColorI8& operator =(const RRColorRGBF& a)
 		{
@@ -125,7 +131,7 @@ namespace rr
 		}
 		RRColorRGBA8(RRReal r,RRReal g,RRReal b)
 		{
-			color = ((unsigned char)(255*r)&255) + (((unsigned char)(255*g)&255)<<8) + (((unsigned char)(255*b)&255)<<16);
+			color = (unsigned)CLAMPED(255*r,0,255) + (((unsigned)CLAMPED(255*g,0,255))<<8) + (((unsigned)CLAMPED(255*b,0,255))<<16);
 		}
 		const RRColorRGBA8& operator =(const RRColorRGBF& a)
 		{
@@ -256,13 +262,15 @@ namespace rr
 		//! \param size
 		//!  Width and height of one side of cube map.
 		//! \param irradiance
-		//!  Array of 6*size*size irradiance values in this order:
+		//!  Array of 6*size*size irradiance values in physical scale [W/m^2] in this order:
 		//!  \n size*size values for POSITIVE_X side,
 		//!  \n size*size values for NEGATIVE_X side,
 		//!  \n size*size values for POSITIVE_Y side,
 		//!  \n size*size values for NEGATIVE_Y side,
 		//!  \n size*size values for POSITIVE_Z side,
 		//!  \n size*size values for NEGATIVE_Z side.
+		virtual void setValues(unsigned size, RRColorRGBF* irradiance) = 0;
+		//! The same as setValues, but in your custom scale.
 		virtual void setValues(unsigned size, RRColorRGBA8* irradiance) = 0;
 
 		// Environment map use

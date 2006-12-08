@@ -1,4 +1,6 @@
-#include <math.h>
+#include <cassert>
+#include <cfloat>
+#include <cmath>
 
 #include "RRVision.h"
 
@@ -20,25 +22,47 @@ public:
 	RRGammaScaler(RRReal agamma)
 	{
 		gamma = agamma;
+		invGamma = 1/gamma;
 	}
 	virtual void getCustomScale(RRColor& color) const
 	{
+		assert(_finite(color[0]));
+		assert(_finite(color[1]));
+		assert(_finite(color[2]));
+#ifdef _DEBUG
+		RRColor tmp = color;
+#endif
 		color = RRColor(
-			pow(color[0],gamma),
-			pow(color[1],gamma),
-			pow(color[2],gamma)
+			(color[0]>=0)?pow(color[0],gamma):-pow(-color[0],gamma),
+			(color[1]>=0)?pow(color[1],gamma):-pow(-color[1],gamma),
+			(color[2]>=0)?pow(color[2],gamma):-pow(-color[2],gamma)
 			);
+		assert(_finite(color[0]));
+		assert(_finite(color[1]));
+		assert(_finite(color[2]));
 	}
 	virtual void getPhysicalScale(RRColor& color) const
 	{
+		assert(_finite(color[0]));
+		assert(_finite(color[1]));
+		assert(_finite(color[2]));
 		color = RRColor(
-			pow(color[0],1/gamma),
-			pow(color[1],1/gamma),
-			pow(color[2],1/gamma)
+			// supports negative colors
+			(color[0]>=0)?pow(color[0],invGamma):-pow(-color[0],invGamma),
+			(color[1]>=0)?pow(color[1],invGamma):-pow(-color[1],invGamma),
+			(color[2]>=0)?pow(color[2],invGamma):-pow(-color[2],invGamma)
+			// faster, but returns NaN for negative colors
+			//pow(color[0],invGamma),
+			//pow(color[1],invGamma),
+			//pow(color[2],invGamma)
 			);
+		assert(_finite(color[0]));
+		assert(_finite(color[1]));
+		assert(_finite(color[2]));
 	}
 private:
 	RRReal gamma;
+	RRReal invGamma;
 };
 
 //////////////////////////////////////////////////////////////////////////////

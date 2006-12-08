@@ -29,6 +29,7 @@ namespace rr
 	public:
 		RRIlluminationEnvironmentMapInOpenGL(unsigned asize);
 		virtual void setValues(unsigned size, RRColorRGBA8* irradiance);
+		virtual void setValues(unsigned size, RRColorRGBF* irradiance);
 		virtual void bindTexture();
 		virtual ~RRIlluminationEnvironmentMapInOpenGL();
 	private:

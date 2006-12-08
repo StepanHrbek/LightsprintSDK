@@ -128,6 +128,21 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, const SmoothingP
 	obj->subdivisionSpeed = smoothing->subdivisionSpeed;
 	obj->importer = importer;
 
+	/*/ convertne custom scale reflectance na physical scale
+	//!!! nefunguje obecne, neni zaruka ze kdyz tam zapisu tak tam prezije
+	if(SCENE->scaler)
+	for(unsigned fi=0;fi<obj->triangles;fi++) 
+	{
+		unsigned si = importer->getTriangleSurface(fi);
+		RRSurface* s = (RRSurface*)importer->getSurface(si); //!!! const -> neconst
+		if(s && s->refractionIndex!=4)
+		{
+			s->refractionIndex = 4; //!!! znackuje si uz zkonvertovane surfacy
+
+			SCENE->scaler->getPhysicalScale(s->diffuseReflectance);
+		}
+	}*/
+
 	// import vertices
 	assert(sizeof(RRMesh::Vertex)==sizeof(Vec3));
 	for(unsigned i=0;i<obj->vertices;i++) 
@@ -183,14 +198,9 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, const SmoothingP
 		{
 			// this code is on 2 places...
 			//  delete this and rather call obj->resetStaticIllumination
-			Vec3 sumExitance;
-			importer->getTriangleAdditionalMeasure(fi,RM_EXITANCE_SCALED,sumExitance);
-			if(SCENE->scaler)
-			{
-				// scaler applied on exitance
-				SCENE->scaler->getPhysicalScale(sumExitance); // getPhysicalScale=getWattsPerSquareMeter
-			}
-			obj->objSourceExitingFlux+=abs(t->setSurface(s,sumExitance,true));
+			Vec3 additionalIrradiance;
+			importer->getTriangleAdditionalMeasure(fi,RM_IRRADIANCE_PHYSICAL,additionalIrradiance);
+			obj->objSourceExitingFlux+=abs(t->setSurface(s,additionalIrradiance,true));
 		}
 		else
 		{
@@ -314,24 +324,41 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 	// basic, fast
 	{
 		if(!measure.direct && !measure.indirect) 
+		{
 			irrad = Channels(0);
+		}
 		else
 		if(measure.direct && !measure.indirect) 
+		{
 			irrad = tri->getSourceIrradiance();
+		}
 		else
 		if(measure.direct && measure.indirect) 
-			irrad = (tri->energyDirectIncident /*+ tri->getEnergyDynamic()*/) / tri->area;
+		{
+			irrad = (tri->totalIncidentFlux /*+ tri->getEnergyDynamic()*/) / tri->area;
+			// Zde mohl po chvili vypoctu vyplout zaporny vysledek.
+			// Neni to hezke, ale zaporne hodnoty muze dodat i klient, takze je tolerujme.
+			// Chyba vznika po chvili vypoctu fcss, ale bez pohybu=resetu, porad se jen zlepsuje,
+			// je chyba nutna, neslo by to numericky zestabilnit?
+		}
 		else
-			irrad = (tri->energyDirectIncident /*+ tri->getEnergyDynamic()*/) / tri->area - tri->getSourceIrradiance();
+		{
+			irrad = (tri->totalIncidentFlux /*+ tri->getEnergyDynamic()*/ - tri->getSourceIncidentFlux()) / tri->area;
+			// Zde mohl zaokrouhlovaci chybou vzniknout zaporny vysledek.
+			// Neni to hezke, ale zaporne hodnoty muze dodat i klient, takze je tolerujme.
+			// Chyba vznika podezrele snadno, prakticky okamzite na zacatku vypoctu,
+			// neslo by to numericky zestabilnit?
+		}
 	}
 
 	if(measure.exiting)
 	{
+		// diffuse applied on physical scale, not custom scale
 		irrad *= tri->surface->diffuseReflectance;
 	}
 	if(measure.scaled && SCENE->scaler)
 	{
-		// scaler applied on exitance
+		// scaler applied on density, not flux
 		SCENE->scaler->getCustomScale(irrad);
 	}
 	if(measure.flux)
@@ -365,7 +392,7 @@ unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, RRRea
 		iv1[0]=iv[rot];
 		iv1[1]=subvertex;
 		iv1[2]=iv[(rot+2)%3];
-		flatambient+=(energyDirect/*+getEnergyDynamic()*/-sub[0]->energyDirect-sub[1]->energyDirect)/area;
+		flatambient+=(totalExitingFlux/*+getEnergyDynamic()*/-sub[0]->totalExitingFlux-sub[1]->totalExitingFlux)/area;
 		return SUBTRIANGLE(sub[rightleft?0:1])->enumSubtriangles(iv0,flatambient,subarea/2,callback,context)+
 			SUBTRIANGLE(sub[rightleft?1:0])->enumSubtriangles(iv1,flatambient,subarea/2,callback,context);
 	}
@@ -435,15 +462,16 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 		if(context2->measure.smoothed)
 			si.measure[i] = iv[i]->irradiance(context2->measure);
 		else
-			si.measure[i] = flatambient+s->energyDirect/s->area;
+			si.measure[i] = flatambient+s->totalExitingFlux/s->area;
 		// convert irradiance to measure
 		if(context2->measure.exiting)
 		{
+			// diffuse applied on physical scale, not custom scale
 			si.measure[i] *= s->grandpa->surface->diffuseReflectance;
 		}
 		if(context2->measure.scaled && context2->scaler)
 		{
-			// scaler applied on exitance
+			// scaler applied on density, not flux
 			context2->scaler->getCustomScale(si.measure[i]);
 		}
 		if(context2->measure.flux)
