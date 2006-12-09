@@ -1041,20 +1041,6 @@ again:
 	return rotations;
 }
 
-int Scene::turnLight(int whichLight,real intensity)
-{
-	int light=0;
-	/*
-	for(unsigned s=0;s<surfaces;s++)
-		if(surface[s]._ed>0)
-		{
-			if(light==whichLight) surface[s].diffuseEmittance=surface[s]._ed*intensity;
-			light++;
-		}
-		*/
-	return light;
-}
-
 // resetPropagation = true
 //  nastavi skoro vse na vychozi hodnoty zacatku vypoctu -> pouze primaries maji energie, jinde jsou nuly
 //  u nekterych promennych predpoklada ze uz jsou vynulovane
@@ -1649,7 +1635,7 @@ Object::~Object()
 //  nesaha na subtriangly, coz je asi v poradku
 //  nesaha na clustery, coz muze byt chyba //!!! opravit pokud nekdy budu pouzivat clustery
 
-void Object::resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool resetPropagation)
+void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 {
 	// nastavi akumulatory na pocatecni hodnoty
 	// separated to three floats because of openmp
@@ -1755,10 +1741,7 @@ bool Object::check()
 
 Scene::Scene()
 {
-	allocatedObjects=16;
-	object=(Object **)malloc(allocatedObjects*sizeof(Object *));
-	staticObjects=0;
-	objects=0;
+	object=NULL;
 	surface=NULL;
 	surfaces=0;
 	phase=0;
@@ -1768,62 +1751,22 @@ Scene::Scene()
 	shotsForFactorsTotal=0;
 	shotsTotal=0;
 	staticSourceExitingFlux=Channels(0);
-	multiCollider=NULL;
 	multiObjectMeshes4Delete=NULL;
-	scaler=NULL;
 }
 
 Scene::~Scene()
 {
 	abortStaticImprovement();
-	for(unsigned o=0;o<objects;o++) delete object[o];
-	free(object);
+	delete object;
 	delete[] surface;
 }
 
 void Scene::objInsertStatic(Object *o)
 {
-	if(objects==allocatedObjects)
-	{
-		size_t oldsize=allocatedObjects*sizeof(Object *);
-		allocatedObjects*=2;
-		object=(Object **)realloc(object,oldsize,allocatedObjects*sizeof(Object *));
-	}
-	object[objects++]=object[staticObjects];
-	object[staticObjects++]=o;
-
-	// object id=index into object array
-	object[objects-1]->id = objects-1;
-	object[staticObjects-1]->id = staticObjects-1;
-
+	assert(!object);
+	object = o;
 	staticReflectors.insertObject(o);
-
 	staticSourceExitingFlux+=o->objSourceExitingFlux;
-}
-
-void Scene::objRemoveStatic(unsigned o)
-{
-	assert(o<staticObjects);
-
-	staticReflectors.removeObject(object[o]);
-
-	staticSourceExitingFlux-=object[o]->objSourceExitingFlux;
-
-	object[o]=object[--staticObjects];
-	object[staticObjects]=object[--objects];
-}
-
-unsigned Scene::objNdx(Object *o)
-{
-	for(unsigned i=0;i<objects;i++)
-	    if(object[i]==o) return i;
-	assert(0);
-	return 0xffffffff;
-}
-
-void Scene::setScaler(RRScaler* ascaler)
-{
-	scaler = ascaler;
 }
 
 
@@ -1862,16 +1805,13 @@ RRScene::Improvement Scene::resetStaticIllumination(bool resetFactors, bool rese
 		staticReflectors.resetBest();
 	}
 
-	for(unsigned o=0;o<objects;o++)
-	{
-		object[o]->resetStaticIllumination(scaler,resetFactors,resetPropagation);
+	object->resetStaticIllumination(resetFactors,resetPropagation);
 
-		// pokud jsem smazal stare reflektory, vlozim nove.
-		// pokud jsem stare zachoval, vlozim nove. vlozeni jiz vlozeneho nevadi, to je ohlidane.
-		staticReflectors.insertObject(object[o]);
-	}
+	// pokud jsem smazal stare reflektory, vlozim nove.
+	// pokud jsem stare zachoval, vlozim nove. vlozeni jiz vlozeneho nevadi, to je ohlidane.
+	staticReflectors.insertObject(object);
 
-	for(unsigned o=0;o<objects;o++) staticSourceExitingFlux+=object[o]->objSourceExitingFlux;
+	staticSourceExitingFlux+=object->objSourceExitingFlux;
 
 	return (staticSourceExitingFlux!=Channels(0)) ? RRScene::NOT_IMPROVED : RRScene::FINISHED;
 }
@@ -2403,7 +2343,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 	{
 		DBGLINE
 		// kontrola ze jsou flagy opravdu vsude ciste
-		for(unsigned o=0;o<objects;o++) assert(object[o]->check());
+		assert(object->check());
 		assert(improvingFactors.factors()==0);
 		hitTriangles.holdAmulet();
 		phase=3;
@@ -2449,7 +2389,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 		}
 		hitTriangles.reset();
 		// kontrola ze jsou flagy opravdu vsude ciste
-		for(unsigned o=0;o<objects;o++) assert(object[o]->check());
+		assert(object->check());
 
 		// take back energy distributed via old factors
 		shotsForFactorsTotal-=source->shooter->shotsForFactors;
@@ -2599,7 +2539,7 @@ void Scene::abortStaticImprovement()
 		phase=0;
 		improvingStatic=NULL;
 		// kontrola ze jsou flagy opravdu vsude ciste
-		for(unsigned o=0;o<objects;o++) assert(object[o]->check());
+		assert(object->check());
 	}
 }
 
@@ -2649,13 +2589,7 @@ bool Scene::finishStaticImprovement()
 
 void Scene::infoScene(char *buf)
 {
-	int t=0,v=0;
-	for(unsigned o=0;o<objects;o++)
-	{
-		t+=object[o]->triangles;
-		v+=object[o]->vertices;
-	}
-	sprintf(buf,"vertices=%d triangles=%d objects=%d",v,t,objects);
+	sprintf(buf,"vertices=%d triangles=%d",object->vertices,object->triangles);
 }
 
 void Scene::infoStructs(char *buf)
@@ -2703,8 +2637,7 @@ void Scene::getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays,
 #if CHANNELS == 3
 	if(faces) 
 	{
-		*faces = 0;
-		for(unsigned i=0;i<staticObjects;i++) *faces += object[i]->triangles;
+		*faces = object->triangles;
 	}
 	if(sourceExitingFlux) *sourceExitingFlux = sum(staticSourceExitingFlux);
 	if(rays) *rays = shotsTotal;

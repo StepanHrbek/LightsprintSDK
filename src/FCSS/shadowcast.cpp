@@ -318,12 +318,6 @@ protected:
 		}
 #endif*/
 	}
-	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	virtual void onSceneInit()
-	{
-		delete scene->getScaler();
-		scene->setScaler(rr::RRScaler::createRgbScaler());
-	}
 	virtual bool detectDirectIllumination()
 	{
 		// renderer not ready yet, fail
@@ -1054,13 +1048,15 @@ Level::Level(const char* filename_3ds)
 
 	// init radiosity solver
 	solver = new Solver();
+	// switch inputs and outputs from HDR physical scale to RGB screenspace
+	solver->setScaler(rr::RRScaler::createRgbScaler());
 	provideObjectsFrom3dsToRR(&m3ds,solver,NULL);
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObject())
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new RendererOfRRObject(solver->getMultiObject(),solver->getScene());
+	rendererNonCaching = new RendererOfRRObject(solver->getMultiObject(),solver->getScene(),solver->getScaler());
 	rendererCaching = new RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 

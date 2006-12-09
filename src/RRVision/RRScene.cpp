@@ -10,7 +10,6 @@ namespace rr
 {
 
 #define DBG(a) //a
-#define SCENE ((Scene*)_scene)
 
 /*
 1-sided vs 2-sided surface
@@ -78,14 +77,9 @@ RRSideBits sideBits[3][2]={
 };
 */
 
-RRScene::RRScene()
-{
-	_scene=new Scene();
-}
-
 RRScene::~RRScene()
 {
-	delete SCENE;
+	delete scene;
 }
 
 
@@ -117,31 +111,17 @@ RRScene::~RRScene()
 // c) zkontrolovat na zacatku a pak duverovat
 //    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRSurface::validate();
    
-RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, const SmoothingParameters* smoothing)
+RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 {
+	scene=new Scene();
 	assert(importer);
-	if(!importer) return UINT_MAX;
+	if(!importer) return;
 	SmoothingParameters defaultSmoothing;
 	if(!smoothing) smoothing = &defaultSmoothing;
 	RRMesh* meshImporter = importer->getCollider()->getMesh();
 	Object *obj=new Object(meshImporter->getNumVertices(),meshImporter->getNumTriangles());
 	obj->subdivisionSpeed = smoothing->subdivisionSpeed;
 	obj->importer = importer;
-
-	/*/ convertne custom scale reflectance na physical scale
-	//!!! nefunguje obecne, neni zaruka ze kdyz tam zapisu tak tam prezije
-	if(SCENE->scaler)
-	for(unsigned fi=0;fi<obj->triangles;fi++) 
-	{
-		unsigned si = importer->getTriangleSurface(fi);
-		RRSurface* s = (RRSurface*)importer->getSurface(si); //!!! const -> neconst
-		if(s && s->refractionIndex!=4)
-		{
-			s->refractionIndex = 4; //!!! znackuje si uz zkonvertovane surfacy
-
-			SCENE->scaler->getPhysicalScale(s->diffuseReflectance);
-		}
-	}*/
 
 	// import vertices
 	assert(sizeof(RRMesh::Vertex)==sizeof(Vec3));
@@ -217,8 +197,7 @@ RRScene::ObjectHandle RRScene::objectCreate(RRObject* importer, const SmoothingP
 	obj->transformBound();
 #endif
 	// vlozi objekt do sceny
-	SCENE->objInsertStatic(obj);
-	return SCENE->objects-1;
+	scene->objInsertStatic(obj);
 }
 
 
@@ -231,20 +210,20 @@ RRScene::Improvement RRScene::illuminationReset(bool resetFactors, bool resetPro
 {
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
-	SCENE->updateMatrices();
-	return SCENE->resetStaticIllumination(resetFactors,resetPropagation);
+	scene->updateMatrices();
+	return scene->resetStaticIllumination(resetFactors,resetPropagation);
 }
 
 RRScene::Improvement RRScene::illuminationImprove(bool endfunc(void*), void* context)
 {
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
-	return SCENE->improveStatic(endfunc, context);
+	return scene->improveStatic(endfunc, context);
 }
 
 RRReal RRScene::illuminationAccuracy()
 {
-	return SCENE->avgAccuracy()/100;
+	return scene->avgAccuracy()/100;
 }
 
 
@@ -252,29 +231,13 @@ RRReal RRScene::illuminationAccuracy()
 //
 // read results
 
-bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out) const
+bool RRScene::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const
 {
 	Channels irrad;
 	Object* obj;
 	Triangle* tri;
 
-	// pokus nejak kompenzovat ze jsem si ve freeze interne zrusil n objektu a nahradil je 1 multiobjektem
-	//if(isFrozen())
-	//{
-	//	if(SCENE->objects!=1) 
-	//	{
-	//		assert(0);
-	//		return NULL;
-	//	}
-	//	Object* obj = SCENE->object[0];
-	//	obj->importer->getCollider()->getMesh()->get
-	//}
-	if(object<0 || object>=SCENE->objects) 
-	{
-		assert(0);
-		goto error;
-	}
-	obj = SCENE->object[object];
+	obj = scene->object;
 	if(triangle>=obj->triangles)
 	{
 		assert(0);
@@ -335,10 +298,10 @@ bool RRScene::getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigne
 		// diffuse applied on physical scale, not custom scale
 		irrad *= tri->surface->diffuseReflectance;
 	}
-	if(measure.scaled && SCENE->scaler)
+	if(measure.scaled && scaler)
 	{
 		// scaler applied on density, not flux
-		SCENE->scaler->getCustomScale(irrad);
+		scaler->getCustomScale(irrad);
 	}
 	if(measure.flux)
 	{
@@ -391,7 +354,7 @@ struct SubtriangleIlluminationContext
 {
 	SubtriangleIlluminationContext(RRRadiometricMeasure ameasure) : measure(ameasure) {};
 	RRRadiometricMeasure                   measure;
-	RRScaler*                              scaler;
+	const RRScaler*                        scaler;
 	RRScene::SubtriangleIlluminationEater* clientCallback;
 	void*                                  clientContext;
 };
@@ -441,7 +404,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 		if(context2->measure.smoothed)
 			si.measure[i] = iv[i]->irradiance(context2->measure);
 		else
-			si.measure[i] = flatambient+s->totalExitingFlux/s->area;
+			si.measure[i] = flatambient+s->totalExitingFlux/s->area; //!!! ignoruje nastaveni direct/indirect. bere oboje
 		// convert irradiance to measure
 		if(context2->measure.exiting)
 		{
@@ -462,17 +425,12 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 	context2->clientCallback(si,context2->clientContext);
 }
 
-unsigned  RRScene::getSubtriangleMeasure(ObjectHandle object, unsigned triangle, RRRadiometricMeasure measure, SubtriangleIlluminationEater* callback, void* context)
+unsigned  RRScene::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context)
 {
 	Object* obj;
 	Triangle* tri;
 
-	if(object<0 || object>=SCENE->objects) 
-	{
-		assert(0);
-		return 0;
-	}
-	obj = SCENE->object[object];
+	obj = scene->object;
 	if(triangle>=obj->triangles)
 	{
 		assert(0);
@@ -499,7 +457,7 @@ unsigned  RRScene::getSubtriangleMeasure(ObjectHandle object, unsigned triangle,
 
 	SubtriangleIlluminationContext sic(measure);
 	sic.measure = measure;
-	sic.scaler = SCENE->scaler;
+	sic.scaler = scaler;
 	sic.clientCallback = callback;
 	sic.clientContext = context;
 	return tri->enumSubtriangles(buildSubtriangleIllumination,&sic);
@@ -510,16 +468,6 @@ unsigned  RRScene::getSubtriangleMeasure(ObjectHandle object, unsigned triangle,
 /////////////////////////////////////////////////////////////////////////////
 //
 // misc settings
-
-void RRScene::setScaler(RRScaler* scaler)
-{
-	SCENE->setScaler(scaler);
-}
-
-const RRScaler* RRScene::getScaler() const
-{
-	return SCENE->scaler;
-}
 
 
 } // namespace

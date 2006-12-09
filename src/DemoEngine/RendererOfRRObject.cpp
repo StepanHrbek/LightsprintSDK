@@ -16,10 +16,11 @@ int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by su
 bool  SMOOTH =1; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
 
 
-RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver)
+RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler)
 {
 	params.object = objectImporter;
 	params.scene = radiositySolver;
+	params.scaler = scaler;
 	//params.renderedChannels = ... set to default by constructor
 	params.generateForcedUv = NULL;
 	params.firstCapturedTriangle = 0;
@@ -218,7 +219,7 @@ void RendererOfRRObject::render()
 			if(params.renderedChannels.LIGHT_INDIRECT_COLOR)
 			{
 				rr::RRColor color;				
-				params.scene->getTriangleMeasure(0,triangleIdx,v,rr::RM_IRRADIANCE_SCALED_INDIRECT,color);
+				params.scene->getTriangleMeasure(triangleIdx,v,rr::RM_IRRADIANCE_SCALED_INDIRECT,params.scaler,color);
 				glColor3fv(&color.x);
 			}
 

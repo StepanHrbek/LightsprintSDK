@@ -293,7 +293,7 @@ static void cubeMapFilter(unsigned iSize, CubeColor* iIrradiance, unsigned& oSiz
 }
 
 // thread safe: yes
-static void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 center, unsigned size, CubeColor* irradiance)
+static void cubeMapGather(const RRScene* scene, const RRObject* object, const RRScaler* scaler, RRVec3 center, unsigned size, CubeColor* irradiance)
 {
 	if(!scene)
 	{
@@ -336,10 +336,10 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, RRVec3 c
 				// read cube irradiance as face exitance
 				{
 #ifdef HDR
-					scene->getTriangleMeasure(0,face,3,RM_EXITANCE_PHYSICAL_ALL,*irradiance);
+					scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL_ALL,scaler,*irradiance);
 #else
 					RRVec3 irrad;
-					scene->getTriangleMeasure(0,face,3,RM_EXITANCE_SCALED_ALL,irrad);
+					scene->getTriangleMeasure(face,3,RM_EXITANCE_SCALED_ALL,scaler,irrad);
 					*irradiance = irrad;
 #endif
 					// na pokusy: misto irradiance bere barvu materialu
@@ -371,12 +371,12 @@ void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* env
 	// gather irradiances
 	const unsigned iSize = maxSize?maxSize:1;
 	CubeColor* iIrradiance = new CubeColor[6*iSize*iSize];
-	cubeMapGather(scene,getMultiObject(),objectCenterWorld,iSize,iIrradiance);
+	cubeMapGather(scene,getMultiObject(),getScaler(),objectCenterWorld,iSize,iIrradiance);
 
 	// filter cubemap
 	unsigned oSize = 0;
 	CubeColor* oIrradiance = NULL;
-	cubeMapFilter(iSize,iIrradiance,oSize,oIrradiance,scene->getScaler());
+	cubeMapFilter(iSize,iIrradiance,oSize,oIrradiance,getScaler());
 
 	// pass cubemap to client
 	environmentMap->setValues(oSize?oSize:iSize,oIrradiance?oIrradiance:iIrradiance);

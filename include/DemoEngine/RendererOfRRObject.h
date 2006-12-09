@@ -20,7 +20,7 @@
 class DE_API RendererOfRRObject : public Renderer
 {
 public:
-	RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver);
+	RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler);
 	struct RenderedChannels
 	{
 		bool     LIGHT_DIRECT           :1; // gl_Normal
@@ -46,6 +46,7 @@ private:
 	{
 		const rr::RRObject* object;
 		const rr::RRScene* scene;
+		const rr::RRScaler* scaler;
 		RenderedChannels renderedChannels;
 		VertexDataGenerator* generateForcedUv;
 		unsigned firstCapturedTriangle;

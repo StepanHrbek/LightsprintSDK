@@ -1,5 +1,3 @@
-#define MULTIOBJECT // creates multiObject to accelerate calculation
-
 #include <cassert>
 #include <cfloat>
 #ifdef _OPENMP
@@ -22,12 +20,7 @@ void RRRealtimeRadiosity::updateVertexLookupTable()
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
-		RRMesh* mesh =
-#ifdef MULTIOBJECT
-			getMultiObject()->getCollider()->getMesh();
-#else
-			object->getCollider()->getMesh();
-#endif
+		RRMesh* mesh = getMultiObject()->getCollider()->getMesh();
 		unsigned numPostImportVertices = mesh->getNumVertices();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
@@ -44,13 +37,11 @@ void RRRealtimeRadiosity::updateVertexLookupTable()
 				if(postImportVertex<numPostImportVertices)
 				{
 					unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
-#ifdef MULTIOBJECT
 					RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
 					if(preVertexMulti.object==objectHandle)
 						preVertex = preVertexMulti.index;
 					else
 						continue; // skip asserts
-#endif
 					if(preVertex<numPreImportVertices)
 						preVertex2PostTriangleVertex[objectHandle][preVertex] = std::pair<unsigned,unsigned>(postImportTriangle,v);
 					else
@@ -93,11 +84,7 @@ void RRRealtimeRadiosity::readVertexResults()
 			RRColor indirect = RRColor(0);
 			if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 			{
-#ifdef MULTIOBJECT
-				scene->getTriangleMeasure(0,t,v,RM_IRRADIANCE_SCALED_INDIRECT,indirect);
-#else
-				scene->getTriangleMeasure(objectHandle,t,v,RM_IRRADIANCE_SCALED_INDIRECT,indirect);
-#endif
+				scene->getTriangleMeasure(t,v,RM_IRRADIANCE_SCALED_INDIRECT,getScaler(),indirect);
 				// make it optional when negative values are supported
 				//for(unsigned i=0;i<3;i++)
 				//	indirect[i] = MAX(0,indirect[i]);

@@ -67,6 +67,11 @@ namespace rr
 		RRRealtimeRadiosity();
 		virtual ~RRRealtimeRadiosity();
 
+		//! Set scaler used by this scene i/o operations. This is option for your convenience. See RRScaler for details.
+		void setScaler(RRScaler* scaler);
+		//! Returns scaler used by this scene i/o operations.
+		const RRScaler* getScaler() const;
+
 		//! One static 3d object with storage space for calculated illumination.
 		typedef std::pair<RRObject*,RRObjectIllumination*> Object;
 		//! Container for all static objects present in scene.
@@ -179,11 +184,6 @@ namespace rr
 		//! \return You may fail by returning false, you will get another chance next time.
 		virtual bool detectDirectIllumination() = 0;
 
-		//! Called each time new RRScene is created (could be more than once per life).
-		//! Default implementation is empty.
-		//! You can reimplement it for example to change scene scaler.
-		virtual void onSceneInit();
-
 		//! Returns new vertex buffer (for indirect illumination) in your custom format.
 		//
 		//! Default implementation allocates 3 floats per vertex in RAM.
@@ -224,6 +224,7 @@ namespace rr
 		RRObject*  multiObjectBase;
 		RRScene::Improvement calculateCore(unsigned requests, float improveStep);
 		// read results
+		RRScaler*  scaler;
 		void       updateVertexLookupTable();
 		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
 		void       readVertexResults();

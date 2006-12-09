@@ -111,7 +111,7 @@ real getBrightness(Channels rad)
 }
 #endif
 
-void drawEngine(rr::RRScene* scene, unsigned o, unsigned t, Triangle *f)
+void drawEngine(rr::RRScene* scene, unsigned t, Triangle *f)
 {
 	Point3 v[3];
 	real brightness[3];
@@ -119,9 +119,9 @@ void drawEngine(rr::RRScene* scene, unsigned o, unsigned t, Triangle *f)
 	v[1]=f->to3d(1);
 	v[2]=f->to3d(2);
 	RRColor tmp;
-	scene->getTriangleMeasure(o,t,0,RM_IRRADIANCE_ALL,tmp); brightness[0]=getBrightness(getAvg(&tmp));
-	scene->getTriangleMeasure(o,t,1,RM_IRRADIANCE_ALL,tmp); brightness[1]=getBrightness(getAvg(&tmp));
-	scene->getTriangleMeasure(o,t,2,RM_IRRADIANCE_ALL,tmp); brightness[2]=getBrightness(getAvg(&tmp));
+	scene->getTriangleMeasure(t,0,RM_IRRADIANCE_ALL,NULL,tmp); brightness[0]=getBrightness(getAvg(&tmp));
+	scene->getTriangleMeasure(t,1,RM_IRRADIANCE_ALL,NULL,tmp); brightness[1]=getBrightness(getAvg(&tmp));
+	scene->getTriangleMeasure(t,2,RM_IRRADIANCE_ALL,NULL,tmp); brightness[2]=getBrightness(getAvg(&tmp));
 #ifdef RASTERGL
 	raster_ZGouraud(v,((Surface*)f->grandpa->surface)->diffuseReflectanceColorTable,brightness);
 #else
@@ -348,13 +348,13 @@ bool expmatch(char *str,char *exp)
 
 // obecna fce na kresleni trianglu, pouzije tu metodu ktera je zrovna podporovana
 
-void inline draw_triangle(rr::RRScene* scene, unsigned o, unsigned t, Triangle *f)
+void inline draw_triangle(rr::RRScene* scene, unsigned t, Triangle *f)
 {
 	if(!f->surface) return;
 #ifdef TEST_SCENE
 	if (!f) return; // narazili jsme na vyrazeny triangl
 #endif
-	if(d_engine) {drawEngine(scene,o,t,f); return;}
+	if(d_engine) {drawEngine(scene,t,f); return;}
 #ifdef RASTERGL
 	real ambient=f->radiosityIndirect();
 	//teoreticky by do flagu stacilo dat (n_dirtyColor || n_dirtyGeometry)?DF_REFRESHALL:0
@@ -370,30 +370,27 @@ void inline draw_triangle(rr::RRScene* scene, unsigned o, unsigned t, Triangle *
 #endif
 }
 
-void render_object(rr::RRScene* scene, unsigned o, Object* obj, MATRIX& im)
+void render_object(rr::RRScene* scene, Object* obj, MATRIX& im)
 {
-	//raster_BeginTriangles();
 	for (unsigned j=0;j<obj->triangles;j++) if(obj->triangle[j].isValid){
 		Normal n=obj->triangle[j].getN3();
 		U8 fromOut=n.w+im[3][0]*n.x+im[3][1]*n.y+im[3][2]*n.z>0;
 		if ((d_forceSides==0 && obj->triangle[j].surface->sideBits[fromOut?0:1].renderFrom) ||
 			(d_forceSides==1 && fromOut) ||
 			(d_forceSides==2))
-			draw_triangle(scene,o,j,&obj->triangle[j]);
+			draw_triangle(scene,j,&obj->triangle[j]);
 	}
-	//raster_EndTriangles();
 }
 
 void render_world(WORLD *w, rr::RRScene* scene, int camera_id, bool mirrorFrame)
 {
-	// TIME t0=GETTIME;
 	MATRIX cm,im,om;
 
-	for (int i=0;i<w->object_num;i++) {//if(/*d_only_o<0 ||*/ (i!=336 /*|| i==279*/) /*&& (i%100)==d_only_o*/) { 
+	for (int i=0;i<w->object_num;i++) {
 
 		OBJECT *o=&w->object[i];
 		Scene* tmp = *(Scene**)scene; // pozor, predpokladame ze prvni polozka v RRScene je pointer na Scene
-		Object *obj=tmp->object[o->objectHandle];
+		Object *obj=tmp->object;
 		assert(obj);
 
 		if (!mirrorFrame || strcmp(o->name,"Zrcadlo")) {
@@ -421,30 +418,9 @@ void render_world(WORLD *w, rr::RRScene* scene, int camera_id, bool mirrorFrame)
 #endif
 				raster_SetMatrix(&cm,&im);
 			}
-			render_object(scene,i,obj,im);
+			render_object(scene,obj,im);
 		}
 	}
-	/*
-	#ifndef RASTERGL
-	for(int x=0;x<video_XRES;x++)
-	for(int y=0;y<video_YRES;y++)
-	{
-	/ *unsigned color=video_GetPixel(x,y);
-	if(color>>24)
-	{
-	color=123456;
-	video_PutPixel(x,y,color);
-	}* /
-	unsigned color=123456;
-	Vec3 direction=;
-	Color c={1,1,1};
-	rayTraceGather(eye,direction,NULL,color);
-	real b=getBrightness(i);
-	video_PutPixel(x,y,color);
-	}
-	#endif
-	*/
-	// printf("render=%dms\n",GETTIME-t0);
 }
 
 void fillColorTable(unsigned *ct,double cx,double cy,real rs)

@@ -604,7 +604,7 @@ public:
 
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
-	void    resetStaticIllumination(RRScaler* scaler, bool resetFactors, bool resetPropagation);
+	void    resetStaticIllumination(bool resetFactors, bool resetPropagation);
 
 	// intersections
 	Bound   bound;
@@ -634,26 +634,15 @@ public:
 	Scene();
 	~Scene();
 
-	Object **object;        // array of static objects
-	unsigned staticObjects; // number of static objects
-	unsigned objects;       // number of objects, always equals staticObjects
+	Object* object;        // the only object that contains whole static scene
 	RRSurface *surface;
 	unsigned surfaces;
-	RRCollider* multiCollider;
 
 	Triangle* intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
-	Triangle* intersectionDynobj(RRRay& ray, const Point3& eye, const Vec3& direction, Object *object, Triangle* skip);
 	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power=HitChannels(1));
 	Channels  getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels power=Channels(1));
 
-	int     turnLight(int whichLight,real intensity); // turns light on/off. just material, no energies modified (use resetStaticIllumination), returns number of lights (emitting materials) in scene
-
 	void    objInsertStatic(Object *aobject);
-	void    objRemoveStatic(unsigned o);
-	unsigned objNdx(Object *aobject);
-
-	void    setScaler(RRScaler* ascaler);
-	RRScaler* scaler;
 
 
 	RRScene::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation);
@@ -695,7 +684,6 @@ public:
 
 	private:
 		friend class Hits; // GATE
-		unsigned allocatedObjects;
 
 		int     phase;
 		Node    *improvingStatic;

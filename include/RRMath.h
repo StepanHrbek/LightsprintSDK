@@ -15,7 +15,7 @@
 		#define RR_API
 #	else // use dll
 #define RR_API __declspec(dllimport)
-#pragma warning(disable:4251) // stop false MS warnings
+#pragma warning(disable:4251) // stop MSVC warnings
 #	endif
 #else
 	// use static library
@@ -108,7 +108,7 @@ namespace rr /// Encapsulates Lightsprint SDK core libraries.
 		RRVec3   normalized()                 const {return *this/length();}
 	};
 
-	//! Vector of 4 real numbers plus basic support.
+	//! Vector of 3 real numbers plus 4th number as a padding.
 	struct RRVec4 : public RRVec3
 	{
 		RRReal    w;

@@ -1,5 +1,3 @@
-#define MULTIOBJECT // creates multiObject to accelerate calculation
-
 #include <cassert>
 #include <cfloat>
 #include "RRRealtimeRadiosity.h"
@@ -59,11 +57,7 @@ void RRRealtimeRadiosity::readPixelResults()
 	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
-#ifdef MULTIOBJECT
 		RRObject* object = getMultiObject();
-#else
-		RRObject* object = getObject(objectHandle);
-#endif
 		if(!object)
 		{
 			assert(0);
@@ -87,17 +81,13 @@ void RRRealtimeRadiosity::readPixelResults()
 				RenderSubtriangleContext rsc;
 				rsc.pixelBuffer = pixelBuffer;
 				object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
-#ifdef MULTIOBJECT
 				// multiObject must preserve mapping (all objects overlap in one map)
 				//!!! this is satisfied now, but it may change in future
 				RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
 				if(preImportTriangle.object==objectHandle)
 				{
-					scene->getSubtriangleMeasure(0,postImportTriangle,RM_IRRADIANCE_SCALED_INDIRECT,renderSubtriangle,&rsc);
+					scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_SCALED_INDIRECT,getScaler(),renderSubtriangle,&rsc);
 				}
-#else
-				scene->getSubtriangleMeasure(objectHandle,postImportTriangle,RM_IRRADIANCE_SCALED_INDIRECT,renderSubtriangle,&rsc)
-#endif
 			}
 			pixelBuffer->renderEnd();
 		}

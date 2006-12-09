@@ -674,21 +674,20 @@ namespace rr
    Object that never moves, rotates, deforms or changes material properties is <b>static</b>.
    Other objects are <b>dynamic</b>.
  \section gunits Units (radiometry, photometry, screen)
-   Lightsprint does all in HDR.
+   Lightsprint computes all in HDR.
    Whole documentation talks in radiometry terms like irradiance,
    and Lightsprint internally works in radiometry units.
    All inputs and nearly all outputs are 32bit float per component values.
    \n\n
-   However, it is possible to communicate in photometry units, screen colors
-   or any other units. Everything you need is to setup appropriate
-   convertor, see RRScene::setScaler(). Scaler internally changes scale from native
+   However, it is possible to communicate in screen colors
+   or other units. Everything you need is to setup appropriate
+   convertor, see RRScene::setScaler(). Scaler internally converts values from native
    physical radiometry scale to your custom scale and vice versa.
    \n\n
    In typical situations, it is most straightforward to think and communicate
    in screen colors. This means you can set nearly all inputs in screen colors
    (scaled to 0-1 range) and read all outputs in screen colors.
-   To setup this mode, implement RRRealtimeRadiosity::onSceneInit()
-   that calls scene->setScaler(RRScaler::createRgbScaler(0.4f)).
+   To setup this mode, call RRRealtimeRadiosity::setScaler(RRScaler::createRgbScaler()).
    HelloRealtimeRadiosity demonstrates it.
  \section gscale Scale
    Lightsprint libraries support scaled objects.

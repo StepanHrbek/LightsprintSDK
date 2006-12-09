@@ -1330,16 +1330,8 @@ static int iv_cmpobj(const void *e1, const void *e2)
 // type=0,1,2...tolikaty topivertex, 3...subvertex, 4...oznameni vynoreni
 void Scene::iv_forEach(void callback(SubTriangle *s,IVertex *iv,int type))
 {
-	// objekty musi prochazet vzdycky ve stejnym poradi
-	// a to i pri kazdym dalsim spusteni
-	Object **obj=new Object*[objects];
-	memcpy(obj,object,sizeof(Object *)*objects);
-	qsort(obj,objects,sizeof(Object *),iv_cmpobj);
-
-	for(unsigned o=0;o<objects;o++)
-	    for(unsigned t=0;t<obj[o]->triangles;t++)
-		iv_callIvertices(&obj[o]->triangle[t],callback);
-	delete[] obj;
+    for(unsigned t=0;t<object->triangles;t++)
+		iv_callIvertices(&object->triangle[t],callback);
 }
 
 static void iv_cleanFlags(SubTriangle *s,IVertex *iv,int type)

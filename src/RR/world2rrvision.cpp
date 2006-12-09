@@ -195,20 +195,22 @@ static void load_materials(WORLD* world, char *material_mgf)
 	}
 }
 
+// pozor: bere pouze prvni objekt ve worldu
 RRScene *convert_world2scene(WORLD *world, char *material_mgf, rr::RRCollider::IntersectTechnique intersectTechnique)
 {
 	// load surfaces
 	load_materials(world, material_mgf);
 	// load geometry
-	RRScene *rrscene=new RRScene();
+	RRScene *rrscene = NULL;
 	DBG(printf("Loading geometry...\n"));
+	assert(world->object_num==1);
 	for(int o=0;o<world->object_num;o++) 
 	{
 		WorldObjectImporter* importer = new WorldObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces, intersectTechnique);
 		RRScene::SmoothingParameters smoothing;
 		smoothing.subdivisionSpeed = 1;
-		world->object[o].objectHandle = rrscene->objectCreate(importer,&smoothing);
+		rrscene=new RRScene(importer,&smoothing);
+		break;
 	}	
-	//rrscene->sceneFreeze(true); //speedup for multiobject scenes, not necessary for rr
 	return rrscene;
 }

@@ -36,7 +36,6 @@
 #	endif
 #endif
 
-
 #define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 
 namespace rr

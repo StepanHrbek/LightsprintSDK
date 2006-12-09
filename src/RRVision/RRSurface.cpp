@@ -19,6 +19,7 @@ void RRSurface::reset(bool twoSided)
 	};
 	for(unsigned i=0;i<2;i++) sideBits[i] = sideBitsTmp[twoSided?1:0][i];
 	diffuseReflectance             = RRColor(0.5);
+	diffuseReflectanceCustom       = RRColor(0.5);
 	diffuseEmittance               = RRColor(0);
 	specularReflectance            = 0;
 	specularTransmittance          = 0;

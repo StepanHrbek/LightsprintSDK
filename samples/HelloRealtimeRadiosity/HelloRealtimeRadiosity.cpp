@@ -157,15 +157,9 @@ protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		// decide how big ambient map you want for object. increase when edges appear
-		return new rr::RRIlluminationPixelBufferInOpenGL(512,512,"..\\..\\data\\");
+		return new rr::RRIlluminationPixelBufferInOpenGL(512,512,"../../data/shaders/");
 	}
 #endif
-	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	virtual void onSceneInit()
-	{
-		delete scene->getScaler();
-		scene->setScaler(rr::RRScaler::createRgbScaler(0.4f));
-	}
 	// skipped, material properties were already readen from .3ds and never change
 	virtual void detectMaterials() {}
 	// detects direct illumination level on all faces in scene
@@ -250,7 +244,7 @@ protected:
 					}
 				// pass irradiance to rrobject
 				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-				getMultiObject()->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE,avg);
+				getMultiObject()->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE_SCALED,avg);
 			}
 		}
 
@@ -494,13 +488,15 @@ int main(int argc, char **argv)
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
 	solver = new Solver();
-	provideObjectsFrom3dsToRR(&m3ds,solver,0.01f);
+	// switch inputs and outputs from HDR physical scale to RGB screenspace
+	solver->setScaler(rr::RRScaler::createRgbScaler());
+	provideObjectsFrom3dsToRR(&m3ds,solver,NULL);
 	solver->calculate();
 	if(!solver->getMultiObject())
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new RendererOfRRObject(solver->getMultiObject(),solver->getScene());
+	rendererNonCaching = new RendererOfRRObject(solver->getMultiObject(),solver->getScene(),solver->getScaler());
 	rendererCaching = new RendererWithCache(rendererNonCaching);
 
 	glutMainLoop();

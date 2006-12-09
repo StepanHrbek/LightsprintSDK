@@ -103,7 +103,6 @@ void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle
 	for(unsigned v=0;v<3;v++)
 	{
 		glColor3fv(&it.iv[v].measure[0]);
-		//static int q=1;q+=83;glColor3b(0,q,0);
 		glVertex2f(it.iv[v].texCoord[0]*2-1,it.iv[v].texCoord[1]*2-1);
 	}
 	glEnd();

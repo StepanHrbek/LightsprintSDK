@@ -143,102 +143,11 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	// pri velkem poctu objektu by pomohlo sesortovat je podle
 	//  vzdalenosti od oka a blizsi testovat driv
 	Triangle* hitTriangle = NULL;
-	static SkipTriangle skipTriangle(INT_MAX);
+	static SkipTriangle skipTriangle(INT_MAX); //!!! neni thread safe
 	ray.collisionHandler = &skipTriangle;
 
-	if(multiCollider)
-	{
-		RRMesh::MultiMeshPreImportNumber preImportSkip;
-		preImportSkip.object = skip->object->id; // we expect that object id is object index in scene
-		assert(preImportSkip.object<objects);
-		// get single-postimport skip
-		unsigned postImportSkip = (unsigned)(skip-object[preImportSkip.object]->triangle);
-		assert(postImportSkip<object[preImportSkip.object]->triangles);
-		// get single-preimport skip
-		unsigned tmp = object[preImportSkip.object]->importer->getCollider()->getMesh()->getPreImportTriangle(postImportSkip);
-		assert(tmp!=RRMesh::UNDEFINED);
-		preImportSkip.index = tmp;
-		// get multi-postimport skip
-		skipTriangle.skip = multiCollider->getMesh()->getPostImportTriangle(preImportSkip);
-
-		ray.rayOrigin[0] = eye.x;
-		ray.rayOrigin[1] = eye.y;
-		ray.rayOrigin[2] = eye.z;
-		ray.rayDirInv[0] = 1/direction[0];
-		ray.rayDirInv[1] = 1/direction[1];
-		ray.rayDirInv[2] = 1/direction[2];
-		// get multi-postimport ray.hitTriangle
-		if(!multiCollider->intersect(&ray)) return NULL;
-		// convert to single-preimport preImportNumber.index
-		RRMesh::MultiMeshPreImportNumber preImportNumber = multiCollider->getMesh()->getPreImportTriangle(ray.hitTriangle);
-		assert(preImportNumber!=RRMesh::UNDEFINED);
-		unsigned obj = preImportNumber.object;
-		// convert to single-postimport tri
-		assert(obj<staticObjects);
-		assert(object[obj]);
-		assert(object[obj]->importer);
-		assert(object[obj]->importer->getCollider());
-		assert(object[obj]->importer->getCollider()->getMesh());
-		unsigned tri = object[obj]->importer->getCollider()->getMesh()->getPostImportTriangle(preImportNumber.index);
-		assert(tri<object[obj]->triangles);
-		hitTriangle = &object[obj]->triangle[tri];
-		assert(hitTriangle!=skip);
-
-		// compensate for our rotations
-		switch(hitTriangle->rotations)
-		{
-		case 0:
-			break;
-		case 1:
-			{real u=ray.hitPoint2d[0];
-			real v=ray.hitPoint2d[1];
-			ray.hitPoint2d[0]=v;
-			ray.hitPoint2d[1]=1-u-v;}
-			break;
-		case 2:
-			{real u=ray.hitPoint2d[0];
-			real v=ray.hitPoint2d[1];
-			ray.hitPoint2d[0]=1-u-v;
-			ray.hitPoint2d[1]=u;}
-			break;
-		default:
-			assert(0);
-		}
-		assert(hitTriangle->u2.y==0);
-
-		// jen kvuli logovani
-		ray.rayLengthMax = ray.hitDistance;
-	}
-	else
-
-	/* this could bring microscopic speedup, not worth it
-	if(staticObjects==1)
-	{
-		skipTriangle.skip = (unsigned)(skip-object[0]->triangle);
-		hitTriangle = object[0]->intersection(ray,eye,direction); // no intersection -> outputs get undefined 
-	}	
-	else*/
-	{       
-		U8 backup[10*sizeof(RRReal)+sizeof(unsigned)+sizeof(bool)]; //!!! may change with changes in RRRay
-		for(unsigned o=0;o<staticObjects;o++)
-			if(object[o]->bound.intersect(eye,direction,ray.rayLengthMax)) // replaced by pretests in RRCollider
-			{
-				skipTriangle.skip = (unsigned)(skip-object[o]->triangle);
-				real tmpMin = ray.rayLengthMin;
-				real tmpMax = ray.rayLengthMax;
-				Triangle* tmp = object[o]->intersection(ray,eye,direction); // no intersection -> outputs get undefined 
-				ray.rayLengthMin = tmpMin;
-				if(tmp) 
-				{
-					hitTriangle = tmp;
-					ray.rayLengthMax = ray.hitDistance;
-					if(staticObjects>1) memcpy(backup,&ray.hitDistance,sizeof(backup)); // backup valid outputs
-				} else {
-					ray.rayLengthMax = tmpMax;
-				}
-			}
-		if(staticObjects>1) memcpy(&ray.hitDistance,backup,sizeof(backup)); // restore valid outputs
-	}
+	skipTriangle.skip = (unsigned)(skip-object->triangle);
+	hitTriangle = object->intersection(ray,eye,direction); // no intersection -> outputs get undefined 
 
 	LOG_RAY(eye,direction,hitTriangle?ray.rayLengthMax:0.2f,hitTriangle);
 	return hitTriangle;

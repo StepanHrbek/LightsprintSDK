@@ -1,5 +1,3 @@
-#define MULTIOBJECT // creates multiObject to accelerate calculation
-
 #include <assert.h>
 #include "RRRealtimeRadiosity.h"
 #include "DemoEngine/Timer.h"
@@ -53,13 +51,19 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 
 RRRealtimeRadiosity::~RRRealtimeRadiosity()
 {
-	if(scene)
-	{
-		delete scene->getScaler();
-		delete scene;
-	}
+	delete scene;
 	delete multiObject;
 	delete multiObjectBase;
+}
+
+void RRRealtimeRadiosity::setScaler(RRScaler* ascaler)
+{
+	scaler = ascaler;
+}
+
+const RRScaler* RRRealtimeRadiosity::getScaler() const
+{
+	return scaler;
 }
 
 void RRRealtimeRadiosity::setObjects(Objects& aobjects, const RRScene::SmoothingParameters* asmoothing)
@@ -100,10 +104,6 @@ RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
 	return objects.at(i).second;
 }
 
-
-void RRRealtimeRadiosity::onSceneInit()
-{
-}
 
 void RRRealtimeRadiosity::reportMaterialChange()
 {
@@ -157,22 +157,29 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 			REPORT_END;
 		}
 		REPORT_BEGIN("Opening new radiosity solver.");
-		scene = new RRScene();
-		onSceneInit(); // must be called before objectCreate, because it sets scaler used by objectCreate
-#ifdef MULTIOBJECT
 		RRObject** importers = new RRObject*[objects.size()];
 		for(unsigned i=0;i<(unsigned)objects.size();i++)
 		{
 			importers[i] = objects.at(i).first;
 		}
 		multiObjectBase = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
-		multiObject = multiObjectBase ? multiObjectBase->createAdditionalIllumination(scene->getScaler()) : NULL;
+		/*/ convertne custom scale reflectance na physical scale
+		//!!! nefunguje obecne, neni zaruka ze kdyz tam zapisu tak tam prezije
+		if(scene->scaler)
+		for(unsigned fi=0;fi<obj->triangles;fi++) 
+		{
+			unsigned si = importer->getTriangleSurface(fi);
+			RRSurface* s = (RRSurface*)importer->getSurface(si); //!!! const -> neconst
+			if(s && s->refractionIndex!=4)
+			{
+				s->refractionIndex = 4; //!!! znackuje si uz zkonvertovane surfacy
+	
+				scene->scaler->getPhysicalScale(s->diffuseReflectance);
+			}
+		}*/
+		multiObject = multiObjectBase ? multiObjectBase->createAdditionalIllumination(getScaler()) : NULL;
 		delete[] importers;
-		scene->objectCreate(multiObject,&smoothing);
-#else
-		for(Objects::iterator i=objects.begin();i!=objects.end();i++)
-			scene->objectCreate((*i).first,smoothing);
-#endif
+		scene = new RRScene(multiObject,&smoothing);
 		updateVertexLookupTable();
 		REPORT_END;
 	}

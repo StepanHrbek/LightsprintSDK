@@ -339,7 +339,7 @@ void frameSetup(Scene *scene)
  #ifdef SUPPORT_TRANSFORMS
  if(p_flyingObjects)
  {
-   for(unsigned o=scene->staticObjects;o<scene->objects;o++) scene->object[o]->matrixDirty=true;
+   scene->object->matrixDirty=true;
  }
  // vzhledem k tomu ze tx,ty,tz ve vertex nevydrzej do dalsiho framu,
  // musime ztransformovat vzdy znova vsechny objekty
@@ -448,14 +448,14 @@ void frameAdvance(Scene *scene)
    if(light<g_lights-1)
    {
      // neni-li u posledniho, prepne na dalsi svetlo a projede sekvenci znova
-     scene->turnLight(light,0);
-     scene->turnLight(light+1,1);
+     //scene->turnLight(light,0);
+     //scene->turnLight(light+1,1);
      // energie svetlum nastavi resetStaticIllumination v frameSetup
    }
    else
    {
      // je-li u posledniho, rozsviti svetla
-     for(int i=0;i<g_lights;i++) scene->turnLight(i,1);
+     //for(int i=0;i<g_lights;i++) scene->turnLight(i,1);
      // a prepne na play
      p_ffGrab=false;
      p_ffPlay=1;
@@ -561,8 +561,8 @@ void keyboardFunc(unsigned char key, int x, int y)
   case '8': setRrMode(scene,false,true ,1);break;
   case '9': setRrMode(scene,false,true ,2);break;
   case 'g': // nagrabuje sekvenci do .?.000 souboru
-            if(g_separLights) // grabuje pro kazde svetlo zvlast, takze sekvence je pocet_svetel krat delsi
-              for(int i=1;i<g_lights;i++) scene->turnLight(i,0);// necha svitit jen prvni svetlo
+            //if(g_separLights) // grabuje pro kazde svetlo zvlast, takze sekvence je pocet_svetel krat delsi
+            //  for(int i=1;i<g_lights;i++) scene->turnLight(i,0);// necha svitit jen prvni svetlo
             setRrMode(scene,true ,false,0);p_flyingObjects=true;
             p_ffGrab=true;
             //g_tgaFrames=20;//zeptat se do kolika framu to natipat
@@ -851,7 +851,7 @@ int main(int argc, char **argv)
  scene=*(Scene**)rrscene; // pozor, predpokladame ze prvni polozka v RRScene je pointer na Scene
  if(!scene) help();
 
- g_lights=g_separLights?scene->turnLight(-1,0):1;// zjisti kolik je ve scene svetel (sviticich materialu), pokud je nema separovat tak necha jedno
+ g_lights=1;//g_separLights?scene->turnLight(-1,0):1;// zjisti kolik je ve scene svetel (sviticich materialu), pokud je nema separovat tak necha jedno
 
  bool video_inited=false;
  if(gfx)

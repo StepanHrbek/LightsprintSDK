@@ -87,10 +87,10 @@ namespace rr
 	struct RRRadiometricMeasure
 	{
 		RRRadiometricMeasure(bool aexiting, bool aflux, bool ascaled, bool adirect, bool aindirect)
-			: exiting(aexiting), flux(aflux), scaled(ascaled), direct(adirect), indirect(aindirect) {};
+			: exiting(aexiting), flux(aflux), scaled(ascaled), direct(adirect), indirect(aindirect) {smoothed=1;};
 		bool exiting : 1; ///< Selects between [0] incoming radiation and [1] exiting radiation. \n Typical setting: 0.
 		bool flux    : 1; ///< Selects between [0] radiant intensity (W/m^2) and [1] radiant flux (W). \n Typical setting: 0.
-		bool scaled  : 1; ///< Selects between [0] physical scale and [1] user defined scale set via RRScene::setScaler. \n Typical setting: 1.
+		bool scaled  : 1; ///< Selects between [0] physical scale and [1] custom scale provided by RRScaler. \n Typical setting: 1.
 		bool direct  : 1; ///< Makes direct radiation (your input) part of result. \n Typical setting: 0.
 		bool indirect: 1; ///< Makes indirect radiation (computed) part of result. \n Typical setting: 1.
 		bool smoothed: 1; ///< Selects between [0] raw results for debugging purposes and [1] smoothed results.
@@ -447,20 +447,14 @@ namespace rr
 	class RR_API RRScene
 	{
 	public:
-		//! Creates new static scene.
-		RRScene();
-		//! Destructs static scene.
-		~RRScene();
 
 		//////////////////////////////////////////////////////////////////////////////
 		//
 		// import geometry
 		//
 
-		//! Identifier of object in scene.
-		typedef       unsigned ObjectHandle;
 		//! Illumination smoothing parameters.
-		struct        SmoothingParameters
+		struct SmoothingParameters
 		{
 			//! Speed of surface subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast.
 			//! \n Set 0 for the fastest results and realtime responsiveness. Illumination will be available in scene vertices.
@@ -508,7 +502,7 @@ namespace rr
 				ignoreSmallerArea = 1e-10f;
 			}
 		};
-		//! Inserts object into scene.
+		//! Creates new static scene.
 		//
 		//! For highest performance, stay with low number of possibly big objects 
 		//! rather than high number of small ones.
@@ -523,8 +517,9 @@ namespace rr
 		//!  rather than object itself, otherwise object transformation will be ignored.
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
-		//! \return ObjectHandle for accessing created object.
-		ObjectHandle  objectCreate(RRObject* object, const SmoothingParameters* smoothing);
+		RRScene(RRObject* object, const SmoothingParameters* smoothing);
+		//! Destructs static scene.
+		~RRScene();
 		
 		//////////////////////////////////////////////////////////////////////////////
 		//
@@ -582,14 +577,18 @@ namespace rr
 		//! Reads results in format suitable for fast vertex based rendering without subdivision.
 		//! See also SceneStateU and SceneStateF for list of states, that may have influence
 		//! on reading results.
-		//! \param object Handle of object you want to get results for.
 		//! \param triangle Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
 		//! \param vertex Index of triangle's vertex you want to get results for. Valid vertices are 0, 1, 2.
 		//!  For invalid vertex number, average value for whole triangle is taken instead of smoothed value in vertex.
-		//! \param measure Measure of illumination you want to get.
-		//! \param out For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
-		//! \returns True when out was successfully filled. False may be caused by invalid inputs.
-		bool          getTriangleMeasure(ObjectHandle object, unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRColor& out) const;
+		//! \param measure
+		//!  Specifies what to measure, using what units.
+		//! \param scaler
+		//!  Custom scaler for results in non physical scale. Scale conversion is enabled by measure.scaled.
+		//! \param out
+		//!  For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
+		//! \returns
+		//!  True when out was successfully filled. False may be caused by invalid inputs.
+		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const;
 
 		//! Illumination information for triangle's subtriangle.
 		//
@@ -609,28 +608,23 @@ namespace rr
 		//! Reads results in format suitable for high quality texture based rendering (with adaptive subdivision).
 		//! See also SceneStateU and SceneStateF for list of states, that may have influence
 		//! on reading results.
-		//! \param object Handle of object you want to get results for.
-		//! \param triangle Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
-		//! \param measure Measure of illumination you want to get.
-		//! \param callback Your callback that will be called for each triangle's subtriangle.
-		//! \param context Value is passed to callback without any modification.
-		//! \returns Number of subtriangles processed.
-		unsigned      getSubtriangleMeasure(ObjectHandle object, unsigned triangle, RRRadiometricMeasure measure, SubtriangleIlluminationEater* callback, void* context);
-
-
-		//////////////////////////////////////////////////////////////////////////////
-		//
-		// misc settings (optional)
-		//
-
-		//! Set scaler used by this scene i/o operations. This is option for your convenience. See RRScaler for details.
-		void          setScaler(RRScaler* scaler);
-		//! Returns scaler used by this scene i/o operations.
-		const RRScaler* getScaler() const;
+		//! \param triangle
+		//!  Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
+		//! \param measure
+		//!  Specifies what to measure, using what units.
+		//! \param scaler
+		//!  Custom scaler for results in non physical scale. Scale conversion is enabled by measure.scaled.
+		//! \param callback
+		//!  Your callback that will be called for each triangle's subtriangle.
+		//! \param context
+		//!  Value is passed to callback without any modification.
+		//! \returns
+		//!  Number of subtriangles processed.
+		unsigned      getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context);
 
 
 	private:
-		void*         _scene;
+		class Scene*  scene;
 	};
 
 
