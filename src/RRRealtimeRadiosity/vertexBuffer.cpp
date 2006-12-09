@@ -84,7 +84,7 @@ void RRRealtimeRadiosity::readVertexResults()
 			RRColor indirect = RRColor(0);
 			if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 			{
-				scene->getTriangleMeasure(t,v,RM_IRRADIANCE_SCALED_INDIRECT,getScaler(),indirect);
+				scene->getTriangleMeasure(t,v,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),indirect);
 				// make it optional when negative values are supported
 				//for(unsigned i=0;i<3;i++)
 				//	indirect[i] = MAX(0,indirect[i]);

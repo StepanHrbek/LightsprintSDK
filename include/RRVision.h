@@ -86,8 +86,8 @@ namespace rr
 	//! Specification of radiometric measure; what is measured and what units are used.
 	struct RRRadiometricMeasure
 	{
-		RRRadiometricMeasure(bool aexiting, bool aflux, bool ascaled, bool adirect, bool aindirect)
-			: exiting(aexiting), flux(aflux), scaled(ascaled), direct(adirect), indirect(aindirect) {smoothed=1;};
+		RRRadiometricMeasure(bool aexiting, bool ascaled, bool aflux, bool adirect, bool aindirect)
+			: exiting(aexiting), scaled(ascaled), flux(aflux), direct(adirect), indirect(aindirect), smoothed(1) {};
 		bool exiting : 1; ///< Selects between [0] incoming radiation and [1] exiting radiation. \n Typical setting: 0.
 		bool flux    : 1; ///< Selects between [0] radiant intensity (W/m^2) and [1] radiant flux (W). \n Typical setting: 0.
 		bool scaled  : 1; ///< Selects between [0] physical scale and [1] custom scale provided by RRScaler. \n Typical setting: 1.
@@ -95,15 +95,12 @@ namespace rr
 		bool indirect: 1; ///< Makes indirect radiation (computed) part of result. \n Typical setting: 1.
 		bool smoothed: 1; ///< Selects between [0] raw results for debugging purposes and [1] smoothed results.
 	};
-	//!!! odstranit z rls
-	#define RM_IRRADIANCE_SCALED          RRRadiometricMeasure(0,0,1,+0,+0) // don't care if it's direct or indirect
-	#define RM_IRRADIANCE_PHYSICAL        RRRadiometricMeasure(0,0,0,+0,+0) // don't care if it's direct or indirect
-	#define RM_IRRADIANCE_ALL             RRRadiometricMeasure(0,0,+0,1,1) // don't care if it's scaled or not
-	#define RM_EXITANCE_SCALED_ALL        RRRadiometricMeasure(1,0,1,1,1)
-	#define RM_EXITANCE_PHYSICAL_ALL      RRRadiometricMeasure(1,0,0,1,1)
-	#define RM_IRRADIANCE_SCALED_INDIRECT RRRadiometricMeasure(0,0,1,0,1)
-	#define RM_EXITANCE_SCALED            RRRadiometricMeasure(1,0,1,+0,+0) // don't care if it's direct or indirect
-	#define RM_ALL                        RRRadiometricMeasure(+0,+0,+0,1,1) // don't care if it's exiting, flux or scaled
+	// Shortcuts for typical measures.
+	#define RM_IRRADIANCE_PHYSICAL        RRRadiometricMeasure(0,0,0,1,1)
+	#define RM_IRRADIANCE_CUSTOM          RRRadiometricMeasure(0,1,0,1,1)
+	#define RM_EXITANCE_PHYSICAL          RRRadiometricMeasure(1,0,0,1,1)
+	#define RM_EXITANCE_CUSTOM            RRRadiometricMeasure(1,1,0,1,1)
+	#define RM_IRRADIANCE_CUSTOM_INDIRECT RRRadiometricMeasure(0,1,0,0,1)
 
 
 	//! Boolean attributes of front or back side of surface.

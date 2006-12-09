@@ -86,7 +86,7 @@ void RRRealtimeRadiosity::readPixelResults()
 				RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
 				if(preImportTriangle.object==objectHandle)
 				{
-					scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_SCALED_INDIRECT,getScaler(),renderSubtriangle,&rsc);
+					scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),renderSubtriangle,&rsc);
 				}
 			}
 			pixelBuffer->renderEnd();

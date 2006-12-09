@@ -336,10 +336,10 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 				// read cube irradiance as face exitance
 				{
 #ifdef HDR
-					scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL_ALL,scaler,*irradiance);
+					scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,scaler,*irradiance);
 #else
 					RRVec3 irrad;
-					scene->getTriangleMeasure(face,3,RM_EXITANCE_SCALED_ALL,scaler,irrad);
+					scene->getTriangleMeasure(face,3,RM_EXITANCE_CUSTOM,scaler,irrad);
 					*irradiance = irrad;
 #endif
 					// na pokusy: misto irradiance bere barvu materialu

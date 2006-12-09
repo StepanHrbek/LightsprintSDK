@@ -458,7 +458,9 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 // differs for different corners, depends on corner material
 Channels IVertex::exitance(Node* corner)
 {
-	return irradiance(RM_ALL)*corner->grandpa->surface->diffuseReflectance;
+	return irradiance(
+		RRRadiometricMeasure(+0,+0,+0,1,1) // don't care if it's exiting, flux or scaled
+		)*corner->grandpa->surface->diffuseReflectance;
 }
 
 void IVertex::loadCache(Channels r)

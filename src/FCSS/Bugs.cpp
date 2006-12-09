@@ -25,7 +25,7 @@ public:
 			RRColor light1 = RRColor(0);
 			RRColor light2 = RRColor(0);
 			if(face!=UINT_MAX)
-				scene->getTriangleMeasure(face,3,RM_IRRADIANCE_ALL,NULL,light1);
+				scene->getTriangleMeasure(face,3,RM_IRRADIANCE_PHYSICAL,NULL,light1);
 			// get light 2 for random new dir
 			RRVec3 dir2 = RRVec3(rand()/(float)RAND_MAX,rand()/(float)RAND_MAX,rand()/(float)RAND_MAX);
 			dir2 = (dir2-RRVec3(0.5f)).normalized();
@@ -39,7 +39,7 @@ public:
 			unsigned face2 = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
 			if(face2!=UINT_MAX)
 			{
-				scene->getTriangleMeasure(face2,3,RM_IRRADIANCE_ALL,NULL,light2);
+				scene->getTriangleMeasure(face2,3,RM_IRRADIANCE_PHYSICAL,NULL,light2);
 				float area = object->getCollider()->getMesh()->getTriangleArea(face2);
 				if(area<avgFaceArea/5) face2 = UINT_MAX;
 			}
