@@ -412,9 +412,9 @@ protected:
 				// pass power to rrobject
 				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
 #if PRIMARY_SCAN_PRECISION==1
-				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE_SCALED,avg);
+				multiObject->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_SCALED,avg);
 #else
-				multiObject->setTriangleAdditionalMeasure(triangleIndex,rr::RM_EXITANCE_SCALED,avg);
+				multiObject->setTriangleIllumination(triangleIndex,rr::RM_EXITANCE_SCALED,avg);
 #endif
 
 			}

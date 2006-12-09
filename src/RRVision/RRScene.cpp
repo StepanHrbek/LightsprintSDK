@@ -171,7 +171,7 @@ RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 			// this code is on 2 places...
 			//  delete this and rather call obj->resetStaticIllumination
 			Vec3 additionalIrradiance;
-			importer->getTriangleAdditionalMeasure(fi,RM_IRRADIANCE_PHYSICAL,additionalIrradiance);
+			importer->getTriangleIllumination(fi,RM_IRRADIANCE_PHYSICAL,additionalIrradiance);
 			obj->objSourceExitingFlux+=abs(t->setSurface(s,additionalIrradiance,true));
 		}
 		else

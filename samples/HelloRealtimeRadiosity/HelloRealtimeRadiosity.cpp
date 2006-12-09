@@ -244,7 +244,7 @@ protected:
 					}
 				// pass irradiance to rrobject
 				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-				getMultiObject()->setTriangleAdditionalMeasure(triangleIndex,rr::RM_IRRADIANCE_SCALED,avg);
+				getMultiObject()->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_SCALED,avg);
 			}
 		}
 

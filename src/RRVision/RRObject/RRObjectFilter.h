@@ -37,9 +37,9 @@ public:
 	{
 		return inherited->getTriangleMapping(t,out);
 	}
-	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 	{
-		return inherited->getTriangleAdditionalMeasure(t,measure,out);
+		return inherited->getTriangleIllumination(t,measure,out);
 	}
 	virtual const RRMatrix3x4* getWorldMatrix()
 	{

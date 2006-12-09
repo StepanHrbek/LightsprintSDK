@@ -1654,7 +1654,7 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 
 		// nastavi akumulatory na pocatecni hodnoty
 		Vec3 additionalIrradiance;
-		importer->getTriangleAdditionalMeasure(t,RM_IRRADIANCE_PHYSICAL,additionalIrradiance);
+		importer->getTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,additionalIrradiance);
 		Channels tmp = abs(triangle[t].setSurface(triangle[t].surface,additionalIrradiance,resetPropagation));
 		//objSourceExitingFlux += tmp;
 		tmpx += tmp.x;

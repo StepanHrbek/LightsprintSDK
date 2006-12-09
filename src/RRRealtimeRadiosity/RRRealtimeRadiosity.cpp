@@ -85,7 +85,7 @@ RRObject* RRRealtimeRadiosity::getObject(unsigned i)
 	return objects.at(i).first;
 }
 
-RRObjectAdditionalIllumination* RRRealtimeRadiosity::getMultiObject()
+RRObjectWithIllumination* RRRealtimeRadiosity::getMultiObject()
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return multiObject;
@@ -177,7 +177,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 				scene->scaler->getPhysicalScale(s->diffuseReflectance);
 			}
 		}*/
-		multiObject = multiObjectBase ? multiObjectBase->createAdditionalIllumination(getScaler()) : NULL;
+		multiObject = multiObjectBase ? multiObjectBase->createWithIllumination(getScaler()) : NULL;
 		delete[] importers;
 		scene = new RRScene(multiObject,&smoothing);
 		updateVertexLookupTable();

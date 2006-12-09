@@ -8,7 +8,7 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectAdditionalIllumination
+// RRObjectWithIllumination
 /*
 vision zajima exiting flux
 renderer s texturou zajima irradiance, renderer bez textury vyjimecne exitance
@@ -21,13 +21,13 @@ nekonzistence vznika kdyz u cerneho materialu ulozim outgoing a ptam se na incom
 nekonzistance vznika kdyz u degenerata ulozim flux a ptam se na irradiance
 -> ukladat irradiance
 
-RRObjectAdditionalIlluminationImpl tedy vse co dostane prevede na irradiance
+RRObjectWithIlluminationImpl tedy vse co dostane prevede na irradiance
 */
 
-class RRObjectAdditionalIlluminationImpl : public RRObjectAdditionalIllumination
+class RRObjectWithIlluminationImpl : public RRObjectWithIllumination
 {
 public:
-	RRObjectAdditionalIlluminationImpl(RRObject* aoriginal, const RRScaler* ascaler)
+	RRObjectWithIlluminationImpl(RRObject* aoriginal, const RRScaler* ascaler)
 	{
 		original = aoriginal;
 		scaler = ascaler;
@@ -44,11 +44,11 @@ public:
 			triangleInfo[i].area = getCollider()->getMesh()->getTriangleArea(i);
 		}
 	}
-	virtual ~RRObjectAdditionalIlluminationImpl() 
+	virtual ~RRObjectWithIlluminationImpl() 
 	{
 		delete[] triangleInfo;
 	}
-	virtual bool setTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor power)
+	virtual bool setTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor power)
 	{
 		if(t>=numTriangles)
 		{
@@ -79,7 +79,7 @@ public:
 		triangleInfo[t].irradiance = power;
 		return true;
 	}
-	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 	{
 		if(t>=numTriangles)
 		{

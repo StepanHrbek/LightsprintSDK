@@ -7,7 +7,7 @@
 #include "RRMeshFilterTransformed.h"
 #include "RRObjectFilterTransformed.h"
 #include "RRObjectMulti.h"
-#include "RRObjectAdditionalIllumination.h"
+#include "RRObjectAdditionalIllumination.h"//WithIllumination.h"
 
 namespace rr
 {
@@ -16,7 +16,7 @@ namespace rr
 //
 // RRObject
 
-void RRObject::getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+void RRObject::getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 {
 	out[0] = 0;
 	out[1] = 0;
@@ -131,9 +131,9 @@ RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObje
 	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,maxStitchDistance,optimizeTriangles,cacheLocation);
 }
 
-RRObjectAdditionalIllumination* RRObject::createAdditionalIllumination(const RRScaler* scaler)
+RRObjectWithIllumination* RRObject::createWithIllumination(const RRScaler* scaler)
 {
-	return new RRObjectAdditionalIlluminationImpl(this,scaler);
+	return new RRObjectWithIlluminationImpl(this,scaler);
 }
 
 //////////////////////////////////////////////////////////////////////////////

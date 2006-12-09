@@ -140,11 +140,11 @@ public:
 		return pack[1].getImporter()->getTriangleMapping(t-pack[0].getNumTriangles(),out);
 	}
 
-	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure format, RRColor& out) const
+	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure format, RRColor& out) const
 	{
 		unoptimizeTriangle(t);
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleAdditionalMeasure(t,format,out);
-		return pack[1].getImporter()->getTriangleAdditionalMeasure(t-pack[0].getNumTriangles(),format,out);
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleIllumination(t,format,out);
+		return pack[1].getImporter()->getTriangleIllumination(t-pack[0].getNumTriangles(),format,out);
 	}
 
 	virtual ~RRMultiObjectImporter()

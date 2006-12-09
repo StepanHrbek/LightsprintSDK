@@ -167,7 +167,7 @@ namespace rr
 
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is not created before you insert objects and call calculate().
-		RRObjectAdditionalIllumination* getMultiObject();
+		RRObjectWithIllumination* getMultiObject();
 		//! Returns the scene.
 		//! Scene is not created before you insert objects and call calculate().
 		const RRScene* getScene();
@@ -197,7 +197,7 @@ namespace rr
 		//! All objects in scene.
 		Objects    objects;
 		//! The multiObject created by merge of all objects.
-		RRObjectAdditionalIllumination* multiObject;
+		RRObjectWithIllumination* multiObject;
 		//! The scene used for radiosity calculations.
 		RRScene*   scene;
 
