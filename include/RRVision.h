@@ -154,7 +154,7 @@ namespace rr
 	//! Once you have object importers, there is built-in support for 
 	//! - pretransforming mesh, see createWorldSpaceMesh()
 	//! - baking multiple objects together, see createMultiObject()
-	//! - baking additional (primary) illumination into object, see createWithIllumination()
+	//! - baking additional (primary) illumination into object, see createObjectWithIllumination()
 	//!
 	//! \section s3 Links between objects
 	//! RRScene -> RRObject -> RRCollider -> RRMesh
@@ -327,7 +327,7 @@ namespace rr
 		//! \param scaler
 		//!  Scaler used for physical scale <-> custom scale conversions.
 		//!  Provide the same scaler you created for RRScene.
-		class RRObjectWithIllumination* createWithIllumination(const class RRScaler* scaler);
+		class RRObjectWithIllumination* createObjectWithIllumination(const class RRScaler* scaler);
 
 		// collision helper
 		//! Creates and returns collision handler, that accepts first hit to visible side (according to surface sideBit 'render').
@@ -341,7 +341,7 @@ namespace rr
 	//! Interface for object importer with user-defined additional per-triangle illumination.
 	//
 	//! Helper interface.
-	//! Instance may be created by RRMesh::createWithIllumination().
+	//! Instance may be created by RRMesh::createObjectWithIllumination().
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

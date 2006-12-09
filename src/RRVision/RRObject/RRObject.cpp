@@ -7,7 +7,7 @@
 #include "RRMeshFilterTransformed.h"
 #include "RRObjectFilterTransformed.h"
 #include "RRObjectMulti.h"
-#include "RRObjectAdditionalIllumination.h"//WithIllumination.h"
+#include "RRObjectWithIllumination.h"
 
 namespace rr
 {
@@ -131,7 +131,7 @@ RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObje
 	return RRMultiObjectImporter::create(objects,numObjects,intersectTechnique,maxStitchDistance,optimizeTriangles,cacheLocation);
 }
 
-RRObjectWithIllumination* RRObject::createWithIllumination(const RRScaler* scaler)
+RRObjectWithIllumination* RRObject::createObjectWithIllumination(const RRScaler* scaler)
 {
 	return new RRObjectWithIlluminationImpl(this,scaler);
 }

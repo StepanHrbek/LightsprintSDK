@@ -177,7 +177,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 				scene->scaler->getPhysicalScale(s->diffuseReflectance);
 			}
 		}*/
-		multiObject = multiObjectBase ? multiObjectBase->createWithIllumination(getScaler()) : NULL;
+		multiObject = multiObjectBase ? multiObjectBase->createObjectWithIllumination(getScaler()) : NULL;
 		delete[] importers;
 		scene = new RRScene(multiObject,&smoothing);
 		updateVertexLookupTable();

@@ -21,13 +21,16 @@ CHANGES
   \n use createMultiObject to calculate with multiple objects
   \n use createWorldSpaceObject() to calculate with transformed object
 - RRScaler interface changed from scalar to more efficient vector operation
-- getScaler/setScaler moved from RRScene to RRRealtimeRadiosity
 - RRRadiometricMeasure extended to support optional
   scale, direct/indirect, smooth
   \n simplifies access to physical scale values
   \n obsoletes RRScene states GET_SOURCE, GET_REFLECTED, GET_SMOOTH
 - RRScene states removed
   \n (SceneStateU, SceneStateF, resetStates, getState, setState, getStateF, setStateF)
+- getScaler/setScaler moved from RRScene to RRRealtimeRadiosity
+- renamed RRObjectAdditionalIllumination -> RRObjectWithIllumination
+- renamed createAdditionalIllumination -> createObjectWithIllumination
+- renamed s/getAdditionalMeasure -> s/getTriangleIllumination
 
 \section news8 ------------------------------------- 2006.11.16 -------------------------------------
 
