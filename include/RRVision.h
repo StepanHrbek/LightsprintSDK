@@ -359,20 +359,21 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRScaler
-	//! Interface for 3d space transformer.
+	//! Interface for physical <-> custom space transformer.
 	//
-	//! RRScaler may be used by RRScene to transform irradiance/emittance/exitance 
+	//! RRScaler may be used to transform irradiance/emittance/exitance 
 	//! between physical W/m^2 space and custom user defined space.
 	//! Without scaler, all inputs/outputs work with specified physical units.
 	//! With appropriate scaler, you may directly work for example with screen colors
 	//! or photometric units.
 	//!
+	//! For best results, scaler should satisfy following conditions for any x,y,z:
+	//! \n getPhysicalScale(x)*getPhysicalScale(y)=getPhysicalScale(x*y)
+	//! \n getPhysicalScale(x*y)*getPhysicalScale(z)=getPhysicalScale(x)*getPhysicalScale(y*z)
+	//! \n getCustomScale is inverse of getPhysicalScale
+	//!
 	//! When implementing your own scaler, double check you don't generate NaNs or INFs,
 	//! for negative inputs.
-	//!
-	//! For best results, scaler should satisfy following conditions for any x,y:
-	//! \n getCustomScale(getPhysicalScale(x))=x
-	//! \n getCustomScale(x)*getCustomScale(y)=getCustomScale(x*y)
 	//!
 	//! RRSurface::diffuseEmittance is never scaled.
 	//!
