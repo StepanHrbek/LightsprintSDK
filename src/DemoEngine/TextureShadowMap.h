@@ -21,7 +21,9 @@ public:
 	virtual void renderingToBegin();
 	virtual void renderingToEnd();
 	virtual unsigned getDepthBits(); // number of bits in texture depth channel
-	virtual ~TextureShadowMap() {};
+	virtual ~TextureShadowMap();
+private:
+	static unsigned numInstances;
 };
 
 

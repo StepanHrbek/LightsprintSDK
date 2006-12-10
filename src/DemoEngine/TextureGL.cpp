@@ -25,7 +25,6 @@ TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, bool acube, i
 	height = aheight;
 	cubeOr2d = acube?GL_TEXTURE_CUBE_MAP:GL_TEXTURE_2D;
 	channels = (type == GL_RGB) ? 3 : 4;
-	if(!data && type!=GL_DEPTH_COMPONENT) data = new unsigned char[width*height*channels]; //!!! eliminovat
 	pixels = data;
 	glGenTextures(1, &id);
 
@@ -42,9 +41,9 @@ TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, bool acube, i
 	}
 	else
 	{
-		// 2d -> init with data, build mipmaps
+		// 2d -> init with data
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, channels, width, height, type, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D,0,type,width,height,0,type,GL_UNSIGNED_BYTE,pixels);
 	}
 
 	glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, min); 

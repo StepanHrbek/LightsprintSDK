@@ -249,6 +249,7 @@ void done_gl_resources()
 	//delete ambientProgram;
 	delete uberProgram;
 	delete loadingMap;
+	delete noiseMap;
 	delete hintMap;
 	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
 	delete areaLight;
@@ -1078,6 +1079,7 @@ Level::~Level()
 	delete bugs;
 	delete rendererCaching;
 	delete rendererNonCaching;
+	delete solver->getScaler();
 	delete solver;
 }
 
@@ -1315,7 +1317,8 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case 27:
-			delete level; // throws assert in freeing node from ivertex
+			delete level;
+			delete environmentMap;
 			done_gl_resources();
 			exit(0);
 			break;
@@ -1732,7 +1735,7 @@ int main(int argc, char **argv)
 	tmpFlag &= ~_CRTDBG_CHECK_CRT_DF;
 	// Set flag to the new value
 	_CrtSetDbgFlag( tmpFlag );
-//	_crtBreakAlloc = 80;
+//	_crtBreakAlloc = 33935;
 */
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)

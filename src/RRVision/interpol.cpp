@@ -789,7 +789,7 @@ void SubTriangle::createSubvertex(IVertex *asubvertex,int rot)
 	}
 	else
 	{
-		subvertex=new IVertex();
+		subvertex=grandpa->object->newIVertex();
 #ifdef IV_POINT
 		subvertex->point=apoint;
 #endif
