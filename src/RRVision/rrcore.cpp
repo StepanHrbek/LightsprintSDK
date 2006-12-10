@@ -874,15 +874,19 @@ SubTriangle::~SubTriangle()
 	if(sub[0])
 	{
 		delete SUBTRIANGLE(sub[0]);
-		delete SUBTRIANGLE(sub[1]);
 		sub[0]=NULL;
+		delete SUBTRIANGLE(sub[1]);
 		sub[1]=NULL;
 	}
-	for(int i=0;i<3;i++)
-	{
-		IVertex *iv=ivertex(i);
-		if(iv) iv->remove(this,false);
-	}
+	// pocitam ze subtriangly budou zanikat vzdy vsechny naraz
+	// tak nema cenu updatovat ivertexy, vsechny prijdou taky smazat
+//#ifdef SUPPORT_INTERPOL
+//	for(int i=0;i<3;i++)
+//	{
+//		IVertex *iv=ivertex(i);
+//		if(iv) iv->remove(this,false);
+//	}
+//#endif
 	__subtrianglesAllocated--;
 }
 

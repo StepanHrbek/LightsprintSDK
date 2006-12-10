@@ -485,14 +485,14 @@ namespace rr
 		{
 			//! Speed of surface subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast.
 			//! \n Set 0 for the fastest results and realtime responsiveness. Illumination will be available in scene vertices.
-			//! \n Set 1 for high quality, precalculations. Illumination will be available in adaptively subdivided surfaces.
+			//! \n Set 1 for higher quality, precalculations. Illumination will be available in adaptively subdivided surfaces.
 			//!    You can set slower subdivision for higher quality results with less noise, calculation will be slower.
 			//!    If you set higher speed, calculation will be faster, but results will contain high frequency noise.
 			float subdivisionSpeed;
 			//! Selects smoothing mode, valid options are: 0,1,2.
 			//! \n 0 = Normal independent smoothing, old. Depends on maxSmoothAngle.
 			//! \n 1 = Normal independent smoothing, new. Depends on maxSmoothAngle.
-			//! \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed.
+			//! \n 2 = Smoothing defined by object normals. Faces with the same normal on shared vertex are smoothed. (disabled for now, falls back to 1)
 			unsigned smoothMode;
 			//! Distance in world units. Vertices with lower or equal distance will be internally stitched into one vertex.
 			//! Zero stitches only identical vertices, negative value generates no action.
@@ -513,7 +513,7 @@ namespace rr
 			//! 0.001 is reasonable value.
 			float ignoreSmallerAngle;
 			//! Minimal allowed area of triangle, smaller triangles are ignored.
-			//! Helps prevent problems from degenerated triangles.
+			//! Helps prevent precision problems from degenerated triangles.
 			//! For typical game interior scenes and world in 1m units, 1e-10 is reasonable value.
 			float ignoreSmallerArea;
 			//! Sets default values at creation time.
@@ -603,8 +603,6 @@ namespace rr
 		//! Reads illumination of triangle's vertex in units given by measure.
 		//
 		//! Reads results in format suitable for fast vertex based rendering without subdivision.
-		//! See also SceneStateU and SceneStateF for list of states, that may have influence
-		//! on reading results.
 		//! \param triangle Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
 		//! \param vertex Index of triangle's vertex you want to get results for. Valid vertices are 0, 1, 2.
 		//!  For invalid vertex number, average value for whole triangle is taken instead of smoothed value in vertex.
@@ -634,8 +632,6 @@ namespace rr
 		//! Reads illumination of triangle's subtriangles in units given by measure.
 		//
 		//! Reads results in format suitable for high quality texture based rendering (with adaptive subdivision).
-		//! See also SceneStateU and SceneStateF for list of states, that may have influence
-		//! on reading results.
 		//! \param triangle
 		//!  Index of triangle you want to get results for. Valid triangle index is <0..getNumTriangles()-1>.
 		//! \param measure

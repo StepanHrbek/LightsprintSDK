@@ -16,6 +16,7 @@ NEWS
 - RRObject::createObjectWithPhysicalSurfaces
   \n converts surfaces from custom to physical scale
   \n simplifies work in custom scale
+- adaptive subdivision may be turned on
 
 CHANGES
 

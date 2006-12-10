@@ -461,16 +461,12 @@ namespace rr
 
  \section d22 Advantages
    - High precision without additional vertices.
-   - Very low resolution is sufficient, compared to lightmaps.
+   - Very low resolution is sufficient (with good unwrap), compared to lightmaps.
      Ambient maps contain mostly low frequencies, no sharp edges.
    - Ambient values don't depend on view angle, so rendering is very fast.
 
  \section d23 Disadvantages
    - You should provide object unwrap.
-   - At the moment, adaptive subdivision is turned off by default, 
-     and ambient maps contain no additional details compared to vertex arrays.
-     This will be fixed. API won't change, you'll just get more 
-     detailed ambient maps.
    - Ambient values don't depend on view angle, so normal maps have no effect.
 
  \section d24 Data source
