@@ -7,7 +7,7 @@ namespace rr
 \mainpage Lightsprint SDK
  Welcome to Lightsprint SDK.
 
- - <b> \subpage main_dir_indir </b>
+ - <b> \subpage main_introduction </b>
 
  - <b> \subpage main_scenarios </b>
 
@@ -26,7 +26,43 @@ namespace rr
 
 
 
-\page main_dir_indir Direct vs Indirect; Realtime Radiosity position
+\page main_introduction Introduction
+
+ \section intro1 Problem and Solution
+
+  Realistic illumination simply looks good.
+  While direct illumination has been 'solved' by science and software developers of 20th century,
+  indirect illumination still challenges both sides. \subpage details
+
+  Lightsprint is first to come with physically correct 
+  indirect illumination synthesis so fast, that it 
+  is suitable for realtime rendering in dynamic scenes.
+
+ \section intro2 Your contribution
+
+  Renderer with realtime direct illumination and shadows.
+
+  There are many good renderers, commercial and free, proprietary and open source.
+  If you don't have renderer, you can start with our renderer from DemoEngine.
+
+  \image html all-ambient.png
+  Today's engines ignore indirect illumination from moving lights
+  and render only direct illumination (left column),
+  or approximate indirect by constant ambient term (right column).
+
+ \section intro3 Our contribution
+
+  Lightsprint calculates physically correct indirect illumination
+  in realtime as a replacement for constant ambient.
+
+  \image html all-rr.png
+
+  We can also precalculate complete direct+indirect illumination from area lights.
+
+
+
+
+\page details More details
  In our real world, we see visible light coming mostly from special surfaces 
  (hot wolfram fibre in bulb, luminofor of fluorescent lamp)
  or from whole volumes of plasma (sun, fire).
@@ -53,28 +89,8 @@ namespace rr
  There are many realtime techniques for calculating shadows in direct illumination,
  most notably shadow mapping, volumetric/stencil shadows and projected/texture based shadows.
 
- There is however still problem with indirect illumination, which remains
- hard to compute quickly.
-
- You are expected to <b>have renderer with direct illumination and shadows</b> in 
- direct illumination. This is very modest expectation, as there are
- many realtime renderers having it, both commercial and open source.
- (If you still don't have your own renderer, you can start with our renderer from DemoEngine.)
-
- <b>RealtimeRadiosity adds indirect illumination</b> into such renderer.
-
- Vision is also able to calculate complete illumination (direct+indirect)
- from real-world direct light sources - surfaces. However we don't prefer
- this use case as it's not suitable for interactive application.
-
- \image html all-ambient.png
- Today's games with moving lights approximate indirect illumination
- by constant ambient. Rarely, they render no indirect illumination
- at all (left column).
-
- \image html all-rr.png
- Lightsprint calculates physically correct indirect illumination
- (realtime radiosity) as a replacement for constant ambient.
+ There is still problem with indirect illumination, which remains
+ hard to be computed quickly.
 
 
 
@@ -274,11 +290,12 @@ namespace rr
  You can see that the only nontrivial task was implementing 
  RRRealtimeRadiosity::detectDirectIllumination().
  
- <b>What needs to be detected:</b> simply said, average color of each face;
- how does it looks lit by your direct (not ambient) point, spot and directional lights
+ <b>What needs to be detected:</b> average color of each face;
+ how does it look lit by your direct (not ambient) point, spot and directional lights
  and shadowed by your shadows.
- It is optional if you detect face irradiance, incoming flux,
- exitance or exiting flux.
+ This is typical approach, but interface is much more flexible,
+ so you can detect any of face irradiance, incoming flux,
+ exitance or exiting flux; and you can use any physical or non-physical scale.
 
  <b>Why is it important:</b> we have no other knowledge about your lights.
  You can use many light types with very complex lighting equations.
@@ -302,15 +319,15 @@ namespace rr
  requires one renderer enhancement - 2d position override - ability to render
  triangles to specified 2d positions while preserving their original look.
 
- For DX10 generation GPUs (GeForce 8xxx), solution is as simple
- as adding 2 lines into geometry shader.
+ For DX10 generation GPUs (GeForce 8xxx), solution is nearly as simple
+ as adding two lines into geometry shader.
  Render as usual, using any combination of trilist/strip/indexed/nonindexed data,
  but at the end of geometry shader, override
  output vertex positions passed to rasterizer by new 2d triangle positions
  calculated right there from primitive id.
- \n At the moment, you can use GeForce 8800 and multivendor OpenGL extension
+ \n You can use GeForce 8800 and multivendor OpenGL extension
  EXT_geometry_shader4 to write geometry shaders.
- New graphics cards and the same functionality in DirectX10 is expected soon.
+ New graphics cards and the same functionality in Direct3D 10 are expected soon.
 
  For DX9 generation GPUs, implemention has two steps:
  - Triangle positions in matrix are generated by CPU into new vertex stream.
@@ -763,7 +780,7 @@ namespace rr
  It depends on OpenGL, GLU and RealtimeRadiosity. It has built-in GLEW.
 
  Sample HelloRealtimeRadiosity uses RealtimeRadiosity, OpenGL and GLUT
- for demonstrating realtime radiosity in scene with dynamic light.
+ to demonstrate realtime radiosity in scene with dynamic light.
  It uses DemoEngine for common tasks that can be used later by other samples.
 
  Sample BunnyBenchmark measures Collider performance for comparison with other engines.
