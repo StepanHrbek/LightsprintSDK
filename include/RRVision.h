@@ -115,7 +115,7 @@ namespace rr
 		unsigned char transmitFrom:1;///< When photon is catched, should surface transmit energy to other halfspace?
 	};
 
-	//! Description of surface material properties.
+	//! Description of surface material properties. Could be in physical or any other scale, depends on who uses it.
 	struct RR_API RRSurface
 	{
 		void          reset(bool twoSided);          ///< Resets surface to fully diffuse gray (50% reflected, 50% absorbed).
@@ -123,7 +123,7 @@ namespace rr
 
 		RRSideBits    sideBits[2];                   ///< Defines surface behaviour for front(0) and back(1) side.
 		RRColor       diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
-		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately). Never scaled by RRScaler.
+		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately).
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
 		RRReal        specularTransmittance;         ///< Fraction of energy that continues through surface (without color change).
 		RRReal        refractionIndex;               ///< Refractive index of material in front of surface divided by refractive index of material behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
@@ -148,8 +148,6 @@ namespace rr
 	//!
 	//! When implementing your own scaler, double check you don't generate NaNs or INFs,
 	//! for negative inputs.
-	//!
-	//! RRSurface::diffuseEmittance is never scaled.
 	//!
 	//! Contains built-in support for typical RGB monitor space, see createRgbScaler().
 	//
