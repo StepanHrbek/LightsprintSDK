@@ -13,6 +13,9 @@ NEWS
 - RRScene::SmoothingParameters 
   \n illumination smoothing parameters, set per object
   \n obsoletes RRScene states MIN_FEATURE_SIZE and MAX_SMOOTH_ANGLE
+- RRObject::createObjectWithPhysicalSurfaces
+  \n converts surfaces from custom to physical scale
+  \n simplifies work in custom scale
 
 CHANGES
 
@@ -20,6 +23,8 @@ CHANGES
 - RRScene simplified, calculates with 1 world space object
   \n use createMultiObject to calculate with multiple objects
   \n use createWorldSpaceObject() to calculate with transformed object
+- RRRealtimeRadiosity expects surfaces in custom scale
+  \n simplification, you don't have to convert them to physical scale
 - RRScaler interface changed from scalar to more efficient vector operation
 - RRRadiometricMeasure extended to support optional
   scale, direct/indirect, smooth

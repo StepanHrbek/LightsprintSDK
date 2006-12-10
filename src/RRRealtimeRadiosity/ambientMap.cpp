@@ -57,7 +57,7 @@ void RRRealtimeRadiosity::readPixelResults()
 	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
-		RRObject* object = getMultiObject();
+		RRObject* object = getMultiObjectCustom();
 		if(!object)
 		{
 			assert(0);

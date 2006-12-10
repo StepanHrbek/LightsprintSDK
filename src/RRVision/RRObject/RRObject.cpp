@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 
 #include "../../RRMesh/RRMeshFilter.h"
 #include "../rrcore.h"

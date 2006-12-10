@@ -635,8 +635,6 @@ public:
 	~Scene();
 
 	Object* object;        // the only object that contains whole static scene
-	RRSurface *surface;
-	unsigned surfaces;
 
 	Triangle* intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
 	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power=HitChannels(1));

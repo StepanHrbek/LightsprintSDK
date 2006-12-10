@@ -333,7 +333,7 @@ protected:
 		
 		//Timer w;w.Start();
 
-		rr::RRMesh* mesh = multiObject->getCollider()->getMesh();
+		rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		// adjust captured texture size so we don't waste pixels
@@ -412,9 +412,9 @@ protected:
 				// pass power to rrobject
 				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
 #if PRIMARY_SCAN_PRECISION==1
-				multiObject->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_CUSTOM,avg);
+				getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_CUSTOM,avg);
 #else
-				multiObject->setTriangleIllumination(triangleIndex,rr::RM_EXITANCE_CUSTOM,avg);
+				getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_EXITANCE_CUSTOM,avg);
 #endif
 
 			}
@@ -1052,17 +1052,17 @@ Level::Level(const char* filename_3ds)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	provideObjectsFrom3dsToRR(&m3ds,solver,NULL);
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
-	if(!solver->getMultiObject())
+	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new RendererOfRRObject(solver->getMultiObject(),solver->getScene(),solver->getScaler());
+	rendererNonCaching = new RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
 	rendererCaching = new RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 
 	// init bugs
 #ifdef BUGS
-	bugs = Bugs::create(solver->getScene(),solver->getMultiObject(),100);
+	bugs = Bugs::create(solver->getScene(),solver->getMultiObjectCustom(),100);
 #endif
 
 	updateMatrices();
@@ -1207,7 +1207,7 @@ void reportLightMovement()
 		// Ve velke scene dava lepsi vysledky reset (true),
 		//  scena sice behem pohybu ztmavne,
 		//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
-		level->solver->reportLightChange(level->solver->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+		level->solver->reportLightChange(level->solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
 	}
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;

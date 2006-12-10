@@ -11,7 +11,7 @@ namespace rr
 void RRRealtimeRadiosity::updateVertexLookupTable()
 // prepare lookup tables preImportVertex -> [postImportTriangle,vertex0..2] for all objects
 {
-	if(!getMultiObject())
+	if(!getMultiObjectPhysical())
 	{
 		assert(0);
 		return;
@@ -20,7 +20,7 @@ void RRRealtimeRadiosity::updateVertexLookupTable()
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
-		RRMesh* mesh = getMultiObject()->getCollider()->getMesh();
+		RRMesh* mesh = getMultiObjectPhysical()->getCollider()->getMesh();
 		unsigned numPostImportVertices = mesh->getNumVertices();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();

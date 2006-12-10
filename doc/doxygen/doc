@@ -790,6 +790,7 @@ namespace rr
    or environment maps;
    for information on individual triangles (even adaptively subdivided) or rays,
    call underlying Vision library
+ - communicates completely in custom units, e.g. screen colors
 
  Sample HelloRealtimeRadiosity shows the result of integration,
  interactive .3ds scene viewer with radiosity immediately responding
@@ -828,7 +829,7 @@ namespace rr
  - calculates global illumination in static scene
  - progressive refinement with permanent access to results (you can start calculation and read results 1ms later, you will get raw approximation)
  - calculated illumination is available in vertices
- - works with your units (screen colors or radiometry or photometry units or anything else)
+ - communicates in physical or custom units (W/m^2 or e.g. screen colors)
  - display independent, purely numerical API
  - you can ask Vision about individual triangles, even adaptively subdivided;
    for complete vertex buffers or ambient maps, see RealtimeRadiosity library

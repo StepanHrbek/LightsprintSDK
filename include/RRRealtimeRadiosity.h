@@ -79,7 +79,8 @@ namespace rr
 		//! Sets static contents of scene, all objects at once.
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
-		//!  These objects should not move during our lifetime.
+		//!  Objects should not move during our lifetime.
+		//!  Object's getSurface should return values in custom scale.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
@@ -167,7 +168,11 @@ namespace rr
 
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is not created before you insert objects and call calculate().
-		RRObjectWithIllumination* getMultiObject();
+		RRObject* getMultiObjectCustom();
+		//! As getMultiObjectCustom, but with surfaces converted to physical space.
+		RRObjectWithPhysicalSurfaces* getMultiObjectPhysical();
+		//! As getMultiObjectPhysical, but with space for storage of detected direct illumination.
+		RRObjectWithIllumination* getMultiObjectPhysicalWithIllumination();
 		//! Returns the scene.
 		//! Scene is not created before you insert objects and call calculate().
 		const RRScene* getScene();
@@ -194,13 +199,6 @@ namespace rr
 		//! Default implementation returns NULL.
 		virtual RRIlluminationPixelBuffer* newPixelBuffer(RRObject* object);
 
-		//! All objects in scene.
-		Objects    objects;
-		//! The multiObject created by merge of all objects.
-		RRObjectWithIllumination* multiObject;
-		//! The scene used for radiosity calculations.
-		RRScene*   scene;
-
 	private:
 		enum ChangeStrength
 		{
@@ -209,6 +207,7 @@ namespace rr
 			BIG_CHANGE,
 		};
 		// calculate
+		Objects    objects;
 		RRScene::SmoothingParameters smoothing;
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;
@@ -221,7 +220,10 @@ namespace rr
 		float      calcStep; // avg time spent in calculate().
 		float      improveStep; // time to be spent in improve in calculate()
 		float      readingResultsPeriod;
-		RRObject*  multiObjectBase;
+		RRObject*  multiObjectCustom;
+		RRObjectWithPhysicalSurfaces* multiObjectPhysical;
+		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
+		RRScene*   scene;
 		RRScene::Improvement calculateCore(unsigned requests, float improveStep);
 		// read results
 		RRScaler*  scaler;

@@ -19,18 +19,19 @@ namespace rr
 // kdyz se jen renderuje a improvuje (rrbugs), az do 0.6 roste vytizeni cpu(dualcore) a nesnizi se fps
 // kdyz se navic detekuje primary, kazde zvyseni snizi fps
 
-#define REPORT(a)       //a
-#define REPORT_BEGIN(a) REPORT( Timer timer; timer.Start(); reportAction(a ".."); )
-#define REPORT_END      REPORT( {char buf[20]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
+#define REPORT(a)        //a
+#define REPORT_BEGIN(a)  REPORT( Timer timer; timer.Start(); reportAction(a ".."); )
+#define REPORT_END       REPORT( {char buf[20]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b)         (((a)>(b))?(a):(b))
+#define MIN(a,b)         (((a)<(b))?(a):(b))
 #define CLAMP(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
+#define SAFE_DELETE(a)   {delete a;a=NULL;}
 
 RRRealtimeRadiosity::RRRealtimeRadiosity()
 {
 	//objects zeroed by constructor
-	multiObject = NULL;
+	scaler = NULL;
 	scene = NULL;
 	dirtyMaterials = true;
 	dirtyGeometry = true;
@@ -43,7 +44,9 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	calcStep = 0;
 	improveStep = 0;
 	readingResultsPeriod = 0;
-	multiObjectBase = NULL;
+	multiObjectCustom = NULL;
+	multiObjectPhysical = NULL;
+	multiObjectPhysicalWithIllumination = NULL;
 	//preVertex2PostTriangleVertex zeroed by constructor
 	resultChannelIndex = 0;
 	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
@@ -52,8 +55,9 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 RRRealtimeRadiosity::~RRRealtimeRadiosity()
 {
 	delete scene;
-	delete multiObject;
-	delete multiObjectBase;
+	delete multiObjectCustom;
+	delete multiObjectPhysical;
+	delete multiObjectPhysicalWithIllumination;
 }
 
 void RRRealtimeRadiosity::setScaler(RRScaler* ascaler)
@@ -85,10 +89,22 @@ RRObject* RRRealtimeRadiosity::getObject(unsigned i)
 	return objects.at(i).first;
 }
 
-RRObjectWithIllumination* RRRealtimeRadiosity::getMultiObject()
+RRObject* RRRealtimeRadiosity::getMultiObjectCustom()
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
-	return multiObject;
+	return multiObjectCustom;
+}
+
+RRObjectWithPhysicalSurfaces* RRRealtimeRadiosity::getMultiObjectPhysical()
+{
+	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
+	return multiObjectPhysical;
+}
+
+RRObjectWithIllumination* RRRealtimeRadiosity::getMultiObjectPhysicalWithIllumination()
+{
+	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
+	return multiObjectPhysicalWithIllumination;
 }
 
 const RRScene* RRRealtimeRadiosity::getScene()
@@ -151,9 +167,10 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		if(scene)
 		{
 			REPORT_BEGIN("Closing old radiosity solver.");
-			delete scene;
-			delete multiObject;
-			delete multiObjectBase;
+			SAFE_DELETE(scene);
+			SAFE_DELETE(multiObjectCustom);
+			SAFE_DELETE(multiObjectPhysical);
+			SAFE_DELETE(multiObjectPhysicalWithIllumination);
 			REPORT_END;
 		}
 		REPORT_BEGIN("Opening new radiosity solver.");
@@ -162,24 +179,14 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		{
 			importers[i] = objects.at(i).first;
 		}
-		multiObjectBase = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
-		/*/ convertne custom scale reflectance na physical scale
-		//!!! nefunguje obecne, neni zaruka ze kdyz tam zapisu tak tam prezije
-		if(scene->scaler)
-		for(unsigned fi=0;fi<obj->triangles;fi++) 
-		{
-			unsigned si = importer->getTriangleSurface(fi);
-			RRSurface* s = (RRSurface*)importer->getSurface(si); //!!! const -> neconst
-			if(s && s->refractionIndex!=4)
-			{
-				s->refractionIndex = 4; //!!! znackuje si uz zkonvertovane surfacy
-	
-				scene->scaler->getPhysicalScale(s->diffuseReflectance);
-			}
-		}*/
-		multiObject = multiObjectBase ? multiObjectBase->createObjectWithIllumination(getScaler()) : NULL;
+		multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
+		//!!! nevyrabet kdyz neni scaler
+		multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalSurfaces(getScaler()) : NULL;
+		// RRObjectWithIllum dostava physical surfacy, dat mu custom by byla chyba
+		multiObjectPhysicalWithIllumination = multiObjectPhysical ? multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
+			(multiObjectCustom ? multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
 		delete[] importers;
-		scene = new RRScene(multiObject,&smoothing);
+		scene = new RRScene(multiObjectPhysicalWithIllumination,&smoothing);
 		updateVertexLookupTable();
 		REPORT_END;
 	}

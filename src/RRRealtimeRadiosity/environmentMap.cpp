@@ -342,7 +342,7 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 					scene->getTriangleMeasure(face,3,RM_EXITANCE_CUSTOM,scaler,irrad);
 					*irradiance = irrad;
 #endif
-					// na pokusy: misto irradiance bere barvu materialu
+					// na pokusy: misto irradiance bere barvu materialu (custom surface)
 					//const RRSurface* surface = object->getSurface(object->getTriangleSurface(face));
 					//if(surface) *irradiance = surface->diffuseReflectance;
 				}
@@ -362,7 +362,7 @@ void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* env
 		assert(0);
 		return;
 	}
-	if(!getMultiObject())
+	if(!getMultiObjectCustom())
 	{
 		assert(0);
 		return;
@@ -371,7 +371,7 @@ void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* env
 	// gather irradiances
 	const unsigned iSize = maxSize?maxSize:1;
 	CubeColor* iIrradiance = new CubeColor[6*iSize*iSize];
-	cubeMapGather(scene,getMultiObject(),getScaler(),objectCenterWorld,iSize,iIrradiance);
+	cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenterWorld,iSize,iIrradiance);
 
 	// filter cubemap
 	unsigned oSize = 0;

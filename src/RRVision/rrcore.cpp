@@ -1742,8 +1742,6 @@ bool Object::check()
 Scene::Scene()
 {
 	object=NULL;
-	surface=NULL;
-	surfaces=0;
 	phase=0;
 	improvingStatic=NULL;
 	shotsForNewFactors=0;
@@ -1758,7 +1756,6 @@ Scene::~Scene()
 {
 	abortStaticImprovement();
 	delete object;
-	delete[] surface;
 }
 
 void Scene::objInsertStatic(Object *o)

@@ -304,10 +304,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRObject\RRObjectAdditionalIllumination.h"
-				>
-			</File>
-			<File
 				RelativePath="RRObject\RRObjectFilter.h"
 				>
 			</File>
@@ -317,6 +313,34 @@
 			</File>
 			<File
 				RelativePath="RRObject\RRObjectMulti.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RRObject\RRObjectWithIllumination.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RRObject\RRObjectWithPhysicalSurfaces.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\RRObject\RRObjectWithPhysicalSurfaces.h"
 				>
 			</File>
 		</Filter>

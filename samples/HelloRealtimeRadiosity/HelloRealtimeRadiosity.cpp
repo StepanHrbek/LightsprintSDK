@@ -174,7 +174,7 @@ protected:
 			updateShadowmap(0);
 		}
 
-		rr::RRMesh* mesh = getMultiObject()->getCollider()->getMesh();
+		rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		// adjust captured texture size so we don't waste pixels
@@ -244,7 +244,7 @@ protected:
 					}
 				// pass irradiance to rrobject
 				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-				getMultiObject()->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_SCALED,avg);
+				getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_CUSTOM,avg);
 			}
 		}
 
@@ -271,7 +271,7 @@ void reportEyeMovement()
 void reportLightMovement()
 {
 	// reports light change with hint on how big the change was. it's better to report big change for big scene
-	solver->reportLightChange(solver->getMultiObject()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+	solver->reportLightChange(solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
 	solver->reportInteraction();
 	needDepthMapUpdate = 1;
 	needRedisplay = true;
@@ -492,11 +492,11 @@ int main(int argc, char **argv)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	provideObjectsFrom3dsToRR(&m3ds,solver,NULL);
 	solver->calculate();
-	if(!solver->getMultiObject())
+	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new RendererOfRRObject(solver->getMultiObject(),solver->getScene(),solver->getScaler());
+	rendererNonCaching = new RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
 	rendererCaching = new RendererWithCache(rendererNonCaching);
 
 	glutMainLoop();

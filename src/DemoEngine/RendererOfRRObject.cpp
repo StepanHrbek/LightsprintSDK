@@ -85,7 +85,7 @@ void RendererOfRRObject::render()
 						const rr::RRSurface* surface = params.object->getSurface(surfaceIdx);
 						if(surface)
 						{
-							glSecondaryColor3fv(&surface->diffuseReflectanceCustom.x);
+							glSecondaryColor3fv(&surface->diffuseReflectance.x);
 						}
 						else
 						{

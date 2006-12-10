@@ -146,15 +146,9 @@ RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 		unsigned si = importer->getTriangleSurface(fi);
 		const RRSurface* s=importer->getSurface(si);
 		assert(s);
-		// rozhodne zda vlozit face dolu mezi emitory nebo nahoru mezi ostatni
-		Triangle *t;
-		t=&obj->triangle[tbot++];
+		Triangle *t = &obj->triangle[tbot++];
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
-/*		RRMesh::Vertex v[3];
-		meshImporter->getVertex(tv[0],v[0]);
-		meshImporter->getVertex(tv[1],v[1]);
-		meshImporter->getVertex(tv[2],v[2]);*/
 		int geom=t->setGeometry(
 			&obj->vertex[tv[0]],
 			&obj->vertex[tv[1]],
@@ -425,7 +419,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 	context2->clientCallback(si,context2->clientContext);
 }
 
-unsigned  RRScene::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context)
+unsigned RRScene::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context)
 {
 	Object* obj;
 	Triangle* tri;
