@@ -156,8 +156,11 @@ protected:
 #ifdef AMBIENT_MAPS
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
-		// decide how big ambient map you want for object. increase when edges appear
-		return new rr::RRIlluminationPixelBufferInOpenGL(512,512,"../../data/shaders/");
+		// Decide how big ambient map you want for object. 
+		// When seams appear, increase res.
+		// Depends on quality of unwrap provided by object->getTriangleMapping.
+		// This demo has bad unwrap -> high res map.
+		return new rr::RRIlluminationPixelBufferInOpenGL(1024,1024,"../../data/shaders/");
 	}
 #endif
 	// skipped, material properties were already readen from .3ds and never change

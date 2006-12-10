@@ -6,7 +6,8 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define INITIAL_PASSES             1
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SHADOW_MAP_SIZE            512
-#define LIGHTMAP_SIZE              512
+#define LIGHTMAP_SIZE              1024
+#define SUBDIVISION                0
 bool ati = 1;
 int fullscreen = 0;
 bool renderer3ds = 1;
@@ -1050,7 +1051,9 @@ Level::Level(const char* filename_3ds)
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
-	provideObjectsFrom3dsToRR(&m3ds,solver,NULL);
+	rr::RRScene::SmoothingParameters sp;
+	sp.subdivisionSpeed = SUBDIVISION;
+	provideObjectsFrom3dsToRR(&m3ds,solver,&sp);
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
