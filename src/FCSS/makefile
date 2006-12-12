@@ -8,16 +8,16 @@ CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
  CPPFLAGS += -march=athlon-xp
 CPPFLAGS += -msse
 #CPPFLAGS += -mfpmath=sse
-LIBS = -s -L../../lib -lDemoEngine -lRRRealtimeRadiosity -lRRIllumination -lRRMesh -lRRCollider -lRRVision -lwinmm -lstdc++ -lz -lm
-LIBS += -lopengl32 -lglu32 -lglut32
+LIBS = ../../lib/libRRRealtimeRadiosity.a ../../lib/libDemoEngine.a ../../lib/libRRIllumination.a ../../lib/libRRVision.a ../../lib/libRRCollider.a ../../lib/libRRMesh.a
+
 BIN = ../../bin/
 
 OBJS = shadowcast.o Bugs.o
 
 all: $(BIN)fcss.exe
 
-$(BIN)fcss.exe: $(OBJS) makefile ../../lib/libDemoEngine.a ../../lib/libRRCollider.a ../../lib/libRRVision.a ../../lib/libRRIllumination.a
-	gcc $(OBJS) $(LIBS) -o $(BIN)fcss.exe
+$(BIN)fcss.exe: $(OBJS) makefile $(LIBS)
+	gcc $(OBJS) $(LIBS) -lwinmm -lOpenGL32 -lGLU32 -lGLUT -lstdc++ -o $(BIN)fcss.exe
 
 $(TMP)%.o: %.cpp makefile
 

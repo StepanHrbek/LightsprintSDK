@@ -7,8 +7,8 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006
 
 #include "RRVision.h"
-#include <stdio.h>
-#include <time.h>
+#include <cstdio>
+#include <ctime>
 
 using namespace rr;
 
@@ -45,7 +45,7 @@ public:
 		surface.reset(false);
 		return &surface;
 	}
-	virtual void getTriangleAdditionalMeasure(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
+	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 	{
 		// return 0,0,0 for triangle 0 and 1,1,1 for triangle 1. this will make triangle 1 slightly shining
 		out = RRColor(t?1.0f:0.0f);
@@ -66,7 +66,7 @@ void printIllumination(RRScene* scene)
 	{
 		RRColor exitance;
 		// read exitance from object 0, triangle triangle, vertex 0
-		scene->getTriangleMeasure(0,triangle,0,RM_EXITANCE,exitance);
+		scene->getTriangleMeasure(triangle,0,RM_EXITANCE_PHYSICAL,NULL,exitance);
 		printf(" %f",exitance[0]);
 	}
 	printf("\n");
@@ -84,20 +84,17 @@ int main()
 	if(RRLicense::loadLicense("..\\..\\data\\licence_number")!=RRLicense::VALID)
 		printf("Invalid licence, nothing will be computed.\n");
 
-	// create mesh importer (contains only geometry)
+	// create mesh (contains only geometry)
 	RRMesh* mesh = RRMesh::create(RRMesh::TRI_LIST,RRMesh::FLOAT32,vertexArray,6,3*sizeof(float));
 
 	// create collider (able to find intersections with mesh)
 	RRCollider* collider = RRCollider::create(mesh,RRCollider::IT_BSP_FAST);
 
-	// create object importer (position/rotation and material properties attached to mesh)
+	// create object (position/rotation and material properties attached to mesh)
 	RRObject* object = new MyObject(collider);
 
-	// create scene
-	RRScene* scene = new RRScene;
-
-	// insert objects into scene
-	scene->objectCreate(object);
+	// create scene (able to calculate radiosity)
+	RRScene* scene = new RRScene(object,NULL);
 
 	// Print illumination levels for first time, should be 0.00, 1.00
 	// First triangle is completely dark, while second one emits light.

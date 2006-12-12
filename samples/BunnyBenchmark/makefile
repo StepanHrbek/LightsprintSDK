@@ -15,7 +15,7 @@ LIBS = ../../lib/libRRMesh.a ../../lib/libRRCollider.a
 all: $(BIN)BunnyBenchmark.exe
 
 $(BIN)BunnyBenchmark.exe: $(OBJS) $(MAKE) $(LIBS)
-	gcc $(OBJS) $(LIBS) -lstdc++ -o $(BIN)BunnyBenchmark.exe
+	gcc $(OBJS) $(LIBS) -lwinmm -lstdc++ -o $(BIN)BunnyBenchmark.exe
 
 clean:
 	del *.o
