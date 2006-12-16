@@ -713,6 +713,11 @@ void help()
  exit(0);
 }
 
+namespace rr
+{
+	extern unsigned __shot;
+}
+
 int main(int argc, char **argv)
 {
  int xres=800,yres=600;
@@ -901,6 +906,10 @@ int main(int argc, char **argv)
 	   char buf[400];
 	   scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+5*PER_SEC));
 	   scene->infoImprovement(buf,__infolevel); puts(buf);
+	   const RRCollider* collider = scene->object->importer->getCollider();
+	   const RRMesh* importer = collider->getMesh();
+	   sprintf(buf,"%5d/%03d",__shot/*RRIntersectStats::getInstance()->intersect_mesh*//1000,collider->getMemoryOccupied()/importer->getNumTriangles());
+	   fprintf(stderr,buf);
 	   return 0;
    }
    //prehraje 5 snimku

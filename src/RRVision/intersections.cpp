@@ -25,8 +25,8 @@ unsigned __shot=0;
 Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direction)
 {
 	DBG(printf("\n"));
-	__shot++;
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
+	__shot++;
 	assert(fabs(size2(direction)-1)<0.001); // normalized dir expected
 
 	// transform from scenespace to objectspace

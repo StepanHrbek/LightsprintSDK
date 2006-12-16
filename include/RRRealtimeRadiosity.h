@@ -79,7 +79,7 @@ namespace rr
 		//! Sets static contents of scene, all objects at once.
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
-		//!  Objects should not move during our lifetime.
+		//!  Objects should not move (in 3d space) during our lifetime.
 		//!  Object's getSurface should return values in custom scale.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
