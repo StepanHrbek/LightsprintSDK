@@ -1,5 +1,9 @@
 #include <cassert>
+#include <map>
+#include "Interpolator.h"
 #include "RRRealtimeRadiosity.h"
+#include "../src/RRMath/RRMathPrivate.h"
+#include <windows.h>
 
 #define HDR
 
@@ -18,31 +22,10 @@ namespace rr
 	typedef RRColorRGBA8 CubeColor;
 #endif
 
-// navaznost hran v cubemape:
-// side0top   = side2right
-// side0left  = side4right
-// side0right = side5left
-// side0bot   = side3right
-// side1top   = side2left
-// side1left  = side5right
-// side1right = side4left
-// side1bot   = side3left
-// side2top   = side5top
-// side2left  = side1top
-// side2right = side0top
-// side2bot   = side4top
-// side3top   = side4bot
-// side3left  = side1bot
-// side3right = side0bot
-// side3bot   = side5bot
-// side4top   = side2bot
-// side4left  = side1right
-// side4right = side0left
-// side4bot   = side3top
-// side5top   = side2top
-// side5left  = side0right
-// side5right = side1left
-// side5bot   = side3bot
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// cube connectivity
 
 enum Edge {TOP=0, LEFT, RIGHT, BOTTOM};
 
@@ -72,13 +55,35 @@ struct CubeSide
 		return getTexelDir(RRVec2( RRReal(int(1+2*x-size))/size , RRReal(int(1+2*y-size))/size ));
 	}
 
+	// as getTexelDir, but for edge/corner texels, returns dir to edge/corner of cube
+	RRVec3 getTexelDirSticky(unsigned size, unsigned x, unsigned y) const
+	{
+		return getTexelDir(RRVec2(
+			(x==0) ? -1 : ( (x>=size-1) ? 1 : RRReal(int(1+2*x-size))/size ),
+			(y==0) ? -1 : ( (y>=size-1) ? 1 : RRReal(int(1+2*y-size))/size )
+			));
+	}
+
+	// returns texel size in steradians. approximative
+	// texel coordinates: 0..size-1
+	static RRReal getTexelSize(unsigned size, unsigned x, unsigned y)
+	{
+		RRReal angle1 = dot(
+			RRVec3(1,RRReal(int(1+2*x-size))/size,RRReal(int(  2*y-size))/size).normalized(),
+			RRVec3(1,RRReal(int(1+2*x-size))/size,RRReal(int(2+2*y-size))/size).normalized() );
+		RRReal angle2 = dot(
+			RRVec3(1,RRReal(int(  2*x-size))/size,RRReal(int(1+2*y-size))/size).normalized(),
+			RRVec3(1,RRReal(int(2+2*x-size))/size,RRReal(int(1+2*y-size))/size).normalized() );
+		return acos(angle1)*acos(angle2);
+	}
+
 	// returns nearest texel index (in format side*size*size+j*size+i) to x,y inside side reached from this via edge
 	int getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigned y) const;
 };
 
 static const CubeSide cubeSide[6] =
 {
-	// describes cubemap sides in opengl
+	// describes cubemap sides in opengl order
 	{{ 1, 0, 0}, {{2,RIGHT },{4,RIGHT },{5,LEFT  },{3,RIGHT }}},
 	{{-1, 0, 0}, {{2,LEFT  },{5,RIGHT },{4,LEFT  },{3,LEFT  }}},
 	{{ 0, 1, 0}, {{5,TOP   },{1,TOP   },{0,TOP   },{4,TOP   }}},
@@ -87,9 +92,10 @@ static const CubeSide cubeSide[6] =
 	{{ 0, 0,-1}, {{2,TOP   },{0,RIGHT },{1,LEFT  },{3,BOTTOM}}}
 };
 
+// direction from cube center to texel center
 RRVec3 CubeSide::getTexelDir(RRVec2 uv) const
 {
-	return getDir()+cubeSide[neighbour[RIGHT].side].getDir()*uv[1]+cubeSide[neighbour[BOTTOM].side].getDir()*uv[0];
+	return getDir()+cubeSide[neighbour[RIGHT].side].getDir()*uv[0]+cubeSide[neighbour[BOTTOM].side].getDir()*uv[1];
 }
 
 int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigned y) const
@@ -140,157 +146,10 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 	return neighbour[edge].side*size*size+j*size+i;
 }
 
-// inputs:
-//  iSize - input cube size
-//  iIrradiance - array with 6*iSize*iSize pixels of cube. should be in physical space, otherwise filtering is incorrect
-// outputs:
-//  scale: custom using scaler; physical if no scaler provided
-//  a)
-//   oSize - new filtered cube size
-//   oIrradiance - new array with filtered cube, to be deleted by caller (in the same space, should be physical)
-//  b)
-//   *iIrradiance - modified values in input array
-//  c)
-//   no changes
-// thread safe: yes
-static void cubeMapFilter(unsigned iSize, CubeColor* iIrradiance, unsigned& oSize, CubeColor*& oIrradiance, const RRScaler* scaler)
-{
-	unsigned iPixels = iSize*iSize*6;
 
-	// 1 -> 2, prumeruje rohy
-	if(iSize==1)
-	{
-		// pri zmene cubeSide[6] nutno zmenit i tuto tabulku
-		static const signed char filteringTable[] = {
-			// side0
-			1,0,1,0,1,0,
-			1,0,1,0,0,1,
-			1,0,0,1,1,0,
-			1,0,0,1,0,1,
-			// side1
-			0,1,1,0,0,1,
-			0,1,1,0,1,0,
-			0,1,0,1,0,1,
-			0,1,0,1,1,0,
-			// side2
-			0,1,1,0,0,1,
-			1,0,1,0,0,1,
-			0,1,1,0,1,0,
-			1,0,1,0,1,0,
-			// side3
-			0,1,0,1,1,0,
-			1,0,0,1,1,0,
-			0,1,0,1,0,1,
-			1,0,0,1,0,1,
-			// side4
-			0,1,1,0,1,0,
-			1,0,1,0,1,0,
-			0,1,0,1,1,0,
-			1,0,0,1,1,0,
-			// side5
-			1,0,1,0,0,1,
-			0,1,1,0,0,1,
-			1,0,0,1,0,1,
-			0,1,0,1,0,1,
-		};
-		oSize = 2;
-		unsigned oPixels = 6*oSize*oSize;
-		oIrradiance = new CubeColor[oPixels];
-		for(unsigned i=0;i<oPixels;i++)
-		{
-			RRColorRGBF sum = RRColorRGBF(0);
-			unsigned points = 0;
-			for(unsigned j=0;j<iPixels;j++)
-			{
-				sum += iIrradiance[j].toRRColorRGBF() * filteringTable[iPixels*i+j];
-				points += filteringTable[iPixels*i+j];
-			}
-			assert(points);
-			oIrradiance[i] = sum / (points?points:1);
-#ifdef HDR
-			if(scaler) scaler->getCustomScale(oIrradiance[i]);
-#endif
-		}
-	}
-
-	// 2 -> 2, prumeruje rohy
-	if(iSize==2)
-	{
-		static signed char filteringTable[24][3];
-		static bool inited = false;
-		if(!inited)
-		{
-			for(unsigned side=0;side<6;side++)
-			{
-				for(unsigned i=0;i<2;i++)
-					for(unsigned j=0;j<2;j++)
-					{
-						filteringTable[4*side+2*j+i][0] = 4*side+2*j+i;
-						filteringTable[4*side+2*j+i][1] = cubeSide[side].getNeighbourTexelIndex(2,i?RIGHT:LEFT,i,j);
-						filteringTable[4*side+2*j+i][2] = cubeSide[side].getNeighbourTexelIndex(2,j?BOTTOM:TOP,i,j);
-					}
-			}
-			inited=true;
-		}
-		oSize = 2;
-		unsigned oPixels = 6*oSize*oSize;
-		oIrradiance = new CubeColor[oPixels];
-		for(unsigned i=0;i<oPixels;i++)
-		{
-			oIrradiance[i] = (iIrradiance[filteringTable[i][0]].toRRColorRGBF()+iIrradiance[filteringTable[i][1]].toRRColorRGBF()+iIrradiance[filteringTable[i][2]].toRRColorRGBF()) * 0.333333f;
-#ifdef HDR
-			if(scaler) scaler->getCustomScale(oIrradiance[i]);
-#endif
-		}
-	}
-
-	// n -> n, prumeruje 1-pix hrany a rohy
-	if(iSize>2)
-	{
-		// process only x+/x- corners&edges and y+/y- edges
-		for(unsigned side=0;side<4;side++)
-		{
-			// process all 4 edges			
-			for(unsigned edge=0;edge<4;edge++)
-			{
-				for(unsigned a=(side<2)?0:1;a<iSize-1;a++)
-				{
-					unsigned i,j,edge2; // edge2: hrana stykajici se s edge v rohu, proti smeru hod.rucicek
-					switch(edge)
-					{
-						case TOP: i=a;j=0;edge2=LEFT;break;
-						case RIGHT: i=iSize-1;j=a;edge2=TOP;break;
-						case BOTTOM: i=iSize-1-a;j=iSize-1;edge2=RIGHT;break;
-						case LEFT: i=0;j=iSize-1-a;edge2=BOTTOM;break;
-						default: assert(0);
-					}
-					unsigned idx1 = side*iSize*iSize+j*iSize+i;
-					unsigned idx2 = cubeSide[side].getNeighbourTexelIndex(iSize,(Edge)edge,i,j);
-					if(a==0)
-					{
-						// process corner (a+b+c)/3
-						unsigned idx3 = cubeSide[side].getNeighbourTexelIndex(iSize,(Edge)edge2,i,j);
-						iIrradiance[idx1] = iIrradiance[idx2] = iIrradiance[idx3] = (iIrradiance[idx1].toRRColorRGBF()+iIrradiance[idx2].toRRColorRGBF()+iIrradiance[idx3].toRRColorRGBF())*0.333333f;
-					}
-					else
-					{
-						// process edge: (a+b)/2
-						iIrradiance[idx1] = iIrradiance[idx2] = (iIrradiance[idx1].toRRColorRGBF()+iIrradiance[idx2].toRRColorRGBF())*0.5f;
-					}
-				}
-			}
-		}
-#ifdef HDR
-		if(scaler)
-		{
-			for(unsigned i=0;i<iPixels;i++)
-			{
-				scaler->getCustomScale(iIrradiance[i]);
-			}
-		}
-#endif
-	}
-}
+/////////////////////////////////////////////////////////////////////////////
+//
+// gather
 
 // thread safe: yes
 static void cubeMapGather(const RRScene* scene, const RRObject* object, const RRScaler* scaler, RRVec3 center, unsigned size, CubeColor* irradiance)
@@ -313,8 +172,8 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 	RRRay* ray = RRRay::create();
 	for(unsigned side=0;side<6;side++)
 	{
-		for(unsigned i=0;i<size;i++)
-			for(unsigned j=0;j<size;j++)
+		for(unsigned j=0;j<size;j++)
+			for(unsigned i=0;i<size;i++)
 			{
 				RRVec3 dir = cubeSide[side].getTexelDir(size,i,j);
 				RRReal dirsize = dir.length();
@@ -333,7 +192,7 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 					*irradiance = RRVec3(0); //!!! add sky
 				}
 				else
-				// read cube irradiance as face exitance
+					// read cube irradiance as face exitance
 				{
 #ifdef HDR
 					scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,scaler,*irradiance);
@@ -352,6 +211,143 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 	}
 	delete ray;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// filter
+
+void buildCubeFilterRadius(unsigned iSize, unsigned oSize, float radius, Interpolator* interpolator)
+{
+	//!!! zapisovat vysledek na 1/2/3 mista
+	for(unsigned oside=0;oside<6;oside++)
+	{
+		for(unsigned oj=0;oj<oSize;oj++)
+			for(unsigned oi=0;oi<oSize;oi++)
+			{
+				RRVec3 odir = cubeSide[oside].getTexelDirSticky(oSize,oi,oj).normalized();
+				interpolator->learnDestinationBegin();
+				RRReal sum = 0;
+				for(unsigned iside=0;iside<6;iside++)
+				{
+					for(unsigned ij=0;ij<iSize;ij++)
+						for(unsigned ii=0;ii<iSize;ii++)
+						{
+							RRVec3 idir = cubeSide[iside].getTexelDir(iSize,ii,ij).normalized(); //!!! lze taky predpocitat
+							RRReal contrib = dot(odir,idir)+radius-1;
+							if(contrib>0)
+							{
+								RRReal iTexelSize = cubeSide[iside].getTexelSize(iSize,ii,ij); //!!! lze predpocitat pro vsechny texely
+								assert(contrib*iTexelSize>0);
+								sum += contrib*iTexelSize;
+							}
+						}
+				}
+				assert(sum>0);
+				for(unsigned iside=0;iside<6;iside++)
+				{
+					for(unsigned ij=0;ij<iSize;ij++)
+						for(unsigned ii=0;ii<iSize;ii++)
+						{
+							RRVec3 idir = cubeSide[iside].getTexelDir(iSize,ii,ij).normalized();
+							RRReal contrib = dot(odir,idir)+radius-1;
+							if(contrib>0)
+							{
+								RRReal iTexelSize = cubeSide[iside].getTexelSize(iSize,ii,ij); //!!! lze predpocitat pro vsechny texely
+								RRReal finalContrib = contrib*iTexelSize/sum;
+								interpolator->learnSource(iSize*iSize*iside+iSize*ij+ii,finalContrib);
+							}
+						}
+				}
+				interpolator->learnDestinationEnd(oSize*oSize*oside+oSize*oj+oi,oSize*oSize*oside+oSize*oj+oi,oSize*oSize*oside+oSize*oj+oi);
+			}
+	}
+}
+
+void buildCubeFilter(unsigned iSize, unsigned oSize, Interpolator* interpolator)
+{
+	buildCubeFilterRadius(iSize,oSize,0.5f,interpolator); //!!!radius
+}
+
+// thread safe: yes
+class InterpolatorCache
+{
+public:
+	InterpolatorCache()
+	{
+		InitializeCriticalSection(&criticalSection);
+	}
+	const Interpolator* getInterpolator(unsigned iSize)
+	{
+		EnterCriticalSection(&criticalSection);
+		Map::const_iterator i = interpolators.find(iSize);
+		Interpolator* result;
+		if(i!=interpolators.end())
+		{
+			// found in cache
+			result = i->second;
+		}
+		else
+		{
+			// not found in cache
+			result = interpolators[iSize] = new Interpolator();
+			buildCubeFilter(iSize,(iSize==1)?2:iSize,result);
+		}
+		LeaveCriticalSection(&criticalSection);
+		return result;
+	}
+	~InterpolatorCache()
+	{
+		for(Map::iterator i=interpolators.begin();i!=interpolators.end();i++)
+		{
+			delete i->second;
+		}
+		DeleteCriticalSection(&criticalSection);
+	}
+private:
+	typedef std::map<unsigned,Interpolator*> Map;
+	Map interpolators;
+	CRITICAL_SECTION criticalSection;
+};
+
+static InterpolatorCache cache;
+
+// inputs:
+//  iSize - input cube size
+//  iIrradiance - array with 6*iSize*iSize pixels of cube. should be in physical space, otherwise filtering is incorrect
+//  scale: custom using scaler; physical if no scaler provided
+// outputs:
+//  oSize - new filtered cube size
+//  oIrradiance - new array with filtered cube, to be deleted by caller (in the same space, should be physical)
+
+static void cubeMapFilter(unsigned iSize, CubeColor* iIrradiance, unsigned& oSize, CubeColor*& oIrradiance, const RRScaler* scaler)
+{
+	const Interpolator* interpolator = cache.getInterpolator(iSize);
+	if(!interpolator) return;
+	oSize = interpolator->getDestinationSize();
+	oIrradiance = new CubeColor[oSize];
+	oSize = (unsigned)sqrt((float)oSize/6); //!!! bude slozeno z vic lodu
+	/*for(unsigned oside=0;oside<6;oside++)
+	{
+		for(unsigned oj=0;oj<oSize;oj++)
+			for(unsigned oi=0;oi<oSize;oi++)
+			{
+				RRVec2 a=cubeSide[oside].getTexelDir(oSize,oi,oj);
+				oIrradiance[oSize*oSize*oside+oSize*oj+oi]=RRVec3(a[0],a[1],0);
+			}
+	}
+	return;*/
+#ifdef HDR
+	interpolator->interpolateHdr(iIrradiance,oIrradiance,scaler);
+#else
+	interpolator->interpolateLdr(iIrradiance,oIrradiance);
+#endif
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// main
 
 // thread safe: yes
 void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, unsigned maxSize, RRVec3 objectCenterWorld)
@@ -382,8 +378,8 @@ void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* env
 	environmentMap->setValues(oSize?oSize:iSize,oIrradiance?oIrradiance:iIrradiance);
 
 	// cleanup
-	delete oIrradiance;
-	delete iIrradiance;
+	delete[] oIrradiance;
+	delete[] iIrradiance;
 }
 
 } // namespace

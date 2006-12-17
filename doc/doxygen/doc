@@ -141,6 +141,8 @@ namespace rr
  To integrate realtime radiosity into your editor, game or any other application,
  follow these steps:
 
+ - <b> \subpage integration_step_0 </b>
+
  - <b> \subpage integration_step_1 </b>
 
  - <b> \subpage integration_step_2 </b>
@@ -163,6 +165,37 @@ namespace rr
 
 
 
+\page integration_step_0 Validate meshes
+
+ This step is typically executed by 3d artists.
+
+ Calculation produces better results
+ when static 3d triangle meshes satisfy these conditions:
+
+ \section cond_matching Cleanly connected triangles
+ Two triangles are disjunct,
+ share 1 vertex or share 1 edge and 2 vertices.
+
+ So it is not allowed to
+ - overlap triangles
+ - intersect triangles
+ - place edge in the middle of other triangle
+ - place vertex in the middle of other edge
+
+ \image html triangles.png
+
+ See that all forbidden cases can be easily fixed.
+ This operation can be automated.
+
+ \section cond_no_needles No needles
+
+ Angle sizes in triangles are above 5 degrees.
+
+
+
+
+
+ 
 \page integration_step_1 Detect material properties
 
  Realtime radiosity is based on physically correct calculation of light transport.
@@ -662,8 +695,8 @@ namespace rr
  - all, no hard requirements
  - OpenGL 2.0 - standard target with samples available
  - Direct3D 9 - standard target without samples
- - OpenGL 2.0 with EXT_geometry_shader - DX10 generation, optimized samples coming in few weeks
- - Direct3D 10 - support coming in few months
+ - OpenGL 2.0 with EXT_geometry_shader - DX10 generation, optimized samples coming soon
+ - Direct3D 10 - support coming soon
 
  Binaries should work with multiple compilers, but only these get our support:
  - Visual C++ 2005

@@ -583,7 +583,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
 		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT);
-		level->solver->updateEnvironmentMap(environmentMap,16,rr::RRVec3(0,1,1));//!!! worldpos
+		level->solver->updateEnvironmentMap(environmentMap,2,rr::RRVec3(0,1,1));//!!! worldpos
 		environmentMap->bindTexture();
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 	}

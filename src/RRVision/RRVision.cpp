@@ -1,15 +1,3 @@
-/*
-prozatim odsunuto z headeru:
-
-// get intersection
-typedef       bool INTERSECT(RRRay*);
-typedef       ObjectHandle ENUM_OBJECTS(RRRay*, INTERSECT);
-void          setObjectEnumerator(ENUM_OBJECTS enumerator);
-bool          intersect(RRRay* ray);
-
-void          sceneSetColorFilter(const RRReal* colorFilter);
-*/
-
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
