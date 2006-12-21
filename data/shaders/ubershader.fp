@@ -89,8 +89,10 @@ varying vec2 lightIndirectCoord;
 #endif
 
 #ifdef LIGHT_INDIRECT_ENV
-uniform samplerCube lightIndirectEnvMap;
+uniform samplerCube lightIndirectSpecularEnvMap;
+uniform samplerCube lightIndirectDiffuseEnvMap;
 varying vec3 worldNormal;
+varying vec3 worldView;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
@@ -268,7 +270,8 @@ void main()
       + texture2D(lightIndirectMap, lightIndirectCoord)
 #endif
 #ifdef LIGHT_INDIRECT_ENV
-      + textureCube(lightIndirectEnvMap, worldNormal)
+      + textureCube(lightIndirectDiffuseEnvMap, worldNormal)
+      + textureCube(lightIndirectSpecularEnvMap, reflect(worldView,normalize(worldNormal)))
 #endif
     );
 #endif

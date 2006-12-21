@@ -44,7 +44,9 @@ varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI fai
 varying vec2 lightIndirectCoord;
 #endif
 
+uniform vec3 worldCamera;
 varying vec3 worldNormal;
+varying vec3 worldView;
 
 #ifdef MATERIAL_DIFFUSE_COLOR
 varying vec4 materialDiffuseColor;
@@ -58,11 +60,12 @@ void main()
 {
 #ifdef OBJECT_SPACE
   vec4 worldVertex = worldMatrix * gl_Vertex;
-  worldNormal = normalize( ( worldMatrix * vec4(gl_Normal,0) ).xyz );
+  worldNormal = normalize( ( worldMatrix * vec4(gl_Normal,0.0) ).xyz );
 #else
   vec4 worldVertex = gl_Vertex;
   worldNormal = normalize( gl_Normal );
 #endif
+  worldView = normalize( worldVertex.xyz - worldCamera );
 
 #ifdef LIGHT_DIRECT
   // direct light

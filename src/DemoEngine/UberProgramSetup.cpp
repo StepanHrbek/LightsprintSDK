@@ -77,6 +77,15 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		if(uberProgramSetup.getProgram(uberProgram)) break;
+		// max envmap
+		uberProgramSetup.NOISE_MAP = false;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
+		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
+		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+		uberProgramSetup.LIGHT_INDIRECT_ENV = true;
+		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
+		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+		if(uberProgramSetup.getProgram(uberProgram)) break;
 	}
 	//		if(instancesPerPass>1) instancesPerPass--;
 	//		if(instancesPerPass>1) instancesPerPass--;
@@ -162,9 +171,12 @@ bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight
 	// lightIndirectEnvMap
 	if(LIGHT_INDIRECT_ENV)
 	{
-		int id=TEXTURE_CUBE_LIGHT_INDIRECT;
+		int id=TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE;
 		//glActiveTexture(GL_TEXTURE0+id);
-		program->sendUniform("lightIndirectEnvMap", id);
+		program->sendUniform("lightIndirectDiffuseEnvMap", id);
+		id=TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR;
+		//glActiveTexture(GL_TEXTURE0+id);
+		program->sendUniform("lightIndirectSpecularEnvMap", id);
 	}
 
 	// materialDiffuseMap

@@ -129,6 +129,38 @@ public:
 	~Level();
 };
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dynamic object
+
+class DynamicObject
+{
+public:
+	static DynamicObject* DynamicObject::create(const char* filename,float scale)
+	{
+		DynamicObject* d = new DynamicObject();
+		if(d->model.Load(filename,scale)) return d;
+		delete d;
+		return NULL;
+	}
+	const Model_3DS& getModel()
+	{
+		return model;
+	}
+	rr::RRIlluminationEnvironmentMap* getSpecularMap()
+	{
+		return &specularMap;
+	}
+	rr::RRIlluminationEnvironmentMap* getDiffuseMap()
+	{
+		return &diffuseMap;
+	}
+private:
+	DynamicObject() {}
+	Model_3DS model;
+	rr::RRIlluminationEnvironmentMapInOpenGL specularMap;
+	rr::RRIlluminationEnvironmentMapInOpenGL diffuseMap;
+};
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -176,8 +208,7 @@ bool gameOn = 0;
 #endif
 Level* level = NULL;
 LevelSequence levelSequence;
-Model_3DS dynaobject;
-rr::RRIlluminationEnvironmentMap* environmentMap = NULL;
+DynamicObject* dynaobject;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -579,16 +610,20 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	}
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
 		error("Failed to compile or link GLSL program with envmap.\n",true);
-	// - set sampler
+	Program* program = uberProgramSetup.getProgram(uberProgram);
+	// - set envmap
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
-		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT);
-		level->solver->updateEnvironmentMap(environmentMap,2,rr::RRVec3(0,1,1));//!!! worldpos
-		environmentMap->bindTexture();
+		//!!! worldpos
+		level->solver->updateEnvironmentMaps(rr::RRVec3(0,1,1),16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap());
+		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		dynaobject->getSpecularMap()->bindTexture();
+		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+		dynaobject->getDiffuseMap()->bindTexture();
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+		program->sendUniform("worldCamera",eye.pos[0],eye.pos[1],eye.pos[2]);
 	}
 	// - set matrices
-	Program* program = uberProgramSetup.getProgram(uberProgram);
 	static float a=0,b=0,c=0;
 	a+=0.012f;
 	b+=0.01f;
@@ -612,7 +647,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	m[15] = 1;
 	program->sendUniform("worldMatrix",m,false,4);
 	// - render
-	dynaobject.Draw(NULL);
+	dynaobject->getModel().Draw(NULL);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -1318,7 +1353,7 @@ void keyboard(unsigned char c, int x, int y)
 	{
 		case 27:
 			delete level;
-			delete environmentMap;
+			delete dynaobject;
 			done_gl_resources();
 			exit(0);
 			break;
@@ -1786,9 +1821,9 @@ int main(int argc, char **argv)
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
 	// init dynaobject
-	if(!dynaobject.Load("3ds\\objects\\basketball.3ds",0.01f))
+	dynaobject = DynamicObject::create("3ds\\objects\\basketball.3ds",0.01f);
+	if(!dynaobject)
 		error("",false);
-	environmentMap = new rr::RRIlluminationEnvironmentMapInOpenGL(1);
 
 	// init shaders
 	// init textures
@@ -1810,6 +1845,7 @@ int main(int argc, char **argv)
 
 	// adjust INSTANCES_PER_PASS to GPU
 	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
+	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(!INSTANCES_PER_PASS) error("",true);

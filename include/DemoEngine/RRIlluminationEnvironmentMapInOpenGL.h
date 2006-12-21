@@ -27,7 +27,7 @@ namespace rr
 	class DE_API RRIlluminationEnvironmentMapInOpenGL : public RRIlluminationEnvironmentMap
 	{
 	public:
-		RRIlluminationEnvironmentMapInOpenGL(unsigned asize);
+		RRIlluminationEnvironmentMapInOpenGL();
 		virtual void setValues(unsigned size, RRColorRGBA8* irradiance);
 		virtual void setValues(unsigned size, RRColorRGBF* irradiance);
 		virtual void bindTexture();

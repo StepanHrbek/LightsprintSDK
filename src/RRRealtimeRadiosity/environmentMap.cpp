@@ -217,7 +217,7 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 //
 // filter
 
-void buildCubeFilterRadius(unsigned iSize, unsigned oSize, float radius, Interpolator* interpolator)
+void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, Interpolator* interpolator)
 {
 	//!!! zapisovat vysledek na 1/2/3 mista
 	for(unsigned oside=0;oside<6;oside++)
@@ -264,11 +264,6 @@ void buildCubeFilterRadius(unsigned iSize, unsigned oSize, float radius, Interpo
 	}
 }
 
-void buildCubeFilter(unsigned iSize, unsigned oSize, Interpolator* interpolator)
-{
-	buildCubeFilterRadius(iSize,oSize,0.5f,interpolator); //!!!radius
-}
-
 // thread safe: yes
 class InterpolatorCache
 {
@@ -277,10 +272,14 @@ public:
 	{
 		InitializeCriticalSection(&criticalSection);
 	}
-	const Interpolator* getInterpolator(unsigned iSize)
+	const Interpolator* getInterpolator(unsigned iSize, unsigned oSize, RRReal radius)
 	{
+		Key key;
+		key.iSize = iSize;
+		key.oSize = oSize;
+		key.radius = radius;
 		EnterCriticalSection(&criticalSection);
-		Map::const_iterator i = interpolators.find(iSize);
+		Map::const_iterator i = interpolators.find(key);
 		Interpolator* result;
 		if(i!=interpolators.end())
 		{
@@ -290,8 +289,8 @@ public:
 		else
 		{
 			// not found in cache
-			result = interpolators[iSize] = new Interpolator();
-			buildCubeFilter(iSize,(iSize==1)?2:iSize,result);
+			result = interpolators[key] = new Interpolator();
+			buildCubeFilter(iSize,oSize,radius,result);
 		}
 		LeaveCriticalSection(&criticalSection);
 		return result;
@@ -305,44 +304,22 @@ public:
 		DeleteCriticalSection(&criticalSection);
 	}
 private:
-	typedef std::map<unsigned,Interpolator*> Map;
+	struct Key
+	{
+		unsigned iSize;
+		unsigned oSize;
+		RRReal radius;
+		bool operator <(const Key& a) const
+		{
+			return memcmp(this,&a,sizeof(Key))<0;
+		}
+	};
+	typedef std::map<Key,Interpolator*> Map;
 	Map interpolators;
 	CRITICAL_SECTION criticalSection;
 };
 
 static InterpolatorCache cache;
-
-// inputs:
-//  iSize - input cube size
-//  iIrradiance - array with 6*iSize*iSize pixels of cube. should be in physical space, otherwise filtering is incorrect
-//  scale: custom using scaler; physical if no scaler provided
-// outputs:
-//  oSize - new filtered cube size
-//  oIrradiance - new array with filtered cube, to be deleted by caller (in the same space, should be physical)
-
-static void cubeMapFilter(unsigned iSize, CubeColor* iIrradiance, unsigned& oSize, CubeColor*& oIrradiance, const RRScaler* scaler)
-{
-	const Interpolator* interpolator = cache.getInterpolator(iSize);
-	if(!interpolator) return;
-	oSize = interpolator->getDestinationSize();
-	oIrradiance = new CubeColor[oSize];
-	oSize = (unsigned)sqrt((float)oSize/6); //!!! bude slozeno z vic lodu
-	/*for(unsigned oside=0;oside<6;oside++)
-	{
-		for(unsigned oj=0;oj<oSize;oj++)
-			for(unsigned oi=0;oi<oSize;oi++)
-			{
-				RRVec2 a=cubeSide[oside].getTexelDir(oSize,oi,oj);
-				oIrradiance[oSize*oSize*oside+oSize*oj+oi]=RRVec3(a[0],a[1],0);
-			}
-	}
-	return;*/
-#ifdef HDR
-	interpolator->interpolateHdr(iIrradiance,oIrradiance,scaler);
-#else
-	interpolator->interpolateLdr(iIrradiance,oIrradiance);
-#endif
-}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -350,9 +327,22 @@ static void cubeMapFilter(unsigned iSize, CubeColor* iIrradiance, unsigned& oSiz
 // main
 
 // thread safe: yes
-void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, unsigned maxSize, RRVec3 objectCenterWorld)
+void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize, unsigned specularSize, RRIlluminationEnvironmentMap* specularMap, unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap)
 {
-	if(!environmentMap) return;
+	if(!gatherSize)
+	{
+		assert(0);
+		return;
+	}
+	if(!specularMap)
+		specularSize = 0;
+	if(!diffuseMap)
+		diffuseSize = 0;
+	if(!specularMap && !diffuseMap)
+	{
+		assert(0);
+		return;
+	}
 	if(!scene)
 	{
 		assert(0);
@@ -364,22 +354,40 @@ void RRRealtimeRadiosity::updateEnvironmentMap(RRIlluminationEnvironmentMap* env
 		return;
 	}
 
+	// alloc temp space
+	CubeColor* gatherIrradiance = new CubeColor[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
+	CubeColor* specularIrradiance = gatherIrradiance + 6*gatherSize*gatherSize;
+	CubeColor* diffuseIrradiance = specularIrradiance + 6*specularSize*specularSize;
+
 	// gather irradiances
-	const unsigned iSize = maxSize?maxSize:1;
-	CubeColor* iIrradiance = new CubeColor[6*iSize*iSize];
-	cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenterWorld,iSize,iIrradiance);
+	cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,gatherIrradiance);
 
-	// filter cubemap
-	unsigned oSize = 0;
-	CubeColor* oIrradiance = NULL;
-	cubeMapFilter(iSize,iIrradiance,oSize,oIrradiance,getScaler());
+	// process specular cubemap
+	if(specularMap)
+	{
+		const Interpolator* interpolator = cache.getInterpolator(gatherSize,specularSize,0.1f);
+#ifdef HDR
+		interpolator->interpolateHdr(gatherIrradiance,specularIrradiance,scaler);
+#else
+		interpolator->interpolateLdr(gatherIrradiance,specularIrradiance);
+#endif
+		specularMap->setValues(specularSize,specularIrradiance);
+	}
 
-	// pass cubemap to client
-	environmentMap->setValues(oSize?oSize:iSize,oIrradiance?oIrradiance:iIrradiance);
+	// process diffuse cubemap
+	if(diffuseMap)
+	{
+		const Interpolator* interpolator = cache.getInterpolator(gatherSize,diffuseSize,0.8f);
+#ifdef HDR
+		interpolator->interpolateHdr(gatherIrradiance,diffuseIrradiance,scaler);
+#else
+		interpolator->interpolateLdr(gatherIrradiance,diffuseIrradiance);
+#endif
+		diffuseMap->setValues(diffuseSize,diffuseIrradiance);
+	}
 
 	// cleanup
-	delete[] oIrradiance;
-	delete[] iIrradiance;
+	delete[] gatherIrradiance;
 }
 
 } // namespace

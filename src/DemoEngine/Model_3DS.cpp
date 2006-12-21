@@ -287,7 +287,7 @@ bool Model_3DS::Load(const char *filename, float ascale)
 	return true;
 }
 
-void Model_3DS::Draw(rr::RRRealtimeRadiosity* app)
+void Model_3DS::Draw(rr::RRRealtimeRadiosity* app) const
 {
 	if (visible)
 	{

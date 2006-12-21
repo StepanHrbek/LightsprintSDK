@@ -15,17 +15,18 @@ enum
 {
 	// textures assigned to UberProgram
 	// 0..9 are reserved for shadowmaps
-	TEXTURE_2D_LIGHT_DIRECT        = 10,
-	TEXTURE_2D_MATERIAL_DIFFUSE    = 11,
-	TEXTURE_2D_LIGHT_INDIRECT      = 12,
-	TEXTURE_2D_NOISE               = 13,
-	TEXTURE_CUBE_LIGHT_INDIRECT    = 14,
+	TEXTURE_2D_LIGHT_DIRECT              = 10,
+	TEXTURE_2D_MATERIAL_DIFFUSE          = 11,
+	TEXTURE_2D_LIGHT_INDIRECT            = 12,
+	TEXTURE_2D_NOISE                     = 13,
+	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 14,
+	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 15,
 
 	// texcoords assigned to UberProgram
 	// these constants are hardcoded in shaders
-	MULTITEXCOORD_MATERIAL_DIFFUSE = 0,
-	MULTITEXCOORD_LIGHT_INDIRECT   = 1,
-	MULTITEXCOORD_FORCED_2D        = 7,
+	MULTITEXCOORD_MATERIAL_DIFFUSE       = 0,
+	MULTITEXCOORD_LIGHT_INDIRECT         = 1,
+	MULTITEXCOORD_FORCED_2D              = 7,
 };
 
 

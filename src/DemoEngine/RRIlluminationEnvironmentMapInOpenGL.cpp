@@ -14,10 +14,10 @@ namespace rr
 //
 // RRIlluminationEnvironmentMapInOpenGL
 
-RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(unsigned asize)
+RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL()
 {
 	// creates cube map
-	texture = Texture::create(NULL,asize,asize,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	texture = Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 }
 
 void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, RRColorRGBA8* irradiance)

@@ -124,23 +124,41 @@ namespace rr
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
 		RRScene::Improvement calculate(unsigned requests=0);
-		//! Calculates and updates environment map for dynamic object at given position.
+		//! Calculates and updates environment maps for dynamic object at given position.
 		//
-		//! Generates multiple LODs, with max size selected by you, smallest size always 2.
-		//! \n You can use multiple LODs for roughness mapping - select LOD for each pixel according to roughness map.
-		//! \n Using smaller LOD creates effect of rough surface with diffuse reflection,
-		//! using greater LOD creates effect of smooth surface with specular reflection.
-		//! \param environmentMap
-		//!  Your custom environment map. To be filled with calculated data.
-		//! \param maxSize
-		//!  Size of maximal LOD of cubemap to be calculated; containing 6*size*size pixels.
-		//!  If your custom environmentMap requires size to be power of two, make sure you enter correct size here.
-		//!  Use smaller size for faster update.
-		//!  Size 4 is optimal for diffuse reflection.
-		//!  Size 16 is optimal for both diffuse and specular reflections.
+		//! Generates specular and diffuse environment maps with object's global illumination.
+		//! \n- specular map is to be sampled (by reflected direction) in object's glossy pixels
+		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
 		//! \param objectCenter
 		//!  Center of your dynamic object in world space coordinates.
-		void updateEnvironmentMap(RRIlluminationEnvironmentMap* environmentMap, unsigned maxSize, RRVec3 objectCenter);
+		//! \param gatherSize
+		//!  Number of samples gathered from scene will be gatherSize*gatherSize*6.
+		//!  It doesn't have to be power of two.
+		//!  Set higher for higher quality, lower for higher speed.
+		//!  Size 16 is good, but 4 could be enough if you don't need specular map.
+		//! \param specularMap
+		//!  Your custom environment map for rendering object's specular reflection.
+		//!  To be filled with calculated data.
+		//!  Set to NULL for no specular reflection.
+		//! \param specularSize
+		//!  Size of environment map for rendering object's specular reflection.
+		//!  Map will have 6*specularSize*specularSize pixels.
+		//!  If your custom specularMap requires size to be power of two, make sure you enter correct size here.
+		//!  Use smaller size for faster update.
+		//!  Size 16 is good.
+		//! \param diffuseMap
+		//!  Your custom environment map for rendering object's diffuse reflection.
+		//!  To be filled with calculated data.
+		//!  Set to NULL for no diffuse reflection.
+		//! \param diffuseSize
+		//!  Size of environment map for rendering object's diffuse reflection.
+		//!  Map will have 6*diffuseSize*diffuseSize pixels.
+		//!  If your custom diffuseMap requires size to be power of two, make sure you enter correct size here.
+		//!  Use smaller size for faster update.
+		//!  Size 4 is good.
+		void updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize,
+			unsigned specularSize, RRIlluminationEnvironmentMap* specularMap,
+			unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap);
 
 		//! Reports that appearance of one or more materials has changed.
 		//!
