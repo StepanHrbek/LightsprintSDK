@@ -93,7 +93,7 @@ uniform samplerCube lightIndirectSpecularEnvMap;
 uniform samplerCube lightIndirectDiffuseEnvMap;
 varying vec3 worldNormal;
 varying vec3 worldView; // only for specular reflection
-varying vec3 localPos; // only for checker pattern
+varying vec3 localPos; // only for rough x glossy pattern
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
@@ -243,7 +243,7 @@ void main()
 #endif // SHADOW_SAMPLES!=1
 #endif // SHADOW_SAMPLES*SHADOW_MAPS>0
 
-#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP)
+#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
   gl_FragColor =
 #ifdef MATERIAL_DIFFUSE_MAP
     texture2D(materialDiffuseMap, materialDiffuseCoord) * 
@@ -271,11 +271,15 @@ void main()
       + texture2D(lightIndirectMap, lightIndirectCoord)
 #endif
 #ifdef LIGHT_INDIRECT_ENV
-      + ((localPos.z>-0.2)
-          ? textureCube(lightIndirectDiffuseEnvMap, worldNormal)
-          : textureCube(lightIndirectSpecularEnvMap, reflect(worldView,normalize(worldNormal)))
-        )
+      + textureCube(lightIndirectDiffuseEnvMap, worldNormal)
 #endif
-    );
+    )
+
+#ifdef LIGHT_INDIRECT_ENV
+    * step(-localPos.z,0.2)
+    + textureCube(lightIndirectSpecularEnvMap, reflect(worldView,normalize(worldNormal)))
+    * step(localPos.z,-0.2)
+#endif
+    ;
 #endif
 }

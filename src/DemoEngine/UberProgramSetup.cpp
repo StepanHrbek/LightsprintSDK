@@ -79,6 +79,8 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		if(uberProgramSetup.getProgram(uberProgram)) break;
 		// max envmap
 		uberProgramSetup.NOISE_MAP = false;
+		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0; // our demos use no material with envmap
+		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0; // our demos use no material with envmap
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;

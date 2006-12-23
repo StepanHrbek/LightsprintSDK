@@ -603,6 +603,10 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	uberProgramSetup.OBJECT_SPACE = true;
 	if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
 	{
+		// no material (reflection looks better)
+		uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
+		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
+		// indirect from envmap
 		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
