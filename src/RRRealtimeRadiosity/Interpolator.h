@@ -29,10 +29,10 @@ public:
 
 	unsigned getDestinationSize() const;
 
-	// High quality interpolation in physical space, HDR
-	void interpolateHdr(const RRColor* src, RRColor* dst, const RRScaler* scaler) const;
-	// Fast interpolation in custom space, LDR
-	void interpolateLdr(const RRColorRGBA8* src, RRColorRGBA8* dst) const;
+	// High quality interpolation in physical space.
+	void interpolate(const RRColor* src, RRColor* dst, const RRScaler* scaler) const;
+	// Fast interpolation in custom space.
+	void interpolate(const RRColorRGBA8* src, RRColorRGBA8* dst, void* unused) const;
 
 private:
 	typedef unsigned Ofs;

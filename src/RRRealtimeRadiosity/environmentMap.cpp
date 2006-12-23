@@ -346,63 +346,45 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		return;
 	}
 
+#define FILL_CUBEMAP(filteredSize, radius, map) \
+	if(map) \
+	{ \
+		const Interpolator* interpolator = cache.getInterpolator(gatherSize,filteredSize,radius); \
+		interpolator->interpolate(gatheredIrradiance,filteredIrradiance,scaler); \
+		map->setValues(filteredSize,filteredIrradiance); \
+	}
+
 	if(HDR)
 	{
 		// alloc temp space
-		RRColorRGBF* gatherIrradiance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
-		RRColorRGBF* specularIrradiance = gatherIrradiance + 6*gatherSize*gatherSize;
-		RRColorRGBF* diffuseIrradiance = specularIrradiance + 6*specularSize*specularSize;
+		RRColorRGBF* gatheredIrradiance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
+		RRColorRGBF* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
 
 		// gather irradiances
-		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,NULL,gatherIrradiance);
+		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,NULL,gatheredIrradiance);
 
-		// process specular cubemap
-		if(specularMap)
-		{
-			const Interpolator* interpolator = cache.getInterpolator(gatherSize,specularSize,0.1f);
-			interpolator->interpolateHdr(gatherIrradiance,specularIrradiance,scaler);
-			specularMap->setValues(specularSize,specularIrradiance);
-		}
-
-		// process diffuse cubemap
-		if(diffuseMap)
-		{
-			const Interpolator* interpolator = cache.getInterpolator(gatherSize,diffuseSize,0.8f);
-			interpolator->interpolateHdr(gatherIrradiance,diffuseIrradiance,scaler);
-			diffuseMap->setValues(diffuseSize,diffuseIrradiance);
-		}
+		// fill cubemaps
+		FILL_CUBEMAP(specularSize,0.1f,specularMap);
+		FILL_CUBEMAP(diffuseSize,0.8f,diffuseMap);
 
 		// cleanup
-		delete[] gatherIrradiance;
+		delete[] gatheredIrradiance;
 	}
 	else
 	{
 		// alloc temp space
-		RRColorRGBA8* gatherIrradiance = new RRColorRGBA8[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
-		RRColorRGBA8* specularIrradiance = gatherIrradiance + 6*gatherSize*gatherSize;
-		RRColorRGBA8* diffuseIrradiance = specularIrradiance + 6*specularSize*specularSize;
+		RRColorRGBA8* gatheredIrradiance = new RRColorRGBA8[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
+		RRColorRGBA8* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
 
 		// gather irradiances
-		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,gatherIrradiance,NULL);
+		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,gatheredIrradiance,NULL);
 
-		// process specular cubemap
-		if(specularMap)
-		{
-			const Interpolator* interpolator = cache.getInterpolator(gatherSize,specularSize,0.1f);
-			interpolator->interpolateLdr(gatherIrradiance,specularIrradiance);
-			specularMap->setValues(specularSize,specularIrradiance);
-		}
-
-		// process diffuse cubemap
-		if(diffuseMap)
-		{
-			const Interpolator* interpolator = cache.getInterpolator(gatherSize,diffuseSize,0.8f);
-			interpolator->interpolateLdr(gatherIrradiance,diffuseIrradiance);
-			diffuseMap->setValues(diffuseSize,diffuseIrradiance);
-		}
+		// fill cubemaps
+		FILL_CUBEMAP(specularSize,0.1f,specularMap);
+		FILL_CUBEMAP(diffuseSize,0.8f,diffuseMap);
 
 		// cleanup
-		delete[] gatherIrradiance;
+		delete[] gatheredIrradiance;
 	}
 }
 

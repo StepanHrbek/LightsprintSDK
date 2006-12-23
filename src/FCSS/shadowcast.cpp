@@ -9,7 +9,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define LIGHTMAP_SIZE              1024
 #define SUBDIVISION                0
 bool ati = 1;
-int fullscreen = 0;
+int fullscreen = 1;
 bool renderer3ds = 1;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
@@ -619,7 +619,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
 		//!!! worldpos
-		level->solver->updateEnvironmentMaps(rr::RRVec3(0,1,1),16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),false);
+		level->solver->updateEnvironmentMaps(rr::RRVec3(0,1,1),16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),true);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 		dynaobject->getSpecularMap()->bindTexture();
 		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);

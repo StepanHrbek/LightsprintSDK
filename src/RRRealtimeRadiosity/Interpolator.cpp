@@ -53,15 +53,17 @@ unsigned Interpolator::getDestinationSize() const
 	return destinationSize;
 }
 
-void Interpolator::interpolateHdr(const RRColor* src, RRColor* dst, const RRScaler* scaler) const
+void Interpolator::interpolate(const RRColor* src, RRColor* dst, const RRScaler* scaler) const
 {
 	//#pragma omp parallel for schedule(static)
 	for(int i=0;i<(int)headers.size();i++)
 	{
 		RRColor sum = RRColor(0);
+		assert(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
 		for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
 		{
 			assert(_finite(contributors[j].srcContributionHdr));
+			assert(contributors[j].srcContributionHdr>0);
 			sum += src[contributors[j].srcOffset] * contributors[j].srcContributionHdr;
 		}
 		if(scaler) scaler->getCustomScale(sum);
@@ -69,15 +71,17 @@ void Interpolator::interpolateHdr(const RRColor* src, RRColor* dst, const RRScal
 	}
 }
 
-void Interpolator::interpolateLdr(const RRColorRGBA8* src, RRColorRGBA8* dst) const
+void Interpolator::interpolate(const RRColorRGBA8* src, RRColorRGBA8* dst, void* unused) const
 {
 	//#pragma omp parallel for schedule(static)
 	for(int i=0;i<(int)headers.size();i++)
 	{
 		unsigned sum[3] = {0,0,0};
+		assert(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
 		for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
 		{
 			unsigned color = src[contributors[j].srcOffset].color;
+			assert(contributors[j].srcContributionLdr);
 			sum[0] += u8(color) * contributors[j].srcContributionLdr;
 			sum[1] += u8(color>>8) * contributors[j].srcContributionLdr;
 			sum[2] += u8(color>>16) * contributors[j].srcContributionLdr;
