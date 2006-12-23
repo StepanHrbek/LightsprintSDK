@@ -92,7 +92,8 @@ varying vec2 lightIndirectCoord;
 uniform samplerCube lightIndirectSpecularEnvMap;
 uniform samplerCube lightIndirectDiffuseEnvMap;
 varying vec3 worldNormal;
-varying vec3 worldView;
+varying vec3 worldView; // only for specular reflection
+varying vec3 localPos; // only for checker pattern
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
@@ -270,8 +271,10 @@ void main()
       + texture2D(lightIndirectMap, lightIndirectCoord)
 #endif
 #ifdef LIGHT_INDIRECT_ENV
-      + textureCube(lightIndirectDiffuseEnvMap, worldNormal)
-      + textureCube(lightIndirectSpecularEnvMap, reflect(worldView,normalize(worldNormal)))
+      + ((localPos.z>-0.2)
+          ? textureCube(lightIndirectDiffuseEnvMap, worldNormal)
+          : textureCube(lightIndirectSpecularEnvMap, reflect(worldView,normalize(worldNormal)))
+        )
 #endif
     );
 #endif

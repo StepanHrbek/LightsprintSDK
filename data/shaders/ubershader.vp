@@ -47,6 +47,7 @@ varying vec2 lightIndirectCoord;
 uniform vec3 worldCamera;
 varying vec3 worldNormal;
 varying vec3 worldView;
+varying vec3 localPos;
 
 #ifdef MATERIAL_DIFFUSE_COLOR
 varying vec4 materialDiffuseColor;
@@ -58,6 +59,8 @@ varying vec2 materialDiffuseCoord;
 
 void main()
 {
+  localPos = gl_Vertex.xyz;
+
 #ifdef OBJECT_SPACE
   vec4 worldVertex = worldMatrix * gl_Vertex;
   worldNormal = normalize( ( worldMatrix * vec4(gl_Normal,0.0) ).xyz );
