@@ -58,6 +58,10 @@ namespace rr
 	//! You can check sample HelloRealtimeRadiosity where we use it.
 	//!
 	//! It is not allowed to create and use multiple instances at the same time.
+	//!
+	//! Thread safe:
+	//! updateEnvironmentMaps() yes, may be called from multiple threads at the same time.
+	//! Other methods no, may be called from multiple threads, but not at the same time.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -129,6 +133,9 @@ namespace rr
 		//! Generates specular and diffuse environment maps with object's global illumination.
 		//! \n- specular map is to be sampled (by reflected direction) in object's glossy pixels
 		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
+		//!
+		//! Thread safe: yes, may be called from multiple threads at the same time.
+		//!
 		//! \param objectCenter
 		//!  Center of your dynamic object in world space coordinates.
 		//! \param gatherSize
@@ -138,7 +145,7 @@ namespace rr
 		//!  Size 16 is good, but 4 could be enough if you don't need specular map.
 		//! \param specularMap
 		//!  Your custom environment map for rendering object's specular reflection.
-		//!  To be filled with calculated data.
+		//!  To be filled with calculated data in custom scale.
 		//!  Set to NULL for no specular reflection.
 		//! \param specularSize
 		//!  Size of environment map for rendering object's specular reflection.
@@ -148,7 +155,7 @@ namespace rr
 		//!  Size 16 is good.
 		//! \param diffuseMap
 		//!  Your custom environment map for rendering object's diffuse reflection.
-		//!  To be filled with calculated data.
+		//!  To be filled with calculated data in custom scale.
 		//!  Set to NULL for no diffuse reflection.
 		//! \param diffuseSize
 		//!  Size of environment map for rendering object's diffuse reflection.
@@ -156,9 +163,13 @@ namespace rr
 		//!  If your custom diffuseMap requires size to be power of two, make sure you enter correct size here.
 		//!  Use smaller size for faster update.
 		//!  Size 4 is good.
+		//! \param HDR
+		//!  True = physically correct calculation.
+		//!  False = fast calculation clamped to 8bits per channel.
 		void updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize,
 			unsigned specularSize, RRIlluminationEnvironmentMap* specularMap,
-			unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap);
+			unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap,
+			bool HDR);
 
 		//! Reports that appearance of one or more materials has changed.
 		//!

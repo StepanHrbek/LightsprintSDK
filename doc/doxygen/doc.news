@@ -31,6 +31,7 @@ CHANGES
   scale, direct/indirect, smooth
   \n simplifies access to physical scale values
   \n obsoletes RRScene states GET_SOURCE, GET_REFLECTED, GET_SMOOTH
+- RRRealtimeRadiosity::updateEnvironmentMaps supports precise and fast mode
 - RRScene states removed
   \n (SceneStateU, SceneStateF, resetStates, getState, setState, getStateF, setStateF)
 - getScaler/setScaler moved from RRScene to RRRealtimeRadiosity

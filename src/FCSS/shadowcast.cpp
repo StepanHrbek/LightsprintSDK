@@ -619,7 +619,7 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
 		//!!! worldpos
-		level->solver->updateEnvironmentMaps(rr::RRVec3(0,1,1),16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap());
+		level->solver->updateEnvironmentMaps(rr::RRVec3(0,1,1),16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),false);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 		dynaobject->getSpecularMap()->bindTexture();
 		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
