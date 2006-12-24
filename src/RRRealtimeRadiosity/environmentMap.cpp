@@ -207,8 +207,10 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// filter
+// general filter
 
+// thread safe: yes
+// radius = 1-minDot (dot=cos(angle) musi byt aspon tak velky jako minDot, jinak jde o prilis vzdaleny texel)
 void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, Interpolator* interpolator)
 {
 	//!!! zapisovat vysledek na 1/2/3 mista
@@ -255,6 +257,10 @@ void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, Interpolator*
 			}
 	}
 }
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// general filter cache
 
 // thread safe: yes
 class InterpolatorCache
@@ -316,6 +322,49 @@ static InterpolatorCache cache;
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// hardcoded filter
+
+// thread safe: yes
+template<class CubeColor>
+static void filterEdges(unsigned iSize, CubeColor* iIrradiance)
+{
+	// process only x+/x- corners&edges and y+/y- edges
+	for(unsigned side=0;side<4;side++)
+	{
+		// process all 4 edges			
+		for(unsigned edge=0;edge<4;edge++)
+		{
+			for(unsigned a=(side<2)?0:1;a<iSize-1;a++)
+			{
+				unsigned i,j,edge2; // edge2: hrana stykajici se s edge v rohu, proti smeru hod.rucicek
+				switch(edge)
+				{
+					case TOP: i=a;j=0;edge2=LEFT;break;
+					case RIGHT: i=iSize-1;j=a;edge2=TOP;break;
+					case BOTTOM: i=iSize-1-a;j=iSize-1;edge2=RIGHT;break;
+					case LEFT: i=0;j=iSize-1-a;edge2=BOTTOM;break;
+					default: assert(0);
+				}
+				unsigned idx1 = side*iSize*iSize+j*iSize+i;
+				unsigned idx2 = cubeSide[side].getNeighbourTexelIndex(iSize,(Edge)edge,i,j);
+				if(a==0)
+				{
+					// process corner (a+b+c)/3
+					unsigned idx3 = cubeSide[side].getNeighbourTexelIndex(iSize,(Edge)edge2,i,j);
+					iIrradiance[idx1] = iIrradiance[idx2] = iIrradiance[idx3] = (iIrradiance[idx1].toRRColorRGBF()+iIrradiance[idx2].toRRColorRGBF()+iIrradiance[idx3].toRRColorRGBF())*0.333333f;
+				}
+				else
+				{
+					// process edge: (a+b)/2
+					iIrradiance[idx1] = iIrradiance[idx2] = (iIrradiance[idx1].toRRColorRGBF()+iIrradiance[idx2].toRRColorRGBF())*0.5f;
+				}
+			}
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // main
 
 // thread safe: yes
@@ -354,18 +403,44 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		map->setValues(filteredSize,filteredIrradiance); \
 	}
 
+	// Velikost kernelu pro specular mapu:
+	//  Potrebuju kdykoliv dosahnout prinejmensim na sousedni texel napravo i nalevo.
+	//  Toto je nejmensi cosA, ktere to splnuje -> nejmene bluru.
+	unsigned minSize = MIN(gatherSize,specularSize);
+	//RRReal minDot = minSize*sqrtf(1.0f/(1+minSize*minSize));
+	// Schvalne pridavam bluru, abych zakryl chybejici interpolaci u face irradianci
+	RRReal minDot = minSize*sqrtf(1.0f/(3+minSize*minSize));
+
 	if(HDR)
 	{
 		// alloc temp space
 		RRColorRGBF* gatheredIrradiance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
 		RRColorRGBF* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
 
-		// gather irradiances
+		// gather physical irradiances
 		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,NULL,gatheredIrradiance);
 
 		// fill cubemaps
-		FILL_CUBEMAP(specularSize,0.1f,specularMap);
-		FILL_CUBEMAP(diffuseSize,0.8f,diffuseMap);
+		// - diffuse
+		FILL_CUBEMAP(diffuseSize,1.0f,diffuseMap);
+		/*if(specularSize==gatherSize)
+		{
+			// - specular fast
+			filterEdges(gatherSize,gatheredIrradiance);
+			if(scaler)
+			{
+				for(unsigned i=gatherSize*gatherSize*6;i--;)
+				{
+					scaler->getCustomScale(gatheredIrradiance[i]);
+				}
+			}
+			specularMap->setValues(gatherSize,gatheredIrradiance);
+		}
+		else*/
+		{
+			// - specular filtered
+			FILL_CUBEMAP(specularSize,1-minDot,specularMap);
+		}
 
 		// cleanup
 		delete[] gatheredIrradiance;
@@ -376,12 +451,23 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		RRColorRGBA8* gatheredIrradiance = new RRColorRGBA8[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
 		RRColorRGBA8* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
 
-		// gather irradiances
+		// gather custom irradiances
 		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,gatheredIrradiance,NULL);
 
 		// fill cubemaps
-		FILL_CUBEMAP(specularSize,0.1f,specularMap);
-		FILL_CUBEMAP(diffuseSize,0.8f,diffuseMap);
+		// - diffuse
+		FILL_CUBEMAP(diffuseSize,1.0f,diffuseMap);
+		/*if(specularSize==gatherSize)
+		{
+			// - specular fast
+			filterEdges(gatherSize,gatheredIrradiance);
+			specularMap->setValues(gatherSize,gatheredIrradiance);
+		}
+		else*/
+		{
+			// - specular filtered
+			FILL_CUBEMAP(specularSize,1-minDot,specularMap);
+		}
 
 		// cleanup
 		delete[] gatheredIrradiance;

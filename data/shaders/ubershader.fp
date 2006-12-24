@@ -276,7 +276,7 @@ void main()
     )
 
 #ifdef LIGHT_INDIRECT_ENV
-    * step(-localPos.z,0.2)
+    * (1.0-step(localPos.z,-0.2))
     + textureCube(lightIndirectSpecularEnvMap, reflect(worldView,normalize(worldNormal)))
     * step(localPos.z,-0.2)
 #endif
