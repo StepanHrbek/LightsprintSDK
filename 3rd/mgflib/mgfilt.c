@@ -9,7 +9,7 @@ static char SCCSid[] = "@(#)mgfilt.c 1.5 11/22/95 LBL";
  */
 
 #include <stdio.h>
-#include "parser.h"
+#include "mgfparser.h"
 
 				/* Number of entities for major versions */
 short	nentlist[MG_VMAJOR] = MG_NELIST;

@@ -168,6 +168,7 @@ TIME TIME_GET()
  void mouse_hide() {}
  bool mouse_hit() {return false;}
 #else
+#ifdef KB_VIA_ALLEGRO
  #include <allegro.h>
  int lastx,lasty,lastz,lastb;
  void mouse_init() {   
@@ -181,6 +182,13 @@ TIME TIME_GET()
  void mouse_hide() {show_mouse(NULL);}
  bool mouse_hit() {if(lastb) return true; lastb=mouse_b;if(!lastb) return false;lastx=mouse_x;lasty=mouse_y;lastz=mouse_z;return true;}
  bool mouse_get(int &x,int &y,int &z,int &b) {if(!lastb) return false;x=lastx;y=lasty;z=lastz;b=lastb;lastb=0;return true;}
+#else
+ void mouse_init() {}
+ void mouse_show() {}
+ void mouse_hide() {}
+ bool mouse_hit() {return 0;}
+ bool mouse_get(int &x,int &y,int &z,int &b) {return 0;}
+#endif
 #endif
 
 

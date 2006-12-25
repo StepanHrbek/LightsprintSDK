@@ -14,7 +14,7 @@ extern void video_WriteScreen(char *text);
 extern void video_PutPixel(unsigned x,unsigned y,unsigned color);
 extern unsigned video_GetPixel(unsigned x,unsigned y);
 extern void video_Blit(void);
-extern void video_Grab(char *name);
+extern void video_Grab(const char *name);
 extern void video_Done(void);
 
 #endif

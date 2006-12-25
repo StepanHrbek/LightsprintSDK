@@ -10,7 +10,7 @@ static char SCCSid[] = "@(#)cvrgb.c 1.1 12/1/95 LBL";
 
 #include <stdio.h>
 
-#include "parser.h"
+#include "mgfparser.h"
 
 			/* Change the following to suit your standard */
 #define  CIE_x_r		0.640		/* nominal CRT primaries */

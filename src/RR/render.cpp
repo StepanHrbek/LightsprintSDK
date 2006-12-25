@@ -51,11 +51,11 @@ char    d_forceSides=0;         // 0 podle mgf, 1=vse zobrazi 1sided, 2=vse zobr
 int     d_only_o=-1;            // draw only object o, -1=all
 bool    d_saving_tga=false;     // flag ktery je nastaven behem ukladani tga
 
-char *__hidematerial1=NULL;
-char *__hidematerial2=NULL;
-char *__hidematerial3=NULL;
-char *__exportmaterial="*";
-char *__dontexportmaterial=NULL;
+const char *__hidematerial1=NULL;
+const char *__hidematerial2=NULL;
+const char *__hidematerial3=NULL;
+const char *__exportmaterial="*";
+const char *__dontexportmaterial=NULL;
 char  __infolevel=1;
 
 const int g_logScale=15; // rozumny kompromis, vejdou se i svetla nekolikrat jasnejsi nez 255

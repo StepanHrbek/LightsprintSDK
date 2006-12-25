@@ -14,7 +14,7 @@
 //
 // TextureFromDisk
 
-TextureFromDisk::TextureFromDisk(char *filename, int mag, int min, int wrapS, int wrapT)
+TextureFromDisk::TextureFromDisk(const char *filename, int mag, int min, int wrapS, int wrapT)
 	: TextureGL(NULL,1,1,false,GL_RGB)
 {
 	unsigned int type;
@@ -36,7 +36,7 @@ TextureFromDisk::TextureFromDisk(char *filename, int mag, int min, int wrapS, in
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 }
 
-unsigned char *TextureFromDisk::loadData(char *filename)
+unsigned char *TextureFromDisk::loadData(const char *filename)
 {
 	// opens tga instead of jpg
 	char name[1000];
@@ -58,7 +58,7 @@ unsigned char *TextureFromDisk::loadData(char *filename)
 	return data;
 }
 
-unsigned char *TextureFromDisk::loadTga(char *filename)
+unsigned char *TextureFromDisk::loadTga(const char *filename)
 {
 	unsigned char TGA_RGB = 2, TGA_A = 3, TGA_RLE = 10;
 
@@ -212,7 +212,7 @@ unsigned char *TextureFromDisk::loadTga(char *filename)
 //
 // Texture
 
-Texture* Texture::load(char *filename,int mag,int min,int wrapS,int wrapT)
+Texture* Texture::load(const char *filename,int mag,int min,int wrapS,int wrapT)
 {
 	try {
 		return new TextureFromDisk(filename,mag,min,wrapS,wrapT);

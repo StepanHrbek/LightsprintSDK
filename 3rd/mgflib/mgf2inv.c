@@ -18,7 +18,7 @@ static char SCCSid[] = "@(#)mgf2inv.c 1.7 5/22/97 LBL";
 
 #include <string.h>
 
-#include "parser.h"
+#include "mgfparser.h"
 
 #include "lookup.h"
 

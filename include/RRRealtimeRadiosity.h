@@ -279,7 +279,7 @@ namespace rr
 	//! Returns if interface matches. False = dll mismatch, app should be terminated.
 	#define RR_INTERFACE_OK (RR_INTERFACE_ID_APP()==rr::RR_INTERFACE_ID_LIB())
 	//! Returns description of interface offered by library + compile date.
-	RR_API char* RR_INTERFACE_DESC_LIB();
+	RR_API const char* RR_INTERFACE_DESC_LIB();
 	// Returns description of interface expected by app + compile date.
 	#if defined(NDEBUG) && defined(RR_STATIC)
 	#define RR_INTERFACE_DESC_APP() "RELEASE_STATIC (" __DATE__ " " __TIME__ ")"

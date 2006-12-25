@@ -673,7 +673,7 @@ namespace rr
 		//
 		//! This must be called before any other work with library.
 		//! \return Result of license check.
-		static LicenseStatus loadLicense(char* filename);
+		static LicenseStatus loadLicense(const char* filename);
 	};
 
 } // namespace

@@ -266,7 +266,7 @@ namespace rr
 		//! This should be called before any other work with library.
 		//! When not called or called with invalid license,
 		//! collision detections won't be accelerated.
-		static void loadLicense(char* filename);
+		static void loadLicense(const char* filename);
 	};
 
 } // namespace

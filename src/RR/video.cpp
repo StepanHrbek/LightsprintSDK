@@ -1,3 +1,5 @@
+#ifdef KB_VIA_ALLEGRO
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -108,7 +110,7 @@ extern void video_WriteScreen(char *text)
    textout_ex(screen,font,text,0,0,0x7F7F7F,0);
 }
 
-extern void video_Grab(char *name)
+extern void video_Grab(const char *name)
 {
  save_tga(name,video_Bmp,video_Pal);
 }
@@ -140,3 +142,21 @@ unsigned video_GetPixel(unsigned x,unsigned y)
  assert(y>=0 && y<video_YRES);
  return _getpixel32(video_Bmp,x,y);
 }
+
+#else // KB_VIA_ALLEGRO
+
+ unsigned video_XRES, video_YRES;
+ float video_XFOV, video_YFOV;
+ bool video_inited;
+
+ int *video_Init(int xres, int yres) {return 0;};
+ void video_Clear(float rgb[3]) {};
+ void video_WriteBuf(char *text) {};
+ void video_WriteScreen(char *text) {};
+ void video_PutPixel(unsigned x,unsigned y,unsigned color) {};
+ unsigned video_GetPixel(unsigned x,unsigned y) {return 0;};
+ void video_Blit(void) {};
+ void video_Grab(const char *name) {};
+ void video_Done(void) {};
+
+#endif

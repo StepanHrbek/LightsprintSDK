@@ -5,6 +5,7 @@
 #define WAIT //fgetc(stdin) // program ceka na stisk, pro ladeni spotreby pameti
 #define MAX_UNINTERACT_TIME 2 // max waiting for response with glut/opengl 2sec
 
+#include <limits> // nutne aby uspel gcc 4.3 build
 #include <assert.h>
 #include <io.h>
 #include <limits.h>   //INT_MAX
@@ -83,7 +84,7 @@ bool    n_dirtyGeometry=true;   // zmenila se geometrie 2d sceny
 
 
 
-char *bp(char *fmt, ...)
+char *bp(const char *fmt, ...)
 {
 	static char msg[1000];
 	va_list argptr;
@@ -214,7 +215,7 @@ static bool endByTimeOrInput(void *context)
  return kb_hit() || GETTIME>(TIME)(intptr_t)context || mouse_hit();
 }
 
-static void captureTgaAfter(Scene *scene,RRScene* rrscene,char *name,real seconds,real minimalImprovementToShorten)
+static void captureTgaAfter(Scene *scene,RRScene* rrscene,const char *name,real seconds,real minimalImprovementToShorten)
 {
  scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+seconds*PER_SEC));
  if (scene->shortenStaticImprovementIfBetterThan(minimalImprovementToShorten))

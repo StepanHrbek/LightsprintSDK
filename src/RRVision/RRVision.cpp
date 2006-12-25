@@ -89,7 +89,7 @@ RRLicense::LicenseStatus registerLicense(char* licenseOwner, char* licenseNumber
 	return RRLicense::VALID;
 }
 
-RRLicense::LicenseStatus RRLicense::loadLicense(char* filename)
+RRLicense::LicenseStatus RRLicense::loadLicense(const char* filename)
 {
 	RRLicenseCollider::loadLicense(filename);
 	char* owner = NULL;

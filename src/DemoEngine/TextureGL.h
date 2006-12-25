@@ -20,7 +20,7 @@ class TextureGL : public Texture
 {
 public:
 	TextureGL(unsigned char *data, int width, int height, bool cube, int type, // data are adopted and delete[]d later
-		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR, 
+		int magn=GL_LINEAR, int mini = GL_LINEAR_MIPMAP_LINEAR, 
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
 	virtual unsigned getWidth() const {return width;}

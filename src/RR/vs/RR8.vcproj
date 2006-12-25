@@ -50,7 +50,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="..;..\..\..\include;..\..\..\3rd\mgflib;..\..\RRCollider\include;..\..\RRVision\include;..\..\World\include;..\..\LicGen\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;RR_STATIC"
+				PreprocessorDefinitions="_DEBUG;WIN32;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;TEST_SCENE;KB_VIA_ALLEGRO;SUPPORT_INTERPOL;RR_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"

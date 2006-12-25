@@ -17,7 +17,7 @@
 unsigned TextureGL::numInstances = 0;
 
 TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, bool acube, int type,
-				 int mag, int min, int wrapS, int wrapT)
+				 int magn, int mini, int wrapS, int wrapT)
 {
 	numInstances++;
 
@@ -46,8 +46,8 @@ TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, bool acube, i
 		glTexImage2D(GL_TEXTURE_2D,0,type,width,height,0,type,GL_UNSIGNED_BYTE,pixels);
 	}
 
-	glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, min); 
-	glTexParameteri(cubeOr2d, GL_TEXTURE_MAG_FILTER, mag); 
+	glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, mini);
+	glTexParameteri(cubeOr2d, GL_TEXTURE_MAG_FILTER, magn);
 
 	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_S, wrapS);
 	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, wrapT);

@@ -74,6 +74,7 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce (kompliko
 scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista jsou svetlejsi nez maji byt
 */
 
+#include <limits> // nutne aby uspel build v gcc4.3
 #include "DemoEngine/Timer.h"
 #include <cassert>
 #include <cfloat>
@@ -136,7 +137,7 @@ public:
 class DynamicObject
 {
 public:
-	static DynamicObject* DynamicObject::create(const char* filename,float scale)
+	static DynamicObject* create(const char* filename,float scale)
 	{
 		DynamicObject* d = new DynamicObject();
 		if(d->model.Load(filename,scale)) return d;
@@ -809,7 +810,7 @@ void drawEyeViewSoftShadowed(void)
 	glAccum(GL_RETURN,1);
 }
 
-static void output(int x, int y, char *string)
+static void output(int x, int y, const char *string)
 {
 	glRasterPos2i(x, y);
 	int len = (int) strlen(string);
@@ -823,7 +824,7 @@ static void drawHelpMessage(bool big)
 {
 //	if(!big && gameOn) return;
 
-	static char *message[] = {
+	static const char *message[] = {
 #ifdef BUGS
 		"Realtime Radiosity Bugs",
 #else

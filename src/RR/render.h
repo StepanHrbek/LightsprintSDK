@@ -24,11 +24,11 @@ extern bool    d_saving_tga;      // flag ktery je nastaven behem ukladani tga
 
 extern int     p_ffPlay;          // vsechny snimky se loadujou 1=z 000, 2=z tga
 
-extern char *__hidematerial1;
-extern char *__hidematerial2;
-extern char *__hidematerial3;
-extern char *__exportmaterial;
-extern char *__dontexportmaterial;
+extern const char *__hidematerial1;
+extern const char *__hidematerial2;
+extern const char *__hidematerial3;
+extern const char *__exportmaterial;
+extern const char *__dontexportmaterial;
 extern char  __infolevel;
 
 void render_init();

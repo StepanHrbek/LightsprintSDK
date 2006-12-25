@@ -43,7 +43,7 @@ public:
 		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR, 
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 	static Texture* createShadowmap(unsigned width, unsigned height);
-	static Texture* load(char *filename,
+	static Texture* load(const char *filename,
 		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 };

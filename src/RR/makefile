@@ -18,7 +18,7 @@
 CC = gcc
 CPP = gcc
 CFLAGS = -Wall -I. -I../../include -I../LicGen/include -I../World/include -I../../3rd/mgflib -DSUPPORT_INTERPOL -DRR_STATIC
-LIBS = -lz -lm -lmgf -L../../lib -lRRMesh -lRRCollider -lRRVision -lWorld -lstdc++
+LIBS = -lm -lmgf -L../../lib -lRRMesh -lRRCollider -lRRVision -lWorld -lstdc++ -lwinmm
 LIBSALLEG = -lalleg_s -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
 MAKE = makefile
 BIN = ../../bin/
@@ -47,10 +47,9 @@ ifdef OPENGL
  HHHS += videogl.h rastergl.h
  CFLAGS += -DRASTERGL $(GLFLAGS)
 else
- ALLEGRO = yez
  OBJS += video.o raster.o subglut.o
  HHHS += video.h raster.h subglut.h
- ALLEGRO = yez
+ # ALLEGRO = yez
 endif
 
 ifdef ALLEGRO

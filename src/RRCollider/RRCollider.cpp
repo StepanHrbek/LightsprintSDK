@@ -97,11 +97,11 @@ void RRCollider::intersectBatch(RRRay* ray, unsigned numRays)
 // License
 
 
-static void registerLicense(char* licenseOwner, char* licenseNumber)
+static void registerLicense(const char* licenseOwner, const char* licenseNumber)
 {
 }
 
-void RRLicenseCollider::loadLicense(char* filename)
+void RRLicenseCollider::loadLicense(const char* filename)
 {
 }
 

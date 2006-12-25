@@ -345,7 +345,7 @@ unsigned RR_INTERFACE_ID_LIB()
 	return RR_INTERFACE_ID_APP();
 }
 
-char* RR_INTERFACE_DESC_LIB()
+const char* RR_INTERFACE_DESC_LIB()
 {
 	return RR_INTERFACE_DESC_APP();
 }

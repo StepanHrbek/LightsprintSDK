@@ -147,7 +147,7 @@ static HIERARCHY *make_hierarchy(WORLD *w, int id)
 
 extern WORLD *load_world(char *name)
 {
- WORLD *world; FILE *f; int i,j,size; char *sig=SIGNATURE;
+ WORLD *world; FILE *f; int i,j,size; const char *sig=SIGNATURE;
 
  if(!name) return NULL;
  f=fopen(name,"rb");

@@ -2,6 +2,7 @@ CC = gcc
 CPP = gcc
 CFLAGS = -Wall -I../../include
 CFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG -DRR_STATIC
+#CFLAGS += -fopenmp
 CFLAGS += -ffast-math # vypnuto protoze bunny pada.. nicmene to nepomohlo, pada dal
 CFLAGS += -fomit-frame-pointer
 CFLAGS += -march=athlon-xp -msse
