@@ -9,7 +9,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define LIGHTMAP_SIZE              1024
 #define SUBDIVISION                0
 bool ati = 1;
-int fullscreen = 1;
+int fullscreen = 0;
 bool renderer3ds = 1;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
@@ -140,7 +140,8 @@ public:
 	static DynamicObject* create(const char* filename,float scale)
 	{
 		DynamicObject* d = new DynamicObject();
-		if(d->model.Load(filename,scale)) return d;
+		if(d->model.Load(filename,scale) && d->getModel().numObjects) return d;
+		if(!d->getModel().numObjects) printf("Model %s contains no objects.",filename);
 		delete d;
 		return NULL;
 	}
@@ -605,8 +606,8 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
 	{
 		// no material (reflection looks better)
-		uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
-		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
+//		uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
+//		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
 		// indirect from envmap
 		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
@@ -629,27 +630,15 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 		program->sendUniform("worldCamera",eye.pos[0],eye.pos[1],eye.pos[2]);
 	}
 	// - set matrices
-	static float a=0,b=0,c=0;
-	a+=0.012f;
-	b+=0.01f;
-	c+=0.008f; //needDepthMapUpdate=true;
 	float m[16];
-	m[0] = cos(b)*cos(c);
-	m[1] = sin(a)*sin(b)*cos(c)+cos(a)*sin(c);
-	m[2] = -cos(a)*sin(b)*cos(c)+sin(a)*sin(c);
-	m[3] = 0;
-	m[4] = -cos(b)*sin(c);
-	m[5] = -sin(a)*sin(b)*sin(c)+cos(a)*cos(c);
-	m[6] = cos(a)*sin(b)*sin(c)+sin(a)*cos(c);
-	m[7] = 0;
-	m[8] = sin(b);
-	m[9] = -sin(a)*cos(b);
-	m[10] = cos(a)*cos(b);
-	m[11] = 0;
-	m[12] = 0;
-	m[13] = 1;
-	m[14] = 1;
-	m[15] = 1;
+	static float d=0;
+	d+=1;
+	glPushMatrix();
+	glLoadIdentity();
+	glTranslatef(0,1.3f,1);
+	glRotatef(d,0,1,0);
+	glGetFloatv(GL_MODELVIEW_MATRIX,m);
+	glPopMatrix();
 	program->sendUniform("worldMatrix",m,false,4);
 	// - render
 	dynaobject->getModel().Draw(NULL);
@@ -984,7 +973,7 @@ Level::Level(const char* filename_3ds)
 	if(strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
 		// dobry zacatek
-		Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,75.0,0.3,60.0};
+		Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,60.0};
 		Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};
 		// bad lmap
 //		Camera tmpeye = {{1.910,1.298,1.580},6.650,2.350,1.3,75.0,0.3,60.0};
@@ -1476,22 +1465,6 @@ void keyboard(unsigned char c, int x, int y)
 			light.afar /= 1.2;
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
-			break;
-		case 'p':
-			light.fieldOfView -= 5.0;
-			if (light.fieldOfView < 5.0) {
-				light.fieldOfView = 5.0;
-			}
-			needMatrixUpdate = 1;
-			needDepthMapUpdate = 1;
-			break;
-		case 'P':
-			light.fieldOfView += 5.0;
-			if (light.fieldOfView > 160.0) {
-				light.fieldOfView = 160.0;
-			}
-			needMatrixUpdate = 1;
-			needDepthMapUpdate = 1;
 			break;*/
 		case ' ':
 			toggleGlobalIllumination();
@@ -1826,7 +1799,34 @@ int main(int argc, char **argv)
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
 	// init dynaobject
-	dynaobject = DynamicObject::create("3ds\\objects\\basketball.3ds",0.01f);
+	/*umoznit vic shaderu, mozna pomoci samostatnych souboru radsi nez ubershaderu
+		-diffuse
+		-specular
+		-specular pro material.r<0.3, jinak diffuse
+		-specular s materialTexturou pouzitou jako heightmap
+		-pruhledny*/
+	dynaobject = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
+	//dynaobject = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
+
+	// ok otexturovane
+	//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds\\characters\\ct\\lucca.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
+	//dynaobject = DynamicObject::create("3ds\\objects\\head\\head.3DS",0.004f); // ok. vytvari zeleny facy po koupelne
+	//dynaobject = DynamicObject::create("3ds\\characters\\swatfemale\\female.3ds",0.02f); // spatne normaly na bocich
+	//dynaobject = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f); // spatne normaly na zadech a chodidlech
+	//dynaobject = DynamicObject::create("3ds\\characters\\GokuGT_3DS\\Goku_GT.3DS",0.004f); // ok, ale jen nekomercne
+
+	// ok neotexturovane
+	//dynaobject = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.02f); // ok
+	//dynaobject = DynamicObject::create("3ds\\objects\\knife.3ds",0.01f); // ok
+	//dynaobject = DynamicObject::create("3ds\\characters\\snowman.3ds",1); // spatne normaly zezadu
+	//dynaobject = DynamicObject::create("3ds\\objects\\gothchocker.3ds",0.2f); // spatne normaly zezadu
+	//dynaobject = DynamicObject::create("3ds\\objects\\rubic_cube.3ds",0.01f); // spatne normaly, ale pouzitelne
+	//dynaobject = DynamicObject::create("3ds\\objects\\polyhedrons_ts.3ds",0.1f); // sesmoothovane normaly, chybi hrany
+
 	if(!dynaobject)
 		error("",false);
 

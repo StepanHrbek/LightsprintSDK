@@ -132,9 +132,7 @@
 Model_3DS::Model_3DS()
 {
 	// Initialization
-
-	// Don't show the normals by default
-	shownormals = false;
+	memset(this,0,sizeof(*this));
 
 	// The model is lit by default
 	lit = true;
@@ -142,22 +140,9 @@ Model_3DS::Model_3DS()
 	// The model is visible by default
 	visible = true;
 
-	// Set up the default position
-	pos.x = 0.0f;
-	pos.y = 0.0f;
-	pos.z = 0.0f;
-	// Set up the default rotation
-	rot.x = 0.0f;
-	rot.y = 0.0f;
-	rot.z = 0.0f;
-
 	// Set up the path
 	path = new char[580];
 	path[0] = 0;//sprintf(path, "");
-
-	// Zero out our counters for MFC
-	numObjects = 0;
-	numMaterials = 0;
 
 	// Set the scale to one
 	scale = 1.0f;

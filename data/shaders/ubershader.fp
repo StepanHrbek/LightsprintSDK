@@ -243,6 +243,11 @@ void main()
 #endif // SHADOW_SAMPLES!=1
 #endif // SHADOW_SAMPLES*SHADOW_MAPS>0
 
+#ifdef MATERIAL_DIFFUSE_MAP
+float specularReflectance = step(texture2D(materialDiffuseMap, materialDiffuseCoord).r,0.7);
+float diffuseReflectance = 1.0 - specularReflectance;
+#endif
+
 #if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
   gl_FragColor =
 #ifdef MATERIAL_DIFFUSE_MAP
@@ -276,9 +281,9 @@ void main()
     )
 
 #ifdef LIGHT_INDIRECT_ENV
-    * (1.0-step(localPos.z,-0.2))
+    * diffuseReflectance
     + textureCube(lightIndirectSpecularEnvMap, reflect(worldView,normalize(worldNormal)))
-    * step(localPos.z,-0.2)
+    * specularReflectance
 #endif
     ;
 #endif

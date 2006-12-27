@@ -196,7 +196,7 @@ public:
 	void Draw(rr::RRRealtimeRadiosity* app) const;  // Draws the model using indirect illum from app
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor
-	virtual ~Model_3DS();	// Destructor
+	~Model_3DS();           // Destructor
 
 private:
 	void IntColorChunkProcessor(long length, long findex, int matindex);
