@@ -10,6 +10,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SUBDIVISION                0
 bool ati = 1;
 int fullscreen = 0;
+bool animated = 1;
 bool renderer3ds = 1;
 bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
@@ -1633,6 +1634,11 @@ void idle()
 	if(movingLight && !--movingLight)
 	{
 		reportLightMovementEnd();
+	}
+	if(animated)
+	{
+		needDepthMapUpdate = 1;
+		needRedisplay = 1;
 	}
 
 //	LIMITED_TIMES(1,timer.Start());
