@@ -55,7 +55,7 @@ void RendererOfRRObject::render()
 	if(SIDES==1) glEnable(GL_CULL_FACE);
 	if(SIDES==2) glDisable(GL_CULL_FACE);
 
-	glBegin(GL_TRIANGLES);
+	bool begun = false;
 	rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
 	unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
@@ -100,9 +100,12 @@ void RendererOfRRObject::render()
 						params.object->getCollider()->getMesh()->getChannelData(CHANNEL_SURFACE_DIF_TEX,surfaceIdx,&tex,sizeof(tex));
 						if(tex)
 						{
-							glEnd();
+							if(begun)
+							{
+								glEnd();
+								begun = false;
+							}
 							tex->bindTexture();
-							glBegin(GL_TRIANGLES);
 						}
 						else
 						{			
@@ -166,11 +169,14 @@ void RendererOfRRObject::render()
 				rr::RRIlluminationPixelBuffer* pixelBuffer = objectIllumination->getChannel(0)->pixelBuffer;
 				if(pixelBuffer)
 				{
-					glEnd();
+					if(begun)
+					{
+						glEnd();
+						begun = false;
+					}
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 					pixelBuffer->bindTexture();
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-					glBegin(GL_TRIANGLES);
 				}
 				else
 				{
@@ -206,6 +212,12 @@ void RendererOfRRObject::render()
 				}
 			}
 		}*/
+
+		if(!begun)
+		{
+			glBegin(GL_TRIANGLES);
+			begun = true;
+		}
 
 		for(int v=0;v<3;v++)
 		{
@@ -260,6 +272,8 @@ void RendererOfRRObject::render()
 			glVertex3fv(&vertex.x);
 		}
 	}
-	glEnd();
+	if(begun)
+	{
+		glEnd();
+	}
 }
-
