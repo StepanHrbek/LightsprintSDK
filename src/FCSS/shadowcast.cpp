@@ -221,8 +221,7 @@ bool gameOn = 0;
 #endif
 Level* level = NULL;
 LevelSequence levelSequence;
-DynamicObject* dynaobject;
-
+class DynamicObjects* dynaobjects;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -485,6 +484,146 @@ private:
 
 
 /////////////////////////////////////////////////////////////////////////////
+//
+// Dynamic objects
+
+class DynamicObjects
+{
+public:
+	static DynamicObjects* create()
+	{
+		DynamicObjects* d = new DynamicObjects();
+		if(d->dynaobject1 && d->dynaobject2) return d;
+		delete d;
+		return NULL;
+	}
+	void renderSceneDynamic(UberProgramSetup uberProgramSetup, unsigned firstInstance) const
+	{
+		// render dynaobject
+		DynamicObject* dynaobject = dynaobject1;
+		// - set program
+		uberProgramSetup.OBJECT_SPACE = true;
+		if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
+		{
+			// no material (reflection looks better)
+			//		uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
+			//		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
+			// indirect from envmap
+			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
+			uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
+			uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
+		}
+		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
+			error("Failed to compile or link GLSL program with envmap.\n",true);
+		Program* program = uberProgramSetup.getProgram(uberProgram);
+		// - set matrices
+		rr::RRVec3 worldPos;
+		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
+		float m[16];
+		static float d=0;
+		d+=1;
+		glPushMatrix();
+		glLoadIdentity();
+		glTranslatef(-1.7f,1.3f,-0.8f);
+		glRotatef(d,0,1,0);
+		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
+		glGetFloatv(GL_MODELVIEW_MATRIX,m);
+		glPopMatrix();
+		program->sendUniform("worldMatrix",m,false,4);
+		worldPos = rr::RRVec3(
+			localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
+			localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
+			localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);}
+		// - set envmap
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),true);
+			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+			dynaobject->getSpecularMap()->bindTexture();
+			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+			dynaobject->getDiffuseMap()->bindTexture();
+			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+			program->sendUniform("worldCamera",eye.pos[0],eye.pos[1],eye.pos[2]);
+		}
+		// - render
+		dynaobject->getModel().Draw(NULL);
+
+		// render dynaobject
+		dynaobject = dynaobject2;
+		// - set matrices
+		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
+		float m[16];
+		static float d=0;
+		d+=1;
+		glPushMatrix();
+		glLoadIdentity();
+		glTranslatef(1,1.3f,0.7f);
+		glRotatef(d,0,1,0);
+		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
+		glGetFloatv(GL_MODELVIEW_MATRIX,m);
+		glPopMatrix();
+		program->sendUniform("worldMatrix",m,false,4);
+		worldPos = rr::RRVec3(
+			localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
+			localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
+			localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);}
+		// - set envmap
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),true);
+			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+			dynaobject->getSpecularMap()->bindTexture();
+			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+			dynaobject->getDiffuseMap()->bindTexture();
+			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+			program->sendUniform("worldCamera",eye.pos[0],eye.pos[1],eye.pos[2]);
+		}
+		// - render
+		dynaobject->getModel().Draw(NULL);
+	}
+	~DynamicObjects()
+	{
+		delete dynaobject1;
+		delete dynaobject2;
+	}
+private:
+	DynamicObjects()
+	{
+		// init dynaobject
+		/*umoznit vic shaderu, mozna pomoci samostatnych souboru radsi nez ubershaderu
+		-diffuse
+		-specular
+		-specular pro material.r<0.3, jinak diffuse
+		-specular s materialTexturou pouzitou jako heightmap
+		-pruhledny*/
+		dynaobject1 = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
+		dynaobject2 = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
+
+		// ok otexturovane
+		//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
+		//dynaobject = DynamicObject::create("3ds\\characters\\ct\\lucca.3ds",0.01f); // ok
+		//dynaobject = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
+		//dynaobject = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
+		//dynaobject = DynamicObject::create("3ds\\objects\\head\\head.3DS",0.004f); // ok. vytvari zeleny facy po koupelne
+		//dynaobject = DynamicObject::create("3ds\\characters\\swatfemale\\female.3ds",0.02f); // spatne normaly na bocich
+		//dynaobject = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f); // spatne normaly na zadech a chodidlech
+		//dynaobject = DynamicObject::create("3ds\\characters\\GokuGT_3DS\\Goku_GT.3DS",0.004f); // ok, ale jen nekomercne
+
+		// ok neotexturovane
+		//dynaobject = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.01f); // ok
+		//dynaobject = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.02f); // ok
+		//dynaobject = DynamicObject::create("3ds\\objects\\knife.3ds",0.01f); // ok
+		//dynaobject = DynamicObject::create("3ds\\characters\\snowman.3ds",1); // spatne normaly zezadu
+		//dynaobject = DynamicObject::create("3ds\\objects\\gothchocker.3ds",0.2f); // spatne normaly zezadu
+		//dynaobject = DynamicObject::create("3ds\\objects\\rubic_cube.3ds",0.01f); // spatne normaly, ale pouzitelne
+		//dynaobject = DynamicObject::create("3ds\\objects\\polyhedrons_ts.3ds",0.1f); // sesmoothovane normaly, chybi hrany
+	}
+	DynamicObject* dynaobject1;
+	DynamicObject* dynaobject2;
+};
+
+/////////////////////////////////////////////////////////////////////////////
 
 /* drawLight - draw a yellow sphere (disabling lighting) to represent
    the current position of the local light source. */
@@ -608,56 +747,8 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	// render static scene
 	assert(!uberProgramSetup.OBJECT_SPACE); 
 	renderSceneStatic(uberProgramSetup,firstInstance);
-	
 	if(uberProgramSetup.FORCE_2D_POSITION) return;
-
-	// render dynaobject
-	// - set program
-	uberProgramSetup.OBJECT_SPACE = true;
-	if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
-	{
-		// no material (reflection looks better)
-//		uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
-//		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
-		// indirect from envmap
-		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
-		uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
-	}
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
-		error("Failed to compile or link GLSL program with envmap.\n",true);
-	Program* program = uberProgramSetup.getProgram(uberProgram);
-	// - set matrices
-	const rr::RRVec3& localPos = dynaobject->getLocalCenter();
-	float m[16];
-	static float d=0;
-	d+=1;
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(-1,1.3f,0);
-	glRotatef(d,0,1,0);
-	glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
-	glGetFloatv(GL_MODELVIEW_MATRIX,m);
-	glPopMatrix();
-	program->sendUniform("worldMatrix",m,false,4);
-	rr::RRVec3 worldPos = rr::RRVec3(
-		localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
-		localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
-		localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);
-	// - set envmap
-	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-	{
-		level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),true);
-		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-		dynaobject->getSpecularMap()->bindTexture();
-		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-		dynaobject->getDiffuseMap()->bindTexture();
-		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-		program->sendUniform("worldCamera",eye.pos[0],eye.pos[1],eye.pos[2]);
-	}
-	// - render
-	dynaobject->getModel().Draw(NULL);
+	dynaobjects->renderSceneDynamic(uberProgramSetup,firstInstance);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -1363,7 +1454,7 @@ void keyboard(unsigned char c, int x, int y)
 	{
 		case 27:
 			delete level;
-			delete dynaobject;
+			delete dynaobjects;
 			done_gl_resources();
 			exit(0);
 			break;
@@ -1819,36 +1910,8 @@ int main(int argc, char **argv)
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
-	// init dynaobject
-	/*umoznit vic shaderu, mozna pomoci samostatnych souboru radsi nez ubershaderu
-		-diffuse
-		-specular
-		-specular pro material.r<0.3, jinak diffuse
-		-specular s materialTexturou pouzitou jako heightmap
-		-pruhledny*/
-	dynaobject = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
-
-	// ok otexturovane
-	//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\ct\\lucca.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
-	//dynaobject = DynamicObject::create("3ds\\objects\\head\\head.3DS",0.004f); // ok. vytvari zeleny facy po koupelne
-	//dynaobject = DynamicObject::create("3ds\\characters\\swatfemale\\female.3ds",0.02f); // spatne normaly na bocich
-	//dynaobject = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f); // spatne normaly na zadech a chodidlech
-	//dynaobject = DynamicObject::create("3ds\\characters\\GokuGT_3DS\\Goku_GT.3DS",0.004f); // ok, ale jen nekomercne
-
-	// ok neotexturovane
-	//dynaobject = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.02f); // ok
-	//dynaobject = DynamicObject::create("3ds\\objects\\knife.3ds",0.01f); // ok
-	//dynaobject = DynamicObject::create("3ds\\characters\\snowman.3ds",1); // spatne normaly zezadu
-	//dynaobject = DynamicObject::create("3ds\\objects\\gothchocker.3ds",0.2f); // spatne normaly zezadu
-	//dynaobject = DynamicObject::create("3ds\\objects\\rubic_cube.3ds",0.01f); // spatne normaly, ale pouzitelne
-	//dynaobject = DynamicObject::create("3ds\\objects\\polyhedrons_ts.3ds",0.1f); // sesmoothovane normaly, chybi hrany
-
-	if(!dynaobject)
+	dynaobjects = DynamicObjects::create();
+	if(!dynaobjects)
 		error("",false);
 
 	// init shaders
