@@ -130,7 +130,7 @@ bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight
 		if(!areaLight) return false;
 		const Camera* light = areaLight->getParent();
 		if(!light) return false;
-		program->sendUniform("lightDirectPos",light->pos[0]-0.3f*light->dir[0],light->pos[1]-0.3f*light->dir[1],light->pos[2]-0.3f*light->dir[2]);//!!!
+		program->sendUniform("worldLightPos",light->pos[0]-0.3f*light->dir[0],light->pos[1]-0.3f*light->dir[1],light->pos[2]-0.3f*light->dir[2]);//!!!
 	}
 
 	// lightDirectMap

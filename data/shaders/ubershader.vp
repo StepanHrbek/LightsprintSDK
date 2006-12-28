@@ -27,7 +27,7 @@
 #endif
 
 #ifdef LIGHT_DIRECT
-	uniform vec3 lightDirectPos;
+	uniform vec3 worldLightPos;
 	varying vec4 lightDirectColor;
 #endif
 
@@ -63,8 +63,8 @@ void main()
 
 	#ifdef LIGHT_DIRECT
 		// direct light
-		vec3 lightDirectDir = normalize(lightDirectPos - worldPos);
-		lightDirectColor = vec4(max(dot(lightDirectDir, worldNormal),0.0));
+		vec3 worldLightDir = normalize(worldLightPos - worldPos);
+		lightDirectColor = vec4(max(dot(worldLightDir, worldNormal),0.0));
 	#endif
 
 	#ifdef LIGHT_INDIRECT_COLOR

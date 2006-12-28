@@ -514,7 +514,6 @@ public:
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
-			program->sendUniform("worldLightPos",light.pos[0],light.pos[1],light.pos[2]);
 		}
 		// - set matrices
 		rr::RRVec3 worldPos;
