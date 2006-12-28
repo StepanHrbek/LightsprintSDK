@@ -21,6 +21,8 @@ namespace rr
 	//! Uses OpenGL.
 	//! Very simple to reimplement for example for Direct3D,
 	//! you can look at .cpp in source directory.
+	//!
+	//! Thread safe: yes, multiple threads may call setValues at the same time.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

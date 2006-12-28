@@ -308,6 +308,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\report.h"
+			>
+		</File>
+		<File
 			RelativePath="RRRealtimeRadiosity.cpp"
 			>
 		</File>

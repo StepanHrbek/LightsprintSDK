@@ -1,6 +1,7 @@
 #include <cassert>
 #include <map>
 #include "Interpolator.h"
+#include "report.h"
 #include "RRRealtimeRadiosity.h"
 #include "../src/RRMath/RRMathPrivate.h"
 #include <windows.h>
@@ -367,7 +368,7 @@ static void filterEdges(unsigned iSize, CubeColor* iIrradiance)
 //
 // main
 
-// thread safe: yes
+// thread safe: yes if RRIlluminationEnvironmentMap::setValues is safe
 void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize, unsigned specularSize, RRIlluminationEnvironmentMap* specularMap, unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap, bool HDR)
 {
 	if(!gatherSize)
@@ -395,11 +396,21 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		return;
 	}
 
+	REPORT_INIT;
+	REPORT_BEGIN("Update envmap-100x gather");
+	#define TEST100 REPORT(for(unsigned q=0;q<100;q++))
+
 #define FILL_CUBEMAP(filteredSize, radius, map) \
 	if(map) \
 	{ \
+		REPORT_END; \
+		REPORT_BEGIN("Update envmap-100x interpolate"); \
 		const Interpolator* interpolator = cache.getInterpolator(gatherSize,filteredSize,radius); \
+		TEST100\
 		interpolator->interpolate(gatheredIrradiance,filteredIrradiance,scaler); \
+		REPORT_END; \
+		REPORT_BEGIN("Update envmap-100x send2gl"); \
+		TEST100\
 		map->setValues(filteredSize,filteredIrradiance); \
 	}
 
@@ -418,6 +429,7 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		RRColorRGBF* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
 
 		// gather physical irradiances
+		TEST100
 		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,NULL,gatheredIrradiance);
 
 		// fill cubemaps
@@ -452,6 +464,7 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		RRColorRGBA8* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
 
 		// gather custom irradiances
+		TEST100
 		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,gatheredIrradiance,NULL);
 
 		// fill cubemaps
@@ -472,6 +485,8 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		// cleanup
 		delete[] gatheredIrradiance;
 	}
+
+	REPORT_END;
 }
 
 } // namespace

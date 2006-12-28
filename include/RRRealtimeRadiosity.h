@@ -134,7 +134,8 @@ namespace rr
 		//! \n- specular map is to be sampled (by reflected direction) in object's glossy pixels
 		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
 		//!
-		//! Thread safe: yes, may be called from multiple threads at the same time.
+		//! Thread safe: yes if specularMap->setValues and diffuseMap->setValues is safe,
+		//!  may be called from multiple threads at the same time if setValues may be.
 		//!
 		//! \param objectCenter
 		//!  Center of your dynamic object in world space coordinates.

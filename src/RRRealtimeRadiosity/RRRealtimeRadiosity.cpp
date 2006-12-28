@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "RRRealtimeRadiosity.h"
-#include "DemoEngine/Timer.h"
+#include "report.h"
 
 namespace rr
 {
@@ -19,9 +19,6 @@ namespace rr
 // kdyz se jen renderuje a improvuje (rrbugs), az do 0.6 roste vytizeni cpu(dualcore) a nesnizi se fps
 // kdyz se navic detekuje primary, kazde zvyseni snizi fps
 
-#define REPORT(a)        //a
-#define REPORT_BEGIN(a)  REPORT( Timer timer; timer.Start(); reportAction(a ".."); )
-#define REPORT_END       REPORT( {char buf[20]; sprintf(buf," %d ms.\n",(int)(timer.Watch()*1000));reportAction(buf);} )
 
 #define MAX(a,b)         (((a)>(b))?(a):(b))
 #define MIN(a,b)         (((a)<(b))?(a):(b))
@@ -149,6 +146,7 @@ static bool endByTime(void *context)
 //  does no timing adjustments
 RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float improveStep)
 {
+	REPORT_INIT;
 	bool dirtyFactors = false;
 	ChangeStrength dirtyEnergies = NO_CHANGE;
 	if(dirtyMaterials)
