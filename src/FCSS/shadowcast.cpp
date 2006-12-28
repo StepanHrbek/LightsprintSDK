@@ -141,7 +141,12 @@ public:
 	static DynamicObject* create(const char* filename,float scale)
 	{
 		DynamicObject* d = new DynamicObject();
-		if(d->model.Load(filename,scale) && d->getModel().numObjects) return d;
+		if(d->model.Load(filename,scale) && d->getModel().numObjects)
+		{
+			Model_3DS::Vector center = d->model.GetCenter();
+			d->localCenter = rr::RRVec3(center.x,center.y,center.z);
+			return d;
+		}
 		if(!d->getModel().numObjects) printf("Model %s contains no objects.",filename);
 		delete d;
 		return NULL;
@@ -149,6 +154,10 @@ public:
 	const Model_3DS& getModel()
 	{
 		return model;
+	}
+	const rr::RRVec3& getLocalCenter()
+	{
+		return localCenter;
 	}
 	rr::RRIlluminationEnvironmentMap* getSpecularMap()
 	{
@@ -161,6 +170,7 @@ public:
 private:
 	DynamicObject() {}
 	Model_3DS model;
+	rr::RRVec3 localCenter;
 	rr::RRIlluminationEnvironmentMapInOpenGL specularMap;
 	rr::RRIlluminationEnvironmentMapInOpenGL diffuseMap;
 };
@@ -618,11 +628,27 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
 		error("Failed to compile or link GLSL program with envmap.\n",true);
 	Program* program = uberProgramSetup.getProgram(uberProgram);
+	// - set matrices
+	const rr::RRVec3& localPos = dynaobject->getLocalCenter();
+	float m[16];
+	static float d=0;
+	d+=1;
+	glPushMatrix();
+	glLoadIdentity();
+	glTranslatef(-1,1.3f,0);
+	glRotatef(d,0,1,0);
+	glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
+	glGetFloatv(GL_MODELVIEW_MATRIX,m);
+	glPopMatrix();
+	program->sendUniform("worldMatrix",m,false,4);
+	rr::RRVec3 worldPos = rr::RRVec3(
+		localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
+		localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
+		localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);
 	// - set envmap
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
-		//!!! worldpos
-		level->solver->updateEnvironmentMaps(rr::RRVec3(0,1,1),16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),true);
+		level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),true);
 		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 		dynaobject->getSpecularMap()->bindTexture();
 		glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
@@ -630,17 +656,6 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		program->sendUniform("worldCamera",eye.pos[0],eye.pos[1],eye.pos[2]);
 	}
-	// - set matrices
-	float m[16];
-	static float d=0;
-	d+=1;
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(0,1.3f,1);
-	glRotatef(d,0,1,0);
-	glGetFloatv(GL_MODELVIEW_MATRIX,m);
-	glPopMatrix();
-	program->sendUniform("worldMatrix",m,false,4);
 	// - render
 	dynaobject->getModel().Draw(NULL);
 }

@@ -193,6 +193,7 @@ public:
 	bool lit;				// True: the model is lit
 	bool visible;			// True: the model gets rendered
 	bool Load(const char *name, float scale); // Loads a model
+	Vector GetCenter() const;
 	void Draw(rr::RRRealtimeRadiosity* app) const;  // Draws the model using indirect illum from app
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor
