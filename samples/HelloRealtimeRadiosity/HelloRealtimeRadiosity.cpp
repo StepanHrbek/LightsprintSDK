@@ -83,7 +83,7 @@ float               speedLeft = 0;
 
 void renderScene(UberProgramSetup uberProgramSetup)
 {
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL))
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
 		error("Failed to compile or link GLSL program.\n",true);
 #ifndef AMBIENT_MAPS
 	// m3ds.Draw uses tristrips incompatible with ambient map uv channel, doesn't render properly with ambient maps
@@ -210,7 +210,6 @@ protected:
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
-			uberProgramSetup.NOISE_MAP = false;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_DIRECT_MAP = true;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -299,7 +298,6 @@ void display(void)
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
-	uberProgramSetup.NOISE_MAP = false;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = false;

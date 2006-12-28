@@ -15,10 +15,9 @@
 const char* UberProgramSetup::getSetupString()
 {
 	static char setup[300];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
-		NOISE_MAP?"#define NOISE_MAP\n":"",
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
@@ -56,7 +55,6 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		UberProgramSetup uberProgramSetup;
 		uberProgramSetup.SHADOW_MAPS = instancesPerPass;
 		uberProgramSetup.SHADOW_SAMPLES = 4;
-		uberProgramSetup.NOISE_MAP = true;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		uberProgramSetup.LIGHT_DIRECT_MAP = true;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -69,7 +67,6 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		if(!uberProgramSetup.getProgram(uberProgram)) continue;
 		// maximize use of interpolators
-		uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
@@ -78,7 +75,6 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		if(uberProgramSetup.getProgram(uberProgram)) break;
 		// max envmap
-		uberProgramSetup.NOISE_MAP = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0; // our demos use no material with envmap
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0; // our demos use no material with envmap
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -94,7 +90,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 	return instancesPerPass;
 }
 
-bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap, Texture* noiseMap)
+bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap)
 {
 	Program* program = getProgram(uberProgram);
 	if(!program) return false;
@@ -128,15 +124,6 @@ bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight
 	}
 	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
 	glMatrixMode(GL_MODELVIEW);
-
-	if(NOISE_MAP)
-	{
-		if(!noiseMap) return false;
-		int id=TEXTURE_2D_NOISE;
-		glActiveTexture(GL_TEXTURE0+id);
-		noiseMap->bindTexture();
-		program->sendUniform("noiseMap",id);
-	}
 
 	// lightDirectPos (in object space)
 	if(LIGHT_DIRECT)

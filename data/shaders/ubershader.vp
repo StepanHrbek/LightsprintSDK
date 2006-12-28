@@ -3,7 +3,6 @@
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
 //  #define SHADOW_SAMPLES [0|1|2|4|8]
-//  #define NOISE_MAP
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_CONST
@@ -25,10 +24,6 @@ uniform mat4 worldMatrix;
 
 #if SHADOW_MAPS>0
 varying vec4 shadowCoord[SHADOW_MAPS];
-#endif
-
-#ifdef NOISE_MAP
-varying vec2 fragCoord; // ATI switches to sw raster on gl_FragCoord
 #endif
 
 #ifdef LIGHT_DIRECT
@@ -132,8 +127,5 @@ void main()
   gl_Position = vec4(gl_MultiTexCoord7.x,gl_MultiTexCoord7.y,0.5,1.0);
 #else
   gl_Position = gl_ModelViewProjectionMatrix * worldVertex;
-#endif
-#ifdef NOISE_MAP
-  fragCoord = gl_Position.xy/gl_Position.w*vec2(800.0,600.0);
 #endif
 }

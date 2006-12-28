@@ -186,7 +186,6 @@ AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
 Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
-Texture* noiseMap = NULL;
 Texture* loadingMap = NULL;
 Texture* hintMap = NULL;
 Program *ambientProgram;
@@ -274,7 +273,6 @@ void init_gl_resources()
 			error("",false);
 		}
 	}
-	noiseMap = Texture::load("maps\\noise.tga", GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
 	loadingMap = Texture::load("maps\\rrbugs_loading.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	hintMap = Texture::load("maps\\rrbugs_hint.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
@@ -292,7 +290,6 @@ void done_gl_resources()
 	//delete ambientProgram;
 	delete uberProgram;
 	delete loadingMap;
-	delete noiseMap;
 	delete hintMap;
 	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
 	delete areaLight;
@@ -410,7 +407,6 @@ protected:
 			UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
-			uberProgramSetup.NOISE_MAP = false;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -514,7 +510,7 @@ public:
 			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
 		}
-		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
+		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
 			error("Failed to compile or link GLSL program with envmap.\n",true);
 		Program* program = uberProgramSetup.getProgram(uberProgram);
 		// - set matrices
@@ -697,7 +693,7 @@ void drawShadowMapFrustum(void)
 void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],noiseMap))
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
 		error("Failed to compile or link GLSL program.\n",true);
 
 	// lze smazat, stejnou praci dokaze i rrrenderer
@@ -771,7 +767,6 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 	uberProgramSetup.SHADOW_MAPS = 0;
 	uberProgramSetup.SHADOW_SAMPLES = 0;
-	uberProgramSetup.NOISE_MAP = false;
 	uberProgramSetup.LIGHT_DIRECT = false;
 	uberProgramSetup.LIGHT_DIRECT_MAP = false;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -845,7 +840,6 @@ void drawEyeViewSoftShadowed(void)
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
 		//uberProgramSetup.SHADOW_SAMPLES = ;
-		if(uberProgramSetup.SHADOW_SAMPLES<2) uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -868,7 +862,6 @@ void drawEyeViewSoftShadowed(void)
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = MIN(INSTANCES_PER_PASS,numInstances);
 		//uberProgramSetup.SHADOW_SAMPLES = ;
-		if(uberProgramSetup.SHADOW_SAMPLES<2) uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -887,7 +880,6 @@ void drawEyeViewSoftShadowed(void)
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0;
-		uberProgramSetup.NOISE_MAP = false;
 		uberProgramSetup.LIGHT_DIRECT = false;
 		uberProgramSetup.LIGHT_DIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -1263,7 +1255,6 @@ void display()
 				UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 				uberProgramSetup.SHADOW_MAPS = 1;
 				uberProgramSetup.SHADOW_SAMPLES = 1;
-				uberProgramSetup.NOISE_MAP = false;
 				uberProgramSetup.LIGHT_DIRECT = true;
 				uberProgramSetup.LIGHT_DIRECT_MAP = true;
 				uberProgramSetup.LIGHT_INDIRECT_CONST = true;
@@ -1485,9 +1476,6 @@ void keyboard(unsigned char c, int x, int y)
 			special(GLUT_KEY_UP,0,0);
 			break;
 
-		case 'n':
-			uberProgramGlobalSetup.NOISE_MAP = !uberProgramGlobalSetup.NOISE_MAP;
-			break;
 		case 'v':
 			renderLightmaps = !renderLightmaps;
 			if(!renderLightmaps)
@@ -1920,7 +1908,6 @@ int main(int argc, char **argv)
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
-	uberProgramGlobalSetup.NOISE_MAP = false;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = false;

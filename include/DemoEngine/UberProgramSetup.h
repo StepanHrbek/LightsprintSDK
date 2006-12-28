@@ -18,9 +18,8 @@ enum
 	TEXTURE_2D_LIGHT_DIRECT              = 10,
 	TEXTURE_2D_MATERIAL_DIFFUSE          = 11,
 	TEXTURE_2D_LIGHT_INDIRECT            = 12,
-	TEXTURE_2D_NOISE                     = 13,
-	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 14,
-	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 15,
+	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 13,
+	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 14,
 
 	// texcoords assigned to UberProgram
 	// these constants are hardcoded in shaders
@@ -40,7 +39,6 @@ struct DE_API UberProgramSetup
 	// UberProgram + UberProgramSetup = Program
 	unsigned SHADOW_MAPS            :8;
 	unsigned SHADOW_SAMPLES         :8;
-	bool     NOISE_MAP              :1;
 	bool     LIGHT_DIRECT           :1;
 	bool     LIGHT_DIRECT_MAP       :1;
 	bool     LIGHT_INDIRECT_CONST   :1;
@@ -62,7 +60,7 @@ struct DE_API UberProgramSetup
 	bool operator !=(const UberProgramSetup& a) const;
 	Program* getProgram(UberProgram* uberProgram);
 	static unsigned detectMaxShadowmaps(UberProgram* uberProgram, unsigned startWith=10);
-	bool useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap, Texture* noiseMap);
+	bool useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap);
 };
 
 #endif
