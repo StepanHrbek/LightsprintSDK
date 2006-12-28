@@ -8,7 +8,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SHADOW_MAP_SIZE            512
 #define LIGHTMAP_SIZE              1024
 #define SUBDIVISION                0
-bool ati = 1;
+bool ati = 0;
 int fullscreen = 0;
 bool animated = 1;
 bool renderer3ds = 1;
@@ -501,9 +501,6 @@ public:
 		uberProgramSetup.OBJECT_SPACE = true;
 		if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
 		{
-			// no material (reflection looks better)
-			//		uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
-			//		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
 			// indirect from envmap
 			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
@@ -513,6 +510,12 @@ public:
 		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
 			error("Failed to compile or link GLSL program with envmap.\n",true);
 		Program* program = uberProgramSetup.getProgram(uberProgram);
+		// - set globals
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
+			program->sendUniform("worldLightPos",light.pos[0],light.pos[1],light.pos[2]);
+		}
 		// - set matrices
 		rr::RRVec3 worldPos;
 		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
@@ -540,7 +543,6 @@ public:
 			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 			dynaobject->getDiffuseMap()->bindTexture();
 			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-			program->sendUniform("worldCamera",eye.pos[0],eye.pos[1],eye.pos[2]);
 		}
 		// - render
 		dynaobject->getModel().Draw(NULL);
@@ -573,7 +575,6 @@ public:
 			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 			dynaobject->getDiffuseMap()->bindTexture();
 			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-			program->sendUniform("worldCamera",eye.pos[0],eye.pos[1],eye.pos[2]);
 		}
 		// - render
 		dynaobject->getModel().Draw(NULL);

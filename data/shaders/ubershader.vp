@@ -39,11 +39,6 @@
 	varying vec2 lightIndirectCoord;
 #endif
 
-uniform vec3 worldCamera;
-varying vec3 worldNormal;
-varying vec3 worldView;
-varying vec3 localPos;
-
 #ifdef MATERIAL_DIFFUSE_COLOR
 	varying vec4 materialDiffuseColor;
 #endif
@@ -52,22 +47,23 @@ varying vec3 localPos;
 	varying vec2 materialDiffuseCoord;
 #endif
 
+varying vec3 worldPos;
+varying vec3 worldNormal;
+
 void main()
 {
-	localPos = gl_Vertex.xyz;
-
 	#ifdef OBJECT_SPACE
-		vec4 worldVertex = worldMatrix * gl_Vertex;
-		worldNormal = normalize( ( worldMatrix * vec4(gl_Normal,0.0) ).xyz );
+		vec4 worldPos4 = worldMatrix * gl_Vertex;
+		worldNormal = normalize( worldMatrix * vec4(gl_Normal,0.0) ).xyz;
 	#else
-		vec4 worldVertex = gl_Vertex;
+		vec4 worldPos4 = gl_Vertex;
 		worldNormal = normalize( gl_Normal );
 	#endif
-	worldView = normalize( worldVertex.xyz - worldCamera );
+	worldPos = worldPos4.xyz;
 
 	#ifdef LIGHT_DIRECT
 		// direct light
-		vec3 lightDirectDir = normalize(lightDirectPos - worldVertex.xyz);
+		vec3 lightDirectDir = normalize(lightDirectPos - worldPos);
 		lightDirectColor = vec4(max(dot(lightDirectDir, worldNormal),0.0));
 	#endif
 
@@ -90,42 +86,42 @@ void main()
 
 	// for cycle (for any OpenGL 2.0 compliant card)
 	//for(int i=0;i<SHADOW_MAPS;i++)
-	//  shadowCoord[i] = gl_TextureMatrix[i] * worldVertex;
+	//  shadowCoord[i] = gl_TextureMatrix[i] * worldPos4;
 	// unrolled version (ATI fails on for cycle)
 	#if SHADOW_MAPS>0
-		shadowCoord[0] = gl_TextureMatrix[0] * worldVertex;
+		shadowCoord[0] = gl_TextureMatrix[0] * worldPos4;
 	#endif
 	#if SHADOW_MAPS>1
-		shadowCoord[1] = gl_TextureMatrix[1] * worldVertex;
+		shadowCoord[1] = gl_TextureMatrix[1] * worldPos4;
 	#endif
 	#if SHADOW_MAPS>2
-		shadowCoord[2] = gl_TextureMatrix[2] * worldVertex;
+		shadowCoord[2] = gl_TextureMatrix[2] * worldPos4;
 	#endif
 	#if SHADOW_MAPS>3
-		shadowCoord[3] = gl_TextureMatrix[3] * worldVertex;
+		shadowCoord[3] = gl_TextureMatrix[3] * worldPos4;
 	#endif
 	#if SHADOW_MAPS>4
-		shadowCoord[4] = gl_TextureMatrix[4] * worldVertex;
+		shadowCoord[4] = gl_TextureMatrix[4] * worldPos4;
 	#endif
 	#if SHADOW_MAPS>5
-		shadowCoord[5] = gl_TextureMatrix[5] * worldVertex;
+		shadowCoord[5] = gl_TextureMatrix[5] * worldPos4;
 	#endif
 	#if SHADOW_MAPS>6
-		shadowCoord[6] = gl_TextureMatrix[6] * worldVertex;
+		shadowCoord[6] = gl_TextureMatrix[6] * worldPos4;
 	#endif
 	#if SHADOW_MAPS>7
-		shadowCoord[7] = gl_TextureMatrix[7] * worldVertex;
+		shadowCoord[7] = gl_TextureMatrix[7] * worldPos4;
 	#endif
 	#if SHADOW_MAPS>8
-		shadowCoord[8] = gl_TextureMatrix[8] * worldVertex;
+		shadowCoord[8] = gl_TextureMatrix[8] * worldPos4;
 	#endif
 	#if SHADOW_MAPS>9
-		shadowCoord[9] = gl_TextureMatrix[9] * worldVertex;
+		shadowCoord[9] = gl_TextureMatrix[9] * worldPos4;
 	#endif
   
 	#ifdef FORCE_2D_POSITION
 		gl_Position = vec4(gl_MultiTexCoord7.x,gl_MultiTexCoord7.y,0.5,1.0);
 	#else
-		gl_Position = gl_ModelViewProjectionMatrix * worldVertex;
+		gl_Position = gl_ModelViewProjectionMatrix * worldPos4;
 	#endif
 }

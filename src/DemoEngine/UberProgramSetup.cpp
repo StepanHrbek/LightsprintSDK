@@ -73,17 +73,16 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-		if(uberProgramSetup.getProgram(uberProgram)) break;
+		if(!uberProgramSetup.getProgram(uberProgram)) continue;
 		// max envmap
-		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0; // our demos use no material with envmap
-		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0; // our demos use no material with envmap
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-		if(uberProgramSetup.getProgram(uberProgram)) break;
+		if(!uberProgramSetup.getProgram(uberProgram)) continue;
+		break;
 	}
 	//		if(instancesPerPass>1) instancesPerPass--;
 	//		if(instancesPerPass>1) instancesPerPass--;
