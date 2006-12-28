@@ -265,6 +265,11 @@ void main()
 
 	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
 		gl_FragColor =
+
+			//
+			// diffuse reflection
+			//
+
 			#ifdef MATERIAL_DIFFUSE_MAP
 				texture2D(materialDiffuseMap, materialDiffuseCoord) * 
 			#endif
@@ -288,10 +293,16 @@ void main()
 				+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)
 			#endif
 			)
-
 			#ifdef LIGHT_INDIRECT_ENV
 				* diffuseReflectance
+			#endif
 
+
+			//
+			// specular reflection
+			//
+
+			#ifdef LIGHT_INDIRECT_ENV
 				+ textureCube(lightIndirectSpecularEnvMap, reflect(worldView,normalize(worldNormal)))
 				* specularReflectance
 			#endif
