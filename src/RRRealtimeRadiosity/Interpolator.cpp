@@ -1,8 +1,9 @@
 #include <cassert>
 #include <cfloat>
-//#ifdef _OPENMP
-//#include <omp.h>
-//#endif
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "Interpolator.h"
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -27,7 +28,9 @@ void Interpolator::learnSource(unsigned offset, float contribution)
 	Contributor c;
 	c.srcOffset = offset;
 	c.srcContributionHdr = contribution;
+#ifdef SUPPORT_LDR
 	c.srcContributionLdr = (u16)(contribution*65536);
+#endif
 	assert(_finite(contribution));
 	contributors.push_back(c);
 }
@@ -40,12 +43,16 @@ void Interpolator::learnDestinationEnd(unsigned offset1, unsigned offset2, unsig
 	assert(h.srcContributorsEnd == contributors.size());
 	assert(h.srcContributorsEnd>h.srcContributorsBegin); // radius too small -> no neighbour texels put into interoplation
 	h.dstOffset1 = offset1;
+#ifdef THREE_DESTINATIONS
 	h.dstOffset2 = offset2;
 	h.dstOffset3 = offset3;
+#endif
 	headers.push_back(h);
 	destinationSize = MAX(offset1+1,destinationSize);
+#ifdef THREE_DESTINATIONS
 	destinationSize = MAX(offset2+1,destinationSize);
 	destinationSize = MAX(offset3+1,destinationSize);
+#endif
 }
 
 unsigned Interpolator::getDestinationSize() const
@@ -55,7 +62,7 @@ unsigned Interpolator::getDestinationSize() const
 
 void Interpolator::interpolate(const RRColor* src, RRColor* dst, const RRScaler* scaler) const
 {
-	//#pragma omp parallel for schedule(static)
+	#pragma omp parallel for schedule(static)
 	for(int i=0;i<(int)headers.size();i++)
 	{
 		RRColor sum = RRColor(0);
@@ -67,13 +74,18 @@ void Interpolator::interpolate(const RRColor* src, RRColor* dst, const RRScaler*
 			sum += src[contributors[j].srcOffset] * contributors[j].srcContributionHdr;
 		}
 		if(scaler) scaler->getCustomScale(sum);
-		dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] = dst[headers[i].dstOffset1] = sum;
+#ifdef THREE_DESTINATIONS
+		dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] =
+#endif
+			dst[headers[i].dstOffset1] = sum;
 	}
 }
 
+#ifdef SUPPORT_LDR
+// pozor, asi nekde preteka, stredy stran cubemapy byly cerny
 void Interpolator::interpolate(const RRColorRGBA8* src, RRColorRGBA8* dst, void* unused) const
 {
-	//#pragma omp parallel for schedule(static)
+	#pragma omp parallel for schedule(static)
 	for(int i=0;i<(int)headers.size();i++)
 	{
 		unsigned sum[3] = {0,0,0};
@@ -86,10 +98,12 @@ void Interpolator::interpolate(const RRColorRGBA8* src, RRColorRGBA8* dst, void*
 			sum[1] += u8(color>>8) * contributors[j].srcContributionLdr;
 			sum[2] += u8(color>>16) * contributors[j].srcContributionLdr;
 		}
-		RRColorRGBA8 result;
-		result.color = (sum[0]>>16) + ((sum[1]>>16)<<8) + (sum[2]&0xff0000);
-		dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] = dst[headers[i].dstOffset1] = result;
+#ifdef THREE_DESTINATIONS
+		dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] =
+#endif
+			dst[headers[i].dstOffset1].color = (sum[0]>>16) + ((sum[1]>>16)<<8) + (sum[2]&0xff0000);
 	}
 }
+#endif
 
 } // namespace

@@ -68,7 +68,7 @@ void Shader::compileIt()
 
 // Private part :
 
-GLuint Shader::getHandle()
+GLuint Shader::getHandle() const
 {
 	return handle;
 }

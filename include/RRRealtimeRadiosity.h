@@ -131,7 +131,7 @@ namespace rr
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
 		//! Generates specular and diffuse environment maps with object's global illumination.
-		//! \n- specular map is to be sampled (by reflected direction) in object's glossy pixels
+		//! \n- specular map is to be sampled (by reflected view direction) in object's glossy pixels
 		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
 		//!
 		//! Thread safe: yes if specularMap->setValues and diffuseMap->setValues is safe,
@@ -164,13 +164,9 @@ namespace rr
 		//!  If your custom diffuseMap requires size to be power of two, make sure you enter correct size here.
 		//!  Use smaller size for faster update.
 		//!  Size 4 is good.
-		//! \param HDR
-		//!  True = physically correct calculation.
-		//!  False = fast calculation clamped to 8bits per channel.
 		void updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize,
 			unsigned specularSize, RRIlluminationEnvironmentMap* specularMap,
-			unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap,
-			bool HDR);
+			unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap);
 
 		//! Reports that appearance of one or more materials has changed.
 		//!

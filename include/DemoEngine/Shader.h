@@ -22,7 +22,7 @@ public:
 	~Shader();
   
 	void compileIt();
-	GLuint getHandle();
+	GLuint getHandle() const;
 private:
 	GLuint handle;
 };

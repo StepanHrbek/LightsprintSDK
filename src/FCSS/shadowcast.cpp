@@ -497,7 +497,7 @@ public:
 		// - set envmap
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
-			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),true);
+			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap());
 			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 			dynaobject->getSpecularMap()->bindTexture();
 			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
@@ -538,7 +538,7 @@ public:
 		// - set envmap
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
-			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap(),true);
+			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap());
 			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 			dynaobject->getSpecularMap()->bindTexture();
 			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);

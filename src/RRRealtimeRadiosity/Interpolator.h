@@ -31,8 +31,10 @@ public:
 
 	// High quality interpolation in physical space.
 	void interpolate(const RRColor* src, RRColor* dst, const RRScaler* scaler) const;
+#ifdef SUPPORT_LDR
 	// Fast interpolation in custom space.
 	void interpolate(const RRColorRGBA8* src, RRColorRGBA8* dst, void* unused) const;
+#endif
 
 private:
 	typedef unsigned Ofs;
@@ -41,14 +43,18 @@ private:
 		Ofs srcContributorsBegin;
 		Ofs srcContributorsEnd;
 		Ofs dstOffset1;
+#ifdef THREE_DESTINATIONS
 		Ofs dstOffset2;
 		Ofs dstOffset3;
+#endif
 	};
 	struct Contributor
 	{
 		float srcContributionHdr;
 		Ofs srcOffset;
+#ifdef SUPPORT_LDR
 		u16 srcContributionLdr;
+#endif
 	};
 	Ofs srcBegin;
 	std::vector<Header> headers;

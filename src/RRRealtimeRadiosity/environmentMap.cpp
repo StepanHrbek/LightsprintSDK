@@ -1,10 +1,14 @@
 #include <cassert>
 #include <map>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+#include <windows.h>
+
 #include "Interpolator.h"
 #include "report.h"
 #include "RRRealtimeRadiosity.h"
 #include "../src/RRMath/RRMathPrivate.h"
-#include <windows.h>
 
 namespace rr
 {
@@ -155,12 +159,16 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 		assert(0);
 		return;
 	}
-	RRRay* ray = RRRay::create();
-	for(unsigned side=0;side<6;side++)
+	RRRay* ray6 = RRRay::create(6);
+	#pragma omp parallel for schedule(dynamic)
+	for(int side=0;side<6;side++)
 	{
+		RRRay* ray = ray6+side;
 		for(unsigned j=0;j<size;j++)
 			for(unsigned i=0;i<size;i++)
+
 			{
+				unsigned ofs = i+(j+side*size)*size;
 				RRVec3 dir = cubeSide[side].getTexelDir(size,i,j);
 				RRReal dirsize = dir.length();
 				// find face
@@ -172,37 +180,39 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 				ray->rayLengthMax = 10000; //!!! hard limit
 				ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
 				unsigned face = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
+#ifdef SUPPORT_LDR
 				if(irradianceHdr)
 				{
+#endif
 					if(face==UINT_MAX)
 					{
 						// read irradiance on sky
-						*irradianceHdr = RRVec3(0); //!!! add sky
+						irradianceHdr[ofs] = RRVec3(0); //!!! add sky
 					}
 					else
 					{
 						// read cube irradiance as face exitance
-						scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,scaler,*irradianceHdr);
+						scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,scaler,irradianceHdr[ofs]);
 					}
-					irradianceHdr++;
+#ifdef SUPPORT_LDR
 				}
 				else
 				{
 					if(face==UINT_MAX)
 					{
-						*irradianceLdr = 0;
+						irradianceLdr[ofs] = 0;
 					}
 					else
 					{
 						RRVec3 irrad;
 						scene->getTriangleMeasure(face,3,RM_EXITANCE_CUSTOM,scaler,irrad);
-						*irradianceLdr = irrad;
+						irradianceLdr[ofs] = irrad;
 					}
-					irradianceLdr++;
 				}
+#endif
 			}
 	}
-	delete ray;
+	delete[] ray6;
 }
 
 
@@ -214,8 +224,7 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 // radius = 1-minDot (dot=cos(angle) musi byt aspon tak velky jako minDot, jinak jde o prilis vzdaleny texel)
 void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, Interpolator* interpolator)
 {
-	//!!! zapisovat vysledek na 1/2/3 mista
-	for(unsigned oside=0;oside<6;oside++)
+	for(int oside=0;oside<6;oside++)
 	{
 		for(unsigned oj=0;oj<oSize;oj++)
 			for(unsigned oi=0;oi<oSize;oi++)
@@ -369,7 +378,14 @@ static void filterEdges(unsigned iSize, CubeColor* iIrradiance)
 // main
 
 // thread safe: yes if RRIlluminationEnvironmentMap::setValues is safe
-void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize, unsigned specularSize, RRIlluminationEnvironmentMap* specularMap, unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap, bool HDR)
+void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize, unsigned specularSize, RRIlluminationEnvironmentMap* specularMap, unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap
+#ifdef SUPPORT_LDR
+	//! \param HDR
+	//!  True = physically correct calculation.
+	//!  False = fast calculation clamped to 8bits per channel.
+	, bool HDR
+#endif
+												)
 {
 	if(!gatherSize)
 	{
@@ -422,8 +438,10 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 	// Schvalne pridavam bluru, abych zakryl chybejici interpolaci u face irradianci
 	RRReal minDot = minSize*sqrtf(1.0f/(3+minSize*minSize));
 
+#ifdef SUPPORT_LDR
 	if(HDR)
 	{
+#endif
 		// alloc temp space
 		RRColorRGBF* gatheredIrradiance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
 		RRColorRGBF* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
@@ -456,6 +474,7 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 
 		// cleanup
 		delete[] gatheredIrradiance;
+#ifdef SUPPORT_LDR
 	}
 	else
 	{
@@ -485,6 +504,7 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		// cleanup
 		delete[] gatheredIrradiance;
 	}
+#endif
 
 	REPORT_END;
 }
