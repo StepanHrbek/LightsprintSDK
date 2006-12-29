@@ -40,6 +40,9 @@
 	varying vec2 lightIndirectCoord;
 #endif
 
+varying vec3 worldPos;
+varying vec3 worldNormal;
+
 #ifdef MATERIAL_DIFFUSE_COLOR
 	varying vec4 materialDiffuseColor;
 #endif
@@ -47,9 +50,6 @@
 #ifdef MATERIAL_DIFFUSE_MAP
 	varying vec2 materialDiffuseCoord;
 #endif
-
-varying vec3 worldPos;
-varying vec3 worldNormal;
 
 void main()
 {

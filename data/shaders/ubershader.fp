@@ -90,6 +90,8 @@
 #ifdef LIGHT_INDIRECT_ENV
 	uniform samplerCube lightIndirectSpecularEnvMap;
 	uniform samplerCube lightIndirectDiffuseEnvMap;
+	varying vec3 worldPos;
+	varying vec3 worldNormal;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
@@ -100,9 +102,6 @@
 	uniform sampler2D materialDiffuseMap;
 	varying vec2 materialDiffuseCoord;
 #endif
-
-varying vec3 worldPos;
-varying vec3 worldNormal;
 
 void main()
 {
@@ -265,7 +264,9 @@ void main()
 	// light direct
 
 	#ifdef LIGHT_DIRECT
-		vec3 worldLightDir = normalize(worldLightPos - worldPos);
+		#if defined(MATERIAL_NORMAL_MAP) || defined(LIGHT_INDIRECT_ENV)
+			vec3 worldLightDir = normalize(worldLightPos - worldPos);
+		#endif
 		vec4 lightDirect =
 			#ifdef MATERIAL_NORMAL_MAP
 				max(0.0,dot(worldLightDir, worldNormal)) // per pixel
