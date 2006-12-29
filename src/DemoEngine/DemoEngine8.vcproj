@@ -314,6 +314,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\DemoEngine\DynamicObject.h"
+			>
+		</File>
+		<File
 			RelativePath=".\FBO.cpp"
 			>
 		</File>
