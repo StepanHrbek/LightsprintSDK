@@ -495,6 +495,10 @@ public:
 	}
 	void renderSceneDynamic(UberProgramSetup uberProgramSetup, unsigned firstInstance) const
 	{
+		static float d = 0;
+		// increment rotation when frame begins
+		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) d = (timeGetTime()%1000000)*0.1f;
+
 		/////////////////////////////////////////////////////////////////////
 		// render dynaobject1
 		DynamicObject* dynaobject = dynaobject1;
@@ -520,8 +524,6 @@ public:
 		rr::RRVec3 worldPos;
 		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
 		float m[16];
-		static float d=0;
-		d+=1;
 		glPushMatrix();
 		glLoadIdentity();
 		glTranslatef(-1.7f,1.3f,-0.8f);
@@ -554,20 +556,15 @@ public:
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
 			uberProgramSetup.MATERIAL_NORMAL_MAP = 1;
-		}
-		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
-			error("Failed to compile or link GLSL program with envmap2.\n",true);
-		program = uberProgramSetup.getProgram(uberProgram);
-		// - set globals
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
+			if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+				error("Failed to compile or link GLSL program with envmap2.\n",true);
+			program = uberProgramSetup.getProgram(uberProgram);
+			// - set globals
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 		}
 		// - set matrices
 		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
 		float m[16];
-		static float d=0;
-		d+=1;
 		glPushMatrix();
 		glLoadIdentity();
 		glTranslatef(1,1.3f,0.7f);
@@ -1242,8 +1239,10 @@ void display()
 		level = new Level(levelSequence.getNextLevel());
 #ifdef BUGS
 		for(unsigned i=0;i<6;i++)
-			level->solver->calculate();
+#else
+		for(unsigned i=0;i<2;i++)
 #endif
+			level->solver->calculate();
 	}
 	if(showHint)
 	{
