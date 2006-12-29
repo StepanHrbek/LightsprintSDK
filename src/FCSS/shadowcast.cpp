@@ -514,7 +514,7 @@ public:
 			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		}
 		// - render
-		dynaobject->getModel().Draw(NULL);
+		dynaobject->render();
 
 		/////////////////////////////////////////////////////////////////////
 		// render dynaobject2 - diff+specular+normalmap
@@ -539,7 +539,7 @@ public:
 		float m[16];
 		glPushMatrix();
 		glLoadIdentity();
-		glTranslatef(1,1.3f,0.7f);
+		glTranslatef(1,0.88f,0.7f);
 		glRotatef(d,0,1,0);
 		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
 		glGetFloatv(GL_MODELVIEW_MATRIX,m);
@@ -560,7 +560,7 @@ public:
 			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		}
 		// - render
-		dynaobject->getModel().Draw(NULL);
+		dynaobject->render();
 
 		/////////////////////////////////////////////////////////////////////
 		// render dynaobject3 - specular
@@ -604,20 +604,17 @@ public:
 			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		}
 		// - render
-		static Renderer* rendererWithoutCache = new RendererOf3DS(&dynaobject->getModel());
-		static Renderer* rendererCached = new RendererWithCache(rendererWithoutCache);
-		rendererCached->render();
-		//dynaobject->getModel().Draw(NULL);
+		dynaobject->render();
 
 		/////////////////////////////////////////////////////////////////////
-		/*/ render dynaobject4 - diffuse
-		dynaobject = dynaobject3;
+		// render dynaobject4 - diffuse
+		dynaobject = dynaobject4;
 		// - set program
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
 			uberProgramSetup.MATERIAL_SPECULAR = 0;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = 0;
 			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
@@ -632,7 +629,7 @@ public:
 		float m[16];
 		glPushMatrix();
 		glLoadIdentity();
-		glTranslatef(-3.1f,1.88f,-0.9f);
+		glTranslatef(-0.5f,1.28f,1.5f);
 		glRotatef(d,0,1,0);
 		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
 		glGetFloatv(GL_MODELVIEW_MATRIX,m);
@@ -651,21 +648,23 @@ public:
 			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		}
 		// - render
-		dynaobject->getModel().Draw(NULL);*/
+		dynaobject->render();
 	}
 	~DynamicObjects()
 	{
 		delete dynaobject1;
 		delete dynaobject2;
 		delete dynaobject3;
+		delete dynaobject4;
 	}
 private:
 	DynamicObjects()
 	{
 		// init dynaobject
-		dynaobject1 = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
-		dynaobject2 = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
-		dynaobject3 = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.04f); // ok
+		dynaobject1 = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f);
+		dynaobject2 = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.013f);
+		dynaobject3 = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.33f);
+		dynaobject4 = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.006f); // ok
 
 		// ok otexturovane
 		//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
@@ -689,6 +688,7 @@ private:
 	DynamicObject* dynaobject1;
 	DynamicObject* dynaobject2;
 	DynamicObject* dynaobject3;
+	DynamicObject* dynaobject4;
 };
 
 /////////////////////////////////////////////////////////////////////////////

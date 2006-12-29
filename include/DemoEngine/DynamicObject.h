@@ -8,6 +8,8 @@
 #define DYNAMICOBJECT_H
 
 #include "Model_3DS.h"
+#include "RendererOf3DS.h"
+#include "RendererWithCache.h"
 #include "RRIlluminationEnvironmentMapInOpenGL.h"
 
 
@@ -25,6 +27,8 @@ public:
 		{
 			Model_3DS::Vector center = d->model.GetCenter();
 			d->localCenter = rr::RRVec3(center.x,center.y,center.z);
+			d->rendererWithoutCache = new RendererOf3DS(&d->model);
+			d->rendererCached = new RendererWithCache(d->rendererWithoutCache);
 			return d;
 		}
 		if(!d->getModel().numObjects) printf("Model %s contains no objects.",filename);
@@ -47,12 +51,30 @@ public:
 	{
 		return &diffuseMap;
 	}
+	void render()
+	{
+		// cached inside display list
+		rendererCached->render();
+		// non cached
+		//model.Draw(NULL);
+	}
+	~DynamicObject()
+	{
+		delete rendererCached;
+		delete rendererWithoutCache;
+	}
 private:
-	DynamicObject() {}
+	DynamicObject()
+	{
+		rendererWithoutCache = NULL;
+		rendererCached = NULL;
+	}
 	Model_3DS model;
 	rr::RRVec3 localCenter;
 	rr::RRIlluminationEnvironmentMapInOpenGL specularMap;
 	rr::RRIlluminationEnvironmentMapInOpenGL diffuseMap;
+	Renderer* rendererWithoutCache;
+	Renderer* rendererCached;
 };
 
 #endif

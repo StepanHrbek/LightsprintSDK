@@ -254,7 +254,7 @@ void main()
 		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord);
 	#endif
 	#ifdef MATERIAL_SPECULAR_MAP
-		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.7);
+		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
 		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
 	#endif
 	#ifdef MATERIAL_NORMAL_MAP
