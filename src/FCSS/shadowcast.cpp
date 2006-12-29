@@ -495,7 +495,8 @@ public:
 	}
 	void renderSceneDynamic(UberProgramSetup uberProgramSetup, unsigned firstInstance) const
 	{
-		// render dynaobject
+		/////////////////////////////////////////////////////////////////////
+		// render dynaobject1
 		DynamicObject* dynaobject = dynaobject1;
 		// - set program
 		uberProgramSetup.OBJECT_SPACE = true;
@@ -508,7 +509,7 @@ public:
 			uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
 		}
 		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
-			error("Failed to compile or link GLSL program with envmap.\n",true);
+			error("Failed to compile or link GLSL program with envmap1.\n",true);
 		Program* program = uberProgramSetup.getProgram(uberProgram);
 		// - set globals
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
@@ -546,8 +547,22 @@ public:
 		// - render
 		dynaobject->getModel().Draw(NULL);
 
-		// render dynaobject
+		/////////////////////////////////////////////////////////////////////
+		// render dynaobject2
 		dynaobject = dynaobject2;
+		// - set program
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			uberProgramSetup.MATERIAL_NORMAL_MAP = 1;
+		}
+		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+			error("Failed to compile or link GLSL program with envmap2.\n",true);
+		program = uberProgramSetup.getProgram(uberProgram);
+		// - set globals
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
+		}
 		// - set matrices
 		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
 		float m[16];

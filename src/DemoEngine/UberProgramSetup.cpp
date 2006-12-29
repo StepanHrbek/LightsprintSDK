@@ -15,7 +15,7 @@
 const char* UberProgramSetup::getSetupString()
 {
 	static char setup[300];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
@@ -26,6 +26,7 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_INDIRECT_ENV?"#define LIGHT_INDIRECT_ENV\n":"",
 		MATERIAL_DIFFUSE_COLOR?"#define MATERIAL_DIFFUSE_COLOR\n":"",
 		MATERIAL_DIFFUSE_MAP?"#define MATERIAL_DIFFUSE_MAP\n":"",
+		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
 		OBJECT_SPACE?"#define OBJECT_SPACE\n":"",
 		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":""
 		);

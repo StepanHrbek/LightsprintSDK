@@ -11,6 +11,7 @@
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE_COLOR
 //  #define MATERIAL_DIFFUSE_MAP
+//  #define MATERIAL_NORMAL_MAP
 //  #define OBJECT_SPACE
 //  #define FORCE_2D_POSITION
 //
@@ -62,7 +63,11 @@
 #endif
 
 #ifdef LIGHT_DIRECT
-	varying vec4 lightDirectColor;
+	uniform vec3 worldLightPos;
+	uniform vec3 worldEyePos;
+	#ifndef MATERIAL_NORMAL_MAP
+		varying float lightDirectColor;
+	#endif
 #endif
 
 #ifdef LIGHT_DIRECT_MAP
@@ -74,7 +79,7 @@
 #endif
 
 #ifdef LIGHT_INDIRECT_COLOR
-	varying vec4 lightIndirectColor; // passed rather through gl_Color, ATI fails on anything else
+	//varying vec4 lightIndirectColor; // passed rather through gl_Color, ATI fails on anything else
 #endif
 
 #ifdef LIGHT_INDIRECT_MAP
@@ -96,8 +101,6 @@
 	varying vec2 materialDiffuseCoord;
 #endif
 
-uniform vec3 worldLightPos;
-uniform vec3 worldEyePos;
 varying vec3 worldPos;
 varying vec3 worldNormal;
 
@@ -243,10 +246,32 @@ void main()
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	// material
+
+	#ifdef MATERIAL_DIFFUSE_MAP
+		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord);
+		#ifdef LIGHT_INDIRECT_ENV
+			float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.7);
+			float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
+		#endif
+		#ifdef MATERIAL_NORMAL_MAP
+			worldNormal = normalize(worldNormal+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
+		#endif
+	#endif
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	// light direct
 
 	#ifdef LIGHT_DIRECT
-		vec4 lightDirect = lightDirectColor
+		vec3 worldLightDir = normalize(worldLightPos - worldPos);
+		vec4 lightDirect =
+			#ifdef MATERIAL_NORMAL_MAP
+				max(0.0,dot(worldLightDir, worldNormal)) // per pixel
+			#else
+				lightDirectColor // per vertex
+			#endif
 			#ifdef LIGHT_DIRECT_MAP
 				* texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
 			#endif
@@ -261,12 +286,8 @@ void main()
 	//
 	// final mix
 
-	#ifdef MATERIAL_DIFFUSE_MAP
-		float specularReflectance = step(texture2D(materialDiffuseMap, materialDiffuseCoord).r,0.7);
-		float diffuseReflectance = 1.0 - specularReflectance;
-	#endif
 	#ifdef LIGHT_INDIRECT_ENV
-		vec3 worldViewReflected = reflect(worldPos-worldEyePos,normalize(worldNormal));
+		vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
 	#endif
 
 	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
@@ -277,13 +298,13 @@ void main()
 			//
 
 			#ifdef LIGHT_INDIRECT_ENV
-				diffuseReflectance *
+				materialDiffuseReflectance *
 			#endif
 			#ifdef MATERIAL_DIFFUSE_MAP
-				texture2D(materialDiffuseMap, materialDiffuseCoord) * 
+				materialDiffuseMapColor *
 			#endif
 			#ifdef MATERIAL_DIFFUSE_COLOR
-				materialDiffuseColor * 
+				materialDiffuseColor *
 			#endif
 			( 
 				#ifdef LIGHT_DIRECT
@@ -309,10 +330,10 @@ void main()
 			//
 
 			#ifdef LIGHT_INDIRECT_ENV
-				+ specularReflectance *
+				+ materialSpecularReflectance *
 				(
 					textureCube(lightIndirectSpecularEnvMap, worldViewReflected)
-					+ pow(max(0,dot(normalize(worldLightPos-worldPos),normalize(worldViewReflected))),10)*2
+					+ pow(max(0.0,dot(worldLightDir,normalize(worldViewReflected))),10)*2
 					* lightDirect
 				)
 			#endif

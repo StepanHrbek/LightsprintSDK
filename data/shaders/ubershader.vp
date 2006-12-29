@@ -11,6 +11,7 @@
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE_COLOR
 //  #define MATERIAL_DIFFUSE_MAP
+//  #define MATERIAL_NORMAL_MAP
 //  #define OBJECT_SPACE
 //  #define FORCE_2D_POSITION
 //
@@ -26,13 +27,13 @@
 	varying vec4 shadowCoord[SHADOW_MAPS];
 #endif
 
-#ifdef LIGHT_DIRECT
+#if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
 	uniform vec3 worldLightPos;
-	varying vec4 lightDirectColor;
+	varying float lightDirectColor;
 #endif
 
 #ifdef LIGHT_INDIRECT_COLOR
-	varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI fails on anything else
+	//varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI fails on anything else
 #endif
 
 #ifdef LIGHT_INDIRECT_MAP
@@ -61,14 +62,11 @@ void main()
 	#endif
 	worldPos = worldPos4.xyz;
 
-	#ifdef LIGHT_DIRECT
-		// direct light
-		vec3 worldLightDir = normalize(worldLightPos - worldPos);
-		lightDirectColor = vec4(max(dot(worldLightDir, worldNormal),0.0));
+	#if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
+		lightDirectColor = max(dot(normalize(worldLightPos - worldPos), worldNormal),0.0);
 	#endif
 
 	#ifdef LIGHT_INDIRECT_COLOR
-		// indirect light
 		gl_FrontColor = gl_Color;
 	#endif
 
