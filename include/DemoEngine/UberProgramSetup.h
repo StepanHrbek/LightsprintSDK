@@ -45,8 +45,11 @@ struct DE_API UberProgramSetup
 	bool     LIGHT_INDIRECT_COLOR   :1;
 	bool     LIGHT_INDIRECT_MAP     :1;
 	bool     LIGHT_INDIRECT_ENV     :1;
+	bool     MATERIAL_DIFFUSE       :1;
 	bool     MATERIAL_DIFFUSE_COLOR :1;
 	bool     MATERIAL_DIFFUSE_MAP   :1;
+	bool     MATERIAL_SPECULAR      :1;
+	bool     MATERIAL_SPECULAR_MAP  :1;
 	bool     MATERIAL_NORMAL_MAP    :1;
 	bool     OBJECT_SPACE           :1;
 	bool     FORCE_2D_POSITION      :1;

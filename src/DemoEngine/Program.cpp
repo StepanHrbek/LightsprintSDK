@@ -63,6 +63,7 @@ void Program::linkIt()
 	glGetProgramiv(handle,GL_LINK_STATUS,&alinked);
 	// store result
 	linked = alinked!=0;
+//	assert(linked);
 }
 
 bool Program::isLinked()

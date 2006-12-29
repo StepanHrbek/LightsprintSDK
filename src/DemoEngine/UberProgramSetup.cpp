@@ -15,7 +15,7 @@
 const char* UberProgramSetup::getSetupString()
 {
 	static char setup[300];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
@@ -24,8 +24,11 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_INDIRECT_COLOR?"#define LIGHT_INDIRECT_COLOR\n":"",
 		LIGHT_INDIRECT_MAP?"#define LIGHT_INDIRECT_MAP\n":"",
 		LIGHT_INDIRECT_ENV?"#define LIGHT_INDIRECT_ENV\n":"",
+		MATERIAL_DIFFUSE?"#define MATERIAL_DIFFUSE\n":"",
 		MATERIAL_DIFFUSE_COLOR?"#define MATERIAL_DIFFUSE_COLOR\n":"",
 		MATERIAL_DIFFUSE_MAP?"#define MATERIAL_DIFFUSE_MAP\n":"",
+		MATERIAL_SPECULAR?"#define MATERIAL_SPECULAR\n":"",
+		MATERIAL_SPECULAR_MAP?"#define MATERIAL_SPECULAR_MAP\n":"",
 		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
 		OBJECT_SPACE?"#define OBJECT_SPACE\n":"",
 		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":""
@@ -52,7 +55,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 	unsigned instancesPerPass;
 	for(instancesPerPass=startWith;instancesPerPass;instancesPerPass--)
 	{
-		// maximize use of samplers
+		// static object, maximize use of interpolators
 		UberProgramSetup uberProgramSetup;
 		uberProgramSetup.SHADOW_MAPS = instancesPerPass;
 		uberProgramSetup.SHADOW_SAMPLES = 4;
@@ -62,12 +65,13 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 		uberProgramSetup.OBJECT_SPACE = true;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		if(!uberProgramSetup.getProgram(uberProgram)) continue;
-		// maximize use of interpolators
+		// static object, maximize use of samplers
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
@@ -75,18 +79,19 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		if(!uberProgramSetup.getProgram(uberProgram)) continue;
-		// max envmap
+		// dynamic object
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = true;
+		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+		uberProgramSetup.MATERIAL_SPECULAR = true;
+		uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
 		if(!uberProgramSetup.getProgram(uberProgram)) continue;
 		break;
 	}
-	//		if(instancesPerPass>1) instancesPerPass--;
-	//		if(instancesPerPass>1) instancesPerPass--;
 	return instancesPerPass;
 }
 
@@ -160,12 +165,18 @@ bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight
 	// lightIndirectEnvMap
 	if(LIGHT_INDIRECT_ENV)
 	{
-		int id=TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE;
-		//glActiveTexture(GL_TEXTURE0+id);
-		program->sendUniform("lightIndirectDiffuseEnvMap", id);
-		id=TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR;
-		//glActiveTexture(GL_TEXTURE0+id);
-		program->sendUniform("lightIndirectSpecularEnvMap", id);
+		if(MATERIAL_DIFFUSE)
+		{
+			int id=TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE;
+			//glActiveTexture(GL_TEXTURE0+id);
+			program->sendUniform("lightIndirectDiffuseEnvMap", id);
+		}
+		if(MATERIAL_SPECULAR)
+		{
+			int id=TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR;
+			//glActiveTexture(GL_TEXTURE0+id);
+			program->sendUniform("lightIndirectSpecularEnvMap", id);
+		}
 	}
 
 	// materialDiffuseMap

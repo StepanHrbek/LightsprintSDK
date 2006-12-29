@@ -9,8 +9,11 @@
 //  #define LIGHT_INDIRECT_COLOR
 //  #define LIGHT_INDIRECT_MAP
 //  #define LIGHT_INDIRECT_ENV
+//  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_COLOR
 //  #define MATERIAL_DIFFUSE_MAP
+//  #define MATERIAL_SPECULAR
+//  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
 //  #define OBJECT_SPACE
 //  #define FORCE_2D_POSITION
@@ -249,13 +252,13 @@ void main()
 
 	#ifdef MATERIAL_DIFFUSE_MAP
 		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord);
-		#ifdef LIGHT_INDIRECT_ENV
-			float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.7);
-			float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
-		#endif
-		#ifdef MATERIAL_NORMAL_MAP
-			worldNormal = normalize(worldNormal+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
-		#endif
+	#endif
+	#ifdef MATERIAL_SPECULAR_MAP
+		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.7);
+		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
+	#endif
+	#ifdef MATERIAL_NORMAL_MAP
+		worldNormal = normalize(worldNormal+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
 	#endif
 
 
@@ -298,44 +301,53 @@ void main()
 			// diffuse reflection
 			//
 
-			#ifdef LIGHT_INDIRECT_ENV
-				materialDiffuseReflectance *
+			#ifdef MATERIAL_DIFFUSE
+				#ifdef MATERIAL_DIFFUSE_COLOR
+					materialDiffuseColor *
+				#endif
+				#ifdef MATERIAL_DIFFUSE_MAP
+					materialDiffuseMapColor *
+				#endif
+				#ifdef MATERIAL_SPECULAR_MAP
+					materialDiffuseReflectance *
+				#endif
+				( 
+					#ifdef LIGHT_DIRECT
+						lightDirect
+					#endif
+					#ifdef LIGHT_INDIRECT_CONST
+						+ lightIndirectConst
+					#endif
+					#ifdef LIGHT_INDIRECT_COLOR
+						+ gl_Color
+					#endif
+					#ifdef LIGHT_INDIRECT_MAP
+						+ texture2D(lightIndirectMap, lightIndirectCoord)
+					#endif
+					#ifdef LIGHT_INDIRECT_ENV
+						+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)
+					#endif
+				)
 			#endif
-			#ifdef MATERIAL_DIFFUSE_MAP
-				materialDiffuseMapColor *
-			#endif
-			#ifdef MATERIAL_DIFFUSE_COLOR
-				materialDiffuseColor *
-			#endif
-			( 
-				#ifdef LIGHT_DIRECT
-					lightDirect
-				#endif
-				#ifdef LIGHT_INDIRECT_CONST
-					+ lightIndirectConst
-				#endif
-				#ifdef LIGHT_INDIRECT_COLOR
-					+ gl_Color
-				#endif
-				#ifdef LIGHT_INDIRECT_MAP
-					+ texture2D(lightIndirectMap, lightIndirectCoord)
-				#endif
-				#ifdef LIGHT_INDIRECT_ENV
-					+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)
-				#endif
-			)
 
 
 			//
 			// specular reflection
 			//
 
-			#ifdef LIGHT_INDIRECT_ENV
-				+ materialSpecularReflectance *
+			#ifdef MATERIAL_SPECULAR
+				+
+				#ifdef MATERIAL_SPECULAR_MAP
+					materialSpecularReflectance *
+				#endif
 				(
-					textureCube(lightIndirectSpecularEnvMap, worldViewReflected)
-					+ pow(max(0.0,dot(worldLightDir,normalize(worldViewReflected))),10)*2
-					* lightDirect
+					#ifdef LIGHT_DIRECT
+						+ pow(max(0.0,dot(worldLightDir,normalize(worldViewReflected))),10)*2
+						* lightDirect
+					#endif
+					#ifdef LIGHT_INDIRECT_ENV
+						+ textureCube(lightIndirectSpecularEnvMap, worldViewReflected)
+					#endif
 				)
 			#endif
 			;

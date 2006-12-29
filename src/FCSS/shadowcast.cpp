@@ -236,6 +236,7 @@ void init_gl_resources()
 
 	uberProgram = new UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	UberProgramSetup uberProgramSetup;
+	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
@@ -371,6 +372,7 @@ protected:
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+			uberProgramSetup.MATERIAL_DIFFUSE = true;
 #if PRIMARY_SCAN_PRECISION==1 // 110ms
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
@@ -447,7 +449,7 @@ public:
 	static DynamicObjects* create()
 	{
 		DynamicObjects* d = new DynamicObjects();
-		if(d->dynaobject1 && d->dynaobject2) return d;
+		if(d->dynaobject1 && d->dynaobject2 && d->dynaobject3) return d;
 		delete d;
 		return NULL;
 	}
@@ -455,10 +457,10 @@ public:
 	{
 		static float d = 0;
 		// increment rotation when frame begins
-		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) d = (timeGetTime()%1000000)*0.1f;
+		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) d = (timeGetTime()%1000000)*0.07f;
 
 		/////////////////////////////////////////////////////////////////////
-		// render dynaobject1
+		// render dynaobject1 - dif+specular
 		DynamicObject* dynaobject = dynaobject1;
 		// - set program
 		uberProgramSetup.OBJECT_SPACE = true;
@@ -469,6 +471,12 @@ public:
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
+			uberProgramSetup.MATERIAL_DIFFUSE = 1;
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
+			uberProgramSetup.MATERIAL_SPECULAR = 1;
+			uberProgramSetup.MATERIAL_SPECULAR_MAP = 1;
+			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
 		}
 		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
 			error("Failed to compile or link GLSL program with envmap1.\n",true);
@@ -508,11 +516,16 @@ public:
 		dynaobject->getModel().Draw(NULL);
 
 		/////////////////////////////////////////////////////////////////////
-		// render dynaobject2
+		// render dynaobject2 - diff+specular+normalmap
 		dynaobject = dynaobject2;
 		// - set program
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
+			uberProgramSetup.MATERIAL_DIFFUSE = 1;
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
+			uberProgramSetup.MATERIAL_SPECULAR = 1;
+			uberProgramSetup.MATERIAL_SPECULAR_MAP = 1;
 			uberProgramSetup.MATERIAL_NORMAL_MAP = 1;
 			if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
 				error("Failed to compile or link GLSL program with envmap2.\n",true);
@@ -547,11 +560,58 @@ public:
 		}
 		// - render
 		dynaobject->getModel().Draw(NULL);
+
+		/////////////////////////////////////////////////////////////////////
+		// render dynaobject3 - specular
+		dynaobject = dynaobject3;
+		// - set program
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			uberProgramSetup.MATERIAL_DIFFUSE = 0;
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
+			uberProgramSetup.MATERIAL_SPECULAR = 1;
+			uberProgramSetup.MATERIAL_SPECULAR_MAP = 0;
+			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
+			if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+				error("Failed to compile or link GLSL program with envmap3.\n",true);
+			program = uberProgramSetup.getProgram(uberProgram);
+			// - set globals
+			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
+		}
+		// - set matrices
+		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
+		float m[16];
+		glPushMatrix();
+		glLoadIdentity();
+		glTranslatef(-3.4f,1.5f,-1.5f);
+		glRotatef(d,0,1,0);
+		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
+		glGetFloatv(GL_MODELVIEW_MATRIX,m);
+		glPopMatrix();
+		program->sendUniform("worldMatrix",m,false,4);
+		worldPos = rr::RRVec3(
+			localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
+			localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
+			localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);}
+		// - set envmap
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),0,NULL);
+			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+			dynaobject->getSpecularMap()->bindTexture();
+			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+		}
+		// - render
+		//static RRObject* object = dynaobject->getModel();
+		//static Renderer* renderer = new RendererOfRRObject(object,NULL,NULL);
+		dynaobject->getModel().Draw(NULL);
 	}
 	~DynamicObjects()
 	{
 		delete dynaobject1;
 		delete dynaobject2;
+		delete dynaobject3;
 	}
 private:
 	DynamicObjects()
@@ -565,6 +625,7 @@ private:
 		-pruhledny*/
 		dynaobject1 = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
 		dynaobject2 = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
+		dynaobject3 = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.03f); // ok
 
 		// ok otexturovane
 		//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
@@ -587,6 +648,7 @@ private:
 	}
 	DynamicObject* dynaobject1;
 	DynamicObject* dynaobject2;
+	DynamicObject* dynaobject3;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -672,7 +734,7 @@ void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance
 	// 2) slouzi jako test ze RRRealtimeRadiosity spravne generuje vertex buffer s indirectem
 	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
-	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
+	if(uberProgramSetup.MATERIAL_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -743,8 +805,12 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+	uberProgramSetup.MATERIAL_DIFFUSE = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
+	uberProgramSetup.MATERIAL_SPECULAR = false;
+	uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
+	uberProgramSetup.MATERIAL_NORMAL_MAP = false;
 	//uberProgramSetup.OBJECT_SPACE = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
 	renderScene(uberProgramSetup,0);
@@ -805,7 +871,7 @@ void drawEyeViewSoftShadowed(void)
 	}
 
 	// optimized path without accum, only for m3ds, rrrenderer can't render both materialColor and indirectColor
-	if(numInstances<=INSTANCES_PER_PASS && uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP)
+	if(numInstances<=INSTANCES_PER_PASS && uberProgramGlobalSetup.MATERIAL_DIFFUSE && uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP)
 	{
 		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
@@ -817,7 +883,11 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
+		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
+		//uberProgramSetup.MATERIAL_SPECULAR = ;
+		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
+		//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,0);
@@ -838,8 +908,12 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
+		//uberProgramSetup.MATERIAL_SPECULAR = ;
+		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
+		//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,i);
@@ -856,8 +930,12 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
+		//uberProgramSetup.MATERIAL_SPECULAR = ;
+		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
+		//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1233,8 +1311,12 @@ void display()
 				uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 				uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 				uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+				//uberProgramSetup.MATERIAL_DIFFUSE = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
+				//uberProgramSetup.MATERIAL_SPECULAR = ;
+				//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
+				//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
 				//uberProgramSetup.OBJECT_SPACE = false;
 				uberProgramSetup.FORCE_2D_POSITION = false;
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1886,8 +1968,12 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
+	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
+	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;
+	uberProgramGlobalSetup.MATERIAL_NORMAL_MAP = false;
 	uberProgramGlobalSetup.OBJECT_SPACE = false;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
 

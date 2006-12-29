@@ -216,8 +216,12 @@ protected:
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+			uberProgramSetup.MATERIAL_DIFFUSE = true;
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
+			uberProgramSetup.MATERIAL_SPECULAR = false;
+			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
+			uberProgramSetup.MATERIAL_NORMAL_MAP = false;
 			uberProgramSetup.OBJECT_SPACE = false;
 			uberProgramSetup.FORCE_2D_POSITION = true;
 			rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,lastCapturedTriangle); // set param for cache so it creates different displaylists
@@ -314,7 +318,11 @@ void display(void)
 #endif
 	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
+	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+	uberProgramSetup.MATERIAL_SPECULAR = false;
+	uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
+	uberProgramSetup.MATERIAL_NORMAL_MAP = false;
 	uberProgramSetup.OBJECT_SPACE = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
 	renderScene(uberProgramSetup);
