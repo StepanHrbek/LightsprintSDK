@@ -98,6 +98,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/Model_3DS.h"
 #include "DemoEngine/3ds2rr.h"
 #include "DemoEngine/RendererWithCache.h"
+#include "DemoEngine/RendererOf3DS.h"
 #include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/UberProgramSetup.h"
 #include "DemoEngine/RRIlluminationPixelBufferInOpenGL.h"
@@ -584,7 +585,7 @@ public:
 		float m[16];
 		glPushMatrix();
 		glLoadIdentity();
-		glTranslatef(-3.4f,1.5f,-1.5f);
+		glTranslatef(-3.1f,1.88f,-0.9f);
 		glRotatef(d,0,1,0);
 		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
 		glGetFloatv(GL_MODELVIEW_MATRIX,m);
@@ -603,9 +604,54 @@ public:
 			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		}
 		// - render
-		//static RRObject* object = dynaobject->getModel();
-		//static Renderer* renderer = new RendererOfRRObject(object,NULL,NULL);
-		dynaobject->getModel().Draw(NULL);
+		static Renderer* rendererWithoutCache = new RendererOf3DS(&dynaobject->getModel());
+		static Renderer* rendererCached = new RendererWithCache(rendererWithoutCache);
+		rendererCached->render();
+		//dynaobject->getModel().Draw(NULL);
+
+		/////////////////////////////////////////////////////////////////////
+		/*/ render dynaobject4 - diffuse
+		dynaobject = dynaobject3;
+		// - set program
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			uberProgramSetup.MATERIAL_DIFFUSE = 1;
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
+			uberProgramSetup.MATERIAL_SPECULAR = 0;
+			uberProgramSetup.MATERIAL_SPECULAR_MAP = 0;
+			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
+			if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+				error("Failed to compile or link GLSL program with envmap4.\n",true);
+			program = uberProgramSetup.getProgram(uberProgram);
+			// - set globals
+			//program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
+		}
+		// - set matrices
+		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
+		float m[16];
+		glPushMatrix();
+		glLoadIdentity();
+		glTranslatef(-3.1f,1.88f,-0.9f);
+		glRotatef(d,0,1,0);
+		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
+		glGetFloatv(GL_MODELVIEW_MATRIX,m);
+		glPopMatrix();
+		program->sendUniform("worldMatrix",m,false,4);
+		worldPos = rr::RRVec3(
+			localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
+			localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
+			localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);}
+		// - set envmap
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			level->solver->updateEnvironmentMaps(worldPos,16,0,NULL,4,dynaobject->getDiffuseMap());
+			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+			dynaobject->getDiffuseMap()->bindTexture();
+			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+		}
+		// - render
+		dynaobject->getModel().Draw(NULL);*/
 	}
 	~DynamicObjects()
 	{
@@ -617,15 +663,9 @@ private:
 	DynamicObjects()
 	{
 		// init dynaobject
-		/*umoznit vic shaderu, mozna pomoci samostatnych souboru radsi nez ubershaderu
-		-diffuse
-		-specular
-		-specular pro material.r<0.3, jinak diffuse
-		-specular s materialTexturou pouzitou jako heightmap
-		-pruhledny*/
 		dynaobject1 = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
 		dynaobject2 = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
-		dynaobject3 = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.03f); // ok
+		dynaobject3 = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.04f); // ok
 
 		// ok otexturovane
 		//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
@@ -639,7 +679,7 @@ private:
 
 		// ok neotexturovane
 		//dynaobject = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.01f); // ok
-		//dynaobject = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.02f); // ok
+		//dynaobject = DynamicObject::create("3ds\\characters\\i robot female.3ds",0.04f); // ok
 		//dynaobject = DynamicObject::create("3ds\\objects\\knife.3ds",0.01f); // ok
 		//dynaobject = DynamicObject::create("3ds\\characters\\snowman.3ds",1); // spatne normaly zezadu
 		//dynaobject = DynamicObject::create("3ds\\objects\\gothchocker.3ds",0.2f); // spatne normaly zezadu

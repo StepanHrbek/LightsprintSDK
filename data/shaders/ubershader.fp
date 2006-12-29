@@ -277,7 +277,7 @@ void main()
 				lightDirectColor // per vertex
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
-				* texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
+				* texture2DProj(lightDirectMap, shadowCoord[0])
 			#endif
 			#if SHADOW_SAMPLES*SHADOW_MAPS>0
 				* shadowValue/float(SHADOW_SAMPLES*SHADOW_MAPS)
@@ -291,7 +291,8 @@ void main()
 	// final mix
 
 	#ifdef LIGHT_INDIRECT_ENV
-		vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
+		vec3 worldView = worldPos-worldEyePos;
+		vec3 worldViewReflected = reflect(worldView,worldNormal);
 	#endif
 
 	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
@@ -351,5 +352,9 @@ void main()
 				)
 			#endif
 			;
+
+		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_SPECULAR_MAP)
+			gl_FragColor *= 0.5;
+		#endif
 	#endif
 }

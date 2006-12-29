@@ -366,6 +366,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RendererOf3DS.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\RendererOf3DS.h"
+			>
+		</File>
+		<File
 			RelativePath=".\RendererOfRRObject.cpp"
 			>
 		</File>

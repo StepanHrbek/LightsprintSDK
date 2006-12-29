@@ -452,7 +452,8 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 
 		// fill cubemaps
 		// - diffuse
-		FILL_CUBEMAP(diffuseSize,1.0f,diffuseMap);
+		FILL_CUBEMAP(diffuseSize,0.9f,diffuseMap);
+		//if(diffuseMap) diffuseMap->setValues(gatherSize,gatheredIrradiance);
 		/*if(specularSize==gatherSize)
 		{
 			// - specular fast
