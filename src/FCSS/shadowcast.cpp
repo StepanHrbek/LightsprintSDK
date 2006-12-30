@@ -333,8 +333,19 @@ protected:
 		if(needDepthMapUpdate)
 		{
 			if(needMatrixUpdate) updateMatrices(); // probably not necessary
-			updateDepthMap(0,0);
-			needDepthMapUpdate = 1; // aby si pote soft pregeneroval svych 7 map a nespolehal na nasi jednu
+			// to avoid depth updates only for us, all depthmaps are updated and then used by following display()
+			if(drawMode==DM_EYE_VIEW_SOFTSHADOWED)
+			{
+				unsigned numInstances = areaLight->getNumInstances();
+				for(unsigned i=0;i<numInstances;i++)
+				{
+					updateDepthMap(i,numInstances);
+				}
+			}
+			else
+			{
+				updateDepthMap(0,0);
+			}
 		}
 		
 		//Timer w;w.Start();
@@ -828,7 +839,6 @@ void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 {
 	if(!needDepthMapUpdate) return;
-
 	assert(mapIndex>=0);
 	Camera* lightInstance = areaLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
@@ -1800,6 +1810,14 @@ void passive(int x, int y)
 void idle()
 {
 	if(!winWidth) return; // can't work without window
+
+	// 1. move movables
+	// 2. calculate (optionally update all depthmaps)
+	// 3. render (when possible, reuse existing depthmaps)
+	// avoid: 
+	// 1. calculate updates depthmaps
+	// 2. movables move
+	// 3. display updates depthmaps again
 
 	// keyboard movements with key repeat turned off
 	static TIME prev = 0;

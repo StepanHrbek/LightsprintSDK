@@ -10,6 +10,9 @@
 #include "RRRealtimeRadiosity.h"
 #include "../src/RRMath/RRMathPrivate.h"
 
+#undef REPORT
+#define REPORT(a)
+
 namespace rr
 {
 
@@ -414,7 +417,7 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 
 	REPORT_INIT;
 	REPORT_BEGIN("Update envmap-100x gather");
-	#define TEST100 REPORT(for(unsigned q=0;q<100;q++))
+	#define TEST100 //REPORT(for(unsigned q=0;q<100;q++))
 
 #define FILL_CUBEMAP(filteredSize, radius, map) \
 	if(map) \
