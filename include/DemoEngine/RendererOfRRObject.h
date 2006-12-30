@@ -49,6 +49,7 @@ private:
 		const rr::RRScaler* scaler;
 		RenderedChannels renderedChannels;
 		VertexDataGenerator* generateForcedUv;
+		unsigned otherCaptureParamsHash;
 		unsigned firstCapturedTriangle;
 		unsigned lastCapturedTriangle;
 	};

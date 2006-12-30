@@ -21,6 +21,7 @@ class DE_API VertexDataGenerator
 public:
 	virtual ~VertexDataGenerator() {};
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) = 0; // vertexIndex=0..2
+	virtual unsigned getHash() = 0;
 };
 
 #endif

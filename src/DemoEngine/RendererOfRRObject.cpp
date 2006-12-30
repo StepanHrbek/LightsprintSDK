@@ -35,6 +35,7 @@ void RendererOfRRObject::setRenderedChannels(RenderedChannels renderedChannels)
 void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTriangle)
 {
 	params.generateForcedUv = capture;
+	params.otherCaptureParamsHash = capture ? capture->getHash() : 0;
 	params.firstCapturedTriangle = afirstCapturedTriangle;
 	params.lastCapturedTriangle = alastCapturedTriangle;
 }

@@ -284,6 +284,10 @@ public:
 			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/xmax)+((vertexIndex==0)?1:0)-ymax*0.5f)/(ymax*0.5f);
 		}
 	}
+	virtual unsigned getHash()
+	{
+		return firstCapturedTriangle+(xmax<<8)+(ymax<<16);
+	}
 	unsigned firstCapturedTriangle;
 	unsigned lastCapturedTriangle;
 	unsigned xmax, ymax;

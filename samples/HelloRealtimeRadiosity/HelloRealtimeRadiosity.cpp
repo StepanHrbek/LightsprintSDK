@@ -146,6 +146,10 @@ public:
 		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%xmax)+((vertexIndex==2)?1:0)-xmax*0.5f)/(xmax*0.5f);
 		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/xmax)+((vertexIndex==0)?1:0)-ymax*0.5f)/(ymax*0.5f);
 	}
+	virtual unsigned getHash()
+	{
+		return firstCapturedTriangle+(xmax<<8)+(ymax<<16);
+	}
 	unsigned firstCapturedTriangle; // index of first captured triangle (for case that there are too many triangles for one texture)
 	unsigned xmax, ymax; // max number of triangles in texture
 };
