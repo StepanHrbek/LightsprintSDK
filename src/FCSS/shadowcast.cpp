@@ -8,7 +8,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SHADOW_MAP_SIZE            512
 #define LIGHTMAP_SIZE              1024
 #define SUBDIVISION                0
-bool ati = 0;
+bool ati = 1;
 int fullscreen = 0;
 bool animated = 1;
 bool renderer3ds = 1;
@@ -468,6 +468,8 @@ public:
 		if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
 		{
 			// indirect from envmap
+			uberProgramSetup.SHADOW_MAPS = 1;
+			//uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 			uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
@@ -2019,8 +2021,6 @@ int main(int argc, char **argv)
 
 	// adjust INSTANCES_PER_PASS to GPU
 	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
-	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
-	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(!INSTANCES_PER_PASS) error("",true);
 

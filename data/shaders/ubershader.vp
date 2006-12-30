@@ -44,7 +44,7 @@
 #endif
 
 varying vec3 worldPos;
-varying vec3 worldNormal;
+varying vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_DIFFUSE_COLOR
 	varying vec4 materialDiffuseColor;
@@ -58,15 +58,15 @@ void main()
 {
 	#ifdef OBJECT_SPACE
 		vec4 worldPos4 = worldMatrix * gl_Vertex;
-		worldNormal = normalize( worldMatrix * vec4(gl_Normal,0.0) ).xyz;
+		worldNormalSmooth = normalize( worldMatrix * vec4(gl_Normal,0.0) ).xyz;
 	#else
 		vec4 worldPos4 = gl_Vertex;
-		worldNormal = normalize( gl_Normal );
+		worldNormalSmooth = normalize( gl_Normal );
 	#endif
 	worldPos = worldPos4.xyz;
 
 	#if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
-		lightDirectColor = max(dot(normalize(worldLightPos - worldPos), worldNormal),0.0);
+		lightDirectColor = max(dot(normalize(worldLightPos - worldPos), worldNormalSmooth),0.0);
 	#endif
 
 	#ifdef LIGHT_INDIRECT_COLOR

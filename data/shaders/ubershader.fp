@@ -94,7 +94,7 @@
 	uniform samplerCube lightIndirectSpecularEnvMap;
 	uniform samplerCube lightIndirectDiffuseEnvMap;
 	varying vec3 worldPos;
-	varying vec3 worldNormal;
+	varying vec3 worldNormalSmooth;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
@@ -257,8 +257,12 @@ void main()
 		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
 		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
 	#endif
-	#ifdef MATERIAL_NORMAL_MAP
-		worldNormal = normalize(worldNormal+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
+	#ifdef LIGHT_INDIRECT_ENV
+		#ifdef MATERIAL_NORMAL_MAP
+			vec3 worldNormal = normalize(worldNormalSmooth+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
+		#else
+			vec3 worldNormal = worldNormalSmooth; // normalize would slightly improve quality
+		#endif
 	#endif
 
 
@@ -343,7 +347,7 @@ void main()
 				#endif
 				(
 					#ifdef LIGHT_DIRECT
-						+ pow(max(0.0,dot(worldLightDir,normalize(worldViewReflected))),10)*2
+						+ pow(max(0.0,dot(worldLightDir,normalize(worldViewReflected))),10.0)*2.0
 						* lightDirect
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV
