@@ -52,9 +52,9 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 RRRealtimeRadiosity::~RRRealtimeRadiosity()
 {
 	delete scene;
-	delete multiObjectCustom;
-	delete multiObjectPhysical;
 	delete multiObjectPhysicalWithIllumination;
+	delete multiObjectPhysical;
+	delete multiObjectCustom;
 }
 
 void RRRealtimeRadiosity::setScaler(RRScaler* ascaler)

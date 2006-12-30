@@ -36,7 +36,10 @@ public:
 			transformedMeshes[numObjects] = NULL;
 			transformedMeshes[numObjects+1] = NULL;
 			transformedMeshes[numObjects+2] = NULL;
+
+			RRMesh* oldMesh = transformedMeshes[0];
 			RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects);
+			if(multiMesh!=oldMesh) transformedMeshes[numObjects] = multiMesh; // remember for freeing time
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
 			// kdyz jsou zaple tyto optimalizace, pristup k objektu je pomalejsi,
@@ -46,29 +49,31 @@ public:
 			// stitch vertices
 			if(maxStitchDistance>=0)
 			{
-				transformedMeshes[numObjects] = multiMesh; // remember for freeing time
+				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedVertices(maxStitchDistance);
+				if(multiMesh!=oldMesh) transformedMeshes[numObjects+1] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
 			if(optimizeTriangles)
 			{
-				transformedMeshes[numObjects+2] = multiMesh; // remember for freeing time
+				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedTriangles();
+				if(multiMesh!=oldMesh) transformedMeshes[numObjects+2] = multiMesh; // remember for freeing time
 			}
 			// NOW: multiMesh is optimized, object indexing must be optimized too via calls to unoptimizeTriangle()
 
 			// create copy (faster access)
 			// disabled because we know that current copy implementation always gives up
 			// due to low efficiency
-			if(0)
+			/*if(0)
 			{
 				RRMesh* tmp = multiMesh->createCopy();
 				if(tmp)
 				{
-					transformedMeshes[numObjects+1] = multiMesh; // remember for freeing time
+					transformedMeshes[numObjects+x] = multiMesh; // remember for freeing time
 					multiMesh = tmp;
 				}
-			}
+			}*/
 
 			// create multicollider
 			multiCollider = RRCollider::create(multiMesh,intersectTechnique,cacheLocation);
@@ -156,12 +161,11 @@ public:
 		// Only for top level of tree:
 		if(multiCollider) 
 		{
-			// Delete multiMesh importer created by us.
-			delete multiCollider->getMesh();
 			// Delete multiCollider created by us.
 			delete multiCollider;
 			// Delete transformers created by us.
 			unsigned numObjects = pack[0].getNumObjects() + pack[1].getNumObjects();
+			assert(transformedMeshes[0]!=transformedMeshes[1]);
 			for(unsigned i=0;i<numObjects+3;i++) delete transformedMeshes[i];
 			delete[] transformedMeshes;
 		}
