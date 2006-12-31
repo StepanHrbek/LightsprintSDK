@@ -1065,14 +1065,18 @@ Level::Level(const char* filename_3ds)
 		//Camera tmplight = {{3.713,1.013,-3.391},1.045,-1.450,1.0,70.0,1.0,20.0};
 		//Camera tmpeye = {{3.378,1.925,-3.447},13.590,-0.050,1.3,75.0,0.3,60.0};
 		//Camera tmplight = {{8.193,5.060,5.751},8.985,2.150,1.0,70.0,1.0,20.0};
-		Camera tmpeye = {{13.739,1.732,-1.572},23.650,0.100,1.3,75.0,0.3,60.0};
-		Camera tmplight = {{8.193,5.060,5.751},9.170,2.900,1.0,70.0,1.0,20.0};
+		//Camera tmpeye = {{13.739,1.732,-1.572},23.650,0.100,1.3,75.0,0.3,60.0};
+		//Camera tmplight = {{8.193,5.060,5.751},9.170,2.900,1.0,70.0,1.0,20.0};
 		//Camera tmpeye = {{13.739,1.732,-1.560},23.660,0.350,1.3,75.0,0.3,60.0};
 		//Camera tmplight = {{13.369,2.732,3.065},16.515,0.850,1.0,70.0,1.0,20.0};
+		Camera tmpeye = {{13.739,1.732,-1.572},23.470,-0.350,1.3,75.0,0.3,60.0};
+		Camera tmplight = {{8.193,5.060,5.751},9.295,2.350,1.0,70.0,1.0,20.0};
+
 		dynaobjects->setPos(0,rr::RRVec3(11.55f,0.355f,-2.93f));
 		dynaobjects->setPos(1,rr::RRVec3(8.41f,3.555f,0.17f));
 		dynaobjects->setPos(2,rr::RRVec3(12.57f,0,-1.45f));
-		dynaobjects->setPos(3,rr::RRVec3(7.55f,0.355f,2.2f));//10.71f,0.711f,0.38f));
+		dynaobjects->setPos(3,rr::RRVec3(10.71f,0.711f,0.38f));
+		//dynaobjects->setPos(3,rr::RRVec3(7.55f,0.355f,2.2f));
 		eye = tmpeye;
 		light = tmplight;
 		updateDuringLightMovement = 1;
