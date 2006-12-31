@@ -465,19 +465,22 @@ public:
 	static DynamicObjects* create()
 	{
 		DynamicObjects* d = new DynamicObjects();
-		if(d->dynaobject1 && d->dynaobject2 && d->dynaobject3) return d;
+		if(d->dynaobject[0] && d->dynaobject[1] && d->dynaobject[2] && d->dynaobject[3]) return d;
 		delete d;
 		return NULL;
+	}
+	void setPos(unsigned objIndex, rr::RRVec3 worldFoot)
+	{
+		if(objIndex<=4) dynaobject[objIndex]->worldFoot = worldFoot;
 	}
 	void renderSceneDynamic(UberProgramSetup uberProgramSetup, unsigned firstInstance) const
 	{
 		static float d = 0;
 		// increment rotation when frame begins
-		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) d = (timeGetTime()%1000000)*0.07f;
+		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) d = (timeGetTime()%10000000)*0.07f;
 
 		/////////////////////////////////////////////////////////////////////
 		// render dynaobject1 - dif+specular
-		DynamicObject* dynaobject = dynaobject1;
 		// - set program
 		uberProgramSetup.OBJECT_SPACE = true;
 		if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
@@ -496,46 +499,13 @@ public:
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = 1;
 			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
 		}
-		if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+		Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
+		if(!program)
 			error("Failed to compile or link GLSL program with envmap1.\n",true);
-		Program* program = uberProgramSetup.getProgram(uberProgram);
-		// - set globals
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
-		}
-		// - set matrices
-		rr::RRVec3 worldPos;
-		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
-		float m[16];
-		glPushMatrix();
-		glLoadIdentity();
-		glTranslatef(-1.7f,1.3f,-0.8f);
-		glRotatef(d,0,1,0);
-		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
-		glGetFloatv(GL_MODELVIEW_MATRIX,m);
-		glPopMatrix();
-		program->sendUniform("worldMatrix",m,false,4);
-		worldPos = rr::RRVec3(
-			localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
-			localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
-			localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);}
-		// - set envmap
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap());
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-			dynaobject->getSpecularMap()->bindTexture();
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			dynaobject->getDiffuseMap()->bindTexture();
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-		}
-		// - render
-		dynaobject->render();
+		dynaobject[0]->render(program,uberProgramSetup,level->solver,eye,d);
 
 		/////////////////////////////////////////////////////////////////////
 		// render dynaobject2 - diff+specular+normalmap
-		dynaobject = dynaobject2;
 		// - set program
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
@@ -545,43 +515,15 @@ public:
 			uberProgramSetup.MATERIAL_SPECULAR = 1;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = 1;
 			uberProgramSetup.MATERIAL_NORMAL_MAP = 1;
-			if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+			program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
+			if(!program)
 				error("Failed to compile or link GLSL program with envmap2.\n",true);
-			program = uberProgramSetup.getProgram(uberProgram);
-			// - set globals
-			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
-		}
-		// - set matrices
-		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
-		float m[16];
-		glPushMatrix();
-		glLoadIdentity();
-		glTranslatef(1,0.88f,0.7f);
-		glRotatef(d,0,1,0);
-		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
-		glGetFloatv(GL_MODELVIEW_MATRIX,m);
-		glPopMatrix();
-		program->sendUniform("worldMatrix",m,false,4);
-		worldPos = rr::RRVec3(
-			localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
-			localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
-			localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);}
-		// - set envmap
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),4,dynaobject->getDiffuseMap());
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-			dynaobject->getSpecularMap()->bindTexture();
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			dynaobject->getDiffuseMap()->bindTexture();
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		}
 		// - render
-		dynaobject->render();
+		dynaobject[1]->render(program,uberProgramSetup,level->solver,eye,d);
 
 		/////////////////////////////////////////////////////////////////////
 		// render dynaobject3 - specular
-		dynaobject = dynaobject3;
 		// - set program
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
@@ -591,41 +533,15 @@ public:
 			uberProgramSetup.MATERIAL_SPECULAR = 1;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = 0;
 			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
-			if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+			program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
+			if(!program)
 				error("Failed to compile or link GLSL program with envmap3.\n",true);
-			program = uberProgramSetup.getProgram(uberProgram);
-			// - set globals
-			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
-		}
-		// - set matrices
-		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
-		float m[16];
-		glPushMatrix();
-		glLoadIdentity();
-		glTranslatef(-3.1f,1.88f,-0.9f);
-		glRotatef(d,0,1,0);
-		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
-		glGetFloatv(GL_MODELVIEW_MATRIX,m);
-		glPopMatrix();
-		program->sendUniform("worldMatrix",m,false,4);
-		worldPos = rr::RRVec3(
-			localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
-			localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
-			localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);}
-		// - set envmap
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			level->solver->updateEnvironmentMaps(worldPos,16,16,dynaobject->getSpecularMap(),0,NULL);
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-			dynaobject->getSpecularMap()->bindTexture();
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		}
 		// - render
-		dynaobject->render();
+		dynaobject[2]->render(program,uberProgramSetup,level->solver,eye,d);
 
 		/////////////////////////////////////////////////////////////////////
 		// render dynaobject4 - diffuse
-		dynaobject = dynaobject4;
 		// - set program
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
@@ -635,53 +551,28 @@ public:
 			uberProgramSetup.MATERIAL_SPECULAR = 0;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = 0;
 			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
-			if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+			program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
+			if(!program)
 				error("Failed to compile or link GLSL program with envmap4.\n",true);
-			program = uberProgramSetup.getProgram(uberProgram);
-			// - set globals
-			//program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
-		}
-		// - set matrices
-		{const rr::RRVec3& localPos = dynaobject->getLocalCenter();
-		float m[16];
-		glPushMatrix();
-		glLoadIdentity();
-		glTranslatef(-0.5f,1.28f,1.5f);
-		glRotatef(d,0,1,0);
-		glTranslatef(-localPos[0],-localPos[1],-localPos[2]);
-		glGetFloatv(GL_MODELVIEW_MATRIX,m);
-		glPopMatrix();
-		program->sendUniform("worldMatrix",m,false,4);
-		worldPos = rr::RRVec3(
-			localPos[0]*m[0]+localPos[1]*m[4]+localPos[2]*m[ 8]+m[12],
-			localPos[0]*m[1]+localPos[1]*m[5]+localPos[2]*m[ 9]+m[13],
-			localPos[0]*m[2]+localPos[1]*m[6]+localPos[2]*m[10]+m[14]);}
-		// - set envmap
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			level->solver->updateEnvironmentMaps(worldPos,16,0,NULL,4,dynaobject->getDiffuseMap());
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			dynaobject->getDiffuseMap()->bindTexture();
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		}
 		// - render
-		dynaobject->render();
+		dynaobject[3]->render(program,uberProgramSetup,level->solver,eye,d);
 	}
 	~DynamicObjects()
 	{
-		delete dynaobject1;
-		delete dynaobject2;
-		delete dynaobject3;
-		delete dynaobject4;
+		delete dynaobject[0];
+		delete dynaobject[1];
+		delete dynaobject[2];
+		delete dynaobject[3];
 	}
 private:
 	DynamicObjects()
 	{
 		// init dynaobject
-		dynaobject1 = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f);
-		dynaobject2 = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.013f);
-		dynaobject3 = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.33f);
-		dynaobject4 = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.006f); // ok
+		dynaobject[0] = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f);
+		dynaobject[1] = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.013f);
+		dynaobject[2] = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.33f);
+		dynaobject[3] = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.006f); // ok
 
 		// ok otexturovane
 		//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
@@ -702,10 +593,7 @@ private:
 		//dynaobject = DynamicObject::create("3ds\\objects\\rubic_cube.3ds",0.01f); // spatne normaly, ale pouzitelne
 		//dynaobject = DynamicObject::create("3ds\\objects\\polyhedrons_ts.3ds",0.1f); // sesmoothovane normaly, chybi hrany
 	}
-	DynamicObject* dynaobject1;
-	DynamicObject* dynaobject2;
-	DynamicObject* dynaobject3;
-	DynamicObject* dynaobject4;
+	DynamicObject* dynaobject[4];
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1172,6 +1060,13 @@ Level::Level(const char* filename_3ds)
 	}
 	if(strstr(filename_3ds, "quake") || strstr(filename_3ds, "QUAKE")) {
 		scale_3ds = 0.05f;
+		//Camera tmpeye = {{4.533,0.732,3.848},2.150,-2.400,1.3,100.0,0.3,60.0};
+		//Camera tmplight = {{3.713,1.013,-3.391},1.045,-1.450,1.0,70.0,1.0,20.0};
+		Camera tmpeye = {{3.378,1.925,-3.447},13.590,-0.050,1.3,75.0,0.3,60.0};
+		Camera tmplight = {{8.193,5.060,5.751},8.985,2.150,1.0,70.0,1.0,20.0};
+		eye = tmpeye;
+		light = tmplight;
+		updateDuringLightMovement = 1;
 	}
 	if(strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
@@ -1565,25 +1460,42 @@ void keyboard(unsigned char c, int x, int y)
 		case 'p':
 			paused = !paused;
 			break;
-		case '1':
 		case 'a':
 		case 'A':
 			special(GLUT_KEY_LEFT,0,0);
 			break;
-		case '2':
 		case 's':
 		case 'S':
 			special(GLUT_KEY_DOWN,0,0);
 			break;
-		case '3':
 		case 'd':
 		case 'D':
 			special(GLUT_KEY_RIGHT,0,0);
 			break;
-		case '5':
 		case 'w':
 		case 'W':
 			special(GLUT_KEY_UP,0,0);
+			break;
+
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+			{
+				rr::RRRay* ray = rr::RRRay::create();
+				rr::RRVec3 dir = rr::RRVec3(eye.dir[0],eye.dir[1],eye.dir[2]).normalized();
+				ray->rayOrigin = rr::RRVec3(eye.pos[0],eye.pos[1],eye.pos[2]);
+				ray->rayDirInv[0] = 1/dir[0];
+				ray->rayDirInv[1] = 1/dir[1];
+				ray->rayDirInv[2] = 1/dir[2];
+				ray->rayLengthMin = 0;
+				ray->rayLengthMax = 1000;
+				ray->rayFlags = rr::RRRay::FILL_POINT3D;
+				if(level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+				{
+					dynaobjects->setPos(c-'1',ray->hitPoint3d);
+				}
+			}
 			break;
 
 		case 'v':

@@ -269,25 +269,25 @@ bool Model_3DS::Load(const char *filename, float ascale)
 			Materials[j].textured = true;
 		}
 	}
+	UpdateCenter();
 	return true;
 }
 
-Model_3DS::Vector Model_3DS::GetCenter() const
+void Model_3DS::UpdateCenter()
 {
-	Vector sum = {0,0,0};
+	localCenter = rr::RRVec3(0);
+	localMinY = 1e10;
 	for(int o=0;o<numObjects;o++)
 	{
 		for(int v=0;v<Objects[o].numVerts;v++)
 		{
-			sum.x += Objects[o].Vertexes[3*v];
-			sum.y += Objects[o].Vertexes[3*v+1];
-			sum.z += Objects[o].Vertexes[3*v+2];
+			localCenter.x += Objects[o].Vertexes[3*v];
+			localCenter.y += Objects[o].Vertexes[3*v+1];
+			localCenter.z += Objects[o].Vertexes[3*v+2];
+			localMinY = MIN(localMinY,Objects[o].Vertexes[3*v+1]);
 		}
 	}
-	sum.x/=totalVerts;
-	sum.y/=totalVerts;
-	sum.z/=totalVerts;
-	return sum;
+	localCenter /= (float)totalVerts;
 }
 
 void Model_3DS::Draw(rr::RRRealtimeRadiosity* app) const

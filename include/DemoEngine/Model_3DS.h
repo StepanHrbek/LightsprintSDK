@@ -192,14 +192,16 @@ public:
 	float scale;			// The size you want the model scaled to
 	bool lit;				// True: the model is lit
 	bool visible;			// True: the model gets rendered
+	rr::RRVec3 localCenter;
+	rr::RRReal localMinY;
 	bool Load(const char *name, float scale); // Loads a model
-	Vector GetCenter() const;
 	void Draw(rr::RRRealtimeRadiosity* app) const;  // Draws the model using indirect illum from app
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor
 	~Model_3DS();           // Destructor
 
 private:
+	void UpdateCenter();
 	void IntColorChunkProcessor(long length, long findex, int matindex);
 	void FloatColorChunkProcessor(long length, long findex, int matindex);
 	// Processes the Main Chunk that all the other chunks exist is

@@ -95,10 +95,10 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 	return instancesPerPass;
 }
 
-bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap)
 {
 	Program* program = getProgram(uberProgram);
-	if(!program) return false;
+	if(!program) return NULL;
 	program->useIt();
 
 	// shadowMap[], gl_TextureMatrix[]
@@ -187,6 +187,6 @@ bool UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight
 		program->sendUniform("materialDiffuseMap", id);
 	}
 
-	return true;
+	return program;
 }
 
