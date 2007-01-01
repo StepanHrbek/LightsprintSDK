@@ -5,14 +5,15 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
 #define INITIAL_PASSES             1
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
-#define SHADOW_MAP_SIZE            512
+#define SHADOW_MAP_SIZE_SOFT       512
+#define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE              1024
 #define SUBDIVISION                0
+#define SCALE_DOWN_ON_GPU // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
 bool ati = 1;
 int fullscreen = 0;
 bool animated = 1;
 bool renderer3ds = 1;
-bool updateDuringLightMovement = 1;
 bool startWithSoftShadows = 1;
 bool renderLightmaps = 0;
 /*
@@ -152,9 +153,9 @@ UberProgram* uberProgram;
 UberProgramSetup uberProgramGlobalSetup;
 int winWidth = 0;
 int winHeight = 0;
-int depthBias24 = 42;
+int depthBias24 = 23;//42;
 int depthScale24;
-GLfloat slopeScale = 4.0;
+GLfloat slopeScale = 2.3;//4.0;
 int needDepthMapUpdate = 1;
 bool needLightmapCacheUpdate = false;
 int wireFrame = 0;
@@ -211,11 +212,30 @@ void updateDepthScale(void)
 	needDepthMapUpdate = 1;
 }
 
+void setupAreaLight()
+{
+	bool wantSoft = uberProgramGlobalSetup.SHADOW_SAMPLES>1 || areaLight->getNumInstances()>1;
+	if(wantSoft)
+	{
+		areaLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
+		depthBias24 = 23;
+		slopeScale = 2.3f;
+	}
+	else
+	{
+		areaLight->setShadowmapSize(SHADOW_MAP_SIZE_HARD);
+		depthBias24 = 1;
+		slopeScale = 0.1f;
+	}
+	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
+	needDepthMapUpdate = 1;
+}
+
 void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	areaLight = new AreaLight(MAX_INSTANCES,SHADOW_MAP_SIZE);
+	areaLight = new AreaLight(MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
 	updateDepthScale();
@@ -270,7 +290,7 @@ class CaptureUv : public VertexDataGenerator
 public:
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
-		if(!xmax || !ymax)
+		if(!triCountX || !triCountY)
 		{
 			error("No window, internal error.",false);
 		}
@@ -280,17 +300,17 @@ public:
 			((GLfloat*)vertexData)[0] = 0;
 			((GLfloat*)vertexData)[1] = 0;
 		} else {
-			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%xmax)+((vertexIndex==2)?1:0)-xmax*0.5f)/(xmax*0.5f);
-			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/xmax)+((vertexIndex==0)?1:0)-ymax*0.5f)/(ymax*0.5f);
+			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%triCountX)+((vertexIndex==2)?1:0)-triCountX*0.5f)/(triCountX*0.5f);
+			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/triCountX)+((vertexIndex==0)?1:0)-triCountY*0.5f)/(triCountY*0.5f);
 		}
 	}
 	virtual unsigned getHash()
 	{
-		return firstCapturedTriangle+(xmax<<8)+(ymax<<16);
+		return firstCapturedTriangle+(triCountX<<8)+(triCountY<<16);
 	}
 	unsigned firstCapturedTriangle;
 	unsigned lastCapturedTriangle;
-	unsigned xmax, ymax;
+	unsigned triCountX, triCountY;
 };
 
 // external dependencies of Solver:
@@ -300,8 +320,15 @@ public:
 class Solver : public rr::RRRealtimeRadiosity
 {
 public:
+	Solver()
+	{
+		detectBigMap = Texture::create(NULL,DETECT_MAP_SIZE,DETECT_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+		scaleDownProgram = new Program(NULL,"shaders\\scaledown_filter.vp", "shaders\\scaledown_filter.fp");
+	}
 	virtual ~Solver()
 	{
+		delete scaleDownProgram;
+		delete detectBigMap;
 		// delete objects and illumination
 		deleteObjectsFromRR(this);
 	}
@@ -354,28 +381,40 @@ protected:
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		// adjust captured texture size so we don't waste pixels
-		unsigned width1 = 4;
-		unsigned height1 = 4;
-		captureUv.xmax = winWidth/width1;
-		captureUv.ymax = winHeight/height1;
-		while(captureUv.ymax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/(captureUv.xmax*(captureUv.ymax-1))) captureUv.ymax--;
-		unsigned width = captureUv.xmax*width1;
-		unsigned height = captureUv.ymax*height1;
+		unsigned triSizeXRender = 4; // triSizeXRender = triangle width in pixels while rendering
+		unsigned triSizeYRender = 4;
+#ifdef SCALE_DOWN_ON_GPU
+		captureUv.triCountX = DETECT_MAP_SIZE/triSizeXRender; // triCountX = number of triangles in one row
+		captureUv.triCountY = DETECT_MAP_SIZE/triSizeYRender;
+		unsigned triSizeXRead = 1; // triSizeXRead = triangle width in pixels while reading pixel results
+		unsigned triSizeYRead = 1;
+#else
+		captureUv.triCountX = winWidth/triSizeXRender;
+		captureUv.triCountY = winHeight/triSizeYRender;
+		unsigned triSizeXRead = 4;
+		unsigned triSizeYRead = 4;
+#endif
+		while(captureUv.triCountY && numTriangles/(captureUv.triCountX*captureUv.triCountY)==numTriangles/(captureUv.triCountX*(captureUv.triCountY-1))) captureUv.triCountY--;
 
 		// setup render states
 		glClearColor(0,0,0,1);
 		glDisable(GL_DEPTH_TEST);
 		glDepthMask(0);
-		glViewport(0, 0, width, height);
 
 		// allocate the index buffer memory as necessary
-		GLuint* pixelBuffer = new GLuint[width * height];
-		//printf("%d %d\n",numTriangles,captureUv.xmax*captureUv.ymax);
-		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
+		GLuint* pixelBuffer = new GLuint[captureUv.triCountX*triSizeXRead * captureUv.triCountY*triSizeYRead];
+		//printf("%d %d\n",numTriangles,captureUv.triCountX*captureUv.triCountY);
+		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.triCountX*captureUv.triCountY)
 		{
-			captureUv.lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax)-1;
-			
+			captureUv.lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.triCountX*captureUv.triCountY)-1;
+
+#ifdef SCALE_DOWN_ON_GPU
+			// phase 1 for scale big map down
+			detectBigMap->renderingToBegin();
+#endif
+
 			// clear
+			glViewport(0, 0, captureUv.triCountX*triSizeXRender, captureUv.triCountY*triSizeYRender);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// render scene
@@ -401,12 +440,45 @@ protected:
 #endif
 			//uberProgramSetup.OBJECT_SPACE = false;
 			uberProgramSetup.FORCE_2D_POSITION = true;
+
 			level->rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,captureUv.lastCapturedTriangle); // set param for cache so it creates different displaylists
 			renderScene(uberProgramSetup,0);
 			level->rendererNonCaching->setCapture(NULL,0,numTriangles-1);
 
+#ifdef SCALE_DOWN_ON_GPU
+			// phase 2 for scale big map down
+			detectBigMap->renderingToEnd();
+			scaleDownProgram->useIt();
+			scaleDownProgram->sendUniform("lightmap",0);
+			scaleDownProgram->sendUniform("pixelDistance",1.0f/detectBigMap->getWidth(),1.0f/detectBigMap->getHeight());
+			glViewport(0,0,captureUv.triCountX,DETECT_MAP_SIZE/triSizeYRender);//!!! neni zarucene ze se vejde do backbufferu
+			// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
+			glClearColor(1,0,1,0);
+			glClear(GL_COLOR_BUFFER_BIT);
+			// setup pipeline
+			glActiveTexture(GL_TEXTURE0);
+			glDisable(GL_CULL_FACE);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			detectBigMap->bindTexture();
+			glBegin(GL_POLYGON);
+				glMultiTexCoord2f(0,0,0);
+				glVertex2f(-1,-1);
+				glMultiTexCoord2f(0,0,1);
+				glVertex2f(-1,1);
+				glMultiTexCoord2f(0,1,1);
+				glVertex2f(1,1);
+				glMultiTexCoord2f(0,1,0);
+				glVertex2f(1,-1);
+			glEnd();
+			glClearColor(0,0,0,0);
+			glEnable(GL_CULL_FACE);
+#endif
+
 			// read back the index buffer to memory
-			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
+			glReadPixels(0, 0, captureUv.triCountX*triSizeXRead, captureUv.triCountY*triSizeYRead, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
 
 			// accumulate triangle irradiances
 #pragma omp parallel for schedule(static,1)
@@ -415,19 +487,19 @@ protected:
 				// accumulate 1 triangle power from square region in texture
 				// (square coordinate calculation is in match with CaptureUv uv generator)
 				unsigned sum[3] = {0,0,0};
-				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)%captureUv.xmax;
-				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)/captureUv.xmax;
-				for(unsigned n=0;n<height1;n++)
-					for(unsigned m=0;m<width1;m++)
+				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)%captureUv.triCountX;
+				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)/captureUv.triCountX;
+				for(unsigned n=0;n<triSizeYRead;n++)
+					for(unsigned m=0;m<triSizeXRead;m++)
 					{
-						unsigned pixel = width*(j*height1+n) + (i*width1+m);
+						unsigned pixel = captureUv.triCountX*triSizeXRead*(j*triSizeYRead+n) + (i*triSizeXRead+m);
 						unsigned color = pixelBuffer[pixel] >> 8; // alpha was lost
 						sum[0] += color>>16;
 						sum[1] += (color>>8)&255;
 						sum[2] += color&255;
 					}
 				// pass power to rrobject
-				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
+				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*triSizeXRead*triSizeYRead/2);
 #if PRIMARY_SCAN_PRECISION==1
 				getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_CUSTOM,avg);
 #else
@@ -443,7 +515,7 @@ protected:
 		glViewport(0, 0, winWidth, winHeight);
 		glDepthMask(1);
 		glEnable(GL_DEPTH_TEST);
-		//printf("primary scan (%d-pass (%f)) took............ %d ms\n",numTriangles/(captureUv.xmax*captureUv.ymax)+1,(float)numTriangles/(captureUv.xmax*captureUv.ymax),(int)(1000*w.Watch()));
+		//printf("primary scan (%d-pass (%f)) took............ %d ms\n",numTriangles/(captureUv.triCountX*captureUv.triCountY)+1,(float)numTriangles/(captureUv.triCountX*captureUv.triCountY),(int)(1000*w.Watch()));
 		return true;
 	}
 	virtual void reportAction(const char* action) const
@@ -452,6 +524,9 @@ protected:
 	}
 private:
 	CaptureUv captureUv;
+	Texture* detectBigMap;
+	Program* scaleDownProgram;
+	enum {DETECT_MAP_SIZE=1024};
 };
 
 
@@ -468,6 +543,10 @@ public:
 		if(d->dynaobject[0] && d->dynaobject[1] && d->dynaobject[2] && d->dynaobject[3]) return d;
 		delete d;
 		return NULL;
+	}
+	const rr::RRVec3& getPos(unsigned objIndex)
+	{
+		return dynaobject[MIN(objIndex,4)]->worldFoot;
 	}
 	void setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 	{
@@ -569,11 +648,12 @@ private:
 	DynamicObjects()
 	{
 		// init dynaobject
-		dynaobject[0] = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f);
-		dynaobject[1] = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.013f);
-		dynaobject[2] = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.33f);
+		dynaobject[0] = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // 13k
+		dynaobject[1] = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.013f); // 2k
+		dynaobject[2] = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.33f); // 20k
 		//dynaobject[2] = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f);
-		dynaobject[3] = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.006f); // ok
+		dynaobject[3] = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.006f); // 14k
+		// static: quake = 28k
 
 		// ok otexturovane
 		//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
@@ -933,7 +1013,6 @@ static void drawHelpMessage(bool big)
 		" 'z/Z' - zoom in/out",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
-		" 'l'   - toggle lazy updates",
 		" enter - change spotlight texture",
 /*
 		" 'f'   - toggle showing spotlight frustum",
@@ -1069,17 +1148,17 @@ Level::Level(const char* filename_3ds)
 		//Camera tmplight = {{8.193,5.060,5.751},9.170,2.900,1.0,70.0,1.0,20.0};
 		//Camera tmpeye = {{13.739,1.732,-1.560},23.660,0.350,1.3,75.0,0.3,60.0};
 		//Camera tmplight = {{13.369,2.732,3.065},16.515,0.850,1.0,70.0,1.0,20.0};
-		Camera tmpeye = {{13.739,1.732,-1.572},23.470,-0.350,1.3,75.0,0.3,60.0};
-		Camera tmplight = {{8.193,5.060,5.751},9.295,2.350,1.0,70.0,1.0,20.0};
-
+		//Camera tmpeye = {{13.739,1.732,-1.572},23.470,-0.350,1.3,75.0,0.3,60.0};
+		//Camera tmplight = {{8.193,5.060,5.751},9.295,2.350,1.0,70.0,1.0,20.0};
+		Camera tmpeye = {{13.749,1.743,-0.891},23.390,0.100,1.3,75.0,0.3,60.0};
+		Camera tmplight = {{8.411,5.053,2.312},9.040,7.900,1.0,70.0,1.0,20.0};
 		dynaobjects->setPos(0,rr::RRVec3(11.55f,0.355f,-2.93f));
 		dynaobjects->setPos(1,rr::RRVec3(8.41f,3.555f,0.17f));
 		dynaobjects->setPos(2,rr::RRVec3(12.57f,0,-1.45f));
 		dynaobjects->setPos(3,rr::RRVec3(10.71f,0.711f,0.38f));
-		//dynaobjects->setPos(3,rr::RRVec3(7.55f,0.355f,2.2f));
+
 		eye = tmpeye;
 		light = tmplight;
-		updateDuringLightMovement = 1;
 	}
 	if(strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
@@ -1109,7 +1188,6 @@ Level::Level(const char* filename_3ds)
 		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
 		eye = tmpeye;
 		light = tmplight;
-		updateDuringLightMovement = 1;
 //		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
 	if(strstr(filename_3ds, "koupelna3")) {
@@ -1120,7 +1198,6 @@ Level::Level(const char* filename_3ds)
 		Camera tmplight = {{1.906,1.349,1.838},3.930,0.100,1.0,70.0,1.0,20.0};
 		eye = tmpeye;
 		light = tmplight;
-		updateDuringLightMovement = 1;
 //		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
 	if(strstr(filename_3ds, "koupelna5")) {
@@ -1131,7 +1208,6 @@ Level::Level(const char* filename_3ds)
 		Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
 		eye = tmpeye;
 		light = tmplight;
-		updateDuringLightMovement = 1;
 //		if(areaLight) areaLight->setNumInstances(1);
 	}
 	if(strstr(filename_3ds, "sponza"))
@@ -1144,7 +1220,6 @@ Level::Level(const char* filename_3ds)
 		//Camera sponza_light = {{-8.042,7.690,-0.954},1.990,0.800,1.0,70.0,1.0,30.0};
 		eye = tmpeye;
 		light = tmplight;
-		updateDuringLightMovement = 0;
 //		if(areaLight) areaLight->setNumInstances(1);
 	}
 	if(strstr(filename_3ds, "sibenik"))
@@ -1173,7 +1248,6 @@ Level::Level(const char* filename_3ds)
 		//Camera tmplight = {{-1.455,12.912,-2.926},13.130,13.000,1.0,70.0,1.6,40.0};
 		eye = tmpeye;
 		light = tmplight;
-		updateDuringLightMovement = 0;
 //		if(areaLight) areaLight->setNumInstances(1);
 	}
 
@@ -1350,15 +1424,12 @@ void reportEyeMovementEnd()
 void reportLightMovement()
 {
 	if(!level) return;
-	if(updateDuringLightMovement)
-	{
-		// Behem pohybu svetla v male scene dava lepsi vysledky update (false)
-		//  scena neni behem pohybu tmavsi, setrvacnost je neznatelna.
-		// Ve velke scene dava lepsi vysledky reset (true),
-		//  scena sice behem pohybu ztmavne,
-		//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
-		level->solver->reportLightChange(level->solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
-	}
+	// Behem pohybu svetla v male scene dava lepsi vysledky update (false)
+	//  scena neni behem pohybu tmavsi, setrvacnost je neznatelna.
+	// Ve velke scene dava lepsi vysledky reset (true),
+	//  scena sice behem pohybu ztmavne,
+	//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
+	level->solver->reportLightChange(level->solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
@@ -1368,13 +1439,6 @@ void reportLightMovement()
 void reportLightMovementEnd()
 {
 	if(!level) return;
-	if(!updateDuringLightMovement)
-	{
-		level->solver->reportLightChange(true);
-		needDepthMapUpdate = 1;
-		needMatrixUpdate = 1;
-		needRedisplay = 1;
-	}
 	movingLight = 0;
 }
 
@@ -1411,6 +1475,8 @@ void special(int c, int x, int y)
 		case GLUT_KEY_F9:
 			printf("\nCamera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 			printf("Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
+			for(unsigned i=0;i<4;i++)
+				printf("dynaobjects->setPos(%d,rr::RRVec3(%ff,%ff,%ff));\n",i,dynaobjects->getPos(i)[0],dynaobjects->getPos(i)[1],dynaobjects->getPos(i)[2]);
 			return;
 
 		case GLUT_KEY_UP:
@@ -1524,9 +1590,6 @@ void keyboard(unsigned char c, int x, int y)
 				}
 			}
 			break;
-		case 'l':
-			updateDuringLightMovement = !updateDuringLightMovement;
-			break;
 		case 'f':
 		case 'F':
 			showLightViewFrustum = !showLightViewFrustum;
@@ -1556,7 +1619,7 @@ void keyboard(unsigned char c, int x, int y)
 		case 'w':
 		case 'W':
 			toggleWireFrame();
-			return;
+			return;*/
 		case 'b':
 			updateDepthBias(+1);
 			break;
@@ -1575,7 +1638,7 @@ void keyboard(unsigned char c, int x, int y)
 			}
 			needDepthMapUpdate = 1;
 			updateDepthBias(0);
-			break;
+			break;/*
 		case 'n':
 			light.anear *= 0.8;
 			needMatrixUpdate = 1;
@@ -1607,12 +1670,20 @@ void keyboard(unsigned char c, int x, int y)
 			renderer3ds = !renderer3ds;
 			break;
 		case '*':
-			if(uberProgramGlobalSetup.SHADOW_SAMPLES<8) uberProgramGlobalSetup.SHADOW_SAMPLES *= 2;
+			if(uberProgramGlobalSetup.SHADOW_SAMPLES<8)
+			{
+				uberProgramGlobalSetup.SHADOW_SAMPLES *= 2;
+				setupAreaLight();
+			}
 			//	else uberProgramGlobalSetup.SHADOW_SAMPLES=9;
 			break;
 		case '/':
 			//if(uberProgramGlobalSetup.SHADOW_SAMPLES==9) uberProgramGlobalSetup.SHADOW_SAMPLES=8; else
-			if(uberProgramGlobalSetup.SHADOW_SAMPLES>1) uberProgramGlobalSetup.SHADOW_SAMPLES /= 2;
+			if(uberProgramGlobalSetup.SHADOW_SAMPLES>1) 
+			{
+				uberProgramGlobalSetup.SHADOW_SAMPLES /= 2;
+				setupAreaLight();
+			}
 			break;
 		case '+':
 			{
@@ -1621,10 +1692,11 @@ void keyboard(unsigned char c, int x, int y)
 				{
 					if(numInstances==1 && numInstances<INSTANCES_PER_PASS)
 						numInstances = INSTANCES_PER_PASS;
-					else
-						numInstances += INSTANCES_PER_PASS;
-					needDepthMapUpdate = 1;
+					// vypnuty accum, protoze nedela dobrotu na radeonech
+					//else
+					//	numInstances += INSTANCES_PER_PASS;
 					areaLight->setNumInstances(numInstances);
+					setupAreaLight();
 				}
 			}
 			break;
@@ -1637,8 +1709,8 @@ void keyboard(unsigned char c, int x, int y)
 						numInstances -= INSTANCES_PER_PASS;
 					else
 						numInstances = 1;
-					needDepthMapUpdate = 1;
 					areaLight->setNumInstances(numInstances);
+					setupAreaLight();
 				}
 			}
 			break;
@@ -1794,14 +1866,6 @@ void idle()
 	}
 }
 
-void depthBiasSelect(int depthBiasOption)
-{
-	depthBias24 = depthBiasOption;
-	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
-	needDepthMapUpdate = 1;
-	glutPostRedisplay();
-}
-
 void init_gl_states()
 {
 	GLint depthBits;
@@ -1869,9 +1933,6 @@ void parseOptions(int argc, char **argv)
 		}
 		if (!strcmp("-noAreaLight", argv[i])) {
 			startWithSoftShadows = 0;
-		}
-		if (!strcmp("-lazyUpdates", argv[i])) {
-			updateDuringLightMovement = 0;
 		}
 		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS")) {
 			levelSequence.insertLevelFront(argv[i]);
@@ -1945,10 +2006,6 @@ int main(int argc, char **argv)
 	if(!dynaobjects)
 		error("",false);
 
-	// init shaders
-	// init textures
-	init_gl_resources();
-
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
@@ -1965,6 +2022,10 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.MATERIAL_NORMAL_MAP = false;
 	uberProgramGlobalSetup.OBJECT_SPACE = false;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
+
+	// init shaders
+	// init textures
+	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
 	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);

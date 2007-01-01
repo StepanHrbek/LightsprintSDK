@@ -44,6 +44,13 @@ public:
 		}
 		return shadowMaps[instance];
 	}
+	void setShadowmapSize(unsigned newSize)
+	{
+		for(unsigned i=0;i<numInstances;i++)
+		{
+			shadowMaps[i]->setSize(newSize,newSize);
+		}
+	}
 protected:
 	Texture** shadowMaps;
 	unsigned numInstancesMax;

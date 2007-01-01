@@ -22,6 +22,8 @@ public:
 	// interface
 	/////////////////////////////////////////////////////////////////////////
 
+	virtual void setSize(unsigned width, unsigned height) {};
+
 	virtual unsigned getWidth() const = 0;
 	virtual unsigned getHeight() const = 0;
 	virtual unsigned getDepthBits() {return 0;} ///< Returns number of bits in texture's depth.

@@ -138,14 +138,14 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 		texture->bindTexture();
 
 		glBegin(GL_POLYGON);
-		glMultiTexCoord2f(0,0,0);
-		glVertex2f(-1,-1);
-		glMultiTexCoord2f(0,0,1);
-		glVertex2f(-1,1);
-		glMultiTexCoord2f(0,1,1);
-		glVertex2f(1,1);
-		glMultiTexCoord2f(0,1,0);
-		glVertex2f(1,-1);
+			glMultiTexCoord2f(0,0,0);
+			glVertex2f(-1,-1);
+			glMultiTexCoord2f(0,0,1);
+			glVertex2f(-1,1);
+			glMultiTexCoord2f(0,1,1);
+			glVertex2f(1,1);
+			glMultiTexCoord2f(0,1,0);
+			glVertex2f(1,-1);
 		glEnd();
 
 		texture->renderingToBegin();
@@ -155,14 +155,14 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 		float fracx = 1.0f*texture->getWidth()/helpers->tempTexture->getWidth();
 		float fracy = 1.0f*texture->getHeight()/helpers->tempTexture->getHeight();
 		glBegin(GL_POLYGON);
-		glMultiTexCoord2f(0,0,0);
-		glVertex2f(-1,-1);
-		glMultiTexCoord2f(0,0,fracy);
-		glVertex2f(-1,1);
-		glMultiTexCoord2f(0,fracx,fracy);
-		glVertex2f(1,1);
-		glMultiTexCoord2f(0,fracx,0);
-		glVertex2f(1,-1);
+			glMultiTexCoord2f(0,0,0);
+			glVertex2f(-1,-1);
+			glMultiTexCoord2f(0,0,fracy);
+			glVertex2f(-1,1);
+			glMultiTexCoord2f(0,fracx,fracy);
+			glVertex2f(1,1);
+			glMultiTexCoord2f(0,fracx,0);
+			glVertex2f(1,-1);
 		glEnd();
 
 		texture->renderingToEnd();

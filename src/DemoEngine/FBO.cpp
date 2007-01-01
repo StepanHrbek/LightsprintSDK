@@ -60,6 +60,11 @@ void FBO::setRenderTarget(unsigned color_id, unsigned depth_id)
 			// choose different formats
 			assert(0);
 			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+			// programming error; will fail on all hardware
+			// possible reason: color_id texture has LINEAR_MIPMAP_LINEAR, but only one mip level (=incomplete)
+			assert(0);
+			break;
 		default:
 			// programming error; will fail on all hardware
 			assert(0);
