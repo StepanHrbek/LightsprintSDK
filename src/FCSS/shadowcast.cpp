@@ -584,7 +584,7 @@ public:
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 1;
 		material.MATERIAL_NORMAL_MAP = 0;
-		dynaobject[4] = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f,material,16); // 13k
+		dynaobject[4] = DynamicObject::create("3ds\\characters\\potato\\potato01.3ds",0.004f,material,16); // 13k
 
 		// specular
 		material.MATERIAL_DIFFUSE = 0;
@@ -601,7 +601,7 @@ public:
 		//dynaobject = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f); // ok
 		//dynaobject = DynamicObject::create("3ds\\characters\\ct\\lucca.3ds",0.01f); // ok
 		//dynaobject = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.01f); // ok
-		//dynaobject = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // ok
+		//dynaobject = DynamicObject::create("3ds\\characters\\potato\\potato01.3ds",0.004f); // ok
 		//dynaobject = DynamicObject::create("3ds\\objects\\head\\head.3DS",0.004f); // ok. vytvari zeleny facy po koupelne
 		//dynaobject = DynamicObject::create("3ds\\characters\\swatfemale\\female.3ds",0.02f); // spatne normaly na bocich
 		//dynaobject = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f); // spatne normaly na zadech a chodidlech
@@ -642,6 +642,7 @@ public:
 			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
 		}
+		//dynaobject[4]->worldFoot = rr::RRVec3(2.2f*sin(d*0.005f),1.0f,2.2f);
 
 		for(unsigned i=0;i<DYNAOBJECTS;i++)
 		{

@@ -54,18 +54,19 @@ void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 Model_3DS           m3ds;
-Camera              eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,50.,0.3,60.};
-Camera              light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
+Camera              eye = {{-1.416,1.741,-3.646},12.230,0.050,1.3,70.0,0.3,60.0};
+Camera              light = {{-1.802,0.715,0.850},0.635,-5.800,1.0,70.0,1.0,20.0};
 AreaLight*          areaLight = NULL;
 Texture*            lightDirectMap = NULL;
 UberProgram*        uberProgram = NULL;
 RendererOfRRObject* rendererNonCaching = NULL;
 RendererWithCache*  rendererCaching = NULL;
 rr::RRRealtimeRadiosity* solver = NULL;
-DynamicObject*      dynaobject = NULL;
+DynamicObject*      robot = NULL;
+DynamicObject*      potato = NULL;
 int                 winWidth = 0;
 int                 winHeight = 0;
-bool                modeMovingEye = true;
+bool                modeMovingEye = false;
 float               speedForward = 0;
 float               speedBack = 0;
 float               speedRight = 0;
@@ -106,24 +107,29 @@ void renderScene(UberProgramSetup uberProgramSetup)
 		rendererCaching->render();
 	}
 
-	if(dynaobject)
+	// enable object space
+	uberProgramSetup.OBJECT_SPACE = true;
+	// when not rendering shadows, enable environment maps
+	if(uberProgramSetup.LIGHT_DIRECT)
 	{
-		// enable object space
-		uberProgramSetup.OBJECT_SPACE = true;
-		// when not rendering shadows, enable environment maps
-		if(uberProgramSetup.LIGHT_DIRECT)
-		{
-			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-			uberProgramSetup.LIGHT_INDIRECT_COLOR = false; // stop using vertex illumination
-			uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
-			uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
-		}
-		// move and rotate object freely, nothing is precomputed
-		static float rotation = 0;
-		if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
-		dynaobject->worldFoot = rr::RRVec3(-2,0,-3);
-		// render object
-		dynaobject->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,solver,eye,rotation);
+		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
+		uberProgramSetup.LIGHT_INDIRECT_COLOR = false; // stop using vertex illumination
+		uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
+		uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
+	}
+	// move and rotate object freely, nothing is precomputed
+	static float rotation = 0;
+	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
+	// render object1
+	if(robot)
+	{
+		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
+		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,solver,eye,rotation);
+	}
+	if(potato)
+	{
+		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
+		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,solver,eye,rotation/2);
 	}
 }
 
@@ -470,8 +476,12 @@ int main(int argc, char **argv)
 
 	// init dynamic objects
 	UberProgramSetup material;
-	material.MATERIAL_SPECULAR = 1;
-	dynaobject = DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f,material,16);
+	material.MATERIAL_SPECULAR = true;
+	robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f,material,16);
+	material.MATERIAL_DIFFUSE = true;
+	material.MATERIAL_DIFFUSE_MAP = true;
+	material.MATERIAL_SPECULAR_MAP = true;
+	potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f,material,16);
 
 	// init realtime radiosity solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
