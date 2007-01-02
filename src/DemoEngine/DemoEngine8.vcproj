@@ -314,6 +314,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\DynamicObject.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\DemoEngine\DynamicObject.h"
 			>
 		</File>

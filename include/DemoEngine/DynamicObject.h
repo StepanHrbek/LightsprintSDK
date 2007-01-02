@@ -9,8 +9,7 @@
 
 #include "Model_3DS.h"
 #include "UberProgramSetup.h"
-#include "RendererOf3DS.h"
-#include "RendererWithCache.h"
+#include "Renderer.h"
 #include "RRIlluminationEnvironmentMapInOpenGL.h"
 
 
@@ -21,101 +20,17 @@
 class DE_API DynamicObject
 {
 public:
-	static DynamicObject* create(const char* filename,float scale,UberProgramSetup amaterial,unsigned aspecularCubeSize)
-	{
-		DynamicObject* d = new DynamicObject();
-		if(d->model.Load(filename,scale) && d->getModel().numObjects)
-		{
-			d->rendererWithoutCache = new RendererOf3DS(&d->model);
-			d->rendererCached = new RendererWithCache(d->rendererWithoutCache);
-			d->material = amaterial;
-			d->specularCubeSize = aspecularCubeSize;
-			return d;
-		}
-		if(!d->getModel().numObjects) printf("Model %s contains no objects.",filename);
-		delete d;
-		return NULL;
-	}
-	const Model_3DS& getModel()
-	{
-		return model;
-	}
-	void render(UberProgram* uberProgram,UberProgramSetup uberProgramSetup,AreaLight* areaLight,unsigned firstInstance,Texture* lightDirectMap,rr::RRRealtimeRadiosity* solver,const Camera& eye,float rot)
-	{
-		// mix uberProgramSetup with our material setup
-		// avoid fancy materials when envmaps are off - could be render to shadowmap
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			uberProgramSetup.MATERIAL_DIFFUSE = material.MATERIAL_DIFFUSE;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = material.MATERIAL_DIFFUSE_COLOR;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = material.MATERIAL_DIFFUSE_MAP;
-			uberProgramSetup.MATERIAL_SPECULAR = material.MATERIAL_SPECULAR;
-			uberProgramSetup.MATERIAL_SPECULAR_MAP = material.MATERIAL_SPECULAR_MAP;
-			uberProgramSetup.MATERIAL_NORMAL_MAP = material.MATERIAL_NORMAL_MAP;
-		}
-		// use program
-		Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap);
-		if(!program)
-		{
-			printf("Failed to compile or link GLSL program for dynamic object.\n");
-			return;
-		}
-		// set matrices
-		rr::RRVec3 worldCenter;
-		rr::RRVec3 localCenter = getModel().localCenter;
-		rr::RRVec3 localFoot = rr::RRVec3(localCenter.x,getModel().localMinY,localCenter.z);
-		float m[16];
-		glPushMatrix();
-		glLoadIdentity();
-		glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
-		glRotatef(rot,0,1,0);
-		glTranslatef(-localFoot[0],-localFoot[1],-localFoot[2]);
-		glGetFloatv(GL_MODELVIEW_MATRIX,m);
-		glPopMatrix();
-		program->sendUniform("worldMatrix",m,false,4);
-		worldCenter = rr::RRVec3(
-			localCenter[0]*m[0]+localCenter[1]*m[4]+localCenter[2]*m[ 8]+m[12],
-			localCenter[0]*m[1]+localCenter[1]*m[5]+localCenter[2]*m[ 9]+m[13],
-			localCenter[0]*m[2]+localCenter[1]*m[6]+localCenter[2]*m[10]+m[14]);
-		// set envmap
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			solver->updateEnvironmentMaps(worldCenter,16,
-				uberProgramSetup.MATERIAL_SPECULAR?specularCubeSize:0, uberProgramSetup.MATERIAL_SPECULAR?&specularMap:NULL,
-				uberProgramSetup.MATERIAL_DIFFUSE?4:0, uberProgramSetup.MATERIAL_DIFFUSE?&diffuseMap:NULL);
-			if(uberProgramSetup.MATERIAL_SPECULAR)
-			{
-				glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-				specularMap.bindTexture();
-				program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
-			}
-			if(uberProgramSetup.MATERIAL_DIFFUSE)
-			{
-				glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-				diffuseMap.bindTexture();
-			}
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-		}
-		// render
-		rendererCached->render(); // cached inside display list
-		//model.Draw(NULL); // non cached
-	}
-	~DynamicObject()
-	{
-		delete rendererCached;
-		delete rendererWithoutCache;
-	}
+	static DynamicObject* create(const char* filename,float scale,UberProgramSetup amaterial,unsigned aspecularCubeSize);
+	const Model_3DS& getModel();
+	void render(UberProgram* uberProgram,UberProgramSetup uberProgramSetup,AreaLight* areaLight,unsigned firstInstance,Texture* lightDirectMap,rr::RRRealtimeRadiosity* solver,const Camera& eye,float rot);
+	~DynamicObject();
+
 	rr::RRVec3 worldFoot;
+private:
+	DynamicObject();
+	Model_3DS model;
 	UberProgramSetup material;
 	unsigned specularCubeSize;
-private:
-	DynamicObject()
-	{
-		rendererWithoutCache = NULL;
-		rendererCached = NULL;
-		worldFoot = rr::RRVec3(0);
-	}
-	Model_3DS model;
 	rr::RRIlluminationEnvironmentMapInOpenGL specularMap;
 	rr::RRIlluminationEnvironmentMapInOpenGL diffuseMap;
 	Renderer* rendererWithoutCache;
