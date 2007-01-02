@@ -48,11 +48,6 @@ static Helpers* helpers = NULL;
 
 unsigned RRIlluminationPixelBufferInOpenGL::numInstances = 0;
 
-//RRIlluminationPixelBuffer* RRIlluminationPixelBuffer::createInOpenGL(unsigned width, unsigned height)
-//{
-//	return new RRIlluminationPixelBufferInOpenGL(width,height);
-//}
-
 RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders)
 {
 	rendering = false;
@@ -112,7 +107,7 @@ void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle
 //{
 //	assert(rendering);
 //	if(!rendering) return;
-//!!! optimized version with interleaved array
+//	write optimized version with interleaved array
 //}
 
 void RRIlluminationPixelBufferInOpenGL::renderEnd()
@@ -124,11 +119,10 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	}
 	rendering = false;
 
-	// tempTexture nesmi byt mensi nez texture
+	// tempTexture must not be smaller than texture
 	if(texture->getWidth()<=helpers->tempTexture->getWidth() && texture->getHeight()<=helpers->tempTexture->getHeight())
 	{
-		// fill unused pixels (alpha==0)
-		//!!! use alpha test
+		// fill unused pixels
 		helpers->filterProgram->useIt();
 		helpers->filterProgram->sendUniform("lightmap",0);
 		helpers->filterProgram->sendUniform("pixelDistance",1.0f/texture->getWidth(),1.0f/texture->getHeight());
