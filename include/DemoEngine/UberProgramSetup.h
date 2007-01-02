@@ -56,6 +56,7 @@ struct DE_API UberProgramSetup
 
 	UberProgramSetup()
 	{
+		// everything is turned off by default
 		memset(this,0,sizeof(*this));
 	}
 

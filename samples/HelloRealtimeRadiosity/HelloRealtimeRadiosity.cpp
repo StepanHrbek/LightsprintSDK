@@ -13,21 +13,16 @@
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006
 
-#include <assert.h>
-#include <float.h>
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cassert>
+#include <cmath>
+#include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "RRRealtimeRadiosity.h"
 #include "DemoEngine/DynamicObject.h"
-#include "DemoEngine/MultiLight.h"
-#include "DemoEngine/Model_3DS.h"
 #include "DemoEngine/3ds2rr.h"
 #include "DemoEngine/RendererWithCache.h"
 #include "DemoEngine/RendererOfRRObject.h"
-#include "DemoEngine/UberProgramSetup.h"
 #include "DemoEngine/RRIlluminationPixelBufferInOpenGL.h"
 #include "DemoEngine/Timer.h"
 
@@ -71,8 +66,6 @@ DynamicObject*      dynaobject = NULL;
 int                 winWidth = 0;
 int                 winHeight = 0;
 bool                modeMovingEye = true;
-bool                needDepthMapUpdate = true;
-bool                needRedisplay = true;
 float               speedForward = 0;
 float               speedBack = 0;
 float               speedRight = 0;
@@ -120,14 +113,10 @@ void renderScene(UberProgramSetup uberProgramSetup)
 		// when not rendering shadows, enable environment maps
 		if(uberProgramSetup.LIGHT_DIRECT)
 		{
-			// reduce shadow quality
-			uberProgramSetup.SHADOW_MAPS = 1;
-			//uberProgramSetup.SHADOW_SAMPLES = 1;
-			// use indirect illumination from envmap
-			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
-			uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
-			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
-			uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
+			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
+			uberProgramSetup.LIGHT_INDIRECT_COLOR = false; // stop using vertex illumination
+			uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
+			uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
 		}
 		// move and rotate object freely, nothing is precomputed
 		static float rotation = 0;
@@ -203,11 +192,8 @@ protected:
 		// renderer not ready yet, fail
 		if(!rendererCaching) return false;
 
-		// shadowmap is not ready, update it
-		if(needDepthMapUpdate)
-		{
-			updateShadowmap(0);
-		}
+		// shadowmap could be outdated, update it
+		updateShadowmap(0);
 
 		rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 		unsigned numTriangles = mesh->getNumTriangles();
@@ -244,17 +230,7 @@ protected:
 			uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_DIRECT_MAP = true;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-			uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
-			uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
-			uberProgramSetup.MATERIAL_SPECULAR = false;
-			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
-			uberProgramSetup.MATERIAL_NORMAL_MAP = false;
-			uberProgramSetup.OBJECT_SPACE = false;
 			uberProgramSetup.FORCE_2D_POSITION = true;
 			rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,lastCapturedTriangle); // set param for cache so it creates different displaylists
 			renderScene(uberProgramSetup);
@@ -302,7 +278,6 @@ private:
 void reportEyeMovement()
 {
 	solver->reportInteraction();
-	needRedisplay = true;
 }
 
 // called each time light moves
@@ -310,8 +285,6 @@ void reportLightMovement()
 {
 	solver->reportLightChange(true);
 	solver->reportInteraction();
-	needDepthMapUpdate = 1;
-	needRedisplay = true;
 }
 
 
@@ -322,12 +295,10 @@ void reportLightMovement()
 void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
-	needRedisplay = false;
 	eye.update(0);
 	light.update(0.3f);
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
-	needDepthMapUpdate = false;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
 	UberProgramSetup uberProgramSetup;
@@ -335,9 +306,7 @@ void display(void)
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 #ifdef AMBIENT_MAPS // here we say: render with ambient maps
-	uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 	uberProgramSetup.LIGHT_INDIRECT_MAP = true;
 	if(!solver->getIllumination(0)->getChannel(0)->pixelBuffer) // if ambient maps don't exist yet, create them
 	{
@@ -345,17 +314,9 @@ void display(void)
 	}
 #else // here we say: render with indirect illumination per-vertex
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
-	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 #endif
-	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	uberProgramSetup.MATERIAL_SPECULAR = false;
-	uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
-	uberProgramSetup.MATERIAL_NORMAL_MAP = false;
-	uberProgramSetup.OBJECT_SPACE = false;
-	uberProgramSetup.FORCE_2D_POSITION = false;
 	renderScene(uberProgramSetup);
 	glutSwapBuffers();
 }
@@ -399,7 +360,6 @@ void reshape(int w, int h)
 	eye.aspect = (double) winWidth / (double) winHeight;
 	GLint shadowDepthBits = areaLight->getShadowMap(0)->getDepthBits();
 	glPolygonOffset(4, 42 * ( (shadowDepthBits>=24) ? 1 << (shadowDepthBits - 16) : 1 ));
-	needDepthMapUpdate = 1;
 }
 
 void mouse(int button, int state, int x, int y)
@@ -457,14 +417,8 @@ void idle()
 	}
 	prev = now;
 
-	// only for animated scenes: redisplay as fast as possible
-	needDepthMapUpdate = 1;
-	needRedisplay = 1;
-
-	if(solver->calculate()==rr::RRScene::IMPROVED || needRedisplay)
-	{
-		glutPostRedisplay();
-	}
+	solver->calculate();
+	glutPostRedisplay();
 }
 
 
@@ -529,12 +483,7 @@ int main(int argc, char **argv)
 
 	// init dynamic objects
 	UberProgramSetup material;
-	material.MATERIAL_DIFFUSE = 0;
-	material.MATERIAL_DIFFUSE_COLOR = 0;
-	material.MATERIAL_DIFFUSE_MAP = 0;
 	material.MATERIAL_SPECULAR = 1;
-	material.MATERIAL_SPECULAR_MAP = 0;
-	material.MATERIAL_NORMAL_MAP = 0;
 	dynaobject = DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f,material,16);
 
 	// init realtime radiosity solver

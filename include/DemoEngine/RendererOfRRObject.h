@@ -33,6 +33,7 @@ public:
 		bool     FORCE_2D_POSITION      :1; // gl_MultiTexCoord7
 		RenderedChannels()
 		{
+			// turn everything off by default
 			memset(this,0,sizeof(*this));
 		}
 	};
