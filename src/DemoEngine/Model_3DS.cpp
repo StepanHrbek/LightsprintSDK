@@ -264,8 +264,8 @@ bool Model_3DS::Load(const char *filename, float ascale)
 			rgb[0] = Materials[j].color.r;
 			rgb[1] = Materials[j].color.g;
 			rgb[2] = Materials[j].color.b;
-			rgb[3] = 255;
-			Materials[j].tex = Texture::create(rgb,1,1,false,GL_RGB);
+			rgb[3] = Materials[j].color.a;
+			Materials[j].tex = Texture::create(rgb,1,1,false,GL_RGBA);
 			Materials[j].textured = true;
 		}
 	}
@@ -613,13 +613,57 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 				//ColorChunkProcessor(h.len, ftell(bin3ds));
 				break;
 			case MAT_DIFFUSE	:
-				DiffuseColorChunkProcessor(h.len, ftell(bin3ds), matindex);
+				// store diffuse color to color.rgb
+				{
+					unsigned char a = Materials[matindex].color.a;
+					DiffuseColorChunkProcessor(h.len, ftell(bin3ds), matindex);
+					Materials[matindex].color.a = a;
+				}
 				break;
 			case MAT_SPECULAR	:
-				//ColorChunkProcessor(h.len, ftell(bin3ds));
+				/*/ store specular level to color.a
+				{
+					Color4i tmp = Materials[matindex].color;
+					DiffuseColorChunkProcessor(h.len, ftell(bin3ds), matindex);
+					tmp.a *= (Materials[matindex].color.r+Materials[matindex].color.g+Materials[matindex].color.b)/3;
+					Materials[matindex].color = tmp;
+				}*/
+				break;
 			case MAT_TEXMAP	:
 				// Finds the names of the textures of the material and loads them
 				TextureMapChunkProcessor(h.len, ftell(bin3ds), matindex);
+				break;
+			case 0xa040:
+				// MAT_SHININESS
+				//Materials[matindex].color.a = ReadPercentage();
+				break;
+			case 0xa041:
+				// MAT_SHIN2PCT
+				Materials[matindex].color.a = ReadPercentage();
+				break;
+			case 0xa084: 
+				// MAT_SELF_ILPCT
+				break;
+			case 0xa050:
+				// MAT_TRANSPARENCY
+				break;
+			case 0xa052:
+				// MAT_XPFALL
+				break;
+			case 0xa053:
+				// MAT_REFBLUR
+				break;
+			case 0xa100:
+				// MAT_SHADING short
+				break;
+			case 0xa08a:
+				// MAT_XPFALLIN
+				break;
+			case 0xa087:
+				// MAT_WIRESIZE
+				break;
+			case 0xa081:
+				// MAT_TWO_SIDE
 				break;
 			default			:
 				break;
@@ -632,6 +676,16 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	// that the ProcessChunk() which we interrupted will read
 	// from the right place
 	fseek(bin3ds, findex, SEEK_SET);
+}
+
+// returns value from percentage chunk
+unsigned Model_3DS::ReadPercentage()
+{
+	unsigned char arr[8];
+	fread(arr,8,1,bin3ds);
+	fseek(bin3ds, -8, SEEK_CUR);
+	assert(arr[0]==0x30 && arr[1]==0 && arr[2]==8 && arr[3]==0 && arr[4]==0 && arr[5]==0 && arr[7]==0);
+	return arr[6];
 }
 
 void Model_3DS::MaterialNameChunkProcessor(long length, long findex, int matindex)

@@ -21,13 +21,15 @@
 class DE_API DynamicObject
 {
 public:
-	static DynamicObject* create(const char* filename,float scale)
+	static DynamicObject* create(const char* filename,float scale,UberProgramSetup amaterial,unsigned aspecularCubeSize)
 	{
 		DynamicObject* d = new DynamicObject();
 		if(d->model.Load(filename,scale) && d->getModel().numObjects)
 		{
 			d->rendererWithoutCache = new RendererOf3DS(&d->model);
 			d->rendererCached = new RendererWithCache(d->rendererWithoutCache);
+			d->material = amaterial;
+			d->specularCubeSize = aspecularCubeSize;
 			return d;
 		}
 		if(!d->getModel().numObjects) printf("Model %s contains no objects.",filename);
@@ -38,16 +40,26 @@ public:
 	{
 		return model;
 	}
-	rr::RRIlluminationEnvironmentMap* getSpecularMap()
+	void render(UberProgram* uberProgram,UberProgramSetup uberProgramSetup,AreaLight* areaLight,unsigned firstInstance,Texture* lightDirectMap,rr::RRRealtimeRadiosity* solver,const Camera& eye,float rot)
 	{
-		return &specularMap;
-	}
-	rr::RRIlluminationEnvironmentMap* getDiffuseMap()
-	{
-		return &diffuseMap;
-	}
-	void render(Program* program,UberProgramSetup uberProgramSetup,rr::RRRealtimeRadiosity* solver,const Camera& eye,float rot)
-	{
+		// mix uberProgramSetup with our material setup
+		// avoid fancy materials when envmaps are off - could be render to shadowmap
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+		{
+			uberProgramSetup.MATERIAL_DIFFUSE = material.MATERIAL_DIFFUSE;
+			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = material.MATERIAL_DIFFUSE_COLOR;
+			uberProgramSetup.MATERIAL_DIFFUSE_MAP = material.MATERIAL_DIFFUSE_MAP;
+			uberProgramSetup.MATERIAL_SPECULAR = material.MATERIAL_SPECULAR;
+			uberProgramSetup.MATERIAL_SPECULAR_MAP = material.MATERIAL_SPECULAR_MAP;
+			uberProgramSetup.MATERIAL_NORMAL_MAP = material.MATERIAL_NORMAL_MAP;
+		}
+		// use program
+		Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap);
+		if(!program)
+		{
+			printf("Failed to compile or link GLSL program for dynamic object.\n");
+			return;
+		}
 		// set matrices
 		rr::RRVec3 worldCenter;
 		rr::RRVec3 localCenter = getModel().localCenter;
@@ -69,18 +81,18 @@ public:
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 		{
 			solver->updateEnvironmentMaps(worldCenter,16,
-				uberProgramSetup.MATERIAL_SPECULAR?16:0, uberProgramSetup.MATERIAL_SPECULAR?getSpecularMap():NULL,
-				uberProgramSetup.MATERIAL_DIFFUSE?4:0, uberProgramSetup.MATERIAL_DIFFUSE?getDiffuseMap():NULL);
+				uberProgramSetup.MATERIAL_SPECULAR?specularCubeSize:0, uberProgramSetup.MATERIAL_SPECULAR?&specularMap:NULL,
+				uberProgramSetup.MATERIAL_DIFFUSE?4:0, uberProgramSetup.MATERIAL_DIFFUSE?&diffuseMap:NULL);
 			if(uberProgramSetup.MATERIAL_SPECULAR)
 			{
 				glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-				getSpecularMap()->bindTexture();
+				specularMap.bindTexture();
 				program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 			}
 			if(uberProgramSetup.MATERIAL_DIFFUSE)
 			{
 				glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-				getDiffuseMap()->bindTexture();
+				diffuseMap.bindTexture();
 			}
 			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 		}
@@ -94,6 +106,8 @@ public:
 		delete rendererWithoutCache;
 	}
 	rr::RRVec3 worldFoot;
+	UberProgramSetup material;
+	unsigned specularCubeSize;
 private:
 	DynamicObject()
 	{

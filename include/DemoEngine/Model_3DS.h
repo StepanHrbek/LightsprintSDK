@@ -204,6 +204,7 @@ private:
 	void UpdateCenter();
 	void IntColorChunkProcessor(long length, long findex, int matindex);
 	void FloatColorChunkProcessor(long length, long findex, int matindex);
+	unsigned ReadPercentage(); // PercentageChunkProcessor
 	// Processes the Main Chunk that all the other chunks exist is
 	void MainChunkProcessor(long length, long findex);
 		// Processes the model's info

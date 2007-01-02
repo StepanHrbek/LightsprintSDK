@@ -537,122 +537,64 @@ private:
 class DynamicObjects
 {
 public:
-	static DynamicObjects* create()
-	{
-		DynamicObjects* d = new DynamicObjects();
-		if(d->dynaobject[0] && d->dynaobject[1] && d->dynaobject[2] && d->dynaobject[3]) return d;
-		delete d;
-		return NULL;
-	}
-	const rr::RRVec3& getPos(unsigned objIndex)
-	{
-		return dynaobject[MIN(objIndex,4)]->worldFoot;
-	}
-	void setPos(unsigned objIndex, rr::RRVec3 worldFoot)
-	{
-		if(objIndex<=4) dynaobject[objIndex]->worldFoot = worldFoot;
-	}
-	void renderSceneDynamic(UberProgramSetup uberProgramSetup, unsigned firstInstance) const
-	{
-		static float d = 0;
-		// increment rotation when frame begins
-		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) d = (timeGetTime()%10000000)*0.07f;
-
-		/////////////////////////////////////////////////////////////////////
-		// render dynaobject1 - dif+specular
-		// - set program
-		uberProgramSetup.OBJECT_SPACE = true;
-		if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
-		{
-			// indirect from envmap
-			uberProgramSetup.SHADOW_MAPS = 1;
-			//uberProgramSetup.SHADOW_SAMPLES = 1;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
-			uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
-			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
-			uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
-			uberProgramSetup.MATERIAL_DIFFUSE = 1;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
-			uberProgramSetup.MATERIAL_SPECULAR = 1;
-			uberProgramSetup.MATERIAL_SPECULAR_MAP = 1;
-			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
-		}
-		Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
-		if(!program)
-			error("Failed to compile or link GLSL program with envmap1.\n",true);
-		dynaobject[0]->render(program,uberProgramSetup,level->solver,eye,d);
-
-		/////////////////////////////////////////////////////////////////////
-		// render dynaobject2 - diff+specular+normalmap
-		// - set program
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			uberProgramSetup.MATERIAL_DIFFUSE = 1;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
-			uberProgramSetup.MATERIAL_SPECULAR = 1;
-			uberProgramSetup.MATERIAL_SPECULAR_MAP = 1;
-			uberProgramSetup.MATERIAL_NORMAL_MAP = 1;
-			program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
-			if(!program)
-				error("Failed to compile or link GLSL program with envmap2.\n",true);
-		}
-		// - render
-		dynaobject[1]->render(program,uberProgramSetup,level->solver,eye,d);
-
-		/////////////////////////////////////////////////////////////////////
-		// render dynaobject3 - specular
-		// - set program
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			uberProgramSetup.MATERIAL_DIFFUSE = 0;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
-			uberProgramSetup.MATERIAL_SPECULAR = 1;
-			uberProgramSetup.MATERIAL_SPECULAR_MAP = 0;
-			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
-			program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
-			if(!program)
-				error("Failed to compile or link GLSL program with envmap3.\n",true);
-		}
-		// - render
-		dynaobject[2]->render(program,uberProgramSetup,level->solver,eye,d);
-
-		/////////////////////////////////////////////////////////////////////
-		// render dynaobject4 - diffuse
-		// - set program
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-		{
-			uberProgramSetup.MATERIAL_DIFFUSE = 1;
-			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = 0;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
-			uberProgramSetup.MATERIAL_SPECULAR = 0;
-			uberProgramSetup.MATERIAL_SPECULAR_MAP = 0;
-			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
-			program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
-			if(!program)
-				error("Failed to compile or link GLSL program with envmap4.\n",true);
-		}
-		// - render
-		dynaobject[3]->render(program,uberProgramSetup,level->solver,eye,d);
-	}
-	~DynamicObjects()
-	{
-		delete dynaobject[0];
-		delete dynaobject[1];
-		delete dynaobject[2];
-		delete dynaobject[3];
-	}
-private:
+	enum {DYNAOBJECTS=7};
 	DynamicObjects()
 	{
-		// init dynaobject
-		dynaobject[0] = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f); // 13k
-		dynaobject[1] = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.013f); // 2k
-		dynaobject[2] = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.33f); // 20k
-		//dynaobject[2] = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f);
-		dynaobject[3] = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.006f); // 14k
+		UberProgramSetup material;
+
+		// diffuse
+		material.MATERIAL_DIFFUSE = 1;
+		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_MAP = 1;
+		material.MATERIAL_SPECULAR = 0;
+		material.MATERIAL_SPECULAR_MAP = 0;
+		material.MATERIAL_NORMAL_MAP = 0;
+		//dynaobject[3] = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.006f,material); // 14k
+		dynaobject[0] = DynamicObject::create("3ds\\characters\\blackman1\\blackman.3ds",0.95f,material,0); // 1k
+		dynaobject[1] = DynamicObject::create("3ds\\characters\\civil\\civil.3ds",0.01f,material,0); // 2k
+		//dynaobject[4] = DynamicObject::create("3ds\\characters\\3dm-female3\\3dm-female3.3ds",0.008f,material); // strasny vlasy
+		//dynaobject[5] = DynamicObject::create("3ds\\characters\\Tifa\\Tifa.3ds",0.028f,material); // prilis lowpoly oblicej
+		//dynaobject[5] = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f,material);
+		//dynaobject[6] = DynamicObject::create("3ds\\characters\\ct\\crono.3ds",0.01f,material);
+		//dynaobject[7] = DynamicObject::create("3ds\\characters\\ct\\lucca.3ds",0.01f,material);
+
+		// diff+specular map+normalmap
+		material.MATERIAL_DIFFUSE = 1;
+		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_MAP = 1;
+		material.MATERIAL_SPECULAR = 1;
+		material.MATERIAL_SPECULAR_MAP = 1;
+		material.MATERIAL_NORMAL_MAP = 1;
+		dynaobject[2] = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.011f,material,8); // 2k
+
+		// diff+specular
+		material.MATERIAL_DIFFUSE = 1;
+		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_MAP = 1;
+		material.MATERIAL_SPECULAR = 1;
+		material.MATERIAL_SPECULAR_MAP = 0;
+		material.MATERIAL_NORMAL_MAP = 0;
+		dynaobject[3] = DynamicObject::create("3ds\\characters\\woman-statue9.3ds",0.004f,material,4); // 9k
+		dynaobject[5] = DynamicObject::create("3ds\\characters\\Jessie16.3DS",0.022f,material,16); // 16k
+
+		// diff+specular map
+		material.MATERIAL_DIFFUSE = 1;
+		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_MAP = 1;
+		material.MATERIAL_SPECULAR = 1;
+		material.MATERIAL_SPECULAR_MAP = 1;
+		material.MATERIAL_NORMAL_MAP = 0;
+		dynaobject[4] = DynamicObject::create("3ds\\characters\\G-161-ex\\(G-161-ex)model.3ds",0.004f,material,16); // 13k
+
+		// specular
+		material.MATERIAL_DIFFUSE = 0;
+		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_MAP = 0;
+		material.MATERIAL_SPECULAR = 1;
+		material.MATERIAL_SPECULAR_MAP = 0;
+		material.MATERIAL_NORMAL_MAP = 0;
+		dynaobject[6] = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.24f,material,16); // 20k
+
 		// static: quake = 28k
 
 		// ok otexturovane
@@ -674,7 +616,46 @@ private:
 		//dynaobject = DynamicObject::create("3ds\\objects\\rubic_cube.3ds",0.01f); // spatne normaly, ale pouzitelne
 		//dynaobject = DynamicObject::create("3ds\\objects\\polyhedrons_ts.3ds",0.1f); // sesmoothovane normaly, chybi hrany
 	}
-	DynamicObject* dynaobject[4];
+	const rr::RRVec3& getPos(unsigned objIndex)
+	{
+		return dynaobject[MIN(objIndex,DYNAOBJECTS)]->worldFoot;
+	}
+	void setPos(unsigned objIndex, rr::RRVec3 worldFoot)
+	{
+		if(objIndex<DYNAOBJECTS) dynaobject[objIndex]->worldFoot = worldFoot;
+	}
+	void renderSceneDynamic(UberProgramSetup uberProgramSetup, unsigned firstInstance) const
+	{
+		static float d = 0;
+		// increment rotation when frame begins
+		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) d = (timeGetTime()%10000000)*0.07f;
+		// use object space
+		uberProgramSetup.OBJECT_SPACE = true;
+		// use environment maps
+		if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
+		{
+			// indirect from envmap
+			uberProgramSetup.SHADOW_MAPS = 1;
+			//uberProgramSetup.SHADOW_SAMPLES = 1;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
+			uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
+			uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
+		}
+
+		for(unsigned i=0;i<DYNAOBJECTS;i++)
+		{
+			if(dynaobject[i])
+				dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],level->solver,eye,d);
+		}
+	}
+	~DynamicObjects()
+	{
+		for(unsigned i=0;i<DYNAOBJECTS;i++)
+			delete dynaobject[i];
+	}
+private:
+	DynamicObject* dynaobject[DYNAOBJECTS];
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1156,6 +1137,8 @@ Level::Level(const char* filename_3ds)
 		dynaobjects->setPos(1,rr::RRVec3(8.41f,3.555f,0.17f));
 		dynaobjects->setPos(2,rr::RRVec3(12.57f,0,-1.45f));
 		dynaobjects->setPos(3,rr::RRVec3(10.71f,0.711f,0.38f));
+		dynaobjects->setPos(4,rr::RRVec3(12.71f,1.711f,0.38f));
+		dynaobjects->setPos(5,rr::RRVec3(8.71f,0.711f,0.38f));
 
 		eye = tmpeye;
 		light = tmplight;
@@ -1475,7 +1458,7 @@ void special(int c, int x, int y)
 		case GLUT_KEY_F9:
 			printf("\nCamera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 			printf("Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
-			for(unsigned i=0;i<4;i++)
+			for(unsigned i=0;i<DynamicObjects::DYNAOBJECTS;i++)
 				printf("dynaobjects->setPos(%d,rr::RRVec3(%ff,%ff,%ff));\n",i,dynaobjects->getPos(i)[0],dynaobjects->getPos(i)[1],dynaobjects->getPos(i)[2]);
 			return;
 
@@ -1560,6 +1543,11 @@ void keyboard(unsigned char c, int x, int y)
 		case '2':
 		case '3':
 		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
 			{
 				rr::RRRay* ray = rr::RRRay::create();
 				rr::RRVec3 dir = rr::RRVec3(eye.dir[0],eye.dir[1],eye.dir[2]).normalized();
@@ -2002,9 +1990,7 @@ int main(int argc, char **argv)
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
-	dynaobjects = DynamicObjects::create();
-	if(!dynaobjects)
-		error("",false);
+	dynaobjects = new DynamicObjects();
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;

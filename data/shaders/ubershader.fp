@@ -342,6 +342,9 @@ void main()
 
 			#ifdef MATERIAL_SPECULAR
 				+
+				#ifdef MATERIAL_DIFFUSE_MAP
+					materialDiffuseMapColor.a *
+				#endif
 				#ifdef MATERIAL_SPECULAR_MAP
 					materialSpecularReflectance *
 				#endif
@@ -357,7 +360,7 @@ void main()
 			#endif
 			;
 
-		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_SPECULAR_MAP)
+		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_SPECULAR_MAP)
 			gl_FragColor *= 0.5;
 		#endif
 	#endif
