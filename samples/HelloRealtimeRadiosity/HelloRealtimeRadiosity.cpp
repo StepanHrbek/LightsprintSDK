@@ -274,19 +274,6 @@ private:
 	CaptureUv captureUv;
 };
 
-// called each time eye moves
-void reportEyeMovement()
-{
-	solver->reportInteraction();
-}
-
-// called each time light moves
-void reportLightMovement()
-{
-	solver->reportLightChange(true);
-	solver->reportInteraction();
-}
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -381,14 +368,13 @@ void passive(int x, int y)
 			eye.angle = eye.angle - 0.005*x;
 			eye.height = eye.height + 0.15*y;
 			CLAMP(eye.height,-13,13);
-			reportEyeMovement();
 		}
 		else
 		{
 			light.angle = light.angle - 0.005*x;
 			light.height = light.height + 0.15*y;
 			CLAMP(light.height,-13,13);
-			reportLightMovement();
+			solver->reportLightChange(true);
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -412,11 +398,12 @@ void idle()
 		if(speedLeft) cam->moveLeft(speedLeft*seconds);
 		if(speedForward || speedBack || speedRight || speedLeft)
 		{
-			if(cam==&light) reportLightMovement(); else reportEyeMovement();
+			if(cam==&light) solver->reportLightChange(true);
 		}
 	}
 	prev = now;
 
+	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	solver->calculate();
 	glutPostRedisplay();
 }
