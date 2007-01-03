@@ -64,7 +64,7 @@ struct DE_API UberProgramSetup
 	bool operator ==(const UberProgramSetup& a) const;
 	bool operator !=(const UberProgramSetup& a) const;
 	Program* getProgram(UberProgram* uberProgram);
-	static unsigned detectMaxShadowmaps(UberProgram* uberProgram, unsigned startWith=10);
+	static unsigned detectMaxShadowmaps(UberProgram* uberProgram, unsigned startWith=8);
 	Program* useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap);
 };
 
