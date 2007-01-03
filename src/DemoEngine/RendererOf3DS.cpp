@@ -22,5 +22,5 @@ const void* RendererOf3DS::getParams(unsigned& length) const
 void RendererOf3DS::render()
 {
 	if(model)
-		model->Draw(NULL);
+		model->Draw(NULL,NULL,NULL);
 }

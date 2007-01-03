@@ -78,7 +78,6 @@
 #define MODEL_3DS_H
 
 #include <cstdio>
-#include "RRRealtimeRadiosity.h"
 #include "Texture.h"
 
 class DE_API Model_3DS  
@@ -192,10 +191,14 @@ public:
 	float scale;			// The size you want the model scaled to
 	bool lit;				// True: the model is lit
 	bool visible;			// True: the model gets rendered
-	rr::RRVec3 localCenter;
-	rr::RRReal localMinY;
+	Vertex localCenter;
+	float localMinY;
 	bool Load(const char *name, float scale); // Loads a model
-	void Draw(rr::RRRealtimeRadiosity* app) const;  // Draws the model using indirect illum from app
+	void Draw(
+		void* model,
+		const float* (acquireVertexColors)(void* model,unsigned object), // returns pointer to array of float rgb vertex colors
+		void (releaseVertexColors)(void* model,unsigned object)
+		) const;  // Draws the model using provided indirect illum
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor
 	~Model_3DS();           // Destructor

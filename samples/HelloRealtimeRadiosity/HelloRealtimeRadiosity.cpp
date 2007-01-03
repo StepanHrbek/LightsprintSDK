@@ -78,6 +78,20 @@ float               speedLeft = 0;
 //
 // rendering scene
 
+// callback that feeds 3ds renderer with our vertex illumination
+const float* lockVertexIllum(void* solver,unsigned object)
+{
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRRealtimeRadiosity*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	return vertexBuffer ? &vertexBuffer->lock()->x : NULL;
+}
+
+// callback that cleans vertex illumination
+void unlockVertexIllum(void* solver,unsigned object)
+{
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRRealtimeRadiosity*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	if(vertexBuffer) vertexBuffer->unlock();
+}
+
 void renderScene(UberProgramSetup uberProgramSetup)
 {
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
@@ -89,7 +103,7 @@ void renderScene(UberProgramSetup uberProgramSetup)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?solver:NULL);
+		m3ds.Draw(solver,uberProgramSetup.LIGHT_INDIRECT_COLOR?lockVertexIllum:NULL,unlockVertexIllum);
 	}
 	else
 #endif

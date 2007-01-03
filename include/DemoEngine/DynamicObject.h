@@ -7,6 +7,7 @@
 #ifndef DYNAMICOBJECT_H
 #define DYNAMICOBJECT_H
 
+#include "RRRealtimeRadiosity.h"
 #include "Model_3DS.h"
 #include "UberProgramSetup.h"
 #include "Renderer.h"

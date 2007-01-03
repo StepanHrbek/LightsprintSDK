@@ -781,6 +781,20 @@ void drawShadowMapFrustum(void)
 	glDisable(GL_LINE_STIPPLE);
 }
 
+// callback that feeds 3ds renderer with our vertex illumination
+const float* lockVertexIllum(void* solver,unsigned object)
+{
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRRealtimeRadiosity*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	return vertexBuffer ? &vertexBuffer->lock()->x : NULL;
+}
+
+// callback that cleans vertex illumination
+void unlockVertexIllum(void* solver,unsigned object)
+{
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRRealtimeRadiosity*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	if(vertexBuffer) vertexBuffer->unlock();
+}
+
 void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
@@ -797,7 +811,7 @@ void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		level->m3ds.Draw(uberProgramSetup.LIGHT_INDIRECT_COLOR?level->solver:NULL);
+		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_INDIRECT_COLOR?lockVertexIllum:NULL,unlockVertexIllum);
 		return;
 	}
 	RendererOfRRObject::RenderedChannels renderedChannels;

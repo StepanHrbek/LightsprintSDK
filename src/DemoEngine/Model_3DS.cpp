@@ -74,6 +74,7 @@
 #define __FILE__LINE__ __FILE__ "(" QUOTE(__LINE__) ") : "
 #define warn( x )  message( __FILE__LINE__ #x "\n" ) 
 
+#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <GL/glew.h>
@@ -275,7 +276,9 @@ bool Model_3DS::Load(const char *filename, float ascale)
 
 void Model_3DS::UpdateCenter()
 {
-	localCenter = rr::RRVec3(0);
+	localCenter.x = 0;
+	localCenter.y = 0;
+	localCenter.z = 0;
 	localMinY = 1e10;
 	for(int o=0;o<numObjects;o++)
 	{
@@ -287,10 +290,15 @@ void Model_3DS::UpdateCenter()
 			localMinY = MIN(localMinY,Objects[o].Vertexes[3*v+1]);
 		}
 	}
-	localCenter /= (float)totalVerts;
+	localCenter.x /= (float)totalVerts;
+	localCenter.y /= (float)totalVerts;
+	localCenter.z /= (float)totalVerts;
 }
 
-void Model_3DS::Draw(rr::RRRealtimeRadiosity* app) const
+void Model_3DS::Draw(
+	void* model,
+	const float* (acquireVertexColors)(void* model,unsigned object),
+	void (releaseVertexColors)(void* model,unsigned object)) const
 {
 	if (visible)
 	{
@@ -310,20 +318,15 @@ void Model_3DS::Draw(rr::RRRealtimeRadiosity* app) const
 		// Loop through the objects
 		for (int i = 0; i < numObjects; i++)
 		{
-
 			// additional exitance
-			if(app)
+			if(&acquireVertexColors)
 			{
-				rr::RRIlluminationVertexBuffer* vertexBuffer = app->getIllumination(i)->getChannel(0)->vertexBuffer;
-				if(vertexBuffer)
+				const float* vertexColors = acquireVertexColors(model,i);
+				if(vertexColors)
 				{
-					const rr::RRColorRGBF* lock = vertexBuffer->lock();
-					if(lock)
-					{
-						glEnableClientState(GL_COLOR_ARRAY);
-						glColorPointer(3, GL_FLOAT, 0, lock);
-						vertexBuffer->unlock();
-					}
+					glEnableClientState(GL_COLOR_ARRAY);
+					glColorPointer(3, GL_FLOAT, 0, vertexColors);
+					if(&releaseVertexColors) releaseVertexColors(model,i);
 				}
 			}
 			else

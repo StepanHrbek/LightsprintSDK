@@ -69,7 +69,7 @@ void DynamicObject::render(UberProgram* uberProgram,UberProgramSetup uberProgram
 	}
 	// set matrices
 	rr::RRVec3 worldCenter;
-	rr::RRVec3 localCenter = getModel().localCenter;
+	rr::RRVec3 localCenter = rr::RRVec3(getModel().localCenter.x,getModel().localCenter.y,getModel().localCenter.z);
 	rr::RRVec3 localFoot = rr::RRVec3(localCenter.x,getModel().localMinY,localCenter.z);
 	float m[16];
 	glPushMatrix();
