@@ -166,8 +166,8 @@ public:
 	//  then right, so that whole texture is filled
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
-		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%xmax)+((vertexIndex==2)?1:0)-xmax*0.5f)/(xmax*0.5f);
-		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/xmax)+((vertexIndex==0)?1:0)-ymax*0.5f)/(ymax*0.5f);
+		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%xmax)+((vertexIndex==2)?1:0)-xmax*0.5f+0.1f)/(xmax*0.5f);
+		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/xmax)+((vertexIndex==0)?1:0)-ymax*0.5f+0.1f)/(ymax*0.5f);
 	}
 	virtual unsigned getHash()
 	{
@@ -352,7 +352,7 @@ void reshape(int w, int h)
 	glViewport(0, 0, w, h);
 	eye.aspect = (double) winWidth / (double) winHeight;
 	GLint shadowDepthBits = areaLight->getShadowMap(0)->getDepthBits();
-	glPolygonOffset(4, 42 * ( (shadowDepthBits>=24) ? 1 << (shadowDepthBits - 16) : 1 ));
+	glPolygonOffset(4, 42 << (shadowDepthBits-16) );
 }
 
 void mouse(int button, int state, int x, int y)

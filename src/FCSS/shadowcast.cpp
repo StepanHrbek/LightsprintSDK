@@ -10,6 +10,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define LIGHTMAP_SIZE              1024
 #define SUBDIVISION                0
 #define SCALE_DOWN_ON_GPU // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
+#define CAPTURE_TGA // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu
 bool ati = 1;
 int fullscreen = 0;
 bool animated = 1;
@@ -153,9 +154,9 @@ UberProgram* uberProgram;
 UberProgramSetup uberProgramGlobalSetup;
 int winWidth = 0;
 int winHeight = 0;
-int depthBias24 = 23;//42;
+int depthBias24 = 50;//23;//42;
 int depthScale24;
-GLfloat slopeScale = 2.3;//4.0;
+GLfloat slopeScale = 5;//2.3;//4.0;
 int needDepthMapUpdate = 1;
 bool needLightmapCacheUpdate = false;
 int wireFrame = 0;
@@ -199,17 +200,7 @@ void updateDepthBias(int delta)
 	depthBias24 += delta;
 	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
 	needDepthMapUpdate = 1;
-}
-
-void updateDepthScale(void)
-{
-	GLint shadowDepthBits = areaLight->getShadowMap(0)->getDepthBits();
-	if (shadowDepthBits < 24) {
-		depthScale24 = 1;
-	} else {
-		depthScale24 = 1 << (shadowDepthBits - 24+8); // "+8" hack: on gf6600, 24bit depth seems to need +8 scale
-	}
-	needDepthMapUpdate = 1;
+	printf("%f %d %d\n",slopeScale,depthBias24,depthScale24);
 }
 
 void setupAreaLight()
@@ -218,14 +209,15 @@ void setupAreaLight()
 	if(wantSoft)
 	{
 		areaLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
-		depthBias24 = 23;
-		slopeScale = 2.3f;
+		// 8800@24bit // x300+gf6150
+		depthBias24 = 50;//23;
+		slopeScale = 5;//2.3f;
 	}
 	else
 	{
 		areaLight->setShadowmapSize(SHADOW_MAP_SIZE_HARD);
-		depthBias24 = 1;
-		slopeScale = 0.1f;
+		depthBias24 = 30;//1;
+		slopeScale = 3;//0.1f;
 	}
 	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
 	needDepthMapUpdate = 1;
@@ -238,7 +230,8 @@ void init_gl_resources()
 	areaLight = new AreaLight(MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
-	updateDepthScale();
+	GLint shadowDepthBits = areaLight->getShadowMap(0)->getDepthBits();
+	depthScale24 = 1 << (shadowDepthBits-16);
 	updateDepthBias(0);  /* Update with no offset change. */
 
 	for(unsigned i=0;i<lightDirectMaps;i++)
@@ -300,8 +293,9 @@ public:
 			((GLfloat*)vertexData)[0] = 0;
 			((GLfloat*)vertexData)[1] = 0;
 		} else {
-			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%triCountX)+((vertexIndex==2)?1:0)-triCountX*0.5f)/(triCountX*0.5f);
-			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/triCountX)+((vertexIndex==0)?1:0)-triCountY*0.5f)/(triCountY*0.5f);
+			((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%triCountX)+((vertexIndex==2)?1:0)-triCountX*0.5f+0.1f)/(triCountX*0.5f);
+			((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/triCountX)+((vertexIndex==0)?1:0)-triCountY*0.5f+0.1f)/(triCountY*0.5f);
+			// +0.1f makes triangle area larger [in 4x4, from 6 to 10 pixels]
 		}
 	}
 	virtual unsigned getHash()
@@ -401,6 +395,25 @@ protected:
 		glDisable(GL_DEPTH_TEST);
 		glDepthMask(0);
 
+#ifdef CAPTURE_TGA
+		static int captured = 0;
+		struct TgaHeader
+		{
+			TgaHeader(unsigned width, unsigned height)
+			{
+				pad[0]=pad[1]=pad[3]=pad[4]=pad[5]=pad[6]=pad[7]=pad[8]=pad[9]=pad[10]=pad[11]=0;
+				pad[2]=2;
+				pad[12]=width;
+				pad[13]=width>>8;
+				pad[14]=height;
+				pad[15]=height>>8;
+				pad[16]=32;
+				pad[17]=40;
+			}
+			unsigned char pad[18];
+		};
+#endif
+
 		// allocate the index buffer memory as necessary
 		GLuint* pixelBuffer = new GLuint[captureUv.triCountX*triSizeXRead * captureUv.triCountY*triSizeYRead];
 		//printf("%d %d\n",numTriangles,captureUv.triCountX*captureUv.triCountY);
@@ -445,6 +458,24 @@ protected:
 			renderScene(uberProgramSetup,0);
 			level->rendererNonCaching->setCapture(NULL,0,numTriangles-1);
 
+#ifdef CAPTURE_TGA
+			if(captured>=0) {
+				// read back the index buffer to memory
+				unsigned pixels = captureUv.triCountX*triSizeXRender * captureUv.triCountY*triSizeYRender;
+				unsigned* pixelBuffer = new unsigned[pixels];
+				glReadPixels(0, 0, captureUv.triCountX*triSizeXRender, captureUv.triCountY*triSizeYRender, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
+				char fname[100];
+				sprintf(fname,"h:\\cap_%d_hi.tga",captured);
+				FILE* f=fopen(fname,"wb");
+				TgaHeader t(captureUv.triCountX*triSizeXRender,captureUv.triCountY*triSizeYRender);
+				fwrite(t.pad,18,1,f);
+				//fwrite(pixelBuffer,4,pixels,f);
+				for(unsigned i=0;i<pixels;i++) {fwrite((char*)(pixelBuffer+i)+1,1,1,f);fwrite((char*)(pixelBuffer+i)+2,1,1,f);fwrite((char*)(pixelBuffer+i)+3,1,1,f);fwrite((char*)(pixelBuffer+i)+0,1,1,f);}
+				fclose(f);
+				delete[] pixelBuffer;
+			}
+#endif
+
 #ifdef SCALE_DOWN_ON_GPU
 			// phase 2 for scale big map down
 			detectBigMap->renderingToEnd();
@@ -480,6 +511,22 @@ protected:
 			// read back the index buffer to memory
 			glReadPixels(0, 0, captureUv.triCountX*triSizeXRead, captureUv.triCountY*triSizeYRead, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
 
+#ifdef CAPTURE_TGA
+			if(captured>=0) {
+				// read back the index buffer to memory
+				unsigned pixels = captureUv.triCountX*triSizeXRead * captureUv.triCountY*triSizeYRead;
+				char fname[100];
+				sprintf(fname,"h:\\cap_%d_lo.tga",captured);
+				FILE* f=fopen(fname,"wb");
+				TgaHeader t(captureUv.triCountX*triSizeXRead,captureUv.triCountY*triSizeYRead);
+				fwrite(t.pad,18,1,f);
+				//fwrite(pixelBuffer,4,pixels,f);
+				for(unsigned i=0;i<pixels;i++) {fwrite((char*)(pixelBuffer+i)+1,1,1,f);fwrite((char*)(pixelBuffer+i)+2,1,1,f);fwrite((char*)(pixelBuffer+i)+3,1,1,f);fwrite((char*)(pixelBuffer+i)+0,1,1,f);}
+				fclose(f);
+				captured++;
+			}
+#endif
+
 			// accumulate triangle irradiances
 #pragma omp parallel for schedule(static,1)
 			for(int triangleIndex=captureUv.firstCapturedTriangle;(unsigned)triangleIndex<=captureUv.lastCapturedTriangle;triangleIndex++)
@@ -508,6 +555,10 @@ protected:
 
 			}
 		}
+
+#ifdef CAPTURE_TGA
+		captured = -1;
+#endif
 
 		delete[] pixelBuffer;
 
@@ -1742,10 +1793,6 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	needMatrixUpdate = 1;
-
-	/* Perhaps there might have been a mode change so at window
-	reshape time, redetermine the depth scale. */
-	updateDepthScale();
 }
 
 void mouse(int button, int state, int x, int y)
