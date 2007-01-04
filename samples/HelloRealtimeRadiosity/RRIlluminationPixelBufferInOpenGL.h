@@ -1,5 +1,4 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // OpenGL implementation of ambient map interface rr::RRIlluminationPixelBuffer.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
@@ -25,7 +24,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class DE_API RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBuffer
+	class RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBuffer
 	{
 	public:
 		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders);

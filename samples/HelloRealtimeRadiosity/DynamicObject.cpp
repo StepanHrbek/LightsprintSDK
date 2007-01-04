@@ -1,12 +1,11 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // DynamicObject, 3d object with dynamic global illumination.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
-#include "DemoEngine/DynamicObject.h"
 #include "DemoEngine/RendererOf3DS.h"
 #include "DemoEngine/RendererWithCache.h"
+#include "DynamicObject.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -24,7 +23,7 @@ DynamicObject* DynamicObject::create(const char* filename,float scale,UberProgra
 		d->specularCubeSize = aspecularCubeSize;
 		return d;
 	}
-	if(!d->getModel().numObjects) printf("Model %s contains no objects.",filename);
+	if(!d->getModel().numObjects) printf("Model %s contains no objects.\n",filename);
 	delete d;
 	return NULL;
 }

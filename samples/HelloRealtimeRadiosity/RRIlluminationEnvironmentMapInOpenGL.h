@@ -1,5 +1,4 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // OpenGL implementation of environment map interface rr::RRIlluminationEnvironmentMap.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2006
 // --------------------------------------------------------------------------
@@ -26,7 +25,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class DE_API RRIlluminationEnvironmentMapInOpenGL : public RRIlluminationEnvironmentMap
+	class RRIlluminationEnvironmentMapInOpenGL : public RRIlluminationEnvironmentMap
 	{
 	public:
 		RRIlluminationEnvironmentMapInOpenGL();

@@ -1,5 +1,4 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // Imports Model_3DS into RRRealtimeRadiosity
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
@@ -31,7 +30,7 @@
 #include <cmath>
 #include <vector>
 #include "RRIllumination.h"
-#include "DemoEngine/3ds2rr.h"
+#include "3ds2rr.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

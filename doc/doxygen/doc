@@ -165,7 +165,7 @@ namespace rr
 
 
 
-\page integration_step_0 Validate meshes
+\page integration_step_0 Validate static meshes
 
  This step is typically executed by 3d artists.
 
@@ -190,6 +190,13 @@ namespace rr
  \section cond_no_needles No needles
 
  Angle sizes in triangles are above 5 degrees.
+
+ \section cond_no_hihpoly Prefer maps over high poly
+
+ Polygon counts in dynamic objects have no influence on speed,
+ but excessive polygon counts in static scene reduce performance,
+ prefer normal maps or other tricks that reduce polygon count.
+
 
 
 
@@ -781,7 +788,7 @@ namespace rr
 
 \page main_api API
 
- Lightsprint API is layered into following libraries:
+ Lightsprint engine API is layered into following libraries:
 
  - <b> \subpage api_rr "REALTIME RADIOSITY" </b> - calculates realtime radiosity in dynamic scene
 
@@ -803,20 +810,21 @@ namespace rr
 
  \image html libraries.png
 
- All core libraries (white boxes in scheme, RealtimeRadiosity, Illumination,
- Vision, Collider, Mesh) are purely numerical,
- they are OpenGL/DirectX independent.
+ Lightsprint engine is purely numerical, platform independent.
 
- Outside core libraries, there is DemoEngine and samples.
+ DemoEngine based on OpenGL 2.0 provides support for loading and rendering
+ 3d scenes with shaders, but without global illumination.
+ It is not documented here, but its API is reasonably simple.
+ You can safely replace DemoEngine by your renderer or game engine.
 
- DemoEngine provides simple support for loading and rendering 3d scenes.
- It depends on OpenGL, GLU and RealtimeRadiosity. It has built-in GLEW.
+ Sample HelloRealtimeRadiosity uses both engines
+ to render global illumination in scene with dynamic light and dynamic objects.
+ It contains all glue classes needed for communication between
+ Lightsprint engine and game engine.
+ For use with other game engines, glue classes might need changes.
 
- Sample HelloRealtimeRadiosity uses RealtimeRadiosity, OpenGL and GLUT
- to demonstrate realtime radiosity in scene with dynamic light.
- It uses DemoEngine for common tasks that can be used later by other samples.
-
- Sample BunnyBenchmark measures Collider performance for comparison with other engines.
+ Sample BunnyBenchmark measures Collider performance for comparison with
+ physical engines (Collider is 2-200x faster).
 
 
 

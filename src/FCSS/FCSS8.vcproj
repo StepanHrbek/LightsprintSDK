@@ -47,7 +47,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
+				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib;..\..\samples\HelloRealtimeRadiosity"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC;RR_STATIC;DE_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -145,7 +145,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
+				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib;..\..\samples\HelloRealtimeRadiosity"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC;RR_STATIC;DE_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="1"
@@ -244,7 +244,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
+				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib;..\..\samples\HelloRealtimeRadiosity"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -316,6 +316,50 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="HelloRR"
+			>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\3ds2rr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\3ds2rr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\DynamicObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\DynamicObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\RendererOfRRObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\RendererOfRRObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\RRIlluminationEnvironmentMapInOpenGL.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\RRIlluminationEnvironmentMapInOpenGL.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\RRIlluminationPixelBufferInOpenGL.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\RRIlluminationPixelBufferInOpenGL.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Bugs.cpp"
 			>

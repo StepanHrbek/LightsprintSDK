@@ -1,6 +1,5 @@
 // --------------------------------------------------------------------------
-// DemoEngine
-// RendererOfRRObject, Renderer implementation that renders RRObject instance.
+// Renderer implementation that renders RRObject instance.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
@@ -9,15 +8,27 @@
 
 #include <cstring> // memset
 #include "RRVision.h"
-#include "Renderer.h"
-#include "VertexDataGenerator.h"
+#include "DemoEngine/Renderer.h"
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// per vertex data generator
+
+class VertexDataGenerator
+{
+public:
+	virtual ~VertexDataGenerator() {};
+	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) = 0; // vertexIndex=0..2
+	virtual unsigned getHash() = 0;
+};
 
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // RendererOfRRObject - basic OpenGL renderer implementation
 
-class DE_API RendererOfRRObject : public Renderer
+class RendererOfRRObject : public Renderer
 {
 public:
 	RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler);

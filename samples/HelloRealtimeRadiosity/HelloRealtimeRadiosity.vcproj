@@ -412,7 +412,47 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\3ds2rr.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\3ds2rr.h"
+			>
+		</File>
+		<File
+			RelativePath=".\DynamicObject.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\DynamicObject.h"
+			>
+		</File>
+		<File
 			RelativePath=".\HelloRealtimeRadiosity.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\RendererOfRRObject.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\RendererOfRRObject.h"
+			>
+		</File>
+		<File
+			RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.h"
+			>
+		</File>
+		<File
+			RelativePath=".\RRIlluminationPixelBufferInOpenGL.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\RRIlluminationPixelBufferInOpenGL.h"
 			>
 		</File>
 	</Files>

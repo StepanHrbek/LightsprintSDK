@@ -1,12 +1,11 @@
 // --------------------------------------------------------------------------
-// DemoEngine
-// Implementation of RRIlluminationEnvironmentMapInOpenGL
+// OpenGL implementation of environment map interface rr::RRIlluminationEnvironmentMap.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2006
 // --------------------------------------------------------------------------
 
-#include "DemoEngine/RRIlluminationEnvironmentMapInOpenGL.h"
-#include "DemoEngine/Program.h"
 #include <windows.h>
+#include "DemoEngine/Program.h"
+#include "RRIlluminationEnvironmentMapInOpenGL.h"
 
 namespace rr
 {
@@ -15,6 +14,10 @@ namespace rr
 //
 // RRIlluminationEnvironmentMapInOpenGL
 
+// Many Lightsprint functions are parallelized internally,
+// but demos are singlethreaded for simplicity, so this code 
+// is never run in multiple threads and critical section is not needed.
+// But it could get handy later.
 CRITICAL_SECTION criticalSection; // global critical section for all instances, never calls GL from 2 threads at once
 unsigned numInstances = 0;
 

@@ -1,16 +1,15 @@
 // --------------------------------------------------------------------------
-// DemoEngine
-// RendererOfRRObject, Renderer implementation that renders RRObject instance.
+// Renderer implementation that renders RRObject instance.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
 // --------------------------------------------------------------------------
 
 #include <cassert>
 #include <GL/glew.h>
 #include "RRIllumination.h"
-#include "DemoEngine/3ds2rr.h" // CHANNEL_SURFACE_DIF_TEX
-#include "DemoEngine/RendererOfRRObject.h"
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
+#include "3ds2rr.h" // CHANNEL_SURFACE_DIF_TEX
+#include "RendererOfRRObject.h"
 
 int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by surface
 bool  SMOOTH =1; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
@@ -58,7 +57,7 @@ void RendererOfRRObject::render()
 
 	bool begun = false;
 	rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
-	unsigned numTriangles = meshImporter->getNumTriangles();
+	//unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
 	rr::RRObjectIllumination* oldIllumination = NULL;
 	for(unsigned triangleIdx=params.firstCapturedTriangle;triangleIdx<=params.lastCapturedTriangle;triangleIdx++)

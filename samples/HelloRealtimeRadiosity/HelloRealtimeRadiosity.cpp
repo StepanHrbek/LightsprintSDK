@@ -20,12 +20,12 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "RRRealtimeRadiosity.h"
-#include "DemoEngine/DynamicObject.h"
-#include "DemoEngine/3ds2rr.h"
 #include "DemoEngine/RendererWithCache.h"
-#include "DemoEngine/RendererOfRRObject.h"
-#include "DemoEngine/RRIlluminationPixelBufferInOpenGL.h"
 #include "DemoEngine/Timer.h"
+#include "3ds2rr.h"
+#include "DynamicObject.h"
+#include "RendererOfRRObject.h"
+#include "RRIlluminationPixelBufferInOpenGL.h"
 
 //#define AMBIENT_MAPS
 // Makes indirect illumination stored into and rendered from ambient maps (instead of vertex buffers).

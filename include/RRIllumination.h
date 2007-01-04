@@ -269,7 +269,7 @@ namespace rr
 		//!  \n size*size values for POSITIVE_Z side,
 		//!  \n size*size values for NEGATIVE_Z side.
 		virtual void setValues(unsigned size, RRColorRGBF* irradiance) = 0;
-		//! The same as setValues, but in your custom scale.
+		//! The same as setValues, but in your custom scale, clamped to 8bit.
 		virtual void setValues(unsigned size, RRColorRGBA8* irradiance) = 0;
 
 		// Environment map use
