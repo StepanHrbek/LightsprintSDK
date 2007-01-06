@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloVision", "HelloVision\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloRealtimeRadiosity", "HelloRealtimeRadiosity\HelloRealtimeRadiosity.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloDemoEngine", "HelloDemoEngine\HelloDemoEngine.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -53,6 +55,14 @@ Global
 		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release static|Win32.ActiveCfg = Release static|Win32
 		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release static|Win32.Build.0 = Release static|Win32
+		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Debug static|Win32.ActiveCfg = Debug static|Win32
+		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Debug static|Win32.Build.0 = Debug static|Win32
+		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Release static|Win32.ActiveCfg = Release static|Win32
+		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Release static|Win32.Build.0 = Release static|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
