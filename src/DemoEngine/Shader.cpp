@@ -38,7 +38,7 @@ Shader::Shader(const char* defines, const char* filename, GLenum shaderType)
 	  fgetc(stdin);
 	  exit(1);
   }
-  glShaderSource(handle, 2, (const GLcharARB**)source, NULL);
+  glShaderSource(handle, 2, (const GLchar**)source, NULL);
   
   compileIt();
   
@@ -54,11 +54,11 @@ void Shader::compileIt()
 
 	if(!compiled)
 	{
-		GLcharARB *debug;
+		GLchar *debug;
 		GLint debugLength;
 		glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
 
-		debug = new GLcharARB[debugLength];
+		debug = new GLchar[debugLength];
 		glGetShaderInfoLog(handle, debugLength, &debugLength, debug);
 
 		printf(debug);

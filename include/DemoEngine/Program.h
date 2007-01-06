@@ -42,6 +42,7 @@ public:
 
 private:
 	int getLoc(const char *name);
+	bool logLooksSafe();
 
 	Shader *vertex, *fragment;
 	GLuint handle;

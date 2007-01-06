@@ -451,6 +451,9 @@ protected:
 			uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 #endif
+			uberProgramSetup.MATERIAL_SPECULAR = false;
+			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
+			uberProgramSetup.MATERIAL_NORMAL_MAP = false;
 			//uberProgramSetup.OBJECT_SPACE = false;
 			uberProgramSetup.FORCE_2D_POSITION = true;
 

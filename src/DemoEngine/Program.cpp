@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include "DemoEngine/Program.h"
 
 // Public part :
@@ -55,6 +56,25 @@ void Program::attach(Shader *shader)
 	attach(*shader);
 }
 
+bool Program::logLooksSafe()
+{
+	bool result = true;
+	GLchar *debug;
+	GLint debugLength;
+	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
+	debug = new GLchar[debugLength];
+	glGetProgramInfoLog(handle, debugLength, &debugLength, debug);
+	//printf("%s\n\n",debug);
+	// when log contains "software", program probably can't run on GPU
+	if(strstr(debug,"software"))
+	{
+		//printf("Sw shader refused.\n");
+		result = false;
+	}
+	delete [] debug;
+	return result;
+}
+
 void Program::linkIt()
 {
 	// link
@@ -62,7 +82,7 @@ void Program::linkIt()
 	GLint alinked;
 	glGetProgramiv(handle,GL_LINK_STATUS,&alinked);
 	// store result
-	linked = alinked!=0;
+	linked = alinked && logLooksSafe();
 //	assert(linked);
 }
 
@@ -77,7 +97,7 @@ bool Program::isValid()
 	glValidateProgram(handle);
 	GLint valid;
 	glGetProgramiv(handle,GL_VALIDATE_STATUS,&valid);
-	return valid!=0;
+	return valid && logLooksSafe();
 }
 
 void Program::useIt()

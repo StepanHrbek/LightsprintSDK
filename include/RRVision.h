@@ -104,15 +104,15 @@ namespace rr
 	#define RM_EXITANCE_CUSTOM              RRRadiometricMeasure(1,1,0,1,1)
 
 
-	//! Boolean attributes of front or back side of surface.
+	//! Boolean attributes of one side of surface. Usually exist in array of two elements, for front and back side.
 	struct RRSideBits
 	{
-		unsigned char renderFrom:1;  ///< Should surface be visible from that halfspace? Information only for renderer, not for radiosity solver.
-		unsigned char emitTo:1;      ///< Should surface emit energy to that halfspace?
-		unsigned char catchFrom:1;   ///< Should surface catch photons incoming from that halfspace? When photon is catched, receiveFrom, reflect and transmitFrom are tested.
-		unsigned char receiveFrom:1; ///< When photon is catched, should surface receive energy?
-		unsigned char reflect:1;     ///< When photon is catched, should surface reflect energy to that halfspace?
-		unsigned char transmitFrom:1;///< When photon is catched, should surface transmit energy to other halfspace?
+		unsigned char renderFrom:1;  ///< Should surface be visible from its side? Information only for renderer, not for radiosity solver.
+		unsigned char emitTo:1;      ///< Should surface emit energy to its side? When false, it disables emittance.
+		unsigned char catchFrom:1;   ///< Should surface catch photons coming from its side? When photon is catched, receiveFrom, reflect and transmitFrom are tested.
+		unsigned char receiveFrom:1; ///< When photon is catched, should surface receive its energy?
+		unsigned char reflect:1;     ///< When photon is catched, should surface reflect it? When false, it disables reflectance.
+		unsigned char transmitFrom:1;///< When photon is catched, should surface refract it? When false, it disables transmittance.
 	};
 
 	//! Description of surface material properties. Could be in physical or any other scale, depends on who uses it.
@@ -310,12 +310,12 @@ namespace rr
 		//! Newly created instance has no transformation matrix, but it is still on the same 
 		//! place in world space, because all vertices are transformed.
 		//! \n Newly created instance allocates no additional memory, but depends on
-		//! original object, so it is not allowed to let new instance live longer than original object.
+		//! original object, so it is not allowed to let new instance live longer than the original object.
 		//! \param negScaleMakesOuterInner
 		//!  After negative scale, singlesided box visible only from outside will be visible only from inside.
 		//!  \n\n Implementation details:
 		//!  \n Both original and transformed object share the same mesh and materials, so both 
-		//!  objects contain triangles with the same vertex order (eg. ABC, 
+		//!  objects contain triangles with the same vertex order (e.g. ABC, 
 		//!  not ACB) and materials visible for example from outside.
 		//!  Negative scale naturally makes the object visible from inside
 		//!  and rays collide with the inner side. This is the case of negScaleMakesOuterInner=true.

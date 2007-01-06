@@ -56,8 +56,8 @@ namespace rr
 	public:
 		//! Writes size of selected channel into numItems and itemSize.
 		//
-		//! \param channelId Id of channel, eg. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
-		//!  Each class that implements this method (eg. RRMesh, RRObject) defines supported channel ids
+		//! \param channelId Id of channel, e.g. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
+		//!  Each class that implements this method (e.g. RRMesh, RRObject) defines supported channel ids
 		//!  CHANNEL_xxx.
 		//! \param numItems When not NULL, it is filled with number of items. Items are indexed by 0..numItems-1.
 		//!  Zero is filled for unknown channel.
@@ -67,8 +67,8 @@ namespace rr
 		virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
 		//! Copies one data item from selected channel into buffer provided by you.
 		//
-		//! \param channelId Id of channel, eg. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
-		//!  Each class that implements this method (eg. RRMesh, RRObject) defines supported channel ids
+		//! \param channelId Id of channel, e.g. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
+		//!  Each class that implements this method (e.g. RRMesh, RRObject) defines supported channel ids
 		//!  CHANNEL_xxx.
 		//! \param itemIndex Index of intem inside channel. Items are indexed from 0 to numItems-1,
 		//!  see getChannelSize for numItems.
@@ -353,7 +353,7 @@ namespace rr
 		//! Saves mesh to file.
 		//
 		//! \param filename
-		//!  Filename for saved mesh. Format is platform specific (eg. "c:\\mymesh" or "/pub/mymesh").
+		//!  Filename for saved mesh. Format is platform specific (e.g. "c:\\mymesh" or "/pub/mymesh").
 		//! \return True on successful save.
 		bool save(char* filename);
 		//! Loads mesh from file to newly created instance.

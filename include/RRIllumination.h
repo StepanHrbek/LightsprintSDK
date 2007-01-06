@@ -301,7 +301,7 @@ namespace rr
 		//! One layer of illumination (irradiance) values for whole object.
 		//
 		//! Illumination can be stored in vertex array, ambient map or both.
-		//! Multiple channels (eg. each channel for different light source) can be mixed by renderer.
+		//! Multiple channels (e.g. each channel for different light source) can be mixed by renderer.
 		struct Channel
 		{
 			//! Custom vertex array with illumination levels for all object vertices.

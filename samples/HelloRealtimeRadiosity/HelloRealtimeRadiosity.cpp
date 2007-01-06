@@ -475,8 +475,8 @@ int main(int argc, char **argv)
 	// init shaders
 	uberProgram = new UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
 	unsigned shadowmapsPerPass = UberProgramSetup::detectMaxShadowmaps(uberProgram);
-	if(shadowmapsPerPass) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
-	if(shadowmapsPerPass) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
+	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
+	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures

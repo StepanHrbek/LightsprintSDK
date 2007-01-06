@@ -93,8 +93,6 @@
 #ifdef LIGHT_INDIRECT_ENV
 	uniform samplerCube lightIndirectSpecularEnvMap;
 	uniform samplerCube lightIndirectDiffuseEnvMap;
-	varying vec3 worldPos;
-	varying vec3 worldNormalSmooth;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
@@ -104,6 +102,13 @@
 #ifdef MATERIAL_DIFFUSE_MAP
 	uniform sampler2D materialDiffuseMap;
 	varying vec2 materialDiffuseCoord;
+#endif
+
+#ifdef MATERIAL_SPECULAR
+	varying vec3 worldPos;
+#endif
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV)
+	varying vec3 worldNormalSmooth;
 #endif
 
 void main()
@@ -257,7 +262,7 @@ void main()
 		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
 		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
 	#endif
-	#ifdef LIGHT_INDIRECT_ENV
+	#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV)
 		#ifdef MATERIAL_NORMAL_MAP
 			vec3 worldNormal = normalize(worldNormalSmooth+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
 		#else
@@ -271,7 +276,7 @@ void main()
 	// light direct
 
 	#ifdef LIGHT_DIRECT
-		#if defined(MATERIAL_NORMAL_MAP) || defined(LIGHT_INDIRECT_ENV)
+		#if defined(MATERIAL_NORMAL_MAP) || defined(MATERIAL_SPECULAR)
 			vec3 worldLightDir = normalize(worldLightPos - worldPos);
 		#endif
 		vec4 lightDirect =
@@ -294,9 +299,8 @@ void main()
 	//
 	// final mix
 
-	#ifdef LIGHT_INDIRECT_ENV
-		vec3 worldView = worldPos-worldEyePos;
-		vec3 worldViewReflected = reflect(worldView,worldNormal);
+	#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV) || defined(LIGHT_DIRECT))
+		vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
 	#endif
 
 	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
@@ -352,6 +356,9 @@ void main()
 					#ifdef LIGHT_DIRECT
 						+ pow(max(0.0,dot(worldLightDir,normalize(worldViewReflected))),10.0)*2.0
 						* lightDirect
+					#endif
+					#ifdef LIGHT_INDIRECT_CONST
+						+ lightIndirectConst
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV
 						+ textureCube(lightIndirectSpecularEnvMap, worldViewReflected)

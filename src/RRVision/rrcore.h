@@ -12,7 +12,7 @@
 //#define ROTATIONS
 
 #define CHANNELS         3
-#define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (eg. polished steel) or specular transmittance that changes light color (eg. colored glass))
+#define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (e.g. polished steel) or specular transmittance that changes light color (e.g. colored glass))
 #define FACTORCHANNELS   1 // if CLEAN_FACTORS then 1 else CHANNELS
 
 #if CHANNELS==1

@@ -43,8 +43,14 @@
 	varying vec2 lightIndirectCoord;
 #endif
 
-varying vec3 worldPos;
-varying vec3 worldNormalSmooth;
+#ifdef MATERIAL_SPECULAR
+varying
+#endif
+	vec3 worldPos;
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV)
+varying 
+#endif
+	vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_DIFFUSE_COLOR
 	varying vec4 materialDiffuseColor;
