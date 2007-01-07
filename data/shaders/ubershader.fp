@@ -1,4 +1,4 @@
-// Realtime Radiosity Viewer fragment ubershader
+// DemoEngine fragment ubershader
 //
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
@@ -20,7 +20,7 @@
 //
 // Workarounds for driver bugs of one vendor made it a mess, sorry.
 //
-// Copyright (C) Stepan Hrbek, Lightsprint 2006
+// Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
 
 // for array of samplers (for any OpenGL 2.0 compliant card)
 //#if SHADOW_MAPS*SHADOW_SAMPLES>0

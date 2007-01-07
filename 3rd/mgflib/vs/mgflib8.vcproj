@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug static|Win32"
-			OutputDirectory="..\..\..\lib"
+			OutputDirectory="..\..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="0"
@@ -84,7 +84,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release static|Win32"
-			OutputDirectory="..\..\..\lib"
+			OutputDirectory="..\..\..\lib\$(PlatformName)"
 			IntermediateDirectory="..\..\..\tmp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"

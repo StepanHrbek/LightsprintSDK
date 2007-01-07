@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // DynamicObject, 3d object with dynamic global illumination.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
 #ifndef DYNAMICOBJECT_H

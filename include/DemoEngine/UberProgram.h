@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // UberProgram, general Program parametrized using #defines.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
 #ifndef UBERPROGRAM_H

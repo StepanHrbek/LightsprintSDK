@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Imports Model_3DS into RRRealtimeRadiosity
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 //
 // If you plan to integrate Lightsprint with your engine,
@@ -23,7 +23,7 @@
 // RRChanneledData - the biggest part of this implementation, provides access to
 // custom .3ds data via our custom identifiers CHANNEL_SURFACE_DIF_TEX etc.
 // It is used only by our custom renderer RendererOfRRObject,
-// it is never accessed by radiosity solver, you can delete it from your implementation.
+// it is never accessed by radiosity solver, you can skip it in your implementation.
 
 
 #include <cassert>

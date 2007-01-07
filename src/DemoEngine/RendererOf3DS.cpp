@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // RendererOf3DS, Renderer implementation that renders 3DS model.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
 #include <cassert>

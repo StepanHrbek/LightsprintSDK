@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // Texture, OpenGL 2.0 object.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2007
 // --------------------------------------------------------------------------
 
 #ifndef TEXTUREGL_H

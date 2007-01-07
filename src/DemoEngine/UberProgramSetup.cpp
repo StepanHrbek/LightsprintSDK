@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // UberProgramSetup, settings specific for our single UberProgram.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2007
 // --------------------------------------------------------------------------
 
 #include "DemoEngine/UberProgramSetup.h"

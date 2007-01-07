@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // Renderer, abstract renderer with access to its parameters.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
 #ifndef RENDERER_H

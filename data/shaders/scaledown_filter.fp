@@ -1,6 +1,6 @@
 // Scale down filter
 // Used by detectDirectIllumination()
-// Copyright (C) Stepan Hrbek, Lightsprint 2006
+// Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
 
 uniform sampler2D lightmap;
 uniform vec2 pixelDistance;

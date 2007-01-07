@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Imports Model_3DS into RRRealtimeRadiosity
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
 #ifndef _3DS2RR_H

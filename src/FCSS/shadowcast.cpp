@@ -824,7 +824,6 @@ void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance
 	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
 	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
-	renderedChannels.OBJECT_SPACE = uberProgramSetup.OBJECT_SPACE;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 	level->rendererNonCaching->setRenderedChannels(renderedChannels);
 	if(renderedChannels.LIGHT_INDIRECT_COLOR)

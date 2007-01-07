@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // OpenGL implementation of environment map interface rr::RRIlluminationEnvironmentMap.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2006-2007
 // --------------------------------------------------------------------------
 
 #ifndef RRILLUMINATIONENVIRONMENTMAPINOPENGL_H

@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // TextureShadowMap, Texture that can hold shadowmap, uses FBO when available.
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2007
 // --------------------------------------------------------------------------
 
 #ifndef TEXTURESHADOWMAP_H

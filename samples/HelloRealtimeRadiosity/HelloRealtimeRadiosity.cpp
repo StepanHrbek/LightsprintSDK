@@ -11,7 +11,7 @@
 // Soft shadow quality is reduced due to bug in ATI drivers.
 // Improve it on NVIDIA by deleting lines with NVIDIA in comment.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // Models by Raist, orillionbeta, atp creations
 
 #include <cassert>
@@ -116,7 +116,6 @@ void renderScene(UberProgramSetup uberProgramSetup)
 		renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
 		renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
 		renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
-		renderedChannels.OBJECT_SPACE = uberProgramSetup.OBJECT_SPACE;
 		renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererCaching->render();

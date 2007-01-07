@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Renderer implementation that renders RRObject instance.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2006
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
 #include <cassert>
@@ -105,6 +105,7 @@ void RendererOfRRObject::render()
 								glEnd();
 								begun = false;
 							}
+							glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 							tex->bindTexture();
 						}
 						else
@@ -176,7 +177,6 @@ void RendererOfRRObject::render()
 					}
 					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 					pixelBuffer->bindTexture();
-					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 				}
 				else
 				{
@@ -202,7 +202,6 @@ void RendererOfRRObject::render()
 					glEnd();
 					glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT);
 					environmentMap->bindTexture();
-					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 					glBegin(GL_TRIANGLES);
 				}
 				else
@@ -239,7 +238,7 @@ void RendererOfRRObject::render()
 			if(params.renderedChannels.LIGHT_INDIRECT_MAP)
 			{
 				rr::RRObject::TriangleMapping tm;
-				//!!! getnout jednou, ne trikrat (viz setNormals)
+				//!!! optimize, get once, not three times per triangle
 				params.object->getTriangleMapping(triangleIdx,tm);
 				glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT,tm.uv[v][0],tm.uv[v][1]);
 			}
@@ -248,7 +247,7 @@ void RendererOfRRObject::render()
 			if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 			{
 				rr::RRVec2 uv[3];
-				//!!! getnout jednou, ne trikrat (viz setNormals)
+				//!!! optimize, get once, not three times per triangle
 				if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,triangleIdx,&uv,sizeof(uv)))
 					glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE,uv[v][0],uv[v][1]);
 				else
