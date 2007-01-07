@@ -307,10 +307,6 @@ public:
 	unsigned triCountX, triCountY;
 };
 
-// external dependencies of Solver:
-// z m3ds detekuje materialy
-// renderer je pouzit k captureDirect
-//#include "Timer.h"
 class Solver : public rr::RRRealtimeRadiosity
 {
 public:

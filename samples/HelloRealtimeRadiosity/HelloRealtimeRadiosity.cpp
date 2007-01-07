@@ -193,6 +193,21 @@ public:
 
 class Solver : public rr::RRRealtimeRadiosity
 {
+public:
+	Solver()
+	{
+		bigMap = Texture::create(NULL,DETECT_MAP_SIZE,DETECT_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+		scaleDownProgram = new Program(NULL,"../../data/shaders/scaledown_filter.vp", "../../data/shaders/scaledown_filter.fp");
+		smallMap = new GLuint[DETECT_MAP_SIZE*DETECT_MAP_SIZE/16];
+	}
+	virtual ~Solver()
+	{
+		delete[] smallMap;
+		delete scaleDownProgram;
+		delete bigMap;
+		// delete objects and illumination
+		deleteObjectsFromRR(this);
+	}
 protected:
 #ifdef AMBIENT_MAPS
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
@@ -219,13 +234,11 @@ protected:
 		unsigned numTriangles = mesh->getNumTriangles();
 
 		// adjust captured texture size so we don't waste pixels
-		unsigned width1 = 4;
-		unsigned height1 = 4;
-		captureUv.xmax = winWidth/width1;
-		captureUv.ymax = winHeight/height1;
+		captureUv.xmax = DETECT_MAP_SIZE/4; // number of triangles in one row
+		captureUv.ymax = DETECT_MAP_SIZE/4; // number of triangles in one column
 		while(captureUv.ymax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/(captureUv.xmax*(captureUv.ymax-1))) captureUv.ymax--;
-		unsigned width = captureUv.xmax*width1;
-		unsigned height = captureUv.ymax*height1;
+		unsigned width = DETECT_MAP_SIZE; // used width in pixels
+		unsigned height = captureUv.ymax*4; // used height in pixels
 
 		// setup render states
 		glClearColor(0,0,0,1);
@@ -233,15 +246,16 @@ protected:
 		glDepthMask(0);
 		glViewport(0, 0, width, height);
 
-		// allocate the texture memory as necessary
-		GLuint* pixelBuffer = new GLuint[width * height];
-
 		// for each set of triangles (if all triangles doesn't fit into one texture)
 		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
 		{
 			unsigned lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax)-1;
 
+			// phase 1 for scale big map down
+			bigMap->renderingToBegin();
+
 			// clear
+			glViewport(0, 0, width,height);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// render scene with forced 2d positions of all triangles
@@ -256,33 +270,49 @@ protected:
 			renderScene(uberProgramSetup);
 			rendererNonCaching->setCapture(NULL,0,numTriangles-1);
 
-			// read back rendered image to memory
-			glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
+			// downscale triangles to single pixel values
+			bigMap->renderingToEnd();
+			scaleDownProgram->useIt();
+			scaleDownProgram->sendUniform("lightmap",0);
+			scaleDownProgram->sendUniform("pixelDistance",1.0f/DETECT_MAP_SIZE,1.0f/DETECT_MAP_SIZE);
+			glViewport(0,0,DETECT_MAP_SIZE/4,DETECT_MAP_SIZE/4);//!!! needs at least 256x256 backbuffer
+			// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
+			glClearColor(1,0,1,0);
+			glClear(GL_COLOR_BUFFER_BIT);
+			// setup pipeline
+			glActiveTexture(GL_TEXTURE0);
+			glDisable(GL_CULL_FACE);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			bigMap->bindTexture();
+			glBegin(GL_POLYGON);
+			glMultiTexCoord2f(0,0,0);
+			glVertex2f(-1,-1);
+			glMultiTexCoord2f(0,0,1);
+			glVertex2f(-1,1);
+			glMultiTexCoord2f(0,1,1);
+			glVertex2f(1,1);
+			glMultiTexCoord2f(0,1,0);
+			glVertex2f(1,-1);
+			glEnd();
+			glClearColor(0,0,0,0);
+			glEnable(GL_CULL_FACE);
 
-			// accumulate triangle irradiances
+			// read back rendered image to memory
+			glReadPixels(0, 0, captureUv.xmax, captureUv.ymax, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, smallMap);
+
+			// send triangle irradiances to solver
 			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<=lastCapturedTriangle;triangleIndex++)
 			{
-				// accumulate 1 triangle power from square region in texture
-				// (square coordinate calculation is in match with CaptureUv uv generator)
-				unsigned sum[3] = {0,0,0};
-				unsigned i = (triangleIndex-captureUv.firstCapturedTriangle)%captureUv.xmax;
-				unsigned j = (triangleIndex-captureUv.firstCapturedTriangle)/captureUv.xmax;
-				for(unsigned n=0;n<height1;n++)
-					for(unsigned m=0;m<width1;m++)
-					{
-						unsigned pixel = width*(j*height1+n) + (i*width1+m);
-						unsigned color = pixelBuffer[pixel] >> 8; // alpha was lost
-						sum[0] += color>>16;
-						sum[1] += (color>>8)&255;
-						sum[2] += color&255;
-					}
-				// pass irradiance to rrobject
-				rr::RRColor avg = rr::RRColor(sum[0],sum[1],sum[2]) / (255*width1*height1/2);
-				getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_CUSTOM,avg);
+				unsigned color = smallMap[triangleIndex-captureUv.firstCapturedTriangle];
+				getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(
+					triangleIndex,
+					rr::RM_IRRADIANCE_CUSTOM,
+					rr::RRColor((color>>24)&255,(color>>16)&255,(color>>8)&255) / 255.0f);
 			}
 		}
-
-		delete[] pixelBuffer;
 
 		// restore render states
 		glViewport(0, 0, winWidth, winHeight);
@@ -292,6 +322,10 @@ protected:
 	}
 private:
 	CaptureUv captureUv;
+	Texture* bigMap;
+	Program* scaleDownProgram;
+	GLuint* smallMap;
+	enum {DETECT_MAP_SIZE=1024};
 };
 
 

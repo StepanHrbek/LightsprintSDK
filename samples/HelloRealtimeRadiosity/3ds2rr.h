@@ -10,6 +10,7 @@
 #include "DemoEngine/Model_3DS.h"
 
 // new channels supported by our RRObjects
+// used only when ambient maps are rendered
 enum
 {
 	CHANNEL_SURFACE_DIF_TEX              = rr::RRMesh::INDEXED_BY_SURFACE+1,  //! Texture*

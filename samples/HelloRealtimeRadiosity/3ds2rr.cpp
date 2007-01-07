@@ -2,28 +2,29 @@
 // Imports Model_3DS into RRRealtimeRadiosity
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
-//
-// If you plan to integrate Lightsprint with your engine,
-// you need to implement data wrappers so Lightsprint can access
-// your meshes, objects, materials.
-// M3dsImporter shows the simplest possible way.
-// You can start with this code and adapt it to work with your format
-// instead of Model_3DS.
+
+// This code implements data wrappers for access to Model_3DS meshes, objects, materials.
+// You can replace Model_3DS with your internal format and adapt this code
+// so it works with your data.
 //
 // This is sufficient for demonstration purposes, but for production code
 // more memory can be saved:
 // 1) Don't duplicate data into this object. Reimplement methods like getVertex
 //    so that they read from your original mesh, sizeof this class can go down
 //    to several bytes.
-// 2) Split class into one that implements RRMesh + one that implements RRObject.
+// 2) For geometry instancing, split class into one that implements RRMesh
+//    and one that implements RRObject.
 //    You can then reuse meshes and colliders, multiple objects
 //    (instances of geometry in scene) will share the same collider and mesh.
-//    Even when mesh has few bytes, collider can be big.
+//    Even when properly written mesh has several bytes (it's only wrapper),
+//    collider can be big.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
 // custom .3ds data via our custom identifiers CHANNEL_SURFACE_DIF_TEX etc.
-// It is used only by our custom renderer RendererOfRRObject,
-// it is never accessed by radiosity solver, you can skip it in your implementation.
+// It is used only by our custom renderer RendererOfRRObject
+// (during render of scene with ambient maps),
+// it is never accessed by radiosity solver.
+// You can skip it in your implementation.
 
 
 #include <cassert>
@@ -37,7 +38,8 @@
 //
 // Verificiation
 //
-// Define VERIFY to enable code that verifies your wrappers and data.
+// Helps during development of new wrappers.
+// Define VERIFY to enable verification of wrappers and data.
 // Once your code/data are verified and don't emit messages via reporter(),
 // turn verifications off.
 // If you encounter strange behaviour with new data later,
