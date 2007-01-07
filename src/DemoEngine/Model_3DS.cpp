@@ -352,7 +352,8 @@ void Model_3DS::Draw(
 			for (int j = 0; j < Objects[i].numMatFaces; j ++)
 			{
 				// Use the material's texture
-				Materials[Objects[i].MatFaces[j].MatIndex].tex->bindTexture();
+				if (Objects[i].textured)
+					Materials[Objects[i].MatFaces[j].MatIndex].tex->bindTexture();
 
 				/*glPushMatrix();
 
@@ -402,9 +403,9 @@ void Model_3DS::Draw(
 
 	//glPopMatrix();
 	}
-	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	//glDisableClientState(GL_NORMAL_ARRAY);
-	//glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 }
 
