@@ -11,9 +11,6 @@
 #include "3ds2rr.h" // CHANNEL_SURFACE_DIF_TEX
 #include "RendererOfRRObject.h"
 
-int   SIDES  =1; // 1,2=force all faces 1/2-sided, 0=let them as specified by surface
-bool  SMOOTH =1; // allow multiple normals in polygon if mgf specifies (otherwise whole polygon gets one normal)
-
 
 RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler)
 {
@@ -51,9 +48,7 @@ void RendererOfRRObject::render()
 	if(!params.object) return;
 
 	glColor4ub(0,0,0,255);
-	//glEnable(GL_CULL_FACE);
-	if(SIDES==1) glEnable(GL_CULL_FACE);
-	if(SIDES==2) glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	bool begun = false;
 	rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
@@ -71,13 +66,6 @@ void RendererOfRRObject::render()
 				if(surfaceIdx!=oldSurfaceIdx)
 				{
 					oldSurfaceIdx = surfaceIdx;
-
-					// material culling
-					// nastavuje culling podle materialu
-					// vypnuto protoze kdyz to na nvidii vlozim do display listu, pri jeho provadeni hlasi error
-					// !!! mozna byl error proto ze je to zakazane uvnitr glBegin/End
-					//if(cc!=CC_DIFFUSE_REFLECTANCE_FORCED_2D_POSITION)
-					//	if((SIDES==0 && surface->sideBits[1].renderFrom) || SIDES==1) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
 
 					// material diffuse color
 					if(params.renderedChannels.MATERIAL_DIFFUSE_COLOR)
@@ -186,32 +174,6 @@ void RendererOfRRObject::render()
 			}
 		}
 
-		/*/ light indirect env map
-		if(params.renderedChannels.LIGHT_INDIRECT_ENV)
-		{
-			rr::RRObjectIllumination* objectIllumination = NULL;
-			if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_OBJECT_ILLUMINATION,triangleIdx,&objectIllumination,sizeof(objectIllumination))
-				&& objectIllumination!=oldIllumination)
-			{
-				oldIllumination = objectIllumination;
-				// setup light indirect texture
-				//!!! later use channel mixer instead of channel 0
-				rr::RRIlluminationEnvironmentMap* environmentMap = objectIllumination->getChannel(0)->environmentMap;
-				if(environmentMap)
-				{
-					glEnd();
-					glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT);
-					environmentMap->bindTexture();
-					glBegin(GL_TRIANGLES);
-				}
-				else
-				{
-					//!!! kdyz se dostane sem a vysledek zacachuje, bude to uz vzdycky renderovat blbe
-					assert(0);
-				}
-			}
-		}*/
-
 		if(!begun)
 		{
 			glBegin(GL_TRIANGLES);
@@ -221,7 +183,7 @@ void RendererOfRRObject::render()
 		for(int v=0;v<3;v++)
 		{
 			// mesh normals - set
-			if(setNormals && (SMOOTH || v==0))
+			if(setNormals)
 			{
 				glNormal3fv(&triangleNormals.norm[v].x);
 			}

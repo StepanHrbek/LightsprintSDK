@@ -17,7 +17,9 @@
 class DE_API Renderer
 {
 public:
-	//! Renders.
+	//! Renders contents derived from implementation defined parameters.
+	//! Example1: Parameters are Scene* scene, render() renders scene.
+	//! Example2: Parameters are Renderer* ren, render() saves ren's output into display list and replays it next time.
 	virtual void render() = 0;
 
 	//! When renderer instance has parameters that modify output, this returns them.

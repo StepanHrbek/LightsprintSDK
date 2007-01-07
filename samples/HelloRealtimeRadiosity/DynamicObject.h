@@ -17,6 +17,7 @@
 //
 // Dynamic object
 
+//! 3ds object packed with material settings, environment maps and position in world.
 class DynamicObject
 {
 public:

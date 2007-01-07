@@ -40,7 +40,9 @@ class VertexDataGenerator
 {
 public:
 	virtual ~VertexDataGenerator() {};
+	// generates vertex data into 'size' bytes of 'vertexData'
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) = 0; // vertexIndex=0..2
+	// returns hash of all parameters that modify generateData behaviour.
 	virtual unsigned getHash() = 0;
 };
 
@@ -76,14 +78,14 @@ public:
 private:
 	struct Params
 	{
-		const rr::RRObject* object;
-		const rr::RRScene* scene;
-		const rr::RRScaler* scaler;
-		RenderedChannels renderedChannels;
-		VertexDataGenerator* generateForcedUv;
-		unsigned otherCaptureParamsHash;
-		unsigned firstCapturedTriangle;
-		unsigned lastCapturedTriangle;
+		const rr::RRObject* object;            // object being rendered
+		const rr::RRScene* scene;              // scene it comes from
+		const rr::RRScaler* scaler;            // scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_COLOR==1
+		RenderedChannels renderedChannels;     // set of data channels being rendered
+		VertexDataGenerator* generateForcedUv; // generator of uv data for FORCE_2D_POSITION
+		unsigned otherCaptureParamsHash;       // hash of generator's parameters
+		unsigned firstCapturedTriangle;        // index of first triangle to render
+		unsigned lastCapturedTriangle;         // index of last triangle to render
 	};
 	Params params;
 };

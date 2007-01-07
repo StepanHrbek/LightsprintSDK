@@ -15,6 +15,7 @@
 //
 // Dynamic object
 
+//! 3ds object packed with position in world.
 class DynamicObject
 {
 public:
@@ -26,7 +27,6 @@ public:
 private:
 	DynamicObject();
 	Model_3DS model;
-	UberProgramSetup material;
 };
 
 #endif
