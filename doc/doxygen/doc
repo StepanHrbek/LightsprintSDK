@@ -5,7 +5,10 @@ namespace rr
 
 
 \mainpage Lightsprint SDK
- Welcome to Lightsprint SDK.
+
+ \image html intro.jpg
+
+ Welcome to Lightsprint Software Development Kit.
 
  - <b> \subpage main_introduction </b>
 
@@ -20,8 +23,6 @@ namespace rr
  - <b> \subpage main_platforms </b>
 
  - <b> \subpage main_api "API reference" </b>
-
- \image html all-rr.png
 
 
 
@@ -42,18 +43,22 @@ namespace rr
 
   Renderer with realtime direct illumination and shadows.
 
-  There are many good renderers, commercial and free, proprietary and open source.
   If you don't have renderer, you can start with our renderer from DemoEngine.
 
+  Example: Today's engines ignore indirect illumination from moving lights
+  and render only direct illumination,
+  or approximate indirect by constant ambient term.
+  
+  \image html a0b.jpg
+
   \image html all-ambient.png
-  Today's engines ignore indirect illumination from moving lights
-  and render only direct illumination (left column),
-  or approximate indirect by constant ambient term (right column).
 
  \section intro3 Our contribution
 
   Lightsprint calculates physically correct indirect illumination
   in realtime as a replacement for constant ambient.
+
+  \image html a1b.jpg
 
   \image html all-rr.png
 
@@ -62,7 +67,7 @@ namespace rr
 
 
 
-\page details More details
+\page details Details
  In our real world, we see visible light coming mostly from special surfaces 
  (hot wolfram fibre in bulb, luminofor of fluorescent lamp)
  or from whole volumes of plasma (sun, fire).
@@ -864,11 +869,11 @@ namespace rr
 
 \page api_rr Realtime Radiosity
  Realtime Radiosity extends your renderer by adding realtime computed
- indirect illumination.
+ global illumination.
 
  Headers: RRRealtimeRadiosity.h
 
- - adds indirect illumination to dynamic scenes
+ - adds global illumination to dynamic scenes
  - integrates with existing engines
  - uses no precalculations -> illumination quality varies, "architect edition"
  - techniques based on partial precalculations will follow -> quality boost, "day/night editions"
@@ -879,8 +884,8 @@ namespace rr
  - communicates completely in custom units, e.g. screen colors
 
  Sample HelloRealtimeRadiosity shows the result of integration,
- interactive .3ds scene viewer with radiosity immediately responding
- to light movements.
+ interactive .3ds scene viewer with global illumination immediately responding
+ to object and light movements.
 
 
 

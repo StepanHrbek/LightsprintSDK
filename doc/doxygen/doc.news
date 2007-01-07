@@ -6,9 +6,20 @@
 
 \page news What's new
 
-\section news8 ------------------------------------- 2007.1.2 -------------------------------------
+\section news10 ------------------------------------ 2007.1.6 -------------------------------------
 
-NEWS
+NEW FEATURES
+
+- HelloDemoEngine sample
+
+CHANGES
+
+- DemoEngine doesn't deppend on Lightsprint engine
+- 8x faster detection of direct illumination in HelloRealtimeRadiosity
+
+\section news9 ------------------------------------- 2007.1.2 -------------------------------------
+
+NEW FEATURES
 
 - RRScene::SmoothingParameters 
   \n illumination smoothing parameters, set per object

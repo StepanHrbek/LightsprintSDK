@@ -5,7 +5,8 @@
 // You should be familiar with GLUT and OpenGL.
 //
 // This is HelloRealtimeRadiosity without Lightsprint engine,
-// the same scene without indirect illumination.
+// the same scene with the same material properties,
+// but with constant ambient illumination.
 //
 // Controls:
 //  mouse = look around
