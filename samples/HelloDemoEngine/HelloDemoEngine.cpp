@@ -1,7 +1,11 @@
+// --------------------------------------------------------------------------
 // Hello DemoEngine sample
 //
 // Use of DemoEngine is demonstrated on .3ds scene viewer.
 // You should be familiar with GLUT and OpenGL.
+//
+// This is HelloRealtimeRadiosity without Lightsprint engine,
+// the same scene without indirect illumination.
 //
 // Controls:
 //  mouse = look around
@@ -11,8 +15,9 @@
 // Soft shadow quality is reduced due to bug in ATI drivers.
 // Improve it on NVIDIA by deleting lines with NVIDIA in comment.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // Models by Raist, orillionbeta, atp creations
+// --------------------------------------------------------------------------
 
 #include <cassert>
 #include <cmath>

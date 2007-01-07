@@ -1,8 +1,10 @@
+// --------------------------------------------------------------------------
 // RRMesh minimalistic example.
 //
 // RRMesh is constructed from vertex buffer.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
+// --------------------------------------------------------------------------
 
 #include "RRMesh.h"
 #include <stdio.h>

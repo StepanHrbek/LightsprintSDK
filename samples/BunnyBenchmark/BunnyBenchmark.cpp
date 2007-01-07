@@ -1,9 +1,11 @@
+// --------------------------------------------------------------------------
 // Bunny Benchmark of Lightsprint Collider.
 //
 // Stanford Bunny model with 69451 triangles is loaded from disk,
 // intersections with random rays are detected, speed is measured.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2006
+// Copyright (C) Lightsprint, Stepan Hrbek, 2005-2007
+// --------------------------------------------------------------------------
 
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"

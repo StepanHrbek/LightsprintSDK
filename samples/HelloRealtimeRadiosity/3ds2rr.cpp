@@ -369,6 +369,14 @@ void M3dsImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	}
 }
 
+// Unwrap is not present in .3ds file format.
+// If you omit getTriangleMapping, emergency automatic unwrap
+// is used and ambient map quality is reduced.
+//void M3dsImporter::getTriangleMapping(unsigned t, TriangleMapping& out) const
+//{
+//	out.uv = unwrap baked with mesh;
+//}
+
 const rr::RRMatrix3x4* M3dsImporter::getWorldMatrix()
 {
 	//!!! matrices from 3ds are ignored yet

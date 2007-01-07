@@ -1,10 +1,12 @@
+// --------------------------------------------------------------------------
 // RRVision minimalistic example.
 //
 // Mesh with two triangles, one dark and one emitting light, is constructed.
-// After quick calculation, we see that measures of illumination
-// on both triangles are higher - light has been distributed.
+// After quick calculation, exitances of both triangles are displayed.
+// They are higher, light was reflected.
 //
-// Copyright (C) Lightsprint, Stepan Hrbek, 2006
+// Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
+// --------------------------------------------------------------------------
 
 #include "RRVision.h"
 #include <cstdio>
@@ -65,7 +67,7 @@ void printIllumination(RRScene* scene)
 	for(unsigned triangle=0;triangle<2;triangle++)
 	{
 		RRColor exitance;
-		// read exitance from object 0, triangle triangle, vertex 0
+		// read exitance from triangle triangle, vertex 0
 		scene->getTriangleMeasure(triangle,0,RM_EXITANCE_PHYSICAL,NULL,exitance);
 		printf(" %f",exitance[0]);
 	}
