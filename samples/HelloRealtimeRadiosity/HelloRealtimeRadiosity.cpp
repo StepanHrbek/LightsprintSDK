@@ -520,7 +520,6 @@ int main(int argc, char **argv)
 	unsigned shadowmapsPerPass = UberProgramSetup::detectMaxShadowmaps(uberProgram);
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
-	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
