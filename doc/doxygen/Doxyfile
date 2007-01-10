@@ -88,6 +88,20 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/R
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRVision.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRIllumination.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRRealtimeRadiosity.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Camera.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/DemoEngine.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Model_3DS.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/MultiInstance.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/MultiLight.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Program.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Renderer.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/RendererOf3DS.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/RendererWithCache.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Shader.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Texture.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Timer.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/UberProgram.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/UberProgramSetup.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/doc"
 FILE_PATTERNS          = *.c \
                          *.cc \

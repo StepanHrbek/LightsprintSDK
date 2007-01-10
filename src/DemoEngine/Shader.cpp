@@ -23,29 +23,27 @@ char* readShader(const char *filename)
 	return buf;
 }
 
-// Public part :
-
 Shader::Shader(const char* defines, const char* filename, GLenum shaderType)
 {
-  const char *source[2];
-  handle = glCreateShader(shaderType);
+	const char *source[2];
+	handle = glCreateShader(shaderType);
 
-  source[0] = defines?defines:"";
-  source[1] = readShader(filename);
-  if(!source[1])
-  {
-	  printf("Shader %s not found.\nPress enter to end...",filename);
-	  fgetc(stdin);
-	  exit(1);
-  }
-  glShaderSource(handle, 2, (const GLchar**)source, NULL);
+	source[0] = defines?defines:"";
+	source[1] = readShader(filename);
+	if(!source[1])
+	{
+		printf("Shader %s not found.\nPress enter to end...",filename);
+		fgetc(stdin);
+		exit(1);
+	}
+	glShaderSource(handle, 2, (const GLchar**)source, NULL);
   
-  compileIt();
+	compile();
   
-  delete [] source[1];
+	delete[] source[1];
 }
 
-void Shader::compileIt()
+void Shader::compile()
 {
 	GLint compiled;
 
@@ -66,8 +64,6 @@ void Shader::compileIt()
 	}
 }
 
-// Private part :
-
 GLuint Shader::getHandle() const
 {
 	return handle;
@@ -77,4 +73,3 @@ Shader::~Shader()
 {
 	glDeleteShader(handle);
 }
-

@@ -14,6 +14,7 @@
 //
 // Renderer - interface
 
+//! Very generic interface of renderer.
 class DE_API Renderer
 {
 public:
@@ -22,8 +23,8 @@ public:
 	//! Example2: Parameters are Renderer* ren, render() saves ren's output into display list and replays it next time.
 	virtual void render() = 0;
 
-	//! When renderer instance has parameters that modify output, this returns them.
-	//! By default, renderer is expected to have no parameters and render always the same.
+	//! Returns pointer to block of parameters that specify what is rendered by render().
+	//! By default, renderer is expected to have no parameters and renders always the same.
 	virtual const void* getParams(unsigned& length) const
 	{
 		length = 0;

@@ -15,11 +15,15 @@
 //
 // RendererOf3DS - basic OpenGL renderer implementation
 
+//! OpenGL renderer of Model_3DS model.
 class DE_API RendererOf3DS : public Renderer
 {
 public:
+	//! Creates renderer of model.
 	RendererOf3DS(const Model_3DS* model);
+	//! Returns parameters that specify what render() does (pointer to pointer to model). 
 	virtual const void* getParams(unsigned& length) const;
+	//! Renders model using Model_3DS::Draw().
 	virtual void render();
 private:
 	const Model_3DS* model;

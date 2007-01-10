@@ -230,7 +230,7 @@ void init_gl_resources()
 	areaLight = new AreaLight(MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
-	GLint shadowDepthBits = areaLight->getShadowMap(0)->getDepthBits();
+	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
 	depthScale24 = 1 << (shadowDepthBits-16);
 	updateDepthBias(0);  /* Update with no offset change. */
 

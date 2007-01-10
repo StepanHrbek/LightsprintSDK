@@ -10,8 +10,6 @@
 #include <cstring>
 #include "DemoEngine/Program.h"
 
-// Public part :
-
 Program::Program()
   :vertex(NULL), fragment(NULL)
 {
@@ -27,13 +25,13 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 	if(vertexShader)
 	{
 		vertex = new Shader(defines, vertexShader, GL_VERTEX_SHADER);
-		attach(vertex);
+		attach(*vertex);
 	}
 
 	if(fragmentShader)
 	{
 		fragment = new Shader(defines, fragmentShader, GL_FRAGMENT_SHADER);
-		attach(fragment);
+		attach(*fragment);
 	}
 
 	linkIt();
@@ -49,11 +47,6 @@ Program::~Program()
 void Program::attach(Shader &shader)
 {
 	glAttachShader(handle, shader.getHandle());
-}
-
-void Program::attach(Shader *shader)
-{
-	attach(*shader);
 }
 
 bool Program::logLooksSafe()
@@ -145,8 +138,7 @@ void Program::sendUniform(const char *name, int x, int y, int z)
 	glUniform3i(getLoc(name), x, y, z);
 }
 
-void Program::sendUniform(const char *name, int x, int y, int z,
-							  int w)
+void Program::sendUniform(const char *name, int x, int y, int z, int w)
 {
 	glUniform4i(getLoc(name), x, y, z, w);
 }
@@ -168,8 +160,6 @@ void Program::sendUniform(const char *name, float *matrix, bool transpose, int s
 		break;
 	}
 }
-
-// Private part :
 
 int Program::getLoc(const char *name)
 {

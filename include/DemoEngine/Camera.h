@@ -15,32 +15,54 @@
 //
 // Camera
 
+//! Frustum with publicly visible parameters, suitable for cameras and spotlights.
 class DE_API Camera
 {
 public:
-	// inputs
+	// inputs, to be modified by user
+
+	//! Position of camera (imaginary frustum apex).
 	GLfloat  pos[3];
 	float    angle;
 	float    height;
+	//! Camera's aspect, horizontal field of view / vertical field of view.
 	GLdouble aspect;
+	//! Camera's horizontal field of view in degrees. Must be positive and less than 180.
 	GLdouble fieldOfView;
+	//! Camera's near plane distance in world units. Must be positive.
 	GLdouble anear;
+	//! Camera's far plane distance in world units. Must be greater than near.
 	GLdouble afar;
 
-	// outputs
+	// outputs, to be calculated by update() and possibly readen by user
+
+	//! View direction.
 	GLfloat  dir[4];
+	//! View matrix in format suitable for OpenGL.
 	GLdouble viewMatrix[16];
+	//! Inverse view matrix in format suitable for OpenGL.
 	GLdouble inverseViewMatrix[16];
+	//! Projection matrix in format suitable for OpenGL.
 	GLdouble frustumMatrix[16];
+	//! Inverse projection matrix in format suitable for OpenGL.
 	GLdouble inverseFrustumMatrix[16];
 
-	// tools
+	// tools, to be called by user
+
+	//! Type of moveForward, moveBackward, moveRight and moveLeft for convenient mapping to keys.
 	typedef void (Camera::*Move)(float units);
+	//! Moves camera to given distance in world space.
 	void moveForward(float units);
+	//! Moves camera to given distance in world space.
 	void moveBack(float units);
+	//! Moves camera to given distance in world space.
 	void moveRight(float units);
+	//! Moves camera to given distance in world space.
 	void moveLeft(float units);
+	//! Updates all outputs, recalculates them from inputs.
 	void update(float back); // converts inputs to outputs
+	//! Sends our outputs to OpenGL pipeline, so that following primitives are
+	//! transformed as if viewed by this camera.
 	void setupForRender();
 };
 

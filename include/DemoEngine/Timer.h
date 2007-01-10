@@ -29,10 +29,12 @@
 //
 // Timer
 
+//! Timer for measuring intervals.
 class Timer
 {
 public:
 
+	//! Creates timer, but doesn't start counting.
 	Timer()
 	{
 #ifdef WINDOWS_TIME
@@ -41,6 +43,7 @@ public:
 #endif
 	}
 
+	//! Starts measuring.
 	void Start()
 	{
 #ifdef WINDOWS_TIME
@@ -60,9 +63,9 @@ public:
 		}
 	};
 
-	// Returns real time spent from Start.
-	// Optionally fills also processor times in user/kernel space.
-	// Note that user+kernel time may be higher than real time on multicore/processor machines.
+	//! Returns real time spent from Start.
+	//! Optionally fills also processor times in user/kernel space.
+	//! Note that user+kernel time may be higher than real time on multicore/processor machines.
 	double Watch(double* usertime=NULL, double* kerneltime=NULL)
 	{
 #ifdef WINDOWS_TIME

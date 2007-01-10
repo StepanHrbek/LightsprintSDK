@@ -21,7 +21,7 @@ public:
 	virtual void setSize(unsigned width, unsigned height);
 	virtual void renderingToBegin();
 	virtual void renderingToEnd();
-	virtual unsigned getDepthBits(); // number of bits in texture depth channel
+	virtual unsigned getTexelBits(); // number of bits in texture depth channel
 	virtual ~TextureShadowMap();
 private:
 	static unsigned numInstances;

@@ -409,7 +409,7 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = (double) winWidth / (double) winHeight;
-	GLint shadowDepthBits = areaLight->getShadowMap(0)->getDepthBits();
+	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
 	glPolygonOffset(4, 42 << (shadowDepthBits-16) );
 }
 

@@ -18,9 +18,11 @@
 //
 // MultiLightWithShadowmaps
 
+//! Generic area light with multiple shadowmaps.
 class DE_API MultiLightWithShadowmaps : public MultiInstanceWithParentAndInstances<Camera>
 {
 public:
+	//! Creates generic area light with given number of instances and shadowmap resolution.
 	MultiLightWithShadowmaps(unsigned anumInstances, unsigned shadowmapSize)
 	{
 		numInstancesMax = anumInstances;
@@ -61,17 +63,21 @@ protected:
 //
 // AreaLight
 
+//! Area light with shadowmaps allocated for realtime area light soft shadows.
 class DE_API AreaLight : public MultiLightWithShadowmaps
 {
 public:
+	//! Creates area light with given number of instances and shadowmap resolution.
 	AreaLight(unsigned anumInstances, unsigned shadowmapSize)
 		: MultiLightWithShadowmaps(anumInstances,shadowmapSize)
 	{
 		areaType = 0;
 		areaSize = 0.15f;
 	}
-	unsigned areaType; // 0=linear, 1=square grid, 2=circle
-	float areaSize; // size of area light
+	//! Shape of light source, 0=line, 1=square, 2=circle
+	unsigned areaType;
+	//! Size factor, light source size scales linearly with areaSize.
+	float areaSize;
 protected:
 	virtual void instanceMakeup(Camera& light, unsigned instance)
 	{

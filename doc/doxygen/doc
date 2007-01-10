@@ -837,9 +837,13 @@ namespace rr
 
  - <b> \subpage api_mesh "MESH" </b> - unifies access to triangle meshes
 
- and a standalone header that may turn into library in future:
+ and standalone header that may turn into library in future:
 
  - <b> \subpage api_math "MATH" </b> - basic math
+
+ Outside Lightsprint engine, SDK contains:
+
+ - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 engine/renderer with soft shadows
 
  Depending on your projects, you may use various subsets of whole API.
 
@@ -851,7 +855,6 @@ namespace rr
 
  DemoEngine based on OpenGL 2.0 provides support for loading and rendering
  3d scenes with shaders, but without global illumination.
- It is not documented here, but its API is reasonably simple.
  You can safely replace DemoEngine by your renderer or game engine.
 
  Sample HelloRealtimeRadiosity uses both engines
@@ -985,6 +988,25 @@ namespace rr
  - RRVec2 is vector of 2 real numbers
  - RRVec3 is vector of 3 real numbers
  - RRVec4 is vector of 4 real numbers
+
+
+\page api_demoengine DemoEngine
+ DemoEngine based on OpenGL 2.0 provides support for loading and rendering
+ 3d scenes with shaders, but without global illumination.
+ You can safely replace DemoEngine by your renderer or game engine.
+
+ Headers: DemoEngine/*.h
+
+ - Model_3DS is model loaded from .3ds file
+ - AreaLight is area light
+ - Texture is OpenGL texture
+ - Shader is GLSL shader
+ - Program is GLSL program
+ - UberProgram is GLSL program with preprocessor parameters changeable at runtime
+ - UberProgramSetup is set of parameters for our ubershaders UberShader.vp and UberShader.fp
+
+ Sample HelloDemoEngine shows .3ds scene viewer with dynamic objects
+ and realtime soft shadows, based on DemoEngine.
 
 */
 

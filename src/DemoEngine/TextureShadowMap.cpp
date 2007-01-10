@@ -48,7 +48,7 @@ void TextureShadowMap::renderingToEnd()
 	fbo->restoreDefaultRenderTarget();
 }
 
-unsigned TextureShadowMap::getDepthBits()
+unsigned TextureShadowMap::getTexelBits()
 {
 	GLint bits = 0;
 	bindTexture();
