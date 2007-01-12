@@ -472,7 +472,7 @@ namespace rr
 
 
 \page main_data_access Data access
- Lightsprint calculates indirect illumination.
+ Lightsprint engine calculates indirect illumination.
  To render using calculated illumination, you need to access calculated data structures.
  Lightsprint supports multiple data structures optimized for different use cases.
 
@@ -538,8 +538,104 @@ namespace rr
      RRIlluminationVertexBuffer::createInSystemMemory by default.
 
  \section d16 Data usage
-   - Declare buffer as your second vertex stream and read ambient values from it
-     in each vertex.
+   - Stream data from vertex buffer into vertex shader, interpret them
+     in shader as an ambient light value.
+
+ \section d17 Examples
+   - OpenGL example:
+     \n Rendering with per vertex ambient.
+     \code
+	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	GLuint program;
+	...
+	// set program created from shaders below
+	glUseProgram(program);
+	// get vertex buffer with indirect illumination
+	rr::RRIlluminationVertexBuffer* vertexBuffer = realtimeRadiosity->
+		getIllumination(numberOfObject)->getChannel(0)->vertexBuffer;
+	// enable stream with color values
+	glEnableClientState(GL_COLOR_ARRAY);
+	// set pointer to color data for first vertex
+	glColorPointer(3, GL_FLOAT, 0, &vertexBuffer->lock()->x);
+	// render primitives
+	glDrawElements...
+	// cleanup
+	vertexBuffer->unlock();
+	glDisableClientState(GL_COLOR_ARRAY);
+     \endcode
+     Using ambient value in GLSL vertex shader:
+     \code
+	varying vec3 ambientLight;
+	void vertexShader()
+	{
+		...
+		ambientLight = gl_Color;
+	}
+     \endcode
+     Using ambient value in GLSL fragment shader:
+     \code
+	varying vec3 ambientLight;
+	void fragmentShader()
+	{
+		...
+		gl_FragColor = ... + materialColor * vec4(ambientLight.xyz,0.0);
+	}
+     \endcode
+   - Direct3D 9 example:
+     \n Rendering with per vertex ambient.
+     \code
+	IDirect3DDevice9* device;
+	IDirect3DPixelShader9* vertexShader;
+	IDirect3DPixelShader9* pixelShader;
+	// adapt your vertex declaration, let your mesh read data from stream 0
+	// and add e.g. COLOR1 readen from stream 1
+	IDirect3DVertexDeclaration9* vertexDeclaration;
+	device->CreateVertexDeclaration(description, &vertexDeclaration);
+	...
+	// create d3d vertex buffer and fill it with vertexBuffer->lock() data
+	rr::RRIlluminationVertexBuffer* vertexBuffer = realtimeRadiosity->
+		getIllumination(numberOfObject)->getChannel(0)->vertexBuffer;
+	IDirect3DVertexBuffer9* d3dBuffer = ...;
+	// to prevent data duplication and copying, implement RRIlluminationVertexBuffer
+	//  that stores data directly into d3d vertex buffer
+	...
+	// set rendering pipeline to use shaders below
+	device->SetPixelShader(vertexShader);
+	device->SetPixelShader(pixelShader);
+	// activate previously created vertex declaration
+	device->SetVertexDeclaration(vertexDeclaration);
+	// set pointer to your mesh (vertices, possibly normals etc.) in stream 0
+	device->SetStreamSource(0, ...);
+	// set pointer to vertex illumination data in stream 1
+	device->SetStreamSource(1, d3dBuffer, ...);
+	// render primitives
+	device->DrawPrimitive...
+	// cleanup
+	device->SetStreamSource(1, NULL, 0, 0);
+	device->SetStreamSource(0, NULL, 0, 0);
+     \endcode
+     Using ambient value in HLSL vertex shader:
+     \code
+	void vertexShader(in float3 iAmbientLight: COLOR1,
+		..., out float3 oAmbientLight: COLOR1)
+	{
+		...
+		oAmbientLight = iAmbientLight;
+	}
+     \endcode
+     Using ambient value in HLSL pixel shader:
+     \code
+	void pixelShader(in float3 iAmbientLight: COLOR1,
+		..., out float4 oColor: COLOR)
+	{
+		...
+		oColor = ... + materialColor * float4(iAmbientLight,0);
+	}
+     \endcode
+   - Alternatively, applying colors from vertex buffer could be done in fixed pipeline,
+     without shaders, but it is beyond scope of this documentation.
+   - See Direct3D, OpenGL or your engine documentation for more details
+     on streaming per vertex data to vertex shader and rendering with ambient light.
 
 
 
@@ -558,7 +654,10 @@ namespace rr
    - Ambient values don't depend on view angle, so rendering is very fast.
 
  \section d23 Disadvantages
-   - You should provide object unwrap.
+   - You need additional uv channel with object's unwrap (for ambient map mapping).
+     If you don't have it, ask your 3d artists
+     to bake unwrap into meshes as an additional uv channel.
+     Unwraps are often genrated automatically, using existing free or commercial tools.
    - Ambient values don't depend on view angle, so normal maps have no effect.
 
  \section d24 Data source
@@ -578,9 +677,142 @@ namespace rr
      to start generating ambient maps.
 
  \section d26 Data usage
-   - Map ambient texture to your object using your unwrap
-     (you already had to provide unwrap to ambient map generator)
-     and read ambient value from it in each pixel.
+   - Map ambient texture to your object using your uv channel with object's unwrap,
+     read ambient value from texture in pixel shader
+     and interpret it as an ambient light.
+
+ \section d27 Examples
+   - Generic example:
+     \n Providing access to unwrap in your implementation of rr::RRObject interface.
+     \code
+	// access to uv channel with object's unwrap
+	void YourImplementationOfRRObject::getTriangleMapping(
+		unsigned t, TriangleMapping& out) const
+	{
+		for(unsigned v=0;v<2;v++)
+		{
+			// copy uv baked with your mesh
+			// for vertex v (v=0..2) in triangle t
+			out.uv[v][0] = ...; // u coordinate
+			out.uv[v][1] = ...; // v coordinate
+		}
+	}
+     \endcode
+   - OpenGL example:
+     \n Creating ambient map.
+     \code
+	virtual rr::RRIlluminationPixelBuffer*
+	YourImplementationOfRRRealtimeRadiosity::newPixelBuffer(rr::RRObject* object)
+	{
+		// use rr::RRIlluminationPixelBufferInOpenGL from DemoEngine
+		// or your implementation
+		return new rr::RRIlluminationPixelBufferInOpenGL(256,256,"shaders/");
+	}
+     \endcode
+     Rendering with ambient map.
+     \code
+	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	GLuint program;
+	...
+	// set program created from shaders below
+	glUseProgram(program);
+	// bind ambient map to texture0
+	glActiveTexture(GL_TEXTURE0);
+	realtimeRadiosity->getIllumination(numberOfObject)->
+		getChannel(0)->pixelBuffer->bindTexture();
+	// set sampler to use texture0
+	glUniform1i(glGetUniformLocation(program,"ambientMap"),0);
+	// enable stream with texture coordinates
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	// set pointer to texture coordinates
+	glColorPointer(2, GL_FLOAT, 0, array with uv values of unwrap);
+	// render primitives
+	glDrawElements...
+	// cleanup
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+     \endcode
+     Using uv coordinates in GLSL vertex shader:
+     \code
+	varying vec2 ambientMapCoord;
+	void vertexShader()
+	{
+		...
+		ambientMapCoord = gl_TexCoord.xy;
+	}
+     \endcode
+     Sampling and using ambient value in GLSL fragment shader:
+     \code
+	uniform sampler2D ambientMap;
+	varying vec2 ambientMapCoord;
+	void fragmentShader()
+	{
+		vec4 ambientLight = texture2D(ambientMap, ambientMapCoord);
+		...
+		gl_FragColor = ... + materialColor * ambientLight;
+	}
+     \endcode
+   - Direct3D 9 example:
+     \n Creating ambient map.
+     \code
+	virtual rr::RRIlluminationPixelBuffer*
+	YourImplementationOfRRRealtimeRadiosity::newPixelBuffer(rr::RRObject* object)
+	{
+		// use your implementation of rr::RRIlluminationPixelBuffer
+		return new YourImplementationOfRRIlluminationPixelBuffer(...);
+	}
+     \endcode
+     Rendering with ambient map.
+     \code
+	IDirect3DDevice9* device;
+	IDirect3DPixelShader9* vertexShader;
+	IDirect3DPixelShader9* pixelShader;
+	// create vertex declaration that includes ambient map uv channel as TEXCOORD0
+	IDirect3DVertexDeclaration9* vertexDeclaration;
+	device->CreateVertexDeclaration(description, &vertexDeclaration);
+	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	...
+	// set rendering pipeline to use shaders below
+	device->SetPixelShader(vertexShader);
+	device->SetPixelShader(pixelShader);
+	// set sampler to use ambient map
+	//  (implement pixelBuffer class in d3d)
+	realtimeRadiosity->getIllumination(numberOfObject)->
+		getChannel(0)->pixelBuffer->bindTexture();
+	// set vertex declaration for your mesh data,
+	//  including uv channel with unwrap
+	device->SetVertexDeclaration(vertexDeclaration);
+	// set pointer to your mesh in stream 0
+	//  (vertices, uv channel, possibly normals etc.)
+	device->SetStreamSource(0, ...);
+	// render primitives
+	device->DrawPrimitive...
+	// cleanup
+	device->SetStreamSource(0, NULL, 0, 0);
+     \endcode
+     Using uv coordinates in HLSL vertex shader:
+     \code
+	void vertexShader(in float2 iAmbientMapCoord: TEXCOORD0,
+		..., out float2 oAmbientMapCoord: TEXCOORD0)
+	{
+		...
+		oAmbientLight = iAmbientLight;
+	}
+     \endcode
+     Sampling and using ambient value in HLSL pixel shader:
+     \code
+	sampler ambientMap;
+	void pixelShader(in float2 iAmbientMapCoord: TEXCOORD0,
+		..., out float4 oColor: COLOR)
+	{
+		float4 ambientLight = tex2D(ambientMap, iAmbientMapCoord);
+		...
+		oColor = ... + materialColor * ambientLight;
+	}
+     \endcode
+   - Alternatively, texturing could be done in fixed pipeline,
+     without shaders, but it is beyond scope of this documentation.
+   - See Direct3D, OpenGL or your engine documentation for more details
+     on texturing and rendering with ambient light.
   
 
 
@@ -646,6 +878,103 @@ namespace rr
      Ambient occlusion maps are not generated by Lightsprint, but they are well integrated
      into many content creation tools, so there is good chance you can add them to
      your dynamic objects.
+
+ \section d37 Examples
+   - OpenGL example:
+     \n Rendering with environment maps.
+     \code
+	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	rr::RRVec3 center; // object's center position in world
+	rr::RRIlluminationEnvironmentMap* diffuseEnvironmentMap;
+	rr::RRIlluminationEnvironmentMap* specularEnvironmentMap;
+	GLuint program;
+	...
+	// update environment maps
+	realtimeRadiosity->updateEnvironmentMaps(center,16,
+		16,specularEnvironmentMap,4,diffuseEnvironmentMap);
+	// set program created from shader below
+	glUseProgram(program);
+	// bind diffuse environment map to texture0
+	glActiveTexture(GL_TEXTURE0);
+	diffuseEnvironmentMap->bindTexture(); // calls glBindTexture(GL_TEXTURE_2D,map);
+	// set sampler to use texture0
+	glUniform1i(glGetUniformLocation(program,"diffuseEnvironmentMap"),0);
+	// bind specular environment map to texture1
+	glActiveTexture(GL_TEXTURE1);
+	specularEnvironmentMap->bindTexture(); // calls glBindTexture(GL_TEXTURE_2D,map);
+	// set sampler to use texture1
+	glUniform1i(glGetUniformLocation(program,"specularEnvironmentMap"),1);
+	// render primitives
+	glDrawElements...
+     \endcode
+     Applying environment maps in GLSL fragment shader:
+     \code
+	uniform samplerCube specularEnvironmentMap;
+	uniform samplerCube diffuseEnvironmentMap;
+	void fragmentShader()
+	{
+		// normal in world space, you may apply normal map here
+		vec3 worldNormal = ...;
+		// view vector in world space = position of fragment - position of camera
+		vec3 worldView = ...;
+		// reflected view vector in world space
+		vec3 worldViewReflected = reflect(worldView,worldNormal);
+		...
+		gl_FragColor = ...
+			// diffuse reflection
+			+ materialDiffuseReflectance *
+			  textureCube(diffuseEnvironmentMap, worldNormal)
+			// specular reflection
+			+ materialSpecularReflectance *
+			  textureCube(specularEnvironmentMap, worldViewReflected);
+	}
+     \endcode
+   - Direct3D 9 example:
+     \n Rendering with environment maps.
+     \code
+	IDirect3DDevice9* device;
+	IDirect3DPixelShader9* pixelShader;
+	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	rr::RRVec3 center; // object's center position in world
+	rr::RRIlluminationEnvironmentMap* diffuseEnvironmentMap;
+	rr::RRIlluminationEnvironmentMap* specularEnvironmentMap;
+	...
+	// update environment maps
+	realtimeRadiosity->updateEnvironmentMaps(center,16,
+		16,specularEnvironmentMap,4,diffuseEnvironmentMap);
+	// set rendering pipeline to use shader below
+	device->SetPixelShader(pixelShader);
+	// set samplers to use environment maps
+	// (implement environment map class in d3d)
+	diffuseEnvironmentMap->bindTexture();
+	specularEnvironmentMap->bindTexture();
+	// render primitives
+	device->DrawPrimitive...
+     \endcode
+     Applying environment maps in HLSL pixel shader:
+     \code
+	samplerCUBE specularEnvironmentMap;
+	samplerCUBE diffuseEnvironmentMap;
+	void pixelShader(..., out float4 oColor: COLOR)
+	{
+		// normal in world space, you may apply normal map here
+		float3 worldNormal = ...;
+		// view vector in world space = position of fragment - position of camera
+		float3 worldView = ...;
+		// reflected view vector in world space
+		float3 worldViewReflected = reflect(worldView,worldNormal);
+		...
+		oColor = ...
+			// diffuse reflection
+			+ materialDiffuseReflectance *
+			  texCUBE(diffuseEnvironmentMap, worldNormal)
+			// specular reflection
+			+ materialSpecularReflectance *
+			  texCUBE(specularEnvironmentMap, worldViewReflected);
+	}
+     \endcode
+   - See Direct3D, OpenGL or your engine documentation for more details
+     on texturemapping and applying environment maps.
 
 
 

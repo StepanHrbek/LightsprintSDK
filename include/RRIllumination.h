@@ -235,7 +235,7 @@ namespace rr
 		virtual const RRColorRGBA8* lock() {return NULL;};
 		//! Unlocks previously locked buffer.
 		virtual void unlock() {};
-		//! Binds texture for rendering. Various implementations may do OpenGL bind, DirectX bind or nothing.
+		//! Binds texture for rendering. Various implementations may do OpenGL bind, Direct3D bind or nothing.
 		virtual void bindTexture() {};
 
 		virtual ~RRIlluminationPixelBuffer() {};
