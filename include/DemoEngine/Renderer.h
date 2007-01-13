@@ -15,7 +15,7 @@ namespace de
 //
 // Renderer - interface
 
-//! Very generic interface of renderer.
+//! Interface of renderer.
 class DE_API Renderer
 {
 public:

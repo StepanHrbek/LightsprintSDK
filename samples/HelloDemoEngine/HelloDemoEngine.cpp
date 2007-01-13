@@ -297,8 +297,7 @@ int main(int argc, char **argv)
 	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.tga not found.\n",false);
-	areaLight = new de::AreaLight(shadowmapsPerPass,512);
-	areaLight->attachTo(&light);
+	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna\\koupelna4.3ds",0.03f))

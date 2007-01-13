@@ -92,10 +92,10 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/wglew.h>
 #include <GL/glut.h>
 #include "RRRealtimeRadiosity.h"
+#include "DemoEngine/AreaLight.h"
 #include "DemoEngine/Camera.h"
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgram.h"
-#include "DemoEngine/MultiLight.h"
 #include "DemoEngine/Model_3DS.h"
 #include "DemoEngine/RendererWithCache.h"
 #include "DemoEngine/UberProgramSetup.h"
@@ -226,7 +226,7 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	areaLight = new de::AreaLight(MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
+	areaLight = new de::AreaLight(&light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
 	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
@@ -2069,8 +2069,6 @@ int main(int argc, char **argv)
 	INSTANCES_PER_PASS = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
 	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(!INSTANCES_PER_PASS) error("",true);
-
-	areaLight->attachTo(&light);
 	areaLight->setNumInstances(startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1);
 
 	if(rr::RRLicense::loadLicense("licence_number")!=rr::RRLicense::VALID)

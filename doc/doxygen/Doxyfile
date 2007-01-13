@@ -88,11 +88,10 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/R
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRVision.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRIllumination.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRRealtimeRadiosity.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/AreaLight.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Camera.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/DemoEngine.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Model_3DS.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/MultiInstance.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/MultiLight.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Program.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Renderer.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/RendererWithCache.h" \

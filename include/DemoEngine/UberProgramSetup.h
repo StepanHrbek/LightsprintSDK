@@ -8,7 +8,7 @@
 #define UBERPROGRAMSETUP_H
 
 #include "UberProgram.h"
-#include "MultiLight.h"
+#include "AreaLight.h"
 
 namespace de
 {

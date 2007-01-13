@@ -294,6 +294,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\AreaLight.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\AreaLight.h"
+			>
+		</File>
+		<File
 			RelativePath=".\Camera.cpp"
 			>
 		</File>
@@ -331,14 +339,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\DemoEngine\Model_3DS.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\DemoEngine\MultiInstance.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\DemoEngine\MultiLight.h"
 			>
 		</File>
 		<File
