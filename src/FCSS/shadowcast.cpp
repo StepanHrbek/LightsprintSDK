@@ -98,7 +98,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/MultiLight.h"
 #include "DemoEngine/Model_3DS.h"
 #include "DemoEngine/RendererWithCache.h"
-#include "DemoEngine/RendererOf3DS.h"
 #include "DemoEngine/UberProgramSetup.h"
 #include "3ds2rr.h"
 #include "DynamicObject.h"

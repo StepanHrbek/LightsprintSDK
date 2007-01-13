@@ -358,7 +358,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\RendererOf3DS.h"
+			RelativePath=".\RendererOf3DS.h"
 			>
 		</File>
 		<File
@@ -374,7 +374,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\Shader.h"
+			RelativePath=".\Shader.h"
 			>
 		</File>
 		<File

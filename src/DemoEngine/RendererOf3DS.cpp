@@ -5,10 +5,14 @@
 // --------------------------------------------------------------------------
 
 #include <cassert>
-#include "DemoEngine/RendererOf3DS.h"
+#include "RendererOf3DS.h"
 
 namespace de
 {
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RendererOf3DS
 
 RendererOf3DS::RendererOf3DS(const Model_3DS* amodel)
 {
@@ -26,6 +30,15 @@ void RendererOf3DS::render()
 {
 	if(model)
 		model->Draw(NULL,NULL,NULL);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Renderer
+
+Renderer* Renderer::create3DSRenderer(Model_3DS* model)
+{
+	return new RendererOf3DS(model);
 }
 
 }; // namespace

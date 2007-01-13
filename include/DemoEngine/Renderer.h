@@ -19,6 +19,10 @@ namespace de
 class DE_API Renderer
 {
 public:
+	/////////////////////////////////////////////////////////////////////////
+	// interface
+	/////////////////////////////////////////////////////////////////////////
+
 	//! Renders contents derived from implementation defined parameters.
 	//! Example1: Parameters are Scene* scene, render() renders scene.
 	//! Example2: Parameters are Renderer* ren, render() saves ren's output into display list and replays it next time.
@@ -33,6 +37,14 @@ public:
 	}
 
 	virtual ~Renderer() {};
+
+
+	/////////////////////////////////////////////////////////////////////////
+	// tools
+	/////////////////////////////////////////////////////////////////////////
+
+	//! Creates and returns renderer of Model_3DS.
+	static Renderer* create3DSRenderer(class Model_3DS* model);
 };
 
 }; // namespace

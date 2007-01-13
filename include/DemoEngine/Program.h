@@ -7,7 +7,8 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
-#include "Shader.h"
+#include <GL/glew.h>
+#include "DemoEngine.h"
 
 namespace de /// Encapsulates DemoEngine - OpenGL renderer with soft shadows.
 {
@@ -23,8 +24,6 @@ namespace de /// Encapsulates DemoEngine - OpenGL renderer with soft shadows.
 class DE_API Program
 {
 public:
-	//! Creates empty GLSL program.
-	Program();
 	//! Creates GLSL program by linking one vertex and one fragment shader together.
 	//! Shaders are created by concatenating string defines
 	//! and contents of file vertexShader / fragmentShader.
@@ -37,8 +36,6 @@ public:
 	Program(const char* defines, const char* vertexShader, const char* fragmentShader);
 	~Program();
 
-	//! Attaches shader to program, see OpenGL for more details on attaching.
-	void attach(Shader &shader);
 	//! Links program, see OpenGL for more details on linking.
 	void linkIt();
 	//! Returns true only when program was successfully linked.
@@ -80,7 +77,7 @@ private:
 	int getLoc(const char *name);
 	bool logLooksSafe();
 
-	Shader *vertex, *fragment;
+	class Shader *vertex, *fragment;
 	GLuint handle;
 	bool linked;
 };

@@ -1330,7 +1330,6 @@ namespace rr
  - de::Model_3DS is model loaded from .3ds file
  - de::AreaLight is area light
  - de::Texture is OpenGL texture
- - de::Shader is GLSL shader
  - de::Program is GLSL program
  - de::UberProgram is GLSL program with preprocessor parameters changeable at runtime
  - de::UberProgramSetup is set of parameters for our ubershaders UberShader.vp and UberShader.fp

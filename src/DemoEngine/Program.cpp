@@ -9,16 +9,10 @@
 #include <cstdlib>
 #include <cstring>
 #include "DemoEngine/Program.h"
+#include "Shader.h"
 
 namespace de
 {
-
-Program::Program()
-  :vertex(NULL), fragment(NULL)
-{
-	handle = glCreateProgram();
-	linked = false;
-}
 
 Program::Program(const char* defines, const char *vertexShader, const char *fragmentShader)
   :vertex(NULL), fragment(NULL)
@@ -28,16 +22,22 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 	if(vertexShader)
 	{
 		vertex = new Shader(defines, vertexShader, GL_VERTEX_SHADER);
-		attach(*vertex);
+		glAttachShader(handle, vertex->getHandle());
 	}
 
 	if(fragmentShader)
 	{
 		fragment = new Shader(defines, fragmentShader, GL_FRAGMENT_SHADER);
-		attach(*fragment);
+		glAttachShader(handle, fragment->getHandle());
 	}
 
-	linkIt();
+	// link
+	glLinkProgram(handle);
+	GLint alinked;
+	glGetProgramiv(handle,GL_LINK_STATUS,&alinked);
+	// store result
+	linked = alinked && logLooksSafe();
+	//	assert(linked);
 }
 
 Program::~Program()
@@ -45,11 +45,6 @@ Program::~Program()
 	delete vertex;
 	delete fragment;
 	glDeleteProgram(handle);
-}
-
-void Program::attach(Shader &shader)
-{
-	glAttachShader(handle, shader.getHandle());
 }
 
 bool Program::logLooksSafe()
@@ -69,17 +64,6 @@ bool Program::logLooksSafe()
 	}
 	delete [] debug;
 	return result;
-}
-
-void Program::linkIt()
-{
-	// link
-	glLinkProgram(handle);
-	GLint alinked;
-	glGetProgramiv(handle,GL_LINK_STATUS,&alinked);
-	// store result
-	linked = alinked && logLooksSafe();
-//	assert(linked);
 }
 
 bool Program::isLinked()

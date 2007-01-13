@@ -3,8 +3,6 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
-#include "DemoEngine/RendererOf3DS.h"
-#include "DemoEngine/RendererWithCache.h"
 #include "DynamicObject.h"
 
 
