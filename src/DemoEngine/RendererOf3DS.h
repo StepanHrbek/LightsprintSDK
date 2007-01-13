@@ -18,7 +18,7 @@ namespace de
 // RendererOf3DS - basic OpenGL renderer implementation
 
 //! OpenGL renderer of Model_3DS model.
-class DE_API RendererOf3DS : public Renderer
+class RendererOf3DS : public Renderer
 {
 public:
 	//! Creates renderer of model.

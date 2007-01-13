@@ -6,6 +6,12 @@
 
 \page news What's new
 
+\section news11 ------------------------------------ 2007.1.? -------------------------------------
+
+CHANGES
+
+- DemoEngine API cleaned (reduced from 16 to 9 classes) and moved to namespace de
+
 \section news10 ------------------------------------ 2007.1.6 -------------------------------------
 
 NEW FEATURES

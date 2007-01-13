@@ -6,7 +6,7 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include "DemoEngine/Shader.h"
+#include "Shader.h"
 
 namespace de
 {

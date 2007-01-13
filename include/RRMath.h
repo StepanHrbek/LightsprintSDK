@@ -25,7 +25,7 @@
 
 #include <cmath>
 
-namespace rr /// Encapsulates Lightsprint engine - realtime global illumination solver.
+namespace rr /// Lightsprint engine - realtime global illumination solver.
 {
 
 	//////////////////////////////////////////////////////////////////////////////

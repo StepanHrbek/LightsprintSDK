@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // DemoEngine
-// Settings, to be included in all DemoEngine public headers.
+// Library settings, to be included in all DemoEngine public headers.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 

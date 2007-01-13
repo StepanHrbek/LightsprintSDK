@@ -3,7 +3,7 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
-#include "DemoEngine/RendererWithCache.h"
+#include "DemoEngine/Renderer.h"
 #include "DynamicObject.h"
 
 
@@ -17,7 +17,7 @@ DynamicObject* DynamicObject::create(const char* filename,float scale,de::UberPr
 	if(d->model.Load(filename,scale) && d->getModel().numObjects)
 	{
 		d->rendererWithoutCache = de::Renderer::create3DSRenderer(&d->model);
-		d->rendererCached = new de::RendererWithCache(d->rendererWithoutCache);
+		d->rendererCached = d->rendererWithoutCache->createDisplayList();
 		d->material = amaterial;
 		d->specularCubeSize = aspecularCubeSize;
 		return d;

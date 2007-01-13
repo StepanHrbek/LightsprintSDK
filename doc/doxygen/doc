@@ -152,7 +152,7 @@ namespace rr
  into scene viewer with dynamic light, dynamic objects and realtime global illumination.
 
  Your applications should be in similar position to HelloRealtimeRadiosity,
- but you are free to use other game engine or renderer.
+ but you are free to use game engine or renderer other than DemoEngine.
 
  So your options for writing new applications are:
 

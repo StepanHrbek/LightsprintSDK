@@ -21,7 +21,7 @@ namespace de
 //
 //! GLSL is language used by OpenGL API 
 //! for writing shaders.
-class DE_API Shader
+class Shader
 {
 public:
 	//! Creates GLSL shader by concatenating string defines and contents of file filename.

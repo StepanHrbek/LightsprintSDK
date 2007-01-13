@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // DemoEngine
 // Model_3DS, .3ds loader and renderer.
-// Copyright (C) Matthew Fairfax, few changes and bugfixes Stepan Hrbek
+// Copyright (C) Matthew Fairfax, modified by Stepan Hrbek
 // --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////

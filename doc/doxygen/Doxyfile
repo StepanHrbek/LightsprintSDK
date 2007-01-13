@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Lightsprint
-PROJECT_NUMBER         = 2007.1.6
+PROJECT_NUMBER         = 2007.1.13
 OUTPUT_DIRECTORY       = "C:/Documents and Settings/Dee/Dokumenty/C/rr/doc/doxygen"
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -94,7 +94,6 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/R
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Model_3DS.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Program.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Renderer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/RendererWithCache.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Texture.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Timer.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/UberProgram.h" \

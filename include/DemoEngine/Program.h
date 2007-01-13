@@ -10,7 +10,7 @@
 #include <GL/glew.h>
 #include "DemoEngine.h"
 
-namespace de /// Encapsulates DemoEngine - OpenGL renderer with soft shadows.
+namespace de /// DemoEngine - OpenGL renderer with soft shadows.
 {
 
 /////////////////////////////////////////////////////////////////////////////

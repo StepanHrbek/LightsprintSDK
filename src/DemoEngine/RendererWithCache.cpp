@@ -11,6 +11,10 @@
 namespace de
 {
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// RendererWithCache
+
 bool  COMPILE=1;
 
 
@@ -92,6 +96,15 @@ never:
 	default:
 		assert(0);
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Renderer
+
+Renderer* Renderer::createDisplayList()
+{
+	return new RendererWithCache(this);
 }
 
 }; // namespace
