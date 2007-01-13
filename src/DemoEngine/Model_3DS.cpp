@@ -80,6 +80,9 @@
 #include <GL/glew.h>
 #include "DemoEngine/Model_3DS.h"
 
+namespace de
+{
+
 // The chunk's id numbers
 #define MAIN3DS				0x4D4D
  #define MAIN_VERS			0x0002
@@ -1253,3 +1256,5 @@ void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int o
 	// from the right place
 	fseek(bin3ds, findex, SEEK_SET);
 }
+
+}; // namespace

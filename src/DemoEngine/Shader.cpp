@@ -8,6 +8,9 @@
 #include <cstdlib>
 #include "DemoEngine/Shader.h"
 
+namespace de
+{
+
 char* readShader(const char *filename)
 {
 	FILE* f = fopen(filename,"rb");
@@ -73,3 +76,5 @@ Shader::~Shader()
 {
 	glDeleteShader(handle);
 }
+
+}; // namespace

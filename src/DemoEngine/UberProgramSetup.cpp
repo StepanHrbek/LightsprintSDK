@@ -6,6 +6,8 @@
 
 #include "DemoEngine/UberProgramSetup.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -190,3 +192,4 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 	return program;
 }
 
+}; // namespace

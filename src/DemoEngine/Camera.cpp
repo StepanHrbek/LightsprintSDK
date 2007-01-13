@@ -8,6 +8,9 @@
 #include "DemoEngine/Camera.h"
 #include "matrix.h"
 
+namespace de
+{
+
 void Camera::update(float back)
 {
 	dir[0] = 3*sin(angle);
@@ -51,3 +54,5 @@ void Camera::moveLeft(float units)
 	pos[0]+=dir[2]*units;
 	pos[2]-=dir[0]*units;
 }
+
+}; // namespace

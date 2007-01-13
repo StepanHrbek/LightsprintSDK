@@ -13,6 +13,8 @@
 #include "Camera.h"
 #include "Texture.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -101,5 +103,7 @@ protected:
 		light.update(0.3f);
 	}
 };
+
+}; // namespace
 
 #endif

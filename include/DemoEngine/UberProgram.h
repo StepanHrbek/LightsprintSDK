@@ -10,6 +10,8 @@
 #include <map>
 #include "Program.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -38,5 +40,7 @@ private:
 	const char* fragmentShaderFileName;
 	std::map<unsigned,Program*> cache;
 };
+
+}; // namespace
 
 #endif //UBERPROGRAM_H

@@ -10,6 +10,9 @@
 #include <cstring>
 #include "DemoEngine/Program.h"
 
+namespace de
+{
+
 Program::Program()
   :vertex(NULL), fragment(NULL)
 {
@@ -211,3 +214,5 @@ void Program::enumVariables()
 		printf(" uniform %s %d %s\n",name,size,getTypeName(type));
 	}
 }
+
+}; // namespace

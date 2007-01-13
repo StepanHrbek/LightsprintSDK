@@ -8,6 +8,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+namespace de
+{
+
 static void __gluMakeIdentityd(GLdouble m[16])
 {
     m[0+4*0] = 1; m[0+4*1] = 0; m[0+4*2] = 0; m[0+4*3] = 0;
@@ -183,3 +186,5 @@ void buildLookAtMatrix(GLdouble m[16],
    M(3,0) = 0.0;   M(3,1) = 0.0;   M(3,2) = 0.0;   M(3,3) = 1.0;
 #undef M
 }
+
+}; // namespace

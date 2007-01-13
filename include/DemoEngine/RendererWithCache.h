@@ -11,6 +11,8 @@
 #include <map>
 #include "Renderer.h"
 
+namespace de
+{
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -67,5 +69,7 @@ private:
 	Info& findInfo();
 	void setStatus(ChannelStatus cs,Info& info);
 };
+
+}; // namespace
 
 #endif

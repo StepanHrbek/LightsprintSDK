@@ -23,19 +23,19 @@ public:
 	};
 	Helpers(const char* pathToShaders)
 	{
-		tempTexture = Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,GL_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		tempTexture = de::Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,GL_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		char buf1[1000],buf2[1000];
 		_snprintf(buf1,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.vp");
 		_snprintf(buf2,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.fp");
-		filterProgram = new Program(NULL,buf1,buf2);
+		filterProgram = new de::Program(NULL,buf1,buf2);
 	}
 	~Helpers()
 	{
 		delete filterProgram;
 		delete tempTexture;
 	}
-	Texture* tempTexture;
-	Program* filterProgram;
+	de::Texture* tempTexture;
+	de::Program* filterProgram;
 };
 
 static Helpers* helpers = NULL;
@@ -54,7 +54,7 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned aw
 	if(!numInstances) helpers = new Helpers(pathToShaders);
 	numInstances++;
 
-	texture = Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	texture = de::Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderBegin()

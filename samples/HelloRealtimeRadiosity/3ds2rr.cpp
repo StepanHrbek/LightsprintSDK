@@ -62,7 +62,7 @@ void reporter(const char* msg, void* context)
 class M3dsImporter : public rr::RRObject, rr::RRMesh
 {
 public:
-	M3dsImporter(Model_3DS* model, unsigned objectIdx);
+	M3dsImporter(de::Model_3DS* model, unsigned objectIdx);
 	rr::RRObjectIllumination* getIllumination();
 	virtual ~M3dsImporter();
 
@@ -85,8 +85,8 @@ public:
 	virtual const rr::RRMatrix3x4*  getInvWorldMatrix();
 
 private:
-	Model_3DS* model;
-	Model_3DS::Object* object;
+	de::Model_3DS* model;
+	de::Model_3DS::Object* object;
 
 	// geometry
 	struct TriangleInfo
@@ -111,7 +111,7 @@ private:
 //
 // M3dsImporter load
 
-static void fillSurface(rr::RRSurface* s,Model_3DS::Material* m)
+static void fillSurface(rr::RRSurface* s,de::Model_3DS::Material* m)
 {
 	enum {size = 8};
 
@@ -146,7 +146,7 @@ static void fillSurface(rr::RRSurface* s,Model_3DS::Material* m)
 #endif
 }
 
-M3dsImporter::M3dsImporter(Model_3DS* amodel, unsigned objectIdx)
+M3dsImporter::M3dsImporter(de::Model_3DS* amodel, unsigned objectIdx)
 {
 	model = amodel;
 	object = &model->Objects[objectIdx];
@@ -203,7 +203,7 @@ void M3dsImporter::getChannelSize(unsigned channelId, unsigned* numItems, unsign
 	{
 		case CHANNEL_SURFACE_DIF_TEX:
 			if(numItems) *numItems = model->numMaterials;
-			if(itemSize) *itemSize = sizeof(Texture*);
+			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
 		case CHANNEL_TRIANGLE_VERTICES_DIF_UV:
 			if(numItems) *numItems = M3dsImporter::getNumTriangles();
@@ -232,7 +232,7 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
 			}
-			typedef Texture* Out;
+			typedef de::Texture* Out;
 			Out* out = (Out*)itemData;
 			if(sizeof(*out)!=itemSize)
 			{
@@ -394,7 +394,7 @@ const rr::RRMatrix3x4* M3dsImporter::getInvWorldMatrix()
 //
 // main
 
-M3dsImporter* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
+M3dsImporter* new_3ds_importer(de::Model_3DS* model, unsigned objectIdx)
 {
 	M3dsImporter* importer = new M3dsImporter(model, objectIdx);
 #ifdef VERIFY
@@ -403,7 +403,7 @@ M3dsImporter* new_3ds_importer(Model_3DS* model, unsigned objectIdx)
 	return importer;
 }
 
-void provideObjectsFrom3dsToRR(Model_3DS* model,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
+void provideObjectsFrom3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
 {
 	if(app)
 	{

@@ -9,6 +9,8 @@
 
 #include "TextureGL.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -27,5 +29,7 @@ protected:
 	unsigned char *loadData(const char *filename);
 	unsigned char *loadTga(const char *filename);
 };
+
+}; // namespace
 
 #endif

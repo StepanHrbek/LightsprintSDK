@@ -9,6 +9,8 @@
 
 #include "Shader.h"
 
+namespace de /// Encapsulates DemoEngine - OpenGL renderer with soft shadows.
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -82,5 +84,7 @@ private:
 	GLuint handle;
 	bool linked;
 };
+
+}; // namespace
 
 #endif

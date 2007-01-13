@@ -85,7 +85,7 @@ public:
 		{
 			char name[]="maps\\rrbugs_bug0.tga";
 			name[15] = '0'+i;
-			bugMap[i] = Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+			bugMap[i] = de::Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 			if(!bugMap[i])
 			{
 				printf("Texture %s not found or not supported (supported = truecolor .tga).\n",name);
@@ -152,7 +152,7 @@ private:
 	const rr::RRScene* scene;
 	const rr::RRObject* object;
 	rr::RRRay* ray;
-	Texture* bugMap[2];
+	de::Texture* bugMap[2];
 	float avgFaceArea;
 };
 

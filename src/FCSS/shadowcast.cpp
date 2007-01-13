@@ -125,11 +125,11 @@ enum {
 class Level
 {
 public:
-	Model_3DS m3ds;
+	de::Model_3DS m3ds;
 	class Solver* solver;
 	class Bugs* bugs;
 	RendererOfRRObject* rendererNonCaching;
-	RendererWithCache* rendererCaching;
+	de::RendererWithCache* rendererCaching;
 
 	Level(const char* filename_3ds);
 	~Level();
@@ -140,18 +140,18 @@ public:
 //
 // globals
 
-Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
+de::Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
+de::Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
 GLUquadricObj *quadric;
-AreaLight* areaLight = NULL;
+de::AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
-Texture* lightDirectMap[lightDirectMaps];
+de::Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
-Texture* loadingMap = NULL;
-Texture* hintMap = NULL;
-Program *ambientProgram;
-UberProgram* uberProgram;
-UberProgramSetup uberProgramGlobalSetup;
+de::Texture* loadingMap = NULL;
+de::Texture* hintMap = NULL;
+de::Program *ambientProgram;
+de::UberProgram* uberProgram;
+de::UberProgramSetup uberProgramGlobalSetup;
 int winWidth = 0;
 int winHeight = 0;
 int depthBias24 = 50;//23;//42;
@@ -227,7 +227,7 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	areaLight = new AreaLight(MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
+	areaLight = new de::AreaLight(MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
 	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
@@ -238,18 +238,18 @@ void init_gl_resources()
 	{
 		char name[]="maps\\spot0.tga";
 		name[9] = '0'+i;
-		lightDirectMap[i] = Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		lightDirectMap[i] = de::Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 		if(!lightDirectMap[i])
 		{
 			printf("Texture %s not found or not supported (supported = truecolor .tga).\n",name);
 			error("",false);
 		}
 	}
-	loadingMap = Texture::load("maps\\rrbugs_loading.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	hintMap = Texture::load("maps\\rrbugs_hint.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	loadingMap = de::Texture::load("maps\\rrbugs_loading.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	hintMap = de::Texture::load("maps\\rrbugs_hint.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
-	uberProgram = new UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
-	UberProgramSetup uberProgramSetup;
+	uberProgram = new de::UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
+	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
@@ -273,7 +273,7 @@ void done_gl_resources()
 //
 // Solver
 
-void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance);
+void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance);
 void updateMatrices();
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
@@ -312,8 +312,8 @@ class Solver : public rr::RRRealtimeRadiosity
 public:
 	Solver()
 	{
-		detectBigMap = Texture::create(NULL,DETECT_MAP_SIZE,DETECT_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
-		scaleDownProgram = new Program(NULL,"shaders\\scaledown_filter.vp", "shaders\\scaledown_filter.fp");
+		detectBigMap = de::Texture::create(NULL,DETECT_MAP_SIZE,DETECT_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+		scaleDownProgram = new de::Program(NULL,"shaders\\scaledown_filter.vp", "shaders\\scaledown_filter.fp");
 	}
 	virtual ~Solver()
 	{
@@ -427,7 +427,7 @@ protected:
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// render scene
-			UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+			de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
@@ -574,8 +574,8 @@ protected:
 	}
 private:
 	CaptureUv captureUv;
-	Texture* detectBigMap;
-	Program* scaleDownProgram;
+	de::Texture* detectBigMap;
+	de::Program* scaleDownProgram;
 	enum {DETECT_MAP_SIZE=1024};
 };
 
@@ -590,7 +590,7 @@ public:
 	enum {DYNAOBJECTS=7};
 	DynamicObjects()
 	{
-		UberProgramSetup material;
+		de::UberProgramSetup material;
 
 		// diffuse
 		material.MATERIAL_DIFFUSE = 1;
@@ -674,7 +674,7 @@ public:
 	{
 		if(objIndex<DYNAOBJECTS) dynaobject[objIndex]->worldFoot = worldFoot;
 	}
-	void renderSceneDynamic(UberProgramSetup uberProgramSetup, unsigned firstInstance) const
+	void renderSceneDynamic(de::UberProgramSetup uberProgramSetup, unsigned firstInstance) const
 	{
 		static float d = 0;
 		// increment rotation when frame begins
@@ -794,7 +794,7 @@ void unlockVertexIllum(void* solver,unsigned object)
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
-void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance)
+void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
@@ -825,13 +825,13 @@ void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance
 	if(renderedChannels.LIGHT_INDIRECT_COLOR)
 	{
 		// turn off caching for renders with indirect color, because it changes often
-		level->rendererCaching->setStatus(RendererWithCache::CS_NEVER_COMPILE);
+		level->rendererCaching->setStatus(de::RendererWithCache::CS_NEVER_COMPILE);
 	}
 	if(renderedChannels.LIGHT_INDIRECT_MAP && needLightmapCacheUpdate)
 	{
 		// refresh cache for renders with ambient map after any ambient map reallocation
 		needLightmapCacheUpdate = false;
-		level->rendererCaching->setStatus(RendererWithCache::CS_READY_TO_COMPILE);
+		level->rendererCaching->setStatus(de::RendererWithCache::CS_READY_TO_COMPILE);
 	}
 	if(renderedChannels.LIGHT_INDIRECT_MAP && !level->solver->getIllumination(0)->getChannel(0)->pixelBuffer)
 	{
@@ -841,7 +841,7 @@ void renderSceneStatic(UberProgramSetup uberProgramSetup, unsigned firstInstance
 	level->rendererCaching->render();
 }
 
-void renderScene(UberProgramSetup uberProgramSetup, unsigned firstInstance)
+void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	// render static scene
 	assert(!uberProgramSetup.OBJECT_SPACE); 
@@ -854,19 +854,19 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 {
 	if(!needDepthMapUpdate) return;
 	assert(mapIndex>=0);
-	Camera* lightInstance = areaLight->getInstance(mapIndex);
+	de::Camera* lightInstance = areaLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
 
 	glColorMask(0,0,0,0);
-	Texture* shadowmap = areaLight->getShadowMap((mapIndex>=0)?mapIndex:0);
+	de::Texture* shadowmap = areaLight->getShadowMap((mapIndex>=0)?mapIndex:0);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
 	glClearDepth(0.9999); // prevents backprojection
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
-	UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+	de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 	uberProgramSetup.SHADOW_MAPS = 0;
 	uberProgramSetup.SHADOW_SAMPLES = 0;
 	uberProgramSetup.LIGHT_DIRECT = false;
@@ -897,7 +897,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	}
 }
 
-void drawEyeViewShadowed(UberProgramSetup uberProgramSetup, unsigned firstInstance)
+void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -943,7 +943,7 @@ void drawEyeViewSoftShadowed(void)
 	// optimized path without accum, only for m3ds, rrrenderer can't render both materialColor and indirectColor
 	if(numInstances<=INSTANCES_PER_PASS && uberProgramGlobalSetup.MATERIAL_DIFFUSE && uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP)
 	{
-		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
@@ -969,7 +969,7 @@ void drawEyeViewSoftShadowed(void)
 	// add direct
 	for(unsigned i=0;i<numInstances;i+=INSTANCES_PER_PASS)
 	{
-		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = MIN(INSTANCES_PER_PASS,numInstances);
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
@@ -991,7 +991,7 @@ void drawEyeViewSoftShadowed(void)
 	}
 	// add indirect
 	{
-		UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0;
 		uberProgramSetup.LIGHT_DIRECT = false;
@@ -1157,7 +1157,7 @@ void showImageEnd()
 	glutSwapBuffers();
 }
 
-void showImage(const Texture* tex)
+void showImage(const de::Texture* tex)
 {
 	showImageBegin();
 	tex->bindTexture();
@@ -1178,8 +1178,8 @@ Level::Level(const char* filename_3ds)
 
 	float scale_3ds = 1;
 	{
-		Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-		Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
+		de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
+		de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
 		eye = tmpeye;
 		light = tmplight;
 	}
@@ -1195,8 +1195,8 @@ Level::Level(const char* filename_3ds)
 		//Camera tmplight = {{13.369,2.732,3.065},16.515,0.850,1.0,70.0,1.0,20.0};
 		//Camera tmpeye = {{13.739,1.732,-1.572},23.470,-0.350,1.3,75.0,0.3,60.0};
 		//Camera tmplight = {{8.193,5.060,5.751},9.295,2.350,1.0,70.0,1.0,20.0};
-		Camera tmpeye = {{13.749,1.743,-0.891},23.390,0.100,1.3,75.0,0.3,60.0};
-		Camera tmplight = {{8.411,5.053,2.312},9.040,7.900,1.0,70.0,1.0,20.0};
+		de::Camera tmpeye = {{13.749,1.743,-0.891},23.390,0.100,1.3,75.0,0.3,60.0};
+		de::Camera tmplight = {{8.411,5.053,2.312},9.040,7.900,1.0,70.0,1.0,20.0};
 		dynaobjects->setPos(0,rr::RRVec3(11.55f,0.355f,-2.93f));
 		dynaobjects->setPos(1,rr::RRVec3(8.41f,3.555f,0.17f));
 		dynaobjects->setPos(2,rr::RRVec3(12.57f,0,-1.45f));
@@ -1210,8 +1210,8 @@ Level::Level(const char* filename_3ds)
 	if(strstr(filename_3ds, "koupelna4")) {
 		scale_3ds = 0.03f;
 		// dobry zacatek
-		Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,60.0};
-		Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};
+		de::Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,60.0};
+		de::Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};
 		// bad lmap
 //		Camera tmpeye = {{1.910,1.298,1.580},6.650,2.350,1.3,75.0,0.3,60.0};
 //		Camera tmplight = {{2.950,0.899,3.149},7.405,13.000,1.0,70.0,1.0,20.0};
@@ -1241,8 +1241,8 @@ Level::Level(const char* filename_3ds)
 		scale_3ds = 0.01f;
 		//lightDirectMapIdx = 1;
 		// dobry zacatek
-		Camera tmpeye = {{0.822,1.862,6.941},9.400,-0.450,1.3,50.0,0.3,60.0};
-		Camera tmplight = {{1.906,1.349,1.838},3.930,0.100,1.0,70.0,1.0,20.0};
+		de::Camera tmpeye = {{0.822,1.862,6.941},9.400,-0.450,1.3,50.0,0.3,60.0};
+		de::Camera tmplight = {{1.906,1.349,1.838},3.930,0.100,1.0,70.0,1.0,20.0};
 		eye = tmpeye;
 		light = tmplight;
 //		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
@@ -1251,16 +1251,16 @@ Level::Level(const char* filename_3ds)
 		scale_3ds = 0.03f;
 		//Camera tmpeye = {{6.172,3.741,1.522},4.340,1.600,1.3,100.0,0.3,60.0};
 		//Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
-		Camera tmpeye = {{5.735,2.396,1.479},4.405,0.100,1.3,100.0,0.3,60.0};
-		Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
+		de::Camera tmpeye = {{5.735,2.396,1.479},4.405,0.100,1.3,100.0,0.3,60.0};
+		de::Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
 		eye = tmpeye;
 		light = tmplight;
 //		if(areaLight) areaLight->setNumInstances(1);
 	}
 	if(strstr(filename_3ds, "sponza"))
 	{
-		Camera tmpeye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
-		Camera tmplight = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
+		de::Camera tmpeye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
+		de::Camera tmplight = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
 		//Camera sponza_eye = {{-10.407576,1.605258,4.050256},7.859994,-0.050000};
 		//Camera sponza_light = {{-7.109047,5.130751,-2.025017},0.404998,2.950001};
 		//Camera sponza_eye = {{13.924,7.606,1.007},7.920,-0.150,1.3,100.0,0.3,60.0};// shows face with bad indirect
@@ -1275,8 +1275,8 @@ Level::Level(const char* filename_3ds)
 		//		Camera tmpeye = {{-8.777,3.117,0.492},1.145,-0.400,1.3,50.0,0.3,80.0};
 		//		Camera tmplight = {{-0.310,2.952,-0.532},5.550,3.200,1.0,70.0,1.0,40.0};
 		// dalsi zacatek kde je videt zmrsena normala
-		Camera tmpeye = {{-3.483,5.736,2.755},7.215,2.050,1.3,50.0,0.3,80.0};
-		Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
+		de::Camera tmpeye = {{-3.483,5.736,2.755},7.215,2.050,1.3,50.0,0.3,80.0};
+		de::Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
 		// detail vadne normaly
 		//Camera tmpeye = {{3.078,5.093,4.675},7.995,-1.700,1.3,50.0,0.3,80.0};
 		//Camera tmplight = {{-1.872,5.494,0.481},0.575,0.950,1.0,70.0,1.6,40.0};
@@ -1322,7 +1322,7 @@ Level::Level(const char* filename_3ds)
 
 	// init renderer
 	rendererNonCaching = new RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
-	rendererCaching = new RendererWithCache(rendererNonCaching);
+	rendererCaching = new de::RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 
 	// init bugs
@@ -1387,7 +1387,7 @@ void display()
 		case DM_EYE_VIEW_SHADOWED:
 			{
 				updateDepthMap(0,0);
-				UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+				de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 				uberProgramSetup.SHADOW_MAPS = 1;
 				uberProgramSetup.SHADOW_SAMPLES = 1;
 				uberProgramSetup.LIGHT_DIRECT = true;
@@ -1520,8 +1520,8 @@ void special(int c, int x, int y)
 			exit(0);
 			break;
 		case GLUT_KEY_F9:
-			printf("\nCamera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
-			printf("Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
+			printf("\nde::Camera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+			printf("de::Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
 			for(unsigned i=0;i<DynamicObjects::DYNAOBJECTS;i++)
 				printf("dynaobjects->setPos(%d,rr::RRVec3(%ff,%ff,%ff));\n",i,dynaobjects->getPos(i)[0],dynaobjects->getPos(i)[1],dynaobjects->getPos(i)[2]);
 			return;
@@ -1871,7 +1871,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;//timer.Watch();
 		CLAMP(seconds,0.001f,0.3f);
-		Camera* cam = modeMovingEye?&eye:&light;
+		de::Camera* cam = modeMovingEye?&eye:&light;
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
@@ -2067,7 +2067,7 @@ int main(int argc, char **argv)
 	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
-	INSTANCES_PER_PASS = UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
+	INSTANCES_PER_PASS = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
 	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
 	if(!INSTANCES_PER_PASS) error("",true);
 

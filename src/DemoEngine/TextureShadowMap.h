@@ -9,6 +9,8 @@
 
 #include "TextureGL.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -27,5 +29,6 @@ private:
 	static unsigned numInstances;
 };
 
+}; // namespace
 
 #endif

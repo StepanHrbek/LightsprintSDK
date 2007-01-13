@@ -24,6 +24,8 @@
 	#define PER_SEC CLOCKS_PER_SEC
 #endif
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -99,5 +101,7 @@ private:
 #endif
 	TIME timestart;
 };
+
+}; // namespace
 
 #endif

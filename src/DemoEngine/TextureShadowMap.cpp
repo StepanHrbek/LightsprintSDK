@@ -10,6 +10,8 @@
 #include "TextureShadowmap.h"
 #include "FBO.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -74,3 +76,5 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height)
 {
 	return new TextureShadowMap(width,height);
 }
+
+}; // namespace

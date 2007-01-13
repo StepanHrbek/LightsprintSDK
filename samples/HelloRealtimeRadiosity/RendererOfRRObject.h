@@ -51,7 +51,7 @@ public:
 //
 // RendererOfRRObject - basic OpenGL renderer implementation
 
-class RendererOfRRObject : public Renderer
+class RendererOfRRObject : public de::Renderer
 {
 public:
 	RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler);

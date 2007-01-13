@@ -10,6 +10,8 @@
 #include "UberProgram.h"
 #include "MultiLight.h"
 
+namespace de
+{
 
 enum
 {
@@ -84,5 +86,7 @@ struct DE_API UberProgramSetup
 	//! our program.
 	Program* useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap);
 };
+
+}; // namespace
 
 #endif

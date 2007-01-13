@@ -21,21 +21,21 @@
 class DynamicObject
 {
 public:
-	static DynamicObject* create(const char* filename,float scale,UberProgramSetup amaterial,unsigned aspecularCubeSize);
-	const Model_3DS& getModel();
-	void render(UberProgram* uberProgram,UberProgramSetup uberProgramSetup,AreaLight* areaLight,unsigned firstInstance,Texture* lightDirectMap,rr::RRRealtimeRadiosity* solver,const Camera& eye,float rot);
+	static DynamicObject* create(const char* filename,float scale,de::UberProgramSetup amaterial,unsigned aspecularCubeSize);
+	const de::Model_3DS& getModel();
+	void render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,rr::RRRealtimeRadiosity* solver,const de::Camera& eye,float rot);
 	~DynamicObject();
 
 	rr::RRVec3 worldFoot;
 private:
 	DynamicObject();
-	Model_3DS model;
-	UberProgramSetup material;
+	de::Model_3DS model;
+	de::UberProgramSetup material;
 	unsigned specularCubeSize;
 	rr::RRIlluminationEnvironmentMapInOpenGL specularMap;
 	rr::RRIlluminationEnvironmentMapInOpenGL diffuseMap;
-	Renderer* rendererWithoutCache;
-	Renderer* rendererCached;
+	de::Renderer* rendererWithoutCache;
+	de::Renderer* rendererCached;
 };
 
 #endif

@@ -10,6 +10,9 @@
 #include "TextureGL.h"
 #include "FBO.h"
 
+namespace de
+{
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // TextureGL
@@ -105,3 +108,5 @@ Texture* Texture::create(unsigned char *data, int width, int height, bool cube, 
 {
 	return new TextureGL(data,width,height,cube,type,mag,min,wrapS,wrapT);
 }
+
+}; // namespace

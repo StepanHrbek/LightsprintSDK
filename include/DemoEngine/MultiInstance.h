@@ -9,6 +9,8 @@
 
 #include "DemoEngine.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -103,5 +105,7 @@ protected:
 	unsigned numInstances;
 	bool numInstancesChanged;
 };
+
+}; // namespace
 
 #endif

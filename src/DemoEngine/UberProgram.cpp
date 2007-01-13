@@ -7,6 +7,9 @@
 #include <cstdlib>
 #include "DemoEngine/UberProgram.h"
 
+namespace de
+{
+
 UberProgram::UberProgram(const char* avertexShaderFileName, const char* afragmentShaderFileName)
 {
 	vertexShaderFileName = avertexShaderFileName;
@@ -43,3 +46,4 @@ Program* UberProgram::getProgram(const char* defines)
 	return program;
 }
 
+}; // namespace

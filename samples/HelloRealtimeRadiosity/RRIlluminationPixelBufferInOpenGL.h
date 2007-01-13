@@ -35,7 +35,7 @@ namespace rr
 		virtual void bindTexture();
 		virtual ~RRIlluminationPixelBufferInOpenGL();
 	private:
-		Texture* texture;
+		de::Texture* texture;
 		// state backup
 		bool rendering;
 		GLint viewport[4];

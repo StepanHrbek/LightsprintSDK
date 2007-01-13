@@ -64,24 +64,24 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-Model_3DS           m3ds;
-Camera              eye = {{-1.416,1.741,-3.646},12.230,0.050,1.3,70.0,0.3,60.0};
-Camera              light = {{-1.802,0.715,0.850},0.635,-5.800,1.0,70.0,1.0,20.0};
-AreaLight*          areaLight = NULL;
-Texture*            lightDirectMap = NULL;
-UberProgram*        uberProgram = NULL;
-RendererOfRRObject* rendererNonCaching = NULL;
-RendererWithCache*  rendererCaching = NULL;
-rr::RRRealtimeRadiosity* solver = NULL;
-DynamicObject*      robot = NULL;
-DynamicObject*      potato = NULL;
-int                 winWidth = 0;
-int                 winHeight = 0;
-bool                modeMovingEye = false;
-float               speedForward = 0;
-float               speedBack = 0;
-float               speedRight = 0;
-float               speedLeft = 0;
+de::Model_3DS           m3ds;
+de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0.050,1.3,70.0,0.3,60.0};
+de::Camera              light = {{-1.802,0.715,0.850},0.635,-5.800,1.0,70.0,1.0,20.0};
+de::AreaLight*          areaLight = NULL;
+de::Texture*            lightDirectMap = NULL;
+de::UberProgram*        uberProgram = NULL;
+RendererOfRRObject*     rendererNonCaching = NULL;
+de::RendererWithCache*  rendererCaching = NULL;
+rr::RRRealtimeRadiosity*solver = NULL;
+DynamicObject*          robot = NULL;
+DynamicObject*          potato = NULL;
+int                     winWidth = 0;
+int                     winHeight = 0;
+bool                    modeMovingEye = false;
+float                   speedForward = 0;
+float                   speedBack = 0;
+float                   speedRight = 0;
+float                   speedLeft = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ void unlockVertexIllum(void* solver,unsigned object)
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
-void renderScene(UberProgramSetup uberProgramSetup)
+void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
 		error("Failed to compile or link GLSL program.\n",true);
@@ -159,16 +159,16 @@ void renderScene(UberProgramSetup uberProgramSetup)
 
 void updateShadowmap(unsigned mapIndex)
 {
-	Camera* lightInstance = areaLight->getInstance(mapIndex);
+	de::Camera* lightInstance = areaLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
 	glColorMask(0,0,0,0);
-	Texture* shadowmap = areaLight->getShadowMap(mapIndex);
+	de::Texture* shadowmap = areaLight->getShadowMap(mapIndex);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
-	UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
+	de::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
 	renderScene(uberProgramSetup);
 	shadowmap->renderingToEnd();
 	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -206,8 +206,8 @@ class Solver : public rr::RRRealtimeRadiosity
 public:
 	Solver()
 	{
-		bigMap = Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
-		scaleDownProgram = new Program(NULL,"../../data/shaders/scaledown_filter.vp", "../../data/shaders/scaledown_filter.fp");
+		bigMap = de::Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+		scaleDownProgram = new de::Program(NULL,"../../data/shaders/scaledown_filter.vp", "../../data/shaders/scaledown_filter.fp");
 		smallMap = new GLuint[BIG_MAP_SIZE*BIG_MAP_SIZE/16];
 	}
 	virtual ~Solver()
@@ -269,7 +269,7 @@ protected:
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// render scene with forced 2d positions of all triangles
-			UberProgramSetup uberProgramSetup;
+			de::UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
@@ -331,11 +331,11 @@ protected:
 		return true;
 	}
 private:
-	CaptureUv  captureUv;           // uv generator for rendering into bigMap
-	Texture*   bigMap;              // map with 10pixel irradiances per triangle
-	Program*   scaleDownProgram;    // program for downscaling bigMap into smallMap
-	GLuint*    smallMap;            // map with 1pixel irradiances per triangle
-	enum       {BIG_MAP_SIZE=1024}; // size of bigMap
+	CaptureUv    captureUv;           // uv generator for rendering into bigMap
+	de::Texture* bigMap;              // map with 10pixel irradiances per triangle
+	de::Program* scaleDownProgram;    // program for downscaling bigMap into smallMap
+	GLuint*      smallMap;            // map with 1pixel irradiances per triangle
+	enum         {BIG_MAP_SIZE=1024}; // size of bigMap
 };
 
 
@@ -352,7 +352,7 @@ void display(void)
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
-	UberProgramSetup uberProgramSetup;
+	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
@@ -455,7 +455,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		Camera* cam = modeMovingEye?&eye:&light;
+		de::Camera* cam = modeMovingEye?&eye:&light;
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
@@ -516,17 +516,17 @@ int main(int argc, char **argv)
 	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
-	uberProgram = new UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
-	unsigned shadowmapsPerPass = UberProgramSetup::detectMaxShadowmaps(uberProgram);
+	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
+	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram);
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	lightDirectMap = Texture::load("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.tga not found.\n",false);
-	areaLight = new AreaLight(shadowmapsPerPass,512);
+	areaLight = new de::AreaLight(shadowmapsPerPass,512);
 	areaLight->attachTo(&light);
 
 	// init static .3ds scene
@@ -534,7 +534,7 @@ int main(int argc, char **argv)
 		error("",false);
 
 	// init dynamic objects
-	UberProgramSetup material;
+	de::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
 	robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f,material,16);
 	material.MATERIAL_DIFFUSE = true;
@@ -555,7 +555,7 @@ int main(int argc, char **argv)
 
 	// init renderer
 	rendererNonCaching = new RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
-	rendererCaching = new RendererWithCache(rendererNonCaching);
+	rendererCaching = new de::RendererWithCache(rendererNonCaching);
 
 	glutMainLoop();
 	return 0;

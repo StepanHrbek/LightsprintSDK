@@ -10,6 +10,8 @@
 #include "Renderer.h"
 #include "Model_3DS.h"
 
+namespace de
+{
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -28,5 +30,7 @@ public:
 private:
 	const Model_3DS* model;
 };
+
+}; // namespace
 
 #endif

@@ -9,6 +9,8 @@
 #include <GL/glew.h>
 #include "TextureFromDisk.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -220,3 +222,5 @@ Texture* Texture::load(const char *filename,int mag,int min,int wrapS,int wrapT)
 		return NULL;
 	}
 }
+
+}; // namespace

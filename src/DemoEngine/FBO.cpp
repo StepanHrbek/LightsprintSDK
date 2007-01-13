@@ -10,6 +10,8 @@
 #include <GL/glew.h>
 #include "FBO.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -80,3 +82,5 @@ FBO::~FBO()
 {
 	glDeleteFramebuffersEXT(1, &fb);
 }
+
+}; // namespace

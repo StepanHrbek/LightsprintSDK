@@ -8,6 +8,9 @@
 #include <GL/glew.h>
 #include "DemoEngine/RendererWithCache.h"
 
+namespace de
+{
+
 bool  COMPILE=1;
 
 
@@ -90,3 +93,5 @@ never:
 		assert(0);
 	}
 }
+
+}; // namespace

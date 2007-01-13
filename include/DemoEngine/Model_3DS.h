@@ -80,6 +80,9 @@
 #include <cstdio>
 #include "Texture.h"
 
+namespace de
+{
+
 class DE_API Model_3DS  
 {
 public:
@@ -241,5 +244,7 @@ private:
 	// the normals of the faces that use that vertex
 	void CalculateNormals();
 };
+
+}; // namespace
 
 #endif // MODEL_3DS_H

@@ -10,6 +10,8 @@
 #include <GL/glew.h>
 #include "DemoEngine.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -94,5 +96,7 @@ public:
 		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 };
+
+}; // namespace
 
 #endif

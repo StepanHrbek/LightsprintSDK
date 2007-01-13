@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 	RRCollider* collider = RRCollider::create(rrMesh,RRCollider::IT_BSP_FASTEST);
 
 	// start watch
-	Timer* watch = new Timer();
+	de::Timer* watch = new de::Timer();
 	watch->Start();
 
 	// cast all rays

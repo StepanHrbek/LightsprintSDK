@@ -11,6 +11,8 @@
 #include <GL/glew.h>
 #include "DemoEngine/Texture.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -44,5 +46,7 @@ protected:
 private:
 	static unsigned numInstances;
 };
+
+}; // namespace
 
 #endif //TEXTURE

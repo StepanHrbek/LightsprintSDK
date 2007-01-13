@@ -28,15 +28,15 @@ DynamicObject::DynamicObject()
 {
 }
 
-const Model_3DS& DynamicObject::getModel()
+const de::Model_3DS& DynamicObject::getModel()
 {
 	return model;
 }
 
-void DynamicObject::render(UberProgram* uberProgram,UberProgramSetup uberProgramSetup,AreaLight* areaLight,unsigned firstInstance,Texture* lightDirectMap,const Camera& eye,float rot)
+void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye,float rot)
 {
 	// use program
-	Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap);
+	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap);
 	if(!program)
 	{
 		printf("Failed to compile or link GLSL program for dynamic object.\n");

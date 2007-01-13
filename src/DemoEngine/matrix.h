@@ -3,6 +3,9 @@
 
 #include <GL/glew.h>
 
+namespace de
+{
+
 extern GLboolean invertMatrix(GLdouble *out, const GLdouble *m);
 extern void buildFrustumMatrix(GLdouble m[16],
                                GLdouble l, GLdouble r, GLdouble b, GLdouble t,
@@ -14,5 +17,6 @@ extern void buildLookAtMatrix(GLdouble m[16],
                               GLdouble eyex, GLdouble eyey, GLdouble eyez,
                               GLdouble centerx, GLdouble centery, GLdouble centerz,
                               GLdouble upx, GLdouble upy, GLdouble upz);
+}; // namespace
 
 #endif

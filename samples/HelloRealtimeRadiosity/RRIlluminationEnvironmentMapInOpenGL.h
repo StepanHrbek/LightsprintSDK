@@ -34,7 +34,7 @@ namespace rr
 		virtual void bindTexture();
 		virtual ~RRIlluminationEnvironmentMapInOpenGL();
 	private:
-		Texture* texture;
+		de::Texture* texture;
 	};
 
 } // namespace

@@ -49,12 +49,12 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-Model_3DS           m3ds;
-Camera              eye = {{-1.416,1.741,-3.646},12.230,0.050,1.3,70.0,0.3,60.0};
-Camera              light = {{-1.802,0.715,0.850},0.635,-5.800,1.0,70.0,1.0,20.0};
-AreaLight*          areaLight = NULL;
-Texture*            lightDirectMap = NULL;
-UberProgram*        uberProgram = NULL;
+de::Model_3DS       m3ds;
+de::Camera          eye = {{-1.416,1.741,-3.646},12.230,0.050,1.3,70.0,0.3,60.0};
+de::Camera          light = {{-1.802,0.715,0.850},0.635,-5.800,1.0,70.0,1.0,20.0};
+de::AreaLight*      areaLight = NULL;
+de::Texture*        lightDirectMap = NULL;
+de::UberProgram*    uberProgram = NULL;
 DynamicObject*      robot = NULL;
 DynamicObject*      potato = NULL;
 int                 winWidth = 0;
@@ -70,7 +70,7 @@ float               speedLeft = 0;
 //
 // rendering scene
 
-void renderScene(UberProgramSetup uberProgramSetup)
+void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
 		error("Failed to compile or link GLSL program.\n",true);
@@ -114,16 +114,16 @@ void renderScene(UberProgramSetup uberProgramSetup)
 
 void updateShadowmap(unsigned mapIndex)
 {
-	Camera* lightInstance = areaLight->getInstance(mapIndex);
+	de::Camera* lightInstance = areaLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
 	glColorMask(0,0,0,0);
-	Texture* shadowmap = areaLight->getShadowMap(mapIndex);
+	de::Texture* shadowmap = areaLight->getShadowMap(mapIndex);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
-	UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
+	de::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
 	renderScene(uberProgramSetup);
 	shadowmap->renderingToEnd();
 	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -145,7 +145,7 @@ void display(void)
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
-	UberProgramSetup uberProgramSetup;
+	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
@@ -239,7 +239,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		Camera* cam = modeMovingEye?&eye:&light;
+		de::Camera* cam = modeMovingEye?&eye:&light;
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
@@ -287,17 +287,17 @@ int main(int argc, char **argv)
 	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
-	uberProgram = new UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
-	unsigned shadowmapsPerPass = UberProgramSetup::detectMaxShadowmaps(uberProgram);
+	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
+	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram);
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	lightDirectMap = Texture::load("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.tga not found.\n",false);
-	areaLight = new AreaLight(shadowmapsPerPass,512);
+	areaLight = new de::AreaLight(shadowmapsPerPass,512);
 	areaLight->attachTo(&light);
 
 	// init static .3ds scene

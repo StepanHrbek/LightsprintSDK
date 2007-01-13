@@ -20,13 +20,13 @@ class DynamicObject
 {
 public:
 	static DynamicObject* create(const char* filename,float scale);
-	const Model_3DS& getModel();
-	void render(UberProgram* uberProgram,UberProgramSetup uberProgramSetup,AreaLight* areaLight,unsigned firstInstance,Texture* lightDirectMap,const Camera& eye,float rot);
+	const de::Model_3DS& getModel();
+	void render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye,float rot);
 
 	float worldFoot[3];
 private:
 	DynamicObject();
-	Model_3DS model;
+	de::Model_3DS model;
 };
 
 #endif

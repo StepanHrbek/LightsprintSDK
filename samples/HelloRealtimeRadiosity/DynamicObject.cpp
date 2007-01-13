@@ -12,13 +12,13 @@
 //
 // Dynamic object
 
-DynamicObject* DynamicObject::create(const char* filename,float scale,UberProgramSetup amaterial,unsigned aspecularCubeSize)
+DynamicObject* DynamicObject::create(const char* filename,float scale,de::UberProgramSetup amaterial,unsigned aspecularCubeSize)
 {
 	DynamicObject* d = new DynamicObject();
 	if(d->model.Load(filename,scale) && d->getModel().numObjects)
 	{
-		d->rendererWithoutCache = new RendererOf3DS(&d->model);
-		d->rendererCached = new RendererWithCache(d->rendererWithoutCache);
+		d->rendererWithoutCache = new de::RendererOf3DS(&d->model);
+		d->rendererCached = new de::RendererWithCache(d->rendererWithoutCache);
 		d->material = amaterial;
 		d->specularCubeSize = aspecularCubeSize;
 		return d;
@@ -41,12 +41,12 @@ DynamicObject::~DynamicObject()
 	delete rendererWithoutCache;
 }
 
-const Model_3DS& DynamicObject::getModel()
+const de::Model_3DS& DynamicObject::getModel()
 {
 	return model;
 }
 
-void DynamicObject::render(UberProgram* uberProgram,UberProgramSetup uberProgramSetup,AreaLight* areaLight,unsigned firstInstance,Texture* lightDirectMap,rr::RRRealtimeRadiosity* solver,const Camera& eye,float rot)
+void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,rr::RRRealtimeRadiosity* solver,const de::Camera& eye,float rot)
 {
 	// mix uberProgramSetup with our material setup
 	// avoid fancy materials when envmaps are off - could be render to shadowmap
@@ -60,7 +60,7 @@ void DynamicObject::render(UberProgram* uberProgram,UberProgramSetup uberProgram
 		uberProgramSetup.MATERIAL_NORMAL_MAP = material.MATERIAL_NORMAL_MAP;
 	}
 	// use program
-	Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap);
+	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap);
 	if(!program)
 	{
 		printf("Failed to compile or link GLSL program for dynamic object.\n");
@@ -91,16 +91,16 @@ void DynamicObject::render(UberProgram* uberProgram,UberProgramSetup uberProgram
 			uberProgramSetup.MATERIAL_DIFFUSE?4:0, uberProgramSetup.MATERIAL_DIFFUSE?&diffuseMap:NULL);
 		if(uberProgramSetup.MATERIAL_SPECULAR)
 		{
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+			glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 			specularMap.bindTexture();
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 		}
 		if(uberProgramSetup.MATERIAL_DIFFUSE)
 		{
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+			glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 			diffuseMap.bindTexture();
 		}
-		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_DIFFUSE);
 	}
 	// render
 	rendererCached->render(); // cached inside display list

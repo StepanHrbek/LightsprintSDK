@@ -10,6 +10,8 @@
 #include <GL/glew.h>
 #include "DemoEngine/DemoEngine.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -25,5 +27,7 @@ public:
 private:
 	GLuint fb;
 };
+
+}; // namespace
 
 #endif

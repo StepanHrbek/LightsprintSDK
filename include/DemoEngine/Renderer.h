@@ -9,7 +9,8 @@
 
 #include "DemoEngine.h"
 
-
+namespace de
+{
 //////////////////////////////////////////////////////////////////////////////
 //
 // Renderer - interface
@@ -33,5 +34,7 @@ public:
 
 	virtual ~Renderer() {};
 };
+
+}; // namespace
 
 #endif

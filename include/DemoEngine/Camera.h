@@ -10,6 +10,8 @@
 #include <GL/glew.h>
 #include "DemoEngine.h"
 
+namespace de
+{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -65,5 +67,7 @@ public:
 	//! transformed as if viewed by this camera.
 	void setupForRender();
 };
+
+}; // namespace
 
 #endif //CAMERA_H
