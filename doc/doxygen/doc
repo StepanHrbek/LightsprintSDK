@@ -137,70 +137,160 @@ namespace rr
 
 
 
-\page main_integration Integration
+\page main_integration Adding GI to your code
 
- How to integrate Lightsprint engine into your codebase?
+Adding global illumination (GI) to your code is described in three steps.
 
- See HelloRealtimeRadiosity position in following scheme:
+ - <b> \subpage integration_milestone_1 </b>
 
- \image html libraries.png
+ - <b> \subpage integration_milestone_2 </b>
 
- It integrates two completely separated parts
- - purely numerical Lightsprint engine
- - OpenGL 2.0 based DemoEngine
-
- into scene viewer with dynamic light, dynamic objects and realtime global illumination.
-
- Your applications should be in similar position to HelloRealtimeRadiosity,
- but you are free to use game engine or renderer other than DemoEngine.
-
- So your options for writing new applications are:
-
- \section integration_demoengine Use DemoEngine
-
- You can modify HelloRealtimeRadiosity and
- - very quickly write demos based on your data
- - create level precalculator by adding save of computed illumination
-
- DemoEngine is able to load and render .3ds files with 1m units, truecolor .tga 
- textures and without transformations. It reads subset of material properties.
-
- \section integration_replace_engine Use your engine
-
- For more complex tasks, we encourage you to replace "game engine" block 
- with your engine/renderer.
-
- Several glue classes are needed for communication between Lightsprint engine 
- and game engine. You can see how HelloRealtimeRadiosity implements them
- and modify them for your engine.
-
- You can port HelloRealtimeRadiosity to use your engine
- or take pieces of code from HelloRealtimeRadiosity
- and directly integrate Lightsprint engine into your existing editor,
- game or any other application.
-
- Follow these steps:
-
- - <b> \subpage integration_step_0 </b>
-
- - <b> \subpage integration_step_1 </b>
-
- - <b> \subpage integration_step_2 </b>
-
- - <b> \subpage integration_step_5 </b>
-
- - <b> \subpage integration_step_6 </b>
-
- - Stop rendering constant ambient
-
- - Start rendering our illumination, see <b> \ref main_data_access </b>
+ - <b> \subpage integration_milestone_3 </b>
 
 
 
 
+\page integration_milestone_1 Milestone 1: GI in your scenes
+
+ You can immediately render realtime global illumination in your 3d scenes
+ if you convert them to .3ds format
+ and load them into HelloRealtimeRadiosity sample.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Recommended action:
+ </td></tr></table>
+
+  - If conversion tool exists,
+    convert one of your scenes to .3ds format
+    and load it into HelloRealtimeRadiosity.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Scheme of application:
+ </td></tr></table>
+
+  - HelloRealtimeRadiosity application is
+    built on top of purely numerical Lightsprint engine and OpenGL 2.0 based DemoEngine.
+  \image html Integration1.png
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Steps:
+ </td></tr></table>
+
+  - <b> \subpage integration_step_1 </b> (necessary even if you don't convert to .3ds)
+  - Convert textures to truecolor .tga.
+  - Convert scenes to .3ds with 1m units and no transformations.
+  - Change name of scene in HelloRealtimeRadiosity.cpp, so it loads your scene.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Expected time spent:
+ </td></tr></table>
+
+  - 1 day
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Possibilities created:
+ </td></tr></table>
+
+  - Quickly write realtime GI demos based on your data.
+  - Create level GI precalculator by adding save of computed illumination.
 
 
-\page integration_step_0 Validate static meshes
+
+\page integration_milestone_2 Milestone 2: GI in your scene graph
+
+  If you prefer other data source to .3ds files, next milestone is
+  switch from .3ds files to your scene graph.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Recommended action:
+ </td></tr></table>
+
+  - Modify HelloRealtimeRadiosity to render your scenes in their native format.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Scheme of application:
+ </td></tr></table>
+
+  - Modified HelloRealtimeRadiosity newly depends on your scene loading code.
+  \image html Integration2.png
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Steps:
+ </td></tr></table>
+
+  - Open HelloRealtimeRadiosity project
+  - Copy 3DS2RR.* to View22toRR.* and modify it so it doesn't wrap 
+    Model_3DS model, but your engine's 3d model.
+    See <b> \subpage integration_step_2 </b>
+    and <b> \subpage integration_step_3 </b>.
+    Documentation on RRMesh and RRObject could be helpful too.
+  - Go through HelloRealtimeRadiosity.cpp and
+    - Delete section "#ifndef AMBIENT_MAPS ... #endif".
+    - Change "rendererCaching->render();" to "rendererNonCaching->render();"
+    - Replace all references to 3ds with references to view22.
+  - If it works, you see your scene with two .3ds objects moving around.
+    If you don't use 1m units, your scene could be too big, try scaling it.
+  - Next step would be loading also dynamic objects using your engine,
+    it needs only few changes in DynamicObject.cpp.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Expected time spent:
+ </td></tr></table>
+
+  - 1-2 days
+
+
+
+\page integration_milestone_3 Milestone 3: GI in your renderer
+
+  If you prefer other renderer to DemoEngine, final milestone is switch to renderer of your choice.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Recommended action:
+ </td></tr></table>
+
+  - Modify HelloRealtimeRadiosity to use your renderer,
+    or modify your application/engine to use Lightsprint engine.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Scheme of application:
+ </td></tr></table>
+
+  - Different approaches: You can expose Lightsprint engine to your
+    applications, hide it inside your engine, eventually
+    your application is monolithic, without separated engine part.
+  <table border=0 width=95%><tr align=top><td>
+  \image html Integration3.png
+  </td><td>
+  \image html Integration4.png
+  </td><td>
+  \image html Integration5.png
+  </td></tr></table>
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Steps:
+ </td></tr></table>
+
+  - Make sure your renderer supports realtime shadows other than stencil based, e.g. shadowmapping
+    or projected shadows. If it doesn't, add them or contact us for further support.
+    Commercial licence to Lightsprint engine contains full source code of DemoEngine,
+    including realtime soft shadows.
+  - <b> \subpage integration_step_4 </b>
+  - <b> \subpage integration_step_5 </b>
+  - Render our indirect illumination, see <b> \ref main_data_access </b>
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Expected time spent:
+ </td></tr></table>
+
+  - 1-2 weeks
+
+
+
+
+
+
+\page integration_step_1 Validate static meshes
 
  This step is typically executed by 3d artists.
 
@@ -239,7 +329,7 @@ namespace rr
 
 
  
-\page integration_step_1 Detect material properties
+\page integration_step_2 Detect material properties
 
  Realtime radiosity is based on physically correct calculation of light transport.
  For such calculation it's necessary to know physical properties of surfaces.
@@ -292,7 +382,7 @@ namespace rr
 
 
 
-\page integration_step_2 Create object wrappers
+\page integration_step_3 Create object wrappers
 
  Realtime radiosity transports light between object surfaces, so it needs to know everything
  about scene geometry and surface properties.
@@ -356,7 +446,7 @@ namespace rr
 
 
 
-\page integration_step_5 Detect direct illumination in RRRealtimeRadiosity subclass
+\page integration_step_4 Detect direct illumination in RRRealtimeRadiosity subclass
 
  RRRealtimeRadiosity contains several abstract methods, derive your class from RRRealtimeRadiosity
  and implement these methods.
@@ -444,7 +534,7 @@ namespace rr
 
 
 
-\page integration_step_6 Use RRRealtimeRadiosity subclass
+\page integration_step_5 Use RRRealtimeRadiosity subclass
 
  To finish integration with your application (editor or game),
  create instance of your RRRealtimeRadiosity subclass
@@ -471,9 +561,9 @@ namespace rr
 
 
 
-\page main_data_access Data access
+\page main_data_access Using computed GI
  Lightsprint engine calculates indirect illumination.
- To render using calculated illumination, you need to access calculated data structures.
+ To render with calculated illumination, you need access to calculated data structures.
  Lightsprint supports multiple data structures optimized for different use cases.
 
  Pick exactly one of these structures for each object
@@ -1335,6 +1425,27 @@ namespace rr
  - de::AreaLight is area light
  - de::Model_3DS is model loaded from .3ds file
  - de::Renderer is generic renderer interface
+
+ Features and limitations of DemoEngine
+   - for Windows (request support for other platforms)
+   - uses OpenGL 2.0
+   - supports all OpenGL 2.0 cards, but soft shadows require GeForce 6xxx or higher, Radeon 9500 or higher
+   - spotlights with realtime shadows
+   - linear and area spotlights (multiple overlapping spotlights)
+   - no omnidirectional lights with realtime shadows
+   - scenes and objects loaded from .3ds
+   - separately enabled/disabled light features:
+     - color
+     - projected texture
+     - shadows with variable softness, resolution
+     - diffuse environment map with variable resolution
+     - specular environment map with variable resolution
+   - separately enabled/disabled material features:
+     - diffuse color per vertex
+     - diffuse color per pixel
+     - specular (enabled for whole object)
+     - specular map (simple, specular modulated by diffuse map)
+     - normal map (simple, normal modulated by diffuse map)
 
  Sample HelloDemoEngine shows .3ds scene viewer with dynamic objects
  and realtime soft shadows, based on DemoEngine.
