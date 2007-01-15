@@ -10,8 +10,8 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define LIGHTMAP_SIZE              1024
 #define SUBDIVISION                0
 #define SCALE_DOWN_ON_GPU // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
-#define CAPTURE_TGA // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu
-bool ati = 1;
+//#define CAPTURE_TGA // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu
+bool ati = 0;
 int fullscreen = 0;
 bool animated = 1;
 bool renderer3ds = 1;
@@ -319,7 +319,7 @@ public:
 		delete scaleDownProgram;
 		delete detectBigMap;
 		// delete objects and illumination
-		deleteObjectsFromRR(this);
+		delete3dsFromRR(this);
 	}
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
@@ -1314,7 +1314,7 @@ Level::Level(const char* filename_3ds)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	rr::RRScene::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
-	provideObjectsFrom3dsToRR(&m3ds,solver,&sp);
+	insert3dsToRR(&m3ds,solver,&sp);
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
@@ -1360,7 +1360,7 @@ void display()
 #ifdef BUGS
 		for(unsigned i=0;i<6;i++)
 #else
-		for(unsigned i=0;i<2;i++)
+		for(unsigned i=0;i<12;i++)
 #endif
 			level->solver->calculate();
 	}
@@ -2018,7 +2018,7 @@ int main(int argc, char **argv)
 	else
 	{
 		glutCreateWindow("Realtime Radiosity");
-		//glutFullScreen();
+		glutFullScreen();
 	}
 	glutDisplayFunc(display);
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);

@@ -102,7 +102,7 @@ namespace rr
 
 \page main_scenarios Usage scenarios
 
- \section scenario2 Realtime radiosity integrated into editor. Game uses precalculated illumination
+ \section scenario2 Realtime GI in editor/tools. Game uses precalculated illumination
 
   - Saves months of work to graphics artists and designers,
     previously spent in lightmap rebuilds or fake light placement.
@@ -114,7 +114,7 @@ namespace rr
 
   - Simple path for incorporating realtime radiosity into future games.
 
- \section scenario1 Realtime radiosity integrated into game
+ \section scenario1 Realtime global illumination (GI) in game or architectural visualization
 
   - Greatly improves realism and visual appeal.
 
@@ -219,20 +219,21 @@ Adding global illumination (GI) to your code is described in three steps.
  </td></tr></table>
 
   - Open HelloRealtimeRadiosity project
-  - Copy 3DS2RR.* to View22toRR.* and modify it so it doesn't wrap 
-    Model_3DS model, but your engine's 3d model.
-    See <b> \subpage integration_step_2 </b>
-    and <b> \subpage integration_step_3 </b>.
-    Documentation on RRMesh and RRObject could be helpful too.
+  - Copy 3DS2RR.* to Custom2RR.* and add it to the project
+  - Delete \#include "DemoEngine/Model_3DS.h" from Custom2RR.h
+  - Build reports errors on all references to 3ds,
+    change code so it works with your engine's 3d model rather than with 3ds. For more details, see
+    - comments in Custom2RR source code
+    - <b> \subpage integration_step_2 </b>
+    - <b> \subpage integration_step_3 </b>
+    - interfaces of RRMesh and RRObject you implement
   - Go through HelloRealtimeRadiosity.cpp and
-    - Delete section "#ifndef AMBIENT_MAPS ... #endif".
-    - Change "rendererCaching->render();" to "rendererNonCaching->render();"
-    - Replace all references to 3ds with references to view22.
-  - If it works, you see your scene with two .3ds objects moving around.
+    - Replace all references to 3ds with your custom format.
+    - Delete section "#ifndef AMBIENT_MAPS ... #endif", it relates only to 3ds.
+  - If it works, you see your scene with two dynamic (still .3ds) objects.
     If you don't use 1m units, your scene could be too big, try scaling it.
-  - Next step would be loading also dynamic objects using your engine,
-    it needs only few changes in DynamicObject.cpp.
-
+  - Optional final step: do the same changes to DynamicObject,
+    so it works with your format, rather than with .3ds.
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
  </td></tr></table>
@@ -283,7 +284,7 @@ Adding global illumination (GI) to your code is described in three steps.
  Expected time spent:
  </td></tr></table>
 
-  - 1-2 weeks
+  - 1 week
 
 
 
@@ -509,52 +510,79 @@ Adding global illumination (GI) to your code is described in three steps.
      written only for purpose of this detection
 
  <i>
- <b>Optional reading:</b>
+ <b>Optional optimizations:</b>
 
- <b>Faster detection:</b>
- for simple materials with diffuse texture only (such as in .3ds)
+ <b>Rendering irradiance:</b>
+ For simple materials with diffuse texture only (such as in .3ds),
  process can be optimized by ignoring diffuse textures, thus rendering incoming light
  not multiplied by diffuse texture.
  Detected average face colors then correspond to intensity of light reaching 
  face (irradiance) instead of intensity of light leaving face (exitance),
- so detected color is passed to RRObjectAdditionalIllumination::setTriangleAdditionalMeasure with RM_IRRADIANCE
- instead of RM_EXITANCE.
+ so detected color is passed to RRObjectAdditionalIllumination::setTriangleAdditionalMeasure
+ as RM_IRRADIANCE, rather than RM_EXITANCE.
 
  \image html detect-nodif.png
- Image above shows optimized detection, faces are not modulated by material
+ Image above shows optimized detection, faces are not modulated by material,
  so irradiance is detected. You can see mostly white faces, because scene is lit by white spotlight.
  Few orange pixels come from orange logo projected by spotlight.
 
  Optimized approach is not suitable for engines with texture atlases.
  If your material properties change very significantly over uv space,
  use original unoptimized approach for higher precision.
- </i>
 
+ <b>GPU averaging:</b>
+ To decrease amount of data transferred from GPU to CPU and speed up
+ whole process, it is recommended to calculate average triangle colors
+ on GPU, using simple shader, write them into smaller texture
+ and transfer this smaller textue to CPU.
+ It is demonstrated in HelloRealtimeRadiosity
+ sample, using scaledown_filter.* shaders.
+
+ \image html detect-scaled.png
+ Image was scaled down by scaledown_filter.* shaders for purpose of
+ faster primary illumination detection.
+ It is resized back to original size only in this documentation.
+
+ </i>
 
 
 
 
 \page integration_step_5 Use RRRealtimeRadiosity subclass
 
- To finish integration with your application (editor or game),
- create instance of your RRRealtimeRadiosity subclass
- and call its several methods on appropriate places of your application
- as described here:
+ RRRealtimeRadiosity class is your primary interface to Lightsprint engine.
+ To add global illumination to your application,
 
- To start radiosity calculation, call RRRealtimeRadiosity::setObjects()
- with set of objects participating in calculation.
+ - Create instance of your RRRealtimeRadiosity subclass.
 
- Call RRRealtimeRadiosity::calculate() often. If main loop of your
- application contains rendering of one frame, add one call to RRRealtimeRadiosity::calculate().
- If you render scene only when it has changed,
- still call RRRealtimeRadiosity::calculate() in every iteration of main loop,
- but if it returns true, take it as signal that scene has changed.
+ - To start calculation,
+   call RRRealtimeRadiosity::setObjects() with set of static objects participating in calculation.
+   This call is expensive, design your application to avoid
+   frequent changes of static scene.
 
- Use "reportSomething" methods to report events, see RRRealtimeRadiosity for details.
+ - Call RRRealtimeRadiosity::calculate() often. If main loop of your
+   application contains rendering of one frame, add one call to RRRealtimeRadiosity::calculate().
+   If you render scene only when it has changed,
+   still call RRRealtimeRadiosity::calculate() in every iteration of main loop,
+   but if it returns true, rerender scene.
 
- Use RRRealtimeRadiosity::getIllumination() to acquire object's indirect illumination during render.
+ - Call RRRealtimeRadiosity::reportLightChange whenever direct illumination changes.
+   It is mainly when light moves or changes properties, but it is also when
+   object moves and its shadow changes.
 
- See example in samples/HelloRealtimeRadiosity/HelloRealtimeRadiosity.cpp.
+ - Call RRRealtimeRadiosity::reportMaterialChange whenever materials used in scene change.
+
+ - Call RRRealtimeRadiosity::reportInteraction whenever user interacts or other reason for
+   high responsiveness exists. Without reportInteraction calls, solver takes more CPU time
+   and FPS decreases.
+
+ - Call RRRealtimeRadiosity::getIllumination() 
+   to acquire static object's indirect illumination, see \ref data_vertex_buffer and \ref data_ambient_map.
+
+ - Call RRRealtimeRadiosity::updateEnvironmentMaps()
+   to acquire static or dynamic object's indirect illumination, see \ref data_environment_map.
+
+ Nearly all of these calls are demonstrated in HelloRealtimeRadiosity sample.
 
 
 
@@ -1266,7 +1294,7 @@ Adding global illumination (GI) to your code is described in three steps.
 
  Depending on your projects, you may use various subsets of whole API.
 
- See scheme of library dependencies:
+ See scheme of library and sample dependencies:
 
  \image html libraries.png
 

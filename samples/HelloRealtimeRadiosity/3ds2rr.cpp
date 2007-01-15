@@ -7,7 +7,7 @@
 // You can replace Model_3DS with your internal format and adapt this code
 // so it works with your data.
 //
-// This is sufficient for demonstration purposes, but for production code
+// This code is sufficient for demonstration purposes, but for production code,
 // more memory can be saved:
 // 1) Don't duplicate data into this object. Reimplement methods like getVertex
 //    so that they read from your original mesh, sizeof this class can go down
@@ -24,7 +24,7 @@
 // It is used only by our custom renderer RendererOfRRObject
 // (during render of scene with ambient maps),
 // it is never accessed by radiosity solver.
-// You can skip it in your implementation.
+// You may skip it in your implementation.
 
 
 #include <cassert>
@@ -59,6 +59,9 @@ void reporter(const char* msg, void* context)
 //
 // M3dsImporter
 
+// See RRObject and RRMesh documentation for details
+// on individual member functions.
+
 class M3dsImporter : public rr::RRObject, rr::RRMesh
 {
 public:
@@ -88,7 +91,7 @@ private:
 	de::Model_3DS* model;
 	de::Model_3DS::Object* object;
 
-	// geometry
+	// copy of object's geometry
 	struct TriangleInfo
 	{
 		rr::RRMesh::Triangle t;
@@ -96,13 +99,13 @@ private:
 	};
 	std::vector<TriangleInfo> triangles;
 
-	// surfaces
+	// copy of object's surface properties
 	std::vector<rr::RRSurface> surfaces;
 	
-	// collider
+	// collider for ray-mesh collisions
 	rr::RRCollider* collider;
 
-	// illumination (ambient maps etc)
+	// indirect illumination (ambient maps etc)
 	rr::RRObjectIllumination* illumination;
 };
 
@@ -115,7 +118,8 @@ static void fillSurface(rr::RRSurface* s,de::Model_3DS::Material* m)
 {
 	enum {size = 8};
 
-	// average texture color
+	// for diffuse textures provided by 3ds, 
+	// it is sufficient to compute average texture color
 	rr::RRColor avg = rr::RRColor(0);
 	if(m->tex)
 	{
@@ -135,7 +139,10 @@ static void fillSurface(rr::RRSurface* s,de::Model_3DS::Material* m)
 		avg[2] = m->color.b;
 	}
 
+	// set all properties to default
 	s->reset(0);
+
+	// set diffuse reflectance according to 3ds material
 	s->diffuseReflectance = avg;
 
 #ifdef VERIFY
@@ -146,6 +153,8 @@ static void fillSurface(rr::RRSurface* s,de::Model_3DS::Material* m)
 #endif
 }
 
+// Creates internal copies of .3ds geometry and surface properties.
+// Implementation is simpler with internal copies, although less memory efficient.
 M3dsImporter::M3dsImporter(de::Model_3DS* amodel, unsigned objectIdx)
 {
 	model = amodel;
@@ -370,7 +379,7 @@ void M3dsImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
 }
 
 // Unwrap is not present in .3ds file format.
-// If you omit getTriangleMapping, emergency automatic unwrap
+// If you omit getTriangleMapping (as it happens here), emergency automatic unwrap
 // is used and ambient map quality is reduced.
 //void M3dsImporter::getTriangleMapping(unsigned t, TriangleMapping& out) const
 //{
@@ -379,13 +388,12 @@ void M3dsImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
 
 const rr::RRMatrix3x4* M3dsImporter::getWorldMatrix()
 {
-	//!!! matrices from 3ds are ignored yet
+	// transformation matrices from 3ds are ignored
 	return NULL;
 }
 
 const rr::RRMatrix3x4* M3dsImporter::getInvWorldMatrix()
 {
-	//!!!
 	return NULL;
 }
 
@@ -403,7 +411,7 @@ M3dsImporter* new_3ds_importer(de::Model_3DS* model, unsigned objectIdx)
 	return importer;
 }
 
-void provideObjectsFrom3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
+void insert3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
 {
 	if(app)
 	{
@@ -417,17 +425,14 @@ void provideObjectsFrom3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app
 	}
 }
 
-// Why this function?
-// 1. it's most secure when object's new and delete are issued by the same dll
-// 2. only we know that illumination doesn't need to be deleted
-void deleteObjectsFromRR(rr::RRRealtimeRadiosity* app)
+void delete3dsFromRR(rr::RRRealtimeRadiosity* app)
 {
-	// delete objects and illumination
 	if(app)
 	{
 		for(unsigned i=0;i<app->getNumObjects();i++)
 		{
-			//delete app->getIllumination(i); no need to delete, it is part of object
+			// no need to delete illumination separately, we created it as part of object
+			//delete app->getIllumination(i);
 			delete app->getObject(i);
 		}
 	}

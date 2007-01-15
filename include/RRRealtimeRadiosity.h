@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRRealtimeRadiosity.h
 //! \brief RRRealtimeRadiosity - library for calculating radiosity in dynamic scenes
-//! \version 2007.1.6
+//! \version 2007.1.16
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////

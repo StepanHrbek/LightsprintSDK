@@ -107,7 +107,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
 		error("Failed to compile or link GLSL program.\n",true);
 #ifndef AMBIENT_MAPS
-	// m3ds.Draw uses tristrips incompatible with ambient map uv channel, doesn't render properly with ambient maps
+	// m3ds.Draw uses indexed trilist incompatible with ambient map uv channel, doesn't render properly with ambient maps
 	//  could be fixed with better uv or simple geometry shader
 	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
 	{
@@ -128,7 +128,10 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 		renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
-		rendererCaching->render();
+		if(uberProgramSetup.LIGHT_INDIRECT_COLOR)
+			rendererNonCaching->render(); // don't cache indirect illumination, it changes
+		else
+			rendererCaching->render(); // cache everything else, it's constant
 	}
 
 	// enable object space
@@ -216,7 +219,7 @@ public:
 		delete scaleDownProgram;
 		delete bigMap;
 		// delete objects and illumination
-		deleteObjectsFromRR(this);
+		delete3dsFromRR(this);
 	}
 protected:
 #ifdef AMBIENT_MAPS
@@ -547,7 +550,7 @@ int main(int argc, char **argv)
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
-	provideObjectsFrom3dsToRR(&m3ds,solver,NULL);
+	insert3dsToRR(&m3ds,solver,NULL);
 	solver->calculate();
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
