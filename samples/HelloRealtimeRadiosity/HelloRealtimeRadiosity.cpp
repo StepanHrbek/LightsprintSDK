@@ -25,7 +25,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "RRRealtimeRadiosity.h"
-#include "DemoEngine/RendererWithCache.h"
+#include "DemoEngine/Renderer.h"
 #include "DemoEngine/Timer.h"
 #include "3ds2rr.h"
 #include "DynamicObject.h"
@@ -71,7 +71,7 @@ de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
 de::UberProgram*        uberProgram = NULL;
 RendererOfRRObject*     rendererNonCaching = NULL;
-de::RendererWithCache*  rendererCaching = NULL;
+de::Renderer*           rendererCaching = NULL;
 rr::RRRealtimeRadiosity*solver = NULL;
 DynamicObject*          robot = NULL;
 DynamicObject*          potato = NULL;
@@ -557,7 +557,7 @@ int main(int argc, char **argv)
 
 	// init renderer
 	rendererNonCaching = new RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
-	rendererCaching = new de::RendererWithCache(rendererNonCaching);
+	rendererCaching = rendererNonCaching->createDisplayList();
 
 	glutMainLoop();
 	return 0;

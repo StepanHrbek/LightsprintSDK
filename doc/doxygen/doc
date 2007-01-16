@@ -1181,6 +1181,8 @@ Adding global illumination (GI) to your code is described in three steps.
  - all, no hard requirements
  - DX9 generation - standard target
  - DX10 generation - integration significantly simplified, performance improved
+ - soft shadows in DemoEngine require at least GeForce 6xxx or Radeon 9500,
+   but they are not mandatory
 
  Supported 3D APIs are
  - all, no hard requirements
@@ -1188,6 +1190,11 @@ Adding global illumination (GI) to your code is described in three steps.
  - Direct3D 9 - standard target without samples
  - OpenGL 2.0 with EXT_geometry_shader - DX10 generation, optimized samples planned
  - Direct3D 10 - support planned
+
+ Supported library configurations are
+ - Release DLL
+ - others go with commercial licence,
+   please run examples in Release DLL during evaluation period
 
  Binaries should work with multiple compilers, but only these get our support:
  - Visual C++ 2005
