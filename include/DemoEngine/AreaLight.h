@@ -29,8 +29,8 @@ public:
 	//!  If you later change parent, new instances will change too.
 	//! \param numInstancesMax
 	//!  Max number of instances supported by later calls to setNumInstance.
-	//!  Area light is initially set to the same (max) number of instance.
 	//!  Instances are area light elements, more instances make smoother soft shadow.
+	//!  Area light is initially set to the same (max) number of instance.
 	//! \param shadowmapSize
 	//!  Resolution of shadowmaps will be shadowmapSize * shadowmapSize texels.
 	//!  Set higher resolution for hard and sharper shadows,
@@ -58,7 +58,18 @@ public:
 	//! Returns shadowmap for given light instance (element of area light).
 	Texture* getShadowMap(unsigned instance);
 
-	//! Shape of light source area, 0=line, 1=square, 2=circle
+	//! Shape of light source area, 0=line (default), 1=square, 2=circle
+	//
+	//! Area light is simulated by multiple spot lights.
+	//! Depending on areaType, they are set in
+	//! - 0 = approx 1m long line, it simulates light coming from long narrow lightsource.
+	//! - 1 = approx 1m*1m square grid, it simulates light coming from whole square. It needs more instances to prevent shadow banding.
+	//! - 2 = circle, it simulates light coming from circle (border).
+	//!
+	//! Types of area are implemented in virtual instanceMakeup().
+	//! If you are interested in better control over area type,
+	//! let us know, we can quickly add example
+	//! of custom areaType, using custom instanceMakeup().
 	unsigned areaType;
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
