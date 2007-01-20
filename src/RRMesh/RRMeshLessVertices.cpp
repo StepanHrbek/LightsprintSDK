@@ -3,7 +3,7 @@
 namespace rr
 {
 
-int compareXyz(const void* elem1, const void* elem2)
+int __cdecl compareXyz(const void* elem1, const void* elem2)
 {
 	RRMesh::Vertex& v1 = **(RRMesh::Vertex**)elem1;
 	RRMesh::Vertex& v2 = **(RRMesh::Vertex**)elem2;

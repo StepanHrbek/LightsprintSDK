@@ -25,6 +25,10 @@
 
 #include <cmath>
 
+#ifdef __BCPLUSPLUS__
+	#define sqrtf sqrt // sqrtf is missing in Borland C++ Builder
+#endif
+
 namespace rr /// Lightsprint engine - realtime global illumination solver.
 {
 
@@ -69,7 +73,7 @@ namespace rr /// Lightsprint engine - realtime global illumination solver.
 		unsigned components()               const {return 2;}
 		RRReal   sum()                      const {return x+y;}
 		RRReal   avg()                      const {return (x+y)*0.5f;}
-		RRReal   length()                   const {return sqrtf(x*x+y*y);}
+		RRReal   length()                   const {return std::sqrtf(x*x+y*y);}
 		RRReal   length2()                  const {return x*x+y*y;}
 		void     normalize()                      {*this /= length();}
 		RRVec2   normalized()               const {return *this/length();}
@@ -102,7 +106,7 @@ namespace rr /// Lightsprint engine - realtime global illumination solver.
 		unsigned components()                 const {return 3;}
 		RRReal   sum()                        const {return x+y+z;}
 		RRReal   avg()                        const {return (x+y+z)*0.33333333333333f;}
-		RRReal   length()                     const {return sqrtf(x*x+y*y+z*z);}
+		RRReal   length()                     const {return std::sqrtf(x*x+y*y+z*z);}
 		RRReal   length2()                    const {return x*x+y*y+z*z;}
 		void     normalize()                        {*this /= length();}
 		RRVec3   normalized()                 const {return *this/length();}
@@ -137,7 +141,7 @@ namespace rr /// Lightsprint engine - realtime global illumination solver.
 		unsigned components()                 const {return 4;}
 		RRReal   sum()                        const {return x+y+z+w;}
 		RRReal   avg()                        const {return (x+y+z+w)*0.25f;}
-		RRReal   length()                     const {return sqrtf(x*x+y*y+z*z+w*w);}
+		RRReal   length()                     const {return std::sqrtf(x*x+y*y+z*z+w*w);}
 		RRReal   length2()                    const {return x*x+y*y+z*z+w*w;}
 		void     normalize()                        {*this /= length();}
 		RRVec4   normalized()                 const {return *this/length();}

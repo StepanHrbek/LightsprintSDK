@@ -16,7 +16,7 @@ namespace rr
 //
 // RRLessVerticesFilter<INDEX> - importer slow-filter that removes duplicate vertices
 
-int compareXyz(const void* elem1, const void* elem2);
+int __cdecl compareXyz(const void* elem1, const void* elem2);
 
 template <class INDEX>
 class RRLessVerticesFilter : public RRMeshFilter
