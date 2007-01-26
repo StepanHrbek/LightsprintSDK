@@ -373,6 +373,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Q3Loader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Q3Loader.h"
+			>
+		</File>
+		<File
 			RelativePath=".\shadowcast.cpp"
 			>
 		</File>
