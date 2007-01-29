@@ -1,4 +1,5 @@
 //#define BUGS
+#define DYNAOBJECTS                1   // 0..7
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
 unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 je max pro 6600
@@ -11,7 +12,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SUBDIVISION                0
 #define SCALE_DOWN_ON_GPU // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
 //#define CAPTURE_TGA // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu
-bool ati = 0;
+bool ati = 1;
 int fullscreen = 0;
 bool animated = 1;
 bool renderer3ds = 1;
@@ -77,6 +78,7 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce (kompliko
 scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista jsou svetlejsi nez maji byt
 */
 
+#include "Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
 #include <limits> // nutne aby uspel build v gcc4.3
 #include "DemoEngine/Timer.h"
 #include <cassert>
@@ -125,6 +127,7 @@ class Level
 {
 public:
 	de::Model_3DS m3ds;
+	//TMapQ3 bsp;
 	class Solver* solver;
 	class Bugs* bugs;
 	RendererOfRRObject* rendererNonCaching;
@@ -140,7 +143,7 @@ public:
 // globals
 
 de::Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-de::Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
+de::Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
 GLUquadricObj *quadric;
 de::AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
@@ -586,7 +589,6 @@ private:
 class DynamicObjects
 {
 public:
-	enum {DYNAOBJECTS=7};
 	DynamicObjects()
 	{
 		de::UberProgramSetup material;
@@ -599,8 +601,8 @@ public:
 		material.MATERIAL_SPECULAR_MAP = 0;
 		material.MATERIAL_NORMAL_MAP = 0;
 		//dynaobject[3] = DynamicObject::create("3ds\\characters\\armyman2003.3ds",0.006f,material); // 14k
-		dynaobject[0] = DynamicObject::create("3ds\\characters\\blackman1\\blackman.3ds",0.95f,material,0); // 1k
-		dynaobject[1] = DynamicObject::create("3ds\\characters\\civil\\civil.3ds",0.01f,material,0); // 2k
+		if(DYNAOBJECTS>0) dynaobject[0] = DynamicObject::create("3ds\\characters\\blackman1\\blackman.3ds",0.95f,material,0); // 1k
+		if(DYNAOBJECTS>1) dynaobject[1] = DynamicObject::create("3ds\\characters\\civil\\civil.3ds",0.01f,material,0); // 2k
 		//dynaobject[4] = DynamicObject::create("3ds\\characters\\3dm-female3\\3dm-female3.3ds",0.008f,material); // strasny vlasy
 		//dynaobject[5] = DynamicObject::create("3ds\\characters\\Tifa\\Tifa.3ds",0.028f,material); // prilis lowpoly oblicej
 		//dynaobject[5] = DynamicObject::create("3ds\\characters\\icop\\icop.3DS",0.04f,material);
@@ -614,7 +616,7 @@ public:
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 1;
 		material.MATERIAL_NORMAL_MAP = 1;
-		dynaobject[2] = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.011f,material,8); // 2k
+		if(DYNAOBJECTS>2) dynaobject[2] = DynamicObject::create("3ds\\characters\\sven\\sven.3ds",0.011f,material,8); // 2k
 
 		// diff+specular
 		material.MATERIAL_DIFFUSE = 1;
@@ -623,8 +625,8 @@ public:
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 0;
 		material.MATERIAL_NORMAL_MAP = 0;
-		dynaobject[3] = DynamicObject::create("3ds\\characters\\woman-statue9.3ds",0.004f,material,4); // 9k
-		dynaobject[5] = DynamicObject::create("3ds\\characters\\Jessie16.3DS",0.022f,material,16); // 16k
+		if(DYNAOBJECTS>3) dynaobject[3] = DynamicObject::create("3ds\\characters\\woman-statue9.3ds",0.004f,material,4); // 9k
+		if(DYNAOBJECTS>5) dynaobject[5] = DynamicObject::create("3ds\\characters\\Jessie16.3DS",0.022f,material,16); // 16k
 
 		// diff+specular map
 		material.MATERIAL_DIFFUSE = 1;
@@ -633,7 +635,7 @@ public:
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 1;
 		material.MATERIAL_NORMAL_MAP = 0;
-		dynaobject[4] = DynamicObject::create("3ds\\characters\\potato\\potato01.3ds",0.004f,material,16); // 13k
+		if(DYNAOBJECTS>4) dynaobject[4] = DynamicObject::create("3ds\\characters\\potato\\potato01.3ds",0.004f,material,16); // 13k
 
 		// specular
 		material.MATERIAL_DIFFUSE = 0;
@@ -642,7 +644,7 @@ public:
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 0;
 		material.MATERIAL_NORMAL_MAP = 0;
-		dynaobject[6] = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.24f,material,16); // 20k
+		if(DYNAOBJECTS>6) dynaobject[6] = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.24f,material,16); // 20k
 
 		// static: quake = 28k
 
@@ -1332,10 +1334,12 @@ Level::Level(const char* filename_3ds)
 	updateMatrices();
 	needDepthMapUpdate = true;
 	needRedisplay = true;
+//	readMap("bsp\\trajectory\\maps\\trajectory.bsp",bsp);
 }
 
 Level::~Level()
 {
+//	freeMap(bsp);
 	delete bugs;
 	delete rendererCaching;
 	delete rendererNonCaching;
@@ -1519,11 +1523,11 @@ void special(int c, int x, int y)
 			exit(0);
 			break;
 		case GLUT_KEY_F9:
-			printf("\nde::Camera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+			{printf("\nde::Camera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 			printf("de::Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
-			for(unsigned i=0;i<DynamicObjects::DYNAOBJECTS;i++)
+			for(unsigned i=0;i<DYNAOBJECTS;i++)
 				printf("dynaobjects->setPos(%d,rr::RRVec3(%ff,%ff,%ff));\n",i,dynaobjects->getPos(i)[0],dynaobjects->getPos(i)[1],dynaobjects->getPos(i)[2]);
-			return;
+			return;}
 
 		case GLUT_KEY_UP:
 			speedForward = scale;
