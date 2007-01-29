@@ -4,10 +4,18 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2005-2007
 // --------------------------------------------------------------------------
 
+#define USE_FREEIMAGE // comment out to remove dependency on FreeImage (only .tga will be supported)
+
 #include <cstdio>
 #include <cstring>
 #include <GL/glew.h>
 #include "TextureFromDisk.h"
+
+#ifdef USE_FREEIMAGE
+	#include "FreeImage.h"
+	#pragma comment(lib,"FreeImage.lib")
+#endif
+
 
 namespace de
 {
@@ -21,15 +29,17 @@ TextureFromDisk::TextureFromDisk(const char *filename, int mag, int min, int wra
 {
 	unsigned int type;
 
-	pixels = loadData(filename);
-
-	glGenTextures(1, &id);
+#ifdef USE_FREEIMAGE
+	pixels = loadFreeImage(filename,width,height,channels);
+#else
+	pixels = loadData(filename,width,height,channels);
+#endif
 
 	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	type = (channels == 3) ? GL_RGB : GL_RGBA;
-	gluBuild2DMipmaps(GL_TEXTURE_2D, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
+	if(pixels) gluBuild2DMipmaps(GL_TEXTURE_2D, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag);
@@ -38,7 +48,86 @@ TextureFromDisk::TextureFromDisk(const char *filename, int mag, int min, int wra
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 }
 
-unsigned char *TextureFromDisk::loadData(const char *filename)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// FreeImage
+
+#ifdef USE_FREEIMAGE
+
+unsigned char *TextureFromDisk::loadFreeImage(const char *filename,unsigned& width,unsigned& height,unsigned& channels)
+{
+	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+	unsigned char* pixels = NULL;
+
+	// check the file signature and deduce its format
+	fif = FreeImage_GetFileType(filename, 0);
+	// no signature? try to guess the file format from the file extension
+	if(fif == FIF_UNKNOWN)
+	{
+		fif = FreeImage_GetFIFFromFilename(filename);
+	}
+	// check that the plugin has reading capabilities
+	if(fif!=FIF_UNKNOWN && FreeImage_FIFSupportsReading(fif))
+	{
+		// load the file
+		FIBITMAP *dib = FreeImage_Load(fif, filename);
+		if(dib)
+		{
+			// convert the file to 24bit rgb
+			dib = FreeImage_ConvertTo24Bits(dib);
+			if(dib)
+			{
+				// read size
+				width = FreeImage_GetWidth(dib);
+				height = FreeImage_GetHeight(dib);
+				channels = 3;
+				// create RGB memory image
+				pixels = new unsigned char[4*width*height];
+				BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
+				for(unsigned i=0;i<width*height;i++)
+				{
+					pixels[3*i+0] = fipixels[3*i+2];
+					pixels[3*i+1] = fipixels[3*i+1];
+					pixels[3*i+2] = fipixels[3*i+0];
+				}
+			}
+			// cleanup
+			FreeImage_Unload(dib);
+		}
+	}
+	return pixels;
+}
+
+bool TextureGL::save(const char *filename) const
+{
+	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+	BOOL bSuccess = FALSE;
+
+	FIBITMAP* dib = NULL;
+	if(dib) {
+		// try to guess the file format from the file extension
+		fif = FreeImage_GetFIFFromFilename(filename);
+		if(fif != FIF_UNKNOWN ) {
+			// check that the plugin has sufficient writing and export capabilities ...
+			WORD bpp = FreeImage_GetBPP(dib);
+			if(FreeImage_FIFSupportsWriting(fif) && FreeImage_FIFSupportsExportBPP(fif, bpp)) {
+				// ok, we can save the file
+				bSuccess = FreeImage_Save(fif, dib, filename);
+				// unless an abnormal bug, we are done !
+			}
+		}
+	}
+	return (bSuccess == TRUE) ? true : false;
+}
+
+#else // !USE_FREEIMAGE
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// TGA
+
+unsigned char *TextureFromDisk::loadData(const char *filename,unsigned& width,unsigned& height,unsigned& channels)
 {
 	// opens tga instead of jpg
 	char name[1000];
@@ -49,30 +138,32 @@ unsigned char *TextureFromDisk::loadData(const char *filename)
 	unsigned char *data;
 	try
 	{
-		data = loadTga(name);
+		data = loadTga(name,width,height,channels);
 	}      
 	catch(xNotSuchFormat e)
 	{
 		throw xNotASupportedFormat();
 		e=e;
 	}
-	pixels = data;
 	return data;
 }
 
-unsigned char *TextureFromDisk::loadTga(const char *filename)
+unsigned char *TextureFromDisk::loadTga(const char *filename,unsigned& width,unsigned& height,unsigned& channels)
 {
 	unsigned char TGA_RGB = 2, TGA_A = 3, TGA_RLE = 10;
 
 	unsigned char *data;
-	short width = 0, height = 0;
 	unsigned char length = 0;
 	unsigned char imageType = 0;
 	unsigned char bits = 0;
 	FILE *pFile = fopen(filename, "rb");
-	int channels = 0;
-	int stride = 0;
-	int i = 0;
+	unsigned stride = 0;
+	unsigned i = 0;
+	unsigned short tmp;
+
+	width = 0;
+	height = 0;
+	channels = 0;
 
 	if(!pFile) throw xFileNotFound();
 
@@ -81,9 +172,9 @@ unsigned char *TextureFromDisk::loadTga(const char *filename)
 	fread(&imageType, sizeof(unsigned char), 1, pFile);
 	fseek(pFile, 9, SEEK_CUR); 
 
-	fread(&width,  sizeof(width), 1, pFile);
-	fread(&height, sizeof(height), 1, pFile);
-	fread(&bits,   sizeof(unsigned char), 1, pFile);
+	fread(&tmp, 2, 1, pFile); width = tmp;
+	fread(&tmp, 2, 1, pFile); height = tmp;
+	fread(&bits, 1, 1, pFile);
 
 	fseek(pFile, length + 1, SEEK_CUR); 
 
@@ -100,7 +191,7 @@ unsigned char *TextureFromDisk::loadTga(const char *filename)
 			channels = bits / 8;
 			stride = channels * width;
 			data = new unsigned char[stride * height];
-			for(int y = 0; y < height; y++)
+			for(unsigned y = 0; y < height; y++)
 			{
 				unsigned char *pLine = &(data[stride * y]);
 				fread(pLine, stride, 1, pFile);
@@ -119,7 +210,7 @@ unsigned char *TextureFromDisk::loadTga(const char *filename)
 			channels = 3;
 			stride = channels * width;
 			data = new unsigned char[stride * height];
-			for(int i = 0; i < width*height; i++)
+			for(unsigned i = 0; i < width*height; i++)
 			{
 				fread(&pixels, sizeof(unsigned short), 1, pFile);
 				b = (pixels & 0x1f) << 3;
@@ -193,13 +284,9 @@ unsigned char *TextureFromDisk::loadTga(const char *filename)
 
 	fclose(pFile);
 
-	this->channels = channels;
-	this->width = width;
-	this->height = height;
-
 	unsigned char temp;
-	for(int i = 0; i < height / 2; i++)
-		for(int j = 0; j < width*channels; j++)
+	for(unsigned i = 0; i < height / 2; i++)
+		for(unsigned j = 0; j < width*channels; j++)
 		{
 			temp = data[i * width*channels + j];
 			data[i*width*channels + j] = data[(height-1-i)*width*channels + j];
@@ -208,6 +295,13 @@ unsigned char *TextureFromDisk::loadTga(const char *filename)
 
 	return data;
 }
+
+bool TextureGL::save(const char *filename) const
+{
+	return false;
+}
+
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////

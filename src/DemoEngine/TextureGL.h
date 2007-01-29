@@ -31,17 +31,19 @@ public:
 
 	virtual void bindTexture() const;
 
+	virtual bool save(const char* filename) const;
+
 	virtual void renderingToBegin(); ///< If more textures call this repeatedly, it is faster when they have the same resolution.
 	virtual void renderingToEnd(); ///< Can be omitted if you follow with another renderingToBegin().
 
 	virtual ~TextureGL();
 
 protected:
-	unsigned int id;
-	int channels;
-	int cubeOr2d; // GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP
-	int width;
-	int height;
+	unsigned id;
+	unsigned channels;
+	unsigned cubeOr2d; // GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP
+	unsigned width;
+	unsigned height;
 	unsigned char* pixels;
 private:
 	static unsigned numInstances;

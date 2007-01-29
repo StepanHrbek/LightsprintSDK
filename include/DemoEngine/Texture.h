@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // DemoEngine
-// Texture, OpenGL 2.0 object. Able to load truecolor .tga from disk.
+// Texture, OpenGL 2.0 object. Able to load image from disk.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ namespace de
 //! Generic texture interface, suitable for 2D and CUBE textures.
 //
 //! Contains tools that create empty 2D or CUBE texture,
-//! shadowmap or load truecolor .tga image from disk.
+//! shadowmap or load image from disk.
 class DE_API Texture
 {
 public:
@@ -45,6 +45,9 @@ public:
 	//! Binds texture for rendering.
 	//! Various implementations may do OpenGL bind, Direct3D bind or nothing.
 	virtual void bindTexture() const = 0;
+
+	//! Saves texture to disk and returns true on success.
+	virtual bool save(const char* filename) const {return false;}
 
 	//! Begins rendering into the texture, sets graphics pipeline so that
 	//! following rendering commands use this texture as render target.

@@ -1,4 +1,4 @@
-LIB = ../../lib/libDemoEngine.a
+LIB = ../../lib/libDemoEngine.a ../../lib/win32/FreeImage.lib
 TMP = #../../tmp/RRVision/
 
 CC = gcc

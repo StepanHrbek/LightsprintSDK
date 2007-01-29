@@ -26,8 +26,9 @@ public:
 	TextureFromDisk(const char *filename, int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 protected:
-	unsigned char *loadData(const char *filename);
-	unsigned char *loadTga(const char *filename);
+	static unsigned char *loadData(const char *filename,unsigned& width,unsigned& height,unsigned& channels);
+	static unsigned char *loadTga(const char *filename,unsigned& width,unsigned& height,unsigned& channels);
+	static unsigned char *loadFreeImage(const char *filename,unsigned& width,unsigned& height,unsigned& channels);
 };
 
 }; // namespace

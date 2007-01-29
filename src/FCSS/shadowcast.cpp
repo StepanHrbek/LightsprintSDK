@@ -238,7 +238,7 @@ void init_gl_resources()
 
 	for(unsigned i=0;i<lightDirectMaps;i++)
 	{
-		char name[]="maps\\spot0.tga";
+		char name[]="maps\\spot0.png";
 		name[9] = '0'+i;
 		lightDirectMap[i] = de::Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 		if(!lightDirectMap[i])
@@ -1334,12 +1334,12 @@ Level::Level(const char* filename_3ds)
 	updateMatrices();
 	needDepthMapUpdate = true;
 	needRedisplay = true;
-//	readMap("bsp\\trajectory\\maps\\trajectory.bsp",bsp);
+	//readMap("bsp\\trajectory\\maps\\trajectory.bsp",bsp);
 }
 
 Level::~Level()
 {
-//	freeMap(bsp);
+	//freeMap(bsp);
 	delete bugs;
 	delete rendererCaching;
 	delete rendererNonCaching;
