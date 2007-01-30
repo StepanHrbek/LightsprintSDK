@@ -89,8 +89,8 @@ public:
 	static Texture* createShadowmap(unsigned width, unsigned height);
 
 	//! Creates 2D texture in OpenGL from image stored on disk.
-	//! Only truecolor .tga format is supported.
-	//! \param filename Name of image file. Must be in truecolor .tga format.
+	//! All formats supported by FreeImage are supported (jpg, png etc).
+	//! \param filename Name of image file. Must be in supported format.
 	//! \param mag Initial magnification filter, see glTexImage2D for more details.
 	//! \param min Initial minification filter, see glTexImage2D for more details.
 	//! \param wrapS Initial clamping mode, see glTexImage2D for more details.

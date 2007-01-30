@@ -88,7 +88,7 @@ public:
 			bugMap[i] = de::Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 			if(!bugMap[i])
 			{
-				printf("Texture %s not found or not supported (supported = truecolor .tga).\n",name);
+				printf("Texture %s not found or invalid.\n",name);
 				error("",false);
 			}
 		}

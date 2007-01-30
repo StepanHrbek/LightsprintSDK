@@ -870,7 +870,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	Materials[matindex].tex = Texture::load(fullname);
 	Materials[matindex].textured = Materials[matindex].tex!=NULL;
 	if(!Materials[matindex].textured)
-		printf("Texture %s not found. (Please convert all textures to .tga truecolor format.)\n",fullname);
+		printf("Texture %s not found.\n",fullname);
 
 	// move the file pointer back to where we got it so
 	// that the ProcessChunk() which we interrupted will read
