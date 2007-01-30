@@ -10,10 +10,9 @@
 #include <cstring>
 #include <GL/glew.h>
 #include "TextureFromDisk.h"
-
 #ifdef USE_FREEIMAGE
-	#include "FreeImage.h"
-	#pragma comment(lib,"FreeImage.lib")
+#include "FreeImage.h"
+#pragma comment(lib,"FreeImage.lib")
 #endif
 
 
@@ -31,6 +30,7 @@ TextureFromDisk::TextureFromDisk(const char *filename, int mag, int min, int wra
 
 #ifdef USE_FREEIMAGE
 	pixels = loadFreeImage(filename,width,height,channels);
+	if(!pixels) throw xFileNotFound();
 #else
 	pixels = loadData(filename,width,height,channels);
 #endif
