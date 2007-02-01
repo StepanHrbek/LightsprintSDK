@@ -7,6 +7,7 @@ all: .phony
 	cd RRVision & make
 	cd RRRealtimeRadiosity & make
 	cd DemoEngine & make
+	cd RRGPUOpenGL & make
 	cd FCSS & make
 	cd World & make
 	cd RR & make
@@ -18,6 +19,7 @@ clean:
 	cd RRVision & make clean
 	cd RRRealtimeRadiosity & make clean
 	cd DemoEngine & make clean
+	cd RRGPUOpenGL & make clean
 	cd FCSS & make clean
 	cd World & make clean
 	cd RR & make clean

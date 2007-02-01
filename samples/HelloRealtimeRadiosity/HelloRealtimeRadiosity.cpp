@@ -25,12 +25,10 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "RRRealtimeRadiosity.h"
-#include "DemoEngine/Renderer.h"
 #include "DemoEngine/Timer.h"
+#include "RRGPUOpenGL/RendererOfRRObject.h"
 #include "3ds2rr.h"
 #include "DynamicObject.h"
-#include "RendererOfRRObject.h"
-#include "RRIlluminationPixelBufferInOpenGL.h"
 
 //#define AMBIENT_MAPS
 // Turns on ambient maps.
@@ -70,7 +68,7 @@ de::Camera              light = {{-1.802,0.715,0.850},0.635,-5.800,1.0,70.0,1.0,
 de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
 de::UberProgram*        uberProgram = NULL;
-RendererOfRRObject*     rendererNonCaching = NULL;
+rr_gl::RendererOfRRObject* rendererNonCaching = NULL;
 de::Renderer*           rendererCaching = NULL;
 rr::RRRealtimeRadiosity*solver = NULL;
 DynamicObject*          robot = NULL;
@@ -119,7 +117,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 #endif
 	{
 		// RendererOfRRObject::render uses trilist -> slow, but no problem with added ambient map unwrap
-		RendererOfRRObject::RenderedChannels renderedChannels;
+		rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 		renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 		renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
 		renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
@@ -185,7 +183,7 @@ void updateShadowmap(unsigned mapIndex)
 // integration with Realtime Radiosity
 
 // generates uv coords for direct illumination capture
-class CaptureUv : public VertexDataGenerator
+class CaptureUv : public rr_gl::VertexDataGenerator
 {
 public:
 	// generates uv coords for any triangle so that firstCapturedTriangle
@@ -556,7 +554,7 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
+	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
 	rendererCaching = rendererNonCaching->createDisplayList();
 
 	glutMainLoop();

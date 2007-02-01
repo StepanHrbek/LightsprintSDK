@@ -6,11 +6,10 @@
 #ifndef RRILLUMINATIONPIXELBUFFERINOPENGL_H
 #define RRILLUMINATIONPIXELBUFFERINOPENGL_H
 
-#include <GL/glew.h>
 #include "RRIllumination.h"
 #include "DemoEngine/Texture.h"
 
-namespace rr
+namespace rr_gl
 {
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -24,7 +23,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRIlluminationPixelBufferInOpenGL : public RRIlluminationPixelBuffer
+	class RRIlluminationPixelBufferInOpenGL : public rr::RRIlluminationPixelBuffer
 	{
 	public:
 		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders);

@@ -6,6 +6,15 @@
 
 \page news What's new
 
+\section news12 ------------------------------------ 2007.2.x -------------------------------------
+
+CHANGES
+
+- new RRGPUOpenGL library, previously part of HelloRealtimeRadiosity
+- DemoEngine depends on GLEW library, previously part of DemoEngine
+- DemoENgine depends on FreeImage library, used internally by de::Texture::load()
+
+
 \section news11 ------------------------------------ 2007.1.16 -------------------------------------
 
 CHANGES

@@ -210,11 +210,11 @@ void M3dsImporter::getChannelSize(unsigned channelId, unsigned* numItems, unsign
 {
 	switch(channelId)
 	{
-		case CHANNEL_SURFACE_DIF_TEX:
+		case rr_gl::CHANNEL_SURFACE_DIF_TEX:
 			if(numItems) *numItems = model->numMaterials;
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
-		case CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
 			if(numItems) *numItems = M3dsImporter::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
@@ -234,7 +234,7 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 	}
 	switch(channelId)
 	{
-	case CHANNEL_SURFACE_DIF_TEX:
+		case rr_gl::CHANNEL_SURFACE_DIF_TEX:
 		{
 			if(itemIndex>=(unsigned)model->numMaterials)
 			{
@@ -251,7 +251,7 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 			*out = model->Materials[itemIndex].tex;
 			return true;
 		}
-	case CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
 		{
 			if(itemIndex>=M3dsImporter::getNumTriangles())
 			{
@@ -274,7 +274,7 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 			}
 			return true;
 		}
-	case CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
+		case rr_gl::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 		{
 			if(itemIndex>=M3dsImporter::getNumTriangles())
 			{
@@ -291,9 +291,9 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 			*out = illumination;
 			return true;
 		}
-	default:
-		assert(0); // legal, but shouldn't happen in well coded program
-		return false;
+		default:
+			assert(0); // legal, but shouldn't happen in well coded program
+			return false;
 	}
 }
 

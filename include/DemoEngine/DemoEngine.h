@@ -31,10 +31,12 @@
 			#endif
 		#endif
 	#endif
+	#pragma comment(lib,"glew32.lib")
 #else
 	// use static library
 	#define DE_API
 #endif
+
 
 // helper macros
 #ifndef M_PI

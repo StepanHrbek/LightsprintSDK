@@ -6,11 +6,12 @@
 #include <cassert>
 #include <GL/glew.h>
 #include "RRIllumination.h"
+#include "RRGPUOpenGL/RendererOfRRObject.h"
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
-#include "3ds2rr.h" // CHANNEL_SURFACE_DIF_TEX
-#include "RendererOfRRObject.h"
 
+namespace rr_gl
+{
 
 RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler)
 {
@@ -238,3 +239,5 @@ void RendererOfRRObject::render()
 		glEnd();
 	}
 }
+
+}; // namespace

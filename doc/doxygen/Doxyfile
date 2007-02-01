@@ -88,6 +88,8 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/R
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRVision.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRIllumination.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRRealtimeRadiosity.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRGPUOpenGL.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/RRGPUOpenGL/RendererOfRRObject.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/AreaLight.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/Camera.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/DemoEngine/DemoEngine.h" \

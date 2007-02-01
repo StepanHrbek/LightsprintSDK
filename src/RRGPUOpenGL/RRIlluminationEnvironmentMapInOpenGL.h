@@ -6,11 +6,10 @@
 #ifndef RRILLUMINATIONENVIRONMENTMAPINOPENGL_H
 #define RRILLUMINATIONENVIRONMENTMAPINOPENGL_H
 
-#include <GL/glew.h>
 #include "RRIllumination.h"
 #include "DemoEngine/Texture.h"
 
-namespace rr
+namespace rr_gl
 {
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -25,12 +24,12 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRIlluminationEnvironmentMapInOpenGL : public RRIlluminationEnvironmentMap
+	class RRIlluminationEnvironmentMapInOpenGL : public rr::RRIlluminationEnvironmentMap
 	{
 	public:
 		RRIlluminationEnvironmentMapInOpenGL();
-		virtual void setValues(unsigned size, RRColorRGBA8* irradiance);
-		virtual void setValues(unsigned size, RRColorRGBF* irradiance);
+		virtual void setValues(unsigned size, rr::RRColorRGBA8* irradiance);
+		virtual void setValues(unsigned size, rr::RRColorRGBF* irradiance);
 		virtual void bindTexture();
 		virtual ~RRIlluminationEnvironmentMapInOpenGL();
 	private:

@@ -10,7 +10,7 @@
 #include "DemoEngine/Model_3DS.h"
 #include "DemoEngine/UberProgramSetup.h"
 #include "DemoEngine/Renderer.h"
-#include "RRIlluminationEnvironmentMapInOpenGL.h"
+#include "RRGPUOpenGL.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -32,8 +32,8 @@ private:
 	de::Model_3DS model;
 	de::UberProgramSetup material;
 	unsigned specularCubeSize;
-	rr::RRIlluminationEnvironmentMapInOpenGL specularMap;
-	rr::RRIlluminationEnvironmentMapInOpenGL diffuseMap;
+	rr::RRIlluminationEnvironmentMap* specularMap;
+	rr::RRIlluminationEnvironmentMap* diffuseMap;
 	de::Renderer* rendererWithoutCache;
 	de::Renderer* rendererCached;
 };

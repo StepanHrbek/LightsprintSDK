@@ -4,10 +4,12 @@
 // --------------------------------------------------------------------------
 
 #include <windows.h>
+#include <GL/glew.h>
 #include "DemoEngine/Program.h"
 #include "RRIlluminationEnvironmentMapInOpenGL.h"
+#include "RRGPUOpenGL.h"
 
-namespace rr
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -16,8 +18,8 @@ namespace rr
 
 // Many Lightsprint functions are parallelized internally,
 // but demos are singlethreaded for simplicity, so this code 
-// is never run in multiple threads and critical section is not needed.
-// But it could get handy later.
+// is never run in multiple threads and critical section is not needed (by demos).
+// It could be important for future applications.
 CRITICAL_SECTION criticalSection; // global critical section for all instances, never calls GL from 2 threads at once
 unsigned numInstances = 0;
 
@@ -28,7 +30,7 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL()
 	texture = de::Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 }
 
-void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, RRColorRGBA8* irradiance)
+void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorRGBA8* irradiance)
 {
 	EnterCriticalSection(&criticalSection);
 	bindTexture();
@@ -41,7 +43,7 @@ void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, RRColorRGBA8
 	LeaveCriticalSection(&criticalSection);
 }
 
-void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, RRColorRGBF* irradiance)
+void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorRGBF* irradiance)
 {
 	EnterCriticalSection(&criticalSection);
 	bindTexture();
@@ -63,6 +65,16 @@ RRIlluminationEnvironmentMapInOpenGL::~RRIlluminationEnvironmentMapInOpenGL()
 {
 	delete texture;
 	if(!--numInstances) DeleteCriticalSection(&criticalSection);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRGPUOpenGL
+
+rr::RRIlluminationEnvironmentMap* createIlluminationEnvironmentMap()
+{
+	return new RRIlluminationEnvironmentMapInOpenGL();
 }
 
 } // namespace

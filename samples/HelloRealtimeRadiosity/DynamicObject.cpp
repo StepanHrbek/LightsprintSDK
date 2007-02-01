@@ -5,6 +5,7 @@
 
 #include "DemoEngine/Renderer.h"
 #include "DynamicObject.h"
+#include "RRGPUOpenGL.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -31,11 +32,15 @@ DynamicObject::DynamicObject()
 {
 	rendererWithoutCache = NULL;
 	rendererCached = NULL;
+	diffuseMap = rr_gl::createIlluminationEnvironmentMap();
+	specularMap = rr_gl::createIlluminationEnvironmentMap();
 	worldFoot = rr::RRVec3(0);
 }
 
 DynamicObject::~DynamicObject()
 {
+	delete specularMap;
+	delete diffuseMap;
 	delete rendererCached;
 	delete rendererWithoutCache;
 }
@@ -86,18 +91,18 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
 		solver->updateEnvironmentMaps(worldCenter,16,
-			uberProgramSetup.MATERIAL_SPECULAR?specularCubeSize:0, uberProgramSetup.MATERIAL_SPECULAR?&specularMap:NULL,
-			uberProgramSetup.MATERIAL_DIFFUSE?4:0, uberProgramSetup.MATERIAL_DIFFUSE?&diffuseMap:NULL);
+			uberProgramSetup.MATERIAL_SPECULAR?specularCubeSize:0, uberProgramSetup.MATERIAL_SPECULAR?specularMap:NULL,
+			uberProgramSetup.MATERIAL_DIFFUSE?4:0, uberProgramSetup.MATERIAL_DIFFUSE?diffuseMap:NULL);
 		if(uberProgramSetup.MATERIAL_SPECULAR)
 		{
 			glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-			specularMap.bindTexture();
+			specularMap->bindTexture();
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 		}
 		if(uberProgramSetup.MATERIAL_DIFFUSE)
 		{
 			glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			diffuseMap.bindTexture();
+			diffuseMap->bindTexture();
 		}
 		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_DIFFUSE);
 	}

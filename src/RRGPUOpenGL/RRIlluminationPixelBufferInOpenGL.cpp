@@ -4,10 +4,12 @@
 // --------------------------------------------------------------------------
 
 #include <cstdio>
+#include <GL/glew.h>
 #include "RRIlluminationPixelBufferInOpenGL.h"
 #include "DemoEngine/Program.h"
+#include "RRGPUOpenGL.h"
 
-namespace rr
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -188,6 +190,16 @@ RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 		delete helpers;
 		helpers = NULL;
 	}
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRGPUOpenGL
+
+rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned w, unsigned h)
+{
+	return new RRIlluminationPixelBufferInOpenGL(w,h,"shaders/");
 }
 
 } // namespace

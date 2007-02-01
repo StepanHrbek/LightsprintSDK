@@ -36,7 +36,7 @@ public:
 	//!  Set higher resolution for hard and sharper shadows,
 	//!  set lower resolution for area and more blurry shadows.
 	AreaLight(Camera* parent, unsigned numInstancesMax, unsigned shadowmapSize);
-	~AreaLight();
+	virtual ~AreaLight();
 
 	//! Returns parent instance
 	const Camera* getParent() const;

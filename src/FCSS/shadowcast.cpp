@@ -93,7 +93,8 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/glut.h>
-#include "RRRealtimeRadiosity.h"
+#include "RRGPUOpenGL.h"
+#include "RRGPUOpenGL/RendererOfRRObject.h"
 #include "DemoEngine/AreaLight.h"
 #include "DemoEngine/Camera.h"
 #include "DemoEngine/Texture.h"
@@ -103,9 +104,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/UberProgramSetup.h"
 #include "3ds2rr.h"
 #include "DynamicObject.h"
-#include "RendererOfRRObject.h"
-#include "RRIlluminationPixelBufferInOpenGL.h"
-#include "RRIlluminationEnvironmentMapInOpenGL.h"
 #include "Bugs.h"
 #include "LevelSequence.h"
 
@@ -130,7 +128,7 @@ public:
 	//TMapQ3 bsp;
 	class Solver* solver;
 	class Bugs* bugs;
-	RendererOfRRObject* rendererNonCaching;
+	rr_gl::RendererOfRRObject* rendererNonCaching;
 	de::RendererWithCache* rendererCaching;
 
 	Level(const char* filename_3ds);
@@ -280,7 +278,7 @@ void updateMatrices();
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
 // generuje uv coords pro capture
-class CaptureUv : public VertexDataGenerator
+class CaptureUv : public rr_gl::VertexDataGenerator
 {
 public:
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
@@ -328,7 +326,7 @@ protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
-		return renderLightmaps ? new rr::RRIlluminationPixelBufferInOpenGL(LIGHTMAP_SIZE,LIGHTMAP_SIZE,"shaders/") : NULL;
+		return renderLightmaps ? rr_gl::createIlluminationPixelBuffer(LIGHTMAP_SIZE,LIGHTMAP_SIZE) : NULL;
 	}
 	virtual void detectMaterials()
 	{
@@ -814,7 +812,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_INDIRECT_COLOR?lockVertexIllum:NULL,unlockVertexIllum);
 		return;
 	}
-	RendererOfRRObject::RenderedChannels renderedChannels;
+	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
 	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
@@ -1322,7 +1320,7 @@ Level::Level(const char* filename_3ds)
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
+	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
 	rendererCaching = new de::RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 

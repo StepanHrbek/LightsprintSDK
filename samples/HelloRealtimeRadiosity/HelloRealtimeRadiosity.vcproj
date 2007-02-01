@@ -431,30 +431,6 @@
 			RelativePath=".\HelloRealtimeRadiosity.cpp"
 			>
 		</File>
-		<File
-			RelativePath=".\RendererOfRRObject.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RendererOfRRObject.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationPixelBufferInOpenGL.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationPixelBufferInOpenGL.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

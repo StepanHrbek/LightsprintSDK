@@ -147,6 +147,8 @@ Adding global illumination (GI) to your code is described in three steps.
 
  - <b> \subpage integration_milestone_3 </b>
 
+ - <b> \subpage integration_milestone_4 </b>
+
 
 
 
@@ -169,7 +171,7 @@ Adding global illumination (GI) to your code is described in three steps.
  </td></tr></table>
 
   - HelloRealtimeRadiosity application is
-    built on top of purely numerical Lightsprint engine and OpenGL 2.0 based DemoEngine.
+    built on top of purely numerical LightsprintCore and OpenGL 2.0 based LightsprintGL and DemoEngine.
   \image html Integration1.png
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
@@ -177,7 +179,6 @@ Adding global illumination (GI) to your code is described in three steps.
  </td></tr></table>
 
   - <b> \subpage integration_step_1 </b> (necessary even if you don't convert to .3ds)
-  - Convert textures to truecolor .tga.
   - Convert scenes to .3ds with 1m units and no transformations.
   - Change name of scene in HelloRealtimeRadiosity.cpp, so it loads your scene.
 
@@ -234,6 +235,7 @@ Adding global illumination (GI) to your code is described in three steps.
     If you don't use 1m units, your scene could be too big, try scaling it.
   - Optional final step: do the same changes to DynamicObject,
     so it works with your format, rather than with .3ds.
+
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
  </td></tr></table>
@@ -244,25 +246,63 @@ Adding global illumination (GI) to your code is described in three steps.
 
 \page integration_milestone_3 Milestone 3: GI in your renderer
 
-  If you prefer other renderer to DemoEngine, final milestone is switch to renderer of your choice.
+  If you prefer other OpenGL renderer to DemoEngine, switch to renderer of your choice.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Recommended action:
  </td></tr></table>
 
   - Modify HelloRealtimeRadiosity to use your renderer,
-    or modify your application/engine to use Lightsprint engine.
+    or modify your application/engine to use LightsprintCore and LightsprintGL.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Scheme of application:
+ </td></tr></table>
+
+  - Application uses LightsprintCore and LightsprintGL to calculate GI,
+    while your engine does scene loading and rendering.
+  \image html Integration3.png
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Steps:
+ </td></tr></table>
+
+  - Make sure your renderer supports realtime shadows other than stencil based, e.g. shadowmapping
+    or projected shadows. If it doesn't, add them or contact us for further support.
+    Commercial licence to Lightsprint contains full source code of DemoEngine,
+    including realtime soft shadows.
+  - <b> \subpage integration_step_4 </b>
+  - <b> \subpage integration_step_5 </b>
+  - Render our indirect illumination, see <b> \ref main_data_access </b>
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Expected time spent:
+ </td></tr></table>
+
+  - 3 days
+
+
+
+
+\page integration_milestone_4 Milestone 4: Custom GPU access
+
+  If you want to use your renderer, but it is not OpenGL based,
+  write custom GPU access routines as a replacement for LightsprintGL.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Recommended action:
+ </td></tr></table>
+
+  - Modify HelloRealtimeRadiosity to use your renderer,
+    or modify your application/engine to use LightsprintCore.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
  </td></tr></table>
 
   - Different approaches: You can expose Lightsprint engine to your
-    applications, hide it inside your engine, eventually
-    your application is monolithic, without separated engine part.
+    applications or hide it inside your engine.
   <table border=0 width=95%><tr align=top><td>
-  \image html Integration3.png
-  </td><td>
   \image html Integration4.png
   </td><td>
   \image html Integration5.png
@@ -272,13 +312,10 @@ Adding global illumination (GI) to your code is described in three steps.
  Steps:
  </td></tr></table>
 
-  - Make sure your renderer supports realtime shadows other than stencil based, e.g. shadowmapping
-    or projected shadows. If it doesn't, add them or contact us for further support.
-    Commercial licence to Lightsprint engine contains full source code of DemoEngine,
-    including realtime soft shadows.
+  - Implement RRIlluminationVertexBuffer (but not strictly necessary)
+  - Implement RRIlluminationPixelBuffer (only for ambient maps)
+  - Implement RRIlluminationEnvironment (only for dynamic objects)
   - <b> \subpage integration_step_4 </b>
-  - <b> \subpage integration_step_5 </b>
-  - Render our indirect illumination, see <b> \ref main_data_access </b>
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -1279,9 +1316,13 @@ Adding global illumination (GI) to your code is described in three steps.
 
 \page main_api API
 
- Lightsprint engine API is layered into following libraries:
+ Lightsprint API consists of multiple libraries:
 
  - <b> \subpage api_rr "REALTIME RADIOSITY" </b> - calculates realtime radiosity in dynamic scene
+
+ - <b> \subpage api_gl "GPUOPENGL" </b> - OpenGL 2.0 access to GPU
+
+ - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 engine/renderer with soft shadows
 
  - <b> \subpage api_illumination "ILLUMINATION" </b> - storage for calculated illumination
 
@@ -1291,13 +1332,7 @@ Adding global illumination (GI) to your code is described in three steps.
 
  - <b> \subpage api_mesh "MESH" </b> - unifies access to triangle meshes
 
- and standalone header that may turn into library in future:
-
- - <b> \subpage api_math "MATH" </b> - basic math
-
- Outside Lightsprint engine, SDK contains:
-
- - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 engine/renderer with soft shadows
+ - <b> \subpage api_math "MATH" </b> - basic math (header, not a library)
 
  Depending on your projects, you may use various subsets of whole API.
 
@@ -1305,17 +1340,19 @@ Adding global illumination (GI) to your code is described in three steps.
 
  \image html libraries.png
 
- Lightsprint engine is purely numerical, platform independent.
+ LightsprintCore is purely numerical and platform independent GI solver.
+
+ LightsprintGL is OpenGL 2.0 based subsystem.
+ You can safely replace it by your renderer or game engine.
+
+ RRGPUOpenGL provides access to GPU, needed during GI calculation.
 
  DemoEngine based on OpenGL 2.0 provides support for loading and rendering
  3d scenes with shaders, but without global illumination.
- You can safely replace DemoEngine by your renderer or game engine.
 
- Sample HelloRealtimeRadiosity uses both engines
- to render global illumination in scene with dynamic light and dynamic objects.
- It contains all glue classes needed for communication between
- Lightsprint engine and game engine.
- For use with other game engines, glue classes might need changes.
+ Sample HelloRealtimeRadiosity renders global illumination 
+ in scene with dynamic light and dynamic objects,
+ while HelloDemoEngine does it without global illumination.
 
  Sample BunnyBenchmark measures Collider performance for comparison with
  physical engines (Collider is 2-200x faster).
@@ -1442,6 +1479,23 @@ Adding global illumination (GI) to your code is described in three steps.
  - RRVec2 is vector of 2 real numbers
  - RRVec3 is vector of 3 real numbers
  - RRVec4 is vector of 4 real numbers
+
+
+
+\page api_gl GPUOpenGL
+
+ GPUOpenGL implements Lightsprint's access to GPU using OpenGL 2.0 API.
+ It is very small library, you can quickly customize it for API or engine of your choice.
+
+ Namespace: rr_gl
+
+ Headers: RRGPUOpenGL.h, RRGPUOpenGL/RendererOfRRObject.h
+
+ - rr_gl::createIlluminationVertexBuffer creates vertex buffer for indirect illumination
+ - rr_gl::createIlluminationPixelBuffer creates 2d texture for indirect illumination
+ - rr_gl::createIlluminationEnvironmentMap creates cube texture for indirect illumination
+ - rr_gl::detectDirectIllumination detect direct illumination present in scene
+
 
 
 

@@ -13,3 +13,10 @@ HelloVision
 
 BunnyBenchmark
 - measures Collider score in Stanford Bunny Benchmark
+
+HelloDemoEngine
+- shows how to render realtime direct illumination in scene with dynamic objects and light
+
+HelloRealtimeRadiosity
+- shows how to render realtime global illumination in scene with dynamic objects and light
+
