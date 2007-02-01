@@ -9,7 +9,7 @@ LIBS = ../../lib/libRRGPUOpenGL.a ../../lib/libRRRealtimeRadiosity.a ../../lib/l
 all: HelloRealtimeRadiosity.exe
 
 HelloRealtimeRadiosity.exe: $(OBJS) $(MAKE) $(LIBS)
-	gcc $(OBJS) $(LIBS) ../../bin/win32/glew32.dll ../../bin/win32/FreeImage.dll -lwinmm -lOpenGL32 -lGLU32 -lGLUT -lstdc++ -s -o HelloRealtimeRadiosity.exe
+	gcc $(OBJS) $(LIBS) ../../bin/win32/glew32.dll ../../lib/win32/FreeImage.a -lwinmm -lOpenGL32 -lGLU32 -lGLUT -lstdc++ -s -o HelloRealtimeRadiosity.exe
 
 clean:
 	del *.o
