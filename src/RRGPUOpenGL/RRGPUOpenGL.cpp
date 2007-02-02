@@ -50,7 +50,12 @@ public:
 RRRealtimeRadiosityGL::RRRealtimeRadiosityGL()
 {
 	captureUv = new CaptureUv;
-	detectBigMap = de::Texture::create(NULL,DETECT_MAP_SIZE,DETECT_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	detectBigMap = de::Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	detectSmallMap = new unsigned[BIG_MAP_SIZE*BIG_MAP_SIZE
+#ifdef SCALE_DOWN_ON_GPU
+		/16
+#endif
+	];
 	scaleDownProgram = new de::Program(NULL,"shaders\\scaledown_filter.vp", "shaders\\scaledown_filter.fp");
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
@@ -61,6 +66,7 @@ RRRealtimeRadiosityGL::~RRRealtimeRadiosityGL()
 	delete rendererCaching;
 	delete rendererNonCaching;
 	delete scaleDownProgram;
+	delete[] detectSmallMap;
 	delete detectBigMap;
 	delete captureUv;
 }
@@ -91,8 +97,8 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	unsigned triSizeXRender = 4; // triSizeXRender = triangle width in pixels while rendering
 	unsigned triSizeYRender = 4;
 #ifdef SCALE_DOWN_ON_GPU
-	captureUv->triCountX = DETECT_MAP_SIZE/triSizeXRender; // triCountX = number of triangles in one row
-	captureUv->triCountY = DETECT_MAP_SIZE/triSizeYRender;
+	captureUv->triCountX = BIG_MAP_SIZE/triSizeXRender; // triCountX = number of triangles in one row
+	captureUv->triCountY = BIG_MAP_SIZE/triSizeYRender;
 	unsigned triSizeXRead = 1; // triSizeXRead = triangle width in pixels while reading pixel results
 	unsigned triSizeYRead = 1;
 #else
@@ -127,8 +133,12 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	};
 #endif
 
-	// allocate the index buffer memory as necessary
-	GLuint* pixelBuffer = new GLuint[captureUv->triCountX*triSizeXRead * captureUv->triCountY*triSizeYRead];
+	// check that detectSmallMap is big enough for all pixels
+	assert(captureUv->triCountX*triSizeXRead * captureUv->triCountY*triSizeYRead <= BIG_MAP_SIZE*BIG_MAP_SIZE
+#ifdef SCALE_DOWN_ON_GPU
+		/16
+#endif
+		);
 	//printf("%d %d\n",numTriangles,captureUv->triCountX*captureUv->triCountY);
 	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
 	{
@@ -183,7 +193,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("lightmap",0);
 		scaleDownProgram->sendUniform("pixelDistance",1.0f/detectBigMap->getWidth(),1.0f/detectBigMap->getHeight());
-		glViewport(0,0,captureUv->triCountX,DETECT_MAP_SIZE/triSizeYRender);//!!! neni zarucene ze se vejde do backbufferu
+		glViewport(0,0,captureUv->triCountX,BIG_MAP_SIZE/triSizeYRender);//!!! neni zarucene ze se vejde do backbufferu
 		// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
 		glClearColor(1,0,1,0);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -210,7 +220,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 #endif
 
 		// read back the index buffer to memory
-		glReadPixels(0, 0, captureUv->triCountX*triSizeXRead, captureUv->triCountY*triSizeYRead, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
+		glReadPixels(0, 0, captureUv->triCountX*triSizeXRead, captureUv->triCountY*triSizeYRead, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap);
 
 #ifdef CAPTURE_TGA
 		if(captured>=0) {
@@ -222,7 +232,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 			TgaHeader t(captureUv->triCountX*triSizeXRead,captureUv->triCountY*triSizeYRead);
 			fwrite(t.pad,18,1,f);
 			//fwrite(pixelBuffer,4,pixels,f);
-			for(unsigned i=0;i<pixels;i++) {fwrite((char*)(pixelBuffer+i)+1,1,1,f);fwrite((char*)(pixelBuffer+i)+2,1,1,f);fwrite((char*)(pixelBuffer+i)+3,1,1,f);fwrite((char*)(pixelBuffer+i)+0,1,1,f);}
+			for(unsigned i=0;i<pixels;i++) {fwrite((char*)(detectSmallMap+i)+1,1,1,f);fwrite((char*)(detectSmallMap+i)+2,1,1,f);fwrite((char*)(detectSmallMap+i)+3,1,1,f);fwrite((char*)(detectSmallMap+i)+0,1,1,f);}
 			fclose(f);
 			captured++;
 		}
@@ -241,7 +251,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 				for(unsigned m=0;m<triSizeXRead;m++)
 				{
 					unsigned pixel = captureUv->triCountX*triSizeXRead*(j*triSizeYRead+n) + (i*triSizeXRead+m);
-					unsigned color = pixelBuffer[pixel] >> 8; // alpha was lost
+					unsigned color = detectSmallMap[pixel] >> 8; // alpha was lost
 					sum[0] += color>>16;
 					sum[1] += (color>>8)&255;
 					sum[2] += color&255;
@@ -260,8 +270,6 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 #ifdef CAPTURE_TGA
 	captured = -1;
 #endif
-
-	delete[] pixelBuffer;
 
 	// restore render states
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);

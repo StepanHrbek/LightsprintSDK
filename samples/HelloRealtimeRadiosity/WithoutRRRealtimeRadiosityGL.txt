@@ -1,0 +1,163 @@
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// integration with Realtime Radiosity
+// without RRRealtimeRadiosityGL
+
+// generates uv coords for direct illumination capture
+class CaptureUv : public rr_gl::VertexDataGenerator
+{
+public:
+	// generates uv coords for any triangle so that firstCapturedTriangle
+	//  occupies 'top left' corner in texture, others follow below and
+	//  then right, so that whole texture is filled
+	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
+	{
+		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%xmax)+((vertexIndex==2)?1:0)-xmax*0.5f+0.1f)/(xmax*0.5f);
+		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/xmax)+((vertexIndex==0)?1:0)-ymax*0.5f+0.1f)/(ymax*0.5f);
+	}
+	virtual unsigned getHash()
+	{
+		return firstCapturedTriangle+(xmax<<8)+(ymax<<16);
+	}
+	unsigned firstCapturedTriangle; // index of first captured triangle (for case that there are too many triangles for one texture)
+	unsigned xmax, ymax; // max number of triangles in texture
+};
+
+class Solver : public rr::RRRealtimeRadiosity
+{
+public:
+	Solver()
+	{
+		bigMap = de::Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+		scaleDownProgram = new de::Program(NULL,"../../data/shaders/scaledown_filter.vp", "../../data/shaders/scaledown_filter.fp");
+		smallMap = new GLuint[BIG_MAP_SIZE*BIG_MAP_SIZE/16];
+	}
+	virtual ~Solver()
+	{
+		delete[] smallMap;
+		delete scaleDownProgram;
+		delete bigMap;
+		// delete objects and illumination
+		delete3dsFromRR(this);
+	}
+protected:
+#ifdef AMBIENT_MAPS
+	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
+	{
+		// Decide how big ambient map you want for object. 
+		// When seams appear, increase res.
+		// Depends on quality of unwrap provided by object->getTriangleMapping.
+		// This demo has bad unwrap -> high res map.
+		return new rr::RRIlluminationPixelBufferInOpenGL(1024,1024,"../../data/shaders/");
+	}
+#endif
+	// skipped, material properties were already readen from .3ds and never change
+	virtual void detectMaterials() {}
+	// detects direct illumination irradiances on all faces in scene
+	virtual bool detectDirectIllumination()
+	{
+		// renderer not ready yet, fail
+		if(!rendererCaching) return false;
+
+		// shadowmap could be outdated, update it
+		updateShadowmap(0);
+
+		rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
+		unsigned numTriangles = mesh->getNumTriangles();
+
+		// adjust captured texture size so we don't waste pixels
+		captureUv.xmax = BIG_MAP_SIZE/4; // number of triangles in one row
+		captureUv.ymax = BIG_MAP_SIZE/4; // number of triangles in one column
+		while(captureUv.ymax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/(captureUv.xmax*(captureUv.ymax-1))) captureUv.ymax--;
+		unsigned width = BIG_MAP_SIZE; // used width in pixels
+		unsigned height = captureUv.ymax*4; // used height in pixels
+
+		// setup render states
+		glClearColor(0,0,0,1);
+		glDisable(GL_DEPTH_TEST);
+		glDepthMask(0);
+		glViewport(0, 0, width, height);
+
+		// for each set of triangles (if all triangles don't fit into one texture)
+		for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
+		{
+			unsigned lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax)-1;
+
+			// prepare for scaling down -> render to texture
+			bigMap->renderingToBegin();
+
+			// clear
+			glViewport(0, 0, width,height);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			// render scene with forced 2d positions of all triangles
+			de::UberProgramSetup uberProgramSetup;
+			uberProgramSetup.SHADOW_MAPS = 1;
+			uberProgramSetup.SHADOW_SAMPLES = 1;
+			uberProgramSetup.LIGHT_DIRECT = true;
+			uberProgramSetup.LIGHT_DIRECT_MAP = true;
+			uberProgramSetup.MATERIAL_DIFFUSE = true;
+			uberProgramSetup.FORCE_2D_POSITION = true;
+			rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,lastCapturedTriangle); // set param for cache so it creates different displaylists
+			renderScene(uberProgramSetup);
+			rendererNonCaching->setCapture(NULL,0,numTriangles-1);
+
+			// downscale 10pixel triangles in 4x4 squares to single pixel values
+			bigMap->renderingToEnd();
+			scaleDownProgram->useIt();
+			scaleDownProgram->sendUniform("lightmap",0);
+			scaleDownProgram->sendUniform("pixelDistance",1.0f/BIG_MAP_SIZE,1.0f/BIG_MAP_SIZE);
+			glViewport(0,0,BIG_MAP_SIZE/4,BIG_MAP_SIZE/4);//!!! needs at least 256x256 backbuffer
+			// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
+			glClearColor(1,0,1,0);
+			glClear(GL_COLOR_BUFFER_BIT);
+			// setup pipeline
+			glActiveTexture(GL_TEXTURE0);
+			glDisable(GL_CULL_FACE);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			bigMap->bindTexture();
+			glBegin(GL_POLYGON);
+			glMultiTexCoord2f(0,0,0);
+			glVertex2f(-1,-1);
+			glMultiTexCoord2f(0,0,1);
+			glVertex2f(-1,1);
+			glMultiTexCoord2f(0,1,1);
+			glVertex2f(1,1);
+			glMultiTexCoord2f(0,1,0);
+			glVertex2f(1,-1);
+			glEnd();
+			glClearColor(0,0,0,0);
+			glEnable(GL_CULL_FACE);
+
+			// read downscaled image to memory
+			glReadPixels(0, 0, captureUv.xmax, captureUv.ymax, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, smallMap);
+
+			// send triangle irradiances to solver
+			for(unsigned triangleIndex=captureUv.firstCapturedTriangle;triangleIndex<=lastCapturedTriangle;triangleIndex++)
+			{
+				unsigned color = smallMap[triangleIndex-captureUv.firstCapturedTriangle];
+				getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(
+					triangleIndex,
+					rr::RM_IRRADIANCE_CUSTOM,
+					rr::RRColor((color>>24)&255,(color>>16)&255,(color>>8)&255) / 255.0f);
+			}
+		}
+
+		// restore render states
+		glViewport(0, 0, winWidth, winHeight);
+		glDepthMask(1);
+		glEnable(GL_DEPTH_TEST);
+		return true;
+	}
+private:
+	CaptureUv    captureUv;           // uv generator for rendering into bigMap
+	de::Texture* bigMap;              // map with 10pixel irradiances per triangle
+	de::Program* scaleDownProgram;    // program for downscaling bigMap into smallMap
+	GLuint*      smallMap;            // map with 1pixel irradiances per triangle
+	enum         {BIG_MAP_SIZE=1024}; // size of bigMap
+};
+

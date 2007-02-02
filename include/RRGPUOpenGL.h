@@ -74,8 +74,9 @@ namespace rr_gl
 		class RendererOfRRObject* rendererNonCaching;
 		de::RendererWithCache* rendererCaching;
 		de::Texture* detectBigMap;
+		unsigned* detectSmallMap;
 		de::Program* scaleDownProgram;
-		enum {DETECT_MAP_SIZE=1024};
+		enum {BIG_MAP_SIZE=1024};
 		// backup of render states
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;
