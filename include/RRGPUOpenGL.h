@@ -34,24 +34,53 @@
 #	endif
 #endif
 
+#include "DemoEngine/Texture.h"
+#include "DemoEngine/Program.h"
+#include "DemoEngine/RendererWithCache.h"
+
 //! LightsprintGL - OpenGL 2.0 part of realtime global illumination solver.
 namespace rr_gl
 {
 
-	//! Creates vertex buffer for indirect illumination storage.
-	//! Used for realtime global illumination of static objects.
-	RR_API rr::RRIlluminationVertexBuffer* createIlluminationVertexBuffer(unsigned numVertices);
+	//! Implementation of rr::RRRealtimeRadiosity generic GPU operations using OpenGL 2.0.
+	//
+	//! This is not complete implementation of rr::RRRealtimeRadiosity,
+	//! it contains generic GPU access operations, but not operations specific to your renderer.
+	//! You need to subclass RRRealtimeRadiosityGL and implement remaining operations specific to your renderer.
+	//! See HelloRealtimeRadiosity for an example of such implementation.
+	class RR_API RRRealtimeRadiosityGL : public rr::RRRealtimeRadiosity
+	{
+	public:
+		RRRealtimeRadiosityGL();
+		virtual ~RRRealtimeRadiosityGL();
 
-	//! Creates 2d texture for indirect illumination storage.
-	//! Used for precomputed global illumination of static objects.
-	RR_API rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height);
+		//! Creates 2d texture for indirect illumination storage.
+		//! Used for precomputed global illumination of static objects.
+		static rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height);
 
-	//! Creates cube texture for indirect illumination storage.
-	//! Used for realtime or precomputed global illumination of dynamic objects.
-	RR_API rr::RRIlluminationEnvironmentMap* createIlluminationEnvironmentMap();
+		//! Creates cube texture for indirect illumination storage.
+		//! Used for realtime or precomputed global illumination of dynamic objects.
+		static rr::RRIlluminationEnvironmentMap* createIlluminationEnvironmentMap();
 
-	//! Detects direct illumination on every static face in scene and stores it into solver.
-	RR_API void detectDirectIllumination(class rr::RRRealtimeRadiosity* solver);
+	protected:
+		//! Detection of direct illumination implemented using OpenGL 2.0.
+		virtual bool detectDirectIllumination();
+		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
+		//! without material. This is renderer specific operation and can't be implemented in this generic class.
+		virtual void setupShader() = 0;
+
+		// for internal rendering
+		class CaptureUv* captureUv;
+		class RendererOfRRObject* rendererNonCaching;
+		de::RendererWithCache* rendererCaching;
+		de::Texture* detectBigMap;
+		de::Program* scaleDownProgram;
+		enum {DETECT_MAP_SIZE=1024};
+		// backup of render states
+		GLint viewport[4];
+		GLboolean depthTest, depthMask;
+		GLfloat clearcolor[4];
+	};
 
 };
 

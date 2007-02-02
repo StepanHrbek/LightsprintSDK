@@ -72,7 +72,7 @@ RRIlluminationEnvironmentMapInOpenGL::~RRIlluminationEnvironmentMapInOpenGL()
 //
 // RRGPUOpenGL
 
-rr::RRIlluminationEnvironmentMap* createIlluminationEnvironmentMap()
+rr::RRIlluminationEnvironmentMap* RRRealtimeRadiosityGL::createIlluminationEnvironmentMap()
 {
 	return new RRIlluminationEnvironmentMapInOpenGL();
 }

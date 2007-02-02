@@ -32,8 +32,8 @@ DynamicObject::DynamicObject()
 {
 	rendererWithoutCache = NULL;
 	rendererCached = NULL;
-	diffuseMap = rr_gl::createIlluminationEnvironmentMap();
-	specularMap = rr_gl::createIlluminationEnvironmentMap();
+	diffuseMap = rr_gl::RRRealtimeRadiosityGL::createIlluminationEnvironmentMap();
+	specularMap = rr_gl::RRRealtimeRadiosityGL::createIlluminationEnvironmentMap();
 	worldFoot = rr::RRVec3(0);
 }
 

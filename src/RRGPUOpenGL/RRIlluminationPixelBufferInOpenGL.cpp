@@ -197,7 +197,7 @@ RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 //
 // RRGPUOpenGL
 
-rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned w, unsigned h)
+rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::createIlluminationPixelBuffer(unsigned w, unsigned h)
 {
 	return new RRIlluminationPixelBufferInOpenGL(w,h,"shaders/");
 }

@@ -35,8 +35,8 @@ namespace rr_gl
 		virtual ~RRIlluminationPixelBufferInOpenGL();
 	private:
 		de::Texture* texture;
-		// state backup
 		bool rendering;
+		// state backup
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;
 		GLfloat clearcolor[4];
