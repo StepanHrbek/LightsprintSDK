@@ -208,6 +208,7 @@ namespace rr
 		//
 		//! To be implemented by you.
 		//! New values must appear in RRObjects already present in scene.
+		//! \n\n It is perfectly ok to write empty implementation if your application never modifies materials.
 		virtual void detectMaterials() = 0;
 		//! Autodetects direct illumination on all faces in scene.
 		//
@@ -222,6 +223,8 @@ namespace rr
 		//! You may even use monochromatic (1 float) format if you don't need color bleeding.
 		virtual RRIlluminationVertexBuffer* newVertexBuffer(unsigned numVertices);
 		//! Returns new pixel buffer (for ambient map) in your custom format.
+		//
+		//! If you don't want to use ambient maps, return NULL.
 		//! Default implementation returns NULL.
 		virtual RRIlluminationPixelBuffer* newPixelBuffer(RRObject* object);
 
