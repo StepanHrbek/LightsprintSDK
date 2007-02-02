@@ -80,6 +80,7 @@ namespace rr_gl
 		de::RendererWithCache* rendererCaching;
 		de::Texture* detectBigMap;
 		unsigned* detectSmallMap;
+		unsigned smallMapSize;
 		de::Program* scaleDownProgram;
 		enum {BIG_MAP_SIZE=1024};
 		// backup of render states

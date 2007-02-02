@@ -54,11 +54,12 @@ RRRealtimeRadiosityGL::RRRealtimeRadiosityGL(char* apathToShaders)
 
 	captureUv = new CaptureUv;
 	detectBigMap = de::Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
-	detectSmallMap = new unsigned[BIG_MAP_SIZE*BIG_MAP_SIZE
+	smallMapSize = BIG_MAP_SIZE*BIG_MAP_SIZE
 #ifdef SCALE_DOWN_ON_GPU
 		/16
 #endif
-	];
+		;
+	detectSmallMap = new unsigned[smallMapSize];
 	char buf1[400];
 	_snprintf(buf1,999,"%s%s",pathToShaders,"scaledown_filter.vp");
 	char buf2[400];
@@ -141,11 +142,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 #endif
 
 	// check that detectSmallMap is big enough for all pixels
-	assert(captureUv->triCountX*triSizeXRead * captureUv->triCountY*triSizeYRead <= BIG_MAP_SIZE*BIG_MAP_SIZE
-#ifdef SCALE_DOWN_ON_GPU
-		/16
-#endif
-		);
+	assert(captureUv->triCountX*triSizeXRead * captureUv->triCountY*triSizeYRead <= smallMapSize);
 	//printf("%d %d\n",numTriangles,captureUv->triCountX*captureUv->triCountY);
 	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
 	{
