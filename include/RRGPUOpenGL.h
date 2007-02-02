@@ -51,12 +51,15 @@ namespace rr_gl
 	class RR_API RRRealtimeRadiosityGL : public rr::RRRealtimeRadiosity
 	{
 	public:
-		RRRealtimeRadiosityGL();
+		//! Initializes generic GPU access implemented in RRRealtimeRadiosityGL.
+		//! \param pathToShaders
+		//!   Path to directory with scaledown_filter.* shaders. Must be terminated with slash or empty.
+		RRRealtimeRadiosityGL(char* pathToShaders);
 		virtual ~RRRealtimeRadiosityGL();
 
 		//! Creates 2d texture for indirect illumination storage.
 		//! Used for precomputed global illumination of static objects.
-		static rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height);
+		rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height);
 
 		//! Creates cube texture for indirect illumination storage.
 		//! Used for realtime or precomputed global illumination of dynamic objects.
@@ -69,6 +72,8 @@ namespace rr_gl
 		//! without material. This is renderer specific operation and can't be implemented in this generic class.
 		virtual void setupShader() = 0;
 
+	private:
+		char pathToShaders[300];
 		// for internal rendering
 		class CaptureUv* captureUv;
 		class RendererOfRRObject* rendererNonCaching;

@@ -47,8 +47,11 @@ public:
 //
 // RRRealtimeRadiosityGL
 
-RRRealtimeRadiosityGL::RRRealtimeRadiosityGL()
+RRRealtimeRadiosityGL::RRRealtimeRadiosityGL(char* apathToShaders)
 {
+	strncpy(pathToShaders,apathToShaders,299);
+	pathToShaders[299]=0;
+
 	captureUv = new CaptureUv;
 	detectBigMap = de::Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 	detectSmallMap = new unsigned[BIG_MAP_SIZE*BIG_MAP_SIZE
@@ -56,7 +59,11 @@ RRRealtimeRadiosityGL::RRRealtimeRadiosityGL()
 		/16
 #endif
 	];
-	scaleDownProgram = new de::Program(NULL,"shaders\\scaledown_filter.vp", "shaders\\scaledown_filter.fp");
+	char buf1[400];
+	_snprintf(buf1,999,"%s%s",pathToShaders,"scaledown_filter.vp");
+	char buf2[400];
+	_snprintf(buf2,999,"%s%s",pathToShaders,"scaledown_filter.fp");
+	scaleDownProgram = new de::Program(NULL,buf1,buf2);
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
 }

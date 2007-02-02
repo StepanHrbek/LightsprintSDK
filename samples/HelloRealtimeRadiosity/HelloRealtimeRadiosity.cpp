@@ -30,7 +30,7 @@
 #include "3ds2rr.h"
 #include "DynamicObject.h"
 
-//#define AMBIENT_MAPS
+#define AMBIENT_MAPS
 // Turns on ambient maps.
 // They are generated and rendered in realtime,
 // every frame new set of maps for all objects in scene.
@@ -185,6 +185,9 @@ void updateShadowmap(unsigned mapIndex)
 class Solver : public rr_gl::RRRealtimeRadiosityGL
 {
 public:
+	Solver() : RRRealtimeRadiosityGL("../../data/shaders/")
+	{
+	}
 	virtual ~Solver()
 	{
 		// delete objects and illumination
@@ -198,7 +201,7 @@ protected:
 		// When seams appear, increase res.
 		// Depends on quality of unwrap provided by object->getTriangleMapping.
 		// This demo has bad unwrap -> high res map.
-		return new rr::RRIlluminationPixelBufferInOpenGL(1024,1024,"../../data/shaders/");
+		return createIlluminationPixelBuffer(1024,1024);
 	}
 #endif
 	// skipped, material properties were already readen from .3ds and never change
@@ -207,7 +210,7 @@ protected:
 	virtual bool detectDirectIllumination()
 	{
 		// renderer not yet ready, fail
-		if(!rendererCaching) return false;
+		if(!::rendererCaching) return false;
 
 		// shadowmap could be outdated, update it
 		updateShadowmap(0);
@@ -412,6 +415,9 @@ int main(int argc, char **argv)
 	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram);
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
+#ifdef AMBIENT_MAPS
+	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
+#endif
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures

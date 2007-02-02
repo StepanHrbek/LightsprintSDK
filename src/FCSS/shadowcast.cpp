@@ -278,6 +278,9 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 class Solver : public rr_gl::RRRealtimeRadiosityGL
 {
 public:
+	Solver() : RRRealtimeRadiosityGL("shaders/")
+	{
+	}
 	virtual ~Solver()
 	{
 		// delete objects and illumination
