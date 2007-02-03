@@ -93,7 +93,7 @@ public:
 		if(!transformedMeshes) return;
 		unsigned numObjects = pack[0].getNumObjects()+pack[1].getNumObjects();
 		RRMesh* unoptimizedMesh;
-		if(transformedMeshes[numObjects]) unoptimizedMesh = transformedMeshes[numObjects]; else
+		if(transformedMeshes[numObjects+1]) unoptimizedMesh = transformedMeshes[numObjects+1]; else
 			if(transformedMeshes[numObjects+2]) unoptimizedMesh = transformedMeshes[numObjects+2]; else
 				return;
 		// <unoptimized> is mesh after concatenation of multiple meshes/objects
@@ -109,7 +109,7 @@ public:
 		if(!transformedMeshes) return;
 		unsigned numObjects = pack[0].getNumObjects()+pack[1].getNumObjects();
 		RRMesh* unoptimizedMesh;
-		if(transformedMeshes[numObjects]) unoptimizedMesh = transformedMeshes[numObjects]; else
+		if(transformedMeshes[numObjects+1]) unoptimizedMesh = transformedMeshes[numObjects+1]; else
 			if(transformedMeshes[numObjects+2]) unoptimizedMesh = transformedMeshes[numObjects+2]; else
 				return;
 		// <unoptimized> is mesh after concatenation of multiple meshes/objects
