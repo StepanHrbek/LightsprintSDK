@@ -1,3 +1,4 @@
+//#define M3DS
 //#define BUGS
 #define DYNAOBJECTS                1   // 0..7
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
@@ -101,6 +102,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/RendererWithCache.h"
 #include "DemoEngine/UberProgramSetup.h"
 #include "3ds2rr.h"
+#include "RRObjectBsp.h"
 #include "DynamicObject.h"
 #include "Bugs.h"
 #include "LevelSequence.h"
@@ -122,8 +124,11 @@ enum {
 class Level
 {
 public:
+#ifdef M3DS
 	de::Model_3DS m3ds;
-	//TMapQ3 bsp;
+#else
+	TMapQ3 bsp;
+#endif
 	class Solver* solver;
 	class Bugs* bugs;
 	rr_gl::RendererOfRRObject* rendererNonCaching;
@@ -591,6 +596,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
 		error("Failed to compile or link GLSL program.\n",true);
 
+#ifdef M3DS
 	// lze smazat, stejnou praci dokaze i rrrenderer
 	// nicmene m3ds.Draw stale jeste
 	// 1) lip smoothuje (pouziva min vertexu)
@@ -604,6 +610,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_INDIRECT_COLOR?lockVertexIllum:NULL,unlockVertexIllum);
 		return;
 	}
+#endif
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
@@ -1092,8 +1099,12 @@ Level::Level(const char* filename_3ds)
 	printf("Loading %s...",filename_3ds);
 
 	// init .3ds scene
+#ifdef M3DS
 	if(!m3ds.Load(filename_3ds,scale_3ds))
 		error("",false);
+#else
+	readMap("bsp\\trajectory\\maps\\trajectory.bsp",bsp);
+#endif
 
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
@@ -1106,7 +1117,11 @@ Level::Level(const char* filename_3ds)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	rr::RRScene::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
+#ifdef M3DS
 	insert3dsToRR(&m3ds,solver,&sp);
+#else
+	insertBspToRR(&bsp,"bsp\\trajectory\\",solver,&sp);
+#endif
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
@@ -1124,12 +1139,14 @@ Level::Level(const char* filename_3ds)
 	updateMatrices();
 	needDepthMapUpdate = true;
 	needRedisplay = true;
-	//readMap("bsp\\trajectory\\maps\\trajectory.bsp",bsp);
 }
 
 Level::~Level()
 {
-	//freeMap(bsp);
+#ifdef M3DS
+#else
+	freeMap(bsp);
+#endif
 	delete bugs;
 	delete rendererCaching;
 	delete rendererNonCaching;
@@ -1781,7 +1798,6 @@ void parseOptions(int argc, char **argv)
 	}
 }
 
-#include "../DemoEngine/TextureShadowMap.h"
 
 int main(int argc, char **argv)
 {

@@ -21,7 +21,7 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const
 	//params.renderedChannels = ... set to default by constructor
 	params.generateForcedUv = NULL;
 	params.firstCapturedTriangle = 0;
-	params.lastCapturedTriangle = objectImporter->getCollider()->getMesh()->getNumTriangles()-1;
+	params.lastCapturedTrianglePlus1 = objectImporter->getCollider()->getMesh()->getNumTriangles();
 }
 
 void RendererOfRRObject::setRenderedChannels(RenderedChannels renderedChannels)
@@ -29,12 +29,12 @@ void RendererOfRRObject::setRenderedChannels(RenderedChannels renderedChannels)
 	params.renderedChannels = renderedChannels;
 }
 
-void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTriangle)
+void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1)
 {
 	params.generateForcedUv = capture;
 	params.otherCaptureParamsHash = capture ? capture->getHash() : 0;
 	params.firstCapturedTriangle = afirstCapturedTriangle;
-	params.lastCapturedTriangle = alastCapturedTriangle;
+	params.lastCapturedTrianglePlus1 = alastCapturedTrianglePlus1;
 }
 
 const void* RendererOfRRObject::getParams(unsigned& length) const
@@ -56,7 +56,7 @@ void RendererOfRRObject::render()
 	//unsigned numTriangles = meshImporter->getNumTriangles();
 	unsigned oldSurfaceIdx = UINT_MAX;
 	rr::RRObjectIllumination* oldIllumination = NULL;
-	for(unsigned triangleIdx=params.firstCapturedTriangle;triangleIdx<=params.lastCapturedTriangle;triangleIdx++)
+	for(unsigned triangleIdx=params.firstCapturedTriangle;triangleIdx<params.lastCapturedTrianglePlus1;triangleIdx++)
 	{
 		rr::RRMesh::Triangle tri;
 		meshImporter->getTriangle(triangleIdx,tri);

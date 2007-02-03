@@ -85,7 +85,7 @@ public:
 		}
 	};
 	void setRenderedChannels(RenderedChannels renderedChannels);
-	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTriangle);
+	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1);
 	virtual const void* getParams(unsigned& length) const;
 	virtual void render();
 	virtual ~RendererOfRRObject() {};
@@ -99,7 +99,7 @@ private:
 		VertexDataGenerator* generateForcedUv; // generator of uv data for FORCE_2D_POSITION
 		unsigned otherCaptureParamsHash;       // hash of generator's parameters
 		unsigned firstCapturedTriangle;        // index of first triangle to render
-		unsigned lastCapturedTriangle;         // index of last triangle to render
+		unsigned lastCapturedTrianglePlus1;    // index of last triangle to render+1
 	};
 	Params params;
 };

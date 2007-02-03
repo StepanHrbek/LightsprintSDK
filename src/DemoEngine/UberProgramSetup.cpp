@@ -153,7 +153,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 
 	if(LIGHT_INDIRECT_CONST)
 	{
-		program->sendUniform("lightIndirectConst",0.15f,0.15f,0.15f,0.0f);
+		program->sendUniform("lightIndirectConst",0.2f,0.2f,0.2f,0.0f);
 	}
 
 	// lightIndirectMap

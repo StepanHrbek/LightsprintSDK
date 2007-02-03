@@ -28,7 +28,7 @@ class CaptureUv : public rr_gl::VertexDataGenerator
 public:
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
-		assert(triangleIndex>=firstCapturedTriangle && triangleIndex<=lastCapturedTriangle);
+		assert(triangleIndex>=firstCapturedTriangle && triangleIndex<lastCapturedTrianglePlus1);
 		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%triCountX)+((vertexIndex==2)?1:0)-triCountX*0.5f+0.1f)/(triCountX*0.5f);
 		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/triCountX)+((vertexIndex==0)?1:0)-triCountY*0.5f+0.1f)/(triCountY*0.5f);
 		// +0.1f makes triangle area larger [in 4x4, from 6 to 10 pixels]
@@ -38,7 +38,7 @@ public:
 		return firstCapturedTriangle+(triCountX<<8)+(triCountY<<16);
 	}
 	unsigned firstCapturedTriangle;
-	unsigned lastCapturedTriangle;
+	unsigned lastCapturedTrianglePlus1;
 	unsigned triCountX, triCountY;
 };
 
@@ -100,6 +100,11 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 
 	rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
+	if(!numTriangles)
+	{
+		assert(0); // legal, but should not happen in well coded program
+		return true;
+	}
 
 	// adjust captured texture size so we don't waste pixels
 	unsigned triSizeXRender = 4; // triSizeXRender = triangle width in pixels while rendering
@@ -115,7 +120,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	unsigned triSizeXRead = 4;
 	unsigned triSizeYRead = 4;
 #endif
-	while(captureUv->triCountY && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
+	while(captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
 
 	// setup render states
 	glClearColor(0,0,0,1);
@@ -146,7 +151,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	//printf("%d %d\n",numTriangles,captureUv->triCountX*captureUv->triCountY);
 	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
 	{
-		captureUv->lastCapturedTriangle = MIN(numTriangles,captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY)-1;
+		captureUv->lastCapturedTrianglePlus1 = MIN(numTriangles,captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
 
 #ifdef SCALE_DOWN_ON_GPU
 		// phase 1 for scale big map down
@@ -169,9 +174,9 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 #endif
 		renderedChannels.FORCE_2D_POSITION = true;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
-		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTriangle); // set param for cache so it creates different displaylists
+		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
 		rendererCaching->render();
-		rendererNonCaching->setCapture(NULL,0,numTriangles-1);
+		rendererNonCaching->setCapture(NULL,0,numTriangles);
 
 #ifdef CAPTURE_TGA
 		if(captured>=0) {
@@ -244,7 +249,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 
 		// accumulate triangle irradiances
 #pragma omp parallel for schedule(static,1)
-		for(int triangleIndex=captureUv->firstCapturedTriangle;(unsigned)triangleIndex<=captureUv->lastCapturedTriangle;triangleIndex++)
+		for(int triangleIndex=captureUv->firstCapturedTriangle;(unsigned)triangleIndex<captureUv->lastCapturedTrianglePlus1;triangleIndex++)
 		{
 			// accumulate 1 triangle power from square region in texture
 			// (square coordinate calculation is in match with CaptureUv uv generator)

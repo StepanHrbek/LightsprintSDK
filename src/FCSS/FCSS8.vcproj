@@ -357,6 +357,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRObjectBSP.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\RRObjectBSP.h"
+			>
+		</File>
+		<File
 			RelativePath=".\shadowcast.cpp"
 			>
 		</File>
