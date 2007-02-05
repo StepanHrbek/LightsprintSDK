@@ -36,7 +36,7 @@ void RendererOf3DS::render()
 //
 // Renderer
 
-Renderer* Renderer::create3DSRenderer(Model_3DS* model)
+Renderer* Renderer::create3DSRenderer(const Model_3DS* model)
 {
 	return new RendererOf3DS(model);
 }

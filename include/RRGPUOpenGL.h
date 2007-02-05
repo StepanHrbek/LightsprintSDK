@@ -82,7 +82,6 @@ namespace rr_gl
 		unsigned* detectSmallMap;
 		unsigned smallMapSize;
 		de::Program* scaleDownProgram;
-		enum {BIG_MAP_SIZE=1024};
 		// backup of render states
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;

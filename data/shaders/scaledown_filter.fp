@@ -1,5 +1,5 @@
-// Scale down filter
-// Used by detectDirectIllumination()
+// LightsprintGL: Scale down filter
+// Used by RRRealtimeRadiosityGL::detectDirectIllumination()
 // Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
 
 uniform sampler2D lightmap;

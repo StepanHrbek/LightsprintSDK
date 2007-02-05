@@ -26,7 +26,6 @@
 // it is never accessed by radiosity solver.
 // You may skip it in your implementation.
 
-
 #include <cassert>
 #include <cmath>
 #include <vector>
@@ -65,7 +64,7 @@ void reporter(const char* msg, void* context)
 class RRObjectBSP : public rr::RRObject, rr::RRMesh
 {
 public:
-	RRObjectBSP(TMapQ3* model, const char* pathToTextures);
+	RRObjectBSP(de::TMapQ3* model, const char* pathToTextures);
 	rr::RRObjectIllumination* getIllumination();
 	virtual ~RRObjectBSP();
 
@@ -78,6 +77,8 @@ public:
 	virtual void         getVertex(unsigned v, Vertex& out) const;
 	virtual unsigned     getNumTriangles() const;
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
+	//virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const;
+	//virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const;
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
@@ -86,7 +87,7 @@ public:
 	//virtual void                    getTriangleNormals(unsigned t, TriangleNormals& out) const;
 
 private:
-	TMapQ3* model;
+	de::TMapQ3* model;
 
 	// copy of object's geometry
 	struct TriangleInfo
@@ -118,7 +119,7 @@ private:
 
 // Inputs: m
 // Outputs: t, s
-static void fillSurface(rr::RRSurface& s,de::Texture*& t,TTexture* m,const char* pathToTextures)
+static void fillSurface(rr::RRSurface& s,de::Texture*& t,de::TTexture* m,const char* pathToTextures)
 {
 	enum {size = 8};
 
@@ -164,7 +165,7 @@ static void fillSurface(rr::RRSurface& s,de::Texture*& t,TTexture* m,const char*
 
 // Creates internal copies of .bsp geometry and surface properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures)
+RRObjectBSP::RRObjectBSP(de::TMapQ3* amodel, const char* pathToTextures)
 {
 	model = amodel;
 
@@ -176,8 +177,10 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures)
 	}
 
 	//for(unsigned i=0;i<(unsigned)model->mFaces.size();i++)
+	for(unsigned s=0;s<surfaces.size();s++)
 	for(unsigned i=model->mModels[0].mFace;i<(unsigned)(model->mModels[0].mFace+model->mModels[0].mNbFaces);i++)
 	{
+		if(model->mFaces[i].mTextureIndex==s)
 		if(surfaces[model->mFaces[i].mTextureIndex].texture)
 		{
 			if(model->mFaces[i].mType==1)
@@ -191,20 +194,20 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures)
 					ti.s = model->mFaces[i].mTextureIndex;
 					triangles.push_back(ti);
 				}
-			}/*
-			else
-			if(model->mFaces[i].mType==3)
-			{
-				for(unsigned j=0;j<(unsigned)model->mFaces[i].mNbVertices;j+=3)
-				{
-					TriangleInfo ti;
-					ti.t[0] = model->mFaces[i].mVertex+j;
-					ti.t[1] = model->mFaces[i].mVertex+j+1;
-					ti.t[2] = model->mFaces[i].mVertex+j+2;
-					ti.s = model->mFaces[i].mTextureIndex;
-					triangles.push_back(ti);
-				}
-			}*/
+			}
+			//else
+			//if(model->mFaces[i].mType==3)
+			//{
+			//	for(unsigned j=0;j<(unsigned)model->mFaces[i].mNbVertices;j+=3)
+			//	{
+			//		TriangleInfo ti;
+			//		ti.t[0] = model->mFaces[i].mVertex+j;
+			//		ti.t[1] = model->mFaces[i].mVertex+j+1;
+			//		ti.t[2] = model->mFaces[i].mVertex+j+2;
+			//		ti.s = model->mFaces[i].mTextureIndex;
+			//		triangles.push_back(ti);
+			//	}
+			//}
 		}
 	}
 
@@ -342,6 +345,16 @@ void RRObjectBSP::getVertex(unsigned v, Vertex& out) const
 	out[2] = -model->mVertices[v].mPosition[1]*0.03f;
 }
 
+//unsigned RRObjectBSP::getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
+//{
+//	return postImportVertex;
+//}
+
+//unsigned RRObjectBSP::getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
+//{
+//	return preImportVertex;
+//}
+
 unsigned RRObjectBSP::getNumTriangles() const
 {
 	return (unsigned)triangles.size();
@@ -419,7 +432,7 @@ void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const
 //
 // main
 
-RRObjectBSP* new_bsp_importer(TMapQ3* model, const char* pathToTextures)
+RRObjectBSP* new_bsp_importer(de::TMapQ3* model, const char* pathToTextures)
 {
 	RRObjectBSP* importer = new RRObjectBSP(model,pathToTextures);
 #ifdef VERIFY
@@ -428,7 +441,7 @@ RRObjectBSP* new_bsp_importer(TMapQ3* model, const char* pathToTextures)
 	return importer;
 }
 
-void insertBspToRR(TMapQ3* model,const char* pathToTextures,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
+void insertBspToRR(de::TMapQ3* model,const char* pathToTextures,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
 {
 	if(app)
 	{

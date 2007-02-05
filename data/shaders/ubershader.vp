@@ -1,4 +1,4 @@
-// DemoEngine vertex ubershader
+// LightsprintGL: DemoEngine vertex ubershader
 //
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
@@ -127,7 +127,7 @@ void main()
 	#endif
   
 	#ifdef FORCE_2D_POSITION
-		gl_Position = vec4(gl_MultiTexCoord7.x,gl_MultiTexCoord7.y,0.5,1.0);
+		gl_Position = vec4(gl_MultiTexCoord2.x,gl_MultiTexCoord2.y,0.5,1.0);
 	#else
 		gl_Position = gl_ModelViewProjectionMatrix * worldPos4;
 	#endif

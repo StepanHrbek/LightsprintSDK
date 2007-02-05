@@ -8,8 +8,8 @@ class LevelSequence
 public:
 	LevelSequence()
 	{
-		insertLevelBack("3ds\\Quake3\\Trajectory\\Trajectory.3ds"); // pekne
 		insertLevelBack("3ds\\koupelna\\koupelna4.3ds");
+		insertLevelBack("3ds\\Quake3\\Trajectory\\Trajectory.3ds"); // pekne
 		insertLevelBack("3ds\\koupelna\\koupelna3.3ds");
 		insertLevelBack("3ds\\koupelna\\koupelna5.3ds");
 		insertLevelBack("3ds\\sponza\\sponza.3ds");

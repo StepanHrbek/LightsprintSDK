@@ -77,7 +77,7 @@ public:
 		bool     LIGHT_INDIRECT_ENV     :1; // feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT]
 		bool     MATERIAL_DIFFUSE_COLOR :1; // feeds gl_SecondaryColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; // feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
-		bool     FORCE_2D_POSITION      :1; // feeds gl_MultiTexCoord7
+		bool     FORCE_2D_POSITION      :1; // feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
 		RenderedChannels()
 		{
 			// turn everything off by default
@@ -86,10 +86,12 @@ public:
 	};
 	void setRenderedChannels(RenderedChannels renderedChannels);
 	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1);
+	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,rr::RRIlluminationPixelBuffer* ambientMap); ///< Used only #ifdef BUFFERS.
 	virtual const void* getParams(unsigned& length) const;
 	virtual void render();
-	virtual ~RendererOfRRObject() {};
+	virtual ~RendererOfRRObject();
 private:
+	friend class ObjectBuffers;
 	struct Params
 	{
 		const rr::RRObject* object;            // object being rendered
@@ -100,8 +102,13 @@ private:
 		unsigned otherCaptureParamsHash;       // hash of generator's parameters
 		unsigned firstCapturedTriangle;        // index of first triangle to render
 		unsigned lastCapturedTrianglePlus1;    // index of last triangle to render+1
+		rr::RRIlluminationVertexBuffer* indirectIllumination; // vertex buffer with indirect illumination
+		rr::RRIlluminationPixelBuffer* indirectIlluminationMap; // ambient map
 	};
 	Params params;
+	// buffers for faster rendering
+	class ObjectBuffers* indexedYes;
+	class ObjectBuffers* indexedNo;
 };
 
 }; // namespace

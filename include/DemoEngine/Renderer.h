@@ -44,7 +44,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////
 
 	//! Creates and returns renderer of Model_3DS.
-	static Renderer* create3DSRenderer(class Model_3DS* model);
+	static Renderer* create3DSRenderer(const class Model_3DS* model);
 
 	//! Creates and returns renderer that caches OpenGL rendering commands in display list.
 	//! Caching takes into account possible parameters of underlying renderer

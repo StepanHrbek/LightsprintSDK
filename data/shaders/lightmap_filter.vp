@@ -1,4 +1,4 @@
-// Lightmap postprocess
+// LightsprintGL: Lightmap postprocess
 // Used by RRIlluminationPixelBufferInOpenGL
 // Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
 

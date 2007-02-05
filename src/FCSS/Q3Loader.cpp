@@ -6,9 +6,12 @@
 
 #include "Q3Loader.h"
 
-#pragma pack(push, Q3LOADER_H)
-#include <cstdio>
-#pragma pack(pop, Q3LOADER_H)
+//#pragma pack(push, Q3LOADER_H)
+//#include <cstdio>
+//#pragma pack(pop, Q3LOADER_H)
+
+namespace de
+{
 
 /**
  * Check if the header of the map is valid.
@@ -799,3 +802,4 @@ void freeMap(TMapQ3& pMap)
 	pMap.mLightVols.clear();
 }
 
+} // namespace

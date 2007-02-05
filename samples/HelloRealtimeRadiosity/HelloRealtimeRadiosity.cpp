@@ -30,7 +30,7 @@
 #include "3ds2rr.h"
 #include "DynamicObject.h"
 
-#define AMBIENT_MAPS
+//#define AMBIENT_MAPS
 // Turns on ambient maps.
 // They are generated and rendered in realtime,
 // every frame new set of maps for all objects in scene.
@@ -126,6 +126,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 		renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
+		rendererNonCaching->setIndirectIllumination(solver->getIllumination(0)->getChannel(0)->vertexBuffer,solver->getIllumination(0)->getChannel(0)->pixelBuffer);
 		if(uberProgramSetup.LIGHT_INDIRECT_COLOR)
 			rendererNonCaching->render(); // don't cache indirect illumination, it changes
 		else

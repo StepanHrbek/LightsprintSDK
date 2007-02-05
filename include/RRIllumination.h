@@ -171,6 +171,8 @@ namespace rr
 
 		// Vertex buffer creation
 
+		//! Returns size of vertex buffer in vertices.
+		virtual const unsigned getNumVertices() = 0;
 		//! Sets value of one element of the buffer.
 		//! Must be thread safe.
 		virtual void setVertex(unsigned vertex, const RRColorRGBF& color) = 0;

@@ -10,9 +10,12 @@
 #include <vector>
 #pragma pack(pop, Q3LOADER_H)
 
-#pragma pack(push, Q3LOADER_H)
-#include <string>
-#pragma pack(pop, Q3LOADER_H)
+//#pragma pack(push, Q3LOADER_H)
+//#include <string>
+//#pragma pack(pop, Q3LOADER_H)
+
+namespace de
+{
 
 /**
  * Description of a lump.
@@ -327,3 +330,6 @@ void freeMap(TMapQ3& pMap);
  */
 bool isValid(const TMapQ3& pMap);
 
+} // namespace
+
+#endif

@@ -78,7 +78,9 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 */
 
 #include "Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
-#include <limits> // nutne aby uspel build v gcc4.3
+#ifdef MINGW
+	#include <limits> // nutne aby uspel build v gcc4.3
+#endif
 #include "DemoEngine/Timer.h"
 #include <cassert>
 #include <cfloat>
@@ -87,7 +89,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <cstdio>
 #include <list>
 #ifdef _OPENMP
-#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
+	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -127,7 +129,7 @@ public:
 #ifdef M3DS
 	de::Model_3DS m3ds;
 #else
-	TMapQ3 bsp;
+	de::TMapQ3 bsp;
 #endif
 	class Solver* solver;
 	class Bugs* bugs;
@@ -636,6 +638,8 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		// create lightmaps if they are needed for render
 		level->solver->calculate(rr::RRRealtimeRadiosity::UPDATE_PIXEL_BUFFERS);
 	}
+	// set indirect vertex/pixel buffer
+	level->rendererNonCaching->setIndirectIllumination(level->solver->getIllumination(0)->getChannel(0)->vertexBuffer,level->solver->getIllumination(0)->getChannel(0)->pixelBuffer);
 	level->rendererCaching->render();
 }
 
@@ -738,8 +742,8 @@ void drawEyeViewSoftShadowed(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	// optimized path without accum, only for m3ds, rrrenderer can't render both materialColor and indirectColor
-	if(numInstances<=INSTANCES_PER_PASS && uberProgramGlobalSetup.MATERIAL_DIFFUSE && uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP)
+	// optimized path without accum
+	if(numInstances<=INSTANCES_PER_PASS)
 	{
 		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;

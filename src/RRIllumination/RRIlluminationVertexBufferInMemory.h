@@ -21,6 +21,10 @@ namespace rr
 			numVertices = anumVertices;
 			vertices = new Color[numVertices];
 		}
+		virtual const unsigned getNumVertices()
+		{
+			return numVertices;
+		}
 		virtual void setVertex(unsigned vertex, const RRColorRGBF& color)
 		{
 			if(!vertices)

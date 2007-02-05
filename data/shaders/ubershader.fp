@@ -1,4 +1,4 @@
-// DemoEngine fragment ubershader
+// LightsprintGL: DemoEngine fragment ubershader
 //
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
@@ -283,7 +283,8 @@ void main()
 			#ifdef MATERIAL_NORMAL_MAP
 				max(0.0,dot(worldLightDir, worldNormal)) // per pixel
 			#else
-				lightDirectColor // per vertex
+				//lightDirectColor // per vertex
+				vec4(lightDirectColor,lightDirectColor,lightDirectColor,lightDirectColor) // per vertex
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
 				* texture2DProj(lightDirectMap, shadowCoord[0])

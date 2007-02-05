@@ -27,7 +27,7 @@ enum
 	// these constants are hardcoded in shaders
 	MULTITEXCOORD_MATERIAL_DIFFUSE       = 0, ///< Texcoord channel used by our uberprogram for diffuse map uv.
 	MULTITEXCOORD_LIGHT_INDIRECT         = 1, ///< Texcoord channel used by our uberprogram for ambient map uv.
-	MULTITEXCOORD_FORCED_2D              = 7, ///< Texcoord channel used by our uberprogram for forced projection space vertex coordinates.
+	MULTITEXCOORD_FORCED_2D              = 2, ///< Texcoord channel used by our uberprogram for forced projection space vertex coordinates.
 };
 
 
