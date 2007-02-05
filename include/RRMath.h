@@ -26,7 +26,7 @@
 #include <cmath>
 
 #ifdef __BCPLUSPLUS__
-	#define sqrtf sqrt // sqrtf is missing in Borland C++ Builder
+	#define sqrtf std::sqrt // sqrtf is missing in Borland C++ Builder
 #endif
 
 namespace rr /// LightsprintCore - platform independent realtime global illumination solver.
