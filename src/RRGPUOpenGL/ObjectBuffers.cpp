@@ -25,8 +25,14 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 		indices = new unsigned[numTriangles*3]; // Always allocates worst case (no vertices merged) scenario size. Only first numIndices is used.
 	}
 	numVertices = 0;
-	vertices = new Vertex[numTriangles*3]; // Always allocates worst case scenario size. Only first numVertices is used.
-	memset(vertices,0,sizeof(Vertex)*numTriangles*3);
+	// Always allocates worst case scenario size. Only first numVertices is used.
+	#define NEW_ARRAY(arr,type) arr = new rr::type[numTriangles*3]; memset(arr,0,sizeof(rr::type)*numTriangles*3);
+	NEW_ARRAY(avertex,RRVec3);
+	NEW_ARRAY(anormal,RRVec3);
+	NEW_ARRAY(atexcoordDiffuse,RRVec2);
+	NEW_ARRAY(atexcoordForced2D,RRVec2);
+	NEW_ARRAY(atexcoordAmbient,RRVec2);
+	#undef NEW_ARRAY
 	unsigned previousSurfaceIndex = 0;
 	for(unsigned t=0;t<numTriangles;t++)
 	{
@@ -85,10 +91,10 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 				//assert(currentVertex<numTriangles*3);
 				return;
 			}
-			mesh->getVertex(triangleVertices[v],vertices[currentVertex].vertex);
-			vertices[currentVertex].normal = triangleNormals.norm[v];
-			vertices[currentVertex].texcoordAmbient = triangleMapping.uv[v];
-			vertices[currentVertex].texcoordDiffuse = diffuseUv[v];
+			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);
+			anormal[currentVertex] = triangleNormals.norm[v];
+			atexcoordAmbient[currentVertex] = triangleMapping.uv[v];
+			atexcoordDiffuse[currentVertex] = diffuseUv[v];
 		}
 		// generate facegroups
 		faceGroups[faceGroups.size()-1].numIndices += 3;
@@ -98,7 +104,11 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 
 ObjectBuffers::~ObjectBuffers()
 {
-	delete[] vertices;
+	delete[] atexcoordDiffuse;
+	delete[] atexcoordForced2D;
+	delete[] atexcoordAmbient;
+	delete[] anormal;
+	delete[] avertex;
 	delete[] indices;
 }
 
@@ -113,13 +123,13 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 	if(!initedOk) return;
 	// set vertices
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertices->vertex.x);
+	glVertexPointer(3, GL_FLOAT, 0, &avertex[0].x);
 	// set normals
 	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV;
 	if(setNormals)
 	{
 		glEnableClientState(GL_NORMAL_ARRAY);
-		glNormalPointer(GL_FLOAT, sizeof(Vertex), &vertices->normal.x);
+		glNormalPointer(GL_FLOAT, 0, &anormal[0].x);
 	}
 	// set indirect illumination vertices
 	if(params.renderedChannels.LIGHT_INDIRECT_COLOR && params.indirectIllumination)
@@ -128,14 +138,14 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		unsigned bufferSize = params.indirectIllumination->getNumVertices();
 		assert(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
 		glEnableClientState(GL_COLOR_ARRAY);
-		glColorPointer(3, GL_FLOAT, 12, params.indirectIllumination->lock());
+		glColorPointer(3, GL_FLOAT, 0, params.indirectIllumination->lock());
 	}
 	// set indirect illumination texcoords + map
 	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.indirectIlluminationMap)
 	{
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_LIGHT_INDIRECT);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices->texcoordAmbient.x);
+		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordAmbient[0].x);
 		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
 		params.indirectIlluminationMap->bindTexture();
 	}
@@ -147,18 +157,18 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		//for(unsigned i=0;i<numVertices;i++) // for all capture textures, probably not necessary
 		for(unsigned i=params.firstCapturedTriangle*3;i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
 		{
-			params.generateForcedUv->generateData(i/3, i%3, &vertices[i].texcoordForced2D.x, sizeof(vertices[0].texcoordForced2D));
+			params.generateForcedUv->generateData(i/3, i%3, &atexcoordForced2D[i].x, sizeof(atexcoordForced2D[i]));
 		}
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_FORCED_2D);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices->texcoordForced2D.x);
+		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordForced2D[0].x);
 	}
 	// set material diffuse texcoords
 	if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_DIFFUSE);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices->texcoordDiffuse.x);
+		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordDiffuse[0].x);
 	}
 	// render facegroups (facegroups differ by material)
 	if(params.renderedChannels.MATERIAL_DIFFUSE_COLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP)

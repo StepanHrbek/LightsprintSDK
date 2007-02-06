@@ -25,16 +25,12 @@ public:
 	void render(RendererOfRRObject::Params& params);
 private:
 	bool initedOk; // true when constructor had no problems and instance is ready to render
-	struct Vertex
-	{
-		rr::RRVec3 vertex;
-		rr::RRVec3 normal;
-		rr::RRVec2 texcoordDiffuse;
-		rr::RRVec2 texcoordForced2D; // is unique for each vertex
-		rr::RRVec2 texcoordAmbient; // could be unique for each vertex (with default unwrap)
-	};
 	unsigned numVertices;
-	Vertex* vertices;
+	rr::RRVec3* avertex;
+	rr::RRVec3* anormal;
+	rr::RRVec2* atexcoordDiffuse;
+	rr::RRVec2* atexcoordForced2D; // is unique for each vertex
+	rr::RRVec2* atexcoordAmbient; // could be unique for each vertex (with default unwrap)
 	unsigned numIndices;
 	unsigned* indices;
 	struct FaceGroup
