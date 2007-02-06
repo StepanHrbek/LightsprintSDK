@@ -77,7 +77,8 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 
 	glViewport(0,0,texture->getWidth(),texture->getHeight());
 	// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
-	glClearColor(1,0,1,0);
+	//glClearColor(1,0,1,0);
+	glClearColor(0,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
 	// setup pipeline
 	glActiveTexture(GL_TEXTURE0);
@@ -122,6 +123,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 
 	// tempTexture must not be smaller than texture
 	if(texture->getWidth()<=helpers->tempTexture->getWidth() && texture->getHeight()<=helpers->tempTexture->getHeight())
+	for(unsigned pass=0;pass<1;pass++) //!!! with ~20 filtering passes, triangle borders degenerate, GPU precision problem?
 	{
 		// fill unused pixels
 		helpers->filterProgram->useIt();

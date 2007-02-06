@@ -78,7 +78,7 @@ void RRObject::getTriangleMapping(unsigned t, TriangleMapping& out) const
 	unsigned h = ((numTriangles+1)/2-1)/w+1;
 	unsigned x = t%w;
 	unsigned y = t/w;
-	static const float border = 0.05f;
+	static const float border = 0.1f;
 	if(!spin)
 	{
 		out.uv[0][0] = (x+border)/w;
