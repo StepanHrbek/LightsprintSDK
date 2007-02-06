@@ -105,7 +105,8 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
 		error("Failed to compile or link GLSL program.\n",true);
 #ifndef AMBIENT_MAPS
-	// m3ds.Draw uses indexed trilist incompatible with ambient map uv channel, doesn't render properly with ambient maps
+	// 3ds renderer m3ds.Draw uses vertex buffers incompatible with our generated ambient map uv channel,
+	//  so it doesn't render properly with ambient maps.
 	//  could be fixed with better uv or simple geometry shader
 	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
 	{
@@ -201,7 +202,7 @@ protected:
 		// Decide how big ambient map you want for object. 
 		// When seams appear, increase res.
 		// Depends on quality of unwrap provided by object->getTriangleMapping.
-		// This demo has bad unwrap -> high res map.
+		// This sample has bad unwrap -> high res map is needed.
 		return createIlluminationPixelBuffer(1024,1024);
 	}
 #endif
@@ -257,7 +258,7 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_MAP = true;
 	if(!solver->getIllumination(0)->getChannel(0)->pixelBuffer) // if ambient maps don't exist yet, create them
 	{
-		solver->calculate(rr::RRRealtimeRadiosity::UPDATE_PIXEL_BUFFERS);
+		solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
 	}
 #else // here we say: render with indirect illumination per-vertex
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
@@ -387,7 +388,7 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutGameModeString("800x600:32");
-	glutEnterGameMode();
+	glutEnterGameMode(); // alternatively use glutCreateWindow("HelloRR");glutFullScreen(); for native resolution fullscreen
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);

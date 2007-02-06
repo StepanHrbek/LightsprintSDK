@@ -47,15 +47,19 @@ RRIlluminationPixelBuffer* RRRealtimeRadiosity::newPixelBuffer(RRObject* object)
 	return NULL;
 }
 
-void RRRealtimeRadiosity::readPixelResults()
+void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIlluminationPixelBuffer* pixelBuffer)
 {
 	if(!scene)
 	{
 		assert(0);
 		return;
 	}
-	// for each object
-	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
+	if(objectHandle>=objects.size())
+	{
+		assert(0);
+		return;
+	}
+	// for one object
 	{
 		RRObject* object = getMultiObjectCustom();
 		if(!object)
@@ -65,10 +69,13 @@ void RRRealtimeRadiosity::readPixelResults()
 		}
 		RRMesh* mesh = object->getCollider()->getMesh();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
-		RRObjectIllumination* illumination = getIllumination(objectHandle);
-		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
-		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(object);
-		RRIlluminationPixelBuffer* pixelBuffer = channel->pixelBuffer;
+		if(!pixelBuffer)
+		{
+			RRObjectIllumination* illumination = getIllumination(objectHandle);
+			RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
+			if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(object);
+			pixelBuffer = channel->pixelBuffer;
+		}
 
 		if(pixelBuffer)
 		{
@@ -91,6 +98,14 @@ void RRRealtimeRadiosity::readPixelResults()
 			}
 			pixelBuffer->renderEnd();
 		}
+	}
+}
+
+void RRRealtimeRadiosity::readPixelResults()
+{
+	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
+	{
+		updateAmbientMap(objectHandle);
 	}
 }
 

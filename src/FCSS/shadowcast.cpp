@@ -1,4 +1,4 @@
-//#define M3DS
+#define M3DS
 //#define BUGS
 #define DYNAOBJECTS                1   // 0..7
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
@@ -636,7 +636,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	if(renderedChannels.LIGHT_INDIRECT_MAP && !level->solver->getIllumination(0)->getChannel(0)->pixelBuffer)
 	{
 		// create lightmaps if they are needed for render
-		level->solver->calculate(rr::RRRealtimeRadiosity::UPDATE_PIXEL_BUFFERS);
+		level->solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
 	}
 	// set indirect vertex/pixel buffer
 	level->rendererNonCaching->setIndirectIllumination(level->solver->getIllumination(0)->getChannel(0)->vertexBuffer,level->solver->getIllumination(0)->getChannel(0)->pixelBuffer);
@@ -1832,7 +1832,7 @@ int main(int argc, char **argv)
 	else
 	{
 		glutCreateWindow("Realtime Radiosity");
-		glutFullScreen();
+//		glutFullScreen();
 	}
 	glutDisplayFunc(display);
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);

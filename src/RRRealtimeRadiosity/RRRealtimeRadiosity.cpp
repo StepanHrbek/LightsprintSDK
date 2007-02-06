@@ -255,15 +255,16 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 			break;
 	}
 
+	if(requests)
 	if((dirtyResults && now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
-		|| (requests&(UPDATE_VERTEX_BUFFERS|UPDATE_PIXEL_BUFFERS)) )
+		|| (requests&(FORCE_UPDATE_VERTEX_BUFFERS|FORCE_UPDATE_PIXEL_BUFFERS)) )
 	{
 		dirtyResults = false;
 		REPORT_BEGIN("Reading results.");
 		lastReadingResultsTime = now;
 		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
-		readVertexResults();
-		readPixelResults();
+		if(requests&(AUTO_UPDATE_VERTEX_BUFFERS|FORCE_UPDATE_VERTEX_BUFFERS)) readVertexResults();
+		if(requests&(AUTO_UPDATE_PIXEL_BUFFERS|FORCE_UPDATE_PIXEL_BUFFERS)) readPixelResults();
 		REPORT_END;
 		return RRScene::IMPROVED;
 	}

@@ -285,20 +285,20 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Storage for object's indirect illumination.
+	//! Storage for static object's indirect illumination.
 	//
 	//! Editor stores calculated illumination here.
 	//! Renderer reads illumination from here.
-	//! Add one instance to each of your objects.
+	//! Add one instance to every static object in your scene.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RR_API RRObjectIllumination
 	{
 	public:
-		//! \param anumPreImportVertices
-		//!  PreImport number of vertices, length of vertex buffer for rendering.
-		RRObjectIllumination(unsigned anumPreImportVertices);
+		//! \param numPreImportVertices
+		//!  PreImport (original) number of mesh vertices, length of vertex buffer for rendering.
+		RRObjectIllumination(unsigned numPreImportVertices);
 
 		//! One layer of illumination (irradiance) values for whole object.
 		//
@@ -329,13 +329,14 @@ namespace rr
 
 		//! \param channelIndex
 		//!  Index of channel you would like to get. Arbitrary unsigned number.
+		//!  For now, only channel 0 contains data.
 		//! \return Channel of channelIndex. If it doesn't exist yet, it is created.
 		Channel* getChannel(unsigned channelIndex);
 		//! \return PreImport number of vertices, length of vertex buffer for rendering.
 		unsigned getNumPreImportVertices();
 		~RRObjectIllumination();
 	protected:
-		//! PreImport number of vertices, length of vertex buffer for rendering.
+		//! PreImport (original) number of mesh vertices, length of vertex buffer for rendering.
 		unsigned numPreImportVertices;
 		//! Container with all channels.
 		void* hiddenChannels;
