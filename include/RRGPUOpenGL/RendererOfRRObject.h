@@ -86,7 +86,7 @@ public:
 	};
 	void setRenderedChannels(RenderedChannels renderedChannels);
 	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1);
-	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,rr::RRIlluminationPixelBuffer* ambientMap); ///< Used only #ifdef BUFFERS.
+	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,rr::RRIlluminationPixelBuffer* ambientMap); ///< Used only \#ifdef BUFFERS.
 	virtual const void* getParams(unsigned& length) const;
 	virtual void render();
 	virtual ~RendererOfRRObject();

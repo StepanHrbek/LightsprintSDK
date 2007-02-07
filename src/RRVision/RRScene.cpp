@@ -292,10 +292,18 @@ bool RRScene::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometr
 		// diffuse applied on physical scale, not custom scale
 		irrad *= tri->surface->diffuseReflectance;
 	}
-	if(measure.scaled && scaler)
+	if(measure.scaled)
 	{
-		// scaler applied on density, not flux
-		scaler->getCustomScale(irrad);
+		if(scaler)
+		{
+			// scaler applied on density, not flux
+			scaler->getCustomScale(irrad);
+		}
+		else
+		{
+			// scaling requested but not available
+			assert(0);
+		}
 	}
 	if(measure.flux)
 	{

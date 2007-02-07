@@ -8,11 +8,20 @@
 
 \section news12 ------------------------------------ 2007.2.x -------------------------------------
 
+NEWS
+
+- final gathering,
+  used internally, boosts quality of ambient maps
+- RRRealtimeRadiosity::updatePixelBuffer,
+  manual request for update of ambient map
+- extended RRRealtimeRadiosity::Request,
+  finer control of data updates in RRRealtimeRadiosity::calculate()
+
 CHANGES
 
 - new RRGPUOpenGL library, previously part of HelloRealtimeRadiosity
 - DemoEngine depends on GLEW library, previously part of DemoEngine
-- DemoENgine depends on FreeImage library, used internally by de::Texture::load()
+- DemoEngine depends on FreeImage library, used internally by de::Texture::load()
 
 
 \section news11 ------------------------------------ 2007.1.16 -------------------------------------

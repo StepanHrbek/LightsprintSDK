@@ -30,18 +30,6 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL()
 	texture = de::Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 }
 
-void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorRGBA8* irradiance)
-{
-	EnterCriticalSection(&criticalSection);
-	bindTexture();
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	for(unsigned side=0; side<6; side++)
-	{
-		//gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X + side, GL_RGBA8, size, size, GL_RGBA, GL_UNSIGNED_BYTE, &irradiance[size*size*side].color);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,size,size,0,GL_RGBA,GL_UNSIGNED_BYTE,&irradiance[size*size*side].color);
-	}
-	LeaveCriticalSection(&criticalSection);
-}
 
 void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorRGBF* irradiance)
 {
@@ -54,6 +42,12 @@ void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorR
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGB,size,size,0,GL_RGB,GL_FLOAT,&irradiance[size*size*side].x);
 	}
 	LeaveCriticalSection(&criticalSection);
+}
+
+rr::RRColorRGBF RRIlluminationEnvironmentMapInOpenGL::getValue(const rr::RRVec3& direction)
+{
+	assert(0);
+	return rr::RRColorRGBF(0);
 }
 
 void RRIlluminationEnvironmentMapInOpenGL::bindTexture()

@@ -36,12 +36,11 @@
 // every frame new set of maps for all objects in scene.
 // You can turn this demo into ambient map precalculator by saving maps to disk.
 // It is possible to improve ambient map quality 
-// 1) by providing unwrap for meshes (see getTriangleMapping in 3ds2rr.cpp).
-//    If you see pink pixels in ambient maps (e.g. on walls),
-//    it's result of bad unwrap with too small distance between standalone triangles.
-//    You can limit these artifacts by increasing ambient map resolution, see newPixelBuffer.
-// 2) by calling calculate() multiple times before
+// 1) by manually calling solver->updateAmbientMap(objectIndex,NULL,quality); (also change AUTO_UPDATE_PIXEL_BUFFERS to 0)
+// 2) by providing unwrap for meshes (see getTriangleMapping in 3ds2rr.cpp).
+// 3) by calling calculate() multiple times before
 //    final calculate(UPDATE_PIXEL_BUFFERS) and save of ambient maps.
+// 4) by increasing ambient map resolution (see newPixelBuffer).
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -365,7 +364,13 @@ void idle()
 	prev = now;
 
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
-	solver->calculate();
+	solver->calculate(
+#ifdef AMBIENT_MAPS
+		rr::RRRealtimeRadiosity::AUTO_UPDATE_PIXEL_BUFFERS
+#else
+		rr::RRRealtimeRadiosity::AUTO_UPDATE_VERTEX_BUFFERS
+#endif
+		);
 	glutPostRedisplay();
 }
 

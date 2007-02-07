@@ -9,7 +9,8 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define SUBDIVISION                0
-#define LIGHTMAP_SIZE              1024
+#define LIGHTMAP_SIZE              512
+#define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 bool ati = 1;
 int fullscreen = 0;
@@ -1455,6 +1456,13 @@ void keyboard(unsigned char c, int x, int y)
 					level->solver->getIllumination(i)->getChannel(0)->pixelBuffer = NULL;
 				}
 			}
+			else
+			{
+				// creates all maps in low quality
+				level->solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
+				// updates one selected map in high quality
+				level->solver->updateAmbientMap(0,NULL,LIGHTMAP_QUALITY);//!!!
+			}
 			break;
 		case 'f':
 		case 'F':
@@ -1717,7 +1725,9 @@ void idle()
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	if(!level || (rrOn && level->solver->calculate()==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
+	if(!level || (rrOn && level->solver->calculate(rr::RRRealtimeRadiosity::AUTO_UPDATE_VERTEX_BUFFERS
+		//+(renderLightmaps?rr::RRRealtimeRadiosity::AUTO_UPDATE_PIXEL_BUFFERS:0)
+		)==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
 	{
 //		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache

@@ -1,6 +1,10 @@
 #include <cassert>
 #include <cfloat>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #include "RRRealtimeRadiosity.h"
+#include "../src/RRMath/RRMathPrivate.h"
 
 namespace rr
 {
@@ -47,7 +51,262 @@ RRIlluminationPixelBuffer* RRRealtimeRadiosity::newPixelBuffer(RRObject* object)
 	return NULL;
 }
 
-void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIlluminationPixelBuffer* pixelBuffer)
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// homogenous filling:
+//   generates points that nearly homogenously (low hustota fluctuations) fill some 2d area
+
+class HomogenousFiller
+{
+	unsigned num;
+public:
+	void Reset() {num=0;}
+	void GetTrianglePoint(RRReal *a,RRReal *b)
+	{
+		unsigned n=num++;
+		static const RRReal dir[4][3]={{0,0,-0.5f},{0,1,0.5f},{0.86602540378444f,-0.5f,0.5f},{-0.86602540378444f,-0.5f,0.5f}};
+		RRReal x=0;
+		RRReal y=0;
+		RRReal dist=1;
+		while(n)
+		{
+			x+=dist*dir[n&3][0];
+			y+=dist*dir[n&3][1];
+			dist*=dir[n&3][2];
+			n>>=2;
+		}
+		*a=x;
+		*b=y;
+	}
+	RRReal GetCirclePoint(RRReal *a,RRReal *b)
+	{
+		RRReal dist;
+		do GetTrianglePoint(a,b); while((dist=*a**a+*b**b)>=1);
+		return dist;
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// random exiting ray
+
+static RRVec3 getRandomExitDir(HomogenousFiller& filler, const RRVec3& norm, const RRVec3& u3, const RRVec3& v3)
+// ortonormal space: norm, u3, v3
+// returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
+{
+#if 1 // homogenous fill
+	RRReal x,y;
+	RRReal cosa=sqrt(1-filler.GetCirclePoint(&x,&y));
+	return norm*cosa + u3*x + v3*y;
+#else
+	// select random vector from srcPoint3 to one halfspace
+	// power is assumed to be 1
+	RRReal tmp=(RRReal)rand()/RAND_MAX*1;
+	RRReal cosa=sqrt(1-tmp);
+	RRReal sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
+	RRReal b=rand()*2*3.14159265/RAND_MAX;         // b = rotation angle around normal
+	return norm*cosa + u3*(sina*cos(b)) + v3*(sina*sin(b));
+#endif
+}
+
+
+class SkipTriangle : public RRCollisionHandler
+{
+public:
+	SkipTriangle(unsigned askip) : skip(askip) {}
+	virtual void init()
+	{
+		result = false;
+	}
+	virtual bool collides(const RRRay* ray)
+	{
+		result = result || (ray->hitTriangle!=skip);
+		return ray->hitTriangle!=skip;
+	}
+	virtual bool done()
+	{
+		return result;
+	}
+	unsigned skip;
+private:
+	bool result;
+};
+
+
+struct TexelContext
+{
+	RRRealtimeRadiosity* solver;
+	RRIlluminationPixelBuffer* pixelBuffer;
+	unsigned quality;
+	unsigned triangleIndex;
+};
+
+// thread safe: yes except for first call (could allocate memory).
+//   someone must call us at least once, before multithreading starts.
+void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context)
+{
+	if(!context)
+	{
+		assert(0);
+		return;
+	}
+	TexelContext* tc = (TexelContext*)context;
+	if(!tc->solver || !tc->solver->getMultiObjectCustom())
+	{
+		assert(0);
+		return;
+	}
+	// cast rays and calculate irradiance
+	/*
+	// Approach 1: envmaps
+	// It's very difficult with envmap to avoid accidental selfillumination.
+	RRIlluminationEnvironmentMap* diffuseMap = RRIlluminationEnvironmentMap::createInSystemMemory();
+	tc->solver->updateEnvironmentMaps(pos3d+normal.normalized()*0.002f //!!! fudge number
+		,tc->quality,0,NULL,(tc->quality>8)?8:tc->quality,diffuseMap);
+	RRColorRGBF irradiance = diffuseMap->getValue(normal);
+	delete diffuseMap;
+	// Approach 2: rendering
+	*/
+	// Approach 3: shooting rays
+	// - prepare ortonormal base
+	RRVec3 n3 = normal.normalized();
+	RRVec3 u3 = normalized(ortogonalTo(n3));
+	RRVec3 v3 = normalized(ortogonalTo(n3,u3));
+	// - prepare homogenous filler
+	HomogenousFiller filler;
+	filler.Reset();
+	// - prepare ray
+	RRRay* ray = RRRay::create();
+	// - prepare collider
+	const RRCollider* collider = tc->solver->getMultiObjectCustom()->getCollider();
+	SkipTriangle skip(triangleIndex);
+	// - shoot
+	RRColorRGBF irradiance = RRColorRGBF(0);
+	for(unsigned i=0;i<tc->quality;i++)
+	{
+		// random exit dir
+		RRVec3 dir = getRandomExitDir(filler, n3, u3, v3);
+		RRReal dirsize = dir.length();
+		// intesect scene
+		ray->rayOrigin = pos3d;
+		ray->rayDirInv[0] = dirsize/dir[0];
+		ray->rayDirInv[1] = dirsize/dir[1];
+		ray->rayDirInv[2] = dirsize/dir[2];
+		ray->rayLengthMin = 0;
+		ray->rayLengthMax = 10000; //!!! hard limit
+		ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
+		ray->collisionHandler = &skip;
+		unsigned face = collider->intersect(ray) ? ray->hitTriangle : UINT_MAX;
+		if(face==UINT_MAX)
+		{
+			// read irradiance on sky
+			//irradiance += RRVec3(0); //!!! add sky
+		}
+		else
+		{
+			// read cube irradiance as face exitance
+			RRVec3 irrad;
+			tc->solver->getScene()->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
+			irradiance += irrad;
+		}		
+	}
+	irradiance *= (1.0f/tc->quality);
+	delete ray;
+	// scale irradiance
+	if(tc->solver->getScaler()) tc->solver->getScaler()->getCustomScale(irradiance);
+	// store irradiance in custom scale
+	tc->pixelBuffer->renderTexel(uv,irradiance);
+}
+
+void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight,
+	void (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context), void* context)
+{
+	// Iterate through all multimesh triangles (rather than single object's mesh triangles)
+	// Advantages:
+	//  + vertices and normals in world space
+	//  + no degenerated faces
+	//!!! Warning: mapping must be preserved by multiobject.
+	//    Current multiobject lets object mappings overlap, but it could change in future.
+
+	RRObject* multiObject = getMultiObjectCustom();
+	if(!multiObject)
+	{
+		assert(0);
+		return;
+	}
+	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
+	unsigned numTriangles = multiMesh->getNumTriangles();
+
+	#pragma omp parallel for schedule(static,1)
+	for(int tt=0;tt<(int)numTriangles;tt++)
+	{
+		unsigned t = (unsigned)tt;
+		RRMesh::MultiMeshPreImportNumber preImportNumber = multiMesh->getPreImportTriangle(t);
+		if(preImportNumber.object==objectNumber)
+		{
+			// gather data about triangle t
+			RRMesh::TriangleBody body;
+			multiMesh->getTriangleBody(t,body);
+			RRVec3 vertices[3] = {body.vertex0,body.vertex0+body.side1,body.vertex0+body.side2};
+			RRObject::TriangleNormals normals;
+			multiObject->getTriangleNormals(t,normals);
+			RRObject::TriangleMapping mapping;
+			multiObject->getTriangleMapping(t,mapping);
+			// rasterize triangle t
+			//  find minimal bounding box
+			RRReal xmin = mapWidth  * MIN(mapping.uv[0][0],MIN(mapping.uv[1][0],mapping.uv[2][0]));
+			RRReal xmax = mapWidth  * MAX(mapping.uv[0][0],MAX(mapping.uv[1][0],mapping.uv[2][0]));
+			RRReal ymin = mapHeight * MIN(mapping.uv[0][1],MIN(mapping.uv[1][1],mapping.uv[2][1]));
+			RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
+			assert(xmin>=0 && xmax<mapWidth);
+			assert(ymin>=0 && ymax<mapHeight);
+			//  precompute mapping[0]..mapping[1] line and mapping[0]..mapping[2] line equations in 2d map space
+			#define POINT_LINE_DISTANCE(point,line) \
+				((line)[0]*(point)[0]+(line)[1]*(point)[1]+(line)[2])
+			#define LINE_EQUATION(lineEquation,lineDirection,pointInDistance0,pointInDistance1) \
+				lineEquation = RRVec3((lineDirection)[1],-(lineDirection)[0],0); \
+				lineEquation[2] = -POINT_LINE_DISTANCE(pointInDistance0,lineEquation); \
+				lineEquation *= 1/POINT_LINE_DISTANCE(pointInDistance1,lineEquation);
+			RRVec3 line1InMap; // line equation in 0..1,0..1 map space
+			RRVec3 line2InMap;
+			LINE_EQUATION(line1InMap,mapping.uv[1]-mapping.uv[0],mapping.uv[0],mapping.uv[2]);
+			LINE_EQUATION(line2InMap,mapping.uv[2]-mapping.uv[0],mapping.uv[0],mapping.uv[1]);
+			//  for all texels in bounding box
+			for(unsigned y=(unsigned)ymin;y<MIN((unsigned)ymax,mapHeight);y++)
+			{
+				for(unsigned x=(unsigned)xmin;x<MIN((unsigned)xmax,mapWidth);x++)
+				{
+					// compute uv in triangle
+					//  xy = mapSize*mapping[0] -> uvInTriangle = 0,0
+					//  xy = mapSize*mapping[1] -> uvInTriangle = 1,0
+					//  xy = mapSize*mapping[2] -> uvInTriangle = 0,1
+					RRVec2 uvInMapF = RRVec2((x+0.5f)/mapWidth,(y+0.5f)/mapHeight); // in 0..1 map space
+					RRVec2 uvInTriangle = RRVec2(
+						POINT_LINE_DISTANCE(uvInMapF,line2InMap),
+						POINT_LINE_DISTANCE(uvInMapF,line1InMap));
+					// process only texels inside triangle
+					if(uvInTriangle[0]>=0 && uvInTriangle[1]>=0 && uvInTriangle[0]+uvInTriangle[1]<=1)
+					{
+						// compute uv in map and pos/norm in worldspace
+						unsigned uvInMapI[2] = {x,y};
+						RRVec3 posWorld = body.vertex0 + body.side1*uvInTriangle[0] + body.side2*uvInTriangle[1];
+						RRVec3 normalWorld = normals.norm[0] + (normals.norm[1]-normals.norm[0])*uvInTriangle[0] + (normals.norm[2]-normals.norm[0])*uvInTriangle[1];
+						// enumerate texel
+						callback(uvInMapI,posWorld,normalWorld,t,context);
+					}
+				}
+			}
+		}
+	}
+
+	// Options:
+	// [1] for each texel, find triangle
+	// [2] add caching, use slow search only for first time
+	// [3] for each triangle, software rasterize it
+}
+
+void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIlluminationPixelBuffer* pixelBuffer, unsigned quality)
 {
 	if(!scene)
 	{
@@ -80,20 +339,34 @@ void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIllumination
 		if(pixelBuffer)
 		{
 			pixelBuffer->renderBegin();
-
-			// for each triangle
-			for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+			if(quality)
 			{
-				// render all subtriangles into pixelBuffer using object's unwrap
-				RenderSubtriangleContext rsc;
-				rsc.pixelBuffer = pixelBuffer;
-				object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
-				// multiObject must preserve mapping (all objects overlap in one map)
-				//!!! this is satisfied now, but it may change in future
-				RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
-				if(preImportTriangle.object==objectHandle)
+				TexelContext tc;
+				tc.solver = this;
+				tc.pixelBuffer = pixelBuffer;
+				tc.quality = quality;
+				// process one texel. for safe preallocations inside texel processor
+				unsigned uv[2]={0,0};
+				processTexel(uv,RRVec3(0),RRVec3(1),0,&tc);
+				// continue with all texels, possibly in multiple threads
+				enumerateTexels(objectHandle,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,&tc);
+			}
+			else
+			{
+				// for each triangle
+				for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 				{
-					scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),renderSubtriangle,&rsc);
+					// render all subtriangles into pixelBuffer using object's unwrap
+					RenderSubtriangleContext rsc;
+					rsc.pixelBuffer = pixelBuffer;
+					object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
+					// multiObject must preserve mapping (all objects overlap in one map)
+					//!!! this is satisfied now, but it may change in future
+					RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
+					if(preImportTriangle.object==objectHandle)
+					{
+						scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),renderSubtriangle,&rsc);
+					}
 				}
 			}
 			pixelBuffer->renderEnd();
@@ -105,7 +378,7 @@ void RRRealtimeRadiosity::readPixelResults()
 {
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
-		updateAmbientMap(objectHandle);
+		updateAmbientMap(objectHandle,NULL,0);
 	}
 }
 

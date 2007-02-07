@@ -30,12 +30,16 @@ namespace rr_gl
 		virtual void renderBegin();
 		virtual void renderTriangle(const IlluminatedTriangle& it);
 		//virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
+		virtual void renderTexel(const unsigned uv[2], const rr::RRColorRGBF& color);
 		virtual void renderEnd();
+		virtual unsigned getWidth() const;
+		virtual unsigned getHeight() const;
 		virtual void bindTexture();
 		virtual ~RRIlluminationPixelBufferInOpenGL();
 	private:
 		de::Texture* texture;
 		bool rendering;
+		rr::RRColorRGBA8* renderedTexels;
 		// state backup
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;

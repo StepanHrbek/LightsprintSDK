@@ -9,6 +9,8 @@
 #include "DemoEngine/Program.h"
 #include "RRGPUOpenGL.h"
 
+#define SAFE_DELETE_ARRAY(a)   {delete[] a;a=NULL;}
+
 namespace rr_gl
 {
 
@@ -57,6 +59,8 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned aw
 	numInstances++;
 
 	texture = de::Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+
+	renderedTexels = NULL;
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderBegin()
@@ -112,6 +116,27 @@ void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle
 //	write optimized version with interleaved array
 //}
 
+void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const rr::RRColorRGBF& color)
+{
+	if(!renderedTexels)
+	{
+		renderedTexels = new rr::RRColorRGBA8[texture->getWidth()*texture->getHeight()];
+	}
+	if(uv[0]>texture->getWidth())
+	{
+		assert(0);
+		return;
+	}
+	if(uv[1]>texture->getHeight())
+	{
+		assert(0);
+		return;
+	}
+	renderedTexels[uv[0]+uv[1]*texture->getWidth()] = 
+		//!!! r <-> b swap, to compensate other swap on unknown place
+		rr::RRColorRGBA8(color[2],color[1],color[0],1);
+}
+
 void RRIlluminationPixelBufferInOpenGL::renderEnd()
 {
 	if(!rendering) 
@@ -120,6 +145,14 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 		return;
 	}
 	rendering = false;
+
+	if(renderedTexels)
+	{
+		texture->renderingToEnd();
+		texture->bindTexture();
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,renderedTexels);
+		SAFE_DELETE_ARRAY(renderedTexels);
+	}
 
 	// tempTexture must not be smaller than texture
 	if(texture->getWidth()<=helpers->tempTexture->getWidth() && texture->getHeight()<=helpers->tempTexture->getHeight())
@@ -177,6 +210,16 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	if(depthMask) glDepthMask(GL_TRUE);
 }
 
+unsigned RRIlluminationPixelBufferInOpenGL::getWidth() const
+{
+	return texture->getWidth();
+}
+
+unsigned RRIlluminationPixelBufferInOpenGL::getHeight() const
+{
+	return texture->getHeight();
+}
+
 void RRIlluminationPixelBufferInOpenGL::bindTexture()
 {
 	texture->bindTexture();
@@ -185,6 +228,7 @@ void RRIlluminationPixelBufferInOpenGL::bindTexture()
 RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 {
 	delete texture;
+	delete[] renderedTexels;
 
 	numInstances--;
 	if(!numInstances)

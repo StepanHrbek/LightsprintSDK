@@ -9,7 +9,7 @@ CPPFLAGS += -march=athlon-xp
 CPPFLAGS += -msse
 CPPFLAGS += -mfpmath=sse
 
-OBJS = $(TMP)RRIlluminationPixelBuffer.o $(TMP)RRIlluminationVertexBufferInMemory.o $(TMP)RRObjectIllumination.o
+OBJS = $(TMP)RRIlluminationEnvironmentMapInMemory.o $(TMP)RRIlluminationPixelBuffer.o $(TMP)RRIlluminationVertexBufferInMemory.o $(TMP)RRObjectIllumination.o
 # $(TMP)RRIlluminationPixelBufferInMemory.o $(TMP)swraster.o
 
 all: makefile $(LIB)

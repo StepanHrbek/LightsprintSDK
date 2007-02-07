@@ -132,6 +132,10 @@ namespace rr
 		{
 			color = (unsigned)CLAMPED(255*r,0,255) + (((unsigned)CLAMPED(255*g,0,255))<<8) + (((unsigned)CLAMPED(255*b,0,255))<<16);
 		}
+		RRColorRGBA8(RRReal r,RRReal g,RRReal b,RRReal a)
+		{
+			color = (unsigned)CLAMPED(255*r,0,255) + (((unsigned)CLAMPED(255*g,0,255))<<8) + (((unsigned)CLAMPED(255*b,0,255))<<16) + (((unsigned)CLAMPED(255*a,0,255))<<24);
+		}
 		const RRColorRGBA8& operator =(const RRColorRGBF& a)
 		{
 			return *this = RRColorRGBA8(a[0],a[1],a[2]);
@@ -186,7 +190,6 @@ namespace rr
 
 		virtual ~RRIlluminationVertexBuffer() {};
 
-
 		//////////////////////////////////////////////////////////////////////////////
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
@@ -198,7 +201,7 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Interface to illumination storage based on pixel buffer, ambient map.
+	//! Interface to illumination storage based on 2D pixel buffer, ambient map.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -225,14 +228,30 @@ namespace rr
 			IlluminatedVertex iv[3]; ///< Three illuminated vertices forming triangle.
 		};
 		//! Renders one triangle into map. Must be called inside renderBegin() / renderEnd().
+		//! \param it
+		//!  Description of single triangle.
 		virtual void renderTriangle(const IlluminatedTriangle& it) = 0;
-		//! Renders many triangles into map. Must be called inside renderBegin() / renderEnd().
+		//! Renders multiple triangles into map. Must be called inside renderBegin() / renderEnd().
+		//! \param it
+		//!  Array with description of triangles.
+		//! \param numTriangles
+		//!  Length of it array, number of triangles to be rendered.
 		virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
-		//! Finishes rendering of triangles into ambient map (could filter map). Must be paired with renderBegin().
+		//! Renders one texel into map. Must be called inside renderBegin() / renderEnd().
+		//! \param uv
+		//!  Array of 2 elements, texel coordinates in 0..width-1, 0..height-1 range.
+		//! \param color
+		//!  Color of rendered texel. Typically irradiance in custom scale is stored here.
+		virtual void renderTexel(const unsigned uv[2], const RRColorRGBF& color) = 0;
+		//! Finishes rendering into ambient map (could filter map). Must be paired with renderBegin().
 		virtual void renderEnd() {};
 
 		// Pixel buffer use
 
+		//! \return Width of pixel buffer in pixels.
+		virtual unsigned getWidth() const = 0;
+		//! \return Height of pixel buffer in pixels.
+		virtual unsigned getHeight() const = 0;
 		//! Locks the buffer for seeing array of all pixels at once. Optional, may return NULL.
 		virtual const RRColorRGBA8* lock() {return NULL;};
 		//! Unlocks previously locked buffer.
@@ -271,11 +290,11 @@ namespace rr
 		//!  \n size*size values for POSITIVE_Z side,
 		//!  \n size*size values for NEGATIVE_Z side.
 		virtual void setValues(unsigned size, RRColorRGBF* irradiance) = 0;
-		//! The same as setValues, but in your custom scale, clamped to 8bit.
-		virtual void setValues(unsigned size, RRColorRGBA8* irradiance) = 0;
 
 		// Environment map use
 
+		//! Returns value adressed by given direction.
+		virtual RRColorRGBF getValue(const RRVec3& direction) = 0;
 		//! Binds texture for rendering. Various implementations may do OpenGL bind, DirectX bind or nothing.
 		virtual void bindTexture() {};
 

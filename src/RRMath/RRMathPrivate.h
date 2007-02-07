@@ -46,7 +46,10 @@ namespace rr
 
 	inline RRVec3 ortogonalTo(const RRVec3& a)
 	{
-		return RRVec3(0,a.z,-a.y);
+		if(!a.x)
+			return RRVec3(0,a.z,-a.y);
+		else
+			return RRVec3(-a.y,a.x,0);
 	}
 
 // dohoda:
