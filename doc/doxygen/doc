@@ -22,7 +22,7 @@ namespace rr
 
  - <b> \subpage main_platforms </b>
 
- - <b> \subpage main_api "API reference" </b>
+ - <b> \subpage main_api </b>
 
 
 
@@ -1515,7 +1515,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
  Header: RRMath.h
 
- - RRReal holds one real number, which is float at the moment
+ - RRReal holds one real number, which is single precision float
  - RRVec2 is vector of 2 real numbers
  - RRVec3 is vector of 3 real numbers
  - RRVec4 is vector of 4 real numbers
@@ -1525,16 +1525,16 @@ Adding global illumination (GI) to your code is described in four steps.
 \page api_gl GPUOpenGL
 
  GPUOpenGL implements Lightsprint's access to GPU using OpenGL 2.0 API.
- It is very small library, you can quickly customize it for API or engine of your choice.
+ It is very small library, you can quickly customize or rewrite 
+ it for API or engine of your choice.
+ Full source code comes with commercial licence.
 
  Namespace: rr_gl
 
  Headers: RRGPUOpenGL.h, RRGPUOpenGL/RendererOfRRObject.h
 
- - rr_gl::createIlluminationVertexBuffer creates vertex buffer for indirect illumination
- - rr_gl::createIlluminationPixelBuffer creates 2d texture for indirect illumination
- - rr_gl::createIlluminationEnvironmentMap creates cube texture for indirect illumination
- - rr_gl::detectDirectIllumination detect direct illumination present in scene
+ - rr_gl::RRRealtimeRadiosityGL implements RRRealtimeRadiosity GPU specific parts in OpenGL 2.0
+ - rr_gl::RendererOfRRObject is renderer of 3d objects with Lightsprint's RRObject interface
 
 
 
@@ -1543,6 +1543,7 @@ Adding global illumination (GI) to your code is described in four steps.
  DemoEngine based on OpenGL 2.0 provides support for loading and rendering
  3d scenes with shaders, but without global illumination.
  You can safely replace DemoEngine by your renderer or game engine.
+ Full source code comes with commercial licence.
 
  Headers: DemoEngine/*.h
 

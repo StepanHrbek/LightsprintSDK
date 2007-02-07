@@ -90,7 +90,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	{
 		if(!getMultiObjectCustom()) return false;
 		rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getScene(),getScaler());
-		rendererCaching = new de::RendererWithCache(rendererNonCaching);
+		rendererCaching = rendererNonCaching->createDisplayList();
 	}
 
 	// backup render states

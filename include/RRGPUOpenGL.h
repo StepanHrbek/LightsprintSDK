@@ -36,7 +36,7 @@
 
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/Program.h"
-#include "DemoEngine/RendererWithCache.h"
+#include "DemoEngine/Renderer.h"
 
 //! LightsprintGL - OpenGL 2.0 part of realtime global illumination solver.
 namespace rr_gl
@@ -53,7 +53,8 @@ namespace rr_gl
 	public:
 		//! Initializes generic GPU access implemented in RRRealtimeRadiosityGL.
 		//! \param pathToShaders
-		//!   Path to directory with scaledown_filter.* shaders. Must be terminated with slash or empty.
+		//!   Path to directory with lightmap_filter.* and scaledown_filter.* shaders.
+		//!   Must be terminated with slash (or be empty for current dir).
 		RRRealtimeRadiosityGL(char* pathToShaders);
 		virtual ~RRRealtimeRadiosityGL();
 
@@ -77,7 +78,7 @@ namespace rr_gl
 		// for internal rendering
 		class CaptureUv* captureUv;
 		class RendererOfRRObject* rendererNonCaching;
-		de::RendererWithCache* rendererCaching;
+		de::Renderer* rendererCaching;
 		de::Texture* detectBigMap;
 		unsigned* detectSmallMap;
 		unsigned smallMapSize;

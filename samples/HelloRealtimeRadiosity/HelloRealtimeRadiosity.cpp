@@ -33,7 +33,7 @@
 #include "3ds2rr.h"
 #include "DynamicObject.h"
 
-#define AMBIENT_MAPS
+//#define AMBIENT_MAPS
 // By uncommenting, switch from vertex based global illumination to texture based one.
 // - Ambient maps are GENERATED and rendered in REALTIME,
 //   every frame new set of maps for all objects in scene.
