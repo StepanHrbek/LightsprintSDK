@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRIllumination.h
 //! \brief RRIllumination - library for calculated illumination storage
-//! \version 2007.1.16
+//! \version 2007.2.7
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -272,22 +272,29 @@ namespace rr
 			IlluminatedVertex iv[3]; ///< Three illuminated vertices forming triangle.
 		};
 		//! Renders one triangle into map. Must be called inside renderBegin() / renderEnd().
+		//
 		//! \param it
 		//!  Description of single triangle.
 		virtual void renderTriangle(const IlluminatedTriangle& it) = 0;
 		//! Renders multiple triangles into map. Must be called inside renderBegin() / renderEnd().
+		//
 		//! \param it
 		//!  Array with description of triangles.
 		//! \param numTriangles
 		//!  Length of it array, number of triangles to be rendered.
 		virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
 		//! Renders one texel into map. Must be called inside renderBegin() / renderEnd().
+		//
 		//! \param uv
 		//!  Array of 2 elements, texel coordinates in 0..width-1, 0..height-1 range.
 		//! \param color
 		//!  Color of rendered texel. Typically irradiance in custom scale is stored here.
+		//!  Color of texels with zero alpha is considered unknown and may be changed in renderEnd().
 		virtual void renderTexel(const unsigned uv[2], const RRColorRGBAF& color) = 0;
-		//! Finishes rendering into ambient map (could filter map). Must be paired with renderBegin().
+		//! Finishes rendering into ambient map. Must be paired with renderBegin().
+		//
+		//! It could filter map, in which case, texels with zero alpha may get overwritten
+		//! by nearby texel colors.
 		virtual void renderEnd() {};
 
 		// Pixel buffer use

@@ -37,7 +37,7 @@ namespace rr
 
   Lightsprint is first to come with physically correct 
   indirect illumination synthesis so fast, that it 
-  is suitable for realtime rendering in dynamic scenes.
+  is suitable not only for precalculations, but also for realtime rendering in dynamic scenes.
 
  \section intro2 Your contribution
 
@@ -57,12 +57,17 @@ namespace rr
 
   Lightsprint calculates physically correct indirect illumination
   in realtime as a replacement for constant ambient.
+  \n Dynamic lights, dynamic objects, diffuse, specular, emissive and transparent 
+  surfaces and respective reflections are taken into account.
 
   \image html a1b.jpg
 
   \image html all-rr.png
 
-  We can also precalculate complete direct+indirect illumination from area lights.
+  Lightsprint can precalculate global illumination in even higher quality,
+  if it gets more time than a few miliseconds.
+  No further work is required, the same interfaces are used for both realtime and
+  precomputed solutions.
 
 
 
