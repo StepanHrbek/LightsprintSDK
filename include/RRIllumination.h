@@ -78,6 +78,50 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//! Float RGBA - One of color formats for vertex and pixel buffers.
+	//
+	// All color formats have default constructor that sets black color.
+	// This makes vertex and pixels buffers black after construction.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RRColorRGBAF : public RRVec4
+	{
+	public:
+		RRColorRGBAF(RRReal a = 0)
+		{
+			x = y = z = w = a;
+		}
+		RRColorRGBAF(RRReal r,RRReal g,RRReal b,RRReal a)
+		{
+			x = r;
+			y = g;
+			z = b;
+			w = a;
+		}
+		RRColorRGBAF(const RRVec3& a)
+		{
+			x = a.x;
+			y = a.y;
+			z = a.z;
+			w = 0;
+		}
+		RRColorRGBAF(const RRVec4& a)
+		{
+			x = a.x;
+			y = a.y;
+			z = a.z;
+			this->w = a.w;
+		}
+		RRColorRGBF toRRColorRGBF() const
+		{
+			return RRColorRGBF(x,y,z);
+		}
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	//! 8bit intensity - One of color formats for vertex and pixel buffers.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -242,7 +286,7 @@ namespace rr
 		//!  Array of 2 elements, texel coordinates in 0..width-1, 0..height-1 range.
 		//! \param color
 		//!  Color of rendered texel. Typically irradiance in custom scale is stored here.
-		virtual void renderTexel(const unsigned uv[2], const RRColorRGBF& color) = 0;
+		virtual void renderTexel(const unsigned uv[2], const RRColorRGBAF& color) = 0;
 		//! Finishes rendering into ambient map (could filter map). Must be paired with renderBegin().
 		virtual void renderEnd() {};
 

@@ -257,11 +257,10 @@ void idle()
 int main(int argc, char **argv)
 {
 	// init GLUT
-	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutGameModeString("800x600:32");
-	glutEnterGameMode();
+	glutEnterGameMode(); // alternatively call glutInitWindowSize(800,600);glutCreateWindow("HelloRR"); for windowed mode
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
@@ -287,6 +286,8 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
+	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
+	// set shadowmapsPerPass=1 for standard shadows
 	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram);
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.

@@ -9,7 +9,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define SUBDIVISION                0
-#define LIGHTMAP_SIZE              512
+#define LIGHTMAP_SIZE_FACTOR       20
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 bool ati = 1;
@@ -297,8 +297,10 @@ public:
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
+		unsigned res = 8;
+		while(res<2048 && res<LIGHTMAP_SIZE_FACTOR*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
-		return renderLightmaps ? rr_gl::RRRealtimeRadiosityGL::createIlluminationPixelBuffer(LIGHTMAP_SIZE,LIGHTMAP_SIZE) : NULL;
+		return renderLightmaps ? rr_gl::RRRealtimeRadiosityGL::createIlluminationPixelBuffer(res,res) : NULL;
 	}
 	virtual void detectMaterials()
 	{
@@ -1460,8 +1462,17 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				// creates all maps in low quality
 				level->solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
-				// updates one selected map in high quality
-				level->solver->updateAmbientMap(0,NULL,LIGHTMAP_QUALITY);//!!!
+				// updates maps in high quality
+				for(unsigned i=0;i<level->solver->getNumObjects();i++)
+				{
+					printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,level->solver->getNumObjects(),
+						level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->getWidth(),
+						level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
+					level->solver->updateAmbientMap(i,NULL,LIGHTMAP_QUALITY);
+					printf(" done.\n");
+				}
+				// stop updating maps in realtime, stay with what we computed here
+				modeMovingEye = true;
 			}
 			break;
 		case 'f':

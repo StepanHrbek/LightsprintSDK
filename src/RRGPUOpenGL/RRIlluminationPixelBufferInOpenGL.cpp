@@ -116,7 +116,7 @@ void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle
 //	write optimized version with interleaved array
 //}
 
-void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const rr::RRColorRGBF& color)
+void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const rr::RRColorRGBAF& color)
 {
 	if(!renderedTexels)
 	{
@@ -134,7 +134,7 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 	}
 	renderedTexels[uv[0]+uv[1]*texture->getWidth()] = 
 		//!!! r <-> b swap, to compensate other swap on unknown place
-		rr::RRColorRGBA8(color[2],color[1],color[0],1);
+		rr::RRColorRGBA8(color[2],color[1],color[0],color[3]);
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderEnd()

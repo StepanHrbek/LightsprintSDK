@@ -2,15 +2,18 @@
 // Hello Realtime Radiosity sample
 //
 // Use of RealtimeRadiosity is demonstrated on .3ds scene viewer.
-// You should be familiar with GLUT and OpenGL.
+// You should be familiar with GLUT and OpenGL to read the code.
 //
 // This is HelloDemoEngine with Lightsprint engine integrated,
-// see how the same scene looks sexy with global illumination.
+// see how the same scene looks better with global illumination.
+//
+// See #define AMBIENT_MAPS
 //
 // Controls:
 //  mouse = look around
 //  arrows = move around
 //  left button = switch between camera and light
+//  spacebar = compute higher quality ambient maps, if defined AMBIENT_MAPS
 //
 // Soft shadow quality is reduced due to bug in ATI drivers.
 // Improve it on NVIDIA by deleting lines with NVIDIA in comment.
@@ -30,17 +33,21 @@
 #include "3ds2rr.h"
 #include "DynamicObject.h"
 
-//#define AMBIENT_MAPS
-// Turns on ambient maps.
-// They are generated and rendered in realtime,
-// every frame new set of maps for all objects in scene.
-// You can turn this demo into ambient map precalculator by saving maps to disk.
-// It is possible to improve ambient map quality 
-// 1) by manually calling solver->updateAmbientMap(objectIndex,NULL,quality); (also change AUTO_UPDATE_PIXEL_BUFFERS to 0)
-// 2) by providing unwrap for meshes (see getTriangleMapping in 3ds2rr.cpp).
-// 3) by calling calculate() multiple times before
-//    final calculate(UPDATE_PIXEL_BUFFERS) and save of ambient maps.
-// 4) by increasing ambient map resolution (see newPixelBuffer).
+#define AMBIENT_MAPS
+// By uncommenting, switch from vertex based global illumination to texture based one.
+// - Ambient maps are GENERATED and rendered in REALTIME,
+//   every frame new set of maps for all objects in scene.
+// - Press spacebar to start high quality precalculation
+//   and alt-tab to watch progress in console (takes approx 10 minutes).
+//   Once precalculation is finished, you can walk through scene and review map.
+// - You can turn this demo into ambient map precalculator by saving maps to disk.
+// - To increase ambient map quality,
+//   1) provide unwrap uv for meshes (see getTriangleMapping in 3ds2rr.cpp)
+//   2) call updateAmbientMap(,,quality) with higher quality
+//   3) increase ambient map resolution (see newPixelBuffer)
+// - To generate maps 10-100x faster
+//   1) provide unwrap uv for meshes (see getTriangleMapping in 3ds2rr.cpp)
+//      and decrease map resolution (see newPixelBuffer)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -79,6 +86,7 @@ float                   speedForward = 0;
 float                   speedBack = 0;
 float                   speedRight = 0;
 float                   speedLeft = 0;
+bool                    ambientMapRealtimeUpdate = true;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -199,10 +207,12 @@ protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		// Decide how big ambient map you want for object. 
+		unsigned res = 8;
+		while(res<2048 && res<20*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		// When seams appear, increase res.
 		// Depends on quality of unwrap provided by object->getTriangleMapping.
 		// This sample has bad unwrap -> high res map is needed.
-		return createIlluminationPixelBuffer(1024,1024);
+		return createIlluminationPixelBuffer(res,res);
 	}
 #endif
 	// skipped, material properties were already readen from .3ds and never change
@@ -294,6 +304,21 @@ void keyboard(unsigned char c, int x, int y)
 {
 	switch (c)
 	{
+#ifdef AMBIENT_MAPS
+		case ' ':
+			// updates maps in high quality
+			for(unsigned i=0;i<solver->getNumObjects();i++)
+			{
+				printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,solver->getNumObjects(),
+					solver->getIllumination(i)->getChannel(0)->pixelBuffer->getWidth(),solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
+				solver->updateAmbientMap(i,NULL,1000);
+				printf(" done.\n");
+			}
+			// stop updating maps in realtime, stay with what we computed here
+			ambientMapRealtimeUpdate = false;
+			modeMovingEye = true;
+			break;
+#endif
 		case 27:
 			exit(0);
 	}
@@ -366,7 +391,7 @@ void idle()
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	solver->calculate(
 #ifdef AMBIENT_MAPS
-		rr::RRRealtimeRadiosity::AUTO_UPDATE_PIXEL_BUFFERS
+		ambientMapRealtimeUpdate ? rr::RRRealtimeRadiosity::AUTO_UPDATE_PIXEL_BUFFERS : 0
 #else
 		rr::RRRealtimeRadiosity::AUTO_UPDATE_VERTEX_BUFFERS
 #endif
@@ -389,11 +414,10 @@ int main(int argc, char **argv)
 	}
 
 	// init GLUT
-	glutInitWindowSize(800, 600);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutGameModeString("800x600:32");
-	glutEnterGameMode(); // alternatively use glutCreateWindow("HelloRR");glutFullScreen(); for native resolution fullscreen
+	glutEnterGameMode(); // alternatively call glutInitWindowSize(800,600);glutCreateWindow("HelloRR"); for windowed mode
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
@@ -419,6 +443,8 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
+	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
+	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram);
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.

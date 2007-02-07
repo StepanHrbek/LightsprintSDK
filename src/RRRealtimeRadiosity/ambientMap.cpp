@@ -152,7 +152,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		return;
 	}
 	TexelContext* tc = (TexelContext*)context;
-	if(!tc->solver || !tc->solver->getMultiObjectCustom())
+	if(!tc->quality || !tc->solver || !tc->solver->getMultiObjectCustom())
 	{
 		assert(0);
 		return;
@@ -182,7 +182,8 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	const RRCollider* collider = tc->solver->getMultiObjectCustom()->getCollider();
 	SkipTriangle skip(triangleIndex);
 	// - shoot
-	RRColorRGBF irradiance = RRColorRGBF(0);
+	RRColorRGBAF irradiance = RRColorRGBF(0);
+	unsigned hitsInside = 0;
 	for(unsigned i=0;i<tc->quality;i++)
 	{
 		// random exit dir
@@ -195,13 +196,20 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		ray->rayDirInv[2] = dirsize/dir[2];
 		ray->rayLengthMin = 0;
 		ray->rayLengthMax = 10000; //!!! hard limit
-		ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
+		ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE;
 		ray->collisionHandler = &skip;
 		unsigned face = collider->intersect(ray) ? ray->hitTriangle : UINT_MAX;
 		if(face==UINT_MAX)
 		{
 			// read irradiance on sky
 			//irradiance += RRVec3(0); //!!! add sky
+		}
+		else
+		if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
+		{
+			// ray was lost inside object, 
+			// increase our transparency, so our color doesn't leak outside object
+			hitsInside++;
 		}
 		else
 		{
@@ -215,6 +223,8 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	delete ray;
 	// scale irradiance
 	if(tc->solver->getScaler()) tc->solver->getScaler()->getCustomScale(irradiance);
+	// set transparency as ratio of rays hitting visible scene : all rays
+	irradiance[3] = (tc->quality-hitsInside)/(RRReal)tc->quality;
 	// store irradiance in custom scale
 	tc->pixelBuffer->renderTexel(uv,irradiance);
 }
@@ -332,7 +342,7 @@ void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIllumination
 		{
 			RRObjectIllumination* illumination = getIllumination(objectHandle);
 			RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
-			if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(object);
+			if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(objectHandle));
 			pixelBuffer = channel->pixelBuffer;
 		}
 
