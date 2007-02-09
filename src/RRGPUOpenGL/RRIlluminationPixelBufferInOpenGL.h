@@ -26,7 +26,8 @@ namespace rr_gl
 	class RRIlluminationPixelBufferInOpenGL : public rr::RRIlluminationPixelBuffer
 	{
 	public:
-		RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders);
+		//! Creates rr::RRIlluminationPixelBuffer implemented using OpenGL 2.0.
+		RRIlluminationPixelBufferInOpenGL(unsigned width, unsigned height, const char* pathToShaders, bool swapChannels);
 		virtual void renderBegin();
 		virtual void renderTriangle(const IlluminatedTriangle& it);
 		//virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
@@ -40,6 +41,7 @@ namespace rr_gl
 		de::Texture* texture;
 		bool rendering;
 		rr::RRColorRGBA8* renderedTexels;
+		bool swapChannels;
 		// state backup
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;

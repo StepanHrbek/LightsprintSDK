@@ -31,7 +31,7 @@ public:
 
 	virtual void bindTexture() const;
 
-	virtual bool save(const char* filename) const;
+	virtual bool save(const char* filename);
 
 	virtual void renderingToBegin(); ///< If more textures call this repeatedly, it is faster when they have the same resolution.
 	virtual void renderingToEnd(); ///< Can be omitted if you follow with another renderingToBegin().

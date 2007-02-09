@@ -6,6 +6,14 @@
 
 \page news What's new
 
+\section news13 ------------------------------------ 2007.2.xx -------------------------------------
+
+NEWS
+
+- Texture::save() saves texture to file
+- RRRealtimeRadiosity::IlluminationMapParameters structure
+  with parameters of final gathering
+
 \section news12 ------------------------------------ 2007.2.7 -------------------------------------
 
 NEWS
@@ -22,7 +30,6 @@ CHANGES
 - new RRGPUOpenGL library, previously part of HelloRealtimeRadiosity
 - DemoEngine depends on GLEW library, previously part of DemoEngine
 - DemoEngine depends on FreeImage library, used internally by de::Texture::load()
-
 
 \section news11 ------------------------------------ 2007.1.16 -------------------------------------
 

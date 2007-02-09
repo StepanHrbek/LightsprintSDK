@@ -288,13 +288,15 @@ namespace rr
 		//! \param uv
 		//!  Array of 2 elements, texel coordinates in 0..width-1, 0..height-1 range.
 		//! \param color
-		//!  Color of rendered texel. Typically irradiance in custom scale is stored here.
-		//!  Color of texels with zero alpha is considered unknown and may be changed in renderEnd().
+		//!  Color of rendered texel.
+		//!  RRRealtimeRadiosity sets irradiance in custom scale here.
+		//!  With color r,g,b and probability p that color is correct, RRColorRGBAF(r*p,g*p,b*p,p) is set.
 		virtual void renderTexel(const unsigned uv[2], const RRColorRGBAF& color) = 0;
 		//! Finishes rendering into ambient map. Must be paired with renderBegin().
 		//
-		//! It could filter map, in which case, texels with zero alpha may get overwritten
-		//! by nearby texel colors.
+		//! Colors with low alpha (probability of correctness) should be processed
+		//! and replaced by nearby colors with higher probability.
+		//! Colors in form r*p,g*p,b*p,p should be normalized to r,g,b,1.
 		virtual void renderEnd() {};
 
 		// Pixel buffer use

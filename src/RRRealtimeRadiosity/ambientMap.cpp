@@ -138,7 +138,7 @@ struct TexelContext
 {
 	RRRealtimeRadiosity* solver;
 	RRIlluminationPixelBuffer* pixelBuffer;
-	unsigned quality;
+	const RRRealtimeRadiosity::IlluminationMapParameters* params;
 	unsigned triangleIndex;
 };
 
@@ -152,7 +152,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		return;
 	}
 	TexelContext* tc = (TexelContext*)context;
-	if(!tc->quality || !tc->solver || !tc->solver->getMultiObjectCustom())
+	if(!tc->params || !tc->params->quality || !tc->solver || !tc->solver->getMultiObjectCustom())
 	{
 		assert(0);
 		return;
@@ -182,9 +182,11 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	const RRCollider* collider = tc->solver->getMultiObjectCustom()->getCollider();
 	SkipTriangle skip(triangleIndex);
 	// - shoot
+	unsigned rays = tc->params->quality;
 	RRColorRGBAF irradiance = RRColorRGBF(0);
 	unsigned hitsInside = 0;
-	for(unsigned i=0;i<tc->quality;i++)
+	unsigned hitsSky = 0;
+	for(unsigned i=0;i<rays;i++)
 	{
 		// random exit dir
 		RRVec3 dir = getRandomExitDir(filler, n3, u3, v3);
@@ -203,6 +205,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		{
 			// read irradiance on sky
 			//irradiance += RRVec3(0); //!!! add sky
+			hitsSky++;
 		}
 		else
 		if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
@@ -219,16 +222,36 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 			irradiance += irrad;
 		}		
 	}
-	irradiance *= (1.0f/tc->quality);
+	irradiance *= (1.0f/rays);
 	delete ray;
 	// scale irradiance
 	if(tc->solver->getScaler()) tc->solver->getScaler()->getCustomScale(irradiance);
 	// set transparency as ratio of rays hitting visible scene : all rays
-	irradiance[3] = (tc->quality-hitsInside)/(RRReal)tc->quality;
+	irradiance[3] = (rays-hitsInside)/(RRReal)rays;
+	// remove exterior visibility from texels inside object
+	//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
+	if(hitsInside>rays*tc->params->insideObjectsTreshold)
+	{
+		//hitsInside += hitsSky;
+		//hitsSky = 0;
+		hitsInside = rays;
+		hitsSky = 0;
+		irradiance = RRColorRGBAF(0);
+	}
+	// diagnostic output
+	if(tc->params->diagnosticOutput)
+	{
+		//if(irradiance[3] && irradiance[3]!=1) printf("%d/%d ",hitsInside,hitsSky);
+		irradiance[0] = hitsInside/(float)rays;
+		irradiance[1] = (rays-hitsInside-hitsSky)/(float)rays;
+		irradiance[2] = hitsSky/(float)rays;
+		irradiance[3] = 1;
+	}
 	// store irradiance in custom scale
 	tc->pixelBuffer->renderTexel(uv,irradiance);
 }
 
+// Enumerates all important texels in ambient map, using softare rasterizer.
 void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight,
 	void (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context), void* context)
 {
@@ -309,14 +332,9 @@ void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWid
 			}
 		}
 	}
-
-	// Options:
-	// [1] for each texel, find triangle
-	// [2] add caching, use slow search only for first time
-	// [3] for each triangle, software rasterize it
 }
 
-void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIlluminationPixelBuffer* pixelBuffer, unsigned quality)
+void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIlluminationPixelBuffer* pixelBuffer, const IlluminationMapParameters* params)
 {
 	if(!scene)
 	{
@@ -349,12 +367,13 @@ void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIllumination
 		if(pixelBuffer)
 		{
 			pixelBuffer->renderBegin();
-			if(quality)
+			if(params && params->quality)
 			{
 				TexelContext tc;
 				tc.solver = this;
 				tc.pixelBuffer = pixelBuffer;
-				tc.quality = quality;
+				IlluminationMapParameters tmp;
+				tc.params = params ? params : &tmp;
 				// process one texel. for safe preallocations inside texel processor
 				unsigned uv[2]={0,0};
 				processTexel(uv,RRVec3(0),RRVec3(1),0,&tc);
@@ -363,18 +382,19 @@ void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIllumination
 			}
 			else
 			{
-				// for each triangle
+				// for each triangle in multimesh
 				for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 				{
-					// render all subtriangles into pixelBuffer using object's unwrap
-					RenderSubtriangleContext rsc;
-					rsc.pixelBuffer = pixelBuffer;
-					object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
-					// multiObject must preserve mapping (all objects overlap in one map)
-					//!!! this is satisfied now, but it may change in future
+					// process only triangles belonging to objectHandle
 					RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
 					if(preImportTriangle.object==objectHandle)
 					{
+						// multiObject must preserve mapping (all objects overlap in one map)
+						//!!! this is satisfied now, but it may change in future
+						RenderSubtriangleContext rsc;
+						rsc.pixelBuffer = pixelBuffer;
+						object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
+						// render all subtriangles into pixelBuffer using object's unwrap
 						scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),renderSubtriangle,&rsc);
 					}
 				}

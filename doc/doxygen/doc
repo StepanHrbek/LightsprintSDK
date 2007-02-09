@@ -1561,9 +1561,10 @@ Adding global illumination (GI) to your code is described in four steps.
    - uses OpenGL 2.0
    - supports all OpenGL 2.0 cards, but soft shadows require GeForce 6xxx or higher, Radeon 9500 or higher
    - spotlights with realtime shadows
-   - linear and area spotlights (multiple overlapping spotlights)
-   - no omnidirectional lights with realtime shadows
+   - linear and area spotlights with realtime correct soft shadows
    - scenes and objects loaded from .3ds
+   - loading textures from jpg, png, dds, tga, tiff, gif and many more
+   - saving textures to jpg, png, tga, tiff, gif and many more
    - separately enabled/disabled light features:
      - color
      - projected texture

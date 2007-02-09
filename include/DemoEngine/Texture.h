@@ -46,9 +46,6 @@ public:
 	//! Various implementations may do OpenGL bind, Direct3D bind or nothing.
 	virtual void bindTexture() const = 0;
 
-	//! Saves texture to disk and returns true on success.
-	virtual bool save(const char* filename) const {return false;}
-
 	//! Begins rendering into the texture, sets graphics pipeline so that
 	//! following rendering commands use this texture as render target.
 	virtual void renderingToBegin() = 0;
@@ -98,6 +95,9 @@ public:
 	static Texture* load(const char *filename,
 		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
+
+	//! Saves texture to disk and returns true on success.
+	virtual bool save(const char* filename) {return false;}
 };
 
 }; // namespace

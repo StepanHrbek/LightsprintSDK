@@ -74,22 +74,23 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,unsigned& wid
 		FIBITMAP *dib = FreeImage_Load(fif, filename);
 		if(dib)
 		{
-			// convert the file to 24bit rgb
-			dib = FreeImage_ConvertTo24Bits(dib);
+			// convert the file to 32bit BGRA
+			dib = FreeImage_ConvertTo32Bits(dib);
 			if(dib)
 			{
 				// read size
 				width = FreeImage_GetWidth(dib);
 				height = FreeImage_GetHeight(dib);
-				channels = 3;
-				// create RGB memory image
+				channels = 4;
+				// convert BGRA to RGBA
 				pixels = new unsigned char[4*width*height];
 				BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
 				for(unsigned i=0;i<width*height;i++)
 				{
-					pixels[3*i+0] = fipixels[3*i+2];
-					pixels[3*i+1] = fipixels[3*i+1];
-					pixels[3*i+2] = fipixels[3*i+0];
+					pixels[4*i+0] = fipixels[4*i+2];
+					pixels[4*i+1] = fipixels[4*i+1];
+					pixels[4*i+2] = fipixels[4*i+0];
+					pixels[4*i+3] = fipixels[4*i+3];
 				}
 			}
 			// cleanup
@@ -99,24 +100,43 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,unsigned& wid
 	return pixels;
 }
 
-bool TextureGL::save(const char *filename) const
+bool TextureGL::save(const char *filename)
 {
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	BOOL bSuccess = FALSE;
 
-	FIBITMAP* dib = NULL;
-	if(dib) {
-		// try to guess the file format from the file extension
-		fif = FreeImage_GetFIFFromFilename(filename);
-		if(fif != FIF_UNKNOWN ) {
-			// check that the plugin has sufficient writing and export capabilities ...
-			WORD bpp = FreeImage_GetBPP(dib);
-			if(FreeImage_FIFSupportsWriting(fif) && FreeImage_FIFSupportsExportBPP(fif, bpp)) {
-				// ok, we can save the file
-				bSuccess = FreeImage_Save(fif, dib, filename);
-				// unless an abnormal bug, we are done !
+	FIBITMAP* dib = FreeImage_Allocate(getWidth(),getHeight(),32);
+	if(dib)
+	{
+		BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
+		if(fipixels)
+		{
+			// fill it with texture data
+			renderingToBegin();
+			glReadPixels(0,0,getWidth(),getHeight(),GL_BGRA,GL_UNSIGNED_BYTE,fipixels);
+			renderingToEnd();
+			// convert RGBA to BGRA
+			//for(unsigned i=0;i<width*height;i++)
+			//{
+			//	BYTE tmp = fipixels[4*i+0];
+			//	fipixels[4*i+0] = fipixels[4*i+2];
+			//	fipixels[4*i+2] = tmp;
+			//}
+			// try to guess the file format from the file extension
+			fif = FreeImage_GetFIFFromFilename(filename);
+			if(fif != FIF_UNKNOWN )
+			{
+				// check that the plugin has sufficient writing and export capabilities ...
+				WORD bpp = FreeImage_GetBPP(dib);
+				if(FreeImage_FIFSupportsWriting(fif) && FreeImage_FIFSupportsExportBPP(fif, bpp))
+				{
+					// ok, we can save the file
+					bSuccess = FreeImage_Save(fif, dib, filename);
+					// unless an abnormal bug, we are done !
+				}
 			}
 		}
+		FreeImage_Unload(dib);
 	}
 	return (bSuccess == TRUE) ? true : false;
 }
@@ -296,7 +316,7 @@ unsigned char *TextureFromDisk::loadTga(const char *filename,unsigned& width,uns
 	return data;
 }
 
-bool TextureGL::save(const char *filename) const
+bool TextureGL::save(const char *filename)
 {
 	return false;
 }

@@ -103,12 +103,13 @@ namespace rr
 		enum Request
 		{
 			//! Request to update illumination vertex buffers (vertex colors) each time 
-			//! new illumination data are computed. Ideal for realtime GI.
+			//! new illumination data are computed. Ideal for realtime GI, smaller overhead
+			//! compared to realtime generated pixel buffer.
 			AUTO_UPDATE_VERTEX_BUFFERS = 1,
-			//! Request to update illumination pixel buffers (ambient maps)
+			//! Request to update illumination pixel buffers (ambient maps) with default parameters
 			//! each time new illumination data are computed. 
-			//! Slow for realtime GI, but good for testing of ambient map renderer,
-			//! when ambient maps change in realtime.
+			//! Good for testing ambient map renderer (ambient maps change in realtime).
+			//! For realtime GI, vertex buffers are better because of smaller overhead.
 			AUTO_UPDATE_PIXEL_BUFFERS = 2,
 			//! Request to update illumination vertex buffers (vertex colors) in every case,
 			//! even when ilumination hasn't changed.
@@ -144,6 +145,28 @@ namespace rr
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
 		RRScene::Improvement calculate(unsigned updateRequests=AUTO_UPDATE_VERTEX_BUFFERS);
+		//! Parameters for updateAmbientMap().
+		struct IlluminationMapParameters
+		{
+			//! Quality of computed ambient map, higher number = higher quality.
+			//! For 0, update is very fast (milliseconds) and ambient map contains
+			//! nearly no noise, but small per pixel details are missing.
+			//! For 1000 and higher, ambient map contains small per pixel details,
+			//! but update takes longer (minutes).
+			//! 1-999 are faster, with per pixel details, but not recommended due to artifacts.
+			unsigned quality;
+			//! 0..1 range, texels with this or higher visibility inside objects are masked away.
+			RRReal insideObjectsTreshold;
+			//! Turns on diagnostic output, generated map contains diagnostic values.
+			bool diagnosticOutput;
+			//! Sets default parameters for very fast (milliseconds) update.
+			IlluminationMapParameters()
+			{
+				quality = 0;
+				insideObjectsTreshold = 0.5f;
+				diagnosticOutput = false;
+			}
+		};
 		//! Calculates and updates ambient map for given object from static scene.
 		//
 		//! \param objectNumber
@@ -154,13 +177,9 @@ namespace rr
 		//!  If it's NULL, pixel buffer stored in RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer
 		//!  is used. If it's also NULL, buffer is created by calling newPixelBuffer()
 		//!  and stored in RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer.
-		//! \param quality
-		//!  Quality of computed ambient map, higher number = higher quality.
-		//!  For 0, update is very fast (miliseconds) and ambient map contains
-		//!  nearly no noise, but small (per pixel) details are missing.
-		//!  For 1000-10000, ambient map contains small (per pixel) details, but update is very slow (minutes).
-		//!  For 100, ambient map contains small details and update is faster (seconds), but noise/artifacts are visible.
-		void updateAmbientMap(unsigned objectNumber, RRIlluminationPixelBuffer* customPixelBuffer, unsigned quality);
+		//! \param params
+		//!  Parameters of the update process, NULL for the default parameters.
+		void updateAmbientMap(unsigned objectNumber, RRIlluminationPixelBuffer* customPixelBuffer, const IlluminationMapParameters* params);
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
 		//! Generates specular and diffuse environment maps with object's global illumination.

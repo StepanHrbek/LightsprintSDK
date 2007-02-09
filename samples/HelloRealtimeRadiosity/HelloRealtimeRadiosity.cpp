@@ -207,11 +207,12 @@ protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		// Decide how big ambient map you want for object. 
-		unsigned res = 8;
-		while(res<2048 && res<20*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
+		// Here we pick res proportional to number of triangles in object.
 		// When seams appear, increase res.
-		// Depends on quality of unwrap provided by object->getTriangleMapping.
+		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
 		// This sample has bad unwrap -> high res map is needed.
+		unsigned res = 16;
+		while(res<2048 && res<20*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		return createIlluminationPixelBuffer(res,res);
 	}
 #endif
@@ -311,7 +312,9 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,solver->getNumObjects(),
 					solver->getIllumination(i)->getChannel(0)->pixelBuffer->getWidth(),solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
-				solver->updateAmbientMap(i,NULL,1000);
+				rr::RRRealtimeRadiosity::IlluminationMapParameters params;
+				params.quality = 1000;
+				solver->updateAmbientMap(i,NULL,&params);
 				printf(" done.\n");
 			}
 			// stop updating maps in realtime, stay with what we computed here

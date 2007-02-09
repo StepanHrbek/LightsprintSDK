@@ -60,7 +60,10 @@ namespace rr_gl
 
 		//! Creates 2d texture for indirect illumination storage.
 		//! Used for precomputed global illumination of static objects.
-		rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height);
+		//! \param width Width of texture.
+		//! \param width Height of texture.
+		//! \param swapChannels Set to true only on buggy AMD drivers that swap R and B channels.
+		rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height, bool swapChannels = false);
 
 		//! Creates cube texture for indirect illumination storage.
 		//! Used for realtime or precomputed global illumination of dynamic objects.

@@ -9,8 +9,8 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define SUBDIVISION                0
-#define LIGHTMAP_SIZE_FACTOR       20
-#define LIGHTMAP_QUALITY           100
+#define LIGHTMAP_SIZE_FACTOR       10
+#define LIGHTMAP_QUALITY           10
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 bool ati = 1;
 int fullscreen = 0;
@@ -297,7 +297,7 @@ public:
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
-		unsigned res = 8;
+		unsigned res = 16; // don't create maps below 16x16, otherwise you risk poor performance on Nvidia cards
 		while(res<2048 && res<LIGHTMAP_SIZE_FACTOR*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
 		return renderLightmaps ? rr_gl::RRRealtimeRadiosityGL::createIlluminationPixelBuffer(res,res) : NULL;
@@ -1450,6 +1450,11 @@ void keyboard(unsigned char c, int x, int y)
 			renderLightmaps = !renderLightmaps;
 			if(!renderLightmaps)
 			{
+/*renderLightmaps = !renderLightmaps;//!!!
+for(unsigned i=0;i<level->solver->getNumObjects();i++)
+{
+	level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->renderEnd();
+}*/
 				needLightmapCacheUpdate = true;
 				for(unsigned i=0;i<level->solver->getNumObjects();i++)
 				{
@@ -1468,7 +1473,9 @@ void keyboard(unsigned char c, int x, int y)
 					printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,level->solver->getNumObjects(),
 						level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->getWidth(),
 						level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
-					level->solver->updateAmbientMap(i,NULL,LIGHTMAP_QUALITY);
+					rr::RRRealtimeRadiosity::IlluminationMapParameters params;
+					params.quality = LIGHTMAP_QUALITY;
+					level->solver->updateAmbientMap(i,NULL,&params);
 					printf(" done.\n");
 				}
 				// stop updating maps in realtime, stay with what we computed here

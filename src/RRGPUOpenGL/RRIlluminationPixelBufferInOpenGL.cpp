@@ -51,7 +51,7 @@ static Helpers* helpers = NULL;
 
 unsigned RRIlluminationPixelBufferInOpenGL::numInstances = 0;
 
-RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders)
+RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders, bool aswapChannels)
 {
 	rendering = false;
 
@@ -60,6 +60,7 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned aw
 
 	texture = de::Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 
+	swapChannels = aswapChannels;
 	renderedTexels = NULL;
 }
 
@@ -80,8 +81,7 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 	texture->renderingToBegin();
 
 	glViewport(0,0,texture->getWidth(),texture->getHeight());
-	// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
-	//glClearColor(1,0,1,0);
+	// clear to black, alpha=0
 	glClearColor(0,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
 	// setup pipeline
@@ -121,20 +121,20 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 	if(!renderedTexels)
 	{
 		renderedTexels = new rr::RRColorRGBA8[texture->getWidth()*texture->getHeight()];
+		//for(unsigned i=0;i<texture->getWidth()*texture->getHeight();i++) renderedTexels[i].color=255;//!!!
 	}
-	if(uv[0]>texture->getWidth())
+	if(uv[0]>=texture->getWidth())
 	{
 		assert(0);
 		return;
 	}
-	if(uv[1]>texture->getHeight())
+	if(uv[1]>=texture->getHeight())
 	{
 		assert(0);
 		return;
 	}
 	renderedTexels[uv[0]+uv[1]*texture->getWidth()] = 
-		//!!! r <-> b swap, to compensate other swap on unknown place
-		rr::RRColorRGBA8(color[2],color[1],color[0],color[3]);
+		rr::RRColorRGBA8(color[swapChannels?2:0],color[1],color[swapChannels?0:2],color[3]);
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderEnd()
@@ -146,22 +146,52 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	}
 	rendering = false;
 
+	if(texture->getWidth()==8)
+	{
+		int i=1;
+	}
 	if(renderedTexels)
 	{
 		texture->renderingToEnd();
 		texture->bindTexture();
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,renderedTexels);
-		SAFE_DELETE_ARRAY(renderedTexels);
+//texture->save("c:/amb0.png");
 	}
+
+/*if(rendering)
+{
+	rendering = false;
+	goto ende;
+}else{
+	// backup pipeline
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	depthTest = glIsEnabled(GL_DEPTH_TEST);
+	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
+	glGetFloatv(GL_COLOR_CLEAR_VALUE,clearcolor);
+
+	glViewport(0,0,texture->getWidth(),texture->getHeight());
+	// clear to 0
+	glClearColor(0,0,0,0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	// setup pipeline
+	glActiveTexture(GL_TEXTURE0);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+}*/
 
 	// tempTexture must not be smaller than texture
 	if(texture->getWidth()<=helpers->tempTexture->getWidth() && texture->getHeight()<=helpers->tempTexture->getHeight())
-	for(unsigned pass=0;pass<1;pass++) //!!! with ~20 filtering passes, triangle borders degenerate, GPU precision problem?
+	for(int pass=0;pass<(renderedTexels?12:2);pass++)
 	{
 		// fill unused pixels
 		helpers->filterProgram->useIt();
 		helpers->filterProgram->sendUniform("lightmap",0);
-		helpers->filterProgram->sendUniform("pixelDistance",1.0f/texture->getWidth(),1.0f/texture->getHeight());
+		helpers->filterProgram->sendUniform("pixelDistance",1.f/texture->getWidth(),1.f/texture->getHeight());
 
 		helpers->tempTexture->renderingToBegin();
 		glViewport(0,0,texture->getWidth(),texture->getHeight());
@@ -178,9 +208,11 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 			glVertex2f(1,-1);
 		glEnd();
 
+//helpers->tempTexture->save("c:/amb1.png");
+
 		texture->renderingToBegin();
 		helpers->tempTexture->bindTexture();
-		helpers->filterProgram->sendUniform("pixelDistance",1.0f/helpers->tempTexture->getWidth(),1.0f/helpers->tempTexture->getHeight());
+		helpers->filterProgram->sendUniform("pixelDistance",1.f/helpers->tempTexture->getWidth(),1.f/helpers->tempTexture->getHeight());
 
 		float fracx = 1.0f*texture->getWidth()/helpers->tempTexture->getWidth();
 		float fracy = 1.0f*texture->getHeight()/helpers->tempTexture->getHeight();
@@ -195,6 +227,8 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 			glVertex2f(1,-1);
 		glEnd();
 
+//texture->save("c:/amb2.png");
+
 		texture->renderingToEnd();
 	}
 	else
@@ -202,12 +236,14 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 		assert(0);
 	}
 
-
+//ende:
 	// restore pipeline
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 	glClearColor(clearcolor[0],clearcolor[1],clearcolor[2],clearcolor[3]);
 	if(depthTest) glEnable(GL_DEPTH_TEST);
 	if(depthMask) glDepthMask(GL_TRUE);
+
+	SAFE_DELETE_ARRAY(renderedTexels);
 }
 
 unsigned RRIlluminationPixelBufferInOpenGL::getWidth() const
@@ -243,9 +279,9 @@ RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 //
 // RRGPUOpenGL
 
-rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::createIlluminationPixelBuffer(unsigned w, unsigned h)
+rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::createIlluminationPixelBuffer(unsigned w, unsigned h, bool swapChannels)
 {
-	return new RRIlluminationPixelBufferInOpenGL(w,h,pathToShaders);
+	return new RRIlluminationPixelBufferInOpenGL(w,h,pathToShaders,swapChannels);
 }
 
 } // namespace
