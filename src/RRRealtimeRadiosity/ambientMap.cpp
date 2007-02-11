@@ -185,7 +185,9 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	unsigned rays = tc->params->quality;
 	RRColorRGBAF irradiance = RRColorRGBF(0);
 	unsigned hitsInside = 0;
+	unsigned hitsRug = 0;
 	unsigned hitsSky = 0;
+	unsigned hitsScene = 0;
 	for(unsigned i=0;i<rays;i++)
 	{
 		// random exit dir
@@ -198,10 +200,9 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		ray->rayDirInv[2] = dirsize/dir[2];
 		ray->rayLengthMin = 0;
 		ray->rayLengthMax = 10000; //!!! hard limit
-		ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE;
+		ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
 		ray->collisionHandler = &skip;
-		unsigned face = collider->intersect(ray) ? ray->hitTriangle : UINT_MAX;
-		if(face==UINT_MAX)
+		if(!collider->intersect(ray))
 		{
 			// read irradiance on sky
 			//irradiance += RRVec3(0); //!!! add sky
@@ -215,28 +216,43 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 			hitsInside++;
 		}
 		else
+		if(ray->hitDistance<tc->params->rugDistance)
+		{
+			// ray hit rug, very close object
+			hitsRug++;
+		}
+		else
 		{
 			// read cube irradiance as face exitance
 			RRVec3 irrad;
-			tc->solver->getScene()->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
+			tc->solver->getScene()->getTriangleMeasure(ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
 			irradiance += irrad;
+			hitsScene++;
 		}		
 	}
-	irradiance *= (1.0f/rays);
 	delete ray;
-	// scale irradiance
-	if(tc->solver->getScaler()) tc->solver->getScaler()->getCustomScale(irradiance);
-	// set transparency as ratio of rays hitting visible scene : all rays
-	irradiance[3] = (rays-hitsInside)/(RRReal)rays;
-	// remove exterior visibility from texels inside object
-	//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-	if(hitsInside>rays*tc->params->insideObjectsTreshold)
+	if(hitsScene+hitsSky==0)
 	{
-		//hitsInside += hitsSky;
-		//hitsSky = 0;
-		hitsInside = rays;
-		hitsSky = 0;
+		// completely unreliable
 		irradiance = RRColorRGBAF(0);
+	}
+	else
+	{
+		// convert to full irradiance (as if all rays hit scene)
+		irradiance /= (RRReal)(hitsScene+hitsSky);
+		// scale irradiance (full irradiance, not fraction)
+		if(tc->solver->getScaler()) tc->solver->getScaler()->getCustomScale(irradiance);
+		// compute reliability
+		RRReal reliability = (hitsScene+hitsSky)/(RRReal)rays;
+		// multiply by reliability
+		irradiance *= reliability;
+		irradiance[3] = reliability;
+		// remove exterior visibility from texels inside object
+		//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
+		if(hitsInside>rays*tc->params->insideObjectsTreshold)
+		{
+			irradiance = RRColorRGBAF(0);
+		}
 	}
 	// diagnostic output
 	if(tc->params->diagnosticOutput)
@@ -379,6 +395,7 @@ void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIllumination
 				processTexel(uv,RRVec3(0),RRVec3(1),0,&tc);
 				// continue with all texels, possibly in multiple threads
 				enumerateTexels(objectHandle,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,&tc);
+				pixelBuffer->renderEnd(true);
 			}
 			else
 			{
@@ -398,8 +415,8 @@ void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIllumination
 						scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),renderSubtriangle,&rsc);
 					}
 				}
+				pixelBuffer->renderEnd(false);
 			}
-			pixelBuffer->renderEnd();
 		}
 	}
 }

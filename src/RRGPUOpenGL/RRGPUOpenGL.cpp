@@ -10,6 +10,7 @@
 #include <GL/glew.h>
 #include "RRGPUOpenGL.h"
 #include "RRGPUOpenGL/RendererOfRRObject.h"
+#include "DemoEngine/UberProgramSetup.h"
 
 #define SCALE_DOWN_ON_GPU // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
 //#define CAPTURE_TGA // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu
@@ -23,12 +24,13 @@ namespace rr_gl
 //
 // CaptureUv
 
-//! Generates uv coords for capturing direct illumination.
+//! Generates uv coords for capturing direct illumination into map with matrix of triangles.
 class CaptureUv : public rr_gl::VertexDataGenerator
 {
 public:
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
+		assert(size==2*sizeof(GLfloat));
 		assert(triangleIndex>=firstCapturedTriangle && triangleIndex<lastCapturedTrianglePlus1);
 		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%triCountX)+((vertexIndex==2)?1:0)-triCountX*0.5f+0.1f)/(triCountX*0.5f);
 		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/triCountX)+((vertexIndex==0)?1:0)-triCountY*0.5f+0.1f)/(triCountY*0.5f);
@@ -41,6 +43,24 @@ public:
 	unsigned firstCapturedTriangle;
 	unsigned lastCapturedTrianglePlus1;
 	unsigned triCountX, triCountY;
+};
+
+//! Generates uv coords for capturing direct illumination into lightmap (takes uv from RRObject).
+class CaptureUvIntoLightmap : public rr_gl::VertexDataGenerator
+{
+public:
+	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
+	{
+		assert(size==sizeof(rr::RRVec2));
+		rr::RRObject::TriangleMapping tm;
+		object->getTriangleMapping(triangleIndex,tm);
+		*((rr::RRVec2*)vertexData) = (tm.uv[vertexIndex]-rr::RRVec2(0.5f))*2;
+	}
+	virtual unsigned getHash()
+	{
+		return (unsigned)(intptr_t)object;
+	}
+	rr::RRObject* object;
 };
 
 
@@ -80,6 +100,119 @@ RRRealtimeRadiosityGL::~RRRealtimeRadiosityGL()
 	delete captureUv;
 }
 
+/*
+per object lighting:
+-renderovat po objektech je neprijemne, protoze to znamena vic facu (i degenerovany)
+  -slo by zlepsit tim ze by byly degenrace zakazany a vstup s degeneraty zamitnut
+-renderovat celou scenu a vyzobavat jen facy z objektu je neprijemne,
+ protoze pak neni garantovane ze pujdou facy pekne za sebou
+  -slo by zlepsit tim ze multiobjekt bude garantovat poradi(slo by pres zakaz optimalizaci v multiobjektu)
+
+// simplified version from HelloRealtimeRadiosity
+bool RRRealtimeRadiosityGL::detectDirectIllumination()
+{
+	// backup render states
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	depthTest = glIsEnabled(GL_DEPTH_TEST);
+	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
+	glGetFloatv(GL_COLOR_CLEAR_VALUE,clearcolor);
+
+	rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
+	unsigned numTriangles = mesh->getNumTriangles();
+
+	// adjust captured texture size so we don't waste pixels
+	captureUv.xmax = BIG_MAP_SIZE/4; // number of triangles in one row
+	captureUv.ymax = BIG_MAP_SIZE/4; // number of triangles in one column
+	while(captureUv.ymax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/(captureUv.xmax*(captureUv.ymax-1))) captureUv.ymax--;
+	unsigned width = BIG_MAP_SIZE; // used width in pixels
+	unsigned height = captureUv.ymax*4; // used height in pixels
+
+	// setup render states
+	glClearColor(0,0,0,1);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(0);
+	glViewport(0, 0, width, height);
+
+	// for each set of triangles (if all triangles don't fit into one texture)
+	for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
+	{
+		unsigned lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax)-1;
+
+		// prepare for scaling down -> render to texture
+		detectBigMap->renderingToBegin();
+
+		// clear
+		glViewport(0, 0, width,height);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// render scene with forced 2d positions of all triangles
+		de::UberProgramSetup uberProgramSetup;
+		uberProgramSetup.SHADOW_MAPS = 1;
+		uberProgramSetup.SHADOW_SAMPLES = 1;
+		uberProgramSetup.LIGHT_DIRECT = true;
+		uberProgramSetup.LIGHT_DIRECT_MAP = true;
+		uberProgramSetup.MATERIAL_DIFFUSE = true;
+		uberProgramSetup.FORCE_2D_POSITION = true;
+		rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,lastCapturedTriangle); // set param for cache so it creates different displaylists
+		renderScene(uberProgramSetup);
+		rendererNonCaching->setCapture(NULL,0,numTriangles-1);
+
+		// downscale 10pixel triangles in 4x4 squares to single pixel values
+		detectBigMap->renderingToEnd();
+		scaleDownProgram->useIt();
+		scaleDownProgram->sendUniform("lightmap",0);
+		scaleDownProgram->sendUniform("pixelDistance",1.0f/BIG_MAP_SIZE,1.0f/BIG_MAP_SIZE);
+		glViewport(0,0,BIG_MAP_SIZE/4,BIG_MAP_SIZE/4);//!!! needs at least 256x256 backbuffer
+		// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
+		glClearColor(1,0,1,0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		// setup pipeline
+		glActiveTexture(GL_TEXTURE0);
+		glDisable(GL_CULL_FACE);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		detectBigMap->bindTexture();
+		glBegin(GL_POLYGON);
+		glMultiTexCoord2f(0,0,0);
+		glVertex2f(-1,-1);
+		glMultiTexCoord2f(0,0,1);
+		glVertex2f(-1,1);
+		glMultiTexCoord2f(0,1,1);
+		glVertex2f(1,1);
+		glMultiTexCoord2f(0,1,0);
+		glVertex2f(1,-1);
+		glEnd();
+		glClearColor(0,0,0,0);
+		glEnable(GL_CULL_FACE);
+
+		// read downscaled image to memory
+		glReadPixels(0, 0, captureUv.xmax, captureUv.ymax, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap);
+
+		// send triangle irradiances to solver
+		#pragma omp parallel for
+		for(int t=captureUv.firstCapturedTriangle;t<=lastCapturedTriangle;t++)
+		{
+			unsigned triangleIndex = (unsigned)t;
+			unsigned color = detectSmallMap[triangleIndex-captureUv.firstCapturedTriangle];
+			getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(
+				triangleIndex,
+				rr::RM_IRRADIANCE_CUSTOM,
+				rr::RRColor((color>>24)&255,(color>>16)&255,(color>>8)&255) / 255.0f);
+		}
+	}
+
+	// restore render states
+	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+	glClearColor(clearcolor[0],clearcolor[1],clearcolor[2],clearcolor[3]);
+	if(depthTest) glEnable(GL_DEPTH_TEST);
+	if(depthMask) glDepthMask(GL_TRUE);
+
+	return true;
+}
+*/
+
 bool RRRealtimeRadiosityGL::detectDirectIllumination()
 {
 	//Timer w;w.Start();
@@ -89,7 +222,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	if(!rendererNonCaching)
 	{
 		if(!getMultiObjectCustom()) return false;
-		rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getScene(),getScaler());
+		rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getScene(),getScaler(),true);
 		rendererCaching = rendererNonCaching->createDisplayList();
 	}
 
@@ -291,5 +424,41 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	//printf("primary scan (%d-pass (%f)) took............ %d ms\n",numTriangles/(captureUv->triCountX*captureUv->triCountY)+1,(float)numTriangles/(captureUv->triCountX*captureUv->triCountY),(int)(1000*w.Watch()));
 	return true;
 };
+
+bool RRRealtimeRadiosityGL::updateLightmap(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
+{
+	rr::RRObject* object = getObject(objectIndex);
+
+	// prepare uv generator
+	CaptureUvIntoLightmap captureUv;
+	captureUv.object = object;
+
+	// prepare render target
+	lightmap->renderBegin();
+
+	// setup shader
+	setupShader();
+
+	// prepare renderer
+	// (could be cached later for higher speed)
+	RendererOfRRObject* renderer = new RendererOfRRObject(object,getScene(),getScaler(),false);
+	renderer->setCapture(&captureUv,0,object->getCollider()->getMesh()->getNumTriangles());
+	RendererOfRRObject::RenderedChannels channels;
+	channels.LIGHT_DIRECT = true;
+	channels.FORCE_2D_POSITION = true;
+	renderer->setRenderedChannels(channels);
+
+	// render object
+	// - all fragments must be rendered with alpha=1, renderEnd() needs it for correct filtering
+	renderer->render();
+
+	// cleanup renderer
+	delete renderer;
+
+	// restore render target
+	lightmap->renderEnd(true);
+
+	return true;
+}
 
 }; // namespace

@@ -28,19 +28,24 @@ public:
 	};
 	Helpers(const char* pathToShaders)
 	{
-		tempTexture = de::Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,GL_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		tempTexture = de::Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,GL_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 		char buf1[1000],buf2[1000];
 		_snprintf(buf1,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.vp");
 		_snprintf(buf2,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.fp");
 		filterProgram = new de::Program(NULL,buf1,buf2);
+		_snprintf(buf1,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.vp");
+		_snprintf(buf2,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.fp");
+		renderTriangleProgram = new de::Program(NULL,buf1,buf2);
 	}
 	~Helpers()
 	{
+		delete renderTriangleProgram;
 		delete filterProgram;
 		delete tempTexture;
 	}
 	de::Texture* tempTexture;
 	de::Program* filterProgram;
+	de::Program* renderTriangleProgram;
 };
 
 static Helpers* helpers = NULL;
@@ -76,6 +81,7 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 		return;
 	}
 	rendering = true;
+	renderTriangleProgramSet = false;
 	// backup pipeline
 	glGetIntegerv(GL_VIEWPORT,viewport);
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
@@ -89,21 +95,21 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 	glClearColor(0,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
 	// setup pipeline
-	glActiveTexture(GL_TEXTURE0);
-	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
-	if(glUseProgram) glUseProgram(0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle& it)
 {
 	assert(rendering);
 	if(!rendering) return;
+
+	if(!renderTriangleProgramSet)
+	{
+		renderTriangleProgramSet = true;
+		helpers->renderTriangleProgram->useIt();
+		glDisable(GL_CULL_FACE);
+	}
 	glBegin(GL_TRIANGLES);
 	for(unsigned v=0;v<3;v++)
 	{
@@ -141,7 +147,7 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 		rr::RRColorRGBA8(color[swapChannels?2:0],color[1],color[swapChannels?0:2],color[3]);
 }
 
-void RRIlluminationPixelBufferInOpenGL::renderEnd()
+void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 {
 	if(!rendering) 
 	{
@@ -150,16 +156,13 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	}
 	rendering = false;
 
-	if(texture->getWidth()==8)
-	{
-		int i=1;
-	}
 	if(renderedTexels)
 	{
 		texture->renderingToEnd();
 		texture->bindTexture();
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,renderedTexels);
 //texture->save("c:/amb0.png");
+		SAFE_DELETE_ARRAY(renderedTexels);
 	}
 
 /*if(rendering)
@@ -188,9 +191,16 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	glLoadIdentity();
 }*/
 
+	// although state was already set in renderBegin,
+	// other code between renderBegin and renderEnd could change it, set again
+	glActiveTexture(GL_TEXTURE0);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
 	// tempTexture must not be smaller than texture
 	if(texture->getWidth()<=helpers->tempTexture->getWidth() && texture->getHeight()<=helpers->tempTexture->getHeight())
-	for(int pass=0;pass<(renderedTexels?12:2);pass++)
+	for(int pass=0;pass<(preferQualityOverSpeed?10:2);pass++)
 	{
 		// fill unused pixels
 		helpers->filterProgram->useIt();
@@ -198,6 +208,13 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 		helpers->filterProgram->sendUniform("pixelDistance",1.f/texture->getWidth(),1.f/texture->getHeight());
 
 		helpers->tempTexture->renderingToBegin();
+		if(pass==0 && preferQualityOverSpeed)
+		{
+			// at the beginning, clear helpers->tempTexture to prevent random colors leaking into texture
+			glViewport(0,0,helpers->tempTexture->getWidth(),helpers->tempTexture->getHeight());
+			glClearColor(0,0,0,0);
+			glClear(GL_COLOR_BUFFER_BIT);
+		}
 		glViewport(0,0,texture->getWidth(),texture->getHeight());
 		texture->bindTexture();
 
@@ -212,7 +229,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 			glVertex2f(1,-1);
 		glEnd();
 
-//helpers->tempTexture->save("c:/amb1.png");
+//helpers->tempTexture->save("c:/amb1.png",NULL);
 
 		texture->renderingToBegin();
 		helpers->tempTexture->bindTexture();
@@ -231,7 +248,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 			glVertex2f(1,-1);
 		glEnd();
 
-//texture->save("c:/amb2.png");
+//texture->save("c:/amb2.png",NULL);
 
 		texture->renderingToEnd();
 	}
@@ -246,8 +263,9 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd()
 	glClearColor(clearcolor[0],clearcolor[1],clearcolor[2],clearcolor[3]);
 	if(depthTest) glEnable(GL_DEPTH_TEST);
 	if(depthMask) glDepthMask(GL_TRUE);
-
-	SAFE_DELETE_ARRAY(renderedTexels);
+	// badly restored state
+	if(glUseProgram) glUseProgram(0);
+	//glActiveTexture(?);
 }
 
 unsigned RRIlluminationPixelBufferInOpenGL::getWidth() const

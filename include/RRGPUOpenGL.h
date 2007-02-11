@@ -53,7 +53,7 @@ namespace rr_gl
 	public:
 		//! Initializes generic GPU access implemented in RRRealtimeRadiosityGL.
 		//! \param pathToShaders
-		//!   Path to directory with lightmap_filter.* and scaledown_filter.* shaders.
+		//!   Path to directory with lightmap_build.*, lightmap_filter.* and scaledown_filter.* shaders.
 		//!   Must be terminated with slash (or be empty for current dir).
 		RRRealtimeRadiosityGL(char* pathToShaders);
 		virtual ~RRRealtimeRadiosityGL();
@@ -61,11 +61,22 @@ namespace rr_gl
 		//! Creates 2d texture for indirect illumination storage.
 		//! Used for precomputed global illumination of static objects.
 		//! \param width Width of texture.
-		//! \param width Height of texture.
+		//! \param height Height of texture.
 		//! \param swapChannels Set to true only on buggy AMD drivers that swap R and B channels.
 		rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height, bool swapChannels = false);
 		//! Loads RRIlluminationPixelBuffer stored on disk.
 		rr::RRIlluminationPixelBuffer* loadIlluminationPixelBuffer(const char* filename);
+		//! Captures direct illumination on object's surface into lightmap.
+		//! Lightmap uses uv coordinates provided by RRObject::getTriangleMapping(),
+		//! the same coordinates are used for ambient map.
+		//! \param objectNumber
+		//!  Number of object in this scene.
+		//!  Object numbers are defined by order in which you pass objects to setObjects().
+		//! \param lightmap
+		//!  Pixel buffer for storing calculated lightmap.
+		//!  Lightmap holds direct irradiance in custom scale, which is light from
+		//!  realtime light sources (point/spot/dir/area lights) coming to object's surface.
+		bool updateLightmap(unsigned objectNumber, rr::RRIlluminationPixelBuffer* lightmap);
 
 		//! Creates cube texture for indirect illumination storage.
 		//! Used for realtime or precomputed global illumination of dynamic objects.

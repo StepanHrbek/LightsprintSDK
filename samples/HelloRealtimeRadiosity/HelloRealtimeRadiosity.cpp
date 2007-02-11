@@ -8,6 +8,7 @@
 // see how the same scene looks better with global illumination.
 //
 // See #define AMBIENT_MAPS
+//  to compute and save ambient maps or lightmaps.
 //
 // Controls:
 //  mouse = look around
@@ -320,13 +321,16 @@ void keyboard(unsigned char c, int x, int y)
 	{
 #ifdef AMBIENT_MAPS
 		case ' ':
-			// updates ambient maps in high quality
+			// Updates ambient maps (indirect illumination) in high quality.
+			// If you need lightmaps (direct illum), call updateLightmap() instead of updateAmbientMap().
+			// More lightmap examples soon.
 			for(unsigned i=0;i<solver->getNumObjects();i++)
 			{
 				printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,solver->getNumObjects(),
 					solver->getIllumination(i)->getChannel(0)->pixelBuffer->getWidth(),solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
 				rr::RRRealtimeRadiosity::IlluminationMapParameters params;
 				params.quality = 1000;
+				params.insideObjectsTreshold = 0.1f;
 				solver->updateAmbientMap(i,NULL,&params);
 				printf(" done.\n");
 			}
@@ -574,7 +578,7 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
+	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler(),true);
 	rendererCaching = rendererNonCaching->createDisplayList();
 
 	glutMainLoop();

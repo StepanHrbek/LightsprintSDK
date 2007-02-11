@@ -18,8 +18,10 @@ namespace rr_gl
 	//
 	//! Uses OpenGL rasterizer.
 	//!
-	//! Requires files: lightmap_filter.vp, lightmap_filter.fp.
-	//! Pass pathToShaders with ending slash to constructor OR "" for default path.
+	//! Requires files:
+	//!  lightmap_build.vp, lightmap_build.fp,
+	//!  lightmap_filter.vp, lightmap_filter.fp.
+	//! Pass pathToShaders with trailing slash to constructor.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +34,7 @@ namespace rr_gl
 		virtual void renderTriangle(const IlluminatedTriangle& it);
 		//virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
 		virtual void renderTexel(const unsigned uv[2], const rr::RRColorRGBAF& color);
-		virtual void renderEnd();
+		virtual void renderEnd(bool preferQualityOverSpeed);
 		virtual unsigned getWidth() const;
 		virtual unsigned getHeight() const;
 		virtual void bindTexture();
@@ -42,6 +44,7 @@ namespace rr_gl
 		friend class RRRealtimeRadiosityGL;
 		de::Texture* texture;
 		bool rendering;
+		bool renderTriangleProgramSet;
 		rr::RRColorRGBA8* renderedTexels;
 		bool swapChannels;
 		// state backup

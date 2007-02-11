@@ -9,8 +9,8 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define SUBDIVISION                0
-#define LIGHTMAP_SIZE_FACTOR       10
-#define LIGHTMAP_QUALITY           10
+#define LIGHTMAP_SIZE_FACTOR       20
+#define LIGHTMAP_QUALITY           20
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 bool ati = 1;
 int fullscreen = 0;
@@ -1147,7 +1147,7 @@ Level::Level(const char* filename_3ds)
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler());
+	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler(),true);
 	rendererCaching = new de::RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 
@@ -1489,6 +1489,7 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 						level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
 					rr::RRRealtimeRadiosity::IlluminationMapParameters params;
 					params.quality = LIGHTMAP_QUALITY;
+					//level->solver->updateLightmap(i,level->solver->getIllumination(i)->getChannel(0)->pixelBuffer);
 					level->solver->updateAmbientMap(i,NULL,&params);
 					printf(" done.\n");
 				}

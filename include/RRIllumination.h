@@ -245,7 +245,10 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Interface to illumination storage based on 2D pixel buffer, ambient map.
+	//! Interface to illumination storage based on 2D pixel buffer.
+	//
+	//! Used for lightmaps with direct illumination and 
+	//! ambient maps with indirect illumination.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -258,46 +261,61 @@ namespace rr
 
 		// Pixel buffer creation
 
-		//! Begins rendering of triangles into ambient map. Must be paired with renderEnd().
+		//! Begins rendering of triangles into pixel buffer. Must be paired with renderEnd().
+		//! \n\n Audience: Used internally by RRRealtimeRadiosity.
 		virtual void renderBegin() {};
 		//! Description of one illuminated vertex.
+		//! \n\n Audience: Used internally by RRRealtimeRadiosity.
 		struct IlluminatedVertex
 		{
-			RRVec2 texCoord; ///< Triangle vertex positions in ambient map.
+			RRVec2 texCoord; ///< Triangle vertex positions in pixel buffer.
 			RRColorRGBF measure; ///< Triangle vertex illumination.
 		};
 		//! Description of one illuminated triangle.
+		//! \n\n Audience: Used internally by RRRealtimeRadiosity.
 		struct IlluminatedTriangle
 		{
 			IlluminatedVertex iv[3]; ///< Three illuminated vertices forming triangle.
 		};
-		//! Renders one triangle into map. Must be called inside renderBegin() / renderEnd().
+		//! Renders one triangle into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
+		//! Audience: Used internally by RRRealtimeRadiosity.
 		//! \param it
 		//!  Description of single triangle.
 		virtual void renderTriangle(const IlluminatedTriangle& it) = 0;
-		//! Renders multiple triangles into map. Must be called inside renderBegin() / renderEnd().
+		//! Renders multiple triangles into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
+		//! Audience: Used internally by RRRealtimeRadiosity.
 		//! \param it
 		//!  Array with description of triangles.
 		//! \param numTriangles
 		//!  Length of it array, number of triangles to be rendered.
 		virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
-		//! Renders one texel into map. Must be called inside renderBegin() / renderEnd().
+		//! Renders one texel into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
+		//! Audience: Used internally by RRRealtimeRadiosity.
 		//! \param uv
 		//!  Array of 2 elements, texel coordinates in 0..width-1, 0..height-1 range.
 		//! \param color
 		//!  Color of rendered texel.
 		//!  RRRealtimeRadiosity sets irradiance in custom scale here.
-		//!  With color r,g,b and probability p that color is correct, RRColorRGBAF(r*p,g*p,b*p,p) is set.
+		//!  With color r,g,b and importance i, RRColorRGBAF(r*i,g*i,b*i,i) is provided.
+		//!  Importance is real number in 0..1 range, 1 for securely detected colors,
+		//!  less than 1 for partially unsecure colors, e.g. texels partially inside object.
+		//!  0 for completely unsecure texels (it's also possible to not render them at all).
 		virtual void renderTexel(const unsigned uv[2], const RRColorRGBAF& color) = 0;
-		//! Finishes rendering into ambient map. Must be paired with renderBegin().
+		//! Finishes rendering into pixel buffer. Must be paired with renderBegin().
 		//
 		//! Colors with low alpha (probability of correctness) should be processed
 		//! and replaced by nearby colors with higher probability.
 		//! Colors in form r*p,g*p,b*p,p should be normalized to r,g,b,1.
-		virtual void renderEnd() {};
+		//! \n\n Changes state of rendering pipeline: could change state related to shader,
+		//!  could reset render target to default backbuffer.
+		//! \n\n Audience: Used internally by RRRealtimeRadiosity.
+		//! \param preferQualityOverSpeed
+		//!  Set true when used in precalculator, for high quality.
+		//!  Set false when used in realtime process, for high speed.
+		virtual void renderEnd(bool preferQualityOverSpeed) {};
 
 		// Pixel buffer use
 
@@ -305,11 +323,12 @@ namespace rr
 		virtual unsigned getWidth() const = 0;
 		//! \return Height of pixel buffer in pixels.
 		virtual unsigned getHeight() const = 0;
-		//! Locks the buffer for seeing array of all pixels at once. Optional, may return NULL.
+		//! Locks the buffer for seeing array of all pixels at once. Not mandatory, may return NULL.
 		virtual const RRColorRGBA8* lock() {return NULL;};
 		//! Unlocks previously locked buffer.
 		virtual void unlock() {};
-		//! Binds texture for rendering. Various implementations may do OpenGL bind, Direct3D bind or nothing.
+		//! Binds pixel buffer for rendering. Not mandatory,
+		//! various implementations may do OpenGL texture bind, Direct3D bind or nothing.
 		virtual void bindTexture() {};
 
 		virtual ~RRIlluminationPixelBuffer() {};
@@ -346,11 +365,11 @@ namespace rr
 
 		// Environment map creation
 
-		//! Sets illumination values in map.
+		//! Sets all illumination values in map.
 		//! \param size
 		//!  Width and height of one side of cube map.
 		//! \param irradiance
-		//!  Array of 6*size*size irradiance values in physical scale [W/m^2] in this order:
+		//!  Array of 6*size*size irradiance values in custom scale in this order:
 		//!  \n size*size values for POSITIVE_X side,
 		//!  \n size*size values for NEGATIVE_X side,
 		//!  \n size*size values for POSITIVE_Y side,

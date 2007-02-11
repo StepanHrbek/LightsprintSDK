@@ -371,5 +371,8 @@ void main()
 		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_SPECULAR_MAP)
 			gl_FragColor *= 0.5;
 		#endif
+		#ifdef FORCE_2D_POSITION
+			gl_FragColor.a = 1.0;
+		#endif
 	#endif
 }

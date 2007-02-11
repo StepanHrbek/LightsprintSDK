@@ -11,8 +11,6 @@
 #include "DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
 #include "ObjectBuffers.h"
 
-#define BUFFERS // enables faster rendering, but more memory is used
-
 #define SAFE_DELETE(a)   {delete a;a=NULL;}
 
 namespace rr_gl
@@ -22,7 +20,7 @@ namespace rr_gl
 //
 // RendererOfRRObject
 
-RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler)
+RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler, bool useBuffers)
 {
 	params.object = objectImporter;
 	params.scene = radiositySolver;
@@ -34,23 +32,24 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const
 	params.indirectIllumination = NULL;
 	params.indirectIlluminationMap = NULL;
 
-#ifdef BUFFERS
-	indexedYes = new ObjectBuffers(objectImporter,true);
-	indexedNo = new ObjectBuffers(objectImporter,false);
-	if(!indexedYes->inited() || !indexedNo->inited())
+	indexedYes = NULL;
+	indexedNo = NULL;
+	if(useBuffers)
 	{
-		SAFE_DELETE(indexedYes);
-		SAFE_DELETE(indexedNo);
+		indexedYes = new ObjectBuffers(objectImporter,true);
+		indexedNo = new ObjectBuffers(objectImporter,false);
+		if(!indexedYes->inited() || !indexedNo->inited())
+		{
+			SAFE_DELETE(indexedYes);
+			SAFE_DELETE(indexedNo);
+		}
 	}
-#endif
 }
 
 RendererOfRRObject::~RendererOfRRObject()
 {
-#ifdef BUFFERS
 	delete indexedNo;
 	delete indexedYes;
-#endif
 }
 
 void RendererOfRRObject::setRenderedChannels(RenderedChannels renderedChannels)
@@ -88,7 +87,6 @@ void RendererOfRRObject::render()
 
 	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV;
 
-#ifdef BUFFERS
 	if(indexedYes && indexedNo)
 	{
 		// BUFFERS
@@ -118,7 +116,6 @@ void RendererOfRRObject::render()
 		}
 	}
 	else
-#endif
 	{
 		// !BUFFERS 
 		// general, but slower code, used for FORCE_2D_POSITION

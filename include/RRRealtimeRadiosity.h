@@ -155,15 +155,22 @@ namespace rr
 			//! but update takes longer (minutes).
 			//! 1-999 are faster, with per pixel details, but not recommended due to artifacts.
 			unsigned quality;
-			//! 0..1 range, texels with this or higher visibility inside objects are masked away.
+			//! 0..1 ratio, texels with greater fraction of hemisphere 
+			//! seeing inside objects are masked away.
 			RRReal insideObjectsTreshold;
+			//! Distance in world space, illumination coming from closer distances is masked away.
+			//! Set it slightly above distance of rug and ground, to prevent darkness
+			//! under the rug leaking half texel outside (instead, light around rug will
+			//! leak under the rug).
+			RRReal rugDistance;
 			//! Turns on diagnostic output, generated map contains diagnostic values.
 			bool diagnosticOutput;
 			//! Sets default parameters for very fast (milliseconds) update.
 			IlluminationMapParameters()
 			{
 				quality = 0;
-				insideObjectsTreshold = 0.5f;
+				insideObjectsTreshold = 0.1f;
+				rugDistance = 0.001f;
 				diagnosticOutput = false;
 			}
 		};
@@ -172,14 +179,16 @@ namespace rr
 		//! \param objectNumber
 		//!  Number of object in this scene.
 		//!  Object numbers are defined by order in which you pass objects to setObjects().
-		//! \param customPixelBuffer
-		//!  Your custom pixel buffer for storing calculated ambient map.
+		//! \param ambientMap
+		//!  Pixel buffer for storing calculated ambient map.
+		//!  Ambient map holds indirect irradiance in custom scale, which is complete global illumination
+		//!  coming to object's surface except for direct illumination.
 		//!  If it's NULL, pixel buffer stored in RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer
 		//!  is used. If it's also NULL, buffer is created by calling newPixelBuffer()
 		//!  and stored in RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer.
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters.
-		void updateAmbientMap(unsigned objectNumber, RRIlluminationPixelBuffer* customPixelBuffer, const IlluminationMapParameters* params);
+		void updateAmbientMap(unsigned objectNumber, RRIlluminationPixelBuffer* ambientMap, const IlluminationMapParameters* params);
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
 		//! Generates specular and diffuse environment maps with object's global illumination.
