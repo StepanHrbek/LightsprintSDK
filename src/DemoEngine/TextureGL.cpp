@@ -30,8 +30,9 @@ TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, bool acube, i
 	channels = (type == GL_RGB) ? 3 : 4;
 	pixels = data;
 	glGenTextures(1, &id);
-
 	glBindTexture(cubeOr2d, id);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 	if(type==GL_DEPTH_COMPONENT)
 	{
 		// depthmap -> init with no data
@@ -40,12 +41,13 @@ TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, bool acube, i
 	else
 	if(acube)
 	{
-		// cube -> don't init
+		// cube -> init with no data
+		for(unsigned side=0;side<6;side++)
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,type,width,height,0,type,GL_UNSIGNED_BYTE,NULL);
 	}
 	else
 	{
 		// 2d -> init with data
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glTexImage2D(GL_TEXTURE_2D,0,type,width,height,0,type,GL_UNSIGNED_BYTE,pixels);
 	}
 
@@ -54,6 +56,13 @@ TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, bool acube, i
 
 	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_S, wrapS);
 	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, wrapT);
+}
+
+void TextureGL::setSize(unsigned awidth, unsigned aheight)
+{
+	width = awidth;
+	height = aheight;
+	// todo: we should tell it to opengl
 }
 
 void TextureGL::bindTexture() const
@@ -75,10 +84,15 @@ bool TextureGL::getPixel(float x01, float y01, float* rgb) const
 
 static FBO* fbo = NULL;
 
-void TextureGL::renderingToBegin()
+bool TextureGL::renderingToBegin(unsigned side)
 {
 	if(!fbo) fbo = new FBO();
-	fbo->setRenderTarget(id,0);
+	if(side>=6 || (cubeOr2d!=GL_TEXTURE_CUBE_MAP && side))
+	{
+		assert(0);
+		return false;
+	}
+	return fbo->setRenderTarget(id,0,(cubeOr2d==GL_TEXTURE_CUBE_MAP)?GL_TEXTURE_CUBE_MAP_POSITIVE_X+side:GL_TEXTURE_2D);
 }
 
 void TextureGL::renderingToEnd()

@@ -867,7 +867,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	// Load the name and indicate that the material has a texture
 	char fullname[580];
 	sprintf(fullname, "%s%s", path, name);
-	Materials[matindex].tex = Texture::load(fullname);
+	Materials[matindex].tex = Texture::load(fullname,NULL);
 	Materials[matindex].textured = Materials[matindex].tex!=NULL;
 	if(!Materials[matindex].textured)
 		printf("Texture %s not found.\n",fullname);

@@ -21,7 +21,7 @@ class TextureShadowMap : public TextureGL
 public:
 	TextureShadowMap(unsigned awidth, unsigned aheight);
 	virtual void setSize(unsigned width, unsigned height);
-	virtual void renderingToBegin();
+	virtual bool renderingToBegin(unsigned side);
 	virtual void renderingToEnd();
 	virtual unsigned getTexelBits(); // number of bits in texture depth channel
 	virtual ~TextureShadowMap();

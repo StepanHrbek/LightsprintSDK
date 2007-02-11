@@ -15,6 +15,7 @@
 #pragma comment(lib,"FreeImage.lib")
 #endif
 
+#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
 
 namespace de
 {
@@ -23,29 +24,46 @@ namespace de
 //
 // TextureFromDisk
 
+// 2D map loader
 TextureFromDisk::TextureFromDisk(const char *filename, int mag, int min, int wrapS, int wrapT)
-	: TextureGL(NULL,1,1,false,GL_RGB)
+	: TextureGL(NULL,1,1,false,GL_RGBA,mag,min,wrapS,wrapT)
 {
 	unsigned int type;
 
 #ifdef USE_FREEIMAGE
-	pixels = loadFreeImage(filename,width,height,channels);
-	if(!pixels) throw xFileNotFound();
+	pixels = loadFreeImage(filename,false,width,height,channels);
 #else
 	pixels = loadData(filename,width,height,channels);
 #endif
-
-	bindTexture();
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
+	if(!pixels) throw xFileNotFound();
 	type = (channels == 3) ? GL_RGB : GL_RGBA;
-	if(pixels) gluBuild2DMipmaps(GL_TEXTURE_2D, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
+}
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag);
+// cube map loader
+TextureFromDisk::TextureFromDisk(
+	const char *filenameMask, const char *cubeSideName[6],
+	int mag, int min, int wrapS, int wrapT)
+: TextureGL(NULL,1,1,true,GL_RGBA,mag,min,wrapS,wrapT)
+{
+	unsigned int type;
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+	for(unsigned side=0;side<6;side++)
+	{
+		char buf[1000];
+		_snprintf(buf,999,filenameMask,cubeSideName[side]);
+		buf[999] = 0;
+#ifdef USE_FREEIMAGE
+		pixels = loadFreeImage(buf,true,width,height,channels);
+#else
+		pixels = loadData(buf,width,height,channels);
+#endif
+		if(!pixels) throw xFileNotFound();
+		type = (channels == 3) ? GL_RGB : GL_RGBA;
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+		gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
+		SAFE_DELETE_ARRAY(pixels);
+	}
 }
 
 
@@ -55,7 +73,7 @@ TextureFromDisk::TextureFromDisk(const char *filename, int mag, int min, int wra
 
 #ifdef USE_FREEIMAGE
 
-unsigned char *TextureFromDisk::loadFreeImage(const char *filename,unsigned& width,unsigned& height,unsigned& channels)
+unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,unsigned& width,unsigned& height,unsigned& channels)
 {
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	unsigned char* pixels = NULL;
@@ -78,6 +96,12 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,unsigned& wid
 			dib = FreeImage_ConvertTo32Bits(dib);
 			if(dib)
 			{
+				// flip cube textures
+				if(cube)
+				{
+					FreeImage_FlipHorizontal(dib);
+					FreeImage_FlipVertical(dib);
+				}
 				// read size
 				width = FreeImage_GetWidth(dib);
 				height = FreeImage_GetHeight(dib);
@@ -100,10 +124,15 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,unsigned& wid
 	return pixels;
 }
 
-bool TextureGL::save(const char *filename)
+bool TextureGL::save(const char *filename, const char* cubeSideName[6])
 {
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	BOOL bSuccess = FALSE;
+
+	// default cube side names
+	const char* cubeSideNameBackup[6] = {"0","1","2","3","4","5"};
+	if(!cubeSideName)
+		cubeSideName = cubeSideNameBackup;
 
 	FIBITMAP* dib = FreeImage_Allocate(getWidth(),getHeight(),32);
 	if(dib)
@@ -111,28 +140,50 @@ bool TextureGL::save(const char *filename)
 		BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
 		if(fipixels)
 		{
-			// fill it with texture data
-			renderingToBegin();
-			glReadPixels(0,0,getWidth(),getHeight(),GL_BGRA,GL_UNSIGNED_BYTE,fipixels);
-			renderingToEnd();
-			// convert RGBA to BGRA
-			//for(unsigned i=0;i<width*height;i++)
-			//{
-			//	BYTE tmp = fipixels[4*i+0];
-			//	fipixels[4*i+0] = fipixels[4*i+2];
-			//	fipixels[4*i+2] = tmp;
-			//}
-			// try to guess the file format from the file extension
-			fif = FreeImage_GetFIFFromFilename(filename);
-			if(fif != FIF_UNKNOWN )
+			// process all sides
+			for(unsigned side=0;side<6;side++)
 			{
-				// check that the plugin has sufficient writing and export capabilities ...
-				WORD bpp = FreeImage_GetBPP(dib);
-				if(FreeImage_FIFSupportsWriting(fif) && FreeImage_FIFSupportsExportBPP(fif, bpp))
+				if(!side || cubeOr2d==GL_TEXTURE_CUBE_MAP)
 				{
-					// ok, we can save the file
-					bSuccess = FreeImage_Save(fif, dib, filename);
-					// unless an abnormal bug, we are done !
+					// every one image must succeed
+					bSuccess = false;
+					// fill it with texture data
+					if(renderingToBegin(side))
+					{
+						glReadPixels(0,0,getWidth(),getHeight(),GL_BGRA,GL_UNSIGNED_BYTE,fipixels);
+						renderingToEnd();
+						// convert RGBA to BGRA
+						//for(unsigned i=0;i<width*height;i++)
+						//{
+						//	BYTE tmp = fipixels[4*i+0];
+						//	fipixels[4*i+0] = fipixels[4*i+2];
+						//	fipixels[4*i+2] = tmp;
+						//}
+						// flip cube textures
+						if(cubeOr2d==GL_TEXTURE_CUBE_MAP)
+						{
+							FreeImage_FlipHorizontal(dib);
+							FreeImage_FlipVertical(dib);
+						}
+						// try to guess the file format from the file extension
+						fif = FreeImage_GetFIFFromFilename(filename);
+						if(fif != FIF_UNKNOWN )
+						{
+							// check that the plugin has sufficient writing and export capabilities ...
+							WORD bpp = FreeImage_GetBPP(dib);
+							if(FreeImage_FIFSupportsWriting(fif) && FreeImage_FIFSupportsExportBPP(fif, bpp))
+							{
+								// generate single side filename
+								char filenameCube[1000];
+								_snprintf(filenameCube,999,filename,cubeSideName[side]);
+								filenameCube[999] = 0;
+								// ok, we can save the file
+								bSuccess = FreeImage_Save(fif, dib, filenameCube);
+								// if any one of 6 images fails, don't try other and report fail
+								if(!bSuccess) break;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -328,11 +379,17 @@ bool TextureGL::save(const char *filename)
 //
 // Texture
 
-Texture* Texture::load(const char *filename,int mag,int min,int wrapS,int wrapT)
+Texture* Texture::load(const char *filename,const char* cubeSideName[6],int mag,int min,int wrapS,int wrapT)
 {
-	try {
-		return new TextureFromDisk(filename,mag,min,wrapS,wrapT);
-	} catch(...) {
+	try 
+	{
+		if(cubeSideName)
+			return new TextureFromDisk(filename,cubeSideName,mag,min,wrapS,wrapT);
+		else
+			return new TextureFromDisk(filename,mag,min,wrapS,wrapT);
+	}
+	catch(...) 
+	{
 		return NULL;
 	}
 }

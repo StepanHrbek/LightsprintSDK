@@ -9,6 +9,8 @@
 #include "RRIlluminationEnvironmentMapInOpenGL.h"
 #include "RRGPUOpenGL.h"
 
+#define SAFE_DELETE(a)       {delete a;a=NULL;}
+
 namespace rr_gl
 {
 
@@ -23,17 +25,21 @@ namespace rr_gl
 CRITICAL_SECTION criticalSection; // global critical section for all instances, never calls GL from 2 threads at once
 unsigned numInstances = 0;
 
-RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL()
+RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const char* filenameMask, const char* cubeSideName[6])
 {
 	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// creates cube map
-	texture = de::Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	if(filenameMask)
+		texture = de::Texture::load(filenameMask,cubeSideName,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	else
+		texture = de::Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 }
 
 
 void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorRGBF* irradiance)
 {
 	EnterCriticalSection(&criticalSection);
+	texture->setSize(size,size);
 	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	for(unsigned side=0; side<6; side++)
@@ -44,15 +50,14 @@ void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorR
 	LeaveCriticalSection(&criticalSection);
 }
 
-rr::RRColorRGBF RRIlluminationEnvironmentMapInOpenGL::getValue(const rr::RRVec3& direction)
-{
-	assert(0);
-	return rr::RRColorRGBF(0);
-}
-
 void RRIlluminationEnvironmentMapInOpenGL::bindTexture()
 {
 	texture->bindTexture();
+}
+
+bool RRIlluminationEnvironmentMapInOpenGL::save(const char* filename, const char* cubeSideName[6])
+{
+	return texture->save(filename,cubeSideName);
 }
 
 RRIlluminationEnvironmentMapInOpenGL::~RRIlluminationEnvironmentMapInOpenGL()
@@ -68,7 +73,15 @@ RRIlluminationEnvironmentMapInOpenGL::~RRIlluminationEnvironmentMapInOpenGL()
 
 rr::RRIlluminationEnvironmentMap* RRRealtimeRadiosityGL::createIlluminationEnvironmentMap()
 {
-	return new RRIlluminationEnvironmentMapInOpenGL();
+	return new RRIlluminationEnvironmentMapInOpenGL(NULL,NULL);
+}
+
+rr::RRIlluminationEnvironmentMap* RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6])
+{
+	RRIlluminationEnvironmentMapInOpenGL* illum = new RRIlluminationEnvironmentMapInOpenGL(filenameMask,cubeSideName);
+	if(!illum->texture)
+		SAFE_DELETE(illum);
+	return illum;
 }
 
 } // namespace

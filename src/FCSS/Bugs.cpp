@@ -85,7 +85,7 @@ public:
 		{
 			char name[]="maps\\rrbugs_bug0.tga";
 			name[15] = '0'+i;
-			bugMap[i] = de::Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+			bugMap[i] = de::Texture::load(name, NULL, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 			if(!bugMap[i])
 			{
 				printf("Texture %s not found or invalid.\n",name);

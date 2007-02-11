@@ -2,7 +2,7 @@
 // Hello Realtime Radiosity sample
 //
 // Use of RealtimeRadiosity is demonstrated on .3ds scene viewer.
-// You should be familiar with GLUT and OpenGL to read the code.
+// You should be familiar with OpenGL and GLUT to read the code.
 //
 // This is HelloDemoEngine with Lightsprint engine integrated,
 // see how the same scene looks better with global illumination.
@@ -13,7 +13,11 @@
 //  mouse = look around
 //  arrows = move around
 //  left button = switch between camera and light
-//  spacebar = compute higher quality ambient maps, if defined AMBIENT_MAPS
+// If defined AMBIENT_MAPS:
+//  spacebar = compute higher quality ambient maps
+//  s = Save maps to disk (alt-tab to console to see filenames)
+//  l = Load maps from disk, stop realtime global illumination
+//  r = return to Realtime global illumination
 //
 // Soft shadow quality is reduced due to bug in ATI drivers.
 // Improve it on NVIDIA by deleting lines with NVIDIA in comment.
@@ -38,14 +42,15 @@
 // - Ambient maps are GENERATED and rendered in REALTIME,
 //   every frame new set of maps for all objects in scene.
 // - Press spacebar to start high quality precalculation
-//   and alt-tab to watch progress in console (takes approx 10 minutes).
+//   and alt-tab to watch progress in console (takes several minutes).
 //   Once precalculation is finished, you can walk through scene and review map.
 // - You can turn this demo into ambient map precalculator by saving maps to disk.
+//   Save & load are demonstrated on 's' and 'l' keys.
 // - To increase ambient map quality,
 //   1) provide unwrap uv for meshes (see getTriangleMapping in 3ds2rr.cpp)
-//   2) call updateAmbientMap(,,quality) with higher quality
+//   2) call updateAmbientMap() with higher quality
 //   3) increase ambient map resolution (see newPixelBuffer)
-// - To generate maps 10-100x faster
+// - To generate maps 10x faster
 //   1) provide unwrap uv for meshes (see getTriangleMapping in 3ds2rr.cpp)
 //      and decrease map resolution (see newPixelBuffer)
 
@@ -76,7 +81,7 @@ de::Texture*            lightDirectMap = NULL;
 de::UberProgram*        uberProgram = NULL;
 rr_gl::RendererOfRRObject* rendererNonCaching = NULL;
 de::Renderer*           rendererCaching = NULL;
-rr::RRRealtimeRadiosity*solver = NULL;
+rr_gl::RRRealtimeRadiosityGL* solver = NULL;
 DynamicObject*          robot = NULL;
 DynamicObject*          potato = NULL;
 int                     winWidth = 0;
@@ -86,7 +91,8 @@ float                   speedForward = 0;
 float                   speedBack = 0;
 float                   speedRight = 0;
 float                   speedLeft = 0;
-bool                    ambientMapRealtimeUpdate = true;
+bool                    ambientMapsRealtimeUpdate = true;
+bool                    environmentMapsRealtimeUpdate = true;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -158,12 +164,18 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	if(robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
-		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,solver,eye,rotation);
+		robot->updatePosition(rotation);
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV && environmentMapsRealtimeUpdate)
+			robot->updateIllumination(solver);
+		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye);
 	}
 	if(potato)
 	{
 		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
-		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,solver,eye,rotation/2);
+		potato->updatePosition(rotation/2);
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV && environmentMapsRealtimeUpdate)
+			potato->updateIllumination(solver);
+		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye);
 	}
 }
 
@@ -207,7 +219,7 @@ protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		// Decide how big ambient map you want for object. 
-		// Here we pick res proportional to number of triangles in object.
+		// In this sample, we pick res proportional to number of triangles in object.
 		// When seams appear, increase res.
 		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
 		// This sample has bad unwrap -> high res map is needed.
@@ -303,11 +315,12 @@ void specialUp(int c, int x, int y)
 
 void keyboard(unsigned char c, int x, int y)
 {
+	const char* cubeSideNames[6] = {"x+","x-","y+","y-","z+","z-"};
 	switch (c)
 	{
 #ifdef AMBIENT_MAPS
 		case ' ':
-			// updates maps in high quality
+			// updates ambient maps in high quality
 			for(unsigned i=0;i<solver->getNumObjects();i++)
 			{
 				printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,solver->getNumObjects(),
@@ -318,10 +331,83 @@ void keyboard(unsigned char c, int x, int y)
 				printf(" done.\n");
 			}
 			// stop updating maps in realtime, stay with what we computed here
-			ambientMapRealtimeUpdate = false;
+			ambientMapsRealtimeUpdate = false;
 			modeMovingEye = true;
 			break;
 #endif
+
+		case 's':
+			// save current indirect illumination (static snapshot) to disk
+			{
+				static unsigned captureIndex = 0;
+				char filename[100];
+				// save all ambient maps (static objects)
+				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
+				{
+					rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getChannel(0)->pixelBuffer;
+					if(map)
+					{
+						sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
+						bool saved = map->save(filename);
+						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+					}
+				}
+				// save robot's specular environment map (dynamic object)
+				// note: you can do the same with diffuseMap and with other dynamic objects
+				if(robot->specularMap)
+				{
+					sprintf(filename,"../../data/export/cap%02d_dynobj%d_spec_%cs.png",captureIndex,'%');
+					bool saved = robot->specularMap->save(filename,cubeSideNames);
+					printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+				}
+				captureIndex++;
+				break;
+			}
+
+		case 'l':
+			// load static snapshot of indirect illumination from disk, stop realtime updates
+			{
+				unsigned captureIndex = 0;
+				char filename[100];
+				// load all ambient maps (static objects)
+				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
+				{
+					sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
+					rr::RRObjectIllumination::Channel* illum = solver->getIllumination(objectIndex)->getChannel(0);
+					rr::RRIlluminationPixelBuffer* loaded = solver->loadIlluminationPixelBuffer(filename);
+					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
+					if(loaded)
+					{
+						delete illum->pixelBuffer;
+						illum->pixelBuffer = loaded;
+					}
+				}
+				// load robot's specular environment map (dynamic object)
+				// note: you can do the same with diffuseMap and with other dynamic objects
+				sprintf(filename,"../../data/export/cap%02d_robot_spec_%cs.png",captureIndex,'%');
+				rr::RRIlluminationEnvironmentMap* loaded = solver->loadIlluminationEnvironmentMap(filename,cubeSideNames);
+				printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
+				if(loaded)
+				{
+					delete robot->specularMap;
+					robot->specularMap = loaded;
+				}
+
+				modeMovingEye = true;
+				// stop realtime illumination, so you can review loaded static one
+				// (you can restart realtime by 'r')
+				ambientMapsRealtimeUpdate = false;
+				environmentMapsRealtimeUpdate = false;
+				break;
+			}
+
+		case 'r':
+			// realtime global illumination on (if it was turned off by load)
+			ambientMapsRealtimeUpdate = true;
+			environmentMapsRealtimeUpdate = true;
+			modeMovingEye = false;
+			break;
+
 		case 27:
 			exit(0);
 	}
@@ -394,11 +480,12 @@ void idle()
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	solver->calculate(
 #ifdef AMBIENT_MAPS
-		ambientMapRealtimeUpdate ? rr::RRRealtimeRadiosity::AUTO_UPDATE_PIXEL_BUFFERS : 0
+		ambientMapsRealtimeUpdate ? rr::RRRealtimeRadiosity::AUTO_UPDATE_PIXEL_BUFFERS : 0
 #else
 		rr::RRRealtimeRadiosity::AUTO_UPDATE_VERTEX_BUFFERS
 #endif
 		);
+
 	glutPostRedisplay();
 }
 
@@ -457,7 +544,7 @@ int main(int argc, char **argv)
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.png", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);

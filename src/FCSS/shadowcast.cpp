@@ -165,6 +165,7 @@ int depthScale24;
 GLfloat slopeScale = 5;//2.3;//4.0;
 int needDepthMapUpdate = 1;
 bool needLightmapCacheUpdate = false;
+bool autoUpdateEnvmaps = true;
 int wireFrame = 0;
 int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
@@ -206,7 +207,7 @@ void updateDepthBias(int delta)
 	depthBias24 += delta;
 	glPolygonOffset(slopeScale, depthBias24 * depthScale24);
 	needDepthMapUpdate = 1;
-	printf("%f %d %d\n",slopeScale,depthBias24,depthScale24);
+	//printf("%f %d %d\n",slopeScale,depthBias24,depthScale24);
 }
 
 void setupAreaLight()
@@ -244,15 +245,15 @@ void init_gl_resources()
 	{
 		char name[]="maps\\spot0.png";
 		name[9] = '0'+i;
-		lightDirectMap[i] = de::Texture::load(name, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		lightDirectMap[i] = de::Texture::load(name, NULL, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 		if(!lightDirectMap[i])
 		{
 			printf("Texture %s not found or invalid.\n",name);
 			error("",false);
 		}
 	}
-	loadingMap = de::Texture::load("maps\\rrbugs_loading.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	hintMap = de::Texture::load("maps\\rrbugs_hint.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	loadingMap = de::Texture::load("maps\\rrbugs_loading.tga", NULL, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	hintMap = de::Texture::load("maps\\rrbugs_hint.tga", NULL, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
 	uberProgram = new de::UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	de::UberProgramSetup uberProgramSetup;
@@ -477,9 +478,9 @@ public:
 	}
 	void renderSceneDynamic(de::UberProgramSetup uberProgramSetup, unsigned firstInstance) const
 	{
-		static float d = 0;
+		static float rot = 0;
 		// increment rotation when frame begins
-		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) d = (timeGetTime()%10000000)*0.07f;
+		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) rot = (timeGetTime()%10000000)*0.07f;
 		// use object space
 		uberProgramSetup.OBJECT_SPACE = true;
 		// use environment maps
@@ -498,8 +499,17 @@ public:
 		for(unsigned i=0;i<DYNAOBJECTS;i++)
 		{
 			if(dynaobject[i])
-				dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],level->solver,eye,d);
+			{
+				dynaobject[i]->updatePosition(rot);
+				if(uberProgramSetup.LIGHT_INDIRECT_ENV && autoUpdateEnvmaps)
+					dynaobject[i]->updateIllumination(level->solver);
+				dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],eye);
+			}
 		}
+	}
+	DynamicObject* getObject(unsigned objectIndex)
+	{
+		return (objectIndex<DYNAOBJECTS)?dynaobject[objectIndex]:NULL;
 	}
 	~DynamicObjects()
 	{
@@ -636,10 +646,13 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		needLightmapCacheUpdate = false;
 		level->rendererCaching->setStatus(de::RendererWithCache::CS_READY_TO_COMPILE);
 	}
-	if(renderedChannels.LIGHT_INDIRECT_MAP && !level->solver->getIllumination(0)->getChannel(0)->pixelBuffer)
+	if(renderedChannels.LIGHT_INDIRECT_MAP)
 	{
-		// create lightmaps if they are needed for render
-		level->solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
+		// create missing lightmaps, renderer needs lightmaps for all objects
+		//level->solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
+		for(unsigned i=0;i<level->solver->getNumObjects();i++)
+			if(!level->solver->getIllumination(i)->getChannel(0)->pixelBuffer)
+				level->solver->updateAmbientMap(i,NULL,NULL);
 	}
 	// set indirect vertex/pixel buffer
 	level->rendererNonCaching->setIndirectIllumination(level->solver->getIllumination(0)->getChannel(0)->vertexBuffer,level->solver->getIllumination(0)->getChannel(0)->pixelBuffer);
@@ -1384,6 +1397,7 @@ void specialUp(int c, int x, int y)
 
 void keyboard(unsigned char c, int x, int y)
 {
+	const char* cubeSideNames[6] = {"x+","x-","y+","y-","z+","z-"};
 	if(showHint)
 	{
 		showHint = false;
@@ -1553,6 +1567,96 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 			break;*/
 		case ' ':
 			toggleGlobalIllumination();
+			break;
+		case 'x':
+			// save current illumination maps
+			{
+				static unsigned captureIndex = 0;
+				char filename[100];
+				// save all ambient maps (static objects)
+				for(unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
+				{
+					rr::RRIlluminationPixelBuffer* map = level->solver->getIllumination(objectIndex)->getChannel(0)->pixelBuffer;
+					if(map)
+					{
+						sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
+						bool saved = map->save(filename);
+						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+					}
+				}
+				// save all environment maps (dynamic objects)
+				for(unsigned objectIndex=0;objectIndex<DYNAOBJECTS;objectIndex++)
+				{
+					if(dynaobjects->getObject(objectIndex)->diffuseMap)
+					{
+						sprintf(filename,"export/cap%02d_dynobj%d_diff_%cs.png",captureIndex,objectIndex,'%');
+						bool saved = dynaobjects->getObject(objectIndex)->diffuseMap->save(filename,cubeSideNames);
+						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+					}
+					if(dynaobjects->getObject(objectIndex)->specularMap)
+					{
+						sprintf(filename,"export/cap%02d_dynobj%d_spec_%cs.png",captureIndex,objectIndex,'%');
+						bool saved = dynaobjects->getObject(objectIndex)->specularMap->save(filename,cubeSideNames);
+						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+					}
+				}
+				captureIndex++;
+				break;
+			}
+		case 'X':
+			// load illumination from disk
+			{
+				unsigned captureIndex = 0;
+				char filename[200];
+				// load all ambient maps (static objects)
+				for(unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
+				{
+					sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
+					rr::RRObjectIllumination::Channel* illum = level->solver->getIllumination(objectIndex)->getChannel(0);
+					rr::RRIlluminationPixelBuffer* loaded = level->solver->loadIlluminationPixelBuffer(filename);
+					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
+					if(loaded)
+					{
+						delete illum->pixelBuffer;
+						illum->pixelBuffer = loaded;
+					}
+				}
+				// load all environment maps (dynamic objects)
+				for(unsigned objectIndex=0;objectIndex<DYNAOBJECTS;objectIndex++)
+				{
+					// diffuse
+					sprintf(filename,"export/cap%02d_dynobj%d_diff_%cs.png",captureIndex,objectIndex,'%');
+					rr::RRIlluminationEnvironmentMap* loaded = level->solver->loadIlluminationEnvironmentMap(filename,cubeSideNames);
+					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
+					if(loaded)
+					{
+						delete dynaobjects->getObject(objectIndex)->diffuseMap;
+						dynaobjects->getObject(objectIndex)->diffuseMap = loaded;
+					}
+					// specular
+					sprintf(filename,"export/cap%02d_dynobj%d_spec_%cs.png",captureIndex,objectIndex,'%');
+					//strcpy(filename,"H:/C/rr/data/pool/levely/Q3-aas-bsp/q3f_opposition/q3f_opposition/env/q3f_yoda_env/q3f_2garden2sky_%s.jpg");
+					//const char* cubeSideNames[6]={"rt","lf","up","dn","ft","bk"};
+					loaded = level->solver->loadIlluminationEnvironmentMap(filename,cubeSideNames);
+					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
+					if(loaded)
+					{
+						delete dynaobjects->getObject(objectIndex)->specularMap;
+						dynaobjects->getObject(objectIndex)->specularMap = loaded;
+					}
+				}
+				modeMovingEye = true;
+				needLightmapCacheUpdate = true;
+				// start rendering ambient maps instead of vertex colors, so loaded maps get visible
+				renderLightmaps = true;
+				// stop updating envmaps, so loaded maps are not immediately overwritten
+				autoUpdateEnvmaps = false;
+				break;
+			}
+		case 'R':
+			// return back to realtime
+			autoUpdateEnvmaps = true;
+			renderLightmaps = false;
 			break;
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;

@@ -64,10 +64,22 @@ namespace rr_gl
 		//! \param width Height of texture.
 		//! \param swapChannels Set to true only on buggy AMD drivers that swap R and B channels.
 		rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height, bool swapChannels = false);
+		//! Loads RRIlluminationPixelBuffer stored on disk.
+		rr::RRIlluminationPixelBuffer* loadIlluminationPixelBuffer(const char* filename);
 
 		//! Creates cube texture for indirect illumination storage.
 		//! Used for realtime or precomputed global illumination of dynamic objects.
 		static rr::RRIlluminationEnvironmentMap* createIlluminationEnvironmentMap();
+		//! Loads RRIlluminationEnvironmentMap stored on disk.
+		//! \param filenameMask
+		//!   Name of image file. Must be in supported format.
+		//!   For cube textures, filename must contain %s wildcard, that will be replaced by cubeSideName.
+		//!   Example: "/maps/cube_%s.png".
+		//! \param cubeSideName
+		//!   Array of six unique names of cube sides in following order:
+		//!   x+ side, x- side, y+ side, y- side, z+ side, z- side.
+		//!   Examples: {"0","1","2","3","4","5"}, {"rt","lf","up","dn","ft","bk"}.
+		static rr::RRIlluminationEnvironmentMap* loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6]);
 
 	protected:
 		//! Detection of direct illumination implemented using OpenGL 2.0.

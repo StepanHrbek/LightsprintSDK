@@ -30,13 +30,13 @@ FBO::FBO()
 	glGenFramebuffersEXT(1, &fb);
 }
 
-void FBO::setRenderTarget(unsigned color_id, unsigned depth_id)
+bool FBO::setRenderTarget(unsigned color_id, unsigned depth_id, unsigned textarget)
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
 
 	if(color_id)
 	{
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, color_id, 0);
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, textarget, color_id, 0);
 	}
 	else
 	{
@@ -57,7 +57,7 @@ void FBO::setRenderTarget(unsigned color_id, unsigned depth_id)
 	switch(status)
 	{
 		case GL_FRAMEBUFFER_COMPLETE_EXT:
-			break;
+			return true;
 		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
 			// choose different formats
 			assert(0);
@@ -71,6 +71,7 @@ void FBO::setRenderTarget(unsigned color_id, unsigned depth_id)
 			// programming error; will fail on all hardware
 			assert(0);
 	}
+	return false;
 }
 
 void FBO::restoreDefaultRenderTarget()

@@ -39,10 +39,10 @@ void TextureShadowMap::setSize(unsigned awidth, unsigned aheight)
 	height = aheight;
 }
 
-void TextureShadowMap::renderingToBegin()
+bool TextureShadowMap::renderingToBegin(unsigned side)
 {
 	if(!fbo) fbo = new FBO();
-	fbo->setRenderTarget(0,id);
+	return fbo->setRenderTarget(0,id);
 }
 
 void TextureShadowMap::renderingToEnd()

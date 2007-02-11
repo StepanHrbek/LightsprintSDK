@@ -48,7 +48,12 @@ public:
 
 	//! Begins rendering into the texture, sets graphics pipeline so that
 	//! following rendering commands use this texture as render target.
-	virtual void renderingToBegin() = 0;
+	//! \param side
+	//!  Selects cube side for rendering into.
+	//!  Set to 0 for 2D texture or 0..5 for cube texture, where
+	//!  0=x+ side, 1=x- side, 2=y+ side, 3=y- side, 4=z+ side, 5=z- side.
+	//! \return True on success, fail when rendering into texture is not possible.
+	virtual bool renderingToBegin(unsigned side = 0) = 0;
 	//! Ends rendering into the texture.
 	virtual void renderingToEnd() = 0;
 
@@ -70,12 +75,12 @@ public:
 	//!  Some computers may support only power of two sizes.
 	//! \param cube True for cube texture, false for 2D texture.
 	//! \param type Type of texture, GL_RGB and GL_RGBA are supported.
-	//! \param mag Initial magnification filter, see glTexImage2D for more details.
-	//! \param min Initial minification filter, see glTexImage2D for more details.
+	//! \param magn Initial magnification filter, see glTexImage2D for more details.
+	//! \param mini Initial minification filter, see glTexImage2D for more details.
 	//! \param wrapS Initial clamping mode, see glTexImage2D for more details.
 	//! \param wrapT Initial clamping mode, see glTexImage2D for more details.
 	static Texture* create(unsigned char *data, int width, int height, bool cube, int type,
-		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR, 
+		int magn = GL_LINEAR, int mini = GL_LINEAR, 
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
 	//! Creates shadowmap in OpenGL.
@@ -85,19 +90,26 @@ public:
 	//!  Some computers may support only power of two sizes.
 	static Texture* createShadowmap(unsigned width, unsigned height);
 
-	//! Creates 2D texture in OpenGL from image stored on disk.
-	//! All formats supported by FreeImage are supported (jpg, png etc).
+	//! Creates 2D or CUBE texture in OpenGL from image stored on disk.
+	//! All formats supported by FreeImage are supported (jpg, png, dds etc).
 	//! \param filename Name of image file. Must be in supported format.
-	//! \param mag Initial magnification filter, see glTexImage2D for more details.
-	//! \param min Initial minification filter, see glTexImage2D for more details.
+	//!   For cube textures, filename must contain %s wildcard, that will be replaced by cubeSideName.
+	//!   Example: "/maps/cube_%s.png".
+	//! \param cubeSideName Array of six unique names of cube sides in following order:
+	//!   x+ side, x- side, y+ side, y- side, z+ side, z- side.
+	//!   Examples: {"0","1","2","3","4","5"}, {"rt","lf","up","dn","ft","bk"}.
+	//!   Set to NULL for 2D texture.
+	//! \param magn Initial magnification filter, see glTexImage2D for more details.
+	//! \param mini Initial minification filter, see glTexImage2D for more details.
 	//! \param wrapS Initial clamping mode, see glTexImage2D for more details.
 	//! \param wrapT Initial clamping mode, see glTexImage2D for more details.
-	static Texture* load(const char *filename,
-		int mag=GL_LINEAR, int min = GL_LINEAR_MIPMAP_LINEAR,
+	static Texture* load(const char *filename, const char* cubeSideName[6],
+		int magn = GL_LINEAR, int mini = GL_LINEAR_MIPMAP_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
 	//! Saves texture to disk and returns true on success.
-	virtual bool save(const char* filename) {return false;}
+	//! See load() for description of parameters.
+	virtual bool save(const char* filename, const char* cubeSideName[6]) {return false;}
 };
 
 }; // namespace

@@ -1563,8 +1563,8 @@ Adding global illumination (GI) to your code is described in four steps.
    - spotlights with realtime shadows
    - linear and area spotlights with realtime correct soft shadows
    - scenes and objects loaded from .3ds
-   - loading textures from jpg, png, dds, tga, tiff, gif and many more
-   - saving textures to jpg, png, tga, tiff, gif and many more
+   - loading 2d and cube textures from jpg, png, dds, tga, tiff, gif and many more
+   - saving 2d and cube textures to jpg, png, tga, tiff, gif and many more
    - separately enabled/disabled light features:
      - color
      - projected texture

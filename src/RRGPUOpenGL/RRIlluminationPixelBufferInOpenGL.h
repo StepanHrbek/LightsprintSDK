@@ -27,7 +27,7 @@ namespace rr_gl
 	{
 	public:
 		//! Creates rr::RRIlluminationPixelBuffer implemented using OpenGL 2.0.
-		RRIlluminationPixelBufferInOpenGL(unsigned width, unsigned height, const char* pathToShaders, bool swapChannels);
+		RRIlluminationPixelBufferInOpenGL(const char* filename, unsigned width, unsigned height, const char* pathToShaders, bool swapChannels);
 		virtual void renderBegin();
 		virtual void renderTriangle(const IlluminatedTriangle& it);
 		//virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
@@ -36,8 +36,10 @@ namespace rr_gl
 		virtual unsigned getWidth() const;
 		virtual unsigned getHeight() const;
 		virtual void bindTexture();
+		virtual bool save(const char* filename);
 		virtual ~RRIlluminationPixelBufferInOpenGL();
 	private:
+		friend class RRRealtimeRadiosityGL;
 		de::Texture* texture;
 		bool rendering;
 		rr::RRColorRGBA8* renderedTexels;

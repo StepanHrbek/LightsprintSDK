@@ -9,7 +9,8 @@
 #include "DemoEngine/Program.h"
 #include "RRGPUOpenGL.h"
 
-#define SAFE_DELETE_ARRAY(a)   {delete[] a;a=NULL;}
+#define SAFE_DELETE(a)       {delete a;a=NULL;}
+#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
 
 namespace rr_gl
 {
@@ -51,14 +52,17 @@ static Helpers* helpers = NULL;
 
 unsigned RRIlluminationPixelBufferInOpenGL::numInstances = 0;
 
-RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(unsigned awidth, unsigned aheight, const char* pathToShaders, bool aswapChannels)
+RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(const char* filename, unsigned awidth, unsigned aheight, const char* pathToShaders, bool aswapChannels)
 {
 	rendering = false;
 
 	if(!numInstances) helpers = new Helpers(pathToShaders);
 	numInstances++;
 
-	texture = de::Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	if(filename)
+		texture = de::Texture::load(filename,NULL,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	else
+		texture = de::Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 
 	swapChannels = aswapChannels;
 	renderedTexels = NULL;
@@ -68,7 +72,7 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 {
 	if(rendering) 
 	{
-		assert(!rendering);
+		assert(0);
 		return;
 	}
 	rendering = true;
@@ -261,6 +265,11 @@ void RRIlluminationPixelBufferInOpenGL::bindTexture()
 	texture->bindTexture();
 }
 
+bool RRIlluminationPixelBufferInOpenGL::save(const char* filename)
+{
+	return texture->save(filename,NULL);
+}
+
 RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 {
 	delete texture;
@@ -281,7 +290,15 @@ RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 
 rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::createIlluminationPixelBuffer(unsigned w, unsigned h, bool swapChannels)
 {
-	return new RRIlluminationPixelBufferInOpenGL(w,h,pathToShaders,swapChannels);
+	return new RRIlluminationPixelBufferInOpenGL(NULL,w,h,pathToShaders,swapChannels);
+}
+
+rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::loadIlluminationPixelBuffer(const char* filename)
+{
+	RRIlluminationPixelBufferInOpenGL* illum = new RRIlluminationPixelBufferInOpenGL(filename,0,0,pathToShaders,false);
+	if(!illum->texture)
+		SAFE_DELETE(illum);
+	return illum;
 }
 
 } // namespace

@@ -32,8 +32,8 @@ DynamicObject::DynamicObject()
 {
 	rendererWithoutCache = NULL;
 	rendererCached = NULL;
-	diffuseMap = rr_gl::RRRealtimeRadiosityGL::createIlluminationEnvironmentMap();
-	specularMap = rr_gl::RRRealtimeRadiosityGL::createIlluminationEnvironmentMap();
+	diffuseMap = NULL;
+	specularMap = NULL;
 	worldFoot = rr::RRVec3(0);
 }
 
@@ -50,10 +50,41 @@ const de::Model_3DS& DynamicObject::getModel()
 	return model;
 }
 
-void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,rr::RRRealtimeRadiosity* solver,const de::Camera& eye,float rot)
+void DynamicObject::updatePosition(float rot)
+{
+	// set matrices
+	glPushMatrix();
+	glLoadIdentity();
+	glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
+	glRotatef(rot,0,1,0);
+	glTranslatef(-getModel().localCenter.x,-getModel().localMinY,-getModel().localCenter.z);
+	glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
+	glPopMatrix();
+}
+
+void DynamicObject::updateIllumination(rr::RRRealtimeRadiosity* solver)
+{
+	// create envmaps if they don't exist yet
+	if(material.MATERIAL_DIFFUSE && !diffuseMap)
+		diffuseMap = rr_gl::RRRealtimeRadiosityGL::createIlluminationEnvironmentMap();
+	if(material.MATERIAL_SPECULAR && !specularMap)
+		specularMap = rr_gl::RRRealtimeRadiosityGL::createIlluminationEnvironmentMap();
+	// compute object's center in world coordinates
+	rr::RRVec3 worldCenter = rr::RRVec3(
+		getModel().localCenter.x*worldMatrix[0]+getModel().localCenter.y*worldMatrix[4]+getModel().localCenter.z*worldMatrix[ 8]+worldMatrix[12],
+		getModel().localCenter.x*worldMatrix[1]+getModel().localCenter.y*worldMatrix[5]+getModel().localCenter.z*worldMatrix[ 9]+worldMatrix[13],
+		getModel().localCenter.x*worldMatrix[2]+getModel().localCenter.y*worldMatrix[6]+getModel().localCenter.z*worldMatrix[10]+worldMatrix[14]);
+	// update envmaps
+	solver->updateEnvironmentMaps(worldCenter,MAX(16,specularCubeSize),
+		material.MATERIAL_SPECULAR?specularCubeSize:0, material.MATERIAL_SPECULAR?specularMap:NULL,
+		material.MATERIAL_DIFFUSE?4:0, material.MATERIAL_DIFFUSE?diffuseMap:NULL);
+}
+
+void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye)
 {
 	// mix uberProgramSetup with our material setup
-	// avoid fancy materials when envmaps are off - could be render to shadowmap
+	// but only when indirect illum is on.
+	// when indirect illum is off, do nothing, it's probably render of shadow into shadowmap.
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
 		uberProgramSetup.MATERIAL_DIFFUSE = material.MATERIAL_DIFFUSE;
@@ -70,43 +101,31 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 		printf("Failed to compile or link GLSL program for dynamic object.\n");
 		return;
 	}
-	// set matrices
-	rr::RRVec3 worldCenter;
-	rr::RRVec3 localCenter = rr::RRVec3(getModel().localCenter.x,getModel().localCenter.y,getModel().localCenter.z);
-	rr::RRVec3 localFoot = rr::RRVec3(localCenter.x,getModel().localMinY,localCenter.z);
-	float m[16];
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
-	glRotatef(rot,0,1,0);
-	glTranslatef(-localFoot[0],-localFoot[1],-localFoot[2]);
-	glGetFloatv(GL_MODELVIEW_MATRIX,m);
-	glPopMatrix();
-	program->sendUniform("worldMatrix",m,false,4);
-	worldCenter = rr::RRVec3(
-		localCenter[0]*m[0]+localCenter[1]*m[4]+localCenter[2]*m[ 8]+m[12],
-		localCenter[0]*m[1]+localCenter[1]*m[5]+localCenter[2]*m[ 9]+m[13],
-		localCenter[0]*m[2]+localCenter[1]*m[6]+localCenter[2]*m[10]+m[14]);
+	// set matrix
+	program->sendUniform("worldMatrix",worldMatrix,false,4);
 	// set envmap
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
-		solver->updateEnvironmentMaps(worldCenter,16,
-			uberProgramSetup.MATERIAL_SPECULAR?specularCubeSize:0, uberProgramSetup.MATERIAL_SPECULAR?specularMap:NULL,
-			uberProgramSetup.MATERIAL_DIFFUSE?4:0, uberProgramSetup.MATERIAL_DIFFUSE?diffuseMap:NULL);
 		if(uberProgramSetup.MATERIAL_SPECULAR)
 		{
 			glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-			specularMap->bindTexture();
+			if(specularMap)
+				specularMap->bindTexture();
+			else
+				assert(0); // have you called updateIllumination()?
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 		}
 		if(uberProgramSetup.MATERIAL_DIFFUSE)
 		{
 			glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			diffuseMap->bindTexture();
+			if(diffuseMap)
+				diffuseMap->bindTexture();
+			else
+				assert(0); // have you called updateIllumination()?
 		}
 		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_DIFFUSE);
 	}
 	// render
 	rendererCached->render(); // cached inside display list
-	//model.Draw(NULL); // non cached
+	//model.Draw(NULL,NULL,NULL); // non cached
 }

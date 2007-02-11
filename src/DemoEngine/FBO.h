@@ -22,7 +22,9 @@ class FBO
 public:
 	FBO();
 	~FBO();
-	void setRenderTarget(unsigned color_id, unsigned depth_id);
+	//! \param textarget
+	//!  GL_TEXTURE_2D for 2D texture, TEXTURE_CUBE_MAP_POSITIVE_X etc for cube texture.
+	bool setRenderTarget(unsigned color_id, unsigned depth_id, unsigned textarget = GL_TEXTURE_2D);
 	void restoreDefaultRenderTarget();
 private:
 	GLuint fb;

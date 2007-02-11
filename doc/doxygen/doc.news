@@ -11,6 +11,7 @@
 NEWS
 
 - Texture::save() saves texture to file
+- LightsprintGL supports save & load of RRIlluminationPixelBuffer and RRIlluminationEnvironmentMap
 - RRRealtimeRadiosity::IlluminationMapParameters structure
   with parameters of final gathering
 

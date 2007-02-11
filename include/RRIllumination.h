@@ -313,6 +313,21 @@ namespace rr
 		virtual void bindTexture() {};
 
 		virtual ~RRIlluminationPixelBuffer() {};
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Saves pixel buffer to disk.
+		//! Not mandatory, thin implementations may completely skip saving and always return false.
+		//! \param filename
+		//!  Filename of image to be created on disk.
+		//!  Supported file formats are implementation defined.
+		//!  Example: "/maps/ambientmap.png"
+		//! \return
+		//!  True on successful save of complete environment map.
+		virtual bool save(const char* filename) {return false;}
 	};
 
 
@@ -346,12 +361,32 @@ namespace rr
 
 		// Environment map use
 
-		//! Returns value adressed by given direction.
-		virtual RRColorRGBF getValue(const RRVec3& direction) = 0;
-		//! Binds texture for rendering. Various implementations may do OpenGL bind, DirectX bind or nothing.
+		//! Binds texture for use by renderer.
+		//! Not mandatory, implementation may do OpenGL bind, DirectX bind or nothing.
 		virtual void bindTexture() {};
 
 		virtual ~RRIlluminationEnvironmentMap() {};
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Saves environment map to disk.
+		//! Not mandatory, thin implementations may completely skip saving and always return false.
+		//! \param filenameMask
+		//!  Filename mask of images to be created on disk.
+		//!  Supported file formats are implementation defined.
+		//!  Implementation is free to create 6 files for 6 cube sides.
+		//!  In such case, filename must contain %s wildcard, that will be replaced by cubeSideName.
+		//!  Example: "/maps/cube_%s.png".
+		//! \param filenameMask Name of image file. Must be in supported format.
+		//! \param cubeSideName Array of six unique names of cube sides in following order:
+		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
+		//!  Examples: {"0","1","2","3","4","5"}, {"rt","lf","up","dn","ft","bk"}.
+		//! \return
+		//!  True on successful save of complete environment map.
+		virtual bool save(const char* filenameMask, const char* cubeSideName[6]) {return false;}
 	};
 
 
