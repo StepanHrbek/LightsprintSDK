@@ -58,17 +58,24 @@ namespace rr_gl
 		RRRealtimeRadiosityGL(char* pathToShaders);
 		virtual ~RRRealtimeRadiosityGL();
 
+
 		//! Creates 2d texture for indirect illumination storage.
 		//! Used for precomputed global illumination of static objects.
 		//! \param width Width of texture.
 		//! \param height Height of texture.
 		//! \param swapChannels Set to true only on buggy AMD drivers that swap R and B channels.
 		rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height, bool swapChannels = false);
+
 		//! Loads RRIlluminationPixelBuffer stored on disk.
 		rr::RRIlluminationPixelBuffer* loadIlluminationPixelBuffer(const char* filename);
-		//! Captures direct illumination on object's surface into lightmap.
+
+		//! Captures direct illumination on object's surface into lightmap, using GPU.
+		//
 		//! Lightmap uses uv coordinates provided by RRObject::getTriangleMapping(),
 		//! the same coordinates are used for ambient map.
+		//!
+		//! This function will be unified with RRRealtimeRadiosity::updateLightmap() in future release.
+		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.
 		//!  Object numbers are defined by order in which you pass objects to setObjects().
@@ -76,11 +83,13 @@ namespace rr_gl
 		//!  Pixel buffer for storing calculated lightmap.
 		//!  Lightmap holds direct irradiance in custom scale, which is light from
 		//!  realtime light sources (point/spot/dir/area lights) coming to object's surface.
-		bool updateLightmap(unsigned objectNumber, rr::RRIlluminationPixelBuffer* lightmap);
+		bool updateLightmap_GPU(unsigned objectNumber, rr::RRIlluminationPixelBuffer* lightmap);
+
 
 		//! Creates cube texture for indirect illumination storage.
 		//! Used for realtime or precomputed global illumination of dynamic objects.
 		static rr::RRIlluminationEnvironmentMap* createIlluminationEnvironmentMap();
+
 		//! Loads RRIlluminationEnvironmentMap stored on disk.
 		//! \param filenameMask
 		//!   Name of image file. Must be in supported format.
@@ -95,6 +104,7 @@ namespace rr_gl
 	protected:
 		//! Detection of direct illumination implemented using OpenGL 2.0.
 		virtual bool detectDirectIllumination();
+
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
 		//! without material. This is renderer specific operation and can't be implemented in this generic class.
 		virtual void setupShader() = 0;

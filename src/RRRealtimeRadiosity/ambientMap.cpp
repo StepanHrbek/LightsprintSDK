@@ -138,11 +138,11 @@ struct TexelContext
 {
 	RRRealtimeRadiosity* solver;
 	RRIlluminationPixelBuffer* pixelBuffer;
-	const RRRealtimeRadiosity::IlluminationMapParameters* params;
+	const RRRealtimeRadiosity::UpdateLightmapParameters* params;
 	unsigned triangleIndex;
 };
 
-// thread safe: yes except for first call (could allocate memory).
+// thread safe: yes except for first call (pixelBuffer could allocate memory in renderTexel).
 //   someone must call us at least once, before multithreading starts.
 void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context)
 {
@@ -152,23 +152,16 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		return;
 	}
 	TexelContext* tc = (TexelContext*)context;
-	if(!tc->params || !tc->params->quality || !tc->solver || !tc->solver->getMultiObjectCustom())
+	if(!tc->params || (!tc->params->directQuality && !tc->params->indirectQuality) || !tc->solver || !tc->solver->getMultiObjectCustom())
 	{
 		assert(0);
 		return;
 	}
 	// cast rays and calculate irradiance
-	/*
-	// Approach 1: envmaps
-	// It's very difficult with envmap to avoid accidental selfillumination.
-	RRIlluminationEnvironmentMap* diffuseMap = RRIlluminationEnvironmentMap::createInSystemMemory();
-	tc->solver->updateEnvironmentMaps(pos3d+normal.normalized()*0.002f //!!! fudge number
-		,tc->quality,0,NULL,(tc->quality>8)?8:tc->quality,diffuseMap);
-	RRColorRGBF irradiance = diffuseMap->getValue(normal);
-	delete diffuseMap;
-	// Approach 2: rendering
-	*/
-	// Approach 3: shooting rays
+	// - prepare scaler
+	const RRScaler* scaler = tc->solver->getScaler();
+	// - prepare environment
+	const RRIlluminationEnvironmentMap* environment = tc->solver->getEnvironment();
 	// - prepare ortonormal base
 	RRVec3 n3 = normal.normalized();
 	RRVec3 u3 = normalized(ortogonalTo(n3));
@@ -176,85 +169,180 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	// - prepare homogenous filler
 	HomogenousFiller filler;
 	filler.Reset();
-	// - prepare ray
-	RRRay* ray = RRRay::create();
 	// - prepare collider
 	const RRCollider* collider = tc->solver->getMultiObjectCustom()->getCollider();
 	SkipTriangle skip(triangleIndex);
-	// - shoot
-	unsigned rays = tc->params->quality;
-	RRColorRGBAF irradiance = RRColorRGBF(0);
-	unsigned hitsInside = 0;
-	unsigned hitsRug = 0;
-	unsigned hitsSky = 0;
-	unsigned hitsScene = 0;
-	for(unsigned i=0;i<rays;i++)
+	// - prepare ray
+	RRRay* ray = RRRay::create();
+	ray->rayOrigin = pos3d;
+	ray->rayLengthMin = 0;
+	ray->collisionHandler = &skip;
+	// - shoot into scene
+	RRColorRGBF irradianceIndirect = RRColorRGBF(0);
+	RRReal reliabilityIndirect = 1;
+	if(tc->params->indirectQuality)
 	{
-		// random exit dir
-		RRVec3 dir = getRandomExitDir(filler, n3, u3, v3);
-		RRReal dirsize = dir.length();
-		// intesect scene
-		ray->rayOrigin = pos3d;
-		ray->rayDirInv[0] = dirsize/dir[0];
-		ray->rayDirInv[1] = dirsize/dir[1];
-		ray->rayDirInv[2] = dirsize/dir[2];
-		ray->rayLengthMin = 0;
-		ray->rayLengthMax = 10000; //!!! hard limit
-		ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
-		ray->collisionHandler = &skip;
-		if(!collider->intersect(ray))
+		unsigned rays = tc->params->indirectQuality;
+		unsigned hitsIndirectReliable = 0;
+		unsigned hitsIndirectUnreliable = 0;
+		unsigned hitsInside = 0;
+		unsigned hitsRug = 0;
+		unsigned hitsSky = 0;
+		unsigned hitsScene = 0;
+		for(unsigned i=0;i<rays;i++)
 		{
-			// read irradiance on sky
-			//irradiance += RRVec3(0); //!!! add sky
-			hitsSky++;
+			// random exit dir
+			RRVec3 dir = getRandomExitDir(filler, n3, u3, v3);
+			RRReal dirsize = dir.length();
+			// intesect scene
+			ray->rayDirInv[0] = dirsize/dir[0];
+			ray->rayDirInv[1] = dirsize/dir[1];
+			ray->rayDirInv[2] = dirsize/dir[2];
+			ray->rayLengthMax = 100000; //!!! hard limit
+			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
+			if(!collider->intersect(ray))
+			{
+				// read irradiance on sky
+				if(environment)
+				{
+					//irradianceIndirect += environment->getValue(dir);
+					RRColorRGBF irrad = environment->getValue(dir);
+					if(scaler) scaler->getPhysicalScale(irrad);
+					irradianceIndirect += irrad;
+				}
+				hitsSky++;
+				hitsIndirectReliable++;
+			}
+			else
+			if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
+			{
+				// ray was lost inside object, 
+				// increase our transparency, so our color doesn't leak outside object
+				hitsInside++;
+				hitsIndirectUnreliable++;
+			}
+			else
+			if(ray->hitDistance<tc->params->rugDistance)
+			{
+				// ray hit rug, very close object
+				hitsRug++;
+				hitsIndirectUnreliable++;
+			}
+			else
+			{
+				// read cube irradiance as face exitance
+				RRVec3 irrad;
+				tc->solver->getScene()->getTriangleMeasure(ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
+				irradianceIndirect += irrad;
+				hitsScene++;
+				hitsIndirectReliable++;
+			}		
+		}
+		// compute irradiance and reliability
+		if(hitsIndirectReliable==0)
+		{
+			// completely unreliable
+			irradianceIndirect = RRColorRGBAF(0);
 		}
 		else
-		if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
-		{
-			// ray was lost inside object, 
-			// increase our transparency, so our color doesn't leak outside object
-			hitsInside++;
-		}
-		else
-		if(ray->hitDistance<tc->params->rugDistance)
-		{
-			// ray hit rug, very close object
-			hitsRug++;
-		}
-		else
-		{
-			// read cube irradiance as face exitance
-			RRVec3 irrad;
-			tc->solver->getScene()->getTriangleMeasure(ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
-			irradiance += irrad;
-			hitsScene++;
-		}		
-	}
-	delete ray;
-	if(hitsScene+hitsSky==0)
-	{
-		// completely unreliable
-		irradiance = RRColorRGBAF(0);
-	}
-	else
-	{
-		// convert to full irradiance (as if all rays hit scene)
-		irradiance /= (RRReal)(hitsScene+hitsSky);
-		// scale irradiance (full irradiance, not fraction)
-		if(tc->solver->getScaler()) tc->solver->getScaler()->getCustomScale(irradiance);
-		// compute reliability
-		RRReal reliability = (hitsScene+hitsSky)/(RRReal)rays;
-		// multiply by reliability
-		irradiance *= reliability;
-		irradiance[3] = reliability;
-		// remove exterior visibility from texels inside object
-		//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
 		if(hitsInside>rays*tc->params->insideObjectsTreshold)
 		{
-			irradiance = RRColorRGBAF(0);
+			// remove exterior visibility from texels inside object
+			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
+			irradianceIndirect = RRColorRGBAF(0);
+		}
+		else
+		{
+			// convert to full irradiance (as if all rays hit scene)
+			irradianceIndirect /= (RRReal)hitsIndirectReliable;
+			// compute reliability
+			reliabilityIndirect = hitsIndirectReliable/(RRReal)(hitsIndirectReliable+hitsIndirectUnreliable);
 		}
 	}
-	// diagnostic output
+	// - shoot into lights
+	RRColorRGBF irradianceDirect = RRColorRGBF(0);
+	RRReal reliabilityDirect = 1;
+	if(tc->params->directQuality)
+	{
+		//unsigned hitsDirectReliable = 0;
+		//unsigned hitsDirectUnreliable = 0;
+		//unsigned hitsLight = 0;
+		//unsigned hitsInside = 0;
+		//unsigned hitsRug = 0;
+		//unsigned hitsScene = 0;
+		const RRRealtimeRadiosity::Lights& lights = tc->solver->getLights();
+		for(unsigned i=0;i<lights.size();i++)
+		{
+			const RRLight* light = lights[i];
+			if(!light) continue;
+			// set dir to light
+			RRVec3 dir = (light->type==RRLight::DIRECTIONAL)?-light->direction:(light->position-pos3d);
+			RRReal dirsize = dir.length();
+			// intesect scene
+			ray->rayDirInv[0] = dirsize/dir[0];
+			ray->rayDirInv[1] = dirsize/dir[1];
+			ray->rayDirInv[2] = dirsize/dir[2];
+			ray->rayLengthMax = dirsize;
+			ray->rayFlags = RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
+			if(!collider->intersect(ray))
+			{
+				// add irradiance from light
+				irradianceDirect += light->getIrradiance(pos3d,scaler);
+		}}/*
+				hitsLight++;
+				hitsDirectReliable++;
+			}
+			else
+			if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
+			{
+				// ray was lost inside object, 
+				// increase our transparency, so our color doesn't leak outside object
+				hitsInside++;
+				hitsDirectUnreliable++;
+			}
+			else
+			if(ray->hitDistance<tc->params->rugDistance)
+			{
+				// ray hit rug, very close object
+				hitsRug++;
+				hitsDirectUnreliable++;
+			}
+			else
+			{
+				hitsScene++;
+				hitsDirectReliable++;
+			}
+		}
+		// compute irradiance and reliability
+		if(hitsDirectReliable==0 && hitsDirectUnreliable)
+		{
+			// completely unreliable
+			irradianceDirect = RRColorRGBAF(0);
+		}
+		else
+		if(hitsInside>rays*tc->params->insideObjectsTreshold)
+		{
+			// remove exterior visibility from texels inside object
+			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
+			irradianceIndirect = RRColorRGBAF(0);
+		}
+		else
+		{
+			// compute reliability
+			reliabilityDirect = hitsDirectReliable/(RRReal)(hitsDirectReliable+hitsDirectUnreliable);
+		}*/
+	}
+	// cleanup ray
+	delete ray;
+	// sum direct and indirect results
+	RRColorRGBAF irradiance = irradianceDirect + irradianceIndirect;
+	RRReal reliability = reliabilityIndirect;
+	// scale irradiance (full irradiance, not fraction) to custom scale
+	if(scaler) scaler->getCustomScale(irradiance);
+	// multiply by reliability
+	irradiance *= reliability;
+	irradiance[3] = reliability;
+	/*/ diagnostic output
 	if(tc->params->diagnosticOutput)
 	{
 		//if(irradiance[3] && irradiance[3]!=1) printf("%d/%d ",hitsInside,hitsSky);
@@ -262,7 +350,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		irradiance[1] = (rays-hitsInside-hitsSky)/(float)rays;
 		irradiance[2] = hitsSky/(float)rays;
 		irradiance[3] = 1;
-	}
+	}*/
 	// store irradiance in custom scale
 	tc->pixelBuffer->renderTexel(uv,irradiance);
 }
@@ -350,7 +438,8 @@ void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWid
 	}
 }
 
-void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIlluminationPixelBuffer* pixelBuffer, const IlluminationMapParameters* params)
+void RRRealtimeRadiosity::updateLightmap(unsigned objectHandle, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* params)
+//!!! pocita jen indirect
 {
 	if(!scene)
 	{
@@ -383,12 +472,12 @@ void RRRealtimeRadiosity::updateAmbientMap(unsigned objectHandle, RRIllumination
 		if(pixelBuffer)
 		{
 			pixelBuffer->renderBegin();
-			if(params && params->quality)
+			if(params && params->indirectQuality)
 			{
 				TexelContext tc;
 				tc.solver = this;
 				tc.pixelBuffer = pixelBuffer;
-				IlluminationMapParameters tmp;
+				UpdateLightmapParameters tmp;
 				tc.params = params ? params : &tmp;
 				// process one texel. for safe preallocations inside texel processor
 				unsigned uv[2]={0,0};
@@ -425,7 +514,7 @@ void RRRealtimeRadiosity::readPixelResults()
 {
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
-		updateAmbientMap(objectHandle,NULL,0);
+		updateLightmap(objectHandle,NULL,NULL);
 	}
 }
 

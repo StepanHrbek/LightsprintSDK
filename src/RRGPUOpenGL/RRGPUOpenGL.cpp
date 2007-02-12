@@ -425,7 +425,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	return true;
 };
 
-bool RRRealtimeRadiosityGL::updateLightmap(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
+bool RRRealtimeRadiosityGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
 {
 	rr::RRObject* object = getObject(objectIndex);
 

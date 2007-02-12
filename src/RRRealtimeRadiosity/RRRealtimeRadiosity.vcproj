@@ -312,6 +312,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRLight.cpp"
+			>
+		</File>
+		<File
 			RelativePath="RRRealtimeRadiosity.cpp"
 			>
 		</File>

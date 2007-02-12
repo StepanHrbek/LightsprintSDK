@@ -25,7 +25,7 @@ namespace rr
 	public:
 		RRIlluminationEnvironmentMapInMemory();
 		virtual void setValues(unsigned size, rr::RRColorRGBF* irradiance);
-		virtual RRColorRGBF getValue(const RRVec3& direction);
+		virtual RRColorRGBF getValue(const RRVec3& direction) const;
 		virtual void bindTexture();
 		virtual ~RRIlluminationEnvironmentMapInMemory();
 	private:

@@ -652,7 +652,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		//level->solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
 		for(unsigned i=0;i<level->solver->getNumObjects();i++)
 			if(!level->solver->getIllumination(i)->getChannel(0)->pixelBuffer)
-				level->solver->updateAmbientMap(i,NULL,NULL);
+				level->solver->updateLightmap(i,NULL,NULL);
 	}
 	// set indirect vertex/pixel buffer
 	level->rendererNonCaching->setIndirectIllumination(level->solver->getIllumination(0)->getChannel(0)->vertexBuffer,level->solver->getIllumination(0)->getChannel(0)->pixelBuffer);
@@ -1479,6 +1479,10 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 			}
 			else
 			{
+				// set lights
+				rr::RRRealtimeRadiosity::Lights lights;
+				lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
+				level->solver->setLights(lights);
 				// creates all maps in low quality
 				level->solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
 				// updates maps in high quality
@@ -1487,10 +1491,10 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 					printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,level->solver->getNumObjects(),
 						level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->getWidth(),
 						level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
-					rr::RRRealtimeRadiosity::IlluminationMapParameters params;
-					params.quality = LIGHTMAP_QUALITY;
-					//level->solver->updateLightmap(i,level->solver->getIllumination(i)->getChannel(0)->pixelBuffer);
-					level->solver->updateAmbientMap(i,NULL,&params);
+					rr::RRRealtimeRadiosity::UpdateLightmapParameters params;
+					params.directQuality = 1;
+					params.indirectQuality = 1;//LIGHTMAP_QUALITY;
+					level->solver->updateLightmap(i,NULL,&params);
 					printf(" done.\n");
 				}
 				// stop updating maps in realtime, stay with what we computed here

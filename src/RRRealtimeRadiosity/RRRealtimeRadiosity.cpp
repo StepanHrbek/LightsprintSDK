@@ -29,6 +29,7 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 {
 	//objects zeroed by constructor
 	scaler = NULL;
+	environment = NULL;
 	scene = NULL;
 	dirtyMaterials = true;
 	dirtyGeometry = true;
@@ -65,6 +66,26 @@ void RRRealtimeRadiosity::setScaler(RRScaler* ascaler)
 const RRScaler* RRRealtimeRadiosity::getScaler() const
 {
 	return scaler;
+}
+
+void RRRealtimeRadiosity::setEnvironment(RRIlluminationEnvironmentMap* aenvironment)
+{
+	environment = aenvironment;
+}
+
+const RRIlluminationEnvironmentMap* RRRealtimeRadiosity::getEnvironment() const
+{
+	return environment;
+}
+
+void RRRealtimeRadiosity::setLights(const Lights& alights)
+{
+	lights = alights;
+}
+
+const RRRealtimeRadiosity::Lights& RRRealtimeRadiosity::getLights() const
+{
+	return lights;
 }
 
 void RRRealtimeRadiosity::setObjects(Objects& aobjects, const RRScene::SmoothingParameters* asmoothing)

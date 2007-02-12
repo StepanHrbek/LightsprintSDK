@@ -43,6 +43,67 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//! Direct light source, directional or point light with programmable function.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RR_API RRLight
+	{
+	public:
+		//////////////////////////////////////////////////////////////////////////////
+		// Interface
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Types of lights.
+		enum Type
+		{
+			//! Infinitely distant light source.
+			DIRECTIONAL,
+			//! Point light source.
+			POINT,
+		};
+		//! Type of light source.
+		Type type;
+
+		//! Position of light source in world space. Relevant only for POINT light.
+		RRVec3 position;
+
+		//! Direction of light in world space. Relevant only for DIRECTIONAL light.
+		//! Doesn't have to be normalized.
+		RRVec3 direction;
+
+		//! Irradiance in physical scale, programmable color, distance and spotlight attenuation function.
+		//
+		//! \param receiverPosition
+		//!  Position of point in world space illuminated by this light.
+		//! \param scaler
+		//!  Currently active custom scaler, provided for your convenience.
+		//!  You may compute irradiance directly in physical scale and don't use it,
+		//!  which is the most efficient way,
+		//!  but if you calculate in custom scale, convert your result to physical scale using scaler.
+		//! \return
+		//!  Irradiance at receiverPosition, in physical scale [W/m^2],
+		//!  assuming that receiver is oriented towards light.
+		virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const = 0;
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Creates directional light without distance attenuation.
+		//
+		//! It is good approximation of sun, which is so distant, that its
+		//! distance attenuation is hardly visible on our small scale.
+		static RRLight* createDirectionalLight(const RRVec3& direction, const RRVec3& irradiance);
+
+		//! Creates omnidirectional point light with physically correct distance attenuation.
+		static RRLight* createPointLight(const RRVec3& position, const RRVec3& irradianceAtDistance1);
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	//  RRRealtimeRadiosity
 	//! Global illumination solver for interactive applications.
 	//
@@ -55,7 +116,7 @@ namespace rr
 	//!
 	//! Usage for non interactive tools/precalculators is
 	//! the same as for interactive applications, with these differences:
-	//! - call updateAmbientMap() with higher quality settings
+	//! - call updateLightmap() with higher quality settings
 	//!   for higher quality results
 	//! - instead of rendering computed illumination,
 	//!   save it to disk using RRIlluminationPixelBuffer::save()
@@ -71,7 +132,7 @@ namespace rr
 	//! It is not allowed to create and use multiple instances at the same time.
 	//!
 	//! Thread safe:
-	//!  see updateAmbientMap() and updateEnvironmentMaps() for more details,
+	//!  see updateLightmap() and updateEnvironmentMaps() for more details,
 	//!  these may be called from multiple threads at the same time.
 	//!  Other methods no, may be called from multiple threads, but not at the same time.
 	//
@@ -84,19 +145,52 @@ namespace rr
 		virtual ~RRRealtimeRadiosity();
 
 
-		//! Set scaler used by this scene i/o operations. This is option for your convenience. See RRScaler for details.
+		//! Set scaler used by this scene i/o operations.
+		//
+		//! It allows you to switch from physical scale to custom scale, e.g. screen colors.
+		//! See RRScaler for details.
+		//! \param scaler
+		//!  Scaler for converting illumination between physical and custom scale.
+		//!  It will be used by all data input and output paths in RRRealtimeRadiosity, if not specified otherwise.
+		//!  Note that scaler is not adopted, you are still responsible for deleting it
+		//!  when it's no longer needed.
 		void setScaler(RRScaler* scaler);
 
-		//! Returns scaler used by this scene i/o operations.
+		//! Returns scaler used by this scene i/o operations, set by setScaler().
 		const RRScaler* getScaler() const;
+
+
+		//! Sets environment around scene.
+		//
+		//! \param environment
+		//!  HDR map of environment around scene.
+		//!  Its RRIlluminationEnvironmentMap::getValue() should return
+		//!  values in physical scale.
+		//!  Note that environment is not adopted, you are still responsible for deleting it
+		//!  when it's no longer needed.
+		void setEnvironment(RRIlluminationEnvironmentMap* environment);
+
+		//! Returns environment around scene, set by setEnvironment().
+		const RRIlluminationEnvironmentMap* getEnvironment() const;
+
+
+		//! Container for all direct light sources present in scene.
+		typedef std::vector<RRLight*> Lights;
+
+		//! Sets lights in scene, all at once.
+		//
+		//! By default, scene contains no lights.
+		//! Lights are used by updateLightmap(), they are not used by realtime GI solver.
+		void setLights(const Lights& lights);
+
+		//! Returns lights in scene, set by setLights().
+		const Lights& getLights() const;
 
 
 		//! One static 3d object with storage space for calculated illumination.
 		typedef std::pair<RRObject*,RRObjectIllumination*> Object;
-
 		//! Container for all static objects present in scene.
 		typedef std::vector<Object> Objects;
-
 		//! Sets static contents of scene, all objects at once.
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
@@ -167,59 +261,79 @@ namespace rr
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
 		RRScene::Improvement calculate(unsigned updateRequests=AUTO_UPDATE_VERTEX_BUFFERS);
 
-		//! Parameters for updateAmbientMap().
-		struct IlluminationMapParameters
+		//! Parameters for updateLightmap().
+		//! \n\n You can let updateLightmap() compute
+		//! - direct illumination (first bounce): set only directQuality positive
+		//! - indirect illumination (infinite bounces except first one): set only indirectQuality positive
+		//! - global illumination (infinite bounces): set both positive
+		struct UpdateLightmapParameters
 		{
-			//! Quality of computed ambient map, higher number = higher quality.
-			//! For 0, update is very fast (milliseconds) and ambient map contains
+			//! Quality of computed direct illumination, higher number = higher quality.
+			//! Direct illumination comes from realtime light sources (point/spot/dir/area lights).
+			//! For zero quality, direct illumination is off and does not contribute to final color.
+			unsigned directQuality;
+
+			//! Quality of computed indirect illumination, higher number = higher quality.
+			//! Indirect illumination comes from environment, including sky.
+			//! For zero quality, indirect illumination is off and does not contribute to final color.
+			//! For 1, update is very fast (milliseconds) and lightmap contains
 			//! nearly no noise, but small per pixel details are missing.
-			//! For 1000 and higher, ambient map contains small per pixel details,
+			//! For 1000 and higher, lightmap contains small per pixel details,
 			//! but update takes longer (minutes).
-			//! 1-999 are faster, with per pixel details, but not recommended due to artifacts.
-			unsigned quality;
+			//! 2-999 are faster, with per pixel details, but not recommended due to artifacts.
+			unsigned indirectQuality;
+
 			//! 0..1 ratio, texels with greater fraction of hemisphere 
 			//! seeing inside objects are masked away.
 			RRReal insideObjectsTreshold;
+
 			//! Distance in world space, illumination coming from closer surfaces is masked away.
 			//! Set it slightly above distance of rug and ground, to prevent darkness
 			//! under the rug leaking half texel outside (instead, light around rug will
 			//! leak under the rug). Set it to zero to disable any corrections.
 			RRReal rugDistance;
+
 			//! Turns on diagnostic output, generated map contains diagnostic values.
 			bool diagnosticOutput;
-			//! Sets default parameters for very fast (milliseconds) update.
-			IlluminationMapParameters()
+
+			//! Sets default parameters for very fast (milliseconds) update of indirect illumination.
+			UpdateLightmapParameters()
 			{
-				quality = 0;
+				directQuality = 0;
+				indirectQuality = 1;
 				insideObjectsTreshold = 0.1f;
 				rugDistance = 0.001f;
 				diagnosticOutput = false;
 			}
 		};
 
-		//! Calculates and updates ambient map for given object from static scene.
+		//! Calculates and updates lightmap with direct, indirect or global illumination on static object's surface.
 		//
-		//! Thread safe: yes if ambientMap is safe.
+		//! Lightmap uses uv coordinates provided by RRObject::getTriangleMapping().
+		//!
+		//! Thread safe: yes if lightmap is safe.
 		//!  \n Note1: LightsprintGL implementation of RRIlluminationPixelBuffer is not safe.
-		//!  \n Note2: updateAmbientMap() is multithreaded internally.
+		//!  \n Note2: updateLightmap() is multithreaded internally.
 		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.
 		//!  Object numbers are defined by order in which you pass objects to setObjects().
-		//! \param ambientMap
+		//! \param lightmap
 		//!  Pixel buffer for storing calculated ambient map.
-		//!  Ambient map holds indirect irradiance in custom scale, which is complete global illumination
-		//!  coming to object's surface except for direct illumination.
+		//!  Lightmap holds irradiance in custom scale, which is illumination
+		//!  coming to object's surface, converted from physical W/m^2 units to your scale by RRScaler.
+		//!  Lightmap could contain direct, indirect or global illumination, depending on
+		//!  parameters you set in params.
 		//!  If it's NULL, pixel buffer stored in RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer
 		//!  is used. If it's also NULL, buffer is created by calling newPixelBuffer()
 		//!  and stored in RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer.
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters.
-		void updateAmbientMap(unsigned objectNumber, RRIlluminationPixelBuffer* ambientMap, const IlluminationMapParameters* params);
+		virtual void updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, const UpdateLightmapParameters* params);
 
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
-		//! Generates specular and diffuse environment maps with object's global illumination.
+		//! Generates specular and diffuse environment maps with object's indirect illumination
 		//! \n- specular map is to be sampled (by reflected view direction) in object's glossy pixels
 		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
 		//!
@@ -360,6 +474,8 @@ namespace rr
 		};
 		// calculate
 		Objects    objects;
+		const RRIlluminationEnvironmentMap* environment;
+		Lights     lights;
 		RRScene::SmoothingParameters smoothing;
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;

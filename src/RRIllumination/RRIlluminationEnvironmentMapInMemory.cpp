@@ -29,7 +29,7 @@ void RRIlluminationEnvironmentMapInMemory::setValues(unsigned asize, RRColorRGBF
 	memcpy(data,irradiance,size*size*6*sizeof(RRColorRGBF));
 }
 
-RRColorRGBF RRIlluminationEnvironmentMapInMemory::getValue(const RRVec3& direction)
+RRColorRGBF RRIlluminationEnvironmentMapInMemory::getValue(const RRVec3& direction) const
 {
 	assert(size);
 	// find major axis

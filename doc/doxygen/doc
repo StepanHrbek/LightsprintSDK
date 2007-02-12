@@ -55,7 +55,8 @@ namespace rr
 
  \section intro3 Our contribution
 
-  Lightsprint calculates physically correct indirect illumination
+  Lightsprint calculates physically correct direct, indirect or global
+  illumination with infinite number of light bounces
   in realtime as a replacement for constant ambient.
   \n Dynamic lights, dynamic objects, diffuse, specular, emissive and transparent 
   surfaces and respective reflections are taken into account.
@@ -318,7 +319,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
   - <b> \subpage integration_step_6 </b>
   - for dynamic objects, implement RRIlluminationEnvironmentMap
-  - for ambient maps, implement RRIlluminationPixelBuffer
+  - for lightmaps, implement RRIlluminationPixelBuffer
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -476,9 +477,9 @@ Adding global illumination (GI) to your code is described in four steps.
     they are different objects sharing one mesh).
     \n\n
     Default RRObject::getTriangleMapping() returns realtime generated
-    unwrap of low quality, for any serious use of ambient maps, you should override
+    unwrap of low quality, for serious use of ambient maps, you should override
     RRObject::getTriangleMapping() and provide your own unwrap.
-    This is not necessary if you use vertex arrays and don't need ambient maps.
+    This is not necessary if you use vertex arrays and don't need lightmaps.
     \n\n
     Once you have RRObject instance, most convenient way to remember it
     for later use is to attach it to your object.
@@ -553,7 +554,7 @@ Adding global illumination (GI) to your code is described in four steps.
    and FPS decreases.
 
  - Call RRRealtimeRadiosity::getIllumination() 
-   to acquire static object's indirect illumination, see \ref data_vertex_buffer and \ref data_ambient_map.
+   to acquire static object's indirect illumination, see \ref data_vertex_buffer and \ref data_lightmap.
 
  - Call RRRealtimeRadiosity::updateEnvironmentMaps()
    to acquire static or dynamic object's indirect illumination, see \ref data_environment_map.
@@ -668,7 +669,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
 
 \page main_data_access Using computed GI
- Lightsprint engine calculates indirect illumination.
+ Lightsprint calculates direct, indirect or global illumination.
  To render with calculated illumination, you need access to calculated data structures.
  Lightsprint supports multiple data structures optimized for different use cases.
 
@@ -678,7 +679,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
  - <b> \subpage data_vertex_buffer </b>
 
- - <b> \subpage data_ambient_map </b>
+ - <b> \subpage data_lightmap </b>
 
  - <b> \subpage data_environment_map </b>
 
@@ -835,7 +836,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
 
 
-\page data_ambient_map Ambient map
+\page data_lightmap Lightmap (with direct, indirect or global illumination)
 
  \section d21 Suitable for
    - static objects: YES
@@ -844,22 +845,24 @@ Adding global illumination (GI) to your code is described in four steps.
    - precalculated illumination: YES
 
  \section d22 Advantages
-   - High precision without additional vertices.
-   - Very low resolution is sufficient (with good unwrap), compared to lightmaps.
+   - High precision and detail without additional vertices.
+   - No need for good triangulation.
+   - Very low resolution is sufficient (with good unwrap) for ambient maps
+     (lightmaps with indirect illumination).
      Ambient maps contain mostly low frequencies, no sharp edges.
-   - Ambient values don't depend on view angle, so rendering is very fast.
+   - Illumination values don't depend on view angle, so rendering is very fast.
 
  \section d23 Disadvantages
-   - You need additional uv channel with object's unwrap (for ambient map mapping).
+   - You need additional uv channel with object's unwrap (for lightmap mapping).
      If you don't have it, ask your 3d artists
      to bake unwrap into meshes as an additional uv channel.
      Unwraps are often genrated automatically, using existing free or commercial tools.
-   - Ambient values don't depend on view angle, so normal maps have no effect.
+   - Illumination values don't depend on view angle, so normal maps have no effect.
 
  \section d24 Data source
    - stored in: your instances of RRIlluminationPixelBuffer
      or RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer
-   - updated: manually by RRRealtimeRadiosity::updateAmbientMap()
+   - updated: manually by RRRealtimeRadiosity::updateLightmap()
      or automatically by RRRealtimeRadiosity::calculate()
 
  \section d25 Data container
@@ -869,13 +872,13 @@ Adding global illumination (GI) to your code is described in four steps.
      For Direct3D, you are expected to implement
      your own pixel buffer, see RRIlluminationPixelBuffer interface.
    - Default RRRealtimeRadiosity::newPixelBuffer() returns NULL,
-     so ambient maps are not generated automatically by default.
+     so maps are not generated automatically by default.
      Return RRRealtimeRadiosityGL::createIlluminationPixelBuffer()
-     or your implementation to start generating ambient maps automatically.
+     or your implementation to start generating maps automatically.
 
  \section d26 Data usage
    - Map ambient texture to your object using your uv channel with object's unwrap,
-     read ambient value from texture in pixel shader
+     read illumination value from texture in pixel shader
      and interpret it as an ambient light.
 
  \section d27 Examples
@@ -896,7 +899,7 @@ Adding global illumination (GI) to your code is described in four steps.
 	}
      \endcode
    - OpenGL example:
-     \n Creating ambient map.
+     \n Creating lightmap.
      \code
 	virtual rr::RRIlluminationPixelBuffer*
 	YourImplementationOfRRRealtimeRadiosityGL::newPixelBuffer(rr::RRObject* object)
@@ -904,19 +907,19 @@ Adding global illumination (GI) to your code is described in four steps.
 		return createIlluminationPixelBuffer(256,256);
 	}
      \endcode
-     Rendering with ambient map.
+     Rendering with lightmap.
      \code
 	rr::RRRealtimeRadiosity* realtimeRadiosity;
 	GLuint program;
 	...
 	// set program created from shaders below
 	glUseProgram(program);
-	// bind ambient map to texture0
+	// bind lightmap to texture0
 	glActiveTexture(GL_TEXTURE0);
 	realtimeRadiosity->getIllumination(numberOfObject)->
 		getChannel(0)->pixelBuffer->bindTexture();
 	// set sampler to use texture0
-	glUniform1i(glGetUniformLocation(program,"ambientMap"),0);
+	glUniform1i(glGetUniformLocation(program,"lightmap"),0);
 	// enable stream with texture coordinates
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	// set pointer to texture coordinates
@@ -928,26 +931,26 @@ Adding global illumination (GI) to your code is described in four steps.
      \endcode
      Using uv coordinates in GLSL vertex shader:
      \code
-	varying vec2 ambientMapCoord;
+	varying vec2 lightmapCoord;
 	void vertexShader()
 	{
 		...
-		ambientMapCoord = gl_TexCoord.xy;
+		lightmapCoord = gl_TexCoord.xy;
 	}
      \endcode
-     Sampling and using ambient value in GLSL fragment shader:
+     Sampling and using illumination value in GLSL fragment shader:
      \code
-	uniform sampler2D ambientMap;
-	varying vec2 ambientMapCoord;
+	uniform sampler2D lightmap;
+	varying vec2 lightmapCoord;
 	void fragmentShader()
 	{
-		vec4 ambientLight = texture2D(ambientMap, ambientMapCoord);
+		vec4 light = texture2D(lightmap, lightmapCoord);
 		...
-		gl_FragColor = ... + materialColor * ambientLight;
+		gl_FragColor = ... + materialColor * light;
 	}
      \endcode
    - Direct3D 9 example:
-     \n Creating ambient map.
+     \n Creating lightmap.
      \code
 	virtual rr::RRIlluminationPixelBuffer*
 	YourImplementationOfRRRealtimeRadiosity::newPixelBuffer(rr::RRObject* object)
@@ -956,12 +959,12 @@ Adding global illumination (GI) to your code is described in four steps.
 		return new YourImplementationOfRRIlluminationPixelBuffer(...);
 	}
      \endcode
-     Rendering with ambient map.
+     Rendering with lightmap.
      \code
 	IDirect3DDevice9* device;
 	IDirect3DPixelShader9* vertexShader;
 	IDirect3DPixelShader9* pixelShader;
-	// create vertex declaration that includes ambient map uv channel as TEXCOORD0
+	// create vertex declaration that includes lightmap uv channel as TEXCOORD0
 	IDirect3DVertexDeclaration9* vertexDeclaration;
 	device->CreateVertexDeclaration(description, &vertexDeclaration);
 	rr::RRRealtimeRadiosity* realtimeRadiosity;
@@ -969,7 +972,7 @@ Adding global illumination (GI) to your code is described in four steps.
 	// set rendering pipeline to use shaders below
 	device->SetPixelShader(vertexShader);
 	device->SetPixelShader(pixelShader);
-	// set sampler to use ambient map
+	// set sampler to use lightmap
 	//  (implement pixelBuffer class in d3d)
 	realtimeRadiosity->getIllumination(numberOfObject)->
 		getChannel(0)->pixelBuffer->bindTexture();
@@ -986,28 +989,28 @@ Adding global illumination (GI) to your code is described in four steps.
      \endcode
      Using uv coordinates in HLSL vertex shader:
      \code
-	void vertexShader(in float2 iAmbientMapCoord: TEXCOORD0,
-		..., out float2 oAmbientMapCoord: TEXCOORD0)
+	void vertexShader(in float2 iLightmapCoord: TEXCOORD0,
+		..., out float2 oLightmapCoord: TEXCOORD0)
 	{
 		...
-		oAmbientLight = iAmbientLight;
+		oLightmapCoord = iLightmapCoord;
 	}
      \endcode
-     Sampling and using ambient value in HLSL pixel shader:
+     Sampling and using illumination value in HLSL pixel shader:
      \code
-	sampler ambientMap;
-	void pixelShader(in float2 iAmbientMapCoord: TEXCOORD0,
+	sampler lightmap;
+	void pixelShader(in float2 iLightmapCoord: TEXCOORD0,
 		..., out float4 oColor: COLOR)
 	{
-		float4 ambientLight = tex2D(ambientMap, iAmbientMapCoord);
+		float4 light = tex2D(lightmap, iLightmapCoord);
 		...
-		oColor = ... + materialColor * ambientLight;
+		oColor = ... + materialColor * light;
 	}
      \endcode
    - Alternatively, texturing could be done in fixed pipeline,
      without shaders, but it is beyond scope of this documentation.
    - See Direct3D, OpenGL or your engine documentation for more details
-     on texturing and rendering with ambient light.
+     on texturing and rendering with lightmap.
   
 
 
@@ -1186,11 +1189,11 @@ Adding global illumination (GI) to your code is described in four steps.
  \section d42 Advantages
    - If you need information only for small subset of scene,
      querying single triangle is much faster
-     than generating complete ambient map or vertex color buffer for whole object
+     than generating complete lightmap or vertex color buffer for whole object
      and reading value from it.
-   - Even if you have ambient map or vertex buffer generated,
+   - Even if you have lightmap or vertex buffer generated,
      it could be easier to use this query than searching
-     individual value in vertex buffer/ambient map.
+     individual value in vertex buffer/lightmap.
 
  \section d43 Disadvantages
    - Not demonstrated in samples yet, could require triangle number conversion.
@@ -1290,10 +1293,22 @@ Adding global illumination (GI) to your code is described in four steps.
 \page main_conventions Conventions
 
  \section gobjects Terminology
-   Scene consists of triangle meshes and their instances with various
-   positions, scales and materials - <b>objects</b>.
-   Object that never moves, rotates, deforms or changes material properties is <b>static</b>.
-   Other objects are <b>dynamic</b>.
+   <b>Mesh</b> is set of triangles with fixed positions in local space.
+   \n\n
+   <b>Object</b> is instance of mesh, with position, rotation, scale
+   and surface/material properties.
+   <b>Static object</b> never moves, rotates, deforms or changes material properties.
+   <b>Dynamic object</b> freely changes these properties.
+   \n\n
+   <b>Scene</b> is set of objects.
+   \n\n
+   <b>Lightmap</b> is texture with irradiance values (incoming light)
+   of object's surface, not modulated by material color.
+   \n Lightmap could contain direct, indirect or global (both) illumination.
+   \n Lightmap with indirect illumination is sometimes called <b>ambient map</b>.
+   \n Irradiance values are typically stored in custom scale to fit 
+   in 8bit precision, but physical or other HDR scale could be used too.
+
  \section gunits Units (radiometry, photometry, screen)
    Lightsprint computes all in HDR.
    Whole documentation talks in radiometry terms like irradiance,
@@ -1411,7 +1426,7 @@ Adding global illumination (GI) to your code is described in four steps.
  - integrates with existing engines
  - uses no precalculations -> illumination quality varies, "architect edition"
  - techniques based on partial precalculations will follow -> quality boost, "day/night editions"
- - you can ask RealtimeRadiosity for complete vertex buffers, ambient maps
+ - you can ask RealtimeRadiosity for complete vertex buffers, lightmaps
    or environment maps;
    for information on individual triangles (even adaptively subdivided) or rays,
    call underlying Vision library
@@ -1431,7 +1446,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
  Headers: RRIllumination.h
 
- - illumination storage in ambient map: RRIlluminationPixelBuffer
+ - illumination storage in lightmap: RRIlluminationPixelBuffer
  - illumination storage in vertex buffer: RRIlluminationVertexBuffer
  - illumination storage in environment map: RRIlluminationEnvironmentMap
  - storage of multiple illumination channels: RRObjectIllumination
@@ -1457,7 +1472,7 @@ Adding global illumination (GI) to your code is described in four steps.
  - communicates in physical or custom units (W/m^2 or e.g. screen colors)
  - display independent, purely numerical API
  - you can ask Vision about individual triangles, even adaptively subdivided;
-   for complete vertex buffers or ambient maps, see RealtimeRadiosity library
+   for complete vertex buffers or lightmaps, see RealtimeRadiosity library
 
  Sample HelloVision shows you the most simple use case:
  -# Create RRScene.

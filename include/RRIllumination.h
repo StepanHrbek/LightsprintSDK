@@ -380,6 +380,10 @@ namespace rr
 
 		// Environment map use
 
+		//! Returns value addressed by given direction.
+		//! Not mandatory, some implementations may always return black.
+		virtual RRColorRGBF getValue(const RRVec3& direction) const {return RRColorRGBF(0);};
+
 		//! Binds texture for use by renderer.
 		//! Not mandatory, implementation may do OpenGL bind, DirectX bind or nothing.
 		virtual void bindTexture() {};
