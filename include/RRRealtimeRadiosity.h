@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRRealtimeRadiosity.h
 //! \brief RRRealtimeRadiosity - library for calculating radiosity in dynamic scenes
-//! \version 2007.2.7
+//! \version 2007.2.12
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -44,24 +44,36 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRRealtimeRadiosity
-	//! Radiosity solver for interactive applications.
+	//! Global illumination solver for interactive applications.
 	//
-	//! Usage: Create one instance at the beginning of interactive session
+	//! Usage for interactive realtime visualizations and tools:
+	//! Create one instance at the beginning of interactive session
 	//! and load it with all static objects in scene.
 	//! Call calculate() at each frame, it will spend some time
 	//! by improving illumination.
 	//! When scene changes, report it using report* methods.
 	//!
-	//! Few methods remain to be implemented by you.
-	//! You can get reports what happens inside if you reimplement reportAction().
+	//! Usage for non interactive tools/precalculators is
+	//! the same as for interactive applications, with these differences:
+	//! - call updateAmbientMap() with higher quality settings
+	//!   for higher quality results
+	//! - instead of rendering computed illumination,
+	//!   save it to disk using RRIlluminationPixelBuffer::save()
+	//!   or RRIlluminationEnvironmentMap::save() functions.
 	//!
-	//! You can check sample HelloRealtimeRadiosity where we use it.
+	//! Custom access to GPU and your renderer is not implemented here.
+	//! You may implement it in your RRRealtimeRadiosity subclass
+	//! or use RRRealtimeRadioosityGL, that implements GPU access using OpenGL 2.0.
+	//!
+	//! Sample HelloRealtimeRadiosity shows both typical usage scenarios,
+	//! rendering with realtime global illumination and precalculations.
 	//!
 	//! It is not allowed to create and use multiple instances at the same time.
 	//!
 	//! Thread safe:
-	//! updateEnvironmentMaps() yes, may be called from multiple threads at the same time.
-	//! Other methods no, may be called from multiple threads, but not at the same time.
+	//!  see updateAmbientMap() and updateEnvironmentMaps() for more details,
+	//!  these may be called from multiple threads at the same time.
+	//!  Other methods no, may be called from multiple threads, but not at the same time.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -71,15 +83,20 @@ namespace rr
 		RRRealtimeRadiosity();
 		virtual ~RRRealtimeRadiosity();
 
+
 		//! Set scaler used by this scene i/o operations. This is option for your convenience. See RRScaler for details.
 		void setScaler(RRScaler* scaler);
+
 		//! Returns scaler used by this scene i/o operations.
 		const RRScaler* getScaler() const;
 
+
 		//! One static 3d object with storage space for calculated illumination.
 		typedef std::pair<RRObject*,RRObjectIllumination*> Object;
+
 		//! Container for all static objects present in scene.
 		typedef std::vector<Object> Objects;
+
 		//! Sets static contents of scene, all objects at once.
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
@@ -89,10 +106,13 @@ namespace rr
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
 		void setObjects(Objects& objects, const RRScene::SmoothingParameters* smoothing);
+
 		//! Returns number of static objects in scene.
 		unsigned getNumObjects() const;
+
 		//! Returns i-th static object in scene.
 		RRObject* getObject(unsigned i);
+
 		//! Returns illumination of i-th static object in scene.
 		RRObjectIllumination* getIllumination(unsigned i);
 
@@ -120,6 +140,7 @@ namespace rr
 			//! Use e.g. if you know that pixel buffer contents was destroyed.
 			FORCE_UPDATE_PIXEL_BUFFERS = 8,
 		};
+
 		//! Calculates and improves indirect illumination on static objects.
 		//
 		//! To be called once per frame while rendering. To be called even when
@@ -145,6 +166,7 @@ namespace rr
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
 		RRScene::Improvement calculate(unsigned updateRequests=AUTO_UPDATE_VERTEX_BUFFERS);
+
 		//! Parameters for updateAmbientMap().
 		struct IlluminationMapParameters
 		{
@@ -158,10 +180,10 @@ namespace rr
 			//! 0..1 ratio, texels with greater fraction of hemisphere 
 			//! seeing inside objects are masked away.
 			RRReal insideObjectsTreshold;
-			//! Distance in world space, illumination coming from closer distances is masked away.
+			//! Distance in world space, illumination coming from closer surfaces is masked away.
 			//! Set it slightly above distance of rug and ground, to prevent darkness
 			//! under the rug leaking half texel outside (instead, light around rug will
-			//! leak under the rug).
+			//! leak under the rug). Set it to zero to disable any corrections.
 			RRReal rugDistance;
 			//! Turns on diagnostic output, generated map contains diagnostic values.
 			bool diagnosticOutput;
@@ -174,8 +196,13 @@ namespace rr
 				diagnosticOutput = false;
 			}
 		};
+
 		//! Calculates and updates ambient map for given object from static scene.
 		//
+		//! Thread safe: yes if ambientMap is safe.
+		//!  \n Note1: LightsprintGL implementation of RRIlluminationPixelBuffer is not safe.
+		//!  \n Note2: updateAmbientMap() is multithreaded internally.
+		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.
 		//!  Object numbers are defined by order in which you pass objects to setObjects().
@@ -189,14 +216,17 @@ namespace rr
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters.
 		void updateAmbientMap(unsigned objectNumber, RRIlluminationPixelBuffer* ambientMap, const IlluminationMapParameters* params);
+
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
 		//! Generates specular and diffuse environment maps with object's global illumination.
 		//! \n- specular map is to be sampled (by reflected view direction) in object's glossy pixels
 		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
 		//!
-		//! Thread safe: yes if specularMap->setValues and diffuseMap->setValues is safe,
+		//! Thread safe: yes if specularMap->setValues and diffuseMap->setValues is safe.
 		//!  may be called from multiple threads at the same time if setValues may be.
+		//!  \n Note1: LightsprintGL implementation of RRIlluminationEnvironmentMap is safe.
+		//!  \n Note2: updateEnvironmentMaps() is multithreaded internally.
 		//!
 		//! \param objectCenter
 		//!  Center of your dynamic object in world space coordinates.
@@ -229,16 +259,19 @@ namespace rr
 			unsigned specularSize, RRIlluminationEnvironmentMap* specularMap,
 			unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap);
 
+
 		//! Reports that appearance of one or more materials has changed.
 		//!
 		//! Call this when you change material properties in your material editor.
 		void reportMaterialChange();
+
 		//! Reports that position/rotation/shape of one or more lights has changed.
 		//
 		//! Call this when any light in scene changes any property, so that direct illumination changes.
 		//! \param strong Hint for solver, was change in illumination strong, does illumination 
 		//!  change significantly? Good hint improves performance.
 		void reportLightChange(bool strong);
+
 		//! Reports interaction between user and application.
 		//
 		//! This is useful for better CPU utilization in non-interactive periods of life
@@ -253,13 +286,17 @@ namespace rr
 		//! This happens for example in game editor, when level designer stops moving mouse.
 		void reportInteraction();
 
+
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is not created before you insert objects and call calculate().
 		RRObject* getMultiObjectCustom();
+
 		//! As getMultiObjectCustom, but with surfaces converted to physical space.
 		RRObjectWithPhysicalSurfaces* getMultiObjectPhysical();
+
 		//! As getMultiObjectPhysical, but with space for storage of detected direct illumination.
 		RRObjectWithIllumination* getMultiObjectPhysicalWithIllumination();
+
 		//! Returns the scene.
 		//! Scene is not created before you insert objects and call calculate().
 		const RRScene* getScene();
@@ -271,11 +308,13 @@ namespace rr
 		//! New values must appear in RRObjects already present in scene.
 		//! \n\n It is perfectly ok to write empty implementation if your application never modifies materials.
 		virtual void detectMaterials() = 0;
+
 		//! Autodetects direct illumination on all faces in scene.
 		//
 		//! To be implemented by you.
 		//! \return You may fail by returning false, you will get another chance next time.
 		virtual bool detectDirectIllumination() = 0;
+
 
 		//! Returns new vertex buffer (for indirect illumination) in your custom format.
 		//
@@ -283,11 +322,13 @@ namespace rr
 		//! This is good for editor, but you may want to use 4 bytes per vertex in game to save memory.
 		//! You may even use monochromatic (1 float) format if you don't need color bleeding.
 		virtual RRIlluminationVertexBuffer* newVertexBuffer(unsigned numVertices);
+
 		//! Returns new pixel buffer (for ambient map) in your custom format.
 		//
 		//! If you don't want to use ambient maps, return NULL.
 		//! Default implementation returns NULL.
 		virtual RRIlluminationPixelBuffer* newPixelBuffer(RRObject* object);
+
 
 		//! Enumerates all texels on object's surface.
 		//
