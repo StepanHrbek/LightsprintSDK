@@ -57,7 +57,7 @@ static Helpers* helpers = NULL;
 
 unsigned RRIlluminationPixelBufferInOpenGL::numInstances = 0;
 
-RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(const char* filename, unsigned awidth, unsigned aheight, const char* pathToShaders, bool aswapChannels)
+RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(const char* filename, unsigned awidth, unsigned aheight, const char* pathToShaders)
 {
 	rendering = false;
 
@@ -69,7 +69,6 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(const char*
 	else
 		texture = de::Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 
-	swapChannels = aswapChannels;
 	renderedTexels = NULL;
 }
 
@@ -144,7 +143,7 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 		return;
 	}
 	renderedTexels[uv[0]+uv[1]*texture->getWidth()] = 
-		rr::RRColorRGBA8(color[swapChannels?2:0],color[1],color[swapChannels?0:2],color[3]);
+		rr::RRColorRGBA8(color[0],color[1],color[2],color[3]);
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
@@ -159,10 +158,22 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 	if(renderedTexels)
 	{
 		texture->renderingToEnd();
-		texture->bindTexture();
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,renderedTexels);
-//texture->save("c:/amb0.png");
-		SAFE_DELETE_ARRAY(renderedTexels);
+
+		// normal way
+		//texture->bindTexture();
+		//glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,renderedTexels);
+		//SAFE_DELETE_ARRAY(renderedTexels);
+
+		// workaround for ATI (ati swaps channels at second glTexImage2D)
+		unsigned w = getWidth();
+		unsigned h = getHeight();
+		delete texture;
+		texture = de::Texture::create((unsigned char*)renderedTexels,w,h,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+		renderedTexels = NULL; // renderedTexels intentionally not deleted here, adopted by texture
+//unsigned q[4]={0,0,0,0};
+//for(unsigned i=0;i<getWidth()*getHeight();i++) for(unsigned j=0;j<4;j++) q[j]+=(renderedTexels[i].color>>(j*8))&255;
+//printf("%d %d %d %d\n",q[0]/getWidth()/getHeight(),q[1]/getWidth()/getHeight(),q[2]/getWidth()/getHeight(),q[3]/getWidth()/getHeight());
+//texture->save("c:/amb0.png",NULL);
 	}
 
 /*if(rendering)
@@ -306,14 +317,14 @@ RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 //
 // RRGPUOpenGL
 
-rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::createIlluminationPixelBuffer(unsigned w, unsigned h, bool swapChannels)
+rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::createIlluminationPixelBuffer(unsigned w, unsigned h)
 {
-	return new RRIlluminationPixelBufferInOpenGL(NULL,w,h,pathToShaders,swapChannels);
+	return new RRIlluminationPixelBufferInOpenGL(NULL,w,h,pathToShaders);
 }
 
 rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::loadIlluminationPixelBuffer(const char* filename)
 {
-	RRIlluminationPixelBufferInOpenGL* illum = new RRIlluminationPixelBufferInOpenGL(filename,0,0,pathToShaders,false);
+	RRIlluminationPixelBufferInOpenGL* illum = new RRIlluminationPixelBufferInOpenGL(filename,0,0,pathToShaders);
 	if(!illum->texture)
 		SAFE_DELETE(illum);
 	return illum;

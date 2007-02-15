@@ -12,8 +12,8 @@ namespace de
 
 UberProgram::UberProgram(const char* avertexShaderFileName, const char* afragmentShaderFileName)
 {
-	vertexShaderFileName = avertexShaderFileName;
-	fragmentShaderFileName = afragmentShaderFileName;
+	vertexShaderFileName = _strdup(avertexShaderFileName);
+	fragmentShaderFileName = _strdup(afragmentShaderFileName);
 }
 
 UberProgram::~UberProgram()
@@ -24,6 +24,8 @@ UberProgram::~UberProgram()
 		delete cache.begin()->second;
 		cache.erase(cache.begin());
 	}
+	free((void*)fragmentShaderFileName);
+	free((void*)vertexShaderFileName);
 }
 
 Program* UberProgram::getProgram(const char* defines)

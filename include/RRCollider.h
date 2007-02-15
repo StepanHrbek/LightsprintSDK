@@ -240,6 +240,7 @@ namespace rr
 
 		// helpers
 		//! \returns Mesh that was passed to create().
+		//!  Must always return valid mesh, implementation is not allowed to return NULL.
 		virtual RRMesh* getMesh() const = 0;
 		//! \returns Technique used by collider. May differ from technique requested in create().
 		virtual IntersectTechnique getTechnique() const = 0;

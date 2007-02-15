@@ -3,7 +3,6 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include <windows.h>
 
 #include "Interpolator.h"
 #include "report.h"

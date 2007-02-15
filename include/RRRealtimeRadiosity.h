@@ -248,10 +248,6 @@ namespace rr
 		//! creating higher quality illumination.
 		//! It detects these periods from you not calling reportLightChange() and reportInteraction().
 		//!
-		//! When scene is rendered permanently, only 20-50% of CPU time is spent calculating.
-		//!
-		//! Night edition will add partial precalculations running transparently on background.
-		//! Without changes in your code, you will get much higher quality.
 		//! \param updateRequests
 		//!  Sum of requests to update illumination data.
 		//!  See enum Request for all possible individual requests.
@@ -261,27 +257,28 @@ namespace rr
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
 		RRScene::Improvement calculate(unsigned updateRequests=AUTO_UPDATE_VERTEX_BUFFERS);
 
-		//! Parameters for updateLightmap().
-		//! \n\n You can let updateLightmap() compute
-		//! - direct illumination (first bounce): set only directQuality positive
-		//! - indirect illumination (infinite bounces except first one): set only indirectQuality positive
-		//! - global illumination (infinite bounces): set both positive
+		//! Parameters for updateLightmap() and updateLightmaps().
 		struct UpdateLightmapParameters
 		{
-			//! Quality of computed direct illumination, higher number = higher quality.
-			//! Direct illumination comes from realtime light sources (point/spot/dir/area lights).
-			//! For zero quality, direct illumination is off and does not contribute to final color.
-			unsigned directQuality;
+			//! Use current indirect solution computed by compute() as the only source of indirect illumination.
+			bool applyCurrentIndirectSolution;
 
-			//! Quality of computed indirect illumination, higher number = higher quality.
-			//! Indirect illumination comes from environment, including sky.
-			//! For zero quality, indirect illumination is off and does not contribute to final color.
-			//! For 1, update is very fast (milliseconds) and lightmap contains
-			//! nearly no noise, but small per pixel details are missing.
+			//! Use lights set by setLights() as one of sources of direct illumination.
+			bool applyLights;
+
+			//! Use environment set by setEnvironment() as one of sources of direct illumination.
+			bool applyEnvironment;
+
+			//! Quality of computed illumination coming from current solution and environment (not from lights).
+			//! Higher number = higher quality in longer time.
 			//! For 1000 and higher, lightmap contains small per pixel details,
-			//! but update takes longer (minutes).
-			//! 2-999 are faster, with per pixel details, but not recommended due to artifacts.
-			unsigned indirectQuality;
+			//! and update takes minutes.
+			//! 0-999 is faster, with per pixel details, but not recommended due to artifacts.
+			//!
+			//! If applyCurrentSolution is enabled and quality is zero,
+			//! very fast (milliseconds) update is executed and lightmap contains
+			//! nearly no noise, but small per pixel details are missing.
+			unsigned quality;
 
 			//! 0..1 ratio, texels with greater fraction of hemisphere 
 			//! seeing inside objects are masked away.
@@ -296,18 +293,21 @@ namespace rr
 			//! Turns on diagnostic output, generated map contains diagnostic values.
 			bool diagnosticOutput;
 
-			//! Sets default parameters for very fast (milliseconds) update of indirect illumination.
+			//! Sets default parameters for very fast (milliseconds) preview of current indirect solution.
+			//! Ambient maps are created.
 			UpdateLightmapParameters()
 			{
-				directQuality = 0;
-				indirectQuality = 1;
+				applyCurrentIndirectSolution = true;
+				applyLights = false;
+				applyEnvironment = false;
+				quality = 0;
 				insideObjectsTreshold = 0.1f;
 				rugDistance = 0.001f;
 				diagnosticOutput = false;
 			}
 		};
 
-		//! Calculates and updates lightmap with direct, indirect or global illumination on static object's surface.
+		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
 		//
 		//! Lightmap uses uv coordinates provided by RRObject::getTriangleMapping().
 		//!
@@ -329,7 +329,35 @@ namespace rr
 		//!  and stored in RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer.
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters.
-		virtual void updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, const UpdateLightmapParameters* params);
+		//! \return
+		//!  False when no update was executed because of invalid inputs.
+		//!  Read system messages (RRReporter) for more details on failure.
+		virtual bool updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, const UpdateLightmapParameters* params);
+
+		//! Calculates and updates all lightmaps with direct, indirect or global illumination on static scene's surfaces.
+		//
+		//! This is more powerful full scene version of limited single object's updateLightmap().
+		//!
+		//! \param lightmapChannelNumber
+		//!  Lightmaps for individual objects are stored into
+		//!  getIllumination(objectNumber)->getChannel(lightmapChannelNumber)->pixelBuffer.
+		//!  If required pixelBuffer doesn't exist, it is created by newPixelBuffer().
+		//! \param paramsDirect
+		//!  Parameters of the update process, NULL for the default parameters.
+		//!  Specifies direct illumination component of lightmap.
+		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
+		//!  set by setLights() is added to the final value stored into lightmap.
+		//! \param paramsIndirect
+		//!  Parameters of the update process, NULL for the default parameters.
+		//!  Specifies indirect illumination component of lightmap.
+		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
+		//!  set by setLights() is added to the final value stored into lightmap.
+		//!  For global illumination created by e.g. lights,
+		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
+		//! \return
+		//!  False when no update was executed because of invalid inputs.
+		//!  Read system messages (RRReporter) for more details on failure.
+		virtual bool updateLightmaps(unsigned lightmapChannelNumber, const UpdateLightmapParameters* paramsDirect, const UpdateLightmapParameters* paramsIndirect);
 
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
@@ -347,7 +375,7 @@ namespace rr
 		//! \param gatherSize
 		//!  Number of samples gathered from scene will be gatherSize*gatherSize*6.
 		//!  It doesn't have to be power of two.
-		//!  Set higher for higher quality, lower for higher speed.
+		//!  Increase for higher quality, decrease for higher speed.
 		//!  Size 16 is good, but 4 could be enough if you don't need specular map.
 		//! \param specularMap
 		//!  Your custom environment map for rendering object's specular reflection.
@@ -423,12 +451,19 @@ namespace rr
 		//! \n\n It is perfectly ok to write empty implementation if your application never modifies materials.
 		virtual void detectMaterials() = 0;
 
-		//! Autodetects direct illumination on all faces in scene.
+		//! Detects direct illumination on all faces in scene and sends it to solver.
 		//
-		//! To be implemented by you.
+		//! Source of illumination is implementation defined,
+		//! but for consistent results, it should be complete direct illumination
+		//! generated by your renderer.
 		//! \return You may fail by returning false, you will get another chance next time.
 		virtual bool detectDirectIllumination() = 0;
 
+		//! Detects direct illumination on all faces in scene and sends it to solver.
+		//
+		//! Source of illumination are lightmaps stored in 
+		//! getIllumination(objectNumber)->getChannel(sourceChannel)->pixelBuffer.
+		virtual void detectDirectIlluminationFromLightmaps(unsigned sourceChannel) = 0;
 
 		//! Returns new vertex buffer (for indirect illumination) in your custom format.
 		//
@@ -448,7 +483,7 @@ namespace rr
 		//
 		//! Default implementation runs callbacks on all CPUs/cores at once.
 		//! It is not strictly defined what texels are enumerated, but close match to
-		//! pixels visible on mapped object improves ambient map quality.
+		//! pixels visible on mapped object improves lightmap quality.
 		//! \n Enumeration order is not defined.
 		//! \param objectNumber
 		//!  Number of object in this scene.

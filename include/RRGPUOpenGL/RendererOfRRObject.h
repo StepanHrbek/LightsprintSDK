@@ -92,6 +92,7 @@ public:
 		bool     MATERIAL_DIFFUSE_COLOR :1; ///< feeds gl_SecondaryColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
 		bool     FORCE_2D_POSITION      :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
+		unsigned LIGHT_MAP_CHANNEL;         ///< if LIGHT_INDIRECT_MAP, maps from this illuminations channel are used
 		//! Creates setup with everything off, only vertex positions are rendered.
 		//! Suitable for rendering into shadowmaps.
 		RenderedChannels()

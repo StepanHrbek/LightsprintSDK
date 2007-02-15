@@ -229,7 +229,8 @@ namespace rr
 		//
 		// must not change during object lifetime
 		//
-		//! Returns collider of underlying mesh. It is also access to mesh itself (via collider->getMesh()).
+		//! Returns collider of underlying mesh. It is also access to mesh itself (via getCollider()->getMesh()).
+		//! Must always return valid collider, implementation is not allowed to return NULL.
 		virtual const RRCollider* getCollider() const = 0;
 		//! Returns triangle's surface id.
 		//

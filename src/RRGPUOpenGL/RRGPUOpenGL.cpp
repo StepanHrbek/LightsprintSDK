@@ -82,12 +82,18 @@ RRRealtimeRadiosityGL::RRRealtimeRadiosityGL(char* apathToShaders)
 		;
 	detectSmallMap = new unsigned[smallMapSize];
 	char buf1[400];
-	_snprintf(buf1,999,"%s%s",pathToShaders,"scaledown_filter.vp");
 	char buf2[400];
-	_snprintf(buf2,999,"%s%s",pathToShaders,"scaledown_filter.fp");
+	_snprintf(buf1,999,"%sscaledown_filter.vp",pathToShaders);
+	_snprintf(buf2,999,"%sscaledown_filter.fp",pathToShaders);
 	scaleDownProgram = new de::Program(NULL,buf1,buf2);
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
+
+	// used by detectDirectIlluminationFromLightmaps
+	_snprintf(buf1,999,"%subershader.vp",pathToShaders);
+	_snprintf(buf2,999,"%subershader.fp",pathToShaders);
+	detectFromLightmapUberProgram = new de::UberProgram(buf1,buf2);
+	detectingFromLightmapChannel = -1;
 }
 
 RRRealtimeRadiosityGL::~RRRealtimeRadiosityGL()
@@ -98,6 +104,9 @@ RRRealtimeRadiosityGL::~RRRealtimeRadiosityGL()
 	delete[] detectSmallMap;
 	delete detectBigMap;
 	delete captureUv;
+
+	// used by detectDirectIlluminationFromLightmaps
+	delete detectFromLightmapUberProgram;
 }
 
 /*
@@ -215,6 +224,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 
 bool RRRealtimeRadiosityGL::detectDirectIllumination()
 {
+	//printf("GL::detectDirectIllumination\n");
 	//Timer w;w.Start();
 
 	// first time init
@@ -296,8 +306,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 		glViewport(0, 0, captureUv->triCountX*triSizeXRender, captureUv->triCountY*triSizeYRender);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// render scene
-		setupShader();
+		// setup renderer
 		RendererOfRRObject::RenderedChannels renderedChannels;
 		renderedChannels.LIGHT_DIRECT = true;
 #if PRIMARY_SCAN_PRECISION==2
@@ -307,6 +316,28 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 		renderedChannels.MATERIAL_DIFFUSE_MAP = true;
 #endif
 		renderedChannels.FORCE_2D_POSITION = true;
+
+		// setup shader
+		if(detectingFromLightmapChannel>=0)
+		{
+			// special path for detectDirectIlluminationFromLightmaps()
+			renderedChannels.LIGHT_DIRECT = false;
+			renderedChannels.LIGHT_INDIRECT_MAP = true;
+			renderedChannels.LIGHT_MAP_CHANNEL = detectingFromLightmapChannel;
+			de::UberProgramSetup detectFromLightmapUberProgramSetup;
+			detectFromLightmapUberProgramSetup.LIGHT_INDIRECT_MAP = true;
+			detectFromLightmapUberProgramSetup.MATERIAL_DIFFUSE = true;
+			detectFromLightmapUberProgramSetup.FORCE_2D_POSITION = true;
+			detectFromLightmapUberProgramSetup.useProgram(detectFromLightmapUberProgram,NULL,0,NULL);
+		}
+		else
+		{
+			// standard path customizable by subclassing
+			//!!! no support for per object shaders yet
+			setupShader(0);
+		}
+
+		// render scene
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
 		rendererCaching->render();
@@ -437,7 +468,7 @@ bool RRRealtimeRadiosityGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIllum
 	lightmap->renderBegin();
 
 	// setup shader
-	setupShader();
+	setupShader(objectIndex);
 
 	// prepare renderer
 	// (could be cached later for higher speed)
@@ -459,6 +490,13 @@ bool RRRealtimeRadiosityGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIllum
 	lightmap->renderEnd(true);
 
 	return true;
+}
+
+void RRRealtimeRadiosityGL::detectDirectIlluminationFromLightmaps(unsigned sourceChannel)
+{
+	detectingFromLightmapChannel = sourceChannel;
+	RRRealtimeRadiosityGL::detectDirectIllumination();
+	detectingFromLightmapChannel = -1;
 }
 
 }; // namespace

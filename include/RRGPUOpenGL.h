@@ -37,6 +37,7 @@
 #include "DemoEngine/Texture.h"
 #include "DemoEngine/Program.h"
 #include "DemoEngine/Renderer.h"
+#include "DemoEngine/UberProgramSetup.h"
 
 //! LightsprintGL - OpenGL 2.0 part of realtime global illumination solver.
 namespace rr_gl
@@ -63,8 +64,7 @@ namespace rr_gl
 		//! Used for precomputed global illumination of static objects.
 		//! \param width Width of texture.
 		//! \param height Height of texture.
-		//! \param swapChannels Set to true only on buggy AMD drivers that swap R and B channels.
-		rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height, bool swapChannels = false);
+		rr::RRIlluminationPixelBuffer* createIlluminationPixelBuffer(unsigned width, unsigned height);
 
 		//! Loads RRIlluminationPixelBuffer stored on disk.
 		rr::RRIlluminationPixelBuffer* loadIlluminationPixelBuffer(const char* filename);
@@ -102,12 +102,15 @@ namespace rr_gl
 		static rr::RRIlluminationEnvironmentMap* loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6]);
 
 	protected:
-		//! Detection of direct illumination implemented using OpenGL 2.0.
+		//! Detection of direct illumination from custom light sources implemented using OpenGL 2.0.
 		virtual bool detectDirectIllumination();
 
+		//! Detection of direct illumination from lightmaps implemented using OpenGL 2.0.
+		virtual void detectDirectIlluminationFromLightmaps(unsigned sourceChannel);
+
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
-		//! without material. This is renderer specific operation and can't be implemented in this generic class.
-		virtual void setupShader() = 0;
+		//! without material. This is renderer specific operation and can't be implemented here.
+		virtual void setupShader(unsigned objectNumber) = 0;
 
 	private:
 		char pathToShaders[300];
@@ -119,6 +122,9 @@ namespace rr_gl
 		unsigned* detectSmallMap;
 		unsigned smallMapSize;
 		de::Program* scaleDownProgram;
+		// used by detectDirectIlluminationFromLightmaps
+		de::UberProgram* detectFromLightmapUberProgram;
+		int detectingFromLightmapChannel;
 		// backup of render states
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;

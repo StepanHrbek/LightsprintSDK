@@ -39,19 +39,13 @@
 //
 // Helps during development of new wrappers.
 // Define VERIFY to enable verification of wrappers and data.
-// Once your code/data are verified and don't emit messages via reporter(),
+// Display system messages using RRReporter.
+// Once your code/data are verified and don't emit messages via RRReporter,
 // turn verifications off.
 // If you encounter strange behaviour with new data later,
 // reenable verifications to check that your data are ok.
 
 #define VERIFY
-
-#ifdef VERIFY
-void reporter(const char* msg, void* context)
-{
-	puts(msg);
-}
-#endif
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -157,7 +151,7 @@ static void fillSurface(rr::RRSurface& s,de::Texture*& t,de::TTexture* m,const c
 
 #ifdef VERIFY
 	if(s.validate())
-		reporter("Surface adjusted to physically valid.",NULL);
+		rr::RRReporter::report(rr::RRReporter::WARN,"Surface adjusted to physically valid.\n");
 #else
 	s.validate();
 #endif
@@ -212,7 +206,7 @@ RRObjectBSP::RRObjectBSP(de::TMapQ3* amodel, const char* pathToTextures)
 	}
 
 #ifdef VERIFY
-	verify(reporter,NULL);
+	verify();
 #endif
 
 	// create collider
@@ -436,7 +430,7 @@ RRObjectBSP* new_bsp_importer(de::TMapQ3* model, const char* pathToTextures)
 {
 	RRObjectBSP* importer = new RRObjectBSP(model,pathToTextures);
 #ifdef VERIFY
-	importer->getCollider()->getMesh()->verify(reporter,NULL);
+	importer->getCollider()->getMesh()->verify();
 #endif
 	return importer;
 }

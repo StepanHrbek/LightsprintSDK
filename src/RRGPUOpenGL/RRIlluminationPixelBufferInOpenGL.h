@@ -29,7 +29,7 @@ namespace rr_gl
 	{
 	public:
 		//! Creates rr::RRIlluminationPixelBuffer implemented using OpenGL 2.0.
-		RRIlluminationPixelBufferInOpenGL(const char* filename, unsigned width, unsigned height, const char* pathToShaders, bool swapChannels);
+		RRIlluminationPixelBufferInOpenGL(const char* filename, unsigned width, unsigned height, const char* pathToShaders);
 		virtual void renderBegin();
 		virtual void renderTriangle(const IlluminatedTriangle& it);
 		//virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
@@ -46,7 +46,6 @@ namespace rr_gl
 		bool rendering;
 		bool renderTriangleProgramSet;
 		rr::RRColorRGBA8* renderedTexels;
-		bool swapChannels;
 		// state backup
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;

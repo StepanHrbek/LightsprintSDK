@@ -42,6 +42,61 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//! Reporting messages
+	//
+	//! This system is used by Lightsprint internals to send
+	//! messages to you.
+	//! 
+	//! By default, all messages are ignored.
+	//! If you encounter problems, it could help to 
+	//! set nondefault reporter and read system messages.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+	class RR_API RRReporter
+	{
+	public:
+		/////////////////////////////////////////////////////////////
+		// interface
+		/////////////////////////////////////////////////////////////
+
+		//! Type of message.
+		enum Type
+		{
+			ERRO, ///< Error, most important message, describes problem you should immediately fix.
+			WARN, ///< Warning, potential error.
+			INFO, ///< Information, produced by valid programs.
+			CONT, ///< Continuation of previous message.
+		};
+
+		//! Generic report of message.
+		//! Usually called by Lightsprint internals with message for you.
+		virtual void customReport(const char* message) = 0;
+
+
+		/////////////////////////////////////////////////////////////
+		// tools
+		/////////////////////////////////////////////////////////////
+
+		//! Shortcut for customReport() with printf syntax.
+		//! Usually called by Lightsprint internals with message for you.
+		static void report(Type type, const char* format, ...);
+
+		//! Sets custom reporter, NULL for none.
+		static void setReporter(RRReporter* reporter);
+
+		//! Returns current active reporter, NULL for none.
+		static RRReporter* getReporter();
+
+		//! Creates reporter that calls printf() on each message.
+		static RRReporter* createPrintfReporter();
+
+		//! Creates reporter that calls OutputDebugString() on each message.
+		static RRReporter* createOutputDebugStringReporter();
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	//  RRChanneledData
 	//! Common interface for data stored in channels - arrays of implementation defined size and type.
 	//
@@ -365,15 +420,11 @@ namespace rr
 		//! \return Newly created instance or NULL when load failed.
 		static RRMesh* load(char* filename);
 
-		// verification
-		//! Callback for reporting text messages.
-		typedef void Reporter(const char* msg, void* context);
 		//! Verifies that mesh is well formed.
 		//
-		//! \param reporter All inconsistencies are reported using this callback.
-		//! \param context This value is sent to reporter without any modifications from verify.
-		//! \returns Number of reports performed.
-		unsigned verify(Reporter* reporter, void* context);
+		//! Reports any problems found using RRReporter.
+		//! \returns Number of problem reports sent, 0 for valid mesh.
+		unsigned verify();
 	};
 
 } // namespace

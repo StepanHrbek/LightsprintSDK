@@ -373,6 +373,10 @@
 			RelativePath="RRMeshTriStrip.h"
 			>
 		</File>
+		<File
+			RelativePath=".\RRReporter.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

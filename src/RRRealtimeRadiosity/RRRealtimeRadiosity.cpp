@@ -163,7 +163,7 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
-// calculates radiosity in existing times (improveStep = time to spend in improving),
+// calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
 RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float improveStep)
 {

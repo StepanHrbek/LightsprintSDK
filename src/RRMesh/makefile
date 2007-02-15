@@ -12,7 +12,7 @@ CPPFLAGS += -mfpmath=sse
 #CPPFLAGS += -ftree-vectorize -ftree-vectorizer-verbose=5
 #CPPFLAGS += -funsafe-loop-optimizations
 
-OBJS = $(TMP)RRChanneledData.o $(TMP)RRMesh.o $(TMP)RRMeshCopy.o $(TMP)RRMeshLessVertices.o $(TMP)RRMeshMulti.o
+OBJS = $(TMP)RRChanneledData.o $(TMP)RRMesh.o $(TMP)RRMeshCopy.o $(TMP)RRMeshLessVertices.o $(TMP)RRMeshMulti.o $(TMP)RRReporter.o
 
 all: makefile $(LIB)
 

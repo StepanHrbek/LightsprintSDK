@@ -343,7 +343,7 @@ protected:
 		// setup shader for rendering direct illumination+shadows without materials
 		return RRRealtimeRadiosityGL::detectDirectIllumination();
 	}
-	virtual void setupShader()
+	virtual void setupShader(unsigned objectNumber)
 	{
 		if(!level) return;
 
@@ -375,10 +375,6 @@ protected:
 
 		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap[lightDirectMapIdx]))
 			error("Failed to compile or link GLSL program.\n",true);
-	}
-	virtual void reportAction(const char* action) const
-	{
-		printf(action);
 	}
 };
 
@@ -1029,7 +1025,7 @@ Level::Level(const char* filename_3ds)
 		scale_3ds = 0.03f;
 		// dobry zacatek
 		de::Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,60.0};
-		de::Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};
+		de::Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};//!!!
 		// bad lmap
 //		Camera tmpeye = {{1.910,1.298,1.580},6.650,2.350,1.3,75.0,0.3,60.0};
 //		Camera tmplight = {{2.950,0.899,3.149},7.405,13.000,1.0,70.0,1.0,20.0};
@@ -1483,20 +1479,18 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 				rr::RRRealtimeRadiosity::Lights lights;
 				lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
 				level->solver->setLights(lights);
-				// creates all maps in low quality
-				level->solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
 				// updates maps in high quality
-				for(unsigned i=0;i<level->solver->getNumObjects();i++)
-				{
-					printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,level->solver->getNumObjects(),
-						level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->getWidth(),
-						level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
-					rr::RRRealtimeRadiosity::UpdateLightmapParameters params;
-					params.directQuality = 1;
-					params.indirectQuality = 1;//LIGHTMAP_QUALITY;
-					level->solver->updateLightmap(i,NULL,&params);
-					printf(" done.\n");
-				}
+				rr::RRRealtimeRadiosity::UpdateLightmapParameters paramsDirect;
+				paramsDirect.applyCurrentIndirectSolution = false;
+				paramsDirect.applyLights = true;
+				paramsDirect.applyEnvironment = true;
+				paramsDirect.quality = LIGHTMAP_QUALITY;
+				rr::RRRealtimeRadiosity::UpdateLightmapParameters paramsIndirect;
+				paramsIndirect.applyCurrentIndirectSolution = true;
+				paramsIndirect.applyLights = true;
+				paramsIndirect.applyEnvironment = true;
+				paramsIndirect.quality = LIGHTMAP_QUALITY/5;
+				level->solver->updateLightmaps(0,&paramsDirect,&paramsIndirect);
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
 			}
@@ -2022,6 +2016,7 @@ int main(int argc, char **argv)
 	if(!INSTANCES_PER_PASS) error("",true);
 	areaLight->setNumInstances(startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1);
 
+	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	if(rr::RRLicense::loadLicense("licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.",false);
 

@@ -3,8 +3,12 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+#include "DemoEngine/Timer.h"
 #include "RRRealtimeRadiosity.h"
 #include "../src/RRMath/RRMathPrivate.h"
+
+#define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
+#define REPORT(a) a
 
 namespace rr
 {
@@ -148,43 +152,59 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 {
 	if(!context)
 	{
+		RRReporter::report(RRReporter::WARN,"processTexel: context==NULL\n");
 		assert(0);
 		return;
 	}
 	TexelContext* tc = (TexelContext*)context;
-	if(!tc->params || (!tc->params->directQuality && !tc->params->indirectQuality) || !tc->solver || !tc->solver->getMultiObjectCustom())
+	if(!tc->params || !tc->solver || !tc->solver->getMultiObjectCustom())
 	{
+		RRReporter::report(RRReporter::WARN,"processTexel: No params or no objects in scene\n");
 		assert(0);
 		return;
 	}
-	// cast rays and calculate irradiance
-	// - prepare scaler
+
+	// prepare scaler
 	const RRScaler* scaler = tc->solver->getScaler();
-	// - prepare environment
-	const RRIlluminationEnvironmentMap* environment = tc->solver->getEnvironment();
-	// - prepare ortonormal base
-	RRVec3 n3 = normal.normalized();
-	RRVec3 u3 = normalized(ortogonalTo(n3));
-	RRVec3 v3 = normalized(ortogonalTo(n3,u3));
-	// - prepare homogenous filler
-	HomogenousFiller filler;
-	filler.Reset();
-	// - prepare collider
+	
+	// prepare collider
 	const RRCollider* collider = tc->solver->getMultiObjectCustom()->getCollider();
 	SkipTriangle skip(triangleIndex);
-	// - prepare ray
+
+	// check where to shoot
+	bool shootToHemisphere = tc->params->applyEnvironment || tc->params->applyCurrentIndirectSolution;
+	bool shootToLights = tc->params->applyLights && tc->solver->getLights().size();
+	if(!shootToHemisphere && !shootToLights)
+	{
+		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"processTexel: Zero workload.\n"));
+		assert(0);
+		return;
+	}
+	
+	// prepare ray
 	RRRay* ray = RRRay::create();
 	ray->rayOrigin = pos3d;
 	ray->rayLengthMin = 0;
 	ray->collisionHandler = &skip;
-	// - shoot into scene
-	RRColorRGBF irradianceIndirect = RRColorRGBF(0);
-	RRReal reliabilityIndirect = 1;
-	if(tc->params->indirectQuality)
+
+	// shoot into hemisphere
+	RRColorRGBF irradianceHemisphere = RRColorRGBF(0);
+	RRReal reliabilityHemisphere = 1;
+	if(shootToHemisphere)
 	{
-		unsigned rays = tc->params->indirectQuality;
-		unsigned hitsIndirectReliable = 0;
-		unsigned hitsIndirectUnreliable = 0;
+		// prepare environment
+		const RRIlluminationEnvironmentMap* environment = tc->solver->getEnvironment();
+		// prepare ortonormal base
+		RRVec3 n3 = normal.normalized();
+		RRVec3 u3 = normalized(ortogonalTo(n3));
+		RRVec3 v3 = normalized(ortogonalTo(n3,u3));
+		// prepare homogenous filler
+		HomogenousFiller filler;
+		filler.Reset();
+		// init counters
+		unsigned rays = tc->params->quality ? tc->params->quality : 1;
+		unsigned hitsReliable = 0;
+		unsigned hitsUnreliable = 0;
 		unsigned hitsInside = 0;
 		unsigned hitsRug = 0;
 		unsigned hitsSky = 0;
@@ -208,10 +228,10 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 					//irradianceIndirect += environment->getValue(dir);
 					RRColorRGBF irrad = environment->getValue(dir);
 					if(scaler) scaler->getPhysicalScale(irrad);
-					irradianceIndirect += irrad;
+					irradianceHemisphere += irrad;
 				}
 				hitsSky++;
-				hitsIndirectReliable++;
+				hitsReliable++;
 			}
 			else
 			if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
@@ -219,129 +239,149 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 				// ray was lost inside object, 
 				// increase our transparency, so our color doesn't leak outside object
 				hitsInside++;
-				hitsIndirectUnreliable++;
+				hitsUnreliable++;
 			}
 			else
 			if(ray->hitDistance<tc->params->rugDistance)
 			{
 				// ray hit rug, very close object
 				hitsRug++;
-				hitsIndirectUnreliable++;
+				hitsUnreliable++;
 			}
 			else
 			{
 				// read cube irradiance as face exitance
 				RRVec3 irrad;
 				tc->solver->getScene()->getTriangleMeasure(ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
-				irradianceIndirect += irrad;
+				irradianceHemisphere += irrad;
 				hitsScene++;
-				hitsIndirectReliable++;
+				hitsReliable++;
 			}		
 		}
 		// compute irradiance and reliability
-		if(hitsIndirectReliable==0)
+		if(hitsReliable==0)
 		{
 			// completely unreliable
-			irradianceIndirect = RRColorRGBAF(0);
+			irradianceHemisphere = RRColorRGBAF(0);
+			reliabilityHemisphere = 0;
 		}
 		else
 		if(hitsInside>rays*tc->params->insideObjectsTreshold)
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			irradianceIndirect = RRColorRGBAF(0);
+			irradianceHemisphere = RRColorRGBAF(0);
+			reliabilityHemisphere = 0;
 		}
 		else
 		{
 			// convert to full irradiance (as if all rays hit scene)
-			irradianceIndirect /= (RRReal)hitsIndirectReliable;
+			irradianceHemisphere /= (RRReal)hitsReliable;
 			// compute reliability
-			reliabilityIndirect = hitsIndirectReliable/(RRReal)(hitsIndirectReliable+hitsIndirectUnreliable);
+			reliabilityHemisphere = hitsReliable/(RRReal)rays;
 		}
 	}
-	// - shoot into lights
-	RRColorRGBF irradianceDirect = RRColorRGBF(0);
-	RRReal reliabilityDirect = 1;
-	if(tc->params->directQuality)
+
+	// shoot into lights
+	RRColorRGBF irradianceLights = RRColorRGBF(0);
+	RRReal reliabilityLights = 1;
+	if(shootToLights)
 	{
-		//unsigned hitsDirectReliable = 0;
-		//unsigned hitsDirectUnreliable = 0;
-		//unsigned hitsLight = 0;
-		//unsigned hitsInside = 0;
-		//unsigned hitsRug = 0;
-		//unsigned hitsScene = 0;
+		unsigned hitsReliable = 0;
+		unsigned hitsUnreliable = 0;
+		unsigned hitsLight = 0;
+		unsigned hitsInside = 0;
+		unsigned hitsRug = 0;
+		unsigned hitsScene = 0;
 		const RRRealtimeRadiosity::Lights& lights = tc->solver->getLights();
-		for(unsigned i=0;i<lights.size();i++)
+		unsigned rays = (unsigned)lights.size();
+		for(unsigned i=0;i<rays;i++)
 		{
 			const RRLight* light = lights[i];
 			if(!light) continue;
 			// set dir to light
 			RRVec3 dir = (light->type==RRLight::DIRECTIONAL)?-light->direction:(light->position-pos3d);
 			RRReal dirsize = dir.length();
-			// intesect scene
-			ray->rayDirInv[0] = dirsize/dir[0];
-			ray->rayDirInv[1] = dirsize/dir[1];
-			ray->rayDirInv[2] = dirsize/dir[2];
-			ray->rayLengthMax = dirsize;
-			ray->rayFlags = RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
-			if(!collider->intersect(ray))
+			dir /= dirsize;
+			if(dot(dir,normal)<=0)
 			{
-				// add irradiance from light
-				irradianceDirect += light->getIrradiance(pos3d,scaler);
-		}}/*
-				hitsLight++;
-				hitsDirectReliable++;
-			}
-			else
-			if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
-			{
-				// ray was lost inside object, 
-				// increase our transparency, so our color doesn't leak outside object
-				hitsInside++;
-				hitsDirectUnreliable++;
-			}
-			else
-			if(ray->hitDistance<tc->params->rugDistance)
-			{
-				// ray hit rug, very close object
-				hitsRug++;
-				hitsDirectUnreliable++;
-			}
-			else
-			{
+				// face is not oriented towards light -> reliable black (selfshadowed)
 				hitsScene++;
-				hitsDirectReliable++;
+				hitsReliable++;
+			}
+			else
+			{
+				// intesect scene
+				ray->rayDirInv[0] = 1/dir[0];
+				ray->rayDirInv[1] = 1/dir[1];
+				ray->rayDirInv[2] = 1/dir[2];
+				ray->rayLengthMax = dirsize;
+				ray->rayFlags = RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
+				if(!collider->intersect(ray))
+				{
+					// add irradiance from light
+					irradianceLights += light->getIrradiance(pos3d,scaler);
+					hitsLight++;
+					hitsReliable++;
+				}
+				else
+				if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
+				{
+					// ray was lost inside object -> unreliable
+					hitsInside++;
+					hitsUnreliable++;
+				}
+				else
+				if(ray->hitDistance<tc->params->rugDistance)
+				{
+					// ray hit rug, very close object -> unreliable
+					hitsRug++;
+					hitsUnreliable++;
+				}
+				else
+				{
+					// ray hit scene -> reliable black (shadowed)
+					hitsScene++;
+					hitsReliable++;
+				}
 			}
 		}
 		// compute irradiance and reliability
-		if(hitsDirectReliable==0 && hitsDirectUnreliable)
+		if(hitsReliable==0)
 		{
 			// completely unreliable
-			irradianceDirect = RRColorRGBAF(0);
+			irradianceLights = RRColorRGBAF(0);
+			reliabilityLights = 0;
 		}
 		else
 		if(hitsInside>rays*tc->params->insideObjectsTreshold)
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
-			irradianceIndirect = RRColorRGBAF(0);
+			irradianceLights = RRColorRGBAF(0);
+			reliabilityLights = 0;
 		}
 		else
 		{
 			// compute reliability
-			reliabilityDirect = hitsDirectReliable/(RRReal)(hitsDirectReliable+hitsDirectUnreliable);
-		}*/
+			reliabilityLights = hitsReliable/(RRReal)rays;
+		}
 	}
+
 	// cleanup ray
 	delete ray;
+
 	// sum direct and indirect results
-	RRColorRGBAF irradiance = irradianceDirect + irradianceIndirect;
-	RRReal reliability = reliabilityIndirect;
+	RRColorRGBAF irradiance = irradianceLights + irradianceHemisphere;
+	RRReal reliability = MIN(reliabilityLights,reliabilityHemisphere);
+
 	// scale irradiance (full irradiance, not fraction) to custom scale
 	if(scaler) scaler->getCustomScale(irradiance);
+
 	// multiply by reliability
 	irradiance *= reliability;
 	irradiance[3] = reliability;
+
 	/*/ diagnostic output
 	if(tc->params->diagnosticOutput)
 	{
@@ -351,6 +391,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		irradiance[2] = hitsSky/(float)rays;
 		irradiance[3] = 1;
 	}*/
+
 	// store irradiance in custom scale
 	tc->pixelBuffer->renderTexel(uv,irradiance);
 }
@@ -438,76 +479,177 @@ void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWid
 	}
 }
 
-void RRRealtimeRadiosity::updateLightmap(unsigned objectHandle, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* params)
-//!!! pocita jen indirect
+bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* aparams)
 {
-	if(!scene)
+	if(!getMultiObjectCustom() || !getScene())
 	{
-		assert(0);
-		return;
-	}
-	if(objectHandle>=objects.size())
-	{
-		assert(0);
-		return;
-	}
-	// for one object
-	{
-		RRObject* object = getMultiObjectCustom();
-		if(!object)
+		// create objects
+		calculateCore(0,0);
+		if(!getMultiObjectCustom() || !getScene())
 		{
 			assert(0);
-			return;
-		}
-		RRMesh* mesh = object->getCollider()->getMesh();
-		unsigned numPostImportTriangles = mesh->getNumTriangles();
-		if(!pixelBuffer)
-		{
-			RRObjectIllumination* illumination = getIllumination(objectHandle);
-			RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
-			if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(objectHandle));
-			pixelBuffer = channel->pixelBuffer;
-		}
-
-		if(pixelBuffer)
-		{
-			pixelBuffer->renderBegin();
-			if(params && params->indirectQuality)
-			{
-				TexelContext tc;
-				tc.solver = this;
-				tc.pixelBuffer = pixelBuffer;
-				UpdateLightmapParameters tmp;
-				tc.params = params ? params : &tmp;
-				// process one texel. for safe preallocations inside texel processor
-				unsigned uv[2]={0,0};
-				processTexel(uv,RRVec3(0),RRVec3(1),0,&tc);
-				// continue with all texels, possibly in multiple threads
-				enumerateTexels(objectHandle,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,&tc);
-				pixelBuffer->renderEnd(true);
-			}
-			else
-			{
-				// for each triangle in multimesh
-				for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
-				{
-					// process only triangles belonging to objectHandle
-					RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
-					if(preImportTriangle.object==objectHandle)
-					{
-						// multiObject must preserve mapping (all objects overlap in one map)
-						//!!! this is satisfied now, but it may change in future
-						RenderSubtriangleContext rsc;
-						rsc.pixelBuffer = pixelBuffer;
-						object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
-						// render all subtriangles into pixelBuffer using object's unwrap
-						scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),renderSubtriangle,&rsc);
-					}
-				}
-				pixelBuffer->renderEnd(false);
-			}
+			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: No objects in scene.\n");
+			return false;
 		}
 	}
+	if(objectNumber>=getNumObjects())
+	{
+		assert(0);
+		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
+		return false;
+	}
+	RRObject* object = getMultiObjectCustom();
+	RRMesh* mesh = object->getCollider()->getMesh();
+	unsigned numPostImportTriangles = mesh->getNumTriangles();
+	if(!pixelBuffer)
+	{
+		RRObjectIllumination* illumination = getIllumination(objectNumber);
+		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
+		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(objectNumber));
+		pixelBuffer = channel->pixelBuffer;
+		if(!pixelBuffer)
+		{
+			assert(0);
+			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: newPixelBuffer(getObject(%d)) returned NULL\n",objectNumber);
+			return false;
+		}
+	}
+
+	// validate params
+	UpdateLightmapParameters params;
+	if(aparams) params = *aparams;
+	
+	// optimize params
+	if(params.applyLights && !getLights().size())
+		params.applyLights = false;
+	if(params.applyEnvironment && !getEnvironment())
+		params.applyEnvironment = false;
+
+	pixelBuffer->renderBegin();
+	if(params.applyLights || params.applyEnvironment || (params.applyCurrentIndirectSolution && params.quality))
+	{
+		RRReporter::report(RRReporter::INFO,"Updating lightmap, object %d/%d, res %d*%d ...",objectNumber+1,getNumObjects(),pixelBuffer->getWidth(),pixelBuffer->getHeight());
+		TexelContext tc;
+		tc.solver = this;
+		tc.pixelBuffer = pixelBuffer;
+		tc.params = &params;
+		// process one texel. for safe preallocations inside texel processor
+		unsigned uv[2]={0,0};
+		processTexel(uv,RRVec3(0),RRVec3(1),0,&tc);
+		// continue with all texels, possibly in multiple threads
+		enumerateTexels(objectNumber,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,&tc);
+		pixelBuffer->renderEnd(true);
+		RRReporter::report(RRReporter::CONT," done.\n");
+	}
+	else
+	if(params.applyCurrentIndirectSolution)
+	{
+		// for each triangle in multimesh
+		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+		{
+			// process only triangles belonging to objectHandle
+			RRMesh::MultiMeshPreImportNumber preImportTriangle = mesh->getPreImportTriangle(postImportTriangle);
+			if(preImportTriangle.object==objectNumber)
+			{
+				// multiObject must preserve mapping (all objects overlap in one map)
+				//!!! this is satisfied now, but it may change in future
+				RenderSubtriangleContext rsc;
+				rsc.pixelBuffer = pixelBuffer;
+				object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
+				// render all subtriangles into pixelBuffer using object's unwrap
+				scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),renderSubtriangle,&rsc);
+			}
+		}
+		pixelBuffer->renderEnd(false);
+	}
+	else
+	{
+		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: Zero workload.\n");
+		assert(0);
+	}
+	return true;
+}
+
+static bool endByTime(void *context)
+{
+	return GETTIME>*(TIME*)context;
+}
+
+bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const UpdateLightmapParameters* aparamsDirect, const UpdateLightmapParameters* aparamsIndirect)
+{
+	if(!getMultiObjectCustom() || !scene)
+	{
+		// create objects
+		calculateCore(0,0);
+		if(!getMultiObjectCustom() || !scene)
+		{
+			assert(0);
+			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: No objects in scene.\n");
+			return false;
+		}
+	}
+	// set default params instead of NULL
+	UpdateLightmapParameters paramsDirect;
+	UpdateLightmapParameters paramsIndirect;
+	//paramsDirect.applyCurrentIndirectSolution = false;
+	if(aparamsDirect) paramsDirect = *aparamsDirect;
+	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
+
+	RRReporter::report(RRReporter::INFO,"Updating lightmaps (%d,DIRECT(%s%s),INDIRECT(%s%s)).\n",lightmapChannelNumber,paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"");
+
+	// gather direct for requested indirect and propagate in solver
+	if(paramsIndirect.applyLights || paramsIndirect.applyEnvironment)
+	{
+		if(paramsDirect.applyCurrentIndirectSolution || paramsIndirect.applyCurrentIndirectSolution)
+		{
+			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: applyCurrentIndirectSolution must be false.\n");
+			assert(0);
+			return false;
+		}
+		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
+		calculateCore(0,0);
+		// gather
+		for(unsigned object=0;object<getNumObjects();object++)
+		{
+			RRObjectIllumination::Channel* channel = getIllumination(object)->getChannel(lightmapChannelNumber);
+			if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(object));
+			if(channel->pixelBuffer)
+				updateLightmap(object,channel->pixelBuffer,&paramsIndirect);
+			else
+			{
+				RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
+				assert(0);
+			}
+		}
+		// feed solver with recently gathered illum
+		detectDirectIlluminationFromLightmaps(lightmapChannelNumber);
+		// propagate
+		RRReporter::report(RRReporter::INFO,"Propagating ...");
+		scene->illuminationReset(false,true);
+		TIME now = GETTIME;
+		TIME end = (TIME)(now+2*PER_SEC); //!!! cas prizpusobit kvalite
+		scene->illuminationImprove(endByTime,(void*)&end);
+		RRReporter::report(RRReporter::CONT," done.\n");
+		// set solution generated here to be gathered in second gather
+		paramsDirect.applyCurrentIndirectSolution = true;
+		// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)
+		//  before further realtime rendering
+//		reportLightChange(true);
+	}
+	// gather requested direct and solution
+	for(unsigned object=0;object<getNumObjects();object++)
+	{
+		RRObjectIllumination::Channel* channel = getIllumination(object)->getChannel(lightmapChannelNumber);
+		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(object));
+		if(channel->pixelBuffer)
+			updateLightmap(object,channel->pixelBuffer,&paramsDirect);
+		else
+		{
+			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
+			assert(0);
+		}
+	}
+	return true;
 }
 
 void RRRealtimeRadiosity::readPixelResults()
