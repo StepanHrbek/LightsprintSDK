@@ -52,6 +52,7 @@ namespace rr
 	//! set nondefault reporter and read system messages.
 	//!
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
+	//! All new implementations must be thread safe too.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 	class RR_API RRReporter

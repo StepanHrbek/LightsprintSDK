@@ -273,7 +273,10 @@ namespace rr
 
 		//! Writes t-th triangle mapping for object unwrap into 0..1 x 0..1 space.
 		//
-		//! Unwrap may be used for returning results in texture (ambient map).
+		//! Unwrap may be used for returning results in texture (lightmap, ambient map).
+		//! Note that for good results, all coordinates must be in 0..1 range and two triangles
+		//! may not overlap in texture space. If it's not satisfied, results are undefined.
+		//!
 		//! \n There is default implementation that automatically generates objects unwrap of low quality.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
 		//! \param out Caller provided storage for result.

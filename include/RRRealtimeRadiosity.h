@@ -45,6 +45,9 @@ namespace rr
 	//
 	//! Direct light source, directional or point light with programmable function.
 	//
+	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
+	//! All new implementations must be thread safe too.
+	//
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RR_API RRLight
@@ -131,8 +134,8 @@ namespace rr
 	//!
 	//! It is not allowed to create and use multiple instances at the same time.
 	//!
-	//! Thread safe:
-	//!  see updateLightmap() and updateEnvironmentMaps() for more details,
+	//! Thread safe: Partially.
+	//!  See updateLightmap() and updateEnvironmentMaps() for more details,
 	//!  these may be called from multiple threads at the same time.
 	//!  Other methods no, may be called from multiple threads, but not at the same time.
 	//
@@ -313,10 +316,13 @@ namespace rr
 		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
 		//
 		//! Lightmap uses uv coordinates provided by RRObject::getTriangleMapping().
+		//! All uv coordinates must be in 0..1 range and two triangles
+		//! may not overlap in texture space.
+		//! If it's not satisfied, contents of created lightmap is undefined.
 		//!
 		//! Thread safe: yes if lightmap is safe.
 		//!  \n Note1: LightsprintGL implementation of RRIlluminationPixelBuffer is not safe.
-		//!  \n Note2: updateLightmap() is multithreaded internally.
+		//!  \n Note2: updateLightmap() uses multiple threads internally.
 		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.
@@ -371,7 +377,7 @@ namespace rr
 		//! Thread safe: yes if specularMap->setValues and diffuseMap->setValues is safe.
 		//!  may be called from multiple threads at the same time if setValues may be.
 		//!  \n Note1: LightsprintGL implementation of RRIlluminationEnvironmentMap is safe.
-		//!  \n Note2: updateEnvironmentMaps() is multithreaded internally.
+		//!  \n Note2: updateEnvironmentMaps() uses multiple threads internally.
 		//!
 		//! \param objectCenter
 		//!  Center of your dynamic object in world space coordinates.

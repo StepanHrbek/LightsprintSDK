@@ -339,7 +339,10 @@ void Model_3DS::Draw(
 
 			// Enable texture coordiantes, normals, and vertices arrays
 			if (Objects[i].textured)
+			{
+				glClientActiveTexture(GL_TEXTURE0);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			}
 			if (lit)
 				glEnableClientState(GL_NORMAL_ARRAY);
 			glEnableClientState(GL_VERTEX_ARRAY);

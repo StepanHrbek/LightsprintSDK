@@ -609,6 +609,7 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0,0);
 		// gather
+		TIME t0 = GETTIME;
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
 			RRObjectIllumination::Channel* channel = getIllumination(object)->getChannel(lightmapChannelNumber);
@@ -621,13 +622,16 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 				assert(0);
 			}
 		}
+		RRReal secondsInGather = (GETTIME-t0)/(RRReal)PER_SEC;
 		// feed solver with recently gathered illum
+		//!!! float precision is lost here
 		detectDirectIlluminationFromLightmaps(lightmapChannelNumber);
 		// propagate
 		RRReporter::report(RRReporter::INFO,"Propagating ...");
 		scene->illuminationReset(false,true);
+		float secondsInPropagate = MAX(secondsInGather/2,5);
 		TIME now = GETTIME;
-		TIME end = (TIME)(now+2*PER_SEC); //!!! cas prizpusobit kvalite
+		TIME end = (TIME)(now+secondsInPropagate*PER_SEC);
 		scene->illuminationImprove(endByTime,(void*)&end);
 		RRReporter::report(RRReporter::CONT," done.\n");
 		// set solution generated here to be gathered in second gather
