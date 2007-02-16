@@ -1,4 +1,18 @@
-#define M3DS
+//#define M3DS
+//#define BSP "trajectory"   //  +original geometrie
+//#define BSP "bastir"       // ++pekny bunkr na snehu, int i ext, jen snih neni sesmoothovany, chybi malinko textur
+//#define BSP "bgmp5"        //  +dost chodeb
+//#define BSP "bgmp6"        // ++pekne drevo, int, chybi malinko textur
+//#define BSP "bgmp7"        //  -moc otevrene, nema podlahu (presto jsou odrazy dobre videt diky bilym zdem)
+#define BSP "bgmp8"        // ++pekne skaly a odrazy od zelene travy, int i ext, chybi malinko textur
+//#define BSP "bgmp9"        //  -moc otevrene, asi chybi textury (presto jsou odrazy dobre videt diky bilym zdem)
+//#define BSP "x3map03"      //  -chybi par textur
+//#define BSP "x3map05"      // ++ext, originalni geometrie levelu
+//#define BSP "x3map07"      //  -otevrene nebe, odrazy jsou videt ale model banalni hrad, problemova triangulace
+//#define BSP "kitfinal"     //  -chodby, chybi par textur
+//#define BSP "charon3dm12"  //  +pekna kovova sachta, ale chybi par textur
+//#define BSP "qfraggel3tdm" //  -chodby, chybi par textur
+//#define BSP "qxdm3"        //  +chodby a trochu terenu
 //#define BUGS
 #define DYNAOBJECTS                1   // 0..7
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
@@ -9,7 +23,7 @@ unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 j
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define SUBDIVISION                0
-#define LIGHTMAP_SIZE_FACTOR       20
+#define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           20
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 bool ati = 1;
@@ -147,7 +161,7 @@ public:
 // globals
 
 de::Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-de::Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
+de::Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,1000.};
 GLUquadricObj *quadric;
 de::AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
@@ -993,7 +1007,7 @@ Level::Level(const char* filename_3ds)
 	float scale_3ds = 1;
 	{
 		de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-		de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,20.};
+		de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
 		eye = tmpeye;
 		light = tmplight;
 	}
@@ -1119,7 +1133,11 @@ Level::Level(const char* filename_3ds)
 	if(!m3ds.Load(filename_3ds,scale_3ds))
 		error("",false);
 #else
-	readMap("bsp\\trajectory\\maps\\trajectory.bsp",bsp);
+	de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,100.};
+	de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
+	eye = tmpeye;
+	light = tmplight;
+	readMap("bsp\\" BSP "\\maps\\" BSP ".bsp",bsp);
 #endif
 
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
@@ -1133,10 +1151,11 @@ Level::Level(const char* filename_3ds)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	rr::RRScene::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
+	//sp.stitchDistance = -1;
 #ifdef M3DS
 	insert3dsToRR(&m3ds,solver,&sp);
 #else
-	insertBspToRR(&bsp,"bsp\\trajectory\\",solver,&sp);
+	insertBspToRR(&bsp,"bsp\\" BSP "\\",solver,&sp);
 #endif
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObjectCustom())
@@ -1475,21 +1494,24 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 			}
 			else
 			{
+				// set environment
+				level->solver->setEnvironment(rr::RRIlluminationEnvironmentMap::createSky(rr::RRColorRGBF(0.4f)));
 				// set lights
 				rr::RRRealtimeRadiosity::Lights lights;
-				lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
+				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
+				lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRColorRGBF(0.7f))); //!!! not freed
 				level->solver->setLights(lights);
 				// updates maps in high quality
 				rr::RRRealtimeRadiosity::UpdateLightmapParameters paramsDirect;
-				paramsDirect.applyCurrentIndirectSolution = false;
-				paramsDirect.applyLights = true;
-				paramsDirect.applyEnvironment = true;
+				paramsDirect.applyCurrentIndirectSolution = 0;
+				paramsDirect.applyLights = 1;
+				paramsDirect.applyEnvironment = 1;
 				paramsDirect.quality = LIGHTMAP_QUALITY;
 				rr::RRRealtimeRadiosity::UpdateLightmapParameters paramsIndirect;
-				paramsIndirect.applyCurrentIndirectSolution = true;
-				paramsIndirect.applyLights = true;
-				paramsIndirect.applyEnvironment = true;
-				paramsIndirect.quality = LIGHTMAP_QUALITY/5;
+				paramsIndirect.applyCurrentIndirectSolution = 0;
+				paramsIndirect.applyLights = 1;
+				paramsIndirect.applyEnvironment = 1;
+				paramsIndirect.quality = LIGHTMAP_QUALITY/2;
 				level->solver->updateLightmaps(0,&paramsDirect,&paramsIndirect);
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;

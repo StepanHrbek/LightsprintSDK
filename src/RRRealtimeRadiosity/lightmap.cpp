@@ -171,8 +171,11 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	const RRCollider* collider = tc->solver->getMultiObjectCustom()->getCollider();
 	SkipTriangle skip(triangleIndex);
 
+	// prepare environment
+	const RRIlluminationEnvironmentMap* environment = tc->params->applyEnvironment ? tc->solver->getEnvironment() : NULL;
+
 	// check where to shoot
-	bool shootToHemisphere = tc->params->applyEnvironment || tc->params->applyCurrentIndirectSolution;
+	bool shootToHemisphere = environment || tc->params->applyCurrentIndirectSolution;
 	bool shootToLights = tc->params->applyLights && tc->solver->getLights().size();
 	if(!shootToHemisphere && !shootToLights)
 	{
@@ -192,8 +195,6 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	RRReal reliabilityHemisphere = 1;
 	if(shootToHemisphere)
 	{
-		// prepare environment
-		const RRIlluminationEnvironmentMap* environment = tc->solver->getEnvironment();
 		// prepare ortonormal base
 		RRVec3 n3 = normal.normalized();
 		RRVec3 u3 = normalized(ortogonalTo(n3));
@@ -251,9 +252,12 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 			else
 			{
 				// read cube irradiance as face exitance
-				RRVec3 irrad;
-				tc->solver->getScene()->getTriangleMeasure(ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
-				irradianceHemisphere += irrad;
+				if(tc->params->applyCurrentIndirectSolution)
+				{
+					RRVec3 irrad;
+					tc->solver->getScene()->getTriangleMeasure(ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
+					irradianceHemisphere += irrad;
+				}
 				hitsScene++;
 				hitsReliable++;
 			}		
@@ -303,6 +307,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 			RRVec3 dir = (light->type==RRLight::DIRECTIONAL)?-light->direction:(light->position-pos3d);
 			RRReal dirsize = dir.length();
 			dir /= dirsize;
+			if(light->type==RRLight::DIRECTIONAL) dirsize *= 1e6; //!!! fudge number
 			if(dot(dir,normal)<=0)
 			{
 				// face is not oriented towards light -> reliable black (selfshadowed)
@@ -591,6 +596,9 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 	// set default params instead of NULL
 	UpdateLightmapParameters paramsDirect;
 	UpdateLightmapParameters paramsIndirect;
+	paramsIndirect.applyCurrentIndirectSolution = false;
+	paramsIndirect.applyLights = false;
+	paramsIndirect.applyEnvironment = false;
 	//paramsDirect.applyCurrentIndirectSolution = false;
 	if(aparamsDirect) paramsDirect = *aparamsDirect;
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
@@ -625,11 +633,12 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 		RRReal secondsInGather = (GETTIME-t0)/(RRReal)PER_SEC;
 		// feed solver with recently gathered illum
 		//!!! float precision is lost here
+		//!!! v quake levelu tu zdetekuje 0
 		detectDirectIlluminationFromLightmaps(lightmapChannelNumber);
 		// propagate
 		RRReporter::report(RRReporter::INFO,"Propagating ...");
 		scene->illuminationReset(false,true);
-		float secondsInPropagate = MAX(secondsInGather/2,5);
+		float secondsInPropagate = MAX(secondsInGather/MAX(paramsIndirect.quality,1)*MAX(1,((RRReal)paramsDirect.quality+paramsIndirect.quality)/2),5);
 		TIME now = GETTIME;
 		TIME end = (TIME)(now+secondsInPropagate*PER_SEC);
 		scene->illuminationImprove(endByTime,(void*)&end);

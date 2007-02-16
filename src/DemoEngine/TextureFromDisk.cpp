@@ -111,9 +111,10 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,uns
 				BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
 				for(unsigned i=0;i<width*height;i++)
 				{
-					pixels[4*i+0] = fipixels[4*i+2];
-					pixels[4*i+1] = fipixels[4*i+1];
-					pixels[4*i+2] = fipixels[4*i+0];
+#define PROCESS(a) a //CLAMPED((int)(a*2),0,255) // quake korekce
+					pixels[4*i+0] = PROCESS(fipixels[4*i+2]);
+					pixels[4*i+1] = PROCESS(fipixels[4*i+1]);
+					pixels[4*i+2] = PROCESS(fipixels[4*i+0]);
 					pixels[4*i+3] = fipixels[4*i+3];
 				}
 			}

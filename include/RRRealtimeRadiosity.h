@@ -352,17 +352,18 @@ namespace rr
 		//!  getIllumination(objectNumber)->getChannel(lightmapChannelNumber)->pixelBuffer.
 		//!  If required pixelBuffer doesn't exist, it is created by newPixelBuffer().
 		//! \param paramsDirect
-		//!  Parameters of the update process, NULL for the default parameters.
+		//!  Parameters of the update process.
 		//!  Specifies direct illumination component of lightmap.
 		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
 		//!  set by setLights() is added to the final value stored into lightmap.
 		//! \param paramsIndirect
-		//!  Parameters of the update process, NULL for the default parameters.
+		//!  Parameters of the update process.
 		//!  Specifies indirect illumination component of lightmap.
 		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
 		//!  set by setLights() is added to the final value stored into lightmap.
 		//!  For global illumination created by e.g. lights,
 		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
+		//!  Set to NULL for no indirect illumination.
 		//! \return
 		//!  False when no update was executed because of invalid inputs.
 		//!  Read system messages (RRReporter) for more details on failure.

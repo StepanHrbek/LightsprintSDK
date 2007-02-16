@@ -381,12 +381,12 @@ namespace rr
 		// Environment map use
 
 		//! Returns value addressed by given direction.
-		//! Not mandatory, some implementations may always return black.
-		virtual RRColorRGBF getValue(const RRVec3& direction) const {return RRColorRGBF(0);};
+		//! Not mandatory, some implementations may always return 0.
+		virtual RRColorRGBF getValue(const RRVec3& direction) const;
 
 		//! Binds texture for use by renderer.
 		//! Not mandatory, implementation may do OpenGL bind, DirectX bind or nothing.
-		virtual void bindTexture() {};
+		virtual void bindTexture();
 
 		virtual ~RRIlluminationEnvironmentMap() {};
 
@@ -409,7 +409,13 @@ namespace rr
 		//!  Examples: {"0","1","2","3","4","5"}, {"rt","lf","up","dn","ft","bk"}.
 		//! \return
 		//!  True on successful save of complete environment map.
-		virtual bool save(const char* filenameMask, const char* cubeSideName[6]) {return false;}
+		virtual bool save(const char* filenameMask, const char* cubeSideName[6]);
+
+		//! Creates simple environment with user defined value in top hemisphere and zero in bottom hemisphere.
+		//
+		//! Environment implements getValue(), so it is suitable for RRRealtimeRadiosity::setEnvironment(),
+		//! other functions are not implemented.
+		static RRIlluminationEnvironmentMap* createSky(const RRColorRGBF& top);
 	};
 
 
