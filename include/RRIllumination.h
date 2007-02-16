@@ -401,7 +401,7 @@ namespace rr
 		//!  Filename mask of images to be created on disk.
 		//!  Supported file formats are implementation defined.
 		//!  Implementation is free to create 6 files for 6 cube sides.
-		//!  In such case, filename must contain %s wildcard, that will be replaced by cubeSideName.
+		//!  In such case, filename must contain \%s wildcard, that will be replaced by cubeSideName.
 		//!  Example: "/maps/cube_%s.png".
 		//! \param filenameMask Name of image file. Must be in supported format.
 		//! \param cubeSideName Array of six unique names of cube sides in following order:

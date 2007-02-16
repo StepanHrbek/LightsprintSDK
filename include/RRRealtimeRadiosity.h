@@ -192,6 +192,9 @@ namespace rr
 		//! Container for all static objects present in scene.
 		typedef std::vector<Object> Objects;
 		//! Sets static contents of scene, all objects at once.
+		//
+		//! Order of objects passed in first parameter is used for object numbering,
+		//! any further references to n-th object refer to objects[n].
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
 		//!  Objects should not move (in 3d space) during our lifetime.

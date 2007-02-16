@@ -292,10 +292,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\ambientMap.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\environmentMap.cpp"
 			>
 		</File>
@@ -305,6 +301,10 @@
 		</File>
 		<File
 			RelativePath=".\Interpolator.h"
+			>
+		</File>
+		<File
+			RelativePath=".\lightmap.cpp"
 			>
 		</File>
 		<File
