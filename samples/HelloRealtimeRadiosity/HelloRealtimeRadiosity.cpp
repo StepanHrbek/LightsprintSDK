@@ -243,7 +243,7 @@ protected:
 		return RRRealtimeRadiosityGL::detectDirectIllumination();
 	}
 	// set shader so that direct light+shadows+emissivity are rendered, but no materials
-	virtual void setupShader()
+	virtual void setupShader(unsigned objectNumber)
 	{
 			// render scene with forced 2d positions of all triangles
 			de::UberProgramSetup uberProgramSetup;

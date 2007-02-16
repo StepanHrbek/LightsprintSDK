@@ -74,7 +74,7 @@ namespace rr
 		//! Positive result stops further searching, negative makes it continue.
 		//! \n For IT_BSP techniques, intersections are reported in order from the nearest one.
 		//! For IT_LINEAR technique, intersections go unsorted.
-		//! \returns If you want ray to continue penetrating mesh in the same direction and finding further intersections, return true.
+		//! \return Return true if you want ray to continue penetrating mesh in the same direction and search for further intersections.
 		virtual bool collides(const class RRRay* ray) = 0;
 
 		//! Cleans up after single intersection test.
@@ -123,8 +123,10 @@ namespace rr
 	public:
 		//! Creates 1 RRRay. All is zeroed, all FILL flags on. You may destroy it by delete.
 		static RRRay* create();
+
 		//! Creates array of RRRays. You may destroy them by delete[].
 		static RRRay* create(unsigned n);
+
 		//! Flags define which outputs to fill. (Some outputs may be filled even when not requested by flag.)
 		enum Flags
 		{ 
@@ -136,6 +138,7 @@ namespace rr
 			FILL_SIDE       =(1<<5), ///< Fill hitFrontSide.
 			TEST_SINGLESIDED=(1<<6), ///< Detect collision only against front side. Default is to test both sides.
 		};
+
 		// inputs
 		RRVec4          rayOrigin;      ///< In. (-Inf,Inf), ray origin. Never modify last component, it must stay 1.
 		RRVec4          rayDirInv;      ///< In. <-Inf,Inf>, 1/ray direction. Direction must be normalized.
@@ -143,6 +146,7 @@ namespace rr
 		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		unsigned        rayFlags;       ///< In. Flags that specify what to find.
 		RRCollisionHandler*    collisionHandler;///< In. Optional collision handler for user-defined surface behaviour.
+
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
 		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.
@@ -172,7 +176,7 @@ namespace rr
 	class RR_API RRCollider
 	{
 	public:
-		// create
+		//! Techniques for finding ray-mesh intersections.
 		enum IntersectTechnique
 		{
 			IT_LINEAR,          ///< Speed   1%, size   0. Fallback technique when better one fails.
@@ -181,18 +185,20 @@ namespace rr
 			IT_BSP_FASTEST,     ///< Speed 200%, size ~58 bytes per triangle.
 			IT_VERIFICATION,    ///< Only for verification purposes, performs tests using all known techniques and compares results.
 		};
+
 		//! Creates and returns collider, acceleration structure for finding ray x mesh intersections.
 		//
 		//! \param importer Importer of mesh you want to collide with.
 		//! \param intersectTechnique Technique used for accelerating collision searches. See #IntersectTechnique.
 		//! \param cacheLocation Optional location of cache, path to directory where acceleration structures may be cached.
 		//! \param buildParams Optional additional parameters, specific for each technique and not revealed for public use.
+		//! \return Created collider.
 		static RRCollider* create(RRMesh* importer, IntersectTechnique intersectTechnique, const char* cacheLocation=NULL, void* buildParams=0);
 
 		//! Finds ray x mesh intersections.
 		//
 		//! \param ray All inputs and outputs for search.
-		//! \returns Whether intersection was found and reported into ray.
+		//! \return True if intersection was found and reported into ray.
 		//!
 		//! Finds nearest intersection of ray and mesh in distance
 		//! <ray->rayLengthMin,ray->rayLengthMax> and fills output attributes in ray
@@ -226,6 +232,7 @@ namespace rr
 		//!  feature of modern compilers, searching multiple intersections
 		//!  at the same time is matter of one or few lines of code.
 		virtual bool intersect(RRRay* ray) const = 0;
+
 		//! Intersects mesh with batch of rays at once.
 		//
 		//! Using batch intersections makes use of all available cores/processors.
@@ -238,14 +245,17 @@ namespace rr
 		//!  Number of rays in array.
 		void intersectBatch(RRRay* ray, unsigned numRays);
 
-		// helpers
-		//! \returns Mesh that was passed to create().
+
+		//! \return Mesh that was passed to create().
 		//!  Must always return valid mesh, implementation is not allowed to return NULL.
 		virtual RRMesh* getMesh() const = 0;
-		//! \returns Technique used by collider. May differ from technique requested in create().
+
+		//! \return Technique used by collider. May differ from technique requested in create().
 		virtual IntersectTechnique getTechnique() const = 0;
-		//! \returns Total amount of system memory occupied by collider.
+
+		//! \return Total amount of system memory occupied by collider.
 		virtual unsigned getMemoryOccupied() const = 0;
+
 		virtual ~RRCollider() {};
 	};
 

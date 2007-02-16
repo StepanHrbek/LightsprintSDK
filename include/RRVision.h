@@ -162,8 +162,10 @@ namespace rr
 
 		//! Converts color from physical scale (W/m^2) value to user defined scale.
 		virtual void getCustomScale(RRColor& physicalScale) const = 0;
+
 		//! Converts color from user defined scale to physical scale (W/m^2).
 		virtual void getPhysicalScale(RRColor& customScale) const = 0;
+
 		virtual ~RRScaler() {}
 
 
@@ -174,6 +176,7 @@ namespace rr
 		//
 		// instance factory
 		//
+
 		//! Creates and returns scaler for standard RGB monitor space.
 		//
 		//! Scaler converts between radiometry units (W/m^2) and displayable RGB values.
@@ -226,30 +229,39 @@ namespace rr
 
 		virtual ~RRObject() {}
 
+
 		//
 		// must not change during object lifetime
 		//
+
 		//! Returns collider of underlying mesh. It is also access to mesh itself (via getCollider()->getMesh()).
 		//! Must always return valid collider, implementation is not allowed to return NULL.
 		virtual const RRCollider* getCollider() const = 0;
+
 		//! Returns triangle's surface id.
 		//
 		//! It is not necessary for triangle surface ids to be small numbers,
 		//! and thus no one is expected to create array of all surfaces indexed by surface id.
 		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
+
 		//! Returns s-th surface material description.
 		//
 		//! \param s Id of surface. Valid s is any number returned by getTriangleSurface() for valid t.
-		//! \returns For valid s, pointer to s-th surface. For invalid s, pointer to any surface. 
+		//! \return For valid s, pointer to s-th surface. For invalid s, pointer to any surface. 
 		//!  In both cases, surface must exist for whole life of object.
 		virtual const RRSurface*    getSurface(unsigned s) const = 0;
+
+
 		//
 		// optional
 		//
+
 		//! Three normals for three vertices in triangle. In object space, normalized.
 		struct TriangleNormals      {RRVec3 norm[3];};
+
 		//! Three uv-coords for three vertices in triangle.
 		struct TriangleMapping      {RRVec2 uv[3];};
+
 		//! Writes to out vertex normals of triangle. In object space, normalized.
 		//
 		//! Future versions of Vision may use normals for smoothing results. Currently they are not used, smoothing is automatic.
@@ -258,6 +270,7 @@ namespace rr
 		//! \param out Caller provided storage for result.
 		//!  For valid t, requested normals are written to out. For invalid t, out stays unmodified.
 		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out) const;
+
 		//! Writes t-th triangle mapping for object unwrap into 0..1 x 0..1 space.
 		//
 		//! Unwrap may be used for returning results in texture (ambient map).
@@ -266,6 +279,7 @@ namespace rr
 		//! \param out Caller provided storage for result.
 		//!  For valid t, requested mapping is written to out. For invalid t, out stays unmodified.
 		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out) const;
+
 		//! Writes t-th triangle additional measure to out.
 		//
 		//! Although each triangle has its RRSurface::diffuseEmittance,
@@ -278,20 +292,23 @@ namespace rr
 		//!  For valid t, requested measure is written to out. For invalid t, out stays unmodified.
 		virtual void                getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
 
+
 		//
 		// may change during object lifetime
 		//
+
 		//! Returns object transformation.
 		//
 		//! Allowed transformations are composed of translation, rotation, scale.
 		//! Scale has not been extensively tested yet, problems with negative or non-uniform 
 		//! scale may eventually appear, but they would be fixed in future versions.
 		//! \n There is default implementation that always returns NULL, meaning no transformation.
-		//! \returns Pointer to matrix that transforms object space to world space.
+		//! \return Pointer to matrix that transforms object space to world space.
 		//!  May return NULL for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.
 		//!  Matrix may change during object life.
 		virtual const RRMatrix3x4*  getWorldMatrix();
+
 		//! Differs from getWorldMatrix() only by returning _inverse_ matrix.
 		virtual const RRMatrix3x4*  getInvWorldMatrix();
 
@@ -301,11 +318,13 @@ namespace rr
 		//////////////////////////////////////////////////////////////////////////////
 
 		// instance factory
+
 		//! Creates and returns RRMesh that describes mesh after transformation to world space.
 		//
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
 		RRMesh* createWorldSpaceMesh();
+
 		//! Creates and returns RRObject that describes object after transformation to world space.
 		//
 		//! Newly created instance has no transformation matrix, but it is still on the same 
@@ -342,6 +361,7 @@ namespace rr
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
 		RRObject* createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
+
 		//! Creates and returns union of multiple objects (contains geometry and surfaces from all objects).
 		//
 		//! Created instance (MultiObject) doesn't require additional memory, 
@@ -370,6 +390,7 @@ namespace rr
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
 		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation);
+
 		//! Creates and returns object with space for per-triangle user-defined additional illumination.
 		//
 		//! Created instance contains buffer for per-triangle additional illumination that is initialized to 0 and changeable via setTriangleIllumination.
@@ -380,6 +401,7 @@ namespace rr
 		//!  Scaler used for physical scale <-> custom scale conversions.
 		//!  Provide the same scaler you use for the rest of calculation.
 		class RRObjectWithIllumination* createObjectWithIllumination(const RRScaler* scaler);
+
 		//! Creates and returns object with surfaces converted to physical space.
 		//
 		//! Created instance contains copy of all surfaces, converted and adjusted to fit in physical space.
@@ -390,8 +412,12 @@ namespace rr
 		//!  Provide the same scaler you use for the rest of calculation.
 		class RRObjectWithPhysicalSurfaces* createObjectWithPhysicalSurfaces(const RRScaler* scaler);
 
+
 		// collision helper
-		//! Creates and returns collision handler, that accepts first hit to visible side (according to surface sideBit 'render').
+
+		//! Creates and returns collision handler,
+		//! that accepts first hit to visible side
+		//! (according to surface sideBit 'render').
 		RRCollisionHandler* createCollisionHandlerFirstVisible();
 	};
 
@@ -415,7 +441,7 @@ namespace rr
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
 		//! \param measure Radiometric measure used for power. Direct/indirect may be ignored.
 		//! \param illumination Amount of additional illumination for triangle t in units specified by measure.
-		//! \returns True on success, false on invalid inputs.
+		//! \return True on success, false on invalid inputs.
 		virtual bool                setTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor illumination) = 0;
 	};
 
@@ -528,6 +554,7 @@ namespace rr
 				ignoreSmallerArea = 1e-10f;
 			}
 		};
+
 		//! Creates new static scene.
 		//
 		//! For highest performance, stay with low number of possibly big objects 
@@ -545,6 +572,7 @@ namespace rr
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
 		RRScene(RRObject* object, const SmoothingParameters* smoothing);
+
 		//! Destructs static scene.
 		~RRScene();
 		
@@ -561,6 +589,7 @@ namespace rr
 			FINISHED,       ///< Correctly finished calculation (probably no light in scene). Further calls for improvement have no effect.
 			INTERNAL_ERROR, ///< Internal error, probably caused by invalid inputs (but should not happen). Further calls for improvement have no effect.
 		};
+
 		//! Reset illumination to original state defined by objects.
 		//
 		//! There is no need to reset illumination right after scene creation, it is already reset.
@@ -577,8 +606,9 @@ namespace rr
 		//!  \n False: Illumination already propagated using old factors is preserved for 
 		//!     future calculation. It is only updated. It is faster option when illumination 
 		//!     changes by small amount -> use after tiny light movement, small color/intensity change.
-		//! \returns Calculation state, see Improvement.
+		//! \return Calculation state, see Improvement.
 		Improvement   illuminationReset(bool resetFactors, bool resetPropagation);
+
 		//! Improve illumination until endfunc returns true.
 		//
 		//! If you want calculation as fast as possible, make sure that most of time
@@ -589,10 +619,12 @@ namespace rr
 		//!  It should be very fast, just checking system variables like time or event queue length.
 		//!  It is called very often, slow endfunc may have big impact on performance.
 		//! \param context Value is passed to endfunc without any modification.
-		//! \returns Calculation state, see Improvement.
+		//! \return Calculation state, see Improvement.
 		Improvement   illuminationImprove(bool endfunc(void*), void* context);
+
 		//! Returns illumination accuracy in proprietary scene dependent units. Higher is more accurate.
 		RRReal        illuminationAccuracy();
+
 
 		//////////////////////////////////////////////////////////////////////////////
 		//
@@ -611,8 +643,8 @@ namespace rr
 		//!  Custom scaler for results in non physical scale. Scale conversion is enabled by measure.scaled.
 		//! \param out
 		//!  For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
-		//! \returns
-		//!  True when out was successfully filled. False may be caused by invalid inputs.
+		//! \return
+		//!  True if out was successfully filled. False may be caused by invalid inputs.
 		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const;
 
 		//! Illumination information for triangle's subtriangle.
@@ -641,7 +673,7 @@ namespace rr
 		//!  Your callback that will be called for each triangle's subtriangle.
 		//! \param context
 		//!  Value is passed to callback without any modification.
-		//! \returns
+		//! \return
 		//!  Number of subtriangles processed.
 		unsigned      getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context);
 

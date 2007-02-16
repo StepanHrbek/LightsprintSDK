@@ -50,6 +50,8 @@ namespace rr
 	//! By default, all messages are ignored.
 	//! If you encounter problems, it could help to 
 	//! set nondefault reporter and read system messages.
+	//!
+	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 	class RR_API RRReporter
@@ -70,6 +72,8 @@ namespace rr
 
 		//! Generic report of message.
 		//! Usually called by Lightsprint internals with message for you.
+		//!
+		//! Thread safe: yes, valid implementation must be thread safe.
 		virtual void customReport(const char* message) = 0;
 
 
@@ -120,6 +124,7 @@ namespace rr
 		//!  Item type (and thus size) for each channel is part of each CHANNEL_xxx description.
 		//!  Zero is filled for unknown channel.
 		virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
+
 		//! Copies one data item from selected channel into buffer provided by you.
 		//
 		//! \param channelId Id of channel, e.g. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
@@ -138,6 +143,7 @@ namespace rr
 		//! \return True when itemSize is correct, item exists and was copied.
 		//!  False when item doesn't exist or itemSize doesn't fit and nothing was copied.
 		virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
+
 		virtual ~RRChanneledData() {};
 	};
 
@@ -181,7 +187,7 @@ namespace rr
 	//! Built-in importers guarantee constancy if you don't change
 	//! their vertex/index buffers. Constancy of mesh copy is guaranteed always.
 	//!
-	//! Thread safe: yes, stateless, may be accessed by any number of threads simultaneously.
+	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//!
 	//! \section s5 Indexing
 	//!
@@ -239,24 +245,31 @@ namespace rr
 
 		virtual ~RRMesh() {}
 
+
 		//
 		// vertices
 		//
+
 		//! One vertex 3d space.
 		typedef RRVec3 Vertex;
+
 		//! Returns number of vertices in mesh.
 		virtual unsigned     getNumVertices() const = 0;
+
 		//! Writes v-th vertex in mesh to out.
 		//
 		//! Be sure to provide valid v is in range <0..getNumVertices()-1>.
 		//! Implementators are allowed to expect valid v, so result is completely undefined for invalid v (possible crash).
 		virtual void         getVertex(unsigned v, Vertex& out) const = 0;
 
+
 		//
 		// triangles
 		//
+
 		//! One triangle in mesh, defined by indices of its vertices.
 		struct Triangle      {unsigned m[3]; unsigned&operator[](int i){return m[i];} const unsigned&operator[](int i)const{return m[i];}};
+
 		//! Returns number of triangles in mesh.
 		virtual unsigned     getNumTriangles() const = 0;
 
@@ -266,13 +279,17 @@ namespace rr
 		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
 		virtual void         getTriangle(unsigned t, Triangle& out) const = 0;
 
+
 		//
 		// optional for faster access
 		//
+
 		//! %Triangle in 3d space defined by one vertex and two side vectors. This representation is most suitable for intersection tests.
 		struct TriangleBody  {Vertex vertex0,side1,side2;};
+
 		//! Plane in 3d space defined by its normal (in x,y,z) and w so that normal*point+w=0 for all points of plane.
 		typedef RRVec4 Plane;
+
 		//! Writes t-th triangle in mesh to out.
 		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
@@ -280,12 +297,14 @@ namespace rr
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		//! \n This call is important for performance of intersection tests.
 		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
+
 		//! Writes t-th triangle plane to out.
 		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
 		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		virtual bool         getTrianglePlane(unsigned t, Plane& out) const;
+
 		//! Returns area of t-th triangle.
 		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
@@ -293,20 +312,26 @@ namespace rr
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		virtual RRReal       getTriangleArea(unsigned t) const;
 
+
 		//
 		// optional for advanced importers
 		//  post import number is always plain unsigned, 0..num-1
 		//  pre import number is implementation defined
 		//  all numbers in interface are post import, except for following preImportXxx:
 		//
+
 		//! Returns PreImport index of given vertex or UNDEFINED for invalid inputs.
 		virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const {return postImportVertex;}
+
 		//! Returns PostImport index of given vertex or UNDEFINED for invalid inputs.
 		virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const {return preImportVertex;}
+
 		//! Returns PreImport index of given triangle or UNDEFINED for invalid inputs.
 		virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const {return postImportTriangle;}
+
 		//! Returns PostImport index of given triangle or UNDEFINED for invalid inputs.
 		virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const {return preImportTriangle;}
+
 		enum 
 		{
 			UNDEFINED = UINT_MAX ///< Index value reserved for situations where result is undefined, for example because of invalid inputs.
@@ -326,6 +351,7 @@ namespace rr
 			UINT32  = 2, ///< Id of uint32_t.
 			FLOAT32 = 4, ///< Id of float.
 		};
+
 		//! Flags that help to specify your create() or createIndexed() request.
 		enum Flags
 		{
@@ -334,6 +360,7 @@ namespace rr
 			OPTIMIZED_VERTICES  = (1<<1), ///< Remove identical and unused vertices.
 			OPTIMIZED_TRIANGLES = (1<<2), ///< Remove degenerated triangles.
 		};
+
 		//! Structure of PreImport index in MultiMeshes created by createMultiMesh().
 		//
 		//! Underlying importers must use PreImport values that fit into index, this is not runtime checked.
@@ -344,15 +371,18 @@ namespace rr
 			unsigned object : 12; ///< Index into array of original meshes. For 32bit int: max 4k objects.
 			MultiMeshPreImportNumber() {}
 			MultiMeshPreImportNumber(unsigned aobject, unsigned aindex) {index=aindex;object=aobject;}
+			//! Implicit unsigned -> MultiMeshPreImportNumber conversion.
 			MultiMeshPreImportNumber(unsigned i) {
 				//*(unsigned*)this = i; // not safe with strict aliasing
 				index = i; object = i>>(sizeof(unsigned)*8-12);
-				} ///< Implicit unsigned -> MultiMeshPreImportNumber conversion.
+				}
+			//! Implicit MultiMeshPreImportNumber -> unsigned conversion.
 			operator unsigned () {
 				//return *(unsigned*)this; // not safe with strict aliasing
 				return index + (object<<(sizeof(unsigned)*8-12));
-				} ///< Implicit MultiMeshPreImportNumber -> unsigned conversion.
+				}
 		};
+
 		//! Creates %RRMesh from your vertex buffer.
 		//
 		//! \param flags See #Flags. Note that optimizations are not implemented for triangle lists, OPTIMIZE_XXX flags will be silently ignored.
@@ -362,6 +392,7 @@ namespace rr
 		//! \param vertexStride Distance (in bytes) between n-th and (n+1)th vertex in your vertex buffer.
 		//! \return Newly created instance of RRMesh or NULL in case of unsupported or invalid inputs.
 		static RRMesh* create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride);
+
 		//! Creates %RRMesh from your vertex and index buffers.
 		//
 		//! \param flags See #Flags.
@@ -375,12 +406,14 @@ namespace rr
 		//! \param vertexStitchMaxDistance Max distance for vertex stitching. For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower). For negative value, no stitching is performed. For positive value, also vertices in lower or equal distance will be stitched.
 		//! \return Newly created instance of RRMesh or NULL in case of unsupported or invalid inputs.
 		static RRMesh* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
+
 		//! Creates and returns copy of your instance.
 		//
 		//! Created copy is completely independent on any other objects and may be deleted sooner or later.
 		//! \n It is expected that your input instance is well formed (returns correct and consistent values).
 		//! \n Copy may be faster than original, but may require more memory.
 		RRMesh* createCopy();
+
 		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).
 		//
 		//! Created instance (MultiMesh) doesn't require additional memory, 
@@ -396,6 +429,7 @@ namespace rr
 		//!  lowest indices belong to meshes[0], meshes[1] follow etc. If you create MultiMesh from 2 meshes,
 		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 vertices in MultiMesh.
 		static RRMesh* createMultiMesh(RRMesh* const* meshes, unsigned numMeshes);
+
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
 		//
 		//! \param vertexStitchMaxDistance
@@ -403,16 +437,22 @@ namespace rr
 		//!  For negative value, no stitching is performed.
 		//!  For positive value, also vertices in lower or equal distance will be stitched.
 		RRMesh* createOptimizedVertices(float vertexStitchMaxDistance = 0);
+
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
 		RRMesh* createOptimizedTriangles();
+
+
 		//! Saves mesh to file.
 		//
+		//! Temporarily disabled.
 		//! \param filename
 		//!  Filename for saved mesh. Format is platform specific (e.g. "c:\\mymesh" or "/pub/mymesh").
 		//! \return True on successful save.
 		bool save(char* filename);
+
 		//! Loads mesh from file to newly created instance.
 		//
+		//! Temporarily disabled.
 		//! Loaded mesh represents the same geometry as saved mesh, but internal implementation (speed, 
 		//! occupied memory) may differ.
 		//! \param filename
@@ -420,10 +460,11 @@ namespace rr
 		//! \return Newly created instance or NULL when load failed.
 		static RRMesh* load(char* filename);
 
+
 		//! Verifies that mesh is well formed.
 		//
 		//! Reports any problems found using RRReporter.
-		//! \returns Number of problem reports sent, 0 for valid mesh.
+		//! \return Number of problem reports sent, 0 for valid mesh.
 		unsigned verify();
 	};
 
