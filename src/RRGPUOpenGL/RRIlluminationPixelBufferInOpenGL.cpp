@@ -67,7 +67,7 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(const char*
 	numInstances++;
 
 	if(filename)
-		texture = de::Texture::load(filename,NULL,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+		texture = de::Texture::load(filename,NULL,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 	else
 		texture = de::Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 

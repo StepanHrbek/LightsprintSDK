@@ -25,13 +25,15 @@ namespace de
 // TextureFromDisk
 
 // 2D map loader
-TextureFromDisk::TextureFromDisk(const char *filename, int mag, int min, int wrapS, int wrapT)
+TextureFromDisk::TextureFromDisk(
+	const char *filename, bool flipV, bool flipH,
+	int mag, int min, int wrapS, int wrapT)
 	: TextureGL(NULL,1,1,false,GL_RGBA,mag,min,wrapS,wrapT)
 {
 	unsigned int type;
 
 #ifdef USE_FREEIMAGE
-	pixels = loadFreeImage(filename,false,width,height,channels);
+	pixels = loadFreeImage(filename,false,flipV,flipH,width,height,channels);
 #else
 	pixels = loadData(filename,width,height,channels);
 #endif
@@ -42,9 +44,9 @@ TextureFromDisk::TextureFromDisk(const char *filename, int mag, int min, int wra
 
 // cube map loader
 TextureFromDisk::TextureFromDisk(
-	const char *filenameMask, const char *cubeSideName[6],
-	int mag, int min, int wrapS, int wrapT)
-: TextureGL(NULL,1,1,true,GL_RGBA,mag,min,wrapS,wrapT)
+	const char *filenameMask, const char *cubeSideName[6], bool flipV, bool flipH,
+	int mag, int min)
+: TextureGL(NULL,1,1,true,GL_RGBA,mag,min)
 {
 	unsigned int type;
 
@@ -54,7 +56,7 @@ TextureFromDisk::TextureFromDisk(
 		_snprintf(buf,999,filenameMask,cubeSideName[side]);
 		buf[999] = 0;
 #ifdef USE_FREEIMAGE
-		pixels = loadFreeImage(buf,true,width,height,channels);
+		pixels = loadFreeImage(buf,true,flipV,flipH,width,height,channels);
 #else
 		pixels = loadData(buf,width,height,channels);
 #endif
@@ -73,7 +75,7 @@ TextureFromDisk::TextureFromDisk(
 
 #ifdef USE_FREEIMAGE
 
-unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,unsigned& width,unsigned& height,unsigned& channels)
+unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,unsigned& channels)
 {
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	unsigned char* pixels = NULL;
@@ -96,6 +98,10 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,uns
 			dib = FreeImage_ConvertTo32Bits(dib);
 			if(dib)
 			{
+				if(flipV)
+					FreeImage_FlipVertical(dib);
+				if(flipH)
+					FreeImage_FlipHorizontal(dib);
 				// read size
 				width = FreeImage_GetWidth(dib);
 				height = FreeImage_GetHeight(dib);
@@ -368,14 +374,14 @@ bool TextureGL::save(const char *filename)
 //
 // Texture
 
-Texture* Texture::load(const char *filename,const char* cubeSideName[6],int mag,int min,int wrapS,int wrapT)
+Texture* Texture::load(const char *filename,const char* cubeSideName[6],bool flipV,bool flipH,int mag,int min,int wrapS,int wrapT)
 {
 	try 
 	{
 		if(cubeSideName)
-			return new TextureFromDisk(filename,cubeSideName,mag,min,wrapS,wrapT);
+			return new TextureFromDisk(filename,cubeSideName,flipV,flipH,mag,min);
 		else
-			return new TextureFromDisk(filename,mag,min,wrapS,wrapT);
+			return new TextureFromDisk(filename,flipV,flipH,mag,min,wrapS,wrapT);
 	}
 	catch(...) 
 	{

@@ -124,7 +124,7 @@ static void fillSurface(rr::RRSurface& s, de::Texture*& t, de::TTexture* m,const
 		char buf[300];
 		_snprintf(buf,299,"%s%s%s",pathToTextures,m->mName,exts[e]);
 		buf[299]=0;
-		t = de::Texture::load(buf,NULL);
+		t = de::Texture::load(buf,NULL,true,true);
 		if(t) break;
 	}
 	if(!t) t = fallback;

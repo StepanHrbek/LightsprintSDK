@@ -1,4 +1,4 @@
-//#define M3DS
+#define M3DS
 //#define BSP "trajectory"   //  +original geometrie
 //#define BSP "bastir"       // ++pekny bunkr na snehu, int i ext, jen snih neni sesmoothovany, chybi malinko textur
 //#define BSP "bgmp5"        //  +dost chodeb
@@ -261,15 +261,15 @@ void init_gl_resources()
 	{
 		char name[]="maps\\spot0.png";
 		name[9] = '0'+i;
-		lightDirectMap[i] = de::Texture::load(name, NULL, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		lightDirectMap[i] = de::Texture::load(name, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 		if(!lightDirectMap[i])
 		{
 			printf("Texture %s not found or invalid.\n",name);
 			error("",false);
 		}
 	}
-	loadingMap = de::Texture::load("maps\\rrbugs_loading.tga", NULL, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	hintMap = de::Texture::load("maps\\rrbugs_hint.tga", NULL, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	loadingMap = de::Texture::load("maps\\rrbugs_loading.tga", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	hintMap = de::Texture::load("maps\\rrbugs_hint.tga", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
 	uberProgram = new de::UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	de::UberProgramSetup uberProgramSetup;

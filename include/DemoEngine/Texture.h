@@ -99,11 +99,16 @@ public:
 	//!   x+ side, x- side, y+ side, y- side, z+ side, z- side.
 	//!   Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
 	//!   Set to NULL for 2D texture.
+	//! \param flipV
+	//!  Flip vertically at load time.
+	//! \param flipH
+	//!  Flip horizontally at load time.
 	//! \param magn Initial magnification filter, see glTexImage2D for more details.
 	//! \param mini Initial minification filter, see glTexImage2D for more details.
 	//! \param wrapS Initial clamping mode, see glTexImage2D for more details.
 	//! \param wrapT Initial clamping mode, see glTexImage2D for more details.
 	static Texture* load(const char *filename, const char* cubeSideName[6],
+		bool flipV = false, bool flipH = false,
 		int magn = GL_LINEAR, int mini = GL_LINEAR_MIPMAP_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 

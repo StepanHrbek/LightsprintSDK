@@ -30,7 +30,7 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const
 	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// creates cube map
 	if(filenameMask)
-		texture = de::Texture::load(filenameMask,cubeSideName,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+		texture = de::Texture::load(filenameMask,cubeSideName,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	else
 		texture = de::Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 }

@@ -126,7 +126,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		m3ds.Draw(solver,uberProgramSetup.LIGHT_INDIRECT_COLOR?lockVertexIllum:NULL,unlockVertexIllum);
+		m3ds.Draw(solver,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 	}
 	else
 #endif
@@ -134,15 +134,15 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		// RendererOfRRObject::render uses trilist -> slow, but no problem with added ambient map unwrap
 		rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 		renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
-		renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
+		renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
 		renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
 		renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
-		renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
+		renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 		renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 		renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIllumination(solver->getIllumination(0)->getChannel(0)->vertexBuffer,solver->getIllumination(0)->getChannel(0)->pixelBuffer);
-		if(uberProgramSetup.LIGHT_INDIRECT_COLOR)
+		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
 			rendererNonCaching->render(); // don't cache indirect illumination, it changes
 		else
 			rendererCaching->render(); // cache everything else, it's constant
@@ -154,7 +154,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	if(uberProgramSetup.LIGHT_DIRECT)
 	{
 		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = false; // stop using vertex illumination
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
 		uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
 	}
@@ -284,7 +284,7 @@ void display(void)
 		solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
 	}
 #else // here we say: render with indirect illumination per-vertex
-	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 #endif
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
@@ -548,7 +548,7 @@ int main(int argc, char **argv)
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
