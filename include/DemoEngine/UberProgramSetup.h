@@ -53,6 +53,7 @@ struct DE_API UberProgramSetup
 	bool     LIGHT_INDIRECT_MAP     :1; ///< Enables indirect light, set by ambient map.
 	bool     LIGHT_INDIRECT_ENV     :1; ///< Enables indirect light, set by environment map.
 	bool     MATERIAL_DIFFUSE       :1; ///< Enables material's diffuse reflection.
+	bool     MATERIAL_DIFFUSE_CONST :1; ///< Enables material's diffuse reflectance modulated by constant color.
 	bool     MATERIAL_DIFFUSE_COLOR :1; ///< Enables material's diffuse reflectance modulated by color set per vertex.
 	bool     MATERIAL_DIFFUSE_MAP   :1; ///< Enables material's diffuse reflectance modulated by diffuse map.
 	bool     MATERIAL_SPECULAR      :1; ///< Enables material's specular reflectance.

@@ -140,7 +140,7 @@ static void fillSurface(rr::RRSurface& s,de::Texture*& t,de::TTexture* m,const c
 				t->getPixel(i/(float)size,j/(float)size,&tmp[0]);
 				avg += tmp;
 			}
-		avg /= size*size;
+		avg /= size*size/2; // 2 stands for quake map boost
 	}
 
 	// set all properties to default

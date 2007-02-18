@@ -17,7 +17,7 @@ namespace de
 const char* UberProgramSetup::getSetupString()
 {
 	static char setup[300];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
@@ -27,6 +27,7 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_INDIRECT_MAP?"#define LIGHT_INDIRECT_MAP\n":"",
 		LIGHT_INDIRECT_ENV?"#define LIGHT_INDIRECT_ENV\n":"",
 		MATERIAL_DIFFUSE?"#define MATERIAL_DIFFUSE\n":"",
+		MATERIAL_DIFFUSE_CONST?"#define MATERIAL_DIFFUSE_CONST\n":"",
 		MATERIAL_DIFFUSE_COLOR?"#define MATERIAL_DIFFUSE_COLOR\n":"",
 		MATERIAL_DIFFUSE_MAP?"#define MATERIAL_DIFFUSE_MAP\n":"",
 		MATERIAL_SPECULAR?"#define MATERIAL_SPECULAR\n":"",
@@ -68,6 +69,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
+		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 		uberProgramSetup.OBJECT_SPACE = true;
@@ -78,6 +80,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		if(!uberProgramSetup.getProgram(uberProgram)) continue;
@@ -87,6 +90,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = true;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
+		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		uberProgramSetup.MATERIAL_SPECULAR = true;

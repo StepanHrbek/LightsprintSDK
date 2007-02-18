@@ -10,6 +10,7 @@
 //  #define LIGHT_INDIRECT_MAP
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE
+//  #define MATERIAL_DIFFUSE_CONST
 //  #define MATERIAL_DIFFUSE_COLOR
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define MATERIAL_SPECULAR
@@ -93,6 +94,10 @@
 #ifdef LIGHT_INDIRECT_ENV
 	uniform samplerCube lightIndirectSpecularEnvMap;
 	uniform samplerCube lightIndirectDiffuseEnvMap;
+#endif
+
+#ifdef MATERIAL_DIFFUSE_CONST
+	uniform vec4 materialDiffuseConst;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_COLOR
@@ -312,6 +317,9 @@ void main()
 			//
 
 			#ifdef MATERIAL_DIFFUSE
+				#ifdef MATERIAL_DIFFUSE_CONST
+					materialDiffuseConst *
+				#endif
 				#ifdef MATERIAL_DIFFUSE_COLOR
 					materialDiffuseColor *
 				#endif

@@ -379,6 +379,7 @@ protected:
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
+		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
 #if PRIMARY_SCAN_PRECISION==1 // 110ms
 		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
@@ -414,6 +415,7 @@ public:
 
 		// diffuse
 		material.MATERIAL_DIFFUSE = 1;
+		material.MATERIAL_DIFFUSE_CONST = 0;
 		material.MATERIAL_DIFFUSE_COLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 1;
 		material.MATERIAL_SPECULAR = 0;
@@ -430,6 +432,7 @@ public:
 
 		// diff+specular map+normalmap
 		material.MATERIAL_DIFFUSE = 1;
+		material.MATERIAL_DIFFUSE_CONST = 0;
 		material.MATERIAL_DIFFUSE_COLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 1;
 		material.MATERIAL_SPECULAR = 1;
@@ -439,6 +442,7 @@ public:
 
 		// diff+specular
 		material.MATERIAL_DIFFUSE = 1;
+		material.MATERIAL_DIFFUSE_CONST = 0;
 		material.MATERIAL_DIFFUSE_COLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 1;
 		material.MATERIAL_SPECULAR = 1;
@@ -449,6 +453,7 @@ public:
 
 		// diff+specular map
 		material.MATERIAL_DIFFUSE = 1;
+		material.MATERIAL_DIFFUSE_CONST = 0;
 		material.MATERIAL_DIFFUSE_COLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 1;
 		material.MATERIAL_SPECULAR = 1;
@@ -458,6 +463,7 @@ public:
 
 		// specular
 		material.MATERIAL_DIFFUSE = 0;
+		material.MATERIAL_DIFFUSE_CONST = 0;
 		material.MATERIAL_DIFFUSE_COLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 0;
 		material.MATERIAL_SPECULAR = 1;
@@ -626,8 +632,24 @@ void unlockVertexIllum(void* solver,unsigned object)
 void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]))
+#ifndef M3DS
+	// boost quake map intensity
+	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+	{
+		uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
+	}
+#endif
+	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
+	if(!program)
 		error("Failed to compile or link GLSL program.\n",true);
+
+#ifndef M3DS
+	// boost quake map intensity
+	if(uberProgramSetup.MATERIAL_DIFFUSE_CONST)
+	{
+		program->sendUniform("materialDiffuseConst",2.0f,2.0f,2.0f,1.0f);
+	}
+#endif
 
 #ifdef M3DS
 	// lze smazat, stejnou praci dokaze i rrrenderer
@@ -712,6 +734,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramSetup.MATERIAL_DIFFUSE = false;
+	uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 	uberProgramSetup.MATERIAL_SPECULAR = false;
@@ -790,8 +813,9 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
+		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
+		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		//uberProgramSetup.MATERIAL_SPECULAR = ;
 		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
@@ -817,6 +841,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
+		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		//uberProgramSetup.MATERIAL_SPECULAR = ;
@@ -839,6 +864,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
+		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		//uberProgramSetup.MATERIAL_SPECULAR = ;
@@ -1254,6 +1280,7 @@ void display()
 				uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 				uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 				//uberProgramSetup.MATERIAL_DIFFUSE = ;
+				//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 				//uberProgramSetup.MATERIAL_SPECULAR = ;
@@ -2032,6 +2059,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
