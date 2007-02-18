@@ -313,6 +313,16 @@ namespace rr
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		virtual RRReal       getTriangleArea(unsigned t) const;
 
+		//! Returns axis aligned bounding box and center of mesh.
+		//
+		//! \param mini
+		//!  NULL or pointer to vec3 to be filled with minimum of computed AABB.
+		//! \param maxi
+		//!  NULL or pointer to vec3 to be filled with maximum of computed AABB.
+		//! \param center
+		//!  NULL or pointer to vec3 to be filled with average vertex position.
+		virtual void getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center);
+
 
 		//
 		// optional for advanced importers
@@ -344,6 +354,7 @@ namespace rr
 		//////////////////////////////////////////////////////////////////////////////
 
 		// instance factory
+
 		//! Identifiers of data formats.
 		enum Format
 		{

@@ -263,7 +263,10 @@ void init_gl_resources()
 	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
 //	skyMap = de::Texture::load("maps/starfield/starfield_%s.jpg",cubeSideNames);
 	skyMap = de::Texture::load("maps/purplenebula/purplenebula_%s.jpg",cubeSideNames);
+//	skyMap = de::Texture::load("pool/cubemapy/qfraggel3/qfraggel3_%s.jpg",cubeSideNames);
 //	skyMap = de::Texture::load("pool/cubemapy/stonegods/sgod_%s.tga",cubeSideNames);
+	if(!skyMap)
+		printf("Failed to load sky.\n");
 	skyRenderer = new de::TextureRenderer("shaders/");
 
 	if(!ambientProgram)
@@ -1148,6 +1151,14 @@ Level::Level(const char* filename)
 		light = tmplight;
 //		if(areaLight) areaLight->setNumInstances(1);
 	}
+	if(strstr(filename, "bgmp6"))
+	{
+		de::Camera tmpeye = {{-21.363,4.126,4.916},-1.130,-0.200,1.3,100.0,0.3,1000.0};
+		de::Camera tmplight = {{-18.121,16.917,-1.478},-0.665,3.250,1.0,70.0,1.0,100.0};
+		eye = tmpeye;
+		light = tmplight;
+		dynaobjects->setPos(0,rr::RRVec3(-29.269781f,0.000000f,7.809418f));
+	}
 
 	printf("Loading %s...",filename);
 
@@ -1156,10 +1167,6 @@ Level::Level(const char* filename)
 	if(isBsp)
 	{
 		// load .bsp
-		de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,100.};
-		de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
-		eye = tmpeye;
-		light = tmplight;
 		if(!readMap(filename,bsp))
 			error("Failed to load .bsp scene.",false);
 		printf("\n");
@@ -1185,6 +1192,28 @@ Level::Level(const char* filename)
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+
+	/*/ autodetect positions in center of scene
+	rr::RRMesh* mesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
+	rr::RRVec3 center;
+	rr::RRVec3 mini;
+	rr::RRVec3 maxi;
+	mesh->getAABB(&mini,&maxi,&center);
+	rr::RRVec3 size = maxi-mini;
+	rr::RRVec3 bestPos = center;
+	rr::RRReal bestValue = 0;
+	for(unsigned i=0;i<1000;i++)
+	{
+		rr::RRVec3 pos = center + i/1000.f*(RRVec3(size[0]*(rand()/(RRReal)RAND_MAX-0.5f),size[1]*(rand()/(RRReal)RAND_MAX-0.5f),size[2]*(rand()/(RRReal)RAND_MAX-0.5f));
+		rr::RRReal val = ;
+		if(val>bestValue)
+		{
+			bestValue = val;
+			bestPos = pos;
+		}
+	}
+	eye.pos = bestPos;
+	*/
 
 	// init renderer
 	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler(),true);

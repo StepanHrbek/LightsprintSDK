@@ -9,6 +9,7 @@
 #include "../RRMath/RRMathPrivate.h"
 
 #include <cassert>
+#include <cfloat>
 #include <cstdio>
 #include <stdint.h> // sizes of imported vertex/index arrays
 
@@ -67,6 +68,32 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 	getVertex(t[2],v[2]);
 	RRReal area = calculateArea2(v[0],v[1],v[2]);
 	return area;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRMesh tools
+
+void RRMesh::getAABB(RRVec3* amini, RRVec3* amaxi, RRVec3* acenter)
+{
+	RRVec3 center = RRVec3(0);
+	RRVec3 mini = RRVec3(FLT_MAX);
+	RRVec3 maxi = RRVec3(FLT_MIN);
+	unsigned numVertices = getNumVertices();
+	for(unsigned i=0;i<numVertices;i++)
+	{
+		RRMesh::Vertex v;
+		getVertex(i,v);
+		for(unsigned j=0;j<3;j++)
+		{
+			center[j] += v[j];
+			mini[j] = MIN(mini[j],v[j]);
+			maxi[j] = MAX(maxi[j],v[j]);
+		}
+	}
+	if(amini) *amini = mini;
+	if(amaxi) *amaxi = maxi;
+	if(acenter) *acenter = center/numVertices;
 }
 
 //////////////////////////////////////////////////////////////////////////////
