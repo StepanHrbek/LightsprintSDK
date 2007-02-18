@@ -83,12 +83,15 @@
   [3] Lightsprint Vision, 2006, http://lightsprint.com
 
 
-  Thanks to 
-  ---------
+  Credits & thanks
+  ----------------
 
-  - Petr Stastny for koupelna scenes
-  - Marko Dabrovic for Sponza atrium and Sibenik cathedral scenes
-  - Matthew Fairfax for .3ds loader and renderer
+  - Petr Stastny - koupelna scenes
+  - Amethyst7 - starfield map
+  - Marko Dabrovic - Sponza atrium scene
+  - Matthew Fairfax - .3ds scene loader
+  - Nicolas Baudrey - .bsp scene loader
+  - FreeImage - image loaders
 
 
   Author

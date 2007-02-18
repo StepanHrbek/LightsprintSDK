@@ -96,12 +96,6 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,uns
 			dib = FreeImage_ConvertTo32Bits(dib);
 			if(dib)
 			{
-				// flip cube textures
-				if(cube)
-				{
-					FreeImage_FlipHorizontal(dib);
-					FreeImage_FlipVertical(dib);
-				}
 				// read size
 				width = FreeImage_GetWidth(dib);
 				height = FreeImage_GetHeight(dib);
@@ -160,12 +154,6 @@ bool TextureGL::save(const char *filename, const char* cubeSideName[6])
 						//	fipixels[4*i+0] = fipixels[4*i+2];
 						//	fipixels[4*i+2] = tmp;
 						//}
-						// flip cube textures
-						if(cubeOr2d==GL_TEXTURE_CUBE_MAP)
-						{
-							FreeImage_FlipHorizontal(dib);
-							FreeImage_FlipVertical(dib);
-						}
 						// try to guess the file format from the file extension
 						fif = FreeImage_GetFIFFromFilename(filename);
 						if(fif != FIF_UNKNOWN )

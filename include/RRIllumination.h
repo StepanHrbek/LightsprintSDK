@@ -406,7 +406,7 @@ namespace rr
 		//! \param filenameMask Name of image file. Must be in supported format.
 		//! \param cubeSideName Array of six unique names of cube sides in following order:
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
-		//!  Examples: {"0","1","2","3","4","5"}, {"rt","lf","up","dn","ft","bk"}.
+		//!  Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
 		//! \return
 		//!  True on successful save of complete environment map.
 		virtual bool save(const char* filenameMask, const char* cubeSideName[6]);

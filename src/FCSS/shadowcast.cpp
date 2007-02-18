@@ -113,10 +113,10 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "RRGPUOpenGL/RendererOfRRObject.h"
 #include "DemoEngine/AreaLight.h"
 #include "DemoEngine/Camera.h"
-#include "DemoEngine/Texture.h"
 #include "DemoEngine/UberProgram.h"
 #include "DemoEngine/Model_3DS.h"
 #include "DemoEngine/RendererWithCache.h"
+#include "DemoEngine/TextureRenderer.h"
 #include "DemoEngine/UberProgramSetup.h"
 #include "3ds2rr.h"
 #include "RRObjectBsp.h"
@@ -169,7 +169,9 @@ de::Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
 de::Texture* loadingMap = NULL;
 de::Texture* hintMap = NULL;
-de::Program *ambientProgram;
+de::Program* ambientProgram;
+de::Texture* skyMap;
+de::TextureRenderer* skyRenderer;
 de::UberProgram* uberProgram;
 de::UberProgramSetup uberProgramGlobalSetup;
 int winWidth = 0;
@@ -274,6 +276,12 @@ void init_gl_resources()
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
+
+	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
+//	skyMap = de::Texture::load("maps/starfield/starfield_%s.jpg",cubeSideNames);
+	skyMap = de::Texture::load("maps/purplenebula/purplenebula_%s.jpg",cubeSideNames);
+//	skyMap = de::Texture::load("pool/cubemapy/stonegods/sgod_%s.tga",cubeSideNames);
+	skyRenderer = new de::TextureRenderer();
 
 	if(!ambientProgram)
 		error("\nFailed to compile or link GLSL program.\n",true);
@@ -737,6 +745,8 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 
 	eye.setupForRender();
 
+	skyRenderer->renderEnvironment(skyMap);
+
 	renderScene(uberProgramSetup,firstInstance);
 
 #ifdef BUGS
@@ -1170,6 +1180,8 @@ Level::Level(const char* filename_3ds)
 #ifdef BUGS
 	bugs = Bugs::create(solver->getScene(),solver->getMultiObjectCustom(),100);
 #endif
+
+	eye.afar = 1000; // necessary for correct environment map render
 
 	updateMatrices();
 	needDepthMapUpdate = true;
@@ -1656,8 +1668,6 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 					}
 					// specular
 					sprintf(filename,"export/cap%02d_dynobj%d_spec_%cs.png",captureIndex,objectIndex,'%');
-					//strcpy(filename,"H:/C/rr/data/pool/levely/Q3-aas-bsp/q3f_opposition/q3f_opposition/env/q3f_yoda_env/q3f_2garden2sky_%s.jpg");
-					//const char* cubeSideNames[6]={"rt","lf","up","dn","ft","bk"};
 					loaded = level->solver->loadIlluminationEnvironmentMap(filename,cubeSideNames);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if(loaded)

@@ -54,8 +54,8 @@ TextureGL::TextureGL(unsigned char *data, int awidth, int aheight, bool acube, i
 	glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, mini);
 	glTexParameteri(cubeOr2d, GL_TEXTURE_MAG_FILTER, magn);
 
-	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_S, wrapS);
-	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, wrapT);
+	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_S, acube?GL_CLAMP_TO_EDGE:wrapS);
+	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, acube?GL_CLAMP_TO_EDGE:wrapT);
 }
 
 void TextureGL::setSize(unsigned awidth, unsigned aheight)

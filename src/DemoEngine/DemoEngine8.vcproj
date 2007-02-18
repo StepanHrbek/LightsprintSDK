@@ -394,6 +394,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\TextureRenderer.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\DemoEngine\TextureRenderer.h"
+			>
+		</File>
+		<File
 			RelativePath=".\TextureShadowMap.cpp"
 			>
 		</File>
