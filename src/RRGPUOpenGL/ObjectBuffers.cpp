@@ -132,7 +132,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		glNormalPointer(GL_FLOAT, 0, &anormal[0].x);
 	}
 	// set indirect illumination vertices
-	if(params.renderedChannels.LIGHT_INDIRECT_COLOR && params.indirectIllumination)
+	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR && params.indirectIllumination)
 	{
 		assert(indices); // indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
 		unsigned bufferSize = params.indirectIllumination->getNumVertices();
@@ -171,7 +171,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordDiffuse[0].x);
 	}
 	// render facegroups (facegroups differ by material)
-	if(params.renderedChannels.MATERIAL_DIFFUSE_COLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP)
+	if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		for(unsigned fg=0;fg<faceGroups.size();fg++)
 		{
@@ -183,7 +183,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 			if(numIndices>0)
 			{
 				// set diffuse color
-				if(params.renderedChannels.MATERIAL_DIFFUSE_COLOR)
+				if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR)
 				{
 					glSecondaryColor3fv(&faceGroups[fg].diffuseColor[0]);
 				}
@@ -243,7 +243,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
 	// unset indirect illumination colors
-	if(params.renderedChannels.LIGHT_INDIRECT_COLOR && params.indirectIllumination)
+	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR && params.indirectIllumination)
 	{
 		glDisableClientState(GL_COLOR_ARRAY);
 		params.indirectIllumination->unlock();

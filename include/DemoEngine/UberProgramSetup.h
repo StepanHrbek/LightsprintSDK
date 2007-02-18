@@ -49,12 +49,12 @@ struct DE_API UberProgramSetup
 	bool     LIGHT_DIRECT           :1; ///< Enables direct spot light.
 	bool     LIGHT_DIRECT_MAP       :1; ///< Enables modulation of direct light by map. Projects texture.
 	bool     LIGHT_INDIRECT_CONST   :1; ///< Enables indirect light, constant.
-	bool     LIGHT_INDIRECT_COLOR   :1; ///< Enables indirect light, set per vertex.
+	bool     LIGHT_INDIRECT_VCOLOR  :1; ///< Enables indirect light, set per vertex.
 	bool     LIGHT_INDIRECT_MAP     :1; ///< Enables indirect light, set by ambient map.
 	bool     LIGHT_INDIRECT_ENV     :1; ///< Enables indirect light, set by environment map.
 	bool     MATERIAL_DIFFUSE       :1; ///< Enables material's diffuse reflection.
 	bool     MATERIAL_DIFFUSE_CONST :1; ///< Enables material's diffuse reflectance modulated by constant color.
-	bool     MATERIAL_DIFFUSE_COLOR :1; ///< Enables material's diffuse reflectance modulated by color set per vertex.
+	bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< Enables material's diffuse reflectance modulated by color set per vertex.
 	bool     MATERIAL_DIFFUSE_MAP   :1; ///< Enables material's diffuse reflectance modulated by diffuse map.
 	bool     MATERIAL_SPECULAR      :1; ///< Enables material's specular reflectance.
 	bool     MATERIAL_SPECULAR_MAP  :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.

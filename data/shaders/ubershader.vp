@@ -6,12 +6,12 @@
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_CONST
-//  #define LIGHT_INDIRECT_COLOR
+//  #define LIGHT_INDIRECT_VCOLOR
 //  #define LIGHT_INDIRECT_MAP
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_CONST
-//  #define MATERIAL_DIFFUSE_COLOR
+//  #define MATERIAL_DIFFUSE_VCOLOR
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define MATERIAL_SPECULAR
 //  #define MATERIAL_SPECULAR_MAP
@@ -36,7 +36,7 @@
 	varying float lightDirectColor;
 #endif
 
-#ifdef LIGHT_INDIRECT_COLOR
+#ifdef LIGHT_INDIRECT_VCOLOR
 	//varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI fails on anything else
 #endif
 
@@ -53,7 +53,7 @@ varying
 #endif
 	vec3 worldNormalSmooth;
 
-#ifdef MATERIAL_DIFFUSE_COLOR
+#ifdef MATERIAL_DIFFUSE_VCOLOR
 	varying vec4 materialDiffuseColor;
 #endif
 
@@ -76,7 +76,7 @@ void main()
 		lightDirectColor = max(dot(normalize(worldLightPos - worldPos), worldNormalSmooth),0.0);
 	#endif
 
-	#ifdef LIGHT_INDIRECT_COLOR
+	#ifdef LIGHT_INDIRECT_VCOLOR
 		gl_FrontColor = gl_Color;
 	#endif
 
@@ -88,7 +88,7 @@ void main()
 		materialDiffuseCoord = gl_MultiTexCoord0.xy;
 	#endif
 
-	#ifdef MATERIAL_DIFFUSE_COLOR
+	#ifdef MATERIAL_DIFFUSE_VCOLOR
 		materialDiffuseColor = gl_SecondaryColor;
 	#endif
 

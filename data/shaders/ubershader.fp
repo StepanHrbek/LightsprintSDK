@@ -6,12 +6,12 @@
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_CONST
-//  #define LIGHT_INDIRECT_COLOR
+//  #define LIGHT_INDIRECT_VCOLOR
 //  #define LIGHT_INDIRECT_MAP
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_CONST
-//  #define MATERIAL_DIFFUSE_COLOR
+//  #define MATERIAL_DIFFUSE_VCOLOR
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define MATERIAL_SPECULAR
 //  #define MATERIAL_SPECULAR_MAP
@@ -82,7 +82,7 @@
 	uniform vec4 lightIndirectConst;
 #endif
 
-#ifdef LIGHT_INDIRECT_COLOR
+#ifdef LIGHT_INDIRECT_VCOLOR
 	//varying vec4 lightIndirectColor; // passed rather through gl_Color, ATI fails on anything else
 #endif
 
@@ -100,7 +100,7 @@
 	uniform vec4 materialDiffuseConst;
 #endif
 
-#ifdef MATERIAL_DIFFUSE_COLOR
+#ifdef MATERIAL_DIFFUSE_VCOLOR
 	varying vec4 materialDiffuseColor;
 #endif
 
@@ -309,7 +309,7 @@ void main()
 		vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
 	#endif
 
-	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_COLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
+	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
 		gl_FragColor =
 
 			//
@@ -320,7 +320,7 @@ void main()
 				#ifdef MATERIAL_DIFFUSE_CONST
 					materialDiffuseConst *
 				#endif
-				#ifdef MATERIAL_DIFFUSE_COLOR
+				#ifdef MATERIAL_DIFFUSE_VCOLOR
 					materialDiffuseColor *
 				#endif
 				#ifdef MATERIAL_DIFFUSE_MAP
@@ -336,7 +336,7 @@ void main()
 					#ifdef LIGHT_INDIRECT_CONST
 						+ lightIndirectConst
 					#endif
-					#ifdef LIGHT_INDIRECT_COLOR
+					#ifdef LIGHT_INDIRECT_VCOLOR
 						+ gl_Color
 					#endif
 					#ifdef LIGHT_INDIRECT_MAP

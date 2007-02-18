@@ -86,10 +86,10 @@ public:
 	struct RenderedChannels
 	{
 		bool     LIGHT_DIRECT           :1; ///< feeds gl_Normal
-		bool     LIGHT_INDIRECT_COLOR   :1; ///< feeds gl_Color
+		bool     LIGHT_INDIRECT_VCOLOR  :1; ///< feeds gl_Color
 		bool     LIGHT_INDIRECT_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]
 		bool     LIGHT_INDIRECT_ENV     :1; ///< feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT]
-		bool     MATERIAL_DIFFUSE_COLOR :1; ///< feeds gl_SecondaryColor
+		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds gl_SecondaryColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
 		bool     FORCE_2D_POSITION      :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
 		unsigned LIGHT_MAP_CHANNEL;         ///< if LIGHT_INDIRECT_MAP, maps from this illuminations channel are used
@@ -108,7 +108,7 @@ public:
 	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1);
 
 	//! Sets global illumination buffers for whole scene.
-	//! Used by render() with LIGHT_INDIRECT_COLOR or LIGHT_INDIRECT_MAP,
+	//! Used by render() with LIGHT_INDIRECT_VCOLOR or LIGHT_INDIRECT_MAP,
 	//! but only if renderer was created with useBuffers=true.
 	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,rr::RRIlluminationPixelBuffer* ambientMap);
 
@@ -127,7 +127,7 @@ private:
 	{
 		const rr::RRObject* object;            ///< object being rendered
 		const rr::RRScene* scene;              ///< scene it comes from
-		const rr::RRScaler* scaler;            ///< scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_COLOR
+		const rr::RRScaler* scaler;            ///< scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_VCOLOR
 		RenderedChannels renderedChannels;     ///< set of data channels being rendered
 		VertexDataGenerator* generateForcedUv; ///< generator of uv data for FORCE_2D_POSITION
 		unsigned otherCaptureParamsHash;       ///< hash of generator's parameters

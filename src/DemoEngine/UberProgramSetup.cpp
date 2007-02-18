@@ -23,12 +23,12 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
-		LIGHT_INDIRECT_COLOR?"#define LIGHT_INDIRECT_COLOR\n":"",
+		LIGHT_INDIRECT_VCOLOR?"#define LIGHT_INDIRECT_VCOLOR\n":"",
 		LIGHT_INDIRECT_MAP?"#define LIGHT_INDIRECT_MAP\n":"",
 		LIGHT_INDIRECT_ENV?"#define LIGHT_INDIRECT_ENV\n":"",
 		MATERIAL_DIFFUSE?"#define MATERIAL_DIFFUSE\n":"",
 		MATERIAL_DIFFUSE_CONST?"#define MATERIAL_DIFFUSE_CONST\n":"",
-		MATERIAL_DIFFUSE_COLOR?"#define MATERIAL_DIFFUSE_COLOR\n":"",
+		MATERIAL_DIFFUSE_VCOLOR?"#define MATERIAL_DIFFUSE_VCOLOR\n":"",
 		MATERIAL_DIFFUSE_MAP?"#define MATERIAL_DIFFUSE_MAP\n":"",
 		MATERIAL_SPECULAR?"#define MATERIAL_SPECULAR\n":"",
 		MATERIAL_SPECULAR_MAP?"#define MATERIAL_SPECULAR_MAP\n":"",
@@ -65,33 +65,33 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.LIGHT_DIRECT = true;
 		uberProgramSetup.LIGHT_DIRECT_MAP = true;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true;
+		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 		uberProgramSetup.OBJECT_SPACE = true;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		if(!uberProgramSetup.getProgram(uberProgram)) continue;
 		// static object, maximize use of samplers
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
+		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		if(!uberProgramSetup.getProgram(uberProgram)) continue;
 		// dynamic object
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = true;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
+		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		uberProgramSetup.MATERIAL_SPECULAR = true;
 		uberProgramSetup.MATERIAL_SPECULAR_MAP = true;

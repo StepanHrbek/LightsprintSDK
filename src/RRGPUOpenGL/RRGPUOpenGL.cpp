@@ -317,7 +317,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 		RendererOfRRObject::RenderedChannels renderedChannels;
 		renderedChannels.LIGHT_DIRECT = true;
 #if PRIMARY_SCAN_PRECISION==2
-		renderedChannels.MATERIAL_DIFFUSE_COLOR = true;
+		renderedChannels.MATERIAL_DIFFUSE_VCOLOR = true;
 #endif
 #if PRIMARY_SCAN_PRECISION==3
 		renderedChannels.MATERIAL_DIFFUSE_MAP = true;

@@ -88,7 +88,7 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
 		uberProgramSetup.MATERIAL_DIFFUSE = material.MATERIAL_DIFFUSE;
-		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = material.MATERIAL_DIFFUSE_COLOR;
+		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = material.MATERIAL_DIFFUSE_VCOLOR;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = material.MATERIAL_DIFFUSE_MAP;
 		uberProgramSetup.MATERIAL_SPECULAR = material.MATERIAL_SPECULAR;
 		uberProgramSetup.MATERIAL_SPECULAR_MAP = material.MATERIAL_SPECULAR_MAP;

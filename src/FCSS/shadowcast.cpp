@@ -274,7 +274,7 @@ void init_gl_resources()
 	uberProgram = new de::UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.LIGHT_INDIRECT_COLOR = true;
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
 	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
@@ -375,19 +375,19 @@ protected:
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
 #if PRIMARY_SCAN_PRECISION==1 // 110ms
-		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
+		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 #elif PRIMARY_SCAN_PRECISION==2 // 150ms
-		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = true;
+		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 #else // PRIMARY_SCAN_PRECISION==3 // 220ms
-		uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
+		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 #endif
 		uberProgramSetup.MATERIAL_SPECULAR = false;
@@ -416,7 +416,7 @@ public:
 		// diffuse
 		material.MATERIAL_DIFFUSE = 1;
 		material.MATERIAL_DIFFUSE_CONST = 0;
-		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_VCOLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 1;
 		material.MATERIAL_SPECULAR = 0;
 		material.MATERIAL_SPECULAR_MAP = 0;
@@ -433,7 +433,7 @@ public:
 		// diff+specular map+normalmap
 		material.MATERIAL_DIFFUSE = 1;
 		material.MATERIAL_DIFFUSE_CONST = 0;
-		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_VCOLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 1;
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 1;
@@ -443,7 +443,7 @@ public:
 		// diff+specular
 		material.MATERIAL_DIFFUSE = 1;
 		material.MATERIAL_DIFFUSE_CONST = 0;
-		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_VCOLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 1;
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 0;
@@ -454,7 +454,7 @@ public:
 		// diff+specular map
 		material.MATERIAL_DIFFUSE = 1;
 		material.MATERIAL_DIFFUSE_CONST = 0;
-		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_VCOLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 1;
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 1;
@@ -464,7 +464,7 @@ public:
 		// specular
 		material.MATERIAL_DIFFUSE = 0;
 		material.MATERIAL_DIFFUSE_CONST = 0;
-		material.MATERIAL_DIFFUSE_COLOR = 0;
+		material.MATERIAL_DIFFUSE_VCOLOR = 0;
 		material.MATERIAL_DIFFUSE_MAP = 0;
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 0;
@@ -508,13 +508,13 @@ public:
 		// use object space
 		uberProgramSetup.OBJECT_SPACE = true;
 		// use environment maps
-		if(uberProgramSetup.LIGHT_INDIRECT_COLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
+		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
 		{
 			// indirect from envmap
 			uberProgramSetup.SHADOW_MAPS = 1;
 			//uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
-			uberProgramSetup.LIGHT_INDIRECT_COLOR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV = 1;
 		}
@@ -662,20 +662,20 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_INDIRECT_COLOR?lockVertexIllum:NULL,unlockVertexIllum);
+		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 		return;
 	}
 #endif
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
-	renderedChannels.LIGHT_INDIRECT_COLOR = uberProgramSetup.LIGHT_INDIRECT_COLOR;
+	renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
 	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
 	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
-	renderedChannels.MATERIAL_DIFFUSE_COLOR = uberProgramSetup.MATERIAL_DIFFUSE_COLOR;
+	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 	level->rendererNonCaching->setRenderedChannels(renderedChannels);
-	if(renderedChannels.LIGHT_INDIRECT_COLOR)
+	if(renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
 		// turn off caching for renders with indirect color, because it changes often
 		level->rendererCaching->setStatus(de::RendererWithCache::CS_NEVER_COMPILE);
@@ -730,12 +730,12 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.LIGHT_DIRECT = false;
 	uberProgramSetup.LIGHT_DIRECT_MAP = false;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-	uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramSetup.MATERIAL_DIFFUSE = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-	uberProgramSetup.MATERIAL_DIFFUSE_COLOR = false;
+	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 	uberProgramSetup.MATERIAL_SPECULAR = false;
 	uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
@@ -810,12 +810,12 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
+		//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		//uberProgramSetup.MATERIAL_SPECULAR = ;
 		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
@@ -837,12 +837,12 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
+		//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		//uberProgramSetup.MATERIAL_SPECULAR = ;
 		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
@@ -860,12 +860,12 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_DIRECT = false;
 		uberProgramSetup.LIGHT_DIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
-		//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
+		//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 		//uberProgramSetup.MATERIAL_SPECULAR = ;
 		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
@@ -1276,12 +1276,12 @@ void display()
 				uberProgramSetup.LIGHT_DIRECT = true;
 				uberProgramSetup.LIGHT_DIRECT_MAP = true;
 				uberProgramSetup.LIGHT_INDIRECT_CONST = true;
-				uberProgramSetup.LIGHT_INDIRECT_COLOR = false;
+				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 				uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 				uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 				//uberProgramSetup.MATERIAL_DIFFUSE = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
-				//uberProgramSetup.MATERIAL_DIFFUSE_COLOR = ;
+				//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
 				//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
 				//uberProgramSetup.MATERIAL_SPECULAR = ;
 				//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
@@ -1717,7 +1717,7 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 			renderLightmaps = false;
 			break;
 		case 't':
-			uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR;
+			uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR;
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
 			break;
 		case 'r':
@@ -2055,12 +2055,12 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = false;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_COLOR = !renderLightmaps;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_COLOR = false;
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;
