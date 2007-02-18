@@ -1,18 +1,3 @@
-#define M3DS
-//#define BSP "trajectory"   //  +original geometrie
-//#define BSP "bastir"       // ++pekny bunkr na snehu, int i ext, jen snih neni sesmoothovany, chybi malinko textur
-//#define BSP "bgmp5"        //  +dost chodeb
-//#define BSP "bgmp6"        // ++pekne drevo, int, chybi malinko textur
-//#define BSP "bgmp7"        //  -moc otevrene, nema podlahu (presto jsou odrazy dobre videt diky bilym zdem)
-#define BSP "bgmp8"        // ++pekne skaly a odrazy od zelene travy, int i ext, chybi malinko textur
-//#define BSP "bgmp9"        //  -moc otevrene, asi chybi textury (presto jsou odrazy dobre videt diky bilym zdem)
-//#define BSP "x3map03"      //  -chybi par textur
-//#define BSP "x3map05"      // ++ext, originalni geometrie levelu
-//#define BSP "x3map07"      //  -otevrene nebe, odrazy jsou videt ale model banalni hrad, problemova triangulace
-//#define BSP "kitfinal"     //  -chodby, chybi par textur
-//#define BSP "charon3dm12"  //  +pekna kovova sachta, ale chybi par textur
-//#define BSP "qfraggel3tdm" //  -chodby, chybi par textur
-//#define BSP "qxdm3"        //  +chodby a trochu terenu
 //#define BUGS
 #define DYNAOBJECTS                1   // 0..7
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
@@ -141,17 +126,15 @@ enum {
 class Level
 {
 public:
-#ifdef M3DS
 	de::Model_3DS m3ds;
-#else
 	de::TMapQ3 bsp;
-#endif
 	class Solver* solver;
 	class Bugs* bugs;
 	rr_gl::RendererOfRRObject* rendererNonCaching;
 	de::RendererWithCache* rendererCaching;
+	bool isBsp;
 
-	Level(const char* filename_3ds);
+	Level(const char* filename);
 	~Level();
 };
 
@@ -632,40 +615,37 @@ void unlockVertexIllum(void* solver,unsigned object)
 void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
-#ifndef M3DS
+
 	// boost quake map intensity
-	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+	if(level->isBsp && uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
 	}
-#endif
+
 	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
 	if(!program)
 		error("Failed to compile or link GLSL program.\n",true);
 
-#ifndef M3DS
 	// boost quake map intensity
 	if(uberProgramSetup.MATERIAL_DIFFUSE_CONST)
 	{
 		program->sendUniform("materialDiffuseConst",2.0f,2.0f,2.0f,1.0f);
 	}
-#endif
 
-#ifdef M3DS
 	// lze smazat, stejnou praci dokaze i rrrenderer
 	// nicmene m3ds.Draw stale jeste
 	// 1) lip smoothuje (pouziva min vertexu)
 	// 2) slouzi jako test ze RRRealtimeRadiosity spravne generuje vertex buffer s indirectem
 	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
-	if(uberProgramSetup.MATERIAL_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
+	if(!level->isBsp && uberProgramSetup.MATERIAL_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 		return;
 	}
-#endif
+
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
@@ -1033,21 +1013,28 @@ void showImage(const de::Texture* tex)
 //
 // Level body
 
-Level::Level(const char* filename_3ds)
+Level::Level(const char* filename)
 {
 	solver = NULL;
 	bugs = NULL;
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
 
+	// init radiosity solver
+	solver = new Solver();
+	// switch inputs and outputs from HDR physical scale to RGB screenspace
+	solver->setScaler(rr::RRScaler::createRgbScaler());
+	rr::RRScene::SmoothingParameters sp;
+	sp.subdivisionSpeed = SUBDIVISION;
+	//sp.stitchDistance = -1;
+
 	float scale_3ds = 1;
-	{
-		de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-		de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
-		eye = tmpeye;
-		light = tmplight;
-	}
-	if(strstr(filename_3ds, "quake") || strstr(filename_3ds, "QUAKE")) {
+	de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
+	de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
+	eye = tmpeye;
+	light = tmplight;
+
+	if(strstr(filename, "quake") || strstr(filename, "QUAKE")) {
 		scale_3ds = 0.05f;
 		//Camera tmpeye = {{4.533,0.732,3.848},2.150,-2.400,1.3,100.0,0.3,60.0};
 		//Camera tmplight = {{3.713,1.013,-3.391},1.045,-1.450,1.0,70.0,1.0,20.0};
@@ -1071,7 +1058,7 @@ Level::Level(const char* filename_3ds)
 		eye = tmpeye;
 		light = tmplight;
 	}
-	if(strstr(filename_3ds, "koupelna4")) {
+	if(strstr(filename, "koupelna4")) {
 		scale_3ds = 0.03f;
 		// dobry zacatek
 		de::Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,60.0};
@@ -1101,7 +1088,7 @@ Level::Level(const char* filename_3ds)
 		light = tmplight;
 //		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
-	if(strstr(filename_3ds, "koupelna3")) {
+	if(strstr(filename, "koupelna3")) {
 		scale_3ds = 0.01f;
 		//lightDirectMapIdx = 1;
 		// dobry zacatek
@@ -1111,7 +1098,7 @@ Level::Level(const char* filename_3ds)
 		light = tmplight;
 //		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
-	if(strstr(filename_3ds, "koupelna5")) {
+	if(strstr(filename, "koupelna5")) {
 		scale_3ds = 0.03f;
 		//Camera tmpeye = {{6.172,3.741,1.522},4.340,1.600,1.3,100.0,0.3,60.0};
 		//Camera tmplight = {{-2.825,4.336,3.259},1.160,9.100,1.0,70.0,1.0,20.0};
@@ -1121,7 +1108,7 @@ Level::Level(const char* filename_3ds)
 		light = tmplight;
 //		if(areaLight) areaLight->setNumInstances(1);
 	}
-	if(strstr(filename_3ds, "sponza"))
+	if(strstr(filename, "sponza"))
 	{
 		de::Camera tmpeye = {{-15.619742,7.192011,-0.808423},7.020000,1.349999, 1.,100.,0.3,60.};
 		de::Camera tmplight = {{-8.042444,7.689753,-0.953889},-1.030000,0.200001, 1.,70.,1.,30.};
@@ -1133,7 +1120,7 @@ Level::Level(const char* filename_3ds)
 		light = tmplight;
 //		if(areaLight) areaLight->setNumInstances(1);
 	}
-	if(strstr(filename_3ds, "sibenik"))
+	if(strstr(filename, "sibenik"))
 	{
 		// zacatek nevhodny pouze kvuli spatnym normalam
 		//		Camera tmpeye = {{-8.777,3.117,0.492},1.145,-0.400,1.3,50.0,0.3,80.0};
@@ -1162,37 +1149,39 @@ Level::Level(const char* filename_3ds)
 //		if(areaLight) areaLight->setNumInstances(1);
 	}
 
-	printf("Loading %s...",filename_3ds);
+	printf("Loading %s...",filename);
 
-	// init .3ds scene
-#ifdef M3DS
-	if(!m3ds.Load(filename_3ds,scale_3ds))
-		error("",false);
-#else
-	de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,100.};
-	de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
-	eye = tmpeye;
-	light = tmplight;
-	readMap("bsp\\" BSP "\\maps\\" BSP ".bsp",bsp);
-#endif
+	isBsp = strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".bsp")==0;
+
+	if(isBsp)
+	{
+		// load .bsp
+		de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,100.};
+		de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
+		eye = tmpeye;
+		light = tmplight;
+		if(!readMap(filename,bsp))
+			error("Failed to load .bsp scene.",false);
+		printf("\n");
+		char* maps = _strdup(filename);
+		char* mapsEnd = strrchr(maps,'\\'); if(mapsEnd) *mapsEnd = 0;
+		mapsEnd = strrchr(maps,'\\'); if(mapsEnd) mapsEnd[1] = 0;
+		//de::Texture::load("maps/missing.jpg",NULL);
+		insertBspToRR(&bsp,maps,NULL,solver,&sp);
+		free(maps);
+	}
+	else
+	{
+		// load .3ds scene
+		if(!m3ds.Load(filename,scale_3ds))
+			error("",false);
+		printf("\n");
+		insert3dsToRR(&m3ds,solver,&sp);
+	}
 
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
 
-	printf("\n");
-
-	// init radiosity solver
-	solver = new Solver();
-	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	solver->setScaler(rr::RRScaler::createRgbScaler());
-	rr::RRScene::SmoothingParameters sp;
-	sp.subdivisionSpeed = SUBDIVISION;
-	//sp.stitchDistance = -1;
-#ifdef M3DS
-	insert3dsToRR(&m3ds,solver,&sp);
-#else
-	insertBspToRR(&bsp,"bsp\\" BSP "\\",de::Texture::load("maps/missing.jpg",NULL),solver,&sp);
-#endif
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
@@ -1216,10 +1205,8 @@ Level::Level(const char* filename_3ds)
 
 Level::~Level()
 {
-#ifdef M3DS
-#else
-	freeMap(bsp);
-#endif
+	if(isBsp)
+		freeMap(bsp);
 	delete bugs;
 	delete rendererCaching;
 	delete rendererNonCaching;
