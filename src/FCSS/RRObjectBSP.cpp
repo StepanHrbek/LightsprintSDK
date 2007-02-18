@@ -58,7 +58,7 @@
 class RRObjectBSP : public rr::RRObject, rr::RRMesh
 {
 public:
-	RRObjectBSP(de::TMapQ3* model, const char* pathToTextures);
+	RRObjectBSP(de::TMapQ3* model, const char* pathToTextures, de::Texture* missingTexture);
 	rr::RRObjectIllumination* getIllumination();
 	virtual ~RRObjectBSP();
 
@@ -113,7 +113,7 @@ private:
 
 // Inputs: m
 // Outputs: t, s
-static void fillSurface(rr::RRSurface& s,de::Texture*& t,de::TTexture* m,const char* pathToTextures)
+static void fillSurface(rr::RRSurface& s, de::Texture*& t, de::TTexture* m,const char* pathToTextures, de::Texture* fallback)
 {
 	enum {size = 8};
 
@@ -127,6 +127,7 @@ static void fillSurface(rr::RRSurface& s,de::Texture*& t,de::TTexture* m,const c
 		t = de::Texture::load(buf,NULL);
 		if(t) break;
 	}
+	if(!t) t = fallback;
 
 	// for diffuse textures provided by bsp,
 	// it is sufficient to compute average texture color
@@ -159,14 +160,14 @@ static void fillSurface(rr::RRSurface& s,de::Texture*& t,de::TTexture* m,const c
 
 // Creates internal copies of .bsp geometry and surface properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObjectBSP::RRObjectBSP(de::TMapQ3* amodel, const char* pathToTextures)
+RRObjectBSP::RRObjectBSP(de::TMapQ3* amodel, const char* pathToTextures, de::Texture* missingTexture)
 {
 	model = amodel;
 
 	for(unsigned i=0;i<(unsigned)model->mTextures.size();i++)
 	{
 		SurfaceInfo si;
-		fillSurface(si.surface,si.texture,&model->mTextures[i],pathToTextures);
+		fillSurface(si.surface,si.texture,&model->mTextures[i],pathToTextures,missingTexture);
 		surfaces.push_back(si);
 	}
 
@@ -426,21 +427,21 @@ void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const
 //
 // main
 
-RRObjectBSP* new_bsp_importer(de::TMapQ3* model, const char* pathToTextures)
+RRObjectBSP* new_bsp_importer(de::TMapQ3* model, const char* pathToTextures, de::Texture* missingTexture)
 {
-	RRObjectBSP* importer = new RRObjectBSP(model,pathToTextures);
+	RRObjectBSP* importer = new RRObjectBSP(model,pathToTextures,missingTexture);
 #ifdef VERIFY
 	importer->getCollider()->getMesh()->verify();
 #endif
 	return importer;
 }
 
-void insertBspToRR(de::TMapQ3* model,const char* pathToTextures,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
+void insertBspToRR(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
 {
 	if(app)
 	{
 		rr::RRRealtimeRadiosity::Objects objects;
-		RRObjectBSP* object = new_bsp_importer(model,pathToTextures);
+		RRObjectBSP* object = new_bsp_importer(model,pathToTextures,missingTexture);
 		objects.push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
 		app->setObjects(objects,smoothing);
 	}

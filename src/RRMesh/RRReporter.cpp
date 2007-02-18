@@ -46,7 +46,7 @@ void RRReporter::report(Type type, const char* format, ...)
 {
 	if(reporter)
 	{
-		static char msg[1000];
+		char msg[1000];
 		va_list argptr;
 		va_start (argptr,format);
 		strcpy(msg,(type==ERRO)?"ERROR: ":((type==WARN)?" Warn: ":((type==INFO)?" info: ":"")));

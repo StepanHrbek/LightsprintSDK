@@ -1191,7 +1191,7 @@ Level::Level(const char* filename_3ds)
 #ifdef M3DS
 	insert3dsToRR(&m3ds,solver,&sp);
 #else
-	insertBspToRR(&bsp,"bsp\\" BSP "\\",solver,&sp);
+	insertBspToRR(&bsp,"bsp\\" BSP "\\",de::Texture::load("maps/missing.jpg",NULL),solver,&sp);
 #endif
 	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObjectCustom())
