@@ -85,7 +85,9 @@ RRRealtimeRadiosityGL::RRRealtimeRadiosityGL(char* apathToShaders)
 	char buf2[400];
 	_snprintf(buf1,999,"%sscaledown_filter.vp",pathToShaders);
 	_snprintf(buf2,999,"%sscaledown_filter.fp",pathToShaders);
-	scaleDownProgram = new de::Program(NULL,buf1,buf2);
+	scaleDownProgram = de::Program::create(NULL,buf1,buf2);
+	if(!scaleDownProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/scaledown_filter.*\n",pathToShaders);
+
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
 
@@ -120,6 +122,8 @@ per object lighting:
 // simplified version from HelloRealtimeRadiosity
 bool RRRealtimeRadiosityGL::detectDirectIllumination()
 {
+	if(!scaleDownProgram) return false;
+
 	// backup render states
 	glGetIntegerv(GL_VIEWPORT,viewport);
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
@@ -224,6 +228,9 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 
 bool RRRealtimeRadiosityGL::detectDirectIllumination()
 {
+#ifdef SCALE_DOWN_ON_GPU
+	if(!scaleDownProgram) return false;
+#endif
 	//printf("GL::detectDirectIllumination\n");
 	//Timer w;w.Start();
 

@@ -19,7 +19,7 @@ namespace de
 class DE_API TextureRenderer
 {
 public:
-	TextureRenderer();
+	TextureRenderer(const char* pathToShaders);
 	~TextureRenderer();
 	void renderEnvironment(Texture* texture);
 private:

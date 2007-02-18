@@ -37,12 +37,7 @@ Program* UberProgram::getProgram(const char* defines)
 	}
 	std::map<unsigned,Program*>::iterator i = cache.find(hash);
 	if(i!=cache.end()) return i->second;
-	Program* program = new Program(defines,vertexShaderFileName,fragmentShaderFileName);
-	if(!program->isLinked())
-	{
-		delete program;
-		program = NULL;
-	}
+	Program* program = Program::create(defines,vertexShaderFileName,fragmentShaderFileName);
 	cache[hash] = program;
 	//cache.insert(defines,tmp);
 	return program;

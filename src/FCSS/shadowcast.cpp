@@ -281,7 +281,7 @@ void init_gl_resources()
 //	skyMap = de::Texture::load("maps/starfield/starfield_%s.jpg",cubeSideNames);
 	skyMap = de::Texture::load("maps/purplenebula/purplenebula_%s.jpg",cubeSideNames);
 //	skyMap = de::Texture::load("pool/cubemapy/stonegods/sgod_%s.tga",cubeSideNames);
-	skyRenderer = new de::TextureRenderer();
+	skyRenderer = new de::TextureRenderer("shaders/");
 
 	if(!ambientProgram)
 		error("\nFailed to compile or link GLSL program.\n",true);
@@ -2019,6 +2019,8 @@ int main(int argc, char **argv)
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
+	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+
 	dynaobjects = new DynamicObjects();
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
@@ -2048,7 +2050,6 @@ int main(int argc, char **argv)
 	if(!INSTANCES_PER_PASS) error("",true);
 	areaLight->setNumInstances(startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1);
 
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 	if(rr::RRLicense::loadLicense("licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.",false);
 

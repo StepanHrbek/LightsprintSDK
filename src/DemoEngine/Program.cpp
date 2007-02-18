@@ -11,6 +11,8 @@
 #include "DemoEngine/Program.h"
 #include "Shader.h"
 
+#define SAFE_DELETE(a)   {delete a;a=NULL;}
+
 namespace de
 {
 
@@ -45,6 +47,13 @@ Program::~Program()
 	delete vertex;
 	delete fragment;
 	glDeleteProgram(handle);
+}
+
+Program* Program::create(const char* defines, const char* vertexShader, const char* fragmentShader)
+{
+	Program* res = new Program(defines,vertexShader,fragmentShader);
+	if(!res->isLinked()) SAFE_DELETE(res);
+	return res;
 }
 
 bool Program::logLooksSafe()

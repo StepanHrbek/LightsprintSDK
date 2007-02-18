@@ -32,10 +32,12 @@ public:
 		char buf1[1000],buf2[1000];
 		_snprintf(buf1,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.vp");
 		_snprintf(buf2,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.fp");
-		filterProgram = new de::Program(NULL,buf1,buf2);
+		filterProgram = de::Program::create(NULL,buf1,buf2);
+		if(!filterProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/lightmap_filter.*\n",pathToShaders);
 		_snprintf(buf1,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.vp");
 		_snprintf(buf2,999,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.fp");
-		renderTriangleProgram = new de::Program(NULL,buf1,buf2);
+		renderTriangleProgram = de::Program::create(NULL,buf1,buf2);
+		if(!renderTriangleProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/lightmap_build.*\n",pathToShaders);
 	}
 	~Helpers()
 	{
@@ -101,7 +103,7 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle& it)
 {
 	assert(rendering);
-	if(!rendering) return;
+	if(!rendering || !helpers->renderTriangleProgram) return;
 
 	if(!renderTriangleProgramSet)
 	{
@@ -210,7 +212,11 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 	glDepthMask(GL_FALSE);
 
 	// tempTexture must not be smaller than texture
-	if(texture->getWidth()<=helpers->tempTexture->getWidth() && texture->getHeight()<=helpers->tempTexture->getHeight())
+	if(helpers->tempTexture
+		&& helpers->filterProgram
+		&& texture->getWidth()<=helpers->tempTexture->getWidth() 
+		&& texture->getHeight()<=helpers->tempTexture->getHeight()
+		)
 	for(int pass=0;pass<(preferQualityOverSpeed?10:2);pass++)
 	{
 		// fill unused pixels

@@ -33,13 +33,10 @@ public:
 	//!  Name of text file with GLSL vertex shader. May be NULL for fixed pipeline.
 	//! \param fragmentShader
 	//!  Name of text file with GLSL fragment shader. May be NULL for fixed pipeline.
-	Program(const char* defines, const char* vertexShader, const char* fragmentShader);
+	static Program* create(const char* defines, const char* vertexShader, const char* fragmentShader);
+
 	~Program();
 
-	//! Links program, see OpenGL for more details on linking.
-	void linkIt();
-	//! Returns true only when program was successfully linked.
-	bool isLinked();
 	//! Validates program and returns true only when it was successful,
 	//! see OpenGL for more details on validation.
 	//! Validation is optional process used mainly for debugging.
@@ -74,6 +71,8 @@ public:
 	void sendUniform(const char *name, float *m, bool transp=false, int size=4);
 
 private:
+	Program(const char* defines, const char* vertexShader, const char* fragmentShader);
+	bool isLinked();
 	int getLoc(const char *name);
 	bool logLooksSafe();
 

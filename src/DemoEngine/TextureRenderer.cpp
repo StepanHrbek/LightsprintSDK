@@ -5,6 +5,7 @@
 // --------------------------------------------------------------------------
 
 #include <cassert>
+#include <cstdio>
 #include <GL/glew.h>
 #include "DemoEngine/TextureRenderer.h"
 #include "DemoEngine/Program.h"
@@ -16,9 +17,14 @@ namespace de
 //
 // TextureRenderer
 
-TextureRenderer::TextureRenderer()
+TextureRenderer::TextureRenderer(const char* pathToShaders)
 {
-	skyProgram = new Program("","shaders\\sky.vp", "shaders\\sky.fp");
+	char buf1[400];
+	char buf2[400];
+	_snprintf(buf1,999,"%ssky.vp",pathToShaders);
+	_snprintf(buf2,999,"%ssky.fp",pathToShaders);
+	skyProgram = de::Program::create(NULL,buf1,buf2);
+	if(!skyProgram) printf("Helper shaders failed: %s/sky.*\n",pathToShaders);
 }
 
 TextureRenderer::~TextureRenderer()
@@ -28,7 +34,7 @@ TextureRenderer::~TextureRenderer()
 
 void TextureRenderer::renderEnvironment(Texture* texture)
 {
-	if(!texture)
+	if(!texture || !skyProgram)
 	{
 		assert(0);
 		return;
