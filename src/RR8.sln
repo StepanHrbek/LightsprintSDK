@@ -60,7 +60,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRGPUOpenGL", "RRGPUOpenGL\
 		{C221978C-C364-A24B-136B-1237C8D93341} = {C221978C-C364-A24B-136B-1237C8D93341}
 	EndProjectSection
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LightsprintDemoSetup", "LightsprintDemoSetup\LightsprintDemoSetup.vdproj", "{92999DFF-73AB-411E-88D1-EE2A21A01624}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LightsprintDemo", "LightsprintDemoSetup\LightsprintDemoSetup.vdproj", "{92999DFF-73AB-411E-88D1-EE2A21A01624}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -279,7 +279,6 @@ Global
 		{92999DFF-73AB-411E-88D1-EE2A21A01624}.GL Debug|Win32.ActiveCfg = Debug
 		{92999DFF-73AB-411E-88D1-EE2A21A01624}.Release DLL|Win32.ActiveCfg = Release
 		{92999DFF-73AB-411E-88D1-EE2A21A01624}.Release static|Win32.ActiveCfg = Release
-		{92999DFF-73AB-411E-88D1-EE2A21A01624}.Release static|Win32.Build.0 = Release
 		{92999DFF-73AB-411E-88D1-EE2A21A01624}.Release|Win32.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

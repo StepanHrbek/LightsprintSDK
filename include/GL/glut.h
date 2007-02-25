@@ -7,7 +7,7 @@
    provided without guarantee or warrantee expressed or  implied. This
    program is -not- in the public domain. */
 
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
+#if defined(_WIN32)
 
 /* GLUT 3.7 now tries to avoid including <windows.h>
    to avoid name space pollution, but Win32's <GL/gl.h> 
@@ -20,7 +20,7 @@
    /* XXX This is from Win32's <windef.h> */
 #  ifndef APIENTRY
 #   define GLUT_APIENTRY_DEFINED
-#   if (_MSC_VER >= 800) || defined(_STDCALL_SUPPORTED) || defined(__BORLANDC__)
+#   if (_MSC_VER >= 800) || defined(_STDCALL_SUPPORTED) || defined(__BORLANDC__) || defined(__LCC__)
 #    define APIENTRY    __stdcall
 #   else
 #    define APIENTRY
@@ -28,16 +28,22 @@
 #  endif
    /* XXX This is from Win32's <winnt.h> */
 #  ifndef CALLBACK
-#   if (defined(_M_MRX000) || defined(_M_IX86) || defined(_M_ALPHA) || defined(_M_PPC)) && !defined(MIDL_PASS)
+#   if (defined(_M_MRX000) || defined(_M_IX86) || defined(_M_ALPHA) || defined(_M_PPC)) && !defined(MIDL_PASS) || defined(__LCC__)
 #    define CALLBACK __stdcall
 #   else
 #    define CALLBACK
 #   endif
 #  endif
+   /* XXX Hack for lcc compiler.  It doesn't support __declspec(dllimport), just __stdcall. */
+#  if defined( __LCC__ )
+#   undef WINGDIAPI
+#   define WINGDIAPI __stdcall
+#  else
    /* XXX This is from Win32's <wingdi.h> and <winnt.h> */
-#  ifndef WINGDIAPI
-#   define GLUT_WINGDIAPI_DEFINED
-#   define WINGDIAPI __declspec(dllimport)
+#   ifndef WINGDIAPI
+#    define GLUT_WINGDIAPI_DEFINED
+#    define WINGDIAPI __declspec(dllimport)
+#   endif
 #  endif
    /* XXX This is from Win32's <ctype.h> */
 #  ifndef _WCHAR_T_DEFINED
@@ -135,21 +141,10 @@ typedef unsigned short wchar_t;
 extern "C" {
 #endif
 
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__)
+#if defined(_WIN32)
 # ifndef GLUT_BUILDING_LIB
 extern _CRTIMP void __cdecl exit(int);
 # endif
-#elif defined(__CYGWIN__) || defined(__MINGW32__)
-# ifndef APIENTRY
-#  define APIENTRY __attribute__ ((__stdcall__))
-#  define GLUT_APIENTRY_DEFINED
-# endif
-# ifndef CALLBACK
-#  define CALLBACK __attribute__ ((__stdcall__))
-#  define GLUT_CALLBACK_DEFINED
-# endif
-# define GLUTAPI extern
-# define GLUTCALLBACK __attribute__ ((__cdecl__))
 #else
 /* non-Win32 case. */
 /* Define APIENTRY and CALLBACK to nothing if we aren't on Win32. */
@@ -160,7 +155,7 @@ extern _CRTIMP void __cdecl exit(int);
 # define GLUTAPI extern
 # define GLUTCALLBACK
 /* Prototype exit for the non-Win32 case (see above). */
-   extern void exit(int);
+extern void exit(int);
 #endif
 
 /**
@@ -250,6 +245,10 @@ extern _CRTIMP void __cdecl exit(int);
 #define GLUT_LEFT_BUTTON		0
 #define GLUT_MIDDLE_BUTTON		1
 #define GLUT_RIGHT_BUTTON		2
+#define GLUT_WHEEL_UP			3
+#define GLUT_WHEEL_DOWN			4
+#define GLUT_XBUTTON1			5
+#define GLUT_XBUTTON2			6
 
 /* Mouse button  state. */
 #define GLUT_DOWN			0
@@ -304,7 +303,7 @@ extern _CRTIMP void __cdecl exit(int);
 #define GLUT_GREEN			1
 #define GLUT_BLUE			2
 
-#if defined(_WIN32) || defined(__CYGWIN__) || defined(__MINGW32__)
+#if defined(_WIN32)
 /* Stroke font constants (use these in GLUT program). */
 #define GLUT_STROKE_ROMAN		((void*)0)
 #define GLUT_STROKE_MONO_ROMAN		((void*)1)
@@ -321,21 +320,21 @@ extern _CRTIMP void __cdecl exit(int);
 #endif
 #else
 /* Stroke font opaque addresses (use constants instead in source code). */
-   GLUTAPI void *glutStrokeRoman;
-   GLUTAPI void *glutStrokeMonoRoman;
+GLUTAPI void *glutStrokeRoman;
+GLUTAPI void *glutStrokeMonoRoman;
 
 /* Stroke font constants (use these in GLUT program). */
 #define GLUT_STROKE_ROMAN		(&glutStrokeRoman)
 #define GLUT_STROKE_MONO_ROMAN		(&glutStrokeMonoRoman)
 
 /* Bitmap font opaque addresses (use constants instead in source code). */
-   GLUTAPI void *glutBitmap9By15;
-   GLUTAPI void *glutBitmap8By13;
-   GLUTAPI void *glutBitmapTimesRoman10;
-   GLUTAPI void *glutBitmapTimesRoman24;
-   GLUTAPI void *glutBitmapHelvetica10;
-   GLUTAPI void *glutBitmapHelvetica12;
-   GLUTAPI void *glutBitmapHelvetica18;
+GLUTAPI void *glutBitmap9By15;
+GLUTAPI void *glutBitmap8By13;
+GLUTAPI void *glutBitmapTimesRoman10;
+GLUTAPI void *glutBitmapTimesRoman24;
+GLUTAPI void *glutBitmapHelvetica10;
+GLUTAPI void *glutBitmapHelvetica12;
+GLUTAPI void *glutBitmapHelvetica18;
 
 /* Bitmap font constants (use these in GLUT program). */
 #define GLUT_BITMAP_9_BY_15		(&glutBitmap9By15)
@@ -484,180 +483,180 @@ extern _CRTIMP void __cdecl exit(int);
 #endif
 
 /* GLUT initialization sub-API. */
-	GLUTAPI void APIENTRY glutInit(int *argcp, char **argv);
-#if defined(_WIN32)  && !defined(__CYGWIN__) && !defined(__MINGW32__) && !defined(GLUT_DISABLE_ATEXIT_HACK)
+GLUTAPI void APIENTRY glutInit(int *argcp, char **argv);
+#if defined(_WIN32) && !defined(GLUT_DISABLE_ATEXIT_HACK)
 GLUTAPI void APIENTRY __glutInitWithExit(int *argcp, char **argv, void (__cdecl *exitfunc)(int));
 #ifndef GLUT_BUILDING_LIB
 static void APIENTRY glutInit_ATEXIT_HACK(int *argcp, char **argv) { __glutInitWithExit(argcp, argv, exit); }
 #define glutInit glutInit_ATEXIT_HACK
 #endif
 #endif
-   GLUTAPI void APIENTRY glutInitDisplayMode(unsigned int mode);
+GLUTAPI void APIENTRY glutInitDisplayMode(unsigned int mode);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-   GLUTAPI void APIENTRY glutInitDisplayString(const char *string);
+GLUTAPI void APIENTRY glutInitDisplayString(const char *string);
 #endif
-   GLUTAPI void APIENTRY glutInitWindowPosition(int x, int y);
-   GLUTAPI void APIENTRY glutInitWindowSize(int width, int height);
-   GLUTAPI void APIENTRY glutMainLoop(void);
+GLUTAPI void APIENTRY glutInitWindowPosition(int x, int y);
+GLUTAPI void APIENTRY glutInitWindowSize(int width, int height);
+GLUTAPI void APIENTRY glutMainLoop(void);
 
 /* GLUT window sub-API. */
-   GLUTAPI int APIENTRY glutCreateWindow(const char *title);
-#if defined(_WIN32)  && !defined(__CYGWIN__) && !defined(__MINGW32__) && !defined(GLUT_DISABLE_ATEXIT_HACK)
+GLUTAPI int APIENTRY glutCreateWindow(const char *title);
+#if defined(_WIN32) && !defined(GLUT_DISABLE_ATEXIT_HACK)
 GLUTAPI int APIENTRY __glutCreateWindowWithExit(const char *title, void (__cdecl *exitfunc)(int));
 #ifndef GLUT_BUILDING_LIB
 static int APIENTRY glutCreateWindow_ATEXIT_HACK(const char *title) { return __glutCreateWindowWithExit(title, exit); }
 #define glutCreateWindow glutCreateWindow_ATEXIT_HACK
 #endif
 #endif
-   GLUTAPI int APIENTRY glutCreateSubWindow(int win, int x, int y, int width, int height);
-   GLUTAPI void APIENTRY glutDestroyWindow(int win);
-   GLUTAPI void APIENTRY glutPostRedisplay(void);
+GLUTAPI int APIENTRY glutCreateSubWindow(int win, int x, int y, int width, int height);
+GLUTAPI void APIENTRY glutDestroyWindow(int win);
+GLUTAPI void APIENTRY glutPostRedisplay(void);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
-   GLUTAPI void APIENTRY glutPostWindowRedisplay(int win);
+GLUTAPI void APIENTRY glutPostWindowRedisplay(int win);
 #endif
-   GLUTAPI void APIENTRY glutSwapBuffers(void);
-   GLUTAPI int APIENTRY glutGetWindow(void);
-   GLUTAPI void APIENTRY glutSetWindow(int win);
-   GLUTAPI void APIENTRY glutSetWindowTitle(const char *title);
-   GLUTAPI void APIENTRY glutSetIconTitle(const char *title);
-   GLUTAPI void APIENTRY glutPositionWindow(int x, int y);
-   GLUTAPI void APIENTRY glutReshapeWindow(int width, int height);
-   GLUTAPI void APIENTRY glutPopWindow(void);
-   GLUTAPI void APIENTRY glutPushWindow(void);
-   GLUTAPI void APIENTRY glutIconifyWindow(void);
-   GLUTAPI void APIENTRY glutShowWindow(void);
-   GLUTAPI void APIENTRY glutHideWindow(void);
+GLUTAPI void APIENTRY glutSwapBuffers(void);
+GLUTAPI int APIENTRY glutGetWindow(void);
+GLUTAPI void APIENTRY glutSetWindow(int win);
+GLUTAPI void APIENTRY glutSetWindowTitle(const char *title);
+GLUTAPI void APIENTRY glutSetIconTitle(const char *title);
+GLUTAPI void APIENTRY glutPositionWindow(int x, int y);
+GLUTAPI void APIENTRY glutReshapeWindow(int width, int height);
+GLUTAPI void APIENTRY glutPopWindow(void);
+GLUTAPI void APIENTRY glutPushWindow(void);
+GLUTAPI void APIENTRY glutIconifyWindow(void);
+GLUTAPI void APIENTRY glutShowWindow(void);
+GLUTAPI void APIENTRY glutHideWindow(void);
 #if (GLUT_API_VERSION >= 3)
-   GLUTAPI void APIENTRY glutFullScreen(void);
-   GLUTAPI void APIENTRY glutSetCursor(int cursor);
+GLUTAPI void APIENTRY glutFullScreen(void);
+GLUTAPI void APIENTRY glutSetCursor(int cursor);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-   GLUTAPI void APIENTRY glutWarpPointer(int x, int y);
+GLUTAPI void APIENTRY glutWarpPointer(int x, int y);
 #endif
 
 /* GLUT overlay sub-API. */
-   GLUTAPI void APIENTRY glutEstablishOverlay(void);
-   GLUTAPI void APIENTRY glutRemoveOverlay(void);
-   GLUTAPI void APIENTRY glutUseLayer(GLenum layer);
-   GLUTAPI void APIENTRY glutPostOverlayRedisplay(void);
+GLUTAPI void APIENTRY glutEstablishOverlay(void);
+GLUTAPI void APIENTRY glutRemoveOverlay(void);
+GLUTAPI void APIENTRY glutUseLayer(GLenum layer);
+GLUTAPI void APIENTRY glutPostOverlayRedisplay(void);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
-   GLUTAPI void APIENTRY glutPostWindowOverlayRedisplay(int win);
+GLUTAPI void APIENTRY glutPostWindowOverlayRedisplay(int win);
 #endif
-   GLUTAPI void APIENTRY glutShowOverlay(void);
-   GLUTAPI void APIENTRY glutHideOverlay(void);
+GLUTAPI void APIENTRY glutShowOverlay(void);
+GLUTAPI void APIENTRY glutHideOverlay(void);
 #endif
 
 /* GLUT menu sub-API. */
-   GLUTAPI int APIENTRY glutCreateMenu(void (GLUTCALLBACK *func)(int));
-#if defined(_WIN32)  && !defined(__CYGWIN__) && !defined(__MINGW32__) && !defined(GLUT_DISABLE_ATEXIT_HACK)
+GLUTAPI int APIENTRY glutCreateMenu(void (GLUTCALLBACK *func)(int));
+#if defined(_WIN32) && !defined(GLUT_DISABLE_ATEXIT_HACK)
 GLUTAPI int APIENTRY __glutCreateMenuWithExit(void (GLUTCALLBACK *func)(int), void (__cdecl *exitfunc)(int));
 #ifndef GLUT_BUILDING_LIB
 static int APIENTRY glutCreateMenu_ATEXIT_HACK(void (GLUTCALLBACK *func)(int)) { return __glutCreateMenuWithExit(func, exit); }
 #define glutCreateMenu glutCreateMenu_ATEXIT_HACK
 #endif
 #endif
-   GLUTAPI void APIENTRY glutDestroyMenu(int menu);
-   GLUTAPI int APIENTRY glutGetMenu(void);
-   GLUTAPI void APIENTRY glutSetMenu(int menu);
-   GLUTAPI void APIENTRY glutAddMenuEntry(const char *label, int value);
-   GLUTAPI void APIENTRY glutAddSubMenu(const char *label, int submenu);
-   GLUTAPI void APIENTRY glutChangeToMenuEntry(int item, const char *label, int value);
-   GLUTAPI void APIENTRY glutChangeToSubMenu(int item, const char *label, int submenu);
-   GLUTAPI void APIENTRY glutRemoveMenuItem(int item);
-   GLUTAPI void APIENTRY glutAttachMenu(int button);
-   GLUTAPI void APIENTRY glutDetachMenu(int button);
+GLUTAPI void APIENTRY glutDestroyMenu(int menu);
+GLUTAPI int APIENTRY glutGetMenu(void);
+GLUTAPI void APIENTRY glutSetMenu(int menu);
+GLUTAPI void APIENTRY glutAddMenuEntry(const char *label, int value);
+GLUTAPI void APIENTRY glutAddSubMenu(const char *label, int submenu);
+GLUTAPI void APIENTRY glutChangeToMenuEntry(int item, const char *label, int value);
+GLUTAPI void APIENTRY glutChangeToSubMenu(int item, const char *label, int submenu);
+GLUTAPI void APIENTRY glutRemoveMenuItem(int item);
+GLUTAPI void APIENTRY glutAttachMenu(int button);
+GLUTAPI void APIENTRY glutDetachMenu(int button);
 
 /* GLUT window callback sub-API. */
-   GLUTAPI void APIENTRY glutDisplayFunc(void (GLUTCALLBACK *func)(void));
-   GLUTAPI void APIENTRY glutReshapeFunc(void (GLUTCALLBACK *func)(int width, int height));
-   GLUTAPI void APIENTRY glutKeyboardFunc(void (GLUTCALLBACK *func)(unsigned char key, int x, int y));
-   GLUTAPI void APIENTRY glutMouseFunc(void (GLUTCALLBACK *func)(int button, int state, int x, int y));
-   GLUTAPI void APIENTRY glutMotionFunc(void (GLUTCALLBACK *func)(int x, int y));
-   GLUTAPI void APIENTRY glutPassiveMotionFunc(void (GLUTCALLBACK *func)(int x, int y));
-   GLUTAPI void APIENTRY glutEntryFunc(void (GLUTCALLBACK *func)(int state));
-   GLUTAPI void APIENTRY glutVisibilityFunc(void (GLUTCALLBACK *func)(int state));
-   GLUTAPI void APIENTRY glutIdleFunc(void (GLUTCALLBACK *func)(void));
-   GLUTAPI void APIENTRY glutTimerFunc(unsigned int millis, void (GLUTCALLBACK *func)(int value), int value);
-   GLUTAPI void APIENTRY glutMenuStateFunc(void (GLUTCALLBACK *func)(int state));
+GLUTAPI void APIENTRY glutDisplayFunc(void (GLUTCALLBACK *func)(void));
+GLUTAPI void APIENTRY glutReshapeFunc(void (GLUTCALLBACK *func)(int width, int height));
+GLUTAPI void APIENTRY glutKeyboardFunc(void (GLUTCALLBACK *func)(unsigned char key, int x, int y));
+GLUTAPI void APIENTRY glutMouseFunc(void (GLUTCALLBACK *func)(int button, int state, int x, int y));
+GLUTAPI void APIENTRY glutMotionFunc(void (GLUTCALLBACK *func)(int x, int y));
+GLUTAPI void APIENTRY glutPassiveMotionFunc(void (GLUTCALLBACK *func)(int x, int y));
+GLUTAPI void APIENTRY glutEntryFunc(void (GLUTCALLBACK *func)(int state));
+GLUTAPI void APIENTRY glutVisibilityFunc(void (GLUTCALLBACK *func)(int state));
+GLUTAPI void APIENTRY glutIdleFunc(void (GLUTCALLBACK *func)(void));
+GLUTAPI void APIENTRY glutTimerFunc(unsigned int millis, void (GLUTCALLBACK *func)(int value), int value);
+GLUTAPI void APIENTRY glutMenuStateFunc(void (GLUTCALLBACK *func)(int state));
 #if (GLUT_API_VERSION >= 2)
-   GLUTAPI void APIENTRY glutSpecialFunc(void (GLUTCALLBACK *func)(int key, int x, int y));
-   GLUTAPI void APIENTRY glutSpaceballMotionFunc(void (GLUTCALLBACK *func)(int x, int y, int z));
-   GLUTAPI void APIENTRY glutSpaceballRotateFunc(void (GLUTCALLBACK *func)(int x, int y, int z));
-   GLUTAPI void APIENTRY glutSpaceballButtonFunc(void (GLUTCALLBACK *func)(int button, int state));
-   GLUTAPI void APIENTRY glutButtonBoxFunc(void (GLUTCALLBACK *func)(int button, int state));
-   GLUTAPI void APIENTRY glutDialsFunc(void (GLUTCALLBACK *func)(int dial, int value));
-   GLUTAPI void APIENTRY glutTabletMotionFunc(void (GLUTCALLBACK *func)(int x, int y));
-   GLUTAPI void APIENTRY glutTabletButtonFunc(void (GLUTCALLBACK *func)(int button, int state, int x, int y));
+GLUTAPI void APIENTRY glutSpecialFunc(void (GLUTCALLBACK *func)(int key, int x, int y));
+GLUTAPI void APIENTRY glutSpaceballMotionFunc(void (GLUTCALLBACK *func)(int x, int y, int z));
+GLUTAPI void APIENTRY glutSpaceballRotateFunc(void (GLUTCALLBACK *func)(int x, int y, int z));
+GLUTAPI void APIENTRY glutSpaceballButtonFunc(void (GLUTCALLBACK *func)(int button, int state));
+GLUTAPI void APIENTRY glutButtonBoxFunc(void (GLUTCALLBACK *func)(int button, int state));
+GLUTAPI void APIENTRY glutDialsFunc(void (GLUTCALLBACK *func)(int dial, int value));
+GLUTAPI void APIENTRY glutTabletMotionFunc(void (GLUTCALLBACK *func)(int x, int y));
+GLUTAPI void APIENTRY glutTabletButtonFunc(void (GLUTCALLBACK *func)(int button, int state, int x, int y));
 #if (GLUT_API_VERSION >= 3)
-   GLUTAPI void APIENTRY glutMenuStatusFunc(void (GLUTCALLBACK *func)(int status, int x, int y));
-   GLUTAPI void APIENTRY glutOverlayDisplayFunc(void (GLUTCALLBACK *func)(void));
+GLUTAPI void APIENTRY glutMenuStatusFunc(void (GLUTCALLBACK *func)(int status, int x, int y));
+GLUTAPI void APIENTRY glutOverlayDisplayFunc(void (GLUTCALLBACK *func)(void));
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-   GLUTAPI void APIENTRY glutWindowStatusFunc(void (GLUTCALLBACK *func)(int state));
+GLUTAPI void APIENTRY glutWindowStatusFunc(void (GLUTCALLBACK *func)(int state));
 #endif
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-   GLUTAPI void APIENTRY glutKeyboardUpFunc(void (GLUTCALLBACK *func)(unsigned char key, int x, int y));
-   GLUTAPI void APIENTRY glutSpecialUpFunc(void (GLUTCALLBACK *func)(int key, int x, int y));
-   GLUTAPI void APIENTRY glutJoystickFunc(void (GLUTCALLBACK *func)(unsigned int buttonMask, int x, int y, int z), int pollInterval);
+GLUTAPI void APIENTRY glutKeyboardUpFunc(void (GLUTCALLBACK *func)(unsigned char key, int x, int y));
+GLUTAPI void APIENTRY glutSpecialUpFunc(void (GLUTCALLBACK *func)(int key, int x, int y));
+GLUTAPI void APIENTRY glutJoystickFunc(void (GLUTCALLBACK *func)(unsigned int buttonMask, int x, int y, int z), int pollInterval);
 #endif
 #endif
 #endif
 
 /* GLUT color index sub-API. */
-   GLUTAPI void APIENTRY glutSetColor(int, GLfloat red, GLfloat green, GLfloat blue);
-   GLUTAPI GLfloat APIENTRY glutGetColor(int ndx, int component);
-   GLUTAPI void APIENTRY glutCopyColormap(int win);
+GLUTAPI void APIENTRY glutSetColor(int, GLfloat red, GLfloat green, GLfloat blue);
+GLUTAPI GLfloat APIENTRY glutGetColor(int ndx, int component);
+GLUTAPI void APIENTRY glutCopyColormap(int win);
 
 /* GLUT state retrieval sub-API. */
-   GLUTAPI int APIENTRY glutGet(GLenum type);
-   GLUTAPI int APIENTRY glutDeviceGet(GLenum type);
+GLUTAPI int APIENTRY glutGet(GLenum type);
+GLUTAPI int APIENTRY glutDeviceGet(GLenum type);
 #if (GLUT_API_VERSION >= 2)
 /* GLUT extension support sub-API */
-   GLUTAPI int APIENTRY glutExtensionSupported(const char *name);
+GLUTAPI int APIENTRY glutExtensionSupported(const char *name);
 #endif
 #if (GLUT_API_VERSION >= 3)
-   GLUTAPI int APIENTRY glutGetModifiers(void);
-   GLUTAPI int APIENTRY glutLayerGet(GLenum type);
+GLUTAPI int APIENTRY glutGetModifiers(void);
+GLUTAPI int APIENTRY glutLayerGet(GLenum type);
 #endif
 
 /* GLUT font sub-API */
-   GLUTAPI void APIENTRY glutBitmapCharacter(void *font, int character);
-   GLUTAPI int APIENTRY glutBitmapWidth(void *font, int character);
-   GLUTAPI void APIENTRY glutStrokeCharacter(void *font, int character);
-   GLUTAPI int APIENTRY glutStrokeWidth(void *font, int character);
+GLUTAPI void APIENTRY glutBitmapCharacter(void *font, int character);
+GLUTAPI int APIENTRY glutBitmapWidth(void *font, int character);
+GLUTAPI void APIENTRY glutStrokeCharacter(void *font, int character);
+GLUTAPI int APIENTRY glutStrokeWidth(void *font, int character);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-   GLUTAPI int APIENTRY glutBitmapLength(void *font, const unsigned char *string);
-   GLUTAPI int APIENTRY glutStrokeLength(void *font, const unsigned char *string);
+GLUTAPI int APIENTRY glutBitmapLength(void *font, const unsigned char *string);
+GLUTAPI int APIENTRY glutStrokeLength(void *font, const unsigned char *string);
 #endif
 
 /* GLUT pre-built models sub-API */
-   GLUTAPI void APIENTRY glutWireSphere(GLdouble radius, GLint slices, GLint stacks);
-   GLUTAPI void APIENTRY glutSolidSphere(GLdouble radius, GLint slices, GLint stacks);
-   GLUTAPI void APIENTRY glutWireCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
-   GLUTAPI void APIENTRY glutSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
-   GLUTAPI void APIENTRY glutWireCube(GLdouble size);
-   GLUTAPI void APIENTRY glutSolidCube(GLdouble size);
-   GLUTAPI void APIENTRY glutWireTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
-   GLUTAPI void APIENTRY glutSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
-   GLUTAPI void APIENTRY glutWireDodecahedron(void);
-   GLUTAPI void APIENTRY glutSolidDodecahedron(void);
-   GLUTAPI void APIENTRY glutWireTeapot(GLdouble size);
-   GLUTAPI void APIENTRY glutSolidTeapot(GLdouble size);
-   GLUTAPI void APIENTRY glutWireOctahedron(void);
-   GLUTAPI void APIENTRY glutSolidOctahedron(void);
-   GLUTAPI void APIENTRY glutWireTetrahedron(void);
-   GLUTAPI void APIENTRY glutSolidTetrahedron(void);
-   GLUTAPI void APIENTRY glutWireIcosahedron(void);
-   GLUTAPI void APIENTRY glutSolidIcosahedron(void);
+GLUTAPI void APIENTRY glutWireSphere(GLdouble radius, GLint slices, GLint stacks);
+GLUTAPI void APIENTRY glutSolidSphere(GLdouble radius, GLint slices, GLint stacks);
+GLUTAPI void APIENTRY glutWireCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
+GLUTAPI void APIENTRY glutSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
+GLUTAPI void APIENTRY glutWireCube(GLdouble size);
+GLUTAPI void APIENTRY glutSolidCube(GLdouble size);
+GLUTAPI void APIENTRY glutWireTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
+GLUTAPI void APIENTRY glutSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
+GLUTAPI void APIENTRY glutWireDodecahedron(void);
+GLUTAPI void APIENTRY glutSolidDodecahedron(void);
+GLUTAPI void APIENTRY glutWireTeapot(GLdouble size);
+GLUTAPI void APIENTRY glutSolidTeapot(GLdouble size);
+GLUTAPI void APIENTRY glutWireOctahedron(void);
+GLUTAPI void APIENTRY glutSolidOctahedron(void);
+GLUTAPI void APIENTRY glutWireTetrahedron(void);
+GLUTAPI void APIENTRY glutSolidTetrahedron(void);
+GLUTAPI void APIENTRY glutWireIcosahedron(void);
+GLUTAPI void APIENTRY glutSolidIcosahedron(void);
 
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
 /* GLUT video resize sub-API. */
-   GLUTAPI int APIENTRY glutVideoResizeGet(GLenum param);
-   GLUTAPI void APIENTRY glutSetupVideoResizing(void);
-   GLUTAPI void APIENTRY glutStopVideoResizing(void);
-   GLUTAPI void APIENTRY glutVideoResize(int x, int y, int width, int height);
-   GLUTAPI void APIENTRY glutVideoPan(int x, int y, int width, int height);
+GLUTAPI int APIENTRY glutVideoResizeGet(GLenum param);
+GLUTAPI void APIENTRY glutSetupVideoResizing(void);
+GLUTAPI void APIENTRY glutStopVideoResizing(void);
+GLUTAPI void APIENTRY glutVideoResize(int x, int y, int width, int height);
+GLUTAPI void APIENTRY glutVideoPan(int x, int y, int width, int height);
 
 /* GLUT debugging sub-API. */
-   GLUTAPI void APIENTRY glutReportErrors(void);
+GLUTAPI void APIENTRY glutReportErrors(void);
 #endif
 
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
@@ -673,9 +672,9 @@ static int APIENTRY glutCreateMenu_ATEXIT_HACK(void (GLUTCALLBACK *func)(int)) {
 #define GLUT_JOYSTICK_BUTTON_C		4
 #define GLUT_JOYSTICK_BUTTON_D		8
 
-   GLUTAPI void APIENTRY glutIgnoreKeyRepeat(int ignore);
-   GLUTAPI void APIENTRY glutSetKeyRepeat(int repeatMode);
-   GLUTAPI void APIENTRY glutForceJoystickFunc(void);
+GLUTAPI void APIENTRY glutIgnoreKeyRepeat(int ignore);
+GLUTAPI void APIENTRY glutSetKeyRepeat(int repeatMode);
+GLUTAPI void APIENTRY glutForceJoystickFunc(void);
 
 /* GLUT game mode sub-API. */
 /* glutGameModeGet. */
@@ -687,10 +686,10 @@ static int APIENTRY glutCreateMenu_ATEXIT_HACK(void (GLUTCALLBACK *func)(int)) {
 #define GLUT_GAME_MODE_REFRESH_RATE     ((GLenum) 5)
 #define GLUT_GAME_MODE_DISPLAY_CHANGED  ((GLenum) 6)
 
-   GLUTAPI void APIENTRY glutGameModeString(const char *string);
-   GLUTAPI int APIENTRY glutEnterGameMode(void);
-   GLUTAPI void APIENTRY glutLeaveGameMode(void);
-   GLUTAPI int APIENTRY glutGameModeGet(GLenum mode);
+GLUTAPI void APIENTRY glutGameModeString(const char *string);
+GLUTAPI int APIENTRY glutEnterGameMode(void);
+GLUTAPI void APIENTRY glutLeaveGameMode(void);
+GLUTAPI int APIENTRY glutGameModeGet(GLenum mode);
 #endif
 
 #ifdef __cplusplus
@@ -701,11 +700,6 @@ static int APIENTRY glutCreateMenu_ATEXIT_HACK(void (GLUTCALLBACK *func)(int)) {
 #ifdef GLUT_APIENTRY_DEFINED
 # undef GLUT_APIENTRY_DEFINED
 # undef APIENTRY
-#endif
-
-#ifdef GLUT_CALLBACK_DEFINED
-# undef GLUT_CALLBACK_DEFINED
-# undef CALLBACK
 #endif
 
 #ifdef GLUT_WINGDIAPI_DEFINED

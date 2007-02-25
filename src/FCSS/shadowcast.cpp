@@ -1034,7 +1034,7 @@ static void drawHelpMessage(bool big)
 		"",
 		"Extra controls:",
 		" F1/F2/F3      - hard/soft/penumbra shadows",
-		" z/x           - zoom in/out",
+		" wheel         - zoom",
 		" enter         - change spotlight texture",
 		" p             - pause/resume characters",
 		" 1/2/3/4/5/6/7 - move character to the center of screen",
@@ -1739,14 +1739,6 @@ void keyboard(unsigned char c, int x, int y)
 				dynaobjects->updateSceneDynamic(0,c-'1');
 			}
 			break;
-		case 'z':
-			if(eye.fieldOfView>25) eye.fieldOfView -= 25;
-			needMatrixUpdate = 1;
-			break;
-		case 'x':
-			if(eye.fieldOfView<100) eye.fieldOfView+=25;
-			needMatrixUpdate = 1;
-			break;
 		case 13:
 			changeSpotlight();
 			break;
@@ -2053,6 +2045,16 @@ void mouse(int button, int state, int x, int y)
 		showImage(loadingMap);
 		delete level;
 		level = NULL;
+	}
+	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
+	{
+		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
+		needMatrixUpdate = 1;
+	}
+	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
+	{
+		if(eye.fieldOfView<130) eye.fieldOfView+=10;
+		needMatrixUpdate = 1;
 	}
 }
 
