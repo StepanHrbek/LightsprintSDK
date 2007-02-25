@@ -50,7 +50,7 @@ public:
 	rr::RRIlluminationEnvironmentMap* specularMap;
 	rr::RRIlluminationEnvironmentMap* diffuseMap;
 
-private:
+protected:
 	DynamicObject();
 	de::Model_3DS model;
 	de::UberProgramSetup material;

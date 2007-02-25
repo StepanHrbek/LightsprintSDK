@@ -274,6 +274,25 @@ bool Model_3DS::Load(const char *filename, float ascale)
 		}
 	}
 	UpdateCenter();
+
+	// check that transformations are identity
+	bool identity = true;
+	/*if(pos.x||pos.y||pos.z||rot.x||rot.y||rot.z||scale!=1)
+	{
+		identity=false;
+		assert(0);
+	}*/
+	for (int i = 0; i < numObjects; i++)
+	{
+		if(Objects[i].pos.x||Objects[i].pos.y||Objects[i].pos.z||Objects[i].rot.x||Objects[i].rot.y||Objects[i].rot.z)
+		{
+			identity=false;
+			assert(0);
+		}
+	}
+	if(!identity)
+		printf("Object transformations are not supported.\n");
+
 	return true;
 }
 

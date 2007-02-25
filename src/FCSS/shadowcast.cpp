@@ -1,5 +1,5 @@
 //#define BUGS
-#define DYNAOBJECTS                1   // 0..7
+#define DYNAOBJECTS                7   // 0..7
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
 #define MAX_INSTANCES_PER_PASS     10
 unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 je max pro 6600
@@ -188,6 +188,79 @@ bool gameOn = 0;
 Level* level = NULL;
 LevelSequence levelSequence;
 class DynamicObjects* dynaobjects;
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// music
+
+#pragma comment(lib,"fmodex_vc.lib")
+
+#include "fmod/fmod.hpp"
+#include "fmod/fmod_errors.h"
+#include <stdio.h>
+#include <conio.h>
+
+class Music
+{
+public:
+	Music(char* filename)
+	{
+		memset(this,0,sizeof(*this));
+
+		FMOD_RESULT result;
+		result = FMOD::System_Create(&system);
+		ERRCHECK(result);
+
+		unsigned int version;
+		result = system->getVersion(&version);
+		ERRCHECK(result);
+
+		if(version < FMOD_VERSION)
+		{
+			printf("Error!  You are using an old version of FMOD %08x.  This program requires %08x\n", version, FMOD_VERSION);
+			return;
+		}
+
+		result = system->init(1, FMOD_INIT_NORMAL, 0);
+		ERRCHECK(result);
+
+		//result = system->createStream("music/aoki.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
+		result = system->createSound(filename, FMOD_HARDWARE | FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
+		ERRCHECK(result);
+
+		result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
+		ERRCHECK(result);
+	}
+	void poll()
+	{
+		system->update();
+	}
+	~Music()
+	{
+		FMOD_RESULT result;
+		result = sound->release();
+		ERRCHECK(result);
+		result = system->close();
+		ERRCHECK(result);
+		result = system->release();
+		ERRCHECK(result);
+	}
+private:
+	FMOD::System     *system;
+	FMOD::Sound      *sound;
+	FMOD::Channel    *channel;
+
+	void ERRCHECK(FMOD_RESULT result)
+	{
+		if (result != FMOD_OK)
+		{
+			printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+			exit(-1);
+		}
+	}
+};
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -392,6 +465,61 @@ protected:
 //
 // Dynamic objects
 
+using namespace rr;
+
+class DynamicObjectAI
+{
+public:
+	DynamicObjectAI()
+	{
+		speed = 0.1f;
+		shift = RRVec3((rand()/(float)RAND_MAX-0.5f),0,(rand()/(float)RAND_MAX-0.5f))*1.8;
+		pos = shift;
+	}
+	RRVec3 updatePosition(RRReal seconds)
+	{
+		if(!level) return pos;
+		RRVec3 eyepos = rr::RRVec3(eye.pos[0],eye.pos[1],eye.pos[2]);
+		RRVec3 eyedir = rr::RRVec3(eye.dir[0],eye.dir[1],eye.dir[2]).normalized();
+		// block movement of very close objects
+		if((eyepos+eyedir-(pos+RRVec3(0,1,0))).length()<1) return pos;
+		// calculate new position
+		RRReal dist = 30*speed;
+		RRVec3 destination = eyepos + eyedir*dist + shift*dist;
+		RRVec3 dir = destination-pos;
+		pos += dir*speed*seconds;
+		// stick to ground, down
+		RRRay* ray = RRRay::create();
+		ray->rayOrigin = pos+RRVec3(0,0.5f,0);
+		ray->rayDirInv[0] = 1e10;
+		ray->rayDirInv[1] = -1;
+		ray->rayDirInv[2] = 1e10;
+		ray->rayLengthMin = 0;
+		ray->rayLengthMax = 5;
+		ray->rayFlags = RRRay::FILL_POINT3D;
+		if(level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+		{
+			pos = ray->hitPoint3d;
+		}
+		else
+		{
+			// stick up
+			ray->rayDirInv[1] = +1;
+			ray->rayFlags = RRRay::FILL_POINT3D;
+			if(level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+			{
+				pos = ray->hitPoint3d;
+			}
+		}
+		delete ray;
+		return pos;
+	}
+	RRReal speed;
+	RRVec3 pos;
+private:
+	RRVec3 shift;
+};
+
 class DynamicObjects
 {
 public:
@@ -484,13 +612,26 @@ public:
 	}
 	void setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 	{
+		dynaobjectAI[objIndex].pos = worldFoot;
 		if(objIndex<DYNAOBJECTS) dynaobject[objIndex]->worldFoot = worldFoot;
+	}
+	void updateSceneDynamic(float seconds)
+	{
+		// increment rotation
+		static float rot = 0;
+		rot = (timeGetTime()%10000000)*0.07f;
+		// move objects
+		for(unsigned i=0;i<DYNAOBJECTS;i++)
+		{
+			if(dynaobject[i])
+			{
+				dynaobject[i]->worldFoot = dynaobjectAI[i].updatePosition(seconds);
+				dynaobject[i]->updatePosition(rot);
+			}
+		}
 	}
 	void renderSceneDynamic(de::UberProgramSetup uberProgramSetup, unsigned firstInstance) const
 	{
-		static float rot = 0;
-		// increment rotation when frame begins
-		if(!uberProgramSetup.LIGHT_DIRECT && !firstInstance) rot = (timeGetTime()%10000000)*0.07f;
 		// use object space
 		uberProgramSetup.OBJECT_SPACE = true;
 		// use environment maps
@@ -510,7 +651,6 @@ public:
 		{
 			if(dynaobject[i])
 			{
-				dynaobject[i]->updatePosition(rot);
 				if(uberProgramSetup.LIGHT_INDIRECT_ENV && autoUpdateEnvmaps)
 					dynaobject[i]->updateIllumination(level->solver);
 				dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],eye);
@@ -528,6 +668,7 @@ public:
 	}
 private:
 	DynamicObject* dynaobject[DYNAOBJECTS];
+	DynamicObjectAI dynaobjectAI[DYNAOBJECTS];
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1064,13 +1205,8 @@ Level::Level(const char* filename)
 	if(strstr(filename, "koupelna4")) {
 		scale_3ds = 0.03f;
 		// dobry zacatek
-		de::Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,60.0};
-		de::Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};//!!!
-		// bad lmap
-//		Camera tmpeye = {{1.910,1.298,1.580},6.650,2.350,1.3,75.0,0.3,60.0};
-//		Camera tmplight = {{2.950,0.899,3.149},7.405,13.000,1.0,70.0,1.0,20.0};
-//		Camera tmpeye = {{-3.118,1.626,-1.334},11.025,-0.650,1.3,75.0,0.3,60.0};
-//		Camera tmplight = {{-1.802,0.715,0.850},3.495,0.650,1.0,70.0,1.0,20.0};
+//		de::Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,60.0};
+//		de::Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};//!!!
 		// shoty do doxy
 		//Camera tmpeye = {{-3.842,1.429,-0.703},8.165,-0.050,1.3,100.0,0.3,60.0}; // red
 		//Camera tmplight = {{-1.802,0.715,0.850},1.250,0.050,1.0,70.0,1.0,20.0};
@@ -1087,9 +1223,18 @@ Level::Level(const char* filename)
 //		Camera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
 		//Camera koupelna4_eye = {{0.823,1.500,-0.672},11.055,-0.050,1.3,100.0,0.3,60.0};//wrong backprojection
 		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
+//		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
+		de::Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,1000.0};
+		de::Camera tmplight = {{-1.802,0.715,0.850},3.425,-2.200,1.0,70.0,1.0,20.0};
+		dynaobjects->setPos(0,rr::RRVec3(-1.107677f,0.000000f,-3.278857f));
+		dynaobjects->setPos(1,rr::RRVec3(0.040512f,1.540281f,-2.379374f));
+		dynaobjects->setPos(2,rr::RRVec3(-1.499745f,0.000000f,-0.544815f));
+		dynaobjects->setPos(3,rr::RRVec3(0.449017f,1.449328f,-1.644121f));
+		dynaobjects->setPos(4,rr::RRVec3(-0.250502f,0.000000f,0.569070f));
+		dynaobjects->setPos(5,rr::RRVec3(0.275638f,1.540281f,-2.469279f));
+		dynaobjects->setPos(6,rr::RRVec3(-1.342090f,0.000000f,0.042930f));
 		eye = tmpeye;
 		light = tmplight;
-//		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
 	}
 	if(strstr(filename, "koupelna3")) {
 		scale_3ds = 0.01f;
@@ -1153,11 +1298,69 @@ Level::Level(const char* filename)
 	}
 	if(strstr(filename, "bgmp6"))
 	{
-		de::Camera tmpeye = {{-21.363,4.126,4.916},-1.130,-0.200,1.3,100.0,0.3,1000.0};
-		de::Camera tmplight = {{-18.121,16.917,-1.478},-0.665,3.250,1.0,70.0,1.0,100.0};
+		//de::Camera tmpeye = {{-21.363,4.126,4.916},-1.130,-0.200,1.3,100.0,0.3,1000.0};
+		//de::Camera tmplight = {{-18.121,16.917,-1.478},-0.665,3.250,1.0,70.0,1.0,100.0};
+		//dynaobjects->setPos(0,rr::RRVec3(-29.269781f,0.000000f,7.809418f));
+		de::Camera tmpeye = {{-5.697,7.158,1.387},6.290,-0.800,1.3,100.0,0.3,1000.0};
+		de::Camera tmplight = {{-0.024,9.210,-1.269},-0.525,0.250,1.0,70.0,1.0,100.0};
+		dynaobjects->setPos(0,rr::RRVec3(-8.363172f,5.760000f,4.683187f));
+		dynaobjects->setPos(1,rr::RRVec3(-7.326083f,5.760000f,6.007026f));
+		dynaobjects->setPos(2,rr::RRVec3(-5.061197f,5.760000f,2.705249f));
+		dynaobjects->setPos(3,rr::RRVec3(-6.478352f,5.760000f,6.478024f));
+		dynaobjects->setPos(4,rr::RRVec3(-3.926589f,5.760000f,5.671493f));
+		dynaobjects->setPos(5,rr::RRVec3(-7.429742f,5.760000f,6.278121f));
+		dynaobjects->setPos(6,rr::RRVec3(-4.533218f,5.760000f,4.412916f));
 		eye = tmpeye;
 		light = tmplight;
-		dynaobjects->setPos(0,rr::RRVec3(-29.269781f,0.000000f,7.809418f));
+	}
+	if(strstr(filename, "bgmp8"))
+	{
+		de::Camera tmpeye = {{36.850,12.168,-43.340},10.760,-0.050,1.3,100.0,0.3,1000.0};
+		de::Camera tmplight = {{27.969,16.885,-43.744},8.155,13.000,1.0,70.0,1.0,100.0};
+		dynaobjects->setPos(0,rr::RRVec3(31.042772f,10.559999f,-43.499130f));
+		dynaobjects->setPos(1,rr::RRVec3(32.079849f,12.067107f,-42.175293f));
+		dynaobjects->setPos(2,rr::RRVec3(34.195068f,10.559999f,-43.951180f));
+		dynaobjects->setPos(3,rr::RRVec3(32.927589f,12.069320f,-41.704296f));
+		dynaobjects->setPos(4,rr::RRVec3(35.479355f,10.559999f,-42.510826f));
+		dynaobjects->setPos(5,rr::RRVec3(31.976198f,12.066398f,-41.904198f));
+		dynaobjects->setPos(6,rr::RRVec3(34.872726f,10.559999f,-43.769405f));
+		eye = tmpeye;
+		light = tmplight;
+	}
+	if(strstr(filename, "x3map05"))
+	{
+		de::Camera tmpeye = {{7.350,1.276,-35.660},5.595,1.600,1.3,100.0,0.3,1000.0};
+		de::Camera tmplight = {{14.656,8.870,-31.717},-1.635,4.750,1.0,70.0,1.0,100.0};
+		dynaobjects->setPos(0,rr::RRVec3(3.103311f,3.685109f,-33.308819f));
+		dynaobjects->setPos(1,rr::RRVec3(4.140399f,4.034876f,-31.984976f));
+		dynaobjects->setPos(2,rr::RRVec3(6.255607f,0.998043f,-33.760864f));
+		dynaobjects->setPos(3,rr::RRVec3(4.988131f,0.000000f,-31.513979f));
+		dynaobjects->setPos(4,rr::RRVec3(7.539894f,0.997678f,-32.320515f));
+		dynaobjects->setPos(5,rr::RRVec3(4.036740f,4.528148f,-31.713884f));
+		dynaobjects->setPos(6,rr::RRVec3(6.933264f,0.994990f,-33.579090f));
+		eye = tmpeye;
+		light = tmplight;
+	}
+	if(strstr(filename, "bastir"))
+	{
+		de::Camera tmpeye = {{-52.352,4.497,11.457},8.305,-0.350,1.3,100.0,0.3,1000.0};
+		de::Camera tmplight = {{-53.516,16.416,9.737},7.490,10.900,1.0,70.0,1.0,100.0};
+		dynaobjects->setPos(0,rr::RRVec3(-52.142925f,1.080000f,10.424333f));
+		dynaobjects->setPos(1,rr::RRVec3(-51.105843f,0.720000f,11.748171f));
+		dynaobjects->setPos(2,rr::RRVec3(-48.990635f,1.080000f,9.972287f));
+		dynaobjects->setPos(3,rr::RRVec3(-50.258114f,0.720000f,12.219170f));
+		dynaobjects->setPos(4,rr::RRVec3(-47.706768f,0.960000f,11.412046f));
+		dynaobjects->setPos(5,rr::RRVec3(-51.209503f,0.720000f,12.019267f));
+		dynaobjects->setPos(6,rr::RRVec3(-48.312981f,1.080000f,10.154061f));
+		eye = tmpeye;
+		light = tmplight;
+	}
+	if(strstr(filename, "candella"))
+	{
+		de::Camera tmpeye = {{885.204,13.032,537.904},2.050,10.000,1.3,100.0,0.3,1000.0};
+		de::Camera tmplight = {{876.157,13.782,521.345},7.430,2.350,1.0,70.0,1.0,100.0};
+		eye = tmpeye;
+		light = tmplight;
 	}
 
 	printf("Loading %s...",filename);
@@ -1219,6 +1422,8 @@ Level::Level(const char* filename)
 	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler(),true);
 	rendererCaching = new de::RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
+
+	printf("After optimizations: vertices=%d, triangles=%d.\n",solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
 
 	// init bugs
 #ifdef BUGS
@@ -1899,6 +2104,7 @@ void idle()
 			//printf(" %f ",seconds);
 			if(cam==&light) reportLightMovement(); else reportEyeMovement();
 		}
+		dynaobjects->updateSceneDynamic(seconds);
 	}
 	prev = now;
 
@@ -2011,6 +2217,8 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	Music n00ly("music/dlife.xm");
+
 	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
 	//_crtBreakAlloc = 33935;
 

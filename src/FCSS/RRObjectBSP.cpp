@@ -124,8 +124,10 @@ static void fillSurface(rr::RRSurface& s, de::Texture*& t, de::TTexture* m,const
 		char buf[300];
 		_snprintf(buf,299,"%s%s%s",pathToTextures,m->mName,exts[e]);
 		buf[299]=0;
-		t = de::Texture::load(buf,NULL,true,true);
+		t = de::Texture::load(buf,NULL,true,false);
+		//if(t) {puts(buf);break;}
 		if(t) break;
+		//if(e==2) printf("Not found: %s\n",buf);
 	}
 	if(!t) t = fallback;
 
@@ -335,9 +337,9 @@ unsigned RRObjectBSP::getNumVertices() const
 void RRObjectBSP::getVertex(unsigned v, Vertex& out) const
 {
 	assert(v<(unsigned)model->mVertices.size());
-	out[0] = model->mVertices[v].mPosition[0]*0.03f;
-	out[1] = model->mVertices[v].mPosition[2]*0.03f;
-	out[2] = -model->mVertices[v].mPosition[1]*0.03f;
+	out[0] = model->mVertices[v].mPosition[0]*0.015f;
+	out[1] = model->mVertices[v].mPosition[2]*0.015f;
+	out[2] = -model->mVertices[v].mPosition[1]*0.015f;
 }
 
 //unsigned RRObjectBSP::getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
