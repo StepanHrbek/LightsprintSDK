@@ -612,10 +612,13 @@ public:
 	}
 	void setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 	{
-		dynaobjectAI[objIndex].pos = worldFoot;
-		if(objIndex<DYNAOBJECTS) dynaobject[objIndex]->worldFoot = worldFoot;
+		if(objIndex<DYNAOBJECTS) 
+		{
+			dynaobjectAI[objIndex].pos = worldFoot;
+			dynaobject[objIndex]->worldFoot = worldFoot;
+		}
 	}
-	void updateSceneDynamic(float seconds)
+	void updateSceneDynamic(float seconds, unsigned onlyDynaObjectNumber=1000)
 	{
 		// increment rotation
 		static float rot = 0;
@@ -623,7 +626,7 @@ public:
 		// move objects
 		for(unsigned i=0;i<DYNAOBJECTS;i++)
 		{
-			if(dynaobject[i])
+			if(dynaobject[i] && (i==onlyDynaObjectNumber || onlyDynaObjectNumber>999))
 			{
 				dynaobject[i]->worldFoot = dynaobjectAI[i].updatePosition(seconds);
 				dynaobject[i]->updatePosition(rot);
@@ -1019,35 +1022,27 @@ static void drawHelpMessage(bool big)
 //	if(!big && gameOn) return;
 
 	static const char *message[] = {
-#ifdef BUGS
-		"Realtime Radiosity Bugs",
-#else
-		"Realtime Radiosity Viewer",
-#endif
-		" Stepan Hrbek, http://dee.cz",
-		" radiosity engine, http://lightsprint.com",
-		"",
-		"Purpose:",
-		" Show radiosity integration into arbitrary interactive 3d app",
-		" using NO PRECALCULATIONS.",
-#ifndef BUGS
-		" Demos using precalculated data are coming.",
-#endif
+		"Lightsprint Realtime Radiosity",
+		"  http://lightsprint.com",
+		"  realtime global illumination, NO PRECALCULATIONS",
 		"",
 		"Controls:",
-		" mouse            - look",
-		" arrows/wsad/1235 - move",
-		" left button      - switch between camera/light",
-		" right button     - next scene",
-		" F5               - hint",
+		" mouse         - look",
+		" arrows/wsad   - move",
+		" left button   - switch between camera/light",
+		" right button  - next scene",
 		"",
-		"Extras for experts:",
+		"Extra controls:",
+		" F1/F2/F3      - hard/soft/penumbra shadows",
+		" z/x           - zoom in/out",
+		" enter         - change spotlight texture",
+		" p             - pause/resume characters",
+		" 1/2/3/4/5/6/7 - move character to the center of screen",
+/*
+TODO: " F11           - save screenshot"
 		" space - toggle global illumination",
-		" 'z/Z' - zoom in/out",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
-		" enter - change spotlight texture",
-/*
 		" 'f'   - toggle showing spotlight frustum",
 		" 'a'   - cycle through linear, rectangular and circular area light",
 		" 's'   - change spotlight",
@@ -1064,7 +1059,7 @@ static void drawHelpMessage(bool big)
 		"'q'   - increment depth slope for 1st pass glPolygonOffset",
 		"'Q'   - increment depth slope for 1st pass glPolygonOffset",*/
 		NULL,
-		"F1 - help",
+		"h - help",
 		NULL
 	};
 	int i;
@@ -1616,13 +1611,22 @@ void special(int c, int x, int y)
 	switch (c) 
 	{
 		case GLUT_KEY_F1:
-			showHelp = !showHelp;
+			areaLight->setNumInstances(1);
+			uberProgramGlobalSetup.SHADOW_SAMPLES = 1;
+			setupAreaLight();
+			break;
+		case GLUT_KEY_F2:
+			areaLight->setNumInstances(1);
+			uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
+			setupAreaLight();
+			break;
+		case GLUT_KEY_F3:
+			areaLight->setNumInstances(INSTANCES_PER_PASS);
+			uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
+			setupAreaLight();
 			break;
 		case GLUT_KEY_F5:
 			showHint = 1;
-			break;
-		case GLUT_KEY_F10:
-			exit(0);
 			break;
 		case GLUT_KEY_F9:
 			{printf("\nde::Camera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
@@ -1686,8 +1690,8 @@ void keyboard(unsigned char c, int x, int y)
 			done_gl_resources();
 			exit(0);
 			break;
-		case 9:
-			modeMovingEye = !modeMovingEye;
+		case 'h':
+			showHelp = !showHelp;
 			break;
 		case 'p':
 			paused = !paused;
@@ -1732,18 +1736,31 @@ void keyboard(unsigned char c, int x, int y)
 				{
 					dynaobjects->setPos(c-'1',ray->hitPoint3d);
 				}
+				dynaobjects->updateSceneDynamic(0,c-'1');
 			}
 			break;
+		case 'z':
+			if(eye.fieldOfView>25) eye.fieldOfView -= 25;
+			needMatrixUpdate = 1;
+			break;
+		case 'x':
+			if(eye.fieldOfView<100) eye.fieldOfView+=25;
+			needMatrixUpdate = 1;
+			break;
+		case 13:
+			changeSpotlight();
+			break;
 
+		/*/ --- MAPS BEGIN ---
 		case 'v':
 			renderLightmaps = !renderLightmaps;
 			if(!renderLightmaps)
 			{
-/*renderLightmaps = !renderLightmaps;//!!!
-for(unsigned i=0;i<level->solver->getNumObjects();i++)
-{
-	level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->renderEnd();
-}*/
+				//renderLightmaps = !renderLightmaps;//!!!
+				//for(unsigned i=0;i<level->solver->getNumObjects();i++)
+				//{
+				//level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->renderEnd();
+				//}
 				needLightmapCacheUpdate = true;
 				for(unsigned i=0;i<level->solver->getNumObjects();i++)
 				{
@@ -1776,78 +1793,6 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
 			}
-			break;
-		case 'f':
-		case 'F':
-			showLightViewFrustum = !showLightViewFrustum;
-			if (showLightViewFrustum) {
-				needMatrixUpdate = 1;
-			}
-			break;
-		case 'Z':
-			if(eye.fieldOfView<100) eye.fieldOfView+=25;
-			needMatrixUpdate = 1;
-			break;
-		case 'z':
-			if(eye.fieldOfView>25) eye.fieldOfView -= 25;
-			needMatrixUpdate = 1;
-			break;
-		case 13:
-			changeSpotlight();
-			break;
-			/*
-		case 'a':
-			++areaLight->areaType%=3;
-			needDepthMapUpdate = 1;
-			break;
-		case 'S':
-			solver->reportLightChange(true);
-			break;
-		case 'w':
-		case 'W':
-			toggleWireFrame();
-			return;*/
-		case 'b':
-			updateDepthBias(+1);
-			break;
-		case 'B':
-			updateDepthBias(-1);
-			break;
-		case 'q':
-			slopeScale += 0.1;
-			needDepthMapUpdate = 1;
-			updateDepthBias(0);
-			break;
-		case 'Q':
-			slopeScale -= 0.1;
-			if (slopeScale < 0.0) {
-				slopeScale = 0.0;
-			}
-			needDepthMapUpdate = 1;
-			updateDepthBias(0);
-			break;/*
-		case 'n':
-			light.anear *= 0.8;
-			needMatrixUpdate = 1;
-			needDepthMapUpdate = 1;
-			break;
-		case 'N':
-			light.anear /= 0.8;
-			needMatrixUpdate = 1;
-			needDepthMapUpdate = 1;
-			break;
-		case 'c':
-			light.afar *= 1.2;
-			needMatrixUpdate = 1;
-			needDepthMapUpdate = 1;
-			break;
-		case 'C':
-			light.afar /= 1.2;
-			needMatrixUpdate = 1;
-			needDepthMapUpdate = 1;
-			break;*/
-		case ' ':
-			toggleGlobalIllumination();
 			break;
 		case 'x':
 			// save current illumination maps
@@ -1937,6 +1882,68 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 			autoUpdateEnvmaps = true;
 			renderLightmaps = false;
 			break;
+		// --- MAPS END ---
+
+
+			/*
+		case 'f':
+		case 'F':
+			showLightViewFrustum = !showLightViewFrustum;
+			if (showLightViewFrustum) needMatrixUpdate = 1;
+			break;
+		case 'b':
+			updateDepthBias(+1);
+			break;
+		case 'B':
+			updateDepthBias(-1);
+			break;
+		case 'q':
+			slopeScale += 0.1;
+			needDepthMapUpdate = 1;
+			updateDepthBias(0);
+			break;
+		case 'Q':
+			slopeScale -= 0.1;
+			if (slopeScale < 0.0) {
+				slopeScale = 0.0;
+			}
+			needDepthMapUpdate = 1;
+			updateDepthBias(0);
+			break;
+		case 'a':
+			++areaLight->areaType%=3;
+			needDepthMapUpdate = 1;
+			break;
+		case 'S':
+			solver->reportLightChange(true);
+			break;
+		case 'w':
+		case 'W':
+			toggleWireFrame();
+			return;
+		case 'n':
+			light.anear *= 0.8;
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case 'N':
+			light.anear /= 0.8;
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case 'c':
+			light.afar *= 1.2;
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case 'C':
+			light.afar /= 1.2;
+			needMatrixUpdate = 1;
+			needDepthMapUpdate = 1;
+			break;
+		case ' ':
+			toggleGlobalIllumination();
+			break;
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR;
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
@@ -1988,7 +1995,7 @@ for(unsigned i=0;i<level->solver->getNumObjects();i++)
 					setupAreaLight();
 				}
 			}
-			break;
+			break;*/
 		default:
 			return;
 	}
@@ -2104,7 +2111,8 @@ void idle()
 			//printf(" %f ",seconds);
 			if(cam==&light) reportLightMovement(); else reportEyeMovement();
 		}
-		dynaobjects->updateSceneDynamic(seconds);
+		if(!paused)
+			dynaobjects->updateSceneDynamic(seconds);
 	}
 	prev = now;
 

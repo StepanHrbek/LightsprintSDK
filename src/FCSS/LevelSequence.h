@@ -14,8 +14,8 @@ public:
 
 		insertLevelBack("3ds\\koupelna\\koupelna4.3ds");             // ++colorbleed, LIC=OK, 2M
 		insertLevelBack("bsp\\x3map\\maps\\x3map05.bsp");            // ++ext, originalni geometrie levelu, LIC=OK, 12M
-		insertLevelBack("bsp\\bgmp\\maps\\bgmp6.bsp");               // ++pekne drevo, int, chybi malinko textur, LIC=0, 25M/2
 		insertLevelBack("bsp\\bgmp\\maps\\bgmp8.bsp");               // ++pekne skaly a odrazy od zelene travy, int i ext, chybi malinko textur, LIC=OK, 25M/2
+		insertLevelBack("bsp\\bgmp\\maps\\bgmp6.bsp");               // ++pekne drevo, int, chybi malinko textur, LIC=OK, 25M/2
 		/*
 		insertLevelBack("bsp\\bastir\\maps\\bastir.bsp");            // ++pekny bunkr na snehu, int i ext, jen snih neni sesmoothovany, chybi malinko textur, LIC=asine
 		insertLevelBack("bsp\\qxdm3\\maps\\qxdm3.bsp");              //  +chodby a trochu terenu
