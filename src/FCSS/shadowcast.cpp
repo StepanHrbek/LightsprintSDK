@@ -17,6 +17,8 @@ bool animated = 1;
 bool renderer3ds = 1;
 bool startWithSoftShadows = 1;
 bool renderLightmaps = 0;
+int resolutionx = 640;
+int resolutiony = 480;
 /*
 crashne po esc v s_veza/gcc
 
@@ -152,6 +154,7 @@ de::Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
 de::Texture* loadingMap = NULL;
 de::Texture* hintMap = NULL;
+de::Texture* lightsprintMap = NULL;
 de::Program* ambientProgram;
 de::Texture* skyMap;
 de::TextureRenderer* skyRenderer;
@@ -172,8 +175,6 @@ bool showHelp = 0;
 bool showHint = 0;
 int showLightViewFrustum = 0;
 bool paused = 0;
-int resolutionx = 640;
-int resolutiony = 480;
 bool modeMovingEye = 0;
 unsigned movingEye = 0;
 unsigned movingLight = 0;
@@ -326,6 +327,7 @@ void init_gl_resources()
 	}
 	loadingMap = de::Texture::load("maps\\rrbugs_loading.tga", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	hintMap = de::Texture::load("maps\\rrbugs_hint.tga", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	lightsprintMap = de::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 
 	uberProgram = new de::UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	de::UberProgramSetup uberProgramSetup;
@@ -352,6 +354,7 @@ void done_gl_resources()
 	delete uberProgram;
 	delete loadingMap;
 	delete hintMap;
+	delete lightsprintMap;
 	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
 	delete areaLight;
 	gluDeleteQuadric(quadric);
@@ -473,8 +476,12 @@ public:
 	DynamicObjectAI()
 	{
 		speed = 0.1f;
-		shift = RRVec3((rand()/(float)RAND_MAX-0.5f),0,(rand()/(float)RAND_MAX-0.5f))*1.8;
+		shuffle();
 		pos = shift;
+	}
+	void shuffle()
+	{
+		shift = RRVec3((rand()/(float)RAND_MAX-0.5f),0,(rand()/(float)RAND_MAX-0.5f))*1.8;
 	}
 	RRVec3 updatePosition(RRReal seconds)
 	{
@@ -482,7 +489,7 @@ public:
 		RRVec3 eyepos = rr::RRVec3(eye.pos[0],eye.pos[1],eye.pos[2]);
 		RRVec3 eyedir = rr::RRVec3(eye.dir[0],eye.dir[1],eye.dir[2]).normalized();
 		// block movement of very close objects
-		if((eyepos+eyedir-(pos+RRVec3(0,1,0))).length()<1) return pos;
+		if((eyepos+eyedir*1.2f-(pos+RRVec3(0,1,0))).length()<1) return pos;
 		// calculate new position
 		RRReal dist = 30*speed;
 		RRVec3 destination = eyepos + eyedir*dist + shift*dist;
@@ -605,6 +612,7 @@ public:
 		//dynaobject = DynamicObject::create("3ds\\objects\\gothchocker.3ds",0.2f); // spatne normaly zezadu
 		//dynaobject = DynamicObject::create("3ds\\objects\\rubic_cube.3ds",0.01f); // spatne normaly, ale pouzitelne
 		//dynaobject = DynamicObject::create("3ds\\objects\\polyhedrons_ts.3ds",0.1f); // sesmoothovane normaly, chybi hrany
+		//dynaobjectAI[1].shuffle();
 	}
 	const rr::RRVec3& getPos(unsigned objIndex)
 	{
@@ -652,6 +660,7 @@ public:
 
 		for(unsigned i=0;i<DYNAOBJECTS;i++)
 		{
+			if(level->isBsp || i==1 || i==6)
 			if(dynaobject[i])
 			{
 				if(uberProgramSetup.LIGHT_INDIRECT_ENV && autoUpdateEnvmaps)
@@ -1035,7 +1044,8 @@ static void drawHelpMessage(bool big)
 		"Extra controls:",
 		" F1/F2/F3      - hard/soft/penumbra shadows",
 		" wheel         - zoom",
-		" enter         - change spotlight texture",
+		" enter         - hires fullscreen/640x480 window",
+		" space         - change spotlight texture",
 		" p             - pause/resume characters",
 		" 1/2/3/4/5/6/7 - move character to the center of screen",
 /*
@@ -1111,7 +1121,7 @@ void showImageBegin()
 	glEnable(GL_TEXTURE_2D);
 }
 
-void showImageEnd()
+void showImageEnd(const de::Texture* logo)
 {
 	glDisable(GL_CULL_FACE);
 	glColor3f(1,1,1);
@@ -1125,26 +1135,56 @@ void showImageEnd()
 	glLoadIdentity();
 
 	glBegin(GL_POLYGON);
-	glTexCoord2f(0,0);
-	glVertex2f(-1,-1);
-	glTexCoord2f(1,0);
-	glVertex2f(1,-1);
-	glTexCoord2f(1,1);
-	glVertex2f(1,1);
-	glTexCoord2f(0,1);
-	glVertex2f(-1,1);
+	if(logo)
+	{
+		float w = logo->getWidth()/(float)winWidth;
+		float h = logo->getHeight()/(float)winHeight;
+		float x = 1-w;
+		float y = 1-h;
+		glTexCoord2f(0,0);
+		glVertex2f(x-w,y-h);
+		glTexCoord2f(1,0);
+		glVertex2f(x+w,y-h);
+		glTexCoord2f(1,1);
+		glVertex2f(x+w,y+h);
+		glTexCoord2f(0,1);
+		glVertex2f(x-w,y+h);
+	}
+	else
+	{
+		glTexCoord2f(0,0);
+		glVertex2f(-1,-1);
+		glTexCoord2f(1,0);
+		glVertex2f(1,-1);
+		glTexCoord2f(1,1);
+		glVertex2f(1,1);
+		glTexCoord2f(0,1);
+		glVertex2f(-1,1);
+	}
 	glEnd();
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
-	glutSwapBuffers();
+	if(!logo) glutSwapBuffers();
 }
 
 void showImage(const de::Texture* tex)
 {
+	if(!tex) return;
 	showImageBegin();
 	tex->bindTexture();
-	showImageEnd();
+	showImageEnd(NULL);
+}
+
+void showLogo(const de::Texture* logo)
+{
+	if(!logo) return;
+	showImageBegin();
+	logo->bindTexture();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	showImageEnd(logo);
+	glDisable(GL_BLEND);
 }
 
 
@@ -1219,15 +1259,11 @@ Level::Level(const char* filename)
 		//Camera koupelna4_eye = {{0.823,1.500,-0.672},11.055,-0.050,1.3,100.0,0.3,60.0};//wrong backprojection
 		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
 //		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
-		de::Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,1000.0};
-		de::Camera tmplight = {{-1.802,0.715,0.850},3.425,-2.200,1.0,70.0,1.0,20.0};
-		dynaobjects->setPos(0,rr::RRVec3(-1.107677f,0.000000f,-3.278857f));
-		dynaobjects->setPos(1,rr::RRVec3(0.040512f,1.540281f,-2.379374f));
-		dynaobjects->setPos(2,rr::RRVec3(-1.499745f,0.000000f,-0.544815f));
-		dynaobjects->setPos(3,rr::RRVec3(0.449017f,1.449328f,-1.644121f));
-		dynaobjects->setPos(4,rr::RRVec3(-0.250502f,0.000000f,0.569070f));
-		dynaobjects->setPos(5,rr::RRVec3(0.275638f,1.540281f,-2.469279f));
-		dynaobjects->setPos(6,rr::RRVec3(-1.342090f,0.000000f,0.042930f));
+		de::Camera tmpeye = {{-3.168,1.357,1.196},8.820,0.100,1.3,75.0,0.3,1000.0};
+		de::Camera tmplight = {{-0.791,1.370,1.286},3.560,1.000,1.0,70.0,1.0,20.0};
+		dynaobjects->setPos(1,rr::RRVec3(-3.975068f,0.001701f,-1.542336f));
+		dynaobjects->setPos(6,rr::RRVec3(-0.830257f,0.000000f,0.267133f));
+
 		eye = tmpeye;
 		light = tmplight;
 	}
@@ -1369,8 +1405,9 @@ Level::Level(const char* filename)
 			error("Failed to load .bsp scene.",false);
 		printf("\n");
 		char* maps = _strdup(filename);
-		char* mapsEnd = strrchr(maps,'\\'); if(mapsEnd) *mapsEnd = 0;
-		mapsEnd = strrchr(maps,'\\'); if(mapsEnd) mapsEnd[1] = 0;
+		char* mapsEnd;
+		mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
+		mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
 		//de::Texture::load("maps/missing.jpg",NULL);
 		insertBspToRR(&bsp,maps,NULL,solver,&sp);
 		free(maps);
@@ -1418,7 +1455,7 @@ Level::Level(const char* filename)
 	rendererCaching = new de::RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 
-	printf("After optimizations: vertices=%d, triangles=%d.\n",solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
+	//printf("After optimizations: vertices=%d, triangles=%d.\n",solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
 
 	// init bugs
 #ifdef BUGS
@@ -1518,6 +1555,8 @@ void display()
 
 	if(wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	showLogo(lightsprintMap);
 
 	drawHelpMessage(showHelp);
 
@@ -1629,10 +1668,11 @@ void special(int c, int x, int y)
 			showHint = 1;
 			break;
 		case GLUT_KEY_F9:
-			{printf("\nde::Camera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
-			printf("de::Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
+			{printf("\n");
 			for(unsigned i=0;i<DYNAOBJECTS;i++)
 				printf("dynaobjects->setPos(%d,rr::RRVec3(%ff,%ff,%ff));\n",i,dynaobjects->getPos(i)[0],dynaobjects->getPos(i)[1],dynaobjects->getPos(i)[2]);
+			printf("de::Camera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+			printf("de::Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
 			return;}
 
 		case GLUT_KEY_UP:
@@ -1713,6 +1753,19 @@ void keyboard(unsigned char c, int x, int y)
 			special(GLUT_KEY_UP,0,0);
 			break;
 
+		case 13:
+			fullscreen = !fullscreen;
+			if(fullscreen)
+				glutFullScreen();
+			else
+			{
+				unsigned w = glutGet(GLUT_SCREEN_WIDTH);
+				unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
+				glutReshapeWindow(resolutionx,resolutiony);
+				glutPositionWindow((w-resolutionx)/2,(h-resolutiony)/2);
+			}
+			break;
+
 		case '1':
 		case '2':
 		case '3':
@@ -1737,9 +1790,10 @@ void keyboard(unsigned char c, int x, int y)
 					dynaobjects->setPos(c-'1',ray->hitPoint3d);
 				}
 				dynaobjects->updateSceneDynamic(0,c-'1');
+				needDepthMapUpdate = 1;
 			}
 			break;
-		case 13:
+		case ' ':
 			changeSpotlight();
 			break;
 
@@ -2126,7 +2180,7 @@ void idle()
 	{
 		reportLightMovementEnd();
 	}
-	if(animated)
+	if(animated && !paused)
 	{
 		needDepthMapUpdate = 1;
 		needRedisplay = 1;
@@ -2218,7 +2272,7 @@ void parseOptions(int argc, char **argv)
 		if (!strcmp("-noAreaLight", argv[i])) {
 			startWithSoftShadows = 0;
 		}
-		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS")) {
+		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS") || strstr(argv[i], ".bsp") || strstr(argv[i], ".BSP")) {
 			levelSequence.insertLevelFront(argv[i]);
 		}
 	}
@@ -2228,6 +2282,8 @@ void parseOptions(int argc, char **argv)
 int main(int argc, char **argv)
 {
 	Music n00ly("music/dlife.xm");
+	
+	srand(11);
 
 	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
 	//_crtBreakAlloc = 33935;
@@ -2251,13 +2307,15 @@ int main(int argc, char **argv)
 		sprintf(buf,"%dx%d:32",resolutionx,resolutiony);
 		glutGameModeString(buf);
 		glutEnterGameMode();
-		glutSetCursor(GLUT_CURSOR_NONE);
 	}
 	else
 	{
 		glutCreateWindow("Realtime Radiosity");
-//		glutFullScreen();
+		unsigned w = glutGet(GLUT_SCREEN_WIDTH);
+		unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
+		glutPositionWindow((w-resolutionx)/2,(h-resolutiony)/2);
 	}
+	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 	glutKeyboardFunc(keyboard);
