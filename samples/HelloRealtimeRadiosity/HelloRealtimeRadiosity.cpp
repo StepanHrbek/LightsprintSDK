@@ -165,7 +165,8 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	if(robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
-		robot->updatePosition(rotation);
+		robot->rot = rotation;
+		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV && environmentMapsRealtimeUpdate)
 			robot->updateIllumination(solver);
 		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye);
@@ -173,7 +174,8 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	if(potato)
 	{
 		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
-		potato->updatePosition(rotation/2);
+		potato->rot = rotation/2;
+		potato->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV && environmentMapsRealtimeUpdate)
 			potato->updateIllumination(solver);
 		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye);

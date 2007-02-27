@@ -128,6 +128,7 @@ enum {
 class Level
 {
 public:
+	Autopilot pilot;
 	de::Model_3DS m3ds;
 	de::TMapQ3 bsp;
 	class Solver* solver;
@@ -136,7 +137,7 @@ public:
 	de::RendererWithCache* rendererCaching;
 	bool isBsp;
 
-	Level(const char* filename);
+	Level(const LevelSetup* levelSetup);
 	~Level();
 };
 
@@ -469,6 +470,8 @@ protected:
 // Dynamic objects
 
 using namespace rr;
+void reportEyeMovement();
+void reportLightMovement();
 
 class DynamicObjectAI
 {
@@ -618,6 +621,10 @@ public:
 	{
 		return dynaobject[MIN(objIndex,DYNAOBJECTS)]->worldFoot;
 	}
+	const rr::RRReal getRot(unsigned objIndex)
+	{
+		return dynaobject[MIN(objIndex,DYNAOBJECTS)]->rot;
+	}
 	void setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 	{
 		if(objIndex<DYNAOBJECTS) 
@@ -629,15 +636,41 @@ public:
 	void updateSceneDynamic(float seconds, unsigned onlyDynaObjectNumber=1000)
 	{
 		// increment rotation
-		static float rot = 0;
-		rot = (timeGetTime()%10000000)*0.07f;
+		float rot = seconds*70;
 		// move objects
-		for(unsigned i=0;i<DYNAOBJECTS;i++)
+		bool lightsChanged = false;
+		const AutopilotFrame* frame = level ? level->pilot.autopilot(seconds,&lightsChanged) : NULL;
+		if(frame)
 		{
-			if(dynaobject[i] && (i==onlyDynaObjectNumber || onlyDynaObjectNumber>999))
+			// autopilot movement
+			assert(onlyDynaObjectNumber==1000);
+			if(lightsChanged)
 			{
-				dynaobject[i]->worldFoot = dynaobjectAI[i].updatePosition(seconds);
-				dynaobject[i]->updatePosition(rot);
+				light = frame->eyeLight[1];
+				reportLightMovement();
+				eye = frame->eyeLight[0];
+				reportEyeMovement();
+			}
+			for(unsigned i=0;i<DYNAOBJECTS;i++)
+			{
+				dynaobject[i]->worldFoot = rr::RRVec3(frame->dynaPosRot[i][0],frame->dynaPosRot[i][1],frame->dynaPosRot[i][2]);
+				dynaobject[i]->rot += rot * ((i%2)?1:-1);// + frame->dynaPosRot[i][3];
+				dynaobject[i]->updatePosition();
+				// copy changes to AI
+				dynaobjectAI[i].pos = dynaobject[i]->worldFoot;
+			}
+		}
+		else
+		{
+			// AI movement
+			for(unsigned i=0;i<DYNAOBJECTS;i++)
+			{
+				if(dynaobject[i] && (i==onlyDynaObjectNumber || onlyDynaObjectNumber>999))
+				{
+					dynaobject[i]->worldFoot = dynaobjectAI[i].updatePosition(seconds);
+					dynaobject[i]->rot += rot * ((i%2)?1:-1);
+					dynaobject[i]->updatePosition();
+				}
 			}
 		}
 	}
@@ -1192,7 +1225,7 @@ void showLogo(const de::Texture* logo)
 //
 // Level body
 
-Level::Level(const char* filename)
+Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 {
 	solver = NULL;
 	bugs = NULL;
@@ -1213,7 +1246,10 @@ Level::Level(const char* filename)
 	eye = tmpeye;
 	light = tmplight;
 
-	if(strstr(filename, "quake") || strstr(filename, "QUAKE")) {
+	eye = pilot.setup->frames[0].eyeLight[0];
+	light = pilot.setup->frames[0].eyeLight[1];
+
+	if(strstr(pilot.setup->filename, "quake") || strstr(pilot.setup->filename, "QUAKE")) {
 		scale_3ds = 0.05f;
 		//Camera tmpeye = {{4.533,0.732,3.848},2.150,-2.400,1.3,100.0,0.3,60.0};
 		//Camera tmplight = {{3.713,1.013,-3.391},1.045,-1.450,1.0,70.0,1.0,20.0};
@@ -1237,7 +1273,7 @@ Level::Level(const char* filename)
 		eye = tmpeye;
 		light = tmplight;
 	}
-	if(strstr(filename, "koupelna4")) {
+/*	if(strstr(filename, "koupelna4")) {
 		scale_3ds = 0.03f;
 		// dobry zacatek
 //		de::Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,60.0};
@@ -1392,19 +1428,19 @@ Level::Level(const char* filename)
 		de::Camera tmplight = {{876.157,13.782,521.345},7.430,2.350,1.0,70.0,1.0,100.0};
 		eye = tmpeye;
 		light = tmplight;
-	}
+	}*/
 
-	printf("Loading %s...",filename);
+	printf("Loading %s...",pilot.setup->filename);
 
-	isBsp = strlen(filename)>=4 && _stricmp(filename+strlen(filename)-4,".bsp")==0;
+	isBsp = strlen(pilot.setup->filename)>=4 && _stricmp(pilot.setup->filename+strlen(pilot.setup->filename)-4,".bsp")==0;
 
 	if(isBsp)
 	{
 		// load .bsp
-		if(!readMap(filename,bsp))
+		if(!readMap(pilot.setup->filename,bsp))
 			error("Failed to load .bsp scene.",false);
 		printf("\n");
-		char* maps = _strdup(filename);
+		char* maps = _strdup(pilot.setup->filename);
 		char* mapsEnd;
 		mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
 		mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
@@ -1415,7 +1451,7 @@ Level::Level(const char* filename)
 	else
 	{
 		// load .3ds scene
-		if(!m3ds.Load(filename,scale_3ds))
+		if(!m3ds.Load(pilot.setup->filename,pilot.setup->scale))
 			error("",false);
 		printf("\n");
 		insert3dsToRR(&m3ds,solver,&sp);
@@ -1563,7 +1599,7 @@ void display()
 	glutSwapBuffers();
 	//printf("cache: hits=%d misses=%d",rr::RRScene::getSceneStatistics()->numIrradianceCacheHits,rr::RRScene::getSceneStatistics()->numIrradianceCacheMisses);
 
-	// fallback to blurred shadows if fps<30
+	// fallback to blurred hard shadows if fps<30
 	static int framesDisplayed = 0;
 	static TIME frame0Time;
 	if(!framesDisplayed)
@@ -1690,11 +1726,14 @@ void special(int c, int x, int y)
 			showHint = 1;
 			break;
 		case GLUT_KEY_F9:
-			{printf("\n");
+			{
+			printf("  {\n");
+			printf("   {{{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f},\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+			printf("    {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}},\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
 			for(unsigned i=0;i<DYNAOBJECTS;i++)
-				printf("dynaobjects->setPos(%d,rr::RRVec3(%ff,%ff,%ff));\n",i,dynaobjects->getPos(i)[0],dynaobjects->getPos(i)[1],dynaobjects->getPos(i)[2]);
-			printf("de::Camera tmpeye = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
-			printf("de::Camera tmplight = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f};\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
+				printf("   %c{%ff,%ff,%ff,%ff}%c,\n",i?' ':'{',dynaobjects->getPos(i)[0],dynaobjects->getPos(i)[1],dynaobjects->getPos(i)[2],fmodf(dynaobjects->getRot(i),2*3.14159f),(i==DYNAOBJECTS-1)?'}':' ');
+			printf("   8\n");
+			printf("  },\n");
 			return;}
 
 		case GLUT_KEY_UP:
@@ -2103,6 +2142,7 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
+	if(level) level->pilot.reportInteraction();
 	if(showHint)
 	{
 		showHint = false;
@@ -2132,6 +2172,7 @@ void mouse(int button, int state, int x, int y)
 
 void passive(int x, int y)
 {
+	if(level) level->pilot.reportInteraction();
 	if(!winWidth || !winHeight) return;
 	LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
 	x -= winWidth/2;
@@ -2159,6 +2200,13 @@ void passive(int x, int y)
 void idle()
 {
 	if(!winWidth) return; // can't work without window
+
+	if(level && level->pilot.isTimeToChangeLevel())
+	{
+		showImage(loadingMap);
+		delete level;
+		level = NULL;
+	}
 
 	// 1. move movables
 	// 2. calculate (optionally update all depthmaps)
@@ -2291,7 +2339,7 @@ void parseOptions(int argc, char **argv)
 			startWithSoftShadows = 0;
 		}
 		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS") || strstr(argv[i], ".bsp") || strstr(argv[i], ".BSP")) {
-			levelSequence.insertLevelFront(argv[i]);
+			levelSequence.insertLevelFront(LevelSetup::create(argv[i]));
 		}
 	}
 }

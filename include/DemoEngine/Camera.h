@@ -28,13 +28,13 @@ public:
 	float    angle;
 	float    height;
 	//! Camera's aspect, horizontal field of view / vertical field of view.
-	GLdouble aspect;
+	float    aspect;
 	//! Camera's horizontal field of view in degrees. Must be positive and less than 180.
-	GLdouble fieldOfView;
+	float    fieldOfView;
 	//! Camera's near plane distance in world units. Must be positive.
-	GLdouble anear;
+	float    anear;
 	//! Camera's far plane distance in world units. Must be greater than near.
-	GLdouble afar;
+	float    afar;
 
 	// outputs, to be calculated by update() and possibly readen by user
 

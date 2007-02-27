@@ -337,6 +337,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\Autopilot.h"
+			>
+		</File>
+		<File
 			RelativePath=".\Bugs.cpp"
 			>
 		</File>

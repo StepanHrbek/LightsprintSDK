@@ -27,9 +27,9 @@ public:
 	//! Returns reference to our .3ds model.
 	const de::Model_3DS& getModel();
 
-	//! Updates object's position according to worldFoot position and rotation.
+	//! Updates object's position according to worldFoot position and rot rotation.
 	//! To be called each time object moves/rotates.
-	void updatePosition(float rotation);
+	void updatePosition();
 
 	//! Updates object's illumination.
 	//! Expects that position was already updated or it hasn't changed.
@@ -45,6 +45,7 @@ public:
 
 	// object's interface for movement, freely changeable from outside
 	rr::RRVec3 worldFoot;
+	rr::RRReal rot;
 
 	// updated by updateIllumination, public only for save & load
 	rr::RRIlluminationEnvironmentMap* specularMap;

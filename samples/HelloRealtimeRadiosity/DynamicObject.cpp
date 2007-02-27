@@ -50,7 +50,7 @@ const de::Model_3DS& DynamicObject::getModel()
 	return model;
 }
 
-void DynamicObject::updatePosition(float rot)
+void DynamicObject::updatePosition()
 {
 	// set matrices
 	glPushMatrix();
