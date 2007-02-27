@@ -1,0 +1,1 @@
+@c:\progra~1\winrar\rar a -r -s -sfx -zpack.sfx -ep1 -m0 ..\..\LightsprintDemo1.0 ..\..\tmp\LightsprintDemo\

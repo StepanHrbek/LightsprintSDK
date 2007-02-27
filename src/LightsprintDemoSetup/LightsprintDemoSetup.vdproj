@@ -219,12 +219,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_346EF74A24764C989A426A263D04002E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_358327F7EB4B4AED8D9BB16DCEC0325C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -847,13 +841,24 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                }
+            }
         }
         "Release"
         {
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:LightsprintDemo.msi"
+        "OutputFilename" = "8:..\\..\\tmp\\LightsprintDemo\\LightsprintDemo.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -865,9 +870,9 @@
         "InstallerBootstrapper" = "3:2"
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
-            "Enabled" = "11:FALSE"
+            "Enabled" = "11:TRUE"
             "PromptEnabled" = "11:TRUE"
-            "PrerequisitesLocation" = "2:1"
+            "PrerequisitesLocation" = "2:2"
             "Url" = "8:"
             "ComponentsUrl" = "8:H:\\archiv\\c\\vc"
                 "Items"
@@ -877,6 +882,11 @@
                     "Name" = "8:Visual C++ Runtime Libraries (x86)"
                     "ProductCode" = "8:Microsoft.Visual.C++.8.0.x86"
                     }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
                 }
             }
         }
@@ -885,20 +895,6 @@
     {
         "CustomAction"
         {
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_49CB109161C941A98AF9445D7BE3E0E7"
-            {
-            "Name" = "8:vcredist_x86.exe"
-            "Condition" = "8:"
-            "Object" = "8:_346EF74A24764C989A426A263D04002E"
-            "FileType" = "3:2"
-            "InstallAction" = "3:2"
-            "Arguments" = "8:"
-            "EntryPoint" = "8:"
-            "Sequence" = "3:1"
-            "Identifier" = "8:_FBE1209D_EC09_4AE5_AD5C_03BAAD5B6EB8"
-            "InstallerClass" = "11:FALSE"
-            "CustomActionData" = "8:"
-            }
         }
         "DefaultFeature"
         {
@@ -1580,26 +1576,6 @@
             "TargetName" = "8:trunk.jpg"
             "Tag" = "8:"
             "Folder" = "8:_9523C4FF74994DF8BDC7313F10ACD6E0"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_346EF74A24764C989A426A263D04002E"
-            {
-            "SourcePath" = "8:vcredist_x86.exe"
-            "TargetName" = "8:vcredist_x86.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_7B5F508C96AB42C99334DC37862CCE80"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3976,11 +3952,11 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lightsprint Demo"
         "ProductCode" = "8:{173DB0AF-A86C-406F-A85A-2B4F2E55FDE4}"
-        "PackageCode" = "8:{F9A77916-83B0-486C-B928-693BD1588E3D}"
+        "PackageCode" = "8:{79B209FD-94AA-4467-8599-33E5AF36D97D}"
         "UpgradeCode" = "8:{1E189F0B-5B06-46A7-AE14-C75451CD9791}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
-        "DetectNewerInstalledVersion" = "11:TRUE"
+        "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
         "Manufacturer" = "8:Lightsprint"
@@ -3998,7 +3974,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:"
+        "PostBuildEvent" = "8:cd $(ProjectDir)\r\npack.bat"
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"
@@ -4139,7 +4115,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A8C0489E83014324B3F3D0085669950D"
             {
-            "Name" = "8:Lightsprint website"
+            "Name" = "8:Lightsprint Website"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"

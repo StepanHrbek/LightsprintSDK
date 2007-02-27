@@ -1562,6 +1562,28 @@ void display()
 
 	glutSwapBuffers();
 	//printf("cache: hits=%d misses=%d",rr::RRScene::getSceneStatistics()->numIrradianceCacheHits,rr::RRScene::getSceneStatistics()->numIrradianceCacheMisses);
+
+	// fallback to blurred shadows if fps<30
+	static int framesDisplayed = 0;
+	static TIME frame0Time;
+	if(!framesDisplayed)
+		frame0Time = GETTIME;
+	if(framesDisplayed>0)
+	{
+		float secs = (GETTIME-frame0Time)/(float)PER_SEC;
+		if(secs>1)
+		{
+			if(framesDisplayed<30 && areaLight->getNumInstances()>1 && uberProgramGlobalSetup.SHADOW_SAMPLES==4)
+			{
+				areaLight->setNumInstances(1);
+				setupAreaLight();
+				//uberProgramGlobalSetup.SHADOW_MAPS = 1;
+			}
+			framesDisplayed = -1; // disable
+		}
+	}
+	if(framesDisplayed>=0)
+		framesDisplayed++;
 }
 
 void toggleWireFrame(void)
@@ -2052,22 +2074,18 @@ void keyboardUp(unsigned char c, int x, int y)
 {
 	switch(c)
 	{
-		case '1':
 		case 'a':
 		case 'A':
 			specialUp(GLUT_KEY_LEFT,0,0);
 			break;
-		case '2':
 		case 's':
 		case 'S':
 			specialUp(GLUT_KEY_DOWN,0,0);
 			break;
-		case '3':
 		case 'd':
 		case 'D':
 			specialUp(GLUT_KEY_RIGHT,0,0);
 			break;
-		case '5':
 		case 'w':
 		case 'W':
 			specialUp(GLUT_KEY_UP,0,0);
