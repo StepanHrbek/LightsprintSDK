@@ -1078,8 +1078,8 @@ static void drawHelpMessage(bool big)
 		" space         - change spotlight texture",
 		" p             - pause/resume characters",
 		" 1/2/3/4/5/6/7 - move character to the center of screen",
+		" F11           - save screenshot",
 /*
-TODO: " F11           - save screenshot"
 		" space - toggle global illumination",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
 		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
@@ -1526,6 +1526,10 @@ void display()
 	if(skipFrames)
 	{
 		skipFrames--;
+		// update dynobjects when movement is paused
+		// without this update, dynobjects would have bad pos after "pause, next level"
+		if(paused)
+			dynaobjects->updateSceneDynamic(0);
 		return;
 	}
 
