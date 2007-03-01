@@ -1243,9 +1243,7 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 	eye = tmpeye;
 	light = tmplight;
 
-	eye = pilot.setup->frames[0].eyeLight[0];
-	light = pilot.setup->frames[0].eyeLight[1];
-
+/*
 	if(strstr(pilot.setup->filename, "quake") || strstr(pilot.setup->filename, "QUAKE")) {
 		scale_3ds = 0.05f;
 		//Camera tmpeye = {{4.533,0.732,3.848},2.150,-2.400,1.3,100.0,0.3,60.0};
@@ -1266,36 +1264,6 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 		dynaobjects->setPos(3,rr::RRVec3(10.71f,0.711f,0.38f));
 		dynaobjects->setPos(4,rr::RRVec3(12.71f,1.711f,0.38f));
 		dynaobjects->setPos(5,rr::RRVec3(8.71f,0.711f,0.38f));
-
-		eye = tmpeye;
-		light = tmplight;
-	}
-/*	if(strstr(filename, "koupelna4")) {
-		scale_3ds = 0.03f;
-		// dobry zacatek
-//		de::Camera tmpeye = {{-3.448,1.953,1.299},8.825,0.100,1.3,95.0,0.3,60.0};
-//		de::Camera tmplight = {{-1.802,0.715,0.850},3.600,-1.450,1.0,70.0,1.0,20.0};//!!!
-		// shoty do doxy
-		//Camera tmpeye = {{-3.842,1.429,-0.703},8.165,-0.050,1.3,100.0,0.3,60.0}; // red
-		//Camera tmplight = {{-1.802,0.715,0.850},1.250,0.050,1.0,70.0,1.0,20.0};
-		//Camera tmpeye = {{-3.842,1.429,-0.703},8.165,-0.050,1.3,100.0,0.3,60.0}; // blue
-		//Camera tmplight = {{-0.626,0.927,-4.018},2.010,-3.400,1.0,70.0,1.0,20.0};
-		//Camera tmpeye = {{-3.842,1.429,-0.703},8.165,-0.050,1.3,100.0,0.3,60.0}; // white
-		//Camera tmplight = {{-0.759,3.520,-0.736},-1.950,8.800,1.0,70.0,1.0,20.0};
-		// backlight bug
-		//Camera tmpeye = {{-0.273,4.571,3.438},10.085,9.250,1.3,75.0,0.3,60.0};
-		//Camera tmplight = {{-2.379,2.074,3.170},0.495,-0.100,1.0,70.0,1.0,20.0};
-		//Camera koupelna4_eye = {{0.032202,1.659255,1.598609},10.010005,-0.150000};
-		//Camera koupelna4_light = {{-1.309976,0.709500,0.498725},3.544996,-10.000000};
-//		Camera koupelna4_eye = {{-3.742134,1.983256,0.575757},9.080003,0.000003, 1.,50.,0.3,60.};
-//		Camera koupelna4_light = {{-1.801678,0.715500,0.849606},3.254993,-3.549996, 1.,70.,1.,20.};
-		//Camera koupelna4_eye = {{0.823,1.500,-0.672},11.055,-0.050,1.3,100.0,0.3,60.0};//wrong backprojection
-		//Camera koupelna4_light = {{-1.996,0.257,-2.205},0.265,-1.000,1.0,70.0,1.0,20.0};
-//		if(areaLight) areaLight->setNumInstances(INSTANCES_PER_PASS);
-		de::Camera tmpeye = {{-3.168,1.357,1.196},8.820,0.100,1.3,75.0,0.3,1000.0};
-		de::Camera tmplight = {{-0.791,1.370,1.286},3.560,1.000,1.0,70.0,1.0,20.0};
-		dynaobjects->setPos(1,rr::RRVec3(-3.975068f,0.001701f,-1.542336f));
-		dynaobjects->setPos(6,rr::RRVec3(-0.830257f,0.000000f,0.267133f));
 
 		eye = tmpeye;
 		light = tmplight;
@@ -1359,51 +1327,6 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 		eye = tmpeye;
 		light = tmplight;
 //		if(areaLight) areaLight->setNumInstances(1);
-	}
-	if(strstr(filename, "bgmp6"))
-	{
-		//de::Camera tmpeye = {{-21.363,4.126,4.916},-1.130,-0.200,1.3,100.0,0.3,1000.0};
-		//de::Camera tmplight = {{-18.121,16.917,-1.478},-0.665,3.250,1.0,70.0,1.0,100.0};
-		//dynaobjects->setPos(0,rr::RRVec3(-29.269781f,0.000000f,7.809418f));
-		de::Camera tmpeye = {{-5.697,7.158,1.387},6.290,-0.800,1.3,100.0,0.3,1000.0};
-		de::Camera tmplight = {{-0.024,9.210,-1.269},-0.525,0.250,1.0,70.0,1.0,100.0};
-		dynaobjects->setPos(0,rr::RRVec3(-8.363172f,5.760000f,4.683187f));
-		dynaobjects->setPos(1,rr::RRVec3(-7.326083f,5.760000f,6.007026f));
-		dynaobjects->setPos(2,rr::RRVec3(-5.061197f,5.760000f,2.705249f));
-		dynaobjects->setPos(3,rr::RRVec3(-6.478352f,5.760000f,6.478024f));
-		dynaobjects->setPos(4,rr::RRVec3(-3.926589f,5.760000f,5.671493f));
-		dynaobjects->setPos(5,rr::RRVec3(-7.429742f,5.760000f,6.278121f));
-		dynaobjects->setPos(6,rr::RRVec3(-4.533218f,5.760000f,4.412916f));
-		eye = tmpeye;
-		light = tmplight;
-	}
-	if(strstr(filename, "bgmp8"))
-	{
-		de::Camera tmpeye = {{36.850,12.168,-43.340},10.760,-0.050,1.3,100.0,0.3,1000.0};
-		de::Camera tmplight = {{27.969,16.885,-43.744},8.155,13.000,1.0,70.0,1.0,100.0};
-		dynaobjects->setPos(0,rr::RRVec3(31.042772f,10.559999f,-43.499130f));
-		dynaobjects->setPos(1,rr::RRVec3(32.079849f,12.067107f,-42.175293f));
-		dynaobjects->setPos(2,rr::RRVec3(34.195068f,10.559999f,-43.951180f));
-		dynaobjects->setPos(3,rr::RRVec3(32.927589f,12.069320f,-41.704296f));
-		dynaobjects->setPos(4,rr::RRVec3(35.479355f,10.559999f,-42.510826f));
-		dynaobjects->setPos(5,rr::RRVec3(31.976198f,12.066398f,-41.904198f));
-		dynaobjects->setPos(6,rr::RRVec3(34.872726f,10.559999f,-43.769405f));
-		eye = tmpeye;
-		light = tmplight;
-	}
-	if(strstr(filename, "x3map05"))
-	{
-		de::Camera tmpeye = {{7.350,1.276,-35.660},5.595,1.600,1.3,100.0,0.3,1000.0};
-		de::Camera tmplight = {{14.656,8.870,-31.717},-1.635,4.750,1.0,70.0,1.0,100.0};
-		dynaobjects->setPos(0,rr::RRVec3(3.103311f,3.685109f,-33.308819f));
-		dynaobjects->setPos(1,rr::RRVec3(4.140399f,4.034876f,-31.984976f));
-		dynaobjects->setPos(2,rr::RRVec3(6.255607f,0.998043f,-33.760864f));
-		dynaobjects->setPos(3,rr::RRVec3(4.988131f,0.000000f,-31.513979f));
-		dynaobjects->setPos(4,rr::RRVec3(7.539894f,0.997678f,-32.320515f));
-		dynaobjects->setPos(5,rr::RRVec3(4.036740f,4.528148f,-31.713884f));
-		dynaobjects->setPos(6,rr::RRVec3(6.933264f,0.994990f,-33.579090f));
-		eye = tmpeye;
-		light = tmplight;
 	}
 	if(strstr(filename, "bastir"))
 	{
@@ -1521,6 +1444,7 @@ Level::~Level()
 void display()
 {
 	if(!winWidth) return; // can't work without window
+	static unsigned skipFrames = 0;
 	//printf("<Display.>");
 	if(!level)
 	{
@@ -1533,6 +1457,8 @@ void display()
 		for(unsigned i=0;i<12;i++)
 #endif
 			level->solver->calculate();
+		// don't display first frame, characters have bad position (dunno why)
+		skipFrames = 1;
 	}
 	if(showHint)
 	{
@@ -1593,7 +1519,18 @@ void display()
 
 	drawHelpMessage(showHelp);
 
+	// skip first frame in level
+	// character positions are wrong (dunno why)
+	// it is always longer because buffers and display lists are created,
+	//  so don't count it into average fps
+	if(skipFrames)
+	{
+		skipFrames--;
+		return;
+	}
+
 	glutSwapBuffers();
+
 	//printf("cache: hits=%d misses=%d",rr::RRScene::getSceneStatistics()->numIrradianceCacheHits,rr::RRScene::getSceneStatistics()->numIrradianceCacheMisses);
 
 	// fallback to hard shadows if fps<30
@@ -1728,8 +1665,8 @@ void special(int c, int x, int y)
 		case GLUT_KEY_F9:
 			{
 			printf("  {\n");
-			printf("   {{{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f},\n",eye.pos[0],eye.pos[1],eye.pos[2],eye.angle,eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
-			printf("    {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}},\n",light.pos[0],light.pos[1],light.pos[2],light.angle,light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
+			printf("   {{{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f},\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+10*3.14159f,2*3.14159f),eye.height,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+			printf("    {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}},\n",light.pos[0],light.pos[1],light.pos[2],fmodf(light.angle+10*3.14159f,2*3.14159f),light.height,light.aspect,light.fieldOfView,light.anear,light.afar);
 			for(unsigned i=0;i<DYNAOBJECTS;i++)
 				printf("   %c{%ff,%ff,%ff,%ff}%c,\n",i?' ':'{',dynaobjects->getPos(i)[0],dynaobjects->getPos(i)[1],dynaobjects->getPos(i)[2],fmodf(dynaobjects->getRot(i),2*3.14159f),(i==DYNAOBJECTS-1)?'}':' ');
 			printf("   8\n");
@@ -2162,11 +2099,13 @@ void mouse(int button, int state, int x, int y)
 	{
 		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
 		needMatrixUpdate = 1;
+		needRedisplay = 1;
 	}
 	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
 		if(eye.fieldOfView<130) eye.fieldOfView+=10;
 		needMatrixUpdate = 1;
+		needRedisplay = 1;
 	}
 }
 
@@ -2219,23 +2158,21 @@ void idle()
 	// keyboard movements with key repeat turned off
 	static TIME prev = 0;
 	TIME now = GETTIME;
-	if(prev && now!=prev)
+	float seconds = (now-prev)/(float)PER_SEC;//timer.Watch();
+	if(!prev || now==prev) seconds = 0;
+	CLAMP(seconds,0.001f,0.3f);
+	de::Camera* cam = modeMovingEye?&eye:&light;
+	if(speedForward) cam->moveForward(speedForward*seconds);
+	if(speedBack) cam->moveBack(speedBack*seconds);
+	if(speedRight) cam->moveRight(speedRight*seconds);
+	if(speedLeft) cam->moveLeft(speedLeft*seconds);
+	if(speedForward || speedBack || speedRight || speedLeft)
 	{
-		float seconds = (now-prev)/(float)PER_SEC;//timer.Watch();
-		CLAMP(seconds,0.001f,0.3f);
-		de::Camera* cam = modeMovingEye?&eye:&light;
-		if(speedForward) cam->moveForward(speedForward*seconds);
-		if(speedBack) cam->moveBack(speedBack*seconds);
-		if(speedRight) cam->moveRight(speedRight*seconds);
-		if(speedLeft) cam->moveLeft(speedLeft*seconds);
-		if(speedForward || speedBack || speedRight || speedLeft)
-		{
-			//printf(" %f ",seconds);
-			if(cam==&light) reportLightMovement(); else reportEyeMovement();
-		}
-		if(!paused)
-			dynaobjects->updateSceneDynamic(seconds);
+		//printf(" %f ",seconds);
+		if(cam==&light) reportLightMovement(); else reportEyeMovement();
 	}
+	if(!paused)
+		dynaobjects->updateSceneDynamic(seconds);
 	prev = now;
 
 	if(movingEye && !--movingEye)

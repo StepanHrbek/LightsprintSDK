@@ -32,9 +32,11 @@ DynamicObject::DynamicObject()
 {
 	rendererWithoutCache = NULL;
 	rendererCached = NULL;
+	specularCubeSize = 0;
 	diffuseMap = NULL;
 	specularMap = NULL;
 	worldFoot = rr::RRVec3(0);
+	rot = 0;
 }
 
 DynamicObject::~DynamicObject()
