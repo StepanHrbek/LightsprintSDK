@@ -60,7 +60,7 @@ class Autopilot
 public:
 	enum 
 	{
-		TIME_TO_AUTOPILOT    = 30, // seconds, time of inactivity before autopilot starts
+		TIME_TO_AUTOPILOT    = 20, // seconds, time of inactivity before autopilot starts
 		TIME_OF_FLIGHT       = 5,  // seconds, length of flight between two frames
 		TIME_OF_STAY_STILL   = 4,  // seconds, length of flight between two frames
 		TIME_TO_CHANGE_LEVEL = 100,
@@ -76,6 +76,7 @@ public:
 	}
 	void reportInteraction()
 	{
+		printf(".");
 		lastInteractionTime = GETTIME;
 		enabled = false;
 	}
@@ -140,6 +141,7 @@ private:
 	// picks next frame that was less often selected
 	unsigned getNextFrame()
 	{
+		//static unsigned q=0;return q++%LevelSetup::MAX_FRAMES;
 		unsigned best = 0;
 		for(unsigned i=0;i<100;i++)
 		{

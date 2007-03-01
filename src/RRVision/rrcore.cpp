@@ -86,6 +86,11 @@ void* realloc(void* p,size_t oldsize,size_t newsize)
 	// this simulated realloc prevents real but buggy realloc from crashing rr (seen in DJGPP)
 	// it is also faster (seen in MinGW)
 	void *q=malloc(newsize);
+	if(!q)
+	{
+		printf("Out of memory, exiting!\n");
+		exit(1);
+	}
 	if(p)
 	{
 		memcpy(q,p,MIN(oldsize,newsize));
