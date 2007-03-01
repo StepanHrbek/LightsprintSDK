@@ -70,13 +70,13 @@ public:
 		memset(this,0,sizeof(*this));
 		setup = levelSetup;
 		enabled = true;
-		lastInteractionTime = GETTIME - TIME_TO_AUTOPILOT*PER_SEC;
+		secondsSinceLastInteraction = TIME_TO_AUTOPILOT;
 		frameA = getNextFrame();
 		frameB = getNextFrame();
 	}
 	void reportInteraction()
 	{
-		lastInteractionTime = GETTIME;
+		secondsSinceLastInteraction = 0;
 		enabled = false;
 	}
 
@@ -84,22 +84,18 @@ public:
 	const AutopilotFrame* autopilot(float seconds, bool* lightsChanged)
 	{
 		*lightsChanged = false;
+		secondsSinceLastInteraction += seconds;
 		if(!enabled)
 		{
-			if(GETTIME-lastInteractionTime>TIME_TO_AUTOPILOT*PER_SEC)
+			if(secondsSinceLastInteraction>TIME_TO_AUTOPILOT)
 				enabled = true;
 			else
 				return NULL;
 		}
-		TIME now = GETTIME;
-		if(!frameATime)
-		{
-			frameATime = now;
-			alpha = 0;
-		}
-		float secondsSinceFrameA = (now-frameATime)/(float)PER_SEC;
+		secondsSinceFrameA += seconds;
 		float secondsOfTransition = secondsSinceFrameA - TIME_OF_STAY_STILL;
-		if(secondsSinceFrameA && secondsOfTransition<0)
+		float alpha = 0; // 0..1 where 0 is frameA, 1 is frameB
+		if(secondsSinceFrameA!=seconds && secondsOfTransition<0)
 		{
 			// part with no change
 			int i=1;
@@ -113,28 +109,25 @@ public:
 				frameA = frameB;
 				frameB = getNextFrame();
 				alpha = 0;
-				frameATime = now;
+				secondsSinceFrameA = 0;
 			}
 			*lightsChanged = true;
 		}
-		return (alpha<0) ? &setup->frames[frameA] : setup->frames[frameA].blend(&setup->frames[frameB],alpha);
+		return (alpha<=0) ? &setup->frames[frameA] : setup->frames[frameA].blend(&setup->frames[frameB],alpha);
 	}
 
 	bool isTimeToChangeLevel()
 	{
-		if(!lastInteractionTime)
-			lastInteractionTime = GETTIME;
-		return GETTIME-lastInteractionTime>(TIME_TO_CHANGE_LEVEL+TIME_TO_AUTOPILOT)*PER_SEC;
+		return secondsSinceLastInteraction>TIME_TO_CHANGE_LEVEL+TIME_TO_AUTOPILOT;
 	}
 
 	const LevelSetup* setup;
 private:
 	bool enabled;
-	TIME lastInteractionTime;
-	TIME frameATime;
+	float secondsSinceLastInteraction;
+	float secondsSinceFrameA;
 	unsigned frameA; // 0..MAX_FRAMES-1
 	unsigned frameB; // 0..MAX_FRAMES-1
-	float alpha; // 0..1 where 0 is frameA, 1 is frameB
 	char frameVisitedTimes[LevelSetup::MAX_FRAMES]; // how many times was frame visited
 
 	// picks next frame that was less often selected
