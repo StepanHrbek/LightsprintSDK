@@ -20,9 +20,6 @@
 //  l = Load maps from disk, stop realtime global illumination
 //  r = return to Realtime global illumination
 //
-// Soft shadow quality is reduced due to bug in ATI drivers.
-// Improve it on NVIDIA by deleting lines with NVIDIA in comment.
-//
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
@@ -330,10 +327,10 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,solver->getNumObjects(),
 					solver->getIllumination(i)->getChannel(0)->pixelBuffer->getWidth(),solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
-				rr::RRRealtimeRadiosity::IlluminationMapParameters params;
+				rr::RRRealtimeRadiosity::UpdateLightmapParameters params;
 				params.quality = 1000;
 				params.insideObjectsTreshold = 0.1f;
-				solver->updateAmbientMap(i,NULL,&params);
+				solver->updateLightmap(i,NULL,&params);
 				printf(" done.\n");
 			}
 			// stop updating maps in realtime, stay with what we computed here
@@ -541,11 +538,10 @@ int main(int argc, char **argv)
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
-	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram);
-	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
-	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
 #ifdef AMBIENT_MAPS
-	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
+	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,true);
+#else
+	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,false);
 #endif
 	if(!shadowmapsPerPass) error("",true);
 	

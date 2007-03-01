@@ -1,10 +1,7 @@
 //#define BUGS
 #define DYNAOBJECTS                7   // 0..7
 #define MAX_INSTANCES              50  // max number of light instances aproximating one area light
-#define MAX_INSTANCES_PER_PASS     10
-unsigned INSTANCES_PER_PASS = 6; // 5 je max pro X800pro, 6 je max pro 6150, 7 je max pro 6600
-#define INITIAL_INSTANCES_PER_PASS INSTANCES_PER_PASS
-#define INITIAL_PASSES             1
+unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define SUBDIVISION                0
@@ -682,7 +679,7 @@ public:
 		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR || uberProgramSetup.LIGHT_INDIRECT_MAP)
 		{
 			// indirect from envmap
-			uberProgramSetup.SHADOW_MAPS = 1;
+			uberProgramSetup.SHADOW_MAPS = 1; // always use 1 shadowmap, detectMaxShadowmaps expects it and ignores dynaobjects
 			//uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
@@ -1599,7 +1596,7 @@ void display()
 	glutSwapBuffers();
 	//printf("cache: hits=%d misses=%d",rr::RRScene::getSceneStatistics()->numIrradianceCacheHits,rr::RRScene::getSceneStatistics()->numIrradianceCacheMisses);
 
-	// fallback to blurred hard shadows if fps<30
+	// fallback to hard shadows if fps<30
 	static int framesDisplayed = 0;
 	static TIME frame0Time;
 	if(!framesDisplayed)
@@ -1612,8 +1609,11 @@ void display()
 			if(framesDisplayed<30 && areaLight->getNumInstances()>1 && uberProgramGlobalSetup.SHADOW_SAMPLES==4)
 			{
 				areaLight->setNumInstances(1);
+				// nvidia 6150 has free blur, set hard blurred
+				// ati x1600 has expensive blur, set hard
+				if(ati)
+					uberProgramGlobalSetup.SHADOW_SAMPLES = 1;
 				setupAreaLight();
-				//uberProgramGlobalSetup.SHADOW_MAPS = 1;
 			}
 			framesDisplayed = -1; // disable
 		}
@@ -2311,31 +2311,16 @@ void parseOptions(int argc, char **argv)
 
 	for (i=1; i<argc; i++) 
 	{
-		{
-			int tmp;
-			if(sscanf(argv[i],"%d",&tmp)==1)
-			{
-				if(tmp>=1 && tmp<=MAX_INSTANCES_PER_PASS) 
-				{
-					INSTANCES_PER_PASS = tmp;
-				}
-				else
-					printf("Out of range, 1 to 10 allowed.\n");
-			}
-		}
 		if (!strcmp("rx", argv[i])) {
 			resolutionx = atoi(argv[++i]);
 		}
 		if (!strcmp("ry", argv[i])) {
 			resolutiony = atoi(argv[++i]);
 		}
-		if (!strcmp("-ATI", argv[i])) {
-			ati = 1;
-		}
 		if (!strcmp("-window", argv[i])) {
 			fullscreen = 0;
 		}
-		if (!strcmp("-noAreaLight", argv[i])) {
+		if (!strcmp("-hard", argv[i])) {
 			startWithSoftShadows = 0;
 		}
 		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS") || strstr(argv[i], ".bsp") || strstr(argv[i], ".BSP")) {
@@ -2348,6 +2333,7 @@ void parseOptions(int argc, char **argv)
 int main(int argc, char **argv)
 {
 	Music n00ly("music/dlife.xm");
+	//Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
 	
 	srand(11);
 
@@ -2401,6 +2387,9 @@ int main(int argc, char **argv)
 	if(sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 		error("OpenGL 2.0 capable graphics card is required.\n",true);
 	init_gl_states();
+	const char* vendor = (const char*)glGetString(GL_VENDOR);
+	const char* renderer = (const char*)glGetString(GL_RENDERER);
+	ati = !vendor || !renderer || strstr(vendor,"ATI") || strstr(vendor,"AMD") || strstr(renderer,"Radeon");
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
@@ -2431,10 +2420,9 @@ int main(int argc, char **argv)
 	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
-	INSTANCES_PER_PASS = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,INSTANCES_PER_PASS);
-	if(ati && INSTANCES_PER_PASS>1) INSTANCES_PER_PASS--;
+	INSTANCES_PER_PASS = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,true);
 	if(!INSTANCES_PER_PASS) error("",true);
-	areaLight->setNumInstances(startWithSoftShadows?INITIAL_PASSES*INITIAL_INSTANCES_PER_PASS:1);
+	areaLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
 
 	if(rr::RRLicense::loadLicense("licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.",false);

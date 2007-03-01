@@ -80,9 +80,10 @@ struct DE_API UberProgramSetup
 	//! Returns uberProgram with parameter values defined by our attributes.
 	//! UberProgram with parameter values defined is Program.
 	Program* getProgram(UberProgram* uberProgram);
-	//! Returns the highest number of shadowmas that may be processed in one pass.
-	//! Workaround for bugs in AMD/ATI display driver is to subtract 2 from result.
-	static unsigned detectMaxShadowmaps(UberProgram* uberProgram, unsigned startWith=8);
+	//! Returns the highest number of shadowmas that may be processed in one pass
+	//! under standard conditions of diffuse material texture, projected light texture, indirect illumination per vertex.
+	//! If ambientMaps is true, indirect illumination in ambient maps is taken into account.
+	static unsigned detectMaxShadowmaps(UberProgram* uberProgram, bool ambientMaps);
 	//! Sets rendering pipeline so that following primitives are rendered using
 	//! our program.
 	Program* useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap);

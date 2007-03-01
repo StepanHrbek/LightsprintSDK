@@ -53,12 +53,20 @@ Program* UberProgramSetup::getProgram(UberProgram* uberProgram)
 	return uberProgram->getProgram(getSetupString());
 }
 
-unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigned startWith)
+unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, bool ambientMaps)
 {
 	unsigned instancesPerPass;
-	for(instancesPerPass=startWith;instancesPerPass;instancesPerPass--)
+#ifdef DESCEND
+	for(instancesPerPass=10;instancesPerPass;instancesPerPass--)
+	#define FAIL continue
+	#define SUCCESS break
+#else
+	for(instancesPerPass=1;instancesPerPass<10;instancesPerPass++)
+	#define FAIL {instancesPerPass--;break;}
+	#define SUCCESS
+#endif
 	{
-		// static object, maximize use of interpolators
+		// static object with light_indirect in vertex colors
 		UberProgramSetup uberProgramSetup;
 		uberProgramSetup.SHADOW_MAPS = instancesPerPass;
 		uberProgramSetup.SHADOW_SAMPLES = 4;
@@ -70,21 +78,19 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = true;
-		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
-		uberProgramSetup.OBJECT_SPACE = true;
-		uberProgramSetup.FORCE_2D_POSITION = false;
-		if(!uberProgramSetup.getProgram(uberProgram)) continue;
-		// static object, maximize use of samplers
-		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
-		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-		if(!uberProgramSetup.getProgram(uberProgram)) continue;
-		// dynamic object
+		uberProgramSetup.OBJECT_SPACE = false;
+		uberProgramSetup.FORCE_2D_POSITION = false;
+		if(!uberProgramSetup.getProgram(uberProgram)) FAIL;
+		// static object with light_indirect in ambient maps
+		if(ambientMaps)
+		{
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
+			uberProgramSetup.LIGHT_INDIRECT_MAP = true;
+			if(!uberProgramSetup.getProgram(uberProgram)) FAIL;
+		}
+		/*/ dynamic object
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
@@ -95,8 +101,10 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, unsigne
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		uberProgramSetup.MATERIAL_SPECULAR = true;
 		uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
-		if(!uberProgramSetup.getProgram(uberProgram)) continue;
-		break;
+		uberProgramSetup.OBJECT_SPACE = true;
+		if(!uberProgramSetup.getProgram(uberProgram)) FAIL;*/
+		// all shaders ok
+		SUCCESS;
 	}
 	return instancesPerPass;
 }

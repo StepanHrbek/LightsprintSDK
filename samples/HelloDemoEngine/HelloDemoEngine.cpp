@@ -13,9 +13,6 @@
 //  arrows = move around
 //  left button = switch between camera and light
 //
-// Soft shadow quality is reduced due to bug in ATI drivers.
-// Improve it on NVIDIA by deleting lines with NVIDIA in comment.
-//
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
@@ -288,9 +285,7 @@ int main(int argc, char **argv)
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// set shadowmapsPerPass=1 for standard shadows
-	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram);
-	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
-	if(shadowmapsPerPass>1) shadowmapsPerPass--; // needed because of bug in ATI drivers. delete to improve quality on NVIDIA.
+	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,false);
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
