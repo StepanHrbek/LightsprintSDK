@@ -1,17 +1,18 @@
 
-  LIGHTSPRINT REALTIME GLOBAL ILLUMINATION                          2007-02-27
+  LIGHTSPRINT REALTIME RADIOSITY                                    2007-03-02
   ----------------------------------------------------------------------------
 
   Demo features:
 
   - realtime computed global illumination
+  - realtime penumbra shadows
+  - realtime color bleeding
   - infinite light bounces
   - both diffuse and specular reflections
   - dynamic lights
   - dynamic objects
   - 100000 polygons on screen
   - 50 fps on 2 generations old integrated GeForce 6150
-  - up to 200 fps on GeForce 8800
   - no fakes, demo loads standard 3ds and Quake3 scenes
 
   Technology is immediately available for licensing.
@@ -32,12 +33,12 @@
   Commandline options
   -------------------
 
+  path/scene.bsp   Opens Quake 3 map.
+                   All textures should be in "path/..".
+                   Camera and light positions are not imported.
   path/scene.3ds   Opens 3ds scene with 1m units, no transformations.
                    Apply radiosity modifier in Max if possible.
                    All materials should have diffuse texture, in "path".
-                   Camera and light positions are not imported.
-  path/scene.bsp   Opens Quake 3 map.
-                   All textures should be in "path/..".
                    Camera and light positions are not imported.
 
 

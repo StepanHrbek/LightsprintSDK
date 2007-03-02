@@ -187,6 +187,7 @@ bool gameOn = 0;
 Level* level = NULL;
 LevelSequence levelSequence;
 class DynamicObjects* dynaobjects;
+bool shotRequested;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -323,8 +324,8 @@ void init_gl_resources()
 			error("",false);
 		}
 	}
-	loadingMap = de::Texture::load("maps\\rrbugs_loading.tga", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	hintMap = de::Texture::load("maps\\rrbugs_hint.tga", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	loadingMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	hintMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity_hints.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	lightsprintMap = de::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 
 	uberProgram = new de::UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
@@ -628,6 +629,7 @@ public:
 		{
 			dynaobjectAI[objIndex].pos = worldFoot;
 			dynaobject[objIndex]->worldFoot = worldFoot;
+			dynaobject[objIndex]->rot += 1.1f;
 		}
 	}
 	void updateSceneDynamic(float seconds, unsigned onlyDynaObjectNumber=1000)
@@ -1058,6 +1060,7 @@ static void output(int x, int y, const char *string)
 
 static void drawHelpMessage(bool big)
 {
+	if(shotRequested) return;
 //	if(!big && gameOn) return;
 
 	static const char *message[] = {
@@ -1073,12 +1076,13 @@ static void drawHelpMessage(bool big)
 		"",
 		"Extra controls:",
 		" F1/F2/F3      - hard/soft/penumbra shadows",
+		" F5            - hints",
+		" F11           - save screenshot",
 		" wheel         - zoom",
 		" enter         - hires fullscreen/640x480 window",
 		" space         - change spotlight texture",
 		" p             - pause/resume characters",
 		" 1/2/3/4/5/6/7 - move character to the center of screen",
-		" F11           - save screenshot",
 /*
 		" space - toggle global illumination",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
@@ -1533,6 +1537,19 @@ void display()
 		return;
 	}
 
+	if(shotRequested)
+	{
+		static unsigned shots = 0;
+		shots++;
+		char buf[100];
+		sprintf(buf,"LightsprintRealtimeRadiosity%02d.png",shots);
+		if(de::Texture::saveBackbuffer(buf))
+			printf("Saved %s.\n",buf);
+		else
+			printf("Error: Failed to saved %s.\n",buf);
+		shotRequested = 0;
+	}
+
 	glutSwapBuffers();
 
 	//printf("cache: hits=%d misses=%d",rr::RRScene::getSceneStatistics()->numIrradianceCacheHits,rr::RRScene::getSceneStatistics()->numIrradianceCacheMisses);
@@ -1663,6 +1680,10 @@ void special(int c, int x, int y)
 			uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
 			setupAreaLight();
 			break;
+		case GLUT_KEY_F11:
+			shotRequested = 1;
+			break;
+
 		case GLUT_KEY_F5:
 			showHint = 1;
 			break;
@@ -2175,7 +2196,7 @@ void idle()
 		//printf(" %f ",seconds);
 		if(cam==&light) reportLightMovement(); else reportEyeMovement();
 	}
-	if(!paused)
+	if(!paused && !showHint)
 		dynaobjects->updateSceneDynamic(seconds);
 	prev = now;
 
@@ -2187,7 +2208,7 @@ void idle()
 	{
 		reportLightMovementEnd();
 	}
-	if(animated && !paused)
+	if(animated && !paused && !showHint)
 	{
 		needDepthMapUpdate = 1;
 		needRedisplay = 1;
@@ -2361,7 +2382,7 @@ int main(int argc, char **argv)
 	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
-	INSTANCES_PER_PASS = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,true);
+	INSTANCES_PER_PASS = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,!true);
 	if(!INSTANCES_PER_PASS) error("",true);
 	areaLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
 

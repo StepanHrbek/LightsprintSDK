@@ -292,7 +292,7 @@ void main()
 				vec4(lightDirectColor,lightDirectColor,lightDirectColor,lightDirectColor) // per vertex
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
-				* texture2DProj(lightDirectMap, shadowCoord[0])
+				* texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
 			#endif
 			#if SHADOW_SAMPLES*SHADOW_MAPS>0
 				* shadowValue/float(SHADOW_SAMPLES*SHADOW_MAPS)

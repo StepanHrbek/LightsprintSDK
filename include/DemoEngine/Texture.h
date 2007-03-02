@@ -115,6 +115,9 @@ public:
 	//! Saves texture to disk and returns true on success.
 	//! See load() for description of parameters.
 	virtual bool save(const char* filename, const char* cubeSideName[6]) {return false;}
+
+	//! Saves backbuffer to disk and returns true on success.
+	static bool saveBackbuffer(const char* filename);
 };
 
 }; // namespace

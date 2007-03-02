@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="FCSS"
 	ProjectGUID="{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
+	RootNamespace="FCSS"
 	>
 	<Platforms>
 		<Platform
@@ -349,7 +350,15 @@
 			>
 		</File>
 		<File
+			RelativePath=".\FCSS.rc"
+			>
+		</File>
+		<File
 			RelativePath=".\LevelSequence.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\data\maps\LightsprintRealtimeRadiosity.ico"
 			>
 		</File>
 		<File
@@ -358,6 +367,10 @@
 		</File>
 		<File
 			RelativePath=".\Q3Loader.h"
+			>
+		</File>
+		<File
+			RelativePath=".\resource.h"
 			>
 		</File>
 		<File

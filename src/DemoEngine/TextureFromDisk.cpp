@@ -187,6 +187,33 @@ bool TextureGL::save(const char *filename, const char* cubeSideName[6])
 	return (bSuccess == TRUE) ? true : false;
 }
 
+// Purpose of this class:
+//  If you call save() on this texture, it will save backbuffer.
+class BackbufferSaver : public TextureGL
+{
+public:
+	BackbufferSaver() : TextureGL(NULL,1,1,false,GL_RGBA)
+	{
+		int rect[4];
+		glGetIntegerv(GL_VIEWPORT,rect);
+		width = rect[2];
+		height = rect[3];
+	}
+	virtual bool renderingToBegin(unsigned side = 0)
+	{
+		return true;
+	}
+	virtual void renderingToEnd()
+	{
+	}
+};
+
+bool Texture::saveBackbuffer(const char* filename)
+{
+	BackbufferSaver backbuffer;
+	return backbuffer.save(filename,NULL);
+}
+
 #else // !USE_FREEIMAGE
 
 /////////////////////////////////////////////////////////////////////////////
