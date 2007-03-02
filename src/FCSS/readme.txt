@@ -13,7 +13,7 @@
   - dynamic objects
   - 100000 polygons on screen
   - 50 fps on 2 generations old integrated GeForce 6150
-  - no fakes, demo loads standard 3ds and Quake3 scenes
+  - no preprocessing, demo loads standard 3ds and Quake3 scenes
 
   Technology is immediately available for licensing.
 
@@ -33,11 +33,11 @@
   Commandline options
   -------------------
 
-  path/scene.bsp   Opens Quake 3 map.
-                   All textures should be in "path/..".
+  path\scene.bsp   Opens Quake 3 map.
+                   All textures should be in "path\..\textures".
                    Camera and light positions are not imported.
-  path/scene.3ds   Opens 3ds scene with 1m units, no transformations.
-                   Apply radiosity modifier in Max if possible.
+  path\scene.3ds   Opens 3ds scene with 1m units, no transformations.
+                   Apply radiosity modifier in Max to enhance triangulation.
                    All materials should have diffuse texture, in "path".
                    Camera and light positions are not imported.
 
