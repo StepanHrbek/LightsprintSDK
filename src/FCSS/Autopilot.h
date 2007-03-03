@@ -83,9 +83,11 @@ public:
 	// generates new positions for eye, camera, characters
 	const AutopilotFrame* autopilot(float seconds, bool* lightsChanged)
 	{
+		pilotedFrames++;
 		*lightsChanged = false;
 		secondsSinceLastInteraction += seconds;
-		if(!enabled)
+		if(!enabled 
+			&& pilotedFrames>1) // must be enabled at least for one frame in each level
 		{
 			if(secondsSinceLastInteraction>TIME_TO_AUTOPILOT)
 				enabled = true;
@@ -95,7 +97,8 @@ public:
 		secondsSinceFrameA += seconds;
 		float secondsOfTransition = secondsSinceFrameA - TIME_OF_STAY_STILL;
 		float alpha = 0; // 0..1 where 0 is frameA, 1 is frameB
-		if(secondsSinceFrameA!=seconds && secondsOfTransition<0)
+		if(secondsSinceFrameA!=seconds // uz nevim proc
+			&& secondsOfTransition<0)
 		{
 			// part with no change
 			int i=1;
@@ -124,6 +127,7 @@ public:
 	const LevelSetup* setup;
 private:
 	bool enabled;
+	unsigned pilotedFrames; // number of frames
 	float secondsSinceLastInteraction;
 	float secondsSinceFrameA;
 	unsigned frameA; // 0..MAX_FRAMES-1

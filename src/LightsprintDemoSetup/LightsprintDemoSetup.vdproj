@@ -3978,7 +3978,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lightsprint Demo"
         "ProductCode" = "8:{173DB0AF-A86C-406F-A85A-2B4F2E55FDE4}"
-        "PackageCode" = "8:{89DB27C2-1532-43A5-9883-658634EF58F4}"
+        "PackageCode" = "8:{E8878B5C-A8A1-40F1-827D-543A4599ECD8}"
         "UpgradeCode" = "8:{1E189F0B-5B06-46A7-AE14-C75451CD9791}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -4000,7 +4000,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:cd $(ProjectDir)\r\npack.bat"
+        "PostBuildEvent" = "8:cd $(ProjectDir) && pack.bat"
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"

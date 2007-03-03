@@ -9,7 +9,7 @@
   - realtime color bleeding
   - infinite light bounces
   - both diffuse and specular reflections
-  - dynamic lights
+  - dynamic light
   - dynamic objects
   - 100000 polygons on screen
   - 50 fps on 2 generations old integrated GeForce 6150
@@ -49,6 +49,7 @@
   - Mark Kilgard, Nate Robins    : GLUT library
   - Milan Ikits, Marcelo Magallon: GLEW library
   - many contributors            : FreeImage library
+  - Firelight Technologies       : FMOD library
   - Matthew Fairfax              : 3ds loader
   - Nicolas Baudrey              : bsp loader
   - Vojta Nedved                 : "Difficult life" music
@@ -63,6 +64,12 @@
   - atp creations                : "Scary frog alien" model
   - Stora_tomtefar               : "Viking" model
   - Amethyst7                    : "Purple Nebula" skybox
+
+
+  History
+  -------
+  2007-03-03 version 1.1 - fixed autopilot
+  2007-03-02 version 1.0
 
 
   Contact

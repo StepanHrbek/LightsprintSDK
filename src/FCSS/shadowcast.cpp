@@ -8,6 +8,7 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           20
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
+//#define HIGH_DETAIL // uses high detail models
 bool ati = 1;
 int fullscreen = 0;
 bool animated = 1;
@@ -570,8 +571,13 @@ public:
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 0;
 		material.MATERIAL_NORMAL_MAP = 0;
+#ifdef HIGH_DETAIL
+		if(DYNAOBJECTS>3) dynaobject[3] = DynamicObject::create("3ds\\characters\\woman-statue HD.3ds",0.004f,material,4); // 44k
+		if(DYNAOBJECTS>5) dynaobject[5] = DynamicObject::create("3ds\\characters\\Jessie HD.3DS",0.022f,material,16);
+#else
 		if(DYNAOBJECTS>3) dynaobject[3] = DynamicObject::create("3ds\\characters\\woman-statue9.3ds",0.004f,material,4); // 9k
 		if(DYNAOBJECTS>5) dynaobject[5] = DynamicObject::create("3ds\\characters\\Jessie16.3DS",0.022f,material,16); // 16k
+#endif
 
 		// diff+specular map
 		material.MATERIAL_DIFFUSE = 1;
@@ -591,7 +597,11 @@ public:
 		material.MATERIAL_SPECULAR = 1;
 		material.MATERIAL_SPECULAR_MAP = 0;
 		material.MATERIAL_NORMAL_MAP = 0;
+#ifdef HIGH_DETAIL
+		if(DYNAOBJECTS>6) dynaobject[6] = DynamicObject::create("3ds\\characters\\I Robot female HD.3ds",0.024f,material,16);
+#else
 		if(DYNAOBJECTS>6) dynaobject[6] = DynamicObject::create("3ds\\characters\\I Robot female.3ds",0.24f,material,16); // 20k
+#endif
 
 		// static: quake = 28k
 
@@ -651,6 +661,7 @@ public:
 				reportEyeMovement();
 			}
 			for(unsigned i=0;i<DYNAOBJECTS;i++)
+			if(dynaobject[i])
 			{
 				dynaobject[i]->worldFoot = rr::RRVec3(frame->dynaPosRot[i][0],frame->dynaPosRot[i][1],frame->dynaPosRot[i][2]);
 				dynaobject[i]->rot += rot * ((i%2)?1:-1);// + frame->dynaPosRot[i][3];
