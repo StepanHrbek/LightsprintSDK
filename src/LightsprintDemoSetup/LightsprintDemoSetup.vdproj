@@ -813,6 +813,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F471D1CAB2C24581B53BA877B467DF8B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_F8240A875C344ACFB2C1AEB30B9FBDEE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3576,6 +3582,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F471D1CAB2C24581B53BA877B467DF8B"
+            {
+            "SourcePath" = "8:uninstall.bat"
+            "TargetName" = "8:uninstall.bat"
+            "Tag" = "8:"
+            "Folder" = "8:_7B5F508C96AB42C99334DC37862CCE80"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F8240A875C344ACFB2C1AEB30B9FBDEE"
             {
             "SourcePath" = "8:..\\..\\data\\shaders\\scaledown_filter.vp"
@@ -3978,7 +4004,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lightsprint Demo"
         "ProductCode" = "8:{173DB0AF-A86C-406F-A85A-2B4F2E55FDE4}"
-        "PackageCode" = "8:{E8878B5C-A8A1-40F1-827D-543A4599ECD8}"
+        "PackageCode" = "8:{CAA67CE8-B04F-4F95-AB6B-9FBE826C3DA1}"
         "UpgradeCode" = "8:{1E189F0B-5B06-46A7-AE14-C75451CD9791}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -3994,8 +4020,8 @@
         "Keywords" = "8:Lightsprint Realtime Radiosity Global Illumination"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:http://Lightsprint.com"
-        "ARPPRODUCTICON" = "8:"
-        "ARPIconIndex" = "3:0"
+        "ARPPRODUCTICON" = "8:_5B3D8940B15642B599A6B4CDFBC06918"
+        "ARPIconIndex" = "3:101"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
@@ -4137,6 +4163,20 @@
             "Folder" = "8:_EEB424F223464CC482379571B4A9EE9B"
             "WorkingFolder" = "8:_7B5F508C96AB42C99334DC37862CCE80"
             "Icon" = "8:_5B3D8940B15642B599A6B4CDFBC06918"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_9704E3A0977D4845A34543FB8548C707"
+            {
+            "Name" = "8:Uninstall Lightsprint Demo"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:7"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_F471D1CAB2C24581B53BA877B467DF8B"
+            "Folder" = "8:_6B528984A25A4F38992F22CCA8D5A632"
+            "WorkingFolder" = "8:_7B5F508C96AB42C99334DC37862CCE80"
+            "Icon" = "8:"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A8C0489E83014324B3F3D0085669950D"
