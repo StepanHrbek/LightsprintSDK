@@ -813,12 +813,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F471D1CAB2C24581B53BA877B467DF8B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F8240A875C344ACFB2C1AEB30B9FBDEE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3582,26 +3576,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F471D1CAB2C24581B53BA877B467DF8B"
-            {
-            "SourcePath" = "8:uninstall.bat"
-            "TargetName" = "8:uninstall.bat"
-            "Tag" = "8:"
-            "Folder" = "8:_7B5F508C96AB42C99334DC37862CCE80"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F8240A875C344ACFB2C1AEB30B9FBDEE"
             {
             "SourcePath" = "8:..\\..\\data\\shaders\\scaledown_filter.vp"
@@ -4163,20 +4137,6 @@
             "Folder" = "8:_EEB424F223464CC482379571B4A9EE9B"
             "WorkingFolder" = "8:_7B5F508C96AB42C99334DC37862CCE80"
             "Icon" = "8:_5B3D8940B15642B599A6B4CDFBC06918"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_9704E3A0977D4845A34543FB8548C707"
-            {
-            "Name" = "8:Uninstall Lightsprint Demo"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:7"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_F471D1CAB2C24581B53BA877B467DF8B"
-            "Folder" = "8:_6B528984A25A4F38992F22CCA8D5A632"
-            "WorkingFolder" = "8:_7B5F508C96AB42C99334DC37862CCE80"
-            "Icon" = "8:"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A8C0489E83014324B3F3D0085669950D"
