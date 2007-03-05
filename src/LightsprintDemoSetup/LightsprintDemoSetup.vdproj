@@ -255,6 +255,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_40BE3F7D4FBB4C79B64F4A94075B48DF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_418A49A1AFA04198ADA05A708500EE38"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -424,6 +430,12 @@
         "Entry"
         {
         "MsmKey" = "8:_79B94B3DD9D145118168F27B19DA4C3E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7B7A022A695B48F49C166F4DB95665D6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1716,6 +1728,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_40BE3F7D4FBB4C79B64F4A94075B48DF"
+            {
+            "SourcePath" = "8:UninstallLightsprintDemo.bat"
+            "TargetName" = "8:UninstallLightsprintDemo.bat"
+            "Tag" = "8:"
+            "Folder" = "8:_36306406485647379CDACFE34BE5F85A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_418A49A1AFA04198ADA05A708500EE38"
             {
             "SourcePath" = "8:..\\..\\data\\bsp\\x3map\\maps\\x3map05.bsp"
@@ -2293,6 +2325,26 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7B7A022A695B48F49C166F4DB95665D6"
+            {
+            "SourcePath" = "8:C:\\WINDOWS\\system32\\msiexec.exe"
+            "TargetName" = "8:msiexec.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_A1DB437A20F94981B90453DE617306B4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
@@ -3642,6 +3694,17 @@
         }
         "Folder"
         {
+            "{1525181F-901A-416C-8A58-119130FE478E}:_36306406485647379CDACFE34BE5F85A"
+            {
+            "Name" = "8:#1924"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:WindowsFolder"
+                "Folders"
+                {
+                }
+            }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_7B5F508C96AB42C99334DC37862CCE80"
             {
             "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
@@ -3929,6 +3992,17 @@
                     }
                 }
             }
+            "{1525181F-901A-416C-8A58-119130FE478E}:_A1DB437A20F94981B90453DE617306B4"
+            {
+            "Name" = "8:#1914"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:SystemFolder"
+                "Folders"
+                {
+                }
+            }
             "{1525181F-901A-416C-8A58-119130FE478E}:_E212D343A8A14765B4585225B3A67A5D"
             {
             "Name" = "8:#1919"
@@ -4137,6 +4211,20 @@
             "Folder" = "8:_EEB424F223464CC482379571B4A9EE9B"
             "WorkingFolder" = "8:_7B5F508C96AB42C99334DC37862CCE80"
             "Icon" = "8:_5B3D8940B15642B599A6B4CDFBC06918"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_942B4C01382144E8AC99716DAE8BC0ED"
+            {
+            "Name" = "8:Uninstall Lightsprint Demo"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:7"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_40BE3F7D4FBB4C79B64F4A94075B48DF"
+            "Folder" = "8:_6B528984A25A4F38992F22CCA8D5A632"
+            "WorkingFolder" = "8:_36306406485647379CDACFE34BE5F85A"
+            "Icon" = "8:"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A8C0489E83014324B3F3D0085669950D"
