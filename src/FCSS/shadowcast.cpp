@@ -170,7 +170,7 @@ bool autoUpdateEnvmaps = true;
 int wireFrame = 0;
 int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-bool showHelp = 0;
+int showHelp = 0; // 0=none, 1=help, 2=credits
 bool showHint = 0;
 int showLightViewFrustum = 0;
 bool paused = 0;
@@ -1069,12 +1069,18 @@ static void output(int x, int y, const char *string)
 	}
 }
 
-static void drawHelpMessage(bool big)
+static void drawHelpMessage(int screen)
 {
 	if(shotRequested) return;
 //	if(!big && gameOn) return;
 
-	static const char *message[] = {
+	static const char *message[3][30] = 
+	{
+		{
+		"h - help",
+		NULL
+		},
+		{
 		"Lightsprint Realtime Radiosity",
 		"  http://lightsprint.com",
 		"  realtime global illumination, NO PRECALCULATIONS",
@@ -1088,6 +1094,7 @@ static void drawHelpMessage(bool big)
 		"Extra controls:",
 		" F1/F2/F3      - hard/soft/penumbra shadows",
 		" F5            - hints",
+		" F6            - credits",
 		" F11           - save screenshot",
 		" wheel         - zoom",
 		" enter         - hires fullscreen/640x480 window",
@@ -1114,8 +1121,31 @@ static void drawHelpMessage(bool big)
 		"'q'   - increment depth slope for 1st pass glPolygonOffset",
 		"'Q'   - increment depth slope for 1st pass glPolygonOffset",*/
 		NULL,
-		"h - help",
+		},
+		{
+		"Works of following people were used in Lightsprint Demo:",
+		"",
+		"  - Stepan Hrbek, Daniel Sykora  : realtime global illumination",
+		"  - Mark Kilgard, Nate Robins    : GLUT library",
+		"  - Milan Ikits, Marcelo Magallon: GLEW library",
+		"  - many contributors            : FreeImage library",
+		"  - Firelight Technologies       : FMOD library",
+		"  - Matthew Fairfax              : 3ds loader",
+		"  - Nicolas Baudrey              : bsp loader",
+		"  - Vojta Nedved                 : \"Difficult life\" music",
+		"  - Anthony Butler               : \"The Soremill\" scene",
+		"  - David Cherry                 : \"Mortal Wounds\" scene",
+		"  - Q                            : \"Triangulation\" scene",
+		"  - Petr Stastny                 : \"Koupelna\" scene",
+		"  - Sirda                        : \"Black man\", \"Man in hat\"",
+		"  - orillionbeta                 : \"I Robot\" model",
+		"  - ?                            : \"Woman statue\" model",
+		"  - flipper42                    : \"Jessie\" model",
+		"  - atp creations                : \"Scary frog alien\" model",
+		"  - Stora_tomtefar               : \"Viking\" model",
+		"  - Amethyst7                    : \"Purple Nebula\" skybox",
 		NULL
+		}
 	};
 	int i;
 	int x = 40, y = 50;
@@ -1137,17 +1167,16 @@ static void drawHelpMessage(bool big)
 	glColor4f(0.0,0.0,0.0,0.6);
 
 	// Drawn clockwise because the flipped Y axis flips CCW and CW.
-	if(big) glRecti(winWidth - 30, 30, 30, winHeight - 30);
+	if(screen) glRecti(winWidth - 30, 30, 30, winHeight - 30);
 
 	glDisable(GL_BLEND);
 
 	glColor3f(1,1,1);
-	for(i=0; message[i] != NULL; i++) 
+	for(i=0; message[screen][i] != NULL; i++) 
 	{
-		if(!big) i=sizeof(message)/sizeof(char*)-2;
-		if (message[i][0] != '\0')
+		if (message[screen][i][0] != '\0')
 		{
-			output(x, y, message[i]);
+			output(x, y, message[screen][i]);
 		}
 		y += 18;
 	}
@@ -1698,6 +1727,14 @@ void special(int c, int x, int y)
 		case GLUT_KEY_F5:
 			showHint = 1;
 			break;
+		case GLUT_KEY_F6:
+			switch(showHelp)
+			{
+				case 0: showHelp = 2; break;
+				case 1: showHelp = 2; break;
+				case 2: showHelp = 0; break;
+			}
+			break;
 		case GLUT_KEY_F9:
 			{
 			printf("  {\n");
@@ -1765,7 +1802,12 @@ void keyboard(unsigned char c, int x, int y)
 			exit(0);
 			break;
 		case 'h':
-			showHelp = !showHelp;
+			switch(showHelp)
+			{
+				case 0: showHelp = 1; break;
+				case 1: showHelp = 0; break;
+				case 2: showHelp = 1; break;
+			}
 			break;
 		case 'p':
 			paused = !paused;
