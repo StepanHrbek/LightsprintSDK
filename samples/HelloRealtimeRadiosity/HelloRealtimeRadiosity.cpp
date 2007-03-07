@@ -91,7 +91,8 @@ float                   speedRight = 0;
 float                   speedLeft = 0;
 bool                    ambientMapsRealtimeUpdate = true;
 bool                    environmentMapsRealtimeUpdate = true;
-bool                    quadro = true;
+bool                    quadro = 0;
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

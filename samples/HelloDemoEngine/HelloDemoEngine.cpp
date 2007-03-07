@@ -60,7 +60,8 @@ float               speedForward = 0;
 float               speedBack = 0;
 float               speedRight = 0;
 float               speedLeft = 0;
-bool                quadro = true;
+bool                quadro = 0;
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
