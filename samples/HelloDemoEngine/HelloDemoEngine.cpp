@@ -60,7 +60,7 @@ float               speedForward = 0;
 float               speedBack = 0;
 float               speedRight = 0;
 float               speedLeft = 0;
-
+bool                quadro = true;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -73,7 +73,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	m3ds.Draw(NULL,NULL,NULL);
+	m3ds.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL);
 
 	uberProgramSetup.OBJECT_SPACE = true; // enable object space
 	if(uberProgramSetup.SHADOW_MAPS) uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
@@ -256,8 +256,8 @@ int main(int argc, char **argv)
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutGameModeString("800x600:32");
-	glutEnterGameMode(); // alternatively call glutInitWindowSize(800,600);glutCreateWindow("HelloRR"); for windowed mode
+	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
+	glutInitWindowSize(800,600);glutCreateWindow("HelloRR"); // for windowed mode
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
@@ -285,7 +285,7 @@ int main(int argc, char **argv)
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// set shadowmapsPerPass=1 for standard shadows
-	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,false);
+	unsigned shadowmapsPerPass = quadro ? 1 : de::UberProgramSetup::detectMaxShadowmaps(uberProgram,false);
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
@@ -299,8 +299,8 @@ int main(int argc, char **argv)
 		error("",false);
 
 	// init dynamic objects
-	robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f);
-	potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f);
+	robot = quadro ? NULL : DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f);
+	potato = quadro ? NULL : DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f);
 
 	glutMainLoop();
 	return 0;

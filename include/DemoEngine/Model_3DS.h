@@ -192,13 +192,14 @@ public:
 	Vector pos;				// The position to move the model to
 	Vector rot;				// The angles to rotate the model
 	float scale;			// The size you want the model scaled to
-	bool lit;				// True: the model is lit
 	bool visible;			// True: the model gets rendered
 	Vertex localCenter;
 	float localMinY;
 	bool Load(const char *name, float scale); // Loads a model
 	void Draw(
 		void* model,
+		bool lit, // scene is lit, feed normals
+		bool textured, // feed diffuse textures and texcoords
 		const float* (acquireVertexColors)(void* model,unsigned object), // returns pointer to array of float rgb vertex colors
 		void (releaseVertexColors)(void* model,unsigned object)
 		) const;  // Draws the model using provided indirect illum

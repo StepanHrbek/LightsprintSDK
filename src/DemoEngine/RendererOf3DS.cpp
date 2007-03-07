@@ -29,7 +29,7 @@ const void* RendererOf3DS::getParams(unsigned& length) const
 void RendererOf3DS::render()
 {
 	if(model)
-		model->Draw(NULL,NULL,NULL);
+		model->Draw(NULL,true,true,NULL,NULL);
 }
 
 /////////////////////////////////////////////////////////////////////////////

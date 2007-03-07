@@ -10,6 +10,7 @@ unsigned INSTANCES_PER_PASS;
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 //#define HIGH_DETAIL // uses high detail models
 bool ati = 1;
+bool quadro = 0;
 int fullscreen = 0;
 bool animated = 1;
 bool renderer3ds = 1;
@@ -269,7 +270,7 @@ void error(const char* message, bool gfxRelated)
 {
 	printf(message);
 	if(gfxRelated)
-		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx\n\nSupported operating systems:\n - Windows XP");
+		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);
@@ -644,6 +645,7 @@ public:
 	}
 	void updateSceneDynamic(float seconds, unsigned onlyDynaObjectNumber=1000)
 	{
+		if(!dynaobjects) return;
 		// increment rotation
 		float rot = seconds*70;
 		// move objects
@@ -686,6 +688,7 @@ public:
 	}
 	void renderSceneDynamic(de::UberProgramSetup uberProgramSetup, unsigned firstInstance) const
 	{
+		if(!dynaobjects) return;
 		// use object space
 		uberProgramSetup.OBJECT_SPACE = true;
 		// use environment maps
@@ -841,7 +844,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
+		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 		return;
 	}
 
@@ -2410,7 +2413,7 @@ int main(int argc, char **argv)
 
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 
-	dynaobjects = new DynamicObjects();
+	dynaobjects = quadro ? NULL : new DynamicObjects();
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
@@ -2435,7 +2438,7 @@ int main(int argc, char **argv)
 	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
-	INSTANCES_PER_PASS = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,!true);
+	INSTANCES_PER_PASS = quadro ? 1 : de::UberProgramSetup::detectMaxShadowmaps(uberProgram,!true);
 	if(!INSTANCES_PER_PASS) error("",true);
 	areaLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
 

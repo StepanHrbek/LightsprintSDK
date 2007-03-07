@@ -74,6 +74,7 @@
 
   History
   -------
+  2007-03-07 version 1.3 - workaround for ATI bug in penumbra shadows
   2007-03-04 version 1.2 - added uninstall shortcut, improved error messages
   2007-03-03 version 1.1 - fixed autopilot
   2007-03-02 version 1.0

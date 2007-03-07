@@ -106,6 +106,21 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, bool am
 		// all shaders ok
 		SUCCESS;
 	}
+	unsigned instancesPerPassOrig = instancesPerPass;
+	char* renderer = (char*)glGetString(GL_RENDERER);
+	if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")))
+	{
+		const char* buggy[] = {"9500","9550","9600","9700","9800","X300","X550","X600","X700","X740","X800","X850"};
+		for(unsigned i=0;i<sizeof(buggy)/sizeof(char*);i++)
+			if(strstr(renderer,buggy[i]))
+			{
+				if(instancesPerPass>3) instancesPerPass = MAX(3,instancesPerPass-2);
+				break;
+			}
+	}
+	// 2 is ugly, prefer 1
+	if(instancesPerPass==2) instancesPerPass--;
+	printf("Penumbra shadows: %d/%d on %s.\n",instancesPerPass,instancesPerPassOrig,renderer?renderer:"");
 	return instancesPerPass;
 }
 

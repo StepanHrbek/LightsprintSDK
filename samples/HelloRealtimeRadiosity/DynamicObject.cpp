@@ -129,5 +129,5 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 	}
 	// render
 	rendererCached->render(); // cached inside display list
-	//model.Draw(NULL,NULL,NULL); // non cached
+	//model.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL); // non cached
 }

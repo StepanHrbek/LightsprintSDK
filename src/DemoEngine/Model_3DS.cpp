@@ -138,9 +138,6 @@ Model_3DS::Model_3DS()
 	// Initialization
 	memset(this,0,sizeof(*this));
 
-	// The model is lit by default
-	lit = true;
-
 	// The model is visible by default
 	visible = true;
 
@@ -319,6 +316,8 @@ void Model_3DS::UpdateCenter()
 
 void Model_3DS::Draw(
 	void* model,
+	bool lit,
+	bool textured,
 	const float* (acquireVertexColors)(void* model,unsigned object),
 	void (releaseVertexColors)(void* model,unsigned object)) const
 {
@@ -357,7 +356,7 @@ void Model_3DS::Draw(
 			}
 
 			// Enable texture coordiantes, normals, and vertices arrays
-			if (Objects[i].textured)
+			if (textured && Objects[i].textured)
 			{
 				glClientActiveTexture(GL_TEXTURE0);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -367,7 +366,7 @@ void Model_3DS::Draw(
 			glEnableClientState(GL_VERTEX_ARRAY);
 
 			// Point them to the objects arrays
-			if (Objects[i].textured)
+			if (textured && Objects[i].textured)
 				glTexCoordPointer(2, GL_FLOAT, 0, Objects[i].TexCoords);
 			if (lit)
 				glNormalPointer(GL_FLOAT, 0, Objects[i].Normals);
@@ -377,7 +376,7 @@ void Model_3DS::Draw(
 			for (int j = 0; j < Objects[i].numMatFaces; j ++)
 			{
 				// Use the material's texture
-				if (Objects[i].textured)
+				if (textured && Objects[i].textured)
 					Materials[Objects[i].MatFaces[j].MatIndex].tex->bindTexture();
 
 				/*glPushMatrix();

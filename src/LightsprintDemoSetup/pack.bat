@@ -1,1 +1,1 @@
-@c:\progra~1\winrar\rar a -r -s -sfx -zpack.sfx -ep1 ..\..\LightsprintDemo1.2 ..\..\tmp\LightsprintDemo\
+@c:\progra~1\winrar\rar a -r -s -sfx -zpack.sfx -ep1 ..\..\LightsprintDemo1.3 ..\..\tmp\LightsprintDemo\

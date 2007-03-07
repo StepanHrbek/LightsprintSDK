@@ -91,7 +91,7 @@ float                   speedRight = 0;
 float                   speedLeft = 0;
 bool                    ambientMapsRealtimeUpdate = true;
 bool                    environmentMapsRealtimeUpdate = true;
-
+bool                    quadro = true;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -123,7 +123,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		m3ds.Draw(solver,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
+		m3ds.Draw(solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 	}
 	else
 #endif
@@ -509,8 +509,8 @@ int main(int argc, char **argv)
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutGameModeString("800x600:32");
-	glutEnterGameMode(); // alternatively call glutInitWindowSize(800,600);glutCreateWindow("HelloRR"); for windowed mode
+	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
+	glutInitWindowSize(800,600);glutCreateWindow("HelloRR"); // for windowed mode
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
@@ -538,12 +538,16 @@ int main(int argc, char **argv)
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
+	unsigned shadowmapsPerPass = 1;
+	if(!quadro)
+	{
 #ifdef AMBIENT_MAPS
-	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,true);
+		shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,true);
 #else
-	unsigned shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,false);
+		shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,false);
 #endif
-	if(!shadowmapsPerPass) error("",true);
+		if(!shadowmapsPerPass) error("",true);
+	}
 	
 	// init textures
 	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
@@ -556,13 +560,16 @@ int main(int argc, char **argv)
 		error("",false);
 
 	// init dynamic objects
-	de::UberProgramSetup material;
-	material.MATERIAL_SPECULAR = true;
-	robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f,material,16);
-	material.MATERIAL_DIFFUSE = true;
-	material.MATERIAL_DIFFUSE_MAP = true;
-	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f,material,16);
+	if(!quadro)
+	{
+		de::UberProgramSetup material;
+		material.MATERIAL_SPECULAR = true;
+		robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f,material,16);
+		material.MATERIAL_DIFFUSE = true;
+		material.MATERIAL_DIFFUSE_MAP = true;
+		material.MATERIAL_SPECULAR_MAP = true;
+		potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f,material,16);
+	}
 
 	// init realtime radiosity solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
