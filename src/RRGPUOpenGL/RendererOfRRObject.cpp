@@ -83,7 +83,6 @@ void RendererOfRRObject::render()
 	if(!params.object) return;
 
 	glColor4ub(0,0,0,255);
-	glEnable(GL_CULL_FACE);
 
 	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV;
 

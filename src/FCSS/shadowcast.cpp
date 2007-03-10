@@ -18,6 +18,7 @@ bool startWithSoftShadows = 1;
 bool renderLightmaps = 0;
 int resolutionx = 640;
 int resolutiony = 480;
+bool twosided = 0;
 /*
 crashne po esc v s_veza/gcc
 
@@ -834,6 +835,9 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		program->sendUniform("materialDiffuseConst",2.0f,2.0f,2.0f,1.0f);
 	}
 
+	if(twosided) glDisable(GL_CULL_FACE); else glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+
 	// lze smazat, stejnou praci dokaze i rrrenderer
 	// nicmene m3ds.Draw stale jeste
 	// 1) lip smoothuje (pouziva min vertexu)
@@ -842,8 +846,6 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
 	if(!level->isBsp && uberProgramSetup.MATERIAL_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
 	{
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
 		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 		return;
 	}
@@ -2338,8 +2340,14 @@ void parseOptions(int argc, char **argv)
 		if (!strcmp("-window", argv[i])) {
 			fullscreen = 0;
 		}
+		if (!strcmp("-fullscreen", argv[i])) {
+			fullscreen = 1;
+		}
 		if (!strcmp("-hard", argv[i])) {
 			startWithSoftShadows = 0;
+		}
+		if (!strcmp("-twosided", argv[i])) {
+			twosided = 1;
 		}
 		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS") || strstr(argv[i], ".bsp") || strstr(argv[i], ".BSP")) {
 			levelSequence.insertLevelFront(LevelSetup::create(argv[i]));
