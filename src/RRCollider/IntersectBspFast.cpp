@@ -684,6 +684,7 @@ IntersectBspFast IBP2::IntersectBspFast(RRMesh* aimporter, IntersectTechnique ai
 	switch(intersectTechnique)
 	{
 	case IT_BSP_FASTEST:
+	case IT_BSP_FASTER:
 		triangleSRLNP = new TriangleSRLNP[triangles];
 		break;
 	case IT_BSP_FAST:
@@ -788,6 +789,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	switch(intersectTechnique)
 	{
 		case IT_BSP_FASTEST:
+		case IT_BSP_FASTER:
 			hit = intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
 			break;
 		case IT_BSP_FAST:

@@ -110,7 +110,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, bool am
 	char* renderer = (char*)glGetString(GL_RENDERER);
 	if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")))
 	{
-		const char* buggy[] = {"9500","9550","9600","9700","9800","X300","X550","X600","X700","X740","X800","X850"};
+		const char* buggy[] = {"9500","9550","9600","9700","9800","X300","X550","X600","X700","X740","X800","X850","X1050"};
 		for(unsigned i=0;i<sizeof(buggy)/sizeof(char*);i++)
 			if(strstr(renderer,buggy[i]))
 			{

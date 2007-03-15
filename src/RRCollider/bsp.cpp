@@ -1163,6 +1163,8 @@ unsigned save_bsp(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m)
 template IBP
 bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m)
 {
+//	printf("Building BSP(%d)...",obj->face_num);
+
 	// create
 	BspBuilder* builder = new BspBuilder();
 	assert(buildParams);
@@ -1193,6 +1195,8 @@ bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m)
 	// cleanup
 	builder->free_node(bsp);
 	delete builder;
+
+//	printf(" done.\n");
 	return ok;
 }
 

@@ -544,6 +544,9 @@ namespace rr
 			//! Helps prevent precision problems from degenerated triangles.
 			//! For typical game interior scenes and world in 1m units, 1e-10 is reasonable value.
 			float ignoreSmallerArea;
+			//! Intersection technique used for smoothed object.
+			//! Techniques differ by speed and memory requirements.
+			RRCollider::IntersectTechnique intersectTechnique;
 			//! Sets default values at creation time.
 			//! These values are suitable for typical interior scenes with 1m units.
 			SmoothingParameters()
@@ -555,6 +558,7 @@ namespace rr
 				maxSmoothAngle = 0.33f;
 				ignoreSmallerAngle = 0.001f;
 				ignoreSmallerArea = 1e-10f;
+				intersectTechnique = RRCollider::IT_BSP_FASTER;
 			}
 		};
 

@@ -8,7 +8,6 @@
 
 #include "RRRealtimeRadiosity.h"
 #include "DemoEngine/Model_3DS.h"
-#include "RRGPUOpenGL/RendererOfRRObject.h"
 
 //! Imports all 3d objects from model into RRRealtimeRadiosity.
 void insert3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app, const rr::RRScene::SmoothingParameters* smoothing);

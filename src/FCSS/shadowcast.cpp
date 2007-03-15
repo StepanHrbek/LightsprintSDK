@@ -107,6 +107,9 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/UberProgramSetup.h"
 #include "3ds2rr.h"
 #include "RRObjectBsp.h"
+#include "RRObjectCollada.h"
+#include "FCollada.h"
+#include "FCDocument/FCDocument.h"
 #include "DynamicObject.h"
 #include "Bugs.h"
 #include "LevelSequence.h"
@@ -129,13 +132,25 @@ class Level
 {
 public:
 	Autopilot pilot;
+
+	enum Type
+	{
+		TYPE_3DS = 0,
+		TYPE_BSP,
+		TYPE_DAE,
+		TYPE_NONE,
+	};
+	Type type;
 	de::Model_3DS m3ds;
 	de::TMapQ3 bsp;
+	FCDocument* collada;
+#ifdef COLLADA
+	ColladaToRealtimeRadiosity* colladaToRR;
+#endif
 	class Solver* solver;
 	class Bugs* bugs;
 	rr_gl::RendererOfRRObject* rendererNonCaching;
 	de::RendererWithCache* rendererCaching;
-	bool isBsp;
 
 	Level(const LevelSetup* levelSetup);
 	~Level();
@@ -375,11 +390,6 @@ class Solver : public rr_gl::RRRealtimeRadiosityGL
 public:
 	Solver() : RRRealtimeRadiosityGL("shaders/")
 	{
-	}
-	virtual ~Solver()
-	{
-		// delete objects and illumination
-		delete3dsFromRR(this);
 	}
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
@@ -707,7 +717,7 @@ public:
 
 		for(unsigned i=0;i<DYNAOBJECTS;i++)
 		{
-			if(level->isBsp || i==1 || i==6)
+			if(level->type==Level::TYPE_BSP || i==1 || i==6)
 			if(dynaobject[i])
 			{
 				if(uberProgramSetup.LIGHT_INDIRECT_ENV && autoUpdateEnvmaps)
@@ -820,7 +830,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	if(!level) return;
 
 	// boost quake map intensity
-	if(level->isBsp && uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+	if(level->type==Level::TYPE_BSP && uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
 	}
@@ -844,7 +854,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	// 2) slouzi jako test ze RRRealtimeRadiosity spravne generuje vertex buffer s indirectem
 	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
-	if(!level->isBsp && uberProgramSetup.MATERIAL_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
+	if(level->type==Level::TYPE_3DS && uberProgramSetup.MATERIAL_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
 	{
 		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 		return;
@@ -1277,13 +1287,17 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 	bugs = NULL;
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
-
+	collada = NULL;
+#ifdef COLLADA
+	colladaToRR = NULL;
+#endif
 	// init radiosity solver
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	rr::RRScene::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
+	//sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
 	//sp.stitchDistance = -1;
 
 	float scale_3ds = 1;
@@ -1401,29 +1415,68 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 
 	printf("Loading %s...",pilot.setup->filename);
 
-	isBsp = strlen(pilot.setup->filename)>=4 && _stricmp(pilot.setup->filename+strlen(pilot.setup->filename)-4,".bsp")==0;
-
-	if(isBsp)
+	type = TYPE_NONE;
+	const char* typeExt[] = {".3ds",".bsp",".dae"};
+	for(unsigned i=TYPE_3DS;i<TYPE_NONE;i++)
 	{
-		// load .bsp
-		if(!readMap(pilot.setup->filename,bsp))
-			error("Failed to load .bsp scene.",false);
-		printf("\n");
-		char* maps = _strdup(pilot.setup->filename);
-		char* mapsEnd;
-		mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
-		mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
-		//de::Texture::load("maps/missing.jpg",NULL);
-		insertBspToRR(&bsp,maps,NULL,solver,&sp);
-		free(maps);
+		if(strlen(pilot.setup->filename)>=4 && _stricmp(pilot.setup->filename+strlen(pilot.setup->filename)-4,typeExt[i])==0)
+		{
+			type = (Level::Type)i;
+			break;
+		}
 	}
-	else
+
+	switch(type)
 	{
-		// load .3ds scene
-		if(!m3ds.Load(pilot.setup->filename,pilot.setup->scale))
-			error("",false);
-		printf("\n");
-		insert3dsToRR(&m3ds,solver,&sp);
+		case TYPE_BSP:
+		{
+			// load quake 3 map
+			if(!readMap(pilot.setup->filename,bsp))
+				error("Failed to load .bsp scene.",false);
+			printf("\n");
+			char* maps = _strdup(pilot.setup->filename);
+			char* mapsEnd;
+			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
+			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
+			//de::Texture::load("maps/missing.jpg",NULL);
+			insertBspToRR(&bsp,maps,NULL,solver,&sp);
+			free(maps);
+			break;
+		}
+		case TYPE_3DS:
+		{
+			// load .3ds scene
+			if(!m3ds.Load(pilot.setup->filename,pilot.setup->scale))
+				error("",false);
+			printf("\n");
+			insert3dsToRR(&m3ds,solver,&sp);
+			break;
+		}
+#ifdef COLLADA
+		case TYPE_DAE:
+		{
+			// load collada document
+			collada = FCollada::NewTopDocument();
+			FUErrorSimpleHandler errorHandler;
+			collada->LoadFromFile(pilot.setup->filename);
+			printf("\n");
+			if(!errorHandler.IsSuccessful())
+			{
+				puts(errorHandler.GetErrorString());
+				SAFE_DELETE(collada);
+			}
+			else
+			{
+				char* maps = _strdup(pilot.setup->filename);
+				char* mapsEnd;
+				//mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
+				mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
+				colladaToRR = new ColladaToRealtimeRadiosity(collada,maps,solver,&sp);
+				free(maps);
+			}
+			break;
+		}
+#endif
 	}
 
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
@@ -1476,8 +1529,22 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 
 Level::~Level()
 {
-	if(isBsp)
-		freeMap(bsp);
+	switch(type)
+	{
+		case TYPE_BSP:
+			deleteBspFromRR(solver);
+			freeMap(bsp);
+			break;
+		case TYPE_3DS:
+			delete3dsFromRR(solver);
+			break;
+#ifdef COLLADA
+		case TYPE_DAE:
+			delete colladaToRR;
+			delete collada;
+			break;
+#endif
+	}
 	delete bugs;
 	delete rendererCaching;
 	delete rendererNonCaching;

@@ -382,6 +382,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRObjectCollada.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\RRObjectCollada.h"
+			>
+		</File>
+		<File
 			RelativePath=".\shadowcast.cpp"
 			>
 		</File>

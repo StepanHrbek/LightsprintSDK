@@ -56,10 +56,11 @@ RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTec
 				goto linear;
 			}
 		case IT_BSP_FASTEST:
+		case IT_BSP_FASTER:
 		case IT_BSP_FAST:
 			{
 				typedef IntersectBspFast<BspTree44> T;
-				T* in = T::create(importer,intersectTechnique,cacheLocation,(intersectTechnique==IT_BSP_FAST)?".fast":".fastest",(BuildParams*)buildParams);
+				T* in = T::create(importer,intersectTechnique,cacheLocation,(intersectTechnique==IT_BSP_FAST)?".fast":((intersectTechnique==IT_BSP_FASTER)?".faster":".fastest"),(BuildParams*)buildParams);
 				if(in->getMemoryOccupied()>sizeof(T)) return in;
 				delete in;
 				goto linear;

@@ -179,10 +179,11 @@ namespace rr
 		//! Techniques for finding ray-mesh intersections.
 		enum IntersectTechnique
 		{
-			IT_LINEAR,          ///< Speed   1%, size   0. Fallback technique when better one fails.
-			IT_BSP_COMPACT,     ///< Speed 100%, size  ~5 bytes per triangle. Optimal for platforms with limited memory.
-			IT_BSP_FAST,        ///< Speed 175%, size ~31 bytes per triangle.
-			IT_BSP_FASTEST,     ///< Speed 200%, size ~58 bytes per triangle.
+			IT_LINEAR,          ///< Speed   1%, size    0. Fallback technique when better one fails.
+			IT_BSP_COMPACT,     ///< Speed 100%, size   ~5 bytes per triangle. For platforms with extremely limited memory.
+			IT_BSP_FAST,        ///< Speed 175%, size  ~31 bytes per triangle. For platforms with limited memory.
+			IT_BSP_FASTER,      ///< Speed 200%, size  ~60 bytes per triangle. For PC tools.
+			IT_BSP_FASTEST,     ///< Speed 230%, size ~200 bytes per triangle. For speed benchmarks.
 			IT_VERIFICATION,    ///< Only for verification purposes, performs tests using all known techniques and compares results.
 		};
 

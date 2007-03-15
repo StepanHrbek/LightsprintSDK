@@ -68,6 +68,7 @@ namespace rr
 				case RRCollider::IT_BSP_FASTEST:
 					kdHavran = 1;
 					break;
+				case RRCollider::IT_BSP_FASTER:
 				case RRCollider::IT_BSP_FAST:
 					break;
 				case RRCollider::IT_BSP_COMPACT:

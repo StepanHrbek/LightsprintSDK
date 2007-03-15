@@ -32,6 +32,7 @@
 #include <vector>
 #include "RRIllumination.h"
 #include "3ds2rr.h"
+#include "RRGPUOpenGL/RendererOfRRObject.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

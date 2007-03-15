@@ -198,15 +198,15 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		{
 			importers[i] = objects.at(i).first;
 		}
-		multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)objects.size(),RRCollider::IT_BSP_FASTEST,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
+		multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)objects.size(),smoothing.intersectTechnique,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
 		//!!! nevyrabet kdyz neni scaler
 		multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalSurfaces(getScaler()) : NULL;
 		// RRObjectWithIllum dostava physical surfacy, dat mu custom by byla chyba
 		multiObjectPhysicalWithIllumination = multiObjectPhysical ? multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
 			(multiObjectCustom ? multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
 		delete[] importers;
-		scene = new RRScene(multiObjectPhysicalWithIllumination,&smoothing);
-		updateVertexLookupTable();
+		scene = multiObjectPhysicalWithIllumination ? new RRScene(multiObjectPhysicalWithIllumination,&smoothing) : NULL;
+		if(scene) updateVertexLookupTable();
 		REPORT_END;
 	}
 	if(dirtyLights!=NO_CHANGE)
