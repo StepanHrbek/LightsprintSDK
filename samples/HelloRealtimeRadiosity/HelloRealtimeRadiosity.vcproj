@@ -412,14 +412,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\3ds2rr.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\3ds2rr.h"
-			>
-		</File>
-		<File
 			RelativePath=".\DynamicObject.cpp"
 			>
 		</File>
@@ -429,6 +421,14 @@
 		</File>
 		<File
 			RelativePath=".\HelloRealtimeRadiosity.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\RRObject3DS.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\RRObject3DS.h"
 			>
 		</File>
 	</Files>

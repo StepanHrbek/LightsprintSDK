@@ -71,7 +71,7 @@ pri 2 instancich je levy okraj spotmapy oriznuty
  pri arealight by spotmapa potrebovala malinko mensi fov nez shadowmapy aby nezabirala mista kde konci stin
 
 autodeteknout zda mam metry nebo centimetry
-dodelat podporu pro matice do 3ds2rr importeru
+dodelat podporu pro matice do RRObject3DS importeru
 kdyz uz by byl korektni model s gammou, pridat ovladani gammy
 
 POZOR
@@ -105,8 +105,8 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/RendererWithCache.h"
 #include "DemoEngine/TextureRenderer.h"
 #include "DemoEngine/UberProgramSetup.h"
-#include "3ds2rr.h"
-#include "RRObjectBsp.h"
+#include "RRObject3DS.h"
+#include "RRObjectBSP.h"
 #include "RRObjectCollada.h"
 #include "FCollada.h"
 #include "FCDocument/FCDocument.h"
@@ -1718,7 +1718,7 @@ void changeSpotlight()
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
 	needDepthMapUpdate = 1;
 	if(!level) return;
-	level->solver->reportLightChange(true);
+	level->solver->reportDirectIlluminationChange(true);
 }
 
 void reportEyeMovement()
@@ -1743,7 +1743,7 @@ void reportLightMovement()
 	// Ve velke scene dava lepsi vysledky reset (true),
 	//  scena sice behem pohybu ztmavne,
 	//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
-	level->solver->reportLightChange(level->solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+	level->solver->reportDirectIlluminationChange(level->solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
@@ -2109,7 +2109,7 @@ void keyboard(unsigned char c, int x, int y)
 			needDepthMapUpdate = 1;
 			break;
 		case 'S':
-			solver->reportLightChange(true);
+			solver->reportDirectIlluminationChange(true);
 			break;
 		case 'w':
 		case 'W':

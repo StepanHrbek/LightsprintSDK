@@ -31,7 +31,7 @@
 #include <cmath>
 #include <vector>
 #include "RRIllumination.h"
-#include "3ds2rr.h"
+#include "RRObject3DS.h"
 #include "RRGPUOpenGL/RendererOfRRObject.h"
 
 
@@ -58,17 +58,17 @@ void reporter(const char* msg, void* context)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// M3dsImporter
+// RRObject3DS
 
 // See RRObject and RRMesh documentation for details
 // on individual member functions.
 
-class M3dsImporter : public rr::RRObject, rr::RRMesh
+class RRObject3DS : public rr::RRObject, rr::RRMesh
 {
 public:
-	M3dsImporter(de::Model_3DS* model, unsigned objectIdx);
+	RRObject3DS(de::Model_3DS* model, unsigned objectIdx);
 	rr::RRObjectIllumination* getIllumination();
-	virtual ~M3dsImporter();
+	virtual ~RRObject3DS();
 
 	// RRChanneledData
 	virtual void         getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
@@ -113,7 +113,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// M3dsImporter load
+// RRObject3DS load
 
 static void fillSurface(rr::RRSurface* s,de::Model_3DS::Material* m)
 {
@@ -156,7 +156,7 @@ static void fillSurface(rr::RRSurface* s,de::Model_3DS::Material* m)
 
 // Creates internal copies of .3ds geometry and surface properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-M3dsImporter::M3dsImporter(de::Model_3DS* amodel, unsigned objectIdx)
+RRObject3DS::RRObject3DS(de::Model_3DS* amodel, unsigned objectIdx)
 {
 	model = amodel;
 	object = &model->Objects[objectIdx];
@@ -192,12 +192,12 @@ M3dsImporter::M3dsImporter(de::Model_3DS* amodel, unsigned objectIdx)
 	illumination = new rr::RRObjectIllumination((unsigned)object->numVerts);
 }
 
-rr::RRObjectIllumination* M3dsImporter::getIllumination()
+rr::RRObjectIllumination* RRObject3DS::getIllumination()
 {
 	return illumination;
 }
 
-M3dsImporter::~M3dsImporter()
+RRObject3DS::~RRObject3DS()
 {
 	delete illumination;
 	delete collider;
@@ -205,9 +205,9 @@ M3dsImporter::~M3dsImporter()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// M3dsImporter implements RRChanneledData
+// RRObject3DS implements RRChanneledData
 
-void M3dsImporter::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 {
 	switch(channelId)
 	{
@@ -216,7 +216,7 @@ void M3dsImporter::getChannelSize(unsigned channelId, unsigned* numItems, unsign
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
-			if(numItems) *numItems = M3dsImporter::getNumTriangles();
+			if(numItems) *numItems = RRObject3DS::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
 		default:
@@ -226,7 +226,7 @@ void M3dsImporter::getChannelSize(unsigned channelId, unsigned* numItems, unsign
 	}
 }
 
-bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
+bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 {
 	if(!itemData)
 	{
@@ -254,7 +254,7 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 		}
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
 		{
-			if(itemIndex>=M3dsImporter::getNumTriangles())
+			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
@@ -267,7 +267,7 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 				return false;
 			}
 			Triangle triangle;
-			M3dsImporter::getTriangle(itemIndex,triangle);
+			RRObject3DS::getTriangle(itemIndex,triangle);
 			for(unsigned v=0;v<3;v++)
 			{
 				(*out)[v][0] = object->TexCoords[2*triangle[v]];
@@ -277,7 +277,7 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 		}
 		case rr_gl::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
 		{
-			if(itemIndex>=M3dsImporter::getNumTriangles())
+			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
@@ -300,14 +300,14 @@ bool M3dsImporter::getChannelData(unsigned channelId, unsigned itemIndex, void* 
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// M3dsImporter implements RRMesh
+// RRObject3DS implements RRMesh
 
-unsigned M3dsImporter::getNumVertices() const
+unsigned RRObject3DS::getNumVertices() const
 {
 	return object->numVerts;
 }
 
-void M3dsImporter::getVertex(unsigned v, Vertex& out) const
+void RRObject3DS::getVertex(unsigned v, Vertex& out) const
 {
 	assert(v<(unsigned)object->numVerts);
 	out[0] = object->Vertexes[3*v];
@@ -315,14 +315,14 @@ void M3dsImporter::getVertex(unsigned v, Vertex& out) const
 	out[2] = object->Vertexes[3*v+2];
 }
 
-unsigned M3dsImporter::getNumTriangles() const
+unsigned RRObject3DS::getNumTriangles() const
 {
 	return (unsigned)triangles.size();
 }
 
-void M3dsImporter::getTriangle(unsigned t, Triangle& out) const
+void RRObject3DS::getTriangle(unsigned t, Triangle& out) const
 {
-	if(t>=M3dsImporter::getNumTriangles()) 
+	if(t>=RRObject3DS::getNumTriangles()) 
 	{
 		assert(0);
 		return;
@@ -333,16 +333,16 @@ void M3dsImporter::getTriangle(unsigned t, Triangle& out) const
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// M3dsImporter implements RRObject
+// RRObject3DS implements RRObject
 
-const rr::RRCollider* M3dsImporter::getCollider() const
+const rr::RRCollider* RRObject3DS::getCollider() const
 {
 	return collider;
 }
 
-unsigned M3dsImporter::getTriangleSurface(unsigned t) const
+unsigned RRObject3DS::getTriangleSurface(unsigned t) const
 {
-	if(t>=M3dsImporter::getNumTriangles())
+	if(t>=RRObject3DS::getNumTriangles())
 	{
 		assert(0);
 		return UINT_MAX;
@@ -352,7 +352,7 @@ unsigned M3dsImporter::getTriangleSurface(unsigned t) const
 	return s;
 }
 
-const rr::RRSurface* M3dsImporter::getSurface(unsigned s) const
+const rr::RRSurface* RRObject3DS::getSurface(unsigned s) const
 {
 	if(s>=surfaces.size()) 
 	{
@@ -362,15 +362,15 @@ const rr::RRSurface* M3dsImporter::getSurface(unsigned s) const
 	return &surfaces[s];
 }
 
-void M3dsImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
+void RRObject3DS::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
-	if(t>=M3dsImporter::getNumTriangles())
+	if(t>=RRObject3DS::getNumTriangles())
 	{
 		assert(0);
 		return;
 	}
 	Triangle triangle;
-	M3dsImporter::getTriangle(t,triangle);
+	RRObject3DS::getTriangle(t,triangle);
 	for(unsigned v=0;v<3;v++)
 	{
 		out.norm[v][0] = object->Normals[3*triangle[v]];
@@ -382,18 +382,18 @@ void M3dsImporter::getTriangleNormals(unsigned t, TriangleNormals& out) const
 // Unwrap is not present in .3ds file format.
 // If you omit getTriangleMapping (as it happens here), emergency automatic unwrap
 // is used and ambient map quality is reduced.
-//void M3dsImporter::getTriangleMapping(unsigned t, TriangleMapping& out) const
+//void RRObject3DS::getTriangleMapping(unsigned t, TriangleMapping& out) const
 //{
 //	out.uv = unwrap baked with mesh;
 //}
 
-const rr::RRMatrix3x4* M3dsImporter::getWorldMatrix()
+const rr::RRMatrix3x4* RRObject3DS::getWorldMatrix()
 {
 	// transformation matrices from 3ds are ignored
 	return NULL;
 }
 
-const rr::RRMatrix3x4* M3dsImporter::getInvWorldMatrix()
+const rr::RRMatrix3x4* RRObject3DS::getInvWorldMatrix()
 {
 	return NULL;
 }
@@ -403,9 +403,9 @@ const rr::RRMatrix3x4* M3dsImporter::getInvWorldMatrix()
 //
 // main
 
-M3dsImporter* new_3ds_importer(de::Model_3DS* model, unsigned objectIdx)
+RRObject3DS* new_3ds_importer(de::Model_3DS* model, unsigned objectIdx)
 {
-	M3dsImporter* importer = new M3dsImporter(model, objectIdx);
+	RRObject3DS* importer = new RRObject3DS(model, objectIdx);
 #ifdef VERIFY
 	importer->getCollider()->getMesh()->verify(reporter,NULL);
 #endif
@@ -419,7 +419,7 @@ void insert3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app,const rr::R
 		rr::RRRealtimeRadiosity::Objects objects;
 		for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
-			M3dsImporter* object = new_3ds_importer(model,i);
+			RRObject3DS* object = new_3ds_importer(model,i);
 			objects.push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
 		}
 		app->setObjects(objects,smoothing);

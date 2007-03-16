@@ -32,7 +32,7 @@
 #include "RRRealtimeRadiosity.h"
 #include "DemoEngine/Timer.h"
 #include "RRGPUOpenGL/RendererOfRRObject.h"
-#include "3ds2rr.h"
+#include "RRObject3DS.h"
 #include "DynamicObject.h"
 
 //#define AMBIENT_MAPS
@@ -45,11 +45,11 @@
 // - You can turn this demo into ambient map precalculator by saving maps to disk.
 //   Save & load are demonstrated on 's' and 'l' keys.
 // - To increase ambient map quality,
-//   1) provide unwrap uv for meshes (see getTriangleMapping in 3ds2rr.cpp)
+//   1) provide unwrap uv for meshes (see getTriangleMapping in RRObject3DS.cpp)
 //   2) call updateAmbientMap() with higher quality
 //   3) increase ambient map resolution (see newPixelBuffer)
 // - To generate maps 10x faster
-//   1) provide unwrap uv for meshes (see getTriangleMapping in 3ds2rr.cpp)
+//   1) provide unwrap uv for meshes (see getTriangleMapping in RRObject3DS.cpp)
 //      and decrease map resolution (see newPixelBuffer)
 
 /////////////////////////////////////////////////////////////////////////////
@@ -452,7 +452,7 @@ void passive(int x, int y)
 			light.angle = light.angle - 0.005*x;
 			light.height = light.height + 0.15*y;
 			CLAMP(light.height,-13,13);
-			solver->reportLightChange(true);
+			solver->reportDirectIlluminationChange(true);
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -476,7 +476,7 @@ void idle()
 		if(speedLeft) cam->moveLeft(speedLeft*seconds);
 		if(speedForward || speedBack || speedRight || speedLeft)
 		{
-			if(cam==&light) solver->reportLightChange(true);
+			if(cam==&light) solver->reportDirectIlluminationChange(true);
 		}
 	}
 	prev = now;

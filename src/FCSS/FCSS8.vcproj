@@ -321,19 +321,19 @@
 			Name="HelloRR"
 			>
 			<File
-				RelativePath="..\..\samples\HelloRealtimeRadiosity\3ds2rr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\samples\HelloRealtimeRadiosity\3ds2rr.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\samples\HelloRealtimeRadiosity\DynamicObject.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\samples\HelloRealtimeRadiosity\DynamicObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\RRObject3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\HelloRealtimeRadiosity\RRObject3DS.h"
 				>
 			</File>
 		</Filter>

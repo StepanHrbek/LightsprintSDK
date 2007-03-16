@@ -145,7 +145,7 @@ void RRRealtimeRadiosity::reportMaterialChange()
 	dirtyMaterials = true;
 }
 
-void RRRealtimeRadiosity::reportLightChange(bool strong)
+void RRRealtimeRadiosity::reportDirectIlluminationChange(bool strong)
 {
 	REPORT(reportAction(strong?"<LightChangeStrong>":"<LightChange>"));
 	dirtyLights = strong?BIG_CHANGE:SMALL_CHANGE;

@@ -3,8 +3,8 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
-#ifndef _3DS2RR_H
-#define _3DS2RR_H
+#ifndef RROBJECT3DS_H
+#define RROBJECT3DS_H
 
 #include "RRRealtimeRadiosity.h"
 #include "DemoEngine/Model_3DS.h"

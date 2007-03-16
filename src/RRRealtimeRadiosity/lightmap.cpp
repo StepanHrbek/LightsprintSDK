@@ -647,7 +647,7 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 		paramsDirect.applyCurrentIndirectSolution = true;
 		// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)
 		//  before further realtime rendering
-//		reportLightChange(true);
+//		reportDirectIlluminationChange(true);
 	}
 	// gather requested direct and solution
 	for(unsigned object=0;object<getNumObjects();object++)

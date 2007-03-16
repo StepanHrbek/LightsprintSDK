@@ -226,11 +226,11 @@ Adding global illumination (GI) to your code is described in four steps.
  </td></tr></table>
 
   - Open HelloRealtimeRadiosity project
-  - Copy 3DS2RR.* to Custom2RR.* and add it to the project
-  - Delete \#include "DemoEngine/Model_3DS.h" from Custom2RR.h
+  - Copy RRObject3DS.* to RRObjectCustom.* and add it to the project
+  - Delete \#include "DemoEngine/Model_3DS.h" from RRObjectCustom.h
   - Build reports errors on all references to 3ds,
     change code so it works with your engine's 3d model rather than with 3ds. For more details, see
-    - comments in Custom2RR source code
+    - comments in RRObjectCustom source code
     - <b> \subpage integration_step_2 </b>
     - <b> \subpage integration_step_3 </b>
     - interfaces of RRMesh and RRObject you implement
@@ -433,7 +433,7 @@ Adding global illumination (GI) to your code is described in four steps.
  so you don't have to duplicate any data. This may save you huge amounts of memory,
  however you must provide wrappers that access your structures.
 
- For <b>simple case</b>, see samples/HelloRealtimeRadiosity/3ds2rr.cpp. It is
+ For <b>simple case</b>, see samples/HelloRealtimeRadiosity/RRObject3DS.cpp. It is
  everything necessary to load .3ds model into realtime radiosity.
  For sake of simplicity, it duplicates some data and doesn't support geometry instancing.
  On the other hand, support for custom data is demonstrated
