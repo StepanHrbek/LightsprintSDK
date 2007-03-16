@@ -227,6 +227,27 @@ namespace rr
 	{
 	public:
 
+//#ifdef RR_DEVELOPMENT
+		//////////////////////////////////////////////////////////////////////////////
+		// Channels
+		//////////////////////////////////////////////////////////////////////////////
+
+		// Identifiers of RRObject data channels.
+		// Nearly all information of RRObject could be provided 
+		// using RRChanneledData interface.
+		// Providing it using RRChanneledData interface is purely optional.
+		enum
+		{
+			CHANNEL_TRIANGLE_VERTICES_NORMAL    = RRMesh::INDEXED_BY_TRIANGLE+1, //! RRVec3[3]
+			CHANNEL_TRIANGLE_VERTICES_UNWRAP    = RRMesh::INDEXED_BY_TRIANGLE+2, //! RRVec2[3]
+			CHANNEL_TRIANGLE_MATERIAL_IDX       = RRMesh::INDEXED_BY_TRIANGLE+3, //! unsigned
+			CHANNEL_MATERIAL_BASE               = RRMesh::INDEXED_BY_MATERIAL+0, //! RRMaterial
+			//CHANNEL_TRIANGLE_ADDITIONAL_MEASURE = RRMesh::INDEXED_BY_TRIANGLE+4, //! RRColor
+			//CHANNEL_OBJECT_TRANSFORM            = RRMesh::INDEXED_BY_OBJECT  +0, //! RRMatrix4x3
+			//CHANNEL_OBJECT_TRANSFORM_INVERSE    = RRMesh::INDEXED_BY_OBJECT  +1, //! RRMatrix4x3
+		};
+
+//#endif
 		//////////////////////////////////////////////////////////////////////////////
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@
 // Imports Collada model into RRRealtimeRadiosity
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
-#if 0
+#if 1
 
 #ifndef RROBJECTCOLLADA_H
 #define RROBJECTCOLLADA_H

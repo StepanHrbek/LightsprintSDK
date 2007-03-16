@@ -14,7 +14,7 @@
 // it is never accessed by radiosity solver.
 // You may skip it in your implementation.
 
-#if 0
+#if 1
 
 #include <cassert>
 #include <cmath>
@@ -27,7 +27,10 @@
 #include "FCDocument/FCDocument.h"
 #include "FCDocument/FCDAsset.h"
 #include "FCDocument/FCDEffect.h"
+#include "FCDocument/FCDEffectParameterList.h"
 #include "FCDocument/FCDEffectProfile.h"
+#include "FCDocument/FCDEffectStandard.h"
+#include "FCDocument/FCDEffectTechnique.h"
 #include "FCDocument/FCDGeometry.h"
 #include "FCDocument/FCDGeometryInstance.h"
 #include "FCDocument/FCDGeometryMesh.h"
@@ -41,9 +44,11 @@
 #include "FUtils/FUFileManager.h"
 
 #ifdef _DEBUG
-	#pragma comment(lib,"FColladaSD.lib")
+	//#pragma comment(lib,"FColladaD.lib") // dll
+	#pragma comment(lib,"FColladaSD.lib") // static
 #else
-	#pragma comment(lib,"FColladaSR.lib")
+	//#pragma comment(lib,"FCollada.lib") // dll
+	#pragma comment(lib,"FColladaSR.lib") // static
 #endif
 
 using namespace rr;
@@ -438,7 +443,7 @@ fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle
 
 unsigned RRObjectCollada::getTriangleMaterial(unsigned t) const
 {
-	// lets have some abstract fun
+	// lets have some abstract layered fun
 
 	if(!geometryInstance)
 	{
@@ -465,7 +470,7 @@ unsigned RRObjectCollada::getTriangleMaterial(unsigned t) const
 		return UINT_MAX;
 	}
 
-	const FCDMaterial* material = static_cast<const FCDMaterial*>(materialInstance->GetEntity());
+	const FCDMaterial* material = materialInstance->GetMaterial();
 	if(!material)
 	{
 		return UINT_MAX;
@@ -482,26 +487,15 @@ unsigned RRObjectCollada::getTriangleMaterial(unsigned t) const
 	{
 		return UINT_MAX;
 	}
+	const FCDEffectStandard* effectStandard = static_cast<const FCDEffectStandard*>(effectProfile);
 
-	const FCDEffectParameter* effectParameter = effectProfile->FindParameterByReference("diffuse");
-/*
-	unsigned result = UINT_MAX;
-	collider->getMesh()->getChannelData(CHANNEL_TRIANGLE_MATERIAL_IDX,t,&result,sizeof(unsigned));
-	return result;
-	/*
-	if(t>=collider->getMesh()->getNumTriangles())
-	{
-		assert(0);
-		return UINT_MAX;
-	}
-	unsigned s = triangles[t].s;
-	assert(s<materials.size());
-	return s;
-	*/
+	assert(sizeof(unsigned)==sizeof(effectStandard));
+	return (unsigned)(intptr_t)effectStandard;
 }
 
 const RRMaterial* RRObjectCollada::getMaterial(unsigned s) const
 {
+	const FCDEffectStandard* effectStandard = (const FCDEffectStandard*)s;
 	if(s>=materials.size()) 
 	{
 		assert(0);

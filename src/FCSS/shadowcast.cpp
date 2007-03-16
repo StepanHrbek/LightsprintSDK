@@ -9,7 +9,8 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           10
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 //#define HIGH_DETAIL // uses high detail models
-#define SUPPORT_LIGHTMAPS 1
+#define SUPPORT_LIGHTMAPS          0
+#define SUPPORT_COLLADA
 bool ati = 1;
 bool quadro = 0;
 int fullscreen = 0;
@@ -145,7 +146,7 @@ public:
 	de::Model_3DS m3ds;
 	de::TMapQ3 bsp;
 	FCDocument* collada;
-#ifdef COLLADA
+#ifdef SUPPORT_COLLADA
 	ColladaToRealtimeRadiosity* colladaToRR;
 #endif
 	class Solver* solver;
@@ -1279,7 +1280,7 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
 	collada = NULL;
-#ifdef COLLADA
+#ifdef SUPPORT_COLLADA
 	colladaToRR = NULL;
 #endif
 	// init radiosity solver
@@ -1443,7 +1444,7 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 			insert3dsToRR(&m3ds,solver,&sp);
 			break;
 		}
-#ifdef COLLADA
+#ifdef SUPPORT_COLLADA
 		case TYPE_DAE:
 		{
 			// load collada document
@@ -1529,7 +1530,7 @@ Level::~Level()
 		case TYPE_3DS:
 			delete3dsFromRR(solver);
 			break;
-#ifdef COLLADA
+#ifdef SUPPORT_COLLADA
 		case TYPE_DAE:
 			delete colladaToRR;
 			delete collada;
