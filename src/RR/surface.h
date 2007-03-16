@@ -15,7 +15,7 @@ struct Material
 };
 
 struct Texture;
-struct Surface : public RRSurface
+struct Surface : public RRMaterial
 {
 	ColorTable diffuseReflectanceColorTable;
 	//Point3     diffuseEmittancePoint;

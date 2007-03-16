@@ -122,7 +122,7 @@ void RendererOfRRObject::render()
 		bool begun = false;
 		rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
 		//unsigned numTriangles = meshImporter->getNumTriangles();
-		unsigned oldSurfaceIdx = UINT_MAX;
+		unsigned oldMaterialIdx = UINT_MAX;
 		rr::RRObjectIllumination* oldIllumination = NULL;
 		for(unsigned triangleIdx=params.firstCapturedTriangle;triangleIdx<params.lastCapturedTrianglePlus1;triangleIdx++)
 		{
@@ -131,18 +131,18 @@ void RendererOfRRObject::render()
 
 			if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 			{
-				unsigned surfaceIdx = params.object->getTriangleSurface(triangleIdx);
-				if(surfaceIdx!=oldSurfaceIdx)
+				unsigned materialIdx = params.object->getTriangleMaterial(triangleIdx);
+				if(materialIdx!=oldMaterialIdx)
 				{
-					oldSurfaceIdx = surfaceIdx;
+					oldMaterialIdx = materialIdx;
 
 					// material diffuse color
 					if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR)
 					{
-						const rr::RRSurface* surface = params.object->getSurface(surfaceIdx);
-						if(surface)
+						const rr::RRMaterial* material = params.object->getMaterial(materialIdx);
+						if(material)
 						{
-							glSecondaryColor3fv(&surface->diffuseReflectance.x);
+							glSecondaryColor3fv(&material->diffuseReflectance.x);
 						}
 						else
 						{
@@ -154,7 +154,7 @@ void RendererOfRRObject::render()
 					if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 					{
 						de::Texture* tex = NULL;
-						params.object->getCollider()->getMesh()->getChannelData(CHANNEL_SURFACE_DIF_TEX,surfaceIdx,&tex,sizeof(tex));
+						params.object->getCollider()->getMesh()->getChannelData(CHANNEL_MATERIAL_DIF_TEX,materialIdx,&tex,sizeof(tex));
 						if(tex)
 						{
 							if(begun)

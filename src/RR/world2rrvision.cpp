@@ -23,8 +23,8 @@ public:
 
 	// must not change during object lifetime
 	virtual const rr::RRCollider* getCollider() const {return collider;}
-	virtual unsigned           getTriangleSurface(unsigned t) const;
-	virtual const RRSurface*   getSurface(unsigned si) const;
+	virtual unsigned           getTriangleMaterial(unsigned t) const;
+	virtual const RRMaterial*   getMaterial(unsigned si) const;
 
 	// may change during object lifetime
 	virtual const RRMatrix3x4* getWorldMatrix();
@@ -59,14 +59,14 @@ WorldObjectImporter::~WorldObjectImporter()
 {
 }
 
-unsigned WorldObjectImporter::getTriangleSurface(unsigned i) const
+unsigned WorldObjectImporter::getTriangleMaterial(unsigned i) const
 {
 	assert(object);
 	assert(i<(unsigned)object->face_num);
 	return object->face[i].material;
 }
 
-const RRSurface* WorldObjectImporter::getSurface(unsigned si) const
+const RRMaterial* WorldObjectImporter::getMaterial(unsigned si) const
 {
 	assert(si<surfaces);
 	if(si>=surfaces) return surface[0];
@@ -114,7 +114,7 @@ static ColorTable createColorTable(double cx,double cy,real rs)
 	return ct;
 }
 
-static void fillSurface(Surface *s,C_MATERIAL *m)
+static void fillMaterial(Surface *s,C_MATERIAL *m)
 {
 	s->reset(m->sided==2 || m->ts); // pruhledne by melo reagovat z obou stran, pokud to klient nechce tak mu to vnutime
 	xy2rgb(m->rd_c.cx,m->rd_c.cy,0.5,s->diffuseReflectance);
@@ -141,7 +141,7 @@ static void *scene_add_surface(C_MATERIAL *m)
 	if(scene_surfaces_loaded<0 || scene_surfaces_loaded>=scene_surfaces) {scene_surfaces_loaded++;return NULL;}
 #endif
 	Surface *s=&scene_surface[scene_surfaces_loaded++];
-	fillSurface(s,m);
+	fillMaterial(s,m);
 	//printf("Filled surface[%d] rs=%f\n",mgf_surfaces_loaded-1,s->specularReflectance);
 	return s;
 }
@@ -188,7 +188,7 @@ static void load_materials(WORLD* world, char *material_mgf)
 #endif
 			{
 				s=&scene_surface[si];
-				fillSurface(s,m);
+				fillMaterial(s,m);
 			}
 		}
 		scene_surface_ptr[si] = s;

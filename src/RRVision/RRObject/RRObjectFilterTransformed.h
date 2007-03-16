@@ -36,17 +36,17 @@ public:
 	//  hook in getTriangle and getTriangleBody and possibly also in pre-post conversions
 	//  and return triangle vertices in opposite order
 	// way 2 YES
-	//  hook in getSurface and return sideBits in opposite order
-	virtual const RRSurface* getSurface(unsigned s) const
+	//  hook in getMaterial and return sideBits in opposite order
+	virtual const RRMaterial* getMaterial(unsigned s) const
 	{
-		const RRSurface* surf = inherited->getSurface(s);
+		const RRMaterial* surf = inherited->getMaterial(s);
 		if(!surf || negScaleMakesOuterInner) return surf;
 		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		if(!m) return surf;
 		bool negScale = m->determinant3x3()<0;
 		if(!negScale) return surf;
 		//!!! neni thread safe
-		static RRSurface surf2 = *surf;
+		static RRMaterial surf2 = *surf;
 		surf2.sideBits[0] = surf->sideBits[1];
 		surf2.sideBits[1] = surf->sideBits[0];
 		return &surf2;

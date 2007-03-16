@@ -76,7 +76,7 @@ namespace rr
 	// RRRadiometricMeasure - radiometric measure
 	// RREmittanceType      - type of emission
 	// RRSideBits           - 1bit attributes of one side
-	// RRSurface            - material properties of surface
+	// RRMaterial           - material properties of a surface
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +104,7 @@ namespace rr
 	#define RM_EXITANCE_CUSTOM              RRRadiometricMeasure(1,1,0,1,1)
 
 
-	//! Boolean attributes of one side of surface. Usually exist in array of two elements, for front and back side.
+	//! Boolean attributes of one side of a surface. Usually exist in array of two elements, for front and back side.
 	struct RRSideBits
 	{
 		unsigned char renderFrom:1;  ///< Should surface be visible from its side? Information only for renderer, not for radiosity solver.
@@ -115,18 +115,22 @@ namespace rr
 		unsigned char transmitFrom:1;///< When photon is catched, should surface refract it? When false, it disables transmittance.
 	};
 
-	//! Description of surface material properties. Could be in physical or any other scale, depends on who uses it.
-	struct RR_API RRSurface
+	//! Description of material properties of a surface.
+	//
+	//! It is minimal set of properties needed by global illumination solver,
+	//! so it not complete material for rendering (no textures).
+	//! Values could be in physical or any other scale, depends on who uses it.
+	struct RR_API RRMaterial
 	{
-		void          reset(bool twoSided);          ///< Resets surface to fully diffuse gray (50% reflected, 50% absorbed).
-		bool          validate();                    ///< Changes surface to closest physically possible values. Returns if any changes were made.
+		void          reset(bool twoSided);          ///< Resets material to fully diffuse gray (50% reflected, 50% absorbed).
+		bool          validate();                    ///< Changes material to closest physically valid values. Returns if any changes were made.
 
-		RRSideBits    sideBits[2];                   ///< Defines surface behaviour for front(0) and back(1) side.
+		RRSideBits    sideBits[2];                   ///< Defines material behaviour for front (sideBits[0]) and back (sideBits[1]) side.
 		RRColor       diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
 		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately).
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
 		RRReal        specularTransmittance;         ///< Fraction of energy that continues through surface (without color change).
-		RRReal        refractionIndex;               ///< Refractive index of material in front of surface divided by refractive index of material behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
+		RRReal        refractionIndex;               ///< Refractive index of material in front of surface (surface is a boundary between two materials) divided by refractive index of material behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 	};
 
 
@@ -238,18 +242,18 @@ namespace rr
 		//! Must always return valid collider, implementation is not allowed to return NULL.
 		virtual const RRCollider* getCollider() const = 0;
 
-		//! Returns triangle's surface id.
+		//! Returns triangle's material id.
 		//
-		//! It is not necessary for triangle surface ids to be small numbers,
-		//! and thus no one is expected to create array of all surfaces indexed by surface id.
-		virtual unsigned            getTriangleSurface(unsigned t) const = 0;
+		//! It is not necessary for triangle material ids to be small numbers,
+		//! and thus no one is expected to create array of all materials indexed by material id.
+		virtual unsigned            getTriangleMaterial(unsigned t) const = 0;
 
-		//! Returns s-th surface material description.
+		//! Returns s-th material description.
 		//
-		//! \param s Id of surface. Valid s is any number returned by getTriangleSurface() for valid t.
-		//! \return For valid s, pointer to s-th surface. For invalid s, pointer to any surface. 
-		//!  In both cases, surface must exist for whole life of object.
-		virtual const RRSurface*    getSurface(unsigned s) const = 0;
+		//! \param s Id of material. Valid s is any number returned by getTriangleMaterial() for valid t.
+		//! \return For valid s, pointer to s-th material. For invalid s, pointer to any material. 
+		//!  In both cases, material must exist for whole life of object.
+		virtual const RRMaterial*    getMaterial(unsigned s) const = 0;
 
 
 		//
@@ -285,8 +289,8 @@ namespace rr
 
 		//! Writes t-th triangle additional measure to out.
 		//
-		//! Although each triangle has its RRSurface::diffuseEmittance,
-		//! it may be inconvenient to create new RRSurface for each triangle when only emissions differ.
+		//! Although each triangle has its RRMaterial::diffuseEmittance,
+		//! it may be inconvenient to create new RRMaterial for each triangle when only emissions differ.
 		//! So this is way how to provide additional emissivity for each triangle separately.
 		//! \n There is default implementation that always returns 0.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
@@ -344,17 +348,17 @@ namespace rr
 		//!  and rays collide with the inner side. This is the case of negScaleMakesOuterInner=true.
 		//!  \n However one may want to change this behaviour. 
 		//!  \n To get the transformed object visible from the opposite side and rays collide with the opposite side,
-		//!  one can change the mesh (vertex order in all triangles) and share surfaces 
-		//!  or share the mesh and change surfaces.
-		//!  It is more efficient to share the mesh and change surfaces.
+		//!  one can change the mesh (vertex order in all triangles) and share materials
+		//!  or share the mesh and change materials.
+		//!  It is more efficient to share the mesh and change materials.
 		//!  So transformed object shares the mesh but when it detects negative scale,
-		//!  it switches sideBits[0] and sideBits[1] in all surfaces.
+		//!  it swaps sideBits[0] and sideBits[1] in all materials.
 		//!  \n\n Note that shared RRMesh knows nothing about your local negScaleMakesOuterInner setting,
-		//!  it is encoded in RRObject surfaces,
+		//!  it is encoded in RRObject materials,
 		//!  so if you calculate singlesided collision on mesh from newly created object,
 		//!  give it a collision handler object->createCollisionHandlerFirstVisible()
-		//!  which scans object's surfaces and responds to your local negScaleMakesOuterInner.
-		//!  \n\n With negScaleMakesOuterInner=false, all surfaces sideBits are switched,
+		//!  which scans object's materials and responds to your local negScaleMakesOuterInner.
+		//!  \n\n With negScaleMakesOuterInner=false, all materials sideBits[0] and [1] are swapped,
 		//!  so where your system processes hits to front side on original object, it processes 
 		//!  hits to back side on negatively scaled object.
 		//!  Note that forced singlesided test (simple test without collision handler, see RRRay::TEST_SINGLESIDED) 
@@ -365,7 +369,7 @@ namespace rr
 		//!  Directory for caching intermediate files used by RRCollider.
 		RRObject* createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation);
 
-		//! Creates and returns union of multiple objects (contains geometry and surfaces from all objects).
+		//! Creates and returns union of multiple objects (contains geometry and materials from all objects).
 		//
 		//! Created instance (MultiObject) doesn't require additional memory, 
 		//! but it depends on all objects from array, they must stay alive for whole life of MultiObject.
@@ -405,22 +409,22 @@ namespace rr
 		//!  Provide the same scaler you use for the rest of calculation.
 		class RRObjectWithIllumination* createObjectWithIllumination(const RRScaler* scaler);
 
-		//! Creates and returns object with surfaces converted to physical space.
+		//! Creates and returns object with materials converted to physical space.
 		//
-		//! Created instance contains copy of all surfaces, converted and adjusted to fit in physical space.
+		//! Created instance contains copy of all materials, converted and adjusted to fit in physical space.
 		//! \n It is typically used to convert user provided objects in custom scale to physical scale.
 		//! \n Created instance depends on original object and scaler, so it is not allowed to delete original object and scaler before deleting newly created instance.
 		//! \param scaler
 		//!  Scaler used for custom scale -> physical scale conversion.
 		//!  Provide the same scaler you use for the rest of calculation.
-		class RRObjectWithPhysicalSurfaces* createObjectWithPhysicalSurfaces(const RRScaler* scaler);
+		class RRObjectWithPhysicalMaterials* createObjectWithPhysicalMaterials(const RRScaler* scaler);
 
 
 		// collision helper
 
 		//! Creates and returns collision handler,
 		//! that accepts first hit to visible side
-		//! (according to surface sideBit 'render').
+		//! (according to RRMaterial::sideBits::render).
 		RRCollisionHandler* createCollisionHandlerFirstVisible();
 	};
 
@@ -451,18 +455,18 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRObjectWithPhysicalSurfaces
-	//! Interface for object importer that converts surfaces from custom to physical scale.
+	//  RRObjectWithPhysicalMaterials
+	//! Interface for object wrapper that converts materials from custom to physical scale.
 	//
 	//! Helper interface.
-	//! Instance may be created by RRMesh::createObjectWithPhysicalSurfaces().
+	//! Instance may be created by RRMesh::createObjectWithPhysicalMaterials().
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRObjectWithPhysicalSurfaces : public RRObject
+	class RRObjectWithPhysicalMaterials : public RRObject
 	{
 	public:
-		//! Updates surfaces in physical scale according to actual scaler and surfaces in custom scale.
+		//! Updates materials in physical scale according to actual scaler and materials in custom scale.
 		virtual void update() = 0;
 	};
 
@@ -575,7 +579,7 @@ namespace rr
 		//!  World-space object wrapper that defines object shape and material.
 		//!  \n If object has transformation different from identity, pass object->createWorldSpaceObject()
 		//!  rather than object itself, otherwise object transformation will be ignored.
-		//!  \n object->getSurface should return values in physical scale.
+		//!  \n object->getMaterial should return values in physical scale.
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
 		RRScene(RRObject* object, const SmoothingParameters* smoothing);
@@ -603,7 +607,7 @@ namespace rr
 		//! \param resetFactors
 		//!  True: Resetting factors at any moment means complete restart of calculation with all expenses.
 		//!  \n False: With factors preserved, part of calculation is reused, but you must ensure, that
-		//!  geometry and surfaces were not modified. This is especially handy when only primary
+		//!  geometry and materials were not modified. This is especially handy when only primary
 		//!  lights move, but objects and materials stay unchanged.
 		//! \param resetPropagation
 		//!  Both options work well in typical situations, but well choosen value may improve performance.

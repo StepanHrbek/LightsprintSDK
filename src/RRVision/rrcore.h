@@ -446,8 +446,8 @@ public:
 		public:
 
 	// surface
-	const RRSurface *surface;     // material at outer and inner side of Triangle
-	Channels setSurface(const RRSurface *s,const Vec3& additionalIrradiance, bool resetPropagation);
+	const RRMaterial *surface;     // material at outer and inner side of Triangle
+	Channels setSurface(const RRMaterial *s,const Vec3& additionalIrradiance, bool resetPropagation);
 	// source values entered by client app, not calculated by us,
 	// typically direct illumination values
 	Channels getSourceIncidentFlux() {return sourceIncidentFlux;}

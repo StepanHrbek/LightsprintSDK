@@ -20,7 +20,7 @@
 //    collider can be big.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
-// custom .bsp data via our custom identifiers CHANNEL_SURFACE_DIF_TEX etc.
+// custom .bsp data via our custom identifiers CHANNEL_MATERIAL_DIF_TEX etc.
 // It is used only by our custom renderer RendererOfRRObject
 // (during render of scene with ambient maps),
 // it is never accessed by radiosity solver.
@@ -76,8 +76,8 @@ public:
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
-	virtual unsigned                getTriangleSurface(unsigned t) const;
-	virtual const rr::RRSurface*    getSurface(unsigned s) const;
+	virtual unsigned                getTriangleMaterial(unsigned t) const;
+	virtual const rr::RRMaterial*    getMaterial(unsigned s) const;
 	//virtual void                    getTriangleNormals(unsigned t, TriangleNormals& out) const;
 
 private:
@@ -87,17 +87,17 @@ private:
 	struct TriangleInfo
 	{
 		rr::RRMesh::Triangle t;
-		unsigned s; // surface index
+		unsigned s; // material index
 	};
 	std::vector<TriangleInfo> triangles;
 
-	// copy of object's surface properties
-	struct SurfaceInfo
+	// copy of object's material properties
+	struct MaterialInfo
 	{
-		rr::RRSurface surface;
+		rr::RRMaterial material;
 		de::Texture* texture;
 	};
-	std::vector<SurfaceInfo> surfaces;
+	std::vector<MaterialInfo> materials;
 	
 	// collider for ray-mesh collisions
 	rr::RRCollider* collider;
@@ -113,7 +113,7 @@ private:
 
 // Inputs: m
 // Outputs: t, s
-static void fillSurface(rr::RRSurface& s, de::Texture*& t, de::TTexture* m,const char* pathToTextures, de::Texture* fallback)
+static void fillMaterial(rr::RRMaterial& s, de::Texture*& t, de::TTexture* m,const char* pathToTextures, de::Texture* fallback)
 {
 	enum {size = 8};
 
@@ -154,13 +154,13 @@ static void fillSurface(rr::RRSurface& s, de::Texture*& t, de::TTexture* m,const
 
 #ifdef VERIFY
 	if(s.validate())
-		rr::RRReporter::report(rr::RRReporter::WARN,"Surface adjusted to physically valid.\n");
+		rr::RRReporter::report(rr::RRReporter::WARN,"Material adjusted to physically valid.\n");
 #else
 	s.validate();
 #endif
 }
 
-// Creates internal copies of .bsp geometry and surface properties.
+// Creates internal copies of .bsp geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
 RRObjectBSP::RRObjectBSP(de::TMapQ3* amodel, const char* pathToTextures, de::Texture* missingTexture)
 {
@@ -168,17 +168,17 @@ RRObjectBSP::RRObjectBSP(de::TMapQ3* amodel, const char* pathToTextures, de::Tex
 
 	for(unsigned i=0;i<(unsigned)model->mTextures.size();i++)
 	{
-		SurfaceInfo si;
-		fillSurface(si.surface,si.texture,&model->mTextures[i],pathToTextures,missingTexture);
-		surfaces.push_back(si);
+		MaterialInfo si;
+		fillMaterial(si.material,si.texture,&model->mTextures[i],pathToTextures,missingTexture);
+		materials.push_back(si);
 	}
 
 	//for(unsigned i=0;i<(unsigned)model->mFaces.size();i++)
-	for(unsigned s=0;s<surfaces.size();s++)
+	for(unsigned s=0;s<materials.size();s++)
 	for(unsigned i=model->mModels[0].mFace;i<(unsigned)(model->mModels[0].mFace+model->mModels[0].mNbFaces);i++)
 	{
 		if(model->mFaces[i].mTextureIndex==s)
-		if(surfaces[model->mFaces[i].mTextureIndex].texture)
+		if(materials[model->mFaces[i].mTextureIndex].texture)
 		{
 			if(model->mFaces[i].mType==1)
 			{
@@ -238,7 +238,7 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_SURFACE_DIF_TEX:
+		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
 			if(numItems) *numItems = model->mTextures.size();
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
@@ -262,7 +262,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_SURFACE_DIF_TEX:
+		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
 		{
 			if(itemIndex>=(unsigned)model->mTextures.size())
 			{
@@ -276,7 +276,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 				assert(0);
 				return false;
 			}
-			*out = surfaces[itemIndex].texture;
+			*out = materials[itemIndex].texture;
 			return true;
 		}
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
@@ -377,7 +377,7 @@ const rr::RRCollider* RRObjectBSP::getCollider() const
 	return collider;
 }
 
-unsigned RRObjectBSP::getTriangleSurface(unsigned t) const
+unsigned RRObjectBSP::getTriangleMaterial(unsigned t) const
 {
 	if(t>=RRObjectBSP::getNumTriangles())
 	{
@@ -385,18 +385,18 @@ unsigned RRObjectBSP::getTriangleSurface(unsigned t) const
 		return UINT_MAX;
 	}
 	unsigned s = triangles[t].s;
-	assert(s<surfaces.size());
+	assert(s<materials.size());
 	return s;
 }
 
-const rr::RRSurface* RRObjectBSP::getSurface(unsigned s) const
+const rr::RRMaterial* RRObjectBSP::getMaterial(unsigned s) const
 {
-	if(s>=surfaces.size()) 
+	if(s>=materials.size()) 
 	{
 		assert(0);
 		return NULL;
 	}
-	return &surfaces[s].surface;
+	return &materials[s].material;
 }
 /*
 void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const

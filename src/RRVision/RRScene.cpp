@@ -105,11 +105,11 @@ RRScene::~RRScene()
 // a) udelat si kopie vsech surfacu
 //    -sezere trosku pameti a casu
 //    +maximalni bezpeci, kazda zmena surfacu za behu je fatalni, i banalni zmena odrazivosti z 0.5 na 0.4 to rozbije
-//    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRSurface::validate();
+//    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRMaterial::validate();
 // b) behem pouzivani neustale kontrolovat ze neco nepreteklo
 //    -sezere moc vykonu
 // c) zkontrolovat na zacatku a pak duverovat
-//    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRSurface::validate();
+//    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRMaterial::validate();
    
 RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 {
@@ -143,8 +143,8 @@ RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 	{
 		RRMesh::Triangle tv;
 		meshImporter->getTriangle(fi,tv);
-		unsigned si = importer->getTriangleSurface(fi);
-		const RRSurface* s=importer->getSurface(si);
+		unsigned si = importer->getTriangleMaterial(fi);
+		const RRMaterial* s=importer->getMaterial(si);
 		assert(s);
 		Triangle *t = &obj->triangle[tbot++];
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);

@@ -21,13 +21,13 @@ public:
 	{
 		return inherited->getCollider();
 	}
-	virtual unsigned getTriangleSurface(unsigned t) const
+	virtual unsigned getTriangleMaterial(unsigned t) const
 	{
-		return inherited->getTriangleSurface(t);
+		return inherited->getTriangleMaterial(t);
 	}
-	virtual const RRSurface* getSurface(unsigned s) const
+	virtual const RRMaterial* getMaterial(unsigned s) const
 	{
-		return inherited->getSurface(s);
+		return inherited->getMaterial(s);
 	}
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{

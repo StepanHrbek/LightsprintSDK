@@ -401,16 +401,6 @@ protected:
 	}
 	virtual void detectMaterials()
 	{
-/*#ifdef RR_DEVELOPMENT
-		delete[] surfaces;
-		numSurfaces = level->m3ds.numMaterials;
-		surfaces = new rr::RRSurface[numSurfaces];
-		for(unsigned i=0;i<numSurfaces;i++)
-		{
-			surfaces[i].reset(false);
-			surfaces[i].diffuseReflectance = rr::RRColor(m3ds.Materials[i].color.r/255.0,m3ds.Materials[i].color.g/255.0,m3ds.Materials[i].color.b/255.0);
-		}
-#endif*/
 	}
 	virtual bool detectDirectIllumination()
 	{

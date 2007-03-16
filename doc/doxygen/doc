@@ -375,7 +375,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
  Realtime radiosity is based on physically correct calculation of light transport.
  For such calculation it's necessary to know physical properties of surfaces.
- See RRSurface for list of all properties.
+ See RRMaterial for list of all material properties of a surface.
 
  Fortunately you don't have to study advanced laws of physics for good results,
  you don't even need any additional information provided by artists who
@@ -383,7 +383,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
  In <b>special case</b> of HelloRealtimeRadiosity example, materials contain diffuse texture
  without specular and transparency, so whole detection was reduced to calculating
- average color of diffuse texture and storing it into RRSurface::diffuseReflectance.
+ average color of diffuse texture and storing it into RRMaterial::diffuseReflectance.
  This took 1 hour.
 
  In <b>more general case</b> with known set of shaders,
@@ -403,13 +403,13 @@ Adding global illumination (GI) to your code is described in four steps.
     (so it covers whole viewport, but nothing more).
     If it has uv coordinates for textures, use whole texture space from 0,0 to 1,1 in rectangle.
  -# Clear to black and render rectangle.
-    Store acquired average color as RRSurface::diffuseEmittance.
+    Store acquired average color as RRMaterial::diffuseEmittance.
  -# Clear to white and render rectangle.
-    Store acquired average color minus emittance as RRSurface::specularTransmittance.
+    Store acquired average color minus emittance as RRMaterial::specularTransmittance.
  -# Add white light without distance attenuation to the same position as camera.
     Clear to black and render rectangle.
-    Store acquired average color minus emittance as RRSurface::diffuseReflectance.
- -# Call RRSurface::validate() to clamp values to physically correct bounds.
+    Store acquired average color minus emittance as RRMaterial::diffuseReflectance.
+ -# Call RRMaterial::validate() to clamp values to physically correct bounds.
     This is necessary to prevent damage from materials that e.g. reflect more light
     than they receive. Such behaviour is not possible in real world and may cause
     unexpected results in calculation such as infinitely high indirect illumination.
@@ -427,7 +427,7 @@ Adding global illumination (GI) to your code is described in four steps.
 \page integration_step_3 Create object wrappers
 
  Realtime radiosity transports light between object surfaces, so it needs to know everything
- about scene geometry and surface properties.
+ about scene geometry and material properties.
 
  Realtime radiosity is designed to access your structures in arbitrary format,
  so you don't have to duplicate any data. This may save you huge amounts of memory,
@@ -1200,7 +1200,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
  \section d44 Data source
    - RRScene::getTriangleMeasure with vertex=0,1,2 for triangle vertices
-   - RRScene::getTriangleMeasure with vertex>2 for triangle surface
+   - RRScene::getTriangleMeasure with vertex>2 for whole triangle area
    - RRScene::getSubtriangleMeasure for adaptively subdivided triangles
 
  \section d45 Data container
@@ -1296,7 +1296,7 @@ Adding global illumination (GI) to your code is described in four steps.
    <b>Mesh</b> is set of triangles with fixed positions in local space.
    \n\n
    <b>Object</b> is instance of mesh, with position, rotation, scale
-   and surface/material properties.
+   and material properties.
    <b>Static object</b> never moves, rotates, deforms or changes material properties.
    <b>Dynamic object</b> freely changes these properties.
    \n\n

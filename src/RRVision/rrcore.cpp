@@ -1057,7 +1057,7 @@ again:
 //  spoleha na to ze promenne uz jsou naplnene probihajicim vypoctem
 //  pouze zaktualizuje primary illum energie podle surfacu a additionalExitingFlux
 // return new primary exiting radiant flux in watts
-Channels Triangle::setSurface(const RRSurface *s, const Vec3& additionalIrradiance, bool resetPropagation)
+Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradiance, bool resetPropagation)
 {
 	assert(area!=0);//setGeometry must be called before setSurface
 	assert(s);

@@ -201,7 +201,7 @@ namespace rr
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
 		//!  Objects should not move (in 3d space) during our lifetime.
-		//!  Object's getSurface should return values in custom scale.
+		//!  Object's getMaterial should return values in custom scale.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
@@ -451,8 +451,8 @@ namespace rr
 		//! MultiObject is not created before you insert objects and call calculate().
 		RRObject* getMultiObjectCustom();
 
-		//! As getMultiObjectCustom, but with surfaces converted to physical space.
-		RRObjectWithPhysicalSurfaces* getMultiObjectPhysical();
+		//! As getMultiObjectCustom, but with materials converted to physical space.
+		RRObjectWithPhysicalMaterials* getMultiObjectPhysical();
 
 		//! As getMultiObjectPhysical, but with space for storage of detected direct illumination.
 		RRObjectWithIllumination* getMultiObjectPhysicalWithIllumination();
@@ -556,7 +556,7 @@ namespace rr
 		float      improveStep; // time to be spent in improve in calculate()
 		float      readingResultsPeriod;
 		RRObject*  multiObjectCustom;
-		RRObjectWithPhysicalSurfaces* multiObjectPhysical;
+		RRObjectWithPhysicalMaterials* multiObjectPhysical;
 		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
 		RRScene*   scene;
 		RRScene::Improvement calculateCore(unsigned requests, float improveStep);

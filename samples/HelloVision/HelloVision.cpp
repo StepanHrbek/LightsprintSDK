@@ -35,17 +35,17 @@ public:
 	{
 		collider = acollider;
 	}
-	virtual unsigned getTriangleSurface(unsigned t) const
+	virtual unsigned getTriangleMaterial(unsigned t) const
 	{
 		// all triangles are from material 0
 		return 0;
 	}
-	virtual const RRSurface* getSurface(unsigned si) const
+	virtual const RRMaterial* getMaterial(unsigned si) const
 	{
-		// return surface 0 which is gray with diffuse reflectance 50%, no specular, no transmittance
-		static RRSurface surface;
-		surface.reset(false);
-		return &surface;
+		// return material 0 which is gray with diffuse reflectance 50%, no specular, no transmittance
+		static RRMaterial material;
+		material.reset(false);
+		return &material;
 	}
 	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 	{

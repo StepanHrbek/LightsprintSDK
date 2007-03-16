@@ -1,4 +1,4 @@
-#include "RRObjectWithPhysicalSurfaces.h"
+#include "RRObjectWithPhysicalMaterials.h"
 
 namespace rr
 {
@@ -7,7 +7,7 @@ namespace rr
 //
 // RRObject
 
-RRObjectWithPhysicalSurfaces* RRObject::createObjectWithPhysicalSurfaces(const RRScaler* scaler)
+RRObjectWithPhysicalMaterials* RRObject::createObjectWithPhysicalMaterials(const RRScaler* scaler)
 {
 	/*
 	//!!! zatim nejde zoptimalizovat, protoze update() neni v RRObjectu
@@ -17,7 +17,7 @@ RRObjectWithPhysicalSurfaces* RRObject::createObjectWithPhysicalSurfaces(const R
 		return this;
 	}
 	*/
-	return new RRObjectWithPhysicalSurfacesImpl(this,scaler);
+	return new RRObjectWithPhysicalMaterialsImpl(this,scaler);
 }
 
 } // namespace

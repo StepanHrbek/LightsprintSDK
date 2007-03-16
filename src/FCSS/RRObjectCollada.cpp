@@ -8,7 +8,7 @@
 // so it works with your data.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
-// custom data via our custom identifiers CHANNEL_SURFACE_DIF_TEX etc.
+// custom data via our custom identifiers CHANNEL_MATERIAL_DIF_TEX etc.
 // It is used only by our renderer RendererOfRRObject
 // (during render of scene with ambient maps),
 // it is never accessed by radiosity solver.
@@ -151,11 +151,11 @@ void RRMeshCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsig
 {
 	switch(channelId)
 	{
-/*		case rr_gl::CHANNEL_SURFACE_DIF_TEX:
-			if(numItems) *numItems = (unsigned)surfaces.size();
+/*		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
+			if(numItems) *numItems = (unsigned)materials.size();
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
-		case RRObject::CHANNEL_TRIANGLE_SURFACE_IDX:
+		case RRObject::CHANNEL_TRIANGLE_MATERIAL_IDX:
 			if(numItems) *numItems = RRMeshCollada::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(unsigned);
 			return;*/
@@ -188,9 +188,9 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 	switch(channelId)
 	{
 		/*
-		case rr_gl::CHANNEL_SURFACE_DIF_TEX:
+		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
 		{
-			if(itemIndex>=(unsigned)surfaces.size())
+			if(itemIndex>=(unsigned)materials.size())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
@@ -202,7 +202,7 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 				assert(0);
 				return false;
 			}
-			*out = surfaces[itemIndex].texture;
+			*out = materials[itemIndex].texture;
 			return true;
 		}
 		case rr_gl::CHANNEL_TRIANGLE_OBJECT_ILLUMINATION:
@@ -222,7 +222,7 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 			*out = illumination;
 			return true;
 		}
-		case CHANNEL_TRIANGLE_SURFACE_IDX:
+		case CHANNEL_TRIANGLE_MATERIAL_IDX:
 		{
 			...
 			return true;
@@ -308,8 +308,8 @@ public:
 
 	// RRObject
 	virtual const RRCollider*       getCollider() const;
-	virtual unsigned                getTriangleSurface(unsigned t) const;
-	virtual const RRSurface*        getSurface(unsigned s) const;
+	virtual unsigned                getTriangleMaterial(unsigned t) const;
+	virtual const RRMaterial*        getMaterial(unsigned s) const;
 	virtual void                    getTriangleNormals(unsigned t, TriangleNormals& out) const;
 	virtual void                    getTriangleMapping(unsigned t, TriangleMapping& out) const;
 	virtual const RRMatrix3x4*      getWorldMatrix();
@@ -319,13 +319,13 @@ private:
 	const FCDSceneNode* node;
 	const FCDGeometryInstance* geometryInstance;
 
-	// copy of object's surface properties
-	struct SurfaceInfo
+	// copy of object's material properties
+	struct MaterialInfo
 	{
-		RRSurface surface;
+		RRMaterial material;
 		de::Texture* texture;
 	};
-	std::vector<SurfaceInfo> surfaces;
+	std::vector<MaterialInfo> materials;
 
 	// collider for ray-mesh collisions
 	const RRCollider* collider;
@@ -340,7 +340,7 @@ private:
 /*
 // Inputs: m
 // Outputs: t, s
-static void fillSurface(RRSurface& s, de::Texture*& t, de::TTexture* m,const char* pathToTextures, de::Texture* fallback)
+static void fillMaterial(RRMaterial& s, de::Texture*& t, de::TTexture* m,const char* pathToTextures, de::Texture* fallback)
 {
 	enum {size = 8};
 
@@ -381,7 +381,7 @@ static void fillSurface(RRSurface& s, de::Texture*& t, de::TTexture* m,const cha
 
 #ifdef VERIFY
 	if(s.validate())
-		RRReporter::report(RRReporter::WARN,"Surface adjusted to physically valid.\n");
+		RRReporter::report(RRReporter::WARN,"Material adjusted to physically valid.\n");
 #else
 	s.validate();
 #endif
@@ -407,9 +407,9 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryIns
 
 	/*for(unsigned i=0;i<(unsigned)model->mTextures.size();i++)
 	{
-		SurfaceInfo si;
-		fillSurface(si.surface,si.texture,&model->mTextures[i],pathToTextures);
-		surfaces.push_back(si);
+		MaterialInfo si;
+		fillMaterial(si.material,si.texture,&model->mTextures[i],pathToTextures);
+		materials.push_back(si);
 	}*/
 }
 
@@ -436,7 +436,7 @@ fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle
 	return false;
 }
 
-unsigned RRObjectCollada::getTriangleSurface(unsigned t) const
+unsigned RRObjectCollada::getTriangleMaterial(unsigned t) const
 {
 	// lets have some abstract fun
 
@@ -486,7 +486,7 @@ unsigned RRObjectCollada::getTriangleSurface(unsigned t) const
 	const FCDEffectParameter* effectParameter = effectProfile->FindParameterByReference("diffuse");
 /*
 	unsigned result = UINT_MAX;
-	collider->getMesh()->getChannelData(CHANNEL_TRIANGLE_SURFACE_IDX,t,&result,sizeof(unsigned));
+	collider->getMesh()->getChannelData(CHANNEL_TRIANGLE_MATERIAL_IDX,t,&result,sizeof(unsigned));
 	return result;
 	/*
 	if(t>=collider->getMesh()->getNumTriangles())
@@ -495,19 +495,19 @@ unsigned RRObjectCollada::getTriangleSurface(unsigned t) const
 		return UINT_MAX;
 	}
 	unsigned s = triangles[t].s;
-	assert(s<surfaces.size());
+	assert(s<materials.size());
 	return s;
 	*/
 }
 
-const RRSurface* RRObjectCollada::getSurface(unsigned s) const
+const RRMaterial* RRObjectCollada::getMaterial(unsigned s) const
 {
-	if(s>=surfaces.size()) 
+	if(s>=materials.size()) 
 	{
 		assert(0);
 		return NULL;
 	}
-	return &surfaces[s].surface;
+	return &materials[s].material;
 }
 
 void RRObjectCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const

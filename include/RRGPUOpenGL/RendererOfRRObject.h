@@ -18,7 +18,7 @@ namespace rr_gl
 // (they allocate channel numbers not used by Lightsprint engine)
 enum
 {
-	CHANNEL_SURFACE_DIF_TEX              = rr::RRMesh::INDEXED_BY_SURFACE+1,  ///< channel contains Texture* for each surface
+	CHANNEL_MATERIAL_DIF_TEX             = rr::RRMesh::INDEXED_BY_MATERIAL+1,  ///< channel contains Texture* for each material
 	CHANNEL_TRIANGLE_VERTICES_DIF_UV     = rr::RRMesh::INDEXED_BY_TRIANGLE+5, ///< channel contains RRVec2[3] for each triangle
 	CHANNEL_TRIANGLE_OBJECT_ILLUMINATION = rr::RRMesh::INDEXED_BY_TRIANGLE+6, ///< channel contains RRObjectIllumination* for each triangle
 };

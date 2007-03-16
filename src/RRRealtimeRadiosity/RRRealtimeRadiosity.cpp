@@ -113,7 +113,7 @@ RRObject* RRRealtimeRadiosity::getMultiObjectCustom()
 	return multiObjectCustom;
 }
 
-RRObjectWithPhysicalSurfaces* RRRealtimeRadiosity::getMultiObjectPhysical()
+RRObjectWithPhysicalMaterials* RRRealtimeRadiosity::getMultiObjectPhysical()
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return multiObjectPhysical;
@@ -200,7 +200,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		}
 		multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)objects.size(),smoothing.intersectTechnique,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
 		//!!! nevyrabet kdyz neni scaler
-		multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalSurfaces(getScaler()) : NULL;
+		multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL;
 		// RRObjectWithIllum dostava physical surfacy, dat mu custom by byla chyba
 		multiObjectPhysicalWithIllumination = multiObjectPhysical ? multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
 			(multiObjectCustom ? multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);

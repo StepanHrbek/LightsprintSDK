@@ -8,9 +8,9 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRSurface
+// RRMaterial
 
-void RRSurface::reset(bool twoSided)
+void RRMaterial::reset(bool twoSided)
 {
 	memset(this,0,sizeof(*this));
 	RRSideBits sideBitsTmp[2][2]={
@@ -44,7 +44,7 @@ bool clamp(RRVec3& vec, RRReal min, RRReal max)
 	return clamped>0;
 }
 
-bool RRSurface::validate()
+bool RRMaterial::validate()
 {
 	bool changed = false;
 

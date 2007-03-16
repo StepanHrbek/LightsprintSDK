@@ -235,7 +235,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 				hitsReliable++;
 			}
 			else
-			if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
+			if(!ray->hitFrontSide) //!!! predelat na obecne, respektovat surfaceBits
 			{
 				// ray was lost inside object, 
 				// increase our transparency, so our color doesn't leak outside object

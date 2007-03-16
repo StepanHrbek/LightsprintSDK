@@ -20,7 +20,7 @@
 //    collider can be big.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
-// custom .3ds data via our custom identifiers CHANNEL_SURFACE_DIF_TEX etc.
+// custom .3ds data via our custom identifiers CHANNEL_MATERIAL_DIF_TEX etc.
 // It is used only by our custom renderer RendererOfRRObject
 // (during render of scene with ambient maps),
 // it is never accessed by radiosity solver.
@@ -82,8 +82,8 @@ public:
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
-	virtual unsigned                getTriangleSurface(unsigned t) const;
-	virtual const rr::RRSurface*    getSurface(unsigned s) const;
+	virtual unsigned                getTriangleMaterial(unsigned t) const;
+	virtual const rr::RRMaterial*    getMaterial(unsigned s) const;
 	virtual void                    getTriangleNormals(unsigned t, TriangleNormals& out) const;
 	virtual const rr::RRMatrix3x4*  getWorldMatrix();
 	virtual const rr::RRMatrix3x4*  getInvWorldMatrix();
@@ -96,12 +96,12 @@ private:
 	struct TriangleInfo
 	{
 		rr::RRMesh::Triangle t;
-		unsigned s; // surface index
+		unsigned s; // material index
 	};
 	std::vector<TriangleInfo> triangles;
 
-	// copy of object's surface properties
-	std::vector<rr::RRSurface> surfaces;
+	// copy of object's material properties
+	std::vector<rr::RRMaterial> materials;
 	
 	// collider for ray-mesh collisions
 	rr::RRCollider* collider;
@@ -115,7 +115,7 @@ private:
 //
 // RRObject3DS load
 
-static void fillSurface(rr::RRSurface* s,de::Model_3DS::Material* m)
+static void fillMaterial(rr::RRMaterial* s,de::Model_3DS::Material* m)
 {
 	enum {size = 8};
 
@@ -148,13 +148,13 @@ static void fillSurface(rr::RRSurface* s,de::Model_3DS::Material* m)
 
 #ifdef VERIFY
 	if(s->validate())
-		reporter("Surface adjusted to physically valid.",NULL);
+		reporter("Material adjusted to physically valid.",NULL);
 #else
 	s->validate();
 #endif
 }
 
-// Creates internal copies of .3ds geometry and surface properties.
+// Creates internal copies of .3ds geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
 RRObject3DS::RRObject3DS(de::Model_3DS* amodel, unsigned objectIdx)
 {
@@ -176,9 +176,9 @@ RRObject3DS::RRObject3DS(de::Model_3DS* amodel, unsigned objectIdx)
 
 	for(unsigned i=0;i<(unsigned)model->numMaterials;i++)
 	{
-		rr::RRSurface s;
-		fillSurface(&s,&model->Materials[i]);
-		surfaces.push_back(s);
+		rr::RRMaterial s;
+		fillMaterial(&s,&model->Materials[i]);
+		materials.push_back(s);
 	}
 
 #ifdef VERIFY
@@ -211,7 +211,7 @@ void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_SURFACE_DIF_TEX:
+		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
 			if(numItems) *numItems = model->numMaterials;
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
@@ -235,7 +235,7 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_SURFACE_DIF_TEX:
+		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
 		{
 			if(itemIndex>=(unsigned)model->numMaterials)
 			{
@@ -340,7 +340,7 @@ const rr::RRCollider* RRObject3DS::getCollider() const
 	return collider;
 }
 
-unsigned RRObject3DS::getTriangleSurface(unsigned t) const
+unsigned RRObject3DS::getTriangleMaterial(unsigned t) const
 {
 	if(t>=RRObject3DS::getNumTriangles())
 	{
@@ -348,18 +348,18 @@ unsigned RRObject3DS::getTriangleSurface(unsigned t) const
 		return UINT_MAX;
 	}
 	unsigned s = triangles[t].s;
-	assert(s<surfaces.size());
+	assert(s<materials.size());
 	return s;
 }
 
-const rr::RRSurface* RRObject3DS::getSurface(unsigned s) const
+const rr::RRMaterial* RRObject3DS::getMaterial(unsigned s) const
 {
-	if(s>=surfaces.size()) 
+	if(s>=materials.size()) 
 	{
 		assert(0);
 		return NULL;
 	}
-	return &surfaces[s];
+	return &materials[s];
 }
 
 void RRObject3DS::getTriangleNormals(unsigned t, TriangleNormals& out) const

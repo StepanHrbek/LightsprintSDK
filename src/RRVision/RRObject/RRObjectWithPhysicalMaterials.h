@@ -9,25 +9,25 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRObjectWithPhysicalSurfaces
+// RRObjectWithPhysicalMaterials
 
-class RRObjectWithPhysicalSurfacesImpl : public RRObjectWithPhysicalSurfaces
+class RRObjectWithPhysicalMaterialsImpl : public RRObjectWithPhysicalMaterials
 {
 public:
-	RRObjectWithPhysicalSurfacesImpl(RRObject* aoriginal, const RRScaler* ascaler)
+	RRObjectWithPhysicalMaterialsImpl(RRObject* aoriginal, const RRScaler* ascaler)
 	{
 		original = aoriginal;
 		scaler = ascaler;
 		update();
 	}
-	virtual ~RRObjectWithPhysicalSurfacesImpl() 
+	virtual ~RRObjectWithPhysicalMaterialsImpl() 
 	{
 	}
-	virtual const RRSurface* getSurface(unsigned s) const
+	virtual const RRMaterial* getMaterial(unsigned s) const
 	{
 		if(!scaler || map.find(s)==map.end())
 		{
-			return original->getSurface(s);
+			return original->getMaterial(s);
 		}
 		return &map.find(s)->second;
 	}
@@ -45,7 +45,7 @@ public:
 		convertToPhysicalFactor(factor3);
 		factor = factor3[0];
 	}
-	void convertToPhysical(const RRSurface& custom, RRSurface& physical)
+	void convertToPhysical(const RRMaterial& custom, RRMaterial& physical)
 	{
 		assert(scaler);
 		physical = custom;
@@ -64,11 +64,11 @@ public:
 		unsigned numTriangles = original->getCollider()->getMesh()->getNumTriangles();
 		for(unsigned i=0;i<numTriangles;i++)
 		{
-			unsigned s = original->getTriangleSurface(i);
+			unsigned s = original->getTriangleMaterial(i);
 			if(map.find(s)!=map.end())
 			{
-				const RRSurface* custom = original->getSurface(s);
-				RRSurface physical;
+				const RRMaterial* custom = original->getMaterial(s);
+				RRMaterial physical;
 				convertToPhysical(*custom,physical);
 				map.insert(Pair(s,physical));
 			}
@@ -80,9 +80,9 @@ public:
 	{
 		return original->getCollider();
 	}
-	virtual unsigned getTriangleSurface(unsigned t) const
+	virtual unsigned getTriangleMaterial(unsigned t) const
 	{
-		return original->getTriangleSurface(t);
+		return original->getTriangleMaterial(t);
 	}
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
@@ -108,8 +108,8 @@ public:
 private:
 	RRObject* original;
 	const RRScaler* scaler;
-	typedef std::pair<unsigned,RRSurface> Pair;
-	std::map<unsigned,RRSurface> map;
+	typedef std::pair<unsigned,RRMaterial> Pair;
+	std::map<unsigned,RRMaterial> map;
 };
 
 }; // namespace

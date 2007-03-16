@@ -320,7 +320,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RRObject\RRObjectWithPhysicalSurfaces.cpp"
+				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.cpp"
 				>
 				<FileConfiguration
 					Name="Release static|Win32"
@@ -340,7 +340,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\RRObject\RRObjectWithPhysicalSurfaces.h"
+				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.h"
 				>
 			</File>
 		</Filter>
@@ -385,15 +385,15 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRMaterial.cpp"
+			>
+		</File>
+		<File
 			RelativePath="RRScaler.cpp"
 			>
 		</File>
 		<File
 			RelativePath="RRScene.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RRSurface.cpp"
 			>
 		</File>
 		<File

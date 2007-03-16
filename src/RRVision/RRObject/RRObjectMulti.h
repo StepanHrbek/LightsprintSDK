@@ -13,7 +13,7 @@ namespace rr
 //   They are thus not allowed to destroy it (see general rules).
 //   MultiObjectImporter creates Collider internally. To behave as others, it doesn't destroy it.
 // Limitations:
-//   All objects must share one surface numbering.
+//   All objects must share one material numbering.
 
 class RRMultiObjectImporter : public RRObject
 {
@@ -44,7 +44,7 @@ public:
 			// NOW: multiMesh is unoptimized = concatenated meshes
 			// kdyz jsou zaple tyto optimalizace, pristup k objektu je pomalejsi,
 			//  protoze je nutne preindexovavat analogicky k obecne optimalizaci v meshi
-			//!!! kdyz jsou zaple tyto optimalizace, "fcss koupelna" gcc hodi assert u m3ds v getTriangleSurface,
+			//!!! kdyz jsou zaple tyto optimalizace, "fcss koupelna" gcc hodi assert u m3ds v getTriangleMaterial,
 			//    moc velky trianglIndex. kdyz ho ignoruju, crashne. v msvc se nepodarilo navodit.
 			// stitch vertices
 			if(maxStitchDistance>=0)
@@ -120,16 +120,16 @@ public:
 		t = unoptimizedMesh->getPostImportTriangle(t);
 	}
 
-	virtual unsigned getTriangleSurface(unsigned t) const
+	virtual unsigned getTriangleMaterial(unsigned t) const
 	{
 		unoptimizeTriangle(t);
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleSurface(t);
-		return pack[1].getImporter()->getTriangleSurface(t-pack[0].getNumTriangles());
+		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMaterial(t);
+		return pack[1].getImporter()->getTriangleMaterial(t-pack[0].getNumTriangles());
 	}
-	virtual const RRSurface* getSurface(unsigned s) const
+	virtual const RRMaterial* getMaterial(unsigned s) const
 	{
-		//!!! assumption: all objects share the same surface library
-		return pack[0].getImporter()->getSurface(s);
+		//!!! assumption: all objects share the same material library
+		return pack[0].getImporter()->getMaterial(s);
 	}
 
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
@@ -193,7 +193,7 @@ private:
 		// zde umyslne neni break, pokracujeme do defaultu
 		default: 
 			assert(objects); 
-			unsigned num1 = (numObjects+1)/2; // pokud numObjects==1, musi vyjit num1=1, num2=0 (num1 nikdy nesmi byt 0 kvuli getSurface)
+			unsigned num1 = (numObjects+1)/2; // pokud numObjects==1, musi vyjit num1=1, num2=0 (num1 nikdy nesmi byt 0 kvuli getMaterial)
 			unsigned num2 = numObjects-num1;
 			unsigned tris[2] = {0,0};
 			for(unsigned i=0;i<numObjects;i++) 
