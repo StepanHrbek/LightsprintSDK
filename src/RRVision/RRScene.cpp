@@ -143,8 +143,7 @@ RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 	{
 		RRMesh::Triangle tv;
 		meshImporter->getTriangle(fi,tv);
-		unsigned si = importer->getTriangleMaterial(fi);
-		const RRMaterial* s=importer->getMaterial(si);
+		const RRMaterial* s=importer->getTriangleMaterial(fi);
 		assert(s);
 		Triangle *t = &obj->triangle[tbot++];
 		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);

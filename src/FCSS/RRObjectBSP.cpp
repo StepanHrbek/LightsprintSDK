@@ -20,7 +20,7 @@
 //    collider can be big.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
-// custom .bsp data via our custom identifiers CHANNEL_MATERIAL_DIF_TEX etc.
+// custom .bsp data via our custom identifiers CHANNEL_TRIANGLE_DIF_TEX etc.
 // It is used only by our custom renderer RendererOfRRObject
 // (during render of scene with ambient maps),
 // it is never accessed by radiosity solver.
@@ -76,8 +76,7 @@ public:
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
-	virtual unsigned                getTriangleMaterial(unsigned t) const;
-	virtual const rr::RRMaterial*    getMaterial(unsigned s) const;
+	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t) const;
 	//virtual void                    getTriangleNormals(unsigned t, TriangleNormals& out) const;
 
 private:
@@ -238,8 +237,8 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
-			if(numItems) *numItems = model->mTextures.size();
+		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
+			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
@@ -262,11 +261,17 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
 		{
-			if(itemIndex>=(unsigned)model->mTextures.size())
+			if(itemIndex>=RRObjectBSP::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
+				return false;
+			}
+			unsigned materialIndex = triangles[itemIndex].s;
+			if(materialIndex>=materials.size())
+			{
+				assert(0); // illegal
 				return false;
 			}
 			typedef de::Texture* Out;
@@ -276,7 +281,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 				assert(0);
 				return false;
 			}
-			*out = materials[itemIndex].texture;
+			*out = materials[materialIndex].texture;
 			return true;
 		}
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
@@ -377,21 +382,15 @@ const rr::RRCollider* RRObjectBSP::getCollider() const
 	return collider;
 }
 
-unsigned RRObjectBSP::getTriangleMaterial(unsigned t) const
+const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t) const
 {
 	if(t>=RRObjectBSP::getNumTriangles())
 	{
 		assert(0);
-		return UINT_MAX;
+		return NULL;
 	}
 	unsigned s = triangles[t].s;
-	assert(s<materials.size());
-	return s;
-}
-
-const rr::RRMaterial* RRObjectBSP::getMaterial(unsigned s) const
-{
-	if(s>=materials.size()) 
+	if(s>=materials.size())
 	{
 		assert(0);
 		return NULL;

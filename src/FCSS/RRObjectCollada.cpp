@@ -6,15 +6,8 @@
 // This code implements data wrappers for access to Collada meshes, objects, materials.
 // You can replace Collada with your internal format and adapt this code
 // so it works with your data.
-//
-// RRChanneledData - the biggest part of this implementation, provides access to
-// custom data via our custom identifiers CHANNEL_MATERIAL_DIF_TEX etc.
-// It is used only by our renderer RendererOfRRObject
-// (during render of scene with ambient maps),
-// it is never accessed by radiosity solver.
-// You may skip it in your implementation.
 
-#if 1
+#if 0
 
 #include <cassert>
 #include <cmath>
@@ -44,11 +37,17 @@
 #include "FUtils/FUFileManager.h"
 
 #ifdef _DEBUG
-	//#pragma comment(lib,"FColladaD.lib") // dll
-	#pragma comment(lib,"FColladaSD.lib") // static
+	#ifdef RR_STATIC
+		#pragma comment(lib,"FColladaSD.lib")
+	#else
+		#pragma comment(lib,"FColladaD.lib")
+	#endif
 #else
-	//#pragma comment(lib,"FCollada.lib") // dll
-	#pragma comment(lib,"FColladaSR.lib") // static
+	#ifdef RR_STATIC
+		#pragma comment(lib,"FColladaSR.lib")
+	#else
+		#pragma comment(lib,"FCollada.lib")
+	#endif
 #endif
 
 using namespace rr;
@@ -156,13 +155,9 @@ void RRMeshCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsig
 {
 	switch(channelId)
 	{
-/*		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
-			if(numItems) *numItems = (unsigned)materials.size();
-			if(itemSize) *itemSize = sizeof(de::Texture*);
-			return;
-		case RRObject::CHANNEL_TRIANGLE_MATERIAL_IDX:
+		/*case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
 			if(numItems) *numItems = RRMeshCollada::getNumTriangles();
-			if(itemSize) *itemSize = sizeof(unsigned);
+			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;*/
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
 			if(numItems) *numItems = RRMeshCollada::getNumTriangles();
@@ -193,7 +188,7 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 	switch(channelId)
 	{
 		/*
-		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
 		{
 			if(itemIndex>=(unsigned)materials.size())
 			{
@@ -227,11 +222,7 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 			*out = illumination;
 			return true;
 		}
-		case CHANNEL_TRIANGLE_MATERIAL_IDX:
-		{
-			...
-			return true;
-		}*/
+		*/
 
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
 			return getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,2,itemIndex,itemData,itemSize);
@@ -313,8 +304,7 @@ public:
 
 	// RRObject
 	virtual const RRCollider*       getCollider() const;
-	virtual unsigned                getTriangleMaterial(unsigned t) const;
-	virtual const RRMaterial*        getMaterial(unsigned s) const;
+	virtual const RRMaterial*       getTriangleMaterial(unsigned t) const;
 	virtual void                    getTriangleNormals(unsigned t, TriangleNormals& out) const;
 	virtual void                    getTriangleMapping(unsigned t, TriangleMapping& out) const;
 	virtual const RRMatrix3x4*      getWorldMatrix();
@@ -330,7 +320,9 @@ private:
 		RRMaterial material;
 		de::Texture* texture;
 	};
-	std::vector<MaterialInfo> materials;
+	//std::vector<MaterialInfo> materials;
+	typedef std::map<const FCDEffectStandard*,MaterialInfo> Cache;
+	Cache cache;
 
 	// collider for ray-mesh collisions
 	const RRCollider* collider;
@@ -341,6 +333,45 @@ private:
 	// indirect illumination (ambient maps etc)
 	RRObjectIllumination* illumination;
 };
+
+RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider, const char* pathToTextures)
+{
+	node = anode;
+	geometryInstance = ageometryInstance;
+	collider = acollider;
+
+	const FMMatrix44 world = node->CalculateWorldTransform();
+	for(unsigned i=0;i<3;i++)
+		for(unsigned j=0;j<4;j++)
+			worldMatrix.m[i][j] = world.m[i][j];
+	const FMMatrix44 inv = world.Inverted();
+	for(unsigned i=0;i<3;i++)
+		for(unsigned j=0;j<4;j++)
+			invWorldMatrix.m[i][j] = world.m[i][j];
+}
+
+const RRCollider* RRObjectCollada::getCollider() const
+{
+	return collider;
+}
+
+fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle)
+{
+	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
+	{
+		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
+		if(polygons)
+		{
+			size_t relativeIndex = triangle - polygons->GetFaceOffset();
+			if(relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
+			{
+				return polygons->GetMaterialSemantic();
+			}
+		}
+	}
+	assert(0);
+	return NULL;
+}
 
 /*
 // Inputs: m
@@ -393,73 +424,25 @@ static void fillMaterial(RRMaterial& s, de::Texture*& t, de::TTexture* m,const c
 }
 */
 
-RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider, const char* pathToTextures)
-{
-	node = anode;
-	geometryInstance = ageometryInstance;
-	collider = acollider;
-
-	const FMMatrix44 world = node->CalculateWorldTransform();
-	for(unsigned i=0;i<3;i++)
-		for(unsigned j=0;j<4;j++)
-			worldMatrix.m[i][j] = world.m[i][j];
-	const FMMatrix44 inv = world.Inverted();
-	for(unsigned i=0;i<3;i++)
-		for(unsigned j=0;j<4;j++)
-			invWorldMatrix.m[i][j] = world.m[i][j];
-
-	//!!!
-
-	/*for(unsigned i=0;i<(unsigned)model->mTextures.size();i++)
-	{
-		MaterialInfo si;
-		fillMaterial(si.material,si.texture,&model->mTextures[i],pathToTextures);
-		materials.push_back(si);
-	}*/
-}
-
-const RRCollider* RRObjectCollada::getCollider() const
-{
-	return collider;
-}
-
-fstring getTriangleMaterialSymbol(const FCDGeometryMesh* mesh, unsigned triangle)
-{
-	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
-	{
-		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
-		if(polygons)
-		{
-			size_t relativeIndex = triangle - polygons->GetFaceOffset();
-			if(relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
-			{
-				return polygons->GetMaterialSemantic();
-			}
-		}
-	}
-	assert(0);
-	return false;
-}
-
-unsigned RRObjectCollada::getTriangleMaterial(unsigned t) const
+const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t) const
 {
 	// lets have some abstract layered fun
 
 	if(!geometryInstance)
 	{
-		return UINT_MAX;
+		return NULL;
 	}
 
 	const FCDGeometry* geometry = static_cast<const FCDGeometry*>(geometryInstance->GetEntity());
 	if(!geometry)
 	{
-		return UINT_MAX;
+		return NULL;
 	}
 
 	const FCDGeometryMesh* mesh = geometry->GetMesh();
 	if(!mesh)
 	{
-		return UINT_MAX;
+		return NULL;
 	}
 
 	const fstring symbol = getTriangleMaterialSymbol(mesh,t);
@@ -467,41 +450,50 @@ unsigned RRObjectCollada::getTriangleMaterial(unsigned t) const
 	const FCDMaterialInstance* materialInstance = geometryInstance->FindMaterialInstance(symbol);
 	if(!materialInstance)
 	{
-		return UINT_MAX;
+		return NULL;
 	}
 
 	const FCDMaterial* material = materialInstance->GetMaterial();
 	if(!material)
 	{
-		return UINT_MAX;
+		return NULL;
 	}
 
 	const FCDEffect* effect = material->GetEffect();
 	if(!effect)
 	{
-		return UINT_MAX;
+		return NULL;
 	}
 
 	const FCDEffectProfile* effectProfile = effect->FindProfile(FUDaeProfileType::COMMON);
 	if(!effectProfile)
 	{
-		return UINT_MAX;
+		return NULL;
 	}
 	const FCDEffectStandard* effectStandard = static_cast<const FCDEffectStandard*>(effectProfile);
 
-	assert(sizeof(unsigned)==sizeof(effectStandard));
-	return (unsigned)(intptr_t)effectStandard;
-}
-
-const RRMaterial* RRObjectCollada::getMaterial(unsigned s) const
-{
-	const FCDEffectStandard* effectStandard = (const FCDEffectStandard*)s;
-	if(s>=materials.size()) 
+	// Find RRMaterial in cache.
+	// But why cache? (It would be easier to create RRMaterial always from scratch.)
+	// RRObject requires that we return always the same RRMaterial for the same triangle
+	// and it (pointer) stays valid for whole RRObject life.
+	Cache::const_iterator i = cache.find(effectStandard);
+	if(i!=cache.end())
 	{
-		assert(0);
-		return NULL;
+		return &i->second.material;
 	}
-	return &materials[s].material;
+	// Not in cache -> create and insert it into cache.
+	MaterialInfo mi;
+	mi.material.reset(false);
+	//!!! mi.material...;
+/*	cache[effectStandard] = mi;
+	return &cache[effectStandard].material;
+
+	/*for(unsigned i=0;i<(unsigned)model->mTextures.size();i++)
+	{
+		MaterialInfo si;
+		fillMaterial(si.material,si.texture,&model->mTextures[i],pathToTextures);
+		materials.push_back(si);
+	}*/
 }
 
 void RRObjectCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const

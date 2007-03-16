@@ -20,7 +20,7 @@
 //    collider can be big.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
-// custom .3ds data via our custom identifiers CHANNEL_MATERIAL_DIF_TEX etc.
+// custom .3ds data via our custom identifiers CHANNEL_TRIANGLE_DIF_TEX etc.
 // It is used only by our custom renderer RendererOfRRObject
 // (during render of scene with ambient maps),
 // it is never accessed by radiosity solver.
@@ -82,8 +82,7 @@ public:
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
-	virtual unsigned                getTriangleMaterial(unsigned t) const;
-	virtual const rr::RRMaterial*    getMaterial(unsigned s) const;
+	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t) const;
 	virtual void                    getTriangleNormals(unsigned t, TriangleNormals& out) const;
 	virtual const rr::RRMatrix3x4*  getWorldMatrix();
 	virtual const rr::RRMatrix3x4*  getInvWorldMatrix();
@@ -211,8 +210,8 @@ void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
-			if(numItems) *numItems = model->numMaterials;
+		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
+			if(numItems) *numItems = RRObject3DS::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
@@ -235,11 +234,17 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_MATERIAL_DIF_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
 		{
-			if(itemIndex>=(unsigned)model->numMaterials)
+			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{
 				assert(0); // legal, but shouldn't happen in well coded program
+				return false;
+			}
+			unsigned materialIndex = triangles[itemIndex].s;
+			if(materialIndex>=materials.size())
+			{
+				assert(0); // illegal
 				return false;
 			}
 			typedef de::Texture* Out;
@@ -249,7 +254,7 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 				assert(0);
 				return false;
 			}
-			*out = model->Materials[itemIndex].tex;
+			*out = model->Materials[materialIndex].tex;
 			return true;
 		}
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
@@ -340,21 +345,15 @@ const rr::RRCollider* RRObject3DS::getCollider() const
 	return collider;
 }
 
-unsigned RRObject3DS::getTriangleMaterial(unsigned t) const
+const rr::RRMaterial* RRObject3DS::getTriangleMaterial(unsigned t) const
 {
 	if(t>=RRObject3DS::getNumTriangles())
 	{
 		assert(0);
-		return UINT_MAX;
+		return NULL;
 	}
 	unsigned s = triangles[t].s;
-	assert(s<materials.size());
-	return s;
-}
-
-const rr::RRMaterial* RRObject3DS::getMaterial(unsigned s) const
-{
-	if(s>=materials.size()) 
+	if(s>=materials.size())
 	{
 		assert(0);
 		return NULL;

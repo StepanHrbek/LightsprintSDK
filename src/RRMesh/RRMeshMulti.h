@@ -57,11 +57,6 @@ public:
 		case INDEXED_BY_TRIANGLE:
 			pack0Items = pack[0].getNumTriangles();
 			break;
-		case INDEXED_BY_MATERIAL:
-			//pack0Items = pack[0].getNumMaterials();
-			//!!! assumption: all objects share the same material library
-			pack0Items = UINT_MAX;
-			break;
 		case INDEXED_BY_OBJECT:
 			pack0Items = pack[0].getNumObjects();
 			break;

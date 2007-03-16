@@ -120,16 +120,11 @@ public:
 		t = unoptimizedMesh->getPostImportTriangle(t);
 	}
 
-	virtual unsigned getTriangleMaterial(unsigned t) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
 	{
 		unoptimizeTriangle(t);
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMaterial(t);
 		return pack[1].getImporter()->getTriangleMaterial(t-pack[0].getNumTriangles());
-	}
-	virtual const RRMaterial* getMaterial(unsigned s) const
-	{
-		//!!! assumption: all objects share the same material library
-		return pack[0].getImporter()->getMaterial(s);
 	}
 
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
@@ -193,7 +188,7 @@ private:
 		// zde umyslne neni break, pokracujeme do defaultu
 		default: 
 			assert(objects); 
-			unsigned num1 = (numObjects+1)/2; // pokud numObjects==1, musi vyjit num1=1, num2=0 (num1 nikdy nesmi byt 0 kvuli getMaterial)
+			unsigned num1 = (numObjects+1)/2;
 			unsigned num2 = numObjects-num1;
 			unsigned tris[2] = {0,0};
 			for(unsigned i=0;i<numObjects;i++) 

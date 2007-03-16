@@ -35,14 +35,9 @@ public:
 	{
 		collider = acollider;
 	}
-	virtual unsigned getTriangleMaterial(unsigned t) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
 	{
-		// all triangles are from material 0
-		return 0;
-	}
-	virtual const RRMaterial* getMaterial(unsigned si) const
-	{
-		// return material 0 which is gray with diffuse reflectance 50%, no specular, no transmittance
+		// all triangles are gray with diffuse reflectance 50%, no specular, no transmittance
 		static RRMaterial material;
 		material.reset(false);
 		return &material;

@@ -66,7 +66,7 @@ public:
 		}
 		if(measure.exiting)
 		{
-			const RRMaterial* s = getMaterial(getTriangleMaterial(t));
+			const RRMaterial* s = getTriangleMaterial(t);
 			if(!s)
 			{
 				assert(0);
@@ -90,7 +90,7 @@ public:
 		RRColor power = triangleInfo[t].irradiance;
 		if(measure.exiting)
 		{
-			const RRMaterial* s = getMaterial(getTriangleMaterial(t));
+			const RRMaterial* s = getTriangleMaterial(t);
 			if(!s)
 			{
 				assert(0);
@@ -117,13 +117,9 @@ public:
 	{
 		return original->getCollider();
 	}
-	virtual unsigned getTriangleMaterial(unsigned t) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
 	{
 		return original->getTriangleMaterial(t);
-	}
-	virtual const RRMaterial* getMaterial(unsigned s) const
-	{
-		return original->getMaterial(s);
 	}
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{

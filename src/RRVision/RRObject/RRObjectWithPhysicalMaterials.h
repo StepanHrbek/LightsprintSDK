@@ -23,13 +23,13 @@ public:
 	virtual ~RRObjectWithPhysicalMaterialsImpl() 
 	{
 	}
-	virtual const RRMaterial* getMaterial(unsigned s) const
+	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
 	{
-		if(!scaler || map.find(s)==map.end())
+		if(!scaler || cache.find(t)==cache.end())
 		{
-			return original->getMaterial(s);
+			return original->getTriangleMaterial(t);
 		}
-		return &map.find(s)->second;
+		return &cache.find(t)->second;
 	}
 	void convertToPhysicalFactor(RRColor& factor)
 	{
@@ -58,19 +58,18 @@ public:
 	virtual void update()
 	{
 		if(!scaler) return;
-		map.erase(map.begin(),map.end());
+		cache.erase(cache.begin(),cache.end());
 		assert(original->getCollider());
 		assert(original->getCollider()->getMesh());
 		unsigned numTriangles = original->getCollider()->getMesh()->getNumTriangles();
 		for(unsigned i=0;i<numTriangles;i++)
 		{
-			unsigned s = original->getTriangleMaterial(i);
-			if(map.find(s)!=map.end())
+			if(cache.find(i)!=cache.end())
 			{
-				const RRMaterial* custom = original->getMaterial(s);
+				const RRMaterial* custom = original->getTriangleMaterial(i);
 				RRMaterial physical;
 				convertToPhysical(*custom,physical);
-				map.insert(Pair(s,physical));
+				cache.insert(Pair(i,physical));
 			}
 		}
 	}
@@ -79,10 +78,6 @@ public:
 	virtual const RRCollider* getCollider() const
 	{
 		return original->getCollider();
-	}
-	virtual unsigned getTriangleMaterial(unsigned t) const
-	{
-		return original->getTriangleMaterial(t);
 	}
 	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
 	{
@@ -109,7 +104,8 @@ private:
 	RRObject* original;
 	const RRScaler* scaler;
 	typedef std::pair<unsigned,RRMaterial> Pair;
-	std::map<unsigned,RRMaterial> map;
+	typedef std::map<unsigned,RRMaterial> Cache;
+	Cache cache;
 };
 
 }; // namespace

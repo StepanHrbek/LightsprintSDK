@@ -33,7 +33,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
 	#undef NEW_ARRAY
-	unsigned previousMaterialIndex = 0;
+	const rr::RRMaterial* previousMaterial = NULL;
 	for(unsigned t=0;t<numTriangles;t++)
 	{
 		// read triangle params
@@ -46,8 +46,8 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 		rr::RRVec2 diffuseUv[3];
 		mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,t,diffuseUv,sizeof(diffuseUv));
 		// material change? -> start new facegroup
-		unsigned materialIndex = object->getTriangleMaterial(t);
-		if(!t || materialIndex!=previousMaterialIndex)
+		const rr::RRMaterial* material = object->getTriangleMaterial(t);
+		if(!t || material!=previousMaterial)
 		{
 			FaceGroup fg;
 			if(indexed)
@@ -59,11 +59,10 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 				fg.firstIndex = numVertices;
 			}
 			fg.numIndices = 0;
-			const rr::RRMaterial* material = object->getMaterial(materialIndex);
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
-			mesh->getChannelData(CHANNEL_MATERIAL_DIF_TEX,materialIndex,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+			mesh->getChannelData(CHANNEL_TRIANGLE_DIF_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
 			faceGroups.push_back(fg);
-			previousMaterialIndex = materialIndex;
+			previousMaterial = material;
 		}
 		// generate vertices and indices into buffers
 		for(unsigned v=0;v<3;v++)

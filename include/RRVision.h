@@ -241,7 +241,7 @@ namespace rr
 			CHANNEL_TRIANGLE_VERTICES_NORMAL    = RRMesh::INDEXED_BY_TRIANGLE+1, //! RRVec3[3]
 			CHANNEL_TRIANGLE_VERTICES_UNWRAP    = RRMesh::INDEXED_BY_TRIANGLE+2, //! RRVec2[3]
 			CHANNEL_TRIANGLE_MATERIAL_IDX       = RRMesh::INDEXED_BY_TRIANGLE+3, //! unsigned
-			CHANNEL_MATERIAL_BASE               = RRMesh::INDEXED_BY_MATERIAL+0, //! RRMaterial
+			CHANNEL_TRIANGLE_MATERIAL           = RRMesh::INDEXED_BY_TRIANGLE+4, //! RRMaterial
 			//CHANNEL_TRIANGLE_ADDITIONAL_MEASURE = RRMesh::INDEXED_BY_TRIANGLE+4, //! RRColor
 			//CHANNEL_OBJECT_TRANSFORM            = RRMesh::INDEXED_BY_OBJECT  +0, //! RRMatrix4x3
 			//CHANNEL_OBJECT_TRANSFORM_INVERSE    = RRMesh::INDEXED_BY_OBJECT  +1, //! RRMatrix4x3
@@ -263,18 +263,11 @@ namespace rr
 		//! Must always return valid collider, implementation is not allowed to return NULL.
 		virtual const RRCollider* getCollider() const = 0;
 
-		//! Returns triangle's material id.
+		//! Returns triangle's material description.
 		//
-		//! It is not necessary for triangle material ids to be small numbers,
-		//! and thus no one is expected to create array of all materials indexed by material id.
-		virtual unsigned            getTriangleMaterial(unsigned t) const = 0;
-
-		//! Returns s-th material description.
-		//
-		//! \param s Id of material. Valid s is any number returned by getTriangleMaterial() for valid t.
-		//! \return For valid s, pointer to s-th material. For invalid s, pointer to any material. 
-		//!  In both cases, material must exist for whole life of object.
-		virtual const RRMaterial*    getMaterial(unsigned s) const = 0;
+		//! Returned pointer must stay valid and constant for whole life of object.
+		//! Function may return NULL when material description is not available.
+		virtual const RRMaterial* getTriangleMaterial(unsigned t) const = 0;
 
 
 		//
@@ -600,7 +593,7 @@ namespace rr
 		//!  World-space object wrapper that defines object shape and material.
 		//!  \n If object has transformation different from identity, pass object->createWorldSpaceObject()
 		//!  rather than object itself, otherwise object transformation will be ignored.
-		//!  \n object->getMaterial should return values in physical scale.
+		//!  \n object->getTriangleMaterial() should return values in physical scale.
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
 		RRScene(RRObject* object, const SmoothingParameters* smoothing);

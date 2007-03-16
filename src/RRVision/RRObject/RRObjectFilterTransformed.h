@@ -36,10 +36,10 @@ public:
 	//  hook in getTriangle and getTriangleBody and possibly also in pre-post conversions
 	//  and return triangle vertices in opposite order
 	// way 2 YES
-	//  hook in getMaterial and return sideBits in opposite order
-	virtual const RRMaterial* getMaterial(unsigned s) const
+	//  hook in getTriangleMaterial and return sideBits in opposite order
+	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
 	{
-		const RRMaterial* surf = inherited->getMaterial(s);
+		const RRMaterial* surf = inherited->getTriangleMaterial(t);
 		if(!surf || negScaleMakesOuterInner) return surf;
 		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		if(!m) return surf;

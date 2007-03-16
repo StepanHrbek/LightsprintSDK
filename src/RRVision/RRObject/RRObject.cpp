@@ -153,7 +153,7 @@ public:
 	}
 	virtual bool collides(const RRRay* ray)
 	{
-		const RRMaterial* material = object->getMaterial(object->getTriangleMaterial(ray->hitTriangle));
+		const RRMaterial* material = object->getTriangleMaterial(ray->hitTriangle);
 		return material && material->sideBits[ray->hitFrontSide?0:1].renderFrom;
 	}
 	virtual bool done()

@@ -201,7 +201,7 @@ namespace rr
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
 		//!  Objects should not move (in 3d space) during our lifetime.
-		//!  Object's getMaterial should return values in custom scale.
+		//!  Object's getTriangleMaterial should return values in custom scale.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.

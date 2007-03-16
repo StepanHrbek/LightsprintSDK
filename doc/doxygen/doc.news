@@ -15,6 +15,7 @@ NEWS
 CHANGES
 
 - RRSurface renamed to RRMaterial
+- material numbers removed from API (RRObject)
 
 \section news13 ------------------------------------ 2007.2.28 -------------------------------------
 
