@@ -6,6 +6,16 @@
 
 \page news What's new
 
+\section news14 ------------------------------------ 2007.3.x -------------------------------------
+
+NEWS
+
+- IT_BSP_FASTER, new intersection technique between IT_BSP_FAST and IT_BSP_FASTEST
+
+CHANGES
+
+- RRSurface renamed to RRMaterial
+
 \section news13 ------------------------------------ 2007.2.28 -------------------------------------
 
 NEWS

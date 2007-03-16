@@ -9,6 +9,8 @@
 
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 #define REPORT(a) a
+#define HOMOGENOUS_FILL // enables homogenous rather than random(noisy) shooting
+//#define BLUR 4 // enables full lightmap blur, higher=stronger
 
 namespace rr
 {
@@ -99,7 +101,7 @@ static RRVec3 getRandomExitDir(HomogenousFiller& filler, const RRVec3& norm, con
 // ortonormal space: norm, u3, v3
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
-#if 1 // homogenous fill
+#ifdef HOMOGENOUS_FILL
 	RRReal x,y;
 	RRReal cosa=sqrt(1-filler.GetCirclePoint(&x,&y));
 	return norm*cosa + u3*x + v3*y;
@@ -109,7 +111,7 @@ static RRVec3 getRandomExitDir(HomogenousFiller& filler, const RRVec3& norm, con
 	RRReal tmp=(RRReal)rand()/RAND_MAX*1;
 	RRReal cosa=sqrt(1-tmp);
 	RRReal sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
-	RRReal b=rand()*2*3.14159265/RAND_MAX;         // b = rotation angle around normal
+	RRReal b=rand()*2*3.14159265f/RAND_MAX;         // b = rotation angle around normal
 	return norm*cosa + u3*(sina*cos(b)) + v3*(sina*sin(b));
 #endif
 }
@@ -383,6 +385,10 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	// scale irradiance (full irradiance, not fraction) to custom scale
 	if(scaler) scaler->getCustomScale(irradiance);
 
+#ifdef BLUR
+	reliability /= BLUR;
+#endif
+
 	// multiply by reliability
 	irradiance *= reliability;
 	irradiance[3] = reliability;
@@ -569,7 +575,8 @@ bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	}
 	else
 	{
-		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: Zero workload.\n");
+		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: No lightsources.\n");
+		pixelBuffer->renderEnd(false);
 		assert(0);
 	}
 	return true;
@@ -603,16 +610,24 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 	if(aparamsDirect) paramsDirect = *aparamsDirect;
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
 
-	RRReporter::report(RRReporter::INFO,"Updating lightmaps (%d,DIRECT(%s%s),INDIRECT(%s%s)).\n",lightmapChannelNumber,paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"");
+	RRReporter::report(RRReporter::INFO,"Updating lightmaps (%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)).\n",
+		lightmapChannelNumber,
+		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",paramsDirect.applyCurrentIndirectSolution?"cur ":"",
+		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",paramsIndirect.applyCurrentIndirectSolution?"cur ":"");
+
+	if(paramsIndirect.applyCurrentIndirectSolution)
+	{
+		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: paramsIndirect.applyCurrentIndirectSolution ignored, set it in paramsDirect instead.\n");
+		paramsIndirect.applyCurrentIndirectSolution = 0;
+	}
 
 	// gather direct for requested indirect and propagate in solver
 	if(paramsIndirect.applyLights || paramsIndirect.applyEnvironment)
 	{
-		if(paramsDirect.applyCurrentIndirectSolution || paramsIndirect.applyCurrentIndirectSolution)
+		if(paramsDirect.applyCurrentIndirectSolution)
 		{
-			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: applyCurrentIndirectSolution must be false.\n");
-			assert(0);
-			return false;
+			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: paramsDirect.applyCurrentIndirectSolution ignored, can't be combined with applyLights and/or applyEnvironment.\n");
+			paramsDirect.applyCurrentIndirectSolution = false;
 		}
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0,0);

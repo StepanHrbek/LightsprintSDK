@@ -5,10 +5,11 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define SUBDIVISION                0
-#define LIGHTMAP_SIZE_FACTOR       10
-#define LIGHTMAP_QUALITY           20
+#define LIGHTMAP_SIZE_FACTOR       20
+#define LIGHTMAP_QUALITY           10
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 //#define HIGH_DETAIL // uses high detail models
+#define SUPPORT_LIGHTMAPS 1
 bool ati = 1;
 bool quadro = 0;
 int fullscreen = 0;
@@ -1935,7 +1936,8 @@ void keyboard(unsigned char c, int x, int y)
 			changeSpotlight();
 			break;
 
-		/*/ --- MAPS BEGIN ---
+#if SUPPORT_LIGHTMAPS
+		// --- MAPS BEGIN ---
 		case 'v':
 			renderLightmaps = !renderLightmaps;
 			if(!renderLightmaps)
@@ -1959,19 +1961,19 @@ void keyboard(unsigned char c, int x, int y)
 				level->solver->setEnvironment(rr::RRIlluminationEnvironmentMap::createSky(rr::RRColorRGBF(0.4f)));
 				// set lights
 				rr::RRRealtimeRadiosity::Lights lights;
-				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
-				lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRColorRGBF(0.7f))); //!!! not freed
+				lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
+				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRColorRGBF(0.7f))); //!!! not freed
 				level->solver->setLights(lights);
 				// updates maps in high quality
 				rr::RRRealtimeRadiosity::UpdateLightmapParameters paramsDirect;
-				paramsDirect.applyCurrentIndirectSolution = 0;
-				paramsDirect.applyLights = 1;
-				paramsDirect.applyEnvironment = 1;
+				paramsDirect.applyCurrentIndirectSolution = 1;
+//				paramsDirect.applyLights = 1;
+//				paramsDirect.applyEnvironment = 1;
 				paramsDirect.quality = LIGHTMAP_QUALITY;
 				rr::RRRealtimeRadiosity::UpdateLightmapParameters paramsIndirect;
 				paramsIndirect.applyCurrentIndirectSolution = 0;
-				paramsIndirect.applyLights = 1;
-				paramsIndirect.applyEnvironment = 1;
+//				paramsIndirect.applyLights = 1;
+//				paramsIndirect.applyEnvironment = 1;
 				paramsIndirect.quality = LIGHTMAP_QUALITY/2;
 				level->solver->updateLightmaps(0,&paramsDirect,&paramsIndirect);
 				// stop updating maps in realtime, stay with what we computed here
@@ -2067,7 +2069,7 @@ void keyboard(unsigned char c, int x, int y)
 			renderLightmaps = false;
 			break;
 		// --- MAPS END ---
-
+#endif // SUPPORT_LIGHTMAPS
 
 			/*
 		case 'f':
@@ -2415,7 +2417,7 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-	Music n00ly("music/dlife.xm");
+//	Music n00ly("music/dlife.xm");
 	//Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
 	
 	srand(11);
@@ -2503,7 +2505,7 @@ int main(int argc, char **argv)
 	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
-	INSTANCES_PER_PASS = quadro ? 1 : de::UberProgramSetup::detectMaxShadowmaps(uberProgram,!true);
+	INSTANCES_PER_PASS = quadro ? 1 : de::UberProgramSetup::detectMaxShadowmaps(uberProgram,SUPPORT_LIGHTMAPS);
 	if(!INSTANCES_PER_PASS) error("",true);
 	areaLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
 
