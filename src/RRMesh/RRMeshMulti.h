@@ -98,7 +98,22 @@ public:
 		}
 	}
 
-	// optional for faster access
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	{
+		if(t<pack[0].getNumTriangles()) 
+			pack[0].getMesh()->getTriangleNormals(t,out);
+		else
+			pack[1].getMesh()->getTriangleNormals(t-pack[0].getNumTriangles(),out);
+	}
+	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
+	{
+		// warning: all mappings overlap
+		if(t<pack[0].getNumTriangles()) 
+			pack[0].getMesh()->getTriangleMapping(t,out);
+		else
+			pack[1].getMesh()->getTriangleMapping(t-pack[0].getNumTriangles(),out);
+	}
+
 	//!!! default is slow
 	//virtual void         getTriangleBody(unsigned i, TriangleBody* t) const
 	//{

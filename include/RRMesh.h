@@ -234,6 +234,8 @@ namespace rr
 			INDEXED_BY_OBJECT                = 0x3000,
 			//CHANNEL_VERTEX_POS               = INDEXED_BY_VERTEX+0, //! RRVec3
 			//CHANNEL_TRIANGLE_VERTICES_IDX    = INDEXED_BY_TRIANGLE+0, //! unsigned[3]
+			CHANNEL_TRIANGLE_VERTICES_NORMAL = RRMesh::INDEXED_BY_TRIANGLE+1, //! RRVec3[3]
+			CHANNEL_TRIANGLE_VERTICES_UNWRAP = RRMesh::INDEXED_BY_TRIANGLE+2, //! RRVec2[3]
 		};
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -296,10 +298,6 @@ namespace rr
 
 		//! %Triangle in 3d space defined by one vertex and two side vectors. This representation is most suitable for intersection tests.
 		struct TriangleBody  {Vertex vertex0,side1,side2;};
-
-		//! Plane in 3d space defined by its normal (in x,y,z) and w so that normal*point+w=0 for all points of plane.
-		typedef RRVec4 Plane;
-
 		//! Writes t-th triangle in mesh to out.
 		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
@@ -308,6 +306,8 @@ namespace rr
 		//! \n This call is important for performance of intersection tests.
 		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
+		//! Plane in 3d space defined by its normal (in x,y,z) and w so that normal*point+w=0 for all points of plane.
+		typedef RRVec4 Plane;
 		//! Writes t-th triangle plane to out.
 		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
@@ -322,6 +322,31 @@ namespace rr
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
 		virtual RRReal       getTriangleArea(unsigned t) const;
 
+		//! Three normals for three vertices in triangle. In object space, normalized.
+		struct TriangleNormals      {RRVec3 norm[3];};
+		//! Writes to out vertex normalized normals of triangle.
+		//
+		//! Normals may be used by global illumination solver and renderer.
+		//! \n Default implementation writes all vertex normals equal to triangle plane normal.
+		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
+		//! \param out Caller provided storage for result.
+		//!  For valid t, requested normals are written to out. For invalid t, out stays unmodified.
+		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
+
+		//! Three uv-coords for three vertices in triangle.
+		struct TriangleMapping      {RRVec2 uv[3];};
+		//! Writes t-th triangle uv mapping for mesh unwrap into 0..1 x 0..1 space.
+		//
+		//! Unwrap may be used for calculated lightmaps/ambient map.
+		//! Note that for good results, all coordinates must be in 0..1 range and two triangles
+		//! may not overlap in texture space. If it's not satisfied, results are undefined.
+		//!
+		//! \n Default implementation automatically generates unwrap of low quality.
+		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
+		//! \param out Caller provided storage for result.
+		//!  For valid t, requested mapping is written to out. For invalid t, out stays unmodified.
+		virtual void         getTriangleMapping(unsigned t, TriangleMapping& out) const;
+
 		//! Returns axis aligned bounding box and center of mesh.
 		//
 		//! \param mini
@@ -330,7 +355,7 @@ namespace rr
 		//!  NULL or pointer to vec3 to be filled with maximum of computed AABB.
 		//! \param center
 		//!  NULL or pointer to vec3 to be filled with average vertex position.
-		virtual void getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center);
+		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center);
 
 
 		//

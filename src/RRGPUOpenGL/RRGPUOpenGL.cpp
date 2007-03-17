@@ -52,15 +52,15 @@ public:
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
 		assert(size==sizeof(rr::RRVec2));
-		rr::RRObject::TriangleMapping tm;
-		object->getTriangleMapping(triangleIndex,tm);
+		rr::RRMesh::TriangleMapping tm;
+		mesh->getTriangleMapping(triangleIndex,tm);
 		*((rr::RRVec2*)vertexData) = (tm.uv[vertexIndex]-rr::RRVec2(0.5f))*2;
 	}
 	virtual unsigned getHash()
 	{
-		return (unsigned)(intptr_t)object;
+		return (unsigned)(intptr_t)mesh;
 	}
-	rr::RRObject* object;
+	rr::RRMesh* mesh;
 };
 
 
@@ -466,10 +466,11 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 bool RRRealtimeRadiosityGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
 {
 	rr::RRObject* object = getObject(objectIndex);
+	rr::RRMesh* mesh = object->getCollider()->getMesh();
 
 	// prepare uv generator
 	CaptureUvIntoLightmap captureUv;
-	captureUv.object = object;
+	captureUv.mesh = mesh;
 
 	// prepare render target
 	lightmap->renderBegin();
@@ -480,7 +481,7 @@ bool RRRealtimeRadiosityGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIllum
 	// prepare renderer
 	// (could be cached later for higher speed)
 	RendererOfRRObject* renderer = new RendererOfRRObject(object,getScene(),getScaler(),false);
-	renderer->setCapture(&captureUv,0,object->getCollider()->getMesh()->getNumTriangles());
+	renderer->setCapture(&captureUv,0,mesh->getNumTriangles());
 	RendererOfRRObject::RenderedChannels channels;
 	channels.LIGHT_DIRECT = true;
 	channels.FORCE_2D_POSITION = true;

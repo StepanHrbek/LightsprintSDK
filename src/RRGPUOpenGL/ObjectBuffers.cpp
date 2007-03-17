@@ -39,10 +39,10 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 		// read triangle params
 		rr::RRMesh::Triangle triangleVertices;
 		mesh->getTriangle(t,triangleVertices);
-		rr::RRObject::TriangleNormals triangleNormals;
-		object->getTriangleNormals(t,triangleNormals);
-		rr::RRObject::TriangleMapping triangleMapping;
-		object->getTriangleMapping(t,triangleMapping);
+		rr::RRMesh::TriangleNormals triangleNormals;
+		mesh->getTriangleNormals(t,triangleNormals);
+		rr::RRMesh::TriangleMapping triangleMapping;
+		mesh->getTriangleMapping(t,triangleMapping);
 		rr::RRVec2 diffuseUv[3];
 		mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,t,diffuseUv,sizeof(diffuseUv));
 		// material change? -> start new facegroup

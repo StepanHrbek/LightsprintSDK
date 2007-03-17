@@ -71,7 +71,7 @@ namespace rr_gl
 
 		//! Captures direct illumination on object's surface into lightmap, using GPU.
 		//
-		//! Lightmap uses uv coordinates provided by RRObject::getTriangleMapping(),
+		//! Lightmap uses uv coordinates provided by RRMesh::getTriangleMapping(),
 		//! the same coordinates are used for ambient map.
 		//!
 		//! This function will be unified with RRRealtimeRadiosity::updateLightmap() in future release.

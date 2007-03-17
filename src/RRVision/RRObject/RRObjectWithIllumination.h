@@ -121,14 +121,6 @@ public:
 	{
 		return original->getTriangleMaterial(t);
 	}
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
-	{
-		return original->getTriangleNormals(t,out);
-	}
-	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
-	{
-		return original->getTriangleMapping(t,out);
-	}
 	virtual const RRMatrix3x4* getWorldMatrix()
 	{
 		return original->getWorldMatrix();

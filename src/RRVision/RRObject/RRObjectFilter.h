@@ -25,14 +25,6 @@ public:
 	{
 		return inherited->getTriangleMaterial(t);
 	}
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
-	{
-		return inherited->getTriangleNormals(t,out);
-	}
-	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
-	{
-		return inherited->getTriangleMapping(t,out);
-	}
 	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 	{
 		return inherited->getTriangleIllumination(t,measure,out);

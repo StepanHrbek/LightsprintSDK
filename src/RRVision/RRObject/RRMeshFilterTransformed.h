@@ -31,6 +31,16 @@ public:
 			m->transformPosition(out);
 		}
 	}
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	{
+		inherited->getTriangleNormals(t,out);
+		if(m)
+		{
+			m->transformDirection(out.norm[0]);
+			m->transformDirection(out.norm[1]);
+			m->transformDirection(out.norm[2]);
+		}
+	}
 private:
 	const RRMatrix3x4* m;
 };

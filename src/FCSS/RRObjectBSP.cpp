@@ -71,13 +71,13 @@ public:
 	virtual void         getVertex(unsigned v, Vertex& out) const;
 	virtual unsigned     getNumTriangles() const;
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
+	//virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
 	//virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const;
 	//virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const;
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
 	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t) const;
-	//virtual void                    getTriangleNormals(unsigned t, TriangleNormals& out) const;
 
 private:
 	de::TMapQ3* model;
@@ -372,6 +372,25 @@ void RRObjectBSP::getTriangle(unsigned t, Triangle& out) const
 	out = triangles[t].t;
 }
 
+/*
+void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const
+{
+	if(t>=RRObjectBSP::getNumTriangles())
+	{
+		assert(0);
+		return;
+	}
+	Triangle triangle;
+	RRObjectBSP::getTriangle(t,triangle);
+	for(unsigned v=0;v<3;v++)
+	{
+		// nejsem si jisty jestli je to takhle dobre
+		out.norm[v][0] = model->mVertices[triangle[v]].mNormal[0];
+		out.norm[v][1] = model->mVertices[triangle[v]].mNormal[2];
+		out.norm[v][2] = -model->mVertices[triangle[v]].mNormal[1];
+	}
+}*/
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -397,24 +416,7 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t) const
 	}
 	return &materials[s].material;
 }
-/*
-void RRObjectBSP::getTriangleNormals(unsigned t, TriangleNormals& out) const
-{
-	if(t>=RRObjectBSP::getNumTriangles())
-	{
-		assert(0);
-		return;
-	}
-	Triangle triangle;
-	RRObjectBSP::getTriangle(t,triangle);
-	for(unsigned v=0;v<3;v++)
-	{
-		out.norm[v][0] = model->mVertices[triangle[v]].mNormal[0];
-		out.norm[v][1] = model->mVertices[triangle[v]].mNormal[1];
-		out.norm[v][2] = model->mVertices[triangle[v]].mNormal[2];
-	}
-}
-*/
+
 // Unwrap is not present in .bsp file format.
 // If you omit getTriangleMapping (as it happens here), emergency automatic unwrap
 // is used and ambient map quality is reduced.

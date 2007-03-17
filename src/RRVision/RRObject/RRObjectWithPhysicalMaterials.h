@@ -79,14 +79,6 @@ public:
 	{
 		return original->getCollider();
 	}
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
-	{
-		return original->getTriangleNormals(t,out);
-	}
-	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
-	{
-		return original->getTriangleMapping(t,out);
-	}
 	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 	{
 		return original->getTriangleIllumination(t,measure,out);

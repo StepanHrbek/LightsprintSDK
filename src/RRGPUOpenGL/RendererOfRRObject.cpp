@@ -173,10 +173,10 @@ void RendererOfRRObject::render()
 			}
 
 			// mesh normals - prepare data
-			rr::RRObject::TriangleNormals triangleNormals;
+			rr::RRMesh::TriangleNormals triangleNormals;
 			if(setNormals)
 			{
-				params.object->getTriangleNormals(triangleIdx,triangleNormals);
+				meshImporter->getTriangleNormals(triangleIdx,triangleNormals);
 			}
 
 			// light indirect map
@@ -265,9 +265,9 @@ void RendererOfRRObject::render()
 				// light indirect map uv
 				if(params.renderedChannels.LIGHT_INDIRECT_MAP)
 				{
-					rr::RRObject::TriangleMapping tm;
+					rr::RRMesh::TriangleMapping tm;
 					//!!! optimize, get once, not three times per triangle
-					params.object->getTriangleMapping(triangleIdx,tm);
+					meshImporter->getTriangleMapping(triangleIdx,tm);
 					glMultiTexCoord2f(GL_TEXTURE0+de::MULTITEXCOORD_LIGHT_INDIRECT,tm.uv[v][0],tm.uv[v][1]);
 				}
 

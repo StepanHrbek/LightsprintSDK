@@ -227,27 +227,6 @@ namespace rr
 	{
 	public:
 
-//#ifdef RR_DEVELOPMENT
-		//////////////////////////////////////////////////////////////////////////////
-		// Channels
-		//////////////////////////////////////////////////////////////////////////////
-
-		// Identifiers of RRObject data channels.
-		// Nearly all information of RRObject could be provided 
-		// using RRChanneledData interface.
-		// Providing it using RRChanneledData interface is purely optional.
-		enum
-		{
-			CHANNEL_TRIANGLE_VERTICES_NORMAL    = RRMesh::INDEXED_BY_TRIANGLE+1, //! RRVec3[3]
-			CHANNEL_TRIANGLE_VERTICES_UNWRAP    = RRMesh::INDEXED_BY_TRIANGLE+2, //! RRVec2[3]
-			CHANNEL_TRIANGLE_MATERIAL_IDX       = RRMesh::INDEXED_BY_TRIANGLE+3, //! unsigned
-			CHANNEL_TRIANGLE_MATERIAL           = RRMesh::INDEXED_BY_TRIANGLE+4, //! RRMaterial
-			//CHANNEL_TRIANGLE_ADDITIONAL_MEASURE = RRMesh::INDEXED_BY_TRIANGLE+4, //! RRColor
-			//CHANNEL_OBJECT_TRANSFORM            = RRMesh::INDEXED_BY_OBJECT  +0, //! RRMatrix4x3
-			//CHANNEL_OBJECT_TRANSFORM_INVERSE    = RRMesh::INDEXED_BY_OBJECT  +1, //! RRMatrix4x3
-		};
-
-//#endif
 		//////////////////////////////////////////////////////////////////////////////
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
@@ -271,52 +250,20 @@ namespace rr
 
 
 		//
-		// optional
+		// may change during object lifetime
 		//
-
-		//! Three normals for three vertices in triangle. In object space, normalized.
-		struct TriangleNormals      {RRVec3 norm[3];};
-
-		//! Three uv-coords for three vertices in triangle.
-		struct TriangleMapping      {RRVec2 uv[3];};
-
-		//! Writes to out vertex normals of triangle. In object space, normalized.
-		//
-		//! Future versions of Vision may use normals for smoothing results. Currently they are not used, smoothing is automatic.
-		//! \n There is default implementation that writes all vertex normals equal to triangle plane normal.
-		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
-		//! \param out Caller provided storage for result.
-		//!  For valid t, requested normals are written to out. For invalid t, out stays unmodified.
-		virtual void                getTriangleNormals(unsigned t, TriangleNormals& out) const;
-
-		//! Writes t-th triangle mapping for object unwrap into 0..1 x 0..1 space.
-		//
-		//! Unwrap may be used for returning results in texture (lightmap, ambient map).
-		//! Note that for good results, all coordinates must be in 0..1 range and two triangles
-		//! may not overlap in texture space. If it's not satisfied, results are undefined.
-		//!
-		//! \n There is default implementation that automatically generates objects unwrap of low quality.
-		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
-		//! \param out Caller provided storage for result.
-		//!  For valid t, requested mapping is written to out. For invalid t, out stays unmodified.
-		virtual void                getTriangleMapping(unsigned t, TriangleMapping& out) const;
 
 		//! Writes t-th triangle additional measure to out.
 		//
 		//! Although each triangle has its RRMaterial::diffuseEmittance,
 		//! it may be inconvenient to create new RRMaterial for each triangle when only emissions differ.
 		//! So this is way how to provide additional emissivity for each triangle separately.
-		//! \n There is default implementation that always returns 0.
+		//! \n Default implementation always returns 0.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
 		//! \param measure Specifies requested radiometric measure. Scaled must be 1. Direct/indirect may be ignored.
 		//! \param out Caller provided storage for result.
 		//!  For valid t, requested measure is written to out. For invalid t, out stays unmodified.
 		virtual void                getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const;
-
-
-		//
-		// may change during object lifetime
-		//
 
 		//! Returns object transformation.
 		//

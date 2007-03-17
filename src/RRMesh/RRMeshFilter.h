@@ -56,6 +56,14 @@ public:
 	{
 		inherited->getTriangle(t,out);
 	}
+	virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const
+	{
+		inherited->getTriangleNormals(t,out);
+	}
+	virtual void         getTriangleMapping(unsigned t, TriangleMapping& out) const
+	{
+		inherited->getTriangleMapping(t,out);
+	}
 
 	// preimport/postimport conversions
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 

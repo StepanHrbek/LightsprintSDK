@@ -315,7 +315,7 @@ namespace rr
 
 		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
 		//
-		//! Lightmap uses uv coordinates provided by RRObject::getTriangleMapping().
+		//! Lightmap uses uv coordinates provided by RRMesh::getTriangleMapping().
 		//! All uv coordinates must be in 0..1 range and two triangles
 		//! may not overlap in texture space.
 		//! If it's not satisfied, contents of created lightmap is undefined.

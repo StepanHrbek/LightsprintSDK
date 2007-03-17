@@ -127,18 +127,6 @@ public:
 		return pack[1].getImporter()->getTriangleMaterial(t-pack[0].getNumTriangles());
 	}
 
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
-	{
-		unoptimizeTriangle(t);
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleNormals(t,out);
-		return pack[1].getImporter()->getTriangleNormals(t-pack[0].getNumTriangles(),out);
-	}
-	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
-	{
-		unoptimizeTriangle(t);
-		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMapping(t,out);
-		return pack[1].getImporter()->getTriangleMapping(t-pack[0].getNumTriangles(),out);
-	}
 
 	virtual void getTriangleIllumination(unsigned t, RRRadiometricMeasure format, RRColor& out) const
 	{

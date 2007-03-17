@@ -79,11 +79,11 @@ public:
 	virtual void         getVertex(unsigned v, Vertex& out) const;
 	virtual unsigned     getNumTriangles() const;
 	virtual void         getTriangle(unsigned t, Triangle& out) const;
+	virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
 
 	// RRObject
 	virtual const rr::RRCollider*   getCollider() const;
 	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t) const;
-	virtual void                    getTriangleNormals(unsigned t, TriangleNormals& out) const;
 	virtual const rr::RRMatrix3x4*  getWorldMatrix();
 	virtual const rr::RRMatrix3x4*  getInvWorldMatrix();
 

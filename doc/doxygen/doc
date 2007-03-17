@@ -476,9 +476,9 @@ Adding global illumination (GI) to your code is described in four steps.
     cars with the same geometry, different position and possibly different color;
     they are different objects sharing one mesh).
     \n\n
-    Default RRObject::getTriangleMapping() returns realtime generated
+    Default RRMesh::getTriangleMapping() returns realtime generated
     unwrap of low quality, for serious use of ambient maps, you should override
-    RRObject::getTriangleMapping() and provide your own unwrap.
+    RRMesh::getTriangleMapping() and provide your own unwrap.
     This is not necessary if you use vertex arrays and don't need lightmaps.
     \n\n
     Once you have RRObject instance, most convenient way to remember it
@@ -883,10 +883,10 @@ Adding global illumination (GI) to your code is described in four steps.
 
  \section d27 Examples
    - Generic example:
-     \n Providing access to unwrap in your implementation of rr::RRObject interface.
+     \n Providing access to unwrap in your implementation of rr::RRMesh interface.
      \code
 	// access to uv channel with object's unwrap
-	void YourImplementationOfRRObject::getTriangleMapping(
+	void YourImplementationOfRRMesh::getTriangleMapping(
 		unsigned t, TriangleMapping& out) const
 	{
 		for(unsigned v=0;v<2;v++)

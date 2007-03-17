@@ -18,7 +18,7 @@ namespace rr
 struct RenderSubtriangleContext
 {
 	RRIlluminationPixelBuffer* pixelBuffer;
-	RRObject::TriangleMapping triangleMapping;
+	RRMesh::TriangleMapping triangleMapping;
 };
 
 void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context)
@@ -438,10 +438,10 @@ void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWid
 			RRMesh::TriangleBody body;
 			multiMesh->getTriangleBody(t,body);
 			RRVec3 vertices[3] = {body.vertex0,body.vertex0+body.side1,body.vertex0+body.side2};
-			RRObject::TriangleNormals normals;
-			multiObject->getTriangleNormals(t,normals);
-			RRObject::TriangleMapping mapping;
-			multiObject->getTriangleMapping(t,mapping);
+			RRMesh::TriangleNormals normals;
+			multiMesh->getTriangleNormals(t,normals);
+			RRMesh::TriangleMapping mapping;
+			multiMesh->getTriangleMapping(t,mapping);
 			// rasterize triangle t
 			//  find minimal bounding box
 			RRReal xmin = mapWidth  * MIN(mapping.uv[0][0],MIN(mapping.uv[1][0],mapping.uv[2][0]));
@@ -566,7 +566,7 @@ bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPi
 				//!!! this is satisfied now, but it may change in future
 				RenderSubtriangleContext rsc;
 				rsc.pixelBuffer = pixelBuffer;
-				object->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
+				mesh->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
 				// render all subtriangles into pixelBuffer using object's unwrap
 				scene->getSubtriangleMeasure(postImportTriangle,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),renderSubtriangle,&rsc);
 			}

@@ -51,16 +51,6 @@ public:
 		surf2.sideBits[1] = surf->sideBits[0];
 		return &surf2;
 	}
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
-	{
-		inherited->getTriangleNormals(t,out);
-		const RRMatrix3x4* m = inherited->getWorldMatrix();
-		if(m)
-			for(unsigned i=0;i<3;i++)
-			{
-				m->transformDirection(out.norm[i]);
-			}
-	}
 private:
 	RRCollider* collider;
 	bool negScaleMakesOuterInner;
