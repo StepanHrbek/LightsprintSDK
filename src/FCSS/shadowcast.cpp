@@ -1459,12 +1459,7 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 			}
 			else
 			{
-				char* maps = _strdup(pilot.setup->filename);
-				char* mapsEnd;
-				//mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
-				mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
-				colladaToRR = new ColladaToRealtimeRadiosity(collada,maps,solver,&sp);
-				free(maps);
+				colladaToRR = new ColladaToRealtimeRadiosity(collada,solver,&sp);
 			}
 			break;
 		}

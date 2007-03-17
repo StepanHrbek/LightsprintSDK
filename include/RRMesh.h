@@ -232,10 +232,6 @@ namespace rr
 			INDEXED_BY_VERTEX                = 0x0000,
 			INDEXED_BY_TRIANGLE              = 0x1000,
 			INDEXED_BY_OBJECT                = 0x3000,
-			//CHANNEL_VERTEX_POS               = INDEXED_BY_VERTEX+0, //! RRVec3
-			//CHANNEL_TRIANGLE_VERTICES_IDX    = INDEXED_BY_TRIANGLE+0, //! unsigned[3]
-			CHANNEL_TRIANGLE_VERTICES_NORMAL = RRMesh::INDEXED_BY_TRIANGLE+1, //! RRVec3[3]
-			CHANNEL_TRIANGLE_VERTICES_UNWRAP = RRMesh::INDEXED_BY_TRIANGLE+2, //! RRVec2[3]
 		};
 
 		//////////////////////////////////////////////////////////////////////////////

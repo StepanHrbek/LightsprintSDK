@@ -18,7 +18,7 @@ class ColladaToRealtimeRadiosity
 public:
 
 	//! Imports FCollada scene contents to RRRealtimeRadiosity solver.
-	ColladaToRealtimeRadiosity(class FCDocument* document,const char* pathToTextures,rr::RRRealtimeRadiosity* solver,const rr::RRScene::SmoothingParameters* smoothing);
+	ColladaToRealtimeRadiosity(class FCDocument* document,rr::RRRealtimeRadiosity* solver,const rr::RRScene::SmoothingParameters* smoothing);
 
 	//! Removes FCollada scene contents from RRRealtimeRadiosity solver.
 	~ColladaToRealtimeRadiosity();

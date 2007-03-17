@@ -223,7 +223,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRObject
+	class RR_API RRObject : public RRChanneledData
 	{
 	public:
 

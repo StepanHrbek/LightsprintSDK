@@ -153,7 +153,7 @@ void RendererOfRRObject::render()
 					if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 					{
 						de::Texture* tex = NULL;
-						params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_DIF_TEX,triangleIdx,&tex,sizeof(tex));
+						params.object->getChannelData(CHANNEL_TRIANGLE_DIF_TEX,triangleIdx,&tex,sizeof(tex));
 						if(tex)
 						{
 							if(begun)
@@ -216,7 +216,7 @@ void RendererOfRRObject::render()
 				//     neni tezke to predelat.
 
 				rr::RRObjectIllumination* objectIllumination = NULL;
-				if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_OBJECT_ILLUMINATION,triangleIdx,&objectIllumination,sizeof(objectIllumination))
+				if(params.object->getChannelData(CHANNEL_TRIANGLE_OBJECT_ILLUMINATION,triangleIdx,&objectIllumination,sizeof(objectIllumination))
 					&& objectIllumination!=oldIllumination)
 				{
 					oldIllumination = objectIllumination;

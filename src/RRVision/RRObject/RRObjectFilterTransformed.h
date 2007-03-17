@@ -51,6 +51,16 @@ public:
 		surf2.sideBits[1] = surf->sideBits[0];
 		return &surf2;
 	}
+
+	// channels
+	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+	{
+		inherited->getChannelSize(channelId,numItems,itemSize);
+	}
+	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
+	{
+		return inherited->getChannelData(channelId,itemIndex,itemData,itemSize);
+	}
 private:
 	RRCollider* collider;
 	bool negScaleMakesOuterInner;

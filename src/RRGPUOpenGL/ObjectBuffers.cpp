@@ -61,7 +61,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			fg.numIndices = 0;
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
 			fg.diffuseTexture = NULL;
-			mesh->getChannelData(CHANNEL_TRIANGLE_DIF_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+			object->getChannelData(CHANNEL_TRIANGLE_DIF_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
 			// it's still possible that user will render without texture
 			//if(!fg.diffuseTexture)
 			//{
