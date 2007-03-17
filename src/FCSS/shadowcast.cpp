@@ -10,7 +10,7 @@ unsigned INSTANCES_PER_PASS;
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 //#define HIGH_DETAIL // uses high detail models
 #define SUPPORT_LIGHTMAPS          0
-//#define SUPPORT_COLLADA
+#define SUPPORT_COLLADA
 bool ati = 1;
 bool quadro = 0;
 int fullscreen = 0;
@@ -356,9 +356,9 @@ void init_gl_resources()
 
 	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
 //	skyMap = de::Texture::load("maps/starfield/starfield_%s.jpg",cubeSideNames);
-	skyMap = de::Texture::load("maps/purplenebula/purplenebula_%s.jpg",cubeSideNames);
+//	skyMap = de::Texture::load("maps/purplenebula/purplenebula_%s.jpg",cubeSideNames);
 //	skyMap = de::Texture::load("pool/cubemapy/qfraggel3/qfraggel3_%s.jpg",cubeSideNames);
-//	skyMap = de::Texture::load("pool/cubemapy/stonegods/sgod_%s.tga",cubeSideNames);
+	skyMap = de::Texture::load("pool/cubemapy/!desert/frozendusk/frozendusk_%s.jpg",cubeSideNames);
 	if(!skyMap)
 		printf("Failed to load sky.\n");
 	skyRenderer = new de::TextureRenderer("shaders/");

@@ -190,12 +190,12 @@ namespace rr
 	{
 		if(!f) return NULL;
 		BspTree head;
-		size_t readen = fread(&head,sizeof(head),1,f);
-		if(!readen) return NULL;
+		size_t read = fread(&head,sizeof(head),1,f);
+		if(!read) return NULL;
 		fseek(f,-(int)sizeof(head),SEEK_CUR);
 		BspTree* tree = (BspTree*)malloc(head.bsp.size);
-		readen = fread(tree,1,head.bsp.size,f);
-		if(readen == head.bsp.size) return tree;
+		read = fread(tree,1,head.bsp.size,f);
+		if(read == head.bsp.size) return tree;
 		free(tree);
 		return NULL;
 	}

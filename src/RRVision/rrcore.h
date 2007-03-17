@@ -520,7 +520,6 @@ public:
 		void remove(unsigned n);
 		// pack of best reflectors (internal cache for best())
 		unsigned bests;
-		//unsigned bestsReaden;
 		Node *bestNode[BESTS];
 		bool refreshing; // false = all nodes were selected for distrib, true = for refresh
 };

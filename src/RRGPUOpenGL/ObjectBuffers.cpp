@@ -60,7 +60,13 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			}
 			fg.numIndices = 0;
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
+			fg.diffuseTexture = NULL;
 			mesh->getChannelData(CHANNEL_TRIANGLE_DIF_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+			// it's still possible that user will render without texture
+			//if(!fg.diffuseTexture)
+			//{
+			//	LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"RRRendererOfRRObject: Diffuse texture not available.\n"));
+			//}
 			faceGroups.push_back(fg);
 			previousMaterial = material;
 		}
@@ -190,7 +196,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 				if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 				{
 					glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_DIFFUSE);
-					faceGroups[fg].diffuseTexture->bindTexture();
+					de::Texture* tex = faceGroups[fg].diffuseTexture;
+					if(tex)
+					{
+						tex->bindTexture();
+					}
+					else
+					{
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::ERRO,"RRRendererOfRRObject: Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
+					}
 				}
 				// render one facegroup
 				if(indices)

@@ -36,7 +36,7 @@ public:
 	//! Camera's far plane distance in world units. Must be greater than near.
 	float    afar;
 
-	// outputs, to be calculated by update() and possibly readen by user
+	// outputs, to be calculated by update() and possibly read by user
 
 	//! View direction.
 	GLfloat  dir[4];

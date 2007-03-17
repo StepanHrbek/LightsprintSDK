@@ -45,7 +45,7 @@ enum
 struct DE_API UberProgramSetup
 {
 	unsigned SHADOW_MAPS            :8; ///< Number of shadow maps processed in one pass. 0=no shadows, 1=hard shadows, more=soft shadows. Valid values: 0..detectMaxShadowmaps().
-	unsigned SHADOW_SAMPLES         :8; ///< Number of samples readen from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
+	unsigned SHADOW_SAMPLES         :8; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
 	bool     LIGHT_DIRECT           :1; ///< Enables direct spot light.
 	bool     LIGHT_DIRECT_MAP       :1; ///< Enables modulation of direct light by map. Projects texture.
 	bool     LIGHT_INDIRECT_CONST   :1; ///< Enables indirect light, constant.
@@ -60,7 +60,7 @@ struct DE_API UberProgramSetup
 	bool     MATERIAL_SPECULAR_MAP  :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
 	bool     MATERIAL_NORMAL_MAP    :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
 	bool     OBJECT_SPACE           :1; ///< Enables object space, vertices are transformed by uniform worldMatrix.
-	bool     FORCE_2D_POSITION      :1; ///< Overrides projection space vertex coordinates with coordinates readen from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
+	bool     FORCE_2D_POSITION      :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
 
 
 	//! Creates UberProgramSetup with everything turned off by default.

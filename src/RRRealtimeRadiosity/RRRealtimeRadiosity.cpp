@@ -11,7 +11,7 @@ namespace rr
 #define IMPROVE_STEP_MAX 0.08f
 #define IMPROVE_STEP_NO_INTERACTION 0.1f // length of one improve step when there are no interactions from user
 #define IMPROVE_STEP_MIN_AFTER_BIG_RESET 0.035f // minimal length of first improve step after big reset (to avoid 1frame blackouts)
-#define READING_RESULTS_PERIOD_MIN 0.1f // how often results are readen back when scene doesn't change
+#define READING_RESULTS_PERIOD_MIN 0.1f // how often results are read back when scene doesn't change
 #define READING_RESULTS_PERIOD_MAX 1.5f //
 #define READING_RESULTS_PERIOD_GROWTH 1.3f // reading results period is increased this times at each read since scene change
 // portions in <0..1>
