@@ -6,7 +6,10 @@
 
 LevelSetup koupelna4 =
 {
- "3ds\\koupelna\\koupelna4.3ds",
+ //"3ds\\candella\\seen mesh.dae",
+ //"3ds\\koupelna\\koupelna4.3ds",
+ "collada\\koupelna\\koupelna4.dae",
+ //"h:\\3dsmax\\export\\koupelna4uv2b.dae",
  0.03f,
  {
   /*{screenshoty s porovnanim hard/soft/penumbra
@@ -328,9 +331,9 @@ public:
 		//insertLevelBack("3ds\\candella\\c-all.3ds");
 		//insertLevelBack("3ds\\candella\\candella.3ds");
 
-		insertLevelBack(LevelSetup::create("collada\\koupelna\\koupelna4.dae"));
-		insertLevelBack(LevelSetup::create("collada\\multimtl.dae"));
-		insertLevelBack(LevelSetup::create("collada\\cube.dae"));
+		//insertLevelBack(LevelSetup::create("collada\\koupelna\\koupelna4.dae"));
+		//insertLevelBack(LevelSetup::create("collada\\multimtl.dae"));
+		//insertLevelBack(LevelSetup::create("collada\\cube.dae"));
 
 		insertLevelBack(&koupelna4);  // ++colorbleed, LIC=OK, 2M
 		insertLevelBack(&x3map05);    // ++ext, originalni geometrie levelu, LIC=OK, 7M

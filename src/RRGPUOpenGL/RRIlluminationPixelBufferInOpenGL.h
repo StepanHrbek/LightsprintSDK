@@ -46,6 +46,8 @@ namespace rr_gl
 		bool rendering;
 		bool renderTriangleProgramSet;
 		rr::RRColorRGBA8* renderedTexels;
+		unsigned numTexelsRenderedWithoutOverlap;
+		unsigned numTexelsRenderedWithOverlap;
 		// state backup
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;

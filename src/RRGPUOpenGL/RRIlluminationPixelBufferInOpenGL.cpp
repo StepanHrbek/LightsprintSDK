@@ -133,6 +133,8 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 	{
 		renderedTexels = new rr::RRColorRGBA8[texture->getWidth()*texture->getHeight()];
 		//for(unsigned i=0;i<texture->getWidth()*texture->getHeight();i++) renderedTexels[i].color=255;//!!!
+		numTexelsRenderedWithoutOverlap = 0;
+		numTexelsRenderedWithOverlap = 0;
 	}
 	if(uv[0]>=texture->getWidth())
 	{
@@ -144,6 +146,10 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 		assert(0);
 		return;
 	}
+	if(renderedTexels[uv[0]+uv[1]*texture->getWidth()]==rr::RRColorRGBA8())
+		numTexelsRenderedWithoutOverlap++;
+	else
+		numTexelsRenderedWithOverlap++;
 	renderedTexels[uv[0]+uv[1]*texture->getWidth()] = 
 		rr::RRColorRGBA8(color[0],color[1],color[2],color[3]);
 }
@@ -160,6 +166,14 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 	if(renderedTexels)
 	{
 		texture->renderingToEnd();
+
+		if(numTexelsRenderedWithOverlap)
+		{
+			rr::RRReporter::report(
+				(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/100)?rr::RRReporter::ERRO:rr::RRReporter::WARN,
+				"Overlapping texels rendered into map, bad unwrap? size=%d*%d, ok=%d overlap=%d\n",
+				texture->getWidth(),texture->getHeight(),numTexelsRenderedWithoutOverlap,numTexelsRenderedWithOverlap);
+		}
 
 		// normal way
 		//texture->bindTexture();

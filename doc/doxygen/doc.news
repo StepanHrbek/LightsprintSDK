@@ -14,9 +14,10 @@ NEWS
 
 CHANGES
 
+- RRObject contains RRChanneledData interface
+- getTriangleNormals/getTriangleMapping moved from RRObject to RRMesh
 - RRSurface renamed to RRMaterial
 - material numbers removed from API (RRObject)
-- getTriangleNormals/getTriangleMapping moved from RRObject to RRMesh
 
 \section news13 ------------------------------------ 2007.2.28 -------------------------------------
 

@@ -331,6 +331,7 @@ unsigned RRMesh::verify()
 			RRReporter::report(RRReporter::ERRO,"getTriangle(%d)==%d %d %d, getNumVertices()==%d.\n",i,triangle.m[0],triangle.m[1],triangle.m[2],numVertices);
 			numReports++;
 		}
+
 		// triangleBody
 		TriangleBody triangleBody;
 		getTriangleBody(i,triangleBody);
@@ -349,6 +350,7 @@ unsigned RRMesh::verify()
 			RRReporter::report(RRReporter::ERRO,"getTriangleBody(%d).side2==%f %f %f.\n",i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2]);
 			numReports++;
 		}
+
 		// triangleBody equals triangle
 		Vertex vertex[3];
 		getVertex(triangle.m[0],vertex[0]);
@@ -399,7 +401,60 @@ unsigned RRMesh::verify()
 				vertex[2][0]-vertex[0][0]-triangleBody.side2[0],vertex[2][1]-vertex[0][1]-triangleBody.side2[1],vertex[2][2]-vertex[0][2]-triangleBody.side2[2]);
 			numReports++;
 		}
+
 		//!!! pre/post import
+
+		// triangleNormals
+		TriangleNormals triangleNormals;
+		TriangleNormals triangleNormalsFlat;
+		getTriangleNormals(i,triangleNormals);
+		RRMesh::getTriangleNormals(i,triangleNormalsFlat);
+		bool nanOrInf = false;
+		bool denormalized = false;
+		bool badDirection = false;
+		for(unsigned j=0;j<3;j++)
+		{
+			if(!IS_VEC3(triangleNormals.norm[j])) nanOrInf = true;
+			if(fabs(size2(triangleNormals.norm[j])-1)>0.1f) denormalized = true;
+			if(size2(triangleNormals.norm[j]-triangleNormalsFlat.norm[0])>2) badDirection = true;
+		}
+		if(nanOrInf)
+		{
+			RRReporter::report(RRReporter::ERRO,"getTriangleNormals(%d) are invalid, lengths %f %f %f.\n",
+				i,size(triangleNormals.norm[0]),size(triangleNormals.norm[1]),size(triangleNormals.norm[2]));
+		} 
+		else
+		if(denormalized)
+		{
+			RRReporter::report(RRReporter::WARN,"getTriangleNormals(%d) are denormalized, lengths %f %f %f.\n",
+				i,size(triangleNormals.norm[0]),size(triangleNormals.norm[1]),size(triangleNormals.norm[2]));
+		}
+		else
+		if(badDirection)
+		{
+			RRReporter::report(RRReporter::WARN,"getTriangleNormals(%d) point to back side.\n",i);
+		}
+
+		// triangleMapping
+		TriangleMapping triangleMapping;
+		getTriangleMapping(i,triangleMapping);
+		bool outOfRange = false;
+		for(unsigned j=0;j<3;j++)
+		{
+			for(unsigned k=0;k<2;k++)
+				if(triangleMapping.uv[j][k]<0 || triangleMapping.uv[j][k]>1)
+					outOfRange = true;
+		}
+		if(outOfRange)
+		{
+			RRReporter::report(RRReporter::WARN,"getTriangleMapping(%d) out of range, %f %f  %f %f  %f %f.\n",
+				i,
+				triangleMapping.uv[0][0],triangleMapping.uv[0][1],
+				triangleMapping.uv[1][0],triangleMapping.uv[1][1],
+				triangleMapping.uv[2][0],triangleMapping.uv[2][1]
+				);
+		}
+		
 	}
 	return numReports;
 }

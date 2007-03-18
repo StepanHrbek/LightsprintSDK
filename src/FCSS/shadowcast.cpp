@@ -5,11 +5,11 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define SUBDIVISION                0
-#define LIGHTMAP_SIZE_FACTOR       20
-#define LIGHTMAP_QUALITY           10
+#define LIGHTMAP_SIZE_FACTOR       10
+#define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 //#define HIGH_DETAIL // uses high detail models
-#define SUPPORT_LIGHTMAPS          0
+#define SUPPORT_LIGHTMAPS          1
 #define SUPPORT_COLLADA
 bool ati = 1;
 bool quadro = 0;
