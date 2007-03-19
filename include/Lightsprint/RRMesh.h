@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRMath.h"
+#include "RRDebug.h"
 #include <climits> // UNDEFINED
 
 #ifdef _MSC_VER
@@ -37,67 +38,6 @@
 
 namespace rr
 {
-
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//! Reporting messages
-	//
-	//! This system is used by Lightsprint internals to send
-	//! messages to you.
-	//! 
-	//! By default, all messages are ignored.
-	//! If you encounter problems, it could help to 
-	//! set nondefault reporter and read system messages.
-	//!
-	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
-	//! All new implementations must be thread safe too.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-	class RR_API RRReporter
-	{
-	public:
-		/////////////////////////////////////////////////////////////
-		// interface
-		/////////////////////////////////////////////////////////////
-
-		//! Type of message.
-		enum Type
-		{
-			ERRO, ///< Error, most important message, describes problem you should immediately fix.
-			WARN, ///< Warning, potential error.
-			INFO, ///< Information, produced by valid programs.
-			CONT, ///< Continuation of previous message.
-		};
-
-		//! Generic report of message.
-		//! Usually called by Lightsprint internals with message for you.
-		//!
-		//! Thread safe: yes, valid implementation must be thread safe.
-		virtual void customReport(const char* message) = 0;
-
-
-		/////////////////////////////////////////////////////////////
-		// tools
-		/////////////////////////////////////////////////////////////
-
-		//! Shortcut for customReport() with printf syntax.
-		//! Usually called by Lightsprint internals with message for you.
-		static void report(Type type, const char* format, ...);
-
-		//! Sets custom reporter, NULL for none.
-		static void setReporter(RRReporter* reporter);
-
-		//! Returns current active reporter, NULL for none.
-		static RRReporter* getReporter();
-
-		//! Creates reporter that calls printf() on each message.
-		static RRReporter* createPrintfReporter();
-
-		//! Creates reporter that calls OutputDebugString() on each message.
-		static RRReporter* createOutputDebugStringReporter();
-	};
 
 
 	//////////////////////////////////////////////////////////////////////////////

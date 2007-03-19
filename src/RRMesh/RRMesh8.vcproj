@@ -386,6 +386,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\Lightsprint\RRDebug.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\Lightsprint\RRMath.h"
 			>
 		</File>

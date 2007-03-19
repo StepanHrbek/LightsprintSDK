@@ -17,7 +17,7 @@ static RRReporter* reporter = NULL;
 class RRReporterPrintf : public RRReporter
 {
 public:
-	virtual void customReport(const char* message)
+	virtual void customReport(Type type, const char* message)
 	{
 		printf("%s",message);
 	}
@@ -31,7 +31,7 @@ public:
 class RRReporterOutputDebugString : public RRReporter
 {
 public:
-	virtual void customReport(const char* message)
+	virtual void customReport(Type type, const char* message)
 	{
 		OutputDebugString(message);
 	}
@@ -49,11 +49,19 @@ void RRReporter::report(Type type, const char* format, ...)
 		char msg[1000];
 		va_list argptr;
 		va_start (argptr,format);
-		strcpy(msg,(type==ERRO)?"ERROR: ":((type==WARN)?" Warn: ":((type==INFO)?" info: ":"")));
+		strcpy(msg,(type==ERRO)?"ERROR: ":((type==ASSE)?"Assert ":((type==WARN)?" Warn: ":((type==INFO)?" info: ":""))));
 		_vsnprintf (msg+7,999-7,format,argptr);
 		msg[999] = 0;
 		va_end (argptr);
-		reporter->customReport((type==CONT)?msg+7:msg);
+		reporter->customReport(type,(type==CONT)?msg+7:msg);
+	}
+}
+
+void RRReporter::assertionFailed(const char* expression, const char* file, unsigned line)
+{
+	if(reporter)
+	{
+		report(ASSE,"FAILED: %s, file %s, line %d.\n",expression,file,line);
 	}
 }
 
