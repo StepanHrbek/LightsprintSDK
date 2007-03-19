@@ -9,7 +9,7 @@
 
 #include <cassert>
 #include <GL/glew.h>
-#include "DemoEngine/Texture.h"
+#include "Lightsprint/DemoEngine/Texture.h"
 
 namespace de
 {

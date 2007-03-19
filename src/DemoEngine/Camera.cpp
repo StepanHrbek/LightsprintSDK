@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------
 
 #include <cmath>
-#include "DemoEngine/Camera.h"
+#include "Lightsprint/DemoEngine/Camera.h"
 #include "matrix.h"
 
 namespace de

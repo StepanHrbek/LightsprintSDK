@@ -382,7 +382,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\include\RRIllumination.h"
+			RelativePath="..\..\include\Lightsprint\RRIllumination.h"
 			>
 		</File>
 		<File
@@ -399,14 +399,6 @@
 		</File>
 		<File
 			RelativePath=".\RRIlluminationPixelBuffer.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\RRIlluminationSpace.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\RRIlluminationSurface.h"
 			>
 		</File>
 		<File

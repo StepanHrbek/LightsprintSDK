@@ -22,7 +22,7 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "DemoEngine/Timer.h"
+#include "Lightsprint/DemoEngine/Timer.h"
 #include "DynamicObject.h"
 
 

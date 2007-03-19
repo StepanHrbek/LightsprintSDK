@@ -1,4 +1,4 @@
-#include "RRIllumination.h"
+#include "Lightsprint/RRIllumination.h"
 
 namespace rr
 {

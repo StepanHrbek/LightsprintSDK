@@ -6,7 +6,7 @@
 #ifndef RRILLUMINATIONENVIRONMENTMAPINMEMORY_H
 #define RRILLUMINATIONENVIRONMENTMAPINMEMORY_H
 
-#include "RRIllumination.h"
+#include "Lightsprint/RRIllumination.h"
 
 namespace rr
 {

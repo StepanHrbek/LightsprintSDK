@@ -29,9 +29,9 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "RRRealtimeRadiosity.h"
-#include "DemoEngine/Timer.h"
-#include "RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 #include "RRObject3DS.h"
 #include "DynamicObject.h"
 

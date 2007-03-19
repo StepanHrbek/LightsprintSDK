@@ -7,8 +7,8 @@
 #include <cassert>
 #include <cstdio>
 #include <GL/glew.h>
-#include "DemoEngine/TextureRenderer.h"
-#include "DemoEngine/Program.h"
+#include "Lightsprint/DemoEngine/TextureRenderer.h"
+#include "Lightsprint/DemoEngine/Program.h"
 
 namespace de
 {

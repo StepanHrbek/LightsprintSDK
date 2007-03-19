@@ -3,7 +3,7 @@
 #include <memory.h>
 #include "rrcore.h"
 #include "clusters.h"
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 #include <stdio.h> // dbg printf
 
 namespace rr

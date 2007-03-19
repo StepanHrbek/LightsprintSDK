@@ -6,8 +6,8 @@
 #include <cstdio>
 #include <GL/glew.h>
 #include "RRIlluminationPixelBufferInOpenGL.h"
-#include "DemoEngine/Program.h"
-#include "RRGPUOpenGL.h"
+#include "Lightsprint/DemoEngine/Program.h"
+#include "Lightsprint/RRGPUOpenGL.h"
 
 #define SAFE_DELETE(a)       {delete a;a=NULL;}
 #define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}

@@ -398,7 +398,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\RRGPUOpenGL\RendererOfRRObject.h"
+			RelativePath="..\..\include\Lightsprint\RRGPUOpenGL\RendererOfRRObject.h"
 			>
 		</File>
 		<File
@@ -406,7 +406,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\RRGPUOpenGL.h"
+			RelativePath="..\..\include\Lightsprint\RRGPUOpenGL.h"
 			>
 		</File>
 		<File

@@ -413,7 +413,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\RRRealtimeRadiosity.h"
+			RelativePath="..\..\include\Lightsprint\RRRealtimeRadiosity.h"
 			>
 		</File>
 		<File

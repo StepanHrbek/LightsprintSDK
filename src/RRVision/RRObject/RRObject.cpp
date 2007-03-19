@@ -2,7 +2,7 @@
 
 #include "../../RRMesh/RRMeshFilter.h"
 #include "../rrcore.h"
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 #include "RRObjectFilter.h"
 #include "RRMeshFilterTransformed.h"
 #include "RRObjectFilterTransformed.h"

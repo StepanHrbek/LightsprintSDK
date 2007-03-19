@@ -6,7 +6,7 @@
 
 #include <cassert>
 #include <cstring> // NULL
-#include "DemoEngine/AreaLight.h"
+#include "Lightsprint/DemoEngine/AreaLight.h"
 
 namespace de
 {

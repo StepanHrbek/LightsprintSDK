@@ -1,7 +1,7 @@
 #ifndef RRVISION_GEOMETRY_H
 #define RRVISION_GEOMETRY_H
 
-#include "RRVision.h" // RRReal
+#include "Lightsprint/RRVision.h" // RRReal
 #include "../RRMath/RRMathPrivate.h" // vec3 support in rrCollider
 #include <float.h> // _finite
 

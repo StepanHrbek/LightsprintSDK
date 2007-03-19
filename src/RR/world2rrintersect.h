@@ -2,7 +2,7 @@
 #define _WORLD2COLLIDER_H
 
 #include "World.h"
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

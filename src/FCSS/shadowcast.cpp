@@ -91,7 +91,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #ifdef MINGW
 	#include <limits> // nutne aby uspel build v gcc4.3
 #endif
-#include "DemoEngine/Timer.h"
+#include "Lightsprint/DemoEngine/Timer.h"
 #include <cassert>
 #include <cfloat>
 #include <cmath>
@@ -104,15 +104,15 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/glut.h>
-#include "RRGPUOpenGL.h"
-#include "RRGPUOpenGL/RendererOfRRObject.h"
-#include "DemoEngine/AreaLight.h"
-#include "DemoEngine/Camera.h"
-#include "DemoEngine/UberProgram.h"
-#include "DemoEngine/Model_3DS.h"
-#include "DemoEngine/RendererWithCache.h"
-#include "DemoEngine/TextureRenderer.h"
-#include "DemoEngine/UberProgramSetup.h"
+#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/DemoEngine/AreaLight.h"
+#include "Lightsprint/DemoEngine/Camera.h"
+#include "Lightsprint/DemoEngine/UberProgram.h"
+#include "Lightsprint/DemoEngine/Model_3DS.h"
+#include "Lightsprint/DemoEngine/RendererWithCache.h"
+#include "Lightsprint/DemoEngine/TextureRenderer.h"
+#include "Lightsprint/DemoEngine/UberProgramSetup.h"
 #include "RRObject3DS.h"
 #ifdef SUPPORT_BSP
 	#include "RRObjectBSP.h"

@@ -527,11 +527,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\RRCollider.h"
+			RelativePath="..\..\include\Lightsprint\RRCollider.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\RRMath.h"
+			RelativePath="..\..\include\Lightsprint\RRMath.h"
 			>
 		</File>
 		<File

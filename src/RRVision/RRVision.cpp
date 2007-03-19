@@ -6,7 +6,7 @@
 
 #include "LicGenOpt.h"
 #include "rrcore.h"
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 
 namespace rr
 {

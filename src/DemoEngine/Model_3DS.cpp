@@ -78,7 +78,7 @@
 #include <cmath>
 #include <cstring>
 #include <GL/glew.h>
-#include "DemoEngine/Model_3DS.h"
+#include "Lightsprint/DemoEngine/Model_3DS.h"
 
 namespace de
 {

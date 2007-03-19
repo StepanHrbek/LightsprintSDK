@@ -6,7 +6,7 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // --------------------------------------------------------------------------
 
-#include "RRCollider.h"
+#include "Lightsprint/RRCollider.h"
 #include <stdio.h>
 
 using namespace rr;

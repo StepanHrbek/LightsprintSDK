@@ -5,9 +5,9 @@
 
 #include <cassert>
 #include <GL/glew.h>
-#include "RRIllumination.h"
-#include "RRGPUOpenGL/RendererOfRRObject.h"
-#include "DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
+#include "Lightsprint/RRIllumination.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
 #include "ObjectBuffers.h"
 
 namespace rr_gl

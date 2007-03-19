@@ -17,8 +17,8 @@
 #include <cmath>
 #include <map>
 #include "RRObjectCollada.h"
-#include "DemoEngine/Texture.h"
-#include "RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 
 #include "FCollada.h"
 #include "FCDocument/FCDocument.h"

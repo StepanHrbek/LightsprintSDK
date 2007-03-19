@@ -3,9 +3,9 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
-#include "DemoEngine/Renderer.h"
+#include "Lightsprint/DemoEngine/Renderer.h"
 #include "DynamicObject.h"
-#include "RRGPUOpenGL.h"
+#include "Lightsprint/RRGPUOpenGL.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

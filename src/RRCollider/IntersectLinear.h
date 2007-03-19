@@ -2,7 +2,7 @@
 #define COLLIDER_INTERSECTLINEAR_H
 
 #include "geometry.h"
-#include "RRCollider.h"
+#include "Lightsprint/RRCollider.h"
 
 #ifdef TRAVERSAL_INPUT_DIR_INVDIR
 	#define DIVIDE_BY_RAYDIR *ray->rayDirInv

@@ -2,7 +2,7 @@
 #define _RENDER_H
 
 #include "world.h"
-#include "RRVision.h" // rrscene
+#include "Lightsprint/RRVision.h" // rrscene
 
 #define C_INDICES 256
 

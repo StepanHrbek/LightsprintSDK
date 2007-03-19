@@ -6,7 +6,7 @@
 #ifndef RROBJECTCOLLADA_H
 #define RROBJECTCOLLADA_H
 
-#include "RRRealtimeRadiosity.h"
+#include "Lightsprint/RRRealtimeRadiosity.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

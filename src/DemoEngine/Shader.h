@@ -8,7 +8,7 @@
 #define SHADER_H
 
 #include <GL/glew.h>
-#include "DemoEngine/DemoEngine.h"
+#include "Lightsprint/DemoEngine/DemoEngine.h"
 
 namespace de
 {

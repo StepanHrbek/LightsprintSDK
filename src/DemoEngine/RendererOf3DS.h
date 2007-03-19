@@ -7,8 +7,8 @@
 #ifndef RENDEREROF3DS_H
 #define RENDEREROF3DS_H
 
-#include "DemoEngine/Renderer.h"
-#include "DemoEngine/Model_3DS.h"
+#include "Lightsprint/DemoEngine/Renderer.h"
+#include "Lightsprint/DemoEngine/Model_3DS.h"
 
 namespace de
 {

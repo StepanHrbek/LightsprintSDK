@@ -6,8 +6,8 @@
 #ifndef RRILLUMINATIONENVIRONMENTMAPINOPENGL_H
 #define RRILLUMINATIONENVIRONMENTMAPINOPENGL_H
 
-#include "RRIllumination.h"
-#include "DemoEngine/Texture.h"
+#include "Lightsprint/RRIllumination.h"
+#include "Lightsprint/DemoEngine/Texture.h"
 
 namespace rr_gl
 {

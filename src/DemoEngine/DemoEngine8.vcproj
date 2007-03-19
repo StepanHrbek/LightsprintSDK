@@ -392,7 +392,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\AreaLight.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\AreaLight.h"
 			>
 		</File>
 		<File
@@ -400,11 +400,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\Camera.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\Camera.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\DemoEngine.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\DemoEngine.h"
 			>
 		</File>
 		<File
@@ -428,7 +428,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\Model_3DS.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\Model_3DS.h"
 			>
 		</File>
 		<File
@@ -436,11 +436,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\Program.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\Program.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\Renderer.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\Renderer.h"
 			>
 		</File>
 		<File
@@ -456,7 +456,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\RendererWithCache.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\RendererWithCache.h"
 			>
 		</File>
 		<File
@@ -468,7 +468,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\Texture.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\Texture.h"
 			>
 		</File>
 		<File
@@ -492,7 +492,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\TextureRenderer.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\TextureRenderer.h"
 			>
 		</File>
 		<File
@@ -504,7 +504,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\Timer.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\Timer.h"
 			>
 		</File>
 		<File
@@ -512,7 +512,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\UberProgram.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\UberProgram.h"
 			>
 		</File>
 		<File
@@ -520,7 +520,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\DemoEngine\UberProgramSetup.h"
+			RelativePath="..\..\include\Lightsprint\DemoEngine\UberProgramSetup.h"
 			>
 		</File>
 	</Files>

@@ -5,9 +5,9 @@
 
 #include <windows.h>
 #include <GL/glew.h>
-#include "DemoEngine/Program.h"
+#include "Lightsprint/DemoEngine/Program.h"
 #include "RRIlluminationEnvironmentMapInOpenGL.h"
-#include "RRGPUOpenGL.h"
+#include "Lightsprint/RRGPUOpenGL.h"
 
 #define SAFE_DELETE(a)       {delete a;a=NULL;}
 

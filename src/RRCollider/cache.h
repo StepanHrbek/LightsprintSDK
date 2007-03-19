@@ -1,7 +1,7 @@
 #ifndef COLLIDER_CACHE_H
 #define COLLIDER_CACHE_H
 
-#include "RRCollider.h"
+#include "Lightsprint/RRCollider.h"
 
 #ifndef PRIVATE
 	#define PRIVATE

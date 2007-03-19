@@ -495,7 +495,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\RRVision.h"
+			RelativePath="..\..\include\Lightsprint\RRVision.h"
 			>
 		</File>
 	</Files>

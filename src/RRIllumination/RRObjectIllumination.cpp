@@ -1,5 +1,5 @@
 #include <map>
-#include "RRIllumination.h"
+#include "Lightsprint/RRIllumination.h"
 
 typedef std::map<unsigned,rr::RRObjectIllumination::Channel*> ChannelsType;
 #define channels ((ChannelsType*)hiddenChannels)

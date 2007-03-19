@@ -29,7 +29,7 @@
 #include <cassert>
 #include <cmath>
 #include <vector>
-#include "RRIllumination.h"
+#include "Lightsprint/RRIllumination.h"
 #include "RRObjectBSP.h"
 
 

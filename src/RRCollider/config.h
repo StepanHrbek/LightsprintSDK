@@ -1,7 +1,7 @@
 #ifndef COLLIDER_CONFIG_H
 #define COLLIDER_CONFIG_H
 
-#include "RRCollider.h"
+#include "Lightsprint/RRCollider.h"
 
 //#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, turns off unneeded features
 

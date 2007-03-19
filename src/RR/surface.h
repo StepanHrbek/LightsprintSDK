@@ -2,7 +2,7 @@
 #define _SURFACE_H
 
 #include "geometry.h"
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 
 #define ColorTable unsigned * // 256 colors in common 32bit format (BGRA)
 #define Color rr::RRColor

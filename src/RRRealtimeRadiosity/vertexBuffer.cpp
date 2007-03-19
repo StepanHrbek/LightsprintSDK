@@ -3,7 +3,7 @@
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#include "RRRealtimeRadiosity.h"
+#include "Lightsprint/RRRealtimeRadiosity.h"
 
 namespace rr
 {

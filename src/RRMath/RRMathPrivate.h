@@ -1,7 +1,7 @@
 #ifndef RRMATHPRIVATE_H
 #define RRMATHPRIVATE_H
 
-#include "RRMath.h"
+#include "Lightsprint/RRMath.h"
 
 #include <float.h> // _finite
 #include <math.h>  // sqrt

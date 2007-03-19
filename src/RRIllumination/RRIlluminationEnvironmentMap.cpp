@@ -1,6 +1,6 @@
-#include "RRIllumination.h"
+#include "Lightsprint/RRIllumination.h"
 
-#include "RRMesh.h"
+#include "Lightsprint/RRMesh.h"
 
 namespace rr
 {

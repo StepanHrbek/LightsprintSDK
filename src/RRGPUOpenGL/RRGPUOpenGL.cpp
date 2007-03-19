@@ -8,9 +8,9 @@
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
 #include <GL/glew.h>
-#include "RRGPUOpenGL.h"
-#include "RRGPUOpenGL/RendererOfRRObject.h"
-#include "DemoEngine/UberProgramSetup.h"
+#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/DemoEngine/UberProgramSetup.h"
 
 #define SCALE_DOWN_ON_GPU // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
 //#define CAPTURE_TGA // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu

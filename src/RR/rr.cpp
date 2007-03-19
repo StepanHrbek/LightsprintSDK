@@ -34,7 +34,7 @@
 #include "ldmgf.h"
 #include "misc.h"
 #include "render.h"
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 #include "surface.h"
 #include "World.h"
 #include "world2rrvision.h"

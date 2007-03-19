@@ -6,9 +6,9 @@
 #ifndef DYNAMICOBJECT_H
 #define DYNAMICOBJECT_H
 
-#include "DemoEngine/Model_3DS.h"
-#include "DemoEngine/UberProgramSetup.h"
-#include "DemoEngine/Renderer.h"
+#include "Lightsprint/DemoEngine/Model_3DS.h"
+#include "Lightsprint/DemoEngine/UberProgramSetup.h"
+#include "Lightsprint/DemoEngine/Renderer.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

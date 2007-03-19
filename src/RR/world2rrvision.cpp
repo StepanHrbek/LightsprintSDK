@@ -4,7 +4,7 @@
 
 #include "ldmgf.h"
 #include "render.h"
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 #include "surface.h"
 #include "world2rrvision.h"
 #include "world2rrintersect.h"

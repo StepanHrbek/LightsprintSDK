@@ -5,8 +5,8 @@
 //
 // autopilot
 
-#include "DemoEngine/Camera.h"
-#include "RRMath.h"
+#include "Lightsprint/DemoEngine/Camera.h"
+#include "Lightsprint/RRMath.h"
 
 struct AutopilotFrame
 {

@@ -6,7 +6,7 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // --------------------------------------------------------------------------
 
-#include "RRMesh.h"
+#include "Lightsprint/RRMesh.h"
 #include <stdio.h>
 
 using namespace rr;

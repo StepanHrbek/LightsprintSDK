@@ -9,8 +9,8 @@
 
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"
-#include "DemoEngine/Timer.h"
-#include "RRCollider.h"
+#include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/RRCollider.h"
 #include <math.h>
 #ifdef _OPENMP
 	#include <omp.h>

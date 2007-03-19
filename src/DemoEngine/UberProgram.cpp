@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------
 
 #include <cstdlib>
-#include "DemoEngine/UberProgram.h"
+#include "Lightsprint/DemoEngine/UberProgram.h"
 
 namespace de
 {

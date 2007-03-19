@@ -6,9 +6,9 @@
 #ifndef RROBJECTBSP_H
 #define RROBJECTBSP_H
 
-#include "RRRealtimeRadiosity.h"
+#include "Lightsprint/RRRealtimeRadiosity.h"
 #include "Q3Loader.h"
-#include "RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 
 //! Imports all 3d objects from model into RRRealtimeRadiosity.
 void insertBspToRR(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture,rr::RRRealtimeRadiosity* app, const rr::RRScene::SmoothingParameters* smoothing);

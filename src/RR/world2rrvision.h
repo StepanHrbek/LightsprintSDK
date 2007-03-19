@@ -2,7 +2,7 @@
 #define _WORLD2RRVISION_H
 
 #include "World.h"
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 
 rr::RRScene *convert_world2scene(WORLD *w, char *material_mgf, rr::RRCollider::IntersectTechnique intersectTechnique);
 

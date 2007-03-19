@@ -2,8 +2,8 @@
 #define INTERPOLATOR_H
 
 #include <vector>
-#include "RRIllumination.h"
-#include "RRVision.h"
+#include "Lightsprint/RRIllumination.h"
+#include "Lightsprint/RRVision.h"
 
 namespace rr
 {

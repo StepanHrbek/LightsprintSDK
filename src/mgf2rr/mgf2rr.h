@@ -5,7 +5,7 @@
 #ifndef _MGF2RR_H
 #define _MGF2RR_H
 
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 
 // you may load object from mgf
 rr::RRObject* new_mgf_importer(char* filename);

@@ -4,7 +4,7 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2005-2007
 // --------------------------------------------------------------------------
 
-#include "DemoEngine/UberProgramSetup.h"
+#include "Lightsprint/DemoEngine/UberProgramSetup.h"
 
 namespace de
 {

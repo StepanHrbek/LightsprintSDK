@@ -8,7 +8,7 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // --------------------------------------------------------------------------
 
-#include "RRVision.h"
+#include "Lightsprint/RRVision.h"
 #include <cstdio>
 #include <ctime>
 

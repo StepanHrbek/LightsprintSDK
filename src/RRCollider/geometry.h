@@ -1,7 +1,7 @@
 #ifndef COLLIDER_GEOMETRY_H
 #define COLLIDER_GEOMETRY_H
 
-#include "RRCollider.h"
+#include "Lightsprint/RRCollider.h"
 #include "../RRMath/RRMathPrivate.h"
 #include "config.h"
 

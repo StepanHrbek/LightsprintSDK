@@ -3,8 +3,8 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
-#include "RRVision.h"
-#include "DemoEngine/Texture.h"
+#include "Lightsprint/RRVision.h"
+#include "Lightsprint/DemoEngine/Texture.h"
 
 namespace rr_gl
 {
