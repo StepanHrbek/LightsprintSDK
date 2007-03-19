@@ -8,9 +8,13 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
-//#define HIGH_DETAIL // uses high detail models
-#define SUPPORT_LIGHTMAPS          1
-#define SUPPORT_COLLADA
+#define SUPPORT_LIGHTMAPS          0
+#define THREE_ONE
+#ifndef THREE_ONE
+	//#define HIGH_DETAIL // uses high detail models
+	//#define SUPPORT_COLLADA
+	#define SUPPORT_BSP
+#endif
 bool ati = 1;
 bool quadro = 0;
 int fullscreen = 0;
@@ -81,7 +85,9 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce (kompliko
 scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista jsou svetlejsi nez maji byt
 */
 
-#include "Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
+#ifdef SUPPORT_BSP
+	#include "Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
+#endif
 #ifdef MINGW
 	#include <limits> // nutne aby uspel build v gcc4.3
 #endif
@@ -108,10 +114,14 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoEngine/TextureRenderer.h"
 #include "DemoEngine/UberProgramSetup.h"
 #include "RRObject3DS.h"
-#include "RRObjectBSP.h"
-#include "RRObjectCollada.h"
-#include "FCollada.h"
-#include "FCDocument/FCDocument.h"
+#ifdef SUPPORT_BSP
+	#include "RRObjectBSP.h"
+#endif
+#ifdef SUPPORT_COLLADA
+	#include "RRObjectCollada.h"
+	#include "FCollada.h"
+	#include "FCDocument/FCDocument.h"
+#endif
 #include "DynamicObject.h"
 #include "Bugs.h"
 #include "LevelSequence.h"
@@ -144,9 +154,11 @@ public:
 	};
 	Type type;
 	de::Model_3DS m3ds;
+#ifdef SUPPORT_BSP
 	de::TMapQ3 bsp;
-	FCDocument* collada;
+#endif
 #ifdef SUPPORT_COLLADA
+	FCDocument* collada;
 	ColladaToRealtimeRadiosity* colladaToRR;
 #endif
 	class Solver* solver;
@@ -1279,8 +1291,8 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 	bugs = NULL;
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
-	collada = NULL;
 #ifdef SUPPORT_COLLADA
+	collada = NULL;
 	colladaToRR = NULL;
 #endif
 	// init radiosity solver
@@ -1289,10 +1301,11 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	rr::RRScene::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
-	//sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
+#ifdef THREE_ONE
+	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
+#endif
 	//sp.stitchDistance = -1;
 
-	float scale_3ds = 1;
 	de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
 	de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
 	eye = tmpeye;
@@ -1420,6 +1433,7 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 
 	switch(type)
 	{
+#ifdef SUPPORT_BSP
 		case TYPE_BSP:
 		{
 			// load quake 3 map
@@ -1435,6 +1449,7 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 			free(maps);
 			break;
 		}
+#endif
 		case TYPE_3DS:
 		{
 			// load .3ds scene
@@ -1464,6 +1479,8 @@ Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
 			break;
 		}
 #endif
+		default:
+			puts("Unsupported scene format.");
 	}
 
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
@@ -1518,10 +1535,12 @@ Level::~Level()
 {
 	switch(type)
 	{
+#ifdef SUPPORT_BSP
 		case TYPE_BSP:
 			deleteBspFromRR(solver);
 			freeMap(bsp);
 			break;
+#endif
 		case TYPE_3DS:
 			delete3dsFromRR(solver);
 			break;
@@ -1531,6 +1550,8 @@ Level::~Level()
 			delete collada;
 			break;
 #endif
+		default:
+			puts("Unsupported scene format.");
 	}
 	delete bugs;
 	delete rendererCaching;
@@ -1846,7 +1867,10 @@ void specialUp(int c, int x, int y)
 
 void keyboard(unsigned char c, int x, int y)
 {
+#if SUPPORT_LIGHTMAPS
 	const char* cubeSideNames[6] = {"x+","x-","y+","y-","z+","z-"};
+#endif
+
 	if(showHint)
 	{
 		showHint = false;
@@ -2413,6 +2437,7 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	Music n00ly("3+1/31_01.ogg");
 //	Music n00ly("music/dlife.xm");
 	//Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
 	

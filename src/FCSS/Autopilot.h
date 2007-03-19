@@ -46,6 +46,7 @@ struct LevelSetup
 		extern LevelSetup koupelna4;
 		*setup = koupelna4;
 		setup->filename = filename;
+		setup->scale = 1;
 		return setup;
 	};
 };
@@ -101,7 +102,6 @@ public:
 			&& secondsOfTransition<0)
 		{
 			// part with no change
-			int i=1;
 		}
 		else
 		{

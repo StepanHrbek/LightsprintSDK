@@ -1,7 +1,6 @@
 #ifndef LEVELSEQUENCE_H
 #define LEVELSEQUENCE_H
 
-#include <list>
 #include "Autopilot.h"
 
 LevelSetup koupelna4 =
@@ -326,6 +325,10 @@ class LevelSequence
 public:
 	LevelSequence()
 	{
+		insertLevelBack(LevelSetup::create("3+1\\detskypokoj1.3DS"));
+		insertLevelBack(LevelSetup::create("3+1\\obyvak2.3DS"));
+		insertLevelBack(LevelSetup::create("3+1\\3dtest2_08exp.3DS"));
+
 		//insertLevelBack(LevelSetup::create("3ds\\candella\\seen mesh.3ds"));
 		//insertLevelBack("3ds\\candella\\c-part.3ds");
 		//insertLevelBack("3ds\\candella\\c-all.3ds");

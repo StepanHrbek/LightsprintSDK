@@ -11,7 +11,7 @@
 //
 // Instancing is supported, multiple objects may share one collider and mesh.
 
-#if 1
+#if 0
 
 #include <cassert>
 #include <cmath>
@@ -845,6 +845,17 @@ ColladaToRealtimeRadiosity::ColladaToRealtimeRadiosity(FCDocument* document,RRRe
 ColladaToRealtimeRadiosity::~ColladaToRealtimeRadiosity()
 {
 	delete impl;
+}
+
+#else
+
+// stub
+#include "RRObjectCollada.h"
+ColladaToRealtimeRadiosity::ColladaToRealtimeRadiosity(class FCDocument* document,rr::RRRealtimeRadiosity* solver,const rr::RRScene::SmoothingParameters* smoothing)
+{
+}
+ColladaToRealtimeRadiosity::~ColladaToRealtimeRadiosity()
+{
 }
 
 #endif

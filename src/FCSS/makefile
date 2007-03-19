@@ -13,12 +13,12 @@ LIBS = ../../lib/libRRGPUOpenGL.a ../../lib/libRRRealtimeRadiosity.a ../../lib/l
 HELLO = ../../samples/HelloRealtimeRadiosity/
 BIN = ../../bin/
 
-OBJS = shadowcast.o Bugs.o $(HELLO)3ds2rr.o $(HELLO)DynamicObject.o
+OBJS = shadowcast.o Bugs.o $(HELLO)RRObject3DS.o $(HELLO)DynamicObject.o
 
 all: $(BIN)fcss.exe
 
 $(BIN)fcss.exe: $(OBJS) makefile $(LIBS)
-	gcc $(OBJS) $(LIBS) ../../bin/win32/glew32.dll ../../lib/win32/FreeImage.a -lwinmm -lOpenGL32 -lGLU32 -lGLUT -lstdc++ -s -o $(BIN)fcss.exe
+	gcc $(OBJS) $(LIBS) ../../lib/win32/libfmodex.a ../../bin/win32/glew32.dll ../../lib/win32/FreeImage.a -lwinmm -lOpenGL32 -lGLU32 -lGLUT -lstdc++ -s -o $(BIN)fcss.exe
 
 $(TMP)%.o: %.cpp makefile
 
