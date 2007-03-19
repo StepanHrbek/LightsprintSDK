@@ -673,9 +673,9 @@ Adding global illumination (GI) to your code is described in four steps.
  To render with calculated illumination, you need access to calculated data structures.
  Lightsprint supports multiple data structures optimized for different use cases.
 
- Pick exactly one of these structures for each object
- and use it for rendering global illumination. You can use different structures
- for different objects.
+ Pick one of these structures for each object
+ and use it for rendering global illumination. You may use different structures
+ for different objects. Read how structures are created, updated and used.
 
  - <b> \subpage data_vertex_buffer </b>
 
@@ -692,6 +692,8 @@ Adding global illumination (GI) to your code is described in four steps.
 
 
 \page data_vertex_buffer Vertex color buffer
+
+ Vetrtex color buffer is designed for global illumination of one object.
 
  \section d11 Suitable for
    - static objects: YES
@@ -722,11 +724,7 @@ Adding global illumination (GI) to your code is described in four steps.
      so your 3d artisis probably know they should avoid them.
    - Ambient values don't depend on view angle, so normal maps have no effect.
 
- \section d14 Data source
-   - stored in: RRRealtimeRadiosity::getIllumination()->getChannel(0)->vertexBuffer
-   - updated by: RRRealtimeRadiosity::calculate()
-
- \section d15 Data container
+ \section d15 Data container interface
    - interface: RRIlluminationVertexBuffer
    - implementations: Platform independent vertex buffer is provided by 
      RRIlluminationVertexBuffer::createInSystemMemory().
@@ -734,9 +732,25 @@ Adding global illumination (GI) to your code is described in four steps.
    - RRRealtimeRadiosity::newVertexBuffer uses
      RRIlluminationVertexBuffer::createInSystemMemory by default.
 
- \section d16 Data usage
+ \section d14 Data container instances
+   - stored in: RRRealtimeRadiosity::getIllumination()->getChannel(0)->vertexBuffer
+   - created by: You may manually create an instance and write it to
+     RRRealtimeRadiosity::getIllumination()->getChannel(0)->vertexBuffer,
+     but you don't have to.
+     When RRRealtimeRadiosity::calculate() calculates first illumination data
+     and is requested to store them into vertex buffer,
+     it checks whether RRRealtimeRadiosity::getIllumination()->getChannel(0)->vertexBuffer exists.
+     If it doesn't, RRRealtimeRadiosity::newVertexBuffer() is called to create it.
+     Default RRRealtimeRadiosity::newVertexBuffer() creates vertex buffer in system memory,
+     plain array. It is platform independent and perfectly sufficient for OpenGL
+     (glColorPointer accepts plain pointer to vertex color array in system memory).
+     For other API, you may need different implementation, provide it by reimplementing
+     RRRealtimeRadiosity::newVertexBuffer() and returning your class.
+   - updated by: RRRealtimeRadiosity::calculate() when new data are calculated
+
+ \section d16 Rendering with
    - Stream data from vertex buffer into vertex shader, interpret them
-     in shader as an ambient light value.
+     in shader as an ambient light level.
 
  \section d17 Examples
    - OpenGL example:
@@ -838,6 +852,8 @@ Adding global illumination (GI) to your code is described in four steps.
 
 \page data_lightmap Lightmap (with direct, indirect or global illumination)
 
+ Lightmap is designed for global illumination of one object.
+
  \section d21 Suitable for
    - static objects: YES
    - dynamic objects: NO
@@ -859,27 +875,41 @@ Adding global illumination (GI) to your code is described in four steps.
      Unwraps are often genrated automatically, using existing free or commercial tools.
    - Illumination values don't depend on view angle, so normal maps have no effect.
 
- \section d24 Data source
-   - stored in: your instances of RRIlluminationPixelBuffer
-     or RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer
-   - updated: manually by RRRealtimeRadiosity::updateLightmap()
-     or automatically by RRRealtimeRadiosity::calculate()
-
- \section d25 Data container
+ \section d25 Data container interface
    - interface: RRIlluminationPixelBuffer
    - implementations: OpenGL pixel buffer is available in
      RRRealtimeRadiosityGL::createIlluminationPixelBuffer().
      For Direct3D, you are expected to implement
      your own pixel buffer, see RRIlluminationPixelBuffer interface.
-   - Default RRRealtimeRadiosity::newPixelBuffer() returns NULL,
-     so maps are not generated automatically by default.
-     Return RRRealtimeRadiosityGL::createIlluminationPixelBuffer()
-     or your implementation to start generating maps automatically.
 
- \section d26 Data usage
+ \section d24 Data container instances
+   - stored in: your arbitrary location
+     or RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer
+   - created by:
+     \n For high quality pixel data computed by RRRealtimeRadiosity::updateLightmap()
+     or RRRealtimeRadiosity::updateLightmaps(), you are responsible for instance creation.
+     \n For realtime pixel data computed by RRRealtimeRadiosity::calculate(),
+     you may create instances manually and write them to
+     RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer,
+     but you don't have to.
+     When RRRealtimeRadiosity::calculate() calculates first illumination data
+     and is requested to store them into pixel buffer,
+     it checks whether RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer exists.
+     If it doesn't, RRRealtimeRadiosity::newPixelBuffer() is called to create it.
+     Default RRRealtimeRadiosity::newPixelBuffer() returns NULL,
+     so no pixel data are created and stored.
+     You may reimplement RRRealtimeRadiosity::newPixelBuffer() to
+     return valid instances.
+   - updated by:
+     \n For full control over speed and quality, use RRRealtimeRadiosity::updateLightmap()
+     or RRRealtimeRadiosity::updateLightmaps().
+     \n For realtime updates with fixed parameters,
+     use RRRealtimeRadiosity::calculate() and request it to update pixel buffers.
+
+ \section d26 Rendering with
    - Map ambient texture to your object using your uv channel with object's unwrap,
      read illumination value from texture in pixel shader
-     and interpret it as an ambient light.
+     and interpret it as an ambient color.
 
  \section d27 Examples
    - Generic example:
@@ -1016,6 +1046,8 @@ Adding global illumination (GI) to your code is described in four steps.
 
 \page data_environment_map Environment map
 
+ Environment map is designed for global illumination of one object.
+
  \section d31 Suitable for
    - static objects: YES
    - dynamic objects: YES
@@ -1024,22 +1056,29 @@ Adding global illumination (GI) to your code is described in four steps.
 
  \section d32 Advantages
    - offers global illumination with both specular and diffuse reflections
+   - object doesn't have to be part of static scene, no RRObject wrapper is required
+   - calculation is independent to object complexity, quick even for extremely complex objects
 
  \section d33 Disadvantages
    - precision decreases with size of object, suitable for characters and items, not for buildings
+   - complexity of objects doesn't matter, but count of environment map updates does,
+     so if you need large clouds/crowds of dynamic objects visible all at once,
+     share one environment map for several close objects and update it only once
+     to save time
 
- \section d34 Data source
-   - stored in: your instances of RRIlluminationEnvironmentMap
-   - updated by: RRRealtimeRadiosity::updateEnvironmentMaps()
-
- \section d35 Data container
+ \section d35 Data container interface
    - interface: RRIlluminationEnvironmentMap
    - implementations: OpenGL environment map is available in 
      RRRealtimeRadiosityGL::createIlluminationEnvironmentMap().
      For Direct3D, you are expected to implement
      your own environment map, see RRIlluminationEnvironmentMap interface.
 
- \section d36 Data usage
+ \section d34 Data container instances
+   - stored in: your arbitrary location
+   - created by: you
+   - updated by: RRRealtimeRadiosity::updateEnvironmentMaps()
+
+ \section d36 Rendering with
    - Many rendering techniques are based on faked precomputed environment maps.
      Here you get realtime computed environment maps, and you are free to use them
      for any purpose.
@@ -1178,13 +1217,15 @@ Adding global illumination (GI) to your code is described in four steps.
 
 \page data_triangle Triangle or Vertex
 
+ Triangle or Vertex illumination query is designed for AI
+ and other subsystems that need very fast access to single value
+ (e.g. AI trying to find dark corner for hiding).
+
  \section d41 Suitable for
    - static objects: YES
    - dynamic objects: NO
    - realtime calculated illumination: YES
    - precalculated illumination: YES
-   - Illumination on few triangles is good for example for AI trying to find dark
-     place for hiding.
 
  \section d42 Advantages
    - If you need information only for small subset of scene,
@@ -1198,30 +1239,31 @@ Adding global illumination (GI) to your code is described in four steps.
  \section d43 Disadvantages
    - Not demonstrated in samples yet, could require triangle number conversion.
 
- \section d44 Data source
+ \section d44 Query
    - RRScene::getTriangleMeasure with vertex=0,1,2 for triangle vertices
    - RRScene::getTriangleMeasure with vertex>2 for whole triangle area
    - RRScene::getSubtriangleMeasure for adaptively subdivided triangles
+   - Reading illumination level from triangle is slightly faster than reading
+     it from vertex, but both are very fast.
 
- \section d45 Data container
+ \section d45 Query result
    - RRColor for single illumination value
    - see \ref gunits
 
- \section d46 Data usage
-   - Reading illumination level from triangle is slightly faster than reading
-     it from vertex.
 
 
 
 \page data_ray Ray
+
+ Query for illumination at the end of ray is designed for AI
+ and other subsystems that need very fast access to single value
+ (e.g. AI looking around for dark corner).
 
  \section d51 Suitable for
    - static objects: YES
    - dynamic objects: NO
    - realtime calculated illumination: YES
    - precalculated illumination: YES
-   - Illumination at the ends of few rays is good for example for AI trying to find dark
-     place for hiding.
 
  \section d52 Advantages
    - Fast access to single value.
@@ -1229,16 +1271,14 @@ Adding global illumination (GI) to your code is described in four steps.
  \section d53 Disadvantages
    - Not demonstrated in samples yet.
 
- \section d54 Data source
-   - RRRealtimeRadiosity::getMultiObject()->getCollider()->intersect()
+ \section d54 Query
+   - RRRealtimeRadiosity::getMultiObjectCustom()->getCollider()->intersect()
      to find static triangle at the end of ray
    - see \ref data_triangle for access to triangle's illumination
 
- \section d55 Data container
+ \section d55 Query result
    - RRColor for single illumination value
    - see \ref gunits
-
- \section d56 Data usage
 
 
 

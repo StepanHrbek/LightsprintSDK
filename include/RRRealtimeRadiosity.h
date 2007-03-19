@@ -500,8 +500,9 @@ namespace rr
 		//! Returns new vertex buffer (for indirect illumination) in your custom format.
 		//
 		//! Default implementation allocates 3 floats per vertex in RAM.
-		//! This is good for editor, but you may want to use 4 bytes per vertex in game to save memory.
-		//! You may even use monochromatic (1 float) format if you don't need color bleeding.
+		//! This is good for editor, but you may want to use 4 bytes per vertex in game to save memory,
+		//! so reimplement this function and return different vertex buffer class.
+		//! You may even implement monochromatic (1 float or 1 byte) format if you don't need color bleeding.
 		virtual RRIlluminationVertexBuffer* newVertexBuffer(unsigned numVertices);
 
 		//! Returns new pixel buffer (for ambient map) in your custom format.
