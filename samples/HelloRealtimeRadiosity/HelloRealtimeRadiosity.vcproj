@@ -345,7 +345,7 @@
 				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
 				MinimalRebuild="false"
-				RuntimeLibrary="2"
+				RuntimeLibrary="3"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
 				PrecompiledHeaderFile=".\Debug/HelloRealtimeRadiosity.pch"

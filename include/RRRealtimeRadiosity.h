@@ -241,7 +241,7 @@ namespace rr
 			FORCE_UPDATE_PIXEL_BUFFERS = 8,
 		};
 
-		//! Calculates and improves indirect illumination on static objects.
+		//! Calculates and improves indirect illumination on static objects in channel 0.
 		//
 		//! To be called once per frame while rendering. To be called even when
 		//! rendering is paused, calculation runs on background.
@@ -448,7 +448,7 @@ namespace rr
 
 
 		//! Returns multiObject created by merging all objects present in scene.
-		//! MultiObject is not created before you insert objects and call calculate().
+		//! MultiObject is created when you insert objects and call calculate().
 		RRObject* getMultiObjectCustom();
 
 		//! As getMultiObjectCustom, but with materials converted to physical space.
@@ -457,8 +457,10 @@ namespace rr
 		//! As getMultiObjectPhysical, but with space for storage of detected direct illumination.
 		RRObjectWithIllumination* getMultiObjectPhysicalWithIllumination();
 
-		//! Returns the scene.
-		//! Scene is not created before you insert objects and call calculate().
+		//! Returns the scene for direct queries of single triangle/vertex illumination.
+		//
+		//! Scene is created from getMultiObjectPhysicalWithIllumination()
+		//! when you insert objects and call calculate().
 		const RRScene* getScene();
 
 	protected:

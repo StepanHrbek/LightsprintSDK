@@ -31,6 +31,8 @@
 			#endif
 		#endif
 	#endif
+	#pragma comment(lib,"opengl32.lib")
+	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")
 #else
 	// use static library

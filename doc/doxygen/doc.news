@@ -10,6 +10,7 @@
 
 NEWS
 
+- Debug DLL configuration added
 - IT_BSP_FASTER, new intersection technique between IT_BSP_FAST and IT_BSP_FASTEST
 
 CHANGES
@@ -17,7 +18,7 @@ CHANGES
 - RRObject contains RRChanneledData interface
 - getTriangleNormals/getTriangleMapping moved from RRObject to RRMesh
 - RRSurface renamed to RRMaterial
-- material numbers removed from API (RRObject)
+- material numbers removed from API (were in RRObject)
 
 \section news13 ------------------------------------ 2007.2.28 -------------------------------------
 
