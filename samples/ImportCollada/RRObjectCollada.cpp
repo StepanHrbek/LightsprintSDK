@@ -3,15 +3,18 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 
-// This code implements data wrappers for access to Collada meshes, objects, materials.
+// This code implements data wrappers for access to Collada meshes,
+// objects, materials, loaded by FCollada library.
 // You can replace Collada with your internal format and adapt this code
 // so it works with your data.
 //
-// Wrappers don't allocate additional memory, values are read from Collada document.
+// Wrappers don't allocate additional memory, values are read from 
+// Collada document.
 //
-// Instancing is supported, multiple objects may share one collider and mesh.
+// Instancing is supported, multiple instances with different
+// positions and materials share one collider and mesh.
 
-#if 0
+#if 1
 
 #include <cassert>
 #include <cmath>
@@ -849,7 +852,7 @@ ColladaToRealtimeRadiosity::~ColladaToRealtimeRadiosity()
 
 #else
 
-// stub
+// stub - for quickly disabled collada support
 #include "RRObjectCollada.h"
 ColladaToRealtimeRadiosity::ColladaToRealtimeRadiosity(class FCDocument* document,rr::RRRealtimeRadiosity* solver,const rr::RRScene::SmoothingParameters* smoothing)
 {

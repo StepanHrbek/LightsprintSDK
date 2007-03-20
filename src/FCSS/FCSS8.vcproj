@@ -328,12 +328,48 @@
 				RelativePath="..\..\samples\HelloRealtimeRadiosity\DynamicObject.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="ImportQuake3"
+			>
 			<File
-				RelativePath="..\..\samples\HelloRealtimeRadiosity\RRObject3DS.cpp"
+				RelativePath="..\..\samples\ImportQuake3\Q3Loader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\samples\HelloRealtimeRadiosity\RRObject3DS.h"
+				RelativePath="..\..\samples\ImportQuake3\Q3Loader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportQuake3\RRObjectBSP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportQuake3\RRObjectBSP.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="ImportCollada"
+			>
+			<File
+				RelativePath="..\..\samples\ImportCollada\RRObjectCollada.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportCollada\RRObjectCollada.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Import3DS"
+			>
+			<File
+				RelativePath="..\..\samples\Import3DS\RRObject3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\Import3DS\RRObject3DS.h"
 				>
 			</File>
 		</Filter>
@@ -362,31 +398,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Q3Loader.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Q3Loader.h"
-			>
-		</File>
-		<File
 			RelativePath=".\resource.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RRObjectBSP.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RRObjectBSP.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RRObjectCollada.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RRObjectCollada.h"
 			>
 		</File>
 		<File

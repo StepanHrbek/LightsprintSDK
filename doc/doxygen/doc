@@ -14,13 +14,16 @@ namespace rr
 
  - <b> \subpage main_scenarios </b>
 
+ - <b> \subpage main_platforms </b>
+
+
+ Programming guide:
+
  - <b> \subpage main_integration </b>
 
  - <b> \subpage main_data_access </b>
 
  - <b> \subpage main_conventions "Conventions (units, scale, floats...)" </b>
-
- - <b> \subpage main_platforms </b>
 
  - <b> \subpage main_api </b>
 
@@ -143,9 +146,9 @@ namespace rr
 
 
 
-\page main_integration Adding GI to your code
+\page main_integration GI solver
 
-Adding global illumination (GI) to your code is described in four steps.
+Integration of global illumination (GI) solver into your project is described in four steps.
 
  - <b> \subpage integration_milestone_1 </b>
 
@@ -229,7 +232,8 @@ Adding global illumination (GI) to your code is described in four steps.
   - Copy RRObject3DS.* to RRObjectCustom.* and add it to the project
   - Delete \#include "DemoEngine/Model_3DS.h" from RRObjectCustom.h
   - Build reports errors on all references to 3ds,
-    change code so it works with your engine's 3d model rather than with 3ds. For more details, see
+    change code so it works with your engine's 3d model rather than with 3ds.
+    For more details, see
     - comments in RRObjectCustom source code
     - <b> \subpage integration_step_2 </b>
     - <b> \subpage integration_step_3 </b>
@@ -276,7 +280,7 @@ Adding global illumination (GI) to your code is described in four steps.
   - Make sure your renderer supports realtime shadows other than stencil based, e.g. shadowmapping
     or projected shadows. If it doesn't, add them or contact us for further support.
     Commercial licence to Lightsprint contains full source code of DemoEngine,
-    including realtime soft shadows.
+    including realtime penumbra shadows.
   - <b> \subpage integration_step_4 </b>
   - <b> \subpage integration_step_5 </b>
   - Render our indirect illumination, see <b> \ref main_data_access </b>
@@ -319,7 +323,12 @@ Adding global illumination (GI) to your code is described in four steps.
 
   - <b> \subpage integration_step_6 </b>
   - for dynamic objects, implement RRIlluminationEnvironmentMap
-  - for lightmaps, implement RRIlluminationPixelBuffer
+  - for lightmaps, implement RRIlluminationPixelBuffer and reimplement
+    RRRealtimeRadiosity::newPixelBuffer() to return your class
+  - for other than OpenGL API,
+    you may need custom implementation of RRIlluminationVertexBuffer,
+    implement it and reimplement
+    RRRealtimeRadiosity::newVertexBuffer() to return your class
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -426,20 +435,52 @@ Adding global illumination (GI) to your code is described in four steps.
 
 \page integration_step_3 Create object wrappers
 
- Realtime radiosity transports light between object surfaces, so it needs to know everything
+ Lightsprint transports light between object surfaces,
+ so it needs to know everything
  about scene geometry and material properties.
 
- Realtime radiosity is designed to access your structures in arbitrary format,
- so you don't have to duplicate any data. This may save you huge amounts of memory,
- however you must provide wrappers that access your structures.
+ Lightsprint is designed to access your structures in arbitrary format,
+ so you don't have to duplicate any data.
+ This may save you huge amounts of memory, however,
+ you must provide wrappers that access your structures.
 
- For <b>simple case</b>, see samples/HelloRealtimeRadiosity/RRObject3DS.cpp. It is
- everything necessary to load .3ds model into realtime radiosity.
- For sake of simplicity, it duplicates some data and doesn't support geometry instancing.
+ Further saving is possible thanks to geometry instancing.
+ Multiple objects with different materials and different illumination
+ may share one mesh and collider.
+
+ \section import_without_instancing Import without instancing
+
+ For import without geometry instancing,
+ see samples/Import3DS or samples/ImportQuake3.
+ It is everything necessary to load 3ds or Quake3 scene into 
+ RRRealtimeRadiosity.
+
+ For sake of simplicity, wrappers duplicate some data in memory
+ and don't support geometry instancing.
  On the other hand, support for custom data is demonstrated
  on diffuse textures and uv coordinates.
 
- For <b>fully general</b> engine with geometry instancing, follow these steps:
+ Both RRMesh and RRObject interfaces are implemented in one class,
+ so one RRMesh can't be shared by multiple RRObjects
+ and instances are not supported.
+
+ \section import_with_instancing Import with instancing
+
+ For import with instancing, see samples/ImportCollada.
+ It is wrapper for scenes loaded by freely available FCollada library.
+
+ Wrappers don't duplicate any memory, all data are accessed directly
+ in FCollada document.
+
+ RRMesh and RRObject interfaces are implemented in two separated classes,
+ and one RRMesh is shared by multiple RRObjects, when scene contains instances.
+
+ \section import_new New importer
+
+ To import data in your format, pick one of existing importers
+ and modify it to access your data.
+
+ Alternatively, to write new importer from scratch, follow these steps:
 
  -  Create RRMesh for every static triangle mesh in your engine.
     \n\n
@@ -668,14 +709,15 @@ Adding global illumination (GI) to your code is described in four steps.
 
 
 
-\page main_data_access Using computed GI
+\page main_data_access Computed GI
  Lightsprint calculates direct, indirect or global illumination.
  To render with calculated illumination, you need access to calculated data structures.
  Lightsprint supports multiple data structures optimized for different use cases.
 
  Pick one of these structures for each object
  and use it for rendering global illumination. You may use different structures
- for different objects. Read how structures are created, updated and used:
+ for different objects. Read how structures are created, updated
+ and used in renderer:
 
  - <b> \subpage data_vertex_buffer </b>
 
@@ -1297,7 +1339,7 @@ Adding global illumination (GI) to your code is described in four steps.
  - all, no hard requirements
  - DX9 generation - standard target
  - DX10 generation - integration significantly simplified, performance improved
- - soft shadows in DemoEngine require at least GeForce 6xxx or Radeon 9500,
+ - penumbra shadows in DemoEngine require at least GeForce 6xxx or Radeon 9500,
    but they are not mandatory
 
  Supported 3D APIs are
@@ -1404,7 +1446,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
 
 
-\page main_api API
+\page main_api API overview
 
  Lightsprint API consists of multiple libraries:
 
@@ -1412,7 +1454,7 @@ Adding global illumination (GI) to your code is described in four steps.
 
  - <b> \subpage api_gl "GPUOPENGL" </b> - OpenGL 2.0 access to GPU
 
- - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 engine/renderer with soft shadows
+ - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 engine/renderer with penumbra shadows
 
  - <b> \subpage api_illumination "ILLUMINATION" </b> - storage for calculated illumination
 
@@ -1609,9 +1651,9 @@ Adding global illumination (GI) to your code is described in four steps.
  Features and limitations of DemoEngine
    - for Windows (request support for other platforms)
    - uses OpenGL 2.0
-   - supports all OpenGL 2.0 cards, but soft shadows require GeForce 6xxx or higher, Radeon 9500 or higher
+   - supports all OpenGL 2.0 cards, but penumbra shadows require GeForce 6xxx or higher, Radeon 9500 or higher
    - spotlights with realtime shadows
-   - linear and area spotlights with realtime correct soft shadows
+   - linear and area spotlights with realtime penumbra shadows
    - scenes and objects loaded from .3ds
    - loading 2d and cube textures from jpg, png, dds, tga, tiff, gif and many more
    - saving 2d and cube textures to jpg, png, tga, tiff, gif and many more
@@ -1629,7 +1671,7 @@ Adding global illumination (GI) to your code is described in four steps.
      - normal map (simple, normal modulated by diffuse map)
 
  Sample HelloDemoEngine shows .3ds scene viewer with dynamic objects
- and realtime soft shadows, based on DemoEngine.
+ and realtime penumbra shadows, based on DemoEngine.
 
 */
 

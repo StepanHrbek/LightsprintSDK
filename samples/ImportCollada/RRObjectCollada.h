@@ -13,10 +13,11 @@
 //
 // ColladaToRealtimeRadiosity
 
+//! Provides RRRealtimeRadiosity with access to FCollada document (3d scene).
+//! Create one instance to import document, delete it to remove the document.
 class ColladaToRealtimeRadiosity
 {
 public:
-
 	//! Imports FCollada scene contents to RRRealtimeRadiosity solver.
 	ColladaToRealtimeRadiosity(class FCDocument* document,rr::RRRealtimeRadiosity* solver,const rr::RRScene::SmoothingParameters* smoothing);
 

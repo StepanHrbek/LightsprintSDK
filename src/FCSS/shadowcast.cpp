@@ -113,12 +113,12 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/DemoEngine/RendererWithCache.h"
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
-#include "RRObject3DS.h"
+#include "../../samples/Import3DS/RRObject3DS.h"
 #ifdef SUPPORT_BSP
-	#include "RRObjectBSP.h"
+	#include "../../samples/ImportQUake3/RRObjectBSP.h"
 #endif
 #ifdef SUPPORT_COLLADA
-	#include "RRObjectCollada.h"
+	#include "../../samples/ImportCollada/RRObjectCollada.h"
 	#include "FCollada.h"
 	#include "FCDocument/FCDocument.h"
 #endif

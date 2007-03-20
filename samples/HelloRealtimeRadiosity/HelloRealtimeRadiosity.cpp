@@ -32,7 +32,7 @@
 #include "Lightsprint/RRRealtimeRadiosity.h"
 #include "Lightsprint/DemoEngine/Timer.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
-#include "RRObject3DS.h"
+#include "../../samples/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"
 
 //#define AMBIENT_MAPS
@@ -506,6 +506,8 @@ int main(int argc, char **argv)
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
 	}
+	// log messages to console
+	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 
 	// init GLUT
 	glutInit(&argc, argv);

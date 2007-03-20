@@ -6,11 +6,12 @@
 
 \page news What's new
 
-\section news14 ------------------------------------ 2007.3.x -------------------------------------
+\section news14 ------------------------------------ 2007.3.20 -------------------------------------
 
 NEWS
 
 - Debug DLL configuration added
+- Collada and Quake3 wrappers added to samples
 - IT_BSP_FASTER, new intersection technique between IT_BSP_FAST and IT_BSP_FASTEST
 
 CHANGES

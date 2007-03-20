@@ -424,11 +424,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\RRObject3DS.cpp"
+			RelativePath="..\Import3DS\RRObject3DS.cpp"
 			>
 		</File>
 		<File
-			RelativePath=".\RRObject3DS.h"
+			RelativePath="..\Import3DS\RRObject3DS.h"
 			>
 		</File>
 	</Files>

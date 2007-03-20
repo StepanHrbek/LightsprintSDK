@@ -20,3 +20,12 @@ HelloDemoEngine
 HelloRealtimeRadiosity
 - shows how to render realtime global illumination in scene with dynamic objects and light
 
+Import3DS
+- source code of 3DS wrapper, used by HelloRealtimeRadiosity
+
+ImportCollada
+- source code of Collada wrapper (for use with FCollada)
+
+ImportQuake3
+- source code of Quake3 map loader and wrapper
+
