@@ -119,21 +119,6 @@ bool RRMeshCopy::load(const char* filename)
 // concentrated here so that nobody else includes RRMeshCopy.h
 // only this file has c++ exceptions on, no one else needs them
 
-bool RRMesh::save(char* filename)
-{
-	RRMeshCopy* importer = new RRMeshCopy();
-	bool res = importer->load(this) && importer->save(filename);
-	delete importer;
-	return res;
-}
-
-RRMesh* RRMesh::load(char* filename)
-{
-	RRMeshCopy* importer = new RRMeshCopy();
-	if(importer->load(filename)) return importer;
-	delete importer;
-	return NULL;
-}
 
 RRMesh* RRMesh::createCopy()
 {

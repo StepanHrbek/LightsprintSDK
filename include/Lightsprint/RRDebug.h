@@ -14,7 +14,7 @@
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 
 #ifdef _DEBUG
-	#define RR_ASSERT(a) {if(!(a)) LIMITED_TIMES(10,rr::RRReporter::assertionFailed(#a,__FILE__,__LINE__));}
+	#define RR_ASSERT(a) {if(!(a)) LIMITED_TIMES(10,rr::RRReporter::assertionFailed(#a,__FUNCTION__,__FILE__,__LINE__));}
 #else
 	#define RR_ASSERT(a) 0
 #endif
@@ -72,7 +72,7 @@ namespace rr
 		//! Shortcut for special type of message: assertion failure.
 		//! Usually called by Lightsprint debug version internals.
 		//! Assertion failures are not reported in release version.
-		static void assertionFailed(const char* expression, const char* file, unsigned line);
+		static void assertionFailed(const char* expression, const char* func, const char* file, unsigned line);
 
 		//! Sets custom reporter, NULL for none.
 		static void setReporter(RRReporter* reporter);

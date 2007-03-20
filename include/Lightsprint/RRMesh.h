@@ -425,25 +425,6 @@ namespace rr
 		RRMesh* createOptimizedTriangles();
 
 
-		//! Saves mesh to file.
-		//
-		//! Temporarily disabled.
-		//! \param filename
-		//!  Filename for saved mesh. Format is platform specific (e.g. "c:\\mymesh" or "/pub/mymesh").
-		//! \return True on successful save.
-		bool save(char* filename);
-
-		//! Loads mesh from file to newly created instance.
-		//
-		//! Temporarily disabled.
-		//! Loaded mesh represents the same geometry as saved mesh, but internal implementation (speed, 
-		//! occupied memory) may differ.
-		//! \param filename
-		//!  Filename of mesh to load.
-		//! \return Newly created instance or NULL when load failed.
-		static RRMesh* load(char* filename);
-
-
 		//! Verifies that mesh is well formed.
 		//
 		//! Reports any problems found using RRReporter.

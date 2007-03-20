@@ -59,6 +59,10 @@ public:
 			RR_ASSERT(t.preImportTriangle!=UNDEFINED);
 			// copy getTriangle
 			importer->getTriangle(postImportTriangle,t.postImportTriangleVertices);
+			// copy getTriangleNormals
+			importer->getTriangleNormals(postImportTriangle,t.postImportTriangleNormals);
+			// copy getTriangleMapping
+			importer->getTriangleMapping(postImportTriangle,t.postImportTriangleMapping);
 			// copy getPreImportVertex
 			for(unsigned j=0;j<3;j++)
 			{
@@ -145,6 +149,26 @@ public:
 		out.side2[2]=v[2][2]-v[0][2];
 	}
 
+	virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const
+	{
+		if(t>=postImportTriangles.size())
+		{
+			RR_ASSERT(0);
+			return;
+		}
+		out = postImportTriangles[t].postImportTriangleNormals;
+	}
+
+	virtual void         getTriangleMapping(unsigned t, TriangleMapping& out) const
+	{
+		if(t>=postImportTriangles.size())
+		{
+			RR_ASSERT(0);
+			return;
+		}
+		out = postImportTriangles[t].postImportTriangleMapping;
+	}
+
 	// preimport/postimport conversions
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
 	{
@@ -206,6 +230,8 @@ public:
 		unsigned preImportTriangle;
 		Triangle postImportTriangleVertices;
 		Triangle preImportTriangleVertices;
+		TriangleNormals postImportTriangleNormals;
+		TriangleMapping postImportTriangleMapping;
 	};
 	std::vector<PostImportTriangle> postImportTriangles;
 	std::vector<unsigned> pre2postImportTriangles; // sparse(inverse of preImportTriangles) -> vector is mostly ok, but multimesh probably needs map

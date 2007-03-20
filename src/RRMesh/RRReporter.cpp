@@ -57,11 +57,11 @@ void RRReporter::report(Type type, const char* format, ...)
 	}
 }
 
-void RRReporter::assertionFailed(const char* expression, const char* file, unsigned line)
+void RRReporter::assertionFailed(const char* expression, const char* func, const char* file, unsigned line)
 {
 	if(reporter)
 	{
-		report(ASSE,"FAILED: %s, file %s, line %d.\n",expression,file,line);
+		report(ASSE,"failed: %s in %s, file %s, line %d.\n",expression,func,file,line);
 	}
 }
 
