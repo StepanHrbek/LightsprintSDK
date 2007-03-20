@@ -18,7 +18,7 @@ public:
 	{
 		INDEX tmp = vertices;
 		tmp = tmp;
-		assert(tmp==vertices);
+		RR_ASSERT(tmp==vertices);
 	}
 
 	virtual unsigned getNumTriangles() const
@@ -27,21 +27,21 @@ public:
 	}
 	virtual void getTriangle(unsigned t, Triangle& out) const
 	{
-		assert(t<Indices-2);
-		assert(IBuffer);
-		out[0] = IBuffer[t];         assert(out[0]<Vertices);
-		out[1] = IBuffer[t+1+(t%2)]; assert(out[1]<Vertices);
-		out[2] = IBuffer[t+2-(t%2)]; assert(out[2]<Vertices);
+		RR_ASSERT(t<Indices-2);
+		RR_ASSERT(IBuffer);
+		out[0] = IBuffer[t];         RR_ASSERT(out[0]<Vertices);
+		out[1] = IBuffer[t+1+(t%2)]; RR_ASSERT(out[1]<Vertices);
+		out[2] = IBuffer[t+2-(t%2)]; RR_ASSERT(out[2]<Vertices);
 	}
 	virtual void getTriangleBody(unsigned t, TriangleBody& out) const
 	{
-		assert(t<Indices-2);
-		assert(VBuffer);
-		assert(IBuffer);
+		RR_ASSERT(t<Indices-2);
+		RR_ASSERT(VBuffer);
+		RR_ASSERT(IBuffer);
 		unsigned v0,v1,v2;
-		v0 = IBuffer[t];         assert(v0<Vertices);
-		v1 = IBuffer[t+1+(t%2)]; assert(v1<Vertices);
-		v2 = IBuffer[t+2-(t%2)]; assert(v2<Vertices);
+		v0 = IBuffer[t];         RR_ASSERT(v0<Vertices);
+		v1 = IBuffer[t+1+(t%2)]; RR_ASSERT(v1<Vertices);
+		v2 = IBuffer[t+2-(t%2)]; RR_ASSERT(v2<Vertices);
 #define VERTEX(v) ((RRReal*)(VBuffer+v*Stride))
 		out.vertex0[0] = VERTEX(v0)[0];
 		out.vertex0[1] = VERTEX(v0)[1];

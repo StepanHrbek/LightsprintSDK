@@ -125,9 +125,9 @@ struct BBOX
 		float a=hi[0]-lo[0];
 		float b=hi[1]-lo[1];
 		float c=hi[2]-lo[2];
-		assert(a>=0);
-		assert(b>=0);
-		assert(c>=0);
+		RR_ASSERT(a>=0);
+		RR_ASSERT(b>=0);
+		RR_ASSERT(c>=0);
 		return 2*(a*(b+c)+b*c);
 	}
 	float getEdgeSize() const
@@ -135,9 +135,9 @@ struct BBOX
 		float a=hi[0]-lo[0];
 		float b=hi[1]-lo[1];
 		float c=hi[2]-lo[2];
-		assert(a>=0);
-		assert(b>=0);
-		assert(c>=0);
+		RR_ASSERT(a>=0);
+		RR_ASSERT(b>=0);
+		RR_ASSERT(c>=0);
 		return a+b+c;
 	}
 };
@@ -220,7 +220,7 @@ static int locate_vertex_bsp(const FACE *f, const VERTEX *v, float DELTA_INSIDE_
 
 static int locate_vertex_kd(float splitValue, int splitAxis, const VERTEX *v)
 {
-	assert(splitAxis>=0 && splitAxis<3);
+	RR_ASSERT(splitAxis>=0 && splitAxis<3);
 	return ((*v)[splitAxis]>splitValue) ? FRONT : ( ((*v)[splitAxis]<splitValue) ? BACK : PLANE );
 }
 
@@ -245,7 +245,7 @@ static int locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSI
 
 	if(plane==face)
 	{
-		assert(p==3);
+		RR_ASSERT(p==3);
 		return PLANE;
 	}
 	if(p==3 && normals_match(plane,face)) return PLANE;
@@ -286,7 +286,7 @@ static bool face_intersects_box(const FACE* face, BBOX* bbox)
 		for(unsigned j=0; j<3; j++)
 			tri[i][j] = a[j]*(*face->vertex[i])[j]+b[j];
 	// Inf correction
-	assert(IS_VEC3(tri[0]) && IS_VEC3(tri[1]) && IS_VEC3(tri[2]));
+	RR_ASSERT(IS_VEC3(tri[0]) && IS_VEC3(tri[1]) && IS_VEC3(tri[2]));
 	// transform normal
 	real normal[3];
 	get_polygon_normal(normal, 3, tri);
@@ -404,7 +404,7 @@ VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 	// prepare sortarrays
 	unsigned faces=0;
 	for(int i=0;list[i];i++) faces++;
-	assert(faces);
+	RR_ASSERT(faces);
 	if(!faces) return NULL;
 	FACE** minx = new FACE*[faces];
 	FACE** maxx = new FACE*[faces];
@@ -553,18 +553,18 @@ next:
 	}
 
 	FACE* f = info.face;
-	assert(f);
+	RR_ASSERT(f);
 	if(!f) return NULL;
 	VERTEX* result;
 	if(info.max)
 	{
 		if(f->max[info.axis]==(*f->vertex[0])[info.axis]) result = f->vertex[0]; else
 		if(f->max[info.axis]==(*f->vertex[1])[info.axis]) result = f->vertex[1]; else
-		{assert(f->max[info.axis]==(*f->vertex[2])[info.axis]);	result = f->vertex[2];}
+		{RR_ASSERT(f->max[info.axis]==(*f->vertex[2])[info.axis]);	result = f->vertex[2];}
 	} else {
 		if(f->min[info.axis]==(*f->vertex[0])[info.axis]) result = f->vertex[0]; else
 		if(f->min[info.axis]==(*f->vertex[1])[info.axis]) result = f->vertex[1]; else
-		{assert(f->min[info.axis]==(*f->vertex[2])[info.axis]);	result = f->vertex[2];}
+		{RR_ASSERT(f->min[info.axis]==(*f->vertex[2])[info.axis]);	result = f->vertex[2];}
 	}
 	*bestinfo = info;
 
@@ -689,14 +689,14 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo)
 			bestinfo->split = split;
 			bestinfo->prize = prize;
 			best=tmp[i].f; 
-			assert(plane); // at least best(triangle that makes plane) must be in plane
+			RR_ASSERT(plane); // at least best(triangle that makes plane) must be in plane
 		}
 
 	}
 
 	free(tmp);
 
-	assert(bestinfo->plane>=1);
+	RR_ASSERT(bestinfo->plane>=1);
 	return best;
 }
 
@@ -716,7 +716,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	if(!kd_allowed || pn<buildParams.kdMinFacesInTree)
 	{
 		bsproot=find_best_root_bsp(space,&info_bsp);
-		if(bsproot) assert(info_bsp.plane>=1);
+		if(bsproot) RR_ASSERT(info_bsp.plane>=1);
 	} else {
 		kdroot = find_best_root_kd(bbox,space,&info_kd);
 #ifdef SUPPORT_EMPTY_KDNODE
@@ -737,7 +737,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		if((buildParams.kdHavran==0 && pn<buildParams.bspMaxFacesInTree) || !kdroot)
 		{
 			bsproot = find_best_root_bsp(space,&info_bsp);
-			if(bsproot) assert(info_bsp.plane>=1);
+			if(bsproot) RR_ASSERT(info_bsp.plane>=1);
 			if(buildParams.kdHavran==0 && kdroot && info_kd.prize<info_bsp.prize+pn)
 				bsproot=NULL; 
 			else 
@@ -771,7 +771,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 
 	if(kdroot)
 	{
-		assert((*kdroot)[info_kd.axis]==info_kd.value);
+		RR_ASSERT((*kdroot)[info_kd.axis]==info_kd.value);
 	}
 
 	// calculate sizes of front/back/plane
@@ -796,16 +796,16 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	if(kdroot)
 	{
 #ifndef STRICT_SEPARATION
-		assert(back_num == info_kd.back);
-		assert(front_num == info_kd.front);
-		assert(plane_num == info_kd.plane);
-		assert(split_num == info_kd.split);
+		RR_ASSERT(back_num == info_kd.back);
+		RR_ASSERT(front_num == info_kd.front);
+		RR_ASSERT(plane_num == info_kd.plane);
+		RR_ASSERT(split_num == info_kd.split);
 #endif
 	} else {
-		assert(back_num == info_bsp.back);
-		assert(front_num == info_bsp.front);
-		assert(plane_num == info_bsp.plane);
-		assert(split_num == info_bsp.split);
+		RR_ASSERT(back_num == info_bsp.back);
+		RR_ASSERT(front_num == info_bsp.front);
+		RR_ASSERT(plane_num == info_bsp.plane);
+		RR_ASSERT(split_num == info_bsp.split);
 	}
 	back_num += split_num;
 	front_num += split_num;
@@ -822,9 +822,9 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		if(!buildParams.kdHavran)
 #endif
 		{
-			assert(front_num); // v top-level-only kd nesmi byt leaf -> musi byt front i back
-			assert(back_num+plane_num);
-			assert(front && back);
+			RR_ASSERT(front_num); // v top-level-only kd nesmi byt leaf -> musi byt front i back
+			RR_ASSERT(back_num+plane_num);
+			RR_ASSERT(front && back);
 		}
 	} else {
 		if(back_num>0) { back=nALLOC(const FACE*,back_num+1); back[back_num]=NULL; }
@@ -848,10 +848,10 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		}
 	}
 	if(!kdroot) plane[plane_id++] = bsproot;
-	assert(front_id==front_num);
-	if(!kdroot) assert(back_id==back_num);
-	if(!kdroot) assert(plane_id==plane_num);
-	if(kdroot) assert(back_id+plane_id==back_num+plane_num);
+	RR_ASSERT(front_id==front_num);
+	if(!kdroot) RR_ASSERT(back_id==back_num);
+	if(!kdroot) RR_ASSERT(plane_id==plane_num);
+	if(kdroot) RR_ASSERT(back_id+plane_id==back_num+plane_num);
 
 	free(space);
 
@@ -894,7 +894,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	if(!buildParams.kdHavran)
 #endif
 	{
-		if(t->kdroot) assert(t->front && t->back); // v top-level-only kd musi byt front i back
+		if(t->kdroot) RR_ASSERT(t->front && t->back); // v top-level-only kd musi byt front i back
 	}
 
 	return t;
@@ -953,25 +953,25 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 
 	if(t->kdroot && (t->front || t->back)) // pro prazdny kdnode uz nezapisuje splitValue
 	{
-		assert(t->axis>=0 && t->axis<=2);
+		RR_ASSERT(t->axis>=0 && t->axis<=2);
 		real splitValue = (&t->kdroot->x)[t->axis];
 		WRITE(splitValue);
 #ifdef SUPPORT_EMPTY_KDNODE
 		if(!buildParams.kdHavran)
 #endif
 		{
-			assert(t->front);
-			assert(t->back);
+			RR_ASSERT(t->front);
+			RR_ASSERT(t->back);
 		}
 	}
 	if(t->leaf)
 	{
-		assert(t->leaf[0]);
+		RR_ASSERT(t->leaf[0]);
 		for(unsigned i=0;t->leaf[i];i++) 
 		{
 			typename BspTree::_TriInfo tri;
 			tri.setGeometry(t->leaf[i]->id,(Vec3*)&t->leaf[i]->vertex[0]->x,(Vec3*)&t->leaf[i]->vertex[1]->x,(Vec3*)&t->leaf[i]->vertex[2]->x);
-			assert(tri.getTriangleIndex()==t->leaf[i]->id);
+			RR_ASSERT(tri.getTriangleIndex()==t->leaf[i]->id);
 			WRITE(tri)
 			faces++;
 		}
@@ -995,7 +995,7 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 #ifdef SUPPORT_EMPTY_KDNODE
 	static BSP_TREE empty = {};
 	empty.kdroot = (VERTEX*)1;
-	if(t->kdroot && t!=&empty) assert(t->front || t->back);
+	if(t->kdroot && t!=&empty) RR_ASSERT(t->front || t->back);
 	if(t->front || t->back)
 #endif
 	if(transition)
@@ -1039,9 +1039,9 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 #endif
 	}
 #ifdef SUPPORT_EMPTY_KDNODE
-	if(!t->front && !t->back) assert(n || t->leaf || t==&empty); // n=bsp leaf, leaf=kd leaf, empty=havran's kd branch
+	if(!t->front && !t->back) RR_ASSERT(n || t->leaf || t==&empty); // n=bsp leaf, leaf=kd leaf, empty=havran's kd branch
 #else
-	if(!t->front && !t->back) assert(n || t->leaf); // n=bsp leaf, leaf=kd leaf
+	if(!t->front && !t->back) RR_ASSERT(n || t->leaf); // n=bsp leaf, leaf=kd leaf
 #endif
 		
 
@@ -1064,7 +1064,7 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 	//	for(unsigned i=0;i<n;i++) // best
 		{
 			typename BspTree::_TriInfo info = tmp[i].f->id;
-			if(info!=tmp[i].f->id) {assert(0);return false;}
+			if(info!=tmp[i].f->id) {RR_ASSERT(0);return false;}
 			fwrite(&info,sizeof(info),1,f);
 		}
 		delete tmp;
@@ -1073,7 +1073,7 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 	{
 		typename BspTree::_TriInfo info;
 		info.setGeometry(t->plane[i]->id,(Vec3*)&t->plane[i]->vertex[0]->x,(Vec3*)&t->plane[i]->vertex[1]->x,(Vec3*)&t->plane[i]->vertex[2]->x);
-		if(info.getTriangleIndex()!=t->plane[i]->id) {assert(0);return false;}
+		if(info.getTriangleIndex()!=t->plane[i]->id) {RR_ASSERT(0);return false;}
 		WRITE(info);
 	}
 
@@ -1081,12 +1081,12 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 	unsigned pos1 = 0;
 	unsigned pos2 = TELL();
 	node.bsp.size = pos2-pos1;
-	if(node.bsp.size!=pos2-pos1) {assert(0);return false;}
+	if(node.bsp.size!=pos2-pos1) {RR_ASSERT(0);return false;}
 	node.setTransition(transition);
 	node.setKd(t->kdroot || t->leaf);
 	if(t->kdroot || t->leaf)
 	{
-		assert(t->axis>=0 && t->axis<=3);
+		RR_ASSERT(t->axis>=0 && t->axis<=3);
 		node.kd.splitAxis = t->axis;
 	} else {
 		node.bsp.back = t->back?1:0;
@@ -1109,7 +1109,7 @@ BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 {
 	BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
 
-	assert(obj->face_num>0); // pozor nastava
+	RR_ASSERT(obj->face_num>0); // pozor nastava
 
 	for(int i=0;i<obj->vertex_num;i++) 
 	{
@@ -1150,7 +1150,7 @@ unsigned save_bsp(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m)
 
 	guess_size_bsp(bsp);
 	unsigned savedBytes = save_bsp IBP2(bsp,f,m);
-	assert(faces==bsp->faces);
+	RR_ASSERT(faces==bsp->faces);
 	if(f || m)
 	{
 	}
@@ -1167,7 +1167,7 @@ bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m)
 
 	// create
 	BspBuilder* builder = new BspBuilder();
-	assert(buildParams);
+	RR_ASSERT(buildParams);
 	builder->buildParams = *buildParams;
 	BspBuilder::BSP_TREE* bsp = builder->create_bsp(obj,BspTree::allows_kd);
 
@@ -1183,7 +1183,7 @@ bool createAndSaveBsp(OBJECT *obj, BuildParams* buildParams, FILE *f, void** m)
 		{
 			*m = malloc(size);
 			unsigned saved = builder->save_bsp IBP2(obj, bsp, NULL, *m);
-			assert(saved = size);
+			RR_ASSERT(saved = size);
 		}
 	}
 	else

@@ -14,9 +14,9 @@
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 
 #ifdef _DEBUG
-	#define RR_ASSERT(a) {if(!(a)) LIMITED_TIMES(10,RRReporter::assertionFailed(#a,__FILE__,__LINE__));}
+	#define RR_ASSERT(a) {if(!(a)) LIMITED_TIMES(10,rr::RRReporter::assertionFailed(#a,__FILE__,__LINE__));}
 #else
-	#define RR_ASSERT(a)
+	#define RR_ASSERT(a) 0
 #endif
 
 namespace rr
@@ -31,7 +31,7 @@ namespace rr
 	//! 
 	//! By default, all messages are ignored.
 	//! If you encounter problems, it could help to 
-	//! set nondefault reporter and read system messages.
+	//! set reporter and read system messages.
 	//!
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//! All new implementations must be thread safe too.

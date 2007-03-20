@@ -79,7 +79,7 @@ const void* RendererOfRRObject::getParams(unsigned& length) const
 
 void RendererOfRRObject::render()
 {
-	assert(params.object);
+	RR_ASSERT(params.object);
 	if(!params.object) return;
 
 	glColor4ub(0,0,0,255);
@@ -111,7 +111,7 @@ void RendererOfRRObject::render()
 		if(indexedNoNeeded && indexedYesNeeded)
 		{
 			// invalid combination of render channels, not supported
-			assert(0);
+			RR_ASSERT(0);
 		}
 	}
 	else
@@ -145,7 +145,7 @@ void RendererOfRRObject::render()
 						}
 						else
 						{
-							assert(0); // expected data are missing
+							RR_ASSERT(0); // expected data are missing
 						}
 					}
 
@@ -166,7 +166,7 @@ void RendererOfRRObject::render()
 						}
 						else
 						{			
-							assert(0); // expected data are missing
+							RR_ASSERT(0); // expected data are missing
 						}
 					}
 				}
@@ -235,7 +235,7 @@ void RendererOfRRObject::render()
 					else
 					{
 						//!!! kdyz se dostane sem a vysledek zacachuje, bude to uz vzdycky renderovat blbe
-						assert(0);
+						RR_ASSERT(0);
 					}
 				}
 			}
@@ -279,7 +279,7 @@ void RendererOfRRObject::render()
 					if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,triangleIdx,&uv,sizeof(uv)))
 						glMultiTexCoord2f(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_DIFFUSE,uv[v][0],uv[v][1]);
 					else
-						assert(0); // expected data are missing
+						RR_ASSERT(0); // expected data are missing
 				}
 
 				// forced 2d position

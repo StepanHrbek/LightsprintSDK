@@ -56,13 +56,13 @@ public:
 			PostImportTriangle t;
 			// copy getPreImportTriangle
 			t.preImportTriangle = importer->getPreImportTriangle(postImportTriangle);
-			assert(t.preImportTriangle!=UNDEFINED);
+			RR_ASSERT(t.preImportTriangle!=UNDEFINED);
 			// copy getTriangle
 			importer->getTriangle(postImportTriangle,t.postImportTriangleVertices);
 			// copy getPreImportVertex
 			for(unsigned j=0;j<3;j++)
 			{
-				assert(t.postImportTriangleVertices[j]!=UNDEFINED);
+				RR_ASSERT(t.postImportTriangleVertices[j]!=UNDEFINED);
 				t.preImportTriangleVertices[j] = importer->getPreImportVertex(t.postImportTriangleVertices[j],postImportTriangle);
 			}
 			numPreImportTriangles = MAX(numPreImportTriangles,t.preImportTriangle+1);
@@ -91,7 +91,7 @@ public:
 		for(unsigned preImportTriangle=0;preImportTriangle<numPreImportTriangles;preImportTriangle++)
 		{
 			unsigned postImportTriangle = importer->getPostImportTriangle(preImportTriangle);
-			assert(postImportTriangle==UNDEFINED || postImportTriangle<postImportTriangles.size());
+			RR_ASSERT(postImportTriangle==UNDEFINED || postImportTriangle<postImportTriangles.size());
 			pre2postImportTriangles[preImportTriangle] = postImportTriangle;
 		}
 
@@ -112,7 +112,7 @@ public:
 	}
 	virtual void         getVertex(unsigned v, Vertex& out) const
 	{
-		assert(v<postImportVertices.size());
+		RR_ASSERT(v<postImportVertices.size());
 		out = postImportVertices[v];
 	}
 
@@ -123,7 +123,7 @@ public:
 	}
 	virtual void         getTriangle(unsigned t, Triangle& out) const
 	{
-		assert(t<postImportTriangles.size());
+		RR_ASSERT(t<postImportTriangles.size());
 		out = postImportTriangles[t].postImportTriangleVertices;
 	}
 	virtual void         getTriangleBody(unsigned i, TriangleBody& out) const
@@ -150,18 +150,18 @@ public:
 	{
 		if(postImportVertex>=postImportVertices.size())
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
 		if(postImportTriangle>=postImportTriangles.size())
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
 		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[0]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[0];
 		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[1]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[1];
 		if(postImportTriangles[postImportTriangle].postImportTriangleVertices[2]==postImportVertex) return postImportTriangles[postImportTriangle].preImportTriangleVertices[2];
-		assert(0);
+		RR_ASSERT(0);
 		return UNDEFINED;
 	}
 	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const
@@ -169,20 +169,20 @@ public:
 		unsigned postImportTriangle = getPostImportTriangle(preImportTriangle);
 		if(postImportTriangle==UNDEFINED) 
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
 		if(postImportTriangles[postImportTriangle].preImportTriangleVertices[0]==preImportVertex) return postImportTriangles[postImportTriangle].postImportTriangleVertices[0];
 		if(postImportTriangles[postImportTriangle].preImportTriangleVertices[1]==preImportVertex) return postImportTriangles[postImportTriangle].postImportTriangleVertices[1];
 		if(postImportTriangles[postImportTriangle].preImportTriangleVertices[2]==preImportVertex) return postImportTriangles[postImportTriangle].postImportTriangleVertices[2];
-		assert(0);
+		RR_ASSERT(0);
 		return UNDEFINED;
 	}
 	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const
 	{
 		if(postImportTriangle>=postImportTriangles.size())
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
 		return postImportTriangles[postImportTriangle].preImportTriangle;

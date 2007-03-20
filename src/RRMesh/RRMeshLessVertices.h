@@ -25,11 +25,11 @@ public:
 	RRLessVerticesFilter(const RRMesh* original, float MAX_STITCH_DISTANCE)
 		: RRMeshFilter(original)
 	{
-		assert(MAX_STITCH_DISTANCE>=0); // negative value would remove no vertices -> no improvement
+		RR_ASSERT(MAX_STITCH_DISTANCE>=0); // negative value would remove no vertices -> no improvement
 		// prepare translation arrays
 		unsigned numVertices = inherited->getNumVertices();
 		INDEX tmp = numVertices;
-		assert(tmp==numVertices);
+		RR_ASSERT(tmp==numVertices);
 		Dupl2Unique = new INDEX[numVertices];
 		Unique2Dupl = new INDEX[numVertices];
 		UniqueVertices = 0;
@@ -49,7 +49,7 @@ public:
 		for(unsigned ds=0;ds<numVertices;ds++) // ds=index into sortedVertices
 		{
 			unsigned d = (unsigned)(sortedVertices[ds]-vertices); // d=prefiltered/importer vertex, index into Dupl2Unique
-			assert(d<numVertices);
+			RR_ASSERT(d<numVertices);
 			RRMesh::Vertex& dfl = vertices[d];
 			// test his distance against all already found unique vertices
 			for(unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
@@ -92,7 +92,7 @@ dupl:;
 			}
 			else
 			{
-				assert(0);
+				RR_ASSERT(0);
 				return false;
 			}
 		}
@@ -105,7 +105,7 @@ dupl:;
 	}
 	virtual void getVertex(unsigned postImportVertex, RRMesh::Vertex& out) const
 	{
-		assert(postImportVertex<UniqueVertices);
+		RR_ASSERT(postImportVertex<UniqueVertices);
 		unsigned midImportVertex = Unique2Dupl[postImportVertex];
 		inherited->getVertex(midImportVertex,out);
 	}
@@ -113,7 +113,7 @@ dupl:;
 	{
 		if(postImportVertex>=UniqueVertices)
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
 
@@ -123,7 +123,7 @@ dupl:;
 		unsigned midImportTriangle = postImportTriangle; // triangle numbering is not changed by us
 		if(midImportTriangle==UNDEFINED)
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
 		RRMesh::Triangle midImportVertices;
@@ -133,7 +133,7 @@ dupl:;
 			if(Dupl2Unique[midImportVertices[v]]==postImportVertex)
 				return inherited->getPreImportVertex(midImportVertices[v],midImportTriangle);
 		}
-		assert(0); // nastalo kdyz byla chyba v LessTrianglesFilter a postNumber se nezkonvertilo na midNumber
+		RR_ASSERT(0); // nastalo kdyz byla chyba v LessTrianglesFilter a postNumber se nezkonvertilo na midNumber
 
 		// fast version
 		return Unique2Dupl[postImportVertex];
@@ -143,7 +143,7 @@ dupl:;
 		unsigned midImportVertex = inherited->getPostImportVertex(preImportVertex,preImportTriangle);
 		if(midImportVertex>=inherited->getNumVertices()) 
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return UNDEFINED;
 		}
 		return Dupl2Unique[midImportVertex];
@@ -151,9 +151,9 @@ dupl:;
 	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
 		inherited->getTriangle(t,out);
-		out[0] = Dupl2Unique[out[0]]; assert(out[0]<UniqueVertices);
-		out[1] = Dupl2Unique[out[1]]; assert(out[1]<UniqueVertices);
-		out[2] = Dupl2Unique[out[2]]; assert(out[2]<UniqueVertices);
+		out[0] = Dupl2Unique[out[0]]; RR_ASSERT(out[0]<UniqueVertices);
+		out[1] = Dupl2Unique[out[1]]; RR_ASSERT(out[1]<UniqueVertices);
+		out[2] = Dupl2Unique[out[2]]; RR_ASSERT(out[2]<UniqueVertices);
 	}
 
 protected:
@@ -176,7 +176,7 @@ public:
 		: INHERITED(vbuffer,avertices,stride,ibuffer,indices)
 	{
 		INDEX tmp = avertices;
-		assert(tmp==avertices);
+		RR_ASSERT(tmp==avertices);
 		// prepare translation arrays
 		unsigned numVertices = avertices;
 		Dupl2Unique = new INDEX[numVertices];
@@ -198,7 +198,7 @@ public:
 		for(unsigned ds=0;ds<numVertices;ds++) // ds=index into sortedVertices
 		{
 			unsigned d = (unsigned)(sortedVertices[ds]-vertices); // d=prefiltered/importer vertex, index into Dupl2Unique
-			assert(d<numVertices);
+			RR_ASSERT(d<numVertices);
 			RRMesh::Vertex& dfl = vertices[d];
 			// test his distance against all already found unique vertices
 			for(unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
@@ -236,10 +236,10 @@ dupl:;
 	}
 	virtual void getVertex(unsigned postImportVertex, RRMesh::Vertex& out) const
 	{
-		assert(postImportVertex<UniqueVertices);
+		RR_ASSERT(postImportVertex<UniqueVertices);
 		unsigned midImportVertex = Unique2Dupl[postImportVertex];
-		//assert(midImportVertex<INHERITED::Vertices);
-		//assert(INHERITED::VBuffer);
+		//RR_ASSERT(midImportVertex<INHERITED::Vertices);
+		//RR_ASSERT(INHERITED::VBuffer);
 		INHERITED::getVertex(midImportVertex,out);
 		//out = *(RRMesh::Vertex*)(INHERITED::VBuffer+midImportVertex*INHERITED::Stride);
 	}
@@ -247,7 +247,7 @@ dupl:;
 	{
 		if(postImportVertex>=UniqueVertices)
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::UNDEFINED;
 		}
 
@@ -257,7 +257,7 @@ dupl:;
 		unsigned midImportTriangle = postImportTriangle; // triangle numbering is not changed by us
 		if(midImportTriangle==RRMesh::UNDEFINED)
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::UNDEFINED;
 		}
 		RRMesh::Triangle midImportVertices;
@@ -267,7 +267,7 @@ dupl:;
 			if(Dupl2Unique[midImportVertices[v]]==postImportVertex)
 				return INHERITED::getPreImportVertex(midImportVertices[v],midImportTriangle);
 		}
-		assert(0);
+		RR_ASSERT(0);
 
 		// fast version
 		return Unique2Dupl[postImportVertex];
@@ -277,7 +277,7 @@ dupl:;
 		unsigned midImportVertex = INHERITED::getPostImportVertex(preImportVertex,preImportTriangle);
 		if(midImportVertex>=INHERITED::getNumVertices()) 
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::UNDEFINED;
 		}
 		return Dupl2Unique[midImportVertex];
@@ -285,9 +285,9 @@ dupl:;
 	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
 		INHERITED::getTriangle(t,out);
-		out[0] = Dupl2Unique[out[0]]; assert(out[0]<UniqueVertices);
-		out[1] = Dupl2Unique[out[1]]; assert(out[1]<UniqueVertices);
-		out[2] = Dupl2Unique[out[2]]; assert(out[2]<UniqueVertices);
+		out[0] = Dupl2Unique[out[0]]; RR_ASSERT(out[0]<UniqueVertices);
+		out[1] = Dupl2Unique[out[1]]; RR_ASSERT(out[1]<UniqueVertices);
+		out[2] = Dupl2Unique[out[2]]; RR_ASSERT(out[2]<UniqueVertices);
 	}
 
 protected:

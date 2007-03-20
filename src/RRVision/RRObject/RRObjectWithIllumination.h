@@ -31,9 +31,9 @@ public:
 	{
 		original = aoriginal;
 		scaler = ascaler;
-		assert(original);
-		assert(getCollider());
-		assert(getCollider()->getMesh());
+		RR_ASSERT(original);
+		RR_ASSERT(getCollider());
+		RR_ASSERT(getCollider()->getMesh());
 		numTriangles = getCollider()->getMesh()->getNumTriangles();
 		triangleInfo = new TriangleInfo[numTriangles];
 		for(unsigned i=0;i<numTriangles;i++)
@@ -63,7 +63,7 @@ public:
 	{
 		if(t>=numTriangles)
 		{
-			assert(0);
+			RR_ASSERT(0);
 			return false;
 		}
 		if(measure.flux)
@@ -80,7 +80,7 @@ public:
 			const RRMaterial* s = getTriangleMaterial(t);
 			if(!s)
 			{
-				assert(0);
+				RR_ASSERT(0);
 				return false;
 			}
 			for(unsigned c=0;c<3;c++)
@@ -94,7 +94,7 @@ public:
 	{
 		if(t>=numTriangles)
 		{
-			assert(0);
+			RR_ASSERT(0);
 			out = RRColor(0);
 			return;
 		}
@@ -104,7 +104,7 @@ public:
 			const RRMaterial* s = getTriangleMaterial(t);
 			if(!s)
 			{
-				assert(0);
+				RR_ASSERT(0);
 				out = RRColor(0);
 				return;
 			}

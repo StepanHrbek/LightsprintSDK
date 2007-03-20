@@ -114,7 +114,7 @@ RRScene::~RRScene()
 RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 {
 	scene=new Scene();
-	assert(importer);
+	RR_ASSERT(importer);
 	if(!importer) return;
 	SmoothingParameters defaultSmoothing;
 	if(!smoothing) smoothing = &defaultSmoothing;
@@ -124,7 +124,7 @@ RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 	obj->importer = importer;
 
 	// import vertices
-	assert(sizeof(RRMesh::Vertex)==sizeof(Vec3));
+	RR_ASSERT(sizeof(RRMesh::Vertex)==sizeof(Vec3));
 	for(unsigned i=0;i<obj->vertices;i++) 
 		meshImporter->getVertex(i,*(RRMesh::Vertex*)&obj->vertex[i]);
 
@@ -144,9 +144,9 @@ RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 		RRMesh::Triangle tv;
 		meshImporter->getTriangle(fi,tv);
 		const RRMaterial* s=importer->getTriangleMaterial(fi);
-		assert(s);
+		RR_ASSERT(s);
 		Triangle *t = &obj->triangle[tbot++];
-		assert(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
+		RR_ASSERT(t>=obj->triangle && t<&obj->triangle[obj->triangles]);
 		// vlozi ho, seridi geometrii atd
 		int geom=t->setGeometry(
 			&obj->vertex[tv[0]],
@@ -233,12 +233,12 @@ bool RRScene::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometr
 	obj = scene->object;
 	if(triangle>=obj->triangles)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		goto error;
 	}
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		goto error;
 	}
 	tri = &obj->triangle[triangle];
@@ -301,7 +301,7 @@ bool RRScene::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometr
 		else
 		{
 			// scaling requested but not available
-			assert(0);
+			RR_ASSERT(0);
 		}
 	}
 	if(measure.flux)
@@ -312,7 +312,7 @@ bool RRScene::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometr
 	STATISTIC_INC(numCallsTriangleMeasureOk);
 	return true;
 error:
-	assert(0);
+	RR_ASSERT(0);
 zero:
 	out = RRColor(0);
 	STATISTIC_INC(numCallsTriangleMeasureFail);
@@ -327,8 +327,8 @@ unsigned SubTriangle::enumSubtriangles(IVertex **iv, Channels flatambient, RRRea
 		IVertex *iv1[3];
 		bool rightleft=isRightLeft();
 		int rot=getSplitVertex();
-		assert(subvertex);
-		assert(subvertex->check());
+		RR_ASSERT(subvertex);
+		RR_ASSERT(subvertex->check());
 		iv0[0]=iv[rot];
 		iv0[1]=iv[(rot+1)%3];
 		iv0[2]=subvertex;
@@ -378,27 +378,27 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 			si.texCoord[i][1]/s->grandpa->v2[1]);
 		if(si.texCoord[i][0]<0)
 		{
-			if(si.texCoord[i][0]<-0.1) {DBG(printf("a%f ",si.texCoord[i][0]));assert(0);}
+			if(si.texCoord[i][0]<-0.1) {DBG(printf("a%f ",si.texCoord[i][0]));RR_ASSERT(0);}
 			si.texCoord[i][0] = 0;
 		} else
 		if(si.texCoord[i][0]>1)
 		{
-			if(si.texCoord[i][0]>1.1) {DBG(printf("b%f ",si.texCoord[i][0]));assert(0);}
+			if(si.texCoord[i][0]>1.1) {DBG(printf("b%f ",si.texCoord[i][0]));RR_ASSERT(0);}
 			si.texCoord[i][0] = 1;
 		}
 		if(si.texCoord[i][1]<0)
 		{
-			if(si.texCoord[i][1]<-0.1) {DBG(printf("c%f ",si.texCoord[i][1]));assert(0);}
+			if(si.texCoord[i][1]<-0.1) {DBG(printf("c%f ",si.texCoord[i][1]));RR_ASSERT(0);}
 			si.texCoord[i][1] = 0;
 		} else
 		if(si.texCoord[i][1]>1)
 		{
-			if(si.texCoord[i][1]>1.1) {DBG(printf("d%f ",si.texCoord[i][1]));assert(0);}
+			if(si.texCoord[i][1]>1.1) {DBG(printf("d%f ",si.texCoord[i][1]));RR_ASSERT(0);}
 			si.texCoord[i][1] = 1;
 		}
 		if(!context2 || licenseStatus!=RRLicense::VALID)
 		{
-			assert(0);
+			RR_ASSERT(0);
 			return;
 		}
 		// fill irradiance
@@ -434,7 +434,7 @@ unsigned RRScene::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure 
 	obj = scene->object;
 	if(triangle>=obj->triangles)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return 0;
 	}
 	tri = &obj->triangle[triangle];
@@ -452,7 +452,7 @@ unsigned RRScene::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure 
 	}
 	if(!licenseStatusValid)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return 0;
 	}
 

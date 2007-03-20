@@ -19,7 +19,7 @@ namespace rr
 	real     watch_distance;
 	Vec3     watch_point3d;
 	#define TEST_RANGE(min,max,cond,tree) if(!watch_tested && min<=watch_distance && watch_distance<=max) \
-		assert(cond && tree->contains(watch_triangle)); // assert when wanted triangle is to be thrown away from tests
+		RR_ASSERT(cond && tree->contains(watch_triangle)); // assert when wanted triangle is to be thrown away from tests
 		// If you see many diff_clear_miss in stats (when TEST is on),
 		//  it means that triangle that should be very easily hit is missed,
 		//  which means that something is wrong with bsp.
@@ -29,7 +29,7 @@ namespace rr
 		//  2. each time subtree is thrown away during bsp traversal, watch_triangle is expected to not be inside
 		//  3. if watch_triangle is inside and thus thrown away, it's error -> this assert is thrown
 #else
-	#define TEST_RANGE(min,max,cond,tree) assert(min<=max)
+	#define TEST_RANGE(min,max,cond,tree) RR_ASSERT(min<=max)
 #endif
 
 #define DBG(a) //a
@@ -206,13 +206,13 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 // modifies when no hit: <nothing is changed>
 {
 	FILL_STATISTIC(intersectStats.intersect_triangleSRLNP++);
-	assert(ray);
-	assert(t);
+	RR_ASSERT(ray);
+	RR_ASSERT(t);
 
 	real u,v;
 	#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t->s3[Y])*t->r3[X]-(ray->hitPoint3d[X]-t->s3[X])*t->r3[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t->s3[Z]-t->l3[Z]*v) * t->ir3[Z];
 #if 1
-	//assert(t->intersectByte<9); // degenerated triangles are 10, others shoud be in 0..8
+	//RR_ASSERT(t->intersectByte<9); // degenerated triangles are 10, others shoud be in 0..8
 	static const unsigned tablo[9+2][3] = {{0,1,2},{1,2,2},{2,0,2},{0,1,0},{1,2,0},{2,0,0},{0,1,1},{1,2,1},{2,0,1}
 		,{2,0,1},{2,0,1}}; // covers intersectByte 10 of degenerated triangles
 	int x=tablo[t->intersectByte][0], y=tablo[t->intersectByte][1], z=tablo[t->intersectByte][2];
@@ -222,8 +222,8 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	if(t->intersectByte!=10)
 	{
 		// valid (not degenerated) triangle
-		assert(IS_NUMBER(u));
-		assert(IS_NUMBER(v));
+		RR_ASSERT(IS_NUMBER(u));
+		RR_ASSERT(IS_NUMBER(v));
 	}
 	if(u<0 || u+v>1) return false;
 	//!!! degenerated triangles should be removed at bsp build time, not here
@@ -268,9 +268,9 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMesh::TriangleBody* t2)
 {
 	FILL_STATISTIC(intersectStats.intersect_triangleNP++);
-	assert(ray);
-	assert(t);
-	assert(t2);
+	RR_ASSERT(ray);
+	RR_ASSERT(t);
+	RR_ASSERT(t2);
 
 	real u,v;
 	switch(t->intersectByte)
@@ -330,8 +330,8 @@ bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, rea
 #define MAX_SIZE 10000000 // max size of node, for runtime checks of consistency
 begin:
 	FILL_STATISTIC(intersectStats.intersect_bspSRLNP++);
-	assert(ray);
-	assert(t);
+	RR_ASSERT(ray);
+	RR_ASSERT(t);
 
 	// KD
 	if(t->bsp.kd)
@@ -345,12 +345,12 @@ begin:
 #endif
 
 		//FILL_STATISTIC(intersectStats.intersect_kd++);
-		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
+		RR_ASSERT(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
 		if(t->kd.isLeaf()) 
 		{
-			assert(0);
+			RR_ASSERT(0);
 		}
 
 //#define DISTANCE_SPACE // pokus
@@ -375,7 +375,7 @@ begin:
 			if(pointMaxVal>splitValue) 
 			// WAS:	if(pointMaxVal>=splitValue) ...mohlo preskocit face v plane (back)
 			{
-				assert(t->kd.getFront()->bsp.size<MAX_SIZE);
+				RR_ASSERT(t->kd.getFront()->bsp.size<MAX_SIZE);
 				t = t->kd.getFront();
 				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
 				goto begin;
@@ -386,7 +386,7 @@ begin:
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
 			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
-			assert(t->kd.getBack()->bsp.size<MAX_SIZE);
+			RR_ASSERT(t->kd.getBack()->bsp.size<MAX_SIZE);
 			t = t->kd.getBack();
 			goto begin;
 		}
@@ -397,7 +397,7 @@ begin:
 			// if point1[axis]==point2[axis]==splitVertex[axis], testing only back should be sufficient
 			if(pointMaxVal<=splitValue) // catches also i_direction[t->axis]==0 case
 			{
-				assert(t->kd.getBack()->bsp.size<MAX_SIZE);
+				RR_ASSERT(t->kd.getBack()->bsp.size<MAX_SIZE);
 				t = t->kd.getBack();
 				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
 				goto begin;
@@ -408,7 +408,7 @@ begin:
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
 			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
-			assert(t->kd.getFront()->bsp.size<MAX_SIZE);
+			RR_ASSERT(t->kd.getFront()->bsp.size<MAX_SIZE);
 			t = t->kd.getFront();
 			goto begin;
 		}
@@ -419,7 +419,7 @@ begin:
 	const BspTree *front=t+1;
 	const BspTree *back=(const BspTree *)((char*)front+(t->bsp.front?front->bsp.size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
-	assert(triangleSRLNP);
+	RR_ASSERT(triangleSRLNP);
 	Plane& n=triangleSRLNP[triangle->getTriangleIndex()].n3;
 
 	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
@@ -451,12 +451,12 @@ begin:
 		{
 			TEST_RANGE(ray->hitDistanceMin,distanceMax,t->bsp.front,front);
 			if(!t->bsp.front) return false;
-			assert(front->bsp.size<MAX_SIZE);
+			RR_ASSERT(front->bsp.size<MAX_SIZE);
 			t=front;
 		} else {
 			TEST_RANGE(ray->hitDistanceMin,distanceMax,t->bsp.back,back);
 			if(!t->bsp.back) return false;
-			assert(back->bsp.size<MAX_SIZE);
+			RR_ASSERT(back->bsp.size<MAX_SIZE);
 			t=back;
 		}
 		goto begin;
@@ -496,7 +496,7 @@ begin:
 #endif
 		if(intersect_triangleSRLNP(ray,triangleSRLNP+triangle->getTriangleIndex()))
 		{
-			assert(IS_NUMBER(distancePlane));
+			RR_ASSERT(IS_NUMBER(distancePlane));
 #ifdef FILL_HITTRIANGLE
 			ray->hitTriangle = triangle->getTriangleIndex();
 #endif
@@ -516,12 +516,12 @@ begin:
 	{
 		TEST_RANGE(distancePlane-DELTA_BSP,distanceMax,t->bsp.back,back);
 		if(!t->bsp.back) return false;
-		assert(back->bsp.size<MAX_SIZE);
+		RR_ASSERT(back->bsp.size<MAX_SIZE);
 		t=back;
 	} else {
 		TEST_RANGE(distancePlane-DELTA_BSP,distanceMax,t->bsp.front,front);
 		if(!t->bsp.front) return false;
-		assert(front->bsp.size<MAX_SIZE);
+		RR_ASSERT(front->bsp.size<MAX_SIZE);
 		t=front;
 	}
 	ray->hitDistanceMin = distancePlane-DELTA_BSP;
@@ -533,19 +533,19 @@ bool IntersectBspFast IBP2::intersect_bspNP(RRRay* ray, const BspTree *t, real d
 {
 begin:
 	FILL_STATISTIC(intersectStats.intersect_bspNP++);
-	assert(ray);
-	assert(t);
+	RR_ASSERT(ray);
+	RR_ASSERT(t);
 
 	// KD
 	if(t->bsp.kd)
 	{
 		FILL_STATISTIC(intersectStats.intersect_kd++);
-		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
+		RR_ASSERT(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
 		if(t->kd.isLeaf()) 
 		{
-			assert(0);
+			RR_ASSERT(0);
 		}
 
 		// test subtrees
@@ -587,7 +587,7 @@ begin:
 	const BspTree *front=t+1;
 	const BspTree *back=(const BspTree *)((char*)front+(t->bsp.front?front->bsp.size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
-	assert(triangleNP);
+	RR_ASSERT(triangleNP);
 	Plane& n=triangleNP[triangle->getTriangleIndex()].n3;
 
 	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
@@ -639,7 +639,7 @@ begin:
 		importer->getTriangleBody(triangle->getTriangleIndex(),t2);
 		if(intersect_triangleNP(ray,triangleNP+triangle->getTriangleIndex(),&t2))
 		{
-			assert(IS_NUMBER(distancePlane));
+			RR_ASSERT(IS_NUMBER(distancePlane));
 #ifdef FILL_HITTRIANGLE
 			ray->hitTriangle = triangle->getTriangleIndex();
 #endif
@@ -691,7 +691,7 @@ IntersectBspFast IBP2::IntersectBspFast(RRMesh* aimporter, IntersectTechnique ai
 		triangleNP = new TriangleNP[triangles];
 		break;
 	default:
-		assert(0);
+		RR_ASSERT(0);
 	}
 	if(triangleNP||triangleSRLNP)
 		for(unsigned i=0;i<triangles;i++)
@@ -729,7 +729,7 @@ template IBP
 bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 {
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
-	assert(intersectTechnique==IT_BSP_FASTEST);
+	RR_ASSERT(intersectTechnique==IT_BSP_FASTEST);
 	return box.intersect(ray) &&
 		update_rayDir(ray) &&
 		(
@@ -750,7 +750,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	bool hit2 = test->intersect(&ray2);
 #endif
 	bool hit = false;
-	assert(tree);
+	RR_ASSERT(tree);
 
 #ifdef USE_EXPECT_HIT
 	if(ray->rayFlags&RRRay::EXPECT_HIT) 
@@ -781,7 +781,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 #ifdef USE_LONGJMP
 	if(setjmp(tmpMark)) return true;
 #endif
-	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
+	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 #ifdef COLLISION_HANDLER
 	if(ray->collisionHandler)
 		ray->collisionHandler->init();
@@ -796,7 +796,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 			hit = intersect_bspNP(ray,tree,ray->hitDistanceMax);
 			break;
 		default:
-			assert(0);
+			RR_ASSERT(0);
 	}
 #ifdef COLLISION_HANDLER
 	if(ray->collisionHandler)
@@ -880,7 +880,7 @@ test_no:
 			}
 			delete &ray5;
 		}
-		assert(0);
+		RR_ASSERT(0);
 	bad:
 		{RRRay& ray3 = *RRRay::create(); ray3 = rayOrig;
 		intersect_bspSRLNP(&ray3,tree,ray3.hitDistanceMax);

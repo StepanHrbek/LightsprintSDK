@@ -27,7 +27,7 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	DBG(printf("\n"));
 	if(!triangles) return false; // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 	__shot++;
-	assert(fabs(size2(direction)-1)<0.001); // normalized dir expected
+	RR_ASSERT(fabs(size2(direction)-1)<0.001); // normalized dir expected
 
 	// transform from scenespace to objectspace
 	Vec3 rayDir;
@@ -75,7 +75,7 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 #endif
 #endif
 
-	assert(ray.hitTriangle>=0 && ray.hitTriangle<triangles);
+	RR_ASSERT(ray.hitTriangle>=0 && ray.hitTriangle<triangles);
 	Triangle* hitTriangle=&triangle[ray.hitTriangle];
 
 	// compensate for our rotations
@@ -96,9 +96,9 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 		ray.hitPoint2d[1]=u;}
 		break;
 	default:
-		assert(0);
+		RR_ASSERT(0);
 	}
-	assert(hitTriangle->u2.y==0);
+	RR_ASSERT(hitTriangle->u2.y==0);
 
 	return hitTriangle;
 }
@@ -139,7 +139,7 @@ private:
 //  outputs in ray: all defined by rayFlags
 Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip)
 {
-	assert(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
+	RR_ASSERT(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
 	// pri velkem poctu objektu by pomohlo sesortovat je podle
 	//  vzdalenosti od oka a blizsi testovat driv
 	Triangle* hitTriangle = NULL;

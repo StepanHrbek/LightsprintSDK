@@ -58,7 +58,7 @@ public:
 	}
 	void convertToPhysical(const RRMaterial& custom, RRMaterial& physical)
 	{
-		assert(scaler);
+		RR_ASSERT(scaler);
 		physical = custom;
 		convertToPhysicalFactor(physical.diffuseReflectance);
 		scaler->getPhysicalScale(physical.diffuseEmittance);
@@ -70,8 +70,8 @@ public:
 	{
 		if(!scaler) return;
 		cache.erase(cache.begin(),cache.end());
-		assert(original->getCollider());
-		assert(original->getCollider()->getMesh());
+		RR_ASSERT(original->getCollider());
+		RR_ASSERT(original->getCollider()->getMesh());
 		unsigned numTriangles = original->getCollider()->getMesh()->getNumTriangles();
 		for(unsigned i=0;i<numTriangles;i++)
 		{

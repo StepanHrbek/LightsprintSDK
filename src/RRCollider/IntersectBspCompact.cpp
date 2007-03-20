@@ -22,8 +22,8 @@ static bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t, RRReal
 // modifies when no hit: <nothing is changed>
 {
 	FILL_STATISTIC(intersectStats.intersect_triangle++);
-	assert(ray);
-	assert(t);
+	RR_ASSERT(ray);
+	RR_ASSERT(t);
 
 	// calculate determinant - also used to calculate U parameter
 	Vec3 pvec = ortogonalTo(ray->rayDir,t->side2);
@@ -71,8 +71,8 @@ template IBP
 bool IntersectBspCompact IBP2::intersect_bsp(RRRay* ray, const BspTree* t, real distanceMax) const
 {
 begin:
-	assert(ray);
-	assert(t);
+	RR_ASSERT(ray);
+	RR_ASSERT(t);
 
 	// transition to sons with different size
 	if(t->allows_transition && t->bsp.transition)
@@ -86,7 +86,7 @@ begin:
 	if(t->bsp.kd)
 	{
 		//FILL_STATISTIC(intersectStats.intersect_kd++);
-		assert(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
+		RR_ASSERT(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
 		if(t->kd.isLeaf()) 
@@ -204,7 +204,7 @@ begin:
 	typename BspTree::Son* front=(typename BspTree::Son*)(t+1);
 	typename BspTree::Son* back=(typename BspTree::Son*)((char*)front+(t->bsp.front?front->bsp.size:0));
 	typename BspTree::_TriInfo* triangle=(typename BspTree::_TriInfo*)((char*)back+(t->bsp.back?back->bsp.size:0));
-	assert(triangle<t->getTrianglesEnd());
+	RR_ASSERT(triangle<t->getTrianglesEnd());
 
 	RRMesh::TriangleBody t2;
 	importer->getTriangleBody(triangle->getTriangleIndex(),t2);
@@ -338,7 +338,7 @@ unsigned IntersectBspCompact IBP2::getMemoryOccupied() const
 template IBP
 bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 {
-	assert(tree);
+	RR_ASSERT(tree);
 
 	FILL_STATISTIC(intersectStats.intersect_mesh++);
 #ifdef USE_EXPECT_HIT
@@ -356,7 +356,7 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 		if(!box.intersect(ray)) return false;
 	}
 	update_rayDir(ray);
-	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
+	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 	bool hit;
 	{
 #ifdef COLLISION_HANDLER

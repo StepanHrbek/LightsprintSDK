@@ -93,7 +93,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 				// preimport vertex number is out of range, fail
 				// warning: could happen with correct inputs, RRMesh is allowed 
 				//  to have preimport indices 1,10,100(out of range!) even when postimport are 0,1,2
-				//assert(currentVertex<numTriangles*3);
+				//RR_ASSERT(currentVertex<numTriangles*3);
 				return;
 			}
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);
@@ -124,7 +124,7 @@ bool ObjectBuffers::inited()
 
 void ObjectBuffers::render(RendererOfRRObject::Params& params)
 {
-	assert(initedOk);
+	RR_ASSERT(initedOk);
 	if(!initedOk) return;
 	// set vertices
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -139,9 +139,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 	// set indirect illumination vertices
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR && params.indirectIllumination)
 	{
-		assert(indices); // indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
+		RR_ASSERT(indices); // indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
 		unsigned bufferSize = params.indirectIllumination->getNumVertices();
-		assert(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
+		RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
 		glEnableClientState(GL_COLOR_ARRAY);
 		glColorPointer(3, GL_FLOAT, 0, params.indirectIllumination->lock());
 	}
@@ -158,7 +158,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 	if(params.renderedChannels.FORCE_2D_POSITION)
 	{
 		// this should not be executed in every frame, generated texcoords change rarely
-		assert(!indices); // needs non-indexed trilist
+		RR_ASSERT(!indices); // needs non-indexed trilist
 		//for(unsigned i=0;i<numVertices;i++) // for all capture textures, probably not necessary
 		for(unsigned i=params.firstCapturedTriangle*3;i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
 		{
@@ -209,7 +209,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 				// render one facegroup
 				if(indices)
 				{
-					for(unsigned i=firstIndex;i<firstIndex+numIndices;i++) assert(indices[i]<numVertices);
+					for(unsigned i=firstIndex;i<firstIndex+numIndices;i++) RR_ASSERT(indices[i]<numVertices);
 					glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, &indices[firstIndex]);
 				}
 				else
@@ -227,7 +227,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		// render all at once
 		if(indices)
 		{
-			for(unsigned i=firstIndex;i<firstIndex+numIndices;i++) assert(indices[i]<numVertices);
+			for(unsigned i=firstIndex;i<firstIndex+numIndices;i++) RR_ASSERT(indices[i]<numVertices);
 			glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, &indices[firstIndex]);
 		}
 		else

@@ -19,7 +19,7 @@ public:
 	{
 		INDEX tmp = vertices;
 		tmp = tmp;
-		assert(tmp==vertices);
+		RR_ASSERT(tmp==vertices);
 	}
 	virtual unsigned getNumTriangles() const
 	{
@@ -27,21 +27,21 @@ public:
 	}
 	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
-		assert(t*3<INHERITED::Indices);
-		assert(INHERITED::IBuffer);
-		out[0] = INHERITED::IBuffer[t*3+0]; assert(out[0]<INHERITED::Vertices);
-		out[1] = INHERITED::IBuffer[t*3+1]; assert(out[1]<INHERITED::Vertices);
-		out[2] = INHERITED::IBuffer[t*3+2]; assert(out[2]<INHERITED::Vertices);
+		RR_ASSERT(t*3<INHERITED::Indices);
+		RR_ASSERT(INHERITED::IBuffer);
+		out[0] = INHERITED::IBuffer[t*3+0]; RR_ASSERT(out[0]<INHERITED::Vertices);
+		out[1] = INHERITED::IBuffer[t*3+1]; RR_ASSERT(out[1]<INHERITED::Vertices);
+		out[2] = INHERITED::IBuffer[t*3+2]; RR_ASSERT(out[2]<INHERITED::Vertices);
 	}
 	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const
 	{
-		assert(t*3<INHERITED::Indices);
-		assert(INHERITED::VBuffer);
-		assert(INHERITED::IBuffer);
+		RR_ASSERT(t*3<INHERITED::Indices);
+		RR_ASSERT(INHERITED::VBuffer);
+		RR_ASSERT(INHERITED::IBuffer);
 		unsigned v0,v1,v2;
-		v0 = INHERITED::IBuffer[t*3+0]; assert(v0<INHERITED::Vertices);
-		v1 = INHERITED::IBuffer[t*3+1]; assert(v1<INHERITED::Vertices);
-		v2 = INHERITED::IBuffer[t*3+2]; assert(v2<INHERITED::Vertices);
+		v0 = INHERITED::IBuffer[t*3+0]; RR_ASSERT(v0<INHERITED::Vertices);
+		v1 = INHERITED::IBuffer[t*3+1]; RR_ASSERT(v1<INHERITED::Vertices);
+		v2 = INHERITED::IBuffer[t*3+2]; RR_ASSERT(v2<INHERITED::Vertices);
 #define VERTEX(v) ((RRReal*)(INHERITED::VBuffer+v*INHERITED::Stride))
 		out.vertex0[0] = VERTEX(v0)[0];
 		out.vertex0[1] = VERTEX(v0)[1];

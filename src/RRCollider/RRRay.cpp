@@ -22,7 +22,7 @@ RRRay* RRRay::create()
 
 RRRay* RRRay::create(unsigned n)
 {
-	assert(!(sizeof(RRRay)%16));
+	RR_ASSERT(!(sizeof(RRRay)%16));
 	return new RRRay[n]();
 }
 

@@ -20,7 +20,7 @@ Interpolator::Interpolator()
 void Interpolator::learnDestinationBegin()
 {
 	srcBegin = (Ofs)contributors.size();
-	assert(srcBegin == contributors.size());
+	RR_ASSERT(srcBegin == contributors.size());
 }
 
 void Interpolator::learnSource(unsigned offset, float contribution)
@@ -31,7 +31,7 @@ void Interpolator::learnSource(unsigned offset, float contribution)
 #ifdef SUPPORT_LDR
 	c.srcContributionLdr = (u16)(contribution*65536);
 #endif
-	assert(_finite(contribution));
+	RR_ASSERT(_finite(contribution));
 	contributors.push_back(c);
 }
 
@@ -40,8 +40,8 @@ void Interpolator::learnDestinationEnd(unsigned offset1, unsigned offset2, unsig
 	Header h;
 	h.srcContributorsBegin = srcBegin;
 	h.srcContributorsEnd = (Ofs)contributors.size();
-	assert(h.srcContributorsEnd == contributors.size());
-	assert(h.srcContributorsEnd>h.srcContributorsBegin); // radius too small -> no neighbour texels put into interoplation
+	RR_ASSERT(h.srcContributorsEnd == contributors.size());
+	RR_ASSERT(h.srcContributorsEnd>h.srcContributorsBegin); // radius too small -> no neighbour texels put into interoplation
 	h.dstOffset1 = offset1;
 #ifdef THREE_DESTINATIONS
 	h.dstOffset2 = offset2;
@@ -66,11 +66,11 @@ void Interpolator::interpolate(const RRColor* src, RRColor* dst, const RRScaler*
 	for(int i=0;i<(int)headers.size();i++)
 	{
 		RRColor sum = RRColor(0);
-		assert(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
+		RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
 		for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
 		{
-			assert(_finite(contributors[j].srcContributionHdr));
-			assert(contributors[j].srcContributionHdr>0);
+			RR_ASSERT(_finite(contributors[j].srcContributionHdr));
+			RR_ASSERT(contributors[j].srcContributionHdr>0);
 			sum += src[contributors[j].srcOffset] * contributors[j].srcContributionHdr;
 		}
 		if(scaler) scaler->getCustomScale(sum);
@@ -89,11 +89,11 @@ void Interpolator::interpolate(const RRColorRGBA8* src, RRColorRGBA8* dst, void*
 	for(int i=0;i<(int)headers.size();i++)
 	{
 		unsigned sum[3] = {0,0,0};
-		assert(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
+		RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
 		for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
 		{
 			unsigned color = src[contributors[j].srcOffset].color;
-			assert(contributors[j].srcContributionLdr);
+			RR_ASSERT(contributors[j].srcContributionLdr);
 			sum[0] += u8(color) * contributors[j].srcContributionLdr;
 			sum[1] += u8(color>>8) * contributors[j].srcContributionLdr;
 			sum[2] += u8(color>>16) * contributors[j].srcContributionLdr;

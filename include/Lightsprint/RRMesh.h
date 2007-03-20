@@ -10,7 +10,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRMath.h"
-#include "RRDebug.h"
 #include <climits> // UNDEFINED
 
 #ifdef _MSC_VER
@@ -35,6 +34,8 @@
 #	endif
 #	endif
 #endif
+
+#include "RRDebug.h"
 
 namespace rr
 {

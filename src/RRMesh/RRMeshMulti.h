@@ -28,10 +28,10 @@ public:
 		case 0: 
 			return NULL;
 		case 1: 
-			assert(mesh);
+			RR_ASSERT(mesh);
 			return mesh[0];
 		default: 
-			assert(mesh); 
+			RR_ASSERT(mesh); 
 			return new RRMeshMulti(
 				create(mesh,numMeshes/2),numMeshes/2,
 				create(mesh+numMeshes/2,numMeshes-numMeshes/2),numMeshes-numMeshes/2);
@@ -121,7 +121,7 @@ public:
 
 	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
 	{
-//		assert(0);//!!! just mark that this code was not tested
+//		RR_ASSERT(0);//!!! just mark that this code was not tested
 		if(postImportVertex<pack[0].getNumVertices()) 
 		{
 			return pack[0].getMesh()->getPreImportVertex(postImportVertex, postImportTriangle);
@@ -130,7 +130,7 @@ public:
 			if(preImport==UNDEFINED) return UNDEFINED;
 			if(preImport.object>=pack[1].getNumObjects())
 			{
-				assert(0); // internal error
+				RR_ASSERT(0); // internal error
 				return UNDEFINED;
 			}
 			preImport.object += pack[0].getNumObjects();
@@ -139,7 +139,7 @@ public:
 	}
 	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const 
 	{
-		assert(0);//!!! just mark that this code was not tested
+		RR_ASSERT(0);//!!! just mark that this code was not tested
 		MultiMeshPreImportNumber preImportV = preImportVertex;
 		MultiMeshPreImportNumber preImportT = preImportTriangle;
 		if(preImportV.object<pack[0].getNumObjects()) 
@@ -150,12 +150,12 @@ public:
 			preImportT.object -= pack[0].getNumObjects();
 			if(preImportV.object>=pack[1].getNumObjects()) 
 			{
-				assert(0); // it is allowed by rules, but also interesting to know when it happens
+				RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 				return UNDEFINED;
 			}
 			if(preImportT.object>=pack[1].getNumObjects()) 
 			{
-				assert(0); // it is allowed by rules, but also interesting to know when it happens
+				RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 				return UNDEFINED;
 			}
 			unsigned tmp = pack[1].getMesh()->getPostImportVertex(preImportV, preImportT);
@@ -173,7 +173,7 @@ public:
 			if(preImport==UNDEFINED) return UNDEFINED;
 			if(preImport.object>=pack[1].getNumObjects())
 			{
-				assert(0); // internal error
+				RR_ASSERT(0); // internal error
 				return UNDEFINED;
 			}
 			preImport.object += pack[0].getNumObjects();
@@ -190,7 +190,7 @@ public:
 			preImport.object -= pack[0].getNumObjects();
 			if(preImport.object>=pack[1].getNumObjects()) 
 			{
-				assert(0); // it is allowed by rules, but also interesting to know when it happens
+				RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 				return UNDEFINED;
 			}
 			unsigned tmp = pack[1].getMesh()->getPostImportTriangle(preImport);
@@ -221,7 +221,7 @@ private:
 		{
 			packImporter = importer;
 			numObjects = objects;
-			assert(importer);
+			RR_ASSERT(importer);
 			numVertices = importer->getNumVertices();
 			numTriangles = importer->getNumTriangles();
 		}

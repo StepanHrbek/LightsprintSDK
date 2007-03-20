@@ -34,7 +34,7 @@ namespace rr
 		void    setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3* b, const Vec3* c);
 		unsigned getTriangleIndex() const 
 		{
-			assert(0);
+			RR_ASSERT(0);
 			return 0;
 		}
 	};

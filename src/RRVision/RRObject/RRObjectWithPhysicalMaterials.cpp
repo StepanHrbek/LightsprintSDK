@@ -13,7 +13,7 @@ RRObjectWithPhysicalMaterials* RRObject::createObjectWithPhysicalMaterials(const
 	//!!! zatim nejde zoptimalizovat, protoze update() neni v RRObjectu
 	if(!scaler)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return this;
 	}
 	*/

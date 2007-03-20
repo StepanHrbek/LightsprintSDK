@@ -351,6 +351,7 @@
 				Name="VCLinkerTool"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
 				AdditionalLibraryDirectories="$(OutDir)"
+				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

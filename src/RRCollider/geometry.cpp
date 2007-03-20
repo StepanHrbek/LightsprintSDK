@@ -62,7 +62,7 @@ bool Sphere::intersect(RRRay* ray) const
 	real distEyeCenter=sqrt(distEyeCenter2);             //1*sqrt
 	// sphere too far
 	if(distEyeCenter-radius>=ray->hitDistanceMax) return false;
-	assert(fabs(size2(ray->rayDir)-1)<0.001);
+	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);
 	Vec3 nearCenter = ray->rayOrigin + ray->rayDir * distEyeCenter; //3*mul
 	real distNrcntrCenter2=size2(nearCenter-center);//3*mul
 	// probably no intersection

@@ -1,6 +1,6 @@
 #include "Lightsprint/RRIllumination.h"
 
-#include "Lightsprint/RRMesh.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr
 {
@@ -19,7 +19,7 @@ public:
 	virtual void setValues(unsigned size, RRColorRGBF* irradiance)
 	{
 		RRReporter::report(RRReporter::WARN,"RRIlluminationEnvironmentMap::setValues: Not implemented in RRIlluminationEnvironmentMap::createSky.");
-		assert(0);
+		RR_ASSERT(0);
 	}
 	virtual RRColorRGBF getValue(const RRVec3& direction) const
 	{
@@ -36,14 +36,14 @@ private:
 RRColorRGBF RRIlluminationEnvironmentMap::getValue(const RRVec3& direction) const
 {
 	RRReporter::report(RRReporter::WARN,"RRIlluminationEnvironmentMap::getValue: Not implemented.");
-	assert(0);
+	RR_ASSERT(0);
 	return RRColorRGBF(0);
 };
 
 void RRIlluminationEnvironmentMap::bindTexture()
 {
 	RRReporter::report(RRReporter::WARN,"RRIlluminationEnvironmentMap::bindTexture: Not implemented.");
-	assert(0);
+	RR_ASSERT(0);
 }
 
 RRIlluminationEnvironmentMap* RRIlluminationEnvironmentMap::createSky(const RRColorRGBF& top)
@@ -54,7 +54,7 @@ RRIlluminationEnvironmentMap* RRIlluminationEnvironmentMap::createSky(const RRCo
 bool RRIlluminationEnvironmentMap::save(const char* filenameMask, const char* cubeSideName[6])
 {
 	RRReporter::report(RRReporter::WARN,"RRIlluminationEnvironmentMap::save: Not implemented.");
-	assert(0);
+	RR_ASSERT(0);
 	return false;
 }
 

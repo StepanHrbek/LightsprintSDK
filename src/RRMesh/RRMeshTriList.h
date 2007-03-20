@@ -21,15 +21,15 @@ public:
 	}
 	virtual void getTriangle(unsigned t, Triangle& out) const
 	{
-		assert(t*3<Vertices);
+		RR_ASSERT(t*3<Vertices);
 		out[0] = t*3+0;
 		out[1] = t*3+1;
 		out[2] = t*3+2;
 	}
 	virtual void getTriangleBody(unsigned t, TriangleBody& out) const
 	{
-		assert(t*3<Vertices);
-		assert(VBuffer);
+		RR_ASSERT(t*3<Vertices);
+		RR_ASSERT(VBuffer);
 		unsigned v0,v1,v2;
 		v0 = t*3+0;
 		v1 = t*3+1;

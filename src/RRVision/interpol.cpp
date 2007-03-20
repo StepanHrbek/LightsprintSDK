@@ -16,8 +16,8 @@
 
 /*#include <windows.h>
 #undef assert
-#define assert(a) {if(!(a)) DebugBreak();}
-//#define assert(a) {if(!(a) && IsDebuggerPresent()) DebugBreak();}
+#define RR_ASSERT(a) {if(!(a)) DebugBreak();}
+//#define RR_ASSERT(a) {if(!(a) && IsDebuggerPresent()) DebugBreak();}
 char *FS(char *fmt, ...)
 {
 	static char msg[1000];
@@ -84,7 +84,7 @@ unsigned __cornersAllocated=0;
 
 IVertex::IVertex()
 {
-	assert(this);
+	RR_ASSERT(this);
 	corners=0;
 	cornersAllocatedLn2=3;
 	corner=(Corner *)malloc(cornersAllocated()*sizeof(Corner));
@@ -104,14 +104,14 @@ IVertex::IVertex()
 
 unsigned IVertex::cornersAllocated()
 {
-	assert(cornersAllocatedLn2<14);
+	RR_ASSERT(cornersAllocatedLn2<14);
 	return 1<<cornersAllocatedLn2;
 }
 
 bool IVertex::check()
 {
-	assert(corners!=0xfeee);
-	assert(corners!=0xcdcd);
+	RR_ASSERT(corners!=0xfeee);
+	RR_ASSERT(corners!=0xcdcd);
 	return true;//powerTopLevel>0;
 }
 
@@ -120,14 +120,14 @@ bool IVertex::check(Point3 apoint)
 	// kdyz transformuje objekty misto strel, kontrolni pointy
 	// v ivertexech zustanou neztransformovany a nelze je checkovat
 #ifdef IV_POINT
-	if(size2(point)) assert(size2(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
+	if(size2(point)) RR_ASSERT(size2(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
 #endif
 	return true;
 }
 
 void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 {
-	assert(this);
+	RR_ASSERT(this);
 	// new interpolation scheme "power*=node->area" now doesn't work with subdivision
 	if(node->grandpa->object->subdivisionSpeed==0)
 		power *= node->area;
@@ -135,9 +135,9 @@ void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 #ifdef IV_POINT
 	if(size2(apoint))
 	{
-		//assert(power<M_PI+0.001); had sense before power*=node->area
+		//RR_ASSERT(power<M_PI+0.001); had sense before power*=node->area
 		if(size2(point)==0) point=apoint; else
-		  assert(size2(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
+		  RR_ASSERT(size2(point-apoint)<MAX_NEIGHBOUR_DISTANCE);
 	}
 #endif
 	if(corners==cornersAllocated())
@@ -153,7 +153,7 @@ void IVertex::insert(Node *node,bool toplevel,real power,Point3 apoint)
 		if(corner[i].node==node)
 		{
 #ifndef SUPPORT_MIN_FEATURE_SIZE // s min feature size se i triangly smej insertovat vickrat
-			assert(!node->grandpa);// pouze clustery se smej insertovat vickrat, power se akumuluje
+			RR_ASSERT(!node->grandpa);// pouze clustery se smej insertovat vickrat, power se akumuluje
 #endif
 			corner[i].power+=power;
 			goto label;
@@ -194,9 +194,9 @@ unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj, float maxS
 	IVertex ***topivertex=new IVertex**[3*corners];
 	for(unsigned i=0;i<corners;i++)
 	{
-		assert(corner[i].node);
-		assert(corner[i].node->grandpa);
-		assert(corner[i].node->grandpa->surface);
+		RR_ASSERT(corner[i].node);
+		RR_ASSERT(corner[i].node->grandpa);
+		RR_ASSERT(corner[i].node->grandpa->surface);
 		unsigned found=0;
 		topivertex[i]=NULL;
 		topivertex[i+corners]=NULL;
@@ -206,13 +206,13 @@ unsigned IVertex::splitTopLevelByAngleOld(Vec3 *avertex, Object *obj, float maxS
 			if(TRIANGLE(corner[i].node)->topivertex[k]==this)
 			{
 #ifndef SUPPORT_MIN_FEATURE_SIZE // s min feature size muze ukazovat vic vrcholu na jeden ivertex
-				assert(!found);
+				RR_ASSERT(!found);
 #endif
 				topivertex[i+found*corners]=&TRIANGLE(corner[i].node)->topivertex[k];
 				found++;
 			}
 		}
-		assert(found);
+		RR_ASSERT(found);
 	}
 	// for each vertex, reduce it (remove corners with too different normal) and reinstall
 	for(unsigned i=0;i<corners;i++)
@@ -302,7 +302,7 @@ insert_i:
 							triangle->topivertex[k] = v;
 				}
 				else
-					assert(0);
+					RR_ASSERT(0);
 				// odeber z corneru zbyvajicich ke zpracovani
 				cornersLeft.erase(i);
 				// pro jistotu restartni iteraci, iterator muze byt dead
@@ -384,7 +384,7 @@ restart_iter:
 								triangle->topivertex[k] = v;
 					}
 					else
-						assert(0);
+						RR_ASSERT(0);
 					// odeber z corneru zbyvajicich ke zpracovani
 					cornersLeft.erase(i);
 					// pro jistotu restartni iteraci, iterator muze byt dead
@@ -411,33 +411,33 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 {
 	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid || cacheDirect!=measure.direct || cacheIndirect!=measure.indirect) // cacheTime is byte:5
 	{
-		//assert(powerTopLevel);
+		//RR_ASSERT(powerTopLevel);
 		// irrad=irradiance in W/m^2
 		Channels irrad=Channels(0);
 		for(unsigned i=0;i<corners;i++)
 		{
 			Node* node=corner[i].node;
-			assert(node);
+			RR_ASSERT(node);
 			// a=source+reflected incident flux in watts
 			Channels a=node->totalIncidentFlux;
-			assert(IS_CHANNELS(a));
+			RR_ASSERT(IS_CHANNELS(a));
 			if(node->sub[0])
 			{
-				assert(node->sub[1]);
+				RR_ASSERT(node->sub[1]);
 				a-=node->sub[0]->totalIncidentFlux+node->sub[1]->totalIncidentFlux;
 			}
-			assert(IS_CHANNELS(a));
+			RR_ASSERT(IS_CHANNELS(a));
 			// s=source incident flux in watts
 			Channels s=IS_TRIANGLE(node) ? TRIANGLE(node)->getSourceIncidentFlux() : Channels(0);
-			assert(IS_CHANNELS(s));
+			RR_ASSERT(IS_CHANNELS(s));
 			// r=reflected incident flux in watts
 			Channels r=a-s;
-			assert(IS_CHANNELS(r));
+			RR_ASSERT(IS_CHANNELS(r));
 			// w=wanted incident flux in watts
 			Channels w=(measure.direct&&measure.indirect)?a:( measure.direct?s: ( measure.indirect?r:Channels(0) ) );
 			irrad+=w*(corner[i].power/corner[i].node->area)
 				/*/ corner[i].node->grandpa->surface->diffuseReflectance*/;
-			assert(IS_CHANNELS(irrad));
+			RR_ASSERT(IS_CHANNELS(irrad));
 		}
 		cache=powerTopLevel?irrad/powerTopLevel:getClosestIrradiance(measure);//hack for ivertices inside needle - quick search for nearest valid value
 		cacheTime=__frameNumber;
@@ -450,7 +450,7 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 		STATISTIC_INC(numIrradianceCacheHits);
 
 	clampToZero(cache); //!!! obcas tu vznikaji zaporny hodnoty coz je zcela nepripustny!
-	assert(IS_CHANNELS(cache));
+	RR_ASSERT(IS_CHANNELS(cache));
 	return cache;
 }
 
@@ -479,12 +479,12 @@ bool IVertex::remove(Node *node,bool toplevel)
 		if(corner[i].node==node)
 		{
 			if(toplevel) powerTopLevel-=corner[i].power;
-			assert(powerTopLevel>-0.0000001);
-			assert(powerTopLevel>-0.00001);
+			RR_ASSERT(powerTopLevel>-0.0000001);
+			RR_ASSERT(powerTopLevel>-0.00001);
 			corner[i]=corner[--corners];
 			removed=true;
 		}
-//!!!	assert(IS_CLUSTER(node) || removed);// cluster je insertovan a odebiran vickrat (kazdy triangl pridava svou power), prvni odber z IVertexu odebere celou power, ostatni odbery nechame projit naprazdno a nekricime ze je to chyba
+//!!!	RR_ASSERT(IS_CLUSTER(node) || removed);// cluster je insertovan a odebiran vickrat (kazdy triangl pridava svou power), prvni odber z IVertexu odebere celou power, ostatni odbery nechame projit naprazdno a nekricime ze je to chyba
 // assertuje pri ruseni sceny ve fcss koupelna4, ale zadny leak to nezpusobuje
 	//if(powerTopLevel<0.00001) corners=0;
 	return corners==0;
@@ -497,7 +497,7 @@ bool IVertex::isEmpty()
 
 IVertex::~IVertex()
 {
-	//!!!assert(corners==0);
+	//!!!RR_ASSERT(corners==0);
 	free(corner);
 	__cornersAllocated-=cornersAllocated();
 	__iverticesAllocated--;
@@ -510,11 +510,11 @@ IVertex::~IVertex()
 IVertex *SubTriangle::ivertex(int i)
 {
 /*
-	assert(i>=0 && i<3);
+	RR_ASSERT(i>=0 && i<3);
 	if(IS_TRIANGLE(this)) return TRIANGLE(this)->topivertex[i];
-	assert(parent);
-	assert(parent->sub[0]);
-	assert(parent->sub[1]);
+	RR_ASSERT(parent);
+	RR_ASSERT(parent->sub[0]);
+	RR_ASSERT(parent->sub[1]);
 	SubTriangle *pa=SUBTRIANGLE(parent);
 	bool right=isRight();
 	int rot=pa->getSplitVertex();
@@ -523,26 +523,26 @@ IVertex *SubTriangle::ivertex(int i)
 	{
 	   case 0:tmp = pa->ivertex(rot); break;
 	   case 1:if(right) tmp = pa->ivertex((rot+1)%3); else tmp = pa->subvertex; break;
-	   default:assert(i==2);
+	   default:RR_ASSERT(i==2);
 		  if(right) tmp = pa->subvertex; else tmp = pa->ivertex((rot+2)%3);
 	}
 	return tmp;
 */
-	assert(IS_PTR(this));
-	assert(i>=0 && i<3);
+	RR_ASSERT(IS_PTR(this));
+	RR_ASSERT(i>=0 && i<3);
 	IVertex *tmp;
 	if(IS_TRIANGLE(this))
 	{
-		assert(TRIANGLE(this)->surface);
+		RR_ASSERT(TRIANGLE(this)->surface);
 		tmp = TRIANGLE(this)->topivertex[i];
 		TRACE(FS("(%x,%d,%x,%d)",this,i,tmp,RRIntersectStats::getInstance()->intersects));
-		assert(tmp);
+		RR_ASSERT(tmp);
 	}
 	else
 	{
-		assert(parent);
-		assert(parent->sub[0]);
-		assert(parent->sub[1]);
+		RR_ASSERT(parent);
+		RR_ASSERT(parent->sub[0]);
+		RR_ASSERT(parent->sub[1]);
 //		SubTriangle *pa=SUBTRIANGLE(parent);
 //		bool right=isRight();
 		switch(i)
@@ -552,7 +552,7 @@ IVertex *SubTriangle::ivertex(int i)
 				SubTriangle *pa=SUBTRIANGLE(parent);
 				int rot=pa->getSplitVertex();
 				tmp = pa->ivertex(rot);
-				assert(tmp);
+				RR_ASSERT(tmp);
 				break;
 				}
 			case 1:
@@ -562,58 +562,58 @@ IVertex *SubTriangle::ivertex(int i)
 				{
 					int rot=pa->getSplitVertex();
 					tmp = pa->ivertex((rot+1)%3);
-					assert(tmp);
+					RR_ASSERT(tmp);
 				}
 				else 
 				{
 					tmp = pa->subvertex;
-					assert(tmp);
+					RR_ASSERT(tmp);
 				}
 				break;
 				}
 			default:
 				{
-				assert(i==2);
+				RR_ASSERT(i==2);
 				SubTriangle *pa=SUBTRIANGLE(parent);
 				if(isRight())
 				{
 					tmp = pa->subvertex;
-					assert(tmp);
+					RR_ASSERT(tmp);
 				}
 				else
 				{
 					int rot=pa->getSplitVertex();
 					tmp = pa->ivertex((rot+2)%3);
-					assert(tmp);
+					RR_ASSERT(tmp);
 				}
 				}
 		}
 	}
-	assert(tmp);
+	RR_ASSERT(tmp);
 	return tmp;
 }
 
 bool SubTriangle::checkVertices()
 {
-	assert(this);
-	if(IS_TRIANGLE(this)) assert(TRIANGLE(this)->surface);
+	RR_ASSERT(this);
+	if(IS_TRIANGLE(this)) RR_ASSERT(TRIANGLE(this)->surface);
 	IVertex *v;
 
 	TRACE("\n0");
 	v=ivertex(0);
 	TRACE("1\n");
-	assert(this);
-	assert(v);
+	RR_ASSERT(this);
+	RR_ASSERT(v);
 	v->check(to3d(0));
 
 	v=ivertex(1);
-	assert(this);
-	assert(v);
+	RR_ASSERT(this);
+	RR_ASSERT(v);
 	v->check(to3d(1));
 
 	v=ivertex(2);
-	assert(this);
-	assert(v);
+	RR_ASSERT(this);
+	RR_ASSERT(v);
 	v->check(to3d(2));
 
 	return true;
@@ -622,11 +622,11 @@ bool SubTriangle::checkVertices()
 void SubTriangle::installVertices()
 {
 	IVertex *v;
-	v=ivertex(0);assert(v);
+	v=ivertex(0);RR_ASSERT(v);
 	v->insert(this,false,angleBetween(u2,v2),to3d(0));
-	v=ivertex(1);assert(v);
+	v=ivertex(1);RR_ASSERT(v);
 	v->insert(this,false,angleBetween(v2-u2,-u2),to3d(1));
-	v=ivertex(2);assert(v);
+	v=ivertex(2);RR_ASSERT(v);
 	v->insert(this,false,angleBetween(-v2,u2-v2),to3d(2));
 }
 
@@ -640,11 +640,11 @@ SubTriangle *downWhereSideSplits(SubTriangle *s,int *side,IVertex *newVertex)
 		case 0:sideLength1=size(s->u2);break;
 		case 1:sideLength1=size(s->v2-s->u2);break;
 		case 2:sideLength1=size(s->v2);break;
-		default:assert(0);
+		default:RR_ASSERT(0);
 	}
 	while(true)
 	{
-		assert(s);
+		RR_ASSERT(s);
 		int splitVertex=s->getSplitVertexSlow();
 		if(*side==(splitVertex+1)%3) break;
 		s->splitGeometry(NULL);
@@ -658,10 +658,10 @@ SubTriangle *downWhereSideSplits(SubTriangle *s,int *side,IVertex *newVertex)
 		case 0:sideLength2=size(s->u2);break;
 		case 1:sideLength2=size(s->v2-s->u2);break;
 		case 2:sideLength2=size(s->v2);break;
-		default:assert(0);
+		default:RR_ASSERT(0);
 	}
-	assert(fabs(sideLength1-sideLength2)<0.0001);
-	assert(*side==(s->getSplitVertexSlow()+1)%3);
+	RR_ASSERT(fabs(sideLength1-sideLength2)<0.0001);
+	RR_ASSERT(*side==(s->getSplitVertexSlow()+1)%3);
 	return s;
 }
 
@@ -684,11 +684,11 @@ SubTriangle *Triangle::getNeighbourTriangle(int myside,int *nbsside,IVertex *new
 		}
 		else
 		{
-			assert(neighbourTri->edge[2]==edge[myside]);
+			RR_ASSERT(neighbourTri->edge[2]==edge[myside]);
 			*nbsside=2;
 		}
-		assert(getVertex(myside)==neighbourTri->getVertex((*nbsside+1)%3));
-		assert(getVertex((myside+1)%3)==neighbourTri->getVertex(*nbsside));
+		RR_ASSERT(getVertex(myside)==neighbourTri->getVertex((*nbsside+1)%3));
+		RR_ASSERT(getVertex((myside+1)%3)==neighbourTri->getVertex(*nbsside));
 		neighbourSub=downWhereSideSplits(neighbourTri,nbsside,newVertex);
 	}
 	newVertex->insertAlsoToParents(this,true,M_PI);
@@ -711,9 +711,9 @@ SubTriangle *SubTriangle::getNeighbourSubTriangle(int myside,int *nbsside,IVerte
 		{
 			Point3 nb_a=neighbour->to3d((*nbsside+1)%3);
 			Point3 nb_b=neighbour->to3d(*nbsside);
-			assert(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
-			assert(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
-			assert(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
+			RR_ASSERT(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
+			RR_ASSERT(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
+			RR_ASSERT(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
 		}
 #endif
 		return neighbour;
@@ -731,9 +731,9 @@ SubTriangle *SubTriangle::getNeighbourSubTriangle(int myside,int *nbsside,IVerte
 #ifndef NDEBUG
 		Point3 nb_a=neighbour->to3d((*nbsside+1)%3);
 		Point3 nb_b=neighbour->to3d(*nbsside);
-		assert(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
-		assert(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
-		assert(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
+		RR_ASSERT(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
+		RR_ASSERT(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
+		RR_ASSERT(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
 #endif
 		return neighbour;
 	}
@@ -752,21 +752,21 @@ SubTriangle *SubTriangle::getNeighbourSubTriangle(int myside,int *nbsside,IVerte
 	{
 		if(myside==1)
 		{
-			assert(neighbour->sub[0]);
-			assert(SUBTRIANGLE(parent)->subvertex==neighbour->subvertex);
-			assert((neighbour->getSplitVertex()+1)%3==*nbsside);
+			RR_ASSERT(neighbour->sub[0]);
+			RR_ASSERT(SUBTRIANGLE(parent)->subvertex==neighbour->subvertex);
+			RR_ASSERT((neighbour->getSplitVertex()+1)%3==*nbsside);
 			neighbour=SUBTRIANGLE(neighbour->sub[(neighbour->isRightLeft()==right)?1:0]);
 			newVertex->insert(neighbour,false,M_PI);
 			*nbsside=1;
 			neighbour=downWhereSideSplits(neighbour,nbsside,newVertex);
-			assert(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
+			RR_ASSERT(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
 		}
 #ifndef NDEBUG
 		Point3 nb_a=neighbour->to3d((*nbsside+1)%3);
 		Point3 nb_b=neighbour->to3d(*nbsside);
-		assert(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
-		assert(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
-		assert(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
+		RR_ASSERT(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
+		RR_ASSERT(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
+		RR_ASSERT(*nbsside==(neighbour->getSplitVertexSlow()+1)%3);
 #endif
 	}
 	return neighbour;
@@ -777,14 +777,14 @@ void SubTriangle::createSubvertex(IVertex *asubvertex,int rot)
 #ifdef IV_POINT
 	Point3 apoint=(ivertex((rot+1)%3)->point+ivertex((rot+2)%3)->point)/2;
 #endif
-	assert(!subvertex);
+	RR_ASSERT(!subvertex);
 	if(asubvertex)
 	{
-		assert(IS_PTR(asubvertex));
+		RR_ASSERT(IS_PTR(asubvertex));
 		subvertex=asubvertex;
-		assert(subvertex->check(to3d(SUBTRIANGLE(sub[0])->uv[isRightLeft()?2:1])));
+		RR_ASSERT(subvertex->check(to3d(SUBTRIANGLE(sub[0])->uv[isRightLeft()?2:1])));
 #ifdef IV_POINT
-		assert(subvertex->point==apoint);
+		RR_ASSERT(subvertex->point==apoint);
 #endif
 	}
 	else
@@ -794,7 +794,7 @@ void SubTriangle::createSubvertex(IVertex *asubvertex,int rot)
 		subvertex->point=apoint;
 #endif
 #ifndef NDEBUG
-		assert(rot>=0 && rot<=2);
+		RR_ASSERT(rot>=0 && rot<=2);
 		Point3 my_a=to3d((rot+1)%3);
 		Point3 my_b=to3d((rot+2)%3);
 #endif
@@ -802,30 +802,30 @@ void SubTriangle::createSubvertex(IVertex *asubvertex,int rot)
 		SubTriangle *neighbour=getNeighbourSubTriangle((rot+1)%3,&nbsside,subvertex);
 		if(neighbour)
 		{
-			assert(!neighbour->sub[0]);
-			assert(!neighbour->subvertex);
-			assert(neighbour->checkVertices());
-			assert(nbsside==(neighbour->getSplitVertexSlow()+1)%3);
+			RR_ASSERT(!neighbour->sub[0]);
+			RR_ASSERT(!neighbour->subvertex);
+			RR_ASSERT(neighbour->checkVertices());
+			RR_ASSERT(nbsside==(neighbour->getSplitVertexSlow()+1)%3);
 			switch((nbsside+2)%3/*==neighbour->getSplitVertexSlow()*/)
 			{
-				case 0:assert(subvertex->check(neighbour->to3d(neighbour->uv[0]+neighbour->u2/2+neighbour->v2/2)));break;
-				case 1:assert(subvertex->check(neighbour->to3d(neighbour->uv[0]+neighbour->v2/2)));break;
-				case 2:assert(subvertex->check(neighbour->to3d(neighbour->uv[0]+neighbour->u2/2)));break;
+				case 0:RR_ASSERT(subvertex->check(neighbour->to3d(neighbour->uv[0]+neighbour->u2/2+neighbour->v2/2)));break;
+				case 1:RR_ASSERT(subvertex->check(neighbour->to3d(neighbour->uv[0]+neighbour->v2/2)));break;
+				case 2:RR_ASSERT(subvertex->check(neighbour->to3d(neighbour->uv[0]+neighbour->u2/2)));break;
 			}
 			neighbour->splitGeometry(subvertex);
 #ifndef NDEBUG
-			assert(nbsside>=0 && nbsside<=2);
+			RR_ASSERT(nbsside>=0 && nbsside<=2);
 			Point3 nb_a=neighbour->to3d((nbsside+1)%3);
 			Point3 nb_b=neighbour->to3d(nbsside);
-			assert(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
-			assert(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
+			RR_ASSERT(size(nb_a-my_a)<MAX_NEIGHBOUR_DISTANCE);
+			RR_ASSERT(size(nb_b-my_b)<MAX_NEIGHBOUR_DISTANCE);
 #endif
 		}
 	}
-	assert(SUBTRIANGLE(sub[0])->checkVertices());
-	assert(SUBTRIANGLE(sub[1])->checkVertices());
+	RR_ASSERT(SUBTRIANGLE(sub[0])->checkVertices());
+	RR_ASSERT(SUBTRIANGLE(sub[1])->checkVertices());
 	// uses subvertex->point, must be called after we set it
-	assert(this);
+	RR_ASSERT(this);
 	SUBTRIANGLE(sub[1])->installVertices();
 	SUBTRIANGLE(sub[0])->installVertices();
 }
@@ -856,7 +856,7 @@ void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo
 // expects ivertex on the beginning of its life - contains all corners around 1 vertex,
 //  originalVertexIndex is index of that vertex in object->vertex array
 {
-	//assert(corners);
+	//RR_ASSERT(corners);
 	// corners==0 means ivertex without any corner
 	// it's probably in vertex that is not referenced by any triangle
 	// it's not nice, but let's try to live with such
@@ -870,7 +870,7 @@ void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo
 	// fill our neighbours
 	for(unsigned c=0;c<corners;c++)
 	{
-		assert(IS_TRIANGLE(corner[c].node));
+		RR_ASSERT(IS_TRIANGLE(corner[c].node));
 		if(!IS_TRIANGLE(corner[c].node)) continue;
 		Triangle* tri = TRIANGLE(corner[c].node);
 		unsigned originalPresent = 0;
@@ -882,7 +882,7 @@ void IVertex::fillInfo(Object* object, unsigned originalVertexIndex, IVertexInfo
 			else
 				originalPresent++;
 		}
-		assert(originalPresent==1);
+		RR_ASSERT(originalPresent==1);
 	}
 }
 
@@ -903,7 +903,7 @@ void IVertex::absorb(IVertex* aivertex)
 					tri->topivertex[i]=this;
 			}
 
-		} else assert(0);
+		} else RR_ASSERT(0);
 	}
 	// move corners
 	while(aivertex->corners)
@@ -919,19 +919,19 @@ void IVertexInfo::absorb(IVertexInfo& info2)
 // info2 <- 0
 // all nodes referencing info2.ivertex are rehooked to us
 {
-	assert(this!=&info2);
+	RR_ASSERT(this!=&info2);
 	// set center
 	unsigned verticesTotal = (unsigned)(ourVertices.size()+info2.ourVertices.size());
 	center = (center*(real)ourVertices.size() + info2.center*(real)info2.ourVertices.size()) / (real)verticesTotal;
 	// set ourVertices
 	ourVertices.insert(info2.ourVertices.begin(),info2.ourVertices.end());
 	info2.ourVertices.erase(info2.ourVertices.begin(),info2.ourVertices.end());
-	assert(ourVertices.size()==verticesTotal);
-	assert(info2.ourVertices.size()==0);
+	RR_ASSERT(ourVertices.size()==verticesTotal);
+	RR_ASSERT(info2.ourVertices.size()==0);
 	// set neighbourVertices
 	neighbourVertices.insert(info2.neighbourVertices.begin(),info2.neighbourVertices.end());
 	info2.neighbourVertices.erase(info2.neighbourVertices.begin(),info2.neighbourVertices.end());
-	assert(info2.neighbourVertices.size()==0);
+	RR_ASSERT(info2.neighbourVertices.size()==0);
 	for(std::set<unsigned>::const_iterator i=ourVertices.begin();i!=ourVertices.end();i++)
 	{
 		unsigned ourVertex = *i;
@@ -940,7 +940,7 @@ void IVertexInfo::absorb(IVertexInfo& info2)
 		{
 			neighbourVertices.erase(invalidNeighbour);
 			//invalidNeighbour = neighbourVertices.find(ourVertex);
-			//assert(invalidNeighbour==neighbourVertices.end());
+			//RR_ASSERT(invalidNeighbour==neighbourVertices.end());
 		}
 	}
 	/*set_difference(
@@ -1002,18 +1002,18 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 		for(;ivertex1Idx<ivertices;ivertex1Idx++)
 			if(ivertexInfo[ivertex1Idx].ourVertices.size())
 		{
-			assert(ivertexInfo[ivertex1Idx].ivertex->getNumCorners()!=0xfeee);
-			assert(ivertexInfo[ivertex1Idx].ivertex->getNumCorners()!=0xcdcd);
+			RR_ASSERT(ivertexInfo[ivertex1Idx].ivertex->getNumCorners()!=0xfeee);
+			RR_ASSERT(ivertexInfo[ivertex1Idx].ivertex->getNumCorners()!=0xcdcd);
 			// for each neighbour vertex
 			for(std::set<unsigned>::const_iterator i=ivertexInfo[ivertex1Idx].neighbourVertices.begin();i!=ivertexInfo[ivertex1Idx].neighbourVertices.end();i++)
 			{
 				// convert to neighbour ivertex
 				unsigned vertex2Idx = *i;
 				unsigned ivertex2Idx = vertex2ivertex[vertex2Idx];
-				assert(ivertex1Idx!=ivertex2Idx);
+				RR_ASSERT(ivertex1Idx!=ivertex2Idx);
 				// measure distance
 				real dist = size(ivertexInfo[ivertex1Idx].center-ivertexInfo[ivertex2Idx].center);
-				assert(dist); // teoreticky muze nastat kdyz objekt obsahuje vic vertexu na stejnem miste
+				RR_ASSERT(dist); // teoreticky muze nastat kdyz objekt obsahuje vic vertexu na stejnem miste
 				// store the best
 				if(dist<minDist)
 				{
@@ -1032,7 +1032,7 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 		// merge ivertices: update local temporary vertex2ivertex
 		for(std::set<unsigned>::const_iterator i=ivertexInfo[minIVert2].ourVertices.begin();i!=ivertexInfo[minIVert2].ourVertices.end();i++)
 		{
-			assert(vertex2ivertex[*i] == minIVert2);
+			RR_ASSERT(vertex2ivertex[*i] == minIVert2);
 			vertex2ivertex[*i] = minIVert1;
 		}
 
@@ -1040,8 +1040,8 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 		// merge ivertices: update object persistent ivertices
 		// while all other code in this method modifies temporary local data,
 		//  this modifies also persistent object data
-		assert(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xfeee);
-		assert(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xcdcd);
+		RR_ASSERT(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xfeee);
+		RR_ASSERT(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xcdcd);
 		ivertexInfo[minIVert1].absorb(ivertexInfo[minIVert2]);
 	}
 
@@ -1057,9 +1057,9 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 	// check
 	for(unsigned t=0;t<triangles;t++)
 	{
-		assert(!triangle[t].subvertex);
+		RR_ASSERT(!triangle[t].subvertex);
 		for(int v=0;v<3;v++)
-			assert(!triangle[t].topivertex[v]);
+			RR_ASSERT(!triangle[t].topivertex[v]);
 	}
 
 	// build 1 ivertex for each vertex, insert all corners
@@ -1072,7 +1072,7 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 		for(int ro_v=0;ro_v<3;ro_v++) // ro_ = rotated 
 		{
 			unsigned un_v = un_ve[(ro_v+triangle[t].rotations)%3];
-			assert(un_v<vertices);
+			RR_ASSERT(un_v<vertices);
 			triangle[t].topivertex[ro_v]=&topivertex[un_v];
 			Angle angle=angleBetween(
 			  *triangle[t].getVertex((ro_v+1)%3)-*triangle[t].getVertex(ro_v),
@@ -1126,7 +1126,7 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 		{
 			for(unsigned i=0;i<3;i++)
 			{
-				assert(triangle[t].topivertex[i]!=&topivertex[v]);
+				RR_ASSERT(triangle[t].topivertex[i]!=&topivertex[v]);
 			}
 		}*/
 	}
@@ -1149,10 +1149,10 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 		meshImporter->getTriangle(t,un_ve);
 		for(int ro_v=0;ro_v<3;ro_v++)
 		{
-			//assert(triangle[t].topivertex[v]);
-			assert(!triangle[t].topivertex[ro_v] || triangle[t].topivertex[ro_v]->error!=-45);
+			//RR_ASSERT(triangle[t].topivertex[v]);
+			RR_ASSERT(!triangle[t].topivertex[ro_v] || triangle[t].topivertex[ro_v]->error!=-45);
 			unsigned un_v = un_ve[(ro_v+triangle[t].rotations)%3];
-			assert(un_v<vertices);
+			RR_ASSERT(un_v<vertices);
 			vertexIVertex[un_v]=triangle[t].topivertex[ro_v]; // un[un]=ro[ro]
 		}
 	}*/
@@ -1164,7 +1164,7 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 		{
 			// check that local array topivertex is not referenced here
 			unsigned idx = (unsigned)(triangle[t].topivertex[i]-topivertex);
-			assert(idx>=vertices);
+			RR_ASSERT(idx>=vertices);
 		}
 	}
 	delete[] topivertex;
@@ -1174,7 +1174,7 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 	for(unsigned v=0;v<vertices;v++)
 	{
 		//!!! happens with generated ball, reason unknown
-		//assert(vertexIVertex[v]);
+		//RR_ASSERT(vertexIVertex[v]);
 	}
 
 	// check triangle.topivertex validity
@@ -1182,12 +1182,12 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 	for(unsigned t=0;t<triangles;t++)
 		for(int v=0;v<3;v++)
 		{
-			//assert(triangle[t].topivertex[v]); no topivertex allowed for invalid triangles (surface=NULL)
-			assert(!triangle[t].topivertex[v] || triangle[t].topivertex[v]->error!=-45);
+			//RR_ASSERT(triangle[t].topivertex[v]); no topivertex allowed for invalid triangles (surface=NULL)
+			RR_ASSERT(!triangle[t].topivertex[v] || triangle[t].topivertex[v]->error!=-45);
 			if(triangle[t].topivertex[v])
 			{
-				assert(triangle[t].topivertex[v]->getNumCorners()!=0xcdcd);
-				assert(triangle[t].topivertex[v]->getNumCorners()!=0xfeee);
+				RR_ASSERT(triangle[t].topivertex[v]->getNumCorners()!=0xcdcd);
+				RR_ASSERT(triangle[t].topivertex[v]->getNumCorners()!=0xfeee);
 			}
 		}
 
@@ -1220,7 +1220,7 @@ extern void ora_filling_init()
 
 extern void ora_fill(S8 *ptr)
 {
-	assert(ora_ptrs<100000);
+	RR_ASSERT(ora_ptrs<100000);
 	ora_ptr[ora_ptrs++]=ptr;
 }
 
@@ -1230,7 +1230,7 @@ extern void ora_filling_done(char *filename)
 	if(!f) return;
 	for(unsigned i=0;i<ora_ptrs;i++)
 	{
-		assert(ora_ptr[i]);
+		RR_ASSERT(ora_ptr[i]);
 		fwrite(ora_ptr[i],1,1,f);
 	}
 	fclose(f);
@@ -1266,13 +1266,13 @@ extern void ora_reading_init(char *filename)
 
 extern S8 ora_read()
 {
-	assert(ora_pos<ora_vals);
+	RR_ASSERT(ora_pos<ora_vals);
 	return ora_val[ora_pos++];
 }
 
 extern void ora_reading_done()
 {
-	assert(ora_pos==ora_vals);
+	RR_ASSERT(ora_pos==ora_vals);
 	delete[] ora_val;
 	ora_val=NULL;
 	ora_vals=0;
@@ -1372,7 +1372,7 @@ static void iv_saveReal(SubTriangle *s,IVertex *iv,int type)
 		if(s==iv_sub)
 		{
 			iv_sub=NULL;
-			assert(type==4);
+			RR_ASSERT(type==4);
 		}
 		return;
 	}
@@ -1468,10 +1468,10 @@ void iv_skipLoadingSubTree()
 	    case 15:
 	    case 16:
 	    case 17:
-	    case 18:if(iv_realsInside) {real r;iv_FR(r);assert(IS_NUMBER(r));}
+	    case 18:if(iv_realsInside) {real r;iv_FR(r);RR_ASSERT(IS_NUMBER(r));}
 	            else if(b>=13){U8 be;iv_FR(be);}//byteerror nenacita z topvertexu
 	            todo++;break;
-	    default: assert(0);
+	    default: RR_ASSERT(0);
 	  }
 	}
 	while(todo);
@@ -1493,7 +1493,7 @@ static void iv_findSplitInfo(SubTriangle *s,IVertex *iv,int type)
 	  if(s==iv_sub)
 	  {
 	    iv_sub=NULL;
-	    assert(type==4);
+	    RR_ASSERT(type==4);
 	  }
 	  return;
 	}
@@ -1518,7 +1518,7 @@ static void iv_findSplitInfo(SubTriangle *s,IVertex *iv,int type)
 	    if(iv_realsInside)
 	    {
 	      iv_FR(r);
-	      assert(IS_NUMBER(r));
+	      RR_ASSERT(IS_NUMBER(r));
 	    }
 	    //byteerror nenacita z topvertexu
 	    break;
@@ -1529,7 +1529,7 @@ static void iv_findSplitInfo(SubTriangle *s,IVertex *iv,int type)
 	  case 8:
 	  case 9:
 	    if(!iv) iv_skipLoadingSubTree();
-	    assert(s->splitVertex_rightLeft<0 || s->splitVertex_rightLeft==b-4);
+	    RR_ASSERT(s->splitVertex_rightLeft<0 || s->splitVertex_rightLeft==b-4);
 	    if(s->splitVertex_rightLeft<0) iv_infosfound++;
 	    s->splitVertex_rightLeft=b-4;
 	    break;
@@ -1542,7 +1542,7 @@ static void iv_findSplitInfo(SubTriangle *s,IVertex *iv,int type)
 	    if(iv_realsInside)
 	    {
 	      iv_FR(r);
-	      assert(IS_NUMBER(r));
+	      RR_ASSERT(IS_NUMBER(r));
 	    }
 	    else
 	    //byteerror nacita ze subivertexu a tam zrovna jsme
@@ -1551,12 +1551,12 @@ static void iv_findSplitInfo(SubTriangle *s,IVertex *iv,int type)
 	      iv_FR(be);
 	    }
 	    if(!iv) iv_skipLoadingSubTree();
-	    assert(s->splitVertex_rightLeft<0 || s->splitVertex_rightLeft==b-13);
+	    RR_ASSERT(s->splitVertex_rightLeft<0 || s->splitVertex_rightLeft==b-13);
 	    if(s->splitVertex_rightLeft<0) iv_infosfound++;
 	    s->splitVertex_rightLeft=b-13;
 	    break;
 	  default:
-	    assert(0);
+	    RR_ASSERT(0);
 	}
 }
 
@@ -1594,7 +1594,7 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	  if(s==iv_sub)
 	  {
 	    iv_sub=NULL;
-	    assert(type==4);
+	    RR_ASSERT(type==4);
 	  }
 	  return;
 	}
@@ -1625,15 +1625,15 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	    if(type==3)
 		{
 	      // zkontroluje ze deleni s odpovida tomu s jakym to bylo ulozeno
-	      assert(b==1+type+s->getSplitVertex()+(s->isRightLeft()?3:0));
+	      RR_ASSERT(b==1+type+s->getSplitVertex()+(s->isRightLeft()?3:0));
 		}
 	    else
 		{
 	      // zkontroluje ze jde o odpovidajici topivertex
-	      assert(b==1+type);
+	      RR_ASSERT(b==1+type);
 		}
-	    assert(iv);
-	    assert(iv->loaded);
+	    RR_ASSERT(iv);
+	    RR_ASSERT(iv->loaded);
 	    break;
 	  case 10:// ivertex nahrajeme ted
 	  case 11:
@@ -1647,7 +1647,7 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	    if(iv_realsInside)
 	    {
 	      iv_FR(r);
-	      assert(IS_CHANNELS(r));
+	      RR_ASSERT(IS_CHANNELS(r));
 	    }
 	    else
 	    if(type==3)//byteerror nenacita z topvertexu
@@ -1656,7 +1656,7 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	    }
 	    if(!iv)
 	    {
-	      assert(type==3);
+	      RR_ASSERT(type==3);
 	      // tady chce naseknout subtriangl zpusobem nactenym ze souboru
 	      //  ale ono by to mohlo automaticky naseknout i sousedy
 	      //  a spatne, driv nez dojdem k nim a nactem jak sekat je.
@@ -1672,11 +1672,11 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	      // fungujici reeni:
 	      //  splitGeometry kdykoliv potrebuje splitovat zavola
 	      //  nas callback a ten mu novym pruchodem vstupu zjisti jak
-	      assert(!__oraculum);
+	      RR_ASSERT(!__oraculum);
 #ifndef LOG_LOADING_MES
 	      __oraculum=iv_splitDetector;//orakulum jak splitovat ostatni
 #endif
-	      assert(s->splitVertex_rightLeft==b-10-type || s->splitVertex_rightLeft<0);
+	      RR_ASSERT(s->splitVertex_rightLeft==b-10-type || s->splitVertex_rightLeft<0);
 	      s->splitVertex_rightLeft=b-10-type;//prikaz jak splitnout tenhle (jen urychleny orakulum)
 	      s->splitGeometry(NULL);
 	      __oraculum=NULL;
@@ -1685,28 +1685,28 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	      printf(" iv=%i",iv?1:0);
 #endif
 	      // zkontroluje ze deleni s odpovida tomu s jakym to bylo ulozeno
-	      assert(b==10+type+s->getSplitVertex()+(s->isRightLeft()?3:0));
+	      RR_ASSERT(b==10+type+s->getSplitVertex()+(s->isRightLeft()?3:0));
 	    }
-	    assert(iv);
+	    RR_ASSERT(iv);
 	    if(type==3)
 	    {
-	      assert(iv==SUBTRIANGLE(s)->subvertex);
+	      RR_ASSERT(iv==SUBTRIANGLE(s)->subvertex);
 	      // zkontroluje ze deleni s odpovida tomu s jakym to bylo ulozeno
-	      assert(b==10+type+s->getSplitVertex()+(s->isRightLeft()?3:0));
+	      RR_ASSERT(b==10+type+s->getSplitVertex()+(s->isRightLeft()?3:0));
 	    }
 	    else
 	    {
 	      // zkontroluje ze jde o odpovidajici topivertex
-	      assert(b==10+type);
+	      RR_ASSERT(b==10+type);
 	    }
-	    assert(!iv->loaded);
+	    RR_ASSERT(!iv->loaded);
 	    if(iv_realsInside)
 	      // loadovani .000 framu - nacte obsah ivertexu
 	      iv->loadCache(r);
 	    else
 	    {
 	      // loadovani .mes - plni si tabulku vsech ivertexu
-	      assert(iv_flagsLoaded<iv_ivertices);
+	      RR_ASSERT(iv_flagsLoaded<iv_ivertices);
 	      iv_realptrtable[iv_flagsLoaded]=iv;
 	      if(type==3) iv->error=be;//ze subvertexu nacet byteerror
 	      iv_flagsLoaded++;
@@ -1714,7 +1714,7 @@ static void iv_loadReal(SubTriangle *s,IVertex *iv,int type)
 	    iv->loaded=true;
 	    break;
 	  default:
-	    assert(0);
+	    RR_ASSERT(0);
 	}
 #ifdef LOG_LOADING_MES
 	printf("\n");
@@ -1754,21 +1754,21 @@ void Scene::iv_loadRealFrame(char *name)
 	iv_forEach(iv_loadReal);
 	// kontrola ze dosel na konec souboru
 	fgetc(iv_f);
-	assert(feof(iv_f));
+	RR_ASSERT(feof(iv_f));
 	// hotovo
 	fclose(iv_f);
 }
 
 static real iv_error(SubTriangle *s,IVertex *iv)
 {
-	assert(s);
-	assert(iv);
-	assert(iv==s->subvertex);
-	assert(iv->loaded);
+	RR_ASSERT(s);
+	RR_ASSERT(iv);
+	RR_ASSERT(iv==s->subvertex);
+	RR_ASSERT(iv->loaded);
 	bool isRL=s->isRightLeft();
 	Channels r1=SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->exitance(s);
 	Channels r2=SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->exitance(s);
-	assert(s->area>=0);
+	RR_ASSERT(s->area>=0);
 	return sum(abs(r1-r2))*s->area;
 }
 
@@ -1792,7 +1792,7 @@ static void iv_fillEmptyImportant(SubTriangle *s,IVertex *iv,int type)
 	// vyplni nenastaveny ivertexy prumernou hodnotou sousedu
 	if(iv && iv->important && !iv->loaded)
 	{
-		assert(type==3);
+		RR_ASSERT(type==3);
 		bool isRL=s->isRightLeft();
 		Channels r=(SUBTRIANGLE(s->sub[isRL?0:1])->ivertex(1)->exitance(s)+SUBTRIANGLE(s->sub[isRL?1:0])->ivertex(2)->exitance(s))/2;
 		iv->loadCache(r);
@@ -1835,10 +1835,10 @@ static void iv_propagateErrors(SubTriangle *s,IVertex *iv,int type)
 	if(IS_SUBTRIANGLE(s) && s->subvertex && !iv /*...propaguje jen pri vynorovani*/)
 	{
 		SubTriangle *parent=SUBTRIANGLE(s->parent);
-		assert(s->subvertex);
-		assert(parent->subvertex);
-		assert(IS_NUMBER(s->subvertex->error));
-		assert(IS_NUMBER(parent->subvertex->error));
+		RR_ASSERT(s->subvertex);
+		RR_ASSERT(parent->subvertex);
+		RR_ASSERT(IS_NUMBER(s->subvertex->error));
+		RR_ASSERT(IS_NUMBER(parent->subvertex->error));
 		if(parent->subvertex->error<=s->subvertex->error)
 		{
 //*fprintf(stderr," %i(%f,",(int)s,parent->subvertex->error);
@@ -1876,8 +1876,8 @@ static void iv_cleanFlagSaved(SubTriangle *s,IVertex *iv,int type)
 int iv_cmperr(const void *e1, const void *e2)
 {
 	// radi od nejvetsich k nejmensim errorum
-	assert((*(SubTriangle **)e1)->subvertex);
-	assert((*(SubTriangle **)e2)->subvertex);
+	RR_ASSERT((*(SubTriangle **)e1)->subvertex);
+	RR_ASSERT((*(SubTriangle **)e2)->subvertex);
 	if((*(SubTriangle **)e2)->subvertex->error-(*(SubTriangle **)e1)->subvertex->error<0) return -1;
 	if((*(SubTriangle **)e2)->subvertex->error-(*(SubTriangle **)e1)->subvertex->error>0) return 1;
 	return 0;
@@ -1909,7 +1909,7 @@ void Scene::iv_markImportants_saveMeshing(unsigned maxvertices,char *namemes)
 	iv_array=new SubTriangle*[iv_subs];
 	iv_inArray=0;
 	iv_forEach(iv_saveSubsToArray);
-	assert(iv_inArray==iv_subs);
+	RR_ASSERT(iv_inArray==iv_subs);
 	qsort(iv_array,iv_subs,sizeof(IVertex *),iv_cmperr);
 
 	// zjisti kolik subvertexu bude ukladat
@@ -2022,20 +2022,20 @@ unsigned Scene::iv_initLoadingBytes(char *namemes,char *nametga)
 	iv_scene=this;
 	iv_realsInside=false;
 	iv_meshingStartOffset=0;
-	assert(iv_sub==NULL);
+	RR_ASSERT(iv_sub==NULL);
 	iv_forEach(iv_loadReal);
-	assert(iv_flagsLoaded==iv_ivertices);
+	RR_ASSERT(iv_flagsLoaded==iv_ivertices);
 	fclose(iv_f);
 	return iv_frames;
 }
 
 void Scene::iv_loadByteFrame(real frame)
 {
-	assert(iv_realptrtable);
-	assert(iv_bytetable);
+	RR_ASSERT(iv_realptrtable);
+	RR_ASSERT(iv_bytetable);
 	frame=fmod(fmod(frame,(real)iv_frames)+iv_frames,(real)iv_frames);
 	unsigned framefloor=(int)frame;
-	assert(framefloor<iv_frames);
+	RR_ASSERT(framefloor<iv_frames);
 	for(unsigned iv=0;iv<iv_ivertices;iv++)
 	{
 		real r=(framefloor+1-frame)*iv_bytetable[iv+framefloor*iv_ivertices]
@@ -2047,7 +2047,7 @@ void Scene::iv_loadByteFrame(real frame)
 static void iv_dump(SubTriangle *s,IVertex *iv,int type)
 {
 	if(type!=0) return;
-	assert(IS_TRIANGLE(s));
+	RR_ASSERT(IS_TRIANGLE(s));
 	fprintf(iv_f,"%f %f %f  %f %f %f  %f %f %f\n",
 	  TRIANGLE(s)->getVertex(0)->x,TRIANGLE(s)->getVertex(0)->y,TRIANGLE(s)->getVertex(0)->z,
 	  TRIANGLE(s)->getVertex(1)->x,TRIANGLE(s)->getVertex(1)->y,TRIANGLE(s)->getVertex(1)->z,

@@ -179,7 +179,7 @@ public:
 			delete multiCollider;
 			// Delete transformers created by us.
 			unsigned numObjects = pack[0].getNumObjects() + pack[1].getNumObjects();
-			assert(transformedMeshes[0]!=transformedMeshes[1]);
+			RR_ASSERT(transformedMeshes[0]!=transformedMeshes[1]);
 			for(unsigned i=0;i<numObjects+3;i++) delete transformedMeshes[i];
 			delete[] transformedMeshes;
 		}
@@ -196,7 +196,7 @@ private:
 		case 0: 
 			return NULL;
 		case 1: 
-			assert(objects);
+			RR_ASSERT(objects);
 			//  pokud nemame externe narizeny multiCollider, vratime hned jediny objekt, objects[0]
 			if(!multiCollider) return objects[0]; 
 		// pozor, return objects[0]; nestaci v pripade ze vytvarime multiObject z 1 objektu (objects[0])
@@ -206,15 +206,15 @@ private:
 		//  toto za nas s nepatrne snizenou efektivitou zaridi default vetev
 		// zde umyslne neni break, pokracujeme do defaultu
 		default: 
-			assert(objects); 
+			RR_ASSERT(objects); 
 			unsigned num1 = (numObjects+1)/2;
 			unsigned num2 = numObjects-num1;
 			unsigned tris[2] = {0,0};
 			for(unsigned i=0;i<numObjects;i++) 
 			{
-				assert(objects[i]);
-				assert(objects[i]->getCollider());
-				assert(objects[i]->getCollider()->getMesh());
+				RR_ASSERT(objects[i]);
+				RR_ASSERT(objects[i]->getCollider());
+				RR_ASSERT(objects[i]->getCollider()->getMesh());
 				tris[(i<num1)?0:1] += objects[i]->getCollider()->getMesh()->getNumTriangles();
 			}
 
@@ -240,7 +240,7 @@ private:
 	{
 		void init(RRObject* importer, unsigned objects, unsigned triangles)
 		{
-			assert(numObjects);
+			RR_ASSERT(numObjects);
 			packImporter = importer;
 			numObjects = objects;
 			numTriangles = triangles;

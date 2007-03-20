@@ -21,7 +21,7 @@
 /*/ asserts also in release
 #include <windows.h>
 #undef assert
-#define assert(a) {if(!(a)) DebugBreak();}*/
+#define RR_ASSERT(a) {if(!(a)) DebugBreak();}*/
 
 namespace rr
 {
@@ -126,7 +126,7 @@ real Hit::getPower()
 
 void Hit::setPower(real apower)
 {
-	assert(apower>=-1 && apower<=1);
+	RR_ASSERT(apower>=-1 && apower<=1);
 #ifdef HITS_FIXED
 	power=(HITS_P_TYPE)(apower*HITS_P_MAX);
 #else
@@ -178,7 +178,7 @@ void Hits::rawInsert(Hit HIT_PTR ahit)
 	sum_v+=ahit.v;
 	sum_power+=ahit.power;
 #ifndef HITS_FIXED
-	assert(IS_POWER(ahit.power));
+	RR_ASSERT(IS_POWER(ahit.power));
 #endif
 }
 
@@ -190,7 +190,7 @@ void Hits::insert(Hit HIT_PTR ahit)
 real Hits::difBtwAvgHitAnd(Point2 a,Triangle *base)
 {
 #ifdef HITS_FIXED
-	assert(base->u2.y==0);
+	RR_ASSERT(base->u2.y==0);
 	#define WORD_TO_REAL_U(u,v) (((u)*base->u2.x+(v)*base->v2.x)/HITS_UV_MAX)
 	#define WORD_TO_REAL_V(u,v) ((               (v)*base->v2.y)/HITS_UV_MAX)
 	return size(Point2(
@@ -223,7 +223,7 @@ real Hits::totalPower()
 #ifdef HITS_FIXED
 	return sum_power/(real)(HITS_P_MAX);
 #else
-	assert(IS_NUMBER(sum_power));
+	RR_ASSERT(IS_NUMBER(sum_power));
 	return sum_power;
 #endif
 }
@@ -256,12 +256,12 @@ Hits::~Hits()
 
 Factor::Factor(class Node *adestination,real apower)
 {
-	assert(apower>0); // power=0 has no sense to store
+	RR_ASSERT(apower>0); // power=0 has no sense to store
 #ifdef CLEAN_FACTORS
 #ifdef HITS_FIXED
 	#warning With CLEAN_FACTORS + HITS_FIXED you may loose part of energy around partially transparent objects.
 	if(apower>1) fprintf(stderr,"Turn off CLEAN_FACTORS or HITS_FIXED when using transparent materials.\n");
-	assert(apower<=1);
+	RR_ASSERT(apower<=1);
 #endif
 #endif
 	power=apower;
@@ -338,7 +338,7 @@ void Factors::insert(Factors *afactors)
 
 Factor Factors::get()
 {
-	assert(factors());
+	RR_ASSERT(factors());
 	factors24_allocated8-=0x100;
 	return factor[factors()];
 }
@@ -354,7 +354,7 @@ real Factors::contains(Node *destination)
 
 void Factors::remove(Factor *afactor)
 {
-	assert(afactor>=factor && afactor<factor+factors());
+	RR_ASSERT(afactor>=factor && afactor<factor+factors());
 	*afactor=factor[factors()-1];
 	factors24_allocated8-=0x100;
 }
@@ -397,7 +397,7 @@ Factors::~Factors()
 	if(factors24_allocated8)
 	{
 		free(factor);
-		assert(__factorsAllocated>=factorsAllocated());
+		RR_ASSERT(__factorsAllocated>=factorsAllocated());
 		__factorsAllocated-=factorsAllocated();
 	}
 }
@@ -464,14 +464,14 @@ Hits *LevelHits::allocLevel()
 		for(unsigned i=levels;i<levelsAllocated;i++)
 			level[i]=new Hits;
 	}
-	assert(!level[levels]->hits);
+	RR_ASSERT(!level[levels]->hits);
 	return level[levels++];
 }
 
 void LevelHits::freeLevel()
 {
-	assert(levels);
-	assert(!level[levels-1]->hits);
+	RR_ASSERT(levels);
+	RR_ASSERT(!level[levels-1]->hits);
 	levels--;
 }
 
@@ -530,28 +530,28 @@ void Node::reset(bool resetFactors)
 	// reset wanted triangle and cluster shooters
 	else
 	{
-		assert(shooter);
+		RR_ASSERT(shooter);
 		shooter->reset(resetFactors);
 	}
 }
 
 Node *Node::brother()
 {
-	assert(parent);
+	RR_ASSERT(parent);
 	return parent->sub[(this==parent->sub[0])?1:0];
 }
 
 bool Node::loadEnergyFromSubs()
 {
-	assert(sub[0]);
-	assert(sub[1]);
-//        assert(area==0);
+	RR_ASSERT(sub[0]);
+	RR_ASSERT(sub[1]);
+//        RR_ASSERT(area==0);
 //        area=sub[0]->area+sub[1]->area;
-//        assert(totalExitingFlux==0);
+//        RR_ASSERT(totalExitingFlux==0);
 	totalExitingFlux=sub[0]->totalExitingFlux+sub[1]->totalExitingFlux;
 	totalIncidentFlux=sub[0]->totalIncidentFlux+sub[1]->totalIncidentFlux;
-	assert(sub[0]->shooter);
-	assert(sub[1]->shooter);
+	RR_ASSERT(sub[0]->shooter);
+	RR_ASSERT(sub[1]->shooter);
 	Channels tmp0=sub[0]->shooter->totalExitingFluxToDiffuse/sub[0]->area;
 	Channels tmp1=sub[1]->shooter->totalExitingFluxToDiffuse/sub[1]->area;
 	Channels e;
@@ -560,16 +560,16 @@ bool Node::loadEnergyFromSubs()
 		e=tmp0;
 		sub[0]->shooter->totalExitingFluxToDiffuse=Channels(0);
 		sub[1]->shooter->totalExitingFluxToDiffuse-=e*sub[1]->area;
-		assert(sum(sub[1]->shooter->totalExitingFluxToDiffuse)>-0.1);
+		RR_ASSERT(sum(sub[1]->shooter->totalExitingFluxToDiffuse)>-0.1);
 		clampToZero(sub[1]->shooter->totalExitingFluxToDiffuse); // fix minor numerical errors
 	} else {
 		e=tmp1;
 		sub[0]->shooter->totalExitingFluxToDiffuse-=e*sub[0]->area;
-		assert(sum(sub[0]->shooter->totalExitingFluxToDiffuse)>-0.1);
+		RR_ASSERT(sum(sub[0]->shooter->totalExitingFluxToDiffuse)>-0.1);
 		clampToZero(sub[0]->shooter->totalExitingFluxToDiffuse); // fix minor numerical errors
 		sub[1]->shooter->totalExitingFluxToDiffuse=Channels(0);
 	}
-	assert(shooter);
+	RR_ASSERT(shooter);
 	shooter->totalExitingFluxToDiffuse+=e*area;
 	return e!=Channels(0);
 	// v teto fci vznikala nepresnost, min sviticimu synovi s X odebral X+-chyba
@@ -584,7 +584,7 @@ void Node::propagateEnergyUp()
 
 real Node::accuracy()
 {
-	assert(shooter);
+	RR_ASSERT(shooter);
 	return shooter->accuracy();
 }
 
@@ -602,7 +602,7 @@ Channels Node::radiosityIndirect() // radiantExitance in W/m^2
 
 bool Node::check()
 {
-	assert(!shooter || sum(abs(shooter->totalExitingFluxToDiffuse))<1e10);
+	RR_ASSERT(!shooter || sum(abs(shooter->totalExitingFluxToDiffuse))<1e10);
 	return true;
 }
 
@@ -615,8 +615,8 @@ bool Node::contains(Triangle *t)
 
 Node::~Node()
 {
-	assert(!sub[0]);
-	assert(!sub[1]);
+	RR_ASSERT(!sub[0]);
+	RR_ASSERT(!sub[1]);
 	if(shooter) delete shooter;
 	__nodesAllocated--;
 }
@@ -642,7 +642,7 @@ Point3 SubTriangle::to3d(Point2 a)
 Point3 SubTriangle::to3d(int vertex)
 // returns exact 3d coord where available
 {
-	assert(vertex>=0 && vertex<=2);
+	RR_ASSERT(vertex>=0 && vertex<=2);
 #ifdef IV_POINT
 	// ivertex always returns the same 3d
 	return ivertex(vertex)->point;
@@ -656,13 +656,13 @@ Point3 SubTriangle::to3d(int vertex)
 Point3 SubTriangle::to3dlo(int vertex)
 // returns approximate 3d coord (2d transformed to 3d)
 {
-	assert(vertex>=0 && vertex<=2);
+	RR_ASSERT(vertex>=0 && vertex<=2);
 	return to3d(uv[vertex]);
 }
 
 Point3 Triangle::to3d(int v)
 {
-	assert(v>=0 && v<=2);
+	RR_ASSERT(v>=0 && v<=2);
 	return *getVertex(v);
 }
 
@@ -673,21 +673,21 @@ real SubTriangle::perimeter()
 
 SubTriangle *SubTriangle::brotherSub()
 {
-	assert(IS_SUBTRIANGLE(this));
+	RR_ASSERT(IS_SUBTRIANGLE(this));
 	return SUBTRIANGLE(parent->sub[(this==parent->sub[0])?1:0]);
 }
 
 bool SubTriangle::isRight()
 {
 	bool result=v2==brotherSub()->u2;
-	assert(result!=(u2==brotherSub()->v2));
+	RR_ASSERT(result!=(u2==brotherSub()->v2));
 	return result;
 }
 
 bool SubTriangle::isRightLeft()
 {
 	bool result=SUBTRIANGLE(sub[0])->v2==SUBTRIANGLE(sub[1])->u2;
-	assert(result!=(SUBTRIANGLE(sub[1])->v2==SUBTRIANGLE(sub[0])->u2));
+	RR_ASSERT(result!=(SUBTRIANGLE(sub[1])->v2==SUBTRIANGLE(sub[0])->u2));
 	return result;
 }
 
@@ -735,14 +735,14 @@ int SubTriangle::getSplitVertexSlow()
 		//fprintf(stderr,"getSplitVertexSlow danger %i\n",(int)this);
 		__oraculum();
 		DBGLINE
-		assert(splitVertex_rightLeft>=-2 && splitVertex_rightLeft<=5);
+		RR_ASSERT(splitVertex_rightLeft>=-2 && splitVertex_rightLeft<=5);
 	}
 
 	// pokud je neco v cache, pouzije to, ale overi ze se to shoduje
 	// a kdyz ne tak bylo opravdu zdetekovano nebezpeci chyby
 	if(splitVertex_rightLeft>=0)
 	{
-		assert(danger || result==splitVertex_rightLeft%3);
+		RR_ASSERT(danger || result==splitVertex_rightLeft%3);
 		result=splitVertex_rightLeft%3;
 	}
 
@@ -751,18 +751,18 @@ int SubTriangle::getSplitVertexSlow()
 
 int SubTriangle::getSplitVertex()
 {
-	assert(this);
-	assert(sub[0]);
-	assert(sub[1]);
+	RR_ASSERT(this);
+	RR_ASSERT(sub[0]);
+	RR_ASSERT(sub[1]);
 	if(SUBTRIANGLE(sub[0])->uv[0]==uv[0]) return 0;
 	if(SUBTRIANGLE(sub[0])->uv[0]==uv[1]) return 1;
-	assert(SUBTRIANGLE(sub[0])->uv[0]==uv[2]);
+	RR_ASSERT(SUBTRIANGLE(sub[0])->uv[0]==uv[2]);
 	return 2;
 }
 
 void SubTriangle::splitGeometry(IVertex *asubvertex)
 {
-	assert(this);
+	RR_ASSERT(this);
 	if(sub[0]) return;
 
 	// zjisti splitvertex
@@ -793,13 +793,13 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 		bool rl=(splitVertex_rightLeft/3)!=0;
 		if(rl && r<0)//prikazano rightleft ale r<0
 		{
-			assert(r>-0.01);
+			RR_ASSERT(r>-0.01);
 			r=SMALL_REAL;
 		}
 		else
 		if(!rl && r>0)//prikazano leftright ale r>0
 		{
-			assert(r<0.01);
+			RR_ASSERT(r<0.01);
 			r=-SMALL_REAL;
 		}
 	}
@@ -817,7 +817,7 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	splita=splitvector.y/r;
 	splitb=-splitvector.x/r;
 #ifdef HITS_FIXED
-	assert(grandpa->u2.y==0);
+	RR_ASSERT(grandpa->u2.y==0);
 	splitb=(grandpa->v2.y*splitb+grandpa->v2.x*splita)/HITS_UV_MAX;
 	splita=grandpa->u2.x*splita/HITS_UV_MAX;
 #endif
@@ -842,17 +842,17 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	sub[r<0?0:1]=sb;
 	// create subvertex
 	DBGLINE
-	assert(this);
+	RR_ASSERT(this);
 	createSubvertex(asubvertex,rot);
 	DBGLINE
 }
 
 void SubTriangle::splitHits(Hits* phits,Hits *phits2)
 {
-	assert(sub[0]);
-	assert(phits);
-	assert(phits2);
-	assert(!phits2->hits);
+	RR_ASSERT(sub[0]);
+	RR_ASSERT(phits);
+	RR_ASSERT(phits2);
+	RR_ASSERT(!phits2->hits);
 	unsigned old_hits=phits->hits;
 	phits->reset();
 	for(unsigned i=0;i<old_hits;i++)
@@ -864,7 +864,7 @@ void SubTriangle::splitHits(Hits* phits,Hits *phits2)
 
 bool SubTriangle::wishesToSplitReflector()
 {
-	assert(shooter);
+	RR_ASSERT(shooter);
 	if(!sub[0]) return false;//dal uz splitovat nejde
 	if(sub[0]->shooter) return false;//uz je splitnutej
 	real e0=sum(sub[0]->totalExitingFlux);
@@ -952,13 +952,13 @@ real calculateArea(Vec3 v0, Vec3 v1, Vec3 v2)
 S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,int rots,float ignoreSmallerAngle,float ignoreSmallerArea)
 {
 	isValid=0;
-	assert(rots>=-1 && rots<=2);
+	RR_ASSERT(rots>=-1 && rots<=2);
 #ifdef ROTATIONS
 	if(rots==-1) rotations=0; else rotations=rots;
 again:
-	assert(rotations<=2);
+	RR_ASSERT(rotations<=2);
 #else
-	assert(rots==-1);
+	RR_ASSERT(rots==-1);
 #endif
 
 	qvertex[(3-rotations)%3]=a;
@@ -994,7 +994,7 @@ again:
 	if(sina<=0) return -6;
 	if(area<=0) return -4;
 	if(area<=ignoreSmallerArea) return -5;
-	//assert(size(SubTriangle::to3d(2)-*vertex[2])<0.001);
+	//RR_ASSERT(size(SubTriangle::to3d(2)-*vertex[2])<0.001);
 #ifdef ROTATIONS
 	// stary rotace davajici ruzny vysledky s a bez optimalizaci
 	//if(v2.x<0) setGeometry(b,c,a);// to avoid negative coordinates
@@ -1020,17 +1020,17 @@ again:
 	if(rots!=-1)
 	{
 		#define MAXERR 0.01
-		assert(psqr>MAGIC2-MAXERR);
-		assert(v2.y>MAGIC1b*MAX(u2.x,v2.x)-MAXERR);
+		RR_ASSERT(psqr>MAGIC2-MAXERR);
+		RR_ASSERT(v2.y>MAGIC1b*MAX(u2.x,v2.x)-MAXERR);
 		#undef MAXERR
 	}
 
 	if(u2.x<0 || u2.y!=0 || v2.x<0 || v2.y<0) return -2; // throw out degenerated triangle
-	assert(v2.x>=0);
+	RR_ASSERT(v2.x>=0);
 #endif
-	assert(u2.x>=0);
-	assert(u2.y==0);
-	assert(v2.y>=0);
+	RR_ASSERT(u2.x>=0);
+	RR_ASSERT(u2.y==0);
+	RR_ASSERT(v2.y>=0);
 
 	// premerit min angle v localspace (mohlo by byt i ve world)
 	real minangle = minAngle(lsize,rsize,size(getL3()-getR3()));
@@ -1045,7 +1045,7 @@ again:
 	if(!IS_NUMBER(area)) return -11;
 	if(area<=ignoreSmallerArea) return -12;
 
-	assert(IS_VEC3(getV3()));
+	RR_ASSERT(IS_VEC3(getV3()));
 	isValid=1;
 	return rotations;
 }
@@ -1059,8 +1059,8 @@ again:
 // return new primary exiting radiant flux in watts
 Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradiance, bool resetPropagation)
 {
-	assert(area!=0);//setGeometry must be called before setSurface
-	assert(s);
+	RR_ASSERT(area!=0);//setGeometry must be called before setSurface
+	RR_ASSERT(s);
 	surface=s;
 #if CHANNELS == 1
 	#error CHANNELS == 1 not supported here.
@@ -1070,15 +1070,15 @@ Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradia
 	Channels newSourceIncidentFlux = newSourceIrradiance * area;
 	Channels newSourceExitingFlux = newSourceExitance * area;
 #endif
-	assert(surface->diffuseEmittance[0]>=0); // teoreticky by melo jit i se zapornou
-	assert(surface->diffuseEmittance[1]>=0);
-	assert(surface->diffuseEmittance[2]>=0);
-	assert(area>=0);
-	assert(additionalIrradiance.x>=0); // teoreticky by melo jit i se zapornou
-	assert(additionalIrradiance.y>=0);
-	assert(additionalIrradiance.z>=0);
+	RR_ASSERT(surface->diffuseEmittance[0]>=0); // teoreticky by melo jit i se zapornou
+	RR_ASSERT(surface->diffuseEmittance[1]>=0);
+	RR_ASSERT(surface->diffuseEmittance[2]>=0);
+	RR_ASSERT(area>=0);
+	RR_ASSERT(additionalIrradiance.x>=0); // teoreticky by melo jit i se zapornou
+	RR_ASSERT(additionalIrradiance.y>=0);
+	RR_ASSERT(additionalIrradiance.z>=0);
 	// load triangle shooter with energy emited by surface
-	assert(shooter);
+	RR_ASSERT(shooter);
 	// set this primary illum
 	Channels oldSourceExitingFlux = getSourceExitingFlux();
 	Channels addSourceExitingFlux = newSourceExitingFlux-oldSourceExitingFlux;
@@ -1172,7 +1172,7 @@ bool Reflectors::insert(Node *anode)
 
 void Reflectors::remove(unsigned n)
 {
-	assert(node[n]->flags&FLAG_IS_REFLECTOR);
+	RR_ASSERT(node[n]->flags&FLAG_IS_REFLECTOR);
 	node[n]->flags&=~FLAG_IS_REFLECTOR;
 	node[n]=node[--nodes];
 	bests=0; // invalidate best cache
@@ -1336,12 +1336,12 @@ restart:
 	Node *best=bestNode[0];
 	bests--;
 	for(unsigned i=0;i<bests;i++) bestNode[i]=bestNode[i+1];
-	assert(best);
+	RR_ASSERT(best);
 	// possibly split best
 	if(!IS_CLUSTER(best) && SUBTRIANGLE(best)->wishesToSplitReflector())
 	{
-		assert(!best->sub[0]->shooter);
-		assert(!best->sub[1]->shooter);
+		RR_ASSERT(!best->sub[0]->shooter);
+		RR_ASSERT(!best->sub[1]->shooter);
 		best->sub[0]->shooter=new Shooter();
 		best->sub[1]->shooter=new Shooter();
 		insert(best->sub[0]);
@@ -1365,7 +1365,7 @@ bool Reflectors::findFactorsTo(Node *n)
 {
 	for(unsigned i=0;i<nodes;i++)
 	{
-		assert(node[i]->shooter);
+		RR_ASSERT(node[i]->shooter);
 		real pwr=node[i]->shooter->contains(n);
 		if(pwr!=-1)
 			printf("[%x %f]",(unsigned)(intptr_t)node[i],pwr);
@@ -1421,13 +1421,13 @@ Triangle *Triangles::get()
 
 Triangle *Triangles::get(real a)
 {
-	assert(triangles>0);
+	RR_ASSERT(triangles>0);
 	unsigned t=0;
 	while(a>triangle[t]->area)
 	{
 		a-=triangle[t]->area;
 		t++;
-		assert(t<triangles);
+		RR_ASSERT(t<triangles);
 	}
 	return triangle[t];
 }
@@ -1489,7 +1489,7 @@ void Edges::insert(Edge *key)
 
 Edge *Edges::get()
 {
-	assert(edges>0);
+	RR_ASSERT(edges>0);
 	edges--;
 	return edge[edges];
 }
@@ -1533,9 +1533,9 @@ Object::Object(int avertices,int atriangles)
 Channels Object::getVertexIrradiance(unsigned avertex,RRRadiometricMeasure measure)
 {
 #ifdef SUPPORT_INTERPOL
-	assert(avertex<vertices);
+	RR_ASSERT(avertex<vertices);
 	if(!vertexIVertex[avertex]) return Channels(0); // be prepared for NULL
-	assert(vertexIVertex[avertex]);
+	RR_ASSERT(vertexIVertex[avertex]);
 	return vertexIVertex[avertex]->irradiance(measure);
 #else
 	return Channels((real)(rand()%1000)); // not implemented for non-interpol mode
@@ -1566,7 +1566,7 @@ void addEdgeWith(Triangle *t1,va_list ap)
 		Angle angle=angleBetweenNormalized(t1->getN3(),t2->getN3());
 		if(angle<MAX_INTERPOL_ANGLE)
 		{
-		  assert(*edges<maxedges);
+		  RR_ASSERT(*edges<maxedges);
 		  if(*edges>=maxedges)
 		  {
 		    printf("# More edges than expected, throwing out.\n");
@@ -1578,8 +1578,8 @@ void addEdgeWith(Triangle *t1,va_list ap)
 		  edge[*edges].vertex[1]=t1->getVertex((v1+1)%3);
 		  edge[*edges].triangle[0]=t1;
 		  edge[*edges].triangle[1]=t2;
-		  assert(!t1->edge[v1]); //!!! nastava pri degenerovanych trianglech, je to neskodne?
-		  assert(!t2->edge[v2]);
+		  RR_ASSERT(!t1->edge[v1]); //!!! nastava pri degenerovanych trianglech, je to neskodne?
+		  RR_ASSERT(!t2->edge[v2]);
 		  t1->edge[v1]=&edge[*edges];
 		  t2->edge[v2]=&edge[*edges];
 		  (*edges)++;
@@ -1593,7 +1593,7 @@ void Object::buildEdges(float maxSmoothAngle)
 //  from triangle with surface+topIVertices via edge to triangle without surface+topIVertices
 //  and operate with NULL topIVertex -> crash
 {
-	assert(!edge);
+	RR_ASSERT(!edge);
 
 	edge=new Edge[triangles*3/2];
 	for(unsigned t=0;t<triangles;t++)
@@ -1611,7 +1611,7 @@ void Object::buildEdges(float maxSmoothAngle)
 				RRMesh::Triangle ve;
 				meshImporter->getTriangle(t,ve);
 				unsigned v = ve[(v1+triangle[t].rotations)%3];
-				assert(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
+				RR_ASSERT(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
 				trianglesInV[v].insert(&triangle[t]);
 			}
 	for(unsigned v=0;v<vertices;v++)
@@ -1769,7 +1769,7 @@ Scene::~Scene()
 
 void Scene::objInsertStatic(Object *o)
 {
-	assert(!object);
+	RR_ASSERT(!object);
 	object = o;
 	staticReflectors.insertObject(o);
 	staticSourceExitingFlux+=o->objSourceExitingFlux;
@@ -1860,8 +1860,8 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
 {
-	assert(IS_VEC3(eye));
-	assert(IS_VEC3(direction));
+	RR_ASSERT(IS_VEC3(eye));
+	RR_ASSERT(IS_VEC3(direction));
 	RRRay& ray = *__ray;
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
@@ -1872,7 +1872,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 		// ray left scene and vanished
 		return HitChannels(0);
 	}
-	assert(IS_NUMBER(ray.hitDistance));
+	RR_ASSERT(IS_NUMBER(ray.hitDistance));
 	static unsigned s_depth = 0;
 	if(s_depth>25) 
 	{
@@ -1883,7 +1883,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 	if(ray.hitFrontSide) STATISTIC_INC(numRayTracePhotonFrontHits); else STATISTIC_INC(numRayTracePhotonBackHits);
 	// otherwise surface with these properties was hit
 	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
-	assert(side.catchFrom); // check that bad side was not hit
+	RR_ASSERT(side.catchFrom); // check that bad side was not hit
 	// calculate power of diffuse surface hits
 	HitChannels  hitPower=HitChannels(0);
 	// stats
@@ -2023,7 +2023,7 @@ bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, const RR
 	Angle b=rand()*2*M_PI/RAND_MAX;         // b = rotation angle around normal
 	exitDir = norm*cosa + u3*(sina*cos(b)) + v3*(sina*sin(b));
 #endif
-	assert(fabs(size2(exitDir)-1)<0.001);//ocekava normalizovanej dir
+	RR_ASSERT(fabs(size2(exitDir)-1)<0.001);//ocekava normalizovanej dir
 	return true;
 }
 
@@ -2034,7 +2034,7 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	{
 		source=SUBTRIANGLE(sourceNode);
 	}
-	assert(!IS_CLUSTER(source));
+	RR_ASSERT(!IS_CLUSTER(source));
 
 	// select random point in source subtriangle
 	unsigned u=rand();
@@ -2104,10 +2104,10 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	    }* /
 	  default:
 	    // jiny typy zatim nejsou podporovany
-	    assert(0);
+	    RR_ASSERT(0);
 	}
 	*/
-	assert(IS_SIZE1(rayVec3));
+	RR_ASSERT(IS_SIZE1(rayVec3));
 
 #ifdef SUPPORT_TRANSFORMS
 	// transform from shooter's objectspace to scenespace
@@ -2132,8 +2132,8 @@ Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 // decreasing power is used only for termination criteria
 Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels power)
 {
-	assert(IS_VEC3(eye));
-	assert(IS_VEC3(direction));
+	RR_ASSERT(IS_VEC3(eye));
+	RR_ASSERT(IS_VEC3(direction));
 	RRRay& ray = *__ray;
 	ray.rayFlags = RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
@@ -2144,11 +2144,11 @@ Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels po
 		// ray left scene and vanished
 		return Channels(0);
 	}
-	assert(IS_NUMBER(ray.hitDistance));
+	RR_ASSERT(IS_NUMBER(ray.hitDistance));
 	if(ray.hitFrontSide) STATISTIC_INC(numGatherFrontHits); else STATISTIC_INC(numGatherBackHits);
 	// otherwise surface with these properties was hit
 	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
-	assert(side.catchFrom); // check that bad side was not hit
+	RR_ASSERT(side.catchFrom); // check that bad side was not hit
 	if(!side.receiveFrom)
 	{
 		// ray accidentally penetrated object and hit inner side
@@ -2190,9 +2190,9 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	//RRScene::getSceneStatistics()->sumDistribInput += energy;
 
 	Node *destination=factor->destination;
-	assert(destination);
-	assert(factor->power>=0);
-	assert(factor->power<=1 || factor->destination->grandpa->surface->specularTransmittance>0); // power>1 may occur only on transparent surfaces
+	RR_ASSERT(destination);
+	RR_ASSERT(factor->power>=0);
+	RR_ASSERT(factor->power<=1 || factor->destination->grandpa->surface->specularTransmittance>0); // power>1 may occur only on transparent surfaces
 	energy*=factor->power;
 	// kdyz miri nad shooterlevel, presmeruje se dolu
 	//...
@@ -2208,9 +2208,9 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 
 	Channels energyIncident = energy;
 #ifdef CLEAN_FACTORS
-	assert(destination->grandpa);
-	assert(destination->grandpa->surface);
-	assert(IS_VEC3(destination->grandpa->surface->diffuseReflectance));
+	RR_ASSERT(destination->grandpa);
+	RR_ASSERT(destination->grandpa->surface);
+	RR_ASSERT(IS_VEC3(destination->grandpa->surface->diffuseReflectance));
 	// kdyz se aspon polovinu casu hybe svetly (hodne se distribuuje),
 	//  tento radek je nejvetsi zrout CPU z celeho rr.
 	// pri predelani cele matematiky na sse se vyrazne zrychli, ale jine vypocty 
@@ -2245,7 +2245,7 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 		destination=destination->parent;
 	}
 	while(destination /*&& !IS_CLUSTER(destination)*/); //...proc je to zakomentovany?
-	assert(wasLetToDiffuse);
+	RR_ASSERT(wasLetToDiffuse);
 	// stara verze bez zmeny levelu
 	//factor->destination->totalExitingFluxToDiffuse+=energy*factor->power;
 	DBGLINE
@@ -2259,8 +2259,8 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 static bool setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *factors,SubTriangle *destination,Hits *phits,int shots)
 {
 	DBGLINE
-	assert(destination);
-	assert(phits);
+	RR_ASSERT(destination);
+	RR_ASSERT(phits);
 	if(phits->hits==0) return true;
 	Point2 triCentre=destination->uv[0]+(destination->u2+destination->v2)/3;
 	real perimeter=destination->perimeter();
@@ -2288,8 +2288,8 @@ static bool setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *f
 		{
 			Point3 destinationVertices[3]={destination->to3d(0),destination->to3d(1),destination->to3d(2)};
 			ff=FormFactorf((real (*)[3])sourceVertices,3,(real (*)[3])destinationVertices,3);
-			assert(ff>=0);
-			assert(ff<=1);
+			RR_ASSERT(ff>=0);
+			RR_ASSERT(ff<=1);
 		}
 		else*/
 		{
@@ -2322,11 +2322,11 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 	{
 		DBGLINE
 		// prepare shooting
-		assert(source->shooter);
+		RR_ASSERT(source->shooter);
 		shotsForNewFactors=source->shooter->shotsForFactors?REFRESH_MULTIPLY*source->shooter->shotsForFactors:REFRESH_FIRST;
-		assert(shotsForNewFactors>source->shooter->shotsForFactors);
-		assert(shotsAccumulated==0);
-		assert(!hitTriangles.get());
+		RR_ASSERT(shotsForNewFactors>source->shooter->shotsForFactors);
+		RR_ASSERT(shotsAccumulated==0);
+		RR_ASSERT(!hitTriangles.get());
 		filler.Reset(); // prepare homogenous shooting
 		phase=1;
 	}
@@ -2349,8 +2349,8 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 	{
 		DBGLINE
 		// kontrola ze jsou flagy opravdu vsude ciste
-		assert(object->check());
-		assert(improvingFactors.factors()==0);
+		RR_ASSERT(object->check());
+		RR_ASSERT(improvingFactors.factors()==0);
 		hitTriangles.holdAmulet();
 		phase=3;
 	}
@@ -2395,7 +2395,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 		}
 		hitTriangles.reset();
 		// kontrola ze jsou flagy opravdu vsude ciste
-		assert(object->check());
+		RR_ASSERT(object->check());
 
 		// take back energy distributed via old factors
 		shotsForFactorsTotal-=source->shooter->shotsForFactors;
@@ -2431,7 +2431,7 @@ Reflectors *__staticReflectors;
 bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context)
 {
 	// refresh unaccurate form factors
-	assert(__staticReflectors->check());
+	RR_ASSERT(__staticReflectors->check());
 	bool needsRefresh = staticReflectors.lastBestWantsRefresh();
 	if(phase==0)
 	{
@@ -2444,25 +2444,25 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 			STATISTIC_INC(numCallsDistribFactors);
 		}
 	}
-	assert(__staticReflectors->check());
+	RR_ASSERT(__staticReflectors->check());
 	if(needsRefresh)
 	{
 		refreshFormFactorsFromUntil(source,endfunc,context);
 	}
-	assert(__staticReflectors->check());
+	RR_ASSERT(__staticReflectors->check());
 	if(phase==0)
 	{
 		// distribute energy via form factors
-		assert(source->shooter);
-		assert(__staticReflectors->check());
+		RR_ASSERT(source->shooter);
+		RR_ASSERT(__staticReflectors->check());
 		source->shooter->forEach(distributeEnergyViaFactor,&source->shooter->totalExitingFluxToDiffuse,&staticReflectors);
-		assert(__staticReflectors->check());
+		RR_ASSERT(__staticReflectors->check());
 		source->shooter->totalExitingFluxDiffused+=source->shooter->totalExitingFluxToDiffuse;
 		source->shooter->totalExitingFluxToDiffuse=Channels(0);
-		assert(__staticReflectors->check());
+		RR_ASSERT(__staticReflectors->check());
 		return true;
 	}
-	assert(__staticReflectors->check());
+	RR_ASSERT(__staticReflectors->check());
 	return false;
 }
 
@@ -2482,7 +2482,7 @@ bool Scene::distribute(real maxError)
 		Node *source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
 //if(source) printf(" %f<%f\n",fabs(source->shooter->totalExitingFluxToDiffuse),fabs(maxError*energyEmitedByStatics));
 		if(!source || ( sum(abs(source->shooter->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
-		assert(source->shooter);
+		RR_ASSERT(source->shooter);
 		source->shooter->forEach(distributeEnergyViaFactor,&source->shooter->totalExitingFluxToDiffuse,&staticReflectors);
 		source->shooter->totalExitingFluxDiffused+=source->shooter->totalExitingFluxToDiffuse;
 		source->shooter->totalExitingFluxToDiffuse=Channels(0);
@@ -2508,7 +2508,7 @@ RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 	__staticReflectors=&staticReflectors;
 	do
 	{
-		assert(__staticReflectors->check());
+		RR_ASSERT(__staticReflectors->check());
 		if(improvingStatic==NULL)
 			improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
 		if(improvingStatic==NULL) 
@@ -2516,13 +2516,13 @@ RRScene::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
 			improved = RRScene::FINISHED;
 			break;
 		}
-		assert(staticReflectors.check());
+		RR_ASSERT(staticReflectors.check());
 		if(energyFromDistributedUntil(improvingStatic,endfunc,context))
 		{
 		    improvingStatic=NULL;
 		    improved=RRScene::IMPROVED;
 		}
-		assert(__staticReflectors->check());
+		RR_ASSERT(__staticReflectors->check());
 	}
 	while(!endfunc(context));
 	DBGLINE
@@ -2545,7 +2545,7 @@ void Scene::abortStaticImprovement()
 		phase=0;
 		improvingStatic=NULL;
 		// kontrola ze jsou flagy opravdu vsude ciste
-		assert(object->check());
+		RR_ASSERT(object->check());
 	}
 }
 
@@ -2553,7 +2553,7 @@ void Scene::abortStaticImprovement()
 
 bool Scene::shortenStaticImprovementIfBetterThan(real minimalImprovement)
 {
-	assert((improvingStatic!=NULL) == (phase!=0));
+	RR_ASSERT((improvingStatic!=NULL) == (phase!=0));
 	if(improvingStatic)
 	{
 		// za techto podminek at uz dal nestrili
@@ -2571,13 +2571,13 @@ bool falsefunc(void *scene)
 
 bool Scene::finishStaticImprovement()
 {
-	assert((improvingStatic!=NULL) == (phase!=0));
+	RR_ASSERT((improvingStatic!=NULL) == (phase!=0));
 	if(improvingStatic)
 	{
-		assert(phase>0);
+		RR_ASSERT(phase>0);
 		real e=energyFromDistributedUntil(improvingStatic,falsefunc,NULL);
-		assert(e); e=e;
-		assert(phase==0);
+		RR_ASSERT(e); e=e;
+		RR_ASSERT(phase==0);
 		improvingStatic=NULL;
 		return true;
 	}
@@ -2635,7 +2635,7 @@ void Scene::infoImprovement(char *buf, int infolevel)
 		hi/1024,fa/1024,su/1024,tr/1024,cl/1024,iv/1024,co/1024,ot/1024);
 	sprintf(buf+strlen(buf)," meshes=%i/%i rays=(%i)%i",staticReflectors.nodes,__nodesAllocated,shotsTotal,shotsForFactorsTotal);
 	if(improvingStatic) sprintf(buf+strlen(buf),"(%i/%i->%i)",shotsAccumulated,improvingStatic->shooter->shotsForFactors,shotsForNewFactors);
-	assert((improvingStatic!=NULL) == (phase!=0));
+	RR_ASSERT((improvingStatic!=NULL) == (phase!=0));
 }
 
 void Scene::getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const
@@ -2655,7 +2655,7 @@ void Scene::getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays,
 
 void core_Done()
 {
-	assert(__levels);
+	RR_ASSERT(__levels);
 	delete __levels;
 	__levels=NULL;
 	delete __ray;
@@ -2690,7 +2690,7 @@ void core_Done()
 
 void core_Init()
 {
-	assert(!__levels);
+	RR_ASSERT(!__levels);
 	__levels=new LevelHits();
 	__ray = RRRay::create();
 }

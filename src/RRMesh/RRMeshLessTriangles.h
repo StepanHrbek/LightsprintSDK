@@ -53,7 +53,7 @@ public:
 			}
 			else
 			{
-				assert(0);
+				RR_ASSERT(0);
 				return false;
 			}
 		}
@@ -66,14 +66,14 @@ public:
 	}
 	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
-		assert(t<ValidIndices);
+		RR_ASSERT(t<ValidIndices);
 		inherited->getTriangle(ValidIndex[t],out);
 	}
 	virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const
 	{
 		if(postImportTriangle>=ValidIndices)
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::UNDEFINED;
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
@@ -83,7 +83,7 @@ public:
 	{
 		// check that this slow code is not called often
 //!!! is called when RRRealtimeRadiosity works with single object
-//		assert(0);
+//		RR_ASSERT(0);
 		// efficient implementation would require another translation array
 		unsigned midImportTriangle = inherited->getPostImportTriangle(preImportTriangle);
 		for(unsigned post=0;post<ValidIndices;post++)
@@ -97,7 +97,7 @@ public:
 	{
 		if(postImportTriangle>=ValidIndices)
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::UNDEFINED;
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
@@ -105,7 +105,7 @@ public:
 	}
 	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const
 	{
-		assert(t<ValidIndices);
+		RR_ASSERT(t<ValidIndices);
 		inherited->getTriangleBody(ValidIndex[t],out);
 	}
 
@@ -155,14 +155,14 @@ public:
 	}
 	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
 	{
-		assert(t<ValidIndices);
+		RR_ASSERT(t<ValidIndices);
 		INHERITED::getTriangle(ValidIndex[t],out);
 	}
 	virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const 
 	{
 		if(postImportTriangle>=ValidIndices)
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::UNDEFINED;
 		}
 		//return ValidIndex[postImportTriangle];
@@ -172,7 +172,7 @@ public:
 	virtual unsigned getPostImportTriangle(unsigned preImportTriangle) const 
 	{
 		// check that this slow code is not called often
-		//assert(0); // called from RRMeshCopy
+		//RR_ASSERT(0); // called from RRMeshCopy
 		// efficient implementation would require another translation array
 		unsigned midImportTriangle = INHERITED::getPostImportTriangle(preImportTriangle);
 		for(unsigned post=0;post<ValidIndices;post++)
@@ -186,7 +186,7 @@ public:
 	{
 		if(postImportTriangle>=ValidIndices)
 		{
-			assert(0); // it is allowed by rules, but also interesting to know when it happens
+			RR_ASSERT(0); // it is allowed by rules, but also interesting to know when it happens
 			return RRMesh::UNDEFINED;
 		}
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
@@ -194,7 +194,7 @@ public:
 	}
 	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const
 	{
-		assert(t<ValidIndices);
+		RR_ASSERT(t<ValidIndices);
 		INHERITED::getTriangleBody(ValidIndex[t],out);
 	}
 

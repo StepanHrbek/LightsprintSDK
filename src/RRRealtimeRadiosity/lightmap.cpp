@@ -28,25 +28,25 @@ void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context
 	for(unsigned i=0;i<3;i++)
 	{
 		si2.iv[i].measure = si.measure[i];
-		assert(context2->triangleMapping.uv[0][0]>=0 && context2->triangleMapping.uv[0][0]<=1);
-		assert(context2->triangleMapping.uv[0][1]>=0 && context2->triangleMapping.uv[0][1]<=1);
-		assert(context2->triangleMapping.uv[1][0]>=0 && context2->triangleMapping.uv[1][0]<=1);
-		assert(context2->triangleMapping.uv[1][1]>=0 && context2->triangleMapping.uv[1][1]<=1);
-		assert(context2->triangleMapping.uv[2][0]>=0 && context2->triangleMapping.uv[2][0]<=1);
-		assert(context2->triangleMapping.uv[2][1]>=0 && context2->triangleMapping.uv[2][1]<=1);
-		assert(si.texCoord[i][0]>=0 && si.texCoord[i][0]<=1);
-		assert(si.texCoord[i][1]>=0 && si.texCoord[i][1]<=1);
+		RR_ASSERT(context2->triangleMapping.uv[0][0]>=0 && context2->triangleMapping.uv[0][0]<=1);
+		RR_ASSERT(context2->triangleMapping.uv[0][1]>=0 && context2->triangleMapping.uv[0][1]<=1);
+		RR_ASSERT(context2->triangleMapping.uv[1][0]>=0 && context2->triangleMapping.uv[1][0]<=1);
+		RR_ASSERT(context2->triangleMapping.uv[1][1]>=0 && context2->triangleMapping.uv[1][1]<=1);
+		RR_ASSERT(context2->triangleMapping.uv[2][0]>=0 && context2->triangleMapping.uv[2][0]<=1);
+		RR_ASSERT(context2->triangleMapping.uv[2][1]>=0 && context2->triangleMapping.uv[2][1]<=1);
+		RR_ASSERT(si.texCoord[i][0]>=0 && si.texCoord[i][0]<=1);
+		RR_ASSERT(si.texCoord[i][1]>=0 && si.texCoord[i][1]<=1);
 		// si.texCoord 0,0 prevest na context2->triangleMapping.uv[0]
 		// si.texCoord 1,0 prevest na context2->triangleMapping.uv[1]
 		// si.texCoord 0,1 prevest na context2->triangleMapping.uv[2]
 		si2.iv[i].texCoord = context2->triangleMapping.uv[0] + (context2->triangleMapping.uv[1]-context2->triangleMapping.uv[0])*si.texCoord[i][0] + (context2->triangleMapping.uv[2]-context2->triangleMapping.uv[0])*si.texCoord[i][1];
-		assert(si2.iv[i].texCoord[0]>=0 && si2.iv[i].texCoord[0]<=1);
-		assert(si2.iv[i].texCoord[1]>=0 && si2.iv[i].texCoord[1]<=1);
+		RR_ASSERT(si2.iv[i].texCoord[0]>=0 && si2.iv[i].texCoord[0]<=1);
+		RR_ASSERT(si2.iv[i].texCoord[1]>=0 && si2.iv[i].texCoord[1]<=1);
 		for(unsigned j=0;j<3;j++)
 		{
-			assert(_finite(si2.iv[i].measure[j]));
-			assert(si2.iv[i].measure[j]>=0);
-			assert(si2.iv[i].measure[j]<1500000);
+			RR_ASSERT(_finite(si2.iv[i].measure[j]));
+			RR_ASSERT(si2.iv[i].measure[j]>=0);
+			RR_ASSERT(si2.iv[i].measure[j]<1500000);
 		}
 	}
 	context2->pixelBuffer->renderTriangle(si2);
@@ -155,14 +155,14 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	if(!context)
 	{
 		RRReporter::report(RRReporter::WARN,"processTexel: context==NULL\n");
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	TexelContext* tc = (TexelContext*)context;
 	if(!tc->params || !tc->solver || !tc->solver->getMultiObjectCustom())
 	{
 		RRReporter::report(RRReporter::WARN,"processTexel: No params or no objects in scene\n");
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 
@@ -182,7 +182,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	if(!shootToHemisphere && !shootToLights)
 	{
 		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"processTexel: Zero workload.\n"));
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	
@@ -421,7 +421,7 @@ void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWid
 	RRObject* multiObject = getMultiObjectCustom();
 	if(!multiObject)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
@@ -448,8 +448,8 @@ void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWid
 			RRReal xmax = mapWidth  * MAX(mapping.uv[0][0],MAX(mapping.uv[1][0],mapping.uv[2][0]));
 			RRReal ymin = mapHeight * MIN(mapping.uv[0][1],MIN(mapping.uv[1][1],mapping.uv[2][1]));
 			RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
-			assert(xmin>=0 && xmax<mapWidth);
-			assert(ymin>=0 && ymax<mapHeight);
+			RR_ASSERT(xmin>=0 && xmax<mapWidth);
+			RR_ASSERT(ymin>=0 && ymax<mapHeight);
 			//  precompute mapping[0]..mapping[1] line and mapping[0]..mapping[2] line equations in 2d map space
 			#define POINT_LINE_DISTANCE(point,line) \
 				((line)[0]*(point)[0]+(line)[1]*(point)[1]+(line)[2])
@@ -498,14 +498,14 @@ bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		calculateCore(0,0);
 		if(!getMultiObjectCustom() || !getScene())
 		{
-			assert(0);
+			RR_ASSERT(0);
 			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: No objects in scene.\n");
 			return false;
 		}
 	}
 	if(objectNumber>=getNumObjects())
 	{
-		assert(0);
+		RR_ASSERT(0);
 		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
 		return false;
 	}
@@ -520,7 +520,7 @@ bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		pixelBuffer = channel->pixelBuffer;
 		if(!pixelBuffer)
 		{
-			assert(0);
+			RR_ASSERT(0);
 			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: newPixelBuffer(getObject(%d)) returned NULL\n",objectNumber);
 			return false;
 		}
@@ -577,7 +577,7 @@ bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	{
 		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: No lightsources.\n");
 		pixelBuffer->renderEnd(false);
-		assert(0);
+		RR_ASSERT(0);
 	}
 	return true;
 }
@@ -595,7 +595,7 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 		calculateCore(0,0);
 		if(!getMultiObjectCustom() || !scene)
 		{
-			assert(0);
+			RR_ASSERT(0);
 			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: No objects in scene.\n");
 			return false;
 		}
@@ -642,7 +642,7 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 			else
 			{
 				RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
-				assert(0);
+				RR_ASSERT(0);
 			}
 		}
 		RRReal secondsInGather = (GETTIME-t0)/(RRReal)PER_SEC;
@@ -674,7 +674,7 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 		else
 		{
 			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
-			assert(0);
+			RR_ASSERT(0);
 		}
 	}
 	return true;

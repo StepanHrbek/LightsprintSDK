@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "RRIlluminationEnvironmentMapInMemory.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr
 {
@@ -31,7 +32,7 @@ void RRIlluminationEnvironmentMapInMemory::setValues(unsigned asize, RRColorRGBF
 
 RRColorRGBF RRIlluminationEnvironmentMapInMemory::getValue(const RRVec3& direction) const
 {
-	assert(size);
+	RR_ASSERT(size);
 	// find major axis
 	RRVec3 d = RRVec3(fabs(direction[0]),fabs(direction[1]),fabs(direction[2]));
 	unsigned axis = (d[0]>=d[1] && d[0]>=d[2]) ? 0 : ( (d[1]>=d[0] && d[1]>=d[2]) ? 1 : 2 );
@@ -45,12 +46,12 @@ RRColorRGBF RRIlluminationEnvironmentMapInMemory::getValue(const RRVec3& directi
 	unsigned x = (unsigned) CLAMPED((int)xy[0],0,(int)size-1);
 	unsigned y = (unsigned) CLAMPED((int)xy[1],0,(int)size-1);
 	// read texel
-	assert(x<size);
-	assert(y<size);
+	RR_ASSERT(x<size);
+	RR_ASSERT(y<size);
 	unsigned ofs = size*size*side+size*y+x;
 	if(ofs>=size*size*6)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return RRColorRGBF(0);
 	}
 	return data[size*size*side+size*y+x];
@@ -58,7 +59,7 @@ RRColorRGBF RRIlluminationEnvironmentMapInMemory::getValue(const RRVec3& directi
 
 void RRIlluminationEnvironmentMapInMemory::bindTexture()
 {
-	assert(0);
+	RR_ASSERT(0);
 }
 
 RRIlluminationEnvironmentMapInMemory::~RRIlluminationEnvironmentMapInMemory()

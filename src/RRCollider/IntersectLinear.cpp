@@ -58,8 +58,8 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 // modifies when no hit: <nothing is changed>
 {
 	FILL_STATISTIC(intersectStats.intersect_triangle++);
-	assert(ray);
-	assert(t);
+	RR_ASSERT(ray);
+	RR_ASSERT(t);
 
 	// calculate determinant - also used to calculate U parameter
 	Vec3 pvec = ortogonalTo(ray->rayDir,t->side2);
@@ -109,7 +109,7 @@ IntersectLinear::IntersectLinear(RRMesh* aimporter)
 	if(intptr_t(&box)%16) 
 	{
 		printf("You have created unaligned structure, aborting. Try static or heap if it's on stack now.");
-		assert(!(intptr_t(&box)%16));
+		RR_ASSERT(!(intptr_t(&box)%16));
 		exit(2);
 	}
 #endif
@@ -142,7 +142,7 @@ IntersectLinear::IntersectLinear(RRMesh* aimporter)
 	RRReal tmpy = MAX(fabs(box.max.y),fabs(box.min.y));
 	RRReal tmpz = MAX(fabs(box.max.z),fabs(box.min.z));
 	RRReal maxCoord = MAX(MAX(tmpx,tmpy),tmpz);
-	assert(IS_NUMBER(maxCoord));
+	RR_ASSERT(IS_NUMBER(maxCoord));
 	if(maxCoord==0 || _isnan(maxCoord)) maxCoord = 1;
 	DELTA_BSP = maxCoord*1e-5f;
 }
@@ -190,7 +190,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 
 	bool hit = false;
 	update_rayDir(ray);
-	assert(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
+	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 	FILL_STATISTIC(intersectStats.intersect_linear++);
 #ifdef COLLISION_HANDLER
 	char backup[sizeof(RRRay)];

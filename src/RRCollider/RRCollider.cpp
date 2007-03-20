@@ -72,7 +72,7 @@ RRCollider* RRCollider::create(RRMesh* importer, IntersectTechnique intersectTec
 		case IT_LINEAR: 
 		default:
 		linear:
-			assert(importer);
+			RR_ASSERT(importer);
 			if(!importer) return NULL;
 			return IntersectLinear::create(importer);
 	}

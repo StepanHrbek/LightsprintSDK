@@ -132,7 +132,7 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 			j = size-1-x;
 			break;
 		default:
-			assert(0);
+			RR_ASSERT(0);
 	}
 	#undef TWO_EDGES
 	return neighbour[edge].side*size*size+j*size+i;
@@ -148,17 +148,17 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 {
 	if(!scene)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	if(!object)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	if(!irradianceLdr && !irradianceHdr)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	RRRay* ray6 = RRRay::create(6);
@@ -244,12 +244,12 @@ void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, Interpolator*
 							if(contrib>0)
 							{
 								RRReal iTexelSize = cubeSide[iside].getTexelSize(iSize,ii,ij); //!!! lze predpocitat pro vsechny texely
-								assert(contrib*iTexelSize>0);
+								RR_ASSERT(contrib*iTexelSize>0);
 								sum += contrib*iTexelSize;
 							}
 						}
 				}
-				assert(sum>0);
+				RR_ASSERT(sum>0);
 				for(unsigned iside=0;iside<6;iside++)
 				{
 					for(unsigned ij=0;ij<iSize;ij++)
@@ -355,7 +355,7 @@ static void filterEdges(unsigned iSize, CubeColor* iIrradiance)
 					case RIGHT: i=iSize-1;j=a;edge2=TOP;break;
 					case BOTTOM: i=iSize-1-a;j=iSize-1;edge2=RIGHT;break;
 					case LEFT: i=0;j=iSize-1-a;edge2=BOTTOM;break;
-					default: assert(0);
+					default: RR_ASSERT(0);
 				}
 				unsigned idx1 = side*iSize*iSize+j*iSize+i;
 				unsigned idx2 = cubeSide[side].getNeighbourTexelIndex(iSize,(Edge)edge,i,j);
@@ -391,7 +391,7 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 {
 	if(!gatherSize)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	if(!specularMap)
@@ -400,17 +400,17 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		diffuseSize = 0;
 	if(!specularMap && !diffuseMap)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	if(!scene)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	if(!getMultiObjectCustom())
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 

@@ -67,7 +67,7 @@ namespace rr
 		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
 		void*             getTrianglesEnd()const {return (char*)this+bsp.size;}
 		void              setTransition(bool t) {}
-		void              setKd(bool k)         {assert(allows_kd || !k);kd.kd=k;}
+		void              setKd(bool k)         {RR_ASSERT(allows_kd || !k);kd.kd=k;}
 		bool              contains(TriInfo tri) const
 		{
 			if(bsp.kd==1)
@@ -219,7 +219,7 @@ namespace rr
 		{
 		retry:
 			OBJECT obj;
-			assert(triangles);
+			RR_ASSERT(triangles);
 			obj.face_num = triangles;
 			obj.vertex_num = importer->getNumVertices();
 			obj.face = new FACE[obj.face_num];
@@ -245,13 +245,13 @@ namespace rr
 				obj.face[ii].vertex[2] = &obj.vertex[v[2]];
 				if(intersector->isValidTriangle(i)) obj.face[ii++].id=i;
 			}
-			assert(ii);
+			RR_ASSERT(ii);
 			obj.face_num = ii;
 
 			if(obj.face_num<MIN_TRIANGLES_FOR_SAVE)
 			{
 				// pack tree directly to ram, no saving
-				assert(!tree);
+				RR_ASSERT(!tree);
 				bool ok = createAndSaveBsp IBP2(&obj,buildParams,NULL,(void**)&tree);
 			}
 			else
@@ -260,7 +260,7 @@ namespace rr
 				f = fopen(name,"wb");
 				if(f)
 				{
-					assert(!tree);
+					RR_ASSERT(!tree);
 					bool ok = createAndSaveBsp IBP2(&obj,buildParams,f,NULL);
 					fclose(f);
 					if(!ok)

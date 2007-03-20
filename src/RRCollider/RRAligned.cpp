@@ -9,6 +9,7 @@ namespace rr
 void* AlignedMalloc(size_t size,int byteAlign)
 {
 	void *mallocPtr = malloc(size + byteAlign + sizeof(void*));
+	RR_ASSERT(mallocPtr);
 	size_t ptrInt = (size_t)mallocPtr;
 
 	ptrInt = (ptrInt + byteAlign + sizeof(void*)) / byteAlign * byteAlign;

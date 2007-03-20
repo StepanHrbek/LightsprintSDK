@@ -19,7 +19,7 @@ public:
 		negScaleMakesOuterInner = anegScaleMakesOuterInner;
 		collider = NULL;
 		const RRMatrix3x4* m = inherited->getWorldMatrix();
-		assert(m);
+		RR_ASSERT(m);
 		RRMesh* mesh = new RRTransformedMeshFilter(inherited->getCollider()->getMesh(),m);
 		// it would be possible to reuse collider of aobject, our collider would transform
 		//  both inputs and outputs and call aobject's collider with complicated collisionHandler

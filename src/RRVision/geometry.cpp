@@ -50,8 +50,8 @@ Vec2 ortogonalToLeft(Vec2 a)
 
 Angle angleBetweenNormalized(Vec2 a,Vec2 b)
 {
-	assert(fabs(size(a)-1)<0.001);
-	assert(fabs(size(b)-1)<0.001);
+	RR_ASSERT(fabs(size(a)-1)<0.001);
+	RR_ASSERT(fabs(size(b)-1)<0.001);
 	real r=size2(a-b);
 	return fast_acos(1-r/2);
 }
@@ -67,7 +67,7 @@ Angle angleBetween(Vec2 a,Vec2 b)
 
 RRVec3 RRMatrix3x4::transformedPosition(const RRVec3& a) const
 {
-	assert(m);
+	RR_ASSERT(m);
 	return Vec3(
 	  a[0]*(m)[0][0] + a[1]*(m)[0][1] + a[2]*(m)[0][2] + (m)[0][3],
 	  a[0]*(m)[1][0] + a[1]*(m)[1][1] + a[2]*(m)[1][2] + (m)[1][3],
@@ -76,7 +76,7 @@ RRVec3 RRMatrix3x4::transformedPosition(const RRVec3& a) const
 
 Vec3 RRMatrix3x4::transformedDirection(const RRVec3& a) const
 {
-	assert(m);
+	RR_ASSERT(m);
 	return Vec3(
 		a[0]*(m)[0][0] + a[1]*(m)[0][1] + a[2]*(m)[0][2],
 		a[0]*(m)[1][0] + a[1]*(m)[1][1] + a[2]*(m)[1][2],
@@ -85,7 +85,7 @@ Vec3 RRMatrix3x4::transformedDirection(const RRVec3& a) const
 
 Vec3& RRMatrix3x4::transformPosition(RRVec3& a) const
 {
-	assert(m);
+	RR_ASSERT(m);
 	real _x=a.x,_y=a.y,_z=a.z;
 
 	a.x = _x*(m)[0][0] + _y*(m)[0][1] + _z*(m)[0][2] + (m)[0][3];
@@ -135,7 +135,7 @@ RRReal angleBetweenNormalized(const RRVec3& a,const RRVec3& b)
 {
 	RRReal d = dot(a,b);
 	RRReal angle = fast_acos(MAX(MIN(d,1),-1));
-	assert(IS_NUMBER(angle));
+	RR_ASSERT(IS_NUMBER(angle));
 	return angle;
 }
 
@@ -180,7 +180,7 @@ bool Bound::intersect(Point3 eye,Vec3 direction,real maxDistance)
 	// sphere too far
 	if(distEyeCenter-radius>=maxDistance) return false;
 
-	assert(fabs(size2(direction)-1)<0.001);
+	RR_ASSERT(fabs(size2(direction)-1)<0.001);
 
 #ifdef FAST_BOUND
 	Point3 nearCenter=eye+direction*distEyeCenter;            //3*mul

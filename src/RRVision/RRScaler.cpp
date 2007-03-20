@@ -26,9 +26,9 @@ public:
 	}
 	virtual void getCustomScale(RRColor& color) const
 	{
-		assert(_finite(color[0]));
-		assert(_finite(color[1]));
-		assert(_finite(color[2]));
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
 #ifdef _DEBUG
 		RRColor tmp = color;
 #endif
@@ -37,15 +37,15 @@ public:
 			(color[1]>=0)?pow(color[1],gamma):-pow(-color[1],gamma),
 			(color[2]>=0)?pow(color[2],gamma):-pow(-color[2],gamma)
 			);
-		assert(_finite(color[0]));
-		assert(_finite(color[1]));
-		assert(_finite(color[2]));
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
 	}
 	virtual void getPhysicalScale(RRColor& color) const
 	{
-		assert(_finite(color[0]));
-		assert(_finite(color[1]));
-		assert(_finite(color[2]));
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
 		color = RRColor(
 			// supports negative colors
 			(color[0]>=0)?pow(color[0],invGamma):-pow(-color[0],invGamma),
@@ -56,9 +56,9 @@ public:
 			//pow(color[1],invGamma),
 			//pow(color[2],invGamma)
 			);
-		assert(_finite(color[0]));
-		assert(_finite(color[1]));
-		assert(_finite(color[2]));
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
 	}
 private:
 	RRReal gamma;

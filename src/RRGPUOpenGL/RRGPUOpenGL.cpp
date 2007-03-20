@@ -30,8 +30,8 @@ class CaptureUv : public rr_gl::VertexDataGenerator
 public:
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
-		assert(size==2*sizeof(GLfloat));
-		assert(triangleIndex>=firstCapturedTriangle && triangleIndex<lastCapturedTrianglePlus1);
+		RR_ASSERT(size==2*sizeof(GLfloat));
+		RR_ASSERT(triangleIndex>=firstCapturedTriangle && triangleIndex<lastCapturedTrianglePlus1);
 		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%triCountX)+((vertexIndex==2)?1:0)-triCountX*0.5f+0.1f)/(triCountX*0.5f);
 		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/triCountX)+((vertexIndex==0)?1:0)-triCountY*0.5f+0.1f)/(triCountY*0.5f);
 		// +0.1f makes triangle area larger [in 4x4, from 6 to 10 pixels]
@@ -51,7 +51,7 @@ class CaptureUvIntoLightmap : public rr_gl::VertexDataGenerator
 public:
 	virtual void generateData(unsigned triangleIndex, unsigned vertexIndex, void* vertexData, unsigned size) // vertexIndex=0..2
 	{
-		assert(size==sizeof(rr::RRVec2));
+		RR_ASSERT(size==sizeof(rr::RRVec2));
 		rr::RRMesh::TriangleMapping tm;
 		mesh->getTriangleMapping(triangleIndex,tm);
 		*((rr::RRVec2*)vertexData) = (tm.uv[vertexIndex]-rr::RRVec2(0.5f))*2;
@@ -253,7 +253,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	unsigned numTriangles = mesh->getNumTriangles();
 	if(!numTriangles)
 	{
-		assert(0); // legal, but should not happen in well coded program
+		RR_ASSERT(0); // legal, but should not happen in well coded program
 		return true;
 	}
 
@@ -298,7 +298,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 #endif
 
 	// check that detectSmallMap is big enough for all pixels
-	assert(captureUv->triCountX*triSizeXRead * captureUv->triCountY*triSizeYRead <= smallMapSize);
+	RR_ASSERT(captureUv->triCountX*triSizeXRead * captureUv->triCountY*triSizeYRead <= smallMapSize);
 	//printf("%d %d\n",numTriangles,captureUv->triCountX*captureUv->triCountY);
 	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
 	{

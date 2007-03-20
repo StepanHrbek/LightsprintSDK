@@ -18,7 +18,7 @@ IntersectVerification::IntersectVerification(RRMesh* importer)
 		collider[i] = RRCollider::create(importer,(RRCollider::IntersectTechnique)i);
 		/*if(collider[i]->getTechnique()!=i)
 		{
-			assert(0);
+			RR_ASSERT(0);
 			delete collider[i];
 			collider[i] = RRCollider::create(importer,RRCollider::IT_LINEAR);
 		}*/

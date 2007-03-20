@@ -13,7 +13,7 @@ void RRRealtimeRadiosity::updateVertexLookupTable()
 {
 	if(!getMultiObjectPhysical())
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	preVertex2PostTriangleVertex.resize(objects.size());
@@ -45,10 +45,10 @@ void RRRealtimeRadiosity::updateVertexLookupTable()
 					if(preVertex<numPreImportVertices)
 						preVertex2PostTriangleVertex[objectHandle][preVertex] = std::pair<unsigned,unsigned>(postImportTriangle,v);
 					else
-						assert(0);
+						RR_ASSERT(0);
 				}
 				else
-					assert(0);
+					RR_ASSERT(0);
 			}
 		}
 	}
@@ -63,7 +63,7 @@ void RRRealtimeRadiosity::readVertexResults()
 {
 	if(!scene)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	// for each object
@@ -90,8 +90,8 @@ void RRRealtimeRadiosity::readVertexResults()
 				//	indirect[i] = MAX(0,indirect[i]);
 				for(unsigned i=0;i<3;i++)
 				{
-					assert(_finite(indirect[i]));
-					assert(indirect[i]<1500000);
+					RR_ASSERT(_finite(indirect[i]));
+					RR_ASSERT(indirect[i]<1500000);
 				}
 			}
 			vertexBuffer->setVertex(preImportVertex,indirect);

@@ -17,7 +17,7 @@ public:
 	RRMeshFilter(const RRMesh* original)
 	{
 		inherited = original;
-		assert(inherited);
+		RR_ASSERT(inherited);
 		numVertices = inherited ? inherited->getNumVertices() : 0;
 		numTriangles = inherited ? inherited->getNumTriangles() : 0;
 	}

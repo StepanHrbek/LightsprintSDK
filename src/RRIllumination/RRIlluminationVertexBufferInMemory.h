@@ -1,4 +1,5 @@
 #include "Lightsprint/RRIllumination.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr
 {
@@ -29,12 +30,12 @@ namespace rr
 		{
 			if(!vertices)
 			{
-				assert(0);
+				RR_ASSERT(0);
 				return;
 			}
 			if(vertex>=numVertices)
 			{
-				assert(0);
+				RR_ASSERT(0);
 				return;
 			}
 			vertices[vertex] = color;

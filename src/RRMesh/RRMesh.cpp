@@ -41,7 +41,7 @@ void RRMesh::getTriangleNormals(unsigned t, TriangleNormals& out) const
 	unsigned numTriangles = getNumTriangles();
 	if(t>=numTriangles)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	RRMesh::TriangleBody tb;
@@ -58,7 +58,7 @@ void RRMesh::getTriangleMapping(unsigned t, TriangleMapping& out) const
 	unsigned numTriangles = getNumTriangles();
 	if(t>=numTriangles)
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 

@@ -78,7 +78,7 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 {
 	if(rendering) 
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	rendering = true;
@@ -102,7 +102,7 @@ void RRIlluminationPixelBufferInOpenGL::renderBegin()
 
 void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle& it)
 {
-	assert(rendering);
+	RR_ASSERT(rendering);
 	if(!rendering || !helpers->renderTriangleProgram) return;
 
 	if(!renderTriangleProgramSet)
@@ -122,7 +122,7 @@ void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle
 
 //void RRIlluminationPixelBufferInOpenGL::renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles)
 //{
-//	assert(rendering);
+//	RR_ASSERT(rendering);
 //	if(!rendering) return;
 //	write optimized version with interleaved array
 //}
@@ -138,12 +138,12 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 	}
 	if(uv[0]>=texture->getWidth())
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	if(uv[1]>=texture->getHeight())
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
 	if(renderedTexels[uv[0]+uv[1]*texture->getWidth()]==rr::RRColorRGBA8())
@@ -158,7 +158,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 {
 	if(!rendering) 
 	{
-		assert(rendering);
+		RR_ASSERT(rendering);
 		return;
 	}
 	rendering = false;
@@ -285,7 +285,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 	}
 	else
 	{
-		assert(0);
+		RR_ASSERT(0);
 	}
 
 //ende:
