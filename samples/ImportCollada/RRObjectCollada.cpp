@@ -14,7 +14,7 @@
 // Instancing is supported, multiple instances with different
 // positions and materials share one collider and mesh.
 
-#if 1
+#if 0
 
 #include <cassert>
 #include <cmath>

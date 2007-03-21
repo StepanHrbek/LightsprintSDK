@@ -13,7 +13,7 @@ unsigned INSTANCES_PER_PASS;
 #ifndef THREE_ONE
 	//#define HIGH_DETAIL // uses high detail models
 	//#define SUPPORT_COLLADA
-	#define SUPPORT_BSP
+	//#define SUPPORT_BSP
 #endif
 bool ati = 1;
 bool quadro = 0;
@@ -2437,9 +2437,9 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-	Music n00ly("3+1/31_01.ogg");
+//	Music n00ly("3+1/31_01.ogg");
 //	Music n00ly("music/dlife.xm");
-	//Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
+//	Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
 	
 	srand(11);
 
