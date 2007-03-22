@@ -36,11 +36,22 @@ public:
 
 	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
 	{
-		if(!scaler || cache.find(t)==cache.end())
+		const RRMaterial* custom = original->getTriangleMaterial(t);
+		if(!scaler || !custom)
 		{
-			return original->getTriangleMaterial(t);
+			return custom;
 		}
-		return &cache.find(t)->second;
+		const Cache::const_iterator i = cache.find(custom);
+		if(i==cache.end())
+		{
+			// all materials should be stuffed into cache in update
+			// this could happen only if underlying RRObject returns
+			//  pointer different to what it returned in update
+			//  (= breaks rules)
+			RR_ASSERT(0);
+			return custom;
+		}
+		return &i->second;
 	}
 	void convertToPhysicalFactor(RRColor& factor)
 	{
@@ -75,12 +86,12 @@ public:
 		unsigned numTriangles = original->getCollider()->getMesh()->getNumTriangles();
 		for(unsigned i=0;i<numTriangles;i++)
 		{
-			if(cache.find(i)!=cache.end())
+			const RRMaterial* custom = original->getTriangleMaterial(i);
+			if(cache.find(custom)==cache.end())
 			{
-				const RRMaterial* custom = original->getTriangleMaterial(i);
 				RRMaterial physical;
 				convertToPhysical(*custom,physical);
-				cache.insert(Pair(i,physical));
+				cache.insert(Pair(custom,physical));
 			}
 		}
 	}
@@ -106,8 +117,8 @@ public:
 private:
 	RRObject* original;
 	const RRScaler* scaler;
-	typedef std::pair<unsigned,RRMaterial> Pair;
-	typedef std::map<unsigned,RRMaterial> Cache;
+	typedef std::pair<const RRMaterial*,RRMaterial> Pair;
+	typedef std::map<const RRMaterial*,RRMaterial> Cache;
 	Cache cache;
 };
 
