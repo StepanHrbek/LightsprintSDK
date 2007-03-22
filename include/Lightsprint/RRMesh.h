@@ -415,6 +415,7 @@ namespace rr
 
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
 		//
+		//! If mesh is already optimal or vertexStitchMaxDistance is negative, 'this' is returned.
 		//! \param vertexStitchMaxDistance
 		//!  For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower).
 		//!  For negative value, no stitching is performed.
@@ -422,6 +423,7 @@ namespace rr
 		RRMesh* createOptimizedVertices(float vertexStitchMaxDistance = 0);
 
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
+		//! If mesh is already optimal, 'this' is returned.
 		RRMesh* createOptimizedTriangles();
 
 

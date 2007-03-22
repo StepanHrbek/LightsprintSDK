@@ -45,26 +45,38 @@ public:
 		// equality must be ensured by creator of multiobject.
 		//!!! check equality at construction time
 		pack[0].getMesh()->getChannelSize(channelId,numItems,itemSize);
+		// whole multiobject has more items than one object
+		switch(channelId&0x7ffff000)
+		{
+			case RRMesh::INDEXED_BY_VERTEX:
+				*numItems = RRMeshMulti::getNumVertices();
+				break;
+			case RRMesh::INDEXED_BY_TRIANGLE:
+				*numItems = RRMeshMulti::getNumTriangles();
+				break;
+		}
 	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
 		unsigned pack0Items = 0;
 		switch(channelId&0x7ffff000)
 		{
-		case INDEXED_BY_VERTEX:
-			pack0Items = pack[0].getNumVertices();
-			break;
-		case INDEXED_BY_TRIANGLE:
-			pack0Items = pack[0].getNumTriangles();
-			break;
-		case INDEXED_BY_OBJECT:
-			pack0Items = pack[0].getNumObjects();
-			break;
-		default:
-			return false;
+			case INDEXED_BY_VERTEX:
+				pack0Items = pack[0].getNumVertices();
+				break;
+			case INDEXED_BY_TRIANGLE:
+				pack0Items = pack[0].getNumTriangles();
+				break;
+			case INDEXED_BY_OBJECT:
+				pack0Items = pack[0].getNumObjects();
+				break;
+			default:
+				return false;
 		}
-		if(itemIndex<pack0Items) return pack[0].getMesh()->getChannelData(channelId,itemIndex,itemData,itemSize);
-		return pack[1].getMesh()->getChannelData(channelId,itemIndex-pack0Items,itemData,itemSize);
+		if(itemIndex<pack0Items)
+			return pack[0].getMesh()->getChannelData(channelId,itemIndex,itemData,itemSize);
+		else
+			return pack[1].getMesh()->getChannelData(channelId,itemIndex-pack0Items,itemData,itemSize);
 	}
 
 	// vertices

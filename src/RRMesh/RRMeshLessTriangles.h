@@ -43,6 +43,14 @@ public:
 	}
 
 	// channels
+	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+	{
+		inherited->getChannelSize(channelId,numItems,itemSize);
+		if((channelId&0x7ffff000) == INDEXED_BY_TRIANGLE)
+		{
+			*numItems = ValidIndices;
+		}
+	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
 		if((channelId&0x7ffff000) == INDEXED_BY_TRIANGLE)
@@ -68,6 +76,26 @@ public:
 	{
 		RR_ASSERT(t<ValidIndices);
 		inherited->getTriangle(ValidIndex[t],out);
+	}
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	{
+		if(t>=ValidIndices)
+		{
+			RR_ASSERT(0); // legal but bad practise, good to be warned when it happens
+			return;
+		}
+		t = ValidIndex[t];
+		inherited->getTriangleNormals(t,out);
+	}
+	virtual void getTriangleMapping(unsigned t, TriangleMapping& out) const
+	{
+		if(t>=ValidIndices)
+		{
+			RR_ASSERT(0); // legal but bad practise, good to be warned when it happens
+			return;
+		}
+		t = ValidIndex[t];
+		inherited->getTriangleMapping(t,out);
 	}
 	virtual unsigned getPreImportTriangle(unsigned postImportTriangle) const
 	{

@@ -55,7 +55,7 @@
 // See RRObject and RRMesh documentation for details
 // on individual member functions.
 
-class RRObjectBSP : public rr::RRObject, rr::RRMesh
+class RRObjectBSP : public rr::RRObject, public rr::RRMesh
 {
 public:
 	RRObjectBSP(de::TMapQ3* model, const char* pathToTextures, de::Texture* missingTexture);

@@ -283,13 +283,22 @@ RRMesh* RRMesh::createMultiMesh(RRMesh* const* meshes, unsigned numMeshes)
 
 RRMesh* RRMesh::createOptimizedVertices(float vertexStitchMaxDistance)
 {
-	if(vertexStitchMaxDistance<0) return this;
-	return new RRLessVerticesFilter<unsigned>(this,vertexStitchMaxDistance);
+	if(vertexStitchMaxDistance<0)
+		return this;
+	RRMesh* tmp = new RRLessVerticesFilter<unsigned>(this,vertexStitchMaxDistance);
+	if(tmp->getNumVertices()<getNumVertices())
+		return tmp;
+	delete tmp;
+	return this;
 }
 
 RRMesh* RRMesh::createOptimizedTriangles()
 {
-	return new RRLessTrianglesFilter(this);
+	RRMesh* tmp = new RRLessTrianglesFilter(this);
+	if(tmp->getNumTriangles()<getNumTriangles())
+		return tmp;
+	delete tmp;
+	return this;
 }
 
 unsigned RRMesh::verify()
