@@ -3,6 +3,8 @@
 
 #include "Autopilot.h"
 
+#if 0
+
 LevelSetup koupelna4 =
 {
  //"3ds\\candella\\seen mesh.dae",
@@ -320,6 +322,8 @@ LevelSetup bgmp6 =
  }
 };
 
+#endif
+
 class LevelSequence
 {
 public:
@@ -375,7 +379,6 @@ public:
 	void insertLevelBack(const char* scenename)
 	{
 		LevelSetup* levelSetup = new LevelSetup;
-		levelSetup->clear();
 		levelSetup->load(scenename);
 		insertLevelBack(levelSetup);
 	}

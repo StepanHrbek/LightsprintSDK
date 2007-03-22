@@ -677,8 +677,9 @@ public:
 				eye = frame->eyeLight[0];
 				reportEyeMovement();
 			}
+			//for(AutopilotFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
 			for(unsigned i=0;i<DYNAOBJECTS;i++)
-			if(dynaobject[i])
+			if(dynaobject[i] && frame->dynaPosRot.size()>i)
 			{
 				dynaobject[i]->worldFoot = rr::RRVec3(frame->dynaPosRot[i][0],frame->dynaPosRot[i][1],frame->dynaPosRot[i][2]);
 				dynaobject[i]->rot += rot * ((i%2)?1:-1);// + frame->dynaPosRot[i][3];
@@ -2437,6 +2438,8 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+
 //	Music n00ly("3+1/31_01.ogg");
 //	Music n00ly("music/dlife.xm");
 //	Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
@@ -2451,10 +2454,18 @@ int main(int argc, char **argv)
 		int j=1;
 	}
 */
+#ifdef THREE_ONE
+	levelSequence.insertLevelBack("3+1\\3dtest2_08exp.3DS");
+	levelSequence.insertLevelBack("3+1\\detskypokoj1.3DS");
+	levelSequence.insertLevelBack("3+1\\obyvak2.3DS");
+#else
 	levelSequence.insertLevelBack("3ds\\koupelna\\koupelna4.3ds");
 	levelSequence.insertLevelBack("bsp\\x3map\\maps\\x3map05.bsp");
 	levelSequence.insertLevelBack("bsp\\bgmp\\maps\\bgmp8.bsp");
 	levelSequence.insertLevelBack("bsp\\bgmp\\maps\\bgmp6.bsp");
+#endif
+	const LevelSetup* levelSetup = levelSequence.getNextLevel();
+	levelSetup->save();
 
 	srand(11);
 
@@ -2513,8 +2524,6 @@ int main(int argc, char **argv)
 	ati = !vendor || !renderer || strstr(vendor,"ATI") || strstr(vendor,"AMD") || strstr(renderer,"Radeon");
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
-
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 
 	dynaobjects = quadro ? NULL : new DynamicObjects();
 

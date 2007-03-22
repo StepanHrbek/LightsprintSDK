@@ -10,10 +10,23 @@
 
 struct AutopilotFrame
 {
+	// camera and light
 	de::Camera eyeLight[2];
-	float dynaPosRot[DYNAOBJECTS][4];
-	float staySeconds;
+	// dynamic objects
+	typedef std::vector<rr::RRVec4> DynaPosRot;
+	DynaPosRot dynaPosRot;
+	// thumbnail
 	de::Texture* thumbnail;
+
+	AutopilotFrame()
+	{
+		de::Camera tmp[2] =
+			{{{-3.266,1.236,1.230},9.120,0.100,1.3,45.0,0.3,1000.0},
+			{{-0.791,1.370,1.286},3.475,0.550,1.0,70.0,1.0,20.0}};
+		eyeLight[0] = tmp[0];
+		eyeLight[1] = tmp[1];
+		thumbnail = NULL;
+	}
 
 	// returns blend between this and that frame
 	// return this for alpha=0, that for alpha=1
@@ -21,13 +34,24 @@ struct AutopilotFrame
 	{
 		assert(that);
 		static AutopilotFrame blended;
-		float* a = (float*)this;
-		float* b = (float*)that;
-		float* c = (float*)&blended;
-		for(unsigned i=0;i<sizeof(blended)/sizeof(float);i++)
+		// blend eyeLight
+		float* a = (float*)(this->eyeLight);
+		float* b = (float*)(that->eyeLight);
+		float* c = (float*)(blended.eyeLight);
+		for(unsigned i=0;i<sizeof(eyeLight)/sizeof(float);i++)
 			c[i] = a[i]*(1-alpha) + b[i]*alpha;
 		blended.eyeLight[0].update(0);
 		blended.eyeLight[1].update(0.3f);
+		// blend dynaPosRot
+		blended.dynaPosRot.clear();
+		for(unsigned i=0;i<dynaPosRot.size();i++)
+		{
+			rr::RRVec4 tmp;
+			(rr::RRVec3)tmp = this->dynaPosRot[i]*(1-alpha) + that->dynaPosRot[i]*alpha;
+			tmp[3] = this->dynaPosRot[i][3]*(1-alpha) + that->dynaPosRot[i][3]*alpha; // RRVec4 operators are 3-component
+			blended.dynaPosRot.push_back(tmp);
+		}
+		// blend thumbnail
 		blended.thumbnail = NULL;
 		return &blended;
 	}
@@ -36,14 +60,21 @@ struct AutopilotFrame
 	bool load(FILE* f)
 	{
 		if(!f) return false;
-		for(unsigned i=0;i<2;i++)
-			if(9!=fscanf(f,"{{%f,%f,%f},%f,%f,%f,%f,%f,%f},\n",&eyeLight[i].pos[0],&eyeLight[i].pos[1],&eyeLight[i].pos[2],&eyeLight[i].angle,&eyeLight[i].height,&eyeLight[i].aspect,&eyeLight[i].fieldOfView,&eyeLight[i].anear,&eyeLight[i].afar))
-				return false;
-		for(unsigned i=0;i<DYNAOBJECTS;i++)
-			if(4!=fscanf(f,"{%f,%f,%f,%f},\n",&dynaPosRot[i][0],&dynaPosRot[i][1],&dynaPosRot[i][2],&dynaPosRot[i][3]))
-				return false;
-		if(0!=fscanf(f,"\n"))
+		// load eyeLight
+		unsigned i = 0;
+		if(9!=fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f}\n",&eyeLight[i].pos[0],&eyeLight[i].pos[1],&eyeLight[i].pos[2],&eyeLight[i].angle,&eyeLight[i].height,&eyeLight[i].aspect,&eyeLight[i].fieldOfView,&eyeLight[i].anear,&eyeLight[i].afar))
 			return false;
+		i = 1;
+		if(9!=fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f}\n",&eyeLight[i].pos[0],&eyeLight[i].pos[1],&eyeLight[i].pos[2],&eyeLight[i].angle,&eyeLight[i].height,&eyeLight[i].aspect,&eyeLight[i].fieldOfView,&eyeLight[i].anear,&eyeLight[i].afar))
+			return false;
+		// load dynaPosRot
+		dynaPosRot.clear();
+		rr::RRVec4 tmp;
+		while(4==fscanf(f,"object = {%f,%f,%f,%f}\n",&tmp[0],&tmp[1],&tmp[2],&tmp[3]))
+			dynaPosRot.push_back(tmp);
+		//if(0!=fscanf(f,"\n"))
+		//	return false;
+		rr::RRReporter::report(rr::RRReporter::INFO,"  frame with %d objects\n",dynaPosRot.size());
 		return true;
 	}
 
@@ -51,11 +82,16 @@ struct AutopilotFrame
 	bool save(FILE* f) const
 	{
 		if(!f) return false;
-		for(unsigned i=0;i<2;i++)
-			fprintf(f,"{{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f},\n",eyeLight[i].pos[0],eyeLight[i].pos[1],eyeLight[i].pos[2],fmodf(eyeLight[i].angle+100*3.14159265f,2*3.14159265f),eyeLight[i].height,eyeLight[i].aspect,eyeLight[i].fieldOfView,eyeLight[i].anear,eyeLight[i].afar);
-		for(unsigned i=0;i<DYNAOBJECTS;i++)
-			fprintf(f,"{%.3f,%.3f,%.3f,%.3f},\n",dynaPosRot[i][0],dynaPosRot[i][1],dynaPosRot[i][2],dynaPosRot[i][3]);
+		// save eyeLight
+		unsigned i=0;
+		fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eyeLight[i].pos[0],eyeLight[i].pos[1],eyeLight[i].pos[2],fmodf(eyeLight[i].angle+100*3.14159265f,2*3.14159265f),eyeLight[i].height,eyeLight[i].aspect,eyeLight[i].fieldOfView,eyeLight[i].anear,eyeLight[i].afar);
+		i = 1;
+		fprintf(f,"light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eyeLight[i].pos[0],eyeLight[i].pos[1],eyeLight[i].pos[2],fmodf(eyeLight[i].angle+100*3.14159265f,2*3.14159265f),eyeLight[i].height,eyeLight[i].aspect,eyeLight[i].fieldOfView,eyeLight[i].anear,eyeLight[i].afar);
+		// save dynaPosRot
+		for(DynaPosRot::const_iterator i=dynaPosRot.begin();i!=dynaPosRot.end();i++)
+			fprintf(f,"object = {%.3f,%.3f,%.3f,%.3f}\n",(*i)[0],(*i)[1],(*i)[2],(*i)[3]);
 		fprintf(f,"\n");
+		rr::RRReporter::report(rr::RRReporter::INFO,"  frame with %d objects\n",dynaPosRot.size());
 		return true;
 	}
 };
@@ -73,15 +109,17 @@ struct LevelSetup
 	static LevelSetup* create(const char* filename)
 	{
 		LevelSetup* setup = new LevelSetup;
-		extern LevelSetup koupelna4;
-		*setup = koupelna4;
+		//extern LevelSetup koupelna4;
+		//*setup = koupelna4;
 		setup->filename = _strdup(filename);
 		setup->scale = 1;
 		return setup;
 	};
-	void clear()
+	LevelSetup()
 	{
-		memset(this,0,sizeof(*this));
+		filename = NULL;
+		scale = 1;
+		numFrames = 0;
 	}
 	~LevelSetup()
 	{
@@ -99,6 +137,7 @@ struct LevelSetup
 		filename = _strdup(afilename);
 		char* aniname = _strdup(filename);
 		strcpy(aniname+strlen(aniname)-3,"ani");
+		rr::RRReporter::report(rr::RRReporter::INFO,"Loading %s...\n",aniname);
 		FILE* f = fopen(aniname,"rt");
 		free(aniname);
 		if(1!=fscanf(f,"scale = %f\n\n",&scale))
@@ -115,6 +154,7 @@ struct LevelSetup
 	{
 		char* aniname = _strdup(filename);
 		strcpy(aniname+strlen(aniname)-3,"ani");
+		rr::RRReporter::report(rr::RRReporter::INFO,"Saving %s...\n",aniname);
 		FILE* f = fopen(aniname,"wt");
 		free(aniname);
 		fprintf(f,"scale = %.5f\n\n",scale);
