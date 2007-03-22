@@ -62,6 +62,9 @@ void RRReporter::assertionFailed(const char* expression, const char* func, const
 	if(reporter)
 	{
 		report(ASSE,"failed: %s in %s, file %s, line %d.\n",expression,func,file,line);
+#ifdef RR_STATIC
+		DebugBreak();
+#endif
 	}
 }
 

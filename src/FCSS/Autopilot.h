@@ -13,6 +13,7 @@ struct AutopilotFrame
 	de::Camera eyeLight[2];
 	float dynaPosRot[DYNAOBJECTS][4];
 	float staySeconds;
+	de::Texture* thumbnail;
 
 	// returns blend between this and that frame
 	// return this for alpha=0, that for alpha=1
@@ -27,7 +28,35 @@ struct AutopilotFrame
 			c[i] = a[i]*(1-alpha) + b[i]*alpha;
 		blended.eyeLight[0].update(0);
 		blended.eyeLight[1].update(0.3f);
+		blended.thumbnail = NULL;
 		return &blended;
+	}
+
+	// load frame from opened .ani file
+	bool load(FILE* f)
+	{
+		if(!f) return false;
+		for(unsigned i=0;i<2;i++)
+			if(9!=fscanf(f,"{{%f,%f,%f},%f,%f,%f,%f,%f,%f},\n",&eyeLight[i].pos[0],&eyeLight[i].pos[1],&eyeLight[i].pos[2],&eyeLight[i].angle,&eyeLight[i].height,&eyeLight[i].aspect,&eyeLight[i].fieldOfView,&eyeLight[i].anear,&eyeLight[i].afar))
+				return false;
+		for(unsigned i=0;i<DYNAOBJECTS;i++)
+			if(4!=fscanf(f,"{%f,%f,%f,%f},\n",&dynaPosRot[i][0],&dynaPosRot[i][1],&dynaPosRot[i][2],&dynaPosRot[i][3]))
+				return false;
+		if(0!=fscanf(f,"\n"))
+			return false;
+		return true;
+	}
+
+	// save frame to opened .ani file
+	bool save(FILE* f) const
+	{
+		if(!f) return false;
+		for(unsigned i=0;i<2;i++)
+			fprintf(f,"{{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f},\n",eyeLight[i].pos[0],eyeLight[i].pos[1],eyeLight[i].pos[2],fmodf(eyeLight[i].angle+100*3.14159265f,2*3.14159265f),eyeLight[i].height,eyeLight[i].aspect,eyeLight[i].fieldOfView,eyeLight[i].anear,eyeLight[i].afar);
+		for(unsigned i=0;i<DYNAOBJECTS;i++)
+			fprintf(f,"{%.3f,%.3f,%.3f,%.3f},\n",dynaPosRot[i][0],dynaPosRot[i][1],dynaPosRot[i][2],dynaPosRot[i][3]);
+		fprintf(f,"\n");
+		return true;
 	}
 };
 
@@ -38,6 +67,7 @@ struct LevelSetup
 	float scale;
 	enum {MAX_FRAMES=5};
 	AutopilotFrame frames[MAX_FRAMES];
+	unsigned numFrames;
 
 	// create
 	static LevelSetup* create(const char* filename)
@@ -45,10 +75,57 @@ struct LevelSetup
 		LevelSetup* setup = new LevelSetup;
 		extern LevelSetup koupelna4;
 		*setup = koupelna4;
-		setup->filename = filename;
+		setup->filename = _strdup(filename);
 		setup->scale = 1;
 		return setup;
 	};
+	void clear()
+	{
+		memset(this,0,sizeof(*this));
+	}
+	~LevelSetup()
+	{
+		//free((void*)filename);
+	}
+
+	// load all from .ani
+	// afilename is name of scene, e.g. path/koupelna4.3ds
+	bool load(const char* afilename)
+	{
+		if(!afilename)
+			return false;
+		if(filename)
+			free((void*)filename);
+		filename = _strdup(afilename);
+		char* aniname = _strdup(filename);
+		strcpy(aniname+strlen(aniname)-3,"ani");
+		FILE* f = fopen(aniname,"rt");
+		free(aniname);
+		if(1!=fscanf(f,"scale = %f\n\n",&scale))
+			return false;
+		numFrames = 0;
+		while(frames[numFrames].load(f))
+			numFrames++;
+		fclose(f);
+		return numFrames>0;
+	}
+
+	// save all to .ani file
+	bool save() const
+	{
+		char* aniname = _strdup(filename);
+		strcpy(aniname+strlen(aniname)-3,"ani");
+		FILE* f = fopen(aniname,"wt");
+		free(aniname);
+		fprintf(f,"scale = %.5f\n\n",scale);
+		for(unsigned i=0;i<MAX_FRAMES;i++)
+		{
+			if(!frames[i].save(f))
+				return false;
+		}
+		fclose(f);
+		return true;
+	}
 };
 
 

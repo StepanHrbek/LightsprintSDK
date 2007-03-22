@@ -6,8 +6,8 @@
 LevelSetup koupelna4 =
 {
  //"3ds\\candella\\seen mesh.dae",
- //"3ds\\koupelna\\koupelna4.3ds",
- "collada\\koupelna\\koupelna4.dae",
+ "3ds\\koupelna\\koupelna4.3ds",
+ //"collada\\koupelna\\koupelna4.dae",
  //"h:\\3dsmax\\export\\koupelna4uv2b.dae",
  0.03f,
  {
@@ -325,9 +325,9 @@ class LevelSequence
 public:
 	LevelSequence()
 	{
-		insertLevelBack(LevelSetup::create("3+1\\3dtest2_08exp.3DS"));
-		insertLevelBack(LevelSetup::create("3+1\\detskypokoj1.3DS"));
-		insertLevelBack(LevelSetup::create("3+1\\obyvak2.3DS"));
+//		insertLevelBack(LevelSetup::create("3+1\\3dtest2_08exp.3DS"));
+//		insertLevelBack(LevelSetup::create("3+1\\detskypokoj1.3DS"));
+//		insertLevelBack(LevelSetup::create("3+1\\obyvak2.3DS"));
 
 		//insertLevelBack(LevelSetup::create("3ds\\candella\\seen mesh.3ds"));
 		//insertLevelBack("3ds\\candella\\c-part.3ds");
@@ -337,7 +337,7 @@ public:
 		//insertLevelBack(LevelSetup::create("collada\\koupelna\\koupelna4.dae"));
 		//insertLevelBack(LevelSetup::create("collada\\multimtl.dae"));
 		//insertLevelBack(LevelSetup::create("collada\\cube.dae"));
-
+/*
 		insertLevelBack(&koupelna4);  // ++colorbleed, LIC=OK, 2M
 		insertLevelBack(&x3map05);    // ++ext, originalni geometrie levelu, LIC=OK, 7M
 		insertLevelBack(&bgmp8);      // ++pekne skaly a odrazy od zelene travy, int i ext, chybi malinko textur, LIC=OK, 25M/2
@@ -371,6 +371,13 @@ public:
 	{
 		sequence.push_back(level);
 		it = sequence.begin();
+	}
+	void insertLevelBack(const char* scenename)
+	{
+		LevelSetup* levelSetup = new LevelSetup;
+		levelSetup->clear();
+		levelSetup->load(scenename);
+		insertLevelBack(levelSetup);
 	}
 	const LevelSetup* getNextLevel()
 	{

@@ -9,11 +9,11 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          0
-#define THREE_ONE
+//#define THREE_ONE
 #ifndef THREE_ONE
 	//#define HIGH_DETAIL // uses high detail models
 	//#define SUPPORT_COLLADA
-	//#define SUPPORT_BSP
+	#define SUPPORT_BSP
 #endif
 bool ati = 1;
 bool quadro = 0;
@@ -86,7 +86,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 */
 
 #ifdef SUPPORT_BSP
-	#include "Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
+	#include "../../samples/ImportQuake3/Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
 #endif
 #ifdef MINGW
 	#include <limits> // nutne aby uspel build v gcc4.3
@@ -2440,7 +2440,22 @@ int main(int argc, char **argv)
 //	Music n00ly("3+1/31_01.ogg");
 //	Music n00ly("music/dlife.xm");
 //	Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
-	
+/*
+	for(unsigned i=0;i<4;i++)
+	{
+		const LevelSetup* levelSetup = levelSequence.getNextLevel();
+		levelSetup->save();
+		LevelSetup ls2;
+		ls2.clear();
+		ls2.load("3ds\\koupelna\\koupelna4.ani");
+		int j=1;
+	}
+*/
+	levelSequence.insertLevelBack("3ds\\koupelna\\koupelna4.3ds");
+	levelSequence.insertLevelBack("bsp\\x3map\\maps\\x3map05.bsp");
+	levelSequence.insertLevelBack("bsp\\bgmp\\maps\\bgmp8.bsp");
+	levelSequence.insertLevelBack("bsp\\bgmp\\maps\\bgmp6.bsp");
+
 	srand(11);
 
 	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
