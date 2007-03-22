@@ -15,7 +15,7 @@ struct AutopilotFrame
 	// dynamic objects
 	typedef std::vector<rr::RRVec4> DynaPosRot;
 	DynaPosRot dynaPosRot;
-	// thumbnail
+	// runtime generated
 	de::Texture* thumbnail;
 
 	AutopilotFrame()
@@ -44,12 +44,12 @@ struct AutopilotFrame
 		blended.eyeLight[1].update(0.3f);
 		// blend dynaPosRot
 		blended.dynaPosRot.clear();
-		for(unsigned i=0;i<dynaPosRot.size();i++)
+		for(unsigned i=0;i<this->dynaPosRot.size() && i<that->dynaPosRot.size();i++)
 		{
-			rr::RRVec4 tmp;
-			(rr::RRVec3)tmp = this->dynaPosRot[i]*(1-alpha) + that->dynaPosRot[i]*alpha;
-			tmp[3] = this->dynaPosRot[i][3]*(1-alpha) + that->dynaPosRot[i][3]*alpha; // RRVec4 operators are 3-component
-			blended.dynaPosRot.push_back(tmp);
+			rr::RRVec3 tmp3 = this->dynaPosRot[i]*(1-alpha) + that->dynaPosRot[i]*alpha;
+			rr::RRVec4 tmp4 = rr::RRVec4(tmp3[0],tmp3[1],tmp3[2],0);
+			tmp4[3] = this->dynaPosRot[i][3]*(1-alpha) + that->dynaPosRot[i][3]*alpha; // RRVec4 operators are 3-component
+			blended.dynaPosRot.push_back(tmp4);
 		}
 		// blend thumbnail
 		blended.thumbnail = NULL;
@@ -101,9 +101,8 @@ struct LevelSetup
 	// constant setup
 	const char* filename;
 	float scale;
-	enum {MAX_FRAMES=5};
-	AutopilotFrame frames[MAX_FRAMES];
-	unsigned numFrames;
+	typedef std::list<AutopilotFrame> Frames;
+	Frames frames;
 
 	// create
 	static LevelSetup* create(const char* filename)
@@ -119,11 +118,10 @@ struct LevelSetup
 	{
 		filename = NULL;
 		scale = 1;
-		numFrames = 0;
 	}
 	~LevelSetup()
 	{
-		//free((void*)filename);
+		free((void*)filename);
 	}
 
 	// load all from .ani
@@ -132,8 +130,7 @@ struct LevelSetup
 	{
 		if(!afilename)
 			return false;
-		if(filename)
-			free((void*)filename);
+		free((void*)filename);
 		filename = _strdup(afilename);
 		char* aniname = _strdup(filename);
 		strcpy(aniname+strlen(aniname)-3,"ani");
@@ -142,11 +139,12 @@ struct LevelSetup
 		free(aniname);
 		if(1!=fscanf(f,"scale = %f\n\n",&scale))
 			return false;
-		numFrames = 0;
-		while(frames[numFrames].load(f))
-			numFrames++;
+		frames.clear();
+		AutopilotFrame tmp;
+		while(tmp.load(f))
+			frames.push_back(tmp);
 		fclose(f);
-		return numFrames>0;
+		return frames.size()>0;
 	}
 
 	// save all to .ani file
@@ -158,9 +156,9 @@ struct LevelSetup
 		FILE* f = fopen(aniname,"wt");
 		free(aniname);
 		fprintf(f,"scale = %.5f\n\n",scale);
-		for(unsigned i=0;i<MAX_FRAMES;i++)
+		for(Frames::const_iterator i=frames.begin();i!=frames.end();i++)
 		{
-			if(!frames[i].save(f))
+			if(!(*i).save(f))
 				return false;
 		}
 		fclose(f);
@@ -201,6 +199,9 @@ public:
 	// generates new positions for eye, camera, characters
 	const AutopilotFrame* autopilot(float seconds, bool* lightsChanged)
 	{
+		if(setup->frames.size()==0)
+			return NULL;
+
 		pilotedFrames++;
 		*lightsChanged = false;
 		secondsSinceLastInteraction += seconds;
@@ -233,7 +234,9 @@ public:
 			}
 			*lightsChanged = true;
 		}
-		return (alpha<=0) ? &setup->frames[frameA] : setup->frames[frameA].blend(&setup->frames[frameB],alpha);
+		LevelSetup::Frames::const_iterator a = setup->frames.begin(); for(unsigned i=0;i<frameA;i++) a++;
+		LevelSetup::Frames::const_iterator b = setup->frames.begin(); for(unsigned i=0;i<frameB;i++) b++;
+		return (alpha<=0) ? &(*a) : (*a).blend(&(*b),alpha);
 	}
 
 	bool isTimeToChangeLevel()
@@ -244,21 +247,25 @@ public:
 	const LevelSetup* setup;
 private:
 	bool enabled;
-	unsigned pilotedFrames; // number of frames
+	unsigned pilotedFrames; // number of frames already played
 	float secondsSinceLastInteraction;
 	float secondsSinceFrameA;
 	unsigned frameA; // 0..MAX_FRAMES-1
 	unsigned frameB; // 0..MAX_FRAMES-1
-	char frameVisitedTimes[LevelSetup::MAX_FRAMES]; // how many times was frame visited
+	char frameVisitedTimes[1000]; 
 
 	// picks next frame that was less often selected
 	unsigned getNextFrame()
 	{
+		if(!setup->frames.size())
+		{
+			return 0;
+		}
 //static unsigned q=0;return q++%LevelSetup::MAX_FRAMES;//!!!
 		unsigned best = 0;
 		for(unsigned i=0;i<100;i++)
 		{
-			unsigned j = rand()%LevelSetup::MAX_FRAMES;
+			unsigned j = rand()%setup->frames.size();
 			if(frameVisitedTimes[j]<frameVisitedTimes[best]) best = j;			
 		}
 		frameVisitedTimes[best]++;

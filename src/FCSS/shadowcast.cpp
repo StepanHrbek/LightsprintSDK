@@ -2464,8 +2464,8 @@ int main(int argc, char **argv)
 	levelSequence.insertLevelBack("bsp\\bgmp\\maps\\bgmp8.bsp");
 	levelSequence.insertLevelBack("bsp\\bgmp\\maps\\bgmp6.bsp");
 #endif
-	const LevelSetup* levelSetup = levelSequence.getNextLevel();
-	levelSetup->save();
+//	const LevelSetup* levelSetup = levelSequence.getNextLevel();
+//	levelSetup->save();
 
 	srand(11);
 
