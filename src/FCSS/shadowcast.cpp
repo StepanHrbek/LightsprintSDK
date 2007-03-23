@@ -661,25 +661,39 @@ public:
 	}
 
 	// copy animation data from frame to actual scene
-	void copyAnimationFrameToScene(const AnimationFrame* frame, bool lightsChanged, float rot)
+	void copyAnimationFrameToScene(const AnimationFrame& frame, bool lightsChanged, float rot)
 	{
 		assert(onlyDynaObjectNumber==1000);
 		if(lightsChanged)
 		{
-			light = frame->eyeLight[1];
+			light = frame.eyeLight[1];
 			reportLightMovement();
-			eye = frame->eyeLight[0];
+			eye = frame.eyeLight[0];
 			reportEyeMovement();
 		}
 		//for(AnimationFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
 		for(unsigned i=0;i<DYNAOBJECTS;i++)
-			if(dynaobject[i] && frame->dynaPosRot.size()>i)
+			if(dynaobject[i] && frame.dynaPosRot.size()>i)
 			{
-				dynaobject[i]->worldFoot = rr::RRVec3(frame->dynaPosRot[i][0],frame->dynaPosRot[i][1],frame->dynaPosRot[i][2]);
+				dynaobject[i]->worldFoot = rr::RRVec3(frame.dynaPosRot[i][0],frame.dynaPosRot[i][1],frame.dynaPosRot[i][2]);
 				dynaobject[i]->rot += rot * ((i%2)?1:-1);// + frame->dynaPosRot[i][3];
 				dynaobject[i]->updatePosition();
 				// copy changes to AI
 				dynaobjectAI[i].pos = dynaobject[i]->worldFoot;
+			}
+	}
+
+	// copy animation data from frame to actual scene
+	void copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& frame)
+	{
+		assert(onlyDynaObjectNumber==1000);
+		frame.eyeLight[0] = eye;
+		frame.eyeLight[1] = light;
+		for(unsigned i=0;i<DYNAOBJECTS;i++)
+			if(dynaobject[i])
+			{
+				frame.dynaPosRot.clear();
+				frame.dynaPosRot.push_back(rr::RRVec4(dynaobject[i]->worldFoot,dynaobject[i]->rot));
 			}
 	}
 
@@ -694,7 +708,7 @@ public:
 		if(frame)
 		{
 			// autopilot movement
-			copyAnimationFrameToScene(frame,lightsChanged,rot);
+			copyAnimationFrameToScene(*frame,lightsChanged,rot);
 		}
 		else
 		{
@@ -752,6 +766,7 @@ private:
 	DynamicObject* dynaobject[DYNAOBJECTS];
 	DynamicObjectAI dynaobjectAI[DYNAOBJECTS];
 };
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1085,6 +1100,39 @@ void drawEyeViewSoftShadowed(void)
 	}
 
 	glAccum(GL_RETURN,1);
+}
+
+// captures current scene into thumbnail
+void updateThumbnail(AnimationFrame& frame)
+{
+	// set frame
+	dynaobjects->copyAnimationFrameToScene(frame,true,0);
+	// calculate
+	level->solver->calculate();
+	level->solver->calculate();
+	// update shadows in advance, so following render doesn't touch FBO
+	unsigned numInstances = areaLight->getNumInstances();
+	for(unsigned j=0;j<numInstances;j++)
+	{
+		updateDepthMap(j,numInstances);
+	}
+	// render into thumbnail
+	if(!frame.thumbnail)
+		frame.thumbnail = de::Texture::create(NULL,160,120,false,GL_RGB);
+	glViewport(0,0,160,120);
+	frame.thumbnail->renderingToBegin();
+	drawEyeViewSoftShadowed();
+	frame.thumbnail->renderingToEnd();
+	glViewport(0,0,winWidth,winHeight);
+}
+
+// fills animation frame with current scene
+// generates thumbnail
+// called from AnimationEditor
+void copySceneToAnimationFrame(AnimationFrame& frame)
+{
+	dynaobjects->copySceneToAnimationFrame_ignoreThumbnail(frame);
+	updateThumbnail(frame);
 }
 
 static void output(int x, int y, const char *string)
@@ -1594,25 +1642,7 @@ void display()
 		// capture thumbnails
 		for(LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
 		{
-			// set frame
-			dynaobjects->copyAnimationFrameToScene(&*i,true,0);
-			// calculate
-			level->solver->calculate();
-			level->solver->calculate();
-			// update shadows in advance, so following render doesn't touch FBO
-			unsigned numInstances = areaLight->getNumInstances();
-			for(unsigned j=0;j<numInstances;j++)
-			{
-				updateDepthMap(j,numInstances);
-			}
-			// render into thumbnail
-			if(!(*i).thumbnail)
-				(*i).thumbnail = de::Texture::create(NULL,160,120,false,GL_RGB);
-			glViewport(0,0,160,120);
-			(*i).thumbnail->renderingToBegin();
-			drawEyeViewSoftShadowed();
-			(*i).thumbnail->renderingToEnd();
-			glViewport(0,0,winWidth,winHeight);
+			updateThumbnail(*i);
 		}
 
 		// don't display first frame, characters have bad position (dunno why)
@@ -1813,7 +1843,9 @@ void special(int c, int x, int y)
 		return;
 	}
 
-	if(level && level->animationEditor.special(c,x,y))
+	if(level 
+		&& (x||y) // arrows simulated by w/s/a/d are not intended for editor
+		&& level->animationEditor.special(c,x,y))
 	{
 		level->pilot.reportInteraction();
 		return;

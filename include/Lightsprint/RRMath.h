@@ -119,6 +119,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 
 		RRVec4()                                    {}
 		explicit RRVec4(RRReal a)                   {x=y=z=w=a;}
+		RRVec4(const RRVec3& a,RRReal aw)           {x=a.x;y=a.y;z=a.z;w=aw;}
 		RRVec4(RRReal ax,RRReal ay,RRReal az,RRReal aw) {x=ax;y=ay;z=az;w=aw;}
 		void   operator =(const RRVec3 a)           {x=a.x;y=a.y;z=a.z;}
 		/*

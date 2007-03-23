@@ -46,10 +46,10 @@ struct AnimationFrame
 		blended.dynaPosRot.clear();
 		for(unsigned i=0;i<this->dynaPosRot.size() && i<that->dynaPosRot.size();i++)
 		{
-			rr::RRVec3 tmp3 = this->dynaPosRot[i]*(1-alpha) + that->dynaPosRot[i]*alpha;
-			rr::RRVec4 tmp4 = rr::RRVec4(tmp3[0],tmp3[1],tmp3[2],0);
-			tmp4[3] = this->dynaPosRot[i][3]*(1-alpha) + that->dynaPosRot[i][3]*alpha; // RRVec4 operators are 3-component
-			blended.dynaPosRot.push_back(tmp4);
+			rr::RRVec4 tmp = rr::RRVec4(
+				this->dynaPosRot[i]   *(1-alpha) + that->dynaPosRot[i]   *alpha,
+				this->dynaPosRot[i][3]*(1-alpha) + that->dynaPosRot[i][3]*alpha); // RRVec4 operators are 3-component
+			blended.dynaPosRot.push_back(tmp);
 		}
 		// blend thumbnail
 		blended.thumbnail = NULL;
@@ -280,7 +280,7 @@ public:
 	void renderThumbnails(de::TextureRenderer* renderer)
 	{
 		unsigned index = 0;
-		unsigned count = MIN(6,setup->frames.size()+1);
+		unsigned count = MAX(6,setup->frames.size()+1);
 		for(LevelSetup::Frames::const_iterator i=setup->frames.begin();;i++,index++)
 		{
 			float x = index/(float)count;
@@ -315,7 +315,14 @@ public:
 	{
 		switch(c)
 		{
-			case ' ':;
+			case 127: // DELETE
+				{LevelSetup::Frames::iterator i=setup->frames.begin();
+				for(unsigned j=0;j<frameCursor;j++) i++;
+				if(i!=setup->frames.end())
+					setup->frames.erase(i);
+				return true;}
+			//default:
+			//	printf("key=%d\n",(int)c);
 		}
 		return false;
 	}
@@ -335,6 +342,14 @@ public:
 			case GLUT_KEY_RIGHT:
 				if(frameCursor<setup->frames.size()) frameCursor++;
 				return true;
+			case GLUT_KEY_INSERT:
+				{LevelSetup::Frames::iterator i=setup->frames.begin();
+				for(unsigned j=0;j<frameCursor;j++) i++;
+				AnimationFrame tmp;
+				extern void copySceneToAnimationFrame(AnimationFrame& frame);
+				copySceneToAnimationFrame(tmp);
+				setup->frames.insert(i,tmp);
+				return true;}
 		}
 		return false;
 	}
