@@ -88,6 +88,7 @@ bool TextureGL::reset(unsigned awidth, unsigned aheight, Format aformat, unsigne
 		case TF_NONE: glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 4; break;
 	}
 
+	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	if(glformat==GL_DEPTH_COMPONENT)

@@ -47,7 +47,6 @@ bool TextureRenderer::renderEnvironmentBegin()
 	// backup render states
 	culling = glIsEnabled(GL_CULL_FACE);
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
-	depthMask;
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
 	// setup render states
 	glDisable(GL_DEPTH_TEST);
@@ -98,9 +97,8 @@ void TextureRenderer::render2D(Texture* texture,float color[4], float x,float y,
 		return;
 	}
 	// backup render states
-	GLboolean culling = glIsEnabled(GL_CULL_FACE);
-	GLboolean depthTest = glIsEnabled(GL_DEPTH_TEST);
-	GLboolean depthMask;
+	culling = glIsEnabled(GL_CULL_FACE);
+	depthTest = glIsEnabled(GL_DEPTH_TEST);
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
 	// setup render states
 	glDisable(GL_DEPTH_TEST);
@@ -112,14 +110,14 @@ void TextureRenderer::render2D(Texture* texture,float color[4], float x,float y,
 	twodProgram->sendUniform("map",0);
 	twodProgram->sendUniform("color",color?color[0]:1,color?color[1]:1,color?color[2]:1,color?color[3]:1);
 	glBegin(GL_POLYGON);
-	glTexCoord2f(0,0);
-	glVertex2f(2*x-1,2*y-1);
-	glTexCoord2f(1,0);
-	glVertex2f(2*(x+w)-1,2*y-1);
-	glTexCoord2f(1,1);
-	glVertex2f(2*(x+w)-1,2*(y+h)-1);
-	glTexCoord2f(0,1);
-	glVertex2f(2*x-1,2*(y+h)-1);
+		glTexCoord2f(0,0);
+		glVertex2f(2*x-1,2*y-1);
+		glTexCoord2f(1,0);
+		glVertex2f(2*(x+w)-1,2*y-1);
+		glTexCoord2f(1,1);
+		glVertex2f(2*(x+w)-1,2*(y+h)-1);
+		glTexCoord2f(0,1);
+		glVertex2f(2*x-1,2*(y+h)-1);
 	glEnd();
 	// restore render states
 	if(depthTest) glEnable(GL_DEPTH_TEST);

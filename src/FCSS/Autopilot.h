@@ -272,7 +272,7 @@ public:
 	{
 		setup = levelSetup;
 		movieClipMap = de::Texture::load("maps\\movie_clip.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-		cursorMap = de::Texture::load("maps\\cursor2.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		cursorMap = de::Texture::load("maps\\cursor.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 		frameCursor = 0;
 	}
 	~AnimationEditor()
@@ -304,6 +304,8 @@ public:
 			{
 				GLboolean blend = glIsEnabled(GL_BLEND);
 				glEnable(GL_BLEND);
+				//glBlendFunc(GL_ONE,GL_ONE);
+				//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				renderer->render2D(cursorMap,NULL,x,y+h*0.6f,w*0.3f,h*0.4f);
 				if(!blend)
 					glDisable(GL_BLEND);
