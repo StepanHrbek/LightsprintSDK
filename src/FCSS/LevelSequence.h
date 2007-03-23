@@ -1,7 +1,7 @@
 #ifndef LEVELSEQUENCE_H
 #define LEVELSEQUENCE_H
 
-#include "Autopilot.h"
+#include "AnimationScene.h"
 
 #if 0
 

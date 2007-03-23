@@ -374,6 +374,34 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\AnimationEditor.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\AnimationEditor.h"
+			>
+		</File>
+		<File
+			RelativePath=".\AnimationFrame.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\AnimationFrame.h"
+			>
+		</File>
+		<File
+			RelativePath=".\AnimationScene.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\AnimationScene.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Autopilot.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Autopilot.h"
 			>
 		</File>

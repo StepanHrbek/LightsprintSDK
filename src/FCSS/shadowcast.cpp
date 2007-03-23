@@ -9,7 +9,7 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          0
-//#define THREE_ONE
+#define THREE_ONE
 #ifndef THREE_ONE
 	//#define HIGH_DETAIL // uses high detail models
 	//#define SUPPORT_COLLADA
@@ -125,6 +125,8 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DynamicObject.h"
 #include "Bugs.h"
 #include "LevelSequence.h"
+#include "AnimationEditor.h"
+#include "Autopilot.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
