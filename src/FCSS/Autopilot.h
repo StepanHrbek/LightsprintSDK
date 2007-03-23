@@ -107,6 +107,7 @@ struct LevelSetup
 	LevelSetup(const char* afilename)
 	{
 		filename = NULL;
+		scale = 1;
 		load(afilename);
 	};
 	~LevelSetup()
