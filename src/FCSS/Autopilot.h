@@ -156,6 +156,13 @@ struct LevelSetup
 		fclose(f);
 		return true;
 	}
+
+	Frames::iterator getFrame(unsigned index)
+	{
+		Frames::iterator i=frames.begin();
+		for(unsigned j=0;j<index;j++) i++;
+		return i;
+	}
 };
 
 
@@ -355,6 +362,20 @@ public:
 				copySceneToAnimationFrame(tmp);
 				setup->frames.insert(i,tmp);
 				return true;}
+			case GLUT_KEY_PAGE_UP:
+				if(frameCursor)
+				{
+					std::swap(*setup->getFrame(frameCursor),*setup->getFrame(frameCursor-1));
+					frameCursor--;
+				}
+				return true;
+			case GLUT_KEY_PAGE_DOWN:
+				if(frameCursor+1<setup->frames.size())
+				{
+					std::swap(*setup->getFrame(frameCursor),*setup->getFrame(frameCursor+1));
+					frameCursor++;
+				}
+				return true;
 		}
 		return false;
 	}
