@@ -8,7 +8,7 @@
 #include "Lightsprint/DemoEngine/Camera.h"
 #include "Lightsprint/RRMath.h"
 
-struct AutopilotFrame
+struct AnimationFrame
 {
 	// camera and light
 	de::Camera eyeLight[2];
@@ -18,7 +18,7 @@ struct AutopilotFrame
 	// runtime generated
 	de::Texture* thumbnail;
 
-	AutopilotFrame()
+	AnimationFrame()
 	{
 		de::Camera tmp[2] =
 			{{{-3.266,1.236,1.230},9.120,0.100,1.3,45.0,0.3,1000.0},
@@ -30,10 +30,10 @@ struct AutopilotFrame
 
 	// returns blend between this and that frame
 	// return this for alpha=0, that for alpha=1
-	const AutopilotFrame* blend(const AutopilotFrame* that, float alpha) const
+	const AnimationFrame* blend(const AnimationFrame* that, float alpha) const
 	{
 		assert(that);
-		static AutopilotFrame blended;
+		static AnimationFrame blended;
 		// blend eyeLight
 		float* a = (float*)(this->eyeLight);
 		float* b = (float*)(that->eyeLight);
@@ -101,24 +101,13 @@ struct LevelSetup
 	// constant setup
 	const char* filename;
 	float scale;
-	typedef std::list<AutopilotFrame> Frames;
+	typedef std::list<AnimationFrame> Frames;
 	Frames frames;
 
-	// create
-	static LevelSetup* create(const char* filename)
+	LevelSetup(const char* filename)
 	{
-		LevelSetup* setup = new LevelSetup;
-		//extern LevelSetup koupelna4;
-		//*setup = koupelna4;
-		setup->filename = _strdup(filename);
-		setup->scale = 1;
-		return setup;
+		load(filename);
 	};
-	LevelSetup()
-	{
-		filename = NULL;
-		scale = 1;
-	}
 	~LevelSetup()
 	{
 		free((void*)filename);
@@ -140,7 +129,7 @@ struct LevelSetup
 		if(1!=fscanf(f,"scale = %f\n\n",&scale))
 			return false;
 		frames.clear();
-		AutopilotFrame tmp;
+		AnimationFrame tmp;
 		while(tmp.load(f))
 			frames.push_back(tmp);
 		fclose(f);
@@ -181,7 +170,7 @@ public:
 		TIME_OF_STAY_STILL   = 4,  // seconds, length of flight between two frames
 		TIME_TO_CHANGE_LEVEL = 60,
 	};
-	Autopilot(const LevelSetup* levelSetup)
+	Autopilot(LevelSetup* levelSetup)
 	{
 		memset(this,0,sizeof(*this));
 		setup = levelSetup;
@@ -197,7 +186,7 @@ public:
 	}
 
 	// generates new positions for eye, camera, characters
-	const AutopilotFrame* autopilot(float seconds, bool* lightsChanged)
+	const AnimationFrame* autopilot(float seconds, bool* lightsChanged)
 	{
 		if(setup->frames.size()==0)
 			return NULL;
@@ -244,7 +233,25 @@ public:
 		return secondsSinceLastInteraction>TIME_TO_CHANGE_LEVEL+TIME_TO_AUTOPILOT;
 	}
 
-	const LevelSetup* setup;
+	void renderThumbnails(de::TextureRenderer* renderer, de::Texture* movieClip)
+	{
+		unsigned index = 0;
+		unsigned count = MIN(6,setup->frames.size()+1);
+		for(LevelSetup::Frames::const_iterator i=setup->frames.begin();i!=setup->frames.end();i++)
+		{
+			float x = index/(float)count;
+			float y = 0;
+			float w = 1/(float)count;
+			float h = 0.15f;
+			float intensity = (index==frameA || (index==frameB && secondsSinceFrameA>TIME_OF_STAY_STILL))?1:0.1f;
+			renderer->render2D(movieClip,intensity,x,y,w,h);
+			if((*i).thumbnail)
+				renderer->render2D((*i).thumbnail,1,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
+			index++;
+		}
+	}
+
+	LevelSetup* setup;
 private:
 	bool enabled;
 	unsigned pilotedFrames; // number of frames already played
@@ -252,8 +259,9 @@ private:
 	float secondsSinceFrameA;
 	unsigned frameA; // 0..MAX_FRAMES-1
 	unsigned frameB; // 0..MAX_FRAMES-1
+	unsigned frameCursor; // 0..MAX_FRAMES
 	char frameVisitedTimes[1000]; 
-
+	
 	// picks next frame that was less often selected
 	unsigned getNextFrame()
 	{

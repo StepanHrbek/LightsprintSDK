@@ -366,33 +366,31 @@ public:
 		insertLevelBack("3ds\\koupelna\\koupelna41.3ds");            // vse spojene do 1 objektu
 		*/
 	}
-	void insertLevelFront(const LevelSetup* level)
+	void insertLevelFront(LevelSetup* level)
 	{
 		sequence.push_front(level);
 		it = sequence.begin();
 	}
-	void insertLevelBack(const LevelSetup* level)
+	void insertLevelBack(LevelSetup* level)
 	{
 		sequence.push_back(level);
 		it = sequence.begin();
 	}
 	void insertLevelBack(const char* scenename)
 	{
-		LevelSetup* levelSetup = new LevelSetup;
-		levelSetup->load(scenename);
-		insertLevelBack(levelSetup);
+		insertLevelBack(new LevelSetup(scenename));
 	}
-	const LevelSetup* getNextLevel()
+	LevelSetup* getNextLevel()
 	{
 		if(it==sequence.end()) return NULL;
-		const LevelSetup* result = *it;
+		LevelSetup* result = *it;
 		it++;
 		if(it==sequence.end()) it=sequence.begin();
 		return result;
 	}
 private:
-	std::list<const LevelSetup*> sequence;
-	std::list<const LevelSetup*>::iterator it;
+	std::list<LevelSetup*> sequence;
+	std::list<LevelSetup*>::iterator it;
 };
 
 #endif

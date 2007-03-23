@@ -25,10 +25,15 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 	_snprintf(buf2,999,"%ssky.fp",pathToShaders);
 	skyProgram = de::Program::create(NULL,buf1,buf2);
 	if(!skyProgram) printf("Helper shaders failed: %s/sky.*\n",pathToShaders);
+	_snprintf(buf1,999,"%stexture.vp",pathToShaders);
+	_snprintf(buf2,999,"%stexture.fp",pathToShaders);
+	twodProgram = de::Program::create(NULL,buf1,buf2);
+	if(!twodProgram) printf("Helper shaders failed: %s/texture.*\n",pathToShaders);
 }
 
 TextureRenderer::~TextureRenderer()
 {
+	delete twodProgram;
 	delete skyProgram;
 }
 
@@ -64,5 +69,42 @@ void TextureRenderer::renderEnvironment(Texture* texture)
 	if(depthMask) glDepthMask(GL_TRUE);
 	if(culling) glEnable(GL_CULL_FACE);
 };
+
+void TextureRenderer::render2D(Texture* texture,float intensity, float x,float y,float w,float h)
+{
+	if(!texture || !twodProgram)
+	{
+		assert(0);
+		return;
+	}
+	// backup render states
+	GLboolean culling = glIsEnabled(GL_CULL_FACE);
+	GLboolean depthTest = glIsEnabled(GL_DEPTH_TEST);
+	GLboolean depthMask;
+	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
+	// setup render states
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(0);
+	// render cube
+	twodProgram->useIt();
+	glActiveTexture(GL_TEXTURE0);
+	texture->bindTexture();
+	twodProgram->sendUniform("map",0);
+	twodProgram->sendUniform("color",intensity,intensity,intensity,intensity);
+	glBegin(GL_POLYGON);
+	glTexCoord2f(0,0);
+	glVertex2f(2*x-1,2*y-1);
+	glTexCoord2f(1,0);
+	glVertex2f(2*(x+w)-1,2*y-1);
+	glTexCoord2f(1,1);
+	glVertex2f(2*(x+w)-1,2*(y+h)-1);
+	glTexCoord2f(0,1);
+	glVertex2f(2*x-1,2*(y+h)-1);
+	glEnd();
+	// restore render states
+	if(depthTest) glEnable(GL_DEPTH_TEST);
+	if(depthMask) glDepthMask(GL_TRUE);
+	if(culling) glEnable(GL_CULL_FACE);
+}
 
 }; // namespace

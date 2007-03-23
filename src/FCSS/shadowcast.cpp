@@ -166,7 +166,7 @@ public:
 	rr_gl::RendererOfRRObject* rendererNonCaching;
 	de::RendererWithCache* rendererCaching;
 
-	Level(const LevelSetup* levelSetup);
+	Level(LevelSetup* levelSetup);
 	~Level();
 };
 
@@ -185,6 +185,7 @@ unsigned lightDirectMapIdx = 0;
 de::Texture* loadingMap = NULL;
 de::Texture* hintMap = NULL;
 de::Texture* lightsprintMap = NULL;
+de::Texture* movieClipMap = NULL;
 de::Program* ambientProgram;
 de::Texture* skyMap;
 de::TextureRenderer* skyRenderer;
@@ -359,6 +360,7 @@ void init_gl_resources()
 	loadingMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	hintMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity_hints.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	lightsprintMap = de::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
+	movieClipMap = de::Texture::load("maps\\movie_clip.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
 	uberProgram = new de::UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	de::UberProgramSetup uberProgramSetup;
@@ -386,6 +388,7 @@ void done_gl_resources()
 	delete loadingMap;
 	delete hintMap;
 	delete lightsprintMap;
+	delete movieClipMap;
 	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
 	delete areaLight;
 	gluDeleteQuadric(quadric);
@@ -658,27 +661,20 @@ public:
 			dynaobject[objIndex]->rot += 1.1f;
 		}
 	}
-	void updateSceneDynamic(float seconds, unsigned onlyDynaObjectNumber=1000)
+
+	// copy animation data from frame to actual scene
+	void copyAnimationFrameToScene(const AnimationFrame* frame, bool lightsChanged, float rot)
 	{
-		if(!dynaobjects) return;
-		// increment rotation
-		float rot = seconds*70;
-		// move objects
-		bool lightsChanged = false;
-		const AutopilotFrame* frame = level ? level->pilot.autopilot(seconds,&lightsChanged) : NULL;
-		if(frame)
+		assert(onlyDynaObjectNumber==1000);
+		if(lightsChanged)
 		{
-			// autopilot movement
-			assert(onlyDynaObjectNumber==1000);
-			if(lightsChanged)
-			{
-				light = frame->eyeLight[1];
-				reportLightMovement();
-				eye = frame->eyeLight[0];
-				reportEyeMovement();
-			}
-			//for(AutopilotFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
-			for(unsigned i=0;i<DYNAOBJECTS;i++)
+			light = frame->eyeLight[1];
+			reportLightMovement();
+			eye = frame->eyeLight[0];
+			reportEyeMovement();
+		}
+		//for(AnimationFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
+		for(unsigned i=0;i<DYNAOBJECTS;i++)
 			if(dynaobject[i] && frame->dynaPosRot.size()>i)
 			{
 				dynaobject[i]->worldFoot = rr::RRVec3(frame->dynaPosRot[i][0],frame->dynaPosRot[i][1],frame->dynaPosRot[i][2]);
@@ -687,6 +683,20 @@ public:
 				// copy changes to AI
 				dynaobjectAI[i].pos = dynaobject[i]->worldFoot;
 			}
+	}
+
+	void updateSceneDynamic(float seconds, unsigned onlyDynaObjectNumber=1000)
+	{
+		if(!dynaobjects) return;
+		// increment rotation
+		float rot = seconds*70;
+		// move objects
+		bool lightsChanged = false;
+		const AnimationFrame* frame = level ? level->pilot.autopilot(seconds,&lightsChanged) : NULL;
+		if(frame)
+		{
+			// autopilot movement
+			copyAnimationFrameToScene(frame,lightsChanged,rot);
 		}
 		else
 		{
@@ -1286,7 +1296,7 @@ void showLogo(const de::Texture* logo)
 //
 // Level body
 
-Level::Level(const LevelSetup* levelSetup) : pilot(levelSetup)
+Level::Level(LevelSetup* levelSetup) : pilot(levelSetup)
 {
 	solver = NULL;
 	bugs = NULL;
@@ -1582,6 +1592,31 @@ void display()
 		for(unsigned i=0;i<12;i++)
 #endif
 			level->solver->calculate();
+
+		// capture thumbnails
+		for(LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
+		{
+			// set frame
+			dynaobjects->copyAnimationFrameToScene(&*i,true,0);
+			// calculate
+			level->solver->calculate();
+			level->solver->calculate();
+			// update shadows in advance, so following render doesn't touch FBO
+			unsigned numInstances = areaLight->getNumInstances();
+			for(unsigned j=0;j<numInstances;j++)
+			{
+				updateDepthMap(j,numInstances);
+			}
+			// render into thumbnail
+			if(!(*i).thumbnail)
+				(*i).thumbnail = de::Texture::create(NULL,160,120,false,GL_RGB);
+			glViewport(0,0,160,120);
+			(*i).thumbnail->renderingToBegin();
+			drawEyeViewSoftShadowed();
+			(*i).thumbnail->renderingToEnd();
+			glViewport(0,0,winWidth,winHeight);
+		}
+
 		// don't display first frame, characters have bad position (dunno why)
 		skipFrames = 1;
 	}
@@ -1641,6 +1676,8 @@ void display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	showLogo(lightsprintMap);
+
+	level->pilot.renderThumbnails(skyRenderer,movieClipMap);
 
 	drawHelpMessage(showHelp);
 
@@ -2430,7 +2467,7 @@ void parseOptions(int argc, char **argv)
 			twosided = 1;
 		}
 		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS") || strstr(argv[i], ".bsp") || strstr(argv[i], ".BSP")) {
-			levelSequence.insertLevelFront(LevelSetup::create(argv[i]));
+			levelSequence.insertLevelFront(new LevelSetup(argv[i]));
 		}
 	}
 }

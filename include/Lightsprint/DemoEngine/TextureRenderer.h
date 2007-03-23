@@ -21,7 +21,7 @@ namespace de
 //
 //! Could be extended to support 2D textures.
 //! It handles resource (shader) allocation/freeing.
-//! Needs sky.vp/fp shaders on disk.
+//! Needs sky.vp/fp and texture.vp/fp shaders on disk.
 class DE_API TextureRenderer
 {
 public:
@@ -34,8 +34,13 @@ public:
 	//! Renders cube texture as sky around camera.
 	void renderEnvironment(Texture* texture);
 
+	//! Renders 2d texture into rectangle.
+	//! x/y/w/h are in 0..1 space, x/y is top left corner.
+	void render2D(Texture* texture,float intensity, float x,float y,float w,float h);
+
 private:
 	class Program *skyProgram;
+	class Program *twodProgram;
 };
 
 }; // namespace
