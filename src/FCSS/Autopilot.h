@@ -233,24 +233,6 @@ public:
 		return secondsSinceLastInteraction>TIME_TO_CHANGE_LEVEL+TIME_TO_AUTOPILOT;
 	}
 
-	void renderThumbnails(de::TextureRenderer* renderer, de::Texture* movieClip)
-	{
-		unsigned index = 0;
-		unsigned count = MIN(6,setup->frames.size()+1);
-		for(LevelSetup::Frames::const_iterator i=setup->frames.begin();i!=setup->frames.end();i++)
-		{
-			float x = index/(float)count;
-			float y = 0;
-			float w = 1/(float)count;
-			float h = 0.15f;
-			float intensity = (index==frameA || (index==frameB && secondsSinceFrameA>TIME_OF_STAY_STILL))?1:0.1f;
-			renderer->render2D(movieClip,intensity,x,y,w,h);
-			if((*i).thumbnail)
-				renderer->render2D((*i).thumbnail,1,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
-			index++;
-		}
-	}
-
 	LevelSetup* setup;
 private:
 	bool enabled;
@@ -259,7 +241,6 @@ private:
 	float secondsSinceFrameA;
 	unsigned frameA; // 0..MAX_FRAMES-1
 	unsigned frameB; // 0..MAX_FRAMES-1
-	unsigned frameCursor; // 0..MAX_FRAMES
 	char frameVisitedTimes[1000]; 
 	
 	// picks next frame that was less often selected
@@ -281,5 +262,88 @@ private:
 	}
 };
 
+class AnimationEditor
+{
+public:
+	AnimationEditor(LevelSetup* levelSetup)
+	{
+		setup = levelSetup;
+		movieClipMap = de::Texture::load("maps\\movie_clip.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		cursorMap = de::Texture::load("maps\\cursor2.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		frameCursor = 0;
+	}
+	~AnimationEditor()
+	{
+		delete movieClipMap;
+		delete cursorMap;
+	}
+	void renderThumbnails(de::TextureRenderer* renderer)
+	{
+		unsigned index = 0;
+		unsigned count = MIN(6,setup->frames.size()+1);
+		for(LevelSetup::Frames::const_iterator i=setup->frames.begin();;i++,index++)
+		{
+			float x = index/(float)count;
+			float y = 0;
+			float w = 1/(float)count;
+			float h = 0.15f;
+			// thumbnail
+			if(i!=setup->frames.end())
+			{
+				float intensity = 1;//(index==frameA || (index==frameB && secondsSinceFrameA>TIME_OF_STAY_STILL))?0.1f:1;
+				float color[4] = {intensity,intensity,1,1};
+				renderer->render2D(movieClipMap,color,x,y,w,h);
+				if((*i).thumbnail)
+					renderer->render2D((*i).thumbnail,NULL,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
+			}
+			// cursor
+			if(index==frameCursor)
+			{
+				GLboolean blend = glIsEnabled(GL_BLEND);
+				glEnable(GL_BLEND);
+				renderer->render2D(cursorMap,NULL,x,y+h*0.6f,w*0.3f,h*0.4f);
+				if(!blend)
+					glDisable(GL_BLEND);
+			}
+			// end for cycle
+			if(i==setup->frames.end())
+				break;
+		}
+	}
+
+	bool keyboard(unsigned char c, int x, int y)
+	{
+		switch(c)
+		{
+			case ' ':;
+		}
+		return false;
+	}
+	bool special(unsigned char c, int x, int y)
+	{
+		switch(c)
+		{
+			case GLUT_KEY_HOME:
+				frameCursor = 0;
+				return true;
+			case GLUT_KEY_END:
+				frameCursor = setup->frames.size();
+				return true;
+			case GLUT_KEY_LEFT:
+				if(frameCursor) frameCursor--;
+				return true;
+			case GLUT_KEY_RIGHT:
+				if(frameCursor<setup->frames.size()) frameCursor++;
+				return true;
+		}
+		return false;
+	}
+
+	unsigned frameCursor; // cislo snimku nad kterym je kurzor, 0..n
+private:
+	LevelSetup* setup;
+	de::Texture* movieClipMap;
+	de::Texture* cursorMap;
+};
 
 #endif

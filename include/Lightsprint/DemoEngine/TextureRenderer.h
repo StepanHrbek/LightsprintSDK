@@ -36,7 +36,8 @@ public:
 
 	//! Renders 2d texture into rectangle.
 	//! x/y/w/h are in 0..1 space, x/y is top left corner.
-	void render2D(Texture* texture,float intensity, float x,float y,float w,float h);
+	//! For non-NULL color, texture is multiplied by color.
+	void render2D(Texture* texture,float color[4], float x,float y,float w,float h);
 
 private:
 	class Program *skyProgram;

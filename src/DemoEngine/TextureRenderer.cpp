@@ -70,7 +70,7 @@ void TextureRenderer::renderEnvironment(Texture* texture)
 	if(culling) glEnable(GL_CULL_FACE);
 };
 
-void TextureRenderer::render2D(Texture* texture,float intensity, float x,float y,float w,float h)
+void TextureRenderer::render2D(Texture* texture,float color[4], float x,float y,float w,float h)
 {
 	if(!texture || !twodProgram)
 	{
@@ -90,7 +90,7 @@ void TextureRenderer::render2D(Texture* texture,float intensity, float x,float y
 	glActiveTexture(GL_TEXTURE0);
 	texture->bindTexture();
 	twodProgram->sendUniform("map",0);
-	twodProgram->sendUniform("color",intensity,intensity,intensity,intensity);
+	twodProgram->sendUniform("color",color?color[0]:1,color?color[1]:1,color?color[2]:1,color?color[3]:1);
 	glBegin(GL_POLYGON);
 	glTexCoord2f(0,0);
 	glVertex2f(2*x-1,2*y-1);

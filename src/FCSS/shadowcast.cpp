@@ -144,6 +144,7 @@ class Level
 {
 public:
 	Autopilot pilot;
+	AnimationEditor animationEditor;
 
 	enum Type
 	{
@@ -185,7 +186,6 @@ unsigned lightDirectMapIdx = 0;
 de::Texture* loadingMap = NULL;
 de::Texture* hintMap = NULL;
 de::Texture* lightsprintMap = NULL;
-de::Texture* movieClipMap = NULL;
 de::Program* ambientProgram;
 de::Texture* skyMap;
 de::TextureRenderer* skyRenderer;
@@ -360,7 +360,6 @@ void init_gl_resources()
 	loadingMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	hintMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity_hints.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	lightsprintMap = de::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
-	movieClipMap = de::Texture::load("maps\\movie_clip.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
 	uberProgram = new de::UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	de::UberProgramSetup uberProgramSetup;
@@ -388,7 +387,6 @@ void done_gl_resources()
 	delete loadingMap;
 	delete hintMap;
 	delete lightsprintMap;
-	delete movieClipMap;
 	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
 	delete areaLight;
 	gluDeleteQuadric(quadric);
@@ -1296,7 +1294,7 @@ void showLogo(const de::Texture* logo)
 //
 // Level body
 
-Level::Level(LevelSetup* levelSetup) : pilot(levelSetup)
+Level::Level(LevelSetup* levelSetup) : pilot(levelSetup), animationEditor(levelSetup)
 {
 	solver = NULL;
 	bugs = NULL;
@@ -1677,7 +1675,7 @@ void display()
 
 	showLogo(lightsprintMap);
 
-	level->pilot.renderThumbnails(skyRenderer,movieClipMap);
+	level->animationEditor.renderThumbnails(skyRenderer);
 
 	drawHelpMessage(showHelp);
 
@@ -1815,6 +1813,12 @@ void special(int c, int x, int y)
 		return;
 	}
 
+	if(level && level->animationEditor.special(c,x,y))
+	{
+		level->pilot.reportInteraction();
+		return;
+	}
+
 	int modif = glutGetModifiers();
 	float scale = 1;
 	if(modif&GLUT_ACTIVE_SHIFT) scale=10;
@@ -1914,6 +1918,13 @@ void keyboard(unsigned char c, int x, int y)
 		showHint = false;
 		return;
 	}
+
+	if(level && level->animationEditor.keyboard(c,x,y))
+	{
+		level->pilot.reportInteraction();
+		return;
+	}
+
 	switch (c)
 	{
 		case 27:
