@@ -30,7 +30,9 @@ TextureFromDisk::TextureFromDisk(
 	int mag, int min, int wrapS, int wrapT)
 	: TextureGL(NULL,1,1,false,GL_RGBA,mag,min,wrapS,wrapT)
 {
-	unsigned int type;
+	SAFE_DELETE_ARRAY(pixels);
+
+	cubeOr2d = GL_TEXTURE_2D;
 
 #ifdef USE_FREEIMAGE
 	pixels = loadFreeImage(filename,false,flipV,flipH,width,height,channels);
@@ -38,34 +40,69 @@ TextureFromDisk::TextureFromDisk(
 	pixels = loadData(filename,width,height,channels);
 #endif
 	if(!pixels) throw xFileNotFound();
-	type = (channels == 3) ? GL_RGB : GL_RGBA;
-	gluBuild2DMipmaps(GL_TEXTURE_2D, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
+
+	TextureGL::reset(width,height,(channels==1)?TF_NONE:((channels==3)?TF_RGB:TF_RGBA),pixels,true);
+
+	//unsigned int type;
+	//type = (channels == 3) ? GL_RGB : GL_RGBA;
+	//gluBuild2DMipmaps(GL_TEXTURE_2D, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
 }
 
 // cube map loader
 TextureFromDisk::TextureFromDisk(
 	const char *filenameMask, const char *cubeSideName[6], bool flipV, bool flipH,
-	int mag, int min)
-: TextureGL(NULL,1,1,true,GL_RGBA,mag,min)
+	int magn, int mini)
+: TextureGL(NULL,1,1,true,GL_RGBA,magn,mini)
 {
-	unsigned int type;
+	SAFE_DELETE_ARRAY(pixels);
 
+	cubeOr2d = GL_TEXTURE_CUBE_MAP;
+
+	// load 6 separated images
+	unsigned char* sides[6] = {NULL,NULL,NULL,NULL,NULL,NULL};
 	for(unsigned side=0;side<6;side++)
 	{
 		char buf[1000];
 		_snprintf(buf,999,filenameMask,cubeSideName[side]);
 		buf[999] = 0;
+		
+		unsigned tmpWidth, tmpHeight, tmpChannels;
+
 #ifdef USE_FREEIMAGE
-		pixels = loadFreeImage(buf,true,flipV,flipH,width,height,channels);
+		sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpChannels);
 #else
-		pixels = loadData(buf,width,height,channels);
+		sides[side] = loadData(buf,tmpWidth,tmpHeight,tmpChannels);
 #endif
-		if(!pixels) throw xFileNotFound();
-		type = (channels == 3) ? GL_RGB : GL_RGBA;
+		if(!sides[side]) throw xFileNotFound();
+
+		if(!side)
+		{
+			width = tmpWidth;
+			height = tmpHeight;
+			channels = tmpChannels;
+		}
+		else
+		{
+			if(tmpWidth!=width || tmpHeight!=height || tmpChannels!=channels || width!=height)
+				throw xFileNotFound();
+		}
+		//unsigned int type;
+		//type = (channels == 3) ? GL_RGB : GL_RGBA;
 		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
-		gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
-		SAFE_DELETE_ARRAY(pixels);
+		//gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
 	}
+
+	// pack 6 images into 1 array
+	pixels = new unsigned char[width*height*channels*6];
+	for(unsigned side=0;side<6;side++)
+	{
+		memcpy(pixels+width*height*channels*side,sides[side],width*height*channels);
+		delete[] sides[side];
+	}
+
+	// load cube from 1 array
+	format = (channels==1)?TF_NONE:((channels==3)?TF_RGB:TF_RGBA);
+	TextureGL::reset(width,height,format,pixels,true);
 }
 
 

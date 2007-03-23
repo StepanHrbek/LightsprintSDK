@@ -29,6 +29,7 @@ namespace rr_gl
 	public:
 		RRIlluminationEnvironmentMapInOpenGL(const char* filenameMask, const char* cubeSideName[6]);
 		virtual void setValues(unsigned size, rr::RRColorRGBF* irradiance);
+		rr::RRColorRGBF getValue(const rr::RRVec3& direction) const;
 		virtual void bindTexture();
 		virtual bool save(const char* filename, const char* cubeSideName[6]);
 		virtual ~RRIlluminationEnvironmentMapInOpenGL();

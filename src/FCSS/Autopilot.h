@@ -104,9 +104,10 @@ struct LevelSetup
 	typedef std::list<AnimationFrame> Frames;
 	Frames frames;
 
-	LevelSetup(const char* filename)
+	LevelSetup(const char* afilename)
 	{
-		load(filename);
+		filename = NULL;
+		load(afilename);
 	};
 	~LevelSetup()
 	{
@@ -126,6 +127,8 @@ struct LevelSetup
 		rr::RRReporter::report(rr::RRReporter::INFO,"Loading %s...\n",aniname);
 		FILE* f = fopen(aniname,"rt");
 		free(aniname);
+		if(!f)
+			return false;
 		if(1!=fscanf(f,"scale = %f\n\n",&scale))
 			return false;
 		frames.clear();

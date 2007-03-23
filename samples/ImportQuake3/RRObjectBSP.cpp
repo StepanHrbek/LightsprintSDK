@@ -138,9 +138,9 @@ static void fillMaterial(rr::RRMaterial& s, de::Texture*& t, de::TTexture* m,con
 		for(unsigned i=0;i<size;i++)
 			for(unsigned j=0;j<size;j++)
 			{
-				rr::RRColor tmp;
-				t->getPixel(i/(float)size,j/(float)size,&tmp[0]);
-				avg += tmp;
+				float tmp[4];
+				t->getPixel(i/(float)size,j/(float)size,0,tmp);
+				avg += rr::RRVec3(tmp[0],tmp[1],tmp[2]);
 			}
 		avg /= size*size/2; // 2 stands for quake map boost
 	}

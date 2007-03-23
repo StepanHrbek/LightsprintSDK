@@ -31,8 +31,17 @@ public:
 	//! Shutdowns renderer, freeing shaders.
 	~TextureRenderer();
 
-	//! Renders cube texture as sky around camera.
-	void renderEnvironment(Texture* texture);
+	//! Renders cubemap as if camera is inside the cube.
+	//! Current OpenGL transformation matrices are used.
+	bool renderEnvironment(Texture* texture);
+
+	//! Initializes shader and render states for rendering cubemap.
+	//! It is one component of renderEnvironment().
+	bool renderEnvironmentBegin();
+
+	//! Restores original render states after renderEnvironmentBegin().
+	//! It is one component of renderEnvironment().
+	void renderEnvironmentEnd();
 
 	//! Renders 2d texture into rectangle.
 	//! x/y/w/h are in 0..1 space, x/y is top left corner.
@@ -42,6 +51,9 @@ public:
 private:
 	class Program *skyProgram;
 	class Program *twodProgram;
+	GLboolean culling;
+	GLboolean depthTest;
+	GLboolean depthMask;
 };
 
 }; // namespace

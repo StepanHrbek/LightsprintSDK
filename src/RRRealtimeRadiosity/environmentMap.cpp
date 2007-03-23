@@ -144,7 +144,7 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 // gather
 
 // thread safe: yes
-static void cubeMapGather(const RRScene* scene, const RRObject* object, const RRScaler* scaler, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
+static void cubeMapGather(const RRScene* scene, const RRObject* object, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
 {
 	if(!scene)
 	{
@@ -189,7 +189,7 @@ static void cubeMapGather(const RRScene* scene, const RRObject* object, const RR
 					if(face==UINT_MAX)
 					{
 						// read irradiance on sky
-						irradianceHdr[ofs] = RRVec3(0); //!!! add sky
+						irradianceHdr[ofs] = environment ? environment->getValue(dir) : RRVec3(0);
 					}
 					else
 					{
@@ -450,7 +450,7 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 
 		// gather physical irradiances
 		TEST100
-		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,NULL,gatheredIrradiance);
+		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,NULL,gatheredIrradiance);
 
 		// fill cubemaps
 		// - diffuse
@@ -487,7 +487,7 @@ void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 
 		// gather custom irradiances
 		TEST100
-		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),objectCenter,gatherSize,gatheredIrradiance,NULL);
+		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,gatheredIrradiance,NULL);
 
 		// fill cubemaps
 		// - diffuse

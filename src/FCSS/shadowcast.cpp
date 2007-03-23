@@ -187,7 +187,7 @@ de::Texture* loadingMap = NULL;
 de::Texture* hintMap = NULL;
 de::Texture* lightsprintMap = NULL;
 de::Program* ambientProgram;
-de::Texture* skyMap;
+rr::RRIlluminationEnvironmentMap* skyMap;
 de::TextureRenderer* skyRenderer;
 de::UberProgram* uberProgram;
 de::UberProgramSetup uberProgramGlobalSetup;
@@ -371,7 +371,8 @@ void init_gl_resources()
 //	skyMap = de::Texture::load("maps/starfield/starfield_%s.jpg",cubeSideNames);
 //	skyMap = de::Texture::load("maps/purplenebula/purplenebula_%s.jpg",cubeSideNames);
 //	skyMap = de::Texture::load("pool/cubemapy/qfraggel3/qfraggel3_%s.jpg",cubeSideNames);
-	skyMap = de::Texture::load("pool/cubemapy/!desert/frozendusk/frozendusk_%s.jpg",cubeSideNames);
+//	skyMap = de::Texture::load("pool/cubemapy/!desert/frozendusk/frozendusk_%s.jpg",cubeSideNames);
+	skyMap = rr_gl::RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap("pool/cubemapy/!desert/frozendusk/frozendusk_%s.jpg",cubeSideNames);
 	if(!skyMap)
 		printf("Failed to load sky.\n");
 	skyRenderer = new de::TextureRenderer("shaders/");
@@ -663,7 +664,6 @@ public:
 	// copy animation data from frame to actual scene
 	void copyAnimationFrameToScene(const AnimationFrame& frame, bool lightsChanged, float rot)
 	{
-		assert(onlyDynaObjectNumber==1000);
 		if(lightsChanged)
 		{
 			light = frame.eyeLight[1];
@@ -686,7 +686,6 @@ public:
 	// copy animation data from frame to actual scene
 	void copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& frame)
 	{
-		assert(onlyDynaObjectNumber==1000);
 		frame.eyeLight[0] = eye;
 		frame.eyeLight[1] = light;
 		for(unsigned i=0;i<DYNAOBJECTS;i++)
@@ -708,6 +707,7 @@ public:
 		if(frame)
 		{
 			// autopilot movement
+			assert(onlyDynaObjectNumber==1000);
 			copyAnimationFrameToScene(*frame,lightsChanged,rot);
 		}
 		else
@@ -990,7 +990,15 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 
 	eye.setupForRender();
 
-	skyRenderer->renderEnvironment(skyMap);
+	skyRenderer->renderEnvironmentBegin();
+	skyMap->bindTexture();
+	glBegin(GL_POLYGON);
+		glVertex3f(-1,-1,1);
+		glVertex3f(1,-1,1);
+		glVertex3f(1,1,1);
+		glVertex3f(-1,1,1);
+	glEnd();
+	skyRenderer->renderEnvironmentEnd();
 
 	renderScene(uberProgramSetup,firstInstance);
 
@@ -1356,6 +1364,7 @@ Level::Level(LevelSetup* levelSetup) : pilot(levelSetup), animationEditor(levelS
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
+	solver->setEnvironment(skyMap);
 	rr::RRScene::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
 #ifdef THREE_ONE
@@ -2518,22 +2527,15 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
+	//_crtBreakAlloc = 33935;
+
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 
 //	Music n00ly("3+1/31_01.ogg");
 //	Music n00ly("music/dlife.xm");
 //	Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
-/*
-	for(unsigned i=0;i<4;i++)
-	{
-		const LevelSetup* levelSetup = levelSequence.getNextLevel();
-		levelSetup->save();
-		LevelSetup ls2;
-		ls2.clear();
-		ls2.load("3ds\\koupelna\\koupelna4.ani");
-		int j=1;
-	}
-*/
+
 #ifdef THREE_ONE
 	levelSequence.insertLevelBack("3+1\\3dtest2_08exp.3DS");
 	levelSequence.insertLevelBack("3+1\\detskypokoj1.3DS");
@@ -2544,13 +2546,8 @@ int main(int argc, char **argv)
 	levelSequence.insertLevelBack("bsp\\bgmp\\maps\\bgmp8.bsp");
 	levelSequence.insertLevelBack("bsp\\bgmp\\maps\\bgmp6.bsp");
 #endif
-//	const LevelSetup* levelSetup = levelSequence.getNextLevel();
-//	levelSetup->save();
 
 	srand(11);
-
-	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 33935;
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)

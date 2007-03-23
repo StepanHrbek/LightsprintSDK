@@ -21,15 +21,15 @@ namespace de
 class TextureGL : public Texture
 {
 public:
-	TextureGL(unsigned char *data, int width, int height, bool cube, int type, // data are adopted and delete[]d later
+	TextureGL(unsigned char *data, int width, int height, bool cube, int type,
 		int magn=GL_LINEAR, int mini = GL_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
-	virtual void setSize(unsigned width, unsigned height);
+	virtual bool reset(unsigned width, unsigned height, Format format, unsigned char* data, bool buildMipmaps);
 
 	virtual unsigned getWidth() const {return width;}
 	virtual unsigned getHeight() const {return height;}
-	virtual bool getPixel(float x, float y, float* rgb) const;
+	virtual bool getPixel(float x, float y, float z, float rgba[4]) const;
 
 	virtual void bindTexture() const;
 
@@ -41,12 +41,18 @@ public:
 	virtual ~TextureGL();
 
 protected:
-	unsigned id;
-	unsigned channels;
-	unsigned cubeOr2d; // GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP
 	unsigned width;
 	unsigned height;
+	Format   format;
 	unsigned char* pixels;
+
+	unsigned id;
+	GLenum   glformat; // GL_RGB, GL_RGBA
+	GLenum   gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
+	unsigned bytesPerPixel; // 3, 4, 12, 16
+	unsigned bytesTotal;
+	unsigned channels; // 3, 4
+	unsigned cubeOr2d; // GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP
 private:
 	static unsigned numInstances;
 };

@@ -39,7 +39,7 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const
 void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorRGBF* irradiance)
 {
 	EnterCriticalSection(&criticalSection);
-	texture->setSize(size,size);
+	texture->reset(size,size,de::Texture::TF_RGBF,(unsigned char*)irradiance,false);
 	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	for(unsigned side=0; side<6; side++)
@@ -49,6 +49,13 @@ void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorR
 	}
 	LeaveCriticalSection(&criticalSection);
 }
+
+rr::RRColorRGBF RRIlluminationEnvironmentMapInOpenGL::getValue(const rr::RRVec3& direction) const
+{
+	float tmp[4];
+	texture->getPixel(direction[0],direction[1],direction[2],tmp);
+	return rr::RRColorRGBF(tmp[0],tmp[1],tmp[2]);
+};
 
 void RRIlluminationEnvironmentMapInOpenGL::bindTexture()
 {

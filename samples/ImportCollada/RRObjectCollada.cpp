@@ -550,9 +550,9 @@ void RRObjectCollada::updateMaterials()
 								for(unsigned i=0;i<size;i++)
 									for(unsigned j=0;j<size;j++)
 									{
-										rr::RRColor tmp;
-										mi.diffuseTexture->getPixel(i/(float)size,j/(float)size,&tmp[0]);
-										avg += tmp;
+										float tmp[4];
+										mi.diffuseTexture->getPixel(i/(float)size,j/(float)size,0,tmp);
+										avg += rr::RRVec3(tmp[0],tmp[1],tmp[2]);
 									}
 								mi.material.diffuseReflectance = avg / (size*size);
 							}

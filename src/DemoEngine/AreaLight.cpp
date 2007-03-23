@@ -60,7 +60,7 @@ namespace de
 	{
 		for(unsigned i=0;i<numInstances;i++)
 		{
-			shadowMaps[i]->setSize(newSize,newSize);
+			shadowMaps[i]->reset(newSize,newSize,Texture::TF_NONE,NULL,false);
 		}
 	}
 

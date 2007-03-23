@@ -28,8 +28,31 @@ public:
 	// interface
 	/////////////////////////////////////////////////////////////////////////
 
-	//! Set size of 2D texture.
-	virtual void setSize(unsigned width, unsigned height) {};
+	//! Texture formats. Implementation is not required to support all of them.
+	enum Format
+	{
+		TF_RGB, // 8bit rgb, 24bits per pixel
+		TF_RGBA, // 8bit rgba, 32bits per pixel
+		TF_RGBF, // float rgb, 96bits per pixel
+		TF_RGBAF, // float rgba, 128bits per pixel
+		TF_NONE, // unspecified
+	};
+
+	//! Set size and contents of 2D texture.
+	//! Textures initialized as cube stay cube textures, 2d stay 2d.
+	//! \param width
+	//!  Requested width of texture in texels.
+	//! \param height
+	//!  Requested height of texture in texels.
+	//!  Must equal to width for cube texture.
+	//! \param format
+	//!  Format of data in adopt_data.
+	//!  Implementation is not required to support all data formats.
+	//! \param data
+	//!  Data to be loaded into texture. Set to NULL for uninitialized contents of texture.
+	//!  Format of data is specified by format.
+	//! \return True on success, false on error (unsupported size/format).
+	virtual bool reset(unsigned width, unsigned height, Format format, unsigned char* data, bool buildMipmaps) = 0;
 
 	//! \return Width of texture.
 	virtual unsigned getWidth() const = 0;
@@ -37,10 +60,11 @@ public:
 	virtual unsigned getHeight() const = 0;
 	//! \return Number of bits in one texel.
 	virtual unsigned getTexelBits() {return 0;}
-	//! Fills rgb[0], rgb[1] and rgb[2] with rgb color of texel at [x,y] coordinates
-	//! (in 0..1 range).
+	//! Fills rgba[0..3] with rgba color 
+	//! of 2d texel at [x,y] or cube texel at [x,y,z].
+	//! 2d coordinates are in 0..1 range, 3d coordinates express direction from center to the texel.
 	//! \return True when supported by implementation.
-	virtual bool getPixel(float x, float y, float* rgb) const {return false;}
+	virtual bool getPixel(float x, float y, float z, float rgba[4]) const {return false;}
 
 	//! Binds texture for rendering.
 	//! Various implementations may do OpenGL bind, Direct3D bind or nothing.

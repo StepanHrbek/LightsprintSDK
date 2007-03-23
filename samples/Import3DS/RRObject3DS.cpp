@@ -126,9 +126,9 @@ static void fillMaterial(rr::RRMaterial* s,de::Model_3DS::Material* m)
 		for(unsigned i=0;i<size;i++)
 			for(unsigned j=0;j<size;j++)
 			{
-				rr::RRColor tmp;
-				m->tex->getPixel(i/(float)size,j/(float)size,&tmp[0]);
-				avg += tmp;
+				float tmp[4];
+				m->tex->getPixel(i/(float)size,j/(float)size,0,tmp);
+				avg += rr::RRVec3(tmp[0],tmp[1],tmp[2]);
 			}
 		avg /= size*size;
 	}

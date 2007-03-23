@@ -31,14 +31,6 @@ TextureShadowMap::TextureShadowMap(unsigned awidth, unsigned aheight)
 	numInstances++;
 }
 
-void TextureShadowMap::setSize(unsigned awidth, unsigned aheight)
-{
-	bindTexture();
-	glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,awidth,aheight,0,GL_DEPTH_COMPONENT,GL_UNSIGNED_BYTE,NULL);
-	width = awidth;
-	height = aheight;
-}
-
 bool TextureShadowMap::renderingToBegin(unsigned side)
 {
 	if(!fbo) fbo = new FBO();
