@@ -29,7 +29,10 @@ struct LevelSetup
 	// returns iterator to n-th frame
 	Frames::iterator getFrameByIndex(unsigned index);
 
-	// returns frame for given time
+	// returns total length of animation in seconds
+	const float getTotalTime();
+
+	// returns frame for given time (0..length), NULL for times outside range
 	const AnimationFrame* getFrameByTime(float absSeconds);
 };
 

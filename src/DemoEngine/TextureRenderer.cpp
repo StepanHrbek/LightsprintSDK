@@ -67,7 +67,7 @@ void TextureRenderer::renderEnvironmentEnd()
 	if(culling) glEnable(GL_CULL_FACE);
 }
 
-bool TextureRenderer::renderEnvironment(Texture* texture)
+bool TextureRenderer::renderEnvironment(const Texture* texture)
 {
 	if(!texture)
 	{
@@ -89,7 +89,7 @@ bool TextureRenderer::renderEnvironment(Texture* texture)
 	return false;
 };
 
-void TextureRenderer::render2D(Texture* texture,float color[4], float x,float y,float w,float h)
+void TextureRenderer::render2D(const Texture* texture,float color[4], float x,float y,float w,float h)
 {
 	if(!texture || !twodProgram)
 	{

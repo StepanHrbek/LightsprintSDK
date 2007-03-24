@@ -426,6 +426,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Music.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Music.h"
+			>
+		</File>
+		<File
 			RelativePath=".\resource.h"
 			>
 		</File>

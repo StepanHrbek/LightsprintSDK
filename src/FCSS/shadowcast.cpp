@@ -127,6 +127,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "LevelSequence.h"
 #include "AnimationEditor.h"
 #include "Autopilot.h"
+#include "Music.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -223,79 +224,6 @@ Level* level = NULL;
 LevelSequence levelSequence;
 class DynamicObjects* dynaobjects;
 bool shotRequested;
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// music
-
-#pragma comment(lib,"fmodex_vc.lib")
-
-#include "fmod/fmod.hpp"
-#include "fmod/fmod_errors.h"
-#include <stdio.h>
-#include <conio.h>
-
-class Music
-{
-public:
-	Music(char* filename)
-	{
-		memset(this,0,sizeof(*this));
-
-		FMOD_RESULT result;
-		result = FMOD::System_Create(&system);
-		ERRCHECK(result);
-
-		unsigned int version;
-		result = system->getVersion(&version);
-		ERRCHECK(result);
-
-		if(version < FMOD_VERSION)
-		{
-			printf("Error!  You are using an old version of FMOD %08x.  This program requires %08x\n", version, FMOD_VERSION);
-			return;
-		}
-
-		result = system->init(1, FMOD_INIT_NORMAL, 0);
-		ERRCHECK(result);
-
-		//result = system->createStream("music/aoki.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
-		result = system->createSound(filename, FMOD_HARDWARE | FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
-		ERRCHECK(result);
-
-		result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
-		ERRCHECK(result);
-	}
-	void poll()
-	{
-		system->update();
-	}
-	~Music()
-	{
-		FMOD_RESULT result;
-		result = sound->release();
-		ERRCHECK(result);
-		result = system->close();
-		ERRCHECK(result);
-		result = system->release();
-		ERRCHECK(result);
-	}
-private:
-	FMOD::System     *system;
-	FMOD::Sound      *sound;
-	FMOD::Channel    *channel;
-
-	void ERRCHECK(FMOD_RESULT result)
-	{
-		if (result != FMOD_OK)
-		{
-			printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
-			exit(-1);
-		}
-	}
-};
-
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -698,17 +626,30 @@ public:
 			}
 	}
 
-	// plynule projizdi vsechny snimky v tracku
+	/////////////////////////////////////////////////////////////////////////
+	// anim in absolute time
+
+	// nastavi dynamickou scenu do daneho casu od zacatku animace
 	// pokud je cas mimo rozsah animace, neudela nic a vrati false
-	bool playSceneDynamic(float absSeconds)
+	bool setupSceneDynamicForRelativeTime(float secondsFromStart)
 	{
 		static AnimationFrame prevFrame;
-		const AnimationFrame* frame = level->pilot.setup->getFrameByTime(absSeconds);
+		const AnimationFrame* frame = level->pilot.setup->getFrameByTime(secondsFromStart);
 		if(!frame)
 			return false;
-		copyAnimationFrameToScene(*frame,memcmp(&frame->eyeLight[1],&prevFrame.eyeLight[1],sizeof(de::Camera))!=0,absSeconds);
+		copyAnimationFrameToScene(*frame,memcmp(&frame->eyeLight[1],&prevFrame.eyeLight[1],sizeof(de::Camera))!=0,secondsFromStart);
 		prevFrame = *frame;
 	}
+
+	float relativeTime;
+	bool advanceSceneDynamic(float advanceSeconds)
+	{
+		relativeTime += advanceSeconds;
+		if(!setupSceneDynamicForRelativeTime(relativeTime))
+			relativeTime -= level->pilot.setup->getTotalTime();
+	}
+	//
+	/////////////////////////////////////////////////////////////////////////
 
 	void updateSceneDynamic(float seconds, unsigned onlyDynaObjectNumber=1000)
 	{
@@ -1286,76 +1227,23 @@ static void drawHelpMessage(int screen)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void showImageBegin()
-{
-	glUseProgram(0);
-	glActiveTexture(GL_TEXTURE0);
-	glEnable(GL_TEXTURE_2D);
-}
-
-void showImageEnd(const de::Texture* logo)
-{
-	glDisable(GL_CULL_FACE);
-	glColor3f(1,1,1);
-	glDisable(GL_DEPTH_TEST);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-
-	glBegin(GL_POLYGON);
-	if(logo)
-	{
-		float w = logo->getWidth()/(float)winWidth;
-		float h = logo->getHeight()/(float)winHeight;
-		float x = 1-w;
-		float y = 1-h;
-		glTexCoord2f(0,0);
-		glVertex2f(x-w,y-h);
-		glTexCoord2f(1,0);
-		glVertex2f(x+w,y-h);
-		glTexCoord2f(1,1);
-		glVertex2f(x+w,y+h);
-		glTexCoord2f(0,1);
-		glVertex2f(x-w,y+h);
-	}
-	else
-	{
-		glTexCoord2f(0,0);
-		glVertex2f(-1,-1);
-		glTexCoord2f(1,0);
-		glVertex2f(1,-1);
-		glTexCoord2f(1,1);
-		glVertex2f(1,1);
-		glTexCoord2f(0,1);
-		glVertex2f(-1,1);
-	}
-	glEnd();
-
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_TEXTURE_2D);
-	if(!logo) glutSwapBuffers();
-}
-
 void showImage(const de::Texture* tex)
 {
 	if(!tex) return;
-	showImageBegin();
-	tex->bindTexture();
-	showImageEnd(NULL);
+	skyRenderer->render2D(tex,NULL,0,0,1,1);
+	glutSwapBuffers();
 }
 
 void showLogo(const de::Texture* logo)
 {
 	if(!logo) return;
-	showImageBegin();
-	logo->bindTexture();
+	float w = logo->getWidth()/(float)winWidth;
+	float h = logo->getHeight()/(float)winHeight;
+	float x = 1-w;
+	float y = 1-h;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	showImageEnd(logo);
+	skyRenderer->render2D(logo,NULL,x,y,w,h);
 	glDisable(GL_BLEND);
 }
 

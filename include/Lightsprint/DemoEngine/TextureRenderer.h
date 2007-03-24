@@ -33,7 +33,7 @@ public:
 
 	//! Renders cubemap as if camera is inside the cube.
 	//! Current OpenGL transformation matrices are used.
-	bool renderEnvironment(Texture* texture);
+	bool renderEnvironment(const Texture* texture);
 
 	//! Initializes shader and render states for rendering cubemap.
 	//! It is one component of renderEnvironment().
@@ -46,7 +46,7 @@ public:
 	//! Renders 2d texture into rectangle.
 	//! x/y/w/h are in 0..1 space, x/y is top left corner.
 	//! For non-NULL color, texture is multiplied by color.
-	void render2D(Texture* texture,float color[4], float x,float y,float w,float h);
+	void render2D(const Texture* texture,float color[4], float x,float y,float w,float h);
 
 private:
 	class Program *skyProgram;
