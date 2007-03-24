@@ -10,8 +10,11 @@
 class Music
 {
 public:
-	Music(char* filename);
-	void poll();
+	Music(const char* filename);
+	void  poll();
+	void  setPaused(bool paused);
+	float getPosition();
+	void  setPosition(float seconds);
 	~Music();
 private:
 	FMOD::System     *system;

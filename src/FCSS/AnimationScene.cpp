@@ -67,21 +67,30 @@ LevelSetup::Frames::iterator LevelSetup::getFrameByIndex(unsigned index)
 	return i;
 }
 
-const float LevelSetup::getTotalTime()
+float LevelSetup::getFrameTime(unsigned index) const
 {
 	float seconds = 0;
 	if(frames.size()>1)
 	{
 		Frames::const_iterator i=frames.begin();
-		while(i!=frames.end())
+		while(i!=frames.end() && index--)
 		{
 			seconds += (*i).transitionToNextTime;
 			i++;
 		}
-		i--;
-		seconds -= (*i).transitionToNextTime;
+		// remove addition of last frame, animation stops at the beginning of last frame
+		if(i==frames.end())
+		{
+			i--;
+			seconds -= (*i).transitionToNextTime;
+		}
 	}
 	return seconds;
+}
+
+float LevelSetup::getTotalTime() const
+{
+	return getFrameTime(MAX(1,frames.size())-1);
 }
 
 const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)

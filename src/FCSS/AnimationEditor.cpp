@@ -19,7 +19,7 @@ AnimationEditor::~AnimationEditor()
 	delete cursorMap;
 }
 
-void AnimationEditor::renderThumbnails(de::TextureRenderer* renderer)
+void AnimationEditor::renderThumbnails(de::TextureRenderer* renderer) const
 {
 	unsigned index = 0;
 	unsigned count = MAX(6,setup->frames.size()+1);
@@ -111,4 +111,9 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			return true;
 	}
 	return false;
+}
+
+float AnimationEditor::getCursorTime() const
+{
+	return setup->getFrameTime(frameCursor);
 }

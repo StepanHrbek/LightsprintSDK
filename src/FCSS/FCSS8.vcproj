@@ -414,6 +414,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\DemoPlayer.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\DemoPlayer.h"
+			>
+		</File>
+		<File
 			RelativePath=".\FCSS.rc"
 			>
 		</File>

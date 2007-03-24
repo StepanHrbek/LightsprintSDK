@@ -10,7 +10,8 @@ unsigned INSTANCES_PER_PASS;
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          0
 #define THREE_ONE
-#ifndef THREE_ONE
+#ifdef THREE_ONE
+#else
 	//#define HIGH_DETAIL // uses high detail models
 	//#define SUPPORT_COLLADA
 	#define SUPPORT_BSP
@@ -44,7 +45,6 @@ dalsi announcementy
 mailnout do limy
 napsat zadani na final gather
 
-sehnat bankovni spojeni
 zmerit memory leaky
 
 co jeste pomuze:
@@ -68,10 +68,7 @@ casy:
   - smoothovat podle normal
   - vertex blur
 
-rr renderer: pridat indirect mapu
-
 ovladani jasu (global, indirect)
-nacitat jpg
 
 pri 2 instancich je levy okraj spotmapy oriznuty
  pri arealight by spotmapa potrebovala malinko mensi fov nez shadowmapy aby nezabirala mista kde konci stin
@@ -127,7 +124,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "LevelSequence.h"
 #include "AnimationEditor.h"
 #include "Autopilot.h"
-#include "Music.h"
+#include "DemoPlayer.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -224,6 +221,7 @@ Level* level = NULL;
 LevelSequence levelSequence;
 class DynamicObjects* dynaobjects;
 bool shotRequested;
+DemoPlayer* demoPlayer = NULL;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -626,12 +624,9 @@ public:
 			}
 	}
 
-	/////////////////////////////////////////////////////////////////////////
-	// anim in absolute time
-
 	// nastavi dynamickou scenu do daneho casu od zacatku animace
 	// pokud je cas mimo rozsah animace, neudela nic a vrati false
-	bool setupSceneDynamicForRelativeTime(float secondsFromStart)
+	bool setupSceneDynamicForTime(float secondsFromStart)
 	{
 		static AnimationFrame prevFrame;
 		const AnimationFrame* frame = level->pilot.setup->getFrameByTime(secondsFromStart);
@@ -639,23 +634,24 @@ public:
 			return false;
 		copyAnimationFrameToScene(*frame,memcmp(&frame->eyeLight[1],&prevFrame.eyeLight[1],sizeof(de::Camera))!=0,secondsFromStart);
 		prevFrame = *frame;
+		return true;
 	}
-
-	float relativeTime;
-	bool advanceSceneDynamic(float advanceSeconds)
-	{
-		relativeTime += advanceSeconds;
-		if(!setupSceneDynamicForRelativeTime(relativeTime))
-			relativeTime -= level->pilot.setup->getTotalTime();
-	}
-	//
-	/////////////////////////////////////////////////////////////////////////
 
 	void updateSceneDynamic(float seconds, unsigned onlyDynaObjectNumber=1000)
 	{
 		if(!dynaobjects) return;
 		// increment rotation
 		float rot = seconds*70;
+
+#ifdef THREE_ONE
+		demoPlayer->advance(seconds);
+		if(!setupSceneDynamicForTime(demoPlayer->getPartPosition()))
+		{
+			// play finished, jumt to editor
+			demoPlayer->setPaused(true);
+			level->animationEditor.frameCursor = MAX(1,level->pilot.setup->frames.size())-1;
+		}
+#else
 		// move objects
 		bool lightsChanged = false;
 		const AnimationFrame* frame = level ? level->pilot.autopilot(seconds,&lightsChanged) : NULL;
@@ -678,6 +674,7 @@ public:
 				}
 			}
 		}
+#endif
 	}
 	void renderSceneDynamic(de::UberProgramSetup uberProgramSetup, unsigned firstInstance) const
 	{
@@ -1211,15 +1208,23 @@ static void drawHelpMessage(int screen)
 	glDisable(GL_BLEND);
 
 	glColor3f(1,1,1);
-	for(i=0; message[screen][i] != NULL; i++) 
+	if(screen || demoPlayer->getPaused())
 	{
-		if (message[screen][i][0] != '\0')
+		for(i=0; message[screen][i] != NULL; i++) 
 		{
-			output(x, y, message[screen][i]);
+			if (message[screen][i][0] != '\0')
+			{
+				output(x, y, message[screen][i]);
+			}
+			y += 18;
 		}
-		y += 18;
 	}
-
+	else
+	{
+		char buf[200];
+		sprintf(buf,"demo time = %.1f, part time = %.1f",demoPlayer->getDemoPosition(),demoPlayer->getPartPosition());
+		output(x,y,buf);
+	}
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -1616,9 +1621,12 @@ void display()
 	if(wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+#ifndef THREE_ONE
 	showLogo(lightsprintMap);
+#endif
 
-	level->animationEditor.renderThumbnails(skyRenderer);
+	if(demoPlayer->getPaused())
+		level->animationEditor.renderThumbnails(skyRenderer);
 
 	drawHelpMessage(showHelp);
 
@@ -1757,9 +1765,12 @@ void special(int c, int x, int y)
 	}
 
 	if(level 
+		&& demoPlayer->getPaused()
 		&& (x||y) // arrows simulated by w/s/a/d are not intended for editor
 		&& level->animationEditor.special(c,x,y))
 	{
+		// kdyz uz editor hne kurzorem, posunme se na frame i v demoplayeru
+		demoPlayer->setPartPosition(level->animationEditor.getCursorTime());
 		level->pilot.reportInteraction();
 		return;
 	}
@@ -1864,8 +1875,10 @@ void keyboard(unsigned char c, int x, int y)
 		return;
 	}
 
-	if(level && level->animationEditor.keyboard(c,x,y))
+	if(level && demoPlayer->getPaused() && level->animationEditor.keyboard(c,x,y))
 	{
+		// kdyz uz editor hne kurzorem, posunme se na frame i v demoplayeru
+		demoPlayer->setPartPosition(level->animationEditor.getCursorTime());
 		level->pilot.reportInteraction();
 		return;
 	}
@@ -1873,6 +1886,7 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case 27:
+			delete demoPlayer;
 			delete level;
 			delete dynaobjects;
 			done_gl_resources();
@@ -1904,6 +1918,10 @@ void keyboard(unsigned char c, int x, int y)
 		case 'w':
 		case 'W':
 			special(GLUT_KEY_UP,0,0);
+			break;
+
+		case 'e':
+			demoPlayer->setPaused(!demoPlayer->getPaused());
 			break;
 
 		case 13:
@@ -2436,9 +2454,9 @@ int main(int argc, char **argv)
 
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 
-//	Music n00ly("3+1/31_01.ogg");
 //	Music n00ly("music/dlife.xm");
 //	Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
+	demoPlayer = new DemoPlayer("3+1/31_01.ogg");
 
 #ifdef THREE_ONE
 	levelSequence.insertLevelBack("3+1\\3dtest2_08exp.3DS");
