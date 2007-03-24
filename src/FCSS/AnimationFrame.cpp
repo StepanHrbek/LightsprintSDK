@@ -13,18 +13,18 @@ AnimationFrame::AnimationFrame()
 		{{-0.791f,1.370f,1.286f},3.475f,0.550f,1.0f,70.0f,1.0f,20.0f}};
 	eyeLight[0] = tmp[0];
 	eyeLight[1] = tmp[1];
+	transitionToNextTime = 2;
 	thumbnail = NULL;
 }
 
 // returns blend between this and that frame
 // return this for alpha=0, that for alpha=1
-const AnimationFrame* AnimationFrame::blend(const AnimationFrame* that, float alpha) const
+const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float alpha) const
 {
-	assert(that);
 	static AnimationFrame blended;
 	// blend eyeLight
 	float* a = (float*)(this->eyeLight);
-	float* b = (float*)(that->eyeLight);
+	float* b = (float*)(that.eyeLight);
 	float* c = (float*)(blended.eyeLight);
 	for(unsigned i=0;i<sizeof(eyeLight)/sizeof(float);i++)
 		c[i] = a[i]*(1-alpha) + b[i]*alpha;
@@ -32,11 +32,11 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame* that, float al
 	blended.eyeLight[1].update(0.3f);
 	// blend dynaPosRot
 	blended.dynaPosRot.clear();
-	for(unsigned i=0;i<this->dynaPosRot.size() && i<that->dynaPosRot.size();i++)
+	for(unsigned i=0;i<this->dynaPosRot.size() && i<that.dynaPosRot.size();i++)
 	{
 		rr::RRVec4 tmp = rr::RRVec4(
-			this->dynaPosRot[i]   *(1-alpha) + that->dynaPosRot[i]   *alpha,
-			this->dynaPosRot[i][3]*(1-alpha) + that->dynaPosRot[i][3]*alpha); // RRVec4 operators are 3-component
+			this->dynaPosRot[i]   *(1-alpha) + that.dynaPosRot[i]   *alpha,
+			this->dynaPosRot[i][3]*(1-alpha) + that.dynaPosRot[i][3]*alpha); // RRVec4 operators are 3-component
 		blended.dynaPosRot.push_back(tmp);
 	}
 	// blend thumbnail

@@ -60,9 +60,25 @@ bool LevelSetup::save() const
 	return true;
 }
 
-LevelSetup::Frames::iterator LevelSetup::getFrame(unsigned index)
+LevelSetup::Frames::iterator LevelSetup::getFrameByIndex(unsigned index)
 {
 	Frames::iterator i=frames.begin();
 	for(unsigned j=0;j<index;j++) i++;
 	return i;
+}
+
+const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
+{
+	Frames::const_iterator i=frames.begin();
+	while(i!=frames.end() && (*i).transitionToNextTime<absSeconds)
+	{
+		absSeconds -= (*i).transitionToNextTime;
+		i++;
+	}
+	if(i==frames.end())
+		return NULL;
+	Frames::const_iterator j = i; j++;
+	if(j==frames.end())
+		return NULL;
+	return (*i).blend(*j,absSeconds/(*i).transitionToNextTime);
 }

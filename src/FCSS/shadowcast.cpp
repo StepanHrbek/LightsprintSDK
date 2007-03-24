@@ -698,6 +698,18 @@ public:
 			}
 	}
 
+	// plynule projizdi vsechny snimky v tracku
+	// pokud je cas mimo rozsah animace, neudela nic a vrati false
+	bool playSceneDynamic(float absSeconds)
+	{
+		static AnimationFrame prevFrame;
+		const AnimationFrame* frame = level->pilot.setup->getFrameByTime(absSeconds);
+		if(!frame)
+			return false;
+		copyAnimationFrameToScene(*frame,memcmp(&frame->eyeLight[1],&prevFrame.eyeLight[1],sizeof(de::Camera))!=0,absSeconds);
+		prevFrame = *frame;
+	}
+
 	void updateSceneDynamic(float seconds, unsigned onlyDynaObjectNumber=1000)
 	{
 		if(!dynaobjects) return;
@@ -1601,6 +1613,8 @@ Level::Level(LevelSetup* levelSetup) : pilot(levelSetup), animationEditor(levelS
 
 Level::~Level()
 {
+	pilot.setup->save();
+
 	switch(type)
 	{
 #ifdef SUPPORT_BSP

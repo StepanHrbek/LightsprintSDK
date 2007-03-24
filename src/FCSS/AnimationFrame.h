@@ -17,6 +17,8 @@ struct AnimationFrame
 	// dynamic objects
 	typedef std::vector<rr::RRVec4> DynaPosRot;
 	DynaPosRot dynaPosRot;
+	// timing
+	float transitionToNextTime;
 	// runtime generated
 	de::Texture* thumbnail;
 
@@ -24,7 +26,7 @@ struct AnimationFrame
 
 	// returns blend between this and that frame
 	// return this for alpha=0, that for alpha=1
-	const AnimationFrame* blend(const AnimationFrame* that, float alpha) const;
+	const AnimationFrame* blend(const AnimationFrame& that, float alpha) const;
 
 	// load frame from opened .ani file
 	bool load(FILE* f);

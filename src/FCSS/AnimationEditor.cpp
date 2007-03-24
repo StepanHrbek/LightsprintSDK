@@ -98,14 +98,14 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 		case GLUT_KEY_PAGE_UP:
 			if(frameCursor)
 			{
-				std::swap(*setup->getFrame(frameCursor),*setup->getFrame(frameCursor-1));
+				std::swap(*setup->getFrameByIndex(frameCursor),*setup->getFrameByIndex(frameCursor-1));
 				frameCursor--;
 			}
 			return true;
 		case GLUT_KEY_PAGE_DOWN:
 			if(frameCursor+1<setup->frames.size())
 			{
-				std::swap(*setup->getFrame(frameCursor),*setup->getFrame(frameCursor+1));
+				std::swap(*setup->getFrameByIndex(frameCursor),*setup->getFrameByIndex(frameCursor+1));
 				frameCursor++;
 			}
 			return true;

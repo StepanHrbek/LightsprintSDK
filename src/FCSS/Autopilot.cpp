@@ -58,9 +58,9 @@ const AnimationFrame* Autopilot::autopilot(float seconds, bool* lightsChanged)
 		}
 		*lightsChanged = true;
 	}
-	LevelSetup::Frames::const_iterator a = setup->frames.begin(); for(unsigned i=0;i<frameA;i++) a++;
-	LevelSetup::Frames::const_iterator b = setup->frames.begin(); for(unsigned i=0;i<frameB;i++) b++;
-	return (alpha<=0) ? &(*a) : (*a).blend(&(*b),alpha);
+	return (alpha<=0)
+		? &(*setup->getFrameByIndex(frameA))
+		: (*setup->getFrameByIndex(frameA)).blend(*setup->getFrameByIndex(frameB),alpha);
 }
 
 bool Autopilot::isTimeToChangeLevel()

@@ -27,7 +27,10 @@ struct LevelSetup
 	bool save() const;
 
 	// returns iterator to n-th frame
-	Frames::iterator getFrame(unsigned index);
+	Frames::iterator getFrameByIndex(unsigned index);
+
+	// returns frame for given time
+	const AnimationFrame* getFrameByTime(float absSeconds);
 };
 
 #endif
