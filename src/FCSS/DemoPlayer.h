@@ -14,12 +14,13 @@ public:
 	float getDemoPosition();
 	float getPartPosition();
 	void  setPartPosition(float seconds);
+	class DynamicObjects* getDynamicObjects();
 private:
 	bool paused;
 	class Music* music;
 	float demoTime; // 0..demo duration in seconds
 	float partStart; // 0..demo duration in seconds, time when current part started
-	std::vector<class DynamicObject*> objects;
+	DynamicObjects* dynamicObjects;
 	std::vector<class Level*> scenes;
 };
 

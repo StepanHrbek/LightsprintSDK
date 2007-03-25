@@ -16,8 +16,9 @@ public:
 	void save(FILE* f);
 };
 
-struct LevelSetup
+class LevelSetup
 {
+public:
 	// constant setup
 	const char* filename;
 	float scale;

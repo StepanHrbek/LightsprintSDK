@@ -1,6 +1,7 @@
 #include "DemoPlayer.h"
 #include "Music.h"
 #include "DynamicObject.h"
+#include "DynamicObjects.h"
 #include "LevelSequence.h"
 
 DemoPlayer::DemoPlayer(const char* demoCfg)
@@ -17,14 +18,25 @@ DemoPlayer::DemoPlayer(const char* demoCfg)
 	paused = true;
 	music->setPaused(paused);
 	// load objects
-	float scale;
-	de::UberProgramSetup material;
-	unsigned materialIdx;
+	dynamicObjects = new DynamicObjects();
+	float diffuse,specular;
+	unsigned specularMap,normalMap;
 	unsigned specularCubeSize;
-	while(4==fscanf(f,"object = %d,%d,%f,%s\n",&materialIdx,&specularCubeSize,&scale,buf))
+	float scale;
+	while(7==fscanf(f,"object = %f,%f,%d,%d,%d,%f,%s\n",
+		&diffuse,&specular,&specularMap,&normalMap,&specularCubeSize,&scale,buf))
 	{
+		de::UberProgramSetup material;
+		material.MATERIAL_DIFFUSE = diffuse?1:0;
+		material.MATERIAL_DIFFUSE_CONST = 0;
+		material.MATERIAL_DIFFUSE_VCOLOR = 0;
+		material.MATERIAL_DIFFUSE_MAP = diffuse?1:0;
+		material.MATERIAL_SPECULAR = specular?1:0;
+		material.MATERIAL_SPECULAR_MAP = specularMap?1:0;
+		material.MATERIAL_NORMAL_MAP = normalMap?1:0;
+		rr::RRReporter::report(rr::RRReporter::INFO,"Loading %s...\n",buf);
 		DynamicObject* object = DynamicObject::create(buf,scale,material,specularCubeSize);
-		objects.push_back(object);
+		dynamicObjects->addObject(object);
 	}
 	// load scenes
 	while(1==fscanf(f,"scene = %s\n",buf))
@@ -40,6 +52,12 @@ DemoPlayer::DemoPlayer(const char* demoCfg)
 DemoPlayer::~DemoPlayer()
 {
 	delete music;
+	delete dynamicObjects;
+}
+
+DynamicObjects* DemoPlayer::getDynamicObjects()
+{
+	return dynamicObjects;
 }
 
 void DemoPlayer::advance(float seconds)

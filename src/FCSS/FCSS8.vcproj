@@ -422,6 +422,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\DynamicObjects.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\DynamicObjects.h"
+			>
+		</File>
+		<File
 			RelativePath=".\FCSS.rc"
 			>
 		</File>

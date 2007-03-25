@@ -31,6 +31,9 @@ struct AnimationFrame
 	// load frame from opened .ani file
 	bool load(FILE* f);
 
+	// validate frame so it has correct number of object positions
+	void validate(unsigned numObjects);
+
 	// save frame to opened .ani file
 	bool save(FILE* f) const;
 };

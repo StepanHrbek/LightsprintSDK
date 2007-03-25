@@ -33,7 +33,7 @@ bool LevelSetup::load(const char* afilename)
 	if(!f)
 		return false;
 	// load scale
-	if(1!=fscanf(f,"scale = %f\n\n",&scale))
+	if(1!=fscanf(f,"scale = %f\n",&scale))
 		return false;
 	// load objects
 	objects.clear();
@@ -44,7 +44,10 @@ bool LevelSetup::load(const char* afilename)
 	frames.clear();
 	AnimationFrame tmp;
 	while(tmp.load(f))
+	{
+		tmp.validate(objects.size());
 		frames.push_back(tmp);
+	}
 	fclose(f);
 	return frames.size()>0;
 }
@@ -58,12 +61,13 @@ bool LevelSetup::save() const
 	FILE* f = fopen(aniname,"wt");
 	free(aniname);
 	// save scale
-	fprintf(f,"scale = %.5f\n\n",scale);
+	fprintf(f,"scale = %.5f\n",scale);
 	// save objects
 	for(unsigned i=0;i<objects.size();i++)
 	{
 		fprintf(f,"object = %d\n",objects[i]);
 	}
+	fprintf(f,"\n");
 	// save frames
 	for(Frames::const_iterator i=frames.begin();i!=frames.end();i++)
 	{

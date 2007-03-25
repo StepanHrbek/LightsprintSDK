@@ -91,8 +91,8 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			{LevelSetup::Frames::iterator i=setup->frames.begin();
 			for(unsigned j=0;j<frameCursor;j++) i++;
 			AnimationFrame tmp;
-			extern void copySceneToAnimationFrame(AnimationFrame& frame);
-			copySceneToAnimationFrame(tmp);
+			extern void copySceneToAnimationFrame(AnimationFrame& frame, const LevelSetup* setup);
+			copySceneToAnimationFrame(tmp,setup);
 			setup->frames.insert(i,tmp);
 			return true;}
 		case GLUT_KEY_PAGE_UP:

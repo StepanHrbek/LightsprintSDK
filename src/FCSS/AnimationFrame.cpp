@@ -13,7 +13,7 @@ AnimationFrame::AnimationFrame()
 		{{-0.791f,1.370f,1.286f},3.475f,0.550f,1.0f,70.0f,1.0f,20.0f}};
 	eyeLight[0] = tmp[0];
 	eyeLight[1] = tmp[1];
-	transitionToNextTime = 2;
+	transitionToNextTime = 3;
 	thumbnail = NULL;
 }
 
@@ -66,6 +66,17 @@ bool AnimationFrame::load(FILE* f)
 	//	return false;
 	rr::RRReporter::report(rr::RRReporter::INFO,"  frame with %d objects\n",dynaPosRot.size());
 	return true;
+}
+
+void AnimationFrame::validate(unsigned numObjects)
+{
+	// generate object positions when objects were added by hand
+	while(dynaPosRot.size()<numObjects)
+	{
+		// create positions when objects were added by hand into scene
+		rr::RRVec4 tmp = rr::RRVec4(0);
+		dynaPosRot.push_back(tmp);
+	}
 }
 
 // save frame to opened .ani file

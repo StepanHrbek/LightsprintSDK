@@ -37,6 +37,7 @@ DynamicObject::DynamicObject()
 	specularMap = NULL;
 	worldFoot = rr::RRVec3(0);
 	rot = 0;
+	visible = true;
 }
 
 DynamicObject::~DynamicObject()

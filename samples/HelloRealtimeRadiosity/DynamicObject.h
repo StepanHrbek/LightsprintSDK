@@ -46,6 +46,7 @@ public:
 	// object's interface for movement, freely changeable from outside
 	rr::RRVec3 worldFoot;
 	rr::RRReal rot;
+	bool visible;
 
 	// updated by updateIllumination, public only for save & load
 	rr::RRIlluminationEnvironmentMap* specularMap;
