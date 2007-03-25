@@ -3,10 +3,18 @@
 
 #include <list>
 #include "AnimationFrame.h"
+#include "DynamicObject.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // LevelSetup, all data from .ani file in editable form
+
+class DynamicObjectLoadable : public DynamicObject
+{
+public:
+	DynamicObjectLoadable(FILE* f);
+	void save(FILE* f);
+};
 
 struct LevelSetup
 {
@@ -15,6 +23,7 @@ struct LevelSetup
 	float scale;
 	typedef std::list<AnimationFrame> Frames;
 	Frames frames;
+	std::vector<unsigned> objects; // objects in scene, indices into global dynamic object pool
 
 	LevelSetup(const char* afilename);
 	~LevelSetup();

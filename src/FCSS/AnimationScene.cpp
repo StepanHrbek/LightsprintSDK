@@ -32,8 +32,15 @@ bool LevelSetup::load(const char* afilename)
 	free(aniname);
 	if(!f)
 		return false;
+	// load scale
 	if(1!=fscanf(f,"scale = %f\n\n",&scale))
 		return false;
+	// load objects
+	objects.clear();
+	unsigned tmpobj;
+	while(1==fscanf(f,"object = %d\n",&tmpobj))
+		objects.push_back(tmpobj);
+	// load frames
 	frames.clear();
 	AnimationFrame tmp;
 	while(tmp.load(f))
@@ -50,7 +57,14 @@ bool LevelSetup::save() const
 	rr::RRReporter::report(rr::RRReporter::INFO,"Saving %s...\n",aniname);
 	FILE* f = fopen(aniname,"wt");
 	free(aniname);
+	// save scale
 	fprintf(f,"scale = %.5f\n\n",scale);
+	// save objects
+	for(unsigned i=0;i<objects.size();i++)
+	{
+		fprintf(f,"object = %d\n",objects[i]);
+	}
+	// save frames
 	for(Frames::const_iterator i=frames.begin();i!=frames.end();i++)
 	{
 		if(!(*i).save(f))

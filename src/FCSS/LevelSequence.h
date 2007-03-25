@@ -365,6 +365,7 @@ public:
 		insertLevelBack("3ds\\koupelna\\koupelna5.3ds");
 		insertLevelBack("3ds\\koupelna\\koupelna41.3ds");            // vse spojene do 1 objektu
 		*/
+		it = sequence.begin();
 	}
 	void insertLevelFront(LevelSetup* level)
 	{

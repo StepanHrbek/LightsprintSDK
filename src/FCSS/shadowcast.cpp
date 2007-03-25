@@ -628,6 +628,10 @@ public:
 	// pokud je cas mimo rozsah animace, neudela nic a vrati false
 	bool setupSceneDynamicForTime(float secondsFromStart)
 	{
+		if(!level)
+		{
+			return false; // no scene loaded
+		}
 		static AnimationFrame prevFrame;
 		const AnimationFrame* frame = level->pilot.setup->getFrameByTime(secondsFromStart);
 		if(!frame)
@@ -645,11 +649,14 @@ public:
 
 #ifdef THREE_ONE
 		demoPlayer->advance(seconds);
-		if(!setupSceneDynamicForTime(demoPlayer->getPartPosition()))
+		if(level)
 		{
-			// play finished, jumt to editor
-			demoPlayer->setPaused(true);
-			level->animationEditor.frameCursor = MAX(1,level->pilot.setup->frames.size())-1;
+			if(!setupSceneDynamicForTime(demoPlayer->getPartPosition()))
+			{
+				// play finished, jumt to editor
+				demoPlayer->setPaused(true);
+				level->animationEditor.frameCursor = MAX(1,level->pilot.setup->frames.size())-1;
+			}
 		}
 #else
 		// move objects
@@ -1549,7 +1556,10 @@ void display()
 	{
 		showImage(loadingMap);
 		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
-		level = new Level(levelSequence.getNextLevel());
+		LevelSetup* next = levelSequence.getNextLevel();
+		if(!next)
+			error("No scene in playlist.",false);
+		level = new Level(next);
 #ifdef BUGS
 		for(unsigned i=0;i<6;i++)
 #else
@@ -2456,12 +2466,12 @@ int main(int argc, char **argv)
 
 //	Music n00ly("music/dlife.xm");
 //	Music kahvi("music/kahvi022_morningpapers-tellmecoloursblindintro7001.mp3");
-	demoPlayer = new DemoPlayer("3+1/31_01.ogg");
+	demoPlayer = new DemoPlayer("3+1/demo.cfg");
 
 #ifdef THREE_ONE
-	levelSequence.insertLevelBack("3+1\\3dtest2_08exp.3DS");
-	levelSequence.insertLevelBack("3+1\\detskypokoj1.3DS");
-	levelSequence.insertLevelBack("3+1\\obyvak2.3DS");
+//	levelSequence.insertLevelBack("3+1\\3dtest2_08exp.3DS");
+//	levelSequence.insertLevelBack("3+1\\detskypokoj1.3DS");
+//	levelSequence.insertLevelBack("3+1\\obyvak2.3DS");
 #else
 	levelSequence.insertLevelBack("3ds\\koupelna\\koupelna4.3ds");
 	levelSequence.insertLevelBack("bsp\\x3map\\maps\\x3map05.bsp");

@@ -1,10 +1,12 @@
 #ifndef DEMOPLAYER_H
 #define DEMOPLAYER_H
 
+#include <vector>
+
 class DemoPlayer
 {
 public:
-	DemoPlayer(const char* musicFilename);
+	DemoPlayer(const char* demoCfg);
 	~DemoPlayer();
 	void advance(float seconds);
 	void setPaused(bool paused);
@@ -17,6 +19,8 @@ private:
 	class Music* music;
 	float demoTime; // 0..demo duration in seconds
 	float partStart; // 0..demo duration in seconds, time when current part started
+	std::vector<class DynamicObject*> objects;
+	std::vector<class Level*> scenes;
 };
 
 #endif

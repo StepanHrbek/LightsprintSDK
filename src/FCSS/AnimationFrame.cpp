@@ -60,6 +60,8 @@ bool AnimationFrame::load(FILE* f)
 	rr::RRVec4 tmp;
 	while(4==fscanf(f,"object = {%f,%f,%f,%f}\n",&tmp[0],&tmp[1],&tmp[2],&tmp[3]))
 		dynaPosRot.push_back(tmp);
+	// load timing
+	fscanf(f,"duration = %f\n",&transitionToNextTime);
 	//if(0!=fscanf(f,"\n"))
 	//	return false;
 	rr::RRReporter::report(rr::RRReporter::INFO,"  frame with %d objects\n",dynaPosRot.size());
@@ -78,6 +80,8 @@ bool AnimationFrame::save(FILE* f) const
 	// save dynaPosRot
 	for(DynaPosRot::const_iterator i=dynaPosRot.begin();i!=dynaPosRot.end();i++)
 		fprintf(f,"object = {%.3f,%.3f,%.3f,%.3f}\n",(*i)[0],(*i)[1],(*i)[2],(*i)[3]);
+	// save timing
+	fprintf(f,"duration = %.3f\n",transitionToNextTime);
 	fprintf(f,"\n");
 	rr::RRReporter::report(rr::RRReporter::INFO,"  frame with %d objects\n",dynaPosRot.size());
 	return true;

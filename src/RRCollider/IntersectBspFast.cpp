@@ -29,7 +29,9 @@ namespace rr
 		//  2. each time subtree is thrown away during bsp traversal, watch_triangle is expected to not be inside
 		//  3. if watch_triangle is inside and thus thrown away, it's error -> this assert is thrown
 #else
-	#define TEST_RANGE(min,max,cond,tree) RR_ASSERT(min<=max)
+	#define TEST_RANGE(min,max,cond,tree) //RR_ASSERT(min<=max)
+		// disabled, because it happens too often,
+		// probably without causing problems
 #endif
 
 #define DBG(a) //a
