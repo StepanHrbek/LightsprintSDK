@@ -1381,7 +1381,8 @@ void special(int c, int x, int y)
 	{
 		// kdyz uz editor hne kurzorem, posunme se na frame i v demoplayeru
 		demoPlayer->setPartPosition(level->animationEditor.getCursorTime());
-		demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
+		if(c!=GLUT_KEY_INSERT) // insert moves cursor right but preserves scene
+			demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
 		level->pilot.reportInteraction();
 		return;
 	}
@@ -1521,7 +1522,7 @@ void keyboard(unsigned char c, int x, int y)
 			special(GLUT_KEY_UP,0,0);
 			break;
 
-		case 'e':
+		case ' ':
 			demoPlayer->setPaused(!demoPlayer->getPaused());
 			break;
 
@@ -1576,9 +1577,9 @@ void keyboard(unsigned char c, int x, int y)
 				needDepthMapUpdate = 1;
 			}
 			break;
-		case ' ':
-			changeSpotlight();
-			break;
+		//case ' ':
+		//	changeSpotlight();
+		//	break;
 
 #if SUPPORT_LIGHTMAPS
 		// --- MAPS BEGIN ---

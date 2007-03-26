@@ -1,5 +1,6 @@
 #include "AnimationEditor.h"
 #include <GL/glut.h>
+#include <time.h>
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -43,9 +44,9 @@ void AnimationEditor::renderThumbnails(de::TextureRenderer* renderer) const
 		{
 			GLboolean blend = glIsEnabled(GL_BLEND);
 			glEnable(GL_BLEND);
-			//glBlendFunc(GL_ONE,GL_ONE);
 			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			renderer->render2D(cursorMap,NULL,x,y+h*0.6f,w*0.3f,h*0.4f);
+			float move = fabs((clock()%CLOCKS_PER_SEC)/(float)CLOCKS_PER_SEC-0.5f);
+			renderer->render2D(cursorMap,NULL,x,y+h*(0.1f+move),w*0.3f,h*0.4f);
 			if(!blend)
 				glDisable(GL_BLEND);
 		}
@@ -93,6 +94,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			extern void copySceneToAnimationFrame(AnimationFrame& frame, const LevelSetup* setup);
 			copySceneToAnimationFrame(tmp,setup);
 			setup->frames.insert(i,tmp);
+			frameCursor++;
 			return true;}
 		case GLUT_KEY_PAGE_UP:
 			if(frameCursor)

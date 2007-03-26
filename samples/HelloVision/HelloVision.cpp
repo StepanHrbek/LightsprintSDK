@@ -93,7 +93,7 @@ int main()
 	// create scene (able to calculate radiosity)
 	RRScene* scene = new RRScene(object,NULL);
 
-	// Print illumination levels for first time, should be 0.00, 1.00
+	// Print illumination levels for first time, should be 0.00, 0.50
 	// First triangle is completely dark, while second one emits light.
 	printf("Before calculation:");
 	printIllumination(scene);
@@ -102,8 +102,8 @@ int main()
 	clock_t timeOfEnd = clock()+CLK_TCK/10;
 	scene->illuminationImprove(endAtTime,&timeOfEnd);
 
-	// Print illumination levels for second time, should be approximately 0.13, 1.02
-	// First triangle is lit by second triangle (increase by 0.13).
+	// Print illumination levels for second time, should be approximately 0.06, 0.51
+	// First triangle is lit by second triangle (increase by 0.06).
 	// Second triangle is slightly lit by its own light reflected by first triangle (increase by 0.02).
 	printf("After calculation:");
 	printIllumination(scene);
