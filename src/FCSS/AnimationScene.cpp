@@ -39,7 +39,7 @@ bool LevelSetup::load(const char* afilename)
 	objects.clear();
 	unsigned tmpobj;
 	while(1==fscanf(f,"object = %d\n",&tmpobj))
-		objects.push_back(tmpobj);
+		objects.push_back(tmpobj-1);
 	// load frames
 	frames.clear();
 	AnimationFrame tmp;
@@ -65,7 +65,7 @@ bool LevelSetup::save() const
 	// save objects
 	for(unsigned i=0;i<objects.size();i++)
 	{
-		fprintf(f,"object = %d\n",objects[i]);
+		fprintf(f,"object = %d\n",objects[i]+1);
 	}
 	fprintf(f,"\n");
 	// save frames

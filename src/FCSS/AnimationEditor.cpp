@@ -88,8 +88,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			if(frameCursor<setup->frames.size()) frameCursor++;
 			return true;
 		case GLUT_KEY_INSERT:
-			{LevelSetup::Frames::iterator i=setup->frames.begin();
-			for(unsigned j=0;j<frameCursor;j++) i++;
+			{LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
 			AnimationFrame tmp;
 			extern void copySceneToAnimationFrame(AnimationFrame& frame, const LevelSetup* setup);
 			copySceneToAnimationFrame(tmp,setup);

@@ -218,9 +218,9 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 	{
 		light = frame.eyeLight[1];
 		reportLightMovement();
-		eye = frame.eyeLight[0];
-		reportEyeMovement();
 	}
+	eye = frame.eyeLight[0];
+	reportEyeMovement();
 	//for(AnimationFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
 	for(unsigned i=0;i<dynaobject.size();i++)
 	{

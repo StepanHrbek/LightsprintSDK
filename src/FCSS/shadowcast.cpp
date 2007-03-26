@@ -17,7 +17,6 @@ unsigned INSTANCES_PER_PASS;
 #endif
 bool ati = 1;
 int fullscreen = 0;
-bool animated = 1;
 bool renderer3ds = 1;
 bool startWithSoftShadows = 1;
 bool renderLightmaps = 0;
@@ -295,10 +294,9 @@ void init_gl_resources()
 
 	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
 //	skyMap = de::Texture::load("maps/starfield/starfield_%s.jpg",cubeSideNames);
-//	skyMap = de::Texture::load("maps/purplenebula/purplenebula_%s.jpg",cubeSideNames);
 //	skyMap = de::Texture::load("pool/cubemapy/qfraggel3/qfraggel3_%s.jpg",cubeSideNames);
-//	skyMap = de::Texture::load("pool/cubemapy/!desert/frozendusk/frozendusk_%s.jpg",cubeSideNames);
-	skyMap = rr_gl::RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap("pool/cubemapy/!desert/frozendusk/frozendusk_%s.jpg",cubeSideNames);
+//	skyMap = rr_gl::RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap("pool/cubemapy/!desert/frozendusk/frozendusk_%s.jpg",cubeSideNames);
+	skyMap = rr_gl::RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap("maps/purplenebula/purplenebula_%s.jpg",cubeSideNames);
 	if(!skyMap)
 		printf("Failed to load sky.\n");
 	skyRenderer = new de::TextureRenderer("shaders/");
@@ -642,15 +640,18 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 
 	eye.setupForRender();
 
-	skyRenderer->renderEnvironmentBegin();
-	skyMap->bindTexture();
-	glBegin(GL_POLYGON);
+	if(skyMap)
+	{
+		skyRenderer->renderEnvironmentBegin();
+		skyMap->bindTexture();
+		glBegin(GL_POLYGON);
 		glVertex3f(-1,-1,1);
 		glVertex3f(1,-1,1);
 		glVertex3f(1,1,1);
 		glVertex3f(-1,1,1);
-	glEnd();
-	skyRenderer->renderEnvironmentEnd();
+		glEnd();
+		skyRenderer->renderEnvironmentEnd();
+	}
 
 	renderScene(uberProgramSetup,firstInstance);
 
@@ -1980,7 +1981,7 @@ void idle()
 	{
 		reportLightMovementEnd();
 	}
-	if(animated && !paused && !showHint)
+	if(!paused && !showHint)
 	{
 		needDepthMapUpdate = 1;
 		needRedisplay = 1;
