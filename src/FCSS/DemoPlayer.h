@@ -14,6 +14,9 @@ public:
 	float getDemoPosition();
 	float getPartPosition();
 	void  setPartPosition(float seconds);
+	float getPartLength();
+	float getDemoLength();
+	float getMusicLength();
 	class DynamicObjects* getDynamicObjects();
 private:
 	bool paused;

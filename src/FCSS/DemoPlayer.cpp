@@ -95,3 +95,18 @@ void DemoPlayer::setPartPosition(float seconds)
 	demoTime = seconds+partStart;
 	music->setPosition(demoTime);
 }
+
+float DemoPlayer::getPartLength()
+{
+	return 0;
+}
+
+float DemoPlayer::getDemoLength()
+{
+	return 0;
+}
+
+float DemoPlayer::getMusicLength()
+{
+	return music->getLength();
+}

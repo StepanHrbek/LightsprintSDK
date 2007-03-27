@@ -15,6 +15,7 @@ public:
 	void  setPaused(bool paused);
 	float getPosition();
 	void  setPosition(float seconds);
+	float getLength();
 	~Music();
 private:
 	FMOD::System     *system;

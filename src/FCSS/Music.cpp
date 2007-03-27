@@ -71,6 +71,13 @@ void Music::setPosition(float seconds)
 	channel->setPosition((unsigned)(seconds*1000),FMOD_TIMEUNIT_MS);
 }
 
+float Music::getLength()
+{
+	unsigned ms = 0;
+	sound->getLength(&ms,FMOD_TIMEUNIT_MS);
+	return ms*0.001f;
+}
+
 Music::~Music()
 {
 	FMOD_RESULT result;

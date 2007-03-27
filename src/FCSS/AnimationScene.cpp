@@ -128,3 +128,18 @@ const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
 		return NULL;
 	return (*i).blend(*j,absSeconds/(*i).transitionToNextTime);
 }
+
+unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone, float* transitionTotal)
+{
+	unsigned result = 0;
+	Frames::const_iterator i=frames.begin();
+	while(i!=frames.end() && (*i).transitionToNextTime<absSeconds)
+	{
+		absSeconds -= (*i).transitionToNextTime;
+		i++;
+		result++;
+	}
+	*transitionDone = absSeconds;
+	*transitionTotal = (*i).transitionToNextTime;
+	return result;
+}

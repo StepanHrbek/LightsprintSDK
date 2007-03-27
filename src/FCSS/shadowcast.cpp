@@ -909,7 +909,7 @@ static void drawHelpMessage(int screen)
 	glDisable(GL_BLEND);
 
 	glColor3f(1,1,1);
-	if(screen || demoPlayer->getPaused())
+	if(screen /*|| demoPlayer->getPaused()*/)
 	{
 		for(i=0; message[screen][i] != NULL; i++) 
 		{
@@ -923,8 +923,18 @@ static void drawHelpMessage(int screen)
 	else
 	{
 		char buf[200];
-		sprintf(buf,"demo time = %.1f, part time = %.1f",demoPlayer->getDemoPosition(),demoPlayer->getPartPosition());
+		sprintf(buf,"demo %.1f/%.1fs, byt %.1f/%.1fs, music %.1f",
+			demoPlayer->getDemoPosition(),demoPlayer->getDemoLength(),
+			demoPlayer->getPartPosition(),level->pilot.setup->getTotalTime(),//demoPlayer->getPartLength(),
+			demoPlayer->getMusicLength());
 		output(x,y,buf);
+		float transitionDone;
+		float transitionTotal;
+		unsigned frameIndex = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
+		sprintf(buf,"frame %d/%d, %.1f/%.1fs",
+			frameIndex,level->pilot.setup->frames.size(),
+			transitionDone,transitionTotal);
+		output(x,y+18,buf);
 	}
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -1365,6 +1375,8 @@ float speedForward = 0;
 float speedBack = 0;
 float speedRight = 0;
 float speedLeft = 0;
+float speedUp = 0;
+float speedDown = 0;
 
 void special(int c, int x, int y)
 {
@@ -1438,6 +1450,12 @@ void special(int c, int x, int y)
 		case GLUT_KEY_RIGHT:
 			speedRight = scale;
 			break;
+		case GLUT_KEY_PAGE_UP:
+			speedUp = scale;
+			break;
+		case GLUT_KEY_PAGE_DOWN:
+			speedDown = scale;
+			break;
 
 		default:
 			return;
@@ -1461,6 +1479,12 @@ void specialUp(int c, int x, int y)
 			break;
 		case GLUT_KEY_RIGHT:
 			speedRight = 0;
+			break;
+		case GLUT_KEY_PAGE_UP:
+			speedUp = 0;
+			break;
+		case GLUT_KEY_PAGE_DOWN:
+			speedDown = 0;
 			break;
 	}
 }
@@ -1520,6 +1544,14 @@ void keyboard(unsigned char c, int x, int y)
 		case 'w':
 		case 'W':
 			special(GLUT_KEY_UP,0,0);
+			break;
+		case 'q':
+		case 'Q':
+			special(GLUT_KEY_PAGE_UP,0,0);
+			break;
+		case 'z':
+		case 'Z':
+			special(GLUT_KEY_PAGE_DOWN,0,0);
 			break;
 
 		case ' ':
@@ -1850,6 +1882,14 @@ void keyboardUp(unsigned char c, int x, int y)
 		case 'W':
 			specialUp(GLUT_KEY_UP,0,0);
 			break;
+		case 'q':
+		case 'Q':
+			specialUp(GLUT_KEY_PAGE_UP,0,0);
+			break;
+		case 'z':
+		case 'Z':
+			specialUp(GLUT_KEY_PAGE_DOWN,0,0);
+			break;
 	}
 }
 
@@ -1950,7 +1990,9 @@ void idle()
 	if(speedBack) cam->moveBack(speedBack*seconds);
 	if(speedRight) cam->moveRight(speedRight*seconds);
 	if(speedLeft) cam->moveLeft(speedLeft*seconds);
-	if(speedForward || speedBack || speedRight || speedLeft)
+	if(speedUp) cam->moveUp(speedUp*seconds);
+	if(speedDown) cam->moveDown(speedDown*seconds);
+	if(speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown)
 	{
 		//printf(" %f ",seconds);
 		if(cam==&light) reportLightMovement(); else reportEyeMovement();

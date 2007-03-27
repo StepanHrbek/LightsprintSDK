@@ -61,6 +61,10 @@ public:
 	void moveRight(float units);
 	//! Moves camera to given distance in world space.
 	void moveLeft(float units);
+	//! Moves camera to given distance in world space.
+	void moveUp(float units);
+	//! Moves camera to given distance in world space.
+	void moveDown(float units);
 	//! Updates all outputs, recalculates them from inputs.
 	void update(float back); // converts inputs to outputs
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are

@@ -47,6 +47,8 @@ public:
 
 	// returns frame for given time (0..length), NULL for times outside range
 	const AnimationFrame* getFrameByTime(float absSeconds);
+
+	unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone, float* transitionTotal);
 };
 
 #endif

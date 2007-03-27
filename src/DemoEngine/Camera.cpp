@@ -55,4 +55,14 @@ void Camera::moveLeft(float units)
 	pos[2]-=dir[0]*units;
 }
 
+void Camera::moveUp(float units)
+{
+	pos[1]+=units;
+}
+
+void Camera::moveDown(float units)
+{
+	pos[1]-=units;
+}
+
 }; // namespace
