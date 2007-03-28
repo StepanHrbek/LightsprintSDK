@@ -88,7 +88,7 @@ void* realloc(void* p,size_t oldsize,size_t newsize)
 	void *q=malloc(newsize);
 	if(!q)
 	{
-		printf("Out of memory, exiting!\n");
+		RRReporter::report(RRReporter::ERRO,"Out of memory, exiting!\n");
 		exit(1);
 	}
 	if(p)

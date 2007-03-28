@@ -102,7 +102,9 @@ unsigned RRRealtimeRadiosity::getNumObjects() const
 
 RRObject* RRRealtimeRadiosity::getObject(unsigned i)
 {
-	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
+	// this is commented out, getObject() is allowed even immediately after setObjects()
+	//if(dirtyGeometry) return NULL;
+
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).first;
 }
@@ -133,7 +135,9 @@ const RRScene* RRRealtimeRadiosity::getScene()
 
 RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
 {
-	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
+	// this is commented out, getIllumination() is allowed even immediately after setObjects()
+	//if(dirtyGeometry) return NULL;
+
 	if(i>=objects.size()) return NULL;
 	return objects.at(i).second;
 }
@@ -141,19 +145,19 @@ RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
 
 void RRRealtimeRadiosity::reportMaterialChange()
 {
-	REPORT(reportAction("<MaterialChange>"));
+	REPORT(RRReporter::report(RRReporter::INFO,"<MaterialChange>\n"));
 	dirtyMaterials = true;
 }
 
 void RRRealtimeRadiosity::reportDirectIlluminationChange(bool strong)
 {
-	REPORT(reportAction(strong?"<LightChangeStrong>":"<LightChange>"));
+	REPORT(RRReporter::report(RRReporter::INFO,strong?"<IlluminationChangeStrong>\n":"<IlluminationChange>\n"));
 	dirtyLights = strong?BIG_CHANGE:SMALL_CHANGE;
 }
 
 void RRRealtimeRadiosity::reportInteraction()
 {
-	REPORT(reportAction("<Interaction>"));
+	REPORT(RRReporter::report(RRReporter::INFO,"<Interaction>\n"));
 	lastInteractionTime = GETTIME;
 }
 
@@ -261,7 +265,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 	TIME now = GETTIME;
 	TIME end = (TIME)(now+improveStep*PER_SEC);
 	RRScene::Improvement improvement = scene ? scene->illuminationImprove(endByTime,(void*)&end) : RRScene::FINISHED;
-	REPORT(printf(" (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
+	//REPORT(RRReporter::report(RRReporter::CONT," (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 	REPORT_END;
 	switch(improvement)
 	{
@@ -309,7 +313,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 		{
 			userStep = lastUserStep;
 		}
-		REPORT(printf("User %d ms.\n",(int)(1000*lastUserStep)));
+		REPORT(RRReporter::report(RRReporter::INFO,"User %d ms.\n",(int)(1000*lastUserStep)));
 	} else {
 		// no reportInteraction was called between this and previous calculate
 		// -> increase userStep
@@ -317,13 +321,13 @@ RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 		userStep = lastInteractionTime ?
 			(lastCalcEndTime-lastInteractionTime)/(float)PER_SEC // time from last interaction (if there was at least one)
 			: IMPROVE_STEP_NO_INTERACTION; // safety time for situations there was no interaction yet
-		REPORT(printf("User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*userStep)));
+		REPORT(RRReporter::report(RRReporter::INFO,"User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*userStep)));
 	}
 
 	// adjust improveStep
 	if(!userStep || !calcStep || !improveStep)
 	{
-		REPORT(printf("Reset to NO_INTERACT(%f,%f,%f).",userStep,calcStep,improveStep));
+		REPORT(RRReporter::report(RRReporter::INFO,"Reset to NO_INTERACT(%f,%f,%f).\n",userStep,calcStep,improveStep));
 		improveStep = IMPROVE_STEP_NO_INTERACTION;
 	}
 	else

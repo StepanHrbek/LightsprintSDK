@@ -1157,7 +1157,7 @@ void display()
 {
 	if(!winWidth) return; // can't work without window
 	static unsigned skipFrames = 0;
-	//printf("<Display.>");
+	//printf("<Display.>\n");
 	if(!level)
 	{
 		showImage(loadingMap);
