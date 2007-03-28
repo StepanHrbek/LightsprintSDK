@@ -300,7 +300,7 @@ int main(int argc, char **argv)
 		error("",false);
 
 	// init dynamic objects
-	robot = quadro ? NULL : DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f);
+	robot = quadro ? NULL : DynamicObject::create("..\\..\\data\\3ds\\characters\\I_Robot_female.3ds",0.3f);
 	potato = quadro ? NULL : DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f);
 
 	glutMainLoop();

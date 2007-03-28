@@ -567,7 +567,7 @@ int main(int argc, char **argv)
 	{
 		de::UberProgramSetup material;
 		material.MATERIAL_SPECULAR = true;
-		robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I Robot female.3ds",0.3f,material,16);
+		robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I_Robot_female.3ds",0.3f,material,16);
 		material.MATERIAL_DIFFUSE = true;
 		material.MATERIAL_DIFFUSE_MAP = true;
 		material.MATERIAL_SPECULAR_MAP = true;
