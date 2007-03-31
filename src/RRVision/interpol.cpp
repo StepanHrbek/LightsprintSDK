@@ -1203,6 +1203,8 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 // .ora oraculum
 // akcelerovany orakulum, poradi otazek je znamo a jsou predpocitany v poli
 
+#ifdef SUPPORT_ORACULUM
+
 // zde se vytvari pole pointeru na odpovedi, pri ukladani uz by mely bejt
 //  vsechny vyplneny. pocita ze kazdej subtriangl zavola fill jen jednou.
 
@@ -1279,9 +1281,14 @@ extern void ora_reading_done()
 	ora_reading=false;
 }
 
+#endif // SUPPORT_ORACULUM
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // saving/loading precalculated ivertex data, oraculum
+
+#ifdef SUPPORT_SUBDIVISION_FILES
 
 static unsigned iv_depth=0;
 
@@ -2061,6 +2068,8 @@ void Scene::iv_dumpTree(char *name)
 	iv_forEach(iv_dump);
 	fclose(iv_f);
 }
+
+#endif // SUPPORT_SUBDIVISION_FILES
 
 //////////////////////////////////////////////////////////////////////////////
 //

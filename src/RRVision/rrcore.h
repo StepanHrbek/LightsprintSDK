@@ -651,6 +651,7 @@ public:
 #ifdef SUPPORT_TRANSFORMS
 	void    transformObjects();
 #endif
+#ifdef SUPPORT_SUBDIVISION_FILES
 	void    iv_forEach(void callback(SubTriangle *s,IVertex *iv,int type));
 	void    iv_saveRealFrame(char *name);
 	void    iv_cleanErrors();
@@ -668,6 +669,7 @@ public:
 	private:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
+#endif // SUPPORT_SUBDIVISION_FILES
 	void    draw(RRScene* scene, real quality);
 	void    updateMatrices();
 

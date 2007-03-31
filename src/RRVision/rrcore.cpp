@@ -699,9 +699,11 @@ void (*__oraculum)()=NULL;
 
 int SubTriangle::getSplitVertexSlow()
 {
+#ifdef SUPPORT_ORACULUM
 	// postara se o akcelerovany orakulum, cteni i psani
 	if(ora_filling && !(flags&FLAG_IS_IN_ORA)) {ora_fill(&splitVertex_rightLeft);flags|=FLAG_IS_IN_ORA;}
 	if(ora_reading && !(flags&FLAG_IS_IN_ORA)) {splitVertex_rightLeft=ora_read();flags|=FLAG_IS_IN_ORA;}
+#endif // SUPPORT_ORACULUM
 	// magicky nasobitel je tu proto aby pri shodne delce stran,
 	// ktera nastava casto,
 	// nedaval vinou zaokrouhlovacich chyb pokazde jine vysledky.
@@ -2334,7 +2336,6 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 	{
 		DBGLINE
 		// shoot
-		static unsigned shotsLimit=0;
 		while(shotsAccumulated<shotsForNewFactors
 			)
 		{

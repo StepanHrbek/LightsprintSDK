@@ -234,6 +234,7 @@ void setRrMode(Scene *scene,bool staticreinit,bool dynamic,int drawdynamichits)
  p_ffPlay=0;
 }
 
+#ifdef SUPPORT_SUBDIVISION_FILES
 void fakMerge(Scene *scene,unsigned frames,unsigned maxvertices)
 {
  char info[100];
@@ -315,13 +316,18 @@ void fakStartLoadingBytes(Scene *scene,bool ora_filling,bool ora_reading)
 {
  char namemes[256];
  sprintf(namemes,"%s.mes",p_ffName);
+#ifdef SUPPORT_ORACULUM
  if(ora_filling) ora_filling_init();
  if(ora_reading) ora_reading_init(bp("%s.ora",p_ffName));
+#endif
  g_tgaFrames=scene->iv_initLoadingBytes(namemes,bp("%s.%c.tga",p_ffName,'w'))/g_lights;
+#ifdef SUPPORT_ORACULUM
  if(ora_reading) ora_reading_done();
  if(ora_filling) ora_filling_done(bp("%s.ora",p_ffName));
+#endif
  g_tgaFrame=0;
 }
+#endif // SUPPORT_SUBDIVISION_FILES
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -371,6 +377,7 @@ bool  preparing_capture=false;
 
 bool frameCalculate(Scene *scene)
 {
+#ifdef SUPPORT_SUBDIVISION_FILES
  if(p_ffPlay)
  {
    real tgaFrame=(p_3dsFrame)/(p_3dsFrameEnd-p_3dsFrameStart)*g_tgaFrames;
@@ -381,6 +388,7 @@ bool frameCalculate(Scene *scene)
    n_dirtyColor=true;
    return true;
  }
+#endif // SUPPORT_SUBDIVISION_FILES
 
  if(p_flyingObjects || p_flyingCamera || n_dirtyGeometry) c_dynamicFrameTime=c_frameTime;
 #ifdef RASTERGL
@@ -426,8 +434,10 @@ void frameDraw(Scene *scene, RRScene* rrscene)
      //  vracet cislo z cache (udaj pro predchozi komponentu)
      __frameNumber++;
 
+#ifdef SUPPORT_SUBDIVISION_FILES
      //ulozi
      scene->iv_saveRealFrame(bp("%s.%c.%03i",p_ffName,c,g_tgaFrame));
+#endif // SUPPORT_SUBDIVISION_FILES
    }
  }
  __frameNumber++;
@@ -464,9 +474,11 @@ void frameAdvance(Scene *scene)
      // pokud bezi batch a mel jen grabovat, ted skonci
      if(g_batchGrab && !g_batchMerge) exit(__errors);
 
+#ifdef SUPPORT_SUBDIVISION_FILES
      // uplne nakonec nasimuluje ze uzivatel po 'g' stiskl i 'h' (vzdy jsem to delal)
      // spoji .?.000 soubory do .mes, .?.tga
      fakMerge(scene,g_tgaFrames*g_lights,g_maxVertices);
+#endif // SUPPORT_SUBDIVISION_FILES
    }
  }
  // kdyz litaj objekty, posune je o nakej kus dal
@@ -571,6 +583,7 @@ void keyboardFunc(unsigned char key, int x, int y)
             //c_frameTime=10;//zeptat se kolik sekund na snimek
             p_clock=false;
             break;
+#ifdef SUPPORT_SUBDIVISION_FILES
   case 'h': // spoji .?.000 soubory do .mes, .?.tga
             fakMerge(scene,g_tgaFrames*g_lights,g_maxVertices);
             break;
@@ -589,6 +602,7 @@ void keyboardFunc(unsigned char key, int x, int y)
             fakStartLoadingBytes(scene,false,false);
             break;
 //  case 't': scene->iv_dumpTree("tree");
+#endif // SUPPORT_SUBDIVISION_FILES
 
   case 'a': matrix_Move  (__world->camera[0].matrix, 0,GLMINUS(-5),0  );n_dirtyGeometry=true;break;
   case 'z': matrix_Move  (__world->camera[0].matrix, 0,GLMINUS( 5),0  );n_dirtyGeometry=true;break;
@@ -913,6 +927,7 @@ int main(int argc, char **argv)
 	   fprintf(stderr,buf);
 	   return 0;
    }
+#ifdef SUPPORT_SUBDIVISION_FILES
    //prehraje 5 snimku
    setRrMode(scene,false,false,0);p_flyingObjects=true;
    p_ffPlay=2;
@@ -930,6 +945,7 @@ int main(int argc, char **argv)
      printf("Drawing frame: %f sec\n",(float)(t2-t1)/PER_SEC/frames);
    }
    printf("Loading scene: %f sec\n",(float)(t1-t0)/PER_SEC);
+#endif // SUPPORT_SUBDIVISION_FILES
    return 0;
  }
  else

@@ -34,6 +34,9 @@ INTERPOL_BETWEEN tells if it's good idea to interpolate between two triangles
 	#define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)
 #endif
 
+//#define SUPPORT_ORACULUM
+//#define SUPPORT_SUBDIVISION_FILES
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -107,6 +110,8 @@ public:
 // .ora oraculum
 // akcelerovany orakulum, poradi otazek je znamo a jsou predpocitany v poli
 
+#ifdef SUPPORT_ORACULUM
+
 extern bool ora_filling;
 extern bool ora_reading;
 
@@ -117,6 +122,8 @@ void ora_filling_done(char *filename);
 void ora_reading_init(char *filename);
 S8   ora_read();
 void ora_reading_done();
+
+#endif // SUPPORT_ORACULUM
 
 } // namespace
 
