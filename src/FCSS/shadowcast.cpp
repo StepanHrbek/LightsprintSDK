@@ -1414,6 +1414,14 @@ void special(int c, int x, int y)
 
 	switch (c) 
 	{
+		case GLUT_KEY_F4:
+			if(modif&GLUT_ACTIVE_ALT)
+			{
+				done_gl_resources();
+				exit(0);
+			}
+			break;
+
 		case GLUT_KEY_F1:
 			areaLight->setNumInstances(1);
 			uberProgramGlobalSetup.SHADOW_SAMPLES = 1;
