@@ -133,7 +133,7 @@ unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone
 {
 	unsigned result = 0;
 	Frames::const_iterator i=frames.begin();
-	while(i!=frames.end() && (*i).transitionToNextTime<absSeconds)
+	while(i!=frames.end() && (*i).transitionToNextTime<=absSeconds)
 	{
 		absSeconds -= (*i).transitionToNextTime;
 		i++;

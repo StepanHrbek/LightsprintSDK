@@ -45,7 +45,7 @@ public:
 
 	// object's interface for movement, freely changeable from outside
 	rr::RRVec3 worldFoot;
-	rr::RRReal rot;
+	rr::RRVec2 rotYZ; // y is rotated first, then z
 	bool visible;
 
 	// updated by updateIllumination, public only for save & load

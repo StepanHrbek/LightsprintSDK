@@ -36,7 +36,7 @@ DynamicObject::DynamicObject()
 	diffuseMap = NULL;
 	specularMap = NULL;
 	worldFoot = rr::RRVec3(0);
-	rot = 0;
+	rotYZ = rr::RRVec2(0);
 	visible = true;
 }
 
@@ -59,7 +59,8 @@ void DynamicObject::updatePosition()
 	glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
-	glRotatef(rot,0,1,0);
+	glRotatef(rotYZ[1],0,0,1);
+	glRotatef(rotYZ[0],0,1,0);
 	glTranslatef(-getModel().localCenter.x,-getModel().localMinY,-getModel().localCenter.z);
 	glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
 	glPopMatrix();

@@ -15,7 +15,16 @@ struct AnimationFrame
 	// camera and light
 	de::Camera eyeLight[2];
 	// dynamic objects
-	typedef std::vector<rr::RRVec4> DynaPosRot;
+	struct DynaObjectPosRot
+	{
+		rr::RRVec3 pos;
+		rr::RRVec2 rot; // yz, first y is rotated, then z
+		DynaObjectPosRot()
+		{
+			memset(this,0,sizeof(*this));
+		}
+	};
+	typedef std::vector<DynaObjectPosRot> DynaPosRot;
 	DynaPosRot dynaPosRot;
 	// timing
 	float transitionToNextTime;

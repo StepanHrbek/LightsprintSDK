@@ -34,9 +34,19 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	blended.dynaPosRot.clear();
 	for(unsigned i=0;i<this->dynaPosRot.size() && i<that.dynaPosRot.size();i++)
 	{
-		rr::RRVec4 tmp = rr::RRVec4(
-			this->dynaPosRot[i]   *(1-alpha) + that.dynaPosRot[i]   *alpha,
-			this->dynaPosRot[i][3]*(1-alpha) + that.dynaPosRot[i][3]*alpha); // RRVec4 operators are 3-component
+		DynaObjectPosRot tmp;
+		tmp.pos = this->dynaPosRot[i].pos*(1-alpha) + that.dynaPosRot[i].pos*alpha;
+		rr::RRVec2 thisRot = this->dynaPosRot[i].rot;
+		rr::RRVec2 thatRot = that.dynaPosRot[i].rot;
+		for(unsigned j=0;j<2;j++)
+		{
+			// never do blend between more than 180 degree distance
+			thisRot[j] = fmodf(thisRot[j],360);
+			thatRot[j] = fmodf(thatRot[j],360);
+			if(thisRot[j]<thatRot[j]-180) thisRot[j] += 360; else
+			if(thisRot[j]>thatRot[j]+180) thisRot[j] -= 360;
+		}
+		tmp.rot = thisRot*(1-alpha) + thatRot*alpha;
 		blended.dynaPosRot.push_back(tmp);
 	}
 	// blend thumbnail
@@ -57,8 +67,10 @@ bool AnimationFrame::load(FILE* f)
 		return false;
 	// load dynaPosRot
 	dynaPosRot.clear();
-	rr::RRVec4 tmp;
-	while(4==fscanf(f,"object = {%f,%f,%f,%f}\n",&tmp[0],&tmp[1],&tmp[2],&tmp[3]))
+	DynaObjectPosRot tmp;
+//	while(4==fscanf(f,"object = {%f,%f,%f,%f}\n",&tmp.pos[0],&tmp.pos[1],&tmp.pos[2],&tmp.rot[0]))
+//		dynaPosRot.push_back(tmp);
+	while(5==fscanf(f,"object = {%f,%f,%f,%f,%f}\n",&tmp.pos[0],&tmp.pos[1],&tmp.pos[2],&tmp.rot[0],&tmp.rot[1]))
 		dynaPosRot.push_back(tmp);
 	// load timing
 	fscanf(f,"duration = %f\n",&transitionToNextTime);
@@ -74,7 +86,7 @@ void AnimationFrame::validate(unsigned numObjects)
 	while(dynaPosRot.size()<numObjects)
 	{
 		// create positions when objects were added by hand into scene
-		rr::RRVec4 tmp = rr::RRVec4(0);
+		DynaObjectPosRot tmp;
 		dynaPosRot.push_back(tmp);
 	}
 }
@@ -90,7 +102,7 @@ bool AnimationFrame::save(FILE* f) const
 	fprintf(f,"light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eyeLight[i].pos[0],eyeLight[i].pos[1],eyeLight[i].pos[2],fmodf(eyeLight[i].angle+100*3.14159265f,2*3.14159265f),eyeLight[i].height,eyeLight[i].aspect,eyeLight[i].fieldOfView,eyeLight[i].anear,eyeLight[i].afar);
 	// save dynaPosRot
 	for(DynaPosRot::const_iterator i=dynaPosRot.begin();i!=dynaPosRot.end();i++)
-		fprintf(f,"object = {%.3f,%.3f,%.3f,%.3f}\n",(*i)[0],(*i)[1],(*i)[2],(*i)[3]);
+		fprintf(f,"object = {%.3f,%.3f,%.3f,%.3f,%.3f}\n",(*i).pos[0],(*i).pos[1],(*i).pos[2],(*i).rot[0],(*i).rot[1]);
 	// save timing
 	fprintf(f,"duration = %.3f\n",transitionToNextTime);
 	fprintf(f,"\n");

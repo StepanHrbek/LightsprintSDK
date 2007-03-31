@@ -74,6 +74,7 @@ bool AnimationEditor::keyboard(unsigned char c, int x, int y)
 
 bool AnimationEditor::special(unsigned char c, int x, int y)
 {
+	int modif = glutGetModifiers();
 	switch(c)
 	{
 		case GLUT_KEY_HOME:
@@ -83,10 +84,32 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			frameCursor = setup->frames.size();
 			return true;
 		case GLUT_KEY_LEFT:
-			if(frameCursor) frameCursor--;
+			if(modif&GLUT_ACTIVE_CTRL)
+			{
+				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
+				if(i!=setup->frames.end())
+				{
+					(*i).transitionToNextTime = MAX(0,(*i).transitionToNextTime-0.5f);
+				}
+			}
+			else
+			{
+				if(frameCursor) frameCursor--;
+			}
 			return true;
 		case GLUT_KEY_RIGHT:
-			if(frameCursor<setup->frames.size()) frameCursor++;
+			if(modif&GLUT_ACTIVE_CTRL)
+			{
+				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
+				if(i!=setup->frames.end())
+				{
+					(*i).transitionToNextTime += 0.5f;
+				}
+			}
+			else
+			{
+				if(frameCursor<setup->frames.size()) frameCursor++;
+			}
 			return true;
 		case GLUT_KEY_INSERT:
 			{LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);

@@ -16,13 +16,14 @@ unsigned INSTANCES_PER_PASS;
 	#define SUPPORT_BSP
 #endif
 bool ati = 1;
-int fullscreen = 0;
+int fullscreen = 1;
 bool renderer3ds = 1;
 bool startWithSoftShadows = 1;
 bool renderLightmaps = 0;
 int resolutionx = 640;
 int resolutiony = 480;
 bool twosided = 0;
+bool supportEditor = 0;
 /*
 crashne po esc v s_veza/gcc
 
@@ -142,7 +143,7 @@ class Level
 {
 public:
 	Autopilot pilot;
-	AnimationEditor animationEditor;
+	AnimationEditor* animationEditor;
 
 	enum Type
 	{
@@ -766,6 +767,7 @@ void drawEyeViewSoftShadowed(void)
 // captures current scene into thumbnail
 void updateThumbnail(AnimationFrame& frame)
 {
+	printf("Updating thumbnail.\n");
 	// set frame
 	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,frame,true);
 	// calculate
@@ -968,8 +970,9 @@ void showLogo(const de::Texture* logo)
 //
 // Level body
 
-Level::Level(LevelSetup* levelSetup) : pilot(levelSetup), animationEditor(levelSetup)
+Level::Level(LevelSetup* levelSetup) : pilot(levelSetup)
 {
+	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : NULL;
 	solver = NULL;
 	bugs = NULL;
 	rendererNonCaching = NULL;
@@ -1174,10 +1177,11 @@ void display()
 			level->solver->calculate();
 
 		// capture thumbnails
-		for(LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
-		{
-			updateThumbnail(*i);
-		}
+		if(supportEditor)
+			for(LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
+			{
+				updateThumbnail(*i);
+			}
 
 		// don't display first frame, characters have bad position (dunno why)
 		skipFrames = 1;
@@ -1241,8 +1245,10 @@ void display()
 	showLogo(lightsprintMap);
 #endif
 
-	if(demoPlayer->getPaused())
-		level->animationEditor.renderThumbnails(skyRenderer);
+	if(demoPlayer->getPaused() && level->animationEditor)
+	{
+		level->animationEditor->renderThumbnails(skyRenderer);
+	}
 
 	drawHelpMessage(showHelp);
 
@@ -1389,10 +1395,11 @@ void special(int c, int x, int y)
 	if(level 
 		&& demoPlayer->getPaused()
 		&& (x||y) // arrows simulated by w/s/a/d are not intended for editor
-		&& level->animationEditor.special(c,x,y))
+		&& level->animationEditor
+		&& level->animationEditor->special(c,x,y))
 	{
 		// kdyz uz editor hne kurzorem, posunme se na frame i v demoplayeru
-		demoPlayer->setPartPosition(level->animationEditor.getCursorTime());
+		demoPlayer->setPartPosition(level->animationEditor->getCursorTime());
 		if(c!=GLUT_KEY_INSERT) // insert moves cursor right but preserves scene
 			demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
 		level->pilot.reportInteraction();
@@ -1501,10 +1508,13 @@ void keyboard(unsigned char c, int x, int y)
 		return;
 	}
 
-	if(level && demoPlayer->getPaused() && level->animationEditor.keyboard(c,x,y))
+	if(level
+		&& demoPlayer->getPaused()
+		&& level->animationEditor
+		&& level->animationEditor->keyboard(c,x,y))
 	{
 		// kdyz uz editor hne kurzorem, posunme se na frame i v demoplayeru
-		demoPlayer->setPartPosition(level->animationEditor.getCursorTime());
+		demoPlayer->setPartPosition(level->animationEditor->getCursorTime());
 		demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
 		level->pilot.reportInteraction();
 		return;
@@ -2005,9 +2015,17 @@ void idle()
 		{
 			if(!demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition()))
 			{
-				// play finished, jump to editor
-				demoPlayer->setPaused(true);
-				level->animationEditor.frameCursor = MAX(1,level->pilot.setup->frames.size())-1;
+				if(level->animationEditor)
+				{
+					// play scene finished, jump to editor
+					demoPlayer->setPaused(true);
+					level->animationEditor->frameCursor = MAX(1,level->pilot.setup->frames.size())-1;
+				}
+				else
+				{
+					// play scene finished, jump to next scene
+					//!!!
+				}
 			}
 		}
 //#else
@@ -2089,6 +2107,10 @@ void parseOptions(int argc, char **argv)
 
 	for (i=1; i<argc; i++) 
 	{
+		if (!strcmp("editor", argv[i])) {
+			supportEditor = 1;
+			fullscreen = 0;
+		}
 		if (!strcmp("rx", argv[i])) {
 			resolutionx = atoi(argv[++i]);
 		}
@@ -2177,6 +2199,7 @@ int main(int argc, char **argv)
 #else
 	demoPlayer = new DemoPlayer("LightsprintDemo.cfg");
 #endif
+	demoPlayer->setPaused(supportEditor);
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 

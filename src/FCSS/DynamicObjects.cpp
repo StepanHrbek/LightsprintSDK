@@ -187,9 +187,9 @@ const rr::RRVec3 DynamicObjects::getPos(unsigned objIndex)
 	return (objIndex<dynaobject.size()) ? dynaobject[objIndex]->worldFoot : rr::RRVec3(0);
 }
 
-const rr::RRReal DynamicObjects::getRot(unsigned objIndex)
+const rr::RRVec2 DynamicObjects::getRot(unsigned objIndex)
 {
-	return (objIndex<dynaobject.size()) ? dynaobject[objIndex]->rot : 0;
+	return (objIndex<dynaobject.size()) ? dynaobject[objIndex]->rotYZ : RRVec2(0);
 }
 
 void DynamicObjects::setPos(unsigned objIndex, rr::RRVec3 worldFoot)
@@ -233,8 +233,8 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 		if(i<frame.dynaPosRot.size() && j<dynaobject.size() && dynaobject[j])
 		{
 			dynaobject[j]->visible = true;
-			dynaobject[j]->worldFoot = RRVec3(frame.dynaPosRot[i][0],frame.dynaPosRot[i][1],frame.dynaPosRot[i][2]);
-			dynaobject[j]->rot = frame.dynaPosRot[i][3];
+			dynaobject[j]->worldFoot = frame.dynaPosRot[i].pos;
+			dynaobject[j]->rotYZ = frame.dynaPosRot[i].rot;
 			dynaobject[j]->updatePosition();
 			// copy changes to AI
 			dynaobjectAI[j]->pos = dynaobject[j]->worldFoot;
@@ -251,9 +251,12 @@ void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& f
 	for(unsigned sceneIndex=0;sceneIndex<setup->objects.size();sceneIndex++) // scene has few objects
 	{
 		unsigned demoIndex = setup->objects[sceneIndex]; // demo has more objects
-		rr::RRVec4 tmp = rr::RRVec4(0);
+		AnimationFrame::DynaObjectPosRot tmp;
 		if(dynaobject[demoIndex])
-			tmp = rr::RRVec4(dynaobject[demoIndex]->worldFoot,dynaobject[demoIndex]->rot);
+		{
+			tmp.pos = dynaobject[demoIndex]->worldFoot;
+			tmp.rot = dynaobject[demoIndex]->rotYZ;
+		}
 		frame.dynaPosRot.push_back(tmp);
 	}
 	frame.validate(setup->objects.size());

@@ -22,7 +22,7 @@ public:
 
 	// actual positions in scene
 	const rr::RRVec3 getPos(unsigned objIndex);
-	const rr::RRReal getRot(unsigned objIndex);
+	const rr::RRVec2 getRot(unsigned objIndex);
 	DynamicObject* getObject(unsigned objIndex);
 	void setPos(unsigned objIndex, rr::RRVec3 worldFoot);
 
