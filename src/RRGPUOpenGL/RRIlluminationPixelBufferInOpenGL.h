@@ -37,7 +37,7 @@ namespace rr_gl
 		virtual void renderEnd(bool preferQualityOverSpeed);
 		virtual unsigned getWidth() const;
 		virtual unsigned getHeight() const;
-		virtual void bindTexture();
+		virtual void bindTexture() const;
 		virtual bool save(const char* filename);
 		virtual ~RRIlluminationPixelBufferInOpenGL();
 	private:

@@ -57,7 +57,7 @@ RRColorRGBF RRIlluminationEnvironmentMapInMemory::getValue(const RRVec3& directi
 	return data[size*size*side+size*y+x];
 }
 
-void RRIlluminationEnvironmentMapInMemory::bindTexture()
+void RRIlluminationEnvironmentMapInMemory::bindTexture() const
 {
 	RR_ASSERT(0);
 }

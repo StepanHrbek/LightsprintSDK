@@ -65,7 +65,7 @@ const AnimationFrame* Autopilot::autopilot(float seconds, bool* lightsChanged)
 
 bool Autopilot::isTimeToChangeLevel()
 {
-	return secondsSinceLastInteraction>TIME_TO_CHANGE_LEVEL+TIME_TO_AUTOPILOT;
+	return 0;//secondsSinceLastInteraction>TIME_TO_CHANGE_LEVEL+TIME_TO_AUTOPILOT;
 }
 
 // picks next frame that was less often selected

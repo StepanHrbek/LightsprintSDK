@@ -2,14 +2,17 @@
 #include "Music.h"
 #include "DynamicObject.h"
 #include "DynamicObjects.h"
-#include "LevelSequence.h"
+//#include "LevelSequence.h"
+#include "Level.h"
+#include "Lightsprint/RRGPUOpenGL.h"
 
-DemoPlayer::DemoPlayer(const char* demoCfg)
+DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 {
 	memset(this,0,sizeof(*this));
 	FILE* f = fopen(demoCfg,"rt");
 	if(!f)
 		return;
+
 	// load music
 	char buf[1000];
 	if(1!=fscanf(f,"music = %s\n",buf))
@@ -17,6 +20,18 @@ DemoPlayer::DemoPlayer(const char* demoCfg)
 	music = new Music(buf);
 	paused = true;
 	music->setPaused(paused);
+
+	// load sky
+	buf[0] = 0;
+	fscanf(f,"sky = %s\n",buf);
+	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
+	if(buf[0])
+	{
+		skyMap = rr_gl::RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap(buf,cubeSideNames);
+		if(!skyMap)
+			rr::RRReporter::report(rr::RRReporter::WARN,"Failed to load skybox %s.\n",buf);
+	}
+
 	// load objects
 	dynamicObjects = new DynamicObjects();
 	float diffuse,specular;
@@ -38,19 +53,24 @@ DemoPlayer::DemoPlayer(const char* demoCfg)
 		DynamicObject* object = DynamicObject::create(buf,scale,material,specularCubeSize);
 		dynamicObjects->addObject(object);
 	}
+
 	// load scenes
 	while(1==fscanf(f,"scene = %s\n",buf))
 	{
-		extern LevelSequence levelSequence;
-		levelSequence.insertLevelBack(buf);
-		//Level* level = new Level(buf);
-		//scenes.push_back(level);
+		//extern LevelSequence levelSequence;
+		//levelSequence.insertLevelBack(buf);
+		Level* level = new Level(new LevelSetup(buf),skyMap,supportEditor);
+		scenes.push_back(level);
 	}
+	nextSceneIndex = 0;
+
 	fclose(f);
 }
 
 DemoPlayer::~DemoPlayer()
 {
+	for(unsigned i=0;i<scenes.size();i++)
+		delete scenes[i];
 	delete music;
 	delete dynamicObjects;
 }
@@ -58,6 +78,19 @@ DemoPlayer::~DemoPlayer()
 DynamicObjects* DemoPlayer::getDynamicObjects()
 {
 	return dynamicObjects;
+}
+
+Level* DemoPlayer::getNextPart()
+{
+	if(nextSceneIndex<scenes.size())
+	{
+		partStart += getPartLength();
+		nextSceneIndex++;
+		setPartPosition(0);
+		return scenes[nextSceneIndex-1];
+	}
+	else
+		return NULL;
 }
 
 void DemoPlayer::advance(float seconds)
@@ -85,6 +118,24 @@ float DemoPlayer::getDemoPosition()
 	return demoTime;
 }
 
+float DemoPlayer::getDemoLength()
+{
+	float total = 0;
+	for(unsigned i=0;i<scenes.size();i++)
+		total += getPartLength(i);
+	return total;
+}
+
+unsigned DemoPlayer::getPartIndex()
+{
+	return nextSceneIndex-1;
+}
+
+unsigned DemoPlayer::getNumParts()
+{
+	return scenes.size();
+}
+
 float DemoPlayer::getPartPosition()
 {
 	return demoTime-partStart;
@@ -96,14 +147,18 @@ void DemoPlayer::setPartPosition(float seconds)
 	music->setPosition(demoTime);
 }
 
-float DemoPlayer::getPartLength()
+float DemoPlayer::getPartLength(unsigned part)
 {
-	return 0;
+	if(part==0xffff)
+		part = nextSceneIndex-1;
+	if(part>=scenes.size())
+		return 0;
+	return scenes[part]->pilot.setup->getTotalTime();
 }
 
-float DemoPlayer::getDemoLength()
+float DemoPlayer::getMusicPosition()
 {
-	return 0;
+	return music->getPosition();
 }
 
 float DemoPlayer::getMusicLength()

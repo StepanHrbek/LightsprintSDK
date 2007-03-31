@@ -57,7 +57,7 @@ rr::RRColorRGBF RRIlluminationEnvironmentMapInOpenGL::getValue(const rr::RRVec3&
 	return rr::RRColorRGBF(tmp[0],tmp[1],tmp[2]);
 };
 
-void RRIlluminationEnvironmentMapInOpenGL::bindTexture()
+void RRIlluminationEnvironmentMapInOpenGL::bindTexture() const
 {
 	texture->bindTexture();
 }

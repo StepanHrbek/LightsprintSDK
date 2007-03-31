@@ -434,6 +434,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Level.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Level.h"
+			>
+		</File>
+		<File
 			RelativePath=".\LevelSequence.h"
 			>
 		</File>

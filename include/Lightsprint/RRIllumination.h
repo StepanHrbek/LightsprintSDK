@@ -329,7 +329,7 @@ namespace rr
 		virtual void unlock() {};
 		//! Binds pixel buffer for rendering. Not mandatory,
 		//! various implementations may do OpenGL texture bind, Direct3D bind or nothing.
-		virtual void bindTexture() {};
+		virtual void bindTexture() const {};
 
 		virtual ~RRIlluminationPixelBuffer() {};
 
@@ -386,7 +386,7 @@ namespace rr
 
 		//! Binds texture for use by renderer.
 		//! Not mandatory, implementation may do OpenGL bind, DirectX bind or nothing.
-		virtual void bindTexture();
+		virtual void bindTexture() const;
 
 		virtual ~RRIlluminationEnvironmentMap() {};
 

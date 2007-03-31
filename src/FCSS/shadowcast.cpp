@@ -3,20 +3,13 @@
 unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
-#define SUBDIVISION                0
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          0
 #define THREE_ONE
-#ifdef THREE_ONE
-#else
-	//#define HIGH_DETAIL // uses high detail models
-	//#define SUPPORT_COLLADA
-	#define SUPPORT_BSP
-#endif
 bool ati = 1;
-int fullscreen = 1;
+int fullscreen = 0;
 bool renderer3ds = 1;
 bool startWithSoftShadows = 1;
 bool renderLightmaps = 0;
@@ -80,9 +73,6 @@ neni tu korektni skladani primary+indirect a az nasledna gamma korekce (kompliko
 scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista jsou svetlejsi nez maji byt
 */
 
-#ifdef SUPPORT_BSP
-	#include "../../samples/ImportQuake3/Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
-#endif
 #ifdef MINGW
 	#include <limits> // nutne aby uspel build v gcc4.3
 #endif
@@ -108,15 +98,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/DemoEngine/RendererWithCache.h"
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
-#include "../../samples/Import3DS/RRObject3DS.h"
-#ifdef SUPPORT_BSP
-	#include "../../samples/ImportQUake3/RRObjectBSP.h"
-#endif
-#ifdef SUPPORT_COLLADA
-	#include "../../samples/ImportCollada/RRObjectCollada.h"
-	#include "FCollada.h"
-	#include "FCDocument/FCDocument.h"
-#endif
 #include "DynamicObject.h"
 #include "Bugs.h"
 #include "LevelSequence.h"
@@ -124,6 +105,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Autopilot.h"
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"
+#include "Level.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -134,41 +116,6 @@ enum {
 	DM_EYE_VIEW_SOFTSHADOWED,
 };
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Level
-
-class Level
-{
-public:
-	Autopilot pilot;
-	AnimationEditor* animationEditor;
-
-	enum Type
-	{
-		TYPE_3DS = 0,
-		TYPE_BSP,
-		TYPE_DAE,
-		TYPE_NONE,
-	};
-	Type type;
-	de::Model_3DS m3ds;
-#ifdef SUPPORT_BSP
-	de::TMapQ3 bsp;
-#endif
-#ifdef SUPPORT_COLLADA
-	FCDocument* collada;
-	ColladaToRealtimeRadiosity* colladaToRR;
-#endif
-	class Solver* solver;
-	class Bugs* bugs;
-	rr_gl::RendererOfRRObject* rendererNonCaching;
-	de::RendererWithCache* rendererCaching;
-
-	Level(LevelSetup* levelSetup);
-	~Level();
-};
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -186,7 +133,6 @@ de::Texture* loadingMap = NULL;
 de::Texture* hintMap = NULL;
 de::Texture* lightsprintMap = NULL;
 de::Program* ambientProgram;
-rr::RRIlluminationEnvironmentMap* skyMap;
 de::TextureRenderer* skyRenderer;
 de::UberProgram* uberProgram;
 de::UberProgramSetup uberProgramGlobalSetup;
@@ -293,13 +239,6 @@ void init_gl_resources()
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
-	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
-//	skyMap = de::Texture::load("maps/starfield/starfield_%s.jpg",cubeSideNames);
-//	skyMap = de::Texture::load("pool/cubemapy/qfraggel3/qfraggel3_%s.jpg",cubeSideNames);
-//	skyMap = rr_gl::RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap("pool/cubemapy/!desert/frozendusk/frozendusk_%s.jpg",cubeSideNames);
-	skyMap = rr_gl::RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap("maps/purplenebula/purplenebula_%s.jpg",cubeSideNames);
-	if(!skyMap)
-		printf("Failed to load sky.\n");
 	skyRenderer = new de::TextureRenderer("shaders/");
 
 	if(!ambientProgram)
@@ -405,6 +344,12 @@ protected:
 			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
+
+// called from Level.cpp
+rr::RRRealtimeRadiosity* createSolver()
+{
+	return new Solver();
+}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -641,10 +586,10 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 
 	eye.setupForRender();
 
-	if(skyMap)
+	if(level->solver->getEnvironment())
 	{
 		skyRenderer->renderEnvironmentBegin();
-		skyMap->bindTexture();
+		level->solver->getEnvironment()->bindTexture();
 		glBegin(GL_POLYGON);
 		glVertex3f(-1,-1,1);
 		glVertex3f(1,-1,1);
@@ -925,16 +870,17 @@ static void drawHelpMessage(int screen)
 	else
 	{
 		char buf[200];
-		sprintf(buf,"demo %.1f/%.1fs, byt %.1f/%.1fs, music %.1f",
+		sprintf(buf,"demo %.1f/%.1fs, byt %.1f/%.1fs, music %.1f/%.1f",
 			demoPlayer->getDemoPosition(),demoPlayer->getDemoLength(),
-			demoPlayer->getPartPosition(),level->pilot.setup->getTotalTime(),//demoPlayer->getPartLength(),
-			demoPlayer->getMusicLength());
+			demoPlayer->getPartPosition(),demoPlayer->getPartLength(),
+			demoPlayer->getMusicPosition(),demoPlayer->getMusicLength());
 		output(x,y,buf);
 		float transitionDone;
 		float transitionTotal;
 		unsigned frameIndex = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
-		sprintf(buf,"frame %d/%d, %.1f/%.1fs",
-			frameIndex,level->pilot.setup->frames.size(),
+		sprintf(buf,"byt %d/%d, frame %d/%d, %.1f/%.1fs",
+			demoPlayer->getPartIndex()+1,demoPlayer->getNumParts(),
+			frameIndex+1,level->pilot.setup->frames.size(),
 			transitionDone,transitionTotal);
 		output(x,y+18,buf);
 	}
@@ -968,193 +914,9 @@ void showLogo(const de::Texture* logo)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Level body
-
-Level::Level(LevelSetup* levelSetup) : pilot(levelSetup)
-{
-	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : NULL;
-	solver = NULL;
-	bugs = NULL;
-	rendererNonCaching = NULL;
-	rendererCaching = NULL;
-#ifdef SUPPORT_COLLADA
-	collada = NULL;
-	colladaToRR = NULL;
-#endif
-	// init radiosity solver
-	solver = new Solver();
-	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	solver->setScaler(rr::RRScaler::createRgbScaler());
-	solver->setEnvironment(skyMap);
-	rr::RRScene::SmoothingParameters sp;
-	sp.subdivisionSpeed = SUBDIVISION;
-#ifdef THREE_ONE
-	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
-#endif
-	//sp.stitchDistance = -1;
-
-	de::Camera tmpeye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-	de::Camera tmplight = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,100.};
-	eye = tmpeye;
-	light = tmplight;
-
-	/*
-	if(strstr(filename, "candella"))
-	{
-		de::Camera tmpeye = {{885.204,13.032,537.904},2.050,10.000,1.3,100.0,0.3,1000.0};
-		de::Camera tmplight = {{876.157,13.782,521.345},7.430,2.350,1.0,70.0,1.0,100.0};
-		eye = tmpeye;
-		light = tmplight;
-	}*/
-
-	printf("Loading %s...",pilot.setup->filename);
-
-	type = TYPE_NONE;
-	const char* typeExt[] = {".3ds",".bsp",".dae"};
-	for(unsigned i=TYPE_3DS;i<TYPE_NONE;i++)
-	{
-		if(strlen(pilot.setup->filename)>=4 && _stricmp(pilot.setup->filename+strlen(pilot.setup->filename)-4,typeExt[i])==0)
-		{
-			type = (Level::Type)i;
-			break;
-		}
-	}
-
-	switch(type)
-	{
-#ifdef SUPPORT_BSP
-		case TYPE_BSP:
-		{
-			// load quake 3 map
-			if(!readMap(pilot.setup->filename,bsp))
-				error("Failed to load .bsp scene.",false);
-			printf("\n");
-			char* maps = _strdup(pilot.setup->filename);
-			char* mapsEnd;
-			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
-			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
-			//de::Texture::load("maps/missing.jpg",NULL);
-			insertBspToRR(&bsp,maps,NULL,solver,&sp);
-			free(maps);
-			break;
-		}
-#endif
-		case TYPE_3DS:
-		{
-			// load .3ds scene
-			if(!m3ds.Load(pilot.setup->filename,pilot.setup->scale))
-				error("",false);
-			printf("\n");
-			insert3dsToRR(&m3ds,solver,&sp);
-			break;
-		}
-#ifdef SUPPORT_COLLADA
-		case TYPE_DAE:
-		{
-			// load collada document
-			collada = FCollada::NewTopDocument();
-			FUErrorSimpleHandler errorHandler;
-			collada->LoadFromFile(pilot.setup->filename);
-			printf("\n");
-			if(!errorHandler.IsSuccessful())
-			{
-				puts(errorHandler.GetErrorString());
-				SAFE_DELETE(collada);
-			}
-			else
-			{
-				colladaToRR = new ColladaToRealtimeRadiosity(collada,solver,&sp);
-			}
-			break;
-		}
-#endif
-		default:
-			puts("Unsupported scene format.");
-	}
-
-	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
-	//	printf(solver->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
-
-	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
-	if(!solver->getMultiObjectCustom())
-		error("No objects in scene.",false);
-
-	/*/ autodetect positions in center of scene
-	rr::RRMesh* mesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
-	rr::RRVec3 center;
-	rr::RRVec3 mini;
-	rr::RRVec3 maxi;
-	mesh->getAABB(&mini,&maxi,&center);
-	rr::RRVec3 size = maxi-mini;
-	rr::RRVec3 bestPos = center;
-	rr::RRReal bestValue = 0;
-	for(unsigned i=0;i<1000;i++)
-	{
-		rr::RRVec3 pos = center + i/1000.f*(RRVec3(size[0]*(rand()/(RRReal)RAND_MAX-0.5f),size[1]*(rand()/(RRReal)RAND_MAX-0.5f),size[2]*(rand()/(RRReal)RAND_MAX-0.5f));
-		rr::RRReal val = ;
-		if(val>bestValue)
-		{
-			bestValue = val;
-			bestPos = pos;
-		}
-	}
-	eye.pos = bestPos;
-	*/
-
-	// init renderer
-	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler(),true);
-	rendererCaching = new de::RendererWithCache(rendererNonCaching);
-	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
-
-	//printf("After optimizations: vertices=%d, triangles=%d.\n",solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
-
-	// init bugs
-#ifdef BUGS
-	bugs = Bugs::create(solver->getScene(),solver->getMultiObjectCustom(),100);
-#endif
-
-	eye.afar = 1000; // necessary for correct environment map render
-
-	updateMatrices();
-	needDepthMapUpdate = true;
-	needRedisplay = true;
-}
-
-Level::~Level()
-{
-	pilot.setup->save();
-
-	switch(type)
-	{
-#ifdef SUPPORT_BSP
-		case TYPE_BSP:
-			deleteBspFromRR(solver);
-			freeMap(bsp);
-			break;
-#endif
-		case TYPE_3DS:
-			delete3dsFromRR(solver);
-			break;
-#ifdef SUPPORT_COLLADA
-		case TYPE_DAE:
-			delete colladaToRR;
-			delete collada;
-			break;
-#endif
-		default:
-			puts("Unsupported scene format.");
-	}
-	delete bugs;
-	delete rendererCaching;
-	delete rendererNonCaching;
-	delete solver->getScaler();
-	delete solver;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // GLUT callbacks
+
+void keyboard(unsigned char c, int x, int y);
 
 void display()
 {
@@ -1163,18 +925,17 @@ void display()
 	//printf("<Display.>\n");
 	if(!level)
 	{
-		showImage(loadingMap);
-		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
-		LevelSetup* next = levelSequence.getNextLevel();
-		if(!next)
-			error("No scene in playlist.",false);
-		level = new Level(next);
-#ifdef BUGS
-		for(unsigned i=0;i<6;i++)
-#else
-		for(unsigned i=0;i<12;i++)
-#endif
-			level->solver->calculate();
+//		showImage(loadingMap);
+//		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
+		//delete level;
+		level = demoPlayer->getNextPart();
+
+		// end of the demo
+		if(!level)
+			keyboard(27,0,0);
+
+		//for(unsigned i=0;i<6;i++)
+		//	level->solver->calculate();
 
 		// capture thumbnails
 		if(supportEditor)
@@ -1531,8 +1292,7 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case 27:
-			delete demoPlayer;
-			delete level;
+			//delete demoPlayer;
 			done_gl_resources();
 			exit(0);
 			break;
@@ -1933,8 +1693,10 @@ void mouse(int button, int state, int x, int y)
 	}
 	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
-		showImage(loadingMap);
-		delete level;
+		//showImage(loadingMap);
+		if(supportEditor)
+			level->pilot.setup->save();
+		//delete level;
 		level = NULL;
 	}
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
@@ -1984,8 +1746,8 @@ void idle()
 
 	if(level && level->pilot.isTimeToChangeLevel())
 	{
-		showImage(loadingMap);
-		delete level;
+		//showImage(loadingMap);
+		//delete level;
 		level = NULL;
 	}
 
@@ -2032,7 +1794,8 @@ void idle()
 				else
 				{
 					// play scene finished, jump to next scene
-					//!!!
+					//delete level;
+					level = NULL;
 				}
 			}
 		}
@@ -2203,9 +1966,9 @@ int main(int argc, char **argv)
 	ati = !vendor || !renderer || strstr(vendor,"ATI") || strstr(vendor,"AMD") || strstr(renderer,"Radeon");
 
 #ifdef THREE_ONE
-	demoPlayer = new DemoPlayer("3+1.cfg");
+	demoPlayer = new DemoPlayer("3+1.cfg",supportEditor);
 #else
-	demoPlayer = new DemoPlayer("LightsprintDemo.cfg");
+	demoPlayer = new DemoPlayer("LightsprintDemo.cfg",supportEditor);
 #endif
 	demoPlayer->setPaused(supportEditor);
 

@@ -40,7 +40,7 @@ RRColorRGBF RRIlluminationEnvironmentMap::getValue(const RRVec3& direction) cons
 	return RRColorRGBF(0);
 };
 
-void RRIlluminationEnvironmentMap::bindTexture()
+void RRIlluminationEnvironmentMap::bindTexture() const
 {
 	RRReporter::report(RRReporter::WARN,"RRIlluminationEnvironmentMap::bindTexture: Not implemented.");
 	RR_ASSERT(0);

@@ -309,7 +309,7 @@ unsigned RRIlluminationPixelBufferInOpenGL::getHeight() const
 	return texture->getHeight();
 }
 
-void RRIlluminationPixelBufferInOpenGL::bindTexture()
+void RRIlluminationPixelBufferInOpenGL::bindTexture() const
 {
 	texture->bindTexture();
 }

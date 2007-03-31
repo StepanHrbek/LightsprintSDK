@@ -140,6 +140,6 @@ unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone
 		result++;
 	}
 	*transitionDone = absSeconds;
-	*transitionTotal = (*i).transitionToNextTime;
+	*transitionTotal = (i==frames.end())? 0 : (*i).transitionToNextTime;
 	return result;
 }
