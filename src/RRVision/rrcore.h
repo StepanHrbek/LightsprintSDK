@@ -700,10 +700,17 @@ public:
 		Reflectors staticReflectors; // top nodes in static Triangle trees
 		RRMesh** multiObjectMeshes4Delete; // to be deleted with multiCollider
 
+
+		// previously global, now allocated per scene
+		// -> multiple independent scenes are legal
+		RRRay*  sceneRay;
+		class LevelHits* sceneLevelHits;
+		Hits*   allocHitsLevel();
+		void    freeHitsLevel();
+		bool    setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *factors,SubTriangle *destination,Hits *phits,int shots);
 };
 
-void core_Init();
-void core_Done();
+void core_Done(); // print memory statistics
 
 } // namespace
 

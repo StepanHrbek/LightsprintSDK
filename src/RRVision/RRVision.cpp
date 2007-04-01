@@ -21,24 +21,6 @@ namespace rr
 //
 // global init/done
 
-class RREngine
-{
-public:
-	RREngine();
-	~RREngine();
-};
-
-RREngine::RREngine()
-{
-	core_Init();
-}
-
-RREngine::~RREngine()
-{
-	core_Done();
-}
-
-static RREngine engine;
 
 
 //////////////////////////////////////////////////////////////////////////////

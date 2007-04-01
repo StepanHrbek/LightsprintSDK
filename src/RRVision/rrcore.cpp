@@ -433,8 +433,9 @@ Shooter::~Shooter()
 //  each Triangle has its own Hits
 //  SubTriangles allocate Hits here and return them here as soon as possible
 
-struct LevelHits
+class LevelHits
 {
+public:
 	LevelHits();
 	~LevelHits();
 
@@ -481,16 +482,14 @@ LevelHits::~LevelHits()
 	free(level);
 }
 
-LevelHits *__levels;
-
-Hits *allocHitsLevel()
+Hits* Scene::allocHitsLevel()
 {
-	return __levels->allocLevel();
+	return sceneLevelHits->allocLevel();
 }
 
-void freeHitsLevel()
+void Scene::freeHitsLevel()
 {
-	__levels->freeLevel();
+	sceneLevelHits->freeLevel();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1761,12 +1760,16 @@ Scene::Scene()
 	shotsTotal=0;
 	staticSourceExitingFlux=Channels(0);
 	multiObjectMeshes4Delete=NULL;
+	sceneLevelHits = new LevelHits();
+	sceneRay = RRRay::create();
 }
 
 Scene::~Scene()
 {
 	abortStaticImprovement();
 	delete object;
+	delete sceneLevelHits;
+	delete sceneRay;
 }
 
 void Scene::objInsertStatic(Object *o)
@@ -1856,15 +1859,13 @@ Vec3 refract(Vec3 N,Vec3 I,real r)
 	}
 }
 
-RRRay* __ray;
-
 HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
-	RRRay& ray = *__ray;
+	RRRay& ray = *sceneRay;
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	ray.rayLengthMax = BIG_REAL;
@@ -2136,7 +2137,7 @@ Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels po
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
-	RRRay& ray = *__ray;
+	RRRay& ray = *sceneRay;
 	ray.rayFlags = RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	ray.rayLengthMax = BIG_REAL;
@@ -2258,7 +2259,7 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 // read and clear hits, possibly split to subtriangles, set form factors
 // return if clustering with brother is possible
 
-static bool setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *factors,SubTriangle *destination,Hits *phits,int shots)
+bool Scene::setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *factors,SubTriangle *destination,Hits *phits,int shots)
 {
 	DBGLINE
 	RR_ASSERT(destination);
@@ -2656,11 +2657,6 @@ void Scene::getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays,
 
 void core_Done()
 {
-	RR_ASSERT(__levels);
-	delete __levels;
-	__levels=NULL;
-	delete __ray;
-	__ray=NULL;
 #ifndef NDEBUG
 	if( __nodesAllocated
 	 || __subtrianglesAllocated
@@ -2687,13 +2683,6 @@ void core_Done()
 	}
 #endif
 
-}
-
-void core_Init()
-{
-	RR_ASSERT(!__levels);
-	__levels=new LevelHits();
-	__ray = RRRay::create();
 }
 
 } // namespace
