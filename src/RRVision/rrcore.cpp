@@ -1956,48 +1956,46 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 //////////////////////////////////////////////////////////////////////////////
 //
 // homogenous filling:
-//   generates points that nearly homogenously (low hustota fluctuations) fill some 2d area
+//   generates points that nearly homogenously (low density fluctuations) fill some 2d area
 
-class HomogenousFiller
+void HomogenousFiller::Reset()
 {
-	static unsigned num;
-public:
-	static void Reset() {num=0;}
-	static void GetTrianglePoint(real *a,real *b)
-	{
-		unsigned n=num++;
-		static const real dir[4][3]={{0,0,-0.5f},{0,1,0.5f},{0.86602540378444f,-0.5f,0.5f},{-0.86602540378444f,-0.5f,0.5f}};
-		real x=0;
-		real y=0;
-		real dist=1;
-		while(n)
-		{
-			x+=dist*dir[n&3][0];
-			y+=dist*dir[n&3][1];
-			dist*=dir[n&3][2];
-			n>>=2;
-		}
-		*a=x;
-		*b=y;
-		//*a=rand()/(RAND_MAX*0.5)-1;
-		//*b=rand()/(RAND_MAX*0.5)-1;
-	}
-	static real GetCirclePoint(real *a,real *b)
-	{
-		real dist;
-		do GetTrianglePoint(a,b); while((dist=*a**a+*b**b)>=SHOOT_FULL_RANGE);
-		return dist;
-	}
-};
+	num=0;
+}
 
-unsigned HomogenousFiller::num;
-HomogenousFiller filler;
+real HomogenousFiller::GetCirclePoint(real *a,real *b)
+{
+	real dist;
+	do GetTrianglePoint(a,b); while((dist=*a**a+*b**b)>=SHOOT_FULL_RANGE);
+	return dist;
+}
+
+void HomogenousFiller::GetTrianglePoint(real *a,real *b)
+{
+	unsigned n=num++;
+	static const real dir[4][3]={{0,0,-0.5f},{0,1,0.5f},{0.86602540378444f,-0.5f,0.5f},{-0.86602540378444f,-0.5f,0.5f}};
+	real x=0;
+	real y=0;
+	real dist=1;
+	while(n)
+	{
+		x+=dist*dir[n&3][0];
+		y+=dist*dir[n&3][1];
+		dist*=dir[n&3][2];
+		n>>=2;
+	}
+	*a=x;
+	*b=y;
+	//*a=rand()/(RAND_MAX*0.5)-1;
+	//*b=rand()/(RAND_MAX*0.5)-1;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // random exiting ray
 
-bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, const RRSideBits* sideBits, Vec3& exitDir)
+bool Scene::getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, const RRSideBits* sideBits, Vec3& exitDir)
 // ortonormal space: norm, u3, v3
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
@@ -2030,7 +2028,7 @@ bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, const RR
 	return true;
 }
 
-Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
+Triangle* Scene::getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 // returns random point and direction exiting sourceNode
 {
 	SubTriangle *source;

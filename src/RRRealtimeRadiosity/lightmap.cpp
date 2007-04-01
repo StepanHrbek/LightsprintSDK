@@ -63,7 +63,7 @@ RRIlluminationPixelBuffer* RRRealtimeRadiosity::newPixelBuffer(RRObject* object)
 // homogenous filling:
 //   generates points that nearly homogenously (low hustota fluctuations) fill some 2d area
 
-class HomogenousFiller
+class HomogenousFiller2
 {
 	unsigned num;
 public:
@@ -97,7 +97,7 @@ public:
 //
 // random exiting ray
 
-static RRVec3 getRandomExitDir(HomogenousFiller& filler, const RRVec3& norm, const RRVec3& u3, const RRVec3& v3)
+static RRVec3 getRandomExitDir(HomogenousFiller2& filler, const RRVec3& norm, const RRVec3& u3, const RRVec3& v3)
 // ortonormal space: norm, u3, v3
 // returns random direction exitting diffuse surface with 1 or 2 sides and normal norm
 {
@@ -202,7 +202,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		RRVec3 u3 = normalized(ortogonalTo(n3));
 		RRVec3 v3 = normalized(ortogonalTo(n3,u3));
 		// prepare homogenous filler
-		HomogenousFiller filler;
+		HomogenousFiller2 filler;
 		filler.Reset();
 		// init counters
 		unsigned rays = tc->params->quality ? tc->params->quality : 1;

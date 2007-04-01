@@ -623,6 +623,22 @@ public:
 #endif
 };
 
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// homogenous filler
+
+class HomogenousFiller
+{
+public:
+	void Reset();
+	real GetCirclePoint(real *a,real *b);
+private:
+	void GetTrianglePoint(real *a,real *b);
+	unsigned num;
+};
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // scene
@@ -701,13 +717,19 @@ public:
 		RRMesh** multiObjectMeshes4Delete; // to be deleted with multiCollider
 
 
-		// previously global, now allocated per scene
+		// previously global ray+levels, now allocated per scene
 		// -> multiple independent scenes are legal
 		RRRay*  sceneRay;
 		class LevelHits* sceneLevelHits;
 		Hits*   allocHitsLevel();
 		void    freeHitsLevel();
 		bool    setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *factors,SubTriangle *destination,Hits *phits,int shots);
+
+		// previously global filler, now allocated per scene
+		// -> multiple independent scenes are legal
+		HomogenousFiller filler;
+		bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, const RRSideBits* sideBits, Vec3& exitDir);
+		Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir);
 };
 
 void core_Done(); // print memory statistics
