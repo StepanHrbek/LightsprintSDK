@@ -103,28 +103,6 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 	return hitTriangle;
 }
 
-class SkipTriangle : public RRCollisionHandler
-{
-public:
-	SkipTriangle(unsigned askip) : skip(askip) {}
-	virtual void init()
-	{
-		result = false;
-	}
-	virtual bool collides(const RRRay* ray)
-	{
-		result = result || (ray->hitTriangle!=skip);
-		return ray->hitTriangle!=skip;
-	}
-	virtual bool done()
-	{
-		return result;
-	}
-	unsigned skip;
-private:
-	bool result;
-};
-
 #include <memory.h>
 #define LOG_RAY(aeye,adir,adist,hit) { \
 	STATISTIC( \
@@ -143,7 +121,6 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	// pri velkem poctu objektu by pomohlo sesortovat je podle
 	//  vzdalenosti od oka a blizsi testovat driv
 	Triangle* hitTriangle = NULL;
-	static SkipTriangle skipTriangle(INT_MAX); //!!! neni thread safe
 	ray.collisionHandler = &skipTriangle;
 
 	skipTriangle.skip = (unsigned)(skip-object->triangle);

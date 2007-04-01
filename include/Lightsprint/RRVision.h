@@ -459,8 +459,10 @@ namespace rr
 	//!  For scenes small enough, this creates global illumination in dynamic scene 
 	//!  with full interactivity.
 	//!
-	//! In future versions, it will be possible to have multiple scenes and work
-	//! with them independently. For now, this option hasn't been tested.
+	//! Thread safe: It is legal to create multiple scenes and
+	//!  use them in parallel, in multiple threads.
+	//!  It is legal to read results from one scene in multiple threads at once.
+	//!  It is not allowed to calculate in one scene in multiple threads at once.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -647,7 +649,7 @@ namespace rr
 		//!  Value is passed to callback without any modification.
 		//! \return
 		//!  Number of subtriangles processed.
-		unsigned      getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context);
+		unsigned      getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context) const;
 
 
 	private:

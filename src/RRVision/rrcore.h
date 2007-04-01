@@ -641,6 +641,33 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// intersections
+
+class SkipTriangle : public RRCollisionHandler
+{
+public:
+	SkipTriangle() {}
+	virtual void init()
+	{
+		result = false;
+	}
+	virtual bool collides(const RRRay* ray)
+	{
+		result = result || (ray->hitTriangle!=skip);
+		return ray->hitTriangle!=skip;
+	}
+	virtual bool done()
+	{
+		return result;
+	}
+	unsigned skip;
+private:
+	bool result;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // scene
 
 class Scene
@@ -730,6 +757,10 @@ public:
 		HomogenousFiller filler;
 		bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, const RRSideBits* sideBits, Vec3& exitDir);
 		Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir);
+
+		// previously global skipTriangle, now allocated per scene
+		// -> multiple independent scenes are legal
+		SkipTriangle skipTriangle;
 };
 
 void core_Done(); // print memory statistics

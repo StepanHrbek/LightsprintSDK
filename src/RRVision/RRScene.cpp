@@ -426,7 +426,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 	context2->clientCallback(si,context2->clientContext);
 }
 
-unsigned RRScene::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context)
+unsigned RRScene::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context) const
 {
 	Object* obj;
 	Triangle* tri;
