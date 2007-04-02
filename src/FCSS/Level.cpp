@@ -38,8 +38,8 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	/*
 	if(strstr(filename, "candella"))
 	{
-		de::Camera tmpeye = {{885.204,13.032,537.904},2.050,10.000,1.3,100.0,0.3,1000.0};
-		de::Camera tmplight = {{876.157,13.782,521.345},7.430,2.350,1.0,70.0,1.0,100.0};
+		de::Camera tmpeye = {{885.204,13.032,537.904},2.050,0,10.000,1.3,100.0,0.3,1000.0};
+		de::Camera tmplight = {{876.157,13.782,521.345},7.430,0,2.350,1.0,70.0,1.0,100.0};
 		eye = tmpeye;
 		light = tmplight;
 	}*/

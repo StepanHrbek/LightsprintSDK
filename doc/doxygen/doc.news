@@ -6,6 +6,12 @@
 
 \page news What's new
 
+\section news15 ------------------------------------ 2007.4.xx -------------------------------------
+
+NEWS
+
+- RRScene is thread safe, so multiple scenes may run in parallel
+
 \section news14 ------------------------------------ 2007.3.20 -------------------------------------
 
 NEWS

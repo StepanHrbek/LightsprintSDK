@@ -9,12 +9,12 @@ unsigned INSTANCES_PER_PASS;
 #define SUPPORT_LIGHTMAPS          0
 #define THREE_ONE
 bool ati = 1;
-int fullscreen = 0;
+int fullscreen = 1;
 bool renderer3ds = 1;
 bool startWithSoftShadows = 1;
 bool renderLightmaps = 0;
-int resolutionx = 640;
-int resolutiony = 480;
+int resolutionx = 1024;
+int resolutiony = 768;
 bool twosided = 0;
 bool supportEditor = 0;
 /*
@@ -122,8 +122,8 @@ enum {
 //
 // globals
 
-de::Camera eye = {{0.000000,1.000000,4.000000},2.935000,-0.7500, 1.,100.,0.3,60.};
-de::Camera light = {{-1.233688,3.022499,-0.542255},1.239998,6.649996, 1.,70.,1.,1000.};
+de::Camera eye = {{0.000000,1.000000,4.000000},2.935000,0,-0.7500, 1.,100.,0.3,60.};
+de::Camera light = {{-1.233688,3.022499,-0.542255},1.239998,0,6.649996, 1.,70.,1.,1000.};
 GLUquadricObj *quadric;
 de::AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
@@ -149,7 +149,6 @@ int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 int showHelp = 0; // 0=none, 1=help, 2=credits
 bool showHint = 0;
 int showLightViewFrustum = 0;
-bool paused = 0;
 bool modeMovingEye = 0;
 unsigned movingEye = 0;
 unsigned movingLight = 0;
@@ -610,13 +609,16 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 		CLAMP(seconds,0.001f,0.5f);
 		t.Start();
 		runs = true;
-		if(!paused) level->bugs->tick(seconds);
+		if(!demoPlayer->getPaused())
+			level->bugs->tick(seconds);
 		level->bugs->render();
 	}
 #endif
 
-	drawLight();
-	if (showLightViewFrustum) drawShadowMapFrustum();
+	if(supportEditor)
+		drawLight();
+	if(showLightViewFrustum)
+		drawShadowMapFrustum();
 }
 
 void drawEyeViewSoftShadowed(void)
@@ -717,7 +719,6 @@ void updateThumbnail(AnimationFrame& frame)
 	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,frame,true);
 	// calculate
 	level->solver->calculate();
-	level->solver->calculate();
 	// update shadows in advance, so following render doesn't touch FBO
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned j=0;j<numInstances;j++)
@@ -771,7 +772,7 @@ static void drawHelpMessage(int screen)
 		"",
 		"Controls:",
 		" mouse         - look",
-		" arrows/wsad   - move",
+		" arrows/wsadqz - move",
 		" left button   - switch between camera/light",
 		" right button  - next scene",
 		"",
@@ -781,9 +782,9 @@ static void drawHelpMessage(int screen)
 		" F6            - credits",
 		" F11           - save screenshot",
 		" wheel         - zoom",
-		" enter         - hires fullscreen/640x480 window",
-		" space         - change spotlight texture",
-		" p             - pause/resume characters",
+		" x/c           - lean",
+		" enter         - fullscreen/window",
+		" space         - pause/play",
 		" 1/2/3/4/5/6/7 - move character to the center of screen",
 /*
 		" space - toggle global illumination",
@@ -911,6 +912,69 @@ void showLogo(const de::Texture* logo)
 	glDisable(GL_BLEND);
 }
 
+/*
+// shortcut for multiple scenes displayed at once
+void displayScene(unsigned sceneIndex, float sceneTime, rr::RRVec3 offset)
+{
+	// backup old state
+	Level* oldLevel = level;
+	de::Camera oldEye = eye;
+	de::Camera oldLight = light;
+
+	level = demoPlayer->getPart(sceneIndex);
+	assert(level);
+	demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup,sceneTime);
+	eye = oldEye;
+	eye.pos[0] -= offset[0];
+	eye.pos[1] -= offset[1];
+	eye.pos[2] -= offset[2];
+	eye.update(0);
+	light.update(0.3f);
+
+	//!!! always updated = waste of GPU performance
+	needDepthMapUpdate = 1;
+	updateDepthMap(0,0);
+
+	de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+	uberProgramSetup.SHADOW_MAPS = 1;
+	uberProgramSetup.SHADOW_SAMPLES = 1;
+	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+	//uberProgramSetup.MATERIAL_DIFFUSE = ;
+	//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
+	//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
+	//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
+	//uberProgramSetup.MATERIAL_SPECULAR = ;
+	//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
+	//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
+	//uberProgramSetup.OBJECT_SPACE = false;
+	uberProgramSetup.FORCE_2D_POSITION = false;
+	eye.setupForRender();
+	renderScene(uberProgramSetup,0);
+
+	// restore old state
+	light = oldLight;
+	eye = oldEye;
+	level = oldLevel;
+}
+
+void displayScenes()
+{
+	if(demoPlayer->getNumParts()>1)
+	{
+	//	displayScene(0,8,rr::RRVec3( 0,0, 0));
+		displayScene(0,8,rr::RRVec3(20,0,12)); //!!! 8
+		displayScene(1,8,rr::RRVec3(20,0, 0));
+		displayScene(0,8,rr::RRVec3( 0,0,12));
+	}
+	//eye.update(0);
+	//light.update(0.3f);
+}
+*/
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -998,6 +1062,9 @@ void display()
 			assert(0);
 			break;
 	}
+
+	// end of 3+1 demo -> multiple scenes at once
+	//displayScenes();
 
 	if(wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1144,6 +1211,7 @@ float speedRight = 0;
 float speedLeft = 0;
 float speedUp = 0;
 float speedDown = 0;
+float speedLean = 0;
 
 void special(int c, int x, int y)
 {
@@ -1178,8 +1246,7 @@ void special(int c, int x, int y)
 		case GLUT_KEY_F4:
 			if(modif&GLUT_ACTIVE_ALT)
 			{
-				done_gl_resources();
-				exit(0);
+				keyboard(27,0,0);
 			}
 			break;
 
@@ -1289,9 +1356,17 @@ void keyboard(unsigned char c, int x, int y)
 		return;
 	}
 
+	int modif = glutGetModifiers();
+	float scale = 1;
+	if(modif&GLUT_ACTIVE_SHIFT) scale=10;
+	if(modif&GLUT_ACTIVE_CTRL) scale=3;
+	if(modif&GLUT_ACTIVE_ALT) scale=0.1f;
+
 	switch (c)
 	{
 		case 27:
+			if(supportEditor)
+				delete level; // aby se ulozily zmeny v animaci
 			//delete demoPlayer;
 			done_gl_resources();
 			exit(0);
@@ -1303,9 +1378,6 @@ void keyboard(unsigned char c, int x, int y)
 				case 1: showHelp = 0; break;
 				case 2: showHelp = 1; break;
 			}
-			break;
-		case 'p':
-			paused = !paused;
 			break;
 		case 'a':
 		case 'A':
@@ -1330,6 +1402,14 @@ void keyboard(unsigned char c, int x, int y)
 		case 'z':
 		case 'Z':
 			special(GLUT_KEY_PAGE_DOWN,0,0);
+			break;
+		case 'x':
+		case 'X':
+			speedLean = -scale;
+			break;
+		case 'c':
+		case 'C':
+			speedLean = +scale;
 			break;
 
 		case ' ':
@@ -1668,6 +1748,12 @@ void keyboardUp(unsigned char c, int x, int y)
 		case 'Z':
 			specialUp(GLUT_KEY_PAGE_DOWN,0,0);
 			break;
+		case 'x':
+		case 'X':
+		case 'c':
+		case 'C':
+			speedLean = 0;
+			break;
 	}
 }
 
@@ -1772,12 +1858,13 @@ void idle()
 	if(speedLeft) cam->moveLeft(speedLeft*seconds);
 	if(speedUp) cam->moveUp(speedUp*seconds);
 	if(speedDown) cam->moveDown(speedDown*seconds);
-	if(speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown)
+	if(speedLean) cam->lean(speedLean*seconds);
+	if(speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 	{
 		//printf(" %f ",seconds);
 		if(cam==&light) reportLightMovement(); else reportEyeMovement();
 	}
-	if(!paused && !showHint && !demoPlayer->getPaused())
+	if(!showHint && !demoPlayer->getPaused())
 	{
 //#ifdef THREE_ONE
 		demoPlayer->advance(seconds);
@@ -1813,7 +1900,7 @@ void idle()
 	{
 		reportLightMovementEnd();
 	}
-	if(!paused && !showHint)
+	if(!showHint && !demoPlayer->getPaused())
 	{
 		needDepthMapUpdate = 1;
 		needRedisplay = 1;

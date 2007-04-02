@@ -80,6 +80,14 @@ DynamicObjects* DemoPlayer::getDynamicObjects()
 	return dynamicObjects;
 }
 
+Level* DemoPlayer::getPart(unsigned index)
+{
+	if(index<scenes.size())
+		return scenes[index];
+	else
+		return NULL;
+}
+
 Level* DemoPlayer::getNextPart()
 {
 	if(nextSceneIndex<scenes.size())

@@ -25,7 +25,11 @@ public:
 
 	//! Position of camera (imaginary frustum apex).
 	GLfloat  pos[3];
+	//! Rotation around Y axis, radians. For characters standing in Y axis, it controls their look to left/right.
 	float    angle;
+	//! Rotation around Z axis, radians. For characters looking into Z axis, it controls leaning.
+	float    leanAngle;
+	//! Similar to rotation around X axis.
 	float    height;
 	//! Camera's aspect, horizontal field of view / vertical field of view.
 	float    aspect;
@@ -65,6 +69,8 @@ public:
 	void moveUp(float units);
 	//! Moves camera to given distance in world space.
 	void moveDown(float units);
+	//! Leans camera = rotates around z axis.
+	void lean(float units);
 	//! Updates all outputs, recalculates them from inputs.
 	void update(float back); // converts inputs to outputs
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are

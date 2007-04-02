@@ -28,7 +28,8 @@ public:
 
 	class DynamicObjects* getDynamicObjects();
 
-	class Level* getNextPart();
+	class Level* getNextPart(); // adjusts timers, next part is started
+	class Level* getPart(unsigned index); // no timer adjustments made
 
 private:
 	bool paused;
