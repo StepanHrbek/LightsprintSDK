@@ -131,7 +131,11 @@ de::Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
 de::Texture* loadingMap = NULL;
 de::Texture* hintMap = NULL;
-de::Texture* lightsprintMap = NULL;
+#ifdef THREE_ONE
+	de::Texture* overlayMap = NULL;
+#else
+	de::Texture* lightsprintMap = NULL;
+#endif
 de::Program* ambientProgram;
 de::TextureRenderer* skyRenderer;
 de::UberProgram* uberProgram;
@@ -230,7 +234,11 @@ void init_gl_resources()
 	}
 	loadingMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	hintMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity_hints.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+#ifdef THREE_ONE
+	overlayMap = de::Texture::load("maps\\overlay.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+#else
 	lightsprintMap = de::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
+#endif
 
 	uberProgram = new de::UberProgram("shaders\\ubershader.vp", "shaders\\ubershader.fp");
 	de::UberProgramSetup uberProgramSetup;
@@ -250,7 +258,11 @@ void done_gl_resources()
 	delete uberProgram;
 	delete loadingMap;
 	delete hintMap;
+#ifdef THREE_ONE
+	delete overlayMap;
+#else
 	delete lightsprintMap;
+#endif
 	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
 	delete areaLight;
 	gluDeleteQuadric(quadric);
@@ -902,6 +914,15 @@ void showImage(const de::Texture* tex)
 	glutSwapBuffers();
 }
 
+void showOverlay(const de::Texture* tex)
+{
+	if(!tex) return;
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	skyRenderer->render2D(tex,NULL,0,0,1,1);
+	glDisable(GL_BLEND);
+}
+
 void showLogo(const de::Texture* logo)
 {
 	if(!logo) return;
@@ -1072,7 +1093,10 @@ void display()
 	if(wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-#ifndef THREE_ONE
+#ifdef THREE_ONE
+	//if(!demoPlayer->getPaused())
+		showOverlay(overlayMap);
+#else
 	showLogo(lightsprintMap);
 #endif
 
