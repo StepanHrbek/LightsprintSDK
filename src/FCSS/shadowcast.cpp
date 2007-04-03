@@ -2074,7 +2074,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false;
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false; //!!! rozbehat se zaplym vcolor i map, ted nejde
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;
@@ -2088,7 +2088,15 @@ int main(int argc, char **argv)
 	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
-	INSTANCES_PER_PASS = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,SUPPORT_LIGHTMAPS);
+#ifdef SUPPORT_LIGHTMAPS
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = 0;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = 1;
+#endif
+	INSTANCES_PER_PASS = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,uberProgramGlobalSetup);
+#ifdef SUPPORT_LIGHTMAPS
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+#endif
 	if(!INSTANCES_PER_PASS) error("",true);
 	areaLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
 

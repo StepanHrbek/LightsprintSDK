@@ -54,7 +54,7 @@ Program* UberProgramSetup::getProgram(UberProgram* uberProgram)
 	return uberProgram->getProgram(getSetupString());
 }
 
-unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, bool ambientMaps)
+unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, UberProgramSetup uberProgramSetup)
 {
 	unsigned instancesPerPass;
 #ifdef DESCEND
@@ -67,46 +67,8 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, bool am
 	#define SUCCESS
 #endif
 	{
-		// static object with light_indirect in vertex colors
-		UberProgramSetup uberProgramSetup;
 		uberProgramSetup.SHADOW_MAPS = instancesPerPass;
-		uberProgramSetup.SHADOW_SAMPLES = 4;
-		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_DIRECT_MAP = true;
-		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-		uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
-		uberProgramSetup.OBJECT_SPACE = false;
-		uberProgramSetup.FORCE_2D_POSITION = false;
 		if(!uberProgramSetup.getProgram(uberProgram)) FAIL;
-		// static object with light_indirect in ambient maps
-		if(ambientMaps)
-		{
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
-			uberProgramSetup.LIGHT_INDIRECT_MAP = true;
-			if(!uberProgramSetup.getProgram(uberProgram)) FAIL;
-		}
-		/*/ dynamic object
-		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-		uberProgramSetup.LIGHT_INDIRECT_ENV = true;
-		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-		uberProgramSetup.MATERIAL_SPECULAR = true;
-		uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
-		uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
-		uberProgramSetup.OBJECT_SPACE = true;
-		if(!uberProgramSetup.getProgram(uberProgram)) FAIL;*/
-		// all shaders ok
 		SUCCESS;
 	}
 	unsigned instancesPerPassOrig = instancesPerPass;

@@ -545,11 +545,18 @@ int main(int argc, char **argv)
 	unsigned shadowmapsPerPass = 1;
 	if(!quadro)
 	{
-#ifdef AMBIENT_MAPS
-		shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,true);
-#else
-		shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,false);
+		de::UberProgramSetup uberProgramSetup;
+		uberProgramSetup.SHADOW_SAMPLES = 4;
+		uberProgramSetup.LIGHT_DIRECT = true;
+		uberProgramSetup.LIGHT_DIRECT_MAP = true;
+#ifdef AMBIENT_MAPS // here we say: render with ambient maps
+		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
+#else // here we say: render with indirect illumination per-vertex
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 #endif
+		uberProgramSetup.MATERIAL_DIFFUSE = true;
+		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+		shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,uberProgramSetup);
 		if(!shadowmapsPerPass) error("",true);
 	}
 	

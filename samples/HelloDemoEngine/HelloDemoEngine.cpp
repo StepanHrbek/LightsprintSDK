@@ -286,7 +286,14 @@ int main(int argc, char **argv)
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// set shadowmapsPerPass=1 for standard shadows
-	unsigned shadowmapsPerPass = quadro ? 1 : de::UberProgramSetup::detectMaxShadowmaps(uberProgram,false);
+	de::UberProgramSetup uberProgramSetup;
+	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
+	uberProgramSetup.MATERIAL_DIFFUSE = true;
+	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+	unsigned shadowmapsPerPass = quadro ? 1 : de::UberProgramSetup::detectMaxShadowmaps(uberProgram,uberProgramSetup);
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
