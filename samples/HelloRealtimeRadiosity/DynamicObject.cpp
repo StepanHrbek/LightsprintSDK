@@ -38,6 +38,7 @@ DynamicObject::DynamicObject()
 	worldFoot = rr::RRVec3(0);
 	rotYZ = rr::RRVec2(0);
 	visible = true;
+	updatePosition();
 }
 
 DynamicObject::~DynamicObject()
