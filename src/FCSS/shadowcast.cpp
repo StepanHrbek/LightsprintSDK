@@ -336,6 +336,7 @@ protected:
 		uberProgramSetup.MATERIAL_SPECULAR = false;
 		uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 		uberProgramSetup.MATERIAL_NORMAL_MAP = false;
+		uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = true;
 
@@ -479,7 +480,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
 	if(level->type==Level::TYPE_3DS && uberProgramSetup.MATERIAL_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
 	{
-		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
+		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 		return;
 	}
 
@@ -490,6 +491,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
 	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
+	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 	level->rendererNonCaching->setRenderedChannels(renderedChannels);
 	if(renderedChannels.LIGHT_INDIRECT_VCOLOR)
@@ -557,6 +559,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.MATERIAL_SPECULAR = false;
 	uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 	uberProgramSetup.MATERIAL_NORMAL_MAP = false;
+	uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
 	//uberProgramSetup.OBJECT_SPACE = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
 	renderScene(uberProgramSetup,0);
@@ -2076,6 +2079,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;
 	uberProgramGlobalSetup.MATERIAL_NORMAL_MAP = false;
+	uberProgramGlobalSetup.MATERIAL_EMISSIVE_MAP = false;
 	uberProgramGlobalSetup.OBJECT_SPACE = false;
 	uberProgramGlobalSetup.FORCE_2D_POSITION = false;
 

@@ -20,7 +20,7 @@
 //    collider can be big.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
-// custom .3ds data via our custom identifiers CHANNEL_TRIANGLE_DIF_TEX etc.
+// custom .3ds data via our custom identifiers CHANNEL_TRIANGLE_DIFFUSE_TEX etc.
 // It is used only by our custom renderer RendererOfRRObject
 // (during render of scene with ambient maps),
 // it is never accessed by radiosity solver.
@@ -210,11 +210,13 @@ void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_EMISSIVE_TEX:
 			if(numItems) *numItems = RRObject3DS::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
 			if(numItems) *numItems = RRObject3DS::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
@@ -234,7 +236,8 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_EMISSIVE_TEX:
 		{
 			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{
@@ -257,7 +260,8 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			*out = model->Materials[materialIndex].tex;
 			return true;
 		}
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
 		{
 			if(itemIndex>=RRObject3DS::getNumTriangles())
 			{

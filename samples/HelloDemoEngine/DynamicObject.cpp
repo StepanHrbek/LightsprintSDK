@@ -51,5 +51,5 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 	glPopMatrix();
 	program->sendUniform("worldMatrix",m,false,4);
 	// render
-	model.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL);
+	model.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
 }

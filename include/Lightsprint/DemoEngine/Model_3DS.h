@@ -199,7 +199,8 @@ public:
 	void Draw(
 		void* model,
 		bool lit, // scene is lit, feed normals
-		bool textured, // feed diffuse textures and texcoords
+		bool texturedDiffuse,
+		bool texturedEmissive,
 		const float* (acquireVertexColors)(void* model,unsigned object), // returns pointer to array of float rgb vertex colors
 		void (releaseVertexColors)(void* model,unsigned object)
 		) const;  // Draws the model using provided indirect illum

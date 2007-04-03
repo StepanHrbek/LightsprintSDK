@@ -35,11 +35,11 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	// load objects
 	dynamicObjects = new DynamicObjects();
 	float diffuse,specular;
-	unsigned specularMap,normalMap;
+	unsigned specularMap,normalMap,emissiveMap;
 	unsigned specularCubeSize;
 	float scale;
-	while(7==fscanf(f,"object = %f,%f,%d,%d,%d,%f,%s\n",
-		&diffuse,&specular,&specularMap,&normalMap,&specularCubeSize,&scale,buf))
+	while(8==fscanf(f,"object = %f,%f,%d,%d,%d,%d,%f,%s\n",
+		&diffuse,&specular,&specularMap,&normalMap,&emissiveMap,&specularCubeSize,&scale,buf))
 	{
 		de::UberProgramSetup material;
 		material.MATERIAL_DIFFUSE = diffuse?1:0;
@@ -49,6 +49,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 		material.MATERIAL_SPECULAR = specular?1:0;
 		material.MATERIAL_SPECULAR_MAP = specularMap?1:0;
 		material.MATERIAL_NORMAL_MAP = normalMap?1:0;
+		material.MATERIAL_EMISSIVE_MAP = emissiveMap?1:0;
 		rr::RRReporter::report(rr::RRReporter::INFO,"Loading %s...\n",buf);
 		DynamicObject* object = DynamicObject::create(buf,scale,material,specularCubeSize);
 		dynamicObjects->addObject(object);

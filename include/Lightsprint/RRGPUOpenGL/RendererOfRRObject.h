@@ -18,9 +18,11 @@ namespace rr_gl
 // (they allocate channel numbers not used by Lightsprint engine)
 enum
 {
-	CHANNEL_TRIANGLE_DIF_TEX             = rr::RRMesh::INDEXED_BY_TRIANGLE+5, ///< channel contains Texture* for each triangle
-	CHANNEL_TRIANGLE_VERTICES_DIF_UV     = rr::RRMesh::INDEXED_BY_TRIANGLE+6, ///< channel contains RRVec2[3] for each triangle
-	CHANNEL_TRIANGLE_OBJECT_ILLUMINATION = rr::RRMesh::INDEXED_BY_TRIANGLE+7, ///< channel contains RRObjectIllumination* for each triangle
+	CHANNEL_TRIANGLE_DIFFUSE_TEX         = rr::RRMesh::INDEXED_BY_TRIANGLE+5, ///< channel contains Texture* for each triangle
+	CHANNEL_TRIANGLE_EMISSIVE_TEX        = rr::RRMesh::INDEXED_BY_TRIANGLE+6, ///< channel contains Texture* for each triangle
+	CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV = rr::RRMesh::INDEXED_BY_TRIANGLE+7, ///< channel contains RRVec2[3] for each triangle
+	CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV= rr::RRMesh::INDEXED_BY_TRIANGLE+8, ///< channel contains RRVec2[3] for each triangle
+	CHANNEL_TRIANGLE_OBJECT_ILLUMINATION = rr::RRMesh::INDEXED_BY_TRIANGLE+9, ///< channel contains RRObjectIllumination* for each triangle
 };
 
 
@@ -91,6 +93,7 @@ public:
 		bool     LIGHT_INDIRECT_ENV     :1; ///< feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT]
 		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds gl_SecondaryColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
+		bool     MATERIAL_EMISSIVE_MAP  :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
 		bool     FORCE_2D_POSITION      :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
 		unsigned LIGHT_MAP_CHANNEL;         ///< if LIGHT_INDIRECT_MAP, maps from this illuminations channel are used
 		//! Creates setup with everything off, only vertex positions are rendered.

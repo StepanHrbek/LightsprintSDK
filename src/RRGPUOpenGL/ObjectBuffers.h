@@ -29,6 +29,7 @@ private:
 	rr::RRVec3* avertex;
 	rr::RRVec3* anormal;
 	rr::RRVec2* atexcoordDiffuse;
+	rr::RRVec2* atexcoordEmissive;
 	rr::RRVec2* atexcoordForced2D; // is unique for each vertex
 	rr::RRVec2* atexcoordAmbient; // could be unique for each vertex (with default unwrap)
 	unsigned numIndices;
@@ -39,6 +40,7 @@ private:
 		unsigned numIndices;
 		rr::RRVec3 diffuseColor;
 		de::Texture* diffuseTexture;
+		de::Texture* emissiveTexture;
 	};
 	std::vector<FaceGroup> faceGroups;
 };

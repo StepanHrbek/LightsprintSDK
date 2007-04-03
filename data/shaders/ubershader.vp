@@ -16,6 +16,7 @@
 //  #define MATERIAL_SPECULAR
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
+//  #define MATERIAL_EMISSIVE_MAP
 //  #define OBJECT_SPACE
 //  #define FORCE_2D_POSITION
 //
@@ -61,6 +62,10 @@ varying
 	varying vec2 materialDiffuseCoord;
 #endif
 
+#ifdef MATERIAL_EMISSIVE_MAP
+	varying vec2 materialEmissiveCoord;
+#endif
+
 void main()
 {
 	#ifdef OBJECT_SPACE
@@ -90,6 +95,10 @@ void main()
 
 	#ifdef MATERIAL_DIFFUSE_VCOLOR
 		materialDiffuseColor = gl_SecondaryColor;
+	#endif
+
+	#ifdef MATERIAL_EMISSIVE_MAP
+		materialEmissiveCoord = gl_MultiTexCoord3.xy;
 	#endif
 
 	// for cycle (for any OpenGL 2.0 compliant card)

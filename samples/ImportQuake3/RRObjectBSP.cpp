@@ -20,7 +20,7 @@
 //    collider can be big.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
-// custom .bsp data via our custom identifiers CHANNEL_TRIANGLE_DIF_TEX etc.
+// custom .bsp data via our custom identifiers CHANNEL_TRIANGLE_DIFFUSE_TEX etc.
 // It is used only by our custom renderer RendererOfRRObject
 // (during render of scene with ambient maps),
 // it is never accessed by radiosity solver.
@@ -237,11 +237,11 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 			if(numItems) *numItems = RRObjectBSP::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
@@ -261,7 +261,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 		{
 			if(itemIndex>=RRObjectBSP::getNumTriangles())
 			{
@@ -284,7 +284,7 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			*out = materials[materialIndex].texture;
 			return true;
 		}
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 		{
 			if(itemIndex>=RRObjectBSP::getNumTriangles())
 			{

@@ -74,7 +74,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	m3ds.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL);
+	m3ds.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
 
 	uberProgramSetup.OBJECT_SPACE = true; // enable object space
 	if(uberProgramSetup.SHADOW_MAPS) uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality

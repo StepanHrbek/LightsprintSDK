@@ -22,13 +22,16 @@ class RendererOf3DS : public Renderer
 {
 public:
 	//! Creates renderer of model.
-	RendererOf3DS(const Model_3DS* model);
+	RendererOf3DS(const Model_3DS* model,bool lit,bool texturedDiffuse,bool texturedEmissive);
 	//! Returns parameters that specify what render() does (pointer to pointer to model). 
 	virtual const void* getParams(unsigned& length) const;
 	//! Renders model using Model_3DS::Draw().
 	virtual void render();
 private:
 	const Model_3DS* model;
+	bool lit;
+	bool texturedDiffuse;
+	bool texturedEmissive;
 };
 
 }; // namespace

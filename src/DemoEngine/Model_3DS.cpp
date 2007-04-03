@@ -79,6 +79,7 @@
 #include <cstring>
 #include <GL/glew.h>
 #include "Lightsprint/DemoEngine/Model_3DS.h"
+#include "Lightsprint/DemoEngine/UberProgramSetup.h"
 
 namespace de
 {
@@ -317,7 +318,8 @@ void Model_3DS::UpdateCenter()
 void Model_3DS::Draw(
 	void* model,
 	bool lit,
-	bool textured,
+	bool texturedDiffuse,
+	bool texturedEmissive,
 	const float* (acquireVertexColors)(void* model,unsigned object),
 	void (releaseVertexColors)(void* model,unsigned object)) const
 {
@@ -356,9 +358,14 @@ void Model_3DS::Draw(
 			}
 
 			// Enable texture coordiantes, normals, and vertices arrays
-			if (textured && Objects[i].textured)
+			if (texturedDiffuse && Objects[i].textured)
 			{
-				glClientActiveTexture(GL_TEXTURE0);
+				glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			}
+			if (texturedEmissive && Objects[i].textured)
+			{
+				glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			}
 			if (lit)
@@ -366,7 +373,7 @@ void Model_3DS::Draw(
 			glEnableClientState(GL_VERTEX_ARRAY);
 
 			// Point them to the objects arrays
-			if (textured && Objects[i].textured)
+			if ((texturedDiffuse || texturedEmissive) && Objects[i].textured)
 				glTexCoordPointer(2, GL_FLOAT, 0, Objects[i].TexCoords);
 			if (lit)
 				glNormalPointer(GL_FLOAT, 0, Objects[i].Normals);
@@ -376,7 +383,7 @@ void Model_3DS::Draw(
 			for (int j = 0; j < Objects[i].numMatFaces; j ++)
 			{
 				// Use the material's texture
-				if (textured && Objects[i].textured)
+				if ((texturedDiffuse || texturedEmissive) && Objects[i].textured)
 					Materials[Objects[i].MatFaces[j].MatIndex].tex->bindTexture();
 
 				/*glPushMatrix();

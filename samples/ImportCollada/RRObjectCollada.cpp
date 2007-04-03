@@ -177,7 +177,7 @@ void RRMeshCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsig
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 			if(numItems) *numItems = RRMeshCollada::getNumTriangles();
 			if(itemSize) *itemSize = sizeof(RRVec2[3]);
 			return;
@@ -199,7 +199,7 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIF_UV:
+		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 			return getTriangleVerticesData(mesh,FUDaeGeometryInput::TEXCOORD,0,2,itemIndex,itemData,itemSize);
 
 		default:
@@ -365,7 +365,7 @@ void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, uns
 {
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 			if(numItems) *numItems = getCollider()->getMesh()->getNumTriangles();
 			if(itemSize) *itemSize = sizeof(de::Texture*);
 			return;
@@ -387,7 +387,7 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 	}
 	switch(channelId)
 	{
-		case rr_gl::CHANNEL_TRIANGLE_DIF_TEX:
+		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 			{
 			if(itemIndex>=getCollider()->getMesh()->getNumTriangles())
 			{

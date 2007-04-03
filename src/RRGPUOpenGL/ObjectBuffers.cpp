@@ -30,6 +30,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 	NEW_ARRAY(avertex,RRVec3);
 	NEW_ARRAY(anormal,RRVec3);
 	NEW_ARRAY(atexcoordDiffuse,RRVec2);
+	NEW_ARRAY(atexcoordEmissive,RRVec2);
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
 	#undef NEW_ARRAY
@@ -44,7 +45,9 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 		rr::RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping);
 		rr::RRVec2 diffuseUv[3];
-		mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,t,diffuseUv,sizeof(diffuseUv));
+		mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
+		rr::RRVec2 emissiveUv[3];
+		mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
 		// material change? -> start new facegroup
 		const rr::RRMaterial* material = object->getTriangleMaterial(t);
 		if(!t || material!=previousMaterial)
@@ -61,7 +64,9 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			fg.numIndices = 0;
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
 			fg.diffuseTexture = NULL;
-			object->getChannelData(CHANNEL_TRIANGLE_DIF_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+			object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+			fg.emissiveTexture = NULL;
+			object->getChannelData(CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
 			// it's still possible that user will render without texture
 			//if(!fg.diffuseTexture)
 			//{
@@ -100,6 +105,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			anormal[currentVertex] = triangleNormals.norm[v];
 			atexcoordAmbient[currentVertex] = triangleMapping.uv[v];
 			atexcoordDiffuse[currentVertex] = diffuseUv[v];
+			atexcoordEmissive[currentVertex] = emissiveUv[v];
 		}
 		// generate facegroups
 		faceGroups[faceGroups.size()-1].numIndices += 3;
@@ -110,6 +116,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 ObjectBuffers::~ObjectBuffers()
 {
 	delete[] atexcoordDiffuse;
+	delete[] atexcoordEmissive;
 	delete[] atexcoordForced2D;
 	delete[] atexcoordAmbient;
 	delete[] anormal;
@@ -175,8 +182,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordDiffuse[0].x);
 	}
+	// set material emissive texcoords
+	if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+	{
+		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_EMISSIVE);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordEmissive[0].x);
+	}
 	// render facegroups (facegroups differ by material)
-	if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP)
+	if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
 		for(unsigned fg=0;fg<faceGroups.size();fg++)
 		{
@@ -204,6 +218,20 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 					else
 					{
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::ERRO,"RRRendererOfRRObject: Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
+					}
+				}
+				// set emissive map
+				if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+				{
+					glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_EMISSIVE);
+					de::Texture* tex = faceGroups[fg].emissiveTexture;
+					if(tex)
+					{
+						tex->bindTexture();
+					}
+					else
+					{
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::ERRO,"RRRendererOfRRObject: Texturing requested, but emissive texture not available, expect incorrect render.\n"));
 					}
 				}
 				// render one facegroup
@@ -239,6 +267,12 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 	if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_DIFFUSE);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
+	// unset material emissive texcoords
+	if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+	{
+		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_EMISSIVE);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset 2d_position texcoords

@@ -16,6 +16,7 @@
 //  #define MATERIAL_SPECULAR
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
+//  #define MATERIAL_EMISSIVE_MAP
 //  #define OBJECT_SPACE
 //  #define FORCE_2D_POSITION
 //
@@ -114,6 +115,11 @@
 #endif
 #if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV)
 	varying vec3 worldNormalSmooth;
+#endif
+
+#ifdef MATERIAL_EMISSIVE_MAP
+	uniform sampler2D materialEmissiveMap;
+	varying vec2 materialEmissiveCoord;
 #endif
 
 void main()
@@ -373,6 +379,15 @@ void main()
 						+ textureCube(lightIndirectSpecularEnvMap, worldViewReflected)
 					#endif
 				)
+			#endif
+
+
+			//
+			// emission
+			//
+
+			#ifdef MATERIAL_EMISSIVE_MAP
+				+ texture2D(materialEmissiveMap, materialEmissiveCoord)
 			#endif
 			;
 

@@ -19,15 +19,17 @@ enum
 	// 0..9 are reserved for shadowmaps
 	TEXTURE_2D_LIGHT_DIRECT              = 10, ///< Sampler id used by our uberprogram for projected light map.
 	TEXTURE_2D_MATERIAL_DIFFUSE          = 11, ///< Sampler id used by our uberprogram for diffuse map.
-	TEXTURE_2D_LIGHT_INDIRECT            = 12, ///< Sampler id used by our uberprogram for ambient map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 13, ///< Sampler id used by our uberprogram for specular cube map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 14, ///< Sampler id used by our uberprogram for diffuse cube map.
+	TEXTURE_2D_MATERIAL_EMISSIVE         = 12, ///< Sampler id used by our uberprogram for emissive map.
+	TEXTURE_2D_LIGHT_INDIRECT            = 13, ///< Sampler id used by our uberprogram for ambient map.
+	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 14, ///< Sampler id used by our uberprogram for specular cube map.
+	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 15, ///< Sampler id used by our uberprogram for diffuse cube map.
 
 	// texcoords assigned to UberProgram
 	// these constants are hardcoded in shaders
 	MULTITEXCOORD_MATERIAL_DIFFUSE       = 0, ///< Texcoord channel used by our uberprogram for diffuse map uv.
 	MULTITEXCOORD_LIGHT_INDIRECT         = 1, ///< Texcoord channel used by our uberprogram for ambient map uv.
 	MULTITEXCOORD_FORCED_2D              = 2, ///< Texcoord channel used by our uberprogram for forced projection space vertex coordinates.
+	MULTITEXCOORD_MATERIAL_EMISSIVE      = 3, ///< Texcoord channel used by our uberprogram for emissive map uv.
 };
 
 
@@ -59,6 +61,7 @@ struct DE_API UberProgramSetup
 	bool     MATERIAL_SPECULAR      :1; ///< Enables material's specular reflectance.
 	bool     MATERIAL_SPECULAR_MAP  :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
 	bool     MATERIAL_NORMAL_MAP    :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
+	bool     MATERIAL_EMISSIVE_MAP  :1; ///< Enables material's emission stored in sRGB map.
 	bool     OBJECT_SPACE           :1; ///< Enables object space, vertices are transformed by uniform worldMatrix.
 	bool     FORCE_2D_POSITION      :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
 

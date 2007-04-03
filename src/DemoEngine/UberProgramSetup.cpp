@@ -17,7 +17,7 @@ namespace de
 const char* UberProgramSetup::getSetupString()
 {
 	static char setup[300];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
@@ -33,6 +33,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_SPECULAR?"#define MATERIAL_SPECULAR\n":"",
 		MATERIAL_SPECULAR_MAP?"#define MATERIAL_SPECULAR_MAP\n":"",
 		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
+		MATERIAL_EMISSIVE_MAP?"#define MATERIAL_EMISSIVE_MAP\n":"",
 		OBJECT_SPACE?"#define OBJECT_SPACE\n":"",
 		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":""
 		);
@@ -80,6 +81,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, bool am
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+		uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
 		uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		if(!uberProgramSetup.getProgram(uberProgram)) FAIL;
@@ -101,6 +103,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, bool am
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 		uberProgramSetup.MATERIAL_SPECULAR = true;
 		uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
+		uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
 		uberProgramSetup.OBJECT_SPACE = true;
 		if(!uberProgramSetup.getProgram(uberProgram)) FAIL;*/
 		// all shaders ok
@@ -214,6 +217,14 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 		int id=TEXTURE_2D_MATERIAL_DIFFUSE;
 		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active
 		program->sendUniform("materialDiffuseMap", id);
+	}
+
+	// materialEmissiveMap
+	if(MATERIAL_EMISSIVE_MAP)
+	{
+		int id=TEXTURE_2D_MATERIAL_EMISSIVE;
+		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active (EMISSIVE is typically used without DIFFUSE)
+		program->sendUniform("materialEmissiveMap", id);
 	}
 
 	return program;

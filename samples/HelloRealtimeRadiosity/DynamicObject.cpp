@@ -17,7 +17,7 @@ DynamicObject* DynamicObject::create(const char* filename,float scale,de::UberPr
 	DynamicObject* d = new DynamicObject();
 	if(d->model.Load(filename,scale) && d->getModel().numObjects)
 	{
-		d->rendererWithoutCache = de::Renderer::create3DSRenderer(&d->model);
+		d->rendererWithoutCache = de::Renderer::create3DSRenderer(&d->model,true,amaterial.MATERIAL_DIFFUSE_MAP,amaterial.MATERIAL_EMISSIVE_MAP);
 		d->rendererCached = d->rendererWithoutCache->createDisplayList();
 		d->material = amaterial;
 		d->specularCubeSize = aspecularCubeSize;
@@ -97,6 +97,7 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 		uberProgramSetup.MATERIAL_SPECULAR = material.MATERIAL_SPECULAR;
 		uberProgramSetup.MATERIAL_SPECULAR_MAP = material.MATERIAL_SPECULAR_MAP;
 		uberProgramSetup.MATERIAL_NORMAL_MAP = material.MATERIAL_NORMAL_MAP;
+		uberProgramSetup.MATERIAL_EMISSIVE_MAP = material.MATERIAL_EMISSIVE_MAP;
 	}
 	// use program
 	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap);
@@ -110,6 +111,8 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 	// set envmap
 	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 	{
+		GLint activeTexture;
+		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
 		if(uberProgramSetup.MATERIAL_SPECULAR)
 		{
 			glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
@@ -127,7 +130,9 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 			else
 				assert(0); // have you called updateIllumination()?
 		}
-		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_DIFFUSE);
+		// activate previously active texture
+		//  sometimes it's diffuse, sometimes emissive
+		glActiveTexture(activeTexture);
 	}
 	// render
 	rendererCached->render(); // cached inside display list

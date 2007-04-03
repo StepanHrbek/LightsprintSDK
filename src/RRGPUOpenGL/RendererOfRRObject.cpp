@@ -129,7 +129,7 @@ void RendererOfRRObject::render()
 			rr::RRMesh::Triangle tri;
 			meshImporter->getTriangle(triangleIdx,tri);
 
-			if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP)
+			if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 			{
 				const rr::RRMaterial* material = params.object->getTriangleMaterial(triangleIdx);
 				if(material!=oldMaterial)
@@ -153,7 +153,7 @@ void RendererOfRRObject::render()
 					if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 					{
 						de::Texture* tex = NULL;
-						params.object->getChannelData(CHANNEL_TRIANGLE_DIF_TEX,triangleIdx,&tex,sizeof(tex));
+						params.object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,triangleIdx,&tex,sizeof(tex));
 						if(tex)
 						{
 							if(begun)
@@ -162,6 +162,27 @@ void RendererOfRRObject::render()
 								begun = false;
 							}
 							glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_DIFFUSE);
+							tex->bindTexture();
+						}
+						else
+						{			
+							RR_ASSERT(0); // expected data are missing
+						}
+					}
+
+					// material emissive map - bind texture
+					if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+					{
+						de::Texture* tex = NULL;
+						params.object->getChannelData(CHANNEL_TRIANGLE_EMISSIVE_TEX,triangleIdx,&tex,sizeof(tex));
+						if(tex)
+						{
+							if(begun)
+							{
+								glEnd();
+								begun = false;
+							}
+							glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_EMISSIVE);
 							tex->bindTexture();
 						}
 						else
@@ -276,8 +297,19 @@ void RendererOfRRObject::render()
 				{
 					rr::RRVec2 uv[3];
 					//!!! optimize, get once, not three times per triangle
-					if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIF_UV,triangleIdx,&uv,sizeof(uv)))
+					if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,triangleIdx,&uv,sizeof(uv)))
 						glMultiTexCoord2f(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_DIFFUSE,uv[v][0],uv[v][1]);
+					else
+						RR_ASSERT(0); // expected data are missing
+				}
+
+				// material emissive map - uv
+				if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
+				{
+					rr::RRVec2 uv[3];
+					//!!! optimize, get once, not three times per triangle
+					if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,triangleIdx,&uv,sizeof(uv)))
+						glMultiTexCoord2f(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_EMISSIVE,uv[v][0],uv[v][1]);
 					else
 						RR_ASSERT(0); // expected data are missing
 				}
