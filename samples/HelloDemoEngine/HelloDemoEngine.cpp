@@ -293,7 +293,7 @@ int main(int argc, char **argv)
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	unsigned shadowmapsPerPass = quadro ? 1 : de::UberProgramSetup::detectMaxShadowmaps(uberProgram,uberProgramSetup);
+	unsigned shadowmapsPerPass = quadro ? 1 : uberProgramSetup.detectMaxShadowmaps(uberProgram);
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures

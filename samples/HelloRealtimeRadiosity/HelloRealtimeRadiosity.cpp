@@ -556,7 +556,7 @@ int main(int argc, char **argv)
 #endif
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-		shadowmapsPerPass = de::UberProgramSetup::detectMaxShadowmaps(uberProgram,uberProgramSetup);
+		shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram);
 		if(!shadowmapsPerPass) error("",true);
 	}
 	

@@ -54,24 +54,22 @@ Program* UberProgramSetup::getProgram(UberProgram* uberProgram)
 	return uberProgram->getProgram(getSetupString());
 }
 
-unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, UberProgramSetup uberProgramSetup)
+unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram)
 {
-	unsigned instancesPerPass;
 #ifdef DESCEND
-	for(instancesPerPass=10;instancesPerPass;instancesPerPass--)
+	for(SHADOW_MAPS=10;SHADOW_MAPS;SHADOW_MAPS--)
 	#define FAIL continue
 	#define SUCCESS break
 #else
-	for(instancesPerPass=1;instancesPerPass<10;instancesPerPass++)
-	#define FAIL {instancesPerPass--;break;}
+	for(SHADOW_MAPS=1;SHADOW_MAPS<10;SHADOW_MAPS++)
+	#define FAIL {SHADOW_MAPS--;break;}
 	#define SUCCESS
 #endif
 	{
-		uberProgramSetup.SHADOW_MAPS = instancesPerPass;
-		if(!uberProgramSetup.getProgram(uberProgram)) FAIL;
+		if(!getProgram(uberProgram)) FAIL;
 		SUCCESS;
 	}
-	unsigned instancesPerPassOrig = instancesPerPass;
+	unsigned instancesPerPassOrig = SHADOW_MAPS;
 	char* renderer = (char*)glGetString(GL_RENDERER);
 	if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")))
 	{
@@ -79,14 +77,14 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, UberPro
 		for(unsigned i=0;i<sizeof(buggy)/sizeof(char*);i++)
 			if(strstr(renderer,buggy[i]))
 			{
-				if(instancesPerPass>3) instancesPerPass = MAX(3,instancesPerPass-2);
+				if(SHADOW_MAPS>3) SHADOW_MAPS = MAX(3,SHADOW_MAPS-2);
 				break;
 			}
 	}
 	// 2 is ugly, prefer 1
-	if(instancesPerPass==2) instancesPerPass--;
-	printf("Penumbra shadows: %d/%d on %s.\n",instancesPerPass,instancesPerPassOrig,renderer?renderer:"");
-	return instancesPerPass;
+	if(SHADOW_MAPS==2) SHADOW_MAPS--;
+	printf("Penumbra shadows: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
+	return SHADOW_MAPS;
 }
 
 Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap)
