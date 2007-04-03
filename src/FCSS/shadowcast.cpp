@@ -2088,12 +2088,12 @@ int main(int argc, char **argv)
 	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
-#ifdef SUPPORT_LIGHTMAPS
+#if SUPPORT_LIGHTMAPS
 	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = 0;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = 1;
 #endif
 	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram);
-#ifdef SUPPORT_LIGHTMAPS
+#if SUPPORT_LIGHTMAPS
 	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 #endif
