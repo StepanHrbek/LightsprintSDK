@@ -430,21 +430,12 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t) const
 //
 // main
 
-RRObjectBSP* new_bsp_importer(de::TMapQ3* model, const char* pathToTextures, de::Texture* missingTexture)
-{
-	RRObjectBSP* importer = new RRObjectBSP(model,pathToTextures,missingTexture);
-#ifdef VERIFY
-	importer->getCollider()->getMesh()->verify();
-#endif
-	return importer;
-}
-
 void insertBspToRR(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
 {
 	if(app)
 	{
 		rr::RRRealtimeRadiosity::Objects objects;
-		RRObjectBSP* object = new_bsp_importer(model,pathToTextures,missingTexture);
+		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,missingTexture);
 		objects.push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
 		app->setObjects(objects,smoothing);
 	}

@@ -541,10 +541,6 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 	{
 		Materials = new Material[numMaterials];
 
-		// Material is set to untextured until we find otherwise
-		for (int d = 0; d < numMaterials; d++)
-			Materials[d].textured = false;
-
 		fseek(bin3ds, findex, SEEK_SET);
 
 		int i = 0;

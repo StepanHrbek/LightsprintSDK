@@ -2098,7 +2098,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false; //!!! rozbehat se zaplym vcolor i map, ted nejde
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;

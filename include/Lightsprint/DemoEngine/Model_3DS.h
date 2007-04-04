@@ -78,6 +78,7 @@
 #define MODEL_3DS_H
 
 #include <cstdio>
+#include <cstring>
 #include "Texture.h"
 
 namespace de
@@ -118,7 +119,7 @@ public:
 		Color4i color;
 		Material()
 		{
-			tex=NULL;
+			memset(this,0,sizeof(*this));
 		}
 		~Material()
 		{
@@ -139,7 +140,7 @@ public:
 		int MatIndex;				// An index to our materials
 		MaterialFaces()
 		{
-			subFaces = NULL;
+			memset(this,0,sizeof(*this));
 		}
 		~MaterialFaces()
 		{
@@ -164,11 +165,7 @@ public:
 		Vector rot;					// The angles to rotate the object
 		Object()
 		{
-			Vertexes = NULL;
-			Normals = NULL;
-			TexCoords = NULL;
-			Faces = NULL;
-			MatFaces = NULL;
+			memset(this,0,sizeof(*this));
 		}
 		~Object()
 		{

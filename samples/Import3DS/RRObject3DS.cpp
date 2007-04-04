@@ -46,7 +46,7 @@
 // If you encounter strange behaviour with new data later,
 // reenable verifications to check that your data are ok.
 
-//#define VERIFY
+#define VERIFY
 
 #ifdef VERIFY
 void reporter(const char* msg, void* context)
@@ -131,12 +131,15 @@ static void fillMaterial(rr::RRMaterial* s,de::Model_3DS::Material* m)
 				avg += rr::RRVec3(tmp[0],tmp[1],tmp[2]);
 			}
 		avg /= size*size;
+		//avg[0] *= m->color.r/255.0f;
+		//avg[1] *= m->color.g/255.0f;
+		//avg[2] *= m->color.b/255.0f;
 	}
 	else
 	{
-		avg[0] = m->color.r;
-		avg[1] = m->color.g;
-		avg[2] = m->color.b;
+		avg[0] = m->color.r/255.0f;
+		avg[1] = m->color.g/255.0f;
+		avg[2] = m->color.b/255.0f;
 	}
 
 	// set all properties to default
@@ -181,7 +184,7 @@ RRObject3DS::RRObject3DS(de::Model_3DS* amodel, unsigned objectIdx)
 	}
 
 #ifdef VERIFY
-	verify(reporter,NULL);
+	verify();
 #endif
 
 	// create collider
@@ -406,15 +409,6 @@ const rr::RRMatrix3x4* RRObject3DS::getInvWorldMatrix()
 //
 // main
 
-RRObject3DS* new_3ds_importer(de::Model_3DS* model, unsigned objectIdx)
-{
-	RRObject3DS* importer = new RRObject3DS(model, objectIdx);
-#ifdef VERIFY
-	importer->getCollider()->getMesh()->verify(reporter,NULL);
-#endif
-	return importer;
-}
-
 void insert3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
 {
 	if(app)
@@ -422,7 +416,7 @@ void insert3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app,const rr::R
 		rr::RRRealtimeRadiosity::Objects objects;
 		for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
-			RRObject3DS* object = new_3ds_importer(model,i);
+			RRObject3DS* object = new RRObject3DS(model,i);
 			objects.push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
 		}
 		app->setObjects(objects,smoothing);
