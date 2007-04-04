@@ -16,8 +16,8 @@ namespace de
 
 const char* UberProgramSetup::getSetupString()
 {
-	static char setup[300];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	static char setup[500];
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
@@ -31,6 +31,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_DIFFUSE_VCOLOR?"#define MATERIAL_DIFFUSE_VCOLOR\n":"",
 		MATERIAL_DIFFUSE_MAP?"#define MATERIAL_DIFFUSE_MAP\n":"",
 		MATERIAL_SPECULAR?"#define MATERIAL_SPECULAR\n":"",
+		MATERIAL_SPECULAR_CONST?"#define MATERIAL_SPECULAR_CONST\n":"",
 		MATERIAL_SPECULAR_MAP?"#define MATERIAL_SPECULAR_MAP\n":"",
 		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
 		MATERIAL_EMISSIVE_MAP?"#define MATERIAL_EMISSIVE_MAP\n":"",
@@ -122,7 +123,6 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
 	glMatrixMode(GL_MODELVIEW);
 
-	// lightDirectPos (in object space)
 	if(LIGHT_DIRECT)
 	{
 		if(!areaLight) return false;
@@ -131,7 +131,6 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 		program->sendUniform("worldLightPos",light->pos[0]-0.3f*light->dir[0],light->pos[1]-0.3f*light->dir[1],light->pos[2]-0.3f*light->dir[2]);//!!!
 	}
 
-	// lightDirectMap
 	if(LIGHT_DIRECT_MAP)
 	{
 		if(!lightDirectMap) return false;
@@ -146,7 +145,6 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 		program->sendUniform("lightIndirectConst",0.2f,0.2f,0.2f,0.0f);
 	}
 
-	// lightIndirectMap
 	if(LIGHT_INDIRECT_MAP)
 	{
 		int id=TEXTURE_2D_LIGHT_INDIRECT;
@@ -154,7 +152,6 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 		program->sendUniform("lightIndirectMap", id);
 	}
 
-	// lightIndirectEnvMap
 	if(LIGHT_INDIRECT_ENV)
 	{
 		if(MATERIAL_DIFFUSE)
@@ -171,7 +168,12 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 		}
 	}
 
-	// materialDiffuseMap
+	if(MATERIAL_DIFFUSE_CONST)
+	{
+		// set default value, caller may override it by additional sendUniform call
+		program->sendUniform("materialDiffuseConst",2.0f,2.0f,2.0f,1.0f);
+	}
+
 	if(MATERIAL_DIFFUSE_MAP)
 	{
 		int id=TEXTURE_2D_MATERIAL_DIFFUSE;
@@ -179,7 +181,12 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 		program->sendUniform("materialDiffuseMap", id);
 	}
 
-	// materialEmissiveMap
+	if(MATERIAL_SPECULAR_CONST)
+	{
+		// set default value, caller may override it by additional sendUniform call
+		program->sendUniform("materialSpecularConst",.5f,.5f,.5f,1.0f);
+	}
+
 	if(MATERIAL_EMISSIVE_MAP)
 	{
 		int id=TEXTURE_2D_MATERIAL_EMISSIVE;

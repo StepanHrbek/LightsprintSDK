@@ -59,6 +59,7 @@ struct DE_API UberProgramSetup
 	bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< Enables material's diffuse reflectance modulated by color set per vertex.
 	bool     MATERIAL_DIFFUSE_MAP   :1; ///< Enables material's diffuse reflectance modulated by diffuse map.
 	bool     MATERIAL_SPECULAR      :1; ///< Enables material's specular reflectance.
+	bool     MATERIAL_SPECULAR_CONST:1; ///< Enables material's specular reflectance modulated by constant color.
 	bool     MATERIAL_SPECULAR_MAP  :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
 	bool     MATERIAL_NORMAL_MAP    :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
 	bool     MATERIAL_EMISSIVE_MAP  :1; ///< Enables material's emission stored in sRGB map.

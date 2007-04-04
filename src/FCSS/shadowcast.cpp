@@ -346,6 +346,7 @@ protected:
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 #endif
 		uberProgramSetup.MATERIAL_SPECULAR = false;
+		uberProgramSetup.MATERIAL_SPECULAR_CONST = false;
 		uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 		uberProgramSetup.MATERIAL_NORMAL_MAP = false;
 		uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
@@ -475,12 +476,6 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	if(!program)
 		error("Failed to compile or link GLSL program.\n",true);
 
-	// boost quake map intensity
-	if(uberProgramSetup.MATERIAL_DIFFUSE_CONST)
-	{
-		program->sendUniform("materialDiffuseConst",2.0f,2.0f,2.0f,1.0f);
-	}
-
 	if(twosided) glDisable(GL_CULL_FACE); else glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
@@ -569,6 +564,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 	uberProgramSetup.MATERIAL_SPECULAR = false;
+	uberProgramSetup.MATERIAL_SPECULAR_CONST = false;
 	uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 	uberProgramSetup.MATERIAL_NORMAL_MAP = false;
 	uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
@@ -1094,7 +1090,7 @@ void display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 #ifdef THREE_ONE
-	//if(!demoPlayer->getPaused())
+	if(!demoPlayer->getPaused())
 		showOverlay(overlayMap);
 #else
 	showLogo(lightsprintMap);
@@ -2101,6 +2097,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
+	uberProgramGlobalSetup.MATERIAL_SPECULAR_CONST = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;
 	uberProgramGlobalSetup.MATERIAL_NORMAL_MAP = false;
 	uberProgramGlobalSetup.MATERIAL_EMISSIVE_MAP = false;

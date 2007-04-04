@@ -14,6 +14,7 @@
 //  #define MATERIAL_DIFFUSE_VCOLOR
 //  #define MATERIAL_DIFFUSE_MAP
 //  #define MATERIAL_SPECULAR
+//  #define MATERIAL_SPECULAR_CONST
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
 //  #define MATERIAL_EMISSIVE_MAP
@@ -113,6 +114,11 @@
 #ifdef MATERIAL_SPECULAR
 	varying vec3 worldPos;
 #endif
+
+#ifdef MATERIAL_SPECULAR_CONST
+	uniform vec4 materialSpecularConst;
+#endif
+
 #if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV)
 	varying vec3 worldNormalSmooth;
 #endif
@@ -280,6 +286,9 @@ void main()
 			vec3 worldNormal = worldNormalSmooth; // normalize would slightly improve quality
 		#endif
 	#endif
+	#ifdef MATERIAL_EMISSIVE_MAP
+		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord);
+	#endif
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -364,6 +373,12 @@ void main()
 				#ifdef MATERIAL_DIFFUSE_MAP
 					materialDiffuseMapColor.a *
 				#endif
+				#ifdef MATERIAL_EMISSIVE_MAP
+					materialEmissiveMapColor.a *
+				#endif
+				#ifdef MATERIAL_SPECULAR_CONST
+					materialSpecularConst *
+				#endif
 				#ifdef MATERIAL_SPECULAR_MAP
 					materialSpecularReflectance *
 				#endif
@@ -387,7 +402,7 @@ void main()
 			//
 
 			#ifdef MATERIAL_EMISSIVE_MAP
-				+ texture2D(materialEmissiveMap, materialEmissiveCoord)
+				+ materialEmissiveMapColor
 			#endif
 			;
 

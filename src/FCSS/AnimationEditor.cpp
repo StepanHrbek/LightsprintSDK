@@ -84,12 +84,12 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			frameCursor = setup->frames.size();
 			return true;
 		case GLUT_KEY_LEFT:
-			if(modif&GLUT_ACTIVE_CTRL)
+			if(modif)
 			{
 				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
 				if(i!=setup->frames.end())
 				{
-					(*i).transitionToNextTime = MAX(0,(*i).transitionToNextTime-0.5f);
+					(*i).transitionToNextTime = MAX(0,(*i).transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
 				}
 			}
 			else
@@ -98,12 +98,12 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			}
 			return true;
 		case GLUT_KEY_RIGHT:
-			if(modif&GLUT_ACTIVE_CTRL)
+			if(modif)
 			{
 				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
 				if(i!=setup->frames.end())
 				{
-					(*i).transitionToNextTime += 0.5f;
+					(*i).transitionToNextTime += ((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f);
 				}
 			}
 			else
@@ -120,7 +120,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			frameCursor++;
 			return true;}
 		case GLUT_KEY_PAGE_UP:
-			if(frameCursor)
+			if(frameCursor && frameCursor<setup->frames.size())
 			{
 				std::swap(*setup->getFrameByIndex(frameCursor),*setup->getFrameByIndex(frameCursor-1));
 				frameCursor--;
