@@ -85,7 +85,7 @@ void DynamicObject::updateIllumination(rr::RRRealtimeRadiosity* solver)
 		material.MATERIAL_DIFFUSE?4:0, material.MATERIAL_DIFFUSE?diffuseMap:NULL);
 }
 
-void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye)
+void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye, const float brightness[4], float gamma)
 {
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.
@@ -102,7 +102,7 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 		uberProgramSetup.MATERIAL_EMISSIVE_MAP = material.MATERIAL_EMISSIVE_MAP;
 	}
 	// use program
-	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap);
+	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap,brightness,gamma);
 	if(!program)
 	{
 		printf("Failed to compile or link GLSL program for dynamic object.\n");

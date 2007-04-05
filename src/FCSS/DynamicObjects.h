@@ -37,7 +37,7 @@ public:
 	bool setupSceneDynamicForPartTime(class LevelSetup* setup, float secondsFromStart);
 
 	void updateSceneDynamic(LevelSetup* setup, float advanceSeconds, unsigned onlyDynaObjectNumber=1000);
-	void renderSceneDynamic(rr::RRRealtimeRadiosity* solver, de::UberProgram* uberProgram, de::UberProgramSetup uberProgramSetup, de::AreaLight* areaLight, unsigned firstInstance, de::Texture* lightDirectMap) const;
+	void renderSceneDynamic(rr::RRRealtimeRadiosity* solver, de::UberProgram* uberProgram, de::UberProgramSetup uberProgramSetup, de::AreaLight* areaLight, unsigned firstInstance, de::Texture* lightDirectMap, const float brightness[4], float gamma) const;
 
 private:
 	std::vector<DynamicObject*> dynaobject;

@@ -335,7 +335,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 			detectFromLightmapUberProgramSetup.LIGHT_INDIRECT_MAP = true;
 			detectFromLightmapUberProgramSetup.MATERIAL_DIFFUSE = true;
 			detectFromLightmapUberProgramSetup.FORCE_2D_POSITION = true;
-			detectFromLightmapUberProgramSetup.useProgram(detectFromLightmapUberProgram,NULL,0,NULL);
+			detectFromLightmapUberProgramSetup.useProgram(detectFromLightmapUberProgram,NULL,0,NULL,NULL,1);
 		}
 		else
 		{

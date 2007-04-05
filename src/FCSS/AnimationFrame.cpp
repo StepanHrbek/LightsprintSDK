@@ -13,6 +13,8 @@ AnimationFrame::AnimationFrame()
 		{{-0.791f,1.370f,1.286f},3.475f,0,0.550f,1.0f,70.0f,1.0f,20.0f}};
 	eyeLight[0] = tmp[0];
 	eyeLight[1] = tmp[1];
+	brightness = rr::RRVec4(1);
+	gamma = 1;
 	transitionToNextTime = 3;
 	thumbnail = NULL;
 }
@@ -26,7 +28,7 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	float* a = (float*)(this->eyeLight);
 	float* b = (float*)(that.eyeLight);
 	float* c = (float*)(blended.eyeLight);
-	for(unsigned i=0;i<sizeof(eyeLight)/sizeof(float);i++)
+	for(unsigned i=0;i<(sizeof(eyeLight)+sizeof(brightness)+sizeof(gamma))/sizeof(float);i++)
 		c[i] = a[i]*(1-alpha) + b[i]*alpha;
 	blended.eyeLight[0].update(0);
 	blended.eyeLight[1].update(0.3f);
@@ -65,6 +67,13 @@ bool AnimationFrame::load(FILE* f)
 	i = 1;
 	if(10!=fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eyeLight[i].pos[0],&eyeLight[i].pos[1],&eyeLight[i].pos[2],&eyeLight[i].angle,&eyeLight[i].leanAngle,&eyeLight[i].height,&eyeLight[i].aspect,&eyeLight[i].fieldOfView,&eyeLight[i].anear,&eyeLight[i].afar))
 		return false;
+	brightness[0] = 1;
+	brightness[1] = 1;
+	brightness[2] = 1;
+	brightness[3] = 1;
+	fscanf(f,"brightness = {%f,%f,%f,%f}\n",&brightness[0],&brightness[1],&brightness[2],&brightness[3]);
+	gamma = 1;
+	fscanf(f,"gamma = %f\n",&gamma);
 	// load dynaPosRot
 	dynaPosRot.clear();
 	DynaObjectPosRot tmp;
@@ -98,6 +107,10 @@ bool AnimationFrame::save(FILE* f) const
 	fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eyeLight[i].pos[0],eyeLight[i].pos[1],eyeLight[i].pos[2],fmodf(eyeLight[i].angle+100*3.14159265f,2*3.14159265f),eyeLight[i].leanAngle,eyeLight[i].height,eyeLight[i].aspect,eyeLight[i].fieldOfView,eyeLight[i].anear,eyeLight[i].afar);
 	i = 1;
 	fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eyeLight[i].pos[0],eyeLight[i].pos[1],eyeLight[i].pos[2],fmodf(eyeLight[i].angle+100*3.14159265f,2*3.14159265f),eyeLight[i].leanAngle,eyeLight[i].height,eyeLight[i].aspect,eyeLight[i].fieldOfView,eyeLight[i].anear,eyeLight[i].afar);
+	if(brightness[0]!=1 || brightness[1]!=1 || brightness[2]!=1 || brightness[3]!=1)
+		fprintf(f,"brightness = {%f,%f,%f,%f}\n",brightness[0],brightness[1],brightness[2],brightness[3]);
+	if(gamma!=1)
+		fprintf(f,"gamma = %f\n",gamma);
 	// save dynaPosRot
 	for(DynaPosRot::const_iterator i=dynaPosRot.begin();i!=dynaPosRot.end();i++)
 		fprintf(f,"object = {%.3f,%.3f,%.3f,%.3f,%.3f}\n",(*i).pos[0],(*i).pos[1],(*i).pos[2],(*i).rot[0],(*i).rot[1]);

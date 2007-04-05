@@ -7,6 +7,8 @@ using namespace rr;
 // access to current scene
 extern de::Camera eye;
 extern de::Camera light;
+extern rr::RRVec4 globalBrightness;
+extern rr::RRReal globalGamma;
 void reportEyeMovement();
 void reportLightMovement();
 const rr::RRCollider* getSceneCollider();
@@ -221,6 +223,8 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 	}
 	eye = frame.eyeLight[0];
 	reportEyeMovement();
+	globalBrightness = frame.brightness;
+	globalGamma = frame.gamma;
 	//for(AnimationFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
 	for(unsigned i=0;i<dynaobject.size();i++)
 	{
@@ -247,6 +251,8 @@ void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& f
 {
 	frame.eyeLight[0] = eye;
 	frame.eyeLight[1] = light;
+	frame.brightness = globalBrightness;
+	frame.gamma = globalGamma;
 	frame.dynaPosRot.clear();
 	for(unsigned sceneIndex=0;sceneIndex<setup->objects.size();sceneIndex++) // scene has few objects
 	{
@@ -308,7 +314,7 @@ void DynamicObjects::updateSceneDynamic(LevelSetup* setup, float seconds, unsign
 	}
 }
 */
-void DynamicObjects::renderSceneDynamic(rr::RRRealtimeRadiosity* solver, de::UberProgram* uberProgram, de::UberProgramSetup uberProgramSetup, de::AreaLight* areaLight, unsigned firstInstance, de::Texture* lightDirectMap) const
+void DynamicObjects::renderSceneDynamic(rr::RRRealtimeRadiosity* solver, de::UberProgram* uberProgram, de::UberProgramSetup uberProgramSetup, de::AreaLight* areaLight, unsigned firstInstance, de::Texture* lightDirectMap, const float brightness[4], float gamma) const
 {
 	// use object space
 	uberProgramSetup.OBJECT_SPACE = true;
@@ -331,7 +337,7 @@ void DynamicObjects::renderSceneDynamic(rr::RRRealtimeRadiosity* solver, de::Ube
 		{
 			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 				dynaobject[i]->updateIllumination(solver);
-			dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap,eye);
+			dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap,eye,brightness,gamma);
 		}
 	}
 }

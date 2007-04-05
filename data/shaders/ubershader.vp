@@ -18,6 +18,8 @@
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define POSTPROCESS_BRIGHTNESS
+//  #define POSTPROCESS_GAMMA
 //  #define OBJECT_SPACE
 //  #define FORCE_2D_POSITION
 //

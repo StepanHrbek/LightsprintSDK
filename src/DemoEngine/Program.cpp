@@ -114,6 +114,11 @@ void Program::sendUniform(const char *name, float x, float y, float z, float w)
 	glUniform4f(getLoc(name), x, y, z, w);
 }
 
+void Program::sendUniform4fv(const char *name, const float xyzw[4])
+{
+	glUniform4fv(getLoc(name), 1, xyzw);
+}
+
 void Program::sendUniform(const char *name, int count, const GLint* x)
 {
 	glUniform1iv(getLoc(name), count, x);

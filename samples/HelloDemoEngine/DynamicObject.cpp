@@ -34,7 +34,7 @@ const de::Model_3DS& DynamicObject::getModel()
 void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye,float rot)
 {
 	// use program
-	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap);
+	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap,NULL,1);
 	if(!program)
 	{
 		printf("Failed to compile or link GLSL program for dynamic object.\n");

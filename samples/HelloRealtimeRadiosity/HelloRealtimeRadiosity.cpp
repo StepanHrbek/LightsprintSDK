@@ -114,7 +114,7 @@ void unlockVertexIllum(void* solver,unsigned object)
 
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
 #ifndef AMBIENT_MAPS
 	// 3ds renderer m3ds.Draw uses vertex buffers incompatible with our generated ambient map uv channel,
@@ -168,7 +168,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV && environmentMapsRealtimeUpdate)
 			robot->updateIllumination(solver);
-		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye);
+		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,NULL,1);
 	}
 	if(potato)
 	{
@@ -177,7 +177,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		potato->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV && environmentMapsRealtimeUpdate)
 			potato->updateIllumination(solver);
-		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye);
+		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,NULL,1);
 	}
 }
 
@@ -254,7 +254,7 @@ protected:
 			uberProgramSetup.LIGHT_DIRECT_MAP = true;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
 			uberProgramSetup.FORCE_2D_POSITION = true;
-			if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
+			if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
 				error("Failed to compile or link GLSL program.\n",true);
 	}
 };

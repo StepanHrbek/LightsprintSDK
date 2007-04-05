@@ -69,7 +69,7 @@ bool                quadro = 0;
 
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap))
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
 
 	glEnable(GL_CULL_FACE);

@@ -124,6 +124,8 @@ enum {
 
 de::Camera eye = {{0.000000,1.000000,4.000000},2.935000,0,-0.7500, 1.,100.,0.3,60.};
 de::Camera light = {{-1.233688,3.022499,-0.542255},1.239998,0,6.649996, 1.,70.,1.,1000.};
+rr::RRVec4 globalBrightness = rr::RRVec4(1);
+rr::RRReal globalGamma = 1;
 GLUquadricObj *quadric;
 de::AreaLight* areaLight = NULL;
 #define lightDirectMaps 3
@@ -353,7 +355,7 @@ protected:
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = true;
 
-		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap[lightDirectMapIdx]))
+		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap[lightDirectMapIdx],NULL,1))
 			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
@@ -472,7 +474,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
 	}
 
-	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
+	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],&globalBrightness[0],globalGamma);
 	if(!program)
 		error("Failed to compile or link GLSL program.\n",true);
 
@@ -531,7 +533,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	assert(!uberProgramSetup.OBJECT_SPACE); 
 	renderSceneStatic(uberProgramSetup,firstInstance);
 	if(uberProgramSetup.FORCE_2D_POSITION) return;
-	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx]);
+	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],&globalBrightness[0],globalGamma);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -587,6 +589,10 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
+
+	uberProgramSetup.POSTPROCESS_BRIGHTNESS = (globalBrightness[0]!=1 || globalBrightness[1]!=1 || globalBrightness[2]!=1 || globalBrightness[3]!=1)?1:0;
+	uberProgramSetup.POSTPROCESS_GAMMA = (globalGamma!=1)?1:0;
+
 	glClear(GL_COLOR_BUFFER_BIT);
 	if(firstInstance==0) glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -796,7 +802,8 @@ static void drawHelpMessage(int screen)
 		" x/c           - lean",
 		" enter         - fullscreen/window",
 		" space         - pause/play",
-		" 1/2/3/4/5/6/7 - move character to the center of screen",
+		" +/-/*//       - brightness/contrast",
+		" 1/2/3/4...    - move n-th object",
 /*
 		" space - toggle global illumination",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
@@ -895,6 +902,9 @@ static void drawHelpMessage(int screen)
 			frameIndex+1,level->pilot.setup->frames.size(),
 			transitionDone,transitionTotal);
 		output(x,y+18,buf);
+		sprintf(buf,"bright %.1f, gamma %.1f",
+			globalBrightness[0],globalGamma);
+		output(x,y+36,buf);
 	}
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -1493,6 +1503,19 @@ void keyboard(unsigned char c, int x, int y)
 		//case ' ':
 		//	changeSpotlight();
 		//	break;
+
+		case '+':
+			for(unsigned i=0;i<4;i++) globalBrightness[i] *= 1.2;
+			break;
+		case '-':
+			for(unsigned i=0;i<4;i++) globalBrightness[i] /= 1.2;
+			break;
+		case '*':
+			globalGamma *= 1.2;
+			break;
+		case '/':
+			globalGamma /= 1.2;
+			break;
 
 #if SUPPORT_LIGHTMAPS
 		// --- MAPS BEGIN ---

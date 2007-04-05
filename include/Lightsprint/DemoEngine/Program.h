@@ -57,6 +57,8 @@ public:
 	void sendUniform(const char *name, float x, float y, float z);
 	//! Sets uniform of type vec4.
 	void sendUniform(const char *name, float x, float y, float z, float w);
+	//! Sets uniform of type vec4.
+	void sendUniform4fv(const char *name, const float xyzw[4]);
 	//! Sets array of uniforms of type int or sampler2D or samplerCube or sampler2DShadow.
 	void sendUniform(const char *name, int count, const GLint* x);
 	//! Sets uniform of type int or sampler2D or samplerCube or sampler2DShadow.

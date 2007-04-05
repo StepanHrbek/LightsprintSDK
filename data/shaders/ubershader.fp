@@ -18,6 +18,8 @@
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define POSTPROCESS_BRIGHTNESS
+//  #define POSTPROCESS_GAMMA
 //  #define OBJECT_SPACE
 //  #define FORCE_2D_POSITION
 //
@@ -126,6 +128,14 @@
 #ifdef MATERIAL_EMISSIVE_MAP
 	uniform sampler2D materialEmissiveMap;
 	varying vec2 materialEmissiveCoord;
+#endif
+
+#ifdef POSTPROCESS_BRIGHTNESS
+	uniform vec4 postprocessBrightness;
+#endif
+
+#ifdef POSTPROCESS_GAMMA
+	uniform float postprocessGamma;
 #endif
 
 void main()
@@ -320,11 +330,12 @@ void main()
 	//
 	// final mix
 
-	#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV) || defined(LIGHT_DIRECT))
-		vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
-	#endif
-
 	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV)
+
+		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV) || defined(LIGHT_DIRECT))
+			vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
+		#endif
+
 		gl_FragColor =
 
 			//
@@ -408,6 +419,12 @@ void main()
 
 		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_SPECULAR_MAP)
 			gl_FragColor *= 0.5;
+		#endif
+		#ifdef POSTPROCESS_BRIGHTNESS
+			gl_FragColor *= postprocessBrightness;
+		#endif
+		#ifdef POSTPROCESS_GAMMA
+			gl_FragColor = pow(gl_FragColor,vec4(postprocessGamma,postprocessGamma,postprocessGamma,postprocessGamma));
 		#endif
 		#ifdef FORCE_2D_POSITION
 			gl_FragColor.a = 1.0;

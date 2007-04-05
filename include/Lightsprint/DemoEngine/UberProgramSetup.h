@@ -37,7 +37,7 @@ enum
 //
 // UberProgramSetup - options for UberShader.vp+fp
 
-//! Options for DemoEngine's ubershader UberShader.vp and UberShader.fp.
+//! Options that change code of UberProgram made of UberShader.vp and UberShader.fp.
 //
 //! UberProgram + UberProgramSetup = Program
 //!
@@ -63,9 +63,10 @@ struct DE_API UberProgramSetup
 	bool     MATERIAL_SPECULAR_MAP  :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
 	bool     MATERIAL_NORMAL_MAP    :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
 	bool     MATERIAL_EMISSIVE_MAP  :1; ///< Enables material's emission stored in sRGB map.
-	bool     OBJECT_SPACE           :1; ///< Enables object space, vertices are transformed by uniform worldMatrix.
+	bool     POSTPROCESS_BRIGHTNESS :1; ///< Enables brightness correction of final color (before gamma).
+	bool     POSTPROCESS_GAMMA      :1; ///< Enables gamma correction of final color (after brightness).
+	bool     OBJECT_SPACE           :1; ///< Enables positions in object space, vertices are transformed by uniform worldMatrix.
 	bool     FORCE_2D_POSITION      :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
-
 
 	//! Creates UberProgramSetup with everything turned off by default.
 	//! It is suitable for rendering into shadowmap, no color is produced, only depth.
@@ -90,8 +91,49 @@ struct DE_API UberProgramSetup
 	unsigned detectMaxShadowmaps(UberProgram* uberProgram);
 	//! Sets rendering pipeline so that following primitives are rendered using
 	//! our program.
-	Program* useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap);
+	Program* useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap, const float brightness[4], float gamma);
 };
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// UberProgramData - data for UberProgram
+/*
+//! Data for UberProgram, options that don't change code.
+struct DE_API UberProgramData
+{
+	AreaLight*areaLight;                 ///< Area light with shadowmaps.
+	Texture* lightDirectMap;             ///< Multiplies direct light. This texture is projected by light.
+	float    lightIndirectConst[4];      ///< Adds indirect light.
+	Texture* lightIndirectMap;           ///< Adds indirect light.
+	Texture* lightIndirectDiffuseEnvMap; ///< Adds indirect light.
+	Texture* lightIndirectSpecularEnvMap;///< Adds indirect light.
+	float    materialDiffuseConst[4];    ///< Multiplies material's diffuse reflectance.
+	Texture* materialDiffuseMap;         ///< Multiplies material's diffuse reflectance.
+	float    materialSpecularConst[4];   ///< Multiplies material's specular reflectance.
+	Texture* materialSpecularMap;        ///< Multiplies material's specular reflectance.
+	Texture* materialEmissiveMap;        ///< Adds emission of light.
+	float    postprocessBrightness[4];   ///< Multiplies final color (before gamma).
+	float    postprocessGamma;           ///< Gamma corrects final color (after brightness).
+	float    worldMatrix[16];            ///< Transforms objects from object to world space.
+
+	//! Creates UberProgramData with default values.
+	UberProgramData();
+
+	//! Loads light data into program.
+	//
+	//! Returns false on failure to acquire and feed the data into GPU.
+	//! If rendering follows anyway, results are undefined.
+	bool feedProgram(const UberProgramSetup& uberProgramSetup, Program* program);
+	//bool feedLights(const UberProgramSetup& uberProgramSetup, Program* program);
+
+	//! Loads material data into program.
+	//
+	//! Returns false on failure to acquire and feed the data into GPU.
+	//! If rendering follows anyway, results are undefined.
+	//bool feedMaterial(const UberProgramSetup& uberProgramSetup, Program* program);
+};
+*/
 
 }; // namespace
 

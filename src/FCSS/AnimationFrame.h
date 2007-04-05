@@ -14,6 +14,8 @@ struct AnimationFrame
 {
 	// camera and light
 	de::Camera eyeLight[2];
+	rr::RRVec4 brightness;
+	rr::RRReal gamma;
 	// dynamic objects
 	struct DynaObjectPosRot
 	{
