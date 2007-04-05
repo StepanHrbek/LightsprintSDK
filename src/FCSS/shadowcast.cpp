@@ -132,11 +132,11 @@ de::AreaLight* areaLight = NULL;
 de::Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
 de::Texture* loadingMap = NULL;
-de::Texture* hintMap = NULL;
 #ifdef THREE_ONE
-	de::Texture* overlayMap = NULL;
+	de::Texture* overlayMap = NULL; // fullscreen overlay
 #else
-	de::Texture* lightsprintMap = NULL;
+	de::Texture* hintMap = NULL;
+	de::Texture* lightsprintMap = NULL; // small logo in the corner
 #endif
 de::Program* ambientProgram;
 de::TextureRenderer* skyRenderer;
@@ -153,8 +153,8 @@ int wireFrame = 0;
 int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 int showHelp = 0; // 0=none, 1=help, 2=credits
-bool showHint = 0;
 int showLightViewFrustum = 0;
+bool showHint = 0;
 bool modeMovingEye = 0;
 unsigned movingEye = 0;
 unsigned movingLight = 0;
@@ -234,11 +234,12 @@ void init_gl_resources()
 			error("",false);
 		}
 	}
-	loadingMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	hintMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity_hints.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 #ifdef THREE_ONE
+	loadingMap = de::Texture::load("maps\\3+1.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	overlayMap = de::Texture::load("maps\\overlay.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 #else
+	loadingMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	hintMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity_hints.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	lightsprintMap = de::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 #endif
 
@@ -259,10 +260,10 @@ void done_gl_resources()
 	//delete ambientProgram;
 	delete uberProgram;
 	delete loadingMap;
-	delete hintMap;
 #ifdef THREE_ONE
 	delete overlayMap;
 #else
+	delete hintMap;
 	delete lightsprintMap;
 #endif
 	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
@@ -792,11 +793,16 @@ static void drawHelpMessage(int screen)
 		NULL
 		},
 		{
+#ifdef THREE_ONE
+		"3+1 by clrsrc+Lightsprint",
+#else
 		"Lightsprint Realtime Radiosity",
 		"  http://lightsprint.com",
 		"  realtime global illumination, NO PRECALCULATIONS",
+#endif
 		"",
 		"Controls:",
+		" space         - pause/play",
 		" mouse         - look",
 		" arrows/wsadqz - move",
 		" left button   - switch between camera/light",
@@ -804,15 +810,21 @@ static void drawHelpMessage(int screen)
 		"",
 		"Extra controls:",
 		" F1/F2/F3      - hard/soft/penumbra shadows",
+#ifndef THREE_ONE
 		" F5            - hints",
 		" F6            - credits",
+#endif
 		" F11           - save screenshot",
 		" wheel         - zoom",
 		" x/c           - lean",
 		" enter         - fullscreen/window",
-		" space         - pause/play",
 		" +/-/*//       - brightness/contrast",
 		" 1/2/3/4...    - move n-th object",
+#ifdef THREE_ONE
+		"",
+		"For more information on Realtime Global Illumination",
+		"or Penumbra Shadows, visit http://lightsprint.com",
+#endif
 /*
 		" space - toggle global illumination",
 		" '+ -' - increase/decrease penumbra (soft shadow) precision",
@@ -833,8 +845,9 @@ static void drawHelpMessage(int screen)
 		"'q'   - increment depth slope for 1st pass glPolygonOffset",
 		"'Q'   - increment depth slope for 1st pass glPolygonOffset",*/
 		NULL,
-		},
-		{
+		}
+#ifndef THREE_ONE
+		,{
 		"Works of following people were used in Lightsprint Demo:",
 		"",
 		"  - Stepan Hrbek, Daniel Sykora  : realtime global illumination",
@@ -858,6 +871,7 @@ static void drawHelpMessage(int screen)
 		"  - Amethyst7                    : \"Purple Nebula\" skybox",
 		NULL
 		}
+#endif
 	};
 	int i;
 	int x = 40, y = 50;
@@ -1050,11 +1064,13 @@ void display()
 		// don't display first frame, characters have bad position (dunno why)
 		skipFrames = 1;
 	}
+#ifndef THREE_ONE
 	if(showHint)
 	{
 		showImage(hintMap);
 		return;
 	}
+#endif
 
 	// pro jednoduchost je to tady
 	// kdyby to bylo u vsech stisku/pusteni/pohybu klaves/mysi a animaci,
@@ -1145,7 +1161,7 @@ void display()
 		static unsigned shots = 0;
 		shots++;
 		char buf[100];
-		sprintf(buf,"LightsprintRealtimeRadiosity%02d.png",shots);
+		sprintf(buf,"Lightsprint3+1_%02d.png",shots);
 		if(de::Texture::saveBackbuffer(buf))
 			printf("Saved %s.\n",buf);
 		else
@@ -1311,6 +1327,7 @@ void special(int c, int x, int y)
 			shotRequested = 1;
 			break;
 
+#ifndef THREE_ONE
 		case GLUT_KEY_F5:
 			showHint = 1;
 			break;
@@ -1322,6 +1339,7 @@ void special(int c, int x, int y)
 				case 2: showHelp = 0; break;
 			}
 			break;
+#endif
 
 		case GLUT_KEY_UP:
 			speedForward = scale;
@@ -1818,6 +1836,19 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	needMatrixUpdate = 1;
+
+	if(!demoPlayer)
+	{
+		showImage(loadingMap);
+		glutSwapBuffers();
+#ifdef THREE_ONE
+		demoPlayer = new DemoPlayer("3+1.cfg",supportEditor);
+#else
+		demoPlayer = new DemoPlayer("LightsprintDemo.cfg",supportEditor);
+#endif
+		demoPlayer->setPaused(supportEditor);
+		demoPlayer->setBigscreen(bigscreen);
+	}
 }
 
 void mouse(int button, int state, int x, int y)
@@ -2110,13 +2141,6 @@ int main(int argc, char **argv)
 	const char* renderer = (const char*)glGetString(GL_RENDERER);
 	ati = !vendor || !renderer || strstr(vendor,"ATI") || strstr(vendor,"AMD") || strstr(renderer,"Radeon");
 
-#ifdef THREE_ONE
-	demoPlayer = new DemoPlayer("3+1.cfg",supportEditor);
-#else
-	demoPlayer = new DemoPlayer("LightsprintDemo.cfg",supportEditor);
-#endif
-	demoPlayer->setPaused(supportEditor);
-	demoPlayer->setBigscreen(bigscreen);
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 

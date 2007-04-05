@@ -46,7 +46,7 @@
 // If you encounter strange behaviour with new data later,
 // reenable verifications to check that your data are ok.
 
-#define VERIFY
+//#define VERIFY
 
 #ifdef VERIFY
 void reporter(const char* msg, void* context)
