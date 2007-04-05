@@ -9,6 +9,9 @@
 DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 {
 	memset(this,0,sizeof(*this));
+	bigscreenBrightness = 1;
+	bigscreenGamma = 1;
+
 	FILE* f = fopen(demoCfg,"rt");
 	if(!f)
 		return;
@@ -66,6 +69,15 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	}
 	nextSceneIndex = 0;
 
+	// load boost
+	fscanf(f,"bigscreen_brightness = %f\n",&bigscreenBrightness);
+	fscanf(f,"bigscreen_gamma = %f\n",&bigscreenGamma);
+	Flash flash;
+	while(4==fscanf(f,"flash = %f,%f,%f,%f\n",&flash.start,&flash.duration,&flash.brightness,&flash.gamma))
+	{
+		flashes.push_back(flash);
+	}
+
 	fclose(f);
 }
 
@@ -121,12 +133,12 @@ void DemoPlayer::setPaused(bool apaused)
 	music->setPaused(paused);
 }
 
-bool DemoPlayer::getPaused()
+bool DemoPlayer::getPaused() const
 {
 	return paused;
 }
 
-float DemoPlayer::getDemoPosition()
+float DemoPlayer::getDemoPosition() const
 {
 	//return demoTime;
 	if(paused)
@@ -134,7 +146,7 @@ float DemoPlayer::getDemoPosition()
 	return getMusicPosition();
 }
 
-float DemoPlayer::getDemoLength()
+float DemoPlayer::getDemoLength() const
 {
 	float total = 0;
 	for(unsigned i=0;i<scenes.size();i++)
@@ -142,17 +154,17 @@ float DemoPlayer::getDemoLength()
 	return total;
 }
 
-unsigned DemoPlayer::getPartIndex()
+unsigned DemoPlayer::getPartIndex() const
 {
 	return nextSceneIndex-1;
 }
 
-unsigned DemoPlayer::getNumParts()
+unsigned DemoPlayer::getNumParts() const
 {
 	return scenes.size();
 }
 
-float DemoPlayer::getPartPosition()
+float DemoPlayer::getPartPosition() const
 {
 	return getDemoPosition()-partStart;
 }
@@ -166,7 +178,7 @@ void DemoPlayer::setPartPosition(float seconds)
 		demoTimeWhenPaused = seconds+partStart;
 }
 
-float DemoPlayer::getPartLength(unsigned part)
+float DemoPlayer::getPartLength(unsigned part) const
 {
 	if(part==0xffff)
 		part = nextSceneIndex-1;
@@ -175,12 +187,41 @@ float DemoPlayer::getPartLength(unsigned part)
 	return scenes[part]->pilot.setup->getTotalTime();
 }
 
-float DemoPlayer::getMusicPosition()
+float DemoPlayer::getMusicPosition() const
 {
 	return music->getPosition();
 }
 
-float DemoPlayer::getMusicLength()
+float DemoPlayer::getMusicLength() const
 {
 	return music->getLength();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// brightness/gamma boost
+
+void DemoPlayer::setBigscreen(bool aboost)
+{
+	bigscreen = aboost;
+}
+
+void DemoPlayer::getBoost(rr::RRVec4& frameBrightness,rr::RRReal& frameGamma) const
+{
+	float boostBrightness = 1;
+	float boostGamma = 1;
+	if(bigscreen) boostBrightness *= bigscreenBrightness;
+	if(bigscreen) boostGamma *= bigscreenGamma;
+	float now = getDemoPosition();
+	for(unsigned i=0;i<flashes.size();i++)
+	{
+		if(flashes[i].start<now && now<flashes[i].start+flashes[i].duration)
+		{
+			boostBrightness *= flashes[i].brightness;
+			boostGamma *= flashes[i].gamma;
+		}
+	}
+	for(unsigned i=0;i<4;i++)
+		frameBrightness[i] *= boostBrightness;
+	frameGamma *= boostGamma;
 }

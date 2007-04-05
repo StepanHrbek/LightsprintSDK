@@ -17,6 +17,7 @@ int resolutionx = 1024;
 int resolutiony = 768;
 bool twosided = 0;
 bool supportEditor = 0;
+bool bigscreen = 0;
 /*
 crashne po esc v s_veza/gcc
 
@@ -473,7 +474,10 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
 	}
 
-	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],&globalBrightness[0],globalGamma);
+	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
+	rr::RRReal globalGammaBoosted = globalGamma;
+	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
+	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],&globalBrightnessBoosted[0],globalGammaBoosted);
 	if(!program)
 		error("Failed to compile or link GLSL program.\n",true);
 
@@ -532,7 +536,10 @@ void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	assert(!uberProgramSetup.OBJECT_SPACE); 
 	renderSceneStatic(uberProgramSetup,firstInstance);
 	if(uberProgramSetup.FORCE_2D_POSITION) return;
-	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],&globalBrightness[0],globalGamma);
+	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
+	rr::RRReal globalGammaBoosted = globalGamma;
+	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
+	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],&globalBrightnessBoosted[0],globalGammaBoosted);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -589,8 +596,11 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 {
 	if(!level) return;
 
-	uberProgramSetup.POSTPROCESS_BRIGHTNESS = (globalBrightness[0]!=1 || globalBrightness[1]!=1 || globalBrightness[2]!=1 || globalBrightness[3]!=1)?1:0;
-	uberProgramSetup.POSTPROCESS_GAMMA = (globalGamma!=1)?1:0;
+	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
+	rr::RRReal globalGammaBoosted = globalGamma;
+	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
+	uberProgramSetup.POSTPROCESS_BRIGHTNESS = (globalBrightnessBoosted[0]!=1 || globalBrightnessBoosted[1]!=1 || globalBrightnessBoosted[2]!=1 || globalBrightnessBoosted[3]!=1)?1:0;
+	uberProgramSetup.POSTPROCESS_GAMMA = (globalGammaBoosted!=1)?1:0;
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	if(firstInstance==0) glClear(GL_DEPTH_BUFFER_BIT);
@@ -2017,6 +2027,9 @@ void parseOptions(int argc, char **argv)
 			supportEditor = 1;
 			fullscreen = 0;
 		}
+		if (!strcmp("bigscreen", argv[i])) {
+			bigscreen = 1;
+		}
 		if (!strcmp("rx", argv[i])) {
 			resolutionx = atoi(argv[++i]);
 		}
@@ -2103,6 +2116,7 @@ int main(int argc, char **argv)
 	demoPlayer = new DemoPlayer("LightsprintDemo.cfg",supportEditor);
 #endif
 	demoPlayer->setPaused(supportEditor);
+	demoPlayer->setBigscreen(bigscreen);
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
