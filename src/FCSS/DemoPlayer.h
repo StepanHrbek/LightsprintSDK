@@ -28,12 +28,12 @@ public:
 
 	class DynamicObjects* getDynamicObjects();
 
-	class Level* getNextPart(); // adjusts timers, next part is started
+	class Level* getNextPart(bool seekInMusic); // adjusts timers, next part is started
 	class Level* getPart(unsigned index); // no timer adjustments made
 
 private:
 	bool paused;
-	float demoTime; // 0..demo duration in seconds
+	float demoTimeWhenPaused; // 0..demo duration in seconds. matters only when paused, because fmod is inaccurate when paused
 	float partStart; // 0..demo duration in seconds, time when current part started
 
 	// music

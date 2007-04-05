@@ -41,11 +41,10 @@ Music::Music(const char* filename)
 	result = system->init(1, FMOD_INIT_NORMAL, 0);
 	ERRCHECK(result);
 
-	//result = system->createStream("music/aoki.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
 	result = system->createSound(filename, FMOD_HARDWARE | FMOD_LOOP_NORMAL | FMOD_2D | FMOD_ACCURATETIME, 0, &sound);
 	ERRCHECK(result);
 
-	result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
+	result = system->playSound(FMOD_CHANNEL_FREE, sound, true, &channel);
 	ERRCHECK(result);
 }
 
@@ -56,6 +55,7 @@ void Music::poll()
 
 void Music::setPaused(bool paused)
 {
+//	printf("musicPaused(%d)\n",paused?1:0);
 	channel->setPaused(paused);
 }
 
@@ -63,11 +63,13 @@ float Music::getPosition()
 {
 	unsigned ms = 0;
 	channel->getPosition(&ms,FMOD_TIMEUNIT_MS);
+//	printf("musicGetPos()=%f\n",ms*0.001f);
 	return ms*0.001f;
 }
 
 void Music::setPosition(float seconds)
 {
+//	printf("musicSetPos(%f)\n",seconds);
 	channel->setPosition((unsigned)(seconds*1000),FMOD_TIMEUNIT_MS);
 }
 

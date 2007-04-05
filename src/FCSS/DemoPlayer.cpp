@@ -90,13 +90,14 @@ Level* DemoPlayer::getPart(unsigned index)
 		return NULL;
 }
 
-Level* DemoPlayer::getNextPart()
+Level* DemoPlayer::getNextPart(bool seekInMusic)
 {
 	if(nextSceneIndex<scenes.size())
 	{
 		partStart += getPartLength();
 		nextSceneIndex++;
-		setPartPosition(0);
+		if(seekInMusic)
+			setPartPosition(0);
 		return scenes[nextSceneIndex-1];
 	}
 	else
@@ -107,13 +108,15 @@ void DemoPlayer::advance(float seconds)
 {
 	if(!paused)
 	{
-		demoTime += seconds;
+//		demoTime += seconds;
 	}
 	music->poll();
 }
 
 void DemoPlayer::setPaused(bool apaused)
 {
+	if(!paused && apaused) demoTimeWhenPaused = music->getPosition();
+	if(paused && !apaused) demoTimeWhenPaused = 0;
 	paused = apaused;
 	music->setPaused(paused);
 }
@@ -125,7 +128,10 @@ bool DemoPlayer::getPaused()
 
 float DemoPlayer::getDemoPosition()
 {
-	return demoTime;
+	//return demoTime;
+	if(paused)
+		return demoTimeWhenPaused;
+	return getMusicPosition();
 }
 
 float DemoPlayer::getDemoLength()
@@ -148,13 +154,16 @@ unsigned DemoPlayer::getNumParts()
 
 float DemoPlayer::getPartPosition()
 {
-	return demoTime-partStart;
+	return getDemoPosition()-partStart;
 }
 
 void DemoPlayer::setPartPosition(float seconds)
 {
-	demoTime = seconds+partStart;
-	music->setPosition(demoTime);
+	//demoTime = seconds+partStart;
+	//music->setPosition(demoTime);
+	music->setPosition(seconds+partStart);
+	if(getPaused())
+		demoTimeWhenPaused = seconds+partStart;
 }
 
 float DemoPlayer::getPartLength(unsigned part)

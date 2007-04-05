@@ -100,7 +100,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
 #include "DynamicObject.h"
 #include "Bugs.h"
-#include "LevelSequence.h"
 #include "AnimationEditor.h"
 #include "Autopilot.h"
 #include "DemoPlayer.h"
@@ -167,7 +166,7 @@ bool gameOn = 1;
 bool gameOn = 0;
 #endif
 Level* level = NULL;
-LevelSequence levelSequence;
+bool seekInMusicAtSceneSwap = false;
 //class DynamicObjects* dynaobjects;
 bool shotRequested;
 DemoPlayer* demoPlayer = NULL;
@@ -1022,7 +1021,7 @@ void display()
 //		showImage(loadingMap);
 //		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
 		//delete level;
-		level = demoPlayer->getNextPart();
+		level = demoPlayer->getNextPart(seekInMusicAtSceneSwap);
 
 		// end of the demo
 		if(!level)
@@ -1830,6 +1829,7 @@ void mouse(int button, int state, int x, int y)
 			level->pilot.setup->save();
 		//delete level;
 		level = NULL;
+		seekInMusicAtSceneSwap = true;
 	}
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
@@ -1881,6 +1881,7 @@ void idle()
 		//showImage(loadingMap);
 		//delete level;
 		level = NULL;
+		seekInMusicAtSceneSwap = false;
 	}
 
 	// 1. move movables
@@ -1929,6 +1930,7 @@ void idle()
 					// play scene finished, jump to next scene
 					//delete level;
 					level = NULL;
+					seekInMusicAtSceneSwap = false;
 				}
 			}
 		}
@@ -2032,9 +2034,6 @@ void parseOptions(int argc, char **argv)
 		}
 		if (!strcmp("-twosided", argv[i])) {
 			twosided = 1;
-		}
-		if (strstr(argv[i], ".3ds") || strstr(argv[i], ".3DS") || strstr(argv[i], ".bsp") || strstr(argv[i], ".BSP")) {
-			levelSequence.insertLevelFront(new LevelSetup(argv[i]));
 		}
 	}
 }
