@@ -37,7 +37,7 @@ TextureRenderer::~TextureRenderer()
 	delete skyProgram;
 }
 
-bool TextureRenderer::renderEnvironmentBegin()
+bool TextureRenderer::renderEnvironmentBegin(float color[4])
 {
 	if(!skyProgram)
 	{
@@ -55,6 +55,7 @@ bool TextureRenderer::renderEnvironmentBegin()
 	skyProgram->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	skyProgram->sendUniform("cube",0);
+	skyProgram->sendUniform("color",color?color[0]:1,color?color[1]:1,color?color[2]:1,color?color[3]:1);
 	//	skyProgram->sendUniform("worldEyePos",worldEyePos[0],worldEyePos[1],worldEyePos[2]);
 	return true;
 }
@@ -67,14 +68,14 @@ void TextureRenderer::renderEnvironmentEnd()
 	if(culling) glEnable(GL_CULL_FACE);
 }
 
-bool TextureRenderer::renderEnvironment(const Texture* texture)
+bool TextureRenderer::renderEnvironment(const Texture* texture,float color[4])
 {
 	if(!texture)
 	{
 		assert(0);
 		return false;
 	}
-	if(renderEnvironmentBegin())
+	if(renderEnvironmentBegin(color))
 	{
 		texture->bindTexture();
 		glBegin(GL_POLYGON);

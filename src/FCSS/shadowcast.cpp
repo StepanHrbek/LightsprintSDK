@@ -614,7 +614,7 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 
 	if(level->solver->getEnvironment())
 	{
-		skyRenderer->renderEnvironmentBegin();
+		skyRenderer->renderEnvironmentBegin(&globalBrightnessBoosted[0]);
 		level->solver->getEnvironment()->bindTexture();
 		glBegin(GL_POLYGON);
 		glVertex3f(-1,-1,1);
@@ -948,7 +948,8 @@ void showOverlay(const de::Texture* tex)
 	if(!tex) return;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	skyRenderer->render2D(tex,NULL,0,0,1,1);
+	float color[4] = {globalBrightness[0],globalBrightness[1],globalBrightness[2],1};
+	skyRenderer->render2D(tex,color,0,0,1,1);
 	glDisable(GL_BLEND);
 }
 

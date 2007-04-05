@@ -33,11 +33,13 @@ public:
 
 	//! Renders cubemap as if camera is inside the cube.
 	//! Current OpenGL transformation matrices are used.
-	bool renderEnvironment(const Texture* texture);
+	//! For non-NULL color, texture is multiplied by color.
+	bool renderEnvironment(const Texture* texture, float color[4]);
 
 	//! Initializes shader and render states for rendering cubemap.
 	//! It is one component of renderEnvironment().
-	bool renderEnvironmentBegin();
+	//! For non-NULL color, texture is multiplied by color.
+	bool renderEnvironmentBegin(float color[4]);
 
 	//! Restores original render states after renderEnvironmentBegin().
 	//! It is one component of renderEnvironment().
