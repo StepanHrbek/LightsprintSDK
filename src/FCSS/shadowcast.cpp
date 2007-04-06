@@ -1507,7 +1507,7 @@ void keyboard(unsigned char c, int x, int y)
 						// we have more dynaobjects
 						selectedObject_indexInDemo = level->pilot.setup->objects[selectedObject_indexInScene];
 						if(!modif)
-							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);
+							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d+rr::RRVec3(0,1.2f,0));
 					}
 				}
 				/*
@@ -1845,7 +1845,6 @@ void reshape(int w, int h)
 	if(!demoPlayer)
 	{
 		showImage(loadingMap);
-		glutSwapBuffers();
 #ifdef THREE_ONE
 		demoPlayer = new DemoPlayer("3+1.cfg",supportEditor);
 #else
