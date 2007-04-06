@@ -54,7 +54,8 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "H:\\C\\rr\\data\\maps\\LightsprintRealtimeRadiosity.ico"
+//IDI_ICON1               ICON                    "H:\\C\\rr\\data\\maps\\LightsprintRealtimeRadiosity.ico"
+IDI_ICON1               ICON                    "H:\\C\\rr\\data\\maps\\3+1.ico"
 #endif    // Czech resources
 /////////////////////////////////////////////////////////////////////////////
 

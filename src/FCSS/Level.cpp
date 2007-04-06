@@ -45,7 +45,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 		light = tmplight;
 	}*/
 
-	printf("Loading %s...",pilot.setup->filename);
+	rr::RRReporter::report(rr::RRReporter::INFO,"Loading %s...",pilot.setup->filename);
 
 	type = TYPE_NONE;
 	const char* typeExt[] = {".3ds",".bsp",".dae"};
@@ -66,7 +66,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			// load quake 3 map
 			if(!readMap(pilot.setup->filename,bsp))
 				error("Failed to load .bsp scene.",false);
-			printf("\n");
+			rr::RRReporter::report(rr::RRReporter::CONT,"\n");
 			char* maps = _strdup(pilot.setup->filename);
 			char* mapsEnd;
 			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
@@ -83,7 +83,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			// load .3ds scene
 			if(!m3ds.Load(pilot.setup->filename,pilot.setup->scale))
 				error("",false);
-			printf("\n");
+			rr::RRReporter::report(rr::RRReporter::CONT,"\n");
 			insert3dsToRR(&m3ds,solver,&sp);
 			break;
 		}
@@ -95,7 +95,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			collada = FCollada::NewTopDocument();
 			FUErrorSimpleHandler errorHandler;
 			collada->LoadFromFile(pilot.setup->filename);
-			printf("\n");
+			rr::RRReporter::report(rr::RRReporter::CONT,"\n");
 			if(!errorHandler.IsSuccessful())
 			{
 				puts(errorHandler.GetErrorString());
