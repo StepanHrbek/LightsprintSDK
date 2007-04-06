@@ -20,6 +20,26 @@ AnimationFrame::AnimationFrame()
 	thumbnail = NULL;
 }
 
+// returns a*(1-alpha) + b*alpha; (a and b are points on 360degree circle)
+// using shortest path between a and b
+rr::RRReal blendModulo360(rr::RRReal a,rr::RRReal b,rr::RRReal alpha)
+{
+	a = fmodf(a,360);
+	b = fmodf(b,360);
+	if(a<b-180) a += 360; else
+	if(a>b+180) a -= 360;
+	return a*(1-alpha) + b*alpha;
+}
+rr::RRVec2 blendModulo360(rr::RRVec2 a,rr::RRVec2 b,float alpha)
+{
+	rr::RRVec2 tmp;
+	for(unsigned i=0;i<2;i++)
+	{
+		tmp[i] = blendModulo360(a[i],b[i],alpha);
+	}
+	return tmp;
+}
+
 // returns blend between this and that frame
 // return this for alpha=0, that for alpha=1
 const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float alpha) const
@@ -31,6 +51,8 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	float* c = (float*)(blended.eyeLight);
 	for(unsigned i=0;i<(sizeof(eyeLight)+sizeof(brightness)+sizeof(gamma))/sizeof(float);i++)
 		c[i] = a[i]*(1-alpha) + b[i]*alpha;
+	for(unsigned i=0;i<2;i++)
+		blended.eyeLight[i].angle = blendModulo360(this->eyeLight[i].angle,that.eyeLight[i].angle,alpha);
 	blended.eyeLight[0].update(0);
 	blended.eyeLight[1].update(0.3f);
 	// blend dynaPosRot
@@ -39,17 +61,7 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	{
 		DynaObjectPosRot tmp;
 		tmp.pos = this->dynaPosRot[i].pos*(1-alpha) + that.dynaPosRot[i].pos*alpha;
-		rr::RRVec2 thisRot = this->dynaPosRot[i].rot;
-		rr::RRVec2 thatRot = that.dynaPosRot[i].rot;
-		for(unsigned j=0;j<2;j++)
-		{
-			// never do blend between more than 180 degree distance
-			thisRot[j] = fmodf(thisRot[j],360);
-			thatRot[j] = fmodf(thatRot[j],360);
-			if(thisRot[j]<thatRot[j]-180) thisRot[j] += 360; else
-			if(thisRot[j]>thatRot[j]+180) thisRot[j] -= 360;
-		}
-		tmp.rot = thisRot*(1-alpha) + thatRot*alpha;
+		tmp.rot = blendModulo360(this->dynaPosRot[i].rot,that.dynaPosRot[i].rot,alpha);
 		blended.dynaPosRot.push_back(tmp);
 	}
 	// blend projectorIndex
