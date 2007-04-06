@@ -7,7 +7,7 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          0
-//#define THREE_ONE
+#define THREE_ONE
 bool ati = 1;
 int fullscreen = 1;
 bool renderer3ds = 1;
@@ -936,7 +936,8 @@ void showOverlay(const de::Texture* tex)
 {
 	if(!tex) return;
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 	float color[4] = {globalBrightness[0],globalBrightness[1],globalBrightness[2],1};
 	skyRenderer->render2D(tex,color,0,0,1,1);
 	glDisable(GL_BLEND);

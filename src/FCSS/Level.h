@@ -3,7 +3,7 @@
 
 #define SUPPORT_3DS
 //#define SUPPORT_COLLADA
-#define SUPPORT_BSP
+//#define SUPPORT_BSP
 
 #ifdef SUPPORT_BSP
 	#include "../../samples/ImportQuake3/Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
