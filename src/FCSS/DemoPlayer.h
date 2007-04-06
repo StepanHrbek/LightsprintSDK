@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
+#include "Lightsprint/DemoEngine/Texture.h"
 
 class DemoPlayer
 {
@@ -26,10 +27,13 @@ public:
 	float getMusicLength() const;
 	float getMusicPosition() const;
 
-	class DynamicObjects* getDynamicObjects();
-
 	class Level* getNextPart(bool seekInMusic); // adjusts timers, next part is started
 	class Level* getPart(unsigned index); // no timer adjustments made
+
+	class DynamicObjects* getDynamicObjects();
+
+	unsigned getNumProjectors();
+	const de::Texture* getProjector(unsigned projectorIndex);
 
 	void setBigscreen(bool big);
 	void getBoost(rr::RRVec4& frameBrightness,rr::RRReal& frameGamma) const;
@@ -51,6 +55,9 @@ private:
 	// scenes
 	unsigned nextSceneIndex;
 	std::vector<class Level*> scenes;
+
+	// projectors
+	std::vector<de::Texture*> projectors;
 
 	// brightness/gamma
 	bool bigscreen; // enabled by cmdline param 'bigscreen'

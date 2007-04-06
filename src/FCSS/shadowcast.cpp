@@ -129,8 +129,6 @@ rr::RRVec4 globalBrightness = rr::RRVec4(1);
 rr::RRReal globalGamma = 1;
 GLUquadricObj *quadric;
 de::AreaLight* areaLight = NULL;
-#define lightDirectMaps 3
-de::Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
 de::Texture* loadingMap = NULL;
 #ifdef THREE_ONE
@@ -224,17 +222,6 @@ void init_gl_resources()
 	depthScale24 = 1 << (shadowDepthBits-16);
 	updateDepthBias(0);  /* Update with no offset change. */
 
-	for(unsigned i=0;i<lightDirectMaps;i++)
-	{
-		char name[]="maps\\spot0.png";
-		name[9] = '0'+i;
-		lightDirectMap[i] = de::Texture::load(name, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-		if(!lightDirectMap[i])
-		{
-			printf("Texture %s not found or invalid.\n",name);
-			error("",false);
-		}
-	}
 #ifdef THREE_ONE
 	loadingMap = de::Texture::load("maps\\3+1.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 #else
@@ -265,7 +252,6 @@ void done_gl_resources()
 	delete hintMap;
 	delete lightsprintMap;
 #endif
-	for(unsigned i=0;i<lightDirectMaps;i++) delete lightDirectMap[i];
 	delete areaLight;
 	gluDeleteQuadric(quadric);
 }
@@ -355,7 +341,7 @@ protected:
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = true;
 
-		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap[lightDirectMapIdx],NULL,1))
+		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,demoPlayer->getProjector(lightDirectMapIdx),NULL,1))
 			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
@@ -477,7 +463,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
 	rr::RRReal globalGammaBoosted = globalGamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],&globalBrightnessBoosted[0],globalGammaBoosted);
+	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,demoPlayer->getProjector(lightDirectMapIdx),&globalBrightnessBoosted[0],globalGammaBoosted);
 	if(!program)
 		error("Failed to compile or link GLSL program.\n",true);
 
@@ -539,7 +525,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
 	rr::RRReal globalGammaBoosted = globalGamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap[lightDirectMapIdx],&globalBrightnessBoosted[0],globalGammaBoosted);
+	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,demoPlayer->getProjector(lightDirectMapIdx),&globalBrightnessBoosted[0],globalGammaBoosted);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -1223,7 +1209,7 @@ void toggleGlobalIllumination()
 
 void changeSpotlight()
 {
-	lightDirectMapIdx = (lightDirectMapIdx+1)%lightDirectMaps;
+	lightDirectMapIdx = (lightDirectMapIdx+1)%demoPlayer->getNumProjectors();
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
 	needDepthMapUpdate = 1;
 	if(!level) return;

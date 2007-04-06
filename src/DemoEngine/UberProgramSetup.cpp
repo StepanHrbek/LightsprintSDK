@@ -90,7 +90,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram)
 	return SHADOW_MAPS;
 }
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap, const float brightness[4], float gamma)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma)
 {
 	Program* program = getProgram(uberProgram);
 	if(!program) return NULL;

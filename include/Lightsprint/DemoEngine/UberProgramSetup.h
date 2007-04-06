@@ -91,7 +91,7 @@ struct DE_API UberProgramSetup
 	unsigned detectMaxShadowmaps(UberProgram* uberProgram);
 	//! Sets rendering pipeline so that following primitives are rendered using
 	//! our program.
-	Program* useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, Texture* lightDirectMap, const float brightness[4], float gamma);
+	Program* useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma);
 };
 
 

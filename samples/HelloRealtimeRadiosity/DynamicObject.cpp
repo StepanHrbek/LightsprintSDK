@@ -85,7 +85,7 @@ void DynamicObject::updateIllumination(rr::RRRealtimeRadiosity* solver)
 		material.MATERIAL_DIFFUSE?4:0, material.MATERIAL_DIFFUSE?diffuseMap:NULL);
 }
 
-void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye, const float brightness[4], float gamma)
+void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,const de::Texture* lightDirectMap,const de::Camera& eye, const float brightness[4], float gamma)
 {
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.

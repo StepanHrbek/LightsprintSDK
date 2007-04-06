@@ -39,7 +39,7 @@ public:
 	//! Renders object.
 	//! Expects that illumination was already updated or it hasn't changed.
 	//! No need to call it when object is not visible.
-	void render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye, const float brightness[4], float gamma);
+	void render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,const de::Texture* lightDirectMap,const de::Camera& eye, const float brightness[4], float gamma);
 
 	~DynamicObject();
 

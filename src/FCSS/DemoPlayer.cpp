@@ -62,10 +62,16 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	// load scenes
 	while(1==fscanf(f,"scene = %s\n",buf))
 	{
-		//extern LevelSequence levelSequence;
-		//levelSequence.insertLevelBack(buf);
 		Level* level = new Level(new LevelSetup(buf),skyMap,supportEditor);
 		scenes.push_back(level);
+	}
+	nextSceneIndex = 0;
+
+	// load projectors
+	while(1==fscanf(f,"projector = %s\n",buf))
+	{
+		de::Texture* projector = de::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		projectors.push_back(projector);
 	}
 	nextSceneIndex = 0;
 
@@ -85,6 +91,8 @@ DemoPlayer::~DemoPlayer()
 {
 	for(unsigned i=0;i<scenes.size();i++)
 		delete scenes[i];
+	for(unsigned i=0;i<projectors.size();i++)
+		delete projectors[i];
 	delete music;
 	delete dynamicObjects;
 }
@@ -115,6 +123,10 @@ Level* DemoPlayer::getNextPart(bool seekInMusic)
 	else
 		return NULL;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// timing
 
 void DemoPlayer::advance(float seconds)
 {
@@ -195,6 +207,28 @@ float DemoPlayer::getMusicPosition() const
 float DemoPlayer::getMusicLength() const
 {
 	return music->getLength();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// projectors
+
+unsigned DemoPlayer::getNumProjectors()
+{
+	return projectors.size();
+}
+
+const de::Texture* DemoPlayer::getProjector(unsigned projectorIndex)
+{
+	if(projectorIndex<projectors.size())
+	{
+		return projectors[projectorIndex];
+	}
+	else
+	{
+		assert(0);
+		return NULL;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
