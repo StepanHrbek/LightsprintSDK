@@ -20,6 +20,8 @@ bool supportEditor = 0;
 bool bigscreen = 0;
 bool showTimingInfo = 0;
 /*
+cistejsi by bylo misto globalnich eye, light, gamma, spotmapidx atd pouzit jeden AnimationFrame
+
 crashne po esc v s_veza/gcc
 
 -gamma korekce (do rrscaleru)
@@ -1530,9 +1532,9 @@ void keyboard(unsigned char c, int x, int y)
 		case 'g': CHANGE_POS(0,0,-0.05); break;
 		case 't': CHANGE_POS(0,0,+0.05); break;
 
-		//case ' ':
-		//	changeSpotlight();
-		//	break;
+		case 'm':
+			changeSpotlight();
+			break;
 
 		case '+':
 			for(unsigned i=0;i<4;i++) globalBrightness[i] *= 1.2;

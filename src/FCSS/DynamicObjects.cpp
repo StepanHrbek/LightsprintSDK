@@ -9,6 +9,7 @@ extern de::Camera eye;
 extern de::Camera light;
 extern rr::RRVec4 globalBrightness;
 extern rr::RRReal globalGamma;
+extern unsigned lightDirectMapIdx;
 void reportEyeMovement();
 void reportLightMovement();
 const rr::RRCollider* getSceneCollider();
@@ -229,6 +230,7 @@ void DynamicObjects::setRot(unsigned objIndex, rr::RRVec2 rot)
 }
 
 // copy animation data from frame to actual scene
+//!!! scena by mela pouzivat jiny AnimationFrame, tento copy pak odpadne
 void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const AnimationFrame& frame, bool lightsChanged)
 {
 	if(lightsChanged)
@@ -240,6 +242,7 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 	reportEyeMovement();
 	globalBrightness = frame.brightness;
 	globalGamma = frame.gamma;
+	lightDirectMapIdx = frame.projectorIndex;
 	//for(AnimationFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
 	for(unsigned i=0;i<dynaobject.size();i++)
 	{
@@ -262,6 +265,7 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 }
 
 // copy animation data from frame to actual scene
+//!!! scena by mela pouzivat jiny AnimationFrame, tento copy pak odpadne
 void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& frame, const LevelSetup* setup)
 {
 	frame.eyeLight[0] = eye;
@@ -269,6 +273,7 @@ void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& f
 	frame.brightness = globalBrightness;
 	frame.gamma = globalGamma;
 	frame.dynaPosRot.clear();
+	frame.projectorIndex = lightDirectMapIdx;
 	for(unsigned sceneIndex=0;sceneIndex<setup->objects.size();sceneIndex++) // scene has few objects
 	{
 		unsigned demoIndex = setup->objects[sceneIndex]; // demo has more objects

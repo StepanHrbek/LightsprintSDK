@@ -16,6 +16,7 @@ AnimationFrame::AnimationFrame()
 	brightness = rr::RRVec4(1);
 	gamma = 1;
 	transitionToNextTime = 3;
+	projectorIndex = 0;
 	thumbnail = NULL;
 }
 
@@ -51,6 +52,8 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 		tmp.rot = thisRot*(1-alpha) + thatRot*alpha;
 		blended.dynaPosRot.push_back(tmp);
 	}
+	// blend projectorIndex
+	blended.projectorIndex = projectorIndex;
 	// blend thumbnail
 	blended.thumbnail = NULL;
 	return &blended;
@@ -79,6 +82,9 @@ bool AnimationFrame::load(FILE* f)
 	DynaObjectPosRot tmp;
 	while(5==fscanf(f,"object = {%f,%f,%f,%f,%f}\n",&tmp.pos[0],&tmp.pos[1],&tmp.pos[2],&tmp.rot[0],&tmp.rot[1]))
 		dynaPosRot.push_back(tmp);
+	// load projectorIndex
+	projectorIndex = 0;
+	fscanf(f,"projector = %d\n",&projectorIndex);
 	// load timing
 	fscanf(f,"duration = %f\n",&transitionToNextTime);
 	//if(0!=fscanf(f,"\n"))
@@ -114,6 +120,8 @@ bool AnimationFrame::save(FILE* f) const
 	// save dynaPosRot
 	for(DynaPosRot::const_iterator i=dynaPosRot.begin();i!=dynaPosRot.end();i++)
 		fprintf(f,"object = {%.3f,%.3f,%.3f,%.3f,%.3f}\n",(*i).pos[0],(*i).pos[1],(*i).pos[2],(*i).rot[0],(*i).rot[1]);
+	// save projectorIndex
+	fprintf(f,"projector = %d\n",projectorIndex);
 	// save timing
 	fprintf(f,"duration = %.3f\n",transitionToNextTime);
 	fprintf(f,"\n");
