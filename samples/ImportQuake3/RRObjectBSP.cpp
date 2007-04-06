@@ -246,7 +246,6 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
 		default:
-			assert(0); // legal, but shouldn't happen in well coded program
 			if(numItems) *numItems = 0;
 			if(itemSize) *itemSize = 0;
 	}

@@ -134,15 +134,24 @@ void DemoPlayer::advance(float seconds)
 	{
 //		demoTime += seconds;
 	}
-	music->poll();
+	if(music)
+	{
+		music->poll();
+	}
 }
 
 void DemoPlayer::setPaused(bool apaused)
 {
-	if(!paused && apaused) demoTimeWhenPaused = music->getPosition();
+	if(music)
+	{
+		if(!paused && apaused) demoTimeWhenPaused = music->getPosition();
+	}
 	if(paused && !apaused) demoTimeWhenPaused = 0;
 	paused = apaused;
-	music->setPaused(paused);
+	if(music)
+	{
+		music->setPaused(paused);
+	}
 }
 
 bool DemoPlayer::getPaused() const
@@ -185,7 +194,10 @@ void DemoPlayer::setPartPosition(float seconds)
 {
 	//demoTime = seconds+partStart;
 	//music->setPosition(demoTime);
-	music->setPosition(seconds+partStart);
+	if(music)
+	{
+		music->setPosition(seconds+partStart);
+	}
 	if(getPaused())
 		demoTimeWhenPaused = seconds+partStart;
 }

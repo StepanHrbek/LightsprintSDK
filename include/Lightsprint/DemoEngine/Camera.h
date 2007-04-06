@@ -29,8 +29,8 @@ public:
 	float    angle;
 	//! Rotation around Z axis, radians. For characters looking into Z axis, it controls leaning.
 	float    leanAngle;
-	//! Similar to rotation around X axis.
-	float    height;
+	//! Rotation around X axis, radians, controls looking up/down.
+	float    angleX;
 	//! Camera's aspect, horizontal field of view / vertical field of view.
 	float    aspect;
 	//! Camera's horizontal field of view in degrees. Must be positive and less than 180.

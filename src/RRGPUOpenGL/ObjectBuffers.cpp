@@ -26,11 +26,24 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 	}
 	numVertices = 0;
 	// Always allocates worst case scenario size. Only first numVertices is used.
-	#define NEW_ARRAY(arr,type) arr = new rr::type[numTriangles*3]; memset(arr,0,sizeof(rr::type)*numTriangles*3);
+	#define NEW_ARRAY(arr,type) {arr = new rr::type[numTriangles*3]; memset(arr,0,sizeof(rr::type)*numTriangles*3);}
 	NEW_ARRAY(avertex,RRVec3);
 	NEW_ARRAY(anormal,RRVec3);
-	NEW_ARRAY(atexcoordDiffuse,RRVec2);
-	NEW_ARRAY(atexcoordEmissive,RRVec2);
+
+	unsigned hasDiffuseMap = 0;
+	mesh->getChannelSize(CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,&hasDiffuseMap,NULL);
+	if(hasDiffuseMap)
+		NEW_ARRAY(atexcoordDiffuse,RRVec2)
+	else
+		atexcoordDiffuse = NULL;
+
+	unsigned hasEmissiveMap = 0;
+	mesh->getChannelSize(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,&hasEmissiveMap,NULL);
+	if(hasEmissiveMap)
+		NEW_ARRAY(atexcoordEmissive,RRVec2)
+	else
+		atexcoordEmissive = NULL;
+
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
 	#undef NEW_ARRAY
@@ -45,9 +58,15 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 		rr::RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping);
 		rr::RRVec2 diffuseUv[3];
-		mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
+		if(hasDiffuseMap)
+		{
+			mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,diffuseUv,sizeof(diffuseUv));
+		}
 		rr::RRVec2 emissiveUv[3];
-		mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
+		if(hasEmissiveMap)
+		{
+			mesh->getChannelData(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,t,emissiveUv,sizeof(emissiveUv));
+		}
 		// material change? -> start new facegroup
 		const rr::RRMaterial* material = object->getTriangleMaterial(t);
 		if(!t || material!=previousMaterial)
@@ -64,9 +83,15 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			fg.numIndices = 0;
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
 			fg.diffuseTexture = NULL;
-			object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+			if(hasDiffuseMap)
+			{
+				object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+			}
 			fg.emissiveTexture = NULL;
-			object->getChannelData(CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
+			if(hasEmissiveMap)
+			{
+				object->getChannelData(CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
+			}
 			// it's still possible that user will render without texture
 			//if(!fg.diffuseTexture)
 			//{
@@ -104,8 +129,10 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);
 			anormal[currentVertex] = triangleNormals.norm[v];
 			atexcoordAmbient[currentVertex] = triangleMapping.uv[v];
-			atexcoordDiffuse[currentVertex] = diffuseUv[v];
-			atexcoordEmissive[currentVertex] = emissiveUv[v];
+			if(hasDiffuseMap)
+				atexcoordDiffuse[currentVertex] = diffuseUv[v];
+			if(hasEmissiveMap)
+				atexcoordEmissive[currentVertex] = emissiveUv[v];
 		}
 		// generate facegroups
 		faceGroups[faceGroups.size()-1].numIndices += 3;

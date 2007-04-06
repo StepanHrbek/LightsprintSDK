@@ -35,17 +35,19 @@ bool LevelSetup::load(const char* afilename)
 	if(!f)
 		return false;
 	// load overlay
-	if(1!=fscanf(f,"overlay = %s\n",overlayFilename))
-		return false;
+	overlayFilename[0] = 0;
+	fscanf(f,"overlay = %s\n",overlayFilename);
 	overlayMap = de::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	// load scale
-	if(1!=fscanf(f,"scale = %f\n",&scale))
-		return false;
+	scale = 1;
+	fscanf(f,"scale = %f\n",&scale);
 	// load objects
 	objects.clear();
 	unsigned tmpobj;
 	while(1==fscanf(f,"object = %d\n",&tmpobj))
+	{
 		objects.push_back(tmpobj-1);
+	}
 	// load frames
 	frames.clear();
 	AnimationFrame tmp;
@@ -67,7 +69,8 @@ bool LevelSetup::save() const
 	FILE* f = fopen(aniname,"wt");
 	free(aniname);
 	// save overlay
-	fprintf(f,"overlay = %s\n",overlayFilename);
+	if(overlayFilename[0])
+		fprintf(f,"overlay = %s\n",overlayFilename);
 	// save scale
 	fprintf(f,"scale = %.5f\n",scale);
 	// save objects

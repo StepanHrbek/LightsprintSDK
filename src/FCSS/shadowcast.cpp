@@ -7,7 +7,7 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          0
-#define THREE_ONE
+//#define THREE_ONE
 bool ati = 1;
 int fullscreen = 1;
 bool renderer3ds = 1;
@@ -1901,16 +1901,16 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle = eye.angle - 0.005*x;
-			eye.height = eye.height + 0.15*y;
-			CLAMP(eye.height,-13,13);
+			eye.angle -= 0.005*x;
+			eye.angleX -= 0.005*y;
+			CLAMP(eye.angleX,-M_PI*0.49f,M_PI*0.49f);
 			reportEyeMovement();
 		}
 		else
 		{
-			light.angle = light.angle - 0.005*x;
-			light.height = light.height + 0.15*y;
-			CLAMP(light.height,-13,13);
+			light.angle -= 0.005*x;
+			light.angleX -= 0.005*y;
+			CLAMP(light.angleX,-M_PI*0.49f,M_PI*0.49f);
 			reportLightMovement();
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);

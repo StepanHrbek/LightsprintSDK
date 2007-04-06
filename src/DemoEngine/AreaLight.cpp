@@ -81,16 +81,16 @@ namespace de
 		{
 			case 0: // linear
 				light.angle += 2*areaSize*(instance/(numInstances-1.f)-0.5f);
-				light.height += -0.4f*instance/numInstances;
+				light.angleX += -0.4f*areaSize*instance/numInstances;
 				break;
 			case 1: // rectangular
 				{int q=(int)sqrtf((float)(numInstances-1))+1;
 				light.angle += areaSize*(instance/q/(q-1.f)-0.5f);
-				light.height += (instance%q/(q-1.f)-0.5f);}
+				light.angleX += areaSize*(instance%q/(q-1.f)-0.5f);}
 				break;
 			case 2: // circular
 				light.angle += sin(instance*2*3.14159f/numInstances)*0.5f*areaSize;
-				light.height += cos(instance*2*3.14159f/numInstances)*0.5f;
+				light.angleX += cos(instance*2*3.14159f/numInstances)*0.5f*areaSize;
 				break;
 		}
 		light.update(0.3f);

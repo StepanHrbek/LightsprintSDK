@@ -56,13 +56,17 @@ void Music::poll()
 void Music::setPaused(bool paused)
 {
 //	printf("musicPaused(%d)\n",paused?1:0);
-	channel->setPaused(paused);
+	if(channel)
+		channel->setPaused(paused);
 }
 
 float Music::getPosition()
 {
 	unsigned ms = 0;
-	channel->getPosition(&ms,FMOD_TIMEUNIT_MS);
+	if(channel)
+	{
+		channel->getPosition(&ms,FMOD_TIMEUNIT_MS);
+	}
 //	printf("musicGetPos()=%f\n",ms*0.001f);
 	return ms*0.001f;
 }
@@ -70,23 +74,35 @@ float Music::getPosition()
 void Music::setPosition(float seconds)
 {
 //	printf("musicSetPos(%f)\n",seconds);
-	channel->setPosition((unsigned)(seconds*1000),FMOD_TIMEUNIT_MS);
+	if(channel)
+	{
+		channel->setPosition((unsigned)(seconds*1000),FMOD_TIMEUNIT_MS);
+	}
 }
 
 float Music::getLength()
 {
 	unsigned ms = 0;
-	sound->getLength(&ms,FMOD_TIMEUNIT_MS);
+	if(sound)
+	{
+		sound->getLength(&ms,FMOD_TIMEUNIT_MS);
+	}
 	return ms*0.001f;
 }
 
 Music::~Music()
 {
 	FMOD_RESULT result;
-	result = sound->release();
-	ERRCHECK(result);
-	result = system->close();
-	ERRCHECK(result);
-	result = system->release();
-	ERRCHECK(result);
+	if(sound)
+	{
+		result = sound->release();
+		ERRCHECK(result);
+	}
+	if(system)
+	{
+		result = system->close();
+		ERRCHECK(result);
+		result = system->release();
+		ERRCHECK(result);
+	}
 }

@@ -13,9 +13,9 @@ namespace de
 
 void Camera::update(float back)
 {
-	dir[0] = 3*sin(angle);
-	dir[1] = -0.3f*height;
-	dir[2] = 3*cos(angle);
+	dir[0] = sin(angle)*cos(angleX);
+	dir[1] = sin(angleX);
+	dir[2] = cos(angle)*cos(angleX);
 	dir[3] = 1.0;
 
 	// leaning

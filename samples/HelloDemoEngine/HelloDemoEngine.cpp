@@ -211,15 +211,15 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle = eye.angle - 0.005*x;
-			eye.height = eye.height + 0.15*y;
-			CLAMP(eye.height,-13,13);
+			eye.angle -= 0.005*x;
+			eye.angleX -= 0.005*y;
+			CLAMP(eye.angleX,-M_PI*0.49f,M_PI*0.49f);
 		}
 		else
 		{
-			light.angle = light.angle - 0.005*x;
-			light.height = light.height + 0.15*y;
-			CLAMP(light.height,-13,13);
+			light.angle -= 0.005*x;
+			light.angleX -= 0.005*y;
+			CLAMP(light.angleX,-M_PI*0.49f,M_PI*0.49f);
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
