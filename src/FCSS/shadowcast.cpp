@@ -18,6 +18,7 @@ int resolutiony = 768;
 bool twosided = 0;
 bool supportEditor = 0;
 bool bigscreen = 0;
+bool showTimingInfo = 0;
 /*
 crashne po esc v s_veza/gcc
 
@@ -133,7 +134,6 @@ de::Texture* lightDirectMap[lightDirectMaps];
 unsigned lightDirectMapIdx = 0;
 de::Texture* loadingMap = NULL;
 #ifdef THREE_ONE
-	de::Texture* overlayMap = NULL; // fullscreen overlay
 #else
 	de::Texture* hintMap = NULL;
 	de::Texture* lightsprintMap = NULL; // small logo in the corner
@@ -237,7 +237,6 @@ void init_gl_resources()
 	}
 #ifdef THREE_ONE
 	loadingMap = de::Texture::load("maps\\3+1.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	overlayMap = de::Texture::load("maps\\overlay.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 #else
 	loadingMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	hintMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity_hints.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
@@ -262,7 +261,6 @@ void done_gl_resources()
 	delete uberProgram;
 	delete loadingMap;
 #ifdef THREE_ONE
-	delete overlayMap;
 #else
 	delete hintMap;
 	delete lightsprintMap;
@@ -894,13 +892,11 @@ static void drawHelpMessage(int screen)
 	glColor4f(0.0,0.0,0.0,0.6);
 
 	// Drawn clockwise because the flipped Y axis flips CCW and CW.
-	if(screen) glRecti(winWidth - 30, 30, 30, winHeight - 30);
-
-	glDisable(GL_BLEND);
-
-	glColor3f(1,1,1);
 	if(screen /*|| demoPlayer->getPaused()*/)
 	{
+		glRecti(winWidth - 30, 30, 30, winHeight - 30);
+		glDisable(GL_BLEND);
+		glColor3f(1,1,1);
 		for(i=0; message[screen][i] != NULL; i++) 
 		{
 			if (message[screen][i][0] != '\0')
@@ -911,7 +907,11 @@ static void drawHelpMessage(int screen)
 		}
 	}
 	else
+	if(showTimingInfo)
 	{
+		glRecti(MIN(winWidth-30,500), 30, 30, MIN(winHeight-30,100));
+		glDisable(GL_BLEND);
+		glColor3f(1,1,1);
 		char buf[200];
 		sprintf(buf,"demo %.1f/%.1fs, byt %.1f/%.1fs, music %.1f/%.1f",
 			demoPlayer->getDemoPosition(),demoPlayer->getDemoLength(),
@@ -1128,7 +1128,7 @@ void display()
 
 #ifdef THREE_ONE
 	if(!demoPlayer->getPaused())
-		showOverlay(overlayMap);
+		showOverlay(level->pilot.setup->getOverlay());
 #else
 	showLogo(lightsprintMap);
 #endif
@@ -2074,6 +2074,7 @@ void parseOptions(int argc, char **argv)
 		if (!strcmp("editor", argv[i])) {
 			supportEditor = 1;
 			fullscreen = 0;
+			showTimingInfo = 1;
 		}
 		if (!strcmp("bigscreen", argv[i])) {
 			bigscreen = 1;

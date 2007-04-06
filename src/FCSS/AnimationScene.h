@@ -49,6 +49,11 @@ public:
 	const AnimationFrame* getFrameByTime(float absSeconds);
 
 	unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone, float* transitionTotal);
+
+	const de::Texture* getOverlay();
+private:
+	char overlayFilename[300];
+	de::Texture* overlayMap;
 };
 
 #endif

@@ -9,12 +9,14 @@ LevelSetup::LevelSetup(const char* afilename)
 {
 	filename = NULL;
 	scale = 1;
+	overlayMap = NULL;
 	load(afilename);
 };
 
 LevelSetup::~LevelSetup()
 {
 	free((void*)filename);
+	delete overlayMap;
 }
 
 // load all from .ani
@@ -32,6 +34,10 @@ bool LevelSetup::load(const char* afilename)
 	free(aniname);
 	if(!f)
 		return false;
+	// load overlay
+	if(1!=fscanf(f,"overlay = %s\n",overlayFilename))
+		return false;
+	overlayMap = de::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	// load scale
 	if(1!=fscanf(f,"scale = %f\n",&scale))
 		return false;
@@ -60,6 +66,8 @@ bool LevelSetup::save() const
 	rr::RRReporter::report(rr::RRReporter::INFO,"Saving %s...\n",aniname);
 	FILE* f = fopen(aniname,"wt");
 	free(aniname);
+	// save overlay
+	fprintf(f,"overlay = %s\n",overlayFilename);
 	// save scale
 	fprintf(f,"scale = %.5f\n",scale);
 	// save objects
@@ -142,4 +150,9 @@ unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone
 	*transitionDone = absSeconds;
 	*transitionTotal = (i==frames.end())? 0 : (*i).transitionToNextTime;
 	return result;
+}
+
+const de::Texture* LevelSetup::getOverlay()
+{
+	return overlayMap;
 }
