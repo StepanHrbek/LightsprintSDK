@@ -171,6 +171,7 @@ bool seekInMusicAtSceneSwap = false;
 //class DynamicObjects* dynaobjects;
 bool shotRequested;
 DemoPlayer* demoPlayer = NULL;
+unsigned selectedObject_indexInDemo = 0;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1432,7 +1433,7 @@ void keyboard(unsigned char c, int x, int y)
 			done_gl_resources();
 			exit(0);
 			break;
-		case 'h':
+		case 'H':
 			switch(showHelp)
 			{
 				case 0: showHelp = 1; break;
@@ -1512,12 +1513,13 @@ void keyboard(unsigned char c, int x, int y)
 				if(level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 				{
 					// keys 1/2/3... index one of few sceneobjects
-					unsigned indexInScene = c-'1';
-					if(indexInScene<level->pilot.setup->objects.size())
+					unsigned selectedObject_indexInScene = c-'1';
+					if(selectedObject_indexInScene<level->pilot.setup->objects.size())
 					{
 						// we have more dynaobjects
-						unsigned indexInDemo = level->pilot.setup->objects[indexInScene];
-						demoPlayer->getDynamicObjects()->setPos(indexInDemo,ray->hitPoint3d);
+						selectedObject_indexInDemo = level->pilot.setup->objects[selectedObject_indexInScene];
+						if(!modif)
+							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);
 					}
 				}
 				/*
@@ -1528,6 +1530,20 @@ void keyboard(unsigned char c, int x, int y)
 				needDepthMapUpdate = 1;
 			}
 			break;
+
+#define CHANGE_ROT(dY,dZ) demoPlayer->getDynamicObjects()->setRot(selectedObject_indexInDemo,demoPlayer->getDynamicObjects()->getRot(selectedObject_indexInDemo)+rr::RRVec2(dY,dZ))
+#define CHANGE_POS(dX,dY,dZ) demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,demoPlayer->getDynamicObjects()->getPos(selectedObject_indexInDemo)+rr::RRVec3(dX,dY,dZ))
+		case 'j': CHANGE_ROT(-5,0); break;
+		case 'k': CHANGE_ROT(+5,0); break;
+		case 'u': CHANGE_ROT(0,-5); break;
+		case 'i': CHANGE_ROT(0,+5); break;
+		case 'f': CHANGE_POS(-0.05,0,0); break;
+		case 'h': CHANGE_POS(+0.05,0,0); break;
+		case 'v': CHANGE_POS(0,-0.05,0); break;
+		case 'r': CHANGE_POS(0,+0.05,0); break;
+		case 'g': CHANGE_POS(0,0,-0.05); break;
+		case 't': CHANGE_POS(0,0,+0.05); break;
+
 		//case ' ':
 		//	changeSpotlight();
 		//	break;

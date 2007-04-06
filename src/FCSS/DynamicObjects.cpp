@@ -184,14 +184,9 @@ void DynamicObjects::addObject(DynamicObject* dynobj)
 	dynaobjectAI.push_back(new DynamicObjectAI());
 }
 
-const rr::RRVec3 DynamicObjects::getPos(unsigned objIndex)
+rr::RRVec3 DynamicObjects::getPos(unsigned objIndex) const
 {
 	return (objIndex<dynaobject.size()) ? dynaobject[objIndex]->worldFoot : rr::RRVec3(0);
-}
-
-const rr::RRVec2 DynamicObjects::getRot(unsigned objIndex)
-{
-	return (objIndex<dynaobject.size()) ? dynaobject[objIndex]->rotYZ : RRVec2(0);
 }
 
 void DynamicObjects::setPos(unsigned objIndex, rr::RRVec3 worldFoot)
@@ -202,9 +197,29 @@ void DynamicObjects::setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 		{
 			dynaobjectAI[objIndex]->pos = worldFoot;
 			dynaobject[objIndex]->worldFoot = worldFoot;
-			//dynaobject[objIndex]->rot += 2.1f;
 			dynaobject[objIndex]->updatePosition();
 			assert(dynaobject[objIndex]->visible);
+		}
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+rr::RRVec2 DynamicObjects::getRot(unsigned objIndex) const
+{
+	return (objIndex<dynaobject.size()) ? dynaobject[objIndex]->rotYZ : RRVec2(0);
+}
+
+void DynamicObjects::setRot(unsigned objIndex, rr::RRVec2 rot)
+{
+	if(objIndex<dynaobject.size())
+	{
+		if(dynaobject[objIndex])
+		{
+			dynaobject[objIndex]->rotYZ = rot;
+			dynaobject[objIndex]->updatePosition();
 		}
 	}
 	else
