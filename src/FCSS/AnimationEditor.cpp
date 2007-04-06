@@ -68,6 +68,9 @@ bool AnimationEditor::keyboard(unsigned char c, int x, int y)
 			return true;}
 			//default:
 			//	printf("key=%d\n",(int)c);
+		case 'S':
+			setup->save();
+			break;
 	}
 	return false;
 }
@@ -117,6 +120,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			AnimationFrame tmp;
 			extern void copySceneToAnimationFrame(AnimationFrame& frame, const LevelSetup* setup);
 			copySceneToAnimationFrame(tmp,setup);
+			tmp.transitionToNextTime = (i!=setup->frames.end()) ? (*i).transitionToNextTime : 3;
 			setup->frames.insert(i,tmp);
 			frameCursor++;
 			return true;}
