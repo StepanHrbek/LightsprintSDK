@@ -20,6 +20,7 @@
 //  #define MATERIAL_EMISSIVE_MAP
 //  #define POSTPROCESS_BRIGHTNESS
 //  #define POSTPROCESS_GAMMA
+//  #define POSTPROCESS_BIGSCREEN
 //  #define OBJECT_SPACE
 //  #define FORCE_2D_POSITION
 //
@@ -425,6 +426,9 @@ void main()
 		#endif
 		#ifdef POSTPROCESS_GAMMA
 			gl_FragColor = pow(gl_FragColor,vec4(postprocessGamma,postprocessGamma,postprocessGamma,postprocessGamma));
+		#endif
+		#ifdef POSTPROCESS_BIGSCREEN
+			gl_FragColor.rgb = max(gl_FragColor.rgb,vec3(0.33,0.33,0.33));
 		#endif
 		#ifdef FORCE_2D_POSITION
 			gl_FragColor.a = 1.0;

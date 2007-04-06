@@ -17,7 +17,8 @@ int resolutionx = 1024;
 int resolutiony = 768;
 bool twosided = 0;
 bool supportEditor = 0;
-bool bigscreen = 0;
+bool bigscreenCompensation = 0;
+bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
 /*
 cistejsi by bylo misto globalnich eye, light, gamma, spotmapidx atd pouzit jeden AnimationFrame
@@ -589,6 +590,7 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = (globalBrightnessBoosted[0]!=1 || globalBrightnessBoosted[1]!=1 || globalBrightnessBoosted[2]!=1 || globalBrightnessBoosted[3]!=1)?1:0;
 	uberProgramSetup.POSTPROCESS_GAMMA = (globalGammaBoosted!=1)?1:0;
+	uberProgramSetup.POSTPROCESS_BIGSCREEN = bigscreenSimulator;
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	if(firstInstance==0) glClear(GL_DEPTH_BUFFER_BIT);
@@ -1556,6 +1558,10 @@ void keyboard(unsigned char c, int x, int y)
 			globalGamma /= 1.2;
 			break;
 
+		case 'b':
+			bigscreenSimulator = !bigscreenSimulator;
+			break;
+
 #if SUPPORT_LIGHTMAPS
 		// --- MAPS BEGIN ---
 		case 'v':
@@ -1858,7 +1864,7 @@ void reshape(int w, int h)
 		demoPlayer = new DemoPlayer("LightsprintDemo.cfg",supportEditor);
 #endif
 		demoPlayer->setPaused(supportEditor);
-		demoPlayer->setBigscreen(bigscreen);
+		demoPlayer->setBigscreen(bigscreenCompensation);
 	}
 }
 
@@ -2071,7 +2077,7 @@ void parseOptions(int argc, char **argv)
 			showTimingInfo = 1;
 		}
 		if (!strcmp("bigscreen", argv[i])) {
-			bigscreen = 1;
+			bigscreenCompensation = 1;
 		}
 		if (!strcmp("rx", argv[i])) {
 			resolutionx = atoi(argv[++i]);

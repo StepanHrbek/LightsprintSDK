@@ -65,6 +65,7 @@ struct DE_API UberProgramSetup
 	bool     MATERIAL_EMISSIVE_MAP  :1; ///< Enables material's emission stored in sRGB map.
 	bool     POSTPROCESS_BRIGHTNESS :1; ///< Enables brightness correction of final color (before gamma).
 	bool     POSTPROCESS_GAMMA      :1; ///< Enables gamma correction of final color (after brightness).
+	bool     POSTPROCESS_BIGSCREEN  :1; ///< Simulates effect of party projected bigscreen with ambient light.
 	bool     OBJECT_SPACE           :1; ///< Enables positions in object space, vertices are transformed by uniform worldMatrix.
 	bool     FORCE_2D_POSITION      :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
 
