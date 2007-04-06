@@ -918,6 +918,12 @@ static void drawHelpMessage(int screen)
 			globalBrightness[0],globalGamma);
 		output(x,y+36,buf);
 	}
+	else
+	{
+		glDisable(GL_BLEND);
+		glColor3f(1,1,1);
+	}
+
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
