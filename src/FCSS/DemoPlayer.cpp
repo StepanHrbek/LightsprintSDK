@@ -110,8 +110,10 @@ Level* DemoPlayer::getPart(unsigned index)
 		return NULL;
 }
 
-Level* DemoPlayer::getNextPart(bool seekInMusic)
+Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 {
+	if(loop && scenes.size())
+		nextSceneIndex %= scenes.size();
 	if(nextSceneIndex<scenes.size())
 	{
 		partStart += getPartLength();

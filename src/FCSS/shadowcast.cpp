@@ -1044,7 +1044,7 @@ void display()
 //		showImage(loadingMap);
 //		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
 		//delete level;
-		level = demoPlayer->getNextPart(seekInMusicAtSceneSwap);
+		level = demoPlayer->getNextPart(seekInMusicAtSceneSwap,supportEditor);
 
 		// end of the demo
 		if(!level)
