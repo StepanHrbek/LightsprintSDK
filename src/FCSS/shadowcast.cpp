@@ -1507,7 +1507,7 @@ void keyboard(unsigned char c, int x, int y)
 				ray->rayLengthMin = 0;
 				ray->rayLengthMax = 1000;
 				ray->rayFlags = rr::RRRay::FILL_POINT3D;
-				if(level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+				if(modif || level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 				{
 					// keys 1/2/3... index one of few sceneobjects
 					unsigned selectedObject_indexInScene = c-'1';

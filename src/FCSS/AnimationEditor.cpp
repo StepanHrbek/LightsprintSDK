@@ -92,7 +92,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
 				if(i!=setup->frames.end())
 				{
-					(*i).transitionToNextTime = MAX(0.01f,(*i).transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
+					(*i).transitionToNextTime = MAX(0.02f,(*i).transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
 				}
 			}
 			else
@@ -106,7 +106,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
 				if(i!=setup->frames.end())
 				{
-					if((*i).transitionToNextTime<0.02f) (*i).transitionToNextTime=0;
+					if((*i).transitionToNextTime<0.03f) (*i).transitionToNextTime=0;
 					(*i).transitionToNextTime += ((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f);
 				}
 			}

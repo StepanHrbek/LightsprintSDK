@@ -20,7 +20,7 @@ namespace de
 		for(unsigned i=0;i<numInstancesMax;i++)
 			shadowMaps[i] = Texture::createShadowmap(shadowmapSize,shadowmapSize);
 		areaType = 0;
-		areaSize = 0.15f;
+		areaSize = 0.8f;
 	}
 
 	AreaLight::~AreaLight()
@@ -80,8 +80,8 @@ namespace de
 		switch(areaType)
 		{
 			case 0: // linear
-				light.angle += 2*areaSize*(instance/(numInstances-1.f)-0.5f);
-				light.angleX += -0.4f*areaSize*instance/numInstances;
+				light.angle += areaSize*(instance/(numInstances-1.f)-0.5f);
+				light.angleX += -0.2f*areaSize*instance/numInstances;
 				break;
 			case 1: // rectangular
 				{int q=(int)sqrtf((float)(numInstances-1))+1;
