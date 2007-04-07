@@ -22,20 +22,21 @@ AnimationFrame::AnimationFrame()
 
 // returns a*(1-alpha) + b*alpha; (a and b are points on 360degree circle)
 // using shortest path between a and b
-rr::RRReal blendModulo360(rr::RRReal a,rr::RRReal b,rr::RRReal alpha)
+rr::RRReal blendModulo(rr::RRReal a,rr::RRReal b,rr::RRReal alpha,rr::RRReal modulo)
 {
-	a = fmodf(a,360);
-	b = fmodf(b,360);
-	if(a<b-180) a += 360; else
-	if(a>b+180) a -= 360;
+	a = fmodf(a,modulo);
+	b = fmodf(b,modulo);
+	if(a<b-(modulo/2)) a += modulo; else
+	if(a>b+(modulo/2)) a -= modulo;
 	return a*(1-alpha) + b*alpha;
 }
-rr::RRVec2 blendModulo360(rr::RRVec2 a,rr::RRVec2 b,float alpha)
+
+rr::RRVec2 blendModulo(rr::RRVec2 a,rr::RRVec2 b,rr::RRReal alpha,rr::RRReal modulo)
 {
 	rr::RRVec2 tmp;
 	for(unsigned i=0;i<2;i++)
 	{
-		tmp[i] = blendModulo360(a[i],b[i],alpha);
+		tmp[i] = blendModulo(a[i],b[i],alpha,modulo);
 	}
 	return tmp;
 }
@@ -52,7 +53,7 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	for(unsigned i=0;i<(sizeof(eyeLight)+sizeof(brightness)+sizeof(gamma))/sizeof(float);i++)
 		c[i] = a[i]*(1-alpha) + b[i]*alpha;
 	for(unsigned i=0;i<2;i++)
-		blended.eyeLight[i].angle = blendModulo360(this->eyeLight[i].angle,that.eyeLight[i].angle,alpha);
+		blended.eyeLight[i].angle = blendModulo(this->eyeLight[i].angle,that.eyeLight[i].angle,alpha,(float)(2*M_PI));
 	blended.eyeLight[0].update(0);
 	blended.eyeLight[1].update(0.3f);
 	// blend dynaPosRot
@@ -61,7 +62,7 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	{
 		DynaObjectPosRot tmp;
 		tmp.pos = this->dynaPosRot[i].pos*(1-alpha) + that.dynaPosRot[i].pos*alpha;
-		tmp.rot = blendModulo360(this->dynaPosRot[i].rot,that.dynaPosRot[i].rot,alpha);
+		tmp.rot = blendModulo(this->dynaPosRot[i].rot,that.dynaPosRot[i].rot,alpha,360);
 		blended.dynaPosRot.push_back(tmp);
 	}
 	// blend projectorIndex

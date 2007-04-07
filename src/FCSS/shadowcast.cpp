@@ -1560,6 +1560,12 @@ void keyboard(unsigned char c, int x, int y)
 
 		case 'b':
 			bigscreenSimulator = !bigscreenSimulator;
+			bigscreenCompensation = !bigscreenCompensation;
+			demoPlayer->setBigscreen(bigscreenCompensation);
+			break;
+		case 'B':
+			bigscreenCompensation = !bigscreenCompensation;
+			demoPlayer->setBigscreen(bigscreenCompensation);
 			break;
 
 #if SUPPORT_LIGHTMAPS
