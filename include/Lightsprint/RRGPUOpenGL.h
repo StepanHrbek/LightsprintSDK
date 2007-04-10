@@ -116,6 +116,7 @@ namespace rr_gl
 		char pathToShaders[300];
 		// for internal rendering
 		class CaptureUv* captureUv;
+		const void* rendererObject;
 		class RendererOfRRObject* rendererNonCaching;
 		de::Renderer* rendererCaching;
 		de::Texture* detectBigMap;

@@ -1,5 +1,12 @@
 /* Copyright (c) 1997 Regents of the University of California */
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244) // conversion from double to float
+#pragma warning(disable:4305) // truncation from double to float
+#pragma warning(disable:4554) // missing parentheses
+#pragma warning(disable:4113) // std func differs in parameter list
+#endif
+
 #ifndef lint
 static char SCCSid[] = "@(#)context.c 1.26 12/15/97 LBL";
 #endif

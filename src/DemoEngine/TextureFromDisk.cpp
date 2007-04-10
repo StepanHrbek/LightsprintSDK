@@ -449,6 +449,7 @@ Texture* Texture::load(const char *filename,const char* cubeSideName[6],bool fli
 	}
 	catch(...) 
 	{
+		printf("Failed to load %s.\n",filename);
 		return NULL;
 	}
 }

@@ -202,10 +202,11 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		{
 			importers[i] = objects.at(i).first;
 		}
+		// create multi in custom scale
 		multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)objects.size(),smoothing.intersectTechnique,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
-		//!!! nevyrabet kdyz neni scaler
+		// convert it to physical scale
 		multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL;
-		// RRObjectWithIllum dostava physical surfacy, dat mu custom by byla chyba
+		// add direct illumination
 		multiObjectPhysicalWithIllumination = multiObjectPhysical ? multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
 			(multiObjectCustom ? multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
 		delete[] importers;

@@ -106,8 +106,12 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			unsigned currentVertex;
 			if(indexed)
 			{
-				// force original RRObject vertex order
 				//numVertices = triangleVertices[v];
+
+				// force original RRObject vertex order
+				// why?
+				//  RRRealtimeRadiosity generates ambient vertex buffers for original vertex order.
+				//  to render them, whole mesh must be in original vertex order
 				// use preimport index, because of e.g. optimizations in RRObjectMulti
 				currentVertex = mesh->getPreImportVertex(triangleVertices[v],t);
 				indices[numIndices++] = currentVertex;
@@ -122,7 +126,8 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			{
 				// preimport vertex number is out of range, fail
 				// warning: could happen with correct inputs, RRMesh is allowed 
-				//  to have preimport indices 1,10,100(out of range!) even when postimport are 0,1,2
+				//  to have preimport indices 1,10,100(out of range!) even when postimport are 0,1,2.
+				//  happens with all multiobjects
 				//RR_ASSERT(currentVertex<numTriangles*3);
 				return;
 			}

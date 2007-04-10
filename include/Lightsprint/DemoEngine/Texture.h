@@ -46,11 +46,14 @@ public:
 	//!  Requested height of texture in texels.
 	//!  Must equal to width for cube texture.
 	//! \param format
-	//!  Format of data in adopt_data.
+	//!  Format of data.
 	//!  Implementation is not required to support all data formats.
 	//! \param data
-	//!  Data to be loaded into texture. Set to NULL for uninitialized contents of texture.
+	//!  Data to be loaded into texture. When set to NULL, contents of texture stays uninitialized.
 	//!  Format of data is specified by format.
+	//! \param buildMipmaps
+	//!  Texture mipmaps are built when set to true.
+	//!  Implementation is not required to support mipmaps.
 	//! \return True on success, false on error (unsupported size/format).
 	virtual bool reset(unsigned width, unsigned height, Format format, unsigned char* data, bool buildMipmaps) = 0;
 

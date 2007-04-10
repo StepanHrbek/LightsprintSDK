@@ -94,7 +94,11 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram)
 Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaLight, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma)
 {
 	Program* program = getProgram(uberProgram);
-	if(!program) return NULL;
+	if(!program)
+	{
+		printf("useProgram: failed to compile or link GLSL shader.\n");
+		return NULL;
+	}
 	program->useIt();
 
 	// shadowMap[], gl_TextureMatrix[]
@@ -108,7 +112,11 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 	//GLint samplers[100]; // for array of samplers (needs OpenGL 2.0 compliant card)
 	for(unsigned i=0;i<SHADOW_MAPS;i++)
 	{
-		if(!areaLight) return false;
+		if(!areaLight)
+		{
+			printf("useProgram: areaLight==NULL.\n");
+			return false;
+		}
 		glActiveTexture(GL_TEXTURE0+i);
 		// prepare samplers
 		areaLight->getShadowMap(firstInstance+i)->bindTexture();
@@ -128,15 +136,27 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 
 	if(LIGHT_DIRECT)
 	{
-		if(!areaLight) return false;
+		if(!areaLight)
+		{
+			printf("useProgram: areaLight==NULL.\n");
+			return false;
+		}
 		const Camera* light = areaLight->getParent();
-		if(!light) return false;
+		if(!light)
+		{
+			printf("useProgram: areaLight->getParent()==NULL.\n");
+			return false;
+		}
 		program->sendUniform("worldLightPos",light->pos[0]-0.3f*light->dir[0],light->pos[1]-0.3f*light->dir[1],light->pos[2]-0.3f*light->dir[2]);//!!!
 	}
 
 	if(LIGHT_DIRECT_MAP)
 	{
-		if(!lightDirectMap) return false;
+		if(!lightDirectMap)
+		{
+			printf("useProgram: lightDirectMap==NULL (projected texture is missing).\n");
+			return false;
+		}
 		int id=TEXTURE_2D_LIGHT_DIRECT;
 		glActiveTexture(GL_TEXTURE0+id);
 		lightDirectMap->bindTexture();
@@ -199,7 +219,11 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, AreaLight* areaL
 
 	if(POSTPROCESS_BRIGHTNESS)
 	{
-		if(!brightness)	return false;
+		if(!brightness)
+		{
+			printf("useProgram: brightness==NULL.\n");
+			return false;
+		}
 		program->sendUniform4fv("postprocessBrightness", brightness);
 	}
 

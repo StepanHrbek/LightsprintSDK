@@ -73,7 +73,7 @@ void error(const char* message, bool gfxRelated)
 
 de::Model_3DS           m3ds;
 de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,60.0};
-de::Camera              light = {{-1.802,0.715,0.850},0.635,0,-5.800,1.0,70.0,1.0,20.0};
+de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
 de::UberProgram*        uberProgram = NULL;
@@ -116,19 +116,26 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
-#ifndef AMBIENT_MAPS
-	// 3ds renderer m3ds.Draw uses vertex buffers incompatible with our generated ambient map uv channel,
-	//  so it doesn't render properly with ambient maps.
-	//  could be fixed with better uv or simple geometry shader
-	if(uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION)
+
+	// render static scene
+	// both renderers do the same job,
+	//  #1 shows work with external non-Lightsprint renderer,
+	//  #2 shows work with Lightsprint internal renderer
+/*#ifndef AMBIENT_MAPS
+	if(!uberProgramSetup.FORCE_2D_POSITION)
 	{
+		// renderer #1 (3ds only)
+		// 3ds renderer m3ds.Draw uses vertex buffers incompatible with our generated ambient map uv channel,
+		//  so it doesn't render properly with ambient maps.
+		//  could be fixed with better uv or simple geometry shader
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		m3ds.Draw(solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 	}
 	else
-#endif
+#endif*/
 	{
+		// renderer #2 (generic)
 		// RendererOfRRObject::render uses trilist -> slow, but no problem with added ambient map unwrap
 		rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 		renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
@@ -246,16 +253,16 @@ protected:
 	// set shader so that direct light+shadows+emissivity are rendered, but no materials
 	virtual void setupShader(unsigned objectNumber)
 	{
-			// render scene with forced 2d positions of all triangles
-			de::UberProgramSetup uberProgramSetup;
-			uberProgramSetup.SHADOW_MAPS = 1;
-			uberProgramSetup.SHADOW_SAMPLES = 1;
-			uberProgramSetup.LIGHT_DIRECT = true;
-			uberProgramSetup.LIGHT_DIRECT_MAP = true;
-			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			uberProgramSetup.FORCE_2D_POSITION = true;
-			if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
-				error("Failed to compile or link GLSL program.\n",true);
+		// render scene with forced 2d positions of all triangles
+		de::UberProgramSetup uberProgramSetup;
+		uberProgramSetup.SHADOW_MAPS = 1;
+		uberProgramSetup.SHADOW_SAMPLES = 1;
+		uberProgramSetup.LIGHT_DIRECT = true;
+		uberProgramSetup.LIGHT_DIRECT_MAP = true;
+		uberProgramSetup.MATERIAL_DIFFUSE = true;
+		uberProgramSetup.FORCE_2D_POSITION = true;
+		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
+			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
 

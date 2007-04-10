@@ -12,10 +12,12 @@
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
 
-#define SCALE_DOWN_ON_GPU // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
-//#define CAPTURE_TGA // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu
+#define BOOST_DIRECT_ILLUM      2.0f
+#define SCALE_DOWN_ON_GPU       // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
+//#define CAPTURE_TGA           // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu
 #define PRIMARY_SCAN_PRECISION  1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define BIG_MAP_SIZE            1024
+#define SAFE_DELETE(a)          {delete a;a=NULL;}
 
 namespace rr_gl
 {
@@ -40,9 +42,9 @@ public:
 	{
 		return firstCapturedTriangle+(triCountX<<8)+(triCountY<<16);
 	}
-	unsigned firstCapturedTriangle;
-	unsigned lastCapturedTrianglePlus1;
-	unsigned triCountX, triCountY;
+	unsigned firstCapturedTriangle; // offset of first captured triangle in array of all triangles
+	unsigned lastCapturedTrianglePlus1; // offset of last captured triangle + 1
+	unsigned triCountX, triCountY; // number of columns/rows in 0..1,0..1 texture space (not necessarily used, some of them could be empty when detecting less than triCountX*triCountY triangles)
 };
 
 //! Generates uv coords for capturing direct illumination into lightmap (takes uv from RRObject).
@@ -118,11 +120,28 @@ per object lighting:
 -renderovat celou scenu a vyzobavat jen facy z objektu je neprijemne,
  protoze pak neni garantovane ze pujdou facy pekne za sebou
   -slo by zlepsit tim ze multiobjekt bude garantovat poradi(slo by pres zakaz optimalizaci v multiobjektu)
+*/
 
-// simplified version from HelloRealtimeRadiosity
 bool RRRealtimeRadiosityGL::detectDirectIllumination()
 {
 	if(!scaleDownProgram) return false;
+
+	// update renderer after geometry change
+	if(getMultiObjectCustom()!=rendererObject) // not equal? geometry must be changed
+	{
+		// delete old renderer
+		SAFE_DELETE(rendererCaching);
+		SAFE_DELETE(rendererNonCaching);
+		// create new renderer
+		// for empty scene, stay without renderer
+		rendererObject = getMultiObjectCustom();
+		if(rendererObject)
+		{
+			rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getScene(),getScaler(),true);
+			rendererCaching = rendererNonCaching->createDisplayList();
+		}
+	}
+	if(!rendererObject) return false;
 
 	// backup render states
 	glGetIntegerv(GL_VIEWPORT,viewport);
@@ -132,24 +151,28 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 
 	rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
+	if(!numTriangles)
+	{
+		RR_ASSERT(0); // legal, but should not happen in well coded program
+		return true;
+	}
 
 	// adjust captured texture size so we don't waste pixels
-	captureUv.xmax = BIG_MAP_SIZE/4; // number of triangles in one row
-	captureUv.ymax = BIG_MAP_SIZE/4; // number of triangles in one column
-	while(captureUv.ymax && numTriangles/(captureUv.xmax*captureUv.ymax)==numTriangles/(captureUv.xmax*(captureUv.ymax-1))) captureUv.ymax--;
+	captureUv->triCountX = BIG_MAP_SIZE/4; // number of triangles in one row
+	captureUv->triCountY = BIG_MAP_SIZE/4; // number of triangles in one column
+	while(captureUv->triCountY && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
 	unsigned width = BIG_MAP_SIZE; // used width in pixels
-	unsigned height = captureUv.ymax*4; // used height in pixels
+	unsigned height = captureUv->triCountY*4; // used height in pixels
 
 	// setup render states
 	glClearColor(0,0,0,1);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
-	glViewport(0, 0, width, height);
 
 	// for each set of triangles (if all triangles don't fit into one texture)
-	for(captureUv.firstCapturedTriangle=0;captureUv.firstCapturedTriangle<numTriangles;captureUv.firstCapturedTriangle+=captureUv.xmax*captureUv.ymax)
+	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
 	{
-		unsigned lastCapturedTriangle = MIN(numTriangles,captureUv.firstCapturedTriangle+captureUv.xmax*captureUv.ymax)-1;
+		captureUv->lastCapturedTrianglePlus1 = MIN(numTriangles,captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
 
 		// prepare for scaling down -> render to texture
 		detectBigMap->renderingToBegin();
@@ -158,17 +181,38 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 		glViewport(0, 0, width,height);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// render scene with forced 2d positions of all triangles
-		de::UberProgramSetup uberProgramSetup;
-		uberProgramSetup.SHADOW_MAPS = 1;
-		uberProgramSetup.SHADOW_SAMPLES = 1;
-		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_DIRECT_MAP = true;
-		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.FORCE_2D_POSITION = true;
-		rendererNonCaching->setCapture(&captureUv,captureUv.firstCapturedTriangle,lastCapturedTriangle); // set param for cache so it creates different displaylists
-		renderScene(uberProgramSetup);
-		rendererNonCaching->setCapture(NULL,0,numTriangles-1);
+		// setup renderer
+		RendererOfRRObject::RenderedChannels renderedChannels;
+		renderedChannels.LIGHT_DIRECT = true;
+		renderedChannels.FORCE_2D_POSITION = true;
+
+		// setup shader
+		if(detectingFromLightmapChannel>=0)
+		{
+			// special path for detectDirectIlluminationFromLightmaps()
+			// this will be removed in future
+			renderedChannels.LIGHT_DIRECT = false;
+			renderedChannels.LIGHT_INDIRECT_MAP = true;
+			renderedChannels.LIGHT_MAP_CHANNEL = detectingFromLightmapChannel;
+			de::UberProgramSetup detectFromLightmapUberProgramSetup;
+			detectFromLightmapUberProgramSetup.LIGHT_INDIRECT_MAP = true;
+			detectFromLightmapUberProgramSetup.MATERIAL_DIFFUSE = true;
+			detectFromLightmapUberProgramSetup.FORCE_2D_POSITION = true;
+			detectFromLightmapUberProgramSetup.useProgram(detectFromLightmapUberProgram,NULL,0,NULL,NULL,1);
+		}
+		else
+		{
+			// standard path customizable by subclassing
+			//!!! no support for per object shaders yet
+			setupShader(0);
+		}
+
+		// render scene
+		rendererNonCaching->setRenderedChannels(renderedChannels);
+		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
+		rendererCaching->render();
+		//rendererNonCaching->render();
+		rendererNonCaching->setCapture(NULL,0,numTriangles);
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
 		detectBigMap->renderingToEnd();
@@ -201,18 +245,19 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 		glEnable(GL_CULL_FACE);
 
 		// read downscaled image to memory
-		glReadPixels(0, 0, captureUv.xmax, captureUv.ymax, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap);
+		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap);
 
 		// send triangle irradiances to solver
+		float boost = BOOST_DIRECT_ILLUM / 255;
 		#pragma omp parallel for
-		for(int t=captureUv.firstCapturedTriangle;t<=lastCapturedTriangle;t++)
+		for(int t=captureUv->firstCapturedTriangle;t<(int)captureUv->lastCapturedTrianglePlus1;t++)
 		{
 			unsigned triangleIndex = (unsigned)t;
-			unsigned color = detectSmallMap[triangleIndex-captureUv.firstCapturedTriangle];
+			unsigned color = detectSmallMap[triangleIndex-captureUv->firstCapturedTriangle];
 			getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(
 				triangleIndex,
 				rr::RM_IRRADIANCE_CUSTOM,
-				rr::RRColor((color>>24)&255,(color>>16)&255,(color>>8)&255) / 255.0f);
+				rr::RRColor(((color>>24)&255)*boost,((color>>16)&255)*boost,((color>>8)&255)*boost));
 		}
 	}
 
@@ -224,8 +269,9 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 
 	return true;
 }
-*/
 
+/*
+// development version with additional features
 bool RRRealtimeRadiosityGL::detectDirectIllumination()
 {
 #ifdef SCALE_DOWN_ON_GPU
@@ -421,6 +467,11 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 #endif
 
 		// accumulate triangle irradiances
+		rr::RRReal boost;
+		if(triSizeXRead*triSizeYRead>1)
+			boost = BOOST_DIRECT_ILLUM / (255*triSizeXRead*triSizeYRead/2); // compensate triangular area by /2
+		else
+			boost = BOOST_DIRECT_ILLUM / 255; // 1 pixel is square, no compensation
 #pragma omp parallel for schedule(static,1)
 		for(int triangleIndex=captureUv->firstCapturedTriangle;(unsigned)triangleIndex<captureUv->lastCapturedTrianglePlus1;triangleIndex++)
 		{
@@ -438,12 +489,12 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 					sum[1] += (color>>8)&255;
 					sum[2] += color&255;
 				}
-				// pass power to rrobject
-				rr::RRColor avg = rr::RRColor((rr::RRReal)sum[0],(rr::RRReal)sum[1],(rr::RRReal)sum[2]) / (255*triSizeXRead*triSizeYRead/2);
+			// pass power to rrobject
+			rr::RRColor avg = rr::RRColor(sum[0]*boost,sum[1]*boost,sum[2]*boost);
 #if PRIMARY_SCAN_PRECISION==1
-				getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_CUSTOM,avg);
+			getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_CUSTOM,avg);
 #else
-				getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_EXITANCE_CUSTOM,avg);
+			getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_EXITANCE_CUSTOM,avg);
 #endif
 
 		}
@@ -462,6 +513,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	//printf("primary scan (%d-pass (%f)) took............ %d ms\n",numTriangles/(captureUv->triCountX*captureUv->triCountY)+1,(float)numTriangles/(captureUv->triCountX*captureUv->triCountY),(int)(1000*w.Watch()));
 	return true;
 };
+*/
 
 bool RRRealtimeRadiosityGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
 {

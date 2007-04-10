@@ -374,6 +374,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\a.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\AnimationEditor.cpp"
 			>
 		</File>
