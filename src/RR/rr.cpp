@@ -215,12 +215,12 @@ static bool endByTimeOrInput(void *context)
  return kb_hit() || GETTIME>(TIME)(intptr_t)context || mouse_hit();
 }
 
-static void captureTgaAfter(Scene *scene,RRStaticSolver* rrscene,const char *name,real seconds,real minimalImprovementToShorten)
+static void captureTgaAfter(Scene *scene,RRStaticSolver* staticSolver,const char *name,real seconds,real minimalImprovementToShorten)
 {
  scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+seconds*PER_SEC));
  if (scene->shortenStaticImprovementIfBetterThan(minimalImprovementToShorten))
     scene->finishStaticImprovement();
- scene->draw(rrscene,0.4);
+ scene->draw(staticSolver,0.4);
  video_Grab(name);
  __frameNumber++;
 }
@@ -409,10 +409,10 @@ bool frameCalculate(Scene *scene)
 
 // vykresli a pripadne grabne aktualni frame
 
-void frameDraw(Scene *scene, RRStaticSolver* rrscene)
+void frameDraw(Scene *scene, RRStaticSolver* staticSolver)
 {
 // d_fast=!p_flyingObjects && !p_flyingCamera && n_dirtyGeometry;
- scene->draw(rrscene,0.4);
+ scene->draw(staticSolver,0.4);
  n_dirtyCamera=false;
  if(p_ffGrab && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames))
  {
@@ -507,12 +507,12 @@ void frameAdvance(Scene *scene)
 char  name[20];
 int   id=0;
 Scene *scene;
-RRStaticSolver *rrscene;
+RRStaticSolver *staticSolver;
 
 void displayFunc(void)
 {
  frameSetup(scene);
- if(frameCalculate(scene)) frameDraw(scene,rrscene);
+ if(frameCalculate(scene)) frameDraw(scene,staticSolver);
  frameAdvance(scene);
 }
 
@@ -533,10 +533,10 @@ void keyboardFunc(unsigned char key, int x, int y)
   case ' ': if(preparing_capture)
             {
               preparing_capture=false;
-              captureTgaAfter(scene,rrscene,"d01.tga",0,2);
-              captureTgaAfter(scene,rrscene,"d1.tga",0.9,2);
-              captureTgaAfter(scene,rrscene,"d10.tga",9,2);
-              captureTgaAfter(scene,rrscene,"d100.tga",90,1);
+              captureTgaAfter(scene,staticSolver,"d01.tga",0,2);
+              captureTgaAfter(scene,staticSolver,"d1.tga",0.9,2);
+              captureTgaAfter(scene,staticSolver,"d10.tga",9,2);
+              captureTgaAfter(scene,staticSolver,"d100.tga",90,1);
             }
             break;
   case 'i': __infolevel=(__infolevel+1)%3;n_dirtyGeometry=true;break;
@@ -866,9 +866,9 @@ int main(int argc, char **argv)
  // zkonvertuje world na scene
  strcpy(p_ffName,scenename);
  p_ffName[strlen(p_ffName)-4]=0;// do p_ffName da jmeno sceny bez pripony
- rrscene=convert_world2scene(__world,bp("%s.mgf",p_ffName),intersectTechnique);
- if(!rrscene) help();
- scene=*(Scene**)rrscene; // pozor, predpokladame ze prvni polozka v RRStaticSolver je pointer na Scene
+ staticSolver=convert_world2scene(__world,bp("%s.mgf",p_ffName),intersectTechnique);
+ if(!staticSolver) help();
+ scene=*(Scene**)staticSolver; // pozor, predpokladame ze prvni polozka v RRStaticSolver je pointer na Scene
  if(!scene) help();
 
  g_lights=1;//g_separLights?scene->turnLight(-1,0):1;// zjisti kolik je ve scene svetel (sviticich materialu), pokud je nema separovat tak necha jedno

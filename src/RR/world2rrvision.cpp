@@ -195,7 +195,7 @@ RRStaticSolver *convert_world2scene(WORLD *world, char *material_mgf, rr::RRColl
 	// load surfaces
 	load_materials(world, material_mgf);
 	// load geometry
-	RRStaticSolver *rrscene = NULL;
+	RRStaticSolver *staticSolver = NULL;
 	DBG(printf("Loading geometry...\n"));
 	assert(world->object_num==1);
 	for(int o=0;o<world->object_num;o++) 
@@ -203,8 +203,8 @@ RRStaticSolver *convert_world2scene(WORLD *world, char *material_mgf, rr::RRColl
 		WorldObjectImporter* importer = new WorldObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces, intersectTechnique);
 		RRStaticSolver::SmoothingParameters smoothing;
 		smoothing.subdivisionSpeed = 1;
-		rrscene=new RRStaticSolver(importer,&smoothing);
+		staticSolver=new RRStaticSolver(importer,&smoothing);
 		break;
 	}	
-	return rrscene;
+	return staticSolver;
 }
