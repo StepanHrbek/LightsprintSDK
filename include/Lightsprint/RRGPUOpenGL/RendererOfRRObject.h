@@ -82,7 +82,7 @@ public:
 	//!  but only if it's done many times repeatedly. More memory is needed.
 	//!  If you plan to render object only once,
 	//!  technique without buffers (false) is faster and takes less memory.
-	RendererOfRRObject(const rr::RRObject* object, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler, bool useBuffers);
+	RendererOfRRObject(const rr::RRObject* object, const rr::RRStaticSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers);
 
 	//! Specifies what data channels to feed to GPU during render.
 	struct RenderedChannels
@@ -129,7 +129,7 @@ private:
 	struct Params
 	{
 		const rr::RRObject* object;            ///< object being rendered
-		const rr::RRScene* scene;              ///< scene it comes from
+		const rr::RRStaticSolver* scene;              ///< scene it comes from
 		const rr::RRScaler* scaler;            ///< scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_VCOLOR
 		RenderedChannels renderedChannels;     ///< set of data channels being rendered
 		VertexDataGenerator* generateForcedUv; ///< generator of uv data for FORCE_2D_POSITION

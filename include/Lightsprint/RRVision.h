@@ -215,7 +215,7 @@ namespace rr
 	//! - baking additional (primary) illumination into object, see createObjectWithIllumination()
 	//!
 	//! \section s3 Links between objects
-	//! RRScene -> RRObject -> RRCollider -> RRMesh
+	//! RRStaticSolver -> RRObject -> RRCollider -> RRMesh
 	//! \n where A -> B means that
 	//!  - A has pointer to B
 	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
@@ -436,10 +436,10 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRScene
+	//  RRStaticSolver
 	//! 3d scene where illumination can be calculated.
 	//
-	//! %RRScene covers the most important functionality of library -
+	//! %RRStaticSolver covers the most important functionality of library -
 	//! illumination calculation. It allows you to setup multiple objects in space,
 	//! setup other states that affect calculations, perform calculations
 	//! and read back results.
@@ -466,7 +466,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRScene
+	class RR_API RRStaticSolver
 	{
 	public:
 
@@ -545,10 +545,10 @@ namespace rr
 		//!  \n object->getTriangleMaterial() should return values in physical scale.
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
-		RRScene(RRObject* object, const SmoothingParameters* smoothing);
+		RRStaticSolver(RRObject* object, const SmoothingParameters* smoothing);
 
 		//! Destructs static scene.
-		~RRScene();
+		~RRStaticSolver();
 		
 		//////////////////////////////////////////////////////////////////////////////
 		//

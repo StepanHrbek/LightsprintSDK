@@ -11,7 +11,7 @@ public:
 	virtual void render() = 0;
 	virtual ~Bugs() {};
 
-	static Bugs* create(const rr::RRScene* ascene, const rr::RRObject* aobject, unsigned anumBugs);
+	static Bugs* create(const rr::RRStaticSolver* ascene, const rr::RRObject* aobject, unsigned anumBugs);
 };
 
 #endif

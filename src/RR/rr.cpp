@@ -94,7 +94,7 @@ char *bp(const char *fmt, ...)
 	return msg;
 }
 
-SubTriangle *locate_subtriangle(WORLD *w, RRScene* scene, int x,int y)
+SubTriangle *locate_subtriangle(WORLD *w, RRStaticSolver* scene, int x,int y)
 {
 	raster_Clear();
 	bool old_gouraud=d_gouraud; d_gouraud=false;
@@ -114,7 +114,7 @@ void infoMisc(char *buf)
 	sprintf(buf+strlen(buf)," gamma=%0.3f bright=%0.3f",d_gamma,d_bright);
 }
 
-void Scene::draw(RRScene* scene, real quality)
+void Scene::draw(RRStaticSolver* scene, real quality)
 {
  float backgroundColor[3]={0,0,0};
   //spravne ma byt =(material ve kterem je kamera)->color;
@@ -215,7 +215,7 @@ static bool endByTimeOrInput(void *context)
  return kb_hit() || GETTIME>(TIME)(intptr_t)context || mouse_hit();
 }
 
-static void captureTgaAfter(Scene *scene,RRScene* rrscene,const char *name,real seconds,real minimalImprovementToShorten)
+static void captureTgaAfter(Scene *scene,RRStaticSolver* rrscene,const char *name,real seconds,real minimalImprovementToShorten)
 {
  scene->improveStatic(endByTime,(void*)(intptr_t)(GETTIME+seconds*PER_SEC));
  if (scene->shortenStaticImprovementIfBetterThan(minimalImprovementToShorten))
@@ -401,7 +401,7 @@ bool frameCalculate(Scene *scene)
  bool change=false;
  if(!preparing_capture && (g_batchGrabOne<0 || g_batchGrabOne==g_tgaFrame%g_tgaFrames)) {
    TIME endTime=(TIME)(GETTIME+c_dynamicFrameTime*PER_SEC);
-   change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime)==RRScene::IMPROVED;
+   change=scene->improveStatic(endByTimeOrInput,(void*)(intptr_t)endTime)==RRStaticSolver::IMPROVED;
    if(GETTIME>endTime) c_dynamicFrameTime*=1.5; // increase time only when previous time really elapsed (don't increase after each hit)
  }
  return change || p_flyingCamera || p_flyingObjects || n_dirtyCamera || n_dirtyObject;
@@ -409,7 +409,7 @@ bool frameCalculate(Scene *scene)
 
 // vykresli a pripadne grabne aktualni frame
 
-void frameDraw(Scene *scene, RRScene* rrscene)
+void frameDraw(Scene *scene, RRStaticSolver* rrscene)
 {
 // d_fast=!p_flyingObjects && !p_flyingCamera && n_dirtyGeometry;
  scene->draw(rrscene,0.4);
@@ -507,7 +507,7 @@ void frameAdvance(Scene *scene)
 char  name[20];
 int   id=0;
 Scene *scene;
-RRScene *rrscene;
+RRStaticSolver *rrscene;
 
 void displayFunc(void)
 {
@@ -849,7 +849,7 @@ int main(int argc, char **argv)
  }
  g_batchGrab/=2; // zas to vynuluje pokud nebylo inkremetovano u -s i -g
  g_batchMerge/=2;// zas to vynuluje pokud nebylo inkremetovano u -v i -g
- //!!!RRScene::setStateF(SUBDIVISION_SPEED,0.0001f);
+ //!!!RRStaticSolver::setStateF(SUBDIVISION_SPEED,0.0001f);
 
  // nacte world
  DBG(printf("Loading bsp...\n"));
@@ -868,7 +868,7 @@ int main(int argc, char **argv)
  p_ffName[strlen(p_ffName)-4]=0;// do p_ffName da jmeno sceny bez pripony
  rrscene=convert_world2scene(__world,bp("%s.mgf",p_ffName),intersectTechnique);
  if(!rrscene) help();
- scene=*(Scene**)rrscene; // pozor, predpokladame ze prvni polozka v RRScene je pointer na Scene
+ scene=*(Scene**)rrscene; // pozor, predpokladame ze prvni polozka v RRStaticSolver je pointer na Scene
  if(!scene) help();
 
  g_lights=1;//g_separLights?scene->turnLight(-1,0):1;// zjisti kolik je ve scene svetel (sviticich materialu), pokud je nema separovat tak necha jedno

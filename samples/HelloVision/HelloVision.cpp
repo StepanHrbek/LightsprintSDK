@@ -57,7 +57,7 @@ private:
 };
 
 // prints illumination levels on our object
-void printIllumination(RRScene* scene)
+void printIllumination(RRStaticSolver* scene)
 {
 	for(unsigned triangle=0;triangle<2;triangle++)
 	{
@@ -90,28 +90,28 @@ int main()
 	// create object (position/rotation and material properties attached to mesh)
 	RRObject* object = new MyObject(collider);
 
-	// create scene (able to calculate radiosity)
-	RRScene* scene = new RRScene(object,NULL);
+	// create solver (able to calculate radiosity)
+	RRStaticSolver* solver = new RRStaticSolver(object,NULL);
 
 	// Print illumination levels for first time, should be 0.00, 0.50
 	// First triangle is completely dark, while second one emits light.
 	printf("Before calculation:");
-	printIllumination(scene);
+	printIllumination(solver);
 	
 	// perform 0.1sec of calculations
 	clock_t timeOfEnd = clock()+CLK_TCK/10;
-	scene->illuminationImprove(endAtTime,&timeOfEnd);
+	solver->illuminationImprove(endAtTime,&timeOfEnd);
 
 	// Print illumination levels for second time, should be approximately 0.06, 0.51
 	// First triangle is lit by second triangle (increase by 0.06).
 	// Second triangle is slightly lit by its own light reflected by first triangle (increase by 0.02).
 	printf("After calculation:");
-	printIllumination(scene);
+	printIllumination(solver);
 	printf("\nPress enter to end...");
 	fgetc(stdin);
 
 	// cleanup
-	delete scene;
+	delete solver;
 	delete object;
 	delete collider;
 	delete mesh;

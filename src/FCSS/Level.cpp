@@ -28,7 +28,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	solver->setEnvironment(skyMap);
-	rr::RRScene::SmoothingParameters sp;
+	rr::RRStaticSolver::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
 	sp.stitchDistance = 0; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
 #ifdef THREE_ONE

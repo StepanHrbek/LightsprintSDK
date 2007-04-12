@@ -88,10 +88,10 @@ const RRRealtimeRadiosity::Lights& RRRealtimeRadiosity::getLights() const
 	return lights;
 }
 
-void RRRealtimeRadiosity::setObjects(Objects& aobjects, const RRScene::SmoothingParameters* asmoothing)
+void RRRealtimeRadiosity::setObjects(Objects& aobjects, const RRStaticSolver::SmoothingParameters* asmoothing)
 {
 	objects = aobjects;
-	smoothing = asmoothing ? *asmoothing : RRScene::SmoothingParameters();
+	smoothing = asmoothing ? *asmoothing : RRStaticSolver::SmoothingParameters();
 	dirtyGeometry = true;
 }
 
@@ -127,7 +127,7 @@ RRObjectWithIllumination* RRRealtimeRadiosity::getMultiObjectPhysicalWithIllumin
 	return multiObjectPhysicalWithIllumination;
 }
 
-const RRScene* RRRealtimeRadiosity::getScene()
+const RRStaticSolver* RRRealtimeRadiosity::getScene()
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return scene;
@@ -169,7 +169,7 @@ static bool endByTime(void *context)
 
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
-RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float improveStep)
+RRStaticSolver::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float improveStep)
 {
 	REPORT_INIT;
 	bool dirtyFactors = false;
@@ -210,7 +210,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		multiObjectPhysicalWithIllumination = multiObjectPhysical ? multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
 			(multiObjectCustom ? multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
 		delete[] importers;
-		scene = multiObjectPhysicalWithIllumination ? new RRScene(multiObjectPhysicalWithIllumination,&smoothing) : NULL;
+		scene = multiObjectPhysicalWithIllumination ? new RRStaticSolver(multiObjectPhysicalWithIllumination,&smoothing) : NULL;
 		if(scene) updateVertexLookupTable();
 		REPORT_END;
 	}
@@ -245,7 +245,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 	if(dirtyLights!=NO_CHANGE)
 	{
 		// exit in response to unsuccessful detectDirectIllumination
-		return RRScene::NOT_IMPROVED;
+		return RRStaticSolver::NOT_IMPROVED;
 	}
 	if(dirtyEnergies!=NO_CHANGE)
 	{
@@ -265,18 +265,18 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 	REPORT_BEGIN("Calculating.");
 	TIME now = GETTIME;
 	TIME end = (TIME)(now+improveStep*PER_SEC);
-	RRScene::Improvement improvement = scene ? scene->illuminationImprove(endByTime,(void*)&end) : RRScene::FINISHED;
+	RRStaticSolver::Improvement improvement = scene ? scene->illuminationImprove(endByTime,(void*)&end) : RRStaticSolver::FINISHED;
 	//REPORT(RRReporter::report(RRReporter::CONT," (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 	REPORT_END;
 	switch(improvement)
 	{
-		case RRScene::IMPROVED:
+		case RRStaticSolver::IMPROVED:
 			dirtyResults = true;
 			break;
-		case RRScene::NOT_IMPROVED:
+		case RRStaticSolver::NOT_IMPROVED:
 			break;
-		case RRScene::FINISHED:
-		case RRScene::INTERNAL_ERROR:
+		case RRStaticSolver::FINISHED:
+		case RRStaticSolver::INTERNAL_ERROR:
 			if(!dirtyResults) return improvement;
 			break;
 	}
@@ -292,13 +292,13 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		if(requests&(AUTO_UPDATE_VERTEX_BUFFERS|FORCE_UPDATE_VERTEX_BUFFERS)) readVertexResults();
 		if(requests&(AUTO_UPDATE_PIXEL_BUFFERS|FORCE_UPDATE_PIXEL_BUFFERS)) readPixelResults();
 		REPORT_END;
-		return RRScene::IMPROVED;
+		return RRStaticSolver::IMPROVED;
 	}
-	return RRScene::NOT_IMPROVED;
+	return RRStaticSolver::NOT_IMPROVED;
 }
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
-RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
+RRStaticSolver::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 {
 	TIME calcBeginTime = GETTIME;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
@@ -348,7 +348,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
 	}
 
 	// calculate
-	RRScene::Improvement result = calculateCore(requests,improveStep);
+	RRStaticSolver::Improvement result = calculateCore(requests,improveStep);
 
 	// adjust calcStep
 	lastCalcEndTime = GETTIME;

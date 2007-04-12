@@ -21,7 +21,7 @@ struct RenderSubtriangleContext
 	RRMesh::TriangleMapping triangleMapping;
 };
 
-void renderSubtriangle(const RRScene::SubtriangleIllumination& si, void* context)
+void renderSubtriangle(const RRStaticSolver::SubtriangleIllumination& si, void* context)
 {
 	RenderSubtriangleContext* context2 = (RenderSubtriangleContext*)context;
 	RRIlluminationPixelBuffer::IlluminatedTriangle si2;

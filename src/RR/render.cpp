@@ -111,7 +111,7 @@ real getBrightness(Channels rad)
 }
 #endif
 
-void drawEngine(rr::RRScene* scene, unsigned t, Triangle *f)
+void drawEngine(rr::RRStaticSolver* scene, unsigned t, Triangle *f)
 {
 	Point3 v[3];
 	real brightness[3];
@@ -348,7 +348,7 @@ bool expmatch(char *str,char *exp)
 
 // obecna fce na kresleni trianglu, pouzije tu metodu ktera je zrovna podporovana
 
-void inline draw_triangle(rr::RRScene* scene, unsigned t, Triangle *f)
+void inline draw_triangle(rr::RRStaticSolver* scene, unsigned t, Triangle *f)
 {
 	if(!f->surface) return;
 #ifdef TEST_SCENE
@@ -370,7 +370,7 @@ void inline draw_triangle(rr::RRScene* scene, unsigned t, Triangle *f)
 #endif
 }
 
-void render_object(rr::RRScene* scene, Object* obj, MATRIX& im)
+void render_object(rr::RRStaticSolver* scene, Object* obj, MATRIX& im)
 {
 	for (unsigned j=0;j<obj->triangles;j++) if(obj->triangle[j].isValid){
 		Normal n=obj->triangle[j].getN3();
@@ -382,14 +382,14 @@ void render_object(rr::RRScene* scene, Object* obj, MATRIX& im)
 	}
 }
 
-void render_world(WORLD *w, rr::RRScene* scene, int camera_id, bool mirrorFrame)
+void render_world(WORLD *w, rr::RRStaticSolver* scene, int camera_id, bool mirrorFrame)
 {
 	MATRIX cm,im,om;
 
 	for (int i=0;i<w->object_num;i++) {
 
 		OBJECT *o=&w->object[i];
-		Scene* tmp = *(Scene**)scene; // pozor, predpokladame ze prvni polozka v RRScene je pointer na Scene
+		Scene* tmp = *(Scene**)scene; // pozor, predpokladame ze prvni polozka v RRStaticSolver je pointer na Scene
 		Object *obj=tmp->object;
 		assert(obj);
 

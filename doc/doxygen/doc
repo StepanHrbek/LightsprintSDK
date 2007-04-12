@@ -1278,9 +1278,9 @@ Integration of global illumination (GI) solver into your project is described in
    - Not demonstrated in samples yet.
 
  \section d44 Query
-   - Call RRScene::getTriangleMeasure with vertex=0,1,2 for triangle vertices
-   - Call RRScene::getTriangleMeasure with vertex>2 for whole triangle area
-   - Call RRScene::getSubtriangleMeasure for adaptively subdivided triangles
+   - Call RRStaticSolver::getTriangleMeasure with vertex=0,1,2 for triangle vertices
+   - Call RRStaticSolver::getTriangleMeasure with vertex>2 for whole triangle area
+   - Call RRStaticSolver::getSubtriangleMeasure for adaptively subdivided triangles
    - Reading illumination level from triangle is slightly faster than reading
      it from vertex, but both are very fast.
 
@@ -1407,7 +1407,7 @@ Integration of global illumination (GI) solver into your project is described in
    \n\n
    RRMesh and RRCollider support all scaled objects: positively or negatively, uniformly or non-uniformly scaled.
    \n\n
-   RRObject, RRScene and RRRealtimeRadiosity support typical scaled objects:
+   RRObject, RRStaticSolver and RRRealtimeRadiosity support typical scaled objects:
    positively or negatively, uniformly scaled.
    \n Negative scale is supported with both possible interpretations
    for singlesided faces:
@@ -1545,17 +1545,17 @@ Integration of global illumination (GI) solver into your project is described in
 
  - calculates global illumination in static scene
  - progressive refinement with permanent access to results (you can start calculation and read results 1ms later, you will get raw approximation)
- - calculated illumination is available in vertices
+ - calculated illumination is available in vertices, including adaptively created subvertices
  - communicates in physical or custom units (W/m^2 or e.g. screen colors)
  - display independent, purely numerical API
  - you can ask Vision about individual triangles, even adaptively subdivided;
    for complete vertex buffers or lightmaps, see RealtimeRadiosity library
 
  Sample HelloVision shows you the most simple use case:
- -# Create RRScene.
- -# Create RRObject using your object and insert it into scene. Repeat for all objects.
- -# Calculate global illumination using RRScene::illuminationImprove().
- -# Read results using RRScene::getTriangleMeasure().
+ -# Create RRObject that contains whole static scene.
+ -# Create RRStaticSolver from object.
+ -# Calculate global illumination using RRStaticSolver::illuminationImprove().
+ -# Read results using RRStaticSolver::getTriangleMeasure().
 
  For integration with renderer, you may want to use some techniques from higher-level
  library Realtime Radiosity.

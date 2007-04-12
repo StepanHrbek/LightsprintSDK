@@ -106,10 +106,10 @@ Triangle* Object::intersection(RRRay& ray, const Point3& eye, const Vec3& direct
 #include <memory.h>
 #define LOG_RAY(aeye,adir,adist,hit) { \
 	STATISTIC( \
-	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].point[0]=aeye; \
-	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
-	RRScene::getSceneStatistics()->lineSegments[RRScene::getSceneStatistics()->numLineSegments].infinite=!hit; \
-	++RRScene::getSceneStatistics()->numLineSegments%=RRScene::getSceneStatistics()->MAX_LINES; ) }
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[0]=aeye; \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=!hit; \
+	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; ) }
 
 // return first intersection with "scene minus *skip"
 //  const inputs in ray: rayLengthMin, rayLengthMax, rayFlags

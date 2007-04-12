@@ -77,7 +77,7 @@ RRSideBits sideBits[3][2]={
 };
 */
 
-RRScene::~RRScene()
+RRStaticSolver::~RRStaticSolver()
 {
 	delete scene;
 }
@@ -111,7 +111,7 @@ RRScene::~RRScene()
 // c) zkontrolovat na zacatku a pak duverovat
 //    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRMaterial::validate();
    
-RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
+RRStaticSolver::RRStaticSolver(RRObject* importer, const SmoothingParameters* smoothing)
 {
 	scene=new Scene();
 	RR_ASSERT(importer);
@@ -199,7 +199,7 @@ RRScene::RRScene(RRObject* importer, const SmoothingParameters* smoothing)
 //
 // calculate radiosity
 
-RRScene::Improvement RRScene::illuminationReset(bool resetFactors, bool resetPropagation)
+RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors, bool resetPropagation)
 {
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
@@ -207,14 +207,14 @@ RRScene::Improvement RRScene::illuminationReset(bool resetFactors, bool resetPro
 	return scene->resetStaticIllumination(resetFactors,resetPropagation);
 }
 
-RRScene::Improvement RRScene::illuminationImprove(bool endfunc(void*), void* context)
+RRStaticSolver::Improvement RRStaticSolver::illuminationImprove(bool endfunc(void*), void* context)
 {
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
 	return scene->improveStatic(endfunc, context);
 }
 
-RRReal RRScene::illuminationAccuracy()
+RRReal RRStaticSolver::illuminationAccuracy()
 {
 	return scene->avgAccuracy()/100;
 }
@@ -224,7 +224,7 @@ RRReal RRScene::illuminationAccuracy()
 //
 // read results
 
-bool RRScene::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const
+bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const
 {
 	Channels irrad;
 	Object* obj;
@@ -356,14 +356,14 @@ struct SubtriangleIlluminationContext
 	SubtriangleIlluminationContext(RRRadiometricMeasure ameasure) : measure(ameasure) {};
 	RRRadiometricMeasure                   measure;
 	const RRScaler*                        scaler;
-	RRScene::SubtriangleIlluminationEater* clientCallback;
+	RRStaticSolver::SubtriangleIlluminationEater* clientCallback;
 	void*                                  clientContext;
 };
 
 void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatambient, RRReal subarea, void* context)
 {
 	SubtriangleIlluminationContext* context2 = (SubtriangleIlluminationContext*)context;
-	RRScene::SubtriangleIllumination si;
+	RRStaticSolver::SubtriangleIllumination si;
 	for(unsigned i=0;i<3;i++)
 	{
 		//!!! je zde chyba ktera se projevi jen pri nekterych typech subdivision
@@ -426,7 +426,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 	context2->clientCallback(si,context2->clientContext);
 }
 
-unsigned RRScene::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context) const
+unsigned RRStaticSolver::getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context) const
 {
 	Object* obj;
 	Triangle* tri;

@@ -20,7 +20,7 @@ namespace rr_gl
 //
 // RendererOfRRObject
 
-RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRScene* radiositySolver, const rr::RRScaler* scaler, bool useBuffers)
+RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRStaticSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers)
 {
 	params.object = objectImporter;
 	params.scene = radiositySolver;

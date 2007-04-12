@@ -17,7 +17,7 @@ public:
 		face = 0;
 		for(unsigned i=0;i<4;i++) col[i]=rand();
 	}
-	void tick(float seconds, const RRScene* scene, const RRObject* object, RRRay* ray, float avgFaceArea)
+	void tick(float seconds, const RRStaticSolver* scene, const RRObject* object, RRRay* ray, float avgFaceArea)
 	{
 		//if(face!=UINT_MAX)
 		{
@@ -74,7 +74,7 @@ private:
 class MyBugs : public Bugs
 {
 public:
-	MyBugs(const RRScene* ascene, const RRObject* aobject, unsigned anumBugs)
+	MyBugs(const RRStaticSolver* ascene, const RRObject* aobject, unsigned anumBugs)
 	{
 		scene = ascene;
 		object = aobject;
@@ -149,14 +149,14 @@ private:
 	enum {bugMaps=2};
 	unsigned numBugs;
 	Bug* bugs;
-	const rr::RRScene* scene;
+	const rr::RRStaticSolver* scene;
 	const rr::RRObject* object;
 	rr::RRRay* ray;
 	de::Texture* bugMap[2];
 	float avgFaceArea;
 };
 
-Bugs* Bugs::create(const rr::RRScene* ascene, const rr::RRObject* aobject, unsigned anumBugs)
+Bugs* Bugs::create(const rr::RRStaticSolver* ascene, const rr::RRObject* aobject, unsigned anumBugs)
 {
 	return new MyBugs(ascene,aobject,anumBugs);
 }

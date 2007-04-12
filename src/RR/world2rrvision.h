@@ -4,6 +4,6 @@
 #include "World.h"
 #include "Lightsprint/RRVision.h"
 
-rr::RRScene *convert_world2scene(WORLD *w, char *material_mgf, rr::RRCollider::IntersectTechnique intersectTechnique);
+rr::RRStaticSolver *convert_world2scene(WORLD *w, char *material_mgf, rr::RRCollider::IntersectTechnique intersectTechnique);
 
 #endif

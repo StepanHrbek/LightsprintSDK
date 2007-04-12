@@ -46,7 +46,7 @@
 #include "interpol.h"
 
 #define STATISTIC(a)
-#define STATISTIC_INC(a) STATISTIC(RRScene::getSceneStatistics()->a++)
+#define STATISTIC_INC(a) STATISTIC(RRStaticSolver::getSceneStatistics()->a++)
 
 namespace rr
 {
@@ -685,8 +685,8 @@ public:
 	void    objInsertStatic(Object *aobject);
 
 
-	RRScene::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation);
-	RRScene::Improvement improveStatic(bool endfunc(void*), void* context);
+	RRStaticSolver::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation);
+	RRStaticSolver::Improvement improveStatic(bool endfunc(void*), void* context);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
@@ -713,7 +713,7 @@ public:
 		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
 	public:
 #endif // SUPPORT_SUBDIVISION_FILES
-	void    draw(RRScene* scene, real quality);
+	void    draw(RRStaticSolver* scene, real quality);
 	void    updateMatrices();
 
 

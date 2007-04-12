@@ -214,7 +214,7 @@ namespace rr
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
-		void setObjects(Objects& objects, const RRScene::SmoothingParameters* smoothing);
+		void setObjects(Objects& objects, const RRStaticSolver::SmoothingParameters* smoothing);
 
 		//! Returns number of static objects in scene.
 		unsigned getNumObjects() const;
@@ -270,7 +270,7 @@ namespace rr
 		//! \return
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
-		RRScene::Improvement calculate(unsigned updateRequests=AUTO_UPDATE_VERTEX_BUFFERS);
+		RRStaticSolver::Improvement calculate(unsigned updateRequests=AUTO_UPDATE_VERTEX_BUFFERS);
 
 		//! Parameters for updateLightmap() and updateLightmaps().
 		struct UpdateLightmapParameters
@@ -470,7 +470,7 @@ namespace rr
 		//
 		//! Scene is created from getMultiObjectPhysicalWithIllumination()
 		//! when you insert objects and call calculate().
-		const RRScene* getScene();
+		const RRStaticSolver* getScene();
 
 	protected:
 		//! Autodetects material properties of all materials present in scene.
@@ -570,7 +570,7 @@ namespace rr
 		Objects    objects;
 		const RRIlluminationEnvironmentMap* environment;
 		Lights     lights;
-		RRScene::SmoothingParameters smoothing;
+		RRStaticSolver::SmoothingParameters smoothing;
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;
 		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
@@ -585,8 +585,8 @@ namespace rr
 		RRObject*  multiObjectCustom;
 		RRObjectWithPhysicalMaterials* multiObjectPhysical;
 		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
-		RRScene*   scene;
-		RRScene::Improvement calculateCore(unsigned requests, float improveStep);
+		RRStaticSolver*   scene;
+		RRStaticSolver::Improvement calculateCore(unsigned requests, float improveStep);
 		// read results
 		RRScaler*  scaler;
 		void       updateVertexLookupTable();

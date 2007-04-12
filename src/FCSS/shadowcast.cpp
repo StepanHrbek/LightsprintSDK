@@ -1170,7 +1170,7 @@ void display()
 
 	glutSwapBuffers();
 
-	//printf("cache: hits=%d misses=%d",rr::RRScene::getSceneStatistics()->numIrradianceCacheHits,rr::RRScene::getSceneStatistics()->numIrradianceCacheMisses);
+	//printf("cache: hits=%d misses=%d",rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheHits,rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheMisses);
 
 	// fallback to hard shadows if fps<30
 	static int framesDisplayed = 0;
@@ -2025,7 +2025,7 @@ void idle()
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
 	if(!level || (rrOn && level->solver->calculate(rr::RRRealtimeRadiosity::AUTO_UPDATE_VERTEX_BUFFERS
 		//+(renderLightmaps?rr::RRRealtimeRadiosity::AUTO_UPDATE_PIXEL_BUFFERS:0)
-		)==rr::RRScene::IMPROVED) || needRedisplay || gameOn)
+		)==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
 //		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache

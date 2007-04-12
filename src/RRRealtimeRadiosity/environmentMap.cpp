@@ -144,7 +144,7 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 // gather
 
 // thread safe: yes
-static void cubeMapGather(const RRScene* scene, const RRObject* object, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
+static void cubeMapGather(const RRStaticSolver* scene, const RRObject* object, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
 {
 	if(!scene)
 	{
