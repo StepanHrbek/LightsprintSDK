@@ -9,7 +9,7 @@ CPPFLAGS += -fomit-frame-pointer
 CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
 
-OBJS = ObjectBuffers.o RendererOfRRObject.o RRGPUOpenGL.o RRIlluminationEnvironmentMapInOpenGL.o RRIlluminationPixelBufferInOpenGL.o
+OBJS = ObjectBuffers.o RendererOfRRObject.o RRDynamicSolverGL.o RRIlluminationEnvironmentMapInOpenGL.o RRIlluminationPixelBufferInOpenGL.o
 
 all: makefile $(LIB)
 

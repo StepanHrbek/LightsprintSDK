@@ -403,7 +403,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\RRGPUOpenGL.cpp"
+			RelativePath=".\RRDynamicSolverGL.cpp"
 			>
 		</File>
 		<File

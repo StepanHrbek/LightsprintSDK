@@ -9,7 +9,7 @@ CPPFLAGS += -fomit-frame-pointer
 CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
 
-OBJS = $(TMP)environmentMap.o $(TMP)Interpolator.o $(TMP)lightmap.o $(TMP)RRLight.o $(TMP)RRRealtimeRadiosity.o $(TMP)vertexBuffer.o
+OBJS = $(TMP)environmentMap.o $(TMP)Interpolator.o $(TMP)lightmap.o $(TMP)RRLight.o $(TMP)RRDynamicSolver.o $(TMP)vertexBuffer.o
 
 all: makefile $(LIB)
 
