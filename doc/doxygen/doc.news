@@ -12,6 +12,10 @@ NEWS
 
 - RRScene is thread safe, so multiple scenes may run in parallel
 
+CHANGES
+
+- interface of adapters cleaned up
+
 \section news14 ------------------------------------ 2007.3.20 -------------------------------------
 
 NEWS

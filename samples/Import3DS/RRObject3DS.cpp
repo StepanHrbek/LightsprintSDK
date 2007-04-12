@@ -407,31 +407,36 @@ const rr::RRMatrix3x4* RRObject3DS::getInvWorldMatrix()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// main
+// ObjectsFrom3DS
 
-void insert3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
+class ObjectsFrom3DS : public rr::RRRealtimeRadiosity::Objects
 {
-	if(app)
+public:
+	ObjectsFrom3DS(de::Model_3DS* model)
 	{
-		rr::RRRealtimeRadiosity::Objects objects;
 		for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
 			RRObject3DS* object = new RRObject3DS(model,i);
-			objects.push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
+			push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
 		}
-		app->setObjects(objects,smoothing);
 	}
-}
-
-void delete3dsFromRR(rr::RRRealtimeRadiosity* app)
-{
-	if(app)
+	virtual ~ObjectsFrom3DS()
 	{
-		for(unsigned i=0;i<app->getNumObjects();i++)
+		for(unsigned i=0;i<size();i++)
 		{
 			// no need to delete illumination separately, we created it as part of object
-			//delete app->getIllumination(i);
-			delete app->getObject(i);
+			//delete (*this)[i].illumination;
+			delete (*this)[i].object;
 		}
 	}
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// main
+
+rr::RRRealtimeRadiosity::Objects* adaptObjectsFrom3DS(de::Model_3DS* model)
+{
+	return new ObjectsFrom3DS(model);
 }

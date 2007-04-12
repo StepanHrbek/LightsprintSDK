@@ -106,7 +106,7 @@ RRObject* RRRealtimeRadiosity::getObject(unsigned i)
 	//if(dirtyGeometry) return NULL;
 
 	if(i>=objects.size()) return NULL;
-	return objects.at(i).first;
+	return objects.at(i).object;
 }
 
 RRObject* RRRealtimeRadiosity::getMultiObjectCustom()
@@ -139,7 +139,7 @@ RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
 	//if(dirtyGeometry) return NULL;
 
 	if(i>=objects.size()) return NULL;
-	return objects.at(i).second;
+	return objects.at(i).illumination;
 }
 
 
@@ -200,7 +200,7 @@ RRScene::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float
 		RRObject** importers = new RRObject*[objects.size()];
 		for(unsigned i=0;i<(unsigned)objects.size();i++)
 		{
-			importers[i] = objects.at(i).first;
+			importers[i] = objects.at(i).object;
 		}
 		// create multi in custom scale
 		multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)objects.size(),smoothing.intersectTechnique,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);

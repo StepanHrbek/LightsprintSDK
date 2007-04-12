@@ -191,9 +191,18 @@ namespace rr
 
 
 		//! One static 3d object with storage space for calculated illumination.
-		typedef std::pair<RRObject*,RRObjectIllumination*> Object;
+		struct Object
+		{
+			RRObject* object;
+			RRObjectIllumination* illumination;
+			Object(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
+		};
 		//! Container for all static objects present in scene.
-		typedef std::vector<Object> Objects;
+		class Objects : public std::vector<Object>
+		{
+		public:
+			virtual ~Objects() {};
+		};
 		//! Sets static contents of scene, all objects at once.
 		//
 		//! Order of objects passed in first parameter is used for object numbering,

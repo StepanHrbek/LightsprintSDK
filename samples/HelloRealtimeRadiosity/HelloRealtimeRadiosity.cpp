@@ -217,11 +217,6 @@ public:
 	Solver() : RRRealtimeRadiosityGL("../../data/shaders/")
 	{
 	}
-	virtual ~Solver()
-	{
-		// delete objects and illumination
-		delete3dsFromRR(this);
-	}
 protected:
 #ifdef AMBIENT_MAPS
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
@@ -588,7 +583,7 @@ int main(int argc, char **argv)
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
-	insert3dsToRR(&m3ds,solver,NULL);
+	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 	solver->calculate();
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);

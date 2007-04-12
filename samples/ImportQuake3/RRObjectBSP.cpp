@@ -427,28 +427,30 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t) const
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// ObjectsFromTMapQ3
+
+class ObjectsFromTMapQ3 : public rr::RRRealtimeRadiosity::Objects
+{
+public:
+	ObjectsFromTMapQ3(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture)
+	{
+		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,missingTexture);
+		push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
+	}
+	virtual ~ObjectsFromTMapQ3()
+	{
+		// no need to delete illumination separately, we created it as part of object
+		//delete (*this)[0].illumination;
+		delete (*this)[0].object;
+	}
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // main
 
-void insertBspToRR(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture,rr::RRRealtimeRadiosity* app,const rr::RRScene::SmoothingParameters* smoothing)
+rr::RRRealtimeRadiosity::Objects* adaptObjectsFromTMapQ3(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture)
 {
-	if(app)
-	{
-		rr::RRRealtimeRadiosity::Objects objects;
-		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,missingTexture);
-		objects.push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
-		app->setObjects(objects,smoothing);
-	}
-}
-
-void deleteBspFromRR(rr::RRRealtimeRadiosity* app)
-{
-	if(app)
-	{
-		for(unsigned i=0;i<app->getNumObjects();i++)
-		{
-			// no need to delete illumination separately, we created it as part of object
-			//delete app->getIllumination(i);
-			delete app->getObject(i);
-		}
-	}
+	return new ObjectsFromTMapQ3(model,pathToTextures,missingTexture);
 }

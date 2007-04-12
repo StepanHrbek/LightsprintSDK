@@ -19,9 +19,9 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 #endif
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
+	objects = NULL;
 #ifdef SUPPORT_COLLADA
 	collada = NULL;
-	colladaToRR = NULL;
 #endif
 	// init radiosity solver
 	solver = createSolver();
@@ -72,7 +72,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
 			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
 			//de::Texture::load("maps/missing.jpg",NULL);
-			insertBspToRR(&bsp,maps,NULL,solver,&sp);
+			objects = adaptObjectsFromTMapQ3(&bsp,maps,NULL);
 			free(maps);
 			break;
 		}
@@ -84,7 +84,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			if(!m3ds.Load(pilot.setup->filename,pilot.setup->scale))
 				error("",false);
 			rr::RRReporter::report(rr::RRReporter::CONT,"\n");
-			insert3dsToRR(&m3ds,solver,&sp);
+			objects = adaptObjectsFrom3DS(&m3ds);
 			break;
 		}
 #endif
@@ -103,7 +103,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			}
 			else
 			{
-				colladaToRR = new ColladaToRealtimeRadiosity(collada,solver,&sp);
+				objects = adaptObjectsFromFCollada(collada);
 			}
 			break;
 		}
@@ -111,6 +111,8 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 		default:
 			puts("Unsupported scene format.");
 	}
+
+	solver->setObjects(*objects,&sp);
 
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
@@ -164,18 +166,15 @@ Level::~Level()
 	{
 #ifdef SUPPORT_BSP
 		case TYPE_BSP:
-			deleteBspFromRR(solver);
 			freeMap(bsp);
 			break;
 #endif
 #ifdef SUPPORT_3DS
 		case TYPE_3DS:
-			delete3dsFromRR(solver);
 			break;
 #endif
 #ifdef SUPPORT_COLLADA
 		case TYPE_DAE:
-			delete colladaToRR;
 			delete collada;
 			break;
 #endif
@@ -189,5 +188,6 @@ Level::~Level()
 	delete rendererNonCaching;
 	delete solver->getScaler();
 	delete solver;
+	delete objects;
 }
 

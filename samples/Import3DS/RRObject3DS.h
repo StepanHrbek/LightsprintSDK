@@ -9,10 +9,7 @@
 #include "Lightsprint/RRRealtimeRadiosity.h"
 #include "Lightsprint/DemoEngine/Model_3DS.h"
 
-//! Imports all 3d objects from model into RRRealtimeRadiosity.
-void insert3dsToRR(de::Model_3DS* model,rr::RRRealtimeRadiosity* app, const rr::RRScene::SmoothingParameters* smoothing);
-
-//! Deletes objects previously inserted by insert3dsToRR().
-void delete3dsFromRR(rr::RRRealtimeRadiosity* app);
+//! Creates Lightsprint interface for 3DS scene.
+rr::RRRealtimeRadiosity::Objects* adaptObjectsFrom3DS(de::Model_3DS* model);
 
 #endif

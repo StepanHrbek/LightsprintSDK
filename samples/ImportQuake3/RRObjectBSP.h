@@ -10,10 +10,7 @@
 #include "Q3Loader.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 
-//! Imports all 3d objects from model into RRRealtimeRadiosity.
-void insertBspToRR(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture,rr::RRRealtimeRadiosity* app, const rr::RRScene::SmoothingParameters* smoothing);
-
-//! Deletes objects previously inserted by insert3dsToRR().
-void deleteBspFromRR(rr::RRRealtimeRadiosity* app);
+//! Creates Lightsprint interface for Quake3 scene.
+rr::RRRealtimeRadiosity::Objects* adaptObjectsFromTMapQ3(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture);
 
 #endif

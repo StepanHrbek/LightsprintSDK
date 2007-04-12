@@ -659,28 +659,22 @@ RRObjectCollada::~RRObjectCollada()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ColladaToRealtimeRadiosityImpl
+// ObjectsFromFCollada
 
-class ColladaToRealtimeRadiosityImpl
+class ObjectsFromFCollada : public rr::RRRealtimeRadiosity::Objects
 {
 public:
-	//! Imports FCollada scene contents to RRRealtimeRadiosity solver.
-	ColladaToRealtimeRadiosityImpl(FCDocument* document,RRRealtimeRadiosity* solver,const RRScene::SmoothingParameters* smoothing);
-
-	//! Removes FCollada scene contents from RRRealtimeRadiosity solver.
-	~ColladaToRealtimeRadiosityImpl();
+	ObjectsFromFCollada(FCDocument* document);
+	virtual ~ObjectsFromFCollada();
 
 private:
 	RRCollider*                newColliderCached(const FCDGeometryMesh* mesh);
 	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance);
-	void                       addNode(RRRealtimeRadiosity::Objects& objects, const FCDSceneNode* node);
-
-	// solver filled by our objects, colliders and meshes
-	RRRealtimeRadiosity*       solver;
+	void                       addNode(const FCDSceneNode* node);
 
 	// collider and mesh cache, for instancing
-	// every object is cached exactly once, so scene delete is simple,
-	//  no need for our data in document, no need for reference counting
+	// every object is cached exactly once, so destruction is simple,
+	//  no need for our data injected into document, no need for reference counting
 	typedef std::map<const FCDGeometryMesh*,RRCollider*> Cache;
 	Cache                      cache;
 };
@@ -708,7 +702,7 @@ static RRCollider* newCollider(const FCDGeometryMesh* amesh)
 
 // Creates new RRCollider from FCDGeometryMesh.
 // Caching on, first query creates collider, second query reads it from cache.
-RRCollider* ColladaToRealtimeRadiosityImpl::newColliderCached(const FCDGeometryMesh* mesh)
+RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* mesh)
 {
 	if(!mesh)
 	{
@@ -728,7 +722,7 @@ RRCollider* ColladaToRealtimeRadiosityImpl::newColliderCached(const FCDGeometryM
 
 // Creates new RRObject from FCDEntityInstance.
 // Always creates, no caching (only internal caching of colliders).
-RRObjectCollada* ColladaToRealtimeRadiosityImpl::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance)
+RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance)
 {
 	if(!geometryInstance)
 	{
@@ -753,7 +747,7 @@ RRObjectCollada* ColladaToRealtimeRadiosityImpl::newObject(const FCDSceneNode* n
 }
 
 // Adds all instances from node and his subnodes to 'objects'.
-void ColladaToRealtimeRadiosityImpl::addNode(RRRealtimeRadiosity::Objects& objects, const FCDSceneNode* node)
+void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
 {
 	// add instances from node
 	for(size_t i=0;i<node->GetInstanceCount();i++)
@@ -765,7 +759,7 @@ void ColladaToRealtimeRadiosityImpl::addNode(RRRealtimeRadiosity::Objects& objec
 			RRObjectCollada* object = newObject(node,geometryInstance);
 			if(object)
 			{
-				objects.push_back(RRRealtimeRadiosity::Object(object,object->getIllumination()));
+				push_back(RRRealtimeRadiosity::Object(object,object->getIllumination()));
 			}
 		}
 	}
@@ -775,15 +769,15 @@ void ColladaToRealtimeRadiosityImpl::addNode(RRRealtimeRadiosity::Objects& objec
 		const FCDSceneNode* child = node->GetChild(i);
 		if(child)
 		{
-			addNode(objects,child);
+			addNode(child);
 		}
 	}
 }
 
-// Create meshes, colliders, objects and insert them into solver.
-ColladaToRealtimeRadiosityImpl::ColladaToRealtimeRadiosityImpl(FCDocument* document,RRRealtimeRadiosity* asolver,const RRScene::SmoothingParameters* smoothing)
+ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document)
 {
-	solver = asolver;
+	if(!document)
+		return;
 
 	/*/ normalize geometry
 	bool swapYZ = false;
@@ -791,9 +785,9 @@ ColladaToRealtimeRadiosityImpl::ColladaToRealtimeRadiosityImpl(FCDocument* docum
 	FCDAsset* asset = document->GetAsset();
 	if(asset)
 	{
-		scale = asset->GetUnitConversionFactor();
-		FMVector3 up = asset->GetUpAxis();
-		swapYZ = up==FMVector3(0,0,1);
+	scale = asset->GetUnitConversionFactor();
+	FMVector3 up = asset->GetUpAxis();
+	swapYZ = up==FMVector3(0,0,1);
 	}*/
 
 	// triangulate all polygons
@@ -807,26 +801,18 @@ ColladaToRealtimeRadiosityImpl::ColladaToRealtimeRadiosityImpl(FCDocument* docum
 	}
 
 	// import data
-	if(document && solver)
-	{
-		RRRealtimeRadiosity::Objects objects;
-		const FCDSceneNode* root = document->GetVisualSceneRoot();
-		addNode(objects,root);
-		solver->setObjects(objects,smoothing);
-	}
+	const FCDSceneNode* root = document->GetVisualSceneRoot();
+	addNode(root);
 }
 
-ColladaToRealtimeRadiosityImpl::~ColladaToRealtimeRadiosityImpl()
+ObjectsFromFCollada::~ObjectsFromFCollada()
 {
-	// delete objects (stored in solver)
-	if(solver)
+	// delete objects
+	for(unsigned i=0;i<size();i++)
 	{
-		for(unsigned i=0;i<solver->getNumObjects();i++)
-		{
-			// no need to delete illumination separately, we created it as part of object
-			//delete app->getIllumination(i);
-			delete solver->getObject(i);
-		}
+		// no need to delete illumination separately, we created it as part of object
+		//delete (*this)[i].illumination;
+		delete (*this)[i].object;
 	}
 	// delete meshes and colliders (stored in cache)
 	for(Cache::iterator i = cache.begin(); i!=cache.end(); i++)
@@ -840,27 +826,20 @@ ColladaToRealtimeRadiosityImpl::~ColladaToRealtimeRadiosityImpl()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ColladaToRealtimeRadiosity
+// main
 
-ColladaToRealtimeRadiosity::ColladaToRealtimeRadiosity(FCDocument* document,RRRealtimeRadiosity* solver,const RRScene::SmoothingParameters* smoothing)
+rr::RRRealtimeRadiosity::Objects* adaptObjectsFromFCollada(FCDocument* document)
 {
-	impl = new ColladaToRealtimeRadiosityImpl(document,solver,smoothing);
-}
-
-ColladaToRealtimeRadiosity::~ColladaToRealtimeRadiosity()
-{
-	delete impl;
+	return new ObjectsFromFCollada(document);
 }
 
 #else
 
 // stub - for quickly disabled collada support
 #include "RRObjectCollada.h"
-ColladaToRealtimeRadiosity::ColladaToRealtimeRadiosity(class FCDocument* document,rr::RRRealtimeRadiosity* solver,const rr::RRScene::SmoothingParameters* smoothing)
+rr::RRRealtimeRadiosity::Objects* adaptObjectsFromFCollada(class FCDocument* document)
 {
-}
-ColladaToRealtimeRadiosity::~ColladaToRealtimeRadiosity()
-{
+	return NULL;
 }
 
 #endif
