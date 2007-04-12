@@ -334,7 +334,7 @@ void DynamicObjects::updateSceneDynamic(LevelSetup* setup, float seconds, unsign
 	}
 }
 */
-void DynamicObjects::renderSceneDynamic(rr::RRRealtimeRadiosity* solver, de::UberProgram* uberProgram, de::UberProgramSetup uberProgramSetup, de::AreaLight* areaLight, unsigned firstInstance, const de::Texture* lightDirectMap, const float brightness[4], float gamma) const
+void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, de::UberProgram* uberProgram, de::UberProgramSetup uberProgramSetup, de::AreaLight* areaLight, unsigned firstInstance, const de::Texture* lightDirectMap, const float brightness[4], float gamma) const
 {
 	// use object space
 	uberProgramSetup.OBJECT_SPACE = true;

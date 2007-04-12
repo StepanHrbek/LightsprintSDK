@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Imports TMapQ3 into RRRealtimeRadiosity
+// Imports TMapQ3 into RRDynamicSolver
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 

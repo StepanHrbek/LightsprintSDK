@@ -324,11 +324,11 @@ Integration of global illumination (GI) solver into your project is described in
   - <b> \subpage integration_step_6 </b>
   - for dynamic objects, implement RRIlluminationEnvironmentMap
   - for lightmaps, implement RRIlluminationPixelBuffer and reimplement
-    RRRealtimeRadiosity::newPixelBuffer() to return your class
+    RRDynamicSolver::newPixelBuffer() to return your class
   - for other than OpenGL API,
     you may need custom implementation of RRIlluminationVertexBuffer,
     implement it and reimplement
-    RRRealtimeRadiosity::newVertexBuffer() to return your class
+    RRDynamicSolver::newVertexBuffer() to return your class
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -453,7 +453,7 @@ Integration of global illumination (GI) solver into your project is described in
  For import without geometry instancing,
  see samples/Import3DS or samples/ImportQuake3.
  It is everything necessary to load 3ds or Quake3 scene into 
- RRRealtimeRadiosity.
+ RRDynamicSolver.
 
  For sake of simplicity, wrappers duplicate some data in memory
  and don't support geometry instancing.
@@ -497,14 +497,14 @@ Integration of global illumination (GI) solver into your project is described in
     Once you have RRMesh instance, create RRCollider using
     RRCollider::create().
     RRCollider::IT_LINEAR technique with minimal overhead is sufficient 
-    for current version of RRRealtimeRadiosity.
+    for current version of RRDynamicSolver.
     \n\n
     Most convenient way to remember collider for later use is to
     attach it to your triangle mesh.
     You don't need to store pointer to RRMesh,
     it is available from collider using RRCollider::getMesh().
     \n\n
-    RRRealtimeRadiosity may use collider to calculate ray-mesh collisions,
+    RRDynamicSolver may use collider to calculate ray-mesh collisions,
     but it is available also to you via RRCollider::intersect().
     If you plan to use it and its performance is critical, use 
     other technique than RRCollider::IT_LINEAR.
@@ -529,11 +529,11 @@ Integration of global illumination (GI) solver into your project is described in
 
 
 
-\page integration_step_4 Subclass RRRealtimeRadiosity
+\page integration_step_4 Subclass RRDynamicSolver
 
- RRRealtimeRadiosity implements generic realtime global illumination,
+ RRDynamicSolver implements generic realtime global illumination,
  without direct access to your renderer.
- Your task is to subclass RRRealtimeRadiosity and implement
+ Your task is to subclass RRDynamicSolver and implement
  tasks specific for your renderer.
 
  \section step4_gl OpenGL
@@ -543,7 +543,7 @@ Integration of global illumination (GI) solver into your project is described in
  If you plan to use OpenGL renderer (DemoEngine or any other),
  subclass RRRealtimeRadiosityGL and implement only 2 or 3
  missing member functions:
- - RRRealtimeRadiosity::detectMaterials() - it is often empty,
+ - RRDynamicSolver::detectMaterials() - it is often empty,
    because many application never modify materials
  - rr_gl::RRRealtimeRadiosityGL::setupShader() - set shader so that 
    direct light+shadows+emissivity are rendered, but other
@@ -556,7 +556,7 @@ Integration of global illumination (GI) solver into your project is described in
  \section step4_dx Direct3D
 
  If you need global illumination in Direct3D renderer,
- it is possible to subclass directly RRRealtimeRadiosity,
+ it is possible to subclass directly RRDynamicSolver,
  and avoid any dependency on OpenGL.
  The only additional task in this scenario (compared to OpenGL scenario above) is
  described in \ref integration_step_6
@@ -565,39 +565,39 @@ Integration of global illumination (GI) solver into your project is described in
 
 
 
-\page integration_step_5 Use RRRealtimeRadiosity subclass
+\page integration_step_5 Use RRDynamicSolver subclass
 
- RRRealtimeRadiosity class is your primary interface to Lightsprint engine.
+ RRDynamicSolver class is your primary interface to Lightsprint engine.
  To add global illumination to your application,
 
- - Create instance of your RRRealtimeRadiosity subclass.
+ - Create instance of your RRDynamicSolver subclass.
    (why subclass? described in \ref integration_step_4)
 
  - To start calculation,
-   call RRRealtimeRadiosity::setObjects() with set of static objects participating in calculation.
+   call RRDynamicSolver::setObjects() with set of static objects participating in calculation.
    This call is expensive, design your application to avoid
    frequent changes of static scene.
 
- - Call RRRealtimeRadiosity::calculate() often. If main loop of your
-   application contains rendering of one frame, add one call to RRRealtimeRadiosity::calculate().
+ - Call RRDynamicSolver::calculate() often. If main loop of your
+   application contains rendering of one frame, add one call to RRDynamicSolver::calculate().
    If you render scene only when it has changed,
-   still call RRRealtimeRadiosity::calculate() in every iteration of main loop,
+   still call RRDynamicSolver::calculate() in every iteration of main loop,
    but if it returns true, rerender scene.
 
- - Call RRRealtimeRadiosity::reportLightChange() whenever direct illumination changes.
+ - Call RRDynamicSolver::reportDirectIlluminationChange() whenever direct illumination changes.
    It is mainly when light moves or changes properties, but it is also when
    object moves and its shadow changes.
 
- - Call RRRealtimeRadiosity::reportMaterialChange() whenever materials used in scene change.
+ - Call RRDynamicSolver::reportMaterialChange() whenever materials used in scene change.
 
- - Call RRRealtimeRadiosity::reportInteraction whenever user interacts or other reason for
+ - Call RRDynamicSolver::reportInteraction() whenever user interacts or other reason for
    high responsiveness exists. Without reportInteraction calls, solver takes more CPU time
    and FPS decreases.
 
- - Call RRRealtimeRadiosity::getIllumination() 
+ - Call RRDynamicSolver::getIllumination() 
    to acquire static object's indirect illumination, see \ref data_vertex_buffer and \ref data_lightmap.
 
- - Call RRRealtimeRadiosity::updateEnvironmentMaps()
+ - Call RRDynamicSolver::updateEnvironmentMaps()
    to acquire static or dynamic object's indirect illumination, see \ref data_environment_map.
 
  Nearly all of these calls are demonstrated in HelloRealtimeRadiosity sample.
@@ -614,7 +614,7 @@ Integration of global illumination (GI) solver into your project is described in
 
  If you want to use Lightsprint with Direct3D renderer,
  you need to reimplement detection of direct illumination, write
- Your_subclass_of_RRRealtimeRadiosity::detectDirectIllumination().
+ Your_subclass_of_RRDynamicSolver::detectDirectIllumination().
 
  <b>What needs to be detected:</b> average color of each face;
  how does it look lit by your direct (not ambient) point, spot and directional lights
@@ -771,24 +771,24 @@ Integration of global illumination (GI) solver into your project is described in
    - implementations: Platform independent vertex buffer is provided by 
      RRIlluminationVertexBuffer::createInSystemMemory().
      However, you are free to implement your own vertex buffer, see RRIlluminationVertexBuffer interface.
-   - RRRealtimeRadiosity::newVertexBuffer uses
+   - RRDynamicSolver::newVertexBuffer() uses
      RRIlluminationVertexBuffer::createInSystemMemory by default.
 
  \section d14 Data container instances
-   - stored in: RRRealtimeRadiosity::getIllumination()->getChannel(0)->vertexBuffer
+   - stored in: RRDynamicSolver::getIllumination()->getChannel(0)->vertexBuffer
    - created by: You may manually create an instance and write it to
-     RRRealtimeRadiosity::getIllumination()->getChannel(0)->vertexBuffer,
+     RRDynamicSolver::getIllumination()->getChannel(0)->vertexBuffer,
      but you don't have to.
-     When RRRealtimeRadiosity::calculate() calculates first illumination data
+     When RRDynamicSolver::calculate() calculates first illumination data
      and when it is requested to store them into vertex buffer,
-     it checks whether RRRealtimeRadiosity::getIllumination()->getChannel(0)->vertexBuffer exists.
-     If it doesn't, RRRealtimeRadiosity::newVertexBuffer() is called to create it.
-     Default RRRealtimeRadiosity::newVertexBuffer() creates vertex buffer in system memory,
+     it checks whether RRDynamicSolver::getIllumination()->getChannel(0)->vertexBuffer exists.
+     If it doesn't, RRDynamicSolver::newVertexBuffer() is called to create it.
+     Default RRDynamicSolver::newVertexBuffer() creates vertex buffer in system memory,
      plain array. It is platform independent and perfectly sufficient for OpenGL
      (glColorPointer accepts plain pointer to vertex color array in system memory).
      For other API, you may need different implementation, provide it by reimplementing
-     RRRealtimeRadiosity::newVertexBuffer() to return your class.
-   - updated by: RRRealtimeRadiosity::calculate() when new data are calculated
+     RRDynamicSolver::newVertexBuffer() to return your class.
+   - updated by: RRDynamicSolver::calculate() when new data are calculated
 
  \section d16 Rendering with
    - Stream data from vertex buffer into vertex shader, interpret them
@@ -798,13 +798,13 @@ Integration of global illumination (GI) solver into your project is described in
    - OpenGL example:
      \n Rendering with per vertex ambient.
      \code
-	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	rr::RRDynamicSolver* dynamicSolver;
 	GLuint program;
 	...
 	// set program created from shaders below
 	glUseProgram(program);
 	// get vertex buffer with indirect illumination
-	rr::RRIlluminationVertexBuffer* vertexBuffer = realtimeRadiosity->
+	rr::RRIlluminationVertexBuffer* vertexBuffer = dynamicSolver->
 		getIllumination(numberOfObject)->getChannel(0)->vertexBuffer;
 	// enable stream with color values
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -846,7 +846,7 @@ Integration of global illumination (GI) solver into your project is described in
 	device->CreateVertexDeclaration(description, &vertexDeclaration);
 	...
 	// create d3d vertex buffer and fill it with vertexBuffer->lock() data
-	rr::RRIlluminationVertexBuffer* vertexBuffer = realtimeRadiosity->
+	rr::RRIlluminationVertexBuffer* vertexBuffer = dynamicSolver->
 		getIllumination(numberOfObject)->getChannel(0)->vertexBuffer;
 	IDirect3DVertexBuffer9* d3dBuffer = ...;
 	// to prevent data duplication and copying, implement RRIlluminationVertexBuffer
@@ -926,23 +926,23 @@ Integration of global illumination (GI) solver into your project is described in
 
  \section d24 Data container instances
    - stored in: your arbitrary location
-     or RRRealtimeRadiosity::getIllumination()->getChannel()->pixelBuffer
-   - created by: You or RRRealtimeRadiosity::newPixelBuffer().
+     or RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer
+   - created by: You or RRDynamicSolver::newPixelBuffer().
      \n You may create pixel buffers manually at any time (and store them
      into your arbitrary location or into 
-     RRRealtimeRadiosity::getIllumination()->getChannel()->pixelBuffer),
+     RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer),
      but you don't have to.
-     \n When you request RRRealtimeRadiosity::calculate() or 
-     RRRealtimeRadiosity::updateLightmaps() to update pixel buffers
-     and RRRealtimeRadiosity::getIllumination()->getChannel()->pixelBuffer
-     doesn't exist yet, RRRealtimeRadiosity::newPixelBuffer() is called to create it.
-     Default RRRealtimeRadiosity::newPixelBuffer() returns NULL,
+     \n When you request RRDynamicSolver::calculate() or 
+     RRDynamicSolver::updateLightmaps() to update pixel buffers
+     and RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer
+     doesn't exist yet, RRDynamicSolver::newPixelBuffer() is called to create it.
+     Default RRDynamicSolver::newPixelBuffer() returns NULL,
      so no pixel data are created and stored.
-     You may reimplement RRRealtimeRadiosity::newPixelBuffer() to
+     You may reimplement RRDynamicSolver::newPixelBuffer() to
      return valid instances.
-   - updated by: RRRealtimeRadiosity::updateLightmap()
-     or RRRealtimeRadiosity::updateLightmaps()
-     or RRRealtimeRadiosity::calculate().
+   - updated by: RRDynamicSolver::updateLightmap()
+     or RRDynamicSolver::updateLightmaps()
+     or RRDynamicSolver::calculate().
 
  \section d26 Rendering with
    - Map ambient texture to your object using your uv channel with object's unwrap,
@@ -977,14 +977,14 @@ Integration of global illumination (GI) solver into your project is described in
      \endcode
      Rendering with lightmap.
      \code
-	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	rr::RRDynamicSolver* dynamicSolver;
 	GLuint program;
 	...
 	// set program created from shaders below
 	glUseProgram(program);
 	// bind lightmap to texture0
 	glActiveTexture(GL_TEXTURE0);
-	realtimeRadiosity->getIllumination(numberOfObject)->
+	dynamicSolver->getIllumination(numberOfObject)->
 		getChannel(0)->pixelBuffer->bindTexture();
 	// set sampler to use texture0
 	glUniform1i(glGetUniformLocation(program,"lightmap"),0);
@@ -1021,7 +1021,7 @@ Integration of global illumination (GI) solver into your project is described in
      \n Creating lightmap.
      \code
 	virtual rr::RRIlluminationPixelBuffer*
-	YourImplementationOfRRRealtimeRadiosity::newPixelBuffer(rr::RRObject* object)
+	YourImplementationOfRRDynamicSolver::newPixelBuffer(rr::RRObject* object)
 	{
 		// use your implementation of rr::RRIlluminationPixelBuffer
 		return new YourImplementationOfRRIlluminationPixelBuffer(...);
@@ -1035,14 +1035,14 @@ Integration of global illumination (GI) solver into your project is described in
 	// create vertex declaration that includes lightmap uv channel as TEXCOORD0
 	IDirect3DVertexDeclaration9* vertexDeclaration;
 	device->CreateVertexDeclaration(description, &vertexDeclaration);
-	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	rr::RRDynamicSolver* dynamicSolver;
 	...
 	// set rendering pipeline to use shaders below
 	device->SetPixelShader(vertexShader);
 	device->SetPixelShader(pixelShader);
 	// set sampler to use lightmap
 	//  (implement pixelBuffer class in d3d)
-	realtimeRadiosity->getIllumination(numberOfObject)->
+	dynamicSolver->getIllumination(numberOfObject)->
 		getChannel(0)->pixelBuffer->bindTexture();
 	// set vertex declaration for your mesh data,
 	//  including uv channel with unwrap
@@ -1114,7 +1114,7 @@ Integration of global illumination (GI) solver into your project is described in
  \section d34 Data container instances
    - stored in: your arbitrary location
    - created by: you
-   - updated by: RRRealtimeRadiosity::updateEnvironmentMaps()
+   - updated by: RRDynamicSolver::updateEnvironmentMaps()
 
  \section d36 Rendering with
    - Many rendering techniques are based on faked precomputed environment maps.
@@ -1158,14 +1158,14 @@ Integration of global illumination (GI) solver into your project is described in
    - OpenGL example:
      \n Rendering with environment maps.
      \code
-	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	rr::RRDynamicSolver* dynamicSolver;
 	rr::RRVec3 center; // object's center position in world
 	rr::RRIlluminationEnvironmentMap* diffuseEnvironmentMap;
 	rr::RRIlluminationEnvironmentMap* specularEnvironmentMap;
 	GLuint program;
 	...
 	// update environment maps
-	realtimeRadiosity->updateEnvironmentMaps(center,16,
+	dynamicSolver->updateEnvironmentMaps(center,16,
 		16,specularEnvironmentMap,4,diffuseEnvironmentMap);
 	// set program created from shader below
 	glUseProgram(program);
@@ -1209,13 +1209,13 @@ Integration of global illumination (GI) solver into your project is described in
      \code
 	IDirect3DDevice9* device;
 	IDirect3DPixelShader9* pixelShader;
-	rr::RRRealtimeRadiosity* realtimeRadiosity;
+	rr::RRDynamicSolver* dynamicSolver;
 	rr::RRVec3 center; // object's center position in world
 	rr::RRIlluminationEnvironmentMap* diffuseEnvironmentMap;
 	rr::RRIlluminationEnvironmentMap* specularEnvironmentMap;
 	...
 	// update environment maps
-	realtimeRadiosity->updateEnvironmentMaps(center,16,
+	dynamicSolver->updateEnvironmentMaps(center,16,
 		16,specularEnvironmentMap,4,diffuseEnvironmentMap);
 	// set rendering pipeline to use shader below
 	device->SetPixelShader(pixelShader);
@@ -1310,7 +1310,7 @@ Integration of global illumination (GI) solver into your project is described in
    - Not demonstrated in samples yet.
 
  \section d54 Query
-   - Call RRRealtimeRadiosity::getMultiObjectCustom()->getCollider()->intersect()
+   - Call RRDynamicSolver::getMultiObjectCustom()->getCollider()->intersect()
      to find static triangle at the end of ray.
    - See \ref data_triangle for access to triangle's illumination.
 
@@ -1394,20 +1394,20 @@ Integration of global illumination (GI) solver into your project is described in
    \n\n
    However, it is possible to communicate in screen colors
    or other units. Everything you need is to setup appropriate
-   convertor, see RRRealtimeRadiosity::setScaler(). Scaler internally converts values from native
+   convertor, see RRDynamicSolver::setScaler(). Scaler internally converts values from native
    physical radiometry scale to your custom scale and vice versa.
    \n\n
    In typical situations, it is most straightforward to think and communicate
    in screen colors. This means you can set nearly all inputs in screen colors
    (scaled to 0-1 range) and read all outputs in screen colors.
-   To setup this mode, call RRRealtimeRadiosity::setScaler(RRScaler::createRgbScaler()).
+   To setup this mode, call RRDynamicSolver::setScaler(RRScaler::createRgbScaler()).
    HelloRealtimeRadiosity demonstrates it.
  \section gscale Scale
    Lightsprint libraries support scaled objects.
    \n\n
    RRMesh and RRCollider support all scaled objects: positively or negatively, uniformly or non-uniformly scaled.
    \n\n
-   RRObject, RRStaticSolver and RRRealtimeRadiosity support typical scaled objects:
+   RRObject, RRStaticSolver and RRDynamicSolver support typical scaled objects:
    positively or negatively, uniformly scaled.
    \n Negative scale is supported with both possible interpretations
    for singlesided faces:
@@ -1503,10 +1503,10 @@ Integration of global illumination (GI) solver into your project is described in
  - integrates with existing engines
  - uses no precalculations -> illumination quality varies, "architect edition"
  - techniques based on partial precalculations will follow -> quality boost, "day/night editions"
- - you can ask RealtimeRadiosity for complete vertex buffers, lightmaps
+ - you can ask RRDynamicSolver for complete vertex buffers, lightmaps
    or environment maps;
    for information on individual triangles (even adaptively subdivided) or rays,
-   call underlying Vision library
+   call underlying RRStaticSolver library
  - communicates completely in custom units, e.g. screen colors
 
  Sample HelloRealtimeRadiosity shows the result of integration,
@@ -1625,7 +1625,7 @@ Integration of global illumination (GI) solver into your project is described in
 
  Headers: RRGPUOpenGL.h, RRGPUOpenGL/RendererOfRRObject.h
 
- - rr_gl::RRRealtimeRadiosityGL implements RRRealtimeRadiosity GPU specific parts in OpenGL 2.0
+ - rr_gl::RRRealtimeRadiosityGL implements RRDynamicSolver GPU specific parts in OpenGL 2.0
  - rr_gl::RendererOfRRObject is renderer of 3d objects with Lightsprint's RRObject interface
 
 

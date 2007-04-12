@@ -16,6 +16,7 @@ CHANGES
 
 - name changes
   RRScene -> RRStaticSolver
+  RRRealtimeRadiosity -> RRDynamicSolver
   RRRealtimeRadiosity::Object -> RRIlluminatedObject
   RRRealtimeRadiosity::Objects -> RRObjects
 - interface of adapters cleaned up

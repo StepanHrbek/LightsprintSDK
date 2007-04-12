@@ -34,7 +34,7 @@ public:
 	//! Updates object's illumination.
 	//! Expects that position was already updated or it hasn't changed.
 	//! No need to call it when object is not visible and won't be rendered.
-	void updateIllumination(rr::RRRealtimeRadiosity* solver);
+	void updateIllumination(rr::RRDynamicSolver* solver);
 
 	//! Renders object.
 	//! Expects that illumination was already updated or it hasn't changed.

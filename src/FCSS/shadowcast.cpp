@@ -350,7 +350,7 @@ protected:
 };
 
 // called from Level.cpp
-rr::RRRealtimeRadiosity* createSolver()
+rr::RRDynamicSolver* createSolver()
 {
 	return new Solver();
 }
@@ -442,14 +442,14 @@ void drawShadowMapFrustum(void)
 // callback that feeds 3ds renderer with our vertex illumination
 const float* lockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRRealtimeRadiosity*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
 	return vertexBuffer ? &vertexBuffer->lock()->x : NULL;
 }
 
 // callback that cleans vertex illumination
 void unlockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRRealtimeRadiosity*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
@@ -476,7 +476,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	// lze smazat, stejnou praci dokaze i rrrenderer
 	// nicmene m3ds.Draw stale jeste
 	// 1) lip smoothuje (pouziva min vertexu)
-	// 2) slouzi jako test ze RRRealtimeRadiosity spravne generuje vertex buffer s indirectem
+	// 2) slouzi jako test ze RRDynamicSolver spravne generuje vertex buffer s indirectem
 	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
 	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
 	if(level->type==Level::TYPE_3DS && uberProgramSetup.MATERIAL_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
@@ -509,7 +509,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	if(renderedChannels.LIGHT_INDIRECT_MAP)
 	{
 		// create missing lightmaps, renderer needs lightmaps for all objects
-		//level->solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
+		//level->solver->calculate(rr::RRDynamicSolver::FORCE_UPDATE_PIXEL_BUFFERS);
 		for(unsigned i=0;i<level->solver->getNumObjects();i++)
 			if(!level->solver->getIllumination(i)->getChannel(0)->pixelBuffer)
 				level->solver->updateLightmap(i,NULL,NULL);
@@ -1592,17 +1592,17 @@ void keyboard(unsigned char c, int x, int y)
 				// set environment
 				level->solver->setEnvironment(rr::RRIlluminationEnvironmentMap::createSky(rr::RRColorRGBF(0.4f)));
 				// set lights
-				rr::RRRealtimeRadiosity::Lights lights;
+				rr::RRDynamicSolver::Lights lights;
 				lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
 				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRColorRGBF(0.7f))); //!!! not freed
 				level->solver->setLights(lights);
 				// updates maps in high quality
-				rr::RRRealtimeRadiosity::UpdateLightmapParameters paramsDirect;
+				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
 				paramsDirect.applyCurrentIndirectSolution = 1;
 //				paramsDirect.applyLights = 1;
 //				paramsDirect.applyEnvironment = 1;
 				paramsDirect.quality = LIGHTMAP_QUALITY;
-				rr::RRRealtimeRadiosity::UpdateLightmapParameters paramsIndirect;
+				rr::RRDynamicSolver::UpdateLightmapParameters paramsIndirect;
 				paramsIndirect.applyCurrentIndirectSolution = 0;
 //				paramsIndirect.applyLights = 1;
 //				paramsIndirect.applyEnvironment = 1;
@@ -2023,8 +2023,8 @@ void idle()
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	if(!level || (rrOn && level->solver->calculate(rr::RRRealtimeRadiosity::AUTO_UPDATE_VERTEX_BUFFERS
-		//+(renderLightmaps?rr::RRRealtimeRadiosity::AUTO_UPDATE_PIXEL_BUFFERS:0)
+	if(!level || (rrOn && level->solver->calculate(rr::RRDynamicSolver::AUTO_UPDATE_VERTEX_BUFFERS
+		//+(renderLightmaps?rr::RRDynamicSolver::AUTO_UPDATE_PIXEL_BUFFERS:0)
 		)==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
 //		printf("---]");

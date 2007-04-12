@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Imports BSP model (quake3) into RRRealtimeRadiosity
+// Imports BSP model (quake3) into RRDynamicSolver
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 

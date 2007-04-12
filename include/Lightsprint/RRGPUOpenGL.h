@@ -43,13 +43,13 @@
 namespace rr_gl
 {
 
-	//! Implementation of rr::RRRealtimeRadiosity generic GPU operations using OpenGL 2.0.
+	//! Implementation of rr::RRDynamicSolver generic GPU operations using OpenGL 2.0.
 	//
-	//! This is not complete implementation of rr::RRRealtimeRadiosity,
+	//! This is not complete implementation of rr::RRDynamicSolver,
 	//! it contains generic GPU access operations, but not operations specific to your renderer.
 	//! You need to subclass RRRealtimeRadiosityGL and implement remaining operations specific to your renderer.
 	//! See HelloRealtimeRadiosity for an example of such implementation.
-	class RR_API RRRealtimeRadiosityGL : public rr::RRRealtimeRadiosity
+	class RR_API RRRealtimeRadiosityGL : public rr::RRDynamicSolver
 	{
 	public:
 		//! Initializes generic GPU access implemented in RRRealtimeRadiosityGL.
@@ -74,7 +74,7 @@ namespace rr_gl
 		//! Lightmap uses uv coordinates provided by RRMesh::getTriangleMapping(),
 		//! the same coordinates are used for ambient map.
 		//!
-		//! This function will be unified with RRRealtimeRadiosity::updateLightmap() in future release.
+		//! This function will be unified with RRDynamicSolver::updateLightmap() in future release.
 		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.

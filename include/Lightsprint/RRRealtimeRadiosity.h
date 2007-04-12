@@ -2,8 +2,8 @@
 #define RRREALTIMERADIOSITY_H
 
 //////////////////////////////////////////////////////////////////////////////
-//! \file RRRealtimeRadiosity.h
-//! \brief RRRealtimeRadiosity - library for calculating radiosity in dynamic scenes
+//! \file RRDynamicSolver.h
+//! \brief RRDynamicSolver - library for calculating radiosity in dynamic scenes
 //! \version 2007.3.20
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
@@ -28,7 +28,7 @@
 #		define RR_API __declspec(dllexport)
 #	else // use dll
 #ifdef NDEBUG
-	#pragma comment(lib,"RRRealtimeRadiosity.lib")
+	#pragma comment(lib,"RRDynamicSolver.lib")
 #else
 	#pragma comment(lib,"RRRealtimeRadiosity_dd.lib")
 #endif
@@ -127,8 +127,8 @@ namespace rr
 	//
 	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
 	//! You may use it for example to
-	//! - send it to RRRealtimeRadiosity and calculate global illumination
-	//! - manipulate this set before sending it to RRRealtimeRadiosity, e.g. remove moving objects
+	//! - send it to RRDynamicSolver and calculate global illumination
+	//! - manipulate this set before sending it to RRDynamicSolver, e.g. remove moving objects
 	//! - render it immediately, without calculating global illumination
 	//! - render it when global illumination is calculated
 	//
@@ -143,7 +143,7 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRRealtimeRadiosity
+	//  RRDynamicSolver
 	//! Global illumination solver for interactive applications.
 	//
 	//! Usage for interactive realtime visualizations and tools:
@@ -162,7 +162,7 @@ namespace rr
 	//!   or RRIlluminationEnvironmentMap::save() functions.
 	//!
 	//! Custom access to GPU and your renderer is not implemented here.
-	//! You may implement it in your RRRealtimeRadiosity subclass
+	//! You may implement it in your RRDynamicSolver subclass
 	//! or use RRRealtimeRadioosityGL, that implements GPU access using OpenGL 2.0.
 	//!
 	//! Sample HelloRealtimeRadiosity shows both typical usage scenarios,
@@ -177,11 +177,11 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRRealtimeRadiosity
+	class RR_API RRDynamicSolver
 	{
 	public:
-		RRRealtimeRadiosity();
-		virtual ~RRRealtimeRadiosity();
+		RRDynamicSolver();
+		virtual ~RRDynamicSolver();
 
 
 		//! Set scaler used by this scene i/o operations.
@@ -190,7 +190,7 @@ namespace rr
 		//! See RRScaler for details.
 		//! \param scaler
 		//!  Scaler for converting illumination between physical and custom scale.
-		//!  It will be used by all data input and output paths in RRRealtimeRadiosity, if not specified otherwise.
+		//!  It will be used by all data input and output paths in RRDynamicSolver, if not specified otherwise.
 		//!  Note that scaler is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
 		void setScaler(RRScaler* scaler);
@@ -365,9 +365,9 @@ namespace rr
 		//!  coming to object's surface, converted from physical W/m^2 units to your scale by RRScaler.
 		//!  Lightmap could contain direct, indirect or global illumination, depending on
 		//!  parameters you set in params.
-		//!  If it's NULL, pixel buffer stored in RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer
+		//!  If it's NULL, pixel buffer stored in RRDynamicSolver::getIllumination()->getChannel(0)->pixelBuffer
 		//!  is used. If it's also NULL, buffer is created by calling newPixelBuffer()
-		//!  and stored in RRRealtimeRadiosity::getIllumination()->getChannel(0)->pixelBuffer.
+		//!  and stored in RRDynamicSolver::getIllumination()->getChannel(0)->pixelBuffer.
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters.
 		//! \return
@@ -631,7 +631,7 @@ namespace rr
 	//! Returns id of interface offered by library.
 	RR_API unsigned RR_INTERFACE_ID_LIB();
 	// Returns id of interface expected by app.
-	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRRealtimeRadiosity) + 0 )
+	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRDynamicSolver) + 0 )
 	//! Returns if interface matches. False = dll mismatch, app should be terminated.
 	#define RR_INTERFACE_OK (RR_INTERFACE_ID_APP()==rr::RR_INTERFACE_ID_LIB())
 	//! Returns description of interface offered by library + compile date.
@@ -647,7 +647,7 @@ namespace rr
 	#define RR_INTERFACE_DESC_APP() "DEBUG_DLL (" __DATE__ " " __TIME__ ")"
 	#endif
 	// Returns description of version mismatch.
-	#define RR_INTERFACE_MISMATCH_MSG "RRRealtimeRadiosity version mismatch.\nLibrary has interface: %d %s\nApplication expects  : %d %s\n",rr::RR_INTERFACE_ID_LIB(),rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_ID_APP(),RR_INTERFACE_DESC_APP()
+	#define RR_INTERFACE_MISMATCH_MSG "RRDynamicSolver version mismatch.\nLibrary has interface: %d %s\nApplication expects  : %d %s\n",rr::RR_INTERFACE_ID_LIB(),rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_ID_APP(),RR_INTERFACE_DESC_APP()
 
 } // namespace
 

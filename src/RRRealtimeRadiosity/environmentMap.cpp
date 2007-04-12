@@ -380,7 +380,7 @@ static void filterEdges(unsigned iSize, CubeColor* iIrradiance)
 // main
 
 // thread safe: yes if RRIlluminationEnvironmentMap::setValues is safe
-void RRRealtimeRadiosity::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize, unsigned specularSize, RRIlluminationEnvironmentMap* specularMap, unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap
+void RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize, unsigned specularSize, RRIlluminationEnvironmentMap* specularMap, unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap
 #ifdef SUPPORT_LDR
 	//! \param HDR
 	//!  True = physically correct calculation.

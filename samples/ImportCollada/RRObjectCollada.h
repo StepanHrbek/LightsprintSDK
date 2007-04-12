@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Imports Collada model into RRRealtimeRadiosity
+// Imports Collada model into RRDynamicSolver
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 

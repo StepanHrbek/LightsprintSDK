@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Imports Collada scene (FCDocument) into RRRealtimeRadiosity
+// Imports Collada scene (FCDocument) into RRDynamicSolver
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 

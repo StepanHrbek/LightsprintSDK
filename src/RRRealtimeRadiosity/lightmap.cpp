@@ -52,7 +52,7 @@ void renderSubtriangle(const RRStaticSolver::SubtriangleIllumination& si, void* 
 	context2->pixelBuffer->renderTriangle(si2);
 }
 
-RRIlluminationPixelBuffer* RRRealtimeRadiosity::newPixelBuffer(RRObject* object)
+RRIlluminationPixelBuffer* RRDynamicSolver::newPixelBuffer(RRObject* object)
 {
 	return NULL;
 }
@@ -142,9 +142,9 @@ private:
 
 struct TexelContext
 {
-	RRRealtimeRadiosity* solver;
+	RRDynamicSolver* solver;
 	RRIlluminationPixelBuffer* pixelBuffer;
-	const RRRealtimeRadiosity::UpdateLightmapParameters* params;
+	const RRDynamicSolver::UpdateLightmapParameters* params;
 	unsigned triangleIndex;
 };
 
@@ -299,7 +299,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		unsigned hitsInside = 0;
 		unsigned hitsRug = 0;
 		unsigned hitsScene = 0;
-		const RRRealtimeRadiosity::Lights& lights = tc->solver->getLights();
+		const RRDynamicSolver::Lights& lights = tc->solver->getLights();
 		unsigned rays = (unsigned)lights.size();
 		for(unsigned i=0;i<rays;i++)
 		{
@@ -408,7 +408,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 }
 
 // Enumerates all important texels in ambient map, using softare rasterizer.
-void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight,
+void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight,
 	void (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context), void* context)
 {
 	// Iterate through all multimesh triangles (rather than single object's mesh triangles)
@@ -490,7 +490,7 @@ void RRRealtimeRadiosity::enumerateTexels(unsigned objectNumber, unsigned mapWid
 	}
 }
 
-bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* aparams)
+bool RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* aparams)
 {
 	if(!getMultiObjectCustom() || !getScene())
 	{
@@ -499,14 +499,14 @@ bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		if(!getMultiObjectCustom() || !getScene())
 		{
 			RR_ASSERT(0);
-			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: No objects in scene.\n");
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: No objects in scene.\n");
 			return false;
 		}
 	}
 	if(objectNumber>=getNumObjects())
 	{
 		RR_ASSERT(0);
-		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
+		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
 		return false;
 	}
 	RRObject* object = getMultiObjectCustom();
@@ -521,7 +521,7 @@ bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		if(!pixelBuffer)
 		{
 			RR_ASSERT(0);
-			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: newPixelBuffer(getObject(%d)) returned NULL\n",objectNumber);
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: newPixelBuffer(getObject(%d)) returned NULL\n",objectNumber);
 			return false;
 		}
 	}
@@ -575,7 +575,7 @@ bool RRRealtimeRadiosity::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	}
 	else
 	{
-		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmap: No lightsources.\n");
+		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: No lightsources.\n");
 		pixelBuffer->renderEnd(false);
 		RR_ASSERT(0);
 	}
@@ -587,7 +587,7 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
-bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const UpdateLightmapParameters* aparamsDirect, const UpdateLightmapParameters* aparamsIndirect)
+bool RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, const UpdateLightmapParameters* aparamsDirect, const UpdateLightmapParameters* aparamsIndirect)
 {
 	if(!getMultiObjectCustom() || !scene)
 	{
@@ -596,7 +596,7 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 		if(!getMultiObjectCustom() || !scene)
 		{
 			RR_ASSERT(0);
-			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: No objects in scene.\n");
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: No objects in scene.\n");
 			return false;
 		}
 	}
@@ -617,7 +617,7 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 
 	if(paramsIndirect.applyCurrentIndirectSolution)
 	{
-		RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: paramsIndirect.applyCurrentIndirectSolution ignored, set it in paramsDirect instead.\n");
+		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: paramsIndirect.applyCurrentIndirectSolution ignored, set it in paramsDirect instead.\n");
 		paramsIndirect.applyCurrentIndirectSolution = 0;
 	}
 
@@ -626,7 +626,7 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 	{
 		if(paramsDirect.applyCurrentIndirectSolution)
 		{
-			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: paramsDirect.applyCurrentIndirectSolution ignored, can't be combined with applyLights and/or applyEnvironment.\n");
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: paramsDirect.applyCurrentIndirectSolution ignored, can't be combined with applyLights and/or applyEnvironment.\n");
 			paramsDirect.applyCurrentIndirectSolution = false;
 		}
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
@@ -641,7 +641,7 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 				updateLightmap(object,channel->pixelBuffer,&paramsIndirect);
 			else
 			{
-				RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
+				RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
 				RR_ASSERT(0);
 			}
 		}
@@ -673,14 +673,14 @@ bool RRRealtimeRadiosity::updateLightmaps(unsigned lightmapChannelNumber, const 
 			updateLightmap(object,channel->pixelBuffer,&paramsDirect);
 		else
 		{
-			RRReporter::report(RRReporter::WARN,"RRRealtimeRadiosity::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
 			RR_ASSERT(0);
 		}
 	}
 	return true;
 }
 
-void RRRealtimeRadiosity::readPixelResults()
+void RRDynamicSolver::readPixelResults()
 {
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{

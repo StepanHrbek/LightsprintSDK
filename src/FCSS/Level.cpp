@@ -3,7 +3,7 @@
 #include "Level.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 
-extern rr::RRRealtimeRadiosity* createSolver();
+extern rr::RRDynamicSolver* createSolver();
 extern void error(const char* message, bool gfxRelated);
 
 /////////////////////////////////////////////////////////////////////////////

@@ -67,7 +67,7 @@ void DynamicObject::updatePosition()
 	glPopMatrix();
 }
 
-void DynamicObject::updateIllumination(rr::RRRealtimeRadiosity* solver)
+void DynamicObject::updateIllumination(rr::RRDynamicSolver* solver)
 {
 	// create envmaps if they don't exist yet
 	if(material.MATERIAL_DIFFUSE && !diffuseMap)

@@ -100,14 +100,14 @@ bool                    environmentMapsRealtimeUpdate = true;
 // callback that feeds 3ds renderer with our vertex illumination
 const float* lockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRRealtimeRadiosity*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
 	return vertexBuffer ? &vertexBuffer->lock()->x : NULL;
 }
 
 // callback that cleans vertex illumination
 void unlockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRRealtimeRadiosity*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
@@ -283,7 +283,7 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_MAP = true;
 	if(!solver->getIllumination(0)->getChannel(0)->pixelBuffer) // if ambient maps don't exist yet, create them
 	{
-		solver->calculate(rr::RRRealtimeRadiosity::FORCE_UPDATE_PIXEL_BUFFERS);
+		solver->calculate(rr::RRDynamicSolver::FORCE_UPDATE_PIXEL_BUFFERS);
 	}
 #else // here we say: render with indirect illumination per-vertex
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
@@ -330,7 +330,7 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				printf("Updating ambient map, object %d/%d, res %d*%d ...",i+1,solver->getNumObjects(),
 					solver->getIllumination(i)->getChannel(0)->pixelBuffer->getWidth(),solver->getIllumination(i)->getChannel(0)->pixelBuffer->getHeight());
-				rr::RRRealtimeRadiosity::UpdateLightmapParameters params;
+				rr::RRDynamicSolver::UpdateLightmapParameters params;
 				params.quality = 1000;
 				params.insideObjectsTreshold = 0.1f;
 				solver->updateLightmap(i,NULL,&params);
@@ -486,9 +486,9 @@ void idle()
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	solver->calculate(
 #ifdef AMBIENT_MAPS
-		ambientMapsRealtimeUpdate ? rr::RRRealtimeRadiosity::AUTO_UPDATE_PIXEL_BUFFERS : 0
+		ambientMapsRealtimeUpdate ? rr::RRDynamicSolver::AUTO_UPDATE_PIXEL_BUFFERS : 0
 #else
-		rr::RRRealtimeRadiosity::AUTO_UPDATE_VERTEX_BUFFERS
+		rr::RRDynamicSolver::AUTO_UPDATE_VERTEX_BUFFERS
 #endif
 		);
 

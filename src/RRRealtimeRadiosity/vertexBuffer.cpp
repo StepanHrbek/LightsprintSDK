@@ -8,7 +8,7 @@
 namespace rr
 {
 
-void RRRealtimeRadiosity::updateVertexLookupTable()
+void RRDynamicSolver::updateVertexLookupTable()
 // prepare lookup tables preImportVertex -> [postImportTriangle,vertex0..2] for all objects
 {
 	if(!getMultiObjectPhysical())
@@ -54,12 +54,12 @@ void RRRealtimeRadiosity::updateVertexLookupTable()
 	}
 }
 
-RRIlluminationVertexBuffer* RRRealtimeRadiosity::newVertexBuffer(unsigned numVertices)
+RRIlluminationVertexBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertices)
 {
 	return RRIlluminationVertexBuffer::createInSystemMemory(numVertices);
 }
 
-void RRRealtimeRadiosity::readVertexResults()
+void RRDynamicSolver::readVertexResults()
 {
 	if(!scene)
 	{

@@ -262,30 +262,30 @@ namespace rr
 		// Pixel buffer creation
 
 		//! Begins rendering of triangles into pixel buffer. Must be paired with renderEnd().
-		//! \n\n Audience: Used internally by RRRealtimeRadiosity.
+		//! \n\n Audience: Used internally by RRDynamicSolver.
 		virtual void renderBegin() {};
 		//! Description of one illuminated vertex.
-		//! \n\n Audience: Used internally by RRRealtimeRadiosity.
+		//! \n\n Audience: Used internally by RRDynamicSolver.
 		struct IlluminatedVertex
 		{
 			RRVec2 texCoord; ///< Triangle vertex positions in pixel buffer.
 			RRColorRGBF measure; ///< Triangle vertex illumination.
 		};
 		//! Description of one illuminated triangle.
-		//! \n\n Audience: Used internally by RRRealtimeRadiosity.
+		//! \n\n Audience: Used internally by RRDynamicSolver.
 		struct IlluminatedTriangle
 		{
 			IlluminatedVertex iv[3]; ///< Three illuminated vertices forming triangle.
 		};
 		//! Renders one triangle into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
-		//! Audience: Used internally by RRRealtimeRadiosity.
+		//! Audience: Used internally by RRDynamicSolver.
 		//! \param it
 		//!  Description of single triangle.
 		virtual void renderTriangle(const IlluminatedTriangle& it) = 0;
 		//! Renders multiple triangles into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
-		//! Audience: Used internally by RRRealtimeRadiosity.
+		//! Audience: Used internally by RRDynamicSolver.
 		//! \param it
 		//!  Array with description of triangles.
 		//! \param numTriangles
@@ -293,12 +293,12 @@ namespace rr
 		virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
 		//! Renders one texel into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
-		//! Audience: Used internally by RRRealtimeRadiosity.
+		//! Audience: Used internally by RRDynamicSolver.
 		//! \param uv
 		//!  Array of 2 elements, texel coordinates in 0..width-1, 0..height-1 range.
 		//! \param color
 		//!  Color of rendered texel.
-		//!  RRRealtimeRadiosity sets irradiance in custom scale here.
+		//!  RRDynamicSolver sets irradiance in custom scale here.
 		//!  With color r,g,b and importance i, RRColorRGBAF(r*i,g*i,b*i,i) is provided.
 		//!  Importance is real number in 0..1 range, 1 for securely detected colors,
 		//!  less than 1 for partially unsecure colors, e.g. texels partially inside object.
@@ -311,7 +311,7 @@ namespace rr
 		//! Colors in form r*p,g*p,b*p,p should be normalized to r,g,b,1.
 		//! \n\n Changes state of rendering pipeline: could change state related to shader,
 		//!  could reset render target to default backbuffer.
-		//! \n\n Audience: Used internally by RRRealtimeRadiosity.
+		//! \n\n Audience: Used internally by RRDynamicSolver.
 		//! \param preferQualityOverSpeed
 		//!  Set true when used in precalculator, for high quality.
 		//!  Set false when used in realtime process, for high speed.
@@ -413,7 +413,7 @@ namespace rr
 
 		//! Creates simple environment with user defined value in top hemisphere and zero in bottom hemisphere.
 		//
-		//! Environment implements getValue(), so it is suitable for RRRealtimeRadiosity::setEnvironment(),
+		//! Environment implements getValue(), so it is suitable for RRDynamicSolver::setEnvironment(),
 		//! other functions are not implemented.
 		static RRIlluminationEnvironmentMap* createSky(const RRColorRGBF& top);
 	};

@@ -57,7 +57,7 @@ public:
 	FCDocument* collada;
 #endif
 	rr::RRObjects* objects; // objects adapted from native format
-	rr::RRRealtimeRadiosity* solver;
+	rr::RRDynamicSolver* solver;
 	class Bugs* bugs;
 	rr_gl::RendererOfRRObject* rendererNonCaching;
 	de::RendererWithCache* rendererCaching;

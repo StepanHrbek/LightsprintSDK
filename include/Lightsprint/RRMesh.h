@@ -203,7 +203,7 @@ namespace rr
 		//!  or any other number of vertices greater than 8, collisions and 
 		//!  illumination will be computed correctly.
 		//!  (24 because each one of 8 vertices is used by 3 sides with different normal)
-		//! \n RRRealtimeRadiosity depends on vertex list defined here.
+		//! \n RRDynamicSolver depends on vertex list defined here.
 		//!  If you request vertex buffer with per-vertex irradiance,
 		//!  vertex buffer will have getNumVertices() items.
 		//!  So when writing new RRMesh implementations, create vertex list

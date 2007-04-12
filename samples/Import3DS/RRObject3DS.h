@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Imports Model_3DS into RRRealtimeRadiosity
+// Imports Model_3DS into RRDynamicSolver
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 

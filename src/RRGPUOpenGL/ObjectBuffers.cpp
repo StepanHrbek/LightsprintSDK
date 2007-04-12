@@ -110,7 +110,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 
 				// force original RRObject vertex order
 				// why?
-				//  RRRealtimeRadiosity generates ambient vertex buffers for original vertex order.
+				//  RRDynamicSolver generates ambient vertex buffers for original vertex order.
 				//  to render them, whole mesh must be in original vertex order
 				// use preimport index, because of e.g. optimizations in RRObjectMulti
 				currentVertex = mesh->getPreImportVertex(triangleVertices[v],t);

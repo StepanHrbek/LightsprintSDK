@@ -25,7 +25,7 @@ namespace rr
 #define CLAMP(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 #define SAFE_DELETE(a)   {delete a;a=NULL;}
 
-RRRealtimeRadiosity::RRRealtimeRadiosity()
+RRDynamicSolver::RRDynamicSolver()
 {
 	//objects zeroed by constructor
 	scaler = NULL;
@@ -50,7 +50,7 @@ RRRealtimeRadiosity::RRRealtimeRadiosity()
 	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
 }
 
-RRRealtimeRadiosity::~RRRealtimeRadiosity()
+RRDynamicSolver::~RRDynamicSolver()
 {
 	delete scene;
 	delete multiObjectPhysicalWithIllumination;
@@ -58,49 +58,49 @@ RRRealtimeRadiosity::~RRRealtimeRadiosity()
 	delete multiObjectCustom;
 }
 
-void RRRealtimeRadiosity::setScaler(RRScaler* ascaler)
+void RRDynamicSolver::setScaler(RRScaler* ascaler)
 {
 	scaler = ascaler;
 }
 
-const RRScaler* RRRealtimeRadiosity::getScaler() const
+const RRScaler* RRDynamicSolver::getScaler() const
 {
 	return scaler;
 }
 
-void RRRealtimeRadiosity::setEnvironment(RRIlluminationEnvironmentMap* aenvironment)
+void RRDynamicSolver::setEnvironment(RRIlluminationEnvironmentMap* aenvironment)
 {
 	environment = aenvironment;
 }
 
-const RRIlluminationEnvironmentMap* RRRealtimeRadiosity::getEnvironment() const
+const RRIlluminationEnvironmentMap* RRDynamicSolver::getEnvironment() const
 {
 	return environment;
 }
 
-void RRRealtimeRadiosity::setLights(const Lights& alights)
+void RRDynamicSolver::setLights(const Lights& alights)
 {
 	lights = alights;
 }
 
-const RRRealtimeRadiosity::Lights& RRRealtimeRadiosity::getLights() const
+const RRDynamicSolver::Lights& RRDynamicSolver::getLights() const
 {
 	return lights;
 }
 
-void RRRealtimeRadiosity::setObjects(RRObjects& aobjects, const RRStaticSolver::SmoothingParameters* asmoothing)
+void RRDynamicSolver::setObjects(RRObjects& aobjects, const RRStaticSolver::SmoothingParameters* asmoothing)
 {
 	objects = aobjects;
 	smoothing = asmoothing ? *asmoothing : RRStaticSolver::SmoothingParameters();
 	dirtyGeometry = true;
 }
 
-unsigned RRRealtimeRadiosity::getNumObjects() const
+unsigned RRDynamicSolver::getNumObjects() const
 {
 	return (unsigned)objects.size();
 }
 
-RRObject* RRRealtimeRadiosity::getObject(unsigned i)
+RRObject* RRDynamicSolver::getObject(unsigned i)
 {
 	// this is commented out, getObject() is allowed even immediately after setObjects()
 	//if(dirtyGeometry) return NULL;
@@ -109,31 +109,31 @@ RRObject* RRRealtimeRadiosity::getObject(unsigned i)
 	return objects.at(i).object;
 }
 
-RRObject* RRRealtimeRadiosity::getMultiObjectCustom()
+RRObject* RRDynamicSolver::getMultiObjectCustom()
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return multiObjectCustom;
 }
 
-RRObjectWithPhysicalMaterials* RRRealtimeRadiosity::getMultiObjectPhysical()
+RRObjectWithPhysicalMaterials* RRDynamicSolver::getMultiObjectPhysical()
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return multiObjectPhysical;
 }
 
-RRObjectWithIllumination* RRRealtimeRadiosity::getMultiObjectPhysicalWithIllumination()
+RRObjectWithIllumination* RRDynamicSolver::getMultiObjectPhysicalWithIllumination()
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return multiObjectPhysicalWithIllumination;
 }
 
-const RRStaticSolver* RRRealtimeRadiosity::getScene()
+const RRStaticSolver* RRDynamicSolver::getScene()
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return scene;
 }
 
-RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
+RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i)
 {
 	// this is commented out, getIllumination() is allowed even immediately after setObjects()
 	//if(dirtyGeometry) return NULL;
@@ -143,19 +143,19 @@ RRObjectIllumination* RRRealtimeRadiosity::getIllumination(unsigned i)
 }
 
 
-void RRRealtimeRadiosity::reportMaterialChange()
+void RRDynamicSolver::reportMaterialChange()
 {
 	REPORT(RRReporter::report(RRReporter::INFO,"<MaterialChange>\n"));
 	dirtyMaterials = true;
 }
 
-void RRRealtimeRadiosity::reportDirectIlluminationChange(bool strong)
+void RRDynamicSolver::reportDirectIlluminationChange(bool strong)
 {
 	REPORT(RRReporter::report(RRReporter::INFO,strong?"<IlluminationChangeStrong>\n":"<IlluminationChange>\n"));
 	dirtyLights = strong?BIG_CHANGE:SMALL_CHANGE;
 }
 
-void RRRealtimeRadiosity::reportInteraction()
+void RRDynamicSolver::reportInteraction()
 {
 	REPORT(RRReporter::report(RRReporter::INFO,"<Interaction>\n"));
 	lastInteractionTime = GETTIME;
@@ -169,7 +169,7 @@ static bool endByTime(void *context)
 
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
-RRStaticSolver::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests, float improveStep)
+RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, float improveStep)
 {
 	REPORT_INIT;
 	bool dirtyFactors = false;
@@ -298,7 +298,7 @@ RRStaticSolver::Improvement RRRealtimeRadiosity::calculateCore(unsigned requests
 }
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
-RRStaticSolver::Improvement RRRealtimeRadiosity::calculate(unsigned requests)
+RRStaticSolver::Improvement RRDynamicSolver::calculate(unsigned requests)
 {
 	TIME calcBeginTime = GETTIME;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
