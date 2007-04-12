@@ -60,7 +60,6 @@ float               speedForward = 0;
 float               speedBack = 0;
 float               speedRight = 0;
 float               speedLeft = 0;
-bool                quadro = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -293,7 +292,7 @@ int main(int argc, char **argv)
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	unsigned shadowmapsPerPass = quadro ? 1 : uberProgramSetup.detectMaxShadowmaps(uberProgram);
+	unsigned shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram);
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
@@ -307,8 +306,8 @@ int main(int argc, char **argv)
 		error("",false);
 
 	// init dynamic objects
-	robot = quadro ? NULL : DynamicObject::create("..\\..\\data\\3ds\\characters\\I_Robot_female.3ds",0.3f);
-	potato = quadro ? NULL : DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f);
+	robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I_Robot_female.3ds",0.3f);
+	potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f);
 
 	glutMainLoop();
 	return 0;

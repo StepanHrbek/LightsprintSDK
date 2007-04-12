@@ -672,13 +672,15 @@ public:
 
 private:
 	RRCollider*                newColliderCached(const FCDGeometryMesh* mesh);
-	class RRObjectCollada*     newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance);
+	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance);
 	void                       addNode(RRRealtimeRadiosity::Objects& objects, const FCDSceneNode* node);
 
 	// solver filled by our objects, colliders and meshes
 	RRRealtimeRadiosity*       solver;
 
 	// collider and mesh cache, for instancing
+	// every object is cached exactly once, so scene delete is simple,
+	//  no need for our data in document, no need for reference counting
 	typedef std::map<const FCDGeometryMesh*,RRCollider*> Cache;
 	Cache                      cache;
 };

@@ -91,7 +91,6 @@ float                   speedRight = 0;
 float                   speedLeft = 0;
 bool                    ambientMapsRealtimeUpdate = true;
 bool                    environmentMapsRealtimeUpdate = true;
-bool                    quadro = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -550,22 +549,19 @@ int main(int argc, char **argv)
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
-	if(!quadro)
-	{
-		de::UberProgramSetup uberProgramSetup;
-		uberProgramSetup.SHADOW_SAMPLES = 4;
-		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	de::UberProgramSetup uberProgramSetup;
+	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 #ifdef AMBIENT_MAPS // here we say: render with ambient maps
-		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
+	uberProgramSetup.LIGHT_INDIRECT_MAP = true;
 #else // here we say: render with indirect illumination per-vertex
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 #endif
-		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-		shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram);
-		if(!shadowmapsPerPass) error("",true);
-	}
+	uberProgramSetup.MATERIAL_DIFFUSE = true;
+	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram);
+	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
 	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
@@ -578,16 +574,13 @@ int main(int argc, char **argv)
 		error("",false);
 
 	// init dynamic objects
-	if(!quadro)
-	{
-		de::UberProgramSetup material;
-		material.MATERIAL_SPECULAR = true;
-		robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I_Robot_female.3ds",0.3f,material,16);
-		material.MATERIAL_DIFFUSE = true;
-		material.MATERIAL_DIFFUSE_MAP = true;
-		material.MATERIAL_SPECULAR_MAP = true;
-		potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f,material,16);
-	}
+	de::UberProgramSetup material;
+	material.MATERIAL_SPECULAR = true;
+	robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I_Robot_female.3ds",0.3f,material,16);
+	material.MATERIAL_DIFFUSE = true;
+	material.MATERIAL_DIFFUSE_MAP = true;
+	material.MATERIAL_SPECULAR_MAP = true;
+	potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f,material,16);
 
 	// init realtime radiosity solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
