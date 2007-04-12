@@ -461,7 +461,7 @@ Integration of global illumination (GI) solver into your project is described in
  on diffuse textures and uv coordinates.
 
  Both RRMesh and RRObject interfaces are implemented in one class,
- so one RRMesh can't be shared by multiple RRObjects
+ so one RRMesh can't be shared by multiple RRObject-s
  and instances are not supported.
 
  \section import_with_instancing Import with instancing
@@ -473,7 +473,7 @@ Integration of global illumination (GI) solver into your project is described in
  in FCollada document.
 
  RRMesh and RRObject interfaces are implemented in two separated classes,
- and one RRMesh is shared by multiple RRObjects, when scene contains instances.
+ and one RRMesh is shared by multiple RRObject-s, when scene contains instances.
 
  \section import_new New importer
 

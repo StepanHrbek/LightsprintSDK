@@ -46,7 +46,7 @@ namespace rr
 	//! Direct light source, directional or point light with programmable function.
 	//
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
-	//! All new implementations must be thread safe too.
+	//! All custom implementations must be thread safe too.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -102,6 +102,42 @@ namespace rr
 
 		//! Creates omnidirectional point light with physically correct distance attenuation.
 		static RRLight* createPointLight(const RRVec3& position, const RRVec3& irradianceAtDistance1);
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//  RRIlluminatedObject
+	//! Static 3d object with storage space for calculated illumination.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	struct RRIlluminatedObject
+	{
+		RRObject* object;
+		RRObjectIllumination* illumination;
+		RRIlluminatedObject(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//  RRObjects
+	//! Set of illuminated objects with std::vector interface.
+	//
+	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
+	//! You may use it for example to
+	//! - send it to RRRealtimeRadiosity and calculate global illumination
+	//! - manipulate this set before sending it to RRRealtimeRadiosity, e.g. remove moving objects
+	//! - render it immediately, without calculating global illumination
+	//! - render it when global illumination is calculated
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RRObjects : public std::vector<RRIlluminatedObject>
+	{
+	public:
+		virtual ~RRObjects() {};
 	};
 
 
@@ -190,20 +226,7 @@ namespace rr
 		const Lights& getLights() const;
 
 
-		//! One static 3d object with storage space for calculated illumination.
-		struct Object
-		{
-			RRObject* object;
-			RRObjectIllumination* illumination;
-			Object(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
-		};
-		//! Container for all static objects present in scene.
-		class Objects : public std::vector<Object>
-		{
-		public:
-			virtual ~Objects() {};
-		};
-		//! Sets static contents of scene, all objects at once.
+		//! Sets static contents of scene, all static objects at once.
 		//
 		//! Order of objects passed in first parameter is used for object numbering,
 		//! any further references to n-th object refer to objects[n].
@@ -214,7 +237,7 @@ namespace rr
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
-		void setObjects(Objects& objects, const RRStaticSolver::SmoothingParameters* smoothing);
+		void setObjects(RRObjects& objects, const RRStaticSolver::SmoothingParameters* smoothing);
 
 		//! Returns number of static objects in scene.
 		unsigned getNumObjects() const;
@@ -476,7 +499,7 @@ namespace rr
 		//! Autodetects material properties of all materials present in scene.
 		//
 		//! To be implemented by you.
-		//! New values must appear in RRObjects already present in scene.
+		//! New values must appear in RRObject-s already present in scene.
 		//! \n\n It is perfectly ok to write empty implementation if your application never modifies materials.
 		virtual void detectMaterials() = 0;
 
@@ -567,7 +590,7 @@ namespace rr
 			BIG_CHANGE,
 		};
 		// calculate
-		Objects    objects;
+		RRObjects  objects;
 		const RRIlluminationEnvironmentMap* environment;
 		Lights     lights;
 		RRStaticSolver::SmoothingParameters smoothing;

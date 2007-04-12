@@ -9,6 +9,6 @@
 #include "Lightsprint/RRRealtimeRadiosity.h"
 
 //! Creates Lightsprint interface for Collada scene.
-rr::RRRealtimeRadiosity::Objects* adaptObjectsFromFCollada(class FCDocument* document);
+rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document);
 
 #endif

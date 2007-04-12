@@ -10,6 +10,6 @@
 #include "Lightsprint/DemoEngine/Model_3DS.h"
 
 //! Creates Lightsprint interface for 3DS scene.
-rr::RRRealtimeRadiosity::Objects* adaptObjectsFrom3DS(de::Model_3DS* model);
+rr::RRObjects* adaptObjectsFrom3DS(de::Model_3DS* model);
 
 #endif

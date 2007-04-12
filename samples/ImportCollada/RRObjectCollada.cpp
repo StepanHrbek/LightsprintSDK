@@ -661,7 +661,7 @@ RRObjectCollada::~RRObjectCollada()
 //
 // ObjectsFromFCollada
 
-class ObjectsFromFCollada : public rr::RRRealtimeRadiosity::Objects
+class ObjectsFromFCollada : public rr::RRObjects
 {
 public:
 	ObjectsFromFCollada(FCDocument* document);
@@ -759,7 +759,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
 			RRObjectCollada* object = newObject(node,geometryInstance);
 			if(object)
 			{
-				push_back(RRRealtimeRadiosity::Object(object,object->getIllumination()));
+				push_back(RRIlluminatedObject(object,object->getIllumination()));
 			}
 		}
 	}
@@ -828,7 +828,7 @@ ObjectsFromFCollada::~ObjectsFromFCollada()
 //
 // main
 
-rr::RRRealtimeRadiosity::Objects* adaptObjectsFromFCollada(FCDocument* document)
+rr::RRObjects* adaptObjectsFromFCollada(FCDocument* document)
 {
 	return new ObjectsFromFCollada(document);
 }
@@ -837,7 +837,7 @@ rr::RRRealtimeRadiosity::Objects* adaptObjectsFromFCollada(FCDocument* document)
 
 // stub - for quickly disabled collada support
 #include "RRObjectCollada.h"
-rr::RRRealtimeRadiosity::Objects* adaptObjectsFromFCollada(class FCDocument* document)
+rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document)
 {
 	return NULL;
 }

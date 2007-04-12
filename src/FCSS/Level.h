@@ -56,7 +56,7 @@ public:
 #ifdef SUPPORT_COLLADA
 	FCDocument* collada;
 #endif
-	rr::RRRealtimeRadiosity::Objects* objects; // objects adapted from native format
+	rr::RRObjects* objects; // objects adapted from native format
 	rr::RRRealtimeRadiosity* solver;
 	class Bugs* bugs;
 	rr_gl::RendererOfRRObject* rendererNonCaching;

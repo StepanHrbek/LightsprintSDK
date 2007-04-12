@@ -429,13 +429,13 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t) const
 //
 // ObjectsFromTMapQ3
 
-class ObjectsFromTMapQ3 : public rr::RRRealtimeRadiosity::Objects
+class ObjectsFromTMapQ3 : public rr::RRObjects
 {
 public:
 	ObjectsFromTMapQ3(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture)
 	{
 		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,missingTexture);
-		push_back(rr::RRRealtimeRadiosity::Object(object,object->getIllumination()));
+		push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
 	}
 	virtual ~ObjectsFromTMapQ3()
 	{
@@ -450,7 +450,7 @@ public:
 //
 // main
 
-rr::RRRealtimeRadiosity::Objects* adaptObjectsFromTMapQ3(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture)
+rr::RRObjects* adaptObjectsFromTMapQ3(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture)
 {
 	return new ObjectsFromTMapQ3(model,pathToTextures,missingTexture);
 }

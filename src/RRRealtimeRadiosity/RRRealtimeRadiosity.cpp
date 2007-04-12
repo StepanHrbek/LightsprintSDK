@@ -88,7 +88,7 @@ const RRRealtimeRadiosity::Lights& RRRealtimeRadiosity::getLights() const
 	return lights;
 }
 
-void RRRealtimeRadiosity::setObjects(Objects& aobjects, const RRStaticSolver::SmoothingParameters* asmoothing)
+void RRRealtimeRadiosity::setObjects(RRObjects& aobjects, const RRStaticSolver::SmoothingParameters* asmoothing)
 {
 	objects = aobjects;
 	smoothing = asmoothing ? *asmoothing : RRStaticSolver::SmoothingParameters();
