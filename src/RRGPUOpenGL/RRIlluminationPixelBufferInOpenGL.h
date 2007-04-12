@@ -41,7 +41,7 @@ namespace rr_gl
 		virtual bool save(const char* filename);
 		virtual ~RRIlluminationPixelBufferInOpenGL();
 	private:
-		friend class RRRealtimeRadiosityGL;
+		friend class RRDynamicSolverGL;
 		de::Texture* texture;
 		bool rendering;
 		bool renderTriangleProgramSet;

@@ -337,12 +337,12 @@ RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 //
 // RRGPUOpenGL
 
-rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::createIlluminationPixelBuffer(unsigned w, unsigned h)
+rr::RRIlluminationPixelBuffer* RRDynamicSolverGL::createIlluminationPixelBuffer(unsigned w, unsigned h)
 {
 	return new RRIlluminationPixelBufferInOpenGL(NULL,w,h,pathToShaders);
 }
 
-rr::RRIlluminationPixelBuffer* RRRealtimeRadiosityGL::loadIlluminationPixelBuffer(const char* filename)
+rr::RRIlluminationPixelBuffer* RRDynamicSolverGL::loadIlluminationPixelBuffer(const char* filename)
 {
 	RRIlluminationPixelBufferInOpenGL* illum = new RRIlluminationPixelBufferInOpenGL(filename,0,0,pathToShaders);
 	if(!illum->texture)

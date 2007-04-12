@@ -34,7 +34,7 @@ namespace rr_gl
 		virtual bool save(const char* filename, const char* cubeSideName[6]);
 		virtual ~RRIlluminationEnvironmentMapInOpenGL();
 	private:
-		friend class RRRealtimeRadiosityGL;
+		friend class RRDynamicSolverGL;
 		de::Texture* texture;
 	};
 

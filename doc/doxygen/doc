@@ -538,17 +538,17 @@ Integration of global illumination (GI) solver into your project is described in
 
  \section step4_gl OpenGL
 
- As a helper, there is RRRealtimeRadiosityGL,
+ As a helper, there is RRDynamicSolverGL,
  subclass that already implements generic GPU tasks using OpenGL.
  If you plan to use OpenGL renderer (DemoEngine or any other),
- subclass RRRealtimeRadiosityGL and implement only 2 or 3
+ subclass RRDynamicSolverGL and implement only 2 or 3
  missing member functions:
  - RRDynamicSolver::detectMaterials() - it is often empty,
    because many application never modify materials
- - rr_gl::RRRealtimeRadiosityGL::setupShader() - set shader so that 
+ - rr_gl::RRDynamicSolverGL::setupShader() - set shader so that 
    direct light+shadows+emissivity are rendered, but other
    material properties (diffuse texture etc) are ignored
- - rr_gl::RRRealtimeRadiosityGL::detectDirectIllumination() -
+ - rr_gl::RRDynamicSolverGL::detectDirectIllumination() -
    if not up to date, update resources needed for scene render, e.g. shadowmaps
 
  See example implementation in HelloRealtimeRadiosity.
@@ -610,7 +610,7 @@ Integration of global illumination (GI) solver into your project is described in
 
  LightsprintGL implements detection of direct illumination
  suitable for OpenGL based renderers -
- rr_gl::RRRealtimeRadiosityGL::detectDirectIllumination().
+ rr_gl::RRDynamicSolverGL::detectDirectIllumination().
 
  If you want to use Lightsprint with Direct3D renderer,
  you need to reimplement detection of direct illumination, write
@@ -920,7 +920,7 @@ Integration of global illumination (GI) solver into your project is described in
  \section d25 Data container interface
    - interface: RRIlluminationPixelBuffer
    - implementations: OpenGL pixel buffer is available in
-     rr_gl::RRRealtimeRadiosityGL::createIlluminationPixelBuffer().
+     rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer().
      For Direct3D, you are expected to implement
      your own pixel buffer, see RRIlluminationPixelBuffer interface.
 
@@ -970,7 +970,7 @@ Integration of global illumination (GI) solver into your project is described in
      \n Creating lightmap.
      \code
 	virtual rr::RRIlluminationPixelBuffer*
-	YourImplementationOfRRRealtimeRadiosityGL::newPixelBuffer(rr::RRObject* object)
+	YourImplementationOfDynamicSolverGL::newPixelBuffer(rr::RRObject* object)
 	{
 		return createIlluminationPixelBuffer(256,256);
 	}
@@ -1107,7 +1107,7 @@ Integration of global illumination (GI) solver into your project is described in
  \section d35 Data container interface
    - interface: RRIlluminationEnvironmentMap
    - implementations: OpenGL environment map is available in 
-     RRRealtimeRadiosityGL::createIlluminationEnvironmentMap().
+     RRDynamicSolverGL::createIlluminationEnvironmentMap().
      For Direct3D, you are expected to implement
      your own environment map, see RRIlluminationEnvironmentMap interface.
 
@@ -1625,7 +1625,7 @@ Integration of global illumination (GI) solver into your project is described in
 
  Headers: RRGPUOpenGL.h, RRGPUOpenGL/RendererOfRRObject.h
 
- - rr_gl::RRRealtimeRadiosityGL implements RRDynamicSolver GPU specific parts in OpenGL 2.0
+ - rr_gl::RRDynamicSolverGL implements RRDynamicSolver GPU specific parts in OpenGL 2.0
  - rr_gl::RendererOfRRObject is renderer of 3d objects with Lightsprint's RRObject interface
 
 

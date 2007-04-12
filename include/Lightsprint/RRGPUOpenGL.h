@@ -47,17 +47,17 @@ namespace rr_gl
 	//
 	//! This is not complete implementation of rr::RRDynamicSolver,
 	//! it contains generic GPU access operations, but not operations specific to your renderer.
-	//! You need to subclass RRRealtimeRadiosityGL and implement remaining operations specific to your renderer.
+	//! You need to subclass RRDynamicSolverGL and implement remaining operations specific to your renderer.
 	//! See HelloRealtimeRadiosity for an example of such implementation.
-	class RR_API RRRealtimeRadiosityGL : public rr::RRDynamicSolver
+	class RR_API RRDynamicSolverGL : public rr::RRDynamicSolver
 	{
 	public:
-		//! Initializes generic GPU access implemented in RRRealtimeRadiosityGL.
+		//! Initializes generic GPU access implemented in RRDynamicSolverGL.
 		//! \param pathToShaders
 		//!   Path to directory with lightmap_build.*, lightmap_filter.* and scaledown_filter.* shaders.
 		//!   Must be terminated with slash (or be empty for current dir).
-		RRRealtimeRadiosityGL(char* pathToShaders);
-		virtual ~RRRealtimeRadiosityGL();
+		RRDynamicSolverGL(char* pathToShaders);
+		virtual ~RRDynamicSolverGL();
 
 
 		//! Creates 2d texture for indirect illumination storage.

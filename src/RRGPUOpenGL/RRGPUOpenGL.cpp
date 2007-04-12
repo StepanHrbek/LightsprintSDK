@@ -68,9 +68,9 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// RRRealtimeRadiosityGL
+// RRDynamicSolverGL
 
-RRRealtimeRadiosityGL::RRRealtimeRadiosityGL(char* apathToShaders)
+RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 {
 	strncpy(pathToShaders,apathToShaders,299);
 	pathToShaders[299]=0;
@@ -100,7 +100,7 @@ RRRealtimeRadiosityGL::RRRealtimeRadiosityGL(char* apathToShaders)
 	detectingFromLightmapChannel = -1;
 }
 
-RRRealtimeRadiosityGL::~RRRealtimeRadiosityGL()
+RRDynamicSolverGL::~RRDynamicSolverGL()
 {
 	delete rendererCaching;
 	delete rendererNonCaching;
@@ -122,7 +122,7 @@ per object lighting:
   -slo by zlepsit tim ze multiobjekt bude garantovat poradi(slo by pres zakaz optimalizaci v multiobjektu)
 */
 
-bool RRRealtimeRadiosityGL::detectDirectIllumination()
+bool RRDynamicSolverGL::detectDirectIllumination()
 {
 	if(!scaleDownProgram) return false;
 
@@ -272,7 +272,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 
 /*
 // development version with additional features
-bool RRRealtimeRadiosityGL::detectDirectIllumination()
+bool RRDynamicSolverGL::detectDirectIllumination()
 {
 #ifdef SCALE_DOWN_ON_GPU
 	if(!scaleDownProgram) return false;
@@ -515,7 +515,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 };
 */
 
-bool RRRealtimeRadiosityGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
+bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
 {
 	rr::RRObject* object = getObject(objectIndex);
 	rr::RRMesh* mesh = object->getCollider()->getMesh();
@@ -552,10 +552,10 @@ bool RRRealtimeRadiosityGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIllum
 	return true;
 }
 
-void RRRealtimeRadiosityGL::detectDirectIlluminationFromLightmaps(unsigned sourceChannel)
+void RRDynamicSolverGL::detectDirectIlluminationFromLightmaps(unsigned sourceChannel)
 {
 	detectingFromLightmapChannel = sourceChannel;
-	RRRealtimeRadiosityGL::detectDirectIllumination();
+	RRDynamicSolverGL::detectDirectIllumination();
 	detectingFromLightmapChannel = -1;
 }
 

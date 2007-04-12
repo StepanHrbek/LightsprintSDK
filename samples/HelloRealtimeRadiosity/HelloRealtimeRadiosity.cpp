@@ -79,7 +79,7 @@ de::Texture*            lightDirectMap = NULL;
 de::UberProgram*        uberProgram = NULL;
 rr_gl::RendererOfRRObject* rendererNonCaching = NULL;
 de::Renderer*           rendererCaching = NULL;
-rr_gl::RRRealtimeRadiosityGL* solver = NULL;
+rr_gl::RRDynamicSolverGL* solver = NULL;
 DynamicObject*          robot = NULL;
 DynamicObject*          potato = NULL;
 int                     winWidth = 0;
@@ -211,10 +211,10 @@ void updateShadowmap(unsigned mapIndex)
 //
 // integration with Realtime Radiosity
 
-class Solver : public rr_gl::RRRealtimeRadiosityGL
+class Solver : public rr_gl::RRDynamicSolverGL
 {
 public:
-	Solver() : RRRealtimeRadiosityGL("../../data/shaders/")
+	Solver() : RRDynamicSolverGL("../../data/shaders/")
 	{
 	}
 protected:
@@ -242,7 +242,7 @@ protected:
 		// shadowmap could be outdated, update it
 		updateShadowmap(0);
 
-		return RRRealtimeRadiosityGL::detectDirectIllumination();
+		return RRDynamicSolverGL::detectDirectIllumination();
 	}
 	// set shader so that direct light+shadows+emissivity are rendered, but no materials
 	virtual void setupShader(unsigned objectNumber)

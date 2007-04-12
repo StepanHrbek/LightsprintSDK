@@ -71,9 +71,9 @@ void DynamicObject::updateIllumination(rr::RRDynamicSolver* solver)
 {
 	// create envmaps if they don't exist yet
 	if(material.MATERIAL_DIFFUSE && !diffuseMap)
-		diffuseMap = rr_gl::RRRealtimeRadiosityGL::createIlluminationEnvironmentMap();
+		diffuseMap = rr_gl::RRDynamicSolverGL::createIlluminationEnvironmentMap();
 	if(material.MATERIAL_SPECULAR && !specularMap)
-		specularMap = rr_gl::RRRealtimeRadiosityGL::createIlluminationEnvironmentMap();
+		specularMap = rr_gl::RRDynamicSolverGL::createIlluminationEnvironmentMap();
 	// compute object's center in world coordinates
 	rr::RRVec3 worldCenter = rr::RRVec3(
 		getModel().localCenter.x*worldMatrix[0]+getModel().localCenter.y*worldMatrix[4]+getModel().localCenter.z*worldMatrix[ 8]+worldMatrix[12],

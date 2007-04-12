@@ -267,10 +267,10 @@ void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance);
 void updateMatrices();
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
-class Solver : public rr_gl::RRRealtimeRadiosityGL
+class Solver : public rr_gl::RRDynamicSolverGL
 {
 public:
-	Solver() : RRRealtimeRadiosityGL("shaders/")
+	Solver() : RRDynamicSolverGL("shaders/")
 	{
 	}
 protected:
@@ -279,7 +279,7 @@ protected:
 		unsigned res = 16; // don't create maps below 16x16, otherwise you risk poor performance on Nvidia cards
 		while(res<2048 && res<LIGHTMAP_SIZE_FACTOR*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
-		return renderLightmaps ? rr_gl::RRRealtimeRadiosityGL::createIlluminationPixelBuffer(res,res) : NULL;
+		return renderLightmaps ? rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer(res,res) : NULL;
 	}
 	virtual void detectMaterials()
 	{
@@ -309,7 +309,7 @@ protected:
 		}
 
 		// setup shader for rendering direct illumination+shadows without materials
-		return RRRealtimeRadiosityGL::detectDirectIllumination();
+		return RRDynamicSolverGL::detectDirectIllumination();
 	}
 	virtual void setupShader(unsigned objectNumber)
 	{

@@ -78,12 +78,12 @@ RRIlluminationEnvironmentMapInOpenGL::~RRIlluminationEnvironmentMapInOpenGL()
 //
 // RRGPUOpenGL
 
-rr::RRIlluminationEnvironmentMap* RRRealtimeRadiosityGL::createIlluminationEnvironmentMap()
+rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::createIlluminationEnvironmentMap()
 {
 	return new RRIlluminationEnvironmentMapInOpenGL(NULL,NULL);
 }
 
-rr::RRIlluminationEnvironmentMap* RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6])
+rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6])
 {
 	RRIlluminationEnvironmentMapInOpenGL* illum = new RRIlluminationEnvironmentMapInOpenGL(filenameMask,cubeSideName);
 	if(!illum->texture)

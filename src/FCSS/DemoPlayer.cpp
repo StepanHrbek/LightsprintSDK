@@ -30,7 +30,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
 	if(buf[0])
 	{
-		skyMap = rr_gl::RRRealtimeRadiosityGL::loadIlluminationEnvironmentMap(buf,cubeSideNames);
+		skyMap = rr_gl::RRDynamicSolverGL::loadIlluminationEnvironmentMap(buf,cubeSideNames);
 		if(!skyMap)
 			rr::RRReporter::report(rr::RRReporter::WARN,"Failed to load skybox %s.\n",buf);
 	}
