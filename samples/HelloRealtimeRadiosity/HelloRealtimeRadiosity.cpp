@@ -589,7 +589,7 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// init renderer
-	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler(),true);
+	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getStaticSolver(),solver->getScaler(),true);
 	rendererCaching = rendererNonCaching->createDisplayList();
 
 	glutMainLoop();

@@ -144,7 +144,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	*/
 
 	// init renderer
-	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getScene(),solver->getScaler(),true);
+	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getStaticSolver(),solver->getScaler(),true);
 	rendererCaching = new de::RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 
@@ -152,7 +152,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 
 #ifdef BUGS
 	// init bugs
-	bugs = Bugs::create(solver->getScene(),solver->getMultiObjectCustom(),100);
+	bugs = Bugs::create(solver->getStaticSolver(),solver->getMultiObjectCustom(),100);
 #endif
 }
 

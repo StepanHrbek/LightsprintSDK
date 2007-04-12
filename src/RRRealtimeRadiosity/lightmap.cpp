@@ -257,7 +257,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 				if(tc->params->applyCurrentIndirectSolution)
 				{
 					RRVec3 irrad;
-					tc->solver->getScene()->getTriangleMeasure(ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
+					tc->solver->getStaticSolver()->getTriangleMeasure(ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
 					irradianceHemisphere += irrad;
 				}
 				hitsScene++;
@@ -492,11 +492,11 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 
 bool RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* aparams)
 {
-	if(!getMultiObjectCustom() || !getScene())
+	if(!getMultiObjectCustom() || !getStaticSolver())
 	{
 		// create objects
 		calculateCore(0,0);
-		if(!getMultiObjectCustom() || !getScene())
+		if(!getMultiObjectCustom() || !getStaticSolver())
 		{
 			RR_ASSERT(0);
 			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: No objects in scene.\n");

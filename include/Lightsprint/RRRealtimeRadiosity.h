@@ -493,7 +493,7 @@ namespace rr
 		//
 		//! Scene is created from getMultiObjectPhysicalWithIllumination()
 		//! when you insert objects and call calculate().
-		const RRStaticSolver* getScene();
+		const RRStaticSolver* getStaticSolver();
 
 	protected:
 		//! Autodetects material properties of all materials present in scene.

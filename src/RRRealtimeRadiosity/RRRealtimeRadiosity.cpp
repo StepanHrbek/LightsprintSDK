@@ -127,7 +127,7 @@ RRObjectWithIllumination* RRDynamicSolver::getMultiObjectPhysicalWithIlluminatio
 	return multiObjectPhysicalWithIllumination;
 }
 
-const RRStaticSolver* RRDynamicSolver::getScene()
+const RRStaticSolver* RRDynamicSolver::getStaticSolver()
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return scene;

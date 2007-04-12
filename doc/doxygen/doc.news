@@ -19,6 +19,7 @@ CHANGES
   RRRealtimeRadiosity -> RRDynamicSolver
   RRRealtimeRadiosity::Object -> RRIlluminatedObject
   RRRealtimeRadiosity::Objects -> RRObjects
+  RRRealtimeRadiosity::getScene() -> getStaticSolver()
 - interface of adapters cleaned up
 
 \section news14 ------------------------------------ 2007.3.20 -------------------------------------

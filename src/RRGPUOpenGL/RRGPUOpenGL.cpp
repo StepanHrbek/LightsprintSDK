@@ -137,7 +137,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 		rendererObject = getMultiObjectCustom();
 		if(rendererObject)
 		{
-			rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getScene(),getScaler(),true);
+			rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getStaticSolver(),getScaler(),true);
 			rendererCaching = rendererNonCaching->createDisplayList();
 		}
 	}
@@ -285,7 +285,7 @@ bool RRRealtimeRadiosityGL::detectDirectIllumination()
 	if(!rendererNonCaching)
 	{
 		if(!getMultiObjectCustom()) return false;
-		rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getScene(),getScaler(),true);
+		rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getStaticSolver(),getScaler(),true);
 		rendererCaching = rendererNonCaching->createDisplayList();
 	}
 
@@ -532,7 +532,7 @@ bool RRRealtimeRadiosityGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIllum
 
 	// prepare renderer
 	// (could be cached later for higher speed)
-	RendererOfRRObject* renderer = new RendererOfRRObject(object,getScene(),getScaler(),false);
+	RendererOfRRObject* renderer = new RendererOfRRObject(object,getStaticSolver(),getScaler(),false);
 	renderer->setCapture(&captureUv,0,mesh->getNumTriangles());
 	RendererOfRRObject::RenderedChannels channels;
 	channels.LIGHT_DIRECT = true;
