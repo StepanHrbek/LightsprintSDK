@@ -332,7 +332,6 @@ namespace rr
 			bool diagnosticOutput;
 
 			//! Sets default parameters for very fast (milliseconds) preview of current indirect solution.
-			//! Ambient maps are created.
 			UpdateLightmapParameters()
 			{
 				applyCurrentIndirectSolution = true;

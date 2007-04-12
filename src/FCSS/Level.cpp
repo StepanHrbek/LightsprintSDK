@@ -28,13 +28,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	solver->setEnvironment(skyMap);
-	rr::RRStaticSolver::SmoothingParameters sp;
-	sp.subdivisionSpeed = SUBDIVISION;
-	sp.stitchDistance = 0; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
-#ifdef THREE_ONE
-	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
-#endif
-	//sp.stitchDistance = -1;
 
 	/*
 	if(strstr(filename, "candella"))
@@ -112,6 +105,13 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			puts("Unsupported scene format.");
 	}
 
+	rr::RRStaticSolver::SmoothingParameters sp;
+	sp.subdivisionSpeed = SUBDIVISION;
+	sp.stitchDistance = 0; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
+#ifdef THREE_ONE
+	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
+#endif
+	//sp.stitchDistance = -1;
 	solver->setObjects(*objects,&sp);
 
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");

@@ -11,17 +11,18 @@
 NEWS
 
 - RRScene is thread safe, so multiple scenes may run in parallel
+- Lightmaps sample
 
 CHANGES
 
 - name changes
-  RRScene -> RRStaticSolver
-  RRRealtimeRadiosity -> RRDynamicSolver
-  RRRealtimeRadiosity::Object -> RRIlluminatedObject
-  RRRealtimeRadiosity::Objects -> RRObjects
-  RRRealtimeRadiosity::getScene() -> getStaticSolver()
-  RRRealtimeRadiosityGL -> RRDynamicSolverGL
-- interface of adapters cleaned up
+  \n RRScene -> RRStaticSolver
+  \n RRRealtimeRadiosity -> RRDynamicSolver
+  \n RRRealtimeRadiosity::Object -> RRIlluminatedObject
+  \n RRRealtimeRadiosity::Objects -> RRObjects
+  \n RRRealtimeRadiosity::getScene() -> getStaticSolver()
+  \n RRRealtimeRadiosityGL -> RRDynamicSolverGL
+- interface of adapters unified and cleaned up
 
 \section news14 ------------------------------------ 2007.3.20 -------------------------------------
 

@@ -20,6 +20,10 @@ HelloDemoEngine
 HelloRealtimeRadiosity
 - shows how to render realtime global illumination in scene with dynamic objects and light
 
+Lightmaps
+- precalculates lightmaps in scene with dynamic objects and light,
+  has realtime global illumination preview
+
 Import3DS
 - source code of 3DS wrapper, used by HelloRealtimeRadiosity
 

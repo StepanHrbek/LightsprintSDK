@@ -1,17 +1,40 @@
 // --------------------------------------------------------------------------
-// Hello Realtime Radiosity sample
+// Lightmaps sample
 //
-// Realtime global illumination is demonstrated on .3ds scene viewer.
-// You should be familiar with OpenGL and GLUT to read the code.
+// This is a viewer of .3ds scenes with realtime global illumination
+// and ability to precompute/render/save/load
+// higher quality texture based illumination.
 //
-// This is HelloDemoEngine with Lightsprint engine integrated
-// (approx 90 lines were added, including spacing),
-// see how the same scene looks better with global illumination.
+// Unlimited options:
+// - Ambient maps (indirect illumination) are precomputed here,
+//   but you can tweak parameters of updateLightmaps()
+//   to create any type of textures, including direct/indirect/global illumination.
+// - Use setEnvironment() and capture illumination from skybox.
+// - Use setLights() and capture illumination from arbitrary 
+//   point/spot/dir/area/programmable lights.
+// - Tweak materials and capture illumination from emissive materials.
+// - Everything is HDR internally, custom scale externally.
+//   Tweak setScaler() and/or RRIlluminationPixelBuffer
+//   to set your scale and get HDR textures.
 //
 // Controls:
 //  mouse = look around
 //  arrows = move around
 //  left button = switch between camera and light
+//  spacebar = toggle between vertex based and ambient map based render
+//  p = Precompute higher quality maps
+//      alt-tab to console to see progress (takes several minutes)
+//  s = Save maps to disk (alt-tab to console to see filenames)
+//  l = Load maps from disk, stop realtime global illumination
+//
+// Remarks:
+// - To increase ambient map quality,
+//   1) provide unwrap uv for meshes (see getTriangleMapping in RRObject3DS.cpp)
+//   2) call updateLightmap() with higher quality
+//   3) increase ambient map resolution (see newPixelBuffer)
+// - To generate maps 10x faster
+//   1) provide unwrap uv for meshes (see getTriangleMapping in RRObject3DS.cpp)
+//      and decrease map resolution (see newPixelBuffer)
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // Models by Raist, orillionbeta, atp creations
@@ -24,8 +47,9 @@
 #include <GL/glut.h>
 #include "Lightsprint/RRRealtimeRadiosity.h"
 #include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
-#include "DynamicObject.h"
+#include "../HelloRealtimeRadiosity/DynamicObject.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -53,6 +77,8 @@ de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0
 de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
 de::UberProgram*        uberProgram = NULL;
+rr_gl::RendererOfRRObject* rendererNonCaching = NULL;
+de::Renderer*           rendererCaching = NULL;
 rr_gl::RRDynamicSolverGL* solver = NULL;
 DynamicObject*          robot = NULL;
 DynamicObject*          potato = NULL;
@@ -63,7 +89,7 @@ float                   speedForward = 0;
 float                   speedBack = 0;
 float                   speedRight = 0;
 float                   speedLeft = 0;
-
+bool                    ambientMapsRender = false;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -89,9 +115,21 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		error("Failed to compile or link GLSL program.\n",true);
 
 	// render static scene
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	m3ds.Draw(solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
+	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
+	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
+	renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
+	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
+	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
+	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
+	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
+	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
+	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
+	rendererNonCaching->setRenderedChannels(renderedChannels);
+	rendererNonCaching->setIndirectIllumination(solver->getIllumination(0)->getChannel(0)->vertexBuffer,solver->getIllumination(0)->getChannel(0)->pixelBuffer);
+	if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
+		rendererNonCaching->render(); // don't cache indirect illumination, it changes
+	else
+		rendererCaching->render(); // cache everything else, it's constant
 
 	// enable object space
 	uberProgramSetup.OBJECT_SPACE = true;
@@ -100,6 +138,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	{
 		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
+		uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
 		uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
 	}
 	// move and rotate object freely, nothing is precomputed
@@ -157,11 +196,25 @@ public:
 	{
 	}
 protected:
+	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
+	{
+		// Decide how big ambient map you want for object. 
+		// In this sample, we pick res proportional to number of triangles in object.
+		// When seams appear, increase res.
+		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
+		// This sample has bad unwrap -> high res map is needed.
+		unsigned res = 16;
+		while(res<2048 && res<20*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
+		return createIlluminationPixelBuffer(res,res);
+	}
 	// skipped, material properties were already readen from .3ds and never change
 	virtual void detectMaterials() {}
 	// detects direct illumination irradiances on all faces in scene
 	virtual bool detectDirectIllumination()
 	{
+		// renderer not yet ready, fail
+		if(!::rendererCaching) return false;
+
 		// shadowmap could be outdated, update it
 		updateShadowmap(0);
 
@@ -187,27 +240,6 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 //
 // GLUT callbacks
-
-void display(void)
-{
-	if(!winWidth || !winHeight) return; // can't display without window
-	eye.update(0);
-	light.update(0.3f);
-	unsigned numInstances = areaLight->getNumInstances();
-	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	eye.setupForRender();
-	de::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = numInstances;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
-	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
-	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	renderScene(uberProgramSetup);
-	glutSwapBuffers();
-}
 
 void special(int c, int x, int y)
 {
@@ -235,6 +267,67 @@ void keyboard(unsigned char c, int x, int y)
 {
 	switch (c)
 	{
+		case ' ':
+			// toggle vertex based vs ambient map based render
+			ambientMapsRender = !ambientMapsRender;
+			break;
+
+		case 'p':
+			// Updates ambient maps (indirect illumination) in high quality.
+			{
+				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
+				paramsDirect.quality = 1000;
+				solver->updateLightmaps(0,&paramsDirect,NULL);
+				// start rendering computed maps
+				ambientMapsRender = true;
+				modeMovingEye = true;
+				break;
+			}
+
+		case 's':
+			// save current indirect illumination (static snapshot) to disk
+			{
+				static unsigned captureIndex = 0;
+				char filename[100];
+				// save all ambient maps (static objects)
+				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
+				{
+					rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getChannel(0)->pixelBuffer;
+					if(map)
+					{
+						sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
+						bool saved = map->save(filename);
+						printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+					}
+				}
+				captureIndex++;
+				break;
+			}
+
+		case 'l':
+			// load static snapshot of indirect illumination from disk, stop realtime updates
+			{
+				unsigned captureIndex = 0;
+				char filename[100];
+				// load all ambient maps (static objects)
+				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
+				{
+					sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
+					rr::RRObjectIllumination::Channel* illum = solver->getIllumination(objectIndex)->getChannel(0);
+					rr::RRIlluminationPixelBuffer* loaded = solver->loadIlluminationPixelBuffer(filename);
+					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
+					if(loaded)
+					{
+						delete illum->pixelBuffer;
+						illum->pixelBuffer = loaded;
+					}
+				}
+				// start rendering loaded maps
+				ambientMapsRender = true;
+				modeMovingEye = true;
+				break;
+			}
+
 		case 27:
 			exit(0);
 	}
@@ -279,6 +372,42 @@ void passive(int x, int y)
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
+}
+
+void display(void)
+{
+	if(!winWidth || !winHeight) return; // can't display without window
+	eye.update(0);
+	light.update(0.3f);
+	unsigned numInstances = areaLight->getNumInstances();
+	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	eye.setupForRender();
+	de::UberProgramSetup uberProgramSetup;
+	uberProgramSetup.SHADOW_MAPS = numInstances;
+	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	if(ambientMapsRender)
+	{
+		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
+		// if ambient maps don't exist yet, create them
+		if(!solver->getIllumination(0)->getChannel(0)->pixelBuffer)
+		{
+			// precompute preview maps, takes few ms
+			//solver->calculate(rr::RRDynamicSolver::FORCE_UPDATE_PIXEL_BUFFERS);
+			// precompute high quality maps, takes minutes
+			keyboard('p',0,0);
+		}
+	}
+	else
+	{
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+	}
+	uberProgramSetup.MATERIAL_DIFFUSE = true;
+	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+	renderScene(uberProgramSetup);
+	glutSwapBuffers();
 }
 
 void idle()
@@ -330,7 +459,7 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
-	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint Hello RR"); // for windowed mode
+	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint Lightmaps"); // for windowed mode
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
@@ -363,7 +492,8 @@ int main(int argc, char **argv)
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+	uberProgramSetup.LIGHT_INDIRECT_MAP = true;
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram);
@@ -398,6 +528,10 @@ int main(int argc, char **argv)
 	solver->calculate();
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+
+	// init renderer
+	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getStaticSolver(),solver->getScaler(),true);
+	rendererCaching = rendererNonCaching->createDisplayList();
 
 	glutMainLoop();
 	return 0;

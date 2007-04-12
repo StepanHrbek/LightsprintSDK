@@ -165,7 +165,7 @@ Integration of global illumination (GI) solver into your project is described in
 
  You can immediately render realtime global illumination in your 3d scenes
  if you convert them to .3ds format
- and load them into HelloRealtimeRadiosity sample.
+ and load them in HelloRealtimeRadiosity (or Lightmaps) sample.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Recommended approach:
@@ -173,7 +173,7 @@ Integration of global illumination (GI) solver into your project is described in
 
   - If conversion tool exists,
     convert one of your scenes to .3ds format
-    and load it into HelloRealtimeRadiosity.
+    and load it into HelloRealtimeRadiosity (or Lightmaps).
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
@@ -233,16 +233,14 @@ Integration of global illumination (GI) solver into your project is described in
   - Delete \#include "DemoEngine/Model_3DS.h" from RRObjectCustom.h
   - Build reports errors on all references to 3ds,
     change code so it works with your engine's 3d model rather than with 3ds.
+    Replace all references to 3ds with your custom format.
     For more details, see
     - comments in RRObjectCustom source code
     - <b> \subpage integration_step_2 </b>
     - <b> \subpage integration_step_3 </b>
     - interfaces of RRMesh and RRObject you implement
-  - Go through HelloRealtimeRadiosity.cpp and
-    - Replace all references to 3ds with your custom format.
-    - Delete section "#ifndef AMBIENT_MAPS ... #endif", it relates only to 3ds.
   - If it works, you see your scene with two dynamic (still .3ds) objects.
-    If you don't use 1m units, your scene could be too big, try scaling it.
+    If you don't use 1m units, your scene could be too big/small, try scaling it.
   - Optional final step: do the same changes to DynamicObject,
     so it works with your format, rather than with .3ds.
 
@@ -663,11 +661,6 @@ Integration of global illumination (GI) solver into your project is described in
    This is necessary because if we want to render triangles with shared
    vertices to completely different positions in texture, we have to split 
    that vertices.
-   In case of HelloRealtimeRadiosity, this is handled by branch in renderScene():
-   after setting shader, two paths for specifying vertex data follow,
-   - m3ds.Draw is original indexed tristrip path
-   - rendererCaching->render() is new non-indexed trilist path 
-     written only for purpose of this detection
 
  <i>
  <b>Possible optimizations:</b>
@@ -1481,6 +1474,9 @@ Integration of global illumination (GI) solver into your project is described in
 
  DemoEngine based on OpenGL 2.0 provides support for loading and rendering
  3d scenes with shaders, but without global illumination.
+
+ Sample Lightmaps precomputes/renders/saves/loads lightmaps
+ with realtime global illumination preview.
 
  Sample HelloRealtimeRadiosity renders global illumination 
  in scene with dynamic light and dynamic objects,

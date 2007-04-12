@@ -6,6 +6,7 @@ all: .phony
 	cd HelloMesh & make
 	cd HelloRealtimeRadiosity & make
 	cd HelloVision & make
+	cd Lightmaps & make
 
 clean:
 	cd BunnyBenchmark & make clean
@@ -13,3 +14,4 @@ clean:
 	cd HelloMesh & make clean
 	cd HelloRealtimeRadiosity & make clean
 	cd HelloVision & make clean
+	cd Lightmaps & make clean
