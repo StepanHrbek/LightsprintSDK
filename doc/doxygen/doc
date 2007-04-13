@@ -14,6 +14,8 @@ namespace rr
 
  - <b> \subpage main_scenarios </b>
 
+ - <b> \subpage main_features </b>
+
  - <b> \subpage main_platforms </b>
 
 
@@ -141,6 +143,89 @@ namespace rr
     of realtime radiosity in game. It doesn't have to be just eye candy.
     
  \image html rrbugs_hint.jpg
+
+
+
+
+\page main_features Features
+
+This is brief list of Lightsprint features, see \ref main_api for more details.
+
+Global illumination
+- realtime global illumination
+- realtime penumbra shadows, soft shadows
+- realtime color bleeding
+- dynamic lights
+- dynamic objects
+- multithreaded, runs at all cores/CPUs
+- all computed in HDR
+- custom scale on inputs/outputs (HDR/sRGB/other)
+- scene size not limited
+- mesh instancing
+- mesh filters, optimizers
+- adaptive subdivision
+
+Light sources
+- spot light
+- point light
+- directinal light
+- skybox/cubemap
+- emissive material/surface
+- area light
+- linear light
+- custom programmable light
+
+Computed illumination
+- lightmap
+- ambient map
+- diffuse environment map
+- specular environment map
+- vertex color buffer
+- illumination of triangle, including adaptively subdivided
+- illumination of vertex, including adaptively subdivided
+- illumination at ray end
+- any combination of direct/indirect/global illumination
+
+Renderer
+- integrates with external renderers
+- contains own OpenGL 2.0 shader based renderer
+
+Materials
+- supports all types of materials
+- diffuse maps, specular maps
+- normal maps, emissive maps...
+
+Realtime/precomputed
+- supports realtime illumination
+- supports precomputed illumination
+- supports mix of realtime and precomputed illumination
+
+GPU/API access
+- full control over GPU access, source code
+- full control over filesystem access, source code
+- full control over scene data loading, source code
+
+Ray-Mesh collisions
+- speed, up to 200x higher than commercial physical engines
+- small memory footprint, typically 10x smaller than commercial physical engines
+- multithreaded
+- up to 4294967295 vertices in mesh
+- up to 1073741824 triangles in mesh
+- triangle lists/strips/indexed/nonindexed
+- floats, doubles, halfs, ints, shorts
+- custom mesh data structures without data duplication
+- uniform scaling, non uniform scaling
+- singlesided tests
+- doublesided tests
+- number of sides defined by material
+- gather all collisions
+- custom action at collision
+- returns intersection distance
+- returns 3D/2D position
+- returns normal and plane
+- returns side that was hit
+- high precision, higher than commercial physical engines
+- high reliability, 7 years under heavy load
 
 
 
@@ -1646,10 +1731,11 @@ Integration of global illumination (GI) solver into your project is described in
      - specular environment map with variable resolution
    - separately enabled/disabled material features:
      - diffuse color per vertex
-     - diffuse color per pixel
+     - diffuse map
      - specular (enabled for whole object)
-     - specular map (simple, specular modulated by diffuse map)
-     - normal map (simple, normal modulated by diffuse map)
+     - specular map (specular modulated by diffuse map)
+     - normal map (normal modulated by diffuse map)
+     - emissive map
 
  Sample HelloDemoEngine shows .3ds scene viewer with dynamic objects
  and realtime penumbra shadows, based on DemoEngine.
