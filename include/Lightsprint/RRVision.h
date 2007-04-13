@@ -3,8 +3,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVision.h
-//! \brief RRVision - library for fast global illumination calculations
-//! \version 2007.3.20
+//! \brief RRVision - global illumination solver for static scenes, lower level
+//! \version 2007.4.13
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////

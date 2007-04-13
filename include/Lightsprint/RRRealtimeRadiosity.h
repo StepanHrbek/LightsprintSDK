@@ -3,8 +3,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRDynamicSolver.h
-//! \brief RRDynamicSolver - library for calculating radiosity in dynamic scenes
-//! \version 2007.3.20
+//! \brief RRDynamicSolver - global illumination solver for dynamic scenes, higher level
+//! \version 2007.4.13
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////

@@ -1443,7 +1443,7 @@ Integration of global illumination (GI) solver into your project is described in
 
  Lightsprint API consists of multiple libraries:
 
- - <b> \subpage api_rr "REALTIME RADIOSITY" </b> - calculates realtime radiosity in dynamic scene
+ - <b> \subpage api_rr "REALTIME RADIOSITY" </b> - calculates global illumination in dynamic scene
 
  - <b> \subpage api_gl "GPUOPENGL" </b> - OpenGL 2.0 access to GPU
 

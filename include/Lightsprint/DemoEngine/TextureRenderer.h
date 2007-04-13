@@ -17,9 +17,8 @@ namespace de
 // TextureRenderer
 //
 
-//! Quickly renders skybox or any other cube map.
+//! Helper for render of 2D or cube (skybox) texture.
 //
-//! Could be extended to support 2D textures.
 //! It handles resource (shader) allocation/freeing.
 //! Needs sky.vp/fp and texture.vp/fp shaders on disk.
 class DE_API TextureRenderer
@@ -33,7 +32,7 @@ public:
 
 	//! Renders cubemap as if camera is inside the cube.
 	//! Current OpenGL transformation matrices are used.
-	//! For non-NULL color, texture is multiplied by color.
+	//! For non-NULL color, texture color is multiplied by color.
 	bool renderEnvironment(const Texture* texture, float color[4]);
 
 	//! Initializes shader and render states for rendering cubemap.
@@ -47,7 +46,7 @@ public:
 
 	//! Renders 2d texture into rectangle.
 	//! x/y/w/h are in 0..1 space, x/y is top left corner.
-	//! For non-NULL color, texture is multiplied by color.
+	//! For non-NULL color, texture color is multiplied by color.
 	void render2D(const Texture* texture,float color[4], float x,float y,float w,float h);
 
 private:
