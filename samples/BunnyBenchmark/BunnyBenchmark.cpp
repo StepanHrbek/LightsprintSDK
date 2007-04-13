@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	PlyMeshReader reader;
 	try
 	{
-		reader.readFile("..\\..\\data\\ply\\bun_zipper.ply",plyMesh);
+		reader.readFile("..\\..\\data\\objects\\bun_zipper.ply",plyMesh);
 	}
 	catch(PlyMeshReaderExcep* e)
 	{

@@ -149,7 +149,8 @@ namespace rr
 
 \page main_features Features
 
-This is brief list of Lightsprint features, see \ref main_api for more details.
+This is brief list of Lightsprint features, see \ref main_api
+and samples for more details.
 
 Global illumination
 - realtime global illumination
