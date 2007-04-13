@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Imports TMapQ3 into RRDynamicSolver
+// Creates Lightsprint interface for Quake3 map (.bsp)
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 
@@ -7,22 +7,14 @@
 // You can replace TMapQ3 with your internal format and adapt this code
 // so it works with your data.
 //
-// This code is sufficient for demonstration purposes, but for production code,
-// more memory can be saved:
-// 1) Don't duplicate data into this object. Reimplement methods like getVertex
-//    so that they read from your original mesh, sizeof this class can go down
-//    to several bytes.
-// 2) For geometry instancing, split class into one that implements RRMesh
-//    and one that implements RRObject.
-//    You can then reuse meshes and colliders, multiple objects
-//    (instances of geometry in scene) will share the same collider and mesh.
-//    Even when properly written mesh has several bytes (it's only wrapper),
-//    collider can be big.
+// For sake of simplicity, some data are duplicated here.
+// See RRObjectCollada as an example of wrapper with
+// nearly zero memory requirements, no duplications.
 //
 // RRChanneledData - the biggest part of this implementation, provides access to
-// custom .bsp data via our custom identifiers CHANNEL_TRIANGLE_DIFFUSE_TEX etc.
+// custom .3ds data via our custom identifiers CHANNEL_TRIANGLE_DIFFUSE_TEX etc.
 // It is used only by our custom renderer RendererOfRRObject
-// (during render of scene with ambient maps),
+// (during render of scene with diffuse maps or ambient maps),
 // it is never accessed by radiosity solver.
 // You may skip it in your implementation.
 

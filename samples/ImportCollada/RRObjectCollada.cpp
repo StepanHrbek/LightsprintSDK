@@ -14,7 +14,7 @@
 // Instancing is supported, multiple instances with different
 // positions and materials share one collider and mesh.
 //
-// Assigns TEXCOORD 0 channel from document to diffuse maps.
+// TEXCOORD 0 channel from document is assigned to diffuse maps.
 // If TEXCOORD 1 channel is present, it is assigned to lightmaps,
 // otherwise automatic unwrap for lightmaps is generated.
 // You can easily tweak this setup, see TEXCOORD,0 and TEXCOORD,1.

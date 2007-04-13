@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Imports BSP model (quake3) into RRDynamicSolver
+// Creates Lightsprint interface for Quake3 map (.bsp)
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 
@@ -10,7 +10,7 @@
 #include "Q3Loader.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 
-//! Creates Lightsprint interface for Quake3 scene.
+//! Creates Lightsprint interface for Quake3 map.
 rr::RRObjects* adaptObjectsFromTMapQ3(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture);
 
 #endif

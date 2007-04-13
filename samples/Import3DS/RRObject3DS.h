@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Imports Model_3DS into RRDynamicSolver
+// Creates Lightsprint interface for 3DS scene
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
