@@ -14,8 +14,8 @@ CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
 endif
 
-OBJS  = $(TMP)RRObject/RRObject.o $(TMP)RRObject/RRObjectWithPhysicalMaterials.o
-OBJS += $(TMP)RRStaticSolver/clusters.o $(TMP)RRStaticSolver/geometry.o $(TMP)RRStaticSolver/interpol.o $(TMP)RRStaticSolver/intersections.o $(TMP)RRStaticSolver/rrcore.o $(TMP)RRStaticSolver/RRMaterial.o $(TMP)RRStaticSolver/RRScaler.o $(TMP)RRStaticSolver/RRStaticSolver.o $(TMP)RRStaticSolver/RRVision.o
+OBJS  = $(TMP)RRObject/RRMaterial.o $(TMP)RRObject/RRObject.o $(TMP)RRObject/RRObjectWithPhysicalMaterials.o $(TMP)RRObject/RRScaler.o
+OBJS += $(TMP)RRStaticSolver/clusters.o $(TMP)RRStaticSolver/geometry.o $(TMP)RRStaticSolver/interpol.o $(TMP)RRStaticSolver/intersections.o $(TMP)RRStaticSolver/rrcore.o $(TMP)RRStaticSolver/RRStaticSolver.o $(TMP)RRStaticSolver/RRVision.o
 OBJS += $(TMP)RRDynamicSolver/environmentMap.o $(TMP)RRDynamicSolver/Interpolator.o $(TMP)RRDynamicSolver/lightmap.o $(TMP)RRDynamicSolver/RRLight.o $(TMP)RRDynamicSolver/RRDynamicSolver.o $(TMP)RRDynamicSolver/vertexBuffer.o
 
 all: makefile $(LIB)

@@ -8,7 +8,7 @@ CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
  CPPFLAGS += -march=athlon-xp
 CPPFLAGS += -msse
 #CPPFLAGS += -mfpmath=sse
-LIBS = ../../lib/libRRGPUOpenGL.a ../../lib/libRRRealtimeRadiosity.a ../../lib/libDemoEngine.a ../../lib/libRRIllumination.a ../../lib/libRRVision.a ../../lib/libRRCollider.a ../../lib/libRRMesh.a
+LIBS = ../../lib/libRRGPUOpenGL.a ../../lib/libDemoEngine.a ../../lib/libRRIllumination.a ../../lib/libRRVision.a ../../lib/libRRCollider.a ../../lib/libRRMesh.a
 
 HELLO = ../../samples/HelloRealtimeRadiosity/
 BIN = ../../bin/

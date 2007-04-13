@@ -442,6 +442,14 @@
 				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.h"
 				>
 			</File>
+			<File
+				RelativePath="RRObject\RRMaterial.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRObject\RRScaler.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="RRStaticSolver"
@@ -484,14 +492,6 @@
 			</File>
 			<File
 				RelativePath="RRStaticSolver\rrcore.h"
-				>
-			</File>
-			<File
-				RelativePath="RRStaticSolver\RRMaterial.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RRStaticSolver\RRScaler.cpp"
 				>
 			</File>
 			<File

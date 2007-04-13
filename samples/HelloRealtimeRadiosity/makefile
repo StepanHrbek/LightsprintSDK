@@ -4,7 +4,7 @@ CPPFLAGS = -Wall -I../../include -O3 -DNDEBUG -DRR_STATIC
 MAKE = makefile
 
 OBJS = HelloRealtimeRadiosity.o ../Import3DS/RRObject3DS.o DynamicObject.o
-LIBS = ../../lib/libRRGPUOpenGL.a ../../lib/libRRRealtimeRadiosity.a ../../lib/libDemoEngine.a ../../lib/libRRIllumination.a ../../lib/libRRVision.a ../../lib/libRRCollider.a ../../lib/libRRMesh.a
+LIBS = ../../lib/libRRGPUOpenGL.a ../../lib/libDemoEngine.a ../../lib/libRRIllumination.a ../../lib/libRRVision.a ../../lib/libRRCollider.a ../../lib/libRRMesh.a
 
 all: HelloRealtimeRadiosity.exe
 
