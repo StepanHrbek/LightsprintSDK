@@ -302,12 +302,12 @@ int main(int argc, char **argv)
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
 
 	// init static .3ds scene
-	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna\\koupelna4.3ds",0.03f))
+	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
 		error("",false);
 
 	// init dynamic objects
-	robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I_Robot_female.3ds",0.3f);
-	potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f);
+	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f);
+	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f);
 
 	glutMainLoop();
 	return 0;

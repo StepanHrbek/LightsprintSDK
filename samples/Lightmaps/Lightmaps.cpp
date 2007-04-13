@@ -515,11 +515,11 @@ int main(int argc, char **argv)
 	// init dynamic objects
 	de::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
-	robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I_Robot_female.3ds",0.3f,material,16);
+	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16);
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f,material,16);
+	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f,material,16);
 
 	// init static scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
@@ -530,7 +530,7 @@ int main(int argc, char **argv)
 #ifdef COLLADA
 	collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
-	collada->LoadFromFile("..\\..\\data\\3ds\\koupelna\\koupelna4.dae");
+	collada->LoadFromFile("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
 	if(!errorHandler.IsSuccessful())
 	{
 		puts(errorHandler.GetErrorString());
@@ -538,7 +538,7 @@ int main(int argc, char **argv)
 	}
 	solver->setObjects(*adaptObjectsFromFCollada(collada),NULL);
 #else
-	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna\\koupelna4.3ds",0.03f))
+	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
 		error("",false);
 	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 #endif

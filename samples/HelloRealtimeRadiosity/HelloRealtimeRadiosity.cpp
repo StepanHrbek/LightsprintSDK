@@ -5,7 +5,7 @@
 // You should be familiar with OpenGL and GLUT to read the code.
 //
 // This is HelloDemoEngine with Lightsprint engine integrated
-// (approx 90 lines were added, including spacing),
+// (approx 90 lines were added, including empty and comments),
 // see how the same scene looks better with global illumination.
 //
 // Controls:
@@ -376,17 +376,17 @@ int main(int argc, char **argv)
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
 
 	// init static .3ds scene
-	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna\\koupelna4.3ds",0.03f))
+	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
 		error("",false);
 
 	// init dynamic objects
 	de::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
-	robot = DynamicObject::create("..\\..\\data\\3ds\\characters\\I_Robot_female.3ds",0.3f,material,16);
+	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16);
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f,material,16);
+	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f,material,16);
 
 	// init realtime radiosity solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
