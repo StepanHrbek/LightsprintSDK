@@ -381,7 +381,7 @@ namespace rr
 		// Environment map use
 
 		//! Returns value addressed by given direction.
-		//! Not mandatory, some implementations may always return 0.
+		//! Not mandatory, implementation may always return 0.
 		virtual RRColorRGBF getValue(const RRVec3& direction) const;
 
 		//! Binds texture for use by renderer.
@@ -410,12 +410,6 @@ namespace rr
 		//! \return
 		//!  True on successful save of complete environment map.
 		virtual bool save(const char* filenameMask, const char* cubeSideName[6]);
-
-		//! Creates simple environment with user defined value in top hemisphere and zero in bottom hemisphere.
-		//
-		//! Environment implements getValue(), so it is suitable for RRDynamicSolver::setEnvironment(),
-		//! other functions are not implemented.
-		static RRIlluminationEnvironmentMap* createSky(const RRColorRGBF& top);
 	};
 
 

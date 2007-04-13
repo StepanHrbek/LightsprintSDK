@@ -1590,7 +1590,7 @@ void keyboard(unsigned char c, int x, int y)
 			else
 			{
 				// set environment
-				level->solver->setEnvironment(rr::RRIlluminationEnvironmentMap::createSky(rr::RRColorRGBF(0.4f)));
+				//level->solver->setEnvironment(rr::RRIlluminationEnvironmentMap::createSky(rr::RRColorRGBF(0.4f)));
 				// set lights
 				rr::RRDynamicSolver::Lights lights;
 				lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
