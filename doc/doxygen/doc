@@ -190,6 +190,13 @@ Renderer
 - integrates with external renderers
 - contains own OpenGL 2.0 shader based renderer
 
+Scene formats
+- Collada (.DAE)
+- 3DS Max (.3DS)
+- Quake 3 (.BSP)
+- framework for custom formats
+- complete source code
+
 Materials
 - supports all types of materials
 - diffuse maps, specular maps
