@@ -2,13 +2,13 @@
 // RRVision minimalistic example.
 //
 // Mesh with two triangles, one dark and one emitting light, is constructed.
-// After quick calculation, exitances of both triangles are displayed.
+// After quick calculation using RRStaticSolver, exitances of both triangles are displayed.
 // They are higher, light was reflected.
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/RRVision.h"
+#include "Lightsprint/RRStaticSolver.h"
 #include <cstdio>
 #include <ctime>
 

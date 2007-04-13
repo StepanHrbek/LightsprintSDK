@@ -4,7 +4,7 @@
 // Realtime global illumination is demonstrated on .3ds scene viewer.
 // You should be familiar with OpenGL and GLUT to read the code.
 //
-// This is HelloDemoEngine with Lightsprint engine integrated
+// This is HelloDemoEngine with Lightsprint integrated
 // (approx 90 lines were added, including empty and comments),
 // see how the same scene looks better with global illumination.
 //
@@ -22,7 +22,7 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/DemoEngine/Timer.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"

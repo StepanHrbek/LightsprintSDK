@@ -5,7 +5,6 @@ all: .phony
 	cd RRMesh & make
 	cd RRCollider & make
 	cd RRVision & make
-	cd RRRealtimeRadiosity & make
 	cd DemoEngine & make
 	cd RRGPUOpenGL & make
 	cd FCSS & make
@@ -17,7 +16,6 @@ clean:
 	cd RRMesh & make clean
 	cd RRCollider & make clean
 	cd RRVision & make clean
-	cd RRRealtimeRadiosity & make clean
 	cd DemoEngine & make clean
 	cd RRGPUOpenGL & make clean
 	cd FCSS & make clean

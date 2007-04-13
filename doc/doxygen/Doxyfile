@@ -86,9 +86,10 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/L
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDebug.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMesh.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRCollider.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRVision.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRObject.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRStaticSolver.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRIllumination.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRRealtimeRadiosity.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDynamicSolver.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRGPUOpenGL.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRGPUOpenGL/RendererOfRRObject.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/AreaLight.h" \

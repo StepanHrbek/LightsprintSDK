@@ -1,7 +1,7 @@
 #ifndef BUGS_H
 #define BUGS_H
 
-#include "Lightsprint/RRVision.h"
+#include "Lightsprint/RRStaticSolver.h"
 #include "Lightsprint/DemoEngine/Texture.h"
 
 class Bugs

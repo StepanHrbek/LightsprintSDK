@@ -6,7 +6,7 @@
 #ifndef RROBJECTBSP_H
 #define RROBJECTBSP_H
 
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "Q3Loader.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 

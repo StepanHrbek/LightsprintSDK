@@ -1,5 +1,5 @@
 #include <assert.h>
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "report.h"
 
 namespace rr

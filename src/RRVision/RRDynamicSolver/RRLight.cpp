@@ -1,4 +1,4 @@
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 
 namespace rr
 {

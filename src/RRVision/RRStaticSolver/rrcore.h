@@ -42,7 +42,7 @@
 #include <stdarg.h>
 
 #include "geometry.h"
-#include "Lightsprint/RRVision.h"
+#include "Lightsprint/RRStaticSolver.h"
 #include "interpol.h"
 
 #define STATISTIC(a)

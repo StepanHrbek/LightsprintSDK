@@ -6,7 +6,7 @@
 #ifndef RROBJECTCOLLADA_H
 #define RROBJECTCOLLADA_H
 
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 
 //! Creates Lightsprint interface for Collada scene.
 rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document);

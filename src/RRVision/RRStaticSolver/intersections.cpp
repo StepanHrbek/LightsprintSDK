@@ -2,7 +2,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
-#include "Lightsprint/RRVision.h" // dbgray
+//#include "Lightsprint/RRStaticSolver.h" // dbgray
 #include "rrcore.h"
 #include "intersections.h"
 

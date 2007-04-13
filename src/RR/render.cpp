@@ -19,8 +19,8 @@
  #include "raster.h"
 #endif
 
-#include "../RRVision/rrcore.h"//!!!
-#include "../RRVision/clusters.h"//!!!
+#include "../RRVision/RRStaticSolver/rrcore.h"//!!!
+#include "../RRVision/RRStaticSolver/clusters.h"//!!!
 using namespace rr;
 
 //////////////////////////////////////////////////////////////////////////////

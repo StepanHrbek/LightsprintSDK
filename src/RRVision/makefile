@@ -14,7 +14,9 @@ CPPFLAGS += -march=athlon-xp -msse
 #CPPFLAGS += -mfpmath=sse
 endif
 
-OBJS = $(TMP)clusters.o $(TMP)geometry.o $(TMP)interpol.o $(TMP)intersections.o $(TMP)rrcore.o $(TMP)RRMaterial.o $(TMP)RRObject/RRObject.o $(TMP)RRObject/RRObjectWithPhysicalMaterials.o $(TMP)RRScaler.o $(TMP)RRScene.o $(TMP)RRVision.o
+OBJS  = $(TMP)RRObject/RRObject.o $(TMP)RRObject/RRObjectWithPhysicalMaterials.o
+OBJS += $(TMP)RRStaticSolver/clusters.o $(TMP)RRStaticSolver/geometry.o $(TMP)RRStaticSolver/interpol.o $(TMP)RRStaticSolver/intersections.o $(TMP)RRStaticSolver/rrcore.o $(TMP)RRStaticSolver/RRMaterial.o $(TMP)RRStaticSolver/RRScaler.o $(TMP)RRStaticSolver/RRStaticSolver.o $(TMP)RRStaticSolver/RRVision.o
+OBJS += $(TMP)RRDynamicSolver/environmentMap.o $(TMP)RRDynamicSolver/Interpolator.o $(TMP)RRDynamicSolver/lightmap.o $(TMP)RRDynamicSolver/RRLight.o $(TMP)RRDynamicSolver/RRDynamicSolver.o $(TMP)RRDynamicSolver/vertexBuffer.o
 
 all: makefile $(LIB)
 
@@ -25,7 +27,8 @@ $(LIB): makefile $(OBJS)
 $(TMP)%.o: %.cpp makefile
 
 clean:
-	del $(TMP)*.o
 	del $(TMP)RRObject\*.o
+	del $(TMP)RRStaticSolver\*.o
+	del $(TMP)RRDynamicSolver\*.o
 	del ..\..\lib\libRRVision.a
 

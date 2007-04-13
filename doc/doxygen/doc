@@ -121,7 +121,7 @@ namespace rr
   - Saves months spent in adapting your data for external global illumination
     tools. Other tools don't support arbitrary materials and lights.
 
-  - Simple path for incorporating realtime radiosity into future games.
+  - Simple path for incorporating realtime global illumination into future games.
 
  \section scenario1 Realtime global illumination (GI) in game or architectural visualization
 
@@ -380,7 +380,7 @@ Integration of global illumination (GI) solver into your project is described in
  
 \page integration_step_2 Detect material properties
 
- Realtime radiosity is based on physically correct calculation of light transport.
+ Realtime global illumination is based on physically correct calculation of light transport.
  For such calculation it's necessary to know physical properties of surfaces.
  See RRMaterial for list of all material properties of a surface.
 
@@ -1443,15 +1443,13 @@ Integration of global illumination (GI) solver into your project is described in
 
  Lightsprint API consists of multiple libraries:
 
- - <b> \subpage api_rr "REALTIME RADIOSITY" </b> - calculates global illumination in dynamic scene
+ - <b> \subpage api_vision "VISION" </b> - calculates global illumination in dynamic scenes
 
- - <b> \subpage api_gl "GPUOPENGL" </b> - OpenGL 2.0 access to GPU
+ - <b> \subpage api_gl "GPUOPENGL" </b> - GPU access for Vision, using OpenGL 2.0
 
  - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 engine/renderer with penumbra shadows
 
  - <b> \subpage api_illumination "ILLUMINATION" </b> - storage for calculated illumination
-
- - <b> \subpage api_vision "VISION" </b> - calculates radiosity in static scene
 
  - <b> \subpage api_collider "COLLIDER" </b> - finds ray-mesh intersections
 
@@ -1489,33 +1487,48 @@ Integration of global illumination (GI) solver into your project is described in
 
 
 
-\page api_rr Realtime Radiosity
- Realtime Radiosity extends your renderer by adding realtime computed
- global illumination.
 
- Headers: RRRealtimeRadiosity.h
+\page api_vision Vision
+ Vision calculates global illumination in dynamic scenes.
 
- - adds global illumination to dynamic scenes
- - integrates with existing engines
- - uses no precalculations -> illumination quality varies, "architect edition"
- - techniques based on partial precalculations will follow -> quality boost, "day/night editions"
- - you can ask RRDynamicSolver for complete vertex buffers, lightmaps
-   or environment maps;
-   for information on individual triangles (even adaptively subdivided) or rays,
-   call underlying RRStaticSolver library
+ In typical situation, you have your own renderer with direct illumination.
+ Vision enhances it by calculating indirect illumination.
+
+ Header: RRObject.h
+
+ - 3d object properties: geometry, materials, position etc
+
+ Header: RRStaticSolver.h
+
+ - calculates global illumination in static scenes
+ - progressive refinement with permanent access to results (you can start calculation and read results 1ms later, you will get raw approximation)
+ - calculated illumination is available in triangles and vertices, including adaptively subdivided
+ - communicates in physical or custom units (W/m^2 or e.g. screen colors)
+ - display independent, purely numerical API
+
+ Sample HelloVision shows you the most simple use case:
+ -# Create RRObject that contains whole static scene.
+ -# Create RRStaticSolver from object.
+ -# Calculate global illumination using RRStaticSolver::illuminationImprove().
+ -# Read results using RRStaticSolver::getTriangleMeasure().
+
+ Header: RRDynamicSolver.h
+
+ - calculates global illumination in dynamic scenes
+ - gives you full control over speed/quality
+ - calculated illumination is available in vertex buffers, lightmaps or environment maps
  - communicates completely in custom units, e.g. screen colors
 
- Sample HelloRealtimeRadiosity shows the result of integration,
+ Samples HelloRealtimeRadiosity and Lightmaps show the result of integration,
  interactive .3ds scene viewer with global illumination immediately responding
  to object and light movements.
 
 
 
 
-
 \page api_illumination Illumination
  Illumination provides you with storage suitable for illumination
- calculated by RealtimeRadiosity.
+ calculated by Vision.
 
  Headers: RRIllumination.h
 
@@ -1526,36 +1539,7 @@ Integration of global illumination (GI) solver into your project is described in
  - allows for custom implementation -> smoothly integrates with other engines
 
  Sample HelloRealtimeRadiosity shows RRIllumination in action.
-
-
-
-
-\page api_vision Vision
- In typical situation, you have your own renderer with direct illumination.
- Vision can enhance it by adding indirect illumination.
-
- In atypical sutuation, Vision can calculate global illumination
- without any relation to your renderer.
-
- Header: RRVision.h
-
- - calculates global illumination in static scene
- - progressive refinement with permanent access to results (you can start calculation and read results 1ms later, you will get raw approximation)
- - calculated illumination is available in vertices, including adaptively created subvertices
- - communicates in physical or custom units (W/m^2 or e.g. screen colors)
- - display independent, purely numerical API
- - you can ask Vision about individual triangles, even adaptively subdivided;
-   for complete vertex buffers or lightmaps, see RealtimeRadiosity library
-
- Sample HelloVision shows you the most simple use case:
- -# Create RRObject that contains whole static scene.
- -# Create RRStaticSolver from object.
- -# Calculate global illumination using RRStaticSolver::illuminationImprove().
- -# Read results using RRStaticSolver::getTriangleMeasure().
-
- For integration with renderer, you may want to use some techniques from higher-level
- library Realtime Radiosity.
-
+ 
 
 
 \page api_collider Collider
@@ -1576,6 +1560,7 @@ Integration of global illumination (GI) solver into your project is described in
 
  Sample BunnyBenchmark shows how to detect collisions on all available
  CPUs/cores at once.
+
 
 
 \page api_mesh Mesh

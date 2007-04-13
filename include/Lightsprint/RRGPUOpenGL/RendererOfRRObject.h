@@ -7,7 +7,7 @@
 #define RENDEREROFRROBJECT_H
 
 #include <cstring> // memset
-#include "Lightsprint/RRVision.h"
+#include "Lightsprint/RRObject.h"
 #include "Lightsprint/DemoEngine/Renderer.h"
 #include "Lightsprint/RRGPUOpenGL.h"
 

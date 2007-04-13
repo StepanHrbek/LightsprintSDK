@@ -4,7 +4,7 @@
 #include <omp.h>
 #endif
 #include "Lightsprint/DemoEngine/Timer.h"
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "../src/RRMath/RRMathPrivate.h"
 
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}

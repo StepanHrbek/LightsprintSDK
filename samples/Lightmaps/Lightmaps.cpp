@@ -49,7 +49,7 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/DemoEngine/Timer.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 #include "../../samples/Import3DS/RRObject3DS.h"

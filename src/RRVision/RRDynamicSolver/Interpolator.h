@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
-#include "Lightsprint/RRVision.h"
+#include "Lightsprint/RRObject.h"
 
 namespace rr
 {

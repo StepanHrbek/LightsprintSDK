@@ -1,6 +1,6 @@
 #include <math.h>
 
-#include "Lightsprint/RRVision.h"
+#include "Lightsprint/RRObject.h"
 #include "memory.h"
 
 namespace rr

@@ -6,7 +6,7 @@
 
 #include "LicGenOpt.h"
 #include "rrcore.h"
-#include "Lightsprint/RRVision.h"
+#include "Lightsprint/RRStaticSolver.h"
 
 namespace rr
 {

@@ -9,7 +9,7 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include "RRRealtimeRadiosity.h"
+#include "RRDynamicSolver.h"
 
 #ifdef _MSC_VER
 #	ifdef RR_STATIC

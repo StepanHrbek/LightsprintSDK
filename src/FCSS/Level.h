@@ -23,7 +23,7 @@
 #include "AnimationEditor.h"
 #include "Autopilot.h"
 #include "Lightsprint/DemoEngine/RendererWithCache.h"
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

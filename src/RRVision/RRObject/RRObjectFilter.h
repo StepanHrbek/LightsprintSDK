@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cassert>
-#include "Lightsprint/RRVision.h"
+#include "Lightsprint/RRObject.h"
 
 namespace rr
 {

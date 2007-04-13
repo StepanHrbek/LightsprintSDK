@@ -6,7 +6,7 @@
 #ifndef RROBJECT3DS_H
 #define RROBJECT3DS_H
 
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/DemoEngine/Model_3DS.h"
 
 //! Creates Lightsprint interface for 3DS scene.

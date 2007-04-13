@@ -34,12 +34,12 @@
 #include "ldmgf.h"
 #include "misc.h"
 #include "render.h"
-#include "Lightsprint/RRVision.h"
+#include "Lightsprint/RRStaticSolver.h"
 #include "surface.h"
 #include "World.h"
 #include "world2rrvision.h"
 
-#include "../RRVision/rrcore.h"//!!!
+#include "../RRVision/RRStaticSolver/rrcore.h"//!!!
 using namespace rr;
 
 WORLD  *__world=NULL;

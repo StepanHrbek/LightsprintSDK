@@ -6,7 +6,7 @@
 
 #include "Interpolator.h"
 #include "report.h"
-#include "Lightsprint/RRRealtimeRadiosity.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "../src/RRMath/RRMathPrivate.h"
 
 #undef REPORT

@@ -2,6 +2,7 @@
 #include <math.h>
 #include <memory.h>
 #include "geometry.h"
+#include "Lightsprint/RRObject.h"
 
 namespace rr
 {

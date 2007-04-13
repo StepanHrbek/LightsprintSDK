@@ -399,6 +399,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\Lightsprint\RRObject.h"
+				>
+			</File>
+			<File
 				RelativePath="RRObject\RRObjectFilter.h"
 				>
 			</File>
@@ -439,66 +443,158 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\clusters.cpp"
+		<Filter
+			Name="RRStaticSolver"
 			>
-		</File>
-		<File
-			RelativePath=".\clusters.h"
+			<File
+				RelativePath="RRStaticSolver\clusters.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\clusters.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\geometry.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\geometry.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\interpol.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\interpol.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\intersections.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\intersections.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\rrcore.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\rrcore.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\RRMaterial.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\RRScaler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\RRScene.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRStaticSolver.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\RRVision.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="RRDynamicSolver"
 			>
-		</File>
-		<File
-			RelativePath="geometry.cpp"
-			>
-		</File>
-		<File
-			RelativePath="geometry.h"
-			>
-		</File>
-		<File
-			RelativePath="interpol.cpp"
-			>
-		</File>
-		<File
-			RelativePath="interpol.h"
-			>
-		</File>
-		<File
-			RelativePath="intersections.cpp"
-			>
-		</File>
-		<File
-			RelativePath="intersections.h"
-			>
-		</File>
-		<File
-			RelativePath="rrcore.cpp"
-			>
-		</File>
-		<File
-			RelativePath="rrcore.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RRMaterial.cpp"
-			>
-		</File>
-		<File
-			RelativePath="RRScaler.cpp"
-			>
-		</File>
-		<File
-			RelativePath="RRScene.cpp"
-			>
-		</File>
-		<File
-			RelativePath="RRVision.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\RRVision.h"
-			>
-		</File>
+			<File
+				RelativePath="RRDynamicSolver\environmentMap.cpp"
+				>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\Interpolator.cpp"
+				>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\Interpolator.h"
+				>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\lightmap.cpp"
+				>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\report.h"
+				>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\RRDynamicSolver.cpp"
+				>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRDynamicSolver.h"
+				>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\RRLight.cpp"
+				>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\vertexBuffer.cpp"
+				>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

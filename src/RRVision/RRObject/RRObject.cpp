@@ -1,8 +1,8 @@
 #include <cassert>
 
 #include "../../RRMesh/RRMeshFilter.h"
-#include "../rrcore.h"
-#include "Lightsprint/RRVision.h"
+#include "../RRStaticSolver/rrcore.h"
+#include "Lightsprint/RRObject.h"
 #include "RRObjectFilter.h"
 #include "RRMeshFilterTransformed.h"
 #include "RRObjectFilterTransformed.h"

@@ -15,13 +15,16 @@ NEWS
 
 CHANGES
 
+- RealtimeRadiosity library merged into Vision
 - name changes
-  \n RRScene -> RRStaticSolver
-  \n RRRealtimeRadiosity -> RRDynamicSolver
-  \n RRRealtimeRadiosity::Object -> RRIlluminatedObject
-  \n RRRealtimeRadiosity::Objects -> RRObjects
-  \n RRRealtimeRadiosity::getScene() -> getStaticSolver()
-  \n RRRealtimeRadiosityGL -> RRDynamicSolverGL
+  \n file RRVision.h -> RRObject.h, RRStaticSolver.h
+  \n file RRRealtimeRadiosity.h -> RRDynamicSolver.h
+  \n class RRScene -> RRStaticSolver
+  \n class RRRealtimeRadiosity -> RRDynamicSolver
+  \n class RRRealtimeRadiosity::Object -> RRIlluminatedObject
+  \n class RRRealtimeRadiosity::Objects -> RRObjects
+  \n class RRRealtimeRadiosityGL -> RRDynamicSolverGL
+  \n func RRRealtimeRadiosity::getScene() -> getStaticSolver()
 - interface of adapters unified and cleaned up
 
 \section news14 ------------------------------------ 2007.3.20 -------------------------------------
