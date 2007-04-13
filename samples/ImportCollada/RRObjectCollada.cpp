@@ -13,8 +13,13 @@
 //
 // Instancing is supported, multiple instances with different
 // positions and materials share one collider and mesh.
+//
+// Assigns TEXCOORD 0 channel from document to diffuse maps.
+// If TEXCOORD 1 channel is present, it is assigned to lightmaps,
+// otherwise automatic unwrap for lightmaps is generated.
+// You can easily tweak this setup, see TEXCOORD,0 and TEXCOORD,1.
 
-#if 0
+#if 0 // 0 disables Collada support, 1 enables
 
 #include <cassert>
 #include <cmath>

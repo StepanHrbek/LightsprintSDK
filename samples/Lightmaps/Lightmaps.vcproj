@@ -431,6 +431,14 @@
 			RelativePath="..\Import3DS\RRObject3DS.h"
 			>
 		</File>
+		<File
+			RelativePath="..\ImportCollada\RRObjectCollada.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\ImportCollada\RRObjectCollada.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

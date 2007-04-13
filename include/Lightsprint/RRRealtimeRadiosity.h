@@ -28,7 +28,7 @@
 #		define RR_API __declspec(dllexport)
 #	else // use dll
 #ifdef NDEBUG
-	#pragma comment(lib,"RRDynamicSolver.lib")
+	#pragma comment(lib,"RRRealtimeRadiosity.lib")
 #else
 	#pragma comment(lib,"RRRealtimeRadiosity_dd.lib")
 #endif

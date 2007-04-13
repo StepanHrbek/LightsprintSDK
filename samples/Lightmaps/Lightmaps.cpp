@@ -1,7 +1,8 @@
 // --------------------------------------------------------------------------
 // Lightmaps sample
 //
-// This is a viewer of .3ds scenes with realtime global illumination
+// This is a viewer of .3DS and Collada .DAE scenes
+// with realtime global illumination
 // and ability to precompute/render/save/load
 // higher quality texture based illumination.
 //
@@ -28,12 +29,15 @@
 //  l = Load maps from disk, stop realtime global illumination
 //
 // Remarks:
-// - To increase ambient map quality,
-//   1) provide unwrap uv for meshes (see getTriangleMapping in RRObject3DS.cpp)
-//   2) call updateLightmap() with higher quality
-//   3) increase ambient map resolution (see newPixelBuffer)
-// - To generate maps 10x faster
-//   1) provide unwrap uv for meshes (see getTriangleMapping in RRObject3DS.cpp)
+// - Collada is enabled by uncommenting #define COLLADA
+// - To increase ambient map quality, you can
+//    - provide better unwrap texcoords for meshes
+//      (see getTriangleMapping or save unwrap into Collada document)
+//    - call updateLightmaps with higher quality
+//    - increase ambient map resolution (see newPixelBuffer)
+// - To generate maps faster
+//    - provide better unwrap texcoords for meshes
+//      (see getTriangleMapping or save unwrap into Collada document)
 //      and decrease map resolution (see newPixelBuffer)
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
@@ -51,6 +55,16 @@
 #include "../../samples/Import3DS/RRObject3DS.h"
 #include "../HelloRealtimeRadiosity/DynamicObject.h"
 
+//#define COLLADA
+// loads Collada .DAE scene instead of .3DS scene
+// requires free FCollada library installed
+// requires #if 1 at the beginning of RRObjectCollada.cpp
+
+#ifdef COLLADA
+#include "FCollada.h"
+#include "FCDocument/FCDocument.h"
+#include "../../samples/ImportCollada/RRObjectCollada.h"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -71,7 +85,11 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
+#ifdef COLLADA
+FCDocument*             collada;
+#else
 de::Model_3DS           m3ds;
+#endif
 de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,60.0};
 de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*          areaLight = NULL;
@@ -95,26 +113,14 @@ bool                    ambientMapsRender = false;
 //
 // rendering scene
 
-// callback that feeds 3ds renderer with our vertex illumination
-const float* lockVertexIllum(void* solver,unsigned object)
-{
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
-	return vertexBuffer ? &vertexBuffer->lock()->x : NULL;
-}
-
-// callback that cleans vertex illumination
-void unlockVertexIllum(void* solver,unsigned object)
-{
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
-	if(vertexBuffer) vertexBuffer->unlock();
-}
-
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
 
 	// render static scene
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
@@ -204,7 +210,8 @@ protected:
 		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
 		// This sample has bad unwrap -> high res map is needed.
 		unsigned res = 16;
-		while(res<2048 && res<20*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
+		unsigned sizeFactor = 20; // decrease for good unwrap
+		while(res<2048 && res<sizeFactor*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		return createIlluminationPixelBuffer(res,res);
 	}
 	// skipped, material properties were already readen from .3ds and never change
@@ -505,10 +512,6 @@ int main(int argc, char **argv)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
 
-	// init static .3ds scene
-	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna\\koupelna4.3ds",0.03f))
-		error("",false);
-
 	// init dynamic objects
 	de::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
@@ -518,13 +521,27 @@ int main(int argc, char **argv)
 	material.MATERIAL_SPECULAR_MAP = true;
 	potato = DynamicObject::create("..\\..\\data\\3ds\\characters\\potato\\potato01.3ds",0.004f,material,16);
 
-	// init realtime radiosity solver
+	// init static scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
+#ifdef COLLADA
+	collada = FCollada::NewTopDocument();
+	FUErrorSimpleHandler errorHandler;
+	collada->LoadFromFile("..\\..\\data\\3ds\\koupelna\\koupelna4.dae");
+	if(!errorHandler.IsSuccessful())
+	{
+		puts(errorHandler.GetErrorString());
+		error("",false);
+	}
+	solver->setObjects(*adaptObjectsFromFCollada(collada),NULL);
+#else
+	if(!m3ds.Load("..\\..\\data\\3ds\\koupelna\\koupelna4.3ds",0.03f))
+		error("",false);
 	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
+#endif
 	solver->calculate();
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
