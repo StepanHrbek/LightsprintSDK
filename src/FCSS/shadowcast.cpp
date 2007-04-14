@@ -114,6 +114,9 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 
 /////////////////////////////////////////////////////////////////////////////
 
+#define SAFE_DELETE(a)   {delete a;a=NULL;}
+
+
 /* Draw modes. */
 enum {
 	DM_EYE_VIEW_SHADOWED,
@@ -247,15 +250,15 @@ void init_gl_resources()
 
 void done_gl_resources()
 {
-	//delete ambientProgram;
-	delete uberProgram;
-	delete loadingMap;
+	SAFE_DELETE(skyRenderer);
+	SAFE_DELETE(uberProgram);
+	SAFE_DELETE(loadingMap);
 #ifdef THREE_ONE
 #else
-	delete hintMap;
-	delete lightsprintMap;
+	SAFE_DELETE(hintMap);
+	SAFE_DELETE(lightsprintMap);
 #endif
-	delete areaLight;
+	SAFE_DELETE(areaLight);
 	gluDeleteQuadric(quadric);
 }
 
@@ -1424,10 +1427,14 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case 27:
-			if(supportEditor)
-				delete level; // aby se ulozily zmeny v animaci
-			//delete demoPlayer;
+			// rychlejsi ukonceni:
+			//if(supportEditor) delete level; // aby se ulozily zmeny v animaci
+			// pomalejsi ukonceni s uvolnenim pameti:
+			delete demoPlayer;
+
 			done_gl_resources();
+			delete rr::RRReporter::getReporter();
+			rr::RRReporter::setReporter(NULL);
 			exit(0);
 			break;
 		case 'H':
@@ -2109,10 +2116,8 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
-	//_crtBreakAlloc = 33935;
-
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
+	//_crtBreakAlloc = 1154356;
 
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
@@ -2120,6 +2125,8 @@ int main(int argc, char **argv)
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("",false);
 	}
+
+	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 
 	parseOptions(argc, argv);
 

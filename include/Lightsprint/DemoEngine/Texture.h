@@ -94,7 +94,6 @@ public:
 	//! Creates 2D or CUBE texture in OpenGL.
 	//! \param data Image used for initial contents of texture.
 	//!  Stored in format that depends on type, see glTexImage2D for more details.
-	//!  Important: Memory block pointed by data is adopted and delete[]d in destructor of created instance.
 	//!  If it's NULL, 1x1 pixel stub texture is created.
 	//! \param width Width of texture in texels.
 	//!  Some computers may support only power of two sizes.

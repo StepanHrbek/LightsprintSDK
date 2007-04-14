@@ -158,7 +158,7 @@ Global illumination
 - realtime color bleeding
 - dynamic lights
 - dynamic objects
-- multithreaded, runs at all cores/CPUs
+- multithreaded, all cores/CPUs and GPU work at once
 - all computed in HDR
 - custom scale on inputs/outputs (HDR/sRGB/other)
 - scene size not limited
@@ -171,7 +171,8 @@ Light sources
 - point light
 - directinal light
 - skybox/cubemap
-- emissive material/surface
+- skybox/programmable
+- emissive material
 - area light
 - linear light
 - custom programmable light
@@ -197,6 +198,9 @@ Scene formats
 - Quake 3 (.BSP)
 - framework for custom formats
 - complete source code
+
+Texture formats
+- JPG, PNG, DDS, GIF, TGA, BMP, TIF, HDR...
 
 Materials
 - supports all types of materials

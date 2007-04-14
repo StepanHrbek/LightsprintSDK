@@ -262,7 +262,7 @@ bool Model_3DS::Load(const char *filename, float ascale)
 	{
 		if (Materials[j].textured == false)
 		{
-			unsigned char* rgb = new unsigned char[4];
+			unsigned char rgb[4];
 			rgb[0] = Materials[j].color.r;
 			rgb[1] = Materials[j].color.g;
 			rgb[2] = Materials[j].color.b;

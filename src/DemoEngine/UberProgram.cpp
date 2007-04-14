@@ -19,11 +19,8 @@ UberProgram::UberProgram(const char* avertexShaderFileName, const char* afragmen
 UberProgram::~UberProgram()
 {
 	// delete all programs in cache
-	while(cache.begin()!=cache.end())
-	{
-		delete cache.begin()->second;
-		cache.erase(cache.begin());
-	}
+	for(std::map<unsigned,Program*>::const_iterator i=cache.begin();i!=cache.end();i++)
+		delete (*i).second;
 	free((void*)fragmentShaderFileName);
 	free((void*)vertexShaderFileName);
 }
@@ -39,7 +36,6 @@ Program* UberProgram::getProgram(const char* defines)
 	if(i!=cache.end()) return i->second;
 	Program* program = Program::create(defines,vertexShaderFileName,fragmentShaderFileName);
 	cache[hash] = program;
-	//cache.insert(defines,tmp);
 	return program;
 }
 

@@ -20,6 +20,11 @@ AnimationFrame::AnimationFrame()
 	thumbnail = NULL;
 }
 
+AnimationFrame::~AnimationFrame()
+{
+	delete thumbnail;
+}
+
 // returns a*(1-alpha) + b*alpha; (a and b are points on 360degree circle)
 // using shortest path between a and b
 rr::RRReal blendModulo(rr::RRReal a,rr::RRReal b,rr::RRReal alpha,rr::RRReal modulo)

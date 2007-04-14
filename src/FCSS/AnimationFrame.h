@@ -35,6 +35,7 @@ struct AnimationFrame
 	de::Texture* thumbnail;
 
 	AnimationFrame();
+	~AnimationFrame();
 
 	// returns blend between this and that frame
 	// return this for alpha=0, that for alpha=1

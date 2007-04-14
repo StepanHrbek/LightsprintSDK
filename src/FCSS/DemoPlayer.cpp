@@ -89,8 +89,13 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 
 DemoPlayer::~DemoPlayer()
 {
+	delete skyMap;
 	for(unsigned i=0;i<scenes.size();i++)
+	{
+		LevelSetup* setup = scenes[i]->pilot.setup;
 		delete scenes[i];
+		delete setup;
+	}
 	for(unsigned i=0;i<projectors.size();i++)
 		delete projectors[i];
 	delete music;
