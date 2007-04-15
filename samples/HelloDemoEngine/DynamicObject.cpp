@@ -31,7 +31,7 @@ const de::Model_3DS& DynamicObject::getModel()
 	return model;
 }
 
-void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye,float rot)
+void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,de::Texture* lightIndirectEnvSpecular,const de::Camera& eye,float rot)
 {
 	// use program
 	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap,NULL,1);
@@ -39,6 +39,16 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 	{
 		printf("Failed to compile or link GLSL program for dynamic object.\n");
 		return;
+	}
+	// set specular environment map
+	if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+	{
+		GLint activeTexture;
+		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
+		glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		lightIndirectEnvSpecular->bindTexture();
+		program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
+		glActiveTexture(activeTexture);
 	}
 	// set matrices
 	float m[16];

@@ -21,7 +21,7 @@ class DynamicObject
 public:
 	static DynamicObject* create(const char* filename,float scale);
 	const de::Model_3DS& getModel();
-	void render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,const de::Camera& eye,float rot);
+	void render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,de::Texture* lightIndirectEnvSpecular,const de::Camera& eye,float rot);
 
 	float worldFoot[3];
 private:

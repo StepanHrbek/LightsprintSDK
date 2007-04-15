@@ -70,14 +70,14 @@ float               speedLeft = 0;
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
+	static de::Texture* environmentMap = NULL;
 	if(uberProgramSetup.LIGHT_DIRECT)
 	{
 		static de::TextureRenderer* textureRenderer = NULL;
-		static de::Texture* environmentMap = NULL;
 		if(!textureRenderer) textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 		const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
-		//if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\purplenebula\\purplenebula_%s.jpg",cubeSideNames);
-		if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\frozendusk\\frozendusk_%s.jpg",cubeSideNames);
+		if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames);
+		//if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
 		textureRenderer->renderEnvironment(environmentMap,NULL);
 	}
 
@@ -104,8 +104,12 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		{
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
+			// LIGHT_INDIRECT_CONST=true: specular surface reflects constant ambient, not realistic
+			// LIGHT_INDIRECT_ENV=true: specular surface reflects constant envmap, not realistic
+			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
+			uberProgramSetup.LIGHT_INDIRECT_ENV = true;
 		}
-		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,rotation/2);
+		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,environmentMap,eye,rotation/2);
 	}
 	if(robot)
 	{
@@ -118,7 +122,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 		}
-		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,rotation);
+		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,environmentMap,eye,rotation);
 	}
 }
 
@@ -158,9 +162,8 @@ void display(void)
 	static de::Texture* mirrorMap = NULL;
 	static de::Texture* mirrorDepth = NULL;
 	static de::Program* mirrorProgram = NULL;
-	//if(mirrorMap && (mirrorMap->getWidth()!=winWidth/2 || mirrorMap->getHeight()!=winHeight/2)) SAFE_DELETE(mirrorMap);
-	if(!mirrorMap) mirrorMap = de::Texture::create(NULL,winWidth/2,winHeight/2,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	if(!mirrorDepth) mirrorDepth = de::Texture::createShadowmap(winWidth/2,winHeight/2);
+	if(!mirrorMap) mirrorMap = de::Texture::create(NULL,winWidth/4,winHeight/4,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	if(!mirrorDepth) mirrorDepth = de::Texture::createShadowmap(winWidth/4,winHeight/4);
 	if(!mirrorProgram) mirrorProgram = de::Program::create(NULL,"..\\..\\data\\shaders\\water.vs", "..\\..\\data\\shaders\\water.fs");
 	mirrorDepth->renderingToBegin();
 	mirrorMap->renderingToBegin();
@@ -207,10 +210,10 @@ void display(void)
 		mirrorProgram->sendUniform("mirrorMap",0);
 		mirrorProgram->sendUniform("time",(timeGetTime()%10000000)*0.001f);
 		glBegin(GL_QUADS);
-		glVertex3f(-100,0.1f,-100);
-		glVertex3f(-100,0.1f,+100);
-		glVertex3f(+100,0.1f,+100);
-		glVertex3f(+100,0.1f,-100);
+		glVertex3f(-100,-0.3f,-100);
+		glVertex3f(-100,-0.3f,+100);
+		glVertex3f(+100,-0.3f,+100);
+		glVertex3f(+100,-0.3f,-100);
 		glEnd();
 	}
 
