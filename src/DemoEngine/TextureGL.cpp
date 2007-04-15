@@ -216,6 +216,9 @@ bool TextureGL::renderingToBegin(unsigned side)
 void TextureGL::renderingToEnd()
 {
 	globalFBO->setRenderTargetColor(0,GL_TEXTURE_2D);
+	if(cubeOr2d==GL_TEXTURE_CUBE_MAP)
+		for(unsigned i=0;i<6;i++)
+			globalFBO->setRenderTargetColor(0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+i);
 	globalFBO->restoreDefaultRenderTarget();
 }
 

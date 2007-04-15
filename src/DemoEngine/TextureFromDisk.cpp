@@ -197,33 +197,33 @@ bool TextureGL::save(const char *filename, const char* cubeSideName[6])
 						//}
 						// try to guess the file format from the file extension
 						fif = FreeImage_GetFIFFromFilename(filename);
-						if(fif != FIF_UNKNOWN )
+						if(fif!=FIF_UNKNOWN && FreeImage_FIFSupportsWriting(fif))
 						{
-							// check that the plugin has sufficient writing and export capabilities ...
-retry:
+							// generate single side filename
+							char filenameCube[1000];
+							_snprintf(filenameCube,999,filename,cubeSideName[side]);
+							filenameCube[999] = 0;
+							// write 32 or 24bit
 							WORD bpp = FreeImage_GetBPP(dib);
-							if(FreeImage_FIFSupportsWriting(fif) && FreeImage_FIFSupportsExportBPP(fif, bpp))
+							if(FreeImage_FIFSupportsExportBPP(fif, bpp))
 							{
-								// generate single side filename
-								char filenameCube[1000];
-								_snprintf(filenameCube,999,filename,cubeSideName[side]);
-								filenameCube[999] = 0;
 								// ok, we can save the file
 								bSuccess = FreeImage_Save(fif, dib, filenameCube);
 								// if any one of 6 images fails, don't try other and report fail
 								if(!bSuccess) break;
 							}
 							else
+							if(FreeImage_FIFSupportsExportBPP(fif, 24))
 							{
 								// can't write 32bit, try 24bit
-								if(bpp==32)
-								{
-									dib = FreeImage_ConvertTo24Bits(dib);
-									goto retry;
-								}
+								FIBITMAP* dib24 = FreeImage_ConvertTo24Bits(dib);
+								// ok, we can save the file
+								bSuccess = FreeImage_Save(fif, dib24, filenameCube);
+								// cleanup
+								FreeImage_Unload(dib24);
+								// if any one of 6 images fails, don't try other and report fail
+								if(!bSuccess) break;
 							}
-							// switch back to 32, because we read 32bits from vram
-							dib = FreeImage_ConvertTo32Bits(dib);
 						}
 					}
 				}

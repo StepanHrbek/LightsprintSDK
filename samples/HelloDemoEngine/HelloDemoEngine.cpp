@@ -70,17 +70,16 @@ float               speedLeft = 0;
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
-	static de::TextureRenderer* textureRenderer = NULL;
-	static de::Texture* environmentMap = NULL;
-	if(!textureRenderer) textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
-	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
-	//if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\purplenebula\\purplenebula_%s.jpg",cubeSideNames);
-	if(!environmentMap) 
+	if(uberProgramSetup.LIGHT_DIRECT)
 	{
-		environmentMap = de::Texture::load("..\\..\\data\\maps\\frozendusk\\frozendusk_%s.jpg",cubeSideNames);
-		//environmentMap->save("..\\..\\data\\maps\\frozendusk\\_%s.jpg",cubeSideNames);
+		static de::TextureRenderer* textureRenderer = NULL;
+		static de::Texture* environmentMap = NULL;
+		if(!textureRenderer) textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
+		const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
+		//if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\purplenebula\\purplenebula_%s.jpg",cubeSideNames);
+		if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\frozendusk\\frozendusk_%s.jpg",cubeSideNames);
+		textureRenderer->renderEnvironment(environmentMap,NULL);
 	}
-	if(uberProgramSetup.LIGHT_DIRECT) textureRenderer->renderEnvironment(environmentMap,NULL);
 
 	// render static scene
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
@@ -180,7 +179,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	renderScene(uberProgramSetup);
-	//mirrorDepth->renderingToEnd();
+	mirrorDepth->renderingToEnd();
 	mirrorMap->renderingToEnd();
 	glViewport(0,0,winWidth,winHeight);
 	eye.mirror();
