@@ -2,7 +2,6 @@
 // Hello DemoEngine sample
 //
 // Use of DemoEngine is demonstrated on .3ds scene viewer.
-// You should be familiar with GLUT and OpenGL.
 //
 // This is HelloRealtimeRadiosity without Lightsprint engine,
 // the same scene with the same material properties,
@@ -23,6 +22,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/DemoEngine/Water.h"
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "DynamicObject.h"
 
@@ -51,7 +51,10 @@ de::Camera          eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,60.
 de::Camera          light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*      areaLight = NULL;
 de::Texture*        lightDirectMap = NULL;
+de::Texture*        environmentMap = NULL;
+de::TextureRenderer*textureRenderer = NULL;
 de::UberProgram*    uberProgram = NULL;
+de::Water*          water = NULL;
 DynamicObject*      robot = NULL;
 DynamicObject*      potato = NULL;
 int                 winWidth = 0;
@@ -70,16 +73,8 @@ float               speedLeft = 0;
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
-	static de::Texture* environmentMap = NULL;
 	if(uberProgramSetup.LIGHT_DIRECT)
-	{
-		static de::TextureRenderer* textureRenderer = NULL;
-		if(!textureRenderer) textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
-		const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
-		if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames);
-		//if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
 		textureRenderer->renderEnvironment(environmentMap,NULL);
-	}
 
 	// render static scene
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
@@ -104,9 +99,9 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		{
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
-			// LIGHT_INDIRECT_CONST=true: specular surface reflects constant ambient, not realistic
-			// LIGHT_INDIRECT_ENV=true: specular surface reflects constant envmap, not realistic
+			// LIGHT_INDIRECT_CONST = specular surface reflects constant ambient
 			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
+			// LIGHT_INDIRECT_ENV = specular surface reflects constant envmap
 			uberProgramSetup.LIGHT_INDIRECT_ENV = true;
 		}
 		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,environmentMap,eye,rotation/2);
@@ -158,21 +153,9 @@ void display(void)
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
-	// init water
-	static de::Texture* mirrorMap = NULL;
-	static de::Texture* mirrorDepth = NULL;
-	static de::Program* mirrorProgram = NULL;
-	if(!mirrorMap) mirrorMap = de::Texture::create(NULL,winWidth/4,winHeight/4,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	if(!mirrorDepth) mirrorDepth = de::Texture::createShadowmap(winWidth/4,winHeight/4);
-	if(!mirrorProgram) mirrorProgram = de::Program::create(NULL,"..\\..\\data\\shaders\\water.vs", "..\\..\\data\\shaders\\water.fs");
-	mirrorDepth->renderingToBegin();
-	mirrorMap->renderingToBegin();
-	glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
-	//!!! clipping
+	// init water reflection
+	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	eye.mirror();
-	eye.update(0);
-	eye.setupForRender();
 	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
@@ -182,11 +165,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	renderScene(uberProgramSetup);
-	mirrorDepth->renderingToEnd();
-	mirrorMap->renderingToEnd();
-	glViewport(0,0,winWidth,winHeight);
-	eye.mirror();
-	eye.update(0);
+	water->updateReflectionDone();
 
 	// render everything except water
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -202,20 +181,7 @@ void display(void)
 	renderScene(uberProgramSetup);
 
 	// render water
-	if(mirrorProgram && mirrorMap)
-	{
-		mirrorProgram->useIt();
-		glActiveTexture(GL_TEXTURE0);
-		mirrorMap->bindTexture();
-		mirrorProgram->sendUniform("mirrorMap",0);
-		mirrorProgram->sendUniform("time",(timeGetTime()%10000000)*0.001f);
-		glBegin(GL_QUADS);
-		glVertex3f(-100,-0.3f,-100);
-		glVertex3f(-100,-0.3f,+100);
-		glVertex3f(+100,-0.3f,+100);
-		glVertex3f(+100,-0.3f,-100);
-		glEnd();
-	}
+	water->render(100);
 
 	glutSwapBuffers();
 }
@@ -350,6 +316,8 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
+	water = new de::Water("..\\..\\data\\shaders\\");
+	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// set shadowmapsPerPass=1 for standard shadows
 	de::UberProgramSetup uberProgramSetup;
@@ -367,6 +335,9 @@ int main(int argc, char **argv)
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
+	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
+	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames);
+	//environmentMap = de::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

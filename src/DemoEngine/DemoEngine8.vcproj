@@ -524,6 +524,14 @@
 			RelativePath="..\..\include\Lightsprint\DemoEngine\UberProgramSetup.h"
 			>
 		</File>
+		<File
+			RelativePath=".\Water.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\DemoEngine\Water.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

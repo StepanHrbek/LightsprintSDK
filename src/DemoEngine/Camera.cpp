@@ -84,9 +84,9 @@ void Camera::lean(float units)
 	leanAngle+=units;
 }
 
-void Camera::mirror()
+void Camera::mirror(float altitude)
 {
-	pos[1] = -pos[1];
+	pos[1] = 2*altitude-pos[1];
 	angleX = -angleX;
 	// it is not completely mirrored, up stays {0,1,0} in update()
 }

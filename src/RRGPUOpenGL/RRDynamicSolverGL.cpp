@@ -82,10 +82,10 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 #endif
 		;
 	detectSmallMap = new unsigned[smallMapSize];
-	char buf1[400];
-	char buf2[400];
-	_snprintf(buf1,999,"%sscaledown_filter.vp",pathToShaders);
-	_snprintf(buf2,999,"%sscaledown_filter.fp",pathToShaders);
+	char buf1[400]; buf1[399] = 0;
+	char buf2[400]; buf2[399] = 0;
+	_snprintf(buf1,399,"%sscaledown_filter.vp",pathToShaders);
+	_snprintf(buf2,399,"%sscaledown_filter.fp",pathToShaders);
 	scaleDownProgram = de::Program::create(NULL,buf1,buf2);
 	if(!scaleDownProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/scaledown_filter.*\n",pathToShaders);
 
@@ -93,8 +93,8 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	rendererCaching = NULL;
 
 	// used by detectDirectIlluminationFromLightmaps
-	_snprintf(buf1,999,"%subershader.vp",pathToShaders);
-	_snprintf(buf2,999,"%subershader.fp",pathToShaders);
+	_snprintf(buf1,399,"%subershader.vp",pathToShaders);
+	_snprintf(buf2,399,"%subershader.fp",pathToShaders);
 	detectFromLightmapUberProgram = new de::UberProgram(buf1,buf2);
 	detectingFromLightmapChannel = -1;
 }
