@@ -200,6 +200,7 @@ bool TextureGL::save(const char *filename, const char* cubeSideName[6])
 						if(fif != FIF_UNKNOWN )
 						{
 							// check that the plugin has sufficient writing and export capabilities ...
+retry:
 							WORD bpp = FreeImage_GetBPP(dib);
 							if(FreeImage_FIFSupportsWriting(fif) && FreeImage_FIFSupportsExportBPP(fif, bpp))
 							{
@@ -212,6 +213,17 @@ bool TextureGL::save(const char *filename, const char* cubeSideName[6])
 								// if any one of 6 images fails, don't try other and report fail
 								if(!bSuccess) break;
 							}
+							else
+							{
+								// can't write 32bit, try 24bit
+								if(bpp==32)
+								{
+									dib = FreeImage_ConvertTo24Bits(dib);
+									goto retry;
+								}
+							}
+							// switch back to 32, because we read 32bits from vram
+							dib = FreeImage_ConvertTo32Bits(dib);
 						}
 					}
 				}
