@@ -71,6 +71,8 @@ public:
 	void moveDown(float units);
 	//! Leans camera = rotates around z axis.
 	void lean(float units);
+	//! Mirrors camera for reflection rendering. Second call takes changes back.
+	void mirror();
 	//! Updates all outputs, recalculates them from inputs.
 	void update(float back); // converts inputs to outputs
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are

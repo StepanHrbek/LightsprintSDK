@@ -6,11 +6,11 @@
 
 \page news What's new
 
-\section news15 ------------------------------------ 2007.4.xx -------------------------------------
+\section news15 ------------------------------------ 2007.4.13 -------------------------------------
 
 NEWS
 
-- RRScene is thread safe, so multiple scenes may run in parallel
+- multiple static or dynamic solvers may run in parallel
 - Lightmaps sample
 
 CHANGES

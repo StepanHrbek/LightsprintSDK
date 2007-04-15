@@ -17,9 +17,6 @@ namespace de
 //
 // TextureShadowMap
 
-static FBO* fbo = NULL;
-unsigned TextureShadowMap::numInstances = 0;
-
 TextureShadowMap::TextureShadowMap(unsigned awidth, unsigned aheight)
 	: TextureGL(NULL, awidth, aheight, false, GL_DEPTH_COMPONENT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
 {
@@ -28,18 +25,19 @@ TextureShadowMap::TextureShadowMap(unsigned awidth, unsigned aheight)
 	// for shadow2D() instead of texture2D()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-	numInstances++;
 }
 
 bool TextureShadowMap::renderingToBegin(unsigned side)
 {
-	if(!fbo) fbo = new FBO();
-	return fbo->setRenderTarget(0,id);
+	if(!globalFBO) globalFBO = new FBO();
+	globalFBO->setRenderTargetDepth(id);
+	return globalFBO->isStatusOk();
 }
 
 void TextureShadowMap::renderingToEnd()
 {
-	fbo->restoreDefaultRenderTarget();
+	globalFBO->setRenderTargetDepth(0);
+	globalFBO->restoreDefaultRenderTarget();
 }
 
 unsigned TextureShadowMap::getTexelBits()
@@ -48,16 +46,6 @@ unsigned TextureShadowMap::getTexelBits()
 	bindTexture();
 	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_DEPTH_SIZE,&bits);
 	return bits;
-}
-
-TextureShadowMap::~TextureShadowMap()
-{
-	numInstances--;
-	if(!numInstances)
-	{
-		delete fbo;
-		fbo = NULL;
-	}
 }
 
 /////////////////////////////////////////////////////////////////////////////

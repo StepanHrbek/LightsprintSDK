@@ -28,31 +28,36 @@ FBO::FBO()
 	}
 
 	glGenFramebuffersEXT(1, &fb);
+
+	// necessary for "new FBO; setRenderTargetDepth; render..."
+	setRenderTargetColor(0);
+	restoreDefaultRenderTarget();
 }
 
-bool FBO::setRenderTarget(unsigned color_id, unsigned depth_id, unsigned textarget)
+void FBO::setRenderTargetColor(unsigned color_id, unsigned textarget) const
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
-
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, textarget, color_id, 0);
 	if(color_id)
 	{
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, textarget, color_id, 0);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+		glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
 	}
 	else
 	{
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
 	}
+}
 
-	if(depth_id)
-	{
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_id, 0);
-	}
-	else
-	{
-		//...
-	}
+void FBO::setRenderTargetDepth(unsigned depth_id) const
+{
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_id, 0);
+}
 
+bool FBO::isStatusOk() const
+{
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	switch(status)
 	{
@@ -74,7 +79,7 @@ bool FBO::setRenderTarget(unsigned color_id, unsigned depth_id, unsigned textarg
 	return false;
 }
 
-void FBO::restoreDefaultRenderTarget()
+void FBO::restoreDefaultRenderTarget() const
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }

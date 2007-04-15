@@ -48,7 +48,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=".;..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;GLEW_STATIC;RR_STATIC;DE_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;DE_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"

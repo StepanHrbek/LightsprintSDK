@@ -17,7 +17,6 @@
 //#define CAPTURE_TGA           // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu
 #define PRIMARY_SCAN_PRECISION  1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define BIG_MAP_SIZE            1024
-#define SAFE_DELETE(a)          {delete a;a=NULL;}
 
 namespace rr_gl
 {

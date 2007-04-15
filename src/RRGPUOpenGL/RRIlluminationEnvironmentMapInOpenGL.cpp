@@ -9,8 +9,6 @@
 #include "RRIlluminationEnvironmentMapInOpenGL.h"
 #include "Lightsprint/RRGPUOpenGL.h"
 
-#define SAFE_DELETE(a)       {delete a;a=NULL;}
-
 namespace rr_gl
 {
 

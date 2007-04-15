@@ -114,9 +114,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 
 /////////////////////////////////////////////////////////////////////////////
 
-#define SAFE_DELETE(a)   {delete a;a=NULL;}
-
-
 /* Draw modes. */
 enum {
 	DM_EYE_VIEW_SHADOWED,

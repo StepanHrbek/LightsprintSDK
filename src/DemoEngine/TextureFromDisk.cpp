@@ -15,8 +15,6 @@
 #pragma comment(lib,"FreeImage.lib")
 #endif
 
-#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
-
 namespace de
 {
 

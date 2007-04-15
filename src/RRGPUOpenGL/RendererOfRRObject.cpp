@@ -11,8 +11,6 @@
 #include "Lightsprint/DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
 #include "ObjectBuffers.h"
 
-#define SAFE_DELETE(a)   {delete a;a=NULL;}
-
 namespace rr_gl
 {
 

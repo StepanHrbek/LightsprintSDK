@@ -22,10 +22,16 @@ class FBO
 public:
 	FBO();
 	~FBO();
+	//! Sets color buffer of FBO, could be combined with depth.
+	//! Set 0 to disable color.
 	//! \param textarget
 	//!  GL_TEXTURE_2D for 2D texture, TEXTURE_CUBE_MAP_POSITIVE_X etc for cube texture.
-	bool setRenderTarget(unsigned color_id, unsigned depth_id, unsigned textarget = GL_TEXTURE_2D);
-	void restoreDefaultRenderTarget();
+	void setRenderTargetColor(unsigned color_id, unsigned textarget = GL_TEXTURE_2D) const;
+	//! Sets depth buffer of FBO, could be combined with color.
+	//! Set 0 to disable depth.
+	void setRenderTargetDepth(unsigned depth_id) const;
+	bool isStatusOk() const;
+	void restoreDefaultRenderTarget() const;
 private:
 	GLuint fb;
 };

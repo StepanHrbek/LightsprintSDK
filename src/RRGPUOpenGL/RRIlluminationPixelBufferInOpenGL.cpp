@@ -9,9 +9,6 @@
 #include "Lightsprint/DemoEngine/Program.h"
 #include "Lightsprint/RRGPUOpenGL.h"
 
-#define SAFE_DELETE(a)       {delete a;a=NULL;}
-#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
-
 namespace rr_gl
 {
 

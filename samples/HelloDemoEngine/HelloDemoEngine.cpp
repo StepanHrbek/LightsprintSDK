@@ -23,6 +23,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "DynamicObject.h"
 
 
@@ -68,13 +69,27 @@ float               speedLeft = 0;
 
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
+	// render skybox
+	static de::TextureRenderer* textureRenderer = NULL;
+	static de::Texture* environmentMap = NULL;
+	if(!textureRenderer) textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
+	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
+	//if(!environmentMap) environmentMap = de::Texture::load("..\\..\\data\\maps\\purplenebula\\purplenebula_%s.jpg",cubeSideNames);
+	if(!environmentMap) 
+	{
+		environmentMap = de::Texture::load("..\\..\\data\\maps\\frozendusk\\frozendusk_%s.jpg",cubeSideNames);
+		//environmentMap->save("..\\..\\data\\maps\\frozendusk\\_%s.jpg",cubeSideNames);
+	}
+	if(uberProgramSetup.LIGHT_DIRECT) textureRenderer->renderEnvironment(environmentMap,NULL);
+
+	// render static scene
 	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
-
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	m3ds.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
 
+	// render dynamic objects
 	uberProgramSetup.OBJECT_SPACE = true; // enable object space
 	if(uberProgramSetup.SHADOW_MAPS) uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 	// move and rotate object freely, nothing is precomputed
@@ -139,9 +154,42 @@ void display(void)
 	light.update(0.3f);
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
+
+	// init water
+	static de::Texture* mirrorMap = NULL;
+	static de::Texture* mirrorDepth = NULL;
+	static de::Program* mirrorProgram = NULL;
+	//if(mirrorMap && (mirrorMap->getWidth()!=winWidth/2 || mirrorMap->getHeight()!=winHeight/2)) SAFE_DELETE(mirrorMap);
+	if(!mirrorMap) mirrorMap = de::Texture::create(NULL,winWidth/2,winHeight/2,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	if(!mirrorDepth) mirrorDepth = de::Texture::createShadowmap(winWidth/2,winHeight/2);
+	if(!mirrorProgram) mirrorProgram = de::Program::create(NULL,"..\\..\\data\\shaders\\water.vs", "..\\..\\data\\shaders\\water.fs");
+	mirrorDepth->renderingToBegin();
+	mirrorMap->renderingToBegin();
+	glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
+	//!!! clipping
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	eye.mirror();
+	eye.update(0);
 	eye.setupForRender();
 	de::UberProgramSetup uberProgramSetup;
+	uberProgramSetup.SHADOW_MAPS = 1;
+	uberProgramSetup.SHADOW_SAMPLES = 1;
+	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
+	uberProgramSetup.MATERIAL_DIFFUSE = true;
+	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+	renderScene(uberProgramSetup);
+	//mirrorDepth->renderingToEnd();
+	mirrorMap->renderingToEnd();
+	glViewport(0,0,winWidth,winHeight);
+	eye.mirror();
+	eye.update(0);
+
+	// render everything except water
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	eye.setupForRender();
+//	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
@@ -150,6 +198,23 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	renderScene(uberProgramSetup);
+
+	// render water
+	if(mirrorProgram && mirrorMap)
+	{
+		mirrorProgram->useIt();
+		glActiveTexture(GL_TEXTURE0);
+		mirrorMap->bindTexture();
+		mirrorProgram->sendUniform("mirrorMap",0);
+		mirrorProgram->sendUniform("time",(timeGetTime()%10000000)*0.001f);
+		glBegin(GL_QUADS);
+		glVertex3f(-100,0.1f,-100);
+		glVertex3f(-100,0.1f,+100);
+		glVertex3f(+100,0.1f,+100);
+		glVertex3f(+100,0.1f,-100);
+		glEnd();
+	}
+
 	glutSwapBuffers();
 }
 

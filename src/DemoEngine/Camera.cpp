@@ -84,4 +84,11 @@ void Camera::lean(float units)
 	leanAngle+=units;
 }
 
+void Camera::mirror()
+{
+	pos[1] = -pos[1];
+	angleX = -angleX;
+	// it is not completely mirrored, up stays {0,1,0} in update()
+}
+
 }; // namespace

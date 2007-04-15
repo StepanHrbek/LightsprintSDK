@@ -9,21 +9,23 @@
 #include <cstring>
 #include <GL/glew.h>
 #include "TextureGL.h"
+#include "TextureShadowMap.h"
 #include "FBO.h"
 
 namespace de
 {
 
+FBO* TextureGL::globalFBO = NULL;
+unsigned TextureGL::numPotentialFBOUsers = 0;
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // TextureGL
 
-unsigned TextureGL::numInstances = 0;
-
 TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, int atype,
 				 int magn, int mini, int wrapS, int wrapT)
 {
-	numInstances++;
+	numPotentialFBOUsers++;
 
 	// never changes in life of texture
 	cubeOr2d = acube?GL_TEXTURE_CUBE_MAP:GL_TEXTURE_2D;
@@ -199,22 +201,22 @@ bool TextureGL::getPixel(float ax, float ay, float az, float rgba[4]) const
 	return true;
 }
 
-static FBO* fbo = NULL;
-
 bool TextureGL::renderingToBegin(unsigned side)
 {
-	if(!fbo) fbo = new FBO();
+	if(!globalFBO) globalFBO = new FBO();
 	if(side>=6 || (cubeOr2d!=GL_TEXTURE_CUBE_MAP && side))
 	{
 		assert(0);
 		return false;
 	}
-	return fbo->setRenderTarget(id,0,(cubeOr2d==GL_TEXTURE_CUBE_MAP)?GL_TEXTURE_CUBE_MAP_POSITIVE_X+side:GL_TEXTURE_2D);
+	globalFBO->setRenderTargetColor(id,(cubeOr2d==GL_TEXTURE_CUBE_MAP)?GL_TEXTURE_CUBE_MAP_POSITIVE_X+side:GL_TEXTURE_2D);
+	return globalFBO->isStatusOk();
 }
 
 void TextureGL::renderingToEnd()
 {
-	fbo->restoreDefaultRenderTarget();
+	globalFBO->setRenderTargetColor(0,GL_TEXTURE_2D);
+	globalFBO->restoreDefaultRenderTarget();
 }
 
 TextureGL::~TextureGL()
@@ -222,11 +224,10 @@ TextureGL::~TextureGL()
 	glDeleteTextures(1, &id);
 	delete[] pixels;
 
-	numInstances--;
-	if(!numInstances)
+	numPotentialFBOUsers--;
+	if(!numPotentialFBOUsers)
 	{
-		delete fbo;
-		fbo = NULL;
+		SAFE_DELETE(globalFBO);
 	}
 }
 

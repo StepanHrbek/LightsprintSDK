@@ -11,8 +11,6 @@
 #include "Lightsprint/DemoEngine/Program.h"
 #include "Shader.h"
 
-#define SAFE_DELETE(a)   {delete a;a=NULL;}
-
 namespace de
 {
 

@@ -53,8 +53,11 @@ protected:
 	unsigned bytesTotal;
 	unsigned channels; // 3, 4
 	unsigned cubeOr2d; // GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP
-private:
-	static unsigned numInstances;
+
+	// single FBO instance shared by TextureGL and TextureShadowMap, used by renderingToBegin()
+	// automatically created when needed, destructed with last texture instances
+	static class FBO* globalFBO;
+	static unsigned numPotentialFBOUsers;
 };
 
 }; // namespace
