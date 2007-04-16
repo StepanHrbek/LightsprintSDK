@@ -148,12 +148,14 @@ void updateShadowmap(unsigned mapIndex)
 void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
+
+	// update shadowmaps
 	eye.update(0);
 	light.update(0.3f);
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
-	// init water reflection
+	// update water reflection
 	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	de::UberProgramSetup uberProgramSetup;
@@ -170,14 +172,8 @@ void display(void)
 	// render everything except water
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
-//	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
-	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
-	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	renderScene(uberProgramSetup);
 
 	// render water
@@ -337,7 +333,6 @@ int main(int argc, char **argv)
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
 	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
 	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames);
-	//environmentMap = de::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

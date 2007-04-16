@@ -6,7 +6,7 @@
 
 #include <cstdio>
 #include "Lightsprint/DemoEngine/Water.h"
-#include <windows.h>
+#include "Lightsprint/DemoEngine/Timer.h"
 
 namespace de
 {

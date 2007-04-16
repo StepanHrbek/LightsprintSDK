@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloDemoEngine", "HelloDem
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightmaps", "Lightmaps\Lightmaps.vcproj", "{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Water", "Water\Water.vcproj", "{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -49,6 +51,10 @@ Global
 		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
 		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
 		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release DLL|Win32.Build.0 = Release DLL|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

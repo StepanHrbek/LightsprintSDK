@@ -22,8 +22,10 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/DemoEngine/Water.h"
+#include "Lightsprint/DemoEngine/TextureRenderer.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"
 
@@ -52,6 +54,9 @@ de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3
 de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
+de::Texture*            environmentMap = NULL;
+de::TextureRenderer*    textureRenderer = NULL;
+de::Water*              water = NULL;
 de::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL* solver = NULL;
 DynamicObject*          robot = NULL;
@@ -85,14 +90,18 @@ void unlockVertexIllum(void* solver,unsigned object)
 
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
-		error("Failed to compile or link GLSL program.\n",true);
+	// render skybox
+	if(uberProgramSetup.LIGHT_DIRECT)
+		textureRenderer->renderEnvironment(environmentMap,NULL);
 
 	// render static scene
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
+		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	m3ds.Draw(solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 
+	// render dynamic objects
 	// enable object space
 	uberProgramSetup.OBJECT_SPACE = true;
 	// when not rendering shadows, enable environment maps
@@ -105,7 +114,6 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
 	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
-	// render object1
 	if(robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
@@ -191,21 +199,37 @@ protected:
 void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
+
+	// update shadowmaps
 	eye.update(0);
 	light.update(0.3f);
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
+
+	// update water reflection
+	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	eye.setupForRender();
 	de::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = numInstances;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.SHADOW_MAPS = 1;
+	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	renderScene(uberProgramSetup);
+	water->updateReflectionDone();
+
+	// render everything except water
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	eye.setupForRender();
+	uberProgramSetup.SHADOW_MAPS = numInstances;
+	uberProgramSetup.SHADOW_SAMPLES = 4;
+	renderScene(uberProgramSetup);
+
+	// render water
+	water->render(100);
+
 	glutSwapBuffers();
 }
 
@@ -356,6 +380,8 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
+	water = new de::Water("..\\..\\data\\shaders\\");
+	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
@@ -374,6 +400,9 @@ int main(int argc, char **argv)
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
+	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
+	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames);
+	//environmentMap = de::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

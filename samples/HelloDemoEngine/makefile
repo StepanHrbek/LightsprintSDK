@@ -3,7 +3,7 @@ CPPFLAGS = -Wall -I../../include -O3 -DNDEBUG -DGLEW_STATIC
 MAKE = makefile
 
 OBJS = HelloDemoEngine.o DynamicObject.o
-LIBS = ../../lib/libDemoEngine.a ../../lib/libRRGPUOpenGL.a
+LIBS = ../../lib/libDemoEngine.a
 
 all: HelloDemoEngine.exe
 
