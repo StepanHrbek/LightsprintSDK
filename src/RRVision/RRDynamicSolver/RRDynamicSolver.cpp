@@ -210,6 +210,8 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 		multiObjectPhysicalWithIllumination = multiObjectPhysical ? multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
 			(multiObjectCustom ? multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
 		delete[] importers;
+		if(multiObjectPhysicalWithIllumination)
+			RRReporter::report(RRReporter::CONT,"(%d objects, optimized to %d faces, %d vertices) ",objects.size(),multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices());
 		scene = multiObjectPhysicalWithIllumination ? new RRStaticSolver(multiObjectPhysicalWithIllumination,&smoothing) : NULL;
 		if(scene) updateVertexLookupTable();
 		REPORT_END;

@@ -66,6 +66,8 @@ namespace rr
 #define TWOSIDED_EMIT_TO_BOTH_SIDES
 #define ONESIDED_TRANSMIT_ENERGY
 
+#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // license
@@ -98,7 +100,7 @@ void* realloc(void* p,size_t oldsize,size_t newsize)
 	}
 	return q;
 #else
-	return realloc(p,newsize);
+	return ::realloc(p,newsize);
 #endif
 }
 
@@ -139,7 +141,6 @@ void Hit::setPower(real apower)
 // hits to one subtriangle
 
 unsigned __hitsAllocated=0;
-Scene* __gscene=NULL;
 
 Hits::Hits()
 {
@@ -1759,14 +1760,15 @@ Scene::Scene()
 	shotsForFactorsTotal=0;
 	shotsTotal=0;
 	staticSourceExitingFlux=Channels(0);
-	multiObjectMeshes4Delete=NULL;
 	sceneLevelHits = new LevelHits();
 	sceneRay = RRRay::create();
+	packedFactors = NULL;
 }
 
 Scene::~Scene()
 {
 	abortStaticImprovement();
+	delete[] packedFactors;
 	delete object;
 	delete sceneLevelHits;
 	delete sceneRay;
@@ -1779,7 +1781,6 @@ void Scene::objInsertStatic(Object *o)
 	staticReflectors.insertObject(o);
 	staticSourceExitingFlux+=o->objSourceExitingFlux;
 }
-
 
 RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 {
@@ -1859,6 +1860,8 @@ Vec3 refract(Vec3 N,Vec3 I,real r)
 	}
 }
 
+#define CHECK_HEAP //delete new char
+
 HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
@@ -1869,7 +1872,9 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	ray.rayLengthMax = BIG_REAL;
+	CHECK_HEAP;
 	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
+	CHECK_HEAP;
 	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{
 		// ray left scene and vanished
@@ -1917,7 +1922,9 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 		// put triangle among other hit triangles
 		if(!hitTriangle->hits.hits) hitTriangles.insert(hitTriangle);
 		// inform subtriangle where and how powerfully it was hit
+		CHECK_HEAP;
 		hitTriangle->hits.insert(hitPoint2d);
+		CHECK_HEAP;
 	}
 	// mirror reflection
 	// speedup: weaker rays continue less often but with
@@ -2169,7 +2176,6 @@ Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels po
 
 void Scene::shotFromToHalfspace(Node *sourceNode)
 {
-	__gscene=this;
 	Vec3 srcPoint3,rayVec3;
 	Triangle* tri=getRandomExitRay(sourceNode,&srcPoint3,&rayVec3);
 	// cast ray
@@ -2318,6 +2324,7 @@ bool Scene::setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *f
 
 void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *context)
 {
+	CHECK_HEAP;
 	DBGLINE
 	if(phase==0)
 	{
@@ -2331,6 +2338,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 		filler.Reset(); // prepare homogenous shooting
 		phase=1;
 	}
+	CHECK_HEAP;
 	if(phase==1)
 	{
 		DBGLINE
@@ -2345,6 +2353,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 		}
 		phase=2;
 	}
+	CHECK_HEAP;
 	if(phase==2)
 	{
 		DBGLINE
@@ -2354,6 +2363,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 		hitTriangles.holdAmulet();
 		phase=3;
 	}
+	CHECK_HEAP;
 	if(phase==3)
 	{
 		DBGLINE
@@ -2413,6 +2423,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 		phase=0;
 	}
 	DBGLINE
+	CHECK_HEAP;
 }
 
 real Scene::avgAccuracy()
@@ -2426,12 +2437,13 @@ real Scene::avgAccuracy()
 // refresh form factors and split triangles and subtriangles if needed
 // return if everything was distributed
 
-Reflectors *__staticReflectors;
-
+// vraci true pri improved
 bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context)
 {
+	CHECK_HEAP;
 	// refresh unaccurate form factors
-	RR_ASSERT(__staticReflectors->check());
+	RR_ASSERT(!packedFactors);
+	RR_ASSERT(staticReflectors.check());
 	bool needsRefresh = staticReflectors.lastBestWantsRefresh();
 	if(phase==0)
 	{
@@ -2444,25 +2456,29 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 			STATISTIC_INC(numCallsDistribFactors);
 		}
 	}
-	RR_ASSERT(__staticReflectors->check());
+	RR_ASSERT(staticReflectors.check());
+	CHECK_HEAP;
 	if(needsRefresh)
 	{
 		refreshFormFactorsFromUntil(source,endfunc,context);
 	}
-	RR_ASSERT(__staticReflectors->check());
+	CHECK_HEAP;
+	RR_ASSERT(staticReflectors.check());
 	if(phase==0)
 	{
 		// distribute energy via form factors
 		RR_ASSERT(source->shooter);
-		RR_ASSERT(__staticReflectors->check());
+		RR_ASSERT(staticReflectors.check());
 		source->shooter->forEach(distributeEnergyViaFactor,&source->shooter->totalExitingFluxToDiffuse,&staticReflectors);
-		RR_ASSERT(__staticReflectors->check());
+		RR_ASSERT(staticReflectors.check());
 		source->shooter->totalExitingFluxDiffused+=source->shooter->totalExitingFluxToDiffuse;
 		source->shooter->totalExitingFluxToDiffuse=Channels(0);
-		RR_ASSERT(__staticReflectors->check());
+		RR_ASSERT(staticReflectors.check());
+		CHECK_HEAP;
 		return true;
 	}
-	RR_ASSERT(__staticReflectors->check());
+	RR_ASSERT(staticReflectors.check());
+	CHECK_HEAP;
 	return false;
 }
 
@@ -2496,6 +2512,122 @@ bool Scene::distribute(real maxError)
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// night edition
+
+#define PF_TRIANGLE_MASK 0xfffff // dolnich 20 bitu je index trianglu
+#define PF_VISIBILITY_FACTOR 2.3283064370807973754314699618685e-10f // hornich 12 bitu je viditelnost, fff=1, 001=1/4095
+#define PF_PACK(triangleIndex,visibility) ((((unsigned)((visibility)*4095))<<20)+(triangleIndex))
+#define PF_GET_TRIANGLE(packedFactor) ((packedFactor)&PF_TRIANGLE_MASK)
+#define PF_GET_VISIBILITY(packedFactor) ((packedFactor)*PF_VISIBILITY_FACTOR)
+
+bool Scene::packFactors()
+{
+	SAFE_DELETE_ARRAY(packedFactors);
+	// calculate size
+	if(object->triangles>=(1<<20))
+		return false; // only 20 bits for triangleIndex
+	unsigned numFactors = 0;
+	for(unsigned i=0;i<object->triangles;i++)
+	{
+		//!!! optimize, sort factors
+		numFactors += object->triangle[i].shooter->factors();
+	}
+	// alloc
+	packedFactors = new unsigned[object->triangles+1+numFactors];
+	// write
+	unsigned factorsByteOffset = (object->triangles+1)*sizeof(unsigned);
+	for(unsigned i=0;i<object->triangles;i++)
+	{
+		// write offset
+		packedFactors[i] = factorsByteOffset;
+		// write factors
+		for(unsigned j=0;j<object->triangle[i].shooter->factors();j++)
+		{
+			const Factor* factor = object->triangle[i].shooter->get(j);
+			*(unsigned*)(((char*)packedFactors)+factorsByteOffset) = PF_PACK(factor->destination-object->triangle,factor->power);
+			factorsByteOffset += sizeof(unsigned);
+		}
+	}
+	// write last offset
+	packedFactors[object->triangles] = factorsByteOffset;
+	return true;
+}
+
+bool Scene::savePackedFactors() const
+{
+	if(!packedFactors) return false;
+	FILE* f = fopen("c:/ff","wb");
+	if(!f) return false;
+	fwrite(packedFactors,packedFactors[object->triangles],1,f);
+	fclose(f);
+	return true;
+}
+
+bool Scene::loadPackedFactors()
+{
+	SAFE_DELETE_ARRAY(packedFactors);
+	FILE* f = fopen("c:/ff","rb");
+	if(!f) return false;
+	fseek(f,0,SEEK_END);
+	unsigned uints = ftell(f)/sizeof(unsigned);
+	if(!uints)
+	{
+		fclose(f);
+		return false;
+	}
+	packedFactors = new unsigned[uints];
+	fread(packedFactors,sizeof(unsigned),uints,f);
+	fclose(f);
+	return true;
+}
+
+/*
+// returns best triangle index for distribution
+unsigned Scene::packedFactorsBest()
+{
+	STATISTIC_INC(numCallsBest);
+	// if cache empty, fill cache
+	if(!bests && nodes)
+	{
+		// search reflector with low accuracy, high totalExitingFluxToDiffuse etc
+		real bestQ[BESTS];
+		for(unsigned i=0;i<nodes;i++) if(node[i]->shooter)
+		{
+			// calculate quality of distributor
+			real q = sum(abs(node[i]->shooter->totalExitingFluxToDiffuse));
+			if(!node[i]->shooter->factors()) continue;
+
+			// sort [q,node] into best cache, bestQ[0] is highest
+			unsigned pos=bests;
+			while(pos>0 && bestQ[pos-1]<q)
+			{
+				if(pos<BESTS)
+				{
+					bestNode[pos]=bestNode[pos-1];
+					bestQ[pos]=bestQ[pos-1];
+				}
+				pos--;
+			}
+			if(pos<BESTS)
+			{
+				bestNode[pos]=node[i];
+				bestQ[pos]=q;
+				if(bests<BESTS) bests++;
+			}
+		}
+	}
+	// get best from cache
+	if(!bests) return NULL;
+	Node *best=bestNode[0];
+	bests--;
+	for(unsigned i=0;i<bests;i++) bestNode[i]=bestNode[i+1];
+	RR_ASSERT(best);
+	return best;
+}
+*/
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // improve global illumination in scene
 
 RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
@@ -2503,28 +2635,63 @@ RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *con
 	if(!IS_CHANNELS(staticSourceExitingFlux)) return RRStaticSolver::INTERNAL_ERROR; // invalid internal data
 	DBGLINE
 	STATISTIC_INC(numCallsImprove);
-
 	RRStaticSolver::Improvement improved=RRStaticSolver::NOT_IMPROVED;
-	__staticReflectors=&staticReflectors;
-	do
+
+	if(packedFactors)
 	{
-		RR_ASSERT(__staticReflectors->check());
-		if(improvingStatic==NULL)
-			improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
-		if(improvingStatic==NULL) 
+		// night edition
+		do
 		{
-			improved = RRStaticSolver::FINISHED;
-			break;
+			unsigned sourceTriangleIndex = 0;//packedFactorsBest();
+			if(sourceTriangleIndex==0xffffffff) 
+			{
+				improved = RRStaticSolver::FINISHED;
+				break;
+			}
+			improved = RRStaticSolver::IMPROVED;
+			Node* source = &object->triangle[sourceTriangleIndex];
+			unsigned* start = (unsigned*)( ((char*)packedFactors)+packedFactors[sourceTriangleIndex] );
+			unsigned* stop = (unsigned*)( ((char*)packedFactors)+packedFactors[sourceTriangleIndex+1] );
+			for(;start<stop;start++)
+			{
+				unsigned destinationTriangleIndex = PF_GET_TRIANGLE(*start);
+				Node *destination = &object->triangle[destinationTriangleIndex];
+				real visibility = PF_GET_VISIBILITY(*start);
+				Channels incidentFlux = source->shooter->totalExitingFluxToDiffuse*visibility;
+				Channels exitingFlux = incidentFlux*destination->grandpa->surface->diffuseReflectance;
+				destination->totalExitingFlux += exitingFlux;
+				destination->totalIncidentFlux += incidentFlux;
+				destination->shooter->totalExitingFluxToDiffuse += exitingFlux;
+			}
+			source->shooter->totalExitingFluxDiffused += source->shooter->totalExitingFluxToDiffuse;
+			source->shooter->totalExitingFluxToDiffuse = Channels(0);
 		}
-		RR_ASSERT(staticReflectors.check());
-		if(energyFromDistributedUntil(improvingStatic,endfunc,context))
-		{
-		    improvingStatic=NULL;
-		    improved=RRStaticSolver::IMPROVED;
-		}
-		RR_ASSERT(__staticReflectors->check());
+		while(!endfunc(context));
 	}
-	while(!endfunc(context));
+	else
+	{
+		// architect edition
+		do
+		{
+			RR_ASSERT(staticReflectors.check());
+			if(improvingStatic==NULL)
+				improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
+			if(improvingStatic==NULL) 
+			{
+				improved = RRStaticSolver::FINISHED;
+				break;
+			}
+			RR_ASSERT(staticReflectors.check());
+			if(energyFromDistributedUntil(improvingStatic,endfunc,context))
+			{
+				improvingStatic=NULL;
+				improved=RRStaticSolver::IMPROVED;
+			}
+			RR_ASSERT(staticReflectors.check());
+		}
+		while(!endfunc(context));
+	}
+
 	DBGLINE
 	return improved;
 }
@@ -2575,7 +2742,7 @@ bool Scene::finishStaticImprovement()
 	if(improvingStatic)
 	{
 		RR_ASSERT(phase>0);
-		real e=energyFromDistributedUntil(improvingStatic,falsefunc,NULL);
+		bool e=energyFromDistributedUntil(improvingStatic,falsefunc,NULL);
 		RR_ASSERT(e); e=e;
 		RR_ASSERT(phase==0);
 		improvingStatic=NULL;

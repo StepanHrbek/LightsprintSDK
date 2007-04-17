@@ -204,6 +204,7 @@ public:
 	void    forEach(void (*func)(Factor *factor,va_list ap),...);
 	void    forEachDestination(void (*func)(Node *node,va_list ap),...);
 	void    removeZeroFactors();
+	//void    sortByImportance();
 
 	private:
 		unsigned factors24_allocated8;//high24bits=factors, low8bits=ln2(factors allocated), 0=nothing allocated
@@ -684,7 +685,6 @@ public:
 
 	void    objInsertStatic(Object *aobject);
 
-
 	RRStaticSolver::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation);
 	RRStaticSolver::Improvement improveStatic(bool endfunc(void*), void* context);
 	void    abortStaticImprovement();
@@ -724,6 +724,20 @@ public:
 	real    avgAccuracy();
 	void    getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
 
+	// night edition
+	bool    packFactors();
+	bool    savePackedFactors() const;
+	bool    loadPackedFactors();
+	unsigned* packedFactors;
+	//struktura packedFactors:
+	// unsigned byteOffsetOfPackedFactors[numTriangles+1]; // pro kazdy src triangl offset kde zacinaji jeho PackedFactory
+	// struct PackedFactor
+	// {
+	//  unsigned destinationTriangleIndex : 20;
+	//  unsigned visibility : 12;
+	// };
+	// PackedFactor factors[]; // razene podle velikosti visibility, co kdybych jednou kvuli rychlosti slabsi energie distriboval jen pres ctvrt faktoru
+
 	private:
 		friend class Hits; // GATE
 
@@ -741,8 +755,6 @@ public:
 		unsigned shotsForFactorsTotal;
 		unsigned shotsTotal;
 		Reflectors staticReflectors; // top nodes in static Triangle trees
-		RRMesh** multiObjectMeshes4Delete; // to be deleted with multiCollider
-
 
 		// previously global ray+levels, now allocated per scene
 		// -> multiple independent scenes are legal

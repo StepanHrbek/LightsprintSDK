@@ -104,6 +104,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 		default:
 			puts("Unsupported scene format.");
 	}
+	if(!objects)
+	{
+		rr::RRReporter::report(rr::RRReporter::ERRO,"Scene %s not loaded.\n",pilot.setup->filename);
+		error("",false);
+	}
 
 	rr::RRStaticSolver::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;

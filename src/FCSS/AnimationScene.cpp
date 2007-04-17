@@ -37,7 +37,7 @@ bool LevelSetup::load(const char* afilename)
 	// load overlay
 	overlayFilename[0] = 0;
 	fscanf(f,"overlay = %s\n",overlayFilename);
-	overlayMap = de::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	overlayMap = overlayFilename[0] ? de::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP) : NULL;
 	// load scale
 	scale = 1;
 	fscanf(f,"scale = %f\n",&scale);

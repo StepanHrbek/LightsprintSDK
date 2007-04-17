@@ -166,7 +166,7 @@ Global illumination
 - mesh filters, optimizers
 - adaptive subdivision
 
-Light sources
+Light source formats (inputs)
 - spot light
 - point light
 - directinal light
@@ -177,7 +177,7 @@ Light sources
 - linear light
 - custom programmable light
 
-Computed illumination
+Lighting computed (outputs)
 - lightmap
 - ambient map
 - diffuse environment map
@@ -188,9 +188,9 @@ Computed illumination
 - illumination at ray end
 - any combination of direct/indirect/global illumination
 
-Renderer
+Renderers
 - integrates with external renderers
-- contains own OpenGL 2.0 shader based renderer
+- contains OpenGL 2.0 shader based renderer
 
 Scene formats
 - Collada (.DAE)
@@ -205,7 +205,8 @@ Texture formats
 Materials
 - supports all types of materials
 - diffuse maps, specular maps
-- normal maps, emissive maps...
+- normal maps, emissive maps
+- water with waves and reflection...
 
 Realtime/precomputed
 - supports realtime illumination
@@ -218,7 +219,7 @@ GPU/API access
 - full control over scene data loading, source code
 
 Ray-Mesh collisions
-- speed, up to 200x higher than commercial physical engines
+- up to 200x faster than commercial physical engines
 - small memory footprint, typically 10x smaller than commercial physical engines
 - multithreaded
 - up to 4294967295 vertices in mesh
@@ -227,17 +228,15 @@ Ray-Mesh collisions
 - floats, doubles, halfs, ints, shorts
 - custom mesh data structures without data duplication
 - uniform scaling, non uniform scaling
-- singlesided tests
-- doublesided tests
+- singlesided tests, doublesided tests
 - number of sides defined by material
-- gather all collisions
+- return one or gather all collisions
 - custom action at collision
-- returns intersection distance
-- returns 3D/2D position
-- returns normal and plane
-- returns side that was hit
+- returns intersection distance, 2D and 3D position
+- returns normal, plane and face side that was hit
 - high precision, higher than commercial physical engines
 - high reliability, 7 years under heavy load
+
 
 
 

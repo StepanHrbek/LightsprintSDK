@@ -79,6 +79,8 @@ RRSideBits sideBits[3][2]={
 
 RRStaticSolver::~RRStaticSolver()
 {
+	//assert(_CrtIsValidHeapPointer(scene));
+	//assert(_CrtIsMemoryBlock(scene,sizeof(Scene),NULL,NULL,NULL));
 	delete scene;
 }
 

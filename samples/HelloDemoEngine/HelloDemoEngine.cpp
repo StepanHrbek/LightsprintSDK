@@ -35,7 +35,7 @@ void error(const char* message, bool gfxRelated)
 {
 	printf(message);
 	if(gfxRelated)
-		printf("\nTry upgrading drivers for your graphics card.\nIf it doesn't help, your graphics card may be too old.\nCards known to work: GEFORCE 6xxx/7xxx, RADEON 95xx+/Xxxx/X1xxx");
+		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx");
 	printf("\n\nHit enter to close...");
 	fgetc(stdin);
 	exit(0);

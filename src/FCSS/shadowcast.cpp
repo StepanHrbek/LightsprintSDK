@@ -7,7 +7,7 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          0
-#define THREE_ONE
+//#define THREE_ONE
 bool ati = 1;
 int fullscreen = 1;
 bool renderer3ds = 1;
@@ -2113,7 +2113,7 @@ void parseOptions(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
+	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
 	//_crtBreakAlloc = 1154356;
 
 	// check for version mismatch
