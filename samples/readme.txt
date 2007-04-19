@@ -24,6 +24,9 @@ Lightmaps
 - precalculates lightmaps in scene with dynamic objects and light,
   has realtime global illumination preview
 
+Water
+- simple use of DemoEngine, renders skybox and water
+
 Import3DS
 - source code of 3DS wrapper, used by HelloRealtimeRadiosity
 
