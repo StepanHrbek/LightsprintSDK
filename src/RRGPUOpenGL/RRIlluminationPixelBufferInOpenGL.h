@@ -19,9 +19,8 @@ namespace rr_gl
 	//! Uses OpenGL rasterizer.
 	//!
 	//! Requires files:
-	//!  lightmap_build.vp, lightmap_build.fp,
-	//!  lightmap_filter.vp, lightmap_filter.fp.
-	//! Pass pathToShaders with trailing slash to constructor.
+	//!  lightmap_build.vs/fs, lightmap_filter.vs/fp.
+	//! \n Pass pathToShaders with trailing slash to constructor.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

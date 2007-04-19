@@ -11,7 +11,7 @@ namespace de
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// UberProgramSetup - options for UberShader.vp+fp
+// UberProgramSetup - options for UberShader.vs/fs
 
 
 const char* UberProgramSetup::getSetupString()

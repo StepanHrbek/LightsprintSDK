@@ -20,11 +20,11 @@ namespace de
 //! Helper for render of 2D or cube (skybox) texture.
 //
 //! It handles resource (shader) allocation/freeing.
-//! Needs sky.vp/fp and texture.vp/fp shaders on disk.
+//! Needs sky.vs/fs and texture.vs/fs shaders on disk.
 class DE_API TextureRenderer
 {
 public:
-	//! Initializes renderer, loading sky.vp/fp shaders from disk.
+	//! Initializes renderer, loading shaders from disk.
 	TextureRenderer(const char* pathToShaders);
 
 	//! Shutdowns renderer, freeing shaders.

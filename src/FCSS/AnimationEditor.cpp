@@ -24,6 +24,8 @@ void AnimationEditor::renderThumbnails(de::TextureRenderer* renderer) const
 {
 	unsigned index = 0;
 	unsigned count = MAX(6,setup->frames.size()+1);
+	//for(LevelSetup::Frames::const_iterator i=setup->frames.begin();i!=setup->frames.end();i++)
+	//	if((*i).thumbnail) assert((*i).thumbnail->__vfptr!=0xfeeefeee);
 	for(LevelSetup::Frames::const_iterator i=setup->frames.begin();;i++,index++)
 	{
 		float x = index/(float)count;
@@ -134,7 +136,8 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 		case GLUT_KEY_PAGE_DOWN:
 			if(frameCursor+1<setup->frames.size())
 			{
-				std::swap(*setup->getFrameByIndex(frameCursor),*setup->getFrameByIndex(frameCursor+1));
+				_swab((char*)&*setup->getFrameByIndex(frameCursor),(char*)&*setup->getFrameByIndex(frameCursor+1),sizeof(AnimationFrame));
+				//std::swap(*setup->getFrameByIndex(frameCursor),*setup->getFrameByIndex(frameCursor+1));
 				frameCursor++;
 			}
 			return true;

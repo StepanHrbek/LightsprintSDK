@@ -1719,7 +1719,7 @@ Integration of global illumination (GI) solver into your project is described in
  - de::Texture is OpenGL texture
  - de::Program is GLSL program
  - de::UberProgram is GLSL program with preprocessor parameters changeable at runtime
- - de::UberProgramSetup is set of parameters for our ubershaders UberShader.vp and UberShader.fp
+ - de::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs
  - de::Camera is frustum suitable for camera or spotlight
  - de::AreaLight is area light
  - de::Model_3DS is model loaded from .3ds file

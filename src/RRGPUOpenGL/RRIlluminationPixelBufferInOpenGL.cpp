@@ -28,12 +28,12 @@ public:
 		tempTexture = de::Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,GL_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 		char buf1[400]; buf1[399] = 0;
 		char buf2[400]; buf2[399] = 0;
-		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.vp");
-		_snprintf(buf2,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.fp");
+		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.vs");
+		_snprintf(buf2,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.fs");
 		filterProgram = de::Program::create(NULL,buf1,buf2);
 		if(!filterProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/lightmap_filter.*\n",pathToShaders);
-		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.vp");
-		_snprintf(buf2,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.fp");
+		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.vs");
+		_snprintf(buf2,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.fs");
 		renderTriangleProgram = de::Program::create(NULL,buf1,buf2);
 		if(!renderTriangleProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/lightmap_build.*\n",pathToShaders);
 	}

@@ -21,12 +21,12 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 {
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
-	_snprintf(buf1,399,"%ssky.vp",pathToShaders);
-	_snprintf(buf2,399,"%ssky.fp",pathToShaders);
+	_snprintf(buf1,399,"%ssky.vs",pathToShaders);
+	_snprintf(buf2,399,"%ssky.fs",pathToShaders);
 	skyProgram = de::Program::create(NULL,buf1,buf2);
 	if(!skyProgram) printf("Helper shaders failed: %s/sky.*\n",pathToShaders);
-	_snprintf(buf1,399,"%stexture.vp",pathToShaders);
-	_snprintf(buf2,399,"%stexture.fp",pathToShaders);
+	_snprintf(buf1,399,"%stexture.vs",pathToShaders);
+	_snprintf(buf2,399,"%stexture.fs",pathToShaders);
 	twodProgram = de::Program::create(NULL,buf1,buf2);
 	if(!twodProgram) printf("Helper shaders failed: %s/texture.*\n",pathToShaders);
 }

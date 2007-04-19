@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // DemoEngine
-// UberProgramSetup, parameter management for our UberProgram in UberShader.vp/fp.
+// UberProgramSetup, parameter management for our UberProgram in UberShader.vs/fs.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
@@ -35,9 +35,9 @@ enum
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// UberProgramSetup - options for UberShader.vp+fp
+// UberProgramSetup - options for UberShader.vs/fs
 
-//! Options that change code of UberProgram made of UberShader.vp and UberShader.fp.
+//! Options that change code of UberProgram made of UberShader.vs/fs.
 //
 //! UberProgram + UberProgramSetup = Program
 //!
