@@ -2,8 +2,14 @@
 #define LEVEL_H
 
 #define SUPPORT_3DS
-//#define SUPPORT_COLLADA
+#define SUPPORT_COLLADA
 #define SUPPORT_BSP
+
+#ifdef SUPPORT_COLLADA
+	#include "FCollada.h"
+	#include "FCDocument/FCDocument.h"
+	#include "../../samples/ImportCollada/RRObjectCollada.h"
+#endif
 
 #ifdef SUPPORT_BSP
 	#include "../../samples/ImportQuake3/Q3Loader.h" // asi musi byt prvni, kvuli pragma pack
@@ -12,12 +18,6 @@
 
 #ifdef SUPPORT_3DS
 	#include "../../samples/Import3DS/RRObject3DS.h"
-#endif
-
-#ifdef SUPPORT_COLLADA
-	#include "FCollada.h"
-	#include "FCDocument/FCDocument.h"
-	#include "../../samples/ImportCollada/RRObjectCollada.h"
 #endif
 
 #include "AnimationEditor.h"

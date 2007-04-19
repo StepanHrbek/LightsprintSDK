@@ -1,10 +1,12 @@
+#include "Level.h" // must be first, so collada is included before demoengine (#define SAFE_DELETE collides)
 #include "DemoPlayer.h"
 #include "Music.h"
 #include "DynamicObject.h"
 #include "DynamicObjects.h"
 //#include "LevelSequence.h"
-#include "Level.h"
 #include "Lightsprint/RRGPUOpenGL.h"
+
+extern void showImage(const de::Texture* tex);
 
 DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 {
@@ -16,8 +18,17 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	if(!f)
 		return;
 
-	// load music
+	// load loading_screen
 	char buf[1000];
+	buf[0] = 0;
+	fscanf(f,"loading_screen = %s\n",buf);
+	if(buf[0])
+	{
+		loadingMap = de::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		showImage(loadingMap);
+	}
+
+	// load music
 	if(1!=fscanf(f,"music = %s\n",buf))
 		return;
 	music = new Music(buf);
@@ -89,6 +100,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 
 DemoPlayer::~DemoPlayer()
 {
+	delete loadingMap;
 	delete skyMap;
 	for(unsigned i=0;i<scenes.size();i++)
 	{

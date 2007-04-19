@@ -391,6 +391,10 @@
 			Name="RRObject"
 			>
 			<File
+				RelativePath="RRObject\RRMaterial.cpp"
+				>
+			</File>
+			<File
 				RelativePath="RRObject\RRMeshFilterTransformed.h"
 				>
 			</File>
@@ -443,10 +447,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRObject\RRMaterial.cpp"
-				>
-			</File>
-			<File
 				RelativePath="RRObject\RRScaler.cpp"
 				>
 			</File>
@@ -495,7 +495,7 @@
 				>
 			</File>
 			<File
-				RelativePath="RRStaticSolver\RRScene.cpp"
+				RelativePath="RRStaticSolver\RRStaticSolver.cpp"
 				>
 			</File>
 			<File
@@ -557,6 +557,14 @@
 			<File
 				RelativePath="RRDynamicSolver\RRDynamicSolver.cpp"
 				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Release DLL|Win32"
 					>

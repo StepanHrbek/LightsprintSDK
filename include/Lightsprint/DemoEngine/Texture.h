@@ -75,13 +75,18 @@ public:
 
 	//! Begins rendering into the texture, sets graphics pipeline so that
 	//! following rendering commands use this texture as render target.
+	//! 
+	//! You may set color render target and depth render target independently
+	//! by calling colorTexture->renderingToBegin() and depthTexture->renderingToBegin().
+	//! Be aware that current setting is not archived and restored at renderingToEnd(),
+	//! so opening multiple renderingToBegin/End pairs will likely fail.
 	//! \param side
 	//!  Selects cube side for rendering into.
 	//!  Set to 0 for 2D texture or 0..5 for cube texture, where
 	//!  0=x+ side, 1=x- side, 2=y+ side, 3=y- side, 4=z+ side, 5=z- side.
 	//! \return True on success, fail when rendering into texture is not possible.
 	virtual bool renderingToBegin(unsigned side = 0) = 0;
-	//! Ends rendering into the texture.
+	//! Ends rendering into the texture, restores backbuffer (not previous settings).
 	virtual void renderingToEnd() = 0;
 
 	virtual ~Texture() {};

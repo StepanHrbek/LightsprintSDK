@@ -238,8 +238,8 @@ void RRObjectBSP::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 			if(itemSize) *itemSize = sizeof(rr::RRVec2[3]);
 			return;
 		default:
-			if(numItems) *numItems = 0;
-			if(itemSize) *itemSize = 0;
+			// unsupported channel
+			RRMesh::getChannelSize(channelId,numItems,itemSize);
 	}
 }
 
@@ -316,8 +316,8 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			return true;
 		}
 		default:
-			assert(0); // legal, but shouldn't happen in well coded program
-			return false;
+			// unsupported channel
+			return RRMesh::getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 }
 

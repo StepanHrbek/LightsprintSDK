@@ -57,6 +57,8 @@ namespace rr
 	public:
 		//! Writes size of selected channel into numItems and itemSize.
 		//
+		//! Call it to query channel presence and check its size.
+		//! Querying unsupported channels should not generate any warnings.
 		//! \param channelId Id of channel, e.g. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
 		//!  Each class that implements this method (e.g. RRMesh, RRObject) defines supported channel ids
 		//!  CHANNEL_xxx.
@@ -69,6 +71,8 @@ namespace rr
 
 		//! Copies one data item from selected channel into buffer provided by you.
 		//
+		//! To query channel presence, call getChannelSize().
+		//! Querying unsupported channels here should generate warning, see RRReporter.
 		//! \param channelId Id of channel, e.g. RRMesh::CHANNEL_VERTEX_POS - channel holding vertex positions.
 		//!  Each class that implements this method (e.g. RRMesh, RRObject) defines supported channel ids
 		//!  CHANNEL_xxx.

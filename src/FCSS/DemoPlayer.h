@@ -43,6 +43,9 @@ private:
 	float demoTimeWhenPaused; // 0..demo duration in seconds. matters only when paused, because fmod is inaccurate when paused
 	float partStart; // 0..demo duration in seconds, time when current part started
 
+	// loading_screen
+	de::Texture* loadingMap;
+
 	// music
 	class Music* music;
 

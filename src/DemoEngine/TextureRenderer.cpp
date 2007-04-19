@@ -104,7 +104,7 @@ void TextureRenderer::render2D(const Texture* texture,float color[4], float x,fl
 	// setup render states
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
-	// render cube
+	// render 2d
 	twodProgram->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	texture->bindTexture();
