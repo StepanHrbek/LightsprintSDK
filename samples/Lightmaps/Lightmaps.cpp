@@ -59,7 +59,9 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/DemoEngine/Water.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
 #include "../HelloRealtimeRadiosity/DynamicObject.h"
@@ -92,6 +94,9 @@ de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3
 de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
+de::Texture*            environmentMap = NULL;
+de::TextureRenderer*    textureRenderer = NULL;
+de::Water*              water = NULL;
 de::UberProgram*        uberProgram = NULL;
 rr_gl::RendererOfRRObject* rendererNonCaching = NULL;
 de::Renderer*           rendererCaching = NULL;
@@ -113,10 +118,13 @@ bool                    ambientMapsRender = false;
 
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
-		error("Failed to compile or link GLSL program.\n",true);
+	// render skybox
+	if(uberProgramSetup.LIGHT_DIRECT)
+		textureRenderer->renderEnvironment(environmentMap,NULL);
 
 	// render static scene
+	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
+		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
@@ -135,6 +143,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	else
 		rendererCaching->render(); // cache everything else, it's constant
 
+	// render dynamic objects
 	// enable object space
 	uberProgramSetup.OBJECT_SPACE = true;
 	// when not rendering shadows, enable environment maps
@@ -281,7 +290,10 @@ void keyboard(unsigned char c, int x, int y)
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
 				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
-				paramsDirect.quality = 1000;
+				paramsDirect.applyCurrentIndirectSolution = true; // enable final gather of current indirect solution
+				paramsDirect.quality = 1000; // final gather quality
+				paramsDirect.applyEnvironment = true; // enable direct illumination from skybox (note: no effect in room without windows)
+				paramsDirect.applyLights = true; // enable direct illumination from lights set by setLights() (note: no effect because no lights were set)
 				solver->updateLightmaps(0,&paramsDirect,NULL);
 				// start rendering computed maps
 				ambientMapsRender = true;
@@ -382,36 +394,47 @@ void passive(int x, int y)
 void display(void)
 {
 	if(!winWidth || !winHeight) return; // can't display without window
+
+	// update shadowmaps
 	eye.update(0);
 	light.update(0.3f);
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	eye.setupForRender();
+
+	// update ambient maps if they don't exist yet
+	if(ambientMapsRender && !solver->getIllumination(0)->getChannel(0)->pixelBuffer)
+	{
+		// precompute preview maps, takes few ms
+		//solver->calculate(rr::RRDynamicSolver::FORCE_UPDATE_PIXEL_BUFFERS);
+		// precompute high quality maps, takes minutes
+		keyboard('p',0,0);
+	}
+
+	// update water reflection
+	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	de::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = numInstances;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.SHADOW_MAPS = 1;
+	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	if(ambientMapsRender)
-	{
-		uberProgramSetup.LIGHT_INDIRECT_MAP = true;
-		// if ambient maps don't exist yet, create them
-		if(!solver->getIllumination(0)->getChannel(0)->pixelBuffer)
-		{
-			// precompute preview maps, takes few ms
-			//solver->calculate(rr::RRDynamicSolver::FORCE_UPDATE_PIXEL_BUFFERS);
-			// precompute high quality maps, takes minutes
-			keyboard('p',0,0);
-		}
-	}
-	else
-	{
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
-	}
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !ambientMapsRender;
+	uberProgramSetup.LIGHT_INDIRECT_MAP = ambientMapsRender;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	renderScene(uberProgramSetup);
+	water->updateReflectionDone();
+
+	// render everything except water
+	glClear(GL_DEPTH_BUFFER_BIT);
+	eye.setupForRender();
+	uberProgramSetup.SHADOW_MAPS = numInstances;
+	uberProgramSetup.SHADOW_SAMPLES = 4;
+	renderScene(uberProgramSetup);
+
+	// render water
+	water->render(100);
+
 	glutSwapBuffers();
 }
 
@@ -490,6 +513,8 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+	water = new de::Water("..\\..\\data\\shaders\\");
+	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
@@ -509,6 +534,8 @@ int main(int argc, char **argv)
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
+	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
+	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames);
 
 	// init dynamic objects
 	de::UberProgramSetup material;

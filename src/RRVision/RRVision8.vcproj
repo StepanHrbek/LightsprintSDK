@@ -514,6 +514,14 @@
 				RelativePath="RRDynamicSolver\environmentMap.cpp"
 				>
 				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release DLL|Win32"
 					>
 					<Tool
@@ -525,6 +533,14 @@
 			<File
 				RelativePath="RRDynamicSolver\Interpolator.cpp"
 				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Release DLL|Win32"
 					>
@@ -541,6 +557,14 @@
 			<File
 				RelativePath="RRDynamicSolver\lightmap.cpp"
 				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Release DLL|Win32"
 					>
@@ -582,6 +606,14 @@
 				RelativePath="RRDynamicSolver\RRLight.cpp"
 				>
 				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release DLL|Win32"
 					>
 					<Tool
@@ -593,6 +625,14 @@
 			<File
 				RelativePath="RRDynamicSolver\vertexBuffer.cpp"
 				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Release DLL|Win32"
 					>

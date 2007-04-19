@@ -208,7 +208,7 @@ void display(void)
 
 	// update water reflection
 	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
@@ -221,7 +221,7 @@ void display(void)
 	water->updateReflectionDone();
 
 	// render everything except water
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
