@@ -130,7 +130,7 @@ namespace rr
 		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately).
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
 		RRReal        specularTransmittance;         ///< Fraction of energy that continues through surface (without color change).
-		RRReal        refractionIndex;               ///< Refractive index of material in front of surface (surface is a boundary between two materials) divided by refractive index of material behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
+		RRReal        refractionIndex;               ///< Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 	};
 
 

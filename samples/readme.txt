@@ -27,12 +27,14 @@ Lightmaps
 Water
 - simple use of DemoEngine, renders skybox and water
 
+
+
 Import3DS
-- source code of 3DS wrapper, used by HelloRealtimeRadiosity
+- source code of 3DS adapter (called e.g. from HelloRealtimeRadiosity)
 
 ImportCollada
-- source code of Collada wrapper (for use with FCollada)
+- source code of Collada adapter (called e.g. from Lightmaps)
 
 ImportQuake3
-- source code of Quake3 map loader and wrapper
+- source code of Quake3 map loader and adapter
 
