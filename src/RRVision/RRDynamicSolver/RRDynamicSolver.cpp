@@ -34,10 +34,12 @@ RRDynamicSolver::RRDynamicSolver()
 	dirtyMaterials = true;
 	dirtyGeometry = true;
 	dirtyLights = BIG_CHANGE;
-	dirtyResults = true;
+	dirtyVertexResults = true;
+	dirtyPixelResults = true;
 	lastInteractionTime = 0;
 	lastCalcEndTime = 0;
-	lastReadingResultsTime = 0;
+	lastReadingVertexResultsTime = 0;
+	lastReadingPixelResultsTime = 0;
 	userStep = 0;
 	calcStep = 0;
 	improveStep = 0;
@@ -239,7 +241,8 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 	{
 		dirtyFactors = false;
 		dirtyEnergies = NO_CHANGE;
-		dirtyResults = true;
+		dirtyVertexResults = true;
+		dirtyPixelResults = true;
 		REPORT_BEGIN("Resetting solver energies and factors.");
 		if(scene) scene->illuminationReset(true,true);
 		REPORT_END;
@@ -261,7 +264,8 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 			improveStep = MAX(improveStep,IMPROVE_STEP_MIN_AFTER_BIG_RESET);
 		}
 		dirtyEnergies = NO_CHANGE;
-		dirtyResults = true;
+		dirtyVertexResults = true;
+		dirtyPixelResults = true;
 	}
 
 	REPORT_BEGIN("Calculating.");
@@ -273,30 +277,40 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 	switch(improvement)
 	{
 		case RRStaticSolver::IMPROVED:
-			dirtyResults = true;
+			dirtyVertexResults = true;
+			dirtyPixelResults = true;
+			improvement = RRStaticSolver::NOT_IMPROVED; // hide improvement until reading results
 			break;
 		case RRStaticSolver::NOT_IMPROVED:
 			break;
 		case RRStaticSolver::FINISHED:
 		case RRStaticSolver::INTERNAL_ERROR:
-			if(!dirtyResults) return improvement;
 			break;
 	}
 
-	if(requests)
-	if((dirtyResults && now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
-		|| (requests&(FORCE_UPDATE_VERTEX_BUFFERS|FORCE_UPDATE_PIXEL_BUFFERS)) )
+	if( ((requests&AUTO_UPDATE_VERTEX_BUFFERS) && dirtyVertexResults && now>=(TIME)(lastReadingVertexResultsTime+readingResultsPeriod*PER_SEC))
+		|| (requests&FORCE_UPDATE_VERTEX_BUFFERS) )
 	{
-		dirtyResults = false;
-		REPORT_BEGIN("Reading results.");
-		lastReadingResultsTime = now;
-		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
-		if(requests&(AUTO_UPDATE_VERTEX_BUFFERS|FORCE_UPDATE_VERTEX_BUFFERS)) readVertexResults();
-		if(requests&(AUTO_UPDATE_PIXEL_BUFFERS|FORCE_UPDATE_PIXEL_BUFFERS)) readPixelResults();
+		REPORT_BEGIN("Reading vertex results.");
+		lastReadingVertexResultsTime = now;
+		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH; // grows too quickly when user forces updates, but it doesn't matter with forced updates, it controls only autoupdates
+		readVertexResults();
+		dirtyVertexResults = false;
 		REPORT_END;
-		return RRStaticSolver::IMPROVED;
+		improvement = RRStaticSolver::IMPROVED;
 	}
-	return RRStaticSolver::NOT_IMPROVED;
+	if( ((requests&AUTO_UPDATE_PIXEL_BUFFERS) && dirtyPixelResults && now>=(TIME)(lastReadingPixelResultsTime+readingResultsPeriod*PER_SEC))
+		|| (requests&FORCE_UPDATE_PIXEL_BUFFERS) )
+	{
+		REPORT_BEGIN("Reading pixel results.");
+		lastReadingPixelResultsTime = now;
+		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH; // grows too quickly when user forces updates
+		readPixelResults();
+		dirtyPixelResults = false;
+		REPORT_END;
+		improvement = RRStaticSolver::IMPROVED;
+	}
+	return improvement;
 }
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)

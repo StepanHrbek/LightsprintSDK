@@ -225,9 +225,14 @@ namespace rr
 		RRObjectIllumination* getIllumination(unsigned i);
 
 
-		//! Optional request codes for calculate().
-		//! Calculate() knows when to update which buffer etc,
-		//! but you can override his logic by these manual requests.
+		//! Request codes for calculate().
+		//
+		//! These codes control update of illumination vertex and pixel buffers.
+		//! \n Note that vertex and pixel buffers are created automatically
+		//! only if you request their update. If you don't request it and you don't
+		//! create buffers manually, make sure your renderer can correctly render
+		//! scene without illumination buffers. 'No buffers' should be interpreted
+		//! as 'no illumination'.
 		enum Request
 		{
 			//! Request to update illumination vertex buffers (vertex colors) each time 
@@ -572,10 +577,12 @@ namespace rr
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;
 		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
-		bool       dirtyResults;
+		bool       dirtyVertexResults;
+		bool       dirtyPixelResults;
 		long       lastInteractionTime;
 		long       lastCalcEndTime;
-		long       lastReadingResultsTime;
+		long       lastReadingVertexResultsTime;
+		long       lastReadingPixelResultsTime;
 		float      userStep; // avg time spent outside calculate().
 		float      calcStep; // avg time spent in calculate().
 		float      improveStep; // time to be spent in improve in calculate()
