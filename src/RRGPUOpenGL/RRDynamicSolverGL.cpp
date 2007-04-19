@@ -159,7 +159,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 	// adjust captured texture size so we don't waste pixels
 	captureUv->triCountX = BIG_MAP_SIZE/4; // number of triangles in one row
 	captureUv->triCountY = BIG_MAP_SIZE/4; // number of triangles in one column
-	while(captureUv->triCountY && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
+	while(captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
 	unsigned width = BIG_MAP_SIZE; // used width in pixels
 	unsigned height = captureUv->triCountY*4; // used height in pixels
 
