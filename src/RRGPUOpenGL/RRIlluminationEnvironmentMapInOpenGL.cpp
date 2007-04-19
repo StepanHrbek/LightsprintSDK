@@ -23,12 +23,12 @@ namespace rr_gl
 CRITICAL_SECTION criticalSection; // global critical section for all instances, never calls GL from 2 threads at once
 unsigned numInstances = 0;
 
-RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const char* filenameMask, const char* cubeSideName[6])
+RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const char* filenameMask, const char* cubeSideName[6], bool flipV, bool flipH)
 {
 	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// creates cube map
 	if(filenameMask)
-		texture = de::Texture::load(filenameMask,cubeSideName,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+		texture = de::Texture::load(filenameMask,cubeSideName,flipV,flipH,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	else
 		texture = de::Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 }
@@ -81,9 +81,9 @@ rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::createIlluminationEnvironme
 	return new RRIlluminationEnvironmentMapInOpenGL(NULL,NULL);
 }
 
-rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6])
+rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6], bool flipV, bool flipH)
 {
-	RRIlluminationEnvironmentMapInOpenGL* illum = new RRIlluminationEnvironmentMapInOpenGL(filenameMask,cubeSideName);
+	RRIlluminationEnvironmentMapInOpenGL* illum = new RRIlluminationEnvironmentMapInOpenGL(filenameMask,cubeSideName,flipV,flipH);
 	if(!illum->texture)
 		SAFE_DELETE(illum);
 	return illum;

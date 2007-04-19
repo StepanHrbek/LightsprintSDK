@@ -311,7 +311,7 @@ int main(int argc, char **argv)
 	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
-	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vp", "..\\..\\data\\shaders\\ubershader.fp");
+	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
 	water = new de::Water("..\\..\\data\\shaders\\");
 	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
@@ -331,8 +331,8 @@ int main(int argc, char **argv)
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
-	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
-	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames);
+	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
+	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

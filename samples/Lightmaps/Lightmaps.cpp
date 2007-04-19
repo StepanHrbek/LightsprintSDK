@@ -534,8 +534,8 @@ int main(int argc, char **argv)
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
-	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
-	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames);
+	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
+	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init dynamic objects
 	de::UberProgramSetup material;

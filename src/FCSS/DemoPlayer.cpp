@@ -38,10 +38,10 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	// load sky
 	buf[0] = 0;
 	fscanf(f,"sky = %s\n",buf);
-	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
+	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	if(buf[0])
 	{
-		skyMap = rr_gl::RRDynamicSolverGL::loadIlluminationEnvironmentMap(buf,cubeSideNames);
+		skyMap = rr_gl::RRDynamicSolverGL::loadIlluminationEnvironmentMap(buf,cubeSideNames,true,true);
 		if(!skyMap)
 			rr::RRReporter::report(rr::RRReporter::WARN,"Failed to load skybox %s.\n",buf);
 	}

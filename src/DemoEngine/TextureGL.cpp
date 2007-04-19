@@ -146,19 +146,12 @@ bool TextureGL::getPixel(float ax, float ay, float az, float rgba[4]) const
 		// find major axis
 		float direction[3] = {ax,ay,az};
 		float d[3] = {fabs(ax),fabs(ay),fabs(az)};
-		unsigned axis = (d[0]>=d[1] && d[0]>=d[2]) ? 0 : ( (d[1]>=d[0] && d[1]>=d[2]) ? 1 : 2 );
+		unsigned axis = (d[0]>=d[1] && d[0]>=d[2]) ? 0 : ( (d[1]>=d[0] && d[1]>=d[2]) ? 1 : 2 ); // 0..2
 		// find side
-		unsigned side = 2*axis + ((d[axis]<0)?1:0);
+		unsigned side = 2*axis + ((d[axis]<0)?1:0); // 0..5
 		// find xy
-		d[0] = direction[0] / direction[axis];
-		d[1] = direction[1] / direction[axis];
-		d[2] = direction[2] / direction[axis];
-		float xy[2] = {d[axis?0:1],d[(axis<2)?2:1]}; // -1..1 range
-		//!!! pro ruzny strany mozna prohodit x<->y nebo negovat
-		xy[0] = (xy[0]+1)*(0.5f*width); // 0..size range
-		xy[1] = (xy[1]+1)*(0.5f*height); // 0..size range
-		unsigned x = (unsigned) CLAMPED((int)xy[0],0,(int)width-1);
-		unsigned y = (unsigned) CLAMPED((int)xy[1],0,(int)height-1);
+		unsigned x = (unsigned) CLAMPED((int)((direction[ axis   ?0:1]/direction[axis]+1)*(0.5f*width )),0,(int)width -1); // 0..width
+		unsigned y = (unsigned) CLAMPED((int)((direction[(axis<2)?2:1]/direction[axis]+1)*(0.5f*height)),0,(int)height-1); // 0..height
 		// read texel
 		assert(x<width);
 		assert(y<height);

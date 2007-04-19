@@ -141,8 +141,8 @@ int main(int argc, char **argv)
 	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	
 	// init textures
-	const char* cubeSideNames[6] = {"ft","bk","dn","up","rt","lf"};
-	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames);
+	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
+	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true);
 
 	glutMainLoop();
 	return 0;

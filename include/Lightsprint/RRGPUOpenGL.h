@@ -99,7 +99,7 @@ namespace rr_gl
 		//!   Array of six unique names of cube sides in following order:
 		//!   x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!   Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
-		static rr::RRIlluminationEnvironmentMap* loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6]);
+		static rr::RRIlluminationEnvironmentMap* loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6], bool flipV = false, bool flipH = false);
 
 	protected:
 		//! Detection of direct illumination from custom light sources implemented using OpenGL 2.0.
