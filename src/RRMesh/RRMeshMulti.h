@@ -46,15 +46,16 @@ public:
 		//!!! check equality at construction time
 		pack[0].getMesh()->getChannelSize(channelId,numItems,itemSize);
 		// whole multiobject has more items than one object
-		switch(channelId&0x7ffff000)
-		{
-			case RRMesh::INDEXED_BY_VERTEX:
-				*numItems = RRMeshMulti::getNumVertices();
-				break;
-			case RRMesh::INDEXED_BY_TRIANGLE:
-				*numItems = RRMeshMulti::getNumTriangles();
-				break;
-		}
+		if(numItems && *numItems)
+			switch(channelId&0x7ffff000)
+			{
+				case RRMesh::INDEXED_BY_VERTEX:
+					*numItems = RRMeshMulti::getNumVertices();
+					break;
+				case RRMesh::INDEXED_BY_TRIANGLE:
+					*numItems = RRMeshMulti::getNumTriangles();
+					break;
+			}
 	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{

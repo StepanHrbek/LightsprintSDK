@@ -153,7 +153,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
 		if(polygons)
 		{
-			assert(polygons->IsTriangles());
+			LIMITED_TIMES(10,assert(polygons->IsTriangles())); // this is expensive check, do it only few times
 			size_t relativeIndex = itemIndex - polygons->GetFaceOffset();
 			if(relativeIndex>=0 && relativeIndex<polygons->GetFaceCount())
 			{

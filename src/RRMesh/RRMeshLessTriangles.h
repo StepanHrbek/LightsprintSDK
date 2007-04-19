@@ -46,7 +46,7 @@ public:
 	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 	{
 		inherited->getChannelSize(channelId,numItems,itemSize);
-		if((channelId&0x7ffff000) == INDEXED_BY_TRIANGLE)
+		if(numItems && *numItems && (channelId&0x7ffff000)==INDEXED_BY_TRIANGLE)
 		{
 			*numItems = ValidIndices;
 		}
@@ -175,6 +175,32 @@ public:
 	~RRLessTrianglesImporter()
 	{
 		delete[] ValidIndex;
+	}
+
+	// channels
+	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
+	{
+		INHERITED::getChannelSize(channelId,numItems,itemSize);
+		if(numItems && *numItems && (channelId&0x7ffff000)==INDEXED_BY_TRIANGLE)
+		{
+			*numItems = ValidIndices;
+		}
+	}
+	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
+	{
+		if((channelId&0x7ffff000) == INDEXED_BY_TRIANGLE)
+		{
+			if(itemIndex<ValidIndices)
+			{
+				itemIndex = ValidIndex[itemIndex];
+			}
+			else
+			{
+				RR_ASSERT(0);
+				return false;
+			}
+		}
+		return INHERITED::getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 
 	virtual unsigned getNumTriangles() const
