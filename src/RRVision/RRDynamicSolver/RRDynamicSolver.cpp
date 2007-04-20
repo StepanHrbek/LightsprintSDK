@@ -111,13 +111,13 @@ RRObject* RRDynamicSolver::getObject(unsigned i)
 	return objects.at(i).object;
 }
 
-RRObject* RRDynamicSolver::getMultiObjectCustom()
+const RRObject* RRDynamicSolver::getMultiObjectCustom() const
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return multiObjectCustom;
 }
 
-RRObjectWithPhysicalMaterials* RRDynamicSolver::getMultiObjectPhysical()
+const RRObjectWithPhysicalMaterials* RRDynamicSolver::getMultiObjectPhysical() const
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return multiObjectPhysical;
@@ -129,13 +129,22 @@ RRObjectWithIllumination* RRDynamicSolver::getMultiObjectPhysicalWithIlluminatio
 	return multiObjectPhysicalWithIllumination;
 }
 
-const RRStaticSolver* RRDynamicSolver::getStaticSolver()
+const RRStaticSolver* RRDynamicSolver::getStaticSolver() const
 {
 	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return scene;
 }
 
 RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i)
+{
+	// this is commented out, getIllumination() is allowed even immediately after setObjects()
+	//if(dirtyGeometry) return NULL;
+
+	if(i>=objects.size()) return NULL;
+	return objects.at(i).illumination;
+}
+
+const RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i) const
 {
 	// this is commented out, getIllumination() is allowed even immediately after setObjects()
 	//if(dirtyGeometry) return NULL;

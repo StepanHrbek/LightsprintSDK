@@ -220,7 +220,7 @@ namespace rr
 		// Vertex buffer creation
 
 		//! Returns size of vertex buffer in vertices.
-		virtual const unsigned getNumVertices() = 0;
+		virtual unsigned getNumVertices() const = 0;
 		//! Sets value of one element of the buffer.
 		//! Must be thread safe.
 		virtual void setVertex(unsigned vertex, const RRColorRGBF& color) = 0;
@@ -462,6 +462,7 @@ namespace rr
 		//!  For now, only channel 0 contains data.
 		//! \return Channel of channelIndex. If it doesn't exist yet, it is created.
 		Channel* getChannel(unsigned channelIndex);
+		const Channel* getChannel(unsigned channelIndex) const;
 		//! \return PreImport number of vertices, length of vertex buffer for rendering.
 		unsigned getNumPreImportVertices();
 		~RRObjectIllumination();

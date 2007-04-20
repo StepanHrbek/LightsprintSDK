@@ -22,6 +22,15 @@ RRObjectIllumination::Channel* RRObjectIllumination::getChannel(unsigned channel
 	return tmp;
 }
 
+const RRObjectIllumination::Channel* RRObjectIllumination::getChannel(unsigned channelIndex) const
+{
+	ChannelsType::iterator i = channels->find(channelIndex);
+	if(i!=channels->end()) return i->second;
+	Channel* tmp = new Channel();
+	(*channels)[channelIndex] = tmp;
+	return tmp;
+}
+
 unsigned RRObjectIllumination::getNumPreImportVertices()
 {
 	return numPreImportVertices;

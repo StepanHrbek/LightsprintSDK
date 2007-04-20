@@ -45,7 +45,7 @@ namespace de
 		return numInstances;
 	}
 
-	Camera* AreaLight::getInstance(unsigned instance)
+	Camera* AreaLight::getInstance(unsigned instance) const
 	{
 		if(!parent || instance>numInstances)
 			return NULL;
@@ -64,7 +64,7 @@ namespace de
 		}
 	}
 
-	Texture* AreaLight::getShadowMap(unsigned instance)
+	Texture* AreaLight::getShadowMap(unsigned instance) const
 	{
 		if(instance>=numInstances)
 		{
@@ -74,7 +74,7 @@ namespace de
 		return shadowMaps[instance];
 	}
 
-	void AreaLight::instanceMakeup(Camera& light, unsigned instance)
+	void AreaLight::instanceMakeup(Camera& light, unsigned instance) const
 	{
 		if(numInstances<=1) return;
 		switch(areaType)

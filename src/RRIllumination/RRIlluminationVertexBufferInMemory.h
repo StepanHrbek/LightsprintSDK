@@ -22,7 +22,7 @@ namespace rr
 			numVertices = anumVertices;
 			vertices = new Color[numVertices];
 		}
-		virtual const unsigned getNumVertices()
+		virtual unsigned getNumVertices() const
 		{
 			return numVertices;
 		}

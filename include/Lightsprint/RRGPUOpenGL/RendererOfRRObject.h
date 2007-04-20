@@ -113,7 +113,7 @@ public:
 	//! Sets global illumination buffers for whole scene.
 	//! Used by render() with LIGHT_INDIRECT_VCOLOR or LIGHT_INDIRECT_MAP,
 	//! but only if renderer was created with useBuffers=true.
-	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,rr::RRIlluminationPixelBuffer* ambientMap);
+	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -129,15 +129,15 @@ private:
 	struct Params
 	{
 		const rr::RRObject* object;            ///< object being rendered
-		const rr::RRStaticSolver* scene;              ///< scene it comes from
+		const rr::RRStaticSolver* scene;       ///< scene it comes from
 		const rr::RRScaler* scaler;            ///< scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_VCOLOR
 		RenderedChannels renderedChannels;     ///< set of data channels being rendered
 		VertexDataGenerator* generateForcedUv; ///< generator of uv data for FORCE_2D_POSITION
 		unsigned otherCaptureParamsHash;       ///< hash of generator's parameters
 		unsigned firstCapturedTriangle;        ///< index of first triangle to render
 		unsigned lastCapturedTrianglePlus1;    ///< index of last triangle to render+1
-		rr::RRIlluminationVertexBuffer* indirectIllumination;   ///< vertex buffer with indirect illumination
-		rr::RRIlluminationPixelBuffer* indirectIlluminationMap; ///< ambient map
+		rr::RRIlluminationVertexBuffer* indirectIllumination; ///< vertex buffer with indirect illumination (not const because lock is not const)
+		const rr::RRIlluminationPixelBuffer* indirectIlluminationMap; ///< ambient map
 	};
 	Params params;
 	// buffers for faster rendering

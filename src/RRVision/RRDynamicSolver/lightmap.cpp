@@ -418,7 +418,7 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 	//!!! Warning: mapping must be preserved by multiobject.
 	//    Current multiobject lets object mappings overlap, but it could change in future.
 
-	RRObject* multiObject = getMultiObjectCustom();
+	const RRObject* multiObject = getMultiObjectCustom();
 	if(!multiObject)
 	{
 		RR_ASSERT(0);
@@ -509,7 +509,7 @@ bool RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelB
 		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
 		return false;
 	}
-	RRObject* object = getMultiObjectCustom();
+	const RRObject* object = getMultiObjectCustom();
 	RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numPostImportTriangles = mesh->getNumTriangles();
 	if(!pixelBuffer)

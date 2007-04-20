@@ -223,6 +223,8 @@ namespace rr
 
 		//! Returns illumination of i-th static object in scene.
 		RRObjectIllumination* getIllumination(unsigned i);
+		//! Returns illumination of i-th static object in scene.
+		const RRObjectIllumination* getIllumination(unsigned i) const;
 
 
 		//! Request codes for calculate().
@@ -461,10 +463,10 @@ namespace rr
 
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is created when you insert objects and call calculate().
-		RRObject* getMultiObjectCustom();
+		const RRObject* getMultiObjectCustom() const;
 
 		//! As getMultiObjectCustom, but with materials converted to physical space.
-		RRObjectWithPhysicalMaterials* getMultiObjectPhysical();
+		const RRObjectWithPhysicalMaterials* getMultiObjectPhysical() const;
 
 		//! As getMultiObjectPhysical, but with space for storage of detected direct illumination.
 		RRObjectWithIllumination* getMultiObjectPhysicalWithIllumination();
@@ -473,7 +475,7 @@ namespace rr
 		//
 		//! Scene is created from getMultiObjectPhysicalWithIllumination()
 		//! when you insert objects and call calculate().
-		const RRStaticSolver* getStaticSolver();
+		const RRStaticSolver* getStaticSolver() const;
 
 	protected:
 		//! Autodetects material properties of all materials present in scene.

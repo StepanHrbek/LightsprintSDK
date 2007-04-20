@@ -48,7 +48,7 @@ public:
 
 	//! Creates and returns requested instance (element of area light).
 	//! To be deleted by caller.
-	virtual Camera* getInstance(unsigned instance);
+	virtual Camera* getInstance(unsigned instance) const;
 
 	//! Sets shadowmap resolution.
 	//! Set higher resolution for hard and sharper shadows,
@@ -56,7 +56,7 @@ public:
 	void setShadowmapSize(unsigned newSize);
 
 	//! Returns shadowmap for given light instance (element of area light).
-	Texture* getShadowMap(unsigned instance);
+	Texture* getShadowMap(unsigned instance) const;
 
 	//! Shape of light source area, 0=line (default), 1=square, 2=circle
 	//
@@ -74,7 +74,7 @@ public:
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
 protected:
-	virtual void instanceMakeup(Camera& light, unsigned instance);
+	virtual void instanceMakeup(Camera& light, unsigned instance) const;
 	Camera* parent;
 	unsigned numInstances;
 	Texture** shadowMaps;

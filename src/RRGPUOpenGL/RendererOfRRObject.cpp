@@ -62,7 +62,7 @@ void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirs
 	params.lastCapturedTrianglePlus1 = alastCapturedTrianglePlus1;
 }
 
-void RendererOfRRObject::setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,rr::RRIlluminationPixelBuffer* ambientMap)
+void RendererOfRRObject::setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap)
 {
 	params.indirectIllumination = vertexBuffer;
 	params.indirectIlluminationMap = ambientMap;
