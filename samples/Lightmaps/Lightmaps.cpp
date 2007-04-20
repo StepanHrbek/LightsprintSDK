@@ -567,6 +567,7 @@ int main(int argc, char **argv)
 		error("",false);
 	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 #endif
+	solver->setEnvironment(solver->adaptIlluminationEnvironmentMap(environmentMap));
 	solver->calculate();
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
