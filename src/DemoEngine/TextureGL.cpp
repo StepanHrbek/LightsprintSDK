@@ -148,7 +148,7 @@ bool TextureGL::getPixel(float ax, float ay, float az, float rgba[4]) const
 		float d[3] = {fabs(ax),fabs(ay),fabs(az)};
 		unsigned axis = (d[0]>=d[1] && d[0]>=d[2]) ? 0 : ( (d[1]>=d[0] && d[1]>=d[2]) ? 1 : 2 ); // 0..2
 		// find side
-		unsigned side = 2*axis + ((d[axis]<0)?1:0); // 0..5
+		unsigned side = 2*axis + ((direction[axis]<0)?1:0); // 0..5
 		// find xy
 		unsigned x = (unsigned) CLAMPED((int)((direction[ axis   ?0:1]/direction[axis]+1)*(0.5f*width )),0,(int)width -1); // 0..width
 		unsigned y = (unsigned) CLAMPED((int)((direction[(axis<2)?2:1]/direction[axis]+1)*(0.5f*height)),0,(int)height-1); // 0..height
