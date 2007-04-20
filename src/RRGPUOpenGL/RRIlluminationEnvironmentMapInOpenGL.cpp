@@ -23,14 +23,28 @@ namespace rr_gl
 CRITICAL_SECTION criticalSection; // global critical section for all instances, never calls GL from 2 threads at once
 unsigned numInstances = 0;
 
-RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const char* filenameMask, const char* cubeSideName[6], bool flipV, bool flipH)
+RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL()
 {
 	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// creates cube map
-	if(filenameMask)
-		texture = de::Texture::load(filenameMask,cubeSideName,flipV,flipH,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	else
-		texture = de::Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	texture = de::Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	deleteTexture = true;
+}
+
+RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(de::Texture* cube)
+{
+	if(!numInstances++) InitializeCriticalSection(&criticalSection);
+	// adapts cube map
+	texture = cube;
+	deleteTexture = false;
+}
+
+RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const char* filenameMask, const char* cubeSideName[6], bool flipV, bool flipH)
+{
+	if(!numInstances++) InitializeCriticalSection(&criticalSection);
+	// loads cube map
+	texture = de::Texture::load(filenameMask,cubeSideName,flipV,flipH,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	deleteTexture = true;
 }
 
 
@@ -67,7 +81,7 @@ bool RRIlluminationEnvironmentMapInOpenGL::save(const char* filename, const char
 
 RRIlluminationEnvironmentMapInOpenGL::~RRIlluminationEnvironmentMapInOpenGL()
 {
-	delete texture;
+	if(deleteTexture) delete texture;
 	if(!--numInstances) DeleteCriticalSection(&criticalSection);
 }
 
@@ -78,7 +92,12 @@ RRIlluminationEnvironmentMapInOpenGL::~RRIlluminationEnvironmentMapInOpenGL()
 
 rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::createIlluminationEnvironmentMap()
 {
-	return new RRIlluminationEnvironmentMapInOpenGL(NULL,NULL);
+	return new RRIlluminationEnvironmentMapInOpenGL();
+}
+
+rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::adaptIlluminationEnvironmentMap(de::Texture* cube)
+{
+	return new RRIlluminationEnvironmentMapInOpenGL(cube);
 }
 
 rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6], bool flipV, bool flipH)

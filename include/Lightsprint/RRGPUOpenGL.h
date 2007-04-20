@@ -90,6 +90,10 @@ namespace rr_gl
 		//! Used for realtime or precomputed global illumination of dynamic objects.
 		static rr::RRIlluminationEnvironmentMap* createIlluminationEnvironmentMap();
 
+		//! Adapts cube texture for RRIlluminationEnvironmentMap interface.
+		//! Original cube must exist as long as or longer than returned adapter.
+		static rr::RRIlluminationEnvironmentMap* adaptIlluminationEnvironmentMap(de::Texture* cube);
+
 		//! Loads RRIlluminationEnvironmentMap stored on disk.
 		//! \param filenameMask
 		//!   Name of image file. Must be in supported format.
