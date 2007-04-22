@@ -9,6 +9,7 @@ LevelSetup::LevelSetup(const char* afilename)
 {
 	filename = NULL;
 	scale = 1;
+	overlayFilename[0] = 0;
 	overlayMap = NULL;
 	load(afilename);
 };
