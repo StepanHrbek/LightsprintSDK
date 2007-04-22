@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRMesh.h
 //! \brief RRMesh - unified mesh interface
-//! \version 2007.4.13
+//! \version 2007.4.20
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -415,6 +415,11 @@ namespace rr
 		//! -# Convert indices yourself. It is granted, that both indices and vertices preserve order of meshes in array:
 		//!  lowest indices belong to meshes[0], meshes[1] follow etc. If you create MultiMesh from 2 meshes,
 		//!  first with 3 vertices and second with 5 vertices, they will transform into 0,1,2 and 3,4,5,6,7 vertices in MultiMesh.
+		//! \param meshes
+		//!  Array of meshes, source data for MultiMesh.
+		//!  For now, all meshes must have the same data channels (see RRChanneledData).
+		//! \param numMeshes
+		//!  Length of 'meshes' array.
 		static RRMesh* createMultiMesh(RRMesh* const* meshes, unsigned numMeshes);
 
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).

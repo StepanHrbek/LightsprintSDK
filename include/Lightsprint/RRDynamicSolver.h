@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRDynamicSolver.h
 //! \brief RRDynamicSolver - global illumination solver for dynamic scenes
-//! \version 2007.4.13
+//! \version 2007.4.20
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -210,6 +210,7 @@ namespace rr
 		//!  Static contents of your scene, set of static objects.
 		//!  Objects should not move (in 3d space) during our lifetime.
 		//!  Object's getTriangleMaterial should return values in custom scale.
+		//!  For now, all objects must have the same data channels (see RRChanneledData).
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.

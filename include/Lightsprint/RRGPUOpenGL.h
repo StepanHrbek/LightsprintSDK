@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRGPUOpenGL.h
 //! \brief RRGPUOpenGL - access to GPU via OpenGL
-//! \version 2007.4.13
+//! \version 2007.4.20
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -103,6 +103,10 @@ namespace rr_gl
 		//!   Array of six unique names of cube sides in following order:
 		//!   x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!   Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
+		//! \param flipV
+		//!   Flip each image vertically at load time.
+		//! \param flipH
+		//!   Flip each image horizontally at load time.
 		static rr::RRIlluminationEnvironmentMap* loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6], bool flipV = false, bool flipH = false);
 
 	protected:

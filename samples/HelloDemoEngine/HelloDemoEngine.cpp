@@ -7,6 +7,10 @@
 // the same scene with the same material properties,
 // but with constant ambient illumination.
 //
+// Dynamic objects reflect skybox (visible behind walls).
+// You can switch it to constant ambient.
+// Compare it with realistic reflection in HelloRealtimeRadiosity.
+//
 // Controls:
 //  mouse = look around
 //  arrows = move around

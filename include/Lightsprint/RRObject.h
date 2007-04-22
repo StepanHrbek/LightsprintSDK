@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRObject.h
 //! \brief RRObject - 3d object with geometry, materials, position etc
-//! \version 2007.4.13
+//! \version 2007.4.20
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -344,6 +344,7 @@ namespace rr
 		//!  Array of objects you want to create multiobject from.
 		//!  Objects from array should stay alive for whole life of multiobjects (this is your responsibility).
 		//!  Array alone may be destructed immediately by you.
+		//!  For now, all objects must have the same data channels (see RRChanneledData).
 		//! \param numObjects
 		//!  Number of objects in array.
 		//! \param intersectTechnique
