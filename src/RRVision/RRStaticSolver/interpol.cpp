@@ -1043,6 +1043,25 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 		RR_ASSERT(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xfeee);
 		RR_ASSERT(ivertexInfo[minIVert1].ivertex->getNumCorners()!=0xcdcd);
 		ivertexInfo[minIVert1].absorb(ivertexInfo[minIVert2]);
+
+		// sanity check
+		bool warned = false;
+		if(ivertexInfo[minIVert1].ourVertices.size()>100)
+		{
+			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"Cluster of more than 100 vertices merged, was it your intention?\n"));
+		}
+		if(numReduced>vertices/10)
+		{
+			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"More than 10%% of scene vertices merged, was it your intention?\n"));
+		}
+		if(warned)
+		{
+			RRVec3 mini,maxi,center;
+			importer->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
+			RRReporter::report(RRReporter::WARN,"Scene stats: numVertices=%d  size=%fm x %fm x %fm  minFeatureSize=%fm (check what you enter into RRDynamicSolver::setObjects() or RRStaticSolver())\n",vertices,maxi[0]-mini[0],maxi[1]-mini[1],maxi[2]-mini[2],minFeatureSize);
+			if(sum(abs(maxi-mini))>5000) RRReporter::report(RRReporter::WARN,"Possibly scene too big (wrong scale)?\n");
+			if(sum(abs(maxi-mini))<0.5) RRReporter::report(RRReporter::WARN,"Possibly scene too small (wrong scale)?\n");
+		}
 	}
 
 	// delete temporaries

@@ -1475,7 +1475,7 @@ Integration of global illumination (GI) solver into your project is described in
    \n Irradiance values are typically stored in custom scale to fit 
    in 8bit precision, but physical or other HDR scale could be used too.
 
- \section gunits Units (radiometry, photometry, screen)
+ \section gunits Illumination units (radiometry, photometry, screen)
    Lightsprint computes all in HDR.
    Whole documentation talks in radiometry terms like irradiance,
    and Lightsprint internally works in radiometry units.
@@ -1491,6 +1491,12 @@ Integration of global illumination (GI) solver into your project is described in
    (scaled to 0-1 range) and read all outputs in screen colors.
    To setup this mode, call RRDynamicSolver::setScaler(RRScaler::createRgbScaler()).
    HelloRealtimeRadiosity demonstrates it.
+ \section gunits2 Geometry units
+   All sizes and positions in space are expressed in generic units,
+   Lightsprint doesn't need to know if it's meter, inch or parsec.
+   However, some functions have default parameter values calibrated for
+   human-sized scenes specified in meters (feature sizes roughly between
+   0.01 and 100 units), so using meters may give you advantage in typical scenes.
  \section gscale Scale
    Lightsprint libraries support scaled objects.
    \n\n

@@ -10,7 +10,8 @@ unsigned INSTANCES_PER_PASS;
 //#define THREE_ONE
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "3+1.cfg"
-#define CFG_FILE "Candella.cfg"
+//#define CFG_FILE "Candella.cfg"
+#define CFG_FILE "test.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
