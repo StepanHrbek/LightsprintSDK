@@ -9,6 +9,9 @@
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
 #include "ObjectBuffers.h"
+#ifdef _OPENMP
+#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
+#endif
 
 namespace rr_gl
 {
@@ -46,6 +49,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
+	NEW_ARRAY(alightIndirectVcolor,RRColor);
 	#undef NEW_ARRAY
 	const rr::RRMaterial* previousMaterial = NULL;
 	for(unsigned t=0;t<numTriangles;t++)
@@ -86,17 +90,18 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			if(hasDiffuseMap)
 			{
 				object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+				if(!fg.diffuseTexture)
+				{
+					// it's still possible that user will render without texture
+					LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"RRRendererOfRRObject: Object has diffuse texcoords, but no diffuse texture.\n"));
+					object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
+				}
 			}
 			fg.emissiveTexture = NULL;
 			if(hasEmissiveMap)
 			{
 				object->getChannelData(CHANNEL_TRIANGLE_EMISSIVE_TEX,t,&fg.emissiveTexture,sizeof(fg.emissiveTexture));
 			}
-			// it's still possible that user will render without texture
-			//if(!fg.diffuseTexture)
-			//{
-			//	LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"RRRendererOfRRObject: Diffuse texture not available.\n"));
-			//}
 			faceGroups.push_back(fg);
 			previousMaterial = material;
 		}
@@ -147,6 +152,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 
 ObjectBuffers::~ObjectBuffers()
 {
+	delete[] alightIndirectVcolor;
 	delete[] atexcoordDiffuse;
 	delete[] atexcoordEmissive;
 	delete[] atexcoordForced2D;
@@ -176,13 +182,34 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		glNormalPointer(GL_FLOAT, 0, &anormal[0].x);
 	}
 	// set indirect illumination vertices
-	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR && params.indirectIllumination)
+	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
-		RR_ASSERT(indices); // indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
-		unsigned bufferSize = params.indirectIllumination->getNumVertices();
-		RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
-		glEnableClientState(GL_COLOR_ARRAY);
-		glColorPointer(3, GL_FLOAT, 0, params.indirectIllumination->lock());
+		if(indices && params.indirectIllumination)
+		{
+			// use vertex buffer precomputed by RRDynamicSolver
+			// indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
+			unsigned bufferSize = params.indirectIllumination->getNumVertices();
+			RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
+			glEnableClientState(GL_COLOR_ARRAY);
+			glColorPointer(3, GL_FLOAT, 0, params.indirectIllumination->lock());
+		}
+		else
+		if(!indices && params.scene)
+		{
+			// fill our own vertex buffer
+
+			//!!! possible optimization
+			// remember params used at atexcoordForced2D filling
+			//  and refill it only when params change
+
+			#pragma omp parallel for
+			for(int i=params.firstCapturedTriangle*3;i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
+			{
+				params.scene->getTriangleMeasure(i/3,i%3,rr::RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]);
+			}
+			glEnableClientState(GL_COLOR_ARRAY);
+			glColorPointer(3, GL_FLOAT, 0, &alightIndirectVcolor[0].x);
+		}
 	}
 	// set indirect illumination texcoords + map
 	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.indirectIlluminationMap)
@@ -196,10 +223,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 	// set 2d_position texcoords
 	if(params.renderedChannels.FORCE_2D_POSITION)
 	{
+		//!!! possible optimization
+		// remember params used at atexcoordForced2D filling
+		//  and refill it only when params change
+
 		// this should not be executed in every frame, generated texcoords change rarely
 		RR_ASSERT(!indices); // needs non-indexed trilist
 		//for(unsigned i=0;i<numVertices;i++) // for all capture textures, probably not necessary
-		for(unsigned i=params.firstCapturedTriangle*3;i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
+		#pragma omp parallel for
+		for(int i=params.firstCapturedTriangle*3;i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
 		{
 			params.generateForcedUv->generateData(i/3, i%3, &atexcoordForced2D[i].x, sizeof(atexcoordForced2D[i]));
 		}

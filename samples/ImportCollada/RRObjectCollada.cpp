@@ -563,6 +563,14 @@ void RRObjectCollada::updateMaterials()
 						}
 					}
 				}
+				if(!mi.diffuseTexture)
+				{
+					// add 1x1 diffuse texture
+					// required only by Lightsprint demos with 1 shader per static scene, requiring that all objects are textured.
+					// not necessary for other renderers
+					mi.diffuseTexture = de::Texture::create(NULL,1,1,false,GL_RGB);
+					mi.diffuseTexture->reset(1,1,de::Texture::TF_RGBF,(unsigned char*)&mi.material.diffuseReflectance,false);
+				}
 #ifdef VERIFY
 				if(mi.material.validate())
 					RRReporter::report(RRReporter::WARN,"RRObjectCollada: Material adjusted to physically valid.\n");

@@ -18,7 +18,7 @@ class ObjectBuffers
 public:
 	//! \param indexed
 	//!  False = generates triangle list, numVertices == 3*numTriangles.
-	//!  True = generates indexed triangle list, numIndices <= 3*numTriangles (merges identical vertices).
+	//!  True = generates indexed triangle list, numVertices <= 3*numTriangles, order specified by preimport vertex numbers
 	ObjectBuffers(const rr::RRObject* object, bool indexed);
 	~ObjectBuffers();
 	bool inited();
@@ -30,8 +30,9 @@ private:
 	rr::RRVec3* anormal;
 	rr::RRVec2* atexcoordDiffuse;
 	rr::RRVec2* atexcoordEmissive;
-	rr::RRVec2* atexcoordForced2D; // is unique for each vertex
 	rr::RRVec2* atexcoordAmbient; // could be unique for each vertex (with default unwrap)
+	rr::RRVec2* atexcoordForced2D; // is unique for each vertex. used only if !indices. filled at render() time. (all other buffers are filled at constructor)
+	rr::RRColor* alightIndirectVcolor; // used only if !indices. filled at render() time.
 	unsigned numIndices;
 	unsigned* indices;
 	struct FaceGroup
