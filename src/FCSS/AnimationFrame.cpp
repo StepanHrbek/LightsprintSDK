@@ -78,7 +78,15 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 }
 
 // load frame from opened .ani file
-bool AnimationFrame::load(FILE* f)
+AnimationFrame* AnimationFrame::load(FILE* f)
+{
+	AnimationFrame* tmp = new AnimationFrame;
+	if(!tmp->loadPrivate(f))
+		SAFE_DELETE(tmp);
+	return tmp;
+}
+
+bool AnimationFrame::loadPrivate(FILE* f)
 {
 	if(!f) return false;
 	// load eyeLight

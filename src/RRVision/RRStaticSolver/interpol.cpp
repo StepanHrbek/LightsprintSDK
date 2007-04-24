@@ -1048,11 +1048,11 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 		bool warned = false;
 		if(ivertexInfo[minIVert1].ourVertices.size()>100)
 		{
-			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"Cluster of more than 100 vertices merged, was it your intention?\n"));
+			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"Cluster of more than 100 vertices smoothed, was it your intention?\n"));
 		}
-		if(numReduced>vertices/10)
+		if(numReduced>vertices/5)
 		{
-			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"More than 10%% of scene vertices merged, was it your intention?\n"));
+			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"More than 20%% of scene details smoothed away, was it your intention?\n"));
 		}
 		if(warned)
 		{

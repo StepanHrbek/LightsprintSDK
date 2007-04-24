@@ -53,13 +53,12 @@ bool LevelSetup::load(const char* afilename)
 	}
 	// load frames
 	frames.clear();
-	AnimationFrame* tmp = new AnimationFrame;
-	while(tmp->load(f))
+	AnimationFrame* tmp;
+	while((tmp=AnimationFrame::load(f)))
 	{
 		tmp->validate(objects.size());
 		frames.push_back(tmp);
 	}
-	delete tmp;
 	fclose(f);
 	return frames.size()>0;
 }
