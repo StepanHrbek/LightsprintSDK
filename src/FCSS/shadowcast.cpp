@@ -774,7 +774,7 @@ void updateThumbnail(AnimationFrame& frame)
 	drawEyeViewSoftShadowed();
 	//frame.thumbnail->renderingToEnd();
 	frame.thumbnail->bindTexture();
-	glCopyPixels(0,0,160,120,GL_COLOR);
+	glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,160,120);
 	glViewport(0,0,winWidth,winHeight);
 }
 
@@ -1084,7 +1084,7 @@ void display()
 		if(supportEditor)
 			for(LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
 			{
-				updateThumbnail(*i);
+				updateThumbnail(**i);
 			}
 
 		// don't display first frame, characters have bad position (dunno why)

@@ -16,6 +16,8 @@ LevelSetup::LevelSetup(const char* afilename)
 
 LevelSetup::~LevelSetup()
 {
+	for(Frames::iterator i=frames.begin();i!=frames.end();i++)
+		delete *i;
 	free((void*)filename);
 	delete overlayMap;
 }
@@ -51,12 +53,13 @@ bool LevelSetup::load(const char* afilename)
 	}
 	// load frames
 	frames.clear();
-	AnimationFrame tmp;
-	while(tmp.load(f))
+	AnimationFrame* tmp = new AnimationFrame;
+	while(tmp->load(f))
 	{
-		tmp.validate(objects.size());
+		tmp->validate(objects.size());
 		frames.push_back(tmp);
 	}
+	delete tmp;
 	fclose(f);
 	return frames.size()>0;
 }
@@ -83,7 +86,7 @@ bool LevelSetup::save() const
 	// save frames
 	for(Frames::const_iterator i=frames.begin();i!=frames.end();i++)
 	{
-		if(!(*i).save(f))
+		if(!(*i)->save(f))
 			return false;
 	}
 	fclose(f);
@@ -105,14 +108,14 @@ float LevelSetup::getFrameTime(unsigned index) const
 		Frames::const_iterator i=frames.begin();
 		while(i!=frames.end() && index--)
 		{
-			seconds += (*i).transitionToNextTime;
+			seconds += (*i)->transitionToNextTime;
 			i++;
 		}
 		// remove addition of last frame, animation stops at the beginning of last frame
 		if(i==frames.end())
 		{
 			i--;
-			seconds -= (*i).transitionToNextTime;
+			seconds -= (*i)->transitionToNextTime;
 		}
 	}
 	return seconds;
@@ -128,9 +131,9 @@ const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
 	if(absSeconds<0)
 		return NULL;
 	Frames::const_iterator i=frames.begin();
-	while(i!=frames.end() && (*i).transitionToNextTime<absSeconds)
+	while(i!=frames.end() && (*i)->transitionToNextTime<absSeconds)
 	{
-		absSeconds -= (*i).transitionToNextTime;
+		absSeconds -= (*i)->transitionToNextTime;
 		i++;
 	}
 	if(i==frames.end())
@@ -138,21 +141,21 @@ const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
 	Frames::const_iterator j = i; j++;
 	if(j==frames.end())
 		return NULL;
-	return (*i).blend(*j,absSeconds/(*i).transitionToNextTime);
+	return (*i)->blend(**j,absSeconds/(*i)->transitionToNextTime);
 }
 
 unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone, float* transitionTotal)
 {
 	unsigned result = 0;
 	Frames::const_iterator i=frames.begin();
-	while(i!=frames.end() && (*i).transitionToNextTime<=absSeconds)
+	while(i!=frames.end() && (*i)->transitionToNextTime<=absSeconds)
 	{
-		absSeconds -= (*i).transitionToNextTime;
+		absSeconds -= (*i)->transitionToNextTime;
 		i++;
 		result++;
 	}
 	*transitionDone = absSeconds;
-	*transitionTotal = (i==frames.end())? 0 : (*i).transitionToNextTime;
+	*transitionTotal = (i==frames.end())? 0 : (*i)->transitionToNextTime;
 	return result;
 }
 

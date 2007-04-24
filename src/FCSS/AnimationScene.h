@@ -22,7 +22,7 @@ public:
 	// constant setup
 	const char* filename;
 	float scale;
-	typedef std::list<AnimationFrame> Frames;
+	typedef std::list<AnimationFrame*> Frames;
 	Frames frames;
 	std::vector<unsigned> objects; // objects in scene, indices into global dynamic object pool
 

@@ -38,8 +38,8 @@ void AnimationEditor::renderThumbnails(de::TextureRenderer* renderer) const
 			float intensity = 1;//(index==frameA || (index==frameB && secondsSinceFrameA>TIME_OF_STAY_STILL))?0.1f:1;
 			float color[4] = {intensity,intensity,1,1};
 			renderer->render2D(movieClipMap,color,x,y,w,h);
-			if((*i).thumbnail)
-				renderer->render2D((*i).thumbnail,NULL,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
+			if((*i)->thumbnail)
+				renderer->render2D((*i)->thumbnail,NULL,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
 		}
 		// cursor
 		if(index==frameCursor)
@@ -94,7 +94,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
 				if(i!=setup->frames.end())
 				{
-					(*i).transitionToNextTime = MAX(0.02f,(*i).transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
+					(*i)->transitionToNextTime = MAX(0.02f,(*i)->transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
 				}
 			}
 			else
@@ -108,8 +108,8 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
 				if(i!=setup->frames.end())
 				{
-					if((*i).transitionToNextTime<0.03f) (*i).transitionToNextTime=0;
-					(*i).transitionToNextTime += ((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f);
+					if((*i)->transitionToNextTime<0.03f) (*i)->transitionToNextTime=0;
+					(*i)->transitionToNextTime += ((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f);
 				}
 			}
 			else
@@ -119,10 +119,10 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			return true;
 		case GLUT_KEY_INSERT:
 			{LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
-			AnimationFrame tmp;
+			AnimationFrame* tmp = new AnimationFrame;
 			extern void copySceneToAnimationFrame(AnimationFrame& frame, const LevelSetup* setup);
-			copySceneToAnimationFrame(tmp,setup);
-			tmp.transitionToNextTime = (i!=setup->frames.end()) ? (*i).transitionToNextTime : 3;
+			copySceneToAnimationFrame(*tmp,setup);
+			tmp->transitionToNextTime = (i!=setup->frames.end()) ? (*i)->transitionToNextTime : 3;
 			setup->frames.insert(i,tmp);
 			frameCursor++;
 			return true;}
@@ -136,8 +136,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 		case GLUT_KEY_PAGE_DOWN:
 			if(frameCursor+1<setup->frames.size())
 			{
-				_swab((char*)&*setup->getFrameByIndex(frameCursor),(char*)&*setup->getFrameByIndex(frameCursor+1),sizeof(AnimationFrame));
-				//std::swap(*setup->getFrameByIndex(frameCursor),*setup->getFrameByIndex(frameCursor+1));
+				std::swap(*setup->getFrameByIndex(frameCursor),*setup->getFrameByIndex(frameCursor+1));
 				frameCursor++;
 			}
 			return true;
