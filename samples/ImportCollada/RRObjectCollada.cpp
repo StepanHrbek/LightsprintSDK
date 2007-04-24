@@ -354,11 +354,11 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryIns
 	const FMMatrix44 world = node->CalculateWorldTransform();
 	for(unsigned i=0;i<3;i++)
 		for(unsigned j=0;j<4;j++)
-			worldMatrix.m[i][j] = world.m[i][j];
+			worldMatrix.m[i][j] = world.m[j][i];
 	const FMMatrix44 inv = world.Inverted();
 	for(unsigned i=0;i<3;i++)
 		for(unsigned j=0;j<4;j++)
-			invWorldMatrix.m[i][j] = world.m[i][j];
+			invWorldMatrix.m[i][j] = world.m[j][i];
 
 	// create material cache
 	updateMaterials();
