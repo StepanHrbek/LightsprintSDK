@@ -56,7 +56,7 @@ RRDynamicSolver::~RRDynamicSolver()
 {
 	delete scene;
 	delete multiObjectPhysicalWithIllumination;
-	delete multiObjectPhysical;
+	if(multiObjectPhysical!=multiObjectCustom) delete multiObjectPhysical; // no scaler -> physical == custom
 	delete multiObjectCustom;
 }
 
@@ -202,7 +202,10 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 		{
 			REPORT_BEGIN("Closing old radiosity solver.");
 			SAFE_DELETE(scene);
-			SAFE_DELETE(multiObjectCustom);
+			if(multiObjectPhysical!=multiObjectCustom) // no scaler -> physical == custom
+				SAFE_DELETE(multiObjectCustom)
+			else
+				multiObjectCustom = NULL;
 			SAFE_DELETE(multiObjectPhysical);
 			SAFE_DELETE(multiObjectPhysicalWithIllumination);
 			REPORT_END;
@@ -216,7 +219,8 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 		// create multi in custom scale
 		multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)objects.size(),smoothing.intersectTechnique,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
 		// convert it to physical scale
-		multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL;
+		multiObjectPhysical = (multiObjectCustom) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> physical == custom
+		//multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> custom=1,physical=0
 		// add direct illumination
 		multiObjectPhysicalWithIllumination = multiObjectPhysical ? multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
 			(multiObjectCustom ? multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
