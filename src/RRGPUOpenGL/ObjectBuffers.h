@@ -44,6 +44,10 @@ private:
 		de::Texture* emissiveTexture;
 	};
 	std::vector<FaceGroup> faceGroups;
+	// version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)
+	unsigned lightIndirectVcolorVersion;
+	unsigned lightIndirectVcolorFirst;
+	unsigned lightIndirectVcolorLastPlus1;
 };
 
 }; // namespace

@@ -113,7 +113,9 @@ public:
 	//! Sets global illumination buffers for whole scene.
 	//! Used by render() with LIGHT_INDIRECT_VCOLOR or LIGHT_INDIRECT_MAP,
 	//! but only if renderer was created with useBuffers=true.
-	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap);
+	//! \param version
+	//!  Version of indirect illumination solution in scene, should be incremented each time you want to update rendering buffers.
+	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap, unsigned version);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -132,12 +134,15 @@ private:
 		const rr::RRStaticSolver* scene;       ///< scene it comes from
 		const rr::RRScaler* scaler;            ///< scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_VCOLOR
 		RenderedChannels renderedChannels;     ///< set of data channels being rendered
+		// set by setCapture()
 		VertexDataGenerator* generateForcedUv; ///< generator of uv data for FORCE_2D_POSITION
 		unsigned otherCaptureParamsHash;       ///< hash of generator's parameters
 		unsigned firstCapturedTriangle;        ///< index of first triangle to render
 		unsigned lastCapturedTrianglePlus1;    ///< index of last triangle to render+1
+		// set by setIndirectIllumination()
 		rr::RRIlluminationVertexBuffer* indirectIllumination; ///< vertex buffer with indirect illumination (not const because lock is not const)
 		const rr::RRIlluminationPixelBuffer* indirectIlluminationMap; ///< ambient map
+		unsigned sceneSolutionVersion;         ///< version of solution in scene
 	};
 	Params params;
 	// buffers for faster rendering

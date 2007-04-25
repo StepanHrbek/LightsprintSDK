@@ -179,6 +179,7 @@ bool seekInMusicAtSceneSwap = false;
 bool shotRequested;
 DemoPlayer* demoPlayer = NULL;
 unsigned selectedObject_indexInDemo = 0;
+unsigned solutionVersion = 0; // incremented at each successful calculate()
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -520,7 +521,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 				level->solver->updateLightmap(i,NULL,NULL);
 	}
 	// set indirect vertex/pixel buffer
-	level->rendererNonCaching->setIndirectIllumination(level->solver->getIllumination(0)->getChannel(0)->vertexBuffer,level->solver->getIllumination(0)->getChannel(0)->pixelBuffer);
+	level->rendererNonCaching->setIndirectIllumination(level->solver->getIllumination(0)->getChannel(0)->vertexBuffer,level->solver->getIllumination(0)->getChannel(0)->pixelBuffer,solutionVersion);
 	level->rendererCaching->render();
 }
 
@@ -759,7 +760,8 @@ void updateThumbnail(AnimationFrame& frame)
 	// set frame
 	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,frame,true);
 	// calculate
-	level->solver->calculate();
+	if(level->solver->calculate()==rr::RRStaticSolver::IMPROVED)
+		solutionVersion++;
 	// update shadows in advance, so following render doesn't touch FBO
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned j=0;j<numInstances;j++)
@@ -2090,10 +2092,14 @@ void idle()
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	if(!level || (rrOn && level->solver->calculate(rr::RRDynamicSolver::AUTO_UPDATE_VERTEX_BUFFERS
+	rr::RRStaticSolver::Improvement improvement = rr::RRStaticSolver::NOT_IMPROVED;
+	if(!level || (rrOn && (improvement=level->solver->calculate(rr::RRDynamicSolver::AUTO_UPDATE_VERTEX_BUFFERS
 		//+(renderLightmaps?rr::RRDynamicSolver::AUTO_UPDATE_PIXEL_BUFFERS:0)
-		)==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
+		))==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
+		if(improvement==rr::RRStaticSolver::IMPROVED)
+			solutionVersion++;
+
 //		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache
 		// nutne predtim nastavit params (renderedChannels apod)

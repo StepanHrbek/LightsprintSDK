@@ -197,16 +197,23 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		if(!indices && params.scene)
 		{
 			// fill our own vertex buffer
-
-			//!!! possible optimization
-			// remember params used at atexcoordForced2D filling
-			//  and refill it only when params change
-
-			#pragma omp parallel for
-			for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
+			// optimization:
+			//  remember params used at alightIndirectVcolor filling and refill it only when params change
+			unsigned solutionVersion = params.sceneSolutionVersion;
+			if(solutionVersion!=lightIndirectVcolorVersion || params.firstCapturedTriangle!=lightIndirectVcolorFirst || params.lastCapturedTrianglePlus1!=lightIndirectVcolorLastPlus1)
 			{
-				params.scene->getTriangleMeasure(i/3,i%3,rr::RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]); //!!! optimization: move scaling to GPU
+				lightIndirectVcolorFirst = params.firstCapturedTriangle;
+				lightIndirectVcolorLastPlus1 = params.lastCapturedTrianglePlus1;
+				lightIndirectVcolorVersion = solutionVersion;
+
+				// refill
+				#pragma omp parallel for
+				for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
+				{
+					params.scene->getTriangleMeasure(i/3,i%3,rr::RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]); //!!! optimization: move scaling to GPU
+				}
 			}
+
 			glEnableClientState(GL_COLOR_ARRAY);
 			glColorPointer(3, GL_FLOAT, 0, &alightIndirectVcolor[0].x);
 		}
