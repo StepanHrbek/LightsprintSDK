@@ -203,9 +203,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 			//  and refill it only when params change
 
 			#pragma omp parallel for
-			for(int i=params.firstCapturedTriangle*3;i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
+			for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
 			{
-				params.scene->getTriangleMeasure(i/3,i%3,rr::RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]);
+				params.scene->getTriangleMeasure(i/3,i%3,rr::RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]); //!!! optimization: move scaling to GPU
 			}
 			glEnableClientState(GL_COLOR_ARRAY);
 			glColorPointer(3, GL_FLOAT, 0, &alightIndirectVcolor[0].x);
@@ -231,7 +231,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		RR_ASSERT(!indices); // needs non-indexed trilist
 		//for(unsigned i=0;i<numVertices;i++) // for all capture textures, probably not necessary
 		#pragma omp parallel for
-		for(int i=params.firstCapturedTriangle*3;i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
+		for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
 		{
 			params.generateForcedUv->generateData(i/3, i%3, &atexcoordForced2D[i].x, sizeof(atexcoordForced2D[i]));
 		}
