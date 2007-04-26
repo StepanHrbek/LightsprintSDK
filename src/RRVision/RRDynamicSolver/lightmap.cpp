@@ -490,24 +490,24 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 	}
 }
 
-bool RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* aparams)
+unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* aparams)
 {
 	if(!getMultiObjectCustom() || !getStaticSolver())
 	{
 		// create objects
-		calculateCore(0,0);
+		calculateCore(0,0,0,false,false);
 		if(!getMultiObjectCustom() || !getStaticSolver())
 		{
 			RR_ASSERT(0);
 			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: No objects in scene.\n");
-			return false;
+			return 0;
 		}
 	}
 	if(objectNumber>=getNumObjects())
 	{
 		RR_ASSERT(0);
 		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
-		return false;
+		return 0;
 	}
 	const RRObject* object = getMultiObjectCustom();
 	RRMesh* mesh = object->getCollider()->getMesh();
@@ -515,14 +515,14 @@ bool RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelB
 	if(!pixelBuffer)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectNumber);
-		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
+		RRObjectIllumination::Channel* channel = illumination->getChannel(0);//!!!channelNumber
 		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(objectNumber));
 		pixelBuffer = channel->pixelBuffer;
 		if(!pixelBuffer)
 		{
 			RR_ASSERT(0);
 			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: newPixelBuffer(getObject(%d)) returned NULL\n",objectNumber);
-			return false;
+			return 0;
 		}
 	}
 
@@ -579,7 +579,7 @@ bool RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelB
 		pixelBuffer->renderEnd(false);
 		RR_ASSERT(0);
 	}
-	return true;
+	return 1;
 }
 
 static bool endByTime(void *context)
@@ -587,17 +587,19 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
-bool RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, const UpdateLightmapParameters* aparamsDirect, const UpdateLightmapParameters* aparamsIndirect)
+unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, bool createMissingBuffers, const UpdateLightmapParameters* aparamsDirect, const UpdateLightmapParameters* aparamsIndirect)
 {
+	unsigned updatedBuffers = 0;
+
 	if(!getMultiObjectCustom() || !scene)
 	{
 		// create objects
-		calculateCore(0,0);
+		calculateCore(0,0,lightmapChannelNumber,createMissingBuffers,false);
 		if(!getMultiObjectCustom() || !scene)
 		{
 			RR_ASSERT(0);
 			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: No objects in scene.\n");
-			return false;
+			return updatedBuffers;
 		}
 	}
 	// set default params instead of NULL
@@ -630,13 +632,13 @@ bool RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, const Upda
 			paramsDirect.applyCurrentIndirectSolution = false;
 		}
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
-		calculateCore(0,0);
+		calculateCore(0,0,lightmapChannelNumber,createMissingBuffers,false);
 		// gather
 		TIME t0 = GETTIME;
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
 			RRObjectIllumination::Channel* channel = getIllumination(object)->getChannel(lightmapChannelNumber);
-			if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(object));
+			if(!channel->pixelBuffer && createMissingBuffers) channel->pixelBuffer = newPixelBuffer(getObject(object));
 			if(channel->pixelBuffer)
 				updateLightmap(object,channel->pixelBuffer,&paramsIndirect);
 			else
@@ -670,22 +672,14 @@ bool RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, const Upda
 		RRObjectIllumination::Channel* channel = getIllumination(object)->getChannel(lightmapChannelNumber);
 		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(object));
 		if(channel->pixelBuffer)
-			updateLightmap(object,channel->pixelBuffer,&paramsDirect);
+			updatedBuffers += updateLightmap(object,channel->pixelBuffer,&paramsDirect);
 		else
 		{
 			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
 			RR_ASSERT(0);
 		}
 	}
-	return true;
-}
-
-void RRDynamicSolver::readPixelResults()
-{
-	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
-	{
-		updateLightmap(objectHandle,NULL,NULL);
-	}
+	return updatedBuffers;
 }
 
 } // namespace

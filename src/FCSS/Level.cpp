@@ -149,7 +149,8 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	*/
 
 	// init renderer
-	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getStaticSolver(),solver->getScaler(),true);
+	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getStaticSolver(),NULL//solver->getScaler() // LIGHT_INDIRECT_VCOLOR_PHYSICAL is used, so output scaling is disabled
+		,true);
 	rendererCaching = new de::RendererWithCache(rendererNonCaching);
 	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
 

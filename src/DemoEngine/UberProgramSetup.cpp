@@ -17,13 +17,14 @@ namespace de
 const char* UberProgramSetup::getSetupString()
 {
 	static char setup[500];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
 		LIGHT_INDIRECT_VCOLOR?"#define LIGHT_INDIRECT_VCOLOR\n":"",
+		LIGHT_INDIRECT_VCOLOR_PHYSICAL?"#define LIGHT_INDIRECT_VCOLOR_PHYSICAL\n":"",
 		LIGHT_INDIRECT_MAP?"#define LIGHT_INDIRECT_MAP\n":"",
 		LIGHT_INDIRECT_ENV?"#define LIGHT_INDIRECT_ENV\n":"",
 		MATERIAL_DIFFUSE?"#define MATERIAL_DIFFUSE\n":"",

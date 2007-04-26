@@ -111,6 +111,7 @@ float                   speedBack = 0;
 float                   speedRight = 0;
 float                   speedLeft = 0;
 bool                    ambientMapsRender = false;
+unsigned                solutionVersion = 0;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -137,7 +138,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 	rendererNonCaching->setRenderedChannels(renderedChannels);
-	rendererNonCaching->setIndirectIllumination(solver->getIllumination(0)->getChannel(0)->vertexBuffer,solver->getIllumination(0)->getChannel(0)->pixelBuffer);
+	rendererNonCaching->setIndirectIllumination(solver->getIllumination(0)->getChannel(0)->vertexBuffer,solver->getIllumination(0)->getChannel(0)->pixelBuffer,solutionVersion);
 	if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
 		rendererNonCaching->render(); // don't cache indirect illumination, it changes
 	else
@@ -291,10 +292,10 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
 				paramsDirect.applyCurrentIndirectSolution = true; // enable final gather of current indirect solution
-				paramsDirect.quality = 1000; // final gather quality
+				paramsDirect.quality = 10; // final gather quality
 				paramsDirect.applyEnvironment = true; // enable direct illumination from skybox (note: no effect in room without windows)
 				paramsDirect.applyLights = true; // enable direct illumination from lights set by setLights() (note: no effect because no lights were set)
-				solver->updateLightmaps(0,&paramsDirect,NULL);
+				solver->updateLightmaps(0,true,&paramsDirect,NULL);
 				// start rendering computed maps
 				ambientMapsRender = true;
 				modeMovingEye = true;
@@ -462,7 +463,8 @@ void idle()
 	prev = now;
 
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
-	solver->calculate(rr::RRDynamicSolver::AUTO_UPDATE_VERTEX_BUFFERS);
+	if(solver->calculate(rr::RRDynamicSolver::AUTO_UPDATE_VERTEX_BUFFERS)==rr::RRStaticSolver::IMPROVED)
+		solutionVersion++;
 
 	glutPostRedisplay();
 }

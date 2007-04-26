@@ -380,7 +380,7 @@ static void filterEdges(unsigned iSize, CubeColor* iIrradiance)
 // main
 
 // thread safe: yes if RRIlluminationEnvironmentMap::setValues is safe
-void RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize, unsigned specularSize, RRIlluminationEnvironmentMap* specularMap, unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap
+unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize, unsigned specularSize, RRIlluminationEnvironmentMap* specularMap, unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap
 #ifdef SUPPORT_LDR
 	//! \param HDR
 	//!  True = physically correct calculation.
@@ -389,10 +389,12 @@ void RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gather
 #endif
 												)
 {
+	unsigned updatedMaps = 0;
+
 	if(!gatherSize)
 	{
 		RR_ASSERT(0);
-		return;
+		return 0;
 	}
 	if(!specularMap)
 		specularSize = 0;
@@ -401,17 +403,17 @@ void RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gather
 	if(!specularMap && !diffuseMap)
 	{
 		RR_ASSERT(0);
-		return;
+		return 0;
 	}
 	if(!scene)
 	{
 		RR_ASSERT(0);
-		return;
+		return 0;
 	}
 	if(!getMultiObjectCustom())
 	{
 		RR_ASSERT(0);
-		return;
+		return 0;
 	}
 
 	REPORT_INIT;
@@ -430,6 +432,7 @@ void RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gather
 		REPORT_BEGIN("Update envmap-100x send2gl"); \
 		TEST100\
 		map->setValues(filteredSize,filteredIrradiance); \
+		updatedMaps++; \
 	}
 
 	// Velikost kernelu pro specular mapu:
@@ -510,6 +513,8 @@ void RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gather
 #endif
 
 	REPORT_END;
+
+	return updatedMaps;
 }
 
 } // namespace

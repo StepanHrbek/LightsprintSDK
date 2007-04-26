@@ -59,44 +59,49 @@ RRIlluminationVertexBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertice
 	return RRIlluminationVertexBuffer::createInSystemMemory(numVertices);
 }
 
-void RRDynamicSolver::readVertexResults()
+unsigned RRDynamicSolver::updateVertexBuffers(unsigned channelNumber, bool createMissingBuffers, bool customScale)
 {
+	unsigned updatedBuffers = 0;
 	if(!scene)
 	{
 		RR_ASSERT(0);
-		return;
+		return updatedBuffers;
 	}
 	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
-		RRObjectIllumination::Channel* channel = illumination->getChannel(resultChannelIndex);
-		if(!channel->vertexBuffer) channel->vertexBuffer = newVertexBuffer(numPreImportVertices);
+		RRObjectIllumination::Channel* channel = illumination->getChannel(channelNumber);
+		if(!channel->vertexBuffer && createMissingBuffers) channel->vertexBuffer = newVertexBuffer(numPreImportVertices);
 		RRIlluminationVertexBuffer* vertexBuffer = channel->vertexBuffer;
-
-		// load measure into each preImportVertex
-#pragma omp parallel for schedule(static,1)
-		for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+		if(vertexBuffer)
 		{
-			unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
-			unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
-			RRColor indirect = RRColor(0);
-			if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
+			updatedBuffers++;
+			// load measure into each preImportVertex
+#pragma omp parallel for schedule(static,1)
+			for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 			{
-				scene->getTriangleMeasure(t,v,RM_IRRADIANCE_CUSTOM_INDIRECT,getScaler(),indirect);
-				// make it optional when negative values are supported
-				//for(unsigned i=0;i<3;i++)
-				//	indirect[i] = MAX(0,indirect[i]);
-				for(unsigned i=0;i<3;i++)
+				unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
+				unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
+				RRColor indirect = RRColor(0);
+				if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 				{
-					RR_ASSERT(_finite(indirect[i]));
-					RR_ASSERT(indirect[i]<1500000);
+					scene->getTriangleMeasure(t,v,RM_IRRADIANCE_CUSTOM_INDIRECT,customScale ? getScaler() : NULL,indirect);
+					// make it optional when negative values are supported
+					//for(unsigned i=0;i<3;i++)
+					//	indirect[i] = MAX(0,indirect[i]);
+					for(unsigned i=0;i<3;i++)
+					{
+						RR_ASSERT(_finite(indirect[i]));
+						RR_ASSERT(indirect[i]<1500000);
+					}
 				}
+				vertexBuffer->setVertex(preImportVertex,indirect);
 			}
-			vertexBuffer->setVertex(preImportVertex,indirect);
 		}
 	}
+	return updatedBuffers;
 }
 
 } // namespace

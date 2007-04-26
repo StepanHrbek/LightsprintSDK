@@ -6,7 +6,15 @@
 
 \page news What's new
 
-\section news16 ------------------------------------ 2007.4.xx -------------------------------------
+\section news17 ------------------------------------ 2007.4.xx -------------------------------------
+
+CHANGES
+
+- new RRDynamicSolver::updateVertexBuffers() does work previously done by calculate()
+- more flexible RRDynamicSolver::calculate()
+- more flexible RRDynamicSolver::updateLightmaps()
+
+\section news16 ------------------------------------ 2007.4.20 -------------------------------------
 
 NEWS
 

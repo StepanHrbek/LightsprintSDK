@@ -7,6 +7,7 @@
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_VCOLOR
+//  #define LIGHT_INDIRECT_VCOLOR_PHYSICAL
 //  #define LIGHT_INDIRECT_MAP
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE
@@ -86,7 +87,11 @@ void main()
 	#endif
 
 	#ifdef LIGHT_INDIRECT_VCOLOR
-		gl_FrontColor = gl_Color;
+		#ifdef LIGHT_INDIRECT_VCOLOR_PHYSICAL
+			gl_FrontColor = pow(gl_Color,0.45);
+		#else
+			gl_FrontColor = gl_Color;
+		#endif
 	#endif
 
 	#ifdef LIGHT_INDIRECT_MAP

@@ -210,7 +210,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 				#pragma omp parallel for
 				for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
 				{
-					params.scene->getTriangleMeasure(i/3,i%3,rr::RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]); //!!! optimization: move scaling to GPU
+					params.scene->getTriangleMeasure(i/3,i%3,rr::RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]);
 				}
 			}
 

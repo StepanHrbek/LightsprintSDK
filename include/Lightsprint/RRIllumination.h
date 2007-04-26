@@ -459,7 +459,6 @@ namespace rr
 
 		//! \param channelIndex
 		//!  Index of channel you would like to get. Arbitrary unsigned number.
-		//!  For now, only channel 0 contains data.
 		//! \return Channel of channelIndex. If it doesn't exist yet, it is created.
 		Channel* getChannel(unsigned channelIndex);
 		const Channel* getChannel(unsigned channelIndex) const;

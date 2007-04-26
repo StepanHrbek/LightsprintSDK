@@ -257,7 +257,7 @@ namespace rr
 			FORCE_UPDATE_PIXEL_BUFFERS = 8,
 		};
 
-		//! Calculates and improves indirect illumination on static objects in channel 0.
+		//! Calculates and improves indirect illumination on static objects.
 		//
 		//! To be called once per frame while rendering. To be called even when
 		//! rendering is paused, calculation runs on background.
@@ -274,10 +274,19 @@ namespace rr
 		//!  Sum of requests to update illumination data.
 		//!  See enum Request for all possible individual requests.
 		//!  By default, vertex buffers are updated each time new illumination is computed.
+		//! \param channelNumber
+		//!  Results for individual objects are stored into
+		//!  getIllumination(objectNumber)->getChannel(channelNumber).
+		//! \param createMissingBuffers
+		//!  If destination buffer doesn't exist, it is created by newVertexBuffer() or newPixelBuffer().
+		//! \param customScale
+		//!  False = vertex results are stored in physical scale, faster.
+		//!  True = vertex results are stored in custom scale (see setScaler()), slower.
+		//!  For now, pixel results are always stored in custom scale.
 		//! \return
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
-		RRStaticSolver::Improvement calculate(unsigned updateRequests=AUTO_UPDATE_VERTEX_BUFFERS);
+		RRStaticSolver::Improvement calculate(unsigned updateRequests=AUTO_UPDATE_VERTEX_BUFFERS, unsigned channelNumber=0, bool createMissingBuffers=true, bool customScale=false);
 
 		//! Parameters for updateLightmap() and updateLightmaps().
 		struct UpdateLightmapParameters
@@ -328,6 +337,20 @@ namespace rr
 			}
 		};
 
+		//! Calculates and updates one vertex buffer with direct, indirect or global illumination on static object's surface.
+		//
+		//! \param channelNumber
+		//!  Vertex colors for individual objects are stored into
+		//!  getIllumination(objectNumber)->getChannel(channelNumber)->vertexBuffer.
+		//! \param createMissingBuffers
+		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
+		//! \param customScale
+		//!  False = results are stored in physical scale, faster.
+		//!  True = results are stored in custom scale (see setScaler()), slower.
+		//! \return
+		//!  Number of vertex buffers updated.
+		virtual unsigned updateVertexBuffers(unsigned channelNumber, bool createMissingBuffers, bool customScale);
+
 		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
 		//
 		//! Lightmap uses uv coordinates provided by RRMesh::getTriangleMapping().
@@ -354,18 +377,20 @@ namespace rr
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters.
 		//! \return
-		//!  False when no update was executed because of invalid inputs.
+		//!  Number of lightmaps updated.
+		//!  Zero when no update was executed because of invalid inputs.
 		//!  Read system messages (RRReporter) for more details on failure.
-		virtual bool updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, const UpdateLightmapParameters* params);
+		virtual unsigned updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, const UpdateLightmapParameters* params);
 
 		//! Calculates and updates all lightmaps with direct, indirect or global illumination on static scene's surfaces.
 		//
 		//! This is more powerful full scene version of limited single object's updateLightmap().
 		//!
-		//! \param lightmapChannelNumber
+		//! \param channelNumber
 		//!  Lightmaps for individual objects are stored into
-		//!  getIllumination(objectNumber)->getChannel(lightmapChannelNumber)->pixelBuffer.
-		//!  If required pixelBuffer doesn't exist, it is created by newPixelBuffer().
+		//!  getIllumination(objectNumber)->getChannel(channelNumber)->pixelBuffer.
+		//! \param createMissingBuffers
+		//!  If destination buffer doesn't exist, it is created by newPixelBuffer().
 		//! \param paramsDirect
 		//!  Parameters of the update process.
 		//!  Specifies direct illumination component of lightmap.
@@ -380,9 +405,10 @@ namespace rr
 		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
 		//!  Set to NULL for no indirect illumination.
 		//! \return
-		//!  False when no update was executed because of invalid inputs.
+		//!  Number of lightmaps updated.
+		//!  Zero when no update was executed because of invalid inputs.
 		//!  Read system messages (RRReporter) for more details on failure.
-		virtual bool updateLightmaps(unsigned lightmapChannelNumber, const UpdateLightmapParameters* paramsDirect, const UpdateLightmapParameters* paramsIndirect);
+		virtual unsigned updateLightmaps(unsigned channelNumber, bool createMissingBuffers, const UpdateLightmapParameters* paramsDirect, const UpdateLightmapParameters* paramsIndirect);
 
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
@@ -426,7 +452,9 @@ namespace rr
 		//!  If your custom diffuseMap requires size to be power of two, make sure you enter correct size here.
 		//!  Use smaller size for faster update.
 		//!  Size 4 is good.
-		void updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize,
+		//! \return
+		//!  Number of environment maps updated.
+		unsigned updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize,
 			unsigned specularSize, RRIlluminationEnvironmentMap* specularMap,
 			unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap);
 
@@ -594,14 +622,11 @@ namespace rr
 		RRObjectWithPhysicalMaterials* multiObjectPhysical;
 		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
 		RRStaticSolver*   scene;
-		RRStaticSolver::Improvement calculateCore(unsigned requests, float improveStep);
+		RRStaticSolver::Improvement calculateCore(unsigned requests, float improveStep, unsigned channelNumber, bool createMissingBuffers, bool customScale);
 		// read results
 		RRScaler*  scaler;
 		void       updateVertexLookupTable();
 		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
-		void       readVertexResults();
-		void       readPixelResults();
-		unsigned   resultChannelIndex;
 	};
 
 

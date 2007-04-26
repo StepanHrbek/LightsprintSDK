@@ -7,6 +7,7 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
+#define WATER
 //#define THREE_ONE
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "3+1.cfg"
@@ -244,7 +245,9 @@ void init_gl_resources()
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
+#ifdef WATER
 	water = new de::Water("shaders/");
+#endif
 
 	skyRenderer = new de::TextureRenderer("shaders/");
 
@@ -659,21 +662,24 @@ void drawEyeViewSoftShadowed(void)
 	if(numInstances<=INSTANCES_PER_PASS)
 	{
 		// update water reflection
-		water->updateReflectionInit(winWidth/4,winHeight/4,&eye,0.3f);
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-		uberProgramSetup.SHADOW_MAPS = 1;
-		uberProgramSetup.SHADOW_SAMPLES = 1;
-		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
-		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-		drawEyeViewShadowed(uberProgramSetup,0);
-		water->updateReflectionDone();
+		if(water)
+		{
+			water->updateReflectionInit(winWidth/4,winHeight/4,&eye,0.3f);
+			glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+			de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+			uberProgramSetup.SHADOW_MAPS = 1;
+			uberProgramSetup.SHADOW_SAMPLES = 1;
+			uberProgramSetup.LIGHT_DIRECT = true;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
+			uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+			drawEyeViewShadowed(uberProgramSetup,0);
+			water->updateReflectionDone();
+		}
 
 		// render everything except water
-		uberProgramSetup = uberProgramGlobalSetup;
+		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
@@ -694,7 +700,10 @@ void drawEyeViewSoftShadowed(void)
 		drawEyeViewShadowed(uberProgramSetup,0);
 
 		// render water
-		water->render(100);
+		if(water)
+		{
+			water->render(100);
+		}
 
 		return;
 	}
@@ -1782,7 +1791,6 @@ void mainMenu(int item)
 				needLightmapCacheUpdate = true;
 				for(unsigned i=0;i<level->solver->getNumObjects();i++)
 				{
-					//!!! doresit obecne, ne jen pro channel 0
 					delete level->solver->getIllumination(i)->getChannel(0)->pixelBuffer;
 					level->solver->getIllumination(i)->getChannel(0)->pixelBuffer = NULL;
 				}
@@ -1807,7 +1815,7 @@ void mainMenu(int item)
 //				paramsIndirect.applyLights = 1;
 //				paramsIndirect.applyEnvironment = 1;
 				paramsIndirect.quality = LIGHTMAP_QUALITY/2;
-				level->solver->updateLightmaps(0,&paramsDirect,&paramsIndirect);
+				level->solver->updateLightmaps(0,true,&paramsDirect,&paramsIndirect);
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
 			}

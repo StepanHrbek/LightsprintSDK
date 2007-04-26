@@ -864,20 +864,21 @@ Integration of global illumination (GI) solver into your project is described in
      RRIlluminationVertexBuffer::createInSystemMemory by default.
 
  \section d14 Data container instances
-   - stored in: RRDynamicSolver::getIllumination()->getChannel(0)->vertexBuffer
+   - stored in: RRDynamicSolver::getIllumination()->getChannel()->vertexBuffer
    - created by: You may manually create an instance and write it to
-     RRDynamicSolver::getIllumination()->getChannel(0)->vertexBuffer,
+     RRDynamicSolver::getIllumination()->getChannel()->vertexBuffer,
      but you don't have to.
      When RRDynamicSolver::calculate() calculates first illumination data
      and when it is requested to store them into vertex buffer,
-     it checks whether RRDynamicSolver::getIllumination()->getChannel(0)->vertexBuffer exists.
+     it checks whether RRDynamicSolver::getIllumination()->getChannel()->vertexBuffer exists.
      If it doesn't, RRDynamicSolver::newVertexBuffer() is called to create it.
      Default RRDynamicSolver::newVertexBuffer() creates vertex buffer in system memory,
      plain array. It is platform independent and perfectly sufficient for OpenGL
      (glColorPointer accepts plain pointer to vertex color array in system memory).
      For other API, you may need different implementation, provide it by reimplementing
      RRDynamicSolver::newVertexBuffer() to return your class.
-   - updated by: RRDynamicSolver::calculate() when new data are calculated
+   - updated by: RRDynamicSolver::updateVertexBuffers()
+     or RRDynamicSolver::calculate()
 
  \section d16 Rendering with
    - Stream data from vertex buffer into vertex shader, interpret them

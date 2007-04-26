@@ -52,6 +52,7 @@ struct DE_API UberProgramSetup
 	bool     LIGHT_DIRECT_MAP       :1; ///< Enables modulation of direct light by map. Projects texture.
 	bool     LIGHT_INDIRECT_CONST   :1; ///< Enables indirect light, constant.
 	bool     LIGHT_INDIRECT_VCOLOR  :1; ///< Enables indirect light, set per vertex.
+	bool     LIGHT_INDIRECT_VCOLOR_PHYSICAL :1; ///< If indirect light per vertex is used, it is expected in physical scale, converted to screen space in shader.
 	bool     LIGHT_INDIRECT_MAP     :1; ///< Enables indirect light, set by ambient map.
 	bool     LIGHT_INDIRECT_ENV     :1; ///< Enables indirect light, set by environment map.
 	bool     MATERIAL_DIFFUSE       :1; ///< Enables material's diffuse reflection.
@@ -74,6 +75,7 @@ struct DE_API UberProgramSetup
 	UberProgramSetup()
 	{
 		memset(this,0,sizeof(*this));
+		LIGHT_INDIRECT_VCOLOR_PHYSICAL = true; // this doesn't turn on LIGHT_INDIRECT_VCOLOR, but if YOU turn it on, it will be in physical scale rather than custom
 	}
 
 	//! Returns our attribute values in format suitable for our uberprogram.

@@ -113,6 +113,10 @@ public:
 	//! Sets global illumination buffers for whole scene.
 	//! Used by render() with LIGHT_INDIRECT_VCOLOR or LIGHT_INDIRECT_MAP,
 	//! but only if renderer was created with useBuffers=true.
+	//! \param vertexBuffer
+	//!  Vertex colors of whole scene. Applies only to scenes made of 1 object.
+	//! \param ambientMap
+	//!  Ambient map of whole scene. Applies only to scenes made of 1 object.
 	//! \param version
 	//!  Version of indirect illumination solution in scene, should be incremented each time you want to update rendering buffers.
 	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap, unsigned version);
