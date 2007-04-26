@@ -62,11 +62,11 @@ void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirs
 	params.lastCapturedTrianglePlus1 = alastCapturedTrianglePlus1;
 }
 
-void RendererOfRRObject::setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap, unsigned version)
+void RendererOfRRObject::setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap,unsigned asolutionVersion)
 {
 	params.indirectIllumination = vertexBuffer;
 	params.indirectIlluminationMap = ambientMap;
-	params.sceneSolutionVersion = version;
+	solutionVersion = asolutionVersion;
 }
 
 const void* RendererOfRRObject::getParams(unsigned& length) const
@@ -105,13 +105,13 @@ void RendererOfRRObject::render()
 	if(indexedYes && !indexedNoNeeded && !nonBufferedNeeded)
 	{
 		// indexed is faster, use always when possible
-		indexedYes->render(params);
+		indexedYes->render(params,solutionVersion);
 	}
 	else
 	if(indexedNo && !indexedYesNeeded && !nonBufferedNeeded)
 	{
 		// non-indexed is slower
-		indexedNo->render(params);
+		indexedNo->render(params,solutionVersion);
 	}
 	else
 	{
@@ -277,9 +277,18 @@ void RendererOfRRObject::render()
 				// light indirect color
 				if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 				{
-					rr::RRColor color;				
-					params.scene->getTriangleMeasure(triangleIdx,v,rr::RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,color);
-					glColor3fv(&color.x);
+					if(params.scene)
+					{
+						rr::RRColor color;				
+						params.scene->getTriangleMeasure(triangleIdx,v,RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,color);
+						glColor3fv(&color.x);
+					}
+					else
+					{
+						// solver not set, but indirect illumination requested
+						// -> scene will be rendered without indirect illumination
+						RR_ASSERT(0);
+					}
 				}
 
 				// light indirect map uv

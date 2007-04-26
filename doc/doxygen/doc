@@ -676,7 +676,12 @@ Integration of global illumination (GI) solver into your project is described in
    application contains rendering of one frame, add one call to RRDynamicSolver::calculate().
    If you render scene only when it has changed,
    still call RRDynamicSolver::calculate() in every iteration of main loop,
-   but if it returns true, rerender scene.
+   but if it returns IMPROVED, rerender scene.
+
+ - If you use vertex/pixel buffers for rendering:
+   \n When RRDynamicSolver::getSolutionVersion() changes,
+   call RRDynamicSolver::updateVertexBuffers() or RRDynamicSolver::updateLightmaps()
+   to update illumination values stored in vertex/pixel buffers.
 
  - Call RRDynamicSolver::reportDirectIlluminationChange() whenever direct illumination changes.
    It is mainly when light moves or changes properties, but it is also when
@@ -867,18 +872,16 @@ Integration of global illumination (GI) solver into your project is described in
    - stored in: RRDynamicSolver::getIllumination()->getChannel()->vertexBuffer
    - created by: You may manually create an instance and write it to
      RRDynamicSolver::getIllumination()->getChannel()->vertexBuffer,
-     but you don't have to.
-     When RRDynamicSolver::calculate() calculates first illumination data
-     and when it is requested to store them into vertex buffer,
-     it checks whether RRDynamicSolver::getIllumination()->getChannel()->vertexBuffer exists.
-     If it doesn't, RRDynamicSolver::newVertexBuffer() is called to create it.
+     but you don't have to,
+     you can request RRDynamicSolver::updateVertexBuffers() to create missing buffers.
+     It creates them by calling RRDynamicSolver::newVertexBuffer().
      Default RRDynamicSolver::newVertexBuffer() creates vertex buffer in system memory,
      plain array. It is platform independent and perfectly sufficient for OpenGL
      (glColorPointer accepts plain pointer to vertex color array in system memory).
      For other API, you may need different implementation, provide it by reimplementing
      RRDynamicSolver::newVertexBuffer() to return your class.
    - updated by: RRDynamicSolver::updateVertexBuffers()
-     or RRDynamicSolver::calculate()
+     or RRDynamicSolver::updateVertexBuffer().
 
  \section d16 Rendering with
    - Stream data from vertex buffer into vertex shader, interpret them
@@ -1015,24 +1018,20 @@ Integration of global illumination (GI) solver into your project is described in
      your own pixel buffer, see RRIlluminationPixelBuffer interface.
 
  \section d24 Data container instances
-   - stored in: your arbitrary location
-     or RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer
-   - created by: You or RRDynamicSolver::newPixelBuffer().
-     \n You may create pixel buffers manually at any time (and store them
-     into your arbitrary location or into 
-     RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer),
-     but you don't have to.
-     \n When you request RRDynamicSolver::calculate() or 
-     RRDynamicSolver::updateLightmaps() to update pixel buffers
-     and RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer
-     doesn't exist yet, RRDynamicSolver::newPixelBuffer() is called to create it.
+   - stored in: RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer
+     or your arbitrary location.
+   - created by:
+     You may create pixel buffers manually at any time (and store them
+     into RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer
+     or your arbitrary location), but you don't have to,
+     you can request RRDynamicSolver::updateLightmaps() to create missing buffers.
+     It creates them by calling RRDynamicSolver::newPixelBuffer().
      Default RRDynamicSolver::newPixelBuffer() returns NULL,
      so no pixel data are created and stored.
      You may reimplement RRDynamicSolver::newPixelBuffer() to
      return valid instances.
-   - updated by: RRDynamicSolver::updateLightmap()
-     or RRDynamicSolver::updateLightmaps()
-     or RRDynamicSolver::calculate().
+   - updated by: RRDynamicSolver::updateLightmaps()
+     or RRDynamicSolver::updateLightmap().
 
  \section d26 Rendering with
    - Map ambient texture to your object using your uv channel with object's unwrap,

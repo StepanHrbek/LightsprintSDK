@@ -492,10 +492,15 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 
 unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* aparams)
 {
+	if(!pixelBuffer)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
 	if(!getMultiObjectCustom() || !getStaticSolver())
 	{
 		// create objects
-		calculateCore(0,0,0,false,false);
+		calculateCore(0);
 		if(!getMultiObjectCustom() || !getStaticSolver())
 		{
 			RR_ASSERT(0);
@@ -512,19 +517,6 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	const RRObject* object = getMultiObjectCustom();
 	RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numPostImportTriangles = mesh->getNumTriangles();
-	if(!pixelBuffer)
-	{
-		RRObjectIllumination* illumination = getIllumination(objectNumber);
-		RRObjectIllumination::Channel* channel = illumination->getChannel(0);//!!!channelNumber
-		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(objectNumber));
-		pixelBuffer = channel->pixelBuffer;
-		if(!pixelBuffer)
-		{
-			RR_ASSERT(0);
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: newPixelBuffer(getObject(%d)) returned NULL\n",objectNumber);
-			return 0;
-		}
-	}
 
 	// validate params
 	UpdateLightmapParameters params;
@@ -594,7 +586,7 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, bool c
 	if(!getMultiObjectCustom() || !scene)
 	{
 		// create objects
-		calculateCore(0,0,lightmapChannelNumber,createMissingBuffers,false);
+		calculateCore(0);
 		if(!getMultiObjectCustom() || !scene)
 		{
 			RR_ASSERT(0);
@@ -632,7 +624,7 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, bool c
 			paramsDirect.applyCurrentIndirectSolution = false;
 		}
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
-		calculateCore(0,0,lightmapChannelNumber,createMissingBuffers,false);
+		calculateCore(0);
 		// gather
 		TIME t0 = GETTIME;
 		for(unsigned object=0;object<getNumObjects();object++)

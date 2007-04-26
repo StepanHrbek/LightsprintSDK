@@ -117,9 +117,11 @@ public:
 	//!  Vertex colors of whole scene. Applies only to scenes made of 1 object.
 	//! \param ambientMap
 	//!  Ambient map of whole scene. Applies only to scenes made of 1 object.
-	//! \param version
-	//!  Version of indirect illumination solution in scene, should be incremented each time you want to update rendering buffers.
-	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap, unsigned version);
+	//! \param solutionVersion
+	//!  Version of indirect illumination. If you enter the same number several times in a row,
+	//!  indirect illumination data won't be updated and render will be faster.
+	//!  If you change value, indirect illumination data will be updated.
+	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap,unsigned solutionVersion);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -146,12 +148,12 @@ private:
 		// set by setIndirectIllumination()
 		rr::RRIlluminationVertexBuffer* indirectIllumination; ///< vertex buffer with indirect illumination (not const because lock is not const)
 		const rr::RRIlluminationPixelBuffer* indirectIlluminationMap; ///< ambient map
-		unsigned sceneSolutionVersion;         ///< version of solution in scene
 	};
 	Params params;
 	// buffers for faster rendering
 	class ObjectBuffers* indexedYes;
 	class ObjectBuffers* indexedNo;
+	unsigned solutionVersion;              ///< Version of solution in static solver. Must not be in Params, because it changes often and would cause lots of displaylist rebuilds.
 };
 
 }; // namespace

@@ -96,12 +96,12 @@ namespace rr
 		bool smoothed: 1; ///< Selects between [0] raw results for debugging purposes and [1] smoothed results.
 	};
 	// Shortcuts for typical measures.
-	#define RM_IRRADIANCE_PHYSICAL_INDIRECT RRRadiometricMeasure(0,0,0,0,1)
-	#define RM_IRRADIANCE_CUSTOM_INDIRECT   RRRadiometricMeasure(0,1,0,0,1)
-	#define RM_IRRADIANCE_PHYSICAL          RRRadiometricMeasure(0,0,0,1,1)
-	#define RM_IRRADIANCE_CUSTOM            RRRadiometricMeasure(0,1,0,1,1)
-	#define RM_EXITANCE_PHYSICAL            RRRadiometricMeasure(1,0,0,1,1)
-	#define RM_EXITANCE_CUSTOM              RRRadiometricMeasure(1,1,0,1,1)
+	#define RM_IRRADIANCE_PHYSICAL_INDIRECT rr::RRRadiometricMeasure(0,0,0,0,1)
+	#define RM_IRRADIANCE_CUSTOM_INDIRECT   rr::RRRadiometricMeasure(0,1,0,0,1)
+	#define RM_IRRADIANCE_PHYSICAL          rr::RRRadiometricMeasure(0,0,0,1,1)
+	#define RM_IRRADIANCE_CUSTOM            rr::RRRadiometricMeasure(0,1,0,1,1)
+	#define RM_EXITANCE_PHYSICAL            rr::RRRadiometricMeasure(1,0,0,1,1)
+	#define RM_EXITANCE_CUSTOM              rr::RRRadiometricMeasure(1,1,0,1,1)
 
 
 	//! Boolean attributes of one side of a surface. Usually exist in array of two elements, for front and back side.

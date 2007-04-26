@@ -255,7 +255,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 			unsigned color = detectSmallMap[triangleIndex-captureUv->firstCapturedTriangle];
 			getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(
 				triangleIndex,
-				rr::RM_IRRADIANCE_CUSTOM,
+				RM_IRRADIANCE_CUSTOM,
 				rr::RRColor(((color>>24)&255)*boost,((color>>16)&255)*boost,((color>>8)&255)*boost));
 		}
 	}

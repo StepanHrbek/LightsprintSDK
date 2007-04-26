@@ -329,7 +329,13 @@ void idle()
 	prev = now;
 
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
-	solver->calculate(rr::RRDynamicSolver::AUTO_UPDATE_VERTEX_BUFFERS);
+	solver->calculate();
+	static unsigned solutionVersion = 0;
+	if(solver->getSolutionVersion()!=solutionVersion)
+	{
+		solutionVersion = solver->getSolutionVersion();
+		solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
+	}
 
 	glutPostRedisplay();
 }

@@ -117,6 +117,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Autopilot.h"
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"
+//#include "../RRVision/RRDynamicSolver/report.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -180,7 +181,6 @@ bool seekInMusicAtSceneSwap = false;
 bool shotRequested;
 DemoPlayer* demoPlayer = NULL;
 unsigned selectedObject_indexInDemo = 0;
-unsigned solutionVersion = 0; // incremented at each successful calculate()
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -521,10 +521,14 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		//level->solver->calculate(rr::RRDynamicSolver::FORCE_UPDATE_PIXEL_BUFFERS);
 		for(unsigned i=0;i<level->solver->getNumObjects();i++)
 			if(!level->solver->getIllumination(i)->getChannel(0)->pixelBuffer)
-				level->solver->updateLightmap(i,NULL,NULL);
+			{
+				RR_ASSERT(0);
+				//level->solver->getIllumination(i)->getChannel(0)->pixelBuffer = level->solver->newPixelBuffer(level->solver->getObject(i));
+				//level->solver->updateLightmap(i,level->solver->getIllumination(i)->getChannel(0)->pixelBuffer,NULL);
+			}
 	}
 	// set indirect vertex/pixel buffer
-	level->rendererNonCaching->setIndirectIllumination(level->solver->getIllumination(0)->getChannel(0)->vertexBuffer,level->solver->getIllumination(0)->getChannel(0)->pixelBuffer,solutionVersion);
+	level->rendererNonCaching->setIndirectIllumination(level->solver->getIllumination(0)->getChannel(0)->vertexBuffer,level->solver->getIllumination(0)->getChannel(0)->pixelBuffer,level->solver->getSolutionVersion());
 	level->rendererCaching->render();
 }
 
@@ -769,8 +773,7 @@ void updateThumbnail(AnimationFrame& frame)
 	// set frame
 	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,frame,true);
 	// calculate
-	if(level->solver->calculate()==rr::RRStaticSolver::IMPROVED)
-		solutionVersion++;
+	level->solver->calculate();
 	// update shadows in advance, so following render doesn't touch FBO
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned j=0;j<numInstances;j++)
@@ -2100,14 +2103,19 @@ void idle()
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	rr::RRStaticSolver::Improvement improvement = rr::RRStaticSolver::NOT_IMPROVED;
-	if(!level || (rrOn && (improvement=level->solver->calculate(rr::RRDynamicSolver::AUTO_UPDATE_VERTEX_BUFFERS
-		//+(renderLightmaps?rr::RRDynamicSolver::AUTO_UPDATE_PIXEL_BUFFERS:0)
-		))==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
+	if(!level || (rrOn && level->solver->calculate()==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
-		if(improvement==rr::RRStaticSolver::IMPROVED)
-			solutionVersion++;
-
+		if(level->type==Level::TYPE_BSP  // 3ds renderer vyzaduje vbuffer
+			|| level->solver->getNumObjects()==1) // RendererOfRRObject vyzaduje vbuffer pouze ve scene s 1obj
+		{
+			// update vertex buffers for specialized 3ds renderer, they are not used by generic renderer
+			static unsigned solutionVersion = 0;
+			if(level->solver->getSolutionVersion()!=solutionVersion)
+			{
+				solutionVersion = level->solver->getSolutionVersion();
+				level->solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
+			}
+		}
 //		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache
 		// nutne predtim nastavit params (renderedChannels apod)

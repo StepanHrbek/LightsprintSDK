@@ -12,6 +12,7 @@
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
+#include "../RRVision/RRDynamicSolver/report.h"
 
 namespace rr_gl
 {
@@ -167,7 +168,7 @@ bool ObjectBuffers::inited()
 	return initedOk;
 }
 
-void ObjectBuffers::render(RendererOfRRObject::Params& params)
+void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solutionVersion)
 {
 	RR_ASSERT(initedOk);
 	if(!initedOk) return;
@@ -184,34 +185,56 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 	// set indirect illumination vertices
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
-		if(indices && params.indirectIllumination)
+		if(indices)
 		{
-			// use vertex buffer precomputed by RRDynamicSolver
-			// indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
-			unsigned bufferSize = params.indirectIllumination->getNumVertices();
-			RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
-			glEnableClientState(GL_COLOR_ARRAY);
-			glColorPointer(3, GL_FLOAT, 0, params.indirectIllumination->lock());
+			if(params.indirectIllumination)
+			{
+				// use vertex buffer precomputed by RRDynamicSolver
+				// indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
+				unsigned bufferSize = params.indirectIllumination->getNumVertices();
+				RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
+				glEnableClientState(GL_COLOR_ARRAY);
+				glColorPointer(3, GL_FLOAT, 0, params.indirectIllumination->lock());
+			}
+			else
+			{
+				// vertex buffer not set, but indirect illumination requested
+				// -> scene will be rendered with random indirect illumination
+				RR_ASSERT(0);
+				glEnableClientState(GL_COLOR_ARRAY);
+				glColorPointer(3, GL_FLOAT, 0, &alightIndirectVcolor[0].x);
+			}
 		}
 		else
-		if(!indices && params.scene)
+		if(!indices)
 		{
-			// fill our own vertex buffer
-			// optimization:
-			//  remember params used at alightIndirectVcolor filling and refill it only when params change
-			unsigned solutionVersion = params.sceneSolutionVersion;
-			if(solutionVersion!=lightIndirectVcolorVersion || params.firstCapturedTriangle!=lightIndirectVcolorFirst || params.lastCapturedTrianglePlus1!=lightIndirectVcolorLastPlus1)
+			if(params.scene)
 			{
-				lightIndirectVcolorFirst = params.firstCapturedTriangle;
-				lightIndirectVcolorLastPlus1 = params.lastCapturedTrianglePlus1;
-				lightIndirectVcolorVersion = solutionVersion;
-
-				// refill
-				#pragma omp parallel for
-				for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
+				// fill our own vertex buffer
+				// optimization:
+				//  remember params used at alightIndirectVcolor filling and refill it only when params change
+				if(solutionVersion!=lightIndirectVcolorVersion || params.firstCapturedTriangle!=lightIndirectVcolorFirst || params.lastCapturedTrianglePlus1!=lightIndirectVcolorLastPlus1)
 				{
-					params.scene->getTriangleMeasure(i/3,i%3,rr::RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]);
+					lightIndirectVcolorFirst = params.firstCapturedTriangle;
+					lightIndirectVcolorLastPlus1 = params.lastCapturedTrianglePlus1;
+					lightIndirectVcolorVersion = solutionVersion;
+
+					REPORT_INIT;
+					REPORT_BEGIN("Updating private vertex buffers of renderer.");
+					// refill
+#pragma omp parallel for
+					for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
+					{
+						params.scene->getTriangleMeasure(i/3,i%3,RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]);
+					}
+					REPORT_END;
 				}
+			}
+			else
+			{
+				// solver not set, but indirect illumination requested
+				// -> scene will be rendered with random indirect illumination
+				RR_ASSERT(0);
 			}
 
 			glEnableClientState(GL_COLOR_ARRAY);
@@ -361,10 +384,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params)
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
 	// unset indirect illumination colors
-	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR && params.indirectIllumination)
+	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
 		glDisableClientState(GL_COLOR_ARRAY);
-		params.indirectIllumination->unlock();
+		if(indices && params.indirectIllumination) params.indirectIllumination->unlock();
 	}
 	// unset normals
 	if(setNormals)

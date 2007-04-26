@@ -4,6 +4,7 @@
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
 #include "Lightsprint/RRDynamicSolver.h"
+#include "report.h"
 
 namespace rr
 {
@@ -59,7 +60,40 @@ RRIlluminationVertexBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertice
 	return RRIlluminationVertexBuffer::createInSystemMemory(numVertices);
 }
 
-unsigned RRDynamicSolver::updateVertexBuffers(unsigned channelNumber, bool createMissingBuffers, bool customScale)
+unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRRadiometricMeasure measure)
+{
+	if(!scene || !vertexBuffer)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
+	RRObjectIllumination* illumination = getIllumination(objectHandle);
+	unsigned numPreImportVertices = illumination->getNumPreImportVertices();
+	// load measure into each preImportVertex
+#pragma omp parallel for schedule(static,1)
+	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+	{
+		unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
+		unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
+		RRColor indirect = RRColor(0);
+		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
+		{
+			scene->getTriangleMeasure(t,v,measure,getScaler(),indirect);
+			// make it optional when negative values are supported
+			//for(unsigned i=0;i<3;i++)
+			//	indirect[i] = MAX(0,indirect[i]);
+			for(unsigned i=0;i<3;i++)
+			{
+				RR_ASSERT(_finite(indirect[i]));
+				RR_ASSERT(indirect[i]<1500000);
+			}
+		}
+		vertexBuffer->setVertex(preImportVertex,indirect);
+	}
+	return 1;
+}
+
+unsigned RRDynamicSolver::updateVertexBuffers(unsigned channelNumber, bool createMissingBuffers, RRRadiometricMeasure measure)
 {
 	unsigned updatedBuffers = 0;
 	if(!scene)
@@ -67,6 +101,8 @@ unsigned RRDynamicSolver::updateVertexBuffers(unsigned channelNumber, bool creat
 		RR_ASSERT(0);
 		return updatedBuffers;
 	}
+	REPORT_INIT;
+	REPORT_BEGIN("Updating vertex buffers.");
 	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
@@ -74,33 +110,12 @@ unsigned RRDynamicSolver::updateVertexBuffers(unsigned channelNumber, bool creat
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 		RRObjectIllumination::Channel* channel = illumination->getChannel(channelNumber);
 		if(!channel->vertexBuffer && createMissingBuffers) channel->vertexBuffer = newVertexBuffer(numPreImportVertices);
-		RRIlluminationVertexBuffer* vertexBuffer = channel->vertexBuffer;
-		if(vertexBuffer)
+		if(channel->vertexBuffer)
 		{
-			updatedBuffers++;
-			// load measure into each preImportVertex
-#pragma omp parallel for schedule(static,1)
-			for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
-			{
-				unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
-				unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
-				RRColor indirect = RRColor(0);
-				if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
-				{
-					scene->getTriangleMeasure(t,v,RM_IRRADIANCE_CUSTOM_INDIRECT,customScale ? getScaler() : NULL,indirect);
-					// make it optional when negative values are supported
-					//for(unsigned i=0;i<3;i++)
-					//	indirect[i] = MAX(0,indirect[i]);
-					for(unsigned i=0;i<3;i++)
-					{
-						RR_ASSERT(_finite(indirect[i]));
-						RR_ASSERT(indirect[i]<1500000);
-					}
-				}
-				vertexBuffer->setVertex(preImportVertex,indirect);
-			}
+			updatedBuffers += updateVertexBuffer(objectHandle,channel->vertexBuffer,measure);
 		}
 	}
+	REPORT_END;
 	return updatedBuffers;
 }
 

@@ -131,7 +131,7 @@ namespace rr
 	//!
 	//! Usage for non interactive tools/precalculators is
 	//! the same as for interactive applications, with these differences:
-	//! - call updateLightmap() with higher quality settings
+	//! - call updateLightmaps() or updateLightmap() with higher quality settings
 	//!   for higher quality results
 	//! - instead of rendering computed illumination,
 	//!   save it to disk using RRIlluminationPixelBuffer::save()
@@ -147,9 +147,11 @@ namespace rr
 	//! It is not allowed to create and use multiple instances at the same time.
 	//!
 	//! Thread safe: Partially.
-	//!  See updateLightmap() and updateEnvironmentMaps() for more details,
-	//!  these may be called from multiple threads at the same time.
-	//!  Other methods no, may be called from multiple threads, but not at the same time.
+	//!  All updateXxxx() functions may be called from multiple threads at the same time,
+	//!  if you don't ask them to create missing buffers.
+	//!  See updateVertexBuffer(), updateVertexBuffers(), updateLightmap(),
+	//!  updateLightmaps() and updateEnvironmentMaps() for important details.
+	//!  Other function may be called from multiple threads, but not at the same time.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -177,6 +179,8 @@ namespace rr
 
 		//! Sets environment around scene.
 		//
+		//! By default, scene contains no environment, which is the same as black environment.
+		//! Environment matters only for updateLightmap() and updateLightmaps(), it is not used by realtime GI solver.
 		//! \param environment
 		//!  HDR map of environment around scene.
 		//!  Its RRIlluminationEnvironmentMap::getValue() should return
@@ -195,7 +199,12 @@ namespace rr
 		//! Sets lights in scene, all at once.
 		//
 		//! By default, scene contains no lights.
-		//! Lights are used by updateLightmap(), they are not used by realtime GI solver.
+		//! Lights matter only for updateLightmap() and updateLightmaps(), they are not used by realtime GI solver.
+		//!
+		//! Note that even without lights, scene may be still lit, by 
+		//! - custom direct illumination, see detectDirectIllumination().
+		//! - emissive materials used by static objects
+		//! - environment, see setEnvironment()
 		void setLights(const Lights& lights);
 
 		//! Returns lights in scene, set by setLights().
@@ -228,35 +237,6 @@ namespace rr
 		const RRObjectIllumination* getIllumination(unsigned i) const;
 
 
-		//! Request codes for calculate().
-		//
-		//! These codes control update of illumination vertex and pixel buffers.
-		//! \n Note that vertex and pixel buffers are created automatically
-		//! only if you request their update. If you don't request it and you don't
-		//! create buffers manually, make sure your renderer can correctly render
-		//! scene without illumination buffers. 'No buffers' should be interpreted
-		//! as 'no illumination'.
-		enum Request
-		{
-			//! Request to update illumination vertex buffers (vertex colors) each time 
-			//! new illumination data are computed. Ideal for realtime GI, smaller overhead
-			//! compared to realtime generated pixel buffer.
-			AUTO_UPDATE_VERTEX_BUFFERS = 1,
-			//! Request to update illumination pixel buffers (ambient maps) with default parameters
-			//! each time new illumination data are computed. 
-			//! Good for testing ambient map renderer (ambient maps change in realtime).
-			//! For realtime GI, vertex buffers are better because of smaller overhead.
-			AUTO_UPDATE_PIXEL_BUFFERS = 2,
-			//! Request to update illumination vertex buffers (vertex colors) in every case,
-			//! even when ilumination hasn't changed.
-			//! Use e.g. if you know that vertex buffer contents was destroyed.
-			FORCE_UPDATE_VERTEX_BUFFERS = 4,
-			//! Request to update illumination pixel buffers (ambient maps) in every case,
-			//! even when ilumination hasn't changed.
-			//! Use e.g. if you know that pixel buffer contents was destroyed.
-			FORCE_UPDATE_PIXEL_BUFFERS = 8,
-		};
-
 		//! Calculates and improves indirect illumination on static objects.
 		//
 		//! To be called once per frame while rendering. To be called even when
@@ -266,27 +246,54 @@ namespace rr
 		//! you don't repeatedly render scene that doesn't change, for example in game editor.
 		//! Note that user can't see any difference, you only save time and power 
 		//! by not rendering the same image again.
-		//! Calculation() uses these periods for more intense calculations,
+		//! calculate() uses these periods for more intense calculations,
 		//! creating higher quality illumination.
 		//! It detects these periods from you not calling reportDirectIlluminationChange() and reportInteraction().
 		//!
-		//! \param updateRequests
-		//!  Sum of requests to update illumination data.
-		//!  See enum Request for all possible individual requests.
-		//!  By default, vertex buffers are updated each time new illumination is computed.
-		//! \param channelNumber
-		//!  Results for individual objects are stored into
-		//!  getIllumination(objectNumber)->getChannel(channelNumber).
-		//! \param createMissingBuffers
-		//!  If destination buffer doesn't exist, it is created by newVertexBuffer() or newPixelBuffer().
-		//! \param customScale
-		//!  False = vertex results are stored in physical scale, faster.
-		//!  True = vertex results are stored in custom scale (see setScaler()), slower.
-		//!  For now, pixel results are always stored in custom scale.
 		//! \return
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
-		RRStaticSolver::Improvement calculate(unsigned updateRequests=AUTO_UPDATE_VERTEX_BUFFERS, unsigned channelNumber=0, bool createMissingBuffers=true, bool customScale=false);
+		RRStaticSolver::Improvement calculate();
+
+		//! Returns version of global illumination solution.
+		//
+		//! You may use this number to avoid unnecessary updates of illumination buffers.
+		//! Store version together with your illumination buffers and don't update them
+		//! (updateVertexBuffers(), updateLightmaps()) until this number changes.
+		//!
+		//! Version may be incremented only by calculate().
+		unsigned getSolutionVersion() const;
+
+
+		//! Calculates and updates vertex buffer with direct, indirect or global illumination on single static object's surface.
+		//
+		//! \param objectNumber
+		//!  Number of object in this scene.
+		//!  Object numbers are defined by order in which you pass objects to setObjects().
+		//! \param vertexBuffer
+		//!  Destination vertex buffer for indirect illumination.
+		//! \param measure
+		//!  Specifies type of information stored in vertex buffer.
+		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
+		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
+		//! \return
+		//!  Number of vertex buffers updated, 0 or 1.
+		virtual unsigned updateVertexBuffer(unsigned objectNumber, RRIlluminationVertexBuffer* vertexBuffer, RRRadiometricMeasure measure);
+
+		//! Calculates and updates vertex buffers with direct, indirect or global illumination on whole static scene's surface.
+		//
+		//! \param channelNumber
+		//!  Vertex colors for individual objects are stored into
+		//!  getIllumination(objectNumber)->getChannel(channelNumber)->vertexBuffer.
+		//! \param createMissingBuffers
+		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
+		//! \param measure
+		//!  Specifies type of information stored in vertex buffer.
+		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
+		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
+		//! \return
+		//!  Number of vertex buffers updated.
+		virtual unsigned updateVertexBuffers(unsigned channelNumber, bool createMissingBuffers, RRRadiometricMeasure measure);
 
 		//! Parameters for updateLightmap() and updateLightmaps().
 		struct UpdateLightmapParameters
@@ -337,20 +344,6 @@ namespace rr
 			}
 		};
 
-		//! Calculates and updates one vertex buffer with direct, indirect or global illumination on static object's surface.
-		//
-		//! \param channelNumber
-		//!  Vertex colors for individual objects are stored into
-		//!  getIllumination(objectNumber)->getChannel(channelNumber)->vertexBuffer.
-		//! \param createMissingBuffers
-		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
-		//! \param customScale
-		//!  False = results are stored in physical scale, faster.
-		//!  True = results are stored in custom scale (see setScaler()), slower.
-		//! \return
-		//!  Number of vertex buffers updated.
-		virtual unsigned updateVertexBuffers(unsigned channelNumber, bool createMissingBuffers, bool customScale);
-
 		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
 		//
 		//! Lightmap uses uv coordinates provided by RRMesh::getTriangleMapping().
@@ -371,11 +364,9 @@ namespace rr
 		//!  coming to object's surface, converted from physical W/m^2 units to your scale by RRScaler.
 		//!  Lightmap could contain direct, indirect or global illumination, depending on
 		//!  parameters you set in params.
-		//!  If it's NULL, pixel buffer stored in RRDynamicSolver::getIllumination()->getChannel(0)->pixelBuffer
-		//!  is used. If it's also NULL, buffer is created by calling newPixelBuffer()
-		//!  and stored in RRDynamicSolver::getIllumination()->getChannel(0)->pixelBuffer.
 		//! \param params
-		//!  Parameters of the update process, NULL for the default parameters.
+		//!  Parameters of the update process, NULL for the default parameters that
+		//!  specify fast preview update (takes milliseconds).
 		//! \return
 		//!  Number of lightmaps updated.
 		//!  Zero when no update was executed because of invalid inputs.
@@ -608,12 +599,10 @@ namespace rr
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;
 		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
-		bool       dirtyVertexResults;
-		bool       dirtyPixelResults;
+		bool       dirtyResults;
 		long       lastInteractionTime;
 		long       lastCalcEndTime;
-		long       lastReadingVertexResultsTime;
-		long       lastReadingPixelResultsTime;
+		long       lastReadingResultsTime;
 		float      userStep; // avg time spent outside calculate().
 		float      calcStep; // avg time spent in calculate().
 		float      improveStep; // time to be spent in improve in calculate()
@@ -622,9 +611,10 @@ namespace rr
 		RRObjectWithPhysicalMaterials* multiObjectPhysical;
 		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
 		RRStaticSolver*   scene;
-		RRStaticSolver::Improvement calculateCore(unsigned requests, float improveStep, unsigned channelNumber, bool createMissingBuffers, bool customScale);
+		RRStaticSolver::Improvement calculateCore(float improveStep);
 		// read results
 		RRScaler*  scaler;
+		unsigned   solutionVersion;
 		void       updateVertexLookupTable();
 		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
 	};

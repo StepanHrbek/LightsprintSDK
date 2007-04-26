@@ -34,12 +34,10 @@ RRDynamicSolver::RRDynamicSolver()
 	dirtyMaterials = true;
 	dirtyGeometry = true;
 	dirtyLights = BIG_CHANGE;
-	dirtyVertexResults = true;
-	dirtyPixelResults = true;
+	dirtyResults = true;
 	lastInteractionTime = 0;
 	lastCalcEndTime = 0;
-	lastReadingVertexResultsTime = 0;
-	lastReadingPixelResultsTime = 0;
+	lastReadingResultsTime = 0;
 	userStep = 0;
 	calcStep = 0;
 	improveStep = 0;
@@ -47,6 +45,7 @@ RRDynamicSolver::RRDynamicSolver()
 	multiObjectCustom = NULL;
 	multiObjectPhysical = NULL;
 	multiObjectPhysicalWithIllumination = NULL;
+	solutionVersion = 1;
 	//preVertex2PostTriangleVertex zeroed by constructor
 	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
 }
@@ -178,7 +177,7 @@ static bool endByTime(void *context)
 
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
-RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, float improveStep, unsigned channelNumber, bool createMissingBuffers, bool customScale)
+RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 {
 	REPORT_INIT;
 	bool dirtyFactors = false;
@@ -252,8 +251,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 	{
 		dirtyFactors = false;
 		dirtyEnergies = NO_CHANGE;
-		dirtyVertexResults = true;
-		dirtyPixelResults = true;
+		dirtyResults = true;
 		REPORT_BEGIN("Resetting solver energies and factors.");
 		if(scene) scene->illuminationReset(true,true);
 		REPORT_END;
@@ -275,8 +273,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 			improveStep = MAX(improveStep,IMPROVE_STEP_MIN_AFTER_BIG_RESET);
 		}
 		dirtyEnergies = NO_CHANGE;
-		dirtyVertexResults = true;
-		dirtyPixelResults = true;
+		dirtyResults = true;
 	}
 
 	REPORT_BEGIN("Calculating.");
@@ -288,8 +285,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 	switch(improvement)
 	{
 		case RRStaticSolver::IMPROVED:
-			dirtyVertexResults = true;
-			dirtyPixelResults = true;
+			dirtyResults = true;
 			improvement = RRStaticSolver::NOT_IMPROVED; // hide improvement until reading results
 			break;
 		case RRStaticSolver::NOT_IMPROVED:
@@ -299,37 +295,22 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(unsigned requests, fl
 			break;
 	}
 
-	if( ((requests&AUTO_UPDATE_VERTEX_BUFFERS) && dirtyVertexResults && now>=(TIME)(lastReadingVertexResultsTime+readingResultsPeriod*PER_SEC))
-		|| (requests&FORCE_UPDATE_VERTEX_BUFFERS) )
+	if(dirtyResults && now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
 	{
-		REPORT_BEGIN("Reading vertex results.");
-		lastReadingVertexResultsTime = now;
-		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH; // grows too quickly when user forces updates, but it doesn't matter with forced updates, it controls only autoupdates
-		updateVertexBuffers(channelNumber,createMissingBuffers,customScale);
-		dirtyVertexResults = false;
-		REPORT_END;
-		improvement = RRStaticSolver::IMPROVED;
-	}
-	if( ((requests&AUTO_UPDATE_PIXEL_BUFFERS) && dirtyPixelResults && now>=(TIME)(lastReadingPixelResultsTime+readingResultsPeriod*PER_SEC))
-		|| (requests&FORCE_UPDATE_PIXEL_BUFFERS) )
-	{
-		REPORT_BEGIN("Reading pixel results.");
-		lastReadingPixelResultsTime = now;
-		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH; // grows too quickly when user forces updates
-		updateLightmaps(channelNumber,createMissingBuffers,NULL,NULL);
-		dirtyPixelResults = false;
-		REPORT_END;
+		lastReadingResultsTime = now;
+		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
+		dirtyResults = false;
+		solutionVersion++;
 		improvement = RRStaticSolver::IMPROVED;
 	}
 	return improvement;
 }
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
-RRStaticSolver::Improvement RRDynamicSolver::calculate(unsigned requests, unsigned channelNumber, bool createMissingBuffers, bool customScale)
+RRStaticSolver::Improvement RRDynamicSolver::calculate()
 {
 	TIME calcBeginTime = GETTIME;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
-
 
 	// adjust userStep
 	float lastUserStep = (calcBeginTime-lastCalcEndTime)/(float)PER_SEC;
@@ -375,7 +356,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate(unsigned requests, unsign
 	}
 
 	// calculate
-	RRStaticSolver::Improvement result = calculateCore(requests,improveStep,channelNumber,createMissingBuffers,customScale);
+	RRStaticSolver::Improvement result = calculateCore(improveStep);
 
 	// adjust calcStep
 	lastCalcEndTime = GETTIME;
@@ -390,6 +371,11 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate(unsigned requests, unsign
 	}
 
 	return result;
+}
+
+unsigned RRDynamicSolver::getSolutionVersion() const
+{
+	return solutionVersion;
 }
 
 unsigned RR_INTERFACE_ID_LIB()

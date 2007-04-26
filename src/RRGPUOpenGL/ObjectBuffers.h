@@ -22,7 +22,7 @@ public:
 	ObjectBuffers(const rr::RRObject* object, bool indexed);
 	~ObjectBuffers();
 	bool inited();
-	void render(RendererOfRRObject::Params& params);
+	void render(RendererOfRRObject::Params& params, unsigned solutionVersion);
 private:
 	bool initedOk; // true when constructor had no problems and instance is ready to render
 	unsigned numVertices;

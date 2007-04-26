@@ -10,9 +10,12 @@
 
 CHANGES
 
-- new RRDynamicSolver::updateVertexBuffers() does work previously done by calculate()
-- more flexible RRDynamicSolver::calculate()
-- more flexible RRDynamicSolver::updateLightmaps()
+- more flexible updates of RRDynamicSolver illumination
+  - RRDynamicSolver::calculate() doesn't update illumination buffers
+  - new RRDynamicSolver::getSolutionVersion() helps with timing of updates
+  - new RRDynamicSolver::updateVertexBuffer()
+  - new RRDynamicSolver::updateVertexBuffers() does work previously done by calculate(), with more options
+  - more flexible RRDynamicSolver::updateLightmaps()
 
 \section news16 ------------------------------------ 2007.4.20 -------------------------------------
 
