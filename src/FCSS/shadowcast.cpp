@@ -7,7 +7,6 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           100
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
-#define WATER
 //#define THREE_ONE
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "3+1.cfg"
@@ -26,6 +25,7 @@ bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
+bool renderWater = 1;
 /*
 cistejsi by bylo misto globalnich eye, light, gamma, spotmapidx atd pouzit jeden AnimationFrame
 
@@ -245,10 +245,7 @@ void init_gl_resources()
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
-#ifdef WATER
 	water = new de::Water("shaders/",false,false);
-#endif
-
 	skyRenderer = new de::TextureRenderer("shaders/");
 
 	if(!ambientProgram)
@@ -666,7 +663,7 @@ void drawEyeViewSoftShadowed(void)
 	if(numInstances<=INSTANCES_PER_PASS)
 	{
 		// update water reflection
-		if(water)
+		if(water && renderWater)
 		{
 			water->updateReflectionInit(winWidth/4,winHeight/4,&eye,0.3f);
 			glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -704,7 +701,7 @@ void drawEyeViewSoftShadowed(void)
 		drawEyeViewShadowed(uberProgramSetup,0);
 
 		// render water
-		if(water)
+		if(water && renderWater)
 		{
 			water->render(100);
 		}
@@ -1769,6 +1766,7 @@ void keyboardUp(unsigned char c, int x, int y)
 
 enum
 {
+	ME_TOGGLE_WATER,
 	ME_UPDATE_LIGHTMAPS,
 	ME_SAVE_LIGHTMAPS,
 	ME_LOAD_LIGHTMAPS,
@@ -1781,6 +1779,10 @@ void mainMenu(int item)
 {
 	switch (item)
 	{
+		case ME_TOGGLE_WATER:
+			renderWater = !renderWater;
+			break;
+
 #if SUPPORT_LIGHTMAPS
 		case ME_UPDATE_LIGHTMAPS:
 			renderLightmaps = !renderLightmaps;
@@ -1804,7 +1806,7 @@ void mainMenu(int item)
 				//level->solver->setEnvironment(rr::RRIlluminationEnvironmentMap::createSky(rr::RRColorRGBF(0.4f)));
 				// set lights
 				rr::RRDynamicSolver::Lights lights;
-				lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
+				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
 				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRColorRGBF(0.7f))); //!!! not freed
 				level->solver->setLights(lights);
 				// updates maps in high quality
@@ -1930,6 +1932,7 @@ void mainMenu(int item)
 void initMenu()
 {
 	int menu = glutCreateMenu(mainMenu);
+	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
 	glutAddMenuEntry("Lightmaps update", ME_UPDATE_LIGHTMAPS);
 	glutAddMenuEntry("Lightmaps save", ME_SAVE_LIGHTMAPS);
 	glutAddMenuEntry("Lightmaps load", ME_LOAD_LIGHTMAPS);
@@ -2105,7 +2108,7 @@ void idle()
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
 	if(!level || (rrOn && level->solver->calculate()==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
-		if(level->type==Level::TYPE_BSP  // 3ds renderer vyzaduje vbuffer
+		if(level->type==Level::TYPE_3DS  // 3ds renderer vyzaduje vbuffer
 			|| level->solver->getNumObjects()==1) // RendererOfRRObject vyzaduje vbuffer pouze ve scene s 1obj
 		{
 			// update vertex buffers for specialized 3ds renderer, they are not used by generic renderer
