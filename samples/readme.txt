@@ -9,7 +9,7 @@ HelloCollider
 - shows how to detect ray-mesh collision
 
 HelloVision
-- shows how to calculate illumination in scene
+- shows how to calculate static illumination in scene, without renderer
 
 BunnyBenchmark
 - measures Collider score in Stanford Bunny Benchmark
@@ -19,10 +19,12 @@ HelloDemoEngine
 
 HelloRealtimeRadiosity
 - shows how to render realtime global illumination in scene with dynamic objects and light
+- shows feeding 'external' 3ds renderer
 
 Lightmaps
-- precalculates lightmaps in scene with dynamic objects and light,
-  has realtime global illumination preview
+- precalculates lightmaps in scene with dynamic objects and light
+- has realtime global illumination preview
+- uses internal renderer
 
 Water
 - simple use of DemoEngine, renders skybox and water

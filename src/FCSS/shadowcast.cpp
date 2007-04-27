@@ -4,7 +4,7 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
-#define LIGHTMAP_QUALITY           100
+#define LIGHTMAP_QUALITY           10
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
 //#define THREE_ONE
@@ -1788,16 +1788,10 @@ void mainMenu(int item)
 			renderLightmaps = !renderLightmaps;
 			if(!renderLightmaps)
 			{
-				//renderLightmaps = !renderLightmaps;//!!!
-				//for(unsigned i=0;i<level->solver->getNumObjects();i++)
-				//{
-				//level->solver->getIllumination(i)->getChannel(0)->pixelBuffer->renderEnd();
-				//}
 				needLightmapCacheUpdate = true;
 				for(unsigned i=0;i<level->solver->getNumObjects();i++)
 				{
-					delete level->solver->getIllumination(i)->getChannel(0)->pixelBuffer;
-					level->solver->getIllumination(i)->getChannel(0)->pixelBuffer = NULL;
+					SAFE_DELETE(level->solver->getIllumination(i)->getChannel(0)->pixelBuffer);
 				}
 			}
 			else
