@@ -246,7 +246,7 @@ void init_gl_resources()
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
 #ifdef WATER
-	water = new de::Water("shaders/");
+	water = new de::Water("shaders/",false,false);
 #endif
 
 	skyRenderer = new de::TextureRenderer("shaders/");

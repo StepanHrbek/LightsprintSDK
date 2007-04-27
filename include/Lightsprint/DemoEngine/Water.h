@@ -22,7 +22,7 @@ namespace de
 class DE_API Water
 {
 public:
-	Water(const char* pathToShaders);
+	Water(const char* pathToShaders, bool fesnel, bool boostSun);
 	~Water();
 
 	//! Prepares pipeline for rendering into reflection map.
@@ -54,6 +54,7 @@ protected:
 	Camera*  eye;
 	float    altitude;
 	GLint    viewport[4];
+	bool     fresnel;
 };
 
 }; // namespace

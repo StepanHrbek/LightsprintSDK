@@ -137,7 +137,7 @@ int main(int argc, char **argv)
 	glDisable(GL_DEPTH_TEST);
 
 	// init shaders
-	water = new de::Water("..\\..\\data\\shaders\\");
+	water = new de::Water("..\\..\\data\\shaders\\",true,true);
 	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	
 	// init textures

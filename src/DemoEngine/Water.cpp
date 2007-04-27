@@ -11,17 +11,20 @@
 namespace de
 {
 
-Water::Water(const char* pathToShaders)
+Water::Water(const char* pathToShaders, bool afresnel, bool boostSun)
 {
 	mirrorMap = de::Texture::create(NULL,1,1,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	mirrorDepth = de::Texture::createShadowmap(1,1);
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
+	char buf3[400]; buf3[399] = 0;
 	_snprintf(buf1,399,"%swater.vs",pathToShaders);
 	_snprintf(buf2,399,"%swater.fs",pathToShaders);
-	mirrorProgram = de::Program::create(NULL,buf1,buf2);
+	_snprintf(buf3,399,"%s%s",afresnel?"#define FRESNEL\n":"",boostSun?"#define BOOST_SUN\n":"");
+	mirrorProgram = de::Program::create(buf3,buf1,buf2);
 	eye = NULL;
 	altitude = 0;
+	fresnel = afresnel;
 }
 
 Water::~Water()
@@ -83,6 +86,10 @@ void Water::render(float size)
 	mirrorMap->bindTexture();
 	mirrorProgram->sendUniform("mirrorMap",0);
 	mirrorProgram->sendUniform("time",(timeGetTime()%10000000)*0.001f);
+	if(fresnel) mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
+	//GLboolean blend = glIsEnabled(GL_BLEND);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if(size>0)
 	{
 		glBegin(GL_QUADS);
@@ -92,6 +99,8 @@ void Water::render(float size)
 		glVertex3f(size,altitude,-size);
 		glEnd();
 	}
+	//if(!blend)
+	//	glDisable(GL_BLEND);
 }
 
 }; // namespace
