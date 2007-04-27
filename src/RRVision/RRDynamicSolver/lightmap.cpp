@@ -427,7 +427,7 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 	unsigned numTriangles = multiMesh->getNumTriangles();
 
-	#pragma omp parallel for schedule(static,1)
+	#pragma omp parallel for
 	for(int tt=0;tt<(int)numTriangles;tt++)
 	{
 		unsigned t = (unsigned)tt;
