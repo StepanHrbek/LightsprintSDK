@@ -44,9 +44,15 @@ void Water::updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera
 	mirrorMap->renderingToBegin();
 	glGetIntegerv(GL_VIEWPORT,viewport);
 	glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
-	//!!! clipping
 	eye = aeye;
 	altitude = aaltitude;
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	GLdouble plane[4] = {0,1,0,-altitude};
+	glClipPlane(GL_CLIP_PLANE0,plane);
+	glEnable(GL_CLIP_PLANE0);
+
 	if(eye)
 	{
 		eye->mirror(altitude);
@@ -57,6 +63,7 @@ void Water::updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera
 
 void Water::updateReflectionDone()
 {
+	glDisable(GL_CLIP_PLANE0);
 	if(!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 	mirrorDepth->renderingToEnd();
 	mirrorMap->renderingToEnd();

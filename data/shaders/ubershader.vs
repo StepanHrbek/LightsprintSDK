@@ -150,4 +150,6 @@ void main()
 	#else
 		gl_Position = gl_ModelViewProjectionMatrix * worldPos4;
 	#endif
+
+	gl_ClipVertex = worldPos4;
 }
