@@ -463,7 +463,7 @@ namespace rr
 		Channel* getChannel(unsigned channelIndex);
 		const Channel* getChannel(unsigned channelIndex) const;
 		//! \return PreImport number of vertices, length of vertex buffer for rendering.
-		unsigned getNumPreImportVertices();
+		unsigned getNumPreImportVertices() const;
 		~RRObjectIllumination();
 	protected:
 		//! PreImport (original) number of mesh vertices, length of vertex buffer for rendering.

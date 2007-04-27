@@ -59,10 +59,9 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Lightsprint/RRDynamicSolver.h"
-#include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "Lightsprint/DemoEngine/Timer.h"
 #include "Lightsprint/DemoEngine/Water.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
 #include "../HelloRealtimeRadiosity/DynamicObject.h"
 
@@ -94,13 +93,10 @@ de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3
 de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
-de::Texture*            environmentMap = NULL;
-de::TextureRenderer*    textureRenderer = NULL;
 de::Water*              water = NULL;
 de::UberProgram*        uberProgram = NULL;
-rr_gl::RendererOfRRObject* rendererNonCaching = NULL;
-de::Renderer*           rendererCaching = NULL;
 rr_gl::RRDynamicSolverGL* solver = NULL;
+rr_gl::RendererOfScene* rendererOfScene = NULL;
 DynamicObject*          robot = NULL;
 DynamicObject*          potato = NULL;
 int                     winWidth = 0;
@@ -118,39 +114,9 @@ bool                    ambientMapsRender = false;
 
 void renderScene(de::UberProgramSetup uberProgramSetup)
 {
-	// render skybox
-	if(uberProgramSetup.LIGHT_DIRECT)
-		textureRenderer->renderEnvironment(environmentMap,NULL);
-
 	// render static scene
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
-		error("Failed to compile or link GLSL program.\n",true);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
-	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
-	renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
-	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
-	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
-	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
-	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
-	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
-	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
-	rendererNonCaching->setRenderedChannels(renderedChannels);
-
-	// update vertex buffer if it needs update
-	static unsigned solutionVersion = 0;
-	if(solver->getSolutionVersion()!=solutionVersion)
-	{
-		solutionVersion = solver->getSolutionVersion();
-		solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
-	}
-
-	rendererNonCaching->setIndirectIllumination(solver->getIllumination(0)->getChannel(0)->vertexBuffer,solver->getIllumination(0)->getChannel(0)->pixelBuffer,solver->getSolutionVersion());
-	if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
-		rendererNonCaching->render(); // don't cache indirect illumination, it changes
-	else
-		rendererCaching->render(); // cache everything else, it's constant
+	rendererOfScene->setParams(uberProgramSetup,areaLight,lightDirectMap);
+	rendererOfScene->render();
 
 	// render dynamic objects
 	// enable object space
@@ -235,9 +201,6 @@ protected:
 	// detects direct illumination irradiances on all faces in scene
 	virtual bool detectDirectIllumination()
 	{
-		// renderer not yet ready, fail
-		if(!::rendererCaching) return false;
-
 		// shadowmap could be outdated, update it
 		updateShadowmap(0);
 
@@ -523,7 +486,6 @@ int main(int argc, char **argv)
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
 	water = new de::Water("..\\..\\data\\shaders\\",false,false);
-	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
@@ -543,8 +505,6 @@ int main(int argc, char **argv)
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true);
 
 	// init dynamic objects
 	de::UberProgramSetup material;
@@ -576,14 +536,12 @@ int main(int argc, char **argv)
 		error("",false);
 	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 #endif
-	solver->setEnvironment(solver->adaptIlluminationEnvironmentMap(environmentMap));
+	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
+	solver->setEnvironment(solver->loadIlluminationEnvironmentMap("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
+	rendererOfScene = new rr_gl::RendererOfScene(solver);
 	solver->calculate();
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
-
-	// init renderer
-	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getStaticSolver(),solver->getScaler(),true);
-	rendererCaching = rendererNonCaching->createDisplayList();
 
 	glutMainLoop();
 	return 0;

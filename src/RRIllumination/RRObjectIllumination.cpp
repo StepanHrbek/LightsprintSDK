@@ -31,7 +31,7 @@ const RRObjectIllumination::Channel* RRObjectIllumination::getChannel(unsigned c
 	return tmp;
 }
 
-unsigned RRObjectIllumination::getNumPreImportVertices()
+unsigned RRObjectIllumination::getNumPreImportVertices() const
 {
 	return numPreImportVertices;
 }

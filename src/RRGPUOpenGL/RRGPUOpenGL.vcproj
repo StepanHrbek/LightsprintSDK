@@ -403,6 +403,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RendererOfScene.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\RRGPUOpenGL\RendererOfScene.h"
+			>
+		</File>
+		<File
 			RelativePath=".\RRDynamicSolverGL.cpp"
 			>
 		</File>
