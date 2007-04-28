@@ -77,14 +77,14 @@ float                   speedLeft = 0;
 // callback that feeds 3ds renderer with our vertex illumination
 const float* lockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
 	return vertexBuffer ? &vertexBuffer->lock()->x : NULL;
 }
 
 // callback that cleans vertex illumination
 void unlockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 

@@ -869,9 +869,9 @@ Integration of global illumination (GI) solver into your project is described in
      RRIlluminationVertexBuffer::createInSystemMemory by default.
 
  \section d14 Data container instances
-   - stored in: RRDynamicSolver::getIllumination()->getChannel()->vertexBuffer
+   - stored in: RRDynamicSolver::getIllumination()->getLayer()->vertexBuffer
    - created by: You may manually create an instance and write it to
-     RRDynamicSolver::getIllumination()->getChannel()->vertexBuffer,
+     RRDynamicSolver::getIllumination()->getLayer()->vertexBuffer,
      but you don't have to,
      you can request RRDynamicSolver::updateVertexBuffers() to create missing buffers.
      It creates them by calling RRDynamicSolver::newVertexBuffer().
@@ -898,7 +898,7 @@ Integration of global illumination (GI) solver into your project is described in
 	glUseProgram(program);
 	// get vertex buffer with indirect illumination
 	rr::RRIlluminationVertexBuffer* vertexBuffer = dynamicSolver->
-		getIllumination(numberOfObject)->getChannel(0)->vertexBuffer;
+		getIllumination(numberOfObject)->getLayer(0)->vertexBuffer;
 	// enable stream with color values
 	glEnableClientState(GL_COLOR_ARRAY);
 	// set pointer to color data for first vertex
@@ -940,7 +940,7 @@ Integration of global illumination (GI) solver into your project is described in
 	...
 	// create d3d vertex buffer and fill it with vertexBuffer->lock() data
 	rr::RRIlluminationVertexBuffer* vertexBuffer = dynamicSolver->
-		getIllumination(numberOfObject)->getChannel(0)->vertexBuffer;
+		getIllumination(numberOfObject)->getLayer(0)->vertexBuffer;
 	IDirect3DVertexBuffer9* d3dBuffer = ...;
 	// to prevent data duplication and copying, implement RRIlluminationVertexBuffer
 	//  that stores data directly into d3d vertex buffer
@@ -1018,11 +1018,11 @@ Integration of global illumination (GI) solver into your project is described in
      your own pixel buffer, see RRIlluminationPixelBuffer interface.
 
  \section d24 Data container instances
-   - stored in: RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer
+   - stored in: RRDynamicSolver::getIllumination()->getLayer()->pixelBuffer
      or your arbitrary location.
    - created by:
      You may create pixel buffers manually at any time (and store them
-     into RRDynamicSolver::getIllumination()->getChannel()->pixelBuffer
+     into RRDynamicSolver::getIllumination()->getLayer()->pixelBuffer
      or your arbitrary location), but you don't have to,
      you can request RRDynamicSolver::updateLightmaps() to create missing buffers.
      It creates them by calling RRDynamicSolver::newPixelBuffer().
@@ -1074,7 +1074,7 @@ Integration of global illumination (GI) solver into your project is described in
 	// bind lightmap to texture0
 	glActiveTexture(GL_TEXTURE0);
 	dynamicSolver->getIllumination(numberOfObject)->
-		getChannel(0)->pixelBuffer->bindTexture();
+		getLayer(0)->pixelBuffer->bindTexture();
 	// set sampler to use texture0
 	glUniform1i(glGetUniformLocation(program,"lightmap"),0);
 	// enable stream with texture coordinates
@@ -1132,7 +1132,7 @@ Integration of global illumination (GI) solver into your project is described in
 	// set sampler to use lightmap
 	//  (implement pixelBuffer class in d3d)
 	dynamicSolver->getIllumination(numberOfObject)->
-		getChannel(0)->pixelBuffer->bindTexture();
+		getLayer(0)->pixelBuffer->bindTexture();
 	// set vertex declaration for your mesh data,
 	//  including uv channel with unwrap
 	device->SetVertexDeclaration(vertexDeclaration);
@@ -1637,7 +1637,7 @@ Integration of global illumination (GI) solver into your project is described in
  - illumination storage in lightmap: RRIlluminationPixelBuffer
  - illumination storage in vertex buffer: RRIlluminationVertexBuffer
  - illumination storage in environment map: RRIlluminationEnvironmentMap
- - storage of multiple illumination channels: RRObjectIllumination
+ - storage of multiple illumination layers: RRObjectIllumination
  - allows for custom implementation -> smoothly integrates with other engines
 
  Sample HelloRealtimeRadiosity shows RRIllumination in action.

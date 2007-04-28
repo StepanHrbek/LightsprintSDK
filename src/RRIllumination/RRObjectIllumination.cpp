@@ -1,8 +1,8 @@
 #include <map>
 #include "Lightsprint/RRIllumination.h"
 
-typedef std::map<unsigned,rr::RRObjectIllumination::Channel*> ChannelsType;
-#define channels ((ChannelsType*)hiddenChannels)
+typedef std::map<unsigned,rr::RRObjectIllumination::Layer*> LayersType;
+#define layers ((LayersType*)hiddenLayers)
 
 namespace rr
 {
@@ -10,24 +10,24 @@ namespace rr
 RRObjectIllumination::RRObjectIllumination(unsigned anumPreImportVertices)
 {
 	numPreImportVertices = anumPreImportVertices;
-	hiddenChannels = new ChannelsType;
+	hiddenLayers = new LayersType;
 }
 
-RRObjectIllumination::Channel* RRObjectIllumination::getChannel(unsigned channelIndex)
+RRObjectIllumination::Layer* RRObjectIllumination::getLayer(unsigned layerNumber)
 {
-	ChannelsType::iterator i = channels->find(channelIndex);
-	if(i!=channels->end()) return i->second;
-	Channel* tmp = new Channel();
-	(*channels)[channelIndex] = tmp;
+	LayersType::iterator i = layers->find(layerNumber);
+	if(i!=layers->end()) return i->second;
+	Layer* tmp = new Layer();
+	(*layers)[layerNumber] = tmp;
 	return tmp;
 }
 
-const RRObjectIllumination::Channel* RRObjectIllumination::getChannel(unsigned channelIndex) const
+const RRObjectIllumination::Layer* RRObjectIllumination::getLayer(unsigned layerNumber) const
 {
-	ChannelsType::iterator i = channels->find(channelIndex);
-	if(i!=channels->end()) return i->second;
-	Channel* tmp = new Channel();
-	(*channels)[channelIndex] = tmp;
+	LayersType::iterator i = layers->find(layerNumber);
+	if(i!=layers->end()) return i->second;
+	Layer* tmp = new Layer();
+	(*layers)[layerNumber] = tmp;
 	return tmp;
 }
 
@@ -38,12 +38,12 @@ unsigned RRObjectIllumination::getNumPreImportVertices() const
 
 RRObjectIllumination::~RRObjectIllumination()
 {
-	while(channels->begin()!=channels->end())
+	while(layers->begin()!=layers->end())
 	{
-		delete channels->begin()->second;
-		channels->erase(channels->begin());
+		delete layers->begin()->second;
+		layers->erase(layers->begin());
 	}
-	delete channels;
+	delete layers;
 }
 
 } // namespace

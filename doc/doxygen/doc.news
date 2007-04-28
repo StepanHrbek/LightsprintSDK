@@ -20,6 +20,7 @@ CHANGES
   - new RRDynamicSolver::updateVertexBuffer()
   - new RRDynamicSolver::updateVertexBuffers() does work previously done by calculate(), with more options
   - more flexible RRDynamicSolver::updateLightmaps()
+- renamed RRObjectIllumination::Channel -> RRObjectIllumination::Layer
 
 \section news16 ------------------------------------ 2007.4.20 -------------------------------------
 

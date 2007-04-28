@@ -236,7 +236,6 @@ namespace rr
 		//! Returns illumination of i-th static object in scene.
 		const RRObjectIllumination* getIllumination(unsigned i) const;
 
-
 		//! Calculates and improves indirect illumination on static objects.
 		//
 		//! To be called once per frame while rendering. To be called even when
@@ -282,9 +281,9 @@ namespace rr
 
 		//! Calculates and updates vertex buffers with direct, indirect or global illumination on whole static scene's surface.
 		//
-		//! \param channelNumber
+		//! \param layerNumber
 		//!  Vertex colors for individual objects are stored into
-		//!  getIllumination(objectNumber)->getChannel(channelNumber)->vertexBuffer.
+		//!  getIllumination(objectNumber)->getLayer(layerNumber)->vertexBuffer.
 		//! \param createMissingBuffers
 		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
 		//! \param measure
@@ -293,7 +292,7 @@ namespace rr
 		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
 		//! \return
 		//!  Number of vertex buffers updated.
-		virtual unsigned updateVertexBuffers(unsigned channelNumber, bool createMissingBuffers, RRRadiometricMeasure measure);
+		virtual unsigned updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, RRRadiometricMeasure measure);
 
 		//! Parameters for updateLightmap() and updateLightmaps().
 		struct UpdateLightmapParameters
@@ -377,9 +376,9 @@ namespace rr
 		//
 		//! This is more powerful full scene version of limited single object's updateLightmap().
 		//!
-		//! \param channelNumber
+		//! \param layerNumber
 		//!  Lightmaps for individual objects are stored into
-		//!  getIllumination(objectNumber)->getChannel(channelNumber)->pixelBuffer.
+		//!  getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer.
 		//! \param createMissingBuffers
 		//!  If destination buffer doesn't exist, it is created by newPixelBuffer().
 		//! \param paramsDirect
@@ -399,7 +398,7 @@ namespace rr
 		//!  Number of lightmaps updated.
 		//!  Zero when no update was executed because of invalid inputs.
 		//!  Read system messages (RRReporter) for more details on failure.
-		virtual unsigned updateLightmaps(unsigned channelNumber, bool createMissingBuffers, const UpdateLightmapParameters* paramsDirect, const UpdateLightmapParameters* paramsIndirect);
+		virtual unsigned updateLightmaps(unsigned layerNumber, bool createMissingBuffers, const UpdateLightmapParameters* paramsDirect, const UpdateLightmapParameters* paramsIndirect);
 
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
@@ -545,8 +544,8 @@ namespace rr
 		//! Detects direct illumination on all faces in scene and sends it to solver.
 		//
 		//! Source of illumination are lightmaps stored in 
-		//! getIllumination(objectNumber)->getChannel(sourceChannel)->pixelBuffer.
-		virtual void detectDirectIlluminationFromLightmaps(unsigned sourceChannel) = 0;
+		//! getIllumination(objectNumber)->getLayer(sourceLayer)->pixelBuffer.
+		virtual void detectDirectIlluminationFromLightmaps(unsigned sourceLayer) = 0;
 
 		//! Returns new vertex buffer (for indirect illumination) in your custom format.
 		//

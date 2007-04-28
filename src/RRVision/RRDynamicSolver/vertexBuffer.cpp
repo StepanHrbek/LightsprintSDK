@@ -93,7 +93,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 	return 1;
 }
 
-unsigned RRDynamicSolver::updateVertexBuffers(unsigned channelNumber, bool createMissingBuffers, RRRadiometricMeasure measure)
+unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, RRRadiometricMeasure measure)
 {
 	unsigned updatedBuffers = 0;
 	if(!scene)
@@ -108,11 +108,11 @@ unsigned RRDynamicSolver::updateVertexBuffers(unsigned channelNumber, bool creat
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
-		RRObjectIllumination::Channel* channel = illumination->getChannel(channelNumber);
-		if(!channel->vertexBuffer && createMissingBuffers) channel->vertexBuffer = newVertexBuffer(numPreImportVertices);
-		if(channel->vertexBuffer)
+		RRObjectIllumination::Layer* layer = illumination->getLayer(layerNumber);
+		if(!layer->vertexBuffer && createMissingBuffers) layer->vertexBuffer = newVertexBuffer(numPreImportVertices);
+		if(layer->vertexBuffer)
 		{
-			updatedBuffers += updateVertexBuffer(objectHandle,channel->vertexBuffer,measure);
+			updatedBuffers += updateVertexBuffer(objectHandle,layer->vertexBuffer,measure);
 		}
 	}
 	REPORT_END;

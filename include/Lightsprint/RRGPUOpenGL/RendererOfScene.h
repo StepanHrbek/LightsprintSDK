@@ -20,8 +20,7 @@ namespace rr_gl
 //! OpenGL renderer of scene in RRDynamicSolver.
 //
 //! Renders original scene or optimized scene from solver.
-//! Takes live illumination from solver or computed illumination from channel.
-//! Optionally updates illumination in channel.
+//! Takes live illumination from solver or computed illumination from layer.
 class RR_API RendererOfScene : public de::Renderer
 {
 public:
@@ -48,14 +47,14 @@ public:
 	//!  Texture projected by realtime area light.
 	void setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap);
 
-	//! Specifies data source - original scene geometry and illumination from given channel.
+	//! Specifies data source - original scene geometry and illumination from given layer.
 	//
 	//! Original scene is exactly what you entered into solver (see RRDynamicSolver::setObjects()).
-	//! \n Indirect illumination is always taken from given channel.
+	//! \n Indirect illumination is always taken from given layer.
 	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR, LIGHT_INDIRECT_MAP.
-	//! \param channelNumber
-	//!  Indirect illumination will be taken from given channel.
-	void useOriginalScene(unsigned channelNumber);
+	//! \param layerNumber
+	//!  Indirect illumination will be taken from given layer.
+	void useOriginalScene(unsigned layerNumber);
 
 	//! Specifies data source - optimized internal scene in solver and live illumination in solver.
 	//

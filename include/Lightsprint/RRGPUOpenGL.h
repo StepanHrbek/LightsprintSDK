@@ -114,7 +114,7 @@ namespace rr_gl
 		virtual bool detectDirectIllumination();
 
 		//! Detection of direct illumination from lightmaps implemented using OpenGL 2.0.
-		virtual void detectDirectIlluminationFromLightmaps(unsigned sourceChannel);
+		virtual void detectDirectIlluminationFromLightmaps(unsigned sourceLayer);
 
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
 		//! without material. This is renderer specific operation and can't be implemented here.
@@ -133,7 +133,7 @@ namespace rr_gl
 		de::Program* scaleDownProgram;
 		// used by detectDirectIlluminationFromLightmaps
 		de::UberProgram* detectFromLightmapUberProgram;
-		int detectingFromLightmapChannel;
+		int detectingFromLightmapLayer;
 		// backup of render states
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;

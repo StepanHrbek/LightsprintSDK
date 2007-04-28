@@ -448,14 +448,14 @@ void drawShadowMapFrustum(void)
 // callback that feeds 3ds renderer with our vertex illumination
 const float* lockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
 	return vertexBuffer ? &vertexBuffer->lock()->x : NULL;
 }
 
 // callback that cleans vertex illumination
 void unlockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getChannel(0)->vertexBuffer;
+	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
@@ -517,11 +517,11 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		// create missing lightmaps, renderer needs lightmaps for all objects
 		//level->solver->calculate(rr::RRDynamicSolver::FORCE_UPDATE_PIXEL_BUFFERS);
 		for(unsigned i=0;i<level->solver->getNumObjects();i++)
-			if(!level->solver->getIllumination(i)->getChannel(0)->pixelBuffer)
+			if(!level->solver->getIllumination(i)->getLayer(0)->pixelBuffer)
 			{
 				RR_ASSERT(0);
-				//level->solver->getIllumination(i)->getChannel(0)->pixelBuffer = level->solver->newPixelBuffer(level->solver->getObject(i));
-				//level->solver->updateLightmap(i,level->solver->getIllumination(i)->getChannel(0)->pixelBuffer,NULL);
+				//level->solver->getIllumination(i)->getLayer(0)->pixelBuffer = level->solver->newPixelBuffer(level->solver->getObject(i));
+				//level->solver->updateLightmap(i,level->solver->getIllumination(i)->getLayer(0)->pixelBuffer,NULL);
 			}
 	}
 	// set indirect vertex/pixel buffer
@@ -1791,7 +1791,7 @@ void mainMenu(int item)
 				needLightmapCacheUpdate = true;
 				for(unsigned i=0;i<level->solver->getNumObjects();i++)
 				{
-					SAFE_DELETE(level->solver->getIllumination(i)->getChannel(0)->pixelBuffer);
+					SAFE_DELETE(level->solver->getIllumination(i)->getLayer(0)->pixelBuffer);
 				}
 			}
 			else
@@ -1828,7 +1828,7 @@ void mainMenu(int item)
 				// save all ambient maps (static objects)
 				for(unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
 				{
-					rr::RRIlluminationPixelBuffer* map = level->solver->getIllumination(objectIndex)->getChannel(0)->pixelBuffer;
+					rr::RRIlluminationPixelBuffer* map = level->solver->getIllumination(objectIndex)->getLayer(0)->pixelBuffer;
 					if(map)
 					{
 						sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
@@ -1865,7 +1865,7 @@ void mainMenu(int item)
 				for(unsigned objectIndex=0;objectIndex<level->solver->getNumObjects();objectIndex++)
 				{
 					sprintf(filename,"export/cap%02d_statobj%d.png",captureIndex,objectIndex);
-					rr::RRObjectIllumination::Channel* illum = level->solver->getIllumination(objectIndex)->getChannel(0);
+					rr::RRObjectIllumination::Layer* illum = level->solver->getIllumination(objectIndex)->getLayer(0);
 					rr::RRIlluminationPixelBuffer* loaded = static_cast<rr_gl::RRDynamicSolverGL*>(level->solver)->loadIlluminationPixelBuffer(filename);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if(loaded)

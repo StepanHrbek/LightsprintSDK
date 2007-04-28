@@ -96,7 +96,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
 	detectFromLightmapUberProgram = new de::UberProgram(buf1,buf2);
-	detectingFromLightmapChannel = -1;
+	detectingFromLightmapLayer = -1;
 }
 
 RRDynamicSolverGL::~RRDynamicSolverGL()
@@ -186,13 +186,13 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		renderedChannels.FORCE_2D_POSITION = true;
 
 		// setup shader
-		if(detectingFromLightmapChannel>=0)
+		if(detectingFromLightmapLayer>=0)
 		{
 			// special path for detectDirectIlluminationFromLightmaps()
 			// this will be removed in future
 			renderedChannels.LIGHT_DIRECT = false;
 			renderedChannels.LIGHT_INDIRECT_MAP = true;
-			renderedChannels.LIGHT_MAP_CHANNEL = detectingFromLightmapChannel;
+			renderedChannels.LIGHT_MAP_LAYER = detectingFromLightmapLayer;
 			de::UberProgramSetup detectFromLightmapUberProgramSetup;
 			detectFromLightmapUberProgramSetup.LIGHT_INDIRECT_MAP = true;
 			detectFromLightmapUberProgramSetup.MATERIAL_DIFFUSE = true;
@@ -370,12 +370,12 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		renderedChannels.FORCE_2D_POSITION = true;
 
 		// setup shader
-		if(detectingFromLightmapChannel>=0)
+		if(detectingFromLightmapLayer>=0)
 		{
 			// special path for detectDirectIlluminationFromLightmaps()
 			renderedChannels.LIGHT_DIRECT = false;
 			renderedChannels.LIGHT_INDIRECT_MAP = true;
-			renderedChannels.LIGHT_MAP_CHANNEL = detectingFromLightmapChannel;
+			renderedChannels.LIGHT_MAP_LAYER = detectingFromLightmapLayer;
 			de::UberProgramSetup detectFromLightmapUberProgramSetup;
 			detectFromLightmapUberProgramSetup.LIGHT_INDIRECT_MAP = true;
 			detectFromLightmapUberProgramSetup.MATERIAL_DIFFUSE = true;
@@ -551,11 +551,11 @@ bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminat
 	return true;
 }
 
-void RRDynamicSolverGL::detectDirectIlluminationFromLightmaps(unsigned sourceChannel)
+void RRDynamicSolverGL::detectDirectIlluminationFromLightmaps(unsigned sourceLayer)
 {
-	detectingFromLightmapChannel = sourceChannel;
+	detectingFromLightmapLayer = sourceLayer;
 	RRDynamicSolverGL::detectDirectIllumination();
-	detectingFromLightmapChannel = -1;
+	detectingFromLightmapLayer = -1;
 }
 
 }; // namespace

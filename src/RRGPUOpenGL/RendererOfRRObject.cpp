@@ -281,7 +281,7 @@ void RendererOfRRObject::render()
 				{
 					oldIllumination = objectIllumination;
 					// setup light indirect texture
-					rr::RRIlluminationPixelBuffer* pixelBuffer = objectIllumination->getChannel(params.renderedChannels.LIGHT_MAP_CHANNEL)->pixelBuffer;
+					rr::RRIlluminationPixelBuffer* pixelBuffer = objectIllumination->getLayer(params.renderedChannels.LIGHT_MAP_LAYER)->pixelBuffer;
 					if(pixelBuffer)
 					{
 						if(begun)

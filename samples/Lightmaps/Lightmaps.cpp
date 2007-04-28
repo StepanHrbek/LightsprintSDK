@@ -282,7 +282,7 @@ void keyboard(unsigned char c, int x, int y)
 				// save all ambient maps (static objects)
 				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
 				{
-					rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getChannel(0)->pixelBuffer;
+					rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getLayer(0)->pixelBuffer;
 					if(map)
 					{
 						sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
@@ -303,7 +303,7 @@ void keyboard(unsigned char c, int x, int y)
 				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
 				{
 					sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
-					rr::RRObjectIllumination::Channel* illum = solver->getIllumination(objectIndex)->getChannel(0);
+					rr::RRObjectIllumination::Layer* illum = solver->getIllumination(objectIndex)->getLayer(0);
 					rr::RRIlluminationPixelBuffer* loaded = solver->loadIlluminationPixelBuffer(filename);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if(loaded)
@@ -386,7 +386,7 @@ void display(void)
 	}
 
 	// update ambient maps if they don't exist yet
-	if(ambientMapsRender && !solver->getIllumination(0)->getChannel(0)->pixelBuffer)
+	if(ambientMapsRender && !solver->getIllumination(0)->getLayer(0)->pixelBuffer)
 	{
 		// precompute preview maps, takes few ms
 		//solver->updateLightmaps(0,true,NULL,NULL);

@@ -579,7 +579,7 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
-unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, bool createMissingBuffers, const UpdateLightmapParameters* aparamsDirect, const UpdateLightmapParameters* aparamsIndirect)
+unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool createMissingBuffers, const UpdateLightmapParameters* aparamsDirect, const UpdateLightmapParameters* aparamsIndirect)
 {
 	unsigned updatedBuffers = 0;
 
@@ -605,7 +605,7 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, bool c
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
 
 	RRReporter::report(RRReporter::INFO,"Updating lightmaps (%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)).\n",
-		lightmapChannelNumber,
+		lightmapLayerNumber,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",paramsDirect.applyCurrentIndirectSolution?"cur ":"",
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",paramsIndirect.applyCurrentIndirectSolution?"cur ":"");
 
@@ -629,10 +629,10 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, bool c
 		TIME t0 = GETTIME;
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			RRObjectIllumination::Channel* channel = getIllumination(object)->getChannel(lightmapChannelNumber);
-			if(!channel->pixelBuffer && createMissingBuffers) channel->pixelBuffer = newPixelBuffer(getObject(object));
-			if(channel->pixelBuffer)
-				updateLightmap(object,channel->pixelBuffer,&paramsIndirect);
+			RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(lightmapLayerNumber);
+			if(!layer->pixelBuffer && createMissingBuffers) layer->pixelBuffer = newPixelBuffer(getObject(object));
+			if(layer->pixelBuffer)
+				updateLightmap(object,layer->pixelBuffer,&paramsIndirect);
 			else
 			{
 				RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
@@ -643,7 +643,7 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, bool c
 		// feed solver with recently gathered illum
 		//!!! float precision is lost here
 		//!!! v quake levelu tu zdetekuje 0
-		detectDirectIlluminationFromLightmaps(lightmapChannelNumber);
+		detectDirectIlluminationFromLightmaps(lightmapLayerNumber);
 		// propagate
 		RRReporter::report(RRReporter::INFO,"Propagating ...");
 		scene->illuminationReset(false,true);
@@ -661,10 +661,10 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapChannelNumber, bool c
 	// gather requested direct and solution
 	for(unsigned object=0;object<getNumObjects();object++)
 	{
-		RRObjectIllumination::Channel* channel = getIllumination(object)->getChannel(lightmapChannelNumber);
-		if(!channel->pixelBuffer) channel->pixelBuffer = newPixelBuffer(getObject(object));
-		if(channel->pixelBuffer)
-			updatedBuffers += updateLightmap(object,channel->pixelBuffer,&paramsDirect);
+		RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(lightmapLayerNumber);
+		if(!layer->pixelBuffer) layer->pixelBuffer = newPixelBuffer(getObject(object));
+		if(layer->pixelBuffer)
+			updatedBuffers += updateLightmap(object,layer->pixelBuffer,&paramsDirect);
 		else
 		{
 			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);

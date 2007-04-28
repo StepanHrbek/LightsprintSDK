@@ -433,8 +433,8 @@ namespace rr
 		//! One layer of illumination (irradiance) values for whole object.
 		//
 		//! Illumination can be stored in vertex array, ambient map or both.
-		//! Multiple channels (e.g. each channel for different light source) can be mixed by renderer.
-		struct Channel
+		//! Multiple layers (e.g. one layer per light source) can be mixed by renderer.
+		struct Layer
 		{
 			//! Custom vertex array with illumination levels for all object vertices.
 			//! May be NULL in which case vertex arrays are not generated and not used by render.
@@ -442,34 +442,34 @@ namespace rr
 			//! Custom ambient map with illumination levels for object surface.
 			//! May be NULL in which case ambient maps are not generated and not used by render.
 			RRIlluminationPixelBuffer* pixelBuffer;
-			//! Constructs new channel, always empty.
+			//! Constructs new layer, always empty.
 			//! You can insert vertex array or ambient map or both later.
-			Channel()
+			Layer()
 			{
 				vertexBuffer = NULL;
 				pixelBuffer = NULL;
 			}
-			//! Destructs channel, deleting remaining vertex array or ambient map.
-			~Channel()
+			//! Destructs layer, deleting remaining vertex array or ambient map.
+			~Layer()
 			{
 				delete vertexBuffer;
 				delete pixelBuffer;
 			}
 		};
 
-		//! \param channelIndex
-		//!  Index of channel you would like to get. Arbitrary unsigned number.
-		//! \return Channel of channelIndex. If it doesn't exist yet, it is created.
-		Channel* getChannel(unsigned channelIndex);
-		const Channel* getChannel(unsigned channelIndex) const;
+		//! \param layerNumber
+		//!  Index of layer you would like to get. Arbitrary unsigned number.
+		//! \return Layer of layerNumber. If it doesn't exist yet, it is created.
+		Layer* getLayer(unsigned layerNumber);
+		const Layer* getLayer(unsigned layerNumber) const;
 		//! \return PreImport number of vertices, length of vertex buffer for rendering.
 		unsigned getNumPreImportVertices() const;
 		~RRObjectIllumination();
 	protected:
 		//! PreImport (original) number of mesh vertices, length of vertex buffer for rendering.
 		unsigned numPreImportVertices;
-		//! Container with all channels.
-		void* hiddenChannels;
+		//! Container with all layers.
+		void* hiddenLayers;
 	};
 
 } // namespace

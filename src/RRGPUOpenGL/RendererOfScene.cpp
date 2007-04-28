@@ -22,7 +22,7 @@ namespace rr_gl
 //! Renders contents of solver, geometry and illumination.
 //! Geometry may be slightly different from original scene, because of optional internal optimizations.
 //! Illumination is taken directly from solver,
-//! renderer doesn't use or modify precomputed illumination in channels.
+//! renderer doesn't use or modify precomputed illumination in layers.
 class RendererOfRRDynamicSolver : public de::Renderer
 {
 public:
@@ -162,19 +162,19 @@ void RendererOfRRDynamicSolver::render()
 
 //! OpenGL renderer of scene you entered into RRDynamicSolver.
 //
-//! Renders original scene and illumination from channels.
+//! Renders original scene and illumination from layers.
 //! Geometry is exactly what you entered into the solver.
-//! Illumination is taken from given channel, not from solver.
+//! Illumination is taken from given layer, not from solver.
 //! Solver is not const, because its vertex/pixel buffers may change(create/update) at render time.
 class RendererOfOriginalScene : public RendererOfRRDynamicSolver
 {
 public:
 	RendererOfOriginalScene(rr::RRDynamicSolver* solver);
 
-	//! Sets source of indirect illumination. It is channel 0 by default.
-	//! \param channelNumber
-	//!  Indirect illumination will be taken from given channel.
-	void setIndirectIlluminationSource(unsigned channelNumber);
+	//! Sets source of indirect illumination. It is layer 0 by default.
+	//! \param layerNumber
+	//!  Indirect illumination will be taken from given layer.
+	void setIndirectIlluminationSource(unsigned layerNumber);
 
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
 	virtual void render();
@@ -183,7 +183,7 @@ public:
 
 private:
 	// n renderers for n objects
-	unsigned channelNumber;
+	unsigned layerNumber;
 	std::vector<de::Renderer*> renderersCaching;
 	std::vector<RendererOfRRObject*> renderersNonCaching;
 };
@@ -191,7 +191,7 @@ private:
 
 RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* asolver) : RendererOfRRDynamicSolver(asolver)
 {
-	channelNumber = 0;
+	layerNumber = 0;
 }
 
 RendererOfOriginalScene::~RendererOfOriginalScene()
@@ -200,9 +200,9 @@ RendererOfOriginalScene::~RendererOfOriginalScene()
 	for(unsigned i=0;i<renderersNonCaching.size();i++) delete renderersNonCaching[i];
 }
 
-void RendererOfOriginalScene::setIndirectIlluminationSource(unsigned achannelNumber)
+void RendererOfOriginalScene::setIndirectIlluminationSource(unsigned alayerNumber)
 {
-	channelNumber = achannelNumber;
+	layerNumber = alayerNumber;
 }
 
 void RendererOfOriginalScene::render()
@@ -233,7 +233,7 @@ void RendererOfOriginalScene::render()
 	if(params.solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = params.solver->getSolutionVersion();
-		params.solver->updateVertexBuffers(channelNumber,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
+		params.solver->updateVertexBuffers(layerNumber,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
 	}
 */
 	// render static scene
@@ -267,7 +267,7 @@ void RendererOfOriginalScene::render()
 			renderersCaching.push_back(renderersNonCaching[i]->createDisplayList());
 		}
 		renderersNonCaching[i]->setRenderedChannels(renderedChannels);
-		renderersNonCaching[i]->setIndirectIlluminationBuffers(params.solver->getIllumination(i)->getChannel(channelNumber)->vertexBuffer,params.solver->getIllumination(i)->getChannel(channelNumber)->pixelBuffer);
+		renderersNonCaching[i]->setIndirectIlluminationBuffers(params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer,params.solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer);
 		if(params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
 			renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes
 		else
@@ -300,10 +300,10 @@ const void* RendererOfScene::getParams(unsigned& length) const
 	return renderer->getParams(length);
 }
 
-void RendererOfScene::useOriginalScene(unsigned channelNumber)
+void RendererOfScene::useOriginalScene(unsigned layerNumber)
 {
 	useOptimized = false;
-	renderer->setIndirectIlluminationSource(channelNumber);
+	renderer->setIndirectIlluminationSource(layerNumber);
 }
 
 void RendererOfScene::useOptimizedScene()
