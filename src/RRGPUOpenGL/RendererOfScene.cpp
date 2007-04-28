@@ -5,10 +5,10 @@
 
 #include <cassert>
 #include <GL/glew.h>
-#include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
-#include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "Lightsprint/RRGPUOpenGL.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
+#include "Lightsprint/DemoEngine/TextureRenderer.h"
 
 namespace rr_gl
 {
@@ -250,9 +250,11 @@ void RendererOfOriginalScene::render()
 	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
 
-	// working copy of params.uberProgramSetup
+	// - working copy of params.uberProgramSetup
 	de::UberProgramSetup uberProgramSetup = params.uberProgramSetup;
+	uberProgramSetup.OBJECT_SPACE = true;
 
+	de::Program* program = NULL;
 	unsigned numObjects = params.solver->getNumObjects();
 	for(unsigned i=0;i<numObjects;i++)
 	{
@@ -266,12 +268,44 @@ void RendererOfOriginalScene::render()
 				renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
 				renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
 			}
-			if(!uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,NULL,1))
+			program = uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,NULL,1);
+			if(!program)
 			{
 				rr::RRReporter::report(rr::RRReporter::ERRO,"Failed to compile or link GLSL program.\n");
 				return;
 			}
 		}
+
+		// - set transformation
+		if(uberProgramSetup.OBJECT_SPACE)
+		{
+			rr::RRObject* object = params.solver->getObject(i);
+			const rr::RRMatrix3x4* world = object->getWorldMatrix();
+			if(world)
+			{
+				float worldMatrix[16] =
+				{
+					world->m[0][0],world->m[1][0],world->m[2][0],0,
+					world->m[0][1],world->m[1][1],world->m[2][1],0,
+					world->m[0][2],world->m[1][2],world->m[2][2],0,
+					world->m[0][3],world->m[1][3],world->m[2][3],1
+				};
+				program->sendUniform("worldMatrix",worldMatrix,false,4);
+			}
+			else
+			{
+				float worldMatrix[16] =
+				{
+					1,0,0,0,
+					0,1,0,0,
+					0,0,1,0,
+					0,0,0,1
+				};
+				program->sendUniform("worldMatrix",worldMatrix,false,4);
+			}
+		}
+
+		// - create missing renderers
 		if(i>=renderersNonCaching.size())
 		{
 			renderersNonCaching.push_back(new rr_gl::RendererOfRRObject(params.solver->getObject(i),NULL,NULL,true));
@@ -280,6 +314,7 @@ void RendererOfOriginalScene::render()
 		{
 			renderersCaching.push_back(renderersNonCaching[i]->createDisplayList());
 		}
+		// - render
 		renderersNonCaching[i]->setRenderedChannels(renderedChannels);
 		renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
 		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
