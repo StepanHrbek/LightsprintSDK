@@ -233,7 +233,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						REPORT_INIT;
 						REPORT_BEGIN("Updating private vertex buffers of renderer.");
 						// refill
-#pragma omp parallel for
+#pragma omp parallel for schedule(static,1)
 						for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
 						{
 							params.scene->getTriangleMeasure(i/3,i%3,RM_IRRADIANCE_PHYSICAL_INDIRECT,params.scaler,alightIndirectVcolor[i]);
@@ -278,7 +278,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		// this should not be executed in every frame, generated texcoords change rarely
 		RR_ASSERT(!indices); // needs non-indexed trilist
 		//for(unsigned i=0;i<numVertices;i++) // for all capture textures, probably not necessary
-		#pragma omp parallel for
+#pragma omp parallel for schedule(static,1)
 		for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture texture
 		{
 			params.generateForcedUv->generateData(i/3, i%3, &atexcoordForced2D[i].x, sizeof(atexcoordForced2D[i]));

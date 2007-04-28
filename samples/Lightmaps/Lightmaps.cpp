@@ -44,7 +44,7 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
-#define COLLADA
+//#define COLLADA
 // loads Collada .DAE scene instead of .3DS scene
 
 #ifdef COLLADA
@@ -264,10 +264,18 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
 				paramsDirect.applyCurrentIndirectSolution = true; // enable final gather of current indirect solution
-				paramsDirect.quality = 1000; // final gather quality
+				paramsDirect.quality = 1000;
 				paramsDirect.applyEnvironment = true; // enable direct illumination from skybox (note: no effect in room without windows)
 				paramsDirect.applyLights = true; // enable direct illumination from lights set by setLights() (note: no effect because no lights were set)
-				solver->updateLightmaps(0,true,&paramsDirect,NULL);
+
+				// calculate all lightmaps at once
+				//solver->updateLightmaps(0,true,&paramsDirect,NULL);
+
+				// calculate lightmap only for first object
+				if(!solver->getIllumination(0)->getLayer(0)->pixelBuffer)
+					solver->getIllumination(0)->getLayer(0)->pixelBuffer = solver->createIlluminationPixelBuffer(512,512);
+				solver->updateLightmap(0,solver->getIllumination(0)->getLayer(0)->pixelBuffer,&paramsDirect);
+
 				// start rendering computed maps
 				ambientMapsRender = true;
 				modeMovingEye = true;
@@ -404,6 +412,7 @@ void display(void)
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !ambientMapsRender;
 	uberProgramSetup.LIGHT_INDIRECT_MAP = ambientMapsRender;
+	uberProgramSetup.LIGHT_INDIRECT_auto = ambientMapsRender; // when map doesn't exist, render vcolors
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	renderScene(uberProgramSetup);
@@ -545,6 +554,7 @@ int main(int argc, char **argv)
 	solver->setObjects(*adaptObjectsFromFCollada(collada),NULL);
 #else
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
+	//if(!m3ds.Load("..\\..\\data\\scenes\\sponza\\sponza.3ds",1))
 		error("",false);
 	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 #endif

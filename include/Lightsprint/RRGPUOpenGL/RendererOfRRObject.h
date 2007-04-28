@@ -82,6 +82,7 @@ public:
 	//!  but only if it's done many times repeatedly. More memory is needed.
 	//!  If you plan to render object only once,
 	//!  technique without buffers (false) is faster and takes less memory.
+	//!  \n Technique without buffers doesn't support setIndirectIlluminationBuffers().
 	RendererOfRRObject(const rr::RRObject* object, const rr::RRStaticSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers);
 
 	//! Specifies what data channels to feed to GPU during render.
@@ -110,9 +111,10 @@ public:
 	//! Sets source of uv coords for render() with FORCE_2D_POSITION enabled.
 	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1);
 
-	//! Specifies what indirect illumination to render in render() - use these buffers.
+	//! Specifies what indirect illumination to render in render(): use these buffers.
 	//
 	//! Overrides previous calls to setIndirectIlluminationBuffers() and setIndirectIlluminationFromSolver().
+	//! It is not supported in combination with useBuffers=false (set at renderer creation time).
 	//! \param vertexBuffer
 	//!  Used by render() with LIGHT_INDIRECT_VCOLOR.
 	//!  Vertex buffer with indirect illumination colors. Must be of the same size as the object.
@@ -124,7 +126,7 @@ public:
 	//!  Texcoord mapping is provided by RRMesh::getTriangleMapping().
 	void setIndirectIlluminationBuffers(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap);
 
-	//! Specifies what indirect illumination to render in render() - read live values from the solver.
+	//! Specifies what indirect illumination to render in render(): read live values from the solver.
 	//
 	//! Overrides previous calls to setIndirectIlluminationBuffers() and setIndirectIlluminationFromSolver().
 	//! \param solutionVersion

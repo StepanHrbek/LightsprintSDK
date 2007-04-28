@@ -427,7 +427,7 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 	unsigned numTriangles = multiMesh->getNumTriangles();
 
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static,1, static
 	for(int tt=0;tt<(int)numTriangles;tt++)
 	{
 		unsigned t = (unsigned)tt;
@@ -532,6 +532,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	if(params.applyLights || params.applyEnvironment || (params.applyCurrentIndirectSolution && params.quality))
 	{
 		RRReporter::report(RRReporter::INFO,"Updating lightmap, object %d/%d, res %d*%d ...",objectNumber+1,getNumObjects(),pixelBuffer->getWidth(),pixelBuffer->getHeight());
+		TIME start = GETTIME;
 		TexelContext tc;
 		tc.solver = this;
 		tc.pixelBuffer = pixelBuffer;
@@ -542,7 +543,8 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		// continue with all texels, possibly in multiple threads
 		enumerateTexels(objectNumber,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,&tc);
 		pixelBuffer->renderEnd(true);
-		RRReporter::report(RRReporter::CONT," done.\n");
+		unsigned secs10 = (GETTIME-start)*10/PER_SEC;
+		RRReporter::report(RRReporter::CONT," done in %d.%ds.\n",secs10/10,secs10%10);
 	}
 	else
 	if(params.applyCurrentIndirectSolution)

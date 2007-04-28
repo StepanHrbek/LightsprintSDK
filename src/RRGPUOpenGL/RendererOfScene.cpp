@@ -237,11 +237,6 @@ void RendererOfOriginalScene::render()
 	}
 */
 	// render static scene
-	if(!params.uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,NULL,1))
-	{
-		rr::RRReporter::report(rr::RRReporter::ERRO,"Failed to compile or link GLSL program.\n");
-		return;
-	}
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK); //!!! do it in RendererOfRRObject according to RRMaterial sideBits
 
@@ -255,20 +250,39 @@ void RendererOfOriginalScene::render()
 	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
 
+	// working copy of params.uberProgramSetup
+	de::UberProgramSetup uberProgramSetup = params.uberProgramSetup;
+
 	unsigned numObjects = params.solver->getNumObjects();
 	for(unsigned i=0;i<numObjects;i++)
 	{
+		// - set shader according to vbuf/pbuf presence
+		rr::RRIlluminationVertexBuffer* vbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer;
+		rr::RRIlluminationPixelBuffer* pbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer;
+		if(i==0 || (uberProgramSetup.LIGHT_INDIRECT_auto && ((vbuffer?true:false)!=uberProgramSetup.LIGHT_INDIRECT_VCOLOR || (pbuffer?true:false)!=uberProgramSetup.LIGHT_INDIRECT_MAP)))
+		{
+			if(uberProgramSetup.LIGHT_INDIRECT_auto)
+			{
+				renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
+				renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
+			}
+			if(!uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,NULL,1))
+			{
+				rr::RRReporter::report(rr::RRReporter::ERRO,"Failed to compile or link GLSL program.\n");
+				return;
+			}
+		}
 		if(i>=renderersNonCaching.size())
 		{
-			renderersNonCaching.push_back(new rr_gl::RendererOfRRObject(params.solver->getMultiObjectCustom(),params.solver->getStaticSolver(),params.solver->getScaler(),true));
+			renderersNonCaching.push_back(new rr_gl::RendererOfRRObject(params.solver->getObject(i),NULL,NULL,true));
 		}
 		if(i>=renderersCaching.size())
 		{
 			renderersCaching.push_back(renderersNonCaching[i]->createDisplayList());
 		}
 		renderersNonCaching[i]->setRenderedChannels(renderedChannels);
-		renderersNonCaching[i]->setIndirectIlluminationBuffers(params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer,params.solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer);
-		if(params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
+		renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
+		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
 			renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes
 		else
 			renderersCaching[i]->render(); // cache everything else, it's constant

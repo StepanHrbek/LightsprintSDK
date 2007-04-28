@@ -70,7 +70,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 	RRObjectIllumination* illumination = getIllumination(objectHandle);
 	unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 	// load measure into each preImportVertex
-#pragma omp parallel for schedule(static,1)
+#pragma omp parallel for schedule(dynamic)
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 	{
 		unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;

@@ -162,7 +162,7 @@ static void cubeMapGather(const RRStaticSolver* scene, const RRObject* object, c
 		return;
 	}
 	RRRay* ray6 = RRRay::create(6);
-	#pragma omp parallel for schedule(dynamic)
+	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
 	for(int side=0;side<6;side++)
 	{
 		RRRay* ray = ray6+side;

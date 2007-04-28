@@ -248,7 +248,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 
 		// send triangle irradiances to solver
 		float boost = BOOST_DIRECT_ILLUM / 255;
-		#pragma omp parallel for
+#pragma omp parallel for schedule(static)
 		for(int t=captureUv->firstCapturedTriangle;t<(int)captureUv->lastCapturedTrianglePlus1;t++)
 		{
 			unsigned triangleIndex = (unsigned)t;

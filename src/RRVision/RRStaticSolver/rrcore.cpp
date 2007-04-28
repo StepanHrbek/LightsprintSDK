@@ -1654,7 +1654,7 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 	RRReal tmpx = 0;
 	RRReal tmpy = 0;
 	RRReal tmpz = 0;
-#pragma omp parallel for schedule(static,1) reduction(+:tmpx,tmpy,tmpz)
+#pragma omp parallel for schedule(static,1) reduction(+:tmpx,tmpy,tmpz) // fastest: indifferent
 	for(int t=0;(unsigned)t<triangles;t++) if(triangle[t].surface) 
 	{
 		// smaze akumulatory (ale necha jim flag zda jsou v reflectors)
