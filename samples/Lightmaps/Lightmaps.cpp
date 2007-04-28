@@ -116,7 +116,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,areaLight,lightDirectMap);
-	rendererOfScene->setIndirectIlluminationSource(0);
+	rendererOfScene->useOriginalScene(0);
 	rendererOfScene->render();
 
 	// render dynamic objects

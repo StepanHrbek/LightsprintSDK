@@ -8,30 +8,62 @@
 
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/DemoEngine/Renderer.h"
-#include "Lightsprint/DemoEngine/TextureRenderer.h"
-#include "Lightsprint/RRGPUOpenGL.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/DemoEngine/UberProgramSetup.h"
 
 namespace rr_gl
 {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RendererOfRRDynamicSolver
+// RendererOfScene
 
-//! OpenGL renderer of RRDynamicSolver internal scene.
+//! OpenGL renderer of scene in RRDynamicSolver.
 //
-//! Renders contents of solver, geometry and illumination.
-//! Geometry may be slightly different from original scene, because of optional internal optimizations.
-//! Illumination is taken directly from solver,
-//! renderer doesn't use or modify precomputed illumination in channels.
-class RR_API RendererOfRRDynamicSolver : public de::Renderer
+//! Renders original scene or optimized scene from solver.
+//! Takes live illumination from solver or computed illumination from channel.
+//! Optionally updates illumination in channel.
+class RR_API RendererOfScene : public de::Renderer
 {
 public:
-	RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver);
+	//! Creates renderer of scene in solver.
+	//
+	//! Adding/removing objects in solver while this renderer exists is not allowed,
+	//! results would be undefined.
+	RendererOfScene(rr::RRDynamicSolver* solver);
 
 	//! Sets parameters of render related to shader and direct illumination.
+	//
+	//! \param uberProgramSetup
+	//!  Specifies shader properties, including type of indirect illumination,
+	//!  vertex colors, ambient maps or none.
+	//! \param areaLight
+	//!  Area light with realtime shadows and direct illumination.
+	//!  \n \n To render scene with multiple realtime area lights with realtime shadows, 
+	//!  render scene several times, each time with different light, and accumulate
+	//!  results in accumulation buffer. You may use single renderer for rendering with
+	//!  multiple area lights.
+	//!  \n \n It is also possible to tweak AreaLight to render multiple spotlights
+	//!  with realtime shadows in one pass (see AreaLight::instanceMakeup()).
+	//! \param lightDirectMap
+	//!  Texture projected by realtime area light.
 	void setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap);
+
+	//! Specifies data source - original scene geometry and illumination from given channel.
+	//
+	//! Original scene is exactly what you entered into solver (see RRDynamicSolver::setObjects()).
+	//! \n Indirect illumination is always taken from given channel.
+	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR, LIGHT_INDIRECT_MAP.
+	//! \param channelNumber
+	//!  Indirect illumination will be taken from given channel.
+	void useOriginalScene(unsigned channelNumber);
+
+	//! Specifies data source - optimized internal scene in solver and live illumination in solver.
+	//
+	//! Optimized scene may have fewer vertices and/or triangles because of optional vertex stitching
+	//! and other optimizations.
+	//! \n Indirect illumination is always taken directly from solver.
+	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR.
+	void useOptimizedScene();
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -39,59 +71,11 @@ public:
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
 	virtual void render();
 
-	virtual ~RendererOfRRDynamicSolver();
-
-protected:
-	struct Params
-	{
-		rr::RRDynamicSolver* solver;
-		de::UberProgramSetup uberProgramSetup;
-		const de::AreaLight* areaLight;
-		const de::Texture* lightDirectMap;
-		Params();
-	};
-	Params params;
-	de::TextureRenderer* textureRenderer;
-	de::UberProgram* uberProgram;
-private:
-	// 1 renderer for 1 scene
-	unsigned solutionVersion;
-	de::Renderer* rendererCaching;
-	RendererOfRRObject* rendererNonCaching;
-};
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RendererOfScene
-
-//! OpenGL renderer of scene you entered into RRDynamicSolver.
-//
-//! Renders original scene and illumination from channels.
-//! Geometry is exactly what you entered into the solver.
-//! Illumination is taken from given channel, not from solver.
-//! Solver is not const, because its vertex/pixel buffers may change(create/update) at render time.
-class RR_API RendererOfScene : public RendererOfRRDynamicSolver
-{
-public:
-	RendererOfScene(rr::RRDynamicSolver* solver);
-
-	//! Sets source of indirect illumination. It is channel 0 by default.
-	//! \param channelNumber
-	//!  Indirect illumination will be taken from given channel.
-	void setIndirectIlluminationSource(unsigned channelNumber);
-
-	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
-	//! setParams()
-	virtual void render();
-
 	virtual ~RendererOfScene();
 
 private:
-	// n renderers for n objects
-	unsigned channelNumber;
-	std::vector<de::Renderer*> renderersCaching;
-	std::vector<RendererOfRRObject*> renderersNonCaching;
+	bool  useOptimized;
+	class RendererOfOriginalScene* renderer;
 };
 
 }; // namespace

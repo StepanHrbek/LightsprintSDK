@@ -1700,16 +1700,16 @@ Integration of global illumination (GI) solver into your project is described in
 \page api_gl GPUOpenGL
 
  GPUOpenGL implements Lightsprint's access to GPU using OpenGL 2.0 API.
- It is very small library, you can quickly customize or rewrite 
- it for API or engine of your choice.
+ Advanced renderer is included.
  Full source code comes with commercial licence.
 
  Namespace: rr_gl
 
- Headers: RRGPUOpenGL.h, RRGPUOpenGL/RendererOfRRObject.h
+ Headers: RRGPUOpenGL.h, RRGPUOpenGL/RendererOfScene.h, RRGPUOpenGL/RendererOfRRObject.h
 
  - rr_gl::RRDynamicSolverGL implements RRDynamicSolver GPU specific parts in OpenGL 2.0
- - rr_gl::RendererOfRRObject is renderer of 3d objects with Lightsprint's RRObject interface
+ - rr_gl::RendererOfScene is a renderer of 3d scene in RRDynamicSolver
+ - rr_gl::RendererOfRRObject is a renderer of 3d objects with Lightsprint's RRObject interface
 
 
 

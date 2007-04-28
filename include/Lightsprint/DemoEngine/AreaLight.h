@@ -74,6 +74,19 @@ public:
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
 protected:
+	//! Modifies light to become given instance.
+	//
+	//! \param light
+	//!  This is in/out parameter.
+	//!  On input, it is copy of parent spotlight.
+	//!  On output, it is expected to be given instance.
+	//!  Instances may differ in any property.
+	//!  Typically, they slightly differ in light position and direction,
+	//!  which creates affect of area light.
+	//!  You can tweak this code to support set of completely different spotlights,
+	//!  with arbitrary positions/directions.
+	//! \param instance
+	//!  Number of instance to be create, 0..numInstances-1.
 	virtual void instanceMakeup(Camera& light, unsigned instance) const;
 	Camera* parent;
 	unsigned numInstances;

@@ -8,6 +8,10 @@
 
 \section news17 ------------------------------------ 2007.4.xx -------------------------------------
 
+NEWS
+
+- rr_gl::RendererOfScene, renders scene from RRDynamicSolver
+
 CHANGES
 
 - more flexible updates of RRDynamicSolver illumination

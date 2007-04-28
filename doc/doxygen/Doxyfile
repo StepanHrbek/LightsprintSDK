@@ -92,6 +92,7 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/L
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDynamicSolver.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRGPUOpenGL.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRGPUOpenGL/RendererOfRRObject.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRGPUOpenGL/RendererOfScene.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/AreaLight.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Camera.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/DemoEngine.h" \

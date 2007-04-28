@@ -6,6 +6,9 @@
 #include <cassert>
 #include <GL/glew.h>
 #include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
+#include "Lightsprint/DemoEngine/TextureRenderer.h"
+#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
 
 namespace rr_gl
 {
@@ -13,6 +16,48 @@ namespace rr_gl
 //////////////////////////////////////////////////////////////////////////////
 //
 // RendererOfRRDynamicSolver
+
+//! OpenGL renderer of RRDynamicSolver internal scene.
+//
+//! Renders contents of solver, geometry and illumination.
+//! Geometry may be slightly different from original scene, because of optional internal optimizations.
+//! Illumination is taken directly from solver,
+//! renderer doesn't use or modify precomputed illumination in channels.
+class RendererOfRRDynamicSolver : public de::Renderer
+{
+public:
+	RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver);
+
+	//! Sets parameters of render related to shader and direct illumination.
+	void setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap);
+
+	//! Returns parameters with influence on render().
+	virtual const void* getParams(unsigned& length) const;
+
+	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
+	virtual void render();
+
+	virtual ~RendererOfRRDynamicSolver();
+
+protected:
+	struct Params
+	{
+		rr::RRDynamicSolver* solver;
+		de::UberProgramSetup uberProgramSetup;
+		const de::AreaLight* areaLight;
+		const de::Texture* lightDirectMap;
+		Params();
+	};
+	Params params;
+	de::TextureRenderer* textureRenderer;
+	de::UberProgram* uberProgram;
+private:
+	// 1 renderer for 1 scene
+	unsigned solutionVersion;
+	de::Renderer* rendererCaching;
+	RendererOfRRObject* rendererNonCaching;
+};
+
 
 RendererOfRRDynamicSolver::Params::Params()
 {
@@ -113,25 +158,54 @@ void RendererOfRRDynamicSolver::render()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RendererOfScene
+// RendererOfOriginalScene
 
-RendererOfScene::RendererOfScene(rr::RRDynamicSolver* asolver) : RendererOfRRDynamicSolver(asolver)
+//! OpenGL renderer of scene you entered into RRDynamicSolver.
+//
+//! Renders original scene and illumination from channels.
+//! Geometry is exactly what you entered into the solver.
+//! Illumination is taken from given channel, not from solver.
+//! Solver is not const, because its vertex/pixel buffers may change(create/update) at render time.
+class RendererOfOriginalScene : public RendererOfRRDynamicSolver
+{
+public:
+	RendererOfOriginalScene(rr::RRDynamicSolver* solver);
+
+	//! Sets source of indirect illumination. It is channel 0 by default.
+	//! \param channelNumber
+	//!  Indirect illumination will be taken from given channel.
+	void setIndirectIlluminationSource(unsigned channelNumber);
+
+	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
+	virtual void render();
+
+	virtual ~RendererOfOriginalScene();
+
+private:
+	// n renderers for n objects
+	unsigned channelNumber;
+	std::vector<de::Renderer*> renderersCaching;
+	std::vector<RendererOfRRObject*> renderersNonCaching;
+};
+
+
+RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* asolver) : RendererOfRRDynamicSolver(asolver)
 {
 	channelNumber = 0;
 }
 
-RendererOfScene::~RendererOfScene()
+RendererOfOriginalScene::~RendererOfOriginalScene()
 {
 	for(unsigned i=0;i<renderersCaching.size();i++) delete renderersCaching[i];
 	for(unsigned i=0;i<renderersNonCaching.size();i++) delete renderersNonCaching[i];
 }
 
-void RendererOfScene::setIndirectIlluminationSource(unsigned achannelNumber)
+void RendererOfOriginalScene::setIndirectIlluminationSource(unsigned achannelNumber)
 {
 	channelNumber = achannelNumber;
 }
 
-void RendererOfScene::render()
+void RendererOfOriginalScene::render()
 {
 	// create helper renderers
 	if(!params.solver)
@@ -199,6 +273,50 @@ void RendererOfScene::render()
 		else
 			renderersCaching[i]->render(); // cache everything else, it's constant
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RendererOfScene
+
+RendererOfScene::RendererOfScene(rr::RRDynamicSolver* solver)
+{
+	renderer = new RendererOfOriginalScene(solver);
+	useOptimized = true;
+}
+
+RendererOfScene::~RendererOfScene()
+{
+	delete renderer;
+}
+
+void RendererOfScene::setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap)
+{
+	renderer->setParams(uberProgramSetup,areaLight,lightDirectMap);
+}
+
+const void* RendererOfScene::getParams(unsigned& length) const
+{
+	return renderer->getParams(length);
+}
+
+void RendererOfScene::useOriginalScene(unsigned channelNumber)
+{
+	useOptimized = false;
+	renderer->setIndirectIlluminationSource(channelNumber);
+}
+
+void RendererOfScene::useOptimizedScene()
+{
+	useOptimized = true;
+}
+
+void RendererOfScene::render()
+{
+	if(useOptimized)
+		renderer->RendererOfRRDynamicSolver::render();
+	else
+		renderer->render();
 }
 
 }; // namespace
