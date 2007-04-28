@@ -525,7 +525,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 			}
 	}
 	// set indirect vertex/pixel buffer
-	level->rendererNonCaching->setIndirectIllumination(level->solver->getIllumination(0)->getChannel(0)->vertexBuffer,level->solver->getIllumination(0)->getChannel(0)->pixelBuffer,level->solver->getSolutionVersion());
+	level->rendererNonCaching->setIndirectIlluminationFromSolver(level->solver->getSolutionVersion());
 	level->rendererCaching->render();
 }
 
@@ -2102,8 +2102,7 @@ void idle()
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
 	if(!level || (rrOn && level->solver->calculate()==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
-		if(level->type==Level::TYPE_3DS  // 3ds renderer vyzaduje vbuffer
-			|| level->solver->getNumObjects()==1) // RendererOfRRObject vyzaduje vbuffer pouze ve scene s 1obj
+		if(level->type==Level::TYPE_3DS)  // 3ds renderer vyzaduje vbuffer
 		{
 			// update vertex buffers for specialized 3ds renderer, they are not used by generic renderer
 			static unsigned solutionVersion = 0;

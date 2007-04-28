@@ -187,53 +187,71 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	{
 		if(indices)
 		{
-			if(params.indirectIllumination)
+			if(params.availableIndirectIlluminationSolver)
 			{
+				// INDEXED FROM SOLVER
+				// should never get here, must be handled by RendererOfRRObject
+				RR_ASSERT(0);
+			}
+			else
+			if(params.availableIndirectIlluminationVColors)
+			{
+				// INDEXED FROM VBUFFER
 				// use vertex buffer precomputed by RRDynamicSolver
 				// indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
-				unsigned bufferSize = params.indirectIllumination->getNumVertices();
+				unsigned bufferSize = params.availableIndirectIlluminationVColors->getNumVertices();
 				RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
 				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(3, GL_FLOAT, 0, params.indirectIllumination->lock());
+				glColorPointer(3, GL_FLOAT, 0, params.availableIndirectIlluminationVColors->lock());
 			}
 			else
 			{
+				// INDEXED FROM VBUFFER THAT IS NULL
 				// vertex buffer not set, but indirect illumination requested
 				// -> scene will be rendered with random indirect illumination
-				RR_ASSERT(0);
+				RR_ASSERT(0); // render of vertex buffer requested, but vertex buffer not set
 				glEnableClientState(GL_COLOR_ARRAY);
 				glColorPointer(3, GL_FLOAT, 0, &alightIndirectVcolor[0].x);
 			}
 		}
 		else
-		if(!indices)
 		{
-			if(params.scene)
+			if(params.availableIndirectIlluminationSolver)
 			{
-				// fill our own vertex buffer
-				// optimization:
-				//  remember params used at alightIndirectVcolor filling and refill it only when params change
-				if(solutionVersion!=lightIndirectVcolorVersion || params.firstCapturedTriangle!=lightIndirectVcolorFirst || params.lastCapturedTrianglePlus1!=lightIndirectVcolorLastPlus1)
+				// NON-INDEXED FROM SOLVER
+				if(params.scene)
 				{
-					lightIndirectVcolorFirst = params.firstCapturedTriangle;
-					lightIndirectVcolorLastPlus1 = params.lastCapturedTrianglePlus1;
-					lightIndirectVcolorVersion = solutionVersion;
-
-					REPORT_INIT;
-					REPORT_BEGIN("Updating private vertex buffers of renderer.");
-					// refill
-#pragma omp parallel for
-					for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
+					// fill our own vertex buffer
+					// optimization:
+					//  remember params used at alightIndirectVcolor filling and refill it only when params change
+					if(solutionVersion!=lightIndirectVcolorVersion || params.firstCapturedTriangle!=lightIndirectVcolorFirst || params.lastCapturedTrianglePlus1!=lightIndirectVcolorLastPlus1)
 					{
-						params.scene->getTriangleMeasure(i/3,i%3,RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,alightIndirectVcolor[i]);
+						lightIndirectVcolorFirst = params.firstCapturedTriangle;
+						lightIndirectVcolorLastPlus1 = params.lastCapturedTrianglePlus1;
+						lightIndirectVcolorVersion = solutionVersion;
+
+						REPORT_INIT;
+						REPORT_BEGIN("Updating private vertex buffers of renderer.");
+						// refill
+#pragma omp parallel for
+						for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
+						{
+							params.scene->getTriangleMeasure(i/3,i%3,RM_IRRADIANCE_PHYSICAL_INDIRECT,params.scaler,alightIndirectVcolor[i]);
+						}
+						REPORT_END;
 					}
-					REPORT_END;
+				}
+				else
+				{
+					// solver not set, but indirect illumination requested
+					// -> scene will be rendered with random indirect illumination
+					RR_ASSERT(0);
 				}
 			}
 			else
 			{
-				// solver not set, but indirect illumination requested
-				// -> scene will be rendered with random indirect illumination
+				// NON-INDEXED FROM VBUFFER
+				// should never get here, must be handled by RendererOfRRObject
 				RR_ASSERT(0);
 			}
 
@@ -242,13 +260,13 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		}
 	}
 	// set indirect illumination texcoords + map
-	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.indirectIlluminationMap)
+	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
 	{
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_LIGHT_INDIRECT);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordAmbient[0].x);
 		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
-		params.indirectIlluminationMap->bindTexture();
+		params.availableIndirectIlluminationMap->bindTexture();
 	}
 	// set 2d_position texcoords
 	if(params.renderedChannels.FORCE_2D_POSITION)
@@ -376,7 +394,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset indirect illumination texcoords + map
-	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.indirectIlluminationMap)
+	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
 	{
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_LIGHT_INDIRECT);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -387,7 +405,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
 		glDisableClientState(GL_COLOR_ARRAY);
-		if(indices && params.indirectIllumination) params.indirectIllumination->unlock();
+		if(indices && params.availableIndirectIlluminationVColors) params.availableIndirectIlluminationVColors->unlock();
 	}
 	// unset normals
 	if(setNormals)

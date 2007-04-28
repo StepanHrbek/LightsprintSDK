@@ -116,6 +116,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,areaLight,lightDirectMap);
+	rendererOfScene->setIndirectIlluminationSource(0);
 	rendererOfScene->render();
 
 	// render dynamic objects
@@ -372,6 +373,17 @@ void display(void)
 	light.update(0.3f);
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
+
+	// update vertex color buffers if they need it
+	if(!ambientMapsRender)
+	{
+		static unsigned solutionVersion = 0;
+		if(solver->getSolutionVersion()!=solutionVersion)
+		{
+			solutionVersion = solver->getSolutionVersion();
+			solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
+		}
+	}
 
 	// update ambient maps if they don't exist yet
 	if(ambientMapsRender && !solver->getIllumination(0)->getChannel(0)->pixelBuffer)

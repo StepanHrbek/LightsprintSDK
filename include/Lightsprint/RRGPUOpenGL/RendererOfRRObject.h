@@ -110,18 +110,29 @@ public:
 	//! Sets source of uv coords for render() with FORCE_2D_POSITION enabled.
 	void setCapture(VertexDataGenerator* capture, unsigned afirstCapturedTriangle, unsigned alastCapturedTrianglePlus1);
 
-	//! Sets global illumination buffers for whole scene.
-	//! Used by render() with LIGHT_INDIRECT_VCOLOR or LIGHT_INDIRECT_MAP,
-	//! but only if renderer was created with useBuffers=true.
+	//! Specifies what indirect illumination to render in render() - use these buffers.
+	//
+	//! Overrides previous calls to setIndirectIlluminationBuffers() and setIndirectIlluminationFromSolver().
 	//! \param vertexBuffer
-	//!  Vertex colors of whole scene. Applies only to scenes made of 1 object.
+	//!  Used by render() with LIGHT_INDIRECT_VCOLOR.
+	//!  Vertex buffer with indirect illumination colors. Must be of the same size as the object.
+	//!  Order of values in vertex buffer is defined by object's preimport vertex numbers
+	//!  (see RRMesh and RRMesh::getPreImportVertex()).
 	//! \param ambientMap
-	//!  Ambient map of whole scene. Applies only to scenes made of 1 object.
+	//!  Used by render() with LIGHT_INDIRECT_MAP.
+	//!  Ambient map with indirect illumination values.
+	//!  Texcoord mapping is provided by RRMesh::getTriangleMapping().
+	void setIndirectIlluminationBuffers(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap);
+
+	//! Specifies what indirect illumination to render in render() - read live values from the solver.
+	//
+	//! Overrides previous calls to setIndirectIlluminationBuffers() and setIndirectIlluminationFromSolver().
 	//! \param solutionVersion
-	//!  Version of indirect illumination. If you enter the same number several times in a row,
-	//!  indirect illumination data won't be updated and render will be faster.
-	//!  If you change value, indirect illumination data will be updated.
-	void setIndirectIllumination(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap,unsigned solutionVersion);
+	//!  If you change this number, indirect illumination data are read form the solver at render() time.
+	//!  If you call render() without changing this number,
+	//!  indirect illumination from previous render() is reused and render is faster.
+	//!  RRDynamicSolver::getSolutionVersion() is usually entered here.
+	void setIndirectIlluminationFromSolver(unsigned solutionVersion);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -145,9 +156,10 @@ private:
 		unsigned otherCaptureParamsHash;       ///< hash of generator's parameters
 		unsigned firstCapturedTriangle;        ///< index of first triangle to render
 		unsigned lastCapturedTrianglePlus1;    ///< index of last triangle to render+1
-		// set by setIndirectIllumination()
-		rr::RRIlluminationVertexBuffer* indirectIllumination; ///< vertex buffer with indirect illumination (not const because lock is not const)
-		const rr::RRIlluminationPixelBuffer* indirectIlluminationMap; ///< ambient map
+		// set by setIndirectIlluminationXxx()
+		bool availableIndirectIlluminationSolver; ///< if true, read indirect illumination from solver, rather than from following buffers
+		rr::RRIlluminationVertexBuffer* availableIndirectIlluminationVColors; ///< vertex buffer with indirect illumination (not const because lock is not const)
+		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap; ///< ambient map
 	};
 	Params params;
 	// buffers for faster rendering
