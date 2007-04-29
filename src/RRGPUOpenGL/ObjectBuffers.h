@@ -26,6 +26,8 @@ public:
 private:
 	bool initedOk; // true when constructor had no problems and instance is ready to render
 	unsigned numVertices;
+
+	// arrays
 	rr::RRVec3* avertex;
 	rr::RRVec3* anormal;
 	rr::RRVec2* atexcoordDiffuse;
@@ -35,6 +37,16 @@ private:
 	rr::RRColor* alightIndirectVcolor; // used only if !indices. filled at render() time.
 	unsigned numIndices;
 	unsigned* indices;
+
+	// VBOs
+	unsigned vertexVBO;
+	unsigned normalVBO;
+	unsigned texcoordDiffuseVBO;
+	unsigned texcoordEmissiveVBO;
+	unsigned texcoordAmbientVBO;
+	//unsigned texcoordForced2DVBO;
+	//unsigned lightIndirectVcolorVBO;
+
 	struct FaceGroup
 	{
 		unsigned firstIndex;

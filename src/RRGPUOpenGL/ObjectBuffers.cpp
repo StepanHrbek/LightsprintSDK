@@ -14,6 +14,8 @@
 #endif
 #include "../RRVision/RRDynamicSolver/report.h"
 
+//#define USE_VBO
+
 namespace rr_gl
 {
 
@@ -149,15 +151,44 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 		faceGroups[faceGroups.size()-1].numIndices += 3;
 	}
 	initedOk = true;
+
+#ifdef USE_VBO
+#define CREATE_VBO(array, elementType, vboType, vboId) \
+	{ vboId = 0; if(array) { \
+		glGenBuffers(1,&vboId); \
+		glBindBuffer(GL_ARRAY_BUFFER, vboId); \
+		glBufferData(GL_ARRAY_BUFFER, numVertices*sizeof(rr::elementType), array, vboType); \
+		SAFE_DELETE_ARRAY(array); } }
+
+	CREATE_VBO(avertex,RRVec3,GL_STATIC_DRAW,vertexVBO);
+	CREATE_VBO(anormal,RRVec3,GL_STATIC_DRAW,normalVBO);
+	CREATE_VBO(atexcoordDiffuse,RRVec2,GL_STATIC_DRAW,texcoordDiffuseVBO);
+	CREATE_VBO(atexcoordEmissive,RRVec2,GL_STATIC_DRAW,texcoordEmissiveVBO);
+	CREATE_VBO(atexcoordAmbient,RRVec2,GL_STATIC_DRAW,texcoordAmbientVBO);
+	//CREATE_VBO(atexcoordForced2D,RRVec2,GL_STATIC_DRAW,texcoordForced2DVBO);
+	//CREATE_VBO(alightIndirectVcolor,RRVec3,GL_STATIC_DRAW,lightIndirectVcolorVBO);
+#endif
 }
 
 ObjectBuffers::~ObjectBuffers()
 {
+#ifdef USE_VBO
+	// VBOs
+	//glDeleteBuffers(1,&lightIndirectVcolorVBO);
+	//glDeleteBuffers(1,&texcoordForced2DVBO);
+	glDeleteBuffers(1,&texcoordAmbientVBO);
+	glDeleteBuffers(1,&texcoordEmissiveVBO);
+	glDeleteBuffers(1,&texcoordDiffuseVBO);
+	glDeleteBuffers(1,&normalVBO);
+	glDeleteBuffers(1,&vertexVBO);
+#endif
+
+	// arrays
 	delete[] alightIndirectVcolor;
-	delete[] atexcoordDiffuse;
-	delete[] atexcoordEmissive;
 	delete[] atexcoordForced2D;
 	delete[] atexcoordAmbient;
+	delete[] atexcoordEmissive;
+	delete[] atexcoordDiffuse;
 	delete[] anormal;
 	delete[] avertex;
 	delete[] indices;
@@ -172,15 +203,22 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 {
 	RR_ASSERT(initedOk);
 	if(!initedOk) return;
+#ifdef USE_VBO
+#define BIND_VBO(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER_ARB, myName##VBO); gl##glName##Pointer(floats, GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+#define BIND_VBO2(glName,floats,myName) glBindBuffer(GL_ARRAY_BUFFER_ARB, myName##VBO); gl##glName##Pointer(GL_FLOAT, 0, 0); glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+#else
+#define BIND_VBO(glName,floats,myName) gl##glName##Pointer(floats, GL_FLOAT, 0, &a##myName[0].x);
+#define BIND_VBO2(glName,floats,myName) gl##glName##Pointer(GL_FLOAT, 0, &a##myName[0].x);
+#endif
 	// set vertices
+	BIND_VBO(Vertex,3,vertex);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, &avertex[0].x);
 	// set normals
 	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV;
 	if(setNormals)
 	{
+		BIND_VBO2(Normal,3,normal);
 		glEnableClientState(GL_NORMAL_ARRAY);
-		glNormalPointer(GL_FLOAT, 0, &anormal[0].x);
 	}
 	// set indirect illumination vertices
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
@@ -263,8 +301,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
 	{
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_LIGHT_INDIRECT);
+		BIND_VBO(TexCoord,2,texcoordAmbient);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordAmbient[0].x);
 		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
 		params.availableIndirectIlluminationMap->bindTexture();
 	}
@@ -291,15 +329,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_DIFFUSE);
+		BIND_VBO(TexCoord,2,texcoordDiffuse);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordDiffuse[0].x);
 	}
 	// set material emissive texcoords
 	if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_EMISSIVE);
+		BIND_VBO(TexCoord,2,texcoordEmissive);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordEmissive[0].x);
 	}
 	// render facegroups (facegroups differ by material)
 	if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR || params.renderedChannels.MATERIAL_DIFFUSE_MAP || params.renderedChannels.MATERIAL_EMISSIVE_MAP)
