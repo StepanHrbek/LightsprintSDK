@@ -26,13 +26,16 @@ namespace rr_gl
 class RendererOfRRDynamicSolver : public de::Renderer
 {
 public:
-	RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver);
+	RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 	//! Sets parameters of render related to shader and direct illumination.
 	void setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
+
+	//! Specifies global brightness and gamma factors used by following render() commands.
+	void setBrightnessGamma(float brightness[4], float gamma);
 
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
 	virtual void render();
@@ -46,6 +49,8 @@ protected:
 		de::UberProgramSetup uberProgramSetup;
 		const de::AreaLight* areaLight;
 		const de::Texture* lightDirectMap;
+		float brightness[4];
+		float gamma;
 		Params();
 	};
 	Params params;
@@ -66,14 +71,23 @@ RendererOfRRDynamicSolver::Params::Params()
 	lightDirectMap = NULL;
 }
 
-RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver)
+RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders)
 {
 	params.solver = solver;
-	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
-	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+	textureRenderer = new de::TextureRenderer(pathToShaders);
+	char buf1[400]; buf1[399] = 0;
+	char buf2[400]; buf2[399] = 0;
+	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
+	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
+	uberProgram = new de::UberProgram(buf1,buf2);
+	params.brightness[0] = 1;
+	params.brightness[1] = 1;
+	params.brightness[2] = 1;
+	params.brightness[3] = 1;
+	params.gamma = 1;
+	solutionVersion = 0;
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
-	solutionVersion = 0;
 }
 
 RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
@@ -97,14 +111,29 @@ const void* RendererOfRRDynamicSolver::getParams(unsigned& length) const
 	return &params;
 }
 
+void RendererOfRRDynamicSolver::setBrightnessGamma(float brightness[4], float gamma)
+{
+	params.brightness[0] = brightness ? brightness[0] : 1;
+	params.brightness[1] = brightness ? brightness[1] : 1;
+	params.brightness[2] = brightness ? brightness[2] : 1;
+	params.brightness[3] = brightness ? brightness[3] : 1;
+	params.gamma = gamma;
+}
+
 void RendererOfRRDynamicSolver::render()
 {
-	// create helper renderers
 	if(!params.solver || !params.solver->getMultiObjectCustom())
 	{
 		RR_ASSERT(0);
 		return;
 	}
+	if(params.uberProgramSetup.LIGHT_INDIRECT_MAP)
+	{
+		rr::RRReporter::report(rr::RRReporter::WARN,"LIGHT_INDIRECT_MAP incompatible with useOptimizedScene().\n");
+		return;
+	}
+
+	// create helper renderers
 	if(!rendererNonCaching)
 		rendererNonCaching = new rr_gl::RendererOfRRObject(params.solver->getMultiObjectCustom(),params.solver->getStaticSolver(),params.solver->getScaler(),true);
 	if(!rendererCaching && rendererNonCaching)
@@ -116,22 +145,29 @@ void RendererOfRRDynamicSolver::render()
 	}
 
 	// render skybox
-	if(params.uberProgramSetup.LIGHT_DIRECT && textureRenderer)
+	if(params.uberProgramSetup.LIGHT_DIRECT && !params.uberProgramSetup.FORCE_2D_POSITION)
 	{
-		//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-		textureRenderer->renderEnvironmentBegin(NULL);
-		params.solver->getEnvironment()->bindTexture();
-		glBegin(GL_POLYGON);
-		glVertex3f(-1,-1,1);
-		glVertex3f(1,-1,1);
-		glVertex3f(1,1,1);
-		glVertex3f(-1,1,1);
-		glEnd();
-		textureRenderer->renderEnvironmentEnd();
+		if(textureRenderer && params.solver->getEnvironment())
+		{
+			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
+			textureRenderer->renderEnvironmentBegin(NULL);
+			params.solver->getEnvironment()->bindTexture();
+			glBegin(GL_POLYGON);
+			glVertex3f(-1,-1,1);
+			glVertex3f(1,-1,1);
+			glVertex3f(1,1,1);
+			glVertex3f(-1,1,1);
+			glEnd();
+			textureRenderer->renderEnvironmentEnd();
+		}
+		else
+		{
+			glClear(GL_COLOR_BUFFER_BIT);
+		}
 	}
 
 	// render static scene
-	if(!params.uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,NULL,1))
+	if(!params.uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,params.brightness,params.gamma))
 	{
 		rr::RRReporter::report(rr::RRReporter::ERRO,"Failed to compile or link GLSL program.\n");
 		return;
@@ -147,12 +183,16 @@ void RendererOfRRDynamicSolver::render()
 	renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
+	renderedChannels.LIGHT_MAP_LAYER = 0; // never used
 	rendererNonCaching->setRenderedChannels(renderedChannels);
 	rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
+
+	// don't cache indirect illumination in vertices, it changes often
 	if(params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
-		rendererNonCaching->render(); // don't cache indirect illumination, it changes
+		rendererNonCaching->render();
 	else
-		rendererCaching->render(); // cache everything else, it's constant
+	// cache everything else, it's constant
+		rendererCaching->render();
 }
 
 
@@ -169,7 +209,7 @@ void RendererOfRRDynamicSolver::render()
 class RendererOfOriginalScene : public RendererOfRRDynamicSolver
 {
 public:
-	RendererOfOriginalScene(rr::RRDynamicSolver* solver);
+	RendererOfOriginalScene(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 	//! Sets source of indirect illumination. It is layer 0 by default.
 	//! \param layerNumber
@@ -189,7 +229,7 @@ private:
 };
 
 
-RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* asolver) : RendererOfRRDynamicSolver(asolver)
+RendererOfOriginalScene::RendererOfOriginalScene(rr::RRDynamicSolver* asolver, const char* pathToShaders) : RendererOfRRDynamicSolver(asolver,pathToShaders)
 {
 	layerNumber = 0;
 }
@@ -249,6 +289,7 @@ void RendererOfOriginalScene::render()
 	renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
+	renderedChannels.LIGHT_MAP_LAYER = layerNumber;
 
 	// - working copy of params.uberProgramSetup
 	de::UberProgramSetup uberProgramSetup = params.uberProgramSetup;
@@ -268,7 +309,7 @@ void RendererOfOriginalScene::render()
 				renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
 				renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
 			}
-			program = uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,NULL,1);
+			program = uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,params.brightness,params.gamma);
 			if(!program)
 			{
 				rr::RRReporter::report(rr::RRReporter::ERRO,"Failed to compile or link GLSL program.\n");
@@ -328,9 +369,9 @@ void RendererOfOriginalScene::render()
 //
 // RendererOfScene
 
-RendererOfScene::RendererOfScene(rr::RRDynamicSolver* solver)
+RendererOfScene::RendererOfScene(rr::RRDynamicSolver* solver, const char* pathToShaders)
 {
-	renderer = new RendererOfOriginalScene(solver);
+	renderer = new RendererOfOriginalScene(solver,pathToShaders);
 	useOptimized = true;
 }
 
@@ -342,6 +383,11 @@ RendererOfScene::~RendererOfScene()
 void RendererOfScene::setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap)
 {
 	renderer->setParams(uberProgramSetup,areaLight,lightDirectMap);
+}
+
+void RendererOfScene::setBrightnessGamma(float brightness[4], float gamma)
+{
+	renderer->setBrightnessGamma(brightness,gamma);
 }
 
 const void* RendererOfScene::getParams(unsigned& length) const

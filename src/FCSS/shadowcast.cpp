@@ -7,6 +7,7 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           10
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
+#define RENDER_OPTIMIZED
 //#define THREE_ONE
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "3+1.cfg"
@@ -292,8 +293,8 @@ protected:
 	}
 	virtual bool detectDirectIllumination()
 	{
-		// renderer not ready yet, fail
-		if(!level || !level->rendererCaching) return false;
+		if(!demoPlayer)
+			return false;
 
 		// first time illumination is detected, no shadowmap has been created yet
 		if(needDepthMapUpdate)
@@ -319,8 +320,6 @@ protected:
 	}
 	virtual void setupShader(unsigned objectNumber)
 	{
-		if(!level) return;
-
 		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = 1;
 		uberProgramSetup.SHADOW_SAMPLES = 1;
@@ -472,61 +471,21 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
 	rr::RRReal globalGammaBoosted = globalGamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,demoPlayer->getProjector(lightDirectMapIdx),&globalBrightnessBoosted[0],globalGammaBoosted);
-	if(!program)
-		error("Failed to compile or link GLSL program.\n",true);
+	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted[0],globalGammaBoosted);
 
-	if(twosided) glDisable(GL_CULL_FACE); else glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
-	// lze smazat, stejnou praci dokaze i rrrenderer
-	// nicmene m3ds.Draw stale jeste
-	// 1) lip smoothuje (pouziva min vertexu)
-	// 2) slouzi jako test ze RRDynamicSolver spravne generuje vertex buffer s indirectem
-	// 3) nezpusobuje 0.1sec zasek pri kazdem pregenerovani displaylistu
-	// 4) muze byt v malym rozliseni nepatrne rychlejsi (pouziva min vertexu)
-	if(level->type==Level::TYPE_3DS && uberProgramSetup.MATERIAL_DIFFUSE && uberProgramSetup.MATERIAL_DIFFUSE_MAP && !uberProgramSetup.FORCE_2D_POSITION && renderer3ds && !renderLightmaps)
+	level->rendererOfScene->setParams(uberProgramSetup,areaLight,demoPlayer->getProjector(lightDirectMapIdx));
+#ifdef RENDER_OPTIMIZED
+	level->rendererOfScene->useOptimizedScene();
+#else
+	static unsigned solutionVersion = 0;
+	if(level->solver->getSolutionVersion()!=solutionVersion)
 	{
-		level->m3ds.Draw(level->solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
-		return;
+		solutionVersion = level->solver->getSolutionVersion();
+		level->solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
 	}
-
-	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
-	renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
-	renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
-	renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
-	renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
-	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
-	renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
-	renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
-	renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
-	level->rendererNonCaching->setRenderedChannels(renderedChannels);
-	if(renderedChannels.LIGHT_INDIRECT_VCOLOR)
-	{
-		// turn off caching for renders with indirect color, because it changes often
-		level->rendererCaching->setStatus(de::RendererWithCache::CS_NEVER_COMPILE);
-	}
-	if(renderedChannels.LIGHT_INDIRECT_MAP && needLightmapCacheUpdate)
-	{
-		// refresh cache for renders with ambient map after any ambient map reallocation
-		needLightmapCacheUpdate = false;
-		level->rendererCaching->setStatus(de::RendererWithCache::CS_READY_TO_COMPILE);
-	}
-	if(renderedChannels.LIGHT_INDIRECT_MAP)
-	{
-		// create missing lightmaps, renderer needs lightmaps for all objects
-		//level->solver->calculate(rr::RRDynamicSolver::FORCE_UPDATE_PIXEL_BUFFERS);
-		for(unsigned i=0;i<level->solver->getNumObjects();i++)
-			if(!level->solver->getIllumination(i)->getLayer(0)->pixelBuffer)
-			{
-				RR_ASSERT(0);
-				//level->solver->getIllumination(i)->getLayer(0)->pixelBuffer = level->solver->newPixelBuffer(level->solver->getObject(i));
-				//level->solver->updateLightmap(i,level->solver->getIllumination(i)->getLayer(0)->pixelBuffer,NULL);
-			}
-	}
-	// set indirect vertex/pixel buffer
-	level->rendererNonCaching->setIndirectIlluminationFromSolver(level->solver->getSolutionVersion());
-	level->rendererCaching->render();
+	level->rendererOfScene->useOriginalScene(0);
+#endif
+	level->rendererOfScene->render();
 }
 
 void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
@@ -537,6 +496,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	if(uberProgramSetup.FORCE_2D_POSITION) return;
 	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
 	rr::RRReal globalGammaBoosted = globalGamma;
+	assert(demoPlayer);
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,demoPlayer->getProjector(lightDirectMapIdx),&globalBrightnessBoosted[0],globalGammaBoosted);
 }
@@ -602,7 +562,6 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 	uberProgramSetup.POSTPROCESS_GAMMA = (globalGammaBoosted!=1)?1:0;
 	uberProgramSetup.POSTPROCESS_BIGSCREEN = bigscreenSimulator;
 
-	glClear(GL_COLOR_BUFFER_BIT);
 	if(firstInstance==0) glClear(GL_DEPTH_BUFFER_BIT);
 
 	if (wireFrame) {
@@ -610,19 +569,6 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 	}
 
 	eye.setupForRender();
-
-	if(level->solver->getEnvironment())
-	{
-		skyRenderer->renderEnvironmentBegin(&globalBrightnessBoosted[0]);
-		level->solver->getEnvironment()->bindTexture();
-		glBegin(GL_POLYGON);
-		glVertex3f(-1,-1,1);
-		glVertex3f(1,-1,1);
-		glVertex3f(1,1,1);
-		glVertex3f(-1,1,1);
-		glEnd();
-		skyRenderer->renderEnvironmentEnd();
-	}
 
 	renderScene(uberProgramSetup,firstInstance);
 
@@ -666,7 +612,7 @@ void drawEyeViewSoftShadowed(void)
 		if(water && renderWater)
 		{
 			water->updateReflectionInit(winWidth/4,winHeight/4,&eye,0.3f);
-			glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT);
 			de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
@@ -1143,7 +1089,7 @@ void display()
 				//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
 				//uberProgramSetup.OBJECT_SPACE = false;
 				uberProgramSetup.FORCE_2D_POSITION = false;
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glClear(GL_DEPTH_BUFFER_BIT);
 				drawEyeViewShadowed(uberProgramSetup,0);
 				break;
 			}
@@ -2102,16 +2048,6 @@ void idle()
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
 	if(!level || (rrOn && level->solver->calculate()==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
-		if(level->type==Level::TYPE_3DS)  // 3ds renderer vyzaduje vbuffer
-		{
-			// update vertex buffers for specialized 3ds renderer, they are not used by generic renderer
-			static unsigned solutionVersion = 0;
-			if(level->solver->getSolutionVersion()!=solutionVersion)
-			{
-				solutionVersion = level->solver->getSolutionVersion();
-				level->solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
-			}
-		}
 //		printf("---]");
 		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache
 		// nutne predtim nastavit params (renderedChannels apod)

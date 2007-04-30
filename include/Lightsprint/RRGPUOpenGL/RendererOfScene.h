@@ -26,9 +26,12 @@ class RR_API RendererOfScene : public de::Renderer
 public:
 	//! Creates renderer of scene in solver.
 	//
-	//! Adding/removing objects in solver while this renderer exists is not allowed,
-	//! results would be undefined.
-	RendererOfScene(rr::RRDynamicSolver* solver);
+	//! \param solver
+	//!  Adding/removing objects in solver while this renderer exists is not allowed,
+	//!  results would be undefined.
+	//! \param pathToShaders
+	//!  Path to texture, sky and ubershader shaders, with trailing slash (if not empty or NULL).
+	RendererOfScene(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 	//! Sets parameters of render related to shader and direct illumination.
 	//
@@ -52,6 +55,9 @@ public:
 	//! Original scene is exactly what you entered into solver (see RRDynamicSolver::setObjects()).
 	//! \n Indirect illumination is always taken from given layer.
 	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR, LIGHT_INDIRECT_MAP.
+	//!  If both types are availabale (vertex buffer and texture), texture is used. 
+	//!  Partially textured scenes are supported (some objects look better with ambient map,
+	//!  some objects are good enough with vertex colors).
 	//! \param layerNumber
 	//!  Indirect illumination will be taken from given layer.
 	void useOriginalScene(unsigned layerNumber);
@@ -61,13 +67,22 @@ public:
 	//! Optimized scene may have fewer vertices and/or triangles because of optional vertex stitching
 	//! and other optimizations.
 	//! \n Indirect illumination is always taken directly from solver.
-	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR.
+	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR. Nothing is rendered
+	//!  if you request LIGHT_INDIRECT_MAP (see uberProgramSetup in setParams()).
 	void useOptimizedScene();
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
 
-	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
+	//! Specifies global brightness and gamma factors used by following render() commands.
+	void setBrightnessGamma(float brightness[4], float gamma);
+
+	//! Clears screen and renders scene (sets shaders, feeds OpenGL with object's data selected by setParams()).
+	//
+	//! Note that you although color buffer is cleared automatically here, depth buffer is not cleared.
+	//! If you render with single realtime light with realtime shadows, clear depth buffer before rendering.
+	//! If you render multiple lights into accumulation buffer, clear depth buffer only once,
+	//! following render() calls will reuse it.
 	virtual void render();
 
 	virtual ~RendererOfScene();

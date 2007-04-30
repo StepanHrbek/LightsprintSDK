@@ -567,7 +567,7 @@ int main(int argc, char **argv)
 #endif
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(solver->loadIlluminationEnvironmentMap("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
-	rendererOfScene = new rr_gl::RendererOfScene(solver);
+	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 	solver->calculate();
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);

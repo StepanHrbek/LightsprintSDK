@@ -22,7 +22,7 @@
 
 #include "AnimationEditor.h"
 #include "Autopilot.h"
-#include "Lightsprint/DemoEngine/RendererWithCache.h"
+#include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
 
@@ -59,8 +59,7 @@ public:
 	rr::RRObjects* objects; // objects adapted from native format
 	rr::RRDynamicSolver* solver;
 	class Bugs* bugs;
-	rr_gl::RendererOfRRObject* rendererNonCaching;
-	de::RendererWithCache* rendererCaching;
+	rr_gl::RendererOfScene* rendererOfScene;
 };
 
 #endif

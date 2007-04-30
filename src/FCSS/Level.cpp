@@ -17,8 +17,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 #ifdef BUGS
 	bugs = NULL;
 #endif
-	rendererNonCaching = NULL;
-	rendererCaching = NULL;
+	rendererOfScene = NULL;
 	objects = NULL;
 #ifdef SUPPORT_COLLADA
 	collada = NULL;
@@ -149,10 +148,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	*/
 
 	// init renderer
-	rendererNonCaching = new rr_gl::RendererOfRRObject(solver->getMultiObjectCustom(),solver->getStaticSolver(),NULL//solver->getScaler() // LIGHT_INDIRECT_VCOLOR_PHYSICAL is used, so output scaling is disabled
-		,true);
-	rendererCaching = new de::RendererWithCache(rendererNonCaching);
-	// next calculate will use renderer to detect primary illum. must be called from mainloop, we don't know winWidth/winHeight yet
+	rendererOfScene = new rr_gl::RendererOfScene(solver,"shaders/");
 
 	//printf("After optimizations: vertices=%d, triangles=%d.\n",solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
 
@@ -190,8 +186,7 @@ Level::~Level()
 #ifdef BUGS
 	delete bugs;
 #endif
-	delete rendererCaching;
-	delete rendererNonCaching;
+	delete rendererOfScene;
 	delete solver->getScaler();
 	delete solver;
 	delete objects;

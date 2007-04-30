@@ -178,7 +178,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 
 		// clear
 		glViewport(0, 0, width,height);
-		glClear(GL_COLOR_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT); // not necessary, old pixels should be overwritten
 
 		// setup renderer
 		RendererOfRRObject::RenderedChannels renderedChannels;
@@ -220,8 +220,8 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		scaleDownProgram->sendUniform("pixelDistance",1.0f/BIG_MAP_SIZE,1.0f/BIG_MAP_SIZE);
 		glViewport(0,0,BIG_MAP_SIZE/4,BIG_MAP_SIZE/4);//!!! needs at least 256x256 backbuffer
 		// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
-		glClearColor(1,0,1,0);
-		glClear(GL_COLOR_BUFFER_BIT);
+		//glClearColor(1,0,1,0);
+		//glClear(GL_COLOR_BUFFER_BIT);
 		// setup pipeline
 		glActiveTexture(GL_TEXTURE0);
 		glDisable(GL_CULL_FACE);
@@ -240,7 +240,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		glMultiTexCoord2f(0,1,0);
 		glVertex2f(1,-1);
 		glEnd();
-		glClearColor(0,0,0,0);
+		//glClearColor(0,0,0,0);
 		glEnable(GL_CULL_FACE);
 
 		// read downscaled image to memory
@@ -356,7 +356,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 
 		// clear
 		glViewport(0, 0, captureUv->triCountX*triSizeXRender, captureUv->triCountY*triSizeYRender);
-		glClear(GL_COLOR_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT);
 
 		// setup renderer
 		RendererOfRRObject::RenderedChannels renderedChannels;
