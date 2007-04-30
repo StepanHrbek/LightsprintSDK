@@ -77,20 +77,26 @@ namespace de
 	void AreaLight::instanceMakeup(Camera& light, unsigned instance) const
 	{
 		if(numInstances<=1) return;
+
+		light.update(0.3f);
+
 		switch(areaType)
 		{
 			case 0: // linear
-				light.angle += areaSize*(instance/(numInstances-1.f)-0.5f);
-				light.angleX += -0.2f*areaSize*instance/numInstances;
+				light.pos[0] += light.right[0]*(areaSize*(instance/(numInstances-1.f)*2-1));
+				light.pos[1] += light.right[1]*(areaSize*(instance/(numInstances-1.f)*2-1));
+				light.pos[2] += light.right[2]*(areaSize*(instance/(numInstances-1.f)*2-1));
 				break;
 			case 1: // rectangular
 				{int q=(int)sqrtf((float)(numInstances-1))+1;
-				light.angle += areaSize*(instance/q/(q-1.f)-0.5f);
-				light.angleX += areaSize*(instance%q/(q-1.f)-0.5f);}
-				break;
+				light.pos[0] += light.right[0]*areaSize*(instance/q/(q-1.f)-0.5f) + light.up[0]*areaSize*(instance%q/(q-1.f)-0.5f);
+				light.pos[1] += light.right[1]*areaSize*(instance/q/(q-1.f)-0.5f) + light.up[1]*areaSize*(instance%q/(q-1.f)-0.5f);
+				light.pos[2] += light.right[2]*areaSize*(instance/q/(q-1.f)-0.5f) + light.up[2]*areaSize*(instance%q/(q-1.f)-0.5f);
+				break;}
 			case 2: // circular
-				light.angle += sin(instance*2*3.14159f/numInstances)*0.5f*areaSize;
-				light.angleX += cos(instance*2*3.14159f/numInstances)*0.5f*areaSize;
+				light.pos[0] += light.right[0]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[0]*areaSize*cos(instance*2*3.14159f/numInstances);
+				light.pos[1] += light.right[1]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[1]*areaSize*cos(instance*2*3.14159f/numInstances);
+				light.pos[2] += light.right[2]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[2]*areaSize*cos(instance*2*3.14159f/numInstances);
 				break;
 		}
 		light.update(0.3f);

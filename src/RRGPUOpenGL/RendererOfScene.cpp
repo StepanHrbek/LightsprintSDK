@@ -255,18 +255,25 @@ void RendererOfOriginalScene::render()
 	}
 
 	// render skybox
-	if(params.uberProgramSetup.LIGHT_DIRECT && textureRenderer)
+	if(params.uberProgramSetup.LIGHT_DIRECT && !params.uberProgramSetup.FORCE_2D_POSITION)
 	{
-		//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-		textureRenderer->renderEnvironmentBegin(NULL);
-		params.solver->getEnvironment()->bindTexture();
-		glBegin(GL_POLYGON);
-		glVertex3f(-1,-1,1);
-		glVertex3f(1,-1,1);
-		glVertex3f(1,1,1);
-		glVertex3f(-1,1,1);
-		glEnd();
-		textureRenderer->renderEnvironmentEnd();
+		if(textureRenderer && params.solver->getEnvironment())
+		{
+			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
+			textureRenderer->renderEnvironmentBegin(NULL);
+			params.solver->getEnvironment()->bindTexture();
+			glBegin(GL_POLYGON);
+			glVertex3f(-1,-1,1);
+			glVertex3f(1,-1,1);
+			glVertex3f(1,1,1);
+			glVertex3f(-1,1,1);
+			glEnd();
+			textureRenderer->renderEnvironmentEnd();
+		}
+		else
+		{
+			glClear(GL_COLOR_BUFFER_BIT);
+		}
 	}
 /*
 	// update vertex buffer if it needs update

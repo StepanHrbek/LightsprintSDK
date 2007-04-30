@@ -44,6 +44,10 @@ public:
 
 	//! View direction.
 	GLfloat  dir[4];
+	//! Up vector.
+	GLfloat  up[3];
+	//! Right vector.
+	GLfloat  right[3];
 	//! View matrix in format suitable for OpenGL.
 	GLdouble viewMatrix[16];
 	//! Inverse view matrix in format suitable for OpenGL.

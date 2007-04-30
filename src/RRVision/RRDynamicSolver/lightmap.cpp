@@ -531,7 +531,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	pixelBuffer->renderBegin();
 	if(params.applyLights || params.applyEnvironment || (params.applyCurrentIndirectSolution && params.quality))
 	{
-		RRReporter::report(RRReporter::INFO,"Updating lightmap, object %d/%d, res %d*%d ...",objectNumber+1,getNumObjects(),pixelBuffer->getWidth(),pixelBuffer->getHeight());
+		RRReporter::report(RRReporter::INFO,"Updating lightmap, object %d(0..%d), res %d*%d ...",objectNumber,getNumObjects()-1,pixelBuffer->getWidth(),pixelBuffer->getHeight());
 		TIME start = GETTIME;
 		TexelContext tc;
 		tc.solver = this;

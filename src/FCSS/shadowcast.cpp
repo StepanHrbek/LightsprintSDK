@@ -4,10 +4,10 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
-#define LIGHTMAP_QUALITY           10
+#define LIGHTMAP_QUALITY           200
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
-#define RENDER_OPTIMIZED
+//#define RENDER_OPTIMIZED
 //#define THREE_ONE
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "3+1.cfg"
@@ -620,6 +620,7 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+			uberProgramSetup.LIGHT_INDIRECT_auto = renderLightmaps;
 			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 			drawEyeViewShadowed(uberProgramSetup,0);
 			water->updateReflectionDone();
@@ -634,6 +635,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_auto = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
@@ -691,6 +693,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_auto = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
@@ -1476,6 +1479,9 @@ void keyboard(unsigned char c, int x, int y)
 			}
 			break;
 
+		case '[': areaLight->areaSize /= 1.2f; needDepthMapUpdate = 1; printf("%f\n",areaLight->areaSize); break;
+		case ']': areaLight->areaSize *= 1.2f; needDepthMapUpdate = 1; break;			
+
 		case '1':
 		case '2':
 		case '3':
@@ -1504,7 +1510,7 @@ void keyboard(unsigned char c, int x, int y)
 						// we have more dynaobjects
 						selectedObject_indexInDemo = level->pilot.setup->objects[selectedObject_indexInScene];
 						if(!modif)
-							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d+rr::RRVec3(0,1.2f,0));
+							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);//+rr::RRVec3(0,1.2f,0));
 					}
 				}
 				/*
@@ -1713,10 +1719,10 @@ void keyboardUp(unsigned char c, int x, int y)
 enum
 {
 	ME_TOGGLE_WATER,
+	ME_TOGGLE_LIGHTMAPS,
 	ME_UPDATE_LIGHTMAPS,
 	ME_SAVE_LIGHTMAPS,
 	ME_LOAD_LIGHTMAPS,
-	ME_BACK_TO_REALTIME,
 	ME_PREVIOUS_SCENE,
 	ME_NEXT_SCENE,
 };
@@ -1730,17 +1736,11 @@ void mainMenu(int item)
 			break;
 
 #if SUPPORT_LIGHTMAPS
-		case ME_UPDATE_LIGHTMAPS:
+		case ME_TOGGLE_LIGHTMAPS:
 			renderLightmaps = !renderLightmaps;
-			if(!renderLightmaps)
-			{
-				needLightmapCacheUpdate = true;
-				for(unsigned i=0;i<level->solver->getNumObjects();i++)
-				{
-					SAFE_DELETE(level->solver->getIllumination(i)->getLayer(0)->pixelBuffer);
-				}
-			}
-			else
+			break;
+
+		case ME_UPDATE_LIGHTMAPS:
 			{
 				// set environment
 				//level->solver->setEnvironment(rr::RRIlluminationEnvironmentMap::createSky(rr::RRColorRGBF(0.4f)));
@@ -1760,9 +1760,16 @@ void mainMenu(int item)
 //				paramsIndirect.applyLights = 1;
 //				paramsIndirect.applyEnvironment = 1;
 				paramsIndirect.quality = LIGHTMAP_QUALITY/2;
-				level->solver->updateLightmaps(0,true,&paramsDirect,&paramsIndirect);
+//				level->solver->updateLightmaps(0,true,&paramsDirect,&paramsIndirect);
+
+				static unsigned obj=12;
+				if(!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
+					level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512/2,512/2);
+				level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
+
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
+				renderLightmaps = true;
 			}
 			break;
 
@@ -1848,11 +1855,6 @@ void mainMenu(int item)
 				renderLightmaps = true;
 				break;
 			}
-
-		case ME_BACK_TO_REALTIME:
-			// return back to realtime
-			renderLightmaps = false;
-			break;
 #endif // SUPPORT_LIGHTMAPS
 
 		//case ME_PREVIOUS_SCENE:
@@ -1873,10 +1875,10 @@ void initMenu()
 {
 	int menu = glutCreateMenu(mainMenu);
 	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
+	glutAddMenuEntry("Toggle lightmaps", ME_TOGGLE_LIGHTMAPS);
 	glutAddMenuEntry("Lightmaps update", ME_UPDATE_LIGHTMAPS);
 	glutAddMenuEntry("Lightmaps save", ME_SAVE_LIGHTMAPS);
 	glutAddMenuEntry("Lightmaps load", ME_LOAD_LIGHTMAPS);
-	glutAddMenuEntry("Back to realtime", ME_BACK_TO_REALTIME);
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
 	glutAddMenuEntry("Scene next", ME_NEXT_SCENE);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -2197,6 +2199,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = false;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_auto = renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
