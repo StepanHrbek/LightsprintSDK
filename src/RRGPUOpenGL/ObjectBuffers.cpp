@@ -14,7 +14,9 @@
 #endif
 #include "../RRVision/RRDynamicSolver/report.h"
 
-//#define USE_VBO
+//#define USE_VBO // use VBO to save unnecessary CPU<->GPU data transfers
+// using advanced features may trigger driver bugs, better avoid VBO for now
+// as I haven't registered any significant speedup in real world scenarios
 
 namespace rr_gl
 {
@@ -97,7 +99,6 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 				{
 					// it's still possible that user will render without texture
 					LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"RRRendererOfRRObject: Object has diffuse texcoords, but no diffuse texture.\n"));
-					object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,t,&fg.diffuseTexture,sizeof(fg.diffuseTexture));
 				}
 			}
 			fg.emissiveTexture = NULL;

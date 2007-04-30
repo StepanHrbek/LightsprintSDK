@@ -175,6 +175,37 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
+template <class C, int I, int InitialNoSmooth>
+class Smoother
+{
+public:
+	Smoother()
+	{
+		loaded = 0;
+		i = 0;
+		toSkip = InitialNoSmooth;
+	}
+	C smooth(C c)
+	{
+		if(toSkip)
+		{
+			toSkip--;
+			return c;
+		}
+		if(loaded<I) loaded++;
+		history[i] = c;
+		i++; i%=I;
+		C avg = 0;
+		for(unsigned i=0;i<loaded;i++) avg += history[i];
+		return avg/loaded;
+	}
+private:
+	C history[I];
+	unsigned loaded;
+	unsigned i;
+	unsigned toSkip;
+};
+
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
 RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
@@ -294,6 +325,17 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		case RRStaticSolver::INTERNAL_ERROR:
 			break;
 	}
+
+#if 0
+	// show speed
+	static Smoother<unsigned,20,3> s1,s2,s3;
+	TIME thisFrameEnd = GETTIME;
+	static TIME prevFrameEnd = 0;
+	if(prevFrameEnd)
+		printf("##### frame time %d+%d=%dms #####\n",s1.smooth((now - prevFrameEnd)*1000/PER_SEC),s2.smooth((thisFrameEnd - now)*1000/PER_SEC),s3.smooth((thisFrameEnd - prevFrameEnd)*1000/PER_SEC));
+	prevFrameEnd = thisFrameEnd;
+	reportDirectIlluminationChange(true);
+#endif
 
 	if(dirtyResults && now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
 	{

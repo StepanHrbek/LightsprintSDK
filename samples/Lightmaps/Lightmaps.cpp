@@ -44,8 +44,8 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
-//#define COLLADA
-// loads Collada .DAE scene instead of .3DS scene
+#define COLLADA // load Collada .DAE scene instead of .3DS scene
+#define OPTIMIZED // render internal optimized scene instead of original scene
 
 #ifdef COLLADA
 #include "FCollada.h" // must be included before demoengine because of fcollada SAFE_DELETE macro
@@ -116,7 +116,11 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,areaLight,lightDirectMap);
+#ifdef OPTIMIZED
+	rendererOfScene->useOptimizedScene();
+#else
 	rendererOfScene->useOriginalScene(0);
+#endif
 	rendererOfScene->render();
 
 	// render dynamic objects
@@ -382,6 +386,7 @@ void display(void)
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
+#ifndef OPTIMIZED
 	// update vertex color buffers if they need it
 	if(!ambientMapsRender)
 	{
@@ -392,6 +397,7 @@ void display(void)
 			solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
 		}
 	}
+#endif
 
 	// update ambient maps if they don't exist yet
 	if(ambientMapsRender && !solver->getIllumination(0)->getLayer(0)->pixelBuffer)
@@ -546,6 +552,7 @@ int main(int argc, char **argv)
 	collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
 	collada->LoadFromFile("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
+	//collada->LoadFromFile("..\\..\\data\\scenes\\sponza\\sponza.dae");
 	if(!errorHandler.IsSuccessful())
 	{
 		puts(errorHandler.GetErrorString());
