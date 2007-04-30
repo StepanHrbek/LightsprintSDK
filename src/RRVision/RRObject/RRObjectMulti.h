@@ -124,12 +124,18 @@ public:
 	// channels
 	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 	{
-		// all objects have the same channels, so let's simply ask object[0].
-		// equality must be ensured by creator of multiobject.
+		// All objects have the same channels, so let's simply ask object[0].
+		// Equality must be ensured by creator of multiobject.
 		//!!! check equality at construction time
-		pack[0].getImporter()->getChannelSize(channelId,numItems,itemSize);
-		// whole multiobject has more items than one object
+		unsigned itemSizeLocal = 0;
+		pack[0].getImporter()->getChannelSize(channelId,numItems,&itemSizeLocal);
+		if(itemSize) *itemSize = itemSizeLocal;
+		// Now we know object[0] properties.
+		// But whole multiobject has more objects, we must correct *numItems.
+		// If channels exists...
 		if(numItems && *numItems)
+		{
+			// ...let's skip adding all objects, use known sum.
 			switch(channelId&0x7ffff000)
 			{
 				case RRMesh::INDEXED_BY_VERTEX:
@@ -139,6 +145,7 @@ public:
 					*numItems = RRMultiObjectImporter::getCollider()->getMesh()->getNumTriangles();
 					break;
 			}
+		}
 	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
