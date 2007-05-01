@@ -310,7 +310,8 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 			RRReal dirsize = dir.length();
 			dir /= dirsize;
 			if(light->type==RRLight::DIRECTIONAL) dirsize *= 1e6; //!!! fudge number
-			if(dot(dir,normal)<=0)
+			float normalIncidence = dot(dir,normal);
+			if(normalIncidence<=0)
 			{
 				// face is not oriented towards light -> reliable black (selfshadowed)
 				hitsScene++;
@@ -327,7 +328,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 				if(!collider->intersect(ray))
 				{
 					// add irradiance from light
-					irradianceLights += light->getIrradiance(pos3d,scaler);
+					irradianceLights += light->getIrradiance(pos3d,scaler) * normalIncidence;
 					hitsLight++;
 					hitsReliable++;
 				}
@@ -622,7 +623,7 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool cre
 	{
 		if(paramsDirect.applyCurrentIndirectSolution)
 		{
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: paramsDirect.applyCurrentIndirectSolution ignored, can't be combined with applyLights and/or applyEnvironment.\n");
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: paramsDirect.applyCurrentIndirectSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
 			paramsDirect.applyCurrentIndirectSolution = false;
 		}
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
@@ -644,7 +645,6 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool cre
 		RRReal secondsInGather = (GETTIME-t0)/(RRReal)PER_SEC;
 		// feed solver with recently gathered illum
 		//!!! float precision is lost here
-		//!!! v quake levelu tu zdetekuje 0
 		detectDirectIlluminationFromLightmaps(lightmapLayerNumber);
 		// propagate
 		RRReporter::report(RRReporter::INFO,"Propagating ...");
@@ -653,7 +653,7 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool cre
 		TIME now = GETTIME;
 		TIME end = (TIME)(now+secondsInPropagate*PER_SEC);
 		scene->illuminationImprove(endByTime,(void*)&end);
-		RRReporter::report(RRReporter::CONT," done.\n");
+		RRReporter::report(RRReporter::CONT," done in %.1fsec.\n",(GETTIME-now)/(float)PER_SEC);
 		// set solution generated here to be gathered in second gather
 		paramsDirect.applyCurrentIndirectSolution = true;
 		// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)

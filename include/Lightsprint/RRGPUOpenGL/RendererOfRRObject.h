@@ -96,7 +96,6 @@ public:
 		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
 		bool     MATERIAL_EMISSIVE_MAP  :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
 		bool     FORCE_2D_POSITION      :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
-		unsigned LIGHT_MAP_LAYER;         ///< if LIGHT_INDIRECT_MAP, maps from this illuminations channel are used
 		//! Creates setup with everything off, only vertex positions are rendered.
 		//! Suitable for rendering into shadowmaps.
 		RenderedChannels()
@@ -113,7 +112,7 @@ public:
 
 	//! Specifies what indirect illumination to render in render(): use these buffers.
 	//
-	//! Overrides previous calls to setIndirectIlluminationBuffers() and setIndirectIlluminationFromSolver().
+	//! Overrides previous calls to setIndirectIlluminationBuffers(), setIndirectIlluminationLayer() and setIndirectIlluminationFromSolver().
 	//! It is not supported in combination with useBuffers=false (set at renderer creation time).
 	//! \param vertexBuffer
 	//!  Used by render() with LIGHT_INDIRECT_VCOLOR.
@@ -126,9 +125,16 @@ public:
 	//!  Texcoord mapping is provided by RRMesh::getTriangleMapping().
 	void setIndirectIlluminationBuffers(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap);
 
+	//! Specifies what indirect illumination to render in render(): use buffers from this layer.
+	//
+	//! Overrides previous calls to setIndirectIlluminationBuffers(), setIndirectIlluminationLayer() and setIndirectIlluminationFromSolver().
+	//! \param layerNumber
+	//!  Number of layer to take indirect illumination buffers from.
+	void setIndirectIlluminationLayer(unsigned layerNumber);
+
 	//! Specifies what indirect illumination to render in render(): read live values from the solver.
 	//
-	//! Overrides previous calls to setIndirectIlluminationBuffers() and setIndirectIlluminationFromSolver().
+	//! Overrides previous calls to setIndirectIlluminationBuffers(), setIndirectIlluminationLayer() and setIndirectIlluminationFromSolver().
 	//! \param solutionVersion
 	//!  If you change this number, indirect illumination data are read form the solver at render() time.
 	//!  If you call render() without changing this number,
@@ -147,6 +153,13 @@ public:
 
 private:
 	friend class ObjectBuffers;
+	enum IndirectIlluminationSource
+	{
+		NONE,
+		BUFFERS,
+		LAYER,
+		SOLVER,
+	};
 	struct Params
 	{
 		const rr::RRObject* object;            ///< object being rendered
@@ -159,7 +172,8 @@ private:
 		unsigned firstCapturedTriangle;        ///< index of first triangle to render
 		unsigned lastCapturedTrianglePlus1;    ///< index of last triangle to render+1
 		// set by setIndirectIlluminationXxx()
-		bool availableIndirectIlluminationSolver; ///< if true, read indirect illumination from solver, rather than from following buffers
+		IndirectIlluminationSource indirectIlluminationSource;
+		unsigned indirectIlluminationLayer;
 		rr::RRIlluminationVertexBuffer* availableIndirectIlluminationVColors; ///< vertex buffer with indirect illumination (not const because lock is not const)
 		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap; ///< ambient map
 	};

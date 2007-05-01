@@ -22,8 +22,8 @@
 //  mouse = look around
 //  arrows = move around
 //  left button = switch between camera and light
-//  spacebar = toggle between vertex based and ambient map based render
-//  p = Precompute higher quality maps
+//  spacebar = toggle between realtime vertex ambient and static ambient maps
+//  p = Precompute higher quality static maps
 //      alt-tab to console to see progress (takes several minutes)
 //  s = Save maps to disk (alt-tab to console to see filenames)
 //  l = Load maps from disk, stop realtime global illumination
@@ -45,7 +45,7 @@
 // --------------------------------------------------------------------------
 
 #define COLLADA // load Collada .DAE scene instead of .3DS scene
-#define OPTIMIZED // render internal optimized scene instead of original scene
+#define WATER  // render water with reflection
 
 #ifdef COLLADA
 #include "FCollada.h" // must be included before demoengine because of fcollada SAFE_DELETE macro
@@ -64,6 +64,7 @@
 #include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
 #include "../HelloRealtimeRadiosity/DynamicObject.h"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -116,11 +117,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,areaLight,lightDirectMap);
-#ifdef OPTIMIZED
-	rendererOfScene->useOptimizedScene();
-#else
 	rendererOfScene->useOriginalScene(0);
-#endif
 	rendererOfScene->render();
 
 	// render dynamic objects
@@ -195,7 +192,7 @@ protected:
 		// In this sample, we pick res proportional to number of triangles in object.
 		// When seams appear, increase res.
 		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
-		// This sample has bad unwrap -> high res map is needed.
+		// This sample scene has bad unwrap -> high res map is needed.
 		unsigned res = 16;
 		unsigned sizeFactor = 20; // decrease for good unwrap
 		while(res<2048 && res<sizeFactor*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
@@ -267,18 +264,34 @@ void keyboard(unsigned char c, int x, int y)
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
 				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
-				paramsDirect.applyCurrentIndirectSolution = true; // enable final gather of current indirect solution
 				paramsDirect.quality = 1000;
-				paramsDirect.applyEnvironment = true; // enable direct illumination from skybox (note: no effect in room without windows)
-				paramsDirect.applyLights = true; // enable direct illumination from lights set by setLights() (note: no effect because no lights were set)
+				paramsDirect.applyCurrentIndirectSolution = false;
+				rr::RRDynamicSolver::UpdateLightmapParameters paramsIndirect;
+				paramsIndirect.quality = paramsDirect.quality/4;
+				paramsIndirect.applyCurrentIndirectSolution = false;
 
-				// calculate all lightmaps at once
-				//solver->updateLightmaps(0,true,&paramsDirect,NULL);
+				// 1. type of lighting
+				//  a) improve current GI lighting from realtime light
+				paramsDirect.applyCurrentIndirectSolution = true;
+				//  b) compute GI from point light
+				//paramsDirect.applyLights = true;
+				//paramsIndirect.applyLights = true;
+				//rr::RRDynamicSolver::Lights lights;
+				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f)));
+				//solver->setLights(lights);
+				//  c) compute GI from skybox (note: no effect in closed room)
+				//paramsDirect.applyEnvironment = true;
+				//paramsIndirect.applyEnvironment = true;
 
-				// calculate lightmap only for first object
-				if(!solver->getIllumination(0)->getLayer(0)->pixelBuffer)
-					solver->getIllumination(0)->getLayer(0)->pixelBuffer = solver->createIlluminationPixelBuffer(512,512);
-				solver->updateLightmap(0,solver->getIllumination(0)->getLayer(0)->pixelBuffer,&paramsDirect);
+				// 2. objects
+				//  a) calculate whole scene at once
+				solver->updateLightmaps(0,true,&paramsDirect,&paramsIndirect);
+				//  b) calculate only one object
+				//static unsigned obj=0;
+				//if(!solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
+				//	solver->getIllumination(obj)->getLayer(0)->pixelBuffer = solver->createIlluminationPixelBuffer(256,256);
+				//solver->updateLightmap(obj,solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
+				//++obj%=solver->getNumObjects();
 
 				// start rendering computed maps
 				ambientMapsRender = true;
@@ -386,7 +399,6 @@ void display(void)
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
-#ifndef OPTIMIZED
 	// update vertex color buffers if they need it
 	if(!ambientMapsRender)
 	{
@@ -397,23 +409,8 @@ void display(void)
 			solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
 		}
 	}
-#endif
 
-	// update ambient maps if they don't exist yet
-	if(ambientMapsRender && !solver->getIllumination(0)->getLayer(0)->pixelBuffer)
-	{
-		// precompute preview maps, takes few ms
-		//solver->updateLightmaps(0,true,NULL,NULL);
-		// precompute high quality maps, takes minutes
-		keyboard('p',0,0);
-	}
-
-	// update water reflection
-	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
-	glClear(GL_DEPTH_BUFFER_BIT);
 	de::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !ambientMapsRender;
@@ -421,8 +418,15 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_auto = ambientMapsRender; // when map doesn't exist, render vcolors
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+#ifdef WATER
+	// update water reflection
+	uberProgramSetup.SHADOW_MAPS = 1;
+	uberProgramSetup.SHADOW_SAMPLES = 1;
+	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	renderScene(uberProgramSetup);
 	water->updateReflectionDone();
+#endif
 
 	// render everything except water
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -431,8 +435,10 @@ void display(void)
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	renderScene(uberProgramSetup);
 
+#ifdef WATER
 	// render water
 	water->render(100);
+#endif
 
 	glutSwapBuffers();
 }
@@ -512,7 +518,9 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+#ifdef WATER
 	water = new de::Water("..\\..\\data\\shaders\\",false,false);
+#endif
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
@@ -552,7 +560,6 @@ int main(int argc, char **argv)
 	collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
 	collada->LoadFromFile("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
-	//collada->LoadFromFile("..\\..\\data\\scenes\\sponza\\sponza.dae");
 	if(!errorHandler.IsSuccessful())
 	{
 		puts(errorHandler.GetErrorString());
@@ -561,7 +568,6 @@ int main(int argc, char **argv)
 	solver->setObjects(*adaptObjectsFromFCollada(collada),NULL);
 #else
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
-	//if(!m3ds.Load("..\\..\\data\\scenes\\sponza\\sponza.3ds",1))
 		error("",false);
 	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 #endif

@@ -183,7 +183,6 @@ void RendererOfRRDynamicSolver::render()
 	renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
-	renderedChannels.LIGHT_MAP_LAYER = 0; // never used
 	rendererNonCaching->setRenderedChannels(renderedChannels);
 	rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
 
@@ -296,7 +295,6 @@ void RendererOfOriginalScene::render()
 	renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
-	renderedChannels.LIGHT_MAP_LAYER = layerNumber;
 
 	// - working copy of params.uberProgramSetup
 	de::UberProgramSetup uberProgramSetup = params.uberProgramSetup;

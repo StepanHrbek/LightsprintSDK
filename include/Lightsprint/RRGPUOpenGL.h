@@ -113,8 +113,8 @@ namespace rr_gl
 		//! Detection of direct illumination from custom light sources implemented using OpenGL 2.0.
 		virtual bool detectDirectIllumination();
 
-		//! Detection of direct illumination from lightmaps implemented using OpenGL 2.0.
-		virtual void detectDirectIlluminationFromLightmaps(unsigned sourceLayer);
+		//! Detection of direct illumination from lightmaps (getIllumination()->getLayer(layerNumber)->pixelBuffer).
+		virtual void detectDirectIlluminationFromLightmaps(unsigned layerNumber);
 
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
 		//! without material. This is renderer specific operation and can't be implemented here.

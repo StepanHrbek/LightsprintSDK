@@ -226,14 +226,14 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	{
 		if(indices)
 		{
-			if(params.availableIndirectIlluminationSolver)
+			if(params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
 			{
 				// INDEXED FROM SOLVER
 				// should never get here, must be handled by RendererOfRRObject
 				RR_ASSERT(0);
 			}
 			else
-			if(params.availableIndirectIlluminationVColors)
+			if(params.indirectIlluminationSource==RendererOfRRObject::BUFFERS && params.availableIndirectIlluminationVColors)
 			{
 				// INDEXED FROM VBUFFER
 				// use vertex buffer precomputed by RRDynamicSolver
@@ -255,7 +255,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		}
 		else
 		{
-			if(params.availableIndirectIlluminationSolver)
+			if(params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
 			{
 				// NON-INDEXED FROM SOLVER
 				if(params.scene)

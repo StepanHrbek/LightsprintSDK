@@ -27,7 +27,8 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const
 	params.generateForcedUv = NULL;
 	params.firstCapturedTriangle = 0;
 	params.lastCapturedTrianglePlus1 = objectImporter->getCollider()->getMesh()->getNumTriangles();
-	params.availableIndirectIlluminationSolver = false;
+	params.indirectIlluminationSource = NONE;
+	params.indirectIlluminationLayer = 0;
 	params.availableIndirectIlluminationVColors = NULL;
 	params.availableIndirectIlluminationMap = NULL;
 
@@ -65,15 +66,26 @@ void RendererOfRRObject::setCapture(VertexDataGenerator* capture, unsigned afirs
 
 void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap)
 {
-	params.availableIndirectIlluminationSolver = false;
+	params.indirectIlluminationSource = BUFFERS;
+	params.indirectIlluminationLayer = 0;
 	params.availableIndirectIlluminationVColors = vertexBuffer;
 	params.availableIndirectIlluminationMap = ambientMap;
 	solutionVersion = 0;
 }
 
+void RendererOfRRObject::setIndirectIlluminationLayer(unsigned layerNumber)
+{
+	params.indirectIlluminationSource = LAYER;
+	params.indirectIlluminationLayer = layerNumber;
+	params.availableIndirectIlluminationVColors = NULL;
+	params.availableIndirectIlluminationMap = NULL;
+	solutionVersion = 0;
+}
+
 void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned asolutionVersion)
 {
-	params.availableIndirectIlluminationSolver = true;
+	params.indirectIlluminationSource = SOLVER;
+	params.indirectIlluminationLayer = 0;
 	params.availableIndirectIlluminationVColors = NULL;
 	params.availableIndirectIlluminationMap = NULL;
 	solutionVersion = asolutionVersion;
@@ -94,8 +106,10 @@ void RendererOfRRObject::render()
 
 	// indirect illumination source - solver, buffers or none?
 	bool renderIndirect = params.renderedChannels.LIGHT_INDIRECT_VCOLOR || params.renderedChannels.LIGHT_INDIRECT_MAP;
-	bool readIndirectFromSolver = renderIndirect && params.availableIndirectIlluminationSolver;
-	bool readIndirectFromBuffers = renderIndirect && !params.availableIndirectIlluminationSolver;
+	bool readIndirectFromSolver = renderIndirect && params.indirectIlluminationSource==SOLVER;
+	bool readIndirectFromBuffers = renderIndirect && params.indirectIlluminationSource==BUFFERS;
+	bool readIndirectFromLayer = renderIndirect && params.indirectIlluminationSource==LAYER;
+	bool readIndirectFromNone = renderIndirect && params.indirectIlluminationSource==NONE;
 
 	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV;
 
@@ -125,7 +139,7 @@ void RendererOfRRObject::render()
 		dontUseIndexed = true;
 	}
 	// indirectFromSolver can't generate ambient maps
-	if(!readIndirectFromBuffers && params.renderedChannels.LIGHT_INDIRECT_MAP)
+	if(readIndirectFromSolver && params.renderedChannels.LIGHT_INDIRECT_MAP)
 	{
 		RR_ASSERT(0);
 		return;
@@ -134,6 +148,18 @@ void RendererOfRRObject::render()
 	if(params.renderedChannels.FORCE_2D_POSITION)
 	{
 		dontUseIndexed = true;
+	}
+	// only nonbuffered can read from arbitrary layer
+	if(readIndirectFromLayer)
+	{
+		dontUseIndexed = true;
+		dontUseNonIndexed = true;
+	}
+	// error, you forgot to call setIndirectIlluminationXxx()
+	if(readIndirectFromNone)
+	{
+		RR_ASSERT(0);
+		return;
 	}
 
 	/////////////////////////////////////////////////////////////////////////
@@ -156,7 +182,7 @@ void RendererOfRRObject::render()
 	{
 		// NON BUFFERED
 		// general, but slower code, used for FORCE_2D_POSITION
-		// reads indirect illumination always from solver
+		// reads indirect vertex illumination always from solver, indirect maps always from layer
 
 		bool begun = false;
 		rr::RRMesh* meshImporter = params.object->getCollider()->getMesh();
@@ -281,7 +307,7 @@ void RendererOfRRObject::render()
 				{
 					oldIllumination = objectIllumination;
 					// setup light indirect texture
-					rr::RRIlluminationPixelBuffer* pixelBuffer = objectIllumination->getLayer(params.renderedChannels.LIGHT_MAP_LAYER)->pixelBuffer;
+					rr::RRIlluminationPixelBuffer* pixelBuffer = objectIllumination->getLayer(params.indirectIlluminationLayer)->pixelBuffer;
 					if(pixelBuffer)
 					{
 						if(begun)

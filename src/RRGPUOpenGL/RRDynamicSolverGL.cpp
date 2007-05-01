@@ -192,12 +192,12 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 			// this will be removed in future
 			renderedChannels.LIGHT_DIRECT = false;
 			renderedChannels.LIGHT_INDIRECT_MAP = true;
-			renderedChannels.LIGHT_MAP_LAYER = detectingFromLightmapLayer;
 			de::UberProgramSetup detectFromLightmapUberProgramSetup;
 			detectFromLightmapUberProgramSetup.LIGHT_INDIRECT_MAP = true;
 			detectFromLightmapUberProgramSetup.MATERIAL_DIFFUSE = true;
 			detectFromLightmapUberProgramSetup.FORCE_2D_POSITION = true;
 			detectFromLightmapUberProgramSetup.useProgram(detectFromLightmapUberProgram,NULL,0,NULL,NULL,1);
+			rendererNonCaching->setIndirectIlluminationLayer(detectingFromLightmapLayer);
 		}
 		else
 		{
@@ -209,8 +209,10 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		// render scene
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
-		rendererCaching->render();
-		//rendererNonCaching->render();
+		if(renderedChannels.LIGHT_INDIRECT_MAP)
+			rendererNonCaching->render();
+		else
+			rendererCaching->render();
 		rendererNonCaching->setCapture(NULL,0,numTriangles);
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
