@@ -326,7 +326,7 @@ Integration of global illumination (GI) solver into your project is described in
 
   - Open HelloRealtimeRadiosity project
   - Copy RRObject3DS.* to RRObjectCustom.* and add it to the project
-  - Delete \#include "DemoEngine/Model_3DS.h" from RRObjectCustom.h
+  - Delete \#include "Model_3DS.h" from RRObjectCustom.h
   - Build reports errors on all references to 3ds,
     change code so it works with your engine's 3d model rather than with 3ds.
     Replace all references to 3ds with your custom format.
@@ -1743,8 +1743,7 @@ Integration of global illumination (GI) solver into your project is described in
  - de::UberProgram is GLSL program with preprocessor parameters changeable at runtime
  - de::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs
  - de::Camera is frustum suitable for camera or spotlight
- - de::AreaLight is area light
- - de::Model_3DS is model loaded from .3ds file
+ - de::AreaLight is area light with realtime Penumbra Shadows
  - de::Renderer is generic renderer interface
 
  Features and limitations of DemoEngine
@@ -1753,7 +1752,6 @@ Integration of global illumination (GI) solver into your project is described in
    - supports all OpenGL 2.0 cards, but penumbra shadows require GeForce 6xxx or higher, Radeon 9500 or higher
    - spotlights with realtime shadows
    - linear and area spotlights with realtime penumbra shadows
-   - scenes and objects loaded from .3ds
    - loading 2d and cube textures from jpg, png, dds, tga, tiff, gif and many more
    - saving 2d and cube textures to jpg, png, tga, tiff, gif and many more
    - separately enabled/disabled light features:

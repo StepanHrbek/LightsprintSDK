@@ -4,8 +4,9 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/DemoEngine/Renderer.h"
-#include "DynamicObject.h"
 #include "Lightsprint/RRGPUOpenGL.h"
+#include "DynamicObject.h"
+#include "../Import3DS/RendererOf3DS.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -17,7 +18,7 @@ DynamicObject* DynamicObject::create(const char* filename,float scale,de::UberPr
 	DynamicObject* d = new DynamicObject();
 	if(d->model.Load(filename,scale) && d->getModel().numObjects)
 	{
-		d->rendererWithoutCache = de::Renderer::create3DSRenderer(&d->model,true,amaterial.MATERIAL_DIFFUSE_MAP,amaterial.MATERIAL_EMISSIVE_MAP);
+		d->rendererWithoutCache = new RendererOf3DS(&d->model,true,amaterial.MATERIAL_DIFFUSE_MAP,amaterial.MATERIAL_EMISSIVE_MAP);
 		d->rendererCached = d->rendererWithoutCache->createDisplayList();
 		d->material = amaterial;
 		d->specularCubeSize = aspecularCubeSize;
@@ -49,7 +50,7 @@ DynamicObject::~DynamicObject()
 	delete rendererWithoutCache;
 }
 
-const de::Model_3DS& DynamicObject::getModel()
+const Model_3DS& DynamicObject::getModel()
 {
 	return model;
 }

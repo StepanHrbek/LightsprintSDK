@@ -411,6 +411,34 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="3DS"
+			>
+			<File
+				RelativePath="..\Import3DS\Model_3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Import3DS\Model_3DS.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Import3DS\RendererOf3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Import3DS\RendererOf3DS.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Import3DS\RRObject3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Import3DS\RRObject3DS.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\DynamicObject.cpp"
 			>
@@ -421,14 +449,6 @@
 		</File>
 		<File
 			RelativePath=".\HelloRealtimeRadiosity.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\Import3DS\RRObject3DS.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\Import3DS\RRObject3DS.h"
 			>
 		</File>
 	</Files>

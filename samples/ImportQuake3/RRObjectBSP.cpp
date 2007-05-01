@@ -50,7 +50,7 @@
 class RRObjectBSP : public rr::RRObject, public rr::RRMesh
 {
 public:
-	RRObjectBSP(de::TMapQ3* model, const char* pathToTextures, de::Texture* missingTexture);
+	RRObjectBSP(TMapQ3* model, const char* pathToTextures, de::Texture* missingTexture);
 	rr::RRObjectIllumination* getIllumination();
 	virtual ~RRObjectBSP();
 
@@ -72,7 +72,7 @@ public:
 	virtual const rr::RRMaterial*   getTriangleMaterial(unsigned t) const;
 
 private:
-	de::TMapQ3* model;
+	TMapQ3* model;
 
 	// copy of object's geometry
 	struct TriangleInfo
@@ -104,7 +104,7 @@ private:
 
 // Inputs: m
 // Outputs: t, s
-static void fillMaterial(rr::RRMaterial& s, de::Texture*& t, de::TTexture* m,const char* pathToTextures, de::Texture* fallback)
+static void fillMaterial(rr::RRMaterial& s, de::Texture*& t, TTexture* m,const char* pathToTextures, de::Texture* fallback)
 {
 	enum {size = 8};
 
@@ -153,7 +153,7 @@ static void fillMaterial(rr::RRMaterial& s, de::Texture*& t, de::TTexture* m,con
 
 // Creates internal copies of .bsp geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObjectBSP::RRObjectBSP(de::TMapQ3* amodel, const char* pathToTextures, de::Texture* missingTexture)
+RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, de::Texture* missingTexture)
 {
 	model = amodel;
 
@@ -424,7 +424,7 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t) const
 class ObjectsFromTMapQ3 : public rr::RRObjects
 {
 public:
-	ObjectsFromTMapQ3(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture)
+	ObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture)
 	{
 		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,missingTexture);
 		push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
@@ -442,7 +442,7 @@ public:
 //
 // main
 
-rr::RRObjects* adaptObjectsFromTMapQ3(de::TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture)
+rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture)
 {
 	return new ObjectsFromTMapQ3(model,pathToTextures,missingTexture);
 }

@@ -58,7 +58,7 @@ void reporter(const char* msg, void* context)
 class RRObject3DS : public rr::RRObject, rr::RRMesh
 {
 public:
-	RRObject3DS(de::Model_3DS* model, unsigned objectIdx);
+	RRObject3DS(Model_3DS* model, unsigned objectIdx);
 	rr::RRObjectIllumination* getIllumination();
 	virtual ~RRObject3DS();
 
@@ -80,8 +80,8 @@ public:
 	virtual const rr::RRMatrix3x4*  getInvWorldMatrix();
 
 private:
-	de::Model_3DS* model;
-	de::Model_3DS::Object* object;
+	Model_3DS* model;
+	Model_3DS::Object* object;
 
 	// copy of object's geometry
 	struct TriangleInfo
@@ -106,7 +106,7 @@ private:
 //
 // RRObject3DS load
 
-static void fillMaterial(rr::RRMaterial* s,de::Model_3DS::Material* m)
+static void fillMaterial(rr::RRMaterial* s,Model_3DS::Material* m)
 {
 	enum {size = 8};
 
@@ -150,7 +150,7 @@ static void fillMaterial(rr::RRMaterial* s,de::Model_3DS::Material* m)
 
 // Creates internal copies of .3ds geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObject3DS::RRObject3DS(de::Model_3DS* amodel, unsigned objectIdx)
+RRObject3DS::RRObject3DS(Model_3DS* amodel, unsigned objectIdx)
 {
 	model = amodel;
 	object = &model->Objects[objectIdx];
@@ -403,7 +403,7 @@ const rr::RRMatrix3x4* RRObject3DS::getInvWorldMatrix()
 class ObjectsFrom3DS : public rr::RRObjects
 {
 public:
-	ObjectsFrom3DS(de::Model_3DS* model)
+	ObjectsFrom3DS(Model_3DS* model)
 	{
 		for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
@@ -427,7 +427,7 @@ public:
 //
 // main
 
-rr::RRObjects* adaptObjectsFrom3DS(de::Model_3DS* model)
+rr::RRObjects* adaptObjectsFrom3DS(Model_3DS* model)
 {
 	return new ObjectsFrom3DS(model);
 }

@@ -10,9 +10,6 @@
 //#include <cstdio>
 //#pragma pack(pop, Q3LOADER_H)
 
-namespace de
-{
-
 /**
  * Check if the header of the map is valid.
  *
@@ -801,5 +798,3 @@ void freeMap(TMapQ3& pMap)
 	pMap.mLightMaps.clear();
 	pMap.mLightVols.clear();
 }
-
-} // namespace

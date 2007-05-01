@@ -32,7 +32,7 @@ Water
 
 
 Import3DS
-- source code of 3DS adapter (called e.g. from HelloRealtimeRadiosity)
+- source code of 3DS loader, renderer and adapter (called e.g. from HelloRealtimeRadiosity)
 
 ImportCollada
 - source code of Collada adapter (called e.g. from Lightmaps)

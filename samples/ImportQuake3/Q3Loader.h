@@ -14,9 +14,6 @@
 //#include <string>
 //#pragma pack(pop, Q3LOADER_H)
 
-namespace de
-{
-
 /**
  * Description of a lump.
  * 
@@ -329,7 +326,5 @@ void freeMap(TMapQ3& pMap);
  * @return True if the map is valid, false otherwise.
  */
 bool isValid(const TMapQ3& pMap);
-
-} // namespace
 
 #endif

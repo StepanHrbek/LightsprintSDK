@@ -425,14 +425,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Model_3DS.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\DemoEngine\Model_3DS.h"
-			>
-		</File>
-		<File
 			RelativePath=".\Program.cpp"
 			>
 		</File>
@@ -442,14 +434,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\DemoEngine\Renderer.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RendererOf3DS.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RendererOf3DS.h"
 			>
 		</File>
 		<File

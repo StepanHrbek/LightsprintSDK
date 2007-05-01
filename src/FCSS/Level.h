@@ -17,6 +17,7 @@
 #endif
 
 #ifdef SUPPORT_3DS
+	#include "../../samples/Import3DS/Model_3DS.h"
 	#include "../../samples/Import3DS/RRObject3DS.h"
 #endif
 
@@ -48,10 +49,10 @@ public:
 	};
 	Type type;
 #ifdef SUPPORT_3DS
-	de::Model_3DS m3ds;
+	Model_3DS m3ds;
 #endif
 #ifdef SUPPORT_BSP
-	de::TMapQ3 bsp;
+	TMapQ3 bsp;
 #endif
 #ifdef SUPPORT_COLLADA
 	FCDocument* collada;

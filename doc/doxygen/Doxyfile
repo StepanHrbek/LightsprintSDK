@@ -96,7 +96,6 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/L
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/AreaLight.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Camera.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/DemoEngine.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Model_3DS.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Program.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Renderer.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Texture.h" \

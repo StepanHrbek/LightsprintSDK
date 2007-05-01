@@ -50,7 +50,7 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-de::Model_3DS       m3ds;
+Model_3DS           m3ds;
 de::Camera          eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,60.0};
 de::Camera          light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*      areaLight = NULL;
@@ -316,7 +316,7 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
-	water = new de::Water("..\\..\\data\\shaders\\");
+	water = new de::Water("..\\..\\data\\shaders\\",false,false);
 	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// set shadowmapsPerPass=1 for standard shadows

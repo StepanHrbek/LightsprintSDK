@@ -26,7 +26,7 @@ DynamicObject::DynamicObject()
 {
 }
 
-const de::Model_3DS& DynamicObject::getModel()
+const Model_3DS& DynamicObject::getModel()
 {
 	return model;
 }

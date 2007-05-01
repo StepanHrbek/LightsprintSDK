@@ -2,6 +2,7 @@
 //
 // 3D Studio Model Class
 // by: Matthew Fairfax
+// modified by: Stepan Hrbek
 //
 // Model_3DS.cpp: implementation of the Model_3DS class.
 // This is a simple class for loading and viewing
@@ -78,11 +79,8 @@
 #include <cmath>
 #include <cstring>
 #include <GL/glew.h>
-#include "Lightsprint/DemoEngine/Model_3DS.h"
+#include "Model_3DS.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
-
-namespace de
-{
 
 // The chunk's id numbers
 #define MAIN3DS				0x4D4D
@@ -267,7 +265,7 @@ bool Model_3DS::Load(const char *filename, float ascale)
 			rgb[1] = Materials[j].color.g;
 			rgb[2] = Materials[j].color.b;
 			rgb[3] = Materials[j].color.a;
-			Materials[j].tex = Texture::create(rgb,1,1,false,GL_RGBA);
+			Materials[j].tex = de::Texture::create(rgb,1,1,false,GL_RGBA);
 			Materials[j].textured = true;
 		}
 	}
@@ -360,12 +358,12 @@ void Model_3DS::Draw(
 			// Enable texture coordiantes, normals, and vertices arrays
 			if (texturedDiffuse && Objects[i].textured)
 			{
-				glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
+				glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_DIFFUSE);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			}
 			if (texturedEmissive && Objects[i].textured)
 			{
-				glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
+				glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_EMISSIVE);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			}
 			if (lit)
@@ -891,7 +889,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	// Load the name and indicate that the material has a texture
 	char fullname[580];
 	sprintf(fullname, "%s%s", path, name);
-	Materials[matindex].tex = Texture::load(fullname,NULL);
+	Materials[matindex].tex = de::Texture::load(fullname,NULL);
 	Materials[matindex].textured = Materials[matindex].tex!=NULL;
 	if(!Materials[matindex].textured)
 		printf("Texture %s not found.\n",fullname);
@@ -1280,5 +1278,3 @@ void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int o
 	// from the right place
 	fseek(bin3ds, findex, SEEK_SET);
 }
-
-}; // namespace

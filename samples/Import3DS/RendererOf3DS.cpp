@@ -1,14 +1,10 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // RendererOf3DS, Renderer implementation that renders 3DS model.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
 #include <cassert>
 #include "RendererOf3DS.h"
-
-namespace de
-{
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -37,14 +33,3 @@ void RendererOf3DS::render()
 		model->Draw(NULL,lit,texturedDiffuse,texturedEmissive,NULL,NULL);
 	}
 }
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Renderer
-
-Renderer* Renderer::create3DSRenderer(const Model_3DS* model,bool lit,bool texturedDiffuse,bool texturedEmissive)
-{
-	return new RendererOf3DS(model,lit,texturedDiffuse,texturedEmissive);
-}
-
-}; // namespace

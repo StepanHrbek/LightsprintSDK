@@ -365,6 +365,22 @@
 			Name="Import3DS"
 			>
 			<File
+				RelativePath="..\..\samples\Import3DS\Model_3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\Import3DS\Model_3DS.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\Import3DS\RendererOf3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\Import3DS\RendererOf3DS.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\samples\Import3DS\RRObject3DS.cpp"
 				>
 			</File>

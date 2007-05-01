@@ -1,13 +1,8 @@
-// --------------------------------------------------------------------------
-// DemoEngine
-// Model_3DS, .3ds loader and renderer.
-// Copyright (C) Matthew Fairfax, modified by Stepan Hrbek
-// --------------------------------------------------------------------------
-
 //////////////////////////////////////////////////////////////////////
 //
 // 3D Studio Model Class
 // by: Matthew Fairfax
+// modified by: Stepan Hrbek
 //
 // Model_3DS.h: interface for the Model_3DS class.
 // This is a simple class for loading and viewing
@@ -79,12 +74,9 @@
 
 #include <cstdio>
 #include <cstring>
-#include "Texture.h"
+#include "Lightsprint/DemoEngine/Texture.h"
 
-namespace de
-{
-
-class DE_API Model_3DS  
+class Model_3DS  
 {
 public:
 	// A VERY simple vector struct
@@ -114,7 +106,7 @@ public:
 	// TODO: add color support for non textured polys
 	struct Material {
 		char name[80];	// The material's name
-		Texture* tex;	// The texture (this is the only outside reference in this class)
+		de::Texture* tex;	// The texture (this is the only outside reference in this class)
 		bool textured;	// whether or not it is textured
 		Color4i color;
 		Material()
@@ -243,7 +235,5 @@ private:
 	// the normals of the faces that use that vertex
 	void CalculateNormals();
 };
-
-}; // namespace
 
 #endif // MODEL_3DS_H

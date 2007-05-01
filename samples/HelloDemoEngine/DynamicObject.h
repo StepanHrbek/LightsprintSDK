@@ -6,7 +6,7 @@
 #ifndef DYNAMICOBJECT_H
 #define DYNAMICOBJECT_H
 
-#include "Lightsprint/DemoEngine/Model_3DS.h"
+#include "../Import3DS/Model_3DS.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
 #include "Lightsprint/DemoEngine/Renderer.h"
 
@@ -20,13 +20,13 @@ class DynamicObject
 {
 public:
 	static DynamicObject* create(const char* filename,float scale);
-	const de::Model_3DS& getModel();
+	const Model_3DS& getModel();
 	void render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,de::Texture* lightIndirectEnvSpecular,const de::Camera& eye,float rot);
 
 	float worldFoot[3];
 private:
 	DynamicObject();
-	de::Model_3DS model;
+	Model_3DS model;
 };
 
 #endif

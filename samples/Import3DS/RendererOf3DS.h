@@ -1,5 +1,4 @@
 // --------------------------------------------------------------------------
-// DemoEngine
 // RendererOf3DS, Renderer implementation that renders 3DS.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
@@ -8,17 +7,14 @@
 #define RENDEREROF3DS_H
 
 #include "Lightsprint/DemoEngine/Renderer.h"
-#include "Lightsprint/DemoEngine/Model_3DS.h"
-
-namespace de
-{
+#include "Model_3DS.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // RendererOf3DS - basic OpenGL renderer implementation
 
 //! OpenGL renderer of Model_3DS model.
-class RendererOf3DS : public Renderer
+class RendererOf3DS : public de::Renderer
 {
 public:
 	//! Creates renderer of model.
@@ -33,7 +29,5 @@ private:
 	bool texturedDiffuse;
 	bool texturedEmissive;
 };
-
-}; // namespace
 
 #endif
