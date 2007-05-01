@@ -111,7 +111,7 @@ struct Hit
 #else
 	real    u; // 0..side lengths, multiple of u3,v3 in grandpa triangle
 	real    v;
-	HitChannels power; // -1..1, negative energy is for dynamic shooting
+	HitChannels power; // -1..1, negative energy is for dynamic shooting. Pozor, muze byt vic nez 1, viz komentar u rayTracePhoton().
 #endif
 	void    setPower(HitChannels apower);
 	HitChannels getPower();

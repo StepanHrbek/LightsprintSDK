@@ -265,6 +265,8 @@ Factor::Factor(class Node *adestination,real apower)
 	RR_ASSERT(apower<=1);
 #endif
 #endif
+	// Power muze byt vic nez 1 uplne kdykoliv, viz komentar u rayTracePhoton().
+	//RR_ASSERT(apower<=1 || adestination->grandpa->surface->specularTransmittance>0); // power>1 may occur only on transparent surfaces
 	power=apower;
 	destination=adestination;
 }
@@ -1862,6 +1864,15 @@ Vec3 refract(Vec3 N,Vec3 I,real r)
 
 #define CHECK_HEAP //delete new char
 
+// vraci:
+//  celkove mnozstvi z difusnich povrchu ODRAZENE power (power*T1.diffuseReflectance + power*T1.specularReflectance*T2.diffuseReflectance + atd)
+//  s korektnimi materialy by to nikdy nemelo prekrocit vstupni power
+// vedlejsi efekty:
+//  do hitTriangle->hits.insert() nalozi celkove mnozstvi difusnimi povrchy PRIJATE power (power+ power*T1.specularReflectance + atd)
+//  i s korektnimi materialy muze prekrocit vstupni power
+//  obvykle jdou jednotlive kousky do ruznych trianglu, takze do jednoho trianglu se neinsertne vic nez power,
+//   ale nekdy se foton od leskleho povrchu odrazi zpet a do jednoho trianglu se muze naakumulovat vic nez power
+//   to neni chyba, velka je pouze irradiance, exitance (po vynasobeni diffuseReflectance) bude opet mala
 HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
 // side effects: inserts hits to diffuse surfaces
@@ -2199,7 +2210,8 @@ static void distributeEnergyViaFactor(Factor *factor,va_list ap)
 	Node *destination=factor->destination;
 	RR_ASSERT(destination);
 	RR_ASSERT(factor->power>=0);
-	RR_ASSERT(factor->power<=1 || factor->destination->grandpa->surface->specularTransmittance>0); // power>1 may occur only on transparent surfaces
+	// Power muze byt vic nez 1 uplne kdykoliv, viz komentar u rayTracePhoton().
+	//RR_ASSERT(factor->power<=1 || factor->destination->grandpa->surface->specularTransmittance>0); // power>1 may occur only on transparent surfaces
 	energy*=factor->power;
 	// kdyz miri nad shooterlevel, presmeruje se dolu
 	//...
@@ -2303,6 +2315,13 @@ bool Scene::setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *f
 			ff=phits->totalPower()/shots;
 			// ff muze vyjit >1 kdyz se paprsek lame v pruhlednem objektu a nekolikrat zasahne stejny triangl
 			//printf("insert %f = %f/%d * %f\n",ff*destination->grandpa->surface->diffuseReflectance,phits->totalPower(),shots,destination->grandpa->surface->diffuseReflectance);
+
+			// muze byt i hits>shots (napr. 1 shot, 2 hits, kdyz se paprsek odrazi od lesklyho/pruhlednyho povrchu a vickrat zasahne tentyz triangl)
+			// mohou ty 2 hity mit dohromady power>1?
+			// odpoved skryva rayTracePhoton():
+			//  - to co vraci by s korektnimi materialy nemelo prekrocit 1
+			//    (to ale nikoho nezajima, nikam se to nezapisuje)
+			//  - to co zapisuje do 
 		}
 		// hit powers are not multiplied by surface reflectance, it must be done here (premultiplication=loss of precision)
 #ifdef CLEAN_FACTORS
