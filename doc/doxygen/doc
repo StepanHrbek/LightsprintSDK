@@ -1491,12 +1491,17 @@ Integration of global illumination (GI) solver into your project is described in
    (scaled to 0-1 range) and read all outputs in screen colors.
    To setup this mode, call RRDynamicSolver::setScaler(RRScaler::createRgbScaler()).
    HelloRealtimeRadiosity demonstrates it.
+
  \section gunits2 Geometry units
    All sizes and positions in space are expressed in generic units,
    Lightsprint doesn't need to know if it's meter, inch or parsec.
    However, some functions have default parameter values calibrated for
    human-sized scenes specified in meters (feature sizes roughly between
    0.01 and 100 units), so using meters may give you advantage in typical scenes.
+   \n\n
+   If it's possible, existing scene adapters adapt your scene from custom
+   units to meters. (Source code of adapters is included.)
+
  \section gscale Scale
    Lightsprint libraries support scaled objects.
    \n\n
@@ -1509,32 +1514,43 @@ Integration of global illumination (GI) solver into your project is described in
    Singlesided box visible from outside transformed with scale -1
    can stay visible form the outside or become visible only from inside,
    see RRObject::createWorldSpaceObject().
+
  \section gowner Ownership
    Dynamically created objects (using new) are never adopted, ownership never changes.
    \n This means that parameters that need to be destructed are never destructed inside call,
    responsibility for object is never passed to someone else.
    When you create object (using create() etc.), always delete it when it's
    no longer needed.
+
  \section gref Reference counting
    There is no internal reference counting, so if you create collider out of mesh,
    you are not allowed to destroy mesh before destroying collider. This danger should be
    mentioned on all appropriate places.
+
  \section gfinite Finite numbers
    If not otherwise specified, all inputs must be finite numbers.
    With Inf or NaN on input, result of any operation is undefined.
+
  \section gflodoub Floats and doubles
    Library uses both floats and doubles.
    It is not allowed to break double arithmetics by modifying FPU states.
    If you use Direct3D, make sure you don't instruct it to force single precision for whole application
    which breaks double precision arithmetics in whole program and libraries.
+
  \section gnull NULL
    Although NULL is obsoleted by C++ and some discourage from using it,
    we continue using it to distinguish zeros for pointers from zeros for non-pointers.
    So if you see x=0, x is NOT a pointer.
    If you see x=NULL, x IS a pointer.
+
  \section gmatrices Matrices
    Lightsprint uses 3x4 matrices for description of object transformation.
    See RRMatrix3x4 for explanation why we found it optimal.
+
+ \section gmatrices Up vector
+   Although there is no limitation on orientation of 'up' vector,
+   all samples work with 'up' in positive Y (0,1,0) and all scene adapters
+   (source code is included) adapt scenes to 'up' in positive Y.
 
 
 

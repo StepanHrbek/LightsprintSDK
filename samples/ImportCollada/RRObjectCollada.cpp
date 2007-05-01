@@ -18,6 +18,10 @@
 // If TEXCOORD 1 channel is present, it is assigned to lightmaps,
 // otherwise automatic unwrap for lightmaps is generated.
 // You can easily tweak this setup, see TEXCOORD,0 and TEXCOORD,1.
+//
+// Internal units are automatically converted to meters.
+//
+// 'Up' vector is automatically converted to 0,1,0 (Y positive).
 
 #if 1 // 0 disables Collada support, 1 enables
 
@@ -27,6 +31,7 @@
 
 #include "FCollada.h"
 #include "FCDocument/FCDocument.h"
+#include "FCDocument/FCDAsset.h"
 #include "FCDocument/FCDEffect.h"
 #include "FCDocument/FCDEffectProfile.h"
 #include "FCDocument/FCDEffectStandard.h"
@@ -64,9 +69,6 @@
 #endif
 
 using namespace rr;
-
-#define SCALE 1 // scale vertices
-#define SWAP_YZ
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -219,16 +221,9 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 
 unsigned RRMeshCollada::getNumVertices() const
 {
+	// for simplicity, vertices are not shared between triangles
+	// however, it is not requirement, it could be changed
 	return RRMeshCollada::getNumTriangles()*3;
-}
-
-void swapAxes(RRVec3& a)
-{
-#ifdef SWAP_YZ
-	RRReal tmp = a[1];
-	a[1] = a[2];
-	a[2] = -tmp;
-#endif
 }
 
 void RRMeshCollada::getVertex(unsigned v, Vertex& out) const
@@ -237,8 +232,7 @@ void RRMeshCollada::getVertex(unsigned v, Vertex& out) const
 	RRVec3 tmp[3];
 	if(getTriangleVerticesData(mesh,FUDaeGeometryInput::POSITION,0,3,v/3,tmp,sizeof(tmp)))
 	{
-		out = tmp[v%3]*SCALE;
-		swapAxes(out);
+		out = tmp[v%3];
 	}
 	else
 	{
@@ -272,11 +266,6 @@ void RRMeshCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const
 		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"RRObjectCollada: No normals, fallback to automatic.\n"));
 		RRMesh::getTriangleNormals(t,out);
 	}
-	else
-	{
-		for(unsigned i=0;i<3;i++)
-			swapAxes(out.norm[i]);
-	}
 }
 
 void RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out) const
@@ -301,7 +290,7 @@ void RRMeshCollada::getTriangleMapping(unsigned t, TriangleMapping& out) const
 class RRObjectCollada : public RRObject
 {
 public:
-	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider);
+	RRObjectCollada(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, const RRCollider* acollider, float scale, bool swapYZ);
 	RRObjectIllumination*      getIllumination();
 	virtual ~RRObjectCollada();
 
@@ -341,7 +330,7 @@ private:
 	RRObjectIllumination*      illumination;
 };
 
-RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider)
+RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider, float scale, bool swapYZ)
 {
 	node = anode;
 	geometryInstance = ageometryInstance;
@@ -351,7 +340,23 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryIns
 	illumination = new rr::RRObjectIllumination(collider->getMesh()->getNumVertices());
 
 	// create transformation matrices
-	const FMMatrix44 world = node->CalculateWorldTransform();
+	FMMatrix44 world = node->CalculateWorldTransform();
+	if(swapYZ)
+	{
+		// although it is not requirement,
+		//  it makes things simpler if all scenes have the same 'up' vector
+		// Lightsprint uses 0,1,0 (positive Y) as up 
+		// scenes from 3DS MAX are transformed here:
+		for(unsigned j=0;j<4;j++)
+		{
+			float tmp = world[j][1];
+			world[j][1] = world[j][2];
+			world[j][2] = -tmp;
+		}
+	}
+	for(unsigned i=0;i<3;i++)
+		for(unsigned j=0;j<4;j++)
+			world[j][i] *= scale;
 	for(unsigned i=0;i<3;i++)
 		for(unsigned j=0;j<4;j++)
 			worldMatrix.m[i][j] = world.m[j][i];
@@ -677,8 +682,8 @@ public:
 
 private:
 	RRCollider*                newColliderCached(const FCDGeometryMesh* mesh);
-	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance);
-	void                       addNode(const FCDSceneNode* node);
+	RRObjectCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, float scale, bool swapYZ);
+	void                       addNode(const FCDSceneNode* node, float scale, bool swapYZ);
 
 	// collider and mesh cache, for instancing
 	// every object is cached exactly once, so destruction is simple,
@@ -730,7 +735,7 @@ RRCollider* ObjectsFromFCollada::newColliderCached(const FCDGeometryMesh* mesh)
 
 // Creates new RRObject from FCDEntityInstance.
 // Always creates, no caching (only internal caching of colliders).
-RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance)
+RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance, float scale, bool swapYZ)
 {
 	if(!geometryInstance)
 	{
@@ -751,11 +756,11 @@ RRObjectCollada* ObjectsFromFCollada::newObject(const FCDSceneNode* node, const 
 	{
 		return NULL;
 	}
-	return new RRObjectCollada(node,geometryInstance,collider);
+	return new RRObjectCollada(node,geometryInstance,collider,scale,swapYZ);
 }
 
 // Adds all instances from node and his subnodes to 'objects'.
-void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
+void ObjectsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swapYZ)
 {
 	// add instances from node
 	for(size_t i=0;i<node->GetInstanceCount();i++)
@@ -764,7 +769,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
 		if(entityInstance->GetEntityType()==FCDEntity::GEOMETRY)
 		{
 			const FCDGeometryInstance* geometryInstance = static_cast<const FCDGeometryInstance*>(entityInstance);
-			RRObjectCollada* object = newObject(node,geometryInstance);
+			RRObjectCollada* object = newObject(node,geometryInstance,scale,swapYZ);
 			if(object)
 			{
 				push_back(RRIlluminatedObject(object,object->getIllumination()));
@@ -777,7 +782,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node)
 		const FCDSceneNode* child = node->GetChild(i);
 		if(child)
 		{
-			addNode(child);
+			addNode(child, scale, swapYZ);
 		}
 	}
 }
@@ -787,16 +792,16 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document)
 	if(!document)
 		return;
 
-	/*/ normalize geometry
+	// normalize geometry
 	bool swapYZ = false;
 	RRReal scale = 1;
 	FCDAsset* asset = document->GetAsset();
 	if(asset)
 	{
-	scale = asset->GetUnitConversionFactor();
-	FMVector3 up = asset->GetUpAxis();
-	swapYZ = up==FMVector3(0,0,1);
-	}*/
+		scale = asset->GetUnitConversionFactor();
+		FMVector3 up = asset->GetUpAxis();
+		swapYZ = up==FMVector3(0,0,1);
+	}
 
 	// triangulate all polygons
 	FCDGeometryLibrary* geometryLibrary = document->GetGeometryLibrary();
@@ -810,7 +815,7 @@ ObjectsFromFCollada::ObjectsFromFCollada(FCDocument* document)
 
 	// import data
 	const FCDSceneNode* root = document->GetVisualSceneRoot();
-	addNode(root);
+	addNode(root, scale, swapYZ);
 }
 
 ObjectsFromFCollada::~ObjectsFromFCollada()
@@ -818,7 +823,8 @@ ObjectsFromFCollada::~ObjectsFromFCollada()
 	// delete objects
 	for(unsigned i=0;i<size();i++)
 	{
-		// no need to delete illumination separately, we created it as part of object
+		// no need to delete illumination separately,
+		//  object created it, object deletes it
 		//delete (*this)[i].illumination;
 		delete (*this)[i].object;
 	}
