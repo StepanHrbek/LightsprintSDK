@@ -182,6 +182,7 @@ public:
 	Vector rot;				// The angles to rotate the model
 	float scale;			// The size you want the model scaled to
 	bool visible;			// True: the model gets rendered
+	bool smoothAll;         // True: average normals of all vertices on the same position
 	Vertex localCenter;
 	float localMinY;
 	bool Load(const char *name, float scale); // Loads a model

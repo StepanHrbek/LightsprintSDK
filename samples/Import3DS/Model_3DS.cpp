@@ -1149,16 +1149,35 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
 		n.y = (u[2]*v[0] - u[0]*v[2]);
 		n.z = (u[0]*v[1] - u[1]*v[0]);
 
-		// Add this normal to its verts' normals
-		Objects[objindex].Normals[vertA*3]   += n.x;
-		Objects[objindex].Normals[vertA*3+1] += n.y;
-		Objects[objindex].Normals[vertA*3+2] += n.z;
-		Objects[objindex].Normals[vertB*3]   += n.x;
-		Objects[objindex].Normals[vertB*3+1] += n.y;
-		Objects[objindex].Normals[vertB*3+2] += n.z;
-		Objects[objindex].Normals[vertC*3]   += n.x;
-		Objects[objindex].Normals[vertC*3+1] += n.y;
-		Objects[objindex].Normals[vertC*3+2] += n.z;
+		if(!smoothAll)
+		{
+			// Add this normal to its verts' normals
+			Objects[objindex].Normals[vertA*3]   += n.x;
+			Objects[objindex].Normals[vertA*3+1] += n.y;
+			Objects[objindex].Normals[vertA*3+2] += n.z;
+			Objects[objindex].Normals[vertB*3]   += n.x;
+			Objects[objindex].Normals[vertB*3+1] += n.y;
+			Objects[objindex].Normals[vertB*3+2] += n.z;
+			Objects[objindex].Normals[vertC*3]   += n.x;
+			Objects[objindex].Normals[vertC*3+1] += n.y;
+			Objects[objindex].Normals[vertC*3+2] += n.z;
+		}
+		else
+		{
+			// smooth all vertices in the same position
+			// warning: slow for big scenes
+			for(unsigned k=0;k<3;k++)
+			{
+				unsigned v = k?((k>1)?vertC:vertB):vertA;
+				for(int j=0;j<Objects[objindex].numVerts;j++)
+					if(!memcmp(&Objects[objindex].Vertexes[j*3],&Objects[objindex].Vertexes[v*3],3*sizeof(float)))
+					{
+						Objects[objindex].Normals[j*3]   += n.x;
+						Objects[objindex].Normals[j*3+1] += n.y;
+						Objects[objindex].Normals[j*3+2] += n.z;
+					}
+			}
+		}
 	}
 
 	// Store our current file position

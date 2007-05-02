@@ -18,6 +18,7 @@ DynamicObject* DynamicObject::create(const char* filename,float scale,de::UberPr
 {
 	DynamicObject* d = new DynamicObject();
 	d->model = new Model_3DS;
+	//d->model->smoothAll = true; // use for characters from lowpolygon3d.com
 	if(d->model->Load(filename,scale) && d->model->numObjects)
 	{
 		d->rendererWithoutCache = new RendererOf3DS(d->model,true,amaterial.MATERIAL_DIFFUSE_MAP,amaterial.MATERIAL_EMISSIVE_MAP);
@@ -62,7 +63,8 @@ void DynamicObject::updatePosition()
 	glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
 	glRotatef(rotYZ[1],0,0,1);
 	glRotatef(rotYZ[0],0,1,0);
-	glTranslatef(-model->localCenter.x,-model->localMinY,-model->localCenter.z);
+	if(model)
+		glTranslatef(-model->localCenter.x,-model->localMinY,-model->localCenter.z);
 	glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
 	glPopMatrix();
 }
