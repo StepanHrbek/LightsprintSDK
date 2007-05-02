@@ -20,7 +20,7 @@ namespace de
 		for(unsigned i=0;i<numInstancesMax;i++)
 			shadowMaps[i] = Texture::createShadowmap(shadowmapSize,shadowmapSize);
 		areaType = 0;
-		areaSize = 0.3f;
+		areaSize = 0.2f;
 	}
 
 	AreaLight::~AreaLight()

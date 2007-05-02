@@ -6,7 +6,6 @@
 #ifndef DYNAMICOBJECT_H
 #define DYNAMICOBJECT_H
 
-#include "../Import3DS/Model_3DS.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
 #include "Lightsprint/DemoEngine/Renderer.h"
 #include "Lightsprint/RRGPUOpenGL.h"
@@ -23,10 +22,7 @@ public:
 	//! Creates dynamic object from .3ds file.
 	static DynamicObject* create(const char* filename,float scale,de::UberProgramSetup amaterial,unsigned aspecularCubeSize);
 
-	//! Returns reference to our .3ds model.
-	const Model_3DS& getModel();
-
-	//! Updates object's position according to worldFoot position and rot rotation.
+	//! Updates object's position according to worldFoot position and rotYZ rotation.
 	//! To be called each time object moves/rotates.
 	void updatePosition();
 
@@ -42,8 +38,9 @@ public:
 
 	~DynamicObject();
 
-	// object's interface for movement, freely changeable from outside
-	rr::RRVec3 worldFoot;
+	// Object's interface for movement, freely changeable from outside.
+	// Your changes are registered when you call updatePosition().
+	rr::RRVec3 worldFoot; // position of object's foot in world
 	rr::RRVec2 rotYZ; // y is rotated first, then z
 	bool visible;
 
@@ -53,7 +50,7 @@ public:
 
 protected:
 	DynamicObject();
-	Model_3DS model;
+	class Model_3DS* model;
 	de::UberProgramSetup material;
 	unsigned specularCubeSize;
 	de::Renderer* rendererWithoutCache;

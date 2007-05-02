@@ -13,22 +13,17 @@
 DynamicObject* DynamicObject::create(const char* filename,float scale)
 {
 	DynamicObject* d = new DynamicObject();
-	if(d->model.Load(filename,scale) && d->getModel().numObjects)
+	if(d->model.Load(filename,scale) && d->model.numObjects)
 	{
 		return d;
 	}
-	if(!d->getModel().numObjects) printf("Model %s contains no objects.\n",filename);
+	if(!d->model.numObjects) printf("Model %s contains no objects.\n",filename);
 	delete d;
 	return NULL;
 }
 
 DynamicObject::DynamicObject()
 {
-}
-
-const Model_3DS& DynamicObject::getModel()
-{
-	return model;
 }
 
 void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,de::Texture* lightIndirectEnvSpecular,const de::Camera& eye,float rot)
@@ -56,7 +51,7 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 	glLoadIdentity();
 	glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
 	glRotatef(rot,0,1,0);
-	glTranslatef(-getModel().localCenter.x,-getModel().localMinY,-getModel().localCenter.z);
+	glTranslatef(-model.localCenter.x,-model.localMinY,-model.localCenter.z);
 	glGetFloatv(GL_MODELVIEW_MATRIX,m);
 	glPopMatrix();
 	program->sendUniform("worldMatrix",m,false,4);

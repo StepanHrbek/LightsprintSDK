@@ -7,6 +7,7 @@
 #include "Lightsprint/RRGPUOpenGL.h"
 #include "DynamicObject.h"
 #include "../Import3DS/RendererOf3DS.h"
+#include "../Import3DS/Model_3DS.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -16,21 +17,23 @@
 DynamicObject* DynamicObject::create(const char* filename,float scale,de::UberProgramSetup amaterial,unsigned aspecularCubeSize)
 {
 	DynamicObject* d = new DynamicObject();
-	if(d->model.Load(filename,scale) && d->getModel().numObjects)
+	d->model = new Model_3DS;
+	if(d->model->Load(filename,scale) && d->model->numObjects)
 	{
-		d->rendererWithoutCache = new RendererOf3DS(&d->model,true,amaterial.MATERIAL_DIFFUSE_MAP,amaterial.MATERIAL_EMISSIVE_MAP);
+		d->rendererWithoutCache = new RendererOf3DS(d->model,true,amaterial.MATERIAL_DIFFUSE_MAP,amaterial.MATERIAL_EMISSIVE_MAP);
 		d->rendererCached = d->rendererWithoutCache->createDisplayList();
 		d->material = amaterial;
 		d->specularCubeSize = aspecularCubeSize;
 		return d;
 	}
-	if(!d->getModel().numObjects) printf("Model %s contains no objects.\n",filename);
+	if(!d->model->numObjects) printf("Model %s contains no objects.\n",filename);
 	delete d;
 	return NULL;
 }
 
 DynamicObject::DynamicObject()
 {
+	model = NULL;
 	rendererWithoutCache = NULL;
 	rendererCached = NULL;
 	specularCubeSize = 0;
@@ -44,15 +47,11 @@ DynamicObject::DynamicObject()
 
 DynamicObject::~DynamicObject()
 {
+	delete model;
 	delete specularMap;
 	delete diffuseMap;
 	delete rendererCached;
 	delete rendererWithoutCache;
-}
-
-const Model_3DS& DynamicObject::getModel()
-{
-	return model;
 }
 
 void DynamicObject::updatePosition()
@@ -63,7 +62,7 @@ void DynamicObject::updatePosition()
 	glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
 	glRotatef(rotYZ[1],0,0,1);
 	glRotatef(rotYZ[0],0,1,0);
-	glTranslatef(-getModel().localCenter.x,-getModel().localMinY,-getModel().localCenter.z);
+	glTranslatef(-model->localCenter.x,-model->localMinY,-model->localCenter.z);
 	glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
 	glPopMatrix();
 }
@@ -77,9 +76,9 @@ void DynamicObject::updateIllumination(rr::RRDynamicSolver* solver)
 		specularMap = rr_gl::RRDynamicSolverGL::createIlluminationEnvironmentMap();
 	// compute object's center in world coordinates
 	rr::RRVec3 worldCenter = rr::RRVec3(
-		getModel().localCenter.x*worldMatrix[0]+getModel().localCenter.y*worldMatrix[4]+getModel().localCenter.z*worldMatrix[ 8]+worldMatrix[12],
-		getModel().localCenter.x*worldMatrix[1]+getModel().localCenter.y*worldMatrix[5]+getModel().localCenter.z*worldMatrix[ 9]+worldMatrix[13],
-		getModel().localCenter.x*worldMatrix[2]+getModel().localCenter.y*worldMatrix[6]+getModel().localCenter.z*worldMatrix[10]+worldMatrix[14]);
+		model->localCenter.x*worldMatrix[0]+model->localCenter.y*worldMatrix[4]+model->localCenter.z*worldMatrix[ 8]+worldMatrix[12],
+		model->localCenter.x*worldMatrix[1]+model->localCenter.y*worldMatrix[5]+model->localCenter.z*worldMatrix[ 9]+worldMatrix[13],
+		model->localCenter.x*worldMatrix[2]+model->localCenter.y*worldMatrix[6]+model->localCenter.z*worldMatrix[10]+worldMatrix[14]);
 	// update envmaps
 	solver->updateEnvironmentMaps(worldCenter,MAX(16,specularCubeSize),
 		material.MATERIAL_SPECULAR?specularCubeSize:0, material.MATERIAL_SPECULAR?specularMap:NULL,
@@ -139,5 +138,5 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 	}
 	// render
 	rendererCached->render(); // cached inside display list
-	//model.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL); // non cached
+	//model->Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL); // non cached
 }

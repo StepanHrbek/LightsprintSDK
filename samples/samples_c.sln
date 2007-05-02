@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark", "BunnyBenchmark\BunnyBenchmark.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider", "HelloCollider\HelloCollider.vcproj", "{E2577A53-4812-1091-E37F-794832BA1DFE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh", "HelloMesh\HelloMesh.vcproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug DLL|Win32 = Debug DLL|Win32
+		Release DLL|Win32 = Release DLL|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release DLL|Win32.Build.0 = Release DLL|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
