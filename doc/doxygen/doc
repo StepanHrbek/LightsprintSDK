@@ -260,8 +260,8 @@ Integration of global illumination (GI) solver into your project is described in
 \page integration_milestone_1 Milestone 1: GI in your scenes
 
  You can immediately render realtime global illumination in your 3d scenes
- if you convert them to .3ds format
- and load them in HelloRealtimeRadiosity (or Lightmaps) sample.
+ if you convert them to .DAE (Collada) or .3DS format
+ and load them in Lightmaps or HelloRealtimeRadiosity sample.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Recommended approach:
@@ -304,8 +304,8 @@ Integration of global illumination (GI) solver into your project is described in
 
 \page integration_milestone_2 Milestone 2: GI in your scene graph
 
-  If you prefer other data source to .3ds files, next milestone is
-  switch from .3ds files to your scene graph.
+  If you prefer other data source to Collada or .3ds files, next milestone is
+  switch from Collada/3ds files to your scene graph in memory.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Recommended approach:
@@ -567,7 +567,7 @@ Integration of global illumination (GI) solver into your project is described in
  in FCollada document.
 
  RRMesh and RRObject interfaces are implemented in two separated classes,
- and one RRMesh is shared by multiple RRObject-s, when scene contains instances.
+ and one RRMesh is shared by multiple RRObject-s, if scene contains instances.
 
  \section import_new New importer
 
@@ -1500,7 +1500,7 @@ Integration of global illumination (GI) solver into your project is described in
    0.01 and 100 units), so using meters may give you advantage in typical scenes.
    \n\n
    If it's possible, existing scene adapters adapt your scene from custom
-   units to meters. (Source code of adapters is included.)
+   units to meters. (Source code of adapters is in samples/Import*)
 
  \section gscale Scale
    Lightsprint libraries support scaled objects.
@@ -1547,10 +1547,11 @@ Integration of global illumination (GI) solver into your project is described in
    Lightsprint uses 3x4 matrices for description of object transformation.
    See RRMatrix3x4 for explanation why we found it optimal.
 
- \section gmatrices Up vector
+ \section gup Up vector
    Although there is no limitation on orientation of 'up' vector,
    all samples work with 'up' in positive Y (0,1,0) and all scene adapters
-   (source code is included) adapt scenes to 'up' in positive Y.
+   adapt scenes to 'up' in positive Y.
+   Source code of adapters is in samples/Import*, so you can easily change up.
 
 
 
@@ -1638,7 +1639,7 @@ Integration of global illumination (GI) solver into your project is described in
  - communicates completely in custom units, e.g. screen colors
 
  Samples HelloRealtimeRadiosity and Lightmaps show the result of integration,
- interactive .3ds scene viewer with global illumination immediately responding
+ interactive Collada/.3ds scene viewer with global illumination immediately responding
  to object and light movements.
 
 

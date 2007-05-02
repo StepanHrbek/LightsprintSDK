@@ -12,7 +12,7 @@
 //   to create any type of textures, including direct/indirect/global illumination.
 // - Use setEnvironment() and capture illumination from skybox.
 // - Use setLights() and capture illumination from arbitrary 
-//   point/spot/dir/area/programmable lights.
+//   point/spot/dir/programmable lights.
 // - Tweak materials and capture illumination from emissive materials.
 // - Everything is HDR internally, custom scale externally.
 //   Tweak setScaler() and/or RRIlluminationPixelBuffer
