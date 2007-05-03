@@ -45,7 +45,7 @@
 // --------------------------------------------------------------------------
 
 #define COLLADA // load Collada .DAE scene instead of .3DS scene
-#define WATER  // render water with reflection
+//#define WATER  // render water with reflection
 
 #ifdef COLLADA
 #include "FCollada.h" // must be included before demoengine because of fcollada SAFE_DELETE macro

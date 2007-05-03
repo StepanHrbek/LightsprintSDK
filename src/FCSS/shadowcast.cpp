@@ -4,7 +4,7 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
-#define LIGHTMAP_QUALITY           200
+#define LIGHTMAP_QUALITY           1000
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
 //#define RENDER_OPTIMIZED
@@ -245,7 +245,7 @@ void init_gl_resources()
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
-	water = new de::Water("shaders/",false,false);
+	water = new de::Water("shaders/",true,false);
 	skyRenderer = new de::TextureRenderer("shaders/");
 
 	if(!ambientProgram)
@@ -1763,7 +1763,7 @@ void mainMenu(int item)
 
 				static unsigned obj=12;
 				if(!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
-					level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512/2,512/2);
+					level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
 				level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
 
 				// stop updating maps in realtime, stay with what we computed here
