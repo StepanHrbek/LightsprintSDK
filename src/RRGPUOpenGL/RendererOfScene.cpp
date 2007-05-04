@@ -150,7 +150,7 @@ void RendererOfRRDynamicSolver::render()
 		if(textureRenderer && params.solver->getEnvironment())
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(NULL);
+			textureRenderer->renderEnvironmentBegin(params.brightness);
 			params.solver->getEnvironment()->bindTexture();
 			glBegin(GL_POLYGON);
 			glVertex3f(-1,-1,1);
@@ -259,7 +259,7 @@ void RendererOfOriginalScene::render()
 		if(textureRenderer && params.solver->getEnvironment())
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(NULL);
+			textureRenderer->renderEnvironmentBegin(params.brightness);
 			params.solver->getEnvironment()->bindTexture();
 			glBegin(GL_POLYGON);
 			glVertex3f(-1,-1,1);
