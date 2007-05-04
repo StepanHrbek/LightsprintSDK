@@ -306,6 +306,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
 		params.availableIndirectIlluminationMap->bindTexture();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 	// set 2d_position texcoords
 	if(params.renderedChannels.FORCE_2D_POSITION)

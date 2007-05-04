@@ -21,6 +21,8 @@
 // - Everything is HDR internally, custom scale externally.
 //   Tweak setScaler() and/or RRIlluminationPixelBuffer
 //   to set your scale and get HDR textures.
+// - Tweak map resolution: search for newPixelBuffer.
+// - Tweak map quality: search for quality =
 //
 // Controls:
 //  mouse = look around
@@ -39,8 +41,6 @@
 // - map quality depends on unwrap quality,
 //   make sure you have good unwrap in your scenes
 //   (save it as second TEXCOORD in Collada document, see RRObjectCollada.cpp)
-// - tweak map quality: search for updateLightmaps
-// - tweak map resolution: search for newPixelBuffer
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // Models by Raist, orillionbeta, atp creations
