@@ -19,12 +19,14 @@ HelloDemoEngine
 
 HelloRealtimeRadiosity
 - shows how to render realtime global illumination in scene with dynamic objects and light
-- shows feeding 'external' 3ds renderer
+- shows feeding external 3ds renderer
+- loads 3ds scene
 
 Lightmaps
-- precalculates lightmaps in scene with dynamic objects and light
+- precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
 - has realtime global illumination preview
 - uses internal renderer
+- loads Collada scene
 
 Water
 - simple use of DemoEngine, renders skybox and water

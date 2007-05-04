@@ -76,6 +76,8 @@ namespace rr
 		//! distance attenuation is hardly visible on our small scale.
 		//! \param direction
 		//!  Direction of light in world space.
+		//! \param irradiance
+		//!  Irradiance at receiver, assuming it is oriented towards light.
 		static RRLight* createDirectionalLight(const RRVec3& direction, const RRVec3& irradiance);
 
 		//! Creates omnidirectional point light with physically correct distance attenuation.

@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // Lightmaps sample
 //
-// This is a viewer of 3DS MAX .3DS and Collada .DAE scenes
+// This is a viewer of Collada .DAE scenes
 // with realtime global illumination from 1 area light
 // and ability to precompute/render/save/load
 // higher quality texture or vertex based illumination
@@ -39,8 +39,6 @@
 // - map quality depends on unwrap quality,
 //   make sure you have good unwrap in your scenes
 //   (save it as second TEXCOORD in Collada document, see RRObjectCollada.cpp)
-// - comment out #define COLLADA to switch from COLLADA to 3DS
-//   (3ds doesn't have unwrap -> bad map quality)
 // - tweak map quality: search for updateLightmaps
 // - tweak map resolution: search for newPixelBuffer
 //
@@ -48,14 +46,11 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
-#define COLLADA // load Collada .DAE scene instead of .3DS scene
 //#define WATER  // render water with reflection
 
-#ifdef COLLADA
 #include "FCollada.h" // must be included before demoengine because of fcollada SAFE_DELETE macro
 #include "FCDocument/FCDocument.h"
 #include "../../samples/ImportCollada/RRObjectCollada.h"
-#endif
 
 #include <cassert>
 #include <cmath>
@@ -66,7 +61,6 @@
 #include "Lightsprint/DemoEngine/Timer.h"
 #include "Lightsprint/DemoEngine/Water.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
-#include "../../samples/Import3DS/RRObject3DS.h"
 #include "../HelloRealtimeRadiosity/DynamicObject.h"
 
 
@@ -89,11 +83,6 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-#ifdef COLLADA
-FCDocument*             collada;
-#else
-de::Model_3DS           m3ds;
-#endif
 de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,60.0};
 de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*          areaLight = NULL;
@@ -206,7 +195,7 @@ protected:
 		while(res<2048 && res<sizeFactor*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		return createIlluminationPixelBuffer(res,res);
 	}
-	// skipped, material properties were already readen from .3ds and never change
+	// skipped, material properties were already readen from .dae and never change
 	virtual void detectMaterials() {}
 	// detects direct illumination irradiances on all faces in scene
 	virtual bool detectDirectIllumination()
@@ -593,8 +582,7 @@ int main(int argc, char **argv)
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
-#ifdef COLLADA
-	collada = FCollada::NewTopDocument();
+	FCDocument* collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
 	collada->LoadFromFile("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
 	if(!errorHandler.IsSuccessful())
@@ -604,11 +592,6 @@ int main(int argc, char **argv)
 	}
 	solver->setObjects(*adaptObjectsFromFCollada(collada),NULL);
 	solver->setLights(*adaptLightsFromFCollada(collada));
-#else
-	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
-		error("",false);
-	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
-#endif
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(solver->loadIlluminationEnvironmentMap("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");

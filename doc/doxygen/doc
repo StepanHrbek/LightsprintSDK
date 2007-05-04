@@ -252,12 +252,14 @@ Integration of global illumination (GI) solver into your project is described in
 
  - <b> \subpage integration_milestone_3 </b>
 
+Advanced:
+
  - <b> \subpage integration_milestone_4 </b>
 
 
 
 
-\page integration_milestone_1 Milestone 1: GI in your scenes
+\page integration_milestone_1 Level 1: GI in your scenes
 
  You can immediately render realtime global illumination in your 3d scenes
  if you convert them to .DAE (Collada) or .3DS format
@@ -268,14 +270,14 @@ Integration of global illumination (GI) solver into your project is described in
  </td></tr></table>
 
   - If conversion tool exists,
-    convert one of your scenes to .3ds format
-    and load it into HelloRealtimeRadiosity (or Lightmaps).
+    convert one of your scenes to Collada (.dae) format
+    and load it into Lightmaps (or load .3ds in HelloRealtimeRadiosity).
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
  </td></tr></table>
 
-  - HelloRealtimeRadiosity application is
+  - Lightmaps/HelloRealtimeRadiosity application is
     built on top of purely numerical LightsprintCore and OpenGL 2.0 based LightsprintGL and DemoEngine.
   \image html Integration1.png
 
@@ -283,9 +285,9 @@ Integration of global illumination (GI) solver into your project is described in
  Steps:
  </td></tr></table>
 
-  - <b> \subpage integration_step_1 </b> (necessary even if you don't convert to .3ds)
-  - Convert scenes to .3ds with 1m units and no transformations.
-  - Change name of scene in HelloRealtimeRadiosity.cpp, so it loads your scene.
+  - <b> \subpage integration_step_1 </b> (important for all Lightsprint use cases, not only for this sample)
+  - Convert scenes to Collada .dae.
+  - Change name of scene in Lightmaps.cpp, so it loads your scene.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -302,41 +304,40 @@ Integration of global illumination (GI) solver into your project is described in
 
 
 
-\page integration_milestone_2 Milestone 2: GI in your scene graph
+\page integration_milestone_2 Level 2: GI in your scene graph
 
-  If you prefer other data source to Collada or .3ds files, next milestone is
+  If you prefer other data source to Collada or .3ds files, next level is
   switch from Collada/3ds files to your scene graph in memory.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Recommended approach:
  </td></tr></table>
 
-  - Modify HelloRealtimeRadiosity to render your scenes in their native format.
+  - Modify Lightmaps to render your scenes in their native format.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
  </td></tr></table>
 
-  - Modified HelloRealtimeRadiosity newly depends on your scene loading code.
+  - Modified Lightmaps newly depends on your scene loading code.
   \image html Integration2.png
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Steps:
  </td></tr></table>
 
-  - Open HelloRealtimeRadiosity project
-  - Copy RRObject3DS.* to RRObjectCustom.* and add it to the project
-  - Delete \#include "Model_3DS.h" from RRObjectCustom.h
-  - Build reports errors on all references to 3ds,
-    change code so it works with your engine's 3d model rather than with 3ds.
-    Replace all references to 3ds with your custom format.
+  - Open Lightmaps project
+  - Copy RRObjectCollada.* to RRObjectCustom.* and add it to the project
+  - Delete all FCollada \#includes from RRObjectCustom.h
+  - Build reports errors on all references to FCollada,
+    change code so it works with your engine's 3d model rather than with FCollada.
+    Replace all references to FCollada with your custom format.
     For more details, see
     - comments in RRObjectCustom source code
     - <b> \subpage integration_step_2 </b>
     - <b> \subpage integration_step_3 </b>
     - interfaces of RRMesh and RRObject you implement
   - If it works, you see your scene with two dynamic (still .3ds) objects.
-    If you don't use 1m units, your scene could be too big/small, try scaling it.
   - Optional final step: do the same changes to DynamicObject,
     so it works with your format, rather than with .3ds.
 
@@ -348,7 +349,7 @@ Integration of global illumination (GI) solver into your project is described in
 
 
 
-\page integration_milestone_3 Milestone 3: GI in your renderer
+\page integration_milestone_3 Level 3: GI in your renderer
 
   If you prefer other OpenGL renderer to DemoEngine, switch to renderer of your choice.
 
@@ -388,7 +389,7 @@ Integration of global illumination (GI) solver into your project is described in
 
 
 
-\page integration_milestone_4 Milestone 4: Custom GPU access
+\page integration_milestone_4 Level 4: Custom GPU access
 
   If you want to use your renderer, but it is not OpenGL based,
   write custom GPU access routines as a replacement for LightsprintGL.
