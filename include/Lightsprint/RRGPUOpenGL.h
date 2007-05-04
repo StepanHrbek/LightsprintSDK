@@ -85,6 +85,16 @@ namespace rr_gl
 		//!  realtime light sources (point/spot/dir/area lights) coming to object's surface.
 		bool updateLightmap_GPU(unsigned objectNumber, rr::RRIlluminationPixelBuffer* lightmap);
 
+		//! Updates vertex buffers with illumination stored in lightmaps, both in given layer.
+		//
+		//! \param layerNumber
+		//!  Both vertex and pixel buffers are taken from RRDynamicSolver::getIlluminaion(layerNumber).
+		//! \param createMissingBuffers
+		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
+		//! \return
+		//!  Number of vertex buffers updated.
+		unsigned updateVertexBuffersFromLightmaps(unsigned layerNumber, bool createMissingBuffers);
+
 
 		//! Creates cube texture for indirect illumination storage.
 		//! Used for realtime or precomputed global illumination of dynamic objects.

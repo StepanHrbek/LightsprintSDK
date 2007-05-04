@@ -2,14 +2,18 @@
 // Lightmaps sample
 //
 // This is a viewer of 3DS MAX .3DS and Collada .DAE scenes
-// with realtime global illumination
+// with realtime global illumination from 1 area light
 // and ability to precompute/render/save/load
-// higher quality texture based illumination.
+// higher quality texture or vertex based illumination
+// from
+// - skybox
+// - arbitrary point/spot/dir lights
+// - 1 realtime area light
 //
 // Unlimited options:
 // - Ambient maps (indirect illumination) are precomputed here,
 //   but you can tweak parameters of updateLightmaps()
-//   to create any type of textures, including direct/indirect/global illumination.
+//   to create any type of result, including direct/indirect/global illumination.
 // - Use setEnvironment() and capture illumination from skybox.
 // - Use setLights() and capture illumination from arbitrary 
 //   point/spot/dir/programmable lights.
@@ -22,11 +26,14 @@
 //  mouse = look around
 //  arrows = move around
 //  left button = switch between camera and light
-//  spacebar = toggle between realtime vertex ambient and static ambient maps
+//  spacebar = toggle realtime vertex ambient and static ambient maps
 //  p = Precompute higher quality static maps
 //      alt-tab to console to see progress (takes several minutes)
 //  s = Save maps to disk (alt-tab to console to see filenames)
 //  l = Load maps from disk, stop realtime global illumination
+//  v = toggle precomputed per-vertex and per-pixel
+//  +-= change brightness
+//  */= change contrast
 //
 // Remarks:
 // - comment out #define COLLADA to switch from COLLADA to 3DS
@@ -107,7 +114,10 @@ float                   speedForward = 0;
 float                   speedBack = 0;
 float                   speedRight = 0;
 float                   speedLeft = 0;
+bool                    realtimeIllumination = true;
 bool                    ambientMapsRender = false;
+float                   brightness[4] = {2,2,2,2};
+float                   gamma = 1;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -117,7 +127,8 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,areaLight,lightDirectMap);
-	rendererOfScene->useOriginalScene(0);
+	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
+	rendererOfScene->setBrightnessGamma(brightness,gamma);
 	rendererOfScene->render();
 
 	// render dynamic objects
@@ -142,7 +153,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			robot->updateIllumination(solver);
-		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,NULL,1);
+		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,brightness,gamma);
 	}
 	if(potato)
 	{
@@ -151,7 +162,7 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 		potato->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			potato->updateIllumination(solver);
-		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,NULL,1);
+		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,brightness,gamma);
 	}
 }
 
@@ -255,9 +266,28 @@ void keyboard(unsigned char c, int x, int y)
 {
 	switch (c)
 	{
+		case '+':
+			for(unsigned i=0;i<4;i++) brightness[i] *= 1.2;
+			break;
+		case '-':
+			for(unsigned i=0;i<4;i++) brightness[i] /= 1.2;
+			break;
+		case '*':
+			gamma *= 1.2;
+			break;
+		case '/':
+			gamma /= 1.2;
+			break;
+
 		case ' ':
-			// toggle vertex based vs ambient map based render
+			// toggle realtime vertex vs precomputed map ambient
+			realtimeIllumination = !realtimeIllumination;
+			ambientMapsRender = !realtimeIllumination;
+			break;
+		case 'v':
+			// toggle precomputed vertex vs precomputed map ambient
 			ambientMapsRender = !ambientMapsRender;
+			realtimeIllumination = false;
 			break;
 
 		case 'p':
@@ -285,7 +315,7 @@ void keyboard(unsigned char c, int x, int y)
 
 				// 2. objects
 				//  a) calculate whole scene at once
-				solver->updateLightmaps(0,true,&paramsDirect,&paramsIndirect);
+				solver->updateLightmaps(1,true,&paramsDirect,&paramsIndirect);
 				//  b) calculate only one object
 				//static unsigned obj=0;
 				//if(!solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
@@ -293,8 +323,12 @@ void keyboard(unsigned char c, int x, int y)
 				//solver->updateLightmap(obj,solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
 				//++obj%=solver->getNumObjects();
 
+				// copy values from ambient maps to vertex buffers
+				solver->updateVertexBuffersFromLightmaps(1,true);
+
 				// start rendering computed maps
 				ambientMapsRender = true;
+				realtimeIllumination = false;
 				modeMovingEye = true;
 				break;
 			}
@@ -307,7 +341,7 @@ void keyboard(unsigned char c, int x, int y)
 				// save all ambient maps (static objects)
 				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
 				{
-					rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getLayer(0)->pixelBuffer;
+					rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getLayer(1)->pixelBuffer;
 					if(map)
 					{
 						sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
@@ -328,7 +362,7 @@ void keyboard(unsigned char c, int x, int y)
 				for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
 				{
 					sprintf(filename,"../../data/export/cap%02d_statobj%d.png",captureIndex,objectIndex);
-					rr::RRObjectIllumination::Layer* illum = solver->getIllumination(objectIndex)->getLayer(0);
+					rr::RRObjectIllumination::Layer* illum = solver->getIllumination(objectIndex)->getLayer(1);
 					rr::RRIlluminationPixelBuffer* loaded = solver->loadIlluminationPixelBuffer(filename);
 					printf(loaded?"Loaded %s.\n":"Error: Failed to load %s.\n",filename);
 					if(loaded)
@@ -339,6 +373,7 @@ void keyboard(unsigned char c, int x, int y)
 				}
 				// start rendering loaded maps
 				ambientMapsRender = true;
+				realtimeIllumination = false;
 				modeMovingEye = true;
 				break;
 			}
@@ -400,7 +435,7 @@ void display(void)
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
 	// update vertex color buffers if they need it
-	if(!ambientMapsRender)
+	if(realtimeIllumination)
 	{
 		static unsigned solutionVersion = 0;
 		if(solver->getSolutionVersion()!=solutionVersion)
@@ -418,6 +453,8 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_auto = ambientMapsRender; // when map doesn't exist, render vcolors
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+	uberProgramSetup.POSTPROCESS_GAMMA = true;
 #ifdef WATER
 	// update water reflection
 	uberProgramSetup.SHADOW_MAPS = 1;
@@ -532,6 +569,8 @@ int main(int argc, char **argv)
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram);
 	if(!shadowmapsPerPass) error("",true);
 	

@@ -285,6 +285,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		dirtyResults = true;
 		REPORT_BEGIN("Resetting solver energies and factors.");
 		if(scene) scene->illuminationReset(true,true);
+		solutionVersion++;
 		REPORT_END;
 	}
 	if(dirtyLights!=NO_CHANGE)
@@ -296,6 +297,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	{
 		REPORT_BEGIN("Updating solver energies.");
 		if(scene) scene->illuminationReset(false,dirtyEnergies==BIG_CHANGE);
+		solutionVersion++;
 		REPORT_END;
 		if(dirtyEnergies==BIG_CHANGE)
 		{

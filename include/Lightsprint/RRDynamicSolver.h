@@ -633,11 +633,13 @@ namespace rr
 		RRObject*  multiObjectCustom;
 		RRObjectWithPhysicalMaterials* multiObjectPhysical;
 		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
+		protected: // temporary
 		RRStaticSolver*   scene;
+		unsigned   solutionVersion;
+		private:
 		RRStaticSolver::Improvement calculateCore(float improveStep);
 		// read results
 		RRScaler*  scaler;
-		unsigned   solutionVersion;
 		void       updateVertexLookupTable();
 		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
 	};
