@@ -277,9 +277,14 @@ Advanced:
  Scheme of application:
  </td></tr></table>
 
-  - Lightmaps/HelloRealtimeRadiosity application is
-    built on top of purely numerical LightsprintCore and OpenGL 2.0 based LightsprintGL and DemoEngine.
-  \image html Integration1.png
+  - Lightmaps and HelloRealtimeRadiosity applications are
+    built on top of purely numerical LightsprintCore, OpenGL 2.0 based LightsprintGL and scene importers.
+    Left: Lightmaps. Right: HelloRealtimeRadiosity.
+  <table border=0 width=95%><tr align=top><td>
+  \image html Integration1b.png
+  </td><td>
+  \image html Integration1a.png
+  </td></tr></table>
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Steps:
@@ -407,9 +412,9 @@ Advanced:
   - Different approaches: You can expose Lightsprint engine to your
     applications or hide it inside your engine.
   <table border=0 width=95%><tr align=top><td>
-  \image html Integration4.png
+  \image html Integration4a.png
   </td><td>
-  \image html Integration5.png
+  \image html Integration4b.png
   </td></tr></table>
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
