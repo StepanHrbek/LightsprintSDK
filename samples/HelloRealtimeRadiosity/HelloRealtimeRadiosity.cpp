@@ -163,6 +163,7 @@ class Solver : public rr_gl::RRDynamicSolverGL
 public:
 	Solver() : RRDynamicSolverGL("../../data/shaders/")
 	{
+		boostDetectedDirectIllumination = 2;
 	}
 protected:
 	// skipped, material properties were already readen from .3ds and never change

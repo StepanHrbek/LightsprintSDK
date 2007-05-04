@@ -130,6 +130,8 @@ namespace rr_gl
 		//! without material. This is renderer specific operation and can't be implemented here.
 		virtual void setupShader(unsigned objectNumber) = 0;
 
+		//! Multiplies direct illumination detected by detectDirectIllumination(). Default value is 1 (no change, physically correct).
+		float boostDetectedDirectIllumination;
 	private:
 		char pathToShaders[300];
 		// for internal rendering

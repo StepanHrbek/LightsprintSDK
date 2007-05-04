@@ -96,6 +96,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
 	detectFromLightmapUberProgram = new de::UberProgram(buf1,buf2);
 	detectingFromLightmapLayer = -1;
+	boostDetectedDirectIllumination = 1;
 }
 
 RRDynamicSolverGL::~RRDynamicSolverGL()
@@ -248,7 +249,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap);
 
 		// send triangle irradiances to solver
-		const float boost = 1.0f/255;
+		const float boost = boostDetectedDirectIllumination/255;
 #pragma omp parallel for schedule(static)
 		for(int t=captureUv->firstCapturedTriangle;t<(int)captureUv->lastCapturedTrianglePlus1;t++)
 		{

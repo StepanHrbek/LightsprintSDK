@@ -6,7 +6,18 @@
 
 \page news What's new
 
-\section news17 ------------------------------------ 2007.4.xx -------------------------------------
+\section news18 ------------------------------------ 2007.5.xx -------------------------------------
+
+NEWS
+
+- RRDynamicSolver::updateVertexBuffersFromLightmap(),
+  allows for fully general GI (incl. skybox, lights) computed into vertex buffers
+
+CHANGES
+
+- renamed RRDynamicSolver::Lights to RRLights
+
+\section news17 ------------------------------------ 2007.5.2 -------------------------------------
 
 NEWS
 

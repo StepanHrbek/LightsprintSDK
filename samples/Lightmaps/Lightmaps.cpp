@@ -116,7 +116,7 @@ float                   speedRight = 0;
 float                   speedLeft = 0;
 bool                    realtimeIllumination = true;
 bool                    ambientMapsRender = false;
-float                   brightness[4] = {2,2,2,2};
+float                   brightness[4] = {1,1,1,1};
 float                   gamma = 1;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -195,6 +195,7 @@ class Solver : public rr_gl::RRDynamicSolverGL
 public:
 	Solver() : RRDynamicSolverGL("../../data/shaders/")
 	{
+		boostDetectedDirectIllumination = 2;
 	}
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
