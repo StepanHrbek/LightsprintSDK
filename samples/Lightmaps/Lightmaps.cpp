@@ -28,7 +28,7 @@
 //  left button = switch between camera and light
 //  spacebar = toggle realtime vertex ambient and static ambient maps
 //  p = Precompute higher quality static maps
-//      alt-tab to console to see progress (takes several minutes)
+//      alt-tab to console to see progress (takes seconds to minutes)
 //  s = Save maps to disk (alt-tab to console to see filenames)
 //  l = Load maps from disk, stop realtime global illumination
 //  v = toggle precomputed per-vertex and per-pixel
@@ -36,16 +36,13 @@
 //  */= change contrast
 //
 // Remarks:
+// - map quality depends on unwrap quality,
+//   make sure you have good unwrap in your scenes
+//   (save it as second TEXCOORD in Collada document, see RRObjectCollada.cpp)
 // - comment out #define COLLADA to switch from COLLADA to 3DS
-// - To increase ambient map quality, you can
-//    - provide better unwrap texcoords for meshes
-//      (see getTriangleMapping or save unwrap into Collada document)
-//    - call updateLightmaps with higher quality
-//    - increase ambient map resolution (see newPixelBuffer)
-// - To generate maps faster
-//    - provide better unwrap texcoords for meshes
-//      (see getTriangleMapping or save unwrap into Collada document)
-//      and decrease map resolution (see newPixelBuffer)
+//   (3ds doesn't have unwrap -> bad map quality)
+// - tweak map quality: search for updateLightmaps
+// - tweak map resolution: search for newPixelBuffer
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // Models by Raist, orillionbeta, atp creations
@@ -204,9 +201,8 @@ protected:
 		// In this sample, we pick res proportional to number of triangles in object.
 		// When seams appear, increase res.
 		// Optimal res depends on quality of unwrap provided by object->getTriangleMapping.
-		// This sample scene has bad unwrap -> high res map is needed.
 		unsigned res = 16;
-		unsigned sizeFactor = 20; // decrease for good unwrap
+		unsigned sizeFactor = 5; // 5 is ok for scenes with unwrap (20 is ok for scenes without unwrap)
 		while(res<2048 && res<sizeFactor*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		return createIlluminationPixelBuffer(res,res);
 	}
