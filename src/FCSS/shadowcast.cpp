@@ -1744,7 +1744,7 @@ void mainMenu(int item)
 				// set environment
 				//level->solver->setEnvironment(rr::RRIlluminationEnvironmentMap::createSky(rr::RRColorRGBF(0.4f)));
 				// set lights
-				rr::RRDynamicSolver::Lights lights;
+				rr::RRLights lights;
 				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
 				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRColorRGBF(0.7f))); //!!! not freed
 				level->solver->setLights(lights);

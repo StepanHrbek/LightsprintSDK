@@ -78,12 +78,12 @@ const RRIlluminationEnvironmentMap* RRDynamicSolver::getEnvironment() const
 	return environment;
 }
 
-void RRDynamicSolver::setLights(const Lights& alights)
+void RRDynamicSolver::setLights(const RRLights& alights)
 {
 	lights = alights;
 }
 
-const RRDynamicSolver::Lights& RRDynamicSolver::getLights() const
+const RRLights& RRDynamicSolver::getLights() const
 {
 	return lights;
 }

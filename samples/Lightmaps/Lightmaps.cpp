@@ -303,10 +303,11 @@ void keyboard(unsigned char c, int x, int y)
 				// 1. type of lighting
 				//  a) improve current GI lighting from realtime light
 				paramsDirect.applyCurrentIndirectSolution = true;
-				//  b) compute GI from point light
+				//  b) compute GI from point/spot/dir lights
 				//paramsDirect.applyLights = true;
 				//paramsIndirect.applyLights = true;
-				//rr::RRDynamicSolver::Lights lights;
+				// lights from scene file are already set, but you may set your own:
+				//rr::RRLights lights;
 				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f)));
 				//solver->setLights(lights);
 				//  c) compute GI from skybox (note: no effect in closed room)
@@ -605,6 +606,7 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 	solver->setObjects(*adaptObjectsFromFCollada(collada),NULL);
+	solver->setLights(*adaptLightsFromFCollada(collada));
 #else
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
 		error("",false);

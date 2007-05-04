@@ -143,6 +143,25 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//  RRLights
+	//! Set of lights with std::vector interface.
+	//
+	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
+	//! You may use it for example to
+	//! - send it to RRDynamicSolver and calculate global illumination
+	//! - manipulate this set before sending it to RRDynamicSolver, e.g. remove moving lights
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RRLights : public std::vector<RRLight*>
+	{
+	public:
+		virtual ~RRLights() {};
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	//  RRDynamicSolver
 	//! Global illumination solver for interactive applications.
 	//
@@ -217,9 +236,6 @@ namespace rr
 		const RRIlluminationEnvironmentMap* getEnvironment() const;
 
 
-		//! Container for all direct light sources present in scene.
-		typedef std::vector<RRLight*> Lights;
-
 		//! Sets lights in scene, all at once.
 		//
 		//! By default, scene contains no lights.
@@ -229,10 +245,10 @@ namespace rr
 		//! - custom direct illumination, see detectDirectIllumination().
 		//! - emissive materials used by static objects
 		//! - environment, see setEnvironment()
-		void setLights(const Lights& lights);
+		void setLights(const RRLights& lights);
 
 		//! Returns lights in scene, set by setLights().
-		const Lights& getLights() const;
+		const RRLights& getLights() const;
 
 
 		//! Sets static contents of scene, all static objects at once.
@@ -616,8 +632,8 @@ namespace rr
 		};
 		// calculate
 		RRObjects  objects;
+		RRLights   lights;
 		const RRIlluminationEnvironmentMap* environment;
-		Lights     lights;
 		RRStaticSolver::SmoothingParameters smoothing;
 		bool       dirtyMaterials;
 		bool       dirtyGeometry;

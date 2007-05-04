@@ -44,6 +44,7 @@
 #include "FCDocument/FCDGeometrySource.h"
 #include "FCDocument/FCDImage.h"
 #include "FCDocument/FCDLibrary.h"
+#include "FCDocument/FCDLight.h"
 #include "FCDocument/FCDMaterial.h"
 #include "FCDocument/FCDMaterialInstance.h"
 #include "FCDocument/FCDSceneNode.h"
@@ -330,16 +331,8 @@ private:
 	RRObjectIllumination*      illumination;
 };
 
-RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider, float scale, bool swapYZ)
+void getNodeMatrices(const FCDSceneNode* node, float scale, bool swapYZ, rr::RRMatrix3x4& worldMatrix, rr::RRMatrix3x4& invWorldMatrix)
 {
-	node = anode;
-	geometryInstance = ageometryInstance;
-	collider = acollider;
-
-	// create illumination
-	illumination = new rr::RRObjectIllumination(collider->getMesh()->getNumVertices());
-
-	// create transformation matrices
 	FMMatrix44 world = node->CalculateWorldTransform();
 	if(swapYZ)
 	{
@@ -364,6 +357,19 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryIns
 	for(unsigned i=0;i<3;i++)
 		for(unsigned j=0;j<4;j++)
 			invWorldMatrix.m[i][j] = world.m[j][i];
+}
+
+RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryInstance* ageometryInstance, const RRCollider* acollider, float scale, bool swapYZ)
+{
+	node = anode;
+	geometryInstance = ageometryInstance;
+	collider = acollider;
+
+	// create illumination
+	illumination = new rr::RRObjectIllumination(collider->getMesh()->getNumVertices());
+
+	// create transformation matrices
+	getNodeMatrices(node,scale,swapYZ,worldMatrix,invWorldMatrix);
 
 	// create material cache
 	updateMaterials();
@@ -840,6 +846,93 @@ ObjectsFromFCollada::~ObjectsFromFCollada()
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// LightsFromFCollada
+
+class LightsFromFCollada : public rr::RRLights
+{
+public:
+	LightsFromFCollada(FCDocument* document);
+	void addNode(const FCDSceneNode* node, float scale, bool swapYZ);
+	virtual ~LightsFromFCollada();
+};
+
+LightsFromFCollada::LightsFromFCollada(FCDocument* document)
+{
+	if(!document)
+		return;
+
+	// normalize geometry
+	bool swapYZ = false;
+	RRReal scale = 1;
+	FCDAsset* asset = document->GetAsset();
+	if(asset)
+	{
+		scale = asset->GetUnitConversionFactor();
+		FMVector3 up = asset->GetUpAxis();
+		swapYZ = up==FMVector3(0,0,1);
+	}
+
+	// import all lights
+	const FCDSceneNode* root = document->GetVisualSceneRoot();
+	addNode(root, scale, swapYZ);
+}
+
+void LightsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swapYZ)
+{
+	// add instances from node
+	for(size_t i=0;i<node->GetInstanceCount();i++)
+	{
+		const FCDEntityInstance* entityInstance = node->GetInstance(i);
+		if(entityInstance->GetEntityType()==FCDEntity::LIGHT)
+		{
+			const FCDLight* light = static_cast<const FCDLight*>(entityInstance->GetEntity());
+			if(light)
+			{
+				// get position and direction
+				rr::RRMatrix3x4 worldMatrix;
+				rr::RRMatrix3x4 invWorldMatrix;
+				getNodeMatrices(node,scale,swapYZ,worldMatrix,invWorldMatrix);
+				rr::RRVec3 position = invWorldMatrix.transformedPosition(rr::RRVec3(0));
+				rr::RRVec3 direction = invWorldMatrix.transformedPosition(rr::RRVec3(0,0,1));
+
+				// create RRLight
+				rr::RRColorRGBF irradiance = RRColorRGBF(light->GetColor()[0],light->GetColor()[1],light->GetColor()[2])*light->GetIntensity();
+				switch(light->GetLightType())
+				{
+				case FCDLight::POINT:
+					push_back(rr::RRLight::createPointLight(position,irradiance));
+					break;
+				case FCDLight::SPOT:
+					push_back(rr::RRLight::createSpotLight(position,irradiance,direction,light->GetOuterAngle(),light->GetFallOffAngle()));
+					break;
+				case FCDLight::DIRECTIONAL:
+					push_back(rr::RRLight::createDirectionalLight(direction,irradiance));
+					break;
+				}
+			}
+		}
+	}
+	// add children
+	for(size_t i=0;i<node->GetChildrenCount();i++)
+	{
+		const FCDSceneNode* child = node->GetChild(i);
+		if(child)
+		{
+			addNode(child, scale, swapYZ);
+		}
+	}
+}
+
+LightsFromFCollada::~LightsFromFCollada()
+{
+	// delete lights
+	for(iterator i=begin();i!=end();i++)
+		delete *i;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // main
 
 rr::RRObjects* adaptObjectsFromFCollada(FCDocument* document)
@@ -847,11 +940,20 @@ rr::RRObjects* adaptObjectsFromFCollada(FCDocument* document)
 	return new ObjectsFromFCollada(document);
 }
 
+rr::RRLights* adaptLightsFromFCollada(class FCDocument* document)
+{
+	return new LightsFromFCollada(document);
+}
+
 #else
 
 // stub - for quickly disabled collada support
 #include "RRObjectCollada.h"
 rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document)
+{
+	return NULL;
+}
+rr::RRLights* adaptLightsFromFCollada(class FCDocument* document)
 {
 	return NULL;
 }

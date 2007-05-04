@@ -299,7 +299,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 		unsigned hitsInside = 0;
 		unsigned hitsRug = 0;
 		unsigned hitsScene = 0;
-		const RRDynamicSolver::Lights& lights = tc->solver->getLights();
+		const RRLights& lights = tc->solver->getLights();
 		unsigned rays = (unsigned)lights.size();
 		for(unsigned i=0;i<rays;i++)
 		{
