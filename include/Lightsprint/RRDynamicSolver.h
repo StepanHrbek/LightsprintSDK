@@ -36,9 +36,9 @@ namespace rr
 		//! Types of lights.
 		enum Type
 		{
-			//! Infinitely distant light source.
+			//! Infinitely distant light source, all light rays are parallel (direction).
 			DIRECTIONAL,
-			//! Point light source.
+			//! Point or spot light source, all light rays start in one point (position).
 			POINT,
 		};
 		//! Type of light source.
@@ -74,10 +74,34 @@ namespace rr
 		//
 		//! It is good approximation of sun, which is so distant, that its
 		//! distance attenuation is hardly visible on our small scale.
+		//! \param direction
+		//!  Direction of light in world space.
 		static RRLight* createDirectionalLight(const RRVec3& direction, const RRVec3& irradiance);
 
 		//! Creates omnidirectional point light with physically correct distance attenuation.
+		//
+		//! \param position
+		//!  Position of light source in world space, start of all light rays.
+		//! \param irradianceAtDistance1
+		//!  Irradiance at distance 1, assuming that receiver is oriented towards light.
 		static RRLight* createPointLight(const RRVec3& position, const RRVec3& irradianceAtDistance1);
+
+		//! Creates spot point light with physically correct distance attenuation.
+		//
+		//! Light rays start in position and go in directions up to outerAngleRad far from major direction.
+		//! \param position
+		//!  Position of light source in world space, start of all light rays.
+		//! \param irradianceAtDistance1
+		//!  Irradiance at distance 1, assuming that receiver is oriented towards light.
+		//! \param majorDirection
+		//!  Major direction of light in world space.
+		//! \param outerAngleRad
+		//!  Angle in radians. Light rays go in directions up to outerAngleRad far from major majorDirection.
+		//! \param fallOffAngleRad
+		//!  Angle in radians. 
+		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
+		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
+		static RRLight* createSpotLight(const RRVec3& position, const RRVec3& irradianceAtDistance1, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 	};
 
 
