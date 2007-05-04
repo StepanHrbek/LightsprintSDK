@@ -449,8 +449,8 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 			RRReal xmax = mapWidth  * MAX(mapping.uv[0][0],MAX(mapping.uv[1][0],mapping.uv[2][0]));
 			RRReal ymin = mapHeight * MIN(mapping.uv[0][1],MIN(mapping.uv[1][1],mapping.uv[2][1]));
 			RRReal ymax = mapHeight * MAX(mapping.uv[0][1],MAX(mapping.uv[1][1],mapping.uv[2][1]));
-			RR_ASSERT(xmin>=0 && xmax<mapWidth);
-			RR_ASSERT(ymin>=0 && ymax<mapHeight);
+			RR_ASSERT(xmin>=0 && xmax<=mapWidth);
+			RR_ASSERT(ymin>=0 && ymax<=mapHeight);
 			//  precompute mapping[0]..mapping[1] line and mapping[0]..mapping[2] line equations in 2d map space
 			#define POINT_LINE_DISTANCE(point,line) \
 				((line)[0]*(point)[0]+(line)[1]*(point)[1]+(line)[2])
@@ -476,7 +476,7 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 						POINT_LINE_DISTANCE(uvInMapF,line2InMap),
 						POINT_LINE_DISTANCE(uvInMapF,line1InMap));
 					// process only texels inside triangle
-					if(uvInTriangle[0]>=0 && uvInTriangle[1]>=0 && uvInTriangle[0]+uvInTriangle[1]<=1)
+					if(uvInTriangle[0]>=0 && uvInTriangle[1]>=0 && uvInTriangle[0]+uvInTriangle[1]<=1) // <= >= makes small overlap
 					{
 						// compute uv in map and pos/norm in worldspace
 						unsigned uvInMapI[2] = {x,y};

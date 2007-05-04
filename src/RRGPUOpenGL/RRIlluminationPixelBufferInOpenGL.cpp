@@ -165,10 +165,10 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 	{
 		texture->renderingToEnd();
 
-		if(numTexelsRenderedWithOverlap)
+		if(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/20)
 		{
 			rr::RRReporter::report(
-				(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/100)?rr::RRReporter::ERRO:rr::RRReporter::WARN,
+				(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/5)?rr::RRReporter::ERRO:rr::RRReporter::WARN,
 				"Overlapping texels rendered into map, bad unwrap? size=%d*%d, ok=%d overlap=%d\n",
 				texture->getWidth(),texture->getHeight(),numTexelsRenderedWithoutOverlap,numTexelsRenderedWithOverlap);
 		}
