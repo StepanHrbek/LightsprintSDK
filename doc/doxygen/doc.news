@@ -15,6 +15,7 @@ NEWS
 
 CHANGES
 
+- increased compaibility via private assemblies in bin/win32
 - renamed RRDynamicSolver::Lights to RRLights
 
 \section news17 ------------------------------------ 2007.5.2 -------------------------------------
