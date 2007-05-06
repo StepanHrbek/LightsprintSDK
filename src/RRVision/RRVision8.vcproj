@@ -452,6 +452,50 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="RRIllumination"
+			>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRIllumination.h"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRIlluminationEnvironmentMap.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRIlluminationPixelBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRIlluminationVertexBufferInMemory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRIlluminationVertexBufferInMemory.h"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRObjectIllumination.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
 			Name="RRStaticSolver"
 			>
 			<File
@@ -527,6 +571,13 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
 			</File>

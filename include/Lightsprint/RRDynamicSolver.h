@@ -11,8 +11,8 @@
 
 #include <cassert>
 #include <vector>
-#include "RRStaticSolver.h"
 #include "RRIllumination.h"
+#include "RRStaticSolver.h"
 
 namespace rr
 {

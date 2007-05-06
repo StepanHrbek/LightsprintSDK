@@ -12,29 +12,7 @@
 #include "RRMath.h"
 #include <cassert>
 #include <cstring> // NULL
-
-#ifdef _MSC_VER
-#	ifdef RR_STATIC
-		// use static library
-		#ifdef NDEBUG
-			#pragma comment(lib,"RRIllumination_sr.lib")
-		#else
-			#pragma comment(lib,"RRIllumination_sd.lib")
-		#endif
-#	else
-#	ifdef RR_DLL_BUILD_ILLUMINATION
-		// build dll
-#		undef RR_API
-#		define RR_API __declspec(dllexport)
-#	else // use dll
-#ifdef NDEBUG
-	#pragma comment(lib,"RRIllumination.lib")
-#else
-	#pragma comment(lib,"RRIllumination_dd.lib")
-#endif
-#	endif
-#	endif
-#endif
+#include "RRObject.h" // only because of import/export rules
 
 #define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 

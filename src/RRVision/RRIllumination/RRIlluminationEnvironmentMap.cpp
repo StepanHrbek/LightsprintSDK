@@ -1,6 +1,5 @@
-#include "Lightsprint/RRIllumination.h"
-
 #include "Lightsprint/RRDebug.h"
+#include "Lightsprint/RRIllumination.h"
 
 namespace rr
 {

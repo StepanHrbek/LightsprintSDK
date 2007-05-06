@@ -30,6 +30,11 @@ namespace rr
  - <b> \subpage main_api </b>
 
 
+ Samples and tutorials:
+
+ - <b> \subpage main_samples </b>
+
+
 
 
 \page main_introduction Introduction
@@ -1580,13 +1585,9 @@ Advanced:
 
  - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 engine/renderer with penumbra shadows
 
- - <b> \subpage api_illumination "ILLUMINATION" </b> - storage for calculated illumination
-
  - <b> \subpage api_collider "COLLIDER" </b> - finds ray-mesh intersections
 
  - <b> \subpage api_mesh "MESH" </b> - unifies access to triangle meshes
-
- - <b> \subpage api_math "MATH" </b> - basic math (header, not a library)
 
  Depending on your projects, you may use various subsets of whole API.
 
@@ -1594,25 +1595,12 @@ Advanced:
 
  \image html libraries.png
 
- LightsprintCore is purely numerical and platform independent GI solver.
+ LightsprintCore is purely numerical and platform independent
+ realtime GI solver, without GPU access.
 
- LightsprintGL is OpenGL 2.0 based subsystem.
- You can safely replace it by your renderer or game engine.
+ LightsprintGL is one of implementations of accelerated GPU access for LightsprintCore.
 
- RRGPUOpenGL provides access to GPU, needed during GI calculation.
-
- DemoEngine based on OpenGL 2.0 provides support for loading and rendering
- 3d scenes with shaders, but without global illumination.
-
- Sample Lightmaps precomputes/renders/saves/loads lightmaps
- with realtime global illumination preview.
-
- Sample HelloRealtimeRadiosity renders global illumination 
- in scene with dynamic light and dynamic objects,
- while HelloDemoEngine does it without global illumination.
-
- Sample BunnyBenchmark measures Collider performance for comparison with
- physical engines (Collider is 2-200x faster).
+ See \ref main_samples for more details on samples.
 
 
 
@@ -1622,12 +1610,19 @@ Advanced:
 \page api_vision Vision
  Vision calculates global illumination in dynamic scenes.
 
- In typical situation, you have your own renderer with direct illumination.
- Vision enhances it by calculating indirect illumination.
+ Header: RRDynamicSolver.h
 
- Header: RRObject.h
+ - calculates global illumination in dynamic scenes
+ - gives you full control over speed/quality
+ - calculated illumination is available in vertex buffers, lightmaps and environment maps
+ - communicates completely in custom units, e.g. screen colors
+ - designed for CPU+GPU calculation, faster, GPU access to be implemented in subclasses
 
- - 3d object properties: geometry, materials, position etc
+ Samples HelloRealtimeRadiosity and Lightmaps show the result of integration,
+ interactive Collada/.3ds scene viewer with global illumination immediately responding
+ to object and light movements.
+
+ <hr>
 
  Header: RRStaticSolver.h
 
@@ -1636,6 +1631,7 @@ Advanced:
  - calculated illumination is available in triangles and vertices, including adaptively subdivided
  - communicates in physical or custom units (W/m^2 or e.g. screen colors)
  - display independent, purely numerical API
+ - designed for CPU only calculation, complete engine
 
  Sample HelloVision shows you the most simple use case:
  -# Create RRObject that contains whole static scene.
@@ -1643,34 +1639,27 @@ Advanced:
  -# Calculate global illumination using RRStaticSolver::illuminationImprove().
  -# Read results using RRStaticSolver::getTriangleMeasure().
 
- Header: RRDynamicSolver.h
-
- - calculates global illumination in dynamic scenes
- - gives you full control over speed/quality
- - calculated illumination is available in vertex buffers, lightmaps or environment maps
- - communicates completely in custom units, e.g. screen colors
-
- Samples HelloRealtimeRadiosity and Lightmaps show the result of integration,
- interactive Collada/.3ds scene viewer with global illumination immediately responding
- to object and light movements.
-
-
-
-
-\page api_illumination Illumination
- Illumination provides you with storage suitable for illumination
- calculated by Vision.
+ <hr>
 
  Headers: RRIllumination.h
 
+ - storage for illumination calculated by RRDynamicSolver
  - illumination storage in lightmap: RRIlluminationPixelBuffer
  - illumination storage in vertex buffer: RRIlluminationVertexBuffer
  - illumination storage in environment map: RRIlluminationEnvironmentMap
  - storage of multiple illumination layers: RRObjectIllumination
  - allows for custom implementation -> smoothly integrates with other engines
 
- Sample HelloRealtimeRadiosity shows RRIllumination in action.
- 
+ Sample Lightmaps shows illumination storage in action (saving/loading lightmaps etc).
+
+ <hr>
+
+ Header: RRObject.h
+
+ - 3d object properties: geometry, materials, position etc
+
+
+
 
 
 \page api_collider Collider
@@ -1713,8 +1702,7 @@ Advanced:
  Sample HelloMesh shows the most simple usage scenario,
  mesh is created out of existing array of vertices.
 
-
-\page api_math Math
+ <hr>
  Basic math classes used by whole Lightsprint SDK.
 
  Header: RRMath.h
@@ -1723,6 +1711,13 @@ Advanced:
  - RRVec2 is vector of 2 real numbers
  - RRVec3 is vector of 3 real numbers
  - RRVec4 is vector of 4 real numbers
+
+ <hr>
+ Debugging and reporting routines used by whole Lightsprint SDK.
+
+ Header: RRDebug.h
+
+ - RRReporter processess all messages sent by Lightsprint SDK to you
 
 
 
@@ -1734,11 +1729,26 @@ Advanced:
 
  Namespace: rr_gl
 
- Headers: RRGPUOpenGL.h, RRGPUOpenGL/RendererOfScene.h, RRGPUOpenGL/RendererOfRRObject.h
+ <hr>
+ Header: RRGPUOpenGL.h
 
  - rr_gl::RRDynamicSolverGL implements RRDynamicSolver GPU specific parts in OpenGL 2.0
+ - pixel buffers
+ - environment maps
+
+ <hr>
+ Header: RRGPUOpenGL/RendererOfScene.h
+
  - rr_gl::RendererOfScene is a renderer of 3d scene in RRDynamicSolver
+ - renders environment, HDR
+ - renders scene objects with precomputed or realtime computed illumination
+ - detects what data are available (lightmaps, vertex colors)
+
+ <hr>
+ Header: RRGPUOpenGL/RendererOfRRObject.h
+
  - rr_gl::RendererOfRRObject is a renderer of 3d objects with Lightsprint's RRObject interface
+ - renders object with precomputed or realtime computed illumination
 
 
 
@@ -1748,6 +1758,8 @@ Advanced:
  3d scenes with shaders, but without global illumination.
  You can safely replace DemoEngine by your renderer or game engine.
  Full source code comes with commercial licence.
+
+ Namespace: de
 
  Headers: DemoEngine/*.h
 
@@ -1783,6 +1795,69 @@ Advanced:
 
  Sample HelloDemoEngine shows .3ds scene viewer with dynamic objects
  and realtime penumbra shadows, based on DemoEngine.
+
+
+
+
+
+\page main_samples Samples
+
+ Directory samples in the SDK contains following projects:
+
+ <hr>
+ <b>Lightmaps</b>
+ - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
+ - has realtime global illumination preview
+ - uses internal renderer
+ - loads Collada scene
+
+ <hr>
+ <b>HelloRealtimeRadiosity</b>
+ - renders realtime global illumination in scene with dynamic objects and area light
+ - shows feeding external 3ds renderer
+ - loads 3ds scene
+
+ <hr>
+ <b>HelloDemoEngine</b>
+ - renders realtime direct illumination in scene with dynamic objects and area light
+
+ <hr>
+ <b>HelloVision</b>
+ - calculates static illumination in constructed scene, without renderer
+
+ <hr>
+ <b>Water</b>
+ - simple use of DemoEngine, renders skybox and water with waves, reflection, fresnel
+
+ <hr>
+ <b>BunnyBenchmark</b>
+ - measures Collider performance for comparison with other engines
+ - uses OpenMP to employ all available CPUs/cores
+ - Collider results are up to 200x better than commercial physical engines
+
+ <hr>
+ <b>HelloCollider</b>
+ - the most simple case of ray-mesh collision test
+
+ <hr>
+ <b>HelloMesh</b>
+ - the most simple case of mesh creation
+
+ <hr>
+ <b>ImportCollada</b>
+ - source code of Collada adapter (called e.g. from Lightmaps)
+ - not a complete application, used by other samples
+
+ <hr>
+ <b>Import3DS</b>
+ - source code of 3DS loader, renderer and adapter (called e.g. from HelloRealtimeRadiosity)
+ - not a complete application, used by other samples
+
+ <hr>
+ <b>ImportQuake3</b>
+ - source code of Quake3 map loader and adapter
+ - not a complete application, used by other samples
+
 
 */
 

@@ -1,7 +1,6 @@
 all: .phony
 
 .phony:
-	cd RRIllumination & make
 	cd RRMesh & make
 	cd RRCollider & make
 	cd RRVision & make
@@ -12,7 +11,6 @@ all: .phony
 	cd RR & make
 
 clean:
-	cd RRIllumination & make clean
 	cd RRMesh & make clean
 	cd RRCollider & make clean
 	cd RRVision & make clean
