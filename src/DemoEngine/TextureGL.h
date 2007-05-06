@@ -41,17 +41,20 @@ public:
 	virtual ~TextureGL();
 
 protected:
+
 	unsigned width;
 	unsigned height;
 	Format   format;
 	unsigned char* pixels;
 
 	unsigned id;
+
+	static unsigned getBytesPerPixel(Texture::Format format);
+
 	GLenum   glformat; // GL_RGB, GL_RGBA
 	GLenum   gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
 	unsigned bytesPerPixel; // 3, 4, 12, 16
 	unsigned bytesTotal;
-	unsigned channels; // 3, 4
 	unsigned cubeOr2d; // GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP
 
 	// single FBO instance shared by TextureGL and TextureShadowMap, used by renderingToBegin()

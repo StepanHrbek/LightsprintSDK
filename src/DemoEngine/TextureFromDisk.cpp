@@ -78,13 +78,13 @@ TextureFromDisk::TextureFromDisk(
 	cubeOr2d = GL_TEXTURE_2D;
 
 #ifdef USE_FREEIMAGE
-	pixels = loadFreeImage(filename,false,flipV,flipH,width,height,channels);
+	pixels = loadFreeImage(filename,false,flipV,flipH,width,height,format);
 #else
-	pixels = loadData(filename,width,height,channels);
+	pixels = loadData(filename,width,height,format);
 #endif
 	if(!pixels) throw xFileNotFound();
 
-	TextureGL::reset(width,height,(channels==1)?TF_NONE:((channels==3)?TF_RGBF:TF_RGBA),pixels,true);
+	TextureGL::reset(width,height,format,pixels,true);
 
 	//unsigned int type;
 	//type = (channels == 3) ? GL_RGB : GL_RGBA;
@@ -106,13 +106,12 @@ TextureFromDisk::TextureFromDisk(
 	if(!sixFiles)
 	{
 		// LOAD PIXELS FROM SINGLE FILE.HDR
-		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,channels);
+		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,format);
 		if(!pixels) throw xFileNotFound();
-		shuffleCrossToCube(pixels,width,height,(channels==3)?12:4);
-		format = (channels==3)?TF_RGBF:TF_RGBA;
+		shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format));
 
 		// GLU autogenerate mipmaps breaks float textures, disable mipmaps for float textures
-		if(channels==3 && mini==GL_LINEAR_MIPMAP_LINEAR)
+		if((format==TF_RGBF || format==TF_RGBAF) && mini==GL_LINEAR_MIPMAP_LINEAR)
 		{
 			mini=GL_LINEAR;
 			glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, mini);
@@ -129,10 +128,11 @@ TextureFromDisk::TextureFromDisk(
 			_snprintf(buf,999,filenameMask,cubeSideName[side]);
 			buf[999] = 0;
 
-			unsigned tmpWidth, tmpHeight, tmpChannels;
+			unsigned tmpWidth, tmpHeight;
+			Format tmpFormat;
 
 #ifdef USE_FREEIMAGE
-			sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpChannels);
+			sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpFormat);
 #else
 			sides[side] = loadData(buf,tmpWidth,tmpHeight,tmpChannels);
 #endif
@@ -142,11 +142,11 @@ TextureFromDisk::TextureFromDisk(
 			{
 				width = tmpWidth;
 				height = tmpHeight;
-				channels = tmpChannels;
+				format = tmpFormat;
 			}
 			else
 			{
-				if(tmpWidth!=width || tmpHeight!=height || tmpChannels!=channels || width!=height)
+				if(tmpWidth!=width || tmpHeight!=height || tmpFormat!=format || width!=height)
 					throw xFileNotFound();
 			}
 			//unsigned int type;
@@ -157,14 +157,12 @@ TextureFromDisk::TextureFromDisk(
 
 		// pack 6 images into 1 array
 		// RGBA is expected here - warning: not satisfied when loading cube with 6 files and 96bit pixels
-		pixels = new unsigned char[width*height*channels*6];
+		pixels = new unsigned char[width*height*getBytesPerPixel(format)*6];
 		for(unsigned side=0;side<6;side++)
 		{
-			memcpy(pixels+width*height*channels*side,sides[side],width*height*channels);
+			memcpy(pixels+width*height*getBytesPerPixel(format)*side,sides[side],width*height*getBytesPerPixel(format));
 			SAFE_DELETE_ARRAY(sides[side]);
 		}
-
-		format = (channels==3)?TF_RGBF:TF_RGBA;
 	}
 
 	// load cube from 1 array
@@ -178,9 +176,7 @@ TextureFromDisk::TextureFromDisk(
 
 #ifdef USE_FREEIMAGE
 
-// if it returns channels=4 -> 32bit RGBA
-// if it returns channels=3 -> 96bit RGBF
-unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,unsigned& channels)
+unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,Format& format)
 {
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	unsigned char* pixels = NULL;
@@ -207,7 +203,7 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,boo
 				// read size
 				width = FreeImage_GetWidth(dib1);
 				height = FreeImage_GetHeight(dib1);
-				channels = 3;
+				format = TF_RGBF;
 				pixels = new unsigned char[12*width*height];
 				BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib1);
 				memcpy(pixels,fipixels,width*height*12);
@@ -225,7 +221,7 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,boo
 					// read size
 					width = FreeImage_GetWidth(dib2);
 					height = FreeImage_GetHeight(dib2);
-					channels = 4;
+					format = TF_RGBA;
 					// convert BGRA to RGBA
 					pixels = new unsigned char[4*width*height];
 					BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib2);

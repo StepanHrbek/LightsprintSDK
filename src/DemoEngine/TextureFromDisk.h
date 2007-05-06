@@ -31,7 +31,7 @@ public:
 protected:
 	static unsigned char *loadData(const char *filename,unsigned& width,unsigned& height,unsigned& channels);
 	static unsigned char *loadTga(const char *filename,unsigned& width,unsigned& height,unsigned& channels);
-	static unsigned char *loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,unsigned& channels);
+	static unsigned char *loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,Format& format);
 };
 
 }; // namespace
