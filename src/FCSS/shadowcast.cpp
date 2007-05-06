@@ -16,7 +16,6 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
-bool renderer3ds = 1;
 bool startWithSoftShadows = 1;
 bool renderLightmaps = 0;
 int resolutionx = 1024;
@@ -26,59 +25,14 @@ bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
-bool renderWater = 0;
 /*
-cistejsi by bylo misto globalnich eye, light, gamma, spotmapidx atd pouzit jeden AnimationFrame
-
-crashne po esc v s_veza/gcc
-
--gamma korekce (do rrscaleru)
--kontrast korekce (pred rendrem)
--jas korekce (pred rendrem)
-
-vypisovat kolik % casu
- -detect&resetillum
- -improve
- -readresults
- -game render
- -idle
-
-dalsi announcementy
-
-mailnout do limy
-napsat zadani na final gather
-
-zmerit memory leaky
-
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve
-1% za 4h: presunout kanaly z objektu do meshe
 20% za 8 dnu:
  thread0: renderovat prechod mezi kanalem 0 a 1 podle toho v jake fazi je thread1
  thread1: vlastni gl kontext a nekonecny cyklus: detekce, update, 0.2s vypoctu, read results do kanalu k, k=1-k
 
-casy:
-80 detect primary
-110 reset energies .. spadne na 80 kdyz se neresetuje propagace, to ale jeste nefunguje
-80 improve
-60 read results
-50 user - render
-
 !kdyz nenactu textury a vse je bile, vypocet se velmi rychle zastavi, mozna distribuuje ale nerefreshuje
-
-! sponza v rr renderu je spatne vysmoothovana
-  - spis je to vlastnost stavajiciho smoothovani, ne chyba
-  - smoothovat podle normal
-  - vertex blur
-
-ovladani jasu (global, indirect)
-
-pri 2 instancich je levy okraj spotmapy oriznuty
- pri arealight by spotmapa potrebovala malinko mensi fov nez shadowmapy aby nezabirala mista kde konci stin
-
-autodeteknout zda mam metry nebo centimetry
-dodelat podporu pro matice do RRObject3DS importeru
-kdyz uz by byl korektni model s gammou, pridat ovladani gammy
 
 POZOR
 neni tu korektni skladani primary+indirect a az nasledna gamma korekce (komplikovane pri multipass renderu)
@@ -604,9 +558,9 @@ void drawEyeViewSoftShadowed(void)
 	if(numInstances<=INSTANCES_PER_PASS)
 	{
 		// update water reflection
-		if(water && renderWater)
+		if(water && level->pilot.setup->renderWater)
 		{
-			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,0.3f);
+			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,level->pilot.setup->waterLevel);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
@@ -644,7 +598,7 @@ void drawEyeViewSoftShadowed(void)
 		drawEyeViewShadowed(uberProgramSetup,0);
 
 		// render water
-		if(water && renderWater)
+		if(water && level->pilot.setup->renderWater)
 		{
 			water->render(100);
 		}
@@ -1620,9 +1574,6 @@ void keyboard(unsigned char c, int x, int y)
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR;
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
 			break;
-		case 'r':
-			renderer3ds = !renderer3ds;
-			break;
 		case '*':
 			if(uberProgramGlobalSetup.SHADOW_SAMPLES<8)
 			{
@@ -1727,7 +1678,7 @@ void mainMenu(int item)
 	switch (item)
 	{
 		case ME_TOGGLE_WATER:
-			renderWater = !renderWater;
+			level->pilot.setup->renderWater = !level->pilot.setup->renderWater;
 			break;
 
 #if SUPPORT_LIGHTMAPS

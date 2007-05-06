@@ -22,6 +22,8 @@ public:
 	// constant setup
 	const char* filename;
 	float scale;
+	bool renderWater;
+	float waterLevel;
 	typedef std::list<AnimationFrame*> Frames;
 	Frames frames;
 	std::vector<unsigned> objects; // objects in scene, indices into global dynamic object pool

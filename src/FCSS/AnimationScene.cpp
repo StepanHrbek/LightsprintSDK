@@ -9,6 +9,8 @@ LevelSetup::LevelSetup(const char* afilename)
 {
 	filename = NULL;
 	scale = 1;
+	renderWater = 0;
+	waterLevel = 0;
 	overlayFilename[0] = 0;
 	overlayMap = NULL;
 	load(afilename);
@@ -44,6 +46,10 @@ bool LevelSetup::load(const char* afilename)
 	// load scale
 	scale = 1;
 	fscanf(f,"scale = %f\n",&scale);
+	// load water
+	renderWater = 0;
+	waterLevel = 0.1f;
+	renderWater = fscanf(f,"water = %f\n",&waterLevel)==1;
 	// load objects
 	objects.clear();
 	unsigned tmpobj;
@@ -76,6 +82,9 @@ bool LevelSetup::save() const
 		fprintf(f,"overlay = %s\n",overlayFilename);
 	// save scale
 	fprintf(f,"scale = %.5f\n",scale);
+	// save water
+	if(renderWater)
+		fprintf(f,"water = %f\n",waterLevel);
 	// save objects
 	for(unsigned i=0;i<objects.size();i++)
 	{
