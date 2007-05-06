@@ -9,10 +9,12 @@
 AnimationFrame::AnimationFrame()
 {
 	de::Camera tmp[2] =
-		{{{-3.266f,1.236f,1.230f},9.120f,0,0.100f,1.3f,45.0f,0.3f,1000.0f},
-		{{-0.791f,1.370f,1.286f},3.475f,0,0.550f,1.0f,70.0f,1.0f,20.0f}};
-	eyeLight[0] = tmp[0];
-	eyeLight[1] = tmp[1];
+		//{{{-3.266f,1.236f,1.230f},9.120f,0,0.100f,1.3f,45.0f,0.3f,1000.0f},
+		//{{-0.791f,1.370f,1.286f},3.475f,0,0.550f,1.0f,70.0f,1.0f,20.0f}};
+		{{{0.000000,1.000000,4.000000},2.935000,0,-0.7500, 1.,100.,0.3,900.},
+		{{-1.233688,3.022499,-0.542255},1.239998,0,6.649996, 1.,70.,1.,1000.}};
+	eye = tmp[0];
+	light = tmp[1];
 	brightness = rr::RRVec4(1);
 	gamma = 1;
 	transitionToNextTime = 3;
@@ -51,16 +53,16 @@ rr::RRVec2 blendModulo(rr::RRVec2 a,rr::RRVec2 b,rr::RRReal alpha,rr::RRReal mod
 const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float alpha) const
 {
 	static AnimationFrame blended;
-	// blend eyeLight
-	float* a = (float*)(this->eyeLight);
-	float* b = (float*)(that.eyeLight);
-	float* c = (float*)(blended.eyeLight);
-	for(unsigned i=0;i<(sizeof(eyeLight)+sizeof(brightness)+sizeof(gamma))/sizeof(float);i++)
+	// blend eye+light
+	float* a = (float*)(&this->eye);
+	float* b = (float*)(&that.eye);
+	float* c = (float*)(&blended.eye);
+	for(unsigned i=0;i<(sizeof(eye)+sizeof(light)+sizeof(brightness)+sizeof(gamma))/sizeof(float);i++)
 		c[i] = a[i]*(1-alpha) + b[i]*alpha;
-	for(unsigned i=0;i<2;i++)
-		blended.eyeLight[i].angle = blendModulo(this->eyeLight[i].angle,that.eyeLight[i].angle,alpha,(float)(2*M_PI));
-	blended.eyeLight[0].update(0);
-	blended.eyeLight[1].update(0.3f);
+	blended.eye.angle = blendModulo(this->eye.angle,that.eye.angle,alpha,(float)(2*M_PI));
+	blended.light.angle = blendModulo(this->light.angle,that.light.angle,alpha,(float)(2*M_PI));
+	blended.eye.update(0);
+	blended.light.update(0.3f);
 	// blend dynaPosRot
 	blended.dynaPosRot.clear();
 	for(unsigned i=0;i<this->dynaPosRot.size() && i<that.dynaPosRot.size();i++)
@@ -89,12 +91,10 @@ AnimationFrame* AnimationFrame::load(FILE* f)
 bool AnimationFrame::loadPrivate(FILE* f)
 {
 	if(!f) return false;
-	// load eyeLight
-	unsigned i = 0;
-	if(10!=fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eyeLight[i].pos[0],&eyeLight[i].pos[1],&eyeLight[i].pos[2],&eyeLight[i].angle,&eyeLight[i].leanAngle,&eyeLight[i].angleX,&eyeLight[i].aspect,&eyeLight[i].fieldOfView,&eyeLight[i].anear,&eyeLight[i].afar))
+	// load eye+light
+	if(10!=fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eye.pos[0],&eye.pos[1],&eye.pos[2],&eye.angle,&eye.leanAngle,&eye.angleX,&eye.aspect,&eye.fieldOfView,&eye.anear,&eye.afar))
 		return false;
-	i = 1;
-	if(10!=fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eyeLight[i].pos[0],&eyeLight[i].pos[1],&eyeLight[i].pos[2],&eyeLight[i].angle,&eyeLight[i].leanAngle,&eyeLight[i].angleX,&eyeLight[i].aspect,&eyeLight[i].fieldOfView,&eyeLight[i].anear,&eyeLight[i].afar))
+	if(10!=fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&light.pos[0],&light.pos[1],&light.pos[2],&light.angle,&light.leanAngle,&light.angleX,&light.aspect,&light.fieldOfView,&light.anear,&light.afar))
 		return false;
 	brightness[0] = 1;
 	brightness[1] = 1;
@@ -134,11 +134,9 @@ void AnimationFrame::validate(unsigned numObjects)
 bool AnimationFrame::save(FILE* f) const
 {
 	if(!f) return false;
-	// save eyeLight
-	unsigned i=0;
-	fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eyeLight[i].pos[0],eyeLight[i].pos[1],eyeLight[i].pos[2],fmodf(eyeLight[i].angle+100*3.14159265f,2*3.14159265f),eyeLight[i].leanAngle,eyeLight[i].angleX,eyeLight[i].aspect,eyeLight[i].fieldOfView,eyeLight[i].anear,eyeLight[i].afar);
-	i = 1;
-	fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eyeLight[i].pos[0],eyeLight[i].pos[1],eyeLight[i].pos[2],fmodf(eyeLight[i].angle+100*3.14159265f,2*3.14159265f),eyeLight[i].leanAngle,eyeLight[i].angleX,eyeLight[i].aspect,eyeLight[i].fieldOfView,eyeLight[i].anear,eyeLight[i].afar);
+	// save eye+light
+	fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+	fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",light.pos[0],light.pos[1],light.pos[2],fmodf(light.angle+100*3.14159265f,2*3.14159265f),light.leanAngle,light.angleX,light.aspect,light.fieldOfView,light.anear,light.afar);
 	if(brightness[0]!=1 || brightness[1]!=1 || brightness[2]!=1 || brightness[3]!=1)
 		fprintf(f,"brightness = {%f,%f,%f,%f}\n",brightness[0],brightness[1],brightness[2],brightness[3]);
 	if(gamma!=1)

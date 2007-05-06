@@ -5,11 +5,7 @@
 using namespace rr;
 
 // access to current scene
-extern de::Camera eye;
-extern de::Camera light;
-extern rr::RRVec4 globalBrightness;
-extern rr::RRReal globalGamma;
-extern unsigned lightDirectMapIdx;
+extern AnimationFrame currentFrame;
 void reportEyeMovement();
 void reportLightMovement();
 const rr::RRCollider* getSceneCollider();
@@ -34,8 +30,8 @@ public:
 	RRVec3 updatePosition(RRReal seconds)
 	{
 		if(!getSceneCollider()) return pos;
-		RRVec3 eyepos = rr::RRVec3(eye.pos[0],eye.pos[1],eye.pos[2]);
-		RRVec3 eyedir = rr::RRVec3(eye.dir[0],eye.dir[1],eye.dir[2]).normalized();
+		RRVec3 eyepos = rr::RRVec3(currentFrame.eye.pos[0],currentFrame.eye.pos[1],currentFrame.eye.pos[2]);
+		RRVec3 eyedir = rr::RRVec3(currentFrame.eye.dir[0],currentFrame.eye.dir[1],currentFrame.eye.dir[2]).normalized();
 		// block movement of very close objects
 		if((eyepos+eyedir*1.2f-(pos+RRVec3(0,1,0))).length()<1) return pos;
 		// calculate new position
@@ -230,19 +226,18 @@ void DynamicObjects::setRot(unsigned objIndex, rr::RRVec2 rot)
 }
 
 // copy animation data from frame to actual scene
-//!!! scena by mela pouzivat jiny AnimationFrame, tento copy pak odpadne
 void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const AnimationFrame& frame, bool lightsChanged)
 {
 	if(lightsChanged)
 	{
-		light = frame.eyeLight[1];
+		currentFrame.light = frame.light;
 		reportLightMovement();
 	}
-	eye = frame.eyeLight[0];
+	currentFrame.eye = frame.eye;
 	reportEyeMovement();
-	globalBrightness = frame.brightness;
-	globalGamma = frame.gamma;
-	lightDirectMapIdx = frame.projectorIndex;
+	currentFrame.brightness = frame.brightness;
+	currentFrame.gamma = frame.gamma;
+	currentFrame.projectorIndex = frame.projectorIndex;
 	//for(AnimationFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
 	for(unsigned i=0;i<dynaobject.size();i++)
 	{
@@ -265,15 +260,14 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 }
 
 // copy animation data from frame to actual scene
-//!!! scena by mela pouzivat jiny AnimationFrame, tento copy pak odpadne
 void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& frame, const LevelSetup* setup)
 {
-	frame.eyeLight[0] = eye;
-	frame.eyeLight[1] = light;
-	frame.brightness = globalBrightness;
-	frame.gamma = globalGamma;
+	frame.eye = currentFrame.eye;
+	frame.light = currentFrame.light;
+	frame.brightness = currentFrame.brightness;
+	frame.gamma = currentFrame.gamma;
 	frame.dynaPosRot.clear();
-	frame.projectorIndex = lightDirectMapIdx;
+	frame.projectorIndex = currentFrame.projectorIndex;
 	for(unsigned sceneIndex=0;sceneIndex<setup->objects.size();sceneIndex++) // scene has few objects
 	{
 		unsigned demoIndex = setup->objects[sceneIndex]; // demo has more objects
@@ -300,7 +294,7 @@ bool DynamicObjects::setupSceneDynamicForPartTime(LevelSetup* setup, float secon
 	const AnimationFrame* frame = setup->getFrameByTime(secondsFromPartStart);
 	if(!frame)
 		return false;
-	copyAnimationFrameToScene(setup,*frame,memcmp(&frame->eyeLight[1],&prevFrame.eyeLight[1],sizeof(de::Camera))!=0);
+	copyAnimationFrameToScene(setup,*frame,memcmp(&frame->light,&prevFrame.light,sizeof(de::Camera))!=0);
 	prevFrame = *frame;
 	return true;
 }
@@ -357,7 +351,7 @@ void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, de::UberPro
 		{
 			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 				dynaobject[i]->updateIllumination(solver);
-			dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap,eye,brightness,gamma);
+			dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap,currentFrame.eye,brightness,gamma);
 		}
 	}
 }

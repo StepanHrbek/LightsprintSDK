@@ -13,7 +13,8 @@
 struct AnimationFrame
 {
 	// camera and light
-	de::Camera eyeLight[2];
+	de::Camera eye;
+	de::Camera light;
 	rr::RRVec4 brightness;
 	rr::RRReal gamma;
 	unsigned projectorIndex;

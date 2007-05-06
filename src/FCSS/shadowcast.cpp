@@ -8,11 +8,11 @@ unsigned INSTANCES_PER_PASS;
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
 //#define RENDER_OPTIMIZED
-//#define THREE_ONE
+#define THREE_ONE
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "3+1.cfg"
-//#define CFG_FILE "Candella.cfg"
-#define CFG_FILE "test.cfg"
+#define CFG_FILE "Candella.cfg"
+//#define CFG_FILE "test.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
@@ -26,7 +26,7 @@ bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
-bool renderWater = 1;
+bool renderWater = 0;
 /*
 cistejsi by bylo misto globalnich eye, light, gamma, spotmapidx atd pouzit jeden AnimationFrame
 
@@ -134,14 +134,10 @@ enum {
 //
 // globals
 
-de::Camera eye = {{0.000000,1.000000,4.000000},2.935000,0,-0.7500, 1.,100.,0.3,60.};
-de::Camera light = {{-1.233688,3.022499,-0.542255},1.239998,0,6.649996, 1.,70.,1.,1000.};
-rr::RRVec4 globalBrightness = rr::RRVec4(1);
-rr::RRReal globalGamma = 1;
+AnimationFrame currentFrame;
 GLUquadricObj *quadric;
 de::AreaLight* areaLight = NULL;
 de::Water* water = NULL;
-unsigned lightDirectMapIdx = 0;
 #ifdef THREE_ONE
 #else
 	de::Texture* hintMap = NULL;
@@ -226,7 +222,7 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	areaLight = new de::AreaLight(&light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
+	areaLight = new de::AreaLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
 	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
@@ -348,7 +344,7 @@ protected:
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = true;
 
-		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,demoPlayer->getProjector(lightDirectMapIdx),NULL,1))
+		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,demoPlayer->getProjector(currentFrame.projectorIndex),NULL,1))
 			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
@@ -380,7 +376,7 @@ void drawLight(void)
 {
 	ambientProgram->useIt();
 	glPushMatrix();
-	glTranslatef(light.pos[0]-0.3*light.dir[0], light.pos[1]-0.3*light.dir[1], light.pos[2]-0.3*light.dir[2]);
+	glTranslatef(currentFrame.light.pos[0]-0.3*currentFrame.light.dir[0], currentFrame.light.pos[1]-0.3*currentFrame.light.dir[1], currentFrame.light.pos[2]-0.3*currentFrame.light.dir[2]);
 	glColor3f(1,1,0);
 	gluSphere(quadric, 0.05, 10, 10);
 	glPopMatrix();
@@ -388,9 +384,9 @@ void drawLight(void)
 
 void updateMatrices(void)
 {
-	eye.aspect = winHeight ? (float) winWidth / (float) winHeight : 1;
-	eye.update(0);
-	light.update(0.3f);
+	currentFrame.eye.aspect = winHeight ? (float) winWidth / (float) winHeight : 1;
+	currentFrame.eye.update(0);
+	currentFrame.light.update(0.3f);
 	needMatrixUpdate = false;
 }
 
@@ -410,8 +406,8 @@ void drawShadowMapFrustum(void)
 
 	glEnable(GL_LINE_STIPPLE);
 	glPushMatrix();
-	glMultMatrixd(light.inverseViewMatrix);
-	glMultMatrixd(light.inverseFrustumMatrix);
+	glMultMatrixd(currentFrame.light.inverseViewMatrix);
+	glMultMatrixd(currentFrame.light.inverseFrustumMatrix);
 	/* Draw a wire frame cube with vertices at the corners
 	of clip space.  Draw the top square, drop down to the
 	bottom square and finish it, then... */
@@ -467,12 +463,12 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
 	}
 
-	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
-	rr::RRReal globalGammaBoosted = globalGamma;
+	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
+	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted[0],globalGammaBoosted);
 
-	level->rendererOfScene->setParams(uberProgramSetup,areaLight,demoPlayer->getProjector(lightDirectMapIdx));
+	level->rendererOfScene->setParams(uberProgramSetup,areaLight,demoPlayer->getProjector(currentFrame.projectorIndex));
 #ifdef RENDER_OPTIMIZED
 	level->rendererOfScene->useOptimizedScene();
 #else
@@ -493,11 +489,11 @@ void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 	assert(!uberProgramSetup.OBJECT_SPACE); 
 	renderSceneStatic(uberProgramSetup,firstInstance);
 	if(uberProgramSetup.FORCE_2D_POSITION) return;
-	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
-	rr::RRReal globalGammaBoosted = globalGamma;
+	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
+	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	assert(demoPlayer);
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,demoPlayer->getProjector(lightDirectMapIdx),&globalBrightnessBoosted[0],globalGammaBoosted);
+	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,demoPlayer->getProjector(currentFrame.projectorIndex),&globalBrightnessBoosted[0],globalGammaBoosted);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -554,8 +550,8 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 {
 	if(!level) return;
 
-	rr::RRVec4 globalBrightnessBoosted = globalBrightness;
-	rr::RRReal globalGammaBoosted = globalGamma;
+	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
+	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = (globalBrightnessBoosted[0]!=1 || globalBrightnessBoosted[1]!=1 || globalBrightnessBoosted[2]!=1 || globalBrightnessBoosted[3]!=1)?1:0;
 	uberProgramSetup.POSTPROCESS_GAMMA = (globalGammaBoosted!=1)?1:0;
@@ -567,7 +563,7 @@ void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstIn
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	eye.setupForRender();
+	currentFrame.eye.setupForRender();
 
 	renderScene(uberProgramSetup,firstInstance);
 
@@ -610,7 +606,7 @@ void drawEyeViewSoftShadowed(void)
 		// update water reflection
 		if(water && renderWater)
 		{
-			water->updateReflectionInit(winWidth/4,winHeight/4,&eye,0.3f);
+			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,0.3f);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
@@ -903,7 +899,7 @@ static void drawHelpMessage(int screen)
 			transitionDone,transitionTotal);
 		output(x,y+18,buf);
 		sprintf(buf,"bright %.1f, gamma %.1f",
-			globalBrightness[0],globalGamma);
+			currentFrame.brightness[0],currentFrame.gamma);
 		output(x,y+36,buf);
 	}
 	else
@@ -932,7 +928,7 @@ void showOverlay(const de::Texture* tex)
 	glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-	float color[4] = {globalBrightness[0],globalBrightness[1],globalBrightness[2],1};
+	float color[4] = {currentFrame.brightness[0],currentFrame.brightness[1],currentFrame.brightness[2],1};
 	skyRenderer->render2D(tex,color,0,0,1,1);
 	glDisable(GL_BLEND);
 }
@@ -1206,7 +1202,7 @@ void toggleGlobalIllumination()
 
 void changeSpotlight()
 {
-	lightDirectMapIdx = (lightDirectMapIdx+1)%demoPlayer->getNumProjectors();
+	currentFrame.projectorIndex = (currentFrame.projectorIndex+1)%demoPlayer->getNumProjectors();
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
 	needDepthMapUpdate = 1;
 	if(!level) return;
@@ -1492,8 +1488,8 @@ void keyboard(unsigned char c, int x, int y)
 		case '9':
 			{
 				rr::RRRay* ray = rr::RRRay::create();
-				rr::RRVec3 dir = rr::RRVec3(eye.dir[0],eye.dir[1],eye.dir[2]).normalized();
-				ray->rayOrigin = rr::RRVec3(eye.pos[0],eye.pos[1],eye.pos[2]);
+				rr::RRVec3 dir = rr::RRVec3(currentFrame.eye.dir[0],currentFrame.eye.dir[1],currentFrame.eye.dir[2]).normalized();
+				ray->rayOrigin = rr::RRVec3(currentFrame.eye.pos[0],currentFrame.eye.pos[1],currentFrame.eye.pos[2]);
 				ray->rayDirInv[0] = 1/dir[0];
 				ray->rayDirInv[1] = 1/dir[1];
 				ray->rayDirInv[2] = 1/dir[2];
@@ -1539,16 +1535,16 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 
 		case '+':
-			for(unsigned i=0;i<4;i++) globalBrightness[i] *= 1.2;
+			for(unsigned i=0;i<4;i++) currentFrame.brightness[i] *= 1.2;
 			break;
 		case '-':
-			for(unsigned i=0;i<4;i++) globalBrightness[i] /= 1.2;
+			for(unsigned i=0;i<4;i++) currentFrame.brightness[i] /= 1.2;
 			break;
 		case '*':
-			globalGamma *= 1.2;
+			currentFrame.gamma *= 1.2;
 			break;
 		case '/':
-			globalGamma /= 1.2;
+			currentFrame.gamma /= 1.2;
 			break;
 
 		case 'b':
@@ -1921,13 +1917,13 @@ void mouse(int button, int state, int x, int y)
 	}
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
-		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
+		if(currentFrame.eye.fieldOfView>13) currentFrame.eye.fieldOfView -= 10;
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
 	}
 	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
-		if(eye.fieldOfView<130) eye.fieldOfView+=10;
+		if(currentFrame.eye.fieldOfView<130) currentFrame.eye.fieldOfView+=10;
 		needMatrixUpdate = 1;
 		needRedisplay = 1;
 	}
@@ -1944,16 +1940,16 @@ void passive(int x, int y)
 	{
 		if(modeMovingEye)
 		{
-			eye.angle -= 0.005*x;
-			eye.angleX -= 0.005*y;
-			CLAMP(eye.angleX,-M_PI*0.49f,M_PI*0.49f);
+			currentFrame.eye.angle -= 0.005*x;
+			currentFrame.eye.angleX -= 0.005*y;
+			CLAMP(currentFrame.eye.angleX,-M_PI*0.49f,M_PI*0.49f);
 			reportEyeMovement();
 		}
 		else
 		{
-			light.angle -= 0.005*x;
-			light.angleX -= 0.005*y;
-			CLAMP(light.angleX,-M_PI*0.49f,M_PI*0.49f);
+			currentFrame.light.angle -= 0.005*x;
+			currentFrame.light.angleX -= 0.005*y;
+			CLAMP(currentFrame.light.angleX,-M_PI*0.49f,M_PI*0.49f);
 			reportLightMovement();
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
@@ -1986,7 +1982,7 @@ void idle()
 	float seconds = (now-prev)/(float)PER_SEC;//timer.Watch();
 	if(!prev || now==prev) seconds = 0;
 	CLAMP(seconds,0.001f,0.3f);
-	de::Camera* cam = modeMovingEye?&eye:&light;
+	de::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
 	if(speedForward) cam->moveForward(speedForward*seconds);
 	if(speedBack) cam->moveBack(speedBack*seconds);
 	if(speedRight) cam->moveRight(speedRight*seconds);
@@ -1997,7 +1993,7 @@ void idle()
 	if(speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 	{
 		//printf(" %f ",seconds);
-		if(cam==&light) reportLightMovement(); else reportEyeMovement();
+		if(cam==&currentFrame.light) reportLightMovement(); else reportEyeMovement();
 	}
 	if(!showHint && !demoPlayer->getPaused())
 	{
