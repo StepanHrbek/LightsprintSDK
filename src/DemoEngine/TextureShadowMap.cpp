@@ -18,7 +18,7 @@ namespace de
 // TextureShadowMap
 
 TextureShadowMap::TextureShadowMap(unsigned awidth, unsigned aheight)
-	: TextureGL(NULL, awidth, aheight, false, GL_DEPTH_COMPONENT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
+	: TextureGL(NULL, awidth, aheight, false, TF_NONE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
 {
 	//glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 	channels = 1;

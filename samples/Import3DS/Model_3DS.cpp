@@ -265,7 +265,7 @@ bool Model_3DS::Load(const char *filename, float ascale)
 			rgb[1] = Materials[j].color.g;
 			rgb[2] = Materials[j].color.b;
 			rgb[3] = Materials[j].color.a;
-			Materials[j].tex = de::Texture::create(rgb,1,1,false,GL_RGBA);
+			Materials[j].tex = de::Texture::create(rgb,1,1,false,de::Texture::TF_RGBA);
 			Materials[j].textured = true;
 		}
 	}

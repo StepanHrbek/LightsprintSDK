@@ -71,7 +71,7 @@ void shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned&
 TextureFromDisk::TextureFromDisk(
 	const char *filename, bool flipV, bool flipH,
 	int mag, int min, int wrapS, int wrapT)
-	: TextureGL(NULL,1,1,false,GL_RGBA,mag,min,wrapS,wrapT)
+	: TextureGL(NULL,1,1,false,TF_RGBA,mag,min,wrapS,wrapT)
 {
 	SAFE_DELETE_ARRAY(pixels);
 
@@ -95,7 +95,7 @@ TextureFromDisk::TextureFromDisk(
 TextureFromDisk::TextureFromDisk(
 	const char *filenameMask, const char *cubeSideName[6], bool flipV, bool flipH,
 	int magn, int mini)
-: TextureGL(NULL,1,1,true,GL_RGBA,magn,mini)
+: TextureGL(NULL,1,1,true,TF_RGBA,magn,mini)
 {
 	SAFE_DELETE_ARRAY(pixels);
 
@@ -109,7 +109,7 @@ TextureFromDisk::TextureFromDisk(
 		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,channels);
 		if(!pixels) throw xFileNotFound();
 		shuffleCrossToCube(pixels,width,height,(channels==3)?12:4);
-		format = (channels==1)?TF_NONE:((channels==3)?TF_RGBF:TF_RGBA);
+		format = (channels==3)?TF_RGBF:TF_RGBA;
 
 		// GLU autogenerate mipmaps breaks float textures, disable mipmaps for float textures
 		if(channels==3 && mini==GL_LINEAR_MIPMAP_LINEAR)
@@ -164,7 +164,7 @@ TextureFromDisk::TextureFromDisk(
 			SAFE_DELETE_ARRAY(sides[side]);
 		}
 
-		format = (channels==1)?TF_NONE:((channels==3)?TF_RGBF:TF_RGBA);
+		format = (channels==3)?TF_RGBF:TF_RGBA;
 	}
 
 	// load cube from 1 array
@@ -330,7 +330,7 @@ bool TextureGL::save(const char *filename, const char* cubeSideName[6])
 class BackbufferSaver : public TextureGL
 {
 public:
-	BackbufferSaver() : TextureGL(NULL,1,1,false,GL_RGBA)
+	BackbufferSaver() : TextureGL(NULL,1,1,false,TF_RGBA)
 	{
 		int rect[4];
 		glGetIntegerv(GL_VIEWPORT,rect);

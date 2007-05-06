@@ -33,8 +33,8 @@ public:
 	{
 		TF_RGB, // 8bit rgb, 24bits per pixel
 		TF_RGBA, // 8bit rgba, 32bits per pixel
-		TF_RGBF, // float rgb, 96bits per pixel
-		TF_RGBAF, // float rgba, 128bits per pixel
+		TF_RGBF, // float rgb, 96bits per pixel (may be internally reduced to 48)
+		TF_RGBAF, // float rgba, 128bits per pixel (may be internally reduced to 64)
 		TF_NONE, // unspecified
 	};
 
@@ -105,12 +105,12 @@ public:
 	//! \param height Height of texture in texels.
 	//!  Some computers may support only power of two sizes.
 	//! \param cube True for cube texture, false for 2D texture.
-	//! \param type Type of texture, GL_RGB and GL_RGBA are supported.
+	//! \param format Internal format of texture.
 	//! \param magn Initial magnification filter, see glTexImage2D for more details.
 	//! \param mini Initial minification filter, see glTexImage2D for more details.
 	//! \param wrapS Initial clamping mode, see glTexImage2D for more details.
 	//! \param wrapT Initial clamping mode, see glTexImage2D for more details.
-	static Texture* create(unsigned char *data, int width, int height, bool cube, int type,
+	static Texture* create(unsigned char *data, int width, int height, bool cube, Format format,
 		int magn = GL_LINEAR, int mini = GL_LINEAR, 
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 

@@ -13,7 +13,7 @@ namespace de
 
 Water::Water(const char* pathToShaders, bool afresnel, bool boostSun)
 {
-	mirrorMap = de::Texture::create(NULL,1,1,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	mirrorMap = de::Texture::create(NULL,1,1,false,Texture::TF_RGBF,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	mirrorDepth = de::Texture::createShadowmap(1,1);
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
@@ -40,7 +40,7 @@ void Water::updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera
 	// adjust size
 	if(reflWidth!=mirrorMap->getWidth() || reflHeight!=mirrorMap->getHeight())
 	{
-		mirrorMap->reset(reflWidth,reflHeight,Texture::TF_RGBA,NULL,false);
+		mirrorMap->reset(reflWidth,reflHeight,Texture::TF_RGBF,NULL,false);
 		mirrorDepth->reset(reflWidth,reflHeight,Texture::TF_NONE,NULL,false);
 	}
 	mirrorDepth->renderingToBegin();

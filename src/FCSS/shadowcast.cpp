@@ -4,7 +4,7 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
-#define LIGHTMAP_QUALITY           1000
+#define LIGHTMAP_QUALITY           10
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
 //#define RENDER_OPTIMIZED
@@ -235,7 +235,7 @@ protected:
 		unsigned res = 16; // don't create maps below 16x16, otherwise you risk poor performance on Nvidia cards
 		while(res<2048 && res<LIGHTMAP_SIZE_FACTOR*sqrtf(object->getCollider()->getMesh()->getNumTriangles())) res*=2;
 		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
-		return renderLightmaps ? rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer(res,res) : NULL;
+		return rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer(res,res);
 	}
 	virtual void detectMaterials()
 	{
@@ -677,7 +677,7 @@ void updateThumbnail(AnimationFrame& frame)
 	}
 	// render into thumbnail
 	if(!frame.thumbnail)
-		frame.thumbnail = de::Texture::create(NULL,160,120,false,GL_RGB);
+		frame.thumbnail = de::Texture::create(NULL,160,120,false,de::Texture::TF_RGB);
 	glViewport(0,0,160,120);
 	//frame.thumbnail->renderingToBegin();
 	drawEyeViewSoftShadowed();
@@ -1704,21 +1704,25 @@ void mainMenu(int item)
 				level->solver->setLights(lights);
 				// updates maps in high quality
 				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
-				paramsDirect.applyCurrentIndirectSolution = 1;
-//				paramsDirect.applyLights = 1;
-//				paramsDirect.applyEnvironment = 1;
+				paramsDirect.applyCurrentIndirectSolution = 0;
+				paramsDirect.applyLights = 1;
+				paramsDirect.applyEnvironment = 1;
 				paramsDirect.quality = LIGHTMAP_QUALITY;
 				rr::RRDynamicSolver::UpdateLightmapParameters paramsIndirect;
 				paramsIndirect.applyCurrentIndirectSolution = 0;
-//				paramsIndirect.applyLights = 1;
-//				paramsIndirect.applyEnvironment = 1;
-				paramsIndirect.quality = LIGHTMAP_QUALITY/2;
-//				level->solver->updateLightmaps(0,true,&paramsDirect,&paramsIndirect);
+				paramsIndirect.applyLights = 1;
+				paramsIndirect.applyEnvironment = 1;
+				paramsIndirect.quality = LIGHTMAP_QUALITY/4;
 
+				// update all objects
+				level->solver->updateLightmaps(0,true,&paramsDirect,&paramsIndirect);
+
+				/*/ update 1 object
 				static unsigned obj=12;
 				if(!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
 					level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
 				level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
+				*/
 
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;

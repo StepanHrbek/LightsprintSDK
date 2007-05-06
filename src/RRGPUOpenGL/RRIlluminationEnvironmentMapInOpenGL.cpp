@@ -27,7 +27,7 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL()
 {
 	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// creates cube map
-	texture = de::Texture::create(NULL,1,1,true,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	texture = de::Texture::create(NULL,1,1,true,de::Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	deleteTexture = true;
 }
 

@@ -21,7 +21,7 @@ namespace de
 class TextureGL : public Texture
 {
 public:
-	TextureGL(unsigned char *data, int width, int height, bool cube, int type,
+	TextureGL(unsigned char *data, int width, int height, bool cube, Format format,
 		int magn=GL_LINEAR, int mini = GL_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 

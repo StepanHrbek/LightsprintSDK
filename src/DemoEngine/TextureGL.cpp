@@ -22,14 +22,13 @@ unsigned TextureGL::numPotentialFBOUsers = 0;
 //
 // TextureGL
 
-TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, int atype,
+TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, Format aformat,
 				 int magn, int mini, int wrapS, int wrapT)
 {
 	numPotentialFBOUsers++;
 
 	// never changes in life of texture
 	cubeOr2d = acube?GL_TEXTURE_CUBE_MAP:GL_TEXTURE_2D;
-	channels = (atype==GL_DEPTH_COMPONENT)? 1 : ((atype == GL_RGB) ? 3 : 4);
 	glGenTextures(1, &id);
 	glBindTexture(cubeOr2d, id);
 
@@ -40,7 +39,7 @@ TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, 
 	gltype = 0;
 	bytesPerPixel = 0;
 	pixels = NULL;
-	TextureGL::reset(awidth,aheight,(channels==1)?TF_NONE:((channels==3)?TF_RGB:TF_RGBA),adata,false);
+	TextureGL::reset(awidth,aheight,aformat,adata,false);
 
 	// changes anywhere
 	glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, mini);
@@ -81,13 +80,15 @@ bool TextureGL::reset(unsigned awidth, unsigned aheight, Format aformat, unsigne
 	height = aheight;
 	format = aformat;
 
+	GLenum glinternal;
+
 	switch(format)
 	{
-		case TF_RGB: glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 3; break;
-		case TF_RGBA: glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 4; break;
-		case TF_RGBF: glformat = GL_RGB; gltype = GL_FLOAT; bytesPerPixel = 12; break;
-		case TF_RGBAF: glformat = GL_RGBA; gltype = GL_FLOAT; bytesPerPixel = 16; break;
-		case TF_NONE: glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 4; break;
+		case TF_RGB: glinternal = glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 3; channels = 3; break;
+		case TF_RGBA: glinternal = glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 4; channels = 4; break;
+		case TF_RGBF: glinternal = GL_RGB16F_ARB; glformat = GL_RGB; gltype = GL_FLOAT; bytesPerPixel = 12; channels = 3; break;
+		case TF_RGBAF: glinternal = GL_RGBA16F_ARB; glformat = GL_RGBA; gltype = GL_FLOAT; bytesPerPixel = 16; channels = 4; break;
+		case TF_NONE: glinternal = glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 4; channels = 1; break;
 	}
 
 	bindTexture();
@@ -96,7 +97,7 @@ bool TextureGL::reset(unsigned awidth, unsigned aheight, Format aformat, unsigne
 	if(glformat==GL_DEPTH_COMPONENT)
 	{
 		// depthmap -> init with no data
-		glTexImage2D(GL_TEXTURE_2D,0,glformat,width,height,0,glformat,gltype,pixels);
+		glTexImage2D(GL_TEXTURE_2D,0,glinternal,width,height,0,glformat,gltype,pixels);
 	}
 	else
 	if(cubeOr2d==GL_TEXTURE_CUBE_MAP)
@@ -106,18 +107,18 @@ bool TextureGL::reset(unsigned awidth, unsigned aheight, Format aformat, unsigne
 		{
 			unsigned char* sideData = pixels?pixels+side*width*height*bytesPerPixel:NULL;
 			if(buildMipmaps)
-				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,glformat,width,height,glformat,gltype,sideData);
+				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,glinternal,width,height,glformat,gltype,sideData);
 			else
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,glformat,width,height,0,glformat,gltype,sideData);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,glinternal,width,height,0,glformat,gltype,sideData);
 		}
 	}
 	else
 	{
 		// 2d -> init with data
 		if(buildMipmaps)
-			gluBuild2DMipmaps(GL_TEXTURE_2D,glformat,width,height,glformat,gltype,pixels);
+			gluBuild2DMipmaps(GL_TEXTURE_2D,glinternal,width,height,glformat,gltype,pixels);
 		else
-			glTexImage2D(GL_TEXTURE_2D,0,glformat,width,height,0,glformat,gltype,pixels);
+			glTexImage2D(GL_TEXTURE_2D,0,glinternal,width,height,0,glformat,gltype,pixels);
 	}
 
 	return true;
@@ -162,33 +163,33 @@ bool TextureGL::getPixel(float ax, float ay, float az, float rgba[4]) const
 			return false;
 		}
 	}
-	assert(ofs*bytesPerPixel<bytesTotal);
-	ofs *= channels;
+	ofs *= bytesPerPixel;
+	assert(ofs<bytesTotal);
 	switch(format)
 	{
 		case TF_RGB:
-			rgba[0] = pixels[ofs+((channels==1)?0:0)]/255.0f;
-			rgba[1] = pixels[ofs+((channels==1)?0:1)]/255.0f;
-			rgba[2] = pixels[ofs+((channels==1)?0:2)]/255.0f;
+			rgba[0] = pixels[ofs+0]/255.0f;
+			rgba[1] = pixels[ofs+1]/255.0f;
+			rgba[2] = pixels[ofs+2]/255.0f;
 			rgba[3] = 1;
 			break;
 		case TF_RGBA:
-			rgba[0] = pixels[ofs+((channels==1)?0:0)]/255.0f;
-			rgba[1] = pixels[ofs+((channels==1)?0:1)]/255.0f;
-			rgba[2] = pixels[ofs+((channels==1)?0:2)]/255.0f;
-			rgba[3] = pixels[ofs+((channels==1)?0:3)]/255.0f;
+			rgba[0] = pixels[ofs+0]/255.0f;
+			rgba[1] = pixels[ofs+1]/255.0f;
+			rgba[2] = pixels[ofs+2]/255.0f;
+			rgba[3] = pixels[ofs+3]/255.0f;
 			break;
 		case TF_RGBF:
-			rgba[0] = ((float*)pixels)[ofs+((channels==1)?0:0)];
-			rgba[1] = ((float*)pixels)[ofs+((channels==1)?0:1)];
-			rgba[2] = ((float*)pixels)[ofs+((channels==1)?0:2)];
+			rgba[0] = ((float*)(pixels+ofs))[0];
+			rgba[1] = ((float*)(pixels+ofs))[1];
+			rgba[2] = ((float*)(pixels+ofs))[2];
 			rgba[3] = 1;
 			break;
 		case TF_RGBAF:
-			rgba[0] = ((float*)pixels)[ofs+((channels==1)?0:0)];
-			rgba[1] = ((float*)pixels)[ofs+((channels==1)?0:1)];
-			rgba[2] = ((float*)pixels)[ofs+((channels==1)?0:2)];
-			rgba[3] = ((float*)pixels)[ofs+((channels==1)?0:3)];
+			rgba[0] = ((float*)(pixels+ofs))[0];
+			rgba[1] = ((float*)(pixels+ofs))[1];
+			rgba[2] = ((float*)(pixels+ofs))[2];
+			rgba[3] = ((float*)(pixels+ofs))[3];
 			break;
 	}
 	return true;
@@ -232,9 +233,9 @@ TextureGL::~TextureGL()
 //
 // Texture
 
-Texture* Texture::create(unsigned char *data, int width, int height, bool cube, int type,int mag,int min,int wrapS,int wrapT)
+Texture* Texture::create(unsigned char *data, int width, int height, bool cube, Format format, int mag,int min,int wrapS,int wrapT)
 {
-	return new TextureGL(data,width,height,cube,type,mag,min,wrapS,wrapT);
+	return new TextureGL(data,width,height,cube,format,mag,min,wrapS,wrapT);
 }
 
 }; // namespace

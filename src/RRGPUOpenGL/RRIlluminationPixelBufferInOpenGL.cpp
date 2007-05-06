@@ -25,7 +25,7 @@ public:
 	};
 	Helpers(const char* pathToShaders)
 	{
-		tempTexture = de::Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,GL_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
+		tempTexture = de::Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,de::Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 		char buf1[400]; buf1[399] = 0;
 		char buf2[400]; buf2[399] = 0;
 		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.vs");
@@ -67,7 +67,7 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(const char*
 	if(filename)
 		texture = de::Texture::load(filename,NULL,false,false,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
 	else
-		texture = de::Texture::create(NULL,awidth,aheight,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
+		texture = de::Texture::create(NULL,awidth,aheight,false,de::Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
 
 	renderedTexels = NULL;
 }
@@ -182,7 +182,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		unsigned w = getWidth();
 		unsigned h = getHeight();
 		delete texture;
-		texture = de::Texture::create((unsigned char*)renderedTexels,w,h,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+		texture = de::Texture::create((unsigned char*)renderedTexels,w,h,false,de::Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 		renderedTexels = NULL; // renderedTexels intentionally not deleted here, adopted by texture
 //unsigned q[4]={0,0,0,0};
 //for(unsigned i=0;i<getWidth()*getHeight();i++) for(unsigned j=0;j<4;j++) q[j]+=(renderedTexels[i].color>>(j*8))&255;

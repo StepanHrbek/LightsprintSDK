@@ -74,7 +74,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	pathToShaders[299]=0;
 
 	captureUv = new CaptureUv;
-	detectBigMap = de::Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,GL_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	detectBigMap = de::Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,de::Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 	smallMapSize = BIG_MAP_SIZE*BIG_MAP_SIZE
 #ifdef SCALE_DOWN_ON_GPU
 		/16
