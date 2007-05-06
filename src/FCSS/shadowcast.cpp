@@ -1450,17 +1450,24 @@ void keyboard(unsigned char c, int x, int y)
 				ray->rayLengthMin = 0;
 				ray->rayLengthMax = 1000;
 				ray->rayFlags = rr::RRRay::FILL_POINT3D;
-				if(modif || level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+				// kdyz neni kolize se scenou, najit kolizi s vodou
+				if(!level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 				{
-					// keys 1/2/3... index one of few sceneobjects
-					unsigned selectedObject_indexInScene = c-'1';
-					if(selectedObject_indexInScene<level->pilot.setup->objects.size())
-					{
-						// we have more dynaobjects
-						selectedObject_indexInDemo = level->pilot.setup->objects[selectedObject_indexInScene];
-						if(!modif)
-							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);//+rr::RRVec3(0,1.2f,0));
-					}
+					float cameraLevel = currentFrame.eye.pos[1];
+					float waterLevel = level->pilot.setup->waterLevel;
+					float levelChangeIn1mDistance = dir[1];
+					float distance = levelChangeIn1mDistance ? (waterLevel-cameraLevel)/levelChangeIn1mDistance : 10;
+					if(distance<0) distance=10;
+					ray->hitPoint3d = ray->rayOrigin+dir*distance;
+				}
+				// keys 1/2/3... index one of few sceneobjects
+				unsigned selectedObject_indexInScene = c-'1';
+				if(selectedObject_indexInScene<level->pilot.setup->objects.size())
+				{
+					// we have more dynaobjects
+					selectedObject_indexInDemo = level->pilot.setup->objects[selectedObject_indexInScene];
+					if(!modif)
+						demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);//+rr::RRVec3(0,1.2f,0));
 				}
 				/*
 #ifndef THREE_ONE
