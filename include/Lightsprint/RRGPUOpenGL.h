@@ -107,8 +107,9 @@ namespace rr_gl
 		//! Loads RRIlluminationEnvironmentMap stored on disk.
 		//! \param filenameMask
 		//!   Name of image file. Must be in supported format.
-		//!   For cube textures, filename must contain \%s wildcard, that will be replaced by cubeSideName.
-		//!   Example: "/maps/cube_%s.png".
+		//!   For cube textures, filename may contain \%s wildcard -> 6 images will be loaded with %s replaced by cubeSideName[side].
+		//!   \n Example1: "path/cube.hdr" - cube in 1 image.
+		//!   \n Example2: "path/cube_%s.png" - cube in 6 images.
 		//! \param cubeSideName
 		//!   Array of six unique names of cube sides in following order:
 		//!   x+ side, x- side, y+ side, y- side, z+ side, z- side.

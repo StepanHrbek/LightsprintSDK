@@ -123,13 +123,18 @@ public:
 
 	//! Creates 2D or CUBE texture in OpenGL from image stored on disk.
 	//! All formats supported by FreeImage are supported (jpg, png, dds etc).
+	//! \n Example1: filename="path/lightmap.jpg", cubeSideName=NULL - 2d texture is loaded from 1 file
+	//! \n Example2: filename="path/cube.hdr", cubeSideName=NULL - 2d texture is loaded from 1 file
+	//! \n Example3: filename="path/cube.hdr", cubeSideName={"ft","bk","dn","up","rt","lf"} - cube is loaded from 1 file
+	//! \n Example4: filename="path/cube_%s.png", cubeSideName={"ft","bk","dn","up","rt","lf"} - cube is loaded from 6 files
 	//! \param filename Name of image file. Must be in supported format.
-	//!   For cube textures, filename must contain %s wildcard, that will be replaced by cubeSideName.
-	//!   Example: "/maps/cube_%s.png".
-	//! \param cubeSideName Array of six unique names of cube sides in following order:
+	//!   For cube textures, filename may contain %s wildcard, that will be replaced by cubeSideName[side].
+	//! \param cubeSideName
+	//!   Array of six unique names of cube sides substituted for %s in filename
+	//!   in following order:
 	//!   x+ side, x- side, y+ side, y- side, z+ side, z- side.
+	//!   Set NULL to load texture as 2D, set non-NULL to load texture as cube.
 	//!   Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
-	//!   Set to NULL for 2D texture.
 	//! \param flipV
 	//!  Flip vertically at load time.
 	//! \param flipH

@@ -22,6 +22,51 @@ namespace de
 //
 // TextureFromDisk
 
+void shuffleBlock(unsigned char*& dst, const unsigned char* pixelsOld, unsigned iofs, unsigned jofs, unsigned blockWidth, unsigned blockHeight, unsigned widthOld, unsigned bytesPerPixel, bool flip=false)
+{
+	if(flip)
+		for(unsigned j=blockHeight;j--;)
+		{
+			for(unsigned i=blockWidth;i--;)
+			{
+				memcpy(dst,pixelsOld+((jofs+j)*widthOld+iofs+i)*bytesPerPixel,bytesPerPixel);
+				dst += bytesPerPixel;
+			}
+		}
+	else
+		for(unsigned j=0;j<blockHeight;j++)
+		{
+			memcpy(dst,pixelsOld+((jofs+j)*widthOld+iofs)*bytesPerPixel,blockWidth*bytesPerPixel);
+			dst += blockWidth*bytesPerPixel;
+		}
+}
+
+void shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned& heightOld, unsigned bytesPerPixel)
+{
+	// alloc new
+	unsigned widthNew = MIN(widthOld,heightOld)/3;
+	unsigned heightNew = MAX(widthOld,heightOld)/4;
+	unsigned char* pixelsNew = new unsigned char[widthNew*heightNew*bytesPerPixel*6];
+
+	// shuffle from old to new
+	unsigned char* dst = pixelsNew;
+	shuffleBlock(dst,pixelsOld,widthNew*2,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X+
+	shuffleBlock(dst,pixelsOld,widthNew*0,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X-
+	shuffleBlock(dst,pixelsOld,widthNew*1,0*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y+
+	shuffleBlock(dst,pixelsOld,widthNew*1,2*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y-
+	shuffleBlock(dst,pixelsOld,widthNew*1,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z+
+	if(widthOld>heightOld)
+		shuffleBlock(dst,pixelsOld,widthNew*3,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z-
+	else
+		shuffleBlock(dst,pixelsOld,widthNew*1,3*heightNew,widthNew,heightNew,widthOld,bytesPerPixel,true); // Z-
+
+	// replace old
+	delete[] pixelsOld;
+	pixelsOld = pixelsNew;
+	widthOld = widthNew;
+	heightOld = heightNew;
+}
+
 // 2D map loader
 TextureFromDisk::TextureFromDisk(
 	const char *filename, bool flipV, bool flipH,
@@ -39,7 +84,7 @@ TextureFromDisk::TextureFromDisk(
 #endif
 	if(!pixels) throw xFileNotFound();
 
-	TextureGL::reset(width,height,(channels==1)?TF_NONE:((channels==3)?TF_RGB:TF_RGBA),pixels,true);
+	TextureGL::reset(width,height,(channels==1)?TF_NONE:((channels==3)?TF_RGBF:TF_RGBA),pixels,true);
 
 	//unsigned int type;
 	//type = (channels == 3) ? GL_RGB : GL_RGBA;
@@ -56,51 +101,74 @@ TextureFromDisk::TextureFromDisk(
 
 	cubeOr2d = GL_TEXTURE_CUBE_MAP;
 
-	// load 6 separated images
-	unsigned char* sides[6] = {NULL,NULL,NULL,NULL,NULL,NULL};
-	for(unsigned side=0;side<6;side++)
+#ifdef USE_FREEIMAGE
+	bool sixFiles = filenameMask && strstr(filenameMask,"%s");
+	if(!sixFiles)
 	{
-		char buf[1000];
-		_snprintf(buf,999,filenameMask,cubeSideName[side]);
-		buf[999] = 0;
-		
-		unsigned tmpWidth, tmpHeight, tmpChannels;
+		// LOAD PIXELS FROM SINGLE FILE.HDR
+		pixels = loadFreeImage(filenameMask,false,flipV,flipH,width,height,channels);
+		if(!pixels) throw xFileNotFound();
+		shuffleCrossToCube(pixels,width,height,(channels==3)?12:4);
+		format = (channels==1)?TF_NONE:((channels==3)?TF_RGBF:TF_RGBA);
+
+		// GLU autogenerate mipmaps breaks float textures, disable mipmaps for float textures
+		if(channels==3 && mini==GL_LINEAR_MIPMAP_LINEAR)
+		{
+			mini=GL_LINEAR;
+			glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, mini);
+		}
+	}
+	else
+#endif
+	{
+		// LOAD PIXELS FROM SIX FILES
+		unsigned char* sides[6] = {NULL,NULL,NULL,NULL,NULL,NULL};
+		for(unsigned side=0;side<6;side++)
+		{
+			char buf[1000];
+			_snprintf(buf,999,filenameMask,cubeSideName[side]);
+			buf[999] = 0;
+
+			unsigned tmpWidth, tmpHeight, tmpChannels;
 
 #ifdef USE_FREEIMAGE
-		sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpChannels);
+			sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpChannels);
 #else
-		sides[side] = loadData(buf,tmpWidth,tmpHeight,tmpChannels);
+			sides[side] = loadData(buf,tmpWidth,tmpHeight,tmpChannels);
 #endif
-		if(!sides[side]) throw xFileNotFound();
+			if(!sides[side]) throw xFileNotFound();
 
-		if(!side)
-		{
-			width = tmpWidth;
-			height = tmpHeight;
-			channels = tmpChannels;
+			if(!side)
+			{
+				width = tmpWidth;
+				height = tmpHeight;
+				channels = tmpChannels;
+			}
+			else
+			{
+				if(tmpWidth!=width || tmpHeight!=height || tmpChannels!=channels || width!=height)
+					throw xFileNotFound();
+			}
+			//unsigned int type;
+			//type = (channels == 3) ? GL_RGB : GL_RGBA;
+			//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+			//gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
 		}
-		else
-		{
-			if(tmpWidth!=width || tmpHeight!=height || tmpChannels!=channels || width!=height)
-				throw xFileNotFound();
-		}
-		//unsigned int type;
-		//type = (channels == 3) ? GL_RGB : GL_RGBA;
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
-		//gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
-	}
 
-	// pack 6 images into 1 array
-	pixels = new unsigned char[width*height*channels*6];
-	for(unsigned side=0;side<6;side++)
-	{
-		memcpy(pixels+width*height*channels*side,sides[side],width*height*channels);
-		delete[] sides[side];
+		// pack 6 images into 1 array
+		// RGBA is expected here - warning: not satisfied when loading cube with 6 files and 96bit pixels
+		pixels = new unsigned char[width*height*channels*6];
+		for(unsigned side=0;side<6;side++)
+		{
+			memcpy(pixels+width*height*channels*side,sides[side],width*height*channels);
+			SAFE_DELETE_ARRAY(sides[side]);
+		}
+
+		format = (channels==1)?TF_NONE:((channels==3)?TF_RGBF:TF_RGBA);
 	}
 
 	// load cube from 1 array
-	format = (channels==1)?TF_NONE:((channels==3)?TF_RGB:TF_RGBA);
-	TextureGL::reset(width,height,format,pixels,true);
+	TextureGL::reset(width,height,format,pixels,mini==GL_LINEAR_MIPMAP_LINEAR);
 }
 
 
@@ -110,6 +178,8 @@ TextureFromDisk::TextureFromDisk(
 
 #ifdef USE_FREEIMAGE
 
+// if it returns channels=4 -> 32bit RGBA
+// if it returns channels=3 -> 96bit RGBF
 unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,unsigned& channels)
 {
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
@@ -126,35 +196,56 @@ unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,boo
 	if(fif!=FIF_UNKNOWN && FreeImage_FIFSupportsReading(fif))
 	{
 		// load the file
-		FIBITMAP *dib = FreeImage_Load(fif, filename);
-		if(dib)
+		FIBITMAP* dib1 = FreeImage_Load(fif, filename);
+		if(dib1)
 		{
-			// convert the file to 32bit BGRA
-			dib = FreeImage_ConvertTo32Bits(dib);
-			if(dib)
+			unsigned bpp1 = FreeImage_GetBPP(dib1);
+			if(bpp1==96)
 			{
-				if(flipV)
-					FreeImage_FlipVertical(dib);
-				if(flipH)
-					FreeImage_FlipHorizontal(dib);
+				// RGBF, conversion to 32bit doesn't work
+				FreeImage_FlipVertical(dib1);
 				// read size
-				width = FreeImage_GetWidth(dib);
-				height = FreeImage_GetHeight(dib);
-				channels = 4;
-				// convert BGRA to RGBA
-				pixels = new unsigned char[4*width*height];
-				BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
-				for(unsigned i=0;i<width*height;i++)
+				width = FreeImage_GetWidth(dib1);
+				height = FreeImage_GetHeight(dib1);
+				channels = 3;
+				pixels = new unsigned char[12*width*height];
+				BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib1);
+				memcpy(pixels,fipixels,width*height*12);
+			}
+			else
+			{
+				// try conversion to 32bit BGRA
+				FIBITMAP* dib2 = FreeImage_ConvertTo32Bits(dib1);
+				if(dib2)
 				{
-#define PROCESS(a) a //CLAMPED((int)(a*2),0,255) // quake korekce
-					pixels[4*i+0] = PROCESS(fipixels[4*i+2]);
-					pixels[4*i+1] = PROCESS(fipixels[4*i+1]);
-					pixels[4*i+2] = PROCESS(fipixels[4*i+0]);
-					pixels[4*i+3] = fipixels[4*i+3];
+					if(flipV)
+						FreeImage_FlipVertical(dib2);
+					if(flipH)
+						FreeImage_FlipHorizontal(dib2);
+					// read size
+					width = FreeImage_GetWidth(dib2);
+					height = FreeImage_GetHeight(dib2);
+					channels = 4;
+					// convert BGRA to RGBA
+					pixels = new unsigned char[4*width*height];
+					BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib2);
+					unsigned pitch = FreeImage_GetPitch(dib2);
+					for(unsigned j=0;j<height;j++)
+					{
+						for(unsigned i=0;i<width;i++)
+						{
+							pixels[j*4*width+4*i+0] = fipixels[j*pitch+4*i+2];
+							pixels[j*4*width+4*i+1] = fipixels[j*pitch+4*i+1];
+							pixels[j*4*width+4*i+2] = fipixels[j*pitch+4*i+0];
+							pixels[j*4*width+4*i+3] = fipixels[j*pitch+4*i+3];
+						}
+					}
+					// cleanup
+					FreeImage_Unload(dib2);
 				}
 			}
 			// cleanup
-			FreeImage_Unload(dib);
+			FreeImage_Unload(dib1);
 		}
 	}
 	return pixels;

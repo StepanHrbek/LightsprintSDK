@@ -159,7 +159,7 @@ Global illumination
 - dynamic lights
 - dynamic objects
 - multithreaded, all cores/CPUs and GPU work at once
-- all computed in HDR
+- computed and rendered in HDR
 - custom scale on inputs/outputs (HDR/sRGB/other)
 - scene size not limited
 - mesh instancing
@@ -201,6 +201,8 @@ Scene formats
 
 Texture formats
 - JPG, PNG, DDS, GIF, TGA, BMP, TIF, HDR...
+- including cube textures
+- including 96bit float colors
 
 Materials
 - supports all types of materials

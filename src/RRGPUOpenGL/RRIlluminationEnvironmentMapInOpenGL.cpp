@@ -102,7 +102,8 @@ rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::adaptIlluminationEnvironmen
 
 rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6], bool flipV, bool flipH)
 {
-	RRIlluminationEnvironmentMapInOpenGL* illum = new RRIlluminationEnvironmentMapInOpenGL(filenameMask,cubeSideName,flipV,flipH);
+	const char* notset[6] = {"bk","ft","up","dn","rt","lf"};
+	RRIlluminationEnvironmentMapInOpenGL* illum = new RRIlluminationEnvironmentMapInOpenGL(filenameMask,cubeSideName?cubeSideName:notset,flipV,flipH);
 	if(!illum->texture)
 		SAFE_DELETE(illum);
 	return illum;
