@@ -78,16 +78,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 
 
 /////////////////////////////////////////////////////////////////////////////
-
-/* Draw modes. */
-enum {
-	DM_EYE_VIEW_SHADOWED,
-	DM_EYE_VIEW_SOFTSHADOWED,
-};
-
-
-
-/////////////////////////////////////////////////////////////////////////////
 //
 // globals
 
@@ -112,7 +102,6 @@ int needDepthMapUpdate = 1;
 bool needLightmapCacheUpdate = false;
 int wireFrame = 0;
 int needMatrixUpdate = 1;
-int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 int showHelp = 0; // 0=none, 1=help, 2=credits
 int showLightViewFrustum = 0;
 bool modeMovingEye = 0;
@@ -250,17 +239,10 @@ protected:
 		{
 			if(needMatrixUpdate) updateMatrices(); // probably not necessary
 			// to avoid depth updates only for us, all depthmaps are updated and then used by following display()
-			if(drawMode==DM_EYE_VIEW_SOFTSHADOWED)
+			unsigned numInstances = areaLight->getNumInstances();
+			for(unsigned i=0;i<numInstances;i++)
 			{
-				unsigned numInstances = areaLight->getNumInstances();
-				for(unsigned i=0;i<numInstances;i++)
-				{
-					updateDepthMap(i,numInstances);
-				}
-			}
-			else
-			{
-				updateDepthMap(0,0);
+				updateDepthMap(i,numInstances);
 			}
 		}
 
@@ -1011,40 +993,7 @@ void display()
 
 	needRedisplay = 0;
 
-	switch(drawMode)
-	{
-		case DM_EYE_VIEW_SHADOWED:
-			{
-				updateDepthMap(0,0);
-				de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-				uberProgramSetup.SHADOW_MAPS = 1;
-				uberProgramSetup.SHADOW_SAMPLES = 1;
-				uberProgramSetup.LIGHT_DIRECT = true;
-				uberProgramSetup.LIGHT_DIRECT_MAP = true;
-				uberProgramSetup.LIGHT_INDIRECT_CONST = renderConstantAmbient;
-				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
-				uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-				uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-				//uberProgramSetup.MATERIAL_DIFFUSE = ;
-				//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
-				//uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = ;
-				//uberProgramSetup.MATERIAL_DIFFUSE_MAP = ;
-				//uberProgramSetup.MATERIAL_SPECULAR = ;
-				//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
-				//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
-				//uberProgramSetup.OBJECT_SPACE = false;
-				uberProgramSetup.FORCE_2D_POSITION = false;
-				glClear(GL_DEPTH_BUFFER_BIT);
-				drawEyeViewShadowed(uberProgramSetup,0);
-				break;
-			}
-		case DM_EYE_VIEW_SOFTSHADOWED:
-			drawEyeViewSoftShadowed();
-			break;
-		default:
-			assert(0);
-			break;
-	}
+	drawEyeViewSoftShadowed();
 
 	if(wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1137,16 +1086,6 @@ void toggleWireFrame(void)
 	}
 	glutPostRedisplay();
 }
-/*
-void toggleGlobalIllumination()
-{
-	if(drawMode == DM_EYE_VIEW_SHADOWED)
-		drawMode = DM_EYE_VIEW_SOFTSHADOWED;
-	else
-		drawMode = DM_EYE_VIEW_SHADOWED;
-	needDepthMapUpdate = 1;
-	needRedisplay = 1;
-}*/
 
 void changeSpotlight()
 {
@@ -1993,7 +1932,7 @@ void idle()
 	}
 
 //	LIMITED_TIMES(1,timer.Start());
-	bool rrOn = drawMode == DM_EYE_VIEW_SOFTSHADOWED;
+	bool rrOn = renderVertexColors;
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
