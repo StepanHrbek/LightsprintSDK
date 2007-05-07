@@ -8,16 +8,15 @@ unsigned INSTANCES_PER_PASS;
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
 //#define RENDER_OPTIMIZED
-#define THREE_ONE
+//#define THREE_ONE
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "3+1.cfg"
-#define CFG_FILE "Candella.cfg"
-//#define CFG_FILE "test.cfg"
+//#define CFG_FILE "Candella.cfg"
+#define CFG_FILE "test.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 1;
-bool renderLightmaps = 0;
 int resolutionx = 1024;
 int resolutiony = 768;
 bool twosided = 0;
@@ -25,6 +24,10 @@ bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
+
+bool renderConstantAmbient = 0;
+bool renderVertexColors = 1;
+bool renderLightmaps = 0;
 /*
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve
@@ -94,7 +97,6 @@ de::AreaLight* areaLight = NULL;
 de::Water* water = NULL;
 #ifdef THREE_ONE
 #else
-	de::Texture* hintMap = NULL;
 	de::Texture* lightsprintMap = NULL; // small logo in the corner
 #endif
 de::Program* ambientProgram;
@@ -113,7 +115,6 @@ int needMatrixUpdate = 1;
 int drawMode = DM_EYE_VIEW_SOFTSHADOWED;
 int showHelp = 0; // 0=none, 1=help, 2=credits
 int showLightViewFrustum = 0;
-bool showHint = 0;
 bool modeMovingEye = 0;
 unsigned movingEye = 0;
 unsigned movingLight = 0;
@@ -131,6 +132,7 @@ bool seekInMusicAtSceneSwap = false;
 bool shotRequested;
 DemoPlayer* demoPlayer = NULL;
 unsigned selectedObject_indexInDemo = 0;
+bool renderInfo = 1;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -185,7 +187,6 @@ void init_gl_resources()
 
 #ifdef THREE_ONE
 #else
-	hintMap = de::Texture::load("maps\\LightsprintRealtimeRadiosity_hints.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	lightsprintMap = de::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 #endif
 
@@ -208,7 +209,6 @@ void done_gl_resources()
 	SAFE_DELETE(uberProgram);
 #ifdef THREE_ONE
 #else
-	SAFE_DELETE(hintMap);
 	SAFE_DELETE(lightsprintMap);
 #endif
 	SAFE_DELETE(areaLight);
@@ -566,8 +566,8 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = renderConstantAmbient;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 			uberProgramSetup.LIGHT_INDIRECT_auto = renderLightmaps;
 			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
@@ -581,8 +581,8 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
-		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = renderConstantAmbient;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_auto = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
@@ -640,7 +640,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_DIRECT = false;
 		uberProgramSetup.LIGHT_DIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_auto = renderLightmaps;
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
@@ -734,9 +734,9 @@ static void drawHelpMessage(int screen)
 		" right button  - next scene",
 		"",
 		"Extra controls:",
-		" F1/F2/F3      - hard/soft/penumbra shadows",
+		" F1/F2/F3      - shadows: hard/soft/penumbra",
+		" F5/F6/F7/F8   - ambient: none/const/realtime/precalc",
 #ifndef THREE_ONE
-		" F5            - hints",
 		" F6            - credits",
 #endif
 		" F11           - save screenshot",
@@ -999,13 +999,6 @@ void display()
 		// don't display first frame, characters have bad position (dunno why)
 		skipFrames = 1;
 	}
-#ifndef THREE_ONE
-	if(showHint)
-	{
-		showImage(hintMap);
-		return;
-	}
-#endif
 
 	// pro jednoduchost je to tady
 	// kdyby to bylo u vsech stisku/pusteni/pohybu klaves/mysi a animaci,
@@ -1028,7 +1021,7 @@ void display()
 				uberProgramSetup.SHADOW_SAMPLES = 1;
 				uberProgramSetup.LIGHT_DIRECT = true;
 				uberProgramSetup.LIGHT_DIRECT_MAP = true;
-				uberProgramSetup.LIGHT_INDIRECT_CONST = true;
+				uberProgramSetup.LIGHT_INDIRECT_CONST = renderConstantAmbient;
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 				uberProgramSetup.LIGHT_INDIRECT_MAP = false;
 				uberProgramSetup.LIGHT_INDIRECT_ENV = false;
@@ -1053,25 +1046,25 @@ void display()
 			break;
 	}
 
-	// end of 3+1 demo -> multiple scenes at once
-	//displayScenes();
-
 	if(wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+	if(renderInfo)
+	{
 #ifdef THREE_ONE
-	if(!demoPlayer->getPaused())
-		showOverlay(level->pilot.setup->getOverlay());
+		if(!demoPlayer->getPaused())
+			showOverlay(level->pilot.setup->getOverlay());
 #else
-	showLogo(lightsprintMap);
+		showLogo(lightsprintMap);
 #endif
 
-	if(demoPlayer->getPaused() && level->animationEditor)
-	{
-		level->animationEditor->renderThumbnails(skyRenderer);
-	}
+		if(demoPlayer->getPaused() && level->animationEditor)
+		{
+			level->animationEditor->renderThumbnails(skyRenderer);
+		}
 
-	drawHelpMessage(showHelp);
+		drawHelpMessage(showHelp);
+	}
 
 	/*
 #ifndef THREE_ONE
@@ -1144,7 +1137,7 @@ void toggleWireFrame(void)
 	}
 	glutPostRedisplay();
 }
-
+/*
 void toggleGlobalIllumination()
 {
 	if(drawMode == DM_EYE_VIEW_SHADOWED)
@@ -1152,7 +1145,8 @@ void toggleGlobalIllumination()
 	else
 		drawMode = DM_EYE_VIEW_SHADOWED;
 	needDepthMapUpdate = 1;
-}
+	needRedisplay = 1;
+}*/
 
 void changeSpotlight()
 {
@@ -1208,12 +1202,6 @@ float speedLean = 0;
 
 void special(int c, int x, int y)
 {
-	if(showHint)
-	{
-		showHint = false;
-		return;
-	}
-
 	if(level 
 		&& demoPlayer->getPaused()
 		&& (x||y) // arrows simulated by w/s/a/d are not intended for editor
@@ -1225,6 +1213,7 @@ void special(int c, int x, int y)
 		if(c!=GLUT_KEY_INSERT) // insert moves cursor right but preserves scene
 			demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
 		level->pilot.reportInteraction();
+		needRedisplay = 1;
 		return;
 	}
 
@@ -1258,14 +1247,18 @@ void special(int c, int x, int y)
 			uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
 			setupAreaLight();
 			break;
+
+		case GLUT_KEY_F5: renderConstantAmbient = false; renderVertexColors = false; renderLightmaps = false; break;
+		case GLUT_KEY_F6: renderConstantAmbient = true; renderVertexColors = false; renderLightmaps = false; break;
+		case GLUT_KEY_F7: renderConstantAmbient = false; renderVertexColors = true; renderLightmaps = false; break;
+		case GLUT_KEY_F8: renderConstantAmbient = false; renderVertexColors = false; renderLightmaps = true; break;
+
 		case GLUT_KEY_F11:
 			shotRequested = 1;
 			break;
 
+			/*
 #ifndef THREE_ONE
-		case GLUT_KEY_F5:
-			showHint = 1;
-			break;
 		case GLUT_KEY_F6:
 			switch(showHelp)
 			{
@@ -1275,6 +1268,7 @@ void special(int c, int x, int y)
 			}
 			break;
 #endif
+			*/
 
 		case GLUT_KEY_UP:
 			speedForward = scale;
@@ -1333,12 +1327,6 @@ void keyboard(unsigned char c, int x, int y)
 	const char* cubeSideNames[6] = {"x+","x-","y+","y-","z+","z-"};
 #endif
 
-	if(showHint)
-	{
-		showHint = false;
-		return;
-	}
-
 	if(level
 		&& demoPlayer->getPaused()
 		&& level->animationEditor
@@ -1348,6 +1336,7 @@ void keyboard(unsigned char c, int x, int y)
 		demoPlayer->setPartPosition(level->animationEditor->getCursorTime());
 		demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
 		level->pilot.reportInteraction();
+		needRedisplay = 1;
 		return;
 	}
 
@@ -1574,9 +1563,6 @@ void keyboard(unsigned char c, int x, int y)
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
-		case ' ':
-			toggleGlobalIllumination();
-			break;
 		case 't':
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR;
 			uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP;
@@ -1672,12 +1658,13 @@ void keyboardUp(unsigned char c, int x, int y)
 enum
 {
 	ME_TOGGLE_WATER,
-	ME_TOGGLE_LIGHTMAPS,
+	ME_TOGGLE_INFO,
 	ME_UPDATE_LIGHTMAPS,
 	ME_SAVE_LIGHTMAPS,
 	ME_LOAD_LIGHTMAPS,
 	ME_PREVIOUS_SCENE,
 	ME_NEXT_SCENE,
+	ME_TOGGLE_HELP,
 };
 
 void mainMenu(int item)
@@ -1688,11 +1675,15 @@ void mainMenu(int item)
 			level->pilot.setup->renderWater = !level->pilot.setup->renderWater;
 			break;
 
-#if SUPPORT_LIGHTMAPS
-		case ME_TOGGLE_LIGHTMAPS:
-			renderLightmaps = !renderLightmaps;
+		case ME_TOGGLE_INFO:
+			renderInfo = !renderInfo;
 			break;
 
+		case ME_TOGGLE_HELP:
+			showHelp = 1-showHelp;
+			break;
+
+#if SUPPORT_LIGHTMAPS
 		case ME_UPDATE_LIGHTMAPS:
 			{
 				// set environment
@@ -1726,6 +1717,8 @@ void mainMenu(int item)
 
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
+				renderConstantAmbient = false;
+				renderVertexColors = false;
 				renderLightmaps = true;
 			}
 			break;
@@ -1809,6 +1802,8 @@ void mainMenu(int item)
 				modeMovingEye = true;
 				needLightmapCacheUpdate = true;
 				// start rendering ambient maps instead of vertex colors, so loaded maps get visible
+				renderConstantAmbient = false;
+				renderVertexColors = false;
 				renderLightmaps = true;
 				break;
 			}
@@ -1826,18 +1821,20 @@ void mainMenu(int item)
 			seekInMusicAtSceneSwap = true;
 			break;
 	}
+	glutWarpPointer(winWidth/2,winHeight/2);
 }
 
 void initMenu()
 {
 	int menu = glutCreateMenu(mainMenu);
 	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
-	glutAddMenuEntry("Toggle lightmaps", ME_TOGGLE_LIGHTMAPS);
+	glutAddMenuEntry("Toggle info",ME_TOGGLE_INFO);
 	glutAddMenuEntry("Lightmaps update", ME_UPDATE_LIGHTMAPS);
 	glutAddMenuEntry("Lightmaps save", ME_SAVE_LIGHTMAPS);
 	glutAddMenuEntry("Lightmaps load", ME_LOAD_LIGHTMAPS);
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
 	glutAddMenuEntry("Scene next", ME_NEXT_SCENE);
+	glutAddMenuEntry("Toggle help",ME_TOGGLE_HELP);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
@@ -1859,11 +1856,6 @@ void reshape(int w, int h)
 void mouse(int button, int state, int x, int y)
 {
 	if(level && state==GLUT_DOWN) level->pilot.reportInteraction();
-	if(showHint)
-	{
-		showHint = false;
-		return;
-	}
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		modeMovingEye = !modeMovingEye;
@@ -1957,7 +1949,7 @@ void idle()
 		//printf(" %f ",seconds);
 		if(cam==&currentFrame.light) reportLightMovement(); else reportEyeMovement();
 	}
-	if(!showHint && !demoPlayer->getPaused())
+	if(!demoPlayer->getPaused())
 	{
 //#ifdef THREE_ONE
 		demoPlayer->advance(seconds);
@@ -1994,7 +1986,7 @@ void idle()
 	{
 		reportLightMovementEnd();
 	}
-	if(!showHint && !demoPlayer->getPaused())
+	if(!demoPlayer->getPaused())
 	{
 		needDepthMapUpdate = 1;
 		needRedisplay = 1;
@@ -2153,8 +2145,8 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = false;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = renderConstantAmbient;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_auto = renderLightmaps;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
@@ -2181,7 +2173,7 @@ int main(int argc, char **argv)
 #endif
 	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram);
 #if SUPPORT_LIGHTMAPS
-	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = !renderLightmaps;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
 #endif
 	if(!INSTANCES_PER_PASS) error("",true);

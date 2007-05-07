@@ -10,11 +10,16 @@
 
 NEWS
 
+- Windows Vista support
+- Visual Studio 2005 SP1 support
 - RRDynamicSolver::updateVertexBuffersFromLightmap(),
   allows for fully general GI (incl. skybox, lights) computed into vertex buffers
+- support for float textures
+- support for cube textures stored in one 2d image (.hdr)
 
 CHANGES
 
+- RRIllumination library removed, is part of RRVision library now
 - increased compaibility via private assemblies in bin/win32
 - renamed RRDynamicSolver::Lights to RRLights
 
