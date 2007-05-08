@@ -63,6 +63,12 @@ bool LevelSetup::load(const char* afilename)
 	while((tmp=AnimationFrame::load(f)))
 	{
 		tmp->validate(objects.size());
+		if(!isOkForNewLayerNumber(tmp->layerNumber))
+		{
+			unsigned newNumber = newLayerNumber();
+			rr::RRReporter::report(rr::RRReporter::INFO,"Changing layer number %d -> %d.\n",tmp->layerNumber,newNumber);
+			tmp->layerNumber = newNumber;
+		}
 		frames.push_back(tmp);
 	}
 	fclose(f);
@@ -99,6 +105,23 @@ bool LevelSetup::save() const
 	}
 	fclose(f);
 	return true;
+}
+
+bool LevelSetup::isOkForNewLayerNumber(unsigned number)
+{
+	if(number<2) return false;
+	for(Frames::const_iterator i=frames.begin();i!=frames.end();i++)
+	{
+		if((*i)->layerNumber==number) return false;
+	}
+	return true;
+}
+
+unsigned LevelSetup::newLayerNumber()
+{
+	unsigned number = 0;
+	while(!isOkForNewLayerNumber(number)) number++;
+	return number;
 }
 
 LevelSetup::Frames::iterator LevelSetup::getFrameByIndex(unsigned index)

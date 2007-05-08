@@ -290,7 +290,7 @@ bool DynamicObjects::setupSceneDynamicForPartTime(LevelSetup* setup, float secon
 	{
 		return false; // no scene loaded
 	}
-	static AnimationFrame prevFrame;
+	static AnimationFrame prevFrame(0);
 	const AnimationFrame* frame = setup->getFrameByTime(secondsFromPartStart);
 	if(!frame)
 		return false;

@@ -32,10 +32,13 @@ struct AnimationFrame
 	DynaPosRot dynaPosRot;
 	// timing
 	float transitionToNextTime;
+	// precomputed layer
+	unsigned layerNumber;
 	// runtime generated
 	de::Texture* thumbnail;
 
-	AnimationFrame();
+	// layerNumber should be unique for whole animation track
+	AnimationFrame(unsigned layerNumber);
 	~AnimationFrame();
 
 	// returns blend between this and that frame

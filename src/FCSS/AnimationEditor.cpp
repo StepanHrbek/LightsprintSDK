@@ -119,7 +119,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			return true;
 		case GLUT_KEY_INSERT:
 			{LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
-			AnimationFrame* tmp = new AnimationFrame;
+			AnimationFrame* tmp = new AnimationFrame(setup->newLayerNumber());
 			extern void copySceneToAnimationFrame(AnimationFrame& frame, const LevelSetup* setup);
 			copySceneToAnimationFrame(*tmp,setup);
 			tmp->transitionToNextTime = (i!=setup->frames.end()) ? (*i)->transitionToNextTime : 3;

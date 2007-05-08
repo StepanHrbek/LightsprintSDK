@@ -81,7 +81,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 //
 // globals
 
-AnimationFrame currentFrame;
+AnimationFrame currentFrame(0);
 GLUquadricObj *quadric;
 de::AreaLight* areaLight = NULL;
 de::Water* water = NULL;
@@ -122,6 +122,7 @@ bool shotRequested;
 DemoPlayer* demoPlayer = NULL;
 unsigned selectedObject_indexInDemo = 0;
 bool renderInfo = 1;
+char* cfgFile = CFG_FILE;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1598,7 +1599,8 @@ enum
 {
 	ME_TOGGLE_WATER,
 	ME_TOGGLE_INFO,
-	ME_UPDATE_LIGHTMAPS,
+	ME_UPDATE_LIGHTMAPS_CUR,
+	ME_UPDATE_LIGHTMAPS_ENV,
 	ME_SAVE_LIGHTMAPS,
 	ME_LOAD_LIGHTMAPS,
 	ME_PREVIOUS_SCENE,
@@ -1623,15 +1625,13 @@ void mainMenu(int item)
 			break;
 
 #if SUPPORT_LIGHTMAPS
-		case ME_UPDATE_LIGHTMAPS:
+		case ME_UPDATE_LIGHTMAPS_ENV:
 			{
-				// set environment
-				//level->solver->setEnvironment(rr::RRIlluminationEnvironmentMap::createSky(rr::RRColorRGBF(0.4f)));
 				// set lights
-				rr::RRLights lights;
+				//rr::RRLights lights;
 				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRColorRGBF(0.5f))); //!!! not freed
 				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRColorRGBF(0.7f))); //!!! not freed
-				level->solver->setLights(lights);
+				//level->solver->setLights(lights);
 				// updates maps in high quality
 				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
 				paramsDirect.applyCurrentIndirectSolution = 0;
@@ -1647,12 +1647,29 @@ void mainMenu(int item)
 				// update all objects
 				level->solver->updateLightmaps(0,true,&paramsDirect,&paramsIndirect);
 
-				/*/ update 1 object
+				// stop updating maps in realtime, stay with what we computed here
+				modeMovingEye = true;
+				renderConstantAmbient = false;
+				renderVertexColors = false;
+				renderLightmaps = true;
+			}
+			break;
+
+		case ME_UPDATE_LIGHTMAPS_CUR:
+			{
+				// updates maps in high quality
+				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
+				paramsDirect.applyCurrentIndirectSolution = 1;
+				paramsDirect.applyLights = 0;
+				paramsDirect.applyEnvironment = 0;
+				paramsDirect.quality = LIGHTMAP_QUALITY;
+
+				// update 1 object
 				static unsigned obj=12;
 				if(!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
 					level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
 				level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
-				*/
+				//
 
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
@@ -1768,7 +1785,8 @@ void initMenu()
 	int menu = glutCreateMenu(mainMenu);
 	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
 	glutAddMenuEntry("Toggle info",ME_TOGGLE_INFO);
-	glutAddMenuEntry("Lightmaps update", ME_UPDATE_LIGHTMAPS);
+	glutAddMenuEntry("Lightmaps update(rt light)", ME_UPDATE_LIGHTMAPS_CUR);
+	glutAddMenuEntry("Lightmaps update(env+lights)", ME_UPDATE_LIGHTMAPS_ENV);
 	glutAddMenuEntry("Lightmaps save", ME_SAVE_LIGHTMAPS);
 	glutAddMenuEntry("Lightmaps load", ME_LOAD_LIGHTMAPS);
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
@@ -1786,7 +1804,7 @@ void reshape(int w, int h)
 
 	if(!demoPlayer)
 	{
-		demoPlayer = new DemoPlayer(CFG_FILE,supportEditor);
+		demoPlayer = new DemoPlayer(cfgFile,supportEditor);
 		demoPlayer->setPaused(supportEditor);
 		demoPlayer->setBigscreen(bigscreenCompensation);
 	}
@@ -1986,8 +2004,11 @@ void parseOptions(int argc, char **argv)
 {
 	int i;
 
-	for (i=1; i<argc; i++) 
+	for (i=1; i<argc; i++)
 	{
+		if (strstr(argv[i],".cfg")) {
+			cfgFile = argv[i];
+		}
 		if (!strcmp("editor", argv[i])) {
 			supportEditor = 1;
 			fullscreen = 0;

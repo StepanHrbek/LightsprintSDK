@@ -6,7 +6,7 @@
 //
 // AnimationFrame, one animation frame in editable form
 
-AnimationFrame::AnimationFrame()
+AnimationFrame::AnimationFrame(unsigned alayerNumber)
 {
 	de::Camera tmp[2] =
 		//{{{-3.266f,1.236f,1.230f},9.120f,0,0.100f,1.3f,45.0f,0.3f,1000.0f},
@@ -19,6 +19,7 @@ AnimationFrame::AnimationFrame()
 	gamma = 1;
 	transitionToNextTime = 3;
 	projectorIndex = 0;
+	layerNumber = alayerNumber;
 	thumbnail = NULL;
 }
 
@@ -52,7 +53,7 @@ rr::RRVec2 blendModulo(rr::RRVec2 a,rr::RRVec2 b,rr::RRReal alpha,rr::RRReal mod
 // return this for alpha=0, that for alpha=1
 const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float alpha) const
 {
-	static AnimationFrame blended;
+	static AnimationFrame blended(0);
 	// blend eye+light
 	float* a = (float*)(&this->eye);
 	float* b = (float*)(&that.eye);
@@ -82,7 +83,7 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 // load frame from opened .ani file
 AnimationFrame* AnimationFrame::load(FILE* f)
 {
-	AnimationFrame* tmp = new AnimationFrame;
+	AnimationFrame* tmp = new AnimationFrame(0);
 	if(!tmp->loadPrivate(f))
 		SAFE_DELETE(tmp);
 	return tmp;
@@ -91,6 +92,11 @@ AnimationFrame* AnimationFrame::load(FILE* f)
 bool AnimationFrame::loadPrivate(FILE* f)
 {
 	if(!f) return false;
+	// load layerNumber
+	layerNumber = 0;
+	fscanf(f,"layer_number = %d\n",&layerNumber);
+	//if(1!=fscanf(f,"layer_number = %d\n",&layerNumber))
+	//	return false;
 	// load eye+light
 	if(10!=fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eye.pos[0],&eye.pos[1],&eye.pos[2],&eye.angle,&eye.leanAngle,&eye.angleX,&eye.aspect,&eye.fieldOfView,&eye.anear,&eye.afar))
 		return false;
@@ -134,6 +140,8 @@ void AnimationFrame::validate(unsigned numObjects)
 bool AnimationFrame::save(FILE* f) const
 {
 	if(!f) return false;
+	// save layer number
+	fprintf(f,"layer_number = %d\n",layerNumber);
 	// save eye+light
 	fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 	fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",light.pos[0],light.pos[1],light.pos[2],fmodf(light.angle+100*3.14159265f,2*3.14159265f),light.leanAngle,light.angleX,light.aspect,light.fieldOfView,light.anear,light.afar);

@@ -38,6 +38,11 @@ public:
 	// save all to .ani file
 	bool save() const;
 
+	// returns if layer number is available (not used and >=2)
+	bool isOkForNewLayerNumber(unsigned layerNumber);
+	// returns layer number not used by our frames
+	unsigned newLayerNumber();
+
 	// returns iterator to n-th frame
 	Frames::iterator getFrameByIndex(unsigned index);
 
