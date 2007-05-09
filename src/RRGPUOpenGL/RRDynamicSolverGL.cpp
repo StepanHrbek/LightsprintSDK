@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <cassert>
+#include <cstdarg>
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
@@ -569,6 +570,78 @@ unsigned RRDynamicSolverGL::updateVertexBuffersFromLightmaps(unsigned layerNumbe
 	solutionVersion++;
 	// reads interpolated solution [per-vertex-physical] from solver
 	return updateVertexBuffers(layerNumber,createMissingBuffers,rr::RRRadiometricMeasure(0,0,0,1,0));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// save & load
+
+char *bp(const char *fmt, ...)
+{
+	static char msg[1000];
+	va_list argptr;
+	va_start (argptr,fmt);
+	vsprintf (msg,fmt,argptr);
+	va_end (argptr);
+	return msg;
+}
+
+unsigned RRDynamicSolverGL::loadIllumination(const char* path, unsigned layerNumber, bool vertexColors, bool lightmaps)
+{
+	unsigned result = 0;
+	unsigned numObjects = getNumObjects();
+	for(unsigned i=0;i<numObjects;i++)
+	{
+		rr::RRObjectIllumination* illumination = getIllumination(i);
+		if(illumination)
+		{
+			rr::RRObjectIllumination::Layer* layer = illumination->getLayer(layerNumber);
+			if(layer)
+			{
+				if(vertexColors)
+				{
+				//	delete layer->vertexBuffer;
+				//	layer->vertexBuffer = loadIlluminationVertexBuffer(bp("%svcol_%02d_%02d.png",path?path:"",i,layerNumber),illumination->getNumPreImportVertices());
+				//	if(layer->vertexBuffer)
+				//		result++;
+				}
+				if(lightmaps)
+				{
+					delete layer->pixelBuffer;
+					layer->pixelBuffer = loadIlluminationPixelBuffer(bp("%slmap_%02d_%02d.png",path?path:"",i,layerNumber));
+					if(layer->pixelBuffer)
+						result++;
+				}
+			}
+		}
+	}
+	return result;
+}
+
+unsigned RRDynamicSolverGL::saveIllumination(const char* path, unsigned layerNumber, bool vertexColors, bool lightmaps)
+{
+	unsigned result = 0;
+	unsigned numObjects = getNumObjects();
+	for(unsigned i=0;i<numObjects;i++)
+	{
+		rr::RRObjectIllumination* illumination = getIllumination(i);
+		if(illumination)
+		{
+			rr::RRObjectIllumination::Layer* layer = illumination->getLayer(layerNumber);
+			if(layer)
+			{
+				if(vertexColors && layer->vertexBuffer)
+				{
+				//	result += layer->vertexBuffer->save(bp("%svcol_%02d_%02d.png",path?path:"",i,layerNumber));
+				}
+				if(lightmaps && layer->pixelBuffer)
+				{
+					result += layer->pixelBuffer->save(bp("%slmap_%02d_%02d.png",path?path:"",i,layerNumber));
+				}
+			}
+		}
+	}
+	return result;
 }
 
 }; // namespace

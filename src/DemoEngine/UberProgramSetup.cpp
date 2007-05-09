@@ -17,15 +17,17 @@ namespace de
 const char* UberProgramSetup::getSetupString()
 {
 	static char setup[500];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
 		LIGHT_INDIRECT_VCOLOR?"#define LIGHT_INDIRECT_VCOLOR\n":"",
+		LIGHT_INDIRECT_VCOLOR2?"#define LIGHT_INDIRECT_VCOLOR2\n":"",
 		LIGHT_INDIRECT_VCOLOR_PHYSICAL?"#define LIGHT_INDIRECT_VCOLOR_PHYSICAL\n":"",
 		LIGHT_INDIRECT_MAP?"#define LIGHT_INDIRECT_MAP\n":"",
+		LIGHT_INDIRECT_MAP2?"#define LIGHT_INDIRECT_MAP2\n":"",
 		LIGHT_INDIRECT_ENV?"#define LIGHT_INDIRECT_ENV\n":"",
 		MATERIAL_DIFFUSE?"#define MATERIAL_DIFFUSE\n":"",
 		MATERIAL_DIFFUSE_CONST?"#define MATERIAL_DIFFUSE_CONST\n":"",
@@ -174,6 +176,13 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 		int id=TEXTURE_2D_LIGHT_INDIRECT;
 		//glActiveTexture(GL_TEXTURE0+id);
 		program->sendUniform("lightIndirectMap", id);
+	}
+
+	if(LIGHT_INDIRECT_MAP2)
+	{
+		int id=TEXTURE_2D_LIGHT_INDIRECT2;
+		//glActiveTexture(GL_TEXTURE0+id);
+		program->sendUniform("lightIndirectMap2", id);
 	}
 
 	if(LIGHT_INDIRECT_ENV)

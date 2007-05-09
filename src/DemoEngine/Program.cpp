@@ -14,6 +14,8 @@
 namespace de
 {
 
+bool Program::showLog = false;
+
 Program::Program(const char* defines, const char *vertexShader, const char *fragmentShader)
   :vertex(NULL), fragment(NULL)
 {
@@ -37,7 +39,22 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 	glGetProgramiv(handle,GL_LINK_STATUS,&alinked);
 	// store result
 	linked = alinked && logLooksSafe();
-	//	assert(linked);
+
+	if(showLog)
+	{
+		GLint debugLength;
+		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
+		if(debugLength>2)
+		{
+			printf("Vertex: %s\n",vertexShader);
+			printf("Fragment: %s\n",fragmentShader);
+			if(defines && defines[0]) printf("Defines: %s",defines);
+			GLchar *debug = new GLchar[debugLength];
+			glGetProgramInfoLog(handle, debugLength, &debugLength, debug);
+			printf("Log: %s\n\n",debug);
+			delete[] debug;
+		}
+	}
 }
 
 Program::~Program()
@@ -62,7 +79,6 @@ bool Program::logLooksSafe()
 	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
 	debug = new GLchar[debugLength];
 	glGetProgramInfoLog(handle, debugLength, &debugLength, debug);
-	//printf("%s\n\n",debug);
 	// when log contains "software", program probably can't run on GPU
 	if(strstr(debug,"software"))
 	{

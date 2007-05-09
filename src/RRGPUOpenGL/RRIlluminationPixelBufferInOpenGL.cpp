@@ -61,7 +61,7 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(const char*
 {
 	rendering = false;
 
-	if(!numInstances) helpers = new Helpers(pathToShaders);
+	if(!helpers) helpers = new Helpers(pathToShaders);
 	numInstances++;
 
 	if(filename)
@@ -323,10 +323,13 @@ RRIlluminationPixelBufferInOpenGL::~RRIlluminationPixelBufferInOpenGL()
 	delete[] renderedTexels;
 
 	numInstances--;
-	if(!numInstances)
+}
+
+void RRDynamicSolverGL::cleanup()
+{
+	if(!RRIlluminationPixelBufferInOpenGL::numInstances)
 	{
-		delete helpers;
-		helpers = NULL;
+		SAFE_DELETE(helpers);
 	}
 }
 

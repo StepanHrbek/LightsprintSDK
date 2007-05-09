@@ -44,7 +44,9 @@ public:
 	unsigned newLayerNumber();
 
 	// returns iterator to n-th frame
-	Frames::iterator getFrameByIndex(unsigned index);
+	Frames::iterator getFrameIterByIndex(unsigned index);
+	// returns n-th frame
+	AnimationFrame* getFrameByIndex(unsigned index);
 
 	// returns time from animation start in seconds to given frame
 	float getFrameTime(unsigned index) const;

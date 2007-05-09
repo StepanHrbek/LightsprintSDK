@@ -59,8 +59,8 @@ const AnimationFrame* Autopilot::autopilot(float seconds, bool* lightsChanged)
 		*lightsChanged = true;
 	}
 	return (alpha<=0)
-		? *setup->getFrameByIndex(frameA)
-		: (*setup->getFrameByIndex(frameA))->blend(**setup->getFrameByIndex(frameB),alpha);
+		? setup->getFrameByIndex(frameA)
+		: (setup->getFrameByIndex(frameA))->blend(*setup->getFrameByIndex(frameB),alpha);
 }
 
 bool Autopilot::isTimeToChangeLevel()

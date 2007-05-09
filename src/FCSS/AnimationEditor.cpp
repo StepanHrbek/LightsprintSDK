@@ -91,10 +91,10 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 		case GLUT_KEY_LEFT:
 			if(modif)
 			{
-				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
-				if(i!=setup->frames.end())
+				AnimationFrame* frame=setup->getFrameByIndex(frameCursor);
+				if(frame)
 				{
-					(*i)->transitionToNextTime = MAX(0.02f,(*i)->transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
+					frame->transitionToNextTime = MAX(0.02f,frame->transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
 				}
 			}
 			else
@@ -105,11 +105,11 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 		case GLUT_KEY_RIGHT:
 			if(modif)
 			{
-				LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
-				if(i!=setup->frames.end())
+				AnimationFrame* frame=setup->getFrameByIndex(frameCursor);
+				if(frame)
 				{
-					if((*i)->transitionToNextTime<0.03f) (*i)->transitionToNextTime=0;
-					(*i)->transitionToNextTime += ((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f);
+					if(frame->transitionToNextTime<0.03f) frame->transitionToNextTime=0;
+					frame->transitionToNextTime += ((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f);
 				}
 			}
 			else
@@ -118,7 +118,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 			}
 			return true;
 		case GLUT_KEY_INSERT:
-			{LevelSetup::Frames::iterator i=setup->getFrameByIndex(frameCursor);
+			{LevelSetup::Frames::iterator i=setup->getFrameIterByIndex(frameCursor);
 			AnimationFrame* tmp = new AnimationFrame(setup->newLayerNumber());
 			extern void copySceneToAnimationFrame(AnimationFrame& frame, const LevelSetup* setup);
 			copySceneToAnimationFrame(*tmp,setup);
@@ -129,14 +129,14 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 		case GLUT_KEY_PAGE_UP:
 			if(frameCursor && frameCursor<setup->frames.size())
 			{
-				std::swap(*setup->getFrameByIndex(frameCursor),*setup->getFrameByIndex(frameCursor-1));
+				std::swap(*setup->getFrameIterByIndex(frameCursor),*setup->getFrameIterByIndex(frameCursor-1));
 				frameCursor--;
 			}
 			return true;
 		case GLUT_KEY_PAGE_DOWN:
 			if(frameCursor+1<setup->frames.size())
 			{
-				std::swap(*setup->getFrameByIndex(frameCursor),*setup->getFrameByIndex(frameCursor+1));
+				std::swap(*setup->getFrameIterByIndex(frameCursor),*setup->getFrameIterByIndex(frameCursor+1));
 				frameCursor++;
 			}
 			return true;

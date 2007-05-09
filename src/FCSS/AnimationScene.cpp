@@ -124,11 +124,20 @@ unsigned LevelSetup::newLayerNumber()
 	return number;
 }
 
-LevelSetup::Frames::iterator LevelSetup::getFrameByIndex(unsigned index)
+LevelSetup::Frames::iterator LevelSetup::getFrameIterByIndex(unsigned index)
 {
+	//RR_ASSERT(index<frames.size());
 	Frames::iterator i=frames.begin();
 	for(unsigned j=0;j<index;j++) i++;
 	return i;
+}
+
+AnimationFrame* LevelSetup::getFrameByIndex(unsigned index)
+{
+	if(index<frames.size())
+		return *getFrameIterByIndex(index);
+	else
+		return NULL;
 }
 
 float LevelSetup::getFrameTime(unsigned index) const
@@ -185,8 +194,8 @@ unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone
 		i++;
 		result++;
 	}
-	*transitionDone = absSeconds;
-	*transitionTotal = (i==frames.end())? 0 : (*i)->transitionToNextTime;
+	if(transitionDone) *transitionDone = absSeconds;
+	if(transitionTotal) *transitionTotal = (i==frames.end())? 0 : (*i)->transitionToNextTime;
 	return result;
 }
 

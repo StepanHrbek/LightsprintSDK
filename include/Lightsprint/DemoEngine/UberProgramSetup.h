@@ -21,8 +21,9 @@ enum
 	TEXTURE_2D_MATERIAL_DIFFUSE          = 11, ///< Sampler id used by our uberprogram for diffuse map.
 	TEXTURE_2D_MATERIAL_EMISSIVE         = 12, ///< Sampler id used by our uberprogram for emissive map.
 	TEXTURE_2D_LIGHT_INDIRECT            = 13, ///< Sampler id used by our uberprogram for ambient map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 14, ///< Sampler id used by our uberprogram for specular cube map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 15, ///< Sampler id used by our uberprogram for diffuse cube map.
+	TEXTURE_2D_LIGHT_INDIRECT2           = 14, ///< Sampler id used by our uberprogram for ambient map2.
+	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 15, ///< Sampler id used by our uberprogram for specular cube map.
+	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 16, ///< Sampler id used by our uberprogram for diffuse cube map.
 
 	// texcoords assigned to UberProgram
 	// these constants are hardcoded in shaders
@@ -52,8 +53,10 @@ struct DE_API UberProgramSetup
 	bool     LIGHT_DIRECT_MAP       :1; ///< Enables modulation of direct light by map. Projects texture.
 	bool     LIGHT_INDIRECT_CONST   :1; ///< Enables indirect light, constant.
 	bool     LIGHT_INDIRECT_VCOLOR  :1; ///< Enables indirect light, set per vertex.
+	bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< Enables blend between two ambient vertex colors.
 	bool     LIGHT_INDIRECT_VCOLOR_PHYSICAL :1; ///< If indirect light per vertex is used, it is expected in physical scale, converted to screen space in shader.
 	bool     LIGHT_INDIRECT_MAP     :1; ///< Enables indirect light, set by ambient map.
+	bool     LIGHT_INDIRECT_MAP2    :1; ///< Enables blend between two ambient maps.
 	bool     LIGHT_INDIRECT_ENV     :1; ///< Enables indirect light, set by environment map.
 	bool     LIGHT_INDIRECT_auto    :1; ///< Extension. Makes RendererOfScene automatically set LIGHT_INDIRECT_VCOLOR and LIGHT_INDIRECT_MAP according to available data. If both vertex and pixel buffers are available, pixel is used.
 	bool     MATERIAL_DIFFUSE       :1; ///< Enables material's diffuse reflection.

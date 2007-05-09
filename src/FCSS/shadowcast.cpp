@@ -394,6 +394,35 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 {
 	if(!level) return;
 
+#ifdef RENDER_OPTIMIZED
+	level->rendererOfScene->useOptimizedScene();
+#else
+	// update realtime layer 0
+	static unsigned solutionVersion = 0;
+	if(level->solver->getSolutionVersion()!=solutionVersion)
+	{
+		solutionVersion = level->solver->getSolutionVersion();
+		level->solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
+	}
+	if(demoPlayer->getPaused())
+	{
+		// paused -> show realtime layer 0
+		level->rendererOfScene->useOriginalScene(0);
+	}
+	else
+	{
+		// playing -> show precomputed layers (with fallback to realtime layer 0)
+		//const AnimationFrame* frameBlended = level->pilot.setup->getFrameByTime(demoPlayer->getPartPosition());
+		//demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frameBlended,true);
+		float transitionDone = 0;
+		float transitionTotal = 0;
+		unsigned frameIndex0 = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
+		const AnimationFrame* frame0 = level->pilot.setup->getFrameByIndex(frameIndex0);
+		const AnimationFrame* frame1 = level->pilot.setup->getFrameByIndex(frameIndex0+1);
+		level->rendererOfScene->useOriginalSceneBlend(frame0?frame0->layerNumber:0,frame1?frame1->layerNumber:0,transitionTotal?transitionDone/transitionTotal:0,0);
+	}
+#endif
+
 	// boost quake map intensity
 	if(level->type==Level::TYPE_BSP && uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
@@ -406,17 +435,6 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted[0],globalGammaBoosted);
 
 	level->rendererOfScene->setParams(uberProgramSetup,areaLight,demoPlayer->getProjector(currentFrame.projectorIndex));
-#ifdef RENDER_OPTIMIZED
-	level->rendererOfScene->useOptimizedScene();
-#else
-	static unsigned solutionVersion = 0;
-	if(level->solver->getSolutionVersion()!=solutionVersion)
-	{
-		solutionVersion = level->solver->getSolutionVersion();
-		level->solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
-	}
-	level->rendererOfScene->useOriginalScene(0);
-#endif
 	level->rendererOfScene->render();
 }
 
@@ -457,6 +475,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
 	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
+	uberProgramSetup.LIGHT_INDIRECT_auto = false;
 	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramSetup.MATERIAL_DIFFUSE = false;
 	uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
@@ -1599,10 +1618,13 @@ enum
 {
 	ME_TOGGLE_WATER,
 	ME_TOGGLE_INFO,
-	ME_UPDATE_LIGHTMAPS_CUR,
-	ME_UPDATE_LIGHTMAPS_ENV,
-	ME_SAVE_LIGHTMAPS,
-	ME_LOAD_LIGHTMAPS,
+	ME_UPDATE_LIGHTMAPS_0,
+	ME_UPDATE_LIGHTMAPS_0_ENV,
+	ME_SAVE_LIGHTMAPS_0,
+	ME_LOAD_LIGHTMAPS_0,
+	ME_UPDATE_LIGHTMAPS_ALL,
+	ME_SAVE_LIGHTMAPS_ALL,
+	ME_LOAD_LIGHTMAPS_ALL,
 	ME_PREVIOUS_SCENE,
 	ME_NEXT_SCENE,
 	ME_TOGGLE_HELP,
@@ -1625,7 +1647,7 @@ void mainMenu(int item)
 			break;
 
 #if SUPPORT_LIGHTMAPS
-		case ME_UPDATE_LIGHTMAPS_ENV:
+		case ME_UPDATE_LIGHTMAPS_0_ENV:
 			{
 				// set lights
 				//rr::RRLights lights;
@@ -1655,7 +1677,7 @@ void mainMenu(int item)
 			}
 			break;
 
-		case ME_UPDATE_LIGHTMAPS_CUR:
+		case ME_UPDATE_LIGHTMAPS_0:
 			{
 				// updates maps in high quality
 				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
@@ -1666,9 +1688,12 @@ void mainMenu(int item)
 
 				// update 1 object
 				static unsigned obj=12;
-				if(!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
-					level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
-				level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
+				if(level->solver->getIllumination(obj))
+				{
+					if(!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
+						level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
+					level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
+				}
 				//
 
 				// stop updating maps in realtime, stay with what we computed here
@@ -1679,7 +1704,39 @@ void mainMenu(int item)
 			}
 			break;
 
-		case ME_SAVE_LIGHTMAPS:
+		case ME_UPDATE_LIGHTMAPS_ALL:
+			{
+				// updates all maps in high quality
+				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
+				paramsDirect.applyCurrentIndirectSolution = 1;
+				paramsDirect.applyLights = 0;
+				paramsDirect.applyEnvironment = 0;
+				paramsDirect.quality = LIGHTMAP_QUALITY;
+
+				for(LevelSetup::Frames::const_iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
+				{
+					demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,**i,true);
+					printf("(");
+					for(unsigned j=0;j<10+LIGHTMAP_QUALITY/10;j++)
+						level->solver->calculate();
+					printf(")");
+					unsigned layerNumber = (*i)->layerNumber;
+					// update 1 object
+					static unsigned obj=0;
+					if(!level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer)
+						level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
+					level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer,&paramsDirect);
+				}
+
+				// stop updating maps in realtime, stay with what we computed here
+				modeMovingEye = true;
+				renderConstantAmbient = false;
+				renderVertexColors = false;
+				renderLightmaps = true;
+			}
+			break;
+
+		case ME_SAVE_LIGHTMAPS_0:
 			// save current illumination maps
 			{
 				static unsigned captureIndex = 0;
@@ -1715,7 +1772,7 @@ void mainMenu(int item)
 				break;
 			}
 
-		case ME_LOAD_LIGHTMAPS:
+		case ME_LOAD_LIGHTMAPS_0:
 			// load illumination from disk
 			{
 				unsigned captureIndex = 0;
@@ -1763,6 +1820,16 @@ void mainMenu(int item)
 				renderLightmaps = true;
 				break;
 			}
+
+		case ME_SAVE_LIGHTMAPS_ALL:
+			// save all illumination maps
+			if(level) printf("Saved %d buffers.\n",level->saveIllumination("export/",true,true));
+			break;
+
+		case ME_LOAD_LIGHTMAPS_ALL:
+			// load all illumination from disk
+			if(level) printf("Loaded %d buffers.\n",level->loadIllumination("export/",true,true));
+			break;
 #endif // SUPPORT_LIGHTMAPS
 
 		//case ME_PREVIOUS_SCENE:
@@ -1778,6 +1845,7 @@ void mainMenu(int item)
 			break;
 	}
 	glutWarpPointer(winWidth/2,winHeight/2);
+	glutPostRedisplay();
 }
 
 void initMenu()
@@ -1785,10 +1853,13 @@ void initMenu()
 	int menu = glutCreateMenu(mainMenu);
 	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
 	glutAddMenuEntry("Toggle info",ME_TOGGLE_INFO);
-	glutAddMenuEntry("Lightmaps update(rt light)", ME_UPDATE_LIGHTMAPS_CUR);
-	glutAddMenuEntry("Lightmaps update(env+lights)", ME_UPDATE_LIGHTMAPS_ENV);
-	glutAddMenuEntry("Lightmaps save", ME_SAVE_LIGHTMAPS);
-	glutAddMenuEntry("Lightmaps load", ME_LOAD_LIGHTMAPS);
+	glutAddMenuEntry("Lightmaps update(rt light)", ME_UPDATE_LIGHTMAPS_0);
+	glutAddMenuEntry("Lightmaps update(env+lights)", ME_UPDATE_LIGHTMAPS_0_ENV);
+	glutAddMenuEntry("Lightmaps save current", ME_SAVE_LIGHTMAPS_0);
+	glutAddMenuEntry("Lightmaps load current", ME_LOAD_LIGHTMAPS_0);
+	glutAddMenuEntry("Lightmaps update(rt light) all", ME_UPDATE_LIGHTMAPS_ALL);
+	glutAddMenuEntry("Lightmaps save all", ME_SAVE_LIGHTMAPS_ALL);
+	glutAddMenuEntry("Lightmaps load all", ME_LOAD_LIGHTMAPS_ALL);
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
 	glutAddMenuEntry("Scene next", ME_NEXT_SCENE);
 	glutAddMenuEntry("Toggle help",ME_TOGGLE_HELP);
@@ -2052,6 +2123,7 @@ int main(int argc, char **argv)
 	}
 
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	de::Program::showLog = true;
 
 	parseOptions(argc, argv);
 

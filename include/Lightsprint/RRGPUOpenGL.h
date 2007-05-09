@@ -120,6 +120,15 @@ namespace rr_gl
 		//!   Flip each image horizontally at load time.
 		static rr::RRIlluminationEnvironmentMap* loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6], bool flipV = false, bool flipH = false);
 
+		//! Loads illumination layer from disk.
+		unsigned loadIllumination(const char* path, unsigned layerNumber, bool vertexColors, bool lightmaps);
+		//! Saves illumination layer to disk.
+		unsigned saveIllumination(const char* path, unsigned layerNumber, bool vertexColors, bool lightmaps);
+
+		//! Deletes helper objects stored permanently to speed up some operations.
+		//! Calling it makes sense if you detect memory leaks.
+		static void cleanup();
+
 	protected:
 		//! Detection of direct illumination from custom light sources implemented using OpenGL 2.0.
 		virtual bool detectDirectIllumination();

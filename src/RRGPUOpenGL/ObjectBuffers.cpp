@@ -224,6 +224,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	// set indirect illumination vertices
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
+		if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
+		{
+			RR_ASSERT(0);
+		}
 		if(indices)
 		{
 			if(params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
@@ -306,6 +310,14 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
 		params.availableIndirectIlluminationMap->bindTexture();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+	// set indirect illumination map2
+	if(params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
+	{
+		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT2);
+		params.availableIndirectIlluminationMap2->bindTexture();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
@@ -433,6 +445,12 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	{
 		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_FORCED_2D);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
+	// unset indirect illumination map2
+	if(params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
+	{
+		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT2);
+		glBindTexture(GL_TEXTURE_2D,0);
 	}
 	// unset indirect illumination texcoords + map
 	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)

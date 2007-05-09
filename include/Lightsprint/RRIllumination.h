@@ -380,8 +380,7 @@ namespace rr
 		//!  Supported file formats are implementation defined.
 		//!  Implementation is free to create 6 files for 6 cube sides.
 		//!  In such case, filename must contain \%s wildcard, that will be replaced by cubeSideName.
-		//!  Example: "/maps/cube_%s.png".
-		//! \param filenameMask Name of image file. Must be in supported format.
+		//!  Example: "path/cube_%s.png".
 		//! \param cubeSideName Array of six unique names of cube sides in following order:
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!  Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.

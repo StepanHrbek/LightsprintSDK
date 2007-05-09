@@ -62,6 +62,9 @@ public:
 	//!  Indirect illumination will be taken from given layer.
 	void useOriginalScene(unsigned layerNumber);
 
+	//! Specifies data source - original scene geometry and blended of illumination from given layers.
+	void useOriginalSceneBlend(unsigned layerNumber1, unsigned layerNumber2, float layerBlend, unsigned layerNumberFallback);
+
 	//! Specifies data source - optimized internal scene in solver and live illumination in solver.
 	//
 	//! Optimized scene may have fewer vertices and/or triangles because of optional vertex stitching

@@ -28,22 +28,23 @@ char* readShader(const char *filename)
 
 Shader::Shader(const char* defines, const char* filename, GLenum shaderType)
 {
-	const char *source[2];
+	const char *source[3];
 	handle = glCreateShader(shaderType);
 
-	source[0] = defines?defines:"";
-	source[1] = readShader(filename);
-	if(!source[1])
+	source[0] = "#version 110\n";
+	source[1] = defines?defines:"";
+	source[2] = readShader(filename);
+	if(!source[2])
 	{
 		printf("Shader %s not found.\nPress enter to end...",filename);
 		fgetc(stdin);
 		exit(1);
 	}
-	glShaderSource(handle, 2, (const GLchar**)source, NULL);
+	glShaderSource(handle, 3, (const GLchar**)source, NULL);
   
 	compile();
   
-	delete[] source[1];
+	delete[] source[2];
 }
 
 void Shader::compile()

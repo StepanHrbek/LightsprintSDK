@@ -177,7 +177,9 @@ void RendererOfRRDynamicSolver::render()
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.LIGHT_DIRECT = params.uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
+	renderedChannels.LIGHT_INDIRECT_VCOLOR2 = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
 	renderedChannels.LIGHT_INDIRECT_MAP = params.uberProgramSetup.LIGHT_INDIRECT_MAP;
+	renderedChannels.LIGHT_INDIRECT_MAP2 = params.uberProgramSetup.LIGHT_INDIRECT_MAP2;
 	renderedChannels.LIGHT_INDIRECT_ENV = params.uberProgramSetup.LIGHT_INDIRECT_ENV;
 	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = params.uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
@@ -214,6 +216,7 @@ public:
 	//! \param layerNumber
 	//!  Indirect illumination will be taken from given layer.
 	void setIndirectIlluminationSource(unsigned layerNumber);
+	void setIndirectIlluminationSourceBlend(unsigned layerNumber1, unsigned layerNumber2, float transition, unsigned layerNumberFallback);
 
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
 	virtual void render();
@@ -223,6 +226,9 @@ public:
 private:
 	// n renderers for n objects
 	unsigned layerNumber;
+	unsigned layerNumber2;
+	float layerBlend; // 0..1, 0=layerNumber, 1=layerNumber2
+	unsigned layerNumberFallback;
 	std::vector<de::Renderer*> renderersCaching;
 	std::vector<RendererOfRRObject*> renderersNonCaching;
 };
@@ -242,6 +248,17 @@ RendererOfOriginalScene::~RendererOfOriginalScene()
 void RendererOfOriginalScene::setIndirectIlluminationSource(unsigned alayerNumber)
 {
 	layerNumber = alayerNumber;
+	layerNumber2 = 0;
+	layerBlend = 0;
+	layerNumberFallback = 0;
+}
+
+void RendererOfOriginalScene::setIndirectIlluminationSourceBlend(unsigned alayerNumber1, unsigned alayerNumber2, float alayerBlend, unsigned alayerNumberFallback)
+{
+	layerNumber = alayerNumber1;
+	layerNumber2 = alayerNumber2;
+	layerBlend = alayerBlend;
+	layerNumberFallback = alayerNumberFallback;
 }
 
 void RendererOfOriginalScene::render()
@@ -289,7 +306,9 @@ void RendererOfOriginalScene::render()
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.LIGHT_DIRECT = params.uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
+	renderedChannels.LIGHT_INDIRECT_VCOLOR2 = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
 	renderedChannels.LIGHT_INDIRECT_MAP = params.uberProgramSetup.LIGHT_INDIRECT_MAP;
+	renderedChannels.LIGHT_INDIRECT_MAP2 = params.uberProgramSetup.LIGHT_INDIRECT_MAP2;
 	renderedChannels.LIGHT_INDIRECT_ENV = params.uberProgramSetup.LIGHT_INDIRECT_ENV;
 	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = params.uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
@@ -298,6 +317,7 @@ void RendererOfOriginalScene::render()
 
 	// - working copy of params.uberProgramSetup
 	de::UberProgramSetup uberProgramSetup = params.uberProgramSetup;
+	de::UberProgramSetup uberProgramSetupPrevious;
 	uberProgramSetup.OBJECT_SPACE = true;
 
 	de::Program* program = NULL;
@@ -307,19 +327,30 @@ void RendererOfOriginalScene::render()
 		// - set shader according to vbuf/pbuf presence
 		rr::RRIlluminationVertexBuffer* vbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer;
 		rr::RRIlluminationPixelBuffer* pbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer;
-		if(i==0 || (uberProgramSetup.LIGHT_INDIRECT_auto && ((vbuffer?true:false)!=uberProgramSetup.LIGHT_INDIRECT_VCOLOR || (pbuffer?true:false)!=uberProgramSetup.LIGHT_INDIRECT_MAP)))
+		//   - second
+		rr::RRIlluminationVertexBuffer* vbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumber2)->vertexBuffer;
+		rr::RRIlluminationPixelBuffer* pbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumber2)->pixelBuffer;
+		//   - fallback when buffers are not available
+		if(!vbuffer) vbuffer = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->vertexBuffer;
+		if(!pbuffer) pbuffer = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->pixelBuffer;
+		if(!vbuffer2) vbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->vertexBuffer;
+		if(!pbuffer2) pbuffer2 = params.solver->getIllumination(i)->getLayer(layerNumberFallback)->pixelBuffer;
+		if(uberProgramSetup.LIGHT_INDIRECT_auto)
 		{
-			if(uberProgramSetup.LIGHT_INDIRECT_auto)
-			{
-				renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
-				renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
-			}
+			renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR = vbuffer && !pbuffer;
+			renderedChannels.LIGHT_INDIRECT_VCOLOR2 = uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = layerBlend && uberProgramSetup.LIGHT_INDIRECT_VCOLOR && vbuffer2 && vbuffer2!=vbuffer && !pbuffer2;
+			renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
+			renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && uberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
+		}
+		if(i==0 || (uberProgramSetup.LIGHT_INDIRECT_auto && uberProgramSetup!=uberProgramSetupPrevious))
+		{
 			program = uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,params.brightness,params.gamma);
 			if(!program)
 			{
 				rr::RRReporter::report(rr::RRReporter::ERRO,"Failed to compile or link GLSL program.\n");
 				return;
 			}
+			uberProgramSetupPrevious = uberProgramSetup;
 		}
 
 		// - set transformation
@@ -362,7 +393,15 @@ void RendererOfOriginalScene::render()
 		}
 		// - render
 		renderersNonCaching[i]->setRenderedChannels(renderedChannels);
-		renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
+		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2)
+		{
+			renderersNonCaching[i]->setIndirectIlluminationBuffersBlend(vbuffer,pbuffer,vbuffer2,pbuffer2);
+			program->sendUniform("lightIndirectBlend",layerBlend);
+		}
+		else
+		{
+			renderersNonCaching[i]->setIndirectIlluminationBuffers(vbuffer,pbuffer);
+		}
 		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
 			renderersNonCaching[i]->render(); // don't cache indirect illumination, it changes
 		else
@@ -404,6 +443,12 @@ void RendererOfScene::useOriginalScene(unsigned layerNumber)
 {
 	useOptimized = false;
 	renderer->setIndirectIlluminationSource(layerNumber);
+}
+
+void RendererOfScene::useOriginalSceneBlend(unsigned layerNumber1, unsigned layerNumber2, float transition, unsigned layerNumberFallback)
+{
+	useOptimized = false;
+	renderer->setIndirectIlluminationSourceBlend(layerNumber1,layerNumber2,transition,layerNumberFallback);
 }
 
 void RendererOfScene::useOptimizedScene()

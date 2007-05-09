@@ -61,6 +61,9 @@ public:
 	rr::RRDynamicSolver* solver;
 	class Bugs* bugs;
 	rr_gl::RendererOfScene* rendererOfScene;
+
+	unsigned saveIllumination(const char* path, bool vertexColors, bool lightmaps);
+	unsigned loadIllumination(const char* path, bool vertexColors, bool lightmaps);
 };
 
 #endif

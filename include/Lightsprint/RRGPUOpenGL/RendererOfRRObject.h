@@ -89,8 +89,10 @@ public:
 	struct RenderedChannels
 	{
 		bool     LIGHT_DIRECT           :1; ///< feeds gl_Normal
-		bool     LIGHT_INDIRECT_VCOLOR  :1; ///< feeds gl_Color. Could be read from RRStaticSolver or RRObjectIllumination or RRIlluminationVertexBuffer, to be better specified later.
-		bool     LIGHT_INDIRECT_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]. Could be read from RRObjectIllumination or RRIlluminationPixelBuffer, to be better specified later.
+		bool     LIGHT_INDIRECT_VCOLOR  :1; ///< feeds gl_Color. Read from RRStaticSolver or RRObjectIllumination or RRIlluminationVertexBuffer.
+		bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< not implemented yet
+		bool     LIGHT_INDIRECT_MAP     :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_LIGHT_INDIRECT] + texture[TEXTURE_2D_LIGHT_INDIRECT]. Read from RRObjectIllumination or RRIlluminationPixelBuffer.
+		bool     LIGHT_INDIRECT_MAP2    :1; ///< feeds texture[TEXTURE_2D_LIGHT_INDIRECT2]
 		bool     LIGHT_INDIRECT_ENV     :1; ///< feeds gl_Normal + texture[TEXTURE_CUBE_LIGHT_INDIRECT]. Always read from RRObjectIllumination.
 		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds gl_SecondaryColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
@@ -123,7 +125,13 @@ public:
 	//!  Used by render() with LIGHT_INDIRECT_MAP.
 	//!  Ambient map with indirect illumination values.
 	//!  Texcoord mapping is provided by RRMesh::getTriangleMapping().
-	void setIndirectIlluminationBuffers(rr::RRIlluminationVertexBuffer* vertexBuffer,const rr::RRIlluminationPixelBuffer* ambientMap);
+	void setIndirectIlluminationBuffers(rr::RRIlluminationVertexBuffer* vertexBuffer, const rr::RRIlluminationPixelBuffer* ambientMap);
+
+	//! Specifies what indirect illumination to render in render(): use blend of these buffers.
+	//
+	//! This is setIndirectIlluminationBuffers() extended with second set of data,
+	//! both sets are pushed into OpenGL pipeline at render time.
+	void setIndirectIlluminationBuffersBlend(rr::RRIlluminationVertexBuffer* vertexBuffer, const rr::RRIlluminationPixelBuffer* ambientMap, rr::RRIlluminationVertexBuffer* vertexBuffer2, const rr::RRIlluminationPixelBuffer* ambientMap2);
 
 	//! Specifies what indirect illumination to render in render(): use buffers from this layer.
 	//
@@ -131,6 +139,18 @@ public:
 	//! \param layerNumber
 	//!  Number of layer to take indirect illumination buffers from.
 	void setIndirectIlluminationLayer(unsigned layerNumber);
+
+	//! Specifies what indirect illumination to render in render(): use blend of these layers.
+	//
+	//! \param layerNumber
+	//!  Number of first source layer.
+	//! \param layerNumber2
+	//!  Number of second source layer.
+	//! \param layerBlend
+	//!  Data from both layers are blended at render time, first layer * (1-layerBlend + second layer * layerBlend.
+	//! \param layerNumberFallback
+	//!  When previous layers contain no data, data from this layer are used.
+	void setIndirectIlluminationLayerBlend(unsigned layerNumber, unsigned layerNumber2, float layerBlend, unsigned layerNumberFallback);
 
 	//! Specifies what indirect illumination to render in render(): read live values from the solver.
 	//
@@ -174,8 +194,13 @@ private:
 		// set by setIndirectIlluminationXxx()
 		IndirectIlluminationSource indirectIlluminationSource;
 		unsigned indirectIlluminationLayer;
+		unsigned indirectIlluminationLayer2;
+		float indirectIlluminationBlend;
+		unsigned indirectIlluminationLayerFallback;
 		rr::RRIlluminationVertexBuffer* availableIndirectIlluminationVColors; ///< vertex buffer with indirect illumination (not const because lock is not const)
+		rr::RRIlluminationVertexBuffer* availableIndirectIlluminationVColors2;
 		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap; ///< ambient map
+		const rr::RRIlluminationPixelBuffer* availableIndirectIlluminationMap2;
 	};
 	Params params;
 	// buffers for faster rendering

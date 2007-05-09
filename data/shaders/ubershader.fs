@@ -7,8 +7,10 @@
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_VCOLOR
+//  #define LIGHT_INDIRECT_VCOLOR2
 //  #define LIGHT_INDIRECT_VCOLOR_PHYSICAL
 //  #define LIGHT_INDIRECT_MAP
+//  #define LIGHT_INDIRECT_MAP2
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_CONST
@@ -95,6 +97,11 @@
 #ifdef LIGHT_INDIRECT_MAP
 	uniform sampler2D lightIndirectMap;
 	varying vec2 lightIndirectCoord;
+#endif
+
+#ifdef LIGHT_INDIRECT_MAP2
+	uniform sampler2D lightIndirectMap2;
+	uniform float lightIndirectBlend;
 #endif
 
 #ifdef LIGHT_INDIRECT_ENV
@@ -369,6 +376,11 @@ void main()
 					#endif
 					#ifdef LIGHT_INDIRECT_MAP
 						+ texture2D(lightIndirectMap, lightIndirectCoord)
+					#endif
+					#ifdef LIGHT_INDIRECT_MAP2
+						* (1.0-lightIndirectBlend)
+						+ texture2D(lightIndirectMap2, lightIndirectCoord)
+						* lightIndirectBlend
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV
 						+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)

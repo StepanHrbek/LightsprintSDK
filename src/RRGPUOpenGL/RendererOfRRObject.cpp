@@ -29,8 +29,13 @@ RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const
 	params.lastCapturedTrianglePlus1 = objectImporter->getCollider()->getMesh()->getNumTriangles();
 	params.indirectIlluminationSource = NONE;
 	params.indirectIlluminationLayer = 0;
+	params.indirectIlluminationLayer2 = 0;
+	params.indirectIlluminationBlend = 0;
+	params.indirectIlluminationLayerFallback = 0;
 	params.availableIndirectIlluminationVColors = NULL;
 	params.availableIndirectIlluminationMap = NULL;
+	params.availableIndirectIlluminationVColors2 = NULL;
+	params.availableIndirectIlluminationMap2 = NULL;
 
 	indexedYes = NULL;
 	indexedNo = NULL;
@@ -68,8 +73,27 @@ void RendererOfRRObject::setIndirectIlluminationBuffers(rr::RRIlluminationVertex
 {
 	params.indirectIlluminationSource = BUFFERS;
 	params.indirectIlluminationLayer = 0;
+	params.indirectIlluminationLayer2 = 0;
+	params.indirectIlluminationBlend = 0;
+	params.indirectIlluminationLayerFallback = 0;
 	params.availableIndirectIlluminationVColors = vertexBuffer;
 	params.availableIndirectIlluminationMap = ambientMap;
+	params.availableIndirectIlluminationVColors2 = NULL;
+	params.availableIndirectIlluminationMap2 = NULL;
+	solutionVersion = 0;
+}
+
+void RendererOfRRObject::setIndirectIlluminationBuffersBlend(rr::RRIlluminationVertexBuffer* vertexBuffer, const rr::RRIlluminationPixelBuffer* ambientMap, rr::RRIlluminationVertexBuffer* vertexBuffer2, const rr::RRIlluminationPixelBuffer* ambientMap2)
+{
+	params.indirectIlluminationSource = BUFFERS;
+	params.indirectIlluminationLayer = 0;
+	params.indirectIlluminationLayer2 = 0;
+	params.indirectIlluminationBlend = 0;
+	params.indirectIlluminationLayerFallback = 0;
+	params.availableIndirectIlluminationVColors = vertexBuffer;
+	params.availableIndirectIlluminationMap = ambientMap;
+	params.availableIndirectIlluminationVColors2 = vertexBuffer2;
+	params.availableIndirectIlluminationMap2 = ambientMap2;
 	solutionVersion = 0;
 }
 
@@ -77,8 +101,28 @@ void RendererOfRRObject::setIndirectIlluminationLayer(unsigned layerNumber)
 {
 	params.indirectIlluminationSource = LAYER;
 	params.indirectIlluminationLayer = layerNumber;
+	params.indirectIlluminationLayer2 = 0;
+	params.indirectIlluminationBlend = 0;
+	params.indirectIlluminationLayerFallback = 0;
 	params.availableIndirectIlluminationVColors = NULL;
 	params.availableIndirectIlluminationMap = NULL;
+	params.availableIndirectIlluminationVColors2 = NULL;
+	params.availableIndirectIlluminationMap2 = NULL;
+	solutionVersion = 0;
+}
+
+void RendererOfRRObject::setIndirectIlluminationLayerBlend(unsigned layerNumber, unsigned layerNumber2, float layerBlend, unsigned layerNumberFallback)
+{
+	// never used yet
+	params.indirectIlluminationSource = LAYER;
+	params.indirectIlluminationLayer = layerNumber;
+	params.indirectIlluminationLayer2 = layerNumber2;
+	params.indirectIlluminationBlend = layerBlend;
+	params.indirectIlluminationLayerFallback = layerNumberFallback;
+	params.availableIndirectIlluminationVColors = NULL;
+	params.availableIndirectIlluminationMap = NULL;
+	params.availableIndirectIlluminationVColors2 = NULL;
+	params.availableIndirectIlluminationMap2 = NULL;
 	solutionVersion = 0;
 }
 
@@ -86,8 +130,13 @@ void RendererOfRRObject::setIndirectIlluminationFromSolver(unsigned asolutionVer
 {
 	params.indirectIlluminationSource = SOLVER;
 	params.indirectIlluminationLayer = 0;
+	params.indirectIlluminationLayer2 = 0;
+	params.indirectIlluminationBlend = 0;
+	params.indirectIlluminationLayerFallback = 0;
 	params.availableIndirectIlluminationVColors = NULL;
 	params.availableIndirectIlluminationMap = NULL;
+	params.availableIndirectIlluminationVColors2 = NULL;
+	params.availableIndirectIlluminationMap2 = NULL;
 	solutionVersion = asolutionVersion;
 }
 
@@ -101,6 +150,11 @@ void RendererOfRRObject::render()
 {
 	RR_ASSERT(params.object);
 	if(!params.object) return;
+
+	// vcolor2 allowed only if vcolor is set
+	// map2 allowed only if map is set
+	RR_ASSERT(params.renderedChannels.LIGHT_INDIRECT_VCOLOR || !params.renderedChannels.LIGHT_INDIRECT_VCOLOR2);
+	RR_ASSERT(params.renderedChannels.LIGHT_INDIRECT_MAP || !params.renderedChannels.LIGHT_INDIRECT_MAP2);
 
 	glColor4ub(0,0,0,255);
 
@@ -181,7 +235,7 @@ void RendererOfRRObject::render()
 	if(!dontUseNonBuffered)
 	{
 		// NON BUFFERED
-		// general, but slower code, used for FORCE_2D_POSITION
+		// general, but slower code
 		// reads indirect vertex illumination always from solver, indirect maps always from layer
 
 		bool begun = false;
@@ -324,6 +378,28 @@ void RendererOfRRObject::render()
 					{
 						//!!! kdyz se dostane sem a vysledek zacachuje, bude to uz vzdycky renderovat blbe
 						RR_ASSERT(0);
+					}
+					// setup light indirect texture2
+					if(params.renderedChannels.LIGHT_INDIRECT_MAP2)
+					{
+						rr::RRIlluminationPixelBuffer* pixelBuffer2 = objectIllumination->getLayer(params.indirectIlluminationLayer2)->pixelBuffer;
+						if(pixelBuffer2)
+						{
+							if(begun)
+							{
+								glEnd();
+								begun = false;
+							}
+							glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT2);
+							pixelBuffer2->bindTexture();
+							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+						}
+						else
+						{
+							//!!! kdyz se dostane sem a vysledek zacachuje, bude to uz vzdycky renderovat blbe
+							RR_ASSERT(0);
+						}
 					}
 				}
 			}

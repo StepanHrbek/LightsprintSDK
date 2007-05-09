@@ -72,6 +72,8 @@ public:
 	//! Sets uniform of type mat2, mat3 or mat4.
 	void sendUniform(const char *name, float *m, bool transp=false, int size=4);
 
+	//! Print OpenGL log to console. False by default.
+	static bool showLog;
 private:
 	Program(const char* defines, const char* vertexShader, const char* fragmentShader);
 	bool isLinked();

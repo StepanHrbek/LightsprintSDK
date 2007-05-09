@@ -7,8 +7,10 @@
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_VCOLOR
+//  #define LIGHT_INDIRECT_VCOLOR2
 //  #define LIGHT_INDIRECT_VCOLOR_PHYSICAL
 //  #define LIGHT_INDIRECT_MAP
+//  #define LIGHT_INDIRECT_MAP2
 //  #define LIGHT_INDIRECT_ENV
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_CONST
@@ -44,6 +46,11 @@
 
 #ifdef LIGHT_INDIRECT_VCOLOR
 	//varying vec4 lightIndirectColor; // passed rather through gl_FrontColor, ATI fails on anything else
+#endif
+
+#ifdef LIGHT_INDIRECT_VCOLOR2
+	varying vec4 lightIndirectColor2;
+	uniform float lightIndirectBlend;
 #endif
 
 #ifdef LIGHT_INDIRECT_MAP
@@ -87,10 +94,15 @@ void main()
 	#endif
 
 	#ifdef LIGHT_INDIRECT_VCOLOR
-		#ifdef LIGHT_INDIRECT_VCOLOR_PHYSICAL
-			gl_FrontColor = pow(gl_Color,0.45);
+		#ifdef LIGHT_INDIRECT_VCOLOR2
+			vec4 lightIndirectColor = gl_Color*(1.0-lightIndirectBlend)+lightIndirectColor2*lightIndirectBlend;
 		#else
-			gl_FrontColor = gl_Color;
+			vec4 lightIndirectColor = gl_Color;
+		#endif
+		#ifdef LIGHT_INDIRECT_VCOLOR_PHYSICAL
+			gl_FrontColor = pow(lightIndirectColor,vec4(0.45,0.45,0.45,0.45));
+		#else
+			gl_FrontColor = lightIndirectColor;
 		#endif
 	#endif
 

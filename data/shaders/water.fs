@@ -45,7 +45,7 @@ void main()
 	else
 #endif
 	{
-		gl_FragColor = refl*env+(1-refl)*vec4(0.1,0.25,0.35,0.0);
+		gl_FragColor = refl*env+(1.0-refl)*vec4(0.1,0.25,0.35,0.0);
 	}
 #else
 	gl_FragColor = env;

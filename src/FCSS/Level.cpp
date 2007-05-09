@@ -192,3 +192,30 @@ Level::~Level()
 	delete objects;
 }
 
+unsigned Level::saveIllumination(const char* path, bool vertexColors, bool lightmaps)
+{
+	unsigned result = 0;
+	if(pilot.setup && solver)
+	{
+		rr_gl::RRDynamicSolverGL* solverGL = (rr_gl::RRDynamicSolverGL*)solver; //!!!
+		for(LevelSetup::Frames::iterator i=pilot.setup->frames.begin();i!=pilot.setup->frames.end();i++)
+		{
+			result += solverGL->saveIllumination(path,(*i)->layerNumber,vertexColors,lightmaps);
+		}
+	}
+	return result;
+}
+
+unsigned Level::loadIllumination(const char* path, bool vertexColors, bool lightmaps)
+{
+	unsigned result = 0;
+	if(pilot.setup && solver)
+	{
+		rr_gl::RRDynamicSolverGL* solverGL = (rr_gl::RRDynamicSolverGL*)solver; //!!!
+		for(LevelSetup::Frames::iterator i=pilot.setup->frames.begin();i!=pilot.setup->frames.end();i++)
+		{
+			result += solverGL->loadIllumination(path,(*i)->layerNumber,vertexColors,lightmaps);
+		}
+	}
+	return result;
+}
