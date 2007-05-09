@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRIllumination.h"
 
@@ -40,6 +41,24 @@ namespace rr
 			}
 			vertices[vertex] = color;
 		}
+		bool load(const char* filename)
+		{
+			FILE* f = fopen(filename,"rb");
+			if(!f)
+				return false;
+			unsigned read = (unsigned)fread(vertices,sizeof(Color),numVertices,f);
+			fclose(f);
+			return read == numVertices;
+		}
+		virtual bool save(const char* filename)
+		{
+			FILE* f = fopen(filename,"wb");
+			if(!f)
+				return false;
+			unsigned written = (unsigned)fwrite(vertices,sizeof(Color),numVertices,f);
+			fclose(f);
+			return written == numVertices;
+		}
 		virtual ~RRIlluminationVertexBufferInMemory()
 		{
 			delete[] vertices;
@@ -71,6 +90,5 @@ namespace rr
 			return vertices;
 		}
 	};
-
 
 } // namespace

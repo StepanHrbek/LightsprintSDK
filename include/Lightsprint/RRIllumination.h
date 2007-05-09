@@ -218,6 +218,22 @@ namespace rr
 
 		// Creates and returns vertex buffer in system memory. It is graphics API independent.
 		static RRIlluminationVertexBuffer* createInSystemMemory(unsigned numVertices);
+
+		//! Loads RRIlluminationVertexBuffer stored on disk by createInSystemMemory()->save().
+		//
+		//! Note that other future implementations may use incompatible formats
+		//! and provide their own load().
+		static RRIlluminationVertexBuffer* load(const char* filename, unsigned expectedNumVertices);
+
+		//! Saves vertex buffer to disk.
+		//! Not mandatory, thin implementations may completely skip saving and always return false.
+		//! \param filename
+		//!  Filename of vertex buffer to be created on disk.
+		//!  Supported file formats are implementation defined.
+		//!  Example: "data/object1.vbu"
+		//! \return
+		//!  True on successful save of vertex buffer.
+		virtual bool save(const char* filename) {return false;}
 	};
 
 
@@ -323,7 +339,7 @@ namespace rr
 		//!  Supported file formats are implementation defined.
 		//!  Example: "/maps/ambientmap.png"
 		//! \return
-		//!  True on successful save of complete environment map.
+		//!  True on successful save of pixel buffer.
 		virtual bool save(const char* filename) {return false;}
 	};
 

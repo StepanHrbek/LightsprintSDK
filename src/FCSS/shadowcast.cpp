@@ -7,6 +7,7 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_QUALITY           10
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
+//#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED
 //#define THREE_ONE
 //#define CFG_FILE "LightsprintDemo.cfg"
@@ -1721,7 +1722,9 @@ void mainMenu(int item)
 						level->solver->calculate();
 					printf(")");
 					unsigned layerNumber = (*i)->layerNumber;
-					// update 1 object
+					// update all vbufs
+					level->solver->updateVertexBuffers(layerNumber,true,RM_IRRADIANCE_PHYSICAL);
+					// update 1 lmap
 					static unsigned obj=0;
 					if(!level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer)
 						level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
@@ -2021,7 +2024,11 @@ void idle()
 	}
 
 //	LIMITED_TIMES(1,timer.Start());
-	bool rrOn = renderVertexColors;
+	bool rrOn = renderVertexColors
+#ifdef CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS
+		|| renderLightmaps
+#endif
+		;
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky

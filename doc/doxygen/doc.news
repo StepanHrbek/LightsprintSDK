@@ -10,6 +10,7 @@
 
 NEWS
 
+- "day edition"
 - Windows Vista support
 - Visual Studio 2005 SP1 support
 - RRDynamicSolver::updateVertexBuffersFromLightmap(),

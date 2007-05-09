@@ -600,10 +600,10 @@ unsigned RRDynamicSolverGL::loadIllumination(const char* path, unsigned layerNum
 			{
 				if(vertexColors)
 				{
-				//	delete layer->vertexBuffer;
-				//	layer->vertexBuffer = loadIlluminationVertexBuffer(bp("%svcol_%02d_%02d.png",path?path:"",i,layerNumber),illumination->getNumPreImportVertices());
-				//	if(layer->vertexBuffer)
-				//		result++;
+					delete layer->vertexBuffer;
+					layer->vertexBuffer = rr::RRIlluminationVertexBuffer::load(bp("%svcol_%02d_%02d.vbu",path?path:"",i,layerNumber),illumination->getNumPreImportVertices());
+					if(layer->vertexBuffer)
+						result++;
 				}
 				if(lightmaps)
 				{
@@ -632,7 +632,7 @@ unsigned RRDynamicSolverGL::saveIllumination(const char* path, unsigned layerNum
 			{
 				if(vertexColors && layer->vertexBuffer)
 				{
-				//	result += layer->vertexBuffer->save(bp("%svcol_%02d_%02d.png",path?path:"",i,layerNumber));
+					result += layer->vertexBuffer->save(bp("%svcol_%02d_%02d.vbu",path?path:"",i,layerNumber));
 				}
 				if(lightmaps && layer->pixelBuffer)
 				{

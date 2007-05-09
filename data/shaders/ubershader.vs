@@ -49,7 +49,6 @@
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR2
-	varying vec4 lightIndirectColor2;
 	uniform float lightIndirectBlend;
 #endif
 
@@ -95,7 +94,7 @@ void main()
 
 	#ifdef LIGHT_INDIRECT_VCOLOR
 		#ifdef LIGHT_INDIRECT_VCOLOR2
-			vec4 lightIndirectColor = gl_Color*(1.0-lightIndirectBlend)+lightIndirectColor2*lightIndirectBlend;
+			vec4 lightIndirectColor = gl_Color*(1.0-lightIndirectBlend)+gl_SecondaryColor*lightIndirectBlend;
 		#else
 			vec4 lightIndirectColor = gl_Color;
 		#endif

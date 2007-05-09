@@ -224,10 +224,6 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	// set indirect illumination vertices
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
-		if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
-		{
-			RR_ASSERT(0);
-		}
 		if(indices)
 		{
 			if(params.indirectIlluminationSource==RendererOfRRObject::SOLVER)
@@ -246,6 +242,22 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
 				glEnableClientState(GL_COLOR_ARRAY);
 				glColorPointer(3, GL_FLOAT, 0, params.availableIndirectIlluminationVColors->lock());
+				if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
+				{
+					if(params.availableIndirectIlluminationVColors2)
+					{
+						unsigned bufferSize2 = params.availableIndirectIlluminationVColors2->getNumVertices();
+						RR_ASSERT(bufferSize2==bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
+						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
+						glSecondaryColorPointer(3, GL_FLOAT, 0, (GLvoid*)params.availableIndirectIlluminationVColors2->lock());
+					}
+					else
+					{
+						RR_ASSERT(0); // render of vertex buffer requested, but vertex buffer not set
+						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
+						glSecondaryColorPointer(3, GL_FLOAT, 0, &alightIndirectVcolor[0].x);
+					}
+				}
 			}
 			else
 			{
@@ -459,6 +471,11 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
 		glBindTexture(GL_TEXTURE_2D,0);
+	}
+	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
+	{
+		glDisableClientState(GL_SECONDARY_COLOR_ARRAY);
+		if(indices && params.availableIndirectIlluminationVColors2) params.availableIndirectIlluminationVColors2->unlock();
 	}
 	// unset indirect illumination colors
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
