@@ -649,11 +649,29 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool cre
 		// propagate
 		RRReporter::report(RRReporter::INFO,"Propagating ...");
 		scene->illuminationReset(false,true);
-		float secondsInPropagate = MAX(secondsInGather/MAX(paramsIndirect.quality,1)*MAX(1,((RRReal)paramsDirect.quality+paramsIndirect.quality)/2),5);
+		float secondsInPropagatePlan = MAX(secondsInGather/MAX(paramsIndirect.quality,1)*MAX(1,((RRReal)paramsDirect.quality+paramsIndirect.quality)/2),5);
 		TIME now = GETTIME;
-		TIME end = (TIME)(now+secondsInPropagate*PER_SEC);
-		scene->illuminationImprove(endByTime,(void*)&end);
-		RRReporter::report(RRReporter::CONT," done in %.1fsec.\n",(GETTIME-now)/(float)PER_SEC);
+		TIME end = (TIME)(now+secondsInPropagatePlan*PER_SEC);
+		RRStaticSolver::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
+		RRReal secondsInPropagateReal = (GETTIME-now)/(float)PER_SEC;
+		if(improvement!=RRStaticSolver::IMPROVED)
+		{
+			RRReporter::report(RRReporter::CONT," scheduled for %.1fs, ",secondsInPropagatePlan);
+			/* save intermediate maps for examination, are they really black?
+			for(unsigned i=0;i<getNumObjects();i++)
+			{
+				RRIlluminationPixelBuffer* lmap = getIllumination(i)->getLayer(lightmapLayerNumber)->pixelBuffer;
+				if(lmap)
+				{
+					char buf[100];
+					sprintf(buf,"intermediate_lmap_%02d.png",i);
+					lmap->save(buf);
+				}
+			}*/
+		}
+		RRReporter::report(RRReporter::CONT," done in %.1fs (%s).\n",
+			secondsInPropagateReal,
+			(improvement==RRStaticSolver::IMPROVED)?"improved":((improvement==RRStaticSolver::NOT_IMPROVED)?"not improved":((improvement==RRStaticSolver::FINISHED)?"no light in scene":"error")));
 		// set solution generated here to be gathered in second gather
 		paramsDirect.applyCurrentIndirectSolution = true;
 		// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)

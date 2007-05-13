@@ -17,10 +17,20 @@ static RRReporter* reporter = NULL;
 class RRReporterPrintf : public RRReporter
 {
 public:
+	RRReporterPrintf()
+	{
+		hconsole = GetStdHandle (STD_OUTPUT_HANDLE);
+	}
 	virtual void customReport(Type type, const char* message)
 	{
+		if(type!=CONT)
+		{
+			char color[4] = {15+3,14+3,15,7};
+			SetConsoleTextAttribute(hconsole, color[type]);
+		}
 		printf("%s",message);
 	}
+	HANDLE hconsole;
 };
 
 
@@ -33,6 +43,7 @@ class RRReporterOutputDebugString : public RRReporter
 public:
 	virtual void customReport(Type type, const char* message)
 	{
+		OutputDebugString((type==ERRO)?"ERROR: ":((type==ASSE)?"Assert failed: ":((type==WARN)?" Warn: ":((type==INFO)?" info: ":""))));
 		OutputDebugString(message);
 	}
 };
@@ -49,11 +60,10 @@ void RRReporter::report(Type type, const char* format, ...)
 		char msg[1000];
 		va_list argptr;
 		va_start (argptr,format);
-		strcpy(msg,(type==ERRO)?"ERROR: ":((type==ASSE)?"Assert ":((type==WARN)?" Warn: ":((type==INFO)?" info: ":""))));
-		_vsnprintf (msg+7,999-7,format,argptr);
+		_vsnprintf (msg,999,format,argptr);
 		msg[999] = 0;
 		va_end (argptr);
-		reporter->customReport(type,(type==CONT)?msg+7:msg);
+		reporter->customReport(type,msg);
 	}
 }
 
@@ -61,7 +71,7 @@ void RRReporter::assertionFailed(const char* expression, const char* func, const
 {
 	if(reporter)
 	{
-		report(ASSE,"failed: %s in %s, file %s, line %d.\n",expression,func,file,line);
+		report(ASSE,"%s in %s, file %s, line %d.\n",expression,func,file,line);
 #ifdef RR_STATIC
 		DebugBreak();
 #endif

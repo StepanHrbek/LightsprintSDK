@@ -1046,9 +1046,9 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 
 		// sanity check
 		bool warned = false;
-		if(ivertexInfo[minIVert1].ourVertices.size()>100)
+		if(ivertexInfo[minIVert1].ourVertices.size()>200)
 		{
-			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"Cluster of more than 100 vertices smoothed.\n"));
+			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"Cluster of more than 200 vertices smoothed.\n"));
 		}
 		if(numReduced>unsigned(vertices*0.9f))
 		{
