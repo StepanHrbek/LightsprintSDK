@@ -310,8 +310,7 @@ void keyboard(unsigned char c, int x, int y)
 				//solver->updateLightmap(obj,solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
 				//++obj%=solver->getNumObjects();
 
-				// copy values from ambient maps to vertex buffers
-				//solver->updateVertexBuffersFromLightmaps(1,true);
+				// update vertex buffers too, for comparison with pixel buffers
 				paramsDirect.measure.scaled = 0; // get vertex colors in HDR
 				solver->updateVertexBuffers(1,true,&paramsDirect,&paramsIndirect);
 

@@ -604,11 +604,6 @@ namespace rr
 		//!  function will be called again in next calculate().
 		virtual bool detectDirectIllumination() = 0;
 
-		//! Detects direct illumination on all faces in scene and sends it to solver.
-		//
-		//! Source of illumination are lightmaps stored in 
-		//! getIllumination(objectNumber)->getLayer(sourceLayer)->pixelBuffer.
-		virtual void detectDirectIlluminationFromLightmaps(unsigned sourceLayer) = 0;
 
 		//! Detects direct illumination on all faces in scene and sends it to the solver.
 		//

@@ -92,12 +92,6 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
 
-	// used by detectDirectIlluminationFromLightmaps
-	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
-	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
-	detectFromLightmapUberProgram = new de::UberProgram(buf1,buf2);
-	detectingFromLightmapLayer = -1;
-	boostDetectedDirectIllumination = 1;
 }
 
 RRDynamicSolverGL::~RRDynamicSolverGL()
@@ -109,8 +103,6 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 	delete detectBigMap;
 	delete captureUv;
 
-	// used by detectDirectIlluminationFromLightmaps
-	delete detectFromLightmapUberProgram;
 }
 
 /*
@@ -187,20 +179,6 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		renderedChannels.FORCE_2D_POSITION = true;
 
 		// setup shader
-		if(detectingFromLightmapLayer>=0)
-		{
-			// special path for detectDirectIlluminationFromLightmaps()
-			// this will be removed in future
-			renderedChannels.LIGHT_DIRECT = false;
-			renderedChannels.LIGHT_INDIRECT_MAP = true;
-			de::UberProgramSetup detectFromLightmapUberProgramSetup;
-			detectFromLightmapUberProgramSetup.LIGHT_INDIRECT_MAP = true;
-			detectFromLightmapUberProgramSetup.MATERIAL_DIFFUSE = true;
-			detectFromLightmapUberProgramSetup.FORCE_2D_POSITION = true;
-			detectFromLightmapUberProgramSetup.useProgram(detectFromLightmapUberProgram,NULL,0,NULL,NULL,1);
-			rendererNonCaching->setIndirectIlluminationLayer(detectingFromLightmapLayer);
-		}
-		else
 		{
 			// standard path customizable by subclassing
 			//!!! no support for per object shaders yet
@@ -554,25 +532,6 @@ bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminat
 	return true;
 }
 
-void RRDynamicSolverGL::detectDirectIlluminationFromLightmaps(unsigned sourceLayer)
-{
-	detectingFromLightmapLayer = sourceLayer;
-	RRDynamicSolverGL::detectDirectIllumination();
-	detectingFromLightmapLayer = -1;
-}
-
-unsigned RRDynamicSolverGL::updateVertexBuffersFromLightmaps(unsigned layerNumber, bool createMissingBuffers)
-{
-	// loads lightmap [per-pixel-custom] into multiobject [per-triangle-physical]
-	detectDirectIlluminationFromLightmaps(layerNumber);
-	// loads multiobject [per-triangle-physical] into solver [per triangle-physical]
-	scene->illuminationReset(false,true);
-	solutionVersion++;
-	// reads interpolated solution [per-vertex-physical] from solver
-	UpdateParameters params;
-	params.measure = rr::RRRadiometricMeasure(0,0,0,1,0);
-	return updateVertexBuffers(layerNumber,createMissingBuffers,&params,NULL);
-}
 
 /////////////////////////////////////////////////////////////////////////////
 //

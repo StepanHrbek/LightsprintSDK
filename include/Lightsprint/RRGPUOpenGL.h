@@ -85,16 +85,6 @@ namespace rr_gl
 		//!  realtime light sources (point/spot/dir/area lights) coming to object's surface.
 		bool updateLightmap_GPU(unsigned objectNumber, rr::RRIlluminationPixelBuffer* lightmap);
 
-		//! Updates vertex buffers with illumination stored in lightmaps, both in given layer.
-		//
-		//! \param layerNumber
-		//!  Both vertex and pixel buffers are taken from RRDynamicSolver::getIlluminaion(layerNumber).
-		//! \param createMissingBuffers
-		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
-		//! \return
-		//!  Number of vertex buffers updated.
-		unsigned updateVertexBuffersFromLightmaps(unsigned layerNumber, bool createMissingBuffers);
-
 
 		//! Creates cube texture for indirect illumination storage.
 		//! Used for realtime or precomputed global illumination of dynamic objects.
@@ -133,8 +123,6 @@ namespace rr_gl
 		//! Detection of direct illumination from custom light sources implemented using OpenGL 2.0.
 		virtual bool detectDirectIllumination();
 
-		//! Detection of direct illumination from lightmaps (getIllumination()->getLayer(layerNumber)->pixelBuffer).
-		virtual void detectDirectIlluminationFromLightmaps(unsigned layerNumber);
 
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
 		//! without material. This is renderer specific operation and can't be implemented here.
@@ -153,9 +141,6 @@ namespace rr_gl
 		unsigned* detectSmallMap;
 		unsigned smallMapSize;
 		de::Program* scaleDownProgram;
-		// used by detectDirectIlluminationFromLightmaps
-		de::UberProgram* detectFromLightmapUberProgram;
-		int detectingFromLightmapLayer;
 		// backup of render states
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;
