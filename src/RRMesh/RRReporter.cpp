@@ -25,10 +25,10 @@ public:
 	{
 		if(type!=CONT)
 		{
-			char color[4] = {15+3,14+3,15,7};
+			char color[4] = {15+16*4,14,15,7};
 			SetConsoleTextAttribute(hconsole, color[type]);
 		}
-		printf("%s",message);
+		printf("%s%s",(type==ASSE)?"Assert failed: ":"",message);
 	}
 	HANDLE hconsole;
 };
