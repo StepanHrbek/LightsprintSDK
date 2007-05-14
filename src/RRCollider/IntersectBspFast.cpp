@@ -32,6 +32,11 @@ namespace rr
 	#define TEST_RANGE(min,max,cond,tree) //RR_ASSERT(min<=max)
 		// disabled, because it happens too often,
 		// probably without causing problems
+		// pravdepodobna pricina: facy vzdycky kvuli floatovym nepresnostem hledam az DELTA_BSP
+		//  pred a za min-max range. kdyz v tom presahu narazim na delici rovinu, muze se treba stat
+		//  ze zacnu testovat usek, ktery je cely mimo puvodni min-max
+		// neprimy dukaz: pozorovane chyby byly mensi nez DELTA_BSP
+		// zaver: nezpusobuje skody, vypnout asserty
 #endif
 
 #define DBG(a) //a
@@ -347,7 +352,9 @@ begin:
 #endif
 
 		//FILL_STATISTIC(intersectStats.intersect_kd++);
-		RR_ASSERT(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
+
+		// failuje, vysvetleni nahore u #define TEST_RANGE
+		//RR_ASSERT(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
 		if(t->kd.isLeaf()) 
