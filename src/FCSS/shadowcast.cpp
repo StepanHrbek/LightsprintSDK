@@ -403,7 +403,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	if(level->solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = level->solver->getSolutionVersion();
-		level->solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
+		level->solver->updateVertexBuffers(0,true,NULL,NULL);
 	}
 	if(demoPlayer->getPaused())
 	{
@@ -1723,7 +1723,7 @@ void mainMenu(int item)
 					printf(")");
 					unsigned layerNumber = (*i)->layerNumber;
 					// update all vbufs
-					level->solver->updateVertexBuffers(layerNumber,true,RM_IRRADIANCE_PHYSICAL);
+					level->solver->updateVertexBuffers(layerNumber,true,NULL,NULL);
 					// update 1 lmap
 					static unsigned obj=12;
 					if(!level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer)

@@ -86,6 +86,8 @@ namespace rr
 	//! Specification of radiometric measure; what is measured and what units are used.
 	struct RRRadiometricMeasure
 	{
+		RRRadiometricMeasure()
+			: exiting(0), scaled(0), flux(0), direct(0), indirect(1), smoothed(1) {};
 		RRRadiometricMeasure(bool aexiting, bool ascaled, bool aflux, bool adirect, bool aindirect)
 			: exiting(aexiting), scaled(ascaled), flux(aflux), direct(adirect), indirect(aindirect), smoothed(1) {};
 		bool exiting : 1; ///< Selects between [0] incoming radiation+diffuseEmittance/diffuseReflectance and [1] exiting radiation. \n Typical setting: 0.

@@ -301,6 +301,7 @@ void keyboard(unsigned char c, int x, int y)
 
 				// 2. objects
 				//  a) calculate whole scene at once
+				paramsDirect.measure.scaled = 1; // get lightmaps in sRGB
 				solver->updateLightmaps(1,true,&paramsDirect,&paramsIndirect);
 				//  b) calculate only one object
 				//static unsigned obj=0;
@@ -310,7 +311,9 @@ void keyboard(unsigned char c, int x, int y)
 				//++obj%=solver->getNumObjects();
 
 				// copy values from ambient maps to vertex buffers
-				solver->updateVertexBuffersFromLightmaps(1,true);
+				//solver->updateVertexBuffersFromLightmaps(1,true);
+				paramsDirect.measure.scaled = 0; // get vertex colors in HDR
+				solver->updateVertexBuffers(1,true,&paramsDirect,&paramsIndirect);
 
 				// start rendering computed maps
 				ambientMapsRender = true;
@@ -427,7 +430,7 @@ void display(void)
 		if(solver->getSolutionVersion()!=solutionVersion)
 		{
 			solutionVersion = solver->getSolutionVersion();
-			solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
+			solver->updateVertexBuffers(0,true,NULL,NULL);
 		}
 	}
 

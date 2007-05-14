@@ -306,41 +306,15 @@ namespace rr
 		unsigned getSolutionVersion() const;
 
 
-		//! Updates vertex buffer with direct, indirect or global illumination on single static object's surface.
-		//
-		//! Current realtime solution is always used, with direct illumination specified by detectDirectIllumination().
-		//! \param objectNumber
-		//!  Number of object in this scene.
-		//!  Object numbers are defined by order in which you pass objects to setObjects().
-		//! \param vertexBuffer
-		//!  Destination vertex buffer for indirect illumination.
-		//! \param measure
-		//!  Specifies type of information stored in vertex buffer.
-		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
-		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
-		//! \return
-		//!  Number of vertex buffers updated, 0 or 1.
-		virtual unsigned updateVertexBuffer(unsigned objectNumber, RRIlluminationVertexBuffer* vertexBuffer, RRRadiometricMeasure measure);
-
-		//! Updates vertex buffers with direct, indirect or global illumination on whole static scene's surface.
-		//
-		//! Current realtime solution is always used, with direct illumination specified by detectDirectIllumination().
-		//! \param layerNumber
-		//!  Vertex colors for individual objects are stored into
-		//!  getIllumination(objectNumber)->getLayer(layerNumber)->vertexBuffer.
-		//! \param createMissingBuffers
-		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
-		//! \param measure
-		//!  Specifies type of information stored in vertex buffer.
-		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
-		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
-		//! \return
-		//!  Number of vertex buffers updated.
-		virtual unsigned updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, RRRadiometricMeasure measure);
-
-		//! Parameters for updateLightmap() and updateLightmaps().
+		//! Parameters for updateVertexBuffer(), updateVertexBuffers(), updateLightmap(), updateLightmaps().
 		struct UpdateParameters
 		{
+			//! Requested type of results, applies only to updates of external buffers.
+			//
+			//! Attributes direct/indirect specify what parts of solver data read when applyCurrentSolution=true,
+			//! they have no influence on applyLights and applyEnvironment.
+			RRRadiometricMeasure measure;
+
 			//! Use current indirect solution computed by compute() as the only source of illumination.
 			bool applyCurrentSolution;
 
@@ -374,9 +348,10 @@ namespace rr
 			//! Turns on diagnostic output, generated map contains diagnostic values.
 			bool diagnosticOutput;
 
-			//! Sets default parameters for very fast (milliseconds) preview of current indirect solution.
+			//! Sets default parameters for fast realtime update.
 			UpdateParameters()
 			{
+				measure = RM_IRRADIANCE_PHYSICAL_INDIRECT;
 				applyCurrentSolution = true;
 				applyLights = false;
 				applyEnvironment = false;
@@ -386,6 +361,49 @@ namespace rr
 				diagnosticOutput = false;
 			}
 		};
+
+		//! Updates vertex buffer with direct, indirect or global illumination on single static object's surface.
+		//
+		//! \param objectNumber
+		//!  Number of object in this scene.
+		//!  Object numbers are defined by order in which you pass objects to setObjects().
+		//! \param vertexBuffer
+		//!  Destination vertex buffer for indirect illumination.
+		//! \param params
+		//!  Parameters of the update process, NULL for the default parameters that
+		//!  specify fast update (takes milliseconds) of RM_IRRADIANCE_PHYSICAL_INDIRECT data.
+		//!  params->measure specifies type of information stored in vertex buffer.
+		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
+		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
+		//! \return
+		//!  Number of vertex buffers updated, 0 or 1.
+		virtual unsigned updateVertexBuffer(unsigned objectNumber, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params);
+
+		//! Updates vertex buffers with direct, indirect or global illumination on whole static scene's surface.
+		//
+		//! \param layerNumber
+		//!  Vertex colors for individual objects are stored into
+		//!  getIllumination(objectNumber)->getLayer(layerNumber)->vertexBuffer.
+		//! \param createMissingBuffers
+		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
+		//! \param paramsDirect
+		//!  Parameters of the update process specific for direct illumination component of final color.
+		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
+		//!  set by setLights() is added to the final value stored into buffer.
+		//!  \n params->measure specifies type of information stored in vertex buffer.
+		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
+		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
+		//! \param paramsIndirect
+		//!  Parameters of the update process specific for indirect illumination component of final color.
+		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
+		//!  set by setLights() is added to the final value stored into buffer.
+		//!  For global illumination created by e.g. lights,
+		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
+		//!  \n paramsIndirect->quality is ignored, only paramsDirect->quality matters.
+		//!  Set to NULL for no indirect illumination.
+		//! \return
+		//!  Number of vertex buffers updated.
+		virtual unsigned updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
 		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
 		//
@@ -410,6 +428,8 @@ namespace rr
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters that
 		//!  specify fast preview update (takes milliseconds).
+		//!  Measure for ambient map in custom scale is RM_IRRADIANCE_CUSTOM_INDIRECT,
+		//!  HDR GI lightmap with baked diffuse color is RM_EXITANCE_PHYSICAL etc.
 		//! \return
 		//!  Number of lightmaps updated.
 		//!  Zero when no update was executed because of invalid inputs.
@@ -426,13 +446,11 @@ namespace rr
 		//! \param createMissingBuffers
 		//!  If destination buffer doesn't exist, it is created by newPixelBuffer().
 		//! \param paramsDirect
-		//!  Parameters of the update process.
-		//!  Specifies direct illumination component of lightmap.
+		//!  Parameters of the update process specific for direct illumination component of final color.
 		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
 		//!  set by setLights() is added to the final value stored into lightmap.
 		//! \param paramsIndirect
-		//!  Parameters of the update process.
-		//!  Specifies indirect illumination component of lightmap.
+		//!  Parameters of the update process specific for indirect illumination component of final color.
 		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
 		//!  set by setLights() is added to the final value stored into lightmap.
 		//!  For global illumination created by e.g. lights,
@@ -586,18 +604,21 @@ namespace rr
 		//!  function will be called again in next calculate().
 		virtual bool detectDirectIllumination() = 0;
 
-		//! Detects direct illumination on all faces in scene and sends it to the solver.
-		//
-		//! This is more general version of detectDirectIllumination(),
-		//! used for non-realtime calculation.
-		//! It supports environment and lights.
-		virtual bool updateSolverDirectIllumination(const UpdateParameters* params);
-
 		//! Detects direct illumination on all faces in scene and sends it to solver.
 		//
 		//! Source of illumination are lightmaps stored in 
 		//! getIllumination(objectNumber)->getLayer(sourceLayer)->pixelBuffer.
 		virtual void detectDirectIlluminationFromLightmaps(unsigned sourceLayer) = 0;
+
+		//! Detects direct illumination on all faces in scene and sends it to the solver.
+		//
+		//! This is more general version of detectDirectIllumination(),
+		//! used for non-realtime calculations.
+		//! It supports all light sources: current solver, environment, lights.
+		virtual bool updateSolverDirectIllumination(const UpdateParameters* paramsDirect);
+
+		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
+		virtual bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
 
 		//! Returns new vertex buffer (for indirect illumination) in your custom format.
 		//

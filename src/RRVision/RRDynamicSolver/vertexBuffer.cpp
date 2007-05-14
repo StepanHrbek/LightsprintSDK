@@ -60,13 +60,14 @@ RRIlluminationVertexBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertice
 	return RRIlluminationVertexBuffer::createInSystemMemory(numVertices);
 }
 
-unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRRadiometricMeasure measure)
+unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params)
 {
 	if(!scene || !vertexBuffer)
 	{
 		RR_ASSERT(0);
 		return 0;
 	}
+	RRRadiometricMeasure measure = params ? params->measure : RM_IRRADIANCE_PHYSICAL_INDIRECT;
 	RRObjectIllumination* illumination = getIllumination(objectHandle);
 	unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 	// load measure into each preImportVertex
@@ -93,29 +94,83 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 	return 1;
 }
 
-unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, RRRadiometricMeasure measure)
+unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
 {
-	unsigned updatedBuffers = 0;
-	if(!scene)
+	UpdateParameters paramsDirect;
+	UpdateParameters paramsIndirect;
+	if(aparamsDirect) paramsDirect = *aparamsDirect;
+	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
+
+	if(aparamsDirect || aparamsIndirect)
+	RRReporter::report(RRReporter::INFO,"Updating vertex buffers (%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
+		layerNumber,
+		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
+		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.direct)?"D":"",
+		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.indirect)?"I":"",
+		paramsDirect.applyCurrentSolution?"cur ":"",
+		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
+		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.direct)?"D":"",
+		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.indirect)?"I":"",
+		paramsIndirect.applyCurrentSolution?"cur ":"");
+
+	// 0. create missing buffers
+	if(createMissingBuffers)
 	{
-		RR_ASSERT(0);
-		return updatedBuffers;
+		for(unsigned object=0;object<getNumObjects();object++)
+		{
+			RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumber);
+			if(!layer->vertexBuffer) layer->vertexBuffer = newVertexBuffer(getObject(object)->getCollider()->getMesh()->getNumVertices());
+		}
 	}
-	REPORT_INIT;
-	REPORT_BEGIN("Updating vertex buffers.");
+
+	if(paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
+	{
+		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateVertexBuffers: paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
+		paramsDirect.applyCurrentSolution = false;
+	}
+
+	// 1. first gather into solver.direct
+	// 2. propagate
+	if(aparamsIndirect)
+	{
+		// auto quality for first gather
+		// shoot 4x less indirect rays than direct
+		paramsIndirect.quality = paramsDirect.quality/4;
+
+		if(!updateSolverIndirectIllumination(&paramsIndirect,
+				getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles(),
+				paramsDirect.quality)
+			)
+			return 0;
+
+		paramsDirect.applyCurrentSolution = true; // set solution generated here to be gathered in final gather
+		paramsDirect.measure.direct = false;
+		paramsDirect.measure.indirect = true; // it is stored in indirect (after calculate)
+	}
+
+	// 3. final gather into solver.direct
+	if(paramsDirect.applyLights || paramsDirect.applyEnvironment)
+	{
+		updateSolverDirectIllumination(&paramsDirect);
+		paramsDirect.measure = rr::RRRadiometricMeasure(0,0,0,1,0);
+		paramsDirect.measure.direct = true; // it is stored in direct (after reset)
+		paramsDirect.measure.indirect = false;
+	}
+
+	// 4. update buffers from solver.direct
+	unsigned updatedBuffers = 0;
+	//REPORT_INIT;
+	//REPORT_BEGIN("Updating vertex buffers.");
 	// for each object
 	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
 	{
-		RRObjectIllumination* illumination = getIllumination(objectHandle);
-		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
-		RRObjectIllumination::Layer* layer = illumination->getLayer(layerNumber);
-		if(!layer->vertexBuffer && createMissingBuffers) layer->vertexBuffer = newVertexBuffer(numPreImportVertices);
+		RRObjectIllumination::Layer* layer = getIllumination(objectHandle)->getLayer(layerNumber);
 		if(layer->vertexBuffer)
 		{
-			updatedBuffers += updateVertexBuffer(objectHandle,layer->vertexBuffer,measure);
+			updatedBuffers += updateVertexBuffer(objectHandle,layer->vertexBuffer,&paramsDirect);
 		}
 	}
-	REPORT_END;
+	//REPORT_END;
 	return updatedBuffers;
 }
 

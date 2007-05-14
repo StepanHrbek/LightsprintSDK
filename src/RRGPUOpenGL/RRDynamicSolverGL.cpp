@@ -569,7 +569,9 @@ unsigned RRDynamicSolverGL::updateVertexBuffersFromLightmaps(unsigned layerNumbe
 	scene->illuminationReset(false,true);
 	solutionVersion++;
 	// reads interpolated solution [per-vertex-physical] from solver
-	return updateVertexBuffers(layerNumber,createMissingBuffers,rr::RRRadiometricMeasure(0,0,0,1,0));
+	UpdateParameters params;
+	params.measure = rr::RRRadiometricMeasure(0,0,0,1,0);
+	return updateVertexBuffers(layerNumber,createMissingBuffers,&params,NULL);
 }
 
 /////////////////////////////////////////////////////////////////////////////

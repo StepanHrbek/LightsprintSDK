@@ -335,7 +335,7 @@ void idle()
 	if(solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = solver->getSolutionVersion();
-		solver->updateVertexBuffers(0,true,RM_IRRADIANCE_PHYSICAL_INDIRECT);
+		solver->updateVertexBuffers(0,true,NULL,NULL);
 	}
 
 	glutPostRedisplay();

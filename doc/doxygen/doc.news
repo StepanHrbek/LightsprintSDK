@@ -10,9 +10,10 @@
 
 NEWS
 
-- "day edition"
 - Windows Vista support
 - Visual Studio 2005 SP1 support
+- "day edition" - light computed into layers, layers are blended at replay time
+- updateVertexBuffer() a updateVertexBuffers() support RRLights a RREnvironment light sources
 - RRDynamicSolver::updateVertexBuffersFromLightmap(),
   allows for fully general GI (incl. skybox, lights) computed into vertex buffers
 - support for float textures
