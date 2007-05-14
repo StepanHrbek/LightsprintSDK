@@ -342,7 +342,7 @@ namespace rr
 		struct UpdateParameters
 		{
 			//! Use current indirect solution computed by compute() as the only source of illumination.
-			bool applyCurrentIndirectSolution;
+			bool applyCurrentSolution;
 
 			//! Use lights set by setLights() as one of sources of illumination.
 			bool applyLights;
@@ -377,7 +377,7 @@ namespace rr
 			//! Sets default parameters for very fast (milliseconds) preview of current indirect solution.
 			UpdateParameters()
 			{
-				applyCurrentIndirectSolution = true;
+				applyCurrentSolution = true;
 				applyLights = false;
 				applyEnvironment = false;
 				quality = 0;

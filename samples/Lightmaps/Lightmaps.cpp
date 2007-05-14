@@ -281,13 +281,13 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				rr::RRDynamicSolver::UpdateParameters paramsDirect;
 				paramsDirect.quality = 1000;
-				paramsDirect.applyCurrentIndirectSolution = false;
+				paramsDirect.applyCurrentSolution = false;
 				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
-				paramsIndirect.applyCurrentIndirectSolution = false;
+				paramsIndirect.applyCurrentSolution = false;
 
 				// 1. type of lighting
 				//  a) improve current GI lighting from realtime light
-				paramsDirect.applyCurrentIndirectSolution = true;
+				paramsDirect.applyCurrentSolution = true;
 				//  b) compute GI from point/spot/dir lights
 				//paramsDirect.applyLights = true;
 				//paramsIndirect.applyLights = true;
