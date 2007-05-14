@@ -1656,12 +1656,12 @@ void mainMenu(int item)
 				//lights.push_back(rr::RRLight::createDirectionalLight(rr::RRVec3(2,-5,1),rr::RRColorRGBF(0.7f))); //!!! not freed
 				//level->solver->setLights(lights);
 				// updates maps in high quality
-				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
+				rr::RRDynamicSolver::UpdateParameters paramsDirect;
 				paramsDirect.applyCurrentIndirectSolution = 0;
 				paramsDirect.applyLights = 1;
 				paramsDirect.applyEnvironment = 1;
 				paramsDirect.quality = LIGHTMAP_QUALITY;
-				rr::RRDynamicSolver::UpdateLightmapParameters paramsIndirect;
+				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 				paramsIndirect.applyCurrentIndirectSolution = 0;
 				paramsIndirect.applyLights = 1;
 				paramsIndirect.applyEnvironment = 1;
@@ -1681,7 +1681,7 @@ void mainMenu(int item)
 		case ME_UPDATE_LIGHTMAPS_0:
 			{
 				// updates maps in high quality
-				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
+				rr::RRDynamicSolver::UpdateParameters paramsDirect;
 				paramsDirect.applyCurrentIndirectSolution = 1;
 				paramsDirect.applyLights = 0;
 				paramsDirect.applyEnvironment = 0;
@@ -1708,7 +1708,7 @@ void mainMenu(int item)
 		case ME_UPDATE_LIGHTMAPS_ALL:
 			{
 				// updates all maps in high quality
-				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
+				rr::RRDynamicSolver::UpdateParameters paramsDirect;
 				paramsDirect.applyCurrentIndirectSolution = 1;
 				paramsDirect.applyLights = 0;
 				paramsDirect.applyEnvironment = 0;

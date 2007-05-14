@@ -279,10 +279,10 @@ void keyboard(unsigned char c, int x, int y)
 		case 'p':
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
-				rr::RRDynamicSolver::UpdateLightmapParameters paramsDirect;
+				rr::RRDynamicSolver::UpdateParameters paramsDirect;
 				paramsDirect.quality = 1000;
 				paramsDirect.applyCurrentIndirectSolution = false;
-				rr::RRDynamicSolver::UpdateLightmapParameters paramsIndirect;
+				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 				paramsIndirect.applyCurrentIndirectSolution = false;
 
 				// 1. type of lighting

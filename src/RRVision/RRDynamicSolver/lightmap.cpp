@@ -144,7 +144,7 @@ struct TexelContext
 {
 	RRDynamicSolver* solver;
 	RRIlluminationPixelBuffer* pixelBuffer;
-	const RRDynamicSolver::UpdateLightmapParameters* params;
+	const RRDynamicSolver::UpdateParameters* params;
 };
 
 // thread safe: yes except for first call (pixelBuffer could allocate memory in renderTexel).
@@ -415,7 +415,7 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 }
 
 // CPU version, detects direct from RRLights, RREnvironment
-bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateLightmapParameters* aparams)
+bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams)
 {
 	if(!getMultiObjectCustom() || !getStaticSolver())
 	{
@@ -433,7 +433,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateLightmapParamet
 	unsigned numPostImportTriangles = multiMesh->getNumTriangles();
 
 	// validate params
-	UpdateLightmapParameters params;
+	UpdateParameters params;
 	if(aparams) params = *aparams;
 	if(params.applyCurrentIndirectSolution)
 	{
@@ -576,7 +576,7 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 	}
 }
 
-unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateLightmapParameters* aparams)
+unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateParameters* aparams)
 {
 	if(!pixelBuffer)
 	{
@@ -605,7 +605,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	unsigned numPostImportTriangles = mesh->getNumTriangles();
 
 	// validate params
-	UpdateLightmapParameters params;
+	UpdateParameters params;
 	if(aparams) params = *aparams;
 	
 	// optimize params
@@ -667,7 +667,7 @@ static bool endByTime(void *context)
 	return GETTIME>*(TIME*)context;
 }
 
-unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool createMissingBuffers, const UpdateLightmapParameters* aparamsDirect, const UpdateLightmapParameters* aparamsIndirect)
+unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool createMissingBuffers, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
 {
 	unsigned updatedBuffers = 0;
 
@@ -683,8 +683,8 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool cre
 		}
 	}
 	// set default params instead of NULL
-	UpdateLightmapParameters paramsDirect;
-	UpdateLightmapParameters paramsIndirect;
+	UpdateParameters paramsDirect;
+	UpdateParameters paramsIndirect;
 	paramsIndirect.applyCurrentIndirectSolution = false;
 	paramsIndirect.applyLights = false;
 	paramsIndirect.applyEnvironment = false;
@@ -759,7 +759,7 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool cre
 			TexelContext tc;
 			tc.solver = this;
 			tc.pixelBuffer = NULL;
-			UpdateLightmapParameters params;
+			UpdateParameters params;
 			params.quality = paramsDirect.quality;
 			tc.params = &params;
 			RRMesh* multiMesh = getMultiObjectCustom()->getCollider()->getMesh();

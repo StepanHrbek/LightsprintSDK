@@ -339,7 +339,7 @@ namespace rr
 		virtual unsigned updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, RRRadiometricMeasure measure);
 
 		//! Parameters for updateLightmap() and updateLightmaps().
-		struct UpdateLightmapParameters
+		struct UpdateParameters
 		{
 			//! Use current indirect solution computed by compute() as the only source of illumination.
 			bool applyCurrentIndirectSolution;
@@ -375,7 +375,7 @@ namespace rr
 			bool diagnosticOutput;
 
 			//! Sets default parameters for very fast (milliseconds) preview of current indirect solution.
-			UpdateLightmapParameters()
+			UpdateParameters()
 			{
 				applyCurrentIndirectSolution = true;
 				applyLights = false;
@@ -414,7 +414,7 @@ namespace rr
 		//!  Number of lightmaps updated.
 		//!  Zero when no update was executed because of invalid inputs.
 		//!  Read system messages (RRReporter) for more details on failure.
-		virtual unsigned updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, const UpdateLightmapParameters* params);
+		virtual unsigned updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, const UpdateParameters* params);
 
 		//! Calculates and updates all lightmaps with direct, indirect or global illumination on static scene's surfaces.
 		//
@@ -443,7 +443,7 @@ namespace rr
 		//!  Number of lightmaps updated.
 		//!  Zero when no update was executed because of invalid inputs.
 		//!  Read system messages (RRReporter) for more details on failure.
-		virtual unsigned updateLightmaps(unsigned layerNumber, bool createMissingBuffers, const UpdateLightmapParameters* paramsDirect, const UpdateLightmapParameters* paramsIndirect);
+		virtual unsigned updateLightmaps(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
@@ -591,7 +591,7 @@ namespace rr
 		//! This is more general version of detectDirectIllumination(),
 		//! used for non-realtime calculation.
 		//! It supports environment and lights.
-		virtual bool updateSolverDirectIllumination(const UpdateLightmapParameters* params);
+		virtual bool updateSolverDirectIllumination(const UpdateParameters* params);
 
 		//! Detects direct illumination on all faces in scene and sends it to solver.
 		//
