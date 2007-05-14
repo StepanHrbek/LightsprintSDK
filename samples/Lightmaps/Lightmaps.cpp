@@ -83,7 +83,7 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,60.0};
+de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,1010.0};
 de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
@@ -283,7 +283,6 @@ void keyboard(unsigned char c, int x, int y)
 				paramsDirect.quality = 1000;
 				paramsDirect.applyCurrentIndirectSolution = false;
 				rr::RRDynamicSolver::UpdateLightmapParameters paramsIndirect;
-				paramsIndirect.quality = paramsDirect.quality/4;
 				paramsIndirect.applyCurrentIndirectSolution = false;
 
 				// 1. type of lighting

@@ -306,8 +306,9 @@ namespace rr
 		unsigned getSolutionVersion() const;
 
 
-		//! Calculates and updates vertex buffer with direct, indirect or global illumination on single static object's surface.
+		//! Updates vertex buffer with direct, indirect or global illumination on single static object's surface.
 		//
+		//! Current realtime solution is always used, with direct illumination specified by detectDirectIllumination().
 		//! \param objectNumber
 		//!  Number of object in this scene.
 		//!  Object numbers are defined by order in which you pass objects to setObjects().
@@ -321,8 +322,9 @@ namespace rr
 		//!  Number of vertex buffers updated, 0 or 1.
 		virtual unsigned updateVertexBuffer(unsigned objectNumber, RRIlluminationVertexBuffer* vertexBuffer, RRRadiometricMeasure measure);
 
-		//! Calculates and updates vertex buffers with direct, indirect or global illumination on whole static scene's surface.
+		//! Updates vertex buffers with direct, indirect or global illumination on whole static scene's surface.
 		//
+		//! Current realtime solution is always used, with direct illumination specified by detectDirectIllumination().
 		//! \param layerNumber
 		//!  Vertex colors for individual objects are stored into
 		//!  getIllumination(objectNumber)->getLayer(layerNumber)->vertexBuffer.
@@ -339,13 +341,13 @@ namespace rr
 		//! Parameters for updateLightmap() and updateLightmaps().
 		struct UpdateLightmapParameters
 		{
-			//! Use current indirect solution computed by compute() as the only source of indirect illumination.
+			//! Use current indirect solution computed by compute() as the only source of illumination.
 			bool applyCurrentIndirectSolution;
 
-			//! Use lights set by setLights() as one of sources of direct illumination.
+			//! Use lights set by setLights() as one of sources of illumination.
 			bool applyLights;
 
-			//! Use environment set by setEnvironment() as one of sources of direct illumination.
+			//! Use environment set by setEnvironment() as one of sources of illumination.
 			bool applyEnvironment;
 
 			//! Quality of computed illumination coming from current solution and environment (not from lights).
@@ -435,6 +437,7 @@ namespace rr
 		//!  set by setLights() is added to the final value stored into lightmap.
 		//!  For global illumination created by e.g. lights,
 		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
+		//!  \n paramsIndirect->quality is ignored, only paramsDirect->quality matters.
 		//!  Set to NULL for no indirect illumination.
 		//! \return
 		//!  Number of lightmaps updated.
@@ -583,6 +586,13 @@ namespace rr
 		//!  function will be called again in next calculate().
 		virtual bool detectDirectIllumination() = 0;
 
+		//! Detects direct illumination on all faces in scene and sends it to the solver.
+		//
+		//! This is more general version of detectDirectIllumination(),
+		//! used for non-realtime calculation.
+		//! It supports environment and lights.
+		virtual bool updateSolverDirectIllumination(const UpdateLightmapParameters* params);
+
 		//! Detects direct illumination on all faces in scene and sends it to solver.
 		//
 		//! Source of illumination are lightmaps stored in 
@@ -623,7 +633,7 @@ namespace rr
 		//!  Function called for each enumerated texel. Must be thread safe.
 		//! \param context
 		//!  Context is passed unchanged to callback.
-		virtual void enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, void (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context), void* context);
+		virtual void enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, RRColorRGBAF (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context), void* context);
 
 	private:
 		enum ChangeStrength

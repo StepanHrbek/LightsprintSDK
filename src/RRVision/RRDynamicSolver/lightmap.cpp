@@ -145,25 +145,27 @@ struct TexelContext
 	RRDynamicSolver* solver;
 	RRIlluminationPixelBuffer* pixelBuffer;
 	const RRDynamicSolver::UpdateLightmapParameters* params;
-	unsigned triangleIndex;
 };
 
 // thread safe: yes except for first call (pixelBuffer could allocate memory in renderTexel).
 //   someone must call us at least once, before multithreading starts.
-void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context)
+// returns:
+//   if tc->pixelBuffer is set, custom scale irradiance is rendered and returned
+//   if tc->pixelBuffer is not set, physical scale irradiance is returned
+RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context)
 {
 	if(!context)
 	{
 		RRReporter::report(RRReporter::WARN,"processTexel: context==NULL\n");
 		RR_ASSERT(0);
-		return;
+		return RRColorRGBAF(0);
 	}
 	TexelContext* tc = (TexelContext*)context;
 	if(!tc->params || !tc->solver || !tc->solver->getMultiObjectCustom())
 	{
 		RRReporter::report(RRReporter::WARN,"processTexel: No params or no objects in scene\n");
 		RR_ASSERT(0);
-		return;
+		return RRColorRGBAF(0);
 	}
 
 	// prepare scaler
@@ -183,7 +185,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	{
 		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"processTexel: Zero workload.\n"));
 		RR_ASSERT(0);
-		return;
+		return RRColorRGBAF(0);
 	}
 	
 	// prepare ray
@@ -217,7 +219,7 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 			// random exit dir
 			RRVec3 dir = getRandomExitDir(filler, n3, u3, v3);
 			RRReal dirsize = dir.length();
-			// intesect scene
+			// intersect scene
 			ray->rayDirInv[0] = dirsize/dir[0];
 			ray->rayDirInv[1] = dirsize/dir[1];
 			ray->rayDirInv[2] = dirsize/dir[2];
@@ -384,7 +386,8 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	RRReal reliability = MIN(reliabilityLights,reliabilityHemisphere);
 
 	// scale irradiance (full irradiance, not fraction) to custom scale
-	if(scaler) scaler->getCustomScale(irradiance);
+	if(tc->pixelBuffer)
+		if(scaler) scaler->getCustomScale(irradiance);
 
 #ifdef BLUR
 	reliability /= BLUR;
@@ -405,12 +408,94 @@ void processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& norma
 	}*/
 
 	// store irradiance in custom scale
-	tc->pixelBuffer->renderTexel(uv,irradiance);
+	if(tc->pixelBuffer)
+		tc->pixelBuffer->renderTexel(uv,irradiance);
+
+	return irradiance;
+}
+
+// CPU version, detects direct from RRLights, RREnvironment
+bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateLightmapParameters* aparams)
+{
+	if(!getMultiObjectCustom() || !getStaticSolver())
+	{
+		// create objects
+		calculateCore(0);
+		if(!getMultiObjectCustom() || !getStaticSolver())
+		{
+			RR_ASSERT(0);
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::detectDirectIllumination: No objects in scene.\n");
+			return false;
+		}
+	}
+	RRObjectWithIllumination* multiObject = getMultiObjectPhysicalWithIllumination();
+	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
+	unsigned numPostImportTriangles = multiMesh->getNumTriangles();
+
+	// validate params
+	UpdateLightmapParameters params;
+	if(aparams) params = *aparams;
+	if(params.applyCurrentIndirectSolution)
+	{
+		RRReporter::report(RRReporter::WARN,"detectDirectIllumination: applyCurrentIndirectSolution ignored.\n");
+	}
+	params.quality = MAX(1,params.quality);
+	
+	// optimize params
+	if(params.applyLights && !getLights().size())
+		params.applyLights = false;
+	if(params.applyEnvironment && !getEnvironment())
+		params.applyEnvironment = false;
+
+	RRReporter::report(RRReporter::INFO,"Updating direct illum(%s%s)...",params.applyLights?"lights":"",params.applyEnvironment?" env":"");
+	TIME start = GETTIME;
+	TexelContext tc;
+	tc.solver = this;
+	tc.pixelBuffer = NULL;
+	tc.params = &params;
+	// split work between multiple shooters on triangle surface
+	unsigned numShooters = (unsigned)sqrtf((float)params.quality);
+	params.quality /= numShooters;
+	// process one texel. for safe preallocations inside texel processor
+	unsigned uv[2]={0,0};
+	processTexel(uv,RRVec3(0),RRVec3(1),0,&tc);
+#pragma omp parallel for schedule(dynamic)
+	for(int t=0;t<(int)numPostImportTriangles;t++)
+	{
+		unsigned triangleIndex = (unsigned)t;
+		RRMesh::TriangleBody body;
+		multiMesh->getTriangleBody(triangleIndex,body);
+		RRVec3 vertices[3] = {body.vertex0,body.vertex0+body.side1,body.vertex0+body.side2};
+		RRMesh::TriangleNormals normals;
+		multiMesh->getTriangleNormals(t,normals);
+		normals.norm[1] -= normals.norm[0]; // create delta normals
+		normals.norm[2] -= normals.norm[0];
+		RRColor color = RRColor(0);
+		for(unsigned i=0;i<numShooters;i++)
+		{
+			// consider using homogenous filler
+			RRReal u = rand()*(1.f/RAND_MAX);
+			RRReal v = rand()*(1.f/RAND_MAX);
+			if(u+v>1)
+			{
+				u = 1-u;
+				v = 1-v;
+			}
+			RRVec3 pos = body.vertex0+body.side1*u+body.side2*v;
+			RRVec3 norm = normals.norm[0]+normals.norm[1]*u+normals.norm[2]*v;
+			color += processTexel(uv,pos,norm,triangleIndex,&tc);
+		}
+		multiObject->setTriangleIllumination(triangleIndex,RM_IRRADIANCE_PHYSICAL,color/numShooters);
+	}
+	float secs = (GETTIME-start)/(float)PER_SEC;
+	RRReporter::report(RRReporter::CONT," done in %.1fs.\n",secs);
+
+	return true;
 }
 
 // Enumerates all important texels in ambient map, using softare rasterizer.
 void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight,
-	void (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context), void* context)
+	RRColorRGBAF (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context), void* context)
 {
 	// Iterate through all multimesh triangles (rather than single object's mesh triangles)
 	// Advantages:
@@ -618,6 +703,16 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool cre
 		paramsIndirect.applyCurrentIndirectSolution = 0;
 	}
 
+	// create pixel buffers
+	if(createMissingBuffers)
+	{
+		for(unsigned object=0;object<getNumObjects();object++)
+		{
+			RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(lightmapLayerNumber);
+			if(!layer->pixelBuffer) layer->pixelBuffer = newPixelBuffer(getObject(object));
+		}
+	}
+
 	// gather direct for requested indirect and propagate in solver
 	if(paramsIndirect.applyLights || paramsIndirect.applyEnvironment)
 	{
@@ -626,30 +721,72 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool cre
 			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: paramsDirect.applyCurrentIndirectSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
 			paramsDirect.applyCurrentIndirectSolution = false;
 		}
-		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
-		calculateCore(0);
-		// gather
-		TIME t0 = GETTIME;
+
+		// auto quality for first gather
+		unsigned numTexels = 0;
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(lightmapLayerNumber);
-			if(!layer->pixelBuffer && createMissingBuffers) layer->pixelBuffer = newPixelBuffer(getObject(object));
-			if(layer->pixelBuffer)
-				updateLightmap(object,layer->pixelBuffer,&paramsIndirect);
-			else
-			{
-				RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: newPixelBuffer(getObject(%d)) returned NULL\n",object);
-				RR_ASSERT(0);
-			}
+			RRIlluminationPixelBuffer* lmap = getIllumination(object)->getLayer(lightmapLayerNumber)->pixelBuffer;
+			if(lmap) numTexels += lmap->getWidth()*lmap->getHeight();
 		}
+		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+		// shoot 10x more direct rays than indirect
+		paramsIndirect.quality = (unsigned)(paramsDirect.quality*0.1f*numTexels/(numTriangles+1))+1;
+
+		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
+		calculateCore(0);
+
+		// first gather
+		TIME t0 = GETTIME;
+		updateSolverDirectIllumination(&paramsIndirect);
 		RRReal secondsInGather = (GETTIME-t0)/(RRReal)PER_SEC;
-		// feed solver with recently gathered illum
-		//!!! float precision is lost here
-		detectDirectIlluminationFromLightmaps(lightmapLayerNumber);
+
+		// auto quality for propagate
+		float secondsInPropagatePlan;
+		if(paramsIndirect.applyEnvironment)
+		{
+			// first gather time is robust measure
+			secondsInPropagatePlan = secondsInGather;
+		}
+		else
+		{
+			// when not doing paramsIndirect.applyEnvironment, first gather is extra fast
+			// benchmark:
+			//  shoot 1% of final gather rays
+			//  set gather time 20x higher
+			TIME benchStart = GETTIME;
+			unsigned benchTexels = numTexels/100;
+			TexelContext tc;
+			tc.solver = this;
+			tc.pixelBuffer = NULL;
+			UpdateLightmapParameters params;
+			params.quality = paramsDirect.quality;
+			tc.params = &params;
+			RRMesh* multiMesh = getMultiObjectCustom()->getCollider()->getMesh();
+#pragma omp parallel for schedule(dynamic)
+			for(int i=0;i<(int)benchTexels;i++)
+			{
+				unsigned triangleIndex = (unsigned)i%multiMesh->getNumTriangles();
+				RRMesh::TriangleBody body;
+				multiMesh->getTriangleBody(triangleIndex,body);
+				RRVec3 vertices[3] = {body.vertex0,body.vertex0+body.side1,body.vertex0+body.side2};
+				RRMesh::TriangleNormals normals;
+				multiMesh->getTriangleNormals(triangleIndex,normals);
+				normals.norm[1] -= normals.norm[0]; // create delta normals
+				normals.norm[2] -= normals.norm[0];
+				RRVec3 pos = body.vertex0+body.side1*0.33f+body.side2*0.33f;
+				RRVec3 norm = normals.norm[0]+normals.norm[1]*0.33f+normals.norm[2]*0.33f;
+				unsigned uv[2];
+				processTexel(uv,pos,norm,triangleIndex,&tc);
+			}
+			RRReal secondsInBench = (GETTIME-benchStart)/(RRReal)PER_SEC;
+			secondsInPropagatePlan = MAX(0.1f,15*secondsInBench);
+		}
+
 		// propagate
 		RRReporter::report(RRReporter::INFO,"Propagating ...");
 		scene->illuminationReset(false,true);
-		float secondsInPropagatePlan = MAX(secondsInGather/MAX(paramsIndirect.quality,1)*MAX(1,((RRReal)paramsDirect.quality+paramsIndirect.quality)/2),5);
+		//RRReporter::report(RRReporter::CONT," scheduled for %.1fs, ",secondsInPropagatePlan);
 		TIME now = GETTIME;
 		TIME end = (TIME)(now+secondsInPropagatePlan*PER_SEC);
 		RRStaticSolver::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
@@ -657,32 +794,25 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned lightmapLayerNumber, bool cre
 		if(improvement!=RRStaticSolver::IMPROVED)
 		{
 			RRReporter::report(RRReporter::CONT," scheduled for %.1fs, ",secondsInPropagatePlan);
-			/* save intermediate maps for examination, are they really black?
-			for(unsigned i=0;i<getNumObjects();i++)
-			{
-				RRIlluminationPixelBuffer* lmap = getIllumination(i)->getLayer(lightmapLayerNumber)->pixelBuffer;
-				if(lmap)
-				{
-					char buf[100];
-					sprintf(buf,"intermediate_lmap_%02d.png",i);
-					lmap->save(buf);
-				}
-			}*/
 		}
-		RRReporter::report(RRReporter::CONT," done in %.1fs (%s).\n",
-			secondsInPropagateReal,
-			(improvement==RRStaticSolver::IMPROVED)?"improved":((improvement==RRStaticSolver::NOT_IMPROVED)?"not improved":((improvement==RRStaticSolver::FINISHED)?"no light in scene":"error")));
+		RRReporter::report(RRReporter::CONT," %s in %.1fs.\n",
+			(improvement==RRStaticSolver::IMPROVED)?"improved":((improvement==RRStaticSolver::NOT_IMPROVED)?"not improved":((improvement==RRStaticSolver::FINISHED)?"no light in scene":"error")),
+			secondsInPropagateReal
+			);
 		// set solution generated here to be gathered in second gather
 		paramsDirect.applyCurrentIndirectSolution = true;
 		// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)
 		//  before further realtime rendering
 //		reportDirectIlluminationChange(true);
 	}
-	// gather requested direct and solution
+
+	// kdyz budu chtit updatnout vbuffery misto pbufferu:
+	//detectDirectIllumination(&paramsDirect);
+
+	// final gather
 	for(unsigned object=0;object<getNumObjects();object++)
 	{
 		RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(lightmapLayerNumber);
-		if(!layer->pixelBuffer) layer->pixelBuffer = newPixelBuffer(getObject(object));
 		if(layer->pixelBuffer)
 			updatedBuffers += updateLightmap(object,layer->pixelBuffer,&paramsDirect);
 		else
