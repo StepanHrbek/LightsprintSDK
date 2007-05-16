@@ -88,6 +88,7 @@ public:
 	//! Specifies what data channels to feed to GPU during render.
 	struct RenderedChannels
 	{
+		bool     NORMALS                :1; ///< feeds gl_Normal
 		bool     LIGHT_DIRECT           :1; ///< feeds gl_Normal
 		bool     LIGHT_INDIRECT_VCOLOR  :1; ///< feeds gl_Color. Read from RRStaticSolver or RRObjectIllumination or RRIlluminationVertexBuffer.
 		bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< not implemented yet

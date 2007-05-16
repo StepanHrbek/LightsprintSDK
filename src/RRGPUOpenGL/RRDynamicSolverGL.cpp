@@ -175,6 +175,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 
 		// setup renderer
 		RendererOfRRObject::RenderedChannels renderedChannels;
+		renderedChannels.NORMALS = true;
 		renderedChannels.LIGHT_DIRECT = true;
 		renderedChannels.FORCE_2D_POSITION = true;
 
@@ -515,6 +516,7 @@ bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminat
 	RendererOfRRObject* renderer = new RendererOfRRObject(object,getStaticSolver(),getScaler(),false);
 	renderer->setCapture(&captureUv,0,mesh->getNumTriangles());
 	RendererOfRRObject::RenderedChannels channels;
+	channels.NORMALS = true;
 	channels.LIGHT_DIRECT = true;
 	channels.FORCE_2D_POSITION = true;
 	renderer->setRenderedChannels(channels);
