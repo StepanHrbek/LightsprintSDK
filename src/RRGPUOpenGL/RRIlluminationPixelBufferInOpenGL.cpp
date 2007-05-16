@@ -9,6 +9,8 @@
 #include "Lightsprint/DemoEngine/Program.h"
 #include "Lightsprint/RRGPUOpenGL.h"
 
+//#define DIAGNOSTIC
+
 namespace rr_gl
 {
 
@@ -148,8 +150,13 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 		numTexelsRenderedWithoutOverlap++;
 	else
 		numTexelsRenderedWithOverlap++;
+
+#ifdef DIAGNOSTIC
+	renderedTexels[uv[0]+uv[1]*texture->getWidth()].color++;
+#else
 	renderedTexels[uv[0]+uv[1]*texture->getWidth()] = 
 		rr::RRColorRGBA8(color[0],color[1],color[2],color[3]);
+#endif
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
@@ -165,13 +172,29 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 	{
 		texture->renderingToEnd();
 
+#ifdef DIAGNOSTIC
+		if(numTexelsRenderedWithOverlap)
+#else
 		if(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/20)
+#endif
 		{
 			rr::RRReporter::report(
 				(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/5)?rr::RRReporter::ERRO:rr::RRReporter::WARN,
 				"Overlapping texels rendered into map, bad unwrap? size=%d*%d, ok=%d overlap=%d\n",
 				texture->getWidth(),texture->getHeight(),numTexelsRenderedWithoutOverlap,numTexelsRenderedWithOverlap);
 		}
+
+#ifdef DIAGNOSTIC
+		// convert to visible colors
+		unsigned diagColors[] =
+		{
+			0,0xff0000ff,0xff00ff00,0xffff0000,0xffffff00,0xffff00ff,0xff00ffff,0xffffffff
+		};
+		for(unsigned i=0;i<texture->getWidth()*texture->getHeight();i++)
+		{
+			renderedTexels[i].color = diagColors[CLAMPED(renderedTexels[i].color&255,0,7)];
+		}
+#endif
 
 		// normal way
 		//texture->bindTexture();
@@ -228,6 +251,9 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		&& helpers->filterProgram
 		&& texture->getWidth()<=helpers->tempTexture->getWidth() 
 		&& texture->getHeight()<=helpers->tempTexture->getHeight()
+#ifdef DIAGNOSTIC
+		&& 0
+#endif
 		)
 	for(int pass=0;pass<(preferQualityOverSpeed?10:2);pass++)
 	{
