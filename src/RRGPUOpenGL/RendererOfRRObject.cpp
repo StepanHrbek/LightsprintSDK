@@ -165,7 +165,7 @@ void RendererOfRRObject::render()
 	bool readIndirectFromLayer = renderIndirect && params.indirectIlluminationSource==LAYER;
 	bool readIndirectFromNone = renderIndirect && params.indirectIlluminationSource==NONE;
 
-	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV;
+	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV || params.renderedChannels.NORMALS;
 
 	// BUFFERS
 	// general and faster code, but can't handle objects with big preimport vertex numbers (e.g. multiobject)

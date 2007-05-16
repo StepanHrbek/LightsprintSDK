@@ -175,6 +175,7 @@ void RendererOfRRDynamicSolver::render()
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK); //!!! do it in RendererOfRRObject according to RRMaterial sideBits
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
+	renderedChannels.NORMALS = params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_ENV || params.uberProgramSetup.POSTPROCESS_NORMALS;
 	renderedChannels.LIGHT_DIRECT = params.uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR2 = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
@@ -304,6 +305,7 @@ void RendererOfOriginalScene::render()
 	glCullFace(GL_BACK); //!!! do it in RendererOfRRObject according to RRMaterial sideBits
 
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
+	renderedChannels.NORMALS = params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_ENV || params.uberProgramSetup.POSTPROCESS_NORMALS;
 	renderedChannels.LIGHT_DIRECT = params.uberProgramSetup.LIGHT_DIRECT;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
 	renderedChannels.LIGHT_INDIRECT_VCOLOR2 = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;

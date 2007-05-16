@@ -215,7 +215,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	BIND_VBO(Vertex,3,vertex);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	// set normals
-	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV;
+	bool setNormals = params.renderedChannels.LIGHT_DIRECT || params.renderedChannels.LIGHT_INDIRECT_ENV || params.renderedChannels.NORMALS;
 	if(setNormals)
 	{
 		BIND_VBO2(Normal,3,normal);

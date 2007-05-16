@@ -21,6 +21,7 @@
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define POSTPROCESS_NORMALS
 //  #define POSTPROCESS_BRIGHTNESS
 //  #define POSTPROCESS_GAMMA
 //  #define POSTPROCESS_BIGSCREEN
@@ -60,7 +61,7 @@
 varying
 #endif
 	vec3 worldPos;
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV)
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV) || defined(POSTPROCESS_NORMALS)
 varying 
 #endif
 	vec3 worldNormalSmooth;

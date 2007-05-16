@@ -21,6 +21,7 @@
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define POSTPROCESS_NORMALS
 //  #define POSTPROCESS_BRIGHTNESS
 //  #define POSTPROCESS_GAMMA
 //  #define POSTPROCESS_BIGSCREEN
@@ -130,7 +131,7 @@
 	uniform vec4 materialSpecularConst;
 #endif
 
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV)
+#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV) || defined(POSTPROCESS_NORMALS)
 	varying vec3 worldNormalSmooth;
 #endif
 
@@ -433,6 +434,9 @@ void main()
 
 		#if defined(MATERIAL_DIFFUSE) && defined(MATERIAL_SPECULAR) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_SPECULAR_MAP)
 			gl_FragColor *= 0.5;
+		#endif
+		#ifdef POSTPROCESS_NORMALS
+			gl_FragColor.rgb = abs(worldNormalSmooth);
 		#endif
 		#ifdef POSTPROCESS_BRIGHTNESS
 			gl_FragColor *= postprocessBrightness;
