@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRDynamicSolver.h
 //! \brief RRDynamicSolver - global illumination solver for dynamic scenes
-//! \version 2007.5.2
+//! \version 2007.5.14
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -649,7 +649,7 @@ namespace rr
 		//!  Function called for each enumerated texel. Must be thread safe.
 		//! \param context
 		//!  Context is passed unchanged to callback.
-		virtual void enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, RRColorRGBAF (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context), void* context);
+		virtual void enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, RRColorRGBAF (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context, unsigned fillerReset), void* context);
 
 	private:
 		enum ChangeStrength

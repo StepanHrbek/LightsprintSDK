@@ -11,6 +11,7 @@
 #define REPORT(a) a
 #define HOMOGENOUS_FILL // enables homogenous rather than random(noisy) shooting
 //#define BLUR 4 // enables full lightmap blur, higher=stronger
+//#define DIAGNOSTIC
 
 namespace rr
 {
@@ -67,7 +68,7 @@ class HomogenousFiller2
 {
 	unsigned num;
 public:
-	void Reset() {num=0;}
+	void Reset(unsigned progress) {num=progress;}
 	void GetTrianglePoint(RRReal *a,RRReal *b)
 	{
 		unsigned n=num++;
@@ -152,7 +153,7 @@ struct TexelContext
 // returns:
 //   if tc->pixelBuffer is set, custom scale irradiance is rendered and returned
 //   if tc->pixelBuffer is not set, physical scale irradiance is returned
-RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context)
+RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context, unsigned resetFiller)
 {
 	if(!context)
 	{
@@ -205,7 +206,7 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 		RRVec3 v3 = normalized(ortogonalTo(n3,u3));
 		// prepare homogenous filler
 		HomogenousFiller2 filler;
-		filler.Reset();
+		filler.Reset(resetFiller);
 		// init counters
 		unsigned rays = tc->params->quality ? tc->params->quality : 1;
 		unsigned hitsReliable = 0;
@@ -414,7 +415,7 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 	return irradiance;
 }
 
-// CPU version, detects direct from RRLights, RREnvironment
+// CPU version, detects per-triangle direct from RRLights, RREnvironment, gathers from current solution
 bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams)
 {
 	if(!getMultiObjectCustom() || !getStaticSolver())
@@ -455,7 +456,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	params.quality /= numShooters;
 	// process one texel. for safe preallocations inside texel processor
 	unsigned uv[2]={0,0};
-	processTexel(uv,RRVec3(0),RRVec3(1),0,&tc);
+	processTexel(uv,RRVec3(0),RRVec3(1),0,&tc,0);
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
@@ -480,7 +481,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 			}
 			RRVec3 pos = body.vertex0+body.side1*u+body.side2*v;
 			RRVec3 norm = normals.norm[0]+normals.norm[1]*u+normals.norm[2]*v;
-			color += processTexel(uv,pos,norm,triangleIndex,&tc);
+			color += processTexel(uv,pos,norm,triangleIndex,&tc,i*params.quality);
 		}
 		multiObject->setTriangleIllumination(triangleIndex,RM_IRRADIANCE_PHYSICAL,color/numShooters);
 	}
@@ -494,9 +495,28 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	return true;
 }
 
+#ifdef DIAGNOSTIC
+unsigned hist[100];
+void logReset()
+{
+	memset(hist,0,sizeof(hist));
+}
+void logRasterizedTriangle(unsigned numTexels)
+{
+	if(numTexels>=100) numTexels = 99;
+	hist[numTexels]++;
+}
+void logPrint()
+{
+	printf("Numbers of triangles with 0/1/2/...97/98/more texels:\n");
+	for(unsigned i=0;i<100;i++)
+		printf("%d ",hist[i]);
+}
+#endif
+
 // Enumerates all important texels in ambient map, using softare rasterizer.
 void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight,
-	RRColorRGBAF (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context), void* context)
+	RRColorRGBAF (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context, unsigned fillerReset), void* context)
 {
 	// Iterate through all multimesh triangles (rather than single object's mesh triangles)
 	// Advantages:
@@ -549,6 +569,7 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 			LINE_EQUATION(line1InMap,mapping.uv[1]-mapping.uv[0],mapping.uv[0],mapping.uv[2]);
 			LINE_EQUATION(line2InMap,mapping.uv[2]-mapping.uv[0],mapping.uv[0],mapping.uv[1]);
 			//  for all texels in bounding box
+			unsigned numTexels = 0;
 			for(unsigned y=(unsigned)ymin;y<MIN((unsigned)ymax,mapHeight);y++)
 			{
 				for(unsigned x=(unsigned)xmin;x<MIN((unsigned)xmax,mapWidth);x++)
@@ -569,10 +590,22 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 						RRVec3 posWorld = body.vertex0 + body.side1*uvInTriangle[0] + body.side2*uvInTriangle[1];
 						RRVec3 normalWorld = normals.norm[0] + (normals.norm[1]-normals.norm[0])*uvInTriangle[0] + (normals.norm[2]-normals.norm[0])*uvInTriangle[1];
 						// enumerate texel
-						callback(uvInMapI,posWorld,normalWorld,t,context);
+						callback(uvInMapI,posWorld,normalWorld,t,context,0);
+						numTexels++;
 					}
 				}
 			}
+			if(!numTexels)
+			{
+				RRVec2 center = (mapping.uv[0] + mapping.uv[1] + mapping.uv[2])*0.333333f;
+				unsigned uvInMapI[2] = {unsigned(center[0]*mapWidth)%mapWidth,unsigned(center[1]*mapHeight)%mapHeight};
+				RRVec3 posWorld = body.vertex0 + (body.side1 + body.side2)*0.333333f;
+				RRVec3 normalWorld = (normals.norm[0] + normals.norm[1] + normals.norm[2])*0.333333f;
+				callback(uvInMapI,posWorld,normalWorld,t,context,0);
+			}
+#ifdef DIAGNOSTIC
+			logRasterizedTriangle(numTexels);
+#endif
 		}
 	}
 }
@@ -615,6 +648,9 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	if(params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 
+#ifdef DIAGNOSTIC
+	logReset();
+#endif
 	pixelBuffer->renderBegin();
 	if(params.applyLights || params.applyEnvironment || (params.applyCurrentSolution && params.quality))
 	{
@@ -626,10 +662,13 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		tc.params = &params;
 		// process one texel. for safe preallocations inside texel processor
 		unsigned uv[2]={0,0};
-		processTexel(uv,RRVec3(0),RRVec3(1),0,&tc);
+		processTexel(uv,RRVec3(0),RRVec3(1),0,&tc,0);
 		// continue with all texels, possibly in multiple threads
 		enumerateTexels(objectNumber,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,&tc);
 		pixelBuffer->renderEnd(true);
+#ifdef DIAGNOSTIC
+		logPrint();
+#endif
 		unsigned secs10 = (GETTIME-start)*10/PER_SEC;
 		RRReporter::report(RRReporter::CONT," done in %d.%ds.\n",secs10/10,secs10%10);
 	}
@@ -653,6 +692,9 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 			}
 		}
 		pixelBuffer->renderEnd(false);
+#ifdef DIAGNOSTIC
+		logPrint();
+#endif
 	}
 	else
 	{
@@ -748,7 +790,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				RRVec3 pos = body.vertex0+body.side1*0.33f+body.side2*0.33f;
 				RRVec3 norm = normals.norm[0]+normals.norm[1]*0.33f+normals.norm[2]*0.33f;
 				unsigned uv[2];
-				processTexel(uv,pos,norm,triangleIndex,&tc);
+				processTexel(uv,pos,norm,triangleIndex,&tc,0);
 			}
 			RRReal secondsInBench = (GETTIME-benchStart)/(RRReal)PER_SEC;
 			secondsInPropagatePlan = MAX(0.1f,15*secondsInBench);
