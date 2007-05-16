@@ -152,9 +152,9 @@ unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createM
 	if(paramsDirect.applyLights || paramsDirect.applyEnvironment)
 	{
 		updateSolverDirectIllumination(&paramsDirect);
-		paramsDirect.measure = rr::RRRadiometricMeasure(0,0,0,1,0);
-		paramsDirect.measure.direct = true; // it is stored in direct (after reset)
-		paramsDirect.measure.indirect = false;
+		bool tmp = paramsDirect.measure.smoothed;
+		paramsDirect.measure = rr::RRRadiometricMeasure(0,0,0,1,0); // it is stored in direct (after reset)
+		paramsDirect.measure.smoothed = tmp; // preserve disabled smoothing
 	}
 
 	// 4. update buffers from solver.direct
