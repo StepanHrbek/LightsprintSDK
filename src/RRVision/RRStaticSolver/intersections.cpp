@@ -126,7 +126,7 @@ Triangle* Scene::intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& d
 	skipTriangle.skip = (unsigned)(skip-object->triangle);
 	hitTriangle = object->intersection(ray,eye,direction); // no intersection -> outputs get undefined 
 
-	LOG_RAY(eye,direction,hitTriangle?ray.rayLengthMax:0.2f,hitTriangle);
+	LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	return hitTriangle;
 }
 

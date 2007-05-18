@@ -9,7 +9,7 @@
 #include "Lightsprint/DemoEngine/Program.h"
 #include "Lightsprint/RRGPUOpenGL.h"
 
-//#define DIAGNOSTIC
+//#define DIAGNOSTIC // kazdy texel dostane barvu podle toho kolikrat do nej bylo zapsano
 
 namespace rr_gl
 {
@@ -174,15 +174,14 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 
 #ifdef DIAGNOSTIC
 		if(numTexelsRenderedWithOverlap)
-#else
-		if(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/20)
-#endif
+//		if(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/20)
 		{
 			rr::RRReporter::report(
 				(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/5)?rr::RRReporter::ERRO:rr::RRReporter::WARN,
-				"Overlapping texels rendered into map, bad unwrap? size=%d*%d, ok=%d overlap=%d\n",
+				"Overlapping texels rendered into map, size=%d*%d, ok=%d overlap=%d\n",
 				texture->getWidth(),texture->getHeight(),numTexelsRenderedWithoutOverlap,numTexelsRenderedWithOverlap);
 		}
+#endif
 
 #ifdef DIAGNOSTIC
 		// convert to visible colors
@@ -251,9 +250,6 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		&& helpers->filterProgram
 		&& texture->getWidth()<=helpers->tempTexture->getWidth() 
 		&& texture->getHeight()<=helpers->tempTexture->getHeight()
-#ifdef DIAGNOSTIC
-		&& 0
-#endif
 		)
 	for(int pass=0;pass<(preferQualityOverSpeed?10:2);pass++)
 	{

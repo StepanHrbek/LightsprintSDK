@@ -196,7 +196,6 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const SmoothingParameters* sm
 }
 
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // calculate radiosity

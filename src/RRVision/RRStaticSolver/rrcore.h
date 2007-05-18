@@ -768,7 +768,9 @@ public:
 		// -> multiple independent scenes are legal
 		HomogenousFiller filler;
 		bool getRandomExitDir(const Vec3& norm, const Vec3& u3, const Vec3& v3, const RRSideBits* sideBits, Vec3& exitDir);
+	public:
 		Triangle* getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir);
+	private:
 
 		// previously global skipTriangle, now allocated per scene
 		// -> multiple independent scenes are legal

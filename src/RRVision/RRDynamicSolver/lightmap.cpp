@@ -11,10 +11,18 @@
 #define REPORT(a) a
 #define HOMOGENOUS_FILL // enables homogenous rather than random(noisy) shooting
 //#define BLUR 4 // enables full lightmap blur, higher=stronger
-//#define DIAGNOSTIC
+//#define DIAGNOSTIC // sleduje texel overlapy, vypisuje histogram velikosti trianglu
+//#define UNWRAP_DIAGNOSTIC // kazdy triangl dostane vlastni nahodnou barvu, tam kde bude videt prechod je spatny unwrap nebo rasterizace
+//#define DIAGNOSTIC_RAYS // zaznamenava paprsky vystreleny z texelu lightmapy (RR_DEVELOPMENT must be on)
 
 namespace rr
 {
+
+#define LOG_RAY(aeye,adir,adist,hit) { \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[0]=aeye; \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=!hit; \
+	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; }
 
 struct RenderSubtriangleContext
 {
@@ -153,6 +161,11 @@ struct TexelContext
 // returns:
 //   if tc->pixelBuffer is set, custom scale irradiance is rendered and returned
 //   if tc->pixelBuffer is not set, physical scale irradiance is returned
+// pozor na:
+//   - bazi pro strileni do hemisfery si vyrabi z normaly
+//     baze (n3/u3/v3) je nespojita funkce normaly (n3), tj. nepatrne vychyleny triangl muze strilet uplne jinym smerem
+//      nez jeho kamaradi -> pri nizke quality pak ziska zretelne jinou barvu
+//     bazi by slo generovat spojite -> zlepseni kvality pri nizkem quality
 RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context, unsigned resetFiller)
 {
 	if(!context)
@@ -168,6 +181,7 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 		RR_ASSERT(0);
 		return RRColorRGBAF(0);
 	}
+
 
 	// prepare scaler
 	const RRScaler* scaler = tc->solver->getScaler();
@@ -226,7 +240,11 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 			ray->rayDirInv[2] = dirsize/dir[2];
 			ray->rayLengthMax = 100000; //!!! hard limit
 			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
-			if(!collider->intersect(ray))
+			bool hit = collider->intersect(ray);
+#ifdef DIAGNOSTIC_RAYS
+			LOG_RAY(ray->rayOrigin,dir,hit?ray->hitDistance:0.2f,hit);
+#endif
+			if(!hit)
 			{
 				// read irradiance on sky
 				if(environment)
@@ -514,6 +532,124 @@ void logPrint()
 }
 #endif
 
+const int RightHandSide        = -1;
+const int LeftHandSide         = +1;
+const int CollinearOrientation =  0;
+
+template<typename T>
+inline int orientation(const T& x1, const T& y1,
+					   const T& x2, const T& y2,
+					   const T& px, const T& py)
+{
+	T orin = (x2 - x1) * (py - y1) - (px - x1) * (y2 - y1);
+
+	if (orin > 0.0)      return LeftHandSide;         /* Orientaion is to the left-hand side  */
+	else if (orin < 0.0) return RightHandSide;        /* Orientaion is to the right-hand side */
+	else                 return CollinearOrientation; /* Orientaion is neutral aka collinear  */
+}
+
+template<typename T>
+inline void closest_point_on_segment_from_point(const T& x1, const T& y1,
+												const T& x2, const T& y2,
+												const T& px, const T& py,
+												T& nx,       T& ny)
+{
+	T vx = x2 - x1;
+	T vy = y2 - y1;
+	T wx = px - x1;
+	T wy = py - y1;
+
+	T c1 = vx * wx + vy * wy;
+
+	if (c1 <= T(0.0))
+	{
+		nx = x1;
+		ny = y1;
+		return;
+	}
+
+	T c2 = vx * vx + vy * vy;
+
+	if (c2 <= c1)
+	{
+		nx = x2;
+		ny = y2;
+		return;
+	}
+
+	T ratio = c1 / c2;
+
+	nx = x1 + ratio * vx;
+	ny = y1 + ratio * vy;
+}
+
+template<typename T>
+inline T distance(const T& x1, const T& y1, const T& x2, const T& y2)
+{
+	T dx = (x1 - x2);
+	T dy = (y1 - y2);
+	return sqrt(dx * dx + dy * dy);
+}
+
+template<typename T>
+inline void closest_point_on_triangle_from_point(const T& x1, const T& y1,
+												 const T& x2, const T& y2,
+												 const T& x3, const T& y3,
+												 const T& px, const T& py,
+												 T& nx,       T& ny)
+{
+	if (orientation(x1,y1,x2,y2,px,py) != orientation(x1,y1,x2,y2,x3,y3))
+	{
+		closest_point_on_segment_from_point(x1,y1,x2,y2,px,py,nx,ny);
+		if (orientation(x2,y2,x3,y3,px,py) != orientation(x2,y2,x3,y3,x1,y1))
+		{
+			RRVec2 m;
+			closest_point_on_segment_from_point(x2,y2,x3,y3,px,py,m.x,m.y);
+			if((RRVec2(nx,ny)-RRVec2(px,py)).length2()>(m-RRVec2(px,py)).length2())
+			{
+				nx = m.x;
+				ny = m.y;
+			}
+		}
+		else
+		if (orientation(x3,y3,x1,y1,px,py) != orientation(x3,y3,x1,y1,x2,y2))
+		{
+			RRVec2 m;
+			closest_point_on_segment_from_point(x3,y3,x1,y1,px,py,m.x,m.y);
+			if((RRVec2(nx,ny)-RRVec2(px,py)).length2()>(m-RRVec2(px,py)).length2())
+			{
+				nx = m.x;
+				ny = m.y;
+			}
+		}
+		return;
+	}
+
+	if (orientation(x2,y2,x3,y3,px,py) != orientation(x2,y2,x3,y3,x1,y1))
+	{
+		closest_point_on_segment_from_point(x2,y2,x3,y3,px,py,nx,ny);
+		RRVec2 m;
+		if (orientation(x3,y3,x1,y1,px,py) != orientation(x3,y3,x1,y1,x2,y2))
+		{
+			closest_point_on_segment_from_point(x3,y3,x1,y1,px,py,m.x,m.y);
+			if((RRVec2(nx,ny)-RRVec2(px,py)).length2()>(m-RRVec2(px,py)).length2())
+			{
+				nx = m.x;
+				ny = m.y;
+			}
+		}
+		return;
+	}
+
+	if (orientation(x3,y3,x1,y1,px,py) != orientation(x3,y3,x1,y1,x2,y2))
+	{
+		closest_point_on_segment_from_point(x3,y3,x1,y1,px,py,nx,ny);
+		return;
+	}
+	nx = px;
+	ny = py;
+}
+
 // Enumerates all important texels in ambient map, using softare rasterizer.
 void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight,
 	RRColorRGBAF (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context, unsigned fillerReset), void* context)
@@ -534,7 +670,13 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 	RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 	unsigned numTriangles = multiMesh->getNumTriangles();
 
+	// flag all texels as not yet enumerated
+	char* enumerated = new char[mapWidth*mapHeight];
+	memset(enumerated,0,mapWidth*mapHeight);
+
+#ifndef DIAGNOSTIC_RAYS
 	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static,1, static
+#endif
 	for(int tt=0;tt<(int)numTriangles;tt++)
 	{
 		unsigned t = (unsigned)tt;
@@ -570,44 +712,84 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 			LINE_EQUATION(line2InMap,mapping.uv[2]-mapping.uv[0],mapping.uv[0],mapping.uv[1]);
 			//  for all texels in bounding box
 			unsigned numTexels = 0;
-			for(unsigned y=(unsigned)ymin;y<MIN((unsigned)ymax,mapHeight);y++)
+			for(unsigned y=(unsigned)ymin;y<MIN((unsigned)ymax+1,mapHeight);y++)
 			{
-				for(unsigned x=(unsigned)xmin;x<MIN((unsigned)xmax,mapWidth);x++)
+				for(unsigned x=(unsigned)xmin;x<MIN((unsigned)xmax+1,mapWidth);x++)
 				{
 					// compute uv in triangle
 					//  xy = mapSize*mapping[0] -> uvInTriangle = 0,0
 					//  xy = mapSize*mapping[1] -> uvInTriangle = 1,0
 					//  xy = mapSize*mapping[2] -> uvInTriangle = 0,1
-					RRVec2 uvInMapF = RRVec2((x+0.5f)/mapWidth,(y+0.5f)/mapHeight); // in 0..1 map space
-					RRVec2 uvInTriangle = RRVec2(
-						POINT_LINE_DISTANCE(uvInMapF,line2InMap),
-						POINT_LINE_DISTANCE(uvInMapF,line1InMap));
-					// process only texels inside triangle
-					if(uvInTriangle[0]>=0 && uvInTriangle[1]>=0 && uvInTriangle[0]+uvInTriangle[1]<=1) // <= >= makes small overlap
+					// do it for 4 corners of texel
+					RRVec2 uvInMapF0 = RRVec2(RRReal(x)/mapWidth,RRReal(y)/mapHeight); // in 0..1 map space
+					RRVec2 uvInMapF1 = RRVec2(RRReal(x)/mapWidth,RRReal(y+1)/mapHeight); // in 0..1 map space
+					RRVec2 uvInMapF2 = RRVec2(RRReal(x+1)/mapWidth,RRReal(y)/mapHeight); // in 0..1 map space
+					RRVec2 uvInMapF3 = RRVec2(RRReal(x+1)/mapWidth,RRReal(y+1)/mapHeight); // in 0..1 map space
+					RRVec2 uvInTriangle0 = RRVec2(POINT_LINE_DISTANCE(uvInMapF0,line2InMap),POINT_LINE_DISTANCE(uvInMapF0,line1InMap));
+					RRVec2 uvInTriangle1 = RRVec2(POINT_LINE_DISTANCE(uvInMapF1,line2InMap),POINT_LINE_DISTANCE(uvInMapF1,line1InMap));
+					RRVec2 uvInTriangle2 = RRVec2(POINT_LINE_DISTANCE(uvInMapF2,line2InMap),POINT_LINE_DISTANCE(uvInMapF2,line1InMap));
+					RRVec2 uvInTriangle3 = RRVec2(POINT_LINE_DISTANCE(uvInMapF3,line2InMap),POINT_LINE_DISTANCE(uvInMapF3,line1InMap));
+					// process only texels at least partially inside triangle
+					if((uvInTriangle0[0]>=0 || uvInTriangle1[0]>=0 || uvInTriangle2[0]>=0 || uvInTriangle3[0]>=0)
+						&& (uvInTriangle0[1]>=0 || uvInTriangle1[1]>=0 || uvInTriangle2[1]>=0 || uvInTriangle3[1]>=0)
+						&& (uvInTriangle0[0]+uvInTriangle0[1]<=1 || uvInTriangle1[0]+uvInTriangle1[1]<=1 || uvInTriangle2[0]+uvInTriangle2[1]<=1 || uvInTriangle3[0]+uvInTriangle3[1]<=1)
+						) // <= >= makes small overlap
 					{
+						// find nearest position inside triangle
+						// - center of texel
+						RRVec2 uvInMapF = RRVec2((x+0.5f)/mapWidth,(y+0.5f)/mapHeight); // in 0..1 map space
+						// - clamp to inside triangle (so that rays are shot from reasonable shooter)
+						//   1. clamp to one of 3 lines of triangle - could stay outside triangle
+						RRVec2 uvInTriangleTexelCenter = RRVec2(POINT_LINE_DISTANCE(uvInMapF ,line2InMap),POINT_LINE_DISTANCE(uvInMapF ,line1InMap));
+						RRVec2 uvInTriangle;
+	//					if(uvInTriangle[0]<0 || uvInTriangle[1]<0 || uvInTriangle[0]+uvInTriangle[1]>1)
+						{
+							RRVec2 uvInMapF2;
+							closest_point_on_triangle_from_point<RRReal>(
+								mapping.uv[0][0],mapping.uv[0][1],
+								mapping.uv[1][0],mapping.uv[1][1],
+								mapping.uv[2][0],mapping.uv[2][1],
+								uvInMapF[0],uvInMapF[1],
+								uvInMapF2[0],uvInMapF2[1]);
+/*RRVec2 uvInTriangle2 = RRVec2(POINT_LINE_DISTANCE(uvInMapF2,line2InMap),POINT_LINE_DISTANCE(uvInMapF2,line1InMap));
+{
+	printf("MAP uv: %.2f_%.2f -> %.2f_%.2f  delta: %.4f_%.4f\n",
+		uvInMapF[0],uvInMapF[1],uvInMapF2[0],uvInMapF2[1],uvInMapF2[0]-uvInMapF[0],uvInMapF2[1]-uvInMapF[1]);
+	printf("TRI uv: %.2f_%.2f -> %.2f_%.2f  delta: %.4f_%.4f\n",
+		uvInTriangle[0],uvInTriangle[1],uvInTriangle2[0],uvInTriangle2[1],uvInTriangle2[0]-uvInTriangle[0],uvInTriangle2[1]-uvInTriangle[1]);
+}*/
+							uvInTriangle = RRVec2(POINT_LINE_DISTANCE(uvInMapF2,line2InMap),POINT_LINE_DISTANCE(uvInMapF2,line1InMap));
+							// hide precision errors
+							if(uvInTriangle[0]<0) uvInTriangle[0] = 0;
+							if(uvInTriangle[1]<0) uvInTriangle[1] = 0;
+							RRReal uvInTriangleSum = uvInTriangle[0]+uvInTriangle[1];
+							if(uvInTriangleSum>1) uvInTriangle /= uvInTriangleSum;
+						}
+
+						// skip texels outside border, that were already enumerated before
+						if(uvInTriangle!=uvInTriangleTexelCenter)
+						{
+							if(enumerated[x+y*mapWidth])
+								continue;
+						}
+
 						// compute uv in map and pos/norm in worldspace
 						unsigned uvInMapI[2] = {x,y};
 						RRVec3 posWorld = body.vertex0 + body.side1*uvInTriangle[0] + body.side2*uvInTriangle[1];
 						RRVec3 normalWorld = normals.norm[0] + (normals.norm[1]-normals.norm[0])*uvInTriangle[0] + (normals.norm[2]-normals.norm[0])*uvInTriangle[1];
 						// enumerate texel
+						enumerated[x+y*mapWidth] = 1;
 						callback(uvInMapI,posWorld,normalWorld,t,context,0);
 						numTexels++;
 					}
 				}
-			}
-			if(!numTexels)
-			{
-				RRVec2 center = (mapping.uv[0] + mapping.uv[1] + mapping.uv[2])*0.333333f;
-				unsigned uvInMapI[2] = {unsigned(center[0]*mapWidth)%mapWidth,unsigned(center[1]*mapHeight)%mapHeight};
-				RRVec3 posWorld = body.vertex0 + (body.side1 + body.side2)*0.333333f;
-				RRVec3 normalWorld = (normals.norm[0] + normals.norm[1] + normals.norm[2])*0.333333f;
-				callback(uvInMapI,posWorld,normalWorld,t,context,0);
 			}
 #ifdef DIAGNOSTIC
 			logRasterizedTriangle(numTexels);
 #endif
 		}
 	}
+	delete[] enumerated;
 }
 
 unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateParameters* aparams)
