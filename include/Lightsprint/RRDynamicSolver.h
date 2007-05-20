@@ -629,28 +629,6 @@ namespace rr
 		//! Default implementation returns NULL.
 		virtual RRIlluminationPixelBuffer* newPixelBuffer(RRObject* object);
 
-
-		//! Enumerates all texels on object's surface.
-		//
-		//! Default implementation runs callbacks on all CPUs/cores at once.
-		//! It is not strictly defined what texels are enumerated, but close match to
-		//! pixels visible on mapped object improves lightmap quality.
-		//! \n Enumeration order is not defined.
-		//! \param objectNumber
-		//!  Number of object in this scene.
-		//!  Object numbers are defined by order in which you pass objects to setObjects().
-		//! \param mapWidth
-		//!  Width of map that wraps object's surface in texels.
-		//!  No map is used here, but coordinates are generated for map of this size.
-		//! \param mapHeight
-		//!  Height of map that wraps object's surface in texels.
-		//!  No map is used here, but coordinates are generated for map of this size.
-		//! \param callback
-		//!  Function called for each enumerated texel. Must be thread safe.
-		//! \param context
-		//!  Context is passed unchanged to callback.
-		virtual void enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, RRColorRGBAF (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context, unsigned fillerReset), void* context);
-
 	private:
 		enum ChangeStrength
 		{

@@ -157,6 +157,300 @@ struct TexelContext
 	const RRDynamicSolver::UpdateParameters* params;
 };
 
+struct ProcessTriangleInfo
+{
+	unsigned triangleIndex;
+	RRVec3 normal;
+	RRVec3 pos3d; //!!! to be removed
+};
+
+struct ProcessTexelInfo
+{
+	ProcessTexelInfo(const TexelContext& _context) : context(_context) 
+	{
+		resetFiller = 0;
+	}
+	const TexelContext& context;
+	unsigned uv[2]; // texel coord in lightmap in 0..width-1,0..height-1
+	//std::vector<ProcessTriangleInfo> tri; // triangles intersecting texel
+	ProcessTriangleInfo tri; // triangles intersecting texel
+	unsigned resetFiller;
+};
+
+// thread safe: yes except for first call (pixelBuffer could allocate memory in renderTexel).
+//   someone must call us at least once, before multithreading starts.
+// returns:
+//   if tc->pixelBuffer is set, custom scale irradiance is rendered and returned
+//   if tc->pixelBuffer is not set, physical scale irradiance is returned
+// pozor na:
+//   - bazi pro strileni do hemisfery si vyrabi z normaly
+//     baze (n3/u3/v3) je nespojita funkce normaly (n3), tj. nepatrne vychyleny triangl muze strilet uplne jinym smerem
+//      nez jeho kamaradi -> pri nizke quality pak ziska zretelne jinou barvu
+//     bazi by slo generovat spojite -> zlepseni kvality pri nizkem quality
+RRColorRGBAF processTexel(const ProcessTexelInfo& pti)
+{
+	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom())
+	{
+		RRReporter::report(RRReporter::WARN,"processTexel: No objects in scene\n");
+		RR_ASSERT(0);
+		return RRColorRGBAF(0);
+	}
+
+
+	// prepare scaler
+	const RRScaler* scaler = pti.context.solver->getScaler();
+
+	// prepare collider
+	const RRCollider* collider = pti.context.solver->getMultiObjectCustom()->getCollider();
+	SkipTriangle skip(pti.tri.triangleIndex);
+
+	// prepare environment
+	const RRIlluminationEnvironmentMap* environment = pti.context.params->applyEnvironment ? pti.context.solver->getEnvironment() : NULL;
+
+	// check where to shoot
+	bool shootToHemisphere = environment || pti.context.params->applyCurrentSolution;
+	bool shootToLights = pti.context.params->applyLights && pti.context.solver->getLights().size();
+	if(!shootToHemisphere && !shootToLights)
+	{
+		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"processTexel: Zero workload.\n"));
+		RR_ASSERT(0);
+		return RRColorRGBAF(0);
+	}
+
+	// prepare ray
+	RRRay* ray = RRRay::create();
+	ray->rayOrigin = pti.tri.pos3d;
+	ray->rayLengthMin = 0;
+	ray->collisionHandler = &skip;
+
+	// shoot into hemisphere
+	RRColorRGBF irradianceHemisphere = RRColorRGBF(0);
+	RRReal reliabilityHemisphere = 1;
+	if(shootToHemisphere)
+	{
+		// prepare ortonormal base
+		RRVec3 n3 = pti.tri.normal.normalized();
+		RRVec3 u3 = normalized(ortogonalTo(n3));
+		RRVec3 v3 = normalized(ortogonalTo(n3,u3));
+		// prepare homogenous filler
+		HomogenousFiller2 filler;
+		filler.Reset(pti.resetFiller);
+		// init counters
+		unsigned rays = pti.context.params->quality ? pti.context.params->quality : 1;
+		unsigned hitsReliable = 0;
+		unsigned hitsUnreliable = 0;
+		unsigned hitsInside = 0;
+		unsigned hitsRug = 0;
+		unsigned hitsSky = 0;
+		unsigned hitsScene = 0;
+		for(unsigned i=0;i<rays;i++)
+		{
+			// random exit dir
+			RRVec3 dir = getRandomExitDir(filler, n3, u3, v3);
+			RRReal dirsize = dir.length();
+			// intersect scene
+			ray->rayDirInv[0] = dirsize/dir[0];
+			ray->rayDirInv[1] = dirsize/dir[1];
+			ray->rayDirInv[2] = dirsize/dir[2];
+			ray->rayLengthMax = 100000; //!!! hard limit
+			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
+			bool hit = collider->intersect(ray);
+#ifdef DIAGNOSTIC_RAYS
+			LOG_RAY(ray->rayOrigin,dir,hit?ray->hitDistance:0.2f,hit);
+#endif
+			if(!hit)
+			{
+				// read irradiance on sky
+				if(environment)
+				{
+					//irradianceIndirect += environment->getValue(dir);
+					RRColorRGBF irrad = environment->getValue(dir);
+					if(scaler) scaler->getPhysicalScale(irrad);
+					irradianceHemisphere += irrad;
+				}
+				hitsSky++;
+				hitsReliable++;
+			}
+			else
+				if(!ray->hitFrontSide) //!!! predelat na obecne, respektovat surfaceBits
+				{
+					// ray was lost inside object, 
+					// increase our transparency, so our color doesn't leak outside object
+					hitsInside++;
+					hitsUnreliable++;
+				}
+				else
+					if(ray->hitDistance<pti.context.params->rugDistance)
+					{
+						// ray hit rug, very close object
+						hitsRug++;
+						hitsUnreliable++;
+					}
+					else
+					{
+						// read cube irradiance as face exitance
+						if(pti.context.params->applyCurrentSolution)
+						{
+							RRVec3 irrad;
+							pti.context.solver->getStaticSolver()->getTriangleMeasure(ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
+							irradianceHemisphere += irrad;
+						}
+						hitsScene++;
+						hitsReliable++;
+					}		
+		}
+		// compute irradiance and reliability
+		if(hitsReliable==0)
+		{
+			// completely unreliable
+			irradianceHemisphere = RRColorRGBAF(0);
+			reliabilityHemisphere = 0;
+		}
+		else
+			if(hitsInside>rays*pti.context.params->insideObjectsTreshold)
+			{
+				// remove exterior visibility from texels inside object
+				//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
+				irradianceHemisphere = RRColorRGBAF(0);
+				reliabilityHemisphere = 0;
+			}
+			else
+			{
+				// convert to full irradiance (as if all rays hit scene)
+				irradianceHemisphere /= (RRReal)hitsReliable;
+				// compute reliability
+				reliabilityHemisphere = hitsReliable/(RRReal)rays;
+			}
+	}
+
+	// shoot into lights
+	RRColorRGBF irradianceLights = RRColorRGBF(0);
+	RRReal reliabilityLights = 1;
+	if(shootToLights)
+	{
+		unsigned hitsReliable = 0;
+		unsigned hitsUnreliable = 0;
+		unsigned hitsLight = 0;
+		unsigned hitsInside = 0;
+		unsigned hitsRug = 0;
+		unsigned hitsScene = 0;
+		const RRLights& lights = pti.context.solver->getLights();
+		unsigned rays = (unsigned)lights.size();
+		for(unsigned i=0;i<rays;i++)
+		{
+			const RRLight* light = lights[i];
+			if(!light) continue;
+			// set dir to light
+			RRVec3 dir = (light->type==RRLight::DIRECTIONAL)?-light->direction:(light->position-pti.tri.pos3d);
+			RRReal dirsize = dir.length();
+			dir /= dirsize;
+			if(light->type==RRLight::DIRECTIONAL) dirsize *= 1e6; //!!! fudge number
+			float normalIncidence = dot(dir,pti.tri.normal);
+			if(normalIncidence<=0)
+			{
+				// face is not oriented towards light -> reliable black (selfshadowed)
+				hitsScene++;
+				hitsReliable++;
+			}
+			else
+			{
+				// intesect scene
+				ray->rayDirInv[0] = 1/dir[0];
+				ray->rayDirInv[1] = 1/dir[1];
+				ray->rayDirInv[2] = 1/dir[2];
+				ray->rayLengthMax = dirsize;
+				ray->rayFlags = RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
+				if(!collider->intersect(ray))
+				{
+					// add irradiance from light
+					irradianceLights += light->getIrradiance(pti.tri.pos3d,scaler) * normalIncidence;
+					hitsLight++;
+					hitsReliable++;
+				}
+				else
+					if(!ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
+					{
+						// ray was lost inside object -> unreliable
+						hitsInside++;
+						hitsUnreliable++;
+					}
+					else
+						if(ray->hitDistance<pti.context.params->rugDistance)
+						{
+							// ray hit rug, very close object -> unreliable
+							hitsRug++;
+							hitsUnreliable++;
+						}
+						else
+						{
+							// ray hit scene -> reliable black (shadowed)
+							hitsScene++;
+							hitsReliable++;
+						}
+			}
+		}
+		// compute irradiance and reliability
+		if(hitsReliable==0)
+		{
+			// completely unreliable
+			irradianceLights = RRColorRGBAF(0);
+			reliabilityLights = 0;
+		}
+		else
+			if(hitsInside>rays*pti.context.params->insideObjectsTreshold)
+			{
+				// remove exterior visibility from texels inside object
+				//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
+				irradianceLights = RRColorRGBAF(0);
+				reliabilityLights = 0;
+			}
+			else
+			{
+				// compute reliability
+				reliabilityLights = hitsReliable/(RRReal)rays;
+			}
+	}
+
+	// cleanup ray
+	delete ray;
+
+	// sum direct and indirect results
+	RRColorRGBAF irradiance = irradianceLights + irradianceHemisphere;
+	RRReal reliability = MIN(reliabilityLights,reliabilityHemisphere);
+
+	// scale irradiance (full irradiance, not fraction) to custom scale
+	if(pti.context.pixelBuffer && pti.context.params->measure.scaled && scaler)
+		scaler->getCustomScale(irradiance);
+
+#ifdef BLUR
+	reliability /= BLUR;
+#endif
+
+#ifdef RELIABILITY_FILTERING 
+	// multiply by reliability, it will be corrected in postprocess
+	irradiance *= reliability;
+	irradiance[3] = reliability;
+#endif
+
+	// diagnostic output
+	//if(pti.context.params->diagnosticOutput)
+	//{
+	//	//if(irradiance[3] && irradiance[3]!=1) printf("%d/%d ",hitsInside,hitsSky);
+	//	irradiance[0] = hitsInside/(float)rays;
+	//	irradiance[1] = (rays-hitsInside-hitsSky)/(float)rays;
+	//	irradiance[2] = hitsSky/(float)rays;
+	//	irradiance[3] = 1;
+	//}
+	//irradiance[1]=1-reliability;
+
+	// store irradiance in custom scale
+	if(pti.context.pixelBuffer)
+		pti.context.pixelBuffer->renderTexel(pti.uv,irradiance);
+
+	return irradiance;
+}
+
+/*
 // thread safe: yes except for first call (pixelBuffer could allocate memory in renderTexel).
 //   someone must call us at least once, before multithreading starts.
 // returns:
@@ -183,6 +477,11 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 		return RRColorRGBAF(0);
 	}
 
+#ifdef UNWRAP_DIAGNOSTIC
+	srand(triangleIndex);
+	tc->pixelBuffer->renderTexel(uv,RRColorRGBAF(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX),1));
+	return RRColorRGBAF(0);
+#endif
 
 	// prepare scaler
 	const RRScaler* scaler = tc->solver->getScaler();
@@ -419,15 +718,15 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 	irradiance[3] = reliability;
 #endif
 
-	/*/ diagnostic output
-	if(tc->params->diagnosticOutput)
-	{
-		//if(irradiance[3] && irradiance[3]!=1) printf("%d/%d ",hitsInside,hitsSky);
-		irradiance[0] = hitsInside/(float)rays;
-		irradiance[1] = (rays-hitsInside-hitsSky)/(float)rays;
-		irradiance[2] = hitsSky/(float)rays;
-		irradiance[3] = 1;
-	}*/
+	// diagnostic output
+	//if(tc->params->diagnosticOutput)
+	//{
+	//	//if(irradiance[3] && irradiance[3]!=1) printf("%d/%d ",hitsInside,hitsSky);
+	//	irradiance[0] = hitsInside/(float)rays;
+	//	irradiance[1] = (rays-hitsInside-hitsSky)/(float)rays;
+	//	irradiance[2] = hitsSky/(float)rays;
+	//	irradiance[3] = 1;
+	//}
 	//irradiance[1]=1-reliability;
 
 	// store irradiance in custom scale
@@ -436,6 +735,7 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 
 	return irradiance;
 }
+*/
 
 // CPU version, detects per-triangle direct from RRLights, RREnvironment, gathers from current solution
 bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams)
@@ -476,9 +776,6 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	// split work between multiple shooters on triangle surface
 	unsigned numShooters = (unsigned)sqrtf((float)params.quality);
 	params.quality /= numShooters;
-	// process one texel. for safe preallocations inside texel processor
-	unsigned uv[2]={0,0};
-	processTexel(uv,RRVec3(0),RRVec3(1),0,&tc,0);
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
@@ -490,6 +787,8 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 		multiMesh->getTriangleNormals(t,normals);
 		normals.norm[1] -= normals.norm[0]; // create delta normals
 		normals.norm[2] -= normals.norm[0];
+		ProcessTexelInfo pti(tc);
+		pti.tri.triangleIndex = triangleIndex;
 		RRColor color = RRColor(0);
 		for(unsigned i=0;i<numShooters;i++)
 		{
@@ -501,9 +800,10 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 				u = 1-u;
 				v = 1-v;
 			}
-			RRVec3 pos = body.vertex0+body.side1*u+body.side2*v;
-			RRVec3 norm = normals.norm[0]+normals.norm[1]*u+normals.norm[2]*v;
-			color += processTexel(uv,pos,norm,triangleIndex,&tc,i*params.quality);
+			pti.tri.pos3d = body.vertex0+body.side1*u+body.side2*v;
+			pti.tri.normal = normals.norm[0]+normals.norm[1]*u+normals.norm[2]*v;
+			pti.resetFiller = i*params.quality;
+			color += processTexel(pti);
 		}
 		multiObject->setTriangleIllumination(triangleIndex,RM_IRRADIANCE_PHYSICAL,color/numShooters);
 	}
@@ -654,9 +954,26 @@ inline void closest_point_on_triangle_from_point(const T& x1, const T& y1,
 	ny = py;
 }
 
-// Enumerates all important texels in ambient map, using softare rasterizer.
-void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, unsigned mapHeight,
-	RRColorRGBAF (callback)(const unsigned uv[2], const RRVec3& pos3d, const RRVec3& normal, unsigned triangleIndex, void* context, unsigned fillerReset), void* context)
+//! Enumerates all texels on object's surface.
+//
+//! Default implementation runs callbacks on all CPUs/cores at once.
+//! It is not strictly defined what texels are enumerated, but close match to
+//! pixels visible on mapped object improves lightmap quality.
+//! \n Enumeration order is not defined.
+//! \param objectNumber
+//!  Number of object in this scene.
+//!  Object numbers are defined by order in which you pass objects to setObjects().
+//! \param mapWidth
+//!  Width of map that wraps object's surface in texels.
+//!  No map is used here, but coordinates are generated for map of this size.
+//! \param mapHeight
+//!  Height of map that wraps object's surface in texels.
+//!  No map is used here, but coordinates are generated for map of this size.
+//! \param callback
+//!  Function called for each enumerated texel. Must be thread safe.
+//! \param context
+//!  Context is passed unchanged to callback.
+void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, RRColorRGBAF (callback)(const struct ProcessTexelInfo& pti), const TexelContext& tc)
 {
 	// Iterate through all multimesh triangles (rather than single object's mesh triangles)
 	// Advantages:
@@ -665,7 +982,6 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 	//!!! Warning: mapping must be preserved by multiobject.
 	//    Current multiobject lets object mappings overlap, but it could change in future.
 
-	const RRObject* multiObject = getMultiObjectCustom();
 	if(!multiObject)
 	{
 		RR_ASSERT(0);
@@ -687,6 +1003,7 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 		RRMesh::MultiMeshPreImportNumber preImportNumber = multiMesh->getPreImportTriangle(t);
 		if(preImportNumber.object==objectNumber)
 		{
+			ProcessTexelInfo pti(tc);
 			// gather data about triangle t
 			RRMesh::TriangleBody body;
 			multiMesh->getTriangleBody(t,body);
@@ -772,12 +1089,14 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 						}
 
 						// compute uv in map and pos/norm in worldspace
-						unsigned uvInMapI[2] = {x,y};
-						RRVec3 posWorld = body.vertex0 + body.side1*uvInTriangle[0] + body.side2*uvInTriangle[1];
-						RRVec3 normalWorld = normals.norm[0] + (normals.norm[1]-normals.norm[0])*uvInTriangle[0] + (normals.norm[2]-normals.norm[0])*uvInTriangle[1];
 						// enumerate texel
 						enumerated[x+y*mapWidth] = 1;
-						callback(uvInMapI,posWorld,normalWorld,t,context,0);
+						pti.uv[0] = x;
+						pti.uv[1] = y;
+						pti.tri.triangleIndex = t;
+						pti.tri.pos3d = body.vertex0 + body.side1*uvInTriangle[0] + body.side2*uvInTriangle[1];
+						pti.tri.normal = normals.norm[0] + (normals.norm[1]-normals.norm[0])*uvInTriangle[0] + (normals.norm[2]-normals.norm[0])*uvInTriangle[1];
+						callback(pti);
 						numTexels++;
 					}
 				}
@@ -840,11 +1159,11 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		tc.solver = this;
 		tc.pixelBuffer = pixelBuffer;
 		tc.params = &params;
-		// process one texel. for safe preallocations inside texel processor
+		// preallocate lightmap buffer before going parallel
 		unsigned uv[2]={0,0};
-		processTexel(uv,RRVec3(0),RRVec3(1),0,&tc,0);
+		pixelBuffer->renderTexel(uv,RRColorRGBAF(0));
 		// continue with all texels, possibly in multiple threads
-		enumerateTexels(objectNumber,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,&tc);
+		enumerateTexels(getMultiObjectCustom(),objectNumber,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,tc);
 		pixelBuffer->renderEnd(true);
 #ifdef DIAGNOSTIC
 		logPrint();
@@ -965,12 +1284,11 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				RRVec3 vertices[3] = {body.vertex0,body.vertex0+body.side1,body.vertex0+body.side2};
 				RRMesh::TriangleNormals normals;
 				multiMesh->getTriangleNormals(triangleIndex,normals);
-				normals.norm[1] -= normals.norm[0]; // create delta normals
-				normals.norm[2] -= normals.norm[0];
-				RRVec3 pos = body.vertex0+body.side1*0.33f+body.side2*0.33f;
-				RRVec3 norm = normals.norm[0]+normals.norm[1]*0.33f+normals.norm[2]*0.33f;
-				unsigned uv[2];
-				processTexel(uv,pos,norm,triangleIndex,&tc,0);
+				ProcessTexelInfo pti(tc);
+				pti.tri.triangleIndex = triangleIndex;
+				pti.tri.pos3d = body.vertex0+body.side1*0.33f+body.side2*0.33f;
+				pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
+				processTexel(pti);
 			}
 			RRReal secondsInBench = (GETTIME-benchStart)/(RRReal)PER_SEC;
 			secondsInPropagatePlan = MAX(0.1f,15*secondsInBench);
