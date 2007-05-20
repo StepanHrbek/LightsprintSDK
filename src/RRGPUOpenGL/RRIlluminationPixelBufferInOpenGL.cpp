@@ -10,6 +10,7 @@
 #include "Lightsprint/RRGPUOpenGL.h"
 
 //#define DIAGNOSTIC // kazdy texel dostane barvu podle toho kolikrat do nej bylo zapsano
+//#define UNRELIABLE_RED // ukaze nespolehlivy texely (jak to vypadalo pred filtrovanim)
 
 namespace rr_gl
 {
@@ -132,7 +133,9 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 	if(!renderedTexels)
 	{
 		renderedTexels = new rr::RRColorRGBA8[texture->getWidth()*texture->getHeight()];
-		//for(unsigned i=0;i<texture->getWidth()*texture->getHeight();i++) renderedTexels[i].color=255;//!!!
+#ifdef UNRELIABLE_RED
+		for(unsigned i=0;i<texture->getWidth()*texture->getHeight();i++) renderedTexels[i].color=255;
+#endif
 		numTexelsRenderedWithoutOverlap = 0;
 		numTexelsRenderedWithOverlap = 0;
 	}

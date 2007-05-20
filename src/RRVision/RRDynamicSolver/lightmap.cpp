@@ -14,6 +14,7 @@
 //#define DIAGNOSTIC // sleduje texel overlapy, vypisuje histogram velikosti trianglu
 //#define UNWRAP_DIAGNOSTIC // kazdy triangl dostane vlastni nahodnou barvu, tam kde bude videt prechod je spatny unwrap nebo rasterizace
 //#define DIAGNOSTIC_RAYS // zaznamenava paprsky vystreleny z texelu lightmapy (RR_DEVELOPMENT must be on)
+#define RELIABILITY_FILTERING // prepares data for postprocess, that grows reliable texels into unreliable areas
 
 namespace rr
 {
@@ -412,9 +413,11 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 	reliability /= BLUR;
 #endif
 
-	// multiply by reliability
+#ifdef RELIABILITY_FILTERING 
+	// multiply by reliability, it will be corrected in postprocess
 	irradiance *= reliability;
 	irradiance[3] = reliability;
+#endif
 
 	/*/ diagnostic output
 	if(tc->params->diagnosticOutput)
@@ -425,6 +428,7 @@ RRColorRGBAF processTexel(const unsigned uv[2], const RRVec3& pos3d, const RRVec
 		irradiance[2] = hitsSky/(float)rays;
 		irradiance[3] = 1;
 	}*/
+	//irradiance[1]=1-reliability;
 
 	// store irradiance in custom scale
 	if(tc->pixelBuffer)
@@ -712,19 +716,21 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 			LINE_EQUATION(line2InMap,mapping.uv[2]-mapping.uv[0],mapping.uv[0],mapping.uv[1]);
 			//  for all texels in bounding box
 			unsigned numTexels = 0;
-			for(unsigned y=(unsigned)ymin;y<MIN((unsigned)ymax+1,mapHeight);y++)
+			const int overlap = 0; // 0=only texels that contain part of triangle, 1=all texels that touch them by edge or corner
+			for(int y=MAX((int)ymin-overlap,0);y<MIN((int)ymax+1+overlap,mapHeight);y++)
 			{
-				for(unsigned x=(unsigned)xmin;x<MIN((unsigned)xmax+1,mapWidth);x++)
+				for(int x=MAX((int)xmin-overlap,0);x<MIN((int)xmax+1+overlap,mapWidth);x++)
 				{
 					// compute uv in triangle
 					//  xy = mapSize*mapping[0] -> uvInTriangle = 0,0
 					//  xy = mapSize*mapping[1] -> uvInTriangle = 1,0
 					//  xy = mapSize*mapping[2] -> uvInTriangle = 0,1
 					// do it for 4 corners of texel
-					RRVec2 uvInMapF0 = RRVec2(RRReal(x)/mapWidth,RRReal(y)/mapHeight); // in 0..1 map space
-					RRVec2 uvInMapF1 = RRVec2(RRReal(x)/mapWidth,RRReal(y+1)/mapHeight); // in 0..1 map space
-					RRVec2 uvInMapF2 = RRVec2(RRReal(x+1)/mapWidth,RRReal(y)/mapHeight); // in 0..1 map space
-					RRVec2 uvInMapF3 = RRVec2(RRReal(x+1)/mapWidth,RRReal(y+1)/mapHeight); // in 0..1 map space
+					// do it with 1 texel overlap, so that filtering is not necessary
+					RRVec2 uvInMapF0 = RRVec2(RRReal(x-overlap)/mapWidth,RRReal(y-overlap)/mapHeight); // in 0..1 map space
+					RRVec2 uvInMapF1 = RRVec2(RRReal(x-overlap)/mapWidth,RRReal(y+1+overlap)/mapHeight); // in 0..1 map space
+					RRVec2 uvInMapF2 = RRVec2(RRReal(x+1+overlap)/mapWidth,RRReal(y-overlap)/mapHeight); // in 0..1 map space
+					RRVec2 uvInMapF3 = RRVec2(RRReal(x+1+overlap)/mapWidth,RRReal(y+1+overlap)/mapHeight); // in 0..1 map space
 					RRVec2 uvInTriangle0 = RRVec2(POINT_LINE_DISTANCE(uvInMapF0,line2InMap),POINT_LINE_DISTANCE(uvInMapF0,line1InMap));
 					RRVec2 uvInTriangle1 = RRVec2(POINT_LINE_DISTANCE(uvInMapF1,line2InMap),POINT_LINE_DISTANCE(uvInMapF1,line1InMap));
 					RRVec2 uvInTriangle2 = RRVec2(POINT_LINE_DISTANCE(uvInMapF2,line2InMap),POINT_LINE_DISTANCE(uvInMapF2,line1InMap));
