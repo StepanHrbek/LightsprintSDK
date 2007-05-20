@@ -717,9 +717,9 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 			//  for all texels in bounding box
 			unsigned numTexels = 0;
 			const int overlap = 0; // 0=only texels that contain part of triangle, 1=all texels that touch them by edge or corner
-			for(int y=MAX((int)ymin-overlap,0);y<MIN((int)ymax+1+overlap,mapHeight);y++)
+			for(int y=MAX((int)ymin-overlap,0);y<(int)MIN((unsigned)ymax+1+overlap,mapHeight);y++)
 			{
-				for(int x=MAX((int)xmin-overlap,0);x<MIN((int)xmax+1+overlap,mapWidth);x++)
+				for(int x=MAX((int)xmin-overlap,0);x<(int)MIN((unsigned)xmax+1+overlap,mapWidth);x++)
 				{
 					// compute uv in triangle
 					//  xy = mapSize*mapping[0] -> uvInTriangle = 0,0
@@ -746,10 +746,14 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 						RRVec2 uvInMapF = RRVec2((x+0.5f)/mapWidth,(y+0.5f)/mapHeight); // in 0..1 map space
 						// - clamp to inside triangle (so that rays are shot from reasonable shooter)
 						//   1. clamp to one of 3 lines of triangle - could stay outside triangle
-						RRVec2 uvInTriangleTexelCenter = RRVec2(POINT_LINE_DISTANCE(uvInMapF ,line2InMap),POINT_LINE_DISTANCE(uvInMapF ,line1InMap));
-						RRVec2 uvInTriangle;
-	//					if(uvInTriangle[0]<0 || uvInTriangle[1]<0 || uvInTriangle[0]+uvInTriangle[1]>1)
+						RRVec2 uvInTriangle = RRVec2(POINT_LINE_DISTANCE(uvInMapF,line2InMap),POINT_LINE_DISTANCE(uvInMapF,line1InMap));
+						if(uvInTriangle[0]<0 || uvInTriangle[1]<0 || uvInTriangle[0]+uvInTriangle[1]>1)
 						{
+							// skip texels outside border, that were already enumerated before
+							if(enumerated[x+y*mapWidth])
+								continue;
+
+							// clamp to triangle edge
 							RRVec2 uvInMapF2;
 							closest_point_on_triangle_from_point<RRReal>(
 								mapping.uv[0][0],mapping.uv[0][1],
@@ -757,26 +761,14 @@ void RRDynamicSolver::enumerateTexels(unsigned objectNumber, unsigned mapWidth, 
 								mapping.uv[2][0],mapping.uv[2][1],
 								uvInMapF[0],uvInMapF[1],
 								uvInMapF2[0],uvInMapF2[1]);
-/*RRVec2 uvInTriangle2 = RRVec2(POINT_LINE_DISTANCE(uvInMapF2,line2InMap),POINT_LINE_DISTANCE(uvInMapF2,line1InMap));
-{
-	printf("MAP uv: %.2f_%.2f -> %.2f_%.2f  delta: %.4f_%.4f\n",
-		uvInMapF[0],uvInMapF[1],uvInMapF2[0],uvInMapF2[1],uvInMapF2[0]-uvInMapF[0],uvInMapF2[1]-uvInMapF[1]);
-	printf("TRI uv: %.2f_%.2f -> %.2f_%.2f  delta: %.4f_%.4f\n",
-		uvInTriangle[0],uvInTriangle[1],uvInTriangle2[0],uvInTriangle2[1],uvInTriangle2[0]-uvInTriangle[0],uvInTriangle2[1]-uvInTriangle[1]);
-}*/
 							uvInTriangle = RRVec2(POINT_LINE_DISTANCE(uvInMapF2,line2InMap),POINT_LINE_DISTANCE(uvInMapF2,line1InMap));
-							// hide precision errors
-							if(uvInTriangle[0]<0) uvInTriangle[0] = 0;
-							if(uvInTriangle[1]<0) uvInTriangle[1] = 0;
-							RRReal uvInTriangleSum = uvInTriangle[0]+uvInTriangle[1];
-							if(uvInTriangleSum>1) uvInTriangle /= uvInTriangleSum;
-						}
 
-						// skip texels outside border, that were already enumerated before
-						if(uvInTriangle!=uvInTriangleTexelCenter)
-						{
-							if(enumerated[x+y*mapWidth])
-								continue;
+							// hide precision errors (coords could be still outside triangle)
+							const float depthInTriangle = 0.1f; // shooters on the edge often produce unreliable values
+							if(uvInTriangle[0]<depthInTriangle) uvInTriangle[0] = depthInTriangle;
+							if(uvInTriangle[1]<depthInTriangle) uvInTriangle[1] = depthInTriangle;
+							RRReal uvInTriangleSum = uvInTriangle[0]+uvInTriangle[1];
+							if(uvInTriangleSum>1-depthInTriangle) uvInTriangle *= (1-depthInTriangle)/uvInTriangleSum;
 						}
 
 						// compute uv in map and pos/norm in worldspace
