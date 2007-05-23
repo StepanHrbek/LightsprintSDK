@@ -13,9 +13,9 @@
 //#define BLUR 4 // enables full lightmap blur, higher=stronger
 //#define DIAGNOSTIC // sleduje texel overlapy, vypisuje histogram velikosti trianglu
 //#define UNWRAP_DIAGNOSTIC // kazdy triangl dostane vlastni nahodnou barvu, tam kde bude videt prechod je spatny unwrap nebo rasterizace
-//#define DIAGNOSTIC_RAYS // zaznamenava paprsky vystreleny z texelu lightmapy (RR_DEVELOPMENT must be on)
 
-#define RELIABILITY_FILTERING // prepares data for postprocess, that grows reliable texels into unreliable areas
+
+//#define RELIABILITY_FILTERING // prepares data for postprocess, that grows reliable texels into unreliable areas
 // chyba: kdyz se podari 1 paprsek z 1000, reliability je tak mala, ze vlastni udaj behem filtrovani
 //   zanikne a je prevalcovan irradianci sousednich facu
 
@@ -24,11 +24,16 @@
 namespace rr
 {
 
-#define LOG_RAY(aeye,adir,adist,hit) { \
+#ifdef DIAGNOSTIC_RAYS
+unsigned logTexelIndex = 0;
+#define LOG_RAY(aeye,adir,adist,ainfinite,aunreliable) { \
 	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[0]=aeye; \
 	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
-	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=!hit; \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=ainfinite; \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].unreliable=aunreliable; \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].index=logTexelIndex; \
 	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; }
+#endif
 
 struct RenderSubtriangleContext
 {
@@ -346,7 +351,8 @@ shoot_from_center:
 			pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
 			bool hit = collider->intersect(pti.ray);
 #ifdef DIAGNOSTIC_RAYS
-			LOG_RAY(pti.ray->rayOrigin,dir,hit?pti.ray->hitDistance:0.2f,hit);
+			bool unreliable = hit && (!pti.ray->hitFrontSide || pti.ray->hitDistance<pti.context.params->rugDistance);
+			LOG_RAY(pti.ray->rayOrigin,dir,hit?pti.ray->hitDistance:0.2f,!hit,unreliable);
 #endif
 			if(!hit)
 			{
@@ -782,7 +788,7 @@ inline void closest_point_on_triangle_from_point(const T& x1, const T& y1,
 //!  Function called for each enumerated texel. Must be thread safe.
 //! \param context
 //!  Context is passed unchanged to callback.
-void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, RRColorRGBAF (callback)(const struct ProcessTexelInfo& pti), const TexelContext& tc, RRReal minimalSafeDistance)
+void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, RRColorRGBAF (callback)(const struct ProcessTexelInfo& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
 {
 	// Iterate through all multimesh triangles (rather than single object's mesh triangles)
 	// Advantages:
@@ -803,15 +809,25 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 	char* enumerated = new char[mapWidth*mapHeight];
 	memset(enumerated,0,mapWidth*mapHeight);
 
+	int firstTriangle = 0;
+	if(onlyTriangleNumber>=0)
+	{
+		firstTriangle = onlyTriangleNumber;
+		numTriangles = 1;
+	}
+
 #ifndef DIAGNOSTIC_RAYS
 	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static,1, static
 #endif
-	for(int tt=0;tt<(int)numTriangles;tt++)
+	for(int tt=firstTriangle;tt<(int)(firstTriangle+numTriangles);tt++)
 	{
 		unsigned t = (unsigned)tt;
 		RRMesh::MultiMeshPreImportNumber preImportNumber = multiMesh->getPreImportTriangle(t);
 		if(preImportNumber.object==objectNumber)
 		{
+#ifdef DIAGNOSTIC_RAYS
+			logTexelIndex = 0;
+#endif
 			// gather data about triangle t
 			ProcessTexelInfo pti(tc);
 			pti.tri.triangleIndex = t;
@@ -902,6 +918,9 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 						pti.tri.pos3d = pti.tri.triangleBody.vertex0 + pti.tri.triangleBody.side1*uvInTriangle[0] + pti.tri.triangleBody.side2*uvInTriangle[1];
 						pti.tri.normal = normals.norm[0] + (normals.norm[1]-normals.norm[0])*uvInTriangle[0] + (normals.norm[2]-normals.norm[0])*uvInTriangle[1];
 						callback(pti);
+#ifdef DIAGNOSTIC_RAYS
+						logTexelIndex++;
+#endif
 						numTexels++;
 					}
 				}
@@ -914,6 +933,7 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 	}
 	delete[] enumerated;
 }
+
 
 unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateParameters* aparams)
 {

@@ -130,6 +130,10 @@ void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle
 
 void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const rr::RRColorRGBAF& color)
 {
+	if(!rendering) 
+	{
+		return; // used by updateTriangleLightmap
+	}
 	if(!renderedTexels)
 	{
 		renderedTexels = new rr::RRColorRGBA8[texture->getWidth()*texture->getHeight()];

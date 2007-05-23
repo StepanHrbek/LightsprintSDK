@@ -63,7 +63,6 @@
 #include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
 #include "../HelloRealtimeRadiosity/DynamicObject.h"
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // termination with error message
@@ -83,7 +82,7 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,1010.0};
+de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.1,100.0};
 de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
@@ -275,12 +274,13 @@ void keyboard(unsigned char c, int x, int y)
 			ambientMapsRender = !ambientMapsRender;
 			realtimeIllumination = false;
 			break;
+		
 
 		case 'p':
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
 				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.quality = 1000;
+				paramsDirect.quality = 1;
 				paramsDirect.applyCurrentSolution = false;
 				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 				paramsIndirect.applyCurrentSolution = false;
@@ -318,6 +318,7 @@ void keyboard(unsigned char c, int x, int y)
 				ambientMapsRender = true;
 				realtimeIllumination = false;
 				modeMovingEye = true;
+
 				break;
 			}
 
@@ -385,6 +386,14 @@ void mouse(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 		modeMovingEye = !modeMovingEye;
+	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
+	{
+		if(eye.fieldOfView>13) eye.fieldOfView -= 10;
+	}
+	if(button == GLUT_WHEEL_DOWN && state == GLUT_UP)
+	{
+		if(eye.fieldOfView<130) eye.fieldOfView+=10;
+	}
 }
 
 void passive(int x, int y)
@@ -464,7 +473,6 @@ void display(void)
 	// render water
 	water->render(100);
 #endif
-
 	glutSwapBuffers();
 }
 

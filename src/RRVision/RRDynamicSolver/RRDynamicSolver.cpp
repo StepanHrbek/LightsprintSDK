@@ -263,7 +263,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		{
 			RRVec3 mini,maxi,center;
 			multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
-			minimalSafeDistance = (maxi-mini).avg()*1e-4f;
+			minimalSafeDistance = (maxi-mini).avg()*1e-6f;
 		}
 		REPORT_END;
 	}

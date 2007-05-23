@@ -10,7 +10,6 @@
 #include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 
-//#define DIAGNOSTIC_RAYS // render rays shot by solver (RR_DEVELOPMENT must be on)
 
 namespace rr_gl
 {
@@ -223,7 +222,7 @@ public:
 
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
 	virtual void render();
-	void renderLines();
+	void renderLines(bool shortened, int onlyIndex);
 
 	virtual ~RendererOfOriginalScene();
 
@@ -414,7 +413,7 @@ void RendererOfOriginalScene::render()
 	}
 }
 
-void RendererOfOriginalScene::renderLines()
+void RendererOfOriginalScene::renderLines(bool shortened, int onlyIndex)
 {
 }
 
@@ -471,8 +470,12 @@ void RendererOfScene::render()
 		renderer->RendererOfRRDynamicSolver::render();
 	else
 		renderer->render();
+}
+
+void RendererOfScene::renderLines(bool shortened, int onlyIndex)
+{
 #ifdef DIAGNOSTIC_RAYS
-	renderer->renderLines();
+	renderer->renderLines(shortened,onlyIndex);
 #endif
 }
 

@@ -88,6 +88,9 @@ public:
 	//! following render() calls will reuse it.
 	virtual void render();
 
+	//! For internal use.
+	void renderLines(bool shortened, int onlyIndex=-1);
+
 	virtual ~RendererOfScene();
 
 private:
