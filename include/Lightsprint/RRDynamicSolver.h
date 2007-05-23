@@ -257,6 +257,12 @@ namespace rr
 		//
 		//! Order of objects passed in first parameter is used for object numbering,
 		//! any further references to n-th object refer to objects[n].
+		//!
+		//! Scene must always contain static objects.
+		//! Major occluders (buildings, large furniture etc) should be part
+		//! of static scene.
+		//! Handling major occluders as dynamic objects is safe,
+		//! but it introduces errors in lighting, so it is not recommended.
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
 		//!  Objects should not move (in 3d space) during our lifetime.
@@ -336,7 +342,9 @@ namespace rr
 			unsigned quality;
 
 			//! 0..1 ratio, texels with greater fraction of hemisphere 
-			//! seeing inside objects are masked away.
+			//! seeing inside objects (or below rug, see rugDistance)
+			//! are masked away.
+			//! Default value 1 disables any correction.
 			RRReal insideObjectsTreshold;
 
 			//! Distance in world space, illumination coming from closer surfaces is masked away.
@@ -356,7 +364,7 @@ namespace rr
 				applyLights = false;
 				applyEnvironment = false;
 				quality = 0;
-				insideObjectsTreshold = 0.1f;
+				insideObjectsTreshold = 1;
 				rugDistance = 0.001f;
 				diagnosticOutput = false;
 			}
@@ -659,6 +667,7 @@ namespace rr
 		RRStaticSolver*   scene;
 		unsigned   solutionVersion;
 		private:
+		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		RRStaticSolver::Improvement calculateCore(float improveStep);
 		// read results
 		RRScaler*  scaler;

@@ -46,6 +46,7 @@ RRDynamicSolver::RRDynamicSolver()
 	multiObjectPhysical = NULL;
 	multiObjectPhysicalWithIllumination = NULL;
 	solutionVersion = 1;
+	minimalSafeDistance = 0;
 	//preVertex2PostTriangleVertex zeroed by constructor
 	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
 }
@@ -257,6 +258,13 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 			RRReporter::report(RRReporter::CONT,"(%d objects, optimized to %d faces, %d vertices) ",objects.size(),multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
 		scene = multiObjectPhysicalWithIllumination ? new RRStaticSolver(multiObjectPhysicalWithIllumination,&smoothing) : NULL;
 		if(scene) updateVertexLookupTable();
+		// update minimalSafeDistance
+		if(multiObjectPhysicalWithIllumination)
+		{
+			RRVec3 mini,maxi,center;
+			multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
+			minimalSafeDistance = (maxi-mini).avg()*1e-4f;
+		}
 		REPORT_END;
 	}
 	if(dirtyLights!=NO_CHANGE)

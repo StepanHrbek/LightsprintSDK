@@ -254,7 +254,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		&& texture->getWidth()<=helpers->tempTexture->getWidth() 
 		&& texture->getHeight()<=helpers->tempTexture->getHeight()
 		)
-	for(int pass=0;pass<(preferQualityOverSpeed?10:2);pass++)
+	for(int pass=0;pass<(preferQualityOverSpeed?1:2);pass++)
 	{
 		// fill unused pixels
 		helpers->filterProgram->useIt();
