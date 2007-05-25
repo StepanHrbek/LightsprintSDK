@@ -44,9 +44,7 @@ namespace rr_gl
 		de::Texture* texture;
 		bool rendering;
 		bool renderTriangleProgramSet;
-		rr::RRColorRGBA8* renderedTexels;
-		unsigned numTexelsRenderedWithoutOverlap;
-		unsigned numTexelsRenderedWithOverlap;
+		rr::RRColorRGBAF* renderedTexels;
 		// state backup
 		GLint viewport[4];
 		GLboolean depthTest, depthMask;

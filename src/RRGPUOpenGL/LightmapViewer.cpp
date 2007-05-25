@@ -41,6 +41,7 @@ private:
 //
 // lightmap viewer
 
+	static bool created = false; // only 1 instance is allowed
 	static bool nearest;
 	static bool alpha;
 	static rr::RRReal zoom; // 1: 1 lmap pixel has 1 screen pixel, 2: 1 lmap pixel has 0.5x0.5 screen pixels
@@ -52,18 +53,19 @@ private:
 	static de::Texture* lightmap;
 	static rr::RRMesh* mesh;
 
-LightmapViewer::LightmapViewer(rr::RRIlluminationPixelBuffer* _pixelBuffer, rr::RRMesh* _mesh)
+LightmapViewer* LightmapViewer::create(de::Texture* _lightmap, rr::RRMesh* _mesh)
 {
-	init(new TextureFromPixelBuffer(_pixelBuffer),_mesh);
+	return (!created && _lightmap) ? new LightmapViewer(_lightmap,_mesh) : NULL;
+}
+
+LightmapViewer* LightmapViewer::create(rr::RRIlluminationPixelBuffer* _pixelBuffer, rr::RRMesh* _mesh)
+{
+	return (!created && _pixelBuffer) ? new LightmapViewer(new TextureFromPixelBuffer(_pixelBuffer),_mesh) : NULL;
 }
 
 LightmapViewer::LightmapViewer(de::Texture* _lightmap, rr::RRMesh* _mesh)
 {
-	init(_lightmap,_mesh);
-}
-
-void LightmapViewer::init(de::Texture* _lightmap, rr::RRMesh* _mesh)
-{
+	created = true;
 	nearest = false;
 	alpha = false;
 	zoom = 1;
@@ -78,6 +80,7 @@ void LightmapViewer::init(de::Texture* _lightmap, rr::RRMesh* _mesh)
 
 LightmapViewer::~LightmapViewer()
 {
+	created = false;
 	SAFE_DELETE(lineProgram);
 	SAFE_DELETE(lmapProgram);
 	SAFE_DELETE(lmapAlphaProgram);

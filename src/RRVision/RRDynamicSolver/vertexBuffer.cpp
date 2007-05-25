@@ -97,7 +97,13 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
 {
 	UpdateParameters paramsDirect;
+	paramsDirect.applyCurrentSolution = false;
+	paramsDirect.applyEnvironment = false;
+	paramsDirect.applyLights = false;
 	UpdateParameters paramsIndirect;
+	paramsIndirect.applyCurrentSolution = false;
+	paramsIndirect.applyEnvironment = false;
+	paramsIndirect.applyLights = false;
 	if(aparamsDirect) paramsDirect = *aparamsDirect;
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
 
@@ -135,7 +141,9 @@ unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createM
 	{
 		// auto quality for first gather
 		// shoot 4x less indirect rays than direct
-		paramsIndirect.quality = paramsDirect.quality/4;
+		// (but only if direct.quality was specified)
+		if(aparamsDirect)
+			paramsIndirect.quality = paramsDirect.quality/4;
 
 		if(!updateSolverIndirectIllumination(&paramsIndirect,
 				getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles(),

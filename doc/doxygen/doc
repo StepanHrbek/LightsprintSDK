@@ -198,7 +198,7 @@ Renderers
 - contains OpenGL 2.0 shader based renderer
 
 Scene formats
-- Collada (.DAE)
+- Collada 1.4 (.DAE)
 - 3DS Max (.3DS)
 - Quake 3 (.BSP)
 - framework for custom formats
@@ -1803,6 +1803,12 @@ Advanced:
 \page main_samples Samples
 
  Directory samples in the SDK contains following projects:
+
+ <hr>
+ <b>AmbientOcclusion</b>
+ - precalculates ambient occlusion maps/vertexcolors with infinite light bounces and color bleeding
+ - viewer of object/scene and ambient occlusion map
+ - loads Collada scene
 
  <hr>
  <b>Lightmaps</b>

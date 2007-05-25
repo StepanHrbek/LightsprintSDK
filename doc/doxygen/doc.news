@@ -6,7 +6,7 @@
 
 \page news What's new
 
-\section news18 ------------------------------------ 2007.5.xx -------------------------------------
+\section news18 ------------------------------------ 2007.5.25 -------------------------------------
 
 NEWS
 
@@ -16,6 +16,7 @@ NEWS
 - updateVertexBuffer() a updateVertexBuffers() support RRLights a RREnvironment light sources
 - support for float textures
 - support for cube textures stored in one 2d image (.hdr)
+- AmbientOcclusion sample
 
 CHANGES
 

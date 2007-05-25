@@ -280,7 +280,7 @@ void keyboard(unsigned char c, int x, int y)
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
 				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.quality = 1;
+				paramsDirect.quality = 1000;
 				paramsDirect.applyCurrentSolution = false;
 				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 				paramsIndirect.applyCurrentSolution = false;
@@ -301,7 +301,7 @@ void keyboard(unsigned char c, int x, int y)
 
 				// 2. objects
 				//  a) calculate whole scene at once
-				paramsDirect.measure.scaled = 1; // get lightmaps in sRGB
+				paramsDirect.measure.scaled = 1; // get lightmaps in custom scale (sRGB)
 				solver->updateLightmaps(1,true,&paramsDirect,&paramsIndirect);
 				//  b) calculate only one object
 				//static unsigned obj=0;
@@ -311,14 +311,13 @@ void keyboard(unsigned char c, int x, int y)
 				//++obj%=solver->getNumObjects();
 
 				// update vertex buffers too, for comparison with pixel buffers
-				paramsDirect.measure.scaled = 0; // get vertex colors in HDR
+				paramsDirect.measure.scaled = 0; // get vertex colors in physical scale (HDR)
 				solver->updateVertexBuffers(1,true,&paramsDirect,&paramsIndirect);
 
 				// start rendering computed maps
 				ambientMapsRender = true;
 				realtimeIllumination = false;
 				modeMovingEye = true;
-
 				break;
 			}
 

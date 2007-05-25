@@ -2,17 +2,19 @@
 Samples
 -------
 
-HelloMesh
-- shows how to create mesh
+AmbientOcclusion
+- precalculates ambient occlusion with infinite light bounces and color bleeding
+- viewer of object/scene and ambient occlusion map
+- loads Collada scene
+
+BunnyBenchmark
+- measures Collider score in Stanford Bunny Benchmark
 
 HelloCollider
 - shows how to detect ray-mesh collision
 
-HelloVision
-- shows how to calculate static illumination in scene, without renderer
-
-BunnyBenchmark
-- measures Collider score in Stanford Bunny Benchmark
+HelloMesh
+- shows how to create mesh
 
 HelloDemoEngine
 - shows how to render realtime direct illumination in scene with dynamic objects and light
@@ -21,6 +23,9 @@ HelloRealtimeRadiosity
 - shows how to render realtime global illumination in scene with dynamic objects and light
 - shows feeding external 3ds renderer
 - loads 3ds scene
+
+HelloVision
+- shows how to calculate static illumination in scene, without renderer
 
 Lightmaps
 - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)

@@ -420,9 +420,8 @@ shoot_from_center:
 			// completely unreliable
 			irradianceHemisphere = RRColorRGBAF(0);
 			reliabilityHemisphere = 0;
-
-			irradianceHemisphere = RRColorRGBAF(1,0,0,1);
-			reliabilityHemisphere = 1;
+			//irradianceHemisphere = RRColorRGBAF(1,0,0,1);
+			//reliabilityHemisphere = 1;
 		}
 		else
 		if(hitsInside>(hitsReliable+hitsUnreliable)*pti.context.params->insideObjectsTreshold)
@@ -806,8 +805,8 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 	unsigned numTriangles = multiMesh->getNumTriangles();
 
 	// flag all texels as not yet enumerated
-	char* enumerated = new char[mapWidth*mapHeight];
-	memset(enumerated,0,mapWidth*mapHeight);
+	//char* enumerated = new char[mapWidth*mapHeight];
+	//memset(enumerated,0,mapWidth*mapHeight);
 
 	int firstTriangle = 0;
 	if(onlyTriangleNumber>=0)
@@ -889,8 +888,8 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 						if(uvInTriangle[0]<0 || uvInTriangle[1]<0 || uvInTriangle[0]+uvInTriangle[1]>1)
 						{
 							// skip texels outside border, that were already enumerated before
-							if(enumerated[x+y*mapWidth])
-								continue;
+							//if(enumerated[x+y*mapWidth])
+							//	continue;
 
 							// clamp to triangle edge
 							RRVec2 uvInMapF2;
@@ -912,7 +911,7 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 
 						// compute uv in map and pos/norm in worldspace
 						// enumerate texel
-						enumerated[x+y*mapWidth] = 1;
+						//enumerated[x+y*mapWidth] = 1;
 						pti.uv[0] = x;
 						pti.uv[1] = y;
 						pti.tri.pos3d = pti.tri.triangleBody.vertex0 + pti.tri.triangleBody.side1*uvInTriangle[0] + pti.tri.triangleBody.side2*uvInTriangle[1];
@@ -931,7 +930,7 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 			delete pti.ray;
 		}
 	}
-	delete[] enumerated;
+	//delete[] enumerated;
 }
 
 
@@ -1084,7 +1083,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		if(paramsIndirect.applyEnvironment)
 		{
 			// first gather time is robust measure
-			secondsInPropagatePlan = secondsInGather;
+			secondsInPropagatePlan = 2*secondsInGather;
 		}
 		else
 		{
@@ -1118,7 +1117,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				delete pti.ray;
 			}
 			RRReal secondsInBench = (GETTIME-benchStart)/(RRReal)PER_SEC;
-			secondsInPropagatePlan = MAX(0.1f,15*secondsInBench);
+			secondsInPropagatePlan = MAX(0.1f,20*secondsInBench);
 		}
 
 		// propagate

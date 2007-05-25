@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRIllumination.h
 //! \brief RRIllumination - library for calculated illumination storage
-//! \version 2007.5.14
+//! \version 2007.5.25
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -256,6 +256,7 @@ namespace rr
 		// Pixel buffer creation
 
 		//! Begins rendering of triangles into pixel buffer. Must be paired with renderEnd().
+		//! Used only while calculating pixel buffers, called by RRDynamicSolver.
 		//! \n\n Audience: Used internally by RRDynamicSolver.
 		virtual void renderBegin() {};
 		//! Description of one illuminated vertex.
@@ -273,13 +274,13 @@ namespace rr
 		};
 		//! Renders one triangle into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
-		//! Audience: Used internally by RRDynamicSolver.
+		//! Used only while realtime calculating pixel buffers, called by RRDynamicSolver.
 		//! \param it
 		//!  Description of single triangle.
 		virtual void renderTriangle(const IlluminatedTriangle& it) = 0;
 		//! Renders multiple triangles into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
-		//! Audience: Used internally by RRDynamicSolver.
+		//! Used only while realtime calculating pixel buffers, called by RRDynamicSolver.
 		//! \param it
 		//!  Array with description of triangles.
 		//! \param numTriangles
@@ -287,7 +288,7 @@ namespace rr
 		virtual void renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles);
 		//! Renders one texel into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
-		//! Audience: Used internally by RRDynamicSolver.
+		//! Used only while non-realtime calculating pixel buffers, called by RRDynamicSolver.
 		//! \param uv
 		//!  Array of 2 elements, texel coordinates in 0..width-1, 0..height-1 range.
 		//! \param color
@@ -300,6 +301,8 @@ namespace rr
 		virtual void renderTexel(const unsigned uv[2], const RRColorRGBAF& color) = 0;
 		//! Finishes rendering into pixel buffer. Must be paired with renderBegin().
 		//
+		//! Used only while calculating pixel buffers, called by RRDynamicSolver.
+		//!
 		//! Colors with low alpha (probability of correctness) should be processed
 		//! and replaced by nearby colors with higher probability.
 		//! Colors in form r*p,g*p,b*p,p should be normalized to r,g,b,1.

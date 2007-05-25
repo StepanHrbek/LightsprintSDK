@@ -97,7 +97,7 @@ rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::createIlluminationEnvironme
 
 rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::adaptIlluminationEnvironmentMap(de::Texture* cube)
 {
-	return new RRIlluminationEnvironmentMapInOpenGL(cube);
+	return cube ? new RRIlluminationEnvironmentMapInOpenGL(cube) : NULL;
 }
 
 rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::loadIlluminationEnvironmentMap(const char* filenameMask, const char* cubeSideName[6], bool flipV, bool flipH)

@@ -75,7 +75,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Water", "..\samples\Water\W
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightmapsBondi", "..\samples\LightmapsBondi\LightmapsBondi.vcproj", "{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmbientOcclusion", "..\samples\AmbientOcclusion\AmbientOcclusion.vcproj", "{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection

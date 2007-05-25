@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRDynamicSolver.h
 //! \brief RRDynamicSolver - global illumination solver for dynamic scenes
-//! \version 2007.5.14
+//! \version 2007.5.25
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -401,6 +401,7 @@ namespace rr
 		//!  \n params->measure specifies type of information stored in vertex buffer.
 		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
 		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
+		//!  Set to NULL for no indirect illumination.
 		//! \param paramsIndirect
 		//!  Parameters of the update process specific for indirect illumination component of final color.
 		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
@@ -687,7 +688,7 @@ namespace rr
 	//! Returns id of interface offered by library.
 	RR_API unsigned RR_INTERFACE_ID_LIB();
 	// Returns id of interface expected by app.
-	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRDynamicSolver) + 0 )
+	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRDynamicSolver) + 1 )
 	//! Returns if interface matches. False = dll mismatch, app should be terminated.
 	#define RR_INTERFACE_OK (RR_INTERFACE_ID_APP()==rr::RR_INTERFACE_ID_LIB())
 	//! Returns description of interface offered by library + compile date.

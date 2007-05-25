@@ -10,7 +10,7 @@
 #include "Lightsprint/RRGPUOpenGL.h"
 
 //#define DIAGNOSTIC // kazdy texel dostane barvu podle toho kolikrat do nej bylo zapsano
-//#define UNRELIABLE_RED // ukaze nespolehlivy texely (jak to vypadalo pred filtrovanim)
+//#define DIAGNOSTIC_RED_UNRELIABLE // ukaze nespolehlivy texely cervene
 
 namespace rr_gl
 {
@@ -136,12 +136,7 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 	}
 	if(!renderedTexels)
 	{
-		renderedTexels = new rr::RRColorRGBA8[texture->getWidth()*texture->getHeight()];
-#ifdef UNRELIABLE_RED
-		for(unsigned i=0;i<texture->getWidth()*texture->getHeight();i++) renderedTexels[i].color=255;
-#endif
-		numTexelsRenderedWithoutOverlap = 0;
-		numTexelsRenderedWithOverlap = 0;
+		renderedTexels = new rr::RRColorRGBAF[texture->getWidth()*texture->getHeight()];
 	}
 	if(uv[0]>=texture->getWidth())
 	{
@@ -153,17 +148,9 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 		RR_ASSERT(0);
 		return;
 	}
-	if(renderedTexels[uv[0]+uv[1]*texture->getWidth()]==rr::RRColorRGBA8())
-		numTexelsRenderedWithoutOverlap++;
-	else
-		numTexelsRenderedWithOverlap++;
 
-#ifdef DIAGNOSTIC
-	renderedTexels[uv[0]+uv[1]*texture->getWidth()].color++;
-#else
-	renderedTexels[uv[0]+uv[1]*texture->getWidth()] = 
-		rr::RRColorRGBA8(color[0],color[1],color[2],color[3]);
-#endif
+	renderedTexels[uv[0]+uv[1]*texture->getWidth()] += color;
+	renderedTexels[uv[0]+uv[1]*texture->getWidth()][3] += color[3]; //missing vec4 operators
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
@@ -179,16 +166,21 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 	{
 		texture->renderingToEnd();
 
-#ifdef DIAGNOSTIC
-		if(numTexelsRenderedWithOverlap)
-//		if(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/20)
+		#pragma omp parallel for schedule(static)
+		for(int i=0;i<(int)(texture->getWidth()*texture->getHeight());i++)
 		{
-			rr::RRReporter::report(
-				(numTexelsRenderedWithOverlap>numTexelsRenderedWithoutOverlap/5)?rr::RRReporter::ERRO:rr::RRReporter::WARN,
-				"Overlapping texels rendered into map, size=%d*%d, ok=%d overlap=%d\n",
-				texture->getWidth(),texture->getHeight(),numTexelsRenderedWithoutOverlap,numTexelsRenderedWithOverlap);
-		}
+			if(renderedTexels[i].w)
+			{
+				renderedTexels[i] /= renderedTexels[i][3];
+				renderedTexels[i][3] = 1; //missing vec4 operators
+			}
+#ifdef DIAGNOSTIC_RED_UNRELIABLE
+			else
+			{
+				renderedTexels[i] = rr::RRColorRGBAF(1,0,0,0);//!!!
+			}
 #endif
+		}
 
 #ifdef DIAGNOSTIC
 		// convert to visible colors
@@ -204,19 +196,19 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 
 		// normal way
 		//texture->bindTexture();
-		//glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,renderedTexels);
-		//SAFE_DELETE_ARRAY(renderedTexels);
+		//glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_FLOAT,renderedTexels);
 
 		// workaround for ATI (ati swaps channels at second glTexImage2D)
 		unsigned w = getWidth();
 		unsigned h = getHeight();
 		delete texture;
-		texture = de::Texture::create((unsigned char*)renderedTexels,w,h,false,de::Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
-		renderedTexels = NULL; // renderedTexels intentionally not deleted here, adopted by texture
+		texture = de::Texture::create((unsigned char*)renderedTexels,w,h,false,de::Texture::TF_RGBAF,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 //unsigned q[4]={0,0,0,0};
 //for(unsigned i=0;i<getWidth()*getHeight();i++) for(unsigned j=0;j<4;j++) q[j]+=(renderedTexels[i].color>>(j*8))&255;
 //printf("%d %d %d %d\n",q[0]/getWidth()/getHeight(),q[1]/getWidth()/getHeight(),q[2]/getWidth()/getHeight(),q[3]/getWidth()/getHeight());
 //texture->save("c:/amb0.png",NULL);
+
+		SAFE_DELETE_ARRAY(renderedTexels);
 	}
 
 /*if(rendering)
@@ -258,7 +250,13 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		&& texture->getWidth()<=helpers->tempTexture->getWidth() 
 		&& texture->getHeight()<=helpers->tempTexture->getHeight()
 		)
-	for(int pass=0;pass<(preferQualityOverSpeed?1:2);pass++)
+	for(int pass=0;pass<(preferQualityOverSpeed?
+#ifdef DIAGNOSTIC_RED_UNRELIABLE
+		0
+#else
+		2
+#endif
+		:2);pass++)
 	{
 		// fill unused pixels
 		helpers->filterProgram->useIt();
