@@ -4,7 +4,7 @@ Samples
 
 AmbientOcclusion
 - precalculates ambient occlusion with infinite light bounces and color bleeding
-- viewer of object/scene and ambient occlusion map
+- optional viewer of object/scene and ambient occlusion map
 - loads Collada scene
 
 BunnyBenchmark
@@ -21,15 +21,15 @@ HelloDemoEngine
 
 HelloRealtimeRadiosity
 - shows how to render realtime global illumination in scene with dynamic objects and light
-- shows feeding external 3ds renderer
+- shows feeding external 3ds renderer with Lightsprint computed illumination
 - loads 3ds scene
 
 HelloVision
 - shows how to calculate static illumination in scene, without renderer
 
 Lightmaps
-- precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
-- has realtime global illumination preview
+- realtime global illumination preview (1 light only)
+- on request: precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
 - uses internal renderer
 - loads Collada scene
 

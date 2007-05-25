@@ -12,4 +12,4 @@ FMath
 FUtils
 libxml
 FCollada.h
- - FCollada 3.02 library, required only for Collada support
+ - FCollada 3.02 library and dependencies, required only for Collada support

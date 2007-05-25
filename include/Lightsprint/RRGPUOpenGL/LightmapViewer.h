@@ -8,6 +8,7 @@
 
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/RRGPUOpenGL.h"
 
 namespace rr_gl
 {
@@ -22,7 +23,7 @@ namespace rr_gl
 //! - wheel = zoom
 //! - left mouse button = toggle interpolation
 //! - right mouse button = toggle special alpha display
-class LightmapViewer
+class RR_API LightmapViewer
 {
 public:
 	//! Creates lightmap viewer instance. Only one instance at a time is allowed.
