@@ -412,25 +412,6 @@
 	</References>
 	<Files>
 		<Filter
-			Name="TB"
-			>
-			<File
-				RelativePath="..\ImportTB\RRObjectTB.cpp"
-				>
-				<FileConfiguration
-					Name="Debug DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\ImportTB\RRObjectTB.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Collada"
 			>
 			<File
