@@ -247,7 +247,8 @@ namespace rr
 		//! Returns triangle's material description.
 		//
 		//! Returned pointer must stay valid and constant for whole life of object.
-		//! Function may return NULL when material description is not available.
+		//! Solvers require that returned pointer is not NULL,
+		//! results are undefined with NULL pointer.
 		virtual const RRMaterial* getTriangleMaterial(unsigned t) const = 0;
 
 

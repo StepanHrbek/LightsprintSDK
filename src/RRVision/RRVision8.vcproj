@@ -573,13 +573,6 @@
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="RRDynamicSolver\Interpolator.cpp"

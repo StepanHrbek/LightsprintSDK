@@ -46,8 +46,6 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
-//#define WATER  // render water with reflection
-
 #include "FCollada.h" // must be included before demoengine because of fcollada SAFE_DELETE macro
 #include "FCDocument/FCDocument.h"
 #include "../../samples/ImportCollada/RRObjectCollada.h"
@@ -59,7 +57,6 @@
 #include <GL/glut.h>
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/DemoEngine/Timer.h"
-#include "Lightsprint/DemoEngine/Water.h"
 #include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
 #include "../HelloRealtimeRadiosity/DynamicObject.h"
 
@@ -86,7 +83,6 @@ de::Camera              eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.1
 de::Camera              light = {{-1.802,0.715,0.850},0.635,0,0.300,1.0,70.0,1.0,20.0};
 de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
-de::Water*              water = NULL;
 de::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL* solver = NULL;
 rr_gl::RendererOfScene* rendererOfScene = NULL;
@@ -441,7 +437,11 @@ void display(void)
 		}
 	}
 
+	glClear(GL_DEPTH_BUFFER_BIT);
+	eye.setupForRender();
 	de::UberProgramSetup uberProgramSetup;
+	uberProgramSetup.SHADOW_MAPS = numInstances;
+	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !ambientMapsRender;
@@ -451,27 +451,8 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
-#ifdef WATER
-	// update water reflection
-	uberProgramSetup.SHADOW_MAPS = 1;
-	uberProgramSetup.SHADOW_SAMPLES = 1;
-	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	renderScene(uberProgramSetup);
-	water->updateReflectionDone();
-#endif
-
-	// render everything except water
-	glClear(GL_DEPTH_BUFFER_BIT);
-	eye.setupForRender();
-	uberProgramSetup.SHADOW_MAPS = numInstances;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
 	renderScene(uberProgramSetup);
 
-#ifdef WATER
-	// render water
-	water->render(100);
-#endif
 	glutSwapBuffers();
 }
 
@@ -550,9 +531,6 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
-#ifdef WATER
-	water = new de::Water("..\\..\\data\\shaders\\",false,false);
-#endif
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;

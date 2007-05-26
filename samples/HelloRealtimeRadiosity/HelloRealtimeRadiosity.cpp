@@ -17,13 +17,17 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
+//#define WATER // Nvidia only
+
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Lightsprint/DemoEngine/Timer.h"
+#ifdef WATER
 #include "Lightsprint/DemoEngine/Water.h"
+#endif
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
@@ -56,7 +60,9 @@ de::AreaLight*          areaLight = NULL;
 de::Texture*            lightDirectMap = NULL;
 de::Texture*            environmentMap = NULL;
 de::TextureRenderer*    textureRenderer = NULL;
+#ifdef WATER
 de::Water*              water = NULL;
+#endif
 de::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL* solver = NULL;
 DynamicObject*          robot = NULL;
@@ -207,9 +213,6 @@ void display(void)
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
-	// update water reflection
-	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
-	glClear(GL_DEPTH_BUFFER_BIT);
 	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
@@ -218,8 +221,13 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+#ifdef WATER
+	// update water reflection
+	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	renderScene(uberProgramSetup);
 	water->updateReflectionDone();
+#endif
 
 	// render everything except water
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -228,8 +236,10 @@ void display(void)
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	renderScene(uberProgramSetup);
 
+#ifdef WATER
 	// render water
 	water->render(100);
+#endif
 
 	glutSwapBuffers();
 }
@@ -387,7 +397,9 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+#ifdef WATER
 	water = new de::Water("..\\..\\data\\shaders\\",false,false);
+#endif
 	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1

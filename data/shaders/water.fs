@@ -5,7 +5,7 @@
 // #define FRESNEL
 // #define BOOST_SUN
 
-sampler2D mirrorMap;
+uniform sampler2D mirrorMap;
 uniform float time; // in seconds
 varying vec4 mirrorCoord;
 varying vec3 worldPos;

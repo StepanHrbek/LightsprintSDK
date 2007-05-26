@@ -1061,10 +1061,22 @@ again:
 //  spoleha na to ze promenne uz jsou naplnene probihajicim vypoctem
 //  pouze zaktualizuje primary illum energie podle surfacu a additionalExitingFlux
 // return new primary exiting radiant flux in watts
+
 Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradiance, bool resetPropagation)
 {
 	RR_ASSERT(area!=0);//setGeometry must be called before setSurface
 	RR_ASSERT(s);
+
+	// aby to necrashlo kdyz uzivatel neopravnene zada NULL
+	static RRMaterial emergencyMaterial;
+	static bool emergencyInited = false;
+	if(!emergencyInited)
+	{
+		emergencyInited = true;
+		emergencyMaterial.reset(false);
+	}
+	if(!s) s = &emergencyMaterial;
+
 	surface=s;
 #if CHANNELS == 1
 	#error CHANNELS == 1 not supported here.

@@ -87,7 +87,7 @@ public:
 		for(unsigned i=0;i<numTriangles;i++)
 		{
 			const RRMaterial* custom = original->getTriangleMaterial(i);
-			if(cache.find(custom)==cache.end())
+			if(custom && cache.find(custom)==cache.end())
 			{
 				RRMaterial physical;
 				convertToPhysical(*custom,physical);

@@ -16,8 +16,8 @@ namespace de
 
 const char* UberProgramSetup::getSetupString()
 {
-	static char setup[500];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	static char setup[1000];
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
@@ -43,6 +43,7 @@ const char* UberProgramSetup::getSetupString()
 		POSTPROCESS_GAMMA?"#define POSTPROCESS_GAMMA\n":"",
 		POSTPROCESS_BIGSCREEN?"#define POSTPROCESS_BIGSCREEN\n":"",
 		OBJECT_SPACE?"#define OBJECT_SPACE\n":"",
+		CLIPPING?"#define CLIPPING\n":"",
 		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":""
 		);
 	return setup;

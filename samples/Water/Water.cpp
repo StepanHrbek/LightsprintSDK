@@ -3,6 +3,7 @@
 //
 // This is the most simple use of DemoEngine,
 // scene with skybox and reflective water is rendered.
+// Known issue: incorrect render on Radeon cards.
 //
 // Controls:
 //  mouse = look around
