@@ -183,9 +183,15 @@ void Hits::rawInsert(Hit HIT_PTR ahit)
 #endif
 }
 
-void Hits::insert(Hit HIT_PTR ahit)
+void Hits::insertWithSubdivision(Hit HIT_PTR ahit)
 {
 	rawInsert(ahit);
+}
+
+void Hits::insertWithoutSubdivision(HitChannels apower)
+{
+	hits++;
+	sum_power+=apower;
 }
 
 real Hits::difBtwAvgHitAnd(Point2 a,Triangle *base)
@@ -862,7 +868,7 @@ void SubTriangle::splitHits(Hits* phits,Hits *phits2)
 	for(unsigned i=0;i<old_hits;i++)
 	{
 		bool first=phits->hit[i].u*splita+phits->hit[i].v*splitb>1;
-		((!first)?phits:phits2)->insert(phits->hit[i]);
+		((!first)?phits:phits2)->insertWithSubdivision(phits->hit[i]);
 	}
 }
 
@@ -1281,7 +1287,7 @@ Pravdepodobne problem pri zaplych subtrianglech nebo clusterech.
 
 */
 
-Node *Reflectors::best(real allEnergyInScene)
+Node *Reflectors::best(real allEnergyInScene, real subdivisionSpeed)
 {
 	DBGLINE
 	STATISTIC_INC(numCallsBest);
@@ -1354,6 +1360,7 @@ restart:
 	for(unsigned i=0;i<bests;i++) bestNode[i]=bestNode[i+1];
 	RR_ASSERT(best);
 	// possibly split best
+	if(subdivisionSpeed) // no subdivision -> no splitting
 	if(!IS_CLUSTER(best) && SUBTRIANGLE(best)->wishesToSplitReflector())
 	{
 		RR_ASSERT(!best->sub[0]->shooter);
@@ -1931,23 +1938,35 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 	{
 		STATISTIC_INC(numRayTracePhotonHitsReceived);
 		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance*power));
-		Hit hitPoint2d;
+		if(object->subdivisionSpeed)
+		{
+			// expensive storage with u/v/power for each hit -> subdivision is possible
+			Hit hitPoint2d;
 #ifdef HITS_FIXED
-		hitPoint2d.u=(HITS_UV_TYPE)(HITS_UV_MAX*ray.hitPoint2d[0]);
-		hitPoint2d.v=(HITS_UV_TYPE)(HITS_UV_MAX*ray.hitPoint2d[1]);
+			hitPoint2d.u=(HITS_UV_TYPE)(HITS_UV_MAX*ray.hitPoint2d[0]);
+			hitPoint2d.v=(HITS_UV_TYPE)(HITS_UV_MAX*ray.hitPoint2d[1]);
 #else
-		// prepocet u,v ze souradnic (rightside,leftside)
-		//  do *hitPoint2d s ortonormalni bazi (u3,v3)
-		hitPoint2d.u=ray.hitPoint2d[0]*hitTriangle->u2.x+ray.hitPoint2d[1]*hitTriangle->v2.x;
-		hitPoint2d.v=ray.hitPoint2d[1]*hitTriangle->v2.y;
+			// prepocet u,v ze souradnic (rightside,leftside)
+			//  do *hitPoint2d s ortonormalni bazi (u3,v3)
+			hitPoint2d.u=ray.hitPoint2d[0]*hitTriangle->u2.x+ray.hitPoint2d[1]*hitTriangle->v2.x;
+			hitPoint2d.v=ray.hitPoint2d[1]*hitTriangle->v2.y;
 #endif
-		hitPoint2d.setPower(power);
-		// put triangle among other hit triangles
-		if(!hitTriangle->hits.hits) hitTriangles.insert(hitTriangle);
-		// inform subtriangle where and how powerfully it was hit
-		CHECK_HEAP;
-		hitTriangle->hits.insert(hitPoint2d);
-		CHECK_HEAP;
+			hitPoint2d.setPower(power);
+			// put triangle among other hit triangles
+			if(!hitTriangle->hits.hits) hitTriangles.insert(hitTriangle);
+			// inform subtriangle where and how powerfully it was hit
+			CHECK_HEAP;
+			hitTriangle->hits.insertWithSubdivision(hitPoint2d);
+			CHECK_HEAP;
+		}
+		else
+		{
+			// cheap storage with accumulated power -> subdivision is not possible
+			// put triangle among other hit triangles
+			if(!hitTriangle->hits.hits) hitTriangles.insert(hitTriangle);
+			// inform subtriangle where and how powerfully it was hit
+			hitTriangle->hits.insertWithoutSubdivision(power);
+		}
 	}
 	// mirror reflection
 	// speedup: weaker rays continue less often but with
@@ -2293,11 +2312,19 @@ bool Scene::setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *f
 	RR_ASSERT(destination);
 	RR_ASSERT(phits);
 	if(phits->hits==0) return true;
-	Point2 triCentre=destination->uv[0]+(destination->u2+destination->v2)/3;
-	real perimeter=destination->perimeter();
-	bool doSplit=/*!destination->grandpa->isNeedle && */phits->doSplit(triCentre,perimeter,destination->grandpa);
-//	real difBtwAvgHitAndCen=destination->phits->difBtwAvgHitAnd(triCentre);
-//	bool doSplit=difBtwAvgHitAndCen*destination->phits->count>perimeter/MESHING;
+
+	// special short path for disabled subdivision
+	if(!object->subdivisionSpeed)
+		goto dont_split;
+
+	bool doSplit;
+	{
+		Point2 triCentre=destination->uv[0]+(destination->u2+destination->v2)/3;
+		real perimeter=destination->perimeter();
+		doSplit=/*!destination->grandpa->isNeedle && */phits->doSplit(triCentre,perimeter,destination->grandpa);
+		//	real difBtwAvgHitAndCen=destination->phits->difBtwAvgHitAnd(triCentre);
+		//	bool doSplit=difBtwAvgHitAndCen*destination->phits->count>perimeter/MESHING;
+	}
 	if(doSplit)
 	{
 		DBGLINE
@@ -2313,6 +2340,7 @@ bool Scene::setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *f
 	}
 	else
 	{
+dont_split:
 		DBGLINE
 		real ff;
 		/*if(sourceVertices)
@@ -2526,7 +2554,7 @@ bool Scene::distribute(real maxError)
 	int rezerva=20;
 	while(1)
 	{
-		Node *source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
+		Node *source=staticReflectors.best(sum(abs(staticSourceExitingFlux)),object->subdivisionSpeed);
 //if(source) printf(" %f<%f\n",fabs(source->shooter->totalExitingFluxToDiffuse),fabs(maxError*energyEmitedByStatics));
 		if(!source || ( sum(abs(source->shooter->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
 		RR_ASSERT(source->shooter);
@@ -2706,7 +2734,7 @@ RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *con
 		{
 			RR_ASSERT(staticReflectors.check());
 			if(improvingStatic==NULL)
-				improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
+				improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)),object->subdivisionSpeed);
 			if(improvingStatic==NULL) 
 			{
 				improved = RRStaticSolver::FINISHED;

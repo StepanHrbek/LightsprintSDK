@@ -137,7 +137,8 @@ public:
 	void    reset();
 	void    compact();
 
-	void    insert(Hit HIT_PTR ahit);
+	void    insertWithSubdivision(Hit HIT_PTR ahit);
+	void    insertWithoutSubdivision(HitChannels power);
 	real    difBtwAvgHitAnd(Point2 a,Triangle *base);
 	//real    avgDifBtwHitAnd(Point2 a);
 	bool    doSplit(Point2 centre,real perimeter,Triangle *base);
@@ -506,7 +507,7 @@ public:
 	void    resetBest(); // reset acceleration structures for best(), call after big update of primary energies
 
 	bool    check();
-	Node    *best(real allEnergyInScene);
+	Node    *best(real allEnergyInScene,real subdivisionSpeed);
 	bool    lastBestWantsRefresh() {return refreshing;}
 	bool    insert(Node *anode); // returns true when node was inserted (=appended)
 	void    insertObject(Object *o);
