@@ -26,6 +26,7 @@
 //  #define POSTPROCESS_GAMMA
 //  #define POSTPROCESS_BIGSCREEN
 //  #define OBJECT_SPACE
+//  #define CLIPPING
 //  #define FORCE_2D_POSITION
 //
 // Workarounds for driver bugs of one vendor made it a mess, sorry.
