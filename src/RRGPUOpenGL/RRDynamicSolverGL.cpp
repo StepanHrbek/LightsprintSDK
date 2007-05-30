@@ -91,6 +91,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
+	boostDetectedDirectIllumination = 1;
 
 }
 
