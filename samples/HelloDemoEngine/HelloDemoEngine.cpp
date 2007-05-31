@@ -30,6 +30,8 @@
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "DynamicObject.h"
 
+//#define WATER // enables water
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -58,7 +60,9 @@ de::Texture*        lightDirectMap = NULL;
 de::Texture*        environmentMap = NULL;
 de::TextureRenderer*textureRenderer = NULL;
 de::UberProgram*    uberProgram = NULL;
+#ifdef WATER
 de::Water*          water = NULL;
+#endif
 DynamicObject*      robot = NULL;
 DynamicObject*      potato = NULL;
 int                 winWidth = 0;
@@ -160,8 +164,6 @@ void display(void)
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
 	// update water reflection
-	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
@@ -170,8 +172,12 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
+#ifdef WATER
+	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,-0.3f);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	renderScene(uberProgramSetup);
 	water->updateReflectionDone();
+#endif
 
 	// render everything except water
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -180,8 +186,10 @@ void display(void)
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	renderScene(uberProgramSetup);
 
+#ifdef WATER
 	// render water
 	water->render(100);
+#endif
 
 	glutSwapBuffers();
 }
@@ -286,6 +294,8 @@ void idle()
 
 int main(int argc, char **argv)
 {
+	de::Program::showLog = true;
+
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -316,7 +326,9 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+#ifdef WATER
 	water = new de::Water("..\\..\\data\\shaders\\",false,false);
+#endif
 	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// set shadowmapsPerPass=1 for standard shadows
