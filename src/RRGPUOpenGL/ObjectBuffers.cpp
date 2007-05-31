@@ -6,7 +6,7 @@
 #include <cassert>
 #include <GL/glew.h>
 #include "Lightsprint/RRIllumination.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
 #include "ObjectBuffers.h"
 #ifdef _OPENMP

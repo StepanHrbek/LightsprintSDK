@@ -391,7 +391,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\RRGPUOpenGL\LightmapViewer.h"
+			RelativePath="..\..\include\Lightsprint\GL\LightmapViewer.h"
 			>
 		</File>
 		<File
@@ -407,7 +407,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\RRGPUOpenGL\RendererOfRRObject.h"
+			RelativePath="..\..\include\Lightsprint\GL\RendererOfRRObject.h"
 			>
 		</File>
 		<File
@@ -415,7 +415,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\RRGPUOpenGL\RendererOfScene.h"
+			RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h"
 			>
 		</File>
 		<File
@@ -423,7 +423,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\RRGPUOpenGL.h"
+			RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h"
 			>
 		</File>
 		<File

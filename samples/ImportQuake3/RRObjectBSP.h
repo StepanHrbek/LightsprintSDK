@@ -8,7 +8,7 @@
 
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Q3Loader.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/GL/RendererOfRRObject.h"
 
 //! Creates Lightsprint interface for Quake3 map.
 rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,de::Texture* missingTexture);

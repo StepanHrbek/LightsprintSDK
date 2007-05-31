@@ -6,6 +6,22 @@
 
 \page news What's new
 
+
+\section news19 ------------------------------------ 2007.5.31 -------------------------------------
+
+CHANGES
+
+- huge memory saves when subdivision is turned off, prevents quick out of memory
+- include/Lightsprint/RRGPUOpenGL.h
+  include/Lightsprint/RRGPUOpenGL/LightmapViewer.h
+  include/Lightsprint/RRGPUOpenGL/RendererOfRRObject.h
+  include/Lightsprint/RRGPUOpenGL/RendererOfScene.h
+  ->
+  include/Lightsprint/GL/RRDynamicSolverGL.h
+  include/Lightsprint/GL/LightmapViewer.h
+  include/Lightsprint/GL/RendererOfRRObject.h
+  include/Lightsprint/GL/RendererOfScene.h
+
 \section news18 ------------------------------------ 2007.5.25 -------------------------------------
 
 NEWS

@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/DemoEngine/Program.h"
 #include "RRIlluminationEnvironmentMapInOpenGL.h"
-#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 namespace rr_gl
 {
@@ -88,7 +88,7 @@ RRIlluminationEnvironmentMapInOpenGL::~RRIlluminationEnvironmentMapInOpenGL()
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// RRGPUOpenGL
+// RRDynamicSolverGL
 
 rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::createIlluminationEnvironmentMap()
 {

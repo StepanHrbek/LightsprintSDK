@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 #include "RRIlluminationPixelBufferInOpenGL.h"
 #include "Lightsprint/DemoEngine/Program.h"
-#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 //#define DIAGNOSTIC // kazdy texel dostane barvu podle toho kolikrat do nej bylo zapsano
 //#define DIAGNOSTIC_RED_UNRELIABLE // ukaze nespolehlivy texely cervene
@@ -363,7 +363,7 @@ void RRDynamicSolverGL::cleanup()
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// RRGPUOpenGL
+// RRDynamicSolverGL
 
 rr::RRIlluminationPixelBuffer* RRDynamicSolverGL::createIlluminationPixelBuffer(unsigned w, unsigned h)
 {

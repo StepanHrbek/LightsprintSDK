@@ -1,15 +1,15 @@
-#ifndef RRGPUOPENGL_H
-#define RRGPUOPENGL_H
+#ifndef RRDYNAMICSOLVERGL_H
+#define RRDYNAMICSOLVERGL_H
 
 //////////////////////////////////////////////////////////////////////////////
-//! \file RRGPUOpenGL.h
-//! \brief RRGPUOpenGL - access to GPU via OpenGL
+//! \file RRDynamicSolverGL.h
+//! \brief RRDynamicSolverGL - access to GPU via OpenGL
 //! \version 2007.5.25
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include "RRDynamicSolver.h"
+#include "../RRDynamicSolver.h"
 
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
@@ -34,10 +34,10 @@
 #	endif
 #endif
 
-#include "DemoEngine/Texture.h"
-#include "DemoEngine/Program.h"
-#include "DemoEngine/Renderer.h"
-#include "DemoEngine/UberProgramSetup.h"
+#include "../DemoEngine/Texture.h"
+#include "../DemoEngine/Program.h"
+#include "../DemoEngine/Renderer.h"
+#include "../DemoEngine/UberProgramSetup.h"
 
 //! LightsprintGL - OpenGL 2.0 part of realtime global illumination solver.
 namespace rr_gl

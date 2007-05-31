@@ -4,7 +4,7 @@
 #include "DynamicObject.h"
 #include "DynamicObjects.h"
 //#include "LevelSequence.h"
-#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 extern void showImage(const de::Texture* tex);
 

@@ -24,7 +24,7 @@
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
 #include "RRObject3DS.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/GL/RendererOfRRObject.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

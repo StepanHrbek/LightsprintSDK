@@ -3,7 +3,7 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/RRGPUOpenGL/LightmapViewer.h"
+#include "Lightsprint/GL/LightmapViewer.h"
 #include "Lightsprint/DemoEngine/UberProgram.h"
 #include <string.h>
 #include <GL/glut.h>

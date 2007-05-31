@@ -57,7 +57,7 @@
 #include <GL/glut.h>
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/DemoEngine/Timer.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
+#include "Lightsprint/GL/RendererOfScene.h"
 #include "../HelloRealtimeRadiosity/DynamicObject.h"
 
 /////////////////////////////////////////////////////////////////////////////

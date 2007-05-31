@@ -8,7 +8,7 @@
 
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/DemoEngine/Texture.h"
-#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 namespace rr_gl
 {

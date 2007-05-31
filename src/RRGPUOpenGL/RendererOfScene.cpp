@@ -5,9 +5,9 @@
 
 #include <cassert>
 #include <GL/glew.h>
-#include "Lightsprint/RRGPUOpenGL.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RendererOfRRObject.h"
+#include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 
 

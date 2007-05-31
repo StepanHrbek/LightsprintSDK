@@ -54,7 +54,7 @@
 
 #include "RRObjectCollada.h"
 #include "Lightsprint/DemoEngine/Texture.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/GL/RendererOfRRObject.h"
 
 #ifdef _DEBUG
 	#ifdef RR_STATIC

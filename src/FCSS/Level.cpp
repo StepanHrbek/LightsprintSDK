@@ -1,7 +1,7 @@
 #define SUBDIVISION                0
 
 #include "Level.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/GL/RendererOfRRObject.h"
 
 extern rr::RRDynamicSolver* createSolver();
 extern void error(const char* message, bool gfxRelated);

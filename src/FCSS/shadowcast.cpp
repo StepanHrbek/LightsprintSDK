@@ -60,8 +60,8 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/glut.h>
-#include "Lightsprint/RRGPUOpenGL.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/DemoEngine/AreaLight.h"
 #include "Lightsprint/DemoEngine/Camera.h"
 #include "Lightsprint/DemoEngine/UberProgram.h"

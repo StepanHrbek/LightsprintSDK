@@ -23,7 +23,7 @@
 
 #include "AnimationEditor.h"
 #include "Autopilot.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
+#include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
 

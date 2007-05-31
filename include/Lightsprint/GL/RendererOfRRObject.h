@@ -9,7 +9,7 @@
 #include <cstring> // memset
 #include "Lightsprint/RRObject.h"
 #include "Lightsprint/DemoEngine/Renderer.h"
-#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 namespace rr_gl
 {

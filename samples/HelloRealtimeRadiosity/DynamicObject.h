@@ -8,7 +8,7 @@
 
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
 #include "Lightsprint/DemoEngine/Renderer.h"
-#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

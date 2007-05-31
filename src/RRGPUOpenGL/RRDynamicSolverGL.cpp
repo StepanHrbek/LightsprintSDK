@@ -9,8 +9,8 @@
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
 #include <GL/glew.h>
-#include "Lightsprint/RRGPUOpenGL.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfRRObject.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
 
 #define SCALE_DOWN_ON_GPU       // mnohem rychlejsi, ale zatim neovereny ze funguje vsude

@@ -1730,14 +1730,14 @@ Advanced:
  Namespace: rr_gl
 
  <hr>
- Header: RRGPUOpenGL.h
+ Header: GL/RRDynamicSolverGL.h
 
  - rr_gl::RRDynamicSolverGL implements RRDynamicSolver GPU specific parts in OpenGL 2.0
  - pixel buffers
  - environment maps
 
  <hr>
- Header: RRGPUOpenGL/RendererOfScene.h
+ Header: GL/RendererOfScene.h
 
  - rr_gl::RendererOfScene is a renderer of 3d scene in RRDynamicSolver
  - renders environment, HDR
@@ -1745,7 +1745,7 @@ Advanced:
  - detects what data are available (lightmaps, vertex colors)
 
  <hr>
- Header: RRGPUOpenGL/RendererOfRRObject.h
+ Header: GL/RendererOfRRObject.h
 
  - rr_gl::RendererOfRRObject is a renderer of 3d objects with Lightsprint's RRObject interface
  - renders object with precomputed or realtime computed illumination

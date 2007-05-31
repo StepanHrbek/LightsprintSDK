@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Lightsprint
-PROJECT_NUMBER         = 2007.5.25
+PROJECT_NUMBER         = 2007.5.31
 OUTPUT_DIRECTORY       = "C:/Documents and Settings/Dee/Dokumenty/C/rr/doc/doxygen"
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -90,10 +90,10 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/L
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRStaticSolver.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRIllumination.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDynamicSolver.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRGPUOpenGL.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRGPUOpenGL/LightmapViewer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRGPUOpenGL/RendererOfRRObject.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRGPUOpenGL/RendererOfScene.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RRDynamicSolverGL.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/LightmapViewer.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfRRObject.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfScene.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/AreaLight.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Camera.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/DemoEngine.h" \

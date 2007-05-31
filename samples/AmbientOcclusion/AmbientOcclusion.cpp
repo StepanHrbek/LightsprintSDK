@@ -55,9 +55,9 @@
 #include <GL/glut.h>
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/DemoEngine/Timer.h"
-#include "Lightsprint/RRGPUOpenGL/RendererOfScene.h"
-#include "Lightsprint/RRGPUOpenGL/LightmapViewer.h"
-#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/GL/RendererOfScene.h"
+#include "Lightsprint/GL/LightmapViewer.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include <time.h>
 
 

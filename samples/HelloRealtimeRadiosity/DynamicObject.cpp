@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/DemoEngine/Renderer.h"
-#include "Lightsprint/RRGPUOpenGL.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "DynamicObject.h"
 #include "../Import3DS/RendererOf3DS.h"
 #include "../Import3DS/Model_3DS.h"
