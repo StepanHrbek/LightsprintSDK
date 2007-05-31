@@ -16,14 +16,14 @@ namespace de
 enum
 {
 	// textures assigned to UberProgram
-	// 0..9 are reserved for shadowmaps
-	TEXTURE_2D_LIGHT_DIRECT              = 10, ///< Sampler id used by our uberprogram for projected light map.
-	TEXTURE_2D_MATERIAL_DIFFUSE          = 11, ///< Sampler id used by our uberprogram for diffuse map.
-	TEXTURE_2D_MATERIAL_EMISSIVE         = 12, ///< Sampler id used by our uberprogram for emissive map.
-	TEXTURE_2D_LIGHT_INDIRECT            = 13, ///< Sampler id used by our uberprogram for ambient map.
-	TEXTURE_2D_LIGHT_INDIRECT2           = 14, ///< Sampler id used by our uberprogram for ambient map2.
-	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 15, ///< Sampler id used by our uberprogram for specular cube map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 16, ///< Sampler id used by our uberprogram for diffuse cube map.
+	// 0..8 are reserved for shadowmaps, 9..15 declared here, 16+ would fail on ATI
+	TEXTURE_2D_LIGHT_DIRECT              = 9, ///< Sampler id used by our uberprogram for projected light map.
+	TEXTURE_2D_MATERIAL_DIFFUSE          = 10, ///< Sampler id used by our uberprogram for diffuse map.
+	TEXTURE_2D_MATERIAL_EMISSIVE         = 11, ///< Sampler id used by our uberprogram for emissive map.
+	TEXTURE_2D_LIGHT_INDIRECT            = 12, ///< Sampler id used by our uberprogram for ambient map.
+	TEXTURE_2D_LIGHT_INDIRECT2           = 13, ///< Sampler id used by our uberprogram for ambient map2.
+	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 14, ///< Sampler id used by our uberprogram for specular cube map.
+	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 15, ///< Sampler id used by our uberprogram for diffuse cube map.
 
 	// texcoords assigned to UberProgram
 	// these constants are hardcoded in shaders
