@@ -189,6 +189,7 @@ void LightmapViewer::display()
 
 	// restore states
 	glEnable(GL_DEPTH_TEST);
+	glUseProgram(0); // prevents crashes in Radeon driver in AmbientOcclusion sample
 
 	// show it
 	glutSwapBuffers();

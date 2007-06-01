@@ -150,6 +150,7 @@ void mouse(int button, int state, int x, int y)
 		{	
 			if(solver->getIllumination(i)->getLayer(0)->pixelBuffer)
 			{
+				glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
 				solver->getIllumination(i)->getLayer(0)->pixelBuffer->bindTexture();
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, nearest?GL_NEAREST:GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, nearest?GL_NEAREST:GL_LINEAR);

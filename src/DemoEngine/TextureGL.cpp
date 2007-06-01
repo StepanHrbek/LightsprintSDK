@@ -106,7 +106,8 @@ bool TextureGL::reset(unsigned awidth, unsigned aheight, Format aformat, unsigne
 		for(unsigned side=0;side<6;side++)
 		{
 			unsigned char* sideData = pixels?pixels+side*width*height*bytesPerPixel:NULL;
-			if(buildMipmaps)
+			assert(!buildMipmaps || sideData);
+			if(buildMipmaps && sideData)
 				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,glinternal,width,height,glformat,gltype,sideData);
 			else
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,glinternal,width,height,0,glformat,gltype,sideData);
@@ -115,7 +116,8 @@ bool TextureGL::reset(unsigned awidth, unsigned aheight, Format aformat, unsigne
 	else
 	{
 		// 2d -> init with data
-		if(buildMipmaps)
+		assert(!buildMipmaps || pixels);
+		if(buildMipmaps && pixels)
 			gluBuild2DMipmaps(GL_TEXTURE_2D,glinternal,width,height,glformat,gltype,pixels);
 		else
 			glTexImage2D(GL_TEXTURE_2D,0,glinternal,width,height,0,glformat,gltype,pixels);

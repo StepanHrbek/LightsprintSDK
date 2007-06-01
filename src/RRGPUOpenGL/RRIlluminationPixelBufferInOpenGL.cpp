@@ -194,15 +194,18 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		}
 #endif
 
-		// normal way
-		//texture->bindTexture();
-		//glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_FLOAT,renderedTexels);
+		// normal way (internally stored in halfs, can't be interpolated on old cards)
+		//texture->reset(texture->getWidth(),texture->getHeight(),de::Texture::TF_RGBAF,(unsigned char*)renderedTexels,false);
+
+		// normal way (internally stored in bytes)
+		texture->bindTexture();
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_FLOAT,renderedTexels);
 
 		// workaround for ATI (ati swaps channels at second glTexImage2D)
-		unsigned w = getWidth();
-		unsigned h = getHeight();
-		delete texture;
-		texture = de::Texture::create((unsigned char*)renderedTexels,w,h,false,de::Texture::TF_RGBAF,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	//	unsigned w = getWidth();
+	//	unsigned h = getHeight();
+	//	delete texture;
+	//	texture = de::Texture::create((unsigned char*)renderedTexels,w,h,false,de::Texture::TF_RGBAF,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 //unsigned q[4]={0,0,0,0};
 //for(unsigned i=0;i<getWidth()*getHeight();i++) for(unsigned j=0;j<4;j++) q[j]+=(renderedTexels[i].color>>(j*8))&255;
 //printf("%d %d %d %d\n",q[0]/getWidth()/getHeight(),q[1]/getWidth()/getHeight(),q[2]/getWidth()/getHeight(),q[3]/getWidth()/getHeight());

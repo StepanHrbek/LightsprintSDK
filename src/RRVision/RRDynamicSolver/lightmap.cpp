@@ -257,8 +257,7 @@ RRColorRGBAF processTexel(const ProcessTexelInfo& pti)
 	bool shootToLights = pti.context.params->applyLights && pti.context.solver->getLights().size();
 	if(!shootToHemisphere && !shootToLights)
 	{
-		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"processTexel: Zero workload.\n"));
-		RR_ASSERT(0);
+		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"processTexel: Zero workload.\n");RR_ASSERT(0));		
 		return RRColorRGBAF(0);
 	}
 
