@@ -39,6 +39,7 @@ public:
 	};
 
 	//! Set size and contents of 2D texture.
+	//
 	//! Textures initialized as cube stay cube textures, 2d stay 2d.
 	//! \param width
 	//!  Requested width of texture in texels.
@@ -57,10 +58,20 @@ public:
 	//! \return True on success, false on error (unsupported size/format).
 	virtual bool reset(unsigned width, unsigned height, Format format, unsigned char* data, bool buildMipmaps) = 0;
 
+	//! Lock texture for random CPU read access to all pixels.
+	//! Returned pointer points to linear array of pixels in getFormat() format, no whitespace.
+	virtual const unsigned char* lock() = 0;
+	//! Unlock texture previously locked by lock().
+	virtual void unlock() = 0;
+
 	//! \return Width of texture.
 	virtual unsigned getWidth() const = 0;
 	//! \return Height of texture.
 	virtual unsigned getHeight() const = 0;
+	//! \return Format of texture pixels.
+	virtual Format getFormat() const = 0;
+	//! \return True for cube texture, false for 2D texture.
+	virtual bool isCube() const = 0;
 	//! \return Number of bits in one texel.
 	virtual unsigned getTexelBits() {return 0;}
 	//! Fills rgba[0..3] with rgba color 
@@ -148,12 +159,20 @@ public:
 		int magn = GL_LINEAR, int mini = GL_LINEAR_MIPMAP_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
+	//! Loads 2D or CUBE texture from image stored on disk into existing texture.
+	//! See load() for description of parameters.
+	virtual bool reload(const char *filename, const char* cubeSideName[6],
+		bool flipV = false, bool flipH = false, bool buildMipmaps = true);
+
 	//! Saves texture to disk and returns true on success.
 	//! See load() for description of parameters.
-	virtual bool save(const char* filename, const char* cubeSideName[6]) {return false;}
+	virtual bool save(const char* filename, const char* cubeSideName[6]);
 
 	//! Saves backbuffer to disk and returns true on success.
 	static bool saveBackbuffer(const char* filename);
+
+	//! Returns size of pixel in bytes for given format.
+	static unsigned getBytesPerPixel(Texture::Format format);
 };
 
 }; // namespace

@@ -28,8 +28,14 @@ public:
 		pixelBuffer->bindTexture();
 	}
 	virtual bool reset(unsigned width, unsigned height, Format format, unsigned char* data, bool buildMipmaps) {return 0;}
+	virtual const unsigned char* lock() {return NULL;}
+	virtual void unlock() {};
+
 	virtual unsigned getWidth() const {return pixelBuffer->getWidth();}
 	virtual unsigned getHeight() const {return pixelBuffer->getHeight();}
+	virtual Format getFormat() const {return TF_RGBAF;}
+	virtual bool isCube() const {return false;}
+
 	virtual bool renderingToBegin(unsigned side = 0) {return 0;}
 	virtual void renderingToEnd() {}
 private:

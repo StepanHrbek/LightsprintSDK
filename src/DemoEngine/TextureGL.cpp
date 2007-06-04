@@ -22,10 +22,11 @@ unsigned TextureGL::numPotentialFBOUsers = 0;
 //
 // TextureGL
 
-TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, Format aformat,
-				 int magn, int mini, int wrapS, int wrapT)
+TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, Format aformat, int magn, int mini, int wrapS, int wrapT)
 {
 	numPotentialFBOUsers++;
+
+	textureInMemory = new TextureInMemory(adata,awidth,aheight,acube,aformat,mini==GL_LINEAR_MIPMAP_LINEAR);
 
 	// never changes in life of texture
 	cubeOr2d = acube?GL_TEXTURE_CUBE_MAP:GL_TEXTURE_2D;
@@ -33,12 +34,9 @@ TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, 
 	glBindTexture(cubeOr2d, id);
 
 	// changes only in reset()
-	width = 0;
-	height = 0;
 	glformat = 0;
 	gltype = 0;
 	bytesPerPixel = 0;
-	pixels = NULL;
 	TextureGL::reset(awidth,aheight,aformat,adata,false);
 
 	// changes anywhere
@@ -48,41 +46,13 @@ TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, 
 	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, acube?GL_CLAMP_TO_EDGE:wrapT);
 }
 
-unsigned TextureGL::getBytesPerPixel(Texture::Format format)
+bool TextureGL::reset(unsigned _width, unsigned _height, Format _format, unsigned char* _data, bool _buildMipmaps)
 {
-	switch(format)
-	{
-		case Texture::TF_RGB: return 3;
-		case Texture::TF_RGBA: return 4;
-		case Texture::TF_RGBF: return 12;
-		case Texture::TF_RGBAF: return 16;
-		case Texture::TF_NONE: return 4;
-	}
-	return 0;
-}
-
-bool TextureGL::reset(unsigned awidth, unsigned aheight, Format aformat, unsigned char* adata, bool buildMipmaps)
-{
-	bytesTotal = awidth*aheight*getBytesPerPixel(aformat)*((cubeOr2d==GL_TEXTURE_CUBE_MAP)?6:1);
-
-	// copy data
-	if(!pixels || !adata || width!=awidth || height!=aheight || format!=aformat)
-	{
-		delete[] pixels;
-		pixels = adata ? new unsigned char[bytesTotal] : NULL;
-	}
-	if(pixels && pixels!=adata)
-	{
-		memcpy(pixels,adata,bytesTotal);
-	}
-
-	width = awidth;
-	height = aheight;
-	format = aformat;
+	textureInMemory->reset(_width,_height,_format,_data,_buildMipmaps);
 
 	GLenum glinternal;
 
-	switch(format)
+	switch(_format)
 	{
 		case TF_RGB: glinternal = glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 3; break;
 		case TF_RGBA: glinternal = glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 4; break;
@@ -97,7 +67,7 @@ bool TextureGL::reset(unsigned awidth, unsigned aheight, Format aformat, unsigne
 	if(glformat==GL_DEPTH_COMPONENT)
 	{
 		// depthmap -> init with no data
-		glTexImage2D(GL_TEXTURE_2D,0,glinternal,width,height,0,glformat,gltype,pixels);
+		glTexImage2D(GL_TEXTURE_2D,0,glinternal,_width,_height,0,glformat,gltype,_data);
 	}
 	else
 	if(cubeOr2d==GL_TEXTURE_CUBE_MAP)
@@ -105,25 +75,77 @@ bool TextureGL::reset(unsigned awidth, unsigned aheight, Format aformat, unsigne
 		// cube -> init with data
 		for(unsigned side=0;side<6;side++)
 		{
-			unsigned char* sideData = pixels?pixels+side*width*height*bytesPerPixel:NULL;
-			assert(!buildMipmaps || sideData);
-			if(buildMipmaps && sideData)
-				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,glinternal,width,height,glformat,gltype,sideData);
+			unsigned char* sideData = _data?_data+side*_width*_height*bytesPerPixel:NULL;
+			assert(!_buildMipmaps || sideData);
+			if(_buildMipmaps && sideData)
+				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,glinternal,_width,_height,glformat,gltype,sideData);
 			else
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,glinternal,width,height,0,glformat,gltype,sideData);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,glinternal,_width,_height,0,glformat,gltype,sideData);
 		}
 	}
 	else
 	{
 		// 2d -> init with data
-		assert(!buildMipmaps || pixels);
-		if(buildMipmaps && pixels)
-			gluBuild2DMipmaps(GL_TEXTURE_2D,glinternal,width,height,glformat,gltype,pixels);
+		assert(!_buildMipmaps || _data);
+		if(_buildMipmaps && _data)
+			gluBuild2DMipmaps(GL_TEXTURE_2D,glinternal,_width,_height,glformat,gltype,_data);
 		else
-			glTexImage2D(GL_TEXTURE_2D,0,glinternal,width,height,0,glformat,gltype,pixels);
+			glTexImage2D(GL_TEXTURE_2D,0,glinternal,_width,_height,0,glformat,gltype,_data);
 	}
 
 	return true;
+}
+
+
+// Purpose of this class:
+//  If you call save() on this texture, it will save backbuffer.
+class BackbufferSaver : public TextureGL
+{
+public:
+	BackbufferSaver() : TextureGL(NULL,1,1,false,TF_RGBA)
+	{
+		int rect[4];
+		glGetIntegerv(GL_VIEWPORT,rect);
+		reset(rect[2],rect[3],TF_RGBA,NULL,false);
+	}
+	virtual bool renderingToBegin(unsigned side = 0)
+	{
+		return true;
+	}
+	virtual void renderingToEnd()
+	{
+	}
+};
+
+bool Texture::saveBackbuffer(const char* filename)
+{
+	BackbufferSaver backbuffer;
+	return backbuffer.save(filename,NULL);
+}
+
+// warning: degrades float data to bytes
+const unsigned char* TextureGL::lock()
+{
+	// 1. copy data from GL to system memory
+	unsigned numSides = isCube()?6:1;
+	unsigned char* newData = new unsigned char[numSides*getWidth()*getHeight()*4];
+	for(unsigned side=0;side<numSides;side++)
+	{
+		bool ok = renderingToBegin(side);
+		assert(ok);
+		glReadPixels(0,0,getWidth(),getHeight(),GL_BGRA,GL_UNSIGNED_BYTE,newData+side*getWidth()*getHeight()*getBytesPerPixel(getFormat()));
+	}
+	renderingToEnd();
+	textureInMemory->reset(getWidth(),getHeight(),TF_RGBA,newData,false);
+	delete[] newData;
+
+	// 2. lock system memory
+	return textureInMemory->lock();
+}
+
+void TextureGL::unlock()
+{
+	textureInMemory->unlock();
 }
 
 void TextureGL::bindTexture() const
@@ -131,70 +153,9 @@ void TextureGL::bindTexture() const
 	glBindTexture(cubeOr2d, id);
 }
 
-bool TextureGL::getPixel(float ax, float ay, float az, float rgba[4]) const
+bool TextureGL::getPixel(float x, float y, float z, float rgba[4]) const
 {
-	if(!pixels) return false;
-	unsigned ofs;
-	if(cubeOr2d==GL_TEXTURE_2D)
-	{
-		// 2d lookup
-		unsigned x = unsigned(ax * (width)) % width;
-		unsigned y = unsigned(ay * (height)) % height;
-		ofs = x+y*width;
-	}
-	else
-	{
-		// cube lookup
-		assert(width==height);
-		// find major axis
-		float direction[3] = {ax,ay,az};
-		float d[3] = {fabs(ax),fabs(ay),fabs(az)};
-		unsigned axis = (d[0]>=d[1] && d[0]>=d[2]) ? 0 : ( (d[1]>=d[0] && d[1]>=d[2]) ? 1 : 2 ); // 0..2
-		// find side
-		unsigned side = 2*axis + ((direction[axis]<0)?1:0); // 0..5
-		// find xy
-		unsigned x = (unsigned) CLAMPED((int)((direction[ axis   ?0:1]/direction[axis]+1)*(0.5f*width )),0,(int)width -1); // 0..width
-		unsigned y = (unsigned) CLAMPED((int)((direction[(axis<2)?2:1]/direction[axis]+1)*(0.5f*height)),0,(int)height-1); // 0..height
-		// read texel
-		assert(x<width);
-		assert(y<height);
-		ofs = width*height*side+width*y+x;
-		if(ofs>=width*height*6)
-		{
-			assert(0);
-			return false;
-		}
-	}
-	ofs *= bytesPerPixel;
-	assert(ofs<bytesTotal);
-	switch(format)
-	{
-		case TF_RGB:
-			rgba[0] = pixels[ofs+0]/255.0f;
-			rgba[1] = pixels[ofs+1]/255.0f;
-			rgba[2] = pixels[ofs+2]/255.0f;
-			rgba[3] = 1;
-			break;
-		case TF_RGBA:
-			rgba[0] = pixels[ofs+0]/255.0f;
-			rgba[1] = pixels[ofs+1]/255.0f;
-			rgba[2] = pixels[ofs+2]/255.0f;
-			rgba[3] = pixels[ofs+3]/255.0f;
-			break;
-		case TF_RGBF:
-			rgba[0] = ((float*)(pixels+ofs))[0];
-			rgba[1] = ((float*)(pixels+ofs))[1];
-			rgba[2] = ((float*)(pixels+ofs))[2];
-			rgba[3] = 1;
-			break;
-		case TF_RGBAF:
-			rgba[0] = ((float*)(pixels+ofs))[0];
-			rgba[1] = ((float*)(pixels+ofs))[1];
-			rgba[2] = ((float*)(pixels+ofs))[2];
-			rgba[3] = ((float*)(pixels+ofs))[3];
-			break;
-	}
-	return true;
+	return textureInMemory->getPixel(x,y,z,rgba);
 }
 
 bool TextureGL::renderingToBegin(unsigned side)
@@ -220,8 +181,9 @@ void TextureGL::renderingToEnd()
 
 TextureGL::~TextureGL()
 {
+	delete textureInMemory;
+
 	glDeleteTextures(1, &id);
-	delete[] pixels;
 
 	numPotentialFBOUsers--;
 	if(!numPotentialFBOUsers)
@@ -238,6 +200,18 @@ TextureGL::~TextureGL()
 Texture* Texture::create(unsigned char *data, int width, int height, bool cube, Format format, int mag,int min,int wrapS,int wrapT)
 {
 	return new TextureGL(data,width,height,cube,format,mag,min,wrapS,wrapT);
+}
+
+Texture* Texture::load(const char *filename,const char* cubeSideName[6],bool flipV,bool flipH,int mag,int min,int wrapS,int wrapT)
+{
+	TextureGL* texture = new TextureGL(NULL,1,1,cubeSideName?true:false,Texture::TF_RGBA,mag,min,wrapS,wrapT);
+	bool loaded = texture->reload(filename,cubeSideName,flipV,flipH);
+	if(!loaded)
+	{
+		SAFE_DELETE(texture);
+		printf("Failed to load %s.\n",filename);
+	}
+	return texture;
 }
 
 }; // namespace

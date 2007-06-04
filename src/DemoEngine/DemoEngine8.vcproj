@@ -453,15 +453,11 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Texture.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\Lightsprint\DemoEngine\Texture.h"
-			>
-		</File>
-		<File
-			RelativePath=".\TextureFromDisk.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\TextureFromDisk.h"
 			>
 		</File>
 		<File
@@ -470,6 +466,14 @@
 		</File>
 		<File
 			RelativePath=".\TextureGL.h"
+			>
+		</File>
+		<File
+			RelativePath=".\TextureInMemory.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\TextureInMemory.h"
 			>
 		</File>
 		<File
