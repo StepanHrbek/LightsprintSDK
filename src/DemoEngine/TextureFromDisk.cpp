@@ -4,16 +4,12 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2005-2007
 // --------------------------------------------------------------------------
 
-#define USE_FREEIMAGE // comment out to remove dependency on FreeImage (only .tga will be supported)
-
 #include <cstdio>
 #include <cstring>
 #include <GL/glew.h>
 #include "TextureFromDisk.h"
-#ifdef USE_FREEIMAGE
 #include "FreeImage.h"
 #pragma comment(lib,"FreeImage.lib")
-#endif
 
 namespace de
 {
@@ -77,11 +73,7 @@ TextureFromDisk::TextureFromDisk(
 
 	cubeOr2d = GL_TEXTURE_2D;
 
-#ifdef USE_FREEIMAGE
 	pixels = loadFreeImage(filename,false,flipV,flipH,width,height,format);
-#else
-	pixels = loadData(filename,width,height,format);
-#endif
 	if(!pixels) throw xFileNotFound();
 
 	TextureGL::reset(width,height,format,pixels,true);
@@ -101,7 +93,6 @@ TextureFromDisk::TextureFromDisk(
 
 	cubeOr2d = GL_TEXTURE_CUBE_MAP;
 
-#ifdef USE_FREEIMAGE
 	bool sixFiles = filenameMask && strstr(filenameMask,"%s");
 	if(!sixFiles)
 	{
@@ -118,7 +109,6 @@ TextureFromDisk::TextureFromDisk(
 		}
 	}
 	else
-#endif
 	{
 		// LOAD PIXELS FROM SIX FILES
 		unsigned char* sides[6] = {NULL,NULL,NULL,NULL,NULL,NULL};
@@ -131,11 +121,7 @@ TextureFromDisk::TextureFromDisk(
 			unsigned tmpWidth, tmpHeight;
 			Format tmpFormat;
 
-#ifdef USE_FREEIMAGE
 			sides[side] = loadFreeImage(buf,true,flipV,flipH,tmpWidth,tmpHeight,tmpFormat);
-#else
-			sides[side] = loadData(buf,tmpWidth,tmpHeight,tmpChannels);
-#endif
 			if(!sides[side]) throw xFileNotFound();
 
 			if(!side)
@@ -173,8 +159,6 @@ TextureFromDisk::TextureFromDisk(
 /////////////////////////////////////////////////////////////////////////////
 //
 // FreeImage
-
-#ifdef USE_FREEIMAGE
 
 unsigned char *TextureFromDisk::loadFreeImage(const char *filename,bool cube,bool flipV,bool flipH,unsigned& width,unsigned& height,Format& format)
 {
@@ -347,188 +331,6 @@ bool Texture::saveBackbuffer(const char* filename)
 	BackbufferSaver backbuffer;
 	return backbuffer.save(filename,NULL);
 }
-
-#else // !USE_FREEIMAGE
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// TGA
-
-unsigned char *TextureFromDisk::loadData(const char *filename,unsigned& width,unsigned& height,unsigned& channels)
-{
-	// opens tga instead of jpg
-	char name[1000];
-	strncpy(name,filename,999);
-	size_t len = strlen(name);
-	if(len>3) strcpy(name+len-3,"tga");
-
-	unsigned char *data;
-	try
-	{
-		data = loadTga(name,width,height,channels);
-	}      
-	catch(xNotSuchFormat e)
-	{
-		throw xNotASupportedFormat();
-		e=e;
-	}
-	return data;
-}
-
-unsigned char *TextureFromDisk::loadTga(const char *filename,unsigned& width,unsigned& height,unsigned& channels)
-{
-	unsigned char TGA_RGB = 2, TGA_A = 3, TGA_RLE = 10;
-
-	unsigned char *data;
-	unsigned char length = 0;
-	unsigned char imageType = 0;
-	unsigned char bits = 0;
-	FILE *pFile = fopen(filename, "rb");
-	unsigned stride = 0;
-	unsigned i = 0;
-	unsigned short tmp;
-
-	width = 0;
-	height = 0;
-	channels = 0;
-
-	if(!pFile) throw xFileNotFound();
-
-	fread(&length, sizeof(unsigned char), 1, pFile);
-	fseek(pFile,1,SEEK_CUR); 
-	fread(&imageType, sizeof(unsigned char), 1, pFile);
-	fseek(pFile, 9, SEEK_CUR); 
-
-	fread(&tmp, 2, 1, pFile); width = tmp;
-	fread(&tmp, 2, 1, pFile); height = tmp;
-	fread(&bits, 1, 1, pFile);
-
-	fseek(pFile, length + 1, SEEK_CUR); 
-
-	if(imageType != TGA_RGB && imageType != TGA_A && imageType != TGA_RLE)
-	{
-		fclose(pFile);
-		throw xNotSuchFormat();
-	}
-
-	if(imageType != TGA_RLE)
-	{
-		if(bits == 24 || bits == 32)
-		{
-			channels = bits / 8;
-			stride = channels * width;
-			data = new unsigned char[stride * height];
-			for(unsigned y = 0; y < height; y++)
-			{
-				unsigned char *pLine = &(data[stride * y]);
-				fread(pLine, stride, 1, pFile);
-				for(i = 0; i < stride; i += channels)
-				{
-					int temp = pLine[i];
-					pLine[i] = pLine[i + 2];
-					pLine[i + 2] = temp;
-				}
-			}
-		}
-		else if(bits == 16)
-		{
-			unsigned short pixels = 0;
-			int r=0, g=0, b=0;
-			channels = 3;
-			stride = channels * width;
-			data = new unsigned char[stride * height];
-			for(unsigned i = 0; i < width*height; i++)
-			{
-				fread(&pixels, sizeof(unsigned short), 1, pFile);
-				b = (pixels & 0x1f) << 3;
-				g = ((pixels >> 5) & 0x1f) << 3;
-				r = ((pixels >> 10) & 0x1f) << 3;
-
-				data[i * 3 + 0] = r;
-				data[i * 3 + 1] = g;
-				data[i * 3 + 2] = b;
-			}
-		}	
-		else
-		{
-			fclose(pFile);
-			throw xNotSuchFormat();
-		}
-	}
-	else
-	{
-		unsigned char rleID = 0;
-		int colorsRead = 0;
-		channels = bits / 8;
-		stride = channels * width;
-
-		data = new unsigned char[stride * height];
-		unsigned char *pColors = new unsigned char[channels];
-
-		while(i < width*height)
-		{
-			fread(&rleID, sizeof(unsigned char), 1, pFile);
-			if(rleID < 128)
-			{
-				rleID++;
-				while(rleID)
-				{
-					fread(pColors, sizeof(unsigned char) * channels, 1, pFile);
-
-					data[colorsRead + 0] = pColors[2];
-					data[colorsRead + 1] = pColors[1];
-					data[colorsRead + 2] = pColors[0];
-
-					if(bits == 32)
-						data[colorsRead + 3] = pColors[3];
-
-					i++;
-					rleID--;
-					colorsRead += channels;
-				}
-			}
-			else
-			{
-				rleID -= 127;
-				fread(pColors, sizeof(unsigned char) * channels, 1, pFile);
-				while(rleID)
-				{
-					data[colorsRead + 0] = pColors[2];
-					data[colorsRead + 1] = pColors[1];
-					data[colorsRead + 2] = pColors[0];
-
-					if(bits == 32)
-						data[colorsRead + 3] = pColors[3];
-
-					i++;
-					rleID--;
-					colorsRead += channels;
-				}
-
-			}
-		}
-	}
-
-	fclose(pFile);
-
-	unsigned char temp;
-	for(unsigned i = 0; i < height / 2; i++)
-		for(unsigned j = 0; j < width*channels; j++)
-		{
-			temp = data[i * width*channels + j];
-			data[i*width*channels + j] = data[(height-1-i)*width*channels + j];
-			data[(height-1-i) * width*channels + j] = temp;
-		}
-
-	return data;
-}
-
-bool TextureGL::save(const char *filename)
-{
-	return false;
-}
-
-#endif
 
 
 /////////////////////////////////////////////////////////////////////////////
