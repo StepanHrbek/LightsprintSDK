@@ -10,10 +10,10 @@ unsigned INSTANCES_PER_PASS;
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED
 //#define THREE_ONE
-//#define CFG_FILE "LightsprintDemo.cfg"
+#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "Candella.cfg"
-#define CFG_FILE "test.cfg"
+//#define CFG_FILE "test.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
@@ -680,7 +680,7 @@ void updateThumbnail(AnimationFrame& frame)
 	}
 	// render into thumbnail
 	if(!frame.thumbnail)
-		frame.thumbnail = de::Texture::create(NULL,160,120,false,de::Texture::TF_RGB);
+		frame.thumbnail = de::Texture::create(NULL,160,120,false,de::Texture::TF_RGB,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
 	glViewport(0,0,160,120);
 	//frame.thumbnail->renderingToBegin();
 	drawEyeViewSoftShadowed();
@@ -2210,7 +2210,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = 0;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = 1;
 #endif
-	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram);
+	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram,argc,argv);
 #if SUPPORT_LIGHTMAPS
 	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;

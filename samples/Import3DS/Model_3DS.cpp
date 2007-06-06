@@ -265,7 +265,7 @@ bool Model_3DS::Load(const char *filename, float ascale)
 			rgb[1] = Materials[j].color.g;
 			rgb[2] = Materials[j].color.b;
 			rgb[3] = Materials[j].color.a;
-			Materials[j].tex = de::Texture::create(rgb,1,1,false,de::Texture::TF_RGBA);
+			Materials[j].tex = de::Texture::create(rgb,1,1,false,de::Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 			Materials[j].textured = true;
 		}
 	}
@@ -889,7 +889,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 	// Load the name and indicate that the material has a texture
 	char fullname[580];
 	sprintf(fullname, "%s%s", path, name);
-	Materials[matindex].tex = de::Texture::load(fullname,NULL);
+	Materials[matindex].tex = de::Texture::load(fullname,NULL,false,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
 	Materials[matindex].textured = Materials[matindex].tex!=NULL;
 	if(!Materials[matindex].textured)
 		printf("Texture %s not found.\n",fullname);

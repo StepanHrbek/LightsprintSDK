@@ -181,7 +181,10 @@ int Program::getLoc(const char *name)
 	int loc = glGetUniformLocation(handle, name);
 	if(loc == -1)
 	{
-		printf("%s is not a valid uniform variable name.\n",name);
+		printf("\n%s is not a valid uniform variable name.\n",name);
+		printf("This is usually caused by error in graphics card driver.\n");
+		printf("Make sure you have the latest official driver for your graphics card.\n");
+		printf("As a workaround, run application with -hard parameter on command line.\n");
 		fgetc(stdin);
 		exit(0);
 	}

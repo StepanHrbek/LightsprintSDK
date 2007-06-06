@@ -115,7 +115,7 @@ static void fillMaterial(rr::RRMaterial& s, de::Texture*& t, TTexture* m,const c
 		char buf[300];
 		_snprintf(buf,299,"%s%s%s",pathToTextures,m->mName,exts[e]);
 		buf[299]=0;
-		t = de::Texture::load(buf,NULL,true,false);
+		t = de::Texture::load(buf,NULL,true,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
 		//if(t) {puts(buf);break;}
 		if(t) break;
 		//if(e==2) printf("Not found: %s\n",buf);

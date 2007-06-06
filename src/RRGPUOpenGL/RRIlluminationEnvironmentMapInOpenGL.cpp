@@ -48,7 +48,7 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const
 }
 
 
-void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, rr::RRColorRGBF* irradiance)
+void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, const rr::RRColorRGBF* irradiance)
 {
 	EnterCriticalSection(&criticalSection);
 	texture->reset(size,size,de::Texture::TF_RGBF,(unsigned char*)irradiance,false);

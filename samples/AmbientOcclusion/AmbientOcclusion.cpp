@@ -346,12 +346,12 @@ void idle()
 //
 // main
 
-void calculatePerVertexAndSelectedPerPixel(unsigned layerNumber, rr_gl::RRDynamicSolverGL* solver)
+void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
 {
 	// calculate per vertex - all objects
 	// it is faster and quality is good for some objects
 	rr::RRDynamicSolver::UpdateParameters paramsDirect;
-	paramsDirect.measure.scaled = false;
+	paramsDirect.measure.scaled = false; // get vertex colors in HDR
 	paramsDirect.quality = 5000;
 	paramsDirect.applyCurrentSolution = false;
 	paramsDirect.applyEnvironment = true;
@@ -363,7 +363,7 @@ void calculatePerVertexAndSelectedPerPixel(unsigned layerNumber, rr_gl::RRDynami
 	// calculate per pixel - selected objects
 	// it is slower, but some objects need it
 	rr::RRDynamicSolver::UpdateParameters paramsDirectPixel;
-	paramsDirectPixel.measure.scaled = true;
+	paramsDirectPixel.measure.scaled = true; // get maps in sRGB
 	paramsDirectPixel.quality = 2000;
 	paramsDirectPixel.applyEnvironment = true;
 	unsigned objectNumbers[] = {3};
@@ -378,7 +378,7 @@ void calculatePerVertexAndSelectedPerPixel(unsigned layerNumber, rr_gl::RRDynami
 	}
 }
 
-void calculatePerPixel(unsigned layerNumber)
+void calculatePerPixel(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
 {
 	// calculate per pixel - all objects
 	rr::RRDynamicSolver::UpdateParameters paramsDirect;
@@ -392,7 +392,7 @@ void calculatePerPixel(unsigned layerNumber)
 	solver->updateLightmaps(layerNumber,true,&paramsDirect,&paramsIndirect); 
 }
 
-void saveAmbientOcclusionToDisk(unsigned layerNumber)
+void saveAmbientOcclusionToDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
 {
 	for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
 	{
@@ -428,7 +428,7 @@ void saveAmbientOcclusionToDisk(unsigned layerNumber)
 	}
 }
 
-void loadAmbientOcclusionFromDisk(unsigned layerNumber)
+void loadAmbientOcclusionFromDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
 {
 	for(unsigned objectIndex=0;objectIndex<solver->getNumObjects();objectIndex++)
 	{
@@ -494,7 +494,7 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST);
 
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	de::Texture* environmentMap = de::Texture::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true);
+	de::Texture* environmentMap = de::Texture::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 
 	// init scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
@@ -545,11 +545,11 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// calculate and save it
-	calculatePerVertexAndSelectedPerPixel(0,solver); // calculatePerPixel(0);
-	saveAmbientOcclusionToDisk(0);
+	calculatePerVertexAndSelectedPerPixel(solver,0); // calculatePerPixel(solver,0);
+	saveAmbientOcclusionToDisk(solver,0);
 
 	// or load it
-	//loadAmbientOcclusionFromDisk(0);
+	//loadAmbientOcclusionFromDisk(solver,0);
 
 	time_t newseconds = time(NULL) - seconds;
 	printf( "time taken %d seconds \n", newseconds );

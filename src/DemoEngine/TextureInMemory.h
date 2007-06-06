@@ -16,13 +16,13 @@ namespace de
 //
 // TextureInMemory
 
-class TextureInMemory : public Texture
+class DE_API TextureInMemory : public Texture
 {
 public:
-	TextureInMemory(unsigned char *data, int width, int height, bool cube, Format format, bool buildMipmaps);
+	TextureInMemory(const unsigned char *data, int width, int height, bool cube, Format format);
 
 	// for load
-	virtual bool reset(unsigned width, unsigned height, Format format, unsigned char* data, bool buildMipmaps);
+	virtual bool reset(unsigned width, unsigned height, Format format, const unsigned char* data, bool buildMipmaps);
 
 	// for save
 	virtual const unsigned char* lock();
@@ -31,7 +31,7 @@ public:
 	virtual unsigned getWidth() const {return width;}
 	virtual unsigned getHeight() const {return height;}
 	virtual Format getFormat() const {return format;}
-	virtual bool isCube() const {return cubeOr2d==GL_TEXTURE_CUBE_MAP;}
+	virtual bool isCube() const {return cube;}
 	virtual bool getPixel(float x, float y, float z, float rgba[4]) const;
 
 	virtual void bindTexture() const;
@@ -42,15 +42,12 @@ public:
 	virtual ~TextureInMemory();
 
 protected:
-
 	unsigned width;
 	unsigned height;
 	Format   format;
+	bool     cube;
 	unsigned char* pixels;
-
-	unsigned bytesPerPixel; // 3, 4, 12, 16
 	unsigned bytesTotal;
-	unsigned cubeOr2d; // GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP
 };
 
 }; // namespace

@@ -84,12 +84,12 @@ namespace rr
 			z = a.z;
 			w = 0;
 		}
-		RRColorRGBAF(const RRVec4& a)
+		RRColorRGBAF(const RRVec3p& a)
 		{
 			x = a.x;
 			y = a.y;
 			z = a.z;
-			this->w = a.w;
+			w = a.w;
 		}
 		RRColorRGBF toRRColorRGBF() const
 		{
@@ -205,7 +205,7 @@ namespace rr
 
 		// Vertex buffer use
 
-		//! Locks the buffer for seeing array of all vertices at once. Optional, may return NULL.
+		//! Locks the buffer for accessing array of all vertices at once. Optional, may return NULL.
 		virtual const RRColorRGBF* lock() {return NULL;};
 		//! Unlocks previously locked buffer.
 		virtual void unlock() {};
@@ -335,7 +335,26 @@ namespace rr
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
+		//! Creates and returns pixel buffer for illumination storage in system memory.
+		//
+		//! Doesn't depend on any 3D API, operates in system memory only,
+		//! so bindTexture() doesn't bind it for any 3D API.
+		//! \param width Width of pixel buffer/texture.
+		//! \param height Height of pixel buffer/texture.
+		static RRIlluminationPixelBuffer* create(unsigned width, unsigned height);
+
+		//! Loads pixel buffer stored on disk as 2d image.
+		//
+		//! Doesn't depend on any 3D API, operates in system memory only,
+		//! so bindTexture() doesn't bind it for any 3D API.
+		//! \param filename
+		//!  Filename of image to be loaded from disk.
+		//!  Supported file formats include jpg, png, dds, hdr, gif, tga.
+		//!  Example: "/maps/ambientmap.png"
+		static RRIlluminationPixelBuffer* load(const char* filename);
+
 		//! Saves pixel buffer to disk.
+		//
 		//! Not mandatory, thin implementations may completely skip saving and always return false.
 		//! \param filename
 		//!  Filename of image to be created on disk.
@@ -343,7 +362,7 @@ namespace rr
 		//!  Example: "/maps/ambientmap.png"
 		//! \return
 		//!  True on successful save of pixel buffer.
-		virtual bool save(const char* filename) {return false;}
+		virtual bool save(const char* filename) = 0;
 	};
 
 
@@ -373,7 +392,7 @@ namespace rr
 		//!  \n size*size values for NEGATIVE_Y side,
 		//!  \n size*size values for POSITIVE_Z side,
 		//!  \n size*size values for NEGATIVE_Z side.
-		virtual void setValues(unsigned size, RRColorRGBF* irradiance) = 0;
+		virtual void setValues(unsigned size, const RRColorRGBF* irradiance) = 0;
 
 		// Environment map use
 
@@ -392,7 +411,21 @@ namespace rr
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
+		//! Creates empty environment map in system memory.
+		//
+		//! Created instance is 3D API independent, so also bindTexture() doesn't bind
+		//! it for any 3D API.
+		static RRIlluminationEnvironmentMap* create(unsigned width);
+
+		//! Loads environment map from disk to system memory.
+		//
+		//! Created instance is 3D API independent, so also bindTexture() doesn't bind
+		//! it for any 3D API.
+		static RRIlluminationEnvironmentMap* load(const char *filename, const char* cubeSideName[6],
+			bool flipV = false, bool flipH = false);
+
 		//! Saves environment map to disk.
+		//
 		//! Not mandatory, thin implementations may completely skip saving and always return false.
 		//! \param filenameMask
 		//!  Filename mask of images to be created on disk.

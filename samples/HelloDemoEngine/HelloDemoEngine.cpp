@@ -337,7 +337,7 @@ int main(int argc, char **argv)
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	unsigned shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram);
+	unsigned shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
@@ -346,7 +346,7 @@ int main(int argc, char **argv)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true);
+	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

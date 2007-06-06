@@ -4,6 +4,7 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2006-2007
 // --------------------------------------------------------------------------
 
+#include <cassert>
 #include <cstdio>
 #include <cstring>
 #include "Lightsprint/DemoEngine/Texture.h"
@@ -259,19 +260,62 @@ bool Texture::reload(const char *filename,const char* cubeSideName[6],bool flipV
 
 bool Texture::save(const char *filename, const char* cubeSideName[6])
 {
-	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	BOOL bSuccess = FALSE;
+
+	// preliminary, may change due to cubeSideName replacement
+	FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename);
 
 	// default cube side names
 	const char* cubeSideNameBackup[6] = {"0","1","2","3","4","5"};
 	if(!cubeSideName)
 		cubeSideName = cubeSideNameBackup;
 
-	unsigned bytesPerPixel = getBytesPerPixel(getFormat());
 	const unsigned char* rawData = lock();
 	if(rawData)
 	{
-		FIBITMAP* dib = FreeImage_Allocate(getWidth(),getHeight(),bytesPerPixel*8);
+		// get src format
+		unsigned srcbypp = getBytesPerPixel(getFormat());
+		unsigned srcbipp = 8*srcbypp;
+		FREE_IMAGE_TYPE fit;
+		switch(getFormat())
+		{
+			case TF_RGB: fit = FIT_BITMAP; break;
+			case TF_RGBA: fit = FIT_BITMAP; break;
+			case TF_RGBF: fit = FIT_RGBF; break;
+			case TF_RGBAF: fit = FIT_RGBAF; break;
+			default: assert(0); goto ende;
+		}
+
+		// select dst format
+		unsigned dstbipp = srcbipp;
+		if(!FreeImage_FIFSupportsExportBPP(fif, dstbipp))
+		{
+			if(dstbipp>96 && FreeImage_FIFSupportsExportBPP(fif,96))
+			{
+				fit = FIT_RGBF;
+				dstbipp = 96;
+			}
+			else
+			if(dstbipp>32 && FreeImage_FIFSupportsExportBPP(fif,32))
+			{
+				fit = FIT_BITMAP;
+				dstbipp = 32;
+			}
+			else
+			if(dstbipp>24 && FreeImage_FIFSupportsExportBPP(fif,24))
+			{
+				fit = FIT_BITMAP;
+				dstbipp = 24;
+			}
+			else
+			{
+				assert(0); // invalid filename or format not supported or write not supported
+				goto ende;
+			}
+		}
+		unsigned dstbypp = (dstbipp+7)/8;
+
+		FIBITMAP* dib = FreeImage_AllocateT(fit,getWidth(),getHeight(),dstbipp);
 		if(dib)
 		{
 			BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
@@ -285,42 +329,101 @@ bool Texture::save(const char *filename, const char* cubeSideName[6])
 						// every one image must succeed
 						bSuccess = false;
 						// fill it with texture data
-						memcpy(fipixels,rawData+side*getWidth()*getHeight()*bytesPerPixel,getWidth()*getHeight()*bytesPerPixel);
-						// try to guess the file format from the file extension
-						fif = FreeImage_GetFIFFromFilename(filename);
-						if(fif!=FIF_UNKNOWN && FreeImage_FIFSupportsWriting(fif))
+						if(dstbypp==srcbypp)
 						{
-							// generate single side filename
-							char filenameCube[1000];
-							_snprintf(filenameCube,999,filename,cubeSideName[side]);
-							filenameCube[999] = 0;
-							// write native number of bits
-							WORD bpp = FreeImage_GetBPP(dib);
-							if(FreeImage_FIFSupportsExportBPP(fif, bpp))
+							// use native format
+							memcpy(fipixels,rawData+side*getWidth()*getHeight()*dstbypp,getWidth()*getHeight()*dstbypp);
+						}
+						else
+						{
+							// convert format
+							// FreeImage doesn't support all necessary conversions
+							unsigned char* src = (unsigned char*)(rawData+side*getWidth()*getHeight()*srcbypp);
+							unsigned char* dst = (unsigned char*)fipixels;
+							unsigned numPixels = getWidth()*getHeight();
+							bool swaprb = (srcbipp>32) != (dstbipp>32);
+							for(unsigned i=0;i<numPixels;i++)
 							{
-								// ok, we can save the file
-								bSuccess = FreeImage_Save(fif, dib, filenameCube);
-								// if any one of 6 images fails, don't try other and report fail
-								if(!bSuccess) break;
-							}
-							else
-							if(FreeImage_FIFSupportsExportBPP(fif, 24))
-							{
-								// can't write native bits, try 24bit (e.g. jpg can't write 32bit but can 24bit)
-								FIBITMAP* dib24 = FreeImage_ConvertTo24Bits(dib);
-								// ok, we can save the file
-								bSuccess = FreeImage_Save(fif, dib24, filenameCube);
-								// cleanup
-								FreeImage_Unload(dib24);
-								// if any one of 6 images fails, don't try other and report fail
-								if(!bSuccess) break;
+								// read src pixel
+								float pixel[4];
+								switch(srcbipp)
+								{
+									case 128:
+										pixel[0] = ((float*)src)[0];
+										pixel[1] = ((float*)src)[1];
+										pixel[2] = ((float*)src)[2];
+										pixel[3] = ((float*)src)[3];
+										break;
+									case 96:
+										pixel[0] = ((float*)src)[0];
+										pixel[1] = ((float*)src)[1];
+										pixel[2] = ((float*)src)[2];
+										break;
+									case 32:
+										pixel[0] = src[0]*0.00390625f;
+										pixel[1] = src[1]*0.00390625f;
+										pixel[2] = src[2]*0.00390625f;
+										pixel[3] = src[3]*0.00390625f;
+										break;
+									case 24:
+										pixel[0] = src[0]*0.00390625f;
+										pixel[1] = src[1]*0.00390625f;
+										pixel[2] = src[2]*0.00390625f;
+										break;
+								}
+								src += srcbypp;
+								// swap r<->b
+								if(swaprb)
+								{
+									float tmp = pixel[0];
+									pixel[0] = pixel[2];
+									pixel[2] = tmp;
+								}
+								// write dst pixel
+								switch(dstbipp)
+								{
+									case 128:
+										((float*)dst)[0] = pixel[0];
+										((float*)dst)[1] = pixel[1];
+										((float*)dst)[2] = pixel[2];
+										((float*)dst)[3] = pixel[3];
+										break;
+									case 96:
+										((float*)dst)[0] = pixel[0];
+										((float*)dst)[1] = pixel[1];
+										((float*)dst)[2] = pixel[2];
+										break;
+									case 32:
+										dst[0] = (unsigned char)CLAMPED(pixel[0]*256,0,255);
+										dst[1] = (unsigned char)CLAMPED(pixel[1]*256,0,255);
+										dst[2] = (unsigned char)CLAMPED(pixel[2]*256,0,255);
+										dst[3] = (unsigned char)CLAMPED(pixel[3]*256,0,255);
+										break;
+									case 24:
+										dst[0] = (unsigned char)CLAMPED(pixel[0]*256,0,255);
+										dst[1] = (unsigned char)CLAMPED(pixel[1]*256,0,255);
+										dst[2] = (unsigned char)CLAMPED(pixel[2]*256,0,255);
+										break;
+								}
+								dst += dstbypp;
 							}
 						}
+
+						// generate single side filename
+						char filenameCube[1000];
+						_snprintf(filenameCube,999,filename,cubeSideName[side]);
+						filenameCube[999] = 0;
+
+						// save single side
+						bSuccess = FreeImage_Save(fif, dib, filenameCube);
+						// if any one of 6 images fails, don't try other and report fail
+						if(!bSuccess) break;
 					}
 				}
 			}
 			FreeImage_Unload(dib);
 		}
+ende:
 		unlock();
 	}
 

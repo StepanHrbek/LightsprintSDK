@@ -544,7 +544,7 @@ int main(int argc, char **argv)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram);
+	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures

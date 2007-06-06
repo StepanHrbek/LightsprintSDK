@@ -1813,8 +1813,14 @@ Advanced:
  <hr>
  <b>Lightmaps</b>
  - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
- - has realtime global illumination preview
+ - has realtime global illumination preview for one light
  - uses internal renderer
+ - loads Collada scene
+
+ <hr>
+ <b>CPULightmaps</b>
+ - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
+ - no rendering, only CPU is used, runs on GPU-less machines
  - loads Collada scene
 
  <hr>

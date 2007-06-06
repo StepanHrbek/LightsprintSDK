@@ -150,7 +150,6 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 	}
 
 	renderedTexels[uv[0]+uv[1]*texture->getWidth()] += color;
-	renderedTexels[uv[0]+uv[1]*texture->getWidth()][3] += color[3]; //missing vec4 operators
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)

@@ -26,6 +26,8 @@
 
 #if 1 // 0 disables Collada support, 1 enables
 
+#define OPENGL // adapt more information for OpenGL rendering, you may disable it in CPULightmaps sample
+
 #include <cassert>
 #include <cmath>
 #include <map>
@@ -54,7 +56,9 @@
 
 #include "RRObjectCollada.h"
 #include "Lightsprint/DemoEngine/Texture.h"
+#ifdef OPENGL
 #include "Lightsprint/GL/RendererOfRRObject.h"
+#endif
 
 #ifdef _DEBUG
 	#ifdef RR_STATIC
@@ -101,8 +105,10 @@ public:
 	RRMeshCollada(const FCDGeometryMesh* _mesh, int _lightmapUvChannel);
 
 	// RRChanneledData
+#ifdef OPENGL
 	virtual void         getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
 	virtual bool         getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
+#endif
 
 	// RRMesh
 	virtual unsigned     getNumVertices() const;
@@ -185,6 +191,7 @@ bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Se
 	return false;
 }
 
+#ifdef OPENGL
 void RRMeshCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 {
 	switch(channelId)
@@ -217,7 +224,7 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 			return RRMesh::getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 }
-
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -299,8 +306,10 @@ public:
 	virtual ~RRObjectCollada();
 
 	// RRChanneledData
+#ifdef OPENGL
 	virtual void               getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const;
 	virtual bool               getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const;
+#endif
 
 	// RRObject
 	virtual const RRCollider*  getCollider() const;
@@ -378,6 +387,7 @@ RRObjectCollada::RRObjectCollada(const FCDSceneNode* anode, const FCDGeometryIns
 	updateMaterials();
 }
 
+#ifdef OPENGL
 void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 {
 	switch(channelId)
@@ -444,6 +454,7 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 			return RRObject::getChannelData(channelId,itemIndex,itemData,itemSize);
 	}
 }
+#endif
 
 const RRCollider* RRObjectCollada::getCollider() const
 {
@@ -555,7 +566,11 @@ void RRObjectCollada::updateMaterials()
 						if(diffuseImage)
 						{
 							const fstring& filename = diffuseImage->GetFilename();
-							mi.diffuseTexture = de::Texture::load(&filename[0],NULL);
+#ifdef OPENGL
+							mi.diffuseTexture = de::Texture::load(&filename[0],NULL,false,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
+#else
+							mi.diffuseTexture = de::Texture::loadM(&filename[0],NULL,false,false);
+#endif
 							if(mi.diffuseTexture)
 							{
 								// compute average diffuse texture color
@@ -577,14 +592,16 @@ void RRObjectCollada::updateMaterials()
 						}
 					}
 				}
+#ifdef OPENGL
 				if(!mi.diffuseTexture)
 				{
 					// add 1x1 diffuse texture
 					// required only by Lightsprint demos with 1 shader per static scene, requiring that all objects are textured.
 					// not necessary for other renderers
-					mi.diffuseTexture = de::Texture::create(NULL,1,1,false,de::Texture::TF_RGB);
+					mi.diffuseTexture = de::Texture::create(NULL,1,1,false,de::Texture::TF_RGB,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
 					mi.diffuseTexture->reset(1,1,de::Texture::TF_RGBF,(unsigned char*)&mi.material.diffuseReflectance,false);
 				}
+#endif
 #ifdef VERIFY
 				if(mi.material.validate())
 					RRReporter::report(RRReporter::WARN,"RRObjectCollada: Material adjusted to physically valid.\n");

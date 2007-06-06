@@ -39,6 +39,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 	// RRReal - real number
 	// RRVec2 - vector in 2d
 	// RRVec3 - vector in 3d
+	// RRVec3p - vector in 3d with unused 4th element
 	// RRVec4 - vector in 4d
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -112,17 +113,27 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec3   normalized()                 const {return *this/length();}
 	};
 
-	//! Vector of 3 real numbers plus 4th number as a padding.
-	struct RRVec4 : public RRVec3
+	//! Vector of 3 real numbers plus 4th number as a padding. Operators use only 3 components.
+	struct RRVec3p : public RRVec3
 	{
 		RRReal    w;
 
+		RRVec3p()                                        {}
+		explicit RRVec3p(RRReal a)                       {x=y=z=w=a;}
+		RRVec3p(const RRVec3& a,RRReal aw)               {x=a.x;y=a.y;z=a.z;w=aw;}
+		RRVec3p(RRReal ax,RRReal ay,RRReal az,RRReal aw) {x=ax;y=ay;z=az;w=aw;}
+		void   operator =(const RRVec3 a)                {x=a.x;y=a.y;z=a.z;}
+	};
+
+	//! Vector of 4 real numbers. Operators use all 4 components.
+	struct RRVec4 : public RRVec3p
+	{
 		RRVec4()                                    {}
 		explicit RRVec4(RRReal a)                   {x=y=z=w=a;}
 		RRVec4(const RRVec3& a,RRReal aw)           {x=a.x;y=a.y;z=a.z;w=aw;}
 		RRVec4(RRReal ax,RRReal ay,RRReal az,RRReal aw) {x=ax;y=ay;z=az;w=aw;}
 		void   operator =(const RRVec3 a)           {x=a.x;y=a.y;z=a.z;}
-		/*
+
 		RRVec4 operator + (const RRVec4& a)   const {return RRVec4(x+a.x,y+a.y,z+a.z,w+a.w);}
 		RRVec4 operator - (const RRVec4& a)   const {return RRVec4(x-a.x,y-a.y,z-a.z,w-a.w);}
 		RRVec4 operator * (RRReal f)          const {return RRVec4(x*f,y*f,z*f,w*f);}
@@ -146,7 +157,6 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal   length2()                    const {return x*x+y*y+z*z+w*w;}
 		void     normalize()                        {*this /= length();}
 		RRVec4   normalized()                 const {return *this/length();}
-		*/
 	};
 
 } // namespace

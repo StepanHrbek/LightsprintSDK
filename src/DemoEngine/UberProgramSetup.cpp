@@ -63,8 +63,12 @@ Program* UberProgramSetup::getProgram(UberProgram* uberProgram)
 	return uberProgram->getProgram(getSetupString());
 }
 
-unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram)
+unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int argc, char **argv)
 {
+	while(argc--)
+	{
+		if(strstr(argv[argc],"-hard")) return 1;
+	}
 	// try max 9 maps, we must fit all maps in ubershader to 16 (maximum allowed by ATI)
 #ifdef DESCEND
 	for(SHADOW_MAPS=9;SHADOW_MAPS;SHADOW_MAPS--)

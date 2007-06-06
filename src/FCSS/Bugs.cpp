@@ -1,6 +1,7 @@
 #include "Bugs.h"
 #include <cstdio> // printf
 #include <cstdlib> // rand
+#include <GL/glew.h>
 
 using namespace rr;
 

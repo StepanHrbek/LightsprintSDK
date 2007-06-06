@@ -7,11 +7,28 @@
 \page news What's new
 
 
+\section news20 ------------------------------------ 2007.6.xx -------------------------------------
+
+NEWS
+
+- sample CPULightmaps, GPU-less lightmap precalculator
+- RRIlluminationPixelBuffer::create() in system memory
+- RRIlluminationPixelBuffer::load() into system memory
+- RRIlluminationEnvironmentMap::create() in system memory
+- RRIlluminationEnvironmentMap::load() into system memory
+
+CHANGES
+
+- RRVec4 and RRColorRGBAF operators use all 4 components (was 3)
+- old RRVec4 becomes RRVec3p (operators use 3 components)
+- Texture create/load parameters magfilter, minfilter, wrapS, wrapT
+  are mandatory
+
 \section news19 ------------------------------------ 2007.5.31 -------------------------------------
 
 CHANGES
 
-- huge memory saves when subdivision is turned off, prevents quick out of memory
+- huge memory savings when subdivision is turned off, prevents quick out of memory
 - include/Lightsprint/RRGPUOpenGL.h
   include/Lightsprint/RRGPUOpenGL/LightmapViewer.h
   include/Lightsprint/RRGPUOpenGL/RendererOfRRObject.h

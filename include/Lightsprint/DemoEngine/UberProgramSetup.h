@@ -97,7 +97,8 @@ struct DE_API UberProgramSetup
 	//! Returns the highest number of shadowmaps,
 	//! that may be processed in one pass with this setup (material & lighting).
 	//! The same number is set to SHADOW_MAPS.
-	unsigned detectMaxShadowmaps(UberProgram* uberProgram);
+	//! \n\n If commandline contains -hard parameter, 1 is returned.
+	unsigned detectMaxShadowmaps(UberProgram* uberProgram, int argc = 0, char **argv = NULL);
 	//! Sets rendering pipeline so that following primitives are rendered using
 	//! our program.
 	Program* useProgram(UberProgram* uberProgram, const AreaLight* areaLight, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma);

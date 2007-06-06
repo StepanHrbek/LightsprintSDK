@@ -288,7 +288,6 @@ void DemoPlayer::getBoost(rr::RRVec4& frameBrightness,rr::RRReal& frameGamma) co
 			boostGamma *= (flashes[i].gamma-1)*fade+1; // goes through interval gamma..1
 		}
 	}
-	for(unsigned i=0;i<4;i++)
-		frameBrightness[i] *= boostBrightness;
+	frameBrightness *= boostBrightness;
 	frameGamma *= boostGamma;
 }

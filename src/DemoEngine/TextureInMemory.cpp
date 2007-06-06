@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <cstring>
 #include "TextureInMemory.h"
-#include "Lightsprint/RRDebug.h"
+//#include "Lightsprint/RRDebug.h"
 
 namespace de
 {
@@ -18,22 +18,21 @@ namespace de
 //
 // TextureInMemory
 
-TextureInMemory::TextureInMemory(unsigned char *adata, int awidth, int aheight, bool acube, Format aformat, bool buildMipmaps)
+TextureInMemory::TextureInMemory(const unsigned char *adata, int awidth, int aheight, bool acube, Format aformat)
 {
 	// never changes in life of texture
-	cubeOr2d = acube?GL_TEXTURE_CUBE_MAP:GL_TEXTURE_2D;
+	cube = acube;
 
 	// changes only in reset()
 	width = 0;
 	height = 0;
-	bytesPerPixel = 0;
 	pixels = NULL;
-	TextureInMemory::reset(awidth,aheight,aformat,adata,buildMipmaps);
+	TextureInMemory::reset(awidth,aheight,aformat,adata,false);
 }
 
-bool TextureInMemory::reset(unsigned awidth, unsigned aheight, Format aformat, unsigned char* adata, bool buildMipmaps)
+bool TextureInMemory::reset(unsigned awidth, unsigned aheight, Format aformat, const unsigned char* adata, bool buildMipmaps)
 {
-	bytesTotal = awidth*aheight*getBytesPerPixel(aformat)*((cubeOr2d==GL_TEXTURE_CUBE_MAP)?6:1);
+	bytesTotal = awidth*aheight*getBytesPerPixel(aformat)*(cube?6:1);
 
 	// copy data
 	if(!pixels || !adata || width!=awidth || height!=aheight || format!=aformat)
@@ -49,8 +48,7 @@ bool TextureInMemory::reset(unsigned awidth, unsigned aheight, Format aformat, u
 	width = awidth;
 	height = aheight;
 	format = aformat;
-	bytesPerPixel = getBytesPerPixel(format);
-
+	
 	return true;
 }
 
@@ -65,14 +63,14 @@ void TextureInMemory::unlock()
 
 void TextureInMemory::bindTexture() const
 {
-	LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"TextureInMemory::bindTexture() not supported."));
+	//LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"TextureInMemory::bindTexture() not supported."));
 }
 
 bool TextureInMemory::getPixel(float ax, float ay, float az, float rgba[4]) const
 {
 	if(!pixels) return false;
 	unsigned ofs;
-	if(cubeOr2d==GL_TEXTURE_2D)
+	if(!cube)
 	{
 		// 2d lookup
 		unsigned x = unsigned(ax * (width)) % width;
@@ -102,7 +100,7 @@ bool TextureInMemory::getPixel(float ax, float ay, float az, float rgba[4]) cons
 			return false;
 		}
 	}
-	ofs *= bytesPerPixel;
+	ofs *= getBytesPerPixel(format);
 	assert(ofs<bytesTotal);
 	switch(format)
 	{
@@ -136,18 +134,38 @@ bool TextureInMemory::getPixel(float ax, float ay, float az, float rgba[4]) cons
 
 bool TextureInMemory::renderingToBegin(unsigned side)
 {
-	LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"TextureInMemory::renderToBegin() not supported."));
+	//LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"TextureInMemory::renderToBegin() not supported."));
 	return false;
 }
 
 void TextureInMemory::renderingToEnd()
 {
-	LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"TextureInMemory::renderToEnd() not supported."));
+	//LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"TextureInMemory::renderToEnd() not supported."));
 }
 
 TextureInMemory::~TextureInMemory()
 {
 	delete[] pixels;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Texture
+
+Texture* Texture::createM(const unsigned char *data, int width, int height, bool cube, Format format)
+{
+	return new TextureInMemory(data,width,height,cube,format);
+}
+
+Texture* Texture::loadM(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH)
+{
+	Texture* texture = new TextureInMemory(NULL,1,1,cubeSideName!=NULL,Texture::TF_RGBA);
+	if(!texture->reload(filename,cubeSideName,flipV,flipH))
+	{
+		SAFE_DELETE(texture);
+	}
+	return texture;
 }
 
 }; // namespace

@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="windows-1250"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="HelloRealtimeRadiosity"
-	ProjectGUID="{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
+	Name="CPULightmaps"
+	ProjectGUID="{396A4522-9173-ABCD-23AA-91827364ABEE}"
 	>
 	<Platforms>
 		<Platform
@@ -38,7 +38,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/HelloRealtimeRadiosity.tlb"
+				TypeLibraryName=".\Release/CPULightmaps.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -57,7 +57,7 @@
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/HelloRealtimeRadiosity.pch"
+				PrecompiledHeaderFile=".\Release/CPULightmaps.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -79,7 +79,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName)_sr.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -139,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/HelloRealtimeRadiosity.tlb"
+				TypeLibraryName=".\Debug/CPULightmaps.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -151,7 +151,7 @@
 				RuntimeLibrary="1"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/HelloRealtimeRadiosity.pch"
+				PrecompiledHeaderFile=".\Debug/.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -174,7 +174,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName)_sd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -235,7 +235,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/HelloRealtimeRadiosity.tlb"
+				TypeLibraryName=".\Release/CPULightmaps.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -254,7 +254,7 @@
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/HelloRealtimeRadiosity.pch"
+				PrecompiledHeaderFile=".\Release/CPULightmaps.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -336,7 +336,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/HelloRealtimeRadiosity.tlb"
+				TypeLibraryName=".\Debug/CPULightmaps.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -348,7 +348,7 @@
 				RuntimeLibrary="3"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/HelloRealtimeRadiosity.pch"
+				PrecompiledHeaderFile=".\Debug/CPULightmaps.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -371,7 +371,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies="user32.lib "
 				OutputFile="$(OutDir)\$(ProjectName)_dd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -412,43 +412,19 @@
 	</References>
 	<Files>
 		<Filter
-			Name="3DS"
+			Name="Collada"
 			>
 			<File
-				RelativePath="..\Import3DS\Model_3DS.cpp"
+				RelativePath="..\ImportCollada\RRObjectCollada.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Import3DS\Model_3DS.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RendererOf3DS.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RRObject3DS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Import3DS\RRObject3DS.h"
+				RelativePath="..\ImportCollada\RRObjectCollada.h"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\DynamicObject.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\DynamicObject.h"
-			>
-		</File>
-		<File
-			RelativePath=".\HelloRealtimeRadiosity.cpp"
+			RelativePath=".\CPULightmaps.cpp"
 			>
 		</File>
 	</Files>

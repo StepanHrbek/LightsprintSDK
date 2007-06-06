@@ -27,7 +27,7 @@ public:
 	{
 		pixelBuffer->bindTexture();
 	}
-	virtual bool reset(unsigned width, unsigned height, Format format, unsigned char* data, bool buildMipmaps) {return 0;}
+	virtual bool reset(unsigned width, unsigned height, Format format, const unsigned char* data, bool buildMipmaps) {return 0;}
 	virtual const unsigned char* lock() {return NULL;}
 	virtual void unlock() {};
 

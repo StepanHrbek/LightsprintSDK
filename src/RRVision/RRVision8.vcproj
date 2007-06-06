@@ -49,7 +49,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC;DE_STATIC"
 				StringPooling="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
@@ -136,7 +136,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC;DE_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -463,7 +463,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RRIllumination\RRIlluminationEnvironmentMapInMemory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIllumination\RRIlluminationEnvironmentMapInMemory.h"
+				>
+			</File>
+			<File
 				RelativePath="RRIllumination\RRIlluminationPixelBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIllumination\RRIlluminationPixelBufferInMemory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIllumination\RRIlluminationPixelBufferInMemory.h"
 				>
 			</File>
 			<File
@@ -498,10 +514,6 @@
 		<Filter
 			Name="RRStaticSolver"
 			>
-			<File
-				RelativePath="RRStaticSolver\clusters.cpp"
-				>
-			</File>
 			<File
 				RelativePath="RRStaticSolver\clusters.h"
 				>

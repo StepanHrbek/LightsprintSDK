@@ -248,7 +248,7 @@ namespace rr
 		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
 		//! Plane in 3d space defined by its normal (in x,y,z) and w so that normal*point+w=0 for all points of plane.
-		typedef RRVec4 Plane;
+		typedef RRVec3p Plane;
 		//! Writes t-th triangle plane to out.
 		//
 		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.

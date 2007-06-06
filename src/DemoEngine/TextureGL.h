@@ -21,12 +21,12 @@ namespace de
 class TextureGL : public Texture
 {
 public:
-	TextureGL(unsigned char *data, int width, int height, bool cube, Format format,
+	TextureGL(const unsigned char *data, int width, int height, bool cube, Format format,
 		int magn=GL_LINEAR, int mini = GL_LINEAR,
 		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
 	// for load
-	virtual bool reset(unsigned width, unsigned height, Format format, unsigned char* data, bool buildMipmaps);
+	virtual bool reset(unsigned width, unsigned height, Format format, const unsigned char* data, bool buildMipmaps);
 
 	// for save
 	virtual const unsigned char* lock();

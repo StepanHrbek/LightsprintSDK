@@ -7,7 +7,6 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include <GL/glew.h>
 #include "DemoEngine.h"
 
 namespace de
@@ -56,7 +55,7 @@ public:
 	//!  Texture mipmaps are built when set to true.
 	//!  Implementation is not required to support mipmaps.
 	//! \return True on success, false on error (unsupported size/format).
-	virtual bool reset(unsigned width, unsigned height, Format format, unsigned char* data, bool buildMipmaps) = 0;
+	virtual bool reset(unsigned width, unsigned height, Format format, const unsigned char* data, bool buildMipmaps) = 0;
 
 	//! Lock texture for random CPU read access to all pixels.
 	//! Returned pointer points to linear array of pixels in getFormat() format, no whitespace.
@@ -108,6 +107,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////
 
 	//! Creates 2D or CUBE texture in OpenGL.
+	//
 	//! \param data Image used for initial contents of texture.
 	//!  Stored in format that depends on type, see glTexImage2D for more details.
 	//!  If it's NULL, 1x1 pixel stub texture is created.
@@ -121,11 +121,13 @@ public:
 	//! \param mini Initial minification filter, see glTexImage2D for more details.
 	//! \param wrapS Initial clamping mode, see glTexImage2D for more details.
 	//! \param wrapT Initial clamping mode, see glTexImage2D for more details.
-	static Texture* create(unsigned char *data, int width, int height, bool cube, Format format,
-		int magn = GL_LINEAR, int mini = GL_LINEAR, 
-		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
+	static Texture* create(const unsigned char *data, int width, int height, bool cube, Format format, int magn, int mini, int wrapS, int wrapT);
+	//! Creates 2D or cube texture in system memory.
+	//! See create() for more details.
+	static Texture* createM(const unsigned char *data, int width, int height, bool cube, Format format);
 
 	//! Creates shadowmap in OpenGL.
+	//
 	//! \param width Width of shadowmap in texels.
 	//!  Some computers may support only power of two sizes.
 	//! \param height Height of shadowmap in texels.
@@ -133,6 +135,7 @@ public:
 	static Texture* createShadowmap(unsigned width, unsigned height);
 
 	//! Creates 2D or CUBE texture in OpenGL from image stored on disk.
+	//
 	//! All formats supported by FreeImage are supported (jpg, png, dds etc).
 	//! \n Example1: filename="path/lightmap.jpg", cubeSideName=NULL - 2d texture is loaded from 1 file
 	//! \n Example2: filename="path/cube.hdr", cubeSideName=NULL - 2d texture is loaded from 1 file
@@ -154,17 +157,21 @@ public:
 	//! \param mini Initial minification filter, see glTexImage2D for more details.
 	//! \param wrapS Initial clamping mode, see glTexImage2D for more details.
 	//! \param wrapT Initial clamping mode, see glTexImage2D for more details.
-	static Texture* load(const char *filename, const char* cubeSideName[6],
-		bool flipV = false, bool flipH = false,
-		int magn = GL_LINEAR, int mini = GL_LINEAR_MIPMAP_LINEAR,
-		int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
+	static Texture* load(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH, int magn, int mini, int wrapS, int wrapT);
+	//! Creates 2D or cube texture in system memory from image stored on disk.
+	//! See load() for more details.
+	static Texture* loadM(const char *filename, const char* cubeSideName[6], bool flipV, bool flipH);
 
 	//! Loads 2D or CUBE texture from image stored on disk into existing texture.
+	//
+	//! Supports both OpenGL and system memory textures.
 	//! See load() for description of parameters.
 	virtual bool reload(const char *filename, const char* cubeSideName[6],
 		bool flipV = false, bool flipH = false, bool buildMipmaps = true);
 
 	//! Saves texture to disk and returns true on success.
+	//
+	//! Supports both OpenGL and system memory textures.
 	//! See load() for description of parameters.
 	virtual bool save(const char* filename, const char* cubeSideName[6]);
 

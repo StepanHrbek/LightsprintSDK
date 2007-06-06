@@ -140,8 +140,8 @@ namespace rr
 		};
 
 		// inputs
-		RRVec4          rayOrigin;      ///< In. (-Inf,Inf), ray origin. Never modify last component, it must stay 1.
-		RRVec4          rayDirInv;      ///< In. <-Inf,Inf>, 1/ray direction. Direction must be normalized.
+		RRVec3p         rayOrigin;      ///< In. (-Inf,Inf), ray origin. Never modify last component, it must stay 1.
+		RRVec3p         rayDirInv;      ///< In. <-Inf,Inf>, 1/ray direction. Direction must be normalized.
 		RRReal          rayLengthMin;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		unsigned        rayFlags;       ///< In. Flags that specify what to find.
@@ -151,10 +151,10 @@ namespace rr
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
 		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.
 		RRVec2          hitPoint2d;     ///< Out. Hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1).
-		RRVec4          hitPlane;       ///< Out. Plane of hitTriangle in object space. RRVec3 part is normalized.
+		RRVec3p         hitPlane;       ///< Out. Plane of hitTriangle in object space. RRVec3 part is normalized.
 		RRVec3          hitPoint3d;     ///< Out. Hit coordinate in object space.
 		bool            hitFrontSide;   ///< Out. True = face was hit from the front side.
-		RRVec4          hitPadding[2];  ///< Out. Undefined, never modify.
+		RRVec3p         hitPadding[2];  ///< Out. Undefined, never modify.
 	private:
 		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};

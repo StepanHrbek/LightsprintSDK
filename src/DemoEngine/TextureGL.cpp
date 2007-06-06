@@ -22,11 +22,11 @@ unsigned TextureGL::numPotentialFBOUsers = 0;
 //
 // TextureGL
 
-TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, Format aformat, int magn, int mini, int wrapS, int wrapT)
+TextureGL::TextureGL(const unsigned char *adata, int awidth, int aheight, bool acube, Format aformat, int magn, int mini, int wrapS, int wrapT)
 {
 	numPotentialFBOUsers++;
 
-	textureInMemory = new TextureInMemory(adata,awidth,aheight,acube,aformat,mini==GL_LINEAR_MIPMAP_LINEAR);
+	textureInMemory = new TextureInMemory(adata,awidth,aheight,acube,aformat);
 
 	// never changes in life of texture
 	cubeOr2d = acube?GL_TEXTURE_CUBE_MAP:GL_TEXTURE_2D;
@@ -46,7 +46,7 @@ TextureGL::TextureGL(unsigned char *adata, int awidth, int aheight, bool acube, 
 	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, acube?GL_CLAMP_TO_EDGE:wrapT);
 }
 
-bool TextureGL::reset(unsigned _width, unsigned _height, Format _format, unsigned char* _data, bool _buildMipmaps)
+bool TextureGL::reset(unsigned _width, unsigned _height, Format _format, const unsigned char* _data, bool _buildMipmaps)
 {
 	textureInMemory->reset(_width,_height,_format,_data,_buildMipmaps);
 
@@ -75,7 +75,7 @@ bool TextureGL::reset(unsigned _width, unsigned _height, Format _format, unsigne
 		// cube -> init with data
 		for(unsigned side=0;side<6;side++)
 		{
-			unsigned char* sideData = _data?_data+side*_width*_height*bytesPerPixel:NULL;
+			const unsigned char* sideData = _data?_data+side*_width*_height*bytesPerPixel:NULL;
 			assert(!_buildMipmaps || sideData);
 			if(_buildMipmaps && sideData)
 				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,glinternal,_width,_height,glformat,gltype,sideData);
@@ -197,7 +197,7 @@ TextureGL::~TextureGL()
 //
 // Texture
 
-Texture* Texture::create(unsigned char *data, int width, int height, bool cube, Format format, int mag,int min,int wrapS,int wrapT)
+Texture* Texture::create(const unsigned char *data, int width, int height, bool cube, Format format, int mag,int min,int wrapS,int wrapT)
 {
 	return new TextureGL(data,width,height,cube,format,mag,min,wrapS,wrapT);
 }
@@ -205,11 +205,9 @@ Texture* Texture::create(unsigned char *data, int width, int height, bool cube, 
 Texture* Texture::load(const char *filename,const char* cubeSideName[6],bool flipV,bool flipH,int mag,int min,int wrapS,int wrapT)
 {
 	TextureGL* texture = new TextureGL(NULL,1,1,cubeSideName?true:false,Texture::TF_RGBA,mag,min,wrapS,wrapT);
-	bool loaded = texture->reload(filename,cubeSideName,flipV,flipH);
-	if(!loaded)
+	if(!texture->reload(filename,cubeSideName,flipV,flipH))
 	{
 		SAFE_DELETE(texture);
-		printf("Failed to load %s.\n",filename);
 	}
 	return texture;
 }

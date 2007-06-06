@@ -40,7 +40,9 @@ void Water::updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera
 	// adjust size
 	if(reflWidth!=mirrorMap->getWidth() || reflHeight!=mirrorMap->getHeight())
 	{
-		mirrorMap->reset(reflWidth,reflHeight,Texture::TF_RGBF,NULL,false);
+		// TF_RGBF improves HDR sun reflection (TF_RGBA = LDR reflection is weak),
+		//  but float/short render target is not supported by GF6100-6200 and Rad9500-?
+		mirrorMap->reset(reflWidth,reflHeight,Texture::TF_RGBA,NULL,false);
 		mirrorDepth->reset(reflWidth,reflHeight,Texture::TF_NONE,NULL,false);
 	}
 	mirrorDepth->renderingToBegin();
