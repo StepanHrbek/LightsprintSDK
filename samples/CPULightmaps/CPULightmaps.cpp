@@ -18,6 +18,8 @@
 //   (save it as second TEXCOORD in Collada document, see RRObjectCollada.cpp)
 // - disable #define OPENGL in RRObjectCollada.cpp to load Collada 
 //   scene textures to system memory, rather than to OpenGL
+// - idle time of all CPUs/cores is used, so other applications don't suffer
+//   from lightmap precalculator running on the background
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007
 // --------------------------------------------------------------------------
@@ -156,6 +158,10 @@ int main(int argc, char **argv)
 	}
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+
+	// decrease priority, so that this task runs on background using only free CPU cycles
+	// good for precalculating lightmaps on workstation
+	SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
 
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	rr::RRIlluminationEnvironmentMap* environmentMap = rr::RRIlluminationEnvironmentMap::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true);
