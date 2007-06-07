@@ -1,13 +1,10 @@
+// --------------------------------------------------------------------------
+// OpenGL based RRDynamicSolver.
+// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
+// --------------------------------------------------------------------------
+
 #ifndef RRDYNAMICSOLVERGL_H
 #define RRDYNAMICSOLVERGL_H
-
-//////////////////////////////////////////////////////////////////////////////
-//! \file RRDynamicSolverGL.h
-//! \brief RRDynamicSolverGL - access to GPU via OpenGL
-//! \version 2007.5.31
-//! \author Copyright (C) Stepan Hrbek, Lightsprint
-//! All rights reserved
-//////////////////////////////////////////////////////////////////////////////
 
 #include "../RRDynamicSolver.h"
 
