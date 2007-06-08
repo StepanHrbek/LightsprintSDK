@@ -1802,7 +1802,13 @@ Advanced:
 
 \page main_samples Samples
 
- Directory samples in the SDK contains following projects:
+ Directory samples in the SDK contains following projects (blue boxes):
+ \image html libraries.png
+
+ and directories with additional source code:
+ - Import3DS
+ - ImportCollada
+ - ImportQuake3
 
  <hr>
  <b>AmbientOcclusion</b>
