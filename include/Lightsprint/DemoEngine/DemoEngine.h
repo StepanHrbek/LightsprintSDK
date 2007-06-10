@@ -8,29 +8,29 @@
 #define DEMOENGINE_H
 
 #ifdef _MSC_VER
-	#ifdef DE_STATIC
-		// use static library
-		#define DE_API
+#ifdef DE_STATIC
+	// use static library
+	#define DE_API
+	#ifdef NDEBUG
+		#pragma comment(lib,"DemoEngine_sr.lib")
+	#else
+		#pragma comment(lib,"DemoEngine_sd.lib")
+	#endif
+#else	// use dll
+	#pragma warning(disable:4251) // stop false MS warnings
+	#ifdef DE_DLL_BUILD_DEMOENGINE
+		// build dll
+		#define DE_API __declspec(dllexport)
+	#else
+		// use dll
+		#define DE_API __declspec(dllimport)
 		#ifdef NDEBUG
-			#pragma comment(lib,"DemoEngine_sr.lib")
+			#pragma comment(lib,"DemoEngine.lib")
 		#else
-			#pragma comment(lib,"DemoEngine_sd.lib")
-		#endif
-	#else // use dll
-		#pragma warning(disable:4251) // stop false MS warnings
-		#ifdef DE_DLL_BUILD_DEMOENGINE
-			// build dll
-			#define DE_API __declspec(dllexport)
-		#else
-			// use dll
-			#define DE_API __declspec(dllimport)
-			#ifdef NDEBUG
-				#pragma comment(lib,"DemoEngine.lib")
-			#else
-				#pragma comment(lib,"DemoEngine_dd.lib")
-			#endif
+			#pragma comment(lib,"DemoEngine_dd.lib")
 		#endif
 	#endif
+#endif
 	#pragma comment(lib,"opengl32.lib")
 	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")

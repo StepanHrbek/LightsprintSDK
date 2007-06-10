@@ -9,9 +9,6 @@
 #include "Lightsprint/DemoEngine/Program.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 
-//#define DIAGNOSTIC // kazdy texel dostane barvu podle toho kolikrat do nej bylo zapsano
-//#define DIAGNOSTIC_RED_UNRELIABLE // ukaze nespolehlivy texely cervene
-
 namespace rr_gl
 {
 
@@ -121,13 +118,6 @@ void RRIlluminationPixelBufferInOpenGL::renderTriangle(const IlluminatedTriangle
 	glEnd();
 }
 
-//void RRIlluminationPixelBufferInOpenGL::renderTriangles(const IlluminatedTriangle* it, unsigned numTriangles)
-//{
-//	RR_ASSERT(rendering);
-//	if(!rendering) return;
-//	write optimized version with interleaved array
-//}
-
 void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const rr::RRColorRGBAF& color)
 {
 	if(!rendering) 
@@ -171,27 +161,8 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 			if(renderedTexels[i].w)
 			{
 				renderedTexels[i] /= renderedTexels[i][3];
-				renderedTexels[i][3] = 1; //missing vec4 operators
 			}
-#ifdef DIAGNOSTIC_RED_UNRELIABLE
-			else
-			{
-				renderedTexels[i] = rr::RRColorRGBAF(1,0,0,0);//!!!
-			}
-#endif
 		}
-
-#ifdef DIAGNOSTIC
-		// convert to visible colors
-		unsigned diagColors[] =
-		{
-			0,0xff0000ff,0xff00ff00,0xffff0000,0xffffff00,0xffff00ff,0xff00ffff,0xffffffff
-		};
-		for(unsigned i=0;i<texture->getWidth()*texture->getHeight();i++)
-		{
-			renderedTexels[i].color = diagColors[CLAMPED(renderedTexels[i].color&255,0,7)];
-		}
-#endif
 
 		// normal way (internally stored in halfs, can't be interpolated on old cards)
 		//texture->reset(texture->getWidth(),texture->getHeight(),de::Texture::TF_RGBAF,(unsigned char*)renderedTexels,false);
@@ -200,44 +171,8 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		texture->bindTexture();
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_FLOAT,renderedTexels);
 
-		// workaround for ATI (ati swaps channels at second glTexImage2D)
-	//	unsigned w = getWidth();
-	//	unsigned h = getHeight();
-	//	delete texture;
-	//	texture = de::Texture::create((unsigned char*)renderedTexels,w,h,false,de::Texture::TF_RGBAF,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
-//unsigned q[4]={0,0,0,0};
-//for(unsigned i=0;i<getWidth()*getHeight();i++) for(unsigned j=0;j<4;j++) q[j]+=(renderedTexels[i].color>>(j*8))&255;
-//printf("%d %d %d %d\n",q[0]/getWidth()/getHeight(),q[1]/getWidth()/getHeight(),q[2]/getWidth()/getHeight(),q[3]/getWidth()/getHeight());
-//texture->save("c:/amb0.png",NULL);
-
 		SAFE_DELETE_ARRAY(renderedTexels);
 	}
-
-/*if(rendering)
-{
-	rendering = false;
-	goto ende;
-}else{
-	// backup pipeline
-	glGetIntegerv(GL_VIEWPORT,viewport);
-	depthTest = glIsEnabled(GL_DEPTH_TEST);
-	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
-	glGetFloatv(GL_COLOR_CLEAR_VALUE,clearcolor);
-
-	glViewport(0,0,texture->getWidth(),texture->getHeight());
-	// clear to 0
-	glClearColor(0,0,0,0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	// setup pipeline
-	glActiveTexture(GL_TEXTURE0);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(GL_FALSE);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-}*/
 
 	// although state was already set in renderBegin,
 	// other code between renderBegin and renderEnd could change it, set again
@@ -252,13 +187,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		&& texture->getWidth()<=helpers->tempTexture->getWidth() 
 		&& texture->getHeight()<=helpers->tempTexture->getHeight()
 		)
-	for(int pass=0;pass<(preferQualityOverSpeed?
-#ifdef DIAGNOSTIC_RED_UNRELIABLE
-		0
-#else
-		2
-#endif
-		:2);pass++)
+	for(int pass=0;pass<(preferQualityOverSpeed?2:2);pass++)
 	{
 		// fill unused pixels
 		helpers->filterProgram->useIt();
@@ -287,8 +216,6 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 			glVertex2f(1,-1);
 		glEnd();
 
-//helpers->tempTexture->save("c:/amb1.png",NULL);
-
 		texture->renderingToBegin();
 		helpers->tempTexture->bindTexture();
 		helpers->filterProgram->sendUniform("pixelDistance",1.f/helpers->tempTexture->getWidth(),1.f/helpers->tempTexture->getHeight());
@@ -306,8 +233,6 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 			glVertex2f(1,-1);
 		glEnd();
 
-//texture->save("c:/amb2.png",NULL);
-
 		texture->renderingToEnd();
 	}
 	else
@@ -315,7 +240,6 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		RR_ASSERT(0);
 	}
 
-//ende:
 	// restore pipeline
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 	glClearColor(clearcolor[0],clearcolor[1],clearcolor[2],clearcolor[3]);

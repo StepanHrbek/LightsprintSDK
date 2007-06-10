@@ -6,7 +6,7 @@
 
 #include <cassert>
 #include <GL/glew.h>
-#include "Lightsprint/DemoEngine/RendererWithCache.h"
+#include "RendererWithCache.h"
 
 namespace de
 {

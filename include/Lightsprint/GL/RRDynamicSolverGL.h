@@ -17,17 +17,18 @@
 			#pragma comment(lib,"RRGPUOpenGL_sd.lib")
 		#endif
 #	else
-#	ifdef RR_DLL_BUILD_GPUOPENGL
-		// build dll
-#		undef RR_API
-#		define RR_API __declspec(dllexport)
-#	else // use dll
-#ifdef NDEBUG
-	#pragma comment(lib,"RRGPUOpenGL.lib")
+#ifdef RR_DLL_BUILD_GPUOPENGL
+	// build dll
+	#undef RR_API
+	#define RR_API __declspec(dllexport)
 #else
-	#pragma comment(lib,"RRGPUOpenGL_dd.lib")
+	// use dll
+	#ifdef NDEBUG
+		#pragma comment(lib,"RRGPUOpenGL.lib")
+	#else
+		#pragma comment(lib,"RRGPUOpenGL_dd.lib")
+	#endif
 #endif
-#	endif
 #	endif
 #endif
 

@@ -56,8 +56,8 @@ bool TextureGL::reset(unsigned _width, unsigned _height, Format _format, const u
 	{
 		case TF_RGB: glinternal = glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 3; break;
 		case TF_RGBA: glinternal = glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 4; break;
-		case TF_RGBF: glinternal = GL_RGB16F_ARB; glformat = GL_RGB; gltype = GL_FLOAT; bytesPerPixel = 12; break;
-		case TF_RGBAF: glinternal = GL_RGBA16F_ARB; glformat = GL_RGBA; gltype = GL_FLOAT; bytesPerPixel = 16; break;
+		case TF_RGBF: glinternal = /*GL_RGB16F_ARB;*/ glformat = GL_RGB; gltype = GL_FLOAT; bytesPerPixel = 12; break;
+		case TF_RGBAF: glinternal = /*GL_RGBA16F_ARB;*/ glformat = GL_RGBA; gltype = GL_FLOAT; bytesPerPixel = 16; break;
 		case TF_NONE: glinternal = glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; bytesPerPixel = 4; break;
 	}
 

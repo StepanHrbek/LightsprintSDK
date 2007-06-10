@@ -12,7 +12,7 @@
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#include "../RRVision/RRDynamicSolver/report.h"
+//#include "../RRVision/RRDynamicSolver/report.h"
 
 //#define USE_VBO // use VBO to save unnecessary CPU<->GPU data transfers
 // using advanced features may trigger driver bugs, better avoid VBO for now
@@ -285,15 +285,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						lightIndirectVcolorLastPlus1 = params.lastCapturedTrianglePlus1;
 						lightIndirectVcolorVersion = solutionVersion;
 
-						REPORT_INIT;
-						REPORT_BEGIN("Updating private vertex buffers of renderer.");
+						//REPORT_INIT;
+						//REPORT_BEGIN("Updating private vertex buffers of renderer.");
 						// refill
 #pragma omp parallel for schedule(static,1)
 						for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
 						{
 							params.scene->getTriangleMeasure(i/3,i%3,RM_IRRADIANCE_PHYSICAL_INDIRECT,params.scaler,alightIndirectVcolor[i]);
 						}
-						REPORT_END;
+						//REPORT_END;
 					}
 				}
 				else

@@ -47,18 +47,11 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const
 	deleteTexture = true;
 }
 
-
 void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, const rr::RRColorRGBF* irradiance)
 {
 	EnterCriticalSection(&criticalSection);
+	// intentionally converted to bytes here, because older cards can't interpolate floats
 	texture->reset(size,size,de::Texture::TF_RGBF,(unsigned char*)irradiance,false);
-	bindTexture();
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	for(unsigned side=0; side<6; side++)
-	{
-		//gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X + side, GL_RGBA8, size, size, GL_RGBA, GL_UNSIGNED_BYTE, &irradiance[size*size*side].color);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGB,size,size,0,GL_RGB,GL_FLOAT,&irradiance[size*size*side].x);
-	}
 	LeaveCriticalSection(&criticalSection);
 }
 

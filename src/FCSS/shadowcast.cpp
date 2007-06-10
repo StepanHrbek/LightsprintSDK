@@ -65,7 +65,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/DemoEngine/AreaLight.h"
 #include "Lightsprint/DemoEngine/Camera.h"
 #include "Lightsprint/DemoEngine/UberProgram.h"
-#include "Lightsprint/DemoEngine/RendererWithCache.h"
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
 #include "Lightsprint/DemoEngine/Water.h"
