@@ -101,8 +101,65 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	return SHADOW_MAPS;
 }
 
+void UberProgramSetup::validate()
+{
+	if(!LIGHT_DIRECT)
+	{
+		SHADOW_MAPS = 0;
+		SHADOW_SAMPLES = 0;
+		LIGHT_DIRECT_MAP = 0;
+	}
+	if(!LIGHT_INDIRECT_VCOLOR)
+	{
+		LIGHT_INDIRECT_VCOLOR2 = 0;
+	}
+	if(!LIGHT_INDIRECT_MAP)
+	{
+		LIGHT_INDIRECT_MAP2 = 0;
+	}
+	if(!MATERIAL_DIFFUSE)
+	{
+		MATERIAL_DIFFUSE_CONST = 0;
+		MATERIAL_DIFFUSE_VCOLOR = 0;
+		MATERIAL_DIFFUSE_MAP = 0;
+	}
+	if(!MATERIAL_SPECULAR)
+	{
+		MATERIAL_SPECULAR_CONST = 0;
+		MATERIAL_SPECULAR_MAP = 0;
+	}
+	bool black = !(LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV);
+	if(black)
+	{
+		UberProgramSetup uberProgramSetupBlack;
+		uberProgramSetupBlack.OBJECT_SPACE = OBJECT_SPACE;
+		uberProgramSetupBlack.CLIPPING = CLIPPING;
+		uberProgramSetupBlack.FORCE_2D_POSITION = FORCE_2D_POSITION;
+		*this = uberProgramSetupBlack;
+	}
+}
+
 Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight* areaLight, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma)
 {
+	// special path for black output
+	//  prevents loading possibly dead uniforms
+	/*bool black = !(LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV);
+	if(black)
+	{
+		UberProgramSetup uberProgramSetupBlack;
+		uberProgramSetupBlack.OBJECT_SPACE = OBJECT_SPACE;
+		uberProgramSetupBlack.CLIPPING = CLIPPING;
+		uberProgramSetupBlack.FORCE_2D_POSITION = FORCE_2D_POSITION;
+		Program* program = uberProgramSetupBlack.getProgram(uberProgram);
+		if(!program)
+		{
+			printf("useProgram: failed to compile or link GLSL shader.\n");
+			return NULL;
+		}
+		program->useIt();
+		return program;
+	}*/
+
 	Program* program = getProgram(uberProgram);
 	if(!program)
 	{

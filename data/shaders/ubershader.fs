@@ -451,5 +451,8 @@ void main()
 		#ifdef FORCE_2D_POSITION
 			gl_FragColor.a = 1.0;
 		#endif
+	#else
+		// all lights are disabled, render black pixels
+		gl_FragColor = vec4(0.0,0.0,0.0,1.0);
 	#endif
 }

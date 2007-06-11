@@ -99,6 +99,8 @@ struct DE_API UberProgramSetup
 	//! The same number is set to SHADOW_MAPS.
 	//! \n\n If commandline contains -hard parameter, 1 is returned.
 	unsigned detectMaxShadowmaps(UberProgram* uberProgram, int argc = 0, char **argv = NULL);
+	//! Change invalid settings to closest valid settings.
+	void validate();
 	//! Sets rendering pipeline so that following primitives are rendered using
 	//! our program.
 	Program* useProgram(UberProgram* uberProgram, const AreaLight* areaLight, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma);

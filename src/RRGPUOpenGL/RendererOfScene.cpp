@@ -319,15 +319,14 @@ void RendererOfOriginalScene::render()
 	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
 
-	// - working copy of params.uberProgramSetup
-	de::UberProgramSetup uberProgramSetup = params.uberProgramSetup;
 	de::UberProgramSetup uberProgramSetupPrevious;
-	uberProgramSetup.OBJECT_SPACE = true;
-
 	de::Program* program = NULL;
 	unsigned numObjects = params.solver->getNumObjects();
 	for(unsigned i=0;i<numObjects;i++)
 	{
+		// - working copy of params.uberProgramSetup
+		de::UberProgramSetup uberProgramSetup = params.uberProgramSetup;
+		uberProgramSetup.OBJECT_SPACE = true;
 		// - set shader according to vbuf/pbuf presence
 		rr::RRIlluminationVertexBuffer* vbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer;
 		rr::RRIlluminationPixelBuffer* pbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->pixelBuffer;
@@ -346,6 +345,7 @@ void RendererOfOriginalScene::render()
 			renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP = pbuffer?true:false;
 			renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2 = layerBlend && uberProgramSetup.LIGHT_INDIRECT_MAP && pbuffer2 && pbuffer2!=pbuffer;
 		}
+		uberProgramSetup.validate();
 		if(i==0 || (uberProgramSetup.LIGHT_INDIRECT_auto && uberProgramSetup!=uberProgramSetupPrevious))
 		{
 			program = uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,params.brightness,params.gamma);
