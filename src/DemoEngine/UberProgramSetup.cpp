@@ -141,25 +141,6 @@ void UberProgramSetup::validate()
 
 Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight* areaLight, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma)
 {
-	// special path for black output
-	//  prevents loading possibly dead uniforms
-	/*bool black = !(LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV);
-	if(black)
-	{
-		UberProgramSetup uberProgramSetupBlack;
-		uberProgramSetupBlack.OBJECT_SPACE = OBJECT_SPACE;
-		uberProgramSetupBlack.CLIPPING = CLIPPING;
-		uberProgramSetupBlack.FORCE_2D_POSITION = FORCE_2D_POSITION;
-		Program* program = uberProgramSetupBlack.getProgram(uberProgram);
-		if(!program)
-		{
-			printf("useProgram: failed to compile or link GLSL shader.\n");
-			return NULL;
-		}
-		program->useIt();
-		return program;
-	}*/
-
 	Program* program = getProgram(uberProgram);
 	if(!program)
 	{

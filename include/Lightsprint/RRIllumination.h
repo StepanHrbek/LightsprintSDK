@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRIllumination.h
 //! \brief RRIllumination - library for calculated illumination storage
-//! \version 2007.6.8
+//! \version 2007.6.12
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -439,6 +439,17 @@ namespace rr
 		//! \return
 		//!  True on successful save of complete environment map.
 		virtual bool save(const char* filenameMask, const char* cubeSideName[6]);
+
+		//! Creates uniform environment, with constant irradiance without regard to direction.
+		//
+		//! It is suitable for ambient occlusion calculation.
+		//! \n It is not suitable for rendering, bind() is empty.
+		//! \n Color of environment may be changed by setValues(), first element of values is taken as
+		//!    a new irradiance.
+		//! \param irradiance
+		//!  Irradiance in environment, the same value is returned by getValue().
+		static RRIlluminationEnvironmentMap* createUniform(const RRColorRGBF irradiance = RRColorRGBF(1));
+
 	};
 
 

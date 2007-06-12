@@ -163,8 +163,11 @@ int main(int argc, char **argv)
 	// good for precalculating lightmaps on workstation
 	SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
 
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	rr::RRIlluminationEnvironmentMap* environmentMap = rr::RRIlluminationEnvironmentMap::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true);
+	// load uniform white environment from 6 1x1 textures
+	//const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
+	//rr::RRIlluminationEnvironmentMap* environmentMap = rr::RRIlluminationEnvironmentMap::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true);
+	// create uniform white environment
+	rr::RRIlluminationEnvironmentMap* environmentMap = rr::RRIlluminationEnvironmentMap::createUniform();
 
 	// init scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)

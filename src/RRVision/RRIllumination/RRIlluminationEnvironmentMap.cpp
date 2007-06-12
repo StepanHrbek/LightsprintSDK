@@ -11,6 +11,35 @@ namespace rr
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// UniformEnvironment
+
+class UniformEnvironment : public RRIlluminationEnvironmentMap
+{
+public:
+	UniformEnvironment::UniformEnvironment(const RRColorRGBF& irradiance)
+	{
+		color = irradiance;
+	}
+	virtual void setValues(unsigned size, const RRColorRGBF* irradiance)
+	{
+		if(size && irradiance)
+			color = irradiance[0];
+	}
+	virtual RRColorRGBF getValue(const RRVec3& direction) const
+	{
+		return color;
+	};
+private:
+	RRColorRGBF color;
+};
+
+RRIlluminationEnvironmentMap* RRIlluminationEnvironmentMap::createUniform(const RRColorRGBF irradiance)
+{
+	return new UniformEnvironment(RRColorRGBF(irradiance));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // RRIlluminationEnvironmentMap
 
 RRColorRGBF RRIlluminationEnvironmentMap::getValue(const RRVec3& direction) const
