@@ -1585,8 +1585,6 @@ Advanced:
 
  - <b> \subpage api_collider "COLLIDER" </b> - finds ray-mesh intersections
 
- - <b> \subpage api_mesh "MESH" </b> - unifies access to triangle meshes
-
  Depending on your projects, you may use various subsets of whole API.
 
  See scheme of library and sample dependencies:
@@ -1661,7 +1659,7 @@ Advanced:
 
 
 \page api_collider Collider
- Finds ray-mesh intersections.
+ Collider finds ray-mesh intersections.
 
  Header: RRCollider.h
 
@@ -1679,10 +1677,8 @@ Advanced:
  Sample BunnyBenchmark shows how to detect collisions on all available
  CPUs/cores at once.
 
-
-
-\page api_mesh Mesh
- Powerful interface to 3d triangle mesh.
+ <hr>
+ Interface to 3d triangle mesh.
 
  Header: RRMesh.h
 

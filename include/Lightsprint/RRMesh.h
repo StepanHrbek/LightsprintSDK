@@ -16,20 +16,20 @@
 #	ifdef RR_STATIC
 		// use static library
 		#ifdef NDEBUG
-			#pragma comment(lib,"RRMesh_sr.lib")
+			#pragma comment(lib,"RRCollider_sr.lib")
 		#else
-			#pragma comment(lib,"RRMesh_sd.lib")
+			#pragma comment(lib,"RRCollider_sd.lib")
 		#endif
 #	else
-#	ifdef RR_DLL_BUILD_MESH
+#	ifdef RR_DLL_BUILD_COLLIDER
 		// build dll
 #		undef RR_API
 #		define RR_API __declspec(dllexport)
 #	else // use dll
 #ifdef NDEBUG
-	#pragma comment(lib,"RRMesh.lib")
+	#pragma comment(lib,"RRCollider.lib")
 #else
-	#pragma comment(lib,"RRMesh_dd.lib")
+	#pragma comment(lib,"RRCollider_dd.lib")
 #endif
 #	endif
 #	endif

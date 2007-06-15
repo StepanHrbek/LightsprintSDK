@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include "../../RRMesh/RRMeshFilter.h"
+#include "../../RRCollider/RRMesh/RRMeshFilter.h"
 #include "../RRStaticSolver/rrcore.h"
 #include "Lightsprint/RRObject.h"
 #include "RRObjectFilter.h"

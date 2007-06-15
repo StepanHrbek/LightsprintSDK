@@ -12,29 +12,6 @@
 #include "RRMesh.h"
 #include <new> // operators new/delete
 
-#ifdef _MSC_VER
-#	ifdef RR_STATIC
-		// use static library
-		#ifdef NDEBUG
-			#pragma comment(lib,"RRCollider_sr.lib")
-		#else
-			#pragma comment(lib,"RRCollider_sd.lib")
-		#endif
-#	else
-#	ifdef RR_DLL_BUILD_COLLIDER
-		// build dll
-#		undef RR_API
-#		define RR_API __declspec(dllexport)
-#	else // use dll
-#ifdef NDEBUG
-	#pragma comment(lib,"RRCollider.lib")
-#else
-	#pragma comment(lib,"RRCollider_dd.lib")
-#endif
-#	endif
-#	endif
-#endif
-
 namespace rr
 {
 
