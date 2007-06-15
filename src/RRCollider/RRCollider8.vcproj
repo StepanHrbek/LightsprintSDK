@@ -390,54 +390,6 @@
 		<Filter
 			Name="RRCollider"
 			>
-			<Filter
-				Name="Miniball"
-				>
-				<File
-					RelativePath="RRCollider\miniball.h"
-					>
-				</File>
-				<File
-					RelativePath="RRCollider\miniball_config.h"
-					>
-				</File>
-				<File
-					RelativePath="RRCollider\wrapped_array.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SHA1"
-				>
-				<File
-					RelativePath="RRCollider\sha1.cpp"
-					>
-				</File>
-				<File
-					RelativePath="RRCollider\sha1.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="fpcube"
-				>
-				<File
-					RelativePath="RRCollider\fpcube.cpp"
-					>
-				</File>
-				<File
-					RelativePath="RRCollider\pcube.cpp"
-					>
-				</File>
-				<File
-					RelativePath="RRCollider\pcube.h"
-					>
-				</File>
-				<File
-					RelativePath="RRCollider\vec.h"
-					>
-				</File>
-			</Filter>
 			<File
 				RelativePath="RRCollider\bsp.cpp"
 				>
@@ -515,27 +467,63 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\RRMath.h"
-				>
-			</File>
-			<File
 				RelativePath="RRCollider\RRRay.cpp"
 				>
 			</File>
+			<Filter
+				Name="Miniball"
+				>
+				<File
+					RelativePath="RRCollider\miniball.h"
+					>
+				</File>
+				<File
+					RelativePath="RRCollider\miniball_config.h"
+					>
+				</File>
+				<File
+					RelativePath="RRCollider\wrapped_array.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="SHA1"
+				>
+				<File
+					RelativePath="RRCollider\sha1.cpp"
+					>
+				</File>
+				<File
+					RelativePath="RRCollider\sha1.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="fpcube"
+				>
+				<File
+					RelativePath="RRCollider\fpcube.cpp"
+					>
+				</File>
+				<File
+					RelativePath="RRCollider\pcube.cpp"
+					>
+				</File>
+				<File
+					RelativePath="RRCollider\pcube.h"
+					>
+				</File>
+				<File
+					RelativePath="RRCollider\vec.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="RRMesh"
 			>
 			<File
 				RelativePath="RRMesh\RRChanneledData.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\RRDebug.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\Lightsprint\RRMath.h"
 				>
 			</File>
 			<File
@@ -610,13 +598,21 @@
 				RelativePath="RRMesh\RRMeshTriStrip.h"
 				>
 			</File>
-			<File
-				RelativePath="RRMesh\RRReporter.cpp"
-				>
-			</File>
 		</Filter>
 		<File
+			RelativePath="..\..\include\Lightsprint\RRDebug.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\RRMath.h"
+			>
+		</File>
+		<File
 			RelativePath="..\RRMath\RRMathPrivate.h"
+			>
+		</File>
+		<File
+			RelativePath="RRMesh\RRReporter.cpp"
 			>
 		</File>
 	</Files>
