@@ -321,13 +321,18 @@ namespace rr
 			//! they have no influence on applyLights and applyEnvironment.
 			RRRadiometricMeasure measure;
 
-			//! Use current indirect solution computed by compute() as the only source of illumination.
+			//! Include current solution in static solver (getStaticSolver()) as a source of indirect illumination.
+			//
+			//! Current solution in static solver is updated by calculate(), updateVertexBuffers()
+			//! and updateLightmaps().
+			//! \n Note that some functions restrict use of applyCurrentSolution
+			//! and applyLights/Environment at the same time.
 			bool applyCurrentSolution;
 
-			//! Use lights set by setLights() as one of sources of illumination.
+			//! Include lights set by setLights() as a source of illumination.
 			bool applyLights;
 
-			//! Use environment set by setEnvironment() as one of sources of illumination.
+			//! Include environment set by setEnvironment() as a source of illumination.
 			bool applyEnvironment;
 
 			//! Quality of computed illumination coming from current solution and environment (not from lights).
@@ -385,6 +390,10 @@ namespace rr
 		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
 		//! \return
 		//!  Number of vertex buffers updated, 0 or 1.
+		//! \remarks
+		//!  In comparison with more general updateVertexBuffers() function, this one
+		//!  lacks paramsIndirect. However, you can still include indirect illumination
+		//!  while updating single vertex buffer, see updateVertexBuffers() remarks.
 		virtual unsigned updateVertexBuffer(unsigned objectNumber, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params);
 
 		//! Updates vertex buffers with direct, indirect or global illumination on whole static scene's surface.
@@ -412,6 +421,20 @@ namespace rr
 		//!  Set to NULL for no indirect illumination.
 		//! \return
 		//!  Number of vertex buffers updated.
+		//! \remarks
+		//!  As a byproduct of calculation, internal state of solver (current solution)
+		//!  is updated, so that it holds computed indirect illumination for sources
+		//!  and quality specified in paramsIndirect.
+		//!  Internal state is properly updated even when you don't specify createMissingBuffers
+		//!  and buffers don't exist (so no other output is produced).
+		//!  Following updateLightmap() or updateVertexBuffer() will include
+		//!  this indirect lighting into computed lightmap or vertex buffer
+		//!  if you set their params->applyCurrentSolution.
+		//! \remarks
+		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them:
+		//!  - if you don't need indirect illumination, simply call updateVertexBuffer() for all selected objects
+		//!  - create vertex buffers for selected objects, make sure other vertex buffers are NULL and call updateVertexBuffers() with createMissingBuffers=false
+		//!  - call updateVertexBuffers(unused_layer,false,NULL,paramsIndirect) once to update current solution, call updateVertexBuffer(paramsDirect with applyCurrentSolution=true) for all selected objects
 		virtual unsigned updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
 		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
@@ -443,6 +466,10 @@ namespace rr
 		//!  Number of lightmaps updated.
 		//!  Zero when no update was executed because of invalid inputs.
 		//!  Read system messages (RRReporter) for more details on failure.
+		//! \remarks
+		//!  In comparison with more general updateLightmaps() function, this one
+		//!  lacks paramsIndirect. However, you can still include indirect illumination
+		//!  while updating single lightmap, see updateLightmaps() remarks.
 		virtual unsigned updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, const UpdateParameters* params);
 
 		//! Calculates and updates all lightmaps with direct, indirect or global illumination on static scene's surfaces.
@@ -470,6 +497,20 @@ namespace rr
 		//!  Number of lightmaps updated.
 		//!  Zero when no update was executed because of invalid inputs.
 		//!  Read system messages (RRReporter) for more details on failure.
+		//! \remarks
+		//!  As a byproduct of calculation, internal state of solver (current solution)
+		//!  is updated, so that it holds computed indirect illumination for sources
+		//!  and quality specified in paramsIndirect.
+		//!  Internal state is properly updated even when you don't specify createMissingBuffers
+		//!  and buffers don't exist (so no other output is produced).
+		//!  Following updateLightmap() or updateVertexBuffer() will include
+		//!  this indirect lighting into computed lightmap or vertex buffer
+		//!  if you set their params->applyCurrentSolution.
+		//! \remarks
+		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them:
+		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
+		//!  - create pixel buffers for selected objects, make sure other pixel buffers are NULL and call updateLightmaps() with createMissingBuffers=false
+		//!  - call updateLightmaps(unused_layer,false,NULL,paramsIndirect) once to update current solution, call updateLightmap(paramsDirect with applyCurrentSolution=true) for all selected objects
 		virtual unsigned updateLightmaps(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
 		//! Calculates and updates environment maps for dynamic object at given position.
@@ -679,7 +720,7 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// Sanity checks.
+	// Checks dll at runtime, detects wrong dll configuration or version
 	//
 	// First step of your application should be
 	//   if(!RR_INTERFACE_OK) terminate_with_message(RR_INTERFACE_MISMATCH_MSG);
@@ -704,7 +745,7 @@ namespace rr
 	#define RR_INTERFACE_DESC_APP() "DEBUG_DLL (" __DATE__ " " __TIME__ ")"
 	#endif
 	// Returns description of version mismatch.
-	#define RR_INTERFACE_MISMATCH_MSG "RRDynamicSolver version mismatch.\nLibrary has interface: %d %s\nApplication expects  : %d %s\n",rr::RR_INTERFACE_ID_LIB(),rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_ID_APP(),RR_INTERFACE_DESC_APP()
+	#define RR_INTERFACE_MISMATCH_MSG "RRVision dll version mismatch.\nLibrary has interface: %d %s\nApplication expects  : %d %s\n",rr::RR_INTERFACE_ID_LIB(),rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_ID_APP(),RR_INTERFACE_DESC_APP()
 
 } // namespace
 
