@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="HelloRealtimeRadiosity"
+	Name="RealtimeRadiosity"
 	ProjectGUID="{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 	>
 	<Platforms>
@@ -38,7 +38,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/HelloRealtimeRadiosity.tlb"
+				TypeLibraryName=".\Release/RealtimeRadiosity.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -57,7 +57,7 @@
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/HelloRealtimeRadiosity.pch"
+				PrecompiledHeaderFile=".\Release/RealtimeRadiosity.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -139,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/HelloRealtimeRadiosity.tlb"
+				TypeLibraryName=".\Debug/RealtimeRadiosity.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -151,7 +151,7 @@
 				RuntimeLibrary="1"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/HelloRealtimeRadiosity.pch"
+				PrecompiledHeaderFile=".\Debug/RealtimeRadiosity.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -235,7 +235,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/HelloRealtimeRadiosity.tlb"
+				TypeLibraryName=".\Release/RealtimeRadiosity.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -254,7 +254,7 @@
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				OpenMP="true"
-				PrecompiledHeaderFile=".\Release/HelloRealtimeRadiosity.pch"
+				PrecompiledHeaderFile=".\Release/RealtimeRadiosity.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -336,7 +336,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/HelloRealtimeRadiosity.tlb"
+				TypeLibraryName=".\Debug/RealtimeRadiosity.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -348,7 +348,7 @@
 				RuntimeLibrary="3"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="0"
-				PrecompiledHeaderFile=".\Debug/HelloRealtimeRadiosity.pch"
+				PrecompiledHeaderFile=".\Debug/RealtimeRadiosity.pch"
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
@@ -448,7 +448,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\HelloRealtimeRadiosity.cpp"
+			RelativePath=".\RealtimeRadiosity.cpp"
 			>
 		</File>
 	</Files>

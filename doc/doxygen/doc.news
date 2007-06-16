@@ -6,6 +6,17 @@
 
 \page news What's new
 
+\section news22 ------------------------------------ 2007.6.x -------------------------------------
+
+CHANGES
+
+- 35% faster collisions and lightmap precalculations
+- RRMesh+RRCollider+RRVision merged into LightsprintCore library
+- samples renamed to better reflect their contents:
+  HelloDemoEngine -> PenumbraShadows
+  HelloRealtimeRadiosity -> RealtimeRadiosity
+  HelloVision -> HelloStaticSolver
+
 \section news21 ------------------------------------ 2007.6.12 -------------------------------------
 
 NEWS
