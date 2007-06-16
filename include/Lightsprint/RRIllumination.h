@@ -12,7 +12,7 @@
 #include "RRMath.h"
 #include <cassert>
 #include <cstring> // NULL
-#include "RRObject.h" // only because of import/export rules
+#include "RRMesh.h" // only because of import/export rules
 
 #define CLAMPED(a,min,max) (((a)<(min))?min:(((a)>(max)?(max):(a))))
 

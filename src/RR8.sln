@@ -12,18 +12,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cnv2bsp", "cnv2bsp\vs\cnv2b
 		{24A70CDD-FF75-4686-B09E-F939F744F94B} = {24A70CDD-FF75-4686-B09E-F939F744F94B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRCollider", "RRCollider\RRCollider8.vcproj", "{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRVision", "RRVision\RRVision8.vcproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
-		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49} = {D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "World", "World\vs\World8.vcproj", "{AC8C9321-346C-42BB-4B36-D93E7C8D3A4A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LicGen", "LicGen\vs\LicGen8.vcproj", "{CC592789-E5B9-4302-943E-E11BA53E0C5F}"
@@ -84,7 +72,28 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPULightmaps", "C:\Document
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark", "C:\Documents and Settings\Dee\Dokumenty\C\rr\samples\BunnyBenchmark\BunnyBenchmark.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
 	ProjectSection(ProjectDependencies) = postProject
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49} = {D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore", "C:\Documents and Settings\Dee\Dokumenty\C\rr\src\RRVision\LightsprintCore.vcproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloVision", "C:\Documents and Settings\Dee\Dokumenty\C\rr\samples\HelloVision\HelloVision.vcproj", "{2E053151-D333-4091-9D6D-54408A6610DD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh", "C:\Documents and Settings\Dee\Dokumenty\C\rr\samples\HelloMesh\HelloMesh.vcproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider", "C:\Documents and Settings\Dee\Dokumenty\C\rr\samples\HelloCollider\HelloCollider.vcproj", "{E2577A53-4812-1091-E37F-794832BA1DFE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
 Global
@@ -109,22 +118,6 @@ Global
 		{A57BDEBD-5E2A-41DF-B204-357C62E18B09}.Release DLL|Win32.Build.0 = Release static|Win32
 		{A57BDEBD-5E2A-41DF-B204-357C62E18B09}.Release static|Win32.ActiveCfg = Release static|Win32
 		{A57BDEBD-5E2A-41DF-B204-357C62E18B09}.Release static|Win32.Build.0 = Release static|Win32
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}.Debug static|Win32.Build.0 = Debug static|Win32
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}.Release DLL|Win32.Build.0 = Release DLL|Win32
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}.Release static|Win32.ActiveCfg = Release static|Win32
-		{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}.Release static|Win32.Build.0 = Release static|Win32
-		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
-		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
-		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug static|Win32.Build.0 = Debug static|Win32
-		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
-		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release DLL|Win32.Build.0 = Release DLL|Win32
-		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release static|Win32.ActiveCfg = Release static|Win32
-		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release static|Win32.Build.0 = Release static|Win32
 		{AC8C9321-346C-42BB-4B36-D93E7C8D3A4A}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
 		{AC8C9321-346C-42BB-4B36-D93E7C8D3A4A}.Debug static|Win32.ActiveCfg = Debug static|Win32
 		{AC8C9321-346C-42BB-4B36-D93E7C8D3A4A}.Debug static|Win32.Build.0 = Debug static|Win32
@@ -243,6 +236,32 @@ Global
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release static|Win32.ActiveCfg = Release static|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Release static|Win32.Build.0 = Release static|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug static|Win32.ActiveCfg = Debug static|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Debug static|Win32.Build.0 = Debug static|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release static|Win32.ActiveCfg = Release static|Win32
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}.Release static|Win32.Build.0 = Release static|Win32
+		{2E053151-D333-4091-9D6D-54408A6610DD}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{2E053151-D333-4091-9D6D-54408A6610DD}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{2E053151-D333-4091-9D6D-54408A6610DD}.Debug static|Win32.ActiveCfg = Debug DLL|Win32
+		{2E053151-D333-4091-9D6D-54408A6610DD}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{2E053151-D333-4091-9D6D-54408A6610DD}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{2E053151-D333-4091-9D6D-54408A6610DD}.Release static|Win32.ActiveCfg = Release DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Debug static|Win32.ActiveCfg = Debug DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{3E151752-D431-5192-2E7D-4742826B1CDE}.Release static|Win32.ActiveCfg = Release DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Debug static|Win32.ActiveCfg = Debug DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{E2577A53-4812-1091-E37F-794832BA1DFE}.Release static|Win32.ActiveCfg = Release DLL|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

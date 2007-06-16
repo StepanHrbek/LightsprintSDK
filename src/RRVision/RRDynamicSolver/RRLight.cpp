@@ -1,5 +1,5 @@
 #include "Lightsprint/RRDynamicSolver.h"
-#include "../../RRCollider/RRMathPrivate.h"
+#include "../RRMathPrivate.h"
 
 namespace rr
 {

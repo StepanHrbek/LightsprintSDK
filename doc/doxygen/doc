@@ -18,6 +18,7 @@ namespace rr
 
  - <b> \subpage main_platforms </b>
 
+ - <b> \subpage main_credits </b>
 
  Programming guide:
 
@@ -244,6 +245,19 @@ Ray-Mesh collisions
 - high precision, higher than commercial physical engines
 - high reliability, 7 years under heavy load
 
+
+
+
+
+\page main_credits Credits
+
+Lightsprint SDK uses following third party libraries:
+
+- FreeImage
+  \n This software uses the FreeImage open source image library. See http://freeimage.sourceforge.net for details.
+  FreeImage is used under the FIPL, version 1.0. 
+
+- FCollada by Feeling Software is used under MIT license.
 
 
 
@@ -1575,26 +1589,20 @@ Advanced:
 
 \page main_api API overview
 
- Lightsprint API consists of multiple libraries:
+ Lightsprint API consists of following libraries:
 
- - <b> \subpage api_vision "VISION" </b> - calculates global illumination in dynamic scenes
+ - <b> \subpage api_core "LIGHTSPRINT CORE" </b> -
+  Calculates global illumination in dynamic scenes.
+  Includes fast ray-scene intersections.
+  Is OpenGL/Direct3D independent.
 
- - <b> \subpage api_gl "GPUOPENGL" </b> - GPU access for Vision, using OpenGL 2.0
+ - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 renderer with penumbra shadows.
 
- - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 engine/renderer with penumbra shadows
-
- - <b> \subpage api_collider "COLLIDER" </b> - finds ray-mesh intersections
-
- Depending on your projects, you may use various subsets of whole API.
+ - <b> \subpage api_gl "GPUOPENGL" </b> - Integration of LightsprintCore with DemoEngine.
 
  See scheme of library and sample dependencies:
 
  \image html libraries.png
-
- LightsprintCore is purely numerical and platform independent
- realtime GI solver, without GPU access.
-
- LightsprintGL is one of implementations of accelerated GPU access for LightsprintCore.
 
  See \ref main_samples for more details on samples.
 
@@ -1603,8 +1611,14 @@ Advanced:
 
 
 
-\page api_vision Vision
- Vision calculates global illumination in dynamic scenes.
+\page api_core Lightsprint Core
+ Lightsprint Core calculates global illumination in dynamic and static scenes.
+ Subsystems include fast ray-scene intersections.
+ It is OpenGL/Direct3D independent.
+
+ Namespace: rr
+
+ <hr>
 
  Header: RRDynamicSolver.h
 
@@ -1654,15 +1668,11 @@ Advanced:
 
  - 3d object properties: geometry, materials, position etc
 
-
-
-
-
-\page api_collider Collider
- Collider finds ray-mesh intersections.
+ <hr>
 
  Header: RRCollider.h
 
+ - finds ray-mesh intersections
  - thread safe, you can calculate any number of intersections at the same time
  - you can select technique in range from maximal speed to zero memory allocated
  - up to 2^32 vertices and 2^30 triangles in mesh
@@ -1678,10 +1688,10 @@ Advanced:
  CPUs/cores at once.
 
  <hr>
- Interface to 3d triangle mesh.
 
  Header: RRMesh.h
 
+ - interface to 3d triangle mesh
  - knows tristrips, trilists, indexed or not (RRMesh::create, RRMesh::createIndexed)
  - can optimize:
    - vertex stitching (RRMesh::createOptimizedVertices)
@@ -1697,21 +1707,22 @@ Advanced:
  mesh is created out of existing array of vertices.
 
  <hr>
- Basic math classes used by whole Lightsprint SDK.
 
  Header: RRMath.h
 
+ - math classes used by whole Lightsprint SDK
  - RRReal holds one real number, which is single precision float
  - RRVec2 is vector of 2 real numbers
  - RRVec3 is vector of 3 real numbers
  - RRVec4 is vector of 4 real numbers
 
  <hr>
- Debugging and reporting routines used by whole Lightsprint SDK.
 
  Header: RRDebug.h
 
+ - debugging and reporting routines used by whole Lightsprint SDK
  - RRReporter processess all messages sent by Lightsprint SDK to you
+
 
 
 

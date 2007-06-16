@@ -118,7 +118,6 @@ int main(int argc, char** argv)
 		(int)(NUM_RAYS/realtime),
 		(double)num_hits / NUM_RAYS
 		);
-	printf("Note that statically linked version is faster by 10-30%%.\n");
 
 	// cleanup
 	delete watch;

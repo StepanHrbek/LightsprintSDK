@@ -16,20 +16,20 @@
 #	ifdef RR_STATIC
 		// use static library
 		#ifdef NDEBUG
-			#pragma comment(lib,"RRCollider_sr.lib")
+			#pragma comment(lib,"LightsprintCore_sr.lib")
 		#else
-			#pragma comment(lib,"RRCollider_sd.lib")
+			#pragma comment(lib,"LightsprintCore_sd.lib")
 		#endif
 #	else
-#	ifdef RR_DLL_BUILD_COLLIDER
+#	ifdef RR_DLL_BUILD_VISION
 		// build dll
 #		undef RR_API
 #		define RR_API __declspec(dllexport)
 #	else // use dll
 #ifdef NDEBUG
-	#pragma comment(lib,"RRCollider.lib")
+	#pragma comment(lib,"LightsprintCore.lib")
 #else
-	#pragma comment(lib,"RRCollider_dd.lib")
+	#pragma comment(lib,"LightsprintCore_dd.lib")
 #endif
 #	endif
 #	endif

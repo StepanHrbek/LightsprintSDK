@@ -41,7 +41,7 @@
 
 #include <stdarg.h>
 
-#include "geometry.h"
+#include "geometry_v.h"
 #include "Lightsprint/RRStaticSolver.h"
 #include "interpol.h"
 
@@ -608,8 +608,6 @@ public:
 	void    resetStaticIllumination(bool resetFactors, bool resetPropagation);
 
 	// intersections
-	Bound   bound;
-	void    detectBounds();
 	Triangle* intersection(RRRay& ray, const Point3& eye, const Vec3& direction);
 
 	char    *name;

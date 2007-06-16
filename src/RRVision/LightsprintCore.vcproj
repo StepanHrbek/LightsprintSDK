@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="RRCollider"
-	ProjectGUID="{D93C8C28-6C33-4BB7-96B3-0C8D93ED3A49}"
-	RootNamespace="RRCollider"
+	Name="LightsprintCore"
+	ProjectGUID="{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
+	RootNamespace="LightsprintCore"
 	>
 	<Platforms>
 		<Platform
@@ -39,22 +39,21 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\LicGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_STATIC"
+				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC;DE_STATIC"
 				StringPooling="true"
 				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
-				StructMemberAlignment="0"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
@@ -88,6 +87,7 @@
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
 				AdditionalLibraryDirectories="$(OutDir)"
+				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -129,14 +129,14 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\LicGen\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_STATIC"
+				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_STATIC;DE_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -152,6 +152,7 @@
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_sd.pdb"
+				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
@@ -215,7 +216,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -224,15 +225,15 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\LicGen\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_DLL;RR_DLL_BUILD_COLLIDER"
+				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL;RR_DLL_BUILD_VISION"
 				StringPooling="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
+				FloatingPointModel="2"
 				DisableLanguageExtensions="false"
 				ForceConformanceInForLoopScope="true"
 				OpenMP="true"
@@ -313,14 +314,14 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRIntersect.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintCore.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\LicGen\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_DLL_BUILD_COLLIDER"
+				AdditionalIncludeDirectories="..\..\include; ..\..\3rd\rsa; ..\RRCollider\include; ..\LicGen\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_DLL_BUILD_VISION"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -336,6 +337,7 @@
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/$(ProjectName)_dd.pdb"
+				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
@@ -597,6 +599,322 @@
 			<File
 				RelativePath="RRMesh\RRMeshTriStrip.h"
 				>
+			</File>
+		</Filter>
+		<Filter
+			Name="RRObject"
+			>
+			<File
+				RelativePath="RRObject\RRMaterial.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRObject\RRMatrix3x4.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRObject\RRMeshFilterTransformed.h"
+				>
+			</File>
+			<File
+				RelativePath="RRObject\RRObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRObject.h"
+				>
+			</File>
+			<File
+				RelativePath="RRObject\RRObjectFilter.h"
+				>
+			</File>
+			<File
+				RelativePath="RRObject\RRObjectFilterTransformed.h"
+				>
+			</File>
+			<File
+				RelativePath="RRObject\RRObjectMulti.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RRObject\RRObjectWithIllumination.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\RRObject\RRObjectWithPhysicalMaterials.h"
+				>
+			</File>
+			<File
+				RelativePath="RRObject\RRScaler.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="RRIllumination"
+			>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRIllumination.h"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRIlluminationEnvironmentMap.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIllumination\RRIlluminationEnvironmentMapInMemory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIllumination\RRIlluminationEnvironmentMapInMemory.h"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRIlluminationPixelBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIllumination\RRIlluminationPixelBufferInMemory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIllumination\RRIlluminationPixelBufferInMemory.h"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRIlluminationVertexBufferInMemory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRIlluminationVertexBufferInMemory.h"
+				>
+			</File>
+			<File
+				RelativePath="RRIllumination\RRObjectIllumination.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="RRStaticSolver"
+			>
+			<File
+				RelativePath="RRStaticSolver\clusters.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\geometry_v.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\geometry_v.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\interpol.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\interpol.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\intersections.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\intersections.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\rrcore.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\rrcore.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\RRStaticSolver.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRStaticSolver.h"
+				>
+			</File>
+			<File
+				RelativePath="RRStaticSolver\RRVision.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="RRDynamicSolver"
+			>
+			<File
+				RelativePath="RRDynamicSolver\environmentMap.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\Interpolator.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\Interpolator.h"
+				>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\lightmap.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\report.h"
+				>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\RRDynamicSolver.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\RRDynamicSolver.h"
+				>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\RRLight.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\vertexBuffer.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<File

@@ -2,7 +2,7 @@
 #define RRVISION_GEOMETRY_H
 
 #include "Lightsprint/RRMath.h" // RRReal
-#include "../../RRCollider/RRMathPrivate.h" // vec3 support in rrCollider
+#include "../RRMathPrivate.h" // vec3 support in rrCollider
 #include <float.h> // _finite
 
 namespace rr
@@ -117,20 +117,6 @@ typedef RRVec3 Point3;
 // normal in 3d
 
 typedef RRVec3p Normal;
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// bounding object (sphere)
-
-struct Bound
-{
-	Point3  centerBeforeTransformation;
-	Point3  center;
-	real    radius;
-	real    radius2;
-	void    detect(const Vec3 *vertex,unsigned vertices);
-	bool    intersect(Point3 eye,Vec3 direction,real maxDistance);
-};
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -1535,9 +1535,6 @@ Object::Object(int avertices,int atriangles)
 	vertex=new Vec3[vertices];
 	triangle=new Triangle[triangles];
 	edge=NULL;
-	bound.center=Point3(0,0,0);
-	bound.radius=BIG_REAL;
-	bound.radius2=BIG_REAL;
 	objSourceExitingFlux=Channels(0);
 #ifdef SUPPORT_TRANSFORMS
 	transformMatrix=NULL;
@@ -1745,22 +1742,6 @@ void Scene::transformObjects()
 	}
 }
 #endif
-
-void Object::detectBounds()
-{
-	Vec3* vertex = new Vec3[vertices];
-	RRMesh* meshImporter = importer->getCollider()->getMesh();
-	for(unsigned i=0;i<vertices;i++)
-	{
-		RRMesh::Vertex v;
-		meshImporter->getVertex(i,v);
-		vertex[i].x = v[0];
-		vertex[i].y = v[1];
-		vertex[i].z = v[2];
-	}
-	bound.detect(vertex,vertices);
-	delete vertex;
-}
 
 bool Object::check()
 {

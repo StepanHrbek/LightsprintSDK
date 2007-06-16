@@ -178,7 +178,6 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const SmoothingParameters* sm
 	   
 	// preprocessuje objekt
 	DBG(printf(" bounds...\n"));
-	obj->detectBounds();
 	{
 		DBG(printf(" edges...\n"));
 		obj->buildEdges(smoothing->maxSmoothAngle); // build edges only for clusters and/or interpol
