@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// RRVision minimalistic example.
+// Global illumination minimalistic example using RRStaticSolver.
 //
 // Mesh with two triangles, one dark and one emitting light, is constructed.
 // After quick calculation using RRStaticSolver, exitances of both triangles are displayed.

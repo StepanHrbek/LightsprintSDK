@@ -39,12 +39,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRGPUOpenGL", "RRGPUOpenGL\
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LightsprintDemo", "LightsprintDemoSetup\LightsprintDemoSetup.vdproj", "{92999DFF-73AB-411E-88D1-EE2A21A01624}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloDemoEngine", "..\samples\PenumbraShadows\HelloDemoEngine.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows", "..\samples\PenumbraShadows\PenumbraShadows.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloRealtimeRadiosity", "..\samples\RealtimeRadiosity\HelloRealtimeRadiosity.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeRadiosity", "..\samples\RealtimeRadiosity\RealtimeRadiosity.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
@@ -81,7 +81,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore", "Lightspr
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloVision", "..\samples\HelloStaticSolver\HelloVision.vcproj", "{2E053151-D333-4091-9D6D-54408A6610DD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloStaticSolver", "..\samples\HelloStaticSolver\HelloStaticSolver.vcproj", "{2E053151-D333-4091-9D6D-54408A6610DD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection

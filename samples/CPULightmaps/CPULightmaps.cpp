@@ -31,7 +31,6 @@
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
-#include "Lightsprint/DemoEngine/Timer.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -78,7 +77,7 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned
 	// it is faster and quality is good for some objects
 	rr::RRDynamicSolver::UpdateParameters paramsDirect;
 	paramsDirect.measure.scaled = false; // get vertex colors in HDR
-	paramsDirect.quality = 500;
+	paramsDirect.quality = 5000;
 	paramsDirect.applyCurrentSolution = false;
 	paramsDirect.applyEnvironment = true;
 	paramsDirect.applyLights = true;
@@ -92,7 +91,7 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned
 	// it is slower, but some objects need it
 	rr::RRDynamicSolver::UpdateParameters paramsDirectPixel;
 	paramsDirectPixel.measure.scaled = true; // get maps in sRGB
-	paramsDirectPixel.quality = 200;
+	paramsDirectPixel.quality = 2000;
 	paramsDirectPixel.applyEnvironment = true;
 	paramsDirectPixel.applyLights = true;
 	unsigned objectNumbers[] = {3};
@@ -192,8 +191,7 @@ int main(int argc, char **argv)
 	solver->setLights( *adaptLightsFromFCollada( collada ) );
 	solver->setEnvironment( environmentMap );
 
-	de::Timer timer;
-	timer.Start();
+	clock_t start = clock();
 	
 	solver->calculate();
 	if(!solver->getMultiObjectCustom())
@@ -202,9 +200,7 @@ int main(int argc, char **argv)
 	// calculate and save it
 	calculatePerVertexAndSelectedPerPixel(solver,0); // calculatePerPixel(solver,0);
 
-	double userTime;
-	double realTime = timer.Watch(&userTime,NULL);
-	printf("time taken %.2f seconds (user=%.2f)\n", (float)realTime, (float)userTime );
+	printf("Time taken %.2f seconds\n", 1.0f/CLOCKS_PER_SEC*(clock()-start) );
 
 	saveIlluminationToDisk(solver,0);
 
