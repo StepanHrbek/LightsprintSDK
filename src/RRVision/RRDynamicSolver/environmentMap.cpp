@@ -7,7 +7,7 @@
 #include "Interpolator.h"
 #include "report.h"
 #include "Lightsprint/RRDynamicSolver.h"
-#include "../src/RRMath/RRMathPrivate.h"
+#include "../src/RRCollider/RRMathPrivate.h"
 
 #undef REPORT
 #define REPORT(a)

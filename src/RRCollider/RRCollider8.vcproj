@@ -608,11 +608,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\RRMath\RRMathPrivate.h"
+			RelativePath="RRMathPrivate.h"
 			>
 		</File>
 		<File
-			RelativePath="RRMesh\RRReporter.cpp"
+			RelativePath="RRReporter.cpp"
 			>
 		</File>
 	</Files>

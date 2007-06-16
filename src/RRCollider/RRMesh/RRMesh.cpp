@@ -6,7 +6,7 @@
 #include "RRMeshLessVertices.h"
 #include "RRMeshLessTriangles.h"
 #include "RRMeshMulti.h"
-#include "../../RRMath/RRMathPrivate.h"
+#include "../RRMathPrivate.h"
 
 #include <cassert>
 #include <cfloat>

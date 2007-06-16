@@ -2,7 +2,7 @@
 #define COLLIDER_GEOMETRY_H
 
 #include "Lightsprint/RRCollider.h"
-#include "../../RRMath/RRMathPrivate.h"
+#include "../RRMathPrivate.h"
 #include "config.h"
 
 #ifdef __GNUC__
