@@ -46,7 +46,7 @@ namespace rr_gl
 	//! This is not complete implementation of rr::RRDynamicSolver,
 	//! it contains generic GPU access operations, but not operations specific to your renderer.
 	//! You need to subclass RRDynamicSolverGL and implement remaining operations specific to your renderer.
-	//! See HelloRealtimeRadiosity for an example of such implementation.
+	//! See RealtimeRadiosity sample for an example of such implementation.
 	class RR_API RRDynamicSolverGL : public rr::RRDynamicSolver
 	{
 	public:

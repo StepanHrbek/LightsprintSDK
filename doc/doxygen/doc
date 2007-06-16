@@ -284,7 +284,7 @@ Advanced:
 
  You can immediately render realtime global illumination in your 3d scenes
  if you convert them to .DAE (Collada) or .3DS format
- and load them in Lightmaps or HelloRealtimeRadiosity sample.
+ and load them in Lightmaps or RealtimeRadiosity sample.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Recommended approach:
@@ -292,15 +292,15 @@ Advanced:
 
   - If conversion tool exists,
     convert one of your scenes to Collada (.dae) format
-    and load it into Lightmaps (or load .3ds in HelloRealtimeRadiosity).
+    and load it into Lightmaps (or load .3ds in RealtimeRadiosity sample).
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
  </td></tr></table>
 
-  - Lightmaps and HelloRealtimeRadiosity applications are
+  - Lightmaps and RealtimeRadiosity samples are
     built on top of purely numerical LightsprintCore, OpenGL 2.0 based LightsprintGL and scene importers.
-    Left: Lightmaps. Right: HelloRealtimeRadiosity.
+    Left: Lightmaps. Right: RealtimeRadiosity.
   <table border=0 width=95%><tr align=top><td>
   \image html Integration1b.png
   </td><td>
@@ -383,7 +383,7 @@ Advanced:
  Recommended approach:
  </td></tr></table>
 
-  - Modify HelloRealtimeRadiosity to use your renderer,
+  - Modify RealtimeRadiosity sample to use your renderer,
     or modify your application/engine to use LightsprintCore and LightsprintGL.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
@@ -511,7 +511,7 @@ Advanced:
  you don't even need any additional information provided by artists who
  create materials or compose shaders. Everything can be detected automatically.
 
- In <b>special case</b> of HelloRealtimeRadiosity example, materials contain diffuse texture
+ In <b>special case</b> of RealtimeRadiosity example, materials contain diffuse texture
  without specular and transparency, so whole detection was reduced to calculating
  average color of diffuse texture and storing it into RRMaterial::diffuseReflectance.
  This took 1 hour.
@@ -672,7 +672,7 @@ Advanced:
  - rr_gl::RRDynamicSolverGL::detectDirectIllumination() -
    if not up to date, update resources needed for scene render, e.g. shadowmaps
 
- See example implementation in HelloRealtimeRadiosity.
+ See example implementation in RealtimeRadiosity sample.
 
  \section step4_dx Direct3D
 
@@ -726,7 +726,7 @@ Advanced:
  - Call RRDynamicSolver::updateEnvironmentMaps()
    to acquire static or dynamic object's indirect illumination, see \ref data_environment_map.
 
- Nearly all of these calls are demonstrated in HelloRealtimeRadiosity sample.
+ Nearly all of these calls are demonstrated in RealtimeRadiosity sample.
 
 
 
@@ -816,7 +816,7 @@ Advanced:
  whole process, it is recommended to calculate average triangle colors
  on GPU, using simple shader, write them into smaller texture
  and transfer this smaller textue to CPU.
- It is demonstrated in HelloRealtimeRadiosity
+ It is demonstrated in RealtimeRadiosity
  sample, using scaledown_filter.* shaders.
 
  \image html detect-scaled.png
@@ -1519,7 +1519,7 @@ Advanced:
    in screen colors. This means you can set nearly all inputs in screen colors
    (scaled to 0-1 range) and read all outputs in screen colors.
    To setup this mode, call RRDynamicSolver::setScaler(RRScaler::createRgbScaler()).
-   HelloRealtimeRadiosity demonstrates it.
+   RealtimeRadiosity sample demonstrates it.
 
  \section gunits2 Geometry units
    All sizes and positions in space are expressed in generic units,
@@ -1628,7 +1628,7 @@ Advanced:
  - communicates completely in custom units, e.g. screen colors
  - designed for CPU+GPU calculation, faster, GPU access to be implemented in subclasses
 
- Samples HelloRealtimeRadiosity and Lightmaps show the result of integration,
+ Samples RealtimeRadiosity and Lightmaps show the result of integration,
  interactive Collada/.3ds scene viewer with global illumination immediately responding
  to object and light movements.
 
@@ -1643,7 +1643,7 @@ Advanced:
  - display independent, purely numerical API
  - designed for CPU only calculation, complete engine
 
- Sample HelloVision shows you the most simple use case:
+ Sample HelloStaticSolver shows you the most simple use case:
  -# Create RRObject that contains whole static scene.
  -# Create RRStaticSolver from object.
  -# Calculate global illumination using RRStaticSolver::illuminationImprove().
@@ -1798,7 +1798,7 @@ Advanced:
      - normal map (normal modulated by diffuse map)
      - emissive map
 
- Sample HelloDemoEngine shows .3ds scene viewer with dynamic objects
+ Sample PenumbraShadows shows .3ds scene viewer with dynamic objects
  and realtime penumbra shadows, based on DemoEngine.
 
 
@@ -1835,17 +1835,19 @@ Advanced:
  - loads Collada scene
 
  <hr>
- <b>HelloRealtimeRadiosity</b>
+ <b>RealtimeRadiosity</b>
  - renders realtime global illumination in scene with dynamic objects and area light
- - shows feeding external 3ds renderer
- - loads 3ds scene
+ - features penumbra shadows, color bleeding
+ - shows feeding external 3ds renderer with Lightsprint computed illumination
+ - loads 3ds scene and 3ds dynamic objects
 
  <hr>
- <b>HelloDemoEngine</b>
+ <b>PenumbraShadows</b>
  - renders realtime direct illumination in scene with dynamic objects and area light
+ - features penumbra shadows
 
  <hr>
- <b>HelloVision</b>
+ <b>HelloStaticSolver</b>
  - calculates static illumination in constructed scene, without renderer
 
  <hr>
@@ -1873,7 +1875,7 @@ Advanced:
 
  <hr>
  <b>Import3DS</b>
- - source code of 3DS loader, renderer and adapter (called e.g. from HelloRealtimeRadiosity)
+ - source code of 3DS loader, renderer and adapter (called e.g. from RealtimeRadiosity sample)
  - not a complete application, used by other samples
 
  <hr>

@@ -21,15 +21,17 @@ HelloCollider
 HelloMesh
 - shows how to create mesh
 
-HelloDemoEngine
-- shows how to render realtime direct illumination in scene with dynamic objects and light
+PenumbraShadows
+- renders realtime direct illumination in scene with dynamic objects and light
+- features penumbra shadows
 
-HelloRealtimeRadiosity
-- shows how to render realtime global illumination in scene with dynamic objects and light
+RealtimeRadiosity
+- renders realtime global illumination in scene with dynamic objects and light
+- features penumbra shadows, color bleeding
 - shows feeding external 3ds renderer with Lightsprint computed illumination
 - loads 3ds scene and 3ds dynamic objects
 
-HelloVision
+HelloStaticSolver
 - shows how to calculate static illumination in scene, without renderer
 
 Lightmaps

@@ -452,11 +452,11 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\HelloRealtimeRadiosity\DynamicObject.cpp"
+			RelativePath="..\RealtimeRadiosity\DynamicObject.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\HelloRealtimeRadiosity\DynamicObject.h"
+			RelativePath="..\RealtimeRadiosity\DynamicObject.h"
 			>
 		</File>
 		<File

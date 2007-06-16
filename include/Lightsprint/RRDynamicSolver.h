@@ -186,7 +186,7 @@ namespace rr
 	//! You may implement it in your RRDynamicSolver subclass
 	//! or use RRRealtimeRadioosityGL, that implements GPU access using OpenGL 2.0.
 	//!
-	//! Sample HelloRealtimeRadiosity shows both typical usage scenarios,
+	//! Sample RealtimeRadiosity shows both typical usage scenarios,
 	//! rendering with realtime global illumination and precalculations.
 	//!
 	//! It is not allowed to create and use multiple instances at the same time.

@@ -39,12 +39,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRGPUOpenGL", "RRGPUOpenGL\
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LightsprintDemo", "LightsprintDemoSetup\LightsprintDemoSetup.vdproj", "{92999DFF-73AB-411E-88D1-EE2A21A01624}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloDemoEngine", "..\samples\HelloDemoEngine\HelloDemoEngine.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloDemoEngine", "..\samples\PenumbraShadows\HelloDemoEngine.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloRealtimeRadiosity", "..\samples\HelloRealtimeRadiosity\HelloRealtimeRadiosity.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloRealtimeRadiosity", "..\samples\RealtimeRadiosity\HelloRealtimeRadiosity.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
@@ -65,33 +65,33 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmbientOcclusion", "..\samp
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPULightmaps", "C:\Documents and Settings\Dee\Dokumenty\C\rr\samples\CPULightmaps\CPULightmaps.vcproj", "{396A4522-9173-ABCD-23AA-91827364ABEE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPULightmaps", "..\samples\CPULightmaps\CPULightmaps.vcproj", "{396A4522-9173-ABCD-23AA-91827364ABEE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark", "C:\Documents and Settings\Dee\Dokumenty\C\rr\samples\BunnyBenchmark\BunnyBenchmark.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark", "..\samples\BunnyBenchmark\BunnyBenchmark.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore", "C:\Documents and Settings\Dee\Dokumenty\C\rr\src\RRVision\LightsprintCore.vcproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore", "LightsprintCore\LightsprintCore.vcproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloVision", "C:\Documents and Settings\Dee\Dokumenty\C\rr\samples\HelloVision\HelloVision.vcproj", "{2E053151-D333-4091-9D6D-54408A6610DD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloVision", "..\samples\HelloStaticSolver\HelloVision.vcproj", "{2E053151-D333-4091-9D6D-54408A6610DD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh", "C:\Documents and Settings\Dee\Dokumenty\C\rr\samples\HelloMesh\HelloMesh.vcproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh", "..\samples\HelloMesh\HelloMesh.vcproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider", "C:\Documents and Settings\Dee\Dokumenty\C\rr\samples\HelloCollider\HelloCollider.vcproj", "{E2577A53-4812-1091-E37F-794832BA1DFE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider", "..\samples\HelloCollider\HelloCollider.vcproj", "{E2577A53-4812-1091-E37F-794832BA1DFE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
@@ -265,8 +265,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		AMDCaProjectFile = C:\Documents and Settings\Dee\Dokumenty\C\rr\src\FCSS\FCSS8.caw
 	EndGlobalSection
 EndGlobal

@@ -48,7 +48,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib;..\..\samples\HelloRealtimeRadiosity"
+				AdditionalIncludeDirectories=".;..\..\include;..\..\samples\RealtimeRadiosity"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;DE_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib;..\..\samples\HelloRealtimeRadiosity"
+				AdditionalIncludeDirectories=".;..\..\include;..\..\samples\RealtimeRadiosity"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;DE_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="1"
@@ -245,7 +245,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;..\..\include;..\RRCollider\include;..\RRVision\include;..\..\3rd\mgflib;..\..\samples\HelloRealtimeRadiosity"
+				AdditionalIncludeDirectories=".;..\..\include;..\..\samples\RealtimeRadiosity"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -321,11 +321,11 @@
 			Name="HelloRR"
 			>
 			<File
-				RelativePath="..\..\samples\HelloRealtimeRadiosity\DynamicObject.cpp"
+				RelativePath="..\..\samples\RealtimeRadiosity\DynamicObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\samples\HelloRealtimeRadiosity\DynamicObject.h"
+				RelativePath="..\..\samples\RealtimeRadiosity\DynamicObject.h"
 				>
 			</File>
 		</Filter>
