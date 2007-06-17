@@ -23,10 +23,18 @@
 	#define RR_API __declspec(dllexport)
 #else
 	// use dll
-	#ifdef NDEBUG
-		#pragma comment(lib,"RRGPUOpenGL.lib")
+	#if _MSC_VER<1400
+		#ifdef NDEBUG
+			#pragma comment(lib,"RRGPUOpenGL.vs2003.lib")
+		#else
+			#pragma comment(lib,"RRGPUOpenGL.vs2003_dd.lib")
+		#endif
 	#else
-		#pragma comment(lib,"RRGPUOpenGL_dd.lib")
+		#ifdef NDEBUG
+			#pragma comment(lib,"RRGPUOpenGL.lib")
+		#else
+			#pragma comment(lib,"RRGPUOpenGL_dd.lib")
+		#endif
 	#endif
 #endif
 #	endif

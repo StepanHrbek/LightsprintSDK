@@ -933,6 +933,14 @@
 			RelativePath="RRReporter.cpp"
 			>
 		</File>
+		<File
+			RelativePath="..\LicGen\include\LicGenOpt.h"
+			>
+		</File>
+		<File
+			RelativePath="..\LicGen\include\LicGen.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

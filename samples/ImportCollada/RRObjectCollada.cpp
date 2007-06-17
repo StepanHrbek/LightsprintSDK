@@ -60,6 +60,10 @@
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #endif
 
+#if _MSC_VER<1400
+#error Third party library FCollada doesn't support VS2003.
+#endif
+
 #ifdef _DEBUG
 	#ifdef RR_STATIC
 		#pragma comment(lib,"FColladaSD.lib")

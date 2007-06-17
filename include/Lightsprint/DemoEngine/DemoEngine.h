@@ -24,10 +24,18 @@
 	#else
 		// use dll
 		#define DE_API __declspec(dllimport)
-		#ifdef NDEBUG
-			#pragma comment(lib,"DemoEngine.lib")
+		#if _MSC_VER<1400
+			#ifdef NDEBUG
+				#pragma comment(lib,"DemoEngine.vs2003.lib")
+			#else
+				#pragma comment(lib,"DemoEngine.vs2003_dd.lib")
+			#endif
 		#else
-			#pragma comment(lib,"DemoEngine_dd.lib")
+			#ifdef NDEBUG
+				#pragma comment(lib,"DemoEngine.lib")
+			#else
+				#pragma comment(lib,"DemoEngine_dd.lib")
+			#endif
 		#endif
 	#endif
 #endif

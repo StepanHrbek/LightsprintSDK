@@ -11,7 +11,11 @@
 #include <cassert>
 #include <cfloat>
 #include <cstdio>
-#include <stdint.h> // sizes of imported vertex/index arrays
+#if defined(_MSC_VER) && _MSC_VER<1400
+	#include "stdint.vs2003.h" // sizes of imported vertex/index arrays
+#else
+	#include <stdint.h> // sizes of imported vertex/index arrays
+#endif
 
 
 namespace rr
