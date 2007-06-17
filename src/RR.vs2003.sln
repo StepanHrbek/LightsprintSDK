@@ -19,28 +19,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows.vs2003", ".
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeRadiosity.vs2003", "..\samples\RealtimeRadiosity\RealtimeRadiosity.vs2003.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 	ProjectSection(ProjectDependencies) = postProject
-		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
-		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightmaps.vs2003", "..\samples\Lightmaps\Lightmaps.vs2003.vcproj", "{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}"
-	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Water.vs2003", "..\samples\Water\Water.vs2003.vcproj", "{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}"
 	ProjectSection(ProjectDependencies) = postProject
 		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmbientOcclusion.vs2003", "..\samples\AmbientOcclusion\AmbientOcclusion.vs2003.vcproj", "{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPULightmaps.vs2003", "..\samples\CPULightmaps\CPULightmaps.vs2003.vcproj", "{396A4522-9173-ABCD-23AA-91827364ABEE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark.vs2003", "..\samples\BunnyBenchmark\BunnyBenchmark.vs2003.vcproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
@@ -117,14 +101,6 @@ Global
 		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release DLL.Build.0 = Release DLL|Win32
 		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release static.ActiveCfg = Release static|Win32
 		{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}.Release static.Build.0 = Release static|Win32
-		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Debug DLL.ActiveCfg = Debug DLL|Win32
-		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Debug DLL.Build.0 = Debug DLL|Win32
-		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Debug static.ActiveCfg = Debug static|Win32
-		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Debug static.Build.0 = Debug static|Win32
-		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Release DLL.ActiveCfg = Release DLL|Win32
-		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Release DLL.Build.0 = Release DLL|Win32
-		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Release static.ActiveCfg = Release static|Win32
-		{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}.Release static.Build.0 = Release static|Win32
 		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug DLL.ActiveCfg = Debug DLL|Win32
 		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug DLL.Build.0 = Debug DLL|Win32
 		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug static.ActiveCfg = Debug static|Win32
@@ -133,22 +109,6 @@ Global
 		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release DLL.Build.0 = Release DLL|Win32
 		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release static.ActiveCfg = Release static|Win32
 		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release static.Build.0 = Release static|Win32
-		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Debug DLL.ActiveCfg = Debug DLL|Win32
-		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Debug DLL.Build.0 = Debug DLL|Win32
-		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Debug static.ActiveCfg = Debug static|Win32
-		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Debug static.Build.0 = Debug static|Win32
-		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Release DLL.ActiveCfg = Release DLL|Win32
-		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Release DLL.Build.0 = Release DLL|Win32
-		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Release static.ActiveCfg = Release static|Win32
-		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Release static.Build.0 = Release static|Win32
-		{396A4522-9173-ABCD-23AA-91827364ABEE}.Debug DLL.ActiveCfg = Debug DLL|Win32
-		{396A4522-9173-ABCD-23AA-91827364ABEE}.Debug DLL.Build.0 = Debug DLL|Win32
-		{396A4522-9173-ABCD-23AA-91827364ABEE}.Debug static.ActiveCfg = Debug static|Win32
-		{396A4522-9173-ABCD-23AA-91827364ABEE}.Debug static.Build.0 = Debug static|Win32
-		{396A4522-9173-ABCD-23AA-91827364ABEE}.Release DLL.ActiveCfg = Release DLL|Win32
-		{396A4522-9173-ABCD-23AA-91827364ABEE}.Release DLL.Build.0 = Release DLL|Win32
-		{396A4522-9173-ABCD-23AA-91827364ABEE}.Release static.ActiveCfg = Release static|Win32
-		{396A4522-9173-ABCD-23AA-91827364ABEE}.Release static.Build.0 = Release static|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug DLL.ActiveCfg = Debug DLL|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug DLL.Build.0 = Debug DLL|Win32
 		{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}.Debug static.ActiveCfg = Debug static|Win32
