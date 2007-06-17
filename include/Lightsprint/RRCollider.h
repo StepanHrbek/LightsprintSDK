@@ -3,8 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRCollider.h
-//! \brief RRCollider - library for fast "ray x mesh" intersections
-//! \version 2007.6.12
+//! \brief RRCollider - fast "ray x mesh" intersections
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////

@@ -10,11 +10,11 @@
 
 NEWS
 
-- VS2003 support (projects, solutions, libraries)
+- VS2003 support
 
 CHANGES
 
-- 50% faster collisions and lightmap precalculations
+- 50% faster lightmap precalculations
 - RRMesh+RRCollider+RRVision merged into LightsprintCore library
 - samples renamed to better reflect their contents:
   HelloDemoEngine -> PenumbraShadows

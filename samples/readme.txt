@@ -21,6 +21,15 @@ HelloCollider
 HelloMesh
 - shows how to create mesh
 
+HelloStaticSolver
+- shows how to calculate static illumination in scene, without renderer
+
+Lightmaps
+- realtime global illumination preview (1 light only)
+- on request: precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
+- uses internal renderer
+- loads Collada scene and 3ds dynamic objects
+
 PenumbraShadows
 - renders realtime direct illumination in scene with dynamic objects and light
 - features penumbra shadows
@@ -30,15 +39,6 @@ RealtimeRadiosity
 - features penumbra shadows, color bleeding
 - shows feeding external 3ds renderer with Lightsprint computed illumination
 - loads 3ds scene and 3ds dynamic objects
-
-HelloStaticSolver
-- shows how to calculate static illumination in scene, without renderer
-
-Lightmaps
-- realtime global illumination preview (1 light only)
-- on request: precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
-- uses internal renderer
-- loads Collada scene and 3ds dynamic objects
 
 Water
 - simple use of DemoEngine, renders skybox and water
