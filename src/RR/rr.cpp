@@ -39,7 +39,7 @@
 #include "World.h"
 #include "world2rrvision.h"
 
-#include "../RRVision/RRStaticSolver/rrcore.h"//!!!
+#include "../LightsprintCore/RRStaticSolver/rrcore.h"//!!!
 using namespace rr;
 
 WORLD  *__world=NULL;

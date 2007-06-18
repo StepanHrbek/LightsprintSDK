@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <cassert>
+#include <vector>
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"

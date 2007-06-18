@@ -5,6 +5,7 @@
 #endif
 #include "Lightsprint/RRDynamicSolver.h"
 #include "report.h"
+#include "private.h"
 
 namespace rr
 {
@@ -17,8 +18,8 @@ void RRDynamicSolver::updateVertexLookupTable()
 		RR_ASSERT(0);
 		return;
 	}
-	preVertex2PostTriangleVertex.resize(objects.size());
-	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
+	priv->preVertex2PostTriangleVertex.resize(priv->objects.size());
+	for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		RRMesh* mesh = getMultiObjectPhysical()->getCollider()->getMesh();
@@ -26,7 +27,7 @@ void RRDynamicSolver::updateVertexLookupTable()
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 
-		preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,std::pair<unsigned,unsigned>(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
+		priv->preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,std::pair<unsigned,unsigned>(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
 
 		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 		{
@@ -44,7 +45,7 @@ void RRDynamicSolver::updateVertexLookupTable()
 					else
 						continue; // skip asserts
 					if(preVertex<numPreImportVertices)
-						preVertex2PostTriangleVertex[objectHandle][preVertex] = std::pair<unsigned,unsigned>(postImportTriangle,v);
+						priv->preVertex2PostTriangleVertex[objectHandle][preVertex] = std::pair<unsigned,unsigned>(postImportTriangle,v);
 					else
 						RR_ASSERT(0);
 				}
@@ -62,7 +63,7 @@ RRIlluminationVertexBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertice
 
 unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params)
 {
-	if(!scene || !vertexBuffer)
+	if(!priv->scene || !vertexBuffer)
 	{
 		RR_ASSERT(0);
 		return 0;
@@ -74,12 +75,12 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 #pragma omp parallel for schedule(dynamic)
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 	{
-		unsigned t = preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
-		unsigned v = preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
+		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
+		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
 		RRColor indirect = RRColor(0);
 		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 		{
-			scene->getTriangleMeasure(t,v,measure,getScaler(),indirect);
+			priv->scene->getTriangleMeasure(t,v,measure,getScaler(),indirect);
 			// make it optional when negative values are supported
 			//for(unsigned i=0;i<3;i++)
 			//	indirect[i] = MAX(0,indirect[i]);
@@ -170,7 +171,7 @@ unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createM
 	//REPORT_INIT;
 	//REPORT_BEGIN("Updating vertex buffers.");
 	// for each object
-	for(unsigned objectHandle=0;objectHandle<objects.size();objectHandle++)
+	for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 	{
 		RRObjectIllumination::Layer* layer = getIllumination(objectHandle)->getLayer(layerNumber);
 		if(layer->vertexBuffer)

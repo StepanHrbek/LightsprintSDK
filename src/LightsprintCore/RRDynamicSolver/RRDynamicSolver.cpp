@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "Lightsprint/RRDynamicSolver.h"
 #include "report.h"
+#include "private.h"
 
 namespace rr
 {
@@ -27,78 +28,55 @@ namespace rr
 
 RRDynamicSolver::RRDynamicSolver()
 {
-	//objects zeroed by constructor
-	scaler = NULL;
-	environment = NULL;
-	scene = NULL;
-	dirtyMaterials = true;
-	dirtyGeometry = true;
-	dirtyLights = BIG_CHANGE;
-	dirtyResults = true;
-	lastInteractionTime = 0;
-	lastCalcEndTime = 0;
-	lastReadingResultsTime = 0;
-	userStep = 0;
-	calcStep = 0;
-	improveStep = 0;
-	readingResultsPeriod = 0;
-	multiObjectCustom = NULL;
-	multiObjectPhysical = NULL;
-	multiObjectPhysicalWithIllumination = NULL;
-	solutionVersion = 1;
-	minimalSafeDistance = 0;
-	//preVertex2PostTriangleVertex zeroed by constructor
+	priv = new Private;
 	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
 }
 
 RRDynamicSolver::~RRDynamicSolver()
 {
-	delete scene;
-	delete multiObjectPhysicalWithIllumination;
-	if(multiObjectPhysical!=multiObjectCustom) delete multiObjectPhysical; // no scaler -> physical == custom
-	delete multiObjectCustom;
+	delete priv;
 }
 
 void RRDynamicSolver::setScaler(RRScaler* ascaler)
 {
-	scaler = ascaler;
+	priv->scaler = ascaler;
 }
 
 const RRScaler* RRDynamicSolver::getScaler() const
 {
-	return scaler;
+	return priv->scaler;
 }
 
 void RRDynamicSolver::setEnvironment(RRIlluminationEnvironmentMap* aenvironment)
 {
-	environment = aenvironment;
+	priv->environment = aenvironment;
 }
 
 const RRIlluminationEnvironmentMap* RRDynamicSolver::getEnvironment() const
 {
-	return environment;
+	return priv->environment;
 }
 
 void RRDynamicSolver::setLights(const RRLights& alights)
 {
-	lights = alights;
+	priv->lights = alights;
 }
 
 const RRLights& RRDynamicSolver::getLights() const
 {
-	return lights;
+	return priv->lights;
 }
 
 void RRDynamicSolver::setObjects(RRObjects& aobjects, const RRStaticSolver::SmoothingParameters* asmoothing)
 {
-	objects = aobjects;
-	smoothing = asmoothing ? *asmoothing : RRStaticSolver::SmoothingParameters();
-	dirtyGeometry = true;
+	priv->objects = aobjects;
+	priv->smoothing = asmoothing ? *asmoothing : RRStaticSolver::SmoothingParameters();
+	priv->dirtyGeometry = true;
 }
 
 unsigned RRDynamicSolver::getNumObjects() const
 {
-	return (unsigned)objects.size();
+	return (unsigned)priv->objects.size();
 }
 
 RRObject* RRDynamicSolver::getObject(unsigned i)
@@ -106,32 +84,32 @@ RRObject* RRDynamicSolver::getObject(unsigned i)
 	// this is commented out, getObject() is allowed even immediately after setObjects()
 	//if(dirtyGeometry) return NULL;
 
-	if(i>=objects.size()) return NULL;
-	return objects[i].object;
+	if(i>=priv->objects.size()) return NULL;
+	return priv->objects[i].object;
 }
 
 const RRObject* RRDynamicSolver::getMultiObjectCustom() const
 {
-	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
-	return multiObjectCustom;
+	if(priv->dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
+	return priv->multiObjectCustom;
 }
 
 const RRObjectWithPhysicalMaterials* RRDynamicSolver::getMultiObjectPhysical() const
 {
-	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
-	return multiObjectPhysical;
+	if(priv->dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
+	return priv->multiObjectPhysical;
 }
 
 RRObjectWithIllumination* RRDynamicSolver::getMultiObjectPhysicalWithIllumination()
 {
-	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
-	return multiObjectPhysicalWithIllumination;
+	if(priv->dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
+	return priv->multiObjectPhysicalWithIllumination;
 }
 
 const RRStaticSolver* RRDynamicSolver::getStaticSolver() const
 {
-	if(dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
-	return scene;
+	if(priv->dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
+	return priv->scene;
 }
 
 RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i)
@@ -139,8 +117,8 @@ RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i)
 	// this is commented out, getIllumination() is allowed even immediately after setObjects()
 	//if(dirtyGeometry) return NULL;
 
-	if(i>=objects.size()) return NULL;
-	return objects[i].illumination;
+	if(i>=priv->objects.size()) return NULL;
+	return priv->objects[i].illumination;
 }
 
 const RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i) const
@@ -148,26 +126,26 @@ const RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i) const
 	// this is commented out, getIllumination() is allowed even immediately after setObjects()
 	//if(dirtyGeometry) return NULL;
 
-	if(i>=objects.size()) return NULL;
-	return objects[i].illumination;
+	if(i>=priv->objects.size()) return NULL;
+	return priv->objects[i].illumination;
 }
 
 void RRDynamicSolver::reportMaterialChange()
 {
 	REPORT(RRReporter::report(RRReporter::INFO,"<MaterialChange>\n"));
-	dirtyMaterials = true;
+	priv->dirtyMaterials = true;
 }
 
 void RRDynamicSolver::reportDirectIlluminationChange(bool strong)
 {
 	REPORT(RRReporter::report(RRReporter::INFO,strong?"<IlluminationChangeStrong>\n":"<IlluminationChange>\n"));
-	dirtyLights = strong?BIG_CHANGE:SMALL_CHANGE;
+	priv->dirtyLights = strong?Private::BIG_CHANGE:Private::SMALL_CHANGE;
 }
 
 void RRDynamicSolver::reportInteraction()
 {
 	REPORT(RRReporter::report(RRReporter::INFO,"<Interaction>\n"));
-	lastInteractionTime = GETTIME;
+	priv->lastInteractionTime = GETTIME;
 }
 
 
@@ -213,71 +191,71 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 {
 	REPORT_INIT;
 	bool dirtyFactors = false;
-	ChangeStrength dirtyEnergies = NO_CHANGE;
-	if(dirtyMaterials)
+	Private::ChangeStrength dirtyEnergies = Private::NO_CHANGE;
+	if(priv->dirtyMaterials)
 	{
-		dirtyMaterials = false;
+		priv->dirtyMaterials = false;
 		dirtyFactors = true;
 		REPORT_BEGIN("Detecting material properties.");
 		detectMaterials();
 		REPORT_END;
 	}
-	if(dirtyGeometry)
+	if(priv->dirtyGeometry)
 	{
-		dirtyGeometry = false;
-		dirtyLights = BIG_CHANGE;
+		priv->dirtyGeometry = false;
+		priv->dirtyLights = Private::BIG_CHANGE;
 		dirtyFactors = true;
-		if(scene)
+		if(priv->scene)
 		{
 			REPORT_BEGIN("Closing old radiosity solver.");
-			SAFE_DELETE(scene);
-			if(multiObjectPhysical!=multiObjectCustom) // no scaler -> physical == custom
-				SAFE_DELETE(multiObjectCustom)
+			SAFE_DELETE(priv->scene);
+			if(priv->multiObjectPhysical!=priv->multiObjectCustom) // no scaler -> physical == custom
+				SAFE_DELETE(priv->multiObjectCustom)
 			else
-				multiObjectCustom = NULL;
-			SAFE_DELETE(multiObjectPhysical);
-			SAFE_DELETE(multiObjectPhysicalWithIllumination);
+				priv->multiObjectCustom = NULL;
+			SAFE_DELETE(priv->multiObjectPhysical);
+			SAFE_DELETE(priv->multiObjectPhysicalWithIllumination);
 			REPORT_END;
 		}
 		REPORT_BEGIN("Opening new radiosity solver.");
-		RRObject** importers = new RRObject*[objects.size()];
-		for(unsigned i=0;i<(unsigned)objects.size();i++)
+		RRObject** importers = new RRObject*[priv->objects.size()];
+		for(unsigned i=0;i<(unsigned)priv->objects.size();i++)
 		{
-			importers[i] = objects[i].object;
+			importers[i] = priv->objects[i].object;
 		}
 		// create multi in custom scale
-		multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)objects.size(),smoothing.intersectTechnique,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);
+		priv->multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),priv->smoothing.intersectTechnique,priv->smoothing.stitchDistance,priv->smoothing.stitchDistance>=0,NULL);
 		// convert it to physical scale
-		multiObjectPhysical = (multiObjectCustom) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> physical == custom
+		priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> physical == custom
 		//multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> custom=1,physical=0
 		// add direct illumination
-		multiObjectPhysicalWithIllumination = multiObjectPhysical ? multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
-			(multiObjectCustom ? multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
+		priv->multiObjectPhysicalWithIllumination = priv->multiObjectPhysical ? priv->multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
+			(priv->multiObjectCustom ? priv->multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
 		delete[] importers;
-		REPORT(if(multiObjectPhysicalWithIllumination)
-			RRReporter::report(RRReporter::CONT,"(%d objects, optimized to %d faces, %d vertices) ",objects.size(),multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
-		scene = multiObjectPhysicalWithIllumination ? new RRStaticSolver(multiObjectPhysicalWithIllumination,&smoothing) : NULL;
-		if(scene) updateVertexLookupTable();
+		REPORT(if(priv->multiObjectPhysicalWithIllumination)
+			RRReporter::report(RRReporter::CONT,"(%d objects, optimized to %d faces, %d vertices) ",priv->objects.size(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
+		priv->scene = priv->multiObjectPhysicalWithIllumination ? new RRStaticSolver(priv->multiObjectPhysicalWithIllumination,&priv->smoothing) : NULL;
+		if(priv->scene) updateVertexLookupTable();
 		// update minimalSafeDistance
-		if(multiObjectPhysicalWithIllumination)
+		if(priv->multiObjectPhysicalWithIllumination)
 		{
 			RRVec3 mini,maxi,center;
-			multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
-			minimalSafeDistance = (maxi-mini).avg()*1e-6f;
+			priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
+			priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
 		}
 		REPORT_END;
 	}
-	if(dirtyLights!=NO_CHANGE)
+	if(priv->dirtyLights!=Private::NO_CHANGE)
 	{
-		dirtyEnergies = dirtyLights;
-		dirtyLights = NO_CHANGE;
-		readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
+		dirtyEnergies = priv->dirtyLights;
+		priv->dirtyLights = Private::NO_CHANGE;
+		priv->readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
 		REPORT_BEGIN("Detecting direct illumination.");
 		if(!detectDirectIllumination())
 		{
 			// detection has failed, ensure these points:
 			// 1) detection will be detected again next time
-			dirtyLights = BIG_CHANGE;
+			priv->dirtyLights = Private::BIG_CHANGE;
 			// 2) eventual dirtyFactors = true; won't be forgotten
 			// let normal dirtyFactors handler work now, exit later
 			// 3) no calculations on current obsoleted primaries will be wasted
@@ -289,44 +267,44 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	if(dirtyFactors)
 	{
 		dirtyFactors = false;
-		dirtyEnergies = NO_CHANGE;
-		dirtyResults = true;
+		dirtyEnergies = Private::NO_CHANGE;
+		priv->dirtyResults = true;
 		REPORT_BEGIN("Resetting solver energies and factors.");
-		if(scene) scene->illuminationReset(true,true);
-		solutionVersion++;
+		if(priv->scene) priv->scene->illuminationReset(true,true);
+		priv->solutionVersion++;
 		REPORT_END;
 	}
-	if(dirtyLights!=NO_CHANGE)
+	if(priv->dirtyLights!=Private::NO_CHANGE)
 	{
 		// exit in response to unsuccessful detectDirectIllumination
 		return RRStaticSolver::NOT_IMPROVED;
 	}
-	if(dirtyEnergies!=NO_CHANGE)
+	if(dirtyEnergies!=Private::NO_CHANGE)
 	{
 		REPORT_BEGIN("Updating solver energies.");
-		if(scene) scene->illuminationReset(false,dirtyEnergies==BIG_CHANGE);
-		solutionVersion++;
+		if(priv->scene) priv->scene->illuminationReset(false,dirtyEnergies==Private::BIG_CHANGE);
+		priv->solutionVersion++;
 		REPORT_END;
-		if(dirtyEnergies==BIG_CHANGE)
+		if(dirtyEnergies==Private::BIG_CHANGE)
 		{
 			// following improvement should be so big that single frames after big reset are not visibly darker
 			// so...calculate at least 20ms?
 			improveStep = MAX(improveStep,IMPROVE_STEP_MIN_AFTER_BIG_RESET);
 		}
-		dirtyEnergies = NO_CHANGE;
-		dirtyResults = true;
+		dirtyEnergies = Private::NO_CHANGE;
+		priv->dirtyResults = true;
 	}
 
 	REPORT_BEGIN("Calculating.");
 	TIME now = GETTIME;
 	TIME end = (TIME)(now+improveStep*PER_SEC);
-	RRStaticSolver::Improvement improvement = scene ? scene->illuminationImprove(endByTime,(void*)&end) : RRStaticSolver::FINISHED;
+	RRStaticSolver::Improvement improvement = priv->scene ? priv->scene->illuminationImprove(endByTime,(void*)&end) : RRStaticSolver::FINISHED;
 	//REPORT(RRReporter::report(RRReporter::CONT," (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 	REPORT_END;
 	switch(improvement)
 	{
 		case RRStaticSolver::IMPROVED:
-			dirtyResults = true;
+			priv->dirtyResults = true;
 			improvement = RRStaticSolver::NOT_IMPROVED; // hide improvement until reading results
 			break;
 		case RRStaticSolver::NOT_IMPROVED:
@@ -347,12 +325,12 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	reportDirectIlluminationChange(true);
 #endif
 
-	if(dirtyResults && now>=(TIME)(lastReadingResultsTime+readingResultsPeriod*PER_SEC))
+	if(priv->dirtyResults && now>=(TIME)(priv->lastReadingResultsTime+priv->readingResultsPeriod*PER_SEC))
 	{
-		lastReadingResultsTime = now;
-		if(readingResultsPeriod<READING_RESULTS_PERIOD_MAX) readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
-		dirtyResults = false;
-		solutionVersion++;
+		priv->lastReadingResultsTime = now;
+		if(priv->readingResultsPeriod<READING_RESULTS_PERIOD_MAX) priv->readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
+		priv->dirtyResults = false;
+		priv->solutionVersion++;
 		improvement = RRStaticSolver::IMPROVED;
 	}
 	return improvement;
@@ -365,61 +343,61 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate()
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
 
 	// adjust userStep
-	float lastUserStep = (calcBeginTime-lastCalcEndTime)/(float)PER_SEC;
+	float lastUserStep = (calcBeginTime-priv->lastCalcEndTime)/(float)PER_SEC;
 	if(!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial userStep=0 means 'unknown yet' which forces too long improve (IMPROVE_STEP_NO_INTERACTION)
-	if(lastInteractionTime && lastInteractionTime>=lastCalcEndTime)
+	if(priv->lastInteractionTime && priv->lastInteractionTime>=priv->lastCalcEndTime)
 	{
 		// reportInteraction was called between this and previous calculate
-		if(lastCalcEndTime && lastUserStep<1.0f)
+		if(priv->lastCalcEndTime && lastUserStep<1.0f)
 		{
-			userStep = lastUserStep;
+			priv->userStep = lastUserStep;
 		}
 		REPORT(RRReporter::report(RRReporter::INFO,"User %d ms.\n",(int)(1000*lastUserStep)));
 	} else {
 		// no reportInteraction was called between this and previous calculate
 		// -> increase userStep
 		//    (this slowly increases calculation time)
-		userStep = lastInteractionTime ?
-			(lastCalcEndTime-lastInteractionTime)/(float)PER_SEC // time from last interaction (if there was at least one)
+		priv->userStep = priv->lastInteractionTime ?
+			(priv->lastCalcEndTime-priv->lastInteractionTime)/(float)PER_SEC // time from last interaction (if there was at least one)
 			: IMPROVE_STEP_NO_INTERACTION; // safety time for situations there was no interaction yet
-		REPORT(RRReporter::report(RRReporter::INFO,"User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*userStep)));
+		REPORT(RRReporter::report(RRReporter::INFO,"User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*priv->userStep)));
 	}
 
 	// adjust improveStep
-	if(!userStep || !calcStep || !improveStep)
+	if(!priv->userStep || !priv->calcStep || !priv->improveStep)
 	{
-		REPORT(RRReporter::report(RRReporter::INFO,"Reset to NO_INTERACT(%f,%f,%f).\n",userStep,calcStep,improveStep));
-		improveStep = IMPROVE_STEP_NO_INTERACTION;
+		REPORT(RRReporter::report(RRReporter::INFO,"Reset to NO_INTERACT(%f,%f,%f).\n",priv->userStep,priv->calcStep,priv->improveStep));
+		priv->improveStep = IMPROVE_STEP_NO_INTERACTION;
 	}
 	else
 	{		
 		// try to balance our (calculate) time and user time 1:1
-		improveStep *= 
+		priv->improveStep *= 
 			// kdyz byl userTime 1000 a nahle spadne na 1 (protoze user hmatnul na klavesy),
 			// toto zajisti rychly pad improveStep z 80 na male hodnoty zajistujici plynuly render,
 			// takze napr. rozjezd kamery nezacne strasnym cukanim
-			(calcStep>6*userStep)?0.4f: 
+			(priv->calcStep>6*priv->userStep)?0.4f: 
 			// standardni vyvazovani s tlumenim prudkych vykyvu
-			( (calcStep>userStep)?0.8f:1.2f );
+			( (priv->calcStep>priv->userStep)?0.8f:1.2f );
 		// always spend at least 40% of our time in improve, don't spend too much by reading results etc
-		improveStep = MAX(improveStep,MIN_PORTION_SPENT_IMPROVING*calcStep);
+		priv->improveStep = MAX(priv->improveStep,MIN_PORTION_SPENT_IMPROVING*priv->calcStep);
 		// stick in interactive bounds
-		improveStep = CLAMP(improveStep,IMPROVE_STEP_MIN,IMPROVE_STEP_MAX);
+		priv->improveStep = CLAMP(priv->improveStep,IMPROVE_STEP_MIN,IMPROVE_STEP_MAX);
 	}
 
 	// calculate
-	RRStaticSolver::Improvement result = calculateCore(improveStep);
+	RRStaticSolver::Improvement result = calculateCore(priv->improveStep);
 
 	// adjust calcStep
-	lastCalcEndTime = GETTIME;
-	float lastCalcStep = (lastCalcEndTime-calcBeginTime)/(float)PER_SEC;
+	priv->lastCalcEndTime = GETTIME;
+	float lastCalcStep = (priv->lastCalcEndTime-calcBeginTime)/(float)PER_SEC;
 	if(!lastCalcStep) lastCalcStep = 0.00001f; // fight low timer precision, avoid 0, initial calcStep=0 means 'unknown yet'
 	if(lastCalcStep<1.0)
 	{
-		if(!calcStep)
-			calcStep = lastCalcStep;
+		if(!priv->calcStep)
+			priv->calcStep = lastCalcStep;
 		else
-			calcStep = 0.6f*calcStep + 0.4f*lastCalcStep;
+			priv->calcStep = 0.6f*priv->calcStep + 0.4f*lastCalcStep;
 	}
 
 	return result;
@@ -427,7 +405,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate()
 
 unsigned RRDynamicSolver::getSolutionVersion() const
 {
-	return solutionVersion;
+	return priv->solutionVersion;
 }
 
 unsigned RR_INTERFACE_ID_LIB()

@@ -9,7 +9,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include <vector>
 #include "RRVector.h"
 #include "RRIllumination.h"
 #include "RRStaticSolver.h"
@@ -680,41 +679,10 @@ namespace rr
 		virtual RRIlluminationPixelBuffer* newPixelBuffer(RRObject* object);
 
 	private:
-		enum ChangeStrength
-		{
-			NO_CHANGE,
-			SMALL_CHANGE,
-			BIG_CHANGE,
-		};
-		// calculate
-		RRObjects  objects;
-		RRLights   lights;
-		const RRIlluminationEnvironmentMap* environment;
-		RRStaticSolver::SmoothingParameters smoothing;
-		bool       dirtyMaterials;
-		bool       dirtyGeometry;
-		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
-		bool       dirtyResults;
-		long       lastInteractionTime;
-		long       lastCalcEndTime;
-		long       lastReadingResultsTime;
-		float      userStep; // avg time spent outside calculate().
-		float      calcStep; // avg time spent in calculate().
-		float      improveStep; // time to be spent in improve in calculate()
-		float      readingResultsPeriod;
-		RRObject*  multiObjectCustom;
-		RRObjectWithPhysicalMaterials* multiObjectPhysical;
-		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
-		protected: // temporary
-		RRStaticSolver*   scene;
-		unsigned   solutionVersion;
-		private:
-		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		RRStaticSolver::Improvement calculateCore(float improveStep);
-		// read results
-		RRScaler*  scaler;
 		void       updateVertexLookupTable();
-		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
+		struct Private;
+		Private* priv;
 	};
 
 

@@ -8,6 +8,7 @@
 #include "report.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../RRMathPrivate.h"
+#include "private.h"
 
 #undef REPORT
 #define REPORT(a)
@@ -405,7 +406,7 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		RR_ASSERT(0);
 		return 0;
 	}
-	if(!scene)
+	if(!priv->scene)
 	{
 		RR_ASSERT(0);
 		return 0;
@@ -427,7 +428,7 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		REPORT_BEGIN("Update envmap-100x interpolate"); \
 		const Interpolator* interpolator = cache.getInterpolator(gatherSize,filteredSize,radius); \
 		TEST100\
-		interpolator->interpolate(gatheredIrradiance,filteredIrradiance,scaler); \
+		interpolator->interpolate(gatheredIrradiance,filteredIrradiance,priv->scaler); \
 		REPORT_END; \
 		REPORT_BEGIN("Update envmap-100x send2gl"); \
 		TEST100\
@@ -453,7 +454,7 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 
 		// gather physical irradiances
 		TEST100
-		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,NULL,gatheredIrradiance);
+		cubeMapGather(priv->scene,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,NULL,gatheredIrradiance);
 
 		// fill cubemaps
 		// - diffuse

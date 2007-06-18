@@ -13,7 +13,7 @@
 namespace rr
 {
 
-//! Portable and limited std::vector replacement.
+//! Portable but limited std::vector replacement.
 //
 //! Purpose of RRVector is to replace STL in public Lightsprint headers,
 //! which makes Lightsprint work with any STL implementation.
@@ -27,6 +27,22 @@ public:
 		numUsed = 0;
 		numAllocated = 16;
 		c = (C*)malloc(sizeof(C)*numAllocated);
+	}
+	RRVector(const RRVector& a)
+	{
+		numUsed = a.numUsed;
+		numAllocated = a.numAllocated;
+		c = (C*)malloc(sizeof(C)*numAllocated);
+		memcpy(c,a.c,sizeof(C)*numUsed);
+	}
+	RRVector& operator=(const RRVector& a)
+	{
+		free(c);
+		numUsed = a.numUsed;
+		numAllocated = a.numAllocated;
+		c = (C*)malloc(sizeof(C)*numAllocated);
+		memcpy(c,a.c,sizeof(C)*numUsed);
+		return *this;
 	}
 	void push_back(C a)
 	{

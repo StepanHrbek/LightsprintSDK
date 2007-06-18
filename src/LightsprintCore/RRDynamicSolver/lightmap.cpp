@@ -6,6 +6,7 @@
 #include "Lightsprint/DemoEngine/Timer.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../RRMathPrivate.h"
+#include "private.h"
 
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 #define REPORT(a) a
@@ -615,7 +616,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 		pti.tri.pos3d = pti.tri.triangleBody.vertex0+(pti.tri.triangleBody.side1+pti.tri.triangleBody.side2)*0.333333f;
 		pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
 		pti.ray = RRRay::create();
-		pti.ray->rayLengthMin = minimalSafeDistance;
+		pti.ray->rayLengthMin = priv->minimalSafeDistance;
 		RRColor color = processTexel(pti);
 		delete pti.ray;
 		multiObject->setTriangleIllumination(pti.tri.triangleIndex,RM_IRRADIANCE_PHYSICAL,color);
@@ -624,8 +625,8 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	RRReporter::report(RRReporter::CONT," done in %.1fs.\n",secs);
 
 	// object -> solver.direct
-	scene->illuminationReset(false,true);
-	solutionVersion++;
+	priv->scene->illuminationReset(false,true);
+	priv->solutionVersion++;
 
 	return true;
 }
@@ -987,7 +988,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		unsigned uv[2]={0,0};
 		pixelBuffer->renderTexel(uv,RRColorRGBAF(0));
 		// continue with all texels, possibly in multiple threads
-		enumerateTexels(getMultiObjectCustom(),objectNumber,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,tc,minimalSafeDistance);
+		enumerateTexels(getMultiObjectCustom(),objectNumber,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,tc,priv->minimalSafeDistance);
 		pixelBuffer->renderEnd(true);
 #ifdef DIAGNOSTIC
 		logPrint();
@@ -1011,7 +1012,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 				rsc.pixelBuffer = pixelBuffer;
 				mesh->getTriangleMapping(postImportTriangle,rsc.triangleMapping);
 				// render all subtriangles into pixelBuffer using object's unwrap
-				scene->getSubtriangleMeasure(postImportTriangle,params.measure,getScaler(),renderSubtriangle,&rsc);
+				priv->scene->getSubtriangleMeasure(postImportTriangle,params.measure,getScaler(),renderSubtriangle,&rsc);
 			}
 		}
 		pixelBuffer->renderEnd(false);
@@ -1035,11 +1036,11 @@ static bool endByTime(void *context)
 
 bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect, unsigned benchTexels, unsigned benchQuality)
 {
-	if(!getMultiObjectCustom() || !scene)
+	if(!getMultiObjectCustom() || !priv->scene)
 	{
 		// create objects
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !scene)
+		if(!getMultiObjectCustom() || !priv->scene)
 		{
 			RR_ASSERT(0);
 			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateSolverIndirectIllumination: No objects in scene.\n");
@@ -1111,7 +1112,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				pti.tri.pos3d = pti.tri.triangleBody.vertex0+pti.tri.triangleBody.side1*0.33f+pti.tri.triangleBody.side2*0.33f;
 				pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
 				pti.ray = RRRay::create();
-				pti.ray->rayLengthMin = minimalSafeDistance;
+				pti.ray->rayLengthMin = priv->minimalSafeDistance;
 				processTexel(pti);
 				delete pti.ray;
 			}
@@ -1124,7 +1125,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		//RRReporter::report(RRReporter::CONT," scheduled for %.1fs, ",secondsInPropagatePlan);
 		TIME now = GETTIME;
 		TIME end = (TIME)(now+secondsInPropagatePlan*PER_SEC);
-		RRStaticSolver::Improvement improvement = scene->illuminationImprove(endByTime,(void*)&end);
+		RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByTime,(void*)&end);
 		RRReal secondsInPropagateReal = (GETTIME-now)/(float)PER_SEC;
 		if(improvement!=RRStaticSolver::IMPROVED)
 		{
