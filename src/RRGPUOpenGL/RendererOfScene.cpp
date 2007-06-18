@@ -80,7 +80,7 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
-	uberProgram = new de::UberProgram(buf1,buf2);
+	uberProgram = de::UberProgram::create(buf1,buf2);
 	params.brightness[0] = 1;
 	params.brightness[1] = 1;
 	params.brightness[2] = 1;

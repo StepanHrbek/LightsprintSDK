@@ -76,7 +76,7 @@ LightmapViewer::LightmapViewer(de::Texture* _lightmap, rr::RRMesh* _mesh)
 	alpha = false;
 	zoom = 1;
 	center = rr::RRVec2(0);
-	uberProgram = new de::UberProgram("../../data/shaders/texture.vs","../../data/shaders/texture.fs");
+	uberProgram = de::UberProgram::create("../../data/shaders/texture.vs","../../data/shaders/texture.fs");
 	lmapProgram = uberProgram->getProgram("#define TEXTURE\n");
 	lmapAlphaProgram = uberProgram->getProgram("#define TEXTURE\n#define SHOW_ALPHA0\n");
 	lineProgram = uberProgram->getProgram(NULL);

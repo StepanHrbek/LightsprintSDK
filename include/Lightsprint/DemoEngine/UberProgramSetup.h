@@ -7,6 +7,7 @@
 #ifndef UBERPROGRAMSETUP_H
 #define UBERPROGRAMSETUP_H
 
+#include "cstring"
 #include "UberProgram.h"
 #include "AreaLight.h"
 

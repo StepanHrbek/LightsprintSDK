@@ -323,7 +323,7 @@ int main(int argc, char **argv)
 	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
-	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+	uberProgram = de::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
 #ifdef WATER
 	water = new de::Water("..\\..\\data\\shaders\\",false,false);
 #endif

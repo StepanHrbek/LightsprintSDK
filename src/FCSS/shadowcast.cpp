@@ -180,7 +180,7 @@ void init_gl_resources()
 	lightsprintMap = de::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 #endif
 
-	uberProgram = new de::UberProgram("shaders\\ubershader.vs", "shaders\\ubershader.fs");
+	uberProgram = de::UberProgram::create("shaders\\ubershader.vs", "shaders\\ubershader.fs");
 	de::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;

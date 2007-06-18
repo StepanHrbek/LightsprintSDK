@@ -530,7 +530,7 @@ int main(int argc, char **argv)
 	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
-	uberProgram = new de::UberProgram("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+	uberProgram = de::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;

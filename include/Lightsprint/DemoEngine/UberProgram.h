@@ -7,7 +7,6 @@
 #ifndef UBERPROGRAM_H
 #define UBERPROGRAM_H
 
-#include <map>
 #include "Program.h"
 
 namespace de
@@ -24,21 +23,23 @@ namespace de
 class DE_API UberProgram
 {
 public:
+	// interface
+
+	//! Returns program for given set of defines.
+	virtual Program* getProgram(const char* defines) = 0;
+	virtual ~UberProgram() {};
+
+	// tools
+
 	//! Creates UberProgram from vertex and fragment shaders stored in text files.
 	//! \param avertexShaderFileName
 	//!  File name of GLSL vertex shader source code.
 	//! \param afragmentShaderFileName
 	//!  File name of GLSL fragment shader source code.
-	UberProgram(const char* avertexShaderFileName, const char* afragmentShaderFileName);
-	virtual ~UberProgram();
+	static UberProgram* create(const char* vertexShaderFileName, const char* fragmentShaderFileName);
 
-	//! Returns program for given set of defines.
-	Program* getProgram(const char* defines);
-
-private:
-	const char* vertexShaderFileName;
-	const char* fragmentShaderFileName;
-	std::map<unsigned,Program*> cache;
+protected:
+	UberProgram() {};
 };
 
 }; // namespace
