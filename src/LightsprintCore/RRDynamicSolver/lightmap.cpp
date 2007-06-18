@@ -347,7 +347,7 @@ shoot_from_center:
 			pti.ray->rayDirInv[0] = dirsize/dir[0];
 			pti.ray->rayDirInv[1] = dirsize/dir[1];
 			pti.ray->rayDirInv[2] = dirsize/dir[2];
-			pti.ray->rayLengthMax = 100000; //!!! hard limit
+			pti.ray->rayLengthMax = pti.context.params->locality;
 			pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
 			bool hit = collider->intersect(pti.ray);
 #ifdef DIAGNOSTIC_RAYS
@@ -461,7 +461,7 @@ shoot_from_center:
 			RRVec3 dir = (light->type==RRLight::DIRECTIONAL)?-light->direction:(light->position-pti.tri.pos3d);
 			RRReal dirsize = dir.length();
 			dir /= dirsize;
-			if(light->type==RRLight::DIRECTIONAL) dirsize *= 1e6; //!!! fudge number
+			if(light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
 			float normalIncidence = dot(dir,pti.tri.normal);
 			if(normalIncidence<=0)
 			{

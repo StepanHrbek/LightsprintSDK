@@ -6,7 +6,18 @@
 
 \page news What's new
 
-\section news22 ------------------------------------ 2007.6.x -------------------------------------
+\section news23 ------------------------------------ 2007.6.x -------------------------------------
+
+NEWS
+
+- RRDynamicSolver::UpdateParams::locality for more local illumination
+
+CHANGES
+
+- removed STL from API (better compatibility, fixed STLport issue)
+  warning: RRObjects and RRLights are similar to std::vector, not identical
+
+\section news22 ------------------------------------ 2007.6.18 -------------------------------------
 
 NEWS
 

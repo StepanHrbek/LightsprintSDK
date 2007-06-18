@@ -357,6 +357,16 @@ namespace rr
 			//! leak under the rug). Set it to zero to disable any corrections.
 			RRReal rugDistance;
 
+			//! Distance in world space; illumination never comes from greater distance.
+			//
+			//! As long as it is bigger than scene size, results are realistic.
+			//! Setting it below scene size makes results less realistic, illumination
+			//! gets increasingly influenced by outer environment instead of scene.
+			//! (Rays are shot from texel into scene. When scene is not intersected
+			//! in in this or lower distance from texel, illumination is read from 
+			//! outer environment.)
+			RRReal locality;
+
 			//! Turns on diagnostic output, generated map contains diagnostic values.
 			bool diagnosticOutput;
 
@@ -370,6 +380,7 @@ namespace rr
 				quality = 0;
 				insideObjectsTreshold = 1;
 				rugDistance = 0.001f;
+				locality = 100000;
 				diagnosticOutput = false;
 			}
 		};

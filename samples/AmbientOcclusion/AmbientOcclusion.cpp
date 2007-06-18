@@ -358,6 +358,7 @@ void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, uns
 	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 	paramsIndirect.applyCurrentSolution = false;
 	paramsIndirect.applyEnvironment = true;
+	//paramsIndirect.locality = 4;
 	solver->updateVertexBuffers(0,true,&paramsDirect,&paramsIndirect); 
 
 	// calculate per pixel - selected objects

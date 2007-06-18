@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVector.h
-//! \brief RRVector - portable std::vector replacement
+//! \brief RRVector - portable but limited std::vector replacement
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -17,17 +17,21 @@ namespace rr
 //
 //! Purpose of RRVector is to replace STL in public Lightsprint headers,
 //! which makes Lightsprint work with any STL implementation.
-//! Warning: It is only similar to std::vector.
+//! It functions like std::vector in simple cases demonstrated in Lightsprint SDK.
+//! It is not designed for more complex operations.
 template<class C>
 class RRVector
 {
 public:
+	//! Creates empty vector (like std::vector).
 	RRVector()
 	{
 		numUsed = 0;
 		numAllocated = 16;
 		c = (C*)malloc(sizeof(C)*numAllocated);
 	}
+	//! Creates copy of vector.
+	//! Does shallow copy of elements (unlike std::vector).
 	RRVector(const RRVector& a)
 	{
 		numUsed = a.numUsed;
@@ -35,6 +39,8 @@ public:
 		c = (C*)malloc(sizeof(C)*numAllocated);
 		memcpy(c,a.c,sizeof(C)*numUsed);
 	}
+	//! Assigns vector.
+	//! Does shallow copy of elements (unlike std::vector).
 	RRVector& operator=(const RRVector& a)
 	{
 		free(c);
@@ -44,6 +50,9 @@ public:
 		memcpy(c,a.c,sizeof(C)*numUsed);
 		return *this;
 	}
+	//! Appends element at the end of vector.
+	//! Elements may be relocated to different address in memory.
+	//! Does shallow copy at relocation (unlike std::vector).
 	void push_back(C a)
 	{
 		if(numUsed==numAllocated)
@@ -53,20 +62,25 @@ public:
 		}
 		c[numUsed++] = a;
 	}
+	//! Returns number of elements in vector (like std::vector).
 	unsigned size() const
 	{
 		return numUsed;
 	}
+	//! Returns reference to i-th element (like std::vector).
 	C& operator[](unsigned i)
 	{
 		assert(i<numUsed);
 		return c[i];
 	}
+	//! Returns const reference to i-th element (like std::vector).
 	const C& operator[](unsigned i) const
 	{
 		assert(i<numUsed);
 		return c[i];
 	}
+	//! Frees elements.
+	//! Doesn't call element destructors (unlike std::vector).
 	~RRVector()
 	{
 		free(c);
