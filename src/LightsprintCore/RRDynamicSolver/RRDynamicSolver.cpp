@@ -107,7 +107,7 @@ RRObject* RRDynamicSolver::getObject(unsigned i)
 	//if(dirtyGeometry) return NULL;
 
 	if(i>=objects.size()) return NULL;
-	return objects.at(i).object;
+	return objects[i].object;
 }
 
 const RRObject* RRDynamicSolver::getMultiObjectCustom() const
@@ -140,7 +140,7 @@ RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i)
 	//if(dirtyGeometry) return NULL;
 
 	if(i>=objects.size()) return NULL;
-	return objects.at(i).illumination;
+	return objects[i].illumination;
 }
 
 const RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i) const
@@ -149,7 +149,7 @@ const RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i) const
 	//if(dirtyGeometry) return NULL;
 
 	if(i>=objects.size()) return NULL;
-	return objects.at(i).illumination;
+	return objects[i].illumination;
 }
 
 void RRDynamicSolver::reportMaterialChange()
@@ -243,7 +243,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		RRObject** importers = new RRObject*[objects.size()];
 		for(unsigned i=0;i<(unsigned)objects.size();i++)
 		{
-			importers[i] = objects.at(i).object;
+			importers[i] = objects[i].object;
 		}
 		// create multi in custom scale
 		multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)objects.size(),smoothing.intersectTechnique,smoothing.stitchDistance,smoothing.stitchDistance>=0,NULL);

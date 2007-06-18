@@ -963,8 +963,8 @@ void LightsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool swa
 LightsFromFCollada::~LightsFromFCollada()
 {
 	// delete lights
-	for(iterator i=begin();i!=end();i++)
-		delete *i;
+	for(unsigned i=0;i<size();i++)
+		delete (*this)[i];
 }
 
 

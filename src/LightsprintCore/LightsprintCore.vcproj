@@ -897,6 +897,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\include\Lightsprint\RRVector.h"
+				>
+			</File>
+			<File
 				RelativePath="RRDynamicSolver\vertexBuffer.cpp"
 				>
 				<FileConfiguration
@@ -918,6 +922,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="..\LicGen\include\LicGen.h"
+			>
+		</File>
+		<File
+			RelativePath="..\LicGen\include\LicGenOpt.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\Lightsprint\RRDebug.h"
 			>
 		</File>
@@ -931,14 +943,6 @@
 		</File>
 		<File
 			RelativePath="RRReporter.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\LicGen\include\LicGenOpt.h"
-			>
-		</File>
-		<File
-			RelativePath="..\LicGen\include\LicGen.h"
 			>
 		</File>
 	</Files>

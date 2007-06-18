@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <vector>
+#include "RRVector.h"
 #include "RRIllumination.h"
 #include "RRStaticSolver.h"
 
@@ -124,7 +125,7 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRObjects
-	//! Set of illuminated objects with std::vector interface.
+	//! Set of illuminated objects with interface similar to std::vector.
 	//
 	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
 	//! You may use it for example to
@@ -135,7 +136,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRObjects : public std::vector<RRIlluminatedObject>
+	class RRObjects : public RRVector<RRIlluminatedObject>
 	{
 	public:
 		virtual ~RRObjects() {};
@@ -145,7 +146,7 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRLights
-	//! Set of lights with std::vector interface.
+	//! Set of lights with interface similar to std::vector.
 	//
 	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
 	//! You may use it for example to
@@ -154,7 +155,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRLights : public std::vector<RRLight*>
+	class RRLights : public RRVector<RRLight*>
 	{
 	public:
 		virtual ~RRLights() {};
