@@ -32,9 +32,9 @@ public:
 	// tools
 
 	//! Creates UberProgram from vertex and fragment shaders stored in text files.
-	//! \param avertexShaderFileName
+	//! \param vertexShaderFileName
 	//!  File name of GLSL vertex shader source code.
-	//! \param afragmentShaderFileName
+	//! \param fragmentShaderFileName
 	//!  File name of GLSL fragment shader source code.
 	static UberProgram* create(const char* vertexShaderFileName, const char* fragmentShaderFileName);
 

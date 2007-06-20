@@ -35,6 +35,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRGPUOpenGL", "RRGPUOpenGL\RRGPUOpenGL.vcproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
+		{259AA93C-416C-DAC2-3943-B73E93A91A4B} = {259AA93C-416C-DAC2-3943-B73E93A91A4B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows", "..\samples\PenumbraShadows\PenumbraShadows.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
@@ -45,6 +46,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeRadiosity", "..\samples\RealtimeRadiosity\RealtimeRadiosity.vcproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
+		{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A} = {A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightmaps", "..\samples\Lightmaps\Lightmaps.vcproj", "{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}"
