@@ -340,7 +340,17 @@ namespace rr
 		//! so bindTexture() doesn't bind it for any 3D API.
 		//! \param width Width of pixel buffer/texture.
 		//! \param height Height of pixel buffer/texture.
-		static RRIlluminationPixelBuffer* create(unsigned width, unsigned height);
+		//! \param spreadForegroundColor
+		//!  How far foreground (used) colors spread into background (unused) regions.
+		//!  For lightmaps that are bilinearly filtered at application time, set 2 or higher
+		//!  to prevent background color leaking into foreground.
+		//!  For lightmaps that are unfiltered at application time, set 1 or higher.
+		//!  Set high enough (e.g. 1000) to fill whole background by nearest foreground color.
+		//! \param backgroundColor
+		//!  Color of unused background pixels.
+		//! \param smoothBackground
+		//!  Smooth foreground-background transition.
+		static RRIlluminationPixelBuffer* create(unsigned width, unsigned height, unsigned spreadForegroundColor=2, RRColorRGBAF backgroundColor=RRColorRGBAF(0), bool smoothBackground = false);
 
 		//! Loads pixel buffer stored on disk as 2d image.
 		//

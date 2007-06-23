@@ -15,7 +15,7 @@ namespace rr
 	class RRIlluminationPixelBufferInMemory : public RRIlluminationPixelBuffer
 	{
 	public:
-		RRIlluminationPixelBufferInMemory(const char* filename, unsigned width, unsigned height);
+		RRIlluminationPixelBufferInMemory(const char* filename, unsigned width, unsigned height, unsigned spreadForegroundColor, RRColorRGBAF backgroundColor, bool smoothBackground);
 		virtual void renderBegin();
 		virtual void renderTriangle(const IlluminatedTriangle& it);
 		virtual void renderTexel(const unsigned uv[2], const RRColorRGBAF& color);
@@ -29,6 +29,9 @@ namespace rr
 		friend RRIlluminationPixelBuffer;
 		RRColorRGBAF* renderedTexels;
 		de::Texture* texture;
+		unsigned spreadForegroundColor;
+		RRColorRGBAF backgroundColor;
+		bool smoothBackground;
 	};
 
 } // namespace

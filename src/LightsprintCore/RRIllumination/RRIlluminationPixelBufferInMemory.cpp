@@ -16,7 +16,7 @@ namespace rr
 //
 // RRIlluminationPixelBufferInMemory
 
-RRIlluminationPixelBufferInMemory::RRIlluminationPixelBufferInMemory(const char* filename, unsigned awidth, unsigned aheight)
+RRIlluminationPixelBufferInMemory::RRIlluminationPixelBufferInMemory(const char* filename, unsigned _width, unsigned _height, unsigned _spreadForegroundColor, RRColorRGBAF _backgroundColor, bool _smoothBackground)
 {
 	if(filename)
 	{
@@ -24,9 +24,12 @@ RRIlluminationPixelBufferInMemory::RRIlluminationPixelBufferInMemory(const char*
 	}
 	else
 	{
-		texture = de::Texture::createM(NULL,awidth,aheight,false,de::Texture::TF_RGBA);
+		texture = de::Texture::createM(NULL,_width,_height,false,de::Texture::TF_RGBA);
 	}
 	renderedTexels = NULL;
+	spreadForegroundColor = _spreadForegroundColor;
+	backgroundColor = _backgroundColor;
+	smoothBackground = _smoothBackground;
 }
 
 void RRIlluminationPixelBufferInMemory::renderBegin()
@@ -63,9 +66,10 @@ void RRIlluminationPixelBufferInMemory::renderTexel(const unsigned uv[2], const 
 	renderedTexels[uv[0]+uv[1]*texture->getWidth()] += color;
 }
 
-void filter(RRColorRGBAF* inputs,RRColorRGBAF* outputs,unsigned width,unsigned height)
+void filter(RRColorRGBAF* inputs,RRColorRGBAF* outputs,unsigned width,unsigned height,bool* _changed)
 {
 	unsigned size = width*height;
+	bool changed = false;
 #pragma omp parallel for schedule(static)
 	for(int i=0;i<(int)size;i++)
 	{
@@ -88,8 +92,11 @@ void filter(RRColorRGBAF* inputs,RRColorRGBAF* outputs,unsigned width,unsigned h
 			RRColorRGBAF cc = ( c + (c1+c2+c3+c4)*0.25f + (c5+c6+c7+c8)*0.166f )*1.3f;
 
 			outputs[i] = cc/MAX(cc.w,1.0f);
+
+			changed = true;
 		}
 	}
+	*_changed = changed;
 }
 
 void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
@@ -100,14 +107,15 @@ void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 		return;
 	}
 
+	unsigned numTexels = texture->getWidth()*texture->getHeight();
+
 	// normalize texels
 	#pragma omp parallel for schedule(static)
-	for(int i=0;i<(int)(texture->getWidth()*texture->getHeight());i++)
+	for(int i=0;i<(int)numTexels;i++)
 	{
 		if(renderedTexels[i].w)
 		{
 			renderedTexels[i] /= renderedTexels[i][3];
-			renderedTexels[i][3] = 1; //missing vec4 operators
 		}
 #ifdef DIAGNOSTIC_RED_UNRELIABLE
 		else
@@ -123,7 +131,7 @@ void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 	{
 		0,0xff0000ff,0xff00ff00,0xffff0000,0xffffff00,0xffff00ff,0xff00ffff,0xffffffff
 	};
-	for(unsigned i=0;i<texture->getWidth()*texture->getHeight();i++)
+	for(unsigned i=0;i<numTexels;i++)
 	{
 		renderedTexels[i].color = diagColors[CLAMPED(renderedTexels[i].color&255,0,7)];
 	}
@@ -131,13 +139,39 @@ void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 
 #ifndef DIAGNOSTIC_RED_UNRELIABLE
 	// alloc second workspace
-	RRColorRGBAF* workspaceTexels = new rr::RRColorRGBAF[texture->getWidth()*texture->getHeight()];
+	RRColorRGBAF* workspaceTexels = new rr::RRColorRGBAF[numTexels];
 
-	// filter map
-	for(int pass=0;pass<(preferQualityOverSpeed?2:2);pass++)
+	// spread foreground color
+	bool changed = true;
+	for(unsigned pass=0;pass<spreadForegroundColor && changed;pass++)
 	{
-		filter(renderedTexels,workspaceTexels,texture->getWidth(),texture->getHeight());
-		filter(workspaceTexels,renderedTexels,texture->getWidth(),texture->getHeight());
+		filter(renderedTexels,workspaceTexels,texture->getWidth(),texture->getHeight(),&changed);
+		filter(workspaceTexels,renderedTexels,texture->getWidth(),texture->getHeight(),&changed);
+	}
+
+	// set background color
+	for(unsigned i=0;i<numTexels;i++)
+	{
+		RRReal alpha = renderedTexels[i][3];
+		if(smoothBackground)
+		{
+			if(alpha<1)
+			{
+				renderedTexels[i] = renderedTexels[i] + backgroundColor*(1-alpha);
+			}
+
+		}
+		else
+		{
+			if(alpha<=0)
+			{
+				renderedTexels[i] = backgroundColor;
+			}
+			else
+			{
+				renderedTexels[i] = renderedTexels[i]/alpha;
+			}
+		}
 	}
 
 	// copy to texture
@@ -179,14 +213,14 @@ RRIlluminationPixelBufferInMemory::~RRIlluminationPixelBufferInMemory()
 //
 // RRIlluminationPixelBuffer
 
-RRIlluminationPixelBuffer* RRIlluminationPixelBuffer::create(unsigned w, unsigned h)
+RRIlluminationPixelBuffer* RRIlluminationPixelBuffer::create(unsigned w, unsigned h, unsigned spreadForegroundColor, RRColorRGBAF backgroundColor, bool smoothBackground)
 {
-	return new RRIlluminationPixelBufferInMemory(NULL,w,h);
+	return new RRIlluminationPixelBufferInMemory(NULL,w,h,spreadForegroundColor,backgroundColor,smoothBackground);
 }
 
 RRIlluminationPixelBuffer* RRIlluminationPixelBuffer::load(const char* filename)
 {
-	RRIlluminationPixelBufferInMemory* illum = new RRIlluminationPixelBufferInMemory(filename,0,0);
+	RRIlluminationPixelBufferInMemory* illum = new RRIlluminationPixelBufferInMemory(filename,0,0,2,RRColorRGBAF(0),false);
 	if(!illum->texture)
 		SAFE_DELETE(illum);
 	return illum;
