@@ -8,6 +8,9 @@
 #define DEMOENGINE_H
 
 #ifdef _MSC_VER
+#ifdef DONT_LINK_DEMOENGINE
+	#define DE_API
+#else // !DONT_LINK_DEMOENGINE
 #ifdef DE_STATIC
 	// use static library
 	#define DE_API
@@ -42,6 +45,7 @@
 	#pragma comment(lib,"opengl32.lib")
 	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")
+#endif // !DONT_LINK_DEMOENGINE
 #else
 	// use static library
 	#define DE_API
