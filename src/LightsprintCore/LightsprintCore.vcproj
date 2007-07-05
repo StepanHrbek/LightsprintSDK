@@ -805,6 +805,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\RRDynamicSolver\gather.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\RRDynamicSolver\gather.h"
 				>
 			</File>
