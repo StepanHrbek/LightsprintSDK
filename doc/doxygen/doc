@@ -263,7 +263,7 @@ Lightsprint SDK uses following third party libraries:
 
 
 
-\page main_integration GI solver
+\page main_integration Integrating
 
 Integration of global illumination (GI) solver into your project is described in four steps.
 
@@ -721,10 +721,10 @@ Advanced:
    and FPS decreases.
 
  - Call RRDynamicSolver::getIllumination() 
-   to acquire static object's indirect illumination, see \ref data_vertex_buffer and \ref data_lightmap.
+   to acquire static object's illumination, see \ref data_vertex_buffer and \ref data_pixel_buffer.
 
  - Call RRDynamicSolver::updateEnvironmentMaps()
-   to acquire static or dynamic object's indirect illumination, see \ref data_environment_map.
+   to acquire static or dynamic object's illumination, see \ref data_environment_map.
 
  Nearly all of these calls are demonstrated in RealtimeRadiosity sample.
 
@@ -830,39 +830,89 @@ Advanced:
 
 
 
-\page main_data_access Computed GI
- Lightsprint calculates direct, indirect or global illumination.
- To render with calculated illumination, you need access to calculated data structures.
- Lightsprint supports multiple data structures optimized for different use cases.
+\page main_data_access Calculating 
+ Lightsprint can calculate
 
- Pick one of these structures for each object
- and use it for rendering global illumination. You may use different structures
- for different objects. Read how structures are created, updated
- and used in renderer:
+ - <b> \subpage data_illumination </b>
+
+ - <b> \subpage data_ambient_occlusion </b>
+
+ - <b> \subpage data_bent_normals </b>
+
+ and store them in object's
 
  - <b> \subpage data_vertex_buffer </b>
 
- - <b> \subpage data_lightmap </b>
+ - <b> \subpage data_pixel_buffer </b>
 
  - <b> \subpage data_environment_map </b>
 
- For quick access to single value (for example by AI), you can query illumination for
+ or quickly return single value for given
 
  - <b> \subpage data_triangle </b>
 
  - <b> \subpage data_ray </b>
 
+ Lightsprint is very flexible, it lets you pick optimal structures 
+ for different objects and data types
+ to precisely match your quality/memory footprint requirements.
+ E.g. you can use pixel buffers only for objects that benefit from per-pixel details,
+ use vertex buffers for the rest. You can mix structures even in single object,
+ e.g. use lightmap and per-vertex bent normals.
 
 
-\page data_vertex_buffer Vertex color buffer
 
- Vetrtex color buffer is designed for global illumination of one object.
+\page data_illumination Illumination direct / indirect / global
+
+ Store it in object's
+
+ - <b> \subpage data_vertex_buffer </b>
+
+ - <b> \subpage data_pixel_buffer </b>
+
+ - <b> \subpage data_environment_map </b>
+
+
+
+\page data_ambient_occlusion Ambient occlusion
+
+ Store it in object's
+
+ - <b> \subpage data_vertex_buffer </b>
+
+ - <b> \subpage data_pixel_buffer </b>
+
+ - <b> \subpage data_environment_map </b>
+
+
+
+\page data_bent_normals Bent normals
+
+ Bent normals store incoming light direction and make your specular
+ reflections and normal maps look great.
+
+ Bent normals are optional enhancement of precomputed illumination.
+
+ Store them in object's
+
+ - <b> \subpage data_vertex_buffer </b>
+
+ - <b> \subpage data_pixel_buffer </b>
+
+
+
+\page data_vertex_buffer Vertex buffer
+
+ Vertex buffer is designed for storage of per-vertex data for single object.
 
  \section d11 Suitable for
-   - static objects: YES
-   - dynamic objects: NO
-   - realtime calculated illumination: YES
-   - precalculated illumination: YES
+   <table>
+    <tr><th></th>                                 <th>global or direct or indirect illumination</th> <th>ambient occlusion</th> <th>bent normals</th> </tr>
+    <tr><th>static objects</th>                   <td>YES</td> <td>YES</td> <td>YES</td> </tr>
+    <tr><th>dynamic objects</th>                  <td>NO </td> <td>YES</td> <td>YES</td> </tr>
+    <tr><th>realtime calculated illumination</th> <td>YES</td> <td>NO </td> <td>NO </td> </tr>
+    <tr><th>precalculated illumination</th>       <td>YES</td> <td>YES</td> <td>YES</td> </tr>
+   </table>
 
  \section d12 Advantages
    - Compact representation. It requires only few bytes per vertex.
@@ -871,11 +921,14 @@ Advanced:
    - Fast rendering.
      No sampler resources are consumed.
      It can be arbitrarily postprocessed in vertex shader.
-     You may have for example multiple layers of precalculated indirect illumination 
-     and mix them in vertex shader according to changes in scene.
+     You can have multiple layers of precalculated indirect illumination 
+     and mix them at no cost in vertex shader according to changes in scene.
    - There is no need to change your lightning equation,
      simply use our ambient data instead of constant ambient.
-   - Ambient values don't depend on view angle, so rendering is very fast.
+   - If you don't precompute bent normals, ambient lighting values
+     don't depend on view angle, so rendering is very fast.
+   - If you do precompute bent normals, normal maps work great even in shadows,
+     knowing direction of incoming indirect light.
 
  \section d13 Disadvantages
    - Details are missing in areas without vertices.
@@ -885,7 +938,6 @@ Advanced:
    - Long narrow triangles (needles) often create visible artifacts.
      This is often problem also for physical engine,
      so your 3d artisis probably know they should avoid needles.
-   - Ambient values don't depend on view angle, so normal maps have no effect.
 
  \section d15 Data container interface
    - interface: RRIlluminationVertexBuffer
@@ -912,7 +964,7 @@ Advanced:
 
  \section d16 Rendering with
    - Stream data from vertex buffer into vertex shader, interpret them
-     in shader as an ambient light level.
+     in shader appropriately as light level, ambient occlusion or bent normal.
 
  \section d17 Examples
    - OpenGL example:
@@ -1008,19 +1060,24 @@ Advanced:
    - Alternatively, applying colors from vertex buffer could be done in fixed pipeline,
      without shaders, but it is beyond scope of this documentation.
    - See Direct3D, OpenGL or your engine documentation for more details
-     on streaming per vertex data to vertex shader and rendering with ambient light.
+     on streaming per vertex data to vertex shader and rendering with ambient light,
+     ambient occlusion or bent normals.
 
 
 
-\page data_lightmap Lightmap (with direct, indirect or global illumination)
+\page data_pixel_buffer Pixel buffer
 
- Lightmap is designed for global illumination of one object.
+ Pixel buffer (2d texture) is designed for storage of per-pixel data 
+ for single object (Light map, Ambient occlusion map, Bent normal map).
 
  \section d21 Suitable for
-   - static objects: YES
-   - dynamic objects: NO
-   - realtime calculated illumination: NO
-   - precalculated illumination: YES
+   <table>
+    <tr><th></th>                                 <th>global or direct or indirect illumination</th> <th>ambient occlusion</th> <th>bent normals</th> </tr>
+    <tr><th>static objects</th>                   <td>YES</td> <td>YES</td> <td>YES</td> </tr>
+    <tr><th>dynamic objects</th>                  <td>NO </td> <td>YES</td> <td>YES</td> </tr>
+    <tr><th>realtime calculated illumination</th> <td>NO </td> <td>NO </td> <td>NO </td> </tr>
+    <tr><th>precalculated illumination</th>       <td>YES</td> <td>YES</td> <td>YES</td> </tr>
+   </table>
 
  \section d22 Advantages
    - High precision and detail without additional vertices.
@@ -1028,14 +1085,16 @@ Advanced:
    - Very low resolution is sufficient (with good unwrap) for ambient maps
      (lightmaps with indirect illumination).
      Ambient maps contain mostly low frequencies, no sharp edges.
-   - Illumination values don't depend on view angle, so rendering is very fast.
+   - If you don't precompute bent normals, ambient lighting values
+     don't depend on view angle, so rendering is very fast.
+   - If you do precompute bent normals, normal maps work great even in shadows,
+     knowing direction of incoming indirect light.
 
  \section d23 Disadvantages
    - You need additional uv channel with object's unwrap (for lightmap mapping).
      If you don't have it, ask your 3d artists
      to bake unwrap into meshes as an additional uv channel.
      Unwraps are often genrated automatically, using existing free or commercial tools.
-   - Illumination values don't depend on view angle, so normal maps have no effect.
 
  \section d25 Data container interface
    - interface: RRIlluminationPixelBuffer
@@ -1061,9 +1120,9 @@ Advanced:
      or RRDynamicSolver::updateLightmap().
 
  \section d26 Rendering with
-   - Map ambient texture to your object using your uv channel with object's unwrap,
-     read illumination value from texture in pixel shader
-     and interpret it as an ambient color.
+   - Map pixel buffer to your object using your uv channel with object's unwrap,
+     read per-pixel value from texture in pixel shader
+     and interpret it appropriately as light level, ambient occlusion or bent normal.
 
  \section d27 Examples
    - Generic example:
@@ -1200,7 +1259,7 @@ Advanced:
 
 \page data_environment_map Environment map
 
- Environment map is designed for global illumination of one object.
+ Environment map (cube texture) is designed for global illumination of single object.
 
  \section d31 Suitable for
    - static objects: YES

@@ -6,6 +6,7 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "report.h"
 #include "private.h"
+#include "gather.h"
 
 namespace rr
 {
@@ -95,10 +96,40 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 	return 1;
 }
 
-unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
+// post import triangly cele sceny -> pre import vertexy jednoho objektu
+unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const
+{
+	if(!priv->scene || !vertexBuffer)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
+	unsigned numPreImportVertices = getIllumination(objectHandle)->getNumPreImportVertices();
+	// load measure into each preImportVertex
+#pragma omp parallel for schedule(dynamic)
+	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+	{
+		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
+		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
+		RRVec3 data = RRVec3(0);
+		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
+		{
+			data = getStaticSolver()->getVertexDataFromTriangleData(t,v,perTriangleData,stride);
+			for(unsigned i=0;i<3;i++)
+			{
+				RR_ASSERT(_finite(data[i]));
+				RR_ASSERT(data[i]<1500000);
+			}
+		}
+		vertexBuffer->setVertex(preImportVertex,data);
+	}
+	return 1;
+}
+
+unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
 {
 	UpdateParameters paramsDirect;
-	paramsDirect.applyCurrentSolution = false;
+	paramsDirect.applyCurrentSolution = true; // NULL = realtime update, bez final gatheru
 	paramsDirect.applyEnvironment = false;
 	paramsDirect.applyLights = false;
 	UpdateParameters paramsIndirect;
@@ -109,8 +140,8 @@ unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createM
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
 
 	if(aparamsDirect || aparamsIndirect)
-	RRReporter::report(RRReporter::INFO,"Updating vertex buffers (%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
-		layerNumber,
+	RRReporter::report(RRReporter::INFO,"Updating vertex buffers (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
+		layerNumberLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.direct)?"D":"",
 		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.indirect)?"I":"",
@@ -125,20 +156,29 @@ unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createM
 	{
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumber);
-			if(!layer->vertexBuffer) layer->vertexBuffer = newVertexBuffer(getObject(object)->getCollider()->getMesh()->getNumVertices());
+			if(layerNumberLighting>=0)
+			{
+				RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumberLighting);
+				if(layer && !layer->vertexBuffer) layer->vertexBuffer = newVertexBuffer(getObject(object)->getCollider()->getMesh()->getNumVertices());
+			}
+			if(layerNumberBentNormals>=0)
+			{
+				RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumberBentNormals);
+				if(layer && !layer->vertexBuffer) layer->vertexBuffer = newVertexBuffer(getObject(object)->getCollider()->getMesh()->getNumVertices());
+			}
 		}
 	}
 
 	if(paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
 	{
-		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateVertexBuffers: paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
+		if(aparamsDirect) // don't report if direct is NULL, silently disable it
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateVertexBuffers: paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
 		paramsDirect.applyCurrentSolution = false;
 	}
 
-	// 1. first gather into solver.direct
-	// 2. propagate
-	if(aparamsIndirect)
+	// 1. first gather: solver+lights+env -> solver.direct
+	// 2. propagate: solver.direct -> solver.indirect
+	if(aparamsIndirect && (paramsIndirect.applyCurrentSolution || paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
 	{
 		// auto quality for first gather
 		// shoot 4x less indirect rays than direct
@@ -153,33 +193,68 @@ unsigned RRDynamicSolver::updateVertexBuffers(unsigned layerNumber, bool createM
 			return 0;
 
 		paramsDirect.applyCurrentSolution = true; // set solution generated here to be gathered in final gather
-		paramsDirect.measure.direct = false;
-		paramsDirect.measure.indirect = true; // it is stored in indirect (after calculate)
+		paramsDirect.measure.direct = true; // it is stored in direct+indirect (after calculate)
+		paramsDirect.measure.indirect = true;
+		// musim gathernout direct i indirect.
+		// indirect je jasny, jedine v nem je vysledek spocteny v calculate().
+		// ovsem direct musim tez, jedine z nej dostanu prime osvetleni emisivnim facem, prvni odraz od spotlight, lights a env
 	}
 
-	// 3. final gather into solver.direct
-	if(paramsDirect.applyLights || paramsDirect.applyEnvironment)
-	{
-		updateSolverDirectIllumination(&paramsDirect);
-		bool tmp = paramsDirect.measure.smoothed;
-		paramsDirect.measure = rr::RRRadiometricMeasure(0,0,0,1,0); // it is stored in direct (after reset)
-		paramsDirect.measure.smoothed = tmp; // preserve disabled smoothing
-	}
-
-	// 4. update buffers from solver.direct
 	unsigned updatedBuffers = 0;
-	//REPORT_INIT;
-	//REPORT_BEGIN("Updating vertex buffers.");
-	// for each object
-	for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+
+	if(paramsDirect.applyLights || paramsDirect.applyEnvironment || (paramsDirect.applyCurrentSolution && paramsDirect.quality))
 	{
-		RRObjectIllumination::Layer* layer = getIllumination(objectHandle)->getLayer(layerNumber);
-		if(layer->vertexBuffer)
+		// non realtime update
+
+		// 3. final gather: solver.direct+indirect+lights+env -> tmparray
+		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+		TexelResult* finalGather = new TexelResult[numTriangles];
+		gatherPerTriangle(&paramsDirect,finalGather,numTriangles);
+
+		// 4. interpolate: tmparray -> buffer
+		// for each object
+		for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 		{
-			updatedBuffers += updateVertexBuffer(objectHandle,layer->vertexBuffer,&paramsDirect);
+			if(layerNumberLighting>=0)
+			{
+				RRIlluminationVertexBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting)->vertexBuffer;
+				updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,vertexColors,&finalGather[0].irradiance,sizeof(finalGather[0]));
+			}
+			if(layerNumberBentNormals>=0)
+			{
+				RRIlluminationVertexBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals)->vertexBuffer;
+				updatedBuffers += updateVertexBufferFromPerTriangleData(objectHandle,bentNormals,&finalGather[0].bentNormal,sizeof(finalGather[0]));
+			}
+		}
+		delete[] finalGather;
+	}
+	else
+	if(paramsDirect.applyCurrentSolution)
+	{
+		// realtime update
+
+		for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+		{
+			if(layerNumberLighting>=0)
+			{
+				RRIlluminationVertexBuffer* vertexColors = getIllumination(objectHandle)->getLayer(layerNumberLighting)->vertexBuffer;
+				if(vertexColors)
+					updatedBuffers += updateVertexBuffer(objectHandle,vertexColors,&paramsDirect);
+			}
+			if(layerNumberBentNormals>=0)
+			{
+				RRIlluminationVertexBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals)->vertexBuffer;
+				if(bentNormals)
+					RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateVertexBuffers: Bent normals not supported in 'realtime' mode (quality=0).\n");
+			}
 		}
 	}
-	//REPORT_END;
+	else
+	{
+		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateVertexBuffers: No light sources enabled.\n");
+		RR_ASSERT(0);
+	}
+
 	return updatedBuffers;
 }
 

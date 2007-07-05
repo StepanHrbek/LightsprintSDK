@@ -351,20 +351,22 @@ void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, uns
 	// calculate per vertex - all objects
 	// it is faster and quality is good for some objects
 	rr::RRDynamicSolver::UpdateParameters paramsDirect;
-	paramsDirect.measure.scaled = false; // get vertex colors in HDR
+	paramsDirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
 	paramsDirect.quality = 5000;
 	paramsDirect.applyCurrentSolution = false;
 	paramsDirect.applyEnvironment = true;
 	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
+	paramsIndirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
+	paramsIndirect.quality = 2000;
 	paramsIndirect.applyCurrentSolution = false;
 	paramsIndirect.applyEnvironment = true;
 	//paramsIndirect.locality = 4;
-	solver->updateVertexBuffers(0,true,&paramsDirect,&paramsIndirect); 
+	solver->updateVertexBuffers(0,-1,true,&paramsDirect,&paramsIndirect); 
 
 	// calculate per pixel - selected objects
 	// it is slower, but some objects need it
 	rr::RRDynamicSolver::UpdateParameters paramsDirectPixel;
-	paramsDirectPixel.measure.scaled = true; // get maps in sRGB
+	paramsDirectPixel.measure = RM_IRRADIANCE_CUSTOM; // get maps in sRGB
 	paramsDirectPixel.quality = 2000;
 	paramsDirectPixel.applyEnvironment = true;
 	unsigned objectNumbers[] = {3};
@@ -374,7 +376,7 @@ void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, uns
 		if(solver->getObject(objectNumber))
 		{
 			solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer = solver->createIlluminationPixelBuffer(256,256);
-			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer,&paramsDirectPixel);
+			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirectPixel);
 		}
 	}
 }
@@ -390,7 +392,7 @@ void calculatePerPixel(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)
 	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 	paramsIndirect.applyCurrentSolution = false;
 	paramsIndirect.applyEnvironment = true;
-	solver->updateLightmaps(layerNumber,true,&paramsDirect,&paramsIndirect); 
+	solver->updateLightmaps(layerNumber,-1,true,&paramsDirect,&paramsIndirect); 
 }
 
 void saveAmbientOcclusionToDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layerNumber)

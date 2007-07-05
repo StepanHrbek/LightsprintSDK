@@ -51,7 +51,7 @@ class Object;
 struct Corner
 {
 	Node *node;
-	real power;
+	real power; // libovolne cislo, vaha corneru (soucet vah neni 1, je ulozen v powerTopLevel)
 };
 
 class IVertex
@@ -80,6 +80,9 @@ public:
 	void    fillInfo(Object* object, unsigned originalVertexIndex, struct IVertexInfo& info);
 	void    absorb(IVertex* aivertex);
 	unsigned getNumCorners() {return corners;}
+
+	// used by: triangledata -> vertexdata smoothing
+	RRVec3  getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, RRVec3* perTriangleData, unsigned stride, class Triangle* triangles, unsigned numTriangles) const;
 
 	bool    check();
 	bool    check(Point3 apoint);

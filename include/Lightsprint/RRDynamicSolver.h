@@ -395,7 +395,8 @@ namespace rr
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters that
 		//!  specify fast update (takes milliseconds) of RM_IRRADIANCE_PHYSICAL_INDIRECT data.
-		//!  params->measure specifies type of information stored in vertex buffer.
+		//!  \n Only subset of all parameters is supported, see remarks.
+		//!  \n params->measure specifies type of information stored in vertex buffer.
 		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
 		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
 		//! \return
@@ -404,13 +405,26 @@ namespace rr
 		//!  In comparison with more general updateVertexBuffers() function, this one
 		//!  lacks paramsIndirect. However, you can still include indirect illumination
 		//!  while updating single vertex buffer, see updateVertexBuffers() remarks.
+		//! \remarks
+		//!  In comparison with updateLightmap(),
+		//!  updateVertexBuffer() is very fast but less general, it always reads lighting from current solver,
+		//!  without final gather. In other words, it assumes that
+		//!  params.applyCurrentSolution=1; applyLights=0; applyEnvironment=0; quality=0.
+		//!  For higher quality final gathered results, use updateVertexBuffers().
 		virtual unsigned updateVertexBuffer(unsigned objectNumber, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params);
 
-		//! Updates vertex buffers with direct, indirect or global illumination on whole static scene's surface.
+		//! Updates vertex buffers with direct, indirect or global illumination and bent normals on whole static scene's surface.
 		//
-		//! \param layerNumber
+		//! \param layerNumberLighting
 		//!  Vertex colors for individual objects are stored into
-		//!  getIllumination(objectNumber)->getLayer(layerNumber)->vertexBuffer.
+		//!  getIllumination(objectNumber)->getLayer(layerNumberLighting)->vertexBuffer.
+		//!  \n Negative number disables update of buffers.
+		//! \param layerNumberBentNormals
+		//!  Bent normals for individual objects are stored into
+		//!  getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->vertexBuffer.
+		//!  \n Negative number disables update of buffers.
+		//!  \n Bent normals are intentionally stored in separated layer, so you can save memory
+		//!  by sharing single bent normal layer with multiple lighting layers.
 		//! \param createMissingBuffers
 		//!  If destination buffer doesn't exist, it is created by newVertexBuffer().
 		//! \param paramsDirect
@@ -420,7 +434,8 @@ namespace rr
 		//!  \n params->measure specifies type of information stored in vertex buffer.
 		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
 		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
-		//!  Set to NULL for no indirect illumination.
+		//!  \n Set both paramsDirect and paramsIndirect to NULL for 'realtime' update
+		//!  that fills buffers with indirect illumination in physical scale, read from current solution.
 		//! \param paramsIndirect
 		//!  Parameters of the update process specific for indirect illumination component of final color.
 		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
@@ -442,10 +457,10 @@ namespace rr
 		//!  if you set their params->applyCurrentSolution.
 		//! \remarks
 		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them:
-		//!  - if you don't need indirect illumination, simply call updateVertexBuffer() for all selected objects
+		//!  - for lighting in current solver, simply call updateVertexBuffer() for all selected objects
 		//!  - create vertex buffers for selected objects, make sure other vertex buffers are NULL and call updateVertexBuffers() with createMissingBuffers=false
-		//!  - call updateVertexBuffers(unused_layer,false,NULL,paramsIndirect) once to update current solution, call updateVertexBuffer(paramsDirect with applyCurrentSolution=true) for all selected objects
-		virtual unsigned updateVertexBuffers(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
+		//!  - call updateVertexBuffers(-1,-1,false,NULL,paramsIndirect) once to update current solution, call updateVertexBuffer(paramsDirect with applyCurrentSolution=true) for all selected objects
+		virtual unsigned updateVertexBuffers(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
 		//! Calculates and updates one lightmap with direct, indirect or global illumination on static object's surface.
 		//
@@ -462,33 +477,44 @@ namespace rr
 		//!  Number of object in this scene.
 		//!  Object numbers are defined by order in which you pass objects to setObjects().
 		//! \param lightmap
-		//!  Pixel buffer for storing calculated ambient map.
+		//!  Pixel buffer for storing calculated illumination.
 		//!  Lightmap holds irradiance in custom scale, which is illumination
 		//!  coming to object's surface, converted from physical W/m^2 units to your scale by RRScaler.
 		//!  Lightmap could contain direct, indirect or global illumination, depending on
 		//!  parameters you set in params.
+		//!  May be NULL.
+		//! \param bentNormals
+		//!  Pixel buffer for storing calculated bent normals.
+		//!  RGB values (range 0..1) are calculated from XYZ worldspace normalized normals
+		//!  (range -1..1) by this formula: (XYZ+1)/2.
+		//!  May be NULL.
 		//! \param params
 		//!  Parameters of the update process, NULL for the default parameters that
 		//!  specify fast preview update (takes milliseconds).
 		//!  Measure for ambient map in custom scale is RM_IRRADIANCE_CUSTOM_INDIRECT,
 		//!  HDR GI lightmap with baked diffuse color is RM_EXITANCE_PHYSICAL etc.
 		//! \return
-		//!  Number of lightmaps updated.
+		//!  Number of lightmaps and bent normal maps updated.
 		//!  Zero when no update was executed because of invalid inputs.
 		//!  Read system messages (RRReporter) for more details on failure.
 		//! \remarks
 		//!  In comparison with more general updateLightmaps() function, this one
 		//!  lacks paramsIndirect. However, you can still include indirect illumination
 		//!  while updating single lightmap, see updateLightmaps() remarks.
-		virtual unsigned updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, const UpdateParameters* params);
+		virtual unsigned updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* lightmap, RRIlluminationPixelBuffer* bentNormals, const UpdateParameters* params);
 
 		//! Calculates and updates all lightmaps with direct, indirect or global illumination on static scene's surfaces.
 		//
 		//! This is more powerful full scene version of limited single object's updateLightmap().
 		//!
-		//! \param layerNumber
+		//! \param layerNumberLighting
 		//!  Lightmaps for individual objects are stored into
 		//!  getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer.
+		//!  \n Negative number disables update of buffers.
+		//! \param layerNumberBentNormals
+		//!  Bent normal maps for individual objects are stored into
+		//!  getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->pixelBuffer.
+		//!  \n Negative number disables update of buffers.
 		//! \param createMissingBuffers
 		//!  If destination buffer doesn't exist, it is created by newPixelBuffer().
 		//! \param paramsDirect
@@ -520,8 +546,8 @@ namespace rr
 		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them:
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
 		//!  - create pixel buffers for selected objects, make sure other pixel buffers are NULL and call updateLightmaps() with createMissingBuffers=false
-		//!  - call updateLightmaps(unused_layer,false,NULL,paramsIndirect) once to update current solution, call updateLightmap(paramsDirect with applyCurrentSolution=true) for all selected objects
-		virtual unsigned updateLightmaps(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
+		//!  - call updateLightmaps(-1,-1,false,NULL,paramsIndirect) once to update current solution, call updateLightmap(paramsDirect with applyCurrentSolution=true) for all selected objects
+		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
@@ -665,16 +691,6 @@ namespace rr
 		virtual bool detectDirectIllumination() = 0;
 
 
-		//! Detects direct illumination on all faces in scene and sends it to the solver.
-		//
-		//! This is more general version of detectDirectIllumination(),
-		//! used for non-realtime calculations.
-		//! It supports all light sources: current solver, environment, lights.
-		virtual bool updateSolverDirectIllumination(const UpdateParameters* paramsDirect);
-
-		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
-		virtual bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
-
 		//! Returns new vertex buffer (for indirect illumination) in your custom format.
 		//
 		//! Default implementation allocates 3 floats per vertex in RAM.
@@ -690,7 +706,24 @@ namespace rr
 		virtual RRIlluminationPixelBuffer* newPixelBuffer(RRObject* object);
 
 	private:
+
+		//! Detects direct illumination on all faces in scene and sends it to the solver.
+		//
+		//! This is more general version of detectDirectIllumination(),
+		//! used for non-realtime calculations.
+		//! It supports all light sources: current solver, environment, lights.
+		//! \param paramsDirect
+		//!  Parameters of update process.
+		//! \param updateBentNormals
+		//!  Set it always to false.
+		virtual bool updateSolverDirectIllumination(const UpdateParameters* paramsDirect, bool updateBentNormals);
+
+		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
+		virtual bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
+
 		RRStaticSolver::Improvement calculateCore(float improveStep);
+		bool       gatherPerTriangle(const UpdateParameters* aparams, struct TexelResult* results, unsigned numResultSlots);
+		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
 		void       updateVertexLookupTable();
 		struct Private;
 		Private* priv;

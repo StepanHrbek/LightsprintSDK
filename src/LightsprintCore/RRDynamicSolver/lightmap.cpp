@@ -7,6 +7,7 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../RRMathPrivate.h"
 #include "private.h"
+#include "gather.h"
 
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 #define REPORT(a) a
@@ -17,8 +18,11 @@
 
 
 //#define RELIABILITY_FILTERING // prepares data for postprocess, that grows reliable texels into unreliable areas
-// chyba: kdyz se podari 1 paprsek z 1000, reliability je tak mala, ze vlastni udaj behem filtrovani
+// chyba1: kdyz se podari 1 paprsek z 1000, reliability je tak mala, ze vlastni udaj behem filtrovani
 //   zanikne a je prevalcovan irradianci sousednich facu
+//   chyba1 vznika jen v GPU filtrovani, bude opraveno prevodem filtrovani vzdy na CPU
+// chyba2: leaky na velkou vzdalenost jsou temer vzdy chyba, pritom ale mohou snadno nastat
+//   kdyz ma cely cluster velmi malou rel., pritece nahodna barva ze sousedniho clusteru
 
 #define POINT_LINE_DISTANCE_2D(point,line) ((line)[0]*(point)[0]+(line)[1]*(point)[1]+(line)[2])
 
@@ -192,13 +196,14 @@ struct TexelContext
 	RRDynamicSolver* solver;
 	RRIlluminationPixelBuffer* pixelBuffer;
 	const RRDynamicSolver::UpdateParameters* params;
+	RRIlluminationPixelBuffer* bentNormalsPerPixel;
 };
 
 struct ProcessTriangleInfo
 {
 	unsigned triangleIndex;
 	RRVec3 normal;
-	RRVec3 pos3d; //!!! to be removed
+	RRVec3 pos3d; //!!! to be removed (pouzito pro umisteni shooteru u svetel, odpadne az bude korektni antialias s nahodnym umistenim)
 	RRMesh::TriangleBody triangleBody;
 	RRVec3 line1InMap; // line equation in 0..1,0..1 map space
 	RRVec3 line2InMap;
@@ -229,13 +234,13 @@ struct ProcessTexelInfo
 //     baze (n3/u3/v3) je nespojita funkce normaly (n3), tj. nepatrne vychyleny triangl muze strilet uplne jinym smerem
 //      nez jeho kamaradi -> pri nizke quality pak ziska zretelne jinou barvu
 //     bazi by slo generovat spojite -> zlepseni kvality pri nizkem quality
-RRColorRGBAF processTexel(const ProcessTexelInfo& pti)
+TexelResult processTexel(const ProcessTexelInfo& pti)
 {
 	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom())
 	{
 		RRReporter::report(RRReporter::WARN,"processTexel: No objects in scene\n");
 		RR_ASSERT(0);
-		return RRColorRGBAF(0);
+		return TexelResult();
 	}
 
 
@@ -259,7 +264,7 @@ RRColorRGBAF processTexel(const ProcessTexelInfo& pti)
 	if(!shootToHemisphere && !shootToLights)
 	{
 		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"processTexel: Zero workload.\n");RR_ASSERT(0));		
-		return RRColorRGBAF(0);
+		return TexelResult();
 	}
 
 	// prepare ray
@@ -268,6 +273,7 @@ RRColorRGBAF processTexel(const ProcessTexelInfo& pti)
 
 	// shoot into hemisphere
 	RRColorRGBF irradianceHemisphere = RRColorRGBF(0);
+	RRVec3 bentNormalHemisphere = RRVec3(0);
 	RRReal reliabilityHemisphere = 1;
 	if(shootToHemisphere)
 	{
@@ -364,6 +370,7 @@ shoot_from_center:
 					if(scaler) scaler->getPhysicalScale(irrad);
 					maxSingleRayContribution = MAX(maxSingleRayContribution,irrad.sum());
 					irradianceHemisphere += irrad;
+					bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
 				}
 				hitsSky++;
 				hitsReliable++;
@@ -385,13 +392,22 @@ shoot_from_center:
 			}
 			else
 			{
-				// read cube irradiance as face exitance
+				// read texel irradiance as face exitance
 				if(pti.context.params->applyCurrentSolution)
 				{
 					RRVec3 irrad;
-					pti.context.solver->getStaticSolver()->getTriangleMeasure(pti.ray->hitTriangle,3,RM_EXITANCE_PHYSICAL,NULL,irrad);
+					// muzu do RM_EXITANCE_PHYSICAL dat pti.context.params->measure.direct/indirect?
+					//	-ve 1st gatheru chci direct(emisivita facu a realtime spotlight), indirect je 0
+					//	-ve final gatheru chci direct(emisivita facu a realtime spotlight) i indirect(neco spoctene minulym calculate)
+					// ano ale je to neprakticke, neudelam to.
+					// protoze je pracne vzdy spravne zapnout dir+indir, casto se v tom udela chyba
+					pti.context.solver->getStaticSolver()->getTriangleMeasure(pti.ray->hitTriangle,3,
+						RM_EXITANCE_PHYSICAL,
+						//RRRadiometricMeasure(1,0,0,pti.context.params->measure.direct,pti.context.params->measure.indirect),
+						NULL,irrad);
 					maxSingleRayContribution = MAX(maxSingleRayContribution,irrad.sum());
 					irradianceHemisphere += irrad;
+					bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
 				}
 				hitsScene++;
 				hitsReliable++;
@@ -401,14 +417,14 @@ shoot_from_center:
 		// automatically increase num of rays
 		if(hitsReliable<=rays/10 && hitsUnreliable<rays*100)
 		{
-			// gather at least rays/3 reliable rays, but do no more than rays*10 attempts
+			// gather at least rays/10 reliable rays, but do no more than rays*100 attempts
 //			printf(".");
 			goto shoot_new_batch;
 		}
 		const RRReal maxError = 0.05f;
 		if(hitsReliable && maxSingleRayContribution>irradianceHemisphere.sum()*maxError && hitsReliable+hitsUnreliable<rays*10)
 		{
-			// get error below maxError, but do no more than rays*100 attempts
+			// get error below maxError, but do no more than rays*10 attempts
 //			printf(":");
 //			goto shoot_new_batch;
 		}
@@ -419,6 +435,7 @@ shoot_from_center:
 		{
 			// completely unreliable
 			irradianceHemisphere = RRColorRGBAF(0);
+			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
 			//irradianceHemisphere = RRColorRGBAF(1,0,0,1);
 			//reliabilityHemisphere = 1;
@@ -429,6 +446,7 @@ shoot_from_center:
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
 			irradianceHemisphere = RRColorRGBAF(0);
+			bentNormalHemisphere = RRVec3(0);
 			reliabilityHemisphere = 0;
 		}
 		else
@@ -442,6 +460,7 @@ shoot_from_center:
 
 	// shoot into lights
 	RRColorRGBF irradianceLights = RRColorRGBF(0);
+	RRVec3 bentNormalLights = RRVec3(0);
 	RRReal reliabilityLights = 1;
 	if(shootToLights)
 	{
@@ -480,7 +499,9 @@ shoot_from_center:
 				if(!collider->intersect(pti.ray))
 				{
 					// add irradiance from light
-					irradianceLights += light->getIrradiance(pti.tri.pos3d,scaler) * normalIncidence;
+					RRVec3 irrad = light->getIrradiance(pti.tri.pos3d,scaler) * normalIncidence;
+					irradianceLights += irrad;
+					bentNormalLights += dir * irrad.abs().avg();
 					hitsLight++;
 					hitsReliable++;
 				}
@@ -511,6 +532,7 @@ shoot_from_center:
 		{
 			// completely unreliable
 			irradianceLights = RRColorRGBAF(0);
+			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
 		}
 		else
@@ -519,6 +541,7 @@ shoot_from_center:
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
 			irradianceLights = RRColorRGBAF(0);
+			bentNormalLights = RRVec3(0);
 			reliabilityLights = 0;
 		}
 		else
@@ -529,23 +552,37 @@ shoot_from_center:
 	}
 
 	// sum direct and indirect results
-	RRColorRGBAF irradiance = irradianceLights + irradianceHemisphere;
-	RRReal reliability = MIN(reliabilityLights,reliabilityHemisphere);
+	TexelResult result;
+	result.irradiance = irradianceLights + irradianceHemisphere; // [3] = 0
+	if(reliabilityLights || reliabilityHemisphere)
+	{
+		result.irradiance[3] = 1; // only completely unreliable results stay at 0, others get 1 here
+	}
+	result.bentNormal = bentNormalLights + bentNormalHemisphere; // [3] = 0
+	if(reliabilityLights || reliabilityHemisphere)
+	{
+		result.bentNormal[3] = 1; // only completely unreliable results stay at 0, others get 1 here
+	}
+	if(result.bentNormal[0] || result.bentNormal[1] || result.bentNormal[2]) // avoid NaN
+	{
+		result.bentNormal.RRVec3::normalize();
+	}
 
 	// scale irradiance (full irradiance, not fraction) to custom scale
 	if(pti.context.pixelBuffer && pti.context.params->measure.scaled && scaler)
-		scaler->getCustomScale(irradiance);
+		scaler->getCustomScale(result.irradiance);
+
+#ifdef RELIABILITY_FILTERING
+	RRReal reliability = MIN(reliabilityLights,reliabilityHemisphere);
 
 #ifdef BLUR
 	reliability /= BLUR;
 #endif
 
-#ifdef RELIABILITY_FILTERING 
 	// multiply by reliability, it will be corrected in postprocess
-	irradiance *= reliability;
-	irradiance[3] = reliability;
-#else
-	irradiance[3] = 1;
+	result.irradiance *= reliability; // filtr v pixbufu tento ukon anuluje
+
+	result.bentNormal *= result.irradiance.RRVec3::abs().avg(); // filtr v pixbufu tento ukon anuluje
 #endif
 
 	// diagnostic output
@@ -563,14 +600,31 @@ shoot_from_center:
 
 	// store irradiance in custom scale
 	if(pti.context.pixelBuffer)
-		pti.context.pixelBuffer->renderTexel(pti.uv,irradiance);
+		pti.context.pixelBuffer->renderTexel(pti.uv,result.irradiance);
 
-	return irradiance;
+	// store bent normal
+	if(pti.context.bentNormalsPerPixel)
+	{
+		if(pti.context.pixelBuffer &&
+			(pti.context.bentNormalsPerPixel->getWidth()!=pti.context.pixelBuffer->getWidth()
+			|| pti.context.bentNormalsPerPixel->getHeight()!=pti.context.pixelBuffer->getHeight()))
+		{
+			LIMITED_TIMES(1,RRReporter::report(RRReporter::ERRO,"processTexel: Lightmap and BentNormalMap sizes must be equal.\n"));
+			RR_ASSERT(0);
+		}
+		pti.context.bentNormalsPerPixel->renderTexel(pti.uv,
+			// instead of result.bentNormal
+			// pass (x+1)/2 to prevent underflow when saving -1..1 in 8bit 0..1
+			(result.bentNormal+RRVec4(1,1,1,0))*RRVec4(0.5f,0.5f,0.5f,1)
+			);
+	}
+
+	return result;
 }
 
 
-// CPU version, detects per-triangle direct from RRLights, RREnvironment, gathers from current solution
-bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams)
+// CPU, gathers per-triangle lighting from RRLights, RREnvironment, current solution
+bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, TexelResult* results, unsigned numResultSlots)
 {
 	if(!getMultiObjectCustom() || !getStaticSolver())
 	{
@@ -578,8 +632,8 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 		calculateCore(0);
 		if(!getMultiObjectCustom() || !getStaticSolver())
 		{
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::gatherPerTriangle: No objects in scene.\n");
 			RR_ASSERT(0);
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::detectDirectIllumination: No objects in scene.\n");
 			return false;
 		}
 	}
@@ -598,13 +652,15 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	if(params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 
-	RRReporter::report(RRReporter::INFO,"Updating solver direct(%s%s%s%s%s)...",
-		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",(params.applyCurrentSolution&&params.measure.direct)?"D":"",(params.applyCurrentSolution&&params.measure.indirect)?"I":"",params.applyCurrentSolution?"cur ":"");
+	RRReporter::report(RRReporter::INFO,"Gathering direct(%s%s%s%s%s%d)...",
+		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",(params.applyCurrentSolution&&params.measure.direct)?"D":"",(params.applyCurrentSolution&&params.measure.indirect)?"I":"",params.applyCurrentSolution?"cur ":"",params.quality);
 	TIME start = GETTIME;
 	TexelContext tc;
 	tc.solver = this;
 	tc.pixelBuffer = NULL;
 	tc.params = &params;
+	tc.bentNormalsPerPixel = NULL;
+	RR_ASSERT(numResultSlots==numPostImportTriangles);
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
@@ -617,12 +673,47 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 		pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
 		pti.ray = RRRay::create();
 		pti.ray->rayLengthMin = priv->minimalSafeDistance;
-		RRColor color = processTexel(pti);
+		TexelResult tr = processTexel(pti);
 		delete pti.ray;
-		multiObject->setTriangleIllumination(pti.tri.triangleIndex,RM_IRRADIANCE_PHYSICAL,color);
+		results[t] = tr;
 	}
 	float secs = (GETTIME-start)/(float)PER_SEC;
 	RRReporter::report(RRReporter::CONT," done in %.1fs.\n",secs);
+
+	return true;
+}
+
+// CPU version, detects per-triangle direct from RRLights, RREnvironment, gathers from current solution
+bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams, bool updateBentNormals)
+{
+	if(!getMultiObjectCustom() || !getStaticSolver())
+	{
+		// create objects
+		calculateCore(0);
+		if(!getMultiObjectCustom() || !getStaticSolver())
+		{
+			RR_ASSERT(0);
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateSolverDirectIllumination: No objects in scene.\n");
+			return false;
+		}
+	}
+
+	// solution+lights+env -gather-> tmparray
+	unsigned numPostImportTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+	TexelResult* finalGather = new TexelResult[numPostImportTriangles];
+	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles))
+	{
+		delete[] finalGather;
+		return false;
+	}
+
+	// tmparray -> object
+	RRObjectWithIllumination* multiObject = getMultiObjectPhysicalWithIllumination();
+	for(int t=0;t<(int)numPostImportTriangles;t++)
+	{
+		multiObject->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,updateBentNormals ? finalGather[t].bentNormal : finalGather[t].irradiance);
+	}
+	delete[] finalGather;
 
 	// object -> solver.direct
 	priv->scene->illuminationReset(false,true);
@@ -630,6 +721,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 
 	return true;
 }
+
 
 #ifdef DIAGNOSTIC
 unsigned hist[100];
@@ -787,7 +879,7 @@ inline void closest_point_on_triangle_from_point(const T& x1, const T& y1,
 //!  Function called for each enumerated texel. Must be thread safe.
 //! \param context
 //!  Context is passed unchanged to callback.
-void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, RRColorRGBAF (callback)(const struct ProcessTexelInfo& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
+void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, TexelResult (callback)(const struct ProcessTexelInfo& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
 {
 	// Iterate through all multimesh triangles (rather than single object's mesh triangles)
 	// Advantages:
@@ -934,11 +1026,11 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 }
 
 
-unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, const UpdateParameters* aparams)
+unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, RRIlluminationPixelBuffer* bentNormalsPerPixel, const UpdateParameters* aparams)
 {
-	if(!pixelBuffer)
+	if(!pixelBuffer && !bentNormalsPerPixel)
 	{
-		RR_ASSERT(0);
+		RR_ASSERT(0); // no work, probably error
 		return 0;
 	}
 	if(!getMultiObjectCustom() || !getStaticSolver())
@@ -947,15 +1039,15 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		calculateCore(0);
 		if(!getMultiObjectCustom() || !getStaticSolver())
 		{
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: No objects in scene.\n");
 			RR_ASSERT(0);
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: No objects in scene.\n");
 			return 0;
 		}
 	}
 	if(objectNumber>=getNumObjects())
 	{
-		RR_ASSERT(0);
 		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
+		RR_ASSERT(0);
 		return 0;
 	}
 	const RRObject* object = getMultiObjectCustom();
@@ -975,21 +1067,40 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 #ifdef DIAGNOSTIC
 	logReset();
 #endif
-	pixelBuffer->renderBegin();
+	if(pixelBuffer) pixelBuffer->renderBegin();
+	if(bentNormalsPerPixel) bentNormalsPerPixel->renderBegin();
 	if(params.applyLights || params.applyEnvironment || (params.applyCurrentSolution && params.quality))
 	{
-		RRReporter::report(RRReporter::INFO,"Updating lightmap, object %d(0..%d), res %d*%d ...",objectNumber,getNumObjects()-1,pixelBuffer->getWidth(),pixelBuffer->getHeight());
+		unsigned width = pixelBuffer ? pixelBuffer->getWidth() : bentNormalsPerPixel->getWidth();
+		unsigned height = pixelBuffer ? pixelBuffer->getHeight() : bentNormalsPerPixel->getHeight();
+		RRReporter::report(RRReporter::INFO,"Updating lightmap, object %d(0..%d), res %d*%d ...",objectNumber,getNumObjects()-1,width,height);
+
+		// check that map sizes match
+		if(pixelBuffer && bentNormalsPerPixel)
+		{
+			if(pixelBuffer->getWidth() != bentNormalsPerPixel->getWidth()
+				|| pixelBuffer->getHeight() != bentNormalsPerPixel->getHeight())
+			{
+				RRReporter::report(RRReporter::ERRO,"RRDynamicSolver::updateLightmap: Sizes don't match, lightmap=%dx%d, bentnormalmap=%dx%d.\n",pixelBuffer->getWidth(),pixelBuffer->getHeight(),bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight());
+				RR_ASSERT(0);
+				return 0;
+			}
+		}
+
 		TIME start = GETTIME;
 		TexelContext tc;
 		tc.solver = this;
 		tc.pixelBuffer = pixelBuffer;
 		tc.params = &params;
+		tc.bentNormalsPerPixel = bentNormalsPerPixel;
 		// preallocate lightmap buffer before going parallel
 		unsigned uv[2]={0,0};
-		pixelBuffer->renderTexel(uv,RRColorRGBAF(0));
+		if(pixelBuffer) pixelBuffer->renderTexel(uv,RRColorRGBAF(0));
+		if(bentNormalsPerPixel) bentNormalsPerPixel->renderTexel(uv,RRColorRGBAF(0));
 		// continue with all texels, possibly in multiple threads
-		enumerateTexels(getMultiObjectCustom(),objectNumber,pixelBuffer->getWidth(),pixelBuffer->getHeight(),processTexel,tc,priv->minimalSafeDistance);
-		pixelBuffer->renderEnd(true);
+		enumerateTexels(getMultiObjectCustom(),objectNumber,width,height,processTexel,tc,priv->minimalSafeDistance);
+		if(pixelBuffer) pixelBuffer->renderEnd(true);
+		if(bentNormalsPerPixel) bentNormalsPerPixel->renderEnd(true);
 #ifdef DIAGNOSTIC
 		logPrint();
 #endif
@@ -999,6 +1110,14 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	else
 	if(params.applyCurrentSolution)
 	{
+		if(bentNormalsPerPixel)
+		{
+			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: Bent normals won't be updated in 'realtime' mode.\n");
+			RR_ASSERT(0);
+			bentNormalsPerPixel->renderEnd(false);
+			bentNormalsPerPixel = NULL; // necessary for correct return value (1 instead of 2)
+			if(!pixelBuffer) return 0; // no work
+		}
 		// for each triangle in multimesh
 		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 		{
@@ -1024,9 +1143,10 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	{
 		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: No lightsources.\n");
 		pixelBuffer->renderEnd(false);
+		if(bentNormalsPerPixel) bentNormalsPerPixel->renderEnd(false);
 		RR_ASSERT(0);
 	}
-	return 1;
+	return bentNormalsPerPixel ? 2 : 1;
 }
 
 static bool endByTime(void *context)
@@ -1063,8 +1183,13 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 
 	if(paramsIndirect.applyCurrentSolution)
 	{
-		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: paramsIndirect.applyCurrentSolution ignored, set it in paramsDirect instead.\n");
+		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateSolverIndirectIllumination: paramsIndirect.applyCurrentSolution ignored, set it in paramsDirect instead.\n");
 		paramsIndirect.applyCurrentSolution = 0;
+	}
+	else
+	if(!paramsIndirect.applyLights && !paramsIndirect.applyEnvironment)
+	{
+		RR_ASSERT(0); // no lightsource enabled, todo: fill solver.direct with zeroes
 	}
 
 	// gather direct for requested indirect and propagate in solver
@@ -1075,7 +1200,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 
 		// first gather
 		TIME t0 = GETTIME;
-		updateSolverDirectIllumination(&paramsIndirect);
+		updateSolverDirectIllumination(&paramsIndirect,false);
 		RRReal secondsInGather = (GETTIME-t0)/(RRReal)PER_SEC;
 
 		// auto quality for propagate
@@ -1099,6 +1224,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 			UpdateParameters params;
 			params.quality = benchQuality;
 			tc.params = &params;
+			tc.bentNormalsPerPixel = NULL;
 			RRMesh* multiMesh = getMultiObjectCustom()->getCollider()->getMesh();
 #pragma omp parallel for schedule(dynamic)
 			for(int i=0;i<(int)benchTexels;i++)
@@ -1142,15 +1268,15 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	return true;
 }
 
-unsigned RRDynamicSolver::updateLightmaps(unsigned layerNumber, bool createMissingBuffers, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
+unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* aparamsDirect, const UpdateParameters* aparamsIndirect)
 {
 	UpdateParameters paramsIndirect;
 	UpdateParameters paramsDirect;
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
 	if(aparamsDirect) paramsDirect = *aparamsDirect;
 
-	RRReporter::report(RRReporter::INFO,"Updating lightmaps (%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
-		layerNumber,
+	RRReporter::report(RRReporter::INFO,"Updating lightmaps (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
+		layerNumberLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.direct)?"D":"",
 		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.indirect)?"I":"",
@@ -1165,8 +1291,16 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned layerNumber, bool createMissi
 	{
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumber);
-			if(!layer->pixelBuffer) layer->pixelBuffer = newPixelBuffer(getObject(object));
+			if(layerNumberLighting>=0)
+			{
+				RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumberLighting);
+				if(layer && !layer->pixelBuffer) layer->pixelBuffer = newPixelBuffer(getObject(object));
+			}
+			if(layerNumberBentNormals>=0)
+			{
+				RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumberBentNormals);
+				if(layer && !layer->pixelBuffer) layer->pixelBuffer = newPixelBuffer(getObject(object));
+			}
 		}
 	}
 
@@ -1183,27 +1317,34 @@ unsigned RRDynamicSolver::updateLightmaps(unsigned layerNumber, bool createMissi
 		unsigned numTexels = 0;
 		for(unsigned object=0;object<getNumObjects();object++)
 		{
-			RRIlluminationPixelBuffer* lmap = getIllumination(object)->getLayer(layerNumber)->pixelBuffer;
+			RRIlluminationPixelBuffer* lmap = getIllumination(object)->getLayer(layerNumberLighting)->pixelBuffer;
 			if(lmap) numTexels += lmap->getWidth()*lmap->getHeight();
 		}
 		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
 		paramsIndirect.quality = (unsigned)(paramsDirect.quality*0.1f*numTexels/(numTriangles+1))+1;
 
-		// 1. first gather into solver.direct
-		// 2. propagate
+		// 1. first gather: solver.direct+indirect+lights+env -> solver.direct
+		// 2. propagate: solver.direct -> solver.indirect
 		if(!updateSolverIndirectIllumination(&paramsIndirect,numTexels,paramsDirect.quality))
 			return 0;
-		paramsDirect.applyCurrentSolution = true; // set solution generated here to be gathered in second gather
+
+		paramsDirect.applyCurrentSolution = true; // set solution generated here to be gathered in final gather
+		paramsDirect.measure.direct = true; // it is stored in direct+indirect (after calculate)
+		paramsDirect.measure.indirect = true;
+		// musim gathernout direct i indirect.
+		// indirect je jasny, jedine v nem je vysledek spocteny v calculate().
+		// ovsem direct musim tez, jedine z nej dostanu prime osvetleni emisivnim facem, prvni odraz od spotlight, lights a env
 	}
 
-	// 3. final gather into buffers
+	// 3. final gather into buffers (solver not nodified)
 	unsigned updatedBuffers = 0;
 	for(unsigned object=0;object<getNumObjects();object++)
 	{
-		RRObjectIllumination::Layer* layer = getIllumination(object)->getLayer(layerNumber);
-		if(layer->pixelBuffer)
+		RRIlluminationPixelBuffer* lightmap = (layerNumberLighting<0) ? NULL : getIllumination(object)->getLayer(layerNumberLighting)->pixelBuffer;
+		RRIlluminationPixelBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL : getIllumination(object)->getLayer(layerNumberBentNormals)->pixelBuffer;
+		if(lightmap || bentNormals)
 		{
-			updatedBuffers += updateLightmap(object,layer->pixelBuffer,&paramsDirect);
+			updatedBuffers += updateLightmap(object,lightmap,bentNormals,&paramsDirect);
 		}
 	}
 	return updatedBuffers;

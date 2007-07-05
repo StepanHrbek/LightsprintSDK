@@ -805,6 +805,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\RRDynamicSolver\gather.h"
+				>
+			</File>
+			<File
 				RelativePath="RRDynamicSolver\Interpolator.cpp"
 				>
 				<FileConfiguration
@@ -847,6 +851,10 @@
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\RRDynamicSolver\private.h"
+				>
 			</File>
 			<File
 				RelativePath="RRDynamicSolver\report.h"

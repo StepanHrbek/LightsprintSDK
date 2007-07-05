@@ -345,7 +345,7 @@ void idle()
 	if(solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = solver->getSolutionVersion();
-		solver->updateVertexBuffers(0,true,NULL,NULL);
+		solver->updateVertexBuffers(0,-1,true,NULL,NULL);
 	}
 
 	glutPostRedisplay();

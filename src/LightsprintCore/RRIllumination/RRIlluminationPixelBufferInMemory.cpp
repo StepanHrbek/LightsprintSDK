@@ -110,10 +110,13 @@ void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 	unsigned numTexels = texture->getWidth()*texture->getHeight();
 
 	// normalize texels
+	//  magnifies noise in low reliability texels
+	//  but prevents unwanted leaks from distant areas into low reliability areas
+	// note: can be deleted, incoming alpha should be always 0 or 1 so this should be no op
 	#pragma omp parallel for schedule(static)
 	for(int i=0;i<(int)numTexels;i++)
 	{
-		if(renderedTexels[i].w)
+		if(renderedTexels[i][3])
 		{
 			renderedTexels[i] /= renderedTexels[i][3];
 		}
@@ -149,6 +152,9 @@ void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 		filter(workspaceTexels,renderedTexels,texture->getWidth(),texture->getHeight(),&changed);
 	}
 
+	// free second workspace
+	SAFE_DELETE_ARRAY(workspaceTexels);
+
 	// set background color
 	for(unsigned i=0;i<numTexels;i++)
 	{
@@ -178,7 +184,6 @@ void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 	texture->reset(texture->getWidth(),texture->getHeight(),de::Texture::TF_RGBAF,(const unsigned char*)renderedTexels,false);
 
 	// free workspace
-	SAFE_DELETE_ARRAY(workspaceTexels);
 	SAFE_DELETE_ARRAY(renderedTexels);
 #endif
 }

@@ -186,6 +186,9 @@ namespace rr
 		// read results
 		//
 
+		//! Smoothing only. Returns single smoothed vertex value, given arbitrary per triangle data.
+		RRVec3        getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, RRVec3* perTriangleData, unsigned stride) const;
+
 		//! Reads illumination of triangle's vertex in units given by measure.
 		//
 		//! Reads results in format suitable for fast vertex based rendering without subdivision.

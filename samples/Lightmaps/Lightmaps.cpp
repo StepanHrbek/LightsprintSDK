@@ -297,8 +297,8 @@ void keyboard(unsigned char c, int x, int y)
 
 				// 2. objects
 				//  a) calculate whole scene at once
-				paramsDirect.measure.scaled = 1; // get lightmaps in custom scale (sRGB)
-				solver->updateLightmaps(1,true,&paramsDirect,&paramsIndirect);
+				paramsDirect.measure = RM_IRRADIANCE_CUSTOM; // get maps in custom scale (sRGB)
+				solver->updateLightmaps(1,-1,true,&paramsDirect,&paramsIndirect);
 				//  b) calculate only one object
 				//static unsigned obj=0;
 				//if(!solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
@@ -307,8 +307,8 @@ void keyboard(unsigned char c, int x, int y)
 				//++obj%=solver->getNumObjects();
 
 				// update vertex buffers too, for comparison with pixel buffers
-				paramsDirect.measure.scaled = 0; // get vertex colors in physical scale (HDR)
-				solver->updateVertexBuffers(1,true,&paramsDirect,&paramsIndirect);
+				paramsDirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in physical scale (HDR)
+				solver->updateVertexBuffers(1,-1,true,&paramsDirect,&paramsIndirect);
 
 				// start rendering computed maps
 				ambientMapsRender = true;
@@ -433,7 +433,7 @@ void display(void)
 		if(solver->getSolutionVersion()!=solutionVersion)
 		{
 			solutionVersion = solver->getSolutionVersion();
-			solver->updateVertexBuffers(0,true,NULL,NULL);
+			solver->updateVertexBuffers(0,-1,true,NULL,NULL);
 		}
 	}
 

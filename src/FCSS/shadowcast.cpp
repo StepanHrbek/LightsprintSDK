@@ -402,7 +402,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	if(level->solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = level->solver->getSolutionVersion();
-		level->solver->updateVertexBuffers(0,true,NULL,NULL);
+		level->solver->updateVertexBuffers(0,-1,true,NULL,NULL);
 	}
 	if(demoPlayer->getPaused())
 	{
@@ -1667,7 +1667,7 @@ void mainMenu(int item)
 				paramsIndirect.quality = LIGHTMAP_QUALITY/4;
 
 				// update all objects
-				level->solver->updateLightmaps(0,true,&paramsDirect,&paramsIndirect);
+				level->solver->updateLightmaps(0,-1,true,&paramsDirect,&paramsIndirect);
 
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
@@ -1692,7 +1692,7 @@ void mainMenu(int item)
 				{
 					if(!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
 						level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
-					level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,&paramsDirect);
+					level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,NULL,&paramsDirect);
 				}
 				//
 
@@ -1722,12 +1722,12 @@ void mainMenu(int item)
 					printf(")");
 					unsigned layerNumber = (*i)->layerNumber;
 					// update all vbufs
-					level->solver->updateVertexBuffers(layerNumber,true,NULL,NULL);
+					level->solver->updateVertexBuffers(layerNumber,-1,true,NULL,NULL);
 					// update 1 lmap
 					static unsigned obj=12;
 					if(!level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer)
 						level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
-					level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer,&paramsDirect);
+					level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(layerNumber)->pixelBuffer,NULL,&paramsDirect);
 				}
 
 				// stop updating maps in realtime, stay with what we computed here

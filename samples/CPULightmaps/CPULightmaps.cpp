@@ -71,26 +71,27 @@ protected:
 };
 
 
-void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned layerNumber)
+void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNumberBentNormals)
 {
 	// calculate per vertex - all objects
 	// it is faster and quality is good for some objects
 	rr::RRDynamicSolver::UpdateParameters paramsDirect;
-	paramsDirect.measure.scaled = false; // get vertex colors in HDR
+	paramsDirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
 	paramsDirect.quality = 5000;
 	paramsDirect.applyCurrentSolution = false;
 	paramsDirect.applyEnvironment = true;
 	paramsDirect.applyLights = true;
 	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
+	paramsIndirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
 	paramsIndirect.applyCurrentSolution = false;
 	paramsIndirect.applyEnvironment = true;
 	paramsIndirect.applyLights = true;
-	solver->updateVertexBuffers(0,true,&paramsDirect,&paramsIndirect); 
+	solver->updateVertexBuffers(layerNumberLighting,layerNumberBentNormals,true,&paramsDirect,&paramsIndirect); 
 
 	// calculate per pixel - selected objects
 	// it is slower, but some objects need it
 	rr::RRDynamicSolver::UpdateParameters paramsDirectPixel;
-	paramsDirectPixel.measure.scaled = true; // get maps in sRGB
+	paramsDirectPixel.measure = RM_IRRADIANCE_CUSTOM; // get maps in sRGB
 	paramsDirectPixel.quality = 2000;
 	paramsDirectPixel.applyEnvironment = true;
 	paramsDirectPixel.applyLights = true;
@@ -100,13 +101,16 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, unsigned
 		unsigned objectNumber = objectNumbers[i];
 		if(solver->getObject(objectNumber))
 		{
-			solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer = rr::RRIlluminationPixelBuffer::create(256,256);
-			solver->updateLightmap(objectNumber,solver->getIllumination(objectNumber)->getLayer(layerNumber)->pixelBuffer,&paramsDirectPixel);
+			rr::RRIlluminationPixelBuffer* lightmap = (layerNumberLighting<0) ? NULL :
+				(solver->getIllumination(objectNumber)->getLayer(layerNumberLighting)->pixelBuffer = rr::RRIlluminationPixelBuffer::create(256,256));
+			rr::RRIlluminationPixelBuffer* bentNormals = (layerNumberBentNormals<0) ? NULL :
+				(solver->getIllumination(objectNumber)->getLayer(layerNumberBentNormals)->pixelBuffer = rr::RRIlluminationPixelBuffer::create(256,256));
+			solver->updateLightmap(objectNumber,lightmap,bentNormals,&paramsDirectPixel);
 		}
 	}
 }
 
-void calculatePerPixel(rr::RRDynamicSolver* solver, unsigned layerNumber)
+void calculatePerPixel(rr::RRDynamicSolver* solver, int layerNumberLighting, int layerNumberBentNormals)
 {
 	// calculate per pixel - all objects
 	rr::RRDynamicSolver::UpdateParameters paramsDirect;
@@ -119,7 +123,7 @@ void calculatePerPixel(rr::RRDynamicSolver* solver, unsigned layerNumber)
 	paramsIndirect.applyCurrentSolution = false;
 	paramsIndirect.applyEnvironment = true;
 	paramsIndirect.applyLights = true;
-	solver->updateLightmaps(layerNumber,true,&paramsDirect,&paramsIndirect); 
+	solver->updateLightmaps(layerNumberLighting,layerNumberBentNormals,true,&paramsDirect,&paramsIndirect); 
 }
 
 void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
@@ -132,7 +136,7 @@ void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
 		rr::RRIlluminationVertexBuffer* vbuf = solver->getIllumination(objectIndex)->getLayer(layerNumber)->vertexBuffer;
 		if(vbuf)
 		{
-			sprintf(filename,"../../data/export/%d.vbu",objectIndex );
+			sprintf(filename,"../../data/export/%d_%d.vbu",objectIndex,layerNumber);
 			bool saved = vbuf->save(filename);
 			printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
 		}
@@ -141,7 +145,7 @@ void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
 		rr::RRIlluminationPixelBuffer* map = solver->getIllumination(objectIndex)->getLayer(layerNumber)->pixelBuffer;
 		if(map)
 		{
-			sprintf(filename,"../../data/export/%d.png",objectIndex );
+			sprintf(filename,"../../data/export/%d_%d.png",objectIndex,layerNumber);
 			bool saved = map->save(filename);
 			printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
 		}
@@ -198,11 +202,12 @@ int main(int argc, char **argv)
 		error("No objects in scene.",false);
 
 	// calculate and save it
-	calculatePerVertexAndSelectedPerPixel(solver,0); // calculatePerPixel(solver,0);
+	calculatePerVertexAndSelectedPerPixel(solver,0,1); // calculatePerPixel(solver,0,1);
 
 	printf("Time taken %.2f seconds\n", 1.0f/CLOCKS_PER_SEC*(clock()-start) );
 
-	saveIlluminationToDisk(solver,0);
+	saveIlluminationToDisk(solver,0); // save GI lightmaps
+	saveIlluminationToDisk(solver,1); // save bent normals
 
 	printf("\nPress any key to close...");
 	fgetc(stdin);

@@ -53,6 +53,7 @@ namespace rr
 //#define DEBUK
 //#define LOG_LOADING_MES
 //#define EXPENSIVE_CHECKS
+//#define SUPPORT_NEGATIVE_LIGHT // support negative values in additionalIrradiance, reset(), getTriangleMeasure() [used for bent normals pertriangle->pervertex]
 
 #ifdef _MSC_VER
 //#define GATE_SHOTS 10000 // max photons from one shooter

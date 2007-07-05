@@ -6,7 +6,12 @@
 
 \page news What's new
 
-\section news25 ------------------------------------ 2007.7.1 -------------------------------------
+\section news25 ------------------------------------ 2007.7.x -------------------------------------
+
+NEWS
+
+- bent normal support, both per pixel and per vertex
+  see new parameters in updateLightmap(), updateLightmaps(), updateVertexBuffers()
 
 CHANGES
 

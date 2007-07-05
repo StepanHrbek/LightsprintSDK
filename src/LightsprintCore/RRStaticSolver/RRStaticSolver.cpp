@@ -224,6 +224,30 @@ RRReal RRStaticSolver::illuminationAccuracy()
 //
 // read results
 
+RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, RRVec3* perTriangleData, unsigned stride, Triangle* triangles, unsigned numTriangles) const
+{
+	RRVec3 result = RRVec3(0);
+	for(unsigned i=0;i<corners;i++)
+	{
+		if(IS_TRIANGLE(corner[i].node))
+		{
+			unsigned triangleIndex = (unsigned)(TRIANGLE(corner[i].node)-triangles);
+			RR_ASSERT(triangleIndex<numTriangles);
+			result += *(RRVec3*)(((char*)perTriangleData)+stride*triangleIndex) * corner[i].power;
+		}
+	}
+	return result/powerTopLevel;
+}
+
+RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, RRVec3* perTriangleData, unsigned stride) const
+{
+	RR_ASSERT(perTriangleData);
+	RR_ASSERT(questionedVertex012<3);
+	RR_ASSERT(questionedTriangle<scene->object->triangles);
+	IVertex* ivertex = scene->object->triangle[questionedTriangle].topivertex[questionedVertex012];
+	return ivertex->getVertexDataFromTriangleData(questionedTriangle,questionedVertex012,perTriangleData,stride,scene->object->triangle,scene->object->triangles);
+}
+
 bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const
 {
 	Channels irrad;
