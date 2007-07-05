@@ -213,7 +213,7 @@ inline void closest_point_on_triangle_from_point(const T& x1, const T& y1,
 //!  Function called for each enumerated texel. Must be thread safe.
 //! \param context
 //!  Context is passed unchanged to callback.
-void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, TexelResult (callback)(const struct ProcessTexelInfo& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
+void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, int onlyTriangleNumber=-1)
 {
 	// Iterate through all multimesh triangles (rather than single object's mesh triangles)
 	// Advantages:
@@ -254,7 +254,7 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 			logTexelIndex = 0;
 #endif
 			// gather data about triangle t
-			ProcessTexelInfo pti(tc);
+			ProcessTexelParams pti(tc);
 			pti.tri.triangleIndex = t;
 			multiMesh->getTriangleBody(t,pti.tri.triangleBody);
 			RRMesh::TriangleNormals normals;

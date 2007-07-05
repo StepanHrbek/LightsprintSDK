@@ -24,9 +24,9 @@ struct TexelContext
 	RRIlluminationPixelBuffer* bentNormalsPerPixel;
 };
 
-struct ProcessTexelInfo
+struct ProcessTexelParams
 {
-	ProcessTexelInfo(const TexelContext& _context) : context(_context) 
+	ProcessTexelParams(const TexelContext& _context) : context(_context) 
 	{
 		resetFiller = 0;
 		ray = NULL;
@@ -39,13 +39,13 @@ struct ProcessTexelInfo
 	RRRay* ray; // rayLengthMin should be initialized
 };
 
-struct TexelResult
+struct ProcessTexelResult
 {
 	RRColorRGBAF irradiance; // alpha = 0|1
 	RRColorRGBAF bentNormal; // alpha = 0|1
-	TexelResult() : irradiance(0), bentNormal(0) {}
+	ProcessTexelResult() : irradiance(0), bentNormal(0) {}
 };
 
-TexelResult processTexel(const ProcessTexelInfo& pti);
+ProcessTexelResult processTexel(const ProcessTexelParams& pti);
 
 } // namespace

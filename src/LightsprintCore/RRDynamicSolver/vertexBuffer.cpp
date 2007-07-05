@@ -208,7 +208,7 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 
 		// 3. final gather: solver.direct+indirect+lights+env -> tmparray
 		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-		TexelResult* finalGather = new TexelResult[numTriangles];
+		ProcessTexelResult* finalGather = new ProcessTexelResult[numTriangles];
 		gatherPerTriangle(&paramsDirect,finalGather,numTriangles);
 
 		// 4. interpolate: tmparray -> buffer

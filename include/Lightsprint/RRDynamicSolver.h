@@ -722,7 +722,7 @@ namespace rr
 		virtual bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
 
 		RRStaticSolver::Improvement calculateCore(float improveStep);
-		bool       gatherPerTriangle(const UpdateParameters* aparams, struct TexelResult* results, unsigned numResultSlots);
+		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots);
 		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
 		void       updateVertexLookupTable();
 		struct Private;

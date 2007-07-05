@@ -154,13 +154,13 @@ private:
 //     baze (n3/u3/v3) je nespojita funkce normaly (n3), tj. nepatrne vychyleny triangl muze strilet uplne jinym smerem
 //      nez jeho kamaradi -> pri nizke quality pak ziska zretelne jinou barvu
 //     bazi by slo generovat spojite -> zlepseni kvality pri nizkem quality
-TexelResult processTexel(const ProcessTexelInfo& pti)
+ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
 	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom())
 	{
 		RRReporter::report(RRReporter::WARN,"processTexel: No objects in scene\n");
 		RR_ASSERT(0);
-		return TexelResult();
+		return ProcessTexelResult();
 	}
 
 
@@ -184,7 +184,7 @@ TexelResult processTexel(const ProcessTexelInfo& pti)
 	if(!shootToHemisphere && !shootToLights)
 	{
 		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"processTexel: Zero workload.\n");RR_ASSERT(0));		
-		return TexelResult();
+		return ProcessTexelResult();
 	}
 
 	// prepare ray
@@ -472,7 +472,7 @@ shoot_from_center:
 	}
 
 	// sum direct and indirect results
-	TexelResult result;
+	ProcessTexelResult result;
 	result.irradiance = irradianceLights + irradianceHemisphere; // [3] = 0
 	if(reliabilityLights || reliabilityHemisphere)
 	{
@@ -544,7 +544,7 @@ shoot_from_center:
 
 
 // CPU, gathers per-triangle lighting from RRLights, RREnvironment, current solution
-bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, TexelResult* results, unsigned numResultSlots)
+bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots)
 {
 	if(!getMultiObjectCustom() || !getStaticSolver())
 	{
@@ -584,7 +584,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, TexelRe
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
-		ProcessTexelInfo pti(tc);
+		ProcessTexelParams pti(tc);
 		pti.tri.triangleIndex = (unsigned)t;
 		multiMesh->getTriangleBody(pti.tri.triangleIndex,pti.tri.triangleBody);
 		RRMesh::TriangleNormals normals;
@@ -593,7 +593,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, TexelRe
 		pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
 		pti.ray = RRRay::create();
 		pti.ray->rayLengthMin = priv->minimalSafeDistance;
-		TexelResult tr = processTexel(pti);
+		ProcessTexelResult tr = processTexel(pti);
 		delete pti.ray;
 		results[t] = tr;
 	}
@@ -620,7 +620,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 
 	// solution+lights+env -gather-> tmparray
 	unsigned numPostImportTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-	TexelResult* finalGather = new TexelResult[numPostImportTriangles];
+	ProcessTexelResult* finalGather = new ProcessTexelResult[numPostImportTriangles];
 	if(!gatherPerTriangle(aparams,finalGather,numPostImportTriangles))
 	{
 		delete[] finalGather;
@@ -725,7 +725,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				unsigned triangleIndex = (unsigned)i%multiMesh->getNumTriangles();
 				RRMesh::TriangleNormals normals;
 				multiMesh->getTriangleNormals(triangleIndex,normals);
-				ProcessTexelInfo pti(tc);
+				ProcessTexelParams pti(tc);
 				multiMesh->getTriangleBody(triangleIndex,pti.tri.triangleBody);
 				pti.tri.triangleIndex = triangleIndex;
 				pti.tri.pos3d = pti.tri.triangleBody.vertex0+pti.tri.triangleBody.side1*0.33f+pti.tri.triangleBody.side2*0.33f;
