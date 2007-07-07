@@ -184,11 +184,13 @@ Light source formats (inputs)
 - custom programmable light
 
 Lighting computed (outputs)
-- lightmap
+- lightmap, directional lightmap
 - ambient map
+- ambient occlusion, global ambient occlusion
 - diffuse environment map
 - specular environment map
-- vertex color buffer
+- bent normal map
+- vertex buffer with colors or bent normals
 - illumination of triangle, including adaptively subdivided
 - illumination of vertex, including adaptively subdivided
 - illumination at ray end
@@ -263,36 +265,128 @@ Lightsprint SDK uses following third party libraries:
 
 
 
-\page main_integration Integrating
+\page main_integration Integration
 
-Integration of global illumination (GI) solver into your project is described in four steps.
+Precalculations with Lightsprint, integration with your toolchain:
 
- - <b> \subpage integration_milestone_1 </b>
+ - <b> \subpage integration_tool_1 </b>
 
- - <b> \subpage integration_milestone_2 </b>
+ - <b> \subpage integration_tool_2 </b>
 
- - <b> \subpage integration_milestone_3 </b>
+Rendering realtime global illumination with Lightsprint:
 
-Advanced:
+ - <b> \subpage integration_realtime_1 </b>
 
- - <b> \subpage integration_milestone_4 </b>
+ - <b> \subpage integration_realtime_3 </b>
+
+ - <b> \subpage integration_realtime_4 </b>
 
 
 
 
-\page integration_milestone_1 Level 1: GI in your scenes
+\page integration_tool_1 Precalculations in your scene loaded from disk
 
- You can immediately render realtime global illumination in your 3d scenes
- if you convert them to .DAE (Collada) or .3DS format
- and load them in Lightmaps or RealtimeRadiosity sample.
+ You can immediately calculate lightmaps, ambient maps and bent normals
+ if you convert your scenes to supported formats and use existing
+ sample applications.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Recommended approach:
  </td></tr></table>
 
-  - If conversion tool exists,
-    convert one of your scenes to Collada (.dae) format
-    and load it into Lightmaps (or load .3ds in RealtimeRadiosity sample).
+  - Convert your scene to Collada format,
+    and load it into CPULightmaps, AmbientOcclusion or Lightmaps sample.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Scheme of application:
+ </td></tr></table>
+
+  - CPULightmaps sample 
+    is built on top of purely numerical LightsprintCore and scene importers.
+    AmbientOcclusion and Lightmaps samples use also OpenGL 2.0 based LightsprintGL.
+    Left: CPULightmaps. Right: AmbientOcclusion, Lightmaps.
+  <table border=0 width=95%><tr align=top><td>
+  \image html Integration1c.png
+  </td><td>
+  \image html Integration1b.png
+  </td></tr></table>
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Steps:
+ </td></tr></table>
+
+  - <b> \subpage integration_step_1 </b> (important for all Lightsprint use cases, not only for this sample)
+  - Convert scenes to Collada 1.4 (.dae).
+  - If you plan to compute maps rather than per-vertex values, include unwrap in second uv channel.
+  - Change name of scene in sample .cpp, so it loads your scene.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Expected time spent:
+ </td></tr></table>
+
+  - 1 day
+
+
+\page integration_tool_2 Precalculations in your scene accessed in memory
+
+  If you prefer other data source to Collada,
+  use your scene loader and write adapter for accessing your scene in memory.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Recommended approach:
+ </td></tr></table>
+
+  - Modify AmbientOcclusion (or CPULightmaps) to access scenes loaded to memory by your loader.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Scheme of application:
+ </td></tr></table>
+
+  - Modified AmbientOcclusion newly depends on your scene loading code.
+  \image html Integration2.png
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Steps:
+ </td></tr></table>
+
+  - Open AmbientOcclusion project
+  - Copy RRObjectCollada.* to RRObjectCustom.* and add it to the project
+  - Delete all FCollada \#includes from RRObjectCustom.h
+  - Build reports errors on all references to FCollada,
+    change code so it works with your engine's 3d model rather than with FCollada.
+    Replace all references to FCollada with your custom format.
+    For more details, see
+    - comments in RRObjectCustom source code
+    - <b> \subpage integration_step_2 </b>
+    - <b> \subpage integration_step_3 </b>
+    - interfaces of RRMesh and RRObject you implement
+  - Decrease calculation quality for adapter testing,
+    after short calculation
+    you'll see your scene with rough ambient occlusion computed.
+  - If you need GI lightmaps rather than AO, tweak sample to load your skybox,
+    enable lights etc.
+
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Expected time spent:
+ </td></tr></table>
+
+  - 1-2 days
+
+
+
+
+\page integration_realtime_1 Realtime GI in Lightsprint renderer
+
+ You can immediately render realtime global illumination in your 3d scenes
+ if you convert them to supported format and load into existing sample application.
+
+ <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
+ Recommended approach:
+ </td></tr></table>
+
+  - Convert your scene to Collada format
+    and load it into Lightmaps (or load .3ds to RealtimeRadiosity) sample.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Scheme of application:
@@ -312,7 +406,7 @@ Advanced:
  </td></tr></table>
 
   - <b> \subpage integration_step_1 </b> (important for all Lightsprint use cases, not only for this sample)
-  - Convert scenes to Collada .dae.
+  - Convert scenes to Collada 1.4 (.DAE).
   - Change name of scene in Lightmaps.cpp, so it loads your scene.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
@@ -321,61 +415,9 @@ Advanced:
 
   - 1 day
 
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Possibilities created:
- </td></tr></table>
-
-  - Quickly write realtime GI demos based on your data.
-  - Create level GI precalculator by adding save of computed illumination.
 
 
-
-\page integration_milestone_2 Level 2: GI in your scene graph
-
-  If you prefer other data source to Collada or .3ds files, next level is
-  switch from Collada/3ds files to your scene graph in memory.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Recommended approach:
- </td></tr></table>
-
-  - Modify Lightmaps to render your scenes in their native format.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Scheme of application:
- </td></tr></table>
-
-  - Modified Lightmaps newly depends on your scene loading code.
-  \image html Integration2.png
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Steps:
- </td></tr></table>
-
-  - Open Lightmaps project
-  - Copy RRObjectCollada.* to RRObjectCustom.* and add it to the project
-  - Delete all FCollada \#includes from RRObjectCustom.h
-  - Build reports errors on all references to FCollada,
-    change code so it works with your engine's 3d model rather than with FCollada.
-    Replace all references to FCollada with your custom format.
-    For more details, see
-    - comments in RRObjectCustom source code
-    - <b> \subpage integration_step_2 </b>
-    - <b> \subpage integration_step_3 </b>
-    - interfaces of RRMesh and RRObject you implement
-  - If it works, you see your scene with two dynamic (still .3ds) objects.
-  - Optional final step: do the same changes to DynamicObject,
-    so it works with your format, rather than with .3ds.
-
- <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Expected time spent:
- </td></tr></table>
-
-  - 1-2 days
-
-
-
-\page integration_milestone_3 Level 3: GI in your renderer
+\page integration_realtime_3 Realtime GI in your OpenGL renderer
 
   If you prefer other OpenGL renderer to DemoEngine, switch to renderer of your choice.
 
@@ -410,18 +452,18 @@ Advanced:
  Expected time spent:
  </td></tr></table>
 
-  - 3 days
+  - 1 week
 
 
 
 
-\page integration_milestone_4 Level 4: Custom GPU access
+\page integration_realtime_4 Realtime GI in any renderer
 
   If you want to use your renderer, but it is not OpenGL based,
   write custom GPU access routines as a replacement for LightsprintGL.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
- Recommended approach:
+ Recommended starting point:
  </td></tr></table>
 
   - Modify your application/engine to use LightsprintCore.
@@ -455,7 +497,7 @@ Advanced:
  Expected time spent:
  </td></tr></table>
 
-  - 1 week
+  - 1-2 weeks
 
 
 
@@ -830,7 +872,7 @@ Advanced:
 
 
 
-\page main_data_access Calculating 
+\page main_data_access Calculations 
  Lightsprint can calculate
 
  - <b> \subpage data_illumination </b>
@@ -862,42 +904,224 @@ Advanced:
 
 
 
-\page data_illumination Illumination direct / indirect / global
+\page data_illumination Illumination
 
- Store it in object's
+ \section di1 Directional lightmaps / vertex colors
 
- - <b> \subpage data_vertex_buffer </b>
+  Optional directional component of lightmap or vertex color is stored separately 
+  from irradiance component. See \ref data_bent_normals for
+  details on directional component.
 
- - <b> \subpage data_pixel_buffer </b>
+ \section di2 Global illumination lightmaps
 
- - <b> \subpage data_environment_map </b>
+  Global illumination lightmaps are precomputed with
+  infinite light bounces, color bleeding and physically
+  correct penumbra shadows from area lights.
+  For mostly static scenes, precomputed GI lightmaps make very good sense.
+
+  Global illumination usually contains sharp shadow edges,
+  so it's not practical to store it per vertex in vertex buffer
+  (result would be too blurry).
+
+ \section di3 Precomputed ambient maps, per-vertex ambient
+
+  Ambient maps and per-vertex ambient contain indirect component of illumination
+  with infinite light bounces, color bleeding and indirect shadows;
+  it's complete global illumination except for first light bounce.
+
+  In scenarios with mixed static / dynamic objects, it's often
+  advantageous to compute indirect illumination only
+  and mix it with realtime rendered direct illumination
+  with direct shadows.
+
+  Per-pixel or per-vertex?
+  \n
+  Unlike global illumination, indirect illumination
+  doesn't contain sharp shadow edges, so it's usually practical
+  to store it per-vertex in vertex color buffer.
+  Per-vertex ambient is slightly less precise in some situations,
+  but it usually takes much less memory,
+  so it's worth considering in memory restricted environments.
+  In realtime scenarios, per-vertex ambient is preferred for
+  higher speed over ambient maps.
+
+  In non-realtime mode, all light source types are supported.
+  In realtime mode, light source is implemented in custom 
+  RRDynamicSolver::detectDirectIllumination() function.
+
+  Ability to generate ambient maps or per vertex ambient is
+  <b>fundamental for realtime global illumination</b>.
+  To render realtime global illumination,
+  start with renderer with direct illumination and shadows
+  (e.g. DemoEngine) and add ambient map or per vertex ambient 
+  computed here. Realtime per-vertex ambient is preferred
+  for much higher speed.
+
+ \section di4 Environment maps
+
+  Environment maps store light incoming from all directions
+  to single point in space. They are usually used to approximate
+  light incoming to dynamic object.
+  \n
+  Environment maps may be processed so that single environment
+  map lookup returns light incoming from single direction
+  (specular environment map)
+  or from whole hemisphere (diffuse environment map).
+
+  See \ref data_environment_map for more details.
+
+ \section di5 Other
+
+  Outside most widely used global illumination lightmaps,
+  per vertex ambient, ambient maps and environment maps,
+  Lightsprint supports many other illumination types suitable for specific
+  situations.
+  Depending on parameters you pass to lighting calculation process,
+  you can get direct only lighting, mix of independently
+  enabled direct and indirect lighting from many light source types
+  etc, with result stored in texture or vertex buffer, with optional
+  directional component.
+            
+ \section di6 Data structures
+
+  Lightsprint can store object's illumination in
+
+  - <b> \ref data_vertex_buffer </b>
+
+  - <b> \ref data_pixel_buffer </b>
+
+  - <b> \ref data_environment_map </b>
+
+ \section di7 Calculation
+
+  Calculation of illumination is realtime or non-realtime process,
+  depending on parameters set.
+  Environment maps are always computed in realtime speeds.
+
+  See data structures (links above) for more details on calculation.
+
+ \section di8 Use in renderer
+
+   See data structures (links above) for more details on use in renderer.
 
 
 
 \page data_ambient_occlusion Ambient occlusion
 
- Store it in object's
+ \section da1 [Direct] ambient occlusion
 
- - <b> \subpage data_vertex_buffer </b>
+  Ambient occlusion on <a href="http://en.wikipedia.org/wiki/Ambient_occlusion">Wikipedia</a>
 
- - <b> \subpage data_pixel_buffer </b>
+  [Direct] ambient occlusion is a function of a surface point and a surrounding geometry,
+  with return value in 0..1 space,
+  0 for surface point fully occluded by surrounding geometry
+  and 1 for completely unoccluded point.
 
- - <b> \subpage data_environment_map </b>
+  [Direct] ambient occlusion is a result of direct illumination
+  in a uniform white environment.
+
+ \section da2 Global ambient occlusion
+
+  Sometimes ambient occlusion is desired to include effect of
+  multiple light bounces and color bleeding.
+  Let's call it global ambient occlusion.
+  \n
+  Global ambient occlusion is a function with return value in 0..inf space,
+  but with typical values inside 0..1 range.
+  \n
+  Lightsprint supports global AO equally well as direct AO,
+  so all that we say about AO matters for both direct and global AO.
+
+ \section da3 Directional ambient occlusion
+
+  Optional directional component of direct or global ambient occlusion is stored separately 
+  from AO component. See \ref data_bent_normals for
+  details on directional component.
+
+ \section da3 Data structures
+
+  Lightsprint can store object's ambient occlusion and global ambient occlusion in
+
+  - <b> \ref data_vertex_buffer </b>
+
+  - <b> \ref data_pixel_buffer </b>
+
+ \section da4 Calculation
+
+  Calculation of ambient occlusion is non-realtime process.
+  To calculate ambient occlusion,
+  - Create RRDynamicSolver
+  - Set geometry with RRDynamicSolver::setObjects().
+    Set single object here for single object ambient occlusion.
+    If you set scene with multiple objects here, each object will be
+    occluded by all other objects.
+  - Set uniform white environment with RRDynamicSolver::setEnvironment(RRIlluminationEnvironmentMap::createUniform())
+  - Call RRDynamicSolver::updateLightmaps() for per-pixel
+    or RRDynamicSolver::updateVertexBuffers() for per-vertex quality, with
+    \n paramsDirect.applyCurrentSolution=false
+    \n paramsDirect.applyLights=false
+    \n paramsDirect.applyEnvironment=true
+    \n and paramsIndirect=NULL
+    \n To calculate global ambient occlusion,
+       set paramsIndirect equally to paramsDirect.
+
+  See data structures (links above) for more details on calculation.
+
+ \section da5 Use in renderer
+
+   See data structures (links above) for more details on use in renderer.
 
 
 
 \page data_bent_normals Bent normals
 
- Bent normals store incoming light direction and make your specular
- reflections and normal maps look great.
+ \section db1 Bent normals
 
- Bent normals are optional enhancement of precomputed illumination.
+  Bent normals on <a href="http://en.wikipedia.org/wiki/Ambient_occlusion">Wikipedia</a>
 
- Store them in object's
+  Bent normals store negation of incoming light direction,
+  in world space.
+  Light may come to surface point form many directions
+  in varying intensities, so bent normals average all directions,
+  taking light intensity into account.
+  \n
+  Bent normals are normalized.
 
- - <b> \subpage data_vertex_buffer </b>
+ \section db2 Data structures
 
- - <b> \subpage data_pixel_buffer </b>
+  Lightsprint can store object's bent normals in
+
+  - <b> \ref data_vertex_buffer </b>
+
+  - <b> \ref data_pixel_buffer </b>
+
+  Bent normals stored in pixel buffer
+  are automatically transformed from -1..1 space to 0..1 space to support
+  save to unsigned RGB textures.
+  When reading bent normal from such texture,
+  get original world space normal as bn*2-1.
+
+ \section db3 Calculation
+
+  Calculation of bent normals is non-realtime process.
+  To calculate bent normals, use RRDynamicSolver::updateVertexBuffers()
+  or RRDynamicSolver::updateLightmaps()
+  and set bent normal layer accordingly.
+
+  Bent normals are intentionally stored in different layer than ilumination,
+  so you can reuse single bent normal layer with multiple illumination layers
+  to save memory or storage space (at cost of slightly reduced precision).
+
+  See data structures (links above) for more details on calculation.
+
+ \section db4 Use in renderer
+
+  Bent normals are optional enhancement of precomputed illumination.
+  They are used in rendering to make specular
+  reflections and normal maps look more realistically,
+  even with lighting precomputed in lightmaps.
+
+  See data structures (links above) for more details on rendering.
 
 
 
