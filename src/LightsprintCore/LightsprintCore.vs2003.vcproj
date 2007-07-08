@@ -601,6 +601,27 @@
 				RelativePath="RRDynamicSolver\Interpolator.h">
 			</File>
 			<File
+				RelativePath="RRDynamicSolver\private.h">
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\gather.h">
+			</File>
+			<File
+				RelativePath="RRDynamicSolver\gather.cpp">
+				<FileConfiguration
+					Name="Release static|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="TRUE"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="RRDynamicSolver\lightmap.cpp">
 				<FileConfiguration
 					Name="Release static|Win32">
