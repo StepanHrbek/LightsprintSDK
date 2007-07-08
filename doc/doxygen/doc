@@ -40,48 +40,19 @@ namespace rr
 
 \page main_introduction Introduction
 
- \section intro1 Problem and Solution
-
-  Realistic illumination simply looks good.
+  Realistic illumination looks good and attracts more users.
   While direct illumination has been 'solved' by science and software developers of 20th century,
-  indirect illumination still challenges both sides. \subpage details
+  global illumination still challenges both sides. \subpage details
 
   Lightsprint is first to come with physically correct 
-  indirect illumination synthesis so fast, that it 
+  global illumination synthesis so fast, that it 
   is suitable not only for precalculations, but also for realtime rendering in dynamic scenes.
 
- \section intro2 Your contribution
+  Lightsprint SDK offers you single flexible API for both realtime global illumination rendering
+  and non-realtime lighting precalculations.
 
-  Renderer with realtime direct illumination and shadows.
-
-  If you don't have renderer, you can start with our renderer from DemoEngine.
-
-  Example: Today's engines ignore indirect illumination from moving lights
-  and render only direct illumination,
-  or approximate indirect by constant ambient term.
-  
-  \image html a0b.jpg
-
-  \image html all-ambient.png
-
- \section intro3 Our contribution
-
-  Lightsprint calculates physically correct direct, indirect or global
-  illumination with infinite number of light bounces
-  in realtime as a replacement for constant ambient.
-  \n Dynamic lights, dynamic objects, diffuse, specular, emissive and transparent 
-  surfaces and respective reflections are taken into account.
-
-  \image html a1b.jpg
-
-  \image html all-rr.png
-
-  Lightsprint can precalculate global illumination in even higher quality,
-  if it gets more time than a few miliseconds.
-  No further work is required, the same interfaces are used for both realtime and
-  precomputed solutions.
-
-
+ \image html lowpoly3.jpg
+  <center>realtime global illumination in scene with dynamic light and dynamic objects</center>
 
 
 \page details Details
@@ -119,19 +90,19 @@ namespace rr
 
 \page main_scenarios Usage scenarios
 
- \section scenario2 Realtime GI in editor/tools. Game uses precalculated illumination
+ \section scenario2 Lightsprint in toolchain, precomputes GI, realtime GI previews
 
   - Saves months of work to graphics artists and designers,
     previously spent in lightmap rebuilds or fake light placement.
 
-  - Allows artists to find visually more attractive positions / settings for lights.
+  - Realtime GI preview allows artists to find visually more attractive positions / settings for lights.
 
   - Saves months spent in adapting your data for external global illumination
     tools. Other tools don't support arbitrary materials and lights.
 
-  - Simple path for incorporating realtime global illumination into future games.
+  - Fast path for incorporating realtime global illumination into future games.
 
- \section scenario1 Realtime global illumination (GI) in game or architectural visualization
+ \section scenario1 Lightsprint in game or architectural visualization, renders realtime GI
 
   - Greatly improves realism and visual appeal.
 
@@ -155,8 +126,8 @@ namespace rr
 
 \page main_features Features
 
-This is brief list of Lightsprint features, see \ref main_api
-and samples for more details.
+This is a brief list of Lightsprint features, see \ref main_data_access,
+\ref main_api and \ref main_samples for more details.
 
 Global illumination
 - realtime global illumination
@@ -165,6 +136,7 @@ Global illumination
 - dynamic lights
 - dynamic objects
 - multithreaded, all cores/CPUs and GPU work at once
+- supports work distributed in cluster of computers
 - computed and rendered in HDR
 - custom scale on inputs/outputs (HDR/sRGB/other)
 - scene size not limited
@@ -316,7 +288,7 @@ Rendering realtime global illumination with Lightsprint:
  </td></tr></table>
 
   - <b> \subpage integration_step_1 </b> (important for all Lightsprint use cases, not only for this sample)
-  - Convert scenes to Collada 1.4 (.dae).
+  - Convert scenes to Collada 1.4 (.DAE).
   - If you plan to compute maps rather than per-vertex values, include unwrap in second uv channel.
   - Change name of scene in sample .cpp, so it loads your scene.
 
@@ -898,9 +870,14 @@ Rendering realtime global illumination with Lightsprint:
  Lightsprint is very flexible, it lets you pick optimal structures 
  for different objects and data types
  to precisely match your quality/memory footprint requirements.
- E.g. you can use pixel buffers only for objects that benefit from per-pixel details,
+ For example, you can use pixel buffers only for objects that benefit from per-pixel details,
  use vertex buffers for the rest. You can mix structures even in single object,
- e.g. use lightmap and per-vertex bent normals.
+ e.g. use lightmap with per-vertex bent normals.
+
+ Lightsprint supports render farms, work distributed in a cluster of computers,
+ including computers without GPU. Expensive RRDynamicSolver::updateLightmaps() call
+ can be replaced by many small RRDynamicSolver::updateLightmap() calls
+ and you are free to execute them in parallel on different computers.
 
 
 
