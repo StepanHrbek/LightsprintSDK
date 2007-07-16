@@ -5,6 +5,7 @@
 // --------------------------------------------------------------------------
 
 #include <cstdio>
+#include <GL/glew.h>
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
 
 namespace de

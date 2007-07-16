@@ -7,7 +7,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <GL/glew.h>
 #include "DemoEngine.h"
 //#include "Lightsprint/RRCollider.h"
 
@@ -25,7 +24,7 @@ public:
 	// inputs, to be modified by user
 
 	//! Position of camera (imaginary frustum apex).
-	GLfloat  pos[3];
+	float    pos[3];
 	//! Rotation around Y axis, radians. For characters standing in Y axis, it controls their look to left/right.
 	float    angle;
 	//! Rotation around Z axis, radians. For characters looking into Z axis, it controls leaning.
@@ -44,24 +43,24 @@ public:
 	// outputs, to be calculated by update() and possibly read by user
 
 	//! View direction.
-	GLfloat  dir[4];
+	float    dir[4];
 	//! Up vector.
-	GLfloat  up[3];
+	float    up[3];
 	//! Right vector.
-	GLfloat  right[3];
+	float    right[3];
 	//! View matrix in format suitable for OpenGL.
-	GLdouble viewMatrix[16];
+	double   viewMatrix[16];
 	//! Inverse view matrix in format suitable for OpenGL.
-	GLdouble inverseViewMatrix[16];
+	double   inverseViewMatrix[16];
 	//! Projection matrix in format suitable for OpenGL.
-	GLdouble frustumMatrix[16];
+	double   frustumMatrix[16];
 	//! Inverse projection matrix in format suitable for OpenGL.
-	GLdouble inverseFrustumMatrix[16];
+	double   inverseFrustumMatrix[16];
 
 	// tools, to be called by user
 
 	// ! Initializes all inputs at once.
-	//Camera(GLfloat posx, GLfloat posy, GLfloat posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
+	//Camera(float posx, float posy, float posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
 	//! Type of moveForward, moveBackward, moveRight and moveLeft for convenient mapping to keys.
 	typedef void (Camera::*Move)(float units);
 	//! Moves camera to given distance in world space.

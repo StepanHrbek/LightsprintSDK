@@ -7,7 +7,6 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
-#include <GL/glew.h>
 #include "DemoEngine.h"
 
 namespace de /// DemoEngine - OpenGL renderer with soft shadows.
@@ -60,7 +59,7 @@ public:
 	//! Sets uniform of type vec4.
 	void sendUniform4fv(const char *name, const float xyzw[4]);
 	//! Sets array of uniforms of type int or sampler2D or samplerCube or sampler2DShadow.
-	void sendUniform(const char *name, int count, const GLint* x);
+	void sendUniform(const char *name, int count, const int* x);
 	//! Sets uniform of type int or sampler2D or samplerCube or sampler2DShadow.
 	void sendUniform(const char *name, int x);
 	//! Sets uniform of type int2.
@@ -81,7 +80,7 @@ private:
 	bool logLooksSafe();
 
 	class Shader *vertex, *fragment;
-	GLuint handle;
+	unsigned handle;
 	bool linked;
 };
 

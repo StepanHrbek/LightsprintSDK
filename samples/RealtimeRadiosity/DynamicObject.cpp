@@ -3,6 +3,7 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
+#include <GL/glew.h>
 #include "Lightsprint/DemoEngine/Renderer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "DynamicObject.h"

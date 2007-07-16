@@ -4,6 +4,7 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 
+#include <GL/glew.h>
 #include <cstdio>
 #include "Lightsprint/DemoEngine/Water.h"
 #include "Lightsprint/DemoEngine/Timer.h"

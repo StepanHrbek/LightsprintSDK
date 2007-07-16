@@ -6,6 +6,7 @@
 #include "Lightsprint/GL/LightmapViewer.h"
 #include "Lightsprint/DemoEngine/UberProgram.h"
 #include <string.h>
+#include <GL/glew.h>
 #include <GL/glut.h>
 
 namespace rr_gl

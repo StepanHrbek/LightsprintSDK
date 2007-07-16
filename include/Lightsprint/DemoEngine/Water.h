@@ -7,7 +7,6 @@
 #ifndef WATER_H
 #define WATER_H
 
-#include <GL/glew.h>
 #include "Program.h"
 #include "Texture.h"
 #include "Camera.h"
@@ -53,7 +52,7 @@ protected:
 	Program* mirrorProgram;
 	Camera*  eye;
 	float    altitude;
-	GLint    viewport[4];
+	int      viewport[4];
 	bool     fresnel;
 };
 

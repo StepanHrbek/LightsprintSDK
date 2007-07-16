@@ -148,9 +148,9 @@ namespace rr_gl
 		unsigned smallMapSize;
 		de::Program* scaleDownProgram;
 		// backup of render states
-		GLint viewport[4];
-		GLboolean depthTest, depthMask;
-		GLfloat clearcolor[4];
+		int viewport[4];
+		unsigned char depthTest, depthMask;
+		float clearcolor[4];
 	};
 
 };
