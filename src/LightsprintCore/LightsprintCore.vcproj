@@ -815,6 +815,14 @@
 						ExceptionHandling="1"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\RRDynamicSolver\gather.h"
