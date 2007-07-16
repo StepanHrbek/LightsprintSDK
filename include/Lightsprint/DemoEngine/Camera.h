@@ -9,6 +9,7 @@
 
 #include <GL/glew.h>
 #include "DemoEngine.h"
+//#include "Lightsprint/RRCollider.h"
 
 namespace de
 {
@@ -18,7 +19,7 @@ namespace de
 // Camera
 
 //! Frustum with publicly visible parameters, suitable for cameras and spotlights.
-class DE_API Camera
+class DE_API Camera //: public rr::RRAligned
 {
 public:
 	// inputs, to be modified by user
@@ -59,6 +60,8 @@ public:
 
 	// tools, to be called by user
 
+	// ! Initializes all inputs at once.
+	//Camera(GLfloat posx, GLfloat posy, GLfloat posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
 	//! Type of moveForward, moveBackward, moveRight and moveLeft for convenient mapping to keys.
 	typedef void (Camera::*Move)(float units);
 	//! Moves camera to given distance in world space.
