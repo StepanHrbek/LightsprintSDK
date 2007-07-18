@@ -37,25 +37,25 @@
 #		define RR_API __declspec(dllexport)
 #	else // use dll
 #if _MSC_VER<1400
-	#ifdef NDEBUG
+#	ifdef NDEBUG
 		#ifdef RR_DEBUG
 			#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
 		#else
 			#pragma comment(lib,"LightsprintCore.vs2003.lib")
 		#endif
-	#else
+#	else
 		#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
-	#endif
+#	endif
 #else
-	#ifdef NDEBUG
+#	ifdef NDEBUG
 		#ifdef RR_DEBUG
 			#pragma comment(lib,"LightsprintCore_dd.lib")
 		#else
 			#pragma comment(lib,"LightsprintCore.lib")
 		#endif
-	#else
+#	else
 		#pragma comment(lib,"LightsprintCore_dd.lib")
-	#endif
+#	endif
 #endif
 #	endif
 #	endif

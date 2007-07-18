@@ -25,25 +25,25 @@
 #else
 	// use dll
 	#if _MSC_VER<1400
-		#ifdef NDEBUG
+#		ifdef NDEBUG
 			#ifdef RR_DEBUG
 				#pragma comment(lib,"RRGPUOpenGL.vs2003_dd.lib")
 			#else
 				#pragma comment(lib,"RRGPUOpenGL.vs2003.lib")
 			#endif
-		#else
+#		else
 			#pragma comment(lib,"RRGPUOpenGL.vs2003_dd.lib")
-		#endif
+#		endif
 	#else
-		#ifdef NDEBUG
+#		ifdef NDEBUG
 			#ifdef RR_DEBUG
 				#pragma comment(lib,"RRGPUOpenGL_dd.lib")
 			#else
 				#pragma comment(lib,"RRGPUOpenGL.lib")
 			#endif
-		#else
+#		else
 			#pragma comment(lib,"RRGPUOpenGL_dd.lib")
-		#endif
+#		endif
 	#endif
 #endif
 #	endif
