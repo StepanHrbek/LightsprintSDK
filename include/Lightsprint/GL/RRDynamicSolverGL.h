@@ -13,9 +13,9 @@
 #	ifdef RR_STATIC
 		// use static library
 		#ifdef NDEBUG
-			#pragma comment(lib,"RRGPUOpenGL_sr.lib")
+			#pragma comment(lib,"LightsprintGL_sr.lib")
 		#else
-			#pragma comment(lib,"RRGPUOpenGL_sd.lib")
+			#pragma comment(lib,"LightsprintGL_sd.lib")
 		#endif
 #	else
 #ifdef RR_DLL_BUILD_GPUOPENGL
@@ -27,22 +27,22 @@
 	#if _MSC_VER<1400
 #		ifdef NDEBUG
 			#ifdef RR_DEBUG
-				#pragma comment(lib,"RRGPUOpenGL.vs2003_dd.lib")
+				#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
 			#else
-				#pragma comment(lib,"RRGPUOpenGL.vs2003.lib")
+				#pragma comment(lib,"LightsprintGL.vs2003.lib")
 			#endif
 #		else
-			#pragma comment(lib,"RRGPUOpenGL.vs2003_dd.lib")
+			#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
 #		endif
 	#else
 #		ifdef NDEBUG
 			#ifdef RR_DEBUG
-				#pragma comment(lib,"RRGPUOpenGL_dd.lib")
+				#pragma comment(lib,"LightsprintGL_dd.lib")
 			#else
-				#pragma comment(lib,"RRGPUOpenGL.lib")
+				#pragma comment(lib,"LightsprintGL.lib")
 			#endif
 #		else
-			#pragma comment(lib,"RRGPUOpenGL_dd.lib")
+			#pragma comment(lib,"LightsprintGL_dd.lib")
 #		endif
 	#endif
 #endif

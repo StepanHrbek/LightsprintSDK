@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="RRGPUOpenGL"
+	Name="LightsprintGL"
 	ProjectGUID="{2D2907C3-3E69-234A-306C-243C989A3411}"
-	RootNamespace="RRGPUOpenGL"
+	RootNamespace="LightsprintGL"
 	>
 	<Platforms>
 		<Platform
@@ -39,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRGPUOpenGL.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -129,7 +129,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRGPUOpenGL.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -214,7 +214,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRGPUOpenGL.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -312,7 +312,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRGPUOpenGL.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""
 			/>
 			<Tool

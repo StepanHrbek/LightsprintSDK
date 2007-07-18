@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="RRGPUOpenGL.vs2003"
+	Name="LightsprintGL.vs2003"
 	ProjectGUID="{2D2907C3-3E69-234A-306C-243C989A3411}"
-	RootNamespace="RRGPUOpenGL">
+	RootNamespace="LightsprintGL">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
@@ -55,7 +55,7 @@
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRGPUOpenGL.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -116,7 +116,7 @@
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRGPUOpenGL.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -181,7 +181,7 @@
 				ImportLibrary="$(OutDir)\$(TargetName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRGPUOpenGL.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -244,7 +244,7 @@
 				ImportLibrary="$(OutDir)\$(TargetName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/RRGPUOpenGL.tlb"
+				TypeLibraryName="$(IntDir)/LightsprintGL.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
