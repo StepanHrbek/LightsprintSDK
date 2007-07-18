@@ -689,7 +689,7 @@
 			Name="DemoEngine"
 			>
 			<File
-				RelativePath="..\DemoEngine\Texture.cpp"
+				RelativePath="..\LightsprintGL\DemoEngine\Texture.cpp"
 				>
 			</File>
 			<File
@@ -697,11 +697,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\TextureInMemory.cpp"
+				RelativePath="..\LightsprintGL\DemoEngine\TextureInMemory.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\TextureInMemory.h"
+				RelativePath="..\LightsprintGL\DemoEngine\TextureInMemory.h"
 				>
 			</File>
 		</Filter>

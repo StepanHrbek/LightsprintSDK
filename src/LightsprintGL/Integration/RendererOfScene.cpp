@@ -11,6 +11,9 @@
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 
+#ifdef RR_DEVELOPMENT
+#define DIAGNOSTIC_RAYS // render rays shot by solver (RR_DEVELOPMENT must be on)
+#endif
 
 namespace rr_gl
 {
@@ -416,6 +419,39 @@ void RendererOfOriginalScene::render()
 
 void RendererOfOriginalScene::renderLines(bool shortened, int onlyIndex)
 {
+#ifdef RR_DEVELOPMENT
+	if((params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR || params.uberProgramSetup.LIGHT_INDIRECT_MAP || params.uberProgramSetup.LIGHT_INDIRECT_auto) && !params.uberProgramSetup.FORCE_2D_POSITION)
+	{
+		UberProgramSetup uberProgramSetupLines;
+		uberProgramSetupLines.LIGHT_INDIRECT_VCOLOR = 1;
+		uberProgramSetupLines.MATERIAL_DIFFUSE = 1;
+		Program* program = uberProgramSetupLines.useProgram(uberProgram,NULL,0,NULL,NULL,1);
+		rr::RRStaticSolverStatistics* stats = params.solver->getStaticSolver()->getSceneStatistics();
+		glBegin(GL_LINES);
+		for(unsigned i=0;i<stats->numLineSegments;i++) if(onlyIndex<0 || stats->lineSegments[i].index==onlyIndex)
+		{
+			if(stats->lineSegments[i].unreliable)
+				glColor3ub(255,0,0);
+			else
+			if(stats->lineSegments[i].infinite)
+				glColor3ub(0,0,255);
+			else
+				glColor3ub(0,255,0);
+			glVertex3fv(&stats->lineSegments[i].point[0][0]);
+			glColor3ub(0,0,0);
+			if(shortened)
+			{
+				rr::RRVec3 tmp = stats->lineSegments[i].point[0] + (stats->lineSegments[i].point[1]-stats->lineSegments[i].point[0]).normalized()*0.01f;
+				glVertex3fv(&tmp[0]);
+			}
+			else
+			{
+				glVertex3fv(&stats->lineSegments[i].point[1][0]);
+			}
+		}
+		glEnd();
+	}
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

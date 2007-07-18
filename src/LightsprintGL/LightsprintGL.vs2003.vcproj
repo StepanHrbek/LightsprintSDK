@@ -275,53 +275,53 @@
 			Name="Integration"
 			>
 			<File
-				RelativePath=".\LightmapViewer.cpp">
+				RelativePath="Integration\LightmapViewer.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\LightmapViewer.h">
 			</File>
 			<File
-				RelativePath=".\ObjectBuffers.cpp">
+				RelativePath="Integration\ObjectBuffers.cpp">
 			</File>
 			<File
-				RelativePath=".\ObjectBuffers.h">
+				RelativePath="Integration\ObjectBuffers.h">
 			</File>
 			<File
-				RelativePath=".\RendererOfRRObject.cpp">
+				RelativePath="Integration\RendererOfRRObject.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\RendererOfRRObject.h">
 			</File>
 			<File
-				RelativePath=".\RendererOfScene.cpp">
+				RelativePath="Integration\RendererOfScene.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h">
 			</File>
 			<File
-				RelativePath=".\RRDynamicSolverGL.cpp">
+				RelativePath="Integration\RRDynamicSolverGL.cpp">
 			</File>
 			<File
 				RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h">
 			</File>
 			<File
-				RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.cpp">
+				RelativePath="Integration\RRIlluminationEnvironmentMapInOpenGL.cpp">
 			</File>
 			<File
-				RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.h">
+				RelativePath="Integration\RRIlluminationEnvironmentMapInOpenGL.h">
 			</File>
 			<File
-				RelativePath=".\RRIlluminationPixelBufferInOpenGL.cpp">
+				RelativePath="Integration\RRIlluminationPixelBufferInOpenGL.cpp">
 			</File>
 			<File
-				RelativePath=".\RRIlluminationPixelBufferInOpenGL.h">
+				RelativePath="Integration\RRIlluminationPixelBufferInOpenGL.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="DemoEngine"
 			>
 			<File
-				RelativePath="..\DemoEngine\AreaLight.cpp"
+				RelativePath="DemoEngine\AreaLight.cpp"
 				>
 			</File>
 			<File
@@ -329,7 +329,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\Camera.cpp"
+				RelativePath="DemoEngine\Camera.cpp"
 				>
 			</File>
 			<File
@@ -341,23 +341,23 @@
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\FBO.cpp"
+				RelativePath="DemoEngine\FBO.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\FBO.h"
+				RelativePath="DemoEngine\FBO.h"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\matrix.cpp"
+				RelativePath="DemoEngine\matrix.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\matrix.h"
+				RelativePath="DemoEngine\matrix.h"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\Program.cpp"
+				RelativePath="DemoEngine\Program.cpp"
 				>
 			</File>
 			<File
@@ -369,23 +369,23 @@
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\RendererWithCache.cpp"
+				RelativePath="DemoEngine\RendererWithCache.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\RendererWithCache.h"
+				RelativePath="DemoEngine\RendererWithCache.h"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\Shader.cpp"
+				RelativePath="DemoEngine\Shader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\Shader.h"
+				RelativePath="DemoEngine\Shader.h"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\Texture.cpp"
+				RelativePath="DemoEngine\Texture.cpp"
 				>
 			</File>
 			<File
@@ -393,23 +393,23 @@
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\TextureGL.cpp"
+				RelativePath="DemoEngine\TextureGL.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\TextureGL.h"
+				RelativePath="DemoEngine\TextureGL.h"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\TextureInMemory.cpp"
+				RelativePath="DemoEngine\TextureInMemory.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\TextureInMemory.h"
+				RelativePath="DemoEngine\TextureInMemory.h"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\TextureRenderer.cpp"
+				RelativePath="DemoEngine\TextureRenderer.cpp"
 				>
 			</File>
 			<File
@@ -417,11 +417,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\TextureShadowMap.cpp"
+				RelativePath="DemoEngine\TextureShadowMap.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\TextureShadowMap.h"
+				RelativePath="DemoEngine\TextureShadowMap.h"
 				>
 			</File>
 			<File
@@ -429,7 +429,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\UberProgram.cpp"
+				RelativePath="DemoEngine\UberProgram.cpp"
 				>
 			</File>
 			<File
@@ -437,7 +437,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\UberProgramSetup.cpp"
+				RelativePath="DemoEngine\UberProgramSetup.cpp"
 				>
 			</File>
 			<File
@@ -445,7 +445,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\DemoEngine\Water.cpp"
+				RelativePath="DemoEngine\Water.cpp"
 				>
 			</File>
 			<File
