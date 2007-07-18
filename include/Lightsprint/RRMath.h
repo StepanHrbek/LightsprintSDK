@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRMath.h
-//! \brief RRMath - basic math used by Lightsprint libraries
+//! \brief LightsprintCore | basic math support
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
@@ -25,18 +25,18 @@
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
 		// use static library
-		#ifdef NDEBUG
+#		ifdef NDEBUG
 			#pragma comment(lib,"LightsprintCore_sr.lib")
-		#else
+#		else
 			#pragma comment(lib,"LightsprintCore_sd.lib")
-		#endif
+#		endif
 #	else
 #	ifdef RR_DLL_BUILD
 		// build dll
 #		undef RR_API
 #		define RR_API __declspec(dllexport)
 #	else // use dll
-#if _MSC_VER<1400
+	#if _MSC_VER<1400
 #	ifdef NDEBUG
 		#ifdef RR_DEBUG
 			#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
@@ -46,7 +46,7 @@
 #	else
 		#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
 #	endif
-#else
+	#else
 #	ifdef NDEBUG
 		#ifdef RR_DEBUG
 			#pragma comment(lib,"LightsprintCore_dd.lib")
@@ -56,7 +56,7 @@
 #	else
 		#pragma comment(lib,"LightsprintCore_dd.lib")
 #	endif
-#endif
+	#endif
 #	endif
 #	endif
 #endif

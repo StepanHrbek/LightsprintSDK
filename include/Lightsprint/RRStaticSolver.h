@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRStaticSolver.h
-//! \brief RRStaticSolver - global illumination solver for static scenes
+//! \brief LightsprintCore | global illumination solver for static scenes
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////

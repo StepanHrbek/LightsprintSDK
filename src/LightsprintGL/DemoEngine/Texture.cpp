@@ -9,6 +9,7 @@
 #include <cstring>
 #include "Lightsprint/DemoEngine/Texture.h"
 #include "FreeImage.h"
+
 #pragma comment(lib,"FreeImage.lib")
 
 namespace rr_gl

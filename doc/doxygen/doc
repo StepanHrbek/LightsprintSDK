@@ -1731,7 +1731,7 @@ Rendering realtime global illumination with Lightsprint:
  - ask for more
 
  \section plat_src Platforms for source code
- Our source code conforms to standard <b>ISO C++</b>, so you should be 
+ Our source code conforms to standard ISO C++, so you should be 
  able to use it on nearly any platform (consoles, linux etc).
 
  There are optional optimizations, that use SSE instructions on x86 CPUs,

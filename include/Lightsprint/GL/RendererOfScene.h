@@ -1,7 +1,9 @@
-// --------------------------------------------------------------------------
-// Renderer implementation that renders contents of RRDynamicSolver instance.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file RendererOfScene.h
+//! \brief LightsprintGL | renders contents of RRDynamicSolver instance
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef RENDEREROFSCENE_H
 #define RENDEREROFSCENE_H

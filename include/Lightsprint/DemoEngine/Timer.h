@@ -1,8 +1,9 @@
-// --------------------------------------------------------------------------
-// DemoEngine
-// Timer, measures real time, processor time in userspace and in kernel.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file Timer.h
+//! \brief LightsprintGL | measures real time, processor time in userspace and in kernel
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef TIMER_H
 #define TIMER_H

@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRIllumination.h
-//! \brief RRIllumination - storage for calculated illumination
+//! \brief LightsprintCore | storage for calculated illumination
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////

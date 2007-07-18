@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRDynamicSolver.h
-//! \brief RRDynamicSolver - global illumination solver for dynamic scenes
+//! \brief LightsprintCore | global illumination solver for dynamic scenes
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////

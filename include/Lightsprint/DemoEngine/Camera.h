@@ -1,8 +1,9 @@
-// --------------------------------------------------------------------------
-// DemoEngine
-// Frustum with adjustable pos, dir, aspect, fov, near, far.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file Camera.h
+//! \brief LightsprintGL | frustum with adjustable pos, dir, aspect, fov, near, far
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef CAMERA_H
 #define CAMERA_H

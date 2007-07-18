@@ -1,8 +1,9 @@
-// --------------------------------------------------------------------------
-// DemoEngine
-// Library settings, to be included in all DemoEngine public headers.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file DemoEngine.h
+//! \brief LightsprintGL | library settings and macros
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef DEMOENGINE_H
 #define DEMOENGINE_H
@@ -23,48 +24,48 @@
 #endif
 
 #ifndef RR_GL_MANUAL_LINK
-#ifdef _MSC_VER
+#	ifdef _MSC_VER
 #	ifdef RR_GL_STATIC
 		// use static library
-		#ifdef NDEBUG
-			#pragma comment(lib,"LightsprintGL_sr.lib")
-		#else
-			#pragma comment(lib,"LightsprintGL_sd.lib")
-		#endif
-#	else
-#ifdef RR_GL_DLL_BUILD
-	// build dll
-	#undef RR_GL_API
-	#define RR_GL_API __declspec(dllexport)
-#else
-	// use dll
-	#if _MSC_VER<1400
 #		ifdef NDEBUG
-			#ifdef RR_GL_DEBUG
-				#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
-			#else
-				#pragma comment(lib,"LightsprintGL.vs2003.lib")
-			#endif
+#			pragma comment(lib,"LightsprintGL_sr.lib")
 #		else
-			#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
+#			pragma comment(lib,"LightsprintGL_sd.lib")
 #		endif
+#	else // !RR_GL_STATIC
+	#ifdef RR_GL_DLL_BUILD
+		// build dll
+		#undef RR_GL_API
+		#define RR_GL_API __declspec(dllexport)
 	#else
-#		ifdef NDEBUG
-			#ifdef RR_GL_DEBUG
+		// use dll
+		#if _MSC_VER<1400
+#			ifdef NDEBUG
+				#ifdef RR_GL_DEBUG
+					#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
+				#else
+					#pragma comment(lib,"LightsprintGL.vs2003.lib")
+				#endif
+#			else
+				#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
+#			endif
+		#else
+#			ifdef NDEBUG
+				#ifdef RR_GL_DEBUG
+					#pragma comment(lib,"LightsprintGL_dd.lib")
+				#else
+					#pragma comment(lib,"LightsprintGL.lib")
+				#endif
+#			else
 				#pragma comment(lib,"LightsprintGL_dd.lib")
-			#else
-				#pragma comment(lib,"LightsprintGL.lib")
-			#endif
-#		else
-			#pragma comment(lib,"LightsprintGL_dd.lib")
-#		endif
+#			endif
+		#endif
 	#endif
-#endif
-#	endif
 	#pragma comment(lib,"opengl32.lib")
 	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")
-#endif // _MSC_VER
+#	endif // !RR_GL_STATIC
+#	endif // _MSC_VER
 #endif // !RR_GL_MANUAL_LINK
 
 

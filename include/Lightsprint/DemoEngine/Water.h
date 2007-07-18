@@ -1,8 +1,9 @@
-// --------------------------------------------------------------------------
-// DemoEngine
-// Water with reflection and waves.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file Water.h
+//! \brief LightsprintGL | water with reflection and waves
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef WATER_H
 #define WATER_H

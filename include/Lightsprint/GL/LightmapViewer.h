@@ -1,7 +1,9 @@
-// --------------------------------------------------------------------------
-// Viewer of lightmap.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file LightmapViewer.h
+//! \brief LightsprintGL | viewer of lightmap
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef LIGHTMAPVIEWER_H
 #define LIGHTMAPVIEWER_H

@@ -1,8 +1,9 @@
-// --------------------------------------------------------------------------
-// DemoEngine
-// AreaLight, provides multiple generated instances of spotlight for area light simulation.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file AreaLight.h
+//! \brief LightsprintGL | provides multiple spotlights for area light simulation
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef AREALIGHT_H
 #define AREALIGHT_H

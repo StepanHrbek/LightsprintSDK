@@ -1,7 +1,9 @@
-// --------------------------------------------------------------------------
-// OpenGL based RRDynamicSolver.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file RRDynamicSolverGL.h
+//! \brief LightsprintGL | OpenGL based RRDynamicSolver
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef RRDYNAMICSOLVERGL_H
 #define RRDYNAMICSOLVERGL_H

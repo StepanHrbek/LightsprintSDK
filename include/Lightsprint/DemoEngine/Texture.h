@@ -1,8 +1,9 @@
-// --------------------------------------------------------------------------
-// DemoEngine
-// Texture, OpenGL 2.0 object. Able to load image from disk.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file Texture.h
+//! \brief LightsprintGL | OpenGL 2.0 texture, able to load image from disk
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef TEXTURE_H
 #define TEXTURE_H

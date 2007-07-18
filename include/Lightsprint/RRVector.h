@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRVector.h
-//! \brief RRVector - portable but limited std::vector replacement
+//! \brief LightsprintCore | portable but limited std::vector replacement
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////

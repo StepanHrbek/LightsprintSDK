@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRObject.h
-//! \brief RRObject - 3d object with geometry, materials, position etc
+//! \brief LightsprintCore | 3d object with geometry, materials, position etc
 //! \author Copyright (C) Stepan Hrbek, Lightsprint
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////

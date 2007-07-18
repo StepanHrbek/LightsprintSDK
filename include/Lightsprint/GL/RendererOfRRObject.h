@@ -1,7 +1,9 @@
-// --------------------------------------------------------------------------
-// Renderer implementation that renders RRObject instance.
-// Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
-// --------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//! \file RendererOfRRObject.h
+//! \brief LightsprintGL | renderers RRObject instance
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
+//! All rights reserved
+//----------------------------------------------------------------------------
 
 #ifndef RENDEREROFRROBJECT_H
 #define RENDEREROFRROBJECT_H
