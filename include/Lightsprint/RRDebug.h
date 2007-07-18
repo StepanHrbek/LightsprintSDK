@@ -8,7 +8,7 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include "RRMesh.h"
+#include "RRMemory.h"
 
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 
@@ -36,7 +36,7 @@ namespace rr
 	//! All new implementations must be thread safe too.
 	//
 	//////////////////////////////////////////////////////////////////////////////
-	class RR_API RRReporter
+	class RR_API RRReporter : public RRUniformlyAllocated
 	{
 	public:
 		/////////////////////////////////////////////////////////////

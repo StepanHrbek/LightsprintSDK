@@ -1,10 +1,40 @@
-#include "Lightsprint/RRCollider.h"
+#include "Lightsprint/RRDebug.h"
 
 #include <stdlib.h> // malloc, free
 
 
 namespace rr
 {
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRUniformlyAllocated
+
+void* RRUniformlyAllocated::operator new(std::size_t n)
+{
+	return malloc(n);
+};
+
+void* RRUniformlyAllocated::operator new[](std::size_t n)
+{
+	return malloc(n);
+};
+
+void RRUniformlyAllocated::operator delete(void* p, std::size_t n)
+{
+	if(p) free(p);
+};
+
+void RRUniformlyAllocated::operator delete[](void* p, std::size_t n)
+{
+	if(p) free(p);
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRAligned
 
 void* AlignedMalloc(size_t size,int byteAlign)
 {

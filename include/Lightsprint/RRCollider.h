@@ -9,7 +9,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRMesh.h"
-#include <new> // operators new/delete
 
 namespace rr
 {
@@ -58,27 +57,6 @@ namespace rr
 		//! Is called at the end of RRCollider::intersect().
 		//! Result is returned as result from RRCollider::intersect().
 		virtual bool done() = 0;
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRAligned
-	//! Base class for objects aligned in memory as required by SIMD instructions.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RR_API RRAligned
-	{
-	public:
-		//! Allocates aligned space for instance of any derived class.
-		void* operator new(std::size_t n);
-		//! Allocates aligned space for array of instances of any derived class.
-		void* operator new[](std::size_t n);
-		//! Frees aligned space allocated by new.
-		void operator delete(void* p, std::size_t n);
-		//! Frees aligned space allocated by new[].
-		void operator delete[](void* p, std::size_t n);
 	};
 
 
@@ -149,7 +127,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRCollider
+	class RR_API RRCollider : public RRAligned
 	{
 	public:
 		//! Techniques for finding ray-mesh intersections.

@@ -8,45 +8,11 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include "RRMath.h"
-#include <climits> // UNDEFINED
-
-#ifdef _MSC_VER
-#	ifdef RR_STATIC
-		// use static library
-		#ifdef NDEBUG
-			#pragma comment(lib,"LightsprintCore_sr.lib")
-		#else
-			#pragma comment(lib,"LightsprintCore_sd.lib")
-		#endif
-#	else
-#	ifdef RR_DLL_BUILD_VISION
-		// build dll
-#		undef RR_API
-#		define RR_API __declspec(dllexport)
-#	else // use dll
-#if _MSC_VER<1400
-	#ifdef NDEBUG
-		#pragma comment(lib,"LightsprintCore.vs2003.lib")
-	#else
-		#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
-	#endif
-#else
-	#ifdef NDEBUG
-		#pragma comment(lib,"LightsprintCore.lib")
-	#else
-		#pragma comment(lib,"LightsprintCore_dd.lib")
-	#endif
-#endif
-#	endif
-#	endif
-#endif
-
 #include "RRDebug.h"
+#include <climits> // UNDEFINED
 
 namespace rr
 {
-
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
@@ -59,7 +25,7 @@ namespace rr
 	//! This interface gives access to all such informations and is extensible enough
 	//! so we don't need to know types of data now. Each implementation defines its own data types.
 
-	class RR_API RRChanneledData
+	class RR_API RRChanneledData : public RRUniformlyAllocated
 	{
 	public:
 		//! Writes size of selected channel into numItems and itemSize.

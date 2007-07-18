@@ -3,6 +3,7 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
+#include "GL/glew.h"
 #include "DynamicObject.h"
 
 

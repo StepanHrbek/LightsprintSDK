@@ -457,10 +457,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRCollider\RRAligned.cpp"
-				>
-			</File>
-			<File
 				RelativePath="RRCollider\RRCollider.cpp"
 				>
 			</File>
@@ -987,6 +983,14 @@
 		</File>
 		<File
 			RelativePath="RRMathPrivate.h"
+			>
+		</File>
+		<File
+			RelativePath=".\RRMemory.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\RRMemory.h"
 			>
 		</File>
 		<File

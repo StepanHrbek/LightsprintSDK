@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <cstdio>
+#include "Lightsprint/RRDebug.h"
 #include "RRIlluminationPixelBufferInMemory.h"
 
 //#define DIAGNOSTIC // kazdy texel dostane barvu podle toho kolikrat do nej bylo zapsano

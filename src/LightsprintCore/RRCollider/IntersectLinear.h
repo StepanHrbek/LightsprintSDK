@@ -23,7 +23,7 @@ namespace rr
 	PRIVATE void update_hitPlane(RRRay* ray, RRMesh* importer);
 	PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t);
 
-	class IntersectLinear : public RRCollider, public RRAligned
+	class IntersectLinear : public RRCollider // RRCollider is RRAligned because this class requested alignment (does it still need it?)
 	{
 	public:
 		static IntersectLinear* create(RRMesh* aimporter) {return new IntersectLinear(aimporter);}
@@ -35,7 +35,7 @@ namespace rr
 		virtual unsigned  getMemoryOccupied() const;
 	protected:
 		IntersectLinear(RRMesh* aimporter);
-		RRMesh*   importer;
+		RRMesh*           importer;
 		unsigned          triangles;
 		real              DELTA_BSP; // tolerance to numeric errors (absolute distance in scenespace)
 		Box               box; // aligned + vtable(4) + importer(4) + triangles(4) + DELTA_BSP(4) = aligned

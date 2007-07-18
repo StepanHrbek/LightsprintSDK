@@ -20,6 +20,38 @@
 	// use static library
 	#define RR_API
 #endif
+
+#ifdef _MSC_VER
+#	ifdef RR_STATIC
+		// use static library
+		#ifdef NDEBUG
+			#pragma comment(lib,"LightsprintCore_sr.lib")
+		#else
+			#pragma comment(lib,"LightsprintCore_sd.lib")
+		#endif
+#	else
+#	ifdef RR_DLL_BUILD_VISION
+		// build dll
+#		undef RR_API
+#		define RR_API __declspec(dllexport)
+#	else // use dll
+#if _MSC_VER<1400
+	#ifdef NDEBUG
+		#pragma comment(lib,"LightsprintCore.vs2003.lib")
+	#else
+		#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
+	#endif
+#else
+	#ifdef NDEBUG
+		#pragma comment(lib,"LightsprintCore.lib")
+	#else
+		#pragma comment(lib,"LightsprintCore_dd.lib")
+	#endif
+#endif
+#	endif
+#	endif
+#endif
+
 //#define RR_DEVELOPMENT
 
 #include <cmath>

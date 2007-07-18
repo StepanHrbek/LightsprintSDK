@@ -57,6 +57,7 @@
 #include "RRObjectCollada.h"
 #include "Lightsprint/DemoEngine/Texture.h"
 #ifdef OPENGL
+#include "GL/glew.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #endif
 

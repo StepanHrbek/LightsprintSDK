@@ -6,6 +6,13 @@
 
 \page news What's new
 
+\section news26 ------------------------------------ 2007.7.x -------------------------------------
+
+NEWS
+
+- it's safe to mix multiple runtimes with multiple heaps,
+  our objects are created and deleted on our heap
+
 \section news25 ------------------------------------ 2007.7.8 -------------------------------------
 
 NEWS
