@@ -11,7 +11,7 @@
 #include "UberProgram.h"
 #include "AreaLight.h"
 
-namespace de
+namespace rr_gl
 {
 
 enum
@@ -46,7 +46,7 @@ enum
 //! All attribute values are converted to "#define ATTRIBUTE [value]" format
 //! and inserted at the beginning of ubershader.
 //! Some combinations of attributes are not supported and getProgram will return NULL.
-struct DE_API UberProgramSetup
+struct RR_GL_API UberProgramSetup
 {
 	unsigned SHADOW_MAPS            :8; ///< Number of shadow maps processed in one pass. 0=no shadows, 1=hard shadows, more=soft shadows. Valid values: 0..detectMaxShadowmaps().
 	unsigned SHADOW_SAMPLES         :8; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
@@ -113,7 +113,7 @@ struct DE_API UberProgramSetup
 // UberProgramData - data for UberProgram
 /*
 //! Data for UberProgram, options that don't change code.
-struct DE_API UberProgramData
+struct RR_GL_API UberProgramData
 {
 	AreaLight*areaLight;                 ///< Area light with shadowmaps.
 	Texture* lightDirectMap;             ///< Multiplies direct light. This texture is projected by light.

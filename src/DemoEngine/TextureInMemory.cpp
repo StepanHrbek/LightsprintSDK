@@ -11,7 +11,7 @@
 #include "TextureInMemory.h"
 //#include "Lightsprint/RRDebug.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////

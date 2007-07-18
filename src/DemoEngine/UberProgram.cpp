@@ -8,7 +8,7 @@
 #include <map>
 #include "Lightsprint/DemoEngine/UberProgram.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////

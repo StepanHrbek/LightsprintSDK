@@ -391,7 +391,7 @@ Rendering realtime global illumination with Lightsprint:
 
 \page integration_realtime_3 Realtime GI in your OpenGL renderer
 
-  If you prefer other OpenGL renderer to DemoEngine, switch to renderer of your choice.
+  If you prefer other OpenGL renderer to LightsprintGL, switch to renderer of your choice.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Recommended approach:
@@ -414,7 +414,7 @@ Rendering realtime global illumination with Lightsprint:
 
   - Make sure your renderer supports realtime shadows other than stencil based, e.g. shadowmapping
     or projected shadows. If it doesn't, add them or contact us for further support.
-    Commercial licence to Lightsprint contains full source code of DemoEngine,
+    Commercial licence to Lightsprint contains full source code of LightsprintGL,
     including realtime penumbra shadows.
   - <b> \subpage integration_step_4 </b>
   - <b> \subpage integration_step_5 </b>
@@ -675,7 +675,7 @@ Rendering realtime global illumination with Lightsprint:
 
  As a helper, there is RRDynamicSolverGL,
  subclass that already implements generic GPU tasks using OpenGL.
- If you plan to use OpenGL renderer (DemoEngine or any other),
+ If you plan to use OpenGL renderer (LightsprintGL or any other),
  subclass RRDynamicSolverGL and implement only 2 or 3
  missing member functions:
  - RRDynamicSolver::detectMaterials() - it is often empty,
@@ -930,7 +930,7 @@ Rendering realtime global illumination with Lightsprint:
   <b>fundamental for realtime global illumination</b>.
   To render realtime global illumination,
   start with renderer with direct illumination and shadows
-  (e.g. DemoEngine) and add ambient map or per vertex ambient 
+  (e.g. LightsprintGL) and add ambient map or per vertex ambient 
   computed here. Realtime per-vertex ambient is preferred
   for much higher speed.
 
@@ -1522,7 +1522,7 @@ Rendering realtime global illumination with Lightsprint:
      You can use <b>normal map</b> to modulate surface normal.
      Both diffuse and specular surfaces respond well to normal maps.
      \n
-     DemoEngine implements all of these techniques.
+     LightsprintGL implements all of these techniques.
    - Global illumination can be further improved if you use <b>ambient occlusion map</b>
      for your dynamic object. Multiply global illumination read from environment map
      by ambient occlusion read from ambient occlusion map to get more precise result.
@@ -1711,7 +1711,7 @@ Rendering realtime global illumination with Lightsprint:
  - all, no hard requirements
  - DX9 generation - standard target
  - DX10 generation - integration significantly simplified, performance improved
- - penumbra shadows in DemoEngine require at least GeForce 6xxx or Radeon 9500,
+ - penumbra shadows in LightsprintGL require at least GeForce 6xxx or Radeon 9500,
    but they are not mandatory
 
  Supported 3D APIs are
@@ -1761,9 +1761,9 @@ Rendering realtime global illumination with Lightsprint:
 
  \section glinking Automatic linking
    By default, including library header automatically links Release DLL version of library using \#pragma comment(lib,name).
-   \n \#define RR_DEBUG / DE_DEBUG selects Debug DLL instead of Release DLL.
-   \n \#define RR_MANUAL_LINK / DE_MANUAL_LINK disables automatic DLL linking.
-   \n (version with DE_ prefix affects DemoEngine, RR_ affects other libraries)
+   \n \#define RR_DEBUG / RR_GL_DEBUG selects Debug DLL instead of Release DLL.
+   \n \#define RR_MANUAL_LINK / RR_GL_MANUAL_LINK disables automatic DLL linking.
+   \n (version with RR_ affects LightsprintCore, RR_GL_ affects LightsprintGL)
 
  \section gunits Illumination units (radiometry, photometry, screen)
    Lightsprint computes all in HDR.
@@ -1857,9 +1857,9 @@ Rendering realtime global illumination with Lightsprint:
   Includes fast ray-scene intersections.
   Is OpenGL/Direct3D independent.
 
- - <b> \subpage api_demoengine "DEMOENGINE" </b> - OpenGL 2.0 renderer with penumbra shadows.
-
- - <b> \subpage api_gl "GPUOPENGL" </b> - Integration of LightsprintCore with DemoEngine.
+ - <b> \subpage api_gl "LIGHTSPRINT GL" </b> -
+  Integration of LightsprintCore with OpenGL 2.0.
+  Renderer with penumbra shadows.
 
  See scheme of library and sample dependencies:
 
@@ -1987,10 +1987,10 @@ Rendering realtime global illumination with Lightsprint:
 
 
 
-\page api_gl GPUOpenGL
+\page api_gl LightsprintGL
 
- GPUOpenGL implements Lightsprint's access to GPU using OpenGL 2.0 API.
- Advanced renderer is included.
+ LightsprintGL implements Lightsprint's access to GPU using OpenGL 2.0 API.
+ Advanced renderer with penumbra shadows is included.
  Full source code comes with commercial licence.
 
  Namespace: rr_gl
@@ -2016,28 +2016,18 @@ Rendering realtime global illumination with Lightsprint:
  - rr_gl::RendererOfRRObject is a renderer of 3d objects with Lightsprint's RRObject interface
  - renders object with precomputed or realtime computed illumination
 
-
-
-
-\page api_demoengine DemoEngine
- DemoEngine based on OpenGL 2.0 provides support for loading and rendering
- 3d scenes with shaders, but without global illumination.
- You can safely replace DemoEngine by your renderer or game engine.
- Full source code comes with commercial licence.
-
- Namespace: de
-
+ <hr>
  Headers: DemoEngine/*.h
 
- - de::Texture is OpenGL texture
- - de::Program is GLSL program
- - de::UberProgram is GLSL program with preprocessor parameters changeable at runtime
- - de::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs
- - de::Camera is frustum suitable for camera or spotlight
- - de::AreaLight is area light with realtime Penumbra Shadows
- - de::Renderer is generic renderer interface
+ - rr_gl::Texture is OpenGL texture
+ - rr_gl::Program is GLSL program
+ - rr_gl::UberProgram is GLSL program with preprocessor parameters changeable at runtime
+ - rr_gl::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs
+ - rr_gl::Camera is frustum suitable for camera or spotlight
+ - rr_gl::AreaLight is area light with realtime Penumbra Shadows
+ - rr_gl::Renderer is generic renderer interface
 
- Features and limitations of DemoEngine
+ Features and limitations of LightsprintGL's renderer
    - for Windows (request support for other platforms)
    - uses OpenGL 2.0
    - supports all OpenGL 2.0 cards, but penumbra shadows require GeForce 6xxx or higher, Radeon 9500 or higher
@@ -2060,7 +2050,9 @@ Rendering realtime global illumination with Lightsprint:
      - emissive map
 
  Sample PenumbraShadows shows .3ds scene viewer with dynamic objects
- and realtime penumbra shadows, based on DemoEngine.
+ and realtime penumbra shadows, without indirect illumination.
+
+ Sample RealtimeRadiosity shows the same scene with global illumination.
 
 
 
@@ -2113,7 +2105,7 @@ Rendering realtime global illumination with Lightsprint:
 
  <hr>
  <b>Water</b>
- - simple use of DemoEngine, renders skybox and water with waves, reflection, fresnel
+ - simple use of LightsprintGL, renders skybox and water with waves, reflection, fresnel
 
  <hr>
  <b>BunnyBenchmark</b>

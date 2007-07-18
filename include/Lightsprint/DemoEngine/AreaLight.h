@@ -12,7 +12,7 @@
 #include "Camera.h"
 #include "Texture.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ namespace de
 // AreaLight
 
 //! Area light with shadowmaps for realtime area light soft shadows.
-class DE_API AreaLight
+class RR_GL_API AreaLight
 {
 public:
 	//! Creates area light.

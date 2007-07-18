@@ -24,7 +24,7 @@ namespace rr
 		virtual ~RRIlluminationEnvironmentMapInMemory();
 	private:
 		friend RRIlluminationEnvironmentMap;
-		de::Texture* texture;
+		rr_gl::Texture* texture;
 	};
 
 } // namespace

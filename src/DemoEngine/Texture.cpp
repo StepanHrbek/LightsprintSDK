@@ -11,7 +11,7 @@
 #include "FreeImage.h"
 #pragma comment(lib,"FreeImage.lib")
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////

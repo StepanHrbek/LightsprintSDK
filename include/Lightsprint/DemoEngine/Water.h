@@ -11,14 +11,14 @@
 #include "Texture.h"
 #include "Camera.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Water
 
-class DE_API Water
+class RR_GL_API Water
 {
 public:
 	Water(const char* pathToShaders, bool fesnel, bool boostSun);

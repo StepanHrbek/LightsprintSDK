@@ -7,57 +7,65 @@
 #ifndef DEMOENGINE_H
 #define DEMOENGINE_H
 
+#include "Lightsprint/RRMemory.h"
+
 #ifdef _MSC_VER
-#ifdef DE_MANUAL_LINK
-	#define DE_API
-#else // !DE_MANUAL_LINK
-#ifdef DE_STATIC
+#	ifdef RR_GL_STATIC
+		// use static library
+		#define RR_GL_API
+#	else // use dll
+#define RR_GL_API __declspec(dllimport)
+#pragma warning(disable:4251) // stop MSVC warnings
+#	endif
+#else
 	// use static library
-	#define DE_API
-	#ifdef NDEBUG
-		#pragma comment(lib,"DemoEngine_sr.lib")
-	#else
-		#pragma comment(lib,"DemoEngine_sd.lib")
-	#endif
-#else	// use dll
-	#pragma warning(disable:4251) // stop false MS warnings
-	#ifdef DE_DLL_BUILD_DEMOENGINE
-		// build dll
-		#define DE_API __declspec(dllexport)
-	#else
-		// use dll
-		#define DE_API __declspec(dllimport)
-		#if _MSC_VER<1400
-#			ifdef NDEBUG
-				#ifdef RR_DEBUG
-					#pragma comment(lib,"DemoEngine.vs2003_dd.lib")
-				#else
-					#pragma comment(lib,"DemoEngine.vs2003.lib")
-				#endif
-#			else
-				#pragma comment(lib,"DemoEngine.vs2003_dd.lib")
-#			endif
+	#define RR_GL_API
+#endif
+
+#ifndef RR_GL_MANUAL_LINK
+#ifdef _MSC_VER
+#	ifdef RR_GL_STATIC
+		// use static library
+		#ifdef NDEBUG
+			#pragma comment(lib,"LightsprintGL_sr.lib")
 		#else
-#			ifdef NDEBUG
-				#ifdef RR_DEBUG
-					#pragma comment(lib,"DemoEngine_dd.lib")
-				#else
-					#pragma comment(lib,"DemoEngine.lib")
-				#endif
-#			else
-				#pragma comment(lib,"DemoEngine_dd.lib")
-#			endif
+			#pragma comment(lib,"LightsprintGL_sd.lib")
 		#endif
+#	else
+#ifdef RR_GL_DLL_BUILD
+	// build dll
+	#undef RR_GL_API
+	#define RR_GL_API __declspec(dllexport)
+#else
+	// use dll
+	#if _MSC_VER<1400
+#		ifdef NDEBUG
+			#ifdef RR_GL_DEBUG
+				#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
+			#else
+				#pragma comment(lib,"LightsprintGL.vs2003.lib")
+			#endif
+#		else
+			#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
+#		endif
+	#else
+#		ifdef NDEBUG
+			#ifdef RR_GL_DEBUG
+				#pragma comment(lib,"LightsprintGL_dd.lib")
+			#else
+				#pragma comment(lib,"LightsprintGL.lib")
+			#endif
+#		else
+			#pragma comment(lib,"LightsprintGL_dd.lib")
+#		endif
 	#endif
 #endif
+#	endif
 	#pragma comment(lib,"opengl32.lib")
 	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")
-#endif // !DE_MANUAL_LINK
-#else
-	// use static library
-	#define DE_API
-#endif
+#endif // _MSC_VER
+#endif // !RR_GL_MANUAL_LINK
 
 
 // helper macros
@@ -75,35 +83,5 @@
 #ifndef SAFE_DELETE_ARRAY
 	#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
 #endif
-
-#include <new> // operators new/delete
-
-namespace de
-{
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRUniformlyAllocated
-	//! Base class for objects allocated on our heap.
-	//
-	//! Allocating on our heap prevents corruption
-	//! in environment with multiple heaps.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class DE_API RRUniformlyAllocated
-	{
-	public:
-		//! Allocates aligned space for instance of any derived class.
-		void* operator new(std::size_t n);
-		//! Allocates aligned space for array of instances of any derived class.
-		void* operator new[](std::size_t n);
-		//! Frees aligned space allocated by new.
-		void operator delete(void* p, std::size_t n);
-		//! Frees aligned space allocated by new[].
-		void operator delete[](void* p, std::size_t n);
-	};
-
-}; // namespace
 
 #endif

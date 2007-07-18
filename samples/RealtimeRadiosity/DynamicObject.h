@@ -20,7 +20,7 @@ class DynamicObject
 {
 public:
 	//! Creates dynamic object from .3ds file.
-	static DynamicObject* create(const char* filename,float scale,de::UberProgramSetup amaterial,unsigned aspecularCubeSize);
+	static DynamicObject* create(const char* filename,float scale,rr_gl::UberProgramSetup amaterial,unsigned aspecularCubeSize);
 
 	//! Updates object's position according to worldFoot position and rotYZ rotation.
 	//! To be called each time object moves/rotates.
@@ -34,7 +34,7 @@ public:
 	//! Renders object.
 	//! Expects that illumination was already updated or it hasn't changed.
 	//! No need to call it when object is not visible.
-	void render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,const de::Texture* lightDirectMap,const de::Camera& eye, const float brightness[4], float gamma);
+	void render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::AreaLight* areaLight,unsigned firstInstance,const rr_gl::Texture* lightDirectMap,const rr_gl::Camera& eye, const float brightness[4], float gamma);
 
 	~DynamicObject();
 
@@ -51,10 +51,10 @@ public:
 protected:
 	DynamicObject();
 	class Model_3DS* model;
-	de::UberProgramSetup material;
+	rr_gl::UberProgramSetup material;
 	unsigned specularCubeSize;
-	de::Renderer* rendererWithoutCache;
-	de::Renderer* rendererCached;
+	rr_gl::Renderer* rendererWithoutCache;
+	rr_gl::Renderer* rendererCached;
 
 	// updated by updatePosition
 	float worldMatrix[16];

@@ -1,3 +1,4 @@
+#include "GL/glew.h"
 #include "Level.h" // must be first, so collada is included before demoengine (#define SAFE_DELETE collides)
 #include "DemoPlayer.h"
 #include "Music.h"
@@ -6,7 +7,7 @@
 //#include "LevelSequence.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 
-extern void showImage(const de::Texture* tex);
+extern void showImage(const rr_gl::Texture* tex);
 
 DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 {
@@ -24,7 +25,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	fscanf(f,"loading_screen = %s\n",buf);
 	if(buf[0])
 	{
-		loadingMap = de::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		loadingMap = rr_gl::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 		showImage(loadingMap);
 	}
 
@@ -55,7 +56,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	while(8==fscanf(f,"object = %f,%f,%d,%d,%d,%d,%f,%s\n",
 		&diffuse,&specular,&specularMap,&normalMap,&emissiveMap,&specularCubeSize,&scale,buf))
 	{
-		de::UberProgramSetup material;
+		rr_gl::UberProgramSetup material;
 		material.MATERIAL_DIFFUSE = diffuse?1:0;
 		material.MATERIAL_DIFFUSE_CONST = (diffuse && diffuse!=1)?1:0;
 		material.MATERIAL_DIFFUSE_VCOLOR = 0;
@@ -81,7 +82,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	// load projectors
 	while(1==fscanf(f,"projector = %s\n",buf))
 	{
-		de::Texture* projector = de::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		rr_gl::Texture* projector = rr_gl::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 		projectors.push_back(projector);
 	}
 	nextSceneIndex = 0;
@@ -249,7 +250,7 @@ unsigned DemoPlayer::getNumProjectors()
 	return projectors.size();
 }
 
-const de::Texture* DemoPlayer::getProjector(unsigned projectorIndex)
+const rr_gl::Texture* DemoPlayer::getProjector(unsigned projectorIndex)
 {
 	if(projectorIndex<projectors.size())
 	{

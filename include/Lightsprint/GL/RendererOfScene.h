@@ -21,7 +21,7 @@ namespace rr_gl
 //
 //! Renders original scene or optimized scene from solver.
 //! Takes live illumination from solver or computed illumination from layer.
-class RR_API RendererOfScene : public de::Renderer
+class RR_GL_API RendererOfScene : public Renderer
 {
 public:
 	//! Creates renderer of scene in solver.
@@ -48,7 +48,7 @@ public:
 	//!  with realtime shadows in one pass (see AreaLight::instanceMakeup()).
 	//! \param lightDirectMap
 	//!  Texture projected by realtime area light.
-	void setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap);
+	void setParams(const UberProgramSetup& uberProgramSetup, const AreaLight* areaLight, const Texture* lightDirectMap);
 
 	//! Specifies data source - original scene geometry and illumination from given layer.
 	//

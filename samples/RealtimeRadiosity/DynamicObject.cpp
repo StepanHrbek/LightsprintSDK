@@ -15,7 +15,7 @@
 //
 // Dynamic object
 
-DynamicObject* DynamicObject::create(const char* filename,float scale,de::UberProgramSetup amaterial,unsigned aspecularCubeSize)
+DynamicObject* DynamicObject::create(const char* filename,float scale,rr_gl::UberProgramSetup amaterial,unsigned aspecularCubeSize)
 {
 	DynamicObject* d = new DynamicObject();
 	d->model = new Model_3DS;
@@ -88,7 +88,7 @@ void DynamicObject::updateIllumination(rr::RRDynamicSolver* solver)
 		material.MATERIAL_DIFFUSE?4:0, material.MATERIAL_DIFFUSE?diffuseMap:NULL);
 }
 
-void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,const de::Texture* lightDirectMap,const de::Camera& eye, const float brightness[4], float gamma)
+void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::AreaLight* areaLight,unsigned firstInstance,const rr_gl::Texture* lightDirectMap,const rr_gl::Camera& eye, const float brightness[4], float gamma)
 {
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.
@@ -105,7 +105,7 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 		uberProgramSetup.MATERIAL_EMISSIVE_MAP = material.MATERIAL_EMISSIVE_MAP;
 	}
 	// use program
-	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap,brightness,gamma);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap,brightness,gamma);
 	if(!program)
 	{
 		printf("Failed to compile or link GLSL program for dynamic object.\n");
@@ -120,7 +120,7 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
 		if(uberProgramSetup.MATERIAL_SPECULAR)
 		{
-			glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 			if(specularMap)
 				specularMap->bindTexture();
 			else
@@ -129,7 +129,7 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 		}
 		if(uberProgramSetup.MATERIAL_DIFFUSE)
 		{
-			glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
+			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 			if(diffuseMap)
 				diffuseMap->bindTexture();
 			else

@@ -23,11 +23,11 @@ namespace rr_gl
 //! - wheel = zoom
 //! - left mouse button = toggle interpolation
 //! - right mouse button = toggle special alpha display
-class RR_API LightmapViewer : public rr::RRUniformlyAllocated
+class RR_GL_API LightmapViewer : public rr::RRUniformlyAllocated
 {
 public:
 	//! Creates lightmap viewer instance. Only one instance at a time is allowed.
-	static LightmapViewer* create(de::Texture* _lightmap, rr::RRMesh* _mesh);
+	static LightmapViewer* create(Texture* _lightmap, rr::RRMesh* _mesh);
 
 	//! Creates lightmap viewer instance. Only one instance at a time is allowed.
 	static LightmapViewer* create(rr::RRIlluminationPixelBuffer* _pixelBuffer, rr::RRMesh* _mesh);
@@ -43,7 +43,7 @@ public:
 	static void display();
 
 private:
-	LightmapViewer(de::Texture* _lightmap, rr::RRMesh* _mesh);
+	LightmapViewer(Texture* _lightmap, rr::RRMesh* _mesh);
 };
 
 }; // namespace

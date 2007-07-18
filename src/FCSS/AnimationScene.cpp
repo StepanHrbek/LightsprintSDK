@@ -1,3 +1,4 @@
+#include "GL/glew.h"
 #include "AnimationScene.h"
 #include "Lightsprint/RRDebug.h"
 
@@ -42,7 +43,7 @@ bool LevelSetup::load(const char* afilename)
 	// load overlay
 	overlayFilename[0] = 0;
 	fscanf(f,"overlay = %s\n",overlayFilename);
-	overlayMap = overlayFilename[0] ? de::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP) : NULL;
+	overlayMap = overlayFilename[0] ? rr_gl::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP) : NULL;
 	// load scale
 	scale = 1;
 	fscanf(f,"scale = %f\n",&scale);
@@ -199,7 +200,7 @@ unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone
 	return result;
 }
 
-const de::Texture* LevelSetup::getOverlay()
+const rr_gl::Texture* LevelSetup::getOverlay()
 {
 	return overlayMap;
 }

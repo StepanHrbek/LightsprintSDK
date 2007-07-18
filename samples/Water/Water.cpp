@@ -40,10 +40,10 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-de::Camera          eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
-de::Texture*        environmentMap = NULL;
-de::TextureRenderer*textureRenderer = NULL;
-de::Water*          water = NULL;
+rr_gl::Camera          eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
+rr_gl::Texture*        environmentMap = NULL;
+rr_gl::TextureRenderer*textureRenderer = NULL;
+rr_gl::Water*          water = NULL;
 int                 winWidth = 0;
 int                 winHeight = 0;
 
@@ -139,12 +139,12 @@ int main(int argc, char **argv)
 	glDisable(GL_DEPTH_TEST);
 
 	// init shaders
-	water = new de::Water("..\\..\\data\\shaders\\",true,false);
-	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
+	water = new rr_gl::Water("..\\..\\data\\shaders\\",true,false);
+	textureRenderer = new rr_gl::TextureRenderer("..\\..\\data\\shaders\\");
 	
 	// init textures
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 
 	glutMainLoop();
 	return 0;

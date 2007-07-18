@@ -11,7 +11,7 @@
 #include <map>
 #include "Lightsprint/DemoEngine/Renderer.h"
 
-namespace de
+namespace rr_gl
 {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ namespace de
 //! see OpenGL for more details.
 //! Not suitable for non-OpenGL renderers or OpenGL renderers that
 //! execute operations not stored into display list.
-class DE_API RendererWithCache : public Renderer
+class RR_GL_API RendererWithCache : public Renderer
 {
 public:
 	//! Creates cache able to store and replay OpenGL commands of renderer.

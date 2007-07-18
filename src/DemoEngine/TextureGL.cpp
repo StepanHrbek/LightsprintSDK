@@ -12,7 +12,7 @@
 #include "TextureShadowMap.h"
 #include "FBO.h"
 
-namespace de
+namespace rr_gl
 {
 
 FBO* TextureGL::globalFBO = NULL;

@@ -83,16 +83,16 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 
 AnimationFrame currentFrame(0);
 GLUquadricObj *quadric;
-de::AreaLight* areaLight = NULL;
-de::Water* water = NULL;
+rr_gl::AreaLight* areaLight = NULL;
+rr_gl::Water* water = NULL;
 #ifdef THREE_ONE
 #else
-	de::Texture* lightsprintMap = NULL; // small logo in the corner
+	rr_gl::Texture* lightsprintMap = NULL; // small logo in the corner
 #endif
-de::Program* ambientProgram;
-de::TextureRenderer* skyRenderer;
-de::UberProgram* uberProgram;
-de::UberProgramSetup uberProgramGlobalSetup;
+rr_gl::Program* ambientProgram;
+rr_gl::TextureRenderer* skyRenderer;
+rr_gl::UberProgram* uberProgram;
+rr_gl::UberProgramSetup uberProgramGlobalSetup;
 int winWidth = 0;
 int winHeight = 0;
 int depthBias24 = 50;//23;//42;
@@ -168,7 +168,7 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	areaLight = new de::AreaLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
+	areaLight = new rr_gl::AreaLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
 	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
@@ -177,17 +177,17 @@ void init_gl_resources()
 
 #ifdef THREE_ONE
 #else
-	lightsprintMap = de::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
+	lightsprintMap = rr_gl::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 #endif
 
-	uberProgram = de::UberProgram::create("shaders\\ubershader.vs", "shaders\\ubershader.fs");
-	de::UberProgramSetup uberProgramSetup;
+	uberProgram = rr_gl::UberProgram::create("shaders\\ubershader.vs", "shaders\\ubershader.fs");
+	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
-	water = new de::Water("shaders/",true,false);
-	skyRenderer = new de::TextureRenderer("shaders/");
+	water = new rr_gl::Water("shaders/",true,false);
+	skyRenderer = new rr_gl::TextureRenderer("shaders/");
 
 	if(!ambientProgram)
 		error("\nFailed to compile or link GLSL program.\n",true);
@@ -209,7 +209,7 @@ void done_gl_resources()
 //
 // Solver
 
-void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance);
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance);
 void updateMatrices();
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
@@ -252,7 +252,7 @@ protected:
 	}
 	virtual void setupShader(unsigned objectNumber)
 	{
-		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = 1;
 		uberProgramSetup.SHADOW_SAMPLES = 1;
 		uberProgramSetup.LIGHT_DIRECT = true;
@@ -390,7 +390,7 @@ void unlockVertexIllum(void* solver,unsigned object)
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
-void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
+void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
 
@@ -438,7 +438,7 @@ void renderSceneStatic(de::UberProgramSetup uberProgramSetup, unsigned firstInst
 	level->rendererOfScene->render();
 }
 
-void renderScene(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	// render static scene
 	assert(!uberProgramSetup.OBJECT_SPACE); 
@@ -455,19 +455,19 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 {
 	if(!needDepthMapUpdate) return;
 	assert(mapIndex>=0);
-	de::Camera* lightInstance = areaLight->getInstance(mapIndex);
+	rr_gl::Camera* lightInstance = areaLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
 
 	glColorMask(0,0,0,0);
-	de::Texture* shadowmap = areaLight->getShadowMap((mapIndex>=0)?mapIndex:0);
+	rr_gl::Texture* shadowmap = areaLight->getShadowMap((mapIndex>=0)?mapIndex:0);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
 	glClearDepth(0.9999); // prevents backprojection
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 
-	de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+	rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 	uberProgramSetup.SHADOW_MAPS = 0;
 	uberProgramSetup.SHADOW_SAMPLES = 0;
 	uberProgramSetup.LIGHT_DIRECT = false;
@@ -502,7 +502,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	}
 }
 
-void drawEyeViewShadowed(de::UberProgramSetup uberProgramSetup, unsigned firstInstance)
+void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
 {
 	if(!level) return;
 
@@ -564,7 +564,7 @@ void drawEyeViewSoftShadowed(void)
 		{
 			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,level->pilot.setup->waterLevel);
 			glClear(GL_DEPTH_BUFFER_BIT);
-			de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+			rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
@@ -578,7 +578,7 @@ void drawEyeViewSoftShadowed(void)
 		}
 
 		// render everything except water
-		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
@@ -613,7 +613,7 @@ void drawEyeViewSoftShadowed(void)
 	// add direct
 	for(unsigned i=0;i<numInstances;i+=INSTANCES_PER_PASS)
 	{
-		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = MIN(INSTANCES_PER_PASS,numInstances);
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
@@ -636,7 +636,7 @@ void drawEyeViewSoftShadowed(void)
 	}
 	// add indirect
 	{
-		de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0;
 		uberProgramSetup.LIGHT_DIRECT = false;
@@ -679,7 +679,7 @@ void updateThumbnail(AnimationFrame& frame)
 	}
 	// render into thumbnail
 	if(!frame.thumbnail)
-		frame.thumbnail = de::Texture::create(NULL,160,120,false,de::Texture::TF_RGB,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
+		frame.thumbnail = rr_gl::Texture::create(NULL,160,120,false,rr_gl::Texture::TF_RGB,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
 	glViewport(0,0,160,120);
 	//frame.thumbnail->renderingToBegin();
 	drawEyeViewSoftShadowed();
@@ -871,14 +871,14 @@ static void drawHelpMessage(int screen)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void showImage(const de::Texture* tex)
+void showImage(const rr_gl::Texture* tex)
 {
 	if(!tex) return;
 	skyRenderer->render2D(tex,NULL,0,0,1,1);
 	glutSwapBuffers();
 }
 
-void showOverlay(const de::Texture* tex)
+void showOverlay(const rr_gl::Texture* tex)
 {
 	if(!tex) return;
 	glEnable(GL_BLEND);
@@ -889,7 +889,7 @@ void showOverlay(const de::Texture* tex)
 	glDisable(GL_BLEND);
 }
 
-void showLogo(const de::Texture* logo)
+void showLogo(const rr_gl::Texture* logo)
 {
 	if(!logo) return;
 	float w = logo->getWidth()/(float)winWidth;
@@ -908,8 +908,8 @@ void displayScene(unsigned sceneIndex, float sceneTime, rr::RRVec3 offset)
 {
 	// backup old state
 	Level* oldLevel = level;
-	de::Camera oldEye = eye;
-	de::Camera oldLight = light;
+	rr_gl::Camera oldEye = eye;
+	rr_gl::Camera oldLight = light;
 
 	level = demoPlayer->getPart(sceneIndex);
 	assert(level);
@@ -925,7 +925,7 @@ void displayScene(unsigned sceneIndex, float sceneTime, rr::RRVec3 offset)
 	needDepthMapUpdate = 1;
 	updateDepthMap(0,0);
 
-	de::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+	rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
@@ -1059,7 +1059,7 @@ void display()
 		shots++;
 		char buf[100];
 		sprintf(buf,"Lightsprint3+1_%02d.png",shots);
-		if(de::Texture::saveBackbuffer(buf))
+		if(rr_gl::Texture::saveBackbuffer(buf))
 			rr::RRReporter::report(rr::RRReporter::INFO,"Saved %s.\n",buf);
 		else
 			rr::RRReporter::report(rr::RRReporter::WARN,"Error: Failed to saved %s.\n",buf);
@@ -1966,7 +1966,7 @@ void idle()
 	float seconds = (now-prev)/(float)PER_SEC;//timer.Watch();
 	if(!prev || now==prev) seconds = 0;
 	CLAMP(seconds,0.001f,0.3f);
-	de::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
+	rr_gl::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
 	if(speedForward) cam->moveForward(speedForward*seconds);
 	if(speedBack) cam->moveBack(speedBack*seconds);
 	if(speedRight) cam->moveRight(speedRight*seconds);
@@ -2129,7 +2129,7 @@ int main(int argc, char **argv)
 	}
 
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
-	//de::Program::showLog = true;
+	//rr_gl::Program::showLog = true;
 
 	parseOptions(argc, argv);
 

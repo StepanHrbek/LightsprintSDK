@@ -25,13 +25,13 @@ namespace rr_gl
 //! Geometry may be slightly different from original scene, because of optional internal optimizations.
 //! Illumination is taken directly from solver,
 //! renderer doesn't use or modify precomputed illumination in layers.
-class RendererOfRRDynamicSolver : public de::Renderer
+class RendererOfRRDynamicSolver : public Renderer
 {
 public:
 	RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 	//! Sets parameters of render related to shader and direct illumination.
-	void setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap);
+	void setParams(const UberProgramSetup& uberProgramSetup, const AreaLight* areaLight, const Texture* lightDirectMap);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -48,20 +48,20 @@ protected:
 	struct Params
 	{
 		rr::RRDynamicSolver* solver;
-		de::UberProgramSetup uberProgramSetup;
-		const de::AreaLight* areaLight;
-		const de::Texture* lightDirectMap;
+		UberProgramSetup uberProgramSetup;
+		const AreaLight* areaLight;
+		const Texture* lightDirectMap;
 		float brightness[4];
 		float gamma;
 		Params();
 	};
 	Params params;
-	de::TextureRenderer* textureRenderer;
-	de::UberProgram* uberProgram;
+	TextureRenderer* textureRenderer;
+	UberProgram* uberProgram;
 private:
 	// 1 renderer for 1 scene
 	unsigned solutionVersion;
-	de::Renderer* rendererCaching;
+	Renderer* rendererCaching;
 	RendererOfRRObject* rendererNonCaching;
 };
 
@@ -76,12 +76,12 @@ RendererOfRRDynamicSolver::Params::Params()
 RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders)
 {
 	params.solver = solver;
-	textureRenderer = new de::TextureRenderer(pathToShaders);
+	textureRenderer = new TextureRenderer(pathToShaders);
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
-	uberProgram = de::UberProgram::create(buf1,buf2);
+	uberProgram = UberProgram::create(buf1,buf2);
 	params.brightness[0] = 1;
 	params.brightness[1] = 1;
 	params.brightness[2] = 1;
@@ -100,7 +100,7 @@ RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 	delete textureRenderer;
 }
 
-void RendererOfRRDynamicSolver::setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap)
+void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const AreaLight* areaLight, const Texture* lightDirectMap)
 {
 	params.uberProgramSetup = uberProgramSetup;
 	params.areaLight = areaLight;
@@ -233,7 +233,7 @@ private:
 	unsigned layerNumber2;
 	float layerBlend; // 0..1, 0=layerNumber, 1=layerNumber2
 	unsigned layerNumberFallback;
-	std::vector<de::Renderer*> renderersCaching;
+	std::vector<Renderer*> renderersCaching;
 	std::vector<RendererOfRRObject*> renderersNonCaching;
 };
 
@@ -320,13 +320,13 @@ void RendererOfOriginalScene::render()
 	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
 	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
 
-	de::UberProgramSetup uberProgramSetupPrevious;
-	de::Program* program = NULL;
+	UberProgramSetup uberProgramSetupPrevious;
+	Program* program = NULL;
 	unsigned numObjects = params.solver->getNumObjects();
 	for(unsigned i=0;i<numObjects;i++)
 	{
 		// - working copy of params.uberProgramSetup
-		de::UberProgramSetup uberProgramSetup = params.uberProgramSetup;
+		UberProgramSetup uberProgramSetup = params.uberProgramSetup;
 		uberProgramSetup.OBJECT_SPACE = true;
 		// - set shader according to vbuf/pbuf presence
 		rr::RRIlluminationVertexBuffer* vbuffer = params.solver->getIllumination(i)->getLayer(layerNumber)->vertexBuffer;
@@ -433,7 +433,7 @@ RendererOfScene::~RendererOfScene()
 	delete renderer;
 }
 
-void RendererOfScene::setParams(const de::UberProgramSetup& uberProgramSetup, const de::AreaLight* areaLight, const de::Texture* lightDirectMap)
+void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const AreaLight* areaLight, const Texture* lightDirectMap)
 {
 	renderer->setParams(uberProgramSetup,areaLight,lightDirectMap);
 }

@@ -15,10 +15,11 @@ NEWS
 
 CHANGES
 
-- Automatic dll linking (#pragma) has new rules:
-  - Default is automatic link of Release DLL
-  - #define RR_DEBUG / DE_DEBUG selects Debug DLL
-  - #define RR_MANUAL_LINK / DE_MANUAL_LINK disables automatic DLL linking
+- libraries DemoEngine and RRGPUOpenGL merged into LightsprintGL
+- automatic dll linking (#pragma) has new rules:
+  - default is automatic link of Release DLL
+  - #define RR_DEBUG / RR_GL_DEBUG selects Debug DLL
+  - #define RR_MANUAL_LINK / RR_GL_MANUAL_LINK disables automatic DLL linking
 
 \section news25 ------------------------------------ 2007.7.8 -------------------------------------
 

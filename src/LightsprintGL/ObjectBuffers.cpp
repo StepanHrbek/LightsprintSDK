@@ -317,10 +317,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	// set indirect illumination texcoords + map
 	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
 	{
-		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_LIGHT_INDIRECT);
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
 		BIND_VBO(TexCoord,2,texcoordAmbient);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 		params.availableIndirectIlluminationMap->bindTexture();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -328,7 +328,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	// set indirect illumination map2
 	if(params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
 	{
-		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT2);
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT2);
 		params.availableIndirectIlluminationMap2->bindTexture();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -348,21 +348,21 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		{
 			params.generateForcedUv->generateData(i/3, i%3, &atexcoordForced2D[i].x, sizeof(atexcoordForced2D[i]));
 		}
-		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_FORCED_2D);
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glTexCoordPointer(2, GL_FLOAT, 0, &atexcoordForced2D[0].x);
 	}
 	// set material diffuse texcoords
 	if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_DIFFUSE);
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
 		BIND_VBO(TexCoord,2,texcoordDiffuse);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// set material emissive texcoords
 	if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_EMISSIVE);
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
 		BIND_VBO(TexCoord,2,texcoordEmissive);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
@@ -386,8 +386,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				// set diffuse map
 				if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 				{
-					glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_DIFFUSE);
-					de::Texture* tex = faceGroups[fg].diffuseTexture;
+					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+					Texture* tex = faceGroups[fg].diffuseTexture;
 					if(tex)
 					{
 						tex->bindTexture();
@@ -400,8 +400,8 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				// set emissive map
 				if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 				{
-					glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_EMISSIVE);
-					de::Texture* tex = faceGroups[fg].emissiveTexture;
+					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
+					Texture* tex = faceGroups[fg].emissiveTexture;
 					if(tex)
 					{
 						tex->bindTexture();
@@ -443,33 +443,33 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	// unset material diffuse texcoords
 	if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_DIFFUSE);
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset material emissive texcoords
 	if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_EMISSIVE);
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset 2d_position texcoords
 	if(params.renderedChannels.FORCE_2D_POSITION)
 	{
-		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_FORCED_2D);
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset indirect illumination map2
 	if(params.renderedChannels.LIGHT_INDIRECT_MAP2 && params.availableIndirectIlluminationMap2)
 	{
-		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT2);
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT2);
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
 	// unset indirect illumination texcoords + map
 	if(params.renderedChannels.LIGHT_INDIRECT_MAP && params.availableIndirectIlluminationMap)
 	{
-		glClientActiveTexture(GL_TEXTURE0+de::MULTITEXCOORD_LIGHT_INDIRECT);
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
+		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)

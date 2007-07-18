@@ -14,7 +14,7 @@ public:
 	AnimationEditor(LevelSetup* levelSetup);
 	~AnimationEditor();
 
-	void renderThumbnails(de::TextureRenderer* renderer) const;
+	void renderThumbnails(rr_gl::TextureRenderer* renderer) const;
 
 	bool keyboard(unsigned char c, int x, int y);
 	bool special(unsigned char c, int x, int y);
@@ -23,8 +23,8 @@ public:
 	unsigned frameCursor; // cislo snimku nad kterym je kurzor, 0..n
 private:
 	LevelSetup* setup;
-	de::Texture* movieClipMap;
-	de::Texture* cursorMap;
+	rr_gl::Texture* movieClipMap;
+	rr_gl::Texture* cursorMap;
 };
 
 #endif

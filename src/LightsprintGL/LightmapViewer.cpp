@@ -17,7 +17,7 @@ namespace rr_gl
 //
 // helper adapter
 
-class TextureFromPixelBuffer : public de::Texture
+class TextureFromPixelBuffer : public Texture
 {
 public:
 	TextureFromPixelBuffer(rr::RRIlluminationPixelBuffer* _pixelBuffer)
@@ -53,14 +53,14 @@ private:
 	static bool alpha;
 	static rr::RRReal zoom; // 1: 1 lmap pixel has 1 screen pixel, 2: 1 lmap pixel has 0.5x0.5 screen pixels
 	static rr::RRVec2 center; // coord in pixels from center of lmap. texel with this coord is in center of screen
-	static de::UberProgram* uberProgram;
-	static de::Program* lmapProgram;
-	static de::Program* lmapAlphaProgram;
-	static de::Program* lineProgram;
-	static de::Texture* lightmap;
+	static UberProgram* uberProgram;
+	static Program* lmapProgram;
+	static Program* lmapAlphaProgram;
+	static Program* lineProgram;
+	static Texture* lightmap;
 	static rr::RRMesh* mesh;
 
-LightmapViewer* LightmapViewer::create(de::Texture* _lightmap, rr::RRMesh* _mesh)
+LightmapViewer* LightmapViewer::create(Texture* _lightmap, rr::RRMesh* _mesh)
 {
 	return (!created && _lightmap) ? new LightmapViewer(_lightmap,_mesh) : NULL;
 }
@@ -70,14 +70,14 @@ LightmapViewer* LightmapViewer::create(rr::RRIlluminationPixelBuffer* _pixelBuff
 	return (!created && _pixelBuffer) ? new LightmapViewer(new TextureFromPixelBuffer(_pixelBuffer),_mesh) : NULL;
 }
 
-LightmapViewer::LightmapViewer(de::Texture* _lightmap, rr::RRMesh* _mesh)
+LightmapViewer::LightmapViewer(Texture* _lightmap, rr::RRMesh* _mesh)
 {
 	created = true;
 	nearest = false;
 	alpha = false;
 	zoom = 1;
 	center = rr::RRVec2(0);
-	uberProgram = de::UberProgram::create("../../data/shaders/texture.vs","../../data/shaders/texture.fs");
+	uberProgram = UberProgram::create("../../data/shaders/texture.vs","../../data/shaders/texture.fs");
 	lmapProgram = uberProgram->getProgram("#define TEXTURE\n");
 	lmapAlphaProgram = uberProgram->getProgram("#define TEXTURE\n#define SHOW_ALPHA0\n");
 	lineProgram = uberProgram->getProgram(NULL);
@@ -156,7 +156,7 @@ void LightmapViewer::display()
 	float y = 0.5f + ( center[1] - lightmap->getHeight()*0.5f )*zoom/winHeight;
 	float w = lightmap->getWidth ()*zoom/winWidth;
 	float h = lightmap->getHeight()*zoom/winHeight;
-	de::Program* prg = alpha?lmapAlphaProgram:lmapProgram;
+	Program* prg = alpha?lmapAlphaProgram:lmapProgram;
 	prg->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	lightmap->bindTexture();

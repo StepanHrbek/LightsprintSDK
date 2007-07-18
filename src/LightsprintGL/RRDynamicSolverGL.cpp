@@ -73,7 +73,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	pathToShaders[299]=0;
 
 	captureUv = new CaptureUv;
-	detectBigMap = de::Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,de::Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	detectBigMap = Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
 	smallMapSize = BIG_MAP_SIZE*BIG_MAP_SIZE
 #ifdef SCALE_DOWN_ON_GPU
 		/16
@@ -84,7 +84,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%sscaledown_filter.vs",pathToShaders);
 	_snprintf(buf2,399,"%sscaledown_filter.fs",pathToShaders);
-	scaleDownProgram = de::Program::create(NULL,buf1,buf2);
+	scaleDownProgram = Program::create(NULL,buf1,buf2);
 	if(!scaleDownProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/scaledown_filter.*\n",pathToShaders);
 
 	rendererNonCaching = NULL;

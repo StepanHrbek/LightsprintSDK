@@ -9,14 +9,14 @@
 
 #include "DemoEngine.h"
 
-namespace de
+namespace rr_gl
 {
 //////////////////////////////////////////////////////////////////////////////
 //
 // Renderer - interface
 
 //! Interface of renderer.
-class DE_API Renderer : public RRUniformlyAllocated
+class RR_GL_API Renderer : public rr::RRUniformlyAllocated
 {
 public:
 	/////////////////////////////////////////////////////////////////////////

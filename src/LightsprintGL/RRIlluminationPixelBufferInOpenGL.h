@@ -41,7 +41,7 @@ namespace rr_gl
 		virtual ~RRIlluminationPixelBufferInOpenGL();
 	private:
 		friend class RRDynamicSolverGL;
-		de::Texture* texture;
+		Texture* texture;
 		bool rendering;
 		bool renderTriangleProgramSet;
 		rr::RRColorRGBAF* renderedTexels;

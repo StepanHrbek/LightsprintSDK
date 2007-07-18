@@ -15,17 +15,17 @@ namespace rr
 
 RRIlluminationEnvironmentMapInMemory::RRIlluminationEnvironmentMapInMemory(const char* filename, const char* cubeSideName[6], bool flipV, bool flipH)
 {
-	texture = de::Texture::loadM(filename,cubeSideName,flipV,flipH);
+	texture = rr_gl::Texture::loadM(filename,cubeSideName,flipV,flipH);
 }
 
 RRIlluminationEnvironmentMapInMemory::RRIlluminationEnvironmentMapInMemory(unsigned width)
 {
-	texture = de::Texture::createM(NULL,width,width,true,de::Texture::TF_RGBF);
+	texture = rr_gl::Texture::createM(NULL,width,width,true,rr_gl::Texture::TF_RGBF);
 }
 
 void RRIlluminationEnvironmentMapInMemory::setValues(unsigned size, const RRColorRGBF* irradiance)
 {
-	texture->reset(size,size,de::Texture::TF_RGBF,(const unsigned char*)irradiance,false);
+	texture->reset(size,size,rr_gl::Texture::TF_RGBF,(const unsigned char*)irradiance,false);
 }
 
 RRColorRGBF RRIlluminationEnvironmentMapInMemory::getValue(const RRVec3& direction) const

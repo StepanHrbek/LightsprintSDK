@@ -79,11 +79,11 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-de::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.1,100.0);
-de::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-de::AreaLight*          areaLight = NULL;
-de::Texture*            lightDirectMap = NULL;
-de::UberProgram*        uberProgram = NULL;
+rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.1,100.0);
+rr_gl::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
+rr_gl::AreaLight*          areaLight = NULL;
+rr_gl::Texture*            lightDirectMap = NULL;
+rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL* solver = NULL;
 rr_gl::RendererOfScene* rendererOfScene = NULL;
 DynamicObject*          robot = NULL;
@@ -104,7 +104,7 @@ float                   gamma = 1;
 //
 // rendering scene
 
-void renderScene(de::UberProgramSetup uberProgramSetup)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,areaLight,lightDirectMap);
@@ -149,16 +149,16 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 
 void updateShadowmap(unsigned mapIndex)
 {
-	de::Camera* lightInstance = areaLight->getInstance(mapIndex);
+	rr_gl::Camera* lightInstance = areaLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
 	glColorMask(0,0,0,0);
-	de::Texture* shadowmap = areaLight->getShadowMap(mapIndex);
+	rr_gl::Texture* shadowmap = areaLight->getShadowMap(mapIndex);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
-	de::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
+	rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
 	renderScene(uberProgramSetup);
 	shadowmap->renderingToEnd();
 	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -204,7 +204,7 @@ protected:
 	virtual void setupShader(unsigned objectNumber)
 	{
 		// render scene with forced 2d positions of all triangles
-		de::UberProgramSetup uberProgramSetup;
+		rr_gl::UberProgramSetup uberProgramSetup;
 		uberProgramSetup.SHADOW_MAPS = 1;
 		uberProgramSetup.SHADOW_SAMPLES = 1;
 		uberProgramSetup.LIGHT_DIRECT = true;
@@ -439,7 +439,7 @@ void display(void)
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
-	de::UberProgramSetup uberProgramSetup;
+	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
@@ -467,7 +467,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		de::Camera* cam = modeMovingEye?&eye:&light;
+		rr_gl::Camera* cam = modeMovingEye?&eye:&light;
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
@@ -530,11 +530,11 @@ int main(int argc, char **argv)
 	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
-	uberProgram = de::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
-	de::UberProgramSetup uberProgramSetup;
+	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
@@ -548,13 +548,13 @@ int main(int argc, char **argv)
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
-	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
+	areaLight = new rr_gl::AreaLight(&light,shadowmapsPerPass,512);
 
 	// init dynamic objects
-	de::UberProgramSetup material;
+	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
 	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16);
 	material.MATERIAL_DIFFUSE = true;

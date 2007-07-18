@@ -7,49 +7,6 @@
 #define RRDYNAMICSOLVERGL_H
 
 #include "../RRDynamicSolver.h"
-
-#ifndef RR_MANUAL_LINK
-#ifdef _MSC_VER
-#	ifdef RR_STATIC
-		// use static library
-		#ifdef NDEBUG
-			#pragma comment(lib,"LightsprintGL_sr.lib")
-		#else
-			#pragma comment(lib,"LightsprintGL_sd.lib")
-		#endif
-#	else
-#ifdef RR_DLL_BUILD_GPUOPENGL
-	// build dll
-	#undef RR_API
-	#define RR_API __declspec(dllexport)
-#else
-	// use dll
-	#if _MSC_VER<1400
-#		ifdef NDEBUG
-			#ifdef RR_DEBUG
-				#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
-			#else
-				#pragma comment(lib,"LightsprintGL.vs2003.lib")
-			#endif
-#		else
-			#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
-#		endif
-	#else
-#		ifdef NDEBUG
-			#ifdef RR_DEBUG
-				#pragma comment(lib,"LightsprintGL_dd.lib")
-			#else
-				#pragma comment(lib,"LightsprintGL.lib")
-			#endif
-#		else
-			#pragma comment(lib,"LightsprintGL_dd.lib")
-#		endif
-	#endif
-#endif
-#	endif
-#endif
-#endif
-
 #include "../DemoEngine/Texture.h"
 #include "../DemoEngine/Program.h"
 #include "../DemoEngine/Renderer.h"
@@ -65,7 +22,7 @@ namespace rr_gl
 	//! it contains generic GPU access operations, but not operations specific to your renderer.
 	//! You need to subclass RRDynamicSolverGL and implement remaining operations specific to your renderer.
 	//! See RealtimeRadiosity sample for an example of such implementation.
-	class RR_API RRDynamicSolverGL : public rr::RRDynamicSolver
+	class RR_GL_API RRDynamicSolverGL : public rr::RRDynamicSolver
 	{
 	public:
 		//! Initializes generic GPU access implemented in RRDynamicSolverGL.
@@ -108,7 +65,7 @@ namespace rr_gl
 
 		//! Adapts cube texture for RRIlluminationEnvironmentMap interface.
 		//! Original cube must exist as long as or longer than returned adapter.
-		static rr::RRIlluminationEnvironmentMap* adaptIlluminationEnvironmentMap(de::Texture* cube);
+		static rr::RRIlluminationEnvironmentMap* adaptIlluminationEnvironmentMap(Texture* cube);
 
 		//! Loads RRIlluminationEnvironmentMap stored on disk.
 		//! \param filenameMask
@@ -152,11 +109,11 @@ namespace rr_gl
 		class CaptureUv* captureUv;
 		const void* rendererObject;
 		class RendererOfRRObject* rendererNonCaching;
-		de::Renderer* rendererCaching;
-		de::Texture* detectBigMap;
+		Renderer* rendererCaching;
+		Texture* detectBigMap;
 		unsigned* detectSmallMap;
 		unsigned smallMapSize;
-		de::Program* scaleDownProgram;
+		Program* scaleDownProgram;
 		// backup of render states
 		int viewport[4];
 		unsigned char depthTest, depthMask;

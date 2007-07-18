@@ -33,7 +33,7 @@ public:
 	class DynamicObjects* getDynamicObjects();
 
 	unsigned getNumProjectors();
-	const de::Texture* getProjector(unsigned projectorIndex);
+	const rr_gl::Texture* getProjector(unsigned projectorIndex);
 
 	void setBigscreen(bool big);
 	void getBoost(rr::RRVec4& frameBrightness,rr::RRReal& frameGamma) const;
@@ -44,7 +44,7 @@ private:
 	float partStart; // 0..demo duration in seconds, time when current part started
 
 	// loading_screen
-	de::Texture* loadingMap;
+	rr_gl::Texture* loadingMap;
 
 	// music
 	class Music* music;
@@ -60,7 +60,7 @@ private:
 	std::vector<class Level*> scenes;
 
 	// projectors
-	std::vector<de::Texture*> projectors;
+	std::vector<rr_gl::Texture*> projectors;
 
 	// brightness/gamma
 	bool bigscreen; // enabled by cmdline param 'bigscreen'

@@ -8,7 +8,7 @@
 #include "Lightsprint/DemoEngine/Camera.h"
 #include "matrix.h"
 
-namespace de
+namespace rr_gl
 {
 
 Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float _leanAngle, float _angleX, float _aspect, float _fieldOfView, float _anear, float _afar)

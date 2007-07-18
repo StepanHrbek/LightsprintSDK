@@ -53,8 +53,8 @@ private:
 		unsigned firstIndex;
 		unsigned numIndices;
 		rr::RRVec3 diffuseColor;
-		de::Texture* diffuseTexture;
-		de::Texture* emissiveTexture;
+		Texture* diffuseTexture;
+		Texture* emissiveTexture;
 	};
 	std::vector<FaceGroup> faceGroups;
 	// version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)

@@ -28,7 +28,7 @@ namespace rr_gl
 	{
 	public:
 		RRIlluminationEnvironmentMapInOpenGL();
-		RRIlluminationEnvironmentMapInOpenGL(de::Texture* cube);
+		RRIlluminationEnvironmentMapInOpenGL(Texture* cube);
 		RRIlluminationEnvironmentMapInOpenGL(const char* filenameMask, const char* cubeSideName[6], bool flipV = false, bool flipH = false);
 		virtual void setValues(unsigned size, const rr::RRColorRGBF* irradiance);
 		rr::RRColorRGBF getValue(const rr::RRVec3& direction) const;
@@ -37,7 +37,7 @@ namespace rr_gl
 		virtual ~RRIlluminationEnvironmentMapInOpenGL();
 	private:
 		friend class RRDynamicSolverGL;
-		de::Texture* texture;
+		Texture* texture;
 		bool deleteTexture;
 	};
 

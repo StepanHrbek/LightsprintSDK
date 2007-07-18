@@ -27,10 +27,10 @@ DynamicObject::DynamicObject()
 {
 }
 
-void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup uberProgramSetup,de::AreaLight* areaLight,unsigned firstInstance,de::Texture* lightDirectMap,de::Texture* lightIndirectEnvSpecular,const de::Camera& eye,float rot)
+void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::AreaLight* areaLight,unsigned firstInstance,rr_gl::Texture* lightDirectMap,rr_gl::Texture* lightIndirectEnvSpecular,const rr_gl::Camera& eye,float rot)
 {
 	// use program
-	de::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap,NULL,1);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap,NULL,1);
 	if(!program)
 	{
 		printf("Failed to compile or link GLSL program for dynamic object.\n");
@@ -41,7 +41,7 @@ void DynamicObject::render(de::UberProgram* uberProgram,de::UberProgramSetup ube
 	{
 		GLint activeTexture;
 		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
-		glActiveTexture(GL_TEXTURE0+de::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
 		lightIndirectEnvSpecular->bindTexture();
 		program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
 		glActiveTexture(activeTexture);

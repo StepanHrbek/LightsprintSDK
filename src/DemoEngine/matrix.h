@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 
-namespace de
+namespace rr_gl
 {
 
 extern GLboolean invertMatrix(GLdouble *out, const GLdouble *m);

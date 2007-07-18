@@ -14,7 +14,7 @@
 // RendererOf3DS - basic OpenGL renderer implementation
 
 //! OpenGL renderer of Model_3DS model.
-class RendererOf3DS : public de::Renderer
+class RendererOf3DS : public rr_gl::Renderer
 {
 public:
 	//! Creates renderer of model.

@@ -59,10 +59,10 @@ public:
 
 	unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone, float* transitionTotal);
 
-	const de::Texture* getOverlay();
+	const rr_gl::Texture* getOverlay();
 private:
 	char overlayFilename[300];
-	de::Texture* overlayMap;
+	rr_gl::Texture* overlayMap;
 };
 
 #endif

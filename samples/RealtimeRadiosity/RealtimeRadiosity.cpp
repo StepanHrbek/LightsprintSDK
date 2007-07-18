@@ -4,9 +4,9 @@
 // Realtime global illumination is demonstrated on .3ds scene viewer.
 // You should be familiar with OpenGL and GLUT to read the code.
 //
-// This is PenumbraShadows sample with Lightsprint integrated
-// (approx 90 lines were added, including empty and comments),
-// see how the same scene looks better with global illumination.
+// This sample is derived from PenumbraShadows.
+// The only addition is global illumination.
+// Approx 90 lines were added, including empty lines and comments.
 //
 // Controls:
 //  mouse = look around
@@ -54,16 +54,16 @@ void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 Model_3DS               m3ds;
-de::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
-de::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-de::AreaLight*          areaLight = NULL;
-de::Texture*            lightDirectMap = NULL;
-de::Texture*            environmentMap = NULL;
-de::TextureRenderer*    textureRenderer = NULL;
+rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
+rr_gl::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
+rr_gl::AreaLight*          areaLight = NULL;
+rr_gl::Texture*            lightDirectMap = NULL;
+rr_gl::Texture*            environmentMap = NULL;
+rr_gl::TextureRenderer*    textureRenderer = NULL;
 #ifdef WATER
-de::Water*              water = NULL;
+rr_gl::Water*              water = NULL;
 #endif
-de::UberProgram*        uberProgram = NULL;
+rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL* solver = NULL;
 DynamicObject*          robot = NULL;
 DynamicObject*          potato = NULL;
@@ -94,7 +94,7 @@ void unlockVertexIllum(void* solver,unsigned object)
 	if(vertexBuffer) vertexBuffer->unlock();
 }
 
-void renderScene(de::UberProgramSetup uberProgramSetup)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
 	if(uberProgramSetup.LIGHT_DIRECT)
@@ -142,16 +142,16 @@ void renderScene(de::UberProgramSetup uberProgramSetup)
 
 void updateShadowmap(unsigned mapIndex)
 {
-	de::Camera* lightInstance = areaLight->getInstance(mapIndex);
+	rr_gl::Camera* lightInstance = areaLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
 	glColorMask(0,0,0,0);
-	de::Texture* shadowmap = areaLight->getShadowMap(mapIndex);
+	rr_gl::Texture* shadowmap = areaLight->getShadowMap(mapIndex);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
-	de::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
+	rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
 	renderScene(uberProgramSetup);
 	shadowmap->renderingToEnd();
 	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -186,7 +186,7 @@ protected:
 	virtual void setupShader(unsigned objectNumber)
 	{
 		// render scene with forced 2d positions of all triangles
-		de::UberProgramSetup uberProgramSetup;
+		rr_gl::UberProgramSetup uberProgramSetup;
 		uberProgramSetup.SHADOW_MAPS = 1;
 		uberProgramSetup.SHADOW_SAMPLES = 1;
 		uberProgramSetup.LIGHT_DIRECT = true;
@@ -213,7 +213,7 @@ void display(void)
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
-	de::UberProgramSetup uberProgramSetup;
+	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
@@ -327,7 +327,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		de::Camera* cam = modeMovingEye?&eye:&light;
+		rr_gl::Camera* cam = modeMovingEye?&eye:&light;
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
@@ -396,15 +396,15 @@ int main(int argc, char **argv)
 	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
-	uberProgram = de::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
+	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
 #ifdef WATER
-	water = new de::Water("..\\..\\data\\shaders\\",false,false);
+	water = new rr_gl::Water("..\\..\\data\\shaders\\",false,false);
 #endif
-	textureRenderer = new de::TextureRenderer("..\\..\\data\\shaders\\");
+	textureRenderer = new rr_gl::TextureRenderer("..\\..\\data\\shaders\\");
 	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
 	// for usual soft shadows, simply set shadowmapsPerPass=1
 	unsigned shadowmapsPerPass = 1;
-	de::UberProgramSetup uberProgramSetup;
+	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
@@ -415,20 +415,20 @@ int main(int argc, char **argv)
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	lightDirectMap = de::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
-	areaLight = new de::AreaLight(&light,shadowmapsPerPass,512);
+	areaLight = new rr_gl::AreaLight(&light,shadowmapsPerPass,512);
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	environmentMap = de::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	//environmentMap = de::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
+	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	//environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
 		error("",false);
 
 	// init dynamic objects
-	de::UberProgramSetup material;
+	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
 	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16);
 	material.MATERIAL_DIFFUSE = true;

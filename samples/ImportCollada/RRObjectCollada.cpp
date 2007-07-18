@@ -330,7 +330,7 @@ private:
 	struct MaterialInfo
 	{
 		RRMaterial             material;
-		de::Texture*           diffuseTexture;
+		rr_gl::Texture*           diffuseTexture;
 	};
 	typedef std::map<const FCDEffectStandard*,MaterialInfo> Cache;
 	Cache                      cache;
@@ -399,7 +399,7 @@ void RRObjectCollada::getChannelSize(unsigned channelId, unsigned* numItems, uns
 	{
 		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 			if(numItems) *numItems = getCollider()->getMesh()->getNumTriangles();
-			if(itemSize) *itemSize = sizeof(de::Texture*);
+			if(itemSize) *itemSize = sizeof(rr_gl::Texture*);
 			return;
 
 		default:
@@ -424,7 +424,7 @@ bool RRObjectCollada::getChannelData(unsigned channelId, unsigned itemIndex, voi
 				assert(0); // legal, but shouldn't happen in well coded program
 				return false;
 			}
-			typedef de::Texture* Out;
+			typedef rr_gl::Texture* Out;
 			Out* out = (Out*)itemData;
 			if(sizeof(*out)!=itemSize)
 			{
@@ -572,9 +572,9 @@ void RRObjectCollada::updateMaterials()
 						{
 							const fstring& filename = diffuseImage->GetFilename();
 #ifdef OPENGL
-							mi.diffuseTexture = de::Texture::load(&filename[0],NULL,false,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
+							mi.diffuseTexture = rr_gl::Texture::load(&filename[0],NULL,false,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
 #else
-							mi.diffuseTexture = de::Texture::loadM(&filename[0],NULL,false,false);
+							mi.diffuseTexture = rr_gl::Texture::loadM(&filename[0],NULL,false,false);
 #endif
 							if(mi.diffuseTexture)
 							{
@@ -603,8 +603,8 @@ void RRObjectCollada::updateMaterials()
 					// add 1x1 diffuse texture
 					// required only by Lightsprint demos with 1 shader per static scene, requiring that all objects are textured.
 					// not necessary for other renderers
-					mi.diffuseTexture = de::Texture::create(NULL,1,1,false,de::Texture::TF_RGB,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
-					mi.diffuseTexture->reset(1,1,de::Texture::TF_RGBF,(unsigned char*)&mi.material.diffuseReflectance,false);
+					mi.diffuseTexture = rr_gl::Texture::create(NULL,1,1,false,rr_gl::Texture::TF_RGB,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
+					mi.diffuseTexture->reset(1,1,rr_gl::Texture::TF_RGBF,(unsigned char*)&mi.material.diffuseReflectance,false);
 				}
 #endif
 #ifdef VERIFY

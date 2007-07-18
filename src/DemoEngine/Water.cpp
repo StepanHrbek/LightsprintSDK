@@ -9,20 +9,20 @@
 #include "Lightsprint/DemoEngine/Water.h"
 #include "Lightsprint/DemoEngine/Timer.h"
 
-namespace de
+namespace rr_gl
 {
 
 Water::Water(const char* pathToShaders, bool afresnel, bool boostSun)
 {
-	mirrorMap = de::Texture::create(NULL,1,1,false,Texture::TF_RGBF,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	mirrorDepth = de::Texture::createShadowmap(1,1);
+	mirrorMap = Texture::create(NULL,1,1,false,Texture::TF_RGBF,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	mirrorDepth = Texture::createShadowmap(1,1);
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
 	char buf3[400]; buf3[399] = 0;
 	_snprintf(buf1,399,"%swater.vs",pathToShaders);
 	_snprintf(buf2,399,"%swater.fs",pathToShaders);
 	_snprintf(buf3,399,"%s%s",afresnel?"#define FRESNEL\n":"",boostSun?"#define BOOST_SUN\n":"");
-	mirrorProgram = de::Program::create(buf3,buf1,buf2);
+	mirrorProgram = Program::create(buf3,buf1,buf2);
 	eye = NULL;
 	altitude = 0;
 	fresnel = afresnel;

@@ -67,7 +67,7 @@ public:
 //!   the bigger one only during detectDirectIllumination().
 //! - Stay with any other renderer that supports geometry shaders.
 //!   Write simple geometry shader that generates uv.
-class RR_API RendererOfRRObject : public de::Renderer
+class RR_GL_API RendererOfRRObject : public Renderer
 {
 public:
 	//! Creates renderer of object.

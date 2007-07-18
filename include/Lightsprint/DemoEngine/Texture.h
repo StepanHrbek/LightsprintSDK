@@ -9,7 +9,7 @@
 
 #include "DemoEngine.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ namespace de
 //
 //! Contains tools that create empty 2D or CUBE texture,
 //! shadowmap or load image from disk.
-class DE_API Texture : public RRUniformlyAllocated
+class RR_GL_API Texture : public rr::RRUniformlyAllocated
 {
 public:
 	/////////////////////////////////////////////////////////////////////////

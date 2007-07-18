@@ -8,7 +8,7 @@
 #include <cstring> // NULL
 #include "Lightsprint/DemoEngine/AreaLight.h"
 
-namespace de
+namespace rr_gl
 {
 
 	AreaLight::AreaLight(Camera* aparent, unsigned anumInstances, unsigned shadowmapSize)

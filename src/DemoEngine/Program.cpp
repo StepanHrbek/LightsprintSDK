@@ -11,7 +11,7 @@
 #include "Lightsprint/DemoEngine/Program.h"
 #include "Shader.h"
 
-namespace de
+namespace rr_gl
 {
 
 bool Program::showLog = false;

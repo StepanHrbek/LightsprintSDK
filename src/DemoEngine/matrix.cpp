@@ -8,7 +8,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-namespace de
+namespace rr_gl
 {
 
 static void __gluMakeIdentityd(GLdouble m[16])

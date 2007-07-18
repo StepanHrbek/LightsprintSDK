@@ -81,9 +81,9 @@ void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 #ifdef TB
-de::Camera              eye(-1.416,130.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,300.0);
+rr_gl::Camera              eye(-1.416,130.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,300.0);
 #else
-de::Camera              eye(0,1.741,-2.646, 12.230,0,0.050,1.3,70.0,0.3,300.0);
+rr_gl::Camera              eye(0,1.741,-2.646, 12.230,0,0.050,1.3,70.0,0.3,300.0);
 #endif
 rr_gl::RRDynamicSolverGL* solver = NULL;
 rr_gl::RendererOfScene* rendererOfScene = NULL;
@@ -91,7 +91,7 @@ float                   speedForward = 0;
 float                   speedBack = 0;
 float                   speedRight = 0;
 float                   speedLeft = 0;
-de::UberProgramSetup    uberProgramSetup;
+rr_gl::UberProgramSetup    uberProgramSetup;
 float                   brightness[4] = {1,1,1,1};
 float                   gamma = 1;
 #ifdef RR_DEVELOPMENT
@@ -150,7 +150,7 @@ void mouse(int button, int state, int x, int y)
 		{	
 			if(solver->getIllumination(i)->getLayer(0)->pixelBuffer)
 			{
-				glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
+				glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_2D_LIGHT_INDIRECT);
 				solver->getIllumination(i)->getLayer(0)->pixelBuffer->bindTexture();
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, nearest?GL_NEAREST:GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, nearest?GL_NEAREST:GL_LINEAR);
@@ -330,7 +330,7 @@ void idle()
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
 		seconds *= 10;
-		de::Camera* cam = &eye;
+		rr_gl::Camera* cam = &eye;
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
@@ -497,7 +497,7 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST);
 
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	de::Texture* environmentMap = de::Texture::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	rr_gl::Texture* environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 
 	// init scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)

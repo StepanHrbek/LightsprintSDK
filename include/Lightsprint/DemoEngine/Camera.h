@@ -9,7 +9,7 @@
 
 #include "DemoEngine.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ namespace de
 // Camera
 
 //! Frustum with publicly visible parameters, suitable for cameras and spotlights.
-class DE_API Camera : public RRUniformlyAllocated
+class RR_GL_API Camera : public rr::RRUniformlyAllocated
 {
 public:
 	// inputs, to be modified by user

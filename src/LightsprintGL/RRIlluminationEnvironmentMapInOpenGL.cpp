@@ -27,11 +27,11 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL()
 {
 	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// creates cube map
-	texture = de::Texture::create(NULL,1,1,true,de::Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	texture = Texture::create(NULL,1,1,true,Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	deleteTexture = true;
 }
 
-RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(de::Texture* cube)
+RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(Texture* cube)
 {
 	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// adapts cube map
@@ -43,7 +43,7 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const
 {
 	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// loads cube map
-	texture = de::Texture::load(filenameMask,cubeSideName,flipV,flipH,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	texture = Texture::load(filenameMask,cubeSideName,flipV,flipH,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	deleteTexture = true;
 }
 
@@ -51,7 +51,7 @@ void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, const rr::RR
 {
 	EnterCriticalSection(&criticalSection);
 	// intentionally converted to bytes here, because older cards can't interpolate floats
-	texture->reset(size,size,de::Texture::TF_RGBF,(unsigned char*)irradiance,false);
+	texture->reset(size,size,Texture::TF_RGBF,(unsigned char*)irradiance,false);
 	LeaveCriticalSection(&criticalSection);
 }
 
@@ -88,7 +88,7 @@ rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::createIlluminationEnvironme
 	return new RRIlluminationEnvironmentMapInOpenGL();
 }
 
-rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::adaptIlluminationEnvironmentMap(de::Texture* cube)
+rr::RRIlluminationEnvironmentMap* RRDynamicSolverGL::adaptIlluminationEnvironmentMap(Texture* cube)
 {
 	return cube ? new RRIlluminationEnvironmentMapInOpenGL(cube) : NULL;
 }

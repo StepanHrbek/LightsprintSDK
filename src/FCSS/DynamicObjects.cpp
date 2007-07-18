@@ -79,7 +79,7 @@ private:
 DynamicObjects::DynamicObjects()
 {
 	/*
-	de::UberProgramSetup material;
+	rr_gl::UberProgramSetup material;
 
 	// diffuse
 	material.MATERIAL_DIFFUSE = 1;
@@ -294,7 +294,7 @@ bool DynamicObjects::setupSceneDynamicForPartTime(LevelSetup* setup, float secon
 	const AnimationFrame* frame = setup->getFrameByTime(secondsFromPartStart);
 	if(!frame)
 		return false;
-	copyAnimationFrameToScene(setup,*frame,memcmp(&frame->light,&prevFrame.light,sizeof(de::Camera))!=0);
+	copyAnimationFrameToScene(setup,*frame,memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0);
 	prevFrame = *frame;
 	return true;
 }
@@ -328,7 +328,7 @@ void DynamicObjects::updateSceneDynamic(LevelSetup* setup, float seconds, unsign
 	}
 }
 */
-void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, de::UberProgram* uberProgram, de::UberProgramSetup uberProgramSetup, de::AreaLight* areaLight, unsigned firstInstance, const de::Texture* lightDirectMap, const float brightness[4], float gamma) const
+void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::AreaLight* areaLight, unsigned firstInstance, const rr_gl::Texture* lightDirectMap, const float brightness[4], float gamma) const
 {
 	// use object space
 	uberProgramSetup.OBJECT_SPACE = true;

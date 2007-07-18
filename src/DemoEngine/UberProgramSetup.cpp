@@ -8,7 +8,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/DemoEngine/UberProgramSetup.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////

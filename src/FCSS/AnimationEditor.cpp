@@ -9,8 +9,8 @@
 AnimationEditor::AnimationEditor(LevelSetup* levelSetup)
 {
 	setup = levelSetup;
-	movieClipMap = de::Texture::load("maps\\movie_clip.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	cursorMap = de::Texture::load("maps\\cursor.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	movieClipMap = rr_gl::Texture::load("maps\\movie_clip.jpg", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	cursorMap = rr_gl::Texture::load("maps\\cursor.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	frameCursor = 0;
 }
 
@@ -20,7 +20,7 @@ AnimationEditor::~AnimationEditor()
 	delete cursorMap;
 }
 
-void AnimationEditor::renderThumbnails(de::TextureRenderer* renderer) const
+void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 {
 	unsigned index = 0;
 	unsigned count = MAX(6,setup->frames.size()+1);

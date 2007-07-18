@@ -49,7 +49,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_STATIC;DE_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_STATIC;RR_GL_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
@@ -136,7 +136,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_STATIC;DE_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_STATIC;RR_GL_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -224,7 +224,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_DLL_BUILD_GPUOPENGL"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_DLL_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -319,7 +319,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_DLL_BUILD_GPUOPENGL"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_DLL_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -386,62 +386,202 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath=".\LightmapViewer.cpp"
+		<Filter
+			Name="Integration"
 			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\LightmapViewer.h"
+			<File
+				RelativePath=".\LightmapViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\LightmapViewer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ObjectBuffers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ObjectBuffers.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RendererOfRRObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\RendererOfRRObject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RendererOfScene.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RRDynamicSolverGL.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIlluminationPixelBufferInOpenGL.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRIlluminationPixelBufferInOpenGL.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="DemoEngine"
 			>
-		</File>
-		<File
-			RelativePath=".\ObjectBuffers.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ObjectBuffers.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RendererOfRRObject.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RendererOfRRObject.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RendererOfScene.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RRDynamicSolverGL.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationEnvironmentMapInOpenGL.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationPixelBufferInOpenGL.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RRIlluminationPixelBufferInOpenGL.h"
-			>
-		</File>
+			<File
+				RelativePath="..\DemoEngine\AreaLight.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\AreaLight.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\Camera.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\Camera.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\DemoEngine.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\FBO.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\FBO.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\matrix.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\matrix.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\Program.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\Program.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\Renderer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\RendererWithCache.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\RendererWithCache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\Shader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\Shader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\Texture.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\Texture.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\TextureGL.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\TextureGL.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\TextureInMemory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\TextureInMemory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\TextureRenderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\TextureRenderer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\TextureShadowMap.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\TextureShadowMap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\Timer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\UberProgram.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\UberProgram.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\UberProgramSetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\UberProgramSetup.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DemoEngine\Water.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\DemoEngine\Water.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

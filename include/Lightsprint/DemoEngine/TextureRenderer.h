@@ -9,7 +9,7 @@
 
 #include "Texture.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ namespace de
 //
 //! It handles resource (shader) allocation/freeing.
 //! Needs sky.vs/fs and texture.vs/fs shaders on disk.
-class DE_API TextureRenderer
+class RR_GL_API TextureRenderer
 {
 public:
 	//! Initializes renderer, loading shaders from disk.
@@ -52,9 +52,9 @@ public:
 private:
 	class Program *skyProgram;
 	class Program *twodProgram;
-	GLboolean culling;
-	GLboolean depthTest;
-	GLboolean depthMask;
+	unsigned char culling;
+	unsigned char depthTest;
+	unsigned char depthMask;
 };
 
 }; // namespace

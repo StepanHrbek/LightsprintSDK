@@ -13,8 +13,8 @@
 struct AnimationFrame
 {
 	// camera and light
-	de::Camera eye;
-	de::Camera light;
+	rr_gl::Camera eye;
+	rr_gl::Camera light;
 	rr::RRVec4 brightness;
 	rr::RRReal gamma;
 	unsigned projectorIndex;
@@ -35,7 +35,7 @@ struct AnimationFrame
 	// precomputed layer
 	unsigned layerNumber;
 	// runtime generated
-	de::Texture* thumbnail;
+	rr_gl::Texture* thumbnail;
 
 	// layerNumber should be unique for whole animation track
 	AnimationFrame(unsigned layerNumber);

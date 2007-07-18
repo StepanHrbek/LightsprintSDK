@@ -21,11 +21,11 @@ RRIlluminationPixelBufferInMemory::RRIlluminationPixelBufferInMemory(const char*
 {
 	if(filename)
 	{
-		texture = de::Texture::loadM(filename,NULL,false,false);
+		texture = rr_gl::Texture::loadM(filename,NULL,false,false);
 	}
 	else
 	{
-		texture = de::Texture::createM(NULL,_width,_height,false,de::Texture::TF_RGBA);
+		texture = rr_gl::Texture::createM(NULL,_width,_height,false,rr_gl::Texture::TF_RGBA);
 	}
 	renderedTexels = NULL;
 	spreadForegroundColor = _spreadForegroundColor;
@@ -182,7 +182,7 @@ void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 	}
 
 	// copy to texture
-	texture->reset(texture->getWidth(),texture->getHeight(),de::Texture::TF_RGBAF,(const unsigned char*)renderedTexels,false);
+	texture->reset(texture->getWidth(),texture->getHeight(),rr_gl::Texture::TF_RGBAF,(const unsigned char*)renderedTexels,false);
 
 	// free workspace
 	SAFE_DELETE_ARRAY(renderedTexels);

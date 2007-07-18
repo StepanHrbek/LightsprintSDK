@@ -106,7 +106,7 @@ public:
 	// TODO: add color support for non textured polys
 	struct Material {
 		char name[80];	// The material's name
-		de::Texture* tex;	// The texture (this is the only outside reference in this class)
+		rr_gl::Texture* tex;	// The texture (this is the only outside reference in this class)
 		bool textured;	// whether or not it is textured
 		Color4i color;
 		Material()

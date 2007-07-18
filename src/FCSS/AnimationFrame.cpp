@@ -6,15 +6,10 @@
 //
 // AnimationFrame, one animation frame in editable form
 
-AnimationFrame::AnimationFrame(unsigned alayerNumber)
+AnimationFrame::AnimationFrame(unsigned alayerNumber) :
+	eye(0,1,4, 2.935000f,0,-0.7500f, 1,100,0.3f,900),
+	light(-1.233688f,3.022499f,-0.542255f, 1.239998f,0,6.649996f, 1,70,1,1000)
 {
-	de::Camera tmp[2] =
-		//{{{-3.266f,1.236f,1.230f},9.120f,0,0.100f,1.3f,45.0f,0.3f,1000.0f},
-		//{{-0.791f,1.370f,1.286f},3.475f,0,0.550f,1.0f,70.0f,1.0f,20.0f}};
-		{{{0,1,4},2.935000f,0,-0.7500f, 1,100,0.3f,900},
-		{{-1.233688f,3.022499f,-0.542255f},1.239998f,0,6.649996f, 1,70,1,1000}};
-	eye = tmp[0];
-	light = tmp[1];
 	brightness = rr::RRVec4(1);
 	gamma = 1;
 	transitionToNextTime = 3;

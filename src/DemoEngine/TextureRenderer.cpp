@@ -10,7 +10,7 @@
 #include "Lightsprint/DemoEngine/TextureRenderer.h"
 #include "Lightsprint/DemoEngine/Program.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -23,11 +23,11 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%ssky.vs",pathToShaders);
 	_snprintf(buf2,399,"%ssky.fs",pathToShaders);
-	skyProgram = de::Program::create(NULL,buf1,buf2);
+	skyProgram = Program::create(NULL,buf1,buf2);
 	if(!skyProgram) printf("Helper shaders failed: %s/sky.*\n",pathToShaders);
 	_snprintf(buf1,399,"%stexture.vs",pathToShaders);
 	_snprintf(buf2,399,"%stexture.fs",pathToShaders);
-	twodProgram = de::Program::create("#define TEXTURE\n",buf1,buf2);
+	twodProgram = Program::create("#define TEXTURE\n",buf1,buf2);
 	if(!twodProgram) printf("Helper shaders failed: %s/texture.*\n",pathToShaders);
 }
 

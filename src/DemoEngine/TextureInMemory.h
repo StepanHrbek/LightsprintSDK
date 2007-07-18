@@ -9,14 +9,14 @@
 
 #include "Lightsprint/DemoEngine/Texture.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // TextureInMemory
 
-class DE_API TextureInMemory : public Texture
+class RR_GL_API TextureInMemory : public Texture
 {
 public:
 	TextureInMemory(const unsigned char *data, int width, int height, bool cube, Format format);

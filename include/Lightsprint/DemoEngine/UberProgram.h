@@ -9,7 +9,7 @@
 
 #include "Program.h"
 
-namespace de
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ namespace de
 //
 //! GLSL is language used by OpenGL API
 //! for writing shaders.
-class DE_API UberProgram : public RRUniformlyAllocated
+class RR_GL_API UberProgram : public rr::RRUniformlyAllocated
 {
 public:
 	// interface

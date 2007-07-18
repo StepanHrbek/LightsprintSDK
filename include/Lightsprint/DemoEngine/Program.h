@@ -9,7 +9,7 @@
 
 #include "DemoEngine.h"
 
-namespace de /// DemoEngine - OpenGL renderer with soft shadows.
+namespace rr_gl
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ namespace de /// DemoEngine - OpenGL renderer with soft shadows.
 //
 //! GLSL is language used by OpenGL API for writing shaders.
 //! Program is one or more shaders linked together, see OpenGL for more details.
-class DE_API Program : public RRUniformlyAllocated
+class RR_GL_API Program : public rr::RRUniformlyAllocated
 {
 public:
 	//! Creates GLSL program by linking one vertex and one fragment shader together.

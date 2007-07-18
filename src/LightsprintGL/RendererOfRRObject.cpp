@@ -271,7 +271,7 @@ void RendererOfRRObject::render()
 					// material diffuse map - bind texture
 					if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 					{
-						de::Texture* tex = NULL;
+						Texture* tex = NULL;
 						params.object->getChannelData(CHANNEL_TRIANGLE_DIFFUSE_TEX,triangleIdx,&tex,sizeof(tex));
 						if(tex)
 						{
@@ -280,7 +280,7 @@ void RendererOfRRObject::render()
 								glEnd();
 								begun = false;
 							}
-							glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_DIFFUSE);
+							glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
 							tex->bindTexture();
 						}
 						else
@@ -292,7 +292,7 @@ void RendererOfRRObject::render()
 					// material emissive map - bind texture
 					if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 					{
-						de::Texture* tex = NULL;
+						Texture* tex = NULL;
 						params.object->getChannelData(CHANNEL_TRIANGLE_EMISSIVE_TEX,triangleIdx,&tex,sizeof(tex));
 						if(tex)
 						{
@@ -301,7 +301,7 @@ void RendererOfRRObject::render()
 								glEnd();
 								begun = false;
 							}
-							glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_MATERIAL_EMISSIVE);
+							glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
 							tex->bindTexture();
 						}
 						else
@@ -369,7 +369,7 @@ void RendererOfRRObject::render()
 							glEnd();
 							begun = false;
 						}
-						glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT);
+						glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 						pixelBuffer->bindTexture();
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -390,7 +390,7 @@ void RendererOfRRObject::render()
 								glEnd();
 								begun = false;
 							}
-							glActiveTexture(GL_TEXTURE0+de::TEXTURE_2D_LIGHT_INDIRECT2);
+							glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT2);
 							pixelBuffer2->bindTexture();
 							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -441,7 +441,7 @@ void RendererOfRRObject::render()
 					rr::RRMesh::TriangleMapping tm;
 					//!!! optimize, get once, not three times per triangle
 					meshImporter->getTriangleMapping(triangleIdx,tm);
-					glMultiTexCoord2f(GL_TEXTURE0+de::MULTITEXCOORD_LIGHT_INDIRECT,tm.uv[v][0],tm.uv[v][1]);
+					glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT,tm.uv[v][0],tm.uv[v][1]);
 				}
 
 				// material diffuse map - uv
@@ -450,7 +450,7 @@ void RendererOfRRObject::render()
 					rr::RRVec2 uv[3];
 					//!!! optimize, get once, not three times per triangle
 					if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,triangleIdx,&uv,sizeof(uv)))
-						glMultiTexCoord2f(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_DIFFUSE,uv[v][0],uv[v][1]);
+						glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE,uv[v][0],uv[v][1]);
 					else
 						RR_ASSERT(0); // expected data are missing
 				}
@@ -461,7 +461,7 @@ void RendererOfRRObject::render()
 					rr::RRVec2 uv[3];
 					//!!! optimize, get once, not three times per triangle
 					if(params.object->getCollider()->getMesh()->getChannelData(CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV,triangleIdx,&uv,sizeof(uv)))
-						glMultiTexCoord2f(GL_TEXTURE0+de::MULTITEXCOORD_MATERIAL_EMISSIVE,uv[v][0],uv[v][1]);
+						glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE,uv[v][0],uv[v][1]);
 					else
 						RR_ASSERT(0); // expected data are missing
 				}
@@ -473,7 +473,7 @@ void RendererOfRRObject::render()
 					{
 						GLfloat xy[2];
 						params.generateForcedUv->generateData(triangleIdx, v, xy, sizeof(xy));
-						glMultiTexCoord2f(GL_TEXTURE0+de::MULTITEXCOORD_FORCED_2D,xy[0],xy[1]);
+						glMultiTexCoord2f(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D,xy[0],xy[1]);
 					}
 				}
 

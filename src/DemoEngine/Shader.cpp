@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include "Shader.h"
 
-namespace de
+namespace rr_gl
 {
 
 char* readShader(const char *filename)

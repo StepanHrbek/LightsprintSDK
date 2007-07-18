@@ -208,7 +208,7 @@ void RRObject3DS::getChannelSize(unsigned channelId, unsigned* numItems, unsigne
 		case rr_gl::CHANNEL_TRIANGLE_DIFFUSE_TEX:
 		case rr_gl::CHANNEL_TRIANGLE_EMISSIVE_TEX:
 			if(numItems) *numItems = RRObject3DS::getNumTriangles();
-			if(itemSize) *itemSize = sizeof(de::Texture*);
+			if(itemSize) *itemSize = sizeof(rr_gl::Texture*);
 			return;
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV:
 		case rr_gl::CHANNEL_TRIANGLE_VERTICES_EMISSIVE_UV:
@@ -244,7 +244,7 @@ bool RRObject3DS::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 				assert(0); // illegal
 				return false;
 			}
-			typedef de::Texture* Out;
+			typedef rr_gl::Texture* Out;
 			Out* out = (Out*)itemData;
 			if(sizeof(*out)!=itemSize)
 			{

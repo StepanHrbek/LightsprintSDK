@@ -25,16 +25,16 @@ public:
 	};
 	Helpers(const char* pathToShaders)
 	{
-		tempTexture = de::Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,de::Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
+		tempTexture = Texture::create(NULL,MAX_AMBIENT_MAP_WIDTH,MAX_AMBIENT_MAP_HEIGHT,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 		char buf1[400]; buf1[399] = 0;
 		char buf2[400]; buf2[399] = 0;
 		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.vs");
 		_snprintf(buf2,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.fs");
-		filterProgram = de::Program::create(NULL,buf1,buf2);
+		filterProgram = Program::create(NULL,buf1,buf2);
 		if(!filterProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/lightmap_filter.*\n",pathToShaders);
 		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.vs");
 		_snprintf(buf2,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.fs");
-		renderTriangleProgram = de::Program::create(NULL,buf1,buf2);
+		renderTriangleProgram = Program::create(NULL,buf1,buf2);
 		if(!renderTriangleProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/lightmap_build.*\n",pathToShaders);
 	}
 	~Helpers()
@@ -43,9 +43,9 @@ public:
 		delete filterProgram;
 		delete tempTexture;
 	}
-	de::Texture* tempTexture;
-	de::Program* filterProgram;
-	de::Program* renderTriangleProgram;
+	Texture* tempTexture;
+	Program* filterProgram;
+	Program* renderTriangleProgram;
 };
 
 static Helpers* helpers = NULL;
@@ -65,9 +65,9 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(const char*
 	numInstances++;
 
 	if(filename)
-		texture = de::Texture::load(filename,NULL,false,false,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
+		texture = Texture::load(filename,NULL,false,false,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
 	else
-		texture = de::Texture::create(NULL,awidth,aheight,false,de::Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
+		texture = Texture::create(NULL,awidth,aheight,false,Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
 
 	renderedTexels = NULL;
 }
@@ -165,7 +165,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		}
 
 		// normal way (internally stored in halfs, can't be interpolated on old cards)
-		//texture->reset(texture->getWidth(),texture->getHeight(),de::Texture::TF_RGBAF,(unsigned char*)renderedTexels,false);
+		//texture->reset(texture->getWidth(),texture->getHeight(),Texture::TF_RGBAF,(unsigned char*)renderedTexels,false);
 
 		// normal way (internally stored in bytes)
 		texture->bindTexture();
