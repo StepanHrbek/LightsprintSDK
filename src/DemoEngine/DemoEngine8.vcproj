@@ -445,6 +445,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RRUniformlyAllocated.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Shader.cpp"
 			>
 		</File>

@@ -20,7 +20,7 @@ namespace de
 //
 //! Contains tools that create empty 2D or CUBE texture,
 //! shadowmap or load image from disk.
-class DE_API Texture
+class DE_API Texture : public RRUniformlyAllocated
 {
 public:
 	/////////////////////////////////////////////////////////////////////////

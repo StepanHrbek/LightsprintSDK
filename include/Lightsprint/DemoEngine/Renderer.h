@@ -16,7 +16,7 @@ namespace de
 // Renderer - interface
 
 //! Interface of renderer.
-class DE_API Renderer
+class DE_API Renderer : public RRUniformlyAllocated
 {
 public:
 	/////////////////////////////////////////////////////////////////////////

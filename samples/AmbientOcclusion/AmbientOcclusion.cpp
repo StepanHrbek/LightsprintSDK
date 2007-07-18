@@ -81,9 +81,9 @@ void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 #ifdef TB
-de::Camera              eye = {{-1.416,130.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,300.0};
+de::Camera              eye(-1.416,130.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,300.0);
 #else
-de::Camera              eye = {{0,1.741,-2.646},12.230,0,0.050,1.3,70.0,0.3,300.0};
+de::Camera              eye(0,1.741,-2.646, 12.230,0,0.050,1.3,70.0,0.3,300.0);
 #endif
 rr_gl::RRDynamicSolverGL* solver = NULL;
 rr_gl::RendererOfScene* rendererOfScene = NULL;

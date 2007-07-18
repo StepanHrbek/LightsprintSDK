@@ -20,7 +20,7 @@ namespace de /// DemoEngine - OpenGL renderer with soft shadows.
 //
 //! GLSL is language used by OpenGL API for writing shaders.
 //! Program is one or more shaders linked together, see OpenGL for more details.
-class DE_API Program
+class DE_API Program : public RRUniformlyAllocated
 {
 public:
 	//! Creates GLSL program by linking one vertex and one fragment shader together.

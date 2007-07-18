@@ -23,7 +23,7 @@ namespace rr_gl
 //! - wheel = zoom
 //! - left mouse button = toggle interpolation
 //! - right mouse button = toggle special alpha display
-class RR_API LightmapViewer : public RRUniformlyAllocated
+class RR_API LightmapViewer : public rr::RRUniformlyAllocated
 {
 public:
 	//! Creates lightmap viewer instance. Only one instance at a time is allowed.

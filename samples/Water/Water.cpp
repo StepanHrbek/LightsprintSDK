@@ -40,7 +40,7 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-de::Camera          eye = {{-1.416,1.741,-3.646},12.230,0,0.050,1.3,70.0,0.3,60.0};
+de::Camera          eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
 de::Texture*        environmentMap = NULL;
 de::TextureRenderer*textureRenderer = NULL;
 de::Water*          water = NULL;

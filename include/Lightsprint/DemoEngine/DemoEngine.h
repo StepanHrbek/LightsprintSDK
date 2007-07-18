@@ -68,4 +68,34 @@
 	#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
 #endif
 
+#include <new> // operators new/delete
+
+namespace de
+{
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//  RRUniformlyAllocated
+	//! Base class for objects allocated on our heap.
+	//
+	//! Allocating on our heap prevents corruption
+	//! in environment with multiple heaps.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class DE_API RRUniformlyAllocated
+	{
+	public:
+		//! Allocates aligned space for instance of any derived class.
+		void* operator new(std::size_t n);
+		//! Allocates aligned space for array of instances of any derived class.
+		void* operator new[](std::size_t n);
+		//! Frees aligned space allocated by new.
+		void operator delete(void* p, std::size_t n);
+		//! Frees aligned space allocated by new[].
+		void operator delete[](void* p, std::size_t n);
+	};
+
+}; // namespace
+
 #endif

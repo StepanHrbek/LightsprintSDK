@@ -949,6 +949,10 @@
 			Name="DemoEngine"
 			>
 			<File
+				RelativePath="..\DemoEngine\RRUniformlyAllocated.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\DemoEngine\Texture.cpp"
 				>
 			</File>

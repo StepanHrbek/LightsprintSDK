@@ -20,7 +20,7 @@ namespace de
 //
 //! GLSL is language used by OpenGL API
 //! for writing shaders.
-class DE_API UberProgram
+class DE_API UberProgram : public RRUniformlyAllocated
 {
 public:
 	// interface

@@ -11,7 +11,7 @@
 namespace de
 {
 
-/*Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float _leanAngle, float _angleX, float _aspect, float _fieldOfView, float _anear, float _afar)
+Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float _leanAngle, float _angleX, float _aspect, float _fieldOfView, float _anear, float _afar)
 {
 	pos[0] = _posx;
 	pos[1] = _posy;
@@ -23,7 +23,7 @@ namespace de
 	fieldOfView = _fieldOfView;
 	anear = _anear;
 	afar = _afar;
-}*/
+}
 
 void Camera::update(float back)
 {
