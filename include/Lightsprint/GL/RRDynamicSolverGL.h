@@ -8,6 +8,7 @@
 
 #include "../RRDynamicSolver.h"
 
+#ifndef RR_MANUAL_LINK
 #ifdef _MSC_VER
 #	ifdef RR_STATIC
 		// use static library
@@ -25,19 +26,28 @@
 	// use dll
 	#if _MSC_VER<1400
 		#ifdef NDEBUG
-			#pragma comment(lib,"RRGPUOpenGL.vs2003.lib")
+			#ifdef RR_DEBUG
+				#pragma comment(lib,"RRGPUOpenGL.vs2003_dd.lib")
+			#else
+				#pragma comment(lib,"RRGPUOpenGL.vs2003.lib")
+			#endif
 		#else
 			#pragma comment(lib,"RRGPUOpenGL.vs2003_dd.lib")
 		#endif
 	#else
 		#ifdef NDEBUG
-			#pragma comment(lib,"RRGPUOpenGL.lib")
+			#ifdef RR_DEBUG
+				#pragma comment(lib,"RRGPUOpenGL_dd.lib")
+			#else
+				#pragma comment(lib,"RRGPUOpenGL.lib")
+			#endif
 		#else
 			#pragma comment(lib,"RRGPUOpenGL_dd.lib")
 		#endif
 	#endif
 #endif
 #	endif
+#endif
 #endif
 
 #include "../DemoEngine/Texture.h"

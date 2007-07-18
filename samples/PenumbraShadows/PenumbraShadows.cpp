@@ -298,7 +298,7 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
-	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint Hello Demoengine"); // for windowed mode
+	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint Penumbra Shadows"); // for windowed mode
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);

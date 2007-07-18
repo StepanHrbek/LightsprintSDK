@@ -8,9 +8,9 @@
 #define DEMOENGINE_H
 
 #ifdef _MSC_VER
-#ifdef DONT_LINK_DEMOENGINE
+#ifdef DE_MANUAL_LINK
 	#define DE_API
-#else // !DONT_LINK_DEMOENGINE
+#else // !DE_MANUAL_LINK
 #ifdef DE_STATIC
 	// use static library
 	#define DE_API
@@ -29,13 +29,21 @@
 		#define DE_API __declspec(dllimport)
 		#if _MSC_VER<1400
 			#ifdef NDEBUG
-				#pragma comment(lib,"DemoEngine.vs2003.lib")
+				#ifdef RR_DEBUG
+					#pragma comment(lib,"DemoEngine.vs2003_dd.lib")
+				#else
+					#pragma comment(lib,"DemoEngine.vs2003.lib")
+				#endif
 			#else
 				#pragma comment(lib,"DemoEngine.vs2003_dd.lib")
 			#endif
 		#else
 			#ifdef NDEBUG
-				#pragma comment(lib,"DemoEngine.lib")
+				#ifdef RR_DEBUG
+					#pragma comment(lib,"DemoEngine_dd.lib")
+				#else
+					#pragma comment(lib,"DemoEngine.lib")
+				#endif
 			#else
 				#pragma comment(lib,"DemoEngine_dd.lib")
 			#endif
@@ -45,7 +53,7 @@
 	#pragma comment(lib,"opengl32.lib")
 	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")
-#endif // !DONT_LINK_DEMOENGINE
+#endif // !DE_MANUAL_LINK
 #else
 	// use static library
 	#define DE_API

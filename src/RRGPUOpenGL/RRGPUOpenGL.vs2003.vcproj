@@ -152,7 +152,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_DLL;RR_DLL_BUILD_GPUOPENGL"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_DLL_BUILD_GPUOPENGL"
 				StringPooling="TRUE"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="2"

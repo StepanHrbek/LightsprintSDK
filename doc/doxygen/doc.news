@@ -10,8 +10,15 @@
 
 NEWS
 
-- it's safe to mix multiple runtimes with multiple heaps,
-  our objects are created and deleted on our heap
+- it's safer to mix debug/release and vs2003/vs3005 in the same project,
+  objects are automatically deleted from the same heap where they were created
+
+CHANGES
+
+- Automatic dll linking (#pragma) has new rules:
+  - Default is automatic link of Release DLL
+  - #define RR_DEBUG / DE_DEBUG selects Debug DLL
+  - #define RR_MANUAL_LINK / DE_MANUAL_LINK disables automatic DLL linking
 
 \section news25 ------------------------------------ 2007.7.8 -------------------------------------
 

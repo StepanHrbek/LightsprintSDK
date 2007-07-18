@@ -1759,6 +1759,12 @@ Rendering realtime global illumination with Lightsprint:
    \n Irradiance values are typically stored in custom scale to fit 
    in 8bit precision, but physical or other HDR scale could be used too.
 
+ \section glinking Automatic linking
+   By default, including library header automatically links Release DLL version of library using \#pragma comment(lib,name).
+   \n \#define RR_DEBUG / DE_DEBUG selects Debug DLL instead of Release DLL.
+   \n \#define RR_MANUAL_LINK / DE_MANUAL_LINK disables automatic DLL linking.
+   \n (version with DE_ prefix affects DemoEngine, RR_ affects other libraries)
+
  \section gunits Illumination units (radiometry, photometry, screen)
    Lightsprint computes all in HDR.
    Whole documentation talks in radiometry terms like irradiance,
