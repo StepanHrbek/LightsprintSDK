@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoEngine", "DemoEngine\DemoEngine8.vcproj", "{259AA93C-416C-DAC2-3943-B73E93A91A4B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRGPUOpenGL", "RRGPUOpenGL\RRGPUOpenGL.vcproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RRGPUOpenGL", "LightsprintGL\RRGPUOpenGL.vcproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows", "..\samples\PenumbraShadows\PenumbraShadows.vcproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
 	ProjectSection(ProjectDependencies) = postProject
