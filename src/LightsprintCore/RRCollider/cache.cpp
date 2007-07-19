@@ -7,7 +7,7 @@
 namespace rr
 {
 
-#define TREE_VERSION 0
+#define TREE_VERSION 1
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 

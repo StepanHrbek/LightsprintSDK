@@ -14,7 +14,7 @@
 // more strict separation of faces into kd_front / kd_back
 // reduces subtrees -> can only make traversal faster
 // makes bunny (round shape) 0% faster, rr scenes (blocky) 5% slower(why???)
-//#define STRICT_SEPARATION 
+#define STRICT_SEPARATION 
 
 #ifdef STRICT_SEPARATION
 #include "vec.h"
