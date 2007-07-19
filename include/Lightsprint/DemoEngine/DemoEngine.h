@@ -61,10 +61,10 @@
 #			endif
 		#endif
 	#endif
+#	endif // !RR_GL_STATIC
 	#pragma comment(lib,"opengl32.lib")
 	#pragma comment(lib,"glu32.lib")
 	#pragma comment(lib,"glew32.lib")
-#	endif // !RR_GL_STATIC
 #	endif // _MSC_VER
 #endif // !RR_GL_MANUAL_LINK
 
