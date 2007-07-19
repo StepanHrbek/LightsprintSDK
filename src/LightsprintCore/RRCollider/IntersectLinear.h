@@ -39,9 +39,6 @@ namespace rr
 		unsigned          triangles;
 		real              DELTA_BSP; // tolerance to numeric errors (absolute distance in scenespace)
 		Box               box; // aligned + vtable(4) + importer(4) + triangles(4) + DELTA_BSP(4) = aligned
-#ifdef USE_SPHERE
-		Sphere            sphere;
-#endif
 	};
 
 }

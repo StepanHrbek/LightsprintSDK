@@ -7,17 +7,12 @@ bsp generation framework by Daniel Sykora:
  bsp.h [part]
  bsp.cpp [part]
 
-miniball by Bernd Gaertner, commercial:
- miniball.h
- miniball_config.h
- wrapped_array.h
-
 poly-box intersection test by Hatch+Green, public domain:
  fpcube.c
  pcube.c
  pcube.h
  vec.h
 
-sha-1 by Christophe Devine, LGPL:
+sha-1 by Christophe Devine, LGPL or BSD:
  sha1.h
  sha1.cpp

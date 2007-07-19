@@ -27,21 +27,6 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// sphere in 3d
-
-#ifdef USE_SPHERE
-	struct Sphere
-	{
-		Vec3    center;
-		real    radius;
-		real    radius2;
-		void    detect(const Vec3 *vertex,unsigned vertices);
-		bool    intersect(RRRay* ray) const;
-	};
-#endif
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
 	// box in 3d
 
 	struct Box

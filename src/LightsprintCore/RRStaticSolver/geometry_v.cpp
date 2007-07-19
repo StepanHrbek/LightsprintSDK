@@ -7,9 +7,6 @@
 namespace rr
 {
 
-//#define FAST_BOUND                // fast approximate bounding sphere intersection
-//...naky intersecty pritom zahazuje, je treba proverit skodlivost
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // 2d vector

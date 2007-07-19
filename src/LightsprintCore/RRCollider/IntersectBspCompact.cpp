@@ -350,9 +350,6 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 	else
 #endif
 	{
-#ifdef USE_SPHERE
-		if(!sphere.intersect(ray)) return false;
-#endif
 		if(!box.intersect(ray)) return false;
 	}
 	update_rayDir(ray);
@@ -371,17 +368,6 @@ bool IntersectBspCompact IBP2::intersect(RRRay* ray) const
 	}
 	FILL_STATISTIC(if(hit) intersectStats.hit_mesh++);
 	return hit;
-
-/*
-	bool hit = ((ray->rayFlags&RRRay::EXPECT_HIT) || (
-#ifdef USE_SPHERE
-		sphere.intersect(ray) &&
-#endif
-		box.intersect(ray))) 
-		&& update_rayDir(ray)
-		&& intersect_bsp(ray,tree,ray->hitDistanceMax);
-	FILL_STATISTIC(if(hit) intersectStats.hit_mesh++);
-	return hit;*/
 }
 
 template IBP

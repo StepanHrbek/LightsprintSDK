@@ -8,8 +8,6 @@
 #ifdef _MSC_VER
 	#define USE_SSE // by default, code is pure ANSI C++. gcc compiles but crashes with sse
 #endif
-//#define USE_SPHERE // everywhere -> slowdown
-//#define USE_LONGJMP // bunny+msvc -> tiny slowdown
 #define USE_FAST_BOX // fast box can't handle 2 special cases -> rare errors
 //#define USE_EXPECT_HIT // always slower in rr, but may be useful for someone else later
 

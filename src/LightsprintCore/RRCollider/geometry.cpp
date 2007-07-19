@@ -3,74 +3,8 @@
 #include <memory.h>
 #include "geometry.h"
 
-#ifdef USE_SPHERE
-	#ifndef __GNUC__ //!!! gcc emits linker error with miniball
-		#define MINIBALL
-	#endif
-	#ifdef MINIBALL
-		#include "miniball.h"
-	#endif
-#endif
-
 namespace rr
 {
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// sphere in 3d
-
-#ifdef USE_SPHERE
-
-void Sphere::detect(const Vec3 *vertex,unsigned vertices)
-{
-#ifdef MINIBALL
-	Miniball<3>     mb;
-	Miniball<3>::Point p;
-	for(unsigned i=0;i<vertices;i++) 
-	{
-		p[0] = vertex[i][0];
-		p[1] = vertex[i][1];
-		p[2] = vertex[i][2];
-		mb.check_in(p);
-	}
-	mb.build();
-	center.x = (real)mb.center()[0];
-	center.y = (real)mb.center()[1];
-	center.z = (real)mb.center()[2];
-	radius2 = (real)mb.squared_radius();
-#else
-	Vec3 sum = Vec3(0,0,0);
-	for(unsigned i=0;i<vertices;i++) sum += vertex[i];
-	center = sum/vertices;
-	radius2 = 0;
-	for(unsigned i=0;i<vertices;i++) 
-	{
-		real tmp = size2(vertex[i]-center);
-		if(tmp>radius2) radius2=tmp;
-	}
-#endif
-	radius = sqrt(radius2);
-}
-
-bool Sphere::intersect(RRRay* ray) const
-// Returns if intersection was detected.
-{
-	Vec3 toCenter = center-ray->rayOrigin;
-	real distEyeCenter2 = size2(toCenter);            //3*mul
-	// eye inside sphere
-	if(distEyeCenter2-radius2<0) return true;
-	real distEyeCenter=sqrt(distEyeCenter2);             //1*sqrt
-	// sphere too far
-	if(distEyeCenter-radius>=ray->hitDistanceMax) return false;
-	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);
-	Vec3 nearCenter = ray->rayOrigin + ray->rayDir * distEyeCenter; //3*mul
-	real distNrcntrCenter2=size2(nearCenter-center);//3*mul
-	// probably no intersection
-	if(distNrcntrCenter2>=radius2) return false;
-	return true;
-}
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //

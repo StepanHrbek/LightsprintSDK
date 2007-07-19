@@ -6,9 +6,6 @@
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
-#ifdef USE_LONGJMP
-#include <setjmp.h>
-#endif
 
 namespace rr
 {
@@ -317,13 +314,6 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMesh::
 }
 
 
-#ifdef USE_LONGJMP
-	jmp_buf tmpMark;
-	#define RETURN_SUCCESS longjmp(tmpMark,1); // probably not thread safe
-#else
-	#define RETURN_SUCCESS return true;
-#endif
-
 template IBP
 bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const
 // input:                t, rayOrigin, rayDir, skip, hitDistanceMin, hitDistanceMax
@@ -393,7 +383,7 @@ begin:
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
-			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
+			if(intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			RR_ASSERT(t->kd.getBack()->bsp.size<MAX_SIZE);
 			t = t->kd.getBack();
@@ -415,7 +405,7 @@ begin:
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getBack());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
-			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
+			if(intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			RR_ASSERT(t->kd.getFront()->bsp.size<MAX_SIZE);
 			t = t->kd.getFront();
@@ -484,10 +474,10 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->bsp.front && intersect_bspSRLNP(ray,front,distancePlane+DELTA_BSP)) RETURN_SUCCESS;
+		if(t->bsp.front && intersect_bspSRLNP(ray,front,distancePlane+DELTA_BSP)) return true;
 		TEST_RANGE(ray->hitDistanceMin,distancePlane+DELTA_BSP,t->bsp.front,front);
 	} else {
-		if(t->bsp.back && intersect_bspSRLNP(ray,back,distancePlane+DELTA_BSP)) RETURN_SUCCESS;
+		if(t->bsp.back && intersect_bspSRLNP(ray,back,distancePlane+DELTA_BSP)) return true;
 		TEST_RANGE(ray->hitDistanceMin,distancePlane+DELTA_BSP,t->bsp.back,back);
 	}
 
@@ -515,7 +505,7 @@ begin:
 #ifdef COLLISION_HANDLER
 			if(!ray->collisionHandler || ray->collisionHandler->collides(ray)) 
 #endif
-				RETURN_SUCCESS;
+				return true;
 		}
 		triangle++;
 	}
@@ -572,7 +562,7 @@ begin:
 			}
 			// front and back
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
-			if(intersect_bspNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
+			if(intersect_bspNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getBack();
 			goto begin;
@@ -586,7 +576,7 @@ begin:
 			}
 			// back and front
 			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
-			if(intersect_bspNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) RETURN_SUCCESS;
+			if(intersect_bspNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
 			ray->hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getFront();
 			goto begin;
@@ -634,9 +624,9 @@ begin:
 	// test first half
 	if(frontback)
 	{
-		if(t->bsp.front && intersect_bspNP(ray,front,distancePlane+DELTA_BSP)) RETURN_SUCCESS;
+		if(t->bsp.front && intersect_bspNP(ray,front,distancePlane+DELTA_BSP)) return true;
 	} else {
-		if(t->bsp.back && intersect_bspNP(ray,back,distancePlane+DELTA_BSP)) RETURN_SUCCESS;
+		if(t->bsp.back && intersect_bspNP(ray,back,distancePlane+DELTA_BSP)) return true;
 	}
 
 	// test plane
@@ -659,7 +649,7 @@ begin:
 #ifdef COLLISION_HANDLER
 			if(!ray->collisionHandler || ray->collisionHandler->collides(ray)) 
 #endif
-				RETURN_SUCCESS;
+				return true;
 		}
 		triangle++;
 	}
@@ -741,12 +731,7 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	RR_ASSERT(intersectTechnique==IT_BSP_FASTEST);
 	return box.intersect(ray) &&
 		update_rayDir(ray) &&
-		(
-#ifdef USE_LONGJMP
-			setjmp(tmpMark) || 
-#endif
-			intersect_bspSRLNP(ray,tree,ray->hitDistanceMax)
-		);
+		intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
 #endif
 
 	DBG(printf("\n"));
@@ -770,9 +755,6 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	else 
 #endif
 	{
-#ifdef USE_SPHERE
-		if(!sphere.intersect(ray)) goto test_no;
-#endif
 		if(!box.intersect(ray)) goto test_no;
 		// Zridka se muze stat, ze box.intersectFast vrati true a nastavi nahodne 
 		// hitDistanceMin/Max i kdyz se s paprskem neprotina 
@@ -787,9 +769,6 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 		//if(!_finite(ray->hitDistanceMin) || !_finite(ray->hitDistanceMax)) goto test_no;
 	}
 	update_rayDir(ray);
-#ifdef USE_LONGJMP
-	if(setjmp(tmpMark)) return true;
-#endif
 	RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
 #ifdef COLLISION_HANDLER
 	if(ray->collisionHandler)

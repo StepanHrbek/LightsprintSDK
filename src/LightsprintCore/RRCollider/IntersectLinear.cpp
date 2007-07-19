@@ -126,16 +126,12 @@ IntersectLinear::IntersectLinear(RRMesh* aimporter)
 		vertex[i].y = v[1];
 		vertex[i].z = v[2];
 	}
-#ifdef USE_SPHERE
-	sphere.detect(vertex,vertices);
-#endif
 	box.detect(vertex,vertices);
 	delete[] vertex;
 
 	// lower number = danger of numeric errors
 	// higher number = slower intersection
 	// (0.01 is good, artifacts from numeric errors not seen yet, 1 is 3% slower)
-	//DELTA_BSP = sphere.radius*1e-5f;
 	//Vec3 tmp = box.max-box.min;
 	//DELTA_BSP = (tmp.x+tmp.y+tmp.z)/4*1e-5f;
 	RRReal tmpx = MAX(fabs(box.max.x),fabs(box.min.x));
@@ -181,11 +177,7 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	else
 #endif
 	{
-		if(
-#ifdef USE_SPHERE
-			!sphere.intersect(ray) ||
-#endif
-			!box.intersect(ray)) return false;
+		if(!box.intersect(ray)) return false;
 	}
 
 	bool hit = false;
