@@ -18,6 +18,6 @@ poly-box intersection test by Hatch+Green, public domain:
  pcube.h
  vec.h
 
-sha-1 by Christophe Devine, GPL:
+sha-1 by Christophe Devine, LGPL:
  sha1.h
  sha1.cpp
