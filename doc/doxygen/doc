@@ -874,8 +874,12 @@ Rendering realtime global illumination with Lightsprint:
  use vertex buffers for the rest. You can mix structures even in single object,
  e.g. use lightmap with per-vertex bent normals.
 
- Lightsprint supports render farms, work distributed in a cluster of computers,
+ Lightsprint automatically uses all processing power available in a single computer,
+ it runs in multiple threads on all CPUs and CPU cores.
+
+ Lightsprint is ready for distribution of work in network / multiple computers,
  including computers without GPU. Expensive RRDynamicSolver::updateLightmaps() call
+ (it is core of all lightmap, ambient occlusion map and bent normal map calculations)
  can be replaced by many small RRDynamicSolver::updateLightmap() calls
  and you are free to execute them in parallel on different computers.
 

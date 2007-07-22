@@ -6,20 +6,22 @@
 
 \page news What's new
 
-\section news26 ------------------------------------ 2007.7.x -------------------------------------
+\section news26 ------------------------------------ 2007.7.22 -------------------------------------
 
 NEWS
-
-- it's safer to mix debug/release and vs2003/vs3005 in the same project,
-  objects are automatically deleted from the same heap where they were created
-
+ 
 CHANGES
 
+- when object is deleted, correct heap is automatically used,
+  so it's safer to mix vs2003/vs2005 and demo/release runtimes in 1 project
 - libraries DemoEngine and RRGPUOpenGL merged into LightsprintGL
-- automatic dll linking (#pragma) has new rules:
+- samples in debug configuration are linked with release libraries
+- automatic dll linking (using #pragma) has new rules:
   - default is automatic link of Release DLL
   - #define RR_DEBUG / RR_GL_DEBUG selects Debug DLL
   - #define RR_MANUAL_LINK / RR_GL_MANUAL_LINK disables automatic DLL linking
+    (prefix RR_GL_ is for LightsprintGL, RR_ is for LightsprintCore)
+- 3% faster ray-scene intersections (1.5% faster GI)
 
 \section news25 ------------------------------------ 2007.7.8 -------------------------------------
 
