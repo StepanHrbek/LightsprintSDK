@@ -94,16 +94,16 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/L
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/LightmapViewer.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfRRObject.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RendererOfScene.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/AreaLight.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Camera.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/DemoEngine.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Program.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Renderer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Texture.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/TextureRenderer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/Timer.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/UberProgram.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/DemoEngine/UberProgramSetup.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/AreaLight.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Camera.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/DemoEngine.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Program.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Renderer.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Texture.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/TextureRenderer.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/Timer.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/UberProgram.h" \
+                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/UberProgramSetup.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/c/rr/doc/doxygen/doc"
 FILE_PATTERNS          = *.c \
                          *.cc \

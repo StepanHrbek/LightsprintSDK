@@ -2021,7 +2021,7 @@ Rendering realtime global illumination with Lightsprint:
  - renders object with precomputed or realtime computed illumination
 
  <hr>
- Headers: DemoEngine/*.h
+ Other headers (independent to LightsprintCore):
 
  - rr_gl::Texture is OpenGL texture
  - rr_gl::Program is GLSL program
