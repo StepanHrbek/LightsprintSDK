@@ -5,7 +5,7 @@
 
 #include <windows.h>
 #include <GL/glew.h>
-#include "Lightsprint/DemoEngine/Program.h"
+#include "Lightsprint/GL/Program.h"
 #include "RRIlluminationEnvironmentMapInOpenGL.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 

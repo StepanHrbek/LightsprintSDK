@@ -24,11 +24,11 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/GL/Timer.h"
 #ifdef WATER
-#include "Lightsprint/DemoEngine/Water.h"
+#include "Lightsprint/GL/Water.h"
 #endif
-#include "Lightsprint/DemoEngine/TextureRenderer.h"
+#include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"

@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <GL/glew.h>
 #include "RRIlluminationPixelBufferInOpenGL.h"
-#include "Lightsprint/DemoEngine/Program.h"
+#include "Lightsprint/GL/Program.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 namespace rr_gl

@@ -7,7 +7,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/GL/Texture.h"
 #include "FreeImage.h"
 
 #pragma comment(lib,"FreeImage.lib")

@@ -2,8 +2,8 @@
 #define ANIMATIONFRAME_H
 
 #include <vector>
-#include "Lightsprint/DemoEngine/Camera.h"
-#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/GL/Camera.h"
+#include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/RRMath.h"
 
 /////////////////////////////////////////////////////////////////////////////

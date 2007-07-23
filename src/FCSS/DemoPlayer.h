@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
-#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/GL/Texture.h"
 
 class DemoPlayer
 {

@@ -6,7 +6,7 @@
 
 #include <cstdlib>
 #include <map>
-#include "Lightsprint/DemoEngine/UberProgram.h"
+#include "Lightsprint/GL/UberProgram.h"
 
 namespace rr_gl
 {

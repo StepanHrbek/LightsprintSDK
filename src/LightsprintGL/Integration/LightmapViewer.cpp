@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/LightmapViewer.h"
-#include "Lightsprint/DemoEngine/UberProgram.h"
+#include "Lightsprint/GL/UberProgram.h"
 #include <string.h>
 #include <GL/glew.h>
 #include <GL/glut.h>

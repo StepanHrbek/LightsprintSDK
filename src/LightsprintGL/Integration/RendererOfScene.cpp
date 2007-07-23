@@ -9,7 +9,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/RendererOfScene.h"
-#include "Lightsprint/DemoEngine/TextureRenderer.h"
+#include "Lightsprint/GL/TextureRenderer.h"
 
 #ifdef RR_DEVELOPMENT
 #define DIAGNOSTIC_RAYS // render rays shot by solver (RR_DEVELOPMENT must be on)

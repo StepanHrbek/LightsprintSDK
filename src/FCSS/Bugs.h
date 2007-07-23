@@ -2,7 +2,7 @@
 #define BUGS_H
 
 #include "Lightsprint/RRStaticSolver.h"
-#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/GL/Texture.h"
 
 class Bugs
 {

@@ -7,8 +7,8 @@
 #include <cassert>
 #include <cstdio>
 #include <GL/glew.h>
-#include "Lightsprint/DemoEngine/TextureRenderer.h"
-#include "Lightsprint/DemoEngine/Program.h"
+#include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/GL/Program.h"
 
 namespace rr_gl
 {

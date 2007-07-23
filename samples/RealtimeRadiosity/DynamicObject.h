@@ -6,8 +6,8 @@
 #ifndef DYNAMICOBJECT_H
 #define DYNAMICOBJECT_H
 
-#include "Lightsprint/DemoEngine/UberProgramSetup.h"
-#include "Lightsprint/DemoEngine/Renderer.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
+#include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 

@@ -5,7 +5,7 @@
 
 #include <vector>
 #include "Lightsprint/RRObject.h"
-#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/GL/Texture.h"
 
 namespace rr_gl
 {

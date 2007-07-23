@@ -6,7 +6,7 @@
 
 #include <cstdio>
 #include <GL/glew.h>
-#include "Lightsprint/DemoEngine/UberProgramSetup.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
 
 namespace rr_gl
 {

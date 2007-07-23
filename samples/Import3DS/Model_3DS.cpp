@@ -80,7 +80,7 @@
 #include <cstring>
 #include <GL/glew.h>
 #include "Model_3DS.h"
-#include "Lightsprint/DemoEngine/UberProgramSetup.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
 
 // The chunk's id numbers
 #define MAIN3DS				0x4D4D

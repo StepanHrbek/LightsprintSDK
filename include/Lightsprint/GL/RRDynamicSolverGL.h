@@ -9,10 +9,10 @@
 #define RRDYNAMICSOLVERGL_H
 
 #include "../RRDynamicSolver.h"
-#include "../DemoEngine/Texture.h"
-#include "../DemoEngine/Program.h"
-#include "../DemoEngine/Renderer.h"
-#include "../DemoEngine/UberProgramSetup.h"
+#include "Texture.h"
+#include "Program.h"
+#include "Renderer.h"
+#include "UberProgramSetup.h"
 
 //! LightsprintGL - OpenGL 2.0 part of realtime global illumination solver.
 namespace rr_gl

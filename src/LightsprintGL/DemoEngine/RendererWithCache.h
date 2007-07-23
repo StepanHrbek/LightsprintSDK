@@ -9,7 +9,7 @@
 
 #include <cmath>
 #include <map>
-#include "Lightsprint/DemoEngine/Renderer.h"
+#include "Lightsprint/GL/Renderer.h"
 
 namespace rr_gl
 {

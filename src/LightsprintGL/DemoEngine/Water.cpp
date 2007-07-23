@@ -6,8 +6,8 @@
 
 #include <GL/glew.h>
 #include <cstdio>
-#include "Lightsprint/DemoEngine/Water.h"
-#include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/GL/Water.h"
+#include "Lightsprint/GL/Timer.h"
 
 namespace rr_gl
 {

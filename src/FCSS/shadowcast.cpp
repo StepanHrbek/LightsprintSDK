@@ -47,7 +47,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 	#include <limits> // nutne aby uspel build v gcc4.3
 #endif
 #include "Level.h" // must be first, so collada is included before demoengine (#define SAFE_DELETE collides)
-#include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/GL/Timer.h"
 #include <cassert>
 #include <cfloat>
 #include <cmath>
@@ -62,12 +62,12 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/glut.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
-#include "Lightsprint/DemoEngine/AreaLight.h"
-#include "Lightsprint/DemoEngine/Camera.h"
-#include "Lightsprint/DemoEngine/UberProgram.h"
-#include "Lightsprint/DemoEngine/TextureRenderer.h"
-#include "Lightsprint/DemoEngine/UberProgramSetup.h"
-#include "Lightsprint/DemoEngine/Water.h"
+#include "Lightsprint/GL/AreaLight.h"
+#include "Lightsprint/GL/Camera.h"
+#include "Lightsprint/GL/UberProgram.h"
+#include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
+#include "Lightsprint/GL/Water.h"
 #include "DynamicObject.h"
 #include "Bugs.h"
 #include "AnimationEditor.h"

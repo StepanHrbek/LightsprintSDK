@@ -9,7 +9,7 @@
 #define LIGHTMAPVIEWER_H
 
 #include "Lightsprint/RRIllumination.h"
-#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 
 namespace rr_gl

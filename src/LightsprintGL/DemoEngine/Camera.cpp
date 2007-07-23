@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------
 
 #include <cmath>
-#include "Lightsprint/DemoEngine/Camera.h"
+#include "Lightsprint/GL/Camera.h"
 #include "matrix.h"
 
 namespace rr_gl

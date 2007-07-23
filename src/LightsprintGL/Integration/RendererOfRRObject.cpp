@@ -7,8 +7,8 @@
 #include <GL/glew.h>
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
-#include "Lightsprint/DemoEngine/Texture.h"
-#include "Lightsprint/DemoEngine/UberProgramSetup.h" // texture/multitexcoord id assignments
+#include "Lightsprint/GL/Texture.h"
+#include "Lightsprint/GL/UberProgramSetup.h" // texture/multitexcoord id assignments
 #include "ObjectBuffers.h"
 
 namespace rr_gl

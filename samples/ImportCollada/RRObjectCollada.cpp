@@ -55,7 +55,7 @@
 #include "FUtils/FUFileManager.h"
 
 #include "RRObjectCollada.h"
-#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/GL/Texture.h"
 #ifdef OPENGL
 #include "GL/glew.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"

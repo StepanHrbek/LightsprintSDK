@@ -6,7 +6,7 @@
 #ifndef RENDEREROF3DS_H
 #define RENDEREROF3DS_H
 
-#include "Lightsprint/DemoEngine/Renderer.h"
+#include "Lightsprint/GL/Renderer.h"
 #include "Model_3DS.h"
 
 //////////////////////////////////////////////////////////////////////////////

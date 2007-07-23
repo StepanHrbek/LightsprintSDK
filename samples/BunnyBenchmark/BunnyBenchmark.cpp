@@ -9,7 +9,7 @@
 
 #include "PlyMeshReader.h"
 #include "SphereUnitVecPool.h"
-#include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/RRCollider.h"
 #include <math.h>
 #ifdef _OPENMP

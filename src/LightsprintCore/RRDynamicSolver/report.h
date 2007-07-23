@@ -1,7 +1,7 @@
 #ifndef REPORT_H
 #define REPORT_H
 
-#include "Lightsprint/DemoEngine/Timer.h"
+#include "Lightsprint/GL/Timer.h"
 
 #ifdef _DEBUG
 	#define REPORT(a)    a

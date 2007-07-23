@@ -74,7 +74,7 @@
 
 #include <cstdio>
 #include <cstring>
-#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/GL/Texture.h"
 
 class Model_3DS  
 {

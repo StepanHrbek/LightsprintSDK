@@ -9,8 +9,8 @@
 #define RENDEREROFSCENE_H
 
 #include "Lightsprint/RRDynamicSolver.h"
-#include "Lightsprint/DemoEngine/Renderer.h"
-#include "Lightsprint/DemoEngine/UberProgramSetup.h"
+#include "Lightsprint/GL/Renderer.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
 
 namespace rr_gl
 {

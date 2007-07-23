@@ -6,7 +6,7 @@
 
 #include <cassert>
 #include <cstring> // NULL
-#include "Lightsprint/DemoEngine/AreaLight.h"
+#include "Lightsprint/GL/AreaLight.h"
 
 namespace rr_gl
 {

@@ -454,7 +454,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\AreaLight.h"
+				RelativePath="..\..\include\Lightsprint\GL\AreaLight.h"
 				>
 			</File>
 			<File
@@ -462,11 +462,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\Camera.h"
+				RelativePath="..\..\include\Lightsprint\GL\Camera.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\DemoEngine.h"
+				RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h"
 				>
 			</File>
 			<File
@@ -490,11 +490,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\Program.h"
+				RelativePath="..\..\include\Lightsprint\GL\Program.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\Renderer.h"
+				RelativePath="..\..\include\Lightsprint\GL\Renderer.h"
 				>
 			</File>
 			<File
@@ -518,7 +518,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\Texture.h"
+				RelativePath="..\..\include\Lightsprint\GL\Texture.h"
 				>
 			</File>
 			<File
@@ -542,7 +542,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\TextureRenderer.h"
+				RelativePath="..\..\include\Lightsprint\GL\TextureRenderer.h"
 				>
 			</File>
 			<File
@@ -554,7 +554,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\Timer.h"
+				RelativePath="..\..\include\Lightsprint\GL\Timer.h"
 				>
 			</File>
 			<File
@@ -562,7 +562,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\UberProgram.h"
+				RelativePath="..\..\include\Lightsprint\GL\UberProgram.h"
 				>
 			</File>
 			<File
@@ -570,7 +570,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\UberProgramSetup.h"
+				RelativePath="..\..\include\Lightsprint\GL\UberProgramSetup.h"
 				>
 			</File>
 			<File
@@ -578,7 +578,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\DemoEngine\Water.h"
+				RelativePath="..\..\include\Lightsprint\GL\Water.h"
 				>
 			</File>
 		</Filter>

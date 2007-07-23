@@ -7,7 +7,7 @@
 #ifndef TEXTUREINMEMORY_H
 #define TEXTUREINMEMORY_H
 
-#include "Lightsprint/DemoEngine/Texture.h"
+#include "Lightsprint/GL/Texture.h"
 
 namespace rr_gl
 {

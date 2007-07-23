@@ -12,7 +12,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
-#include "Lightsprint/DemoEngine/UberProgramSetup.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
 
 #ifdef RR_DEVELOPMENT
 	#define SCALE_DOWN_ON_GPU       // mnohem rychlejsi, ale zatim neovereny ze funguje vsude

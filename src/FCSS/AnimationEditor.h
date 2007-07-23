@@ -2,7 +2,7 @@
 #define ANIMATIONEDITOR_H
 
 #include "AnimationScene.h"
-#include "Lightsprint/DemoEngine/TextureRenderer.h"
+#include "Lightsprint/GL/TextureRenderer.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //

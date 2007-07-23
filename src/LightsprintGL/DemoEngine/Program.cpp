@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include "Lightsprint/DemoEngine/Program.h"
+#include "Lightsprint/GL/Program.h"
 #include "Shader.h"
 
 namespace rr_gl

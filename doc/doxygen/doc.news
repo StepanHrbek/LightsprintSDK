@@ -15,6 +15,7 @@ CHANGES
 - when object is deleted, correct heap is automatically used,
   so it's safer to mix vs2003/vs2005 and demo/release runtimes in 1 project
 - libraries DemoEngine and RRGPUOpenGL merged into LightsprintGL
+- namespaces de and rr_gl merged into rr_gl
 - samples in debug configuration are linked with release libraries
 - automatic dll linking (using #pragma) has new rules:
   - default is automatic link of Release DLL
