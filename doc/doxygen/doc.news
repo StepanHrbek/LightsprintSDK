@@ -6,6 +6,15 @@
 
 \page news What's new
 
+\section news27 ------------------------------------ 2007.7.x -------------------------------------
+
+NEWS
+ 
+CHANGES
+
+- contents of include/Lightsprint/DemoEngine moved to include/Lightsprint/GL
+  (libraries were merged recently, so header directories merge too)
+
 \section news26 ------------------------------------ 2007.7.22 -------------------------------------
 
 NEWS
