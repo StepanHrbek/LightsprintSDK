@@ -158,7 +158,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
 	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom())
 	{
-		RRReporter::report(RRReporter::WARN,"processTexel: No objects in scene\n");
+		RRReporter::report(WARN,"processTexel: No objects in scene\n");
 		RR_ASSERT(0);
 		return ProcessTexelResult();
 	}
@@ -183,7 +183,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	bool shootToLights = pti.context.params->applyLights && pti.context.solver->getLights().size();
 	if(!shootToHemisphere && !shootToLights)
 	{
-		LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"processTexel: Zero workload.\n");RR_ASSERT(0));		
+		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: Zero workload.\n");RR_ASSERT(0));		
 		return ProcessTexelResult();
 	}
 
@@ -529,7 +529,7 @@ shoot_from_center:
 			(pti.context.bentNormalsPerPixel->getWidth()!=pti.context.pixelBuffer->getWidth()
 			|| pti.context.bentNormalsPerPixel->getHeight()!=pti.context.pixelBuffer->getHeight()))
 		{
-			LIMITED_TIMES(1,RRReporter::report(RRReporter::ERRO,"processTexel: Lightmap and BentNormalMap sizes must be equal.\n"));
+			LIMITED_TIMES(1,RRReporter::report(ERRO,"processTexel: Lightmap and BentNormalMap sizes must be equal.\n"));
 			RR_ASSERT(0);
 		}
 		pti.context.bentNormalsPerPixel->renderTexel(pti.uv,
@@ -552,7 +552,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 		calculateCore(0);
 		if(!getMultiObjectCustom() || !getStaticSolver())
 		{
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::gatherPerTriangle: No objects in scene.\n");
+			RRReporter::report(WARN,"RRDynamicSolver::gatherPerTriangle: No objects in scene.\n");
 			RR_ASSERT(0);
 			return false;
 		}
@@ -572,9 +572,8 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	if(params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 
-	RRReporter::report(RRReporter::INFO,"Gathering direct(%s%s%s%s%s%d)...",
+	RRReportInterval report(INF2,"Gathering(%s%s%s%s%s%d) ...\n",
 		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",(params.applyCurrentSolution&&params.measure.direct)?"D":"",(params.applyCurrentSolution&&params.measure.indirect)?"I":"",params.applyCurrentSolution?"cur ":"",params.quality);
-	TIME start = GETTIME;
 	TexelContext tc;
 	tc.solver = this;
 	tc.pixelBuffer = NULL;
@@ -597,8 +596,6 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 		delete pti.ray;
 		results[t] = tr;
 	}
-	float secs = (GETTIME-start)/(float)PER_SEC;
-	RRReporter::report(RRReporter::CONT," done in %.1fs.\n",secs);
 
 	return true;
 }
@@ -606,6 +603,8 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 // CPU version, detects per-triangle direct from RRLights, RREnvironment, gathers from current solution
 bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams, bool updateBentNormals)
 {
+	RRReportInterval report(INF2,"Updating solver direct ...\n");
+
 	if(!getMultiObjectCustom() || !getStaticSolver())
 	{
 		// create objects
@@ -613,7 +612,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 		if(!getMultiObjectCustom() || !getStaticSolver())
 		{
 			RR_ASSERT(0);
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateSolverDirectIllumination: No objects in scene.\n");
+			RRReporter::report(WARN,"No objects in scene.\n");
 			return false;
 		}
 	}
@@ -644,7 +643,9 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 
 static bool endByTime(void *context)
 {
-	return GETTIME>*(TIME*)context;
+	TIME now = GETTIME;
+	TIME end = *(TIME*)context;
+	return now>end && now<(TIME)(end+ULONG_MAX/2);
 }
 
 bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect, unsigned benchTexels, unsigned benchQuality)
@@ -656,7 +657,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		if(!getMultiObjectCustom() || !priv->scene)
 		{
 			RR_ASSERT(0);
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateSolverIndirectIllumination: No objects in scene.\n");
+			RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: No objects in scene.\n");
 			return false;
 		}
 	}
@@ -668,7 +669,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	//paramsDirect.applyCurrentSolution = false;
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
 
-	RRReporter::report(RRReporter::INFO,"Updating solver indirect(%s%s%s%s%s).\n",
+	RRReportInterval report(INF2,"Updating solver indirect(%s%s%s%s%s).\n",
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
 		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.direct)?"D":"",
 		(paramsIndirect.applyCurrentSolution&&paramsIndirect.measure.indirect)?"I":"",
@@ -676,7 +677,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 
 	if(paramsIndirect.applyCurrentSolution)
 	{
-		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateSolverIndirectIllumination: paramsIndirect.applyCurrentSolution ignored, set it in paramsDirect instead.\n");
+		RRReporter::report(WARN,"paramsIndirect.applyCurrentSolution ignored, set it in paramsDirect instead.\n");
 		paramsIndirect.applyCurrentSolution = 0;
 	}
 	else
@@ -740,20 +741,15 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		}
 
 		// propagate
-		RRReporter::report(RRReporter::INFO,"Propagating ...");
-		//RRReporter::report(RRReporter::CONT," scheduled for %.1fs, ",secondsInPropagatePlan);
+		RRReportInterval reportProp(INF2,"Propagating (scheduled %sfor %.1fs) ...\n",paramsIndirect.applyEnvironment?"":"by bench ",secondsInPropagatePlan);
 		TIME now = GETTIME;
 		TIME end = (TIME)(now+secondsInPropagatePlan*PER_SEC);
 		RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByTime,(void*)&end);
-		RRReal secondsInPropagateReal = (GETTIME-now)/(float)PER_SEC;
 		if(improvement!=RRStaticSolver::IMPROVED)
 		{
-			RRReporter::report(RRReporter::CONT," scheduled for %.1fs, ",secondsInPropagatePlan);
+		//	RRReporter::report(CONT," scheduled for %.1fs, ",secondsInPropagatePlan);
 		}
-		RRReporter::report(RRReporter::CONT," %s in %.1fs.\n",
-			(improvement==RRStaticSolver::IMPROVED)?"improved":((improvement==RRStaticSolver::NOT_IMPROVED)?"not improved":((improvement==RRStaticSolver::FINISHED)?"no light in scene":"error")),
-			secondsInPropagateReal
-			);
+		RRReporter::report((improvement==RRStaticSolver::IMPROVED)?INF3:INF2,(improvement==RRStaticSolver::IMPROVED)?"Improved.\n":((improvement==RRStaticSolver::NOT_IMPROVED)?"Not improved.\n":((improvement==RRStaticSolver::FINISHED)?"No light in scene.\n":"Error.\n")));
 		// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)
 		//  before further realtime rendering
 //		reportDirectIlluminationChange(true);

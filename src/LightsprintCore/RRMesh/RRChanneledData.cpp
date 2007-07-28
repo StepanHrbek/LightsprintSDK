@@ -14,7 +14,7 @@ void RRChanneledData::getChannelSize(unsigned channelId, unsigned* numItems, uns
 bool RRChanneledData::getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 {
 	// legal, but shouldn't happen in well coded program
-	LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"getChannelData: Unsupported channel %x requested.\n",channelId));
+	LIMITED_TIMES(1,RRReporter::report(WARN,"getChannelData: Unsupported channel %x requested.\n",channelId));
 	return false;
 }
 

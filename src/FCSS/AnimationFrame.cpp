@@ -116,7 +116,7 @@ bool AnimationFrame::loadPrivate(FILE* f)
 	fscanf(f,"duration = %f\n",&transitionToNextTime);
 	//if(0!=fscanf(f,"\n"))
 	//	return false;
-	//rr::RRReporter::report(rr::RRReporter::INFO,"  frame with %d objects\n",dynaPosRot.size());
+	//rr::RRReporter::report(rr::INF1,"  frame with %d objects\n",dynaPosRot.size());
 	return true;
 }
 
@@ -152,6 +152,6 @@ bool AnimationFrame::save(FILE* f) const
 	// save timing
 	fprintf(f,"duration = %.3f\n",transitionToNextTime);
 	fprintf(f,"\n");
-	//rr::RRReporter::report(rr::RRReporter::INFO,"  frame with %d objects\n",dynaPosRot.size());
+	//rr::RRReporter::report(rr::INF1,"  frame with %d objects\n",dynaPosRot.size());
 	return true;
 }

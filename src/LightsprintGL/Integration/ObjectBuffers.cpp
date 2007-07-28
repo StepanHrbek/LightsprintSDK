@@ -98,7 +98,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 				if(!fg.diffuseTexture)
 				{
 					// it's still possible that user will render without texture
-					LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"RRRendererOfRRObject: Object has diffuse texcoords, but no diffuse texture.\n"));
+					LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"RRRendererOfRRObject: Object has diffuse texcoords, but no diffuse texture.\n"));
 				}
 			}
 			fg.emissiveTexture = NULL;
@@ -394,7 +394,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					}
 					else
 					{
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::ERRO,"RRRendererOfRRObject: Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
 					}
 				}
 				// set emissive map
@@ -408,7 +408,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					}
 					else
 					{
-						LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::ERRO,"RRRendererOfRRObject: Texturing requested, but emissive texture not available, expect incorrect render.\n"));
+						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but emissive texture not available, expect incorrect render.\n"));
 					}
 				}
 				// render one facegroup

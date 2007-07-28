@@ -44,7 +44,7 @@ void RRIlluminationPixelBufferInMemory::renderBegin()
 
 void RRIlluminationPixelBufferInMemory::renderTriangle(const IlluminatedTriangle& it)
 {
-	LIMITED_TIMES(1,RRReporter::report(RRReporter::WARN,"RRIlluminationPixelBuffer::renderTriangle() not implemented by this instance."));
+	LIMITED_TIMES(1,RRReporter::report(WARN,"RRIlluminationPixelBuffer::renderTriangle() not implemented by this instance."));
 }
 
 void RRIlluminationPixelBufferInMemory::renderTexel(const unsigned uv[2], const rr::RRColorRGBAF& color)
@@ -104,7 +104,7 @@ void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 {
 	if(!renderedTexels)
 	{
-		RRReporter::report(RRReporter::WARN,"No texels rendered into map, bad unwrap or low calculation quality?\n");
+		RRReporter::report(WARN,"No texels rendered into map, bad unwrap or low calculation quality?\n");
 		return;
 	}
 

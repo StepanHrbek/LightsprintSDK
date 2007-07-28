@@ -312,14 +312,14 @@ unsigned RRMesh::verify()
 	unsigned numVertices = getNumVertices();
 	if(numVertices>=10000000)
 	{
-		RRReporter::report(RRReporter::WARN,"getNumVertices()==%d.\n",numVertices);
+		RRReporter::report(WARN,"getNumVertices()==%d.\n",numVertices);
 		numReports++;
 	}
 	// numTriangles
 	unsigned numTriangles = getNumTriangles();
 	if(numTriangles>=10000000)
 	{
-		RRReporter::report(RRReporter::WARN,"getNumTriangles()==%d.\n",numTriangles);
+		RRReporter::report(WARN,"getNumTriangles()==%d.\n",numTriangles);
 		numReports++;
 	}
 	// vertices
@@ -329,7 +329,7 @@ unsigned RRMesh::verify()
 		getVertex(i,vertex);
 		if(!IS_VEC3(vertex))
 		{
-			RRReporter::report(RRReporter::ERRO,"getVertex(%d)==%f %f %f.\n",i,vertex[0],vertex[1],vertex[2]);
+			RRReporter::report(ERRO,"getVertex(%d)==%f %f %f.\n",i,vertex[0],vertex[1],vertex[2]);
 			numReports++;
 		}
 	}
@@ -341,7 +341,7 @@ unsigned RRMesh::verify()
 		getTriangle(i,triangle);
 		if(triangle.m[0]>=numVertices || triangle.m[1]>=numVertices || triangle.m[2]>=numVertices)
 		{
-			RRReporter::report(RRReporter::ERRO,"getTriangle(%d)==%d %d %d, getNumVertices()==%d.\n",i,triangle.m[0],triangle.m[1],triangle.m[2],numVertices);
+			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getNumVertices()==%d.\n",i,triangle.m[0],triangle.m[1],triangle.m[2],numVertices);
 			numReports++;
 		}
 
@@ -350,17 +350,17 @@ unsigned RRMesh::verify()
 		getTriangleBody(i,triangleBody);
 		if(!IS_VEC3(triangleBody.vertex0))
 		{
-			RRReporter::report(RRReporter::ERRO,"getTriangleBody(%d).vertex0==%f %f %f.\n",i,triangleBody.vertex0[0],triangleBody.vertex0[1],triangleBody.vertex0[2]);
+			RRReporter::report(ERRO,"getTriangleBody(%d).vertex0==%f %f %f.\n",i,triangleBody.vertex0[0],triangleBody.vertex0[1],triangleBody.vertex0[2]);
 			numReports++;
 		}
 		if(!IS_VEC3(triangleBody.side1))
 		{
-			RRReporter::report(RRReporter::ERRO,"getTriangleBody(%d).side1==%f %f %f.\n",i,triangleBody.side1[0],triangleBody.side1[1],triangleBody.side1[2]);
+			RRReporter::report(ERRO,"getTriangleBody(%d).side1==%f %f %f.\n",i,triangleBody.side1[0],triangleBody.side1[1],triangleBody.side1[2]);
 			numReports++;
 		}
 		if(!IS_VEC3(triangleBody.side2))
 		{
-			RRReporter::report(RRReporter::ERRO,"getTriangleBody(%d).side2==%f %f %f.\n",i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2]);
+			RRReporter::report(ERRO,"getTriangleBody(%d).side2==%f %f %f.\n",i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2]);
 			numReports++;
 		}
 
@@ -371,7 +371,7 @@ unsigned RRMesh::verify()
 		getVertex(triangle.m[2],vertex[2]);
 		if(triangleBody.vertex0[0]!=vertex[0][0] || triangleBody.vertex0[1]!=vertex[0][1] || triangleBody.vertex0[2]!=vertex[0][2])
 		{
-			RRReporter::report(RRReporter::ERRO,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).vertex0==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
+			RRReporter::report(ERRO,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).vertex0==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
 				i,triangleBody.vertex0[0],triangleBody.vertex0[1],triangleBody.vertex0[2],
 				triangle.m[0],vertex[0][0],vertex[0][1],vertex[0][2],
@@ -388,7 +388,7 @@ unsigned RRMesh::verify()
 			fabs(vertex[1][2]-vertex[0][2]-triangleBody.side1[2]);
 		if(dif>scale*1e-5)
 		{
-			RRReporter::report((dif>scale*0.01)?RRReporter::ERRO:RRReporter::WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
+			RRReporter::report((dif>scale*0.01)?ERRO:WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
 				i,triangleBody.side1[0],triangleBody.side1[1],triangleBody.side1[2],
 				triangle.m[0],vertex[0][0],vertex[0][1],vertex[0][2],
@@ -406,7 +406,7 @@ unsigned RRMesh::verify()
 			fabs(vertex[2][2]-vertex[0][2]-triangleBody.side2[2]);
 		if(dif>scale*1e-5)
 		{
-			RRReporter::report((dif>scale*0.01)?RRReporter::ERRO:RRReporter::WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
+			RRReporter::report((dif>scale*0.01)?ERRO:WARN,"getTriangle(%d)==%d %d %d, getTriangleBody(%d).side1==%f %f %f, getVertex(%d)==%f %f %f, getVertex(%d)==%f %f %f, delta=%f %f %f.\n",
 				i,triangle.m[0],triangle.m[1],triangle.m[2],
 				i,triangleBody.side2[0],triangleBody.side2[1],triangleBody.side2[2],
 				triangle.m[0],vertex[0][0],vertex[0][1],vertex[0][2],
@@ -433,19 +433,19 @@ unsigned RRMesh::verify()
 		}
 		if(nanOrInf)
 		{
-			RRReporter::report(RRReporter::ERRO,"getTriangleNormals(%d) are invalid, lengths %f %f %f.\n",
+			RRReporter::report(ERRO,"getTriangleNormals(%d) are invalid, lengths %f %f %f.\n",
 				i,size(triangleNormals.norm[0]),size(triangleNormals.norm[1]),size(triangleNormals.norm[2]));
 		} 
 		else
 		if(denormalized)
 		{
-			RRReporter::report(RRReporter::WARN,"getTriangleNormals(%d) are denormalized, lengths %f %f %f.\n",
+			RRReporter::report(WARN,"getTriangleNormals(%d) are denormalized, lengths %f %f %f.\n",
 				i,size(triangleNormals.norm[0]),size(triangleNormals.norm[1]),size(triangleNormals.norm[2]));
 		}
 		else
 		if(badDirection)
 		{
-			RRReporter::report(RRReporter::WARN,"getTriangleNormals(%d) point to back side.\n",i);
+			RRReporter::report(WARN,"getTriangleNormals(%d) point to back side.\n",i);
 		}
 
 		// triangleMapping
@@ -460,7 +460,7 @@ unsigned RRMesh::verify()
 		}
 		if(outOfRange)
 		{
-			RRReporter::report(RRReporter::WARN,"getTriangleMapping(%d) out of range, %f %f  %f %f  %f %f.\n",
+			RRReporter::report(WARN,"getTriangleMapping(%d) out of range, %f %f  %f %f  %f %f.\n",
 				i,
 				triangleMapping.uv[0][0],triangleMapping.uv[0][1],
 				triangleMapping.uv[1][0],triangleMapping.uv[1][1],

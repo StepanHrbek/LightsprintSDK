@@ -30,7 +30,6 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <ctime>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -195,16 +194,16 @@ int main(int argc, char **argv)
 	solver->setLights( *adaptLightsFromFCollada( collada ) );
 	solver->setEnvironment( environmentMap );
 
-	clock_t start = clock();
+	{
+		rr::RRReportInterval report(rr::INF1,"Calculating all ...\n");
 	
-	solver->calculate();
-	if(!solver->getMultiObjectCustom())
-		error("No objects in scene.",false);
+		solver->calculate();
+		if(!solver->getMultiObjectCustom())
+			error("No objects in scene.",false);
 
-	// calculate and save it
-	calculatePerVertexAndSelectedPerPixel(solver,0,1); // calculatePerPixel(solver,0,1);
-
-	printf("Time taken %.2f seconds\n", 1.0f/CLOCKS_PER_SEC*(clock()-start) );
+		// calculate and save it
+		calculatePerVertexAndSelectedPerPixel(solver,0,1); // calculatePerPixel(solver,0,1);
+	}
 
 	saveIlluminationToDisk(solver,0); // save GI lightmaps
 	saveIlluminationToDisk(solver,1); // save bent normals

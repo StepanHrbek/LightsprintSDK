@@ -373,14 +373,14 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 		calculateCore(0);
 		if(!getMultiObjectCustom() || !getStaticSolver())
 		{
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: No objects in scene.\n");
+			RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: No objects in scene.\n");
 			RR_ASSERT(0);
 			return 0;
 		}
 	}
 	if(objectNumber>=getNumObjects())
 	{
-		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
+		RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
 		RR_ASSERT(0);
 		return 0;
 	}
@@ -407,7 +407,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	{
 		unsigned width = pixelBuffer ? pixelBuffer->getWidth() : bentNormalsPerPixel->getWidth();
 		unsigned height = pixelBuffer ? pixelBuffer->getHeight() : bentNormalsPerPixel->getHeight();
-		RRReporter::report(RRReporter::INFO,"Updating lightmap, object %d(0..%d), res %d*%d ...",objectNumber,getNumObjects()-1,width,height);
+		RRReportInterval report(INF1,"Updating lightmap, object %d(0..%d), res %d*%d ...\n",objectNumber,getNumObjects()-1,width,height);
 
 		// check that map sizes match
 		if(pixelBuffer && bentNormalsPerPixel)
@@ -415,13 +415,12 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 			if(pixelBuffer->getWidth() != bentNormalsPerPixel->getWidth()
 				|| pixelBuffer->getHeight() != bentNormalsPerPixel->getHeight())
 			{
-				RRReporter::report(RRReporter::ERRO,"RRDynamicSolver::updateLightmap: Sizes don't match, lightmap=%dx%d, bentnormalmap=%dx%d.\n",pixelBuffer->getWidth(),pixelBuffer->getHeight(),bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight());
+				RRReporter::report(ERRO,"Sizes don't match, lightmap=%dx%d, bentnormalmap=%dx%d.\n",pixelBuffer->getWidth(),pixelBuffer->getHeight(),bentNormalsPerPixel->getWidth(),bentNormalsPerPixel->getHeight());
 				RR_ASSERT(0);
 				return 0;
 			}
 		}
 
-		TIME start = GETTIME;
 		TexelContext tc;
 		tc.solver = this;
 		tc.pixelBuffer = pixelBuffer;
@@ -438,15 +437,13 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 #ifdef DIAGNOSTIC
 		logPrint();
 #endif
-		unsigned secs10 = (GETTIME-start)*10/PER_SEC;
-		RRReporter::report(RRReporter::CONT," done in %d.%ds.\n",secs10/10,secs10%10);
 	}
 	else
 	if(params.applyCurrentSolution)
 	{
 		if(bentNormalsPerPixel)
 		{
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: Bent normals won't be updated in 'realtime' mode.\n");
+			RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: Bent normals won't be updated in 'realtime' mode.\n");
 			RR_ASSERT(0);
 			bentNormalsPerPixel->renderEnd(false);
 			bentNormalsPerPixel = NULL; // necessary for correct return value (1 instead of 2)
@@ -475,7 +472,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	}
 	else
 	{
-		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmap: No lightsources.\n");
+		RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: No lightsources.\n");
 		pixelBuffer->renderEnd(false);
 		if(bentNormalsPerPixel) bentNormalsPerPixel->renderEnd(false);
 		RR_ASSERT(0);
@@ -490,7 +487,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
 	if(aparamsDirect) paramsDirect = *aparamsDirect;
 
-	RRReporter::report(RRReporter::INFO,"Updating lightmaps (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
+	RRReportInterval report(INF1,"Updating lightmaps (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
 		layerNumberLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.direct)?"D":"",
@@ -521,7 +518,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 	if(paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
 	{
-		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateLightmaps: paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
+		RRReporter::report(WARN,"paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
 		paramsDirect.applyCurrentSolution = false;
 	}
 

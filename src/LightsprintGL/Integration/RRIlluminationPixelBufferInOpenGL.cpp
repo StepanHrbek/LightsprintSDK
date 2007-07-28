@@ -31,11 +31,11 @@ public:
 		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.vs");
 		_snprintf(buf2,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_filter.fs");
 		filterProgram = Program::create(NULL,buf1,buf2);
-		if(!filterProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/lightmap_filter.*\n",pathToShaders);
+		if(!filterProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/lightmap_filter.*\n",pathToShaders);
 		_snprintf(buf1,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.vs");
 		_snprintf(buf2,399,"%s%s",pathToShaders?pathToShaders:"","lightmap_build.fs");
 		renderTriangleProgram = Program::create(NULL,buf1,buf2);
-		if(!renderTriangleProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/lightmap_build.*\n",pathToShaders);
+		if(!renderTriangleProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/lightmap_build.*\n",pathToShaders);
 	}
 	~Helpers()
 	{

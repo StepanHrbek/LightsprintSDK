@@ -1048,19 +1048,19 @@ mozna vznikne potreba interpolovat v ivertexech ne podle corner-uhlu ale i podle
 		bool warned = false;
 		if(ivertexInfo[minIVert1].ourVertices.size()>100)
 		{
-			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"Cluster of more than 100 vertices smoothed.\n"));
+			LIMITED_TIMES(1,warned=true;RRReporter::report(WARN,"Cluster of more than 100 vertices smoothed.\n"));
 		}
 		if(numReduced>unsigned(vertices*0.9f))
 		{
-			LIMITED_TIMES(1,warned=true;RRReporter::report(RRReporter::WARN,"More than 90%% of vertices removed in smoothing.\n"));
+			LIMITED_TIMES(1,warned=true;RRReporter::report(WARN,"More than 90%% of vertices removed in smoothing.\n"));
 		}
 		if(warned)
 		{
 			RRVec3 mini,maxi,center;
 			importer->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
-			RRReporter::report(RRReporter::INFO,"Scene stats: numVertices=%d  size=%fm x %fm x %fm  minFeatureSize=%fm (check what you enter into RRDynamicSolver::setObjects() or RRStaticSolver())\n",vertices,maxi[0]-mini[0],maxi[1]-mini[1],maxi[2]-mini[2],minFeatureSize);
-			if(sum(abs(maxi-mini))>5000) RRReporter::report(RRReporter::WARN,"Possibly scene too big (wrong scale)?\n");
-			if(sum(abs(maxi-mini))<0.5) RRReporter::report(RRReporter::WARN,"Possibly scene too small (wrong scale)?\n");
+			RRReporter::report(INF1,"Scene stats: numVertices=%d  size=%fm x %fm x %fm  minFeatureSize=%fm (check what you enter into RRDynamicSolver::setObjects() or RRStaticSolver())\n",vertices,maxi[0]-mini[0],maxi[1]-mini[1],maxi[2]-mini[2],minFeatureSize);
+			if(sum(abs(maxi-mini))>5000) RRReporter::report(WARN,"Possibly scene too big (wrong scale)?\n");
+			if(sum(abs(maxi-mini))<0.5) RRReporter::report(WARN,"Possibly scene too small (wrong scale)?\n");
 		}
 	}
 

@@ -147,7 +147,7 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 
 #ifdef VERIFY
 	if(s.validate())
-		rr::RRReporter::report(rr::RRReporter::WARN,"Material adjusted to physically valid.\n");
+		rr::RRReporter::report(rr::WARN,"Material adjusted to physically valid.\n");
 #else
 	s.validate();
 #endif

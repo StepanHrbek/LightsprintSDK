@@ -666,7 +666,7 @@ void drawEyeViewSoftShadowed(void)
 // captures current scene into thumbnail
 void updateThumbnail(AnimationFrame& frame)
 {
-	rr::RRReporter::report(rr::RRReporter::INFO,"Updating thumbnail.\n");
+	rr::RRReporter::report(rr::INF1,"Updating thumbnail.\n");
 	// set frame
 	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,frame,true);
 	// calculate
@@ -1060,9 +1060,9 @@ void display()
 		char buf[100];
 		sprintf(buf,"Lightsprint3+1_%02d.png",shots);
 		if(rr_gl::Texture::saveBackbuffer(buf))
-			rr::RRReporter::report(rr::RRReporter::INFO,"Saved %s.\n",buf);
+			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
 		else
-			rr::RRReporter::report(rr::RRReporter::WARN,"Error: Failed to saved %s.\n",buf);
+			rr::RRReporter::report(rr::WARN,"Error: Failed to saved %s.\n",buf);
 		shotRequested = 0;
 	}
 
@@ -1825,12 +1825,12 @@ void mainMenu(int item)
 
 		case ME_SAVE_LIGHTMAPS_ALL:
 			// save all illumination maps
-			if(level) rr::RRReporter::report(rr::RRReporter::INFO,"Saved %d buffers.\n",level->saveIllumination("export/",true,true));
+			if(level) rr::RRReporter::report(rr::INF1,"Saved %d buffers.\n",level->saveIllumination("export/",true,true));
 			break;
 
 		case ME_LOAD_LIGHTMAPS_ALL:
 			// load all illumination from disk
-			if(level) rr::RRReporter::report(rr::RRReporter::INFO,"Loaded %d buffers.\n",level->loadIllumination("export/",true,true));
+			if(level) rr::RRReporter::report(rr::INF1,"Loaded %d buffers.\n",level->loadIllumination("export/",true,true));
 			break;
 #endif // SUPPORT_LIGHTMAPS
 

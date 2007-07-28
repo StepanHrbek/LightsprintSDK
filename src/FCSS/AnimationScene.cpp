@@ -35,7 +35,7 @@ bool LevelSetup::load(const char* afilename)
 	filename = _strdup(afilename);
 	char* aniname = _strdup(filename);
 	strcpy(aniname+strlen(aniname)-3,"ani");
-	rr::RRReporter::report(rr::RRReporter::INFO,"Loading %s...\n",aniname);
+	rr::RRReporter::report(rr::INF1,"Loading %s...\n",aniname);
 	FILE* f = fopen(aniname,"rt");
 	free(aniname);
 	if(!f)
@@ -67,7 +67,7 @@ bool LevelSetup::load(const char* afilename)
 		if(!isOkForNewLayerNumber(tmp->layerNumber))
 		{
 			unsigned newNumber = newLayerNumber();
-			rr::RRReporter::report(rr::RRReporter::INFO,"Changing layer number %d -> %d.\n",tmp->layerNumber,newNumber);
+			rr::RRReporter::report(rr::INF1,"Changing layer number %d -> %d.\n",tmp->layerNumber,newNumber);
 			tmp->layerNumber = newNumber;
 		}
 		frames.push_back(tmp);
@@ -81,7 +81,7 @@ bool LevelSetup::save() const
 {
 	char* aniname = _strdup(filename);
 	strcpy(aniname+strlen(aniname)-3,"ani");
-	rr::RRReporter::report(rr::RRReporter::INFO,"Saving %s...\n",aniname);
+	rr::RRReporter::report(rr::INF1,"Saving %s...\n",aniname);
 	FILE* f = fopen(aniname,"wt");
 	free(aniname);
 	// save overlay

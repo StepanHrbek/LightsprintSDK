@@ -134,7 +134,7 @@ void RendererOfRRDynamicSolver::render()
 	}
 	if(params.uberProgramSetup.LIGHT_INDIRECT_MAP)
 	{
-		rr::RRReporter::report(rr::RRReporter::WARN,"LIGHT_INDIRECT_MAP incompatible with useOptimizedScene().\n");
+		rr::RRReporter::report(rr::WARN,"LIGHT_INDIRECT_MAP incompatible with useOptimizedScene().\n");
 		return;
 	}
 
@@ -174,7 +174,7 @@ void RendererOfRRDynamicSolver::render()
 	// render static scene
 	if(!params.uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,params.brightness,params.gamma))
 	{
-		rr::RRReporter::report(rr::RRReporter::ERRO,"Failed to compile or link GLSL program.\n");
+		rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
 		return;
 	}
 	glEnable(GL_CULL_FACE);
@@ -355,7 +355,7 @@ void RendererOfOriginalScene::render()
 			program = uberProgramSetup.useProgram(uberProgram,params.areaLight,0,params.lightDirectMap,params.brightness,params.gamma);
 			if(!program)
 			{
-				rr::RRReporter::report(rr::RRReporter::ERRO,"Failed to compile or link GLSL program.\n");
+				rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
 				return;
 			}
 			uberProgramSetupPrevious = uberProgramSetup;

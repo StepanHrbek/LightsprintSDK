@@ -44,7 +44,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	{
 		skyMap = rr_gl::RRDynamicSolverGL::loadIlluminationEnvironmentMap(buf,cubeSideNames,true,true);
 		if(!skyMap)
-			rr::RRReporter::report(rr::RRReporter::WARN,"Failed to load skybox %s.\n",buf);
+			rr::RRReporter::report(rr::WARN,"Failed to load skybox %s.\n",buf);
 	}
 
 	// load objects
@@ -66,7 +66,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 		material.MATERIAL_SPECULAR_MAP = specularMap?1:0;
 		material.MATERIAL_NORMAL_MAP = normalMap?1:0;
 		material.MATERIAL_EMISSIVE_MAP = emissiveMap?1:0;
-		rr::RRReporter::report(rr::RRReporter::INFO,"Loading %s...\n",buf);
+		rr::RRReporter::report(rr::INF1,"Loading %s...\n",buf);
 		DynamicObject* object = DynamicObject::create(buf,scale,material,specularCubeSize);
 		dynamicObjects->addObject(object);
 	}
@@ -258,7 +258,7 @@ const rr_gl::Texture* DemoPlayer::getProjector(unsigned projectorIndex)
 	}
 	else
 	{
-		LIMITED_TIMES(3,rr::RRReporter::report(rr::RRReporter::WARN,"\"projector = %d\" used in .ani, but only %d projectors defined in .cfg.\n",projectorIndex,projectors.size()));
+		LIMITED_TIMES(3,rr::RRReporter::report(rr::WARN,"\"projector = %d\" used in .ani, but only %d projectors defined in .cfg.\n",projectorIndex,projectors.size()));
 		assert(0);
 		return NULL;
 	}

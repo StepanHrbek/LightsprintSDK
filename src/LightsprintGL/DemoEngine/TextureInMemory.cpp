@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <cstring>
 #include "TextureInMemory.h"
-//#include "Lightsprint/RRDebug.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
 {
@@ -63,7 +63,7 @@ void TextureInMemory::unlock()
 
 void TextureInMemory::bindTexture() const
 {
-	//LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"TextureInMemory::bindTexture() not supported."));
+	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"TextureInMemory::bindTexture() not supported."));
 }
 
 bool TextureInMemory::getPixel(float ax, float ay, float az, float rgba[4]) const
@@ -134,13 +134,13 @@ bool TextureInMemory::getPixel(float ax, float ay, float az, float rgba[4]) cons
 
 bool TextureInMemory::renderingToBegin(unsigned side)
 {
-	//LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"TextureInMemory::renderToBegin() not supported."));
+	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"TextureInMemory::renderingToBegin() not supported."));
 	return false;
 }
 
 void TextureInMemory::renderingToEnd()
 {
-	//LIMITED_TIMES(1,rr::RRReporter::report(rr::RRReporter::WARN,"TextureInMemory::renderToEnd() not supported."));
+	LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"TextureInMemory::renderingToEnd() not supported."));
 }
 
 TextureInMemory::~TextureInMemory()

@@ -139,8 +139,7 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 	if(aparamsDirect) paramsDirect = *aparamsDirect;
 	if(aparamsIndirect) paramsIndirect = *aparamsIndirect;
 
-	if(aparamsDirect || aparamsIndirect)
-	RRReporter::report(RRReporter::INFO,"Updating vertex buffers (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
+	RRReportInterval report((aparamsDirect || aparamsIndirect)?INF1:INF3,"Updating vertex buffers (%d,%d,DIRECT(%s%s%s%s%s),INDIRECT(%s%s%s%s%s)).\n",
 		layerNumberLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		(paramsDirect.applyCurrentSolution&&paramsDirect.measure.direct)?"D":"",
@@ -172,7 +171,7 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 	if(paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
 	{
 		if(aparamsDirect) // don't report if direct is NULL, silently disable it
-			RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateVertexBuffers: paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
+			RRReporter::report(WARN,"paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
 		paramsDirect.applyCurrentSolution = false;
 	}
 
@@ -245,13 +244,13 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 			{
 				RRIlluminationVertexBuffer* bentNormals = getIllumination(objectHandle)->getLayer(layerNumberBentNormals)->vertexBuffer;
 				if(bentNormals)
-					RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateVertexBuffers: Bent normals not supported in 'realtime' mode (quality=0).\n");
+					RRReporter::report(WARN,"Bent normals not supported in 'realtime' mode (quality=0).\n");
 			}
 		}
 	}
 	else
 	{
-		RRReporter::report(RRReporter::WARN,"RRDynamicSolver::updateVertexBuffers: No light sources enabled.\n");
+		RRReporter::report(WARN,"No light sources enabled.\n");
 		RR_ASSERT(0);
 	}
 

@@ -90,7 +90,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	_snprintf(buf1,399,"%sscaledown_filter.vs",pathToShaders);
 	_snprintf(buf2,399,"%sscaledown_filter.fs",pathToShaders);
 	scaleDownProgram = Program::create(NULL,buf1,buf2);
-	if(!scaleDownProgram) rr::RRReporter::report(rr::RRReporter::ERRO,"Helper shaders failed: %s/scaledown_filter.*\n",pathToShaders);
+	if(!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/scaledown_filter.*\n",pathToShaders);
 
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;

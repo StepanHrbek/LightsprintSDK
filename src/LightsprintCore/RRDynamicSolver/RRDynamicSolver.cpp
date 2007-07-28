@@ -132,19 +132,19 @@ const RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i) const
 
 void RRDynamicSolver::reportMaterialChange()
 {
-	REPORT(RRReporter::report(RRReporter::INFO,"<MaterialChange>\n"));
+	REPORT(RRReporter::report(INF1,"<MaterialChange>\n"));
 	priv->dirtyMaterials = true;
 }
 
 void RRDynamicSolver::reportDirectIlluminationChange(bool strong)
 {
-	REPORT(RRReporter::report(RRReporter::INFO,strong?"<IlluminationChangeStrong>\n":"<IlluminationChange>\n"));
+	REPORT(RRReporter::report(INF1,strong?"<IlluminationChangeStrong>\n":"<IlluminationChange>\n"));
 	priv->dirtyLights = strong?Private::BIG_CHANGE:Private::SMALL_CHANGE;
 }
 
 void RRDynamicSolver::reportInteraction()
 {
-	REPORT(RRReporter::report(RRReporter::INFO,"<Interaction>\n"));
+	REPORT(RRReporter::report(INF1,"<Interaction>\n"));
 	priv->lastInteractionTime = GETTIME;
 }
 
@@ -233,7 +233,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 			(priv->multiObjectCustom ? priv->multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
 		delete[] importers;
 		REPORT(if(priv->multiObjectPhysicalWithIllumination)
-			RRReporter::report(RRReporter::CONT,"(%d objects, optimized to %d faces, %d vertices) ",priv->objects.size(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
+			RRReporter::report(CONT,"(%d objects, optimized to %d faces, %d vertices) ",priv->objects.size(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
 		priv->scene = priv->multiObjectPhysicalWithIllumination ? new RRStaticSolver(priv->multiObjectPhysicalWithIllumination,&priv->smoothing) : NULL;
 		if(priv->scene) updateVertexLookupTable();
 		// update minimalSafeDistance
@@ -299,7 +299,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	TIME now = GETTIME;
 	TIME end = (TIME)(now+improveStep*PER_SEC);
 	RRStaticSolver::Improvement improvement = priv->scene ? priv->scene->illuminationImprove(endByTime,(void*)&end) : RRStaticSolver::FINISHED;
-	//REPORT(RRReporter::report(RRReporter::CONT," (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
+	//REPORT(RRReporter::report(CONT," (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 	REPORT_END;
 	switch(improvement)
 	{
@@ -352,7 +352,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate()
 		{
 			priv->userStep = lastUserStep;
 		}
-		REPORT(RRReporter::report(RRReporter::INFO,"User %d ms.\n",(int)(1000*lastUserStep)));
+		REPORT(RRReporter::report(INF1,"User %d ms.\n",(int)(1000*lastUserStep)));
 	} else {
 		// no reportInteraction was called between this and previous calculate
 		// -> increase userStep
@@ -360,13 +360,13 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate()
 		priv->userStep = priv->lastInteractionTime ?
 			(priv->lastCalcEndTime-priv->lastInteractionTime)/(float)PER_SEC // time from last interaction (if there was at least one)
 			: IMPROVE_STEP_NO_INTERACTION; // safety time for situations there was no interaction yet
-		REPORT(RRReporter::report(RRReporter::INFO,"User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*priv->userStep)));
+		REPORT(RRReporter::report(INF1,"User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*priv->userStep)));
 	}
 
 	// adjust improveStep
 	if(!priv->userStep || !priv->calcStep || !priv->improveStep)
 	{
-		REPORT(RRReporter::report(RRReporter::INFO,"Reset to NO_INTERACT(%f,%f,%f).\n",priv->userStep,priv->calcStep,priv->improveStep));
+		REPORT(RRReporter::report(INF1,"Reset to NO_INTERACT(%f,%f,%f).\n",priv->userStep,priv->calcStep,priv->improveStep));
 		priv->improveStep = IMPROVE_STEP_NO_INTERACTION;
 	}
 	else
