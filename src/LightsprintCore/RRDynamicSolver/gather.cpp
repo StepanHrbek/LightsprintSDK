@@ -580,6 +580,14 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	tc.params = &params;
 	tc.bentNormalsPerPixel = NULL;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
+
+	// preallocates rays, allocating inside for cycle costs more
+#ifdef _OPENMP
+	RRRay* rays = RRRay::create(omp_get_max_threads());
+#else
+	RRRay* rays = RRRay::create(1);
+#endif
+
 #pragma omp parallel for schedule(dynamic)
 	for(int t=0;t<(int)numPostImportTriangles;t++)
 	{
@@ -590,13 +598,17 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 		multiMesh->getTriangleNormals(t,normals);
 		pti.tri.pos3d = pti.tri.triangleBody.vertex0+(pti.tri.triangleBody.side1+pti.tri.triangleBody.side2)*0.333333f;
 		pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
-		pti.ray = RRRay::create();
+#ifdef _OPENMP
+		pti.ray = rays+omp_get_thread_num();
+#else
+		pti.ray = rays;
+#endif
 		pti.ray->rayLengthMin = priv->minimalSafeDistance;
 		ProcessTexelResult tr = processTexel(pti);
-		delete pti.ray;
 		results[t] = tr;
 	}
 
+	delete[] rays;
 	return true;
 }
 
@@ -720,6 +732,14 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 			tc.params = &params;
 			tc.bentNormalsPerPixel = NULL;
 			RRMesh* multiMesh = getMultiObjectCustom()->getCollider()->getMesh();
+
+			// preallocates rays, allocating inside for cycle costs more
+#ifdef _OPENMP
+			RRRay* rays = RRRay::create(omp_get_max_threads());
+#else
+			RRRay* rays = RRRay::create(1);
+#endif
+
 #pragma omp parallel for schedule(dynamic)
 			for(int i=0;i<(int)benchTexels;i++)
 			{
@@ -731,11 +751,17 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				pti.tri.triangleIndex = triangleIndex;
 				pti.tri.pos3d = pti.tri.triangleBody.vertex0+pti.tri.triangleBody.side1*0.33f+pti.tri.triangleBody.side2*0.33f;
 				pti.tri.normal = (normals.norm[0]+normals.norm[1]+normals.norm[2])*0.333333f;
-				pti.ray = RRRay::create();
+#ifdef _OPENMP
+				pti.ray = rays+omp_get_thread_num();
+#else
+				pti.ray = rays;
+#endif
 				pti.ray->rayLengthMin = priv->minimalSafeDistance;
 				processTexel(pti);
-				delete pti.ray;
 			}
+
+			delete[] rays;
+
 			RRReal secondsInBench = (GETTIME-benchStart)/(RRReal)PER_SEC;
 			secondsInPropagatePlan = MAX(0.1f,20*secondsInBench);
 		}

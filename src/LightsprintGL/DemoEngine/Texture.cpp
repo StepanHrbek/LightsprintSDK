@@ -174,6 +174,7 @@ bool reload2d(Texture* texture, const char *filename, bool flipV, bool flipH, bo
 	else
 	{
 		texture->reset(width,height,format,pixels,buildMipmaps);
+		delete[] pixels;
 		return true;
 	}
 }
@@ -239,6 +240,7 @@ bool reloadCube(Texture* texture, const char *filenameMask, const char *cubeSide
 
 	// load cube from 1 array
 	texture->reset(width,height,format,pixels,buildMipmaps);
+	delete[] pixels;
 	return true;
 }
 

@@ -330,7 +330,7 @@ private:
 	struct MaterialInfo
 	{
 		RRMaterial             material;
-		rr_gl::Texture*           diffuseTexture;
+		rr_gl::Texture*        diffuseTexture;
 	};
 	typedef std::map<const FCDEffectStandard*,MaterialInfo> Cache;
 	Cache                      cache;
@@ -696,6 +696,8 @@ RRObjectIllumination* RRObjectCollada::getIllumination()
 
 RRObjectCollada::~RRObjectCollada()
 {
+	for(Cache::iterator i=cache.begin();i!=cache.end();i++)
+		SAFE_DELETE(i->second.diffuseTexture);
 	delete illumination;
 	// don't delete collider and mesh, we haven't created them
 }

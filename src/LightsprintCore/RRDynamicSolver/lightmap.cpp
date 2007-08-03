@@ -241,6 +241,13 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 		numTriangles = 1;
 	}
 
+	// preallocates rays, allocating inside for cycle costs more
+#ifdef _OPENMP
+	RRRay* rays = RRRay::create(omp_get_max_threads());
+#else
+	RRRay* rays = RRRay::create(1);
+#endif
+
 #ifndef DIAGNOSTIC_RAYS
 	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static,1, static
 #endif
@@ -261,7 +268,11 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 			multiMesh->getTriangleNormals(t,normals);
 			RRMesh::TriangleMapping mapping;
 			multiMesh->getTriangleMapping(t,mapping);
-			pti.ray = RRRay::create();
+#ifdef _OPENMP
+			pti.ray = rays+omp_get_thread_num();
+#else
+			pti.ray = rays;
+#endif
 			pti.ray->rayLengthMin = minimalSafeDistance;
 			// rasterize triangle t
 			//  find minimal bounding box
@@ -353,9 +364,9 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 #ifdef DIAGNOSTIC
 			logRasterizedTriangle(numTexels);
 #endif
-			delete pti.ray;
 		}
 	}
+	delete[] rays;
 	//delete[] enumerated;
 }
 

@@ -137,7 +137,7 @@ void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
 		{
 			sprintf(filename,"../../data/export/%d_%d.vbu",objectIndex,layerNumber);
 			bool saved = vbuf->save(filename);
-			printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+			rr::RRReporter::report(rr::INF1,saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
 		}
 
 		// save pixel buffer
@@ -146,13 +146,18 @@ void saveIlluminationToDisk(rr::RRDynamicSolver* solver, unsigned layerNumber)
 		{
 			sprintf(filename,"../../data/export/%d_%d.png",objectIndex,layerNumber);
 			bool saved = map->save(filename);
-			printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+			rr::RRReporter::report(rr::INF1,saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
 		}
 	}
 }
 
 int main(int argc, char **argv)
 {
+	// this sample properly frees memory, no leaks are reported
+	// (other samples are usually stripped down, they don't free memory)
+	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
+	//_crtBreakAlloc = 115094;
+
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
 	{
@@ -160,7 +165,8 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 	// log messages to console
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
+	rr::RRReporter::setReporter(reporter);
 
 	// decrease priority, so that this task runs on background using only free CPU cycles
 	// good for precalculating lightmaps on workstation
@@ -177,7 +183,8 @@ int main(int argc, char **argv)
 		error("Problem with licence number.\n", false);
 	rr::RRDynamicSolver* solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	solver->setScaler(rr::RRScaler::createRgbScaler());
+	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
+	solver->setScaler(scaler);
 	rr::RRStaticSolver::SmoothingParameters smoothingParams;
 	smoothingParams.stitchDistance = 0;
 	smoothingParams.minFeatureSize = 0;
@@ -190,8 +197,10 @@ int main(int argc, char **argv)
 		puts(errorHandler.GetErrorString());
 		error("",false);
 	}
-	solver->setObjects( *adaptObjectsFromFCollada( collada ), &smoothingParams );
-	solver->setLights( *adaptLightsFromFCollada( collada ) );
+	rr::RRObjects* objects = adaptObjectsFromFCollada( collada );
+	solver->setObjects( *objects, &smoothingParams );
+	rr::RRLights* lights = adaptLightsFromFCollada( collada );
+	solver->setLights( *lights );
 	solver->setEnvironment( environmentMap );
 
 	{
@@ -207,6 +216,16 @@ int main(int argc, char **argv)
 
 	saveIlluminationToDisk(solver,0); // save GI lightmaps
 	saveIlluminationToDisk(solver,1); // save bent normals
+
+	// release memory
+	delete solver;
+	delete lights;
+	delete objects;
+	delete collada;
+	delete scaler;
+	delete environmentMap;
+	rr::RRReporter::setReporter(NULL);
+	delete reporter;
 
 	printf("\nPress any key to close...");
 	fgetc(stdin);

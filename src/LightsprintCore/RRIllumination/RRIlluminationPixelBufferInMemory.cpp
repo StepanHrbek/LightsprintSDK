@@ -212,6 +212,7 @@ bool RRIlluminationPixelBufferInMemory::save(const char* filename)
 RRIlluminationPixelBufferInMemory::~RRIlluminationPixelBufferInMemory()
 {
 	delete[] renderedTexels;
+	delete texture;
 }
 
 
