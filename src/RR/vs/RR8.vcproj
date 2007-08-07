@@ -155,7 +155,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..;..\..\..\include;..\..\..\3rd\mgflib;..\..\RRCollider\include;..\..\RRVision\include;..\..\World\include;..\..\LicGen\include"
+				AdditionalIncludeDirectories="..;..\..\..\include;..\..\..\3rd\mgflib;..\..\World\include;..\..\LicGen\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;KB_VIA_ALLEGRO;TEST_SCENE;SUPPORT_INTERPOL;RR_STATIC"
 				StringPooling="true"
 				ExceptionHandling="0"

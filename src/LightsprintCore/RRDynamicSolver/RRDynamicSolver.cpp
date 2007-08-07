@@ -29,7 +29,9 @@ namespace rr
 RRDynamicSolver::RRDynamicSolver()
 {
 	priv = new Private;
+#ifdef WIN32
 	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
+#endif
 }
 
 RRDynamicSolver::~RRDynamicSolver()

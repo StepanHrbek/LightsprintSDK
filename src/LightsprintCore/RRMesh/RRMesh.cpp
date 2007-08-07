@@ -11,10 +11,10 @@
 #include <cassert>
 #include <cfloat>
 #include <cstdio>
-#if defined(_MSC_VER) && _MSC_VER<1400
-	#include "stdint.vs2003.h" // sizes of imported vertex/index arrays
+#if defined(_MSC_VER) && (_MSC_VER<1400 || !defined(WIN32))
+	#include "stdint.vs2003.h" // replacement for missing standard C99 header
 #else
-	#include <stdint.h> // sizes of imported vertex/index arrays
+	#include <stdint.h> // standard C99 header
 #endif
 
 

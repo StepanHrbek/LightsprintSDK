@@ -23,7 +23,13 @@ using namespace rr;
 
 int main(int argc, char** argv)
 {                        
-	printf("Stanford Bunny Benchmark\n\n");
+#ifdef XBOX
+	RRReporter::setReporter(RRReporter::createFileReporter("game:\\results.txt"));
+#else
+	RRReporter::setReporter(RRReporter::createPrintfReporter());
+#endif
+
+	RRReporter::report(INF1,"Stanford Bunny Benchmark\n");
 
 	// provide license information
 	RRLicenseCollider::loadLicense("..\\..\\data\\licence_number");
@@ -33,11 +39,15 @@ int main(int argc, char** argv)
 	PlyMeshReader reader;
 	try
 	{
+#ifdef XBOX
+		reader.readFile("game:\\bun_zipper.ply",plyMesh);
+#else
 		reader.readFile("..\\..\\data\\objects\\bun_zipper.ply",plyMesh);
+#endif
 	}
 	catch(PlyMeshReaderExcep* e)
 	{
-		printf("%s\n\nHit enter to terminate...",e->what().c_str());
+		RRReporter::report(INF1,"%s\n\nHit enter to terminate...",e->what().c_str());
 		fgetc(stdin);
 		return 0;
 	}
@@ -51,7 +61,7 @@ int main(int argc, char** argv)
 		(int*)&*plyMesh.tris.begin(),
 		(unsigned)plyMesh.tris.size()*3
 		);
-	printf("Bunny loaded: vertices=%d, triangles=%d.\n",rrMesh->getNumVertices(),rrMesh->getNumTriangles());
+	RRReporter::report(INF2,"Bunny loaded: vertices=%d, triangles=%d.\n",rrMesh->getNumVertices(),rrMesh->getNumTriangles());
 
 	// create random ray generator
 	SphereUnitVecPool vecpool;
@@ -67,12 +77,12 @@ int main(int argc, char** argv)
 	const int NUM_RAYS = 8000000;
 	int num_hits = 0; // number of rays that actually hit the model
 #ifdef _OPENMP
-	printf("Available processors = %d, max threads = %d.\n",omp_get_num_procs(),omp_get_max_threads());
-	#pragma omp parallel reduction(+:num_hits) num_threads(16)
+	RRReporter::report(INF2,"Available processors = %d, max threads = %d.\n",omp_get_num_procs(),omp_get_max_threads());
+	#pragma omp parallel reduction(+:num_hits) //num_threads(16) // 16 improves performance on Pentiums with hyperthreading but decreases on PowerPC in Xbox360
 	{
 		int num_threads = omp_get_num_threads();
 #else
-	printf("OpenMP not supported by compiler, expect low performance.\n");
+	RRReporter::report(INF2,"OpenMP not supported by compiler, expect low performance.\n");
 	{
 		int num_threads = 1;
 #endif
@@ -114,7 +124,7 @@ int main(int argc, char** argv)
 	realtime = watch->Watch(&usertime,&kerneltime);
 
 	// report results
-	printf("\nDetected speed: %d intersections per second (hit ratio=%f)\n",
+	RRReporter::report(INF1,"Detected speed: %d intersections per second (hit ratio=%f)\n",
 		(int)(NUM_RAYS/realtime),
 		(double)num_hits / NUM_RAYS
 		);
@@ -124,7 +134,12 @@ int main(int argc, char** argv)
 	delete rrMesh;
 	delete collider;
 
-	printf("\nHit enter to close...");
+#ifdef WIN32
+	RRReporter::report(INF1,"Hit enter to close...");
 	fgetc(stdin);
+#else
+	RRReporter::report(INF2,"Done.\n");
+	delete RRReporter::getReporter();
+#endif
 	return 0;
 }

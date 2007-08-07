@@ -78,6 +78,7 @@ namespace rr
 		//! Thread safe: yes, correct implementation must be thread safe.
 		virtual void customReport(RRReportType type, int indentation, const char* message) = 0;
 
+		virtual ~RRReporter() {}
 
 		/////////////////////////////////////////////////////////////
 		// tools
@@ -117,7 +118,10 @@ namespace rr
 		//! Returns current active reporter, NULL for none.
 		static RRReporter* getReporter();
 
-		//! Creates reporter that calls printf() on each message.
+		//! Creates reporter that logs all messages to plain text file.
+		static RRReporter* createFileReporter(const char* filename);
+
+		//! Creates reporter that calls printf() on each message, with priority highlighting.
 		static RRReporter* createPrintfReporter();
 
 		//! Creates reporter that calls OutputDebugString() on each message.

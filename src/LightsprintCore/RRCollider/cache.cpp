@@ -45,6 +45,10 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer)
 	{
 		RRMesh::Vertex v;
 		importer->getVertex(i,v);
+#ifdef XBOX
+		for(unsigned j=0;j<3;j++)
+			((unsigned long*)&v)[j] = _byteswap_ulong(((unsigned long*)&v)[j]);
+#endif
 		sha1::sha1_update(&ctx, (unsigned char*)&v, sizeof(v));
 	}
 	i = importer->getNumTriangles();
@@ -52,6 +56,10 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer)
 	{
 		RRMesh::Triangle t;
 		importer->getTriangle(i,t);
+#ifdef XBOX
+		for(unsigned j=0;j<3;j++)
+			((unsigned long*)&t)[j] = _byteswap_ulong(((unsigned long*)&t)[j]);
+#endif
 		sha1::sha1_update(&ctx, (unsigned char*)&t, sizeof(t));
 	}
 	unsigned char digest[20];
@@ -64,7 +72,11 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer, const ch
 	if(!bufsize) return;
 	buf[0]=0;
 	// rrcache
+#ifdef WIN32
 	const char* dir = cacheLocation?cacheLocation:getenv("RRCACHE");
+#else
+	const char* dir = cacheLocation?cacheLocation:"game:\\";
+#endif
 	if(dir) 
 	{
 		strncpy(buf,dir,bufsize-1);

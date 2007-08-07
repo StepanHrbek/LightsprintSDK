@@ -3,7 +3,6 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2006-2007
 // --------------------------------------------------------------------------
 
-#include <windows.h>
 #include <GL/glew.h>
 #include "Lightsprint/GL/Program.h"
 #include "RRIlluminationEnvironmentMapInOpenGL.h"
@@ -16,16 +15,8 @@ namespace rr_gl
 //
 // RRIlluminationEnvironmentMapInOpenGL
 
-// Many Lightsprint functions are parallelized internally,
-// but demos are singlethreaded for simplicity, so this code 
-// is never run in multiple threads and critical section is not needed (by demos).
-// It could be important for future applications.
-CRITICAL_SECTION criticalSection; // global critical section for all instances, never calls GL from 2 threads at once
-unsigned numInstances = 0;
-
 RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL()
 {
-	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// creates cube map
 	texture = Texture::create(NULL,1,1,true,Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	deleteTexture = true;
@@ -33,7 +24,6 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL()
 
 RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(Texture* cube)
 {
-	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// adapts cube map
 	texture = cube;
 	deleteTexture = false;
@@ -41,7 +31,6 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(Textu
 
 RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const char* filenameMask, const char* cubeSideName[6], bool flipV, bool flipH)
 {
-	if(!numInstances++) InitializeCriticalSection(&criticalSection);
 	// loads cube map
 	texture = Texture::load(filenameMask,cubeSideName,flipV,flipH,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	deleteTexture = true;
@@ -49,10 +38,15 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const
 
 void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, const rr::RRColorRGBF* irradiance)
 {
-	EnterCriticalSection(&criticalSection);
-	// intentionally converted to bytes here, because older cards can't interpolate floats
-	texture->reset(size,size,Texture::TF_RGBF,(unsigned char*)irradiance,false);
-	LeaveCriticalSection(&criticalSection);
+	// Many Lightsprint functions are parallelized internally,
+	// but demos are singlethreaded for simplicity, so this code 
+	// is never run in multiple threads and critical section is not needed (by demos).
+	// However, it could be important for future applications.
+	#pragma omp critical
+	{
+		// intentionally converted to bytes here, because older cards can't interpolate floats
+		texture->reset(size,size,Texture::TF_RGBF,(unsigned char*)irradiance,false);
+	}
 }
 
 rr::RRColorRGBF RRIlluminationEnvironmentMapInOpenGL::getValue(const rr::RRVec3& direction) const
@@ -75,7 +69,6 @@ bool RRIlluminationEnvironmentMapInOpenGL::save(const char* filename, const char
 RRIlluminationEnvironmentMapInOpenGL::~RRIlluminationEnvironmentMapInOpenGL()
 {
 	if(deleteTexture) delete texture;
-	if(!--numInstances) DeleteCriticalSection(&criticalSection);
 }
 
 

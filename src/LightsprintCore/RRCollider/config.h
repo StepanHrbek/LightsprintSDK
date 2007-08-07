@@ -5,7 +5,7 @@
 
 //#define BUNNY_BENCHMARK_OPTIMIZATIONS // optimizations only for Bunny Benchmark, turns off unneeded features
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && defined(WIN32)
 	#define USE_SSE // by default, code is pure ANSI C++. gcc compiles but crashes with sse
 #endif
 #define USE_FAST_BOX // fast box can't handle 2 special cases -> rare errors

@@ -12,8 +12,7 @@
 //#define CHECK_KD // slow checks of kd build correctness
 
 // more strict separation of faces into kd_front / kd_back
-// reduces subtrees -> can only make traversal faster
-// makes bunny (round shape) 0% faster, rr scenes (blocky) 5% slower(why???)
+// makes subtrees much smaller, traversal very slightly faster
 #define STRICT_SEPARATION 
 
 #ifdef STRICT_SEPARATION

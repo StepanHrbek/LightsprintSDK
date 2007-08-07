@@ -281,7 +281,6 @@ class InterpolatorCache
 public:
 	InterpolatorCache()
 	{
-		InitializeCriticalSection(&criticalSection);
 	}
 	const Interpolator* getInterpolator(unsigned iSize, unsigned oSize, RRReal radius)
 	{
@@ -289,21 +288,22 @@ public:
 		key.iSize = iSize;
 		key.oSize = oSize;
 		key.radius = radius;
-		EnterCriticalSection(&criticalSection);
-		Map::const_iterator i = interpolators.find(key);
 		Interpolator* result;
-		if(i!=interpolators.end())
+		#pragma omp critical
 		{
-			// found in cache
-			result = i->second;
+			Map::const_iterator i = interpolators.find(key);
+			if(i!=interpolators.end())
+			{
+				// found in cache
+				result = i->second;
+			}
+			else
+			{
+				// not found in cache
+				result = interpolators[key] = new Interpolator();
+				buildCubeFilter(iSize,oSize,radius,result);
+			}
 		}
-		else
-		{
-			// not found in cache
-			result = interpolators[key] = new Interpolator();
-			buildCubeFilter(iSize,oSize,radius,result);
-		}
-		LeaveCriticalSection(&criticalSection);
 		return result;
 	}
 	~InterpolatorCache()
@@ -312,7 +312,6 @@ public:
 		{
 			delete i->second;
 		}
-		DeleteCriticalSection(&criticalSection);
 	}
 private:
 	struct Key
@@ -327,7 +326,6 @@ private:
 	};
 	typedef std::map<Key,Interpolator*> Map;
 	Map interpolators;
-	CRITICAL_SECTION criticalSection;
 };
 
 static InterpolatorCache cache;

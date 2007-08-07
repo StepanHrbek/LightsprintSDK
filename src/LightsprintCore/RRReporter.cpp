@@ -1,13 +1,55 @@
 #include "Lightsprint/RRDebug.h"
 
 #include <cassert>
+#include <cstring>
 #include <cstdio>
+#ifdef WIN32
 #include <windows.h>
+#endif
 #include "Lightsprint/GL/Timer.h"
 
 namespace rr
 {
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRReporterFile
+
+class RRReporterFile : public RRReporter
+{
+public:
+	RRReporterFile(const char* filename)
+	{
+		file = fopen(filename,"wt");
+	}
+	virtual void customReport(RRReportType type, int indentation, const char* message)
+	{
+		if(!file) return;
+		// indentation
+		indentation *= 2;
+		if(indentation>0 && indentation<999)
+		{
+			char space[1000];
+			memset(space,' ',indentation);
+			space[indentation] = 0;
+			fprintf(file,space);
+		}
+		// type
+		if(type<ERRO || type>CONT) type = CONT;
+		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","",""};
+		fprintf(file,typePrefix[type]);
+		// message
+		fprintf(file,message);
+	}
+	~RRReporterFile()
+	{
+		if(file) fclose(file);
+	}
+	FILE* file;
+};
+
+
+#ifdef WIN32
 /////////////////////////////////////////////////////////////////////////////
 //
 // RRReporterPrintf
@@ -69,7 +111,7 @@ public:
 		OutputDebugString(message);
 	}
 };
-
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -95,7 +137,7 @@ void RRReporter::indent(int delta)
 
 void RRReporter::reportV(RRReportType type, const char* format, va_list& vars)
 {
-	if(reporter && type>=ERROR && type<=CONT && typeEnabled[type])
+	if(reporter && type>=ERRO && type<=CONT && typeEnabled[type])
 	{
 		char msg[1000];
 		_vsnprintf(msg,999,format,vars);
@@ -117,7 +159,7 @@ void RRReporter::assertionFailed(const char* expression, const char* func, const
 	if(reporter)
 	{
 		report(ASSE,"%s in %s, file %s, line %d.\n",expression,func,file,line);
-#ifdef RR_STATIC
+#if defined(RR_STATIC) && defined(WIN32)
 		DebugBreak();
 #endif
 	}
@@ -133,14 +175,27 @@ RRReporter* RRReporter::getReporter()
 	return reporter;
 }
 
+RRReporter* RRReporter::createFileReporter(const char* filename)
+{
+	return new RRReporterFile(filename);
+}
+
 RRReporter* RRReporter::createPrintfReporter()
 {
+#ifdef WIN32
 	return new RRReporterPrintf;
+#else
+	return NULL;
+#endif
 }
 
 RRReporter* RRReporter::createOutputDebugStringReporter()
 {
+#ifdef WIN32
 	return new RRReporterOutputDebugString;
+#else
+	return NULL;
+#endif
 }
 
 
@@ -150,7 +205,7 @@ RRReporter* RRReporter::createOutputDebugStringReporter()
 
 RRReportInterval::RRReportInterval(RRReportType type, const char* format, ...)
 {
-	enabled = type>=ERROR && type<=CONT && typeEnabled[type];
+	enabled = type>=ERRO && type<=CONT && typeEnabled[type];
 	if(enabled)
 	{
 		creationTime = GETTIME;

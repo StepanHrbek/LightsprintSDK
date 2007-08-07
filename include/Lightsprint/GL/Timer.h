@@ -10,7 +10,7 @@
 
 #include <cassert>
 
-#ifdef _WIN32
+#ifdef WIN32
 	#define WINDOWS_TIME
 	#include <windows.h>
 	#define TIME    DWORD
@@ -20,6 +20,7 @@
 		#pragma comment(lib,"winmm.lib")
 	#endif
 #else
+	#include <ctime>
 	#define TIME    clock_t
 	#define GETTIME clock()
 	#define PER_SEC CLOCKS_PER_SEC
