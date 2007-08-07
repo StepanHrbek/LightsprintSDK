@@ -6,7 +6,12 @@
 
 \page news What's new
 
-\section news28 ------------------------------------ 2007.7.x -------------------------------------
+\section news28 ------------------------------------ 2007.8.4 -------------------------------------
+
+CHANGES
+
+- solver 2x faster on dualcore when exe made by vs2003
+  calls LightsprintCore.dll made by vs2005
 
 \section news27 ------------------------------------ 2007.7.28 -------------------------------------
 

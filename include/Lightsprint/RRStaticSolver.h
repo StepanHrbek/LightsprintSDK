@@ -262,8 +262,19 @@ namespace rr
 		};
 		//! Loads license from file.
 		//
-		//! This must be called before any other work with library.
+		//! Must be called before any other work with library.
+		//!
+		//! Uses doubles.
+		//! If you create Direct3D device
+		//! before licence check, use D3DCREATE_FPU_PRESERVE flag,
+		//! otherwise Direct3D breaks double precision for whole
+		//! application including DLLs and this function fails.
+		//!
+		//! May connect to Lightsprint servers for verification.
+		//!
 		//! \return Result of license check.
+		//!  If it's not VALID, lighting computed by other functions
+		//!  may be incorrect.
 		static LicenseStatus loadLicense(const char* filename);
 	};
 

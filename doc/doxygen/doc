@@ -1720,9 +1720,9 @@ Rendering realtime global illumination with Lightsprint:
 
  Supported 3D APIs are
  - all, no hard requirements
- - OpenGL 2.0 - standard target with samples available
- - Direct3D 9 - standard target without samples
- - OpenGL 2.0 with EXT_geometry_shader - DX10 generation, optimized samples planned
+ - OpenGL 2 - standard target with samples available
+ - Direct3D 9 - standard target without samples (create device with D3DCREATE_FPU_PRESERVE)
+ - OpenGL 2 with EXT_geometry_shader - DX10 generation, optimized samples planned
  - Direct3D 10 - support planned
 
  Supported library configurations are
@@ -1828,8 +1828,9 @@ Rendering realtime global illumination with Lightsprint:
  \section gflodoub Floats and doubles
    Library uses both floats and doubles.
    It is not allowed to break double arithmetics by modifying FPU states.
-   If you use Direct3D, make sure you don't instruct it to force single precision for whole application
-   which breaks double precision arithmetics in whole program and libraries.
+   If you use Direct3D, make sure you create device with D3DCREATE_FPU_PRESERVE
+   flag, otherwise it forces single precision and 
+   breaks double precision arithmetics in whole program including dlls.
 
  \section gnull NULL
    Although NULL is obsoleted by C++ and some discourage from using it,
