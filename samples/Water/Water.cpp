@@ -19,6 +19,7 @@
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/Water.h"
 #include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/RRDebug.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
