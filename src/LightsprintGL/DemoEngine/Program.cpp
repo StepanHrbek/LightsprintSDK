@@ -10,6 +10,7 @@
 #include <cstring>
 #include "Lightsprint/GL/Program.h"
 #include "Shader.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
 {
@@ -46,12 +47,12 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
 		if(debugLength>2)
 		{
-			printf("Vertex: %s\n",vertexShader);
-			printf("Fragment: %s\n",fragmentShader);
-			if(defines && defines[0]) printf("Defines: %s",defines);
+			rr::RRReporter::report(rr::INF1,"Vertex: %s\n",vertexShader);
+			rr::RRReporter::report(rr::INF1,"Fragment: %s\n",fragmentShader);
+			if(defines && defines[0]) rr::RRReporter::report(rr::INF1,"Defines: %s",defines);
 			GLchar *debug = new GLchar[debugLength];
 			glGetProgramInfoLog(handle, debugLength, &debugLength, debug);
-			printf("Log: %s\n\n",debug);
+			rr::RRReporter::report(rr::INF1,"Log: %s\n\n",debug);
 			delete[] debug;
 		}
 	}
@@ -181,10 +182,10 @@ int Program::getLoc(const char *name)
 	int loc = glGetUniformLocation(handle, name);
 	if(loc == -1)
 	{
-		printf("\n%s is not a valid uniform variable name.\n",name);
-		printf("This is usually caused by error in graphics card driver.\n");
-		printf("Make sure you have the latest official driver for your graphics card.\n");
-		printf("As a workaround, run application with -hard parameter on command line.\n");
+		rr::RRReporter::report(rr::ERRO,"%s is not a valid uniform variable name.\n"
+			"This is usually caused by error in graphics card driver.\n"
+			"We reported it to Nvidia and wait for fix.\n"
+			"As a workaround, run application with -hard parameter on command line.\n",name);
 		fgetc(stdin);
 		exit(0);
 	}

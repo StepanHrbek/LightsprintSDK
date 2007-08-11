@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include "FBO.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
 {
@@ -21,8 +22,7 @@ FBO::FBO()
 {
 	if(!glewIsSupported("GL_EXT_framebuffer_object"))
 	{
-		printf("GL_EXT_framebuffer_object not supported, consider updating graphics card drivers.\n");
-		printf("\nPress enter to close...");
+		rr::RRReporter::report(rr::ERRO,"GL_EXT_framebuffer_object not supported, consider updating graphics card drivers.\n\nPress enter to close...");
 		fgetc(stdin);
 		exit(1);
 	}

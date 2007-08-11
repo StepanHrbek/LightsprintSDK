@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <GL/glew.h>
 #include "Lightsprint/GL/UberProgramSetup.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
 {
@@ -76,16 +77,18 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	for(SHADOW_MAPS=9;SHADOW_MAPS;SHADOW_MAPS--)
 	#define FAIL continue
 	#define SUCCESS break
+	#define RESULT SHADOW_MAPS
 #else
-	for(SHADOW_MAPS=1;SHADOW_MAPS<9;SHADOW_MAPS++)
-	#define FAIL {SHADOW_MAPS--;break;}
+	for(SHADOW_MAPS=1;SHADOW_MAPS<=9;SHADOW_MAPS++)
+	#define FAIL break
 	#define SUCCESS
+	#define RESULT SHADOW_MAPS-1
 #endif
 	{
 		if(!getProgram(uberProgram)) FAIL;
 		SUCCESS;
 	}
-	unsigned instancesPerPassOrig = SHADOW_MAPS;
+	unsigned instancesPerPassOrig = SHADOW_MAPS = RESULT;
 	char* renderer = (char*)glGetString(GL_RENDERER);
 	if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")))
 	{
@@ -99,7 +102,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	}
 	// 2 is ugly, prefer 1
 	if(SHADOW_MAPS==2) SHADOW_MAPS--;
-	printf("Penumbra shadows: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
+	rr::RRReporter::report(rr::INF2,"Penumbra shadows: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
 	return SHADOW_MAPS;
 }
 
@@ -146,7 +149,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 	Program* program = getProgram(uberProgram);
 	if(!program)
 	{
-		printf("useProgram: failed to compile or link GLSL shader.\n");
+		rr::RRReporter::report(rr::ERRO,"useProgram: failed to compile or link GLSL shader.\n");
 		return NULL;
 	}
 	program->useIt();
@@ -164,7 +167,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 	{
 		if(!areaLight)
 		{
-			printf("useProgram: areaLight==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: areaLight==NULL.\n");
 			return false;
 		}
 		glActiveTexture(GL_TEXTURE0+i);
@@ -188,13 +191,13 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 	{
 		if(!areaLight)
 		{
-			printf("useProgram: areaLight==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: areaLight==NULL.\n");
 			return false;
 		}
 		const Camera* light = areaLight->getParent();
 		if(!light)
 		{
-			printf("useProgram: areaLight->getParent()==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: areaLight->getParent()==NULL.\n");
 			return false;
 		}
 		program->sendUniform("worldLightPos",light->pos[0]-0.3f*light->dir[0],light->pos[1]-0.3f*light->dir[1],light->pos[2]-0.3f*light->dir[2]);//!!!
@@ -204,7 +207,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 	{
 		if(!lightDirectMap)
 		{
-			printf("useProgram: lightDirectMap==NULL (projected texture is missing).\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: lightDirectMap==NULL (projected texture is missing).\n");
 			return false;
 		}
 		int id=TEXTURE_2D_LIGHT_DIRECT;
@@ -278,7 +281,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 	{
 		if(!brightness)
 		{
-			printf("useProgram: brightness==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: brightness==NULL.\n");
 			return false;
 		}
 		program->sendUniform4fv("postprocessBrightness", brightness);

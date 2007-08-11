@@ -9,6 +9,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/GL/Program.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
 {
@@ -24,11 +25,11 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 	_snprintf(buf1,399,"%ssky.vs",pathToShaders);
 	_snprintf(buf2,399,"%ssky.fs",pathToShaders);
 	skyProgram = Program::create(NULL,buf1,buf2);
-	if(!skyProgram) printf("Helper shaders failed: %s/sky.*\n",pathToShaders);
+	if(!skyProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/sky.*\n",pathToShaders);
 	_snprintf(buf1,399,"%stexture.vs",pathToShaders);
 	_snprintf(buf2,399,"%stexture.fs",pathToShaders);
 	twodProgram = Program::create("#define TEXTURE\n",buf1,buf2);
-	if(!twodProgram) printf("Helper shaders failed: %s/texture.*\n",pathToShaders);
+	if(!twodProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/texture.*\n",pathToShaders);
 }
 
 TextureRenderer::~TextureRenderer()

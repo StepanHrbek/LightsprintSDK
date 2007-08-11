@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "Shader.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
 {
@@ -36,7 +37,7 @@ Shader::Shader(const char* defines, const char* filename, GLenum shaderType)
 	source[2] = readShader(filename);
 	if(!source[2])
 	{
-		printf("Shader %s not found.\nPress enter to end...",filename);
+		rr::RRReporter::report(rr::ERRO,"Shader %s not found.\nPress enter to end...",filename);
 		fgetc(stdin);
 		exit(1);
 	}
@@ -63,7 +64,7 @@ void Shader::compile()
 		debug = new GLchar[debugLength];
 		glGetShaderInfoLog(handle, debugLength, &debugLength, debug);
 
-		printf(debug);
+		rr::RRReporter::report(rr::ERRO,debug);
 		delete [] debug;
 	}
 }

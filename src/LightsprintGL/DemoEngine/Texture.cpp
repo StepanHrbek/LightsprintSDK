@@ -9,6 +9,7 @@
 #include <cstring>
 #include "Lightsprint/GL/Texture.h"
 #include "FreeImage.h"
+#include "Lightsprint/RRDebug.h"
 
 #pragma comment(lib,"FreeImage.lib")
 
@@ -251,7 +252,7 @@ bool Texture::reload(const char *filename,const char* cubeSideName[6],bool flipV
 		: reload2d(this,filename,flipV,flipH,buildMipmaps);
 	if(!reloaded)
 	{
-		printf("Failed to load %s.\n",filename);
+		rr::RRReporter::report(rr::ERRO,"Failed to load %s.\n",filename);
 	}
 	return reloaded;
 }

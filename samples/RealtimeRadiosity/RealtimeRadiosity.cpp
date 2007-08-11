@@ -366,6 +366,7 @@ int main(int argc, char **argv)
 	}
 	// log messages to console
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	//rr_gl::Program::showLog = true; // log also results of shader compiler
 
 	// init GLUT
 	glutInit(&argc, argv);

@@ -115,6 +115,9 @@ void idle()
 
 int main(int argc, char **argv)
 {
+	// log messages to console
+	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
