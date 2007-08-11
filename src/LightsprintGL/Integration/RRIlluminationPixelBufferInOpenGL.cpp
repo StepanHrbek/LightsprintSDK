@@ -70,6 +70,7 @@ RRIlluminationPixelBufferInOpenGL::RRIlluminationPixelBufferInOpenGL(const char*
 		texture = Texture::create(NULL,awidth,aheight,false,Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT);
 
 	renderedTexels = NULL;
+	numRenderedTexels = 0;
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderBegin()
@@ -127,6 +128,7 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 	if(!renderedTexels)
 	{
 		renderedTexels = new rr::RRColorRGBAF[texture->getWidth()*texture->getHeight()];
+		numRenderedTexels = 0;
 	}
 	if(uv[0]>=texture->getWidth())
 	{
@@ -140,6 +142,7 @@ void RRIlluminationPixelBufferInOpenGL::renderTexel(const unsigned uv[2], const 
 	}
 
 	renderedTexels[uv[0]+uv[1]*texture->getWidth()] += color;
+	numRenderedTexels++;
 }
 
 void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
@@ -153,6 +156,15 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 
 	if(renderedTexels)
 	{
+		if(numRenderedTexels<=1)
+		{
+			if(getWidth()*getHeight()<=64*64 || getWidth()<=16 || getHeight()<=16)
+				rr::RRReporter::report(rr::WARN,"No texels rendered into map, bad unwrap (see RRMesh::getTriangleMapping) or low resolution(%dx%d)?\n",getWidth(),getHeight());
+			else
+				rr::RRReporter::report(rr::WARN,"No texels rendered into map, bad unwrap (see RRMesh::getTriangleMapping)?\n");
+			return;
+		}
+
 		texture->renderingToEnd();
 
 		#pragma omp parallel for schedule(static)
@@ -172,6 +184,7 @@ void RRIlluminationPixelBufferInOpenGL::renderEnd(bool preferQualityOverSpeed)
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture->getWidth(),texture->getHeight(),0,GL_RGBA,GL_FLOAT,renderedTexels);
 
 		SAFE_DELETE_ARRAY(renderedTexels);
+		numRenderedTexels = 0;
 	}
 
 	// although state was already set in renderBegin,

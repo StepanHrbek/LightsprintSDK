@@ -31,6 +31,7 @@ RRIlluminationPixelBufferInMemory::RRIlluminationPixelBufferInMemory(const char*
 	spreadForegroundColor = _spreadForegroundColor;
 	backgroundColor = _backgroundColor;
 	smoothBackground = _smoothBackground;
+	numRenderedTexels = 0;
 }
 
 void RRIlluminationPixelBufferInMemory::renderBegin()
@@ -52,6 +53,7 @@ void RRIlluminationPixelBufferInMemory::renderTexel(const unsigned uv[2], const 
 	if(!renderedTexels)
 	{
 		renderedTexels = new rr::RRColorRGBAF[texture->getWidth()*texture->getHeight()];
+		numRenderedTexels = 0;
 	}
 	if(uv[0]>=texture->getWidth())
 	{
@@ -65,6 +67,7 @@ void RRIlluminationPixelBufferInMemory::renderTexel(const unsigned uv[2], const 
 	}
 
 	renderedTexels[uv[0]+uv[1]*texture->getWidth()] += color;
+	numRenderedTexels++;
 }
 
 void filter(RRColorRGBAF* inputs,RRColorRGBAF* outputs,unsigned width,unsigned height,bool* _changed)
@@ -102,9 +105,12 @@ void filter(RRColorRGBAF* inputs,RRColorRGBAF* outputs,unsigned width,unsigned h
 
 void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 {
-	if(!renderedTexels)
+	if(numRenderedTexels<=1)
 	{
-		RRReporter::report(WARN,"No texels rendered into map, bad unwrap or low calculation quality?\n");
+		if(getWidth()*getHeight()<=64*64 || getWidth()<=16 || getHeight()<=16)
+			rr::RRReporter::report(rr::WARN,"No texels rendered into map, low resolution(%dx%d) or bad unwrap (see RRMesh::getTriangleMapping)?\n",getWidth(),getHeight());
+		else
+			rr::RRReporter::report(rr::WARN,"No texels rendered into map, bad unwrap (see RRMesh::getTriangleMapping)?\n");
 		return;
 	}
 
@@ -186,6 +192,7 @@ void RRIlluminationPixelBufferInMemory::renderEnd(bool preferQualityOverSpeed)
 
 	// free workspace
 	SAFE_DELETE_ARRAY(renderedTexels);
+	numRenderedTexels = 0;
 #endif
 }
 

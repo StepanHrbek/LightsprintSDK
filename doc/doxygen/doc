@@ -1063,7 +1063,7 @@ Rendering realtime global illumination with Lightsprint:
   Bent normals store negation of incoming light direction,
   in world space.
   Light may come to surface point form many directions
-  in varying intensities, so bent normals average all directions,
+  in different intensities, so bent normals average all directions,
   taking light intensity into account.
   \n
   Bent normals are normalized.

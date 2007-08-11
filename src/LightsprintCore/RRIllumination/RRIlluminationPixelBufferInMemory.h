@@ -28,6 +28,7 @@ namespace rr
 	private:
 		friend RRIlluminationPixelBuffer;
 		RRColorRGBAF* renderedTexels;
+		unsigned numRenderedTexels;
 		rr_gl::Texture* texture;
 		unsigned spreadForegroundColor;
 		RRColorRGBAF backgroundColor;

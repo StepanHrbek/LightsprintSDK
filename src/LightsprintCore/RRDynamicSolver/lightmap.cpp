@@ -373,25 +373,41 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 
 unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPixelBuffer* pixelBuffer, RRIlluminationPixelBuffer* bentNormalsPerPixel, const UpdateParameters* aparams)
 {
+	// validate params
+	UpdateParameters params;
+	if(aparams) params = *aparams;
+
+	// optimize params
+	if(params.applyLights && !getLights().size())
+		params.applyLights = false;
+	if(params.applyEnvironment && !getEnvironment())
+		params.applyEnvironment = false;
+
+	bool useGathering = params.applyLights || params.applyEnvironment || (params.applyCurrentSolution && params.quality);
+	unsigned width = pixelBuffer ? pixelBuffer->getWidth() : bentNormalsPerPixel->getWidth();
+	unsigned height = pixelBuffer ? pixelBuffer->getHeight() : bentNormalsPerPixel->getHeight();
+	RRReportInterval report(useGathering?INF1:INF3,"Updating lightmap, object %d of %d, res %d*%d ...\n",objectNumber,getNumObjects(),width,height);
+
 	if(!pixelBuffer && !bentNormalsPerPixel)
 	{
+		RRReporter::report(WARN,"No map, pixelBuffer=bentNormalsPerPixel=NULL.\n");
 		RR_ASSERT(0); // no work, probably error
 		return 0;
 	}
-	if(!getMultiObjectCustom() || !getStaticSolver())
+	if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !getStaticSolver())
+		if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
-			RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: No objects in scene.\n");
+			RRReporter::report(WARN,"Empty scene.\n");
 			RR_ASSERT(0);
 			return 0;
 		}
 	}
 	if(objectNumber>=getNumObjects())
 	{
-		RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
+		RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getNumObjects()-1);
 		RR_ASSERT(0);
 		return 0;
 	}
@@ -399,27 +415,13 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numPostImportTriangles = mesh->getNumTriangles();
 
-	// validate params
-	UpdateParameters params;
-	if(aparams) params = *aparams;
-	
-	// optimize params
-	if(params.applyLights && !getLights().size())
-		params.applyLights = false;
-	if(params.applyEnvironment && !getEnvironment())
-		params.applyEnvironment = false;
-
 #ifdef DIAGNOSTIC
 	logReset();
 #endif
 	if(pixelBuffer) pixelBuffer->renderBegin();
 	if(bentNormalsPerPixel) bentNormalsPerPixel->renderBegin();
-	if(params.applyLights || params.applyEnvironment || (params.applyCurrentSolution && params.quality))
+	if(useGathering)
 	{
-		unsigned width = pixelBuffer ? pixelBuffer->getWidth() : bentNormalsPerPixel->getWidth();
-		unsigned height = pixelBuffer ? pixelBuffer->getHeight() : bentNormalsPerPixel->getHeight();
-		RRReportInterval report(INF1,"Updating lightmap, object %d(0..%d), res %d*%d ...\n",objectNumber,getNumObjects()-1,width,height);
-
 		// check that map sizes match
 		if(pixelBuffer && bentNormalsPerPixel)
 		{
@@ -454,7 +456,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	{
 		if(bentNormalsPerPixel)
 		{
-			RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: Bent normals won't be updated in 'realtime' mode.\n");
+			RRReporter::report(WARN,"Bent normals won't be updated in 'realtime' mode.\n");
 			RR_ASSERT(0);
 			bentNormalsPerPixel->renderEnd(false);
 			bentNormalsPerPixel = NULL; // necessary for correct return value (1 instead of 2)
@@ -483,7 +485,7 @@ unsigned RRDynamicSolver::updateLightmap(unsigned objectNumber, RRIlluminationPi
 	}
 	else
 	{
-		RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: No lightsources.\n");
+		RRReporter::report(WARN,"No lightsources.\n");
 		pixelBuffer->renderEnd(false);
 		if(bentNormalsPerPixel) bentNormalsPerPixel->renderEnd(false);
 		RR_ASSERT(0);

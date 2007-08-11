@@ -133,7 +133,7 @@ private:
 //
 // RRMeshCollada load
 
-// Creates complete internal copy of mesh geometry, so it doesn't depend on original collada mesh.
+// Doesn't create mesh copy, stores only pointer, so it depends on original collada mesh.
 RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh, int _lightmapUvChannel)
 {
 	mesh = _mesh;

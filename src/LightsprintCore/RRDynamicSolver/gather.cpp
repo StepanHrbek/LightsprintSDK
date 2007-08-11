@@ -156,9 +156,9 @@ private:
 //     bazi by slo generovat spojite -> zlepseni kvality pri nizkem quality
 ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
-	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom())
+	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
-		RRReporter::report(WARN,"processTexel: No objects in scene\n");
+		RRReporter::report(WARN,"processTexel: Empty scene\n");
 		RR_ASSERT(0);
 		return ProcessTexelResult();
 	}
@@ -183,7 +183,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	bool shootToLights = pti.context.params->applyLights && pti.context.solver->getLights().size();
 	if(!shootToHemisphere && !shootToLights)
 	{
-		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: Zero workload.\n");RR_ASSERT(0));		
+		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources.\n");RR_ASSERT(0));		
 		return ProcessTexelResult();
 	}
 
@@ -546,13 +546,13 @@ shoot_from_center:
 // CPU, gathers per-triangle lighting from RRLights, RREnvironment, current solution
 bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots)
 {
-	if(!getMultiObjectCustom() || !getStaticSolver())
+	if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !getStaticSolver())
+		if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
-			RRReporter::report(WARN,"RRDynamicSolver::gatherPerTriangle: No objects in scene.\n");
+			RRReporter::report(WARN,"RRDynamicSolver::gatherPerTriangle: Empty scene.\n");
 			RR_ASSERT(0);
 			return false;
 		}
@@ -617,14 +617,14 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");
 
-	if(!getMultiObjectCustom() || !getStaticSolver())
+	if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !getStaticSolver())
+		if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RR_ASSERT(0);
-			RRReporter::report(WARN,"No objects in scene.\n");
+			RRReporter::report(WARN,"Empty scene.\n");
 			return false;
 		}
 	}
@@ -662,14 +662,14 @@ static bool endByTime(void *context)
 
 bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect, unsigned benchTexels, unsigned benchQuality)
 {
-	if(!getMultiObjectCustom() || !priv->scene)
+	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !priv->scene)
+		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RR_ASSERT(0);
-			RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: No objects in scene.\n");
+			RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: Empty scene.\n");
 			return false;
 		}
 	}
@@ -775,7 +775,13 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		{
 		//	RRReporter::report(CONT," scheduled for %.1fs, ",secondsInPropagatePlan);
 		}
-		RRReporter::report((improvement==RRStaticSolver::IMPROVED)?INF3:INF2,(improvement==RRStaticSolver::IMPROVED)?"Improved.\n":((improvement==RRStaticSolver::NOT_IMPROVED)?"Not improved.\n":((improvement==RRStaticSolver::FINISHED)?"No light in scene.\n":"Error.\n")));
+		switch(improvement)
+		{
+			case RRStaticSolver::IMPROVED: RRReporter::report(INF3,"Improved.\n");break;
+			case RRStaticSolver::NOT_IMPROVED: RRReporter::report(INF2,"Not improved.\n");break;
+			case RRStaticSolver::FINISHED: RRReporter::report(WARN,"No light in scene.\n");break;
+			case RRStaticSolver::INTERNAL_ERROR: RRReporter::report(ERRO,"Internal error.\n");break;
+		}
 		// set solver to reautodetect direct illumination (direct illum in solver was just overwritten)
 		//  before further realtime rendering
 //		reportDirectIlluminationChange(true);
