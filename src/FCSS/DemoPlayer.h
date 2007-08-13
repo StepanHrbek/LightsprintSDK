@@ -10,7 +10,7 @@ class DemoPlayer
 public:
 	DemoPlayer(const char* demoCfg, bool supportEditor);
 	~DemoPlayer();
-	void advance(float seconds);
+	void advance(float seconds=-1e10); // default = advance according to natural time
 
 	void setPaused(bool paused);
 	bool getPaused() const;
@@ -40,6 +40,7 @@ public:
 
 private:
 	bool paused;
+	bool naturalTime; // if playing, play in natural time, not in time provided by user in advance(seconds)
 	float demoTimeWhenPaused; // 0..demo duration in seconds. matters only when paused, because fmod is inaccurate when paused
 	float partStart; // 0..demo duration in seconds, time when current part started
 

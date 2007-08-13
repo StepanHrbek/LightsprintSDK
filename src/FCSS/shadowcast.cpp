@@ -25,6 +25,7 @@ bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
+bool captureMovie = 0; // when replaying, fix to 30Hz and capture all screenshots
 
 bool renderConstantAmbient = 0;
 bool renderVertexColors = 1;
@@ -1618,6 +1619,7 @@ enum
 {
 	ME_TOGGLE_WATER,
 	ME_TOGGLE_INFO,
+	ME_TOGGLE_CAPTURE_MOVIE,
 	ME_UPDATE_LIGHTMAPS_0,
 	ME_UPDATE_LIGHTMAPS_0_ENV,
 	ME_SAVE_LIGHTMAPS_0,
@@ -1640,6 +1642,10 @@ void mainMenu(int item)
 
 		case ME_TOGGLE_INFO:
 			renderInfo = !renderInfo;
+			break;
+
+		case ME_TOGGLE_CAPTURE_MOVIE:
+			captureMovie = !captureMovie;
 			break;
 
 		case ME_TOGGLE_HELP:
@@ -1855,6 +1861,7 @@ void initMenu()
 	int menu = glutCreateMenu(mainMenu);
 	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
 	glutAddMenuEntry("Toggle info",ME_TOGGLE_INFO);
+	glutAddMenuEntry("Toggle capture movie",ME_TOGGLE_CAPTURE_MOVIE);
 	glutAddMenuEntry("Lightmaps update(rt light)", ME_UPDATE_LIGHTMAPS_0);
 	glutAddMenuEntry("Lightmaps update(env+lights)", ME_UPDATE_LIGHTMAPS_0_ENV);
 	glutAddMenuEntry("Lightmaps save current", ME_SAVE_LIGHTMAPS_0);
@@ -1982,7 +1989,17 @@ void idle()
 	if(!demoPlayer->getPaused())
 	{
 //#ifdef THREE_ONE
-		demoPlayer->advance(seconds);
+		if(captureMovie)
+		{
+			// advance by 1 frame of 30fps movie
+			shotRequested = true;
+			demoPlayer->advance(1.f/30);
+		}
+		else
+		{
+			// advance according to real time
+			demoPlayer->advance();
+		}
 		if(level)
 		{
 			if(!demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition()))

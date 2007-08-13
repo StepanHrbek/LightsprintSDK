@@ -14,6 +14,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	memset(this,0,sizeof(*this));
 	bigscreenBrightness = 1;
 	bigscreenGamma = 1;
+	naturalTime = 1;
 
 	FILE* f = fopen(demoCfg,"rt");
 	if(!f)
@@ -150,9 +151,10 @@ Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 
 void DemoPlayer::advance(float seconds)
 {
-	if(!paused)
+	naturalTime = seconds<-1e9;
+	if(!paused && !naturalTime)
 	{
-//		demoTime += seconds;
+		demoTimeWhenPaused += seconds;
 	}
 	if(music)
 	{
@@ -164,9 +166,9 @@ void DemoPlayer::setPaused(bool apaused)
 {
 	if(music)
 	{
-		if(!paused && apaused) demoTimeWhenPaused = music->getPosition();
+		if(!paused && apaused && naturalTime) demoTimeWhenPaused = music->getPosition();
 	}
-	if(paused && !apaused) demoTimeWhenPaused = 0;
+//	if(paused && !apaused) demoTimeWhenPaused = 0;
 	paused = apaused;
 	if(music)
 	{
@@ -181,8 +183,7 @@ bool DemoPlayer::getPaused() const
 
 float DemoPlayer::getDemoPosition() const
 {
-	//return demoTime;
-	if(paused)
+	if(paused || !naturalTime)
 		return demoTimeWhenPaused;
 	return getMusicPosition();
 }
@@ -212,13 +213,11 @@ float DemoPlayer::getPartPosition() const
 
 void DemoPlayer::setPartPosition(float seconds)
 {
-	//demoTime = seconds+partStart;
-	//music->setPosition(demoTime);
 	if(music)
 	{
 		music->setPosition(seconds+partStart);
 	}
-	if(getPaused())
+	if(paused || !naturalTime)
 		demoTimeWhenPaused = seconds+partStart;
 }
 
