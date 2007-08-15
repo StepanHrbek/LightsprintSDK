@@ -219,6 +219,7 @@ class Solver : public rr_gl::RRDynamicSolverGL
 public:
 	Solver() : RRDynamicSolverGL("shaders/")
 	{
+		boostDetectedDirectIllumination = 2;
 	}
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
@@ -1059,7 +1060,8 @@ void display()
 		static unsigned shots = 0;
 		shots++;
 		char buf[100];
-		sprintf(buf,"Lightsprint3+1_%02d.png",shots);
+		//sprintf(buf,"Lightsprint3+1_%02d.png",shots);
+		sprintf(buf,"frame%04d.jpg",shots);
 		if(rr_gl::Texture::saveBackbuffer(buf))
 			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
 		else

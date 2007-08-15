@@ -190,6 +190,7 @@ public:
 	// before shooting
 	void init()
 	{
+		if(!rays) return;
 		// prepare ortonormal base
 		n3 = pti.tri.normal.normalized();
 		u3 = normalized(ortogonalTo(n3));
@@ -280,6 +281,7 @@ public:
 
 	void done()
 	{
+		if(!rays) return;
 		// compute irradiance and reliability
 		if(hitsReliable==0)
 		{
@@ -347,24 +349,25 @@ public:
 		irradianceLights = RRColorRGBF(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 1;
-		rays = pti.context.params->applyLights ? (unsigned)lights.size() : 0;
+		rays = (pti.context.params->applyLights && lights.size()) ? 1 : 0;
 	}
 
 	// before shooting
 	void init()
 	{
+		if(!rays) return;
 		hitsReliable = 0;
 		hitsUnreliable = 0;
 		hitsLight = 0;
 		hitsInside = 0;
 		hitsRug = 0;
 		hitsScene = 0;
+		shotRounds = 0;
 	}
 
 	// 1 ray
-	void shotRay(unsigned i)
+	void shotRay(const RRLight* light)
 	{
-			const RRLight* light = lights[i];
 			if(!light) return;
 			// set dir to light
 			RRVec3 dir = (light->type==RRLight::DIRECTIONAL)?-light->direction:(light->position-pti.tri.pos3d);
@@ -418,8 +421,17 @@ public:
 			}
 	}
 
+	// 1 ray per light
+	void shotRayPerLight()
+	{
+		for(unsigned i=0;i<lights.size();i++)
+			shotRay(lights[i]);
+		shotRounds++;
+	}
+
 	void done()
 	{
+		if(!rays) return;
 		// compute irradiance and reliability
 		if(hitsReliable==0)
 		{
@@ -439,6 +451,8 @@ public:
 		}
 		else
 		{
+			// get average result from 1 round (lights accumulate inside 1 round, but multiple rounds must be averaged)
+			irradianceLights /= (RRReal)shotRounds;
 			// compute reliability
 			reliabilityLights = hitsReliable/(RRReal)rays;
 		}
@@ -447,7 +461,6 @@ public:
 	RRColorRGBF irradianceLights;
 	RRVec3 bentNormalLights;
 	RRReal reliabilityLights;
-
 	unsigned hitsReliable;
 	unsigned hitsUnreliable;
 	unsigned rays;
@@ -459,6 +472,7 @@ protected:
 	unsigned hitsInside;
 	unsigned hitsRug;
 	unsigned hitsScene;
+	unsigned shotRounds;
 	const RRLights& lights;
 };
 
@@ -509,13 +523,16 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	pti.ray->collisionHandler = &skip;
 	pti.ray->rayOrigin = pti.tri.pos3d;
 
-	// shoot into hemisphere
-	if(hemisphere.rays)
+	hemisphere.init();
+	gilights.init();
+
+	// shoot
+	unsigned raysInBatch = MAX(hemisphere.rays,gilights.rays);
+
 	{
-		hemisphere.init();
-		// shoot batch of 'rays' rays
+		// shoot batch of rays
 shoot_new_batch:
-		for(unsigned i=0;i<hemisphere.rays;i++)
+		for(unsigned i=0;i<raysInBatch;i++)
 		{
 			/////////////////////////////////////////////////////////////////
 			// get random position in texel
@@ -561,13 +578,26 @@ retry:
 			// fill position in 3d
 			pti.ray->rayOrigin = pti.tri.triangleBody.vertex0 + pti.tri.triangleBody.side1*uvInTriangle[0] + pti.tri.triangleBody.side2*uvInTriangle[1];
 shoot_from_center:
-			/////////////////////////////////////////////////////////////////
 
-			hemisphere.shotRay();
+			/////////////////////////////////////////////////////////////////
+			// shoot into hemisphere
+			if(i<hemisphere.rays)
+			{
+				hemisphere.shotRay();
+			}
+			
+			/////////////////////////////////////////////////////////////////
+			// shoot into lights
+			if(i<gilights.rays)
+			{
+				gilights.shotRayPerLight();
+			}
 		}
 
 		// automatically increase num of rays
-		if(hemisphere.hitsReliable<=hemisphere.rays/10 && hemisphere.hitsUnreliable<hemisphere.rays*100)
+		if((hemisphere.rays && hemisphere.hitsReliable<=hemisphere.rays/10 && hemisphere.hitsUnreliable<hemisphere.rays*100)
+//			|| (gilights.rays && gilights.hitsReliable<=gilights.rays/10 && gilights.hitsUnreliable<gilights.rays*100)
+			)
 		{
 			// gather at least rays/10 reliable rays, but do no more than rays*100 attempts
 //			printf(".");
@@ -581,20 +611,10 @@ shoot_from_center:
 //			goto shoot_new_batch;
 		}
 //		printf(" ");
-
-		hemisphere.done();
 	}
 
-	// shoot into lights
-	if(gilights.rays)
-	{
-		gilights.init();
-		for(unsigned i=0;i<gilights.rays;i++)
-		{
-			gilights.shotRay(i);
-		}
-		gilights.done();
-	}
+	hemisphere.done();
+	gilights.done();
 
 	// sum direct and indirect results
 	ProcessTexelResult result;
