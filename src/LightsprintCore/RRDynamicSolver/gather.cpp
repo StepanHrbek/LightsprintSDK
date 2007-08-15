@@ -161,11 +161,13 @@ public:
 		scaler = pti.context.solver->getScaler();
 		collider = pti.context.solver->getMultiObjectCustom()->getCollider();
 		environment = pti.context.params->applyEnvironment ? pti.context.solver->getEnvironment() : NULL;
+		fillerPos.Reset(pti.resetFiller);
 	}
 
 	const RRScaler* scaler;
 	const RRCollider* collider;
 	const RRIlluminationEnvironmentMap* environment;
+	HomogenousFiller2 fillerPos;
 };
 
 
@@ -182,6 +184,7 @@ public:
 		irradianceHemisphere = RRColorRGBF(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 1;
+		rays = (tools.environment || pti.context.params->applyCurrentSolution) ? MAX(1,pti.context.params->quality) : 0;
 	}
 
 	// before shooting
@@ -193,9 +196,7 @@ public:
 		v3 = normalized(ortogonalTo(n3,u3));
 		// prepare homogenous filler
 		fillerDir.Reset(pti.resetFiller);
-		fillerPos.Reset(pti.resetFiller);
 		// init counters
-		rays = pti.context.params->quality ? pti.context.params->quality : 1;
 		hitsReliable = 0;
 		hitsUnreliable = 0;
 		hitsInside = 0;
@@ -310,7 +311,6 @@ public:
 	RRColorRGBF irradianceHemisphere;
 	RRVec3 bentNormalHemisphere;
 	RRReal reliabilityHemisphere;
-	HomogenousFiller2 fillerPos;
 	unsigned rays;
 	unsigned hitsReliable;
 	unsigned hitsUnreliable;
@@ -347,6 +347,7 @@ public:
 		irradianceLights = RRColorRGBF(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 1;
+		rays = pti.context.params->applyLights ? (unsigned)lights.size() : 0;
 	}
 
 	// before shooting
@@ -358,7 +359,6 @@ public:
 		hitsInside = 0;
 		hitsRug = 0;
 		hitsScene = 0;
-		rays = (unsigned)lights.size();
 	}
 
 	// 1 ray
@@ -489,18 +489,20 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 	GatheringTools tools(pti);
 
-	// prepare map info
-	unsigned mapWidth = pti.context.pixelBuffer ? pti.context.pixelBuffer->getWidth() : 0;
-	unsigned mapHeight = pti.context.pixelBuffer ? pti.context.pixelBuffer->getHeight() : 0;
+	// prepare irradiance accumulators, set .rays properly (0 when shooting is disabled for any reason)
+	GatheredIrradianceHemisphere hemisphere(tools,pti);
+	GatheredIrradianceLights gilights(tools,pti);
 
-	// check where to shoot
-	bool shootToHemisphere = tools.environment || pti.context.params->applyCurrentSolution;
-	bool shootToLights = pti.context.params->applyLights && pti.context.solver->getLights().size();
-	if(!shootToHemisphere && !shootToLights)
+	// bail out if no work here
+	if(!hemisphere.rays && !gilights.rays)
 	{
 		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources.\n");RR_ASSERT(0));		
 		return ProcessTexelResult();
 	}
+
+	// prepare map info
+	unsigned mapWidth = pti.context.pixelBuffer ? pti.context.pixelBuffer->getWidth() : 0;
+	unsigned mapHeight = pti.context.pixelBuffer ? pti.context.pixelBuffer->getHeight() : 0;
 
 	// prepare ray
 	SkipTriangle skip(pti.tri.triangleIndex);
@@ -508,8 +510,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	pti.ray->rayOrigin = pti.tri.pos3d;
 
 	// shoot into hemisphere
-	GatheredIrradianceHemisphere hemisphere(tools,pti);
-	if(shootToHemisphere)
+	if(hemisphere.rays)
 	{
 		hemisphere.init();
 		// shoot batch of 'rays' rays
@@ -525,7 +526,7 @@ shoot_new_batch:
 				unsigned retries = 0;
 retry:
 				RRVec2 uvInTexel; // 0..1 in texel
-				hemisphere.fillerPos.GetSquare01Point(&uvInTexel.x,&uvInTexel.y);
+				tools.fillerPos.GetSquare01Point(&uvInTexel.x,&uvInTexel.y);
 				// convert it to triangle uv
 				RRVec2 uvInMap = RRVec2((pti.uv[0]+uvInTexel[0])/mapWidth,(pti.uv[1]+uvInTexel[1])/mapHeight); // 0..1 in map
 				uvInTriangle = RRVec2(POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line2InMap),POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line1InMap)); // 0..1 in triangle
@@ -550,7 +551,7 @@ retry:
 			else
 			{
 				// get random position in triangle
-				hemisphere.fillerPos.GetSquare01Point(&uvInTriangle.x,&uvInTriangle.y);
+				tools.fillerPos.GetSquare01Point(&uvInTriangle.x,&uvInTriangle.y);
 				if(uvInTriangle[0]+uvInTriangle[1]>1)
 				{
 					uvInTriangle[0] = 1-uvInTriangle[0];
@@ -585,8 +586,7 @@ shoot_from_center:
 	}
 
 	// shoot into lights
-	GatheredIrradianceLights gilights(tools,pti);
-	if(shootToLights)
+	if(gilights.rays)
 	{
 		gilights.init();
 		for(unsigned i=0;i<gilights.rays;i++)
