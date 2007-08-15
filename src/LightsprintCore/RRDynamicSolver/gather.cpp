@@ -97,6 +97,7 @@ public:
 	}
 };
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // random exiting ray
@@ -121,6 +122,10 @@ static RRVec3 getRandomExitDir(HomogenousFiller2& filler, const RRVec3& norm, co
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// collision handler that skips 1 triangle
+
 class SkipTriangle : public RRCollisionHandler
 {
 public:
@@ -144,128 +149,66 @@ private:
 };
 
 
-// thread safe: yes except for first call (pixelBuffer could allocate memory in renderTexel).
-//   someone must call us at least once, before multithreading starts.
-// returns:
-//   if tc->pixelBuffer is set, custom scale irradiance is rendered and returned
-//   if tc->pixelBuffer is not set, physical scale irradiance is returned
-// pozor na:
-//   - bazi pro strileni do hemisfery si vyrabi z normaly
-//     baze (n3/u3/v3) je nespojita funkce normaly (n3), tj. nepatrne vychyleny triangl muze strilet uplne jinym smerem
-//      nez jeho kamaradi -> pri nizke quality pak ziska zretelne jinou barvu
-//     bazi by slo generovat spojite -> zlepseni kvality pri nizkem quality
-ProcessTexelResult processTexel(const ProcessTexelParams& pti)
+/////////////////////////////////////////////////////////////////////////////
+//
+// for 1 texel: helper objects used while gathering
+
+class GatheringTools
 {
-	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+public:
+	GatheringTools(const ProcessTexelParams& pti)
 	{
-		RRReporter::report(WARN,"processTexel: Empty scene\n");
-		RR_ASSERT(0);
-		return ProcessTexelResult();
+		scaler = pti.context.solver->getScaler();
+		collider = pti.context.solver->getMultiObjectCustom()->getCollider();
+		environment = pti.context.params->applyEnvironment ? pti.context.solver->getEnvironment() : NULL;
 	}
 
+	const RRScaler* scaler;
+	const RRCollider* collider;
+	const RRIlluminationEnvironmentMap* environment;
+};
 
-	// prepare scaler
-	const RRScaler* scaler = pti.context.solver->getScaler();
 
-	// prepare collider
-	const RRCollider* collider = pti.context.solver->getMultiObjectCustom()->getCollider();
-	SkipTriangle skip(pti.tri.triangleIndex);
+/////////////////////////////////////////////////////////////////////////////
+//
+// for 1 texel: irradiance gathered from hemisphere
 
-	// prepare environment
-	const RRIlluminationEnvironmentMap* environment = pti.context.params->applyEnvironment ? pti.context.solver->getEnvironment() : NULL;
-	
-	// prepare map info
-	unsigned mapWidth = pti.context.pixelBuffer ? pti.context.pixelBuffer->getWidth() : 0;
-	unsigned mapHeight = pti.context.pixelBuffer ? pti.context.pixelBuffer->getHeight() : 0;
-
-	// check where to shoot
-	bool shootToHemisphere = environment || pti.context.params->applyCurrentSolution;
-	bool shootToLights = pti.context.params->applyLights && pti.context.solver->getLights().size();
-	if(!shootToHemisphere && !shootToLights)
+class GatheredIrradianceHemisphere
+{
+public:
+	GatheredIrradianceHemisphere(const GatheringTools& _tools, const ProcessTexelParams& _pti)
+		: tools(_tools), pti(_pti)
 	{
-		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources.\n");RR_ASSERT(0));		
-		return ProcessTexelResult();
+		irradianceHemisphere = RRColorRGBF(0);
+		bentNormalHemisphere = RRVec3(0);
+		reliabilityHemisphere = 1;
 	}
 
-	// prepare ray
-	pti.ray->rayOrigin = pti.tri.pos3d;
-	pti.ray->collisionHandler = &skip;
-
-	// shoot into hemisphere
-	RRColorRGBF irradianceHemisphere = RRColorRGBF(0);
-	RRVec3 bentNormalHemisphere = RRVec3(0);
-	RRReal reliabilityHemisphere = 1;
-	if(shootToHemisphere)
+	// before shooting
+	void init()
 	{
 		// prepare ortonormal base
-		RRVec3 n3 = pti.tri.normal.normalized();
-		RRVec3 u3 = normalized(ortogonalTo(n3));
-		RRVec3 v3 = normalized(ortogonalTo(n3,u3));
+		n3 = pti.tri.normal.normalized();
+		u3 = normalized(ortogonalTo(n3));
+		v3 = normalized(ortogonalTo(n3,u3));
 		// prepare homogenous filler
-		HomogenousFiller2 fillerDir;
-		HomogenousFiller2 fillerPos;
 		fillerDir.Reset(pti.resetFiller);
 		fillerPos.Reset(pti.resetFiller);
 		// init counters
-		unsigned rays = pti.context.params->quality ? pti.context.params->quality : 1;
-		unsigned hitsReliable = 0;
-		unsigned hitsUnreliable = 0;
-		unsigned hitsInside = 0;
-		unsigned hitsRug = 0;
-		unsigned hitsSky = 0;
-		unsigned hitsScene = 0;
+		rays = pti.context.params->quality ? pti.context.params->quality : 1;
+		hitsReliable = 0;
+		hitsUnreliable = 0;
+		hitsInside = 0;
+		hitsRug = 0;
+		hitsSky = 0;
+		hitsScene = 0;
 		// init watchdogs
-		RRReal maxSingleRayContribution = 0; // max sum of all irradiance components in physical scale
-		// shoot batch of 'rays' rays
-shoot_new_batch:
-		for(unsigned i=0;i<rays;i++)
-		{
-			/////////////////////////////////////////////////////////////////
-			// get random position in texel
-			RRVec2 uvInTriangle;
-			if(pti.context.pixelBuffer)
-			{
-				// get random position in texel & triangle
-				unsigned retries = 0;
-retry:
-				RRVec2 uvInTexel; // 0..1 in texel
-				fillerPos.GetSquare01Point(&uvInTexel.x,&uvInTexel.y);
-				// convert it to triangle uv
-				RRVec2 uvInMap = RRVec2((pti.uv[0]+uvInTexel[0])/mapWidth,(pti.uv[1]+uvInTexel[1])/mapHeight); // 0..1 in map
-				uvInTriangle = RRVec2(POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line2InMap),POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line1InMap)); // 0..1 in triangle
-				// is position in triangle?
-				bool isInsideTriangle = uvInTriangle[0]>=0 && uvInTriangle[1]>=0 && uvInTriangle[0]+uvInTriangle[1]<=1;
-				// no -> retry
-				if(!isInsideTriangle)
-				{
-					if(retries<1000)
-					{
-						retries++;
-						goto retry;
-					}
-					else
-					{
-						pti.ray->rayOrigin = pti.tri.pos3d;
-						goto shoot_from_center;
-						//break; // stop shooting, result is unreliable
-					}
-				}
-			}
-			else
-			{
-				// get random position in triangle
-				fillerPos.GetSquare01Point(&uvInTriangle.x,&uvInTriangle.y);
-				if(uvInTriangle[0]+uvInTriangle[1]>1)
-				{
-					uvInTriangle[0] = 1-uvInTriangle[0];
-					uvInTriangle[1] = 1-uvInTriangle[1];
-				}
-			}
-			// fill position in 3d
-			pti.ray->rayOrigin = pti.tri.triangleBody.vertex0 + pti.tri.triangleBody.side1*uvInTriangle[0] + pti.tri.triangleBody.side2*uvInTriangle[1];
-shoot_from_center:
-			/////////////////////////////////////////////////////////////////
+		maxSingleRayContribution = 0; // max sum of all irradiance components in physical scale
+	}
 
+	// 1 ray
+	void shotRay()
+	{
 			// random exit dir
 			RRVec3 dir = getRandomExitDir(fillerDir, n3, u3, v3);
 			RRReal dirsize = dir.length();
@@ -275,7 +218,7 @@ shoot_from_center:
 			pti.ray->rayDirInv[2] = dirsize/dir[2];
 			pti.ray->rayLengthMax = pti.context.params->locality;
 			pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
-			bool hit = collider->intersect(pti.ray);
+			bool hit = tools.collider->intersect(pti.ray);
 #ifdef DIAGNOSTIC_RAYS
 			bool unreliable = hit && (!pti.ray->hitFrontSide || pti.ray->hitDistance<pti.context.params->rugDistance);
 			LOG_RAY(pti.ray->rayOrigin,dir,hit?pti.ray->hitDistance:0.2f,!hit,unreliable);
@@ -283,11 +226,11 @@ shoot_from_center:
 			if(!hit)
 			{
 				// read irradiance on sky
-				if(environment)
+				if(tools.environment)
 				{
 					//irradianceIndirect += environment->getValue(dir);
-					RRColorRGBF irrad = environment->getValue(dir);
-					if(scaler) scaler->getPhysicalScale(irrad);
+					RRColorRGBF irrad = tools.environment->getValue(dir);
+					if(tools.scaler) tools.scaler->getPhysicalScale(irrad);
 					maxSingleRayContribution = MAX(maxSingleRayContribution,irrad.sum());
 					irradianceHemisphere += irrad;
 					bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
@@ -331,25 +274,11 @@ shoot_from_center:
 				}
 				hitsScene++;
 				hitsReliable++;
-			}		
-		}
+			}
+	}
 
-		// automatically increase num of rays
-		if(hitsReliable<=rays/10 && hitsUnreliable<rays*100)
-		{
-			// gather at least rays/10 reliable rays, but do no more than rays*100 attempts
-//			printf(".");
-			goto shoot_new_batch;
-		}
-		const RRReal maxError = 0.05f;
-		if(hitsReliable && maxSingleRayContribution>irradianceHemisphere.sum()*maxError && hitsReliable+hitsUnreliable<rays*10)
-		{
-			// get error below maxError, but do no more than rays*10 attempts
-//			printf(":");
-//			goto shoot_new_batch;
-		}
-//		printf(" ");
-
+	void done()
+	{
 		// compute irradiance and reliability
 		if(hitsReliable==0)
 		{
@@ -371,31 +300,72 @@ shoot_from_center:
 		}
 		else
 		{
-			// convert to full irradiance (as if all rays hit scene)
+			// get average hit, hemisphere hits don't accumulate
 			irradianceHemisphere /= (RRReal)hitsReliable;
 			// compute reliability
 			reliabilityHemisphere = hitsReliable/(RRReal)rays;
 		}
 	}
 
-	// shoot into lights
-	RRColorRGBF irradianceLights = RRColorRGBF(0);
-	RRVec3 bentNormalLights = RRVec3(0);
-	RRReal reliabilityLights = 1;
-	if(shootToLights)
+	RRColorRGBF irradianceHemisphere;
+	RRVec3 bentNormalHemisphere;
+	RRReal reliabilityHemisphere;
+	HomogenousFiller2 fillerPos;
+	unsigned rays;
+	unsigned hitsReliable;
+	unsigned hitsUnreliable;
+
+protected:
+	const GatheringTools& tools;
+	const ProcessTexelParams& pti;
+	// ortonormal base
+	RRVec3 n3; // normal
+	RRVec3 u3;
+	RRVec3 v3;
+	// homogenous filler
+	HomogenousFiller2 fillerDir;
+	// counters
+	unsigned hitsInside;
+	unsigned hitsRug;
+	unsigned hitsSky;
+	unsigned hitsScene;
+	// watchdogs
+	RRReal maxSingleRayContribution; // max sum of all irradiance components in physical scale
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// for 1 texel: irradiance gathered from lights
+
+class GatheredIrradianceLights
+{
+public:
+	GatheredIrradianceLights(const GatheringTools& _tools, const ProcessTexelParams& _pti)
+		: tools(_tools), pti(_pti), lights(_pti.context.solver->getLights())
 	{
-		unsigned hitsReliable = 0;
-		unsigned hitsUnreliable = 0;
-		unsigned hitsLight = 0;
-		unsigned hitsInside = 0;
-		unsigned hitsRug = 0;
-		unsigned hitsScene = 0;
-		const RRLights& lights = pti.context.solver->getLights();
-		unsigned rays = (unsigned)lights.size();
-		for(unsigned i=0;i<rays;i++)
-		{
+		irradianceLights = RRColorRGBF(0);
+		bentNormalLights = RRVec3(0);
+		reliabilityLights = 1;
+	}
+
+	// before shooting
+	void init()
+	{
+		hitsReliable = 0;
+		hitsUnreliable = 0;
+		hitsLight = 0;
+		hitsInside = 0;
+		hitsRug = 0;
+		hitsScene = 0;
+		rays = (unsigned)lights.size();
+	}
+
+	// 1 ray
+	void shotRay(unsigned i)
+	{
 			const RRLight* light = lights[i];
-			if(!light) continue;
+			if(!light) return;
 			// set dir to light
 			RRVec3 dir = (light->type==RRLight::DIRECTIONAL)?-light->direction:(light->position-pti.tri.pos3d);
 			RRReal dirsize = dir.length();
@@ -416,10 +386,10 @@ shoot_from_center:
 				pti.ray->rayDirInv[2] = 1/dir[2];
 				pti.ray->rayLengthMax = dirsize;
 				pti.ray->rayFlags = RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
-				if(!collider->intersect(pti.ray))
+				if(!tools.collider->intersect(pti.ray))
 				{
 					// add irradiance from light
-					RRVec3 irrad = light->getIrradiance(pti.tri.pos3d,scaler) * normalIncidence;
+					RRVec3 irrad = light->getIrradiance(pti.tri.pos3d,tools.scaler) * normalIncidence;
 					irradianceLights += irrad;
 					bentNormalLights += dir * irrad.abs().avg();
 					hitsLight++;
@@ -446,7 +416,10 @@ shoot_from_center:
 					hitsReliable++;
 				}
 			}
-		}
+	}
+
+	void done()
+	{
 		// compute irradiance and reliability
 		if(hitsReliable==0)
 		{
@@ -471,15 +444,167 @@ shoot_from_center:
 		}
 	}
 
+	RRColorRGBF irradianceLights;
+	RRVec3 bentNormalLights;
+	RRReal reliabilityLights;
+
+	unsigned hitsReliable;
+	unsigned hitsUnreliable;
+	unsigned rays;
+
+protected:
+	const GatheringTools& tools;
+	const ProcessTexelParams& pti;
+	unsigned hitsLight;
+	unsigned hitsInside;
+	unsigned hitsRug;
+	unsigned hitsScene;
+	const RRLights& lights;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// for 1 texel: complete gathering
+
+// thread safe: yes except for first call (pixelBuffer could allocate memory in renderTexel).
+//   someone must call us at least once, before multithreading starts.
+// returns:
+//   if tc->pixelBuffer is set, custom scale irradiance is rendered and returned
+//   if tc->pixelBuffer is not set, physical scale irradiance is returned
+// pozor na:
+//   - bazi pro strileni do hemisfery si vyrabi z normaly
+//     baze (n3/u3/v3) je nespojita funkce normaly (n3), tj. nepatrne vychyleny triangl muze strilet uplne jinym smerem
+//      nez jeho kamaradi -> pri nizke quality pak ziska zretelne jinou barvu
+//     bazi by slo generovat spojite -> zlepseni kvality pri nizkem quality
+ProcessTexelResult processTexel(const ProcessTexelParams& pti)
+{
+	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	{
+		RRReporter::report(WARN,"processTexel: Empty scene\n");
+		RR_ASSERT(0);
+		return ProcessTexelResult();
+	}
+
+
+	GatheringTools tools(pti);
+
+	// prepare map info
+	unsigned mapWidth = pti.context.pixelBuffer ? pti.context.pixelBuffer->getWidth() : 0;
+	unsigned mapHeight = pti.context.pixelBuffer ? pti.context.pixelBuffer->getHeight() : 0;
+
+	// check where to shoot
+	bool shootToHemisphere = tools.environment || pti.context.params->applyCurrentSolution;
+	bool shootToLights = pti.context.params->applyLights && pti.context.solver->getLights().size();
+	if(!shootToHemisphere && !shootToLights)
+	{
+		LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources.\n");RR_ASSERT(0));		
+		return ProcessTexelResult();
+	}
+
+	// prepare ray
+	SkipTriangle skip(pti.tri.triangleIndex);
+	pti.ray->collisionHandler = &skip;
+	pti.ray->rayOrigin = pti.tri.pos3d;
+
+	// shoot into hemisphere
+	GatheredIrradianceHemisphere hemisphere(tools,pti);
+	if(shootToHemisphere)
+	{
+		hemisphere.init();
+		// shoot batch of 'rays' rays
+shoot_new_batch:
+		for(unsigned i=0;i<hemisphere.rays;i++)
+		{
+			/////////////////////////////////////////////////////////////////
+			// get random position in texel
+			RRVec2 uvInTriangle;
+			if(pti.context.pixelBuffer)
+			{
+				// get random position in texel & triangle
+				unsigned retries = 0;
+retry:
+				RRVec2 uvInTexel; // 0..1 in texel
+				hemisphere.fillerPos.GetSquare01Point(&uvInTexel.x,&uvInTexel.y);
+				// convert it to triangle uv
+				RRVec2 uvInMap = RRVec2((pti.uv[0]+uvInTexel[0])/mapWidth,(pti.uv[1]+uvInTexel[1])/mapHeight); // 0..1 in map
+				uvInTriangle = RRVec2(POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line2InMap),POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line1InMap)); // 0..1 in triangle
+				// is position in triangle?
+				bool isInsideTriangle = uvInTriangle[0]>=0 && uvInTriangle[1]>=0 && uvInTriangle[0]+uvInTriangle[1]<=1;
+				// no -> retry
+				if(!isInsideTriangle)
+				{
+					if(retries<1000)
+					{
+						retries++;
+						goto retry;
+					}
+					else
+					{
+						pti.ray->rayOrigin = pti.tri.pos3d;
+						goto shoot_from_center;
+						//break; // stop shooting, result is unreliable
+					}
+				}
+			}
+			else
+			{
+				// get random position in triangle
+				hemisphere.fillerPos.GetSquare01Point(&uvInTriangle.x,&uvInTriangle.y);
+				if(uvInTriangle[0]+uvInTriangle[1]>1)
+				{
+					uvInTriangle[0] = 1-uvInTriangle[0];
+					uvInTriangle[1] = 1-uvInTriangle[1];
+				}
+			}
+			// fill position in 3d
+			pti.ray->rayOrigin = pti.tri.triangleBody.vertex0 + pti.tri.triangleBody.side1*uvInTriangle[0] + pti.tri.triangleBody.side2*uvInTriangle[1];
+shoot_from_center:
+			/////////////////////////////////////////////////////////////////
+
+			hemisphere.shotRay();
+		}
+
+		// automatically increase num of rays
+		if(hemisphere.hitsReliable<=hemisphere.rays/10 && hemisphere.hitsUnreliable<hemisphere.rays*100)
+		{
+			// gather at least rays/10 reliable rays, but do no more than rays*100 attempts
+//			printf(".");
+			goto shoot_new_batch;
+		}
+//		const RRReal maxError = 0.05f;
+//		if(hitsReliable && maxSingleRayContribution>irradianceHemisphere.sum()*maxError && hitsReliable+hitsUnreliable<rays*10)
+		{
+			// get error below maxError, but do no more than rays*10 attempts
+//			printf(":");
+//			goto shoot_new_batch;
+		}
+//		printf(" ");
+
+		hemisphere.done();
+	}
+
+	// shoot into lights
+	GatheredIrradianceLights gilights(tools,pti);
+	if(shootToLights)
+	{
+		gilights.init();
+		for(unsigned i=0;i<gilights.rays;i++)
+		{
+			gilights.shotRay(i);
+		}
+		gilights.done();
+	}
+
 	// sum direct and indirect results
 	ProcessTexelResult result;
-	result.irradiance = irradianceLights + irradianceHemisphere; // [3] = 0
-	if(reliabilityLights || reliabilityHemisphere)
+	result.irradiance = gilights.irradianceLights + hemisphere.irradianceHemisphere; // [3] = 0
+	if(gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
 	{
 		result.irradiance[3] = 1; // only completely unreliable results stay at 0, others get 1 here
 	}
-	result.bentNormal = bentNormalLights + bentNormalHemisphere; // [3] = 0
-	if(reliabilityLights || reliabilityHemisphere)
+	result.bentNormal = gilights.bentNormalLights + hemisphere.bentNormalHemisphere; // [3] = 0
+	if(gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
 	{
 		result.bentNormal[3] = 1; // only completely unreliable results stay at 0, others get 1 here
 	}
@@ -489,8 +614,8 @@ shoot_from_center:
 	}
 
 	// scale irradiance (full irradiance, not fraction) to custom scale
-	if(pti.context.pixelBuffer && pti.context.params->measure.scaled && scaler)
-		scaler->getCustomScale(result.irradiance);
+	if(pti.context.pixelBuffer && pti.context.params->measure.scaled && tools.scaler)
+		tools.scaler->getCustomScale(result.irradiance);
 
 #ifdef RELIABILITY_FILTERING
 	RRReal reliability = MIN(reliabilityLights,reliabilityHemisphere);
