@@ -334,11 +334,12 @@ namespace rr
 			//! Include environment set by setEnvironment() as a source of illumination.
 			bool applyEnvironment;
 
-			//! Quality of computed illumination coming from current solution and environment (not from lights).
-			//! Higher number = higher quality in longer time.
-			//! For 1000 and higher, lightmap contains small per pixel details,
-			//! and update takes minutes.
-			//! 0-999 is faster, with per pixel details, but not recommended due to artifacts.
+			//! Quality of computed illumination.
+			//! Higher number = higher quality, but more time taken.
+			//! 1000 is usually sufficient for production, with small per pixel details
+			//! and precise antialiasing computed.
+			//! Lower quality is usually insufficient, with per pixel details, but with artifacts
+			//! and aliasing.
 			//!
 			//! If applyCurrentSolution is enabled and quality is zero,
 			//! very fast (milliseconds) update is executed and lightmap contains

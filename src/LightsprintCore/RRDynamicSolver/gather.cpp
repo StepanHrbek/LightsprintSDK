@@ -349,7 +349,8 @@ public:
 		irradianceLights = RRColorRGBF(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 1;
-		rays = (pti.context.params->applyLights && lights.size()) ? 1 : 0;
+		rounds = (pti.context.params->applyLights && lights.size()) ? pti.context.params->quality/10+1 : 0;
+		rays = lights.size()*rounds;
 	}
 
 	// before shooting
@@ -463,7 +464,8 @@ public:
 	RRReal reliabilityLights;
 	unsigned hitsReliable;
 	unsigned hitsUnreliable;
-	unsigned rays;
+	unsigned rounds; // requested number of rounds of shooting to all lights
+	unsigned rays; // requested number of rays (rounds*lights)
 
 protected:
 	const GatheringTools& tools;
@@ -527,91 +529,95 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	gilights.init();
 
 	// shoot
-	unsigned raysInBatch = MAX(hemisphere.rays,gilights.rays);
-
+	while(1)
 	{
-		// shoot batch of rays
-shoot_new_batch:
-		for(unsigned i=0;i<raysInBatch;i++)
+		/////////////////////////////////////////////////////////////////
+		//
+		// get random position in texel
+
+		RRVec2 uvInTriangle;
+		if(pti.context.pixelBuffer)
 		{
-			/////////////////////////////////////////////////////////////////
-			// get random position in texel
-			RRVec2 uvInTriangle;
-			if(pti.context.pixelBuffer)
-			{
-				// get random position in texel & triangle
-				unsigned retries = 0;
+			// get random position in texel & triangle
+			unsigned retries = 0;
 retry:
-				RRVec2 uvInTexel; // 0..1 in texel
-				tools.fillerPos.GetSquare01Point(&uvInTexel.x,&uvInTexel.y);
-				// convert it to triangle uv
-				RRVec2 uvInMap = RRVec2((pti.uv[0]+uvInTexel[0])/mapWidth,(pti.uv[1]+uvInTexel[1])/mapHeight); // 0..1 in map
-				uvInTriangle = RRVec2(POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line2InMap),POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line1InMap)); // 0..1 in triangle
-				// is position in triangle?
-				bool isInsideTriangle = uvInTriangle[0]>=0 && uvInTriangle[1]>=0 && uvInTriangle[0]+uvInTriangle[1]<=1;
-				// no -> retry
-				if(!isInsideTriangle)
-				{
-					if(retries<1000)
-					{
-						retries++;
-						goto retry;
-					}
-					else
-					{
-						pti.ray->rayOrigin = pti.tri.pos3d;
-						goto shoot_from_center;
-						//break; // stop shooting, result is unreliable
-					}
-				}
-			}
-			else
+			RRVec2 uvInTexel; // 0..1 in texel
+			tools.fillerPos.GetSquare01Point(&uvInTexel.x,&uvInTexel.y);
+			// convert it to triangle uv
+			RRVec2 uvInMap = RRVec2((pti.uv[0]+uvInTexel[0])/mapWidth,(pti.uv[1]+uvInTexel[1])/mapHeight); // 0..1 in map
+			uvInTriangle = RRVec2(POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line2InMap),POINT_LINE_DISTANCE_2D(uvInMap,pti.tri.line1InMap)); // 0..1 in triangle
+			// is position in triangle?
+			bool isInsideTriangle = uvInTriangle[0]>=0 && uvInTriangle[1]>=0 && uvInTriangle[0]+uvInTriangle[1]<=1;
+			// no -> retry
+			if(!isInsideTriangle)
 			{
-				// get random position in triangle
-				tools.fillerPos.GetSquare01Point(&uvInTriangle.x,&uvInTriangle.y);
-				if(uvInTriangle[0]+uvInTriangle[1]>1)
+				if(retries<1000)
 				{
-					uvInTriangle[0] = 1-uvInTriangle[0];
-					uvInTriangle[1] = 1-uvInTriangle[1];
+					retries++;
+					goto retry;
+				}
+				else
+				{
+					pti.ray->rayOrigin = pti.tri.pos3d;
+					goto shoot_from_center;
+					//break; // stop shooting, result is unreliable
 				}
 			}
-			// fill position in 3d
-			pti.ray->rayOrigin = pti.tri.triangleBody.vertex0 + pti.tri.triangleBody.side1*uvInTriangle[0] + pti.tri.triangleBody.side2*uvInTriangle[1];
+		}
+		else
+		{
+			// get random position in triangle
+			tools.fillerPos.GetSquare01Point(&uvInTriangle.x,&uvInTriangle.y);
+			if(uvInTriangle[0]+uvInTriangle[1]>1)
+			{
+				uvInTriangle[0] = 1-uvInTriangle[0];
+				uvInTriangle[1] = 1-uvInTriangle[1];
+			}
+		}
+		// fill position in 3d
+		pti.ray->rayOrigin = pti.tri.triangleBody.vertex0 + pti.tri.triangleBody.side1*uvInTriangle[0] + pti.tri.triangleBody.side2*uvInTriangle[1];
 shoot_from_center:
 
-			/////////////////////////////////////////////////////////////////
-			// shoot into hemisphere
-			if(i<hemisphere.rays)
-			{
-				hemisphere.shotRay();
-			}
-			
-			/////////////////////////////////////////////////////////////////
-			// shoot into lights
-			if(i<gilights.rays)
-			{
-				gilights.shotRayPerLight();
-			}
+
+		/////////////////////////////////////////////////////////////////
+		//
+		// shoot into hemisphere
+
+		bool shootHemisphere = hemisphere.rays && (hemisphere.hitsReliable<=hemisphere.rays/10 || hemisphere.hitsReliable+hemisphere.hitsUnreliable<=hemisphere.rays);
+		if(shootHemisphere)
+		{
+			hemisphere.shotRay();
+		}
+		
+
+		/////////////////////////////////////////////////////////////////
+		//
+		// shoot into lights
+
+		bool shootLights = gilights.rays && (gilights.hitsReliable<=gilights.rays/10 || gilights.hitsReliable+gilights.hitsUnreliable<=gilights.rays);
+		if(shootLights)
+		{
+			gilights.shotRayPerLight();
 		}
 
-		// automatically increase num of rays
-		if((hemisphere.rays && hemisphere.hitsReliable<=hemisphere.rays/10 && hemisphere.hitsUnreliable<hemisphere.rays*100)
-//			|| (gilights.rays && gilights.hitsReliable<=gilights.rays/10 && gilights.hitsUnreliable<gilights.rays*100)
-			)
-		{
-			// gather at least rays/10 reliable rays, but do no more than rays*100 attempts
-//			printf(".");
-			goto shoot_new_batch;
-		}
-//		const RRReal maxError = 0.05f;
-//		if(hitsReliable && maxSingleRayContribution>irradianceHemisphere.sum()*maxError && hitsReliable+hitsUnreliable<rays*10)
-		{
-			// get error below maxError, but do no more than rays*10 attempts
-//			printf(":");
-//			goto shoot_new_batch;
-		}
-//		printf(" ");
+
+		/////////////////////////////////////////////////////////////////
+		//
+		// break when no shooting is requested or too many failures were detected
+
+		if((!shootHemisphere || hemisphere.hitsUnreliable>hemisphere.rays*100)
+			&& (!shootLights || gilights.hitsUnreliable>gilights.rays*100))
+			break;
 	}
+
+//	const RRReal maxError = 0.05f;
+//	if(hitsReliable && maxSingleRayContribution>irradianceHemisphere.sum()*maxError && hitsReliable+hitsUnreliable<rays*10)
+	{
+		// get error below maxError, but do no more than rays*10 attempts
+//		printf(":");
+//		goto shoot_new_batch;
+	}
+//	printf(" ");
 
 	hemisphere.done();
 	gilights.done();
