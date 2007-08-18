@@ -53,7 +53,15 @@ public:
 		}
 		return &i->second;
 	}
-	void convertToPhysicalFactor(RRColor& factor)
+	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
+	{
+		original->getPointMaterial(t,uv,out);
+		if(scaler)
+		{
+			convertToPhysical(out);
+		}
+	}
+	void convertToPhysicalFactor(RRColor& factor) const
 	{
 		RRColor tmp1 = RRColor(0.5f)*factor;
 		RRColor tmp2 = RRColor(0.5f);
@@ -61,21 +69,25 @@ public:
 		scaler->getPhysicalScale(tmp2);
 		factor = tmp1/tmp2;
 	}
-	void convertToPhysicalFactor(RRReal& factor)
+	void convertToPhysicalFactor(RRReal& factor) const
 	{
 		RRColor factor3 = RRColor(factor);
 		convertToPhysicalFactor(factor3);
 		factor = factor3[0];
 	}
-	void convertToPhysical(const RRMaterial& custom, RRMaterial& physical)
+	void convertToPhysical(RRMaterial& physical) const // input=custom, output=physical
 	{
 		RR_ASSERT(scaler);
-		physical = custom;
 		convertToPhysicalFactor(physical.diffuseReflectance);
 		scaler->getPhysicalScale(physical.diffuseEmittance);
 		convertToPhysicalFactor(physical.specularReflectance);
 		convertToPhysicalFactor(physical.specularTransmittance);
 		physical.validate();
+	}
+	void convertToPhysical(const RRMaterial& custom, RRMaterial& physical) const
+	{
+		physical = custom;
+		convertToPhysical(physical);
 	}
 	virtual void update()
 	{

@@ -51,6 +51,21 @@ public:
 		surf2.sideBits[1] = surf->sideBits[0];
 		return &surf2;
 	}
+	// compensate possible negative scale in transformation also here
+	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
+	{
+		inherited->getPointMaterial(t,uv,out);
+		if(!negScaleMakesOuterInner)
+		{
+			const RRMatrix3x4* m = inherited->getWorldMatrix();
+			if(m && m->determinant3x3()<0)
+			{
+				RRSideBits tmpBits = out.sideBits[0];
+				out.sideBits[0] = out.sideBits[1];
+				out.sideBits[1] = tmpBits;
+			}
+		}
+	}
 
 	// channels
 	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const

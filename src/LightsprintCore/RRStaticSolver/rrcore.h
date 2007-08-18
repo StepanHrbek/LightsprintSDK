@@ -772,7 +772,9 @@ public:
 	private:
 
 		// previously global skipTriangle, now allocated per scene
-		// -> multiple independent scenes are legal
+		//  -> multiple independent scenes are legal
+		// SkipTriangle is not thread safe
+		//  -> one SkipTriangle per thread must be used if improveStatic() gets parallelized
 		SkipTriangle skipTriangle;
 };
 

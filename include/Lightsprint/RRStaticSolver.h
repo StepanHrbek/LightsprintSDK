@@ -123,7 +123,7 @@ namespace rr
 		//!  World-space object wrapper that defines object shape and material.
 		//!  \n If object has transformation different from identity, pass object->createWorldSpaceObject()
 		//!  rather than object itself, otherwise object transformation will be ignored.
-		//!  \n object->getTriangleMaterial() should return values in physical scale.
+		//!  \n object->getTriangleMaterial() and getPointMaterial() should return values in physical scale.
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
 		RRStaticSolver(RRObject* object, const SmoothingParameters* smoothing);

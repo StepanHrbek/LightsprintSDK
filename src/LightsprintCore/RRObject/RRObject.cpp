@@ -16,6 +16,22 @@ namespace rr
 //
 // RRObject
 
+void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRMaterial& out) const
+{
+	LIMITED_TIMES(1,RRReporter::report(WARN,"Slow RRObject::getPointMaterial path used, but no additional details are available."));
+	const RRMaterial* material = getTriangleMaterial(t);
+	if(material)
+	{
+		out = *material;
+	}
+	else
+	{
+		LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL."));
+		out.reset(false);
+		RR_ASSERT(0);
+	}
+}
+
 void RRObject::getTriangleIllumination(unsigned t, RRRadiometricMeasure measure, RRColor& out) const
 {
 	out[0] = 0;
@@ -58,40 +74,6 @@ RRObject* RRObject::createMultiObject(RRObject* const* objects, unsigned numObje
 RRObjectWithIllumination* RRObject::createObjectWithIllumination(const RRScaler* scaler)
 {
 	return new RRObjectWithIlluminationImpl(this,scaler);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRCollisionHandler
-
-class RRCollisionHandlerFirstVisible : public RRCollisionHandler
-{
-public:
-	RRCollisionHandlerFirstVisible(RRObject* aobject)
-	{
-		object = aobject;
-	}
-	virtual void init()
-	{
-		result = false;
-	}
-	virtual bool collides(const RRRay* ray)
-	{
-		const RRMaterial* material = object->getTriangleMaterial(ray->hitTriangle);
-		return material && material->sideBits[ray->hitFrontSide?0:1].renderFrom;
-	}
-	virtual bool done()
-	{
-		return result;
-	}
-private:
-	bool result;
-	RRObject* object;
-};
-
-RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible()
-{
-	return new RRCollisionHandlerFirstVisible(this);
 }
 
 } // namespace

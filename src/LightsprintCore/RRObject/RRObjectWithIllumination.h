@@ -132,6 +132,10 @@ public:
 	{
 		return original->getTriangleMaterial(t);
 	}
+	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
+	{
+		original->getPointMaterial(t,uv,out);
+	}
 	virtual const RRMatrix3x4* getWorldMatrix()
 	{
 		return original->getWorldMatrix();

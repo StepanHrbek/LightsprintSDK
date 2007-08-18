@@ -6,7 +6,21 @@
 
 \page news What's new
 
-\section news29 ------------------------------------ 2007.8.11 -------------------------------------
+\section news29 ------------------------------------ 2007.8.x -------------------------------------
+
+NEWS
+
+- Support for per-pixel materials for higher quality lighting.
+  Suitable for diffuse/specular/transparency textures, even procedural ones.
+  Specified by RRObject::getPointMaterial() and RRSideBits::pointDetails.
+  Automatically used by solvers.
+- antialiased shadows (were aliased in scenes lit by RRLight)
+- transparency and sideBits honoured by solver, so e.g. alpha keyed.
+
+CHANGES
+
+- new RRSideBits::legal=0 flag enables
+  light leak prevention previously hardcoded for back sides of 1sided faces
 
 \section news28 ------------------------------------ 2007.8.4 -------------------------------------
 

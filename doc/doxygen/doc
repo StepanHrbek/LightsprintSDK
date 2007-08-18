@@ -26,6 +26,8 @@ namespace rr
 
  - <b> \subpage main_data_access </b>
 
+ - <b> \subpage main_light_sources </b>
+
  - <b> \subpage main_conventions "Conventions (units, scale, floats...)" </b>
 
  - <b> \subpage main_api </b>
@@ -1740,6 +1742,54 @@ Rendering realtime global illumination with Lightsprint:
 
  There are optional optimizations, that use SSE instructions on x86 CPUs,
  but they can be omitted on other platforms.
+
+
+
+ 
+\page main_light_sources Light sources
+
+ Lightsprint supports multiple types of light sources.
+
+ All light sources support
+ - HDR, floating point intensities (inputs, outputs)
+ - direct, indirect or global illumination with infinite light bounces (outputs)
+ - directional information (output)
+
+ \section lenv Environment / Sky
+  - Area light source, emissive skybox or sphere surrounding whole scene.
+  - Data structure: RRIlluminationEnvironmentMap
+  - Data structure container: none, only one environment in scene
+  - Setup: RRDynamicSolver::setEnvironment()
+  - Calculation: CPU, standard non-realtime functions (RRDynamicSolver::updateLightmaps() etc)
+
+ \section lemissive Emissive materials
+  - Area light source, triangles covered by materials that emit light.
+  - Data structure: RRObject with emissive materials returned by RRObject::getTriangleMaterial()
+  - Data structure container: RRObjects
+  - Setup: RRDynamicSolver::setObjects()
+  - Calculation: CPU, standard non-realtime functions (RRDynamicSolver::updateLightmaps() etc)
+
+ \section llights RRLights
+  - Point/spot/directional light source.
+  - Data structure: RRLight
+  - Data structure container: RRLights
+  - Setup: RRDynamicSolver::setLights()
+  - Calculation: CPU, standard non-realtime functions (RRDynamicSolver::updateLightmaps() etc)
+
+  - Point, spot and directional lights are implemented in RRLight.
+  You can create new type, see RRLight interface.
+  However, light must be emited by single point; to simulate area light,
+  use e.g. triangles with emissive material.
+
+ \section lrealtime Custom realtime lights
+  - See RealtimeRadiosity sample. It demonstrates custom area light
+    with realtime global illumination.
+  - See Lightmaps sample. It demonstrates custom area light
+    with realtime global illumination that can be saved into lightmaps.
+  - Custom point, spot and directional lights may be implemented in the same way.
+  - Custom realtime lights use both CPU and GPU.
+    See \ref main_integration for details on using custom realtime lights
+    (with global illumination) in your projects.
 
 
 

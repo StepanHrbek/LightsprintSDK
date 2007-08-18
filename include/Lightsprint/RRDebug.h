@@ -130,7 +130,7 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! RRReportInterval
+	//! Reporting events with time taken
 	//
 	//! Helper for reporting event with automatic indented subevents, reported duration.
 	//! Simply create instance of RRReportInterval to report event.

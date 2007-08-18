@@ -23,6 +23,13 @@
 // Internal units are automatically converted to meters.
 //
 // 'Up' vector is automatically converted to 0,1,0 (Y positive).
+//
+// Alpha in diffuse textures is interpreted as transparency (0=transparent).
+//
+// 'pointDetails' hint that makes solver use slower per-pixel material path
+// (rather than faster per-triangle)
+// is enabled for diffuse textures with at least 1% transparency on average.
+// Search for pointDetails in code to change this condition.
 
 #if 1 // 0 disables Collada support, 1 enables
 
@@ -319,6 +326,7 @@ public:
 	// RRObject
 	virtual const RRCollider*  getCollider() const;
 	virtual const RRMaterial*  getTriangleMaterial(unsigned t) const;
+	virtual void               getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const;
 	virtual const RRMatrix3x4* getWorldMatrix();
 	virtual const RRMatrix3x4* getInvWorldMatrix();
 
@@ -555,7 +563,7 @@ void RRObjectCollada::updateMaterials()
 			if(i==cache.end())
 			{
 				MaterialInfo mi;
-				mi.material.reset(false);
+				mi.material.reset(false); // 1-sided with photons hitting back side deleted
 				mi.material.diffuseReflectance = colorToColor(effectStandard->GetDiffuseColor());
 				mi.material.diffuseEmittance = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
 				mi.material.specularReflectance = colorToFloat(effectStandard->GetSpecularFactor() * effectStandard->GetSpecularColor());
@@ -580,15 +588,26 @@ void RRObjectCollada::updateMaterials()
 							{
 								// compute average diffuse texture color
 								enum {size = 8};
-								rr::RRColor avg = rr::RRColor(0);
+								rr::RRVec4 avg = rr::RRVec4(0);
 								for(unsigned i=0;i<size;i++)
 									for(unsigned j=0;j<size;j++)
 									{
-										float tmp[4];
-										mi.diffuseTexture->getPixel(i/(float)size,j/(float)size,0,tmp);
-										avg += rr::RRVec3(tmp[0],tmp[1],tmp[2]);
+										rr::RRVec4 tmp;
+										mi.diffuseTexture->getPixel(i/(float)size,j/(float)size,0,&tmp.x);
+										avg += tmp;
 									}
-								mi.material.diffuseReflectance = avg / (size*size);
+								avg /= size*size;
+								// rgb is diffuse reflectance
+								mi.material.diffuseReflectance = avg;
+								// alpha is transparency
+								mi.material.specularTransmittance = 1-avg[3];
+
+								// Enables per-pixel materials(diffuse reflectance and transparency) for solver.
+								// It makes calculation much slower, so enable it only when necessary.
+								// It usually pays off for textures with strongly varying per-pixel alpha (e.g. trees).
+								// Here, for simplicity, we enable it for textures with at least 1% transparency.
+								if(mi.material.specularTransmittance>0.01f)
+									mi.material.sideBits[0].pointDetails = 1; // our material is 1sided, so set it for side 0 (front)
 							}
 							else
 							{
@@ -676,7 +695,39 @@ const RRObjectCollada::MaterialInfo* RRObjectCollada::getTriangleMaterialInfo(un
 
 const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t) const
 {
-	return &getTriangleMaterialInfo(t)->material;
+	const MaterialInfo* materialInfo = getTriangleMaterialInfo(t);
+	return materialInfo ? &materialInfo->material : NULL;
+}
+
+void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
+{
+	const MaterialInfo* materialInfo = getTriangleMaterialInfo(t);
+	const RRMaterial* material = materialInfo ? &materialInfo->material : NULL;
+	if(material)
+	{
+		out = *material;
+	}
+	else
+	{
+		out.reset(false);
+	}
+	// getting coords for texture
+	RRMesh::TriangleMapping mapping;
+	getCollider()->getMesh()->getTriangleMapping(t,mapping);
+	uv = mapping.uv[0]*(1-uv[0]-uv[1]) + mapping.uv[1]*uv[0] + mapping.uv[2]*uv[1];
+	// getting pixel from texture
+	float rgba[4];
+	if(materialInfo->diffuseTexture->getPixel(uv[0],uv[1],0,rgba))
+	{
+		// diffuse color
+		out.diffuseReflectance[0] = rgba[0];
+		out.diffuseReflectance[1] = rgba[1];
+		out.diffuseReflectance[2] = rgba[2];
+		// alpha=0 for transparency
+		out.specularTransmittance = 1-rgba[3];
+		if(rgba[3]==0)
+			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
+	}
 }
 
 const RRMatrix3x4* RRObjectCollada::getWorldMatrix()

@@ -172,11 +172,24 @@ public:
 			return pack[1].getImporter()->getChannelData(channelId,itemIndex-pack0Items,itemData,itemSize);
 	}
 
+	//!!! 10% casu pri vypoctu lightmap travi zde, slo by eliminovat pomocnou tabulkou (objects,table)
+	//    ktera by pomohla i v ostatnich metodach (ale vyzadala by si prepis RRObjectMulti z puleni intervalu na jedno pole objektu)
+	//    zde by to pak vypadalo:
+	//    return objects[table[t].objectNumber]->getTriangleMaterial(table[t].triangleMidNumber);
 	virtual const RRMaterial* getTriangleMaterial(unsigned t) const
 	{
 		unoptimizeTriangle(t);
 		if(t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMaterial(t);
 		return pack[1].getImporter()->getTriangleMaterial(t-pack[0].getNumTriangles());
+	}
+
+	virtual void getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
+	{
+		unoptimizeTriangle(t);
+		if(t<pack[0].getNumTriangles())
+			pack[0].getImporter()->getPointMaterial(t,uv,out);
+		else
+			pack[1].getImporter()->getPointMaterial(t-pack[0].getNumTriangles(),uv,out);
 	}
 
 

@@ -8,6 +8,7 @@
 #include "../RRMathPrivate.h"
 #include "private.h"
 #include "gather.h"
+#include "../RRObject/RRCollisionHandler.h"
 
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
 #define HOMOGENOUS_FILL // enables homogenous rather than random(noisy) shooting
@@ -124,33 +125,6 @@ static RRVec3 getRandomExitDir(HomogenousFiller2& filler, const RRVec3& norm, co
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// collision handler that skips 1 triangle
-
-class SkipTriangle : public RRCollisionHandler
-{
-public:
-	SkipTriangle(unsigned askip) : skip(askip) {}
-	virtual void init()
-	{
-		result = false;
-	}
-	virtual bool collides(const RRRay* ray)
-	{
-		result = result || (ray->hitTriangle!=skip);
-		return ray->hitTriangle!=skip;
-	}
-	virtual bool done()
-	{
-		return result;
-	}
-	unsigned skip;
-private:
-	bool result;
-};
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // for 1 texel: helper objects used while gathering
 
 class GatheringTools
@@ -179,7 +153,8 @@ class GatheredIrradianceHemisphere
 {
 public:
 	GatheredIrradianceHemisphere(const GatheringTools& _tools, const ProcessTexelParams& _pti)
-		: tools(_tools), pti(_pti)
+		: tools(_tools), pti(_pti), collisionHandler(_pti.context.solver->getMultiObjectCustom(),_pti.tri.triangleIndex,true)
+		// handler: multiObjectCustom is sufficient because only sideBits are tested, we don't need phys scale
 	{
 		irradianceHemisphere = RRColorRGBF(0);
 		bentNormalHemisphere = RRVec3(0);
@@ -219,7 +194,8 @@ public:
 			pti.ray->rayDirInv[1] = dirsize/dir[1];
 			pti.ray->rayDirInv[2] = dirsize/dir[2];
 			pti.ray->rayLengthMax = pti.context.params->locality;
-			pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
+			pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // 2d is only for point materials
+			pti.ray->collisionHandler = &collisionHandler;
 			bool hit = tools.collider->intersect(pti.ray);
 #ifdef DIAGNOSTIC_RAYS
 			bool unreliable = hit && (!pti.ray->hitFrontSide || pti.ray->hitDistance<pti.context.params->rugDistance);
@@ -257,6 +233,10 @@ public:
 			}
 			else
 			{
+				//!!! odraz od leskleho
+				//!!! prusmah pruhlednym, vcetne indexu lomu
+				//!!! to vse rekurzivne
+
 				// read texel irradiance as face exitance
 				if(pti.context.params->applyCurrentSolution)
 				{
@@ -333,18 +313,24 @@ protected:
 	unsigned hitsScene;
 	// watchdogs
 	RRReal maxSingleRayContribution; // max sum of all irradiance components in physical scale
+	// collision handler
+	RRCollisionHandlerFirstReceiver collisionHandler;
 };
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // for 1 texel: irradiance gathered from lights
+//
+// handler computes direct visibility to light, taking transparency into account.
+// light paths with refraction and reflection is silently skipped
 
 class GatheredIrradianceLights
 {
 public:
 	GatheredIrradianceLights(const GatheringTools& _tools, const ProcessTexelParams& _pti)
-		: tools(_tools), pti(_pti), lights(_pti.context.solver->getLights())
+		: tools(_tools), pti(_pti), lights(_pti.context.solver->getLights()), collisionHandler(_pti.context.solver->getMultiObjectPhysical(),_pti.tri.triangleIndex,true)
+		// handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
 	{
 		irradianceLights = RRColorRGBF(0);
 		bentNormalLights = RRVec3(0);
@@ -389,33 +375,34 @@ public:
 				pti.ray->rayDirInv[1] = 1/dir[1];
 				pti.ray->rayDirInv[2] = 1/dir[2];
 				pti.ray->rayLengthMax = dirsize;
-				pti.ray->rayFlags = RRRay::FILL_SIDE|RRRay::FILL_DISTANCE;
+				pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
+				pti.ray->collisionHandler = &collisionHandler;
 				if(!tools.collider->intersect(pti.ray))
 				{
-					// add irradiance from light
-					RRVec3 irrad = light->getIrradiance(pti.tri.pos3d,tools.scaler) * normalIncidence;
+					// direct visibility found (at least partial), add irradiance from light
+					RRVec3 irrad = light->getIrradiance(pti.tri.pos3d,tools.scaler) * ( normalIncidence * collisionHandler.getVisibility() );
 					irradianceLights += irrad;
 					bentNormalLights += dir * irrad.abs().avg();
 					hitsLight++;
 					hitsReliable++;
 				}
 				else
-				if(!pti.ray->hitFrontSide) //!!! predelat na obecne, respoktovat surfaceBits
+				if(!collisionHandler.isLegal())
 				{
-					// ray was lost inside object -> unreliable
+					// illegal side encountered, ray was lost inside object or other harmful situation -> unreliable
 					hitsInside++;
 					hitsUnreliable++;
 				}
 				else
 				if(pti.ray->hitDistance<pti.context.params->rugDistance)
 				{
-					// ray hit rug, very close object -> unreliable
+					// no visibility, ray hit rug, very close object -> unreliable
 					hitsRug++;
 					hitsUnreliable++;
 				}
 				else
 				{
-					// ray hit scene -> reliable black (shadowed)
+					// no visibility, ray hit scene -> reliable black (shadowed)
 					hitsScene++;
 					hitsReliable++;
 				}
@@ -454,7 +441,8 @@ public:
 		{
 			// get average result from 1 round (lights accumulate inside 1 round, but multiple rounds must be averaged)
 			irradianceLights /= (RRReal)shotRounds;
-			// compute reliability
+			// compute reliability (lights have unknown intensities, so result is usually bad in partially reliable scene.
+			//  however, scheme works well for most typical 100% and 0% reliable pixels)
 			reliabilityLights = hitsReliable/(RRReal)rays;
 		}
 	}
@@ -476,6 +464,8 @@ protected:
 	unsigned hitsScene;
 	unsigned shotRounds;
 	const RRLights& lights;
+	// collision handler
+	RRCollisionHandlerVisibility collisionHandler;
 };
 
 
@@ -497,12 +487,13 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
 	if(!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
-		RRReporter::report(WARN,"processTexel: Empty scene\n");
+		RRReporter::report(WARN,"processTexel: Empty scene.\n");
 		RR_ASSERT(0);
 		return ProcessTexelResult();
 	}
 
 
+	// init helper objects: scaler, collider, environment, fillerPos
 	GatheringTools tools(pti);
 
 	// prepare irradiance accumulators, set .rays properly (0 when shooting is disabled for any reason)
@@ -519,11 +510,6 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	// prepare map info
 	unsigned mapWidth = pti.context.pixelBuffer ? pti.context.pixelBuffer->getWidth() : 0;
 	unsigned mapHeight = pti.context.pixelBuffer ? pti.context.pixelBuffer->getHeight() : 0;
-
-	// prepare ray
-	SkipTriangle skip(pti.tri.triangleIndex);
-	pti.ray->collisionHandler = &skip;
-	pti.ray->rayOrigin = pti.tri.pos3d;
 
 	hemisphere.init();
 	gilights.init();
