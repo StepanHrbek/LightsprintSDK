@@ -1,15 +1,11 @@
 #ifndef RRVISION_RRCORE_H
 #define RRVISION_RRCORE_H
 
-//#define SUPPORT_TRANSFORMS
-//#define SUPPORT_SCALE
 #define SUPPORT_MIN_FEATURE_SIZE // support merging of near ivertices (to fight needles, hide features smaller than limit)
 //#define SUPPORT_CLUSTERS
 //#define SUPPORT_INTERPOL // support interpolation, +20% memory required
-//#define HITS_FIXED       // fixed point hits save lots of memory, possible loss of precision
 #define HIT_PTR          & // hits are passed by reference
 #define BESTS           200 // how many best shooters to precalculate in one pass. more=faster best() but less accurate
-//#define ROTATIONS
 
 #define CHANNELS         3
 #define HITCHANNELS      1 // 1 (CHANNELS only if we support specular reflection that changes light color (e.g. polished steel) or specular transmittance that changes light color (e.g. colored glass))
@@ -44,6 +40,7 @@
 #include "geometry_v.h"
 #include "Lightsprint/RRStaticSolver.h"
 #include "interpol.h"
+#include "../RRObject/RRCollisionHandler.h" // SkipTriangle
 
 #define STATISTIC(a)
 #define STATISTIC_INC(a) STATISTIC(RRStaticSolver::getSceneStatistics()->a++)
@@ -53,18 +50,6 @@ namespace rr
 
 #define DBGLINE
 //#define DBGLINE printf("- %s %i\n",__FILE__, __LINE__);
-
-#ifdef HITS_FIXED
- #define HITS_UV_TYPE       U8
- #define HITS_UV_MAX        255 // <=8bit suitable only for fast preview, diverges when triangle gets more than ~1000 hits
- #define HITS_P_TYPE        S8
- #define HITS_P_MAX         127
- //#define HITS_UV_TYPE       U16
- //#define HITS_UV_MAX        65535
- //#define HITS_P_TYPE        S16
- //#define HITS_P_MAX         32767
-#else
-#endif
 
 #ifndef M_PI
  #define M_PI                ((real)3.14159265358979323846)
@@ -104,15 +89,9 @@ extern unsigned __frameNumber; // frame number increased after each draw
 
 struct Hit
 {
-#ifdef HITS_FIXED
-	HITS_UV_TYPE u; // 0..HITS_UV_MAX, multiple of r3,l3 in grandpa triangle
-	HITS_UV_TYPE v;
-	HITS_P_TYPE power; // -HITS_P_MAX..HITS_P_MAX, negative energy is for dynamic shooting
-#else
 	real    u; // 0..side lengths, multiple of u3,v3 in grandpa triangle
 	real    v;
 	HitChannels power; // -1..1, negative energy is for dynamic shooting. Pozor, muze byt vic nez 1, viz komentar u rayTracePhoton().
-#endif
 	void    setPower(HitChannels apower);
 	HitChannels getPower();
 };
@@ -147,18 +126,9 @@ public:
 	private:
 		void rawInsert(Hit HIT_PTR ahit);
 		void compactImmediate();
-#ifdef HITS_FIXED
-		U32 sum_u;
-		U32 sum_v;
-		S32 sum_power;
-//		U64 sum_u;
-//		U64 sum_v;
-//		S64 sum_power;
-#else
 		real sum_u;
 		real sum_v;
 		HitChannels sum_power;
-#endif
 		unsigned hitsAllocated;
 };
 
@@ -410,7 +380,7 @@ public:
 	void    compact();
 
 	// genealogy
-	class Object *object; // potrebuji ho kvuli SUPPORT_TRANSFORMS a subdivisionSpeed
+	class Object *object; // potrebuji ho kvuli subdivisionSpeed
 
 	// enumeration of all subtriangles
 	unsigned enumSubtriangles(EnumSubtrianglesCallback* callback, void* context);
@@ -432,12 +402,7 @@ public:
 		public:
 	struct Edge *edge[3];   // edges
 	U8      isValid      :1;// triangle is not degenerated
-#ifdef ROTATIONS
-	U8      rotations    :2;// how setGeometry(a,b,c) rotated vertices, 0..2, 1 means that vertex={b,c,a}
-#else
-	enum    {rotations=0};
-#endif
-	S8      setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,int rots,float ignoreSmallerAngle,float ignoreSmallerArea);
+	S8      setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,float ignoreSmallerAngle,float ignoreSmallerArea);
 	Vec3    to3d(Point2 a);
 	Vec3    to3d(int vertex);
 	SubTriangle *getNeighbourTriangle(int myside,int *nbsside,IVertex *newVertex);
@@ -607,20 +572,8 @@ public:
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
 	void    resetStaticIllumination(bool resetFactors, bool resetPropagation);
 
-	// intersections
-	Triangle* intersection(RRRay& ray, const Point3& eye, const Vec3& direction);
-
 	char    *name;
 	bool    check();
-
-#ifdef SUPPORT_TRANSFORMS
-	// transformations
-	const RRMatrix3x4  *transformMatrix;
-	const RRMatrix3x4  *inverseMatrix;
-	bool    matrixDirty;
-	void    transformBound();
-	void    updateMatrices();
-#endif
 };
 
 
@@ -641,33 +594,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// intersections
-
-class SkipTriangle : public RRCollisionHandler
-{
-public:
-	SkipTriangle() {}
-	virtual void init()
-	{
-		result = false;
-	}
-	virtual bool collides(const RRRay* ray)
-	{
-		result = result || (ray->hitTriangle!=skip);
-		return ray->hitTriangle!=skip;
-	}
-	virtual bool done()
-	{
-		return result;
-	}
-	unsigned skip;
-private:
-	bool result;
-};
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // scene
 
 class Scene
@@ -678,9 +604,7 @@ public:
 
 	Object* object;        // the only object that contains whole static scene
 
-	Triangle* intersectionStatic(RRRay& ray, const Point3& eye, const Vec3& direction, Triangle* skip);
 	HitChannels rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitChannels power=HitChannels(1));
-	Channels  getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels power=Channels(1));
 
 	void    objInsertStatic(Object *aobject);
 
@@ -690,9 +614,6 @@ public:
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
 	bool    distribute(real maxError);//skonci kdyz nejvetsi mnozstvi nerozdistribuovane energie na jednom facu nepresahuje takovou cast energie lamp (0.001 is ok)
-#ifdef SUPPORT_TRANSFORMS
-	void    transformObjects();
-#endif
 #ifdef SUPPORT_SUBDIVISION_FILES
 	void    iv_forEach(void callback(SubTriangle *s,IVertex *iv,int type));
 	void    iv_saveRealFrame(char *name);
@@ -713,7 +634,6 @@ public:
 	public:
 #endif // SUPPORT_SUBDIVISION_FILES
 	void    draw(RRStaticSolver* scene, real quality);
-	void    updateMatrices();
 
 
 	// get info

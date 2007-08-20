@@ -88,6 +88,9 @@ bool RRMaterial::validate()
 		if(clamp(specularReflectance,0,all-specularTransmittance-diffuseReflectance[i])) changed = true;
 	}
 
+	// FCollada returns 0 when information is not available
+	if(refractionIndex==0) {refractionIndex = 1; changed = true;}
+
 	return changed;
 }
 

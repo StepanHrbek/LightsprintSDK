@@ -25,11 +25,10 @@
 // 'Up' vector is automatically converted to 0,1,0 (Y positive).
 //
 // Alpha in diffuse textures is interpreted as transparency (0=transparent).
+// (Note: solvers apply transparency properly, however realtime OpenGL renderer ignores it)
 //
-// 'pointDetails' hint that makes solver use slower per-pixel material path
-// (rather than faster per-triangle)
+// 'pointDetails' flag that hints solver to use slower per-pixel material path
 // is enabled for diffuse textures with at least 1% transparency on average.
-// Search for pointDetails in code to change this condition.
 
 #if 1 // 0 disables Collada support, 1 enables
 
@@ -711,10 +710,10 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 	{
 		out.reset(false);
 	}
-	// getting coords for texture
-	RRMesh::TriangleMapping mapping;
-	getCollider()->getMesh()->getTriangleMapping(t,mapping);
-	uv = mapping.uv[0]*(1-uv[0]-uv[1]) + mapping.uv[1]*uv[0] + mapping.uv[2]*uv[1];
+	// getting coords for diffuse texture
+	rr::RRVec2 mapping[3];
+	getCollider()->getMesh()->getChannelData(rr_gl::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,t,mapping,sizeof(mapping));
+	uv = mapping[0]*(1-uv[0]-uv[1]) + mapping[1]*uv[0] + mapping[2]*uv[1];
 	// getting pixel from texture
 	float rgba[4];
 	if(materialInfo->diffuseTexture->getPixel(uv[0],uv[1],0,rgba))
@@ -723,7 +722,7 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 		out.diffuseReflectance[0] = rgba[0];
 		out.diffuseReflectance[1] = rgba[1];
 		out.diffuseReflectance[2] = rgba[2];
-		// alpha=0 for transparency
+		// alpha/transparency
 		out.specularTransmittance = 1-rgba[3];
 		if(rgba[3]==0)
 			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;

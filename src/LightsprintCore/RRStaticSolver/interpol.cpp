@@ -1090,7 +1090,7 @@ void Object::buildTopIVertices(unsigned smoothMode, float minFeatureSize, float 
 		meshImporter->getTriangle(t,un_ve);
 		for(int ro_v=0;ro_v<3;ro_v++) // ro_ = rotated 
 		{
-			unsigned un_v = un_ve[(ro_v+triangle[t].rotations)%3];
+			unsigned un_v = un_ve[ro_v];
 			RR_ASSERT(un_v<vertices);
 			triangle[t].topivertex[ro_v]=&topivertex[un_v];
 			Angle angle=angleBetween(

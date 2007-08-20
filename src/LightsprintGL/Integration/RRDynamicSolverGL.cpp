@@ -259,6 +259,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		glEnable(GL_CULL_FACE);
 
 		// read downscaled image to memory
+		RR_ASSERT(captureUv->triCountX*captureUv->triCountY<smallMapSize);
 		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap);
 
 		// send triangle irradiances to solver

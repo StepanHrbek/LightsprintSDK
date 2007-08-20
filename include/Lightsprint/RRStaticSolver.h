@@ -238,6 +238,7 @@ namespace rr
 
 	private:
 		class Scene*  scene;
+		friend class Gatherer;
 	};
 
 

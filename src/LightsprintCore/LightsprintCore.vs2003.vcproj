@@ -537,6 +537,14 @@
 				RelativePath="RRStaticSolver\clusters.h">
 			</File>
 			<File
+				RelativePath=".\RRStaticSolver\gatherer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RRStaticSolver\gatherer.h"
+				>
+			</File>
+			<File
 				RelativePath="RRStaticSolver\geometry_v.cpp">
 			</File>
 			<File
@@ -547,12 +555,6 @@
 			</File>
 			<File
 				RelativePath="RRStaticSolver\interpol.h">
-			</File>
-			<File
-				RelativePath="RRStaticSolver\intersections.cpp">
-			</File>
-			<File
-				RelativePath="RRStaticSolver\intersections.h">
 			</File>
 			<File
 				RelativePath="RRStaticSolver\rrcore.cpp">

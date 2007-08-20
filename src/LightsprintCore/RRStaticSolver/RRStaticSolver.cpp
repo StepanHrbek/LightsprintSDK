@@ -64,13 +64,6 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const SmoothingParameters* sm
 	for(unsigned i=0;i<obj->vertices;i++) 
 		meshImporter->getVertex(i,*(RRMesh::Vertex*)&obj->vertex[i]);
 
-#ifdef SUPPORT_TRANSFORMS
-	obj->transformMatrix=importer->getWorldMatrix();
-	obj->inverseMatrix=importer->getInvWorldMatrix();
-	// vyzada si prvni transformaci
-	obj->matrixDirty=true;
-#endif
-
 	// import triangles
 	// vzdy vklada/cisluje od nuly nahoru
 	DBG(printf(" triangles...\n"));
@@ -88,12 +81,7 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const SmoothingParameters* sm
 			&obj->vertex[tv[0]],
 			&obj->vertex[tv[1]],
 			&obj->vertex[tv[2]],
-#ifdef SUPPORT_TRANSFORMS
-			obj->transformMatrix,
-#else
-			NULL,
-#endif
-			NULL,-1,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea
+			NULL,NULL,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea
 			);
 		if(t->isValid) 
 		{
@@ -121,9 +109,6 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const SmoothingParameters* sm
 	// priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
 	obj->id=0;//!!!
 	obj->name=NULL;
-#ifdef SUPPORT_TRANSFORMS
-	obj->transformBound();
-#endif
 	// vlozi objekt do sceny
 	scene->objInsertStatic(obj);
 }
@@ -137,7 +122,6 @@ RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors,
 {
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID) return FINISHED;
 	__frameNumber++;
-	scene->updateMatrices();
 	return scene->resetStaticIllumination(resetFactors,resetPropagation);
 }
 
@@ -205,11 +189,9 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		goto zero;
 	}
 
-
 	// enhanced by smoothing
 	if(vertex<3 && measure.smoothed)
 	{
-		vertex=(vertex+3-tri->rotations)%3;
 		irrad = tri->topivertex[vertex]->irradiance(measure);
 	}
 	else
@@ -327,7 +309,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 		//!!! je zde chyba ktera se projevi jen pri nekterych typech subdivision
 		// fill 2d coords in triangle space
 		//  start with uv[] with ortonormal base
-		si.texCoord[i] = s->uv[(i+s->grandpa->rotations)%3];
+		si.texCoord[i] = s->uv[i];
 		//  and transform to triangle space
 		//  x , y -> x/u2.x-y*v2.x/u2.x/v2.y , y/v2.y
 		//  u2,v2 jsou brane z Triangle

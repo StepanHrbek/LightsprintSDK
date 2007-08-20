@@ -317,8 +317,14 @@ namespace rr
 			//! Requested type of results, applies only to updates of external buffers.
 			//
 			//! Attributes direct/indirect specify what parts of solver data read when applyCurrentSolution=true,
-			//! they have no influence on applyLights and applyEnvironment.
+			//! they have no influence on applyLights/applyEnvironment.
 			RRRadiometricMeasure measure;
+
+			//! Include lights set by setLights() as a source of illumination.
+			bool applyLights;
+
+			//! Include environment set by setEnvironment() as a source of illumination.
+			bool applyEnvironment;
 
 			//! Include current solution in static solver (getStaticSolver()) as a source of indirect illumination.
 			//
@@ -328,30 +334,29 @@ namespace rr
 			//! and applyLights/Environment at the same time.
 			bool applyCurrentSolution;
 
-			//! Include lights set by setLights() as a source of illumination.
-			bool applyLights;
-
-			//! Include environment set by setEnvironment() as a source of illumination.
-			bool applyEnvironment;
-
 			//! Quality of computed illumination.
-			//! Higher number = higher quality, but more time taken.
+			//
+			//! Higher number = higher quality. Time taken grows mostly linearly with this number.
 			//! 1000 is usually sufficient for production, with small per pixel details
 			//! and precise antialiasing computed.
-			//! Lower quality is usually insufficient, with per pixel details, but with artifacts
+			//! Lower quality is good for tests, with per pixel details, but with artifacts
 			//! and aliasing.
 			//!
-			//! If applyCurrentSolution is enabled and quality is zero,
+			//! If applyCurrentSolution is enabled, other applyXxx disabled and quality is zero,
 			//! very fast (milliseconds) update is executed and lightmap contains
 			//! nearly no noise, but small per pixel details are missing.
 			unsigned quality;
 
+			//! Deprecated. Only partially supported since 2007.08.21.
+			//
 			//! 0..1 ratio, texels with greater fraction of hemisphere 
 			//! seeing inside objects (or below rug, see rugDistance)
 			//! are masked away.
 			//! Default value 1 disables any correction.
 			RRReal insideObjectsTreshold;
 
+			//! Deprecated. Only partially supported since 2007.08.21.
+			//
 			//! Distance in world space, illumination coming from closer surfaces is masked away.
 			//! Set it slightly above distance of rug and ground, to prevent darkness
 			//! under the rug leaking half texel outside (instead, light around rug will
@@ -362,27 +367,23 @@ namespace rr
 			//
 			//! As long as it is bigger than scene size, results are realistic.
 			//! Setting it below scene size makes results less realistic, illumination
-			//! gets increasingly influenced by outer environment instead of scene.
+			//! gets increasingly influenced by outer environment/sky instead of scene.
 			//! (Rays are shot from texel into scene. When scene is not intersected
-			//! in in this or lower distance from texel, illumination is read from 
-			//! outer environment.)
+			//! in this or lower distance from texel, illumination is read from 
+			//! outer environment/sky.)
 			RRReal locality;
-
-			//! Turns on diagnostic output, generated map contains diagnostic values.
-			bool diagnosticOutput;
 
 			//! Sets default parameters for fast realtime update.
 			UpdateParameters()
 			{
 				measure = RM_IRRADIANCE_PHYSICAL_INDIRECT;
-				applyCurrentSolution = true;
 				applyLights = false;
 				applyEnvironment = false;
+				applyCurrentSolution = true;
 				quality = 0;
 				insideObjectsTreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
-				diagnosticOutput = false;
 			}
 		};
 

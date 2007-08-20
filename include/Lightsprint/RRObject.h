@@ -50,13 +50,12 @@ namespace rr
 	//
 	// RRColor              - rgb color
 	// RRRadiometricMeasure - radiometric measure
-	// RREmittanceType      - type of emission
 	// RRSideBits           - 1bit attributes of one side
 	// RRMaterial           - material properties of a surface
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	//! Color representation, r,g,b 0..1.
+	//! Color representation, r,g,b usually in 0..1 or 0..inf range.
 	typedef RRVec3 RRColor; 
 
 	//! Specification of radiometric measure; what is measured and what units are used.
@@ -81,7 +80,6 @@ namespace rr
 	#define RM_EXITANCE_PHYSICAL            rr::RRRadiometricMeasure(1,0,0,1,1)
 	#define RM_EXITANCE_CUSTOM              rr::RRRadiometricMeasure(1,1,0,1,1)
 
-
 	//! Boolean attributes of one side of a surface. Usually exist in array of two elements, for front and back side.
 	struct RRSideBits
 	{
@@ -92,7 +90,7 @@ namespace rr
 		unsigned char receiveFrom:1; ///< 1=catched photons reflect according to diffuseReflectance. Reflected photon splits and leaves to all sides with emitTo.
 		unsigned char reflect:1;     ///< 1=catched photons reflect according to specularReflectance. Reflected photon leaves to the same side.
 		unsigned char transmitFrom:1;///< 1=catched photons transmit according to specularTransmittance and refractionIndex. Transmitted photon leaves to other side.
-		unsigned char pointDetails:1;///< 1=material has important per-pixel details. It's hint for solver to use per-pixel materials. Solver always starts with fast RRObject::getTriangleMaterial(), but if it has pointDetails set, slower but more detailed getPointMaterial() is used instead.
+		unsigned char pointDetails:1;///< 1=material has important per-pixel details. It's hint for solver to use per-pixel materials. Solver always starts with fast RRObject::getTriangleMaterial(), but if it has pointDetails set, slower but more detailed getPointMaterial() is used instead. Save calculation time by enabling pointDetails only for materials with strong per-pixel differences, e.g. trees with transparency in alpha.
 	};
 
 	//! Description of material properties of a surface.
@@ -102,8 +100,18 @@ namespace rr
 	//! Values could be in physical or any other scale, depends on who uses it.
 	struct RR_API RRMaterial
 	{
-		void          reset(bool twoSided);          ///< Resets material to fully diffuse gray (50% reflected, 50% absorbed).
-		bool          validate();                    ///< Changes material to closest physically valid values. Returns true if any changes were made.
+		//! Resets material to fully diffuse gray (50% reflected, 50% absorbed).
+		//
+		//! In 1sided version, back side is not rendered, but light doesn't get through it.
+		//! It is good for making solid (3d) objects. Light that accidentally gets inside object and hits
+		//! invisible back side is deleted.
+		//!
+		//! In 2sided version, back side is rendered, spec.reflects, refracts, emits, but doesn't dif.reflect.
+		//! It makes good glass, but bad thin dif.reflecting wall.
+		void          reset(bool twoSided);
+
+		//! Changes material to closest physically valid values. Returns true if any changes were made.
+		bool          validate();
 
 		RRSideBits    sideBits[2];                   ///< Defines material behaviour for front (sideBits[0]) and back (sideBits[1]) side.
 		RRColor       diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
@@ -266,9 +274,7 @@ namespace rr
 		//! Returns object transformation.
 		//
 		//! Allowed transformations are composed of translation, rotation, scale.
-		//! Scale has not been extensively tested yet, problems with negative or non-uniform 
-		//! scale may eventually appear, but they would be fixed in future versions.
-		//! \n There is default implementation that always returns NULL, meaning no transformation.
+		//! \n There is default implementation that always returns NULL, which means no transformation.
 		//! \return Pointer to matrix that transforms object space to world space.
 		//!  May return NULL for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.

@@ -120,21 +120,13 @@ unsigned  __frameNumber=1; // frame number increased after each draw
 
 real Hit::getPower()
 {
-#ifdef HITS_FIXED
-	return power/(real)(HITS_P_MAX);
-#else
 	return power;
-#endif
 }
 
 void Hit::setPower(real apower)
 {
 	RR_ASSERT(apower>=-1 && apower<=1);
-#ifdef HITS_FIXED
-	power=(HITS_P_TYPE)(apower*HITS_P_MAX);
-#else
 	power=apower;
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -179,9 +171,7 @@ void Hits::rawInsert(Hit HIT_PTR ahit)
 	sum_u+=ahit.u;
 	sum_v+=ahit.v;
 	sum_power+=ahit.power;
-#ifndef HITS_FIXED
 	RR_ASSERT(IS_POWER(ahit.power));
-#endif
 }
 
 void Hits::insertWithSubdivision(Hit HIT_PTR ahit)
@@ -197,16 +187,7 @@ void Hits::insertWithoutSubdivision(HitChannels apower)
 
 real Hits::difBtwAvgHitAnd(Point2 a,Triangle *base)
 {
-#ifdef HITS_FIXED
-	RR_ASSERT(base->u2.y==0);
-	#define WORD_TO_REAL_U(u,v) (((u)*base->u2.x+(v)*base->v2.x)/HITS_UV_MAX)
-	#define WORD_TO_REAL_V(u,v) ((               (v)*base->v2.y)/HITS_UV_MAX)
-	return size(Point2(
-	  WORD_TO_REAL_U((real)(sum_u)/hits,(real)(sum_v)/hits)-a.x,
-	  WORD_TO_REAL_V((real)(sum_u)/hits,(real)(sum_v)/hits)-a.y));
-#else
 	return size(Point2(sum_u/hits-a.x,sum_v/hits-a.y));
-#endif
 }
 
 bool Hits::doSplit(Point2 centre,real perimeter,Triangle *base)
@@ -218,22 +199,14 @@ bool Hits::doSplit(Point2 centre,real perimeter,Triangle *base)
 {
 	real dif=0;
 	for(unsigned i=0;i<count;i++)
-#ifdef HITS_FIXED
-		dif+=size(Point2(hit[i].u/(HITS_UV_MAX*1.0)-a.x,hit[i].v/(HITS_UV_MAX*1.0)-a.y));
-#else
 		dif+=size(Point2(hit[i].u-a.x,hit[i].v-a.y));
-#endif
 	return dif/count;
 }*/
 
 real Hits::totalPower()
 {
-#ifdef HITS_FIXED
-	return sum_power/(real)(HITS_P_MAX);
-#else
 	RR_ASSERT(IS_NUMBER(sum_power));
 	return sum_power;
-#endif
 }
 
 void Hits::compactImmediate()
@@ -265,13 +238,6 @@ Hits::~Hits()
 Factor::Factor(class Node *adestination,real apower)
 {
 	RR_ASSERT(apower>0); // power=0 has no sense to store
-#ifdef CLEAN_FACTORS
-#ifdef HITS_FIXED
-	#warning With CLEAN_FACTORS + HITS_FIXED you may loose part of energy around partially transparent objects.
-	if(apower>1) fprintf(stderr,"Turn off CLEAN_FACTORS or HITS_FIXED when using transparent materials.\n");
-	RR_ASSERT(apower<=1);
-#endif
-#endif
 	// Power muze byt vic nez 1 uplne kdykoliv, viz komentar u rayTracePhoton().
 	//RR_ASSERT(apower<=1 || adestination->grandpa->surface->specularTransmittance>0); // power>1 may occur only on transparent surfaces
 	power=apower;
@@ -827,11 +793,6 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	DBGLINE
 	splita=splitvector.y/r;
 	splitb=-splitvector.x/r;
-#ifdef HITS_FIXED
-	RR_ASSERT(grandpa->u2.y==0);
-	splitb=(grandpa->v2.y*splitb+grandpa->v2.x*splita)/HITS_UV_MAX;
-	splita=grandpa->u2.x*splita/HITS_UV_MAX;
-#endif
 	// create subtriangles
 	DBGLINE
 	SubTriangle *sa=new SubTriangle(this,grandpa);
@@ -960,21 +921,12 @@ real calculateArea(Vec3 v0, Vec3 v1, Vec3 v2)
 // Pokud ale nevyscalujeme area, bude pri distribuci vznikat/zanikat energie.
 // obj2world tedy pouzijeme pouze k vypoctu area ve worldspace.
 
-S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,int rots,float ignoreSmallerAngle,float ignoreSmallerArea)
+S8 Triangle::setGeometry(Vec3* a,Vec3* b,Vec3* c,const RRMatrix3x4 *obj2world,Normal *n,float ignoreSmallerAngle,float ignoreSmallerArea)
 {
 	isValid=0;
-	RR_ASSERT(rots>=-1 && rots<=2);
-#ifdef ROTATIONS
-	if(rots==-1) rotations=0; else rotations=rots;
-again:
-	RR_ASSERT(rotations<=2);
-#else
-	RR_ASSERT(rots==-1);
-#endif
-
-	qvertex[(3-rotations)%3]=a;
-	qvertex[(4-rotations)%3]=b;
-	qvertex[(5-rotations)%3]=c;
+	qvertex[0]=a;
+	qvertex[1]=b;
+	qvertex[2]=c;
 
 	// set u3,v3,n3
 	qn3=normalized(ortogonalTo(getR3(),getL3()));
@@ -1006,39 +958,6 @@ again:
 	if(area<=0) return -4;
 	if(area<=ignoreSmallerArea) return -5;
 	//RR_ASSERT(size(SubTriangle::to3d(2)-*vertex[2])<0.001);
-#ifdef ROTATIONS
-	// stary rotace davajici ruzny vysledky s a bez optimalizaci
-	//if(v2.x<0) setGeometry(b,c,a);// to avoid negative coordinates
-	//if(v2.y>MAX(u2.x,v2.x)) setGeometry(b,c,a);// to avoid high lightmaps like 512*1000000
-	//if(v3!.x>v2.x) setGeometry(b,c,a);// aby byl horni vrchol uprostred a ne vyklonenej doprava
-
-	// triangly s uhlem alfa vetsim nez nakejch 89 stupnu zarotuje.
-	// kdybych vzal jako hranici 90 stupnu, vinou zaokrouhlovacich chyb
-	//  bych tentyz pravy uhel nekdy rotoval a nekdy ne.
-	//  uhly presne kolem nejakych 89 stupnu se nastesti nevyskytuji.
-	if(rots==-1 && // tohle delej jen pri autodetekci rotaci
-	   psqr>MAGIC2 || // to avoid negative coordinates
-	// triangly vyssi nez sirsi zarotuje aby byly radsi sirsi.
-	// ze stejnych duvodu opet ne presne vyssi ale o velice magicky nasobek.
-	   v2.y>MAGIC1b*MAX(u2.x,v2.x))// to avoid high lightmaps like 512*1000000
-	{
-		// zarotuje
-		rotations++;
-		goto again;
-	}
-	// kdyz ma prikazany pocet rotaci, overi ze rozdil od ocekavani
-	// neni vetsi nez co by se do zaokrouhlovaci chyby veslo
-	if(rots!=-1)
-	{
-		#define MAXERR 0.01
-		RR_ASSERT(psqr>MAGIC2-MAXERR);
-		RR_ASSERT(v2.y>MAGIC1b*MAX(u2.x,v2.x)-MAXERR);
-		#undef MAXERR
-	}
-
-	if(u2.x<0 || u2.y!=0 || v2.x<0 || v2.y<0) return -2; // throw out degenerated triangle
-	RR_ASSERT(v2.x>=0);
-#endif
 	RR_ASSERT(u2.x>=0);
 	RR_ASSERT(u2.y==0);
 	RR_ASSERT(v2.y>=0);
@@ -1058,7 +977,7 @@ again:
 
 	RR_ASSERT(IS_VEC3(getV3()));
 	isValid=1;
-	return rotations;
+	return 0;
 }
 
 // resetPropagation = true
@@ -1537,11 +1456,6 @@ Object::Object(int avertices,int atriangles)
 	triangle=new Triangle[triangles];
 	edge=NULL;
 	objSourceExitingFlux=Channels(0);
-#ifdef SUPPORT_TRANSFORMS
-	transformMatrix=NULL;
-	inverseMatrix=NULL;
-	matrixDirty=false;
-#endif
 	for(unsigned t=0;t<triangles;t++) triangle[t].object=this;
 	//vertexIVertex=new IVertex*[vertices];
 	//memset(vertexIVertex,0,sizeof(void*)*vertices);
@@ -1631,7 +1545,7 @@ void Object::buildEdges(float maxSmoothAngle)
 			{
 				RRMesh::Triangle ve;
 				meshImporter->getTriangle(t,ve);
-				unsigned v = ve[(v1+triangle[t].rotations)%3];
+				unsigned v = ve[v1];
 				RR_ASSERT(v>=0 && v<vertices); //v musi byt vertexem tohoto objektu
 				trianglesInV[v].insert(&triangle[t]);
 			}
@@ -1711,39 +1625,6 @@ bool Object::contains(Node *n)
 		(IS_SUBTRIANGLE(n) && contains(n->grandpa));
 }
 
-#ifdef SUPPORT_TRANSFORMS
-void Object::updateMatrices()
-{
-	// updatne matice
-	transformMatrix=importer->getWorldMatrix();
-	inverseMatrix=importer->getInvWorldMatrix();
-	// vyzada si prvni transformaci
-	matrixDirty=true;
-}
-
-void Object::transformBound()
-{
-	if(transformMatrix)
-		bound.center=transformMatrix->transformedPosition(bound.centerBeforeTransformation);
-	else
-		bound.center=bound.centerBeforeTransformation;
-}
-
-void Scene::transformObjects()
-{
-	for(unsigned o=0;o<objects;o++)
-	{
-		// transformuje jen kdyz se matice od minule zmenila
-		if(object[o]->matrixDirty)
-		{
-			// transformuje ted jen sphere a pak vsechny paprsky
-			object[o]->transformBound();
-			object[o]->matrixDirty=false;
-		}
-	}
-}
-#endif
-
 bool Object::check()
 {
 	return true;
@@ -1765,6 +1646,10 @@ Scene::Scene()
 	staticSourceExitingFlux=Channels(0);
 	sceneLevelHits = new LevelHits();
 	sceneRay = RRRay::create();
+	sceneRay->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
+	sceneRay->rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
+	sceneRay->rayLengthMax = BIG_REAL;
+	sceneRay->collisionHandler = &skipTriangle;
 	packedFactors = NULL;
 }
 
@@ -1831,16 +1716,6 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 	return (staticSourceExitingFlux!=Channels(0)) ? RRStaticSolver::NOT_IMPROVED : RRStaticSolver::FINISHED;
 }
 
-void Scene::updateMatrices()
-{
-#ifdef SUPPORT_TRANSFORMS
-	for(unsigned o=0;o<objects;o++) 
-	{
-		object[o]->updateMatrices();
-	}
-#endif
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // trace ray, reflect from triangles and mark hitpoints
@@ -1865,6 +1740,15 @@ Vec3 refract(Vec3 N,Vec3 I,real r)
 
 #define CHECK_HEAP //delete new char
 
+unsigned __shot=0;
+
+#define LOG_RAY(aeye,adir,adist,hit) { \
+	STATISTIC( \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[0]=aeye; \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].point[1]=(aeye)+(adir)*(adist); \
+	RRStaticSolver::getSceneStatistics()->lineSegments[RRStaticSolver::getSceneStatistics()->numLineSegments].infinite=!hit; \
+	++RRStaticSolver::getSceneStatistics()->numLineSegments%=RRStaticSolver::getSceneStatistics()->MAX_LINES; ) }
+
 // vraci:
 //  celkove mnozstvi z difusnich povrchu ODRAZENE power (power*T1.diffuseReflectance + power*T1.specularReflectance*T2.diffuseReflectance + atd)
 //  s korektnimi materialy by to nikdy nemelo prekrocit vstupni power
@@ -1880,18 +1764,23 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
+	RR_ASSERT(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
 	RRRay& ray = *sceneRay;
-	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
-	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
-	ray.rayLengthMax = BIG_REAL;
-	CHECK_HEAP;
-	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
-	CHECK_HEAP;
+	ray.rayOrigin = eye;
+	ray.rayDirInv[0] = 1/direction[0];
+	ray.rayDirInv[1] = 1/direction[1];
+	ray.rayDirInv[2] = 1/direction[2];
+	skipTriangle.skip = (unsigned)(skip-object->triangle);
+	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
+		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
+	__shot++;
+	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{
 		// ray left scene and vanished
 		return HitChannels(0);
 	}
+	RR_ASSERT(hitTriangle->u2.y==0);
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
 	static unsigned s_depth = 0;
 	if(s_depth>25) 
@@ -1924,22 +1813,15 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 		{
 			// expensive storage with u/v/power for each hit -> subdivision is possible
 			Hit hitPoint2d;
-#ifdef HITS_FIXED
-			hitPoint2d.u=(HITS_UV_TYPE)(HITS_UV_MAX*ray.hitPoint2d[0]);
-			hitPoint2d.v=(HITS_UV_TYPE)(HITS_UV_MAX*ray.hitPoint2d[1]);
-#else
 			// prepocet u,v ze souradnic (rightside,leftside)
 			//  do *hitPoint2d s ortonormalni bazi (u3,v3)
 			hitPoint2d.u=ray.hitPoint2d[0]*hitTriangle->u2.x+ray.hitPoint2d[1]*hitTriangle->v2.x;
 			hitPoint2d.v=ray.hitPoint2d[1]*hitTriangle->v2.y;
-#endif
 			hitPoint2d.setPower(power);
 			// put triangle among other hit triangles
 			if(!hitTriangle->hits.hits) hitTriangles.insert(hitTriangle);
 			// inform subtriangle where and how powerfully it was hit
-			CHECK_HEAP;
 			hitTriangle->hits.insertWithSubdivision(hitPoint2d);
-			CHECK_HEAP;
 		}
 		else
 		{
@@ -2082,117 +1964,98 @@ Triangle* Scene::getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	Vec3 rayVec3;
 	if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->sideBits,rayVec3)) 
 		return NULL;
-	/*
-#ifdef RR_DEVELOPMENT
-	ostatni varianty se uz dlouho nepouzivaji
-#endif
-	switch(source->grandpa->surface->emittanceType)
-	{
-	  case diffuseLight:
-	    {
-	    //area:
-		// pouziti funkce misto primeho zapisu pod vc7 prida 1.7% vykonu
-		if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->sideBits,rayVec3)) 
-			return NULL;
-	    break;
-	    }
-	    / *
-	  case windowhackDirect:
-	    {
-	    // hack pro okna, prime svetlo od slunce
-	    //! todo: udelat predtest overujici ze okno je zvenci osvetlene
-	    rayVec3=normalized(Vec3(1,1,1));
-	    break;
-	    }
-	  case windowhackAmbient:
-	    {
-	    // hack pro okna, rozptylene svetlo, vice shora, mene zdola
-	    rayVec3=normalized(Vec3(1,1,1));
-	    break;
-	    }	    
-	  case spotLight:
-	    {
-	    // hack pro diskolampu, bodovej zdroj je na souradnicich:
-	    source->grandpa->surface->diffuseEmittancePoint=Point3(0,0,23);
-	    // select vector from diffuseEmittancePoint to srcPoint3
-	    // power is assumed to be 1
-	    real r=5;
-	    Vec3 rndvec=Vec3(rand()*r*2/RAND_MAX-r,rand()*r*2/RAND_MAX-r,rand()*r*2/RAND_MAX-r);
-	    rayVec3=normalized(srcPoint3-source->grandpa->surface->diffuseEmittancePoint+rndvec);
-	    break;
-	    }
-	  case spotLight2:
-	    {
-	    // hack pro dvere, sviti napul vsesmerove a napul smerove
-	    // bodovej zdroj za postavou je v bode:
-	    source->grandpa->surface->diffuseEmittancePoint=Point3(-900,350,0);
-	    // navic muze cast svetla vylitavat normalne vsesmerove
-	    real vsesmerovacast=0.6f;
-	    if(rand()<RAND_MAX*vsesmerovacast) goto area;
-	    real r=30;
-	    Vec3 rndvec=Vec3(rand()*r*2/RAND_MAX-r,rand()*r*2/RAND_MAX-r,rand()*r*2/RAND_MAX-r);
-	    rayVec3=normalized(srcPoint3-source->grandpa->surface->diffuseEmittancePoint+rndvec);
-	    break;
-	    }* /
-	  default:
-	    // jiny typy zatim nejsou podporovany
-	    RR_ASSERT(0);
-	}
-	*/
 	RR_ASSERT(IS_SIZE1(rayVec3));
 
-#ifdef SUPPORT_TRANSFORMS
-	// transform from shooter's objectspace to scenespace
-	if(source->grandpa->object->transformMatrix)
-	{
-		*src = source->grandpa->object->transformMatrix->transformedPosition(srcPoint3);
-		*dir = source->grandpa->object->transformMatrix->transformedDirection(rayVec3);
-#ifdef SUPPORT_SCALE
-		*dir = normalized(*dir);
-#endif
-	}
-	else
-#endif
-	{
-		*src = srcPoint3;
-		*dir = rayVec3;
-	}
+	*src = srcPoint3;
+	*dir = rayVec3;
+
 	return source->grandpa;
 }
-
-//! Returns radiance of distant point in given direction, in W/sr/m^2.
-// decreasing power is used only for termination criteria
-Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels power)
+/*
+Channels Scene::getRadiance(Point3 eye,Vec3 direction,Triangle *skip,Channels visibility)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
+	RR_ASSERT(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
 	RRRay& ray = *sceneRay;
-	ray.rayFlags = RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
-	ray.rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
-	ray.rayLengthMax = BIG_REAL;
-	Triangle *hitTriangle = intersectionStatic(ray,eye,direction,skip);
-	if(!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
+	ray.rayOrigin = eye;
+	ray.rayDirInv[0] = 1/direction[0];
+	ray.rayDirInv[1] = 1/direction[1];
+	ray.rayDirInv[2] = 1/direction[2];
+	skipTriangle.skip = (unsigned)(skip-object->triangle);
+	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
+		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
+	__shot++;
+	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
+	if(!hitTriangle)
 	{
-		// ray left scene and vanished
+		// ray left scene
+		if(environment)
+		, hit environment
+		RRColorRGBF irrad = tools.environment->getValue(dir);
+		if(tools.scaler) tools.scaler->getPhysicalScale(irrad);
+		maxSingleRayContribution = MAX(maxSingleRayContribution,irrad.sum());
+		irradianceHemisphere += irrad;
 		return Channels(0);
 	}
+	if(!hitTriangle->surface)
+	{
+		// error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
+		RR_ASSERT(0);
+		return Channels(0);
+	}
+	RR_ASSERT(hitTriangle->u2.y==0);
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
-	if(ray.hitFrontSide) STATISTIC_INC(numGatherFrontHits); else STATISTIC_INC(numGatherBackHits);
-	// otherwise surface with these properties was hit
-	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
-	RR_ASSERT(side.catchFrom); // check that bad side was not hit
-	if(!side.receiveFrom)
-	{
-		// ray accidentally penetrated object and hit inner side
-		return Channels(0);
-	}
-	// calculate surface exitance
-	Channels incidentPower = hitTriangle->totalIncidentFlux;
-	Channels irradiance = incidentPower / hitTriangle->area;
-	Channels exitance = irradiance * hitTriangle->surface->diffuseReflectance;
-	return exitance;
-}
 
+	RRSideBits side=hitTriangle->surface->sideBits[ray.hitFrontSide?0:1];
+	Channels exitance = Channels(0);
+	if(side.legal && (side.catchFrom || side.emitTo))
+	{
+		// per-pixel material
+		const RRMaterial* material = hitTriangle->surface;
+		RRMaterial pointMaterial;
+		if(side.pointDetails)
+		{
+			material = &pointMaterial;
+			object->importer->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,pointMaterial);
+			side = pointMaterial.sideBits[ray.hitFrontSide?0:1];
+		}
+
+		// diffuse reflection
+		if(side.emitTo)
+		{
+			Channels incidentPower = hitTriangle->totalIncidentFlux;
+			Channels irradiance = incidentPower / hitTriangle->area;
+			exitance += visibility * irradiance * material->diffuseReflectance;
+			//!!! /2 kdyz emituje do obou stran
+		}
+
+		// specular reflection
+		if(side.reflect)
+		if(sum(abs(visibility*material->specularReflectance))>0.1)
+		{
+			// calculate hitpoint
+			Point3 hitPoint3d=eye+direction*ray.hitDistance;
+			// calculate new direction after ideal mirror reflection
+			Vec3 newDirection=hitTriangle->getN3()*(-2*dot(direction,hitTriangle->getN3())/size2(hitTriangle->getN3()))+direction;
+			// recursively call this function
+			exitance += getRadiance(hitPoint3d,newDirection,hitTriangle,visibility*material->specularReflectance);
+		}
+	
+		// specular transmittance
+		if(side.transmitFrom)
+		if(sum(abs(visibility*material->specularTransmittance))>0.1)
+		{
+			// calculate hitpoint
+			Point3 hitPoint3d=eye+direction*ray.hitDistance;
+			// calculate new direction after refraction
+			Vec3 newDirection=-refract(hitTriangle->getN3(),direction,material->refractionIndex);
+			// recursively call this function
+			exitance += getRadiance(hitPoint3d,newDirection,hitTriangle,visibility*material->specularTransmittance);
+		}
+	}
+	return exitance;
+}*/
 
 //////////////////////////////////////////////////////////////////////////////
 //

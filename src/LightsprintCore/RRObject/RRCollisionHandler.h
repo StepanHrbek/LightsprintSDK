@@ -7,6 +7,32 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// SkipTriangle
+
+class SkipTriangle : public RRCollisionHandler
+{
+public:
+	virtual void init()
+	{
+		result = false;
+	}
+	virtual bool collides(const RRRay* ray)
+	{
+		result = result || (ray->hitTriangle!=skip);
+		return ray->hitTriangle!=skip;
+	}
+	virtual bool done()
+	{
+		return result;
+	}
+	unsigned skip;
+private:
+	bool result;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRCollisionHandlerFirstReceiver
 //
 //! Creates and returns collision handler, that finds closest receiver for given emitor.

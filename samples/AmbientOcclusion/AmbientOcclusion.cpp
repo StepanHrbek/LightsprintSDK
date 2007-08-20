@@ -38,6 +38,7 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007
 // --------------------------------------------------------------------------
 
+#define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel AO, others get per-vertex AO
 //#define TB
 
 #ifdef TB
@@ -58,7 +59,6 @@
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/LightmapViewer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include <time.h>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ float                   speedForward = 0;
 float                   speedBack = 0;
 float                   speedRight = 0;
 float                   speedLeft = 0;
-rr_gl::UberProgramSetup    uberProgramSetup;
+rr_gl::UberProgramSetup uberProgramSetup;
 float                   brightness[4] = {1,1,1,1};
 float                   gamma = 1;
 #ifdef RR_DEVELOPMENT
@@ -302,10 +302,9 @@ void keyboard(unsigned char c, int x, int y)
 				}
 				else
 				{
-					unsigned objectNumber = 3;
 					lv = rr_gl::LightmapViewer::create(
-						solver->getIllumination(objectNumber)->getLayer(0)->pixelBuffer,
-						solver->getObject(objectNumber)->getCollider()->getMesh());
+						solver->getIllumination(SELECTED_OBJECT_NUMBER)->getLayer(0)->pixelBuffer,
+						solver->getObject(SELECTED_OBJECT_NUMBER)->getCollider()->getMesh());
 					if(lv)
 					{
 						glutMouseFunc(lv->mouse);
@@ -369,7 +368,7 @@ void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, uns
 	paramsDirectPixel.measure = RM_IRRADIANCE_CUSTOM; // get maps in sRGB
 	paramsDirectPixel.quality = 2000;
 	paramsDirectPixel.applyEnvironment = true;
-	unsigned objectNumbers[] = {3};
+	unsigned objectNumbers[] = {SELECTED_OBJECT_NUMBER};
 	for(unsigned i=0;i<sizeof(objectNumbers)/sizeof(objectNumbers[0]);i++)
 	{
 		unsigned objectNumber = objectNumbers[i];
@@ -412,7 +411,7 @@ void saveAmbientOcclusionToDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layer
 			sprintf(filename,"../../data/export/%d.vbu",objectIndex );
 #endif
 			bool saved = vbuf->save(filename);
-			printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+			rr::RRReporter::report(rr::INF1,saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
 		}
 
 		// save pixel buffer
@@ -426,7 +425,7 @@ void saveAmbientOcclusionToDisk(rr_gl::RRDynamicSolverGL* solver, unsigned layer
 			sprintf(filename,"../../data/export/%d.png",objectIndex );
 #endif
 			bool saved = map->save(filename);
-			printf(saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
+			rr::RRReporter::report(rr::INF1,saved?"Saved %s.\n":"Error: Failed to save %s.\n",filename);
 		}
 	}
 }
@@ -541,22 +540,20 @@ int main(int argc, char **argv)
 	solver->setEnvironment( solver->adaptIlluminationEnvironmentMap( environmentMap ) );
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 
-	time_t seconds = time(NULL);
+	{
+		rr::RRReportInterval report(rr::INF1,"Calculating global ambient occlusion ...\n");
 
-	solver->calculate();
-	if(!solver->getMultiObjectCustom())
-		error("No objects in scene.",false);
+		solver->calculate();
+		if(!solver->getMultiObjectCustom())
+			error("No objects in scene.",false);
 
-	// calculate and save it
-	calculatePerVertexAndSelectedPerPixel(solver,0); // calculatePerPixel(solver,0);
-	saveAmbientOcclusionToDisk(solver,0);
+		// calculate and save it
+		calculatePerVertexAndSelectedPerPixel(solver,0); // calculatePerPixel(solver,0);
+		saveAmbientOcclusionToDisk(solver,0);
 
-	// or load it
-	//loadAmbientOcclusionFromDisk(solver,0);
-
-	time_t newseconds = time(NULL) - seconds;
-	printf( "time taken %d seconds \n", newseconds );
-
+		// or load it
+		//loadAmbientOcclusionFromDisk(solver,0);
+	}
 
 	uberProgramSetup.LIGHT_INDIRECT_auto = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;

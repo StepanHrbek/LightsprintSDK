@@ -343,21 +343,11 @@ void frameSetup(Scene *scene)
    // jedine kdyz grabuje, g_tgaFrame prebiji hodnotu v p_3dsFrame
    p_3dsFrame=p_3dsFrameStart+(p_3dsFrameEnd-p_3dsFrameStart)*(g_tgaFrame%g_tgaFrames)/g_tgaFrames;
  }
- #ifdef SUPPORT_TRANSFORMS
- if(p_flyingObjects)
- {
-   scene->object->matrixDirty=true;
- }
- // vzhledem k tomu ze tx,ty,tz ve vertex nevydrzej do dalsiho framu,
- // musime ztransformovat vzdy znova vsechny objekty
- for(unsigned o=0;o<scene->objects;o++) scene->object[o]->matrixDirty=true;
-
  if(p_flyingObjects || n_dirtyObject)
  {
    matrix_Hierarchy(__world->hierarchy,__identity,p_3dsFrame);
    n_dirtyObject=false;
  }
- #endif
  if(p_flyingCamera || n_dirtyCamera)
  {
    matrix_Invert(__world->camera[0].matrix,__world->camera[0].inverse);
@@ -631,10 +621,7 @@ void keyboardFunc(unsigned char key, int x, int y)
  }
 
  // vynuti si pozdejsi transformaci objektu se kterym se hnulo
- #ifdef SUPPORT_TRANSFORMS
- scene->object[__obj]->matrixDirty=true;
  n_dirtyObject=true;
- #endif
  // vynuti si pozdejsi transformaci kamery
  n_dirtyCamera=true;
 }
@@ -650,10 +637,7 @@ void specialFunc(int key,int x,int y)
   }
 
  // vynuti si pozdejsi transformaci objektu se kterym se hnulo
- #ifdef SUPPORT_TRANSFORMS
- scene->object[__obj]->matrixDirty=true;
  n_dirtyObject=true;
- #endif
  // vynuti si pozdejsi transformaci kamery
  n_dirtyCamera=true;
 
@@ -750,7 +734,7 @@ int main(int argc, char **argv)
  glutInit(&argc,argv);
  render_init();
  timeBeginPeriod(1); // improves precision of demoengine's GETTIME
- RRLicense::LicenseStatus status = rr::RRLicense::loadLicense("..\\..\\data\\licence_number");
+ RRLicense::LicenseStatus status = rr::RRLicense::loadLicense("..\\data\\licence_number");
  switch(status)
  {
 	case RRLicense::VALID:       break;

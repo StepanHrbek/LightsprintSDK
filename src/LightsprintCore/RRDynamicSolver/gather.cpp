@@ -8,6 +8,7 @@
 #include "../RRMathPrivate.h"
 #include "private.h"
 #include "gather.h"
+#include "../RRStaticSolver/gatherer.h" //!!! vola neverejny interface static solveru
 #include "../RRObject/RRCollisionHandler.h"
 
 #define LIMITED_TIMES(times_max,action) {static unsigned times_done=0; if(times_done<times_max) {times_done++;action;}}
@@ -152,17 +153,27 @@ public:
 class GatheredIrradianceHemisphere
 {
 public:
-	GatheredIrradianceHemisphere(const GatheringTools& _tools, const ProcessTexelParams& _pti)
-		: tools(_tools), pti(_pti), collisionHandler(_pti.context.solver->getMultiObjectCustom(),_pti.tri.triangleIndex,true)
-		// handler: multiObjectCustom is sufficient because only sideBits are tested, we don't need phys scale
+	// once before shooting (quick init that computes 'rays')
+	// inputs:
+	//  - pti.ray
+	//  - pti.tri.triangleIndex
+	GatheredIrradianceHemisphere(const GatheringTools& _tools, const ProcessTexelParams& _pti) :
+		tools(_tools),
+		pti(_pti),
+		// collisionHandler: multiObjectCustom is sufficient because only sideBits are tested, we don't need phys scale
+		collisionHandler(_pti.context.solver->getMultiObjectCustom(),_pti.tri.triangleIndex,true),
+		gatherer(_pti.ray,_pti.context.solver->getStaticSolver(),_tools.environment,_tools.scaler)
 	{
+		// used by processTexel even when not shooting to hemisphere
 		irradianceHemisphere = RRColorRGBF(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 1;
 		rays = (tools.environment || pti.context.params->applyCurrentSolution) ? MAX(1,pti.context.params->quality) : 0;
 	}
 
-	// before shooting
+	// once before shooting (full init)
+	// inputs:
+	//  - pti.tri.normal
 	void init()
 	{
 		if(!rays) return;
@@ -181,19 +192,31 @@ public:
 		hitsScene = 0;
 		// init watchdogs
 		maxSingleRayContribution = 0; // max sum of all irradiance components in physical scale
+		// init ray
+		pti.ray->rayLengthMin = 0; // kdybych na to nesahal, bude tam od volajiciho pekne male cislo
+		pti.ray->rayLengthMax = pti.context.params->locality;
 	}
 
 	// 1 ray
+	// inputs:
+	//  - ray.rayOrigin
 	void shotRay()
 	{
 			// random exit dir
 			RRVec3 dir = getRandomExitDir(fillerDir, n3, u3, v3);
 			RRReal dirsize = dir.length();
+
+RRColor irrad = gatherer.gather(pti.ray->rayOrigin,dir,pti.tri.triangleIndex,RRColor(1));
+irradianceHemisphere += irrad;
+bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
+hitsScene++;
+hitsReliable++;
+return;
+
 			// intersect scene
 			pti.ray->rayDirInv[0] = dirsize/dir[0];
 			pti.ray->rayDirInv[1] = dirsize/dir[1];
 			pti.ray->rayDirInv[2] = dirsize/dir[2];
-			pti.ray->rayLengthMax = pti.context.params->locality;
 			pti.ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // 2d is only for point materials
 			pti.ray->collisionHandler = &collisionHandler;
 			bool hit = tools.collider->intersect(pti.ray);
@@ -217,7 +240,7 @@ public:
 				hitsReliable++;
 			}
 			else
-			if(!pti.ray->hitFrontSide) //!!! predelat na obecne, respektovat surfaceBits
+			if(!pti.ray->hitFrontSide) //!!! zde nerespektuje surfaceBits
 			{
 				// ray was lost inside object, 
 				// increase our transparency, so our color doesn't leak outside object
@@ -233,10 +256,7 @@ public:
 			}
 			else
 			{
-				//!!! odraz od leskleho
-				//!!! prusmah pruhlednym, vcetne indexu lomu
-				//!!! to vse rekurzivne
-
+				//!!! zde chybi odraz od leskleho, refrakce
 				// read texel irradiance as face exitance
 				if(pti.context.params->applyCurrentSolution)
 				{
@@ -259,6 +279,7 @@ public:
 			}
 	}
 
+	// once after shooting
 	void done()
 	{
 		if(!rays) return;
@@ -300,6 +321,7 @@ public:
 protected:
 	const GatheringTools& tools;
 	const ProcessTexelParams& pti;
+	Gatherer gatherer;
 	// ortonormal base
 	RRVec3 n3; // normal
 	RRVec3 u3;

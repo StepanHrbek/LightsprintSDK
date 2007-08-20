@@ -6,7 +6,7 @@
 
 \page news What's new
 
-\section news29 ------------------------------------ 2007.8.x -------------------------------------
+\section news29 ------------------------------------ 2007.8.21 -------------------------------------
 
 NEWS
 
@@ -14,13 +14,15 @@ NEWS
   Suitable for diffuse/specular/transparency textures, even procedural ones.
   Specified by RRObject::getPointMaterial() and RRSideBits::pointDetails.
   Automatically used by solvers.
+- proper reflection and refraction, creates caustics etc (rewritten final gather pass)
 - antialiased shadows (were aliased in scenes lit by RRLight)
-- transparency and sideBits honoured by solver, so e.g. alpha keyed.
 
 CHANGES
 
-- new RRSideBits::legal=0 flag enables
-  light leak prevention previously hardcoded for back sides of 1sided faces
+- features gone with old final gather, to be removed or reworked
+  RRDynamicSolver::UpdateParameters::insideObjectsTreshold
+  RRDynamicSolver::UpdateParameters::rugDistance
+  RRSideBits::legal
 
 \section news28 ------------------------------------ 2007.8.4 -------------------------------------
 
