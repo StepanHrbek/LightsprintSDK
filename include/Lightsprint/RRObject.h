@@ -342,7 +342,7 @@ namespace rr
 		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
 		//! \n For array with 1 element, pointer to that element may be returned.
 		//! \n\n For description how to access original triangles and vertices in MultiObject, 
-		//!  see RRMesh::createMultiMesh(). Note that for non-negative maxStitchDistance,
+		//!  see RRMesh::createMultiMesh(). Note that for non-negative vertexWeldDistance,
 		//!  some vertices may be optimized out, so prefer PreImpport<->PostImport conversions.
 		//! \param objects
 		//!  Array of objects you want to create multiobject from.
@@ -353,7 +353,7 @@ namespace rr
 		//!  Number of objects in array.
 		//! \param intersectTechnique
 		//!  Technique used for collider construction.
-		//! \param maxStitchDistance
+		//! \param vertexWeldDistance
 		//!  Distance in world units. Vertices with lower or equal distance will be stitched into one vertex.
 		//!  Zero stitches only identical vertices, negative value means no action.
 		//! \param optimizeTriangles
@@ -362,7 +362,7 @@ namespace rr
 		//!  there are no degenerated triangles at all and you can save few cycles by setting false.
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
-		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation);
+		static RRObject* createMultiObject(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, char* cacheLocation);
 
 		//! Creates and returns object with space for per-triangle user-defined additional illumination.
 		//

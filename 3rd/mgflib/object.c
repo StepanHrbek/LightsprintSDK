@@ -9,6 +9,7 @@ static char SCCSid[] = "@(#)object.c 1.5 11/29/95 LBL";
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "mgfparser.h"
 

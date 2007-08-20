@@ -19,7 +19,7 @@ namespace rr
 class RRMultiObjectImporter : public RRObject
 {
 public:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float maxStitchDistance, bool optimizeTriangles, char* cacheLocation)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, float vertexWeldDistance, bool optimizeTriangles, char* cacheLocation)
 	{
 		if(!numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
@@ -28,7 +28,7 @@ public:
 		// optimalizace: multimesh z 1 objektu = objekt samotny
 		// lze aplikovat jen pokud se nestitchuji vertexy
 		// pokud se stitchuji, musi vse projit standardni multi-cestou
-		if(numObjects>1 || maxStitchDistance>=0 || optimizeTriangles)
+		if(numObjects>1 || vertexWeldDistance>=0 || optimizeTriangles)
 		{
 			// create multimesh
 			transformedMeshes = new RRMesh*[numObjects+3];
@@ -48,10 +48,10 @@ public:
 			//!!! kdyz jsou zaple tyto optimalizace, "fcss koupelna" gcc hodi assert u m3ds v getTriangleMaterial,
 			//    moc velky trianglIndex. kdyz ho ignoruju, crashne. v msvc se nepodarilo navodit.
 			// stitch vertices
-			if(maxStitchDistance>=0)
+			if(vertexWeldDistance>=0)
 			{
 				oldMesh = multiMesh;
-				multiMesh = multiMesh->createOptimizedVertices(maxStitchDistance);
+				multiMesh = multiMesh->createOptimizedVertices(vertexWeldDistance);
 				if(multiMesh!=oldMesh) transformedMeshes[numObjects+1] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles

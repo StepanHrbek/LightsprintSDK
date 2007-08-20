@@ -2010,7 +2010,7 @@ Rendering realtime global illumination with Lightsprint:
  - interface to 3d triangle mesh
  - knows tristrips, trilists, indexed or not (RRMesh::create, RRMesh::createIndexed)
  - can optimize:
-   - vertex stitching (RRMesh::createOptimizedVertices)
+   - vertex welding (RRMesh::createOptimizedVertices)
    - removes degenerated triangles (RRMesh::createOptimizedTriangles)
  - merges many small meshes into one big mesh without additional memory (RRMesh::createMultiMesh)
  - saves/loads to disk (RRMesh::save, RRMesh::load)

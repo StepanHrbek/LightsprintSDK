@@ -74,7 +74,7 @@ namespace rr
 			//! Zero stitches only identical vertices, negative value generates no action.
 			//! Non-stitched vertices at the same location create illumination discontinuity.
 			//! \n If your geometry is clean and needs no stitching, make sure to set negative value, calculation will be faster.
-			float stitchDistance;
+			float vertexWeldDistance;
 			//! Distance in world units. Smaller features will be smoothed. This could be imagined as a kind of blur.
 			//! Use 0 for no smoothing and watch for possible artifacts in areas with small geometry details
 			//! and 'needle' triangles. Increase until artifacts disappear.
@@ -99,10 +99,10 @@ namespace rr
 			//! These values are suitable for typical interior scenes with 1m units.
 			SmoothingParameters()
 			{
-				subdivisionSpeed = 0;
+				subdivisionSpeed = 0; // disabled
 				smoothMode = 2;
-				stitchDistance = 0.01f;
-				minFeatureSize = 0.15f;
+				vertexWeldDistance = -1; // disabled
+				minFeatureSize = 0; // disabled
 				maxSmoothAngle = 0.33f;
 				ignoreSmallerAngle = 0.001f;
 				ignoreSmallerArea = 1e-10f;

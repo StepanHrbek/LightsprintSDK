@@ -23,6 +23,8 @@ CHANGES
   RRDynamicSolver::UpdateParameters::insideObjectsTreshold
   RRDynamicSolver::UpdateParameters::rugDistance
   RRSideBits::legal
+- stitchDistance renamed to vertexWeldDistance
+- default SmoothingParameters disable vertex weld and minFeatureSize
 
 \section news28 ------------------------------------ 2007.8.4 -------------------------------------
 

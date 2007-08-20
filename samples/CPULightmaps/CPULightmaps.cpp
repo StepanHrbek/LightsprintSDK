@@ -185,9 +185,6 @@ int main(int argc, char **argv)
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
 	solver->setScaler(scaler);
-	rr::RRStaticSolver::SmoothingParameters smoothingParams;
-	smoothingParams.stitchDistance = 0;
-	smoothingParams.minFeatureSize = 0;
 
 	FCDocument* collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
@@ -198,7 +195,7 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 	rr::RRObjects* objects = adaptObjectsFromFCollada( collada );
-	solver->setObjects( *objects, &smoothingParams );
+	solver->setObjects( *objects, NULL );
 	rr::RRLights* lights = adaptLightsFromFCollada( collada );
 	solver->setLights( *lights );
 	solver->setEnvironment( environmentMap );

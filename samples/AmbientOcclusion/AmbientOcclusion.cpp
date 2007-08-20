@@ -504,9 +504,6 @@ int main(int argc, char **argv)
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
-	rr::RRStaticSolver::SmoothingParameters smoothingParams;
-	smoothingParams.stitchDistance = 0;
-	smoothingParams.minFeatureSize = 0;
 #ifdef TB
 	// these are our peice chunk AO textures names to match on
 	std::vector< std::string > mapNames;
@@ -525,7 +522,7 @@ int main(int argc, char **argv)
 	//mapNames.push_back( "1_12" );
 	//mapNames.push_back( "1_13" );
 	//mapNames.push_back( "1_14" );
-	solver->setObjects( *adaptObjectsFromTB( mapNames ), &smoothingParams );
+	solver->setObjects( *adaptObjectsFromTB( mapNames ), NULL );
 #else
 	FCDocument* collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
@@ -535,7 +532,7 @@ int main(int argc, char **argv)
 		puts(errorHandler.GetErrorString());
 		error("",false);
 	}
-	solver->setObjects( *adaptObjectsFromFCollada( collada ), &smoothingParams );
+	solver->setObjects( *adaptObjectsFromFCollada( collada ), NULL );
 #endif
 	solver->setEnvironment( solver->adaptIlluminationEnvironmentMap( environmentMap ) );
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");

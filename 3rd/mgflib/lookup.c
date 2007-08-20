@@ -9,6 +9,7 @@ static char SCCSid[] = "@(#)lookup.c 1.7 9/4/98 LBL";
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "lookup.h"
 
 #ifndef MEM_PTR

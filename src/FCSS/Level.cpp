@@ -116,11 +116,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 
 	rr::RRStaticSolver::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
-	sp.stitchDistance = 0; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
+	//sp.minFeatureSize = 0.15f;
+	//sp.vertexWeldDistance = 0.01f; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
 #ifdef THREE_ONE
 	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
 #endif
-	//sp.stitchDistance = -1;
 	solver->setObjects(*objects,&sp);
 
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
