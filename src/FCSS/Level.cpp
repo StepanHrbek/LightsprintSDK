@@ -40,7 +40,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	rr::RRReporter::report(rr::INF1,"Loading %s...",pilot.setup->filename);
 
 	type = TYPE_NONE;
-	const char* typeExt[] = {".3ds",".bsp",".dae"};
+	const char* typeExt[] = {".3ds",".bsp",".dae",".mgf"};
 	for(unsigned i=TYPE_3DS;i<TYPE_NONE;i++)
 	{
 		if(strlen(pilot.setup->filename)>=4 && _stricmp(pilot.setup->filename+strlen(pilot.setup->filename)-4,typeExt[i])==0)
@@ -100,10 +100,15 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			break;
 		}
 #endif
+#ifdef SUPPORT_MGF
+		case TYPE_MGF:
+			objects = adaptObjectsFromMGF(pilot.setup->filename);
+			break;
+#endif
 		default:
 			puts("Unsupported scene format.");
 	}
-	if(!objects)
+	if(!objects || !objects->size())
 	{
 		rr::RRReporter::report(rr::ERRO,"Scene %s not loaded.\n",pilot.setup->filename);
 		error("",false);
@@ -178,6 +183,10 @@ Level::~Level()
 #ifdef SUPPORT_COLLADA
 		case TYPE_DAE:
 			delete collada;
+			break;
+#endif
+#ifdef SUPPORT_MGF
+		case TYPE_MGF:
 			break;
 #endif
 		default:

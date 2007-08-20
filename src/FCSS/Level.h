@@ -4,6 +4,7 @@
 #define SUPPORT_3DS
 #define SUPPORT_COLLADA
 #define SUPPORT_BSP
+#define SUPPORT_MGF
 
 #ifdef SUPPORT_COLLADA
 	#include "FCollada.h"
@@ -19,6 +20,10 @@
 #ifdef SUPPORT_3DS
 	#include "../../samples/Import3DS/Model_3DS.h"
 	#include "../../samples/Import3DS/RRObject3DS.h"
+#endif
+
+#ifdef SUPPORT_MGF
+	#include "../../samples/ImportMGF/RRObjectMGF.h"
 #endif
 
 #include "AnimationEditor.h"
@@ -45,6 +50,7 @@ public:
 		TYPE_3DS = 0,
 		TYPE_BSP,
 		TYPE_DAE,
+		TYPE_MGF,
 		TYPE_NONE,
 	};
 	Type type;

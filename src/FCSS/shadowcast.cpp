@@ -10,10 +10,10 @@ unsigned INSTANCES_PER_PASS;
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED
 //#define THREE_ONE
-#define CFG_FILE "LightsprintDemo.cfg"
+//#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "Candella.cfg"
-//#define CFG_FILE "test.cfg"
+#define CFG_FILE "test.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
@@ -1695,11 +1695,11 @@ void mainMenu(int item)
 				paramsDirect.quality = LIGHTMAP_QUALITY;
 
 				// update 1 object
-				static unsigned obj=12;
+				static unsigned obj=0;
 				if(level->solver->getIllumination(obj))
 				{
 					if(!level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer)
-						level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512,512);
+						level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer = ((rr_gl::RRDynamicSolverGL*)(level->solver))->createIlluminationPixelBuffer(512*2,512*2);
 					level->solver->updateLightmap(obj,level->solver->getIllumination(obj)->getLayer(0)->pixelBuffer,NULL,&paramsDirect);
 				}
 				//
@@ -1868,9 +1868,9 @@ void initMenu()
 	glutAddMenuEntry("Lightmaps update(env+lights)", ME_UPDATE_LIGHTMAPS_0_ENV);
 	glutAddMenuEntry("Lightmaps save current", ME_SAVE_LIGHTMAPS_0);
 	glutAddMenuEntry("Lightmaps load current", ME_LOAD_LIGHTMAPS_0);
-	glutAddMenuEntry("Lightmaps update(rt light) all", ME_UPDATE_LIGHTMAPS_ALL);
-	glutAddMenuEntry("Lightmaps save all", ME_SAVE_LIGHTMAPS_ALL);
-	glutAddMenuEntry("Lightmaps load all", ME_LOAD_LIGHTMAPS_ALL);
+	glutAddMenuEntry("Lightmaps update(rt light) all frames", ME_UPDATE_LIGHTMAPS_ALL);
+	glutAddMenuEntry("Lightmaps save all frames", ME_SAVE_LIGHTMAPS_ALL);
+	glutAddMenuEntry("Lightmaps load all frames", ME_LOAD_LIGHTMAPS_ALL);
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
 	glutAddMenuEntry("Scene next", ME_NEXT_SCENE);
 	glutAddMenuEntry("Toggle help",ME_TOGGLE_HELP);
@@ -2210,7 +2210,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !true; //!!!
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_CONST = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;

@@ -389,6 +389,70 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="ImportMGF"
+			>
+			<File
+				RelativePath="..\..\samples\ImportMGF\badarg.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\context.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\fvect.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\ldmgf.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\ldmgf.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\lookup.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\lookup.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\messages.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\mgfparser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\object.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\parser.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\RRObjectMGF.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\RRObjectMGF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\words.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\ImportMGF\xf.c"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\AnimationEditor.cpp"
 			>
