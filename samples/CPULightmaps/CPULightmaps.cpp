@@ -24,6 +24,8 @@
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007
 // --------------------------------------------------------------------------
 
+#define SELECTED_OBJECT_NUMBER 0 // selected object gets lightmap, others get per-vertex
+
 #include "FCollada.h"
 #include "FCDocument/FCDocument.h"
 #include "../ImportCollada/RRObjectCollada.h"
@@ -76,7 +78,7 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, int laye
 	// it is faster and quality is good for some objects
 	rr::RRDynamicSolver::UpdateParameters paramsDirect;
 	paramsDirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
-	paramsDirect.quality = 5000;
+	paramsDirect.quality = 4000;
 	paramsDirect.applyCurrentSolution = false;
 	paramsDirect.applyEnvironment = true;
 	paramsDirect.applyLights = true;
@@ -91,10 +93,10 @@ void calculatePerVertexAndSelectedPerPixel(rr::RRDynamicSolver* solver, int laye
 	// it is slower, but some objects need it
 	rr::RRDynamicSolver::UpdateParameters paramsDirectPixel;
 	paramsDirectPixel.measure = RM_IRRADIANCE_CUSTOM; // get maps in sRGB
-	paramsDirectPixel.quality = 2000;
+	paramsDirectPixel.quality = 500;
 	paramsDirectPixel.applyEnvironment = true;
 	paramsDirectPixel.applyLights = true;
-	unsigned objectNumbers[] = {3};
+	unsigned objectNumbers[] = {SELECTED_OBJECT_NUMBER};
 	for(unsigned i=0;i<sizeof(objectNumbers)/sizeof(objectNumbers[0]);i++)
 	{
 		unsigned objectNumber = objectNumbers[i];

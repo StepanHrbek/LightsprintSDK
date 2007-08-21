@@ -24,7 +24,7 @@ CHANGES
   RRDynamicSolver::UpdateParameters::rugDistance
   RRSideBits::legal
 - stitchDistance renamed to vertexWeldDistance
-- default SmoothingParameters disable vertex weld and minFeatureSize
+- default SmoothingParameters disable minFeatureSize and limit vertex weld to identical vertices
 
 \section news28 ------------------------------------ 2007.8.4 -------------------------------------
 

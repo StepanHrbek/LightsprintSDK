@@ -73,7 +73,8 @@ namespace rr
 			//! Distance in world units. Vertices with lower or equal distance will be internally stitched into one vertex.
 			//! Zero stitches only identical vertices, negative value generates no action.
 			//! Non-stitched vertices at the same location create illumination discontinuity.
-			//! \n If your geometry is clean and needs no stitching, make sure to set negative value, calculation will be faster.
+			//! \n If your geometry doesn't need stitching and adapter doesn't split vertices (Collada adapter does),
+			//! make sure to set negative value, calculation will be faster.
 			float vertexWeldDistance;
 			//! Distance in world units. Smaller features will be smoothed. This could be imagined as a kind of blur.
 			//! Use 0 for no smoothing and watch for possible artifacts in areas with small geometry details
@@ -101,7 +102,7 @@ namespace rr
 			{
 				subdivisionSpeed = 0; // disabled
 				smoothMode = 2;
-				vertexWeldDistance = -1; // disabled
+				vertexWeldDistance = 0; // enabled for identical vertices
 				minFeatureSize = 0; // disabled
 				maxSmoothAngle = 0.33f;
 				ignoreSmallerAngle = 0.001f;

@@ -349,18 +349,12 @@ void calculatePerVertexAndSelectedPerPixel(rr_gl::RRDynamicSolverGL* solver, uns
 {
 	// calculate per vertex - all objects
 	// it is faster and quality is good for some objects
-	rr::RRDynamicSolver::UpdateParameters paramsDirect;
-	paramsDirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
-	paramsDirect.quality = 5000;
-	paramsDirect.applyCurrentSolution = false;
-	paramsDirect.applyEnvironment = true;
-	rr::RRDynamicSolver::UpdateParameters paramsIndirect;
-	paramsIndirect.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
-	paramsIndirect.quality = 2000;
-	paramsIndirect.applyCurrentSolution = false;
-	paramsIndirect.applyEnvironment = true;
-	//paramsIndirect.locality = 4;
-	solver->updateVertexBuffers(0,-1,true,&paramsDirect,&paramsIndirect); 
+	rr::RRDynamicSolver::UpdateParameters paramsBoth;
+	paramsBoth.measure = RM_IRRADIANCE_PHYSICAL; // get vertex colors in HDR
+	paramsBoth.quality = 5000;
+	paramsBoth.applyCurrentSolution = false;
+	paramsBoth.applyEnvironment = true;
+	solver->updateVertexBuffers(0,-1,true,&paramsBoth,&paramsBoth); 
 
 	// calculate per pixel - selected objects
 	// it is slower, but some objects need it
