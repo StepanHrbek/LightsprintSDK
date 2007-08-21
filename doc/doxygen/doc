@@ -8,34 +8,22 @@ namespace rr
 
  \image html intro.jpg
 
- Welcome to Lightsprint Software Development Kit.
+ \section root_welcome Welcome to Lightsprint Software Development Kit
+ - \subpage main_introduction
+ - \subpage main_scenarios
+ - \subpage main_features
+ - \subpage main_platforms
+ - \subpage main_credits
 
- - <b> \subpage main_introduction </b>
+ \section root_guide Programming guide
+ - \subpage main_integration
+ - \subpage main_inputs
+ - \subpage main_data_access
+ - \subpage main_conventions "Conventions (units, scale, floats...)"
+ - \subpage main_api
 
- - <b> \subpage main_scenarios </b>
-
- - <b> \subpage main_features </b>
-
- - <b> \subpage main_platforms </b>
-
- - <b> \subpage main_credits </b>
-
- Programming guide:
-
- - <b> \subpage main_integration </b>
-
- - <b> \subpage main_data_access </b>
-
- - <b> \subpage main_light_sources </b>
-
- - <b> \subpage main_conventions "Conventions (units, scale, floats...)" </b>
-
- - <b> \subpage main_api </b>
-
-
- Samples and tutorials:
-
- - <b> \subpage main_samples </b>
+ \section root_samples Samples and tutorials
+ - \subpage main_samples
 
 
 
@@ -241,19 +229,14 @@ Lightsprint SDK uses following third party libraries:
 
 \page main_integration Integration
 
-Precalculations with Lightsprint, integration with your toolchain:
+ \section integr_tool Precalculations / for toolchain
+  - \subpage integration_tool_1
+  - \subpage integration_tool_2
 
- - <b> \subpage integration_tool_1 </b>
-
- - <b> \subpage integration_tool_2 </b>
-
-Rendering realtime global illumination with Lightsprint:
-
- - <b> \subpage integration_realtime_1 </b>
-
- - <b> \subpage integration_realtime_3 </b>
-
- - <b> \subpage integration_realtime_4 </b>
+ \section integr_rt Realtime / in game
+  - \subpage integration_realtime_1
+  - \subpage integration_realtime_3
+  - \subpage integration_realtime_4
 
 
 
@@ -846,28 +829,20 @@ Rendering realtime global illumination with Lightsprint:
 
 
 
-\page main_data_access Calculations 
- Lightsprint can calculate
+\page main_data_access Calculation and outputs
+ \section calc_1 Lightsprint can calculate
+  - \subpage data_illumination
+  - \subpage data_ambient_occlusion
+  - \subpage data_bent_normals
 
- - <b> \subpage data_illumination </b>
+ \section calc_2 and store them in object's
+  - \subpage data_vertex_buffer
+  - \subpage data_pixel_buffer
+  - \subpage data_environment_map
 
- - <b> \subpage data_ambient_occlusion </b>
-
- - <b> \subpage data_bent_normals </b>
-
- and store them in object's
-
- - <b> \subpage data_vertex_buffer </b>
-
- - <b> \subpage data_pixel_buffer </b>
-
- - <b> \subpage data_environment_map </b>
-
- or quickly return single value for given
-
- - <b> \subpage data_triangle </b>
-
- - <b> \subpage data_ray </b>
+ \section calc_3 or quickly return single value for given
+  - \subpage data_triangle
+  - \subpage data_ray
 
  Lightsprint is very flexible, it lets you pick optimal structures 
  for different objects and data types
@@ -1745,8 +1720,22 @@ Rendering realtime global illumination with Lightsprint:
 
 
 
+
  
-\page main_light_sources Light sources
+\page main_inputs Inputs
+
+ \section inputs_structures Data structures
+  - \subpage inputs_light_sources
+  - \subpage inputs_geometry
+  - \subpage inputs_materials
+
+ \section inputs_files Files
+  - \subpage inputs_collada
+  - \subpage inputs_3ds
+  - \subpage inputs_quake3
+  - \subpage inputs_images
+
+\page inputs_light_sources Light sources
 
  Lightsprint supports multiple types of light sources.
 
@@ -1762,13 +1751,6 @@ Rendering realtime global illumination with Lightsprint:
   - Setup: RRDynamicSolver::setEnvironment()
   - Calculation: CPU, standard non-realtime functions (RRDynamicSolver::updateLightmaps() etc)
 
- \section lemissive Emissive materials
-  - Area light source, triangles covered by materials that emit light.
-  - Data structure: RRObject with emissive materials returned by RRObject::getTriangleMaterial()
-  - Data structure container: RRObjects
-  - Setup: RRDynamicSolver::setObjects()
-  - Calculation: CPU, standard non-realtime functions (RRDynamicSolver::updateLightmaps() etc)
-
  \section llights RRLights
   - Point/spot/directional light source.
   - Data structure: RRLight
@@ -1781,6 +1763,13 @@ Rendering realtime global illumination with Lightsprint:
   However, light must be emited by single point; to simulate area light,
   use e.g. triangles with emissive material.
 
+ \section lemissive Emissive materials
+  - Area light source, triangles covered by materials that emit light.
+  - Data structure: RRObject with emissive materials returned by RRObject::getTriangleMaterial()
+  - Data structure container: RRObjects
+  - Setup: RRDynamicSolver::setObjects()
+  - Calculation: CPU, standard non-realtime functions (RRDynamicSolver::updateLightmaps() etc)
+
  \section lrealtime Custom realtime lights
   - See RealtimeRadiosity sample. It demonstrates custom area light
     with realtime global illumination.
@@ -1791,8 +1780,62 @@ Rendering realtime global illumination with Lightsprint:
     See \ref main_integration for details on using custom realtime lights
     (with global illumination) in your projects.
 
+\page inputs_geometry Geometry
+ Scene geometry is specified by RRObjects - set of RRObject objects.
+ \n Each object has its own transformation matrix and pointer to RRMesh triangle mesh,
+ so object is instance of mesh.
+ \n Mesh specifies vertices, triangles, normals, unwrap and custom data.
+
+\page inputs_materials Materials
+ Materials are specified by RRMaterial.
+
+ Objects provide two levels of material information.
+ \n 1. Per-triangle, RRObject::getTriangleMaterial() returns average material properties of one triangle.
+ \n 2. Per-pixel, RRObject::getPointMaterial() returns material properties of single point on object's surface.
+
+ Calculations with per-triangle materials are faster, so solver uses per-pixel material only when
+ its per-triangle version has sideBits[].pointDetails flag set (set by you).
+
+ Materials must be physically correct. Use RRMaterial::validate() to validate your materials.
+ 
+\page inputs_collada Collada (.DAE)
+ Collada is one of the most flexible and most widely supported 3d scene file formats.
+ It is well specified open standard with great support.
+
+ Source code of Collada adapter is in: samples/ImportCollada/*.*
+ \n It adapts Collada scene with geometry, materials and light to Lightsprint format.
+ \n Scene is loaded by open source FCollada library, precompiled in bin/lib directories.
+
+ See comments at the beginning of samples/ImportCollada/RRObjectCollada.cpp
+ for more details on features supported.
+
+\page inputs_3ds .3DS
+ 3DS is very old and popular 3d scene file format.
+ It is closed format without official specification.
+ It supports only one uv coordinates, so it is suitable for realtime lighting and precomputed
+ per-vertex, but not for precomputed lightmaps.
+
+ Source code of 3ds adapter is in: samples/Import3DS/*.*
+ \n It adapts 3DS scene with geometry and materials for Lightsprint format.
+ \n Scene is loaded by open source 3DS loader in the same directory.
+
+\page inputs_quake3 Quake 3 (.BSP)
+ Quake 3 .BSP is popular 3d scene format used by now open source game Quake 3.
+ It supports only one uv coordinates, so it is suitable for realtime lighting and precomputed
+ per-vertex, but not for precomputed lightmaps.
+
+ Source code of Quake 3 adapter is in: samples/ImportQuake3/*.*
+ \n It adapts BSP scene with geometry and materials for Lightsprint format.
+ \n Scene is loaded by open source BSP loader in the same directory.
+
+\page inputs_images Images (jpg, png, dds, hdr, gif, tga...)
+ Nearly all standard image formats are supported.
+ \n Images with floating point colors are supported in .hdr format.
+
+ Both 2d and cubemap images are supported.
 
 
+ 
  
 \page main_conventions Conventions
 
