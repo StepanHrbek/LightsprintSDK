@@ -139,7 +139,8 @@ EXCLUDE_PATTERNS       =
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
-IMAGE_PATH             = h:\c\rr\doc\doxygen
+IMAGE_PATH             = h:\c\rr\doc\doxygen \
+                         h:\c\rr\doc\doxygen\samples
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
 FILTER_SOURCE_FILES    = NO

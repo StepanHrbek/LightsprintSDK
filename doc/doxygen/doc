@@ -2158,52 +2158,45 @@ Lightsprint SDK uses following third party libraries:
 
 \page main_samples Samples
 
- Directory samples in the SDK contains following projects (blue boxes):
- \image html libraries.png
+ \section samples_root Purpose
 
- and directories with additional source code:
- - Import3DS
- - ImportCollada
- - ImportQuake3
+ - \subpage samples_gl
+ - \subpage samples_core
+ - \subpage samples_import
 
- <hr>
- <b>AmbientOcclusion</b>
- - precalculates ambient occlusion maps/vertexcolors with infinite light bounces and color bleeding
- - viewer of object/scene and ambient occlusion map
- - loads Collada scene
 
- <hr>
- <b>Lightmaps</b>
- - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
- - has realtime global illumination preview for one light
- - uses internal renderer
- - loads Collada scene
+
+\page samples_core LightsprintCore - precalculations, collisions
+
+ Following projects use LightsprintCore library for lighting or collision calculations.
+ \n They are located in samples directory in the SDK, binaries in bin.
+ \n Results are usually displayed in text console or saved to data/export directory.
 
  <hr>
  <b>CPULightmaps</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/CPULightmaps_1.jpg computed lightmap
+  </td><td>
+  \image html samples/CPULightmaps_2.jpg computed bent normal map
+  </td></tr></table>
  - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
  - no rendering, only CPU is used, runs on GPU-less machines
  - loads Collada scene
 
  <hr>
- <b>RealtimeRadiosity</b>
- - renders realtime global illumination in scene with dynamic objects and area light
- - features penumbra shadows, color bleeding
- - shows feeding external 3ds renderer with Lightsprint computed illumination
- - loads 3ds scene and 3ds dynamic objects
-
- <hr>
- <b>PenumbraShadows</b>
- - renders realtime direct illumination in scene with dynamic objects and area light
- - features penumbra shadows
+ <b>AmbientOcclusion</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/AmbientOcclusion_1.jpg computed global ambient occlusion map
+  </td><td>
+  \image html samples/AmbientOcclusion_2.jpg with materials applied
+  </td></tr></table>
+ - precalculates ambient occlusion maps/vertexcolors with infinite light bounces and color bleeding
+ - optional viewer of results (screenshots) is not important for calculation
+ - loads Collada scene
 
  <hr>
  <b>HelloStaticSolver</b>
  - calculates static illumination in constructed scene, without renderer
-
- <hr>
- <b>Water</b>
- - simple use of LightsprintGL, renders skybox and water with waves, reflection, fresnel
 
  <hr>
  <b>BunnyBenchmark</b>
@@ -2219,20 +2212,75 @@ Lightsprint SDK uses following third party libraries:
  <b>HelloMesh</b>
  - the most simple case of mesh creation
 
+
+
+\page samples_gl LightsprintGL - realtime rendering
+
+ Following projects use LightsprintGL library for rendering
+ and LightsprintCore for lighting calculations.
+ \n They are located in samples directory in the SDK, binaries in bin.
+
+ <hr>
+ <b>RealtimeRadiosity</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/RealtimeRadiosity_1.jpg realtime
+  </td><td>
+  \image html samples/RealtimeRadiosity_2.jpg realtime
+  </td></tr></table>
+ - renders realtime global illumination in scene with dynamic objects and area light
+ - features penumbra shadows, color bleeding
+ - shows feeding external 3ds renderer with Lightsprint computed illumination
+ - loads 3ds scene and 3ds dynamic objects
+
+ <hr>
+ <b>Lightmaps</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/Lightmaps_1.jpg realtime (freely move light)
+  </td><td>
+  \image html samples/Lightmaps_2.jpg precomputed (p pressed)
+  </td></tr></table>
+ - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
+ - has realtime global illumination preview for one light
+ - uses internal renderer
+ - loads Collada scene
+
+ <hr>
+ <b>PenumbraShadows</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/PenumbraShadows_1.jpg penumbra shadows
+  </td><td>
+  \image html samples/PenumbraShadows_2.jpg penumbra shadows
+  </td></tr></table>
+ - renders realtime direct illumination in scene with dynamic objects and area light
+ - features penumbra shadows
+ - no global illumination, only constant ambient
+
+ <hr>
+ <b>Water</b>
+ - simple use of LightsprintGL, renders skybox and water with waves, reflection, fresnel
+
+
+
+\page samples_import Scene import
+
+ Several sample 3d scene importers are provided.
+ They are not libraries, only *.h and *.cpp files to be included in other projects.
+ \n They are located in samples directory in the SDK.
+
  <hr>
  <b>ImportCollada</b>
- - source code of Collada adapter (called e.g. from Lightmaps)
- - not a complete application, used by other samples
+ - source code of Collada adapter
+ - \ref inputs_collada details
 
  <hr>
  <b>Import3DS</b>
- - source code of 3DS loader, renderer and adapter (called e.g. from RealtimeRadiosity sample)
- - not a complete application, used by other samples
+ - source code of 3DS loader, renderer and adapter
+ - \ref inputs_3ds details
 
  <hr>
  <b>ImportQuake3</b>
  - source code of Quake3 map loader and adapter
- - not a complete application, used by other samples
+ - \ref inputs_quake3 details
 
 
 */
