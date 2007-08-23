@@ -6,6 +6,7 @@
 
 #include "Music.h"
 #include "fmod/fmod_errors.h"
+#include "Lightsprint/RRDebug.h"
 #include <stdio.h>
 #include <conio.h>
 #include <string.h>
@@ -15,7 +16,9 @@ void ERRCHECK(FMOD_RESULT result)
 {
 	if (result != FMOD_OK)
 	{
-		printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+		rr::RRReporter::report(rr::ERRO,"FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+		rr::RRReporter::report(rr::INF1,"Press Enter to end...");
+		fgetc(stdin);
 		exit(-1);
 	}
 }

@@ -60,6 +60,7 @@ public:
 	RRReporterPrintf()
 	{
 		hconsole = GetStdHandle (STD_OUTPUT_HANDLE);
+		currentColor = 7;
 	}
 	virtual void customReport(RRReportType type, int indentation, const char* message)
 	{
@@ -70,18 +71,21 @@ public:
 			char space[1000];
 			memset(space,' ',indentation);
 			space[indentation] = 0;
+			SetConsoleTextAttribute(hconsole, 7);
 			printf(space);
+			SetConsoleTextAttribute(hconsole, currentColor);
 		}
 		// type
 		if(type!=CONT)
 		{
 			char typeColor[CONT] = {15+16*4,14,15,7,7,7,6};
-			SetConsoleTextAttribute(hconsole, typeColor[type]);
+			SetConsoleTextAttribute(hconsole, currentColor = typeColor[type]);
 		}
 		// message
 		printf("%s%s",(type==ASSE)?"Assert failed: ":"",message);
 	}
 	HANDLE hconsole;
+	char currentColor;
 };
 
 

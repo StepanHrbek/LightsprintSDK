@@ -20,6 +20,10 @@ namespace rr
 	//
 	//! Direct light source, directional or point light with programmable function.
 	//
+	//! Custom lights with this interface may be created.
+	//! Predefined point and spot lights support only physically correct
+	//! distance attenuation, but more options will be added soon.
+	//!
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//! All custom implementations must be thread safe too.
 	//

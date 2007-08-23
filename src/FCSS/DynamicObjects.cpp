@@ -272,7 +272,8 @@ void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& f
 	{
 		unsigned demoIndex = setup->objects[sceneIndex]; // demo has more objects
 		AnimationFrame::DynaObjectPosRot tmp;
-		if(dynaobject[demoIndex])
+		if(demoIndex<dynaobject.size() // but hand edit of .cfg may remove objects referenced from .ani, lets check it
+			&& dynaobject[demoIndex])
 		{
 			tmp.pos = dynaobject[demoIndex]->worldFoot;
 			tmp.rot = dynaobject[demoIndex]->rotYZ;

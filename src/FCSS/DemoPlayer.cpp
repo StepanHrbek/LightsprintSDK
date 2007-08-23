@@ -6,11 +6,14 @@
 #include "DynamicObjects.h"
 //#include "LevelSequence.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/RRDebug.h"
 
 extern void showImage(const rr_gl::Texture* tex);
 
 DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 {
+	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",demoCfg);
+
 	memset(this,0,sizeof(*this));
 	bigscreenBrightness = 1;
 	bigscreenGamma = 1;
@@ -18,7 +21,10 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 
 	FILE* f = fopen(demoCfg,"rt");
 	if(!f)
+	{
+		rr::RRReporter::report(rr::ERRO,"Wrong path/filename, doesn't exist.\n");
 		return;
+	}
 
 	// load loading_screen
 	char buf[1000];

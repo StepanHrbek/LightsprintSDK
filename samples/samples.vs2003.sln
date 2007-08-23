@@ -24,10 +24,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows.vs2003", "P
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Water.vs2003", "Water\Water.vs2003.vcproj", "{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug DLL = Debug DLL
@@ -58,10 +54,6 @@ Global
 		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Debug DLL.Build.0 = Debug DLL|Win32
 		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Release DLL.ActiveCfg = Release DLL|Win32
 		{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}.Release DLL.Build.0 = Release DLL|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug DLL.ActiveCfg = Debug DLL|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Debug DLL.Build.0 = Debug DLL|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release DLL.ActiveCfg = Release DLL|Win32
-		{39E5E68E-2A16-AC52-1AA2-9B1C32E9A022}.Release DLL.Build.0 = Release DLL|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

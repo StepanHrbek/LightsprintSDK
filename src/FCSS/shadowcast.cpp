@@ -9,11 +9,11 @@ unsigned INSTANCES_PER_PASS;
 #define SUPPORT_LIGHTMAPS          1
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED
-//#define THREE_ONE
+#define THREE_ONE
+#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
-//#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "Candella.cfg"
-#define CFG_FILE "test.cfg"
+//#define CFG_FILE "test.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
@@ -1061,7 +1061,7 @@ void display()
 		shots++;
 		char buf[100];
 		//sprintf(buf,"Lightsprint3+1_%02d.png",shots);
-		sprintf(buf,"frame%04d.jpg",shots);
+		sprintf(buf,"video\\frame%04d.jpg",shots);
 		if(rr_gl::Texture::saveBackbuffer(buf))
 			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
 		else
@@ -2210,7 +2210,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_VCOLOR = false;
-	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = !true; //!!!
+	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_CONST = false;
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_MAP = false;

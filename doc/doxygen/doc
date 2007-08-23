@@ -2223,9 +2223,9 @@ Lightsprint SDK uses following third party libraries:
  <hr>
  <b>RealtimeRadiosity</b>
   <table border=0 width=95%><tr align=top><td>
-  \image html samples/RealtimeRadiosity_1.jpg realtime
+  \image html samples/RealtimeRadiosity_2.jpg freely move light, objects
   </td><td>
-  \image html samples/RealtimeRadiosity_2.jpg realtime
+  \image html samples/RealtimeRadiosity_1.jpg global illumination changes in realtime
   </td></tr></table>
  - renders realtime global illumination in scene with dynamic objects and area light
  - features penumbra shadows, color bleeding
@@ -2235,14 +2235,15 @@ Lightsprint SDK uses following third party libraries:
  <hr>
  <b>Lightmaps</b>
   <table border=0 width=95%><tr align=top><td>
-  \image html samples/Lightmaps_1.jpg realtime (freely move light)
+  \image html samples/Lightmaps_1.jpg realtime GI, move light
   </td><td>
-  \image html samples/Lightmaps_2.jpg precomputed (p pressed)
+  \image html samples/Lightmaps_2.jpg precomputed quality (p pressed)
   </td></tr></table>
- - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
- - has realtime global illumination preview for one light
+ - shows errors of realtime lighting
+ - renders realtime global illumination in scene with dynamic objects and area light
+ - computes lightmaps on request, see better shadows on right image
  - uses internal renderer
- - loads Collada scene
+ - loads Collada scene and 3ds dynamic objects
 
  <hr>
  <b>PenumbraShadows</b>
@@ -2253,11 +2254,7 @@ Lightsprint SDK uses following third party libraries:
   </td></tr></table>
  - renders realtime direct illumination in scene with dynamic objects and area light
  - features penumbra shadows
- - no global illumination, only constant ambient
-
- <hr>
- <b>Water</b>
- - simple use of LightsprintGL, renders skybox and water with waves, reflection, fresnel
+ - simple, no global illumination, only constant ambient
 
 
 
