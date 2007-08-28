@@ -23,7 +23,7 @@ namespace rr
 		virtual bool save(const char* filenameMask, const char* cubeSideName[6]);
 		virtual ~RRIlluminationEnvironmentMapInMemory();
 	private:
-		friend RRIlluminationEnvironmentMap;
+		friend class RRIlluminationEnvironmentMap;
 		rr_gl::Texture* texture;
 	};
 

@@ -244,14 +244,14 @@ dupl:;
 	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 	{
 		INHERITED::getChannelSize(channelId,numItems,itemSize);
-		if(numItems && *numItems && (channelId&0x7ffff000) == INDEXED_BY_VERTEX)
+		if(numItems && *numItems && (channelId&0x7ffff000) == RRMesh::INDEXED_BY_VERTEX)
 		{
 			*numItems = UniqueVertices;
 		}
 	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
-		if((channelId&0x7ffff000) == INDEXED_BY_VERTEX)
+		if((channelId&0x7ffff000) == RRMesh::INDEXED_BY_VERTEX)
 		{
 			if(itemIndex<UniqueVertices)
 			{

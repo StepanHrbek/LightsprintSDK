@@ -318,8 +318,8 @@ void Model_3DS::Draw(
 	bool lit,
 	bool texturedDiffuse,
 	bool texturedEmissive,
-	const float* (acquireVertexColors)(void* model,unsigned object),
-	void (releaseVertexColors)(void* model,unsigned object)) const
+	const float* (*acquireVertexColors)(void* model,unsigned object),
+	void (*releaseVertexColors)(void* model,unsigned object)) const
 {
 	if (visible)
 	{
@@ -340,14 +340,14 @@ void Model_3DS::Draw(
 		for (int i = 0; i < numObjects; i++)
 		{
 			// additional exitance
-			if(&acquireVertexColors)
+			if(acquireVertexColors)
 			{
 				const float* vertexColors = acquireVertexColors(model,i);
 				if(vertexColors)
 				{
 					glEnableClientState(GL_COLOR_ARRAY);
 					glColorPointer(3, GL_FLOAT, 0, vertexColors);
-					if(&releaseVertexColors) releaseVertexColors(model,i);
+					if(releaseVertexColors) releaseVertexColors(model,i);
 				}
 			}
 			else

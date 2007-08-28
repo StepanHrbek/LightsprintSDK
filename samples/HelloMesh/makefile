@@ -1,16 +1,13 @@
-CC = gcc
-CPP = gcc
-CFLAGS = -Wall -I../../include -O3 -DNDEBUG -DRR_STATIC
-CPPFLAGS = $(CFLAGS)
+CPPFLAGS = -Wall -I../../include -O3 -DNDEBUG -DRR_STATIC
 MAKE = makefile
 
 OBJS = HelloMesh.o
-LIBS = ../../lib/libRRMesh.a
+LIBS = ../../lib/win32/libLightsprintCore_sr.a
 
 all: HelloMesh.exe
 
 HelloMesh.exe: $(OBJS) $(MAKE) $(LIBS)
-	gcc $(OBJS) $(LIBS) -lstdc++ -o HelloMesh.exe
+	g++ $(OBJS) $(LIBS) -lstdc++ -lwinmm -o HelloMesh.exe
 
 clean:
 	del *.o

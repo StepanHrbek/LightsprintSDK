@@ -191,8 +191,8 @@ public:
 		bool lit, // scene is lit, feed normals
 		bool texturedDiffuse,
 		bool texturedEmissive,
-		const float* (acquireVertexColors)(void* model,unsigned object), // returns pointer to array of float rgb vertex colors
-		void (releaseVertexColors)(void* model,unsigned object)
+		const float* (*acquireVertexColors)(void* model,unsigned object), // returns pointer to array of float rgb vertex colors
+		void (*releaseVertexColors)(void* model,unsigned object)
 		) const;  // Draws the model using provided indirect illum
 	FILE *bin3ds;			// The binary 3ds file
 	Model_3DS();			// Constructor

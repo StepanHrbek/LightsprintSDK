@@ -2448,7 +2448,7 @@ bool Scene::packFactors()
 		for(unsigned j=0;j<object->triangle[i].shooter->factors();j++)
 		{
 			const Factor* factor = object->triangle[i].shooter->get(j);
-			*(unsigned*)(((char*)packedFactors)+factorsByteOffset) = PF_PACK(factor->destination-object->triangle,factor->power);
+			*(unsigned*)(((char*)packedFactors)+factorsByteOffset) = PF_PACK(TRIANGLE(factor->destination)-object->triangle,factor->power);
 			factorsByteOffset += sizeof(unsigned);
 		}
 	}

@@ -6,6 +6,16 @@
 
 \page news What's new
 
+\section news31 ------------------------------------ 2007.9.x -------------------------------------
+
+NEWS
+
+- RRMesh::createVertexBufferRuler() creates mesh that look identical,
+  but its vertex numbering is directive for vertex buffers created by RRDynamicSolver
+  (vertex buffers otherwise use original vertex numbering valid before filters and optimizers
+  were applied to mesh)
+
+
 \section news30 ------------------------------------ 2007.8.24 -------------------------------------
 
 CHANGES

@@ -25,7 +25,7 @@ static unsigned getBits(unsigned char* data, unsigned bit, unsigned bits)
 
 PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits)
 {
-	char* letter="0123456789abcdefghijklmnopqrstuv";
+	const char* letter="0123456789abcdefghijklmnopqrstuv";
 	for(unsigned i=0;i<MIN((bits+4)/5,bufsize-1);i++)
 		buf[i]=letter[getBits(hash, i*5, MIN(5,bits-i*5))];
 	buf[MIN((bits+4)/5,bufsize-1)]=0;

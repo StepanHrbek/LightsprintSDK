@@ -62,7 +62,7 @@ public:
 	}
 	virtual unsigned getHash()
 	{
-		return (unsigned)(intptr_t)mesh;
+		return (unsigned)(unsigned long long)mesh;
 	}
 	rr::RRMesh* mesh;
 };

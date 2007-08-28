@@ -181,14 +181,14 @@ public:
 	virtual void getChannelSize(unsigned channelId, unsigned* numItems, unsigned* itemSize) const
 	{
 		INHERITED::getChannelSize(channelId,numItems,itemSize);
-		if(numItems && *numItems && (channelId&0x7ffff000)==INDEXED_BY_TRIANGLE)
+		if(numItems && *numItems && (channelId&0x7ffff000)==RRMesh::INDEXED_BY_TRIANGLE)
 		{
 			*numItems = ValidIndices;
 		}
 	}
 	virtual bool getChannelData(unsigned channelId, unsigned itemIndex, void* itemData, unsigned itemSize) const
 	{
-		if((channelId&0x7ffff000) == INDEXED_BY_TRIANGLE)
+		if((channelId&0x7ffff000) == RRMesh::INDEXED_BY_TRIANGLE)
 		{
 			if(itemIndex<ValidIndices)
 			{

@@ -1,17 +1,14 @@
-CC = gcc
-CPP = gcc
-CFLAGS = -Wall -I../../include -O3 -DNDEBUG -DRR_STATIC
-CPPFLAGS = $(CFLAGS)
+CPPFLAGS = -Wall -I../../include -O3 -DNDEBUG -DRR_STATIC
 MAKE = makefile
 
-OBJS = HelloVision.o
-LIBS = ../../lib/libRRMesh.a ../../lib/libRRCollider.a ../../lib/libRRVision.a
+OBJS = HelloStaticSolver.o
+LIBS = ../../lib/win32/libLightsprintCore_sr.a
 
-all: HelloVision.exe
+all: HelloStaticSolver.exe
 
-HelloVision.exe: $(OBJS) $(MAKE) $(LIBS)
-	gcc $(OBJS) $(LIBS) -lstdc++ -o HelloVision.exe
+HelloStaticSolver.exe: $(OBJS) $(MAKE) $(LIBS)
+	gcc $(OBJS) $(LIBS) -lstdc++ -lwinmm -o HelloStaticSolver.exe
 
 clean:
 	del *.o
-	del HelloVision.exe
+	del HelloStaticSolver.exe

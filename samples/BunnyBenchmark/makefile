@@ -1,22 +1,20 @@
+CPPFLAGS = -Wall -I../../include
+CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG -DRR_STATIC
+#CPPFLAGS += -fopenmp
+CPPFLAGS += -ffast-math
+CPPFLAGS += -fomit-frame-pointer
+CPPFLAGS += -march=k8 -msse
 CC = gcc
-CPP = gcc
-CFLAGS = -Wall -I../../include
-CFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG -DRR_STATIC
-#CFLAGS += -fopenmp
-CFLAGS += -ffast-math # vypnuto protoze bunny pada.. nicmene to nepomohlo, pada dal
-CFLAGS += -fomit-frame-pointer
-CFLAGS += -march=athlon-xp -msse
-CPPFLAGS = $(CFLAGS)
 BIN = 
 MAKE = makefile
 
 OBJS = BunnyBenchmark.o plymeshreader.o rply.o sphereunitvecpool.o
-LIBS = ../../lib/libRRMesh.a ../../lib/libRRCollider.a
+LIBS = ../../lib/win32/libLightsprintCore_sr.a
 
 all: $(BIN)BunnyBenchmark.exe
 
 $(BIN)BunnyBenchmark.exe: $(OBJS) $(MAKE) $(LIBS)
-	gcc $(OBJS) $(LIBS) -lwinmm -lstdc++ -o $(BIN)BunnyBenchmark.exe
+	g++ $(OBJS) $(LIBS) -lwinmm -lstdc++ -o $(BIN)BunnyBenchmark.exe
 
 clean:
 	del *.o

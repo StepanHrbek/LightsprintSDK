@@ -427,7 +427,11 @@ bool Texture::save(const char *filename, const char* cubeSideName[6])
 			}
 			FreeImage_Unload(dib);
 		}
+	}
+
 ende:
+	if(rawData)
+	{
 		unlock();
 	}
 
