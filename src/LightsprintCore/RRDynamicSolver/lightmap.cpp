@@ -1,3 +1,4 @@
+#include <cmath> // necessary for mingw gcc4.3
 #include <cassert>
 #include <cfloat>
 #ifdef _OPENMP

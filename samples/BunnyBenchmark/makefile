@@ -1,9 +1,10 @@
 CPPFLAGS = -Wall -I../../include
-CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG -DRR_STATIC
+CPPFLAGS += -O3 -DNDEBUG -DRR_STATIC
 #CPPFLAGS += -fopenmp
 CPPFLAGS += -ffast-math
 CPPFLAGS += -fomit-frame-pointer
 CPPFLAGS += -march=k8 -msse
+CPPFLAGS += -mfpmath=sse
 CC = gcc
 BIN = 
 MAKE = makefile

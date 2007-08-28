@@ -7,7 +7,7 @@ ifdef DEBUG
 	CPPFLAGS += -D_DEBUG
 else
 	LIB      = ../../lib/win32/libLightsprintCore_sr.a
-	CPPFLAGS += -O3 -finline -finline-functions -D__OPTIMIZE__ -DNDEBUG
+	CPPFLAGS += -O3 -DNDEBUG
 	CPPFLAGS += -ffast-math
 	CPPFLAGS += -fomit-frame-pointer
 	CPPFLAGS += -march=k8 -msse
