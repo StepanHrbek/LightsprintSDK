@@ -155,6 +155,9 @@ Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 //
 // timing
 
+// cas je zde kompletni informace o pozici v demu
+// editor (kod jinde) ale musi navic vedet cislo snimku. snimek muze mit delku 0, pak nejde cislo snimku dohledat z casu
+
 void DemoPlayer::advance(float seconds)
 {
 	naturalTime = seconds<-1e9;
@@ -214,7 +217,14 @@ unsigned DemoPlayer::getNumParts() const
 
 float DemoPlayer::getPartPosition() const
 {
-	return getDemoPosition()-partStart;
+	float partPosition = getDemoPosition()-partStart;
+	if(partPosition<0)
+	{
+		// rounding error could make it slightly subzero when new part starts
+		// returning subzero in such situation would stop player (playing out of range)
+		return 0;
+	}
+	return partPosition;
 }
 
 void DemoPlayer::setPartPosition(float seconds)

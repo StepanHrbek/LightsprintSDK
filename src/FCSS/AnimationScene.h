@@ -54,10 +54,16 @@ public:
 	// returns total length of animation in seconds
 	float getTotalTime() const;
 
-	// returns frame for given time (0..length), NULL for times outside range
+	// returns frame for given abs time (0..length), NULL for times outside range
+	// warning: time->frame conversion is not reliable
+	//          frame to be used by player, not by editor
 	const AnimationFrame* getFrameByTime(float absSeconds);
 
-	unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone, float* transitionTotal);
+	// returns frame index and time inside frame for given abs time
+	// warning: time->frame conversion is not reliable (when frame has 0sec)
+	//          frame number to be used by player, not by editor
+	// if hintFrameIndex is specified, it is used despite possible rounding errors (transitionDone slightly subzero etc)
+	unsigned getFrameIndexByTime(float absSeconds, float* transitionDone, float* transitionTotal);
 
 	const rr_gl::Texture* getOverlay();
 private:

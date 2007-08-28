@@ -116,6 +116,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 
 	rr::RRStaticSolver::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
+	//zapnuti techto 2 radek zrychli sponzu o 15% 
 	//sp.minFeatureSize = 0.15f;
 	//sp.vertexWeldDistance = 0.01f; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
 #ifdef THREE_ONE

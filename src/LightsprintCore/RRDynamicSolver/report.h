@@ -4,9 +4,9 @@
 #include "Lightsprint/GL/Timer.h"
 
 #ifdef _DEBUG
-	#define REPORT(a)    a
+	#define REPORT(a)    //a
 #else
-	#define REPORT(a)
+	#define REPORT(a)    //a
 #endif
 #define REPORT_INIT      REPORT( rr_gl::Timer timer; )
 #define REPORT_BEGIN(a)  REPORT( timer.Start(); rr::RRReporter::report(rr::INF1,a ".."); )

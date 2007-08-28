@@ -668,7 +668,7 @@ void drawEyeViewSoftShadowed(void)
 // captures current scene into thumbnail
 void updateThumbnail(AnimationFrame& frame)
 {
-	rr::RRReporter::report(rr::INF1,"Updating thumbnail.\n");
+	//rr::RRReporter::report(rr::INF1,"Updating thumbnail.\n");
 	// set frame
 	demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,frame,true);
 	// calculate
@@ -843,14 +843,30 @@ static void drawHelpMessage(int screen)
 		glDisable(GL_BLEND);
 		glColor3f(1,1,1);
 		char buf[200];
-		sprintf(buf,"demo %.1f/%.1fs, byt %.1f/%.1fs, music %.1f/%.1f",
-			demoPlayer->getDemoPosition(),demoPlayer->getDemoLength(),
+		float demoLength = demoPlayer->getDemoLength();
+		float musicLength = demoPlayer->getMusicLength();
+		sprintf(buf,"demo %.1f/%.1fs, byt %.1f/%.1fs, music %.1f/%.1f%s",
+			demoPlayer->getDemoPosition(),demoLength,
 			demoPlayer->getPartPosition(),demoPlayer->getPartLength(),
-			demoPlayer->getMusicPosition(),demoPlayer->getMusicLength());
+			demoPlayer->getMusicPosition(),musicLength,
+			(musicLength<demoLength)?" MUSIC<DEMO!!!":"");
 		output(x,y,buf);
 		float transitionDone;
 		float transitionTotal;
-		unsigned frameIndex = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
+		unsigned frameIndex;
+		if(demoPlayer->getPaused())
+		{
+			// paused: frame index = editor cursor
+			frameIndex = level->animationEditor->frameCursor;
+			transitionDone = 0;
+			AnimationFrame* frame = level->pilot.setup->getFrameByIndex(frameIndex); // muze byt NULL (kurzor za koncem)
+			transitionTotal = frame ? frame->transitionToNextTime : 0;
+		}
+		else
+		{
+			// playing: frame index computed from current time
+			frameIndex = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
+		}
 		sprintf(buf,"byt %d/%d, frame %d/%d, %.1f/%.1fs",
 			demoPlayer->getPartIndex()+1,demoPlayer->getNumParts(),
 			frameIndex+1,level->pilot.setup->frames.size(),
@@ -995,10 +1011,13 @@ void display()
 
 		// capture thumbnails
 		if(supportEditor)
+		{
+			rr::RRReportInterval report(rr::INF1,"Updating thumbnails...\n");
 			for(LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
 			{
 				updateThumbnail(**i);
 			}
+		}
 
 		// don't display first frame, characters have bad position (dunno why)
 		skipFrames = 1;
@@ -1162,6 +1181,24 @@ float speedUp = 0;
 float speedDown = 0;
 float speedLean = 0;
 
+void setupSceneDynamicAccordingToCursor(Level* level)
+{
+	// novy kod: jsme paused, takze zobrazime co je pod kurzorem, neridime se casem
+	// makame jen pokud vubec existuji framy (pokud neex, nechame kameru jak je)
+	if(level->pilot.setup->frames.size())
+	{
+		// pokud je kurzor za koncem, vezmeme posledni frame
+		unsigned existingFrameNumber = MIN(level->animationEditor->frameCursor,level->pilot.setup->frames.size()-1);
+		AnimationFrame* frame = level->pilot.setup->getFrameByIndex(existingFrameNumber);
+		if(frame)
+			demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup, *frame, true);
+		else
+			RR_ASSERT(0); // tohle se nemelo stat
+	}
+	// stary kod: podle casu vybiral spatny frame v pripade ze framy mely 0sec
+	//demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
+}
+
 void special(int c, int x, int y)
 {
 	if(level 
@@ -1173,7 +1210,9 @@ void special(int c, int x, int y)
 		// kdyz uz editor hne kurzorem, posunme se na frame i v demoplayeru
 		demoPlayer->setPartPosition(level->animationEditor->getCursorTime());
 		if(c!=GLUT_KEY_INSERT) // insert moves cursor right but preserves scene
-			demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
+		{
+			setupSceneDynamicAccordingToCursor(level);
+		}
 		level->pilot.reportInteraction();
 		needRedisplay = 1;
 		return;
@@ -1296,7 +1335,9 @@ void keyboard(unsigned char c, int x, int y)
 	{
 		// kdyz uz editor hne kurzorem, posunme se na frame i v demoplayeru
 		demoPlayer->setPartPosition(level->animationEditor->getCursorTime());
-		demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition());
+		{
+			setupSceneDynamicAccordingToCursor(level);
+		}
 		level->pilot.reportInteraction();
 		needRedisplay = 1;
 		return;
@@ -2148,6 +2189,7 @@ int main(int argc, char **argv)
 	}
 
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	//rr::RRReporter::setFilter(true,3,true);
 	//rr_gl::Program::showLog = true;
 
 	parseOptions(argc, argv);

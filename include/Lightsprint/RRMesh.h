@@ -372,6 +372,7 @@ namespace rr
 		//! Created copy is completely independent on any other objects and may be deleted sooner or later.
 		//! \n It is expected that your input instance is well formed (returns correct and consistent values).
 		//! \n Copy may be faster than original, but may require more memory.
+		//! \n This function may fail and return NULL.
 		RRMesh* createCopy();
 
 		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).
@@ -397,7 +398,11 @@ namespace rr
 
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
 		//
-		//! If mesh is already optimal or vertexStitchMaxDistance is negative, 'this' is returned.
+		//! Created instance requires only small amount of additional memory, 
+		//!  but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
+		//! If 'this' is already optimal or vertexStitchMaxDistance is negative, 'this' is returned.
+		//!
+		//! Warning: Only vertex positions are tested for match, differences in normals etc are ignored.
 		//! \param vertexStitchMaxDistance
 		//!  For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower).
 		//!  For negative value, no stitching is performed.
@@ -405,8 +410,23 @@ namespace rr
 		RRMesh* createOptimizedVertices(float vertexStitchMaxDistance = 0);
 
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
-		//! If mesh is already optimal, 'this' is returned.
+		//
+		//! Created instance requires only small amount of additional memory, 
+		//!  but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
+		//! If 'this' is already optimal, 'this' is returned.
 		RRMesh* createOptimizedTriangles();
+
+		//! Creates and returns identical mesh with all optimizations and filters previously applied baked.
+		//
+		//! Created instance doesn't require additional memory, 
+		//!  but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
+		//!
+		//! All other mesh filters and optimizers let you convert between original and new triangle
+		//! and vertex numbers using getPreImportVertex() and getPreImportTriangle().
+		//! This filter only erases original (preImport) numbers and sets them equal to current (postImport) numbers.
+		//! PreImport numbers are used by RRDynamicSolver for vertex buffer layout, so this filter
+		//! adjusts layout of generated vertex buffers to use current vertex numbers.
+		RRMesh* createVertexBufferRuler();
 
 
 		//! Verifies that mesh is well formed.

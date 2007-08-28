@@ -35,6 +35,7 @@ public:
 
 	// nastavi dynamickou scenu do daneho casu od zacatku animace
 	// pokud je cas mimo rozsah animace, neudela nic a vrati false
+	// pozor: nevhodne kdyz je paused, muze skocit do jineho framu pokud maji 0sec
 	bool setupSceneDynamicForPartTime(class LevelSetup* setup, float secondsFromStart);
 
 	void updateSceneDynamic(LevelSetup* setup, float advanceSeconds, unsigned onlyDynaObjectNumber=1000);

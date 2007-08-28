@@ -243,8 +243,10 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 
 unsigned RRMeshCollada::getNumVertices() const
 {
-	// for simplicity, vertices are not shared between triangles
-	// however, it is not requirement, it could be changed
+	// Vertices are not shared between triangles, numVerts = 3 * numTris.
+	// It makes this class bit simpler.
+	// Inflated number of vertices hurts realtime performance (bigger vertex buffers).
+	// Collada is used mostly for precalculations, so no problem.
 	return RRMeshCollada::getNumTriangles()*3;
 }
 
@@ -784,7 +786,12 @@ static RRMesh* newMesh(const FCDGeometryMesh* mesh, int lightmapUvChannel)
 		assert(0);
 		return NULL;
 	}
-	return new RRMeshCollada(mesh, lightmapUvChannel);
+	RRMesh* tmp = new RRMeshCollada(mesh, lightmapUvChannel);
+	// createOptimizedVertices() removes duplicated vertices, makes realtime GI 50% faster.
+	// Not enabled by default, because createOptimizedVertices() doesn't test all vertex
+	// properties for match, only positions, so it is not safe for lightmap precalculations.
+	//return tmp->createOptimizedVertices()->createVertexBufferRuler();
+	return tmp;
 }
 
 // Creates new RRCollider from FCDGeometryMesh.

@@ -305,6 +305,21 @@ RRMesh* RRMesh::createOptimizedTriangles()
 	return this;
 }
 
+class RRHidePreImportFilter : public RRMeshFilter
+{
+public:
+	RRHidePreImportFilter(RRMesh* _original) : RRMeshFilter(_original) {}
+	virtual unsigned     getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const {return postImportVertex;}
+	virtual unsigned     getPostImportVertex(unsigned preImportVertex, unsigned preImportTriangle) const {return preImportVertex;}
+	virtual unsigned     getPreImportTriangle(unsigned postImportTriangle) const {return postImportTriangle;}
+	virtual unsigned     getPostImportTriangle(unsigned preImportTriangle) const {return preImportTriangle;}
+};
+
+RRMesh* RRMesh::createVertexBufferRuler()
+{
+	return new RRHidePreImportFilter(this);
+}
+
 unsigned RRMesh::verify()
 {
 	unsigned numReports = 0;

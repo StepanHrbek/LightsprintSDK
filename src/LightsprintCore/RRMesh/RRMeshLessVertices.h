@@ -35,6 +35,8 @@ public:
 		UniqueVertices = 0;
 
 		// build temporary x-sorted array of vertices
+		//!!! warning: sorts only by position, differences in normal, uv etc are ignored
+		//             useful only for RRStaticSolver where only position matters
 		RRMesh::Vertex* vertices = new RRMesh::Vertex[numVertices];
 		RRMesh::Vertex** sortedVertices = new RRMesh::Vertex*[numVertices];
 		for(unsigned i=0;i<numVertices;i++)

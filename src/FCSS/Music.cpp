@@ -68,6 +68,7 @@ float Music::getPosition()
 	unsigned ms = 0;
 	if(channel)
 	{
+		// kdyz loopne, zacne vracet casy od 0
 		channel->getPosition(&ms,FMOD_TIMEUNIT_MS);
 	}
 //	printf("musicGetPos()=%f\n",ms*0.001f);

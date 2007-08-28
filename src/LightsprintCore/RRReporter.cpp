@@ -225,7 +225,8 @@ RRReportInterval::~RRReportInterval()
 {
 	if(enabled)
 	{
-		RRReporter::report(TIMI,"done in %.1fs.\n",(GETTIME-creationTime)/(float)PER_SEC);
+		float doneIn = (GETTIME-creationTime)/(float)PER_SEC;
+		RRReporter::report(TIMI,(doneIn>1)?"done in %.1fs.\n":((doneIn>0.1f)?"done in %.2fs.\n":"done in %.3fs.\n"),doneIn);
 		RRReporter::indent(-1);
 	}
 }
