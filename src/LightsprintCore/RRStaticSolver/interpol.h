@@ -52,6 +52,10 @@ struct Corner
 {
 	Node *node;
 	real power; // libovolne cislo, vaha corneru (soucet vah neni 1, je ulozen v powerTopLevel)
+	// nikdo nesmi zaviset na absolutni hodnote power, vzdy je to jen vaha vuci osttanim cornerum
+	// ciste pro zajimavost ale absolutni hodnoty jsou:
+	//   subdivisionSpeed==0 -> power je velikost uhlu * node->area     (lepe interpoluje, ale neumi subtriangly)
+	//   subdivisionSpeed!=0 -> power je velikost uhlu
 };
 
 class IVertex
@@ -71,8 +75,8 @@ public:
 	unsigned splitTopLevelByNormals(Vec3 *avertex, Object *obj);
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
-	Channels irradiance(RRRadiometricMeasure measure); // only direct+indirect is used
-	Channels exitance(Node* corner); // returns direct+indirect. used only by iv_xxx
+	Channels irradiance(RRRadiometricMeasure measure, bool subdivisionEnabled); // only direct+indirect is used
+	Channels exitance(Node* corner, bool subdivisionEnabled); // returns direct+indirect. used only by iv_xxx
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();
 

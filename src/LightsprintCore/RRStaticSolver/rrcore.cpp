@@ -1079,7 +1079,8 @@ Reflectors::Reflectors()
 
 void Reflectors::reset()
 {
-	for(int i=nodes;i--;) remove(i);
+	//for(int i=nodes;i--;) remove(i);
+	for(int i=nodes;i--;) node[i]->flags&=~FLAG_IS_REFLECTOR; // optimized version
 	nodes=0;
 	bests=0;
 	refreshing=1;
@@ -1123,12 +1124,6 @@ void Reflectors::remove(unsigned n)
 void Reflectors::insertObject(Object *o)
 {
 	for(unsigned i=0;i<o->triangles;i++) insert(&o->triangle[i]);
-}
-
-void Reflectors::removeObject(Object *o)
-{
-	for(int i=nodes-1;i>=0;i--)
-		if(o->contains(node[i])) remove(i);
 }
 
 void Reflectors::removeSubtriangles()
@@ -1587,6 +1582,7 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 	RRReal tmpx = 0;
 	RRReal tmpy = 0;
 	RRReal tmpz = 0;
+	bool propagateUp = resetPropagation && subdivisionSpeed; // no subdivision -> propagateEnergyUp is no op
 #pragma omp parallel for schedule(static,1) reduction(+:tmpx,tmpy,tmpz) // fastest: indifferent
 	for(int t=0;(unsigned)t<triangles;t++) if(triangle[t].surface) 
 	{
@@ -1605,7 +1601,7 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 		tmpy += tmp.y;
 		tmpz += tmp.z;
 
-		if(resetPropagation)
+		if(propagateUp)
 		{
 			if(triangle[t].surface) triangle[t].propagateEnergyUp();
 		}
@@ -1686,15 +1682,17 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 		shotsTotal=0;
 	}
 	staticSourceExitingFlux=Channels(0);
-	
+
+/*	
+proc rusit nejdriv jen suby a pak vsechny? nestaci zrusit vsechny?
 	// subtriangly vznikle behem predchoziho vypoctu zrusim, abych setril pamet a pomohl bidne interpolaci.
 	// pokud ale vypocet nerusim a dal propaguji, necham si je.
-	if(resetPropagation)
+	if(resetPropagation && )
 	{
 		staticReflectors.removeSubtriangles();
 	}
-
-	// pokud rusim probihajici propagaci, reflektory zanikaji, pozdeji si vyrobim nove z priparies.
+*/
+	// pokud rusim probihajici propagaci, reflektory zanikaji, pozdeji si vyrobim nove z primaries.
 	// pokud nerusim probihajici propagaci, reflektory musi byt dal evidovane. je ale nutne resetnout predpocitany best()
 	if(resetPropagation)
 	{

@@ -168,6 +168,14 @@ RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle
 
 bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const
 {
+	// fast path for realtime radiosity
+	//if(vertex<3)
+	//{
+	//	IVertex* ivertex = scene->object->triangle[triangle].topivertex[vertex];
+	//	out = ivertex ? ivertex->irradiance(measure,false) : RRColor(0);
+	//	return true;
+	//}
+
 	Channels irrad;
 	Object* obj;
 	Triangle* tri;
@@ -192,7 +200,7 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	// enhanced by smoothing
 	if(vertex<3 && measure.smoothed)
 	{
-		irrad = tri->topivertex[vertex]->irradiance(measure);
+		irrad = tri->topivertex[vertex]->irradiance(measure,obj->subdivisionSpeed>0);
 	}
 	else
 
@@ -343,7 +351,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 		}
 		// fill irradiance
 		if(context2->measure.smoothed)
-			si.measure[i] = iv[i]->irradiance(context2->measure);
+			si.measure[i] = iv[i]->irradiance(context2->measure,s->grandpa->object->subdivisionSpeed>0);
 		else
 			si.measure[i] = flatambient+s->totalExitingFlux/s->area; //!!! ignoruje nastaveni direct/indirect. bere oboje
 		// convert irradiance to measure

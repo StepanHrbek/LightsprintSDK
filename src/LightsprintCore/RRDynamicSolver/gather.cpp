@@ -899,7 +899,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 			RRRay* rays = RRRay::create(1);
 #endif
 
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for
 			for(int i=0;i<(int)benchTexels;i++)
 			{
 				unsigned triangleIndex = (unsigned)i%multiMesh->getNumTriangles();

@@ -476,7 +476,6 @@ public:
 	bool    lastBestWantsRefresh() {return refreshing;}
 	bool    insert(Node *anode); // returns true when node was inserted (=appended)
 	void    insertObject(Object *o);
-	void    removeObject(Object *o);
 	void    removeSubtriangles();
 	bool    findFactorsTo(Node *n);
 

@@ -73,7 +73,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 	RRObjectIllumination* illumination = getIllumination(objectHandle);
 	unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 	// load measure into each preImportVertex
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for // dynamic vyrazne pomalejsi nez default
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 	{
 		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
@@ -81,7 +81,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 		RRColor indirect = RRColor(0);
 		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 		{
-			priv->scene->getTriangleMeasure(t,v,measure,getScaler(),indirect);
+			priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);
 			// make it optional when negative values are supported
 			//for(unsigned i=0;i<3;i++)
 			//	indirect[i] = MAX(0,indirect[i]);
@@ -106,7 +106,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 	}
 	unsigned numPreImportVertices = getIllumination(objectHandle)->getNumPreImportVertices();
 	// load measure into each preImportVertex
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 	{
 		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
