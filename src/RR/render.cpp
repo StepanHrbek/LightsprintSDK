@@ -41,7 +41,6 @@ float   d_bright=1.2;
 bool    d_fast=false;           // max speed, low quality
 bool    d_gouraud=true;
 bool    d_gouraud3=false;
-char    d_needle=0;             // 0=pink 1=retusovat jehly (pomale kresleni)
 char    d_meshing=2;            // 0=source faces, 1=reflector meshing, 2=receiver meshing
 char    d_engine=0;             // output via rrvision interface, no direct access
 float   d_details=256;
@@ -136,8 +135,6 @@ void drawEngine(rr::RRStaticSolver* scene, unsigned t, Triangle *f)
 	raster_ZGouraud(&p1,((Surface*)f->surface)->diffuseReflectanceColorTable);
 #endif
 }
-
-static ColorTable __needle_ct=new unsigned[C_INDICES];
 
 void SubTriangle::drawFlat(Channels ambient,int df)
 {
@@ -298,8 +295,7 @@ void SubTriangle::drawGouraud(Channels ambient,IVertex **iv,int df)
 			p2.point=&p[2];
 			p3.point=&p[3];
 
-			raster_ZGouraud(&p1,
-				((Surface*)grandpa->surface)->diffuseReflectanceColorTable);
+			raster_ZGouraud(&p1,((Surface*)grandpa->surface)->diffuseReflectanceColorTable);
 		}
 		else
 		{
@@ -432,9 +428,4 @@ void fillColorTable(unsigned *ct,double cx,double cy,real rs)
 		#define FLOAT2BYTE(f) ((unsigned)((f)<0?0:(f)>=1?255:256*(f)))
 		ct[c]=(FLOAT2BYTE(rs)<<24) + (FLOAT2BYTE(rgb[0])<<16) + (FLOAT2BYTE(rgb[1])<<8) + FLOAT2BYTE(rgb[2]);
 	}
-}
-
-void render_init()
-{
-	fillColorTable(__needle_ct,.5,.1,.8);
 }

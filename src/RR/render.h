@@ -12,7 +12,6 @@ extern float   d_bright;
 extern bool    d_fast;            // max speed, low quality
 extern bool    d_gouraud;
 extern bool    d_gouraud3;
-extern char    d_needle;          // 0=pink 1=retusovat jehly (pomale kresleni)
 extern char    d_meshing;         // 0=source faces, 1=reflector meshing, 2=receiver meshing
 extern char    d_engine;          // output via rrvision interface, no direct access
 extern float   d_details;
@@ -31,7 +30,6 @@ extern const char *__exportmaterial;
 extern const char *__dontexportmaterial;
 extern char  __infolevel;
 
-void render_init();
 void render_world(WORLD *w, rr::RRStaticSolver* scene, int camera_id, bool mirrorFrame);
 
 #endif

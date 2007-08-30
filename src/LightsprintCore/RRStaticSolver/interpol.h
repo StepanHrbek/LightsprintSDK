@@ -34,9 +34,6 @@ INTERPOL_BETWEEN tells if it's good idea to interpolate between two triangles
 	#define IV_POINT // +2%space, precise coords without blackpixels (no 2d->3d transforms)
 #endif
 
-//#define SUPPORT_ORACULUM
-//#define SUPPORT_SUBDIVISION_FILES
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -76,7 +73,7 @@ public:
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
 	Channels irradiance(RRRadiometricMeasure measure); // only direct+indirect is used
-	Channels exitance(Node* corner); // returns direct+indirect. used only by iv_xxx
+	Channels exitance(Node* corner); // returns direct+indirect
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();
 
@@ -109,28 +106,7 @@ public:
 		unsigned cornersAllocated();
 		real     powerTopLevel;
 		Corner   *corner; // pole corneru tvoricich tento ivertex
-		Channels getClosestIrradiance(RRRadiometricMeasure measure); // only direct+indirect is used
 };
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// .ora oraculum
-// akcelerovany orakulum, poradi otazek je znamo a jsou predpocitany v poli
-
-#ifdef SUPPORT_ORACULUM
-
-extern bool ora_filling;
-extern bool ora_reading;
-
-void ora_filling_init();
-void ora_fill(S8 *ptr);
-void ora_filling_done(char *filename);
-
-void ora_reading_init(char *filename);
-S8   ora_read();
-void ora_reading_done();
-
-#endif // SUPPORT_ORACULUM
 
 } // namespace
 

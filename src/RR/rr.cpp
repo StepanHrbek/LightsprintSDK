@@ -48,7 +48,6 @@ int __obj=0,__mirror=0,*__mirrorOutput;
 
 
 // c=calculation params
-bool    c_fightNeedles=false;   // specialne hackovat jehlovite triangly?
 bool    c_staticReinit=false;   // pocita se kazdy snimek samostatne?
 real    c_frameTime=0.5;        // cas na jeden snimek (zvetsujici se pri nemenne geometrii a kamere)
 real    c_dynamicFrameTime=0.5; // zvetsujici se cas na jeden dynamickej snimek
@@ -234,101 +233,6 @@ void setRrMode(Scene *scene,bool staticreinit,bool dynamic,int drawdynamichits)
  p_ffPlay=0;
 }
 
-#ifdef SUPPORT_SUBDIVISION_FILES
-void fakMerge(Scene *scene,unsigned frames,unsigned maxvertices)
-{
- char info[100];
- // naakumuluje pro kazdy ivertex jeho error
- scene->iv_cleanErrors();
- for(unsigned frame=0;frame<frames;frame++)
- {
-   // nacita chyby z komponent
-   for(int i=0;i<4;i++)
-   {
-     // pokud byla hlasena nejak chyba v batch modu, rovnou to zabali
-     if(g_batchMerge && __errors) exit(__errors);
-
-     char name[256];
-     sprintf(name,"%s.%c.%03i",p_ffName,'w',frame);  // 'w' was scene->selectColorFilter(i)
-     sprintf(info,"(kb=%i) accumulating %s...  ",(int)MEM_ALLOCATED/1024,name);
-     video_WriteScreen(info);
-     scene->iv_loadRealFrame(name);
-     DBGLINE
-     scene->iv_addLoadedErrors();
-     DBGLINE
-   }
- }
- // necha jen maxvertices s nejvetsim errorem
- sprintf(info,"(kb=%i) optimizing...             ",(int)MEM_ALLOCATED/1024);
- video_WriteScreen(info);
- scene->iv_markImportants_saveMeshing(maxvertices,bp("%s.mes",p_ffName));
-
- // postupne spocita a ulozi do .tga jednotlivy barevny komponenty
-    // 1. mozny pristup k tomu aby cervena stena odrazela jen cervene svetlo
-    //    totalExitingFlux [25 vyskytu] rozdelit na energyDirectR/G/B
-    //    exitance() rozdelit na radiosityR/G/B()
-    //    + bezny vypocet by jel ve vyssi kvalite
-    //    - pomalejsi, zere vic pameti
-    //    - upravy by byly naporad, nejde to udelat optional
-    // 2. mozny pristup [YES!]
-    //    pocitat dal v grayscalu a tady jen s pouzitim spoctenych faktoru
-    //     3x prepocitat odrazivosti, predistribuovat energii a ulozit .tga
-    //    - bezny vypocet pojede stale v grayscale
-    //    + plna rychlost a pametova nenarocnost
-    //    + zbytek programu nedotcen komplikovanou multikomponentnosti,
-    //      stacilo pridat __colorfilter a upravit setSurface()
-    // 1. mozny pristup k ukladani prekalkulaci do souboru [YES!]
-    //    .000 delat v r,g,b mutacich
-    //    + vhodne pri postupnem generovani tri .tga
-    //    + nezvysi pametove naroky
-    // 2. mozny pristup
-    //    do .000 ulozit za sebe w,r,g,b mutace
-    // 3. mozny pristup
-    //    do .000 ukladat misto 1 realu vzdy 3 realy
-    //    + vhodne i pri generovani truecolor .tga a .jpg
-    //    + pri playovani 'b' lze menit jas/kontrast
-    //    - nutno roztrojit totalExitingFlux, sezere vic pameti
-
- d_saving_tga=true;
- for(int component=0;component<4;component++)
- {
-   // postupne ulozi data ze vsech ivertexu
-   scene->iv_startSavingBytes(frames,bp("%s.%c.tga",p_ffName,'w')); // 'w' was scene->selectColorFilter(component)
-   for(unsigned frame=0;frame<frames;frame++)
-   {
-     char name[256];
-     sprintf(name,"%s.%c.%03i",p_ffName,'w',frame); // 'w' was scene->selectColorFilter(component)
-     sprintf(info,"(kb=%i) storing data from %s...  ",(int)MEM_ALLOCATED/1024,name);
-     video_WriteScreen(info);
-     scene->iv_loadRealFrame(name);
-     scene->iv_fillEmptyImportants();
-     scene->iv_saveByteFrame();
-   }
-   scene->iv_savingBytesDone();
- }
- d_saving_tga=false;
-
- // pokud bezi batch, ted skonci
- if(g_batchMerge) exit(__errors);
-}
-
-void fakStartLoadingBytes(Scene *scene,bool ora_filling,bool ora_reading)
-{
- char namemes[256];
- sprintf(namemes,"%s.mes",p_ffName);
-#ifdef SUPPORT_ORACULUM
- if(ora_filling) ora_filling_init();
- if(ora_reading) ora_reading_init(bp("%s.ora",p_ffName));
-#endif
- g_tgaFrames=scene->iv_initLoadingBytes(namemes,bp("%s.%c.tga",p_ffName,'w'))/g_lights;
-#ifdef SUPPORT_ORACULUM
- if(ora_reading) ora_reading_done();
- if(ora_filling) ora_filling_done(bp("%s.ora",p_ffName));
-#endif
- g_tgaFrame=0;
-}
-#endif // SUPPORT_SUBDIVISION_FILES
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // displayed frames
@@ -367,19 +271,6 @@ bool  preparing_capture=false;
 
 bool frameCalculate(Scene *scene)
 {
-#ifdef SUPPORT_SUBDIVISION_FILES
- if(p_ffPlay)
- {
-   real tgaFrame=(p_3dsFrame)/(p_3dsFrameEnd-p_3dsFrameStart)*g_tgaFrames;
-   if(p_ffPlay==1)
-     scene->iv_loadRealFrame(bp("%s.%c.%03i",p_ffName,'w',(int)tgaFrame));
-   else
-     scene->iv_loadByteFrame(tgaFrame);
-   n_dirtyColor=true;
-   return true;
- }
-#endif // SUPPORT_SUBDIVISION_FILES
-
  if(p_flyingObjects || p_flyingCamera || n_dirtyGeometry) c_dynamicFrameTime=c_frameTime;
 #ifdef RASTERGL
  // od glut 3.7 / win32 se nedovime ze user poslal event, musime pocitat po malejch chvilkach aby probihal glut mainloop
@@ -423,11 +314,6 @@ void frameDraw(Scene *scene, RRStaticSolver* staticSolver)
      // zvysi cislo snimku aby exitance() volana pri ukladani vedela ze nema
      //  vracet cislo z cache (udaj pro predchozi komponentu)
      __frameNumber++;
-
-#ifdef SUPPORT_SUBDIVISION_FILES
-     //ulozi
-     scene->iv_saveRealFrame(bp("%s.%c.%03i",p_ffName,c,g_tgaFrame));
-#endif // SUPPORT_SUBDIVISION_FILES
    }
  }
  __frameNumber++;
@@ -463,12 +349,6 @@ void frameAdvance(Scene *scene)
 
      // pokud bezi batch a mel jen grabovat, ted skonci
      if(g_batchGrab && !g_batchMerge) exit(__errors);
-
-#ifdef SUPPORT_SUBDIVISION_FILES
-     // uplne nakonec nasimuluje ze uzivatel po 'g' stiskl i 'h' (vzdy jsem to delal)
-     // spoji .?.000 soubory do .mes, .?.tga
-     fakMerge(scene,g_tgaFrames*g_lights,g_maxVertices);
-#endif // SUPPORT_SUBDIVISION_FILES
    }
  }
  // kdyz litaj objekty, posune je o nakej kus dal
@@ -536,7 +416,6 @@ void keyboardFunc(unsigned char key, int x, int y)
   case '}': __obj++;__obj%=__world->object_num;break;
   case '{': if(__obj--) __obj=__world->object_num;break;
   case 'm': ++d_meshing%=3;                        n_dirtyColor=true;break;
-  case 'j': ++d_needle%=2;                         n_dirtyColor=true;break;
   case '1': d_gouraud=false;                       n_dirtyColor=true;break;
   case '2': d_gouraud=true;d_gouraud3=false;       n_dirtyColor=true;break;
   case '3': d_gouraud=true;d_gouraud3=true;        n_dirtyColor=true;break;
@@ -573,26 +452,6 @@ void keyboardFunc(unsigned char key, int x, int y)
             //c_frameTime=10;//zeptat se kolik sekund na snimek
             p_clock=false;
             break;
-#ifdef SUPPORT_SUBDIVISION_FILES
-  case 'h': // spoji .?.000 soubory do .mes, .?.tga
-            fakMerge(scene,g_tgaFrames*g_lights,g_maxVertices);
-            break;
-  case 'b': // prehrava .w.000 soubory
-            setRrMode(scene,false,false,0);p_flyingObjects=true;
-            p_ffPlay=1;
-            p_3dsFrame=0;
-            //ocekava g_tgaFrames framu nagrabovanejch na disku
-            p_clock=false;
-            break;
-  case 'n': // prehrava .w.tga
-            setRrMode(scene,false,false,0);p_flyingObjects=true;
-            p_ffPlay=2;
-            p_3dsFrame=0;
-            p_clock=false;
-            fakStartLoadingBytes(scene,false,false);
-            break;
-//  case 't': scene->iv_dumpTree("tree");
-#endif // SUPPORT_SUBDIVISION_FILES
 
   case 'a': matrix_Move  (__world->camera[0].matrix, 0,GLMINUS(-5),0  );n_dirtyGeometry=true;break;
   case 'z': matrix_Move  (__world->camera[0].matrix, 0,GLMINUS( 5),0  );n_dirtyGeometry=true;break;
@@ -686,7 +545,6 @@ void help()
  printf(" -------------------------------[ calculation ]--------------------------------\n");
  printf(" scene.bsp    ...load scene\n");
  printf(" -hide:NAME   ...hide all faces from material NAME ()\n");
- printf(" -j           ...fight needles ('j' toggles needles: highlighted, masked)\n");
  printf(" -itN         ...intersect technique, 0=most_compact..4=fastest\n");
  printf("\n ---------------------------------[ display ]----------------------------------\n");
  printf(" -rXRESxYRES  ...set gfx display resolution (800x600)\n");
@@ -732,7 +590,6 @@ int main(int argc, char **argv)
  MEM_INIT;
  kb_init();
  glutInit(&argc,argv);
- render_init();
  timeBeginPeriod(1); // improves precision of demoengine's GETTIME
  RRLicense::LicenseStatus status = rr::RRLicense::loadLicense("..\\data\\licence_number");
  switch(status)
@@ -770,9 +627,6 @@ int main(int argc, char **argv)
      else
      if (!strncmp(argv[i],"-it",2))
         {int tmp;if(sscanf(argv[i],"-it%i",&tmp)==1) intersectTechnique = (RRCollider::IntersectTechnique)tmp; else goto badarg;}
-     else
-     if (!strcmp(argv[i],"-j"))
-        c_fightNeedles=true;
      else
      /*if (!strncmp(argv[i],"-sides",6))
         {int side,onoff;char inout[30],bit[30];
@@ -911,25 +765,6 @@ int main(int argc, char **argv)
 	   fprintf(stderr,buf);
 	   return 0;
    }
-#ifdef SUPPORT_SUBDIVISION_FILES
-   //prehraje 5 snimku
-   setRrMode(scene,false,false,0);p_flyingObjects=true;
-   p_ffPlay=2;
-   p_3dsFrame=0;
-   p_clock=false;
-   TIME t0=GETTIME;
-   fakStartLoadingBytes(scene,p_test==1/*-t1=create .ora*/,p_test==2/*-t2=read .ora*/);
-   TIME t1=GETTIME;
-   if(video_inited)
-   {
-     unsigned frames=5;
-     for(unsigned i=0;i<frames;i++) displayFunc();
-     TIME t2=GETTIME;
-     video_Done();
-     printf("Drawing frame: %f sec\n",(float)(t2-t1)/PER_SEC/frames);
-   }
-   printf("Loading scene: %f sec\n",(float)(t1-t0)/PER_SEC);
-#endif // SUPPORT_SUBDIVISION_FILES
    return 0;
  }
  else

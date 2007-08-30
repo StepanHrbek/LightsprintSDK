@@ -543,8 +543,8 @@ unsigned RRDynamicSolverGL::updateVertexBuffersFromLightmaps(unsigned layerNumbe
 	// loads lightmap [per-pixel-custom] into multiobject [per-triangle-physical]
 	detectDirectIlluminationFromLightmaps(layerNumber);
 	// loads multiobject [per-triangle-physical] into solver [per triangle-physical]
-	scene->illuminationReset(false,true);
-	solutionVersion++;
+	priv->scene->illuminationReset(false,true);
+	priv->solutionVersion++;
 	// reads interpolated solution [per-vertex-physical] from solver
 	UpdateParameters params;
 	params.measure = rr::RRRadiometricMeasure(0,0,0,1,0);

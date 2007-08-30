@@ -288,7 +288,6 @@ public:
 //   rot=1 then sub[0].init(b,c,(a+c)/2) sub[1].init(b,(a+c)/2,a)
 
 extern unsigned __subtrianglesAllocated;
-extern void (*__oraculum)();//doplni vsude ve scene kde to jde splitVertex_rightLeft = informaci jak splitovat kdyz hrozi ze zaokrouhlovaci chybou splitne pokazdy jinak
 
 class SubTriangle : public Node
 {
@@ -607,25 +606,6 @@ public:
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
 	bool    distribute(real maxError);//skonci kdyz nejvetsi mnozstvi nerozdistribuovane energie na jednom facu nepresahuje takovou cast energie lamp (0.001 is ok)
-#ifdef SUPPORT_SUBDIVISION_FILES
-	void    iv_forEach(void callback(SubTriangle *s,IVertex *iv,int type));
-	void    iv_saveRealFrame(char *name);
-	void    iv_cleanErrors();
-	void    iv_loadRealFrame(char *name);
-	void    iv_addLoadedErrors();
-	void    iv_fillEmptyImportants();
-	void    iv_markImportants_saveMeshing(unsigned maxvertices,char *namemes);
-	void    iv_startSavingBytes(unsigned frames,char *nametga);
-	void    iv_saveByteFrame();
-	void    iv_savingBytesDone();
-	unsigned iv_initLoadingBytes(char *namemes,char *nametga);
-	void    iv_loadByteFrame(real frame);
-	void    iv_dumpTree(char *name);
-	void    iv_dumpVertices(char *name);
-	private:
-		unsigned iv_savesubs;//tmp set by iv_markImportants,read by iv_startSavingBytes
-	public:
-#endif // SUPPORT_SUBDIVISION_FILES
 	void    draw(RRStaticSolver* scene, real quality);
 
 

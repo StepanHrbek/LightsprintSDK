@@ -667,18 +667,9 @@ bool SubTriangle::isRightLeft()
 }
 
 #define MAGIC1  1.039618
-#define MAGIC1b 1.10729
-#define MAGIC2  1.96252
-
-void (*__oraculum)()=NULL;
 
 int SubTriangle::getSplitVertexSlow()
 {
-#ifdef SUPPORT_ORACULUM
-	// postara se o akcelerovany orakulum, cteni i psani
-	if(ora_filling && !(flags&FLAG_IS_IN_ORA)) {ora_fill(&splitVertex_rightLeft);flags|=FLAG_IS_IN_ORA;}
-	if(ora_reading && !(flags&FLAG_IS_IN_ORA)) {splitVertex_rightLeft=ora_read();flags|=FLAG_IS_IN_ORA;}
-#endif // SUPPORT_ORACULUM
 	// magicky nasobitel je tu proto aby pri shodne delce stran,
 	// ktera nastava casto,
 	// nedaval vinou zaokrouhlovacich chyb pokazde jine vysledky.
@@ -703,16 +694,6 @@ int SubTriangle::getSplitVertexSlow()
 			result=0;
 		else
 			result=1;
-	}
-
-	// pokud je nebezpeci a nic neni v cache, zkusi to nahrat
-	if(danger && __oraculum && splitVertex_rightLeft<0)
-	{
-		// doplni splitVertex_rightLeft vsude ve scene kde to jde
-		//fprintf(stderr,"getSplitVertexSlow danger %i\n",(int)this);
-		__oraculum();
-		DBGLINE
-		RR_ASSERT(splitVertex_rightLeft>=-2 && splitVertex_rightLeft<=5);
 	}
 
 	// pokud je neco v cache, pouzije to, ale overi ze se to shoduje
@@ -755,14 +736,6 @@ void SubTriangle::splitGeometry(IVertex *asubvertex)
 	real r=point.x*splitvector.y-point.y*splitvector.x;
 	if(r>=0 && r<SMALL_REAL) r=SMALL_REAL; else
 	if(r<=0 && r>-SMALL_REAL) r=-SMALL_REAL;
-
-	// je nebezpeci ze spatne rozhodnem rightleft? pustme na to orakulum
-	if(ABS(r)<0.001 && __oraculum && splitVertex_rightLeft<0)
-	{
-		//fprintf(stderr,"small r danger %i\n",(int)this);
-		__oraculum();
-		DBGLINE
-	}
 
 	// prikazuje nam nekdo kteryho syna dat doprava/doleva?
 	if(splitVertex_rightLeft>=0)
@@ -1791,7 +1764,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 	// hits with power below 1% are ignored to save a bit of time
 	//  without visible loss of quality
 	if(side.receiveFrom)
-	if(sum(abs(hitTriangle->surface->diffuseReflectance*power))>0.01 /*&& !hitTriangle->isNeedle*/) // timto je mozne vypnout vypocet nad jehlama, zustanou cerny
+	if(sum(abs(hitTriangle->surface->diffuseReflectance*power))>0.01)
 	{
 		STATISTIC_INC(numRayTracePhotonHitsReceived);
 		hitPower+=sum(abs(hitTriangle->surface->diffuseReflectance*power));
@@ -2152,7 +2125,7 @@ bool Scene::setFormFactorsTo(Node *source,Point3 (*sourceVertices)[3],Factors *f
 	{
 		Point2 triCentre=destination->uv[0]+(destination->u2+destination->v2)/3;
 		real perimeter=destination->perimeter();
-		doSplit=/*!destination->grandpa->isNeedle && */phits->doSplit(triCentre,perimeter,destination->grandpa);
+		doSplit=phits->doSplit(triCentre,perimeter,destination->grandpa);
 		//	real difBtwAvgHitAndCen=destination->phits->difBtwAvgHitAnd(triCentre);
 		//	bool doSplit=difBtwAvgHitAndCen*destination->phits->count>perimeter/MESHING;
 	}
