@@ -106,9 +106,6 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const SmoothingParameters* sm
 	}
 	DBG(printf(" ivertices...\n"));
 	obj->buildTopIVertices(smoothing->smoothMode,smoothing->minFeatureSize,smoothing->maxSmoothAngle);
-	// priradi objektu jednoznacny a pri kazdem spusteni stejny identifikator
-	obj->id=0;//!!!
-	obj->name=NULL;
 	// vlozi objekt do sceny
 	scene->objInsertStatic(obj);
 }
@@ -200,7 +197,7 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	// enhanced by smoothing
 	if(vertex<3 && measure.smoothed)
 	{
-		irrad = tri->topivertex[vertex]->irradiance(measure,obj->subdivisionSpeed>0);
+		irrad = tri->topivertex[vertex]->irradiance(measure);
 	}
 	else
 
@@ -351,7 +348,7 @@ void buildSubtriangleIllumination(SubTriangle* s, IVertex **iv, Channels flatamb
 		}
 		// fill irradiance
 		if(context2->measure.smoothed)
-			si.measure[i] = iv[i]->irradiance(context2->measure,s->grandpa->object->subdivisionSpeed>0);
+			si.measure[i] = iv[i]->irradiance(context2->measure);
 		else
 			si.measure[i] = flatambient+s->totalExitingFlux/s->area; //!!! ignoruje nastaveni direct/indirect. bere oboje
 		// convert irradiance to measure

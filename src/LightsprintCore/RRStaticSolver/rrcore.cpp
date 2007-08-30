@@ -1459,19 +1459,7 @@ Object::Object(int avertices,int atriangles)
 	IVertexPoolItemsUsed=0;
 	subdivisionSpeed = 0;
 }
-/*
-Channels Object::getVertexIrradiance(unsigned avertex,RRRadiometricMeasure measure)
-{
-#ifdef SUPPORT_INTERPOL
-	RR_ASSERT(avertex<vertices);
-	if(!vertexIVertex[avertex]) return Channels(0); // be prepared for NULL
-	RR_ASSERT(vertexIVertex[avertex]);
-	return vertexIVertex[avertex]->irradiance(measure);
-#else
-	return Channels((real)(rand()%1000)); // not implemented for non-interpol mode
-#endif
-}
-*/
+
 unsigned Object::getTriangleIndex(Triangle* t)
 {
 	unsigned idx = (unsigned)(t-triangle);
@@ -1687,7 +1675,7 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 proc rusit nejdriv jen suby a pak vsechny? nestaci zrusit vsechny?
 	// subtriangly vznikle behem predchoziho vypoctu zrusim, abych setril pamet a pomohl bidne interpolaci.
 	// pokud ale vypocet nerusim a dal propaguji, necham si je.
-	if(resetPropagation && )
+	if(resetPropagation)
 	{
 		staticReflectors.removeSubtriangles();
 	}

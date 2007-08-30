@@ -408,7 +408,7 @@ void IVertex::makeDirty()
 // irradiance in W/m^2, incident power density
 // is equal in whole vertex, doesn't depend on corner material
 // only measure.direct/indirect is used
-Channels IVertex::irradiance(RRRadiometricMeasure measure, bool subdivisionEnabled)
+Channels IVertex::irradiance(RRRadiometricMeasure measure)
 {
 	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid || cacheDirect!=measure.direct || cacheIndirect!=measure.indirect) // cacheTime is byte:5
 	{
@@ -467,11 +467,10 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure, bool subdivisionEnabl
 
 // exitance in W/m^2, exitting power density
 // differs for different corners, depends on corner material
-Channels IVertex::exitance(Node* corner, bool subdivisionEnabled)
+Channels IVertex::exitance(Node* corner)
 {
 	return irradiance(
 		RRRadiometricMeasure(+0,+0,+0,1,1) // don't care if it's exiting, scaled or flux
-		,subdivisionEnabled
 		)*corner->grandpa->surface->diffuseReflectance;
 }
 

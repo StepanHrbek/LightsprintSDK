@@ -536,13 +536,10 @@ public:
 	Object(int avertices,int atriangles);
 	~Object();
 
-	// unique id for this object, stays the same each time
-	unsigned id;
-
 	// object data
 	RRObject* importer;
 	unsigned vertices;
-	unsigned triangles; // primary emitors go first (in DObject)
+	unsigned triangles;
 	unsigned edges;
 	Vec3    *vertex;
 	Triangle*triangle;
@@ -552,9 +549,7 @@ public:
 		private:
 		unsigned mergeCloseIVertices(IVertex* ivertex, float minFeatureSize);
 		public:
-	//Channels getVertexIrradiance(unsigned avertex,RRRadiometricMeasure measure); // only direct+indirect is used
 	unsigned getTriangleIndex(Triangle* t); // return index of triangle in object, UINT_MAX for invalid input
-	//IVertex **vertexIVertex; // only for fast approximative getVertexIrradiance
 	// IVertex pool
 	IVertex *newIVertex();
 	void     deleteIVertices();
@@ -571,7 +566,6 @@ public:
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
 	void    resetStaticIllumination(bool resetFactors, bool resetPropagation);
 
-	char    *name;
 	bool    check();
 };
 

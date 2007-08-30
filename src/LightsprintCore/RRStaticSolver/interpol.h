@@ -75,8 +75,8 @@ public:
 	unsigned splitTopLevelByNormals(Vec3 *avertex, Object *obj);
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
-	Channels irradiance(RRRadiometricMeasure measure, bool subdivisionEnabled); // only direct+indirect is used
-	Channels exitance(Node* corner, bool subdivisionEnabled); // returns direct+indirect. used only by iv_xxx
+	Channels irradiance(RRRadiometricMeasure measure); // only direct+indirect is used
+	Channels exitance(Node* corner); // returns direct+indirect. used only by iv_xxx
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();
 
