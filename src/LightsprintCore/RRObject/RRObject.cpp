@@ -4,7 +4,6 @@
 #include "../RRStaticSolver/rrcore.h"
 #include "Lightsprint/RRObject.h"
 #include "RRObjectFilter.h"
-#include "RRMeshFilterTransformed.h"
 #include "RRObjectFilterTransformed.h"
 #include "RRObjectMulti.h"
 #include "RRObjectWithIllumination.h"
@@ -56,8 +55,7 @@ const RRMatrix3x4* RRObject::getInvWorldMatrix()
 
 RRMesh* RRObject::createWorldSpaceMesh()
 {
-	//!!! az bude refcounting, muzu pri identite vracet getCollider()->getMesh()
-	return new RRTransformedMeshFilter(getCollider()->getMesh(),getWorldMatrix());
+	return getCollider()->getMesh()->createTransformed(getWorldMatrix());
 }
 
 RRObject* RRObject::createWorldSpaceObject(bool negScaleMakesOuterInner, RRCollider::IntersectTechnique intersectTechnique, char* cacheLocation)

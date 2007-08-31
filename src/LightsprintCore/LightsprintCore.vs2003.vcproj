@@ -373,6 +373,12 @@
 				RelativePath="RRMesh\RRChanneledData.cpp">
 			</File>
 			<File
+				RelativePath="RRMesh\RRMatrix3x4.cpp">
+			</File>
+			<File
+				RelativePath="RRMesh\RRMeshFilterTransformed.h">
+			</File>
+			<File
 				RelativePath="RRMesh\RRMesh.cpp">
 			</File>
 			<File
@@ -439,12 +445,6 @@
 			</File>
 			<File
 				RelativePath="RRObject\RRMaterial.cpp">
-			</File>
-			<File
-				RelativePath=".\RRObject\RRMatrix3x4.cpp">
-			</File>
-			<File
-				RelativePath="RRObject\RRMeshFilterTransformed.h">
 			</File>
 			<File
 				RelativePath="RRObject\RRObject.cpp">

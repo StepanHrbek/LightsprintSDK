@@ -9,11 +9,11 @@ unsigned INSTANCES_PER_PASS;
 #define SUPPORT_LIGHTMAPS          1
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED
-#define THREE_ONE
-#define CFG_FILE "3+1.cfg"
+//#define THREE_ONE
+//#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-//#define CFG_FILE "test.cfg"
+#define CFG_FILE "test.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
@@ -2091,6 +2091,9 @@ void idle()
 //	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
+	if(level && captureMovie && !demoPlayer->getPaused())
+		for(unsigned i=0;i<10;i++)
+			level->solver->calculate();
 	if(!level || (rrOn && level->solver->calculate()==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
 //		printf("---]");

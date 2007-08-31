@@ -94,7 +94,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 				AnimationFrame* frame=setup->getFrameByIndex(frameCursor);
 				if(frame)
 				{
-					frame->transitionToNextTime = MAX(0.02f,frame->transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
+					frame->transitionToNextTime = MAX(0.00f,frame->transitionToNextTime-((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f));
 				}
 			}
 			else
@@ -108,7 +108,7 @@ bool AnimationEditor::special(unsigned char c, int x, int y)
 				AnimationFrame* frame=setup->getFrameByIndex(frameCursor);
 				if(frame)
 				{
-					if(frame->transitionToNextTime<0.03f) frame->transitionToNextTime=0;
+					//if(frame->transitionToNextTime<0.03f) frame->transitionToNextTime=0;
 					frame->transitionToNextTime += ((modif&GLUT_ACTIVE_CTRL)?0.5f:0.05f);
 				}
 			}

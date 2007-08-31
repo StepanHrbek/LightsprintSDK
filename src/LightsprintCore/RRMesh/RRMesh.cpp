@@ -5,6 +5,7 @@
 #include "RRMeshIndexedTriList.h"
 #include "RRMeshLessVertices.h"
 #include "RRMeshLessTriangles.h"
+#include "RRMeshFilterTransformed.h"
 #include "RRMeshMulti.h"
 #include "../RRMathPrivate.h"
 
@@ -278,6 +279,13 @@ RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexB
 		break;
 	}
 	return NULL;
+}
+
+RRMesh* RRMesh::createTransformed(const RRMatrix3x4* transform)
+{
+	//!!! az bude refcounting, muzu pri identite vracet this
+	//return transform ? new RRTransformedMeshFilter(this,transform) : this;
+	return new RRTransformedMeshFilter(this,transform);
 }
 
 RRMesh* RRMesh::createMultiMesh(RRMesh* const* meshes, unsigned numMeshes)

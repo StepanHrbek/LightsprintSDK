@@ -2205,6 +2205,10 @@ Lightsprint SDK uses following third party libraries:
  - Collider results are up to 200x better than commercial physical engines
 
  <hr>
+ <b>MultiMeshCollider</b>
+ - ray-multimesh collision test, for static scenes with multiple meshes
+
+ <hr>
  <b>HelloCollider</b>
  - the most simple case of ray-mesh collision test
 

@@ -61,6 +61,8 @@ public:
 
 	//! Initializes all inputs at once.
 	Camera(float posx, float posy, float posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
+	//! == operator, true when inputs are equal
+	bool operator==(const Camera& a) const;
 	//! Type of moveForward, moveBackward, moveRight and moveLeft for convenient mapping to keys.
 	typedef void (Camera::*Move)(float units);
 	//! Moves camera to given distance in world space.

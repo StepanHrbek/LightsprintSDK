@@ -60,17 +60,17 @@ bool LevelSetup::load(const char* afilename)
 	}
 	// load frames
 	frames.clear();
-	AnimationFrame* tmp;
-	while((tmp=AnimationFrame::load(f)))
+	AnimationFrame frame(0); // working frame, data are loded over and over into tmp, so inheritance works
+	while(frame.loadOver(f))
 	{
-		tmp->validate(objects.size());
-		if(!isOkForNewLayerNumber(tmp->layerNumber))
+		frame.validate(objects.size());
+		if(!isOkForNewLayerNumber(frame.layerNumber))
 		{
 			unsigned newNumber = newLayerNumber();
-			rr::RRReporter::report(rr::INF1,"Changing layer number %d -> %d.\n",tmp->layerNumber,newNumber);
-			tmp->layerNumber = newNumber;
+			rr::RRReporter::report(rr::INF1,"Changing layer number %d -> %d.\n",frame.layerNumber,newNumber);
+			frame.layerNumber = newNumber;
 		}
-		frames.push_back(tmp);
+		frames.push_back(new AnimationFrame(frame));
 	}
 	fclose(f);
 	return frames.size()>0;
@@ -99,10 +99,13 @@ bool LevelSetup::save() const
 	}
 	fprintf(f,"\n");
 	// save frames
+	AnimationFrame empty(0);
+	AnimationFrame* prev = &empty; // previous frame
 	for(Frames::const_iterator i=frames.begin();i!=frames.end();i++)
 	{
-		if(!(*i)->save(f))
+		if(!(*i)->save(f,*prev))
 			return false;
+		prev = *i;
 	}
 	fclose(f);
 	return true;

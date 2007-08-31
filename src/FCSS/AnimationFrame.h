@@ -39,24 +39,27 @@ struct AnimationFrame
 
 	// layerNumber should be unique for whole animation track
 	AnimationFrame(unsigned layerNumber);
+	AnimationFrame(const AnimationFrame& copy);
 	~AnimationFrame();
 
 	// returns blend between this and that frame
 	// return this for alpha=0, that for alpha=1
 	const AnimationFrame* blend(const AnimationFrame& that, float alpha) const;
 
+	// load frame from opened .ani file, return false on failure, true when at least 1 line of data is loaded
+	// existing frame is modified
+	bool loadOver(FILE* f);
+
 	// load frame from opened .ani file, return NULL on failure
-	static AnimationFrame* load(FILE* f);
+	// new frame is created
+	static AnimationFrame* loadNew(FILE* f);
 
 	// validate frame so it has correct number of object positions
 	void validate(unsigned numObjects);
 
 	// save frame to opened .ani file
-	bool save(FILE* f) const;
-
-private:
-	// load frame from opened .ani file, return false on failure
-	bool loadPrivate(FILE* f);
+	// saves only lines that differ from prev
+	bool save(FILE* f, const AnimationFrame& prev) const;
 };
 
 #endif

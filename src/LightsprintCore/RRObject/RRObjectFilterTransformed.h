@@ -20,7 +20,7 @@ public:
 		collider = NULL;
 		const RRMatrix3x4* m = inherited->getWorldMatrix();
 		RR_ASSERT(m);
-		RRMesh* mesh = new RRTransformedMeshFilter(inherited->getCollider()->getMesh(),m);
+		RRMesh* mesh = inherited->getCollider()->getMesh()->createTransformed(m);
 		// it would be possible to reuse collider of aobject, our collider would transform
 		//  both inputs and outputs and call aobject's collider with complicated collisionHandler
 		// quite complicated and slower, let's rather create new collider

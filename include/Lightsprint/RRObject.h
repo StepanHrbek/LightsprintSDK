@@ -15,37 +15,6 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// primitives
-	//
-	// RRMatrix3x4 - matrix 3x4
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	//! Matrix of 3x4 real numbers in row-major order.
-	//
-	//! Translation is stored in m[x][3].
-	//! Rotation and scale in the rest.
-	//! \n We have chosen this format because it contains only what we need, is smaller than 4x4
-	//! and its shape makes no room for row or column major ambiguity.
-	struct RR_API RRMatrix3x4
-	{
-		RRReal m[3][4];
-
-		//! Returns position in 3d space transformed by matrix.
-		RRVec3 transformedPosition(const RRVec3& a) const;
-		//! Transforms position in 3d space by matrix.
-		RRVec3& transformPosition(RRVec3& a) const;
-		//! Returns direction in 3d space transformed by matrix.
-		RRVec3 transformedDirection(const RRVec3& a) const;
-		//! Transforms direction in 3d space by matrix.
-		RRVec3& transformDirection(RRVec3& a) const;
-		//! Returns determinant of first 3x3 elements.
-		RRReal determinant3x3() const;
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
 	// material aspects of space and surfaces
 	//
 	// RRColor              - rgb color

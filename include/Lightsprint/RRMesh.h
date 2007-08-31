@@ -367,13 +367,24 @@ namespace rr
 		//! \return Newly created instance of RRMesh or NULL in case of unsupported or invalid inputs.
 		static RRMesh* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
 
-		//! Creates and returns copy of your instance.
+		//! Creates and returns partial copy of your instance (everything except custom channels).
 		//
 		//! Created copy is completely independent on any other objects and may be deleted sooner or later.
 		//! \n It is expected that your input instance is well formed (returns correct and consistent values).
 		//! \n Copy may be faster than original, but may require more memory.
 		//! \n This function may fail and return NULL.
 		RRMesh* createCopy();
+
+		//! Creates and returns transformed mesh.
+		//
+		//! Created instance doesn't require additional memory, 
+		//! but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
+		//!
+		//! Usually used when mesh in world space is needed and we have mesh in local space.
+		//! In this case, world space matrix (the one that transforms from local to world) should be passed in transform.
+		//!
+		//! Only positions and normals are transformed, custom channels are left untouched.
+		RRMesh* createTransformed(const RRMatrix3x4* transform);
 
 		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).
 		//

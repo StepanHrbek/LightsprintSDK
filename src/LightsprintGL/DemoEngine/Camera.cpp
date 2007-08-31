@@ -25,6 +25,11 @@ Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float 
 	afar = _afar;
 }
 
+bool Camera::operator==(const Camera& a) const
+{
+	return pos[0]==a.pos[0] && pos[1]==a.pos[1] && pos[2]==a.pos[2] && angle==a.angle && leanAngle==a.leanAngle && angleX==a.angleX && aspect==a.aspect && fieldOfView==a.fieldOfView && anear==a.anear && afar==a.afar;
+}
+
 void Camera::update(float back)
 {
 	dir[0] = sin(angle)*cos(angleX);

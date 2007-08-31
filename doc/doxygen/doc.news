@@ -6,10 +6,12 @@
 
 \page news What's new
 
-\section news31 ------------------------------------ 2007.9.x -------------------------------------
+\section news31 ------------------------------------ 2007.8.31 -------------------------------------
 
 NEWS
 
+- sample MultiMeshCollider shows ray test against static scene with multiple meshes
+- RRMesh::createTransformed() creates copy of mesh, transformed by matrix
 - RRMesh::createVertexBufferRuler() creates mesh that look identical,
   but its vertex numbering is directive for vertex buffers created by RRDynamicSolver
   (vertex buffers otherwise use original vertex numbering valid before filters and optimizers
