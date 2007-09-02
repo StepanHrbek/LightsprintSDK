@@ -62,7 +62,11 @@ namespace rr
 		//!  Currently active custom scaler, provided for your convenience.
 		//!  You may compute irradiance directly in physical scale and don't use it,
 		//!  which is the most efficient way,
-		//!  but if you calculate in custom scale, convert your result to physical scale using scaler.
+		//!  but if you calculate in custom scale, convert your result to physical
+		//!  scale using scaler->getPhysicalScale() before returning it.
+		//!  \n Lightsprint calculates internally in physical scale, that's why
+		//!  it's more efficient to expect result in physical scale
+		//!  rather than in screen colors or any other custom scale.
 		//! \return
 		//!  Irradiance at receiverPosition, in physical scale [W/m^2],
 		//!  assuming that receiver is oriented towards light.
@@ -80,7 +84,7 @@ namespace rr
 		//! \param direction
 		//!  Direction of light in world space.
 		//! \param irradiance
-		//!  Irradiance at receiver, assuming it is oriented towards light.
+		//!  Irradiance in physical scale at receiver, assuming it is oriented towards light.
 		static RRLight* createDirectionalLight(const RRVec3& direction, const RRVec3& irradiance);
 
 		//! Creates omnidirectional point light with physically correct distance attenuation.
@@ -88,16 +92,29 @@ namespace rr
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
 		//! \param irradianceAtDistance1
-		//!  Irradiance at distance 1, assuming that receiver is oriented towards light.
+		//!  Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
 		static RRLight* createPointLight(const RRVec3& position, const RRVec3& irradianceAtDistance1);
+
+		//! Creates omnidirectional point light with radius/exponent based distance attenuation (physically incorrect).
+		//
+		//! \param position
+		//!  Position of light source in world space, start of all light rays.
+		//! \param colorAtDistance0
+		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
+		//! \param radius
+		//!  Distance in world space, where light disappears due to its distance attenuation.
+		//!  So light has effect in sphere of given radius.
+		//! \param fallOffExponent
+		//!  Distance attenuation in custom scale is computed as pow(MAX(0,1-distance/radius),fallOffExponent).
+		static RRLight* createPointLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent);
 
 		//! Creates spot point light with physically correct distance attenuation.
 		//
-		//! Light rays start in position and go in directions up to outerAngleRad far from major direction.
+		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
 		//! \param irradianceAtDistance1
-		//!  Irradiance at distance 1, assuming that receiver is oriented towards light.
+		//!  Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
@@ -107,6 +124,28 @@ namespace rr
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		static RRLight* createSpotLight(const RRVec3& position, const RRVec3& irradianceAtDistance1, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
+
+		//! Creates spot point light with radius/exponent based distance attenuation (physically incorrect).
+		//
+		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
+		//! \param position
+		//!  Position of light source in world space, start of all light rays.
+		//! \param colorAtDistance0
+		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
+		//! \param radius
+		//!  Distance in world space, where light disappears due to its distance attenuation.
+		//!  So light has effect in sphere of given radius.
+		//! \param fallOffExponent
+		//!  Distance attenuation in custom scale is computed as pow(MAX(0,1-distance/radius),fallOffExponent).
+		//! \param majorDirection
+		//!  Major direction of light in world space.
+		//! \param outerAngleRad
+		//!  Angle in radians. Light rays go in directions up to outerAngleRad far from major majorDirection.
+		//! \param fallOffAngleRad
+		//!  Angle in radians. 
+		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
+		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
+		static RRLight* createSpotLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 	};
 
 

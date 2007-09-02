@@ -28,16 +28,16 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// PointLight
+// PointLightPhys
 
-class PointLight : public RRLight
+class PointLightPhys : public RRLight
 {
 public:
-	PointLight(const RRVec3& aposition, const RRVec3& airradianceAtDistance1)
+	PointLightPhys(const RRVec3& _position, const RRVec3& _irradianceAtDistance1)
 	{
 		type = POINT;
-		position = aposition;
-		irradianceAtDistance1 = airradianceAtDistance1;
+		position = _position;
+		irradianceAtDistance1 = _irradianceAtDistance1;
 	}
 	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -49,30 +49,96 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// SpotLight
+// PointLightRadiusExp
 
-class SpotLight : public RRLight
+class PointLightRadiusExp : public RRLight
 {
 public:
-	SpotLight(const RRVec3& aposition, const RRVec3& airradianceAtDistance1, const RRVec3& adirection, RRReal aouterAngle, RRReal afallOffAngle)
+	PointLightRadiusExp(const RRVec3& _position, const RRVec3& _colorAtDistance0, RRReal _radius, RRReal _fallOffExponent)
 	{
 		type = POINT;
-		position = aposition;
-		irradianceAtDistance1 = airradianceAtDistance1;
-		direction = adirection.normalized();
-		outerAngle = CLAMPED(aouterAngle,0.001f,1);
-		fallOffAngle = CLAMPED(afallOffAngle,0.001f,outerAngle);
+		position = _position;
+		colorAtDistance0 = _colorAtDistance0;
+		radius = _radius;
+		fallOffExponent = _fallOffExponent;
+	}
+	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	{
+		float distanceAttenuation = pow(MAX(0,1-(receiverPosition-position).length()/radius),fallOffExponent);
+		RRColor color = colorAtDistance0 * distanceAttenuation;
+		if(scaler) scaler->getPhysicalScale(color);
+		return color;
+	}
+	RRColorRGBF colorAtDistance0;
+	RRReal radius;
+	RRReal fallOffExponent;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// SpotLightPhys
+
+class SpotLightPhys : public RRLight
+{
+public:
+	SpotLightPhys(const RRVec3& _position, const RRVec3& _irradianceAtDistance1, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
+	{
+		type = POINT;
+		position = _position;
+		irradianceAtDistance1 = _irradianceAtDistance1;
+		direction = _direction.normalized();
+		outerAngleRad = CLAMPED(_outerAngleRad,0.001f,1);
+		fallOffAngleRad = CLAMPED(_fallOffAngleRad,0.001f,outerAngleRad);
 	}
 	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
 		float distanceAttenuation = 1/(receiverPosition-position).length2();
-		float angle = acos(dot(direction,(receiverPosition-position).normalized()));
-		float angleAttenuation = (outerAngle-angle)/fallOffAngle;
-		return irradianceAtDistance1 * distanceAttenuation * CLAMPED(angleAttenuation,0,1);
+		float angleRad = acos(dot(direction,(receiverPosition-position).normalized()));
+		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
+		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
+		return irradianceAtDistance1 * attenuation;
 	}
 	RRColorRGBF irradianceAtDistance1;
-	RRReal outerAngle;
-	RRReal fallOffAngle;
+	RRReal outerAngleRad;
+	RRReal fallOffAngleRad;
+};
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// SpotLightRadiusExp
+
+class SpotLightRadiusExp : public RRLight
+{
+public:
+	SpotLightRadiusExp(const RRVec3& _position, const RRVec3& _colorAtDistance0, RRReal _radius, RRReal _fallOffExponent, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
+	{
+		type = POINT;
+		position = _position;
+		colorAtDistance0 = _colorAtDistance0;
+		radius = _radius;
+		fallOffExponent = _fallOffExponent;
+		direction = _direction.normalized();
+		outerAngleRad = CLAMPED(_outerAngleRad,0.001f,1);
+		fallOffAngleRad = CLAMPED(_fallOffAngleRad,0.001f,outerAngleRad);
+	}
+	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+	{
+		float distanceAttenuation = pow(MAX(0,1-(receiverPosition-position).length()/radius),fallOffExponent);
+		float angleRad = acos(dot(direction,(receiverPosition-position).normalized()));
+		float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
+		float attenuation = distanceAttenuation * CLAMPED(angleAttenuation,0,1);
+		RRColor color = colorAtDistance0 * attenuation;
+		if(scaler) scaler->getPhysicalScale(color);
+		return color;
+	}
+	RRColorRGBF colorAtDistance0;
+	RRReal radius;
+	RRReal fallOffExponent;
+	RRReal outerAngleRad;
+	RRReal fallOffAngleRad;
 };
 
 
@@ -87,12 +153,22 @@ RRLight* RRLight::createDirectionalLight(const RRVec3& direction, const RRVec3& 
 
 RRLight* RRLight::createPointLight(const RRVec3& position, const RRVec3& irradianceAtDistance1)
 {
-	return new PointLight(position,irradianceAtDistance1);
+	return new PointLightPhys(position,irradianceAtDistance1);
 }
 
-RRLight* RRLight::createSpotLight(const RRVec3& position, const RRVec3& irradianceAtDistance1, const RRVec3& direction, RRReal outerAngle, RRReal fallOffAngle)
+RRLight* RRLight::createPointLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent)
 {
-	return new SpotLight(position,irradianceAtDistance1,direction,outerAngle,fallOffAngle);
+	return new PointLightRadiusExp(position,colorAtDistance0,radius,fallOffExponent);
+}
+
+RRLight* RRLight::createSpotLight(const RRVec3& position, const RRVec3& irradianceAtDistance1, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad)
+{
+	return new SpotLightPhys(position,irradianceAtDistance1,majorDirection,outerAngleRad,fallOffAngleRad);
+}
+
+RRLight* RRLight::createSpotLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad)
+{
+	return new SpotLightRadiusExp(position,colorAtDistance0,radius,fallOffExponent,majorDirection,outerAngleRad,fallOffAngleRad);
 }
 
 } // namespace
