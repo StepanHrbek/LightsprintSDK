@@ -327,8 +327,12 @@ namespace rr
 		//! This implies that it is not allowed to create MultiMesh from MultiMeshes.
 		struct MultiMeshPreImportNumber 
 		{
-			unsigned index : sizeof(unsigned)*8-12; ///< Original PreImport index of element (vertex or triangle). For 32bit int: max 1M triangles/vertices in one object.
-			unsigned object : 12; ///< Index into array of original meshes. For 32bit int: max 4k objects.
+			//! Original PreImport index of element (vertex or triangle).
+			//! For 32bit int: max 1M triangles/vertices in one mesh is supported by multimesh.
+			unsigned index : sizeof(unsigned)*8-12;
+			//! Index into array of original meshes used to create multimesh.
+			//! For 32bit int: max 4k meshes is supported by multimesh.
+			unsigned object : 12;
 			MultiMeshPreImportNumber() {}
 			MultiMeshPreImportNumber(unsigned aobject, unsigned aindex) {index=aindex;object=aobject;}
 			//! Implicit unsigned -> MultiMeshPreImportNumber conversion.

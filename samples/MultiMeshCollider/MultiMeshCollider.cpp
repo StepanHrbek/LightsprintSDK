@@ -73,14 +73,17 @@ int main()
 	// print results
 	if(hit)
 	{
-		RRMesh::MultiMeshPreImportNumber hitEntity = multiMesh->getPreImportTriangle(ray->hitTriangle);
+		// get original mesh/triangle numbers
+		// it works even when filters (e.g. vertex weld) run on mesh or multimesh
+		RRMesh::MultiMeshPreImportNumber original = multiMesh->getPreImportTriangle(ray->hitTriangle);
+
 		printf("Intersection was detected.\n\n");
 		printf(" distance                    = %f\n",ray->hitDistance);
 		printf(" position in object space    = %f %f %f\n",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
 		printf(" position in triangle space  = %f %f\n",ray->hitPoint2d[0],ray->hitPoint2d[1]);
-		printf(" triangle index in multimesh = %d\n",ray->hitTriangle);
-		printf("   original mesh index       = %d\n",hitEntity.object);
-		printf("   original triangle index   = %d\n",hitEntity.index);
+		printf(" triangle in multimesh       = %d\n",ray->hitTriangle);
+		printf("   original mesh number      = %d\n",original.object); // we had 2 meshes, so this number is in 0..1 range
+		printf("   original triangle number  = %d\n",original.index); // we hit mesh with 2 triangles, so this number is in 0..1 range
 		printf(" triangle side               = %s\n",ray->hitFrontSide?"front":"back");
 		printf(" triangle plane              = %f %f %f %f\n",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
 	}

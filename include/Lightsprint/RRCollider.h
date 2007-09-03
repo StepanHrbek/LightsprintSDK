@@ -104,7 +104,7 @@ namespace rr
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
 		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.
-		RRVec2          hitPoint2d;     ///< Out. Hit coordinate in triangle space (vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1).
+		RRVec2          hitPoint2d;     ///< Out. Hit coordinate in triangle space defined so that vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1. Barycentric/areal coordinates of hit point are 1-hitPoint2d[0]-hitPoint2d[1],hitPoint2d[0],hitPoint2d[1].
 		RRVec3p         hitPlane;       ///< Out. Plane of hitTriangle in object space. RRVec3 part is normalized.
 		RRVec3          hitPoint3d;     ///< Out. Hit coordinate in object space.
 		bool            hitFrontSide;   ///< Out. True = face was hit from the front side.
@@ -190,8 +190,25 @@ namespace rr
 
 		//! Intersects mesh with batch of rays at once.
 		//
-		//! Using batch intersections makes use of all available cores/processors.
-		//! It is faster to use one big batch compared to several small ones.
+		//! Ease of use:
+		//!  Unlike intersect(), intersectBatch() makes use of all available cores/processors.
+		//!
+		//! Performance:
+		//!  Batches always add overhead. Small batches add thread creation overhead (not significant 
+		//!  for big ones). Big batches add slow system memory write/read overhead (not significant for small ones).
+		//!  The most efficient technique is to avoid batches, create multiple threads in your code and
+		//!  process individual rays using intersect() immediately after their creation, when they are still in L1 cache
+		//!  (it's safe to run intersect() from multiple threads at once).
+		//!
+		//! Coherent rays:
+		//!  Coherent rays in batch are processed faster, but only because the same memory words
+		//!  are accessed, no special algorithm that depends on equal rayOrigins is used.
+		//!
+		//! Conclusion:
+		//!  If performance is critical for you, experiment, try multiple approaches.
+		//!  Use intersectBatch() if you have multiple cores and you don't want to manage threads yourself.
+		//!  Otherwise look at BunnyBenchmark sample where OpenMP threading and intersect() are used for higher performance.
+		//!
 		//! \param ray
 		//!  Array of rays. Each ray contains both inputs and outputs.
 		//!  For each ray, hitDistance=-1 says that ray had no intersection with mesh,
