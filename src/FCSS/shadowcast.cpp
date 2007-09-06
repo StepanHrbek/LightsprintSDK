@@ -14,12 +14,13 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
 #define CFG_FILE "test.cfg"
+//#define CFG_FILE "sponza-sun.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 1;
-int resolutionx = 1024;
-int resolutiony = 768;
+int resolutionx = 1280;
+int resolutiony = 960;
 bool twosided = 0;
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;

@@ -252,6 +252,7 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 			dynaobject[j]->visible = true;
 			dynaobject[j]->worldFoot = frame.dynaPosRot[i].pos;
 			dynaobject[j]->rotYZ = frame.dynaPosRot[i].rot;
+//static float globalRot = 0; globalRot += 0.2f; dynaobject[j]->rotYZ[0] = globalRot; //!!! automaticka rotace vsech objektu
 			dynaobject[j]->updatePosition();
 			// copy changes to AI
 			dynaobjectAI[j]->pos = dynaobject[j]->worldFoot;
