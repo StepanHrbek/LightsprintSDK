@@ -100,7 +100,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	// used by detectDirectIlluminationFromLightmaps
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
-	detectFromLightmapUberProgram = new UberProgram(buf1,buf2);
+	detectFromLightmapUberProgram = UberProgram::create(buf1,buf2);
 	detectingFromLightmapLayer = -1;
 #endif
 }
@@ -543,12 +543,12 @@ unsigned RRDynamicSolverGL::updateVertexBuffersFromLightmaps(unsigned layerNumbe
 	// loads lightmap [per-pixel-custom] into multiobject [per-triangle-physical]
 	detectDirectIlluminationFromLightmaps(layerNumber);
 	// loads multiobject [per-triangle-physical] into solver [per triangle-physical]
-	priv->scene->illuminationReset(false,true);
-	priv->solutionVersion++;
+//!!!	priv->scene->illuminationReset(false,true);
+//!!!	priv->solutionVersion++;
 	// reads interpolated solution [per-vertex-physical] from solver
 	UpdateParameters params;
 	params.measure = rr::RRRadiometricMeasure(0,0,0,1,0);
-	return updateVertexBuffers(layerNumber,createMissingBuffers,&params,NULL);
+	return updateVertexBuffers(layerNumber,-1,createMissingBuffers,&params,NULL);
 }
 #endif
 

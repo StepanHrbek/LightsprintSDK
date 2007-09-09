@@ -165,13 +165,6 @@ RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle
 
 bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const
 {
-	// fast path for realtime radiosity
-	//if(vertex<3)
-	//{
-	//	IVertex* ivertex = scene->object->triangle[triangle].topivertex[vertex];
-	//	out = ivertex ? ivertex->irradiance(measure,false) : RRColor(0);
-	//	return true;
-	//}
 
 	Channels irrad;
 	Object* obj;

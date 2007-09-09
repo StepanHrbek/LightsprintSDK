@@ -995,10 +995,6 @@ Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradia
 	// load triangle shooter with energy emited by surface
 	RR_ASSERT(shooter);
 	// set this primary illum
-	Channels oldSourceExitingFlux = getSourceExitingFlux();
-	Channels addSourceExitingFlux = newSourceExitingFlux-oldSourceExitingFlux;
-	Channels oldSourceIncidentFlux = getSourceIncidentFlux();
-	Channels addSourceIncidentFlux = newSourceIncidentFlux-oldSourceIncidentFlux;
 	if(resetPropagation)
 	{
 		// set primary illum
@@ -1009,6 +1005,10 @@ Channels Triangle::setSurface(const RRMaterial *s, const Vec3& additionalIrradia
 	}
 	else
 	{
+		Channels oldSourceExitingFlux = getSourceExitingFlux();
+		Channels addSourceExitingFlux = newSourceExitingFlux-oldSourceExitingFlux;
+		Channels oldSourceIncidentFlux = getSourceIncidentFlux();
+		Channels addSourceIncidentFlux = newSourceIncidentFlux-oldSourceIncidentFlux;
 		// add primary illum
 		shooter->totalExitingFluxToDiffuse += addSourceExitingFlux;
 		// load received energy accumulator
@@ -1589,6 +1589,396 @@ bool Object::check()
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// night edition
+
+enum
+{
+	BITS_FOR_VISIBILITY = 12,
+	BITS_FOR_TRIANGLE_INDEX = sizeof(unsigned)*8-BITS_FOR_VISIBILITY,
+};
+/*
+class PackedFactor
+{
+public:
+	void set(RRReal _visibility, unsigned _destinationTriangle)
+	{
+		RR_ASSERT(_visibility>=0);
+		RR_ASSERT(_visibility<=1);
+		RR_ASSERT(_destinationTriangle<(1<<BITS_FOR_TRIANGLE_INDEX));
+		visibility = (unsigned)(_visibility*((1<<BITS_FOR_VISIBILITY)-1));
+		RR_ASSERT(visibility);
+		destinationTriangle = _destinationTriangle;
+	}
+	RRReal getVisibility() const
+	{
+		return visibility * 2.3283064370807973754314699618685e-10f;
+	}
+	unsigned getDestinationTriangle() const
+	{
+		return destinationTriangle;
+	}
+private:
+	unsigned visibility          : BITS_FOR_VISIBILITY;
+	unsigned destinationTriangle : BITS_FOR_TRIANGLE_INDEX;
+};*/
+
+
+// night edition:
+//  form faktor
+class PackedFactor
+{
+public:
+	void set(RRReal _visibility, unsigned _destinationTriangle)
+	{
+		RR_ASSERT(_visibility>=0);
+		RR_ASSERT(_visibility<=1);
+		visibility = _visibility;
+		destinationTriangle = _destinationTriangle;
+	}
+	RRReal getVisibility() const
+	{
+		return visibility;
+	}
+	unsigned getDestinationTriangle() const
+	{
+		return destinationTriangle;
+	}
+private:
+	float visibility;
+	unsigned destinationTriangle;
+};
+
+
+// night edition:
+//  form faktory pro celou jednu statickou scenu
+class PackedFactorsThread
+{
+public:
+	PackedFactorsThread(unsigned numTriangles, unsigned numFactors)
+	{
+		RR_ASSERT(numTriangles<(1<<BITS_FOR_TRIANGLE_INDEX));
+		data = new char[(numTriangles+1)*sizeof(unsigned)+numFactors*sizeof(PackedFactor)];
+	}
+	PackedFactorsThread(char* _data, unsigned _sizeInBytes)
+	{
+		data = _data;
+		sizeInBytes = _sizeInBytes;
+	}
+	static PackedFactorsThread* load(const char* filename)
+	{
+		FILE* f = fopen(filename,"rb");
+		if(!f) return NULL;
+		fseek(f,0,SEEK_END);
+		unsigned sizeInBytes = ftell(f);
+		char* data = new char[sizeInBytes];
+		fseek(f,0,SEEK_SET);
+		fread(data,1,sizeInBytes,f);
+		fclose(f);
+		return new PackedFactorsThread(data,sizeInBytes);
+	}
+	bool save(const char* filename) const
+	{
+		if(!data) return false;
+		FILE* f = fopen(filename,"wb");
+		if(!f) return false;
+		fwrite(data,sizeInBytes,1,f);
+		fclose(f);
+		return true;
+	}
+	const PackedFactor* getFactors(unsigned sourceTriangleIndex) const
+	{
+		return (PackedFactor*)(data+((unsigned*)data)[sourceTriangleIndex]);
+	}
+	unsigned getSize() const
+	{
+		return sizeInBytes;
+	}
+	~PackedFactorsThread()
+	{
+		delete[] data;
+	}
+protected:
+	// format dat v jednom souvislem bloku:
+	//   unsigned offset[numTriangles+1] ... offsety (v bytech od zacatku souboru) na zacatek seznamu faktoru vychazejicich z trianglu
+	//   PackedFactor factors[?] ... faktory
+	char* data;
+	unsigned sizeInBytes;
+};
+
+class PackedFactorsProcess
+{
+public:
+	PackedFactorsProcess()
+	{
+		numThreads = 0;
+	}
+	~PackedFactorsProcess()
+	{
+		while(numThreads)
+			delete threads[--numThreads];
+	}
+
+	void push_back(PackedFactorsThread* th)
+	{
+		threads[numThreads++] = th;
+	}
+	unsigned getNumThreads()
+	{
+		return numThreads;
+	}
+	PackedFactorsThread* getThread(unsigned threadNum)
+	{
+		RR_ASSERT(threadNum<numThreads);
+		return threads[threadNum];
+	}
+	unsigned getMemoryOccupied()
+	{
+		unsigned size = 0;
+		for(unsigned i=0;i<numThreads;i++) size += threads[i]->getSize();
+		return size;
+	}
+protected:
+	unsigned numThreads;
+	PackedFactorsThread* threads[256];
+};
+
+
+// night edition:
+//  used while building packed factors
+class PackedFactorsBuilder : public PackedFactorsThread
+{
+public:
+	PackedFactorsBuilder(unsigned numTriangles, unsigned numFactors)
+		: PackedFactorsThread(numTriangles,numFactors)
+	{
+		sizeInBytes = sizeof(unsigned)*(numTriangles+1);
+	}
+	void allocFactors(unsigned sourceTriangleIndex)
+	{
+		((unsigned*)data)[sourceTriangleIndex] = sizeInBytes;
+	}
+	PackedFactor* allocFactor()
+	{
+		sizeInBytes += sizeof(PackedFactor);
+		return (PackedFactor*)(data+sizeInBytes-sizeof(PackedFactor));
+	}
+};
+
+
+// night edition:
+//  struktura zodpovedna za vyber nejsilnejsich shooteru pro scatter
+class PackedBests
+{
+public:
+	void init(const Triangle* _triangle, unsigned _indexBegin, unsigned _indexEnd)
+	{
+		triangle = _triangle;
+		indexBegin = _indexBegin;
+		indexEnd = _indexEnd;
+		reset();
+	}
+
+	void reset()
+	{
+		bests = 0;
+		bestNodeIterator = 0;
+	}
+
+	// m-threaded interface, to be run from 1 thread when other threads don't call getSelectedBest()
+	//  returns number of triangles in selected group
+	unsigned selectBests()
+	{
+		// search 200 shooters with most energy to diffuse
+		reset();
+		real bestQ[BESTS];
+//		bestQ[0] = -1; // first is always valid
+		bestQ[BESTS-1] = -1; // last is always valid
+		for(unsigned i=indexBegin;i<indexEnd;i++) if(triangle[i].surface) //!!! NUM_THREADS misto 2
+		{
+			// calculate quality of distributor
+			real q = sum(triangle[i].incidentFluxToDiffuse);
+
+//#define BEST_RANGE 0.01f // best[last] musi byt aspon 0.01*best[0], jinak je lepsi ho zahodit
+//			if(q>bestQ[BESTS-1] && q>bestQ[0]*BEST_RANGE)
+			if(q>bestQ[BESTS-1])
+			{
+				// sort [q,node] into best cache, bestQ[0] is highest
+				bests = MIN(BESTS,bests+1);
+				unsigned pos = bests-1;
+				for(; pos>0 && q>bestQ[pos-1]; pos--)
+				{
+					// probublavam mezi spravne velkymi besty smerem k lepsim
+					bestNode[pos] = bestNode[pos-1];
+					bestQ[pos] = bestQ[pos-1];
+				}
+				bestNode[pos] = i;
+				bestQ[pos] = q;
+			}
+		}
+		if(bests) RRReporter::report(INF3,"bestQ[0]=%f bestQ[%d]=%f\n",bestQ[0],bests-1,bestQ[bests-1]);//!!!
+		return bests;
+	}
+
+	// m-threaded interface, to be run from many threads
+	//  returns i-th triangle from group of selectBests() triangles
+	unsigned getSelectedBest(unsigned i) const
+	{
+		RR_ASSERT(i<bests);
+		return bestNode[i];
+	}
+
+	// 1-threaded interface
+	//  returns best triangle
+	unsigned getBest()
+	{
+		// if cache empty, fill cache
+		if(bestNodeIterator==bests)
+		{
+			selectBests();
+		}
+		// get best from cache
+		if(!bests) return UINT_MAX;
+		return bestNode[bestNodeIterator++];
+	}
+protected:
+	unsigned bests;
+	unsigned bestNode[BESTS]; // triangleIndex, indexBegin..indexEnd-1
+	unsigned bestNodeIterator;
+	const Triangle* triangle; // our data: triangle[indexBegin]..triangle[indexEnd-1]
+	unsigned indexBegin;
+	unsigned indexEnd;
+};
+
+// night edition:
+//  struktura zodpovedna za vyber nejsilnejsich shooteru pro scatter
+//  multithreadova verze
+class PackedBestsThreaded
+{
+public:
+	PackedBestsThreaded(const Object* _object)
+	{
+		//threads[0].init(_object->triangle,0,_object->triangles/2);
+		//threads[1].init(_object->triangle,_object->triangles/2,_object->triangles);
+		for(unsigned i=0;i<NUM_THREADS;i++)
+			threads[i].init(_object->triangle,i,_object->triangles);
+	}
+
+	void reset()
+	{
+		for(int i=0;i<NUM_THREADS;i++)
+			threads[i].reset();
+	}
+
+	// m-threaded interface, to be run from 1 thread when other threads don't call getSelectedBest()
+	//  returns number of triangles in selected group
+	unsigned selectBests()
+	{
+		RRReportInterval report(INF2,"Finding bests400...\n");//!!!
+#pragma omp parallel for
+		for(int i=0;i<NUM_THREADS;i++)
+			bests[i] = threads[i].selectBests();
+		//!!! NUM_THREADS
+		if(bests[0]!=bests[1])
+			printf("ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+		return bests[0]+bests[1];
+	}
+
+	// m-threaded interface, to be run from many threads
+	//  returns i-th triangle from group of selectBests() triangles
+	unsigned getSelectedBest(unsigned i) const
+	{
+		return threads[i%NUM_THREADS].getSelectedBest(i/NUM_THREADS);
+	}
+
+	// 1-threaded interface
+	//  returns best triangle
+	unsigned getBest()
+	{
+		return threads[iterator++%NUM_THREADS].getBest();
+	}
+protected:
+	enum
+	{
+		NUM_THREADS=2
+	};
+	PackedBests threads[NUM_THREADS];
+	unsigned bests[NUM_THREADS];
+	unsigned iterator;
+};
+
+// night edition:
+//  spakuje form faktory do souvisleho bloku pameti
+bool Scene::packFactors(unsigned numThreads)
+{
+	// calculate size
+	unsigned numFactors = 0;
+	for(unsigned i=0;i<object->triangles;i++)
+	{
+		//!!! optimize, sort factors
+		numFactors += object->triangle[i].shooter->factors();
+	}
+	// alloc
+	delete packedFactorsProcess;
+	packedFactorsProcess = new PackedFactorsProcess;
+
+	// build threads
+	for(unsigned threadNum=0;threadNum<numThreads;threadNum++)
+	{
+		PackedFactorsBuilder* packedFactorsBuilder = new PackedFactorsBuilder(object->triangles,numFactors);
+		// write
+		for(unsigned i=0;i<object->triangles;i++)
+		{
+			// write factors
+			packedFactorsBuilder->allocFactors(i);
+			for(unsigned j=0;j<object->triangle[i].shooter->factors();j++)
+			{
+				const Factor* factor = object->triangle[i].shooter->get(j);
+				RR_ASSERT(IS_TRIANGLE(factor->destination));
+				unsigned destinationTriangle = (unsigned)( TRIANGLE(factor->destination)-object->triangle );
+				RR_ASSERT(destinationTriangle<object->triangles);
+				if((destinationTriangle%numThreads)==threadNum)
+					packedFactorsBuilder->allocFactor()->set(factor->power,destinationTriangle);
+			}
+		}
+		// write last offset
+		packedFactorsBuilder->allocFactors(object->triangles);
+		// insert thread to process
+		packedFactorsProcess->push_back(packedFactorsBuilder);
+	}
+
+	RRReporter::report(INF2,"Created form factors (%d kB).\n",packedFactorsProcess->getMemoryOccupied()/1024);
+	return true;
+}
+
+// night edition:
+//  nahraje spakovane form faktory z disku
+bool Scene::loadPackedFactors(const char* filename)
+{
+	//!!!delete packedFactorsProcess;
+	//!!!packedFactorsProcess = PackedFactorsProcess::load(filename);
+	if(packedBests) packedBests->reset();
+	return packedFactorsProcess!=NULL;
+}
+
+// night edition:
+//  ulozi spakovane form faktory na disk
+bool Scene::savePackedFactors(const char* filename) const
+{
+	return false;//!!!packedFactorsProcess && packedFactorsProcess->save(filename);
+}
+
+// night edition:
+//  returns best triangle index for distribution
+unsigned Scene::packedFactorsBest()
+{
+	if(packedBests) return packedBests->getBest();
+	RR_ASSERT(0);
+	return UINT_MAX;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // scene
 
 Scene::Scene()
@@ -1607,13 +1997,15 @@ Scene::Scene()
 	sceneRay->rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	sceneRay->rayLengthMax = BIG_REAL;
 	sceneRay->collisionHandler = &skipTriangle;
-	packedFactors = NULL;
+	packedFactorsProcess = NULL;
+	packedBests = NULL;
 }
 
 Scene::~Scene()
 {
 	abortStaticImprovement();
-	delete[] packedFactors;
+	delete packedBests;
+	delete packedFactorsProcess;
 	delete object;
 	delete sceneLevelHits;
 	delete sceneRay;
@@ -1629,6 +2021,7 @@ void Scene::objInsertStatic(Object *o)
 
 RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation)
 {
+
 	if(resetFactors)
 		resetPropagation = true;
 
@@ -2305,7 +2698,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 {
 	CHECK_HEAP;
 	// refresh unaccurate form factors
-	RR_ASSERT(!packedFactors);
+	RR_ASSERT(!packedFactorsProcess);
 	RR_ASSERT(staticReflectors.check());
 	bool needsRefresh = staticReflectors.lastBestWantsRefresh();
 	if(phase==0)
@@ -2375,122 +2768,6 @@ bool Scene::distribute(real maxError)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// night edition
-
-#define PF_TRIANGLE_MASK 0xfffff // dolnich 20 bitu je index trianglu
-#define PF_VISIBILITY_FACTOR 2.3283064370807973754314699618685e-10f // hornich 12 bitu je viditelnost, fff=1, 001=1/4095
-#define PF_PACK(triangleIndex,visibility) ((((unsigned)((visibility)*4095))<<20)+(triangleIndex))
-#define PF_GET_TRIANGLE(packedFactor) ((packedFactor)&PF_TRIANGLE_MASK)
-#define PF_GET_VISIBILITY(packedFactor) ((packedFactor)*PF_VISIBILITY_FACTOR)
-
-bool Scene::packFactors()
-{
-	SAFE_DELETE_ARRAY(packedFactors);
-	// calculate size
-	if(object->triangles>=(1<<20))
-		return false; // only 20 bits for triangleIndex
-	unsigned numFactors = 0;
-	for(unsigned i=0;i<object->triangles;i++)
-	{
-		//!!! optimize, sort factors
-		numFactors += object->triangle[i].shooter->factors();
-	}
-	// alloc
-	packedFactors = new unsigned[object->triangles+1+numFactors];
-	// write
-	unsigned factorsByteOffset = (object->triangles+1)*sizeof(unsigned);
-	for(unsigned i=0;i<object->triangles;i++)
-	{
-		// write offset
-		packedFactors[i] = factorsByteOffset;
-		// write factors
-		for(unsigned j=0;j<object->triangle[i].shooter->factors();j++)
-		{
-			const Factor* factor = object->triangle[i].shooter->get(j);
-			*(unsigned*)(((char*)packedFactors)+factorsByteOffset) = PF_PACK(TRIANGLE(factor->destination)-object->triangle,factor->power);
-			factorsByteOffset += sizeof(unsigned);
-		}
-	}
-	// write last offset
-	packedFactors[object->triangles] = factorsByteOffset;
-	return true;
-}
-
-bool Scene::savePackedFactors() const
-{
-	if(!packedFactors) return false;
-	FILE* f = fopen("c:/ff","wb");
-	if(!f) return false;
-	fwrite(packedFactors,packedFactors[object->triangles],1,f);
-	fclose(f);
-	return true;
-}
-
-bool Scene::loadPackedFactors()
-{
-	SAFE_DELETE_ARRAY(packedFactors);
-	FILE* f = fopen("c:/ff","rb");
-	if(!f) return false;
-	fseek(f,0,SEEK_END);
-	unsigned uints = ftell(f)/sizeof(unsigned);
-	if(!uints)
-	{
-		fclose(f);
-		return false;
-	}
-	packedFactors = new unsigned[uints];
-	fread(packedFactors,sizeof(unsigned),uints,f);
-	fclose(f);
-	return true;
-}
-
-/*
-// returns best triangle index for distribution
-unsigned Scene::packedFactorsBest()
-{
-	STATISTIC_INC(numCallsBest);
-	// if cache empty, fill cache
-	if(!bests && nodes)
-	{
-		// search reflector with low accuracy, high totalExitingFluxToDiffuse etc
-		real bestQ[BESTS];
-		for(unsigned i=0;i<nodes;i++) if(node[i]->shooter)
-		{
-			// calculate quality of distributor
-			real q = sum(abs(node[i]->shooter->totalExitingFluxToDiffuse));
-			if(!node[i]->shooter->factors()) continue;
-
-			// sort [q,node] into best cache, bestQ[0] is highest
-			unsigned pos=bests;
-			while(pos>0 && bestQ[pos-1]<q)
-			{
-				if(pos<BESTS)
-				{
-					bestNode[pos]=bestNode[pos-1];
-					bestQ[pos]=bestQ[pos-1];
-				}
-				pos--;
-			}
-			if(pos<BESTS)
-			{
-				bestNode[pos]=node[i];
-				bestQ[pos]=q;
-				if(bests<BESTS) bests++;
-			}
-		}
-	}
-	// get best from cache
-	if(!bests) return NULL;
-	Node *best=bestNode[0];
-	bests--;
-	for(unsigned i=0;i<bests;i++) bestNode[i]=bestNode[i+1];
-	RR_ASSERT(best);
-	return best;
-}
-*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // improve global illumination in scene
 
 RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *context)
@@ -2500,38 +2777,6 @@ RRStaticSolver::Improvement Scene::improveStatic(bool endfunc(void *), void *con
 	STATISTIC_INC(numCallsImprove);
 	RRStaticSolver::Improvement improved=RRStaticSolver::NOT_IMPROVED;
 
-	if(packedFactors)
-	{
-		// night edition
-		do
-		{
-			unsigned sourceTriangleIndex = 0;//packedFactorsBest();
-			if(sourceTriangleIndex==0xffffffff) 
-			{
-				improved = RRStaticSolver::FINISHED;
-				break;
-			}
-			improved = RRStaticSolver::IMPROVED;
-			Node* source = &object->triangle[sourceTriangleIndex];
-			unsigned* start = (unsigned*)( ((char*)packedFactors)+packedFactors[sourceTriangleIndex] );
-			unsigned* stop = (unsigned*)( ((char*)packedFactors)+packedFactors[sourceTriangleIndex+1] );
-			for(;start<stop;start++)
-			{
-				unsigned destinationTriangleIndex = PF_GET_TRIANGLE(*start);
-				Node *destination = &object->triangle[destinationTriangleIndex];
-				real visibility = PF_GET_VISIBILITY(*start);
-				Channels incidentFlux = source->shooter->totalExitingFluxToDiffuse*visibility;
-				Channels exitingFlux = incidentFlux*destination->grandpa->surface->diffuseReflectance;
-				destination->totalExitingFlux += exitingFlux;
-				destination->totalIncidentFlux += incidentFlux;
-				destination->shooter->totalExitingFluxToDiffuse += exitingFlux;
-			}
-			source->shooter->totalExitingFluxDiffused += source->shooter->totalExitingFluxToDiffuse;
-			source->shooter->totalExitingFluxToDiffuse = Channels(0);
-		}
-		while(!endfunc(context));
-	}
-	else
 	{
 		// architect edition
 		do

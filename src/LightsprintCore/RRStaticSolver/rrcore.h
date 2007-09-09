@@ -422,10 +422,16 @@ public:
 	//Channels getSourceExitance() {return getSourceExitingFlux()/area;} // source exitance in W/m^2
 		private:
 		Channels sourceIncidentFlux;   // backup of total incidentFlux in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlySource or onlyReflected".
+		Channels incidentFluxToDiffuse; // only in night edition
+		Channels incidentFluxDiffused;  // only in night edition
 		public:
 
 	// hits
 	Hits    hits;           // the most memory consuming struct: set of hits
+
+	friend IVertex;
+	friend class Scene;
+	friend class PackedBests;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -617,18 +623,14 @@ public:
 	void    getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
 
 	// night edition
-	bool    packFactors();
-	bool    savePackedFactors() const;
-	bool    loadPackedFactors();
-	unsigned* packedFactors;
-	//struktura packedFactors:
-	// unsigned byteOffsetOfPackedFactors[numTriangles+1]; // pro kazdy src triangl offset kde zacinaji jeho PackedFactory
-	// struct PackedFactor
-	// {
-	//  unsigned destinationTriangleIndex : 20;
-	//  unsigned visibility : 12;
-	// };
-	// PackedFactor factors[]; // razene podle velikosti visibility, co kdybych jednou kvuli rychlosti slabsi energie distriboval jen pres ctvrt faktoru
+	bool    packFactors(unsigned numThreads);
+	bool    savePackedFactors(const char* filename) const;
+	bool    loadPackedFactors(const char* filename);
+	unsigned packedFactorsBest();
+	//class PackedFactors* packedFactors;
+	class PackedFactorsProcess* packedFactorsProcess;
+	class PackedBests* packedBests;
+	//class PackedBestsThreaded* packedBests;
 
 	private:
 		friend class Hits; // GATE

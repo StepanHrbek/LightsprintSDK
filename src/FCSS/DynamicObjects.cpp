@@ -347,6 +347,8 @@ void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::Uber
 	}
 	//dynaobject[4]->worldFoot = rr::RRVec3(2.2f*sin(d*0.005f),1.0f,2.2f);
 
+	RRReportInterval report(uberProgramSetup.LIGHT_INDIRECT_ENV?INF3:INF9,"Updating dynamic objects...\n");
+
 	for(unsigned i=0;i<dynaobject.size();i++)
 	{
 		if(dynaobject[i] && dynaobject[i]->visible)

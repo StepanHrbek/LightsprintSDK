@@ -73,6 +73,7 @@ public:
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
 	Channels irradiance(RRRadiometricMeasure measure); // only direct+indirect is used
+	Channels irradianceIndirectRealtime();
 	Channels exitance(Node* corner); // returns direct+indirect
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();

@@ -26,20 +26,20 @@ public:
 	{
 		if(!file) return;
 		// indentation
+		char space[1000];
+		space[0] = 0;
 		indentation *= 2;
 		if(indentation>0 && indentation<999)
 		{
-			char space[1000];
 			memset(space,' ',indentation);
 			space[indentation] = 0;
-			fprintf(file,space);
 		}
 		// type
 		if(type<ERRO || type>CONT) type = CONT;
-		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","",""};
-		fprintf(file,typePrefix[type]);
+		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","","",""};
 		// message
-		fprintf(file,message);
+		// print
+		fprintf(file,"%s%s%s",space,typePrefix[type],message);
 	}
 	~RRReporterFile()
 	{
@@ -65,24 +65,23 @@ public:
 	virtual void customReport(RRReportType type, int indentation, const char* message)
 	{
 		// indentation
+		char space[1000];
+		space[0] = 0;
 		indentation *= 2;
 		if(indentation>0 && indentation<999)
 		{
-			char space[1000];
 			memset(space,' ',indentation);
 			space[indentation] = 0;
-			SetConsoleTextAttribute(hconsole, 7);
-			printf(space);
-			SetConsoleTextAttribute(hconsole, currentColor);
 		}
 		// type
 		if(type!=CONT)
 		{
-			char typeColor[CONT] = {15+16*4,14,15,7,7,7,6};
+			char typeColor[CONT] = {15+16*4,14,15,7,7,7,7,6};
 			SetConsoleTextAttribute(hconsole, currentColor = typeColor[type]);
 		}
 		// message
-		printf("%s%s",(type==ASSE)?"Assert failed: ":"",message);
+		// print
+		printf("%s%s%s",space,(type==ASSE)?"Assert failed: ":"",message);
 	}
 	HANDLE hconsole;
 	char currentColor;
@@ -109,7 +108,7 @@ public:
 		}
 		// type
 		if(type<ERRO || type>CONT) type = CONT;
-		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","",""};
+		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","","",""};
 		OutputDebugString(typePrefix[type]);
 		// message
 		OutputDebugString(message);
@@ -123,7 +122,7 @@ public:
 
 static int indentation = 0;
 static RRReporter* reporter = NULL;
-static bool typeEnabled[CONT+1] = {1,1,1,1,1,0,1,1};
+static bool typeEnabled[CONT+1] = {1,1,1,1,1,0,0,1,1};
 
 void RRReporter::setFilter(bool warnings, unsigned infLevel, bool timing)
 {

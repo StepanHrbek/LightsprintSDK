@@ -416,14 +416,6 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 		// irrad=irradiance in W/m^2
 		Channels irrad=Channels(0);
 
-		// fast path for realtime radiosity
-		//RR_ASSERT(measure.indirect && !measure.direct && !subdivisionEnabled);
-		//for(unsigned i=0;i<corners;i++)
-		//{
-		//	Node* node=corner[i].node;
-		//	irrad += (node->totalIncidentFlux-TRIANGLE(node)->getSourceIncidentFlux())*(corner[i].power/corner[i].node->area);
-		//}
-
 		// full path
 		for(unsigned i=0;i<corners;i++)
 		{
@@ -462,6 +454,26 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 		STATISTIC_INC(numIrradianceCacheHits);
 
 	RR_ASSERT(IS_CHANNELS(cache));
+	return cache;
+}
+
+// returns indirect irradiance
+// fast path for realtime radiosity
+Channels IVertex::irradianceIndirectRealtime()
+{
+	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid) // cacheTime is byte:5
+	{
+		cache=Channels(0);
+		for(unsigned i=0;i<corners;i++)
+		{
+			Triangle* triangle = TRIANGLE(corner[i].node);
+			cache += (triangle->incidentFluxDiffused+triangle->incidentFluxToDiffuse-triangle->getSourceIncidentFlux())*(corner[i].power/triangle->area);
+		}
+		if(powerTopLevel)
+			cache /= powerTopLevel;
+		cacheTime=__frameNumber;
+		cacheValid=1;
+	}
 	return cache;
 }
 
