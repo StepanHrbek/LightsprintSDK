@@ -145,7 +145,7 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 // gather
 
 // thread safe: yes
-static void cubeMapGather(const RRStaticSolver* scene, const RRObject* object, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
+static void cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
 {
 	if(!scene)
 	{
@@ -192,9 +192,14 @@ static void cubeMapGather(const RRStaticSolver* scene, const RRObject* object, c
 						// read irradiance on sky
 						irradianceHdr[ofs] = environment ? environment->getValue(dir) : RRVec3(0);
 					}
+					else if(packedSolver)
+					{
+						// read face exitance
+						irradianceHdr[ofs] = packedSolver->getTriangleExitance(face);
+					}
 					else
 					{
-						// read cube irradiance as face exitance
+						// read face exitance
 						scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,scaler,irradianceHdr[ofs]);
 					}
 #ifdef SUPPORT_LDR
@@ -452,7 +457,7 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 
 		// gather physical irradiances
 		TEST100
-		cubeMapGather(priv->scene,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,NULL,gatheredIrradiance);
+		cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,NULL,gatheredIrradiance);
 
 		// fill cubemaps
 		// - diffuse
@@ -489,7 +494,7 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 
 		// gather custom irradiances
 		TEST100
-		cubeMapGather(scene,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,gatheredIrradiance,NULL);
+		cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,gatheredIrradiance,NULL);
 
 		// fill cubemaps
 		// - diffuse

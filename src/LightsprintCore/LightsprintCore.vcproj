@@ -1167,6 +1167,30 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RRStaticSolver\RRPackedSolver.cpp"
+				>
+				<FileConfiguration
+					Name="Release static|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\RRStaticSolver\RRPackedSolver.h"
+				>
+			</File>
+			<File
 				RelativePath="RRStaticSolver\RRStaticSolver.cpp"
 				>
 			</File>

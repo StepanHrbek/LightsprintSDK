@@ -11,6 +11,8 @@
 #include "../Import3DS/Model_3DS.h"
 
 
+#define DIFFUSE_RAYS_CUBE_SIZE 16 // jak velkou cubemapu vyrobim strilenim paprsku (z ni se pak vyfiltruje dif a spec cube mapa)
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Dynamic object
@@ -83,7 +85,7 @@ void DynamicObject::updateIllumination(rr::RRDynamicSolver* solver)
 		model->localCenter.x*worldMatrix[1]+model->localCenter.y*worldMatrix[5]+model->localCenter.z*worldMatrix[ 9]+worldMatrix[13],
 		model->localCenter.x*worldMatrix[2]+model->localCenter.y*worldMatrix[6]+model->localCenter.z*worldMatrix[10]+worldMatrix[14]);
 	// update envmaps
-	solver->updateEnvironmentMaps(worldCenter,MAX(16,specularCubeSize),
+	solver->updateEnvironmentMaps(worldCenter,MAX(DIFFUSE_RAYS_CUBE_SIZE,specularCubeSize),
 		material.MATERIAL_SPECULAR?specularCubeSize:0, material.MATERIAL_SPECULAR?specularMap:NULL,
 		material.MATERIAL_DIFFUSE?4:0, material.MATERIAL_DIFFUSE?diffuseMap:NULL);
 }

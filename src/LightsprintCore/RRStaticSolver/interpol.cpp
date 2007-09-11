@@ -457,26 +457,6 @@ Channels IVertex::irradiance(RRRadiometricMeasure measure)
 	return cache;
 }
 
-// returns indirect irradiance
-// fast path for realtime radiosity
-Channels IVertex::irradianceIndirectRealtime()
-{
-	if(cacheTime!=(__frameNumber&0x1f) || !cacheValid) // cacheTime is byte:5
-	{
-		cache=Channels(0);
-		for(unsigned i=0;i<corners;i++)
-		{
-			Triangle* triangle = TRIANGLE(corner[i].node);
-			cache += (triangle->incidentFluxDiffused+triangle->incidentFluxToDiffuse-triangle->getSourceIncidentFlux())*(corner[i].power/triangle->area);
-		}
-		if(powerTopLevel)
-			cache /= powerTopLevel;
-		cacheTime=__frameNumber;
-		cacheValid=1;
-	}
-	return cache;
-}
-
 // exitance in W/m^2, exitting power density
 // differs for different corners, depends on corner material
 Channels IVertex::exitance(Node* corner)

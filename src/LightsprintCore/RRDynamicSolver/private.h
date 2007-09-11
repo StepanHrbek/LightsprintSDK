@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Lightsprint/RRDynamicSolver.h"
+#include "../RRStaticSolver/RRPackedSolver.h"
 
 namespace rr
 {
@@ -37,6 +38,7 @@ namespace rr
 		RRStaticSolver*   scene;
 		unsigned   solutionVersion;
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
+		RRPackedSolver* packedSolver;
 		// read results
 		RRScaler*  scaler;
 		std::vector<std::vector<std::pair<unsigned,unsigned> > > preVertex2PostTriangleVertex; ///< readResults lookup table
@@ -64,9 +66,11 @@ namespace rr
 			solutionVersion = 1;
 			minimalSafeDistance = 0;
 			//preVertex2PostTriangleVertex zeroed by constructor
+			packedSolver = NULL;
 		}
 		~Private()
 		{
+			delete packedSolver;
 			delete scene;
 			delete multiObjectPhysicalWithIllumination;
 			if(multiObjectPhysical!=multiObjectCustom) delete multiObjectPhysical; // no scaler -> physical == custom

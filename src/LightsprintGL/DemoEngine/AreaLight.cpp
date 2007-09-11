@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cstring> // NULL
 #include "Lightsprint/GL/AreaLight.h"
+#include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
 {
@@ -76,7 +77,11 @@ namespace rr_gl
 
 	void AreaLight::instanceMakeup(Camera& light, unsigned instance) const
 	{
-		if(numInstances<=1) return;
+		if(instance>=numInstances) 
+		{
+			rr::RRReporter::report(rr::WARN,"AreaLight: instance %d requested, but light has only %d instances.\n",instance,numInstances);
+			return;
+		}
 
 		light.update(0.3f);
 

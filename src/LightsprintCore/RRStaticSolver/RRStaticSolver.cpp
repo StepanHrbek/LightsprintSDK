@@ -139,7 +139,7 @@ RRReal RRStaticSolver::illuminationAccuracy()
 //
 // read results
 
-RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, RRVec3* perTriangleData, unsigned stride, Triangle* triangles, unsigned numTriangles) const
+RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, const RRVec3* perTriangleData, unsigned stride, Triangle* triangles, unsigned numTriangles) const
 {
 	RRVec3 result = RRVec3(0);
 	for(unsigned i=0;i<corners;i++)
@@ -154,7 +154,7 @@ RRVec3 IVertex::getVertexDataFromTriangleData(unsigned questionedTriangle, unsig
 	return result/powerTopLevel;
 }
 
-RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, RRVec3* perTriangleData, unsigned stride) const
+RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, const RRVec3* perTriangleData, unsigned stride) const
 {
 	RR_ASSERT(perTriangleData);
 	RR_ASSERT(questionedVertex012<3);
@@ -165,7 +165,6 @@ RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle
 
 bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRColor& out) const
 {
-
 	Channels irrad;
 	Object* obj;
 	Triangle* tri;

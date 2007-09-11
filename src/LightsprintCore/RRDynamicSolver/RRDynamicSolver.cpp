@@ -2,6 +2,7 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "report.h"
 #include "private.h"
+#include "../RRStaticSolver/rrcore.h" // buildovani packed faktoru
 
 namespace rr
 {
@@ -272,6 +273,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		dirtyEnergies = Private::NO_CHANGE;
 		priv->dirtyResults = true;
 		REPORT_BEGIN("Resetting solver energies and factors.");
+		SAFE_DELETE(priv->packedSolver);
 		if(priv->scene) priv->scene->illuminationReset(true,true);
 		priv->solutionVersion++;
 		REPORT_END;
@@ -284,7 +286,15 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	if(dirtyEnergies!=Private::NO_CHANGE)
 	{
 		REPORT_BEGIN("Updating solver energies.");
-		if(priv->scene) priv->scene->illuminationReset(false,dirtyEnergies==Private::BIG_CHANGE);
+		if(priv->packedSolver)
+		{
+			priv->packedSolver->illuminationReset();
+		}
+		else
+		if(priv->scene)
+		{
+			priv->scene->illuminationReset(false,dirtyEnergies==Private::BIG_CHANGE);
+		}
 		priv->solutionVersion++;
 		REPORT_END;
 		if(dirtyEnergies==Private::BIG_CHANGE)
@@ -300,7 +310,16 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	REPORT_BEGIN("Calculating.");
 	TIME now = GETTIME;
 	TIME end = (TIME)(now+improveStep*PER_SEC);
-	RRStaticSolver::Improvement improvement = priv->scene ? priv->scene->illuminationImprove(endByTime,(void*)&end) : RRStaticSolver::FINISHED;
+	RRStaticSolver::Improvement improvement;
+	if(priv->packedSolver)
+	{
+		priv->packedSolver->illuminationImprove(endByTime,(void*)&end);
+		improvement = RRStaticSolver::IMPROVED;
+	}
+	else
+	{
+		improvement = priv->scene ? priv->scene->illuminationImprove(endByTime,(void*)&end) : RRStaticSolver::FINISHED;
+	}
 	//REPORT(RRReporter::report(CONT," (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 	REPORT_END;
 	switch(improvement)
@@ -409,6 +428,7 @@ unsigned RRDynamicSolver::getSolutionVersion() const
 {
 	return priv->solutionVersion;
 }
+
 
 unsigned RR_INTERFACE_ID_LIB()
 {

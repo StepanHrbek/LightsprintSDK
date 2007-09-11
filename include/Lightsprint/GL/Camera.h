@@ -82,7 +82,7 @@ public:
 	//! Mirrors camera for reflection rendering. Second call takes changes back.
 	//! \param altitude Altitude of mirroring plane.
 	void mirror(float altitude);
-	//! Updates all outputs, recalculates them from inputs.
+	//! Updates all outputs, recalculates them from inputs. Set back to 0.
 	void update(float back); // converts inputs to outputs
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are
 	//! transformed as if viewed by this camera.

@@ -64,7 +64,7 @@ RRIlluminationVertexBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertice
 
 unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params)
 {
-	if(!priv->scene || !vertexBuffer)
+	if((!priv->scene && !priv->packedSolver) || !vertexBuffer)
 	{
 		RR_ASSERT(0);
 		return 0;
@@ -81,7 +81,14 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 		RRColor indirect = RRColor(0);
 		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 		{
-			priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);
+			if(priv->packedSolver && priv->scene)
+			{
+				indirect = priv->packedSolver->getTriangleIrradianceIndirect(t,v,priv->scene);
+			}
+			else
+			{
+				priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);
+			}
 			// make it optional when negative values are supported
 			//for(unsigned i=0;i<3;i++)
 			//	indirect[i] = MAX(0,indirect[i]);

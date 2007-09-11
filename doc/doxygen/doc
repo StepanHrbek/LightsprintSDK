@@ -213,15 +213,24 @@ Ray-Mesh collisions
 
 
 
-\page main_credits Credits
+\page main_credits Additional credits
 
-Lightsprint SDK uses following third party libraries:
+Lightsprint SDK uses open source libraries listed below.
+These libraries are included here as .dll files.
+You are free to download their sources and rebuild, use them in commercial applications etc.
 
-- FreeImage
-  \n This software uses the FreeImage open source image library. See http://freeimage.sourceforge.net for details.
-  FreeImage is used under the FIPL, version 1.0. 
+Used by LightsprintCore:
+- <a href="http://freeimage.sourceforge.net">FreeImage</a> This software uses the FreeImage open source image library.
+  FreeImage is used under the FIPL, version 1.0.
+  FreeImage internally uses other open source libraries.
 
-- FCollada by Feeling Software is used under MIT license.
+Used by LightsprintGL:
+- <a href="http://glew.sourceforge.net/">GLEW</a>
+
+Used by samples:
+- <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a> by Feeling Software is used under MIT license.
+  FCollada internally uses other open source libraries.
+- <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
 
 
 

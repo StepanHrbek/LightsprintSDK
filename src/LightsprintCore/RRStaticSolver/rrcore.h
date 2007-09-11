@@ -422,8 +422,6 @@ public:
 	//Channels getSourceExitance() {return getSourceExitingFlux()/area;} // source exitance in W/m^2
 		private:
 		Channels sourceIncidentFlux;   // backup of total incidentFlux in time 0. Set by setSurface (from ResetStaticIllumination). Used by radiosityGetters "give me onlySource or onlyReflected".
-		Channels incidentFluxToDiffuse; // only in night edition
-		Channels incidentFluxDiffused;  // only in night edition
 		public:
 
 	// hits
@@ -623,14 +621,7 @@ public:
 	void    getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
 
 	// night edition
-	bool    packFactors(unsigned numThreads);
-	bool    savePackedFactors(const char* filename) const;
-	bool    loadPackedFactors(const char* filename);
-	unsigned packedFactorsBest();
-	//class PackedFactors* packedFactors;
-	class PackedFactorsProcess* packedFactorsProcess;
-	class PackedBests* packedBests;
-	//class PackedBestsThreaded* packedBests;
+	class PackedFactorsProcess* packFactors(unsigned numThreads) const;
 
 	private:
 		friend class Hits; // GATE

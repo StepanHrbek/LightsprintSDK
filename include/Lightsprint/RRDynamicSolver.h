@@ -108,7 +108,17 @@ namespace rr
 		//!  Distance attenuation in custom scale is computed as pow(MAX(0,1-distance/radius),fallOffExponent).
 		static RRLight* createPointLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent);
 
-		//! Creates spot point light with physically correct distance attenuation.
+		//! Creates omnidirectional point light with polynom based distance attenuation (physically incorrect).
+		//
+		//! \param position
+		//!  Position of light source in world space, start of all light rays.
+		//! \param colorAtDistance0
+		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
+		//! \param polynom
+		//!  Distance attenuation in custom scale is computed as 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
+		static RRLight* createPointLightPoly(const RRVec3& position, const RRVec3& colorAtDistance0, RRVec3 polynom);
+
+		//! Creates spot light with physically correct distance attenuation.
 		//
 		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
 		//! \param position
@@ -125,7 +135,7 @@ namespace rr
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		static RRLight* createSpotLight(const RRVec3& position, const RRVec3& irradianceAtDistance1, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 
-		//! Creates spot point light with radius/exponent based distance attenuation (physically incorrect).
+		//! Creates spot light with radius/exponent based distance attenuation (physically incorrect).
 		//
 		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
 		//! \param position
@@ -146,6 +156,25 @@ namespace rr
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		static RRLight* createSpotLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
+
+		//! Creates spot light with polynom based distance attenuation (physically incorrect).
+		//
+		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
+		//! \param position
+		//!  Position of light source in world space, start of all light rays.
+		//! \param colorAtDistance0
+		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
+		//! \param polynom
+		//!  Distance attenuation in custom scale is computed as 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
+		//! \param majorDirection
+		//!  Major direction of light in world space.
+		//! \param outerAngleRad
+		//!  Angle in radians. Light rays go in directions up to outerAngleRad far from major majorDirection.
+		//! \param fallOffAngleRad
+		//!  Angle in radians. 
+		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
+		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
+		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorAtDistance0, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 	};
 
 

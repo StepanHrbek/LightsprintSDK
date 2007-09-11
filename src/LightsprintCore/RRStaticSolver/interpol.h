@@ -73,7 +73,6 @@ public:
 	void    makeDirty();
 	bool    hasExitance() {return powerTopLevel!=0;}
 	Channels irradiance(RRRadiometricMeasure measure); // only direct+indirect is used
-	Channels irradianceIndirectRealtime();
 	Channels exitance(Node* corner); // returns direct+indirect
 	bool    remove(Node *node,bool toplevel);
 	bool    isEmpty();
@@ -84,7 +83,7 @@ public:
 	unsigned getNumCorners() {return corners;}
 
 	// used by: triangledata -> vertexdata smoothing
-	RRVec3  getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, RRVec3* perTriangleData, unsigned stride, class Triangle* triangles, unsigned numTriangles) const;
+	RRVec3  getVertexDataFromTriangleData(unsigned questionedTriangle, unsigned questionedVertex012, const RRVec3* perTriangleData, unsigned stride, class Triangle* triangles, unsigned numTriangles) const;
 
 	bool    check();
 	bool    check(Point3 apoint);
@@ -97,6 +96,7 @@ public:
 	U8      important:1;// jen pro ucely grabovani/loadovani fak
 
 	private:
+		friend class RRPackedSolver;
 		U8       cacheTime:5; // fix __frameNumber&0x1f if you change :5
 		U8       cacheValid:1;
 		U8       cornersAllocatedLn2:7;
