@@ -5,7 +5,8 @@
 
 #include "Lightsprint/GL/LightmapViewer.h"
 #include "Lightsprint/GL/UberProgram.h"
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <GL/glew.h>
 #include <GL/glut.h>
 
@@ -60,24 +61,28 @@ private:
 	static Texture* lightmap;
 	static rr::RRMesh* mesh;
 
-LightmapViewer* LightmapViewer::create(Texture* _lightmap, rr::RRMesh* _mesh)
+LightmapViewer* LightmapViewer::create(Texture* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
 {
-	return (!created && _lightmap) ? new LightmapViewer(_lightmap,_mesh) : NULL;
+	return (!created && _lightmap) ? new LightmapViewer(_lightmap,_mesh,_pathToShaders) : NULL;
 }
 
-LightmapViewer* LightmapViewer::create(rr::RRIlluminationPixelBuffer* _pixelBuffer, rr::RRMesh* _mesh)
+LightmapViewer* LightmapViewer::create(rr::RRIlluminationPixelBuffer* _pixelBuffer, rr::RRMesh* _mesh, const char* _pathToShaders)
 {
-	return (!created && _pixelBuffer) ? new LightmapViewer(new TextureFromPixelBuffer(_pixelBuffer),_mesh) : NULL;
+	return (!created && _pixelBuffer) ? new LightmapViewer(new TextureFromPixelBuffer(_pixelBuffer),_mesh,_pathToShaders) : NULL;
 }
 
-LightmapViewer::LightmapViewer(Texture* _lightmap, rr::RRMesh* _mesh)
+LightmapViewer::LightmapViewer(Texture* _lightmap, rr::RRMesh* _mesh, const char* _pathToShaders)
 {
 	created = true;
 	nearest = false;
 	alpha = false;
 	zoom = 1;
 	center = rr::RRVec2(0);
-	uberProgram = UberProgram::create("../../data/shaders/texture.vs","../../data/shaders/texture.fs");
+	char buf1[400]; buf1[399] = 0;
+	char buf2[400]; buf2[399] = 0;
+	_snprintf(buf1,399,"%stexture.vs",_pathToShaders);
+	_snprintf(buf2,399,"%stexture.fs",_pathToShaders);
+	uberProgram = UberProgram::create(buf1,buf2);
 	lmapProgram = uberProgram->getProgram("#define TEXTURE\n");
 	lmapAlphaProgram = uberProgram->getProgram("#define TEXTURE\n#define SHOW_ALPHA0\n");
 	lineProgram = uberProgram->getProgram(NULL);
@@ -192,7 +197,7 @@ void LightmapViewer::display()
 			glVertex2fv(&mapping.uv[(j+1)%3].x);
 		}
 	}
-	glEnd();
+	glEnd(); // here Radeon X300/Catalyst2007.09 does random fullscreen effects for 5-10sec, X1650 is ok
 
 	// restore states
 	glEnable(GL_DEPTH_TEST);

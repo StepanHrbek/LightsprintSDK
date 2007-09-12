@@ -304,7 +304,7 @@ void keyboard(unsigned char c, int x, int y)
 				{
 					lv = rr_gl::LightmapViewer::create(
 						solver->getIllumination(SELECTED_OBJECT_NUMBER)->getLayer(0)->pixelBuffer,
-						solver->getObject(SELECTED_OBJECT_NUMBER)->getCollider()->getMesh());
+						solver->getObject(SELECTED_OBJECT_NUMBER)->getCollider()->getMesh(),"../../data/shaders/");
 					if(lv)
 					{
 						glutMouseFunc(lv->mouse);
