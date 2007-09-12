@@ -96,9 +96,11 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 		for(unsigned i=0;i<sizeof(buggy)/sizeof(char*);i++)
 			if(strstr(renderer,buggy[i]))
 			{
-				if(SHADOW_MAPS>3) SHADOW_MAPS = MAX(3,SHADOW_MAPS-2);
+				if(SHADOW_MAPS>3) SHADOW_MAPS -= 2; // 5->3 (X300 in PenumbraShadows), 4->2 (X300 in Lightmaps)
 				break;
 			}
+		// with bilinear filter ignored by Radeon, 3 is ugly, prefer 1
+		if(SHADOW_MAPS==3) SHADOW_MAPS--;
 	}
 	// 2 is ugly, prefer 1
 	if(SHADOW_MAPS==2) SHADOW_MAPS--;

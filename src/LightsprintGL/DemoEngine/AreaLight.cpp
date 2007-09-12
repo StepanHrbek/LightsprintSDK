@@ -48,7 +48,7 @@ namespace rr_gl
 
 	Camera* AreaLight::getInstance(unsigned instance) const
 	{
-		if(!parent || instance>numInstances)
+		if(!parent || instance>=numInstances)
 			return NULL;
 		Camera* c = new Camera(*parent);
 		if(!c)
@@ -81,6 +81,10 @@ namespace rr_gl
 		{
 			rr::RRReporter::report(rr::WARN,"AreaLight: instance %d requested, but light has only %d instances.\n",instance,numInstances);
 			return;
+		}
+		if(numInstances==1)
+		{
+			return; // only 1 instance -> use unmodified parent
 		}
 
 		light.update(0.3f);
