@@ -18,6 +18,9 @@ namespace rr_gl
 // Camera
 
 //! Frustum with publicly visible parameters, suitable for cameras and spotlights.
+//
+//! With all angles reset to 0, camera direction is (0,0,1), Z+,
+//! and up vector is (0,1,0), Y+.
 class RR_GL_API Camera : public rr::RRUniformlyAllocated
 {
 public:
@@ -27,7 +30,7 @@ public:
 	float    pos[3];
 	//! Rotation around Y axis, radians. For characters standing in Y axis, it controls their look to left/right.
 	float    angle;
-	//! Rotation around Z axis, radians. For characters looking into Z axis, it controls leaning.
+	//! Rotation around Z axis, radians. For characters looking into Z+ axis, it controls leaning.
 	float    leanAngle;
 	//! Rotation around X axis, radians, controls looking up/down.
 	float    angleX;

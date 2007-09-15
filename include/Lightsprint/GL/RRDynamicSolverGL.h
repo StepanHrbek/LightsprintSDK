@@ -116,10 +116,6 @@ namespace rr_gl
 		unsigned* detectSmallMap;
 		unsigned smallMapSize;
 		Program* scaleDownProgram;
-		// backup of render states
-		int viewport[4];
-		unsigned char depthTest, depthMask;
-		float clearcolor[4];
 	};
 
 };

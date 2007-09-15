@@ -158,10 +158,10 @@ void RendererOfRRDynamicSolver::render()
 			textureRenderer->renderEnvironmentBegin(params.brightness);
 			params.solver->getEnvironment()->bindTexture();
 			glBegin(GL_POLYGON);
-			glVertex3f(-1,-1,1);
-			glVertex3f(1,-1,1);
-			glVertex3f(1,1,1);
-			glVertex3f(-1,1,1);
+				glVertex3f(-1,-1,1);
+				glVertex3f(1,-1,1);
+				glVertex3f(1,1,1);
+				glVertex3f(-1,1,1);
 			glEnd();
 			textureRenderer->renderEnvironmentEnd();
 		}
@@ -177,8 +177,7 @@ void RendererOfRRDynamicSolver::render()
 		rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
 		return;
 	}
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK); //!!! do it in RendererOfRRObject according to RRMaterial sideBits
+
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.NORMALS = params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_ENV || params.uberProgramSetup.POSTPROCESS_NORMALS;
 	renderedChannels.LIGHT_DIRECT = params.uberProgramSetup.LIGHT_DIRECT;
@@ -307,9 +306,6 @@ void RendererOfOriginalScene::render()
 	}
 */
 	// render static scene
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK); //!!! do it in RendererOfRRObject according to RRMaterial sideBits
-
 	rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
 	renderedChannels.NORMALS = params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_ENV || params.uberProgramSetup.POSTPROCESS_NORMALS;
 	renderedChannels.LIGHT_DIRECT = params.uberProgramSetup.LIGHT_DIRECT;

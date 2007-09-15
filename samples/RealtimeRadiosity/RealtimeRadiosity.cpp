@@ -8,6 +8,11 @@
 // The only addition is global illumination.
 // Approx 90 lines were added, including empty lines and comments.
 //
+// This sample also demonstrates rendering global illumination via
+// external renderer (array of indirect vertex colors is passed).
+// All other samples (see very similar Lightmaps) use internal RendererOfScene,
+// which is simpler to use. 
+//
 // Controls:
 //  mouse = look around
 //  arrows = move around
@@ -177,6 +182,9 @@ protected:
 	// detects direct illumination irradiances on all faces in scene
 	virtual bool detectDirectIllumination()
 	{
+		// don't try to detect when window is not created yet
+		if(!winWidth) return false;
+
 		// shadowmap could be outdated, update it
 		updateShadowmap(0);
 

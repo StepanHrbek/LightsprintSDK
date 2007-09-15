@@ -73,9 +73,11 @@ namespace rr
 	//! Common interface for any standard or proprietary triangle mesh structure.
 	//
 	//! RRMesh is typically only several bytes big adaptor, it provides unified 
-	//! interface to your mesh, but it uses your mesh data, no data are duplicated.
+	//! interface to your mesh, but it uses your mesh data, no data need to be duplicated.
 	//!
-	//! \section s4 Creating instances
+	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
+	//!
+	//! \section s1 Creating instances
 	//!
 	//! %RRMesh has built-in support for standard mesh formats used by
 	//! rendering APIs - vertex and index buffers using triangle lists or
@@ -93,22 +95,20 @@ namespace rr
 	//! and doesn't depend on any other objects.
 	//!
 	//! For other mesh formats (heightfield, realtime generated etc), 
-	//! you may easily derive from %RRMesh and create your own importer.
+	//! you may easily derive from %RRMesh and create your own mesh adaptor.
 	//!
-	//! \section s6 Optimizations
+	//! \section s2 Optimizations
 	//!
 	//! %RRMesh may help you with mesh optimizations if requested,
 	//! for example by removing duplicate vertices or degenerated triangles.
 	//! 
-	//! \section s6 Constancy
+	//! \section s3 Constancy
 	//!
 	//! All data provided by %RRMesh must be constant in time.
 	//! Built-in importers guarantee constancy if you don't change
 	//! their vertex/index buffers. Constancy of mesh copy is guaranteed always.
 	//!
-	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
-	//!
-	//! \section s5 Indexing
+	//! \section s4 Indexing
 	//!
 	//! %RRMesh operates with two types of vertex and triangle indices.
 	//! -# PostImport indices, always 0..num-1 (where num=getNumTriangles
@@ -135,6 +135,25 @@ namespace rr
 	//! This is because 
 	//! -# valid PostImport numbers are easy to ensure on caller side.
 	//! -# such queries are very critical for performance.
+	//!
+	//! \section s5_frontback Front/back side
+	//!
+	//! For correct lighting, it's important to know where front and back
+	//! sides of triangle are.
+	//! Materials (see RRMaterial) define some properties separately for both sides of triangle.
+	//! Renderers render both sides of triangle differently.
+	//!
+	//! When you see triangle vertices in CCW order, you see triangle's front side.
+	//! In this situation triangle's normal must point to your (front) hemisphere.
+	//!
+	//! Some applications are known to define front/back differently:
+	//! - 3DS MAX
+	//! - Quake3
+	//!
+	//! How to swap front/back sides, when importing data from such applications?
+	//! - Negate positions and normals in any 1 axis. If you don't provide normals
+	//!   in your mesh, negate positions only. See example in RRObjectBSP.cpp, getVertex.
+	//! - Or swap any 2 vertices in triangle.
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RR_API RRMesh : public RRChanneledData
@@ -201,8 +220,11 @@ namespace rr
 
 		//! Writes t-th triangle in mesh to out.
 		//
-		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
+		//! Make sure you provide valid t in range <0..getNumTriangles()-1>.
 		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
+		//!
+		//! Order of vertices in triangle has influence on what side of triangle is front, which is important for lighting.
+		//! See more details in \ref s5_frontback.
 		virtual void         getTriangle(unsigned t, Triangle& out) const = 0;
 
 
@@ -214,10 +236,10 @@ namespace rr
 		struct TriangleBody  {Vertex vertex0,side1,side2;};
 		//! Writes t-th triangle in mesh to out.
 		//
-		//! Be sure to provide valid t is in range <0..getNumTriangles()-1>.
+		//! Make sure you provide valid t in range <0..getNumTriangles()-1>.
 		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
 		//! \n There is default implementation, but if you know format of your data well, you may provide faster one.
-		//! \n This call is important for performance of intersection tests.
+		//! \n Speed of this function is important for intersection tests performance.
 		virtual void         getTriangleBody(unsigned t, TriangleBody& out) const;
 
 		//! Plane in 3d space defined by its normal (in x,y,z) and w so that normal*point+w=0 for all points of plane.
@@ -240,7 +262,8 @@ namespace rr
 		struct TriangleNormals      {RRVec3 norm[3];};
 		//! Writes to out vertex normalized normals of triangle.
 		//
-		//! Normals may be used by global illumination solver and renderer.
+		//! Normals are used by global illumination solver and renderer.
+		//! Normals should point to front side hemisphere, see \ref s5_frontback.
 		//! \n Default implementation writes all vertex normals equal to triangle plane normal.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.
 		//! \param out Caller provided storage for result.

@@ -28,6 +28,8 @@ class RR_GL_API RendererOfScene : public Renderer
 public:
 	//! Creates renderer of scene in solver.
 	//
+	//! When renderer is created, default data source is optimized scene,
+	//! as if useOptimizedScene() was called.
 	//! \param solver
 	//!  Adding/removing objects in solver while this renderer exists is not allowed,
 	//!  results would be undefined.
@@ -40,6 +42,7 @@ public:
 	//! \param uberProgramSetup
 	//!  Specifies shader properties, including type of indirect illumination,
 	//!  vertex colors, ambient maps or none.
+	//!  OBJECT_SPACE may be always cleared, it is set automatically when required.
 	//! \param areaLight
 	//!  Area light with realtime shadows and direct illumination.
 	//!  \n \n To render scene with multiple realtime area lights with realtime shadows, 
@@ -84,7 +87,10 @@ public:
 
 	//! Clears screen and renders scene (sets shaders, feeds OpenGL with object's data selected by setParams()).
 	//
-	//! Note that you although color buffer is cleared automatically here, depth buffer is not cleared.
+	//! Use standard OpenGL way of setting camera matrices before calling render(), they will be respected
+	//! by render().
+	//!
+	//! Note that although color buffer is cleared automatically here, depth buffer is not cleared.
 	//! If you render with single realtime light with realtime shadows, clear depth buffer before rendering.
 	//! If you render multiple lights into accumulation buffer, clear depth buffer only once,
 	//! following render() calls will reuse it.

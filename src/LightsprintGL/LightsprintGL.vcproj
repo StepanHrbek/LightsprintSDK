@@ -486,6 +486,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DemoEngine\PreserveState.h"
+				>
+			</File>
+			<File
 				RelativePath="DemoEngine\Program.cpp"
 				>
 			</File>

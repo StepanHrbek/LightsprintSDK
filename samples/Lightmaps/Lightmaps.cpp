@@ -195,6 +195,9 @@ protected:
 	// detects direct illumination irradiances on all faces in scene
 	virtual bool detectDirectIllumination()
 	{
+		// don't try to detect when window is not created yet
+		if(!winWidth) return false;
+
 		// shadowmap could be outdated, update it
 		updateShadowmap(0);
 

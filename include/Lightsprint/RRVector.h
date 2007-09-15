@@ -14,12 +14,13 @@
 namespace rr
 {
 
-//! Portable but limited std::vector replacement.
+//! Portable but limited, minimalistic std::vector replacement.
 //
 //! Purpose of RRVector is to replace STL in public Lightsprint headers,
 //! which makes Lightsprint work with any STL implementation.
-//! It functions like std::vector in simple cases demonstrated in Lightsprint SDK.
-//! It is not designed for more complex operations.
+//! It works like std::vector in simple cases demonstrated in Lightsprint SDK
+//! where C is pointer, RRObject* or RRLight*.
+//! It is not suitable for more complex operations.
 template<class C>
 class RRVector
 {
@@ -80,13 +81,19 @@ public:
 		assert(i<numUsed);
 		return c[i];
 	}
+	//! Clear all elements from vector, setting size to 0.
+	//! Doesn't call element destructors (unlike std::vector).
+	void clear()
+	{
+		numUsed = 0;
+	}
 	//! Frees elements.
 	//! Doesn't call element destructors (unlike std::vector).
 	~RRVector()
 	{
 		free(c);
 	}
-private:
+protected:
 	C* c;
 	unsigned numAllocated;
 	unsigned numUsed;

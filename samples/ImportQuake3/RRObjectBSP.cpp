@@ -334,6 +334,10 @@ unsigned RRObjectBSP::getNumVertices() const
 
 void RRObjectBSP::getVertex(unsigned v, Vertex& out) const
 {
+	// To become compatible with our conventions, positions are transformed:
+	// - Y / Z components swapped to get correct up vector
+	// - one component negated to swap front/back
+	// - *0.015f to convert to meters
 	assert(v<(unsigned)model->mVertices.size());
 	out[0] = model->mVertices[v].mPosition[0]*0.015f;
 	out[1] = model->mVertices[v].mPosition[2]*0.015f;

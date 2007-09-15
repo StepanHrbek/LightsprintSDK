@@ -13,6 +13,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
+#include "../DemoEngine/PreserveState.h"
 
 #ifdef RR_DEVELOPMENT
 	#define SCALE_DOWN_ON_GPU       // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
@@ -152,12 +153,6 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 	}
 	if(!rendererObject) return false;
 
-	// backup render states
-	glGetIntegerv(GL_VIEWPORT,viewport);
-	depthTest = glIsEnabled(GL_DEPTH_TEST);
-	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
-	glGetFloatv(GL_COLOR_CLEAR_VALUE,clearcolor);
-
 	rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
 	if(!numTriangles)
@@ -166,17 +161,24 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		return true;
 	}
 
+	// preserve render states, any changes will be restored at return from this function
+	PreserveViewport p1;
+	PreserveClearColor p2;
+	PreserveCullFace p3;
+	PreserveDepthMask p4;
+	PreserveDepthTest p5;
+
+	// setup render states
+	glClearColor(0,0,0,1);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(0);
+
 	// adjust captured texture size so we don't waste pixels
 	captureUv->triCountX = BIG_MAP_SIZE/4; // number of triangles in one row
 	captureUv->triCountY = BIG_MAP_SIZE/4; // number of triangles in one column
 	while(captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
 	unsigned width = BIG_MAP_SIZE; // used width in pixels
 	unsigned height = captureUv->triCountY*4; // used height in pixels
-
-	// setup render states
-	glClearColor(0,0,0,1);
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(0);
 
 	// for each set of triangles (if all triangles don't fit into one texture)
 	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
@@ -234,29 +236,22 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		scaleDownProgram->sendUniform("lightmap",0);
 		scaleDownProgram->sendUniform("pixelDistance",1.0f/BIG_MAP_SIZE,1.0f/BIG_MAP_SIZE);
 		glViewport(0,0,BIG_MAP_SIZE/4,BIG_MAP_SIZE/4);//!!! needs at least 256x256 backbuffer
-		// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
-		//glClearColor(1,0,1,0);
-		//glClear(GL_COLOR_BUFFER_BIT);
-		// setup pipeline
 		glActiveTexture(GL_TEXTURE0);
-		glDisable(GL_CULL_FACE);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
 		detectBigMap->bindTexture();
-		glBegin(GL_POLYGON);
-		glMultiTexCoord2f(0,0,0);
-		glVertex2f(-1,-1);
-		glMultiTexCoord2f(0,0,1);
-		glVertex2f(-1,1);
-		glMultiTexCoord2f(0,1,1);
-		glVertex2f(1,1);
-		glMultiTexCoord2f(0,1,0);
-		glVertex2f(1,-1);
-		glEnd();
-		//glClearColor(0,0,0,0);
-		glEnable(GL_CULL_FACE);
+		{
+			PreserveCullFace p6;
+			glDisable(GL_CULL_FACE);
+			glBegin(GL_POLYGON);
+				glMultiTexCoord2f(0,0,0);
+				glVertex2f(-1,-1);
+				glMultiTexCoord2f(0,0,1);
+				glVertex2f(-1,1);
+				glMultiTexCoord2f(0,1,1);
+				glVertex2f(1,1);
+				glMultiTexCoord2f(0,1,0);
+				glVertex2f(1,-1);
+			glEnd();
+		}
 
 		// read downscaled image to memory
 		RR_ASSERT(captureUv->triCountX*captureUv->triCountY<smallMapSize);
@@ -275,12 +270,6 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 				rr::RRColor(((color>>24)&255)*boost,((color>>16)&255)*boost,((color>>8)&255)*boost));
 		}
 	}
-
-	// restore render states
-	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-	glClearColor(clearcolor[0],clearcolor[1],clearcolor[2],clearcolor[3]);
-	if(depthTest) glEnable(GL_DEPTH_TEST);
-	if(depthMask) glDepthMask(GL_TRUE);
 
 	return true;
 }

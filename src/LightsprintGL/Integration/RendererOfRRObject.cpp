@@ -10,6 +10,7 @@
 #include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/GL/UberProgramSetup.h" // texture/multitexcoord id assignments
 #include "ObjectBuffers.h"
+#include "../DemoEngine/PreserveState.h"
 
 namespace rr_gl
 {
@@ -156,8 +157,6 @@ void RendererOfRRObject::render()
 	RR_ASSERT(params.renderedChannels.LIGHT_INDIRECT_VCOLOR || !params.renderedChannels.LIGHT_INDIRECT_VCOLOR2);
 	RR_ASSERT(params.renderedChannels.LIGHT_INDIRECT_MAP || !params.renderedChannels.LIGHT_INDIRECT_MAP2);
 
-	glColor4ub(0,0,0,255);
-
 	// indirect illumination source - solver, buffers or none?
 	bool renderIndirect = params.renderedChannels.LIGHT_INDIRECT_VCOLOR || params.renderedChannels.LIGHT_INDIRECT_MAP;
 	bool readIndirectFromSolver = renderIndirect && params.indirectIlluminationSource==SOLVER;
@@ -215,6 +214,15 @@ void RendererOfRRObject::render()
 		RR_ASSERT(0);
 		return;
 	}
+
+	/////////////////////////////////////////////////////////////////////////
+
+	PreserveCullFace p1;
+	PreserveCullMode p2;
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK); //!!! do it according to RRMaterial sideBits
+
+	glColor4ub(0,0,0,255);
 
 	/////////////////////////////////////////////////////////////////////////
 
