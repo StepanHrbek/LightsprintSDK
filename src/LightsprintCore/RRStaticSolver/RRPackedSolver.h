@@ -31,22 +31,31 @@ class RRPackedSolver
 {
 public:
 	RRPackedSolver(const RRObject* object);
-	void loadFactors(class PackedFactorsProcess* packedFactorsProcess);
+	void loadFile(class PackedSolverFile* adopt_packedSolverFile);
 	void illuminationReset();
 	void illuminationImprove(bool endfunc(void*), void* context);
-	void updateIndirect(); // must be called before sequence of getTriangleIncidentIndirectIrradiance()s
+
 	// physical, flat
 	RRVec3 getTriangleExitance(unsigned triangle) const;
-	// physical, gouraud
+
+	// physical, gouraud. update must be called first
+	void getTriangleIrradianceIndirectUpdate();
 	RRVec3 getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex, RRStaticSolver* staticSolver) const;
+
 	~RRPackedSolver();
 
 protected:
+	// constant precomputed data
+	class PackedSolverFile* packedSolverFile; ///< Solver file loaded from disk.
+
+	// constant realtime acquired data
 	const RRObject* object;
 	std::vector<PackedTriangle> triangles;
-	//class PackedFactors* packedFactors;
-	class PackedFactorsProcess* packedFactorsProcess;
+
+	// varying data
 	class PackedBests* packedBests;
+	RRVec3* ivertexIndirectIrradiance;
+	bool triangleIrradianceIndirectDirty;
 };
 
 } // namespace

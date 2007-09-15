@@ -621,7 +621,7 @@ public:
 	void    getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
 
 	// night edition
-	class PackedFactorsProcess* packFactors(unsigned numThreads) const;
+	class PackedSolverFile* packSolver(unsigned numThreads) const;
 
 	private:
 		friend class Hits; // GATE

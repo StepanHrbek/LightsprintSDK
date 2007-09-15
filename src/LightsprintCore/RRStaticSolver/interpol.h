@@ -102,12 +102,28 @@ public:
 		U8       cornersAllocatedLn2:7;
 		U8       cacheDirect:1;
 		U8       cacheIndirect:1;
+	public://!!! for night edition
 		U16      corners;
 		Channels cache;	// cached irradiance
 		unsigned cornersAllocated();
 		real     powerTopLevel;
 		Corner   *corner; // pole corneru tvoricich tento ivertex
+		unsigned packedIndex; // night edition: index ivertexu v PackedSmoothing
 };
+
+/*class IVertexPoolIterator
+{
+public:
+	IVertexPoolIterator(const Object* object);
+	// iteruje od konce poolu na zacatek
+	// kdyz projde cely pool, vraci dal uz jen NULL
+	// na dalsi pruchod pouzij novy iterator
+	IVertex* getNext();
+protected:
+	const IVertex* pool;
+	unsigned poolItems;
+	unsigned poolItemsUsed;
+};*/
 
 } // namespace
 

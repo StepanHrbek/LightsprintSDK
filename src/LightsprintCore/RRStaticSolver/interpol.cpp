@@ -57,7 +57,7 @@ IVertex *Object::newIVertex()
 		if(!IVertexPoolItems) IVertexPoolItems=128; else IVertexPoolItems*=2;
 		IVertexPool=new IVertex[IVertexPoolItems];
 		IVertexPoolItemsUsed=1;
-		if(old) *(IVertex**)IVertexPool=old;
+		*(IVertex**)IVertexPool=old;
 	}
 	return &IVertexPool[IVertexPoolItemsUsed++];
 }
@@ -74,6 +74,24 @@ void Object::deleteIVertices()
 	IVertexPoolItems=0;
 	IVertexPoolItemsUsed=0;
 }
+
+/*IVertexPoolIterator::IVertexPoolIterator(const Object* object)
+{
+	pool = object->IVertexPool;
+	poolItems = object->IVertexPoolItems;
+	poolItemsUsed = object->IVertexPoolItemsUsed;
+}
+
+IVertex* IVertexPoolIterator::getNext()
+{
+	if(poolItemsUsed==1)
+	{
+		pool = *(IVertex**)pool;
+		poolItemsUsed = poolItems = poolItems/2;
+	}
+	return pool ? pool[poolItemsUsed] : NULL;
+}*/
+
 
 //////////////////////////////////////////////////////////////////////////////
 //

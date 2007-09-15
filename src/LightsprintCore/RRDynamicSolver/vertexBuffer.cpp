@@ -69,6 +69,10 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 		RR_ASSERT(0);
 		return 0;
 	}
+	if(priv->packedSolver)
+	{
+		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
+	}
 	RRRadiometricMeasure measure = params ? params->measure : RM_IRRADIANCE_PHYSICAL_INDIRECT;
 	RRObjectIllumination* illumination = getIllumination(objectHandle);
 	unsigned numPreImportVertices = illumination->getNumPreImportVertices();
