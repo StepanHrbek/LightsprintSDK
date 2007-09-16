@@ -11,8 +11,8 @@
 namespace rr
 {
 
-void RRDynamicSolver::updateVertexLookupTable()
-// prepare lookup tables preImportVertex -> [postImportTriangle,vertex0..2] for all objects
+void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
+// prepare lookup tables preImportVertex -> [postImportTriangle,vertex012] for all objects
 {
 	if(!getMultiObjectPhysical())
 	{
@@ -28,7 +28,7 @@ void RRDynamicSolver::updateVertexLookupTable()
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 
-		priv->preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,std::pair<unsigned,unsigned>(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
+		priv->preVertex2PostTriangleVertex[objectHandle].resize(numPreImportVertices,Private::TriangleVertexPair(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
 
 		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 		{
@@ -46,13 +46,36 @@ void RRDynamicSolver::updateVertexLookupTable()
 					else
 						continue; // skip asserts
 					if(preVertex<numPreImportVertices)
-						priv->preVertex2PostTriangleVertex[objectHandle][preVertex] = std::pair<unsigned,unsigned>(postImportTriangle,v);
+						priv->preVertex2PostTriangleVertex[objectHandle][preVertex] = Private::TriangleVertexPair(postImportTriangle,v);
 					else
 						RR_ASSERT(0);
 				}
 				else
 					RR_ASSERT(0);
 			}
+		}
+	}
+}
+
+void RRDynamicSolver::updateVertexLookupTablePackedSolver()
+// prepare lookup tables preImportVertex -> Ivertex for all objects
+{
+	if(!priv->packedSolver)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	priv->preVertex2Ivertex.resize(priv->objects.size());
+	for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+	{
+		RRObjectIllumination* illumination = getIllumination(objectHandle);
+		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
+		priv->preVertex2Ivertex[objectHandle].resize(numPreImportVertices);
+		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
+		{
+			priv->preVertex2Ivertex[objectHandle][preImportVertex] = priv->packedSolver->getTriangleIrradianceIndirect(
+				priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex,
+				priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012);				
 		}
 	}
 }
@@ -69,30 +92,33 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 		RR_ASSERT(0);
 		return 0;
 	}
+	RRObjectIllumination* illumination = getIllumination(objectHandle);
+	unsigned numPreImportVertices = illumination->getNumPreImportVertices();
+
+	// packed solver
 	if(priv->packedSolver)
 	{
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
+		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[objectHandle];
+		for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+		{
+			vertexBuffer->setVertex(preImportVertex,*preVertex2Ivertex[preImportVertex]);
+		}
+		return 1;
 	}
+
+	// dynamic solver
 	RRRadiometricMeasure measure = params ? params->measure : RM_IRRADIANCE_PHYSICAL_INDIRECT;
-	RRObjectIllumination* illumination = getIllumination(objectHandle);
-	unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 	// load measure into each preImportVertex
-#pragma omp parallel for // dynamic vyrazne pomalejsi nez default
+#pragma omp parallel for schedule(static) // dynamic vyrazne pomalejsi nez default
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 	{
-		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
-		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
+		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
+		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
 		RRColor indirect = RRColor(0);
 		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 		{
-			if(priv->packedSolver && priv->scene)
-			{
-				indirect = priv->packedSolver->getTriangleIrradianceIndirect(t,v,priv->scene);
-			}
-			else
-			{
-				priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);
-			}
+			priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);
 			// make it optional when negative values are supported
 			//for(unsigned i=0;i<3;i++)
 			//	indirect[i] = MAX(0,indirect[i]);
@@ -117,11 +143,11 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 	}
 	unsigned numPreImportVertices = getIllumination(objectHandle)->getNumPreImportVertices();
 	// load measure into each preImportVertex
-#pragma omp parallel for
+#pragma omp parallel for schedule(static)
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 	{
-		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].first;
-		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].second;
+		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
+		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
 		RRVec3 data = RRVec3(0);
 		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 		{

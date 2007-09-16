@@ -238,7 +238,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		REPORT(if(priv->multiObjectPhysicalWithIllumination)
 			RRReporter::report(CONT,"(%d objects, optimized to %d faces, %d vertices) ",priv->objects.size(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
 		priv->scene = priv->multiObjectPhysicalWithIllumination ? new RRStaticSolver(priv->multiObjectPhysicalWithIllumination,&priv->smoothing) : NULL;
-		if(priv->scene) updateVertexLookupTable();
+		if(priv->scene) updateVertexLookupTableDynamicSolver();
 		// update minimalSafeDistance
 		if(priv->multiObjectPhysicalWithIllumination)
 		{

@@ -745,8 +745,9 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 		return;
 	}
 	PackedIvertices* packedIvertices = packedSolverFile->packedIvertices;
-#pragma omp parallel for
-	for(int i=0;i<(int)packedIvertices->getNumC1();i++)
+	int numIvertices = (int)packedIvertices->getNumC1();
+#pragma omp parallel for schedule(static)
+	for(int i=0;i<numIvertices;i++)
 	{
 		RRVec3 irrad = RRVec3(0);
 		const PackedSmoothTriangleWeight* begin = packedIvertices->getC2(i);
@@ -759,15 +760,15 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 	}	
 }
 
-RRVec3 RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex, RRStaticSolver* staticSolver) const
+const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const
 {
 	if(!packedSolverFile)
 	{
 		RR_ASSERT(0);
-		return RRVec3(0);
+		return NULL;
 	}
 	RR_ASSERT(vertex<3);
-	return ivertexIndirectIrradiance[packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]];
+	return &ivertexIndirectIrradiance[packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]];
 }
 
 RRPackedSolver::~RRPackedSolver()

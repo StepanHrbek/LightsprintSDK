@@ -39,8 +39,9 @@ public:
 	RRVec3 getTriangleExitance(unsigned triangle) const;
 
 	// physical, gouraud. update must be called first
+	// pointer is guaranteed to stay constant, you can reuse it in next frames
 	void getTriangleIrradianceIndirectUpdate();
-	RRVec3 getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex, RRStaticSolver* staticSolver) const;
+	const RRVec3* getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const;
 
 	~RRPackedSolver();
 

@@ -798,7 +798,8 @@ namespace rr
 		RRStaticSolver::Improvement calculateCore(float improveStep);
 		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots);
 		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
-		void       updateVertexLookupTable();
+		void       updateVertexLookupTableDynamicSolver();
+		void       updateVertexLookupTablePackedSolver();
 		struct Private;
 		Private* priv;
 	};
