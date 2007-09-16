@@ -6,6 +6,8 @@
 #include "rrcore.h"
 #include "RRPackedSolver.h"
 
+//#define SHOW_CONVERGENCE
+
 namespace rr
 {
 
@@ -276,6 +278,7 @@ public:
 		packedFactorsProcess = NULL;
 		packedIvertices = NULL;
 		packedSmoothTriangles = NULL;
+		packedSmoothTrianglesBytes = 0;
 	}
 	~PackedSolverFile()
 	{
@@ -287,6 +290,7 @@ public:
 	PackedFactorsProcess* packedFactorsProcess;
 	PackedIvertices* packedIvertices;
 	PackedSmoothTriangle* packedSmoothTriangles;
+	unsigned packedSmoothTrianglesBytes;
 };
 
 
@@ -297,6 +301,7 @@ public:
 PackedSolverFile* Scene::packSolver(unsigned numThreads) const
 {
 	PackedSolverFile* packedSolverFile = new PackedSolverFile;
+	RRReportInterval report(INF2,"Packing solver...\n");
 
 	/////////////////////////////////////////////////////////////////////////
 	//
@@ -337,8 +342,6 @@ PackedSolverFile* Scene::packSolver(unsigned numThreads) const
 		// insert thread to process
 		packedSolverFile->packedFactorsProcess->push_back(packedFactorsBuilder);
 	}
-
-	RRReporter::report(INF2,"Created form factors (%d kB).\n",packedSolverFile->packedFactorsProcess->getMemoryOccupied()/1024);
 
 	/////////////////////////////////////////////////////////////////////////
 	//
@@ -390,6 +393,7 @@ PackedSolverFile* Scene::packSolver(unsigned numThreads) const
 
 	// 3 naalokuje packed
 	packedSolverFile->packedSmoothTriangles = new PackedSmoothTriangle[object->triangles];
+	packedSolverFile->packedSmoothTrianglesBytes = sizeof(PackedSmoothTriangle)*object->triangles;
 	packedSolverFile->packedIvertices = new PackedIvertices(numIvertices,numWeights);
 
 	// 4 pruchod pres triangly:
@@ -427,6 +431,11 @@ PackedSolverFile* Scene::packSolver(unsigned numThreads) const
 	RR_ASSERT(numIverticesPacked==numIvertices);
 
 	// return
+	RRReporter::report(INF2,"Size: factors=%d smoothing=%d total=%d kB.\n",
+		( packedSolverFile->packedFactorsProcess->getMemoryOccupied() )/1024,
+		( packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024,
+		( packedSolverFile->packedFactorsProcess->getMemoryOccupied()+packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024
+		);
 	return packedSolverFile;
 }
 
@@ -461,11 +470,11 @@ public:
 	//  returns number of triangles in selected group
 	unsigned selectBests()
 	{
-		RRReportInterval report(INF2,"Finding bests200...\n");//!!!
+		//RRReportInterval report(INF2,"Finding bests200...\n");//!!!
+		reset();
 
 
 		// search 200 shooters with most energy to diffuse
-		reset();
 		real bestQ[BESTS];
 //		bestQ[0] = -1; // first is always valid
 		bestQ[BESTS-1] = -1; // last is always valid
@@ -491,7 +500,8 @@ public:
 				bestQ[pos] = q;
 			}
 		}
-if(bests) RRReporter::report(INF3,"bestQ[0]=%f bestQ[%d]=%f\n",bestQ[0],bests-1,bestQ[bests-1]);//!!!
+//if(bests) RRReporter::report(INF3,"bestQ[0]=%f bestQ[%d]=%f\n",bestQ[0],bests-1,bestQ[bests-1]);//!!!
+
 		return bests;
 	}
 
@@ -724,15 +734,6 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 	}
 	while(!endfunc(context));
 
-	// statistika
-	RRReal unshot = 0;
-	RRReal shot = 0;
-	for(unsigned i=0;i<numTriangles;i++)
-	{
-		shot += sum(triangles[i].incidentFluxDiffused * triangles[i].diffuseReflectance);
-		unshot += sum(triangles[i].incidentFluxToDiffuse * triangles[i].diffuseReflectance);
-	}
-	RRReporter::report(INF3,"Converged=%f, propagated factors=%d=%d+%d, packed ff size=%d kB\n",shot/(shot+unshot),factorsUsed[0]+factorsUsed[1],factorsUsed[0],factorsUsed[1],packedSolverFile->packedFactorsProcess->getMemoryOccupied()/1024);
 }
 
 RRVec3 RRPackedSolver::getTriangleExitance(unsigned triangle) const

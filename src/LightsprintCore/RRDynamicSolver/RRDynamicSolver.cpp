@@ -313,6 +313,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	RRStaticSolver::Improvement improvement;
 	if(priv->packedSolver)
 	{
+		end = (TIME)(now+improveStep*PER_SEC/2);
 		priv->packedSolver->illuminationImprove(endByTime,(void*)&end);
 		improvement = RRStaticSolver::IMPROVED;
 	}
