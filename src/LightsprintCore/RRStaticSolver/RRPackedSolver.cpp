@@ -1,4 +1,5 @@
-#include <algorithm>
+//#define PARTIAL_SORT // best vybira pomoci partial_sort(), pomalejsi
+
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
@@ -437,9 +438,11 @@ PackedSolverFile* Scene::packSolver(unsigned numThreads) const
 //
 // struktura zodpovedna za vyber nejsilnejsich shooteru pro scatter
 
+
 class PackedBests
 {
 public:
+
 	void init(const std::vector<PackedTriangle>* _triangle, unsigned _indexBegin, unsigned _indexEnd, unsigned _indexStep)
 	{
 		triangle = _triangle;
@@ -459,6 +462,9 @@ public:
 	//  returns number of triangles in selected group
 	unsigned selectBests()
 	{
+		RRReportInterval report(INF2,"Finding bests200...\n");//!!!
+
+
 		// search 200 shooters with most energy to diffuse
 		reset();
 		real bestQ[BESTS];
@@ -515,7 +521,7 @@ protected:
 	unsigned bests; ///< Number of elements in bestNode[] array.
 	unsigned bestNode[BESTS]; ///< Runtime selected triangle indices in range <indexBegin..indexEnd-1>.
 	unsigned bestNodeIterator; ///< Iterator used by 1threaded getBest(), index into bestNode[] array.
-	const std::vector<PackedTriangle>* triangle; ///< Our data: triangle[indexBegin]..triangle[indexEnd-1].
+	const std::vector<PackedTriangle>* triangle; ///< Pointer to our data: triangle[indexBegin]..triangle[indexEnd-1].
 	unsigned indexBegin; ///< Index into triangle array, first of our triangles.
 	unsigned indexEnd; ///< Index into triangle array, last+1 of our triangles.
 	unsigned indexStep; ///< Step used in triangle array, we access only triangles: indexBegin, indexBegin+indexStep, indexBegin+2*indexStep, ...
@@ -549,6 +555,7 @@ public:
 	unsigned selectBests()
 	{
 		RRReportInterval report(INF2,"Finding bests400...\n");//!!!
+		unsigned bests[NUM_THREADS];
 #pragma omp parallel for
 		for(int i=0;i<NUM_THREADS;i++)
 			bests[i] = threads[i].selectBests();
@@ -577,7 +584,6 @@ protected:
 		NUM_THREADS=2
 	};
 	PackedBests threads[NUM_THREADS];
-	unsigned bests[NUM_THREADS];
 	unsigned iterator;
 };
 
@@ -637,7 +643,7 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 	triangleIrradianceIndirectDirty = true;
 	unsigned factorsUsed[4] = {0,0,0,0};
 	PackedFactorsThread* thread0 = packedSolverFile->packedFactorsProcess->getThread(0);
-	if(!packedBests) packedBests = new PackedBests; packedBests->init(&triangles,0,(unsigned)triangles.size());
+	if(!packedBests) packedBests = new PackedBests; packedBests->init(&triangles,0,(unsigned)triangles.size(),1);
 	do
 	{
 		if(packedSolverFile->packedFactorsProcess->getNumThreads()==1)

@@ -3,7 +3,7 @@
 
 #include "Lightsprint/RRStaticSolver.h"
 
-//error : inserted by sunifdef: "#define THREADED_BEST" contradicts -U at R:\work2\.git-rewrite\t\src\LightsprintCore\RRStaticSolver\RRPackedSolver.h~(6)
+//#define THREADED_BEST
 
 namespace rr
 {
