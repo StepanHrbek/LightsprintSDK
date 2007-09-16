@@ -3,7 +3,6 @@
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#include <vector>
 #include "rrcore.h"
 #include "RRPackedSolver.h"
 
@@ -443,9 +442,9 @@ class PackedBests
 {
 public:
 
-	void init(const std::vector<PackedTriangle>* _triangle, unsigned _indexBegin, unsigned _indexEnd, unsigned _indexStep)
+	void init(const PackedTriangle* _triangles, unsigned _indexBegin, unsigned _indexEnd, unsigned _indexStep)
 	{
-		triangle = _triangle;
+		triangle = _triangles;
 		indexBegin = _indexBegin;
 		indexEnd = _indexEnd;
 		indexStep = _indexStep;
@@ -473,7 +472,7 @@ public:
 		for(unsigned i=indexBegin;i<indexEnd;i++)
 		{
 			// calculate quality of distributor
-			real q = sum((*triangle)[i].incidentFluxToDiffuse);
+			real q = sum(triangle[i].incidentFluxToDiffuse);
 
 //#define BEST_RANGE 0.01f // best[last] musi byt aspon 0.01*best[0], jinak je lepsi ho zahodit
 //			if(q>bestQ[BESTS-1] && q>bestQ[0]*BEST_RANGE)
@@ -521,7 +520,7 @@ protected:
 	unsigned bests; ///< Number of elements in bestNode[] array.
 	unsigned bestNode[BESTS]; ///< Runtime selected triangle indices in range <indexBegin..indexEnd-1>.
 	unsigned bestNodeIterator; ///< Iterator used by 1threaded getBest(), index into bestNode[] array.
-	const std::vector<PackedTriangle>* triangle; ///< Pointer to our data: triangle[indexBegin]..triangle[indexEnd-1].
+	const PackedTriangle* triangle; ///< Pointer to our data: triangle[indexBegin]..triangle[indexEnd-1].
 	unsigned indexBegin; ///< Index into triangle array, first of our triangles.
 	unsigned indexEnd; ///< Index into triangle array, last+1 of our triangles.
 	unsigned indexStep; ///< Step used in triangle array, we access only triangles: indexBegin, indexBegin+indexStep, indexBegin+2*indexStep, ...
@@ -538,10 +537,10 @@ protected:
 class PackedBestsThreaded
 {
 public:
-	PackedBestsThreaded(const std::vector<PackedTriangle>* triangles)
+	PackedBestsThreaded(const PackedTriangle* triangles, unsigned numTriangles)
 	{
 		for(unsigned i=0;i<NUM_THREADS;i++)
-			threads[i].init(triangles,i,(unsigned)triangles->size(),NUM_THREADS);
+			threads[i].init(triangles,i,numTriangles,NUM_THREADS);
 	}
 
 	void reset()
@@ -561,7 +560,7 @@ public:
 			bests[i] = threads[i].selectBests();
 		//!!! NUM_THREADS
 		if(bests[0]!=bests[1])
-			printf("ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+			RRReporter::report(ERRO,"ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		return bests[0]+bests[1];
 	}
 
@@ -598,13 +597,19 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object)
 	if(object)
 	{
 		const RRMesh* mesh = object->getCollider()->getMesh();
-		triangles.resize(mesh->getNumTriangles());
-		for(unsigned i=0;i<triangles.size();i++)
+		numTriangles = mesh->getNumTriangles();
+		triangles = new PackedTriangle[numTriangles];
+		for(unsigned i=0;i<numTriangles;i++)
 		{
 			const RRMaterial* material = object->getTriangleMaterial(i);
 			triangles[i].diffuseReflectance = material ? material->diffuseReflectance : RRVec3(0.5f);
 			triangles[i].area = mesh->getTriangleArea(i);
 		}
+	}
+	else
+	{
+		numTriangles = 0;
+		triangles = NULL;
 	}
 	packedSolverFile = NULL;
 	packedBests = NULL;
@@ -630,7 +635,7 @@ void RRPackedSolver::illuminationReset()
 	triangleIrradianceIndirectDirty = true;
 	if(packedBests) packedBests->reset();
 #pragma omp parallel for
-	for(int t=0;(unsigned)t<triangles.size();t++)
+	for(int t=0;(unsigned)t<numTriangles;t++)
 	{
 		object->getTriangleIllumination(t,RRRadiometricMeasure(0,0,1,1,1),triangles[t].incidentFluxDirect);
 		triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect;
@@ -643,7 +648,7 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 	triangleIrradianceIndirectDirty = true;
 	unsigned factorsUsed[4] = {0,0,0,0};
 	PackedFactorsThread* thread0 = packedSolverFile->packedFactorsProcess->getThread(0);
-	if(!packedBests) packedBests = new PackedBests; packedBests->init(&triangles,0,(unsigned)triangles.size(),1);
+	if(!packedBests) packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
 	do
 	{
 		if(packedSolverFile->packedFactorsProcess->getNumThreads()==1)
@@ -722,7 +727,7 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 	// statistika
 	RRReal unshot = 0;
 	RRReal shot = 0;
-	for(unsigned i=0;i<triangles.size();i++)
+	for(unsigned i=0;i<numTriangles;i++)
 	{
 		shot += sum(triangles[i].incidentFluxDiffused * triangles[i].diffuseReflectance);
 		unshot += sum(triangles[i].incidentFluxToDiffuse * triangles[i].diffuseReflectance);
@@ -773,6 +778,7 @@ const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, u
 
 RRPackedSolver::~RRPackedSolver()
 {
+	delete[] triangles;
 	delete[] ivertexIndirectIrradiance;
 	delete packedBests;
 	delete packedSolverFile;

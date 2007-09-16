@@ -51,7 +51,8 @@ protected:
 
 	// constant realtime acquired data
 	const RRObject* object;
-	std::vector<PackedTriangle> triangles;
+	PackedTriangle* triangles;
+	unsigned numTriangles;
 
 	// varying data
 	class PackedBests* packedBests;
