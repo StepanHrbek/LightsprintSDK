@@ -703,6 +703,32 @@ namespace rr
 		void reportInteraction();
 
 
+		//! Build data file for packed solver.
+		//
+		//! This function lets you preprocess current static scene and save results to file.
+		//! Later you can use it in packed solver, see switchToPackedSolver().
+		//! Packed solver is faster, higher quality, smaller, realtime only solver;
+		//! it is highly recommended for games.
+		//! \param avgRaysPerTriangle
+		//!  Average number of rays per triangle used to compute form factors.
+		//!  Higher number = longer calculation, higher quality results, bigger file.
+		//!  If zero, current factors are used, without recalculating.
+		//! \param filename
+		//!  Data precomputed for current static scene will be saved to this file.
+		bool buildPackedSolver(unsigned avgRaysPerTriangle, const char* filename);
+
+		//! Switch to packed solver. NULL to switch back to fully dynamic solver.
+		//
+		//! Packed solver is faster, higher quality, smaller, realtime only solver;
+		//! it is highly recommended for games.
+		//! When used, non-realtime functions like updateLightmaps() don't work,
+		//! but realtime functions like updateVertexBuffers() are faster
+		//! and produce better results using less memory.
+		//! \param filename
+		//!  File with data computed by buildPackedSolver().
+		bool switchToPackedSolver(const char* filename);
+
+
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is created when you insert objects and call calculate().
 		const RRObject* getMultiObjectCustom() const;

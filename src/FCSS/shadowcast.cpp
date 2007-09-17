@@ -1511,6 +1511,23 @@ void keyboard(unsigned char c, int x, int y)
 			demoPlayer->setBigscreen(bigscreenCompensation);
 			break;
 
+		case '.':
+			#define PACKED_SOLVER_FILENAME "h:\\packed_solver"
+			level->solver->buildPackedSolver(1,PACKED_SOLVER_FILENAME);
+			level->solver->switchToPackedSolver(PACKED_SOLVER_FILENAME);
+			break;
+		case ',':
+			level->solver->buildPackedSolver(10,PACKED_SOLVER_FILENAME);
+			level->solver->switchToPackedSolver(PACKED_SOLVER_FILENAME);
+			break;
+		case ':':
+			level->solver->buildPackedSolver(100,PACKED_SOLVER_FILENAME);
+			level->solver->switchToPackedSolver(PACKED_SOLVER_FILENAME);
+			break;
+		case ';':
+			level->solver->buildPackedSolver(1000,PACKED_SOLVER_FILENAME);
+			level->solver->switchToPackedSolver(PACKED_SOLVER_FILENAME);
+			break;
 
 			/*
 		case 'f':

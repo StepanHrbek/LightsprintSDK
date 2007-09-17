@@ -3,6 +3,8 @@
 #include "PackedSolverFile.h"
 #include "../RRStaticSolver/rrcore.h"
 #include "Lightsprint/RRDynamicSolver.h"
+
+#pragma warning(disable:4530) // unrelated std::vector in private.h complains about exceptions
 #include "../RRDynamicSolver/private.h"
 
 namespace rr
@@ -186,7 +188,37 @@ PackedSolverFile* Scene::packSolver() const
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRStaticSolver
+
+bool RRStaticSolver::buildPackedSolver(unsigned raysPerTriangle, const char* filename)
+{
+	scene->updateFactors(raysPerTriangle);
+	PackedSolverFile* packedSolverFile = scene->packSolver();
+	bool result = packedSolverFile->save(filename);
+	delete packedSolverFile;
+	return result;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRDynamicSolver
 
+bool RRDynamicSolver::buildPackedSolver(unsigned raysPerTriangle, const char* filename)
+{
+	return getStaticSolver() && priv->scene && priv->scene->buildPackedSolver(raysPerTriangle,filename);
+}
+
+bool RRDynamicSolver::switchToPackedSolver(const char* filename)
+{
+	SAFE_DELETE(priv->packedSolver);
+	if(filename)
+	{
+		priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysicalWithIllumination(),PackedSolverFile::load(filename));
+		if(priv->packedSolver)
+			updateVertexLookupTablePackedSolver();
+	}
+	return priv->packedSolver!=NULL;
+}
 
 } // namespace

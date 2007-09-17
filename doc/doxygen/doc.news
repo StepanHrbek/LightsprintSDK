@@ -10,6 +10,10 @@
 
 NEWS
 
+- Packed solver, faster, higher quality, smaller, realtime solver,
+  highly recommended for games.
+  RRDynamicSolver::buildPackedSolver() - precompute data.
+  RRDynamicSolver::switchToPackedSolver() - use in game.
 - RRVector::clear(), similar to std::vector::clear()
 
 \section news32 ------------------------------------ 2007.9.11 -------------------------------------
