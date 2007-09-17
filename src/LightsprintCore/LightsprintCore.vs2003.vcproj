@@ -563,14 +563,6 @@
 				RelativePath="RRStaticSolver\rrcore.h">
 			</File>
 			<File
-				RelativePath=".\RRStaticSolver\RRPackedSolver.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RRStaticSolver\RRPackedSolver.h"
-				>
-			</File>
-			<File
 				RelativePath="RRStaticSolver\RRStaticSolver.cpp">
 			</File>
 			<File
@@ -720,6 +712,26 @@
 			</File>
 			<File
 				RelativePath="..\LightsprintGL\DemoEngine\TextureInMemory.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="RRPackedSolver"
+			>
+			<File
+				RelativePath="RRPackedSolver\PackedSolverFile.h"
+				>
+			</File>
+			<File
+				RelativePath="RRPackedSolver\PackedSolverFileBuild.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRPackedSolver\RRPackedSolver.cpp"
+				>
+			</File>
+			<File
+				RelativePath="RRPackedSolver\RRPackedSolver.h"
 				>
 			</File>
 		</Filter>

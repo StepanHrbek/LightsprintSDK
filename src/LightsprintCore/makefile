@@ -20,6 +20,7 @@ OBJS += $(TMP)RRCollider/bsp.o $(TMP)RRCollider/cache.o $(TMP)RRCollider/fpcube.
 OBJS += $(TMP)RRObject/RRCollisionHandler.o $(TMP)RRObject/RRMaterial.o $(TMP)RRObject/RRObject.o $(TMP)RRObject/RRObjectWithPhysicalMaterials.o $(TMP)RRObject/RRScaler.o
 OBJS += $(TMP)RRIllumination/RRIlluminationEnvironmentMapInMemory.o $(TMP)RRIllumination/RRIlluminationPixelBuffer.o $(TMP)RRIllumination/RRIlluminationVertexBufferInMemory.o $(TMP)RRIllumination/RRObjectIllumination.o
 OBJS += $(TMP)RRStaticSolver/clusters.o $(TMP)RRStaticSolver/gatherer.o $(TMP)RRStaticSolver/geometry_v.o $(TMP)RRStaticSolver/interpol.o $(TMP)RRStaticSolver/rrcore.o $(TMP)RRStaticSolver/RRStaticSolver.o $(TMP)RRStaticSolver/RRVision.o
+OBJS += $(TMP)RRPackedSolver/PackedSolverFileBuild.o $(TMP)RRPackedSolver/RRPackedSolver.o
 OBJS += $(TMP)RRDynamicSolver/environmentMap.o $(TMP)RRDynamicSolver/Interpolator.o $(TMP)RRDynamicSolver/lightmap.o $(TMP)RRDynamicSolver/RRLight.o $(TMP)RRDynamicSolver/RRDynamicSolver.o $(TMP)RRDynamicSolver/vertexBuffer.o
 
 all: makefile $(LIB)

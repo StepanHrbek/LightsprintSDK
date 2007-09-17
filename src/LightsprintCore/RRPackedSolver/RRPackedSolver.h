@@ -1,7 +1,7 @@
 #ifndef RRPACKEDSOLVER_H
 #define RRPACKEDSOLVER_H
 
-#include "Lightsprint/RRStaticSolver.h"
+#include "Lightsprint/RRObject.h"
 
 //#define THREADED_BEST
 
