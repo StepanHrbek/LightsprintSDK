@@ -1,10 +1,11 @@
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), pomalejsi
 //#define THREADED_IMPROVE
+//#define USE_SSE // kod zkrati ale nezrychli
 
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#include <cstdio>
+#include <cstdio> // save/load
 #include "rrcore.h"
 #include "RRPackedSolver.h"
 #ifdef USE_SSE
@@ -17,6 +18,43 @@
 
 namespace rr
 {
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// PackedTriangle
+
+#ifdef USE_SSE
+class PackedTriangle : public RRAligned
+{
+public:
+	RRVec3 diffuseReflectance;
+	RRReal areaInv;
+	RRVec3p incidentFluxToDiffuse; // reset to direct illum, modified by improve
+	RRVec3p incidentFluxDiffused;  // reset to 0, modified by improve
+	RRVec3p incidentFluxDirect;    // reset to direct illum
+#else
+class PackedTriangle
+{
+public:
+	RRVec3 diffuseReflectance;
+	RRReal areaInv;
+	RRVec3 incidentFluxToDiffuse; // reset to direct illum, modified by improve
+	RRVec3 incidentFluxDiffused;  // reset to 0, modified by improve
+	RRVec3 incidentFluxDirect;    // reset to direct illum
+#endif
+
+	// for dynamic objects
+	RRVec3 getExitance() const
+	{
+		return (incidentFluxDiffused+incidentFluxToDiffuse)*diffuseReflectance*areaInv;
+	}
+	// for static objects
+	RRVec3 getIrradianceIndirect() const
+	{
+		return (incidentFluxDiffused+incidentFluxToDiffuse-incidentFluxDirect)*areaInv;
+	}
+};
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -314,7 +352,7 @@ public:
 		if(ok!=3) SAFE_DELETE(psf);
 		return psf;
 	}
-	bool isCompatible(RRObject* object) const
+	bool isCompatible(const RRObject* object) const
 	{
 		if(!object) return false;
 		if(packedSmoothTrianglesBytes/sizeof(PackedSmoothTriangle)!=object->getCollider()->getMesh()->getNumTriangles()) return false;
@@ -682,49 +720,35 @@ protected:
 //
 // RRPackedSolver
 
-RRPackedSolver::RRPackedSolver(const RRObject* _object)
+RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* _adopt_packedSolverFile)
 {
 	object = _object;
-	if(object)
+	const RRMesh* mesh = object->getCollider()->getMesh();
+	numTriangles = mesh->getNumTriangles();
+	triangles = new PackedTriangle[numTriangles];
+	for(unsigned i=0;i<numTriangles;i++)
 	{
-		const RRMesh* mesh = object->getCollider()->getMesh();
-		numTriangles = mesh->getNumTriangles();
-		triangles = new PackedTriangle[numTriangles];
-		for(unsigned i=0;i<numTriangles;i++)
-		{
-			const RRMaterial* material = object->getTriangleMaterial(i);
-			triangles[i].diffuseReflectance = material ? material->diffuseReflectance : RRVec3(0.5f);
-			triangles[i].areaInv = 1/mesh->getTriangleArea(i);
-		}
+		const RRMaterial* material = object->getTriangleMaterial(i);
+		triangles[i].diffuseReflectance = material ? material->diffuseReflectance : RRVec3(0.5f);
+		triangles[i].areaInv = 1/mesh->getTriangleArea(i);
 	}
-	else
-	{
-		numTriangles = 0;
-		triangles = NULL;
-	}
-	packedSolverFile = NULL;
-	packedBests = NULL;
-	ivertexIndirectIrradiance = NULL;
+	packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
+	packedSolverFile = _adopt_packedSolverFile;
+	ivertexIndirectIrradiance = new RRVec3[packedSolverFile->packedIvertices->getNumC1()];
 	triangleIrradianceIndirectDirty = true;
 }
 
-void RRPackedSolver::loadFile(PackedSolverFile* adopt_packedSolverFile)
+RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolverFile* adopt_packedSolverFile)
 {
-	// remember precomputed file
-	delete packedSolverFile;
-	packedSolverFile = adopt_packedSolverFile;
-
-	// update runtime computed data
-	if(packedBests) packedBests->reset();
-	delete[] ivertexIndirectIrradiance;
-	ivertexIndirectIrradiance = packedSolverFile ? new RRVec3[packedSolverFile->packedIvertices->getNumC1()] : NULL;
-	triangleIrradianceIndirectDirty = true;
+	if(object && adopt_packedSolverFile && adopt_packedSolverFile->isCompatible(object))
+		return new RRPackedSolver(object,adopt_packedSolverFile);
+	return NULL;
 }
 
 void RRPackedSolver::illuminationReset()
 {
 	triangleIrradianceIndirectDirty = true;
-	if(packedBests) packedBests->reset();
+	packedBests->reset();
 #pragma omp parallel for
 	for(int t=0;(unsigned)t<numTriangles;t++)
 	{
@@ -738,9 +762,9 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 {
 	triangleIrradianceIndirectDirty = true;
 	PackedFactorsThread* thread0 = packedSolverFile->packedFactors;
-	if(!packedBests) packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
 	do
 	{
+		{
 			// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni
 
 			unsigned sourceTriangleIndex = packedBests->getBest();
@@ -772,6 +796,7 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 					exitingFluxToDiffuse*start->getVisibility();
 #endif
 			}
+		}
 	}
 	while(!endfunc(context));
 
@@ -786,11 +811,6 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 {
 	if(!triangleIrradianceIndirectDirty) return;
 	triangleIrradianceIndirectDirty = false;
-	if(!packedSolverFile)
-	{
-		RR_ASSERT(0);
-		return;
-	}
 	PackedIvertices* packedIvertices = packedSolverFile->packedIvertices;
 	int numIvertices = (int)packedIvertices->getNumC1();
 #pragma omp parallel for schedule(static)
@@ -809,8 +829,7 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 
 const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const
 {
-	if(!packedSolverFile // packed file wasn't loaded yet
-		|| triangle>=0x3fffffff || vertex>=3 // for some reason, we can't find ivertex for given vertex (UNDEFINED is clamped to 30 + 2 bits)
+	if(triangle>=0x3fffffff || vertex>=3 // for some reason, we can't find ivertex for given vertex (UNDEFINED is clamped to 30 + 2 bits)
 		|| packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]>=packedSolverFile->packedIvertices->getNumC1())
 	{
 		//RR_ASSERT(0);
