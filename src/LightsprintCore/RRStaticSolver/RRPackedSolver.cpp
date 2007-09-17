@@ -1,4 +1,5 @@
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), pomalejsi
+//#define THREADED_IMPROVE
 
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
@@ -207,42 +208,6 @@ typedef ArrayWithArrays<PackedFactorHeader,PackedFactor> PackedFactorsThread;
 // PackedFactorsProcess
 //
 
-class PackedFactorsProcess
-{
-public:
-	PackedFactorsProcess()
-	{
-		numThreads = 0;
-	}
-	~PackedFactorsProcess()
-	{
-		while(numThreads)
-			delete threads[--numThreads];
-	}
-
-	void push_back(PackedFactorsThread* th)
-	{
-		threads[numThreads++] = th;
-	}
-	unsigned getNumThreads()
-	{
-		return numThreads;
-	}
-	PackedFactorsThread* getThread(unsigned threadNum)
-	{
-		RR_ASSERT(threadNum<numThreads);
-		return threads[threadNum];
-	}
-	unsigned getMemoryOccupied()
-	{
-		unsigned size = 0;
-		for(unsigned i=0;i<numThreads;i++) size += threads[i]->getMemoryOccupied();
-		return size;
-	}
-protected:
-	unsigned numThreads;
-	PackedFactorsThread* threads[256];
-};
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -282,23 +247,22 @@ class PackedSolverFile
 public:
 	PackedSolverFile()
 	{
-		packedFactorsProcess = NULL;
+		packedFactors = NULL;
 		packedIvertices = NULL;
 		packedSmoothTriangles = NULL;
 		packedSmoothTrianglesBytes = 0;
 	}
 	unsigned getMemoryOccupied()
 	{
-		return packedFactorsProcess->getMemoryOccupied() + packedIvertices->getMemoryOccupied() + packedSmoothTrianglesBytes;
+		return packedFactors->getMemoryOccupied() + packedIvertices->getMemoryOccupied() + packedSmoothTrianglesBytes;
 	}
 	~PackedSolverFile()
 	{
-		delete packedFactorsProcess;
+		delete packedFactors;
 		delete packedIvertices;
 		delete packedSmoothTriangles;
 	}
-	//class PackedFactors* packedFactors;
-	PackedFactorsProcess* packedFactorsProcess;
+	PackedFactorsThread* packedFactors;
 	PackedIvertices* packedIvertices;
 	PackedSmoothTriangle* packedSmoothTriangles;
 	unsigned packedSmoothTrianglesBytes;
@@ -309,7 +273,7 @@ public:
 //
 // Scene
 
-PackedSolverFile* Scene::packSolver(unsigned numThreads) const
+PackedSolverFile* Scene::packSolver() const
 {
 	PackedSolverFile* packedSolverFile = new PackedSolverFile;
 	RRReportInterval report(INF2,"Packing solver...\n");
@@ -326,33 +290,26 @@ PackedSolverFile* Scene::packSolver(unsigned numThreads) const
 		numFactors += object->triangle[i].shooter->factors();
 	}
 
-	// alloc
-	packedSolverFile->packedFactorsProcess = new PackedFactorsProcess;
 
-	// build threads
-	for(unsigned threadNum=0;threadNum<numThreads;threadNum++)
+	// alloc thread
+	packedSolverFile->packedFactors = new PackedFactorsThread(object->triangles,numFactors);
+	// fill thread
+	for(unsigned i=0;i<object->triangles;i++)
 	{
-		// alloc thread
-		PackedFactorsThread* packedFactorsBuilder = new PackedFactorsThread(object->triangles,numFactors);
-		// fill thread
-		for(unsigned i=0;i<object->triangles;i++)
+		// write factors
+		packedSolverFile->packedFactors->newC1(i);
+		for(unsigned j=0;j<object->triangle[i].shooter->factors();j++)
 		{
-			// write factors
-			packedFactorsBuilder->newC1(i);
-			for(unsigned j=0;j<object->triangle[i].shooter->factors();j++)
-			{
-				const Factor* factor = object->triangle[i].shooter->get(j);
-				RR_ASSERT(IS_TRIANGLE(factor->destination));
-				unsigned destinationTriangle = (unsigned)( TRIANGLE(factor->destination)-object->triangle );
-				RR_ASSERT(destinationTriangle<object->triangles);
-				if((destinationTriangle%numThreads)==threadNum)
-					packedFactorsBuilder->newC2()->set(factor->power,destinationTriangle);
-			}
+			const Factor* factor = object->triangle[i].shooter->get(j);
+			RR_ASSERT(IS_TRIANGLE(factor->destination));
+			unsigned destinationTriangle = (unsigned)( TRIANGLE(factor->destination)-object->triangle );
+			RR_ASSERT(destinationTriangle<object->triangles);
+			packedSolverFile->packedFactors->newC2()->set(factor->power,destinationTriangle);
 		}
-		packedFactorsBuilder->newC1(object->triangles);
-		// insert thread to process
-		packedSolverFile->packedFactorsProcess->push_back(packedFactorsBuilder);
 	}
+	packedSolverFile->packedFactors->newC1(object->triangles);
+
+
 
 	/////////////////////////////////////////////////////////////////////////
 	//
@@ -442,7 +399,7 @@ PackedSolverFile* Scene::packSolver(unsigned numThreads) const
 
 	// return
 	RRReporter::report(INF2,"Size: factors=%d smoothing=%d total=%d kB.\n",
-		( packedSolverFile->packedFactorsProcess->getMemoryOccupied() )/1024,
+		( packedSolverFile->packedFactors->getMemoryOccupied() )/1024,
 		( packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024,
 		( packedSolverFile->getMemoryOccupied() )/1024
 		);
@@ -573,14 +530,15 @@ public:
 	//  returns number of triangles in selected group
 	unsigned selectBests()
 	{
-		RRReportInterval report(INF2,"Finding bests400...\n");//!!!
 		unsigned bests[NUM_THREADS];
 #pragma omp parallel for
 		for(int i=0;i<NUM_THREADS;i++)
 			bests[i] = threads[i].selectBests();
-		//!!! NUM_THREADS
 		if(bests[0]!=bests[1])
-			RRReporter::report(ERRO,"ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+		{
+			//!!! funguje jen kdyz maj vsechny thready stejne prvku
+			RRReporter::report(ERRO,"Multithreaded selectBests() error!\n");
+		}
 		return bests[0]+bests[1];
 	}
 
@@ -666,12 +624,10 @@ void RRPackedSolver::illuminationReset()
 void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 {
 	triangleIrradianceIndirectDirty = true;
-	PackedFactorsThread* thread0 = packedSolverFile->packedFactorsProcess->getThread(0);
+	PackedFactorsThread* thread0 = packedSolverFile->packedFactors;
 	if(!packedBests) packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
 	do
 	{
-		if(packedSolverFile->packedFactorsProcess->getNumThreads()==1)
-		{
 			// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni
 
 			unsigned sourceTriangleIndex = packedBests->getBest();
@@ -703,53 +659,6 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 					exitingFluxToDiffuse*start->getVisibility();
 #endif
 			}
-		}
-		else
-		{
-			// m-threaded propagation, s opozdenym zapojenim prijate energie do dalsiho strileni
-
-			// select group of bests
-			unsigned bests = packedBests->selectBests();
-
-			// make copy of initial energies to diffuse
-			// set shooters as if energy was already propagated
-			Channels exitingFluxToDiffuse[BESTS*2]; //!!! packedFactorsProcess->getNumThreads() misto 2
-			for(unsigned i=0;i<bests;i++)
-			{
-				PackedTriangle* source = &triangles[packedBests->getSelectedBest(i)];
-				exitingFluxToDiffuse[i] = source->incidentFluxToDiffuse * source->diffuseReflectance;
-				source->incidentFluxDiffused += source->incidentFluxToDiffuse;
-				source->incidentFluxToDiffuse = Channels(0);
-			}
-
-			// propagate group in parallel
-#ifdef _OPENMP
-			#pragma omp parallel num_threads(packedSolverFile->packedFactorsProcess->getNumThreads())
-			{
-				unsigned numThreads = omp_get_num_threads();
-				unsigned threadNum = omp_get_thread_num();
-#else
-			unsigned numThreads = packedSolverFile->packedFactorsProcess->getNumThreads();
-			for(unsigned threadNum = 0;threadNum<numThreads;threadNum++)
-			{
-#endif
-				PackedFactorsThread* packedFactorsThread = packedSolverFile->packedFactorsProcess->getThread(threadNum);
-				for(unsigned i=0;i<bests;i++)
-				{
-					unsigned sourceTriangleIndex = packedBests->getSelectedBest(i);
-					// incidentFluxDiffused = co uz vystrilel
-					// incidentFluxToDiffuse = co ma jeste vystrilet
-					const PackedFactor* start = packedFactorsThread->getC2(sourceTriangleIndex);
-					const PackedFactor* stop  = packedFactorsThread->getC2(sourceTriangleIndex+1);
-					for(;start<stop;start++)
-					{
-						RR_ASSERT(start->getDestinationTriangle()<numTriangles);
-						triangles[start->getDestinationTriangle()].incidentFluxToDiffuse +=
-							exitingFluxToDiffuse[i] * start->getVisibility();
-					}
-				}
-			}
-		}
 	}
 	while(!endfunc(context));
 
