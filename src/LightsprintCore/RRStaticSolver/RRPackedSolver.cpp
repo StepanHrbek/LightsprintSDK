@@ -280,6 +280,10 @@ public:
 		packedSmoothTriangles = NULL;
 		packedSmoothTrianglesBytes = 0;
 	}
+	unsigned getMemoryOccupied()
+	{
+		return packedFactorsProcess->getMemoryOccupied() + packedIvertices->getMemoryOccupied() + packedSmoothTrianglesBytes;
+	}
 	~PackedSolverFile()
 	{
 		delete packedFactorsProcess;
@@ -434,7 +438,7 @@ PackedSolverFile* Scene::packSolver(unsigned numThreads) const
 	RRReporter::report(INF2,"Size: factors=%d smoothing=%d total=%d kB.\n",
 		( packedSolverFile->packedFactorsProcess->getMemoryOccupied() )/1024,
 		( packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024,
-		( packedSolverFile->packedFactorsProcess->getMemoryOccupied()+packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024
+		( packedSolverFile->getMemoryOccupied() )/1024
 		);
 	return packedSolverFile;
 }
@@ -656,7 +660,6 @@ void RRPackedSolver::illuminationReset()
 void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 {
 	triangleIrradianceIndirectDirty = true;
-	unsigned factorsUsed[4] = {0,0,0,0};
 	PackedFactorsThread* thread0 = packedSolverFile->packedFactorsProcess->getThread(0);
 	if(!packedBests) packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
 	do
@@ -678,10 +681,9 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 			const PackedFactor* stop  = thread0->getC2(sourceTriangleIndex+1);
 			for(;start<stop;start++)
 			{
-				RR_ASSERT(start->getDestinationTriangle()<triangles.size());
+				RR_ASSERT(start->getDestinationTriangle()<numTriangles);
 				triangles[start->getDestinationTriangle()].incidentFluxToDiffuse +=
 					exitingFluxToDiffuse*start->getVisibility();
-				factorsUsed[0]++;
 			}
 		}
 		else
@@ -723,10 +725,9 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 					const PackedFactor* stop  = packedFactorsThread->getC2(sourceTriangleIndex+1);
 					for(;start<stop;start++)
 					{
-						RR_ASSERT(start->getDestinationTriangle()<triangles.size());
+						RR_ASSERT(start->getDestinationTriangle()<numTriangles);
 						triangles[start->getDestinationTriangle()].incidentFluxToDiffuse +=
 							exitingFluxToDiffuse[i] * start->getVisibility();
-						factorsUsed[threadNum]++;
 					}
 				}
 			}

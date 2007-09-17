@@ -140,7 +140,7 @@ void RendererOfRRDynamicSolver::render()
 
 	// create helper renderers
 	if(!rendererNonCaching)
-		rendererNonCaching = new rr_gl::RendererOfRRObject(params.solver->getMultiObjectCustom(),params.solver->getStaticSolver(),params.solver->getScaler(),true);
+		rendererNonCaching = new RendererOfRRObject(params.solver->getMultiObjectCustom(),params.solver->getStaticSolver(),params.solver->getScaler(),true);
 	if(!rendererCaching && rendererNonCaching)
 		rendererCaching = rendererNonCaching->createDisplayList();
 	if(!rendererCaching)
