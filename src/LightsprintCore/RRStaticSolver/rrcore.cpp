@@ -2195,7 +2195,8 @@ void Scene::refreshFormFactorsFromUntil(Node *source,unsigned forcedShotsForNewF
 		// prepare shooting
 		RR_ASSERT(source->shooter);
 		shotsForNewFactors = forcedShotsForNewFactors ? forcedShotsForNewFactors : (source->shooter->shotsForFactors?REFRESH_MULTIPLY*source->shooter->shotsForFactors:REFRESH_FIRST);
-		RR_ASSERT(shotsForNewFactors>source->shooter->shotsForFactors);
+		if(!forcedShotsForNewFactors)
+			RR_ASSERT(shotsForNewFactors>source->shooter->shotsForFactors);
 		RR_ASSERT(shotsAccumulated==0);
 		RR_ASSERT(!hitTriangles.get());
 		filler.Reset(); // prepare homogenous shooting

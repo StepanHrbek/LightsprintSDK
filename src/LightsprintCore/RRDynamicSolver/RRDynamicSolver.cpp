@@ -430,7 +430,6 @@ unsigned RRDynamicSolver::getSolutionVersion() const
 	return priv->solutionVersion;
 }
 
-
 unsigned RR_INTERFACE_ID_LIB()
 {
 	return RR_INTERFACE_ID_APP();

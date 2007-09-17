@@ -2,6 +2,8 @@
 
 #include "PackedSolverFile.h"
 #include "../RRStaticSolver/rrcore.h"
+#include "Lightsprint/RRDynamicSolver.h"
+#include "../RRDynamicSolver/private.h"
 
 namespace rr
 {
@@ -180,5 +182,11 @@ PackedSolverFile* Scene::packSolver() const
 	//packedSolverFile = PackedSolverFile::load("h:\\ab");
 	return packedSolverFile;
 }
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRDynamicSolver
+
 
 } // namespace

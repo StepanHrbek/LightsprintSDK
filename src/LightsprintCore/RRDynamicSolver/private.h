@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "Lightsprint/RRDynamicSolver.h"
-#include "../RRStaticSolver/RRPackedSolver.h"
+#include "../RRPackedSolver/RRPackedSolver.h"
 
 namespace rr
 {
