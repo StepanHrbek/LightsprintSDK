@@ -273,6 +273,40 @@ public:
 //
 // Scene
 
+bool neverend(void *)
+{
+	return false;
+}
+
+void Scene::updateFactors(unsigned raysFromTriangle)
+{
+	RRReportInterval report(INF2,"Updating factors...\n");
+
+	/////////////////////////////////////////////////////////////////////////
+	//
+	// update factors
+
+	if(raysFromTriangle)
+	{
+		RR_ASSERT(object->subdivisionSpeed==0);
+		abortStaticImprovement();
+		RRReal sceneArea = 0;
+		for(unsigned t=0;t<object->triangles;t++)
+		{
+			if(object->triangle[t].surface)
+				sceneArea += object->triangle[t].area;
+		}
+		if(sceneArea)
+		{
+			for(unsigned t=0;t<object->triangles;t++)
+			{
+				if(object->triangle[t].surface)
+					refreshFormFactorsFromUntil(&object->triangle[t],MAX(1,(unsigned)(raysFromTriangle*object->triangles*object->triangle[t].area/sceneArea)),neverend,NULL);
+			}
+		}
+	}
+}
+
 PackedSolverFile* Scene::packSolver() const
 {
 	PackedSolverFile* packedSolverFile = new PackedSolverFile;

@@ -1919,6 +1919,7 @@ Triangle* Scene::getRandomExitRay(Node *sourceNode, Vec3* src, Vec3* dir)
 	Point2 srcPoint2=source->uv[0]+source->u2*(u/(real)RAND_MAX)+source->v2*(v/(real)RAND_MAX);
 	Point3 srcPoint3=source->grandpa->to3d(srcPoint2);
 
+	RR_ASSERT(source->grandpa->surface);
 	Vec3 rayVec3;
 	if(!getRandomExitDir(source->grandpa->getN3(),source->grandpa->getU3(),source->grandpa->getV3(),source->grandpa->surface->sideBits,rayVec3)) 
 		return NULL;
@@ -2184,7 +2185,7 @@ dont_split:
 // refresh form factors from one source to all destinations that need it
 // split triangles and subtriangles if needed
 
-void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *context)
+void Scene::refreshFormFactorsFromUntil(Node *source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context)
 {
 	CHECK_HEAP;
 	DBGLINE
@@ -2193,7 +2194,7 @@ void Scene::refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *
 		DBGLINE
 		// prepare shooting
 		RR_ASSERT(source->shooter);
-		shotsForNewFactors=source->shooter->shotsForFactors?REFRESH_MULTIPLY*source->shooter->shotsForFactors:REFRESH_FIRST;
+		shotsForNewFactors = forcedShotsForNewFactors ? forcedShotsForNewFactors : (source->shooter->shotsForFactors?REFRESH_MULTIPLY*source->shooter->shotsForFactors:REFRESH_FIRST);
 		RR_ASSERT(shotsForNewFactors>source->shooter->shotsForFactors);
 		RR_ASSERT(shotsAccumulated==0);
 		RR_ASSERT(!hitTriangles.get());
@@ -2321,7 +2322,7 @@ bool Scene::energyFromDistributedUntil(Node *source,bool endfunc(void *),void *c
 	CHECK_HEAP;
 	if(needsRefresh)
 	{
-		refreshFormFactorsFromUntil(source,endfunc,context);
+		refreshFormFactorsFromUntil(source,0,endfunc,context);
 	}
 	CHECK_HEAP;
 	RR_ASSERT(staticReflectors.check());

@@ -621,6 +621,7 @@ public:
 	void    getStats(unsigned* faces, RRReal* sourceExitingFlux, unsigned* rays, RRReal* reflectedIncidentFlux) const;
 
 	// night edition
+	void    updateFactors(unsigned raysFromTriangle);
 	class PackedSolverFile* packSolver() const;
 
 	private:
@@ -631,7 +632,7 @@ public:
 		Triangles hitTriangles;
 		Factors improvingFactors;
 		void    shotFromToHalfspace(Node *sourceNode);
-		void    refreshFormFactorsFromUntil(Node *source,bool endfunc(void *),void *context);
+		void    refreshFormFactorsFromUntil(Node *source,unsigned forcedShotsForNewFactors,bool endfunc(void *),void *context);
 		bool    energyFromDistributedUntil(Node *source,bool endfunc(void *),void *context);
 
 		Channels staticSourceExitingFlux; // primary source exiting radiant flux in Watts, sum of absolute values
