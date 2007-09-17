@@ -5,6 +5,9 @@
 #endif
 #include "rrcore.h"
 #include "RRPackedSolver.h"
+#ifdef USE_SSE
+	#include <xmmintrin.h>
+#endif
 
 //#define SHOW_CONVERGENCE
 
@@ -169,6 +172,10 @@ public:
 	RRReal getVisibility() const
 	{
 		return visibility;
+	}
+	const RRReal* getVisibilityPtr() const
+	{
+		return &visibility;
 	}
 	unsigned getDestinationTriangle() const
 	{
@@ -427,8 +434,7 @@ PackedSolverFile* Scene::packSolver(unsigned numThreads) const
 			else
 			{
 				// ivertex missing, we have no lighting data
-				// set any value that won't crash it
-				packedSolverFile->packedSmoothTriangles[t].ivertexIndex[v] = 0;
+				packedSolverFile->packedSmoothTriangles[t].ivertexIndex[v] = UINT_MAX; // invalid value, will be displayed as pink
 			}
 		}
 	packedSolverFile->packedIvertices->newC1(numIverticesPacked);
@@ -617,7 +623,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object)
 		{
 			const RRMaterial* material = object->getTriangleMaterial(i);
 			triangles[i].diffuseReflectance = material ? material->diffuseReflectance : RRVec3(0.5f);
-			triangles[i].area = mesh->getTriangleArea(i);
+			triangles[i].areaInv = 1/mesh->getTriangleArea(i);
 		}
 	}
 	else
@@ -674,16 +680,28 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 			PackedTriangle* source = &triangles[sourceTriangleIndex];
 			// incidentFluxDiffused = co uz vystrilel
 			// incidentFluxToDiffuse = co ma jeste vystrilet
+#ifdef USE_SSE
+			__m128 incidentFluxToDiffuse = _mm_load_ps((const float * const)&source->incidentFluxToDiffuse.x);
+			__m128 exitingFluxToDiffuse = _mm_mul_ps(incidentFluxToDiffuse,_mm_load_ps((const float * const)&source->diffuseReflectance.x));
+			float* incidentFluxDiffusedAdr = &source->incidentFluxDiffused.x;
+			_mm_store_ps(incidentFluxDiffusedAdr,_mm_add_ps(_mm_load_ps(incidentFluxDiffusedAdr),incidentFluxToDiffuse));
+#else
 			Channels exitingFluxToDiffuse = source->incidentFluxToDiffuse * source->diffuseReflectance;
 			source->incidentFluxDiffused += source->incidentFluxToDiffuse;
+#endif
 			source->incidentFluxToDiffuse = Channels(0);
 			const PackedFactor* start = thread0->getC2(sourceTriangleIndex);
 			const PackedFactor* stop  = thread0->getC2(sourceTriangleIndex+1);
 			for(;start<stop;start++)
 			{
 				RR_ASSERT(start->getDestinationTriangle()<numTriangles);
+#ifdef USE_SSE
+				float* incidentFluxToDiffuseAdr = &triangles[start->getDestinationTriangle()].incidentFluxToDiffuse.x;
+				_mm_store_ps(incidentFluxToDiffuseAdr,_mm_add_ps(_mm_load_ps(incidentFluxToDiffuseAdr),_mm_mul_ps(exitingFluxToDiffuse,_mm_load1_ps(start->getVisibilityPtr()))));
+#else
 				triangles[start->getDestinationTriangle()].incidentFluxToDiffuse +=
 					exitingFluxToDiffuse*start->getVisibility();
+#endif
 			}
 		}
 		else
@@ -769,12 +787,14 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 
 const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const
 {
-	if(!packedSolverFile)
+	if(!packedSolverFile // packed file wasn't loaded yet
+		|| triangle>=0x3fffffff || vertex>=3 // for some reason, we can't find ivertex for given vertex (UNDEFINED is clamped to 30 + 2 bits)
+		|| packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]>=packedSolverFile->packedIvertices->getNumC1())
 	{
-		RR_ASSERT(0);
-		return NULL;
+		//RR_ASSERT(0);
+		static RRVec3 someError(1,0,1); // pink = error
+		return &someError;
 	}
-	RR_ASSERT(vertex<3);
 	return &ivertexIndirectIrradiance[packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]];
 }
 

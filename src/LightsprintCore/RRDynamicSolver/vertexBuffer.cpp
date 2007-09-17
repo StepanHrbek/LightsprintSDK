@@ -116,7 +116,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
 		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
 		RRColor indirect = RRColor(0);
-		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
+		if(t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
 			priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);
 			// make it optional when negative values are supported

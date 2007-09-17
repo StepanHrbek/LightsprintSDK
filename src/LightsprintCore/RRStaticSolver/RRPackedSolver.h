@@ -2,28 +2,43 @@
 #define RRPACKEDSOLVER_H
 
 #include "Lightsprint/RRStaticSolver.h"
+#include <xmmintrin.h>
 
 //#define THREADED_BEST
+//#define USE_SSE // kod vyrazne zkrati ale nezrychli
 
 namespace rr
 {
 
+#ifdef USE_SSE
+class PackedTriangle : public RRAligned
+{
+public:
+	RRVec3 diffuseReflectance;
+	RRReal areaInv;
+	RRVec3p incidentFluxToDiffuse; // reset to direct illum, modified by improve
+	RRVec3p incidentFluxDiffused;  // reset to 0, modified by improve
+	RRVec3p incidentFluxDirect;    // reset to direct illum
+#else
 class PackedTriangle
 {
 public:
 	RRVec3 diffuseReflectance;
-	RRReal area;
-	RRVec3 incidentFluxDirect;    // reset to direct illum
+	RRReal areaInv;
 	RRVec3 incidentFluxToDiffuse; // reset to direct illum, modified by improve
 	RRVec3 incidentFluxDiffused;  // reset to 0, modified by improve
+	RRVec3 incidentFluxDirect;    // reset to direct illum
+#endif
 
+	// for dynamic objects
 	RRVec3 getExitance() const
 	{
-		return (incidentFluxDiffused+incidentFluxToDiffuse)*diffuseReflectance/area;
+		return (incidentFluxDiffused+incidentFluxToDiffuse)*diffuseReflectance*areaInv;
 	}
+	// for static objects
 	RRVec3 getIrradianceIndirect() const
 	{
-		return (incidentFluxDiffused+incidentFluxToDiffuse-incidentFluxDirect)/area;
+		return (incidentFluxDiffused+incidentFluxToDiffuse-incidentFluxDirect)*areaInv;
 	}
 };
 
@@ -40,6 +55,7 @@ public:
 
 	// physical, gouraud. update must be called first
 	// pointer is guaranteed to stay constant, you can reuse it in next frames
+	// pointer is always valid, pointer to pink is returned when irradiance is not available for any reason
 	void getTriangleIrradianceIndirectUpdate();
 	const RRVec3* getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const;
 
