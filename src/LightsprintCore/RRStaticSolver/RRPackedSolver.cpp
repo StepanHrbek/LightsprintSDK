@@ -4,6 +4,7 @@
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
+#include <cstdio>
 #include "rrcore.h"
 #include "RRPackedSolver.h"
 #ifdef USE_SSE
@@ -11,6 +12,8 @@
 #endif
 
 //#define SHOW_CONVERGENCE
+
+#define SAFE_DELETE(a)   {delete a;a=NULL;}
 
 namespace rr
 {
@@ -30,9 +33,10 @@ class ArrayWithArrays
 {
 public:
 	//! Constructor used when complete array is acquired (e.g. loaded from disk).
-	ArrayWithArrays(char* _data, unsigned _sizeInBytes)
+	//! Block of data is adopted and delete[]d in destructor.
+	ArrayWithArrays(char* _adopt_data, unsigned _sizeInBytes)
 	{
-		data = _data;
+		data = _adopt_data;
 		sizeInBytes = _sizeInBytes; // full size
 		numC1 = data ? getC1(0)->arrayOffset/sizeof(C1)-1 : 0;
 	}
@@ -52,7 +56,7 @@ public:
 		sizeInBytes = (_numC1+1)*sizeof(C1); // point to first C2, will be increased by newC2
 		numC1 = _numC1;
 	}
-	//! Loads instance from disk.
+	/*/! Loads instance from disk.
 	static ArrayWithArrays* load(const char* filename)
 	{
 		FILE* f = fopen(filename,"rb");
@@ -74,7 +78,7 @@ public:
 		fwrite(data,sizeInBytes,1,f);
 		fclose(f);
 		return true;
-	}
+	}*/
 	unsigned getNumC1()
 	{
 		return numC1;
@@ -252,9 +256,69 @@ public:
 		packedSmoothTriangles = NULL;
 		packedSmoothTrianglesBytes = 0;
 	}
-	unsigned getMemoryOccupied()
+	unsigned getMemoryOccupied() const
 	{
 		return packedFactors->getMemoryOccupied() + packedIvertices->getMemoryOccupied() + packedSmoothTrianglesBytes;
+	}
+	bool save(const char* filename) const
+	{
+		// create file
+		FILE* f = fopen(filename,"wb");
+		if(!f) return false;
+		// write data with invalid header
+		Header header;
+		header.version = 0xffffffff;
+		header.packedFactorsBytes = packedFactors->getMemoryOccupied();
+		header.packedIverticesBytes = packedIvertices->getMemoryOccupied();
+		header.packedSmoothTrianglesBytes = packedSmoothTrianglesBytes;
+		size_t ok = fwrite(&header,sizeof(header),1,f);
+		ok += fwrite(packedFactors->getC1(0),packedFactors->getMemoryOccupied(),1,f);
+		ok += fwrite(packedIvertices->getC1(0),packedIvertices->getMemoryOccupied(),1,f);
+		ok += fwrite(packedSmoothTriangles,packedSmoothTrianglesBytes,1,f);
+		// fix header
+		if(ok==4)
+		{
+			header.version = FILE_VERSION;
+			fseek(f,0,SEEK_SET);
+			fwrite(&header.version,sizeof(header.version),1,f);
+		}
+		fclose(f);
+		return true;
+	}
+	static PackedSolverFile* load(const char* filename)
+	{
+		FILE* f = fopen(filename,"rb");
+		if(!f) return NULL;
+		Header header;
+		if(fread(&header,sizeof(Header),1,f)!=1 || header.version!=FILE_VERSION)
+		{
+			fclose(f);
+			return NULL;
+		}
+		PackedSolverFile* psf = new PackedSolverFile;
+		// load packedFactors
+		char* tmp = new char[header.packedFactorsBytes];
+		size_t ok = fread(tmp,header.packedFactorsBytes,1,f);
+		psf->packedFactors = new PackedFactorsThread(tmp,header.packedFactorsBytes);
+		// load packedIvertices
+		tmp = new char[header.packedIverticesBytes];
+		ok += fread(tmp,header.packedIverticesBytes,1,f);
+		psf->packedIvertices = new PackedIvertices(tmp,header.packedIverticesBytes);
+		// load packedSmoothTriangles
+		PackedSmoothTriangle* tmp2 = new PackedSmoothTriangle[(header.packedSmoothTrianglesBytes+sizeof(PackedSmoothTriangle)-1)/sizeof(PackedSmoothTriangle)];
+		ok += fread(tmp2,header.packedSmoothTrianglesBytes,1,f);
+		psf->packedSmoothTriangles = tmp2;
+		psf->packedSmoothTrianglesBytes = header.packedSmoothTrianglesBytes;
+		// done
+		fclose(f);
+		if(ok!=3) SAFE_DELETE(psf);
+		return psf;
+	}
+	bool isCompatible(RRObject* object) const
+	{
+		if(!object) return false;
+		if(packedSmoothTrianglesBytes/sizeof(PackedSmoothTriangle)!=object->getCollider()->getMesh()->getNumTriangles()) return false;
+		return true;
 	}
 	~PackedSolverFile()
 	{
@@ -266,6 +330,18 @@ public:
 	PackedIvertices* packedIvertices;
 	PackedSmoothTriangle* packedSmoothTriangles;
 	unsigned packedSmoothTrianglesBytes;
+protected:
+	enum
+	{
+		FILE_VERSION = 1234
+	};
+	struct Header
+	{
+		unsigned version;
+		unsigned packedFactorsBytes;
+		unsigned packedIverticesBytes;
+		unsigned packedSmoothTrianglesBytes;
+	};
 };
 
 
@@ -437,6 +513,9 @@ PackedSolverFile* Scene::packSolver() const
 		( packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024,
 		( packedSolverFile->getMemoryOccupied() )/1024
 		);
+	// save&load test
+	//packedSolverFile->save("h:\\ab");
+	//packedSolverFile = PackedSolverFile::load("h:\\ab");
 	return packedSolverFile;
 }
 
