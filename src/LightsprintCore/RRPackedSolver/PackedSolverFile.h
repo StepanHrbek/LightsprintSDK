@@ -2,7 +2,9 @@
 #define PACKEDSOLVERFILE_H
 
 //#define THREADED_IMPROVE
-//#define USE_SSE // kod zkrati ale nezrychli
+//#define USE_SSE // aligned: memory=125%, speed=154/94
+//#define USE_SSEU // unaligned: memory=105% speed=154/100 (koup/sponza)
+//no-SSE: memory=100% speed=145/103
 
 #include <cstdio> // save/load
 #include "RRPackedSolver.h" // THREADED_BEST, RRObject
@@ -172,7 +174,7 @@ public:
 	{
 		return visibility;
 	}
-#ifdef USE_SSE
+#if defined(USE_SSE) || defined(USE_SSEU)
 	const RRReal* getVisibilityPtr() const
 	{
 		return &visibility;

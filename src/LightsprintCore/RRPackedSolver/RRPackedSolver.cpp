@@ -1,7 +1,8 @@
-//#define PARTIAL_SORT // best vybira pomoci partial_sort(), pomalejsi
+//#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
 //#define SUPPORT_INCREMENTAL_RESET
-#define BESTS 200
+//#define END_BY_QUALITY
+#define BESTS 200 // sponza bests->speed 100->65 200->103 300->120 400->126 800->117   vetsi BESTS=horsi kvalita vysledku
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 #include "RRPackedSolver.h"
@@ -9,7 +10,7 @@
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#ifdef USE_SSE
+#if defined(USE_SSE) || defined(USE_SSEU)
 	#include <xmmintrin.h>
 #endif
 
@@ -37,7 +38,11 @@ class PackedTriangle
 public:
 	RRVec3 diffuseReflectance;
 	RRReal areaInv;
+#ifdef USE_SSEU
+	RRVec3p incidentFluxToDiffuse; // reset to direct illum, modified by improve
+#else
 	RRVec3 incidentFluxToDiffuse; // reset to direct illum, modified by improve
+#endif
 	RRVec3 incidentFluxDiffused;  // reset to 0, modified by improve
 	RRVec3 incidentFluxDirect;    // reset to direct illum
 #endif
@@ -219,12 +224,67 @@ void RRPackedSolver::illuminationReset()
 
 void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 {
+	unsigned numShooters = 0;
 	triangleIrradianceIndirectDirty = true;
 	PackedFactorsThread* thread0 = packedSolverFile->packedFactors;
 	do
 	{
 		{
 			// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni
+
+#ifdef END_BY_QUALITY
+
+			unsigned state = 0; // 0=first group, 1=middle groups, 2=last group
+			RRReal metricTreshold;
+			do 
+			{
+				// select group of bests
+				unsigned bests = packedBests->selectBests();
+
+				// get group metric
+				RRReal metric = 0;
+				for(unsigned i=MIN(bests,10);i--;)
+				{
+					metric += triangles[packedBests->getSelectedBest(i)].incidentFluxToDiffuse.sum();
+				}
+
+				// decide what to do, first group? last group?
+				if(state==0)
+				{
+					metricTreshold = metric*0.2f; // remember first group
+					state++;
+					if(!bests || !metric) break; // no work to do, early exit (avoid another selectBests())
+				}
+				else
+				if(metric<=metricTreshold)
+				{
+					bests /= 4; // process only 25% of last group
+					state++;
+				}
+
+				for(unsigned i=0;i<bests;i++)
+				{
+					unsigned sourceTriangleIndex = packedBests->getSelectedBest(i);
+					RR_ASSERT(sourceTriangleIndex!=UINT_MAX);
+					PackedTriangle* source = &triangles[sourceTriangleIndex];
+					// incidentFluxDiffused = co uz vystrilel
+					// incidentFluxToDiffuse = co ma jeste vystrilet
+					RRVec3 exitingFluxToDiffuse = source->incidentFluxToDiffuse * source->diffuseReflectance;
+					source->incidentFluxDiffused += source->incidentFluxToDiffuse;
+					source->incidentFluxToDiffuse = RRVec3(0);
+					const PackedFactor* start = thread0->getC2(sourceTriangleIndex);
+					const PackedFactor* stop  = thread0->getC2(sourceTriangleIndex+1);
+					for(;start<stop;start++)
+					{
+						RR_ASSERT(start->getDestinationTriangle()<numTriangles);
+						triangles[start->getDestinationTriangle()].incidentFluxToDiffuse +=
+							exitingFluxToDiffuse*start->getVisibility();
+					}
+				}
+			} while(state<2);
+			break;
+
+#else // !END_BY_QUALITY
 
 			unsigned sourceTriangleIndex = packedBests->getBest();
 			if(sourceTriangleIndex==UINT_MAX) break;
@@ -238,7 +298,11 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 			float* incidentFluxDiffusedAdr = &source->incidentFluxDiffused.x;
 			_mm_store_ps(incidentFluxDiffusedAdr,_mm_add_ps(_mm_load_ps(incidentFluxDiffusedAdr),incidentFluxToDiffuse));
 #else
+	#ifdef USE_SSEU
+			__m128 exitingFluxToDiffuse = _mm_mul_ps(_mm_loadu_ps((const float * const)&source->incidentFluxToDiffuse.x),_mm_loadu_ps((const float * const)&source->diffuseReflectance.x));
+	#else
 			RRVec3 exitingFluxToDiffuse = source->incidentFluxToDiffuse * source->diffuseReflectance;
+	#endif
 			source->incidentFluxDiffused += source->incidentFluxToDiffuse;
 #endif
 			source->incidentFluxToDiffuse = RRVec3(0);
@@ -251,14 +315,24 @@ void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 				float* incidentFluxToDiffuseAdr = &triangles[start->getDestinationTriangle()].incidentFluxToDiffuse.x;
 				_mm_store_ps(incidentFluxToDiffuseAdr,_mm_add_ps(_mm_load_ps(incidentFluxToDiffuseAdr),_mm_mul_ps(exitingFluxToDiffuse,_mm_load1_ps(start->getVisibilityPtr()))));
 #else
+	#ifdef USE_SSEU
+				float* incidentFluxToDiffuseAdr = &triangles[start->getDestinationTriangle()].incidentFluxToDiffuse.x;
+				_mm_storeu_ps(incidentFluxToDiffuseAdr,_mm_add_ps(_mm_loadu_ps(incidentFluxToDiffuseAdr),_mm_mul_ps(exitingFluxToDiffuse,_mm_load1_ps(start->getVisibilityPtr()))));
+	#else
 				triangles[start->getDestinationTriangle()].incidentFluxToDiffuse +=
 					exitingFluxToDiffuse*start->getVisibility();
+	#endif
 #endif
 			}
+			numShooters++;
+
+#endif // !END_BY_QUALITY
+
 		}
 	}
 	while(!endfunc(context));
 
+	//RRReporter::report(INF2,"numShooters=%d\n",numShooters);
 }
 
 RRVec3 RRPackedSolver::getTriangleExitance(unsigned triangle) const

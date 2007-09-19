@@ -3,7 +3,7 @@
 
 #include "Lightsprint/RRObject.h"
 
-//#define THREADED_BEST
+//#define THREADED_BEST // sponza: pocet shooteru zvedne ze 100 na 132
 
 namespace rr
 {

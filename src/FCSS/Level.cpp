@@ -127,9 +127,19 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
 	//	printf(solver->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
 
-	solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
+	//solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+
+	// load Fireball
+	char* fbname = _strdup(pilot.setup->filename);
+	strcpy(fbname+strlen(fbname)-3,"fib");
+	if(!solver->setFireball(fbname))
+	{
+		solver->buildFireball(1000,fbname);
+		solver->setFireball(fbname);
+	}
+	free(fbname);
 
 	/*/ autodetect positions in center of scene
 	rr::RRMesh* mesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
