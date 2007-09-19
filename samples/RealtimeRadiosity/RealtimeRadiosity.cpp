@@ -456,18 +456,12 @@ int main(int argc, char **argv)
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 
-	// Enable Fireball - faster, higher quality, smaller realtime solver.
-	// 1. runtime phase, load previously precalculated data
-	//    must be done after setObjects() but before calculate()
-	const char* fireballFilename = "..\\..\\data\\export\\koupelna.fi";
-	bool loaded = solver->setFireball(fireballFilename);
-	// 2. precalculation phase, to be done only during game development
-	if(!loaded)
-	{
-		solver->buildFireball(1000,fireballFilename);
-		solver->setFireball(fireballFilename);
-	}
+	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver.
 	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.
+	// 1. runtime phase, load previously saved Fireball
+	bool loaded = solver->loadFireball("..\\..\\data\\export\\koupelna.fir");
+	// 2. precalculation phase, build it from scratch if necessary
+	if(!loaded) solver->buildFireball(1000,"..\\..\\data\\export\\koupelna.fir");
 
 	glutMainLoop();
 	return 0;

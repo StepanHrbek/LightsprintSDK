@@ -852,8 +852,8 @@ Used by samples:
   - \subpage data_ray
 
  \section calc_0 Capabilities by speed
-  - \subpage calc_fireball
   - \subpage calc_realtime
+    - \subpage calc_fireball
   - \subpage calc_offline
 
  Lightsprint is very flexible, it lets you pick optimal structures 
@@ -1133,7 +1133,7 @@ Used by samples:
      This is often problem also for physical engine,
      so your 3d artisis probably know they should avoid needles.
 
- \section d15 Data container interface
+ \section d15 Interface, implementations
    - interface: RRIlluminationVertexBuffer
    - implementations: Platform independent vertex buffer is provided by 
      RRIlluminationVertexBuffer::createInSystemMemory().
@@ -1141,7 +1141,7 @@ Used by samples:
    - RRDynamicSolver::newVertexBuffer() uses
      RRIlluminationVertexBuffer::createInSystemMemory by default.
 
- \section d14 Data container instances
+ \section d14 Instances
    - stored in: RRDynamicSolver::getIllumination()->getLayer()->vertexBuffer
    - created by: You may manually create an instance and write it to
      RRDynamicSolver::getIllumination()->getLayer()->vertexBuffer,
@@ -1290,14 +1290,14 @@ Used by samples:
      to bake unwrap into meshes as an additional uv channel.
      Unwraps are often genrated automatically, using existing free or commercial tools.
 
- \section d25 Data container interface
+ \section d25 Interface, implementations
    - interface: RRIlluminationPixelBuffer
    - implementations: OpenGL pixel buffer is available in
      rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer().
      For Direct3D, you are expected to implement
      your own pixel buffer, see RRIlluminationPixelBuffer interface.
 
- \section d24 Data container instances
+ \section d24 Instances
    - stored in: RRDynamicSolver::getIllumination()->getLayer()->pixelBuffer
      or your arbitrary location.
    - created by:
@@ -1313,7 +1313,7 @@ Used by samples:
    - updated by: RRDynamicSolver::updateLightmaps()
      or RRDynamicSolver::updateLightmap().
 
- \section d26 Rendering with
+ \section d26 Rendering
    - Map pixel buffer to your object using your uv channel with object's unwrap,
      read per-pixel value from texture in pixel shader
      and interpret it appropriately as light level, ambient occlusion or bent normal.
@@ -1473,19 +1473,19 @@ Used by samples:
      share one environment map for several close objects and update it only once
      to save time
 
- \section d35 Data container interface
+ \section d35 Interface, implementations
    - interface: RRIlluminationEnvironmentMap
    - implementations: OpenGL environment map is available in 
      RRDynamicSolverGL::createIlluminationEnvironmentMap().
      For Direct3D, you are expected to implement
      your own environment map, see RRIlluminationEnvironmentMap interface.
 
- \section d34 Data container instances
+ \section d34 Instances
    - stored in: your arbitrary location
    - created by: you
    - updated by: RRDynamicSolver::updateEnvironmentMaps()
 
- \section d36 Rendering with
+ \section d36 Rendering
    - Many rendering techniques are based on faked precomputed environment maps.
      Here you get realtime computed environment maps, and you are free to use them
      for any purpose.
@@ -1690,61 +1690,77 @@ Used by samples:
 
 \page calc_fireball Fireball
 
- Fireball is realtime global illumination solver, it produces realistic indirect lighting in dynamic scenes.
- It is recommended solution for next-gen games.
+ \section fb_features Features
+  Fireball is realtime global illumination solver, it produces realistic indirect lighting in dynamic scenes.
+  It is recommended for use in games.
 
- Fireball uses precalculation phase in which static scene is analyzed and one file is saved.
- This is usually done by developer at development time, final game only loads the file
- (by calling RRDynamicSolver::setFireball() after RRDynamicSolver::setObjects()).
+  If you don't start Fireball,
+  \ref calc_realtime works without any precalculations (and \ref calc_offline work too).
+  \n If you start Fireball, only realtime lighting works, but it is 
+  - faster (1.2-5x higher fps in standard situations)
+  - smaller (needs only 50% of memory for the same quality)
+  - produces higher quality lighting
+  - doesn't allocate/fragment memory
 
- Fireball calculates indirect \ref data_illumination and stores it into 
- \ref data_vertex_buffer for static objects and
- \ref data_environment_map for dynamic objects.
+ \section fb_precalc Precalculations
+  Fireball uses precalculation phase in which static scene is analyzed and one file is saved.
+  This is usually done by developer at development time, final game only loads the file.
 
- Fireball uses the same interfaces as the rest of Lightsprint SDK,
- so you only need to enable it:
- - RRDynamicSolver::buildFireball()
- - RRDynamicSolver::setFireball()
+ \section fb_calculation Calculation
+  Fireball uses the same API as the rest of Lightsprint SDK.
+  Usually no changes in code are needed to start using Fireball,
+  except for one additional call, see:
+  - RRDynamicSolver::buildFireball()
+  - RRDynamicSolver::loadFireball()
 
- If you don't set Fireball by RRDynamicSolver::setFireball(),
- fully dynamic solver without any precalculations is used and
- all features (\ref calc_realtime, \ref calc_offline) are available.
- Fireball is limited to realtime lighting, but it is 
- - faster (1.5-5x higher fps in standard situations)
- - smaller (needs only 50% of memory for the same quality)
- - produces higher quality lighting
- - doesn't allocate memory at runtime, zero fragmentation
+ \section fb_outputs Outputs
+  Fireball calculates indirect illumination and stores it into 
+  \ref data_vertex_buffer for static objects and
+  \ref data_environment_map for dynamic objects.
 
- Fireball is demonstrated in RealtimeRadiosity sample.
- \n When Fireball file is not found, it is built automatically.
- In this sample, it takes approximately 3 seconds.
+ \section fb_sample Sample
+  Fireball is demonstrated in RealtimeRadiosity sample.
+  \n When Fireball file is not found, it is built automatically.
+  In this sample, it takes approximately 3 seconds.
 
 
 
 \page calc_realtime Realtime lighting
 
- Lightsprint contains realtime global illumination solvers to produce realistic lighting in dynamic scenes.
- They calculate \ref data_illumination and store it into 
- \ref data_vertex_buffer for static objects and
- \ref data_environment_map for dynamic objects.
+ \section rt_features Features
+  Lightsprint uses the same API for both realtime and \ref calc_offline.
+  Naturally only subset of functions is fast enough to be used in realtime.
+  \n Features designed for realtime use include:
+  - calculate global illumination in dynamic scenes
+  - update \ref data_vertex_buffer with indirect lighting for static objects
+  - update \ref data_environment_map with indirect lighting for dynamic objects
 
- \ref calc_fireball uses precalculation phase in which static scene is analyzed. It takes some time,
- but then rendering is faster and quality higher.
- \n If you skip precalculation phase, fully dynamic solver without precalculations is used,
- realtime rendering with global illumination is available immediately.
+ \section rt_precalc Optional precalculations
+  Realtime rendering with global illumination is available immediately after
+  new scene is loaded, no preprocessing/precalculations are needed.
 
- Realtime lighting is demonstrated in RealtimeRadiosity sample.
- You can comment out block that enables \ref calc_fireball to compare both realtime solvers.
+  However, better results are possible with \ref calc_fireball.
+  It uses precalculation phase in which static scene is analyzed.
+  It takes some time, but then rendering is faster and quality higher.
+
+ \section rt_sample Sample
+  Realtime lighting is demonstrated in RealtimeRadiosity sample.
+  You can comment out block that enables \ref calc_fireball to compare both realtime solvers.
 
 
  
 \page calc_offline Offline calculations
 
- All Lightsprint SDK features documented in \ref main_data_access are available
- for offline calculations.
+ \section of_features Features
+  All Lightsprint SDK features documented in \ref main_data_access are available
+  for offline calculations.
 
- Note that some offline featues are disabled if you use \ref calc_fireball for realtime lighting.
+  Note that some offline featues are disabled if you load \ref calc_fireball for realtime lighting.
 
+ \section of_sample Samples
+  Offline calculations are demonstrated in CPULightmaps and AmbientOcclusion samples.
+  CPULightmaps is purely console application,
+  AmbientOcclusion displays results in simple interactive viewer.
 
 
 

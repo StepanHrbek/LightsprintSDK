@@ -335,7 +335,7 @@ namespace rr
 		//! Handling major occluders as dynamic objects is safe,
 		//! but it introduces errors in lighting, so it is not recommended.
 		//!
-		//! setObjects() removes effects of previous setFireball() or calculate().
+		//! setObjects() removes effects of previous loadFireball() or calculate().
 		//!
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
@@ -371,7 +371,7 @@ namespace rr
 		//! creating higher quality illumination.
 		//! It detects these periods from you not calling reportDirectIlluminationChange() and reportInteraction().
 		//!
-		//! setFireball() before first calculate() is recommended for games.
+		//! loadFireball() before first calculate() is recommended for games.
 		//! If you haven't called it, first calculate() takes longer, creates internal solver.
 		//!
 		//! \return
@@ -729,31 +729,47 @@ namespace rr
 		void reportInteraction();
 
 
-		//! Build data file for Fireball.
+		//! Build and start Fireball. Optionally save it to file.
 		//
-		//! This function lets you preprocess current static scene and save results to file.
-		//! Later you can use it in \ref calc_fireball.
-		//! Fireball is faster, higher quality, smaller, realtime only solver;
+		//! Builds Fireball from scratch, starts it and optionally saves it to file.
+		//! Later you can load saved file and start Fireball faster, see loadFireball().
+		//! This function must be called after setObjects(), because it depends on
+		//! static objects in scene. It doesn't depend on lights end environment.
+		//!
+		//! \ref calc_fireball is faster, higher quality, smaller, realtime only solver;
 		//! it is highly recommended for games.
+		//! When used, non-realtime functions like updateLightmaps() are not supported,
+		//! but realtime functions like updateVertexBuffers() and updateEnvironmentMaps() are faster
+		//! and produce better results using less memory.
+		//!
 		//! \param avgRaysPerTriangle
 		//!  Average number of rays per triangle used to compute form factors.
 		//!  Higher number = longer calculation, higher quality results, bigger file.
 		//!  If zero, current factors are used, without recalculating.
 		//! \param filename
 		//!  Data precomputed for current static scene will be saved to this file.
+		//!  Set to NULL for no saving.
+		//! \return
+		//!  True if successful.
+		//!  For better consistency, if save (disk operation) fails, Fireball is not started.
 		bool buildFireball(unsigned avgRaysPerTriangle, const char* filename);
 
-		//! Start Fireball. NULL to switch back to fully dynamic solver.
+		//! Load and start Fireball.
 		//
-		//! Fireball is faster, higher quality, smaller, realtime only solver;
-		//! it is highly recommended for games.
+		//! Loads and starts Fireball previously saved by buildFireball().
+		//! This function should be called before calculate() to avoid unnecessary operations.
 		//!
+		//! \ref calc_fireball is faster, higher quality, smaller, realtime only solver;
+		//! it is highly recommended for games.
 		//! When used, non-realtime functions like updateLightmaps() are not supported,
 		//! but realtime functions like updateVertexBuffers() and updateEnvironmentMaps() are faster
 		//! and produce better results using less memory.
+		//!
 		//! \param filename
 		//!  File with data computed by buildFireball().
-		bool setFireball(const char* filename);
+		//! \return
+		//!  True if successful.
+		bool loadFireball(const char* filename);
 
 
 		//! Returns multiObject created by merging all objects present in scene.

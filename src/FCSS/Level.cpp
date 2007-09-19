@@ -134,11 +134,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	// load Fireball
 	char* fbname = _strdup(pilot.setup->filename);
 	strcpy(fbname+strlen(fbname)-3,"fib");
-	if(!solver->setFireball(fbname))
-	{
-		solver->buildFireball(1000,fbname);
-		solver->setFireball(fbname);
-	}
+	if(!solver->loadFireball(fbname)) solver->buildFireball(1000,fbname);
 	free(fbname);
 
 	/*/ autodetect positions in center of scene

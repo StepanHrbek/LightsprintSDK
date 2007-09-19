@@ -236,8 +236,8 @@ namespace rr
 		//!  Number of subtriangles processed.
 		unsigned      getSubtriangleMeasure(unsigned triangle, RRRadiometricMeasure measure, const RRScaler* scaler, SubtriangleIlluminationEater* callback, void* context) const;
 
-		//! Build Fireball data file. For internal use by RRDynamicSolver::buildFireball().
-		bool          buildFireball(unsigned raysPerTriangle, const char* filename);
+		//! Build Fireball. For internal use by RRDynamicSolver::buildFireball().
+		const class PackedSolverFile* buildFireball(unsigned raysPerTriangle);
 
 
 	private:

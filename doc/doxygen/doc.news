@@ -6,14 +6,14 @@
 
 \page news What's new
 
-\section news33 ------------------------------------ 2007.9.x -------------------------------------
+\section news33 ------------------------------------ 2007.9.20 -------------------------------------
 
 NEWS
 
 - Fireball: faster, higher quality, smaller, realtime solver, recommended for games.
-  API:
-    RRDynamicSolver::buildFireball() - precompute data.
-    RRDynamicSolver::setFireball() - use in game.
+  New functions:
+    RRDynamicSolver::buildFireball() - build from scratch
+    RRDynamicSolver::loadFireball() - load from disk
   Demonstrated in:
     RealtimeRadiosity sample
 - RRVector::clear(), similar to std::vector::clear()

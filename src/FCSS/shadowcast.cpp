@@ -1513,24 +1513,6 @@ void keyboard(unsigned char c, int x, int y)
 			demoPlayer->setBigscreen(bigscreenCompensation);
 			break;
 
-		case '.':
-			#define PACKED_SOLVER_FILENAME "h:\\packed_solver"
-			level->solver->buildFireball(1,PACKED_SOLVER_FILENAME);
-			level->solver->setFireball(PACKED_SOLVER_FILENAME);
-			break;
-		case ',':
-			level->solver->buildFireball(10,PACKED_SOLVER_FILENAME);
-			level->solver->setFireball(PACKED_SOLVER_FILENAME);
-			break;
-		case ':':
-			level->solver->buildFireball(100,PACKED_SOLVER_FILENAME);
-			level->solver->setFireball(PACKED_SOLVER_FILENAME);
-			break;
-		case ';':
-			level->solver->buildFireball(1000,PACKED_SOLVER_FILENAME);
-			level->solver->setFireball(PACKED_SOLVER_FILENAME);
-			break;
-
 			/*
 		case 'f':
 		case 'F':

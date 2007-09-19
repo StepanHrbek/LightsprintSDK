@@ -120,10 +120,20 @@ RRIlluminationVertexBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertice
 
 unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params)
 {
-	if((!priv->scene && !priv->packedSolver) || !vertexBuffer)
+	if(!vertexBuffer || objectHandle>=getNumObjects())
 	{
 		RR_ASSERT(0);
 		return 0;
+	}
+	if(!priv->scene && !priv->packedSolver)
+	{
+		calculateCore(0); // create missing solver
+		if(!priv->scene)
+		{
+			RRReporter::report(WARN,"Empty scene, vertex buffer not set.\n");
+			RR_ASSERT(0);
+			return 0;
+		}
 	}
 	RRObjectIllumination* illumination = getIllumination(objectHandle);
 	unsigned numPreImportVertices = illumination->getNumPreImportVertices();

@@ -102,7 +102,7 @@ void RRDynamicSolver::setObjects(RRObjects& aobjects, const RRStaticSolver::Smoo
 		(priv->multiObjectCustom ? priv->multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
 	delete[] importers;
 	REPORT(if(priv->multiObjectPhysicalWithIllumination)
-		RRReporter::report(CONT,"(%d objects, optimized to %d faces, %d vertices) ",priv->objects.size(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
+		RRReporter::report(INF3,"Static scene set: %d objects, optimized to %d faces, %d vertices\n",priv->objects.size(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
 	// update minimalSafeDistance
 	if(priv->multiObjectPhysicalWithIllumination)
 	{
