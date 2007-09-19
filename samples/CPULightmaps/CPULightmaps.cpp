@@ -201,13 +201,11 @@ int main(int argc, char **argv)
 	rr::RRLights* lights = adaptLightsFromFCollada( collada );
 	solver->setLights( *lights );
 	solver->setEnvironment( environmentMap );
+	if(!solver->getMultiObjectCustom())
+		error("No objects in scene.",false);
 
 	{
 		rr::RRReportInterval report(rr::INF1,"Calculating all ...\n");
-	
-		solver->calculate();
-		if(!solver->getMultiObjectCustom())
-			error("No objects in scene.",false);
 
 		// calculate and save it
 		calculatePerVertexAndSelectedPerPixel(solver,0,1); // calculatePerPixel(solver,0,1);

@@ -459,7 +459,7 @@ int main(int argc, char **argv)
 	// Enable Fireball - faster, higher quality, smaller realtime solver.
 	// 1. runtime phase, load previously precalculated data
 	//    must be done after setObjects() but before calculate()
-	const char* fireballFilename = "..\\..\\data\\export\\koupelna.fix";
+	const char* fireballFilename = "..\\..\\data\\export\\koupelna.fi";
 	bool loaded = solver->setFireball(fireballFilename);
 	// 2. precalculation phase, to be done only during game development
 	if(!loaded)

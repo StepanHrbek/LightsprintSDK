@@ -133,6 +133,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 	{
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
 		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[objectHandle];
+		// omp doesn't help here, too short cycle
 		for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 		{
 			vertexBuffer->setVertex(preImportVertex,*preVertex2Ivertex[preImportVertex]);

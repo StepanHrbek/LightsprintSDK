@@ -851,7 +851,7 @@ Used by samples:
   - \subpage data_triangle
   - \subpage data_ray
 
- \section calc_0 Calculation techniques are
+ \section calc_0 Capabilities by speed
   - \subpage calc_fireball
   - \subpage calc_realtime
   - \subpage calc_offline
@@ -1694,7 +1694,8 @@ Used by samples:
  It is recommended solution for next-gen games.
 
  Fireball uses precalculation phase in which static scene is analyzed and one file is saved.
- This is usually done by developer at development time, final game only loads the file.
+ This is usually done by developer at development time, final game only loads the file
+ (by calling RRDynamicSolver::setFireball() after RRDynamicSolver::setObjects()).
 
  Fireball calculates indirect \ref data_illumination and stores it into 
  \ref data_vertex_buffer for static objects and

@@ -528,15 +528,13 @@ int main(int argc, char **argv)
 	}
 	solver->setObjects( *adaptObjectsFromFCollada( collada ), NULL );
 #endif
+	if(!solver->getMultiObjectCustom())
+		error("No objects in scene.",false);
 	solver->setEnvironment( solver->adaptIlluminationEnvironmentMap( environmentMap ) );
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 
 	{
 		rr::RRReportInterval report(rr::INF1,"Calculating global ambient occlusion ...\n");
-
-		solver->calculate();
-		if(!solver->getMultiObjectCustom())
-			error("No objects in scene.",false);
 
 		// calculate and save it
 		calculatePerVertexAndSelectedPerPixel(solver,0); // calculatePerPixel(solver,0);

@@ -201,7 +201,7 @@ bool RRStaticSolver::buildFireball(unsigned raysPerTriangle, const char* filenam
 
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
 {
-	calculate();
+	calculateCore(0); // create static solver if not created yet
 	return getStaticSolver() && priv->scene && priv->scene->buildFireball(raysPerTriangle,filename);
 }
 
@@ -214,6 +214,8 @@ bool RRDynamicSolver::setFireball(const char* filename)
 		if(priv->packedSolver)
 			updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
+		if(priv->packedSolver && priv->scene)
+			RRReporter::report(WARN,"Fireball set, but solver already exists. Save resources, don't call calculate() before setFireball().\n");
 	}
 	return priv->packedSolver!=NULL;
 }
