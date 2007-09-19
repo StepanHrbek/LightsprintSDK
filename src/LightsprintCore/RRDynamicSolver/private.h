@@ -22,7 +22,7 @@ namespace rr
 		const RRIlluminationEnvironmentMap* environment;
 		RRStaticSolver::SmoothingParameters smoothing;
 		bool       dirtyMaterials;
-		bool       dirtyGeometry;
+		bool       dirtyStaticSolver;
 		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
 		bool       dirtyResults;
 		long       lastInteractionTime;
@@ -52,7 +52,7 @@ namespace rr
 			environment = NULL;
 			scene = NULL;
 			dirtyMaterials = true;
-			dirtyGeometry = true;
+			dirtyStaticSolver = true;
 			dirtyLights = BIG_CHANGE;
 			dirtyResults = true;
 			lastInteractionTime = 0;

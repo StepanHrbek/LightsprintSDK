@@ -10,10 +10,12 @@
 
 NEWS
 
-- Packed solver, faster, higher quality, smaller, realtime solver,
-  highly recommended for games.
-  RRDynamicSolver::buildPackedSolver() - precompute data.
-  RRDynamicSolver::switchToPackedSolver() - use in game.
+- Fireball: faster, higher quality, smaller, realtime solver, recommended for games.
+  API:
+    RRDynamicSolver::buildFireball() - precompute data.
+    RRDynamicSolver::setFireball() - use in game.
+  Demonstrated in:
+    RealtimeRadiosity sample
 - RRVector::clear(), similar to std::vector::clear()
 
 \section news32 ------------------------------------ 2007.9.11 -------------------------------------

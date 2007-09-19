@@ -216,7 +216,7 @@ Ray-Mesh collisions
 \page main_credits Additional credits
 
 Lightsprint SDK uses open source libraries listed below.
-These libraries are included here as .dll files.
+They are included here as .dll files.
 You are free to download their sources and rebuild, use them in commercial applications etc.
 
 Used by LightsprintCore:
@@ -231,8 +231,6 @@ Used by samples:
 - <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a> by Feeling Software is used under MIT license.
   FCollada internally uses other open source libraries.
 - <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
-
-
 
 
 
@@ -837,8 +835,8 @@ Used by samples:
 
 
 
-
 \page main_data_access Calculation and outputs
+
  \section calc_1 Lightsprint can calculate
   - \subpage data_illumination
   - \subpage data_ambient_occlusion
@@ -852,6 +850,11 @@ Used by samples:
  \section calc_3 or quickly return single value for given
   - \subpage data_triangle
   - \subpage data_ray
+
+ \section calc_0 Calculation techniques are
+  - \subpage calc_fireball
+  - \subpage calc_realtime
+  - \subpage calc_offline
 
  Lightsprint is very flexible, it lets you pick optimal structures 
  for different objects and data types
@@ -1681,6 +1684,65 @@ Used by samples:
  \section d55 Returned value
    - RRColor with single illumination value
    - see \ref gunits
+
+
+
+
+\page calc_fireball Fireball
+
+ Fireball is realtime global illumination solver, it produces realistic indirect lighting in dynamic scenes.
+ It is recommended solution for next-gen games.
+
+ Fireball uses precalculation phase in which static scene is analyzed and one file is saved.
+ This is usually done by developer at development time, final game only loads the file.
+
+ Fireball calculates indirect \ref data_illumination and stores it into 
+ \ref data_vertex_buffer for static objects and
+ \ref data_environment_map for dynamic objects.
+
+ Fireball uses the same interfaces as the rest of Lightsprint SDK,
+ so you only need to enable it:
+ - RRDynamicSolver::buildFireball()
+ - RRDynamicSolver::setFireball()
+
+ If you don't set Fireball by RRDynamicSolver::setFireball(),
+ fully dynamic solver without any precalculations is used and
+ all features (\ref calc_realtime, \ref calc_offline) are available.
+ Fireball is limited to realtime lighting, but it is 
+ - faster (1.5-5x higher fps in standard situations)
+ - smaller (needs only 50% of memory for the same quality)
+ - produces higher quality lighting
+ - doesn't allocate memory at runtime, zero fragmentation
+
+ Fireball is demonstrated in RealtimeRadiosity sample.
+ \n When Fireball file is not found, it is built automatically.
+ In this sample, it takes approximately 3 seconds.
+
+
+
+\page calc_realtime Realtime lighting
+
+ Lightsprint contains realtime global illumination solvers to produce realistic lighting in dynamic scenes.
+ They calculate \ref data_illumination and store it into 
+ \ref data_vertex_buffer for static objects and
+ \ref data_environment_map for dynamic objects.
+
+ \ref calc_fireball uses precalculation phase in which static scene is analyzed. It takes some time,
+ but then rendering is faster and quality higher.
+ \n If you skip precalculation phase, fully dynamic solver without precalculations is used,
+ realtime rendering with global illumination is available immediately.
+
+ Realtime lighting is demonstrated in RealtimeRadiosity sample.
+ You can comment out block that enables \ref calc_fireball to compare both realtime solvers.
+
+
+ 
+\page calc_offline Offline calculations
+
+ All Lightsprint SDK features documented in \ref main_data_access are available
+ for offline calculations.
+
+ Note that some offline featues are disabled if you use \ref calc_fireball for realtime lighting.
 
 
 

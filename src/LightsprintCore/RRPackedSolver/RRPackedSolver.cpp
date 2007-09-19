@@ -1,5 +1,6 @@
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), pomalejsi
 //#define SHOW_CONVERGENCE
+//#define SUPPORT_INCREMENTAL_RESET
 #define BESTS 200
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
@@ -164,11 +165,15 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	const RRMesh* mesh = object->getCollider()->getMesh();
 	numTriangles = mesh->getNumTriangles();
 	triangles = new PackedTriangle[numTriangles];
-	for(unsigned i=0;i<numTriangles;i++)
+	for(unsigned t=0;t<numTriangles;t++)
 	{
-		const RRMaterial* material = object->getTriangleMaterial(i);
-		triangles[i].diffuseReflectance = material ? material->diffuseReflectance : RRVec3(0.5f);
-		triangles[i].areaInv = 1/mesh->getTriangleArea(i);
+		const RRMaterial* material = object->getTriangleMaterial(t);
+		triangles[t].diffuseReflectance = material ? material->diffuseReflectance : RRVec3(0.5f);
+		triangles[t].areaInv = 1/mesh->getTriangleArea(t);
+		// reset at least once, all future resets may be incremental
+		triangles[t].incidentFluxDirect = RRVec3(0);
+		triangles[t].incidentFluxToDiffuse = RRVec3(0);
+		triangles[t].incidentFluxDiffused = RRVec3(0);
 	}
 	packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
 	packedSolverFile = _adopt_packedSolverFile;
@@ -187,12 +192,28 @@ void RRPackedSolver::illuminationReset()
 {
 	triangleIrradianceIndirectDirty = true;
 	packedBests->reset();
-#pragma omp parallel for
-	for(int t=0;(unsigned)t<numTriangles;t++)
+#ifdef SUPPORT_INCREMENTAL_RESET
+	if(!strong)
 	{
-		object->getTriangleIllumination(t,RRRadiometricMeasure(0,0,1,1,1),triangles[t].incidentFluxDirect);
-		triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect;
-		triangles[t].incidentFluxDiffused = RRVec3(0);
+		#pragma omp parallel for
+		for(int t=0;(unsigned)t<numTriangles;t++)
+		{
+			RRVec3 incidentFluxDirect;
+			object->getTriangleIllumination(t,RRRadiometricMeasure(0,0,1,1,1),incidentFluxDirect);
+			triangles[t].incidentFluxToDiffuse += incidentFluxDirect-triangles[t].incidentFluxDirect;
+			triangles[t].incidentFluxDirect = incidentFluxDirect;
+		}
+	}
+	else
+#endif
+	{
+		#pragma omp parallel for
+		for(int t=0;(unsigned)t<numTriangles;t++)
+		{
+			object->getTriangleIllumination(t,RRRadiometricMeasure(0,0,1,1,1),triangles[t].incidentFluxDirect);
+			triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect;
+			triangles[t].incidentFluxDiffused = RRVec3(0);
+		}
 	}
 }
 

@@ -60,7 +60,7 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 // prepare lookup tables preImportVertex -> Ivertex for all objects
 {
-	if(!priv->packedSolver)
+	if(!priv->packedSolver || !getMultiObjectPhysical())
 	{
 		RR_ASSERT(0);
 		return;
@@ -69,13 +69,46 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 	for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
 	{
 		RRObjectIllumination* illumination = getIllumination(objectHandle);
+		RRMesh* mesh = getMultiObjectPhysical()->getCollider()->getMesh();
+		unsigned numPostImportVertices = mesh->getNumVertices();
+		unsigned numPostImportTriangles = mesh->getNumTriangles();
 		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
-		priv->preVertex2Ivertex[objectHandle].resize(numPreImportVertices);
+
+		priv->preVertex2Ivertex[objectHandle].resize(numPreImportVertices,NULL);
+
+		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
+		{
+			RRMesh::Triangle postImportTriangleVertices;
+			mesh->getTriangle(postImportTriangle,postImportTriangleVertices);
+			for(unsigned v=0;v<3;v++)
+			{
+				unsigned postImportVertex = postImportTriangleVertices[v];
+				if(postImportVertex<numPostImportVertices)
+				{
+					unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
+					RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
+					if(preVertexMulti.object==objectHandle)
+						preVertex = preVertexMulti.index;
+					else
+						continue; // skip asserts
+					if(preVertex<numPreImportVertices)
+					{
+						priv->preVertex2Ivertex[objectHandle][preVertex] = priv->packedSolver->getTriangleIrradianceIndirect(postImportTriangle,v);				
+					}
+					else
+						RR_ASSERT(0);
+				}
+				else
+					RR_ASSERT(0);
+			}
+		}
+
+		// pink = preimport vertices without ivertex
 		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
 		{
-			priv->preVertex2Ivertex[objectHandle][preImportVertex] = priv->packedSolver->getTriangleIrradianceIndirect(
-				priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex,
-				priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012);				
+			static RRVec3 pink(1,0,1);
+			if(!priv->preVertex2Ivertex[objectHandle][preImportVertex])
+				priv->preVertex2Ivertex[objectHandle][preImportVertex] = &pink;
 		}
 	}
 }

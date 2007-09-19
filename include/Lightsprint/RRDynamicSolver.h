@@ -334,11 +334,14 @@ namespace rr
 		//! of static scene.
 		//! Handling major occluders as dynamic objects is safe,
 		//! but it introduces errors in lighting, so it is not recommended.
+		//!
+		//! setObjects() removes effects of previous setFireball() or calculate().
+		//!
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
 		//!  Objects should not move (in 3d space) during our lifetime.
 		//!  Object's getTriangleMaterial() and getPointMaterial() should return values in custom scale.
-		//!  For now, all objects must have the same set of data channels (see RRChanneledData).
+		//!  If objects provide custom data channels (see RRChanneledData), all objects must have the same channels.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
@@ -360,13 +363,16 @@ namespace rr
 		//! To be called once per frame while rendering. To be called even when
 		//! rendering is paused, calculation runs on background.
 		//!
-		//! With architect edition (no precalculations), it helps to improve performance if
+		//! It helps to improve performance if
 		//! you don't repeatedly render scene that doesn't change, for example in game editor.
 		//! Note that user can't see any difference, you only save time and power 
 		//! by not rendering the same image again.
 		//! calculate() uses these periods for more intense calculations,
 		//! creating higher quality illumination.
 		//! It detects these periods from you not calling reportDirectIlluminationChange() and reportInteraction().
+		//!
+		//! setFireball() before first calculate() is recommended for games.
+		//! If you haven't called it, first calculate() takes longer, creates internal solver.
 		//!
 		//! \return
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
@@ -384,6 +390,9 @@ namespace rr
 
 
 		//! Parameters for updateVertexBuffer(), updateVertexBuffers(), updateLightmap(), updateLightmaps().
+		//
+		//! If you use \ref calc_fireball, only default parameters are supported,
+		//! use NULL for default parameters.
 		struct UpdateParameters
 		{
 			//! Requested type of results, applies only to updates of external buffers.
@@ -393,17 +402,19 @@ namespace rr
 			RRRadiometricMeasure measure;
 
 			//! Include lights set by setLights() as a source of illumination.
+			//! True makes calculation non-realtime.
 			bool applyLights;
 
 			//! Include environment set by setEnvironment() as a source of illumination.
+			//! True makes calculation non-realtime.
 			bool applyEnvironment;
 
-			//! Include current solution in static solver (getStaticSolver()) as a source of indirect illumination.
+			//! Include current solution as a source of indirect illumination.
 			//
-			//! Current solution in static solver is updated by calculate(), updateVertexBuffers()
-			//! and updateLightmaps().
+			//! Current solution in solver is updated by calculate()
+			//! and possibly also by updateVertexBuffers() and updateLightmaps() (depends on parameters).
 			//! \n Note that some functions restrict use of applyCurrentSolution
-			//! and applyLights/Environment at the same time.
+			//! and applyLights/applyEnvironment at the same time.
 			bool applyCurrentSolution;
 
 			//! Quality of computed illumination.
@@ -414,9 +425,11 @@ namespace rr
 			//! Lower quality is good for tests, with per pixel details, but with artifacts
 			//! and aliasing.
 			//!
+			//! Positive number makes calculation non-realtime.
+			//!
 			//! If applyCurrentSolution is enabled, other applyXxx disabled and quality is zero,
-			//! very fast (milliseconds) update is executed and lightmap contains
-			//! nearly no noise, but small per pixel details are missing.
+			//! very fast (milliseconds) realtime technique is used and outputs contains
+			//! nearly no noise, but in case of lightmaps, small per pixel details are missing.
 			unsigned quality;
 
 			//! Deprecated. Only partially supported since 2007.08.21.
@@ -425,6 +438,8 @@ namespace rr
 			//! seeing inside objects (or below rug, see rugDistance)
 			//! are masked away.
 			//! Default value 1 disables any correction.
+			//!
+			//! Not used in realtime calculation (see #quality).
 			RRReal insideObjectsTreshold;
 
 			//! Deprecated. Only partially supported since 2007.08.21.
@@ -433,6 +448,8 @@ namespace rr
 			//! Set it slightly above distance of rug and ground, to prevent darkness
 			//! under the rug leaking half texel outside (instead, light around rug will
 			//! leak under the rug). Set it to zero to disable any corrections.
+			//!
+			//! Not used in realtime calculation (see #quality).
 			RRReal rugDistance;
 
 			//! Distance in world space; illumination never comes from greater distance.
@@ -443,6 +460,8 @@ namespace rr
 			//! (Rays are shot from texel into scene. When scene is not intersected
 			//! in this or lower distance from texel, illumination is read from 
 			//! outer environment/sky.)
+			//!
+			//! Not used in realtime calculation (see #quality).
 			RRReal locality;
 
 			//! Sets default parameters for fast realtime update.
@@ -547,6 +566,8 @@ namespace rr
 		//!  \n Note1: LightsprintGL implementation of RRIlluminationPixelBuffer is not safe.
 		//!  \n Note2: updateLightmap() uses multiple threads internally.
 		//!
+		//! Not supported if you use \ref calc_fireball.
+		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.
 		//!  Object numbers are defined by order in which you pass objects to setObjects().
@@ -580,6 +601,8 @@ namespace rr
 		//! Calculates and updates all lightmaps with direct, indirect or global illumination on static scene's surfaces.
 		//
 		//! This is more powerful full scene version of limited single object's updateLightmap().
+		//!
+		//! Not supported if you use \ref calc_fireball.
 		//!
 		//! \param layerNumberLighting
 		//!  Lightmaps for individual objects are stored into
@@ -673,19 +696,22 @@ namespace rr
 
 
 		//! Reports that appearance of one or more materials has changed.
-		//!
+		//
 		//! Call this when you change material properties in your material editor.
+		//! If you use \ref calc_fireball, material changes don't apply
+		//! until you rebuild it (see buildFireball()).
 		void reportMaterialChange();
 
 		//! Reports that position/rotation/shape of one or more lights has changed.
 		//
 		//! Call this function when any light in scene changes any property,
 		//! so that direct illumination changes.
-		//! For extra precision, you may call it also after each dynamic object movement,
+		//! For extra precision, you may call it also after each movement of shadow caster,
 		//! however, smaller moving objects typically don't affect indirect illumination,
-		//! so it's common optimization to 
-		//! \param strong Hint for solver, was change in illumination strong, does illumination 
-		//!  change significantly? Good hint improves performance.
+		//! so it's common optimization to not report illumination change in such situation.
+		//! \param strong Hint for solver, was change in direct illumination significant?
+		//!  Set true if not sure. Set false only if you know that change was minor.
+		//!  False improves performance, but introduces errors if change is not minor.
 		void reportDirectIlluminationChange(bool strong);
 
 		//! Reports interaction between user and application.
@@ -703,11 +729,11 @@ namespace rr
 		void reportInteraction();
 
 
-		//! Build data file for packed solver.
+		//! Build data file for Fireball.
 		//
 		//! This function lets you preprocess current static scene and save results to file.
-		//! Later you can use it in packed solver, see switchToPackedSolver().
-		//! Packed solver is faster, higher quality, smaller, realtime only solver;
+		//! Later you can use it in \ref calc_fireball.
+		//! Fireball is faster, higher quality, smaller, realtime only solver;
 		//! it is highly recommended for games.
 		//! \param avgRaysPerTriangle
 		//!  Average number of rays per triangle used to compute form factors.
@@ -715,18 +741,19 @@ namespace rr
 		//!  If zero, current factors are used, without recalculating.
 		//! \param filename
 		//!  Data precomputed for current static scene will be saved to this file.
-		bool buildPackedSolver(unsigned avgRaysPerTriangle, const char* filename);
+		bool buildFireball(unsigned avgRaysPerTriangle, const char* filename);
 
-		//! Switch to packed solver. NULL to switch back to fully dynamic solver.
+		//! Start Fireball. NULL to switch back to fully dynamic solver.
 		//
-		//! Packed solver is faster, higher quality, smaller, realtime only solver;
+		//! Fireball is faster, higher quality, smaller, realtime only solver;
 		//! it is highly recommended for games.
-		//! When used, non-realtime functions like updateLightmaps() don't work,
-		//! but realtime functions like updateVertexBuffers() are faster
+		//!
+		//! When used, non-realtime functions like updateLightmaps() are not supported,
+		//! but realtime functions like updateVertexBuffers() and updateEnvironmentMaps() are faster
 		//! and produce better results using less memory.
 		//! \param filename
-		//!  File with data computed by buildPackedSolver().
-		bool switchToPackedSolver(const char* filename);
+		//!  File with data computed by buildFireball().
+		bool setFireball(const char* filename);
 
 
 		//! Returns multiObject created by merging all objects present in scene.
@@ -739,10 +766,11 @@ namespace rr
 		//! As getMultiObjectPhysical, but with space for storage of detected direct illumination.
 		RRObjectWithIllumination* getMultiObjectPhysicalWithIllumination();
 
-		//! Returns the scene for direct queries of single triangle/vertex illumination.
+		//! Returns static solver for direct queries of single triangle/vertex illumination.
 		//
-		//! Scene is created from getMultiObjectPhysicalWithIllumination()
-		//! when you insert objects and call calculate().
+		//! Static solver is created from getMultiObjectPhysicalWithIllumination()
+		//! after setObjects() and calculate().
+		//! Static solver is not created if you use \ref calc_fireball.
 		const RRStaticSolver* getStaticSolver() const;
 
 	protected:
@@ -761,9 +789,9 @@ namespace rr
 		//! previously called reportDirectIlluminationChange(), so it's known,
 		//! that direct illumination values in solver are outdated.
 		//!
-		//! For realtime solution, don't pass light coords and other 
-		//! light properties into solver, complete information should be encoded
-		//! in per-triangle irradiances detected here.
+		//! For realtime solution, don't call setLights().
+		//! Instead, provide complete information about lights here,
+		//! in form of (detected) per-triangle irradiances.
 		//!
 		//! What exactly is "direct illumination" here is implementation defined,
 		//! but for consistent results, it should be complete illumination

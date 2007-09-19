@@ -74,7 +74,42 @@ void RRDynamicSolver::setObjects(RRObjects& aobjects, const RRStaticSolver::Smoo
 {
 	priv->objects = aobjects;
 	priv->smoothing = asmoothing ? *asmoothing : RRStaticSolver::SmoothingParameters();
-	priv->dirtyGeometry = true;
+	priv->dirtyStaticSolver = true;
+	priv->dirtyLights = Private::BIG_CHANGE;
+
+	// delete old
+	SAFE_DELETE(priv->packedSolver);
+	SAFE_DELETE(priv->scene);
+	if(priv->multiObjectPhysical==priv->multiObjectCustom) priv->multiObjectCustom = NULL; // no scaler -> physical == custom
+	SAFE_DELETE(priv->multiObjectCustom);
+	SAFE_DELETE(priv->multiObjectPhysical);
+	SAFE_DELETE(priv->multiObjectPhysicalWithIllumination);
+
+	// create new
+
+	RRObject** importers = new RRObject*[priv->objects.size()];
+	for(unsigned i=0;i<(unsigned)priv->objects.size();i++)
+	{
+		importers[i] = priv->objects[i].object;
+	}
+	// create multi in custom scale
+	priv->multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),priv->smoothing.intersectTechnique,priv->smoothing.vertexWeldDistance,priv->smoothing.vertexWeldDistance>=0,NULL);
+	// convert it to physical scale
+	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> physical == custom
+	//multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> custom=1,physical=0
+	// add direct illumination
+	priv->multiObjectPhysicalWithIllumination = priv->multiObjectPhysical ? priv->multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
+		(priv->multiObjectCustom ? priv->multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
+	delete[] importers;
+	REPORT(if(priv->multiObjectPhysicalWithIllumination)
+		RRReporter::report(CONT,"(%d objects, optimized to %d faces, %d vertices) ",priv->objects.size(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
+	// update minimalSafeDistance
+	if(priv->multiObjectPhysicalWithIllumination)
+	{
+		RRVec3 mini,maxi,center;
+		priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
+		priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
+	}
 }
 
 unsigned RRDynamicSolver::getNumObjects() const
@@ -84,51 +119,39 @@ unsigned RRDynamicSolver::getNumObjects() const
 
 RRObject* RRDynamicSolver::getObject(unsigned i)
 {
-	// this is commented out, getObject() is allowed even immediately after setObjects()
-	//if(dirtyGeometry) return NULL;
-
 	if(i>=priv->objects.size()) return NULL;
 	return priv->objects[i].object;
 }
 
 const RRObject* RRDynamicSolver::getMultiObjectCustom() const
 {
-	if(priv->dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return priv->multiObjectCustom;
 }
 
 const RRObjectWithPhysicalMaterials* RRDynamicSolver::getMultiObjectPhysical() const
 {
-	if(priv->dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return priv->multiObjectPhysical;
 }
 
 RRObjectWithIllumination* RRDynamicSolver::getMultiObjectPhysicalWithIllumination()
 {
-	if(priv->dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return priv->multiObjectPhysicalWithIllumination;
 }
 
 const RRStaticSolver* RRDynamicSolver::getStaticSolver() const
 {
-	if(priv->dirtyGeometry) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
+	if(priv->dirtyStaticSolver) return NULL; // setObjects() must be followed by calculate(), otherwise we are inconsistent
 	return priv->scene;
 }
 
 RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i)
 {
-	// this is commented out, getIllumination() is allowed even immediately after setObjects()
-	//if(dirtyGeometry) return NULL;
-
 	if(i>=priv->objects.size()) return NULL;
 	return priv->objects[i].illumination;
 }
 
 const RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i) const
 {
-	// this is commented out, getIllumination() is allowed even immediately after setObjects()
-	//if(dirtyGeometry) return NULL;
-
 	if(i>=priv->objects.size()) return NULL;
 	return priv->objects[i].illumination;
 }
@@ -150,7 +173,6 @@ void RRDynamicSolver::reportInteraction()
 	REPORT(RRReporter::report(INF1,"<Interaction>\n"));
 	priv->lastInteractionTime = GETTIME;
 }
-
 
 static bool endByTime(void *context)
 {
@@ -199,53 +221,20 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	{
 		priv->dirtyMaterials = false;
 		dirtyFactors = true;
+		//SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
 		REPORT_BEGIN("Detecting material properties.");
 		detectMaterials();
 		REPORT_END;
 	}
-	if(priv->dirtyGeometry)
+	if(priv->dirtyStaticSolver && !priv->packedSolver)
 	{
-		priv->dirtyGeometry = false;
+		REPORT_BEGIN("Opening new radiosity solver.");
+		priv->dirtyStaticSolver = false;
 		priv->dirtyLights = Private::BIG_CHANGE;
 		dirtyFactors = true;
-		if(priv->scene)
-		{
-			REPORT_BEGIN("Closing old radiosity solver.");
-			SAFE_DELETE(priv->scene);
-			if(priv->multiObjectPhysical!=priv->multiObjectCustom) // no scaler -> physical == custom
-				SAFE_DELETE(priv->multiObjectCustom)
-			else
-				priv->multiObjectCustom = NULL;
-			SAFE_DELETE(priv->multiObjectPhysical);
-			SAFE_DELETE(priv->multiObjectPhysicalWithIllumination);
-			REPORT_END;
-		}
-		REPORT_BEGIN("Opening new radiosity solver.");
-		RRObject** importers = new RRObject*[priv->objects.size()];
-		for(unsigned i=0;i<(unsigned)priv->objects.size();i++)
-		{
-			importers[i] = priv->objects[i].object;
-		}
-		// create multi in custom scale
-		priv->multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),priv->smoothing.intersectTechnique,priv->smoothing.vertexWeldDistance,priv->smoothing.vertexWeldDistance>=0,NULL);
-		// convert it to physical scale
-		priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> physical == custom
-		//multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> custom=1,physical=0
-		// add direct illumination
-		priv->multiObjectPhysicalWithIllumination = priv->multiObjectPhysical ? priv->multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
-			(priv->multiObjectCustom ? priv->multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
-		delete[] importers;
-		REPORT(if(priv->multiObjectPhysicalWithIllumination)
-			RRReporter::report(CONT,"(%d objects, optimized to %d faces, %d vertices) ",priv->objects.size(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
+		// create new
 		priv->scene = priv->multiObjectPhysicalWithIllumination ? new RRStaticSolver(priv->multiObjectPhysicalWithIllumination,&priv->smoothing) : NULL;
 		if(priv->scene) updateVertexLookupTableDynamicSolver();
-		// update minimalSafeDistance
-		if(priv->multiObjectPhysicalWithIllumination)
-		{
-			RRVec3 mini,maxi,center;
-			priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
-			priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
-		}
 		REPORT_END;
 	}
 	if(priv->dirtyLights!=Private::NO_CHANGE)

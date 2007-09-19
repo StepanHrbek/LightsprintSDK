@@ -5,11 +5,11 @@
 // You should be familiar with OpenGL and GLUT to read the code.
 //
 // This sample is derived from PenumbraShadows.
-// The only addition is global illumination.
-// Approx 90 lines were added, including empty lines and comments.
+// The only extension here is global illumination.
+// Approx 100 lines were added, including empty lines and comments.
 //
 // This sample also demonstrates rendering global illumination via
-// external renderer (array of indirect vertex colors is passed).
+// external renderer, array of indirect vertex colors is passed.
 // All other samples (see very similar Lightmaps) use internal RendererOfScene,
 // which is simpler to use. 
 //
@@ -453,9 +453,21 @@ int main(int argc, char **argv)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 	solver->setEnvironment(solver->adaptIlluminationEnvironmentMap(environmentMap));
-	solver->calculate();
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+
+	// Enable Fireball - faster, higher quality, smaller realtime solver.
+	// 1. runtime phase, load previously precalculated data
+	//    must be done after setObjects() but before calculate()
+	const char* fireballFilename = "..\\..\\data\\export\\koupelna.fix";
+	bool loaded = solver->setFireball(fireballFilename);
+	// 2. precalculation phase, to be done only during game development
+	if(!loaded)
+	{
+		solver->buildFireball(1000,fireballFilename);
+		solver->setFireball(fireballFilename);
+	}
+	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.
 
 	glutMainLoop();
 	return 0;

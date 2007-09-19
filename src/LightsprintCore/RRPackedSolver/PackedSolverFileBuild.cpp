@@ -22,8 +22,6 @@ bool neverend(void *)
 
 void Scene::updateFactors(unsigned raysFromTriangle)
 {
-	RRReportInterval report(INF2,"Updating factors...\n");
-
 	/////////////////////////////////////////////////////////////////////////
 	//
 	// update factors
@@ -52,7 +50,6 @@ void Scene::updateFactors(unsigned raysFromTriangle)
 PackedSolverFile* Scene::packSolver() const
 {
 	PackedSolverFile* packedSolverFile = new PackedSolverFile;
-	RRReportInterval report(INF2,"Packing solver...\n");
 
 	/////////////////////////////////////////////////////////////////////////
 	//
@@ -174,14 +171,6 @@ PackedSolverFile* Scene::packSolver() const
 	RR_ASSERT(numIverticesPacked==numIvertices);
 
 	// return
-	RRReporter::report(INF2,"Size: factors=%d smoothing=%d total=%d kB.\n",
-		( packedSolverFile->packedFactors->getMemoryOccupied() )/1024,
-		( packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024,
-		( packedSolverFile->getMemoryOccupied() )/1024
-		);
-	// save&load test
-	//packedSolverFile->save("h:\\ab");
-	//packedSolverFile = PackedSolverFile::load("h:\\ab");
 	return packedSolverFile;
 }
 
@@ -190,11 +179,17 @@ PackedSolverFile* Scene::packSolver() const
 //
 // RRStaticSolver
 
-bool RRStaticSolver::buildPackedSolver(unsigned raysPerTriangle, const char* filename)
+bool RRStaticSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
 {
+	RRReportInterval report(INF1,"Building Fireball...\n");
 	scene->updateFactors(raysPerTriangle);
 	PackedSolverFile* packedSolverFile = scene->packSolver();
 	bool result = packedSolverFile->save(filename);
+	RRReporter::report(INF2,"Size: %d kB (factors=%d smoothing=%d)\n",
+		( packedSolverFile->getMemoryOccupied() )/1024,
+		( packedSolverFile->packedFactors->getMemoryOccupied() )/1024,
+		( packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024
+		);
 	delete packedSolverFile;
 	return result;
 }
@@ -204,12 +199,13 @@ bool RRStaticSolver::buildPackedSolver(unsigned raysPerTriangle, const char* fil
 //
 // RRDynamicSolver
 
-bool RRDynamicSolver::buildPackedSolver(unsigned raysPerTriangle, const char* filename)
+bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
 {
-	return getStaticSolver() && priv->scene && priv->scene->buildPackedSolver(raysPerTriangle,filename);
+	calculate();
+	return getStaticSolver() && priv->scene && priv->scene->buildFireball(raysPerTriangle,filename);
 }
 
-bool RRDynamicSolver::switchToPackedSolver(const char* filename)
+bool RRDynamicSolver::setFireball(const char* filename)
 {
 	SAFE_DELETE(priv->packedSolver);
 	if(filename)
@@ -217,6 +213,7 @@ bool RRDynamicSolver::switchToPackedSolver(const char* filename)
 		priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysicalWithIllumination(),PackedSolverFile::load(filename));
 		if(priv->packedSolver)
 			updateVertexLookupTablePackedSolver();
+		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
 	}
 	return priv->packedSolver!=NULL;
 }

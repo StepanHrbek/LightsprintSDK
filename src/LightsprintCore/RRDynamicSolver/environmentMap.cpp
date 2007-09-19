@@ -147,7 +147,7 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 // thread safe: yes
 static void cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
 {
-	if(!scene)
+	if(!scene && !packedSolver)
 	{
 		RR_ASSERT(0);
 		return;
@@ -409,7 +409,7 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		RR_ASSERT(0);
 		return 0;
 	}
-	if(!priv->scene)
+	if(!priv->scene && !priv->packedSolver)
 	{
 		RR_ASSERT(0);
 		return 0;

@@ -97,6 +97,8 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	rendererCaching = NULL;
 	boostDetectedDirectIllumination = 1;
 
+	rendererObject = NULL;
+
 #ifdef RR_DEVELOPMENT
 	// used by detectDirectIlluminationFromLightmaps
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);

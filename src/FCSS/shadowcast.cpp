@@ -8,14 +8,16 @@ unsigned INSTANCES_PER_PASS;
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
-//#define RENDER_OPTIMIZED // nepodporuje packed solver
+//#define RENDER_OPTIMIZED // nepodporuje fireball
 //#define THREE_ONE
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-#define CFG_FILE "test.cfg"
+//#define CFG_FILE "test.cfg"
+//#define CFG_FILE "eg-flat1.cfg"
+//#define CFG_FILE "eg-quake.cfg"
 //#define CFG_FILE "eg-sponza.cfg"
-//#define CFG_FILE "eg-sponza-sun.cfg"
+#define CFG_FILE "eg-sponza-sun.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
@@ -1161,7 +1163,7 @@ void reportLightMovement()
 	// Ve velke scene dava lepsi vysledky reset (true),
 	//  scena sice behem pohybu ztmavne,
 	//  pri false je ale velka setrvacnost, nekdy dokonce stary indirect vubec nezmizi.
-	level->solver->reportDirectIlluminationChange(level->solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()>10000?true:false);
+	level->solver->reportDirectIlluminationChange(true);
 	needDepthMapUpdate = 1;
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
@@ -1513,20 +1515,20 @@ void keyboard(unsigned char c, int x, int y)
 
 		case '.':
 			#define PACKED_SOLVER_FILENAME "h:\\packed_solver"
-			level->solver->buildPackedSolver(1,PACKED_SOLVER_FILENAME);
-			level->solver->switchToPackedSolver(PACKED_SOLVER_FILENAME);
+			level->solver->buildFireball(1,PACKED_SOLVER_FILENAME);
+			level->solver->setFireball(PACKED_SOLVER_FILENAME);
 			break;
 		case ',':
-			level->solver->buildPackedSolver(10,PACKED_SOLVER_FILENAME);
-			level->solver->switchToPackedSolver(PACKED_SOLVER_FILENAME);
+			level->solver->buildFireball(10,PACKED_SOLVER_FILENAME);
+			level->solver->setFireball(PACKED_SOLVER_FILENAME);
 			break;
 		case ':':
-			level->solver->buildPackedSolver(100,PACKED_SOLVER_FILENAME);
-			level->solver->switchToPackedSolver(PACKED_SOLVER_FILENAME);
+			level->solver->buildFireball(100,PACKED_SOLVER_FILENAME);
+			level->solver->setFireball(PACKED_SOLVER_FILENAME);
 			break;
 		case ';':
-			level->solver->buildPackedSolver(1000,PACKED_SOLVER_FILENAME);
-			level->solver->switchToPackedSolver(PACKED_SOLVER_FILENAME);
+			level->solver->buildFireball(1000,PACKED_SOLVER_FILENAME);
+			level->solver->setFireball(PACKED_SOLVER_FILENAME);
 			break;
 
 			/*
