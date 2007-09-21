@@ -9,12 +9,12 @@ namespace rr
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRObjectWithIllumination
-/*
-vision zajima exiting flux
-renderer s texturou zajima irradiance, renderer bez textury vyjimecne exitance
 
-fast pocita incident flux
-slow pocita exitance
+/*
+proc ukladam zrovna irradiance (ne flux, ne incident)?
+
+solvery zajima exiting flux
+renderer s texturou zajima irradiance, renderer bez textury vyjimecne exitance
 
 nekonzistence vznika kdyz u cerneho materialu ulozim outgoing a ptam se na incoming
 -> ukladat incoming

@@ -99,6 +99,12 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 
 	rendererObject = NULL;
 
+	// update fast conversion table for our detectDirectIllumination
+	for(unsigned i=0;i<256;i++)
+	{
+		customToPhysical[i] = i/255.f;
+	}
+
 #ifdef RR_DEVELOPMENT
 	// used by detectDirectIlluminationFromLightmaps
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
@@ -134,9 +140,23 @@ per object lighting:
 */
 #endif
 
+void RRDynamicSolverGL::setScaler(rr::RRScaler* scaler)
+{
+	RRDynamicSolver::setScaler(scaler);
+	// update fast conversion table for our detectDirectIllumination
+	for(unsigned i=0;i<256;i++)
+	{
+		rr::RRColor c(i*boostDetectedDirectIllumination/255);
+		if(getScaler()) getScaler()->getPhysicalScale(c);
+		customToPhysical[i] = c[0];
+	}
+}
+
 bool RRDynamicSolverGL::detectDirectIllumination()
 {
 	if(!scaleDownProgram) return false;
+
+	//rr::RRReportInterval report(rr::INF3,"detectDirectIllumination\n");
 
 	// update renderer after geometry change
 	if(getMultiObjectCustom()!=rendererObject) // not equal? geometry must be changed
@@ -260,7 +280,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap);
 
 		// send triangle irradiances to solver
-		const float boost = boostDetectedDirectIllumination/255;
+		//rr::RRReportInterval report(rr::INF3,"parseglReadPixels\n");
 #pragma omp parallel for schedule(static)
 		for(int t=captureUv->firstCapturedTriangle;t<(int)captureUv->lastCapturedTrianglePlus1;t++)
 		{
@@ -268,8 +288,8 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 			unsigned color = detectSmallMap[triangleIndex-captureUv->firstCapturedTriangle];
 			getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(
 				triangleIndex,
-				RM_IRRADIANCE_CUSTOM,
-				rr::RRColor(((color>>24)&255)*boost,((color>>16)&255)*boost,((color>>8)&255)*boost));
+				RM_IRRADIANCE_PHYSICAL,
+				rr::RRColor(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]));
 		}
 	}
 

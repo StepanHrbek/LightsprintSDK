@@ -34,6 +34,8 @@ namespace rr_gl
 		RRDynamicSolverGL(char* pathToShaders);
 		virtual ~RRDynamicSolverGL();
 
+		//! Our reimplementation of RRDynamicSolver::setScaler().
+		virtual void setScaler(rr::RRScaler* scaler);
 
 		//! Creates 2d texture for indirect illumination storage.
 		//! Used for precomputed global illumination of static objects.
@@ -116,6 +118,7 @@ namespace rr_gl
 		unsigned* detectSmallMap;
 		unsigned smallMapSize;
 		Program* scaleDownProgram;
+		rr::RRReal customToPhysical[256];
 	};
 
 };

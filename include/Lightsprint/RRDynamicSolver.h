@@ -287,7 +287,7 @@ namespace rr
 		//!  It will be used by all data input and output paths in RRDynamicSolver, if not specified otherwise.
 		//!  Note that scaler is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
-		void setScaler(RRScaler* scaler);
+		virtual void setScaler(RRScaler* scaler);
 
 		//! Returns scaler used by this scene i/o operations, set by setScaler().
 		const RRScaler* getScaler() const;
