@@ -88,9 +88,13 @@ void RRDynamicSolver::setObjects(RRObjects& aobjects, const RRStaticSolver::Smoo
 	// create new
 
 	RRObject** importers = new RRObject*[priv->objects.size()];
+	unsigned origNumVertices = 0;
+	unsigned origNumTriangles = 0;
 	for(unsigned i=0;i<(unsigned)priv->objects.size();i++)
 	{
 		importers[i] = priv->objects[i].object;
+		origNumVertices += importers[i]->getCollider()->getMesh()->getNumVertices();
+		origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
 	}
 	// create multi in custom scale
 	priv->multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),priv->smoothing.intersectTechnique,priv->smoothing.vertexWeldDistance,priv->smoothing.vertexWeldDistance>=0,NULL);
@@ -102,7 +106,7 @@ void RRDynamicSolver::setObjects(RRObjects& aobjects, const RRStaticSolver::Smoo
 		(priv->multiObjectCustom ? priv->multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
 	delete[] importers;
 	REPORT(if(priv->multiObjectPhysicalWithIllumination)
-		RRReporter::report(INF3,"Static scene set: %d objects, optimized to %d faces, %d vertices\n",priv->objects.size(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
+		RRReporter::report(INF3,"Static scene set: %d objects, optimized %d->%d tris, %d->%d verts\n",priv->objects.size(),origNumTriangles,priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
 	// update minimalSafeDistance
 	if(priv->multiObjectPhysicalWithIllumination)
 	{

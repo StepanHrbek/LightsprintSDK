@@ -119,15 +119,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	//zapnuti techto 2 radek zrychli sponzu o 15% 
 	//sp.minFeatureSize = 0.15f;
 	//sp.vertexWeldDistance = 0.01f; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
+	//sp.vertexWeldDistance = -1; // vypnuty weld by teoreticky nemel skodit, ale prakticky zpomaluje updatevbuf i render(useOriginal), nevim proc
 #ifdef THREE_ONE
 	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
 #endif
 	solver->setObjects(*objects,&sp);
-
-	//	printf(solver->getObject(0)->getCollider()->getMesh()->save("c:\\a")?"saved":"not saved");
-	//	printf(solver->getObject(0)->getCollider()->getMesh()->load("c:\\a")?" / loaded":" / not loaded");
-
-	//solver->calculate(); // creates radiosity solver with multiobject. without renderer, no primary light is detected
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 

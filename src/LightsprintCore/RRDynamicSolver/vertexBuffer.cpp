@@ -125,16 +125,6 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 		RR_ASSERT(0);
 		return 0;
 	}
-	if(!priv->scene && !priv->packedSolver)
-	{
-		calculateCore(0); // create missing solver
-		if(!priv->scene)
-		{
-			RRReporter::report(WARN,"Empty scene, vertex buffer not set.\n");
-			RR_ASSERT(0);
-			return 0;
-		}
-	}
 	RRObjectIllumination* illumination = getIllumination(objectHandle);
 	unsigned numPreImportVertices = illumination->getNumPreImportVertices();
 
@@ -152,6 +142,16 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 	}
 
 	// dynamic solver
+	if(!priv->scene)
+	{
+		calculateCore(0); // create missing solver
+		if(!priv->scene)
+		{
+			RRReporter::report(WARN,"Empty scene, vertex buffer not set.\n");
+			RR_ASSERT(0);
+			return 0;
+		}
+	}
 	RRRadiometricMeasure measure = params ? params->measure : RM_IRRADIANCE_PHYSICAL_INDIRECT;
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static) // dynamic vyrazne pomalejsi nez default
