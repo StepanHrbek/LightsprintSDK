@@ -362,12 +362,10 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 
 const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const
 {
-	if(triangle>=0x3fffffff || vertex>=3 // for some reason, we can't find ivertex for given vertex (UNDEFINED is clamped to 30 + 2 bits)
-		|| packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]>=packedSolverFile->packedIvertices->getNumC1())
+	if(triangle>=0x3fffffff || vertex>=3 // wrong inputs, shouldn't happen (btw, it's not ffff, UNDEFINED is clamped to 30 + 2 bits)
+		|| packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]>=packedSolverFile->packedIvertices->getNumC1()) // ffff in packed file -> triangle is degen or needle
 	{
-		//RR_ASSERT(0);
-		static RRVec3 someError(1,0,1); // pink = error
-		return &someError;
+		return NULL;
 	}
 	return &ivertexIndirectIrradiance[packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]];
 }

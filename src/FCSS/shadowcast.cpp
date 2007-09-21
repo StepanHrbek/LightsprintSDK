@@ -8,16 +8,16 @@ unsigned INSTANCES_PER_PASS;
 #define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
-//#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery. nepodporuje fireball (viz ObjectBuffers.cpp line 277)
+//#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery. nepodporuje fireball (viz ObjectBuffers.cpp line 277, cte indirect ze static solveru)
 //#define THREE_ONE
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-#define CFG_FILE "test.cfg"
+//#define CFG_FILE "test.cfg"
 //#define CFG_FILE "eg-flat1.cfg"
 //#define CFG_FILE "eg-quake.cfg"
 //#define CFG_FILE "eg-sponza.cfg"
-//#define CFG_FILE "eg-sponza-sun.cfg"
+#define CFG_FILE "eg-sponza-sun.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
@@ -79,7 +79,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Autopilot.h"
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"
-//#include "../RRVision/RRDynamicSolver/report.h"
+#include "../LightsprintCore/RRDynamicSolver/report.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -995,7 +995,7 @@ void keyboard(unsigned char c, int x, int y);
 
 void display()
 {
-	rr::RRReportInterval report(rr::INF3,"display()\n");
+	REPORT(rr::RRReportInterval report(rr::INF3,"display()\n"));
 	if(!winWidth) return; // can't work without window
 	static unsigned skipFrames = 0;
 	//printf("<Display.>\n");
@@ -1996,7 +1996,7 @@ void passive(int x, int y)
 
 void idle()
 {
-	rr::RRReportInterval report(rr::INF3,"idle()\n");
+	REPORT(rr::RRReportInterval report(rr::INF3,"idle()\n"));
 	if(!winWidth) return; // can't work without window
 
 	if(level && level->pilot.isTimeToChangeLevel())
@@ -2197,7 +2197,7 @@ int main(int argc, char **argv)
 	}
 
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
-	rr::RRReporter::setFilter(true,3,true);
+	REPORT(rr::RRReporter::setFilter(true,3,true));
 	//rr_gl::Program::showLog = true;
 
 	parseOptions(argc, argv);

@@ -164,6 +164,8 @@ PackedSolverFile* Scene::packSolver() const
 			else
 			{
 				// ivertex missing, we have no lighting data
+				// this is legal: needles and degenerates are catched here, both with surface=NULL
+				// we must be ready for them even in runtime
 				packedSolverFile->packedSmoothTriangles[t].ivertexIndex[v] = UINT_MAX; // invalid value, will be displayed as pink
 			}
 		}

@@ -821,12 +821,7 @@ static RRMesh* newMesh(const FCDGeometryMesh* mesh, int lightmapUvChannel)
 		assert(0);
 		return NULL;
 	}
-	RRMesh* tmp = new RRMeshCollada(mesh, lightmapUvChannel);
-	// createOptimizedVertices() removes duplicated vertices, makes realtime GI faster.
-	// Not enabled by default, because createOptimizedVertices() doesn't test all vertex
-	// properties for match, only positions, so it may smooth edges and break unwrap.
-	//return tmp->createOptimizedVertices()->createVertexBufferRuler();
-	return tmp;
+	return new RRMeshCollada(mesh, lightmapUvChannel);
 }
 
 // Creates new RRCollider from FCDGeometryMesh.

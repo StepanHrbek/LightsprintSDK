@@ -127,7 +127,7 @@ void RendererOfRRDynamicSolver::setBrightnessGamma(float brightness[4], float ga
 
 void RendererOfRRDynamicSolver::render()
 {
-	rr::RRReportInterval report(rr::INF3,"Render optimized scene\n");
+	rr::RRReportInterval report(rr::INF3,"Rendering optimized scene...\n");
 	if(!params.solver || !params.solver->getMultiObjectCustom())
 	{
 		RR_ASSERT(0);
@@ -270,7 +270,7 @@ void RendererOfOriginalScene::setIndirectIlluminationSourceBlend(unsigned alayer
 
 void RendererOfOriginalScene::render()
 {
-	rr::RRReportInterval report(rr::INF3,"Render original scene\n");
+	rr::RRReportInterval report(rr::INF3,"Rendering original scene...\n");
 	// create helper renderers
 	if(!params.solver)
 	{

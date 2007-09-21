@@ -21,7 +21,7 @@ public:
 
 	// Triangle indirect irradiance, physical, gouraud. For static objects.
 	// Pointer is guaranteed to stay constant, you can reuse it in next frames.
-	// It never returns NULL, pink is returned in case of error.
+	// It may return NULL (for degenated and needle triangles).
 	// Pointers are valid even without calling update, however data behind pointers
 	// are valid only after calling update.
 	void getTriangleIrradianceIndirectUpdate();

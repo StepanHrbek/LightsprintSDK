@@ -226,27 +226,25 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		priv->dirtyMaterials = false;
 		dirtyFactors = true;
 		//SAFE_DELETE(priv->packedSolver); intentionally not deleted, material change is not expected to unload packed solver (even though it becomes incorrect)
-		REPORT_BEGIN("Detecting material properties.");
+		REPORT(RRReportInterval report(INF3,"Detecting material properties...\n"));
 		detectMaterials();
-		REPORT_END;
 	}
 	if(priv->dirtyStaticSolver && !priv->packedSolver)
 	{
-		REPORT_BEGIN("Opening new radiosity solver.");
+		REPORT(RRReportInterval report(INF3,"Opening new radiosity solver...\n"));
 		priv->dirtyStaticSolver = false;
 		priv->dirtyLights = Private::BIG_CHANGE;
 		dirtyFactors = true;
 		// create new
 		priv->scene = priv->multiObjectPhysicalWithIllumination ? new RRStaticSolver(priv->multiObjectPhysicalWithIllumination,&priv->smoothing) : NULL;
 		if(priv->scene) updateVertexLookupTableDynamicSolver();
-		REPORT_END;
 	}
 	if(priv->dirtyLights!=Private::NO_CHANGE)
 	{
 		dirtyEnergies = priv->dirtyLights;
 		priv->dirtyLights = Private::NO_CHANGE;
 		priv->readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
-		REPORT_BEGIN("Detecting direct illumination.");
+		REPORT(RRReportInterval report(INF3,"Detecting direct illumination...\n"));
 		if(!detectDirectIllumination())
 		{
 			// detection has failed, ensure these points:
@@ -258,18 +256,16 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 			// exit before resetting energies
 			// exit before factor calculation and energy propagation
 		}
-		REPORT_END;
 	}
 	if(dirtyFactors)
 	{
 		dirtyFactors = false;
 		dirtyEnergies = Private::NO_CHANGE;
 		priv->dirtyResults = true;
-		REPORT_BEGIN("Resetting solver energies and factors.");
+		REPORT(RRReportInterval report(INF3,"Resetting solver energies and factors...\n"));
 		SAFE_DELETE(priv->packedSolver);
 		if(priv->scene) priv->scene->illuminationReset(true,true);
 		priv->solutionVersion++;
-		REPORT_END;
 	}
 	if(priv->dirtyLights!=Private::NO_CHANGE)
 	{
@@ -278,7 +274,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	}
 	if(dirtyEnergies!=Private::NO_CHANGE)
 	{
-		REPORT_BEGIN("Updating solver energies.");
+		REPORT(RRReportInterval report(INF3,"Updating solver energies...\n"));
 		if(priv->packedSolver)
 		{
 			priv->packedSolver->illuminationReset();
@@ -289,7 +285,6 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 			priv->scene->illuminationReset(false,dirtyEnergies==Private::BIG_CHANGE);
 		}
 		priv->solutionVersion++;
-		REPORT_END;
 		if(dirtyEnergies==Private::BIG_CHANGE)
 		{
 			// following improvement should be so big that single frames after big reset are not visibly darker
@@ -300,7 +295,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		priv->dirtyResults = true;
 	}
 
-	REPORT_BEGIN("Calculating.");
+	REPORT(RRReportInterval report(INF3,"Calculating...\n"));
 	TIME now = GETTIME;
 	TIME end = (TIME)(now+improveStep*PER_SEC);
 	RRStaticSolver::Improvement improvement;
@@ -314,8 +309,8 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	{
 		improvement = priv->scene ? priv->scene->illuminationImprove(endByTime,(void*)&end) : RRStaticSolver::FINISHED;
 	}
-	//REPORT(RRReporter::report(CONT," (imp %d det+res+read %d game %d) ",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
-	REPORT_END;
+	//REPORT(RRReporter::report(INF3,"imp %d det+res+read %d game %d\n",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
+
 	switch(improvement)
 	{
 		case RRStaticSolver::IMPROVED:

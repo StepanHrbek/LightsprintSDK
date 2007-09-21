@@ -284,7 +284,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						lightIndirectVcolorLastPlus1 = params.lastCapturedTrianglePlus1;
 						lightIndirectVcolorVersion = solutionVersion;
 
-						rr::RRReportInterval(rr::INF3,"Updating private vertex buffers of renderer.\n");
+						//rr::RRReportInterval report(rr::INF3,"Updating private vertex buffers of renderer...\n");
 						// refill
 #pragma omp parallel for schedule(static,1)
 						for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
