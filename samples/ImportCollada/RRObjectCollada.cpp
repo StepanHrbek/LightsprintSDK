@@ -157,7 +157,6 @@ RRMeshCollada::RRMeshCollada(const FCDGeometryMesh* _mesh, int _lightmapUvChanne
 bool getTriangleVerticesData(const FCDGeometryMesh* mesh, FUDaeGeometryInput::Semantic semantic, unsigned index, unsigned floatsPerVertex, unsigned itemIndex, void* itemData, unsigned itemSize)
 {
 	assert(itemSize==12*floatsPerVertex);
-	//const FCDGeometrySource* source = mesh->FindSourceByType(semantic);
 	FCDGeometrySourceConstList sources;
 	mesh->FindSourcesByType(semantic,sources);
 	if(sources.size()<=index)
@@ -243,42 +242,73 @@ bool RRMeshCollada::getChannelData(unsigned channelId, unsigned itemIndex, void*
 
 unsigned RRMeshCollada::getNumVertices() const
 {
-	// Vertices are not shared between triangles, numVerts = 3 * numTris.
-	// It makes this class bit simpler.
-	// Inflated number of vertices hurts realtime performance (bigger vertex buffers).
-	// Collada is used mostly for precalculations, so no problem.
-	return RRMeshCollada::getNumTriangles()*3;
+	const FCDGeometrySource* source = mesh->GetVertexSource(0);
+	if(!source)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
+	return source->GetValueCount();
 }
 
 void RRMeshCollada::getVertex(unsigned v, Vertex& out) const
 {
-	assert(v<RRMeshCollada::getNumVertices());
-	RRVec3 tmp[3];
-	if(getTriangleVerticesData(mesh,FUDaeGeometryInput::POSITION,0,3,v/3,tmp,sizeof(tmp)))
+	RR_ASSERT(v<RRMeshCollada::getNumVertices());
+	const FCDGeometrySource* source = mesh->GetVertexSource(0);
+	if(!source)
 	{
-		out = tmp[v%3];
+		RR_ASSERT(0);
+		return;
 	}
-	else
-	{
-		LIMITED_TIMES(1,RRReporter::report(ERRO,"RRMeshCollada: No vertex positions.\n"));
-	}
+	RR_ASSERT(source->GetSourceStride()==3);
+	memcpy(&out,source->GetValue(v),sizeof(out));
 }
 
 unsigned RRMeshCollada::getNumTriangles() const
 {
+	// mesh must be triangulated
 	return (unsigned)mesh->GetFaceCount();
 }
 
 void RRMeshCollada::getTriangle(unsigned t, Triangle& out) const
 {
+	// mesh must be triangulated
 	if(t>=RRMeshCollada::getNumTriangles()) 
 	{
-		assert(0);
+		RR_ASSERT(0);
 		return;
 	}
-	out[0] = t*3;
-	out[1] = t*3+1;
-	out[2] = t*3+2;
+	const FCDGeometrySource* source = mesh->FindSourceByType(FUDaeGeometryInput::POSITION);
+	if(!source)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	for(size_t i=0;i<mesh->GetPolygonsCount();i++)
+	{
+		const FCDGeometryPolygons* polygons = mesh->GetPolygons(i);
+		if(!polygons)
+		{
+			RR_ASSERT(0);
+			return;
+		}
+		if(t<polygons->GetFaceCount())
+		{
+			const UInt32List* indices = polygons->FindIndices(source);
+			if(!indices)
+			{
+				RR_ASSERT(0);
+				return;
+			}
+			RR_ASSERT(3*t<indices->size());
+			out[0] = (*indices)[3*t+0];
+			out[1] = (*indices)[3*t+1];
+			out[2] = (*indices)[3*t+2];
+			return;
+		}
+		t -= polygons->GetFaceCount();
+	}
+	RR_ASSERT(0);
 }
 
 void RRMeshCollada::getTriangleNormals(unsigned t, TriangleNormals& out) const
@@ -702,6 +732,11 @@ const RRMaterial* RRObjectCollada::getTriangleMaterial(unsigned t) const
 
 void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) const
 {
+	// When point materials are used, this is critical place for performance
+	// of updateLightmap[s]().
+	// getChannelData() called here is very slow.
+	// In your implementations, prefer simple lookups, avoid for cycles.
+	// Use profiler to see what percentage of time is spent in getPointMaterial().
 	const MaterialInfo* materialInfo = getTriangleMaterialInfo(t);
 	const RRMaterial* material = materialInfo ? &materialInfo->material : NULL;
 	if(material)
