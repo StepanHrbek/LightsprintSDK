@@ -460,6 +460,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 {
 	if(!needDepthMapUpdate) return;
 	assert(mapIndex>=0);
+	REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap...\n"));
 	rr_gl::Camera* lightInstance = areaLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
@@ -2087,26 +2088,20 @@ void idle()
 		needRedisplay = 1;
 	}
 
-//	LIMITED_TIMES(1,timer.Start());
 	bool rrOn = renderVertexColors
 #ifdef CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS
 		|| renderLightmaps
 #endif
 		;
-//	printf("[--- %d %d %d %d",rrOn?1:0,movingEye?1:0,updateDuringLightMovement?1:0,movingLight?1:0);
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
 	if(level && captureMovie && !demoPlayer->getPaused())
 		for(unsigned i=0;i<10;i++)
 			level->solver->calculate();
+
 	if(!level || (rrOn && level->solver->calculate()==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
-//		printf("---]");
-		// pokud pouzivame rr renderer a zmenil se indirect, promaznout cache
-		// nutne predtim nastavit params (renderedChannels apod)
-		//!!! rendererCaching->setStatus(RRGLCachingRenderer::CS_READY_TO_COMPILE);
 		glutPostRedisplay();
-//printf("coll=%.1fM coll/sec=%fk\n",rr::RRIntersectStats::getInstance()->intersect_mesh/1000000.0f,rr::RRIntersectStats::getInstance()->intersect_mesh/1000.0f/timer.Watch());//!!!
 	}
 }
 

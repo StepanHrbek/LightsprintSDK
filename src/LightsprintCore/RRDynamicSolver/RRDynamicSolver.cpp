@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/GL/Timer.h"
 #include "report.h"
 #include "private.h"
 #include "../RRStaticSolver/rrcore.h" // buildovani packed faktoru
@@ -218,7 +219,6 @@ private:
 //  does no timing adjustments
 RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 {
-	REPORT_INIT;
 	bool dirtyFactors = false;
 	Private::ChangeStrength dirtyEnergies = Private::NO_CHANGE;
 	if(priv->dirtyMaterials)
@@ -302,6 +302,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	if(priv->packedSolver)
 	{
 		end = (TIME)(now+improveStep*PER_SEC/2);
+		end = (TIME)(now+PER_SEC*0.02f);//!!!
 		priv->packedSolver->illuminationImprove(endByTime,(void*)&end);
 		improvement = RRStaticSolver::IMPROVED;
 	}

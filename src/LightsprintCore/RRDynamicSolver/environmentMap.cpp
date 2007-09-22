@@ -10,9 +10,6 @@
 #include "../RRMathPrivate.h"
 #include "private.h"
 
-#undef REPORT
-#define REPORT(a)
-
 namespace rr
 {
 
@@ -420,21 +417,11 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		return 0;
 	}
 
-	REPORT_INIT;
-	REPORT_BEGIN("Update envmap-100x gather");
-	#define TEST100 //REPORT(for(unsigned q=0;q<100;q++))
-
 #define FILL_CUBEMAP(filteredSize, radius, map) \
 	if(map) \
 	{ \
-		REPORT_END; \
-		REPORT_BEGIN("Update envmap-100x interpolate"); \
 		const Interpolator* interpolator = cache.getInterpolator(gatherSize,filteredSize,radius); \
-		TEST100\
 		interpolator->interpolate(gatheredIrradiance,filteredIrradiance,priv->scaler); \
-		REPORT_END; \
-		REPORT_BEGIN("Update envmap-100x send2gl"); \
-		TEST100\
 		map->setValues(filteredSize,filteredIrradiance); \
 		updatedMaps++; \
 	}
@@ -456,7 +443,6 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		RRColorRGBF* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
 
 		// gather physical irradiances
-		TEST100
 		cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,NULL,gatheredIrradiance);
 
 		// fill cubemaps
@@ -493,7 +479,6 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		RRColorRGBA8* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
 
 		// gather custom irradiances
-		TEST100
 		cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,gatheredIrradiance,NULL);
 
 		// fill cubemaps
@@ -515,8 +500,6 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		delete[] gatheredIrradiance;
 	}
 #endif
-
-	REPORT_END;
 
 	return updatedMaps;
 }

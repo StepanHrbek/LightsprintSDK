@@ -12,6 +12,8 @@ extern void error(const char* message, bool gfxRelated);
 
 Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, bool supportEditor) : pilot(levelSetup)
 {
+	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",pilot.setup->filename);
+
 	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : NULL;
 	solver = NULL;
 #ifdef BUGS
@@ -37,8 +39,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 		light = tmplight;
 	}*/
 
-	rr::RRReporter::report(rr::INF1,"Loading %s...",pilot.setup->filename);
-
 	type = TYPE_NONE;
 	const char* typeExt[] = {".3ds",".bsp",".dae",".mgf"};
 	for(unsigned i=TYPE_3DS;i<TYPE_NONE;i++)
@@ -58,7 +58,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			// load quake 3 map
 			if(!readMap(pilot.setup->filename,bsp))
 				error("Failed to load .bsp scene.",false);
-			rr::RRReporter::report(rr::CONT,"\n");
 			char* maps = _strdup(pilot.setup->filename);
 			char* mapsEnd;
 			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
@@ -75,7 +74,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			// load .3ds scene
 			if(!m3ds.Load(pilot.setup->filename,pilot.setup->scale))
 				error("",false);
-			rr::RRReporter::report(rr::CONT,"\n");
 			objects = adaptObjectsFrom3DS(&m3ds);
 			break;
 		}
@@ -87,7 +85,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			collada = FCollada::NewTopDocument();
 			FUErrorSimpleHandler errorHandler;
 			collada->LoadFromFile(pilot.setup->filename);
-			rr::RRReporter::report(rr::CONT,"\n");
 			if(!errorHandler.IsSuccessful())
 			{
 				puts(errorHandler.GetErrorString());

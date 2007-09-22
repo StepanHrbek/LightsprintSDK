@@ -38,7 +38,6 @@ namespace rr
 		INF3, ///< Information, produced by valid programs. Reported by all versions. Frequent or unimportant events.
 		INF9, ///< So unimportant that it's to be skipped.
 		TIMI, ///< Timing information.
-		CONT, ///< Continuation of previous message.
 	};
 
 	//////////////////////////////////////////////////////////////////////////////

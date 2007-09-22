@@ -120,7 +120,7 @@ public:
 				bestQ[pos] = q;
 			}
 		}
-	//if(bests) RRReporter::report(INF3,"bestQ[0]=%f bestQ[%d]=%f\n",bestQ[0],bests-1,bestQ[bests-1]);//!!!
+	//if(bests) RRReporter::report(INF2,"bestQ[0]=%f bestQ[%d]=%f\n",bestQ[0],bests-1,bestQ[bests-1]);//!!!
 
 
 		return bests;

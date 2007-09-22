@@ -35,7 +35,7 @@ public:
 			space[indentation] = 0;
 		}
 		// type
-		if(type<ERRO || type>CONT) type = CONT;
+		if(type<ERRO || type>TIMI) type = INF9;
 		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","","",""};
 		// message
 		// print
@@ -74,11 +74,8 @@ public:
 			space[indentation] = 0;
 		}
 		// type
-		if(type!=CONT)
-		{
-			char typeColor[CONT] = {15+16*4,14,15,7,7,7,7,6};
-			SetConsoleTextAttribute(hconsole, currentColor = typeColor[type]);
-		}
+		char typeColor[TIMI+1] = {15+16*4,14,15,7,7,7,7,6};
+		SetConsoleTextAttribute(hconsole, currentColor = typeColor[type]);
 		// message
 		// print
 		printf("%s%s%s",space,(type==ASSE)?"Assert failed: ":"",message);
@@ -107,8 +104,8 @@ public:
 			OutputDebugString(space);
 		}
 		// type
-		if(type<ERRO || type>CONT) type = CONT;
-		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","","",""};
+		if(type<ERRO || type>TIMI) type = INF9;
+		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","",""};
 		OutputDebugString(typePrefix[type]);
 		// message
 		OutputDebugString(message);
@@ -122,7 +119,7 @@ public:
 
 static int indentation = 0;
 static RRReporter* reporter = NULL;
-static bool typeEnabled[CONT+1] = {1,1,1,1,1,0,0,1,1};
+static bool typeEnabled[TIMI+1] = {1,1,1,1,1,0,0,1};
 
 void RRReporter::setFilter(bool warnings, unsigned infLevel, bool timing)
 {
@@ -140,7 +137,7 @@ void RRReporter::indent(int delta)
 
 void RRReporter::reportV(RRReportType type, const char* format, va_list& vars)
 {
-	if(reporter && type>=ERRO && type<=CONT && typeEnabled[type])
+	if(reporter && type>=ERRO && type<=TIMI && typeEnabled[type])
 	{
 		char msg[1000];
 		_vsnprintf(msg,999,format,vars);
@@ -208,7 +205,7 @@ RRReporter* RRReporter::createOutputDebugStringReporter()
 
 RRReportInterval::RRReportInterval(RRReportType type, const char* format, ...)
 {
-	enabled = type>=ERRO && type<=CONT && typeEnabled[type];
+	enabled = type>=ERRO && type<=TIMI && typeEnabled[type];
 	if(enabled)
 	{
 		creationTime = GETTIME;

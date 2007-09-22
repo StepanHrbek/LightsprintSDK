@@ -930,10 +930,6 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		TIME now = GETTIME;
 		TIME end = (TIME)(now+secondsInPropagatePlan*PER_SEC);
 		RRStaticSolver::Improvement improvement = priv->scene->illuminationImprove(endByTime,(void*)&end);
-		if(improvement!=RRStaticSolver::IMPROVED)
-		{
-		//	RRReporter::report(CONT," scheduled for %.1fs, ",secondsInPropagatePlan);
-		}
 		switch(improvement)
 		{
 			case RRStaticSolver::IMPROVED: RRReporter::report(INF3,"Improved.\n");break;
