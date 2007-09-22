@@ -91,25 +91,25 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 						preVertex = preVertexMulti.index;
 					else
 						continue; // skip asserts
-					if(preVertex<numPreImportVertices
-						&& !priv->preVertex2Ivertex[objectHandle][preVertex]) // if more ivertices writes to this vertex, stop after getting first valid pointer and then never overwrite it by NULL
-/*proc muze vic ivertexu zapisovat do stejneho vertexu a jeden z nich je NULL?
-builder:
-	mam triangl, neni uplny degen, ale je to jehlicka
-	nekdo mu proto da surface=null
-	cele tri ivertexy jsou null
-	vezmeme jeden z vrcholu
-	ivertex je null
-	vertex je sdilen vice triangly, takze na stejne pozici je i pekny ivertex obsahujici okolni pekne triangly
-	oba ivertexy zapisu do fib
-runtime:
-	ve scene je jen 1 vertex
-	kdyz sestavuju vbuf, pro tento 1 vertex hledam ivertex
-	najdu oba
-	musim z nich pouzit ten ktery neni fialovy
-*/
+					if(preVertex<numPreImportVertices)
 					{
-						priv->preVertex2Ivertex[objectHandle][preVertex] = priv->packedSolver->getTriangleIrradianceIndirect(postImportTriangle,v);
+						/* if more ivertices writes to this vertex, stop after getting first valid pointer and then never overwrite it by NULL
+						proc muze vic ivertexu zapisovat do stejneho vertexu a jeden z nich je NULL?
+						builder:
+							mam triangl, neni uplny degen, ale je to jehlicka
+							nekdo mu proto da surface=null
+							cele tri ivertexy jsou null
+							vezmeme jeden z vrcholu
+							ivertex je null
+							vertex je sdilen vice triangly, takze na stejne pozici je i pekny ivertex obsahujici okolni pekne triangly
+							oba ivertexy zapisu do fib
+						runtime:
+							ve scene je jen 1 vertex
+							kdyz sestavuju vbuf, pro tento 1 vertex hledam ivertex
+							najdu oba
+							musim z nich pouzit ten ktery neni fialovy*/
+						if(!priv->preVertex2Ivertex[objectHandle][preVertex])
+							priv->preVertex2Ivertex[objectHandle][preVertex] = priv->packedSolver->getTriangleIrradianceIndirect(postImportTriangle,v);
 					}
 					else
 						RR_ASSERT(0);

@@ -6,21 +6,15 @@
 #include <cassert>
 #include <cstdarg>
 #include <cstdio>
-#ifdef _OPENMP
-#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
-#endif
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "../DemoEngine/PreserveState.h"
 
-#ifdef RR_DEVELOPMENT
-	#define SCALE_DOWN_ON_GPU       // mnohem rychlejsi, ale zatim neovereny ze funguje vsude
-	//#define CAPTURE_TGA           // behem scale_down uklada mezivysledky do tga, pro rucni kontrolu
-	#define PRIMARY_SCAN_PRECISION  1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
-#endif
-#define BIG_MAP_SIZE            1024 // size of temporary texture used during detection
+#define BIG_MAP_SIZEX            1024 // size of temporary texture used during detection
+#define BIG_MAP_SIZEY            1200 // increased to process 70k triangle Sponza in 1 pass
+#define REPORT(a) //a
 
 namespace rr_gl
 {
@@ -79,12 +73,8 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	pathToShaders[299]=0;
 
 	captureUv = new CaptureUv;
-	detectBigMap = Texture::create(NULL,BIG_MAP_SIZE,BIG_MAP_SIZE,false,Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
-	smallMapSize = BIG_MAP_SIZE*BIG_MAP_SIZE
-#ifdef SCALE_DOWN_ON_GPU
-		/16
-#endif
-		;
+	detectBigMap = Texture::create(NULL,BIG_MAP_SIZEX,BIG_MAP_SIZEY,false,Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	smallMapSize = BIG_MAP_SIZEX*BIG_MAP_SIZEY/16;
 	detectSmallMap = new unsigned[smallMapSize*8]; // max static triangles = 64k*8 = 512k
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
@@ -137,7 +127,7 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 {
 	if(!scaleDownProgram) return NULL;
 
-	//rr::RRReportInterval report(rr::INF3,"detectDirectIllumination\n");
+	REPORT(rr::RRReportInterval report(rr::INF1,"detectDirectIllumination()\n"));
 
 	// update renderer after geometry change
 	if(getMultiObjectCustom()!=rendererObject) // not equal? geometry must be changed
@@ -177,10 +167,10 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 	glDepthMask(0);
 
 	// adjust captured texture size so we don't waste pixels
-	captureUv->triCountX = BIG_MAP_SIZE/4; // number of triangles in one row
-	captureUv->triCountY = BIG_MAP_SIZE/4; // number of triangles in one column
+	captureUv->triCountX = BIG_MAP_SIZEX/4; // number of triangles in one row
+	captureUv->triCountY = BIG_MAP_SIZEY/4; // number of triangles in one column
 	while(captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
-	unsigned width = BIG_MAP_SIZE; // used width in pixels
+	unsigned width = BIG_MAP_SIZEX; // used width in pixels
 	unsigned height = captureUv->triCountY*4; // used height in pixels
 
 	// for each set of triangles (if all triangles don't fit into one texture)
@@ -237,8 +227,8 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		detectBigMap->renderingToEnd();
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("lightmap",0);
-		scaleDownProgram->sendUniform("pixelDistance",1.0f/BIG_MAP_SIZE,1.0f/BIG_MAP_SIZE);
-		glViewport(0,0,BIG_MAP_SIZE/4,BIG_MAP_SIZE/4);//!!! needs at least 256x256 backbuffer
+		scaleDownProgram->sendUniform("pixelDistance",1.0f/BIG_MAP_SIZEX,1.0f/BIG_MAP_SIZEY);
+		glViewport(0,0,BIG_MAP_SIZEX/4,BIG_MAP_SIZEY/4);//!!! needs at least 256x256 backbuffer
 		glActiveTexture(GL_TEXTURE0);
 		detectBigMap->bindTexture();
 		{
@@ -258,8 +248,8 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 
 		// read downscaled image to memory
 		RR_ASSERT(captureUv->triCountX*captureUv->triCountY<smallMapSize);
+		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix\n"));
 		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap+captureUv->firstCapturedTriangle);
-
 	}
 
 	return detectSmallMap;

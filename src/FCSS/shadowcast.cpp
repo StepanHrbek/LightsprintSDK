@@ -5,7 +5,6 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
-#define PRIMARY_SCAN_PRECISION     1 // 1nejrychlejsi/2/3nejpresnejsi, 3 s texturami nebude fungovat kvuli cachovani pokud se detekce vseho nevejde na jednu texturu - protoze displaylist myslim neuklada nastaveni textur
 #define SUPPORT_LIGHTMAPS          1
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery. nepodporuje fireball (viz ObjectBuffers.cpp line 277, cte indirect ze static solveru)
@@ -268,16 +267,8 @@ protected:
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-#if PRIMARY_SCAN_PRECISION==1 // 110ms
 		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
-#elif PRIMARY_SCAN_PRECISION==2 // 150ms
-		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = true;
-		uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
-#else // PRIMARY_SCAN_PRECISION==3 // 220ms
-		uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
-		uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-#endif
 		uberProgramSetup.MATERIAL_SPECULAR = false;
 		uberProgramSetup.MATERIAL_SPECULAR_CONST = false;
 		uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
