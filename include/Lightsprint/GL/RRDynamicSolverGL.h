@@ -34,9 +34,6 @@ namespace rr_gl
 		RRDynamicSolverGL(char* pathToShaders);
 		virtual ~RRDynamicSolverGL();
 
-		//! Our reimplementation of RRDynamicSolver::setScaler().
-		virtual void setScaler(rr::RRScaler* scaler);
-
 		//! Creates 2d texture for indirect illumination storage.
 		//! Used for precomputed global illumination of static objects.
 		//! \param width Width of texture.
@@ -98,15 +95,13 @@ namespace rr_gl
 
 	protected:
 		//! Detection of direct illumination from custom light sources implemented using OpenGL 2.0.
-		virtual bool detectDirectIllumination();
+		virtual unsigned* detectDirectIllumination();
 
 
 		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
 		//! without material. This is renderer specific operation and can't be implemented here.
 		virtual void setupShader(unsigned objectNumber) = 0;
 
-		//! Multiplies direct illumination detected by detectDirectIllumination(). Default value is 1 (no change, physically correct).
-		float boostDetectedDirectIllumination;
 	private:
 		char pathToShaders[300];
 		// for internal rendering
@@ -118,7 +113,6 @@ namespace rr_gl
 		unsigned* detectSmallMap;
 		unsigned smallMapSize;
 		Program* scaleDownProgram;
-		rr::RRReal customToPhysical[256];
 	};
 
 };

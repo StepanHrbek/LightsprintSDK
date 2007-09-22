@@ -85,7 +85,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 		/16
 #endif
 		;
-	detectSmallMap = new unsigned[smallMapSize];
+	detectSmallMap = new unsigned[smallMapSize*8]; // max static triangles = 64k*8 = 512k
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%sscaledown_filter.vs",pathToShaders);
@@ -95,15 +95,8 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
-	boostDetectedDirectIllumination = 1;
 
 	rendererObject = NULL;
-
-	// update fast conversion table for our detectDirectIllumination
-	for(unsigned i=0;i<256;i++)
-	{
-		customToPhysical[i] = i/255.f;
-	}
 
 #ifdef RR_DEVELOPMENT
 	// used by detectDirectIlluminationFromLightmaps
@@ -140,21 +133,9 @@ per object lighting:
 */
 #endif
 
-void RRDynamicSolverGL::setScaler(rr::RRScaler* scaler)
+unsigned* RRDynamicSolverGL::detectDirectIllumination()
 {
-	RRDynamicSolver::setScaler(scaler);
-	// update fast conversion table for our detectDirectIllumination
-	for(unsigned i=0;i<256;i++)
-	{
-		rr::RRColor c(i*boostDetectedDirectIllumination/255);
-		if(getScaler()) getScaler()->getPhysicalScale(c);
-		customToPhysical[i] = c[0];
-	}
-}
-
-bool RRDynamicSolverGL::detectDirectIllumination()
-{
-	if(!scaleDownProgram) return false;
+	if(!scaleDownProgram) return NULL;
 
 	//rr::RRReportInterval report(rr::INF3,"detectDirectIllumination\n");
 
@@ -180,7 +161,7 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 	if(!numTriangles)
 	{
 		RR_ASSERT(0); // legal, but should not happen in well coded program
-		return true;
+		return NULL;
 	}
 
 	// preserve render states, any changes will be restored at return from this function
@@ -277,275 +258,19 @@ bool RRDynamicSolverGL::detectDirectIllumination()
 
 		// read downscaled image to memory
 		RR_ASSERT(captureUv->triCountX*captureUv->triCountY<smallMapSize);
-		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap);
+		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap+captureUv->firstCapturedTriangle);
 
-		// send triangle irradiances to solver
-		//rr::RRReportInterval report(rr::INF3,"parseglReadPixels\n");
-#pragma omp parallel for schedule(static)
-		for(int t=captureUv->firstCapturedTriangle;t<(int)captureUv->lastCapturedTrianglePlus1;t++)
-		{
-			unsigned triangleIndex = (unsigned)t;
-			unsigned color = detectSmallMap[triangleIndex-captureUv->firstCapturedTriangle];
-			getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(
-				triangleIndex,
-				RM_IRRADIANCE_PHYSICAL,
-				rr::RRColor(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]));
-		}
 	}
 
-	return true;
+	return detectSmallMap;
 }
 
 #ifdef RR_DEVELOPMENT
-/*
-// development version with additional features
-bool RRDynamicSolverGL::detectDirectIllumination()
-{
-#ifdef SCALE_DOWN_ON_GPU
-	if(!scaleDownProgram) return false;
-#endif
-	//printf("GL::detectDirectIllumination\n");
-	//Timer w;w.Start();
-
-	// first time init
-	// this can't be done in constructor, because multiobject is not yet ready
-	if(!rendererNonCaching)
-	{
-		if(!getMultiObjectCustom()) return false;
-		rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getStaticSolver(),getScaler(),true);
-		rendererCaching = rendererNonCaching->createDisplayList();
-	}
-
-	// backup render states
-	glGetIntegerv(GL_VIEWPORT,viewport);
-	depthTest = glIsEnabled(GL_DEPTH_TEST);
-	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
-	glGetFloatv(GL_COLOR_CLEAR_VALUE,clearcolor);
-
-	rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
-	unsigned numTriangles = mesh->getNumTriangles();
-	if(!numTriangles)
-	{
-		RR_ASSERT(0); // legal, but should not happen in well coded program
-		return true;
-	}
-
-	// adjust captured texture size so we don't waste pixels
-	unsigned triSizeXRender = 4; // triSizeXRender = triangle width in pixels while rendering
-	unsigned triSizeYRender = 4;
-#ifdef SCALE_DOWN_ON_GPU
-	captureUv->triCountX = BIG_MAP_SIZE/triSizeXRender; // triCountX = number of triangles in one row
-	captureUv->triCountY = BIG_MAP_SIZE/triSizeYRender;
-	unsigned triSizeXRead = 1; // triSizeXRead = triangle width in pixels while reading pixel results
-	unsigned triSizeYRead = 1;
-#else
-	captureUv->triCountX = viewport[2]/triSizeXRender;
-	captureUv->triCountY = viewport[3]/triSizeYRender;
-	unsigned triSizeXRead = 4;
-	unsigned triSizeYRead = 4;
-#endif
-	while(captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
-
-	// setup render states
-	glClearColor(0,0,0,1);
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(0);
-
-#ifdef CAPTURE_TGA
-	static int captured = 0;
-	struct TgaHeader
-	{
-		TgaHeader(unsigned width, unsigned height)
-		{
-			pad[0]=pad[1]=pad[3]=pad[4]=pad[5]=pad[6]=pad[7]=pad[8]=pad[9]=pad[10]=pad[11]=0;
-			pad[2]=2;
-			pad[12]=width;
-			pad[13]=width>>8;
-			pad[14]=height;
-			pad[15]=height>>8;
-			pad[16]=32;
-			pad[17]=40;
-		}
-		unsigned char pad[18];
-	};
-#endif
-
-	// check that detectSmallMap is big enough for all pixels
-	RR_ASSERT(captureUv->triCountX*triSizeXRead * captureUv->triCountY*triSizeYRead <= smallMapSize);
-	//printf("%d %d\n",numTriangles,captureUv->triCountX*captureUv->triCountY);
-	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
-	{
-		captureUv->lastCapturedTrianglePlus1 = MIN(numTriangles,captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
-
-#ifdef SCALE_DOWN_ON_GPU
-		// phase 1 for scale big map down
-		detectBigMap->renderingToBegin();
-#endif
-
-		// clear
-		glViewport(0, 0, captureUv->triCountX*triSizeXRender, captureUv->triCountY*triSizeYRender);
-		//glClear(GL_COLOR_BUFFER_BIT);
-
-		// setup renderer
-		RendererOfRRObject::RenderedChannels renderedChannels;
-		renderedChannels.LIGHT_DIRECT = true;
-#if PRIMARY_SCAN_PRECISION==2
-		renderedChannels.MATERIAL_DIFFUSE_VCOLOR = true;
-#endif
-#if PRIMARY_SCAN_PRECISION==3
-		renderedChannels.MATERIAL_DIFFUSE_MAP = true;
-#endif
-		renderedChannels.FORCE_2D_POSITION = true;
-
-		// setup shader
-		if(detectingFromLightmapLayer>=0)
-		{
-			// special path for detectDirectIlluminationFromLightmaps()
-			renderedChannels.LIGHT_DIRECT = false;
-			renderedChannels.LIGHT_INDIRECT_MAP = true;
-			renderedChannels.LIGHT_MAP_LAYER = detectingFromLightmapLayer;
-			UberProgramSetup detectFromLightmapUberProgramSetup;
-			detectFromLightmapUberProgramSetup.LIGHT_INDIRECT_MAP = true;
-			detectFromLightmapUberProgramSetup.MATERIAL_DIFFUSE = true;
-			detectFromLightmapUberProgramSetup.FORCE_2D_POSITION = true;
-			detectFromLightmapUberProgramSetup.useProgram(detectFromLightmapUberProgram,NULL,0,NULL,NULL,1);
-		}
-		else
-		{
-			// standard path customizable by subclassing
-			//!!! no support for per object shaders yet
-			setupShader(0);
-		}
-
-		// render scene
-		rendererNonCaching->setRenderedChannels(renderedChannels);
-		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
-		rendererCaching->render();
-		//rendererNonCaching->render();
-		rendererNonCaching->setCapture(NULL,0,numTriangles);
-
-#ifdef CAPTURE_TGA
-		if(captured>=0) {
-			// read back the index buffer to memory
-			unsigned pixels = captureUv->triCountX*triSizeXRender * captureUv->triCountY*triSizeYRender;
-			unsigned* pixelBuffer = new unsigned[pixels];
-			glReadPixels(0, 0, captureUv->triCountX*triSizeXRender, captureUv->triCountY*triSizeYRender, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixelBuffer);
-			char fname[100];
-			sprintf(fname,"h:\\cap_%d_hi.tga",captured);
-			FILE* f=fopen(fname,"wb");
-			TgaHeader t(captureUv->triCountX*triSizeXRender,captureUv->triCountY*triSizeYRender);
-			fwrite(t.pad,18,1,f);
-			//fwrite(pixelBuffer,4,pixels,f);
-			for(unsigned i=0;i<pixels;i++) {fwrite((char*)(pixelBuffer+i)+1,1,1,f);fwrite((char*)(pixelBuffer+i)+2,1,1,f);fwrite((char*)(pixelBuffer+i)+3,1,1,f);fwrite((char*)(pixelBuffer+i)+0,1,1,f);}
-			fclose(f);
-			delete[] pixelBuffer;
-		}
-#endif
-
-#ifdef SCALE_DOWN_ON_GPU
-		// phase 2 for scale big map down
-		detectBigMap->renderingToEnd();
-		scaleDownProgram->useIt();
-		scaleDownProgram->sendUniform("lightmap",0);
-		scaleDownProgram->sendUniform("pixelDistance",1.0f/detectBigMap->getWidth(),1.0f/detectBigMap->getHeight());
-		glViewport(0,0,captureUv->triCountX,BIG_MAP_SIZE/triSizeYRender);//!!! neni zarucene ze se vejde do backbufferu
-		// clear to alpha=0 (color=pink, if we see it in scene, filtering or uv mapping is wrong)
-		glClearColor(1,0,1,0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		// setup pipeline
-		glActiveTexture(GL_TEXTURE0);
-		glDisable(GL_CULL_FACE);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		detectBigMap->bindTexture();
-		glBegin(GL_POLYGON);
-		glMultiTexCoord2f(0,0,0);
-		glVertex2f(-1,-1);
-		glMultiTexCoord2f(0,0,1);
-		glVertex2f(-1,1);
-		glMultiTexCoord2f(0,1,1);
-		glVertex2f(1,1);
-		glMultiTexCoord2f(0,1,0);
-		glVertex2f(1,-1);
-		glEnd();
-		glClearColor(0,0,0,0);
-		glEnable(GL_CULL_FACE);
-#endif
-
-		// read back the index buffer to memory
-		glReadPixels(0, 0, captureUv->triCountX*triSizeXRead, captureUv->triCountY*triSizeYRead, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap);
-
-#ifdef CAPTURE_TGA
-		if(captured>=0) {
-			// read back the index buffer to memory
-			unsigned pixels = captureUv->triCountX*triSizeXRead * captureUv->triCountY*triSizeYRead;
-			char fname[100];
-			sprintf(fname,"h:\\cap_%d_lo.tga",captured);
-			FILE* f=fopen(fname,"wb");
-			TgaHeader t(captureUv->triCountX*triSizeXRead,captureUv->triCountY*triSizeYRead);
-			fwrite(t.pad,18,1,f);
-			//fwrite(pixelBuffer,4,pixels,f);
-			for(unsigned i=0;i<pixels;i++) {fwrite((char*)(detectSmallMap+i)+1,1,1,f);fwrite((char*)(detectSmallMap+i)+2,1,1,f);fwrite((char*)(detectSmallMap+i)+3,1,1,f);fwrite((char*)(detectSmallMap+i)+0,1,1,f);}
-			fclose(f);
-			captured++;
-		}
-#endif
-
-		// accumulate triangle irradiances
-		rr::RRReal boost;
-		if(triSizeXRead*triSizeYRead>1)
-			boost = BOOST_DIRECT_ILLUM / (255*triSizeXRead*triSizeYRead/2); // compensate triangular area by /2
-		else
-			boost = BOOST_DIRECT_ILLUM / 255; // 1 pixel is square, no compensation
-#pragma omp parallel for schedule(static,1)
-		for(int triangleIndex=captureUv->firstCapturedTriangle;(unsigned)triangleIndex<captureUv->lastCapturedTrianglePlus1;triangleIndex++)
-		{
-			// accumulate 1 triangle power from square region in texture
-			// (square coordinate calculation is in match with CaptureUv uv generator)
-			unsigned sum[3] = {0,0,0};
-			unsigned i = (triangleIndex-captureUv->firstCapturedTriangle)%captureUv->triCountX;
-			unsigned j = (triangleIndex-captureUv->firstCapturedTriangle)/captureUv->triCountX;
-			for(unsigned n=0;n<triSizeYRead;n++)
-				for(unsigned m=0;m<triSizeXRead;m++)
-				{
-					unsigned pixel = captureUv->triCountX*triSizeXRead*(j*triSizeYRead+n) + (i*triSizeXRead+m);
-					unsigned color = detectSmallMap[pixel] >> 8; // alpha was lost
-					sum[0] += color>>16;
-					sum[1] += (color>>8)&255;
-					sum[2] += color&255;
-				}
-			// pass power to rrobject
-			rr::RRColor avg = rr::RRColor(sum[0]*boost,sum[1]*boost,sum[2]*boost);
-#if PRIMARY_SCAN_PRECISION==1
-			getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_IRRADIANCE_CUSTOM,avg);
-#else
-			getMultiObjectPhysicalWithIllumination()->setTriangleIllumination(triangleIndex,rr::RM_EXITANCE_CUSTOM,avg);
-#endif
-
-		}
-	}
-
-#ifdef CAPTURE_TGA
-	captured = -1;
-#endif
-
-	// restore render states
-	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-	glClearColor(clearcolor[0],clearcolor[1],clearcolor[2],clearcolor[3]);
-	if(depthTest) glEnable(GL_DEPTH_TEST);
-	if(depthMask) glDepthMask(GL_TRUE);
-
-	//printf("primary scan (%d-pass (%f)) took............ %d ms\n",numTriangles/(captureUv->triCountX*captureUv->triCountY)+1,(float)numTriangles/(captureUv->triCountX*captureUv->triCountY),(int)(1000*w.Watch()));
-	return true;
-};
-*/
 
 void RRDynamicSolverGL::detectDirectIlluminationFromLightmaps(unsigned sourceLayer)
 {
 	detectingFromLightmapLayer = sourceLayer;
-	RRDynamicSolverGL::detectDirectIllumination();
+	RRDynamicSolverGL::detectDirectIllumination(detectedCustomRGBA8);
 	detectingFromLightmapLayer = -1;
 }
 

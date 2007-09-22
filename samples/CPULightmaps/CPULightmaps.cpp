@@ -67,7 +67,7 @@ protected:
 		return rr::RRIlluminationPixelBuffer::create(res,res);
 	}
 	virtual void detectMaterials() {}
-	virtual bool detectDirectIllumination() {return false;}
+	virtual unsigned* detectDirectIllumination() {return NULL;}
 	virtual void setupShader(unsigned objectNumber) {}
 };
 

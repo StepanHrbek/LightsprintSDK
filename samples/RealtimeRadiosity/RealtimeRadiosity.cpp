@@ -174,13 +174,13 @@ class Solver : public rr_gl::RRDynamicSolverGL
 public:
 	Solver() : RRDynamicSolverGL("../../data/shaders/")
 	{
-		boostDetectedDirectIllumination = 2;
+		setDirectIlluminationBoost(2);
 	}
 protected:
 	// skipped, material properties were already readen from .3ds and never change
 	virtual void detectMaterials() {}
 	// detects direct illumination irradiances on all faces in scene
-	virtual bool detectDirectIllumination()
+	virtual unsigned* detectDirectIllumination()
 	{
 		// don't try to detect when window is not created yet
 		if(!winWidth) return false;

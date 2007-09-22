@@ -222,7 +222,7 @@ class Solver : public rr_gl::RRDynamicSolverGL
 public:
 	Solver() : RRDynamicSolverGL("shaders/")
 	{
-		boostDetectedDirectIllumination = 2;
+		setDirectIlluminationBoost(2);
 	}
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
@@ -235,10 +235,10 @@ protected:
 	virtual void detectMaterials()
 	{
 	}
-	virtual bool detectDirectIllumination()
+	virtual unsigned * detectDirectIllumination()
 	{
 		if(!demoPlayer)
-			return false;
+			return NULL;
 
 		// first time illumination is detected, no shadowmap has been created yet
 		if(needDepthMapUpdate)

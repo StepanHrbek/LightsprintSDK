@@ -10,6 +10,9 @@
 
 CHANGES
 
+- RRDynamicSolver::detectDirectIllumination() returns pointer to array of irradiances,
+  rather than directly pushing irradiances into RRObject.
+- RRDynamicSolver::setDirectIlluminationBoost() replaces RRDynamicSolverGL::boostDetectedDirectIllumination
 - RRReportType CONT removed
 
 \section news33 ------------------------------------ 2007.9.20 -------------------------------------

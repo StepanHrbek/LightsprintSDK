@@ -44,6 +44,13 @@ RRDynamicSolver::~RRDynamicSolver()
 void RRDynamicSolver::setScaler(RRScaler* ascaler)
 {
 	priv->scaler = ascaler;
+	// update fast conversion table for our detectDirectIllumination
+	for(unsigned i=0;i<256;i++)
+	{
+		rr::RRColor c(i*priv->boostDetectedDirectIllumination/255);
+		if(ascaler) ascaler->getPhysicalScale(c);
+		priv->customToPhysical[i] = c[0];
+	}
 }
 
 const RRScaler* RRDynamicSolver::getScaler() const
@@ -79,6 +86,7 @@ void RRDynamicSolver::setObjects(RRObjects& aobjects, const RRStaticSolver::Smoo
 	priv->dirtyLights = Private::BIG_CHANGE;
 
 	// delete old
+
 	SAFE_DELETE(priv->packedSolver);
 	SAFE_DELETE(priv->scene);
 	if(priv->multiObjectPhysical==priv->multiObjectCustom) priv->multiObjectCustom = NULL; // no scaler -> physical == custom
@@ -88,6 +96,7 @@ void RRDynamicSolver::setObjects(RRObjects& aobjects, const RRStaticSolver::Smoo
 
 	// create new
 
+	// create multi in custom scale
 	RRObject** importers = new RRObject*[priv->objects.size()];
 	unsigned origNumVertices = 0;
 	unsigned origNumTriangles = 0;
@@ -97,22 +106,24 @@ void RRDynamicSolver::setObjects(RRObjects& aobjects, const RRStaticSolver::Smoo
 		origNumVertices += importers[i]->getCollider()->getMesh()->getNumVertices();
 		origNumTriangles += importers[i]->getCollider()->getMesh()->getNumTriangles();
 	}
-	// create multi in custom scale
 	priv->multiObjectCustom = RRObject::createMultiObject(importers,(unsigned)priv->objects.size(),priv->smoothing.intersectTechnique,priv->smoothing.vertexWeldDistance,priv->smoothing.vertexWeldDistance>=0,NULL);
+	delete[] importers;
+
 	// convert it to physical scale
 	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> physical == custom
 	//multiObjectPhysical = (multiObjectCustom&&getScaler()) ? multiObjectCustom->createObjectWithPhysicalMaterials(getScaler()) : NULL; // no scaler -> custom=1,physical=0
+
 	// add direct illumination
 	priv->multiObjectPhysicalWithIllumination = priv->multiObjectPhysical ? priv->multiObjectPhysical->createObjectWithIllumination(getScaler()) : 
 		(priv->multiObjectCustom ? priv->multiObjectCustom->createObjectWithIllumination(getScaler()) : NULL);
-	delete[] importers;
-	REPORT(if(priv->multiObjectPhysicalWithIllumination)
-		RRReporter::report(INF3,"Static scene set: %d objects, optimized %d->%d tris, %d->%d verts\n",priv->objects.size(),origNumTriangles,priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getNumVertices()));
+	REPORT(if(priv->multiObjectCustom)
+		RRReporter::report(INF3,"Static scene set: %d objects, optimized %d->%d tris, %d->%d verts\n",priv->objects.size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices()));
+
 	// update minimalSafeDistance
-	if(priv->multiObjectPhysicalWithIllumination)
+	if(priv->multiObjectCustom)
 	{
 		RRVec3 mini,maxi,center;
-		priv->multiObjectPhysicalWithIllumination->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
+		priv->multiObjectCustom->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
 		priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
 	}
 }
@@ -177,6 +188,11 @@ void RRDynamicSolver::reportInteraction()
 {
 	REPORT(RRReporter::report(INF1,"<Interaction>\n"));
 	priv->lastInteractionTime = GETTIME;
+}
+
+void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
+{
+	priv->boostDetectedDirectIllumination = boost;
 }
 
 static bool endByTime(void *context)
@@ -245,7 +261,8 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		priv->dirtyLights = Private::NO_CHANGE;
 		priv->readingResultsPeriod = READING_RESULTS_PERIOD_MIN;
 		REPORT(RRReportInterval report(INF3,"Detecting direct illumination...\n"));
-		if(!detectDirectIllumination())
+		priv->detectedCustomRGBA8 = detectDirectIllumination();
+		if(!priv->detectedCustomRGBA8)
 		{
 			// detection has failed, ensure these points:
 			// 1) detection will be detected again next time
@@ -264,7 +281,22 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		priv->dirtyResults = true;
 		REPORT(RRReportInterval report(INF3,"Resetting solver energies and factors...\n"));
 		SAFE_DELETE(priv->packedSolver);
-		if(priv->scene) priv->scene->illuminationReset(true,true);
+		if(priv->scene)
+		{
+			if(priv->detectedCustomRGBA8)
+			{
+				int numTriangles = (int)getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+				#pragma omp parallel for schedule(static)
+				for(int t=0;t<numTriangles;t++)
+				{
+					unsigned color = priv->detectedCustomRGBA8[t];
+					priv->multiObjectPhysicalWithIllumination->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,
+						RRVec3(priv->customToPhysical[(color>>24)&255],priv->customToPhysical[(color>>16)&255],priv->customToPhysical[(color>>8)&255])
+						);
+				}
+			}
+			priv->scene->illuminationReset(true,true);
+		}
 		priv->solutionVersion++;
 	}
 	if(priv->dirtyLights!=Private::NO_CHANGE)
@@ -277,11 +309,23 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 		REPORT(RRReportInterval report(INF3,"Updating solver energies...\n"));
 		if(priv->packedSolver)
 		{
-			priv->packedSolver->illuminationReset();
+			priv->packedSolver->illuminationReset(priv->detectedCustomRGBA8,priv->customToPhysical);
 		}
 		else
 		if(priv->scene)
 		{
+			if(priv->detectedCustomRGBA8)
+			{
+				int numTriangles = (int)getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+				#pragma omp parallel for schedule(static)
+				for(int t=0;t<numTriangles;t++)
+				{
+					unsigned color = priv->detectedCustomRGBA8[t];
+					priv->multiObjectPhysicalWithIllumination->setTriangleIllumination(t,RM_IRRADIANCE_PHYSICAL,
+						RRVec3(priv->customToPhysical[(color>>24)&255],priv->customToPhysical[(color>>16)&255],priv->customToPhysical[(color>>8)&255])
+						);
+				}
+			}
 			priv->scene->illuminationReset(false,dirtyEnergies==Private::BIG_CHANGE);
 		}
 		priv->solutionVersion++;
@@ -302,7 +346,6 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	if(priv->packedSolver)
 	{
 		end = (TIME)(now+improveStep*PER_SEC/2);
-		end = (TIME)(now+PER_SEC*0.02f);//!!!
 		priv->packedSolver->illuminationImprove(endByTime,(void*)&end);
 		improvement = RRStaticSolver::IMPROVED;
 	}

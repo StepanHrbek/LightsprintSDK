@@ -13,7 +13,7 @@ class RRPackedSolver
 public:
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
-	void illuminationReset();
+	void illuminationReset(unsigned* customDirectIrradiance, RRReal* customToPhysical);
 	void illuminationImprove(bool endfunc(void*), void* context);
 
 	// Triangle exitance, physical, flat. For dynamic objects.
@@ -41,6 +41,9 @@ protected:
 	const RRObject* object;
 	class PackedTriangle* triangles;
 	unsigned numTriangles;
+
+	// mostly constant realtime acquired data
+	RRReal customToPhysical[256];
 
 	// varying data
 	class PackedBests* packedBests;

@@ -671,7 +671,7 @@ Used by samples:
  subclass RRDynamicSolverGL and implement only 2 or 3
  missing member functions:
  - RRDynamicSolver::detectMaterials() - it is often empty,
-   because many application never modify materials
+   because application rarely modify materials
  - rr_gl::RRDynamicSolverGL::setupShader() - set shader so that 
    direct light+shadows+emissivity are rendered, but other
    material properties (diffuse texture etc) are ignored
@@ -751,9 +751,6 @@ Used by samples:
  <b>What needs to be detected:</b> average color of each face;
  how does it look lit by your direct (not ambient) point, spot and directional lights
  and shadowed by your shadows.
- This is typical approach, but interface is much more flexible,
- so you can detect any of face irradiance, incoming flux,
- exitance or exiting flux; and you can use any physical or non-physical scale.
 
  <b>Why is it important:</b> we have no other knowledge about your lights.
  You can use many light types with very complex lighting equations.
@@ -822,8 +819,7 @@ Used by samples:
  whole process, it is recommended to calculate average triangle colors
  on GPU, using simple shader, write them into smaller texture
  and transfer this smaller textue to CPU.
- It is demonstrated in RealtimeRadiosity
- sample, using scaledown_filter.* shaders.
+ LightsprintGL does it using scaledown_filter.* shaders.
 
  \image html detect-scaled.png
  Image was scaled down by scaledown_filter.* shaders for purpose of

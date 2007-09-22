@@ -16,11 +16,28 @@ namespace rr
 			SMALL_CHANGE,
 			BIG_CHANGE,
 		};
-		// calculate
+
+		// scene: inputs
 		RRObjects  objects;
 		RRLights   lights;
 		const RRIlluminationEnvironmentMap* environment;
 		RRStaticSolver::SmoothingParameters smoothing;
+		// scene: function of inputs
+		RRObject*  multiObjectCustom;
+		RRObjectWithPhysicalMaterials* multiObjectPhysical;
+		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
+		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
+
+		// detect
+		unsigned*  detectedCustomRGBA8;
+
+		// scale: inputs
+		RRScaler*  scaler;
+		RRReal     boostDetectedDirectIllumination;
+		// scale: function of inputs
+		RRReal     customToPhysical[256];
+
+		// calculate
 		bool       dirtyMaterials;
 		bool       dirtyStaticSolver;
 		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
@@ -32,24 +49,37 @@ namespace rr
 		float      calcStep; // avg time spent in calculate().
 		float      improveStep; // time to be spent in improve in calculate()
 		float      readingResultsPeriod;
-		RRObject*  multiObjectCustom;
-		RRObjectWithPhysicalMaterials* multiObjectPhysical;
-		RRObjectWithIllumination* multiObjectPhysicalWithIllumination;
 		RRStaticSolver*   scene;
 		unsigned   solutionVersion;
-		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		RRPackedSolver* packedSolver;
+
 		// read results
-		RRScaler*  scaler;
 		struct TriangleVertexPair {unsigned triangleIndex:30;unsigned vertex012:2;TriangleVertexPair(unsigned _triangleIndex,unsigned _vertex012):triangleIndex(_triangleIndex),vertex012(_vertex012){}}; // packed as 30+2 bits is much faster than 32+32 bits
 		std::vector<std::vector<TriangleVertexPair> > preVertex2PostTriangleVertex; ///< readResults lookup table for RRDynamicSolver
 		std::vector<std::vector<const RRVec3*> > preVertex2Ivertex; ///< readResults lookup table for RRPackedSolver
 
 		Private()
 		{
-			//objects zeroed by constructor
-			scaler = NULL;
+			// scene: inputs
 			environment = NULL;
+			// scene: function of inputs
+			multiObjectCustom = NULL;
+			multiObjectPhysical = NULL;
+			multiObjectPhysicalWithIllumination = NULL;
+
+			// detect
+			detectedCustomRGBA8 = NULL;
+
+			// scale: inputs
+			scaler = NULL;
+			boostDetectedDirectIllumination = 1;
+			// scale: function of inputs
+			for(unsigned i=0;i<256;i++)
+			{
+				customToPhysical[i] = i/255.f;
+			}
+
+			// calculate
 			scene = NULL;
 			dirtyMaterials = true;
 			dirtyStaticSolver = true;
@@ -62,13 +92,8 @@ namespace rr
 			calcStep = 0;
 			improveStep = 0;
 			readingResultsPeriod = 0;
-			multiObjectCustom = NULL;
-			multiObjectPhysical = NULL;
-			multiObjectPhysicalWithIllumination = NULL;
 			solutionVersion = 1;
 			minimalSafeDistance = 0;
-			//preVertex2PostTriangleVertex zeroed by constructor
-			//preVertex2Ivertex zeroed by constructor
 			packedSolver = NULL;
 		}
 		~Private()

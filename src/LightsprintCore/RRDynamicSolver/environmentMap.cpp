@@ -408,6 +408,7 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 	}
 	if(!priv->scene && !priv->packedSolver)
 	{
+		RRReporter::report(WARN,"No solver, envmaps not updated. Call loadFireball() or calculate() first.\n");
 		RR_ASSERT(0);
 		return 0;
 	}
