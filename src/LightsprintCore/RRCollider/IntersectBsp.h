@@ -1,6 +1,8 @@
 #ifndef COLLIDER_INTERSECTBSP_H
 #define COLLIDER_INTERSECTBSP_H
 
+#define TREE_VERSION 1 // version of tree format, increase when format changes
+
 #define IBP <class BspTree>
 #define IBP2 <BspTree>
 
@@ -211,7 +213,7 @@ namespace rr
 		BspTree* tree = NULL;
 		bool retried = false;
 		char name[300];
-		getFileName(name,300,importer,cacheLocation,ext);
+		getFileName(name,300,TREE_VERSION,importer,cacheLocation,ext);
 
 
 		FILE* f = buildParams->forceRebuild ? NULL : fopen(name,"rb");

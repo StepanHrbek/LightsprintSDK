@@ -1708,6 +1708,7 @@ Used by samples:
   except for one additional call, see:
   - RRDynamicSolver::buildFireball()
   - RRDynamicSolver::loadFireball()
+  - RRDynamicSolver::startFireball()
 
  \section fb_outputs Outputs
   Fireball calculates indirect illumination and stores it into 

@@ -7,8 +7,6 @@
 namespace rr
 {
 
-#define TREE_VERSION 1
-
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 static unsigned getBit(unsigned char* data, unsigned bit)
@@ -31,13 +29,13 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsig
 	buf[MIN((bits+4)/5,bufsize-1)]=0;
 }
 
-PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer)
+PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, RRMesh* importer)
 {
 	sha1::sha1_context ctx;
 	sha1::sha1_starts(&ctx);
-	if(TREE_VERSION)
+	if(version)
 	{
-		unsigned char ver = TREE_VERSION;
+		unsigned char ver = version;
 		sha1::sha1_update(&ctx, &ver, 1);
 	}
 	unsigned i = importer->getNumVertices();
@@ -67,7 +65,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer)
 	return getFileName(buf,bufsize,digest,8*sizeof(digest));
 }
 
-PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer, const char* cacheLocation, const char* extension)
+PRIVATE void getFileName(char* buf, unsigned bufsize, unsigned version, RRMesh* importer, const char* cacheLocation, const char* extension)
 {
 	if(!bufsize) return;
 	buf[0]=0;
@@ -88,7 +86,7 @@ PRIVATE void getFileName(char* buf, unsigned bufsize, RRMesh* importer, const ch
 	// hash
 	if(importer)
 	{
-		getFileName(buf,bufsize-1,importer);
+		getFileName(buf,bufsize-1,version,importer);
 		unsigned len = (unsigned)strlen(buf); 
 		buf += len; 
 		bufsize -= len;

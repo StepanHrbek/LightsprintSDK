@@ -1,6 +1,5 @@
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
-//#define END_BY_QUALITY
 #define BESTS 200 // sponza bests->speed 100->65 200->103 300->120 400->126 800->117   vetsi BESTS=horsi kvalita vysledku
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
@@ -209,46 +208,36 @@ void RRPackedSolver::illuminationReset(unsigned* customDirectIrradiance, RRReal*
 
 void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 {
+	//RRReportInterval report(INF2,"Improving...\n");
 	unsigned numShooters = 0;
 	triangleIrradianceIndirectDirty = true;
+
+
+	// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni
 	PackedFactorsThread* thread0 = packedSolverFile->packedFactors;
-	do
+	for(unsigned group=0;group<3;group++)
 	{
+		unsigned bests = packedBests->selectBests();
+		for(unsigned i=0;i<bests;i++)
 		{
-			// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni
-
-
-			for(unsigned group=0;group<3;group++)
+			unsigned sourceTriangleIndex = packedBests->getSelectedBest(i);
+			RR_ASSERT(sourceTriangleIndex!=UINT_MAX);
+			PackedTriangle* source = &triangles[sourceTriangleIndex];
+			RRVec3 exitingFluxToDiffuse = source->incidentFluxToDiffuse * source->diffuseReflectance;
+			source->incidentFluxDiffused += source->incidentFluxToDiffuse;
+			source->incidentFluxToDiffuse = RRVec3(0);
+			const PackedFactor* start = thread0->getC2(sourceTriangleIndex);
+			const PackedFactor* stop  = thread0->getC2(sourceTriangleIndex+1);
+			for(;start<stop;start++)
 			{
-				unsigned bests = packedBests->selectBests();
-				for(unsigned i=0;i<bests;i++)
-				{
-					unsigned sourceTriangleIndex = packedBests->getSelectedBest(i);
-					RR_ASSERT(sourceTriangleIndex!=UINT_MAX);
-					PackedTriangle* source = &triangles[sourceTriangleIndex];
-					// incidentFluxDiffused = co uz vystrilel
-					// incidentFluxToDiffuse = co ma jeste vystrilet
-					RRVec3 exitingFluxToDiffuse = source->incidentFluxToDiffuse * source->diffuseReflectance;
-					source->incidentFluxDiffused += source->incidentFluxToDiffuse;
-					source->incidentFluxToDiffuse = RRVec3(0);
-					const PackedFactor* start = thread0->getC2(sourceTriangleIndex);
-					const PackedFactor* stop  = thread0->getC2(sourceTriangleIndex+1);
-					for(;start<stop;start++)
-					{
-						RR_ASSERT(start->getDestinationTriangle()<numTriangles);
-						triangles[start->getDestinationTriangle()].incidentFluxToDiffuse +=
-							exitingFluxToDiffuse*start->getVisibility();
-					}
-				}
+				RR_ASSERT(start->getDestinationTriangle()<numTriangles);
+				triangles[start->getDestinationTriangle()].incidentFluxToDiffuse +=
+					exitingFluxToDiffuse*start->getVisibility();
 			}
-			break;
-
-
 		}
 	}
-	while(!endfunc(context));
 
-	REPORT(RRReporter::report(INF3,"numShooters=%d\n",numShooters));
+
 }
 
 RRVec3 RRPackedSolver::getTriangleExitance(unsigned triangle) const

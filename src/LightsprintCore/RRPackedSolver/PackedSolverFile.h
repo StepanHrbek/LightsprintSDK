@@ -1,10 +1,13 @@
 #ifndef PACKEDSOLVERFILE_H
 #define PACKEDSOLVERFILE_H
 
-//#define THREADED_IMPROVE
+//#define THREADED_IMPROVE 2 // num threads, na dualcore nulovy prinos
 //#define USE_SSE // aligned: memory=125%, speed=154/94
 //#define USE_SSEU // unaligned: memory=105% speed=154/100 (koup/sponza)
 //no-SSE: memory=100% speed=145/103
+
+#define FIREBALL_STRUCTURE_VERSION 1 // change when file structere changes, old files will be overwritten
+#define FIREBALL_FILENAME_VERSION  1 // change when file structere changes, old files will be preserved
 
 #include <cstdio> // save/load
 #include "RRPackedSolver.h" // THREADED_BEST, RRObject
@@ -128,44 +131,82 @@ protected:
 //
 // form faktor
 
-/*
-enum
-{
-	BITS_FOR_VISIBILITY = 12,
-	BITS_FOR_TRIANGLE_INDEX = sizeof(unsigned)*8-BITS_FOR_VISIBILITY,
-};
-
+// 50% memory, 102% speed, 6bit precision, 128k triangles
 class PackedFactor
 {
 public:
 	void set(RRReal _visibility, unsigned _destinationTriangle)
 	{
-		RR_ASSERT(_visibility>=0);
+		RR_ASSERT(_visibility>0);
+		RR_ASSERT(_visibility<=1);
+		RR_ASSERT(_destinationTriangle<(1<<BITS_FOR_TRIANGLE_INDEX));
+		visibility = _visibility;
+		destinationTriangle &= ~((1<<BITS_FOR_TRIANGLE_INDEX)-1);
+		destinationTriangle |= _destinationTriangle;
+	}
+	RRReal getVisibility() const
+	{
+		return visibility;
+	}
+	const RRReal* getVisibilityPtr() const
+	{
+		return &visibility;
+	}
+	unsigned getDestinationTriangle() const
+	{
+		return destinationTriangle & ((1<<BITS_FOR_TRIANGLE_INDEX)-1);
+	}
+private:
+	enum
+	{
+		BITS_FOR_TRIANGLE_INDEX = 17
+	};
+	union
+	{
+		RRReal visibility;
+		unsigned destinationTriangle;
+	};
+};
+
+/*
+// 50% memory, 100% speed, ~10bit precision, 128k triangles
+class PackedFactor
+{
+public:
+	void set(RRReal _visibility, unsigned _destinationTriangle)
+	{
+		RR_ASSERT(_visibility>0);
 		RR_ASSERT(_visibility<=1);
 		RR_ASSERT(_destinationTriangle<(1<<BITS_FOR_TRIANGLE_INDEX));
 		visibility = (unsigned)(_visibility*((1<<BITS_FOR_VISIBILITY)-1));
 		RR_ASSERT(visibility);
 		destinationTriangle = _destinationTriangle;
-		}
+	}
 	RRReal getVisibility() const
 	{
-		return visibility * 2.3283064370807973754314699618685e-10f;
+		return visibility * (1.f/((1<<BITS_FOR_VISIBILITY)-1));
 	}
 	unsigned getDestinationTriangle() const
 	{
 		return destinationTriangle;
 	}
 private:
+	enum
+	{
+		BITS_FOR_VISIBILITY = 15,
+		BITS_FOR_TRIANGLE_INDEX = sizeof(unsigned)*8-BITS_FOR_VISIBILITY,
+	};
 	unsigned visibility          : BITS_FOR_VISIBILITY;
 	unsigned destinationTriangle : BITS_FOR_TRIANGLE_INDEX;
-};*/
-
+};
+/*
+// 100% memory, 100% speed, 23bit precision, 4G triangles
 class PackedFactor
 {
 public:
 	void set(RRReal _visibility, unsigned _destinationTriangle)
 	{
-		RR_ASSERT(_visibility>=0);
+		RR_ASSERT(_visibility>0);
 		RR_ASSERT(_visibility<=1);
 		visibility = _visibility;
 		destinationTriangle = _destinationTriangle;
@@ -174,12 +215,10 @@ public:
 	{
 		return visibility;
 	}
-#if defined(USE_SSE) || defined(USE_SSEU)
 	const RRReal* getVisibilityPtr() const
 	{
 		return &visibility;
 	}
-#endif
 	unsigned getDestinationTriangle() const
 	{
 		return destinationTriangle;
@@ -188,7 +227,7 @@ private:
 	float visibility;
 	unsigned destinationTriangle;
 };
-
+*/
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -276,7 +315,7 @@ public:
 		// fix header
 		if(ok==4)
 		{
-			header.version = FILE_VERSION;
+			header.version = FIREBALL_STRUCTURE_VERSION;
 			fseek(f,0,SEEK_SET);
 			fwrite(&header.version,sizeof(header.version),1,f);
 		}
@@ -288,15 +327,17 @@ public:
 		FILE* f = fopen(filename,"rb");
 		if(!f) return NULL;
 		Header header;
-		if(fread(&header,sizeof(Header),1,f)!=1 || header.version!=FILE_VERSION)
+		if(fread(&header,sizeof(Header),1,f)!=1 || header.version!=FIREBALL_STRUCTURE_VERSION)
 		{
 			fclose(f);
 			return NULL;
 		}
 		PackedSolverFile* psf = new PackedSolverFile;
 		// load packedFactors
-		char* tmp = new char[header.packedFactorsBytes];
-		size_t ok = fread(tmp,header.packedFactorsBytes,1,f);
+		char* tmp;
+		size_t ok;
+		tmp = new char[header.packedFactorsBytes];
+		ok = fread(tmp,header.packedFactorsBytes,1,f);
 		psf->packedFactors = new PackedFactorsThread(tmp,header.packedFactorsBytes);
 		// load packedIvertices
 		tmp = new char[header.packedIverticesBytes];
@@ -329,10 +370,6 @@ public:
 	PackedSmoothTriangle* packedSmoothTriangles;
 	unsigned packedSmoothTrianglesBytes;
 protected:
-	enum
-	{
-		FILE_VERSION = 1234
-	};
 	struct Header
 	{
 		unsigned version;

@@ -8,6 +8,7 @@
 #include "../RRCollider/cache.h"
 
 #include "../RRDynamicSolver/private.h"
+#include <windows.h> // jen kvuli GetTempPath
 
 namespace rr
 {
@@ -245,7 +246,13 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 bool RRDynamicSolver::startFireball(unsigned raysPerTriangle)
 {
 	char filename[1000];
-	getFileName(filename,999,getMultiObjectCustom()->getCollider()->getMesh(),NULL,".fireball");
+
+	char tmpPath[_MAX_PATH+1];
+	GetTempPath(_MAX_PATH, tmpPath);
+	#define IS_PATHSEP(x) (((x) == '\\') || ((x) == '/'))
+	if(!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
+
+	getFileName(filename,999,FIREBALL_FILENAME_VERSION,getMultiObjectCustom()->getCollider()->getMesh(),tmpPath,".fireball");
 	return loadFireball(filename) || buildFireball(raysPerTriangle,filename);
 }
 
