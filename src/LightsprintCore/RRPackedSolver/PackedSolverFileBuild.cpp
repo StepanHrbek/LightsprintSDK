@@ -5,6 +5,8 @@
 #include "Lightsprint/RRDynamicSolver.h"
 
 #pragma warning(disable:4530) // unrelated std::vector in private.h complains about exceptions
+#include "../RRCollider/cache.h"
+
 #include "../RRDynamicSolver/private.h"
 
 namespace rr
@@ -238,6 +240,13 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 		}
 	}
 	return priv->packedSolver!=NULL;
+}
+
+bool RRDynamicSolver::startFireball(unsigned raysPerTriangle)
+{
+	char filename[1000];
+	getFileName(filename,999,getMultiObjectCustom()->getCollider()->getMesh(),NULL,".fireball");
+	return loadFireball(filename) || buildFireball(raysPerTriangle,filename);
 }
 
 } // namespace

@@ -771,6 +771,18 @@ namespace rr
 		//!  True if successful.
 		bool loadFireball(const char* filename);
 
+		//! Build or load and then start Fireball.
+		//
+		//! While loadFireball() and buildFireball() give you opportunity to manage filenames
+		//! e.g. for transfer from PC toolchain to other platform, startFireball()
+		//! is shortcut for PC only use, it starts Fireball without any questions.
+		//! It calls loadFireball() and buildFireball() internally.
+		//! \param avgRaysPerTriangle
+		//!  Used only if Fireball file doesn't exist yet.
+		//!  Average number of rays per triangle used to compute form factors.
+		//!  Higher number = longer calculation, higher quality results, bigger file.
+		//!  If zero, current factors are used, without recalculating.
+		bool startFireball(unsigned raysPerTriangle);
 
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is created when you insert objects and call calculate().

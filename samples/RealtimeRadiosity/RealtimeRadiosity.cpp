@@ -458,10 +458,7 @@ int main(int argc, char **argv)
 
 	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver.
 	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.
-	// 1. runtime phase, load previously saved Fireball
-	bool loaded = solver->loadFireball("..\\..\\data\\export\\koupelna.fir");
-	// 2. precalculation phase, build it from scratch if necessary
-	if(!loaded) solver->buildFireball(1000,"..\\..\\data\\export\\koupelna.fir");
+	solver->startFireball(1000);
 
 	glutMainLoop();
 	return 0;
