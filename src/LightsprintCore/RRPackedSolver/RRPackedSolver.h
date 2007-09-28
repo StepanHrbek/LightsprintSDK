@@ -49,6 +49,7 @@ protected:
 	class PackedBests* packedBests;
 	RRVec3* ivertexIndirectIrradiance;
 	bool triangleIrradianceIndirectDirty;
+	unsigned numImproves; // how many times illuminationImprove() was called without illuminationReset()
 };
 
 } // namespace

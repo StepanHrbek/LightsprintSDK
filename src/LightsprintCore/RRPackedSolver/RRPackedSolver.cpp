@@ -184,6 +184,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	packedSolverFile = _adopt_packedSolverFile;
 	ivertexIndirectIrradiance = new RRVec3[packedSolverFile->packedIvertices->getNumC1()];
 	triangleIrradianceIndirectDirty = true;
+	numImproves = 0;
 }
 
 RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolverFile* adopt_packedSolverFile)
@@ -204,10 +205,12 @@ void RRPackedSolver::illuminationReset(unsigned* customDirectIrradiance, RRReal*
 		triangles[t].incidentFluxDiffused = RRVec3(0);
 		triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]) * triangles[t].area;
 	}
+	numImproves = 0;
 }
 
 void RRPackedSolver::illuminationImprove(bool endfunc(void *), void *context)
 {
+	if(numImproves++>50) return; // improving in static scene (without reset) is more and more expensive, stop it after n improves
 	//RRReportInterval report(INF2,"Improving...\n");
 	unsigned numShooters = 0;
 	triangleIrradianceIndirectDirty = true;

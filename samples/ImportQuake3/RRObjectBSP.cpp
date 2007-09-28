@@ -26,6 +26,11 @@
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "GL/glew.h"
 
+#ifdef MARK_OPENED // mark used textures by read-only attribute
+	#include <io.h>
+	#include <sys/stat.h>
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -111,6 +116,8 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 	enum {size = 8};
 
 	// load texture
+	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
+	rr::RRReporter::setReporter(NULL); // disable reporting temporarily, we don't know image extension so we try all of them
 	char* exts[3]={".jpg",".png",".tga"};
 	for(unsigned e=0;e<3;e++)
 	{
@@ -118,11 +125,19 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 		_snprintf(buf,299,"%s%s%s",pathToTextures,m->mName,exts[e]);
 		buf[299]=0;
 		t = rr_gl::Texture::load(buf,NULL,true,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
+#ifdef MARK_OPENED
+		if(t) _chmod(buf,_S_IREAD); // mark opened files read only
+#endif
 		//if(t) {puts(buf);break;}
 		if(t) break;
 		//if(e==2) printf("Not found: %s\n",buf);
 	}
-	if(!t) t = fallback;
+	rr::RRReporter::setReporter(oldReporter);
+	if(!t)
+	{
+		t = fallback;
+		rr::RRReporter::report(rr::ERRO,"Unable to load texture %s%s.*\n",pathToTextures,m->mName);
+	}
 
 	// for diffuse textures provided by bsp,
 	// it is sufficient to compute average texture color

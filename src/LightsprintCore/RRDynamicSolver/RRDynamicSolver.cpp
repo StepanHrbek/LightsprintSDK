@@ -406,7 +406,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate()
 		{
 			priv->userStep = lastUserStep;
 		}
-		REPORT(RRReporter::report(INF1,"User %d ms.\n",(int)(1000*lastUserStep)));
+		//REPORT(RRReporter::report(INF1,"User %d ms.\n",(int)(1000*lastUserStep)));
 	} else {
 		// no reportInteraction was called between this and previous calculate
 		// -> increase userStep
@@ -414,7 +414,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate()
 		priv->userStep = priv->lastInteractionTime ?
 			(priv->lastCalcEndTime-priv->lastInteractionTime)/(float)PER_SEC // time from last interaction (if there was at least one)
 			: IMPROVE_STEP_NO_INTERACTION; // safety time for situations there was no interaction yet
-		REPORT(RRReporter::report(INF1,"User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*priv->userStep)));
+		//REPORT(RRReporter::report(INF1,"User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*priv->userStep)));
 	}
 
 	// adjust improveStep

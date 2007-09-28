@@ -25,6 +25,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 	initedOk = false;
 	rr::RRMesh* mesh = object->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
+	unsigned numVerticesMax = numTriangles*3; // *3 is usual worst case.. additional *2 covers uncommon situation in WoP maps without BB
 	numIndices = 0;
 	indices = NULL;
 	if(indexed)
@@ -33,7 +34,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 	}
 	numVertices = 0;
 	// Always allocates worst case scenario size. Only first numVertices is used.
-	#define NEW_ARRAY(arr,type) {arr = new rr::type[numTriangles*3]; memset(arr,0,sizeof(rr::type)*numTriangles*3);}
+	#define NEW_ARRAY(arr,type) {arr = new rr::type[numVerticesMax]; memset(arr,0,sizeof(rr::type)*numVerticesMax);}
 	NEW_ARRAY(avertex,RRVec3);
 	NEW_ARRAY(anormal,RRVec3);
 
@@ -130,13 +131,13 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 				currentVertex = numVertices;
 				numVertices++;
 			}
-			if(currentVertex>=numTriangles*3)
+			if(currentVertex>=numVerticesMax)
 			{
 				// preimport vertex number is out of range, fail
 				// warning: could happen with correct inputs, RRMesh is allowed 
 				//  to have preimport indices 1,10,100(out of range!) even when postimport are 0,1,2.
 				//  happens with all multiobjects
-				//RR_ASSERT(currentVertex<numTriangles*3);
+				//RR_ASSERT(currentVertex<numVerticesMax);
 				return;
 			}
 			mesh->getVertex(triangleVertices[v],avertex[currentVertex]);

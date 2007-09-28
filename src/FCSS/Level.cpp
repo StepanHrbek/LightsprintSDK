@@ -2,6 +2,7 @@
 
 #include "Level.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
+#include "GL/glew.h"
 
 extern rr::RRDynamicSolver* createSolver();
 extern void error(const char* message, bool gfxRelated);
@@ -62,7 +63,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 			char* mapsEnd;
 			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
 			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
-			//rr_gl::Texture::load("maps/missing.jpg",NULL);
+			//char missing[1000];
+			//strncpy(missing,maps,999);
+			//missing[970] = 0;
+			//strcat(missing,"/missing.jpg");
+			//objects = adaptObjectsFromTMapQ3(&bsp,maps,rr_gl::Texture::load(missing,NULL,false,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT));
 			objects = adaptObjectsFromTMapQ3(&bsp,maps,NULL);
 			free(maps);
 			break;
@@ -117,6 +122,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	//sp.minFeatureSize = 0.15f;
 	//sp.vertexWeldDistance = 0.01f; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
 	//sp.vertexWeldDistance = -1; // vypnuty weld by teoreticky nemel skodit, ale prakticky zpomaluje updatevbuf i render(useOriginal), nevim proc
+	//sp.vertexWeldDistance = -1; // vypnuty weld mozna zlepsi nahravani map z WoP
 #ifdef THREE_ONE
 	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
 #endif

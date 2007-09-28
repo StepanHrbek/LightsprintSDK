@@ -198,7 +198,7 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle)
 
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
 {
-	RRReportInterval report(INF1,"Building Fireball...\n");
+	RRReportInterval report(INF1,"Building Fireball (triangles=%d)...\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 	calculateCore(0); // create static solver if not created yet
 	const PackedSolverFile* packedSolverFile = priv->scene->buildFireball(raysPerTriangle);
 	RRReporter::report(INF2,"Size: %d kB (factors=%d smoothing=%d)\n",
@@ -234,6 +234,7 @@ bool RRDynamicSolver::loadFireball(const char* filename)
 		priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysicalWithIllumination(),PackedSolverFile::load(filename));
 		if(priv->packedSolver)
 		{
+			//RRReporter::report(INF2,"Loaded Fireball (triangles=%d)\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 			updateVertexLookupTablePackedSolver();
 			priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
 			if(priv->scene)
