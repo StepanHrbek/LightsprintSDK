@@ -377,7 +377,7 @@ namespace rr
 		//! \return
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
-		RRStaticSolver::Improvement calculate();
+		virtual RRStaticSolver::Improvement calculate();
 
 		//! Returns version of global illumination solution.
 		//

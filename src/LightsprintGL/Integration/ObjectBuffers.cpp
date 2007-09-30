@@ -370,7 +370,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		for(unsigned fg=0;fg<faceGroups.size();fg++)
 		{
 			unsigned firstIndex = faceGroups[fg].firstIndex;
-			int numIndices = faceGroups[fg].numIndices;
+			int numIndices = faceGroups[fg].numIndices; //!!! we are in scope of ObjectBuffers::numIndices, local variable should be renamed or naming convention changed
 			// limit rendered indices to capture range
 			numIndices = MIN(firstIndex+numIndices,3*params.lastCapturedTrianglePlus1) - MAX(firstIndex,3*params.firstCapturedTriangle);
 			firstIndex = MAX(firstIndex,3*params.firstCapturedTriangle);
@@ -424,10 +424,10 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	}
 	else
 	{
-		// limit rendered indices to capture range
+		// render all at once
+		// (but only captured range)
 		unsigned firstIndex = 3*params.firstCapturedTriangle;
 		int numIndices = 3*(params.lastCapturedTrianglePlus1-params.firstCapturedTriangle);
-		// render all at once
 		if(indices)
 		{
 			for(unsigned i=firstIndex;i<firstIndex+numIndices;i++) RR_ASSERT(indices[i]<numVertices);
@@ -442,12 +442,14 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	if(params.renderedChannels.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
+		glBindTexture(GL_TEXTURE_2D,0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset material emissive texcoords
 	if(params.renderedChannels.MATERIAL_EMISSIVE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
+		glBindTexture(GL_TEXTURE_2D,0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset 2d_position texcoords
@@ -487,7 +489,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		glDisableClientState(GL_NORMAL_ARRAY);
 	}
 	// unset vertices
-	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 

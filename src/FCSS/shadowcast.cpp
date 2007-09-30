@@ -222,6 +222,7 @@ public:
 	Solver() : RRDynamicSolverGL("shaders/")
 	{
 		setDirectIlluminationBoost(2);
+		//predetectedDirectIllumination = NULL;
 	}
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
@@ -234,7 +235,8 @@ protected:
 	virtual void detectMaterials()
 	{
 	}
-	virtual unsigned * detectDirectIllumination()
+
+	virtual unsigned* detectDirectIllumination()
 	{
 		if(!demoPlayer)
 			return NULL;
@@ -254,6 +256,59 @@ protected:
 		// setup shader for rendering direct illumination+shadows without materials
 		return RRDynamicSolverGL::detectDirectIllumination();
 	}
+/*	virtual rr::RRStaticSolver::Improvement calculate()
+	{
+		rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
+		return RRDynamicSolver::calculate();
+	}
+
+	updatuje shadowmapy 1..7 paralelne s improvem, teoreticky melo zrychlit, ale nezrychlilo
+	unsigned* predetectedDirectIllumination;
+	virtual unsigned* detectDirectIllumination()
+	{
+		return predetectedDirectIllumination;
+	}
+	virtual rr::RRStaticSolver::Improvement calculate()
+	{
+		rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
+
+		if(needDepthMapUpdate)
+		{
+			if(needMatrixUpdate) updateMatrices(); // probably not necessary
+			unsigned numInstances = areaLight->getNumInstances();
+			for(unsigned i=0;i<1;i++)
+			{
+				updateDepthMap(i,numInstances);
+			}
+		}
+
+		predetectedDirectIllumination = RRDynamicSolverGL::detectDirectIllumination();
+
+		rr::RRStaticSolver::Improvement result;
+		#pragma omp sections
+		{
+			#pragma omp section
+			{
+				// CPU+GPU work
+				if(needDepthMapUpdate)
+				{
+					unsigned numInstances = areaLight->getNumInstances();
+					for(unsigned i=1;i<numInstances;i++)
+					{
+						updateDepthMap(i,numInstances);
+					}
+				}
+			}
+			#pragma omp section
+			{
+				// CPU work
+				result = RRDynamicSolver::calculate();
+			}
+		}
+
+		return result;
+	}
+*/
 	virtual void setupShader(unsigned objectNumber)
 	{
 		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
