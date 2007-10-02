@@ -9,6 +9,6 @@
 #include "Lightsprint/RRDynamicSolver.h"
 
 //! Creates Lightsprint interface for MGF scene.
-rr::RRStaticObjects* adaptObjectsFromMGF(const char* filename);
+rr::RRObjects* adaptObjectsFromMGF(const char* filename);
 
 #endif

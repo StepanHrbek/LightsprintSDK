@@ -400,7 +400,7 @@ const rr::RRMatrix3x4* RRObject3DS::getInvWorldMatrix()
 //
 // ObjectsFrom3DS
 
-class ObjectsFrom3DS : public rr::RRStaticObjects
+class ObjectsFrom3DS : public rr::RRObjects
 {
 public:
 	ObjectsFrom3DS(Model_3DS* model)
@@ -408,7 +408,7 @@ public:
 		for(unsigned i=0;i<(unsigned)model->numObjects;i++)
 		{
 			RRObject3DS* object = new RRObject3DS(model,i);
-			push_back(rr::RRStaticObject(object,object->getIllumination()));
+			push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
 		}
 	}
 	virtual ~ObjectsFrom3DS()
@@ -427,7 +427,7 @@ public:
 //
 // main
 
-rr::RRStaticObjects* adaptObjectsFrom3DS(Model_3DS* model)
+rr::RRObjects* adaptObjectsFrom3DS(Model_3DS* model)
 {
 	return new ObjectsFrom3DS(model);
 }

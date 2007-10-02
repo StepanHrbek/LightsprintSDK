@@ -463,11 +463,11 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Storage for static object's indirect illumination.
+	//! Storage for object's indirect illumination.
 	//
 	//! Editor stores calculated illumination here.
 	//! Renderer reads illumination from here.
-	//! Add one instance to every static object in your scene.
+	//! Add one instance to every object in your scene.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -477,6 +477,11 @@ namespace rr
 		//! \param numPreImportVertices
 		//!  PreImport (original) number of mesh vertices, length of vertex buffer for rendering.
 		RRObjectIllumination(unsigned numPreImportVertices);
+		~RRObjectIllumination();
+
+		//
+		// Vertex and pixel buffers, computed and rendered only for static objects.
+		//
 
 		//! One layer of illumination (irradiance) values for whole object.
 		//
@@ -504,7 +509,6 @@ namespace rr
 				delete pixelBuffer;
 			}
 		};
-
 		//! \param layerNumber
 		//!  Index of layer you would like to get. Arbitrary unsigned number.
 		//! \return Layer of layerNumber. If it doesn't exist yet, it is created.
@@ -512,12 +516,31 @@ namespace rr
 		const Layer* getLayer(unsigned layerNumber) const;
 		//! \return PreImport number of vertices, length of vertex buffer for rendering.
 		unsigned getNumPreImportVertices() const;
-		~RRObjectIllumination();
+
+		//
+		// Reflection maps, supported for all objects, but usually used only for dynamic objects.
+		//
+
+		//! Diffuse reflection map.
+		RRIlluminationEnvironmentMap* diffuseEnvMap;
+		//! Specular reflection map.
+		RRIlluminationEnvironmentMap* specularEnvMap;
+
 	protected:
+		//
+		// for buffers
+		//
 		//! PreImport (original) number of mesh vertices, length of vertex buffer for rendering.
 		unsigned numPreImportVertices;
 		//! Container with all layers.
 		void* hiddenLayers;
+
+		//
+		// for reflection maps
+		//
+		RRVec3 cacheCenter;
+		unsigned cacheSize;
+		unsigned* cacheTriangleNumbers;
 	};
 
 } // namespace

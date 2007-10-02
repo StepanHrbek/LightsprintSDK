@@ -1851,7 +1851,7 @@ Used by samples:
  \section lemissive Emissive materials
   - Area light source, triangles covered by materials that emit light.
   - Data structure: RRObject with emissive materials returned by RRObject::getTriangleMaterial()
-  - Data structure container: RRStaticObjects
+  - Data structure container: RRObjects
   - Setup: RRDynamicSolver::setStaticObjects()
   - Calculation: CPU, standard non-realtime functions (RRDynamicSolver::updateLightmaps() etc)
 
@@ -1866,7 +1866,7 @@ Used by samples:
     (with global illumination) in your projects.
 
 \page inputs_geometry Geometry
- Scene geometry is specified by RRStaticObjects - set of static RRObject objects.
+ Scene geometry is specified by RRObjects - set of RRObject objects.
  \n Each object has its own transformation matrix and pointer to RRMesh triangle mesh,
  so object is instance of mesh.
  \n Mesh specifies vertices, triangles, normals, unwrap and custom data.

@@ -14,8 +14,6 @@ NEWS
 
 CHANGES
 
-- renamed RRIlluminatedObject -> RRStaticObject
-- renamed RRObjects -> RRStaticObjects
 - renamed RRDynamicSolver::setObjects() -> RRDynamicSolver::setStaticObjects()
 
 \section news34 ------------------------------------ 2007.9.23 -------------------------------------

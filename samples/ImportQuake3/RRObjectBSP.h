@@ -11,6 +11,6 @@
 #include "Lightsprint/GL/RendererOfRRObject.h"
 
 //! Creates Lightsprint interface for Quake3 map.
-rr::RRStaticObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,rr_gl::Texture* missingTexture);
+rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,rr_gl::Texture* missingTexture);
 
 #endif

@@ -10,6 +10,6 @@
 #include "Model_3DS.h"
 
 //! Creates Lightsprint interface for 3DS scene.
-rr::RRStaticObjects* adaptObjectsFrom3DS(Model_3DS* model);
+rr::RRObjects* adaptObjectsFrom3DS(Model_3DS* model);
 
 #endif

@@ -78,7 +78,7 @@ const RRLights& RRDynamicSolver::getLights() const
 	return priv->lights;
 }
 
-void RRDynamicSolver::setStaticObjects(RRStaticObjects& aobjects, const RRStaticSolver::SmoothingParameters* asmoothing)
+void RRDynamicSolver::setStaticObjects(RRObjects& aobjects, const RRStaticSolver::SmoothingParameters* asmoothing)
 {
 	priv->objects = aobjects;
 	priv->smoothing = asmoothing ? *asmoothing : RRStaticSolver::SmoothingParameters();

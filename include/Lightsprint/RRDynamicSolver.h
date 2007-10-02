@@ -199,22 +199,22 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRStaticObject
-	//! Static 3d object with storage space for calculated illumination.
+	//  RRIlluminatedObject
+	//! 3d object with storage space for calculated illumination.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	struct RRStaticObject
+	struct RRIlluminatedObject
 	{
 		RRObject* object;
 		RRObjectIllumination* illumination;
-		RRStaticObject(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
+		RRIlluminatedObject(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
 	};
 
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRStaticObjects
+	//  RRObjects
 	//! Set of illuminated objects with interface similar to std::vector.
 	//
 	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
@@ -226,10 +226,10 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRStaticObjects : public RRVector<RRStaticObject>
+	class RRObjects : public RRVector<RRIlluminatedObject>
 	{
 	public:
-		virtual ~RRStaticObjects() {};
+		virtual ~RRObjects() {};
 	};
 
 
@@ -345,7 +345,7 @@ namespace rr
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
-		void setStaticObjects(RRStaticObjects& objects, const RRStaticSolver::SmoothingParameters* smoothing);
+		void setStaticObjects(RRObjects& objects, const RRStaticSolver::SmoothingParameters* smoothing);
 
 		//! Returns number of static objects in scene.
 		unsigned getNumObjects() const;

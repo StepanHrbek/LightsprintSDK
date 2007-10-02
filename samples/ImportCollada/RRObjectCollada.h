@@ -9,7 +9,7 @@
 #include "Lightsprint/RRDynamicSolver.h"
 
 //! Creates Lightsprint interface for Collada objects (geometry+materials).
-rr::RRStaticObjects* adaptObjectsFromFCollada(class FCDocument* document);
+rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document);
 
 //! Creates Lightsprint interface for Collada lights.
 rr::RRLights* adaptLightsFromFCollada(class FCDocument* document);

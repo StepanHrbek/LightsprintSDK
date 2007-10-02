@@ -63,7 +63,7 @@ public:
 #ifdef SUPPORT_COLLADA
 	FCDocument* collada;
 #endif
-	rr::RRStaticObjects* objects; // objects adapted from native format
+	rr::RRObjects* objects; // objects adapted from native format
 	rr::RRDynamicSolver* solver;
 	class Bugs* bugs;
 	rr_gl::RendererOfScene* rendererOfScene;
