@@ -21,8 +21,8 @@ unsigned INSTANCES_PER_PASS;
 bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 0;
-int resolutionx = 1280;
-int resolutiony = 960;
+int resolutionx = 640;
+int resolutiony = 480;
 bool twosided = 0;
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
@@ -2218,11 +2218,11 @@ void idle()
 		;
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	if(level && captureMovie && !demoPlayer->getPaused())
-		for(unsigned i=0;i<10;i++)
-			level->solver->calculate();
+	//if(level && captureMovie && !demoPlayer->getPaused())
+	//	for(unsigned i=0;i<10;i++)
+	//		level->solver->calculate();
 
-	if(!level || (rrOn && level->solver->calculate()==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
+	if(!level || (rrOn && level->solver->calculate(&level->pilot.setup->calculateParams)==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
 		glutPostRedisplay();
 	}

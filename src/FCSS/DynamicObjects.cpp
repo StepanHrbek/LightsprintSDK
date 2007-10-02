@@ -200,6 +200,7 @@ void DynamicObjects::setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 	}
 	else
 	{
+		// v .ani je vic objektu nez v .cfg a tys sahnul na '1'..'9'
 		assert(0);
 	}
 }

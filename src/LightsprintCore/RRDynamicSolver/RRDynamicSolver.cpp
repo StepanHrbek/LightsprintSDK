@@ -233,8 +233,12 @@ private:
 
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
-RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
+RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep,CalculateParams* _params)
 {
+	// replace NULL by default parameters
+	static CalculateParams s_params;
+	if(!_params) _params = &s_params;
+
 	bool dirtyFactors = false;
 	Private::ChangeStrength dirtyEnergies = Private::NO_CHANGE;
 	if(priv->dirtyMaterials)
@@ -341,16 +345,15 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 
 	REPORT(RRReportInterval report(INF3,"Calculating...\n"));
 	TIME now = GETTIME;
-	TIME end = (TIME)(now+improveStep*PER_SEC);
 	RRStaticSolver::Improvement improvement;
 	if(priv->packedSolver)
 	{
-		end = (TIME)(now+improveStep*PER_SEC/2);
-		priv->packedSolver->illuminationImprove(endByTime,(void*)&end);
+		priv->packedSolver->illuminationImprove(_params->qualityIndirectDynamic,_params->qualityIndirectStatic);
 		improvement = RRStaticSolver::IMPROVED;
 	}
 	else
 	{
+		TIME end = (TIME)(now+improveStep*PER_SEC);
 		improvement = priv->scene ? priv->scene->illuminationImprove(endByTime,(void*)&end) : RRStaticSolver::FINISHED;
 	}
 	//REPORT(RRReporter::report(INF3,"imp %d det+res+read %d game %d\n",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
@@ -392,7 +395,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
-RRStaticSolver::Improvement RRDynamicSolver::calculate()
+RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
 {
 	TIME calcBeginTime = GETTIME;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
@@ -441,7 +444,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate()
 	}
 
 	// calculate
-	RRStaticSolver::Improvement result = calculateCore(priv->improveStep);
+	RRStaticSolver::Improvement result = calculateCore(priv->improveStep,_params);
 
 	// adjust calcStep
 	priv->lastCalcEndTime = GETTIME;

@@ -21,6 +21,7 @@ class LevelSetup
 public:
 	// constant setup
 	const char* filename;
+	rr::RRDynamicSolver::CalculateParams calculateParams;
 	float scale;
 	bool renderWater;
 	float waterLevel;

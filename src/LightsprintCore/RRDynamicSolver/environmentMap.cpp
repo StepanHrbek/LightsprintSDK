@@ -141,8 +141,10 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 //
 // gather
 
+// OMP parallel inside
 // thread safe: yes
-static void cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
+// gathers: float exitance in physical scale
+static void cubeMapGatherExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
 {
 	if(!scene && !packedSolver)
 	{
@@ -218,6 +220,86 @@ static void cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 			}
 	}
 	delete[] ray6;
+}
+
+// OMP parallel inside
+// thread safe: yes
+// gathers: multiobject triangle numbers, UINT_MAX for skybox
+static void cubeMapGatherTriangles(const RRObject* object, RRVec3 center, unsigned size, unsigned* triangleNumbers)
+{
+	if(!object)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	if(!triangleNumbers)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	RRRay* ray6 = RRRay::create(6);
+	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
+	for(int side=0;side<6;side++)
+	{
+		RRRay* ray = ray6+side;
+		for(unsigned j=0;j<size;j++)
+			for(unsigned i=0;i<size;i++)
+			{
+				unsigned ofs = i+(j+side*size)*size;
+				RRVec3 dir = cubeSide[side].getTexelDir(size,i,j);
+				RRReal dirsize = dir.length();
+				// find face
+				ray->rayOrigin = center;
+				ray->rayDirInv[0] = dirsize/dir[0];
+				ray->rayDirInv[1] = dirsize/dir[1];
+				ray->rayDirInv[2] = dirsize/dir[2];
+				ray->rayLengthMin = 0;
+				ray->rayLengthMax = 10000; //!!! hard limit
+				ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
+				triangleNumbers[ofs] = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
+			}
+	}
+	delete[] ray6;
+}
+
+// thread safe: yes
+// gathers: float exitance in physical scale
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, unsigned size, unsigned* triangleNumbers, RRColorRGBF* irradianceHdr)
+{
+	if(!scene && !packedSolver)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	if(!triangleNumbers && !irradianceHdr)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	for(unsigned ofs=0;ofs<6*size*size;ofs++)
+	{
+		unsigned face = triangleNumbers[ofs];
+		if(face==UINT_MAX)
+		{
+			if(!environment)
+				irradianceHdr[ofs] = RRVec3(0);
+			else
+			{
+				// read irradiance on sky
+				irradianceHdr[ofs] = environment->getValue(cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size));
+			}
+		}
+		else if(packedSolver)
+		{
+			// read face exitance
+			irradianceHdr[ofs] = packedSolver->getTriangleExitance(face);
+		}
+		else
+		{
+			// read face exitance
+			scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,scaler,irradianceHdr[ofs]);
+		}
+	}
 }
 
 
@@ -444,7 +526,7 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		RRColorRGBF* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
 
 		// gather physical irradiances
-		cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,NULL,gatheredIrradiance);
+		cubeMapGatherExitances(priv->scene,priv->packedSolver,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,NULL,gatheredIrradiance);
 
 		// fill cubemaps
 		// - diffuse

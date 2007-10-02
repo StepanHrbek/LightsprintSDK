@@ -14,7 +14,7 @@ public:
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
 	void illuminationReset(unsigned* customDirectIrradiance, RRReal* customToPhysical);
-	void illuminationImprove(bool endfunc(void*), void* context);
+	void illuminationImprove(unsigned qualityDynamic, unsigned qualityStatic);
 
 	// Triangle exitance, physical, flat. For dynamic objects.
 	RRVec3 getTriangleExitance(unsigned triangle) const;
@@ -49,7 +49,7 @@ protected:
 	class PackedBests* packedBests;
 	RRVec3* ivertexIndirectIrradiance;
 	bool triangleIrradianceIndirectDirty;
-	unsigned numImproves; // how many times illuminationImprove() was called without illuminationReset()
+	unsigned currentQuality; // number of best200 groups processed since reset
 };
 
 } // namespace

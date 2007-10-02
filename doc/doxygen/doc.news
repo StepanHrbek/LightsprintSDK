@@ -6,6 +6,12 @@
 
 \page news What's new
 
+\section news35 ------------------------------------ 2007.10.x -------------------------------------
+
+NEWS
+
+- RRDynamicSolver::CalculateParams for adjustable realtime lighting quality
+
 \section news34 ------------------------------------ 2007.9.23 -------------------------------------
 
 CHANGES

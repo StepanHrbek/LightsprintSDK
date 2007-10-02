@@ -180,6 +180,25 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//  RRLights
+	//! Set of lights with interface similar to std::vector.
+	//
+	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
+	//! You may use it for example to
+	//! - send it to RRDynamicSolver and calculate global illumination
+	//! - manipulate this set before sending it to RRDynamicSolver, e.g. remove moving lights
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RRLights : public RRVector<RRLight*>
+	{
+	public:
+		virtual ~RRLights() {};
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	//  RRIlluminatedObject
 	//! Static 3d object with storage space for calculated illumination.
 	//
@@ -211,25 +230,6 @@ namespace rr
 	{
 	public:
 		virtual ~RRObjects() {};
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRLights
-	//! Set of lights with interface similar to std::vector.
-	//
-	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
-	//! You may use it for example to
-	//! - send it to RRDynamicSolver and calculate global illumination
-	//! - manipulate this set before sending it to RRDynamicSolver, e.g. remove moving lights
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RRLights : public RRVector<RRLight*>
-	{
-	public:
-		virtual ~RRLights() {};
 	};
 
 
@@ -358,6 +358,26 @@ namespace rr
 		//! Returns illumination of i-th static object in scene.
 		const RRObjectIllumination* getIllumination(unsigned i) const;
 
+		//! Optional parameters of calculate(). Currently used only by Fireball.
+		struct CalculateParams
+		{
+			//! Quality of indirect lighting when direct lighting changes.
+			//! 1..20, default is 3.
+			//! Higher quality makes calculate() take longer.
+			unsigned qualityIndirectDynamic;
+			//! Possibly higher quality of indirect lighting when direct lighting doesn't change.
+			//! 1..1000, default is 3.
+			//! Higher quality doesn't make calculate() take longer, but indirect lighting
+			//! improves in several consecutive frames when direct lighting doesn't change.
+			unsigned qualityIndirectStatic;
+			//! Sets default parameters. This is used if you send NULL instead of parameters.
+			CalculateParams()
+			{
+				qualityIndirectDynamic = 3;
+				qualityIndirectStatic = 3;
+			}
+		};
+
 		//! Calculates and improves indirect illumination on static objects.
 		//
 		//! To be called once per frame while rendering. To be called even when
@@ -374,10 +394,12 @@ namespace rr
 		//! loadFireball() before first calculate() is recommended for games.
 		//! If you haven't called it, first calculate() takes longer, creates internal solver.
 		//!
+		//! \param params
+		//!  Optional calculation parameters. Currently used only by Fireball.
 		//! \return
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
-		virtual RRStaticSolver::Improvement calculate();
+		virtual RRStaticSolver::Improvement calculate(CalculateParams* params = NULL);
 
 		//! Returns version of global illumination solution.
 		//
@@ -897,7 +919,7 @@ namespace rr
 		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
 		virtual bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
 
-		RRStaticSolver::Improvement calculateCore(float improveStep);
+		RRStaticSolver::Improvement calculateCore(float improveStep,CalculateParams* params=NULL);
 		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots);
 		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
 		void       updateVertexLookupTableDynamicSolver();
