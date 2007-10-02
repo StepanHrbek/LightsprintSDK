@@ -199,22 +199,22 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRIlluminatedObject
+	//  RRStaticObject
 	//! Static 3d object with storage space for calculated illumination.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	struct RRIlluminatedObject
+	struct RRStaticObject
 	{
 		RRObject* object;
 		RRObjectIllumination* illumination;
-		RRIlluminatedObject(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
+		RRStaticObject(RRObject* o, RRObjectIllumination* i) : object(o), illumination(i) {};
 	};
 
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRObjects
+	//  RRStaticObjects
 	//! Set of illuminated objects with interface similar to std::vector.
 	//
 	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
@@ -226,10 +226,10 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RRObjects : public RRVector<RRIlluminatedObject>
+	class RRStaticObjects : public RRVector<RRStaticObject>
 	{
 	public:
-		virtual ~RRObjects() {};
+		virtual ~RRStaticObjects() {};
 	};
 
 
@@ -335,7 +335,7 @@ namespace rr
 		//! Handling major occluders as dynamic objects is safe,
 		//! but it introduces errors in lighting, so it is not recommended.
 		//!
-		//! setObjects() removes effects of previous loadFireball() or calculate().
+		//! setStaticObjects() removes effects of previous loadFireball() or calculate().
 		//!
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
@@ -345,7 +345,7 @@ namespace rr
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
-		void setObjects(RRObjects& objects, const RRStaticSolver::SmoothingParameters* smoothing);
+		void setStaticObjects(RRStaticObjects& objects, const RRStaticSolver::SmoothingParameters* smoothing);
 
 		//! Returns number of static objects in scene.
 		unsigned getNumObjects() const;
@@ -504,7 +504,7 @@ namespace rr
 		//
 		//! \param objectNumber
 		//!  Number of object in this scene.
-		//!  Object numbers are defined by order in which you pass objects to setObjects().
+		//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
 		//! \param vertexBuffer
 		//!  Destination vertex buffer for indirect illumination.
 		//! \param params
@@ -592,7 +592,7 @@ namespace rr
 		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.
-		//!  Object numbers are defined by order in which you pass objects to setObjects().
+		//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
 		//! \param lightmap
 		//!  Pixel buffer for storing calculated illumination.
 		//!  Lightmap holds irradiance in custom scale, which is illumination
@@ -755,7 +755,7 @@ namespace rr
 		//
 		//! Builds Fireball from scratch, starts it and optionally saves it to file.
 		//! Later you can load saved file and start Fireball faster, see loadFireball().
-		//! This function must be called after setObjects(), because it depends on
+		//! This function must be called after setStaticObjects(), because it depends on
 		//! static objects in scene. It doesn't depend on lights end environment.
 		//!
 		//! \ref calc_fireball is faster, higher quality, smaller, realtime only solver;
@@ -819,7 +819,7 @@ namespace rr
 		//! Returns static solver for direct queries of single triangle/vertex illumination.
 		//
 		//! Static solver is created from getMultiObjectPhysicalWithIllumination()
-		//! after setObjects() and calculate().
+		//! after setStaticObjects() and calculate().
 		//! Static solver is not created if you use \ref calc_fireball.
 		const RRStaticSolver* getStaticSolver() const;
 

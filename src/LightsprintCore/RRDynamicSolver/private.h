@@ -18,7 +18,7 @@ namespace rr
 		};
 
 		// scene: inputs
-		RRObjects  objects;
+		RRStaticObjects  objects;
 		RRLights   lights;
 		const RRIlluminationEnvironmentMap* environment;
 		RRStaticSolver::SmoothingParameters smoothing;

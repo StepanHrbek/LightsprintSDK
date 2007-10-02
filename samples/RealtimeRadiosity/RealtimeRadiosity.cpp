@@ -451,7 +451,7 @@ int main(int argc, char **argv)
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createRgbScaler());
-	solver->setObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
+	solver->setStaticObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 	solver->setEnvironment(solver->adaptIlluminationEnvironmentMap(environmentMap));
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);

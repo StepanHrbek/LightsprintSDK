@@ -196,8 +196,8 @@ int main(int argc, char **argv)
 		puts(errorHandler.GetErrorString());
 		error("",false);
 	}
-	rr::RRObjects* objects = adaptObjectsFromFCollada( collada );
-	solver->setObjects( *objects, NULL );
+	rr::RRStaticObjects* objects = adaptObjectsFromFCollada( collada );
+	solver->setStaticObjects( *objects, NULL );
 	rr::RRLights* lights = adaptLightsFromFCollada( collada );
 	solver->setLights( *lights );
 	solver->setEnvironment( environmentMap );

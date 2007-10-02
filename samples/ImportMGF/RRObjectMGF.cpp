@@ -3,7 +3,7 @@
 // Copyright (C) Stepan Hrbek, Lightsprint, 2007
 // --------------------------------------------------------------------------
 
-// This code loads MGF scene (geometry primitives, materials) into RRObjects.
+// This code loads MGF scene (geometry primitives, materials) into RRStaticObjects.
 //
 // Unlike adapters for other formats, this one doesn't adapt 3rd party structure
 // in memory, it loads scene directly form file.
@@ -223,14 +223,14 @@ const rr::RRMaterial* RRObjectMGF::getTriangleMaterial(unsigned t) const
 //
 // ObjectsFromMGF
 
-class ObjectsFromMGF : public rr::RRObjects
+class ObjectsFromMGF : public rr::RRStaticObjects
 {
 public:
 	ObjectsFromMGF(const char* filename)
 	{
 		RRObjectMGF* object = new RRObjectMGF(filename);
 		if(object->getNumTriangles())
-			push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
+			push_back(rr::RRStaticObject(object,object->getIllumination()));
 	}
 	virtual ~ObjectsFromMGF()
 	{
@@ -243,7 +243,7 @@ public:
 //
 // main
 
-rr::RRObjects* adaptObjectsFromMGF(const char* filename)
+rr::RRStaticObjects* adaptObjectsFromMGF(const char* filename)
 {
 	return new ObjectsFromMGF(filename);
 }

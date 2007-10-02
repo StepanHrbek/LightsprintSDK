@@ -57,7 +57,7 @@ public:
 
 	//! Specifies data source - original scene geometry and illumination from given layer.
 	//
-	//! Original scene is exactly what you entered into solver (see RRDynamicSolver::setObjects()).
+	//! Original scene is exactly what you entered into solver (see RRDynamicSolver::setStaticObjects()).
 	//! \n Indirect illumination is always taken from given layer.
 	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR, LIGHT_INDIRECT_MAP.
 	//!  If both types are availabale (vertex buffer and texture), texture is used. 

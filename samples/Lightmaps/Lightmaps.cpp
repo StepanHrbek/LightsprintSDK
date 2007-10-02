@@ -579,7 +579,7 @@ int main(int argc, char **argv)
 		puts(errorHandler.GetErrorString());
 		error("",false);
 	}
-	solver->setObjects(*adaptObjectsFromFCollada(collada),NULL);
+	solver->setStaticObjects(*adaptObjectsFromFCollada(collada),NULL);
 	solver->setLights(*adaptLightsFromFCollada(collada));
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(solver->loadIlluminationEnvironmentMap("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));

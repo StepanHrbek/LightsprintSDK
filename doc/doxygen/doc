@@ -701,7 +701,7 @@ Used by samples:
    (why subclass? described in \ref integration_step_4)
 
  - To start calculation,
-   call RRDynamicSolver::setObjects() with set of static objects participating in calculation.
+   call RRDynamicSolver::setStaticObjects() with set of static objects participating in calculation.
    This call is expensive, design your application to avoid
    frequent changes of static scene.
 
@@ -1017,7 +1017,7 @@ Used by samples:
   Calculation of ambient occlusion is non-realtime process.
   To calculate ambient occlusion,
   - Create RRDynamicSolver
-  - Set geometry with RRDynamicSolver::setObjects().
+  - Set geometry with RRDynamicSolver::setStaticObjects().
     Set single object here for single object ambient occlusion.
     If you set scene with multiple objects here, each object will be
     occluded by all other objects.
@@ -1851,8 +1851,8 @@ Used by samples:
  \section lemissive Emissive materials
   - Area light source, triangles covered by materials that emit light.
   - Data structure: RRObject with emissive materials returned by RRObject::getTriangleMaterial()
-  - Data structure container: RRObjects
-  - Setup: RRDynamicSolver::setObjects()
+  - Data structure container: RRStaticObjects
+  - Setup: RRDynamicSolver::setStaticObjects()
   - Calculation: CPU, standard non-realtime functions (RRDynamicSolver::updateLightmaps() etc)
 
  \section lrealtime Custom realtime lights
@@ -1866,7 +1866,7 @@ Used by samples:
     (with global illumination) in your projects.
 
 \page inputs_geometry Geometry
- Scene geometry is specified by RRObjects - set of RRObject objects.
+ Scene geometry is specified by RRStaticObjects - set of static RRObject objects.
  \n Each object has its own transformation matrix and pointer to RRMesh triangle mesh,
  so object is instance of mesh.
  \n Mesh specifies vertices, triangles, normals, unwrap and custom data.

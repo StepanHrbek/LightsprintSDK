@@ -12,6 +12,12 @@ NEWS
 
 - RRDynamicSolver::CalculateParams for adjustable realtime lighting quality
 
+CHANGES
+
+- renamed RRIlluminatedObject -> RRStaticObject
+- renamed RRObjects -> RRStaticObjects
+- renamed RRDynamicSolver::setObjects() -> RRDynamicSolver::setStaticObjects()
+
 \section news34 ------------------------------------ 2007.9.23 -------------------------------------
 
 CHANGES

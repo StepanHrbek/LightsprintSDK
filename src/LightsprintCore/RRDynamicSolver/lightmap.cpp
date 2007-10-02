@@ -203,7 +203,7 @@ inline void closest_point_on_triangle_from_point(const T& x1, const T& y1,
 //! \n Enumeration order is not defined.
 //! \param objectNumber
 //!  Number of object in this scene.
-//!  Object numbers are defined by order in which you pass objects to setObjects().
+//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
 //! \param mapWidth
 //!  Width of map that wraps object's surface in texels.
 //!  No map is used here, but coordinates are generated for map of this size.

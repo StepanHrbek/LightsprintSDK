@@ -126,7 +126,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 #ifdef THREE_ONE
 	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
 #endif
-	solver->setObjects(*objects,&sp);
+	solver->setStaticObjects(*objects,&sp);
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
 

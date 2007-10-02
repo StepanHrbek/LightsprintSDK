@@ -52,7 +52,7 @@ namespace rr_gl
 		//!
 		//! \param objectNumber
 		//!  Number of object in this scene.
-		//!  Object numbers are defined by order in which you pass objects to setObjects().
+		//!  Object numbers are defined by order in which you pass objects to setStaticObjects().
 		//! \param lightmap
 		//!  Pixel buffer for storing calculated lightmap.
 		//!  Lightmap holds direct irradiance in custom scale, which is light from

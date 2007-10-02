@@ -794,7 +794,7 @@ RRObjectCollada::~RRObjectCollada()
 //
 // ObjectsFromFCollada
 
-class ObjectsFromFCollada : public rr::RRObjects
+class ObjectsFromFCollada : public rr::RRStaticObjects
 {
 public:
 	ObjectsFromFCollada(FCDocument* document);
@@ -894,7 +894,7 @@ void ObjectsFromFCollada::addNode(const FCDSceneNode* node, float scale, bool sw
 			RRObjectCollada* object = newObject(node,geometryInstance,scale,swapYZ,lightmapUvChannel);
 			if(object)
 			{
-				push_back(RRIlluminatedObject(object,object->getIllumination()));
+				push_back(RRStaticObject(object,object->getIllumination()));
 			}
 		}
 	}
@@ -1062,7 +1062,7 @@ LightsFromFCollada::~LightsFromFCollada()
 //
 // main
 
-rr::RRObjects* adaptObjectsFromFCollada(FCDocument* document)
+rr::RRStaticObjects* adaptObjectsFromFCollada(FCDocument* document)
 {
 	return new ObjectsFromFCollada(document);
 }
@@ -1076,7 +1076,7 @@ rr::RRLights* adaptLightsFromFCollada(class FCDocument* document)
 
 // stub - for quickly disabled collada support
 #include "RRObjectCollada.h"
-rr::RRObjects* adaptObjectsFromFCollada(class FCDocument* document)
+rr::RRStaticObjects* adaptObjectsFromFCollada(class FCDocument* document)
 {
 	return NULL;
 }

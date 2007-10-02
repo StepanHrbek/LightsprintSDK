@@ -516,7 +516,7 @@ int main(int argc, char **argv)
 	//mapNames.push_back( "1_12" );
 	//mapNames.push_back( "1_13" );
 	//mapNames.push_back( "1_14" );
-	solver->setObjects( *adaptObjectsFromTB( mapNames ), NULL );
+	solver->setStaticObjects( *adaptObjectsFromTB( mapNames ), NULL );
 #else
 	FCDocument* collada = FCollada::NewTopDocument();
 	FUErrorSimpleHandler errorHandler;
@@ -526,7 +526,7 @@ int main(int argc, char **argv)
 		puts(errorHandler.GetErrorString());
 		error("",false);
 	}
-	solver->setObjects( *adaptObjectsFromFCollada( collada ), NULL );
+	solver->setStaticObjects( *adaptObjectsFromFCollada( collada ), NULL );
 #endif
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
