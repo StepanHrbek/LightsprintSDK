@@ -12,11 +12,11 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-//#define CFG_FILE "test.cfg"
+#define CFG_FILE "test.cfg"
 //#define CFG_FILE "eg-flat1.cfg"
 //#define CFG_FILE "eg-quake.cfg"
 //#define CFG_FILE "eg-sponza.cfg"
-#define CFG_FILE "eg-sponza-sun.cfg"
+//#define CFG_FILE "eg-sponza-sun.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 bool ati = 1;
 int fullscreen = 1;
@@ -61,6 +61,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
+#include <process.h>
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GL/glut.h>
@@ -216,6 +217,15 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 void updateMatrices();
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
+#if 0
+bool g_improving = false;
+void g_improve(void* solver)
+{
+	((rr::RRDynamicSolver*)solver)->calculateImprove();
+	g_improving = false;
+}
+#endif
+
 class Solver : public rr_gl::RRDynamicSolverGL
 {
 public:
@@ -235,7 +245,7 @@ protected:
 	virtual void detectMaterials()
 	{
 	}
-
+#if 1 // klasika
 	virtual unsigned* detectDirectIllumination()
 	{
 		if(!demoPlayer)
@@ -256,13 +266,17 @@ protected:
 		// setup shader for rendering direct illumination+shadows without materials
 		return RRDynamicSolverGL::detectDirectIllumination();
 	}
-/*	virtual rr::RRStaticSolver::Improvement calculate()
-	{
-		rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
-		return RRDynamicSolver::calculate();
-	}
-
-	updatuje shadowmapy 1..7 paralelne s improvem, teoreticky melo zrychlit, ale nezrychlilo
+	//virtual rr::RRStaticSolver::Improvement calculate()
+	//{
+	//	rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
+	//	return RRDynamicSolver::calculate();
+		//calculateReset(detectDirectIllumination());
+		//calculateImprove();
+		//calculateUpdate();
+		//return rr::RRStaticSolver::IMPROVED;
+	//}
+#endif
+#if 0 //updatuje shadowmapy 1..7 paralelne s calculate, ale mimo hlavni thread to nefunguje
 	unsigned* predetectedDirectIllumination;
 	virtual unsigned* detectDirectIllumination()
 	{
@@ -271,7 +285,6 @@ protected:
 	virtual rr::RRStaticSolver::Improvement calculate()
 	{
 		rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
-
 		if(needDepthMapUpdate)
 		{
 			if(needMatrixUpdate) updateMatrices(); // probably not necessary
@@ -281,11 +294,9 @@ protected:
 				updateDepthMap(i,numInstances);
 			}
 		}
-
 		predetectedDirectIllumination = RRDynamicSolverGL::detectDirectIllumination();
-
 		rr::RRStaticSolver::Improvement result;
-		#pragma omp sections
+		#pragma omp parallel sections
 		{
 			#pragma omp section
 			{
@@ -305,10 +316,76 @@ protected:
 				result = RRDynamicSolver::calculate();
 			}
 		}
-
 		return result;
 	}
-*/
+#endif
+#if 0 //updatuje shadowmapy 1..7 paralelne s improvem, ale mimo hlavni thread to nefunguje
+	virtual rr::RRStaticSolver::Improvement calculate()
+	{
+		rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
+		if(needDepthMapUpdate)
+		{
+			if(needMatrixUpdate) updateMatrices(); // probably not necessary
+			unsigned numInstances = areaLight->getNumInstances();
+			for(unsigned i=0;i<1;i++)
+			{
+				updateDepthMap(i,numInstances);
+			}
+		}
+		calculateReset(detectDirectIllumination());
+		#pragma omp parallel sections
+		{
+			#pragma omp section
+			{
+				// CPU+GPU work
+				if(needDepthMapUpdate)
+				{
+					unsigned numInstances = areaLight->getNumInstances();
+					for(unsigned i=1;i<numInstances;i++)
+					{
+						updateDepthMap(i,numInstances);
+					}
+				}
+			}
+			#pragma omp section
+			{
+				// CPU work
+				calculateImprove();
+			}
+		}
+		calculateUpdate();
+		return rr::RRStaticSolver::IMPROVED;
+	}
+#endif
+#if 0 //updatuje shadowmapy 1..7 paralelne s improvem, ale nefunguje to, prestoze updatuju v hlavnim threadu
+	virtual rr::RRStaticSolver::Improvement calculate()
+	{
+		rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
+		if(needDepthMapUpdate)
+		{
+			if(needMatrixUpdate) updateMatrices(); // probably not necessary
+			unsigned numInstances = areaLight->getNumInstances();
+			for(unsigned i=0;i<1;i++)
+			{
+				updateDepthMap(i,numInstances);
+			}
+		}
+		calculateReset(detectDirectIllumination());
+		g_improving = true;
+		_beginthread(g_improve,0,this);
+		if(needDepthMapUpdate)
+		{
+			unsigned numInstances = areaLight->getNumInstances();
+			for(unsigned i=1;i<numInstances;i++)
+			{
+				updateDepthMap(i,numInstances);
+			}
+		}
+		while(g_improving) Sleep(1);
+		calculateUpdate();
+		return rr::RRStaticSolver::IMPROVED;
+	}
+#endif
 	virtual void setupShader(unsigned objectNumber)
 	{
 		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;

@@ -390,6 +390,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep)
 	return improvement;
 }
 
+
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
 RRStaticSolver::Improvement RRDynamicSolver::calculate()
 {
