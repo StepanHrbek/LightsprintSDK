@@ -10,6 +10,8 @@
 #include "../RRMathPrivate.h"
 #include "private.h"
 
+#define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
+
 namespace rr
 {
 
@@ -143,32 +145,22 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 
 // OMP parallel inside
 // thread safe: yes
-// gathers: float exitance in physical scale
-static void cubeMapGatherExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
+// outputs:
+//  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be NULL
+//  - irradianceHdr, float exitance in physical scale, may be NULL
+static void cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRRay* ray6, unsigned* triangleNumbers, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
 {
-	if(!scene && !packedSolver)
+	if((!scene && !packedSolver) || !object || (!triangleNumbers && !irradianceHdr))
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	if(!object)
-	{
-		RR_ASSERT(0);
-		return;
-	}
-	if(!irradianceLdr && !irradianceHdr)
-	{
-		RR_ASSERT(0);
-		return;
-	}
-	RRRay* ray6 = RRRay::create(6);
 	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
 	for(int side=0;side<6;side++)
 	{
 		RRRay* ray = ray6+side;
 		for(unsigned j=0;j<size;j++)
 			for(unsigned i=0;i<size;i++)
-
 			{
 				unsigned ofs = i+(j+side*size)*size;
 				RRVec3 dir = cubeSide[side].getTexelDir(size,i,j);
@@ -182,10 +174,12 @@ static void cubeMapGatherExitances(const RRStaticSolver* scene, const RRPackedSo
 				ray->rayLengthMax = 10000; //!!! hard limit
 				ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
 				unsigned face = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
-#ifdef SUPPORT_LDR
+				if(triangleNumbers)
+				{
+					triangleNumbers[ofs] = face;
+				}
 				if(irradianceHdr)
 				{
-#endif
 					if(face==UINT_MAX)
 					{
 						// read irradiance on sky
@@ -199,11 +193,11 @@ static void cubeMapGatherExitances(const RRStaticSolver* scene, const RRPackedSo
 					else
 					{
 						// read face exitance
-						scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,scaler,irradianceHdr[ofs]);
+						scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,irradianceHdr[ofs]);
 					}
-#ifdef SUPPORT_LDR
 				}
-				else
+#ifdef SUPPORT_LDR
+				else if(irradianceLdr)
 				{
 					if(face==UINT_MAX)
 					{
@@ -219,85 +213,46 @@ static void cubeMapGatherExitances(const RRStaticSolver* scene, const RRPackedSo
 #endif
 			}
 	}
-	delete[] ray6;
 }
 
-// OMP parallel inside
-// thread safe: yes
-// gathers: multiobject triangle numbers, UINT_MAX for skybox
-static void cubeMapGatherTriangles(const RRObject* object, RRVec3 center, unsigned size, unsigned* triangleNumbers)
-{
-	if(!object)
-	{
-		RR_ASSERT(0);
-		return;
-	}
-	if(!triangleNumbers)
-	{
-		RR_ASSERT(0);
-		return;
-	}
-	RRRay* ray6 = RRRay::create(6);
-	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
-	for(int side=0;side<6;side++)
-	{
-		RRRay* ray = ray6+side;
-		for(unsigned j=0;j<size;j++)
-			for(unsigned i=0;i<size;i++)
-			{
-				unsigned ofs = i+(j+side*size)*size;
-				RRVec3 dir = cubeSide[side].getTexelDir(size,i,j);
-				RRReal dirsize = dir.length();
-				// find face
-				ray->rayOrigin = center;
-				ray->rayDirInv[0] = dirsize/dir[0];
-				ray->rayDirInv[1] = dirsize/dir[1];
-				ray->rayDirInv[2] = dirsize/dir[2];
-				ray->rayLengthMin = 0;
-				ray->rayLengthMax = 10000; //!!! hard limit
-				ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
-				triangleNumbers[ofs] = object->getCollider()->intersect(ray) ? ray->hitTriangle : UINT_MAX;
-			}
-	}
-	delete[] ray6;
-}
 
 // thread safe: yes
-// gathers: float exitance in physical scale
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRScaler* scaler, const RRIlluminationEnvironmentMap* environment, unsigned size, unsigned* triangleNumbers, RRColorRGBF* irradianceHdr)
+// converts triangle numbers to float exitance in physical scale
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRIlluminationEnvironmentMap* environment, unsigned size, unsigned* triangleNumbers, RRColorRGBF* exitanceHdr)
 {
 	if(!scene && !packedSolver)
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	if(!triangleNumbers && !irradianceHdr)
+	if(!triangleNumbers || !exitanceHdr)
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	for(unsigned ofs=0;ofs<6*size*size;ofs++)
+#pragma omp parallel for schedule(static)
+	for(int ofs=0;ofs<(int)(6*size*size);ofs++)
 	{
 		unsigned face = triangleNumbers[ofs];
 		if(face==UINT_MAX)
 		{
 			if(!environment)
-				irradianceHdr[ofs] = RRVec3(0);
+				exitanceHdr[ofs] = RRVec3(0);
 			else
 			{
 				// read irradiance on sky
-				irradianceHdr[ofs] = environment->getValue(cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size));
+				exitanceHdr[ofs] = environment->getValue(cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size));
 			}
 		}
 		else if(packedSolver)
 		{
 			// read face exitance
-			irradianceHdr[ofs] = packedSolver->getTriangleExitance(face);
+			exitanceHdr[ofs] = packedSolver->getTriangleExitance(face);
 		}
 		else
 		{
 			// read face exitance
-			scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,scaler,irradianceHdr[ofs]);
+			scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,exitanceHdr[ofs]);
 		}
 	}
 }
@@ -504,8 +459,8 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 	if(map) \
 	{ \
 		const Interpolator* interpolator = cache.getInterpolator(gatherSize,filteredSize,radius); \
-		interpolator->interpolate(gatheredIrradiance,filteredIrradiance,priv->scaler); \
-		map->setValues(filteredSize,filteredIrradiance); \
+		interpolator->interpolate(gatheredExitance,filteredExitance,priv->scaler); \
+		map->setValues(filteredSize,filteredExitance); \
 		updatedMaps++; \
 	}
 
@@ -522,28 +477,30 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 	{
 #endif
 		// alloc temp space
-		RRColorRGBF* gatheredIrradiance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
-		RRColorRGBF* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
+		RRColorRGBF* gatheredExitance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
+		RRColorRGBF* filteredExitance = gatheredExitance + 6*gatherSize*gatherSize;
 
 		// gather physical irradiances
-		cubeMapGatherExitances(priv->scene,priv->packedSolver,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,NULL,gatheredIrradiance);
+		RRRay* ray6 = RRRay::create(6);
+		cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),getEnvironment(),objectCenter,gatherSize,ray6,NULL,NULL,gatheredExitance);
+		delete[] ray6;
 
 		// fill cubemaps
 		// - diffuse
 		FILL_CUBEMAP(diffuseSize,0.9f,diffuseMap);
-		//if(diffuseMap) diffuseMap->setValues(gatherSize,gatheredIrradiance);
+		//if(diffuseMap) diffuseMap->setValues(gatherSize,gatheredExitance);
 		/*if(specularSize==gatherSize)
 		{
 			// - specular fast
-			filterEdges(gatherSize,gatheredIrradiance);
+			filterEdges(gatherSize,gatheredExitance);
 			if(scaler)
 			{
 				for(unsigned i=gatherSize*gatherSize*6;i--;)
 				{
-					scaler->getCustomScale(gatheredIrradiance[i]);
+					scaler->getCustomScale(gatheredExitance[i]);
 				}
 			}
-			specularMap->setValues(gatherSize,gatheredIrradiance);
+			specularMap->setValues(gatherSize,gatheredExitance);
 		}
 		else*/
 		{
@@ -552,17 +509,19 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		}
 
 		// cleanup
-		delete[] gatheredIrradiance;
+		delete[] gatheredExitance;
 #ifdef SUPPORT_LDR
 	}
 	else
 	{
 		// alloc temp space
-		RRColorRGBA8* gatheredIrradiance = new RRColorRGBA8[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
-		RRColorRGBA8* filteredIrradiance = gatheredIrradiance + 6*gatherSize*gatherSize;
+		RRColorRGBA8* gatheredExitance = new RRColorRGBA8[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
+		RRColorRGBA8* filteredExitance = gatheredExitance + 6*gatherSize*gatherSize;
 
 		// gather custom irradiances
-		cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getScaler(),getEnvironment(),objectCenter,gatherSize,gatheredIrradiance,NULL);
+		RRRay* ray6 = RRRay::create(6);
+		cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getEnvironment(),objectCenter,gatherSize,ray6,NULL,gatheredExitance,NULL);
+		delete[] ray6;
 
 		// fill cubemaps
 		// - diffuse
@@ -571,7 +530,7 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		{
 			// - specular fast
 			filterEdges(gatherSize,gatheredIrradiance);
-			specularMap->setValues(gatherSize,gatheredIrradiance);
+			specularMap->setValues(gatherSize,gatheredExitance);
 		}
 		else*/
 		{
@@ -580,10 +539,111 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		}
 
 		// cleanup
-		delete[] gatheredIrradiance;
+		delete[] gatheredExitance;
 	}
 #endif
 
+	return updatedMaps;
+}
+
+void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illumination)
+{
+	if(!illumination || !illumination->gatherEnvMapSize || (!illumination->diffuseEnvMap && !illumination->specularEnvMap))
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMapSize : 0;
+	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMapSize : 0;
+	unsigned gatherSize = (specularSize+diffuseSize) ? illumination->gatherEnvMapSize : 0;
+	if(!gatherSize)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	if(gatherSize!=illumination->cachedGatherSize || illumination->envMapWorldCenter!=illumination->cachedCenter)
+	{
+		if(illumination->cachedGatherSize!=gatherSize)
+		{
+			SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
+		}
+		illumination->cachedGatherSize = gatherSize;
+		illumination->cachedCenter = illumination->envMapWorldCenter;
+		if(!illumination->cachedTriangleNumbers)
+			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
+		cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),NULL,illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,NULL);
+	}
+}
+
+unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination)
+{
+	if(!illumination)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
+	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMapSize : 0;
+	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMapSize : 0;
+	unsigned gatherSize = (specularSize+diffuseSize) ? illumination->gatherEnvMapSize : 0;
+	if(!gatherSize)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
+
+	// alloc temp space
+	RRColorRGBF* gatheredExitance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
+	RRColorRGBF* filteredExitance = gatheredExitance + 6*gatherSize*gatherSize;
+
+	if(gatherSize!=illumination->cachedGatherSize || illumination->envMapWorldCenter!=illumination->cachedCenter)
+	{
+		if(illumination->cachedGatherSize!=gatherSize)
+		{
+			SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
+		}
+		illumination->cachedGatherSize = gatherSize;
+		illumination->cachedCenter = illumination->envMapWorldCenter;
+		if(!illumination->cachedTriangleNumbers)
+			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
+		cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),getEnvironment(),illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,gatheredExitance);
+	}
+	else
+	{
+		cubeMapConvertTrianglesToExitances(getStaticSolver(),priv->packedSolver,getEnvironment(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+	}
+
+	// fill envmaps
+	unsigned minSize = MIN(gatherSize,specularSize);
+	RRReal minDot = minSize*sqrtf(1.0f/(3+minSize*minSize));
+	unsigned updatedMaps = 0;
+	FILL_CUBEMAP(diffuseSize,0.9f,illumination->diffuseEnvMap);
+	FILL_CUBEMAP(specularSize,1-minDot,illumination->specularEnvMap);
+
+	// cleanup
+	delete[] gatheredExitance;
+
+	return updatedMaps;
+}
+
+void RRDynamicSolver::updateEnvironmentMapsCache()
+{
+	for(int i=0;i<(int)priv->dobjects.size();i++)
+	{
+		RRObjectIllumination* illum = priv->dobjects[i].illumination;
+		if(illum)
+			updateEnvironmentMapCache(illum);
+	}
+}
+
+unsigned RRDynamicSolver::updateEnvironmentMaps()
+{
+	unsigned updatedMaps = 0;
+	for(int i=0;i<(int)priv->dobjects.size();i++)
+	{
+		RRObjectIllumination* illum = priv->dobjects[i].illumination;
+		if(illum)
+			updatedMaps += updateEnvironmentMap(illum);
+	}
 	return updatedMaps;
 }
 

@@ -60,7 +60,53 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 	}
-private:
+protected:
+	RRReal gamma;
+	RRReal invGamma;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRFastGammaScaler
+//
+
+class RRFastGammaScaler : public RRScaler
+{
+public:
+	RRFastGammaScaler(RRReal agamma)
+	{
+		gamma = agamma;
+		invGamma = 1/gamma;
+	}
+	virtual void getCustomScale(RRColor& color) const
+	{
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+		color = RRColor(
+			powf(color[0],gamma),
+			powf(color[1],gamma),
+			powf(color[2],gamma)
+			);
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+	}
+	virtual void getPhysicalScale(RRColor& color) const
+	{
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+		color = RRColor(
+			powf(color[0],invGamma),
+			powf(color[1],invGamma),
+			powf(color[2],invGamma)
+			);
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+	}
+protected:
 	RRReal gamma;
 	RRReal invGamma;
 };
@@ -72,6 +118,11 @@ private:
 RRScaler* RRScaler::createRgbScaler(RRReal power)
 {
 	return new RRGammaScaler(power);
+}
+
+RRScaler* RRScaler::createFastRgbScaler(RRReal power)
+{
+	return new RRFastGammaScaler(power);
 }
 
 

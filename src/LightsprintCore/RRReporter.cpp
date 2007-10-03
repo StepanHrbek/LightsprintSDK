@@ -4,7 +4,7 @@
 #include <cstring>
 #include <cstdio>
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 #include "Lightsprint/GL/Timer.h"
 
@@ -221,8 +221,8 @@ RRReportInterval::~RRReportInterval()
 {
 	if(enabled)
 	{
-		float doneIn = (GETTIME-creationTime)/(float)PER_SEC;
-		RRReporter::report(TIMI,(doneIn>1)?"done in %.1fs.\n":((doneIn>0.1f)?"done in %.2fs.\n":"done in %.3fs.\n"),doneIn);
+		float doneIn = (float)((GETTIME-creationTime)/(float)PER_SEC);
+		RRReporter::report(TIMI,(doneIn>1)?"done in %.1fs.\n":((doneIn>0.1f)?"done in %.2fs.\n":((doneIn>0.01f)?"done in %.3fs.\n":"done in %.4fs.\n")),doneIn);
 		RRReporter::indent(-1);
 	}
 }

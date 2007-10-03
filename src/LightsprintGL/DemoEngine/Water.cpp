@@ -88,7 +88,7 @@ void Water::render(float size)
 	glActiveTexture(GL_TEXTURE0);
 	mirrorMap->bindTexture();
 	mirrorProgram->sendUniform("mirrorMap",0);
-	mirrorProgram->sendUniform("time",(timeGetTime()%10000000)*0.001f);
+	mirrorProgram->sendUniform("time",(float)(GETTIME/(float)PER_SEC));
 	if(fresnel) mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
 	//GLboolean blend = glIsEnabled(GL_BLEND);
 	//glEnable(GL_BLEND);

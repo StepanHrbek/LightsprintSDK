@@ -38,15 +38,11 @@ RRIlluminationEnvironmentMapInOpenGL::RRIlluminationEnvironmentMapInOpenGL(const
 
 void RRIlluminationEnvironmentMapInOpenGL::setValues(unsigned size, const rr::RRColorRGBF* irradiance)
 {
-	// Many Lightsprint functions are parallelized internally,
-	// but demos are singlethreaded for simplicity, so this code 
-	// is never run in multiple threads and critical section is not needed (by demos).
-	// However, it could be important for future applications.
-	#pragma omp critical
-	{
-		// intentionally converted to bytes here, because older cards can't interpolate floats
-		texture->reset(size,size,Texture::TF_RGBF,(unsigned char*)irradiance,false);
-	}
+	// not thread safe
+	// OpenGL context is thread specific, so calling this from other than master thread is usually error
+
+	// intentionally converted to bytes here, because older cards can't interpolate floats
+	texture->reset(size,size,Texture::TF_RGBF,(unsigned char*)irradiance,false);
 }
 
 rr::RRColorRGBF RRIlluminationEnvironmentMapInOpenGL::getValue(const rr::RRVec3& direction) const

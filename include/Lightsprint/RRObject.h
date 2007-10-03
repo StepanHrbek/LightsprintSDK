@@ -145,6 +145,9 @@ namespace rr
 		//! and eye attributes.
 		//! \param power Exponent in formula screenSpace = physicalSpace^power.
 		static RRScaler* createRgbScaler(RRReal power=0.45f);
+
+		//! As createRgbScaler(), but slightly faster, with undefined results for negative numbers.
+		static RRScaler* createFastRgbScaler(RRReal power=0.45f);
 	};
 
 

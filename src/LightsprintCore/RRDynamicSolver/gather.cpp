@@ -866,7 +866,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		// first gather
 		TIME t0 = GETTIME;
 		updateSolverDirectIllumination(&paramsIndirect,false);
-		RRReal secondsInGather = (GETTIME-t0)/(RRReal)PER_SEC;
+		RRReal secondsInGather = (RRReal)((GETTIME-t0)/(RRReal)PER_SEC);
 
 		// auto quality for propagate
 		float secondsInPropagatePlan;
@@ -921,7 +921,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 
 			delete[] rays;
 
-			RRReal secondsInBench = (GETTIME-benchStart)/(RRReal)PER_SEC;
+			RRReal secondsInBench = (RRReal)((GETTIME-benchStart)/(RRReal)PER_SEC);
 			secondsInPropagatePlan = MAX(0.1f,20*secondsInBench);
 		}
 

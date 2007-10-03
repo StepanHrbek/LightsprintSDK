@@ -301,36 +301,18 @@ bool DynamicObjects::setupSceneDynamicForPartTime(LevelSetup* setup, float secon
 	prevFrame = *frame;
 	return true;
 }
-/*
-void DynamicObjects::updateSceneDynamic(LevelSetup* setup, float seconds, unsigned onlyDynaObjectNumber)
-{
-	// increment rotation
-	float rot = seconds*70;
 
-	// move objects
-	bool lightsChanged = false;
-	const AnimationFrame* frame = level ? level->pilot.autopilot(seconds,&lightsChanged) : NULL;
-	if(frame)
+void DynamicObjects::updateSceneDynamic(rr::RRDynamicSolver* solver)
+{
+	for(unsigned i=0;i<dynaobject.size();i++)
 	{
-		// autopilot movement
-		assert(onlyDynaObjectNumber==1000);
-		copyAnimationFrameToScene(setup,*frame,lightsChanged);
-	}
-	else
-	{
-		// AI movement
-		for(unsigned i=0;i<dynaobject.size();i++)
+		if(dynaobject[i] && dynaobject[i]->visible)
 		{
-			if(dynaobject[i] && (i==onlyDynaObjectNumber || onlyDynaObjectNumber>999))
-			{
-				dynaobject[i]->worldFoot = dynaobjectAI[i]->updatePosition(seconds);
-				dynaobject[i]->rot += rot * ((i%2)?1:-1);
-				dynaobject[i]->updatePosition();
-			}
+			solver->updateEnvironmentMapCache(dynaobject[i]->illumination);
 		}
 	}
 }
-*/
+
 void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::AreaLight* areaLight, unsigned firstInstance, const rr_gl::Texture* lightDirectMap, const float brightness[4], float gamma) const
 {
 	// use object space
@@ -355,7 +337,9 @@ void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::Uber
 		if(dynaobject[i] && dynaobject[i]->visible)
 		{
 			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-				dynaobject[i]->updateIllumination(solver);
+			{
+				solver->updateEnvironmentMap(dynaobject[i]->illumination);
+			}
 			dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap,currentFrame.eye,brightness,gamma);
 		}
 	}

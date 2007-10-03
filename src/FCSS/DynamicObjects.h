@@ -38,7 +38,14 @@ public:
 	// pozor: nevhodne kdyz je paused, muze skocit do jineho framu pokud maji 0sec
 	bool setupSceneDynamicForPartTime(class LevelSetup* setup, float secondsFromStart);
 
-	void updateSceneDynamic(LevelSetup* setup, float advanceSeconds, unsigned onlyDynaObjectNumber=1000);
+	// muze byt zavolano po zahybani objekty a pred renderSceneDynamic()
+	// aktualizuje triangleNumbers v dynobjektech, osvetleni jeste nemusi byt spoctene
+	// zrychli prubeh nasledujiciho renderSceneDynamic
+	// neni povinne
+	void updateSceneDynamic(rr::RRDynamicSolver* solver);
+
+	// dokonci update envmap a posle je do GPU
+	// probehne rychleji pokud bylo predtim zavolano updateSceneDynamic, ale nutne to neni
 	void renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::AreaLight* areaLight, unsigned firstInstance, const rr_gl::Texture* lightDirectMap, const float brightness[4], float gamma) const;
 
 private:

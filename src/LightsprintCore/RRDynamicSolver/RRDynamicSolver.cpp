@@ -1,6 +1,5 @@
 #include <assert.h>
 #include "Lightsprint/RRDynamicSolver.h"
-#include "Lightsprint/GL/Timer.h"
 #include "report.h"
 #include "private.h"
 #include "../RRStaticSolver/rrcore.h" // buildovani packed faktoru
@@ -31,9 +30,6 @@ namespace rr
 RRDynamicSolver::RRDynamicSolver()
 {
 	priv = new Private;
-#ifdef WIN32
-	timeBeginPeriod(1); // improves precision of demoengine's GETTIME
-#endif
 }
 
 RRDynamicSolver::~RRDynamicSolver()
@@ -78,10 +74,10 @@ const RRLights& RRDynamicSolver::getLights() const
 	return priv->lights;
 }
 
-void RRDynamicSolver::setStaticObjects(RRObjects& aobjects, const RRStaticSolver::SmoothingParameters* asmoothing)
+void RRDynamicSolver::setStaticObjects(RRObjects& _objects, const RRStaticSolver::SmoothingParameters* _smoothing)
 {
-	priv->objects = aobjects;
-	priv->smoothing = asmoothing ? *asmoothing : RRStaticSolver::SmoothingParameters();
+	priv->objects = _objects;
+	priv->smoothing = _smoothing ? *_smoothing : RRStaticSolver::SmoothingParameters();
 	priv->dirtyStaticSolver = true;
 	priv->dirtyLights = Private::BIG_CHANGE;
 
@@ -126,6 +122,11 @@ void RRDynamicSolver::setStaticObjects(RRObjects& aobjects, const RRStaticSolver
 		priv->multiObjectCustom->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
 		priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
 	}
+}
+
+void RRDynamicSolver::setDynamicObjects(RRObjects& _objects)
+{
+	priv->dobjects = _objects;
 }
 
 unsigned RRDynamicSolver::getNumObjects() const
@@ -393,6 +394,24 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep,Cal
 	return improvement;
 }
 
+//#ifdef RR_DEVELOPMENT
+void RRDynamicSolver::calculateReset(unsigned* detectedDirectIllumination)
+{
+	priv->packedSolver->illuminationReset(detectedDirectIllumination,priv->customToPhysical);
+	priv->solutionVersion++;
+}
+
+void RRDynamicSolver::calculateImprove(CalculateParams* params)
+{
+	priv->packedSolver->illuminationImprove(params?params->qualityIndirectDynamic:CalculateParams().qualityIndirectDynamic,params?params->qualityIndirectStatic:CalculateParams().qualityIndirectStatic);
+	priv->solutionVersion++;
+}
+
+void RRDynamicSolver::calculateUpdate()
+{
+	priv->packedSolver->getTriangleIrradianceIndirectUpdate();
+}
+//#endif
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
 RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
@@ -401,7 +420,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
 
 	// adjust userStep
-	float lastUserStep = (calcBeginTime-priv->lastCalcEndTime)/(float)PER_SEC;
+	float lastUserStep = (float)((calcBeginTime-priv->lastCalcEndTime)/(float)PER_SEC);
 	if(!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial userStep=0 means 'unknown yet' which forces too long improve (IMPROVE_STEP_NO_INTERACTION)
 	if(priv->lastInteractionTime && priv->lastInteractionTime>=priv->lastCalcEndTime)
 	{
@@ -416,7 +435,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
 		// -> increase userStep
 		//    (this slowly increases calculation time)
 		priv->userStep = priv->lastInteractionTime ?
-			(priv->lastCalcEndTime-priv->lastInteractionTime)/(float)PER_SEC // time from last interaction (if there was at least one)
+			(float)((priv->lastCalcEndTime-priv->lastInteractionTime)/(float)PER_SEC) // time from last interaction (if there was at least one)
 			: IMPROVE_STEP_NO_INTERACTION; // safety time for situations there was no interaction yet
 		//REPORT(RRReporter::report(INF1,"User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*priv->userStep)));
 	}
@@ -448,7 +467,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
 
 	// adjust calcStep
 	priv->lastCalcEndTime = GETTIME;
-	float lastCalcStep = (priv->lastCalcEndTime-calcBeginTime)/(float)PER_SEC;
+	float lastCalcStep = (float)((priv->lastCalcEndTime-calcBeginTime)/(float)PER_SEC);
 	if(!lastCalcStep) lastCalcStep = 0.00001f; // fight low timer precision, avoid 0, initial calcStep=0 means 'unknown yet'
 	if(lastCalcStep<1.0)
 	{

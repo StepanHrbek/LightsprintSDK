@@ -4,6 +4,7 @@
 #include <vector>
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../RRPackedSolver/RRPackedSolver.h"
+#include "Lightsprint/GL/Timer.h"
 
 namespace rr
 {
@@ -19,6 +20,7 @@ namespace rr
 
 		// scene: inputs
 		RRObjects  objects;
+		RRObjects  dobjects;
 		RRLights   lights;
 		const RRIlluminationEnvironmentMap* environment;
 		RRStaticSolver::SmoothingParameters smoothing;
@@ -42,9 +44,9 @@ namespace rr
 		bool       dirtyStaticSolver;
 		ChangeStrength dirtyLights; // 0=no light change, 1=small light change, 2=strong light change
 		bool       dirtyResults;
-		long       lastInteractionTime;
-		long       lastCalcEndTime;
-		long       lastReadingResultsTime;
+		TIME       lastInteractionTime;
+		TIME       lastCalcEndTime;
+		TIME       lastReadingResultsTime;
 		float      userStep; // avg time spent outside calculate().
 		float      calcStep; // avg time spent in calculate().
 		float      improveStep; // time to be spent in improve in calculate()

@@ -28,7 +28,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	// init radiosity solver
 	solver = createSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	solver->setScaler(rr::RRScaler::createRgbScaler());
+	solver->setScaler(rr::RRScaler::createFastRgbScaler());
 	solver->setEnvironment(skyMap);
 
 	/*

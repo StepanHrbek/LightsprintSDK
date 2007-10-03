@@ -10,6 +10,13 @@
 
 #include <cassert>
 
+#ifdef _OPENMP
+	#include <omp.h>
+	#include <cstring> // NULL
+	#define TIME    double
+	#define GETTIME omp_get_wtime()
+	#define PER_SEC 1
+#else
 #ifdef WIN32
 	#define WINDOWS_TIME
 	#include <windows.h>
@@ -24,6 +31,7 @@
 	#define TIME    clock_t
 	#define GETTIME clock()
 	#define PER_SEC CLOCKS_PER_SEC
+#endif
 #endif
 
 namespace rr_gl

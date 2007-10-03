@@ -28,6 +28,7 @@
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDebug.h"
 #include "DynamicObject.h"
+#include <windows.h> // timeGetTime
 
 //#define WATER // enables water
 

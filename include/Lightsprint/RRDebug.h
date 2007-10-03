@@ -146,7 +146,11 @@ namespace rr
 		//! Reports time elapsed since constructor call and decreases indentation.
 		~RRReportInterval();
 	protected:
-		unsigned creationTime;
+		#ifdef _OPENMP
+			double creationTime;
+		#else
+			unsigned creationTime;
+		#endif
 		bool enabled;
 	};
 

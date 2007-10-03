@@ -184,6 +184,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	packedSolverFile = _adopt_packedSolverFile;
 	ivertexIndirectIrradiance = new RRVec3[packedSolverFile->packedIvertices->getNumC1()];
 	triangleIrradianceIndirectDirty = true;
+	currentVersion = 0;
 	currentQuality = 0;
 }
 
@@ -205,6 +206,7 @@ void RRPackedSolver::illuminationReset(unsigned* customDirectIrradiance, RRReal*
 		triangles[t].incidentFluxDiffused = RRVec3(0);
 		triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]) * triangles[t].area;
 	}
+	currentVersion++;
 	currentQuality = 0;
 }
 
@@ -222,6 +224,7 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 	for(unsigned group=0;group<qualityDynamic;group++)
 	{
 		unsigned bests = packedBests->selectBests();
+		currentVersion += bests;
 		for(unsigned i=0;i<bests;i++)
 		{
 			unsigned sourceTriangleIndex = packedBests->getSelectedBest(i);

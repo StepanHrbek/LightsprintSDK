@@ -27,6 +27,13 @@ public:
 	void getTriangleIrradianceIndirectUpdate();
 	const RRVec3* getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const;
 
+	//! Returns version of global illumination solution.
+	//
+	//! You may use this number to avoid unnecessary updates of illumination buffers.
+	//! Store version together with your illumination buffers and don't update them
+	//! (updateVertexBuffers(), updateLightmaps()) until this number changes.
+	unsigned getSolutionVersion() const {return currentVersion;}
+
 	~RRPackedSolver();
 
 protected:
@@ -49,6 +56,7 @@ protected:
 	class PackedBests* packedBests;
 	RRVec3* ivertexIndirectIrradiance;
 	bool triangleIrradianceIndirectDirty;
+	unsigned currentVersion; // incremented each time new different results are available
 	unsigned currentQuality; // number of best200 groups processed since reset
 };
 

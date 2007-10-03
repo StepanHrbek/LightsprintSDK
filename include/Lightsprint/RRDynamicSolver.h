@@ -347,6 +347,9 @@ namespace rr
 		//!  Set NULL for default values.
 		void setStaticObjects(RRObjects& objects, const RRStaticSolver::SmoothingParameters* smoothing);
 
+		//! Sets dynamic contents of scene, all dynamic objects at once.
+		void setDynamicObjects(RRObjects& objects);
+
 		//! Returns number of static objects in scene.
 		unsigned getNumObjects() const;
 
@@ -400,6 +403,11 @@ namespace rr
 		//!  IMPROVED when any vertex or pixel buffer was updated with improved illumination.
 		//!  NOT_IMPROVED otherwise. FINISHED = exact solution was reached, no further calculations are necessary.
 		virtual RRStaticSolver::Improvement calculate(CalculateParams* params = NULL);
+//#ifdef RR_DEVELOPMENT
+		void calculateReset(unsigned* detectedDirectIllumination);
+		void calculateImprove(CalculateParams* params);
+		void calculateUpdate();
+//#endif
 
 		//! Returns version of global illumination solution.
 		//
@@ -670,6 +678,8 @@ namespace rr
 
 		//! Calculates and updates environment maps for dynamic object at given position.
 		//
+		//! This function may be removed in future, its superseder is updateEnvironmentMap().
+		//!
 		//! Generates specular and diffuse environment maps with object's indirect illumination
 		//! \n- specular map is to be sampled (by reflected view direction) in object's glossy pixels
 		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
@@ -715,6 +725,47 @@ namespace rr
 		unsigned updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize,
 			unsigned specularSize, RRIlluminationEnvironmentMap* specularMap,
 			unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap);
+
+		//! Optional update of illumination cache, makes updateEnvironmentMap() faster.
+		//
+		//! Depends on geometry but not on lighting, may be executed before static scene lighting is computed.
+		//! Call it when CPU is not fully loaded (on background or while waiting) to use otherwise wasted cycles.
+		//! If you don't have such cycles, don't call it at all.
+		//!
+		//! Reads RRObjectIllumination variables with 'envMap' in name, update them before calling this function.
+		//!
+		//! Thread safe: yes
+		void updateEnvironmentMapCache(RRObjectIllumination* illumination);
+		//! Calculates and updates diffuse and/or specular environment map in object's illumination.
+		//
+		//! Generates specular and diffuse environment/reflection maps with object's indirect illumination
+		//! \n- specular map is to be sampled (by reflected view direction) in object's glossy pixels
+		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
+		//!
+		//! This function is all you need for indirect illumination of dynamic objects,
+		//! you don't have to import them into solver.
+		//! (but you still need to import static objects and call calculate() regularly)
+		//!
+		//! Reads static scene illumination, so don't call it before calculate(), otherwise
+		//! dynamic objects will reflect light from previous frame.
+		//!
+		//! Reads RRObjectIllumination variables with 'envMap' in name, update them before calling this function.
+		//!
+		//! Thread safe: yes if specularMap->setValues() and diffuseMap->setValues() are safe,
+		//!  may be called from multiple threads at the same time if setValues() may be.
+		//!
+		//! \param illumination
+		//!  Object's illumination to be updated.
+		//!  (It's not necessary to have RRObject adapter for dynamic object, but its RRObjectIllumination must exist.)
+		//!  RRObjectIllumination variables with 'envMap' in name are used, update them before calling
+		//!  this function, e.g. create illumination->diffuseEnvMap if you want it to be updated here.
+		//! \return
+		//!  Number of environment maps updated. May be 0, 1 or 2 (optional diffuse and specular reflection map).
+		unsigned updateEnvironmentMap(RRObjectIllumination* illumination);
+		//! updateEnvironmentMapCache() for all dynamic objects at once.
+		void updateEnvironmentMapsCache();
+		//! updateEnvironmentMap() for all dynamic objects at once.
+		unsigned updateEnvironmentMaps();
 
 
 		//! Reports that appearance of one or more materials has changed.

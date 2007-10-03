@@ -11,26 +11,31 @@
 #include "../Import3DS/Model_3DS.h"
 
 
-#define DIFFUSE_RAYS_CUBE_SIZE 16 // jak velkou cubemapu vyrobim strilenim paprsku (z ni se pak vyfiltruje dif a spec cube mapa)
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Dynamic object
 
-DynamicObject* DynamicObject::create(const char* filename,float scale,rr_gl::UberProgramSetup amaterial,unsigned aspecularCubeSize)
+DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::UberProgramSetup _material,unsigned _gatherCubeSize,unsigned _specularCubeSize)
 {
 	DynamicObject* d = new DynamicObject();
 	d->model = new Model_3DS;
 	//d->model->smoothAll = true; // use for characters from lowpolygon3d.com
-	if(d->model->Load(filename,scale) && d->model->numObjects)
+	if(d->model->Load(_filename,_scale) && d->model->numObjects)
 	{
-		d->rendererWithoutCache = new RendererOf3DS(d->model,true,amaterial.MATERIAL_DIFFUSE_MAP,amaterial.MATERIAL_EMISSIVE_MAP);
+		d->rendererWithoutCache = new RendererOf3DS(d->model,true,_material.MATERIAL_DIFFUSE_MAP,_material.MATERIAL_EMISSIVE_MAP);
 		d->rendererCached = d->rendererWithoutCache->createDisplayList();
-		d->material = amaterial;
-		d->specularCubeSize = aspecularCubeSize;
+		d->material = _material;
+		d->gatherCubeSize = _gatherCubeSize;
+		d->specularCubeSize = _specularCubeSize;
+		// create envmaps
+		if(d->material.MATERIAL_DIFFUSE)
+			d->illumination->diffuseEnvMap = rr_gl::RRDynamicSolverGL::createIlluminationEnvironmentMap();
+		if(d->material.MATERIAL_SPECULAR)
+			d->illumination->specularEnvMap = rr_gl::RRDynamicSolverGL::createIlluminationEnvironmentMap();
+		d->updatePosition();
 		return d;
 	}
-	if(!d->model->numObjects) printf("Model %s contains no objects.\n",filename);
+	if(!d->model->numObjects) printf("Model %s contains no objects.\n",_filename);
 	delete d;
 	return NULL;
 }
@@ -40,20 +45,16 @@ DynamicObject::DynamicObject()
 	model = NULL;
 	rendererWithoutCache = NULL;
 	rendererCached = NULL;
-	specularCubeSize = 0;
-	diffuseMap = NULL;
-	specularMap = NULL;
+	illumination = new rr::RRObjectIllumination(0);
 	worldFoot = rr::RRVec3(0);
 	rotYZ = rr::RRVec2(0);
 	visible = true;
-	updatePosition();
 }
 
 DynamicObject::~DynamicObject()
 {
 	delete model;
-	delete specularMap;
-	delete diffuseMap;
+	delete illumination;
 	delete rendererCached;
 	delete rendererWithoutCache;
 }
@@ -70,24 +71,15 @@ void DynamicObject::updatePosition()
 		glTranslatef(-model->localCenter.x,-model->localMinY,-model->localCenter.z);
 	glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
 	glPopMatrix();
-}
-
-void DynamicObject::updateIllumination(rr::RRDynamicSolver* solver)
-{
-	// create envmaps if they don't exist yet
-	if(material.MATERIAL_DIFFUSE && !diffuseMap)
-		diffuseMap = rr_gl::RRDynamicSolverGL::createIlluminationEnvironmentMap();
-	if(material.MATERIAL_SPECULAR && !specularMap)
-		specularMap = rr_gl::RRDynamicSolverGL::createIlluminationEnvironmentMap();
-	// compute object's center in world coordinates
-	rr::RRVec3 worldCenter = rr::RRVec3(
+	// update object's center in world coordinates
+	illumination->envMapWorldCenter = rr::RRVec3(
 		model->localCenter.x*worldMatrix[0]+model->localCenter.y*worldMatrix[4]+model->localCenter.z*worldMatrix[ 8]+worldMatrix[12],
 		model->localCenter.x*worldMatrix[1]+model->localCenter.y*worldMatrix[5]+model->localCenter.z*worldMatrix[ 9]+worldMatrix[13],
 		model->localCenter.x*worldMatrix[2]+model->localCenter.y*worldMatrix[6]+model->localCenter.z*worldMatrix[10]+worldMatrix[14]);
-	// update envmaps
-	solver->updateEnvironmentMaps(worldCenter,MAX(DIFFUSE_RAYS_CUBE_SIZE,specularCubeSize),
-		material.MATERIAL_SPECULAR?specularCubeSize:0, material.MATERIAL_SPECULAR?specularMap:NULL,
-		material.MATERIAL_DIFFUSE?4:0, material.MATERIAL_DIFFUSE?diffuseMap:NULL);
+	// update other illumination params
+	illumination->diffuseEnvMapSize = material.MATERIAL_DIFFUSE?4:0;
+	illumination->specularEnvMapSize = material.MATERIAL_SPECULAR?specularCubeSize:0;
+	illumination->gatherEnvMapSize = MAX(gatherCubeSize,illumination->specularEnvMapSize);
 }
 
 void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::AreaLight* areaLight,unsigned firstInstance,const rr_gl::Texture* lightDirectMap,const rr_gl::Camera& eye, const float brightness[4], float gamma)
@@ -123,8 +115,8 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		if(uberProgramSetup.MATERIAL_SPECULAR)
 		{
 			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-			if(specularMap)
-				specularMap->bindTexture();
+			if(illumination->specularEnvMap)
+				illumination->specularEnvMap->bindTexture();
 			else
 				assert(0); // have you called updateIllumination()?
 			program->sendUniform("worldEyePos",eye.pos[0],eye.pos[1],eye.pos[2]);
@@ -132,8 +124,8 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		if(uberProgramSetup.MATERIAL_DIFFUSE)
 		{
 			glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			if(diffuseMap)
-				diffuseMap->bindTexture();
+			if(illumination->diffuseEnvMap)
+				illumination->diffuseEnvMap->bindTexture();
 			else
 				assert(0); // have you called updateIllumination()?
 		}

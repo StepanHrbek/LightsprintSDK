@@ -20,20 +20,15 @@ class DynamicObject
 {
 public:
 	//! Creates dynamic object from .3ds file.
-	static DynamicObject* create(const char* filename,float scale,rr_gl::UberProgramSetup amaterial,unsigned aspecularCubeSize);
+	static DynamicObject* create(const char* filename,float scale,rr_gl::UberProgramSetup material,unsigned gatherCubeSize,unsigned specularCubeSize);
 
-	//! Updates object's position according to worldFoot position and rotYZ rotation.
-	//! To be called each time object moves/rotates.
+	//! Updates object's worldMatrix and some illumination properties according to worldFoot position and rotYZ rotation.
+	//! To be called each time object moves/rotates. At least once at the beginning.
+	//! No need to call it when object is not visible, but it's cheap.
 	void updatePosition();
 
-	//! Updates object's illumination.
-	//! Expects that position was already updated or it hasn't changed.
-	//! No need to call it when object is not visible and won't be rendered.
-	void updateIllumination(rr::RRDynamicSolver* solver);
-
 	//! Renders object.
-	//! Expects that illumination was already updated or it hasn't changed.
-	//! No need to call it when object is not visible.
+	//! No need to call it when object is not visible, it's expensive.
 	void render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::AreaLight* areaLight,unsigned firstInstance,const rr_gl::Texture* lightDirectMap,const rr_gl::Camera& eye, const float brightness[4], float gamma);
 
 	~DynamicObject();
@@ -44,14 +39,14 @@ public:
 	rr::RRVec2 rotYZ; // y is rotated first, then z
 	bool visible;
 
-	// updated by updateIllumination, public only for save & load
-	rr::RRIlluminationEnvironmentMap* specularMap;
-	rr::RRIlluminationEnvironmentMap* diffuseMap;
+	// updated by updateIllumination
+	rr::RRObjectIllumination* illumination;
 
 protected:
 	DynamicObject();
 	class Model_3DS* model;
 	rr_gl::UberProgramSetup material;
+	unsigned gatherCubeSize;
 	unsigned specularCubeSize;
 	rr_gl::Renderer* rendererWithoutCache;
 	rr_gl::Renderer* rendererCached;

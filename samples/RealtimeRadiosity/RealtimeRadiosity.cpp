@@ -31,12 +31,13 @@
 #include <GL/glut.h>
 #include "Lightsprint/GL/Timer.h"
 #ifdef WATER
-#include "Lightsprint/GL/Water.h"
+	#include "Lightsprint/GL/Water.h"
 #endif
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"
+#include <windows.h> // timeGetTime
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -131,7 +132,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->rotYZ = rr::RRVec2(rotation,0);
 		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-			robot->updateIllumination(solver);
+			solver->updateEnvironmentMap(robot->illumination);
 		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,NULL,1);
 	}
 	if(potato)
@@ -140,7 +141,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->rotYZ = rr::RRVec2(rotation/2,0);
 		potato->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-			potato->updateIllumination(solver);
+			solver->updateEnvironmentMap(potato->illumination);
 		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,NULL,1);
 	}
 }
@@ -439,11 +440,11 @@ int main(int argc, char **argv)
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
-	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16);
+	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16,16);
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f,material,16);
+	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f,material,16,16);
 
 	// init realtime radiosity solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)

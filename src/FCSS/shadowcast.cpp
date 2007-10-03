@@ -21,8 +21,8 @@ unsigned INSTANCES_PER_PASS;
 bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 0;
-int resolutionx = 640;
-int resolutiony = 480;
+int resolutionx = 800;
+int resolutiony = 600;
 bool twosided = 0;
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
@@ -245,7 +245,7 @@ protected:
 	virtual void detectMaterials()
 	{
 	}
-#if 1 // klasika
+#if 0 // klasika
 	virtual unsigned* detectDirectIllumination()
 	{
 		if(!demoPlayer)
@@ -266,7 +266,7 @@ protected:
 		// setup shader for rendering direct illumination+shadows without materials
 		return RRDynamicSolverGL::detectDirectIllumination();
 	}
-	//virtual rr::RRStaticSolver::Improvement calculate()
+	//virtual rr::RRStaticSolver::Improvement calculate(CalculateParams* params = NULL)
 	//{
 	//	rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
 	//	return RRDynamicSolver::calculate();
@@ -275,6 +275,59 @@ protected:
 		//calculateUpdate();
 		//return rr::RRStaticSolver::IMPROVED;
 	//}
+#else
+	virtual unsigned* detectDirectIllumination()
+	{
+		return demoPlayer ? RRDynamicSolverGL::detectDirectIllumination() : NULL;
+	}
+#endif
+#if 1 //updatuje envmapy(trinumbers) paralelne s improvem
+	virtual rr::RRStaticSolver::Improvement calculate(CalculateParams* params = NULL)
+	{
+		unsigned oldSolutionVersion = getSolutionVersion();
+//		rr::RRReportInterval report(rr::INF1,"calculate...\n");
+		if(needDepthMapUpdate)
+		{
+//			rr::RRReportInterval report(rr::INF1,"update shadowmaps...\n");
+			if(needMatrixUpdate) updateMatrices(); // probably not necessary
+			unsigned numInstances = areaLight->getNumInstances();
+			for(unsigned i=0;i<numInstances;i++)
+			{
+				updateDepthMap(i,numInstances);
+			}
+		}
+		unsigned* detected;
+		{
+//		rr::RRReportInterval report(rr::INF1,"detect...\n");
+		detected = detectDirectIllumination();
+		}
+		{
+//		rr::RRReportInterval report(rr::INF1,"reset...\n");
+		calculateReset(detected);
+		}
+		{
+//		rr::RRReportInterval report(rr::INF1,"env trinumbers+improve...\n");
+		#pragma omp parallel sections
+		{
+			#pragma omp section
+			{
+//				rr::RRReportInterval report(rr::INF1,"env trinumbers...\n");
+				demoPlayer->getDynamicObjects()->updateSceneDynamic(level->solver);
+			}
+			#pragma omp section
+			{
+//				rr::RRReportInterval report(rr::INF1,"improve..\n");
+				calculateImprove(params);
+				//!!! pouzivat verzi vysledku, vratit IMPROVED kdyz se zvedne
+			}
+		}
+		}
+		{
+//		rr::RRReportInterval report(rr::INF1,"update...\n");
+		calculateUpdate();
+		}
+		return (getSolutionVersion()-oldSolutionVersion)?rr::RRStaticSolver::IMPROVED:rr::RRStaticSolver::FINISHED;
+	}
 #endif
 #if 0 //updatuje shadowmapy 1..7 paralelne s calculate, ale mimo hlavni thread to nefunguje
 	unsigned* predetectedDirectIllumination;
@@ -282,7 +335,7 @@ protected:
 	{
 		return predetectedDirectIllumination;
 	}
-	virtual rr::RRStaticSolver::Improvement calculate()
+	virtual rr::RRStaticSolver::Improvement calculate(CalculateParams* params = NULL)
 	{
 		rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
 		if(needDepthMapUpdate)
@@ -295,7 +348,6 @@ protected:
 			}
 		}
 		predetectedDirectIllumination = RRDynamicSolverGL::detectDirectIllumination();
-		rr::RRStaticSolver::Improvement result;
 		#pragma omp parallel sections
 		{
 			#pragma omp section
@@ -313,14 +365,14 @@ protected:
 			#pragma omp section
 			{
 				// CPU work
-				result = RRDynamicSolver::calculate();
+				RRDynamicSolver::calculate();
 			}
 		}
-		return result;
+		return (getSolutionVersion()-oldSolutionVersion)?rr::RRStaticSolver::IMPROVED:rr::RRStaticSolver::FINISHED;
 	}
 #endif
 #if 0 //updatuje shadowmapy 1..7 paralelne s improvem, ale mimo hlavni thread to nefunguje
-	virtual rr::RRStaticSolver::Improvement calculate()
+	virtual rr::RRStaticSolver::Improvement calculate(CalculateParams* params = NULL)
 	{
 		rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
 		if(needDepthMapUpdate)
@@ -354,11 +406,11 @@ protected:
 			}
 		}
 		calculateUpdate();
-		return rr::RRStaticSolver::IMPROVED;
+		return (getSolutionVersion()-oldSolutionVersion)?rr::RRStaticSolver::IMPROVED:rr::RRStaticSolver::FINISHED;
 	}
 #endif
 #if 0 //updatuje shadowmapy 1..7 paralelne s improvem, ale nefunguje to, prestoze updatuju v hlavnim threadu
-	virtual rr::RRStaticSolver::Improvement calculate()
+	virtual rr::RRStaticSolver::Improvement calculate(CalculateParams* params = NULL)
 	{
 		rr::RRReportInterval report(rr::INF1,"calculate (shadz=%d)...\n",needDepthMapUpdate?areaLight->getNumInstances():0);
 		if(needDepthMapUpdate)
@@ -383,7 +435,7 @@ protected:
 		}
 		while(g_improving) Sleep(1);
 		calculateUpdate();
-		return rr::RRStaticSolver::IMPROVED;
+		return (getSolutionVersion()-oldSolutionVersion)?rr::RRStaticSolver::IMPROVED:rr::RRStaticSolver::FINISHED;
 	}
 #endif
 	virtual void setupShader(unsigned objectNumber)
@@ -1184,24 +1236,6 @@ void display()
 		drawHelpMessage(showHelp);
 	}
 
-	/*
-#ifndef THREE_ONE
-	// skip first frame in level
-	// character positions are wrong (dunno why)
-	// it is always longer because buffers and display lists are created,
-	//  so don't count it into average fps
-	if(skipFrames)
-	{
-		skipFrames--;
-		// update dynobjects when movement is paused
-		// without this update, dynobjects would have bad pos after "pause, next level"
-		if(paused)
-			dynaobjects->updateSceneDynamic(level->pilot.setup,0);
-		return;
-	}
-#endif
-	*/
-
 	if(shotRequested)
 	{
 		static unsigned shots = 0;
@@ -1589,11 +1623,6 @@ void keyboard(unsigned char c, int x, int y)
 					if(!modif)
 						demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);//+rr::RRVec3(0,1.2f,0));
 				}
-				/*
-#ifndef THREE_ONE
-				dynaobjects->updateSceneDynamic(level->pilot.setup,0,c-'1');
-#endif
-				*/
 				needDepthMapUpdate = 1;
 			}
 			break;
@@ -2160,7 +2189,6 @@ void idle()
 	}
 	if(!demoPlayer->getPaused())
 	{
-//#ifdef THREE_ONE
 		if(captureMovie)
 		{
 			// advance by 1 frame of 30fps movie
@@ -2191,9 +2219,6 @@ void idle()
 				}
 			}
 		}
-//#else
-//		dynaobjects->updateSceneDynamic(level->pilot.setup,seconds);
-//#endif
 	}
 	prev = now;
 
