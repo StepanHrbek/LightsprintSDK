@@ -12,6 +12,7 @@ NEWS
 
 - extended RRObjectIllumination, reflection maps for dynamic objects added
 - RRDynamicSolver::updateEnvironmentMapCache() added for better parallelization
+- faster realtime lighting, higher quality penumbra shadows
 
 CHANGES
 

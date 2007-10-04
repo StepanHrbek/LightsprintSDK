@@ -49,7 +49,7 @@ public:
 
 	//! Creates and returns requested instance (element of area light).
 	//! To be deleted by caller.
-	virtual Camera* getInstance(unsigned instance) const;
+	virtual Camera* getInstance(unsigned instance, bool jittered = false) const;
 
 	//! Sets shadowmap resolution.
 	//! Set higher resolution for hard and sharper shadows,
@@ -88,11 +88,12 @@ protected:
 	//!  with arbitrary positions/directions.
 	//! \param instance
 	//!  Number of instance to be create, 0..numInstances-1.
-	virtual void instanceMakeup(Camera& light, unsigned instance) const;
+	virtual void instanceMakeup(Camera& light, unsigned instance, bool jittered) const;
 	Camera* parent;
 	unsigned numInstances;
 	Texture** shadowMaps;
 	unsigned numInstancesMax;
+	unsigned shadowMapSize;
 };
 
 }; // namespace

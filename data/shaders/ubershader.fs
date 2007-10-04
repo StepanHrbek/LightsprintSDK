@@ -3,6 +3,7 @@
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
 //  #define SHADOW_SAMPLES [0|1|2|4|8]
+//  #define SHADOW_BILINEAR
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_CONST
@@ -201,7 +202,11 @@ void main()
   
 		#else // SHADOW_SAMPLES!=1
 			// blurred hard shadows (often called 'soft') with 2 or 4 lookups in rotating kernel
-			float noise = 8.1*gl_FragCoord.x+5.7*gl_FragCoord.y;
+			#ifdef SHADOW_BILINEAR
+				float noise = 8.1*gl_FragCoord.x+5.7*gl_FragCoord.y;
+			#else
+				float noise = 16.2*gl_FragCoord.x+11.4*gl_FragCoord.y;
+			#endif
 			vec3 sc = vec3(sin(noise),cos(noise),0.0);
 			vec3 shift1 = sc*0.003;
 			vec3 shift2 = sc.yxz*vec3(0.006,-0.006,0.0);
@@ -229,12 +234,12 @@ void main()
 					;
 			#elif SHADOW_SAMPLES==4
 				#define SHADOWMAP_LOOKUP_CENTER(shadowMap,center) \
-					shadowValue += \
-						shadow2D(shadowMap, center+shift1).z \
-						+shadow2D(shadowMap, center-shift1).z \
-						+shadow2D(shadowMap, center+shift2).z \
-						+shadow2D(shadowMap, center-shift2).z \
-						;
+				shadowValue += \
+					shadow2D(shadowMap, center+shift1).z \
+					+shadow2D(shadowMap, center-shift1).z \
+					+shadow2D(shadowMap, center+shift2).z \
+					+shadow2D(shadowMap, center-shift2).z \
+					;
 			#elif SHADOW_SAMPLES==8
 				#define SHADOWMAP_LOOKUP_CENTER(shadowMap,center) \
 				shadowValue += \

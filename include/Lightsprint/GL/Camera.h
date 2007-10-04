@@ -36,7 +36,7 @@ public:
 	float    angleX;
 	//! Camera's aspect, horizontal field of view / vertical field of view.
 	float    aspect;
-	//! Camera's horizontal field of view in degrees. Must be positive and less than 180.
+	//! Camera's vertical field of view in degrees. Must be positive and less than 180.
 	float    fieldOfView;
 	//! Camera's near plane distance in world units. Must be positive.
 	float    anear;

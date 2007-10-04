@@ -19,10 +19,14 @@ namespace rr_gl
 
 const char* UberProgramSetup::getSetupString()
 {
+	static bool SHADOW_BILINEAR = true;
+	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
+
 	static char setup[1000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
+		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
@@ -180,7 +184,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 		name[9] = '0'+i; // for individual samplers (works on buggy ATI)
 		program->sendUniform(name, (int)i); // for individual samplers (works on buggy ATI)
 		// prepare and send matrices
-		Camera* lightInstance = areaLight->getInstance(firstInstance+i);
+		Camera* lightInstance = areaLight->getInstance(firstInstance+i,true);
 		glLoadMatrixd(tmp);
 		glMultMatrixd(lightInstance->frustumMatrix);
 		glMultMatrixd(lightInstance->viewMatrix);

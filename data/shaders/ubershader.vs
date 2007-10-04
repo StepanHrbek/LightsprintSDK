@@ -3,6 +3,7 @@
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
 //  #define SHADOW_SAMPLES [0|1|2|4|8]
+//  #define SHADOW_BILINEAR
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_CONST

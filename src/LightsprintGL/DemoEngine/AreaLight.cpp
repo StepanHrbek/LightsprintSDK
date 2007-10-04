@@ -12,14 +12,15 @@
 namespace rr_gl
 {
 
-	AreaLight::AreaLight(Camera* aparent, unsigned anumInstances, unsigned shadowmapSize)
+	AreaLight::AreaLight(Camera* _parent, unsigned _numInstances, unsigned _shadowMapSize)
 	{
-		parent = aparent;
-		numInstancesMax = anumInstances;
-		numInstances = anumInstances;
+		parent = _parent;
+		numInstancesMax = _numInstances;
+		numInstances = _numInstances;
 		shadowMaps = new Texture*[numInstances];
+		shadowMapSize = _shadowMapSize;
 		for(unsigned i=0;i<numInstancesMax;i++)
-			shadowMaps[i] = Texture::createShadowmap(shadowmapSize,shadowmapSize);
+			shadowMaps[i] = Texture::createShadowmap(shadowMapSize,shadowMapSize);
 		areaType = 0;
 		areaSize = 0.2f;
 	}
@@ -46,19 +47,20 @@ namespace rr_gl
 		return numInstances;
 	}
 
-	Camera* AreaLight::getInstance(unsigned instance) const
+	Camera* AreaLight::getInstance(unsigned instance, bool jittered) const
 	{
 		if(!parent || instance>=numInstances)
 			return NULL;
 		Camera* c = new Camera(*parent);
 		if(!c)
 			return NULL;
-		instanceMakeup(*c,instance);
+		instanceMakeup(*c,instance,jittered);
 		return c;
 	}
 
 	void AreaLight::setShadowmapSize(unsigned newSize)
 	{
+		shadowMapSize = newSize;
 		for(unsigned i=0;i<numInstances;i++)
 		{
 			shadowMaps[i]->reset(newSize,newSize,Texture::TF_NONE,NULL,false);
@@ -75,7 +77,7 @@ namespace rr_gl
 		return shadowMaps[instance];
 	}
 
-	void AreaLight::instanceMakeup(Camera& light, unsigned instance) const
+	void AreaLight::instanceMakeup(Camera& light, unsigned instance, bool jittered) const
 	{
 		if(instance>=numInstances) 
 		{
@@ -107,6 +109,12 @@ namespace rr_gl
 				light.pos[1] += light.right[1]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[1]*areaSize*cos(instance*2*3.14159f/numInstances);
 				light.pos[2] += light.right[2]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[2]*areaSize*cos(instance*2*3.14159f/numInstances);
 				break;
+		}
+		if(jittered)
+		{
+			static signed char jitterSample[10][2] = {{0,0},{3,-2},{-2,3},{1,2},{-2,-1},{3,4},{-4,-3},{2,-1},{-1,1},{-3,0}};
+			light.angle += light.fieldOfView*light.aspect/360*2*3.14159f/shadowMapSize*jitterSample[instance%10][0]*0.22f;
+			light.angleX += light.fieldOfView/360*2*3.14159f/shadowMapSize*jitterSample[instance%10][1]*0.22f;
 		}
 		light.update(0.3f);
 	}
