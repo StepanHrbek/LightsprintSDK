@@ -394,25 +394,6 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep,Cal
 	return improvement;
 }
 
-//#ifdef RR_DEVELOPMENT
-void RRDynamicSolver::calculateReset(unsigned* detectedDirectIllumination)
-{
-	priv->packedSolver->illuminationReset(detectedDirectIllumination,priv->customToPhysical);
-	priv->solutionVersion++;
-}
-
-void RRDynamicSolver::calculateImprove(CalculateParams* params)
-{
-	priv->packedSolver->illuminationImprove(params?params->qualityIndirectDynamic:CalculateParams().qualityIndirectDynamic,params?params->qualityIndirectStatic:CalculateParams().qualityIndirectStatic);
-	priv->solutionVersion++;
-}
-
-void RRDynamicSolver::calculateUpdate()
-{
-	priv->packedSolver->getTriangleIrradianceIndirectUpdate();
-}
-//#endif
-
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
 RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
 {

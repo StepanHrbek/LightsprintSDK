@@ -32,7 +32,7 @@ public:
 	//! You may use this number to avoid unnecessary updates of illumination buffers.
 	//! Store version together with your illumination buffers and don't update them
 	//! (updateVertexBuffers(), updateLightmaps()) until this number changes.
-	unsigned getSolutionVersion() const {return currentVersion;}
+	unsigned getSolutionVersion() const {return currentVersionInTriangles;}
 
 	~RRPackedSolver();
 
@@ -55,8 +55,8 @@ protected:
 	// varying data
 	class PackedBests* packedBests;
 	RRVec3* ivertexIndirectIrradiance;
-	bool triangleIrradianceIndirectDirty;
-	unsigned currentVersion; // incremented each time new different results are available
+	unsigned currentVersionInTriangles; // version of results available per triangle. reset and improve may increment it
+	unsigned currentVersionInVertices; // version of results available per vertex. getTriangleIrradianceIndirectUpdate() updates it to triangle version
 	unsigned currentQuality; // number of best200 groups processed since reset
 };
 

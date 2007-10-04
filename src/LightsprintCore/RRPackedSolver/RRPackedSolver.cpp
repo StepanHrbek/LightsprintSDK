@@ -183,8 +183,8 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
 	packedSolverFile = _adopt_packedSolverFile;
 	ivertexIndirectIrradiance = new RRVec3[packedSolverFile->packedIvertices->getNumC1()];
-	triangleIrradianceIndirectDirty = true;
-	currentVersion = 0;
+	currentVersionInVertices = 0;
+	currentVersionInTriangles = 1;
 	currentQuality = 0;
 }
 
@@ -197,7 +197,6 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 
 void RRPackedSolver::illuminationReset(unsigned* customDirectIrradiance, RRReal* customToPhysical)
 {
-	triangleIrradianceIndirectDirty = true;
 	packedBests->reset();
 	#pragma omp parallel for
 	for(int t=0;(unsigned)t<numTriangles;t++)
@@ -206,7 +205,7 @@ void RRPackedSolver::illuminationReset(unsigned* customDirectIrradiance, RRReal*
 		triangles[t].incidentFluxDiffused = RRVec3(0);
 		triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]) * triangles[t].area;
 	}
-	currentVersion++;
+	currentVersionInTriangles++;
 	currentQuality = 0;
 }
 
@@ -216,7 +215,6 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 	currentQuality += qualityDynamic;
 	//RRReportInterval report(INF2,"Improving...\n");
 	unsigned numShooters = 0;
-	triangleIrradianceIndirectDirty = true;
 
 
 	// 1-threaded propagation, s okamzitym zapojenim prijate energe do dalsiho strileni
@@ -224,7 +222,7 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 	for(unsigned group=0;group<qualityDynamic;group++)
 	{
 		unsigned bests = packedBests->selectBests();
-		currentVersion += bests;
+		currentVersionInTriangles += bests;
 		for(unsigned i=0;i<bests;i++)
 		{
 			unsigned sourceTriangleIndex = packedBests->getSelectedBest(i);
@@ -254,8 +252,8 @@ RRVec3 RRPackedSolver::getTriangleExitance(unsigned triangle) const
 
 void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 {
-	if(!triangleIrradianceIndirectDirty) return;
-	triangleIrradianceIndirectDirty = false;
+	if(currentVersionInVertices==currentVersionInTriangles) return;
+	currentVersionInVertices = currentVersionInTriangles;
 	PackedIvertices* packedIvertices = packedSolverFile->packedIvertices;
 	int numIvertices = (int)packedIvertices->getNumC1();
 #pragma omp parallel for schedule(static)
