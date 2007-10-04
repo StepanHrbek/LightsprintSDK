@@ -113,7 +113,7 @@ private:
 // Outputs: t, s
 static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,const char* pathToTextures, rr_gl::Texture* fallback)
 {
-	enum {size = 8};
+	enum {size = 8}; // use 8x8 samples to detect average texture color
 
 	// load texture
 	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
@@ -153,6 +153,7 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 			}
 		avg /= size*size*0.5f; // 0.5 for quake map boost
 		avg[3] *= 0.5f; // but not for alpha
+		if(avg[3]==0) avg[3]=1; // all pixels 100% transparent? must be special material we can't handle, make it fully opaque, better than invisible
 	}
 
 	// set all properties to default
@@ -179,7 +180,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, rr_gl::Text
 	for(unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
 		MaterialInfo si;
-		unsigned numTrianglesOld = triangles.size();
+		bool triedLoadTexture = false;
 		for(unsigned mdl=0;mdl<(unsigned)(model->mModels.size());mdl++)
 		for(unsigned i=model->mModels[mdl].mFace;i<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);i++)
 		{
@@ -190,12 +191,22 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, rr_gl::Text
 				{
 					for(unsigned j=(unsigned)model->mFaces[i].mMeshVertex;j<(unsigned)(model->mFaces[i].mMeshVertex+model->mFaces[i].mNbMeshVertices);j+=3)
 					{
-						TriangleInfo ti;
-						ti.t[0] = model->mFaces[i].mVertex + model->mMeshVertices[j  ].mMeshVert;
-						ti.t[1] = model->mFaces[i].mVertex + model->mMeshVertices[j+2].mMeshVert;
-						ti.t[2] = model->mFaces[i].mVertex + model->mMeshVertices[j+1].mMeshVert;
-						ti.s = model->mFaces[i].mTextureIndex;
-						triangles.push_back(ti);
+						// try load texture when it is mapped on at least 1 triangle
+						if(!triedLoadTexture)
+						{
+							fillMaterial(si.material,si.texture,&model->mTextures[s],pathToTextures,missingTexture);
+							triedLoadTexture = true;
+						}
+						// if texture was loaded, accept triangles, otherwise ignore them
+						if(si.texture)
+						{
+							TriangleInfo ti;
+							ti.t[0] = model->mFaces[i].mVertex + model->mMeshVertices[j  ].mMeshVert;
+							ti.t[1] = model->mFaces[i].mVertex + model->mMeshVertices[j+2].mMeshVert;
+							ti.t[2] = model->mFaces[i].mVertex + model->mMeshVertices[j+1].mMeshVert;
+							ti.s = model->mFaces[i].mTextureIndex;
+							triangles.push_back(ti);
+						}
 					}
 				}
 			//else
@@ -213,9 +224,6 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, rr_gl::Text
 			//}
 			}
 		}
-		// load only textures mapped on at least 1 triangle
-		if(triangles.size()>numTrianglesOld)
-			fillMaterial(si.material,si.texture,&model->mTextures[s],pathToTextures,missingTexture);
 		// push all materials to preserve material numbering
 		materials.push_back(si);
 	}
