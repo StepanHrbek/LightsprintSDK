@@ -141,24 +141,26 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 
 	// for diffuse textures provided by bsp,
 	// it is sufficient to compute average texture color
-	rr::RRColor avg = rr::RRColor(0);
+	rr::RRVec4 avg = rr::RRVec4(0);
 	if(t)
 	{
 		for(unsigned i=0;i<size;i++)
 			for(unsigned j=0;j<size;j++)
 			{
-				float tmp[4];
-				t->getPixel(i/(float)size,j/(float)size,0,tmp);
-				avg += rr::RRVec3(tmp[0],tmp[1],tmp[2]);
+				rr::RRVec4 tmp;
+				t->getPixel(i/(float)size,j/(float)size,0,&tmp.x);
+				avg += tmp;
 			}
-		avg /= size*size/2; // 2 stands for quake map boost
+		avg /= size*size*0.5f; // 0.5 for quake map boost
+		avg[3] *= 0.5f; // but not for alpha
 	}
 
 	// set all properties to default
 	s.reset(0);
-
-	// set diffuse reflectance according to bsp material
+	// rgb is diffuse reflectance
 	s.diffuseReflectance = avg;
+	// alpha is transparency
+	s.specularTransmittance = 1-avg[3];
 
 #ifdef VERIFY
 	if(s.validate())
@@ -174,32 +176,28 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, rr_gl::Text
 {
 	model = amodel;
 
-	for(unsigned i=0;i<(unsigned)model->mTextures.size();i++)
+	for(unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
 		MaterialInfo si;
-		fillMaterial(si.material,si.texture,&model->mTextures[i],pathToTextures,missingTexture);
-		materials.push_back(si);
-	}
-
-	//for(unsigned i=0;i<(unsigned)model->mFaces.size();i++)
-	for(unsigned s=0;s<materials.size();s++)
-	for(unsigned i=model->mModels[0].mFace;i<(unsigned)(model->mModels[0].mFace+model->mModels[0].mNbFaces);i++)
-	{
-		if(model->mFaces[i].mTextureIndex==s)
-		if(materials[model->mFaces[i].mTextureIndex].texture)
+		unsigned numTrianglesOld = triangles.size();
+		for(unsigned mdl=0;mdl<(unsigned)(model->mModels.size());mdl++)
+		for(unsigned i=model->mModels[mdl].mFace;i<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);i++)
 		{
-			if(model->mFaces[i].mType==1)
+			if(model->mFaces[i].mTextureIndex==s)
+			//if(materials[model->mFaces[i].mTextureIndex].texture)
 			{
-				for(unsigned j=(unsigned)model->mFaces[i].mMeshVertex;j<(unsigned)(model->mFaces[i].mMeshVertex+model->mFaces[i].mNbMeshVertices);j+=3)
+				if(model->mFaces[i].mType==1)
 				{
-					TriangleInfo ti;
-					ti.t[0] = model->mFaces[i].mVertex + model->mMeshVertices[j  ].mMeshVert;
-					ti.t[1] = model->mFaces[i].mVertex + model->mMeshVertices[j+2].mMeshVert;
-					ti.t[2] = model->mFaces[i].mVertex + model->mMeshVertices[j+1].mMeshVert;
-					ti.s = model->mFaces[i].mTextureIndex;
-					triangles.push_back(ti);
+					for(unsigned j=(unsigned)model->mFaces[i].mMeshVertex;j<(unsigned)(model->mFaces[i].mMeshVertex+model->mFaces[i].mNbMeshVertices);j+=3)
+					{
+						TriangleInfo ti;
+						ti.t[0] = model->mFaces[i].mVertex + model->mMeshVertices[j  ].mMeshVert;
+						ti.t[1] = model->mFaces[i].mVertex + model->mMeshVertices[j+2].mMeshVert;
+						ti.t[2] = model->mFaces[i].mVertex + model->mMeshVertices[j+1].mMeshVert;
+						ti.s = model->mFaces[i].mTextureIndex;
+						triangles.push_back(ti);
+					}
 				}
-			}
 			//else
 			//if(model->mFaces[i].mType==3)
 			//{
@@ -213,7 +211,13 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, rr_gl::Text
 			//		triangles.push_back(ti);
 			//	}
 			//}
+			}
 		}
+		// load only textures mapped on at least 1 triangle
+		if(triangles.size()>numTrianglesOld)
+			fillMaterial(si.material,si.texture,&model->mTextures[s],pathToTextures,missingTexture);
+		// push all materials to preserve material numbering
+		materials.push_back(si);
 	}
 
 #ifdef VERIFY

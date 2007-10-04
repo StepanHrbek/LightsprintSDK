@@ -91,6 +91,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			}
 			fg.numIndices = 0;
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
+			fg.transparency = material ? material->specularTransmittance : 0;
 			fg.diffuseTexture = NULL;
 			if(hasDiffuseMap)
 			{
@@ -221,6 +222,9 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 		BIND_VBO2(Normal,3,normal);
 		glEnableClientState(GL_NORMAL_ARRAY);
 	}
+	// manage blending
+	bool blendKnown = false;
+	bool blendEnabled = false;
 	// set indirect illumination vertices
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
@@ -393,6 +397,14 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					else
 					{
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
+					}
+					// set blending
+					bool transparency = faceGroups[fg].transparency>0;
+					if(transparency!=blendEnabled || !blendKnown)
+					{
+						if(transparency) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+						blendKnown = true;
+						blendEnabled = transparency;
 					}
 				}
 				// set emissive map

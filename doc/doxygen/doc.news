@@ -10,17 +10,16 @@
 
 NEWS
 
-- RRDynamicSolver::CalculateParams for adjustable realtime lighting quality, sent to RRDynamicSolver::calculate()
 - extended RRObjectIllumination, reflection maps for dynamic objects added
-- RRDynamicSolver::updateEnvironmentMap()
-- RRDynamicSolver::updateEnvironmentMaps()
-- RRDynamicSolver::updateEnvironmentMapCache()
-- RRDynamicSolver::updateEnvironmentMapsCache()
-  old updateEnvironmentMaps() split into parts for better parallelization
+- RRDynamicSolver::updateEnvironmentMapCache() added for better parallelization
 
 CHANGES
 
 - renamed RRDynamicSolver::setObjects() -> RRDynamicSolver::setStaticObjects()
+- modified RRDynamicSolver::calculate(), takes parameters from
+  RRDynamicSolver::CalculateParams, makes realtime lighting quality adjustable
+- old RRDynamicSolver::updateEnvironmentMaps() modified to RRDynamicSolver::updateEnvironmentMap(),
+  parameters were transferred to RRObjectIllumination
 
 \section news34 ------------------------------------ 2007.9.23 -------------------------------------
 

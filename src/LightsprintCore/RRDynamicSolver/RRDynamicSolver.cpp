@@ -124,10 +124,6 @@ void RRDynamicSolver::setStaticObjects(RRObjects& _objects, const RRStaticSolver
 	}
 }
 
-void RRDynamicSolver::setDynamicObjects(RRObjects& _objects)
-{
-	priv->dobjects = _objects;
-}
 
 unsigned RRDynamicSolver::getNumObjects() const
 {

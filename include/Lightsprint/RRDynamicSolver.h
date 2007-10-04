@@ -347,9 +347,6 @@ namespace rr
 		//!  Set NULL for default values.
 		void setStaticObjects(RRObjects& objects, const RRStaticSolver::SmoothingParameters* smoothing);
 
-		//! Sets dynamic contents of scene, all dynamic objects at once.
-		void setDynamicObjects(RRObjects& objects);
-
 		//! Returns number of static objects in scene.
 		unsigned getNumObjects() const;
 

@@ -627,26 +627,5 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	return updatedMaps;
 }
 
-void RRDynamicSolver::updateEnvironmentMapsCache()
-{
-	for(int i=0;i<(int)priv->dobjects.size();i++)
-	{
-		RRObjectIllumination* illum = priv->dobjects[i].illumination;
-		if(illum)
-			updateEnvironmentMapCache(illum);
-	}
-}
-
-unsigned RRDynamicSolver::updateEnvironmentMaps()
-{
-	unsigned updatedMaps = 0;
-	for(int i=0;i<(int)priv->dobjects.size();i++)
-	{
-		RRObjectIllumination* illum = priv->dobjects[i].illumination;
-		if(illum)
-			updatedMaps += updateEnvironmentMap(illum);
-	}
-	return updatedMaps;
-}
 
 } // namespace

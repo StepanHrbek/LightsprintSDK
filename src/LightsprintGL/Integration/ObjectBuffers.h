@@ -53,6 +53,7 @@ private:
 		unsigned firstIndex;
 		unsigned numIndices;
 		rr::RRVec3 diffuseColor;
+		rr::RRReal transparency;
 		Texture* diffuseTexture;
 		Texture* emissiveTexture;
 	};

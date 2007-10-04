@@ -37,6 +37,7 @@ DECLARE_PRESERVE_STATE( PreserveDepthTest ,GLboolean depthTest    ,depthTest=glI
 DECLARE_PRESERVE_STATE( PreserveDepthMask ,unsigned char depthMask,glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask),glDepthMask(depthMask));
 DECLARE_PRESERVE_STATE( PreserveCullFace  ,GLboolean cullFace     ,cullFace=glIsEnabled(GL_CULL_FACE)          ,if(cullFace) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE));
 DECLARE_PRESERVE_STATE( PreserveCullMode  ,int cullMode           ,glGetIntegerv(GL_CULL_FACE_MODE,&cullMode)  ,glCullFace(cullMode));
+DECLARE_PRESERVE_STATE( PreserveBlend     ,GLboolean blend        ,blend=glIsEnabled(GL_BLEND)                 ,if(blend) glEnable(GL_BLEND); else glDisable(GL_BLEND));
 
 #undef DECLARE_PRESERVE_STATE
 

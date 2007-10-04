@@ -219,6 +219,7 @@ void RendererOfRRObject::render()
 
 	PreserveCullFace p1;
 	PreserveCullMode p2;
+	PreserveBlend p3;
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK); //!!! do it according to RRMaterial sideBits
 
