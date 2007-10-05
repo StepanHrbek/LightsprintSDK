@@ -6,6 +6,7 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
 #define SUPPORT_LIGHTMAPS          1
+#define BACKGROUND_WORKER
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery. nepodporuje fireball (viz ObjectBuffers.cpp line 277, cte indirect ze static solveru)
 //#define THREE_ONE
@@ -212,23 +213,123 @@ void done_gl_resources()
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// background worker
+
+#ifdef BACKGROUND_WORKER
+#if 1
+// 4 kriticke sekce, bezi dobre i na 1 jadru
+class BackgroundWorker
+{
+public:
+	BackgroundWorker()
+	{
+		work = NULL;
+		workNumber = 0;
+		for(unsigned i=0;i<4;i++)
+		{
+			InitializeCriticalSection(&cs[i]);
+		}
+		EnterCriticalSection(&cs[0]);
+		EnterCriticalSection(&cs[3]);
+		_beginthread(worker,0,this);
+	}
+	~BackgroundWorker()
+	{
+	}
+	void addWork(DemoPlayer* _work)
+	{
+		RR_ASSERT(!work);
+		RR_ASSERT(_work);
+		work = _work;
+		LeaveCriticalSection(&cs[(workNumber+3)&3]); // unblock 2 firstgate
+	//printf("\n<%d ",workNumber+2);
+		EnterCriticalSection(&cs[(workNumber+2)&3]); // block 2 secondgate
+	//printf(" %d>",workNumber+2);
+		LeaveCriticalSection(&cs[(workNumber+0)&3]); // let worker start 0    worker musi mit lockle 1, ja musim mit unlockle 3 a lockle 2 (splneno)
+	}
+	void waitForCompletion()
+	{
+	//printf("waitforcompletion(%d...",workNumber+1);
+		EnterCriticalSection(&cs[(workNumber+1)&3]); // wait for worker finish 0
+	//printf(" %d)",workNumber+1);
+		workNumber += 2;
+		RR_ASSERT(!work);
+	}
+protected:
+	unsigned workNumber;
+	DemoPlayer* work;
+	CRITICAL_SECTION cs[4];
+	static void worker(void* w)
+	{
+		BackgroundWorker* worker = (BackgroundWorker*)w;
+		EnterCriticalSection(&worker->cs[1]);
+		SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_BELOW_NORMAL);
+		unsigned localWorkNumber = 0;
+		while(1)
+		{
+		//printf(" %d] waitforjob[%d...",localWorkNumber+1,localWorkNumber);
+			EnterCriticalSection(&worker->cs[(localWorkNumber+0)&3]); // wait for incoming job 0
+		//printf(" %d]",localWorkNumber);
+			RR_ASSERT(worker->work);
+			worker->work->getDynamicObjects()->updateSceneDynamic(level->solver);
+			worker->work = NULL;
+		//printf("work");
+		//printf("[%d ",localWorkNumber+3);
+			EnterCriticalSection(&worker->cs[(localWorkNumber+3)&3]);
+			LeaveCriticalSection(&worker->cs[(localWorkNumber+0)&3]);
+			LeaveCriticalSection(&worker->cs[(localWorkNumber+1)&3]); // finish 0
+			localWorkNumber += 2;
+		}
+	}
+};
+#else
+// sleep(0), uplne se zastavi na 1 jadru
+class BackgroundWorker
+{
+public:
+	BackgroundWorker()
+	{
+		work = NULL;
+		_beginthread(worker,0,this);
+	}
+	void addWork(DemoPlayer* _work)
+	{
+		RR_ASSERT(!work);
+		RR_ASSERT(_work);
+		work = _work;
+	}
+	void waitForCompletion()
+	{
+		while(work) Sleep(0);
+	}
+protected:
+	DemoPlayer* work;
+	static void worker(void* w)
+	{
+		BackgroundWorker* worker = (BackgroundWorker*)w;
+		SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_BELOW_NORMAL);
+		while(1)
+		{
+			while(!worker->work) Sleep(0);
+			worker->work->getDynamicObjects()->updateSceneDynamic(level->solver);
+			worker->work = NULL;
+		}
+	}
+};
+#endif
+
+BackgroundWorker* g_backgroundWorker = NULL;
+
+#endif
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Solver
 
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance);
 void updateMatrices();
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
-
-DemoPlayer* g_backgroundWork = NULL;
-void g_backgroundWorker(void*)
-{
-	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_BELOW_NORMAL);
-	while(1)
-	{
-		while(!g_backgroundWork) Sleep(0);
-		g_backgroundWork->getDynamicObjects()->updateSceneDynamic(level->solver);
-		g_backgroundWork = NULL;
-	}
-}
 
 class Solver : public rr_gl::RRDynamicSolverGL
 {
@@ -256,7 +357,9 @@ protected:
 	virtual rr::RRStaticSolver::Improvement calculate(CalculateParams* params = NULL)
 	{
 		// assign background work: possibly updating triangleNumbers around dynobjects
-		g_backgroundWork = demoPlayer;
+#ifdef BACKGROUND_WORKER
+		if(g_backgroundWorker) g_backgroundWorker->addWork(demoPlayer);
+#endif
 		// possibly update shadow maps
 		if(needDepthMapUpdate)
 		{
@@ -270,7 +373,9 @@ protected:
 		// possibly calculate
 		rr::RRStaticSolver::Improvement result = RRDynamicSolverGL::calculate(params);
 		// possibly wait for background work completion
-		while(g_backgroundWork) Sleep(0);
+#ifdef BACKGROUND_WORKER
+		if(g_backgroundWorker) g_backgroundWorker->waitForCompletion();
+#endif
 		//return rr::RRStaticSolver::IMPROVED; // fps ve stat scene vyleze na 999
 		return result;
 	}
@@ -2264,8 +2369,6 @@ int main(int argc, char **argv)
 	if(rr::RRLicense::loadLicense("licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.",false);
 
-	_beginthread(g_backgroundWorker,0,NULL);
-
 	// late resize, initial window is intentionally small
 	if(!fullscreen)
 	{
@@ -2274,6 +2377,13 @@ int main(int argc, char **argv)
 		glutReshapeWindow(resolutionx,resolutiony);
 		glutPositionWindow((w-resolutionx)/2,(h-resolutiony)/2);
 	}
+
+#ifdef BACKGROUND_WORKER
+#ifdef _OPENMP
+	if(omp_get_max_threads()>1)
+#endif
+		g_backgroundWorker = new BackgroundWorker;
+#endif
 
 	glutMainLoop();
 	return 0;
