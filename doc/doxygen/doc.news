@@ -19,8 +19,8 @@ CHANGES
 - renamed RRDynamicSolver::setObjects() -> RRDynamicSolver::setStaticObjects()
 - modified RRDynamicSolver::calculate(), takes parameters from
   RRDynamicSolver::CalculateParams, makes realtime lighting quality adjustable
-- old RRDynamicSolver::updateEnvironmentMaps() modified to RRDynamicSolver::updateEnvironmentMap(),
-  parameters were transferred to RRObjectIllumination
+- renamed and modified RRDynamicSolver::updateEnvironmentMaps() to RRDynamicSolver::updateEnvironmentMap(),
+  parameters moved to RRObjectIllumination
 
 \section news34 ------------------------------------ 2007.9.23 -------------------------------------
 

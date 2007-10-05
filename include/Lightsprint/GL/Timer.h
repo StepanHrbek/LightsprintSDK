@@ -33,6 +33,7 @@
 	#define PER_SEC CLOCKS_PER_SEC
 #endif
 #endif
+#define GETSEC ((double)(GETTIME/(double)PER_SEC))
 
 namespace rr_gl
 {

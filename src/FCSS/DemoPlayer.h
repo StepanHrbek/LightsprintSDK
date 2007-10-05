@@ -4,11 +4,12 @@
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/Texture.h"
+#include "Lightsprint/GL/Timer.h"
 
 class DemoPlayer
 {
 public:
-	DemoPlayer(const char* demoCfg, bool supportEditor);
+	DemoPlayer(const char* demoCfg, bool supportEditor, bool pauseMusic);
 	~DemoPlayer();
 	void advance(float seconds=-1e10); // default = advance according to natural time
 
@@ -17,6 +18,7 @@ public:
 
 	float getDemoLength() const;
 	float getDemoPosition() const;
+	void  setDemoPosition(float seconds);
 
 	unsigned getPartIndex() const;
 	unsigned getNumParts() const;
@@ -39,10 +41,12 @@ public:
 	void getBoost(rr::RRVec4& frameBrightness,rr::RRReal& frameGamma) const;
 
 private:
+	// timing
 	bool paused;
-	bool naturalTime; // if playing, play in natural time, not in time provided by user in advance(seconds)
-	float demoTimeWhenPaused; // 0..demo duration in seconds. matters only when paused, because fmod is inaccurate when paused
+	bool pauseMusic; // true: music is synchronized/paused with demo, false: music plays all time
 	float partStart; // 0..demo duration in seconds, time when current part started
+	float demoPosition; // 0..demo duration in seconds.
+	double absTimeWhenDemoStarted;
 
 	// loading_screen
 	rr_gl::Texture* loadingMap;

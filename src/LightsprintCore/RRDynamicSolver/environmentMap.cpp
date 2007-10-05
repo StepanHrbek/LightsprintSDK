@@ -419,44 +419,6 @@ static void filterEdges(unsigned iSize, CubeColor* iIrradiance)
 //
 // main
 
-// thread safe: yes if RRIlluminationEnvironmentMap::setValues is safe
-unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize, unsigned specularSize, RRIlluminationEnvironmentMap* specularMap, unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap
-#ifdef SUPPORT_LDR
-	//! \param HDR
-	//!  True = physically correct calculation.
-	//!  False = fast calculation clamped to 8bits per channel.
-	, bool HDR
-#endif
-												)
-{
-	unsigned updatedMaps = 0;
-
-	if(!gatherSize)
-	{
-		RR_ASSERT(0);
-		return 0;
-	}
-	if(!specularMap)
-		specularSize = 0;
-	if(!diffuseMap)
-		diffuseSize = 0;
-	if(!specularMap && !diffuseMap)
-	{
-		RR_ASSERT(0);
-		return 0;
-	}
-	if(!priv->scene && !priv->packedSolver)
-	{
-		RRReporter::report(WARN,"No solver, envmaps not updated. Call loadFireball() or calculate() first.\n");
-		RR_ASSERT(0);
-		return 0;
-	}
-	if(!getMultiObjectCustom())
-	{
-		RR_ASSERT(0);
-		return 0;
-	}
-
 #define FILL_CUBEMAP(filteredSize, radius, map) \
 	if(map) \
 	{ \
@@ -466,87 +428,6 @@ unsigned RRDynamicSolver::updateEnvironmentMaps(RRVec3 objectCenter, unsigned ga
 		updatedMaps++; \
 	}
 
-	// Velikost kernelu pro specular mapu:
-	//  Potrebuju kdykoliv dosahnout prinejmensim na sousedni texel napravo i nalevo.
-	//  Toto je nejmensi cosA, ktere to splnuje -> nejmene bluru.
-	unsigned minSize = MIN(gatherSize,specularSize);
-	//RRReal minDot = minSize*sqrtf(1.0f/(1+minSize*minSize));
-	// Schvalne pridavam bluru, abych zakryl chybejici interpolaci u face irradianci
-	RRReal minDot = minSize*sqrtf(1.0f/(3+minSize*minSize));
-
-#ifdef SUPPORT_LDR
-	if(HDR)
-	{
-#endif
-		// alloc temp space
-		RRColorRGBF* gatheredExitance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
-		RRColorRGBF* filteredExitance = gatheredExitance + 6*gatherSize*gatherSize;
-
-		// gather physical irradiances
-		RRRay* ray6 = RRRay::create(6);
-		cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),getEnvironment(),objectCenter,gatherSize,ray6,NULL,NULL,gatheredExitance);
-		delete[] ray6;
-
-		// fill cubemaps
-		// - diffuse
-		FILL_CUBEMAP(diffuseSize,0.9f,diffuseMap);
-		//if(diffuseMap) diffuseMap->setValues(gatherSize,gatheredExitance);
-		/*if(specularSize==gatherSize)
-		{
-			// - specular fast
-			filterEdges(gatherSize,gatheredExitance);
-			if(scaler)
-			{
-				for(unsigned i=gatherSize*gatherSize*6;i--;)
-				{
-					scaler->getCustomScale(gatheredExitance[i]);
-				}
-			}
-			specularMap->setValues(gatherSize,gatheredExitance);
-		}
-		else*/
-		{
-			// - specular filtered
-			FILL_CUBEMAP(specularSize,1-minDot,specularMap);
-		}
-
-		// cleanup
-		delete[] gatheredExitance;
-#ifdef SUPPORT_LDR
-	}
-	else
-	{
-		// alloc temp space
-		RRColorRGBA8* gatheredExitance = new RRColorRGBA8[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
-		RRColorRGBA8* filteredExitance = gatheredExitance + 6*gatherSize*gatherSize;
-
-		// gather custom irradiances
-		RRRay* ray6 = RRRay::create(6);
-		cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getEnvironment(),objectCenter,gatherSize,ray6,NULL,gatheredExitance,NULL);
-		delete[] ray6;
-
-		// fill cubemaps
-		// - diffuse
-		FILL_CUBEMAP(diffuseSize,1.0f,diffuseMap);
-		/*if(specularSize==gatherSize)
-		{
-			// - specular fast
-			filterEdges(gatherSize,gatheredIrradiance);
-			specularMap->setValues(gatherSize,gatheredExitance);
-		}
-		else*/
-		{
-			// - specular filtered
-			FILL_CUBEMAP(specularSize,1-minDot,specularMap);
-		}
-
-		// cleanup
-		delete[] gatheredExitance;
-	}
-#endif
-
-	return updatedMaps;
-}
 
 void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illumination)
 {

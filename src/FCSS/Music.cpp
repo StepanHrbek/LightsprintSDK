@@ -12,43 +12,46 @@
 #include <string.h>
 #include <stdlib.h>
 
-void ERRCHECK(FMOD_RESULT result)
+Music* Music::load(const char* filename)
 {
-	if (result != FMOD_OK)
-	{
-		rr::RRReporter::report(rr::ERRO,"FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
-		rr::RRReporter::report(rr::INF1,"Press Enter to end...");
-		fgetc(stdin);
-		exit(-1);
-	}
-}
+	rr::RRReportInterval report(rr::INF2,"Loading %s...\n",filename);
 
-Music::Music(const char* filename)
-{
-	memset(this,0,sizeof(*this));
+	Music* music = new Music();
 
 	FMOD_RESULT result;
-	result = FMOD::System_Create(&system);
-	ERRCHECK(result);
+	result = FMOD::System_Create(&music->system);
+	if(result!=FMOD_OK) goto err;
 
 	unsigned int version;
-	result = system->getVersion(&version);
-	ERRCHECK(result);
-
+	result = music->system->getVersion(&version);
+	if(result!=FMOD_OK) goto err;
 	if(version < FMOD_VERSION)
 	{
-		printf("Error!  You are using an old version of FMOD %08x.  This program requires %08x\n", version, FMOD_VERSION);
-		return;
+		rr::RRReporter::report(rr::ERRO,"Error!  You are using an old version of FMOD %08x.  This program requires %08x\n", version, FMOD_VERSION);
+		goto err_printed;
 	}
 
-	result = system->init(1, FMOD_INIT_NORMAL, 0);
-	ERRCHECK(result);
+	result = music->system->init(1, FMOD_INIT_NORMAL, 0);
+	if(result!=FMOD_OK) goto err;
 
-	result = system->createSound(filename, FMOD_HARDWARE | FMOD_LOOP_NORMAL | FMOD_2D | FMOD_ACCURATETIME, 0, &sound);
-	ERRCHECK(result);
+	result = music->system->createSound(filename, FMOD_HARDWARE | FMOD_LOOP_NORMAL | FMOD_2D | FMOD_ACCURATETIME, 0, &music->sound);
+	if(result!=FMOD_OK) goto err;
 
-	result = system->playSound(FMOD_CHANNEL_FREE, sound, true, &channel);
-	ERRCHECK(result);
+	result = music->system->playSound(FMOD_CHANNEL_FREE, music->sound, true, &music->channel);
+	if(result!=FMOD_OK) goto err;
+
+	return music;
+
+err:
+	rr::RRReporter::report(rr::ERRO,"FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+err_printed:
+	delete music;
+	return NULL;
+}
+
+Music::Music()
+{
+	memset(this,0,sizeof(*this));
 }
 
 void Music::poll()
@@ -100,13 +103,10 @@ Music::~Music()
 	if(sound)
 	{
 		result = sound->release();
-		ERRCHECK(result);
 	}
 	if(system)
 	{
 		result = system->close();
-		ERRCHECK(result);
 		result = system->release();
-		ERRCHECK(result);
 	}
 }

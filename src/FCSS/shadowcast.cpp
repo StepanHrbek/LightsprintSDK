@@ -739,9 +739,9 @@ static void drawHelpMessage(int screen)
 #ifdef THREE_ONE
 		"3+1 by clrsrc+Lightsprint",
 #else
-		"Lightsprint Realtime Radiosity",
+		"Lightsprint Demo 2007",
 		"  http://lightsprint.com",
-		"  realtime global illumination, NO PRECALCULATIONS",
+		"  realtime global illumination",
 #endif
 		"",
 		"Controls:",
@@ -859,11 +859,10 @@ static void drawHelpMessage(int screen)
 		char buf[200];
 		float demoLength = demoPlayer->getDemoLength();
 		float musicLength = demoPlayer->getMusicLength();
-		sprintf(buf,"demo %.1f/%.1fs, byt %.1f/%.1fs, music %.1f/%.1f%s",
+		sprintf(buf,"demo %.1f/%.1fs, byt %.1f/%.1fs, music %.1f/%.1f",
 			demoPlayer->getDemoPosition(),demoLength,
 			demoPlayer->getPartPosition(),demoPlayer->getPartLength(),
-			demoPlayer->getMusicPosition(),musicLength,
-			(musicLength<demoLength)?" MUSIC<DEMO!!!":"");
+			demoPlayer->getMusicPosition(),musicLength);
 		output(x,y,buf);
 		float transitionDone;
 		float transitionTotal;
@@ -1919,7 +1918,7 @@ void reshape(int w, int h)
 
 	if(!demoPlayer)
 	{
-		demoPlayer = new DemoPlayer(cfgFile,supportEditor);
+		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportEditor);
 		demoPlayer->setPaused(supportEditor);
 		demoPlayer->setBigscreen(bigscreenCompensation);
 	}

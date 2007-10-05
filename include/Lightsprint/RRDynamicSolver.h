@@ -668,56 +668,6 @@ namespace rr
 		//!  - call updateLightmaps(-1,-1,false,NULL,paramsIndirect) once to update current solution, call updateLightmap(paramsDirect with applyCurrentSolution=true) for all selected objects
 		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberBentNormals, bool createMissingBuffers, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect);
 
-		//! Calculates and updates environment maps for dynamic object at given position.
-		//
-		//! This function may be removed in future, its superseder is updateEnvironmentMap().
-		//!
-		//! Generates specular and diffuse environment maps with object's indirect illumination
-		//! \n- specular map is to be sampled (by reflected view direction) in object's glossy pixels
-		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
-		//!
-		//! This function is all you need for global illumination of dynamic objects,
-		//! you don't have to import them into solver.
-		//! (but you still need to import static objects and call calculate() regularly)
-		//!
-		//! Thread safe: yes if specularMap->setValues and diffuseMap->setValues is safe.
-		//!  may be called from multiple threads at the same time if setValues may be.
-		//!  \n Note1: LightsprintGL implementation of RRIlluminationEnvironmentMap is safe.
-		//!  \n Note2: updateEnvironmentMaps() uses multiple threads internally.
-		//!
-		//! \param objectCenter
-		//!  Center of your dynamic object in world space coordinates.
-		//! \param gatherSize
-		//!  Number of samples gathered from scene will be gatherSize*gatherSize*6.
-		//!  It doesn't have to be power of two.
-		//!  Increase for higher quality, decrease for higher speed.
-		//!  Size 16 is good, but 4 could be enough if you don't need specular map.
-		//! \param specularMap
-		//!  Your custom environment map for rendering object's specular reflection.
-		//!  To be filled with calculated data in custom scale.
-		//!  Set to NULL for no specular reflection.
-		//! \param specularSize
-		//!  Size of environment map for rendering object's specular reflection.
-		//!  Map will have 6*specularSize*specularSize pixels.
-		//!  If your custom specularMap requires size to be power of two, make sure you enter correct size here.
-		//!  Use smaller size for faster update.
-		//!  Size 16 is good.
-		//! \param diffuseMap
-		//!  Your custom environment map for rendering object's diffuse reflection.
-		//!  To be filled with calculated data in custom scale.
-		//!  Set to NULL for no diffuse reflection.
-		//! \param diffuseSize
-		//!  Size of environment map for rendering object's diffuse reflection.
-		//!  Map will have 6*diffuseSize*diffuseSize pixels.
-		//!  If your custom diffuseMap requires size to be power of two, make sure you enter correct size here.
-		//!  Use smaller size for faster update.
-		//!  Size 4 is good.
-		//! \return
-		//!  Number of environment maps updated.
-		unsigned updateEnvironmentMaps(RRVec3 objectCenter, unsigned gatherSize,
-			unsigned specularSize, RRIlluminationEnvironmentMap* specularMap,
-			unsigned diffuseSize, RRIlluminationEnvironmentMap* diffuseMap);
-
 		//! Optional update of illumination cache, makes updateEnvironmentMap() faster.
 		//
 		//! Depends on geometry but not on lighting, may be executed before static scene lighting is computed.
@@ -754,11 +704,6 @@ namespace rr
 		//! \return
 		//!  Number of environment maps updated. May be 0, 1 or 2 (optional diffuse and specular reflection map).
 		unsigned updateEnvironmentMap(RRObjectIllumination* illumination);
-		//! updateEnvironmentMapCache() for all dynamic objects at once.
-		void updateEnvironmentMapsCache();
-		//! updateEnvironmentMap() for all dynamic objects at once.
-		unsigned updateEnvironmentMaps();
-
 
 		//! Reports that appearance of one or more materials has changed.
 		//

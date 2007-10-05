@@ -10,14 +10,13 @@
 
 extern void showImage(const rr_gl::Texture* tex);
 
-DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
+DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool _pauseMusic)
 {
 	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",demoCfg);
 
 	memset(this,0,sizeof(*this));
 	bigscreenBrightness = 1;
 	bigscreenGamma = 1;
-	naturalTime = 1;
 
 	FILE* f = fopen(demoCfg,"rt");
 	if(!f)
@@ -36,12 +35,10 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 		showImage(loadingMap);
 	}
 
-	// load music
-	if(1!=fscanf(f,"music = %s\n",buf))
-		return;
-	music = new Music(buf);
-	paused = true;
-	music->setPaused(paused);
+	// load music - step1
+	char bufmusic[1000];
+	bufmusic[0] = 0;
+	if(1!=fscanf(f,"music = %s\n",bufmusic)) bufmusic[0] = 0;
 
 	// load sky
 	buf[0] = 0;
@@ -105,6 +102,12 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor)
 	}
 
 	fclose(f);
+
+	// load music - step2
+	music = Music::load(bufmusic);
+	pauseMusic = _pauseMusic;
+	if(music) music->setPaused(pauseMusic);
+	paused = true;
 }
 
 DemoPlayer::~DemoPlayer()
@@ -161,26 +164,18 @@ Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 
 void DemoPlayer::advance(float seconds)
 {
-	naturalTime = seconds<-1e9;
-	if(!paused && !naturalTime)
-	{
-		demoTimeWhenPaused += seconds;
-	}
 	if(music)
 	{
 		music->poll();
 	}
 }
 
-void DemoPlayer::setPaused(bool apaused)
+void DemoPlayer::setPaused(bool _paused)
 {
-	if(music)
-	{
-		if(!paused && apaused && naturalTime) demoTimeWhenPaused = music->getPosition();
-	}
-//	if(paused && !apaused) demoTimeWhenPaused = 0;
-	paused = apaused;
-	if(music)
+	if(!paused && _paused) demoPosition = getDemoPosition();
+	if(paused && !_paused) setDemoPosition(demoPosition);
+	paused = _paused;
+	if(music && pauseMusic)
 	{
 		music->setPaused(paused);
 	}
@@ -191,11 +186,18 @@ bool DemoPlayer::getPaused() const
 	return paused;
 }
 
+void DemoPlayer::setDemoPosition(float seconds)
+{
+	if(music && pauseMusic) music->setPosition(seconds);
+	demoPosition = seconds;
+	absTimeWhenDemoStarted = GETSEC-demoPosition;
+}
+
 float DemoPlayer::getDemoPosition() const
 {
-	if(paused || !naturalTime)
-		return demoTimeWhenPaused;
-	return getMusicPosition();
+	if(paused) return demoPosition;
+	return (float)(GETSEC-absTimeWhenDemoStarted);
+	//!!! return getMusicPosition();
 }
 
 float DemoPlayer::getDemoLength() const
@@ -230,12 +232,7 @@ float DemoPlayer::getPartPosition() const
 
 void DemoPlayer::setPartPosition(float seconds)
 {
-	if(music)
-	{
-		music->setPosition(seconds+partStart);
-	}
-	if(paused || !naturalTime)
-		demoTimeWhenPaused = seconds+partStart;
+	setDemoPosition(partStart+seconds);
 }
 
 float DemoPlayer::getPartLength(unsigned part) const
@@ -249,12 +246,12 @@ float DemoPlayer::getPartLength(unsigned part) const
 
 float DemoPlayer::getMusicPosition() const
 {
-	return music->getPosition();
+	return music ? music->getPosition() : 0;
 }
 
 float DemoPlayer::getMusicLength() const
 {
-	return music->getLength();
+	return music ? music->getLength() : 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
