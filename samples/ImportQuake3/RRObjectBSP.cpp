@@ -136,7 +136,7 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 	if(!t)
 	{
 		t = fallback;
-		rr::RRReporter::report(rr::ERRO,"Unable to load texture %s%s.*\n",pathToTextures,m->mName);
+		rr::RRReporter::report(rr::ERRO,"Can't load texture %s%s.*\n",pathToTextures,m->mName);
 	}
 
 	// for diffuse textures provided by bsp,

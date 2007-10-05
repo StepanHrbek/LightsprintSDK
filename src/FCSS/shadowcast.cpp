@@ -135,7 +135,8 @@ void error(const char* message, bool gfxRelated)
 	printf(message);
 	if(gfxRelated)
 		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx");
-	printf("\n\nHit enter to close...");
+	printf("\n\nPress ENTER to close.");
+	glutDestroyWindow(glutGetWindow());
 	fgetc(stdin);
 	exit(0);
 }
@@ -2174,15 +2175,15 @@ int main(int argc, char **argv)
 	}
 
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	rr::RRReporter::setFilter(true,2,false);
 	REPORT(rr::RRReporter::setFilter(true,3,true));
 	//rr_gl::Program::showLog = true;
 
 	parseOptions(argc, argv);
 
 	// init GLUT
-	glutInitWindowSize(resolutionx,resolutiony);
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ACCUM | GLUT_ALPHA); //accum na high quality soft shadows, alpha na filtrovani ambient map
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // | GLUT_ACCUM | GLUT_ALPHA accum na high quality soft shadows, alpha na filtrovani ambient map
 	if(fullscreen)
 	{
 		char buf[100];
@@ -2192,10 +2193,9 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		glutCreateWindow("Realtime Radiosity");
-		unsigned w = glutGet(GLUT_SCREEN_WIDTH);
-		unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
-		glutPositionWindow((w-resolutionx)/2,(h-resolutiony)/2);
+		glutInitWindowSize(16,16);
+		glutCreateWindow("Lightsprint Demo 2007");
+		initMenu();
 	}
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
@@ -2208,7 +2208,6 @@ int main(int argc, char **argv)
 	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
-	initMenu();
 
 	// init GLEW
 	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
@@ -2221,7 +2220,6 @@ int main(int argc, char **argv)
 	const char* vendor = (const char*)glGetString(GL_VENDOR);
 	const char* renderer = (const char*)glGetString(GL_RENDERER);
 	ati = !vendor || !renderer || strstr(vendor,"ATI") || strstr(vendor,"AMD") || strstr(renderer,"Radeon");
-
 
 	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
 
@@ -2267,6 +2265,15 @@ int main(int argc, char **argv)
 		error("Problem with licence number.",false);
 
 	_beginthread(g_backgroundWorker,0,NULL);
+
+	// late resize, initial window is intentionally small
+	if(!fullscreen)
+	{
+		unsigned w = glutGet(GLUT_SCREEN_WIDTH);
+		unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
+		glutReshapeWindow(resolutionx,resolutiony);
+		glutPositionWindow((w-resolutionx)/2,(h-resolutiony)/2);
+	}
 
 	glutMainLoop();
 	return 0;
