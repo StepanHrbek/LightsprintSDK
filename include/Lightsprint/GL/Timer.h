@@ -11,7 +11,7 @@
 #include <cassert>
 
 #ifdef _OPENMPxxxx
-	// GETTIME: high precision, low performance,  Timer: low precision
+	// GETTIME: 1us precision, slow,  Timer: low precision
 	#include <omp.h>
 	#include <cstring> // NULL
 	#define TIME    double
@@ -19,7 +19,7 @@
 	#define PER_SEC 1
 #else
 #ifdef WIN32xxxx
-	// GETTIME: low precision,  Timer: high precision
+	// GETTIME: 1ms precision,  Timer: high precision
 	#define WINDOWS_TIME
 	#include <windows.h>
 	#define TIME    DWORD
@@ -29,7 +29,7 @@
 		#pragma comment(lib,"winmm.lib")
 	#endif
 #else
-	// GETTIME: low precision, high performance,  Timer: low precision
+	// GETTIME: 16ms precision, fast,  Timer: low precision
 	#include <ctime>
 	#define TIME    clock_t
 	#define GETTIME clock()

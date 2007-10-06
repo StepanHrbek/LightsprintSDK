@@ -337,7 +337,6 @@ public:
 	Solver() : RRDynamicSolverGL("shaders/")
 	{
 		setDirectIlluminationBoost(2);
-		//predetectedDirectIllumination = NULL;
 	}
 protected:
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
@@ -501,7 +500,7 @@ void drawShadowMapFrustum(void)
 const float* lockVertexIllum(void* solver,unsigned object)
 {
 	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
-	return vertexBuffer ? &vertexBuffer->lock()->x : NULL;
+	return vertexBuffer ? &vertexBuffer->lockReading()->x : NULL;
 }
 
 // callback that cleans vertex illumination

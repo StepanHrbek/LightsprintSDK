@@ -150,9 +150,33 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
 		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[objectHandle];
 		// omp doesn't help here, too short cycle
-		for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+		RRColorRGBF* lock = vertexBuffer->lockWriting();
+		if(lock)
 		{
-			vertexBuffer->setVertex(preImportVertex,*preVertex2Ivertex[preImportVertex]);
+			// #pragma with if() is broken in VC++2005
+			if(numPreImportVertices>35000)
+			{
+				#pragma omp parallel for schedule(static)
+				for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+				{
+					lock[preImportVertex] = *preVertex2Ivertex[preImportVertex];
+				}
+			}
+			else
+			{
+				for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+				{
+					lock[preImportVertex] = *preVertex2Ivertex[preImportVertex];
+				}
+			}
+			vertexBuffer->unlock();
+		}
+		else
+		{
+			for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
+			{
+				vertexBuffer->setVertex(preImportVertex,*preVertex2Ivertex[preImportVertex]);
+			}
 		}
 		return 1;
 	}
@@ -170,7 +194,7 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 	}
 	RRRadiometricMeasure measure = params ? params->measure : RM_IRRADIANCE_PHYSICAL_INDIRECT;
 	// load measure into each preImportVertex
-#pragma omp parallel for schedule(static) // dynamic vyrazne pomalejsi nez default
+#pragma omp parallel for schedule(static)
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 	{
 		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
@@ -329,7 +353,7 @@ unsigned RRDynamicSolver::updateVertexBuffers(int layerNumberLighting, int layer
 	{
 		// realtime update
 
-		for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+		for(int objectHandle=0;objectHandle<(int)priv->objects.size();objectHandle++)
 		{
 			if(layerNumberLighting>=0)
 			{

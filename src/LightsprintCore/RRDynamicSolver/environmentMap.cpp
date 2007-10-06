@@ -155,9 +155,11 @@ static void cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 		RR_ASSERT(0);
 		return;
 	}
-// vypnuto protoze nas vola worker thread s nizkou prioritou, omp paralelizace je nezadouci
-//!!! na druhou stranu nas ale muze volat i uzivatel a pak by paralelizace zadouci byla
-//	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
+// vypnuto kdyz nas vola worker thread s nizkou prioritou (!irradianceHdr), omp paralelizace je nezadouci, je mozne ze by to rozdelil mezi dalsi thready s normalni prioritou
+// zapnuto kdyz nas vola uzivatel (irradianceHdr)
+//!!! if je rozbity
+//#pragma omp parallel for if(irradianceHdr!=NULL) schedule(dynamic) // fastest: dynamic, static
+	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
 	for(int side=0;side<6;side++)
 	{
 		RRRay* ray = ray6+side;

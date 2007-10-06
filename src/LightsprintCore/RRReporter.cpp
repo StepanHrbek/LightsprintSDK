@@ -222,7 +222,7 @@ RRReportInterval::~RRReportInterval()
 	if(enabled)
 	{
 		float doneIn = (float)((GETTIME-creationTime)/(float)PER_SEC);
-		RRReporter::report(TIMI,(doneIn>1)?"done in %.1fs.\n":((doneIn>0.1f)?"done in %.2fs.\n":((doneIn>0.01f)?"done in %.3fs.\n":"done in %.4fs.\n")),doneIn);
+		RRReporter::report(TIMI,(doneIn>1)?"done in %.1fs.\n":((doneIn>0.1f)?"done in %.2fs.\n":((doneIn>0.01f)?"done in %.0fms.\n":"done in %.1fms.\n")),(doneIn>0.1f)?doneIn:doneIn*1000);
 		RRReporter::indent(-1);
 	}
 }

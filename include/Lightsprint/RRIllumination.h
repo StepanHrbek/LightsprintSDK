@@ -203,8 +203,10 @@ namespace rr
 
 		// Vertex buffer use
 
-		//! Locks the buffer for accessing array of all vertices at once. Optional, may return NULL.
-		virtual const RRColorRGBF* lock() {return NULL;};
+		//! Locks the buffer for reading array of all vertices at once. Optional, may return NULL.
+		virtual const RRColorRGBF* lockReading() {return NULL;};
+		//! Locks the buffer for writing array of all vertices at once. Optional, may return NULL.
+		virtual RRColorRGBF* lockWriting() {return NULL;};
 		//! Unlocks previously locked buffer.
 		virtual void unlock() {};
 

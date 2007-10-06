@@ -13,6 +13,7 @@ NEWS
 - extended RRObjectIllumination, reflection maps for dynamic objects added
 - RRDynamicSolver::updateEnvironmentMapCache() added for better parallelization
 - faster realtime lighting, higher quality penumbra shadows
+- RRIlluminationVertexBuffer::lockWriting(), optional lock for writing
 
 CHANGES
 
@@ -21,6 +22,7 @@ CHANGES
   RRDynamicSolver::CalculateParams, makes realtime lighting quality adjustable
 - renamed and modified RRDynamicSolver::updateEnvironmentMaps() to RRDynamicSolver::updateEnvironmentMap(),
   parameters moved to RRObjectIllumination
+- renamed RRIlluminationVertexBuffer::lock() -> RRIlluminationVertexBuffer::lockReading()
 
 \section news34 ------------------------------------ 2007.9.23 -------------------------------------
 

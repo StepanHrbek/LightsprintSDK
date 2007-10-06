@@ -62,22 +62,46 @@ unsigned Interpolator::getDestinationSize() const
 
 void Interpolator::interpolate(const RRColor* src, RRColor* dst, const RRScaler* scaler) const
 {
-	#pragma omp parallel for if(contributors.size()>100000) schedule(static) // fastest: static, dynamic, static,1
-	for(int i=0;i<(int)headers.size();i++)
+	// #pragma with if() is broken in VC++2005
+	if(contributors.size()>100000)
 	{
-		RRColor sum = RRColor(0);
-		RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
-		for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
+		#pragma omp parallel for schedule(static) // fastest: static, dynamic, static,1
+		for(int i=0;i<(int)headers.size();i++)
 		{
-			RR_ASSERT(_finite(contributors[j].srcContributionHdr));
-			RR_ASSERT(contributors[j].srcContributionHdr>0);
-			sum += src[contributors[j].srcOffset] * contributors[j].srcContributionHdr;
-		}
-		if(scaler) scaler->getCustomScale(sum);
+			RRColor sum = RRColor(0);
+			RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
+			for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
+			{
+				RR_ASSERT(_finite(contributors[j].srcContributionHdr));
+				RR_ASSERT(contributors[j].srcContributionHdr>0);
+				sum += src[contributors[j].srcOffset] * contributors[j].srcContributionHdr;
+			}
+			if(scaler) scaler->getCustomScale(sum);
 #ifdef THREE_DESTINATIONS
-		dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] =
+			dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] =
 #endif
-			dst[headers[i].dstOffset1] = sum;
+				dst[headers[i].dstOffset1] = sum;
+		}
+
+	}
+	else
+	{
+		for(int i=0;i<(int)headers.size();i++)
+		{
+			RRColor sum = RRColor(0);
+			RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
+			for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
+			{
+				RR_ASSERT(_finite(contributors[j].srcContributionHdr));
+				RR_ASSERT(contributors[j].srcContributionHdr>0);
+				sum += src[contributors[j].srcOffset] * contributors[j].srcContributionHdr;
+			}
+			if(scaler) scaler->getCustomScale(sum);
+#ifdef THREE_DESTINATIONS
+			dst[headers[i].dstOffset3] = dst[headers[i].dstOffset2] =
+#endif
+				dst[headers[i].dstOffset1] = sum;
+		}
 	}
 }
 

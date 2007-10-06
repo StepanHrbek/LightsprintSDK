@@ -85,7 +85,11 @@ namespace rr
 			: RRIlluminationVertexBufferInMemory<RRColorRGBF>(anumVertices)
 		{
 		}
-		virtual const RRColorRGBF* lock()
+		virtual const RRColorRGBF* lockReading()
+		{
+			return vertices;
+		}
+		virtual RRColorRGBF* lockWriting()
 		{
 			return vertices;
 		}

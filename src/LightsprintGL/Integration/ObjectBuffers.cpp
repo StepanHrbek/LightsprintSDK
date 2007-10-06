@@ -245,7 +245,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				unsigned bufferSize = params.availableIndirectIlluminationVColors->getNumVertices();
 				RR_ASSERT(numVertices<=bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
 				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(3, GL_FLOAT, 0, params.availableIndirectIlluminationVColors->lock());
+				glColorPointer(3, GL_FLOAT, 0, params.availableIndirectIlluminationVColors->lockReading());
 				if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR2)
 				{
 					if(params.availableIndirectIlluminationVColors2)
@@ -253,7 +253,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						unsigned bufferSize2 = params.availableIndirectIlluminationVColors2->getNumVertices();
 						RR_ASSERT(bufferSize2==bufferSize); // indirectIllumination buffer must be of the same size (or bigger) as our vertex buffer. It's bigger if last vertices in original vertex order are unused (it happens in .bsp).
 						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
-						glSecondaryColorPointer(3, GL_FLOAT, 0, (GLvoid*)params.availableIndirectIlluminationVColors2->lock());
+						glSecondaryColorPointer(3, GL_FLOAT, 0, (GLvoid*)params.availableIndirectIlluminationVColors2->lockReading());
 					}
 					else
 					{

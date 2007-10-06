@@ -90,7 +90,7 @@ float                   speedLeft = 0;
 const float* lockVertexIllum(void* solver,unsigned object)
 {
 	rr::RRIlluminationVertexBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getIllumination(object)->getLayer(0)->vertexBuffer;
-	return vertexBuffer ? &vertexBuffer->lock()->x : NULL;
+	return vertexBuffer ? &vertexBuffer->lockReading()->x : NULL;
 }
 
 // callback that cleans vertex illumination
