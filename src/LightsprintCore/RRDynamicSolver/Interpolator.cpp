@@ -62,7 +62,7 @@ unsigned Interpolator::getDestinationSize() const
 
 void Interpolator::interpolate(const RRColor* src, RRColor* dst, const RRScaler* scaler) const
 {
-	#pragma omp parallel for schedule(static) // fastest: static, dynamic, static,1
+	#pragma omp parallel for if(contributors.size()>100000) schedule(static) // fastest: static, dynamic, static,1
 	for(int i=0;i<(int)headers.size();i++)
 	{
 		RRColor sum = RRColor(0);

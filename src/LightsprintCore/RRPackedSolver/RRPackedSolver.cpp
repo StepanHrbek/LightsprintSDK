@@ -198,7 +198,7 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 void RRPackedSolver::illuminationReset(unsigned* customDirectIrradiance, RRReal* customToPhysical)
 {
 	packedBests->reset();
-	#pragma omp parallel for
+#pragma omp parallel for schedule(static)
 	for(int t=0;(unsigned)t<numTriangles;t++)
 	{
 		unsigned color = customDirectIrradiance[t];
