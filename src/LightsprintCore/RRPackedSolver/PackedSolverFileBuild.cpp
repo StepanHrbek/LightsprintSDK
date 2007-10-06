@@ -158,7 +158,7 @@ PackedSolverFile* Scene::packSolver() const
 						{
 							PackedSmoothTriangleWeight* triangleWeight = packedSolverFile->packedIvertices->newC2();
 							triangleWeight->triangleIndex = (unsigned)(TRIANGLE(ivertex->corner[k].node)-object->triangle);
-							triangleWeight->weight = ivertex->corner[k].power / ivertex->powerTopLevel;
+							triangleWeight->weight = ivertex->corner[k].power / ivertex->powerTopLevel / TRIANGLE(ivertex->corner[k].node)->area;
 						}
 				}
 				RR_ASSERT(ivertex->packedIndex<numIvertices);

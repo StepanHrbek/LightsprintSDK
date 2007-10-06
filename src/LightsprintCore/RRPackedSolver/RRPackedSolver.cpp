@@ -52,9 +52,9 @@ public:
 		return (incidentFluxDiffused+incidentFluxToDiffuse)*diffuseReflectance*areaInv;
 	}
 	// for static objects
-	RRVec3 getIrradianceIndirect() const
+	RRVec3 getIncidentFluxIndirect() const
 	{
-		return (incidentFluxDiffused+incidentFluxToDiffuse-incidentFluxDirect)*areaInv;
+		return incidentFluxDiffused+incidentFluxToDiffuse-incidentFluxDirect;
 	}
 };
 
@@ -264,7 +264,7 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 		const PackedSmoothTriangleWeight* end = packedIvertices->getC2(i+1);
 		for(;begin<end;begin++)
 		{
-			irrad += triangles[begin->triangleIndex].getIrradianceIndirect() * begin->weight;
+			irrad += triangles[begin->triangleIndex].getIncidentFluxIndirect() * begin->weight;
 		}
 		ivertexIndirectIrradiance[i] = irrad;
 	}	

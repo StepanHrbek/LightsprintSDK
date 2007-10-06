@@ -6,7 +6,7 @@
 //#define USE_SSEU // unaligned: memory=105% speed=154/100 (koup/sponza)
 //no-SSE: memory=100% speed=145/103
 
-#define FIREBALL_STRUCTURE_VERSION 1 // change when file structere changes, old files will be overwritten
+#define FIREBALL_STRUCTURE_VERSION 2 // change when file structere changes, old files will be overwritten
 #define FIREBALL_FILENAME_VERSION  1 // change when file structere changes, old files will be preserved
 
 #include <cstdio> // save/load
