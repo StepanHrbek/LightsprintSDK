@@ -164,6 +164,11 @@ Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 
 void DemoPlayer::advance(float seconds)
 {
+	if(!paused)
+	{
+		demoPosition = (float)(GETSEC-absTimeWhenDemoStarted);
+		//demoPosition = getMusicPosition();
+	}
 	if(music)
 	{
 		music->poll();
@@ -195,9 +200,7 @@ void DemoPlayer::setDemoPosition(float seconds)
 
 float DemoPlayer::getDemoPosition() const
 {
-	if(paused) return demoPosition;
-	return (float)(GETSEC-absTimeWhenDemoStarted);
-	//!!! return getMusicPosition();
+	return demoPosition;
 }
 
 float DemoPlayer::getDemoLength() const
