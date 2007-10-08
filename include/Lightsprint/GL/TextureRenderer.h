@@ -46,9 +46,20 @@ public:
 	void renderEnvironmentEnd();
 
 	//! Renders 2d texture into rectangle.
+	//
 	//! x/y/w/h are in 0..1 space, x/y is top left corner.
 	//! For non-NULL color, texture color is multiplied by color.
+	//! \n render2D() internally calls render2dBegin() + render2dQuad() + render2dEnd().
+	//! For rendering N textures, it's possible to simply call render2D() N times,
+	//! but render2dBegin() + N*render2dQuad() + render2dEnd() is slightly faster.
 	void render2D(const Texture* texture,float color[4], float x,float y,float w,float h);
+
+	//! Component of render2D(), initializes pipeline.
+	bool render2dBegin(float color[4]);
+	//! Component of render2D(), renders textured quad. May be called multiple times between render2dBegin() and render2dEnd().
+	void render2dQuad(const Texture* texture, float x,float y,float w,float h);
+	//! Component of render2D(), restores pipeline.
+	void render2dEnd();
 
 private:
 	class Program *skyProgram;

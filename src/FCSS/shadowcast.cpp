@@ -130,6 +130,77 @@ bool renderInfo = 1;
 char* cfgFile = CFG_FILE;
 
 /////////////////////////////////////////////////////////////////////////////
+//
+// Fps
+
+#include <queue>
+
+class Fps
+{
+public:
+	Fps()
+	{
+		mapFps = rr_gl::Texture::load("maps/txt-fps.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		for(unsigned i=0;i<10;i++)
+		{
+			char buf[40];
+			sprintf(buf,"maps/txt-%d.png",i);
+			mapDigit[i] = rr_gl::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		}
+		frames = 0;
+	}
+	void render()
+	{
+		if(skyRenderer->render2dBegin(NULL))
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			char fpsstr[10];
+			_itoa(fpsAvg,fpsstr,10);
+			float x = 0.82f;
+			float y = 0.0f;
+			float wpix = 1/1280.f;
+			float hpix = 1/960.f;
+			skyRenderer->render2dQuad(mapFps,x,y-0.012f,mapFps->getWidth()*wpix,mapFps->getHeight()*hpix);
+			x += mapFps->getWidth()*wpix+0.01f;
+			for(char* c=fpsstr;*c;c++)
+			{
+				rr_gl::Texture* digit = mapDigit[*c-'0'];
+				skyRenderer->render2dQuad(digit,x,y,digit->getWidth()*wpix,digit->getHeight()*hpix);
+				x += digit->getWidth()*wpix - 0.005f;
+			}
+			skyRenderer->render2dEnd();
+			glDisable(GL_BLEND);
+		}
+	}
+	void update()
+	{
+		//if(demoPlayer->getPaused()) return;
+		TIME now = GETTIME;
+		while(times.size() && now-times.front()>PER_SEC) times.pop();
+		times.push(GETTIME);
+		fps = times.size();
+		if(!demoPlayer->getPaused()) frames++;
+		float seconds = demoPlayer->getDemoPosition();
+		fpsAvg = (unsigned)(frames/MAX(0.01f,seconds));
+	}
+	~Fps()
+	{
+		for(unsigned i=0;i<10;i++) delete mapDigit[i];
+		delete mapFps;
+	}
+protected:
+	rr_gl::Texture* mapDigit[10];
+	rr_gl::Texture* mapFps;
+	std::queue<TIME> times;
+	unsigned frames; // kolik snimku se stihlo behem 1 prehrani animace
+	unsigned fps;
+	unsigned fpsAvg;
+};
+
+Fps* g_fps;
+
+/////////////////////////////////////////////////////////////////////////////
 
 void error(const char* message, bool gfxRelated)
 {
@@ -183,8 +254,10 @@ void init_gl_resources()
 
 #ifdef THREE_ONE
 #else
-	lightsprintMap = rr_gl::Texture::load("maps\\logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
+	lightsprintMap = rr_gl::Texture::load("maps/logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
+	//lightsprintMap = rr_gl::Texture::load("maps/txt-color-bleeding.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 #endif
+	g_fps = new Fps;
 
 	uberProgram = rr_gl::UberProgram::create("shaders\\ubershader.vs", "shaders\\ubershader.fs");
 	rr_gl::UberProgramSetup uberProgramSetup;
@@ -203,6 +276,7 @@ void done_gl_resources()
 {
 	SAFE_DELETE(skyRenderer);
 	SAFE_DELETE(uberProgram);
+	SAFE_DELETE(g_fps);
 #ifdef THREE_ONE
 #else
 	SAFE_DELETE(lightsprintMap);
@@ -827,12 +901,68 @@ static void output(int x, int y, const char *string)
 	{
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
 	}
+//	glCallLists(strlen(string), GL_UNSIGNED_BYTE, string); 
 }
 
 static void drawHelpMessage(int screen)
 {
 	if(shotRequested) return;
 //	if(!big && gameOn) return;
+
+/* misto glutu pouzije truetype fonty z windows
+	static bool fontInited = false;
+	if(!fontInited)
+	{
+		fontInited = true;
+		HFONT font = CreateFont(	-24,							// Height Of Font
+			0,								// Width Of Font
+			0,								// Angle Of Escapement
+			0,								// Orientation Angle
+			FW_THIN,						// Font Weight
+			FALSE,							// Italic
+			FALSE,							// Underline
+			FALSE,							// Strikeout
+			ANSI_CHARSET,					// Character Set Identifier
+			OUT_TT_PRECIS,					// Output Precision
+			CLIP_DEFAULT_PRECIS,			// Clipping Precision
+			ANTIALIASED_QUALITY,			// Output Quality
+			FF_DONTCARE|DEFAULT_PITCH,		// Family And Pitch
+			"Arial");					// Font Name
+		SelectObject(wglGetCurrentDC(), font); 
+		wglUseFontBitmaps(wglGetCurrentDC(), 0, 127, 1000); 
+		glListBase(1000); 
+		glNewList(999,GL_COMPILE);
+
+		// set state
+		ambientProgram->useIt();
+		glDisable(GL_DEPTH_TEST);
+		glPushMatrix();
+		glLoadIdentity();
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		gluOrtho2D(0, winWidth, winHeight, 0);
+		// box
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glColor4f(0.0,0.0,0.0,0.6);
+		glRecti(MIN(winWidth-30,500), 30, 30, MIN(winHeight-30,100));
+		glDisable(GL_BLEND);
+		// text
+		glColor3f(1,1,1);
+		output(100,60,"For more information on Realtime Global Illumination");
+		output(100,80,"or Penumbra Shadows, visit http://lightsprint.com");
+		// restore state
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+		glEnable(GL_DEPTH_TEST);
+
+		glEndList();
+	}
+
+	glCallList(999);
+	return;*/
 
 	static const char *message[3][30] = 
 	{
@@ -1025,13 +1155,9 @@ void showOverlay(const rr_gl::Texture* tex)
 	glDisable(GL_BLEND);
 }
 
-void showLogo(const rr_gl::Texture* logo)
+void showOverlay(const rr_gl::Texture* logo,float x,float y,float w,float h)
 {
 	if(!logo) return;
-	float w = logo->getWidth()/(float)winWidth;
-	float h = logo->getHeight()/(float)winHeight;
-	float x = 1-w;
-	float y = 1-h;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	skyRenderer->render2D(logo,NULL,x,y,w,h);
@@ -1164,8 +1290,18 @@ void display()
 		if(!demoPlayer->getPaused())
 			showOverlay(level->pilot.setup->getOverlay());
 #else
-		showLogo(lightsprintMap);
+		float w = 230/(float)winWidth;
+		float h = 50/(float)winHeight;
+		float x = 1-w;
+		float y = 1-h;
+		showOverlay(lightsprintMap,x,y,w,h);
+		//showOverlay(lightsprintMap,0.1f,0.2f,0.8f,0.2f);
 #endif
+		if(g_fps)
+		{
+			g_fps->update();
+			g_fps->render();
+		}
 
 		if(demoPlayer->getPaused() && level->animationEditor)
 		{
@@ -1192,6 +1328,15 @@ void display()
 	glutSwapBuffers();
 
 	//printf("cache: hits=%d misses=%d",rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheHits,rr::RRStaticSolver::getSceneStatistics()->numIrradianceCacheMisses);
+
+	{
+		// animaci nerozjede hned ale az po 2 snimcich (po 1 nestaci)
+		// behem kresleni prvnich snimku driver kompiluje shadery nebo co, pauza by narusila fps
+		static int framesDisplayed = 0;
+		framesDisplayed++;
+		if(framesDisplayed==2 && demoPlayer)
+			demoPlayer->setPaused(supportEditor);
+	}
 
 	// fallback to hard shadows if fps<30
 	static int framesDisplayed = 0;
@@ -2024,8 +2169,8 @@ void reshape(int w, int h)
 	if(!demoPlayer)
 	{
 		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportEditor);
-		demoPlayer->setPaused(supportEditor);
 		demoPlayer->setBigscreen(bigscreenCompensation);
+		//demoPlayer->setPaused(supportEditor); unpaused after first display()
 	}
 }
 

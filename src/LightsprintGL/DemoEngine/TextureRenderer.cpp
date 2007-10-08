@@ -91,8 +91,63 @@ bool TextureRenderer::renderEnvironment(const Texture* texture,float color[4])
 	return false;
 };
 
+bool TextureRenderer::render2dBegin(float color[4])
+{
+	// backup render states
+	culling = glIsEnabled(GL_CULL_FACE);
+	depthTest = glIsEnabled(GL_DEPTH_TEST);
+	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
+	if(!twodProgram)
+	{
+		assert(0);
+		return false;
+	}
+	// setup render states
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(0);
+	// render 2d
+	twodProgram->useIt();
+	glActiveTexture(GL_TEXTURE0);
+	twodProgram->sendUniform("map",0);
+	twodProgram->sendUniform("color",color?color[0]:1,color?color[1]:1,color?color[2]:1,color?color[3]:1);
+	return true;
+}
+
+void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float w,float h)
+{
+	if(!texture)
+	{
+		assert(0);
+		return;
+	}
+	texture->bindTexture();
+	glBegin(GL_POLYGON);
+		glTexCoord2f(0,0);
+		glVertex2f(2*x-1,2*y-1);
+		glTexCoord2f(1,0);
+		glVertex2f(2*(x+w)-1,2*y-1);
+		glTexCoord2f(1,1);
+		glVertex2f(2*(x+w)-1,2*(y+h)-1);
+		glTexCoord2f(0,1);
+		glVertex2f(2*x-1,2*(y+h)-1);
+	glEnd();
+}
+
+void TextureRenderer::render2dEnd()
+{
+	if(depthTest) glEnable(GL_DEPTH_TEST);
+	if(depthMask) glDepthMask(GL_TRUE);
+	if(culling) glEnable(GL_CULL_FACE);
+}
+
 void TextureRenderer::render2D(const Texture* texture,float color[4], float x,float y,float w,float h)
 {
+	if(render2dBegin(color))
+	{
+		render2dQuad(texture,x,y,w,h);
+		render2dEnd();
+	}
+	/*
 	if(!texture || !twodProgram)
 	{
 		assert(0);
@@ -124,7 +179,7 @@ void TextureRenderer::render2D(const Texture* texture,float color[4], float x,fl
 	// restore render states
 	if(depthTest) glEnable(GL_DEPTH_TEST);
 	if(depthMask) glDepthMask(GL_TRUE);
-	if(culling) glEnable(GL_CULL_FACE);
+	if(culling) glEnable(GL_CULL_FACE);*/
 }
 
 }; // namespace
