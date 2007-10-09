@@ -29,6 +29,11 @@ bool TextureShadowMap::renderingToBegin(unsigned side)
 {
 	if(!globalFBO) globalFBO = new FBO();
 	globalFBO->setRenderTargetDepth(id);
+
+	//GLint depthBits;
+	//glGetIntegerv(GL_DEPTH_BITS, &depthBits);
+	//printf("FBO depth precision = %d\n", depthBits);
+
 	return globalFBO->isStatusOk();
 }
 
@@ -43,6 +48,11 @@ unsigned TextureShadowMap::getTexelBits()
 	GLint bits = 0;
 	bindTexture();
 	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_DEPTH_SIZE,&bits);
+	//printf("texture depth precision = %d\n", bits);
+
+	// workaround for Radeon HD bug (Catalyst 7.9)
+	if(bits==8) bits = 16;
+
 	return bits;
 }
 

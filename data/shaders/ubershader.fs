@@ -1,4 +1,4 @@
-// LightsprintGL: DemoEngine fragment ubershader
+// LightsprintGL: fragment ubershader
 //
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]
@@ -159,7 +159,7 @@ void main()
 
 	#if SHADOW_SAMPLES*SHADOW_MAPS>0
 
-		float shadowValue = 0.0;
+		float shadowValue = 0.0; // 0=shadowed, 1=lit
 
 		#if SHADOW_SAMPLES==1
 			// hard shadows with 1 lookup

@@ -2339,10 +2339,9 @@ void idle()
 
 void init_gl_states()
 {
-	GLint depthBits;
-
-	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-	//printf("depth buffer precision = %d\n", depthBits);
+	//GLint depthBits;
+	//glGetIntegerv(GL_DEPTH_BITS, &depthBits);
+	//printf("backbuffer depth precision = %d\n", depthBits);
 
 	//GLint samplers1=0,samplers2=0;
 	//glGetIntegerv(GL_MAX_TEXTURE_UNITS, &samplers1);
@@ -2432,7 +2431,7 @@ int main(int argc, char **argv)
 
 	// init GLUT
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // | GLUT_ACCUM | GLUT_ALPHA accum na high quality soft shadows, alpha na filtrovani ambient map
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ALPHA); // | GLUT_ACCUM | GLUT_ALPHA accum na high quality soft shadows, alpha na filtrovani ambient map
 	if(fullscreen)
 	{
 		char buf[100];

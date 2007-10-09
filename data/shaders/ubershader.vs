@@ -1,4 +1,4 @@
-// LightsprintGL: DemoEngine vertex ubershader
+// LightsprintGL: vertex ubershader
 //
 // options controlled by program:
 //  #define SHADOW_MAPS [0..10]

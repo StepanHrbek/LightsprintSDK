@@ -13,7 +13,7 @@
 #include "../DemoEngine/PreserveState.h"
 
 #define BIG_MAP_SIZEX            1024 // size of temporary texture used during detection
-#define BIG_MAP_SIZEY            1200 // increased to process 70k triangle Sponza in 1 pass
+#define BIG_MAP_SIZEY            1024 // set 1200 to process 70k triangle Sponza in 1 pass
 #define REPORT(a) //a
 
 namespace rr_gl
@@ -73,7 +73,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
 	pathToShaders[299]=0;
 
 	captureUv = new CaptureUv;
-	detectBigMap = Texture::create(NULL,BIG_MAP_SIZEX,BIG_MAP_SIZEY,false,Texture::TF_RGBA,GL_LINEAR,GL_LINEAR,GL_CLAMP,GL_CLAMP);
+	detectBigMap = Texture::create(NULL,BIG_MAP_SIZEX,BIG_MAP_SIZEY,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
 	smallMapSize = BIG_MAP_SIZEX*BIG_MAP_SIZEY/16;
 	detectSmallMap = new unsigned[smallMapSize*8]; // max static triangles = 64k*8 = 512k
 	char buf1[400]; buf1[399] = 0;
@@ -217,6 +217,7 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		// render scene
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setCapture(captureUv,captureUv->firstCapturedTriangle,captureUv->lastCapturedTrianglePlus1); // set param for cache so it creates different displaylists
+		glDisable(GL_CULL_FACE);
 		if(renderedChannels.LIGHT_INDIRECT_MAP)
 			rendererNonCaching->render();
 		else
@@ -231,20 +232,17 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		glViewport(0,0,BIG_MAP_SIZEX/4,BIG_MAP_SIZEY/4);//!!! needs at least 256x256 backbuffer
 		glActiveTexture(GL_TEXTURE0);
 		detectBigMap->bindTexture();
-		{
-			PreserveCullFace p6;
-			glDisable(GL_CULL_FACE);
-			glBegin(GL_POLYGON);
-				glMultiTexCoord2f(0,0,0);
-				glVertex2f(-1,-1);
-				glMultiTexCoord2f(0,0,1);
-				glVertex2f(-1,1);
-				glMultiTexCoord2f(0,1,1);
-				glVertex2f(1,1);
-				glMultiTexCoord2f(0,1,0);
-				glVertex2f(1,-1);
-			glEnd();
-		}
+		glDisable(GL_CULL_FACE);
+		glBegin(GL_POLYGON);
+			glMultiTexCoord2f(GL_TEXTURE0,0,0);
+			glVertex2f(-1,-1);
+			glMultiTexCoord2f(GL_TEXTURE0,0,1);
+			glVertex2f(-1,1);
+			glMultiTexCoord2f(GL_TEXTURE0,1,1);
+			glVertex2f(1,1);
+			glMultiTexCoord2f(GL_TEXTURE0,1,0);
+			glVertex2f(1,-1);
+		glEnd();
 
 		// read downscaled image to memory
 		RR_ASSERT(captureUv->triCountX*captureUv->triCountY<smallMapSize);

@@ -482,6 +482,7 @@ void RRDynamicSolver::verify()
 
 	// histogram
 	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+	unsigned numLit = 0;
 	unsigned histo[256][3];
 	memset(histo,0,sizeof(histo));
 	for(unsigned i=0;i<numTriangles;i++)
@@ -489,13 +490,14 @@ void RRDynamicSolver::verify()
 		histo[detected[i]>>24][0]++;
 		histo[(detected[i]>>16)&255][1]++;
 		histo[(detected[i]>>8)&255][2]++;
+		if(detected[i]>>8) numLit++;
 	}
 	if(histo[0][0]+histo[0][1]+histo[0][2]==3*numTriangles)
 	{
 		RRReporter::report(WARN,"  detectDirectIllumination() detects no light, all is 0=completely dark.\n");
 		return;
 	}
-	RRReporter::report(INF1,"  Triangles with realtime direct illumination: %d%%.\n",100-histo[0][0]+histo[0][1]+histo[0][2]*100/(3*numTriangles));
+	RRReporter::report(INF1,"  Triangles with realtime direct illumination: %d/%d.\n",numLit,numTriangles);
 
 	// average irradiance
 	unsigned avg[3] = {0,0,0};
@@ -514,6 +516,7 @@ void RRDynamicSolver::verify()
 		hist3[(priv->customToPhysical[i]<0)?0:((priv->customToPhysical[i]==0)?1:2)]++;
 		avgPhys += priv->customToPhysical[i];
 	}
+	avgPhys /= 256;
 	if(hist3[0]||hist3[1]!=1)
 	{
 		RRReporter::report(WARN,"  Wrong scaler set, see setScaler().\n");
