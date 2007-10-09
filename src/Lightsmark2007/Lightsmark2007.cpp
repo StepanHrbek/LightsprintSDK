@@ -3,6 +3,8 @@
 #include <memory.h>
 #include <tchar.h>
 #include "resource.h"
+#include <wininet.h>
+#pragma comment(lib,"wininet")
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -10,32 +12,54 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_INITDIALOG:
 		{
-		HWND hWnd = GetDesktopWindow();
-		RECT r1, r2;
-		GetClientRect(hWnd, &r1);
-		GetWindowRect(hDlg, &r2);
-		POINT pt;
-		pt.x = (r1.right - r1.left)/2 - (r2.right - r2.left)/2;
-		pt.y = (r1.bottom - r1.top)/2 - (r2.bottom - r2.top)/2;
-		ClientToScreen(hWnd, &pt);
-		SetWindowPos(hDlg, HWND_TOP, pt.x, pt.y, 0, 0, SWP_NOSIZE);
+			// center window
+			HWND hWnd = GetDesktopWindow();
+			RECT r1, r2;
+			GetClientRect(hWnd, &r1);
+			GetWindowRect(hDlg, &r2);
+			POINT pt;
+			pt.x = (r1.right - r1.left)/2 - (r2.right - r2.left)/2;
+			pt.y = (r1.bottom - r1.top)/2 - (r2.bottom - r2.top)/2;
+			ClientToScreen(hWnd, &pt);
+			SetWindowPos(hDlg, HWND_TOP, pt.x, pt.y, 0, 0, SWP_NOSIZE);
+
+			// fill fullscreen
+			SendDlgItemMessage(hDlg,IDC_FULLSCREEN,BM_SETCHECK,BST_CHECKED,0);
+
+			// fill resolution
+			DEVMODE currentMode;
+			EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&currentMode);
+			unsigned modes = 0;
+			for(unsigned i=0;1;i++)
+			{
+				DEVMODE mode;
+				if(!EnumDisplaySettings(NULL,i,&mode)) break;
+				if(mode.dmBitsPerPel>=15)
+				{
+					char buf[100];
+					sprintf(buf,"%dx%d",mode.dmPelsWidth,mode.dmPelsHeight);
+					if(SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_FINDSTRING,0,(LPARAM)buf)<0)
+					{
+						SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_ADDSTRING,0,(LPARAM)buf);
+						if(mode.dmPelsWidth==currentMode.dmPelsWidth && mode.dmPelsHeight==currentMode.dmPelsHeight)
+							SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_SETCURSEL,modes,0);
+						modes++;
+					}
+				}
+			}
+
+			// fill penumbra
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("highest"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("hard (1 sample)"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("soft (4 samples)"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("12 samples"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("16, only some GPUs"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("20, only some GPUs"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("24, only some GPUs"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("28, only some GPUs"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("32, only some GPUs"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_SETCURSEL,0,0);
 		}
-		SendDlgItemMessage(hDlg,IDC_FULLSCREEN,BM_SETCHECK,BST_CHECKED,0);
-		//!!! zjistit spravny rozliseni
-		SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_ADDSTRING,0,(LPARAM)_T("800x600"));
-		SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_ADDSTRING,0,(LPARAM)_T("1680x1050"));
-		//!!! deteknout rozliseni desktopu
-		SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_SETCURSEL,0,0);
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("auto"));
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("hard (1 sample)"));
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("soft (4 samples)"));
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("12 samples"));
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("16, only some GPUs"));
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("20, only some GPUs"));
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("24, only some GPUs"));
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("28, only some GPUs"));
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("32, only some GPUs"));
-		SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_SETCURSEL,0,0);
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
@@ -59,7 +83,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if(LOWORD(wParam)==IDC_LIGHTSPRINT)
 		{
-			//!!! browser
+			ShellExecuteA( NULL, "open", "http://lightsprint.com", NULL, NULL, SW_SHOWNORMAL );
 		}
 		break;
 	}

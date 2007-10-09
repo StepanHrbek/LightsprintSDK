@@ -156,7 +156,7 @@ public:
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			char fpsstr[10];
-			_itoa(fpsAvg,fpsstr,10);
+			_itoa(fps,fpsstr,10);
 			float x = 0.82f;
 			float y = 0.0f;
 			float wpix = 1/1280.f;
