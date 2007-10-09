@@ -457,6 +457,71 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
 	return result;
 }
 
+void RRDynamicSolver::verify()
+{
+	RRReporter::report(INF1,"Solver diagnose:\n");
+	if(!getMultiObjectCustom())
+	{
+		RRReporter::report(WARN,"  No static objects in solver, see setStaticObjects().\n");
+		return;
+	}
+	unsigned* detected = detectDirectIllumination();
+	if(!detected)
+	{
+		RRReporter::report(WARN,"  detectDirectIllumination() returns NULL, no realtime lighting.\n");
+		return;
+	}
+
+	// boost
+	if(priv->boostDetectedDirectIllumination<=0.1f || priv->boostDetectedDirectIllumination>=10)
+	{
+		RRReporter::report(WARN,"  setDirectIlluminationBoost(%f) was called, is it intentional? Scene may get too %s.\n",
+			priv->boostDetectedDirectIllumination,
+			(priv->boostDetectedDirectIllumination<=0.1f)?"dark":"bright");
+	}
+
+	// histogram
+	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+	unsigned histo[256][3];
+	memset(histo,0,sizeof(histo));
+	for(unsigned i=0;i<numTriangles;i++)
+	{
+		histo[detected[i]>>24][0]++;
+		histo[(detected[i]>>16)&255][1]++;
+		histo[(detected[i]>>8)&255][2]++;
+	}
+	if(histo[0][0]+histo[0][1]+histo[0][2]==3*numTriangles)
+	{
+		RRReporter::report(WARN,"  detectDirectIllumination() detects no light, all is 0=completely dark.\n");
+		return;
+	}
+	RRReporter::report(INF1,"  Triangles with realtime direct illumination: %d%%.\n",100-histo[0][0]+histo[0][1]+histo[0][2]*100/(3*numTriangles));
+
+	// average irradiance
+	unsigned avg[3] = {0,0,0};
+	for(unsigned i=0;i<256;i++)
+		for(unsigned j=0;j<3;j++)
+			avg[j] += histo[i][j]*i;
+	for(unsigned j=0;j<3;j++)
+		avg[j] /= numTriangles;
+	RRReporter::report(INF1,"  Average realtime direct irradiance: %d %d %d.\n",avg[0],avg[1],avg[2]);
+
+	// scaler
+	RRReal avgPhys = 0;
+	unsigned hist3[3] = {0,0,0};
+	for(unsigned i=0;i<256;i++)
+	{
+		hist3[(priv->customToPhysical[i]<0)?0:((priv->customToPhysical[i]==0)?1:2)]++;
+		avgPhys += priv->customToPhysical[i];
+	}
+	if(hist3[0]||hist3[1]!=1)
+	{
+		RRReporter::report(WARN,"  Wrong scaler set, see setScaler().\n");
+		RRReporter::report(WARN,"    Scaling to negative/zero/positive result: %d/%d/%d (should be 0/1/255).\n",hist3[0],hist3[1],hist3[2]);
+	}
+	RRReporter::report(INF1,"  Scaling from custom scale 0..255 to average physical scale %f.\n",avgPhys);
+}
+
 unsigned RRDynamicSolver::getSolutionVersion() const
 {
 	return priv->solutionVersion;

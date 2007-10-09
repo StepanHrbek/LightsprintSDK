@@ -12,6 +12,8 @@ NEWS
 
 - extended RRObjectIllumination, reflection maps for dynamic objects added
 - RRDynamicSolver::updateEnvironmentMapCache() added for better parallelization
+- RRDynamicSolver::verify(),
+  tests data in solver and reports problems, analogous to RRMesh::verify()
 - faster realtime lighting, higher quality penumbra shadows
 - RRIlluminationVertexBuffer::lockWriting(), optional lock for writing
 

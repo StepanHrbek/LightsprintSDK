@@ -794,6 +794,15 @@ namespace rr
 		//!  If zero, current factors are used, without recalculating.
 		bool startFireball(unsigned raysPerTriangle);
 
+
+		//! Verifies data in solver and reports problems found using RRReporter.
+		//
+		//! While all precomputed lighting and cheap-to-detect realtime lighting problems
+		//! are reported immediately even without verify(),
+		//! more expensive realtime lighting checks are done only on this request.
+		void verify();
+
+
 		//! Returns multiObject created by merging all objects present in scene.
 		//! MultiObject is created when you insert objects and call calculate().
 		const RRObject* getMultiObjectCustom() const;
