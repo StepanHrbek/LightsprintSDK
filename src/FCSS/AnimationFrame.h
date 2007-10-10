@@ -18,6 +18,7 @@ struct AnimationFrame
 	rr::RRVec4 brightness;
 	rr::RRReal gamma;
 	unsigned projectorIndex;
+
 	// dynamic objects
 	struct DynaObjectPosRot
 	{
@@ -30,16 +31,25 @@ struct AnimationFrame
 	};
 	typedef std::vector<DynaObjectPosRot> DynaPosRot;
 	DynaPosRot dynaPosRot;
+
 	// timing
 	float transitionToNextTime;
+
 	// precomputed layer
 	unsigned layerNumber;
+
 	// runtime generated
 	rr_gl::Texture* thumbnail;
 
+	// overlay
+	char overlayFilename[100];
+	float overlaySeconds;
+	unsigned overlayMode;
+	rr_gl::Texture* overlayMap;
+
 	// layerNumber should be unique for whole animation track
 	AnimationFrame(unsigned layerNumber);
-	AnimationFrame(const AnimationFrame& copy);
+	AnimationFrame(AnimationFrame& copy);
 	~AnimationFrame();
 
 	// returns blend between this and that frame

@@ -12,8 +12,6 @@ LevelSetup::LevelSetup(const char* afilename)
 	scale = 1;
 	renderWater = 0;
 	waterLevel = 0;
-	overlayFilename[0] = 0;
-	overlayMap = NULL;
 	load(afilename);
 };
 
@@ -22,7 +20,6 @@ LevelSetup::~LevelSetup()
 	for(Frames::iterator i=frames.begin();i!=frames.end();i++)
 		delete *i;
 	free((void*)filename);
-	delete overlayMap;
 }
 
 // load all from .ani
@@ -40,10 +37,6 @@ bool LevelSetup::load(const char* afilename)
 	free(aniname);
 	if(!f)
 		return false;
-	// load overlay
-	overlayFilename[0] = 0;
-	fscanf(f,"overlay = %s\n",overlayFilename);
-	overlayMap = overlayFilename[0] ? rr_gl::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP) : NULL;
 	// load scale
 	scale = 1;
 	fscanf(f,"scale = %f\n",&scale);
@@ -88,9 +81,6 @@ bool LevelSetup::save() const
 	rr::RRReporter::report(rr::INF1,"Saving %s...\n",aniname);
 	FILE* f = fopen(aniname,"wt");
 	free(aniname);
-	// save overlay
-	if(overlayFilename[0])
-		fprintf(f,"overlay = %s\n",overlayFilename);
 	// save scale
 	fprintf(f,"scale = %.5f\n",scale);
 	// save water
@@ -210,9 +200,4 @@ unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone
 	if(transitionDone) *transitionDone = absSeconds;
 	if(transitionTotal) *transitionTotal = (i==frames.end())? 0 : (*i)->transitionToNextTime;
 	return result;
-}
-
-const rr_gl::Texture* LevelSetup::getOverlay()
-{
-	return overlayMap;
 }

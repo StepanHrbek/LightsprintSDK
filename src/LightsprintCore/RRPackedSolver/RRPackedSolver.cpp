@@ -98,7 +98,7 @@ public:
 
 		// search 200 shooters with most energy to diffuse
 		RRReal bestQ[BESTS];
-		bestQ[BESTS-1] = -1; // last is always valid
+		bestQ[BESTS-1] = 0; // last is always valid
 		for(unsigned i=indexBegin;i<indexEnd;i++)
 		{
 			// calculate quality of distributor

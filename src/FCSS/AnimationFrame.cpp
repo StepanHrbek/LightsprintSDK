@@ -1,12 +1,13 @@
 #include <cassert>
 #include "AnimationFrame.h"
 #include "Lightsprint/RRDebug.h"
+#include <GL/glew.h>
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // AnimationFrame, one animation frame in editable form
 
-AnimationFrame::AnimationFrame(const AnimationFrame& copy) :
+AnimationFrame::AnimationFrame(AnimationFrame& copy) :
 	eye(copy.eye),
 	light(copy.light)
 {
@@ -16,7 +17,11 @@ AnimationFrame::AnimationFrame(const AnimationFrame& copy) :
 	dynaPosRot = copy.dynaPosRot;
 	transitionToNextTime = copy.transitionToNextTime;
 	layerNumber = copy.layerNumber;
-	thumbnail = NULL;
+	thumbnail = NULL; // don't duplicate pointer, would be deleted twice
+	strcpy(overlayFilename,copy.overlayFilename);
+	overlaySeconds = copy.overlaySeconds;
+	overlayMode = copy.overlayMode;
+	overlayMap = copy.overlayMap; copy.overlayMap = NULL; // don't duplicate pointer, would be deleted twice
 }
 
 AnimationFrame::AnimationFrame(unsigned alayerNumber) :
@@ -29,10 +34,15 @@ AnimationFrame::AnimationFrame(unsigned alayerNumber) :
 	projectorIndex = 0;
 	layerNumber = alayerNumber;
 	thumbnail = NULL;
+	overlayFilename[0] = 0;
+	overlaySeconds = 5;
+	overlayMode = 0;
+	overlayMap = NULL;
 }
 
 AnimationFrame::~AnimationFrame()
 {
+	delete overlayMap;
 	delete thumbnail;
 }
 
@@ -85,6 +95,10 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	blended.projectorIndex = projectorIndex;
 	// blend thumbnail
 	blended.thumbnail = NULL;
+	// blend overlay
+	blended.overlayFilename[0] = 0;
+	blended.overlaySeconds = this->overlaySeconds;
+	blended.overlayMap = NULL;//this->overlayMap;
 	return &blended;
 }
 
@@ -120,6 +134,10 @@ bool AnimationFrame::loadOver(FILE* f)
 	}
 	// load projectorIndex
 	if(fscanf(f,"projector = %d\n",&projectorIndex)==1) loaded = true;
+	// load overlay
+	overlayFilename[0] = 0;
+	if(fscanf(f,"2d_overlay = %f,%d,%s\n",&overlaySeconds,&overlayMode,overlayFilename)==2) loaded = true;
+	overlayMap = overlayFilename[0] ? rr_gl::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP) : NULL;
 	// load timing
 	if(fscanf(f,"duration = %f\n",&transitionToNextTime)==1) loaded = true;
 	//if(0!=fscanf(f,"\n"))
@@ -160,6 +178,9 @@ bool AnimationFrame::save(FILE* f, const AnimationFrame& prev) const
 	// save projectorIndex
 	if(projectorIndex!=prev.projectorIndex)
 		fprintf(f,"projector = %d\n",projectorIndex);
+	// save overlay
+	if(overlayFilename[0])
+		fprintf(f,"2d_overlay = %.3f,%d,%s\n",overlaySeconds,overlayMode,overlayFilename);
 	// save timing
 	if(transitionToNextTime!=prev.transitionToNextTime)
 		fprintf(f,"duration = %.3f\n",transitionToNextTime);

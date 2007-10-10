@@ -138,16 +138,18 @@ char* cfgFile = CFG_FILE;
 class Fps
 {
 public:
-	Fps()
+	static Fps* create()
 	{
-		mapFps = rr_gl::Texture::load("maps/txt-fps.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		Fps* fps = new Fps();
+		if(!fps->mapFps) goto err;
 		for(unsigned i=0;i<10;i++)
 		{
-			char buf[40];
-			sprintf(buf,"maps/txt-%d.png",i);
-			mapDigit[i] = rr_gl::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+			if(!fps->mapDigit[i]) goto err;
 		}
-		frames = 0;
+		return fps;
+err:
+		delete fps;
+		return NULL;
 	}
 	void render()
 	{
@@ -190,6 +192,17 @@ public:
 		delete mapFps;
 	}
 protected:
+	Fps()
+	{
+		mapFps = rr_gl::Texture::load("maps/txt-fps.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		for(unsigned i=0;i<10;i++)
+		{
+			char buf[40];
+			sprintf(buf,"maps/txt-%d.png",i);
+			mapDigit[i] = rr_gl::Texture::load(buf, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+		}
+		frames = 0;
+	}
 	rr_gl::Texture* mapDigit[10];
 	rr_gl::Texture* mapFps;
 	std::queue<TIME> times;
@@ -255,9 +268,8 @@ void init_gl_resources()
 #ifdef THREE_ONE
 #else
 	lightsprintMap = rr_gl::Texture::load("maps/logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
-	//lightsprintMap = rr_gl::Texture::load("maps/txt-color-bleeding.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 #endif
-	g_fps = new Fps;
+	g_fps = Fps::create();
 
 	uberProgram = rr_gl::UberProgram::create("shaders\\ubershader.vs", "shaders\\ubershader.fs");
 	rr_gl::UberProgramSetup uberProgramSetup;
@@ -1155,12 +1167,13 @@ void showOverlay(const rr_gl::Texture* tex)
 	glDisable(GL_BLEND);
 }
 
-void showOverlay(const rr_gl::Texture* logo,float x,float y,float w,float h)
+void showOverlay(const rr_gl::Texture* logo,float intensity,float x,float y,float w,float h)
 {
 	if(!logo) return;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	skyRenderer->render2D(logo,NULL,x,y,w,h);
+	float color[4] = {intensity,intensity,intensity,intensity};
+	skyRenderer->render2D(logo,color,x,y,w,h);
 	glDisable(GL_BLEND);
 }
 
@@ -1286,17 +1299,36 @@ void display()
 
 	if(renderInfo)
 	{
-#ifdef THREE_ONE
-		if(!demoPlayer->getPaused())
-			showOverlay(level->pilot.setup->getOverlay());
-#else
-		float w = 230/(float)winWidth;
+		/*float w = 230/(float)winWidth;
 		float h = 50/(float)winHeight;
 		float x = 1-w;
 		float y = 1-h;
-		showOverlay(lightsprintMap,x,y,w,h);
-		//showOverlay(lightsprintMap,0.1f,0.2f,0.8f,0.2f);
-#endif
+		showOverlay(lightsprintMap,x,y,w,h);*/
+		float now = demoPlayer->getPartPosition();
+		float frameStart = 0;
+		if(!demoPlayer->getPaused())
+		for(LevelSetup::Frames::const_iterator i = level->pilot.setup->frames.begin(); i!=level->pilot.setup->frames.end(); i++)
+		{
+			rr_gl::Texture* texture = (*i)->overlayMap;
+			if(texture && now>=frameStart && now<frameStart+(*i)->overlaySeconds)
+			{
+				switch((*i)->overlayMode)
+				{
+					case 0:
+						showOverlay(texture);
+						break;
+					case 1:
+						float pos = (now-frameStart)/(*i)->overlaySeconds; //0..1
+						//float rand01 = rand()/float(RAND_MAX);
+						float intensity = (1-(pos*2-1)*(pos*2-1)*(pos*2-1)*(pos*2-1)) ;//* MAX(0,MIN(rand01*20,1)-rand01/10);
+						float h = 0.15f+0.08f*pos;
+						float w = h*texture->getWidth()*winHeight/winWidth/texture->getHeight();
+						showOverlay(texture,intensity,0.5f-w/2,0.3f-h/2,w,h);
+						break;
+				}
+			}
+			frameStart += (*i)->transitionToNextTime;
+		}
 		if(g_fps)
 		{
 			g_fps->update();

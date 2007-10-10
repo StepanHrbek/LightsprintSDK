@@ -65,11 +65,6 @@ public:
 	//          frame number to be used by player, not by editor
 	// if hintFrameIndex is specified, it is used despite possible rounding errors (transitionDone slightly subzero etc)
 	unsigned getFrameIndexByTime(float absSeconds, float* transitionDone, float* transitionTotal);
-
-	const rr_gl::Texture* getOverlay();
-private:
-	char overlayFilename[300];
-	rr_gl::Texture* overlayMap;
 };
 
 #endif
