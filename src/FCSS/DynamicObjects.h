@@ -38,6 +38,9 @@ public:
 	// pozor: nevhodne kdyz je paused, muze skocit do jineho framu pokud maji 0sec
 	bool setupSceneDynamicForPartTime(class LevelSetup* setup, float secondsFromStart);
 
+	// automaticky rotuje objekty, pouzij kdyz je benchmark pauznuty
+	void advanceRot(float seconds);
+
 	// muze byt zavolano po zahybani objekty a pred renderSceneDynamic()
 	// aktualizuje triangleNumbers v dynobjektech, osvetleni jeste nemusi byt spoctene
 	// zrychli prubeh nasledujiciho renderSceneDynamic

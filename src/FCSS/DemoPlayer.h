@@ -11,7 +11,7 @@ class DemoPlayer
 public:
 	DemoPlayer(const char* demoCfg, bool supportEditor, bool pauseMusic);
 	~DemoPlayer();
-	void advance(float seconds=-1e10); // default = advance according to natural time
+	float advance(); // seconds since prev frame
 
 	void setPaused(bool paused);
 	bool getPaused() const;
@@ -47,6 +47,7 @@ private:
 	float partStart; // 0..demo duration in seconds, time when current part started
 	float demoPosition; // 0..demo duration in seconds.
 	double absTimeWhenDemoStarted;
+	double absTimeNow;
 
 	// loading_screen
 	rr_gl::Texture* loadingMap;

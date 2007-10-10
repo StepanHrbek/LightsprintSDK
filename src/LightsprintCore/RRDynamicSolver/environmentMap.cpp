@@ -11,6 +11,7 @@
 #include "private.h"
 
 #define SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
+#define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
 
 namespace rr
 {
@@ -446,7 +447,7 @@ void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illuminati
 		RR_ASSERT(0);
 		return;
 	}
-	if(gatherSize!=illumination->cachedGatherSize || illumination->envMapWorldCenter!=illumination->cachedCenter)
+	if(gatherSize!=illumination->cachedGatherSize || (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY)
 	{
 		if(illumination->cachedGatherSize!=gatherSize)
 		{
@@ -480,7 +481,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	RRColorRGBF* gatheredExitance = new RRColorRGBF[6*gatherSize*gatherSize + 6*specularSize*specularSize + 6*diffuseSize*diffuseSize];
 	RRColorRGBF* filteredExitance = gatheredExitance + 6*gatherSize*gatherSize;
 
-	if(gatherSize!=illumination->cachedGatherSize || illumination->envMapWorldCenter!=illumination->cachedCenter)
+	if(gatherSize!=illumination->cachedGatherSize || (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY)
 	{
 		if(illumination->cachedGatherSize!=gatherSize)
 		{

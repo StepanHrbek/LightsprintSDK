@@ -36,7 +36,7 @@ public:
 	// Object's interface for movement, freely changeable from outside.
 	// Your changes are registered when you call updatePosition().
 	rr::RRVec3 worldFoot; // position of object's foot in world
-	rr::RRVec2 rotYZ; // y is rotated first, then z
+	rr::RRVec2 rotYZ; // degrees, y is rotated first, then z
 	bool visible;
 
 	// updated by updateIllumination

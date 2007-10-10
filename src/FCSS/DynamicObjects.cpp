@@ -350,6 +350,15 @@ DynamicObject* DynamicObjects::getObject(unsigned objectIndex)
 	return (objectIndex<dynaobject.size())?dynaobject[objectIndex]:NULL;
 }
 
+void DynamicObjects::advanceRot(float seconds)
+{
+	for(unsigned i=0;i<dynaobject.size();i++)
+	{
+		dynaobject[i]->rotYZ[0] += 90*seconds;
+		dynaobject[i]->updatePosition();
+	}
+}
+
 DynamicObjects::~DynamicObjects()
 {
 	for(unsigned i=0;i<dynaobject.size();i++)

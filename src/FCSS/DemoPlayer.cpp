@@ -25,6 +25,8 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool _pauseMusic
 		return;
 	}
 
+	absTimeNow = GETSEC;
+
 	// load loading_screen
 	char buf[1000];
 	buf[0] = 0;
@@ -162,17 +164,21 @@ Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 // cas je zde kompletni informace o pozici v demu
 // editor (kod jinde) ale musi navic vedet cislo snimku. snimek muze mit delku 0, pak nejde cislo snimku dohledat z casu
 
-void DemoPlayer::advance(float seconds)
+float DemoPlayer::advance()
 {
+	double now = GETSEC;
+	float secondsSincePrevFrame = (float)(now-absTimeNow);
+	absTimeNow = now;
 	if(!paused)
 	{
-		demoPosition = (float)(GETSEC-absTimeWhenDemoStarted);
+		demoPosition = (float)(absTimeNow-absTimeWhenDemoStarted);
 		//demoPosition = getMusicPosition();
 	}
 	if(music)
 	{
 		music->poll();
 	}
+	return secondsSincePrevFrame;
 }
 
 void DemoPlayer::setPaused(bool _paused)

@@ -2305,13 +2305,14 @@ void idle()
 	}
 	if(!demoPlayer->getPaused())
 	{
-		if(captureMovie)
+		// playing
+		/*if(captureMovie)
 		{
 			// advance by 1 frame of 30fps movie
 			shotRequested = true;
 			demoPlayer->advance(1.f/30);
 		}
-		else
+		else*/
 		{
 			// advance according to real time
 			demoPlayer->advance();
@@ -2334,6 +2335,17 @@ void idle()
 					seekInMusicAtSceneSwap = false;
 				}
 			}
+		}
+	}
+	else
+	{
+		// paused
+		if(!supportEditor)
+		{
+			float secondsSincePrevFrame = demoPlayer->advance();
+			demoPlayer->getDynamicObjects()->advanceRot(secondsSincePrevFrame);
+			needDepthMapUpdate = 1;
+			needRedisplay = 1;
 		}
 	}
 	prev = now;
