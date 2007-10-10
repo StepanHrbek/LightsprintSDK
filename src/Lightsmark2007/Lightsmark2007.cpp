@@ -4,6 +4,7 @@
 #include <tchar.h>
 #include "resource.h"
 #include <wininet.h>
+#include <richedit.h>
 #pragma comment(lib,"wininet")
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -59,6 +60,17 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("28, only some GPUs"));
 			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("32, only some GPUs"));
 			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_SETCURSEL,0,0);
+
+			// fill result
+			CHARFORMAT cf;
+			memset( &cf, 0, sizeof(CHARFORMAT) );
+			cf.cbSize = sizeof(CHARFORMAT);
+			cf.dwMask = CFM_BOLD | CFM_COLOR | CFM_SIZE;
+			cf.dwEffects = CFE_BOLD;
+			cf.crTextColor = 0x2222FF;
+			cf.yHeight = 500;
+			cf.yOffset = 0;
+			SendDlgItemMessage( hDlg,IDC_SCORE,EM_SETCHARFORMAT,4,(LPARAM)&cf);
 		}
 		return (INT_PTR)TRUE;
 
@@ -79,7 +91,13 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			//!!! exec
 			// predat parametry
 			// pri chybe zobrazit log
-			// pri uspechu vypsat fps
+			static unsigned score = 680;
+			score+=111;
+			sprintf(buf,"%d",score);
+			SendDlgItemMessageA(hDlg,IDC_SCORE,WM_SETTEXT,0,(LPARAM)buf);
+			SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)"score = fps");
+			RECT rect = {280,130,200,100};
+			InvalidateRect(hDlg,&rect,true);
 		}
 		if(LOWORD(wParam)==IDC_LIGHTSPRINT)
 		{
@@ -92,6 +110,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
+	HMODULE hRE = LoadLibrary(_T("riched20.dll"));
 	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, About);
 	return 0;
 }
