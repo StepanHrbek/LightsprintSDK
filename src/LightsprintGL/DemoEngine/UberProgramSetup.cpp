@@ -106,9 +106,13 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 		// with bilinear filter ignored by Radeon, 3 is ugly, prefer 1
 		if(SHADOW_MAPS==3) SHADOW_MAPS--;
 	}
+	if(renderer && (strstr(renderer,"GeForce 6")||strstr(renderer,"GeForce 7"))) // 7->6 (6150 in PenumbraShadows)
+	{
+		if(SHADOW_MAPS) SHADOW_MAPS--;
+	}
 	// 2 is ugly, prefer 1
 	if(SHADOW_MAPS==2) SHADOW_MAPS--;
-	rr::RRReporter::report(rr::INF2,"Penumbra shadows: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
+	rr::RRReporter::report(rr::INF2,"Penumbra quality: %d/%d on %s.\n",SHADOW_MAPS,instancesPerPassOrig,renderer?renderer:"");
 	return SHADOW_MAPS;
 }
 

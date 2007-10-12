@@ -723,6 +723,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_63B2089AA69745CC9C2D835C22A7528D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_63D97BEF98294A01B91EC2659C949054"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1017,6 +1023,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9D8E4605E29E48BB89EE09AE5AD7B36F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9ED77D4821614DCFB8229F386D2B8C6C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1300,6 +1312,12 @@
         "Entry"
         {
         "MsmKey" = "8:_C4F6C7EE681641F2ADF4D965820EA5D1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C54E73A5ED994FAFAAC46CE4FDB247DD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1768,12 +1786,12 @@
     }
     "Configurations"
     {
-        "Release"
+        "Release static"
         {
-        "DisplayName" = "8:Release"
+        "DisplayName" = "8:Release static"
         "IsDebugOnly" = "11:FALSE"
-        "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Lightsmark2007.msi"
+        "IsReleaseOnly" = "11:FALSE"
+        "OutputFilename" = "8:Release static\\Lightsmark2007Setup.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -4183,6 +4201,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_63B2089AA69745CC9C2D835C22A7528D"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\objects\\I_Robot_female_HD.3DS"
+            "TargetName" = "8:I_Robot_female_HD.3DS"
+            "Tag" = "8:"
+            "Folder" = "8:_253C317337DF4FB4A379B040008ACE54"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_63D97BEF98294A01B91EC2659C949054"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\color22.tga"
@@ -5163,6 +5201,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9D8E4605E29E48BB89EE09AE5AD7B36F"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\objects\\civil\\civil01.jpg"
+            "TargetName" = "8:civil01.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_2B45667E4A7649D686C2A434620794E4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9ED77D4821614DCFB8229F386D2B8C6C"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\obj069b.jpg"
@@ -6109,6 +6167,26 @@
             "TargetName" = "8:cart03a.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C54E73A5ED994FAFAAC46CE4FDB247DD"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\objects\\civil\\civil.3DS"
+            "TargetName" = "8:civil.3DS"
+            "Tag" = "8:"
+            "Folder" = "8:_2B45667E4A7649D686C2A434620794E4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7734,6 +7812,28 @@
                     "Property" = "8:_11E4D157EA30442F915C6AC50D65AAF5"
                         "Folders"
                         {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_253C317337DF4FB4A379B040008ACE54"
+                            {
+                            "Name" = "8:objects"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_AD255A15D42B4F6F95A80A448A6B2AB1"
+                                "Folders"
+                                {
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_2B45667E4A7649D686C2A434620794E4"
+                                    {
+                                    "Name" = "8:civil"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_4123CA3D2AE14535A11DBA42BD7E9862"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                }
+                            }
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_41017772CCBE40E0B84095CE32E5BE23"
                             {
                             "Name" = "8:scenes"
@@ -7864,7 +7964,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lightsmark 2007"
         "ProductCode" = "8:{26A6386E-4073-4EDF-9C75-EED68B187FA7}"
-        "PackageCode" = "8:{92457EA0-F2C9-41DA-B176-55AC702AD17B}"
+        "PackageCode" = "8:{90B0BE15-BACB-4717-A05E-4D4A0754CCF5}"
         "UpgradeCode" = "8:{3EA93B0E-BADB-4630-8F51-85220D56E9D3}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"

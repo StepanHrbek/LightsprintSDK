@@ -5,7 +5,7 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
-#define SUPPORT_LIGHTMAPS          1
+#define SUPPORT_LIGHTMAPS          0
 #define BACKGROUND_WORKER
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery. nepodporuje fireball (viz ObjectBuffers.cpp line 277, cte indirect ze static solveru)
@@ -13,8 +13,8 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-//#define CFG_FILE "Lightsmark2007.cfg"
-#define CFG_FILE "test.cfg"
+#define CFG_FILE "Lightsmark2007.cfg"
+//#define CFG_FILE "test.cfg"
 //#define CFG_FILE "eg-flat1.cfg"
 //#define CFG_FILE "eg-quake.cfg"
 //#define CFG_FILE "eg-sponza.cfg"
