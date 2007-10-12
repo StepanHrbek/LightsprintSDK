@@ -692,7 +692,7 @@ bool readMap(const std::string& pFilename, TMapQ3& pMap)
 	if
 		(! lFile)
 	{
-		printf("readMap :: Invalid stream handle.\n");
+		printf("readMap :: %s not found.\n",pFilename.c_str());
 		return false;
 	}
 

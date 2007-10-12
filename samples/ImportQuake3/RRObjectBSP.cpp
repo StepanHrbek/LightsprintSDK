@@ -57,7 +57,7 @@
 class RRObjectBSP : public rr::RRObject, public rr::RRMesh
 {
 public:
-	RRObjectBSP(TMapQ3* model, const char* pathToTextures, rr_gl::Texture* missingTexture);
+	RRObjectBSP(TMapQ3* model, const char* pathToTextures, bool stripPaths, rr_gl::Texture* missingTexture);
 	rr::RRObjectIllumination* getIllumination();
 	virtual ~RRObjectBSP();
 
@@ -111,18 +111,23 @@ private:
 
 // Inputs: m
 // Outputs: t, s
-static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,const char* pathToTextures, rr_gl::Texture* fallback)
+static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,const char* pathToTextures, bool stripPaths, rr_gl::Texture* fallback)
 {
 	enum {size = 8}; // use 8x8 samples to detect average texture color
 
 	// load texture
 	rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
 	rr::RRReporter::setReporter(NULL); // disable reporting temporarily, we don't know image extension so we try all of them
+	const char* strippedName = m->mName;
+	if(stripPaths)
+	{
+		while(strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
+	}
 	char* exts[3]={".jpg",".png",".tga"};
 	for(unsigned e=0;e<3;e++)
 	{
 		char buf[300];
-		_snprintf(buf,299,"%s%s%s",pathToTextures,m->mName,exts[e]);
+		_snprintf(buf,299,"%s%s%s",pathToTextures,strippedName,exts[e]);
 		buf[299]=0;
 		t = rr_gl::Texture::load(buf,NULL,true,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT);
 #ifdef MARK_OPENED
@@ -136,7 +141,7 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 	if(!t)
 	{
 		t = fallback;
-		rr::RRReporter::report(rr::ERRO,"Can't load texture %s%s.*\n",pathToTextures,m->mName);
+		rr::RRReporter::report(rr::ERRO,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
 	}
 
 	// for diffuse textures provided by bsp,
@@ -173,7 +178,7 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 
 // Creates internal copies of .bsp geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, rr_gl::Texture* missingTexture)
+RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripPaths, rr_gl::Texture* missingTexture)
 {
 	model = amodel;
 
@@ -194,7 +199,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, rr_gl::Text
 						// try load texture when it is mapped on at least 1 triangle
 						if(!triedLoadTexture)
 						{
-							fillMaterial(si.material,si.texture,&model->mTextures[s],pathToTextures,missingTexture);
+							fillMaterial(si.material,si.texture,&model->mTextures[s],pathToTextures,stripPaths,missingTexture);
 							triedLoadTexture = true;
 						}
 						// if texture was loaded, accept triangles, otherwise ignore them
@@ -457,9 +462,9 @@ const rr::RRMaterial* RRObjectBSP::getTriangleMaterial(unsigned t) const
 class ObjectsFromTMapQ3 : public rr::RRObjects
 {
 public:
-	ObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,rr_gl::Texture* missingTexture)
+	ObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,rr_gl::Texture* missingTexture)
 	{
-		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,missingTexture);
+		RRObjectBSP* object = new RRObjectBSP(model,pathToTextures,stripPaths,missingTexture);
 		push_back(rr::RRIlluminatedObject(object,object->getIllumination()));
 	}
 	virtual ~ObjectsFromTMapQ3()
@@ -475,7 +480,7 @@ public:
 //
 // main
 
-rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,rr_gl::Texture* missingTexture)
+rr::RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,bool stripPaths,rr_gl::Texture* missingTexture)
 {
-	return new ObjectsFromTMapQ3(model,pathToTextures,missingTexture);
+	return new ObjectsFromTMapQ3(model,pathToTextures,stripPaths,missingTexture);
 }

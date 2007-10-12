@@ -13,6 +13,7 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
+//#define CFG_FILE "Lightsmark2007.cfg"
 #define CFG_FILE "test.cfg"
 //#define CFG_FILE "eg-flat1.cfg"
 //#define CFG_FILE "eg-quake.cfg"

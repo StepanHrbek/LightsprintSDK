@@ -1,4 +1,5 @@
 #define SUBDIVISION                0
+#define QUAKE_DIR_STRUCTURE        false
 
 #include "Level.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
@@ -61,14 +62,17 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 				error("Failed to load .bsp scene.",false);
 			char* maps = _strdup(pilot.setup->filename);
 			char* mapsEnd;
-			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
+			if(QUAKE_DIR_STRUCTURE)
+			{
+				mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[0] = 0;
+			}
 			mapsEnd = MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if(mapsEnd) mapsEnd[1] = 0;
 			//char missing[1000];
 			//strncpy(missing,maps,999);
 			//missing[970] = 0;
 			//strcat(missing,"/missing.jpg");
 			//objects = adaptObjectsFromTMapQ3(&bsp,maps,rr_gl::Texture::load(missing,NULL,false,false,GL_LINEAR,GL_LINEAR_MIPMAP_LINEAR,GL_REPEAT,GL_REPEAT));
-			objects = adaptObjectsFromTMapQ3(&bsp,maps,NULL);
+			objects = adaptObjectsFromTMapQ3(&bsp,maps,!QUAKE_DIR_STRUCTURE,NULL);
 			free(maps);
 			break;
 		}
