@@ -22,6 +22,8 @@ AnimationFrame::AnimationFrame(AnimationFrame& copy) :
 	overlaySeconds = copy.overlaySeconds;
 	overlayMode = copy.overlayMode;
 	overlayMap = copy.overlayMap; copy.overlayMap = NULL; // don't duplicate pointer, would be deleted twice
+	shadowType = copy.shadowType;
+	indirectType = copy.indirectType;
 }
 
 AnimationFrame::AnimationFrame(unsigned alayerNumber) :
@@ -38,6 +40,8 @@ AnimationFrame::AnimationFrame(unsigned alayerNumber) :
 	overlaySeconds = 5;
 	overlayMode = 0;
 	overlayMap = NULL;
+	shadowType = 1;
+	indirectType = 2;
 }
 
 AnimationFrame::~AnimationFrame()
@@ -99,6 +103,9 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	blended.overlayFilename[0] = 0;
 	blended.overlaySeconds = this->overlaySeconds;
 	blended.overlayMap = NULL;//this->overlayMap;
+	// technique
+	blended.shadowType = this->shadowType;
+	blended.indirectType = this->indirectType;
 	return &blended;
 }
 
@@ -138,6 +145,9 @@ bool AnimationFrame::loadOver(FILE* f)
 	overlayFilename[0] = 0;
 	if(fscanf(f,"2d_overlay = %f,%d,%s\n",&overlaySeconds,&overlayMode,overlayFilename)==2) loaded = true;
 	overlayMap = overlayFilename[0] ? rr_gl::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP) : NULL;
+	// load technique
+	if(fscanf(f,"shadow_type = %d\n",&shadowType)==1) loaded = true;
+	if(fscanf(f,"indirect_type = %d\n",&indirectType)==1) loaded = true;
 	// load timing
 	if(fscanf(f,"duration = %f\n",&transitionToNextTime)==1) loaded = true;
 	//if(0!=fscanf(f,"\n"))
@@ -181,6 +191,11 @@ bool AnimationFrame::save(FILE* f, const AnimationFrame& prev) const
 	// save overlay
 	if(overlayFilename[0])
 		fprintf(f,"2d_overlay = %.3f,%d,%s\n",overlaySeconds,overlayMode,overlayFilename);
+	// save technique
+	if(shadowType!=prev.shadowType)
+		fprintf(f,"shadow_type = %d\n",shadowType);
+	if(indirectType!=prev.indirectType)
+		fprintf(f,"indirect_type = %d\n",indirectType);
 	// save timing
 	if(transitionToNextTime!=prev.transitionToNextTime)
 		fprintf(f,"duration = %.3f\n",transitionToNextTime);

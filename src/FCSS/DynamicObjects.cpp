@@ -239,6 +239,8 @@ void DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 	currentFrame.brightness = frame.brightness;
 	currentFrame.gamma = frame.gamma;
 	currentFrame.projectorIndex = frame.projectorIndex;
+	currentFrame.shadowType = frame.shadowType;
+	currentFrame.indirectType = frame.indirectType;
 	//for(AnimationFrame::DynaPosRot::const_iterator i=frame->dynaPosRot.begin();i!=frame->dynaPosRot.end();i++)
 	for(unsigned i=0;i<dynaobject.size();i++)
 	{
@@ -270,6 +272,8 @@ void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& f
 	frame.gamma = currentFrame.gamma;
 	frame.dynaPosRot.clear();
 	frame.projectorIndex = currentFrame.projectorIndex;
+	frame.shadowType = currentFrame.shadowType;
+	frame.indirectType = currentFrame.indirectType;
 	for(unsigned sceneIndex=0;sceneIndex<setup->objects.size();sceneIndex++) // scene has few objects
 	{
 		unsigned demoIndex = setup->objects[sceneIndex]; // demo has more objects

@@ -32,9 +32,6 @@ bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
 bool captureMovie = 0; // when replaying, fix to 30Hz and capture all screenshots
 
-bool renderConstantAmbient = 0;
-bool renderVertexColors = 1;
-bool renderLightmaps = 0;
 /*
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve
@@ -235,8 +232,19 @@ void updateDepthBias(int delta)
 	//printf("%f %d %d\n",slopeScale,depthBias24,depthScale24);
 }
 
-void setupAreaLight()
+// sets our globals and rendering pipeline according to currentFrame.shadowType
+void setShadowTechnique()
 {
+	// early exit
+	static unsigned oldShadowType = 999;
+	if(currentFrame.shadowType == oldShadowType) return;
+	oldShadowType = currentFrame.shadowType;
+
+	// cheap changes (no GL commands)
+	uberProgramGlobalSetup.SHADOW_SAMPLES = (currentFrame.shadowType<2)?1:4;
+	areaLight->setNumInstances((currentFrame.shadowType<3)?1:INSTANCES_PER_PASS);
+
+	// expensive changes (GL commands)
 	bool wantSoft = uberProgramGlobalSetup.SHADOW_SAMPLES>1 || areaLight->getNumInstances()>1;
 	if(wantSoft)
 	{
@@ -776,10 +784,10 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.SHADOW_SAMPLES = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = renderConstantAmbient;
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
-			uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
-			uberProgramSetup.LIGHT_INDIRECT_auto = renderLightmaps;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
+			uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
+			uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 			drawEyeViewShadowed(uberProgramSetup,0);
 			water->updateReflectionDone();
@@ -791,10 +799,10 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.SHADOW_SAMPLES = ;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
-		uberProgramSetup.LIGHT_INDIRECT_CONST = renderConstantAmbient;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
-		uberProgramSetup.LIGHT_INDIRECT_auto = renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
+		uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
+		uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
@@ -850,9 +858,9 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_DIRECT = false;
 		uberProgramSetup.LIGHT_DIRECT_MAP = false;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
-		uberProgramSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
-		uberProgramSetup.LIGHT_INDIRECT_auto = renderLightmaps;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
+		uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
+		uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 		uberProgramSetup.LIGHT_INDIRECT_ENV = false;
 		//uberProgramSetup.MATERIAL_DIFFUSE = ;
 		//uberProgramSetup.MATERIAL_DIFFUSE_CONST = ;
@@ -1370,7 +1378,7 @@ void display()
 		if(framesDisplayed==2 && demoPlayer)
 			demoPlayer->setPaused(supportEditor);
 	}
-
+/*
 	// fallback to hard shadows if fps<30
 	static int framesDisplayed = 0;
 	static TIME frame0Time;
@@ -1394,7 +1402,7 @@ void display()
 		}
 	}
 	if(framesDisplayed>=0)
-		framesDisplayed++;
+		framesDisplayed++;*/
 }
 
 void toggleWireFrame(void)
@@ -1512,26 +1520,14 @@ void special(int c, int x, int y)
 			}
 			break;
 
-		case GLUT_KEY_F1:
-			areaLight->setNumInstances(1);
-			uberProgramGlobalSetup.SHADOW_SAMPLES = 1;
-			setupAreaLight();
-			break;
-		case GLUT_KEY_F2:
-			areaLight->setNumInstances(1);
-			uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
-			setupAreaLight();
-			break;
-		case GLUT_KEY_F3:
-			areaLight->setNumInstances(INSTANCES_PER_PASS);
-			uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
-			setupAreaLight();
-			break;
+		case GLUT_KEY_F1: currentFrame.shadowType = 1; break;
+		case GLUT_KEY_F2: currentFrame.shadowType = 2; break;
+		case GLUT_KEY_F3: currentFrame.shadowType = 3; break;
 
-		case GLUT_KEY_F5: renderConstantAmbient = false; renderVertexColors = false; renderLightmaps = false; break;
-		case GLUT_KEY_F6: renderConstantAmbient = true; renderVertexColors = false; renderLightmaps = false; break;
-		case GLUT_KEY_F7: renderConstantAmbient = false; renderVertexColors = true; renderLightmaps = false; break;
-		case GLUT_KEY_F8: renderConstantAmbient = false; renderVertexColors = false; renderLightmaps = true; break;
+		case GLUT_KEY_F5: currentFrame.indirectType = 0; break;
+		case GLUT_KEY_F6: currentFrame.indirectType = 1; break;
+		case GLUT_KEY_F7: currentFrame.indirectType = 2; break;
+		case GLUT_KEY_F8: currentFrame.indirectType = 3; break;
 
 		case GLUT_KEY_F11:
 			shotRequested = 1;
@@ -1994,9 +1990,7 @@ void mainMenu(int item)
 
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
-				renderConstantAmbient = false;
-				renderVertexColors = false;
-				renderLightmaps = true;
+				currentFrame.indirectType = 3;
 			}
 			break;
 
@@ -2021,9 +2015,7 @@ void mainMenu(int item)
 
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
-				renderConstantAmbient = false;
-				renderVertexColors = false;
-				renderLightmaps = true;
+				currentFrame.indirectType = 3;
 			}
 			break;
 
@@ -2055,9 +2047,7 @@ void mainMenu(int item)
 
 				// stop updating maps in realtime, stay with what we computed here
 				modeMovingEye = true;
-				renderConstantAmbient = false;
-				renderVertexColors = false;
-				renderLightmaps = true;
+				currentFrame.indirectType = 3;
 			}
 			break;
 
@@ -2140,9 +2130,7 @@ void mainMenu(int item)
 				modeMovingEye = true;
 				needLightmapCacheUpdate = true;
 				// start rendering ambient maps instead of vertex colors, so loaded maps get visible
-				renderConstantAmbient = false;
-				renderVertexColors = false;
-				renderLightmaps = true;
+				currentFrame.indirectType = 3;
 				break;
 			}
 
@@ -2350,6 +2338,7 @@ void idle()
 		}
 	}
 	prev = now;
+	setShadowTechnique();
 
 	if(movingEye && !--movingEye)
 	{
@@ -2365,9 +2354,9 @@ void idle()
 		needRedisplay = 1;
 	}
 
-	bool rrOn = renderVertexColors
+	bool rrOn = currentFrame.wantsVertexColors()
 #ifdef CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS
-		|| renderLightmaps
+		|| currentFrame.wantsLightmaps()
 #endif
 		;
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
@@ -2520,10 +2509,10 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
 	uberProgramGlobalSetup.LIGHT_DIRECT = true;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = renderConstantAmbient;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_auto = renderLightmaps;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
+	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
+	uberProgramGlobalSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 	uberProgramGlobalSetup.LIGHT_INDIRECT_ENV = false;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = true;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_CONST = false;
@@ -2548,8 +2537,8 @@ int main(int argc, char **argv)
 #endif
 	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram,argc,argv);
 #if SUPPORT_LIGHTMAPS
-	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = renderVertexColors;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = renderLightmaps;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
+	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 #endif
 	if(!INSTANCES_PER_PASS) error("",true);
 	areaLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);

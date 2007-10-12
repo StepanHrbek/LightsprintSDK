@@ -47,6 +47,13 @@ struct AnimationFrame
 	unsigned overlayMode;
 	rr_gl::Texture* overlayMap;
 
+	// technique
+	unsigned shadowType; // 0=hard 1=soft 2=penumbra
+	unsigned indirectType; // 0=none 1=constant 2=realtimeGI 3=precomputedGI
+	bool wantsConstantAmbient() {return indirectType==1;}
+	bool wantsVertexColors() {return indirectType==2;}
+	bool wantsLightmaps() {return indirectType==3;}
+
 	// layerNumber should be unique for whole animation track
 	AnimationFrame(unsigned layerNumber);
 	AnimationFrame(AnimationFrame& copy);
