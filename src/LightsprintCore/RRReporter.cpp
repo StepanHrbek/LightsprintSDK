@@ -36,7 +36,7 @@ public:
 		}
 		// type
 		if(type<ERRO || type>TIMI) type = INF9;
-		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","","",""};
+		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","","",""};
 		// message
 		// print
 		fprintf(file,"%s%s%s",space,typePrefix[type],message);
@@ -105,7 +105,7 @@ public:
 		}
 		// type
 		if(type<ERRO || type>TIMI) type = INF9;
-		static const char* typePrefix[] = {"ERROR: ","Assert failed: "," Warn: "," inf1: "," inf2: "," inf3: ","",""};
+		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","",""};
 		OutputDebugString(typePrefix[type]);
 		// message
 		OutputDebugString(message);

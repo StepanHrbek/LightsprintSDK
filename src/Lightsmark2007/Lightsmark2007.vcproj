@@ -171,15 +171,19 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\Lightsmark2007.bmp"
-			>
-		</File>
-		<File
 			RelativePath=".\Lightsmark2007.cpp"
 			>
 		</File>
 		<File
+			RelativePath="..\..\data\maps\Lightsmark2007.ico"
+			>
+		</File>
+		<File
 			RelativePath=".\Lightsmark2007.rc"
+			>
+		</File>
+		<File
+			RelativePath=".\Lightsmark2007logo.bmp"
 			>
 		</File>
 		<File

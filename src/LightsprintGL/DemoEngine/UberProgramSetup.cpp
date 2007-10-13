@@ -70,11 +70,23 @@ Program* UberProgramSetup::getProgram(UberProgram* uberProgram)
 	return uberProgram->getProgram(getSetupString());
 }
 
-unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int argc, char **argv)
+unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int argc, const char*const*argv)
 {
 	while(argc--)
 	{
-		if(strstr(argv[argc],"-hard")) return 1;
+		if(!strcmp(argv[argc],"-hard")) return 1;
+		int tmp;
+		if(sscanf(argv[argc],"penumbra%d",&tmp)==1)
+		{
+			SHADOW_MAPS = tmp;
+			if(!getProgram(uberProgram)) 
+			{
+				rr::RRReporter::report(rr::ERRO,"GPU is not able to produce given penumbra quality, set lower quality.\n");
+				SHADOW_MAPS = 0;
+				return 0;
+			}
+			return tmp;
+		}
 	}
 	// try max 9 maps, we must fit all maps in ubershader to 16 (maximum allowed by ATI)
 #ifdef DESCEND

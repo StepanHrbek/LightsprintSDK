@@ -186,7 +186,6 @@ int Program::getLoc(const char *name)
 			"This is usually caused by error in graphics card driver.\n"
 			"We reported it to Nvidia and wait for fix.\n"
 			"As a workaround, run application with -hard parameter on command line.\n",name);
-		fgetc(stdin);
 		exit(0);
 	}
 	return loc;

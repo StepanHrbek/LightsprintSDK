@@ -88,7 +88,7 @@
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_sr.pdb"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -454,10 +454,6 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\data\maps\3+1.ico"
-			>
-		</File>
-		<File
 			RelativePath=".\AnimationEditor.cpp"
 			>
 		</File>
@@ -526,7 +522,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\data\maps\LightsprintRealtimeRadiosity.ico"
+			RelativePath="..\..\data\maps\Lightsmark2007.ico"
 			>
 		</File>
 		<File

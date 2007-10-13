@@ -22,9 +22,8 @@ FBO::FBO()
 {
 	if(!glewIsSupported("GL_EXT_framebuffer_object"))
 	{
-		rr::RRReporter::report(rr::ERRO,"GL_EXT_framebuffer_object not supported, consider updating graphics card drivers.\n\nPress enter to close...");
-		fgetc(stdin);
-		exit(1);
+		rr::RRReporter::report(rr::ERRO,"GL_EXT_framebuffer_object not supported, consider updating graphics card drivers.\n");
+		exit(0);
 	}
 
 	glGenFramebuffersEXT(1, &fb);

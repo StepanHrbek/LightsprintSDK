@@ -92,7 +92,7 @@ void* realloc(void* p,size_t oldsize,size_t newsize)
 	if(!q)
 	{
 		RRReporter::report(ERRO,"Out of memory, exiting!\n");
-		exit(1);
+		exit(0);
 	}
 	if(p)
 	{

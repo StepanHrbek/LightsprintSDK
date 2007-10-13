@@ -37,9 +37,8 @@ Shader::Shader(const char* defines, const char* filename, GLenum shaderType)
 	source[2] = readShader(filename);
 	if(!source[2])
 	{
-		rr::RRReporter::report(rr::ERRO,"Shader %s not found.\nPress enter to end...",filename);
-		fgetc(stdin);
-		exit(1);
+		rr::RRReporter::report(rr::ERRO,"Shader %s not found.\n",filename);
+		exit(0);
 	}
 	glShaderSource(handle, 3, (const GLchar**)source, NULL);
   

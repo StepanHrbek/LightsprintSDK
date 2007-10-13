@@ -459,6 +459,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_34C36C804A414813B1003CD055932BFF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_35905299F9674F97AA073E4BA2CD0561"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -478,6 +484,12 @@
         "Entry"
         {
         "MsmKey" = "8:_383B785C30DA47CBBDD501525E1CBCFA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_38591FEFF8FE44C199691613A39D5D7F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -657,6 +669,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_57B80CED83564462BC7F36608AC799DA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5B0DA04C0A0B4F7BBFB6D2E319DB8493"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -820,6 +838,12 @@
         "Entry"
         {
         "MsmKey" = "8:_77485912C1DD402E84BD01088098D95F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_778D7DCB676040D0ADD18AF78C35F5C4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1263,6 +1287,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C09C851757E140E397F7B832516AD834"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C1283834D07A4016849BD844076E2536"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1461,6 +1491,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D7E89F80922A47AEAA4760BEE9C40C3C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D7EA6719A4E04AD5B8DEA7109C165622"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1551,6 +1587,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E119F31A4D4042BE9F4A8EE8A6247CDE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E157592E1D5F44F487E8F65099443125"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1570,6 +1612,12 @@
         "Entry"
         {
         "MsmKey" = "8:_E26D10099B4B4B99BEECF0D1420B9C68"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E297C8FBCCB342B18B96666297CCE7B0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1779,6 +1827,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_FF07076727DC4AE7B5601CF0246798A0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_EC1FCB26833E4E509C33BCAE6C6956E2"
         "MsmSig" = "8:_UNDEFINED"
@@ -1791,7 +1845,7 @@
         "DisplayName" = "8:Release static"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:Release static\\Lightsmark2007Setup.msi"
+        "OutputFilename" = "8:Lightsmark2007.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -1803,7 +1857,7 @@
         "InstallerBootstrapper" = "3:2"
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
-            "Enabled" = "11:TRUE"
+            "Enabled" = "11:FALSE"
             "PromptEnabled" = "11:TRUE"
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
@@ -3321,6 +3375,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_34C36C804A414813B1003CD055932BFF"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wop_padatticBB.fib"
+            "TargetName" = "8:wop_padatticBB.fib"
+            "Tag" = "8:"
+            "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_35905299F9674F97AA073E4BA2CD0561"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\faden05.tga"
@@ -3387,6 +3461,26 @@
             "TargetName" = "8:cola_top.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38591FEFF8FE44C199691613A39D5D7F"
+            {
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-color-bleeding.png"
+            "TargetName" = "8:txt-color-bleeding.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3981,6 +4075,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_57B80CED83564462BC7F36608AC799DA"
+            {
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-penumbra-shadows.png"
+            "TargetName" = "8:txt-penumbra-shadows.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B0DA04C0A0B4F7BBFB6D2E319DB8493"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\cervena.jpg"
@@ -4527,6 +4641,26 @@
             "TargetName" = "8:gega01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_778D7DCB676040D0ADD18AF78C35F5C4"
+            {
+            "SourcePath" = "8:..\\..\\data\\Lightsmark2007.cfg"
+            "TargetName" = "8:Lightsmark2007.cfg"
+            "Tag" = "8:"
+            "Folder" = "8:_D19C7AFAC9074198A8003F93860B1BA3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6001,6 +6135,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C09C851757E140E397F7B832516AD834"
+            {
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-hdr.png"
+            "TargetName" = "8:txt-hdr.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C1283834D07A4016849BD844076E2536"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\klink01.jpg"
@@ -6661,6 +6815,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D7E89F80922A47AEAA4760BEE9C40C3C"
+            {
+            "SourcePath" = "8:..\\..\\data\\maps\\sun.png"
+            "TargetName" = "8:sun.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D7EA6719A4E04AD5B8DEA7109C165622"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\mov2b.jpg"
@@ -6961,6 +7135,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E119F31A4D4042BE9F4A8EE8A6247CDE"
+            {
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-realtime-radiosity.png"
+            "TargetName" = "8:txt-realtime-radiosity.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E157592E1D5F44F487E8F65099443125"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pad_pencilsr.tga"
@@ -7027,6 +7221,26 @@
             "TargetName" = "8:carton02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E297C8FBCCB342B18B96666297CCE7B0"
+            {
+            "SourcePath" = "8:..\\..\\data\\maps\\Lightsmark2007logo.jpg"
+            "TargetName" = "8:Lightsmark2007logo.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7732,6 +7946,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FF07076727DC4AE7B5601CF0246798A0"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\koupelna41.fib"
+            "TargetName" = "8:koupelna41.fib"
+            "Tag" = "8:"
+            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -7964,7 +8198,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lightsmark 2007"
         "ProductCode" = "8:{26A6386E-4073-4EDF-9C75-EED68B187FA7}"
-        "PackageCode" = "8:{90B0BE15-BACB-4717-A05E-4D4A0754CCF5}"
+        "PackageCode" = "8:{74F9C9A8-DE5D-4553-9C9E-64B63871F20D}"
         "UpgradeCode" = "8:{3EA93B0E-BADB-4630-8F51-85220D56E9D3}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -7980,8 +8214,8 @@
         "Keywords" = "8:realtime global illumination penumbra shadows"
         "ARPCOMMENTS" = "8:Realtime Global Illumination Benchmark"
         "ARPURLINFOABOUT" = "8:http://lightsprint.com"
-        "ARPPRODUCTICON" = "8:"
-        "ARPIconIndex" = "3:0"
+        "ARPPRODUCTICON" = "8:_2A69C325B3F34F8995B0106009D772E6"
+        "ARPIconIndex" = "3:109"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
@@ -8087,14 +8321,14 @@
             {
             "Name" = "8:Lightsmark 2007"
             "Arguments" = "8:"
-            "Description" = "8:"
+            "Description" = "8:Next Generation Lighting Benchmark"
             "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
+            "IconIndex" = "3:109"
             "Transitive" = "11:FALSE"
             "Target" = "8:_2A69C325B3F34F8995B0106009D772E6"
             "Folder" = "8:_7B46F37BFEEC42E1978178334E846FF0"
             "WorkingFolder" = "8:_9763831053554B918AFC705580101164"
-            "Icon" = "8:"
+            "Icon" = "8:_2A69C325B3F34F8995B0106009D772E6"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_52F2A91E637447DCBDA832FA8A255C6D"
@@ -8102,7 +8336,7 @@
             "Name" = "8:Uninstall Lightsmark"
             "Arguments" = "8:"
             "Description" = "8:"
-            "ShowCmd" = "3:1"
+            "ShowCmd" = "3:7"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_6B8B6318411A44B2BBCAFF0EC6A1BE4E"
@@ -8115,14 +8349,14 @@
             {
             "Name" = "8:Lightsmark 2007"
             "Arguments" = "8:"
-            "Description" = "8:"
+            "Description" = "8:Next Generation Lighting Benchmark"
             "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
+            "IconIndex" = "3:109"
             "Transitive" = "11:FALSE"
             "Target" = "8:_2A69C325B3F34F8995B0106009D772E6"
             "Folder" = "8:_3C1265CF401F45D08498FED54E6DCE93"
             "WorkingFolder" = "8:_9763831053554B918AFC705580101164"
-            "Icon" = "8:"
+            "Icon" = "8:_2A69C325B3F34F8995B0106009D772E6"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_9FF93C88CF3D4E8AA62B6437B7FA09D8"

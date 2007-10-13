@@ -110,7 +110,7 @@ IntersectLinear::IntersectLinear(RRMesh* aimporter)
 	{
 		printf("You have created unaligned structure, aborting. Try static or heap if it's on stack now.");
 		RR_ASSERT(!(intptr_t(&box)%16));
-		exit(2);
+		exit(0);
 	}
 #endif
 	importer = aimporter;

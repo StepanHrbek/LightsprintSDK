@@ -10,7 +10,7 @@
 
 #include <cassert>
 
-#ifdef _OPENMPxxxx
+#ifdef _OPENMPxxx
 	// GETTIME: 1us precision, slow,  Timer: low precision
 	#include <omp.h>
 	#include <cstring> // NULL

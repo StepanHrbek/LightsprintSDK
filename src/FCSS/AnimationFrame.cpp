@@ -40,8 +40,8 @@ AnimationFrame::AnimationFrame(unsigned alayerNumber) :
 	overlaySeconds = 5;
 	overlayMode = 0;
 	overlayMap = NULL;
-	shadowType = 1;
-	indirectType = 2;
+	shadowType = 2; // soft
+	indirectType = 2; // realtime per vertex
 }
 
 AnimationFrame::~AnimationFrame()

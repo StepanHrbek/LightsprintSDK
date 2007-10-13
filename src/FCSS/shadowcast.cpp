@@ -5,8 +5,11 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
-#define SUPPORT_LIGHTMAPS          0
 #define BACKGROUND_WORKER
+#define CONSOLE                    0
+//#define SUPPORT_LIGHTMAPS
+//#define SUPPORT_WATER
+//#define CORNER_LOGO
 //#define CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS // calculate() is necessary only for correct envmaps (dynamic objects)
 //#define RENDER_OPTIMIZED // kresli multiobjekt, ale non-indexed, takze jsou ohromne vertex buffery. nepodporuje fireball (viz ObjectBuffers.cpp line 277, cte indirect ze static solveru)
 //#define THREE_ONE
@@ -25,12 +28,10 @@ int fullscreen = 1;
 bool startWithSoftShadows = 0;
 int resolutionx = 800;
 int resolutiony = 600;
-bool twosided = 0;
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
-bool captureMovie = 0; // when replaying, fix to 30Hz and capture all screenshots
 
 /*
 co jeste pomuze:
@@ -71,7 +72,9 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "Lightsprint/GL/Water.h"
+#ifdef SUPPORT_WATER
+	#include "Lightsprint/GL/Water.h"
+#endif
 #include "DynamicObject.h"
 #include "Bugs.h"
 #include "AnimationEditor.h"
@@ -79,6 +82,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"
 #include "../LightsprintCore/RRDynamicSolver/report.h"
+#include "resource.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -87,9 +91,10 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 AnimationFrame currentFrame(0);
 GLUquadricObj *quadric;
 rr_gl::AreaLight* areaLight = NULL;
-rr_gl::Water* water = NULL;
-#ifdef THREE_ONE
-#else
+#ifdef SUPPORT_WATER
+	rr_gl::Water* water = NULL;
+#endif
+#ifdef CORNER_LOGO
 	rr_gl::Texture* lightsprintMap = NULL; // small logo in the corner
 #endif
 rr_gl::Program* ambientProgram;
@@ -125,7 +130,7 @@ bool shotRequested;
 DemoPlayer* demoPlayer = NULL;
 unsigned selectedObject_indexInDemo = 0;
 bool renderInfo = 1;
-char* cfgFile = CFG_FILE;
+const char* cfgFile = CFG_FILE;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -184,6 +189,10 @@ err:
 		float seconds = demoPlayer->getDemoPosition();
 		fpsAvg = (unsigned)(frames/MAX(0.01f,seconds));
 	}
+	unsigned getAvg()
+	{
+		return fpsAvg;
+	}
 	~Fps()
 	{
 		for(unsigned i=0;i<10;i++) delete mapDigit[i];
@@ -220,7 +229,8 @@ void error(const char* message, bool gfxRelated)
 		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx");
 	printf("\n\nPress ENTER to close.");
 	glutDestroyWindow(glutGetWindow());
-	fgetc(stdin);
+	if(CONSOLE)
+		fgetc(stdin);
 	exit(0);
 }
 
@@ -245,8 +255,7 @@ void setShadowTechnique()
 	areaLight->setNumInstances((currentFrame.shadowType<3)?1:INSTANCES_PER_PASS);
 
 	// expensive changes (GL commands)
-	bool wantSoft = uberProgramGlobalSetup.SHADOW_SAMPLES>1 || areaLight->getNumInstances()>1;
-	if(wantSoft)
+	if(currentFrame.shadowType>=2)
 	{
 		areaLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
 		// 8800@24bit // x300+gf6150
@@ -274,8 +283,7 @@ void init_gl_resources()
 	depthScale24 = 1 << (shadowDepthBits-16);
 	updateDepthBias(0);  /* Update with no offset change. */
 
-#ifdef THREE_ONE
-#else
+#ifdef CORNER_LOGO
 	lightsprintMap = rr_gl::Texture::load("maps/logo230awhite.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 #endif
 	g_fps = Fps::create();
@@ -286,7 +294,9 @@ void init_gl_resources()
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
+#ifdef SUPPORT_WATER
 	water = new rr_gl::Water("shaders/",true,false);
+#endif
 	skyRenderer = new rr_gl::TextureRenderer("shaders/");
 
 	if(!ambientProgram)
@@ -298,8 +308,7 @@ void done_gl_resources()
 	SAFE_DELETE(skyRenderer);
 	SAFE_DELETE(uberProgram);
 	SAFE_DELETE(g_fps);
-#ifdef THREE_ONE
-#else
+#ifdef CORNER_LOGO
 	SAFE_DELETE(lightsprintMap);
 #endif
 	SAFE_DELETE(areaLight);
@@ -434,6 +443,7 @@ public:
 		setDirectIlluminationBoost(2);
 	}
 protected:
+#ifdef SUPPORT_LIGHTMAPS
 	virtual rr::RRIlluminationPixelBuffer* newPixelBuffer(rr::RRObject* object)
 	{
 		unsigned res = 16; // don't create maps below 16x16, otherwise you risk poor performance on Nvidia cards
@@ -441,6 +451,7 @@ protected:
 		needLightmapCacheUpdate = true; // pokazdy kdyz pridam/uberu jakoukoliv lightmapu, smaznout z cache
 		return rr_gl::RRDynamicSolverGL::createIlluminationPixelBuffer(res,res);
 	}
+#endif
 	virtual void detectMaterials()
 	{
 	}
@@ -775,6 +786,7 @@ void drawEyeViewSoftShadowed(void)
 	// optimized path without accum
 	if(numInstances<=INSTANCES_PER_PASS)
 	{
+#ifdef SUPPORT_WATER
 		// update water reflection
 		if(water && level->pilot.setup->renderWater)
 		{
@@ -792,7 +804,7 @@ void drawEyeViewSoftShadowed(void)
 			drawEyeViewShadowed(uberProgramSetup,0);
 			water->updateReflectionDone();
 		}
-
+#endif
 		// render everything except water
 		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
@@ -815,11 +827,13 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,0);
 
+#ifdef SUPPORT_WATER
 		// render water
 		if(water && level->pilot.setup->renderWater)
 		{
 			water->render(100);
 		}
+#endif
 
 		return;
 	}
@@ -995,9 +1009,7 @@ static void drawHelpMessage(int screen)
 #ifdef THREE_ONE
 		"3+1 by clrsrc+Lightsprint",
 #else
-		"Lightsprint Demo 2007",
-		"  http://lightsprint.com",
-		"  realtime global illumination",
+		"Lightsmark 2007 by Lightsprint",
 #endif
 		"",
 		"Controls:",
@@ -1045,7 +1057,7 @@ static void drawHelpMessage(int screen)
 		"'Q'   - increment depth slope for 1st pass glPolygonOffset",*/
 		NULL,
 		}
-#ifndef THREE_ONE
+/*#ifndef THREE_ONE
 		,{
 		"Works of following people were used in Lightsprint Demo:",
 		"",
@@ -1070,7 +1082,7 @@ static void drawHelpMessage(int screen)
 		"  - Amethyst7                    : \"Purple Nebula\" skybox",
 		NULL
 		}
-#endif
+#endif*/
 	};
 	int i;
 	int x = 40, y = 50;
@@ -1136,7 +1148,7 @@ static void drawHelpMessage(int screen)
 			// playing: frame index computed from current time
 			frameIndex = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
 		}
-		sprintf(buf,"byt %d/%d, frame %d/%d, %.1f/%.1fs",
+		sprintf(buf,"scene %d/%d, frame %d/%d, %.1f/%.1fs",
 			demoPlayer->getPartIndex()+1,demoPlayer->getNumParts(),
 			frameIndex+1,level->pilot.setup->frames.size(),
 			transitionDone,transitionTotal);
@@ -1271,7 +1283,11 @@ void display()
 
 		// end of the demo
 		if(!level)
-			keyboard(27,0,0);
+		{
+			rr::RRReporter::report(rr::INF1,"Finished, average fps = %d.\n",g_fps?g_fps->getAvg():0);
+			exit(g_fps ? g_fps->getAvg() : 0);
+			//keyboard(27,0,0);
+		}
 
 		//for(unsigned i=0;i<6;i++)
 		//	level->solver->calculate();
@@ -1308,11 +1324,13 @@ void display()
 
 	if(renderInfo)
 	{
-		/*float w = 230/(float)winWidth;
+#ifdef CORNER_LOGO
+		float w = 230/(float)winWidth;
 		float h = 50/(float)winHeight;
 		float x = 1-w;
 		float y = 1-h;
-		showOverlay(lightsprintMap,x,y,w,h);*/
+		showOverlay(lightsprintMap,x,y,w,h);
+#endif
 		float now = demoPlayer->getPartPosition();
 		float frameStart = 0;
 		if(!demoPlayer->getPaused())
@@ -1376,7 +1394,9 @@ void display()
 		static int framesDisplayed = 0;
 		framesDisplayed++;
 		if(framesDisplayed==2 && demoPlayer)
+		{
 			demoPlayer->setPaused(supportEditor);
+		}
 	}
 /*
 	// fallback to hard shadows if fps<30
@@ -1599,7 +1619,7 @@ void specialUp(int c, int x, int y)
 
 void keyboard(unsigned char c, int x, int y)
 {
-#if SUPPORT_LIGHTMAPS
+#ifdef SUPPORT_LIGHTMAPS
 	const char* cubeSideNames[6] = {"x+","x-","y+","y-","z+","z-"};
 #endif
 
@@ -1627,6 +1647,14 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case 27:
+			if(showHelp)
+			{
+				// first esc only closes help
+				showHelp = 0;
+				break;
+			}
+
+			rr::RRReporter::report(rr::INF1,"Escaped by user, benchmarking unfinished.\n");
 			// rychlejsi ukonceni:
 			//if(supportEditor) delete level; // aby se ulozily zmeny v animaci
 			// pomalejsi ukonceni s uvolnenim pameti:
@@ -1635,7 +1663,7 @@ void keyboard(unsigned char c, int x, int y)
 			done_gl_resources();
 			delete rr::RRReporter::getReporter();
 			rr::RRReporter::setReporter(NULL);
-			exit(0);
+			exit(10000);
 			break;
 		case 'H':
 			switch(showHelp)
@@ -1932,7 +1960,6 @@ enum
 {
 	ME_TOGGLE_WATER,
 	ME_TOGGLE_INFO,
-	ME_TOGGLE_CAPTURE_MOVIE,
 	ME_UPDATE_LIGHTMAPS_0,
 	ME_UPDATE_LIGHTMAPS_0_ENV,
 	ME_SAVE_LIGHTMAPS_0,
@@ -1949,23 +1976,20 @@ void mainMenu(int item)
 {
 	switch (item)
 	{
+#ifdef SUPPORT_WATER
 		case ME_TOGGLE_WATER:
 			level->pilot.setup->renderWater = !level->pilot.setup->renderWater;
 			break;
-
+#endif
 		case ME_TOGGLE_INFO:
 			renderInfo = !renderInfo;
-			break;
-
-		case ME_TOGGLE_CAPTURE_MOVIE:
-			captureMovie = !captureMovie;
 			break;
 
 		case ME_TOGGLE_HELP:
 			showHelp = 1-showHelp;
 			break;
 
-#if SUPPORT_LIGHTMAPS
+#ifdef SUPPORT_LIGHTMAPS
 		case ME_UPDATE_LIGHTMAPS_0_ENV:
 			{
 				// set lights
@@ -2164,9 +2188,11 @@ void mainMenu(int item)
 void initMenu()
 {
 	int menu = glutCreateMenu(mainMenu);
+#ifdef SUPPORT_WATER
 	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
+#endif
 	glutAddMenuEntry("Toggle info",ME_TOGGLE_INFO);
-	glutAddMenuEntry("Toggle capture movie",ME_TOGGLE_CAPTURE_MOVIE);
+#ifdef SUPPORT_LIGHTMAPS
 	glutAddMenuEntry("Lightmaps update(rt light)", ME_UPDATE_LIGHTMAPS_0);
 	glutAddMenuEntry("Lightmaps update(env+lights)", ME_UPDATE_LIGHTMAPS_0_ENV);
 	glutAddMenuEntry("Lightmaps save current", ME_SAVE_LIGHTMAPS_0);
@@ -2174,6 +2200,7 @@ void initMenu()
 	glutAddMenuEntry("Lightmaps update(rt light) all frames", ME_UPDATE_LIGHTMAPS_ALL);
 	glutAddMenuEntry("Lightmaps save all frames", ME_SAVE_LIGHTMAPS_ALL);
 	glutAddMenuEntry("Lightmaps load all frames", ME_LOAD_LIGHTMAPS_ALL);
+#endif
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
 	glutAddMenuEntry("Scene next", ME_NEXT_SCENE);
 	glutAddMenuEntry("Toggle help",ME_TOGGLE_HELP);
@@ -2192,6 +2219,7 @@ void reshape(int w, int h)
 		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportEditor);
 		demoPlayer->setBigscreen(bigscreenCompensation);
 		//demoPlayer->setPaused(supportEditor); unpaused after first display()
+		//glutSwapBuffers();
 	}
 }
 
@@ -2201,15 +2229,6 @@ void mouse(int button, int state, int x, int y)
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		modeMovingEye = !modeMovingEye;
-	}
-	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
-	{
-		//showImage(loadingMap);
-		if(supportEditor)
-			level->pilot.setup->save();
-		//delete level;
-		level = NULL;
-		seekInMusicAtSceneSwap = true;
 	}
 	if(button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
@@ -2294,18 +2313,8 @@ void idle()
 	}
 	if(!demoPlayer->getPaused())
 	{
-		// playing
-		/*if(captureMovie)
-		{
-			// advance by 1 frame of 30fps movie
-			shotRequested = true;
-			demoPlayer->advance(1.f/30);
-		}
-		else*/
-		{
-			// advance according to real time
-			demoPlayer->advance();
-		}
+		// advance according to real time
+		demoPlayer->advance();
 		if(level)
 		{
 			if(!demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition()))
@@ -2361,9 +2370,6 @@ void idle()
 		;
 	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
 	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-	//if(level && captureMovie && !demoPlayer->getPaused())
-	//	for(unsigned i=0;i<10;i++)
-	//		level->solver->calculate();
 
 	if(!level || (rrOn && level->solver->calculate(&level->pilot.setup->calculateParams)==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
 	{
@@ -2405,44 +2411,37 @@ void init_gl_states()
 #endif
 }
 
-void parseOptions(int argc, char **argv)
+void parseOptions(int argc, const char*const*argv)
 {
 	int i;
 
-	for (i=1; i<argc; i++)
+	for(i=1; i<argc; i++)
 	{
-		if (strstr(argv[i],".cfg")) {
+		if(strstr(argv[i],".cfg"))
+		{
 			cfgFile = argv[i];
 		}
-		if (!strcmp("editor", argv[i])) {
+		if(!strcmp("editor", argv[i]))
+		{
 			supportEditor = 1;
 			fullscreen = 0;
 			showTimingInfo = 1;
 		}
-		if (!strcmp("bigscreen", argv[i])) {
+		if(!strcmp("bigscreen", argv[i]))
+		{
 			bigscreenCompensation = 1;
 		}
-		if (!strcmp("rx", argv[i])) {
-			resolutionx = atoi(argv[++i]);
-		}
-		if (!strcmp("ry", argv[i])) {
-			resolutiony = atoi(argv[++i]);
-		}
-		if (!strcmp("-window", argv[i])) {
+		sscanf(argv[i],"%dx%d",&resolutionx,&resolutiony);
+		if(!strcmp("window", argv[i]))
+		{
 			fullscreen = 0;
 		}
-		if (!strcmp("-fullscreen", argv[i])) {
+		if(!strcmp("fullscreen", argv[i]))
+		{
 			fullscreen = 1;
-		}
-		if (!strcmp("-hard", argv[i])) {
-			startWithSoftShadows = 0;
-		}
-		if (!strcmp("-twosided", argv[i])) {
-			twosided = 1;
 		}
 	}
 }
-
 
 int main(int argc, char **argv)
 {
@@ -2456,12 +2455,14 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	parseOptions(argc, argv);
+
+	rr::RRReporter::setReporter(CONSOLE ? rr::RRReporter::createPrintfReporter() : rr::RRReporter::createFileReporter("..\\log.txt"));
 	rr::RRReporter::setFilter(true,2,false);
 	REPORT(rr::RRReporter::setFilter(true,3,true));
 	//rr_gl::Program::showLog = true;
-
-	parseOptions(argc, argv);
+	rr::RRReporter::report(rr::INF2,"This is Lightsmark 2007 log. Check it if benchmark doesn't work properly.\n");
+	rr::RRReporter::report(rr::INF2,"Started: %s\n",GetCommandLine());
 
 	// init GLUT
 	glutInit(&argc, argv);
@@ -2475,9 +2476,15 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		glutInitWindowSize(16,16);
-		glutCreateWindow("Lightsprint Demo 2007");
-		initMenu();
+		unsigned w = glutGet(GLUT_SCREEN_WIDTH);
+		unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
+		glutInitWindowSize(resolutionx,resolutiony);
+		glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
+		glutCreateWindow("Lightsmark 2007");
+		if(resolutionx==w && resolutiony==h)
+			glutFullScreen();
+		if(supportEditor)
+			initMenu();
 	}
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
@@ -2490,6 +2497,11 @@ int main(int argc, char **argv)
 	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
+	if(glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony)
+	{
+		rr::RRReporter::report(rr::ERRO,"Sorry, unable to set %dx%d%s, try different mode.\n",resolutionx,resolutiony,fullscreen?" fullscreen":"");
+		exit(0);
+	};
 
 	// init GLEW
 	if(glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
@@ -2531,12 +2543,12 @@ int main(int argc, char **argv)
 	init_gl_resources();
 
 	// adjust INSTANCES_PER_PASS to GPU
-#if SUPPORT_LIGHTMAPS
+#ifdef SUPPORT_LIGHTMAPS
 	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = 0;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = 1;
 #endif
 	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram,argc,argv);
-#if SUPPORT_LIGHTMAPS
+#ifdef SUPPORT_LIGHTMAPS
 	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 #endif
@@ -2545,15 +2557,6 @@ int main(int argc, char **argv)
 
 	if(rr::RRLicense::loadLicense("licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.",false);
-
-	// late resize, initial window is intentionally small
-	if(!fullscreen)
-	{
-		unsigned w = glutGet(GLUT_SCREEN_WIDTH);
-		unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
-		glutReshapeWindow(resolutionx,resolutiony);
-		glutPositionWindow((w-resolutionx)/2,(h-resolutiony)/2);
-	}
 
 #ifdef BACKGROUND_WORKER
 #ifdef _OPENMP
@@ -2565,3 +2568,19 @@ int main(int argc, char **argv)
 	glutMainLoop();
 	return 0;
 }
+
+#if CONSOLE==0
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
+{
+	int argc;
+	LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
+	char** argv = new char*[argc+1];
+	for(int i=0;i<argc;i++)
+	{
+		argv[i] = (char*)malloc(wcslen(argvw[i])+1);
+		sprintf(argv[i], "%ws", argvw[i]);
+	}
+	argv[argc] = NULL;
+	return main(argc,argv);
+}
+#endif
