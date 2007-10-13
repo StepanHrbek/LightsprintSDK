@@ -6,6 +6,16 @@
 #include <wininet.h>
 #include <richedit.h>
 #pragma comment(lib,"wininet")
+#include <sys\types.h> 
+#include <sys\stat.h> 
+
+__int64 FileSize64( const char * szFileName ) 
+{ 
+	struct __stat64 fileStat; 
+	int err = _stat64( szFileName, &fileStat ); 
+	if (0 != err) return 0; 
+	return fileStat.st_size; 
+}
 
 HINSTANCE g_hInst;
 
@@ -95,7 +105,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShowWindow(hDlg, SW_MINIMIZE);
 
 			// run
-			//ShellExecuteA( NULL, "open", "bin\\win32\fcss_sr.exe", params, NULL, SW_SHOWNORMAL );
+			//ShellExecuteA( NULL, "open", "fcss_sr.exe", params, NULL, SW_SHOWNORMAL );
 
 			// run & wait
 			SHELLEXECUTEINFOA ShExecInfo = {0};
@@ -105,47 +115,47 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShExecInfo.lpVerb = NULL;
 			ShExecInfo.lpFile = "..\\bin\\win32\\fcss_sr.exe";
 			ShExecInfo.lpParameters = buf;
-			ShExecInfo.lpDirectory = "data";
+			ShExecInfo.lpDirectory = "..\\..\\data";
 			ShExecInfo.nShow = SW_SHOW;
 			ShExecInfo.hInstApp = NULL;
 			DWORD score = 0;
+			bool showLog = 0;
 			if(ShellExecuteExA(&ShExecInfo))
 			{
 				if(WaitForSingleObject(ShExecInfo.hProcess,INFINITE)!=WAIT_FAILED)
 				{
 					if(!GetExitCodeProcess(ShExecInfo.hProcess,&score)) score = 0;
+						else showLog = score==0; // show log only if demo successfully returns 0, other errors are reported by OS
 					if(score>10000) score = 0;
 				}
+			}
+
+			// show result
+			if(score>0 && score<10000)
+			{
+				// finished with score
+				sprintf(buf,"%d",score);
+				SendDlgItemMessageA(hDlg,IDC_SCORE,WM_SETTEXT,0,(LPARAM)buf);
+				SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)"score = fps");
+			}
+			else
+			{
+				buf[0] = 0;
+				SendDlgItemMessageA(hDlg,IDC_SCORE,WM_SETTEXT,0,(LPARAM)buf);
+				SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)buf);
+			}
+			RECT rect2 = {280,130,200,100};
+			InvalidateRect(hDlg,&rect2,true);
+			if(showLog)
+			{
+				// finished with error
+				if(FileSize64("..\\..\\log.txt"))
+					ShellExecuteA( NULL, "open", "..\\..\\log.txt", NULL, NULL, SW_SHOWNORMAL );
 			}
 
 			// restore
 			ShowWindow(hDlg, SW_RESTORE);
 			SetWindowPos(hDlg, HWND_TOP, rect.left, rect.top, 0, 0, SWP_NOSIZE);
-
-			// show result
-			if(score==10000)
-			{
-				// escaped
-				sprintf(buf,"");
-			}
-			else
-			if(!score)
-			{
-				// error
-				if(ShellExecuteA( NULL, "open", "log.txt", NULL, NULL, SW_SHOWNORMAL ))
-					sprintf(buf,"-");
-				else
-					sprintf(buf,":");
-			}
-			else
-			{
-				// finished
-				sprintf(buf,"%d",score);
-				SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)"score = fps");
-			}
-			SendDlgItemMessageA(hDlg,IDC_SCORE,WM_SETTEXT,0,(LPARAM)buf);
-			RECT rect2 = {280,130,200,100};
-			InvalidateRect(hDlg,&rect2,true);
 		}
 		if(LOWORD(wParam)==IDC_LIGHTSPRINT)
 		{
