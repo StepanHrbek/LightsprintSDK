@@ -79,7 +79,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 		if(sscanf(argv[argc],"penumbra%d",&tmp)==1)
 		{
 			SHADOW_MAPS = tmp;
-			if(!getProgram(uberProgram)) 
+			if(tmp<1 || tmp>8 || !getProgram(uberProgram)) 
 			{
 				rr::RRReporter::report(rr::ERRO,"GPU is not able to produce given penumbra quality, set lower quality.\n");
 				SHADOW_MAPS = 0;

@@ -18,6 +18,7 @@ __int64 FileSize64( const char * szFileName )
 }
 
 HINSTANCE g_hInst;
+bool g_extended = false;
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -55,15 +56,23 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 
 			// fill penumbra
-			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("highest supported"));
-			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("4 samples"));
-			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("12 samples"));
-			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("16 samples"));
-			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("20 samples"));
-			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("24 samples"));
-			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("28 samples"));
-			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("32 samples"));
-			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_SETCURSEL,0,0);
+			if(g_extended)
+			{
+				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("highest supported"));
+				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("4 samples"));
+				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("12 samples"));
+				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("16 samples"));
+				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("20 samples"));
+				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("24 samples"));
+				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("28 samples"));
+				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("32 samples"));
+				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_SETCURSEL,0,0);
+			}
+			else
+			{
+				ShowWindow(GetDlgItem(hDlg,IDC_PENUMBRA),SW_HIDE);
+				ShowWindow(GetDlgItem(hDlg,IDC_STATIC2),SW_HIDE);
+			}
 
 			// fill result
 			CHARFORMAT cf;
@@ -94,7 +103,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_GETLBTEXT,resolutionIdx,(LPARAM)resolutionStr);
 			unsigned penumbraIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_GETCURSEL,0,0);
 			char buf[1000];
-			if(penumbraIdx)
+			if(g_extended && penumbraIdx)
 				sprintf(buf,"%s %s penumbra%d",fullscreen?"fullscreen":"window",resolutionStr,penumbraIdx+((penumbraIdx>1)?1:0));
 			else
 				sprintf(buf,"%s %s",fullscreen?"fullscreen":"window",resolutionStr);
@@ -170,6 +179,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 {
 	HMODULE hRE = LoadLibrary(_T("riched20.dll"));
 	g_hInst = hInstance;
+	g_extended = lpCmdLine && lpCmdLine[0];
 	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, About);
 	return 0;
 }
