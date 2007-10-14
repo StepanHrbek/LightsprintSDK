@@ -194,7 +194,16 @@ void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
 
 static bool endByTime(void *context)
 {
+#if PER_SEC==1
+	// floating point time without overflows
 	return GETTIME>*(TIME*)context;
+#else
+	// fixed point time with overlaps
+	TIME now = GETTIME;
+	TIME end = *(TIME*)context;
+	TIME max = (TIME)(end+ULONG_MAX/2);
+	return ( end<now && now<max ) || ( now<max && max<end ) || ( max<end && end<now );
+#endif
 }
 
 template <class C, int I, int InitialNoSmooth>

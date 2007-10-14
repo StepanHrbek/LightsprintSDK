@@ -173,12 +173,12 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	if(triangle>=obj->triangles)
 	{
 		RR_ASSERT(0);
-		goto error;
+		goto zero;
 	}
 	if(!licenseStatusValid || licenseStatus!=RRLicense::VALID)
 	{
-		RR_ASSERT(0);
-		goto error;
+		//RR_ASSERT(0);
+		goto zero;
 	}
 	tri = &obj->triangle[triangle];
 	if(!tri->surface)
@@ -248,8 +248,6 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	out = irrad;
 	STATISTIC_INC(numCallsTriangleMeasureOk);
 	return true;
-error:
-	RR_ASSERT(0);
 zero:
 	out = RRColor(0);
 	STATISTIC_INC(numCallsTriangleMeasureFail);

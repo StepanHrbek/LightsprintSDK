@@ -88,6 +88,11 @@ protected:
 	//!  with arbitrary positions/directions.
 	//! \param instance
 	//!  Number of instance to be create, 0..numInstances-1.
+	//! \param jittered
+	//!  Makes instances slightly jittered (in subpixel scale) to improve penumbra quality.
+	//!  Jitter is deterministic.
+	//!  \n For full effect, it should be enabled only when generating OR using shadowmap, not in both cases.
+	//!  It is enabled in UberProgramSetup::useProgram(), so set it false when generating shadowmaps.
 	virtual void instanceMakeup(Camera& light, unsigned instance, bool jittered) const;
 	Camera* parent;
 	unsigned numInstances;

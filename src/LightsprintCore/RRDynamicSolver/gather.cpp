@@ -814,9 +814,16 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 
 static bool endByTime(void *context)
 {
+#if PER_SEC==1
+	// floating point time without overflows
+	return GETTIME>*(TIME*)context;
+#else
+	// fixed point time with overlaps
 	TIME now = GETTIME;
 	TIME end = *(TIME*)context;
-	return now>end && now<(TIME)(end+ULONG_MAX/2);
+	TIME max = (TIME)(end+ULONG_MAX/2);
+	return ( end<now && now<max ) || ( now<max && max<end ) || ( max<end && end<now );
+#endif
 }
 
 bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect, unsigned benchTexels, unsigned benchQuality)

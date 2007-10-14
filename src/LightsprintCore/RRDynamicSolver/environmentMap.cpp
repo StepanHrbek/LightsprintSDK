@@ -149,17 +149,20 @@ int CubeSide::getNeighbourTexelIndex(unsigned size,Edge edge, unsigned x,unsigne
 // outputs:
 //  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be NULL
 //  - irradianceHdr, float exitance in physical scale, may be NULL
-static void cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRRay* ray6, unsigned* triangleNumbers, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
+static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRObject* object, const RRIlluminationEnvironmentMap* environment, RRVec3 center, unsigned size, RRRay* ray6, unsigned* triangleNumbers, RRColorRGBA8* irradianceLdr, RRColorRGBF* irradianceHdr)
 {
 	if((!scene && !packedSolver) || !object || (!triangleNumbers && !irradianceHdr))
 	{
-		RR_ASSERT(0);
-		return;
+		if(!scene && !packedSolver)
+			{LIMITED_TIMES(5,RRReporter::report(WARN,"Updating envmap, but lighting is not computed yet, call setStaticObjects() and calculate() first.\n"));}
+		else
+			RR_ASSERT(0);
+		return false;
 	}
 // vypnuto kdyz nas vola worker thread s nizkou prioritou (!irradianceHdr), omp paralelizace je nezadouci, je mozne ze by to rozdelil mezi dalsi thready s normalni prioritou
 // zapnuto kdyz nas vola uzivatel (irradianceHdr)
-//!!! if je rozbity
 //#pragma omp parallel for if(irradianceHdr!=NULL) schedule(dynamic) // fastest: dynamic, static
+//!!! if je v vc2005 rozbity, zapnuto vzdy i kdyz nas vola worker thread, nevim co to udela
 	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
 	for(int side=0;side<6;side++)
 	{
@@ -218,6 +221,7 @@ static void cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 #endif
 			}
 	}
+	return true;
 }
 
 
@@ -453,11 +457,21 @@ void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illuminati
 		{
 			SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
 		}
-		illumination->cachedGatherSize = gatherSize;
-		illumination->cachedCenter = illumination->envMapWorldCenter;
 		if(!illumination->cachedTriangleNumbers)
 			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
-		cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),NULL,illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,NULL);
+		if(cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),NULL,illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,NULL))
+		{
+			// gather succeeded, mark cache as valid
+			// (without taking care, we would cache invalid data in 1st frame [when solver is not created yet]
+			//  and not fix them until object moves)
+			illumination->cachedGatherSize = gatherSize;
+			illumination->cachedCenter = illumination->envMapWorldCenter;
+		}
+		else
+		{
+			// gather failed, mark cache as invalid
+			illumination->cachedGatherSize = 0;
+		}
 	}
 }
 
@@ -487,16 +501,32 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 		{
 			SAFE_DELETE_ARRAY(illumination->cachedTriangleNumbers);
 		}
-		illumination->cachedGatherSize = gatherSize;
-		illumination->cachedCenter = illumination->envMapWorldCenter;
 		if(!illumination->cachedTriangleNumbers)
+		{
 			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
-		cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),getEnvironment(),illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,gatheredExitance);
+		}
+		if(cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),getEnvironment(),illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,gatheredExitance))
+		{
+			// gather succeeded, mark cache as valid
+			// (without taking care, we would cache invalid data in 1st frame [when solver is not created yet]
+			//  and not fix them until object moves)
+			illumination->cachedGatherSize = gatherSize;
+			illumination->cachedCenter = illumination->envMapWorldCenter;
+		}
+		else
+		{
+			// gather failed, mark cache as invalid
+			illumination->cachedGatherSize = 0;
+		}
 	}
 	else
 	{
 		cubeMapConvertTrianglesToExitances(getStaticSolver(),priv->packedSolver,getEnvironment(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 	}
+
+	// early exit if we don't have valid data
+	if(!illumination->cachedGatherSize)
+		return 0;
 
 	// fill envmaps
 	unsigned minSize = MIN(gatherSize,specularSize);

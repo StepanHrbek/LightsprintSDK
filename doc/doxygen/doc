@@ -1762,45 +1762,40 @@ Used by samples:
 
 \page main_platforms Supported platforms
 
- \section plat_bin Platforms for binaries
- For binary libraries, supported platforms are
- - Windows Vista
+ Operating systems
  - Windows XP
+ - Windows XP x64
+ - Windows Vista
+ - Windows Vista x64
  - ask for more
 
- Supported CPUs are
+ CPUs
  - x86 compatible with SSE instructions
  - ask for more
 
- Supported GPUs are
- - all, no hard requirements
- - DX9 generation - standard target
- - DX10 generation - integration significantly simplified, performance improved
- - penumbra shadows in LightsprintGL require at least GeForce 6xxx or Radeon 9500,
-   but they are not mandatory
+ GPUs
+ - NVIDIA GeForce 6xxx
+ - NVIDIA GeForce 7xxx
+ - NVIDIA GeForce 8xxx
+ - AMD (ATI) Radeon 9500-9800
+ - AMD (ATI) Radeon Xxxx
+ - AMD (ATI) Radeon X1xxx
+ - AMD (ATI) Radeon HD2xxx
+ - for offline rendering, GPU is not needed
 
- Supported 3D APIs are
- - all, no hard requirements
- - OpenGL 2 - standard target with samples available
- - Direct3D 9 - standard target without samples (create device with D3DCREATE_FPU_PRESERVE)
- - OpenGL 2 with EXT_geometry_shader - DX10 generation, optimized samples planned
- - Direct3D 10 - support planned
+ 3D APIs
+ - OpenGL 2 (examples included)
+ - Direct3D 9,10 (create device with D3DCREATE_FPU_PRESERVE. no examples yet)
+ - for offline rendering, 3D API is not needed
 
- Supported library configurations are
+ Library configurations
  - Release DLL
  - Debug DLL
 
- Supported compilers:
+ Compilers
  - Visual C++ 2005 SP1
  - Visual C++ 2003 (single threaded, without Collada support)
  - ask for more
-
- \section plat_src Platforms for source code
- Our source code conforms to standard ISO C++, so you should be 
- able to use it on nearly any platform (consoles, linux etc).
-
- There are optional optimizations, that use SSE instructions on x86 CPUs,
- but they can be omitted on other platforms.
 
 
 

@@ -501,7 +501,6 @@ Global
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|Win32.Build.0 = Release DLL|Win32
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|Xbox 360.ActiveCfg = Release DLL|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Win32.Build.0 = Debug static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Xbox 360.ActiveCfg = Debug static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|Win32.ActiveCfg = Debug static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|Win32.Build.0 = Debug static|Win32
@@ -512,14 +511,12 @@ Global
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.GL Debug|Win32.ActiveCfg = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.GL Debug|Win32.Build.0 = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.GL Debug|Xbox 360.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|Win32.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|Win32.Build.0 = Debug static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|Win32.ActiveCfg = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|Xbox 360.ActiveCfg = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.ActiveCfg = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.Build.0 = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Xbox 360.ActiveCfg = Release static|Win32
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug DLL|Win32.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug DLL|Win32.Build.0 = Release static
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug DLL|Xbox 360.ActiveCfg = Release static
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug DLL|Xbox 360.Build.0 = Release static
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug static|Win32.ActiveCfg = Release static
