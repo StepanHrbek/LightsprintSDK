@@ -758,7 +758,8 @@ namespace rr
 		//!  If zero, current factors are used, without recalculating.
 		//! \param filename
 		//!  Data precomputed for current static scene will be saved to this file.
-		//!  Set to NULL for no saving.
+		//!  Set NULL for automatically generated name in temp directory.
+		//!  Set "" for no saving.
 		//! \return
 		//!  True if successful.
 		//!  For better consistency, if save (disk operation) fails, Fireball is not started.
@@ -776,23 +777,11 @@ namespace rr
 		//! and produce better results using less memory.
 		//!
 		//! \param filename
-		//!  File with data computed by buildFireball().
+		//!  File with data to load, previously created by buildFireball().
+		//!  Set NULL to use automatically generated name.
 		//! \return
 		//!  True if successful.
 		bool loadFireball(const char* filename);
-
-		//! Build or load and then start Fireball.
-		//
-		//! While loadFireball() and buildFireball() give you opportunity to manage filenames
-		//! e.g. for transfer from PC toolchain to other platform, startFireball()
-		//! is shortcut for PC only use, it starts Fireball without any questions.
-		//! It calls loadFireball() and buildFireball() internally.
-		//! \param avgRaysPerTriangle
-		//!  Used only if Fireball file doesn't exist yet.
-		//!  Average number of rays per triangle used to compute form factors.
-		//!  Higher number = longer calculation, higher quality results, bigger file.
-		//!  If zero, current factors are used, without recalculating.
-		bool startFireball(unsigned raysPerTriangle);
 
 
 		//! Verifies data in solver and reports problems found using RRReporter.

@@ -196,6 +196,16 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle)
 //
 // RRDynamicSolver
 
+void getFireballFilename(const RRObject* object,char filename[1000])
+{
+	char tmpPath[_MAX_PATH+1];
+	GetTempPath(_MAX_PATH, tmpPath);
+	#define IS_PATHSEP(x) (((x) == '\\') || ((x) == '/'))
+	if(!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
+
+	getFileName(filename,999,FIREBALL_FILENAME_VERSION,object->getCollider()->getMesh(),tmpPath,".fireball");
+}
+
 bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
 {
 	RRReportInterval report(INF1,"Building Fireball (triangles=%d)...\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
@@ -206,7 +216,15 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		( packedSolverFile->packedFactors->getMemoryOccupied() )/1024,
 		( packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024
 		);
-	if(filename)
+
+	char filenameauto[1000];
+	if(!filename)
+	{
+		getFireballFilename(getMultiObjectCustom(),filenameauto);
+		filename = filenameauto;
+	}
+
+	if(filename[0])
 	{
 		if(packedSolverFile->save(filename))
 			RRReporter::report(INF2,"Saved to %s\n",filename);
@@ -229,32 +247,24 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 bool RRDynamicSolver::loadFireball(const char* filename)
 {
 	SAFE_DELETE(priv->packedSolver);
-	if(filename)
+
+	char filenameauto[1000];
+	if(!filename)
 	{
-		priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysicalWithIllumination(),PackedSolverFile::load(filename));
-		if(priv->packedSolver)
-		{
-			//RRReporter::report(INF2,"Loaded Fireball (triangles=%d)\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
-			updateVertexLookupTablePackedSolver();
-			priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
-			if(priv->scene)
-				RRReporter::report(WARN,"Fireball set, but solver already exists. Save resources, don't call calculate() before loadFireball().\n");
-		}
+		getFireballFilename(getMultiObjectCustom(),filenameauto);
+		filename = filenameauto;
+	}
+
+	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysicalWithIllumination(),PackedSolverFile::load(filename));
+	if(priv->packedSolver)
+	{
+		//RRReporter::report(INF2,"Loaded Fireball (triangles=%d)\n",getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
+		updateVertexLookupTablePackedSolver();
+		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
+		if(priv->scene)
+			RRReporter::report(WARN,"Fireball set, but solver already exists. Save resources, don't call calculate() before loadFireball().\n");
 	}
 	return priv->packedSolver!=NULL;
-}
-
-bool RRDynamicSolver::startFireball(unsigned raysPerTriangle)
-{
-	char filename[1000];
-
-	char tmpPath[_MAX_PATH+1];
-	GetTempPath(_MAX_PATH, tmpPath);
-	#define IS_PATHSEP(x) (((x) == '\\') || ((x) == '/'))
-	if(!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
-
-	getFileName(filename,999,FIREBALL_FILENAME_VERSION,getMultiObjectCustom()->getCollider()->getMesh(),tmpPath,".fireball");
-	return loadFireball(filename) || buildFireball(raysPerTriangle,filename);
 }
 
 } // namespace

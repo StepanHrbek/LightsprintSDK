@@ -19,7 +19,9 @@
 2. Supported operating systems
 
    - Windows XP
+   - Windows XP x64
    - Windows Vista
+   - Windows Vista x64
 
 
 3. Supported GPUs
@@ -32,14 +34,19 @@
    - AMD (ATI) Radeon X1xxx
    - AMD (ATI) Radeon HD2xxx
 
-   Known issues with drivers (request fix from driver vendors):
+   Use the most recent drivers from
+   - http://www.nvidia.com/Download/index.aspx
+   - http://ati.amd.com/support/driver.html
+
+   Known remaining issues with drivers (request fix from driver vendors):
    - crash on some Quadro cards
    - disappearing objects on Radeon HD
 
 
 4. Credits
 
-   - Lightsprint                  : realtime global illumination etc
+   - Lightsprint                  : realtime global illumination
+   - Ente / World of Padman team  : "World of Padman: Attic" scene
    - Mark Kilgard, Nate Robins    : GLUT library
    - Milan Ikits, Marcelo Magallon: GLEW library
    - many contributors            : FreeImage library
@@ -47,17 +54,11 @@
    - Matthew Fairfax              : 3ds loader
    - Nicolas Baudrey              : bsp loader
    - Vojta Nedved                 : "Difficult life" music
-   - World of Padman team         : "World of Padman: Attic" scene
    - Petr Stastny                 : "Koupelna" scene
    - Sirda                        : "Black man" and "Man in hat" models
    - orillionbeta                 : "I Robot" model
-   - ?                            : "Woman statue" model
-   - flipper42                    : "Jessie" model
-   - atp creations                : "Scary frog alien" model
-   - Stora_tomtefar               : "Viking" model
-   - Amethyst7                    : "Purple Nebula" skybox
 
-   Special thanks to World of Padman team for Attic scene.
+   Special thanks to Ente / World of Padman team for Attic scene.
    You can download World of Padman game from http://www.worldofpadman.com
 
 

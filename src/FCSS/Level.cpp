@@ -135,10 +135,9 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 		error("No objects in scene.",false);
 
 	// load Fireball
-	//solver->startFireball(1000);
 	char* fbname = _strdup(pilot.setup->filename);
 	strcpy(fbname+strlen(fbname)-3,"fib");
-	if(!solver->loadFireball(fbname)) solver->buildFireball(1000,fbname);
+	solver->loadFireball(fbname) || solver->buildFireball(1000,fbname);
 	free(fbname);
 
 	/*/ autodetect positions in center of scene
