@@ -1780,12 +1780,12 @@ Used by samples:
  - AMD (ATI) Radeon 9500-9800
  - AMD (ATI) Radeon Xxxx
  - AMD (ATI) Radeon X1xxx
- - AMD (ATI) Radeon HD2xxx
+ - AMD (ATI) Radeon HD2xxx (1 known driver bug)
  - for offline rendering, GPU is not needed
 
  3D APIs
  - OpenGL 2 (examples included)
- - Direct3D 9,10 (create device with D3DCREATE_FPU_PRESERVE. no examples yet)
+ - Direct3D 9/10 (create device with D3DCREATE_FPU_PRESERVE. no examples yet)
  - for offline rendering, 3D API is not needed
 
  Library configurations

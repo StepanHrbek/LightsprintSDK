@@ -34,13 +34,13 @@
    - AMD (ATI) Radeon X1xxx
    - AMD (ATI) Radeon HD2xxx
 
-   Use the most recent drivers from
+   Very important! Use the most recent drivers from
    - http://www.nvidia.com/Download/index.aspx
    - http://ati.amd.com/support/driver.html
 
    Known remaining issues with drivers (request fix from driver vendors):
-   - crash on some Quadro cards
    - disappearing objects on Radeon HD
+   - crash on some Quadro cards
 
 
 4. Credits

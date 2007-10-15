@@ -89,23 +89,14 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 		}
 	}
 	// try max 9 maps, we must fit all maps in ubershader to 16 (maximum allowed by ATI)
-#ifdef DESCEND
-	for(SHADOW_MAPS=9;SHADOW_MAPS;SHADOW_MAPS--)
-	#define FAIL continue
-	#define SUCCESS break
-	#define RESULT SHADOW_MAPS
-#else
-	for(SHADOW_MAPS=1;SHADOW_MAPS<=9;SHADOW_MAPS++)
-	#define FAIL break
-	#define SUCCESS
-	#define RESULT SHADOW_MAPS-1
-#endif
+	// no, make it shorter, try max 8 maps, both AMD and NVIDIA high end GPUs can do only 8
+	for(SHADOW_MAPS=1;SHADOW_MAPS<=8;SHADOW_MAPS++)
 	{
-		if(!getProgram(uberProgram)) FAIL;
-		SUCCESS;
+		if(!getProgram(uberProgram)) break;
 	}
-	unsigned instancesPerPassOrig = SHADOW_MAPS = RESULT;
+	unsigned instancesPerPassOrig = --SHADOW_MAPS;
 	char* renderer = (char*)glGetString(GL_RENDERER);
+	// workaround for Catalyst bug
 	if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")))
 	{
 		const char* buggy[] = {"9500","9550","9600","9700","9800","X300","X550","X600","X700","X740","X800","X850","X1050"};
@@ -118,6 +109,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 		// with bilinear filter ignored by Radeon, 3 is ugly, prefer 1
 		if(SHADOW_MAPS==3) SHADOW_MAPS--;
 	}
+	// workaround for ForceWare bug
 	if(renderer && (strstr(renderer,"GeForce 6")||strstr(renderer,"GeForce 7"))) // 7->6 (6150 in PenumbraShadows)
 	{
 		if(SHADOW_MAPS) SHADOW_MAPS--;
