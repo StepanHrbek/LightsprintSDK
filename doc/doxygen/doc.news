@@ -6,6 +6,12 @@
 
 \page news What's new
 
+\section news36 ------------------------------------ 2007.10.x -------------------------------------
+
+CHANGES
+
+- removed SmoothingParameters::smoothMode
+
 \section news35 ------------------------------------ 2007.10.14 -------------------------------------
 
 NEWS

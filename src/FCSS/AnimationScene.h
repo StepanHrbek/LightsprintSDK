@@ -23,6 +23,7 @@ public:
 	const char* filename;
 	rr::RRDynamicSolver::CalculateParams calculateParams;
 	float scale;
+	float minFeatureSize;
 	bool renderWater;
 	float waterLevel;
 	typedef std::list<AnimationFrame*> Frames;

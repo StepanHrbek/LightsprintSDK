@@ -10,6 +10,7 @@ LevelSetup::LevelSetup(const char* afilename)
 {
 	filename = NULL;
 	scale = 1;
+	minFeatureSize = 0;
 	renderWater = 0;
 	waterLevel = 0;
 	load(afilename);
@@ -44,10 +45,12 @@ bool LevelSetup::load(const char* afilename)
 	renderWater = 0;
 	waterLevel = 0.1f;
 	renderWater = fscanf(f,"water = %f\n",&waterLevel)==1;
+	// load min feature size
+	minFeatureSize = 0;
+	fscanf(f,"min_feature = %f\n",&minFeatureSize);
 	// load quality
 	calculateParams = rr::RRDynamicSolver::CalculateParams();
-	fscanf(f,"quality_indirect_dynamic = %d\n",&calculateParams.qualityIndirectDynamic);
-	fscanf(f,"quality_indirect_static = %d\n",&calculateParams.qualityIndirectStatic);
+	fscanf(f,"indirect_quality = %d,%d\n",&calculateParams.qualityIndirectDynamic,&calculateParams.qualityIndirectStatic);
 	// load objects
 	objects.clear();
 	unsigned tmpobj;
@@ -82,15 +85,17 @@ bool LevelSetup::save() const
 	FILE* f = fopen(aniname,"wt");
 	free(aniname);
 	// save scale
-	fprintf(f,"scale = %.5f\n",scale);
+	fprintf(f,"scale = %f\n",scale);
 	// save water
 	if(renderWater)
 		fprintf(f,"water = %f\n",waterLevel);
+	// save min feature size
+	if(minFeatureSize)
+		fprintf(f,"min_feature = %f\n",minFeatureSize);
 	// save quality
-	if(calculateParams.qualityIndirectDynamic!=rr::RRDynamicSolver::CalculateParams().qualityIndirectDynamic)
-		fprintf(f,"quality_indirect_dynamic = %d\n",calculateParams.qualityIndirectDynamic);
-	if(calculateParams.qualityIndirectStatic!=rr::RRDynamicSolver::CalculateParams().qualityIndirectStatic)
-		fprintf(f,"quality_indirect_static = %d\n",calculateParams.qualityIndirectStatic);
+	if((calculateParams.qualityIndirectDynamic!=rr::RRDynamicSolver::CalculateParams().qualityIndirectDynamic) ||
+		(calculateParams.qualityIndirectStatic!=rr::RRDynamicSolver::CalculateParams().qualityIndirectStatic))
+	fprintf(f,"indirect_quality = %d,%d\n",calculateParams.qualityIndirectDynamic,calculateParams.qualityIndirectStatic);
 	// save objects
 	for(unsigned i=0;i<objects.size();i++)
 	{

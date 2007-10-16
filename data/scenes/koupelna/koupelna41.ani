@@ -1,6 +1,5 @@
-scale = 1.00000
-quality_indirect_dynamic = 1
-quality_indirect_static = 1
+scale = 1.000000
+indirect_quality = 1,1
 object = 1
 
 layer_number = 10

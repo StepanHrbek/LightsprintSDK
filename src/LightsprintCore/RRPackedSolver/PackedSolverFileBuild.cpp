@@ -148,6 +148,17 @@ PackedSolverFile* Scene::packSolver() const
 		for(unsigned v=0;v<3;v++)
 		{
 			const IVertex* ivertex = object->triangle[t].topivertex[v];
+			/* toto nema zadny efekt, z nejakeho duvodu pokud chybi 1 ivertex, chybi vsechny 3
+			if(!ivertex)
+			{
+				// pokud chybi ivertex, zkus pouzit nejblizsi vertex tehoz trianglu
+				// nepomuze to vsude (shluk vice jehel), ale tam kde ted potrebuji ano (ojedinele jehly)
+				bool v1Closer =
+					(*object->triangle[t].getVertex((v+1)%3)-*object->triangle[t].getVertex(v)).length2() <
+					(*object->triangle[t].getVertex((v+2)%3)-*object->triangle[t].getVertex(v)).length2();
+				ivertex = object->triangle[t].topivertex[(v+(v1Closer?1:2))%3];
+				RRReporter::report(INF1,"t=%d v=%d->%d%s\n",t,v,v1Closer?v+1:v+2,ivertex?"":" !");
+			}*/
 			if(ivertex)
 			{
 				if(ivertex->packedIndex==numIverticesPacked)

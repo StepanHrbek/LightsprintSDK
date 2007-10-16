@@ -127,6 +127,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 	//sp.vertexWeldDistance = 0.01f; // pri 1cm spekal podlahy v flat1, pri 1mm spekal podlahu a strop v flat3
 	//sp.vertexWeldDistance = -1; // vypnuty weld by teoreticky nemel skodit, ale prakticky zpomaluje updatevbuf i render(useOriginal), nevim proc
 	//sp.vertexWeldDistance = -1; // vypnuty weld mozna zlepsi nahravani map z WoP
+	sp.minFeatureSize = pilot.setup->minFeatureSize;
 #ifdef THREE_ONE
 	sp.intersectTechnique = rr::RRCollider::IT_BSP_FASTEST;
 #endif

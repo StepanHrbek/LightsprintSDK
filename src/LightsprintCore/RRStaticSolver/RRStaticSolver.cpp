@@ -105,7 +105,9 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const SmoothingParameters* sm
 		obj->buildEdges(smoothing->maxSmoothAngle); // build edges only for clusters and/or interpol
 	}
 	DBG(printf(" ivertices...\n"));
-	obj->buildTopIVertices(smoothing->smoothMode,smoothing->minFeatureSize,smoothing->maxSmoothAngle);
+	obj->buildTopIVertices(
+		1,
+		smoothing->minFeatureSize,smoothing->maxSmoothAngle);
 	// vlozi objekt do sceny
 	scene->objInsertStatic(obj);
 }
