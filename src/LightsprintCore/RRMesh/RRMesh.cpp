@@ -133,10 +133,12 @@ bool RRMesh::getTrianglePlane(unsigned i, Plane& out) const
 // calculates triangle area from triangle vertices
 RRReal calculateArea2(RRVec3 v0, RRVec3 v1, RRVec3 v2)
 {
-	RRReal a=size2(v1-v0);
-	RRReal b=size2(v2-v0);
-	RRReal c=size2(v2-v1);
-	return sqrt(2*b*c+2*c*a+2*a*b-a*a-b*b-c*c)/4;
+	RRReal a = size2(v1-v0);
+	RRReal b = size2(v2-v0);
+	RRReal c = size2(v2-v1);
+	//return sqrt(2*b*c+2*c*a+2*a*b-a*a-b*b-c*c)/4;
+	RRReal d = 2*b*c+2*c*a+2*a*b-a*a-b*b-c*c;
+	return (d>0) ? sqrt(d)*0.25f : 0; // protection against evil rounding error
 }
 
 RRReal RRMesh::getTriangleArea(unsigned i) const

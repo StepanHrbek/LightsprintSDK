@@ -59,6 +59,7 @@ private:
 	Ofs srcBegin;
 	std::vector<Header> headers;
 	std::vector<Contributor> contributors;
+	unsigned sourceSize;
 	unsigned destinationSize;
 };
 

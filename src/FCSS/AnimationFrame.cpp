@@ -26,7 +26,7 @@ AnimationFrame::AnimationFrame(AnimationFrame& copy) :
 	indirectType = copy.indirectType;
 }
 
-AnimationFrame::AnimationFrame(unsigned alayerNumber) :
+AnimationFrame::AnimationFrame(unsigned _layerNumber) :
 	eye(0,1,4, 2.935000f,0,-0.7500f, 1,100,0.3f,900),
 	light(-1.233688f,3.022499f,-0.542255f, 1.239998f,0,6.649996f, 1,70,1,1000)
 {
@@ -34,7 +34,7 @@ AnimationFrame::AnimationFrame(unsigned alayerNumber) :
 	gamma = 1;
 	transitionToNextTime = 3;
 	projectorIndex = 0;
-	layerNumber = alayerNumber;
+	layerNumber = _layerNumber;
 	thumbnail = NULL;
 	overlayFilename[0] = 0;
 	overlaySeconds = 5;
@@ -98,11 +98,11 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	// blend projectorIndex
 	blended.projectorIndex = projectorIndex;
 	// blend thumbnail
-	blended.thumbnail = NULL;
+	blended.thumbnail = NULL; // don't duplicate map, would be deleted more than once
 	// blend overlay
 	blended.overlayFilename[0] = 0;
 	blended.overlaySeconds = this->overlaySeconds;
-	blended.overlayMap = NULL;//this->overlayMap;
+	blended.overlayMap = NULL; // don't duplicate map, would be deleted more than once
 	// technique
 	blended.shadowType = this->shadowType;
 	blended.indirectType = this->indirectType;
@@ -143,7 +143,7 @@ bool AnimationFrame::loadOver(FILE* f)
 	if(fscanf(f,"projector = %d\n",&projectorIndex)==1) loaded = true;
 	// load overlay
 	overlayFilename[0] = 0;
-	if(fscanf(f,"2d_overlay = %f,%d,%s\n",&overlaySeconds,&overlayMode,overlayFilename)==2) loaded = true;
+	if(fscanf(f,"2d_overlay = %f,%d,%s\n",&overlaySeconds,&overlayMode,overlayFilename)==3) loaded = true;
 	overlayMap = overlayFilename[0] ? rr_gl::Texture::load(overlayFilename, NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP) : NULL;
 	// load technique
 	if(fscanf(f,"shadow_type = %d\n",&shadowType)==1) loaded = true;

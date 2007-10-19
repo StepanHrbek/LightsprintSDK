@@ -192,16 +192,19 @@ static bool cubeMapGather(const RRStaticSolver* scene, const RRPackedSolver* pac
 					{
 						// read irradiance on sky
 						irradianceHdr[ofs] = environment ? environment->getValue(dir) : RRVec3(0);
+						RR_ASSERT(IS_VEC3(irradianceHdr[ofs]));
 					}
 					else if(packedSolver)
 					{
 						// read face exitance
 						irradianceHdr[ofs] = packedSolver->getTriangleExitance(face);
+						RR_ASSERT(IS_VEC3(irradianceHdr[ofs]));
 					}
 					else
 					{
 						// read face exitance
 						scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,irradianceHdr[ofs]);
+						RR_ASSERT(IS_VEC3(irradianceHdr[ofs]));
 					}
 				}
 #ifdef SUPPORT_LDR
@@ -251,17 +254,20 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 			{
 				// read irradiance on sky
 				exitanceHdr[ofs] = environment->getValue(cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size));
+				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}
 		}
 		else if(packedSolver)
 		{
 			// read face exitance
 			exitanceHdr[ofs] = packedSolver->getTriangleExitance(face);
+			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 		}
 		else
 		{
 			// read face exitance
 			scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,exitanceHdr[ofs]);
+			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 		}
 	}
 }

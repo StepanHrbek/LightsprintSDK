@@ -12,10 +12,29 @@
 	#include <xmmintrin.h>
 #endif
 #include "../RRDynamicSolver/report.h"
+#include "../RRMathPrivate.h"
 
 namespace rr
 {
 
+/*
+how to handle degenerated triangles?
+-----------------------------------
+a) vyradit z multiobjektu, automaticky nebudou ani v solveru
+   + zjednodusi solvery
+   - pridany filtr mirne zpomali
+   -? mozna nebude fungovat, nevim jestli je odebrani trianglu odladene
+b) dovolit je v multiobjektu, pocitat s nima v solveru
+   - osetrit zasah degena, getExitance ted vraci INF
+     zasah je legalni (za degena se surf=NULL muze byt oznacena i jehla a tu jde zasahnout)
+     * pokud budou degeni jen s area=0, muzu ohlidat KD/BSP
+	   aby ho nikdy nezasah, ted asi zasahuje
+
+davat mezi degeny i jehly?
+- kdyz vyradim i jehly, paprsek muze proletet skvirou v objektu,
+  mel bych pouzivat radsi minFeatureSize
+
+*/
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -49,6 +68,7 @@ public:
 	// for dynamic objects
 	RRVec3 getExitance() const
 	{
+		RR_ASSERT(IS_VEC3(((incidentFluxDiffused+incidentFluxToDiffuse)*diffuseReflectance*areaInv)));
 		return (incidentFluxDiffused+incidentFluxToDiffuse)*diffuseReflectance*areaInv;
 	}
 	// for static objects
@@ -174,7 +194,9 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 		const RRMaterial* material = object->getTriangleMaterial(t);
 		triangles[t].diffuseReflectance = material ? material->diffuseReflectance : RRVec3(0.5f);
 		triangles[t].area = mesh->getTriangleArea(t);
-		triangles[t].areaInv = 1/triangles[t].area;
+		triangles[t].areaInv = triangles[t].area ? 1/triangles[t].area : 1; // so we don't return INF exitance from degenerated triangle (now we mostly return 0)
+		RR_ASSERT(_finite(triangles[t].area));
+		RR_ASSERT(_finite(triangles[t].areaInv));
 		// reset at least once, all future resets may be incremental
 		triangles[t].incidentFluxDirect = RRVec3(0);
 		triangles[t].incidentFluxToDiffuse = RRVec3(0);
@@ -247,6 +269,7 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 
 RRVec3 RRPackedSolver::getTriangleExitance(unsigned triangle) const
 {
+	RR_ASSERT(triangle<numTriangles);
 	return triangles[triangle].getExitance();
 }
 

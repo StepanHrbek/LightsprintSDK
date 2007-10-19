@@ -108,7 +108,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool _pauseMusic
 	// load music - step2
 	music = Music::load(bufmusic);
 	pauseMusic = _pauseMusic;
-	if(music) music->setPaused(pauseMusic);
+	//if(music) music->setPaused(pauseMusic);
 	paused = true;
 }
 
@@ -186,7 +186,8 @@ void DemoPlayer::setPaused(bool _paused)
 	if(!paused && _paused) demoPosition = getDemoPosition();
 	if(paused && !_paused) setDemoPosition(demoPosition);
 	paused = _paused;
-	if(music && pauseMusic)
+	//if(music && pauseMusic)
+	if(music && (pauseMusic || !paused)) // even if we don't pause music, it's paused from constructor, so proceed with unpausing
 	{
 		music->setPaused(paused);
 	}

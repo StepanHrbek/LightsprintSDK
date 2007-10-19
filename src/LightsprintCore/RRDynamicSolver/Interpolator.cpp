@@ -14,6 +14,7 @@ namespace rr
 
 Interpolator::Interpolator()
 {
+	sourceSize = 0;
 	destinationSize = 0;
 }
 
@@ -27,6 +28,7 @@ void Interpolator::learnSource(unsigned offset, float contribution)
 {
 	Contributor c;
 	c.srcOffset = offset;
+	sourceSize = MAX(sourceSize,offset+1);
 	c.srcContributionHdr = contribution;
 #ifdef SUPPORT_LDR
 	c.srcContributionLdr = (u16)(contribution*65536);
@@ -92,7 +94,11 @@ void Interpolator::interpolate(const RRColor* src, RRColor* dst, const RRScaler*
 			RR_ASSERT(headers[i].srcContributorsBegin<headers[i].srcContributorsEnd);
 			for(unsigned j=headers[i].srcContributorsBegin;j<headers[i].srcContributorsEnd;j++)
 			{
+				RR_ASSERT(contributors[j].srcOffset<sourceSize);
 				RR_ASSERT(_finite(contributors[j].srcContributionHdr));
+				RR_ASSERT(_finite(src[contributors[j].srcOffset][0]));
+				RR_ASSERT(_finite(src[contributors[j].srcOffset][1]));
+				RR_ASSERT(_finite(src[contributors[j].srcOffset][2]));
 				RR_ASSERT(contributors[j].srcContributionHdr>0);
 				sum += src[contributors[j].srcOffset] * contributors[j].srcContributionHdr;
 			}

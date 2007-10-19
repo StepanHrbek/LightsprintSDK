@@ -3,17 +3,20 @@
    __________________________________________________________________________
 
 
-1. Benchmark features:
+   Lightsmark measures computer performance with next generation 3D renderer.
 
-   - realtime computed global illumination
+
+1. Benchmark features
+
+   - realtime global illumination
    - realtime penumbra shadows
    - realtime color bleeding
    - infinite light bounces
    - both diffuse and specular reflections
    - dynamic light
    - dynamic objects
-
-   This is possible thanks to Lightsprint SDK, http://lightsprint.com
+   - 220000 triangles
+   - more than 1000 fps
 
 
 2. Supported operating systems
@@ -45,21 +48,18 @@
 
 4. Credits
 
-   - Lightsprint                  : realtime global illumination
-   - Ente / World of Padman team  : "World of Padman: Attic" scene
+   - Lightsprint                  : "Lightsprint SDK" global illumination
+   - World of Padman team         : "Attic" scene
+   - In-sist                      : "Hey you" song under http://creativecommons.org/licenses/by-nc/2.5/
+   - orillionbeta                 : "I Robot" model
+   - Petr Stastny                 : "Koupelna" scene
+   - Sirda                        : "Black man" and "Man in hat" models
    - Mark Kilgard, Nate Robins    : GLUT library
    - Milan Ikits, Marcelo Magallon: GLEW library
-   - many contributors            : FreeImage library
+   - many contributors            : FreeImage library under FIPS license
    - Firelight Technologies       : FMOD library
    - Matthew Fairfax              : 3ds loader
    - Nicolas Baudrey              : bsp loader
-   - Vojta Nedved                 : "Difficult life" music
-   - Petr Stastny                 : "Koupelna" scene
-   - Sirda                        : "Black man" and "Man in hat" models
-   - orillionbeta                 : "I Robot" model
-
-   Special thanks to Ente / World of Padman team for Attic scene.
-   You can download World of Padman game from http://www.worldofpadman.com
 
 
 5. History

@@ -42,7 +42,7 @@ struct AnimationFrame
 	rr_gl::Texture* thumbnail;
 
 	// overlay
-	char overlayFilename[100];
+	char overlayFilename[200];
 	float overlaySeconds;
 	unsigned overlayMode;
 	rr_gl::Texture* overlayMap;

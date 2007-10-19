@@ -6,7 +6,9 @@ unsigned INSTANCES_PER_PASS;
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
 #define BACKGROUND_WORKER
-#define CONSOLE                    0
+#ifdef _DEBUG
+	#define CONSOLE
+#endif
 //#define SUPPORT_LIGHTMAPS
 //#define SUPPORT_WATER
 //#define CORNER_LOGO
@@ -229,8 +231,9 @@ void error(const char* message, bool gfxRelated)
 		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx");
 	printf("\n\nPress ENTER to close.");
 	glutDestroyWindow(glutGetWindow());
-	if(CONSOLE)
-		fgetc(stdin);
+#ifdef CONSOLE
+	fgetc(stdin);
+#endif
 	exit(0);
 }
 
@@ -1272,39 +1275,8 @@ void display()
 {
 	REPORT(rr::RRReportInterval report(rr::INF3,"display()\n"));
 	if(!winWidth) return; // can't work without window
-	static unsigned skipFrames = 0;
 	//printf("<Display.>\n");
-	if(!level)
-	{
-//		showImage(loadingMap);
-//		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
-		//delete level;
-		level = demoPlayer->getNextPart(seekInMusicAtSceneSwap,supportEditor);
-
-		// end of the demo
-		if(!level)
-		{
-			rr::RRReporter::report(rr::INF1,"Finished, average fps = %d.\n",g_fps?g_fps->getAvg():0);
-			exit(g_fps ? g_fps->getAvg() : 0);
-			//keyboard(27,0,0);
-		}
-
-		//for(unsigned i=0;i<6;i++)
-		//	level->solver->calculate();
-
-		// capture thumbnails
-		if(supportEditor)
-		{
-			rr::RRReportInterval report(rr::INF1,"Updating thumbnails...\n");
-			for(LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
-			{
-				updateThumbnail(**i);
-			}
-		}
-
-		// don't display first frame, characters have bad position (dunno why)
-		skipFrames = 1;
-	}
+	if(!level) return; // can't work without scene, idle() shoule create it
 
 	// pro jednoduchost je to tady
 	// kdyby to bylo u vsech stisku/pusteni/pohybu klaves/mysi a animaci,
@@ -2284,6 +2256,38 @@ void idle()
 		seekInMusicAtSceneSwap = false;
 	}
 
+	if(!level)
+	{
+		//		showImage(loadingMap);
+		//		showImage(loadingMap); // neznamo proc jeden show nekdy nestaci na spravny uvodni obrazek
+		//delete level;
+		level = demoPlayer->getNextPart(seekInMusicAtSceneSwap,supportEditor);
+		needMatrixUpdate = 1;
+		needRedisplay = 1;
+		needDepthMapUpdate = 1;
+
+		// end of the demo
+		if(!level)
+		{
+			rr::RRReporter::report(rr::INF1,"Finished, average fps = %d.\n",g_fps?g_fps->getAvg():0);
+			exit(g_fps ? g_fps->getAvg() : 0);
+			//keyboard(27,0,0);
+		}
+
+		//for(unsigned i=0;i<6;i++)
+		//	level->solver->calculate();
+
+		// capture thumbnails
+		if(supportEditor)
+		{
+			rr::RRReportInterval report(rr::INF1,"Updating thumbnails...\n");
+			for(LevelSetup::Frames::iterator i=level->pilot.setup->frames.begin();i!=level->pilot.setup->frames.end();i++)
+			{
+				updateThumbnail(**i);
+			}
+		}
+	}
+
 	// 1. move movables
 	// 2. calculate (optionally update all depthmaps)
 	// 3. render (when possible, reuse existing depthmaps)
@@ -2457,7 +2461,11 @@ int main(int argc, char **argv)
 
 	parseOptions(argc, argv);
 
-	rr::RRReporter::setReporter(CONSOLE ? rr::RRReporter::createPrintfReporter() : rr::RRReporter::createFileReporter("..\\log.txt"));
+#ifdef CONSOLE
+	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+#else
+	rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("..\\log.txt"));
+#endif
 	rr::RRReporter::setFilter(true,2,false);
 	REPORT(rr::RRReporter::setFilter(true,3,true));
 	//rr_gl::Program::showLog = true;
@@ -2569,7 +2577,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-#if CONSOLE==0
+#ifndef CONSOLE
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
 {
 	int argc;
