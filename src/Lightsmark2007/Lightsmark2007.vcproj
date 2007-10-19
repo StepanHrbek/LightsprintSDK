@@ -173,6 +173,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\Lightsmark2007.bmp"
+			>
+		</File>
+		<File
 			RelativePath=".\Lightsmark2007.cpp"
 			>
 		</File>
@@ -182,10 +186,6 @@
 		</File>
 		<File
 			RelativePath=".\Lightsmark2007.rc"
-			>
-		</File>
-		<File
-			RelativePath=".\Lightsmark2007logo.bmp"
 			>
 		</File>
 		<File

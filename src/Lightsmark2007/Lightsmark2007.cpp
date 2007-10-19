@@ -8,6 +8,7 @@
 #pragma comment(lib,"wininet")
 #include <sys\types.h> 
 #include <sys\stat.h> 
+#include <set>
 
 __int64 FileSize64( const char * szFileName ) 
 { 
@@ -19,6 +20,12 @@ __int64 FileSize64( const char * szFileName )
 
 HINSTANCE g_hInst;
 bool g_extended = false;
+
+struct Mode
+{
+	unsigned w,h,fullscr;
+	bool operator <(const Mode& m) const {return fullscr>m.fullscr || w*h<m.w*m.h;}
+};
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -36,23 +43,39 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			// fill resolution
 			DEVMODE currentMode;
 			EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&currentMode);
-			unsigned modes = 0;
+
+			typedef std::set<Mode> Modes;
+			Modes modes;
 			for(unsigned i=0;1;i++)
 			{
 				DEVMODE mode;
 				if(!EnumDisplaySettings(NULL,i,&mode)) break;
 				if(mode.dmBitsPerPel==32 && mode.dmPelsWidth>=480 && mode.dmPelsHeight>=480)
 				{
-					char buf[100];
-					sprintf(buf,"%dx%d",mode.dmPelsWidth,mode.dmPelsHeight);
-					if(SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_FINDSTRING,0,(LPARAM)buf)<0)
+					Mode m;
+					m.w = mode.dmPelsWidth;
+					m.h = mode.dmPelsHeight;
+					m.fullscr = 1;
+					modes.insert(m);
+					if(mode.dmPelsWidth<=currentMode.dmPelsWidth-22 && mode.dmPelsHeight<=currentMode.dmPelsHeight-22)
 					{
-						SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_ADDSTRING,0,(LPARAM)buf);
-						if(mode.dmPelsWidth==currentMode.dmPelsWidth && mode.dmPelsHeight==currentMode.dmPelsHeight)
-							SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_SETCURSEL,modes,0);
-						modes++;
+						m.fullscr = 0;
+						modes.insert(m);
 					}
 				}
+			}
+			unsigned modeIdx = 0;
+			for(Modes::const_iterator i=modes.begin();i!=modes.end();i++)
+			{
+				char buf[100];
+				sprintf(buf,"%dx%d%s",i->w,i->h,i->fullscr?"":" window");
+				if(SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_FINDSTRING,0,(LPARAM)buf)<0)
+				{
+					SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_ADDSTRING,0,(LPARAM)buf);
+					if(i->w==currentMode.dmPelsWidth && i->h==currentMode.dmPelsHeight && i->fullscr)
+						SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_SETCURSEL,modeIdx,0);
+				}
+				modeIdx++;
 			}
 
 			// fill penumbra
@@ -166,9 +189,13 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShowWindow(hDlg, SW_RESTORE);
 			SetWindowPos(hDlg, HWND_TOP, rect.left, rect.top, 0, 0, SWP_NOSIZE);
 		}
-		if(LOWORD(wParam)==IDC_LIGHTSPRINT)
+		if(LOWORD(wParam)==IDC_WEB)
 		{
-			ShellExecuteA( NULL, "open", "http://lightsprint.com", NULL, NULL, SW_SHOWNORMAL );
+			ShellExecuteA( NULL, "open", "http://dee.cz/lm", NULL, NULL, SW_SHOWNORMAL );
+		}
+		if(LOWORD(wParam)==IDC_README)
+		{
+			ShellExecuteA( NULL, "open", "..\\..\\readme.txt", NULL, NULL, SW_SHOWNORMAL );
 		}
 		break;
 	}

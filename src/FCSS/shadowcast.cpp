@@ -434,7 +434,7 @@ BackgroundWorker* g_backgroundWorker = NULL;
 //
 // Solver
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance);
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera);
 void updateMatrices();
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 
@@ -667,7 +667,8 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	level->rendererOfScene->render();
 }
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
+// camera must be already set in OpenGL, this one is passed only for frustum culling
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera)
 {
 	// render static scene
 	assert(!uberProgramSetup.OBJECT_SPACE); 
@@ -677,7 +678,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	assert(demoPlayer);
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,areaLight,firstInstance,demoPlayer->getProjector(currentFrame.projectorIndex),&globalBrightnessBoosted[0],globalGammaBoosted);
+	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,areaLight,firstInstance,demoPlayer->getProjector(currentFrame.projectorIndex),&globalBrightnessBoosted[0],globalGammaBoosted);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
@@ -687,7 +688,6 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap...\n"));
 	rr_gl::Camera* lightInstance = areaLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
-	delete lightInstance;
 
 	glColorMask(0,0,0,0);
 	rr_gl::Texture* shadowmap = areaLight->getShadowMap((mapIndex>=0)?mapIndex:0);
@@ -718,8 +718,9 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
 	//uberProgramSetup.OBJECT_SPACE = false;
 	uberProgramSetup.FORCE_2D_POSITION = false;
-	renderScene(uberProgramSetup,0);
+	renderScene(uberProgramSetup,0,lightInstance);
 	shadowmap->renderingToEnd();
+	delete lightInstance;
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glViewport(0, 0, winWidth, winHeight);
@@ -751,7 +752,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 
 	currentFrame.eye.setupForRender();
 
-	renderScene(uberProgramSetup,firstInstance);
+	renderScene(uberProgramSetup,firstInstance,&currentFrame.eye);
 
 #ifdef BUGS
 	if(gameOn)
@@ -889,7 +890,7 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		renderScene(uberProgramSetup,0);
+		renderScene(uberProgramSetup,0,&currentFrame.eye);
 		glAccum(GL_ACCUM,1);
 	}
 
@@ -1151,9 +1152,10 @@ static void drawHelpMessage(int screen)
 			// playing: frame index computed from current time
 			frameIndex = level->pilot.setup->getFrameIndexByTime(demoPlayer->getPartPosition(),&transitionDone,&transitionTotal);
 		}
-		sprintf(buf,"scene %d/%d, frame %d/%d, %.1f/%.1fs",
+		const AnimationFrame* frame = level->pilot.setup->getFrameByIndex(frameIndex+1);
+		sprintf(buf,"scene %d/%d, frame %d(%d)/%d, %.1f/%.1fs",
 			demoPlayer->getPartIndex()+1,demoPlayer->getNumParts(),
-			frameIndex+1,level->pilot.setup->frames.size(),
+			frameIndex+1,frame?frame->layerNumber:0,level->pilot.setup->frames.size(),
 			transitionDone,transitionTotal);
 		output(x,y+18,buf);
 		sprintf(buf,"bright %.1f, gamma %.1f",
@@ -1734,7 +1736,14 @@ void keyboard(unsigned char c, int x, int y)
 					// we have more dynaobjects
 					selectedObject_indexInDemo = level->pilot.setup->objects[selectedObject_indexInScene];
 					if(!modif)
-						demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);//+rr::RRVec3(0,1.2f,0));
+					{
+						if(demoPlayer->getDynamicObjects()->getPos(selectedObject_indexInDemo)==ray->hitPoint3d)
+							// hide (move to 0)
+							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,rr::RRVec3(0));
+						else
+							// move to given position
+							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);//+rr::RRVec3(0,1.2f,0));
+					}
 				}
 				needDepthMapUpdate = 1;
 			}
@@ -2458,6 +2467,8 @@ void parseOptions(int argc, const char*const*argv)
 	}
 }
 
+HANDLE hIcon = 0;
+
 int main(int argc, char **argv)
 {
 	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
@@ -2486,12 +2497,14 @@ int main(int argc, char **argv)
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ALPHA); // | GLUT_ACCUM | GLUT_ALPHA accum na high quality soft shadows, alpha na filtrovani ambient map
+	const char* windowTitle = "Lightsmark 2007";
 	if(fullscreen)
 	{
 		char buf[100];
 		sprintf(buf,"%dx%d:32",resolutionx,resolutiony);
 		glutGameModeString(buf);
 		glutEnterGameMode();
+		glutSetWindowTitle(windowTitle);
 	}
 	else
 	{
@@ -2499,7 +2512,7 @@ int main(int argc, char **argv)
 		unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
 		glutInitWindowSize(resolutionx,resolutiony);
 		glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
-		glutCreateWindow("Lightsmark 2007");
+		glutCreateWindow(windowTitle);
 		if(resolutionx==w && resolutiony==h)
 			glutFullScreen();
 		if(supportEditor)
@@ -2584,6 +2597,11 @@ int main(int argc, char **argv)
 		g_backgroundWorker = new BackgroundWorker;
 #endif
 
+#ifndef CONSOLE
+	HWND hWnd = FindWindowA(NULL,windowTitle);
+	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+#endif
+
 	glutMainLoop();
 	return 0;
 }
@@ -2600,6 +2618,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 		sprintf(argv[i], "%ws", argvw[i]);
 	}
 	argv[argc] = NULL;
+	hIcon = LoadImage(hInstance,MAKEINTRESOURCE(IDI_ICON1),IMAGE_ICON,0,0,0);
 	return main(argc,argv);
 }
 #endif
