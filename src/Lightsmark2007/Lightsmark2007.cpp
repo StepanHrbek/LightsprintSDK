@@ -145,7 +145,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				// finished with score
 				sprintf(buf,"%d",score);
 				SendDlgItemMessageA(hDlg,IDC_SCORE,WM_SETTEXT,0,(LPARAM)buf);
-				SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)"score = fps");
+				SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)"fps");
 			}
 			else
 			{

@@ -97,6 +97,12 @@ float Music::getLength()
 	return ms*0.001f;
 }
 
+void Music::setVolume(float volume)
+{
+	if(channel)
+		channel->setVolume(volume);
+}
+
 Music::~Music()
 {
 	FMOD_RESULT result;

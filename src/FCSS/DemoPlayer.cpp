@@ -264,6 +264,12 @@ float DemoPlayer::getMusicLength() const
 	return music ? music->getLength() : 0;
 }
 
+void DemoPlayer::setVolume(float volume)
+{
+	if(music)
+		music->setVolume(volume);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // projectors

@@ -48,6 +48,19 @@
 
 4. Credits
 
+   Created by Stepan Hrbek using
+
+   - Lightsprint SDK realtime global illumination
+   - Attic map from World of Padman game
+   - Hey you song by In-sist under http://creativecommons.org/licenses/by-nc/2.5/
+   - I Robot model by orillionbeta
+   - GLUT library
+   - GLEW library
+   - FreeImage library under FIPS license
+   - FMOD library
+   - bsp loader by Nicolas Baudrey
+   - 3ds loader by Matthew Fairfax
+
    - Lightsprint                  : "Lightsprint SDK" global illumination
    - World of Padman team         : "Attic" scene
    - In-sist                      : "Hey you" song under http://creativecommons.org/licenses/by-nc/2.5/
@@ -69,5 +82,5 @@
 
 6. Contact
 
-   Stepan Hrbek <stepan.hrbek@lightsprint.com>
-   http://lightsprint.com
+   Stepan Hrbek <dee@dee.cz>
+   http://dee.cz/lm

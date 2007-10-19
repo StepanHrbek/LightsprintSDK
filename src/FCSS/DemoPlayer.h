@@ -28,6 +28,7 @@ public:
 
 	float getMusicLength() const;
 	float getMusicPosition() const;
+	void  setVolume(float volume);
 
 	class Level* getNextPart(bool seekInMusic, bool loop); // adjusts timers, next part is started
 	class Level* getPart(unsigned index); // no timer adjustments made

@@ -16,6 +16,7 @@ public:
 	float getPosition();
 	void  setPosition(float seconds);
 	float getLength();
+	void  setVolume(float volume);
 	~Music();
 
 private:

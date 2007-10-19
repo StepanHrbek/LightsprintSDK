@@ -33,11 +33,6 @@ public:
 	// copy positions from actual scene to animation frame
 	void copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& frame, const LevelSetup* setup);
 
-	// nastavi dynamickou scenu do daneho casu od zacatku animace
-	// pokud je cas mimo rozsah animace, neudela nic a vrati false
-	// pozor: nevhodne kdyz je paused, muze skocit do jineho framu pokud maji 0sec
-	bool setupSceneDynamicForPartTime(class LevelSetup* setup, float secondsFromStart);
-
 	// automaticky rotuje objekty, pouzij kdyz je benchmark pauznuty
 	void advanceRot(float seconds);
 

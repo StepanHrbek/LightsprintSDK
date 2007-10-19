@@ -289,23 +289,6 @@ void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& f
 	frame.validate(setup->objects.size());
 }
 
-// nastavi dynamickou scenu do daneho casu od zacatku animace
-// pokud je cas mimo rozsah animace, neudela nic a vrati false
-bool DynamicObjects::setupSceneDynamicForPartTime(LevelSetup* setup, float secondsFromPartStart)
-{
-	if(!setup)
-	{
-		return false; // no scene loaded
-	}
-	static AnimationFrame prevFrame(0);
-	const AnimationFrame* frame = setup->getFrameByTime(secondsFromPartStart);
-	if(!frame)
-		return false;
-	copyAnimationFrameToScene(setup,*frame,memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0);
-	prevFrame = *frame;
-	return true;
-}
-
 void DynamicObjects::updateSceneDynamic(rr::RRDynamicSolver* solver)
 {
 	for(unsigned i=0;i<dynaobject.size();i++)

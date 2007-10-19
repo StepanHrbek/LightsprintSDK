@@ -24,6 +24,7 @@ AnimationFrame::AnimationFrame(AnimationFrame& copy) :
 	overlayMap = copy.overlayMap; copy.overlayMap = NULL; // don't duplicate pointer, would be deleted twice
 	shadowType = copy.shadowType;
 	indirectType = copy.indirectType;
+	volume = copy.volume;
 }
 
 AnimationFrame::AnimationFrame(unsigned _layerNumber) :
@@ -42,6 +43,7 @@ AnimationFrame::AnimationFrame(unsigned _layerNumber) :
 	overlayMap = NULL;
 	shadowType = 2; // soft
 	indirectType = 2; // realtime per vertex
+	volume = 1;
 }
 
 AnimationFrame::~AnimationFrame()
@@ -73,6 +75,7 @@ rr::RRVec2 blendModulo(rr::RRVec2 a,rr::RRVec2 b,rr::RRReal alpha,rr::RRReal mod
 
 // returns blend between this and that frame
 // return this for alpha=0, that for alpha=1
+// returns always the same static object
 const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float alpha) const
 {
 	static AnimationFrame blended(0);
@@ -95,6 +98,8 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 		tmp.rot = blendModulo(this->dynaPosRot[i].rot,that.dynaPosRot[i].rot,alpha,360);
 		blended.dynaPosRot.push_back(tmp);
 	}
+	// blend volume
+	blended.volume = this->volume*(1-alpha)+that.volume*alpha;
 	// blend projectorIndex
 	blended.projectorIndex = projectorIndex;
 	// blend thumbnail
@@ -148,6 +153,8 @@ bool AnimationFrame::loadOver(FILE* f)
 	// load technique
 	if(fscanf(f,"shadow_type = %d\n",&shadowType)==1) loaded = true;
 	if(fscanf(f,"indirect_type = %d\n",&indirectType)==1) loaded = true;
+	// load volume
+	if(fscanf(f,"volume = %f\n",&volume)==1) loaded = true;
 	// load timing
 	if(fscanf(f,"duration = %f\n",&transitionToNextTime)==1) loaded = true;
 	//if(0!=fscanf(f,"\n"))
@@ -196,6 +203,9 @@ bool AnimationFrame::save(FILE* f, const AnimationFrame& prev) const
 		fprintf(f,"shadow_type = %d\n",shadowType);
 	if(indirectType!=prev.indirectType)
 		fprintf(f,"indirect_type = %d\n",indirectType);
+	// save volume
+	if(volume!=prev.volume)
+		fprintf(f,"volume = %.2f\n",volume);
 	// save timing
 	if(transitionToNextTime!=prev.transitionToNextTime)
 		fprintf(f,"duration = %.3f\n",transitionToNextTime);

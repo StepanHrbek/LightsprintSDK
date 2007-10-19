@@ -1276,7 +1276,7 @@ void display()
 	REPORT(rr::RRReportInterval report(rr::INF3,"display()\n"));
 	if(!winWidth) return; // can't work without window
 	//printf("<Display.>\n");
-	if(!level) return; // can't work without scene, idle() shoule create it
+	if(!level) return; // we can't render without scene, idle() should create it first
 
 	// pro jednoduchost je to tady
 	// kdyby to bylo u vsech stisku/pusteni/pohybu klaves/mysi a animaci,
@@ -1320,9 +1320,9 @@ void display()
 						float pos = (now-frameStart)/(*i)->overlaySeconds; //0..1
 						//float rand01 = rand()/float(RAND_MAX);
 						float intensity = (1-(pos*2-1)*(pos*2-1)*(pos*2-1)*(pos*2-1)) ;//* MAX(0,MIN(rand01*20,1)-rand01/10);
-						float h = 0.15f+0.08f*pos;
+						float h = 0.13f+0.11f*pos;
 						float w = h*texture->getWidth()*winHeight/winWidth/texture->getHeight();
-						showOverlay(texture,intensity,0.5f-w/2,0.3f-h/2,w,h);
+						showOverlay(texture,intensity,0.5f-w/2,0.25f-h/2,w,h);
 						break;
 				}
 			}
@@ -2321,8 +2321,19 @@ void idle()
 		demoPlayer->advance();
 		if(level)
 		{
-			if(!demoPlayer->getDynamicObjects()->setupSceneDynamicForPartTime(level->pilot.setup, demoPlayer->getPartPosition()))
+			// najde aktualni frame
+			const AnimationFrame* frame = level->pilot.setup ? level->pilot.setup->getFrameByTime(demoPlayer->getPartPosition()) : NULL;
+			if(frame)
 			{
+				// pokud existuje, nastavi ho
+				demoPlayer->setVolume(frame->volume);
+				static AnimationFrame prevFrame(0);
+				demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0);
+				prevFrame = *frame;
+			}
+			else
+			{
+				// pokud neexistuje, jde na dalsi level nebo skonci 
 				if(level->animationEditor)
 				{
 					// play scene finished, jump to editor

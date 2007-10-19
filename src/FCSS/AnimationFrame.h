@@ -47,6 +47,9 @@ struct AnimationFrame
 	unsigned overlayMode;
 	rr_gl::Texture* overlayMap;
 
+	// volume
+	float volume;
+
 	// technique
 	unsigned shadowType; // 0=hard 1=soft 2=penumbra
 	unsigned indirectType; // 0=none 1=constant 2=realtimeGI 3=precomputedGI
