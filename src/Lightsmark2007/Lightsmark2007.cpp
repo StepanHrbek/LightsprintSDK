@@ -24,7 +24,10 @@ bool g_extended = false;
 struct Mode
 {
 	unsigned w,h,fullscr;
-	bool operator <(const Mode& m) const {return fullscr>m.fullscr || w*h<m.w*m.h;}
+	bool operator <(const Mode& m) const
+	{
+		return w*h+((1-fullscr)<<30) < m.w*m.h+((1-m.fullscr)<<30);
+	}
 };
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)

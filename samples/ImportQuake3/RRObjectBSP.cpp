@@ -31,6 +31,8 @@
 	#include <sys/stat.h>
 #endif
 
+#define PACK_VERTICES // reindex vertices, remove unused ones
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -88,6 +90,14 @@ private:
 		unsigned s; // material index
 	};
 	std::vector<TriangleInfo> triangles;
+#ifdef PACK_VERTICES
+	struct VertexInfo
+	{
+		rr::RRVec3 position;
+		rr::RRVec2 texCoord;
+	};
+	std::vector<VertexInfo> vertices;
+#endif
 
 	// copy of object's material properties
 	struct MaterialInfo
@@ -182,6 +192,12 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 {
 	model = amodel;
 
+#ifdef PACK_VERTICES
+	// prepare for unused vertex removal
+	unsigned* xlat = new unsigned[model->mVertices.size()]; // old vertexIdx to new vertexIdx, UINT_MAX=unknown yet
+	for(unsigned i=0;i<(unsigned)model->mVertices.size();i++) xlat[i] = UINT_MAX;
+#endif
+
 	for(unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
 		MaterialInfo si;
@@ -210,6 +226,26 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 							ti.t[1] = model->mFaces[i].mVertex + model->mMeshVertices[j+2].mMeshVert;
 							ti.t[2] = model->mFaces[i].mVertex + model->mMeshVertices[j+1].mMeshVert;
 							ti.s = model->mFaces[i].mTextureIndex;
+
+#ifdef PACK_VERTICES
+							// pack vertices, remove unused
+							for(unsigned i=0;i<3;i++)
+							{
+								if(xlat[ti.t[i]]==UINT_MAX)
+								{
+									xlat[ti.t[i]] = vertices.size();
+									VertexInfo vi;
+									vi.position[0] = model->mVertices[ti.t[i]].mPosition[0]*0.015f;
+									vi.position[1] = model->mVertices[ti.t[i]].mPosition[2]*0.015f;
+									vi.position[2] = -model->mVertices[ti.t[i]].mPosition[1]*0.015f;
+									vi.texCoord[0] = model->mVertices[ti.t[i]].mTexCoord[0][0];
+									vi.texCoord[1] = model->mVertices[ti.t[i]].mTexCoord[0][1];
+									vertices.push_back(vi);
+								}
+								ti.t[i] = xlat[ti.t[i]];
+							}
+#endif
+
 							triangles.push_back(ti);
 						}
 					}
@@ -233,6 +269,10 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 		materials.push_back(si);
 	}
 
+#ifdef PACK_VERTICES
+	delete[] xlat;
+#endif
+
 #ifdef VERIFY
 	verify();
 #endif
@@ -241,7 +281,7 @@ RRObjectBSP::RRObjectBSP(TMapQ3* amodel, const char* pathToTextures, bool stripP
 	collider = rr::RRCollider::create(this,rr::RRCollider::IT_LINEAR);
 
 	// create illumination
-	illumination = new rr::RRObjectIllumination((unsigned)model->mVertices.size());
+	illumination = new rr::RRObjectIllumination(RRObjectBSP::getNumVertices());
 }
 
 rr::RRObjectIllumination* RRObjectBSP::getIllumination()
@@ -327,8 +367,12 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 			RRObjectBSP::getTriangle(itemIndex,triangle);
 			for(unsigned v=0;v<3;v++)
 			{
+#ifdef PACK_VERTICES
+				(*out)[v] = vertices[triangle[v]].texCoord;
+#else
 				(*out)[v][0] = model->mVertices[triangle[v]].mTexCoord[0][0];
 				(*out)[v][1] = model->mVertices[triangle[v]].mTexCoord[0][1];
+#endif
 			}
 			return true;
 		}
@@ -361,19 +405,27 @@ bool RRObjectBSP::getChannelData(unsigned channelId, unsigned itemIndex, void* i
 
 unsigned RRObjectBSP::getNumVertices() const
 {
+#ifdef PACK_VERTICES
+	return (unsigned)vertices.size();
+#else
 	return (unsigned)model->mVertices.size();
+#endif
 }
 
 void RRObjectBSP::getVertex(unsigned v, Vertex& out) const
 {
+	assert(v<RRObjectBSP::getNumVertices());
+#ifdef PACK_VERTICES
+	out = vertices[v].position;
+#else
 	// To become compatible with our conventions, positions are transformed:
 	// - Y / Z components swapped to get correct up vector
 	// - one component negated to swap front/back
 	// - *0.015f to convert to meters
-	assert(v<(unsigned)model->mVertices.size());
 	out[0] = model->mVertices[v].mPosition[0]*0.015f;
 	out[1] = model->mVertices[v].mPosition[2]*0.015f;
 	out[2] = -model->mVertices[v].mPosition[1]*0.015f;
+#endif
 }
 
 //unsigned RRObjectBSP::getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const

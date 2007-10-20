@@ -10,6 +10,11 @@
 #include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 
+#define OPTIMIZED_RDO // create multiobject and render it..(disabled, no improvement detected)
+#ifdef OPTIMIZED_RDO
+	#include "Lightsprint/GL/RendererOfRRObject.h"
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -45,10 +50,16 @@ public:
 protected:
 	DynamicObject();
 	class Model_3DS* model;
+	rr::RRObjects* singleObjects;
+	rr::RRObject* multiObject;
 	rr_gl::UberProgramSetup material;
 	unsigned gatherCubeSize;
 	unsigned specularCubeSize;
+#ifdef OPTIMIZED_RDO
+	rr_gl::RendererOfRRObject* rendererWithoutCache;
+#else
 	rr_gl::Renderer* rendererWithoutCache;
+#endif
 	rr_gl::Renderer* rendererCached;
 
 	// updated by updatePosition

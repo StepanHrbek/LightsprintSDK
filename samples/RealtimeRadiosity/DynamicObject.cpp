@@ -22,8 +22,6 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 	//d->model->smoothAll = true; // use for characters from lowpolygon3d.com
 	if(d->model->Load(_filename,_scale) && d->model->numObjects)
 	{
-		d->rendererWithoutCache = new RendererOf3DS(d->model,true,_material.MATERIAL_DIFFUSE_MAP,_material.MATERIAL_EMISSIVE_MAP);
-		d->rendererCached = d->rendererWithoutCache->createDisplayList();
 		d->material = _material;
 		d->gatherCubeSize = _gatherCubeSize;
 		d->specularCubeSize = _specularCubeSize;
@@ -33,6 +31,11 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 		if(d->material.MATERIAL_SPECULAR)
 			d->illumination->specularEnvMap = rr_gl::RRDynamicSolverGL::createIlluminationEnvironmentMap();
 		d->updatePosition();
+
+		// simple renderer
+		d->rendererWithoutCache = new RendererOf3DS(d->model,true,_material.MATERIAL_DIFFUSE_MAP,_material.MATERIAL_EMISSIVE_MAP);
+		d->rendererCached = d->rendererWithoutCache->createDisplayList();
+
 		return d;
 	}
 	if(!d->model->numObjects) printf("Model %s contains no objects.\n",_filename);
@@ -53,10 +56,10 @@ DynamicObject::DynamicObject()
 
 DynamicObject::~DynamicObject()
 {
-	delete model;
-	delete illumination;
 	delete rendererCached;
 	delete rendererWithoutCache;
+	delete illumination;
+	delete model;
 }
 
 void DynamicObject::updatePosition()
@@ -160,7 +163,8 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		//  sometimes it's diffuse, sometimes emissive
 		glActiveTexture(activeTexture);
 	}
-	// render
-	rendererCached->render(); // cached inside display list
-	//model->Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL); // non cached
+	// simple render, non cached
+	//model->Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL);
+	// simple render, cached inside display list
+	rendererCached->render();
 }
