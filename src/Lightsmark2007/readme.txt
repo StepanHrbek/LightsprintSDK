@@ -1,9 +1,9 @@
 
-   LIGHTSMARK 2007                                           v1.0, 2007-10-20
+   LIGHTSMARK 2007                                           v0.8, 2007-10-20
    __________________________________________________________________________
 
 
-   Lightsmark measures computer performance with next generation 3D renderer.
+   Lightsmark measures computer performance with next generation 3D engine.
 
 
 1. Benchmark features
@@ -12,11 +12,9 @@
    - realtime penumbra shadows
    - realtime color bleeding
    - infinite light bounces
-   - both diffuse and specular reflections
-   - dynamic light
-   - dynamic objects
+   - fully dynamic HDR lighting
    - 220000 triangles
-   - more than 1000 fps
+   - 300+ average fps (GF8800GTX)
 
 
 2. Supported operating systems
@@ -61,26 +59,15 @@
    - bsp loader by Nicolas Baudrey
    - 3ds loader by Matthew Fairfax
 
-   - Lightsprint                  : "Lightsprint SDK" global illumination
-   - World of Padman team         : "Attic" scene
-   - In-sist                      : "Hey you" song under http://creativecommons.org/licenses/by-nc/2.5/
-   - orillionbeta                 : "I Robot" model
-   - Petr Stastny                 : "Koupelna" scene
-   - Sirda                        : "Black man" and "Man in hat" models
-   - Mark Kilgard, Nate Robins    : GLUT library
-   - Milan Ikits, Marcelo Magallon: GLEW library
-   - many contributors            : FreeImage library under FIPS license
-   - Firelight Technologies       : FMOD library
-   - Matthew Fairfax              : 3ds loader
-   - Nicolas Baudrey              : bsp loader
-
 
 5. History
 
-   2007-10-20 version 1.0
+   2007-10-20 version 0.8
 
 
 6. Contact
 
    Stepan Hrbek <dee@dee.cz>
-   http://dee.cz/lm
+   http://lightsmark.com
+
+   Your comments are welcome!

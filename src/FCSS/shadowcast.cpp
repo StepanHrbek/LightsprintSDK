@@ -8,6 +8,8 @@ unsigned INSTANCES_PER_PASS;
 #define BACKGROUND_WORKER
 #ifdef _DEBUG
 	#define CONSOLE
+#else
+	//#define SET_ICON
 #endif
 //#define SUPPORT_LIGHTMAPS
 //#define SUPPORT_WATER
@@ -2467,7 +2469,9 @@ void parseOptions(int argc, const char*const*argv)
 	}
 }
 
+#ifdef SET_ICON
 HANDLE hIcon = 0;
+#endif
 
 int main(int argc, char **argv)
 {
@@ -2597,7 +2601,7 @@ int main(int argc, char **argv)
 		g_backgroundWorker = new BackgroundWorker;
 #endif
 
-#ifndef CONSOLE
+#ifdef SET_ICON
 	HWND hWnd = FindWindowA(NULL,windowTitle);
 	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 #endif
@@ -2618,7 +2622,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 		sprintf(argv[i], "%ws", argvw[i]);
 	}
 	argv[argc] = NULL;
+#ifdef SET_ICON
 	hIcon = LoadImage(hInstance,MAKEINTRESOURCE(IDI_ICON1),IMAGE_ICON,0,0,0);
+#endif
 	return main(argc,argv);
 }
 #endif

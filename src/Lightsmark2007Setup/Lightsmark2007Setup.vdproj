@@ -267,6 +267,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_23D2F04EFF4D436C8BD40702A0411264"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_23F22084C43C42749B2EC6202E7A2248"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -352,12 +358,6 @@
         "Entry"
         {
         "MsmKey" = "8:_2AC19A6ACBDB4ABA8DF6D9DEAF831646"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2B879EEB39C8422CA83D83C827002946"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -471,12 +471,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_372CD015F4D54C2C824B256D1329F003"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_3743F7F868354E9B8AE2A20452445718"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -496,12 +490,6 @@
         "Entry"
         {
         "MsmKey" = "8:_3AF8C2B88A064A19B5346DD4208453EB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3B330F85454741F48CE0C610D18CF00C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -633,12 +621,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5476FE34372C4060946BDB40EB2D1806"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_55DB96426F634D82B0D240D914F8ED8D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -669,18 +651,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_57B80CED83564462BC7F36608AC799DA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5B0DA04C0A0B4F7BBFB6D2E319DB8493"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5BE6C57DA6854D87BD26BE8638D9B86C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -706,12 +676,6 @@
         "Entry"
         {
         "MsmKey" = "8:_5E8E7EE9368140F9BBA29F1E0F72D261"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5EE0E2D6B9D74A84BF7B1A880B3EAD2D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -879,6 +843,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7C6F49562526492F9BB7A00A9BE497C9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7F62DC68D6B14E2CAE362EFD1D98D74F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -886,12 +856,6 @@
         "Entry"
         {
         "MsmKey" = "8:_81610666BA5F4E03B7F206BC1F02666C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_8554B8A76CA047A78EF07B8F40DFE742"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -916,6 +880,12 @@
         "Entry"
         {
         "MsmKey" = "8:_8848A3E9E31A4BFF9A730ED40F3AE091"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8996F60E4906417CB9B253BAC401738F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1029,6 +999,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_991FE48E1DD3444D80F3EB3DE20D11B3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_993825B130FC44DA81F582A1BAAC4DCD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1042,12 +1018,6 @@
         "Entry"
         {
         "MsmKey" = "8:_9BE5E4AEF07B4245BE30C6AD5E6DE48A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9D8E4605E29E48BB89EE09AE5AD7B36F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1185,19 +1155,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AC5CE9E9E21141629614CC1B6EE0C889"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AD1DBDED169340D0974EF00B516FFF59"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B21C73F9F67F4B8A8B09AD02B2AB0B45"
+        "MsmKey" = "8:_B41D5F1F50F94442AA47CE213ED205FF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B41D5F1F50F94442AA47CE213ED205FF"
+        "MsmKey" = "8:_B4289C97079E46C59707482674F3A87F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1245,6 +1221,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BA8C96F910C8442D83D40A16314C2D12"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BB79CB1FDD8C4CA5838F0E286E3B11FA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1270,6 +1252,12 @@
         "Entry"
         {
         "MsmKey" = "8:_BD277CF8F5184CBFBA10158053D80020"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C08DFD70C3024ECE98D91292BDB3F4F7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1347,12 +1335,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C54E73A5ED994FAFAAC46CE4FDB247DD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_C6670CCE562C4840B6F4095D29CA8BF0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1360,12 +1342,6 @@
         "Entry"
         {
         "MsmKey" = "8:_C8655B81FF4A479DA257D1931ED81094"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C8AC7AA3DC4244E1B15FD2AB27D3E97F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1527,12 +1503,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DC83EF48BC834AA0A6F1C280B1600D48"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_DCE7D15EAD02415BAC9AF1D0EB3F3C9E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1546,6 +1516,12 @@
         "Entry"
         {
         "MsmKey" = "8:_DD3D6E7AC03B40F3871A49D04501BAC1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DD7A5166BF6C4B7AAE2249DEA71837F5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1587,12 +1563,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E119F31A4D4042BE9F4A8EE8A6247CDE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E157592E1D5F44F487E8F65099443125"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1612,12 +1582,6 @@
         "Entry"
         {
         "MsmKey" = "8:_E26D10099B4B4B99BEECF0D1420B9C68"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E297C8FBCCB342B18B96666297CCE7B0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1666,6 +1630,12 @@
         "Entry"
         {
         "MsmKey" = "8:_E6E5DF60109446FE8B5BC97C11695766"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E7339421044F44D8BCEC25D1736972DE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1720,12 +1690,6 @@
         "Entry"
         {
         "MsmKey" = "8:_EFB7DA45B69A4A0AB3AAC6E5CCF38D1D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_EFBD70CD984F4AA2B4AB5791ECF6F979"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1827,12 +1791,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_FF07076727DC4AE7B5601CF0246798A0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_EC1FCB26833E4E509C33BCAE6C6956E2"
         "MsmSig" = "8:_UNDEFINED"
@@ -1849,7 +1807,7 @@
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
-        "Compression" = "3:1"
+        "Compression" = "3:3"
         "SignOutput" = "11:FALSE"
         "CertificateFile" = "8:"
         "PrivateKeyFile" = "8:"
@@ -2735,6 +2693,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_23D2F04EFF4D436C8BD40702A0411264"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\movie_clip.jpg"
+            "TargetName" = "8:movie_clip.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_23F22084C43C42749B2EC6202E7A2248"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart10.jpg"
@@ -3021,26 +2999,6 @@
             "TargetName" = "8:obj048.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2B879EEB39C8422CA83D83C827002946"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\src\\Lightsmark2007Setup\\Lightsprint.url"
-            "TargetName" = "8:Lightsprint.url"
-            "Tag" = "8:"
-            "Folder" = "8:_9763831053554B918AFC705580101164"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3415,26 +3373,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_372CD015F4D54C2C824B256D1329F003"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\zed.jpg"
-            "TargetName" = "8:zed.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3743F7F868354E9B8AE2A20452445718"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\glew32.dll"
@@ -3501,26 +3439,6 @@
             "TargetName" = "8:wood038.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B330F85454741F48CE0C610D18CF00C"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\zed_mod.jpg"
-            "TargetName" = "8:zed_mod.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3955,26 +3873,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5476FE34372C4060946BDB40EB2D1806"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\podlaha.jpg"
-            "TargetName" = "8:podlaha.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_55DB96426F634D82B0D240D914F8ED8D"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart18c.jpg"
@@ -4075,46 +3973,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_57B80CED83564462BC7F36608AC799DA"
-            {
-            "SourcePath" = "8:..\\..\\data\\maps\\txt-penumbra-shadows.png"
-            "TargetName" = "8:txt-penumbra-shadows.png"
-            "Tag" = "8:"
-            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B0DA04C0A0B4F7BBFB6D2E319DB8493"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\cervena.jpg"
-            "TargetName" = "8:cervena.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5BE6C57DA6854D87BD26BE8638D9B86C"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\puppenhausbild.jpg"
@@ -4201,26 +4059,6 @@
             "TargetName" = "8:pack001.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5EE0E2D6B9D74A84BF7B1A880B3EAD2D"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\zed_zlu.jpg"
-            "TargetName" = "8:zed_zlu.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4775,6 +4613,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7C6F49562526492F9BB7A00A9BE497C9"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-inf-bounces.png"
+            "TargetName" = "8:txt-inf-bounces.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7F62DC68D6B14E2CAE362EFD1D98D74F"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\paint01.jpg"
@@ -4801,26 +4659,6 @@
             "TargetName" = "8:texture.vs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8554B8A76CA047A78EF07B8F40DFE742"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\zed_zel.jpg"
-            "TargetName" = "8:zed_zel.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4901,6 +4739,26 @@
             "TargetName" = "8:cart07.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8996F60E4906417CB9B253BAC401738F"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-hard-shadows.png"
+            "TargetName" = "8:txt-hard-shadows.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5275,6 +5133,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_991FE48E1DD3444D80F3EB3DE20D11B3"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-penumbra-shadows.png"
+            "TargetName" = "8:txt-penumbra-shadows.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_993825B130FC44DA81F582A1BAAC4DCD"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-7.png"
@@ -5321,26 +5199,6 @@
             "TargetName" = "8:cart15.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9D8E4605E29E48BB89EE09AE5AD7B36F"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\objects\\civil\\civil01.jpg"
-            "TargetName" = "8:civil01.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_2B45667E4A7649D686C2A434620794E4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5795,6 +5653,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC5CE9E9E21141629614CC1B6EE0C889"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-no-radiosity.png"
+            "TargetName" = "8:txt-no-radiosity.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AD1DBDED169340D0974EF00B516FFF59"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\screw1.tga"
@@ -5815,12 +5693,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B21C73F9F67F4B8A8B09AD02B2AB0B45"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B41D5F1F50F94442AA47CE213ED205FF"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\drv.jpg"
-            "TargetName" = "8:drv.jpg"
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02b.jpg"
+            "TargetName" = "8:book02b.jpg"
             "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
+            "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5835,12 +5713,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B41D5F1F50F94442AA47CE213ED205FF"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4289C97079E46C59707482674F3A87F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02b.jpg"
-            "TargetName" = "8:book02b.jpg"
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\music\\Insist_HeyYou.mp3"
+            "TargetName" = "8:Insist_HeyYou.mp3"
             "Tag" = "8:"
-            "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Folder" = "8:_918D415FD21E4D6FA0240F2B51E76580"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5995,6 +5873,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA8C96F910C8442D83D40A16314C2D12"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-realtime-radiosity.png"
+            "TargetName" = "8:txt-realtime-radiosity.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BB79CB1FDD8C4CA5838F0E286E3B11FA"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-2.png"
@@ -6081,6 +5979,26 @@
             "TargetName" = "8:ubershader.fs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C08DFD70C3024ECE98D91292BDB3F4F7"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\src\\Lightsmark2007Setup\\Lightsmark.url"
+            "TargetName" = "8:Lightsmark.url"
+            "Tag" = "8:"
+            "Folder" = "8:_9763831053554B918AFC705580101164"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6335,26 +6253,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C54E73A5ED994FAFAAC46CE4FDB247DD"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\objects\\civil\\civil.3DS"
-            "TargetName" = "8:civil.3DS"
-            "Tag" = "8:"
-            "Folder" = "8:_2B45667E4A7649D686C2A434620794E4"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C6670CCE562C4840B6F4095D29CA8BF0"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\spiderskin.tga"
@@ -6381,26 +6279,6 @@
             "TargetName" = "8:glut32.dll"
             "Tag" = "8:"
             "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C8AC7AA3DC4244E1B15FD2AB27D3E97F"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\koupelna41.ani"
-            "TargetName" = "8:koupelna41.ani"
-            "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6935,26 +6813,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DC83EF48BC834AA0A6F1C280B1600D48"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\music\\DLIFE.XM"
-            "TargetName" = "8:DLIFE.XM"
-            "Tag" = "8:"
-            "Folder" = "8:_918D415FD21E4D6FA0240F2B51E76580"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DCE7D15EAD02415BAC9AF1D0EB3F3C9E"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02d.jpg"
@@ -7001,6 +6859,26 @@
             "TargetName" = "8:woodsockelc.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DD7A5166BF6C4B7AAE2249DEA71837F5"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-soft-shadows.png"
+            "TargetName" = "8:txt-soft-shadows.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7135,26 +7013,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E119F31A4D4042BE9F4A8EE8A6247CDE"
-            {
-            "SourcePath" = "8:..\\..\\data\\maps\\txt-realtime-radiosity.png"
-            "TargetName" = "8:txt-realtime-radiosity.png"
-            "Tag" = "8:"
-            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E157592E1D5F44F487E8F65099443125"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pad_pencilsr.tga"
@@ -7221,26 +7079,6 @@
             "TargetName" = "8:carton02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E297C8FBCCB342B18B96666297CCE7B0"
-            {
-            "SourcePath" = "8:..\\..\\data\\maps\\Lightsmark2007logo.jpg"
-            "TargetName" = "8:Lightsmark2007logo.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7401,6 +7239,26 @@
             "TargetName" = "8:pglass04.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E7339421044F44D8BCEC25D1736972DE"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\Lightsmark2007.jpg"
+            "TargetName" = "8:Lightsmark2007.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7592,26 +7450,6 @@
             "TargetName" = "8:pad_tennisball.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EFBD70CD984F4AA2B4AB5791ECF6F979"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\koupelna41.3ds"
-            "TargetName" = "8:koupelna41.3ds"
-            "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7946,26 +7784,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FF07076727DC4AE7B5601CF0246798A0"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\koupelna\\koupelna41.fib"
-            "TargetName" = "8:koupelna41.fib"
-            "Tag" = "8:"
-            "Folder" = "8:_06A72422FE4C42F499E10C56A8695C95"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
         }
         "FileType"
         {
@@ -7985,7 +7803,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_9763831053554B918AFC705580101164"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder][ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -8055,17 +7873,6 @@
                             "Property" = "8:_AD255A15D42B4F6F95A80A448A6B2AB1"
                                 "Folders"
                                 {
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_2B45667E4A7649D686C2A434620794E4"
-                                    {
-                                    "Name" = "8:civil"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_4123CA3D2AE14535A11DBA42BD7E9862"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
                                 }
                             }
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_41017772CCBE40E0B84095CE32E5BE23"
@@ -8077,17 +7884,6 @@
                             "Property" = "8:_97A46270E31C47E895765B4F0CF0608F"
                                 "Folders"
                                 {
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_06A72422FE4C42F499E10C56A8695C95"
-                                    {
-                                    "Name" = "8:koupelna"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_A78E85E10789411293568C1CE80CAE37"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
                                     "{9EF0B969-E518-4E46-987F-47570745A589}:_E744EDB35E7F4263BA8AD2431CC28965"
                                     {
                                     "Name" = "8:wop_padattic"
@@ -8158,26 +7954,15 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
-                    "{9EF0B969-E518-4E46-987F-47570745A589}:_391D149331F04734B19792CB87D4CD88"
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_097D787AABE747568E8EF7F01DA61193"
                     {
-                    "Name" = "8:Lightsprint"
+                    "Name" = "8:Lightsmark 2007"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
-                    "Property" = "8:_554EE95621B144A9833328EC390F0650"
+                    "Property" = "8:_029194CBD34946DE9FA342561A2749C4"
                         "Folders"
                         {
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_3C1265CF401F45D08498FED54E6DCE93"
-                            {
-                            "Name" = "8:Lightsmark 2007"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_68A863F8D2344BB0801A2E50965C290E"
-                                "Folders"
-                                {
-                                }
-                            }
                         }
                     }
                 }
@@ -8198,22 +7983,22 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lightsmark 2007"
         "ProductCode" = "8:{26A6386E-4073-4EDF-9C75-EED68B187FA7}"
-        "PackageCode" = "8:{B16D0156-4D1A-43E0-92A1-F806AACC8551}"
+        "PackageCode" = "8:{34D9412E-1737-431B-850B-50F8667FC7A7}"
         "UpgradeCode" = "8:{3EA93B0E-BADB-4630-8F51-85220D56E9D3}"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
-        "Manufacturer" = "8:Lightsprint"
+        "Manufacturer" = "8:Stepan Hrbek"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
         "Title" = "8:Lightsmark 2007"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:Lightsprint"
+        "ARPCONTACT" = "8:Stepan Hrbek"
         "Keywords" = "8:realtime global illumination penumbra shadows"
         "ARPCOMMENTS" = "8:Realtime Global Illumination Benchmark"
-        "ARPURLINFOABOUT" = "8:http://lightsprint.com"
+        "ARPURLINFOABOUT" = "8:http://lightsmark.com"
         "ARPPRODUCTICON" = "8:_2A69C325B3F34F8995B0106009D772E6"
         "ARPIconIndex" = "3:109"
         "SearchPath" = "8:"
@@ -8340,7 +8125,7 @@
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_6B8B6318411A44B2BBCAFF0EC6A1BE4E"
-            "Folder" = "8:_3C1265CF401F45D08498FED54E6DCE93"
+            "Folder" = "8:_097D787AABE747568E8EF7F01DA61193"
             "WorkingFolder" = "8:_EB60A55B498A414FA79500F96C98CA82"
             "Icon" = "8:"
             "Feature" = "8:"
@@ -8354,7 +8139,7 @@
             "IconIndex" = "3:109"
             "Transitive" = "11:FALSE"
             "Target" = "8:_2A69C325B3F34F8995B0106009D772E6"
-            "Folder" = "8:_3C1265CF401F45D08498FED54E6DCE93"
+            "Folder" = "8:_097D787AABE747568E8EF7F01DA61193"
             "WorkingFolder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Icon" = "8:_2A69C325B3F34F8995B0106009D772E6"
             "Feature" = "8:"
@@ -8367,8 +8152,8 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_2B879EEB39C8422CA83D83C827002946"
-            "Folder" = "8:_3C1265CF401F45D08498FED54E6DCE93"
+            "Target" = "8:_C08DFD70C3024ECE98D91292BDB3F4F7"
+            "Folder" = "8:_097D787AABE747568E8EF7F01DA61193"
             "WorkingFolder" = "8:_9763831053554B918AFC705580101164"
             "Icon" = "8:"
             "Feature" = "8:"
@@ -8382,7 +8167,7 @@
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_E664C994488046F1A81B09CDF5859B07"
-            "Folder" = "8:_3C1265CF401F45D08498FED54E6DCE93"
+            "Folder" = "8:_097D787AABE747568E8EF7F01DA61193"
             "WorkingFolder" = "8:_9763831053554B918AFC705580101164"
             "Icon" = "8:"
             "Feature" = "8:"
@@ -8546,7 +8331,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:"
+                            "Value" = "8:Runs on most of graphics cards made since 2004 (GeForce 6/7/8 series, Radeon 9500-9800/Xnumber/HDnumber), but it is very important to use recent drivers."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -8558,8 +8343,8 @@
                             "Type" = "3:3"
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
-                            "Setting" = "3:1"
-                            "Value" = "8:#1203"
+                            "Setting" = "3:2"
+                            "Value" = "8:This will install [ProductName] - Next Generation Lighting Benchmark on your computer."
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -8685,8 +8470,8 @@
                             "Type" = "3:3"
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
-                            "Setting" = "3:1"
-                            "Value" = "8:#1203"
+                            "Setting" = "3:2"
+                            "Value" = "8:This will install [ProductName] - Next Generation Lighting Benchmark on your computer."
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }

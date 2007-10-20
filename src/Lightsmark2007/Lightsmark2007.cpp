@@ -68,7 +68,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			for(Modes::const_iterator i=modes.begin();i!=modes.end();i++)
 			{
 				char buf[100];
-				sprintf(buf,"%dx%d%s",i->w,i->h,i->fullscr?"":" window");
+				sprintf(buf,"%4dx%d%s",i->w,i->h,i->fullscr?" fullscreen":" window");
 				if(SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_FINDSTRING,0,(LPARAM)buf)<0)
 				{
 					SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_ADDSTRING,0,(LPARAM)buf);
@@ -127,9 +127,9 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			unsigned penumbraIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_GETCURSEL,0,0);
 			char buf[1000];
 			if(g_extended && penumbraIdx)
-				sprintf(buf,"%s %s penumbra%d",fullscreen?"fullscreen":"window",resolutionStr,penumbraIdx+((penumbraIdx>1)?1:0));
+				sprintf(buf,"%s penumbra%d",resolutionStr,penumbraIdx+((penumbraIdx>1)?1:0));
 			else
-				sprintf(buf,"%s %s",fullscreen?"fullscreen":"window",resolutionStr);
+				sprintf(buf,"%s",resolutionStr);
 
 			// minimize
 			RECT rect;
@@ -168,7 +168,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				// finished with score
 				sprintf(buf,"%d",score);
 				SendDlgItemMessageA(hDlg,IDC_SCORE,WM_SETTEXT,0,(LPARAM)buf);
-				SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)"fps");
+				SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)"average fps");
 			}
 			else
 			{
@@ -191,7 +191,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if(LOWORD(wParam)==IDC_WEB)
 		{
-			ShellExecuteA( NULL, "open", "http://dee.cz/lm", NULL, NULL, SW_SHOWNORMAL );
+			ShellExecuteA( NULL, "open", "http://lightsmark.com", NULL, NULL, SW_SHOWNORMAL );
 		}
 		if(LOWORD(wParam)==IDC_README)
 		{
