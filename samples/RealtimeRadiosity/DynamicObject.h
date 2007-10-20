@@ -10,7 +10,7 @@
 #include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 
-#define OPTIMIZED_RDO // create multiobject and render it..(disabled, no improvement detected)
+//#define OPTIMIZED_RDO // create multiobject and render it..(disabled, no improvement detected)
 #ifdef OPTIMIZED_RDO
 	#include "Lightsprint/GL/RendererOfRRObject.h"
 #endif

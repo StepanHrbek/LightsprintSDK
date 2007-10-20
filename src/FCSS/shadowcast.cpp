@@ -1273,7 +1273,9 @@ void displayScenes()
 //
 // GLUT callbacks
 
+// prototypes
 void keyboard(unsigned char c, int x, int y);
+void enableInteraction(bool enable);
 
 void display()
 {
@@ -1593,6 +1595,16 @@ void specialUp(int c, int x, int y)
 	}
 }
 
+void keyboardPlayerOnly(unsigned char c, int x, int y)
+{
+	switch (c)
+	{
+		case ' ':
+		case 27:
+			keyboard(c,x,y);
+	}
+}
+
 void keyboard(unsigned char c, int x, int y)
 {
 #ifdef SUPPORT_LIGHTMAPS
@@ -1684,18 +1696,22 @@ void keyboard(unsigned char c, int x, int y)
 
 		case ' ':
 			demoPlayer->setPaused(!demoPlayer->getPaused());
+			enableInteraction(demoPlayer->getPaused());
 			break;
 
 		case 13:
-			fullscreen = !fullscreen;
-			if(fullscreen)
-				glutFullScreen();
-			else
+			if(!glutGet(GLUT_GAME_MODE_ACTIVE))
 			{
-				unsigned w = glutGet(GLUT_SCREEN_WIDTH);
-				unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
-				glutReshapeWindow(resolutionx,resolutiony);
-				glutPositionWindow((w-resolutionx)/2,(h-resolutiony)/2);
+				fullscreen = !fullscreen;
+				if(fullscreen)
+					glutFullScreen();
+				else
+				{
+					unsigned w = glutGet(GLUT_SCREEN_WIDTH);
+					unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
+					glutReshapeWindow(resolutionx,resolutiony);
+					glutPositionWindow((w-resolutionx)/2,(h-resolutiony)/2);
+				}
 			}
 			break;
 
@@ -2403,6 +2419,29 @@ void idle()
 	}
 }
 
+void enableInteraction(bool enable)
+{
+	if(enable)
+	{
+		glutSpecialFunc(special);
+		glutSpecialUpFunc(specialUp);
+		glutMouseFunc(mouse);
+		glutPassiveMotionFunc(passive);
+		glutKeyboardFunc(keyboard);
+		glutKeyboardUpFunc(keyboardUp);
+		if(winWidth) glutWarpPointer(winWidth/2,winHeight/2);
+	}
+	else
+	{
+		glutSpecialFunc(NULL);
+		glutSpecialUpFunc(NULL);
+		glutMouseFunc(NULL);
+		glutPassiveMotionFunc(NULL);
+		glutKeyboardFunc(keyboardPlayerOnly);
+		glutKeyboardUpFunc(NULL);
+	}
+}
+
 void init_gl_states()
 {
 	//GLint depthBits;
@@ -2525,13 +2564,7 @@ int main(int argc, char **argv)
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
-	glutKeyboardFunc(keyboard);
-	glutKeyboardUpFunc(keyboardUp);
-	glutSpecialFunc(special);
-	glutSpecialUpFunc(specialUp);
 	glutReshapeFunc(reshape);
-	glutMouseFunc(mouse);
-	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
 	if(glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony)
 	{
@@ -2605,6 +2638,8 @@ int main(int argc, char **argv)
 	HWND hWnd = FindWindowA(NULL,windowTitle);
 	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 #endif
+
+	enableInteraction(supportEditor);
 
 	glutMainLoop();
 	return 0;
