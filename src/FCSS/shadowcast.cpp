@@ -1700,7 +1700,7 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 
 		case 13:
-			if(!glutGet(GLUT_GAME_MODE_ACTIVE))
+			if(!glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 			{
 				fullscreen = !fullscreen;
 				if(fullscreen)
@@ -2365,6 +2365,7 @@ void idle()
 				{
 					// play scene finished, jump to editor
 					demoPlayer->setPaused(true);
+					enableInteraction(true);
 					level->animationEditor->frameCursor = MAX(1,level->pilot.setup->frames.size())-1;
 				}
 				else

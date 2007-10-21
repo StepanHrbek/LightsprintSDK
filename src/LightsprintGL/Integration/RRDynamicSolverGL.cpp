@@ -14,6 +14,8 @@
 
 #define BIG_MAP_SIZEX            1024 // size of temporary texture used during detection
 #define BIG_MAP_SIZEY            1024 // set 1200 to process 70k triangle Sponza in 1 pass
+#define FACE_SIZEX               8
+#define FACE_SIZEY               8
 #define REPORT(a) //a
 
 namespace rr_gl
@@ -67,20 +69,22 @@ public:
 //
 // RRDynamicSolverGL
 
-RRDynamicSolverGL::RRDynamicSolverGL(char* apathToShaders)
+RRDynamicSolverGL::RRDynamicSolverGL(char* _pathToShaders)
 {
-	strncpy(pathToShaders,apathToShaders,299);
+	strncpy(pathToShaders,_pathToShaders,299);
 	pathToShaders[299]=0;
 
 	captureUv = new CaptureUv;
 	detectBigMap = Texture::create(NULL,BIG_MAP_SIZEX,BIG_MAP_SIZEY,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
-	smallMapSize = BIG_MAP_SIZEX*BIG_MAP_SIZEY/16;
+	smallMapSize = BIG_MAP_SIZEX*BIG_MAP_SIZEY/FACE_SIZEX/FACE_SIZEY;
 	detectSmallMap = new unsigned[smallMapSize*8]; // max static triangles = 64k*8 = 512k
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%sscaledown_filter.vs",pathToShaders);
 	_snprintf(buf2,399,"%sscaledown_filter.fs",pathToShaders);
-	scaleDownProgram = Program::create(NULL,buf1,buf2);
+	char buf3[100];
+	sprintf(buf3,"#define SIZEX %d\n#define SIZEY %d\n",FACE_SIZEX,FACE_SIZEY);
+	scaleDownProgram = Program::create(buf3,buf1,buf2);
 	if(!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/scaledown_filter.*\n",pathToShaders);
 
 	rendererNonCaching = NULL;
@@ -167,11 +171,11 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 	glDepthMask(0);
 
 	// adjust captured texture size so we don't waste pixels
-	captureUv->triCountX = BIG_MAP_SIZEX/4; // number of triangles in one row
-	captureUv->triCountY = BIG_MAP_SIZEY/4; // number of triangles in one column
+	captureUv->triCountX = BIG_MAP_SIZEX/FACE_SIZEX; // number of triangles in one row
+	captureUv->triCountY = BIG_MAP_SIZEY/FACE_SIZEY; // number of triangles in one column
 	while(captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
 	unsigned width = BIG_MAP_SIZEX; // used width in pixels
-	unsigned height = captureUv->triCountY*4; // used height in pixels
+	unsigned height = captureUv->triCountY*FACE_SIZEY; // used height in pixels
 
 	// for each set of triangles (if all triangles don't fit into one texture)
 	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
@@ -229,7 +233,7 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("lightmap",0);
 		scaleDownProgram->sendUniform("pixelDistance",1.0f/BIG_MAP_SIZEX,1.0f/BIG_MAP_SIZEY);
-		glViewport(0,0,BIG_MAP_SIZEX/4,BIG_MAP_SIZEY/4);//!!! needs at least 256x256 backbuffer
+		glViewport(0,0,BIG_MAP_SIZEX/FACE_SIZEX,BIG_MAP_SIZEY/FACE_SIZEY);//!!! needs at least 256x256 backbuffer
 		glActiveTexture(GL_TEXTURE0);
 		detectBigMap->bindTexture();
 		glDisable(GL_CULL_FACE);

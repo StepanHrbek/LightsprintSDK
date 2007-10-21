@@ -26,7 +26,8 @@
 #include "Lightsprint/GL/RendererOfRRObject.h"
 #include "GL/glew.h"
 
-#ifdef MARK_OPENED // mark used textures by read-only attribute
+//#define MARK_OPENED // mark used textures by read-only attribute
+#ifdef MARK_OPENED
 	#include <io.h>
 	#include <sys/stat.h>
 #endif
