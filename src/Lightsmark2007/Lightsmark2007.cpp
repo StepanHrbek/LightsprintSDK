@@ -82,23 +82,17 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 
 			// fill penumbra
-			if(g_extended)
-			{
-				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("highest supported"));
-				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("4 samples"));
-				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("12 samples"));
-				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("16 samples"));
-				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("20 samples"));
-				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("24 samples"));
-				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("28 samples"));
-				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("32 samples"));
-				SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_SETCURSEL,0,0);
-			}
-			else
-			{
-				ShowWindow(GetDlgItem(hDlg,IDC_PENUMBRA),SW_HIDE);
-				ShowWindow(GetDlgItem(hDlg,IDC_STATIC2),SW_HIDE);
-			}
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("highest supported"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("4 samples"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("12 samples"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("16 samples"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("20 samples"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("24 samples"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("28 samples"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("32 samples"));
+			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_SETCURSEL,0,0);
+			ShowWindow(GetDlgItem(hDlg,IDC_PENUMBRA),SW_HIDE);
+			ShowWindow(GetDlgItem(hDlg,IDC_STATIC2),SW_HIDE);
 
 			// fill result
 			CHARFORMAT cf;
@@ -114,6 +108,15 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
+		if(wParam==0xffff)
+		{
+			ShowWindow(GetDlgItem(hDlg,IDC_PENUMBRA),SW_SHOWNORMAL);
+			ShowWindow(GetDlgItem(hDlg,IDC_STATIC2),SW_SHOWNORMAL);
+			g_extended = true;
+			//char buf[100];
+			//sprintf(buf,"%x %x\n",wParam,lParam);
+			//SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)buf);
+		}
 		if(LOWORD(wParam) == IDCANCEL)
 		{
 			EndDialog(hDlg, LOWORD(wParam));
@@ -209,7 +212,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 {
 	HMODULE hRE = LoadLibrary(_T("riched20.dll"));
 	g_hInst = hInstance;
-	g_extended = lpCmdLine && lpCmdLine[0];
 	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, About);
 	return 0;
 }

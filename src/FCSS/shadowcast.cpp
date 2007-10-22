@@ -751,8 +751,6 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 	uberProgramSetup.POSTPROCESS_GAMMA = (globalGammaBoosted!=1)?1:0;
 	uberProgramSetup.POSTPROCESS_BIGSCREEN = bigscreenSimulator;
 
-	if(firstInstance==0) glClear(GL_DEPTH_BUFFER_BIT);
-
 	if (wireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -816,6 +814,7 @@ void drawEyeViewSoftShadowed(void)
 			water->updateReflectionDone();
 		}
 #endif
+		glClear(GL_DEPTH_BUFFER_BIT);
 		if(splitscreen)
 		{
 			glEnable(GL_SCISSOR_TEST);
@@ -831,6 +830,15 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.FORCE_2D_POSITION = false;
 			drawEyeViewShadowed(uberProgramSetup,0);
 			glScissor((unsigned)(winWidth*splitscreen),0,winWidth-(unsigned)(winWidth*splitscreen),winHeight);
+		}
+
+		if(numInstances>1)
+		{
+			// Z only pre-pass before expensive penumbra shadows
+			// optional but improves fps from 60 to 80
+			rr_gl::UberProgramSetup uberProgramSetup;
+			currentFrame.eye.setupForRender();
+			renderScene(uberProgramSetup,0,&currentFrame.eye);
 		}
 
 		// render everything except water
@@ -853,11 +861,6 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
 		//uberProgramSetup.OBJECT_SPACE = false;
 
-		if((int)(GETSEC)%2) {
-			uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
-		}
-
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,0);
 
@@ -876,6 +879,7 @@ void drawEyeViewSoftShadowed(void)
 	}
 
 	glClear(GL_ACCUM_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	// add direct
 	for(unsigned i=0;i<numInstances;i+=INSTANCES_PER_PASS)
