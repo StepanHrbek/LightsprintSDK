@@ -14,8 +14,8 @@
 
 #define BIG_MAP_SIZEX            1024 // size of temporary texture used during detection
 #define BIG_MAP_SIZEY            1024 // set 1200 to process 70k triangle Sponza in 1 pass
-#define FACE_SIZEX               8
-#define FACE_SIZEY               8
+#define FACE_SIZEX               4 // shader supports 4,4 and 8,8 sizes
+#define FACE_SIZEY               4
 #define REPORT(a) //a
 
 namespace rr_gl
@@ -33,9 +33,9 @@ public:
 	{
 		RR_ASSERT(size==2*sizeof(GLfloat));
 		RR_ASSERT(triangleIndex>=firstCapturedTriangle && triangleIndex<lastCapturedTrianglePlus1);
-		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%triCountX)+((vertexIndex==2)?1:0)-triCountX*0.5f+0.1f)/(triCountX*0.5f);
-		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/triCountX)+((vertexIndex==0)?1:0)-triCountY*0.5f+0.1f)/(triCountY*0.5f);
-		// +0.1f makes triangle area larger [in 4x4, from 6 to 10 pixels]
+		((GLfloat*)vertexData)[0] = ((GLfloat)((triangleIndex-firstCapturedTriangle)%triCountX)+((vertexIndex==2)?1:0)-triCountX*0.5f+0.05f)/(triCountX*0.5f);
+		((GLfloat*)vertexData)[1] = ((GLfloat)((triangleIndex-firstCapturedTriangle)/triCountX)+((vertexIndex==0)?1:0)-triCountY*0.5f+0.05f)/(triCountY*0.5f);
+		// +0.05f makes triangle area larger [in 4x4, from 6 to 10 pixels]
 	}
 	virtual unsigned getHash()
 	{

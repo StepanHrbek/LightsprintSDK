@@ -1281,6 +1281,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_DFC865AFEB0346758B5895A12AA7BC7C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E06B3648ED6A45B5B9A36462C16FBD99"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1441,7 +1447,7 @@
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
-        "Compression" = "3:3"
+        "Compression" = "3:1"
         "SignOutput" = "11:FALSE"
         "CertificateFile" = "8:"
         "PrivateKeyFile" = "8:"
@@ -5707,6 +5713,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DFC865AFEB0346758B5895A12AA7BC7C"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\window-attic.png"
+            "TargetName" = "8:window-attic.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E06B3648ED6A45B5B9A36462C16FBD99"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-8.png"
@@ -6397,7 +6423,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lightsmark 2007"
         "ProductCode" = "8:{26A6386E-4073-4EDF-9C75-EED68B187FA7}"
-        "PackageCode" = "8:{34D9412E-1737-431B-850B-50F8667FC7A7}"
+        "PackageCode" = "8:{DB87D8D7-C9DA-4EFB-8168-51B03D6DCED1}"
         "UpgradeCode" = "8:{3EA93B0E-BADB-4630-8F51-85220D56E9D3}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -6900,9 +6926,9 @@
             "Attributes" = "3:3"
                 "Dialogs"
                 {
-                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_BC8EA627D09543D387C3C2716C8DF77C"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_FFBEB96E84A04F71A8EDA41251262F38"
                     {
-                    "Sequence" = "3:100"
+                    "Sequence" = "3:200"
                     "DisplayName" = "8:Finished"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"

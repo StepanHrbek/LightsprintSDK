@@ -67,14 +67,16 @@ void DynamicObject::updatePosition()
 	// set object's world matrix
 	if(model)
 	{
-		//	glPushMatrix();
-		//	glLoadIdentity();
-		//	glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
-		//	glRotatef(rotYZ[1],0,0,1);
-		//	glRotatef(rotYZ[0],0,1,0);
-		//	if(model) glTranslatef(-model->localCenter.x,-model->localMinY,-model->localCenter.z);
-		//	glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
-		//	glPopMatrix();
+		/*
+		glPushMatrix();
+		glLoadIdentity();
+		glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
+		glRotatef(rotYZ[1],0,0,1);
+		glRotatef(rotYZ[0],0,1,0);
+		if(model) glTranslatef(-model->localCenter.x,-model->localMinY,-model->localCenter.z);
+		glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
+		glPopMatrix();
+		*/
 		float sz = sin(rotYZ[1]/180*3.14159f);
 		float cz = cos(rotYZ[1]/180*3.14159f);
 		float sy = sin(rotYZ[0]/180*3.14159f);
@@ -95,7 +97,7 @@ void DynamicObject::updatePosition()
 		worldMatrix[10] = cy;
 		worldMatrix[11] = 0;
 		worldMatrix[12] = cz*cy*mx-sz*my+cz*sy*mz+worldFoot[0];
-		worldMatrix[13] = sz*cy*mx+cz*my+sz*sy+mz+worldFoot[1];
+		worldMatrix[13] = sz*cy*mx+cz*my+sz*sy*mz+worldFoot[1];
 		worldMatrix[14] = -sy*mx+cy*mz+worldFoot[2];
 		worldMatrix[15] = 1;
 	}

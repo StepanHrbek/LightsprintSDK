@@ -171,14 +171,22 @@ float DemoPlayer::advance()
 	absTimeNow = now;
 	if(!paused)
 	{
-		demoPosition = (float)(absTimeNow-absTimeWhenDemoStarted);
-		//demoPosition = getMusicPosition();
+		demoPosition = (float)(absTimeNow-absTimeWhenDemoStarted); // jede podle hodin, zacal pocitat ve stejny okamzik jako hudba
+		//demoPosition = getMusicPosition(); // jede podle hudby, nefunguje kdyz hudba chybi
 	}
 	if(music)
 	{
 		music->poll();
 	}
 	return secondsSincePrevFrame;
+}
+
+void DemoPlayer::advanceBy(float seconds)
+{
+	demoPosition += seconds;
+	absTimeNow = GETSEC;
+	absTimeWhenDemoStarted = absTimeNow - demoPosition;
+	if(music) music->poll();
 }
 
 void DemoPlayer::setPaused(bool _paused)

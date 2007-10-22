@@ -11,7 +11,8 @@ class DemoPlayer
 public:
 	DemoPlayer(const char* demoCfg, bool supportEditor, bool pauseMusic);
 	~DemoPlayer();
-	float advance(); // seconds since prev frame
+	float advance(); // advances according to real time
+	void advanceBy(float seconds); // advances by given time (e.g. 1/30. for video capture)
 
 	void setPaused(bool paused);
 	bool getPaused() const;

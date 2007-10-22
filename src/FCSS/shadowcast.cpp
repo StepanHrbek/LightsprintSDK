@@ -20,6 +20,7 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
+#define PRODUCT_NAME "Lightsmark 2007"
 #define CFG_FILE "Lightsmark2007.cfg"
 //#define CFG_FILE "test.cfg"
 //#define CFG_FILE "eg-flat1.cfg"
@@ -30,13 +31,14 @@ unsigned INSTANCES_PER_PASS;
 bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 0;
-int resolutionx = 800;
-int resolutiony = 600;
+int resolutionx = 1280;//640;
+int resolutiony = 960;//480;
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
-
+bool captureVideo = 0;
+float splitscreen = 0;//0.5f; 0=disabled, 0.5=leva pulka obrazovky ma konst.ambient
 /*
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve
@@ -114,7 +116,7 @@ int needDepthMapUpdate = 1;
 bool needLightmapCacheUpdate = false;
 int wireFrame = 0;
 int needMatrixUpdate = 1;
-int showHelp = 0; // 0=none, 1=help, 2=credits
+int showHelp = 0; // 0=none, 1=help
 int showLightViewFrustum = 0;
 bool modeMovingEye = 0;
 unsigned movingEye = 0;
@@ -230,10 +232,13 @@ void error(const char* message, bool gfxRelated)
 {
 	printf(message);
 	if(gfxRelated)
-		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx");
-	printf("\n\nPress ENTER to close.");
-	glutDestroyWindow(glutGetWindow());
+		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact me at dee@dee.cz.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx\n - Radeon HD2xxx");
+	if(glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
+		glutLeaveGameMode();
+	else
+		glutDestroyWindow(glutGetWindow());
 #ifdef CONSOLE
+	printf("\n\nPress ENTER to close.");
 	fgetc(stdin);
 #endif
 	exit(0);
@@ -811,6 +816,23 @@ void drawEyeViewSoftShadowed(void)
 			water->updateReflectionDone();
 		}
 #endif
+		if(splitscreen)
+		{
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(0,0,(unsigned)(winWidth*splitscreen),winHeight);
+			rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
+			uberProgramSetup.SHADOW_MAPS = 1;
+			uberProgramSetup.LIGHT_DIRECT = true;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
+			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
+			uberProgramSetup.LIGHT_INDIRECT_ENV = false;
+			uberProgramSetup.FORCE_2D_POSITION = false;
+			drawEyeViewShadowed(uberProgramSetup,0);
+			glScissor((unsigned)(winWidth*splitscreen),0,winWidth-(unsigned)(winWidth*splitscreen),winHeight);
+		}
+
 		// render everything except water
 		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
@@ -830,8 +852,17 @@ void drawEyeViewSoftShadowed(void)
 		//uberProgramSetup.MATERIAL_SPECULAR_MAP = ;
 		//uberProgramSetup.MATERIAL_NORMAL_MAP = ;
 		//uberProgramSetup.OBJECT_SPACE = false;
+
+		if((int)(GETSEC)%2) {
+			uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
+		}
+
 		uberProgramSetup.FORCE_2D_POSITION = false;
 		drawEyeViewShadowed(uberProgramSetup,0);
+
+		if(splitscreen)
+			glDisable(GL_SCISSOR_TEST);
 
 #ifdef SUPPORT_WATER
 		// render water
@@ -1008,44 +1039,42 @@ static void drawHelpMessage(int screen)
 	static const char *message[3][30] = 
 	{
 		{
-		"h - help",
+		"H - help",
 		NULL
 		},
 		{
 #ifdef THREE_ONE
-		"3+1 by clrsrc+Lightsprint",
+		PRODUCT_NAME,
 #else
-		"Lightsmark 2007 by Lightsprint",
+		PRODUCT_NAME ", (C) Stepan Hrbek",
 #endif
 		"",
 		"Controls:",
 		" space         - pause/play",
 		" mouse         - look",
-		" arrows/wsadqz - move",
-		" left button   - switch between camera/light",
-		" right button  - next scene",
+		" arrows,wsadqz - move",
+		" left button   - toggle camera/light control",
 		"",
 		"Extra controls:",
-		" F1/F2/F3      - shadows: hard/soft/penumbra",
-		" F5/F6/F7/F8   - ambient: none/const/realtime/precalc",
-#ifndef THREE_ONE
-		" F6            - credits",
+		" F1            - help",
+		" F2,F3,F4      - shadows: hard/soft/penumbra",
+#ifdef SUPPORT_LIGHTMAPS
+		" F5,F6,F7,F8   - ambient: none/const/realtime/precalc",
+#else
+		" F5,F6,F7      - ambient: none/const/realtimeradiosity",
 #endif
-		" F11           - save screenshot",
+//		" F11           - save screenshot",
 		" wheel         - zoom",
-		" x/c           - lean",
-		" enter         - fullscreen/window",
-		" +/-/*//       - brightness/contrast",
-		" 1/2/3/4...    - move n-th object",
+		" x,c           - lean",
+		" +,-,*,/       - brightness/contrast",
+		" 1,2,3,4...    - move n-th object",
+		" enter         - maximize window",
 #ifdef THREE_ONE
 		"",
 		"For more information on Realtime Global Illumination",
 		"or Penumbra Shadows, visit http://lightsprint.com",
 #endif
 /*
-		" space - toggle global illumination",
-		" '+ -' - increase/decrease penumbra (soft shadow) precision",
-		" '* /' - increase/decrease penumbra (soft shadow) smoothness",
 		" 'f'   - toggle showing spotlight frustum",
 		" 'a'   - cycle through linear, rectangular and circular area light",
 		" 's'   - change spotlight",
@@ -1091,7 +1120,6 @@ static void drawHelpMessage(int screen)
 #endif*/
 	};
 	int i;
-	int x = 40, y = 50;
 
 	ambientProgram->useIt();
 
@@ -1112,9 +1140,14 @@ static void drawHelpMessage(int screen)
 	// Drawn clockwise because the flipped Y axis flips CCW and CW.
 	if(screen /*|| demoPlayer->getPaused()*/)
 	{
-		glRecti(winWidth - 30, 30, 30, winHeight - 30);
+		unsigned rectWidth = 530;
+		unsigned rectHeight = 360;
+		glColor4f(0.0,0.1,0.3,0.6);
+		glRecti((winWidth+rectWidth)/2, (winHeight-rectHeight)/2, (winWidth-rectWidth)/2, (winHeight+rectHeight)/2);
 		glDisable(GL_BLEND);
 		glColor3f(1,1,1);
+		int x = (winWidth-rectWidth)/2+20;
+		int y = (winHeight-rectHeight)/2+30;
 		for(i=0; message[screen][i] != NULL; i++) 
 		{
 			if (message[screen][i][0] != '\0')
@@ -1127,6 +1160,7 @@ static void drawHelpMessage(int screen)
 	else
 	if(showTimingInfo)
 	{
+		int x = 40, y = 50;
 		glRecti(MIN(winWidth-30,500), 30, 30, MIN(winHeight-30,100));
 		glDisable(GL_BLEND);
 		glColor3f(1,1,1);
@@ -1300,7 +1334,7 @@ void display()
 	if(wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	if(renderInfo)
+	if(renderInfo && (!shotRequested || captureVideo))
 	{
 #ifdef CORNER_LOGO
 		float w = 230/(float)winWidth;
@@ -1312,29 +1346,31 @@ void display()
 		float now = demoPlayer->getPartPosition();
 		float frameStart = 0;
 		if(!demoPlayer->getPaused())
-		for(LevelSetup::Frames::const_iterator i = level->pilot.setup->frames.begin(); i!=level->pilot.setup->frames.end(); i++)
 		{
-			rr_gl::Texture* texture = (*i)->overlayMap;
-			if(texture && now>=frameStart && now<frameStart+(*i)->overlaySeconds)
+			for(LevelSetup::Frames::const_iterator i = level->pilot.setup->frames.begin(); i!=level->pilot.setup->frames.end(); i++)
 			{
-				switch((*i)->overlayMode)
+				rr_gl::Texture* texture = (*i)->overlayMap;
+				if(texture && now>=frameStart && now<frameStart+(*i)->overlaySeconds)
 				{
-					case 0:
-						showOverlay(texture);
-						break;
-					case 1:
-						float pos = (now-frameStart)/(*i)->overlaySeconds; //0..1
-						//float rand01 = rand()/float(RAND_MAX);
-						float intensity = (1-(pos*2-1)*(pos*2-1)*(pos*2-1)*(pos*2-1)) ;//* MAX(0,MIN(rand01*20,1)-rand01/10);
-						float h = 0.13f+0.11f*pos;
-						float w = h*texture->getWidth()*winHeight/winWidth/texture->getHeight();
-						showOverlay(texture,intensity,0.5f-w/2,0.25f-h/2,w,h);
-						break;
+					switch((*i)->overlayMode)
+					{
+						case 0:
+							showOverlay(texture);
+							break;
+						case 1:
+							float pos = (now-frameStart)/(*i)->overlaySeconds; //0..1
+							//float rand01 = rand()/float(RAND_MAX);
+							float intensity = (1-(pos*2-1)*(pos*2-1)*(pos*2-1)*(pos*2-1)) ;//* MAX(0,MIN(rand01*20,1)-rand01/10);
+							float h = 0.13f+0.11f*pos;
+							float w = h*texture->getWidth()*winHeight/winWidth/texture->getHeight();
+							showOverlay(texture,intensity,0.5f-w/2,0.25f-h/2,w,h);
+							break;
+					}
 				}
+				frameStart += (*i)->transitionToNextTime;
 			}
-			frameStart += (*i)->transitionToNextTime;
 		}
-		if(g_fps)
+		if(g_fps && !captureVideo)
 		{
 			g_fps->update();
 			g_fps->render();
@@ -1511,38 +1547,22 @@ void special(int c, int x, int y)
 
 	switch (c) 
 	{
-		case GLUT_KEY_F4:
-			if(modif&GLUT_ACTIVE_ALT)
-			{
-				keyboard(27,0,0);
-			}
-			break;
+		case GLUT_KEY_F1: showHelp = 1-showHelp; break;
 
-		case GLUT_KEY_F1: currentFrame.shadowType = 1; break;
-		case GLUT_KEY_F2: currentFrame.shadowType = 2; break;
-		case GLUT_KEY_F3: currentFrame.shadowType = 3; break;
+		case GLUT_KEY_F2: currentFrame.shadowType = 1; break;
+		case GLUT_KEY_F3: currentFrame.shadowType = 2; break;
+		case GLUT_KEY_F4: currentFrame.shadowType = 3; if(modif&GLUT_ACTIVE_ALT) keyboard(27,0,0); break;
 
 		case GLUT_KEY_F5: currentFrame.indirectType = 0; break;
 		case GLUT_KEY_F6: currentFrame.indirectType = 1; break;
 		case GLUT_KEY_F7: currentFrame.indirectType = 2; break;
+#ifdef SUPPORT_LIGHTMAPS
 		case GLUT_KEY_F8: currentFrame.indirectType = 3; break;
+#endif
 
 		case GLUT_KEY_F11:
 			shotRequested = 1;
 			break;
-
-			/*
-#ifndef THREE_ONE
-		case GLUT_KEY_F6:
-			switch(showHelp)
-			{
-				case 0: showHelp = 2; break;
-				case 1: showHelp = 2; break;
-				case 2: showHelp = 0; break;
-			}
-			break;
-#endif
-			*/
 
 		case GLUT_KEY_UP:
 			speedForward = scale;
@@ -1605,6 +1625,16 @@ void keyboardPlayerOnly(unsigned char c, int x, int y)
 	}
 }
 
+void specialPlayerOnly(int c, int x, int y)
+{
+	switch (c)
+	{
+		case GLUT_KEY_F1:
+		case GLUT_KEY_F11:
+			special(c,x,y);
+	}
+}
+
 void keyboard(unsigned char c, int x, int y)
 {
 #ifdef SUPPORT_LIGHTMAPS
@@ -1652,14 +1682,6 @@ void keyboard(unsigned char c, int x, int y)
 			delete rr::RRReporter::getReporter();
 			rr::RRReporter::setReporter(NULL);
 			exit(10000);
-			break;
-		case 'H':
-			switch(showHelp)
-			{
-				case 0: showHelp = 1; break;
-				case 1: showHelp = 0; break;
-				case 2: showHelp = 1; break;
-			}
 			break;
 		case 'a':
 		case 'A':
@@ -1957,6 +1979,7 @@ void keyboardUp(unsigned char c, int x, int y)
 
 enum
 {
+	ME_TOGGLE_VIDEO,
 	ME_TOGGLE_WATER,
 	ME_TOGGLE_INFO,
 	ME_UPDATE_LIGHTMAPS_0,
@@ -1975,6 +1998,9 @@ void mainMenu(int item)
 {
 	switch (item)
 	{
+		case ME_TOGGLE_VIDEO:
+			captureVideo = !captureVideo;
+			break;
 #ifdef SUPPORT_WATER
 		case ME_TOGGLE_WATER:
 			level->pilot.setup->renderWater = !level->pilot.setup->renderWater;
@@ -2203,6 +2229,7 @@ void initMenu()
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
 	glutAddMenuEntry("Scene next", ME_NEXT_SCENE);
 	glutAddMenuEntry("Toggle help",ME_TOGGLE_HELP);
+	glutAddMenuEntry("Toggle video capture",ME_TOGGLE_VIDEO);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
@@ -2344,8 +2371,17 @@ void idle()
 	}
 	if(!demoPlayer->getPaused())
 	{
-		// advance according to real time
-		demoPlayer->advance();
+		if(captureVideo)
+		{
+			// advance by 1/30
+			demoPlayer->advanceBy(1/30.f);
+			shotRequested = 1;
+		}
+		else
+		{
+			// advance according to real time
+			demoPlayer->advance();
+		}
 		if(level)
 		{
 			// najde aktualni frame
@@ -2434,7 +2470,7 @@ void enableInteraction(bool enable)
 	}
 	else
 	{
-		glutSpecialFunc(NULL);
+		glutSpecialFunc(specialPlayerOnly);
 		glutSpecialUpFunc(NULL);
 		glutMouseFunc(NULL);
 		glutPassiveMotionFunc(NULL);
@@ -2541,14 +2577,13 @@ int main(int argc, char **argv)
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ALPHA); // | GLUT_ACCUM | GLUT_ALPHA accum na high quality soft shadows, alpha na filtrovani ambient map
-	const char* windowTitle = "Lightsmark 2007";
 	if(fullscreen)
 	{
 		char buf[100];
 		sprintf(buf,"%dx%d:32",resolutionx,resolutiony);
 		glutGameModeString(buf);
 		glutEnterGameMode();
-		glutSetWindowTitle(windowTitle);
+		glutSetWindowTitle(PRODUCT_NAME);
 	}
 	else
 	{
@@ -2556,7 +2591,7 @@ int main(int argc, char **argv)
 		unsigned h = glutGet(GLUT_SCREEN_HEIGHT);
 		glutInitWindowSize(resolutionx,resolutiony);
 		glutInitWindowPosition((w-resolutionx)/2,(h-resolutiony)/2);
-		glutCreateWindow(windowTitle);
+		glutCreateWindow(PRODUCT_NAME);
 		if(resolutionx==w && resolutiony==h)
 			glutFullScreen();
 		if(supportEditor)
@@ -2636,7 +2671,7 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef SET_ICON
-	HWND hWnd = FindWindowA(NULL,windowTitle);
+	HWND hWnd = FindWindowA(NULL,PRODUCT_NAME);
 	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 #endif
 
