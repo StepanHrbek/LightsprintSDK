@@ -5,7 +5,7 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
-#define BACKGROUND_WORKER
+//#define BACKGROUND_WORKER
 #ifdef _DEBUG
 	#define CONSOLE
 #else
@@ -31,8 +31,8 @@ unsigned INSTANCES_PER_PASS;
 bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 0;
-int resolutionx = 1280;//640;
-int resolutiony = 960;//480;
+int resolutionx = 800;
+int resolutiony = 600;
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;

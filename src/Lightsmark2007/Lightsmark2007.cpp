@@ -197,7 +197,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if(LOWORD(wParam)==IDC_WEB)
 		{
-			ShellExecuteA( NULL, "open", "http://lightsmark.com", NULL, NULL, SW_SHOWNORMAL );
+			ShellExecuteA( NULL, "open", "http://dee.cz/lightsmark", NULL, NULL, SW_SHOWNORMAL );
 		}
 		if(LOWORD(wParam)==IDC_README)
 		{

@@ -1,5 +1,5 @@
 
-   LIGHTSMARK 2007                                           v0.8, 2007-10-20
+   LIGHTSMARK 2007                                           v1.0, 2007-10-23
    __________________________________________________________________________
 
 
@@ -14,7 +14,7 @@
    - infinite light bounces
    - fully dynamic HDR lighting
    - 220000 triangles
-   - 300+ average fps (GF8800GTX)
+   - 200-300 average fps (GF8800)
 
 
 2. Supported operating systems
@@ -49,7 +49,7 @@
    Created by Stepan Hrbek using
 
    - Lightsprint SDK realtime global illumination
-   - Attic map from World of Padman game
+   - Attic scene from World of Padman game
    - Hey you song by In-sist under http://creativecommons.org/licenses/by-nc/2.5/
    - I Robot model by orillionbeta
    - GLUT library
@@ -62,12 +62,12 @@
 
 5. History
 
-   2007-10-20 version 0.8
+   2007-10-23 version 1.0
 
 
 6. Contact
 
    Stepan Hrbek <dee@dee.cz>
-   http://lightsmark.com
+   http://dee.cz/lightsmark
 
    Your comments are welcome!

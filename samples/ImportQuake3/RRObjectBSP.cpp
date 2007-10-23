@@ -152,7 +152,8 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 	if(!t)
 	{
 		t = fallback;
-		rr::RRReporter::report(rr::ERRO,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
+		if(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green"))
+			rr::RRReporter::report(rr::ERRO,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
 	}
 
 	// for diffuse textures provided by bsp,

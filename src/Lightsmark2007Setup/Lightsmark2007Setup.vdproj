@@ -771,12 +771,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_866153DD5D9D4873A8E0E19C6573F7F8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8996F60E4906417CB9B253BAC401738F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -802,6 +796,12 @@
         "Entry"
         {
         "MsmKey" = "8:_8BD856B8666240A5A15DD00F36E809AD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8E271C07222248698799C858FF8ADCDB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -976,6 +976,12 @@
         "Entry"
         {
         "MsmKey" = "8:_B01FBD8969A8463A9B52B1EEEBDC20EC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B267E8F57D2E4CBBB2AF10031FB38E6E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1377,12 +1383,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F527F21D22D749D3971DB42269316185"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F575578C59464CFB8EF9D635D8A6ABE1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1396,6 +1396,12 @@
         "Entry"
         {
         "MsmKey" = "8:_F6BF3168F9C2423AAFE89575E7E12DA7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F7EBBF04820D49C899C204F3448C717C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1447,7 +1453,7 @@
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
-        "Compression" = "3:1"
+        "Compression" = "3:3"
         "SignOutput" = "11:FALSE"
         "CertificateFile" = "8:"
         "PrivateKeyFile" = "8:"
@@ -4013,26 +4019,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_866153DD5D9D4873A8E0E19C6573F7F8"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\white.png"
-            "TargetName" = "8:white.png"
-            "Tag" = "8:"
-            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8996F60E4906417CB9B253BAC401738F"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-hard-shadows.png"
@@ -4119,6 +4105,26 @@
             "TargetName" = "8:color25.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8E271C07222248698799C858FF8ADCDB"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-indirect-lighting.png"
+            "TargetName" = "8:txt-indirect-lighting.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4699,6 +4705,26 @@
             "TargetName" = "8:testlvlbase.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B267E8F57D2E4CBBB2AF10031FB38E6E"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-global-illumination.png"
+            "TargetName" = "8:txt-global-illumination.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6044,26 +6070,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F527F21D22D749D3971DB42269316185"
-            {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\window.png"
-            "TargetName" = "8:window.png"
-            "Tag" = "8:"
-            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F575578C59464CFB8EF9D635D8A6ABE1"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wall_stone013.JPG"
@@ -6110,6 +6116,26 @@
             "TargetName" = "8:color20.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F7EBBF04820D49C899C204F3448C717C"
+            {
+            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-area-lights.png"
+            "TargetName" = "8:txt-area-lights.png"
+            "Tag" = "8:"
+            "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6423,7 +6449,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lightsmark 2007"
         "ProductCode" = "8:{26A6386E-4073-4EDF-9C75-EED68B187FA7}"
-        "PackageCode" = "8:{DB87D8D7-C9DA-4EFB-8168-51B03D6DCED1}"
+        "PackageCode" = "8:{4F44C173-AB97-4357-9988-17200ADFFF30}"
         "UpgradeCode" = "8:{3EA93B0E-BADB-4630-8F51-85220D56E9D3}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
