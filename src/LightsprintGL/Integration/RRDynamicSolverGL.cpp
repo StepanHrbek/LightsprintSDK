@@ -14,8 +14,8 @@
 
 #define BIG_MAP_SIZEX            1024 // size of temporary texture used during detection
 #define BIG_MAP_SIZEY            1024 // set 1200 to process 70k triangle Sponza in 1 pass
-#define FACE_SIZEX               4 // shader supports 4,4 and 8,8 sizes
-#define FACE_SIZEY               4
+#define FACE_SIZEX               8 // shader supports 4,4 and 8,8 sizes
+#define FACE_SIZEY               8
 #define REPORT(a) //a
 
 namespace rr_gl

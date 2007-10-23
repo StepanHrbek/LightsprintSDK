@@ -38,7 +38,7 @@ bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
 bool captureVideo = 0;
-float splitscreen = 0;//0.5f; 0=disabled, 0.5=leva pulka obrazovky ma konst.ambient
+float splitscreen = 0.0f; // 0=disabled, 0.5=leva pulka obrazovky ma konst.ambient
 /*
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve
@@ -1548,6 +1548,7 @@ void special(int c, int x, int y)
 	if(modif&GLUT_ACTIVE_SHIFT) scale=10;
 	if(modif&GLUT_ACTIVE_CTRL) scale=3;
 	if(modif&GLUT_ACTIVE_ALT) scale=0.1f;
+	scale *= 3;
 
 	switch (c) 
 	{
