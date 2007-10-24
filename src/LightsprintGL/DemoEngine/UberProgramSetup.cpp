@@ -107,7 +107,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 				break;
 			}
 		// with bilinear filter ignored by Radeon, 3 is ugly, prefer 1
-		if(SHADOW_MAPS==3) SHADOW_MAPS--;
+		//if(SHADOW_MAPS==3) SHADOW_MAPS--;
 	}
 	// workaround for ForceWare bug
 	if(renderer && (strstr(renderer,"GeForce 6")||strstr(renderer,"GeForce 7"))) // 7->6 (6150 in PenumbraShadows)

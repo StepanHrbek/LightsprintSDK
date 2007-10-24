@@ -40,9 +40,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			// dialog properties must have system_menu=false to avoid ugly small icon in dialog
 			SendMessage(hDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadImage(g_hInst,MAKEINTRESOURCE(IDI_MAIN_ICON),IMAGE_ICON,0,0,0));
 
-			// fill fullscreen
-			SendDlgItemMessage(hDlg,IDC_FULLSCREEN,BM_SETCHECK,BST_CHECKED,0);
-
 			// fill resolution
 			DEVMODE currentMode;
 			EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&currentMode);
@@ -91,8 +88,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("28 samples"));
 			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("32 samples"));
 			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_SETCURSEL,0,0);
-			ShowWindow(GetDlgItem(hDlg,IDC_PENUMBRA),SW_HIDE);
-			ShowWindow(GetDlgItem(hDlg,IDC_STATIC2),SW_HIDE);
 
 			// fill result
 			CHARFORMAT cf;
@@ -112,6 +107,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			ShowWindow(GetDlgItem(hDlg,IDC_PENUMBRA),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_STATIC2),SW_SHOWNORMAL);
+			ShowWindow(GetDlgItem(hDlg,IDC_EDITOR),SW_SHOWNORMAL);
 			g_extended = true;
 			//char buf[100];
 			//sprintf(buf,"%x %x\n",wParam,lParam);
@@ -125,17 +121,19 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		if(LOWORD(wParam)==IDC_START)
 		{
 			// prepare params
-			bool fullscreen = SendDlgItemMessage(hDlg,IDC_FULLSCREEN,BM_GETCHECK,0,0)==BST_CHECKED;
+			bool editor = SendDlgItemMessage(hDlg,IDC_EDITOR,BM_GETCHECK,0,0)==BST_CHECKED;
 			unsigned resolutionIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_GETCURSEL,0,0);
 			char resolutionStr[1000];
 			resolutionStr[0] = 0;
 			SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_GETLBTEXT,resolutionIdx,(LPARAM)resolutionStr);
 			unsigned penumbraIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_GETCURSEL,0,0);
 			char buf[1000];
-			if(g_extended && penumbraIdx)
+			if(g_extended && penumbraIdx!=0) //0==auto
 				sprintf(buf,"%s penumbra%d",resolutionStr,penumbraIdx+((penumbraIdx>1)?1:0));
 			else
 				sprintf(buf,"%s",resolutionStr);
+			if(g_extended && editor)
+				strcat(buf," editor");
 
 			// minimize
 			RECT rect;

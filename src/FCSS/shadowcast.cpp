@@ -5,7 +5,7 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define LIGHTMAP_SIZE_FACTOR       10
 #define LIGHTMAP_QUALITY           100
-//#define BACKGROUND_WORKER
+#define BACKGROUND_WORKER
 #ifdef _DEBUG
 	#define CONSOLE
 #else
@@ -31,8 +31,8 @@ unsigned INSTANCES_PER_PASS;
 bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 0;
-int resolutionx = 800;
-int resolutiony = 600;
+int resolutionx = 1280;
+int resolutiony = 960;
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
@@ -230,9 +230,9 @@ Fps* g_fps;
 
 void error(const char* message, bool gfxRelated)
 {
-	printf(message);
+	rr::RRReporter::report(rr::ERRO,message);
 	if(gfxRelated)
-		printf("\nPlease update your graphics card drivers.\nIf it doesn't help, contact me at dee@dee.cz.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx\n - Radeon HD2xxx");
+		rr::RRReporter::report(rr::INF1,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact me at dee@dee.cz.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx\n - Radeon HD2xxx (partially)");
 	if(glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 		glutLeaveGameMode();
 	else
