@@ -22,6 +22,8 @@ namespace rr
 		virtual void renderEnd(bool preferQualityOverSpeed);
 		virtual unsigned getWidth() const;
 		virtual unsigned getHeight() const;
+		virtual const RRColorRGBA8* lock();
+		virtual void unlock();
 		virtual void bindTexture() const;
 		virtual bool save(const char* filename);
 		virtual ~RRIlluminationPixelBufferInMemory();
@@ -33,6 +35,7 @@ namespace rr
 		unsigned spreadForegroundColor;
 		RRColorRGBAF backgroundColor;
 		bool smoothBackground;
+		unsigned char* lockedPixels;
 	};
 
 } // namespace

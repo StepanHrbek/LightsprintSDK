@@ -206,6 +206,29 @@ unsigned RRIlluminationPixelBufferInMemory::getHeight() const
 	return texture->getHeight();
 }
 
+const RRColorRGBA8* RRIlluminationPixelBufferInMemory::lock()
+{
+	SAFE_DELETE_ARRAY(lockedPixels);
+	rr_gl::Texture::Format format = texture->getFormat();
+	// TF_RGBA
+	if(format==rr_gl::Texture::TF_RGBA)
+		return (const RRColorRGBA8*)texture->lock();
+	// TF_RGBAF
+	RR_ASSERT(format==rr_gl::Texture::TF_RGBAF);
+	const float* lockedPixelsF = (const float*)texture->lock();
+	unsigned elements = getWidth()*getHeight()*4;
+	lockedPixels = new unsigned char[elements];
+	for(unsigned i=0;i<elements;i++)
+		lockedPixels[i] = CLAMPED((unsigned)(lockedPixelsF[i]*255),0,255);
+	return (const RRColorRGBA8*)lockedPixels;
+}
+
+void RRIlluminationPixelBufferInMemory::unlock()
+{
+	SAFE_DELETE_ARRAY(lockedPixels);
+	texture->unlock();
+}
+
 void RRIlluminationPixelBufferInMemory::bindTexture() const
 {
 	texture->bindTexture();
