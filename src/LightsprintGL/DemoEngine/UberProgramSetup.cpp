@@ -76,7 +76,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	{
 		if(!strcmp(argv[argc],"-hard")) return 1;
 		int tmp;
-		if(sscanf(argv[argc],"penumbra%d",&tmp)==1)
+		if(sscanf(argv[argc],"penumbra%d",&tmp)==1 && tmp) // ignore penumbra0
 		{
 			SHADOW_MAPS = tmp;
 			if(tmp<1 || tmp>8 || !getProgram(uberProgram)) 
@@ -99,7 +99,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	// workaround for Catalyst bug
 	if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")))
 	{
-		const char* buggy[] = {"9500","9550","9600","9700","9800","X300","X550","X600","X700","X740","X800","X850","X1050"};
+		const char* buggy[] = {"9500","9550","9600","9700","9800","X300","X550","X600","X700","X740","X800","X850","X1050","X1100","X1150","X1200","X1250"};
 		for(unsigned i=0;i<sizeof(buggy)/sizeof(char*);i++)
 			if(strstr(renderer,buggy[i]))
 			{
