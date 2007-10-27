@@ -39,6 +39,7 @@ bool bigscreenSimulator = 0;
 bool showTimingInfo = 0;
 bool captureVideo = 0;
 float splitscreen = 0.0f; // 0=disabled, 0.5=leva pulka obrazovky ma konst.ambient
+bool supportMusic = 1;
 /*
 co jeste pomuze:
 30% za 3 dny: detect+reset po castech, kratsi improve
@@ -137,6 +138,7 @@ DemoPlayer* demoPlayer = NULL;
 unsigned selectedObject_indexInDemo = 0;
 bool renderInfo = 1;
 const char* cfgFile = CFG_FILE;
+rr_gl::RRDynamicSolverGL::DDIQuality lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -193,9 +195,9 @@ err:
 		fps = times.size();
 		if(!demoPlayer->getPaused()) frames++;
 		float seconds = demoPlayer->getDemoPosition();
-		fpsAvg = (unsigned)(frames/MAX(0.01f,seconds));
+		fpsAvg = frames/MAX(0.01f,seconds);
 	}
-	unsigned getAvg()
+	float getAvg()
 	{
 		return fpsAvg;
 	}
@@ -221,7 +223,7 @@ protected:
 	std::queue<TIME> times;
 	unsigned frames; // kolik snimku se stihlo behem 1 prehrani animace
 	unsigned fps;
-	unsigned fpsAvg;
+	float fpsAvg;
 };
 
 Fps* g_fps;
@@ -232,7 +234,7 @@ void error(const char* message, bool gfxRelated)
 {
 	rr::RRReporter::report(rr::ERRO,message);
 	if(gfxRelated)
-		rr::RRReporter::report(rr::INF1,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact me at dee@dee.cz.\n\nSupported graphics cards:\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx\n - Radeon HD2xxx (partially)");
+		rr::RRReporter::report(rr::INF1,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact me at dee@dee.cz.\n\nSupported graphics cards:\n - GeForce 5xxx\n - GeForce 6xxx\n - GeForce 7xxx\n - GeForce 8xxx\n - Radeon 9500-9800\n - Radeon Xxxx\n - Radeon X1xxx\n - Radeon HD2xxx (partially)");
 	if(glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 		glutLeaveGameMode();
 	else
@@ -448,7 +450,7 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices);
 class Solver : public rr_gl::RRDynamicSolverGL
 {
 public:
-	Solver() : RRDynamicSolverGL("shaders/")
+	Solver() : RRDynamicSolverGL("shaders/",lightStability)
 	{
 		setDirectIlluminationBoost(2);
 	}
@@ -2247,7 +2249,7 @@ void reshape(int w, int h)
 
 	if(!demoPlayer)
 	{
-		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportEditor);
+		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportMusic,supportEditor);
 		demoPlayer->setBigscreen(bigscreenCompensation);
 		//demoPlayer->setPaused(supportEditor); unpaused after first display()
 		//glutSwapBuffers();
@@ -2328,8 +2330,8 @@ void idle()
 		// end of the demo
 		if(!level)
 		{
-			rr::RRReporter::report(rr::INF1,"Finished, average fps = %d.\n",g_fps?g_fps->getAvg():0);
-			exit(g_fps ? g_fps->getAvg() : 0);
+			rr::RRReporter::report(rr::INF1,"Finished, average fps = %.2f.\n",g_fps?g_fps->getAvg():0);
+			exit(g_fps ? (unsigned)g_fps->getAvg() : 0);
 			//keyboard(27,0,0);
 		}
 
@@ -2546,6 +2548,22 @@ void parseOptions(int argc, const char*const*argv)
 		if(!strcmp("fullscreen", argv[i]))
 		{
 			fullscreen = 1;
+		}
+		if(!strcmp("stability=low", argv[i]))
+		{
+			lightStability = rr_gl::RRDynamicSolverGL::DDI_4X4;
+		}
+		if(!strcmp("stability=auto", argv[i]))
+		{
+			lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
+		}
+		if(!strcmp("stability=high", argv[i]))
+		{
+			lightStability = rr_gl::RRDynamicSolverGL::DDI_8X8;
+		}
+		if(!strcmp("silent", argv[i]))
+		{
+			supportMusic = false;
 		}
 	}
 }

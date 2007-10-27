@@ -19,7 +19,7 @@ __int64 FileSize64( const char * szFileName )
 }
 
 HINSTANCE g_hInst;
-bool g_extended = false;
+bool g_extendedOptions = false;
 
 struct Mode
 {
@@ -37,7 +37,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_INITDIALOG:
 		{
 			// set icon for alt-tab
-			// dialog properties must have system_menu=false to avoid ugly small icon in dialog
 			SendMessage(hDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadImage(g_hInst,MAKEINTRESOURCE(IDI_MAIN_ICON),IMAGE_ICON,0,0,0));
 
 			// fill resolution
@@ -65,6 +64,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 			}
 			unsigned modeIdx = 0;
+			bool defaultFound = 0;
 			for(Modes::const_iterator i=modes.begin();i!=modes.end();i++)
 			{
 				char buf[100];
@@ -72,11 +72,29 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				if(SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_FINDSTRING,0,(LPARAM)buf)<0)
 				{
 					SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_ADDSTRING,0,(LPARAM)buf);
-					if(i->w==currentMode.dmPelsWidth && i->h==currentMode.dmPelsHeight && i->fullscr)
+					// if possible, set 1280x1024
+					if(i->w==1280 && i->h==1024 && i->fullscr)
+					{
 						SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_SETCURSEL,modeIdx,0);
+						defaultFound = true;
+					}
+					// if 1280x1024 was not found yet, set desktop res
+					if(!defaultFound && i->w==currentMode.dmPelsWidth && i->h==currentMode.dmPelsHeight && i->fullscr)
+					{
+						SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_SETCURSEL,modeIdx,0);
+					}
 				}
 				modeIdx++;
 			}
+
+			// fill music
+			SendDlgItemMessage(hDlg,IDC_MUSIC,BM_SETCHECK,BST_CHECKED,0);
+
+			// fill stability
+			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_ADDSTRING,0,(LPARAM)_T("low"));
+			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_ADDSTRING,0,(LPARAM)_T("auto"));
+			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_ADDSTRING,0,(LPARAM)_T("high"));
+			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_SETCURSEL,1,0);
 
 			// fill penumbra
 			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("highest supported"));
@@ -103,15 +121,15 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
-		if(wParam==0xffff)
+		if(wParam==0xffff) // click on image
 		{
+			ShowWindow(GetDlgItem(hDlg,IDC_MUSIC),SW_SHOWNORMAL);
+			ShowWindow(GetDlgItem(hDlg,IDC_STABILITY),SW_SHOWNORMAL);
+			ShowWindow(GetDlgItem(hDlg,IDC_STATIC4),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_PENUMBRA),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_STATIC2),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_EDITOR),SW_SHOWNORMAL);
-			g_extended = true;
-			//char buf[100];
-			//sprintf(buf,"%x %x\n",wParam,lParam);
-			//SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)buf);
+			g_extendedOptions = true;
 		}
 		if(LOWORD(wParam) == IDCANCEL)
 		{
@@ -121,19 +139,28 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		if(LOWORD(wParam)==IDC_START)
 		{
 			// prepare params
+			bool music = SendDlgItemMessage(hDlg,IDC_MUSIC,BM_GETCHECK,0,0)==BST_CHECKED;
 			bool editor = SendDlgItemMessage(hDlg,IDC_EDITOR,BM_GETCHECK,0,0)==BST_CHECKED;
 			unsigned resolutionIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_GETCURSEL,0,0);
 			char resolutionStr[1000];
 			resolutionStr[0] = 0;
 			SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_GETLBTEXT,resolutionIdx,(LPARAM)resolutionStr);
-			unsigned penumbraIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_GETCURSEL,0,0);
 			char buf[1000];
-			if(g_extended && penumbraIdx!=0) //0==auto
-				sprintf(buf,"%s penumbra%d",resolutionStr,penumbraIdx+((penumbraIdx>1)?1:0));
+			if(g_extendedOptions)
+			{
+				unsigned stabilityIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_STABILITY,CB_GETCURSEL,0,0);
+				unsigned penumbraIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_GETCURSEL,0,0);
+				char stabilityStr[100];
+				stabilityStr[0] = 0;
+				SendDlgItemMessageA(hDlg,IDC_STABILITY,CB_GETLBTEXT,stabilityIdx,(LPARAM)stabilityStr);
+				sprintf(buf,"%s penumbra%d stability=%s",resolutionStr,penumbraIdx+((penumbraIdx>1)?1:0),stabilityStr);
+				if(editor)
+					strcat(buf," editor");
+				if(!music)
+					strcat(buf," silent");
+			}
 			else
 				sprintf(buf,"%s",resolutionStr);
-			if(g_extended && editor)
-				strcat(buf," editor");
 
 			// minimize
 			RECT rect;

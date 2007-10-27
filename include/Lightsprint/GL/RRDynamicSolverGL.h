@@ -27,11 +27,20 @@ namespace rr_gl
 	class RR_GL_API RRDynamicSolverGL : public rr::RRDynamicSolver
 	{
 	public:
+		enum DDIQuality
+		{
+			DDI_AUTO, // default, uses 8x8 for Geforce6000+ and Radeon1300+, 4x4 for the rest
+			DDI_4X4, // lower quality, runs safely everywhere
+			DDI_8X8, // higher quality, warning: buggy Radeon driver is known to crash on X300
+		};
+
 		//! Initializes generic GPU access implemented in RRDynamicSolverGL.
 		//! \param pathToShaders
 		//!   Path to directory with lightmap_build.*, lightmap_filter.* and scaledown_filter.* shaders.
 		//!   Must be terminated with slash (or be empty for current dir).
-		RRDynamicSolverGL(char* pathToShaders);
+		//! \param detectionQuality
+		//!   Sets quality of our detectDirectIllumination() routine.
+		RRDynamicSolverGL(char* pathToShaders, DDIQuality detectionQuality = DDI_AUTO);
 		virtual ~RRDynamicSolverGL();
 
 		//! Creates 2d texture for indirect illumination storage.
@@ -113,6 +122,7 @@ namespace rr_gl
 		unsigned* detectSmallMap;
 		unsigned smallMapSize;
 		Program* scaleDownProgram;
+		DDIQuality detectionQuality;
 	};
 
 };

@@ -25,11 +25,11 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 	_snprintf(buf1,399,"%ssky.vs",pathToShaders);
 	_snprintf(buf2,399,"%ssky.fs",pathToShaders);
 	skyProgram = Program::create(NULL,buf1,buf2);
-	if(!skyProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/sky.*\n",pathToShaders);
+	if(!skyProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
 	_snprintf(buf1,399,"%stexture.vs",pathToShaders);
 	_snprintf(buf2,399,"%stexture.fs",pathToShaders);
 	twodProgram = Program::create("#define TEXTURE\n",buf1,buf2);
-	if(!twodProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/texture.*\n",pathToShaders);
+	if(!twodProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %stexture.*\n",pathToShaders);
 }
 
 TextureRenderer::~TextureRenderer()

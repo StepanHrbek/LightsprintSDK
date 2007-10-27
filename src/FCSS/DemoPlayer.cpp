@@ -10,7 +10,7 @@
 
 extern void showImage(const rr_gl::Texture* tex);
 
-DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool _pauseMusic)
+DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusic, bool _pauseMusic)
 {
 	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",demoCfg);
 
@@ -106,7 +106,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool _pauseMusic
 	fclose(f);
 
 	// load music - step2
-	music = Music::load(bufmusic);
+	music = supportMusic ? Music::load(bufmusic) : NULL;
 	pauseMusic = _pauseMusic;
 	//if(music) music->setPaused(pauseMusic);
 	paused = true;

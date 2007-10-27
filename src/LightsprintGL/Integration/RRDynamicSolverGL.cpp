@@ -14,8 +14,6 @@
 
 #define BIG_MAP_SIZEX            1024 // size of temporary texture used during detection
 #define BIG_MAP_SIZEY            1024 // set 1200 to process 70k triangle Sponza in 1 pass
-#define FACE_SIZEX               4 // shader supports 4,4 and 8,8 sizes. buggy Radeon X300 crashes with 8,8
-#define FACE_SIZEY               4
 #define REPORT(a) //a
 
 namespace rr_gl
@@ -69,21 +67,59 @@ public:
 //
 // RRDynamicSolverGL
 
-RRDynamicSolverGL::RRDynamicSolverGL(char* _pathToShaders)
+RRDynamicSolverGL::RRDynamicSolverGL(char* _pathToShaders, DDIQuality _detectionQuality)
 {
 	strncpy(pathToShaders,_pathToShaders,299);
 	pathToShaders[299]=0;
 
+	switch(_detectionQuality)
+	{
+		case DDI_4X4:
+		case DDI_8X8:
+			detectionQuality = _detectionQuality;
+			break;
+		default:
+		{
+			// known to driver-crash with 8x8: X300
+			// known to work with 8x8: X1600, X2400, 6150, 7100, 8800
+			// so our automatic pick is:
+			//   8x8 for: gf6000..9999, radeon 1300..4999
+			//   4x4 for others
+			detectionQuality = DDI_4X4;
+			char* renderer = (char*)glGetString(GL_RENDERER);
+			if(renderer)
+			{
+				// find 4digit number
+				unsigned number = 0;
+				#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
+				for(unsigned i=0;renderer[i];i++)
+					if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
+					{
+						number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
+						break;
+					}
+
+				if( ((strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=1300 && number<=4999)) ||
+					((strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=6000 && number<=9999)) )
+						detectionQuality = DDI_8X8;
+			}
+			break;
+		}
+	}
+	unsigned faceSizeX = (detectionQuality==DDI_8X8)?8:4;
+	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
+	rr::RRReporter::report(rr::INF2,"Detection quality = %s%s.\n",(_detectionQuality==DDI_AUTO)?"auto->":"",(detectionQuality==DDI_4X4)?"low":"high");
+
 	captureUv = new CaptureUv;
 	detectBigMap = Texture::create(NULL,BIG_MAP_SIZEX,BIG_MAP_SIZEY,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
-	smallMapSize = BIG_MAP_SIZEX*BIG_MAP_SIZEY/FACE_SIZEX/FACE_SIZEY;
+	smallMapSize = BIG_MAP_SIZEX*BIG_MAP_SIZEY/faceSizeX/faceSizeY;
 	detectSmallMap = new unsigned[smallMapSize*8]; // max static triangles = 64k*8 = 512k
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%sscaledown_filter.vs",pathToShaders);
 	_snprintf(buf2,399,"%sscaledown_filter.fs",pathToShaders);
 	char buf3[100];
-	sprintf(buf3,"#define SIZEX %d\n#define SIZEY %d\n",FACE_SIZEX,FACE_SIZEY);
+	sprintf(buf3,"#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY);
 	scaleDownProgram = Program::create(buf3,buf1,buf2);
 	if(!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %s/scaledown_filter.*\n",pathToShaders);
 
@@ -120,10 +156,10 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 /*
 per object lighting:
 -renderovat po objektech je neprijemne, protoze to znamena vic facu (i degenerovany)
-  -slo by zlepsit tim ze by byly degenrace zakazany a vstup s degeneraty zamitnut
+-slo by zlepsit tim ze by byly degenrace zakazany a vstup s degeneraty zamitnut
 -renderovat celou scenu a vyzobavat jen facy z objektu je neprijemne,
- protoze pak neni garantovane ze pujdou facy pekne za sebou
-  -slo by zlepsit tim ze multiobjekt bude garantovat poradi(slo by pres zakaz optimalizaci v multiobjektu)
+protoze pak neni garantovane ze pujdou facy pekne za sebou
+-slo by zlepsit tim ze multiobjekt bude garantovat poradi(slo by pres zakaz optimalizaci v multiobjektu)
 */
 #endif
 
@@ -171,11 +207,13 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 	glDepthMask(0);
 
 	// adjust captured texture size so we don't waste pixels
-	captureUv->triCountX = BIG_MAP_SIZEX/FACE_SIZEX; // number of triangles in one row
-	captureUv->triCountY = BIG_MAP_SIZEY/FACE_SIZEY; // number of triangles in one column
+	unsigned faceSizeX = (detectionQuality==DDI_8X8)?8:4;
+	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
+	captureUv->triCountX = BIG_MAP_SIZEX/faceSizeX; // number of triangles in one row
+	captureUv->triCountY = BIG_MAP_SIZEY/faceSizeY; // number of triangles in one column
 	while(captureUv->triCountY>1 && numTriangles/(captureUv->triCountX*captureUv->triCountY)==numTriangles/(captureUv->triCountX*(captureUv->triCountY-1))) captureUv->triCountY--;
 	unsigned width = BIG_MAP_SIZEX; // used width in pixels
-	unsigned height = captureUv->triCountY*FACE_SIZEY; // used height in pixels
+	unsigned height = captureUv->triCountY*faceSizeY; // used height in pixels
 
 	// for each set of triangles (if all triangles don't fit into one texture)
 	for(captureUv->firstCapturedTriangle=0;captureUv->firstCapturedTriangle<numTriangles;captureUv->firstCapturedTriangle+=captureUv->triCountX*captureUv->triCountY)
@@ -233,7 +271,7 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("lightmap",0);
 		scaleDownProgram->sendUniform("pixelDistance",1.0f/BIG_MAP_SIZEX,1.0f/BIG_MAP_SIZEY);
-		glViewport(0,0,BIG_MAP_SIZEX/FACE_SIZEX,BIG_MAP_SIZEY/FACE_SIZEY);//!!! needs at least 256x256 backbuffer
+		glViewport(0,0,BIG_MAP_SIZEX/faceSizeX,BIG_MAP_SIZEY/faceSizeY);//!!! needs at least 256x256 backbuffer
 		glActiveTexture(GL_TEXTURE0);
 		detectBigMap->bindTexture();
 		glDisable(GL_CULL_FACE);
@@ -250,7 +288,7 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 
 		// read downscaled image to memory
 		RR_ASSERT(captureUv->triCountX*captureUv->triCountY<smallMapSize);
-		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix\n"));
+		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", captureUv->triCountX, captureUv->triCountY));
 		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap+captureUv->firstCapturedTriangle);
 	}
 
