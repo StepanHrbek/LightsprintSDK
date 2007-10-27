@@ -8,6 +8,11 @@
 
 \section news36 ------------------------------------ 2007.10.x -------------------------------------
 
+NEWS
+
+- GeForce 5xxx support added
+- RRDynamicSolverGL works in higher precision, may be changed in constructor
+
 CHANGES
 
 - removed SmoothingParameters::smoothMode

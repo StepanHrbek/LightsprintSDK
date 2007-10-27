@@ -1774,6 +1774,7 @@ Used by samples:
  - ask for more
 
  GPUs
+ - NVIDIA GeForce 5xxx
  - NVIDIA GeForce 6xxx
  - NVIDIA GeForce 7xxx
  - NVIDIA GeForce 8xxx
@@ -2206,8 +2207,7 @@ Used by samples:
 
  Features and limitations of LightsprintGL's renderer
    - for Windows (request support for other platforms)
-   - uses OpenGL 2.0
-   - supports all OpenGL 2.0 cards, but penumbra shadows require GeForce 6xxx or higher, Radeon 9500 or higher
+   - requires OpenGL 2.0 capable GPU (GeForce 5xxx and higher, Radeon 9500 and higher)
    - spotlights with realtime shadows
    - linear and area spotlights with realtime penumbra shadows
    - loading 2d and cube textures from jpg, png, dds, tga, tiff, gif and many more
