@@ -9,7 +9,7 @@
 class DemoPlayer
 {
 public:
-	DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusic, bool pauseMusic);
+	DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusic, bool pauseMusic, bool preciseTimer);
 	~DemoPlayer();
 	float advance(); // advances according to real time
 	void advanceBy(float seconds); // advances by given time (e.g. 1/30. for video capture)
@@ -50,6 +50,7 @@ private:
 	float demoPosition; // 0..demo duration in seconds.
 	double absTimeWhenDemoStarted;
 	double absTimeNow;
+	bool preciseTimer;
 
 	// loading_screen
 	rr_gl::Texture* loadingMap;

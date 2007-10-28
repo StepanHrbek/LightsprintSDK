@@ -10,7 +10,9 @@
 
 extern void showImage(const rr_gl::Texture* tex);
 
-DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusic, bool _pauseMusic)
+#define DP_GETSEC ( preciseTimer ? omp_get_wtime() : clock()/(double)CLOCKS_PER_SEC )
+
+DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusic, bool _pauseMusic, bool _preciseTimer)
 {
 	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",demoCfg);
 
@@ -25,6 +27,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 		return;
 	}
 
+	preciseTimer = _preciseTimer;
 	absTimeNow = GETSEC;
 
 	// load loading_screen

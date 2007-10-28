@@ -1,5 +1,5 @@
 
-   LIGHTSMARK 2007                                           v1.0, 2007-10-24
+   LIGHTSMARK 2007                                           v1.1, 2007-10-29
    __________________________________________________________________________
 
 
@@ -17,34 +17,20 @@
    - 200-300 average fps (GF8800)
 
 
-2. Supported operating systems
-
-   - Windows XP
-   - Windows XP x64
-   - Windows Vista
-   - Windows Vista x64
-
-
-3. Supported GPUs
-
-   - NVIDIA GeForce 6xxx
-   - NVIDIA GeForce 7xxx
-   - NVIDIA GeForce 8xxx
-   - AMD (ATI) Radeon 9500-9800
-   - AMD (ATI) Radeon Xxxx
-   - AMD (ATI) Radeon X1xxx
-   - AMD (ATI) Radeon HD2xxx
-
-   Very important! Use the most recent drivers from
-   - http://www.nvidia.com/Download/index.aspx
-   - http://ati.amd.com/support/driver.html
-
-   Known remaining issues with drivers (request fix from driver vendors):
-   - disappearing objects on Radeon HD
-   - crash on some Quadro cards
+2. Requirements
+   - x86/x64 CPU with SSE
+   - OpenGL 2.0 compliant GPU with 32 MB RAM
+     * supported: NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx (including GeForce Go versions) with recent drivers!
+     * supported: AMD/ATI Radeon 9500-9800, Xxxx, X1xxx (including Mobility Radeon versions) with recent drivers!
+     * supported: subset of workstation families FireGL, Quadro
+     * partially: Radeon HD2xxx, robot disappears, possibly current driver issue
+     * please email me if you find incorrect/incomplete information here
+   - 512 MB RAM
+   - 100 MB free disk space
+   - Windows (any of XP, XP x64, Vista, Vista x64)
 
 
-4. Credits
+3. Credits
 
    Created by Stepan Hrbek using
 
@@ -60,12 +46,17 @@
    - 3ds loader by Matthew Fairfax
 
 
-5. History
+4. History
+
+   2007-10-29 version 1.1
+   - one decimal place added
+   - workaround for driver bugs (helps X11xx, X12xx, Go 6xxx, Go 7xxx)
+   - improved quality (shimmering)
 
    2007-10-24 version 1.0
 
 
-6. Contact
+5. Contact
 
    Stepan Hrbek <dee@dee.cz>
    http://dee.cz/lightsmark

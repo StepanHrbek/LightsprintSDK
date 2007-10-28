@@ -87,14 +87,17 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				modeIdx++;
 			}
 
+			// fill optimize
+			SendDlgItemMessage(hDlg,IDC_OPTIMIZE,BM_SETCHECK,BST_CHECKED,0);
+
 			// fill music
 			SendDlgItemMessage(hDlg,IDC_MUSIC,BM_SETCHECK,BST_CHECKED,0);
 
 			// fill stability
+			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_ADDSTRING,0,(LPARAM)_T("highest supported"));
 			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_ADDSTRING,0,(LPARAM)_T("low"));
-			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_ADDSTRING,0,(LPARAM)_T("auto"));
 			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_ADDSTRING,0,(LPARAM)_T("high"));
-			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_SETCURSEL,1,0);
+			SendDlgItemMessage(hDlg,IDC_STABILITY,CB_SETCURSEL,0,0);
 
 			// fill penumbra
 			SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_ADDSTRING,0,(LPARAM)_T("highest supported"));
@@ -123,6 +126,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		if(wParam==0xffff) // click on image
 		{
+			ShowWindow(GetDlgItem(hDlg,IDC_OPTIMIZE),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_MUSIC),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_STABILITY),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_STATIC4),SW_SHOWNORMAL);
@@ -139,28 +143,39 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		if(LOWORD(wParam)==IDC_START)
 		{
 			// prepare params
-			bool music = SendDlgItemMessage(hDlg,IDC_MUSIC,BM_GETCHECK,0,0)==BST_CHECKED;
-			bool editor = SendDlgItemMessage(hDlg,IDC_EDITOR,BM_GETCHECK,0,0)==BST_CHECKED;
-			unsigned resolutionIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_GETCURSEL,0,0);
-			char resolutionStr[1000];
-			resolutionStr[0] = 0;
-			SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_GETLBTEXT,resolutionIdx,(LPARAM)resolutionStr);
 			char buf[1000];
+			buf[0] = 0;
+
+			unsigned resolutionIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_GETCURSEL,0,0);
+			SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_GETLBTEXT,resolutionIdx,(LPARAM)buf);
+
 			if(g_extendedOptions)
 			{
-				unsigned stabilityIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_STABILITY,CB_GETCURSEL,0,0);
 				unsigned penumbraIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_PENUMBRA,CB_GETCURSEL,0,0);
-				char stabilityStr[100];
-				stabilityStr[0] = 0;
-				SendDlgItemMessageA(hDlg,IDC_STABILITY,CB_GETLBTEXT,stabilityIdx,(LPARAM)stabilityStr);
-				sprintf(buf,"%s penumbra%d stability=%s",resolutionStr,penumbraIdx+((penumbraIdx>1)?1:0),stabilityStr);
+				if(penumbraIdx)
+					sprintf(buf+strlen(buf)," penumbra%d",penumbraIdx+((penumbraIdx>1)?1:0));
+
+				unsigned stabilityIdx = (unsigned)SendDlgItemMessage(hDlg,IDC_STABILITY,CB_GETCURSEL,0,0);
+				if(stabilityIdx)
+				{
+					char stabilityStr[100];
+					stabilityStr[0] = 0;
+					SendDlgItemMessageA(hDlg,IDC_STABILITY,CB_GETLBTEXT,stabilityIdx,(LPARAM)stabilityStr);
+					sprintf(buf+strlen(buf)," stability=%s",stabilityStr);
+				}
+
+				bool editor = SendDlgItemMessage(hDlg,IDC_EDITOR,BM_GETCHECK,0,0)==BST_CHECKED;
 				if(editor)
 					strcat(buf," editor");
+
+				bool music = SendDlgItemMessage(hDlg,IDC_MUSIC,BM_GETCHECK,0,0)==BST_CHECKED;
 				if(!music)
 					strcat(buf," silent");
+
+				bool optimize = SendDlgItemMessage(hDlg,IDC_OPTIMIZE,BM_GETCHECK,0,0)==BST_CHECKED;
+				if(!optimize)
+					strcat(buf," timer_precision=high");
 			}
-			else
-				sprintf(buf,"%s",resolutionStr);
 
 			// minimize
 			RECT rect;

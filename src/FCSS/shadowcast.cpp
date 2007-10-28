@@ -139,6 +139,7 @@ unsigned selectedObject_indexInDemo = 0;
 bool renderInfo = 1;
 const char* cfgFile = CFG_FILE;
 rr_gl::RRDynamicSolverGL::DDIQuality lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
+bool preciseTimer = false;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -2249,7 +2250,7 @@ void reshape(int w, int h)
 
 	if(!demoPlayer)
 	{
-		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportMusic,supportEditor);
+		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportMusic,supportEditor,preciseTimer);
 		demoPlayer->setBigscreen(bigscreenCompensation);
 		//demoPlayer->setPaused(supportEditor); unpaused after first display()
 		//glutSwapBuffers();
@@ -2564,6 +2565,10 @@ void parseOptions(int argc, const char*const*argv)
 		if(!strcmp("silent", argv[i]))
 		{
 			supportMusic = false;
+		}
+		if(!strcmp("timer_precision=high", argv[i]))
+		{
+			preciseTimer = true;
 		}
 	}
 }
