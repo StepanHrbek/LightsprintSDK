@@ -96,23 +96,25 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	}
 	unsigned instancesPerPassOrig = --SHADOW_MAPS;
 	char* renderer = (char*)glGetString(GL_RENDERER);
-	// workaround for Catalyst bug
-	if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")))
+	if(renderer)
 	{
-		const char* buggy[] = {"9500","9550","9600","9700","9800","X300","X550","X600","X700","X740","X800","X850","X1050","X1100","X1150","X1200","X1250"};
-		for(unsigned i=0;i<sizeof(buggy)/sizeof(char*);i++)
-			if(strstr(renderer,buggy[i]))
+		// find 4digit number
+		unsigned number = 0;
+		#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
+		for(unsigned i=0;renderer[i];i++)
+			if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
 			{
-				if(SHADOW_MAPS>3) SHADOW_MAPS -= 2; // 5->3 (X300 in PenumbraShadows), 4->2 (X300 in Lightmaps)
+				number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
 				break;
 			}
-		// with bilinear filter ignored by Radeon, 3 is ugly, prefer 1
-		//if(SHADOW_MAPS==3) SHADOW_MAPS--;
-	}
-	// workaround for ForceWare bug
-	if(renderer && (strstr(renderer,"GeForce 6")||strstr(renderer,"GeForce 7"))) // 7->6 (6150 in PenumbraShadows)
-	{
-		if(SHADOW_MAPS) SHADOW_MAPS--;
+
+		// workaround for Catalyst bug, observed on X300, X1250
+		if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && !(number>=1300 && number<=4999) )
+			if(SHADOW_MAPS>3) SHADOW_MAPS -= 2; // 5->3 (X300 in PenumbraShadows), 4->2 (X300 in Lightmaps)
+
+		// workaround for ForceWare bug, observed on 6xxx, 7xxx, Go 7xxx
+		if( (strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=6000 && number<=7999) )
+			if(SHADOW_MAPS) SHADOW_MAPS--; // 7->6 (6150 in PenumbraShadows)
 	}
 	// 2 is ugly, prefer 1
 	if(SHADOW_MAPS==2) SHADOW_MAPS--;
