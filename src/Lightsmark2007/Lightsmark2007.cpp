@@ -189,15 +189,18 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					if(!GetExitCodeProcess(ShExecInfo.hProcess,&score)) score = 0;
 						else showLog = score==0; // show log only if demo successfully returns 0, other errors are reported by OS
-					if(score>10000) score = 0;
+					if(score>30000) score = 0;
 				}
 			}
 
 			// show result
-			if(score>0 && score<10000)
+			if(score>0 && score<30000)
 			{
 				// finished with score
-				sprintf(buf,"%d",score);
+				//if(score<300)
+					sprintf(buf,"%d.%d",score/10,score%10);
+				//else
+				//	sprintf(buf,"%d",score/10);
 				SendDlgItemMessageA(hDlg,IDC_SCORE,WM_SETTEXT,0,(LPARAM)buf);
 				SendDlgItemMessageA(hDlg,IDC_STATIC3,WM_SETTEXT,0,(LPARAM)"average fps");
 			}

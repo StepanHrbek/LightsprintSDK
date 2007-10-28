@@ -1688,7 +1688,7 @@ void keyboard(unsigned char c, int x, int y)
 			done_gl_resources();
 			delete rr::RRReporter::getReporter();
 			rr::RRReporter::setReporter(NULL);
-			exit(10000);
+			exit(30000);
 			break;
 		case 'a':
 		case 'A':
@@ -2331,7 +2331,7 @@ void idle()
 		if(!level)
 		{
 			rr::RRReporter::report(rr::INF1,"Finished, average fps = %.2f.\n",g_fps?g_fps->getAvg():0);
-			exit(g_fps ? (unsigned)g_fps->getAvg() : 0);
+			exit(g_fps ? (unsigned)(g_fps->getAvg()*10) : 0);
 			//keyboard(27,0,0);
 		}
 
