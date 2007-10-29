@@ -6797,7 +6797,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:Runs on most of graphics cards made since 2003 (GeForce 5/6/7/8 series, Radeon 9500-9800/Xnumber/HDnumber), but it is very important to use recent drivers."
+                            "Value" = "8:Runs on OpenGL 2.0 graphics cards (most of NVIDIA and ATI graphics cards made since 2003 - GeForce 5/6/7/8 series, Radeon 9500-9800/Xnumber/HDnumber), but it is very important to use recent drivers."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }

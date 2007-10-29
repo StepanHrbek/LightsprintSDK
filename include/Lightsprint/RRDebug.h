@@ -119,7 +119,8 @@ namespace rr
 		static RRReporter* getReporter();
 
 		//! Creates reporter that logs all messages to plain text file.
-		static RRReporter* createFileReporter(const char* filename);
+		//! Optional caching makes writes faster but last messages may be lost when program crashes.
+		static RRReporter* createFileReporter(const char* filename, bool caching);
 
 		//! Creates reporter that calls printf() on each message, with priority highlighting.
 		static RRReporter* createPrintfReporter();

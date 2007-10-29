@@ -2594,7 +2594,7 @@ int main(int argc, char **argv)
 #ifdef CONSOLE
 	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
 #else
-	rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("..\\log.txt"));
+	rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("..\\log.txt",false));
 #endif
 	rr::RRReporter::setFilter(true,2,false);
 	REPORT(rr::RRReporter::setFilter(true,3,true));

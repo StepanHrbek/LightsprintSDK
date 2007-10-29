@@ -12,10 +12,11 @@
 
 __int64 FileSize64( const char * szFileName ) 
 { 
-	struct __stat64 fileStat; 
-	int err = _stat64( szFileName, &fileStat ); 
-	if (0 != err) return 0; 
-	return fileStat.st_size; 
+	struct __stat64 fileStat;
+	fileStat.st_size = 0;
+	int err = _stat64( szFileName, &fileStat );
+	if(err) return 0;
+	return fileStat.st_size;
 }
 
 HINSTANCE g_hInst;
