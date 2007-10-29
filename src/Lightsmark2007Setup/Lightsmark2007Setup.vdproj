@@ -6449,7 +6449,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lightsmark 2007"
         "ProductCode" = "8:{92BB5EF3-AF88-4B7F-8797-D1F87FF3ABEA}"
-        "PackageCode" = "8:{F6AB0EA2-8A35-45C9-BDC7-13328631B463}"
+        "PackageCode" = "8:{2AD46938-AF62-40BB-9BC4-F5A2F759FE91}"
         "UpgradeCode" = "8:{3EA93B0E-BADB-4630-8F51-85220D56E9D3}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -6797,7 +6797,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:Runs on OpenGL 2.0 graphics cards (most of NVIDIA and ATI graphics cards made since 2003 - GeForce 5/6/7/8 series, Radeon 9500-9800/Xnumber/HDnumber), but it is very important to use recent drivers."
+                            "Value" = "8:Runs on most of NVIDIA and ATI graphics cards made since 2003 (GeForce 5/6/7/8 series, Radeon 9500-9800/Xnumber/HDnumber), but it is very important to use recent drivers."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }

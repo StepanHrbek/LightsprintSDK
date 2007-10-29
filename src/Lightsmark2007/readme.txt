@@ -13,18 +13,18 @@
    - realtime color bleeding
    - infinite light bounces
    - fully dynamic HDR lighting
-   - 220000 triangles
+   - 220000 triangles in scene
    - 200-300 average fps (GF8800)
 
 
 2. Requirements
    - x86/x64 CPU with SSE
    - OpenGL 2.0 compliant GPU with 32 MB RAM
-     * supported: NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx (including GeForce Go versions) with recent drivers!
-     * supported: AMD/ATI Radeon 9500-9800, Xxxx, X1xxx (including Mobility Radeon versions) with recent drivers!
+     * supported: NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx (including GeForce Go)
+     * supported: AMD/ATI Radeon 9500-9800, Xxxx, X1xxx (including Mobility Radeon)
      * supported: subset of workstation families FireGL, Quadro
-     * partially: Radeon HD2xxx, robot disappears, possibly current driver issue
-     * please email me if you find incorrect/incomplete information here
+     * partially: Radeon HD2xxx, robot disappears, possibly driver issue
+     * use current drivers from NVIDIA and AMD
    - 512 MB RAM
    - 100 MB free disk space
    - Windows (any of XP, XP x64, Vista, Vista x64)
@@ -49,6 +49,7 @@
 4. History
 
    2007-10-29 version 1.1
+   - 1280x1024 set as standard
    - one decimal place added
    - workaround for driver bugs (helps X11xx, X12xx, Go 6xxx, Go 7xxx)
    - improved quality (shimmering)
@@ -61,4 +62,4 @@
    Stepan Hrbek <dee@dee.cz>
    http://dee.cz/lightsmark
 
-   Your comments are welcome!
+   Your feedback is welcome!

@@ -88,9 +88,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				modeIdx++;
 			}
 
-			// fill optimize
-			SendDlgItemMessage(hDlg,IDC_OPTIMIZE,BM_SETCHECK,BST_CHECKED,0);
-
 			// fill music
 			SendDlgItemMessage(hDlg,IDC_MUSIC,BM_SETCHECK,BST_CHECKED,0);
 
@@ -127,7 +124,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		if(wParam==0xffff) // click on image
 		{
-			ShowWindow(GetDlgItem(hDlg,IDC_OPTIMIZE),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_MUSIC),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_STABILITY),SW_SHOWNORMAL);
 			ShowWindow(GetDlgItem(hDlg,IDC_STATIC4),SW_SHOWNORMAL);
@@ -172,10 +168,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				bool music = SendDlgItemMessage(hDlg,IDC_MUSIC,BM_GETCHECK,0,0)==BST_CHECKED;
 				if(!music)
 					strcat(buf," silent");
-
-				bool optimize = SendDlgItemMessage(hDlg,IDC_OPTIMIZE,BM_GETCHECK,0,0)==BST_CHECKED;
-				if(!optimize)
-					strcat(buf," timer_precision=high");
 			}
 
 			// minimize
