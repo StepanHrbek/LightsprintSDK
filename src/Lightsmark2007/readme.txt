@@ -51,7 +51,7 @@
    2007-10-29 version 1.1
    - 1280x1024 set as standard
    - one decimal place added
-   - workaround for driver bugs (helps X11xx, X12xx, Go 6xxx, Go 7xxx)
+   - workaround for driver bugs (should help GeForce 5xxx, Go 6xxx, Go 7xxx)
    - improved quality (shimmering)
 
    2007-10-24 version 1.0

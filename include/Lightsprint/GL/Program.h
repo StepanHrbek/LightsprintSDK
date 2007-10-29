@@ -72,12 +72,16 @@ public:
 	//! Sets uniform of type mat2, mat3 or mat4.
 	void sendUniform(const char *name, float *m, bool transp=false, int size=4);
 
-	//! Print OpenGL log to console. False by default.
+	//! Returns location of uniform.
+	//! Used to detect Nvidia driver bug.
+	bool uniformExists(const char* uniformName);
+
+	//! Print OpenGL log to console. False by default. Set true for debugging.
 	static bool showLog;
 private:
 	Program(const char* defines, const char* vertexShader, const char* fragmentShader);
-	bool isLinked();
 	int getLoc(const char *name);
+	bool isLinked();
 	bool logLooksSafe();
 
 	class Shader *vertex, *fragment;

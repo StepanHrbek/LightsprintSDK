@@ -99,7 +99,7 @@ struct RR_GL_API UberProgramSetup
 	//! Returns the highest number of shadowmaps,
 	//! that may be processed in one pass with this setup (material & lighting).
 	//! The same number is set to SHADOW_MAPS.
-	//! \n\n If commandline contains -hard parameter, 1 is returned.
+	//! \n\n If one of arguments in argv is penumbraX for X=1..8, X is returned.
 	unsigned detectMaxShadowmaps(UberProgram* uberProgram, int argc = 0, const char*const*argv = NULL);
 	//! Change invalid settings to closest valid settings.
 	void validate();

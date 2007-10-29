@@ -74,9 +74,8 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 {
 	while(argc--)
 	{
-		if(!strcmp(argv[argc],"-hard")) return 1;
 		int tmp;
-		if(sscanf(argv[argc],"penumbra%d",&tmp)==1 && tmp) // ignore penumbra0
+		if(sscanf(argv[argc],"penumbra%d",&tmp)==1 && tmp>=1 && tmp<=8) // accept only penumbra1..8
 		{
 			SHADOW_MAPS = tmp;
 			if(tmp<1 || tmp>8 || !getProgram(uberProgram)) 
@@ -92,7 +91,10 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 	// no, make it shorter, try max 8 maps, both AMD and NVIDIA high end GPUs can do only 8
 	for(SHADOW_MAPS=1;SHADOW_MAPS<=8;SHADOW_MAPS++)
 	{
-		if(!getProgram(uberProgram)) break;
+		Program* program = getProgram(uberProgram);
+		if(!program // stop when !compiled or !linked
+			|| (LIGHT_DIRECT && !program->uniformExists("worldLightPos")) // stop when uniform missing, workaround for Nvidia bug
+			) break;
 	}
 	unsigned instancesPerPassOrig = --SHADOW_MAPS;
 	char* renderer = (char*)glGetString(GL_RENDERER);
@@ -112,9 +114,9 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 		if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && !(number>=1300 && number<=4999) )
 			if(SHADOW_MAPS>3) SHADOW_MAPS -= 2; // 5->3 (X300 in PenumbraShadows), 4->2 (X300 in Lightmaps)
 
-		// workaround for ForceWare bug, observed on 6xxx, 7xxx, Go 7xxx
-		if( (strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=6000 && number<=7999) )
-			if(SHADOW_MAPS) SHADOW_MAPS--; // 7->6 (6150 in PenumbraShadows)
+		// workaround for ForceWare bug, observed on 5xxx, 6xxx, 7xxx, Go 7xxx
+		//if( (strstr(renderer,"GeForce")||strstr(renderer,"GEFORCE")) && (number>=5000 && number<=7999) )
+		//	if(SHADOW_MAPS) SHADOW_MAPS--; // 7->6 (6150 in PenumbraShadows)
 	}
 	// 2 is ugly, prefer 1
 	if(SHADOW_MAPS==2) SHADOW_MAPS--;

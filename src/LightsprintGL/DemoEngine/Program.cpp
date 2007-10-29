@@ -185,10 +185,15 @@ int Program::getLoc(const char *name)
 		rr::RRReporter::report(rr::ERRO,"%s is not a valid uniform variable name.\n"
 			"This is usually caused by error in graphics card driver.\n"
 			"We reported it to Nvidia and wait for fix.\n"
-			"As a workaround, run application with -hard parameter on command line.\n",name);
+			"As a workaround, run application with penumbra1 parameter on command line.\n",name);
 		exit(0);
 	}
 	return loc;
+}
+
+bool Program::uniformExists(const char *uniformName)
+{
+	return glGetUniformLocation(handle, uniformName)!=-1;
 }
 
 const char* getTypeName(unsigned type)
