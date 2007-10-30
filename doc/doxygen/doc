@@ -3,6 +3,9 @@ namespace rr
 
 /**
 
+\file doc
+\brief Documentation only.
+
 
 \mainpage Lightsprint SDK
 
@@ -10,12 +13,14 @@ namespace rr
 
  \section root_welcome Welcome to Lightsprint Software Development Kit
  - \subpage main_introduction
+ - \subpage main_news
  - \subpage main_scenarios
  - \subpage main_features
  - \subpage main_platforms
  - \subpage main_credits
 
  \section root_guide Programming guide
+ - \subpage main_ue3
  - \subpage main_integration
  - \subpage main_inputs
  - \subpage main_data_access
@@ -335,7 +340,7 @@ Used by samples:
  Expected time spent:
  </td></tr></table>
 
-  - 1-2 days
+  - 2-5 days
 
 
 
@@ -461,7 +466,7 @@ Used by samples:
  Expected time spent:
  </td></tr></table>
 
-  - 1-2 weeks
+  - 1-3 weeks
 
 
 
@@ -511,7 +516,7 @@ Used by samples:
 
  Realtime global illumination is based on physically correct calculation of light transport.
  For such calculation it's necessary to know physical properties of surfaces.
- See RRMaterial for list of all material properties of a surface.
+ See RRMaterial for list of supported material properties of a surface.
 
  Fortunately you don't have to study advanced laws of physics for good results,
  you don't even need any additional information provided by artists who
@@ -530,7 +535,7 @@ Used by samples:
  If you are not sure, describe us your shaders and we will help you.
 
  In <b>fully general case</b>, you don't need any information about shaders.
- It works even if you let modders create new shaders, their properties are detected.
+ It works even if you let modders create new shaders, their properties will be autodetected.
  Everything you need is ability to render simple scene into small texture (16x16 pixels
  is typically enough)
  and calculate average color of rendered image. Follow these steps for each material
@@ -550,13 +555,18 @@ Used by samples:
     than they receive. Such behaviour is not possible in real world and may cause
     unexpected results in calculation such as infinitely high indirect illumination.
 
+ -  If you use materials with faked reflection maps (planar or cubic),
+    make sure that reflection intensity drops to 0 in dark scene,
+    or manually disable it before detection.
+    If you apply faked reflection even in completely dark unlit scene, detection described above
+    must think it's emissive material.
+    Alternatively, if you don't have any emissive materials, you can simply set emissivity to 0.
+
  This automatic approach can be further extended to differentiate between
  diffuse and specular reflectance or even to detect complete BRDF.
 
  Of course you are allowed to use any other approach, e.g. let graphics artists
  enter all values by hand.
-
-
 
 
 
@@ -1915,6 +1925,44 @@ Used by samples:
 
 
  
+ 
+\page main_ue3 Introduction for UE3 users
+
+ This page should help you use Lightsprint SDK with Unreal Engine 3.
+ \n Work is at the beginning, so you'll find only some details here,
+ but more details and bigger picture should be added in next weeks/months.
+
+ \section ue3_color Color
+
+ Concept of color is implemented differently by both engines.
+ First take a look at properties of any color type.
+ - Color has channels (RGB, RGBA)
+ - Color channel has precision (byte, float)
+ - Color has scale (linear/physical, screen/sRGB)
+
+ UE3 implements following types (with properties)
+ - FColor (RGBA, byte, screen/sRGB)
+ - FLinearColor (RGBA, float, linear/physical)
+
+ Lightsprint implements following types (with properties)
+ - RRColor, RRColorRGBF (RGB, float)
+ - RRColorRGBA8 (RGBA, byte)
+ - RRColorRGBAF (RGBA, float)
+
+ Scale in Lightsprint is defined by context rather than by type -
+ functions working with colors are scale neutral
+ or they specify what scale they use.
+ Two major scales exist in Lightsprint, linear/physical and custom.
+ Custom scale is user-defined via RRDynamicSolver::setScale()
+ and it is typically set to screen/sRGB RRScaler::createRgbScaler()
+ which makes it compatible with FColor of UE3.
+
+ So with different approach to scale in mind
+ - FColor = RRColorRGBA8
+ - FLinearColor = RRColorRGBAF
+
+ 
+   
  
 \page main_conventions Conventions
 

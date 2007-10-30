@@ -702,7 +702,7 @@ shoot_from_center:
 }
 
 
-// CPU, gathers per-triangle lighting from RRLights, RREnvironment, current solution
+// CPU, gathers per-triangle lighting from RRLights, environment, current solution
 bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots)
 {
 	if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
@@ -771,7 +771,7 @@ bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, Process
 	return true;
 }
 
-// CPU version, detects per-triangle direct from RRLights, RREnvironment, gathers from current solution
+// CPU version, detects per-triangle direct from RRLights, environment, gathers from current solution
 bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams, bool updateBentNormals)
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");

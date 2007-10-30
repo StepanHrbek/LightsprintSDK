@@ -8,6 +8,36 @@ namespace rr
 //
 // Sky
 
+class Sky : public RRIlluminationEnvironmentMap
+{
+public:
+	Sky(const RRColorRGBF& _upper, const RRColorRGBF& _lower)
+	{
+		upper = _upper;
+		lower = _lower;
+	}
+	virtual void setValues(unsigned size, const RRColorRGBF* irradiance)
+	{
+		if(size && irradiance)
+		{
+			upper = irradiance[0];
+			lower = irradiance[1];
+		}
+	}
+	virtual RRColorRGBF getValue(const RRVec3& direction) const
+	{
+		return (direction.y>0)?upper:lower;
+	};
+private:
+	RRColorRGBF upper;
+	RRColorRGBF lower;
+};
+
+RRIlluminationEnvironmentMap* RRIlluminationEnvironmentMap::createSky(const RRColorRGBF& upper, const RRColorRGBF& lower)
+{
+	return new Sky(upper,lower);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

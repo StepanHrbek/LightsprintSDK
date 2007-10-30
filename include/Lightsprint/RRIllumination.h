@@ -98,46 +98,6 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! 8bit intensity - One of color formats for vertex and pixel buffers.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	struct RRColorI8
-	{
-		RRColorI8()
-		{
-			color = 0;
-		}
-		RRColorI8(RRReal r,RRReal g,RRReal b)
-		{
-			color = (unsigned char)CLAMPED(85*(r+g+b),0,255);
-		}
-		const RRColorI8& operator =(const RRColorRGBF& a)
-		{
-			return *this = RRColorI8(a[0],a[1],a[2]);
-		}
-		bool operator ==(const RRColorI8& a)
-		{
-			return color==a.color;
-		}
-		bool operator !=(const RRColorI8& a)
-		{
-			return color!=a.color;
-		}
-		RRReal operator [](int i) const 
-		{
-			return color/255.0f;
-		}
-		RRColorRGBF toRRColorRGBF() const
-		{
-			return RRColorRGBF((*this)[0],(*this)[1],(*this)[2]);
-		}
-		unsigned char color;
-	};
-
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
 	//! RGBA8, total 32bits - One of color formats for vertex and pixel buffers.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -421,16 +381,31 @@ namespace rr
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Creates empty environment map in system memory.
+		//! Creates empty environment map in system memory, 6*size*size pixels big.
 		//
 		//! Created instance is 3D API independent, so also bindTexture() doesn't bind
 		//! it for any 3D API.
-		static RRIlluminationEnvironmentMap* create(unsigned width);
+		static RRIlluminationEnvironmentMap* create(unsigned size);
 
 		//! Loads environment map from disk to system memory.
 		//
 		//! Created instance is 3D API independent, so also bindTexture() doesn't bind
 		//! it for any 3D API.
+		//! \n Example1: filename="path/cube.hdr", cubeSideName=NULL - cube is loaded from 1 file
+		//! \n Example2: filename="path/cube_%s.png", cubeSideName={"ft","bk","dn","up","rt","lf"} - cube is loaded from 6 files
+		//! \param filename
+		//!  Filename of 1 image or mask of 6 images to be loaded from disk.
+		//!  All common file formats are supported.
+		//! \param cubeSideName Array of six unique names of cube sides in following order:
+		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
+		//!  Examples: {"0","1","2","3","4","5"}, {"ft","bk","dn","up","rt","lf"}.
+		//! \param flipV
+		//!  Flip all sides vertically at load time.
+		//! \param flipH
+		//!  Flip all sides horizontally at load time.
+		//! \return
+		//!  Returns newly created environment map.
+		//!  In case of failure, NULL is returned and details logged via RRReporter.
 		static RRIlluminationEnvironmentMap* load(const char *filename, const char* cubeSideName[6],
 			bool flipV = false, bool flipH = false);
 
@@ -452,7 +427,7 @@ namespace rr
 
 		//! Creates uniform environment, with constant irradiance without regard to direction.
 		//
-		//! It is suitable for ambient occlusion calculation.
+		//! It is suitable for ambient occlusion calculation (set via RRDynamicSolver::setEnvironment()).
 		//! \n It is not suitable for rendering, bind() is empty.
 		//! \n Color of environment may be changed by setValues(), first element of values is taken as
 		//!    a new irradiance.
@@ -460,6 +435,17 @@ namespace rr
 		//!  Irradiance in environment, the same value is returned by getValue().
 		static RRIlluminationEnvironmentMap* createUniform(const RRColorRGBF irradiance = RRColorRGBF(1));
 
+		//! Creates simple sky environment, with constant irradiance  with user defined values in upper and lower hemispheres.
+		//
+		//! It is suitable for precomputed sky lighting (set via RRDynamicSolver::setEnvironment()).
+		//! \n It is not suitable for rendering, bind() is empty.
+		//! \n Color of environment may be changed by setValues(), first two elements of values are taken as
+		//!    a new irradiances.
+		//! \param upper
+		//!  Irradiance in upper hemisphere, the same value is returned by getValue(direction_with_positive_y).
+		//! \param lower
+		//!  Irradiance in lower hemisphere, the same value is returned by getValue(direction_with_zero_or_negative_y).
+		static RRIlluminationEnvironmentMap* createSky(const RRColorRGBF& upper, const RRColorRGBF& lower);
 	};
 
 
