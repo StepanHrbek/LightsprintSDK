@@ -32,6 +32,7 @@ RRIlluminationPixelBufferInMemory::RRIlluminationPixelBufferInMemory(const char*
 	backgroundColor = _backgroundColor;
 	smoothBackground = _smoothBackground;
 	numRenderedTexels = 0;
+	lockedPixels = NULL;
 }
 
 void RRIlluminationPixelBufferInMemory::renderBegin()
