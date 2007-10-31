@@ -39,10 +39,9 @@ private:
 //
 //! Supports optional point details (e.g. alpha keying) provided by RRObject::getPointMaterial().
 //! \n Finds closest surface with RRMaterial::sideBits::catchFrom && triangleNumber!=emitorTriangleNumber.
-//! \n It is suitable e.g. for photon mapper, only pixels interacting with light from emitor collide.
 //!
 //! Thread safe: this function yes, but created collision handler no.
-//! (typical use case: for n threads, use 1 collider, n rays and n handlers.)
+//!  Typical use case is: for n threads, use 1 collider, n rays and n handlers.
 //! \param emitorTriangleNumber
 //!  Number of triangle that never collides, it is skipped. It is usually used for emitor where ray begins.
 //! \param allowPointMaterials

@@ -81,8 +81,8 @@ RRColorRGBF RRIlluminationEnvironmentMap::getValue(const RRVec3& direction) cons
 
 void RRIlluminationEnvironmentMap::bindTexture() const
 {
-	RRReporter::report(WARN,"RRIlluminationEnvironmentMap::bindTexture: Not implemented.");
-	RR_ASSERT(0);
+	LIMITED_TIMES(1,RRReporter::report(WARN,"RRIlluminationEnvironmentMap::bindTexture: Not implemented."));
+	//RR_ASSERT(0);
 }
 
 bool RRIlluminationEnvironmentMap::save(const char* filenameMask, const char* cubeSideName[6])

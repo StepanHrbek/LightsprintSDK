@@ -489,9 +489,6 @@ int main(int argc, char **argv)
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 
-	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
-	rr_gl::Texture* environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-
 	// init scene and solver
 	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.\n", false);
@@ -530,7 +527,14 @@ int main(int argc, char **argv)
 #endif
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+	
+	// a) set white non-renderable environment (ok for calculation but invisible for realtime render)
+	//solver->setEnvironment( rr::RRIlluminationEnvironmentMap::createUniform() );
+	// b) set white renderable environment (OpenGL cube texture, ok for both calculation and realtime render)
+	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
+	rr_gl::Texture* environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\whitebox\\whitebox_%s.png",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	solver->setEnvironment( solver->adaptIlluminationEnvironmentMap( environmentMap ) );
+
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 
 	{

@@ -340,6 +340,10 @@ namespace rr
 	//
 	//! Interface to illumination storage based on environment map.
 	//
+	//! Stored values are always in custom scale, which is usually sRGB,
+	//! so both inputs and outputs are displayable colors.
+	//! \n Map usually contains image of surrounding scene, possibly filtered.
+	//
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RR_API RRIlluminationEnvironmentMap : public RRUniformlyAllocated
@@ -354,20 +358,24 @@ namespace rr
 		//! Sets all illumination values in map.
 		//! \param size
 		//!  Width and height of one side of cube map.
-		//! \param irradiance
-		//!  Array of 6*size*size irradiance values in custom scale in this order:
+		//! \param colors
+		//!  Array of 6*size*size values in this order:
 		//!  \n size*size values for POSITIVE_X side,
 		//!  \n size*size values for NEGATIVE_X side,
 		//!  \n size*size values for POSITIVE_Y side,
 		//!  \n size*size values for NEGATIVE_Y side,
 		//!  \n size*size values for POSITIVE_Z side,
 		//!  \n size*size values for NEGATIVE_Z side.
-		virtual void setValues(unsigned size, const RRColorRGBF* irradiance) = 0;
+		//!  \n Values are usually interpreted as colors (radiosities in custom scale)
+		//!     of distant points in 6*size*size different directions, possibly with filtering applied.
+		virtual void setValues(unsigned size, const RRColorRGBF* colors) = 0;
 
 		// Environment map use
 
 		//! Returns value addressed by given direction.
-		//! Not mandatory, implementation may always return 0.
+		//! Value is usually interpreted as color (radiosity in custom scale)
+		//! of distant point in given direction, possibly with filtering applied.
+		//! \n Not mandatory, implementation may always return 0.
 		virtual RRColorRGBF getValue(const RRVec3& direction) const;
 
 		//! Binds texture for use by renderer.
@@ -391,8 +399,11 @@ namespace rr
 		//
 		//! Created instance is 3D API independent, so also bindTexture() doesn't bind
 		//! it for any 3D API.
-		//! \n Example1: filename="path/cube.hdr", cubeSideName=NULL - cube is loaded from 1 file
-		//! \n Example2: filename="path/cube_%s.png", cubeSideName={"ft","bk","dn","up","rt","lf"} - cube is loaded from 6 files
+		//! \n Example1: filename="path/cube_%s.png", cubeSideName={"ft","bk","dn","up","rt","lf"} - Cube is loaded from 6 files.
+		//! \n Example2: filename="path/cube.hdr", cubeSideName=NULL - Cube is loaded from 1 file.
+		//!    Note that it is possible to load map from float based fileformat in full float precision,
+		//!    but existing rendering code expects custom scale values in map, so result
+		//!    would be incorrect.
 		//! \param filename
 		//!  Filename of 1 image or mask of 6 images to be loaded from disk.
 		//!  All common file formats are supported.
@@ -425,26 +436,26 @@ namespace rr
 		//!  True on successful save of complete environment map.
 		virtual bool save(const char* filenameMask, const char* cubeSideName[6]);
 
-		//! Creates uniform environment, with constant irradiance without regard to direction.
+		//! Creates uniform environment, with constant color without regard to direction.
 		//
-		//! It is suitable for ambient occlusion calculation (set via RRDynamicSolver::setEnvironment()).
-		//! \n It is not suitable for rendering, bind() is empty.
-		//! \n Color of environment may be changed by setValues(), first element of values is taken as
-		//!    a new irradiance.
-		//! \param irradiance
-		//!  Irradiance in environment, the same value is returned by getValue().
-		static RRIlluminationEnvironmentMap* createUniform(const RRColorRGBF irradiance = RRColorRGBF(1));
+		//! It is suitable for ambient occlusion calculation, getValue() is implemented.
+		//! \n It is not suitable for realtime rendering, bind() is empty.
+		//! \n Color of environment may be changed by setValues(), first values is taken as a new color.
+		//! \param color
+		//!  Color (environment radiosity in custom scale) of environment, the same value is returned by getValue().
+		static RRIlluminationEnvironmentMap* createUniform(const RRColorRGBF color = RRColorRGBF(1));
 
-		//! Creates simple sky environment, with constant irradiance  with user defined values in upper and lower hemispheres.
+		//! Creates simple sky environment, with user defined colors in upper and lower hemisphere.
 		//
-		//! It is suitable for precomputed sky lighting (set via RRDynamicSolver::setEnvironment()).
-		//! \n It is not suitable for rendering, bind() is empty.
-		//! \n Color of environment may be changed by setValues(), first two elements of values are taken as
-		//!    a new irradiances.
+		//! It is suitable for precomputed sky lighting, getValue() is implemented.
+		//! \n It is not suitable for realtime rendering, bind() is empty.
+		//! \n Color of environment may be changed by setValues(), first two values are taken as new colors.
 		//! \param upper
-		//!  Irradiance in upper hemisphere, the same value is returned by getValue(direction_with_positive_y).
+		//!  Color (environment radiosity in custom scale) of upper hemisphere,
+		//!  the same value is returned by getValue(direction_with_positive_y).
 		//! \param lower
-		//!  Irradiance in lower hemisphere, the same value is returned by getValue(direction_with_zero_or_negative_y).
+		//!  Color (environment radiosity in custom scale) of lower hemisphere,
+		//!  the same value is returned by getValue(direction_with_zero_or_negative_y).
 		static RRIlluminationEnvironmentMap* createSky(const RRColorRGBF& upper, const RRColorRGBF& lower);
 	};
 

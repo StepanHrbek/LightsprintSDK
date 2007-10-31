@@ -520,7 +520,6 @@ Global
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug DLL|Xbox 360.ActiveCfg = Release static
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug DLL|Xbox 360.Build.0 = Release static
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug static|Win32.ActiveCfg = Release static
-		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug static|Win32.Build.0 = Release static
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug static|Xbox 360.ActiveCfg = Release static
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug static|Xbox 360.Build.0 = Release static
 		{2B5DC58A-8E74-4868-B66F-D7A4CC8C72CE}.Debug with Release DLL|Win32.ActiveCfg = Release static
