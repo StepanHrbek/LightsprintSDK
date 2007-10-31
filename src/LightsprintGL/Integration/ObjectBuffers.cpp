@@ -91,7 +91,7 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			}
 			fg.numIndices = 0;
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
-			fg.transparency = material ? material->specularTransmittance : 0;
+			fg.transparency = material ? material->specularTransmittance.avg() : 0;
 			fg.diffuseTexture = NULL;
 			if(hasDiffuseMap)
 			{

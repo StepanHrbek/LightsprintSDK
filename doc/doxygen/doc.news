@@ -19,6 +19,7 @@ NEWS
 
 CHANGES
 
+- rr::RRMaterial::specularTransmittance extended from scalar value to rgb
 - removed SmoothingParameters::smoothMode
 - removed RRColorI8
 

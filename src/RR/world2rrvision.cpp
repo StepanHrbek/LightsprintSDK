@@ -117,7 +117,8 @@ static void fillMaterial(Surface *s,C_MATERIAL *m)
 	xy2rgb(m->ed_c.cx,m->ed_c.cy,0.5,s->diffuseEmittance);
 	s->diffuseEmittance          *=m->ed/1000;
 	s->specularReflectance        =m->rs;
-	s->specularTransmittance      =m->ts;
+	xy2rgb(m->ts_c.cx,m->ts_c.cy,0.5,s->specularTransmittance);
+	s->specularTransmittance     *=m->ts;
 	s->refractionIndex            =m->nr;
 	s->outside                    =NULL;
 	s->inside                     =NULL;

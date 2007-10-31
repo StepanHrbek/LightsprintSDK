@@ -56,9 +56,9 @@ namespace rr
 		unsigned char emitTo:1;      ///< 1=this side of surface emits energy according to diffuseEmittance and diffuseReflectance. If both sides emit, 50% to each side is emitted.
 		unsigned char catchFrom:1;   ///< 1=surface catches photons coming from this side. Next life of catched photon depends on receiveFrom/reflect/transmitFrom/errorFrom. For transparent pixels in alpha-keyed textures, simply disable catchFrom, light will come through without regard to other flags.
 		unsigned char legal:1;       ///< 0=catched photons are considered harmful, their presence is masked away. It is usually used for back sides of solid 1sided faces.
-		unsigned char receiveFrom:1; ///< 1=catched photons reflect according to diffuseReflectance. Reflected photon splits and leaves to all sides with emitTo.
-		unsigned char reflect:1;     ///< 1=catched photons reflect according to specularReflectance. Reflected photon leaves to the same side.
-		unsigned char transmitFrom:1;///< 1=catched photons transmit according to specularTransmittance and refractionIndex. Transmitted photon leaves to other side.
+		unsigned char receiveFrom:1; ///< 1=catched photons are reflected according to diffuseReflectance. Reflected photon splits and leaves to all sides with emitTo.
+		unsigned char reflect:1;     ///< 1=catched photons are reflected according to specularReflectance. Reflected photon leaves to the same side.
+		unsigned char transmitFrom:1;///< 1=catched photons are transmitted according to specularTransmittance and refractionIndex. Transmitted photon leaves to other side.
 		unsigned char pointDetails:1;///< 1=material has important per-pixel details. It's hint for solver to use per-pixel materials. Solver always starts with fast RRObject::getTriangleMaterial(), but if it has pointDetails set, slower but more detailed getPointMaterial() is used instead. Save calculation time by enabling pointDetails only for materials with strong per-pixel differences, e.g. trees with transparency in alpha.
 	};
 
@@ -86,7 +86,7 @@ namespace rr
 		RRColor       diffuseReflectance;            ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Diffuse_reflection">diffuse reflection</a> (each channel separately).
 		RRColor       diffuseEmittance;              ///< Radiant emittance in watts per square meter (each channel separately).
 		RRReal        specularReflectance;           ///< Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (without color change).
-		RRReal        specularTransmittance;         ///< Fraction of energy that continues through surface (without color change).
+		RRColor       specularTransmittance;         ///< Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		RRReal        refractionIndex;               ///< Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 	};
 

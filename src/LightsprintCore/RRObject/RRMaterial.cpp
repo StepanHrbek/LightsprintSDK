@@ -40,10 +40,10 @@ void RRMaterial::reset(bool twoSided)
 		{{1,1,1,1,1,1,1,0},{1,0,1,1,1,1,1,0}}, // definition of default 2-sided (front side, back side)
 	};
 	for(unsigned i=0;i<2;i++) sideBits[i] = sideBitsTmp[twoSided?1:0][i];
-	diffuseReflectance             = RRColor(0.5);
+	diffuseReflectance             = RRColor(0.5f);
 	diffuseEmittance               = RRColor(0);
 	specularReflectance            = 0;
-	specularTransmittance          = 0;
+	specularTransmittance          = RRColor(0);
 	refractionIndex                = 1;
 }
 
@@ -82,10 +82,10 @@ bool RRMaterial::validate()
 	// clamp so that no new photons appear
 	for(unsigned i=0;i<3;i++)
 	{
-		RRReal all = diffuseReflectance[i]+specularReflectance+specularTransmittance;
+		RRReal all = diffuseReflectance[i]+specularReflectance+specularTransmittance[i];
 		if(clamp(all,0,MAX_LEFT)) changed = true;
-		if(clamp(diffuseReflectance[i],0,all-specularTransmittance)) changed = true;
-		if(clamp(specularReflectance,0,all-specularTransmittance-diffuseReflectance[i])) changed = true;
+		if(clamp(diffuseReflectance[i],0,all-specularTransmittance[i])) changed = true;
+		if(clamp(specularReflectance,0,all-specularTransmittance[i]-diffuseReflectance[i])) changed = true;
 	}
 
 	// FCollada returns 0 when information is not available

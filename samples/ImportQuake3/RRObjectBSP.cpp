@@ -178,7 +178,7 @@ static void fillMaterial(rr::RRMaterial& s, rr_gl::Texture*& t, TTexture* m,cons
 	// rgb is diffuse reflectance
 	s.diffuseReflectance = avg;
 	// alpha is transparency
-	s.specularTransmittance = 1-avg[3];
+	s.specularTransmittance = rr::RRColor(1-avg[3]);
 
 #ifdef VERIFY
 	if(s.validate())

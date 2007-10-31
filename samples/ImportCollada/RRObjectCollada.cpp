@@ -598,7 +598,7 @@ void RRObjectCollada::updateMaterials()
 				mi.material.diffuseReflectance = colorToColor(effectStandard->GetDiffuseColor());
 				mi.material.diffuseEmittance = colorToColor(effectStandard->GetEmissionFactor() * effectStandard->GetEmissionColor());
 				mi.material.specularReflectance = colorToFloat(effectStandard->GetSpecularFactor() * effectStandard->GetSpecularColor());
-				mi.material.specularTransmittance = colorToFloat(effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor());
+				mi.material.specularTransmittance = colorToColor(effectStandard->GetTranslucencyFactor() * effectStandard->GetTranslucencyColor());
 				mi.material.refractionIndex = effectStandard->GetIndexOfRefraction();
 				mi.diffuseTexture = NULL;
 				if(effectStandard->GetTextureCount(FUDaeTextureChannel::DIFFUSE))
@@ -631,13 +631,13 @@ void RRObjectCollada::updateMaterials()
 								// rgb is diffuse reflectance
 								mi.material.diffuseReflectance = avg;
 								// alpha is transparency
-								mi.material.specularTransmittance = 1-avg[3];
+								mi.material.specularTransmittance = rr::RRColor(1-avg[3]);
 
 								// Enables per-pixel materials(diffuse reflectance and transparency) for solver.
 								// It makes calculation much slower, so enable it only when necessary.
 								// It usually pays off for textures with strongly varying per-pixel alpha (e.g. trees).
 								// Here, for simplicity, we enable it for textures with at least 1% transparency.
-								if(mi.material.specularTransmittance>0.01f)
+								if(mi.material.specularTransmittance.avg()>0.01f)
 									mi.material.sideBits[0].pointDetails = 1; // our material is 1sided, so set it for side 0 (front)
 							}
 							else
@@ -760,7 +760,7 @@ void RRObjectCollada::getPointMaterial(unsigned t,RRVec2 uv,RRMaterial& out) con
 		out.diffuseReflectance[1] = rgba[1];
 		out.diffuseReflectance[2] = rgba[2];
 		// alpha/transparency
-		out.specularTransmittance = 1-rgba[3];
+		out.specularTransmittance = rr::RRColor(1-rgba[3]);
 		if(rgba[3]==0)
 			out.sideBits[0].catchFrom = out.sideBits[1].catchFrom = 0;
 	}

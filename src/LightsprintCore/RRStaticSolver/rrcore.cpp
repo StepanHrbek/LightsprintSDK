@@ -1809,7 +1809,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 	// speedup: weaker rays continue less often but with
 	//  proportionally increased power
 	if(side.transmitFrom)
-	if(fabs(power*hitTriangle->surface->specularTransmittance)>0.1)
+	if(fabs(power*hitTriangle->surface->specularTransmittance.sum())>0.3f)
 //	if(sqrt(power*material->specularTransmittance)*rand()<RAND_MAX)
 	{
 		STATISTIC_INC(numRayTracePhotonHitsTransmitted);
@@ -1818,7 +1818,7 @@ HitChannels Scene::rayTracePhoton(Point3 eye,Vec3 direction,Triangle *skip,HitCh
 		// calculate new direction after refraction
 		Vec3 newDirection=-refract(hitTriangle->getN3(),direction,hitTriangle->surface->refractionIndex);
 		// recursively call this function
-		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance));
+		hitPower+=rayTracePhoton(hitPoint3d,newDirection,hitTriangle,/*sqrt*/(power*hitTriangle->surface->specularTransmittance.avg()));
 	}
 	s_depth--;
 	return hitPower;
