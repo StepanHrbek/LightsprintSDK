@@ -21,8 +21,9 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
 #define PRODUCT_NAME "Lightsmark 2007"
-#define CFG_FILE "Lightsmark2007.cfg"
-//#define CFG_FILE "test.cfg"
+//#define CFG_FILE "Lightsmark2007.cfg"
+//#define CFG_FILE "mgf.cfg"
+#define CFG_FILE "test.cfg"
 //#define CFG_FILE "eg-flat1.cfg"
 //#define CFG_FILE "eg-quake.cfg"
 //#define CFG_FILE "eg-sponza.cfg"
@@ -638,7 +639,8 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 #else
 	// update realtime layer 0
 	static unsigned solutionVersion = 0;
-	if(level->solver->getSolutionVersion()!=solutionVersion)
+	if((uberProgramSetup.LIGHT_INDIRECT_auto || uberProgramSetup.LIGHT_INDIRECT_VCOLOR) && // update vbuf only when needed (update may call calculate()!)
+		level->solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = level->solver->getSolutionVersion();
 		level->solver->updateVertexBuffers(0,-1,true,NULL,NULL);
