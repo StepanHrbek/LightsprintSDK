@@ -287,7 +287,7 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		glEnd();
 
 		// read downscaled image to memory
-		RR_ASSERT(captureUv->triCountX*captureUv->triCountY<smallMapSize);
+		RR_ASSERT(captureUv->triCountX*captureUv->triCountY<=smallMapSize);
 		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", captureUv->triCountX, captureUv->triCountY));
 		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap+captureUv->firstCapturedTriangle);
 	}

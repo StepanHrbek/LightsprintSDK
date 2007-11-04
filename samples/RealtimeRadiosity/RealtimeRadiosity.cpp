@@ -129,7 +129,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	if(robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
-		robot->rotYZ = rr::RRVec2(rotation,0);
+		//robot->rotYZ = rr::RRVec2(rotation,0); // rotate
+		robot->rotYZ = rr::RRVec2(55,0); robot->animationTime = rotation*0.01f; // wave
 		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			solver->updateEnvironmentMap(robot->illumination);
@@ -440,7 +441,9 @@ int main(int argc, char **argv)
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
+	material.ANIMATION_WAVE = true;
 	robot = DynamicObject::create("..\\..\\data\\objects\\I_Robot_female.3ds",0.3f,material,16,16);
+	material.ANIMATION_WAVE = false;
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
@@ -459,7 +462,7 @@ int main(int argc, char **argv)
 
 	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver.
 	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.
-	solver->loadFireball(NULL) || solver->buildFireball(1000,NULL);
+	solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 
 	glutMainLoop();
 	return 0;

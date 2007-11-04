@@ -42,6 +42,7 @@ public:
 	// Your changes are registered when you call updatePosition().
 	rr::RRVec3 worldFoot; // position of object's foot in world
 	rr::RRVec2 rotYZ; // degrees, y is rotated first, then z
+	rr::RRReal animationTime; // controls object's procedural animation, used when ANIMATION_WAVE=true
 	bool visible;
 
 	// updated by updateIllumination

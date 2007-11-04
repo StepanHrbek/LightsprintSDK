@@ -23,7 +23,7 @@ const char* UberProgramSetup::getSetupString()
 	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
 
 	static char setup[1000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
@@ -45,6 +45,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_SPECULAR_MAP?"#define MATERIAL_SPECULAR_MAP\n":"",
 		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
 		MATERIAL_EMISSIVE_MAP?"#define MATERIAL_EMISSIVE_MAP\n":"",
+		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
 		POSTPROCESS_BRIGHTNESS?"#define POSTPROCESS_BRIGHTNESS\n":"",
 		POSTPROCESS_GAMMA?"#define POSTPROCESS_GAMMA\n":"",

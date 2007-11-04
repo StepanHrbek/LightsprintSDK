@@ -2402,6 +2402,12 @@ void idle()
 				demoPlayer->setVolume(frame->volume);
 				static AnimationFrame prevFrame(0);
 				demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->pilot.setup,*frame,memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0);
+				for(unsigned i=0;i<10;i++)
+				{
+					// vsem objektum nastavi animacni cas (ten je pak konstantni pro shadowmapy i final render)
+					DynamicObject* dynobj = demoPlayer->getDynamicObjects()->getObject(i);
+					if(dynobj) dynobj->animationTime = demoPlayer->getPartPosition();
+				}
 				prevFrame = *frame;
 			}
 			else

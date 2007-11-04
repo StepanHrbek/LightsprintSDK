@@ -70,6 +70,7 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_SPECULAR_MAP  :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
 	bool     MATERIAL_NORMAL_MAP    :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
 	bool     MATERIAL_EMISSIVE_MAP  :1; ///< Enables material's emission stored in sRGB map.
+	bool     ANIMATION_WAVE         :1; ///< Enables simple procedural deformation, only to demonstrate that lighting supports animations.
 	bool     POSTPROCESS_NORMALS    :1; ///< Renders normal values instead of colors.
 	bool     POSTPROCESS_BRIGHTNESS :1; ///< Enables brightness correction of final color (before gamma).
 	bool     POSTPROCESS_GAMMA      :1; ///< Enables gamma correction of final color (after brightness).

@@ -51,6 +51,7 @@ DynamicObject::DynamicObject()
 	illumination = new rr::RRObjectIllumination(0);
 	worldFoot = rr::RRVec3(0);
 	rotYZ = rr::RRVec2(0);
+	animationTime = 0;
 	visible = true;
 }
 
@@ -130,6 +131,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		uberProgramSetup.MATERIAL_NORMAL_MAP = material.MATERIAL_NORMAL_MAP;
 		uberProgramSetup.MATERIAL_EMISSIVE_MAP = material.MATERIAL_EMISSIVE_MAP;
 	}
+	uberProgramSetup.ANIMATION_WAVE = material.ANIMATION_WAVE;
 	// use program
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,areaLight,firstInstance,lightDirectMap,brightness,gamma);
 	if(!program)
@@ -165,6 +167,12 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		//  sometimes it's diffuse, sometimes emissive
 		glActiveTexture(activeTexture);
 	}
+	// set animation
+	if(uberProgramSetup.ANIMATION_WAVE)
+	{
+		program->sendUniform("animationTime",animationTime);
+	}
+
 	// simple render, non cached
 	//model->Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL);
 	// simple render, cached inside display list

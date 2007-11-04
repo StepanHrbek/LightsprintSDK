@@ -22,6 +22,7 @@
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
 //  #define POSTPROCESS_BRIGHTNESS
 //  #define POSTPROCESS_GAMMA
@@ -80,6 +81,10 @@ varying
 	varying vec2 materialEmissiveCoord;
 #endif
 
+#ifdef ANIMATION_WAVE
+	uniform float animationTime;
+#endif
+
 void main()
 {
 	#ifdef OBJECT_SPACE
@@ -88,6 +93,15 @@ void main()
 	#else
 		vec4 worldPos4 = gl_Vertex;
 		worldNormalSmooth = normalize( gl_Normal );
+	#endif
+	#ifdef ANIMATION_WAVE
+		worldPos4.z += 0.1*sin(animationTime+5.0*worldPos4.y); // arbitrary procedural deformation
+		float tga = -0.5*cos(animationTime+5.0*worldPos4.y); // its derivation
+		float cosa = 1.0/sqrt(tga*tga+1.0);
+		float sina = tga*cosa;
+		worldNormalSmooth.yz = vec2(
+			sina*worldNormalSmooth.z+cosa*worldNormalSmooth.y,
+			cosa*worldNormalSmooth.z-sina*worldNormalSmooth.y);
 	#endif
 	worldPos = worldPos4.xyz;
 
