@@ -2358,6 +2358,7 @@ Used by samples:
   \image html samples/RealtimeRadiosity_1.jpg global illumination changes in realtime
   </td></tr></table>
  - renders realtime global illumination in scene with dynamic objects and area light
+ - show that lighting works equally well for animated object
  - features penumbra shadows, color bleeding
  - shows feeding external 3ds renderer with Lightsprint computed illumination
  - loads 3ds scene and 3ds dynamic objects

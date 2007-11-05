@@ -13,6 +13,8 @@
 // All other samples (see very similar Lightmaps) use internal RendererOfScene,
 // which is simpler to use. 
 //
+// Proper illumination of animated object is also demonstrated.
+//
 // Controls:
 //  mouse = look around
 //  arrows = move around

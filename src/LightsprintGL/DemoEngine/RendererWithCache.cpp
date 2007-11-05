@@ -15,7 +15,7 @@ namespace rr_gl
 //
 // RendererWithCache
 
-bool  COMPILE=1;
+bool  COMPILE = 1;
 
 
 RendererWithCache::RendererWithCache(Renderer* arenderer)

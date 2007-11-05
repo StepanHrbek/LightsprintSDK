@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news37 ------------------------------------ 2007.11.x -------------------------------------
+
+NEWS
+
+- sample RealtimeRadiosity shows properly lit animated object
+  (was not demonstrated before)
+
 \section news36 ------------------------------------ 2007.10.31 -------------------------------------
 
 NEWS

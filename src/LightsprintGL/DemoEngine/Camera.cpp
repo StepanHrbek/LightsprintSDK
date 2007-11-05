@@ -64,8 +64,10 @@ void Camera::update(float back)
 	invertMatrix(inverseViewMatrix, viewMatrix);
 	invertMatrix(inverseFrustumMatrix, frustumMatrix);
 }
+
 void Camera::setupForRender()
 {
+	// set matrices in GL pipeline
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixd(frustumMatrix);
 	glMatrixMode(GL_MODELVIEW);

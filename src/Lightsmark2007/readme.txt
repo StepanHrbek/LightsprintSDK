@@ -1,9 +1,11 @@
 
-   LIGHTSMARK 2007                                           v1.1, 2007-10-29
+   LIGHTSMARK 2007                                           v1.2, 2007-11-06
    __________________________________________________________________________
 
 
    Lightsmark measures computer performance with next generation 3D engine.
+
+   Details and updates: http://dee.cz/lightsmark
 
 
 1. Benchmark features
@@ -21,9 +23,8 @@
    - x86/x64 CPU with SSE
    - OpenGL 2.0 compliant GPU with 32 MB RAM
      * supported: NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx (including GeForce Go)
-     * supported: AMD/ATI Radeon 9500-9800, Xxxx, X1xxx (including Mobility Radeon)
+     * supported: AMD/ATI Radeon 9500-9800, Xxxx, X1xxx, HD2000 (including Mobility Radeon)
      * supported: subset of workstation families FireGL, Quadro
-     * partially: Radeon HD2xxx, robot disappears, possibly driver issue
      * use current drivers from NVIDIA and AMD
    - 512 MB RAM
    - 100 MB free disk space
@@ -34,7 +35,7 @@
 
    Created by Stepan Hrbek using
 
-   - Lightsprint SDK realtime global illumination
+   - Lightsprint SDK realtime global illumination engine
    - Attic scene from World of Padman game
    - Hey you song by In-sist under http://creativecommons.org/licenses/by-nc/2.5/
    - I Robot model by orillionbeta
@@ -46,20 +47,7 @@
    - 3ds loader by Matthew Fairfax
 
 
-4. History
-
-   2007-10-29 version 1.1
-   - 1280x1024 set as standard
-   - one decimal place added
-   - workaround for driver bugs (should help GeForce 5xxx, Go 6xxx, Go 7xxx)
-   - improved quality (shimmering)
-
-   2007-10-24 version 1.0
-
-
-5. Contact
+4. Contact
 
    Stepan Hrbek <dee@dee.cz>
    http://dee.cz/lightsmark
-
-   Your feedback is welcome!

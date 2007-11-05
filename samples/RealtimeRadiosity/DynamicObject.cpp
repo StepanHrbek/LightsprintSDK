@@ -35,6 +35,24 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 		// simple renderer
 		d->rendererWithoutCache = new RendererOf3DS(d->model,true,_material.MATERIAL_DIFFUSE_MAP,_material.MATERIAL_EMISSIVE_MAP);
 		d->rendererCached = d->rendererWithoutCache->createDisplayList();
+		d->amdBugWorkaround = false;
+		char* renderer = (char*)glGetString(GL_RENDERER);
+		if(renderer)
+		{
+			// find 4digit number
+			unsigned number = 0;
+#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
+			for(unsigned i=0;renderer[i];i++)
+				if(!IS_DIGIT(renderer[i]) && IS_DIGIT(renderer[i+1]) && IS_DIGIT(renderer[i+2]) && IS_DIGIT(renderer[i+3]) && IS_DIGIT(renderer[i+4]) && !IS_DIGIT(renderer[i+5]))
+				{
+					number = (renderer[i+1]-'0')*1000 + (renderer[i+2]-'0')*100 + (renderer[i+3]-'0')*10 + (renderer[i+4]-'0');
+					break;
+				}
+
+			// workaround for Catalyst bug, observed on HD2xxx
+			if( (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")) && (number>=2000 && number<=2999) )
+				d->amdBugWorkaround = true;
+		}
 
 		return d;
 	}
@@ -173,8 +191,10 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		program->sendUniform("animationTime",animationTime);
 	}
 
-	// simple render, non cached
-	//model->Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,NULL,NULL);
-	// simple render, cached inside display list
-	rendererCached->render();
+	if(amdBugWorkaround)
+		// simple render, non cached
+		model->Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
+	else
+		// simple render, cached inside display list
+		rendererCached->render();
 }
