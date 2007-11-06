@@ -43,6 +43,7 @@
 
 4. License
    http://creativecommons.org/licenses/by-nc/3.0/
+   Use in product reviews/comparisons is welcome.
    When modifying Lightsmark, you must make clear that your work is
    Lightsmark 2007 mod and link to http://dee.cz/lightsmark from program and web.
 
