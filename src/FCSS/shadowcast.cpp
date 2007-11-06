@@ -32,8 +32,8 @@ unsigned INSTANCES_PER_PASS;
 bool ati = 1;
 int fullscreen = 1;
 bool startWithSoftShadows = 0;
-int resolutionx = 1280;
-int resolutiony = 960;
+int resolutionx = 800;
+int resolutiony = 600;
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
@@ -232,6 +232,8 @@ Fps* g_fps;
 
 /////////////////////////////////////////////////////////////////////////////
 
+bool exiting = false;
+
 void error(const char* message, bool gfxRelated)
 {
 	rr::RRReporter::report(rr::ERRO,message);
@@ -245,6 +247,7 @@ void error(const char* message, bool gfxRelated)
 	printf("\n\nPress ENTER to close.");
 	fgetc(stdin);
 #endif
+	exiting = true;
 	exit(0);
 }
 
@@ -1691,6 +1694,7 @@ void keyboard(unsigned char c, int x, int y)
 			done_gl_resources();
 			delete rr::RRReporter::getReporter();
 			rr::RRReporter::setReporter(NULL);
+			exiting = true;
 			exit(30000);
 			break;
 		case 'a':
@@ -2245,6 +2249,9 @@ void initMenu()
 
 void reshape(int w, int h)
 {
+	// we are called with desktop resolution in vista from exit(), glViewport crashes in HD2400 driver
+	if(exiting) return;
+
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
@@ -2334,6 +2341,7 @@ void idle()
 		if(!level)
 		{
 			rr::RRReporter::report(rr::INF1,"Finished, average fps = %.2f.\n",g_fps?g_fps->getAvg():0);
+			exiting = true;
 			exit(g_fps ? (unsigned)(g_fps->getAvg()*10) : 0);
 			//keyboard(27,0,0);
 		}
@@ -2641,6 +2649,7 @@ int main(int argc, char **argv)
 	if(glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony)
 	{
 		rr::RRReporter::report(rr::ERRO,"Sorry, unable to set %dx%d%s, try different mode.\n",resolutionx,resolutiony,fullscreen?" fullscreen":"");
+		exiting = true;
 		exit(0);
 	};
 

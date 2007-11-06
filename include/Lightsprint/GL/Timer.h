@@ -10,7 +10,7 @@
 
 #include <cassert>
 
-#ifdef _OPENMP
+#ifdef _OPENMPxxx
 	// GETTIME: 1us precision, slow,  Timer: low precision
 	#include <omp.h>
 	#include <cstring> // NULL
@@ -18,7 +18,7 @@
 	#define GETTIME omp_get_wtime()
 	#define PER_SEC 1
 #else
-#ifdef WIN32
+#ifdef WIN32xxx
 	// GETTIME: 1ms precision,  Timer: high precision
 	#define WINDOWS_TIME
 	#include <windows.h>

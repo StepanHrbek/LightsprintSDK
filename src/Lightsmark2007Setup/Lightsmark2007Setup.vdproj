@@ -1501,7 +1501,7 @@
         {
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_00CCB7A6EB9A4C4884013460265E7C1B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\rostblack.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\rostblack.jpg"
             "TargetName" = "8:rostblack.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1521,7 +1521,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0112A005E95A4948BAA739501F6610EF"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood019.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood019.jpg"
             "TargetName" = "8:wood019.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1541,7 +1541,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0633EC80475C44E399430C68C9946B99"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\Microsoft.VC80.CRT\\msvcr80.dll"
+            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC80.CRT\\msvcr80.dll"
             "TargetName" = "8:msvcr80.dll"
             "Tag" = "8:"
             "Folder" = "8:_119428AA939D4955AB5F9A38199A63D6"
@@ -1561,7 +1561,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_077655714FCE48D8B7065CC49B60BD7A"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\woodboardbrown03.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\woodboardbrown03.jpg"
             "TargetName" = "8:woodboardbrown03.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1581,7 +1581,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0799A6CD7F8C4297BD65D2E1B3AD57DE"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart01a.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart01a.jpg"
             "TargetName" = "8:cart01a.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1601,7 +1601,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_07C0DC8267F046C0B5DFF179E2C3D82B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart11.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart11.jpg"
             "TargetName" = "8:cart11.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1621,7 +1621,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_07E13F806E9947FC8B1AFC95EDEDB8D3"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pglass05.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pglass05.tga"
             "TargetName" = "8:pglass05.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1641,7 +1641,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_084B80D786D346489E95EF0016D3B1FA"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\border003.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\border003.jpg"
             "TargetName" = "8:border003.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1661,7 +1661,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0965443CB05B4D919A8D7AF883061603"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\obj069b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\obj069b.jpg"
             "TargetName" = "8:obj069b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1681,7 +1681,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_09BF3EE0C30C4C13844C6ACF01616526"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\truhe001.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\truhe001.jpg"
             "TargetName" = "8:truhe001.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1701,7 +1701,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0AAB6455185543DD819C633C1B56016C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\werk01b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\werk01b.jpg"
             "TargetName" = "8:werk01b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1721,7 +1721,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0B484F09EDFC44A9A315ADC889FB0388"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-6.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-6.png"
             "TargetName" = "8:txt-6.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -1741,7 +1741,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0D607DBE02F8491FB94D57521C8A5F54"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart18g.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart18g.jpg"
             "TargetName" = "8:cart18g.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1761,7 +1761,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1169DE04A9994E69B18CCDE721639B82"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart07.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart07.jpg"
             "TargetName" = "8:cart07.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1781,7 +1781,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_117AE90A5FCD4EEA86C7D67A5B3F5D5F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\border001.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\border001.jpg"
             "TargetName" = "8:border001.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1801,7 +1801,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1362A7CEDC824F8A972CCEACF71160D7"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\mag000.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\mag000.jpg"
             "TargetName" = "8:mag000.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1821,7 +1821,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1394BBB4A20946EEA8A1D037430DC13B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\xmas01b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\xmas01b.jpg"
             "TargetName" = "8:xmas01b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1841,7 +1841,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_146C029381A4423283ABC6A1360E1080"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\betty02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\betty02.jpg"
             "TargetName" = "8:betty02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1861,7 +1861,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_176217DEB4A0443D9E9DE9B072E3B308"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\layellow.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\layellow.tga"
             "TargetName" = "8:layellow.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1881,7 +1881,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_186052876AC54B838FAF177B0D8D93A2"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wall_stone102.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wall_stone102.jpg"
             "TargetName" = "8:wall_stone102.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1901,7 +1901,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_18C998F28F8E4214851F5302EEE9426D"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\mappe01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\mappe01.jpg"
             "TargetName" = "8:mappe01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1921,7 +1921,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1A045FEA5A024F8EB31FAAED2548019F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-fps.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-fps.png"
             "TargetName" = "8:txt-fps.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -1941,7 +1941,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1B17582879DB4379995A5E76AE501664"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\kings_side.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\kings_side.jpg"
             "TargetName" = "8:kings_side.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1961,7 +1961,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DD68A90A5B048C98D875FA413A7F84B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart18.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart18.jpg"
             "TargetName" = "8:cart18.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -1981,7 +1981,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1FC5AD27F0EC4E06B850AD4E792637D2"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02e.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book02e.jpg"
             "TargetName" = "8:book02e.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2001,7 +2001,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1FDA9B539CDD426A8B31A7A05ABC0F42"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\span128.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\span128.jpg"
             "TargetName" = "8:span128.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2021,7 +2021,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1FE012E3072A49A4ADADA649AB8FA487"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pglass01.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pglass01.tga"
             "TargetName" = "8:pglass01.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2041,7 +2041,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2063F1C063154719A2532C1173FD2F88"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood034.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood034.jpg"
             "TargetName" = "8:wood034.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2061,7 +2061,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2064A66E0C0B4903A52D63C97F9AF22C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart04b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart04b.jpg"
             "TargetName" = "8:cart04b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2081,7 +2081,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20AB2C72019B47FFB9D7E255E7D5DE2B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\thefly.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\thefly.jpg"
             "TargetName" = "8:thefly.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2101,7 +2101,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20EECBA6310F4D528E7D5D96221CB482"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\cursor.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\cursor.png"
             "TargetName" = "8:cursor.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -2121,7 +2121,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_212E177045844EAD8D417E1ACB549C8C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\padbubble.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\padbubble.tga"
             "TargetName" = "8:padbubble.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2141,7 +2141,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_235FC97E5A3746D586DAB8E951E8BD4F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart01.jpg"
             "TargetName" = "8:cart01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2161,7 +2161,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_23D2F04EFF4D436C8BD40702A0411264"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\movie_clip.jpg"
+            "SourcePath" = "8:..\\..\\data\\maps\\movie_clip.jpg"
             "TargetName" = "8:movie_clip.jpg"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -2181,7 +2181,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_23E7086F432343288B2AE7236B6213CD"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart06.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart06.jpg"
             "TargetName" = "8:cart06.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2201,7 +2201,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_25DD8300EA774834A520DEA3D1B6304C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-3.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-3.png"
             "TargetName" = "8:txt-3.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -2221,7 +2221,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2621145FA5E04533AEFF9ACFD605254E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\FCSS_sr.exe"
+            "SourcePath" = "8:..\\..\\bin\\win32\\FCSS_sr.exe"
             "TargetName" = "8:FCSS_sr.exe"
             "Tag" = "8:"
             "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
@@ -2241,7 +2241,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_26A82E39841244539FF9588B4A3693C3"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wop_padatticBB.fib"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wop_padatticBB.fib"
             "TargetName" = "8:wop_padatticBB.fib"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2261,7 +2261,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_282845B846BA4A308A257FDD7142AF1B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood045.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood045.jpg"
             "TargetName" = "8:wood045.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2281,7 +2281,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A69C325B3F34F8995B0106009D772E6"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\Lightsmark2007.exe"
+            "SourcePath" = "8:..\\..\\bin\\win32\\Lightsmark2007.exe"
             "TargetName" = "8:Lightsmark2007.exe"
             "Tag" = "8:"
             "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
@@ -2301,7 +2301,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2ABABFA0E0484C05AFA0575D7D9208DF"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pglass07.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pglass07.tga"
             "TargetName" = "8:pglass07.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2321,7 +2321,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2BAD6374E9724082AC7F86BFC9624A3F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\padkasper.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\padkasper.jpg"
             "TargetName" = "8:padkasper.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2341,7 +2341,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2D26B7350FFA45639C42F20D4DC9A0FD"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\2parq62.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\2parq62.jpg"
             "TargetName" = "8:2parq62.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2361,7 +2361,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2F2DA27E51F441EDA4C67D06C689A28C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-5.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-5.png"
             "TargetName" = "8:txt-5.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -2381,7 +2381,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_327888D606644BF791463EFBB9CCAD5A"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book02.jpg"
             "TargetName" = "8:book02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2401,7 +2401,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_33135B1B516344BE8BC20EDB8ED204F5"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\door15.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\door15.jpg"
             "TargetName" = "8:door15.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2421,7 +2421,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3743F7F868354E9B8AE2A20452445718"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\glew32.dll"
+            "SourcePath" = "8:..\\..\\bin\\win32\\glew32.dll"
             "TargetName" = "8:glew32.dll"
             "Tag" = "8:"
             "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
@@ -2441,7 +2441,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_37E82610C51B4AA69E69987A1B65D6D4"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\lagreen.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\lagreen.tga"
             "TargetName" = "8:lagreen.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2461,7 +2461,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38018F4E713D4AD788A4CDF864CCAEB8"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\woodzier018b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\woodzier018b.jpg"
             "TargetName" = "8:woodzier018b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2501,7 +2501,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38B2F55762954494BBCB33F368096145"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\gega02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\gega02.jpg"
             "TargetName" = "8:gega02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2521,7 +2521,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_393451F2160448F3A9C955A8B7693EFC"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart12.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart12.jpg"
             "TargetName" = "8:cart12.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2541,7 +2541,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3AFFC4E0B8144C008F4C82F6532E805A"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wall_stone054.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wall_stone054.jpg"
             "TargetName" = "8:wall_stone054.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2561,7 +2561,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3BD043C24E9F47B69B481416B576A187"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\regalboarder.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\regalboarder.jpg"
             "TargetName" = "8:regalboarder.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2581,7 +2581,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3D6E878296044C12BE8BC22592525B5B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\rostsoft.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\rostsoft.jpg"
             "TargetName" = "8:rostsoft.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2601,7 +2601,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3E73E9F2F4424B2D8D6533294E141A91"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\truhe001b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\truhe001b.jpg"
             "TargetName" = "8:truhe001b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2621,7 +2621,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F431664B71D4906B1719BC91F7F6612"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\Microsoft.VC80.OPENMP\\vcomp.dll"
+            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC80.OPENMP\\vcomp.dll"
             "TargetName" = "8:vcomp.dll"
             "Tag" = "8:"
             "Folder" = "8:_B8345DF2D6214232B3AEAE139C263C8F"
@@ -2641,7 +2641,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F65C3CE259145309FDB3AB5287F55A4"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\klink03.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\klink03.jpg"
             "TargetName" = "8:klink03.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2661,7 +2661,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_40D7F0F3C06B4DE3841EA586062E64E9"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\lared.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\lared.tga"
             "TargetName" = "8:lared.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2681,7 +2681,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4243385A500542A281EA3DF6DAB1EE63"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\woodborder04.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\woodborder04.jpg"
             "TargetName" = "8:woodborder04.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2701,7 +2701,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_442C3E19B65447EBBC546DC04BDAF6A9"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart08.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart08.jpg"
             "TargetName" = "8:cart08.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2721,7 +2721,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4674AF4D086C440DBF5C1863B9829623"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book02b.jpg"
             "TargetName" = "8:book02b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2741,7 +2741,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_46EDCC497D89409280A38E43F8EA9481"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\shaders\\sky.vs"
+            "SourcePath" = "8:..\\..\\data\\shaders\\sky.vs"
             "TargetName" = "8:sky.vs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
@@ -2761,7 +2761,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_47017D97802149DA8ED679739F132AAF"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\hifi00.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\hifi00.jpg"
             "TargetName" = "8:hifi00.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2781,7 +2781,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4877607937D74AF99B57336CB415B326"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\bklotz64.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\bklotz64.jpg"
             "TargetName" = "8:bklotz64.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2801,7 +2801,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_493AF14791B344D3B094668E9EF43BDA"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\besen02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\besen02.jpg"
             "TargetName" = "8:besen02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2821,7 +2821,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_497BB71F3740402F9E07FCD4A6F46E0E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart14.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart14.jpg"
             "TargetName" = "8:cart14.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2841,7 +2841,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_49C6939B41CE46A891F390954E0D975D"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cklotz64.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cklotz64.jpg"
             "TargetName" = "8:cklotz64.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2861,7 +2861,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4A8F7D7B013C4617B39798A691D4D277"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pappschachteln01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pappschachteln01.jpg"
             "TargetName" = "8:pappschachteln01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2881,7 +2881,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4BDC86B994A44793801BE8413D122A65"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wallcol28f.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wallcol28f.jpg"
             "TargetName" = "8:wallcol28f.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2901,7 +2901,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4D799FF5168A446DA82F800F5CA01B9C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart15.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart15.jpg"
             "TargetName" = "8:cart15.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2921,7 +2921,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4F3370E3EBE34BB2BA684E83BDDB9613"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\kalenderblatt.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\kalenderblatt.jpg"
             "TargetName" = "8:kalenderblatt.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2941,7 +2941,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_516A7BC0FB894393A0533B7C35A8DE5D"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wop_padatticBB.ani"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wop_padatticBB.ani"
             "TargetName" = "8:wop_padatticBB.ani"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2961,7 +2961,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_52E1D0F5ECFA4DE59DD0B6E909789BFC"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\klink02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\klink02.jpg"
             "TargetName" = "8:klink02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -2981,7 +2981,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_538FE2CBE9E24EFEA00CF6B676236AA0"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\gega01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\gega01.jpg"
             "TargetName" = "8:gega01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3001,7 +3001,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5417D4D98D9A48DF8814B0F280BC71E1"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\regalbrett.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\regalbrett.jpg"
             "TargetName" = "8:regalbrett.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3021,7 +3021,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_54212C0DD70145868A63F750AEF42914"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\Microsoft.VC80.CRT\\msvcp80.dll"
+            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC80.CRT\\msvcp80.dll"
             "TargetName" = "8:msvcp80.dll"
             "Tag" = "8:"
             "Folder" = "8:_119428AA939D4955AB5F9A38199A63D6"
@@ -3041,7 +3041,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_54550AB8395E4FC9A9939A63DDFAE97F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\xmas01d.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\xmas01d.jpg"
             "TargetName" = "8:xmas01d.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3061,7 +3061,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_55FB40EF8C84487C9A506921707D6135"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02h.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book02h.jpg"
             "TargetName" = "8:book02h.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3081,7 +3081,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_561BBE78F4E7422299AC2D9FA011CFBD"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\spot0.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\spot0.png"
             "TargetName" = "8:spot0.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -3101,7 +3101,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5624BADA58384EC79BFDA0A6E124052F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\dach03_1024.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\dach03_1024.jpg"
             "TargetName" = "8:dach03_1024.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3121,7 +3121,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5935D9C8E4D649F081468D7DD792ECFE"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\brettborder02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\brettborder02.jpg"
             "TargetName" = "8:brettborder02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3141,7 +3141,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5A171114B26E4B4CA0FDAA6EB1F46782"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\obj061.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\obj061.jpg"
             "TargetName" = "8:obj061.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3161,7 +3161,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B04E47A7D6C4B0393F507B0F0BB840E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\color13.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\color13.tga"
             "TargetName" = "8:color13.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3181,7 +3181,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5D1782CA18AB41978E2F6D8D3702F52A"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\desiree.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\desiree.jpg"
             "TargetName" = "8:desiree.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3201,7 +3201,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_60B5CB7076A7443985C7ECCF0EBF6530"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart01c.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart01c.jpg"
             "TargetName" = "8:cart01c.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3221,7 +3221,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6181EB2D4EBB43159F8C02BF92E7A86F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\woodlatten02b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\woodlatten02b.jpg"
             "TargetName" = "8:woodlatten02b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3241,7 +3241,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_62090EC26D26490CB36BB68190EE5961"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\color22.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\color22.tga"
             "TargetName" = "8:color22.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3261,7 +3261,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6267B4545E9843CCA482583F6902D325"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cweb_m01drk.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cweb_m01drk.tga"
             "TargetName" = "8:cweb_m01drk.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3281,7 +3281,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_627AFB8126394D318102D8D8E77A19B1"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\padking02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\padking02.jpg"
             "TargetName" = "8:padking02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3301,7 +3301,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_630E3480859A49A5846949206F93AB3B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\brettborder.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\brettborder.jpg"
             "TargetName" = "8:brettborder.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3321,7 +3321,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_630F61639F3D4664A88D796DF571A3E6"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\clockpendel.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\clockpendel.tga"
             "TargetName" = "8:clockpendel.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3341,7 +3341,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_632EF34F99CD4BC39614ACF18B4FD24C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\boo_033.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\boo_033.jpg"
             "TargetName" = "8:boo_033.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3361,7 +3361,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_638D0C18C720419C8BAAB4527D47531F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02c.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book02c.jpg"
             "TargetName" = "8:book02c.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3381,7 +3381,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_63B2089AA69745CC9C2D835C22A7528D"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\objects\\I_Robot_female_HD.3DS"
+            "SourcePath" = "8:..\\..\\data\\objects\\I_Robot_female_HD.3DS"
             "TargetName" = "8:I_Robot_female_HD.3DS"
             "Tag" = "8:"
             "Folder" = "8:_253C317337DF4FB4A379B040008ACE54"
@@ -3401,7 +3401,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6516D964F2DD4FF38856CEF6DB0BDE6F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\shaders\\texture.fs"
+            "SourcePath" = "8:..\\..\\data\\shaders\\texture.fs"
             "TargetName" = "8:texture.fs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
@@ -3421,7 +3421,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_65B9600244C041F0A383D7C16AA68152"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pglass06.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pglass06.tga"
             "TargetName" = "8:pglass06.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3441,7 +3441,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6735217E89A049319EEA94C4EB3F58C5"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02d.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book02d.jpg"
             "TargetName" = "8:book02d.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3461,7 +3461,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_68A06AB0DBD447E7A81C1515BCC2B9B1"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\walldec023c.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\walldec023c.jpg"
             "TargetName" = "8:walldec023c.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3481,7 +3481,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6949464D3CD845CBA406B54006B22340"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\shrinkingman.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\shrinkingman.jpg"
             "TargetName" = "8:shrinkingman.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3501,7 +3501,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_699978C7295645C49134DD653D9D50CF"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\newspaperfloor2.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\newspaperfloor2.jpg"
             "TargetName" = "8:newspaperfloor2.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3521,7 +3521,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B8B6318411A44B2BBCAFF0EC6A1BE4E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\src\\Lightsmark2007Setup\\UninstallLightsmark2007.bat"
+            "SourcePath" = "8:..\\..\\src\\Lightsmark2007Setup\\UninstallLightsmark2007.bat"
             "TargetName" = "8:UninstallLightsmark2007.bat"
             "Tag" = "8:"
             "Folder" = "8:_EB60A55B498A414FA79500F96C98CA82"
@@ -3541,7 +3541,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B9F902A7F1040B6A8FF9C35B7B54201"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\sman01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\sman01.jpg"
             "TargetName" = "8:sman01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3561,7 +3561,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6BFA17788F784807B1686D13AC85566A"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\padcomic_old512.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\padcomic_old512.jpg"
             "TargetName" = "8:padcomic_old512.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3581,7 +3581,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6DFB8A68D17F47EB8CAB8DF02909E9BC"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\sman02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\sman02.jpg"
             "TargetName" = "8:sman02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3601,7 +3601,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6DFCD4B0F5A543969F0057563E10EAEB"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart02f.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart02f.jpg"
             "TargetName" = "8:cart02f.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3621,7 +3621,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E611F92C67342D9BB314868AAF345A1"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood4a.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood4a.tga"
             "TargetName" = "8:wood4a.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3641,7 +3641,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6F905857092348AEB6FE9712E835594F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\carton01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\carton01.jpg"
             "TargetName" = "8:carton01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3661,7 +3661,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6FB7E4270969462F89391ED282B40FD7"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\schrankboard.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\schrankboard.jpg"
             "TargetName" = "8:schrankboard.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3681,7 +3681,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_70A5AD17C68E4EF7B6B56CD9BEE67B7D"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\woodsockelc.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\woodsockelc.jpg"
             "TargetName" = "8:woodsockelc.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3701,7 +3701,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_721D63BB450748208B8C40CB0C25F1F4"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\werk01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\werk01.jpg"
             "TargetName" = "8:werk01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3721,7 +3721,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_73537D7DE5054C8997928CF07C4F7561"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\klink01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\klink01.jpg"
             "TargetName" = "8:klink01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3741,7 +3741,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_745347D995FA416FA5E229D848DB5EF3"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\textile12.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\textile12.jpg"
             "TargetName" = "8:textile12.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3761,7 +3761,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74D0CA888F4B4150A349C246D4129C15"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wall_kabel.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wall_kabel.jpg"
             "TargetName" = "8:wall_kabel.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3781,7 +3781,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_76414588DF544F5989CFD31E8E83249A"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart18b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart18b.jpg"
             "TargetName" = "8:cart18b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3821,7 +3821,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_79ECA6A0212B43BDA5F30B51771BE00C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\mov2b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\mov2b.jpg"
             "TargetName" = "8:mov2b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3841,7 +3841,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7B79F8D0F09E4580BED87D468992B918"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wall_stone035.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wall_stone035.jpg"
             "TargetName" = "8:wall_stone035.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3861,7 +3861,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7BC69B5DD45843D38EDC1939AF53C184"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart18c.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart18c.jpg"
             "TargetName" = "8:cart18c.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3881,7 +3881,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7C02003BE4B1413592E02D7358E226E9"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\door31.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\door31.jpg"
             "TargetName" = "8:door31.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3901,7 +3901,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7C6AD49952B2442C832C5A3679D16FD5"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-1.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-1.png"
             "TargetName" = "8:txt-1.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -3921,7 +3921,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7C6F49562526492F9BB7A00A9BE497C9"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-inf-bounces.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-inf-bounces.png"
             "TargetName" = "8:txt-inf-bounces.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -3941,7 +3941,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_81610666BA5F4E03B7F206BC1F02666C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\shaders\\texture.vs"
+            "SourcePath" = "8:..\\..\\data\\shaders\\texture.vs"
             "TargetName" = "8:texture.vs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
@@ -3961,7 +3961,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8292168E39B244119EBB9F74E70E2638"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\obj060.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\obj060.jpg"
             "TargetName" = "8:obj060.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -3981,7 +3981,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82E9BBF8EE6F4002B31700AA6DC7ADAE"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\oldmetal.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\oldmetal.jpg"
             "TargetName" = "8:oldmetal.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4001,7 +4001,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_843F11F7924C4FEA8B50B351C2D09DE8"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\lablue.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\lablue.tga"
             "TargetName" = "8:lablue.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4021,7 +4021,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8996F60E4906417CB9B253BAC401738F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-hard-shadows.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-hard-shadows.png"
             "TargetName" = "8:txt-hard-shadows.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -4041,7 +4041,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_89D2F5918CB94AA5BB19AB8C27FFE379"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\balken.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\balken.jpg"
             "TargetName" = "8:balken.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4061,7 +4061,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A7E130617EA4FE2B9E3F0828543D3FF"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart12b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart12b.jpg"
             "TargetName" = "8:cart12b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4081,7 +4081,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8B01F45B327C4318A7C29EFA264763E6"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\oldstam03.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\oldstam03.jpg"
             "TargetName" = "8:oldstam03.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4101,7 +4101,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8BD856B8666240A5A15DD00F36E809AD"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\color25.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\color25.tga"
             "TargetName" = "8:color25.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4121,7 +4121,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8E271C07222248698799C858FF8ADCDB"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-indirect-lighting.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-indirect-lighting.png"
             "TargetName" = "8:txt-indirect-lighting.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -4141,7 +4141,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8F24E9B5B1F340D79BFD2F3D36F33802"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\woodkante004.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\woodkante004.jpg"
             "TargetName" = "8:woodkante004.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4161,7 +4161,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8FA7E85F3FFB442D812B80916D0B23CA"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\fern002.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\fern002.jpg"
             "TargetName" = "8:fern002.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4181,7 +4181,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8FCCCD16F46C4D8BB5005E3118B96776"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood033.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood033.jpg"
             "TargetName" = "8:wood033.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4201,7 +4201,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9274070465204B43A55FE06C0EAF8C8C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\metal_suitcase.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\metal_suitcase.tga"
             "TargetName" = "8:metal_suitcase.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4221,7 +4221,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93AFF6B0F0D740CB976889C966161BC3"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\parkett01b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\parkett01b.jpg"
             "TargetName" = "8:parkett01b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4241,7 +4241,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93C38A2C351B4CBC95058C4F9361DC6B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book02f.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book02f.jpg"
             "TargetName" = "8:book02f.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4261,7 +4261,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_957C8C40121747BBB5686D5D42FF1F80"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\copyright_en.txt"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\copyright_en.txt"
             "TargetName" = "8:copyright_en.txt"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4281,7 +4281,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_97669DCBCB3B42D591B02E61AB2CC8A3"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\faden05.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\faden05.tga"
             "TargetName" = "8:faden05.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4301,7 +4301,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_97D4CB8E99094369A27F6D28137AC017"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart03a.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart03a.jpg"
             "TargetName" = "8:cart03a.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4321,7 +4321,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_991FE48E1DD3444D80F3EB3DE20D11B3"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-penumbra-shadows.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-penumbra-shadows.png"
             "TargetName" = "8:txt-penumbra-shadows.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -4341,7 +4341,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_993825B130FC44DA81F582A1BAAC4DCD"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-7.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-7.png"
             "TargetName" = "8:txt-7.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -4361,7 +4361,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A3F06F3FA3442F5AB8DEEA2F291AFE0"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book01b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book01b.jpg"
             "TargetName" = "8:book01b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4381,7 +4381,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9B22D7CCAABB4BE7BCBB73F9E8B6B9FC"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\aklotz64.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\aklotz64.jpg"
             "TargetName" = "8:aklotz64.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4401,7 +4401,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FA1D45A496F4B478230F697B8A31038"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\metal08.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\metal08.tga"
             "TargetName" = "8:metal08.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4421,7 +4421,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A039FECA23D8463C8C0CDAF94D8A3D71"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\puppenherd.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\puppenherd.jpg"
             "TargetName" = "8:puppenherd.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4441,7 +4441,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A08920AC2664444785CB458C08E63788"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pglass04.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pglass04.tga"
             "TargetName" = "8:pglass04.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4461,7 +4461,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A09399993D124DEA8D8507D7860B9CDB"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\zaun01.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\zaun01.tga"
             "TargetName" = "8:zaun01.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4481,7 +4481,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A1CEF2E5AD4F4BACAFB11B97E48501E0"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\gega03.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\gega03.jpg"
             "TargetName" = "8:gega03.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4501,7 +4501,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A428CA86CE8543FA8141068D10FA92D1"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\color30.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\color30.tga"
             "TargetName" = "8:color30.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4521,7 +4521,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A4A6221667AC44B3AACA6A7B4C244BA5"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood006brown.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood006brown.jpg"
             "TargetName" = "8:wood006brown.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4541,7 +4541,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A54FD0BC79FA41159B8BD9EE1D58484D"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\color03.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\color03.tga"
             "TargetName" = "8:color03.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4561,7 +4561,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A623563B31764CFFB7313C3F3E7D91C6"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\shipbalken.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\shipbalken.jpg"
             "TargetName" = "8:shipbalken.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4581,7 +4581,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A7EB42801663470BA9DF92F01B28CBCC"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood049.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood049.jpg"
             "TargetName" = "8:wood049.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4601,7 +4601,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A7FA5B67EA294C698A9C42950562BEE2"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart10.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart10.jpg"
             "TargetName" = "8:cart10.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4621,7 +4621,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A7FE3B7E52D244C388FAAF146D69BEB2"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\woood001old2.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\woood001old2.jpg"
             "TargetName" = "8:woood001old2.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4641,7 +4641,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A9C4C3EFDDAD40288C25C58DAC483B2C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\boo_035.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\boo_035.jpg"
             "TargetName" = "8:boo_035.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4661,7 +4661,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC5CE9E9E21141629614CC1B6EE0C889"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-no-radiosity.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-no-radiosity.png"
             "TargetName" = "8:txt-no-radiosity.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -4681,7 +4681,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AD1E485283424C3B87947FD842E64EE7"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\woodlatten02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\woodlatten02.jpg"
             "TargetName" = "8:woodlatten02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4701,7 +4701,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B01FBD8969A8463A9B52B1EEEBDC20EC"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\testlvlbase.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\testlvlbase.tga"
             "TargetName" = "8:testlvlbase.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4721,7 +4721,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B267E8F57D2E4CBBB2AF10031FB38E6E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-global-illumination.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-global-illumination.png"
             "TargetName" = "8:txt-global-illumination.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -4741,7 +4741,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B2FE6F7870604C7EA399E5CFB6560177"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\obj054.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\obj054.jpg"
             "TargetName" = "8:obj054.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4761,7 +4761,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B3156062DB2140BE97D5140DD032F341"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart18e.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart18e.jpg"
             "TargetName" = "8:cart18e.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4781,7 +4781,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B397067A227F43318546A3B17D8B6A8B"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\latern.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\latern.tga"
             "TargetName" = "8:latern.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4801,7 +4801,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4289C97079E46C59707482674F3A87F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\music\\Insist_HeyYou.mp3"
+            "SourcePath" = "8:..\\..\\data\\music\\Insist_HeyYou.mp3"
             "TargetName" = "8:Insist_HeyYou.mp3"
             "Tag" = "8:"
             "Folder" = "8:_918D415FD21E4D6FA0240F2B51E76580"
@@ -4821,7 +4821,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4D5700968664106BD8A7A89104E85B1"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\lampdraht.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\lampdraht.tga"
             "TargetName" = "8:lampdraht.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4841,7 +4841,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B5DF0F68A7FA4A29B874986219798CC3"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wop_padatticBB.bsp"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wop_padatticBB.bsp"
             "TargetName" = "8:wop_padatticBB.bsp"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4861,7 +4861,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B602278CCB92431ABF86EE2CEE237F64"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\chest01_2_1.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\chest01_2_1.jpg"
             "TargetName" = "8:chest01_2_1.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4881,7 +4881,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B663190C999947E2A5E7E52E3B873E42"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\color15.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\color15.tga"
             "TargetName" = "8:color15.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4901,7 +4901,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B790E4A13CB1474A972799F25009ACB6"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\puppentv_128.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\puppentv_128.jpg"
             "TargetName" = "8:puppentv_128.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4921,7 +4921,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B88FA5B3CB964A25A4609B5CEA732E95"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\radio01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\radio01.jpg"
             "TargetName" = "8:radio01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4941,7 +4941,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B8F751BBB6C34CB181E3E1E553F1262D"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\clock01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\clock01.jpg"
             "TargetName" = "8:clock01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4961,7 +4961,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B90A604A165342B78A93A98E65A35085"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\eklotz64.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\eklotz64.jpg"
             "TargetName" = "8:eklotz64.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -4981,7 +4981,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA8C96F910C8442D83D40A16314C2D12"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-realtime-radiosity.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-realtime-radiosity.png"
             "TargetName" = "8:txt-realtime-radiosity.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5001,7 +5001,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BB79CB1FDD8C4CA5838F0E286E3B11FA"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-2.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-2.png"
             "TargetName" = "8:txt-2.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5021,7 +5021,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BC9230B83D8A4178B461F82ED678BBB5"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pack001.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pack001.jpg"
             "TargetName" = "8:pack001.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5041,7 +5041,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BD277CF8F5184CBFBA10158053D80020"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\shaders\\ubershader.fs"
+            "SourcePath" = "8:..\\..\\data\\shaders\\ubershader.fs"
             "TargetName" = "8:ubershader.fs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
@@ -5061,7 +5061,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BF4CFA75DA8C402C87E148AFA9E40C1E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\chest003.JPG"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\chest003.JPG"
             "TargetName" = "8:chest003.JPG"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5081,7 +5081,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BFD59649C7724757B44850087347F3EE"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\dklotz64.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\dklotz64.jpg"
             "TargetName" = "8:dklotz64.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5101,7 +5101,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C08DFD70C3024ECE98D91292BDB3F4F7"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\src\\Lightsmark2007Setup\\Lightsmark.url"
+            "SourcePath" = "8:..\\..\\src\\Lightsmark2007Setup\\Lightsmark.url"
             "TargetName" = "8:Lightsmark.url"
             "Tag" = "8:"
             "Folder" = "8:_9763831053554B918AFC705580101164"
@@ -5141,7 +5141,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C1C4DE226FFC4822B73B60C3CEC0B74E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\shaders\\ubershader.vs"
+            "SourcePath" = "8:..\\..\\data\\shaders\\ubershader.vs"
             "TargetName" = "8:ubershader.vs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
@@ -5161,7 +5161,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C27BE1E14F8140E8A53A7E10DBE278FC"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\porsil.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\porsil.jpg"
             "TargetName" = "8:porsil.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5181,7 +5181,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2C020931DA3470F9025A6CBEBE775C2"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\birdcagegr.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\birdcagegr.jpg"
             "TargetName" = "8:birdcagegr.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5201,7 +5201,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C31FA609DEDE49FBAB200A7D6551FA59"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\mov1.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\mov1.jpg"
             "TargetName" = "8:mov1.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5221,7 +5221,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C4DCA783CE3B47B496D5CBA43E5A8CCE"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\FreeImage.dll"
+            "SourcePath" = "8:..\\..\\bin\\win32\\FreeImage.dll"
             "TargetName" = "8:FreeImage.dll"
             "Tag" = "8:"
             "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
@@ -5241,7 +5241,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C7FF248D7AD64F86A360D13DBDB86652"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book01c.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book01c.jpg"
             "TargetName" = "8:book01c.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5261,7 +5261,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C84B008DFB844650ACCF12EF4DF262EA"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pappschachteln02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pappschachteln02.jpg"
             "TargetName" = "8:pappschachteln02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5281,7 +5281,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C8655B81FF4A479DA257D1931ED81094"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\glut32.dll"
+            "SourcePath" = "8:..\\..\\bin\\win32\\glut32.dll"
             "TargetName" = "8:glut32.dll"
             "Tag" = "8:"
             "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
@@ -5301,7 +5301,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C908C78535BB4A97AC926F2EC0F6D5DA"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\whitewall03.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\whitewall03.jpg"
             "TargetName" = "8:whitewall03.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5321,7 +5321,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C92DC4D4D4EC4877A8943C099037E6C5"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\screw1.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\screw1.tga"
             "TargetName" = "8:screw1.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5341,7 +5341,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C951003166BE4A719C1871DD6BFFDB6E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\shaders\\scaledown_filter.fs"
+            "SourcePath" = "8:..\\..\\data\\shaders\\scaledown_filter.fs"
             "TargetName" = "8:scaledown_filter.fs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
@@ -5361,7 +5361,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C9E68FDEB70A4733A2A6E7C2EBC1EE6E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\book01.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book01.jpg"
             "TargetName" = "8:book01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5381,7 +5381,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CAA35C71B6CC4DD8A40F0213983DE9CB"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\bet.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\bet.jpg"
             "TargetName" = "8:bet.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5401,7 +5401,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CD1054ED7B7145AEA067640CF0D6780C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart10b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart10b.jpg"
             "TargetName" = "8:cart10b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5421,7 +5421,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CD487DD590FD4E89B0C480014F0A15D7"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\klammern.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\klammern.jpg"
             "TargetName" = "8:klammern.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5441,7 +5441,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CDBABDD841EA41319196B3A2132AE6C3"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\src\\Lightsmark2007Setup\\setup.jpg"
+            "SourcePath" = "8:..\\..\\src\\Lightsmark2007Setup\\setup.jpg"
             "TargetName" = "8:setup.jpg"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5461,7 +5461,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CE8343143ACC47499F6DD507578B79CA"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\shaders\\sky.fs"
+            "SourcePath" = "8:..\\..\\data\\shaders\\sky.fs"
             "TargetName" = "8:sky.fs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
@@ -5481,7 +5481,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D294C8AEAE684B43A05E8B0729CBD1AE"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\fmodex.dll"
+            "SourcePath" = "8:..\\..\\bin\\win32\\fmodex.dll"
             "TargetName" = "8:fmodex.dll"
             "Tag" = "8:"
             "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
@@ -5501,7 +5501,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D2E50F9CEF10417E92FD42C8BDB2967E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\Microsoft.VC80.CRT\\Microsoft.VC80.CRT.manifest"
+            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC80.CRT\\Microsoft.VC80.CRT.manifest"
             "TargetName" = "8:Microsoft.VC80.CRT.manifest"
             "Tag" = "8:"
             "Folder" = "8:_119428AA939D4955AB5F9A38199A63D6"
@@ -5521,7 +5521,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D3BCF1821A8943F7A4F4A96F5C5285F7"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\birdcage.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\birdcage.tga"
             "TargetName" = "8:birdcage.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5541,7 +5541,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D41D736DAC234C208136991EBB775101"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood038.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood038.jpg"
             "TargetName" = "8:wood038.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5561,7 +5561,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D4F793BA4F8C4E29A5EC15E36463BE9A"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\shaders\\scaledown_filter.vs"
+            "SourcePath" = "8:..\\..\\data\\shaders\\scaledown_filter.vs"
             "TargetName" = "8:scaledown_filter.vs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
@@ -5601,7 +5601,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D890DE5C679346B5AC8D1F1AB7CE5E16"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\roof01e.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\roof01e.jpg"
             "TargetName" = "8:roof01e.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5621,7 +5621,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DB0E0C2E91D245DCB9CA2FE3EF1E9697"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\clockrad.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\clockrad.tga"
             "TargetName" = "8:clockrad.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5641,7 +5641,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DD7A5166BF6C4B7AAE2249DEA71837F5"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-soft-shadows.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-soft-shadows.png"
             "TargetName" = "8:txt-soft-shadows.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5661,7 +5661,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DE27FACF18ED4C9F85908959A3DC1E6F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wallcol28d.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wallcol28d.jpg"
             "TargetName" = "8:wallcol28d.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5681,7 +5681,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DE580167544F4DFC8138EF130BF753DD"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-4.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-4.png"
             "TargetName" = "8:txt-4.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5701,7 +5701,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DEDC80E652F24830B3A35496C02067A8"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\Microsoft.VC80.OPENMP\\Microsoft.VC80.OpenMP.manifest"
+            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC80.OPENMP\\Microsoft.VC80.OpenMP.manifest"
             "TargetName" = "8:Microsoft.VC80.OpenMP.manifest"
             "Tag" = "8:"
             "Folder" = "8:_B8345DF2D6214232B3AEAE139C263C8F"
@@ -5721,7 +5721,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DEE4602438C24977B9FC672D406EC73C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\mov2.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\mov2.jpg"
             "TargetName" = "8:mov2.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5741,7 +5741,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DFC865AFEB0346758B5895A12AA7BC7C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\window-attic.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\window-attic.png"
             "TargetName" = "8:window-attic.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5761,7 +5761,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E06B3648ED6A45B5B9A36462C16FBD99"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-8.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-8.png"
             "TargetName" = "8:txt-8.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5781,7 +5781,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E11E539A555C429D9A3770F3243E1806"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\mappe02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\mappe02.jpg"
             "TargetName" = "8:mappe02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5801,7 +5801,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E171E9CBF01E462CA2F3267BE6634928"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\grafix.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\grafix.jpg"
             "TargetName" = "8:grafix.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5821,7 +5821,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E2AEE019A7954267A18149C4594D0CC2"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\lita.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\lita.jpg"
             "TargetName" = "8:lita.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5841,7 +5841,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E53484BAE967471C8AA08226B17F0BB7"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood092.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood092.jpg"
             "TargetName" = "8:wood092.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5861,7 +5861,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E664C994488046F1A81B09CDF5859B07"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\src\\Lightsmark2007\\readme.txt"
+            "SourcePath" = "8:..\\..\\src\\Lightsmark2007\\readme.txt"
             "TargetName" = "8:readme.txt"
             "Tag" = "8:"
             "Folder" = "8:_9763831053554B918AFC705580101164"
@@ -5881,7 +5881,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E7339421044F44D8BCEC25D1736972DE"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\Lightsmark2007.jpg"
+            "SourcePath" = "8:..\\..\\data\\maps\\Lightsmark2007.jpg"
             "TargetName" = "8:Lightsmark2007.jpg"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5901,7 +5901,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E8ED7B36A7CC46A595D0F24168852787"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-9.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-9.png"
             "TargetName" = "8:txt-9.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5921,7 +5921,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EB1810B626A14825856D4B39FE7E1B9F"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\floor025c.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\floor025c.jpg"
             "TargetName" = "8:floor025c.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5952,7 +5952,7 @@
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\bin\\win32\\Microsoft.VC80.CRT\\msvcm80.dll"
+            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC80.CRT\\msvcm80.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_119428AA939D4955AB5F9A38199A63D6"
@@ -5972,7 +5972,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EC9325987B8D48AAB142B289F2A20E91"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\pack001b.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pack001b.jpg"
             "TargetName" = "8:pack001b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -5992,7 +5992,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EEDF45F3476F40B9B577B024AAD839FD"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart05.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart05.jpg"
             "TargetName" = "8:cart05.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6012,7 +6012,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EFA17437D4F1462EBBCB359B7B4D3FCA"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\carton02.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\carton02.jpg"
             "TargetName" = "8:carton02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6032,7 +6032,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F078A66829464C59B4F5AD41650C598A"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-0.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-0.png"
             "TargetName" = "8:txt-0.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -6052,7 +6052,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F17BAADB27564CE48DA97832A7001737"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\caroline.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\caroline.jpg"
             "TargetName" = "8:caroline.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6072,7 +6072,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F575578C59464CFB8EF9D635D8A6ABE1"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wall_stone013.JPG"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wall_stone013.JPG"
             "TargetName" = "8:wall_stone013.JPG"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6092,7 +6092,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F6BBAAF1DC224F3E8E6AA7800F82FC46"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\plakatshrinkingman.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\plakatshrinkingman.jpg"
             "TargetName" = "8:plakatshrinkingman.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6112,7 +6112,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F6BF3168F9C2423AAFE89575E7E12DA7"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\color20.tga"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\color20.tga"
             "TargetName" = "8:color20.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6132,7 +6132,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F7EBBF04820D49C899C204F3448C717C"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\maps\\txt-area-lights.png"
+            "SourcePath" = "8:..\\..\\data\\maps\\txt-area-lights.png"
             "TargetName" = "8:txt-area-lights.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -6152,7 +6152,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F987FB82A6E2461B967394215CDE164E"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\puppenhausbild.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\puppenhausbild.jpg"
             "TargetName" = "8:puppenhausbild.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6172,7 +6172,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FB00A9D560FD4C8F85B3D58127BFBDA7"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\wood006.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood006.jpg"
             "TargetName" = "8:wood006.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6192,7 +6192,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FB4DBDE98E51414DA977632427B4F717"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\chest01_3_1.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\chest01_3_1.jpg"
             "TargetName" = "8:chest01_3_1.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6212,7 +6212,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FBBCB9411EDC4658A77B05488F4B8159"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\oldwall_1024.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\oldwall_1024.jpg"
             "TargetName" = "8:oldwall_1024.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
@@ -6232,7 +6232,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FFCF540565E046E58F3EE9121EAE6283"
             {
-            "SourcePath" = "8:C:\\Documents and Settings\\Dee\\Dokumenty\\C\\rr\\data\\scenes\\wop_padattic\\cart18d.jpg"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart18d.jpg"
             "TargetName" = "8:cart18d.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"

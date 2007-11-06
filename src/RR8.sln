@@ -498,7 +498,6 @@ Global
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release DLL|Xbox 360.ActiveCfg = Release DLL|Win32
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|Win32.ActiveCfg = Release DLL|Win32
-		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|Win32.Build.0 = Release DLL|Win32
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|Xbox 360.ActiveCfg = Release DLL|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Xbox 360.ActiveCfg = Debug static|Win32

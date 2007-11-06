@@ -12,7 +12,7 @@
 #include <cassert>
 #include <cfloat>
 #include <cstdio>
-#if defined(_MSC_VER) && (_MSC_VER<1400 || !defined(WIN32))
+#if defined(_MSC_VER)
 	#include "stdint.vs2003.h" // replacement for missing standard C99 header
 #else
 	#include <stdint.h> // standard C99 header
