@@ -2,14 +2,11 @@
    LIGHTSMARK 2007                                           v1.2, 2007-11-06
    __________________________________________________________________________
 
-
    Lightsmark measures computer performance with next generation 3D engine.
 
    Details and updates: http://dee.cz/lightsmark
 
-
 1. Benchmark features
-
    - realtime global illumination
    - realtime penumbra shadows
    - realtime color bleeding
@@ -17,25 +14,23 @@
    - fully dynamic HDR lighting
    - 220000 triangles in scene
    - 200-300 average fps (GF8800)
-
+   - fully moddable, data and source code in install directory
 
 2. Requirements
    - x86/x64 CPU with SSE
    - OpenGL 2.0 compliant GPU with 32 MB RAM
      * supported: NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx (including GeForce Go)
-     * supported: AMD/ATI Radeon 9500-9800, Xxxx, X1xxx, HD2000 (including Mobility Radeon)
+     * supported: AMD/ATI Radeon 9500-9800, Xxxx, X1xxx, HD2xxx (& Mobility Radeon)
      * supported: subset of workstation families FireGL, Quadro
-     * use current drivers from NVIDIA and AMD
+     * use October 2007 or newer drivers from AMD and NVIDIA
+     * other vendors don't have OpenGL 2.0 GPUs
    - 512 MB RAM
    - 100 MB free disk space
    - Windows (any of XP, XP x64, Vista, Vista x64)
 
-
 3. Credits
-
    Created by Stepan Hrbek using
-
-   - Lightsprint SDK realtime global illumination engine
+   - Lightsprint SDK realtime global illumination
    - Attic scene from World of Padman game
    - Hey you song by In-sist under http://creativecommons.org/licenses/by-nc/2.5/
    - I Robot model by orillionbeta
@@ -46,8 +41,11 @@
    - bsp loader by Nicolas Baudrey
    - 3ds loader by Matthew Fairfax
 
+4. License
+   http://creativecommons.org/licenses/by-nc/3.0/
+   When modifying Lightsmark, you must make clear that your work is
+   Lightsmark 2007 mod and link to http://dee.cz/lightsmark from program and web.
 
-4. Contact
-
+5. Contact
    Stepan Hrbek <dee@dee.cz>
    http://dee.cz/lightsmark

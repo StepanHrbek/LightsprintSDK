@@ -129,6 +129,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_17B34A921F9942BAB0252444D2791470"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_186052876AC54B838FAF177B0D8D93A2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -675,6 +681,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_71830EFFF49D43BDAE3188B43F88A600"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_721D63BB450748208B8C40CB0C25F1F4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -712,6 +724,12 @@
         "Entry"
         {
         "MsmKey" = "8:_79ECA6A0212B43BDA5F30B51771BE00C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7B1D065FB3E341BC84DDADBF2D16AEAD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1059,6 +1077,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BA72E2677BBB41C6B0778D0A09C63AB1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BA8C96F910C8442D83D40A16314C2D12"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1209,6 +1233,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D1A1F7CFF5D648578C443398AFEC304F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D294C8AEAE684B43A05E8B0729CBD1AE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1246,6 +1276,12 @@
         "Entry"
         {
         "MsmKey" = "8:_D890DE5C679346B5AC8D1F1AB7CE5E16"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D8AC168709D245ABBD7B7BDAC9398994"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1865,6 +1901,26 @@
             "TargetName" = "8:layellow.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17B34A921F9942BAB0252444D2791470"
+            {
+            "SourcePath" = "8:..\\Lightsmark2007\\Lightsmark2007.rc"
+            "TargetName" = "8:Lightsmark2007.rc"
+            "Tag" = "8:"
+            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3521,7 +3577,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B8B6318411A44B2BBCAFF0EC6A1BE4E"
             {
-            "SourcePath" = "8:..\\..\\src\\Lightsmark2007Setup\\UninstallLightsmark2007.bat"
+            "SourcePath" = "8:UninstallLightsmark2007.bat"
             "TargetName" = "8:UninstallLightsmark2007.bat"
             "Tag" = "8:"
             "Folder" = "8:_EB60A55B498A414FA79500F96C98CA82"
@@ -3699,6 +3755,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_71830EFFF49D43BDAE3188B43F88A600"
+            {
+            "SourcePath" = "8:..\\Lightsmark2007\\Lightsmark2007.bmp"
+            "TargetName" = "8:Lightsmark2007.bmp"
+            "Tag" = "8:"
+            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_721D63BB450748208B8C40CB0C25F1F4"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\werk01.jpg"
@@ -3825,6 +3901,26 @@
             "TargetName" = "8:mov2b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7B1D065FB3E341BC84DDADBF2D16AEAD"
+            {
+            "SourcePath" = "8:..\\Lightsmark2007\\Lightsmark2007.ico"
+            "TargetName" = "8:Lightsmark2007.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4979,6 +5075,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA72E2677BBB41C6B0778D0A09C63AB1"
+            {
+            "SourcePath" = "8:..\\Lightsmark2007\\resource.h"
+            "TargetName" = "8:resource.h"
+            "Tag" = "8:"
+            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA8C96F910C8442D83D40A16314C2D12"
             {
             "SourcePath" = "8:..\\..\\data\\maps\\txt-realtime-radiosity.png"
@@ -5101,7 +5217,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C08DFD70C3024ECE98D91292BDB3F4F7"
             {
-            "SourcePath" = "8:..\\..\\src\\Lightsmark2007Setup\\Lightsmark.url"
+            "SourcePath" = "8:Lightsmark.url"
             "TargetName" = "8:Lightsmark.url"
             "Tag" = "8:"
             "Folder" = "8:_9763831053554B918AFC705580101164"
@@ -5441,7 +5557,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CDBABDD841EA41319196B3A2132AE6C3"
             {
-            "SourcePath" = "8:..\\..\\src\\Lightsmark2007Setup\\setup.jpg"
+            "SourcePath" = "8:setup.jpg"
             "TargetName" = "8:setup.jpg"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
@@ -5465,6 +5581,26 @@
             "TargetName" = "8:sky.fs"
             "Tag" = "8:"
             "Folder" = "8:_62AD2751BEB14342BBCACED4073E3C6C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D1A1F7CFF5D648578C443398AFEC304F"
+            {
+            "SourcePath" = "8:..\\Lightsmark2007\\Lightsmark2007.cpp"
+            "TargetName" = "8:Lightsmark2007.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5605,6 +5741,26 @@
             "TargetName" = "8:roof01e.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D8AC168709D245ABBD7B7BDAC9398994"
+            {
+            "SourcePath" = "8:..\\Lightsmark2007\\Lightsmark2007.vcproj"
+            "TargetName" = "8:Lightsmark2007.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5861,7 +6017,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E664C994488046F1A81B09CDF5859B07"
             {
-            "SourcePath" = "8:..\\..\\src\\Lightsmark2007\\readme.txt"
+            "SourcePath" = "8:..\\Lightsmark2007\\readme.txt"
             "TargetName" = "8:readme.txt"
             "Tag" = "8:"
             "Folder" = "8:_9763831053554B918AFC705580101164"
@@ -6392,6 +6548,28 @@
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
                             "Property" = "8:_1D442F0C134D4E5E857AA091B8D0B075"
+                                "Folders"
+                                {
+                                }
+                            }
+                        }
+                    }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_D3979488A7B34C39AABD81A685816A59"
+                    {
+                    "Name" = "8:src"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_357469D6171B427A917B93EDDEC58D9E"
+                        "Folders"
+                        {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_BF095A5CADD740A7BFCB12A70646B929"
+                            {
+                            "Name" = "8:Lightsmark2007"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_1DAF6405BB9942A6AC1BD6BC2C21AB04"
                                 "Folders"
                                 {
                                 }

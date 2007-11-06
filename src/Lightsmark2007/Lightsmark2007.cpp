@@ -1,3 +1,5 @@
+// Lightsmark 2007, (C) Stepan Hrbek
+
 #include <windows.h>
 #include <stdio.h>
 #include <memory.h>
