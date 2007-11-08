@@ -8,12 +8,17 @@ namespace rr
 
 \page main_news What's new
 
-\section news37 ------------------------------------ 2007.11.x -------------------------------------
+\section news37 ------------------------------------ 2007.11.08 -------------------------------------
 
 NEWS
 
 - sample RealtimeRadiosity shows properly lit animated object
   (was not demonstrated before)
+- wrapping in lightmap build is optional
+
+FIXES
+
+- proper smoothing in lightmaps with large triangles
 
 \section news36 ------------------------------------ 2007.10.31 -------------------------------------
 

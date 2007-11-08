@@ -417,10 +417,12 @@ namespace rr
 		//! use NULL for default parameters.
 		struct UpdateParameters
 		{
-			//! Requested type of results, applies only to updates of external buffers.
+			//! Requested type of data stored into updated (external) buffers. Doesn't affect data stored inside solver.
 			//
-			//! Attributes direct/indirect specify what parts of solver data read when applyCurrentSolution=true,
-			//! they have no influence on applyLights/applyEnvironment.
+			//! Attribute scaled enables conversion to custom scale before data are stored to buffer.
+			//! It's usually set to 1 for 8bit sRGB lightmaps, 0 for float vertex buffers with cheap scaling in shader.
+			//! \n Attributes direct/indirect specify what data are read from solver when applyCurrentSolution=true.
+			//! \n Some attributes may be ignored by some updateXxx() functions.
 			RRRadiometricMeasure measure;
 
 			//! Include lights set by setLights() as a source of illumination.
@@ -441,7 +443,11 @@ namespace rr
 
 			//! Quality of computed illumination.
 			//
-			//! Higher number = higher quality. Time taken grows mostly linearly with this number.
+			//! Time taken grows mostly linearly with this number.
+			//! (When !applyCurrentSolution and applyLights and !applyEnvironment,
+			//! faster path is used.)
+			//!
+			//! Higher number = higher quality.
 			//! 1000 is usually sufficient for production, with small per pixel details
 			//! and precise antialiasing computed.
 			//! Lower quality is good for tests, with per pixel details, but with artifacts
@@ -547,8 +553,9 @@ namespace rr
 		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
 		//!  set by setLights() is added to the final value stored into buffer.
 		//!  \n params->measure specifies type of information stored in vertex buffer.
-		//!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
-		//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
+		//!  Use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster, returns indirect lighting in physical scale,
+		//!  can be cheaply converted to custom scale by shader)
+		//!  or RM_IRRADIANCE_CUSTOM_INDIRECT (slower, returns indirect lighting in custom scale).
 		//!  \n Set both paramsDirect and paramsIndirect to NULL for 'realtime' update
 		//!  that fills buffers with indirect illumination in physical scale, read from current solution.
 		//! \param paramsIndirect

@@ -249,6 +249,7 @@ namespace rr
 		//! Renders one texel into pixel buffer. Must be called inside renderBegin() / renderEnd().
 		//
 		//! Used only while non-realtime calculating pixel buffers, called by RRDynamicSolver.
+		//! \n Must be thread safe, may be called by multiple threads at the same time, with different uv.
 		//! \param uv
 		//!  Array of 2 elements, texel coordinates in 0..width-1, 0..height-1 range.
 		//! \param color
@@ -311,7 +312,11 @@ namespace rr
 		//!  Color of unused background pixels.
 		//! \param smoothBackground
 		//!  Smooth foreground-background transition.
-		static RRIlluminationPixelBuffer* create(unsigned width, unsigned height, unsigned spreadForegroundColor=2, RRColorRGBAF backgroundColor=RRColorRGBAF(0), bool smoothBackground = false);
+		//! \param wrap
+		//!  Smooth colors between opposite borders.
+		//!  Some mappings need it to prevent seams, e.g. one kind of spherical mapping.
+		//!  Generally, enable wrap if lightmap is to be later applied with wrapping enabled.
+		static RRIlluminationPixelBuffer* create(unsigned width, unsigned height, unsigned spreadForegroundColor=2, RRColorRGBAF backgroundColor=RRColorRGBAF(0), bool smoothBackground = false, bool wrap = true);
 
 		//! Loads pixel buffer stored on disk as 2d image.
 		//

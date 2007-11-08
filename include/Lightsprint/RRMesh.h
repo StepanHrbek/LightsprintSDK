@@ -221,7 +221,8 @@ namespace rr
 		//! Writes t-th triangle in mesh to out.
 		//
 		//! Make sure you provide valid t in range <0..getNumTriangles()-1>.
-		//! Implementators are allowed to expect valid t, so result is completely undefined for invalid t (possible crash).
+		//! Implementators are allowed to expect valid t (performance reasons, may be called very often),
+		//! so result is completely undefined for invalid t (possible crash).
 		//!
 		//! Order of vertices in triangle has influence on what side of triangle is front, which is important for lighting.
 		//! See more details in \ref s5_frontback.

@@ -12,6 +12,26 @@
 
 //#define DIAGNOSTIC // sleduje texel overlapy, vypisuje histogram velikosti trianglu
 
+/*
+How lightmap update works
+(extremely simplified version)
+
+	clear lightmap
+	for each triangle
+	{
+		for each texel intersecting triangle
+		{
+			for quality times
+			{
+				generate point in texel-triangle intersection
+				shoot and accumulate result
+			}
+			store accumulated result into lightmap
+		}
+	}
+	filter lightmap
+*/
+
 namespace rr
 {
 
@@ -340,7 +360,10 @@ void enumerateTexels(const RRObject* multiObject, unsigned objectNumber, unsigne
 							uvInTriangle = RRVec2(POINT_LINE_DISTANCE_2D(uvInMapF2,pti.tri.line2InMap),POINT_LINE_DISTANCE_2D(uvInMapF2,pti.tri.line1InMap));
 
 							// hide precision errors (coords could be still outside triangle)
-							const float depthInTriangle = 0.1f; // shooters on the edge often produce unreliable values
+							// move uv little bit deeper inside triangle
+							// depth 0.1 was selected for TB scene, but is clearly bad, lighting in 0.1*lengthOfTriangle distance may be very different
+							// 0.001 is safer, lighting should be visibly different only with huge triangle in huge texture
+							const float depthInTriangle = 0.001f; // shooters on the edge often produce unreliable values
 							if(uvInTriangle[0]<depthInTriangle) uvInTriangle[0] = depthInTriangle;
 							if(uvInTriangle[1]<depthInTriangle) uvInTriangle[1] = depthInTriangle;
 							RRReal uvInTriangleSum = uvInTriangle[0]+uvInTriangle[1];
