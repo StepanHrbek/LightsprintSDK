@@ -9,6 +9,7 @@
 #define CAMERA_H
 
 #include "DemoEngine.h"
+#include "Lightsprint/RRDynamicSolver.h"
 
 namespace rr_gl
 {
@@ -64,6 +65,8 @@ public:
 
 	//! Initializes all inputs at once.
 	Camera(float posx, float posy, float posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
+	//! Initializes all inputs from RRLight.
+	Camera(const rr::RRLight& light);
 	//! == operator, true when inputs are equal
 	bool operator==(const Camera& a) const;
 	//! Type of moveForward, moveBackward, moveRight and moveLeft for convenient mapping to keys.

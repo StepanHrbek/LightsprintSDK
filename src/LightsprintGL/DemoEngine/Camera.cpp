@@ -25,6 +25,20 @@ Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float 
 	afar = _afar;
 }
 
+Camera::Camera(const rr::RRLight& light)
+{
+	pos[0] = light.position[0];
+	pos[1] = light.position[1];
+	pos[2] = light.position[2];
+	angleX = (light.type==rr::RRLight::SPOT) ? asin(light.direction[1]) : 0;
+	angle = (light.type==rr::RRLight::SPOT && fabs(cos(angleX))>0.0001f) ? asin(light.direction[0]/cos(angleX)) : 0;
+	leanAngle = 0;
+	aspect = 1;
+	fieldOfView = (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90;
+	anear = 0.1f;
+	afar = 100;
+}
+
 bool Camera::operator==(const Camera& a) const
 {
 	return pos[0]==a.pos[0] && pos[1]==a.pos[1] && pos[2]==a.pos[2] && angle==a.angle && leanAngle==a.leanAngle && angleX==a.angleX && aspect==a.aspect && fieldOfView==a.fieldOfView && anear==a.anear && afar==a.afar;

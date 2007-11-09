@@ -39,8 +39,8 @@ public:
 	AreaLight(Camera* parent, unsigned numInstancesMax, unsigned shadowmapSize);
 	virtual ~AreaLight();
 
-	//! Returns parent instance
-	const Camera* getParent() const;
+	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.
+	Camera* getParent() const;
 
 	//! Sets number of Class instances.
 	virtual void setNumInstances(unsigned instances);

@@ -32,7 +32,7 @@ namespace rr_gl
 		delete[] shadowMaps;
 	}
 
-	const Camera* AreaLight::getParent() const
+	Camera* AreaLight::getParent() const
 	{
 		return parent;
 	}
