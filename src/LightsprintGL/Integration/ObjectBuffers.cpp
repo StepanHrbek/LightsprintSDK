@@ -302,7 +302,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				{
 					// solver not set, but indirect illumination requested
 					// -> scene will be rendered with random indirect illumination
-					RR_ASSERT(0);
+					rr::RRReporter::report(rr::WARN,"Rendering object, indirect lighting is not available.\n");
 				}
 			}
 			else

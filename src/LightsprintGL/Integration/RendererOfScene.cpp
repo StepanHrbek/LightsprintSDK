@@ -141,7 +141,10 @@ void RendererOfRRDynamicSolver::render()
 
 	// create helper renderers
 	if(!rendererNonCaching)
+	{
+		rr::RRReporter::report(rr::WARN,"Creating renderer, but indirect lighting won't be available if you don't call setStaticObjects() and calculate() first.\n");
 		rendererNonCaching = new RendererOfRRObject(params.solver->getMultiObjectCustom(),params.solver->getStaticSolver(),params.solver->getScaler(),true);
+	}
 	if(!rendererCaching && rendererNonCaching)
 		rendererCaching = rendererNonCaching->createDisplayList();
 	if(!rendererCaching)
