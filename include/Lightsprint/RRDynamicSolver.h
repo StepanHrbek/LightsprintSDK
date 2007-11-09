@@ -18,11 +18,17 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Direct light source, directional or point light with programmable function.
+	//! Direct light source, directional/point/spot light with programmable function.
 	//
+	//! Standard point/spot/dir lights with physical, polynomial or exponential
+	//! distance attenuations are supported via createXxx functions.
+	//!
 	//! Custom lights with this interface may be created.
-	//! Predefined point and spot lights support only physically correct
-	//! distance attenuation, but more options will be added soon.
+	//! For offline rendering in LightsprintCore, only #type, #position, #direction and getIrradiance() are relevant.
+	//! For realtime rendering in LightsprintGL, implement(set propely) all attributes.
+	//!
+	//! Contains atributes of all standard lights.
+	//! Unused attributes (e.g. fallOffExponent when distanceAttenuation=NONE) are set to zero.
 	//!
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//! All custom implementations must be thread safe too.
@@ -33,7 +39,7 @@ namespace rr
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
-		// Interface
+		// Light envelope, defines area affected by light
 		//////////////////////////////////////////////////////////////////////////////
 
 		//! Types of lights.
@@ -41,18 +47,81 @@ namespace rr
 		{
 			//! Infinitely distant light source, all light rays are parallel (direction).
 			DIRECTIONAL,
-			//! Point or spot light source, all light rays start in one point (position).
+			//! Point light source, all light rays start in one point (position).
 			POINT,
+			//! Spot light source, all light rays start in one point (position) and leave it in cone (direction).
+			SPOT,
 		};
-		//! Type of light source.
+		//! Type of light source. Read only (lights from createXxx can't change type on the fly).
 		Type type;
 
-		//! Position of light source in world space. Relevant only for POINT light.
+		//! Position of light source in world space. Relevant only for POINT and SPOT light. Read/write.
 		RRVec3 position;
 
-		//! Direction of light in world space. Relevant only for DIRECTIONAL light.
-		//! Doesn't have to be normalized.
+		//! Normalized direction of light in world space. Relevant only for DIRECTIONAL and SPOT light. Read/write.
 		RRVec3 direction;
+
+		//! Outer cone angle in radians. Relevant only for SPOT light. Read/write.
+		//
+		//! Light rays go in directions up to outerAngleRad far from direction.
+		//! \n Valid range: (0,1). Out of range values are fixed at construction time,
+		//! changes you make later are accepted without checks.
+		RRReal outerAngleRad;
+
+		//! Relevant only for distanceAttenuation==EXPONENTIAL.
+		//! Distance in world space, where light disappears due to its distance attenuation.
+		//! Light has effect in sphere of given radius.
+		RRReal radius;
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Color
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Types of distance attenuation.
+		enum DistanceAttenuationType
+		{
+			//! No distance attenuation, light intensity doesn't change with distance. Very good approximation of sunlight.
+			NONE,
+			//! Intensity in physical scale is 1/distance^2. This is exactly how reality works.
+			PHYSICAL,
+			//! Intensity in custom scale is 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2). Used in fixed pipeline engines.
+			POLYNOMIAL,
+			//! Intensity in custom scale is pow(MAX(0,1-distance/radius),fallOffExponent). Used in UE3.
+			EXPONENTIAL,
+		};
+		//! Type of distance attenuation. Read only (lights from createXxx can't change type on the fly).
+		DistanceAttenuationType distanceAttenuationType;
+
+		//! Relevant only for distanceAttenuation==NONE or PHYSICAL.
+		//! Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
+		RRVec3 irradianceAtDistance1;
+
+		//! Relevant only for distanceAttenuation==POLYNOMIAL or EXPONENTIAL.
+		//! Irradiance in custom scale (usually screen color) of lit surface at distance 0.
+		RRVec3 colorAtDistance0;
+
+		//! Relevant only for distanceAttenuation==POLYNOMIAL.
+		//! Distance attenuation in custom scale is computed as 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
+		RRVec3 polynom;
+
+		//! Relevant only for distanceAttenuation==EXPONENTIAL.
+		//!  Distance attenuation in custom scale is computed as pow(MAX(0,1-distance/radius),fallOffExponent).
+		RRReal fallOffExponent;
+
+		//! Outer-inner code angle in radians. Relevant only for SPOT light. Read/write.
+		//
+		//! Light rays with direction diverted less than outerAngleRad from direction,
+		//! but more than outerAngleRad-fallOffAngleRad, are attenuated.
+		//! If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
+		//! \n Valid range: (0,innerAngleRad>. Out of range values are fixed at construction time,
+		//! changes you make later are accepted without checks.
+		RRReal fallOffAngleRad;
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Offline rendering interface
+		//////////////////////////////////////////////////////////////////////////////
 
 		//! Irradiance in physical scale, programmable color, distance and spotlight attenuation function.
 		//
@@ -103,7 +172,7 @@ namespace rr
 		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
 		//! \param radius
 		//!  Distance in world space, where light disappears due to its distance attenuation.
-		//!  So light has effect in sphere of given radius.
+		//!  Light has effect in sphere of given radius.
 		//! \param fallOffExponent
 		//!  Distance attenuation in custom scale is computed as pow(MAX(0,1-distance/radius),fallOffExponent).
 		static RRLight* createPointLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent);
@@ -133,6 +202,7 @@ namespace rr
 		//!  Angle in radians. 
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
+		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
 		static RRLight* createSpotLight(const RRVec3& position, const RRVec3& irradianceAtDistance1, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 
 		//! Creates spot light with radius/exponent based distance attenuation (physically incorrect).
@@ -144,7 +214,7 @@ namespace rr
 		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
 		//! \param radius
 		//!  Distance in world space, where light disappears due to its distance attenuation.
-		//!  So light has effect in sphere of given radius.
+		//!  Light has effect in sphere of given radius.
 		//! \param fallOffExponent
 		//!  Distance attenuation in custom scale is computed as pow(MAX(0,1-distance/radius),fallOffExponent).
 		//! \param majorDirection
@@ -155,6 +225,7 @@ namespace rr
 		//!  Angle in radians. 
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
+		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
 		static RRLight* createSpotLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 
 		//! Creates spot light with polynom based distance attenuation (physically incorrect).
@@ -174,6 +245,7 @@ namespace rr
 		//!  Angle in radians. 
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
+		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
 		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorAtDistance0, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 	};
 
