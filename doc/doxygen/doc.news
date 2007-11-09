@@ -8,6 +8,18 @@ namespace rr
 
 \page main_news What's new
 
+\section news38 ------------------------------------ 2007.11.10 -------------------------------------
+
+NEWS
+
+- new sample RealtimeLights shows multiple lights 
+  with realtime global illumination in Collada scene
+
+CHANGES
+
+- RRLight::SPOT added to differentiate between POINT and SPOT lights
+- internal RRLight attributes made public so realtime renderer can read them
+
 \section news37 ------------------------------------ 2007.11.08 -------------------------------------
 
 NEWS
