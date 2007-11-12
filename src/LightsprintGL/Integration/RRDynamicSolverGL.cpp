@@ -428,4 +428,79 @@ unsigned RRDynamicSolverGL::saveIllumination(const char* path, unsigned layerNum
 	return result;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRLightRuntime
+
+RRLightRuntime::RRLightRuntime(const rr::RRLight& _rrlight)
+: AreaLight(new Camera(_rrlight),(_rrlight.type==rr::RRLight::POINT)?6:1,512,(_rrlight.type==rr::RRLight::POINT)?POINT:LINE)
+{
+	//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+	smallMapCPU = NULL;
+	numTriangles = 0;
+	dirty = true;
+}
+
+RRLightRuntime::~RRLightRuntime()
+{
+	delete[] smallMapCPU;
+	//delete smallMapGPU;
+	delete getParent();
+}
+
+unsigned RRLightRuntime::update(unsigned _numTriangles, void (renderScene)(UberProgramSetup uberProgramSetup, const rr::RRVector<AreaLight*>* lights), RRDynamicSolverGL* solver, UberProgram* uberProgram, Texture* lightDirectMap)
+{
+	if(!_numTriangles || !solver || !uberProgram)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
+	if(_numTriangles!=numTriangles)
+	{
+		delete[] smallMapCPU;
+		smallMapCPU = new unsigned[numTriangles=_numTriangles];
+		dirty = 1;
+	}
+	if(!dirty) return 0;
+	dirty = 0;
+	// update shadowmap[s]
+	{
+		PreserveViewport p1;
+		glColorMask(0,0,0,0);
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
+		for(unsigned i=0;i<getNumInstances();i++)
+		{
+			Camera* lightInstance = getInstance(i);
+			lightInstance->setupForRender();
+			delete lightInstance;
+			Texture* shadowmap = getShadowMap(i);
+			glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
+			shadowmap->renderingToBegin();
+			glClear(GL_DEPTH_BUFFER_BIT);
+			renderScene(uberProgramSetup,NULL);
+		}
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glColorMask(1,1,1,1);
+		if(getNumInstances())
+			getShadowMap(0)->renderingToEnd();
+	}
+	// update smallmap
+	UberProgramSetup uberProgramSetup;
+	uberProgramSetup.SHADOW_MAPS = getNumInstances(); //!!! radeony 6 nezvladnou
+	uberProgramSetup.SHADOW_SAMPLES = 1;
+	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	uberProgramSetup.MATERIAL_DIFFUSE = true;
+	uberProgramSetup.FORCE_2D_POSITION = true;
+	if(!uberProgramSetup.useProgram(uberProgram,this,0,lightDirectMap,NULL,1))
+	{
+		rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
+		return 0;
+	}
+	memcpy(smallMapCPU,solver->RRDynamicSolverGL::detectDirectIllumination(),4*numTriangles);
+	return 1;
+}
+
 }; // namespace

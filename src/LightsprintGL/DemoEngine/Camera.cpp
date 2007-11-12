@@ -23,20 +23,20 @@ Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float 
 	fieldOfView = _fieldOfView;
 	anear = _anear;
 	afar = _afar;
+	update();
 }
 
 Camera::Camera(const rr::RRLight& light)
 {
-	pos[0] = light.position[0];
-	pos[1] = light.position[1];
-	pos[2] = light.position[2];
+	pos = light.position;
 	angleX = (light.type==rr::RRLight::SPOT) ? asin(light.direction[1]) : 0;
 	angle = (light.type==rr::RRLight::SPOT && fabs(cos(angleX))>0.0001f) ? asin(light.direction[0]/cos(angleX)) : 0;
 	leanAngle = 0;
 	aspect = 1;
 	fieldOfView = (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90;
-	anear = 0.1f;
+	anear = 0.5f;
 	afar = 100;
+	update();
 }
 
 bool Camera::operator==(const Camera& a) const
@@ -44,7 +44,7 @@ bool Camera::operator==(const Camera& a) const
 	return pos[0]==a.pos[0] && pos[1]==a.pos[1] && pos[2]==a.pos[2] && angle==a.angle && leanAngle==a.leanAngle && angleX==a.angleX && aspect==a.aspect && fieldOfView==a.fieldOfView && anear==a.anear && afar==a.afar;
 }
 
-void Camera::update(float back)
+void Camera::update()
 {
 	dir[0] = sin(angle)*cos(angleX);
 	dir[1] = sin(angleX);
@@ -52,31 +52,43 @@ void Camera::update(float back)
 	dir[3] = 1.0;
 
 	// leaning
-	float tmpup[3] = {0,1,0};
-	float tmpright[3];
-	#define SIZE(a) sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2])
-	float dirSizeInv = 1/SIZE(dir);
-	dir[0] *= dirSizeInv;
-	dir[1] *= dirSizeInv;
-	dir[2] *= dirSizeInv;
+	rr::RRVec3 tmpup(0,1,0);
+	rr::RRVec3 tmpright;
+	dir.normalize();
 	#define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
 	CROSS(dir,tmpup,tmpright);
 	float s = sin(leanAngle);
 	float c = cos(leanAngle);
-	up[0] = c*tmpup[0]+s*tmpright[0];
-	up[1] = c*tmpup[1]+s*tmpright[1];
-	up[2] = c*tmpup[2]+s*tmpright[2];
-	right[0] = s*tmpup[0]-c*tmpright[0];
-	right[1] = s*tmpup[1]-c*tmpright[1];
-	right[2] = s*tmpup[2]-c*tmpright[2];
+	up = tmpup*c+tmpright*s;
+	right = tmpup*s-tmpright*c;
 
 	buildLookAtMatrix(viewMatrix,
-		pos[0]-back*dir[0],pos[1]-back*dir[1],pos[2]-back*dir[2],
+		pos[0],pos[1],pos[2],
 		pos[0]+dir[0],pos[1]+dir[1],pos[2]+dir[2],
 		up[0], up[1], up[2]);
 	buildPerspectiveMatrix(frustumMatrix, fieldOfView, aspect, anear, afar);
 	invertMatrix(inverseViewMatrix, viewMatrix);
 	invertMatrix(inverseFrustumMatrix, frustumMatrix);
+}
+
+void Camera::rotateViewMatrix(unsigned instance)
+{
+	RR_ASSERT(instance<6);
+	switch(instance)
+	{
+		case 0: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]+1,pos[1],pos[2],0,1,0); break;
+		case 1: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]-1,pos[1],pos[2],0,1,0); break;
+		case 2: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0],pos[1]+1,pos[2],0,0,1); break;
+		case 3: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0],pos[1]-1,pos[2],0,0,1); break;
+		case 4: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0],pos[1],pos[2]+1,0,1,0); break;
+		case 5: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0],pos[1],pos[2]-1,0,1,0); break;
+/*		case 0: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]+dir[0],pos[1]+dir[1],pos[2]+dir[2],up[0],up[1],up[2]); break;
+		case 1: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]-dir[0],pos[1]-dir[1],pos[2]-dir[2],-up[0],-up[1],-up[2]); break;
+		case 2: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]+right[0],pos[1]+right[1],pos[2]+right[2],up[0],up[1],up[2]); break;
+		case 3: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]-right[0],pos[1]-right[1],pos[2]-right[2],up[0],up[1],up[2]); break;
+		case 4: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]+up[0],pos[1]+up[1],pos[2]+up[2],-dir[0],-dir[1],-dir[2]); break;
+		case 5: buildLookAtMatrix(viewMatrix,pos[0],pos[1],pos[2],pos[0]-up[0],pos[1]-up[1],pos[2]-up[2],dir[0],dir[1],dir[2]); break;*/
+	}
 }
 
 void Camera::setupForRender()
@@ -90,12 +102,12 @@ void Camera::setupForRender()
 
 void Camera::moveForward(float units)
 {
-	for(int i=0;i<3;i++) pos[i]+=dir[i]*units;
+	pos += dir*units;
 }
 
 void Camera::moveBack(float units)
 {
-	for(int i=0;i<3;i++) pos[i]-=dir[i]*units;
+	pos -= dir*units;
 }
 
 void Camera::moveRight(float units)

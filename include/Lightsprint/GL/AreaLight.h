@@ -24,6 +24,15 @@ namespace rr_gl
 class RR_GL_API AreaLight
 {
 public:
+	//! Shapes of light source area.
+	enum AreaType
+	{
+		LINE, // n instances in line, spot/dir-light with penumbra shadows. Approx 1m long line, it simulates light coming from long narrow lightsource.
+		CIRCLE, // n instances in circle, spot/dir-light with penumbra shadows. Circle, it simulates light coming from circle (border).
+		RECTANGLE, // n instances in rectangle, spot/dir-light with penumbra shadows. Approx 1m*1m square grid, it simulates light coming from whole square. It needs more instances to prevent shadow banding.
+		POINT, // 6 instances forming pointlight
+	};
+
 	//! Creates area light.
 	//! \param parent
 	//!  Parent instance. This light will always copy settings from parent instance.
@@ -36,7 +45,7 @@ public:
 	//!  Resolution of shadowmaps will be shadowmapSize * shadowmapSize texels.
 	//!  Set higher resolution for hard and sharper shadows,
 	//!  set lower resolution for area and more blurry shadows.
-	AreaLight(Camera* parent, unsigned numInstancesMax, unsigned shadowmapSize);
+	AreaLight(Camera* parent, unsigned numInstancesMax, unsigned shadowmapSize, AreaType areaType=LINE);
 	virtual ~AreaLight();
 
 	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.
@@ -59,19 +68,14 @@ public:
 	//! Returns shadowmap for given light instance (element of area light).
 	Texture* getShadowMap(unsigned instance) const;
 
-	//! Shape of light source area, 0=line (default), 1=square, 2=circle
+	//! Shape of light source area.
 	//
 	//! Area light is simulated by multiple spot lights.
-	//! Depending on areaType, they are set in
-	//! - 0 = approx 1m long line, it simulates light coming from long narrow lightsource.
-	//! - 1 = approx 1m*1m square grid, it simulates light coming from whole square. It needs more instances to prevent shadow banding.
-	//! - 2 = circle, it simulates light coming from circle (border).
-	//!
 	//! Types of area are implemented in virtual instanceMakeup().
 	//! If you are interested in better control over area type,
-	//! let us know, we can quickly add example
+	//! let us know, we can quickly add new types or example
 	//! of custom areaType, using custom instanceMakeup().
-	unsigned areaType;
+	AreaType areaType;
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
 protected:

@@ -187,7 +187,7 @@ void passive(int x, int y)
 void display(void)
 {
 	glClear(GL_DEPTH_BUFFER_BIT);
-	eye.update(0);
+	eye.update();
 	eye.setupForRender();
 	rendererOfScene->setParams(uberProgramSetup,NULL,NULL);
 	rendererOfScene->useOriginalScene(0);

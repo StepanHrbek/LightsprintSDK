@@ -565,8 +565,8 @@ void drawLight(void)
 void updateMatrices(void)
 {
 	currentFrame.eye.aspect = winHeight ? (float) winWidth / (float) winHeight : 1;
-	currentFrame.eye.update(0);
-	currentFrame.light.update(0.3f);
+	currentFrame.eye.update();
+	currentFrame.light.update();
 	needMatrixUpdate = false;
 }
 
@@ -678,7 +678,9 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted[0],globalGammaBoosted);
 
-	level->rendererOfScene->setParams(uberProgramSetup,areaLight,demoPlayer->getProjector(currentFrame.projectorIndex));
+	rr::RRVector<rr_gl::AreaLight*> lights;
+	lights.push_back(areaLight);
+	level->rendererOfScene->setParams(uberProgramSetup,&lights,demoPlayer->getProjector(currentFrame.projectorIndex));
 	level->rendererOfScene->render();
 }
 
@@ -853,6 +855,7 @@ void drawEyeViewSoftShadowed(void)
 		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
 		//uberProgramSetup.SHADOW_SAMPLES = ;
+		uberProgramSetup.SHADOW_PENUMBRA = true;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
@@ -895,6 +898,7 @@ void drawEyeViewSoftShadowed(void)
 		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = MIN(INSTANCES_PER_PASS,numInstances);
 		//uberProgramSetup.SHADOW_SAMPLES = ;
+		uberProgramSetup.SHADOW_PENUMBRA = true;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		//uberProgramSetup.LIGHT_DIRECT_MAP = ;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = false;
@@ -2308,6 +2312,10 @@ void passive(int x, int y)
 			currentFrame.light.angle -= 0.005*x;
 			currentFrame.light.angleX -= 0.005*y;
 			CLAMP(currentFrame.light.angleX,-M_PI*0.49f,M_PI*0.49f);
+			// changes also position a bit, together with rotation
+			currentFrame.light.pos += currentFrame.light.dir*0.3f;
+			currentFrame.light.update();
+			currentFrame.light.pos -= currentFrame.light.dir*0.3f;
 			reportLightMovement();
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);

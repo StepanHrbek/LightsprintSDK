@@ -17,8 +17,8 @@ namespace rr_gl
 //
 // TextureShadowMap
 
-TextureShadowMap::TextureShadowMap(unsigned awidth, unsigned aheight)
-	: TextureGL(NULL, awidth, aheight, false, TF_NONE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
+TextureShadowMap::TextureShadowMap(unsigned _width, unsigned _height)
+	: TextureGL(NULL, _width, _height, false, TF_NONE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
 {
 	// for shadow2D() instead of texture2D()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);

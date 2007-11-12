@@ -225,6 +225,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	// manage blending
 	bool blendKnown = false;
 	bool blendEnabled = false;
+	bool blendEnabledForever = glIsEnabled(GL_BLEND)!=0;
 	// set indirect illumination vertices
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
@@ -399,12 +400,15 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
 					}
 					// set blending
-					bool transparency = faceGroups[fg].transparency>0;
-					if(transparency!=blendEnabled || !blendKnown)
+					if(!blendEnabledForever)
 					{
-						if(transparency) glEnable(GL_BLEND); else glDisable(GL_BLEND);
-						blendKnown = true;
-						blendEnabled = transparency;
+						bool transparency = faceGroups[fg].transparency>0;
+						if(transparency!=blendEnabled || !blendKnown)
+						{
+							if(transparency) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+							blendKnown = true;
+							blendEnabled = transparency;
+						}
 					}
 				}
 				// set emissive map

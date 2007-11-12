@@ -23,6 +23,8 @@ public:
 	ObjectBuffers(const rr::RRObject* object, bool indexed);
 	~ObjectBuffers();
 	bool inited();
+	//! If GL_BLEND is disabled, it automatically enables it for materials with transparency.
+	//! If GL_BLEND is enabled, it is enabled for whole object.
 	void render(RendererOfRRObject::Params& params, unsigned solutionVersion);
 private:
 	bool initedOk; // true when constructor had no problems and instance is ready to render

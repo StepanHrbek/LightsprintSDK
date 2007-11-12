@@ -12,7 +12,7 @@
 namespace rr_gl
 {
 
-	AreaLight::AreaLight(Camera* _parent, unsigned _numInstances, unsigned _shadowMapSize)
+	AreaLight::AreaLight(Camera* _parent, unsigned _numInstances, unsigned _shadowMapSize, AreaType _areaType)
 	{
 		parent = _parent;
 		numInstancesMax = _numInstances;
@@ -21,7 +21,7 @@ namespace rr_gl
 		shadowMapSize = _shadowMapSize;
 		for(unsigned i=0;i<numInstancesMax;i++)
 			shadowMaps[i] = Texture::createShadowmap(shadowMapSize,shadowMapSize);
-		areaType = 0;
+		areaType = _areaType;
 		areaSize = 0.2f;
 	}
 
@@ -89,26 +89,35 @@ namespace rr_gl
 			return; // only 1 instance -> use unmodified parent
 		}
 
-		light.update(0.3f);
+		//light.update(0.3f);
 
 		switch(areaType)
 		{
-			case 0: // linear
+			case LINE:
+				// edit inputs, update outputs
 				light.pos[0] += light.right[0]*(areaSize*(instance/(numInstances-1.f)*2-1));
 				light.pos[1] += light.right[1]*(areaSize*(instance/(numInstances-1.f)*2-1));
 				light.pos[2] += light.right[2]*(areaSize*(instance/(numInstances-1.f)*2-1));
 				break;
-			case 1: // rectangular
+			case RECTANGLE:
+				// edit inputs, update outputs
 				{int q=(int)sqrtf((float)(numInstances-1))+1;
 				light.pos[0] += light.right[0]*areaSize*(instance/q/(q-1.f)-0.5f) + light.up[0]*areaSize*(instance%q/(q-1.f)-0.5f);
 				light.pos[1] += light.right[1]*areaSize*(instance/q/(q-1.f)-0.5f) + light.up[1]*areaSize*(instance%q/(q-1.f)-0.5f);
 				light.pos[2] += light.right[2]*areaSize*(instance/q/(q-1.f)-0.5f) + light.up[2]*areaSize*(instance%q/(q-1.f)-0.5f);
 				break;}
-			case 2: // circular
+			case CIRCLE:
+				// edit inputs, update outputs
 				light.pos[0] += light.right[0]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[0]*areaSize*cos(instance*2*3.14159f/numInstances);
 				light.pos[1] += light.right[1]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[1]*areaSize*cos(instance*2*3.14159f/numInstances);
 				light.pos[2] += light.right[2]*areaSize*sin(instance*2*3.14159f/numInstances) + light.up[2]*areaSize*cos(instance*2*3.14159f/numInstances);
 				break;
+			case POINT:
+				// edit output (view matrix) to avoid rounding errors, inputs stay unmodified
+				RR_ASSERT(instance<6);
+				light.update();
+				light.rotateViewMatrix(instance%6);
+				return;
 		}
 		if(jittered)
 		{
@@ -116,7 +125,7 @@ namespace rr_gl
 			light.angle += light.fieldOfView*light.aspect/360*2*3.14159f/shadowMapSize*jitterSample[instance%10][0]*0.22f;
 			light.angleX += light.fieldOfView/360*2*3.14159f/shadowMapSize*jitterSample[instance%10][1]*0.22f;
 		}
-		light.update(0.3f);
+		light.update();
 	}
 
 }; // namespace

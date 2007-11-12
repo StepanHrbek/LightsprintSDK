@@ -43,17 +43,11 @@ public:
 	//!  Specifies shader properties, including type of indirect illumination,
 	//!  vertex colors, ambient maps or none.
 	//!  OBJECT_SPACE may be always cleared, it is set automatically when required.
-	//! \param areaLight
-	//!  Area light with realtime shadows and direct illumination.
-	//!  \n \n To render scene with multiple realtime area lights with realtime shadows, 
-	//!  render scene several times, each time with different light, and accumulate
-	//!  results in accumulation buffer. You may use single renderer for rendering with
-	//!  multiple area lights.
-	//!  \n \n It is also possible to tweak AreaLight to render multiple spotlights
-	//!  with realtime shadows in one pass (see AreaLight::instanceMakeup()).
+	//! \param lights
+	//!  Vector of lights with realtime shadows and direct illumination.
 	//! \param lightDirectMap
 	//!  Texture projected by realtime area light.
-	void setParams(const UberProgramSetup& uberProgramSetup, const AreaLight* areaLight, const Texture* lightDirectMap);
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<AreaLight*>* lights, const Texture* lightDirectMap);
 
 	//! Specifies data source - original scene geometry and illumination from given layer.
 	//

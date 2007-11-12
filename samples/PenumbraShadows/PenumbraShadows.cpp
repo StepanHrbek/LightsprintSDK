@@ -158,8 +158,8 @@ void display(void)
 	if(!winWidth || !winHeight) return; // can't display without window
 
 	// update shadowmaps
-	eye.update(0);
-	light.update(0.3f);
+	eye.update();
+	light.update();
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
@@ -184,6 +184,7 @@ void display(void)
 	eye.setupForRender();
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.SHADOW_PENUMBRA = true;
 	renderScene(uberProgramSetup);
 
 #ifdef WATER
@@ -260,6 +261,10 @@ void passive(int x, int y)
 			light.angle -= 0.005*x;
 			light.angleX -= 0.005*y;
 			CLAMP(light.angleX,-M_PI*0.49f,M_PI*0.49f);
+			// changes also position a bit, together with rotation
+			light.pos += light.dir*0.3f;
+			light.update();
+			light.pos -= light.dir*0.3f;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}

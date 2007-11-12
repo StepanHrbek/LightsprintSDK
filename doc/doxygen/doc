@@ -2351,13 +2351,24 @@ Used by samples:
  \n They are located in samples directory in the SDK, binaries in bin.
 
  <hr>
+ <b>RealtimeLights</b>
+  <table border=0 width=95%><tr align=top><td>
+  \image html samples/RealtimeLights_2.jpg freely move lights
+  </td><td>
+  \image html samples/RealtimeLights_1.jpg global illumination changes in realtime
+  </td></tr></table>
+ - renders realtime global illumination without precalculations
+ - loads collada scene including all lights
+ - uses internal renderer
+
+ <hr>
  <b>RealtimeRadiosity</b>
   <table border=0 width=95%><tr align=top><td>
   \image html samples/RealtimeRadiosity_2.jpg freely move light, objects
   </td><td>
   \image html samples/RealtimeRadiosity_1.jpg global illumination changes in realtime
   </td></tr></table>
- - renders realtime global illumination in scene with dynamic objects and area light
+ - renders realtime global illumination in scene with dynamic objects and 1 area light
  - show that lighting works equally well for animated object
  - features penumbra shadows, color bleeding
  - shows feeding external 3ds renderer with Lightsprint computed illumination

@@ -4,6 +4,7 @@
 //  #define SHADOW_MAPS [0..10]
 //  #define SHADOW_SAMPLES [0|1|2|4|8]
 //  #define SHADOW_BILINEAR
+//  #define SHADOW_PENUMBRA
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
 //  #define LIGHT_INDIRECT_CONST
@@ -22,6 +23,7 @@
 //  #define MATERIAL_SPECULAR_MAP
 //  #define MATERIAL_NORMAL_MAP
 //  #define MATERIAL_EMISSIVE_MAP
+//  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
 //  #define POSTPROCESS_BRIGHTNESS
 //  #define POSTPROCESS_GAMMA
@@ -163,45 +165,10 @@ void main()
 
 		#if SHADOW_SAMPLES==1
 			// hard shadows with 1 lookup
-
-			// for array of samplers (for any OpenGL 2.0 compliant card)
-			//  for(int i=0;i<SHADOW_MAPS;i++)
-			//    shadowValue += shadow2DProj(shadowMap[i], shadowCoord[i]).z;
-
-			// for individual samplers (ATI fails on for cycle)
-			#if SHADOW_MAPS>0
-				shadowValue += shadow2DProj(shadowMap0, shadowCoord[0]).z;
-			#endif
-			#if SHADOW_MAPS>1
-				shadowValue += shadow2DProj(shadowMap1, shadowCoord[1]).z;
-			#endif
-			#if SHADOW_MAPS>2
-				shadowValue += shadow2DProj(shadowMap2, shadowCoord[2]).z;
-			#endif
-			#if SHADOW_MAPS>3
-				shadowValue += shadow2DProj(shadowMap3, shadowCoord[3]).z;
-			#endif
-			#if SHADOW_MAPS>4
-				shadowValue += shadow2DProj(shadowMap4, shadowCoord[4]).z;
-			#endif
-			#if SHADOW_MAPS>5
-				shadowValue += shadow2DProj(shadowMap5, shadowCoord[5]).z;
-			#endif
-			#if SHADOW_MAPS>6
-				shadowValue += shadow2DProj(shadowMap6, shadowCoord[6]).z;
-			#endif
-			#if SHADOW_MAPS>7
-				shadowValue += shadow2DProj(shadowMap7, shadowCoord[7]).z;
-			#endif
-			#if SHADOW_MAPS>8
-				shadowValue += shadow2DProj(shadowMap8, shadowCoord[8]).z;
-			#endif
-			#if SHADOW_MAPS>9
-				shadowValue += shadow2DProj(shadowMap9, shadowCoord[9]).z;
-			#endif
-  
-		#else // SHADOW_SAMPLES!=1
-			// blurred hard shadows (often called 'soft') with 2 or 4 lookups in rotating kernel
+			#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
+				shadowValue += shadow2DProj(shadowMap, shadowCoord[index]).z
+		#else
+			// soft shadows with 2, 4 or 8 lookups in rotating kernel
 			#ifdef SHADOW_BILINEAR
 				float noise = 8.1*gl_FragCoord.x+5.7*gl_FragCoord.y;
 			#else
@@ -211,38 +178,24 @@ void main()
 			vec3 shift1 = sc*0.003;
 			vec3 shift2 = sc.yxz*vec3(0.006,-0.006,0.0);
 
-			// for array of samplers (for any OpenGL 2.0 compliant card)
-			//  for(int i=0;i<SHADOW_MAPS;i++)
-			//  {
-			//    vec3 center = shadowCoord[i].xyz/shadowCoord[i].w;
-			//    shadowValue +=
-			//       shadow2D(shadowMap[i], center+shift1).z
-			//      +shadow2D(shadowMap[i], center-shift1).z
-			//#if SHADOW_SAMPLES==4
-			//      +shadow2D(shadowMap[i], center+shift2).z
-			//      +shadow2D(shadowMap[i], center-shift2).z
-			//#endif
-			//      ;
-			//  }
-
-			// for individual samplers (ATI fails on array)
 			#if SHADOW_SAMPLES==2
-				#define SHADOWMAP_LOOKUP_CENTER(shadowMap,center) \
-				shadowValue += \
+				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
+				center = shadowCoord[index].xyz/shadowCoord[index].w; \
+				shadowValue += ( \
 					shadow2D(shadowMap, center+shift1).z \
-					+shadow2D(shadowMap, center-shift1).z \
-					;
+					+shadow2D(shadowMap, center-shift1).z )
 			#elif SHADOW_SAMPLES==4
-				#define SHADOWMAP_LOOKUP_CENTER(shadowMap,center) \
-				shadowValue += \
+				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
+				center = shadowCoord[index].xyz/shadowCoord[index].w; \
+				shadowValue += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z \
 					+shadow2D(shadowMap, center+shift2).z \
-					+shadow2D(shadowMap, center-shift2).z \
-					;
+					+shadow2D(shadowMap, center-shift2).z )
 			#elif SHADOW_SAMPLES==8
-				#define SHADOWMAP_LOOKUP_CENTER(shadowMap,center) \
-				shadowValue += \
+				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
+				center = shadowCoord[index].xyz/shadowCoord[index].w; \
+				shadowValue += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z \
 					+shadow2D(shadowMap, center+1.8*shift1).z \
@@ -250,46 +203,47 @@ void main()
 					+shadow2D(shadowMap, center+shift2).z \
 					+shadow2D(shadowMap, center-shift2).z \
 					+shadow2D(shadowMap, center+0.6*shift2).z \
-					+shadow2D(shadowMap, center-0.6*shift2).z \
-					;
+					+shadow2D(shadowMap, center-0.6*shift2).z )
 			#endif
-			#define SHADOWMAP_LOOKUP(shadowMap,index) \
-				center = shadowCoord[index].xyz/shadowCoord[index].w; \
-				SHADOWMAP_LOOKUP_CENTER(shadowMap,center)
-
-			vec3 center;
-			#if SHADOW_MAPS>0
-				SHADOWMAP_LOOKUP(shadowMap0,0);
-			#endif
-			#if SHADOW_MAPS>1
-				SHADOWMAP_LOOKUP(shadowMap1,1);
-			#endif
-			#if SHADOW_MAPS>2
-				SHADOWMAP_LOOKUP(shadowMap2,2);
-			#endif
-			#if SHADOW_MAPS>3
-				SHADOWMAP_LOOKUP(shadowMap3,3);
-			#endif
-			#if SHADOW_MAPS>4
-				SHADOWMAP_LOOKUP(shadowMap4,4);
-			#endif
-			#if SHADOW_MAPS>5
-				SHADOWMAP_LOOKUP(shadowMap5,5);
-			#endif
-			#if SHADOW_MAPS>6
-				SHADOWMAP_LOOKUP(shadowMap6,6);
-			#endif
-			#if SHADOW_MAPS>7
-				SHADOWMAP_LOOKUP(shadowMap7,7);
-			#endif
-			#if SHADOW_MAPS>8
-				SHADOWMAP_LOOKUP(shadowMap8,8);
-			#endif
-			#if SHADOW_MAPS>9
-				SHADOWMAP_LOOKUP(shadowMap9,9);
-			#endif
-
 		#endif // SHADOW_SAMPLES!=1
+
+		#ifdef LIGHT_DIRECT_MAP
+			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index)
+		#else
+			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index) * step(0.0,shadowCoord[index].z)
+		#endif
+
+		vec3 center;
+		#if SHADOW_MAPS>0
+			SHADOWMAP_LOOKUP(shadowMap0,0);
+		#endif
+		#if SHADOW_MAPS>1
+			SHADOWMAP_LOOKUP(shadowMap1,1);
+		#endif
+		#if SHADOW_MAPS>2
+			SHADOWMAP_LOOKUP(shadowMap2,2);
+		#endif
+		#if SHADOW_MAPS>3
+			SHADOWMAP_LOOKUP(shadowMap3,3);
+		#endif
+		#if SHADOW_MAPS>4
+			SHADOWMAP_LOOKUP(shadowMap4,4);
+		#endif
+		#if SHADOW_MAPS>5
+			SHADOWMAP_LOOKUP(shadowMap5,5);
+		#endif
+		#if SHADOW_MAPS>6
+			SHADOWMAP_LOOKUP(shadowMap6,6);
+		#endif
+		#if SHADOW_MAPS>7
+			SHADOWMAP_LOOKUP(shadowMap7,7);
+		#endif
+		#if SHADOW_MAPS>8
+			SHADOWMAP_LOOKUP(shadowMap8,8);
+		#endif
+		#if SHADOW_MAPS>9
+			SHADOWMAP_LOOKUP(shadowMap9,9);
+		#endif
 
 	#endif // SHADOW_SAMPLES*SHADOW_MAPS>0
 
@@ -329,14 +283,17 @@ void main()
 			#ifdef MATERIAL_NORMAL_MAP
 				max(0.0,dot(worldLightDir, worldNormal)) // per pixel
 			#else
-				//lightDirectColor // per vertex
 				vec4(lightDirectColor,lightDirectColor,lightDirectColor,lightDirectColor) // per vertex
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
 				* texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
 			#endif
 			#if SHADOW_SAMPLES*SHADOW_MAPS>0
-				* shadowValue/float(SHADOW_SAMPLES*SHADOW_MAPS)
+				#ifdef SHADOW_PENUMBRA
+					* shadowValue/float(SHADOW_SAMPLES*SHADOW_MAPS)
+				#else
+					* shadowValue/float(SHADOW_SAMPLES)
+				#endif
 			#endif
 			;
 	#endif

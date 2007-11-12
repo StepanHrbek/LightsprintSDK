@@ -28,7 +28,7 @@ public:
 	// inputs, to be modified by user
 
 	//! Position of camera (imaginary frustum apex).
-	float    pos[3];
+	rr::RRVec3 pos;
 	//! Rotation around Y axis, radians. For characters standing in Y axis, it controls their look to left/right.
 	float    angle;
 	//! Rotation around Z axis, radians. For characters looking into Z+ axis, it controls leaning.
@@ -47,11 +47,11 @@ public:
 	// outputs, to be calculated by update() and possibly read by user
 
 	//! View direction.
-	float    dir[4];
+	rr::RRVec4 dir;
 	//! Up vector.
-	float    up[3];
+	rr::RRVec3 up;
 	//! Right vector.
-	float    right[3];
+	rr::RRVec3 right;
 	//! View matrix in format suitable for OpenGL.
 	double   viewMatrix[16];
 	//! Inverse view matrix in format suitable for OpenGL.
@@ -88,8 +88,10 @@ public:
 	//! Mirrors camera for reflection rendering. Second call takes changes back.
 	//! \param altitude Altitude of mirroring plane.
 	void mirror(float altitude);
-	//! Updates all outputs, recalculates them from inputs. Set back to 0.
-	void update(float back); // converts inputs to outputs
+	//! Updates all outputs, recalculates them from inputs.
+	void update(); // converts inputs to outputs
+	//! Rotates viewMatrix into one of 6 directions of point light. To be called after update().
+	void rotateViewMatrix(unsigned instance);
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are
 	//! transformed as if viewed by this camera.
 	void setupForRender();

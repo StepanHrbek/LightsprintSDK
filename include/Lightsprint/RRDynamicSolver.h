@@ -390,7 +390,7 @@ namespace rr
 		//! - custom direct illumination, see detectDirectIllumination().
 		//! - emissive materials used by static objects
 		//! - environment, see setEnvironment()
-		void setLights(const RRLights& lights);
+		virtual void setLights(const RRLights& lights);
 
 		//! Returns lights in scene, set by setLights().
 		const RRLights& getLights() const;

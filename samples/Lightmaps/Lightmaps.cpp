@@ -108,7 +108,9 @@ float                   gamma = 1;
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
-	rendererOfScene->setParams(uberProgramSetup,areaLight,lightDirectMap);
+	rr::RRVector<rr_gl::AreaLight*> lights;
+	lights.push_back(areaLight);
+	rendererOfScene->setParams(uberProgramSetup,&lights,lightDirectMap);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
 	rendererOfScene->setBrightnessGamma(brightness,gamma);
 	rendererOfScene->render();
@@ -415,6 +417,10 @@ void passive(int x, int y)
 			light.angleX -= 0.005*y;
 			CLAMP(light.angleX,-M_PI*0.49f,M_PI*0.49f);
 			solver->reportDirectIlluminationChange(true);
+			// changes also position a bit, together with rotation
+			light.pos += light.dir*0.3f;
+			light.update();
+			light.pos -= light.dir*0.3f;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -425,8 +431,8 @@ void display(void)
 	if(!winWidth || !winHeight) return; // can't display without window
 
 	// update shadowmaps
-	eye.update(0);
-	light.update(0.3f);
+	eye.update();
+	light.update();
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
@@ -446,6 +452,7 @@ void display(void)
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
+	uberProgramSetup.SHADOW_PENUMBRA = true;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !ambientMapsRender;
