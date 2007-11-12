@@ -100,6 +100,8 @@ public:
 		bool     MATERIAL_DIFFUSE_VCOLOR:1; ///< feeds gl_SecondaryColor
 		bool     MATERIAL_DIFFUSE_MAP   :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_DIFFUSE] + texture[TEXTURE_2D_MATERIAL_DIFFUSE]
 		bool     MATERIAL_EMISSIVE_MAP  :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_MATERIAL_EMISSIVE] + texture[TEXTURE_2D_MATERIAL_EMISSIVE]
+		bool     MATERIAL_CULLING       :1; ///< sets face culling according to material (0=defaults in GL pipeline are used)
+		bool     MATERIAL_BLENDING      :1; ///< sets blending according to material (0=defaults in GL pipeline are used)
 		bool     FORCE_2D_POSITION      :1; ///< feeds gl_MultiTexCoord[MULTITEXCOORD_FORCED_2D]
 		//! Creates setup with everything off, only vertex positions are rendered.
 		//! Suitable for rendering into shadowmaps.

@@ -89,6 +89,9 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 			{
 				fg.firstIndex = numVertices;
 			}
+			RR_ASSERT(material);
+			fg.renderFront = !material || material->sideBits[0].renderFrom;
+			fg.renderBack = !material || material->sideBits[1].renderFrom;
 			fg.numIndices = 0;
 			fg.diffuseColor = material ? material->diffuseReflectance : rr::RRVec3(0);
 			fg.transparency = material ? material->specularTransmittance.avg() : 0;
@@ -225,7 +228,6 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 	// manage blending
 	bool blendKnown = false;
 	bool blendEnabled = false;
-	bool blendEnabledForever = glIsEnabled(GL_BLEND)!=0;
 	// set indirect illumination vertices
 	if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 	{
@@ -381,6 +383,20 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 			firstIndex = MAX(firstIndex,3*params.firstCapturedTriangle);
 			if(numIndices>0)
 			{
+				// set face culling
+				if(params.renderedChannels.MATERIAL_CULLING)
+				{
+					if(faceGroups[fg].renderFront && faceGroups[fg].renderBack)
+					{
+						glDisable(GL_CULL_FACE);
+					}
+					else
+					{
+						glEnable(GL_CULL_FACE);
+						glCullFace(faceGroups[fg].renderFront?GL_BACK:( faceGroups[fg].renderBack?GL_FRONT:GL_FRONT_AND_BACK ));
+					}
+				}
+
 				// set diffuse color
 				if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR)
 				{
@@ -400,7 +416,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 						LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"RRRendererOfRRObject: Texturing requested, but diffuse texture not available, expect incorrect render.\n"));
 					}
 					// set blending
-					if(!blendEnabledForever)
+					if(params.renderedChannels.MATERIAL_BLENDING)
 					{
 						bool transparency = faceGroups[fg].transparency>0;
 						if(transparency!=blendEnabled || !blendKnown)

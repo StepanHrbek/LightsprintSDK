@@ -23,8 +23,6 @@ public:
 	ObjectBuffers(const rr::RRObject* object, bool indexed);
 	~ObjectBuffers();
 	bool inited();
-	//! If GL_BLEND is disabled, it automatically enables it for materials with transparency.
-	//! If GL_BLEND is enabled, it is enabled for whole object.
 	void render(RendererOfRRObject::Params& params, unsigned solutionVersion);
 private:
 	bool initedOk; // true when constructor had no problems and instance is ready to render
@@ -53,11 +51,13 @@ private:
 	struct FaceGroup
 	{
 		unsigned firstIndex;
-		unsigned numIndices;
-		rr::RRVec3 diffuseColor;
-		rr::RRReal transparency;
+		unsigned numIndices:30;
+		unsigned renderFront:1;
+		unsigned renderBack:1;
 		Texture* diffuseTexture;
 		Texture* emissiveTexture;
+		rr::RRVec3 diffuseColor;
+		rr::RRReal transparency;
 	};
 	std::vector<FaceGroup> faceGroups;
 	// version of data in alightIndirectVcolor (we don't want to update data when it's not necessary)

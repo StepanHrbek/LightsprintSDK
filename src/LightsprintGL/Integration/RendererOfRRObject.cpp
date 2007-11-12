@@ -220,8 +220,6 @@ void RendererOfRRObject::render()
 	PreserveCullFace p1;
 	PreserveCullMode p2;
 	PreserveBlend p3;
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK); //!!! do it according to RRMaterial sideBits
 
 	glColor4ub(0,0,0,255);
 
@@ -263,6 +261,29 @@ void RendererOfRRObject::render()
 				if(material!=oldMaterial)
 				{
 					oldMaterial = material;
+
+					// face culling
+					if(params.renderedChannels.MATERIAL_CULLING)
+					{
+						if(!material || (material->sideBits[0].renderFrom && material->sideBits[1].renderFrom))
+						{
+							glDisable(GL_CULL_FACE);
+						}
+						else
+						{
+							glEnable(GL_CULL_FACE);
+							glCullFace(material->sideBits[0].renderFrom?GL_BACK:( material->sideBits[1].renderFrom?GL_FRONT:GL_FRONT_AND_BACK ));
+						}
+					}
+
+					// blending
+					if(params.renderedChannels.MATERIAL_BLENDING)
+					{
+						if(material && material->specularTransmittance.avg())
+							glEnable(GL_BLEND);
+						else
+							glDisable(GL_BLEND);
+					}
 
 					// material diffuse color
 					if(params.renderedChannels.MATERIAL_DIFFUSE_VCOLOR)

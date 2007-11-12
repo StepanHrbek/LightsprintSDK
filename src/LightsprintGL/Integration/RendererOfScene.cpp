@@ -205,6 +205,7 @@ void RendererOfRRDynamicSolver::render()
 		}
 		if(lightIndex==1)
 		{
+			// additional passes add to framebuffer
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE,GL_ONE);
 		}
@@ -225,6 +226,8 @@ void RendererOfRRDynamicSolver::render()
 		renderedChannels.MATERIAL_DIFFUSE_VCOLOR = params.uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 		renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 		renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
+		renderedChannels.MATERIAL_CULLING = (params.uberProgramSetup.MATERIAL_DIFFUSE || params.uberProgramSetup.MATERIAL_SPECULAR) && !params.uberProgramSetup.FORCE_2D_POSITION; // should be enabled for all except for shadowmaps and force_2d
+		renderedChannels.MATERIAL_BLENDING = lightIndex==0; // material wishes are respected only in first pass, other passes use adding
 		renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
@@ -357,11 +360,15 @@ void RendererOfOriginalScene::render()
 	renderedChannels.MATERIAL_DIFFUSE_VCOLOR = params.uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
 	renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
 	renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
+	renderedChannels.MATERIAL_CULLING = (params.uberProgramSetup.MATERIAL_DIFFUSE || params.uberProgramSetup.MATERIAL_SPECULAR) && !params.uberProgramSetup.FORCE_2D_POSITION; // should be enabled for all except for shadowmaps and force_2d
+	renderedChannels.MATERIAL_BLENDING = 1;//!!!lightIndex==0; // material wishes are respected only in first pass, other passes use adding
 	renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
 
 	UberProgramSetup uberProgramSetupPrevious;
 	Program* program = NULL;
 	unsigned numObjects = params.solver->getNumObjects();
+	if(params.lights && params.lights->size()>1)
+		rr::RRReporter::report(rr::WARN,"Renderer of original scene supports only 1 light (temporarily).\n");
 	const AreaLight* areaLight = (params.lights && params.lights->size()) ? (*params.lights)[0] : NULL;
 	for(unsigned i=0;i<numObjects;i++)
 	{
