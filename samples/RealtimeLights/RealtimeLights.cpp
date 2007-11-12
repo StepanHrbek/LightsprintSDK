@@ -73,7 +73,7 @@ float                      gamma = 1;
 //
 // rendering scene
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::AreaLight*>* lights)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RRLightRuntime*>* lights)
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,lights,lightDirectMap);
@@ -119,11 +119,12 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// integration with Realtime Radiosity
+// integration with RRDynamicSolver
 
 class Solver : public rr_gl::RRDynamicSolverGL
 {
 public:
+	rr::RRVector<rr_gl::RRLightRuntime*> realtimeLights;
 
 	Solver() : RRDynamicSolverGL("../../data/shaders/")
 	{
@@ -133,16 +134,14 @@ public:
 	}
 	virtual void setLights(const rr::RRLights& _lights)
 	{
+		// create light runtimes
 		RRDynamicSolverGL::setLights(_lights);
 		for(unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 		realtimeLights.clear();
 		for(unsigned i=0;i<_lights.size();i++) realtimeLights.push_back(new rr_gl::RRLightRuntime(*_lights[i]));
+		// reset detected direct lighting
 		if(detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 	}
-	rr::RRVector<rr_gl::RRLightRuntime*> realtimeLights;
-	unsigned* detectedDirectSum;
-	unsigned detectedNumTriangles;
-
 	void updateDirtyLights()
 	{
 		// alloc space for detected direct illum
@@ -154,11 +153,52 @@ public:
 			detectedDirectSum = new unsigned[detectedNumTriangles=numTriangles];
 			memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 		}
+
 		// update shadowmaps and smallMapsCPU
 		for(unsigned i=0;i<realtimeLights.size();i++)
 		{
-			updated += realtimeLights[i]->update(numTriangles,renderScene,this,uberProgram,lightDirectMap);
+			rr_gl::RRLightRuntime* lightRuntime = realtimeLights[i];
+			if(!lightRuntime || !uberProgram)
+			{
+				RR_ASSERT(0);
+				continue;
+			}
+			if(numTriangles!=lightRuntime->numTriangles)
+			{
+				delete[] lightRuntime->smallMapCPU;
+				lightRuntime->smallMapCPU = new unsigned[lightRuntime->numTriangles=numTriangles];
+				lightRuntime->dirty = 1;
+			}
+			if(!lightRuntime->dirty) continue;
+			lightRuntime->dirty = 0;
+			// update shadowmap[s]
+			{
+				glColorMask(0,0,0,0);
+				glEnable(GL_POLYGON_OFFSET_FILL);
+				rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
+				for(unsigned i=0;i<lightRuntime->getNumInstances();i++)
+				{
+					rr_gl::Camera* lightInstance = lightRuntime->getInstance(i);
+					lightInstance->setupForRender();
+					delete lightInstance;
+					rr_gl::Texture* shadowmap = lightRuntime->getShadowMap(i);
+					glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
+					shadowmap->renderingToBegin();
+					glClear(GL_DEPTH_BUFFER_BIT);
+					renderScene(uberProgramSetup,NULL);
+				}
+				glDisable(GL_POLYGON_OFFSET_FILL);
+				glColorMask(1,1,1,1);
+				if(lightRuntime->getNumInstances())
+					lightRuntime->getShadowMap(0)->renderingToEnd();
+				glViewport(0, 0, winWidth, winHeight);
+			}
+			// update smallmap
+			setupShaderLight = lightRuntime;
+			memcpy(lightRuntime->smallMapCPU,RRDynamicSolverGL::detectDirectIllumination(),4*numTriangles);
+			updated++;
 		}
+
 		// sum smallMapsCPU into detectedDirectSum
 		if(updated)
 		{
@@ -175,6 +215,8 @@ public:
 	}
 
 protected:
+	unsigned* detectedDirectSum;
+	unsigned detectedNumTriangles;
 	// skipped, material properties were already readen from .dae and never change
 	virtual void detectMaterials() {}
 	// detects direct illumination irradiances on all faces in scene
@@ -184,8 +226,22 @@ protected:
 		updateDirtyLights();
 		return detectedDirectSum;
 	}
+
+	rr_gl::RRLightRuntime* setupShaderLight;
 	virtual void setupShader(unsigned objectNumber)
 	{
+		rr_gl::UberProgramSetup uberProgramSetup;
+		uberProgramSetup.SHADOW_MAPS = setupShaderLight->getNumInstances(); //!!! radeons 9500-X1250 can't run 6 in one pass
+		uberProgramSetup.SHADOW_SAMPLES = 1;
+		uberProgramSetup.LIGHT_DIRECT = true;
+		uberProgramSetup.LIGHT_DIRECT_MAP = true;
+		uberProgramSetup.LIGHT_DISTANCE_POLYNOM = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+		uberProgramSetup.MATERIAL_DIFFUSE = true;
+		uberProgramSetup.FORCE_2D_POSITION = true;
+		if(!uberProgramSetup.useProgram(uberProgram,setupShaderLight,0,lightDirectMap,NULL,1))
+		{
+			error("Failed to compile or link GLSL program.\n",true);
+		}
 	}
 };
 
@@ -323,7 +379,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	renderScene(uberProgramSetup,(const rr::RRVector<rr_gl::AreaLight*>*)&solver->realtimeLights); // vector of X* is used as const vector of superclass*, safe
+	renderScene(uberProgramSetup,&solver->realtimeLights);
 
 	glutSwapBuffers();
 }

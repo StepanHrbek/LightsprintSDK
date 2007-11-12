@@ -82,7 +82,7 @@ void error(const char* message, bool gfxRelated)
 
 rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.1,100.0);
 rr_gl::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-rr_gl::AreaLight*          areaLight = NULL;
+rr_gl::RRLightRuntime*     areaLight = NULL;
 rr_gl::Texture*            lightDirectMap = NULL;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL* solver = NULL;
@@ -108,7 +108,7 @@ float                   gamma = 1;
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
-	rr::RRVector<rr_gl::AreaLight*> lights;
+	rr::RRVector<rr_gl::RRLightRuntime*> lights;
 	lights.push_back(areaLight);
 	rendererOfScene->setParams(uberProgramSetup,&lights,lightDirectMap);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
@@ -452,7 +452,6 @@ void display(void)
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = numInstances;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
-	uberProgramSetup.SHADOW_PENUMBRA = true;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = !ambientMapsRender;
@@ -542,27 +541,12 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
-	// for correct soft shadows: maximal number of shadowmaps renderable in one pass is detected
-	// for usual soft shadows, simply set shadowmapsPerPass=1
-	unsigned shadowmapsPerPass = 1;
-	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_SAMPLES = 4;
-	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
-	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
-	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
-	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
 	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
-	areaLight = new rr_gl::AreaLight(&light,shadowmapsPerPass,512);
+	areaLight = new rr_gl::RRLightRuntime(&light,1,512);
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;

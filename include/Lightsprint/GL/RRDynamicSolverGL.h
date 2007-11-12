@@ -125,21 +125,6 @@ namespace rr_gl
 		DDIQuality detectionQuality;
 	};
 
-	//! Runtime extension of RRLight, with structures needed for realtime GI rendering.
-	class RR_GL_API RRLightRuntime : public AreaLight
-	{
-	public:
-		RRLightRuntime(const rr::RRLight& _rrlight);
-		~RRLightRuntime();
-		//! If dirty, update shadowmap and redetect direct illumination.
-		//! \return 1=something was updated, 0=no change
-		unsigned update(unsigned _numTriangles, void (renderScene)(UberProgramSetup uberProgramSetup, const rr::RRVector<AreaLight*>* lights), rr_gl::RRDynamicSolverGL* solver, UberProgram* uberProgram, Texture* lightDirectMap);
-		//rr_gl::Texture* smallMapGPU;
-		unsigned* smallMapCPU;
-		unsigned numTriangles;
-		bool dirty;
-	};
-
 };
 
 #endif

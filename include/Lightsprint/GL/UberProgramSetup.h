@@ -54,7 +54,7 @@ struct RR_GL_API UberProgramSetup
 	bool     SHADOW_PENUMBRA        :1; ///< Enables blend of all shadowmaps, used by penumbra shadows.
 	bool     LIGHT_DIRECT           :1; ///< Enables direct spot light.
 	bool     LIGHT_DIRECT_MAP       :1; ///< Enables modulation of direct light color by map. Projects texture.
-	bool     LIGHT_DISTANCE_POLY    :1; ///< Enables direct light polynomial distance attenuation in sRGB space.
+	bool     LIGHT_DISTANCE_POLYNOM :1; ///< Enables direct light polynomial distance attenuation in sRGB space.
 	bool     LIGHT_INDIRECT_CONST   :1; ///< Enables indirect light, constant.
 	bool     LIGHT_INDIRECT_VCOLOR  :1; ///< Enables indirect light, set per vertex.
 	bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< Enables blend between two ambient vertex colors.
@@ -108,7 +108,7 @@ struct RR_GL_API UberProgramSetup
 	void validate();
 	//! Sets rendering pipeline so that following primitives are rendered using
 	//! our program.
-	Program* useProgram(UberProgram* uberProgram, const AreaLight* areaLight, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma);
+	Program* useProgram(UberProgram* uberProgram, const RRLightRuntime* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma);
 };
 
 

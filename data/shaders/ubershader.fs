@@ -7,7 +7,7 @@
 //  #define SHADOW_PENUMBRA
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
-//  #define LIGHT_DISTANCE_POLY
+//  #define LIGHT_DISTANCE_POLYNOM
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_VCOLOR
 //  #define LIGHT_INDIRECT_VCOLOR2

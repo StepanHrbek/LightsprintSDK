@@ -8,9 +8,9 @@
 #ifndef RENDEREROFSCENE_H
 #define RENDEREROFSCENE_H
 
-#include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
+#include "Lightsprint/GL/AreaLight.h"
 
 namespace rr_gl
 {
@@ -44,10 +44,10 @@ public:
 	//!  vertex colors, ambient maps or none.
 	//!  OBJECT_SPACE may be always cleared, it is set automatically when required.
 	//! \param lights
-	//!  Vector of lights with realtime shadows and direct illumination.
+	//!  Vector of lights.
 	//! \param lightDirectMap
 	//!  Texture projected by realtime area light.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<AreaLight*>* lights, const Texture* lightDirectMap);
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RRLightRuntime*>* lights, const Texture* lightDirectMap);
 
 	//! Specifies data source - original scene geometry and illumination from given layer.
 	//

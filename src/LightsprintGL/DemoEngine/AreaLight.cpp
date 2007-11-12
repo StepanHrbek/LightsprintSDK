@@ -128,4 +128,37 @@ namespace rr_gl
 		light.update();
 	}
 
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// RRLightRuntime
+
+	RRLightRuntime::RRLightRuntime(const rr::RRLight& _rrlight)
+		: AreaLight(new Camera(_rrlight),(_rrlight.type==rr::RRLight::POINT)?6:1,2*512,(_rrlight.type==rr::RRLight::POINT)?POINT:LINE)
+	{
+		deleteParent = true;
+		origin = &_rrlight;
+		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		smallMapCPU = NULL;
+		numTriangles = 0;
+		dirty = true;
+	}
+
+	RRLightRuntime::RRLightRuntime(rr_gl::Camera* _camera, unsigned _numInstances, unsigned _resolution)
+		: AreaLight(_camera,_numInstances,_resolution,LINE)
+	{
+		deleteParent = false;
+		origin = NULL;
+		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		smallMapCPU = NULL;
+		numTriangles = 0;
+		dirty = true;
+	}
+
+	RRLightRuntime::~RRLightRuntime()
+	{
+		delete[] smallMapCPU;
+		//delete smallMapGPU;
+		delete getParent();
+	}
+
 }; // namespace

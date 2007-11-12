@@ -5,9 +5,9 @@
 //
 // Indirect illumination is approximated by constant ambient.
 // Dynamic objects reflect skybox (visible behind walls).
-// You can switch also reflection to constant ambient.
 //
-// See the same scene with global illumination in RealtimeRadiosity sample.
+// See the same scene with global illumination in RealtimeRadiosity sample
+// (it has 100 lines added).
 //
 // Controls:
 //  mouse = look around
@@ -52,10 +52,9 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-Model_3DS           m3ds;
+Model_3DS              m3ds;
 rr_gl::Camera          eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
-rr_gl::Camera          light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-rr_gl::AreaLight*      areaLight = NULL;
+rr_gl::RRLightRuntime* areaLight = NULL;
 rr_gl::Texture*        lightDirectMap = NULL;
 rr_gl::Texture*        environmentMap = NULL;
 rr_gl::TextureRenderer*textureRenderer = NULL;
@@ -63,15 +62,15 @@ rr_gl::UberProgram*    uberProgram = NULL;
 #ifdef WATER
 rr_gl::Water*          water = NULL;
 #endif
-DynamicObject*      robot = NULL;
-DynamicObject*      potato = NULL;
-int                 winWidth = 0;
-int                 winHeight = 0;
-bool                modeMovingEye = false;
-float               speedForward = 0;
-float               speedBack = 0;
-float               speedRight = 0;
-float               speedLeft = 0;
+DynamicObject*         robot = NULL;
+DynamicObject*         potato = NULL;
+int                    winWidth = 0;
+int                    winHeight = 0;
+bool                   modeMovingEye = false;
+float                  speedForward = 0;
+float                  speedBack = 0;
+float                  speedRight = 0;
+float                  speedLeft = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -159,7 +158,7 @@ void display(void)
 
 	// update shadowmaps
 	eye.update();
-	light.update();
+	areaLight->getParent()->update();
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
@@ -258,13 +257,13 @@ void passive(int x, int y)
 		}
 		else
 		{
-			light.angle -= 0.005*x;
-			light.angleX -= 0.005*y;
-			CLAMP(light.angleX,-M_PI*0.49f,M_PI*0.49f);
+			areaLight->getParent()->angle -= 0.005*x;
+			areaLight->getParent()->angleX -= 0.005*y;
+			CLAMP(areaLight->getParent()->angleX,-M_PI*0.49f,M_PI*0.49f);
 			// changes also position a bit, together with rotation
-			light.pos += light.dir*0.3f;
-			light.update();
-			light.pos -= light.dir*0.3f;
+			areaLight->getParent()->pos += areaLight->getParent()->dir*0.3f;
+			areaLight->getParent()->update();
+			areaLight->getParent()->pos -= areaLight->getParent()->dir*0.3f;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -281,7 +280,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		rr_gl::Camera* cam = modeMovingEye?&eye:&light;
+		rr_gl::Camera* cam = modeMovingEye?&eye:areaLight->getParent();
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
@@ -352,9 +351,12 @@ int main(int argc, char **argv)
 	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
-	areaLight = new rr_gl::AreaLight(&light,shadowmapsPerPass,512);
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+
+	// init light
+	rr_gl::Camera light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
+	areaLight = new rr_gl::RRLightRuntime(&light,shadowmapsPerPass,512);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

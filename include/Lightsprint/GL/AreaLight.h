@@ -21,6 +21,7 @@ namespace rr_gl
 // AreaLight
 
 //! Area light with shadowmaps for realtime area light soft shadows.
+//! It will be merged into RRLightRuntime during November.
 class RR_GL_API AreaLight
 {
 public:
@@ -103,6 +104,22 @@ protected:
 	Texture** shadowMaps;
 	unsigned numInstancesMax;
 	unsigned shadowMapSize;
+};
+
+//! Runtime extension of RRLight, with structures needed for realtime GI rendering.
+class RR_GL_API RRLightRuntime : public AreaLight
+{
+public:
+	RRLightRuntime(const rr::RRLight& rrlight);
+	RRLightRuntime(rr_gl::Camera* camera, unsigned numInstances, unsigned resolution);
+	~RRLightRuntime();
+	//rr_gl::Texture* smallMapGPU;
+	unsigned* smallMapCPU;
+	unsigned numTriangles;
+	bool dirty;
+	const rr::RRLight* origin;
+private:
+	bool deleteParent;
 };
 
 }; // namespace

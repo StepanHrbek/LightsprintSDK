@@ -30,7 +30,7 @@ const char* UberProgramSetup::getSetupString()
 		SHADOW_PENUMBRA?"#define SHADOW_PENUMBRA\n":"",
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
-		LIGHT_DISTANCE_POLY?"#define LIGHT_DISTANCE_POLY\n":"",
+		LIGHT_DISTANCE_POLYNOM?"#define LIGHT_DISTANCE_POLYNOM\n":"",
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
 		LIGHT_INDIRECT_VCOLOR?"#define LIGHT_INDIRECT_VCOLOR\n":"",
 		LIGHT_INDIRECT_VCOLOR2?"#define LIGHT_INDIRECT_VCOLOR2\n":"",
@@ -165,7 +165,7 @@ void UberProgramSetup::validate()
 	}
 }
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight* areaLight, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRuntime* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma)
 {
 	Program* program = getProgram(uberProgram);
 	if(!program)
@@ -186,20 +186,20 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 	//GLint samplers[100]; // for array of samplers (needs OpenGL 2.0 compliant card)
 	for(unsigned i=0;i<SHADOW_MAPS;i++)
 	{
-		if(!areaLight)
+		if(!lightRuntime)
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: areaLight==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
 		glActiveTexture(GL_TEXTURE0+i);
 		// prepare samplers
-		areaLight->getShadowMap(firstInstance+i)->bindTexture();
+		lightRuntime->getShadowMap(firstInstance+i)->bindTexture();
 		//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
 		char name[] = "shadowMap0"; // for individual samplers (works on buggy ATI)
 		name[9] = '0'+i; // for individual samplers (works on buggy ATI)
 		program->sendUniform(name, (int)i); // for individual samplers (works on buggy ATI)
 		// prepare and send matrices
-		Camera* lightInstance = areaLight->getInstance(firstInstance+i,true);
+		Camera* lightInstance = lightRuntime->getInstance(firstInstance+i,true);
 		glLoadMatrixd(tmp);
 		glMultMatrixd(lightInstance->frustumMatrix);
 		glMultMatrixd(lightInstance->viewMatrix);
@@ -210,15 +210,15 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 
 	if(LIGHT_DIRECT)
 	{
-		if(!areaLight)
+		if(!lightRuntime)
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: areaLight==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
-		const Camera* light = areaLight->getParent();
+		const Camera* light = lightRuntime->getParent();
 		if(!light)
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: areaLight->getParent()==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->getParent()==NULL.\n");
 			return false;
 		}
 		program->sendUniform("worldLightPos",light->pos[0],light->pos[1],light->pos[2]);
@@ -235,6 +235,16 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const AreaLight*
 		glActiveTexture(GL_TEXTURE0+id);
 		lightDirectMap->bindTexture();
 		program->sendUniform("lightDirectMap", id);
+	}
+
+	if(LIGHT_DISTANCE_POLYNOM)
+	{
+		if(!lightRuntime->origin)
+		{
+			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->origin==NULL.\n");
+			return false;
+		}
+		program->sendUniform("lightDistancePolynom",lightRuntime->origin->polynom.x,lightRuntime->origin->polynom.y,lightRuntime->origin->polynom.z);
 	}
 
 	if(LIGHT_INDIRECT_CONST)

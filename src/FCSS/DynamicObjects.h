@@ -45,7 +45,7 @@ public:
 	// dokonci update envmap a posle je do GPU
 	// probehne rychleji pokud bylo predtim zavolano updateSceneDynamic, ale nutne to neni
 	// camera must be already set in OpenGL, this one is passed only for frustum culling
-	void renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::Camera* camera, rr_gl::AreaLight* areaLight, unsigned firstInstance, const rr_gl::Texture* lightDirectMap, const float brightness[4], float gamma) const;
+	void renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::Camera* camera, rr_gl::RRLightRuntime* areaLight, unsigned firstInstance, const rr_gl::Texture* lightDirectMap, const float brightness[4], float gamma) const;
 
 private:
 	std::vector<DynamicObject*> dynaobject;

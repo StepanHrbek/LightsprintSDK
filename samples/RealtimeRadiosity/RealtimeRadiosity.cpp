@@ -4,16 +4,13 @@
 // Realtime global illumination is demonstrated on .3ds scene viewer.
 // You should be familiar with OpenGL and GLUT to read the code.
 //
-// This sample is derived from PenumbraShadows.
-// The only extension here is global illumination.
-// Approx 100 lines were added, including empty lines and comments.
+// This sample demonstrates rendering global illumination via
+// external renderer, indirect lighting is passed as arrays of vertex colors.
+// Other samples use internal RendererOfScene.
 //
-// This sample also demonstrates rendering global illumination via
-// external renderer, array of indirect vertex colors is passed.
-// All other samples (see very similar Lightmaps) use internal RendererOfScene,
-// which is simpler to use. 
+// Proper illumination of animated object is demonstrated.
 //
-// Proper illumination of animated object is also demonstrated.
+// Penumbra shadows are demonstrated.
 //
 // Controls:
 //  mouse = look around
@@ -61,10 +58,9 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-Model_3DS               m3ds;
+Model_3DS                  m3ds;
 rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
-rr_gl::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-rr_gl::AreaLight*          areaLight = NULL;
+rr_gl::RRLightRuntime*     areaLight = NULL;
 rr_gl::Texture*            lightDirectMap = NULL;
 rr_gl::Texture*            environmentMap = NULL;
 rr_gl::TextureRenderer*    textureRenderer = NULL;
@@ -72,16 +68,16 @@ rr_gl::TextureRenderer*    textureRenderer = NULL;
 rr_gl::Water*              water = NULL;
 #endif
 rr_gl::UberProgram*        uberProgram = NULL;
-rr_gl::RRDynamicSolverGL* solver = NULL;
-DynamicObject*          robot = NULL;
-DynamicObject*          potato = NULL;
-int                     winWidth = 0;
-int                     winHeight = 0;
-bool                    modeMovingEye = false;
-float                   speedForward = 0;
-float                   speedBack = 0;
-float                   speedRight = 0;
-float                   speedLeft = 0;
+rr_gl::RRDynamicSolverGL*  solver = NULL;
+DynamicObject*             robot = NULL;
+DynamicObject*             potato = NULL;
+int                        winWidth = 0;
+int                        winHeight = 0;
+bool                       modeMovingEye = false;
+float                      speedForward = 0;
+float                      speedBack = 0;
+float                      speedRight = 0;
+float                      speedLeft = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -171,7 +167,7 @@ void updateShadowmap(unsigned mapIndex)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// integration with Realtime Radiosity
+// integration with RRDynamicSolver
 
 class Solver : public rr_gl::RRDynamicSolverGL
 {
@@ -221,7 +217,7 @@ void display(void)
 
 	// update shadowmaps
 	eye.update();
-	light.update();
+	areaLight->getParent()->update();
 	unsigned numInstances = areaLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
@@ -320,14 +316,14 @@ void passive(int x, int y)
 		}
 		else
 		{
-			light.angle -= 0.005*x;
-			light.angleX -= 0.005*y;
-			CLAMP(light.angleX,-M_PI*0.49f,M_PI*0.49f);
+			areaLight->getParent()->angle -= 0.005*x;
+			areaLight->getParent()->angleX -= 0.005*y;
+			CLAMP(areaLight->getParent()->angleX,-M_PI*0.49f,M_PI*0.49f);
 			solver->reportDirectIlluminationChange(true);
 			// changes also position a bit, together with rotation
-			light.pos += light.dir*0.3f;
-			light.update();
-			light.pos -= light.dir*0.3f;
+			areaLight->getParent()->pos += areaLight->getParent()->dir*0.3f;
+			areaLight->getParent()->update();
+			areaLight->getParent()->pos -= areaLight->getParent()->dir*0.3f;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -344,14 +340,14 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		rr_gl::Camera* cam = modeMovingEye?&eye:&light;
+		rr_gl::Camera* cam = modeMovingEye?&eye:areaLight->getParent();
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
 		if(speedLeft) cam->moveLeft(speedLeft*seconds);
 		if(speedForward || speedBack || speedRight || speedLeft)
 		{
-			if(cam==&light) solver->reportDirectIlluminationChange(true);
+			if(cam!=&eye) solver->reportDirectIlluminationChange(true);
 		}
 	}
 	prev = now;
@@ -436,10 +432,13 @@ int main(int argc, char **argv)
 	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
-	areaLight = new rr_gl::AreaLight(&light,shadowmapsPerPass,512);
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	//environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
+
+	// init light
+	rr_gl::Camera light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
+	areaLight = new rr_gl::RRLightRuntime(&light,shadowmapsPerPass,512);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

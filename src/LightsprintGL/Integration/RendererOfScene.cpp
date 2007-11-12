@@ -35,7 +35,7 @@ public:
 	RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 	//! Sets parameters of render related to shader and direct illumination.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<AreaLight*>* lights, const Texture* lightDirectMap);
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RRLightRuntime*>* lights, const Texture* lightDirectMap);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -53,7 +53,7 @@ protected:
 	{
 		rr::RRDynamicSolver* solver;
 		UberProgramSetup uberProgramSetup;
-		const rr::RRVector<AreaLight*>* lights;
+		const rr::RRVector<RRLightRuntime*>* lights;
 		const Texture* lightDirectMap;
 		float brightness[4];
 		float gamma;
@@ -104,7 +104,7 @@ RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 	delete textureRenderer;
 }
 
-void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<AreaLight*>* lights, const Texture* lightDirectMap)
+void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RRLightRuntime*>* lights, const Texture* lightDirectMap)
 {
 	params.uberProgramSetup = uberProgramSetup;
 	params.lights = lights;
@@ -192,7 +192,7 @@ void RendererOfRRDynamicSolver::render()
 			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? (*params.lights)[lightIndex]->getNumInstances() : 0;
 			uberProgramSetup.SHADOW_PENUMBRA = (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
 			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
-			uberProgramSetup.LIGHT_DISTANCE_POLY = 0;//!!! (*params.lights)[lightIndex]->rrLight->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+			uberProgramSetup.LIGHT_DISTANCE_POLYNOM = (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		}
 		else
 		{
@@ -201,7 +201,7 @@ void RendererOfRRDynamicSolver::render()
 			uberProgramSetup.SHADOW_SAMPLES = 0;
 			uberProgramSetup.LIGHT_DIRECT = 0;
 			uberProgramSetup.LIGHT_DIRECT_MAP = 0;
-			uberProgramSetup.LIGHT_DISTANCE_POLY = 0;
+			uberProgramSetup.LIGHT_DISTANCE_POLYNOM = 0;
 		}
 		if(lightIndex==1)
 		{
@@ -369,7 +369,6 @@ void RendererOfOriginalScene::render()
 	unsigned numObjects = params.solver->getNumObjects();
 	if(params.lights && params.lights->size()>1)
 		rr::RRReporter::report(rr::WARN,"Renderer of original scene supports only 1 light (temporarily).\n");
-	const AreaLight* areaLight = (params.lights && params.lights->size()) ? (*params.lights)[0] : NULL;
 	for(unsigned i=0;i<numObjects;i++)
 	{
 		// - working copy of params.uberProgramSetup
@@ -396,7 +395,7 @@ void RendererOfOriginalScene::render()
 		uberProgramSetup.validate();
 		if(i==0 || (uberProgramSetup.LIGHT_INDIRECT_auto && uberProgramSetup!=uberProgramSetupPrevious))
 		{
-			program = uberProgramSetup.useProgram(uberProgram,areaLight,0,params.lightDirectMap,params.brightness,params.gamma);
+			program = uberProgramSetup.useProgram(uberProgram,(*params.lights)[0],0,params.lightDirectMap,params.brightness,params.gamma);
 			if(!program)
 			{
 				rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
@@ -513,7 +512,7 @@ RendererOfScene::~RendererOfScene()
 	delete renderer;
 }
 
-void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<AreaLight*>* lights, const Texture* lightDirectMap)
+void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RRLightRuntime*>* lights, const Texture* lightDirectMap)
 {
 	renderer->setParams(uberProgramSetup,lights,lightDirectMap);
 }

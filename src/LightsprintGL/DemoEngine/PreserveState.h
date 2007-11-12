@@ -7,6 +7,9 @@
 #ifndef PRESERVESTATE_H
 #define PRESERVESTATE_H
 
+namespace rr_gl
+{
+
 #define DECLARE_PRESERVE_STATE(name,storage,get,set) class name {public: storage; name(){get;} ~name(){set;} };
 
 // Rules for GL states:
@@ -40,5 +43,7 @@ DECLARE_PRESERVE_STATE( PreserveCullMode  ,int cullMode           ,glGetIntegerv
 DECLARE_PRESERVE_STATE( PreserveBlend     ,GLboolean blend        ,blend=glIsEnabled(GL_BLEND)                 ,if(blend) glEnable(GL_BLEND); else glDisable(GL_BLEND));
 
 #undef DECLARE_PRESERVE_STATE
+
+}; // namespace
 
 #endif
