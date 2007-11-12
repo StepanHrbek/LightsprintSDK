@@ -158,7 +158,7 @@ namespace rr_gl
 	{
 		delete[] smallMapCPU;
 		//delete smallMapGPU;
-		delete getParent();
+		if(deleteParent) delete getParent();
 	}
 
 }; // namespace
