@@ -184,24 +184,24 @@ void RendererOfRRDynamicSolver::render()
 	unsigned numPasses = MAX(1,numLights);
 	UberProgramSetup uberProgramSetup = params.uberProgramSetup;
 	PreserveBlend p1;
-	unsigned originalShadowMaps = params.uberProgramSetup.SHADOW_MAPS;
-	unsigned originalLightDirectMap = params.uberProgramSetup.LIGHT_DIRECT_MAP;
 	for(unsigned lightIndex=0;lightIndex<numPasses;lightIndex++)
 	{
 		if(lightIndex<numLights)
 		{
 			// adjust program for n-th light
-			params.uberProgramSetup.SHADOW_MAPS = originalShadowMaps ? (*params.lights)[lightIndex]->getNumInstances() : 0;
-			params.uberProgramSetup.SHADOW_PENUMBRA = (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
-			params.uberProgramSetup.LIGHT_DIRECT_MAP = originalLightDirectMap && (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
+			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? (*params.lights)[lightIndex]->getNumInstances() : 0;
+			uberProgramSetup.SHADOW_PENUMBRA = (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
+			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
+			uberProgramSetup.LIGHT_DISTANCE_POLY = 0;//!!! (*params.lights)[lightIndex]->rrLight->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		}
 		else
 		{
 			// adjust program for render without lights
-			params.uberProgramSetup.SHADOW_MAPS = 0;
-			params.uberProgramSetup.SHADOW_SAMPLES = 0;
-			params.uberProgramSetup.LIGHT_DIRECT = 0;
-			params.uberProgramSetup.LIGHT_DIRECT_MAP = 0;
+			uberProgramSetup.SHADOW_MAPS = 0;
+			uberProgramSetup.SHADOW_SAMPLES = 0;
+			uberProgramSetup.LIGHT_DIRECT = 0;
+			uberProgramSetup.LIGHT_DIRECT_MAP = 0;
+			uberProgramSetup.LIGHT_DISTANCE_POLY = 0;
 		}
 		if(lightIndex==1)
 		{
@@ -209,31 +209,31 @@ void RendererOfRRDynamicSolver::render()
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE,GL_ONE);
 		}
-		if(!params.uberProgramSetup.useProgram(uberProgram,(lightIndex<numLights)?(*params.lights)[lightIndex]:NULL,0,params.lightDirectMap,params.brightness,params.gamma))
+		if(!uberProgramSetup.useProgram(uberProgram,(lightIndex<numLights)?(*params.lights)[lightIndex]:NULL,0,params.lightDirectMap,params.brightness,params.gamma))
 		{
 			rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
 			return;
 		}
 
 		rr_gl::RendererOfRRObject::RenderedChannels renderedChannels;
-		renderedChannels.NORMALS = params.uberProgramSetup.LIGHT_DIRECT || params.uberProgramSetup.LIGHT_INDIRECT_ENV || params.uberProgramSetup.POSTPROCESS_NORMALS;
-		renderedChannels.LIGHT_DIRECT = params.uberProgramSetup.LIGHT_DIRECT;
-		renderedChannels.LIGHT_INDIRECT_VCOLOR = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
-		renderedChannels.LIGHT_INDIRECT_VCOLOR2 = params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
-		renderedChannels.LIGHT_INDIRECT_MAP = params.uberProgramSetup.LIGHT_INDIRECT_MAP;
-		renderedChannels.LIGHT_INDIRECT_MAP2 = params.uberProgramSetup.LIGHT_INDIRECT_MAP2;
-		renderedChannels.LIGHT_INDIRECT_ENV = params.uberProgramSetup.LIGHT_INDIRECT_ENV;
-		renderedChannels.MATERIAL_DIFFUSE_VCOLOR = params.uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
-		renderedChannels.MATERIAL_DIFFUSE_MAP = params.uberProgramSetup.MATERIAL_DIFFUSE_MAP;
-		renderedChannels.MATERIAL_EMISSIVE_MAP = params.uberProgramSetup.MATERIAL_EMISSIVE_MAP;
-		renderedChannels.MATERIAL_CULLING = (params.uberProgramSetup.MATERIAL_DIFFUSE || params.uberProgramSetup.MATERIAL_SPECULAR) && !params.uberProgramSetup.FORCE_2D_POSITION; // should be enabled for all except for shadowmaps and force_2d
+		renderedChannels.NORMALS = uberProgramSetup.LIGHT_DIRECT || uberProgramSetup.LIGHT_INDIRECT_ENV || uberProgramSetup.POSTPROCESS_NORMALS;
+		renderedChannels.LIGHT_DIRECT = uberProgramSetup.LIGHT_DIRECT;
+		renderedChannels.LIGHT_INDIRECT_VCOLOR = uberProgramSetup.LIGHT_INDIRECT_VCOLOR;
+		renderedChannels.LIGHT_INDIRECT_VCOLOR2 = uberProgramSetup.LIGHT_INDIRECT_VCOLOR2;
+		renderedChannels.LIGHT_INDIRECT_MAP = uberProgramSetup.LIGHT_INDIRECT_MAP;
+		renderedChannels.LIGHT_INDIRECT_MAP2 = uberProgramSetup.LIGHT_INDIRECT_MAP2;
+		renderedChannels.LIGHT_INDIRECT_ENV = uberProgramSetup.LIGHT_INDIRECT_ENV;
+		renderedChannels.MATERIAL_DIFFUSE_VCOLOR = uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR;
+		renderedChannels.MATERIAL_DIFFUSE_MAP = uberProgramSetup.MATERIAL_DIFFUSE_MAP;
+		renderedChannels.MATERIAL_EMISSIVE_MAP = uberProgramSetup.MATERIAL_EMISSIVE_MAP;
+		renderedChannels.MATERIAL_CULLING = (uberProgramSetup.MATERIAL_DIFFUSE || uberProgramSetup.MATERIAL_SPECULAR) && !uberProgramSetup.FORCE_2D_POSITION; // should be enabled for all except for shadowmaps and force_2d
 		renderedChannels.MATERIAL_BLENDING = lightIndex==0; // material wishes are respected only in first pass, other passes use adding
-		renderedChannels.FORCE_2D_POSITION = params.uberProgramSetup.FORCE_2D_POSITION;
+		renderedChannels.FORCE_2D_POSITION = uberProgramSetup.FORCE_2D_POSITION;
 		rendererNonCaching->setRenderedChannels(renderedChannels);
 		rendererNonCaching->setIndirectIlluminationFromSolver(params.solver->getSolutionVersion());
 
 		// don't cache indirect illumination in vertices, it changes often
-		if(params.uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
+		if(uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
 			rendererNonCaching->render();
 		else
 			// cache everything else, it's constant
