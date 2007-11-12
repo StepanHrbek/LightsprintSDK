@@ -53,7 +53,8 @@ struct RR_GL_API UberProgramSetup
 	unsigned SHADOW_SAMPLES         :8; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
 	bool     SHADOW_PENUMBRA        :1; ///< Enables blend of all shadowmaps, used by penumbra shadows.
 	bool     LIGHT_DIRECT           :1; ///< Enables direct spot light.
-	bool     LIGHT_DIRECT_MAP       :1; ///< Enables modulation of direct light by map. Projects texture.
+	bool     LIGHT_DIRECT_MAP       :1; ///< Enables modulation of direct light color by map. Projects texture.
+	bool     LIGHT_DISTANCE_POLY    :1; ///< Enables direct light polynomial distance attenuation in sRGB space.
 	bool     LIGHT_INDIRECT_CONST   :1; ///< Enables indirect light, constant.
 	bool     LIGHT_INDIRECT_VCOLOR  :1; ///< Enables indirect light, set per vertex.
 	bool     LIGHT_INDIRECT_VCOLOR2 :1; ///< Enables blend between two ambient vertex colors.

@@ -7,6 +7,7 @@
 //  #define SHADOW_PENUMBRA
 //  #define LIGHT_DIRECT
 //  #define LIGHT_DIRECT_MAP
+//  #define LIGHT_DISTANCE_POLY
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_VCOLOR
 //  #define LIGHT_INDIRECT_VCOLOR2
@@ -47,6 +48,10 @@
 #if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
 	uniform vec3 worldLightPos;
 	varying float lightDirectColor;
+#endif
+
+#ifdef LIGHT_DISTANCE_POLY
+	uniform vec3 lightDistancePolynom;
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR
@@ -108,6 +113,10 @@ void main()
 
 	#if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
 		lightDirectColor = max(dot(normalize(worldLightPos - worldPos), worldNormalSmooth),0.0);
+		#ifdef LIGHT_DISTANCE_POLY
+			float distance = distance(worldPos,worldLightPos);
+			lightDirectColor /= ( lightDistancePolynom.x + distance*lightDistancePolynom.y + distance*distance*lightDistancePolynom.z);
+		#endif
 	#endif
 
 	#ifdef LIGHT_INDIRECT_VCOLOR
