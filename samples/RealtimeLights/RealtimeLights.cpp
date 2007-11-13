@@ -237,8 +237,11 @@ protected:
 		uberProgramSetup.SHADOW_MAPS = setupShaderLight->getNumInstances(); //!!! radeons 9500-X1250 can't run 6 in one pass
 		uberProgramSetup.SHADOW_SAMPLES = 1;
 		uberProgramSetup.LIGHT_DIRECT = true;
+		uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 		uberProgramSetup.LIGHT_DIRECT_MAP = true;
-		uberProgramSetup.LIGHT_DISTANCE_POLYNOM = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+		uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
+		uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+		uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.FORCE_2D_POSITION = true;
 		if(!uberProgramSetup.useProgram(uberProgram,setupShaderLight,0,lightDirectMap,NULL,1))
@@ -376,6 +379,7 @@ void display(void)
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.LIGHT_DIRECT_COLOR = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;

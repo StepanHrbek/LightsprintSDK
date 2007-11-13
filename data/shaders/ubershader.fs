@@ -6,8 +6,11 @@
 //  #define SHADOW_BILINEAR
 //  #define SHADOW_PENUMBRA
 //  #define LIGHT_DIRECT
+//  #define LIGHT_DIRECT_COLOR
 //  #define LIGHT_DIRECT_MAP
-//  #define LIGHT_DISTANCE_POLYNOM
+//  #define LIGHT_DISTANCE_PHYSICAL
+//  #define LIGHT_DISTANCE_POLYNOMIAL
+//  #define LIGHT_DISTANCE_EXPONENTIAL
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_VCOLOR
 //  #define LIGHT_INDIRECT_VCOLOR2
@@ -78,8 +81,12 @@
 	uniform vec3 worldLightPos;
 	uniform vec3 worldEyePos;
 	#ifndef MATERIAL_NORMAL_MAP
-		varying float lightDirectColor;
+		varying float lightDirectVColor;
 	#endif
+#endif
+
+#ifdef LIGHT_DIRECT_COLOR
+	uniform vec4 lightDirectColor;
 #endif
 
 #ifdef LIGHT_DIRECT_MAP
@@ -156,12 +163,12 @@ void main()
 
 	#if SHADOW_SAMPLES*SHADOW_MAPS>0
 
-		float shadowValue = 0.0; // 0=shadowed, 1=lit
+		float visibility = 0.0; // 0=shadowed, 1=lit
 
 		#if SHADOW_SAMPLES==1
 			// hard shadows with 1 lookup
 			#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
-				shadowValue += shadow2DProj(shadowMap, shadowCoord[index]).z
+				visibility += shadow2DProj(shadowMap, shadowCoord[index]).z
 		#else
 			// soft shadows with 2, 4 or 8 lookups in rotating kernel
 			#ifdef SHADOW_BILINEAR
@@ -176,13 +183,13 @@ void main()
 			#if SHADOW_SAMPLES==2
 				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
 				center = shadowCoord[index].xyz/shadowCoord[index].w; \
-				shadowValue += ( \
+				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z )
 			#elif SHADOW_SAMPLES==4
 				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
 				center = shadowCoord[index].xyz/shadowCoord[index].w; \
-				shadowValue += ( \
+				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z \
 					+shadow2D(shadowMap, center+shift2).z \
@@ -190,7 +197,7 @@ void main()
 			#elif SHADOW_SAMPLES==8
 				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
 				center = shadowCoord[index].xyz/shadowCoord[index].w; \
-				shadowValue += ( \
+				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z \
 					+shadow2D(shadowMap, center+1.8*shift1).z \
@@ -278,16 +285,19 @@ void main()
 			#ifdef MATERIAL_NORMAL_MAP
 				max(0.0,dot(worldLightDir, worldNormal)) // per pixel
 			#else
-				vec4(lightDirectColor,lightDirectColor,lightDirectColor,lightDirectColor) // per vertex
+				vec4(lightDirectVColor,lightDirectVColor,lightDirectVColor,lightDirectVColor) // per vertex
+			#endif
+			#ifdef LIGHT_DIRECT_COLOR
+				* lightDirectColor
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
 				* texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
 			#endif
 			#if SHADOW_SAMPLES*SHADOW_MAPS>0
 				#ifdef SHADOW_PENUMBRA
-					* shadowValue/float(SHADOW_SAMPLES*SHADOW_MAPS)
+					* visibility/float(SHADOW_SAMPLES*SHADOW_MAPS)
 				#else
-					* shadowValue/float(SHADOW_SAMPLES)
+					* visibility/float(SHADOW_SAMPLES)
 				#endif
 			#endif
 			;

@@ -23,14 +23,17 @@ const char* UberProgramSetup::getSetupString()
 	LIMITED_TIMES(1,char* renderer = (char*)glGetString(GL_RENDERER);if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON"))) SHADOW_BILINEAR = false);
 
 	static char setup[1000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
 		SHADOW_PENUMBRA?"#define SHADOW_PENUMBRA\n":"",
 		LIGHT_DIRECT?"#define LIGHT_DIRECT\n":"",
+		LIGHT_DIRECT_COLOR?"#define LIGHT_DIRECT_COLOR\n":"",
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
-		LIGHT_DISTANCE_POLYNOM?"#define LIGHT_DISTANCE_POLYNOM\n":"",
+		LIGHT_DISTANCE_PHYSICAL?"#define LIGHT_DISTANCE_PHYSICAL\n":"",
+		LIGHT_DISTANCE_POLYNOMIAL?"#define LIGHT_DISTANCE_POLYNOMIAL\n":"",
+		LIGHT_DISTANCE_EXPONENTIAL?"#define LIGHT_DISTANCE_EXPONENTIAL\n":"",
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
 		LIGHT_INDIRECT_VCOLOR?"#define LIGHT_INDIRECT_VCOLOR\n":"",
 		LIGHT_INDIRECT_VCOLOR2?"#define LIGHT_INDIRECT_VCOLOR2\n":"",
@@ -224,6 +227,29 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRun
 		program->sendUniform("worldLightPos",light->pos[0],light->pos[1],light->pos[2]);
 	}
 
+	if(LIGHT_DIRECT_COLOR)
+	{
+		if(!lightRuntime)
+		{
+			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
+			return false;
+		}
+		const rr::RRLight* light = lightRuntime->origin;
+		if(!light)
+		{
+			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->origin==NULL.\n");
+			return false;
+		}
+		rr::RRVec3 color = light->color;
+		if(light->distanceAttenuationType==rr::RRLight::NONE || light->distanceAttenuationType==rr::RRLight::PHYSICAL)
+		{
+			color[0] = pow(color[0],0.45f);
+			color[1] = pow(color[1],0.45f);
+			color[2] = pow(color[2],0.45f);
+		}
+		program->sendUniform("lightDirectColor",color[0],color[1],color[2],1.0f);
+	}
+
 	if(LIGHT_DIRECT_MAP)
 	{
 		if(!lightDirectMap)
@@ -237,14 +263,32 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRun
 		program->sendUniform("lightDirectMap", id);
 	}
 
-	if(LIGHT_DISTANCE_POLYNOM)
+	if(LIGHT_DISTANCE_PHYSICAL)
+	{
+		RR_ASSERT(lightRuntime->origin && lightRuntime->origin->distanceAttenuationType!=rr::RRLight::PHYSICAL);
+	}
+
+	if(LIGHT_DISTANCE_POLYNOMIAL)
 	{
 		if(!lightRuntime->origin)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->origin==NULL.\n");
 			return false;
 		}
+		RR_ASSERT(lightRuntime->origin->distanceAttenuationType!=rr::RRLight::POLYNOMIAL);
 		program->sendUniform("lightDistancePolynom",lightRuntime->origin->polynom.x,lightRuntime->origin->polynom.y,lightRuntime->origin->polynom.z);
+	}
+
+	if(LIGHT_DISTANCE_EXPONENTIAL)
+	{
+		if(!lightRuntime->origin)
+		{
+			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->origin==NULL.\n");
+			return false;
+		}
+		RR_ASSERT(lightRuntime->origin->distanceAttenuationType!=rr::RRLight::EXPONENTIAL);
+		program->sendUniform("lightDistanceRadius",lightRuntime->origin->radius);
+		program->sendUniform("lightDistanceFallOffExponent",lightRuntime->origin->fallOffExponent);
 	}
 
 	if(LIGHT_INDIRECT_CONST)

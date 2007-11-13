@@ -78,35 +78,30 @@ namespace rr
 		// Color
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Types of distance attenuation.
+		//! Light color. Interpretation depends on #distanceAttenuationType.
+		RRVec3 color;
+
+		//! Types of distance attenuation. Defines how light color is computed for given distance.
 		enum DistanceAttenuationType
 		{
-			//! No distance attenuation, light intensity doesn't change with distance. Very good approximation of sunlight.
+			//! Intensity in physical scale is color. Very good approximation of sunlight.
 			NONE,
-			//! Intensity in physical scale is 1/distance^2. This is exactly how reality works.
+			//! Intensity in physical scale is color/distance^2. This is exactly how reality works.
 			PHYSICAL,
-			//! Intensity in custom scale is 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2). Used in fixed pipeline engines.
+			//! Intensity in custom scale is color/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2). Used in fixed pipeline engines.
 			POLYNOMIAL,
-			//! Intensity in custom scale is pow(MAX(0,1-distance/radius),fallOffExponent). Used in UE3.
+			//! Intensity in custom scale is color*pow(MAX(0,1-distance/radius),fallOffExponent). Used in UE3.
 			EXPONENTIAL,
 		};
 		//! Type of distance attenuation. Read only (lights from createXxx can't change type on the fly).
 		DistanceAttenuationType distanceAttenuationType;
 
-		//! Relevant only for distanceAttenuation==NONE or PHYSICAL.
-		//! Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
-		RRVec3 irradianceAtDistance1;
-
-		//! Relevant only for distanceAttenuation==POLYNOMIAL or EXPONENTIAL.
-		//! Irradiance in custom scale (usually screen color) of lit surface at distance 0.
-		RRVec3 colorAtDistance0;
-
 		//! Relevant only for distanceAttenuation==POLYNOMIAL.
-		//! Distance attenuation in custom scale is computed as 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
+		//! Distance attenuation in custom scale is computed as colorCustom/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
 		RRVec3 polynom;
 
 		//! Relevant only for distanceAttenuation==EXPONENTIAL.
-		//!  Distance attenuation in custom scale is computed as pow(MAX(0,1-distance/radius),fallOffExponent).
+		//!  Distance attenuation in custom scale is computed as colorCustom*pow(MAX(0,1-distance/radius),fallOffExponent).
 		RRReal fallOffExponent;
 
 		//! Outer-inner code angle in radians. Relevant only for SPOT light. Read/write.
@@ -168,24 +163,24 @@ namespace rr
 		//
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
-		//! \param colorAtDistance0
-		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
+		//! \param colorCustom
+		//!  Irradiance in custom scale (usually screen color) of lit surface before applying distance attenuation.
 		//! \param radius
 		//!  Distance in world space, where light disappears due to its distance attenuation.
 		//!  Light has effect in sphere of given radius.
 		//! \param fallOffExponent
 		//!  Distance attenuation in custom scale is computed as pow(MAX(0,1-distance/radius),fallOffExponent).
-		static RRLight* createPointLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent);
+		static RRLight* createPointLightRadiusExp(const RRVec3& position, const RRVec3& colorCustom, RRReal radius, RRReal fallOffExponent);
 
 		//! Creates omnidirectional point light with polynom based distance attenuation (physically incorrect).
 		//
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
-		//! \param colorAtDistance0
-		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
+		//! \param colorCustom
+		//!  Irradiance in custom scale (usually screen color) of lit surface before applying distance attenuation.
 		//! \param polynom
 		//!  Distance attenuation in custom scale is computed as 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
-		static RRLight* createPointLightPoly(const RRVec3& position, const RRVec3& colorAtDistance0, RRVec3 polynom);
+		static RRLight* createPointLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec3 polynom);
 
 		//! Creates spot light with physically correct distance attenuation.
 		//
@@ -210,8 +205,8 @@ namespace rr
 		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
-		//! \param colorAtDistance0
-		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
+		//! \param colorCustom
+		//!  Irradiance in custom scale (usually screen color) of lit surface before applying distance attenuation.
 		//! \param radius
 		//!  Distance in world space, where light disappears due to its distance attenuation.
 		//!  Light has effect in sphere of given radius.
@@ -226,15 +221,15 @@ namespace rr
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
-		static RRLight* createSpotLightRadiusExp(const RRVec3& position, const RRVec3& colorAtDistance0, RRReal radius, RRReal fallOffExponent, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
+		static RRLight* createSpotLightRadiusExp(const RRVec3& position, const RRVec3& colorCustom, RRReal radius, RRReal fallOffExponent, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 
 		//! Creates spot light with polynom based distance attenuation (physically incorrect).
 		//
 		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
-		//! \param colorAtDistance0
-		//!  Irradiance in custom scale (usually screen color) of lit surface at distance 0.
+		//! \param colorCustom
+		//!  Irradiance in custom scale (usually screen color) of lit surface before applying distance attenuation.
 		//! \param polynom
 		//!  Distance attenuation in custom scale is computed as 1/(polynom[0]+polynom[1]*distance+polynom[2]*distance^2).
 		//! \param majorDirection
@@ -246,7 +241,7 @@ namespace rr
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
-		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorAtDistance0, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
+		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec3 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 	};
 
 

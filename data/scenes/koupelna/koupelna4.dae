@@ -15,9 +15,9 @@
     <light id="Omni01-light">
       <technique_common>
         <point>
-          <color>1.000000 1.000000 1.000000</color>
-          <constant_attenuation>1.000000</constant_attenuation>
-          <linear_attenuation>0</linear_attenuation>
+          <color>.300000 .300000 .300000</color>
+          <constant_attenuation>0.000000</constant_attenuation>
+          <linear_attenuation>1</linear_attenuation>
           <quadratic_attenuation>0</quadratic_attenuation>
         </point>
       </technique_common>
@@ -41,9 +41,9 @@
     <light id="Omni02-light">
       <technique_common>
         <point>
-          <color>1.000000 1.000000 1.000000</color>
-          <constant_attenuation>1.000000</constant_attenuation>
-          <linear_attenuation>0</linear_attenuation>
+          <color>0.300000 0.300000 0.300000</color>
+          <constant_attenuation>0.000000</constant_attenuation>
+          <linear_attenuation>1</linear_attenuation>
           <quadratic_attenuation>0</quadratic_attenuation>
         </point>
       </technique_common>
@@ -67,9 +67,9 @@
     <light id="Omni03-light">
       <technique_common>
         <point>
-          <color>1.000000 1.000000 1.000000</color>
-          <constant_attenuation>1.000000</constant_attenuation>
-          <linear_attenuation>0</linear_attenuation>
+          <color>0.300000 0.300000 0.300000</color>
+          <constant_attenuation>0.000000</constant_attenuation>
+          <linear_attenuation>1</linear_attenuation>
           <quadratic_attenuation>0</quadratic_attenuation>
         </point>
       </technique_common>

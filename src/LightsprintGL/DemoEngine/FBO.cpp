@@ -22,7 +22,7 @@ FBO::FBO()
 {
 	if(!glewIsSupported("GL_EXT_framebuffer_object"))
 	{
-		rr::RRReporter::report(rr::ERRO,"GL_EXT_framebuffer_object not supported, consider updating graphics card drivers.\n");
+		rr::RRReporter::report(rr::ERRO,"GL_EXT_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n");
 		exit(0);
 	}
 

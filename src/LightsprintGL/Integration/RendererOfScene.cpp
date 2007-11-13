@@ -191,8 +191,11 @@ void RendererOfRRDynamicSolver::render()
 			// adjust program for n-th light
 			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? (*params.lights)[lightIndex]->getNumInstances() : 0;
 			uberProgramSetup.SHADOW_PENUMBRA = (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
+			uberProgramSetup.LIGHT_DIRECT_COLOR = params.uberProgramSetup.LIGHT_DIRECT_COLOR && (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->color!=rr::RRVec3(1);
 			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
-			uberProgramSetup.LIGHT_DISTANCE_POLYNOM = (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
+			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 		}
 		else
 		{
@@ -200,8 +203,11 @@ void RendererOfRRDynamicSolver::render()
 			uberProgramSetup.SHADOW_MAPS = 0;
 			uberProgramSetup.SHADOW_SAMPLES = 0;
 			uberProgramSetup.LIGHT_DIRECT = 0;
+			uberProgramSetup.LIGHT_DIRECT_COLOR = 0;
 			uberProgramSetup.LIGHT_DIRECT_MAP = 0;
-			uberProgramSetup.LIGHT_DISTANCE_POLYNOM = 0;
+			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = 0;
+			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = 0;
+			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = 0;
 		}
 		if(lightIndex==1)
 		{
