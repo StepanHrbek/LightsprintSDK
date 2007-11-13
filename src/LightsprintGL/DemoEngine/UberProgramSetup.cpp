@@ -265,7 +265,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRun
 
 	if(LIGHT_DISTANCE_PHYSICAL)
 	{
-		RR_ASSERT(lightRuntime->origin && lightRuntime->origin->distanceAttenuationType!=rr::RRLight::PHYSICAL);
+		RR_ASSERT(lightRuntime->origin && lightRuntime->origin->distanceAttenuationType==rr::RRLight::PHYSICAL);
 	}
 
 	if(LIGHT_DISTANCE_POLYNOMIAL)
@@ -275,7 +275,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRun
 			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->origin==NULL.\n");
 			return false;
 		}
-		RR_ASSERT(lightRuntime->origin->distanceAttenuationType!=rr::RRLight::POLYNOMIAL);
+		RR_ASSERT(lightRuntime->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL);
 		program->sendUniform("lightDistancePolynom",lightRuntime->origin->polynom.x,lightRuntime->origin->polynom.y,lightRuntime->origin->polynom.z);
 	}
 
@@ -286,7 +286,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRun
 			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->origin==NULL.\n");
 			return false;
 		}
-		RR_ASSERT(lightRuntime->origin->distanceAttenuationType!=rr::RRLight::EXPONENTIAL);
+		RR_ASSERT(lightRuntime->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL);
 		program->sendUniform("lightDistanceRadius",lightRuntime->origin->radius);
 		program->sendUniform("lightDistanceFallOffExponent",lightRuntime->origin->fallOffExponent);
 	}

@@ -401,7 +401,7 @@ void RendererOfOriginalScene::render()
 		uberProgramSetup.validate();
 		if(i==0 || (uberProgramSetup.LIGHT_INDIRECT_auto && uberProgramSetup!=uberProgramSetupPrevious))
 		{
-			program = uberProgramSetup.useProgram(uberProgram,(*params.lights)[0],0,params.lightDirectMap,params.brightness,params.gamma);
+			program = uberProgramSetup.useProgram(uberProgram,(params.lights&&params.lights->size())?(*params.lights)[0]:NULL,0,params.lightDirectMap,params.brightness,params.gamma);
 			if(!program)
 			{
 				rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");

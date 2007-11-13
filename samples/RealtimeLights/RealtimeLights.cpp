@@ -131,7 +131,6 @@ public:
 
 	Solver() : RRDynamicSolverGL("../../data/shaders/")
 	{
-		setDirectIlluminationBoost(2);
 		detectedDirectSum = NULL;
 		detectedNumTriangles = 0;
 	}
