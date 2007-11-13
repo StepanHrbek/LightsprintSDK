@@ -238,7 +238,7 @@ void error(const char* message, bool gfxRelated)
 {
 	rr::RRReporter::report(rr::ERRO,message);
 	if(gfxRelated)
-		rr::RRReporter::report(rr::INF1,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families");
+		rr::RRReporter::report(rr::INF1,"\nPlease update your graphics card drivers.\nIf it doesn't help, contact us at support@lightsprint.com.\n\nSupported graphics cards:\n - GeForce 5xxx, 6xxx, 7xxx, 8xxx (including GeForce Go)\n - Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx (including Mobility Radeon)\n - subset of FireGL and Quadro families");
 	if(glutGameModeGet(GLUT_GAME_MODE_ACTIVE))
 		glutLeaveGameMode();
 	else

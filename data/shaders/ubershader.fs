@@ -37,12 +37,6 @@
 //
 // Copyright (C) Stepan Hrbek, Lightsprint 2006-2007
 
-// for array of samplers (for any OpenGL 2.0 compliant card)
-//#if SHADOW_MAPS*SHADOW_SAMPLES>0
-//uniform sampler2DShadow shadowMap[SHADOW_MAPS];
-//#endif
-
-// for individual samplers (ATI fails on array)
 //#if SHADOW_SAMPLES>0 // ATI fails on this line
 #if SHADOW_MAPS>0
 	uniform sampler2DShadow shadowMap0;
