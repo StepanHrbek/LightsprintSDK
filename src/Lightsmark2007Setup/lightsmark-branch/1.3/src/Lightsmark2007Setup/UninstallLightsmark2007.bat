@@ -1,0 +1,1 @@
+@msiexec.exe /x {4BCAF301-6F25-4BEF-A2F0-416D7F30AEB1}
