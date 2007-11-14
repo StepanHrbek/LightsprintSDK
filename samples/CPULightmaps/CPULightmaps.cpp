@@ -115,7 +115,7 @@ void calculatePerPixel(rr::RRDynamicSolver* solver, int layerNumberLighting, int
 {
 	// calculate per pixel - all objects
 	rr::RRDynamicSolver::UpdateParameters paramsDirect;
-	paramsDirect.measure.scaled = false;
+	paramsDirect.measure = RM_IRRADIANCE_CUSTOM; // get maps in sRGB
 	paramsDirect.quality = 1000;
 	paramsDirect.applyCurrentSolution = false;
 	paramsDirect.applyEnvironment = true;

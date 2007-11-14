@@ -345,7 +345,7 @@ protected:
 // for 1 texel: irradiance gathered from lights
 //
 // handler computes direct visibility to light, taking transparency into account.
-// light paths with refraction and reflection is silently skipped
+// light paths with refraction and reflection are silently skipped
 
 class GatheredIrradianceLights
 {

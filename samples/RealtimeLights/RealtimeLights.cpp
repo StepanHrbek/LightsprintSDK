@@ -318,7 +318,7 @@ void reshape(int w, int h)
 	rr_gl::Texture* texture = rr_gl::Texture::createShadowmap(64,64);
 	GLint shadowDepthBits = texture->getTexelBits();
 	delete texture;
-	glPolygonOffset(4, 42 << (shadowDepthBits-16) );
+	glPolygonOffset(1, 12 << (shadowDepthBits-16) );
 }
 
 void mouse(int button, int state, int x, int y)

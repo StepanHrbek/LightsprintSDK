@@ -15,7 +15,7 @@
     <light id="Omni01-light">
       <technique_common>
         <point>
-          <color>.300000 .300000 .300000</color>
+          <color>1.000000 1.00000 1.00000</color>
           <constant_attenuation>0.000000</constant_attenuation>
           <linear_attenuation>1</linear_attenuation>
           <quadratic_attenuation>0</quadratic_attenuation>
@@ -41,7 +41,7 @@
     <light id="Omni02-light">
       <technique_common>
         <point>
-          <color>0.300000 0.300000 0.300000</color>
+          <color>1.00000 1.00000 1.00000</color>
           <constant_attenuation>0.000000</constant_attenuation>
           <linear_attenuation>1</linear_attenuation>
           <quadratic_attenuation>0</quadratic_attenuation>
@@ -67,7 +67,7 @@
     <light id="Omni03-light">
       <technique_common>
         <point>
-          <color>0.300000 0.300000 0.300000</color>
+          <color>1.00000 1.00000 1.00000</color>
           <constant_attenuation>0.000000</constant_attenuation>
           <linear_attenuation>1</linear_attenuation>
           <quadratic_attenuation>0</quadratic_attenuation>
@@ -1070,7 +1070,7 @@
         </instance_geometry>
       </node>
       <node id="Omni01-node" name="Omni01" type="NODE">
-        <matrix>1.000000 0 0 -1.950230 0 1.000000 0 2.532727 0 0 1.000000 1.908839 0 0 0 1.000000</matrix>
+        <matrix>1.000000 0 0 -3.790230 0 1.000000 0 2.532727 0 0 1.000000 1.908839 0 0 0 1.000000</matrix>
         <instance_light url="#Omni01-light"/>
       </node>
       <node id="gula1-node" name="gula1" type="NODE">
@@ -1086,11 +1086,11 @@
         </instance_geometry>
       </node>
       <node id="Omni02-node" name="Omni02" type="NODE">
-        <matrix>1.000000 0 0 1.258775 0 1.000000 0 -1.271734 0 0 1.000000 1.908839 0 0 0 1.000000</matrix>
+        <matrix>1.000000 0 0 0.629450 0 1.000000 0 0.1271734 0 0 1.000000 1.908839 0 0 0 1.000000</matrix>
         <instance_light url="#Omni02-light"/>
       </node>
       <node id="Omni03-node" name="Omni03" type="NODE">
-        <matrix>1.000000 0 0 0.497033 0 1.000000 0 3.837324 0 0 1.000000 1.930739 0 0 0 1.000000</matrix>
+        <matrix>1.000000 0 0 0.497033 0 1.000000 0 3.737324 0 0 1.000000 1.930739 0 0 0 1.000000</matrix>
         <instance_light url="#Omni03-light"/>
       </node>
       <node id="gula02-node" name="gula02" type="NODE">

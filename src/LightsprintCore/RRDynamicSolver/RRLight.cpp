@@ -33,12 +33,18 @@ public:
 class DirectionalLight : public CleanLight
 {
 public:
-	DirectionalLight(const RRVec3& _direction, const RRVec3& _color)
+	DirectionalLight(const RRVec3& _direction, const RRVec3& _color, bool _physicalScale)
 	{
 		type = DIRECTIONAL;
 		distanceAttenuationType = NONE;
 		direction = _direction;
 		color = _color;
+		if(!_physicalScale)
+		{
+			color[0] = pow(color[0],2.2222f);
+			color[1] = pow(color[1],2.2222f);
+			color[2] = pow(color[2],2.2222f);
+		}
 	}
 	virtual RRColorRGBF getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
 	{
@@ -221,9 +227,9 @@ public:
 //
 // RRLight
 
-RRLight* RRLight::createDirectionalLight(const RRVec3& direction, const RRVec3& irradiance)
+RRLight* RRLight::createDirectionalLight(const RRVec3& direction, const RRVec3& color, bool physicalScale)
 {
-	return new DirectionalLight(direction,irradiance);
+	return new DirectionalLight(direction,color,physicalScale);
 }
 
 RRLight* RRLight::createPointLight(const RRVec3& position, const RRVec3& color)

@@ -34,7 +34,7 @@ Camera::Camera(const rr::RRLight& light)
 	leanAngle = 0;
 	aspect = 1;
 	fieldOfView = (light.type==rr::RRLight::SPOT) ? light.outerAngleRad*360/(float)M_PI : 90;
-	anear = 0.5f;
+	anear = 0.1f;
 	afar = 100;
 	update();
 }
