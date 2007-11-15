@@ -124,6 +124,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
 	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
+	rr::RRVector<rr_gl::RRLightRuntime*> lights;
+	lights.push_back(areaLight);
 	if(robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
@@ -132,7 +134,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			solver->updateEnvironmentMap(robot->illumination);
-		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,NULL,1);
+		robot->render(uberProgram,uberProgramSetup,&lights,0,lightDirectMap,eye,NULL,1);
 	}
 	if(potato)
 	{
@@ -141,7 +143,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			solver->updateEnvironmentMap(potato->illumination);
-		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,NULL,1);
+		potato->render(uberProgram,uberProgramSetup,&lights,0,lightDirectMap,eye,NULL,1);
 	}
 }
 

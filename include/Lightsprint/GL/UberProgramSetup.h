@@ -111,7 +111,7 @@ struct RR_GL_API UberProgramSetup
 	void validate();
 	//! Sets rendering pipeline so that following primitives are rendered using
 	//! our program.
-	Program* useProgram(UberProgram* uberProgram, const RRLightRuntime* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma);
+	Program* useProgram(UberProgram* uberProgram, const RRLightRuntime* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma);
 };
 
 

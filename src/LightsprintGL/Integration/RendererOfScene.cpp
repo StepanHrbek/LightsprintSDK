@@ -41,7 +41,7 @@ public:
 	virtual const void* getParams(unsigned& length) const;
 
 	//! Specifies global brightness and gamma factors used by following render() commands.
-	void setBrightnessGamma(float brightness[4], float gamma);
+	void setBrightnessGamma(const rr::RRVec4* brightness, float gamma);
 
 	//! Renders object, sets shaders, feeds OpenGL with object's data selected by setParams().
 	virtual void render();
@@ -55,7 +55,7 @@ protected:
 		UberProgramSetup uberProgramSetup;
 		const rr::RRVector<RRLightRuntime*>* lights;
 		const Texture* lightDirectMap;
-		float brightness[4];
+		rr::RRVec4 brightness;
 		float gamma;
 		Params();
 	};
@@ -86,10 +86,7 @@ RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
 	uberProgram = UberProgram::create(buf1,buf2);
-	params.brightness[0] = 1;
-	params.brightness[1] = 1;
-	params.brightness[2] = 1;
-	params.brightness[3] = 1;
+	params.brightness = rr::RRVec4(1);
 	params.gamma = 1;
 	solutionVersion = 0;
 	rendererNonCaching = NULL;
@@ -117,12 +114,9 @@ const void* RendererOfRRDynamicSolver::getParams(unsigned& length) const
 	return &params;
 }
 
-void RendererOfRRDynamicSolver::setBrightnessGamma(float brightness[4], float gamma)
+void RendererOfRRDynamicSolver::setBrightnessGamma(const rr::RRVec4* brightness, float gamma)
 {
-	params.brightness[0] = brightness ? brightness[0] : 1;
-	params.brightness[1] = brightness ? brightness[1] : 1;
-	params.brightness[2] = brightness ? brightness[2] : 1;
-	params.brightness[3] = brightness ? brightness[3] : 1;
+	params.brightness = brightness ? *brightness : rr::RRVec4(1);
 	params.gamma = gamma;
 }
 
@@ -161,7 +155,7 @@ void RendererOfRRDynamicSolver::render()
 		if(textureRenderer && params.solver->getEnvironment())
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(params.brightness);
+			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
 			params.solver->getEnvironment()->bindTexture();
 			glBegin(GL_POLYGON);
 				glVertex3f(-1,-1,1);
@@ -189,17 +183,21 @@ void RendererOfRRDynamicSolver::render()
 		if(lightIndex<numLights)
 		{
 			// adjust program for n-th light
-			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? (*params.lights)[lightIndex]->getNumInstances() : 0;
-			uberProgramSetup.SHADOW_PENUMBRA = (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
-			uberProgramSetup.LIGHT_DIRECT_COLOR = params.uberProgramSetup.LIGHT_DIRECT_COLOR && (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->color!=rr::RRVec3(1);
-			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && (*params.lights)[lightIndex]->areaType!=AreaLight::POINT;
-			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
-			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
-			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = (*params.lights)[lightIndex]->origin && (*params.lights)[lightIndex]->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
+			rr_gl::RRLightRuntime* light = (*params.lights)[lightIndex];
+			RR_ASSERT(light);
+			//uberProgramSetup.setLightDirect(light,params.lightDirectMap);
+			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
+			uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=AreaLight::POINT;
+			uberProgramSetup.LIGHT_DIRECT_COLOR = params.uberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
+			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && light->areaType!=AreaLight::POINT;
+			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
+			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 		}
 		else
 		{
 			// adjust program for render without lights
+			//uberProgramSetup.setLightDirect(NULL,NULL);
 			uberProgramSetup.SHADOW_MAPS = 0;
 			uberProgramSetup.SHADOW_SAMPLES = 0;
 			uberProgramSetup.LIGHT_DIRECT = 0;
@@ -214,8 +212,17 @@ void RendererOfRRDynamicSolver::render()
 			// additional passes add to framebuffer
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE,GL_ONE);
+			// additional passes don't include indirect
+			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
+			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
+			uberProgramSetup.LIGHT_INDIRECT_ENV = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
 		}
-		if(!uberProgramSetup.useProgram(uberProgram,(lightIndex<numLights)?(*params.lights)[lightIndex]:NULL,0,params.lightDirectMap,params.brightness,params.gamma))
+		if(!uberProgramSetup.useProgram(uberProgram,(lightIndex<numLights)?(*params.lights)[lightIndex]:NULL,0,params.lightDirectMap,&params.brightness,params.gamma))
 		{
 			rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
 			return;
@@ -329,7 +336,7 @@ void RendererOfOriginalScene::render()
 		if(textureRenderer && params.solver->getEnvironment())
 		{
 			//textureRenderer->renderEnvironment(params.solver->getEnvironment(),NULL);
-			textureRenderer->renderEnvironmentBegin(params.brightness);
+			textureRenderer->renderEnvironmentBegin(&params.brightness[0]);
 			params.solver->getEnvironment()->bindTexture();
 			glBegin(GL_POLYGON);
 			glVertex3f(-1,-1,1);
@@ -401,7 +408,7 @@ void RendererOfOriginalScene::render()
 		uberProgramSetup.validate();
 		if(i==0 || (uberProgramSetup.LIGHT_INDIRECT_auto && uberProgramSetup!=uberProgramSetupPrevious))
 		{
-			program = uberProgramSetup.useProgram(uberProgram,(params.lights&&params.lights->size())?(*params.lights)[0]:NULL,0,params.lightDirectMap,params.brightness,params.gamma);
+			program = uberProgramSetup.useProgram(uberProgram,(params.lights&&params.lights->size())?(*params.lights)[0]:NULL,0,params.lightDirectMap,&params.brightness,params.gamma);
 			if(!program)
 			{
 				rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
@@ -523,7 +530,7 @@ void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const 
 	renderer->setParams(uberProgramSetup,lights,lightDirectMap);
 }
 
-void RendererOfScene::setBrightnessGamma(float brightness[4], float gamma)
+void RendererOfScene::setBrightnessGamma(const rr::RRVec4* brightness, float gamma)
 {
 	renderer->setBrightnessGamma(brightness,gamma);
 }

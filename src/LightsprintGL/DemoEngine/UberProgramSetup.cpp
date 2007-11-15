@@ -167,8 +167,54 @@ void UberProgramSetup::validate()
 		*this = uberProgramSetupBlack;
 	}
 }
+/*
+void UberProgramSetup::setLightDirect(const RRLightRuntime* light, const Texture* lightDirectMap)
+{
+	SHADOW_MAPS = light ? light->getNumInstances() : 0;
+	SHADOW_SAMPLES = light ? MAX(SHADOW_SAMPLES,1) : 0;
+	SHADOW_PENUMBRA = light && light->areaType!=AreaLight::POINT;
+	LIGHT_DIRECT = light ? true : false;
+	LIGHT_DIRECT_COLOR = light && light->origin && light->origin->color!=rr::RRVec3(1);
+	LIGHT_DIRECT_MAP = light && light->areaType!=AreaLight::POINT && lightDirectMap;
+	LIGHT_DISTANCE_PHYSICAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
+	LIGHT_DISTANCE_POLYNOMIAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+	LIGHT_DISTANCE_EXPONENTIAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
+}
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRuntime* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const float brightness[4], float gamma)
+void UberProgramSetup::setLightIndirect()
+{
+	LIGHT_INDIRECT_CONST = 0;
+	LIGHT_INDIRECT_VCOLOR = 0;
+	LIGHT_INDIRECT_VCOLOR2 = 0;
+	LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
+	LIGHT_INDIRECT_MAP = 0;
+	LIGHT_INDIRECT_MAP2 = 0;
+	LIGHT_INDIRECT_ENV = 0;
+	LIGHT_INDIRECT_auto = 0;
+}
+
+void UberProgramSetup::setMaterial(const rr::RRMaterial* material)
+{
+	MATERIAL_DIFFUSE = 0;
+	MATERIAL_DIFFUSE_CONST = 0;
+	MATERIAL_DIFFUSE_VCOLOR = 0;
+	MATERIAL_DIFFUSE_MAP = 0;
+	MATERIAL_SPECULAR = 0;
+	MATERIAL_SPECULAR_CONST = 0;
+	MATERIAL_SPECULAR_MAP = 0;
+	MATERIAL_NORMAL_MAP = 0;
+	MATERIAL_EMISSIVE_MAP = 0;
+}
+
+void UberProgramSetup::setPostprocess(const rr::RRVec4* brightness, float gamma)
+{
+	//POSTPROCESS_NORMALS = 0;
+	POSTPROCESS_BRIGHTNESS = brightness && *brightness!=rr::RRVec4(1);
+	POSTPROCESS_GAMMA = gamma!=1;
+	//POSTPROCESS_BIGSCREEN = 0;
+}*/
+
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRuntime* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma)
 {
 	Program* program = getProgram(uberProgram);
 	if(!program)
@@ -359,7 +405,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRun
 			rr::RRReporter::report(rr::ERRO,"useProgram: brightness==NULL.\n");
 			return false;
 		}
-		program->sendUniform4fv("postprocessBrightness", brightness);
+		program->sendUniform4fv("postprocessBrightness", &brightness->x);
 	}
 
 	if(POSTPROCESS_GAMMA)

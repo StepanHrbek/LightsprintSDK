@@ -1860,11 +1860,10 @@ Used by samples:
   - Calculation: CPU, standard non-realtime functions (RRDynamicSolver::updateLightmaps() etc)
 
  \section lrealtime Custom realtime lights
-  - See RealtimeRadiosity sample. It demonstrates custom area light
-    with realtime global illumination.
-  - See Lightmaps sample. It demonstrates custom area light
-    with realtime global illumination that can be saved into lightmaps.
-  - Custom point, spot and directional lights may be implemented in the same way.
+  - See RealtimeLights sample. It demonstrates multiple movable lights with GI.
+  - See RealtimeRadiosity sample. It demonstrates 1 movable area light with GI.
+  - See Lightmaps sample. It demonstrates 1 movable area light
+    with GI that can be saved into lightmaps.
   - Custom realtime lights use both CPU and GPU.
     See \ref main_integration for details on using custom realtime lights
     (with global illumination) in your projects.
@@ -2249,19 +2248,21 @@ Used by samples:
  - rr_gl::UberProgram is GLSL program with preprocessor parameters changeable at runtime
  - rr_gl::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs
  - rr_gl::Camera is frustum suitable for camera or spotlight
- - rr_gl::AreaLight is area light with realtime Penumbra Shadows
+ - rr_gl::RRLightRuntime is extension of RRLight, structures needed for realtime GI rendering
  - rr_gl::Renderer is generic renderer interface
 
  Features and limitations of LightsprintGL's renderer
    - for Windows (request support for other platforms)
    - requires OpenGL 2.0 capable GPU (GeForce 5xxx and higher, Radeon 9500 and higher)
-   - spotlights with realtime shadows
+   - spot and point lights with realtime shadows
    - linear and area spotlights with realtime penumbra shadows
+   - polynomial, exponential and physically correct distance attenuation models
    - loading 2d and cube textures from jpg, png, dds, tga, tiff, gif and many more
    - saving 2d and cube textures to jpg, png, tga, tiff, gif and many more
    - separately enabled/disabled light features:
      - color
      - projected texture
+     - several models of distance attenuation
      - shadows with variable softness, resolution
      - diffuse environment map with variable resolution
      - specular environment map with variable resolution
@@ -2272,11 +2273,6 @@ Used by samples:
      - specular map (specular modulated by diffuse map)
      - normal map (normal modulated by diffuse map)
      - emissive map
-
- Sample PenumbraShadows shows .3ds scene viewer with dynamic objects
- and realtime penumbra shadows, without indirect illumination.
-
- Sample RealtimeRadiosity shows the same scene with global illumination.
 
 
 
@@ -2307,7 +2303,7 @@ Used by samples:
   </td></tr></table>
  - precalculates lightmaps/vertexcolors from all types of lights (point/spot/dir/skybox)
  - no rendering, only CPU is used, runs on GPU-less machines
- - loads Collada scene
+ - loads Collada scene including all lights
 
  <hr>
  <b>AmbientOcclusion</b>
@@ -2353,12 +2349,14 @@ Used by samples:
  <hr>
  <b>RealtimeLights</b>
   <table border=0 width=95%><tr align=top><td>
-  \image html samples/RealtimeLights_2.jpg freely move lights
+  \image html samples/RealtimeLights_1.jpg freely move lights and objects
   </td><td>
-  \image html samples/RealtimeLights_1.jpg global illumination changes in realtime
+  \image html samples/RealtimeLights_2.jpg occluded light, GI changes in realtime
   </td></tr></table>
- - renders realtime global illumination without precalculations
- - loads collada scene including all lights
+ - realtime GI, color bleeding
+ - all lights and objects movable
+ - no precalculations -> for scene viewers, designers
+ - loads collada scene including all lights, loads 3ds dynamic objects
  - uses internal renderer
 
  <hr>
@@ -2368,11 +2366,12 @@ Used by samples:
   </td><td>
   \image html samples/RealtimeRadiosity_1.jpg global illumination changes in realtime
   </td></tr></table>
- - renders realtime global illumination in scene with dynamic objects and 1 area light
- - show that lighting works equally well for animated object
- - features penumbra shadows, color bleeding
+ - realtime GI, color bleeding, penumbra shadows
+ - all lights and objects movable
+ - optional precalculations -> for games
+ - loads 3ds scene and 3ds dynamic objects, uses 1 custom area light rather than lights from file
+ - shows that lighting works equally well for animated object
  - shows feeding external 3ds renderer with Lightsprint computed illumination
- - loads 3ds scene and 3ds dynamic objects
 
  <hr>
  <b>Lightmaps</b>
@@ -2381,11 +2380,8 @@ Used by samples:
   </td><td>
   \image html samples/Lightmaps_2.jpg precomputed quality (p pressed)
   </td></tr></table>
- - shows errors of realtime lighting
- - renders realtime global illumination in scene with dynamic objects and area light
- - computes lightmaps on request, see better shadows on right image
- - uses internal renderer
- - loads Collada scene and 3ds dynamic objects
+ - like RealtimeRadiosity, but computes lightmaps on request, see better shadows on right image
+ - for analyzing errors of realtime lighting
 
  <hr>
  <b>PenumbraShadows</b>
@@ -2395,7 +2391,7 @@ Used by samples:
   \image html samples/PenumbraShadows_2.jpg penumbra shadows
   </td></tr></table>
  - renders realtime direct illumination in scene with dynamic objects and area light
- - features penumbra shadows
+ - penumbra shadows
  - simple, no global illumination, only constant ambient
 
 

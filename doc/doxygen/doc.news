@@ -8,12 +8,12 @@ namespace rr
 
 \page main_news What's new
 
-\section news38 ------------------------------------ 2007.11.12 -------------------------------------
+\section news38 ------------------------------------ 2007.11.15 -------------------------------------
 
 NEWS
 
-- new sample RealtimeLights shows multiple lights 
-  with realtime global illumination in Collada scene
+- new sample RealtimeLights shows multiple movable lights with realtime GI, without precalculations
+- realtime renderer added support for point lights and several distance attenuatiuon modes
 
 CHANGES
 

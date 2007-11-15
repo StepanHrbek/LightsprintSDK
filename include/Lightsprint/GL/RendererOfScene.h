@@ -52,6 +52,7 @@ public:
 	//! Specifies data source - original scene geometry and illumination from given layer.
 	//
 	//! Original scene is exactly what you entered into solver (see RRDynamicSolver::setStaticObjects()).
+	//! \n Direct illumination: first light from lights passed to setParams().
 	//! \n Indirect illumination is always taken from given layer.
 	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR, LIGHT_INDIRECT_MAP.
 	//!  If both types are availabale (vertex buffer and texture), texture is used. 
@@ -68,7 +69,8 @@ public:
 	//
 	//! Optimized scene may have fewer vertices and/or triangles because of optional vertex stitching
 	//! and other optimizations.
-	//! \n Indirect illumination is always taken directly from solver.
+	//! \n Direct illumination: all lights from setParams().
+	//! \n Indirect illumination is always taken directly from static solver, fireball is not supported.
 	//! \n Indirect illumination data types supported: LIGHT_INDIRECT_VCOLOR. Nothing is rendered
 	//!  if you request LIGHT_INDIRECT_MAP (see uberProgramSetup in setParams()).
 	void useOptimizedScene();
@@ -77,7 +79,7 @@ public:
 	virtual const void* getParams(unsigned& length) const;
 
 	//! Specifies global brightness and gamma factors used by following render() commands.
-	void setBrightnessGamma(float brightness[4], float gamma);
+	void setBrightnessGamma(const rr::RRVec4* brightness, float gamma);
 
 	//! Clears screen and renders scene (sets shaders, feeds OpenGL with object's data selected by setParams()).
 	//

@@ -1,22 +1,30 @@
 // --------------------------------------------------------------------------
 // RealtimeLights sample
 //
-// This is a viewer of Collada .DAE scenes with multiple lights.
-// (other samples work with 1 light only, for simplicity)
+// This is a viewer of Collada .DAE scenes with
+// - realtime GI
+// - all lights from file, no hard limit on number of lights
+//   (other samples work with 1 light only, for simplicity)
+// - no precalculations
+//   (other samples use precalculations)
 //
-// Light types supported: point, spot
+// Light types supported: point, spot (todo: directional)
 // GPUs supported: GeForce 5000+, Radeon X1300+
 //
 // Controls:
-//  mouse = look around
-//  arrows = move around
+//  1..9 = switch to n-th light
+//  arrows = move camera or light
+//  mouse = rotate camera or light
 //  left button = switch between camera and light
-//  1..9 = select light
 //  + - = change brightness
 //  * / = change contrast
+//	wheel = change camera FOV
+//  space = randomly move dynamic objects
+//
+// Hint: hold space to see dynamic object occluding light
+// Hint: press 1 or 2 and left/right arrows to move lights
 //
 // Copyright (C) Lightsprint, Stepan Hrbek, 2007
-// Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
 #include "FCollada.h" // must be included before LightsprintGL because of fcollada SAFE_DELETE macro
@@ -33,7 +41,7 @@
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "../RealtimeRadiosity/DynamicObject.h"
-#include <windows.h> // timeGetTime
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -54,7 +62,7 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.1,100.0);
+rr_gl::Camera              eye(-1.856,1.440,2.097,2.404,0.000,0.020,1.3,110.0,0.1,100.0);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 rr_gl::Texture*            lightDirectMap = NULL;
 rr_gl::UberProgram*        uberProgram = NULL;
@@ -69,56 +77,11 @@ float                      speedForward = 0;
 float                      speedBack = 0;
 float                      speedRight = 0;
 float                      speedLeft = 0;
-float                      brightness[4] = {1,1,1,1};
+rr::RRVec4                 brightness(1);
 float                      gamma = 1;
+float                      rotation = 0;
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// rendering scene
-
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RRLightRuntime*>* lights)
-{
-	// render static scene
-	rendererOfScene->setParams(uberProgramSetup,lights,lightDirectMap);
-	rendererOfScene->useOptimizedScene();
-	rendererOfScene->setBrightnessGamma(brightness,gamma);
-	rendererOfScene->render();
-/*
-	// render dynamic objects
-	// enable object space
-	uberProgramSetup.OBJECT_SPACE = true;
-	// when not rendering shadows, enable environment maps
-	if(uberProgramSetup.LIGHT_DIRECT)
-	{
-		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
-		uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
-		uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
-	}
-	// move and rotate object freely, nothing is precomputed
-	static float rotation = 0;
-	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
-	// render object1
-	if(robot)
-	{
-		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
-		robot->rotYZ = rr::RRVec2(rotation,0);
-		robot->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-			solver->updateEnvironmentMap(robot->illumination);
-		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,brightness,gamma);
-	}
-	if(potato)
-	{
-		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
-		potato->rotYZ = rr::RRVec2(rotation/2,0);
-		potato->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-			solver->updateEnvironmentMap(potato->illumination);
-		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,brightness,gamma);
-	}*/
-}
-
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RRLightRuntime*>* lights);
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -236,8 +199,8 @@ protected:
 		uberProgramSetup.SHADOW_MAPS = setupShaderLight->getNumInstances(); //!!! radeons 9500-X1250 can't run 6 in one pass
 		uberProgramSetup.SHADOW_SAMPLES = 1;
 		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_DIRECT_COLOR = true;
-		uberProgramSetup.LIGHT_DIRECT_MAP = true;
+		uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->origin && setupShaderLight->origin->color!=rr::RRVec3(1);
+		uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::AreaLight::POINT;
 		uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 		uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
@@ -249,6 +212,50 @@ protected:
 		}
 	}
 };
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// rendering scene
+
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RRLightRuntime*>* lights)
+{
+	// render static scene
+	rendererOfScene->setParams(uberProgramSetup,lights,lightDirectMap);
+	rendererOfScene->useOptimizedScene();
+	rendererOfScene->setBrightnessGamma(&brightness,gamma);
+	rendererOfScene->render();
+
+	// render dynamic objects
+	// enable object space
+	uberProgramSetup.OBJECT_SPACE = true;
+	// when not rendering shadows, enable environment maps
+	if(uberProgramSetup.LIGHT_DIRECT)
+	{
+		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
+		uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
+		uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
+	}
+	// render objects
+	if(robot)
+	{
+		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
+		robot->rotYZ = rr::RRVec2(rotation,0);
+		robot->updatePosition();
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+			solver->updateEnvironmentMap(robot->illumination);
+		robot->render(uberProgram,uberProgramSetup,lights,0,lightDirectMap,eye,&brightness,gamma);
+	}
+	if(potato)
+	{
+		potato->worldFoot = rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f);
+		potato->rotYZ = rr::RRVec2(rotation/2,0);
+		potato->updatePosition();
+		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+			solver->updateEnvironmentMap(potato->illumination);
+		potato->render(uberProgram,uberProgramSetup,lights,0,lightDirectMap,eye,&brightness,gamma);
+	}
+}
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -281,16 +288,23 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case '+':
-			for(unsigned i=0;i<4;i++) brightness[i] *= 1.2;
+			brightness *= 1.2;
 			break;
 		case '-':
-			for(unsigned i=0;i<4;i++) brightness[i] /= 1.2;
+			brightness /= 1.2;
 			break;
 		case '*':
 			gamma *= 1.2;
 			break;
 		case '/':
 			gamma /= 1.2;
+			break;
+		case ' ':
+			//printf("camera(%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f);\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*3.14159265f,2*3.14159265f),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
+			rotation = (clock()%10000000)*0.07f;
+			solver->reportDirectIlluminationChange(false);
+			for(unsigned i=0;i<solver->realtimeLights.size();i++)
+				solver->realtimeLights[i]->dirty = true;
 			break;
 		case '1':
 		case '2':

@@ -31,7 +31,7 @@ public:
 		LINE, // n instances in line, spot/dir-light with penumbra shadows. Approx 1m long line, it simulates light coming from long narrow lightsource.
 		CIRCLE, // n instances in circle, spot/dir-light with penumbra shadows. Circle, it simulates light coming from circle (border).
 		RECTANGLE, // n instances in rectangle, spot/dir-light with penumbra shadows. Approx 1m*1m square grid, it simulates light coming from whole square. It needs more instances to prevent shadow banding.
-		POINT, // 6 instances forming pointlight
+		POINT, // point light, must have exactly 6 instances for cube shadow map generation
 	};
 
 	//! Creates area light.
@@ -46,6 +46,8 @@ public:
 	//!  Resolution of shadowmaps will be shadowmapSize * shadowmapSize texels.
 	//!  Set higher resolution for hard and sharper shadows,
 	//!  set lower resolution for area and more blurry shadows.
+	//! \param areaType
+	//!  Type of area
 	AreaLight(Camera* parent, unsigned numInstancesMax, unsigned shadowmapSize, AreaType areaType=LINE);
 	virtual ~AreaLight();
 

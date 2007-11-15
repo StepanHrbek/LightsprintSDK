@@ -34,7 +34,7 @@ public:
 
 	//! Renders object.
 	//! No need to call it when object is not visible, it's expensive.
-	void render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::RRLightRuntime* lightRuntime,unsigned firstInstance,const rr_gl::Texture* lightDirectMap,const rr_gl::Camera& eye, const float brightness[4], float gamma);
+	void render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RRLightRuntime*>* lights,unsigned firstInstance,const rr_gl::Texture* lightDirectMap,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma);
 
 	~DynamicObject();
 

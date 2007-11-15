@@ -12,32 +12,6 @@
     <up_axis>Z_UP</up_axis>
   </asset>
   <library_lights>
-    <light id="Omni01-light">
-      <technique_common>
-        <point>
-          <color>1.000000 1.00000 1.00000</color>
-          <constant_attenuation>0.000000</constant_attenuation>
-          <linear_attenuation>1</linear_attenuation>
-          <quadratic_attenuation>0</quadratic_attenuation>
-        </point>
-      </technique_common>
-      <extra>
-        <technique profile="MAX3D">
-          <decay_type>0</decay_type>
-          <decay_start>40.000000</decay_start>
-          <use_near_attenuation>0</use_near_attenuation>
-          <near_attenuation_start>0</near_attenuation_start>
-          <near_attenuation_end>40.000000</near_attenuation_end>
-          <use_far_attenuation>0</use_far_attenuation>
-          <far_attenuation_start>2.032000</far_attenuation_start>
-          <far_attenuation_end>5.080000</far_attenuation_end>
-        </technique>
-        <technique profile="FCOLLADA">
-          <intensity>0.800000</intensity>
-          <target_default_dist>240.000000</target_default_dist>
-        </technique>
-      </extra>
-    </light>
     <light id="Omni02-light">
       <technique_common>
         <point>
@@ -1068,10 +1042,6 @@
             </technique_common>
           </bind_material>
         </instance_geometry>
-      </node>
-      <node id="Omni01-node" name="Omni01" type="NODE">
-        <matrix>1.000000 0 0 -3.790230 0 1.000000 0 2.532727 0 0 1.000000 1.908839 0 0 0 1.000000</matrix>
-        <instance_light url="#Omni01-light"/>
       </node>
       <node id="gula1-node" name="gula1" type="NODE">
         <matrix>1.745047 0 0 -1.972421 0 1.745047 0 3.822919 0 0 1.745047 1.695013 0 0 0 1.000000</matrix>
