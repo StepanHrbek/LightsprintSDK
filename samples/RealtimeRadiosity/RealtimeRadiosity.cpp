@@ -60,7 +60,7 @@ void error(const char* message, bool gfxRelated)
 
 Model_3DS                  m3ds;
 rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
-rr_gl::RRLightRuntime*     areaLight = NULL;
+rr_gl::RealtimeLight*     areaLight = NULL;
 rr_gl::Texture*            lightDirectMap = NULL;
 rr_gl::Texture*            environmentMap = NULL;
 rr_gl::TextureRenderer*    textureRenderer = NULL;
@@ -124,7 +124,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
 	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
-	rr::RRVector<rr_gl::RRLightRuntime*> lights;
+	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(areaLight);
 	if(robot)
 	{
@@ -440,7 +440,7 @@ int main(int argc, char **argv)
 
 	// init light
 	rr_gl::Camera light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-	areaLight = new rr_gl::RRLightRuntime(&light,shadowmapsPerPass,512);
+	areaLight = new rr_gl::RealtimeLight(&light,shadowmapsPerPass,512);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//! \file AreaLight.h
+//! \file RealtimeLight.h
 //! \brief LightsprintGL | provides multiple spotlights for area light simulation
 //! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
 //! All rights reserved
@@ -18,11 +18,10 @@ namespace rr_gl
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// AreaLight
+// RealtimeLight
 
-//! Area light with shadowmaps for realtime area light soft shadows.
-//! It will be merged into RRLightRuntime during November.
-class RR_GL_API AreaLight
+//! Runtime extension of RRLight, with structures needed for realtime GI rendering (shadowmaps etc).
+class RR_GL_API RealtimeLight
 {
 public:
 	//! Shapes of light source area.
@@ -48,8 +47,10 @@ public:
 	//!  set lower resolution for area and more blurry shadows.
 	//! \param areaType
 	//!  Type of area
-	AreaLight(Camera* parent, unsigned numInstancesMax, unsigned shadowmapSize, AreaType areaType=LINE);
-	virtual ~AreaLight();
+	RealtimeLight(const rr::RRLight& rrlight);
+	RealtimeLight(rr_gl::Camera* camera, unsigned numInstances, unsigned resolution);
+	//RealtimeLight(Camera* parent, unsigned numInstancesMax, unsigned shadowmapSize, AreaType areaType=LINE);
+	virtual ~RealtimeLight();
 
 	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.
 	Camera* getParent() const;
@@ -81,7 +82,14 @@ public:
 	AreaType areaType;
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
+
+	//rr_gl::Texture* smallMapGPU;
+	unsigned* smallMapCPU;
+	unsigned numTriangles;
+	bool dirty;
+	const rr::RRLight* origin;
 protected:
+	bool deleteParent;
 	//! Modifies light to become given instance.
 	//
 	//! \param light
@@ -106,22 +114,6 @@ protected:
 	Texture** shadowMaps;
 	unsigned numInstancesMax;
 	unsigned shadowMapSize;
-};
-
-//! Runtime extension of RRLight, with structures needed for realtime GI rendering.
-class RR_GL_API RRLightRuntime : public AreaLight
-{
-public:
-	RRLightRuntime(const rr::RRLight& rrlight);
-	RRLightRuntime(rr_gl::Camera* camera, unsigned numInstances, unsigned resolution);
-	~RRLightRuntime();
-	//rr_gl::Texture* smallMapGPU;
-	unsigned* smallMapCPU;
-	unsigned numTriangles;
-	bool dirty;
-	const rr::RRLight* origin;
-private:
-	bool deleteParent;
 };
 
 }; // namespace

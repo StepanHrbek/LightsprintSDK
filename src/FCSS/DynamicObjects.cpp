@@ -300,7 +300,7 @@ void DynamicObjects::updateSceneDynamic(rr::RRDynamicSolver* solver)
 	}
 }
 
-void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::Camera* camera, const rr::RRVector<rr_gl::RRLightRuntime*>* lights, unsigned firstInstance, const rr_gl::Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma) const
+void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::Camera* camera, const rr::RRVector<rr_gl::RealtimeLight*>* lights, unsigned firstInstance, const rr_gl::Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma) const
 {
 	// use object space
 	uberProgramSetup.OBJECT_SPACE = true;

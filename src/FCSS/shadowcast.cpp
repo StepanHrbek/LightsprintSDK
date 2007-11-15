@@ -75,7 +75,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <GL/glut.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfRRObject.h"
-#include "Lightsprint/GL/AreaLight.h"
+#include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/TextureRenderer.h"
@@ -98,7 +98,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 
 AnimationFrame currentFrame(0);
 GLUquadricObj *quadric;
-rr_gl::RRLightRuntime* areaLight = NULL;
+rr_gl::RealtimeLight* areaLight = NULL;
 #ifdef SUPPORT_WATER
 	rr_gl::Water* water = NULL;
 #endif
@@ -293,7 +293,7 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	areaLight = new rr_gl::RRLightRuntime(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
+	areaLight = new rr_gl::RealtimeLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 
 	// update states, but must be done after initing shadowmaps (inside arealight)
 	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
@@ -678,7 +678,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted,globalGammaBoosted);
 
-	rr::RRVector<rr_gl::RRLightRuntime*> lights;
+	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(areaLight);
 	level->rendererOfScene->setParams(uberProgramSetup,&lights,demoPlayer->getProjector(currentFrame.projectorIndex));
 	level->rendererOfScene->render();
@@ -695,7 +695,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	assert(demoPlayer);
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	rr::RRVector<rr_gl::RRLightRuntime*> lights;
+	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(areaLight);
 	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,demoPlayer->getProjector(currentFrame.projectorIndex),&globalBrightnessBoosted,globalGammaBoosted);
 }

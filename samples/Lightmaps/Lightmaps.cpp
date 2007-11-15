@@ -82,7 +82,7 @@ void error(const char* message, bool gfxRelated)
 
 rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.1,100.0);
 rr_gl::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-rr_gl::RRLightRuntime*     areaLight = NULL;
+rr_gl::RealtimeLight*     areaLight = NULL;
 rr_gl::Texture*            lightDirectMap = NULL;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
@@ -108,7 +108,7 @@ float                      gamma = 1;
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
-	rr::RRVector<rr_gl::RRLightRuntime*> lights;
+	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(areaLight);
 	rendererOfScene->setParams(uberProgramSetup,&lights,lightDirectMap);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
@@ -546,7 +546,7 @@ int main(int argc, char **argv)
 	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
-	areaLight = new rr_gl::RRLightRuntime(&light,1,512);
+	areaLight = new rr_gl::RealtimeLight(&light,1,512);
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;

@@ -27,7 +27,7 @@ DynamicObject::DynamicObject()
 {
 }
 
-void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::RRLightRuntime* light,unsigned firstInstance,rr_gl::Texture* lightDirectMap,rr_gl::Texture* lightIndirectEnvSpecular,const rr_gl::Camera& eye,float rot)
+void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::RealtimeLight* light,unsigned firstInstance,rr_gl::Texture* lightDirectMap,rr_gl::Texture* lightIndirectEnvSpecular,const rr_gl::Camera& eye,float rot)
 {
 	// use program
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,lightDirectMap,NULL,1);

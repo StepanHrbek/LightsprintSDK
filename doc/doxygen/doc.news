@@ -17,6 +17,7 @@ NEWS
 
 CHANGES
 
+- New rr_gl::RealtimeLight is RRLight with realtime GI support. Made out of old rr_gl::AreaLight.
 - RRLight::SPOT added to differentiate between POINT and SPOT lights
 - internal RRLight attributes made public so realtime renderer can read them
 

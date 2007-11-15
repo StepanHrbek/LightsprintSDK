@@ -10,7 +10,7 @@
 
 #include "cstring"
 #include "UberProgram.h"
-#include "AreaLight.h"
+#include "RealtimeLight.h"
 
 namespace rr_gl
 {
@@ -111,7 +111,7 @@ struct RR_GL_API UberProgramSetup
 	void validate();
 	//! Sets rendering pipeline so that following primitives are rendered using
 	//! our program.
-	Program* useProgram(UberProgram* uberProgram, const RRLightRuntime* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma);
+	Program* useProgram(UberProgram* uberProgram, const RealtimeLight* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma);
 };
 
 
@@ -122,7 +122,7 @@ struct RR_GL_API UberProgramSetup
 //! Data for UberProgram, options that don't change code.
 struct RR_GL_API UberProgramData
 {
-	AreaLight*areaLight;                 ///< Area light with shadowmaps.
+	RealtimeLight*areaLight;                 ///< Area light with shadowmaps.
 	Texture* lightDirectMap;             ///< Multiplies direct light. This texture is projected by light.
 	float    lightIndirectConst[4];      ///< Adds indirect light.
 	Texture* lightIndirectMap;           ///< Adds indirect light.

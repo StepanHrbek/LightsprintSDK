@@ -10,7 +10,7 @@
 
 #include "Lightsprint/GL/Renderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "Lightsprint/GL/AreaLight.h"
+#include "Lightsprint/GL/RealtimeLight.h"
 
 namespace rr_gl
 {
@@ -47,7 +47,7 @@ public:
 	//!  Vector of lights.
 	//! \param lightDirectMap
 	//!  Texture projected by realtime area light.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RRLightRuntime*>* lights, const Texture* lightDirectMap);
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const Texture* lightDirectMap);
 
 	//! Specifies data source - original scene geometry and illumination from given layer.
 	//

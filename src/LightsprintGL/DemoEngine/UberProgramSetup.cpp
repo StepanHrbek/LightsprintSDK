@@ -168,14 +168,14 @@ void UberProgramSetup::validate()
 	}
 }
 /*
-void UberProgramSetup::setLightDirect(const RRLightRuntime* light, const Texture* lightDirectMap)
+void UberProgramSetup::setLightDirect(const RealtimeLight* light, const Texture* lightDirectMap)
 {
 	SHADOW_MAPS = light ? light->getNumInstances() : 0;
 	SHADOW_SAMPLES = light ? MAX(SHADOW_SAMPLES,1) : 0;
-	SHADOW_PENUMBRA = light && light->areaType!=AreaLight::POINT;
+	SHADOW_PENUMBRA = light && light->areaType!=RealtimeLight::POINT;
 	LIGHT_DIRECT = light ? true : false;
 	LIGHT_DIRECT_COLOR = light && light->origin && light->origin->color!=rr::RRVec3(1);
-	LIGHT_DIRECT_MAP = light && light->areaType!=AreaLight::POINT && lightDirectMap;
+	LIGHT_DIRECT_MAP = light && light->areaType!=RealtimeLight::POINT && lightDirectMap;
 	LIGHT_DISTANCE_PHYSICAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 	LIGHT_DISTANCE_POLYNOMIAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 	LIGHT_DISTANCE_EXPONENTIAL = light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
@@ -214,7 +214,7 @@ void UberProgramSetup::setPostprocess(const rr::RRVec4* brightness, float gamma)
 	//POSTPROCESS_BIGSCREEN = 0;
 }*/
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RRLightRuntime* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLight* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma)
 {
 	Program* program = getProgram(uberProgram);
 	if(!program)

@@ -133,7 +133,7 @@ void DynamicObject::updatePosition()
 	illumination->gatherEnvMapSize = MAX(gatherCubeSize,illumination->specularEnvMapSize);
 }
 
-void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RRLightRuntime*>* lights,unsigned firstInstance,const rr_gl::Texture* lightDirectMap,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma)
+void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr_gl::Texture* lightDirectMap,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma)
 {
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.
@@ -151,7 +151,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	}
 	uberProgramSetup.ANIMATION_WAVE = material.ANIMATION_WAVE;
 	// temporary simplification, select only 1 light from list
-	const rr_gl::RRLightRuntime* light = NULL;
+	const rr_gl::RealtimeLight* light = NULL;
 	if(lights)
 		for(unsigned i=0;i<lights->size();i++)
 		{

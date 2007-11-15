@@ -35,7 +35,7 @@ public:
 	RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 	//! Sets parameters of render related to shader and direct illumination.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RRLightRuntime*>* lights, const Texture* lightDirectMap);
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const Texture* lightDirectMap);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -53,7 +53,7 @@ protected:
 	{
 		rr::RRDynamicSolver* solver;
 		UberProgramSetup uberProgramSetup;
-		const rr::RRVector<RRLightRuntime*>* lights;
+		const rr::RRVector<RealtimeLight*>* lights;
 		const Texture* lightDirectMap;
 		rr::RRVec4 brightness;
 		float gamma;
@@ -101,7 +101,7 @@ RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 	delete textureRenderer;
 }
 
-void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RRLightRuntime*>* lights, const Texture* lightDirectMap)
+void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const Texture* lightDirectMap)
 {
 	params.uberProgramSetup = uberProgramSetup;
 	params.lights = lights;
@@ -183,13 +183,13 @@ void RendererOfRRDynamicSolver::render()
 		if(lightIndex<numLights)
 		{
 			// adjust program for n-th light
-			rr_gl::RRLightRuntime* light = (*params.lights)[lightIndex];
+			rr_gl::RealtimeLight* light = (*params.lights)[lightIndex];
 			RR_ASSERT(light);
 			//uberProgramSetup.setLightDirect(light,params.lightDirectMap);
 			uberProgramSetup.SHADOW_MAPS = params.uberProgramSetup.SHADOW_MAPS ? light->getNumInstances() : 0;
-			uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=AreaLight::POINT;
+			uberProgramSetup.SHADOW_PENUMBRA = light->areaType!=RealtimeLight::POINT;
 			uberProgramSetup.LIGHT_DIRECT_COLOR = params.uberProgramSetup.LIGHT_DIRECT_COLOR && light->origin && light->origin->color!=rr::RRVec3(1);
-			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && light->areaType!=AreaLight::POINT;
+			uberProgramSetup.LIGHT_DIRECT_MAP = params.uberProgramSetup.LIGHT_DIRECT_MAP && light->areaType!=RealtimeLight::POINT;
 			uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 			uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 			uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
@@ -525,7 +525,7 @@ RendererOfScene::~RendererOfScene()
 	delete renderer;
 }
 
-void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RRLightRuntime*>* lights, const Texture* lightDirectMap)
+void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const Texture* lightDirectMap)
 {
 	renderer->setParams(uberProgramSetup,lights,lightDirectMap);
 }

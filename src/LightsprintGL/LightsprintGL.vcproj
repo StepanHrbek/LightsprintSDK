@@ -450,11 +450,11 @@
 			Name="DemoEngine"
 			>
 			<File
-				RelativePath="DemoEngine\AreaLight.cpp"
+				RelativePath="DemoEngine\RealtimeLight.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Lightsprint\GL\AreaLight.h"
+				RelativePath="..\..\include\Lightsprint\GL\RealtimeLight.h"
 				>
 			</File>
 			<File

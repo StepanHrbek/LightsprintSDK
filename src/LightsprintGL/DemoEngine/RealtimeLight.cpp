@@ -1,53 +1,87 @@
 // --------------------------------------------------------------------------
 // DemoEngine
-// AreaLight, provides multiple generated instances of light for area light simulation.
+// RealtimeLight, provides multiple generated instances of light for area light simulation.
 // Copyright (C) Stepan Hrbek, Lightsprint, 2005-2007
 // --------------------------------------------------------------------------
 
 #include <cassert>
 #include <cstring> // NULL
-#include "Lightsprint/GL/AreaLight.h"
+#include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
 
 namespace rr_gl
 {
 
-	AreaLight::AreaLight(Camera* _parent, unsigned _numInstances, unsigned _shadowMapSize, AreaType _areaType)
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// RealtimeLight
+
+	RealtimeLight::RealtimeLight(const rr::RRLight& _rrlight)
 	{
-		parent = _parent;
-		numInstancesMax = _numInstances;
-		numInstances = _numInstances;
+		deleteParent = true;
+		origin = &_rrlight;
+		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		smallMapCPU = NULL;
+		numTriangles = 0;
+		dirty = true;
+
+		parent = new Camera(_rrlight);
+		numInstancesMax = (_rrlight.type==rr::RRLight::POINT)?6:1;
+		numInstances = (_rrlight.type==rr::RRLight::POINT)?6:1;
 		shadowMaps = new Texture*[numInstances];
-		shadowMapSize = _shadowMapSize;
+		shadowMapSize = 1024;
 		for(unsigned i=0;i<numInstancesMax;i++)
 			shadowMaps[i] = Texture::createShadowmap(shadowMapSize,shadowMapSize);
-		areaType = _areaType;
+		areaType = (_rrlight.type==rr::RRLight::POINT)?POINT:LINE;
 		areaSize = 0.2f;
 	}
 
-	AreaLight::~AreaLight()
+	RealtimeLight::RealtimeLight(rr_gl::Camera* _camera, unsigned _numInstances, unsigned _resolution)
 	{
+		deleteParent = false;
+		origin = NULL;
+		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		smallMapCPU = NULL;
+		numTriangles = 0;
+		dirty = true;
+
+		parent = _camera;
+		numInstancesMax = _numInstances;
+		numInstances = _numInstances;
+		shadowMaps = new Texture*[numInstances];
+		shadowMapSize = _resolution;
+		for(unsigned i=0;i<numInstancesMax;i++)
+			shadowMaps[i] = Texture::createShadowmap(shadowMapSize,shadowMapSize);
+		areaType = LINE;
+		areaSize = 0.2f;
+	}
+
+	RealtimeLight::~RealtimeLight()
+	{
+		delete[] smallMapCPU;
+		//delete smallMapGPU;
+		if(deleteParent) delete getParent();
 		for(unsigned i=0;i<numInstancesMax;i++)
 			delete shadowMaps[i];
 		delete[] shadowMaps;
 	}
 
-	Camera* AreaLight::getParent() const
+	Camera* RealtimeLight::getParent() const
 	{
 		return parent;
 	}
 
-	void AreaLight::setNumInstances(unsigned instances)
+	void RealtimeLight::setNumInstances(unsigned instances)
 	{
 		numInstances = instances;
 	}
 
-	unsigned AreaLight::getNumInstances() const
+	unsigned RealtimeLight::getNumInstances() const
 	{
 		return numInstances;
 	}
 
-	Camera* AreaLight::getInstance(unsigned instance, bool jittered) const
+	Camera* RealtimeLight::getInstance(unsigned instance, bool jittered) const
 	{
 		if(!parent || instance>=numInstances)
 			return NULL;
@@ -58,7 +92,7 @@ namespace rr_gl
 		return c;
 	}
 
-	void AreaLight::setShadowmapSize(unsigned newSize)
+	void RealtimeLight::setShadowmapSize(unsigned newSize)
 	{
 		shadowMapSize = newSize;
 		for(unsigned i=0;i<numInstances;i++)
@@ -67,7 +101,7 @@ namespace rr_gl
 		}
 	}
 
-	Texture* AreaLight::getShadowMap(unsigned instance) const
+	Texture* RealtimeLight::getShadowMap(unsigned instance) const
 	{
 		if(instance>=numInstances)
 		{
@@ -77,11 +111,11 @@ namespace rr_gl
 		return shadowMaps[instance];
 	}
 
-	void AreaLight::instanceMakeup(Camera& light, unsigned instance, bool jittered) const
+	void RealtimeLight::instanceMakeup(Camera& light, unsigned instance, bool jittered) const
 	{
 		if(instance>=numInstances) 
 		{
-			rr::RRReporter::report(rr::WARN,"AreaLight: instance %d requested, but light has only %d instances.\n",instance,numInstances);
+			rr::RRReporter::report(rr::WARN,"RealtimeLight: instance %d requested, but light has only %d instances.\n",instance,numInstances);
 			return;
 		}
 		if(numInstances==1)
@@ -126,39 +160,6 @@ namespace rr_gl
 			light.angleX += light.fieldOfView/360*2*3.14159f/shadowMapSize*jitterSample[instance%10][1]*0.22f;
 		}
 		light.update();
-	}
-
-	/////////////////////////////////////////////////////////////////////////////
-	//
-	// RRLightRuntime
-
-	RRLightRuntime::RRLightRuntime(const rr::RRLight& _rrlight)
-		: AreaLight(new Camera(_rrlight),(_rrlight.type==rr::RRLight::POINT)?6:1,2*512,(_rrlight.type==rr::RRLight::POINT)?POINT:LINE)
-	{
-		deleteParent = true;
-		origin = &_rrlight;
-		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
-		smallMapCPU = NULL;
-		numTriangles = 0;
-		dirty = true;
-	}
-
-	RRLightRuntime::RRLightRuntime(rr_gl::Camera* _camera, unsigned _numInstances, unsigned _resolution)
-		: AreaLight(_camera,_numInstances,_resolution,LINE)
-	{
-		deleteParent = false;
-		origin = NULL;
-		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
-		smallMapCPU = NULL;
-		numTriangles = 0;
-		dirty = true;
-	}
-
-	RRLightRuntime::~RRLightRuntime()
-	{
-		delete[] smallMapCPU;
-		//delete smallMapGPU;
-		if(deleteParent) delete getParent();
 	}
 
 }; // namespace

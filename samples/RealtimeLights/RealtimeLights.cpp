@@ -81,7 +81,7 @@ rr::RRVec4                 brightness(1);
 float                      gamma = 1;
 float                      rotation = 0;
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RRLightRuntime*>* lights);
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RealtimeLight*>* lights);
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -90,7 +90,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr
 class Solver : public rr_gl::RRDynamicSolverGL
 {
 public:
-	rr::RRVector<rr_gl::RRLightRuntime*> realtimeLights;
+	rr::RRVector<rr_gl::RealtimeLight*> realtimeLights;
 
 	Solver() : RRDynamicSolverGL("../../data/shaders/")
 	{
@@ -103,7 +103,7 @@ public:
 		RRDynamicSolverGL::setLights(_lights);
 		for(unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 		realtimeLights.clear();
-		for(unsigned i=0;i<_lights.size();i++) realtimeLights.push_back(new rr_gl::RRLightRuntime(*_lights[i]));
+		for(unsigned i=0;i<_lights.size();i++) realtimeLights.push_back(new rr_gl::RealtimeLight(*_lights[i]));
 		// reset detected direct lighting
 		if(detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 	}
@@ -122,7 +122,7 @@ public:
 		// update shadowmaps and smallMapsCPU
 		for(unsigned i=0;i<realtimeLights.size();i++)
 		{
-			rr_gl::RRLightRuntime* lightRuntime = realtimeLights[i];
+			rr_gl::RealtimeLight* lightRuntime = realtimeLights[i];
 			if(!lightRuntime || !uberProgram)
 			{
 				RR_ASSERT(0);
@@ -192,7 +192,7 @@ protected:
 		return detectedDirectSum;
 	}
 
-	rr_gl::RRLightRuntime* setupShaderLight;
+	rr_gl::RealtimeLight* setupShaderLight;
 	virtual void setupShader(unsigned objectNumber)
 	{
 		rr_gl::UberProgramSetup uberProgramSetup;
@@ -200,7 +200,7 @@ protected:
 		uberProgramSetup.SHADOW_SAMPLES = 1;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->origin && setupShaderLight->origin->color!=rr::RRVec3(1);
-		uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::AreaLight::POINT;
+		uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::RealtimeLight::POINT;
 		uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
 		uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
@@ -217,7 +217,7 @@ protected:
 //
 // rendering scene
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RRLightRuntime*>* lights)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RealtimeLight*>* lights)
 {
 	// render static scene
 	rendererOfScene->setParams(uberProgramSetup,lights,lightDirectMap);
