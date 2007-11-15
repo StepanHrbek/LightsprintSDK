@@ -300,7 +300,7 @@ void DynamicObjects::updateSceneDynamic(rr::RRDynamicSolver* solver)
 	}
 }
 
-void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::Camera* camera, rr_gl::RRLightRuntime* areaLight, unsigned firstInstance, const rr_gl::Texture* lightDirectMap, const float brightness[4], float gamma) const
+void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::UberProgram* uberProgram, rr_gl::UberProgramSetup uberProgramSetup, rr_gl::Camera* camera, const rr::RRVector<rr_gl::RRLightRuntime*>* lights, unsigned firstInstance, const rr_gl::Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma) const
 {
 	// use object space
 	uberProgramSetup.OBJECT_SPACE = true;
@@ -327,7 +327,7 @@ void DynamicObjects::renderSceneDynamic(rr::RRDynamicSolver* solver, rr_gl::Uber
 			{
 				solver->updateEnvironmentMap(dynaobject[i]->illumination);
 			}
-			dynaobject[i]->render(uberProgram,uberProgramSetup,areaLight,firstInstance,lightDirectMap,currentFrame.eye,brightness,gamma);
+			dynaobject[i]->render(uberProgram,uberProgramSetup,lights,firstInstance,lightDirectMap,currentFrame.eye,brightness,gamma);
 		}
 	}
 }

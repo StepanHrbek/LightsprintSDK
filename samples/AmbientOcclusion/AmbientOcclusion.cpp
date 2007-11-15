@@ -92,7 +92,7 @@ float                   speedBack = 0;
 float                   speedRight = 0;
 float                   speedLeft = 0;
 rr_gl::UberProgramSetup uberProgramSetup;
-float                   brightness[4] = {1,1,1,1};
+rr::RRVec4              brightness(1);
 float                   gamma = 1;
 #ifdef RR_DEVELOPMENT
 bool                    shortLines = true;
@@ -191,7 +191,7 @@ void display(void)
 	eye.setupForRender();
 	rendererOfScene->setParams(uberProgramSetup,NULL,NULL);
 	rendererOfScene->useOriginalScene(0);
-	rendererOfScene->setBrightnessGamma(brightness,gamma);
+	rendererOfScene->setBrightnessGamma(&brightness,gamma);
 	rendererOfScene->render();
 #ifdef RR_DEVELOPMENT
 	rendererOfScene->renderLines(shortLines,debugTexelNumber);
@@ -227,10 +227,10 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case '+':
-			for(unsigned i=0;i<4;i++) brightness[i] *= 1.2;
+			brightness *= 1.2;
 			break;
 		case '-':
-			for(unsigned i=0;i<4;i++) brightness[i] /= 1.2;
+			brightness /= 1.2;
 			break;
 		case '*':
 			gamma *= 1.2;

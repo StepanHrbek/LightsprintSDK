@@ -85,21 +85,21 @@ rr_gl::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,
 rr_gl::RRLightRuntime*     areaLight = NULL;
 rr_gl::Texture*            lightDirectMap = NULL;
 rr_gl::UberProgram*        uberProgram = NULL;
-rr_gl::RRDynamicSolverGL* solver = NULL;
-rr_gl::RendererOfScene* rendererOfScene = NULL;
-DynamicObject*          robot = NULL;
-DynamicObject*          potato = NULL;
-int                     winWidth = 0;
-int                     winHeight = 0;
-bool                    modeMovingEye = false;
-float                   speedForward = 0;
-float                   speedBack = 0;
-float                   speedRight = 0;
-float                   speedLeft = 0;
-bool                    realtimeIllumination = true;
-bool                    ambientMapsRender = false;
-float                   brightness[4] = {1,1,1,1};
-float                   gamma = 1;
+rr_gl::RRDynamicSolverGL*  solver = NULL;
+rr_gl::RendererOfScene*    rendererOfScene = NULL;
+DynamicObject*             robot = NULL;
+DynamicObject*             potato = NULL;
+int                        winWidth = 0;
+int                        winHeight = 0;
+bool                       modeMovingEye = false;
+float                      speedForward = 0;
+float                      speedBack = 0;
+float                      speedRight = 0;
+float                      speedLeft = 0;
+bool                       realtimeIllumination = true;
+bool                       ambientMapsRender = false;
+rr::RRVec4                 brightness(1);
+float                      gamma = 1;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -112,7 +112,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	lights.push_back(areaLight);
 	rendererOfScene->setParams(uberProgramSetup,&lights,lightDirectMap);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
-	rendererOfScene->setBrightnessGamma(brightness,gamma);
+	rendererOfScene->setBrightnessGamma(&brightness,gamma);
 	rendererOfScene->render();
 
 	// render dynamic objects
@@ -137,7 +137,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			solver->updateEnvironmentMap(robot->illumination);
-		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,brightness,gamma);
+		robot->render(uberProgram,uberProgramSetup,&lights,0,lightDirectMap,eye,&brightness,gamma);
 	}
 	if(potato)
 	{
@@ -146,7 +146,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			solver->updateEnvironmentMap(potato->illumination);
-		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,eye,brightness,gamma);
+		potato->render(uberProgram,uberProgramSetup,&lights,0,lightDirectMap,eye,&brightness,gamma);
 	}
 }
 
@@ -254,10 +254,10 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case '+':
-			for(unsigned i=0;i<4;i++) brightness[i] *= 1.2;
+			brightness *= 1.2;
 			break;
 		case '-':
-			for(unsigned i=0;i<4;i++) brightness[i] /= 1.2;
+			brightness /= 1.2;
 			break;
 		case '*':
 			gamma *= 1.2;

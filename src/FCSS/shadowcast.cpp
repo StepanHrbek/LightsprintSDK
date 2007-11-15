@@ -676,7 +676,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted[0],globalGammaBoosted);
+	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted,globalGammaBoosted);
 
 	rr::RRVector<rr_gl::RRLightRuntime*> lights;
 	lights.push_back(areaLight);
@@ -695,7 +695,9 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	assert(demoPlayer);
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
-	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,areaLight,firstInstance,demoPlayer->getProjector(currentFrame.projectorIndex),&globalBrightnessBoosted[0],globalGammaBoosted);
+	rr::RRVector<rr_gl::RRLightRuntime*> lights;
+	lights.push_back(areaLight);
+	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,demoPlayer->getProjector(currentFrame.projectorIndex),&globalBrightnessBoosted,globalGammaBoosted);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
