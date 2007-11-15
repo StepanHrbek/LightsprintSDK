@@ -98,7 +98,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 
 AnimationFrame currentFrame(0);
 GLUquadricObj *quadric;
-rr_gl::RealtimeLight* areaLight = NULL;
+rr_gl::RealtimeLight* realtimeLight = NULL;
 #ifdef SUPPORT_WATER
 	rr_gl::Water* water = NULL;
 #endif
@@ -269,19 +269,19 @@ void setShadowTechnique()
 
 	// cheap changes (no GL commands)
 	uberProgramGlobalSetup.SHADOW_SAMPLES = (currentFrame.shadowType<2)?1:4;
-	areaLight->setNumInstances((currentFrame.shadowType<3)?1:INSTANCES_PER_PASS);
+	realtimeLight->setNumInstances((currentFrame.shadowType<3)?1:INSTANCES_PER_PASS);
 
 	// expensive changes (GL commands)
 	if(currentFrame.shadowType>=2)
 	{
-		areaLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
+		realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
 		// 8800@24bit // x300+gf6150
 		depthBias24 = 50;//23;
 		slopeScale = 5;//2.3f;
 	}
 	else
 	{
-		areaLight->setShadowmapSize(SHADOW_MAP_SIZE_HARD);
+		realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_HARD);
 		depthBias24 = 30;//1;
 		slopeScale = 3;//0.1f;
 	}
@@ -293,10 +293,10 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	areaLight = new rr_gl::RealtimeLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
+	realtimeLight = new rr_gl::RealtimeLight(&currentFrame.light,MAX_INSTANCES,SHADOW_MAP_SIZE_SOFT);
 
-	// update states, but must be done after initing shadowmaps (inside arealight)
-	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
+	// update states, but must be done after initing shadowmaps (inside RealtimeLight)
+	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
 	depthScale24 = 1 << (shadowDepthBits-16);
 	updateDepthBias(0);  /* Update with no offset change. */
 
@@ -328,7 +328,7 @@ void done_gl_resources()
 #ifdef CORNER_LOGO
 	SAFE_DELETE(lightsprintMap);
 #endif
-	SAFE_DELETE(areaLight);
+	SAFE_DELETE(realtimeLight);
 	gluDeleteQuadric(quadric);
 }
 
@@ -486,7 +486,7 @@ protected:
 		if(needDepthMapUpdate)
 		{
 			if(needMatrixUpdate) updateMatrices(); // probably not necessary
-			unsigned numInstances = areaLight->getNumInstances();
+			unsigned numInstances = realtimeLight->getNumInstances();
 			for(unsigned i=0;i<numInstances;i++)
 			{
 				updateDepthMap(i,numInstances);
@@ -524,7 +524,7 @@ protected:
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = true;
 
-		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,demoPlayer->getProjector(currentFrame.projectorIndex),NULL,1))
+		if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,demoPlayer->getProjector(currentFrame.projectorIndex),NULL,1))
 			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
@@ -679,7 +679,7 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 	level->rendererOfScene->setBrightnessGamma(&globalBrightnessBoosted,globalGammaBoosted);
 
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
-	lights.push_back(areaLight);
+	lights.push_back(realtimeLight);
 	level->rendererOfScene->setParams(uberProgramSetup,&lights,demoPlayer->getProjector(currentFrame.projectorIndex));
 	level->rendererOfScene->render();
 }
@@ -696,7 +696,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	assert(demoPlayer);
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
-	lights.push_back(areaLight);
+	lights.push_back(realtimeLight);
 	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,demoPlayer->getProjector(currentFrame.projectorIndex),&globalBrightnessBoosted,globalGammaBoosted);
 }
 
@@ -705,11 +705,11 @@ void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 	if(!needDepthMapUpdate) return;
 	assert(mapIndex>=0);
 	REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap...\n"));
-	rr_gl::Camera* lightInstance = areaLight->getInstance(mapIndex);
+	rr_gl::Camera* lightInstance = realtimeLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 
 	glColorMask(0,0,0,0);
-	rr_gl::Texture* shadowmap = areaLight->getShadowMap((mapIndex>=0)?mapIndex:0);
+	rr_gl::Texture* shadowmap = realtimeLight->getShadowMap((mapIndex>=0)?mapIndex:0);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
 	glClearDepth(0.9999); // prevents backprojection
@@ -795,7 +795,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 void drawEyeViewSoftShadowed(void)
 {
 	// update shadowmaps
-	unsigned numInstances = areaLight->getNumInstances();
+	unsigned numInstances = realtimeLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++)
 	{
 		updateDepthMap(i,numInstances);
@@ -957,7 +957,7 @@ void updateThumbnail(AnimationFrame& frame)
 	// calculate
 	level->solver->calculate();
 	// update shadows in advance, so following render doesn't touch FBO
-	unsigned numInstances = areaLight->getNumInstances();
+	unsigned numInstances = realtimeLight->getNumInstances();
 	for(unsigned j=0;j<numInstances;j++)
 	{
 		updateDepthMap(j,numInstances);
@@ -1430,31 +1430,6 @@ void display()
 			demoPlayer->setPaused(supportEditor);
 		}
 	}
-/*
-	// fallback to hard shadows if fps<30
-	static int framesDisplayed = 0;
-	static TIME frame0Time;
-	if(!framesDisplayed)
-		frame0Time = GETTIME;
-	if(framesDisplayed>0)
-	{
-		float secs = (GETTIME-frame0Time)/(float)PER_SEC;
-		if(secs>1)
-		{
-			if(framesDisplayed<30 && areaLight->getNumInstances()>1 && uberProgramGlobalSetup.SHADOW_SAMPLES==4)
-			{
-				areaLight->setNumInstances(1);
-				// nvidia 6150 has free blur, set hard blurred
-				// ati x1600 has expensive blur, set hard
-				if(ati)
-					uberProgramGlobalSetup.SHADOW_SAMPLES = 1;
-				setupAreaLight();
-			}
-			framesDisplayed = -1; // disable
-		}
-	}
-	if(framesDisplayed>=0)
-		framesDisplayed++;*/
 }
 
 void toggleWireFrame(void)
@@ -1757,8 +1732,8 @@ void keyboard(unsigned char c, int x, int y)
 			}
 			break;
 
-		case '[': areaLight->areaSize /= 1.2f; needDepthMapUpdate = 1; printf("%f\n",areaLight->areaSize); break;
-		case ']': areaLight->areaSize *= 1.2f; needDepthMapUpdate = 1; break;			
+		case '[': realtimeLight->areaSize /= 1.2f; needDepthMapUpdate = 1; printf("%f\n",realtimeLight->areaSize); break;
+		case ']': realtimeLight->areaSize *= 1.2f; needDepthMapUpdate = 1; break;			
 
 		case '1':
 		case '2':
@@ -1875,7 +1850,7 @@ void keyboard(unsigned char c, int x, int y)
 			updateDepthBias(0);
 			break;
 		case 'a':
-			++areaLight->areaType%=3;
+			++realtimeLight->areaType%=3;
 			needDepthMapUpdate = 1;
 			break;
 		case 'S':
@@ -1927,7 +1902,7 @@ void keyboard(unsigned char c, int x, int y)
 			break;
 		case '+':
 			{
-				unsigned numInstances = areaLight->getNumInstances();
+				unsigned numInstances = realtimeLight->getNumInstances();
 				if(numInstances+INSTANCES_PER_PASS<=MAX_INSTANCES) 
 				{
 					if(numInstances==1 && numInstances<INSTANCES_PER_PASS)
@@ -1935,21 +1910,21 @@ void keyboard(unsigned char c, int x, int y)
 					// vypnuty accum, protoze nedela dobrotu na radeonech
 					//else
 					//	numInstances += INSTANCES_PER_PASS;
-					areaLight->setNumInstances(numInstances);
+					realtimeLight->setNumInstances(numInstances);
 					setupAreaLight();
 				}
 			}
 			break;
 		case '-':
 			{
-				unsigned numInstances = areaLight->getNumInstances();
+				unsigned numInstances = realtimeLight->getNumInstances();
 				if(numInstances>1) 
 				{
 					if(numInstances>INSTANCES_PER_PASS) 
 						numInstances -= INSTANCES_PER_PASS;
 					else
 						numInstances = 1;
-					areaLight->setNumInstances(numInstances);
+					realtimeLight->setNumInstances(numInstances);
 					setupAreaLight();
 				}
 			}
@@ -2675,7 +2650,7 @@ int main(int argc, char **argv)
 	const char* renderer = (const char*)glGetString(GL_RENDERER);
 	ati = !vendor || !renderer || strstr(vendor,"ATI") || strstr(vendor,"AMD") || strstr(renderer,"Radeon");
 
-	updateMatrices(); // needed for startup without area lights (areaLight doesn't update matrices for 1 instance)
+	updateMatrices(); // needed for startup without area lights (realtimeLight doesn't update matrices for 1 instance)
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;
@@ -2713,7 +2688,7 @@ int main(int argc, char **argv)
 	uberProgramGlobalSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 #endif
 	if(!INSTANCES_PER_PASS) error("",true);
-	areaLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
+	realtimeLight->setNumInstances(startWithSoftShadows?INSTANCES_PER_PASS:1);
 
 	if(rr::RRLicense::loadLicense("licence_number")!=rr::RRLicense::VALID)
 		error("Problem with licence number.",false);

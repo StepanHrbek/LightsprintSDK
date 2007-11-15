@@ -114,47 +114,6 @@ struct RR_GL_API UberProgramSetup
 	Program* useProgram(UberProgram* uberProgram, const RealtimeLight* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma);
 };
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// UberProgramData - data for UberProgram
-/*
-//! Data for UberProgram, options that don't change code.
-struct RR_GL_API UberProgramData
-{
-	RealtimeLight*areaLight;                 ///< Area light with shadowmaps.
-	Texture* lightDirectMap;             ///< Multiplies direct light. This texture is projected by light.
-	float    lightIndirectConst[4];      ///< Adds indirect light.
-	Texture* lightIndirectMap;           ///< Adds indirect light.
-	Texture* lightIndirectDiffuseEnvMap; ///< Adds indirect light.
-	Texture* lightIndirectSpecularEnvMap;///< Adds indirect light.
-	float    materialDiffuseConst[4];    ///< Multiplies material's diffuse reflectance.
-	Texture* materialDiffuseMap;         ///< Multiplies material's diffuse reflectance.
-	float    materialSpecularConst[4];   ///< Multiplies material's specular reflectance.
-	Texture* materialSpecularMap;        ///< Multiplies material's specular reflectance.
-	Texture* materialEmissiveMap;        ///< Adds emission of light.
-	float    postprocessBrightness[4];   ///< Multiplies final color (before gamma).
-	float    postprocessGamma;           ///< Gamma corrects final color (after brightness).
-	float    worldMatrix[16];            ///< Transforms objects from object to world space.
-
-	//! Creates UberProgramData with default values.
-	UberProgramData();
-
-	//! Loads light data into program.
-	//
-	//! Returns false on failure to acquire and feed the data into GPU.
-	//! If rendering follows anyway, results are undefined.
-	bool feedProgram(const UberProgramSetup& uberProgramSetup, Program* program);
-	//bool feedLights(const UberProgramSetup& uberProgramSetup, Program* program);
-
-	//! Loads material data into program.
-	//
-	//! Returns false on failure to acquire and feed the data into GPU.
-	//! If rendering follows anyway, results are undefined.
-	//bool feedMaterial(const UberProgramSetup& uberProgramSetup, Program* program);
-};
-*/
-
 }; // namespace
 
 #endif

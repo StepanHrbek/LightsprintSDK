@@ -54,7 +54,7 @@ void error(const char* message, bool gfxRelated)
 
 Model_3DS              m3ds;
 rr_gl::Camera          eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
-rr_gl::RealtimeLight* areaLight = NULL;
+rr_gl::RealtimeLight*  realtimeLight = NULL;
 rr_gl::Texture*        lightDirectMap = NULL;
 rr_gl::Texture*        environmentMap = NULL;
 rr_gl::TextureRenderer*textureRenderer = NULL;
@@ -84,7 +84,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		textureRenderer->renderEnvironment(environmentMap,NULL);
 
 	// render static scene
-	if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
+	if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,lightDirectMap,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -111,7 +111,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			// LIGHT_INDIRECT_ENV = specular surface reflects constant envmap
 			uberProgramSetup.LIGHT_INDIRECT_ENV = true;
 		}
-		potato->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,environmentMap,eye,rotation/2);
+		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,lightDirectMap,environmentMap,eye,rotation/2);
 	}
 	if(robot)
 	{
@@ -124,17 +124,17 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 		}
-		robot->render(uberProgram,uberProgramSetup,areaLight,0,lightDirectMap,environmentMap,eye,rotation);
+		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,lightDirectMap,environmentMap,eye,rotation);
 	}
 }
 
 void updateShadowmap(unsigned mapIndex)
 {
-	rr_gl::Camera* lightInstance = areaLight->getInstance(mapIndex);
+	rr_gl::Camera* lightInstance = realtimeLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
 	glColorMask(0,0,0,0);
-	rr_gl::Texture* shadowmap = areaLight->getShadowMap(mapIndex);
+	rr_gl::Texture* shadowmap = realtimeLight->getShadowMap(mapIndex);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -158,8 +158,8 @@ void display(void)
 
 	// update shadowmaps
 	eye.update();
-	areaLight->getParent()->update();
-	unsigned numInstances = areaLight->getNumInstances();
+	realtimeLight->getParent()->update();
+	unsigned numInstances = realtimeLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
 	// update water reflection
@@ -231,7 +231,7 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = (double) winWidth / (double) winHeight;
-	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
+	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
 	glPolygonOffset(4, 42 << (shadowDepthBits-16) );
 }
 
@@ -257,13 +257,13 @@ void passive(int x, int y)
 		}
 		else
 		{
-			areaLight->getParent()->angle -= 0.005*x;
-			areaLight->getParent()->angleX -= 0.005*y;
-			CLAMP(areaLight->getParent()->angleX,-M_PI*0.49f,M_PI*0.49f);
+			realtimeLight->getParent()->angle -= 0.005*x;
+			realtimeLight->getParent()->angleX -= 0.005*y;
+			CLAMP(realtimeLight->getParent()->angleX,-M_PI*0.49f,M_PI*0.49f);
 			// changes also position a bit, together with rotation
-			areaLight->getParent()->pos += areaLight->getParent()->dir*0.3f;
-			areaLight->getParent()->update();
-			areaLight->getParent()->pos -= areaLight->getParent()->dir*0.3f;
+			realtimeLight->getParent()->pos += realtimeLight->getParent()->dir*0.3f;
+			realtimeLight->getParent()->update();
+			realtimeLight->getParent()->pos -= realtimeLight->getParent()->dir*0.3f;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -280,7 +280,7 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		rr_gl::Camera* cam = modeMovingEye?&eye:areaLight->getParent();
+		rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getParent();
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
@@ -356,7 +356,7 @@ int main(int argc, char **argv)
 
 	// init light
 	rr_gl::Camera light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-	areaLight = new rr_gl::RealtimeLight(&light,shadowmapsPerPass,512);
+	realtimeLight = new rr_gl::RealtimeLight(&light,shadowmapsPerPass,512);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

@@ -5,8 +5,8 @@
 //! All rights reserved
 //----------------------------------------------------------------------------
 
-#ifndef AREALIGHT_H
-#define AREALIGHT_H
+#ifndef REALTIMELIGHT_H
+#define REALTIMELIGHT_H
 
 #include <cassert>
 #include <cmath>

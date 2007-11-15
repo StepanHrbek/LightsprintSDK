@@ -82,7 +82,7 @@ void error(const char* message, bool gfxRelated)
 
 rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.1,100.0);
 rr_gl::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-rr_gl::RealtimeLight*     areaLight = NULL;
+rr_gl::RealtimeLight*      realtimeLight = NULL;
 rr_gl::Texture*            lightDirectMap = NULL;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
@@ -109,7 +109,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
-	lights.push_back(areaLight);
+	lights.push_back(realtimeLight);
 	rendererOfScene->setParams(uberProgramSetup,&lights,lightDirectMap);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
 	rendererOfScene->setBrightnessGamma(&brightness,gamma);
@@ -152,11 +152,11 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 
 void updateShadowmap(unsigned mapIndex)
 {
-	rr_gl::Camera* lightInstance = areaLight->getInstance(mapIndex);
+	rr_gl::Camera* lightInstance = realtimeLight->getInstance(mapIndex);
 	lightInstance->setupForRender();
 	delete lightInstance;
 	glColorMask(0,0,0,0);
-	rr_gl::Texture* shadowmap = areaLight->getShadowMap(mapIndex);
+	rr_gl::Texture* shadowmap = realtimeLight->getShadowMap(mapIndex);
 	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 	shadowmap->renderingToBegin();
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -217,7 +217,7 @@ protected:
 		uberProgramSetup.LIGHT_DIRECT_MAP = true;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.FORCE_2D_POSITION = true;
-		if(!uberProgramSetup.useProgram(uberProgram,areaLight,0,lightDirectMap,NULL,1))
+		if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,lightDirectMap,NULL,1))
 			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
@@ -379,7 +379,7 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = (double) winWidth / (double) winHeight;
-	GLint shadowDepthBits = areaLight->getShadowMap(0)->getTexelBits();
+	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
 	glPolygonOffset(4, 42 << (shadowDepthBits-16) );
 }
 
@@ -433,7 +433,7 @@ void display(void)
 	// update shadowmaps
 	eye.update();
 	light.update();
-	unsigned numInstances = areaLight->getNumInstances();
+	unsigned numInstances = realtimeLight->getNumInstances();
 	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
 
 	// update vertex color buffers if they need it
@@ -546,7 +546,7 @@ int main(int argc, char **argv)
 	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	if(!lightDirectMap)
 		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
-	areaLight = new rr_gl::RealtimeLight(&light,1,512);
+	realtimeLight = new rr_gl::RealtimeLight(&light,1,512);
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
