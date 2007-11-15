@@ -1,16 +1,17 @@
 // --------------------------------------------------------------------------
-// Realtime Radiosity sample
+// RealtimeRadiosity sample
 //
-// Realtime global illumination is demonstrated on .3ds scene viewer.
-// You should be familiar with OpenGL and GLUT to read the code.
+// Most suitable for: games, demos.
 //
-// This sample demonstrates rendering global illumination via
-// external renderer, indirect lighting is passed as arrays of vertex colors.
-// Other samples use internal RendererOfScene.
+// This is 3ds scene viewer with 
+// - realtime GI
+// - 1 custom area light with penumbra shadows
+// - precalculations
 //
-// Proper illumination of animated object is demonstrated.
+// Shows proper illumination of animated object.
 //
-// Penumbra shadows are demonstrated.
+// Shows rendering of GI via external renderer, indirect lighting is
+// passed as arrays of vertex colors. Other samples use internal RendererOfScene.
 //
 // Controls:
 //  mouse = look around
@@ -36,7 +37,6 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../../samples/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"
-#include <windows.h> // timeGetTime
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -123,7 +123,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	}
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
-	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (timeGetTime()%10000000)*0.07f;
+	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (clock()%10000000)*0.07f;
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(realtimeLight);
 	if(robot)

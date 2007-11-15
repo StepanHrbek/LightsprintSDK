@@ -1,12 +1,12 @@
 // --------------------------------------------------------------------------
 // RealtimeLights sample
 //
+// Most suitable for: scene viewers, designers, editors.
+//
 // This is a viewer of Collada .DAE scenes with
 // - realtime GI
 // - all lights from file, no hard limit on number of lights
-//   (other samples work with 1 light only, for simplicity)
 // - no precalculations
-//   (other samples use precalculations)
 //
 // Light types supported: point, spot (todo: directional)
 // GPUs supported: GeForce 5000+, Radeon X1300+
@@ -99,7 +99,7 @@ public:
 	}
 	virtual void setLights(const rr::RRLights& _lights)
 	{
-		// create light runtimes
+		// create realtime lights
 		RRDynamicSolverGL::setLights(_lights);
 		for(unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 		realtimeLights.clear();
@@ -122,31 +122,31 @@ public:
 		// update shadowmaps and smallMapsCPU
 		for(unsigned i=0;i<realtimeLights.size();i++)
 		{
-			rr_gl::RealtimeLight* lightRuntime = realtimeLights[i];
-			if(!lightRuntime || !uberProgram)
+			rr_gl::RealtimeLight* light = realtimeLights[i];
+			if(!light || !uberProgram)
 			{
 				RR_ASSERT(0);
 				continue;
 			}
-			if(numTriangles!=lightRuntime->numTriangles)
+			if(numTriangles!=light->numTriangles)
 			{
-				delete[] lightRuntime->smallMapCPU;
-				lightRuntime->smallMapCPU = new unsigned[lightRuntime->numTriangles=numTriangles];
-				lightRuntime->dirty = 1;
+				delete[] light->smallMapCPU;
+				light->smallMapCPU = new unsigned[light->numTriangles=numTriangles];
+				light->dirty = 1;
 			}
-			if(!lightRuntime->dirty) continue;
-			lightRuntime->dirty = 0;
+			if(!light->dirty) continue;
+			light->dirty = 0;
 			// update shadowmap[s]
 			{
 				glColorMask(0,0,0,0);
 				glEnable(GL_POLYGON_OFFSET_FILL);
 				rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
-				for(unsigned i=0;i<lightRuntime->getNumInstances();i++)
+				for(unsigned i=0;i<light->getNumInstances();i++)
 				{
-					rr_gl::Camera* lightInstance = lightRuntime->getInstance(i);
+					rr_gl::Camera* lightInstance = light->getInstance(i);
 					lightInstance->setupForRender();
 					delete lightInstance;
-					rr_gl::Texture* shadowmap = lightRuntime->getShadowMap(i);
+					rr_gl::Texture* shadowmap = light->getShadowMap(i);
 					glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
 					shadowmap->renderingToBegin();
 					glClear(GL_DEPTH_BUFFER_BIT);
@@ -154,13 +154,13 @@ public:
 				}
 				glDisable(GL_POLYGON_OFFSET_FILL);
 				glColorMask(1,1,1,1);
-				if(lightRuntime->getNumInstances())
-					lightRuntime->getShadowMap(0)->renderingToEnd();
+				if(light->getNumInstances())
+					light->getShadowMap(0)->renderingToEnd();
 				glViewport(0, 0, winWidth, winHeight);
 			}
 			// update smallmap
-			setupShaderLight = lightRuntime;
-			memcpy(lightRuntime->smallMapCPU,RRDynamicSolverGL::detectDirectIllumination(),4*numTriangles);
+			setupShaderLight = light;
+			memcpy(light->smallMapCPU,RRDynamicSolverGL::detectDirectIllumination(),4*numTriangles);
 			updated++;
 		}
 

@@ -214,7 +214,7 @@ void UberProgramSetup::setPostprocess(const rr::RRVec4* brightness, float gamma)
 	//POSTPROCESS_BIGSCREEN = 0;
 }*/
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLight* lightRuntime, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLight* light, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma)
 {
 	Program* program = getProgram(uberProgram);
 	if(!program)
@@ -235,20 +235,20 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 	//GLint samplers[100]; // for array of samplers (needs OpenGL 2.0 compliant card)
 	for(unsigned i=0;i<SHADOW_MAPS;i++)
 	{
-		if(!lightRuntime)
+		if(!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
 		glActiveTexture(GL_TEXTURE0+i);
 		// prepare samplers
-		lightRuntime->getShadowMap(firstInstance+i)->bindTexture();
+		light->getShadowMap(firstInstance+i)->bindTexture();
 		//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
 		char name[] = "shadowMap0"; // for individual samplers (works on buggy ATI)
 		name[9] = '0'+i; // for individual samplers (works on buggy ATI)
 		program->sendUniform(name, (int)i); // for individual samplers (works on buggy ATI)
 		// prepare and send matrices
-		Camera* lightInstance = lightRuntime->getInstance(firstInstance+i,true);
+		Camera* lightInstance = light->getInstance(firstInstance+i,true);
 		glLoadMatrixd(tmp);
 		glMultMatrixd(lightInstance->frustumMatrix);
 		glMultMatrixd(lightInstance->viewMatrix);
@@ -259,35 +259,33 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 
 	if(LIGHT_DIRECT)
 	{
-		if(!lightRuntime)
+		if(!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
-		const Camera* light = lightRuntime->getParent();
-		if(!light)
+		if(!light->getParent())
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->getParent()==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: light->getParent()==NULL.\n");
 			return false;
 		}
-		program->sendUniform("worldLightPos",light->pos[0],light->pos[1],light->pos[2]);
+		program->sendUniform("worldLightPos",light->getParent()->pos[0],light->getParent()->pos[1],light->getParent()->pos[2]);
 	}
 
 	if(LIGHT_DIRECT_COLOR)
 	{
-		if(!lightRuntime)
+		if(!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set.\n");
 			return false;
 		}
-		const rr::RRLight* light = lightRuntime->origin;
-		if(!light)
+		if(!light->origin)
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->origin==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: light->origin==NULL.\n");
 			return false;
 		}
-		rr::RRVec3 color = light->color;
-		if(light->distanceAttenuationType==rr::RRLight::NONE || light->distanceAttenuationType==rr::RRLight::PHYSICAL)
+		rr::RRVec3 color = light->origin->color;
+		if(light->origin->distanceAttenuationType==rr::RRLight::NONE || light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL)
 		{
 			color[0] = pow(color[0],0.45f);
 			color[1] = pow(color[1],0.45f);
@@ -311,30 +309,30 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 
 	if(LIGHT_DISTANCE_PHYSICAL)
 	{
-		RR_ASSERT(lightRuntime->origin && lightRuntime->origin->distanceAttenuationType==rr::RRLight::PHYSICAL);
+		RR_ASSERT(light->origin && light->origin->distanceAttenuationType==rr::RRLight::PHYSICAL);
 	}
 
 	if(LIGHT_DISTANCE_POLYNOMIAL)
 	{
-		if(!lightRuntime->origin)
+		if(!light->origin)
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->origin==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: light->origin==NULL.\n");
 			return false;
 		}
-		RR_ASSERT(lightRuntime->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL);
-		program->sendUniform("lightDistancePolynom",lightRuntime->origin->polynom.x,lightRuntime->origin->polynom.y,lightRuntime->origin->polynom.z);
+		RR_ASSERT(light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL);
+		program->sendUniform("lightDistancePolynom",light->origin->polynom.x,light->origin->polynom.y,light->origin->polynom.z);
 	}
 
 	if(LIGHT_DISTANCE_EXPONENTIAL)
 	{
-		if(!lightRuntime->origin)
+		if(!light->origin)
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: lightRuntime->origin==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: light->origin==NULL.\n");
 			return false;
 		}
-		RR_ASSERT(lightRuntime->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL);
-		program->sendUniform("lightDistanceRadius",lightRuntime->origin->radius);
-		program->sendUniform("lightDistanceFallOffExponent",lightRuntime->origin->fallOffExponent);
+		RR_ASSERT(light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL);
+		program->sendUniform("lightDistanceRadius",light->origin->radius);
+		program->sendUniform("lightDistanceFallOffExponent",light->origin->fallOffExponent);
 	}
 
 	if(LIGHT_INDIRECT_CONST)

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
 //! \file RealtimeLight.h
-//! \brief LightsprintGL | provides multiple spotlights for area light simulation
+//! \brief LightsprintGL | Extends RRLight for realtime rendering with GI
 //! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2007
 //! All rights reserved
 //----------------------------------------------------------------------------
