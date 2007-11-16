@@ -27,29 +27,16 @@ public:
 	//! Shapes of light source area.
 	enum AreaType
 	{
+		POINT, // point light, must have exactly 6 instances for cube shadow map generation
 		LINE, // n instances in line, spot/dir-light with penumbra shadows. Approx 1m long line, it simulates light coming from long narrow lightsource.
 		CIRCLE, // n instances in circle, spot/dir-light with penumbra shadows. Circle, it simulates light coming from circle (border).
 		RECTANGLE, // n instances in rectangle, spot/dir-light with penumbra shadows. Approx 1m*1m square grid, it simulates light coming from whole square. It needs more instances to prevent shadow banding.
-		POINT, // point light, must have exactly 6 instances for cube shadow map generation
 	};
 
-	//! Creates area light.
-	//! \param parent
-	//!  Parent instance. This light will always copy settings from parent instance.
-	//!  If you later change parent, new instances will change too.
-	//! \param numInstancesMax
-	//!  Max number of instances supported by later calls to setNumInstance.
-	//!  Instances are area light elements, more instances make smoother soft shadow.
-	//!  Area light is initially set to the same (max) number of instance.
-	//! \param shadowmapSize
-	//!  Resolution of shadowmaps will be shadowmapSize * shadowmapSize texels.
-	//!  Set higher resolution for hard and sharper shadows,
-	//!  set lower resolution for area and more blurry shadows.
-	//! \param areaType
-	//!  Type of area
-	RealtimeLight(const rr::RRLight& rrlight);
+	//! Creates realtime light out of standard light.
+	RealtimeLight(const rr::RRLight& origin);
+	//! Old interface, creates realtime spotlight out of camera.
 	RealtimeLight(rr_gl::Camera* camera, unsigned numInstances, unsigned resolution);
-	//RealtimeLight(Camera* parent, unsigned numInstancesMax, unsigned shadowmapSize, AreaType areaType=LINE);
 	virtual ~RealtimeLight();
 
 	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.

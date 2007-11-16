@@ -45,8 +45,6 @@ public:
 	//!  OBJECT_SPACE may be always cleared, it is set automatically when required.
 	//! \param lights
 	//!  Vector of lights.
-	//! \param lightDirectMap
-	//!  Texture projected by realtime area light.
 	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights);
 
 	//! Specifies data source - original scene geometry and illumination from given layer.

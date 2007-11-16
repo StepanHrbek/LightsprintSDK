@@ -45,14 +45,14 @@ namespace rr_gl
 
 		//! Sets lights used by both realtime and offline renderer.
 		//
-		//! For realtime rendering, #realtimeLights are created based on #lights given here.
+		//! For realtime rendering, #realtimeLights are created based on lights given here.
 		//!
 		//! It is legal to modify light properties after set, but not number of lights.
-		//! Changes are processed when #dirty flag is set.
+		//! Changes are processed when RealtimeLight::dirty flag is set.
 		//! While renderer reads most of light properties from original lights,
 		//! 'camera' properties like position, direction, fov are taken from #realtimeLights.
 		virtual void setLights(const rr::RRLights& lights);
-		//! Updates shadowmaps and GI from lights with #dirty set. Called by solver in response to reportDirectIlluminationChange().
+		//! Updates shadowmaps and GI from lights with RealtimeLight::dirty set. Called by solver in response to reportDirectIlluminationChange().
 		virtual void updateDirtyLights();
 		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application.
 		virtual void renderScene(UberProgramSetup uberProgramSetup) = 0;
