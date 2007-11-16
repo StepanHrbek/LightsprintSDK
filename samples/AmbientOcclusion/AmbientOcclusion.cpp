@@ -124,6 +124,7 @@ protected:
 		return createIlluminationPixelBuffer(res,res);
 #endif
 	}
+	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup) {}
 	virtual void detectMaterials() {}
 	virtual unsigned* detectDirectIllumination() {return NULL;}
 	virtual void setupShader(unsigned objectNumber) {}
@@ -189,7 +190,7 @@ void display(void)
 	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.update();
 	eye.setupForRender();
-	rendererOfScene->setParams(uberProgramSetup,NULL,NULL);
+	rendererOfScene->setParams(uberProgramSetup,NULL);
 	rendererOfScene->useOriginalScene(0);
 	rendererOfScene->setBrightnessGamma(&brightness,gamma);
 	rendererOfScene->render();

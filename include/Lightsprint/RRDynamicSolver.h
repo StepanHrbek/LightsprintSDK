@@ -380,11 +380,10 @@ namespace rr
 
 		//! Sets lights in scene, all at once.
 		//
+		//! Lights are used by both offline and realtime renderer.
 		//! By default, scene contains no lights.
-		//! Lights matter only for updateLightmap() and updateLightmaps(), they are not used by realtime GI solver.
 		//!
-		//! Note that even without lights, scene may be still lit, by 
-		//! - custom direct illumination, see detectDirectIllumination().
+		//! Note that even without lights, offline rendered scene may be still lit, by 
 		//! - emissive materials used by static objects
 		//! - environment, see setEnvironment()
 		virtual void setLights(const RRLights& lights);

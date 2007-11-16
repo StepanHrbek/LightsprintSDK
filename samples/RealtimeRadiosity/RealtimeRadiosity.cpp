@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // RealtimeRadiosity sample
 //
-// Most suitable for: games, demos.
+// Most suitable for: games, presentations.
 //
 // This is 3ds scene viewer with 
 // - realtime GI
@@ -61,7 +61,6 @@ void error(const char* message, bool gfxRelated)
 Model_3DS                  m3ds;
 rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
 rr_gl::RealtimeLight*      realtimeLight = NULL;
-rr_gl::Texture*            lightDirectMap = NULL;
 rr_gl::Texture*            environmentMap = NULL;
 rr_gl::TextureRenderer*    textureRenderer = NULL;
 #ifdef WATER
@@ -105,7 +104,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		textureRenderer->renderEnvironment(environmentMap,NULL);
 
 	// render static scene
-	if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,lightDirectMap,NULL,1))
+	if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -124,8 +123,6 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
 	if(!uberProgramSetup.LIGHT_DIRECT) rotation = (clock()%10000000)*0.07f;
-	rr::RRVector<rr_gl::RealtimeLight*> lights;
-	lights.push_back(realtimeLight);
 	if(robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
@@ -134,7 +131,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			solver->updateEnvironmentMap(robot->illumination);
-		robot->render(uberProgram,uberProgramSetup,&lights,0,lightDirectMap,eye,NULL,1);
+		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
 	if(potato)
 	{
@@ -143,33 +140,14 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			solver->updateEnvironmentMap(potato->illumination);
-		potato->render(uberProgram,uberProgramSetup,&lights,0,lightDirectMap,eye,NULL,1);
+		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
-}
-
-void updateShadowmap(unsigned mapIndex)
-{
-	rr_gl::Camera* lightInstance = realtimeLight->getInstance(mapIndex);
-	lightInstance->setupForRender();
-	delete lightInstance;
-	glColorMask(0,0,0,0);
-	rr_gl::Texture* shadowmap = realtimeLight->getShadowMap(mapIndex);
-	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
-	shadowmap->renderingToBegin();
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
-	renderScene(uberProgramSetup);
-	shadowmap->renderingToEnd();
-	glDisable(GL_POLYGON_OFFSET_FILL);
-	glViewport(0, 0, winWidth, winHeight);
-	glColorMask(1,1,1,1);
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// integration with RRDynamicSolver
+// GI solver
 
 class Solver : public rr_gl::RRDynamicSolverGL
 {
@@ -181,15 +159,16 @@ public:
 protected:
 	// skipped, material properties were already readen from .3ds and never change
 	virtual void detectMaterials() {}
+	// called from RRDynamicSolverGL to update shadowmaps
+	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+	{
+		::renderScene(uberProgramSetup);
+	}
 	// detects direct illumination irradiances on all faces in scene
 	virtual unsigned* detectDirectIllumination()
 	{
 		// don't try to detect when window is not created yet
 		if(!winWidth) return false;
-
-		// shadowmap could be outdated, update it
-		updateShadowmap(0);
-
 		return RRDynamicSolverGL::detectDirectIllumination();
 	}
 	// set shader so that direct light+shadows+emissivity are rendered, but no materials
@@ -200,10 +179,10 @@ protected:
 		uberProgramSetup.SHADOW_MAPS = 1;
 		uberProgramSetup.SHADOW_SAMPLES = 1;
 		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_DIRECT_MAP = true;
+		uberProgramSetup.LIGHT_DIRECT_MAP = realtimeLight->lightDirectMap?true:false;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.FORCE_2D_POSITION = true;
-		if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,lightDirectMap,NULL,1))
+		if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
 			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
@@ -220,14 +199,15 @@ void display(void)
 	// update shadowmaps
 	eye.update();
 	realtimeLight->getParent()->update();
-	unsigned numInstances = realtimeLight->getNumInstances();
-	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
+	for(unsigned i=0;i<solver->realtimeLights.size();i++)
+		solver->realtimeLights[i]->dirty = true;
+	solver->reportDirectIlluminationChange(false);
 
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 1;
 	uberProgramSetup.LIGHT_DIRECT = true;
-	uberProgramSetup.LIGHT_DIRECT_MAP = true;
+	uberProgramSetup.LIGHT_DIRECT_MAP = realtimeLight->lightDirectMap?true:false;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
@@ -242,7 +222,7 @@ void display(void)
 	// render everything except water
 	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
-	uberProgramSetup.SHADOW_MAPS = numInstances;
+	uberProgramSetup.SHADOW_MAPS = realtimeLight->getNumInstances();
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.SHADOW_PENUMBRA = true;
 	renderScene(uberProgramSetup);
@@ -334,6 +314,9 @@ void passive(int x, int y)
 void idle()
 {
 	if(!winWidth) return; // can't work without window
+
+	// this would print diagnostic messages from solver internals
+	//solver->verify();
 
 	// smooth keyboard movement
 	static TIME prev = 0;
@@ -431,16 +414,9 @@ int main(int argc, char **argv)
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	if(!lightDirectMap)
-		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	//environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\arctic_night\\arcn%s.tga",cubeSideNames);
-
-	// init light
-	rr_gl::Camera light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-	realtimeLight = new rr_gl::RealtimeLight(&light,shadowmapsPerPass,512);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))
@@ -467,6 +443,15 @@ int main(int argc, char **argv)
 	solver->setEnvironment(solver->adaptIlluminationEnvironmentMap(environmentMap));
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+
+	// init light
+	rr::RRLights lights;
+	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
+	solver->setLights(lights);
+	realtimeLight = solver->realtimeLights[0];
+	realtimeLight->lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	realtimeLight->setNumInstances(shadowmapsPerPass);
+	realtimeLight->setShadowmapSize(512);
 
 	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver.
 	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.

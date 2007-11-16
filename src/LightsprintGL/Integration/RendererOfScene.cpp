@@ -35,7 +35,7 @@ public:
 	RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders);
 
 	//! Sets parameters of render related to shader and direct illumination.
-	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const Texture* lightDirectMap);
+	void setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights);
 
 	//! Returns parameters with influence on render().
 	virtual const void* getParams(unsigned& length) const;
@@ -54,7 +54,6 @@ protected:
 		rr::RRDynamicSolver* solver;
 		UberProgramSetup uberProgramSetup;
 		const rr::RRVector<RealtimeLight*>* lights;
-		const Texture* lightDirectMap;
 		rr::RRVec4 brightness;
 		float gamma;
 		Params();
@@ -74,7 +73,6 @@ RendererOfRRDynamicSolver::Params::Params()
 {
 	solver = NULL;
 	lights = NULL;
-	lightDirectMap = NULL;
 }
 
 RendererOfRRDynamicSolver::RendererOfRRDynamicSolver(rr::RRDynamicSolver* solver, const char* pathToShaders)
@@ -101,11 +99,10 @@ RendererOfRRDynamicSolver::~RendererOfRRDynamicSolver()
 	delete textureRenderer;
 }
 
-void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const Texture* lightDirectMap)
+void RendererOfRRDynamicSolver::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights)
 {
 	params.uberProgramSetup = uberProgramSetup;
 	params.lights = lights;
-	params.lightDirectMap = lightDirectMap;
 }
 
 const void* RendererOfRRDynamicSolver::getParams(unsigned& length) const
@@ -222,7 +219,7 @@ void RendererOfRRDynamicSolver::render()
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
 		}
-		if(!uberProgramSetup.useProgram(uberProgram,(lightIndex<numLights)?(*params.lights)[lightIndex]:NULL,0,params.lightDirectMap,&params.brightness,params.gamma))
+		if(!uberProgramSetup.useProgram(uberProgram,(lightIndex<numLights)?(*params.lights)[lightIndex]:NULL,0,&params.brightness,params.gamma))
 		{
 			rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
 			return;
@@ -408,7 +405,7 @@ void RendererOfOriginalScene::render()
 		uberProgramSetup.validate();
 		if(i==0 || (uberProgramSetup.LIGHT_INDIRECT_auto && uberProgramSetup!=uberProgramSetupPrevious))
 		{
-			program = uberProgramSetup.useProgram(uberProgram,(params.lights&&params.lights->size())?(*params.lights)[0]:NULL,0,params.lightDirectMap,&params.brightness,params.gamma);
+			program = uberProgramSetup.useProgram(uberProgram,(params.lights&&params.lights->size())?(*params.lights)[0]:NULL,0,&params.brightness,params.gamma);
 			if(!program)
 			{
 				rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n");
@@ -525,9 +522,9 @@ RendererOfScene::~RendererOfScene()
 	delete renderer;
 }
 
-void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights, const Texture* lightDirectMap)
+void RendererOfScene::setParams(const UberProgramSetup& uberProgramSetup, const rr::RRVector<RealtimeLight*>* lights)
 {
-	renderer->setParams(uberProgramSetup,lights,lightDirectMap);
+	renderer->setParams(uberProgramSetup,lights);
 }
 
 void RendererOfScene::setBrightnessGamma(const rr::RRVec4* brightness, float gamma)

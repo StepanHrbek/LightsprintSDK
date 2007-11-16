@@ -133,7 +133,7 @@ void DynamicObject::updatePosition()
 	illumination->gatherEnvMapSize = MAX(gatherCubeSize,illumination->specularEnvMapSize);
 }
 
-void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr_gl::Texture* lightDirectMap,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma)
+void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr_gl::Camera& eye, const rr::RRVec4* brightness, float gamma)
 {
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.
@@ -163,7 +163,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL  = uberProgramSetup.LIGHT_DIRECT && light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 	uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = uberProgramSetup.LIGHT_DIRECT && light && light->origin && light->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 	// use program
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,lightDirectMap,brightness,gamma);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,brightness,gamma);
 	if(!program)
 	{
 		printf("Failed to compile or link GLSL program for dynamic object.\n");

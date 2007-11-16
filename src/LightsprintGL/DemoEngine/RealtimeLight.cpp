@@ -26,14 +26,13 @@ namespace rr_gl
 		dirty = true;
 
 		parent = new Camera(_rrlight);
-		numInstancesMax = (_rrlight.type==rr::RRLight::POINT)?6:1;
-		numInstances = (_rrlight.type==rr::RRLight::POINT)?6:1;
-		shadowMaps = new Texture*[numInstances];
 		shadowMapSize = 1024;
-		for(unsigned i=0;i<numInstancesMax;i++)
-			shadowMaps[i] = Texture::createShadowmap(shadowMapSize,shadowMapSize);
 		areaType = (_rrlight.type==rr::RRLight::POINT)?POINT:LINE;
 		areaSize = 0.2f;
+		lightDirectMap = NULL;
+		numInstances = 0;
+		shadowMaps = NULL;
+		setNumInstances((_rrlight.type==rr::RRLight::POINT)?6:1);
 	}
 
 	RealtimeLight::RealtimeLight(rr_gl::Camera* _camera, unsigned _numInstances, unsigned _resolution)
@@ -46,24 +45,20 @@ namespace rr_gl
 		dirty = true;
 
 		parent = _camera;
-		numInstancesMax = _numInstances;
-		numInstances = _numInstances;
-		shadowMaps = new Texture*[numInstances];
 		shadowMapSize = _resolution;
-		for(unsigned i=0;i<numInstancesMax;i++)
-			shadowMaps[i] = Texture::createShadowmap(shadowMapSize,shadowMapSize);
 		areaType = LINE;
 		areaSize = 0.2f;
+		lightDirectMap = NULL;
+		numInstances = 0;
+		shadowMaps = NULL;
+		setNumInstances(_numInstances);
 	}
 
 	RealtimeLight::~RealtimeLight()
 	{
 		delete[] smallMapCPU;
-		//delete smallMapGPU;
 		if(deleteParent) delete getParent();
-		for(unsigned i=0;i<numInstancesMax;i++)
-			delete shadowMaps[i];
-		delete[] shadowMaps;
+		setNumInstances(0);
 	}
 
 	Camera* RealtimeLight::getParent() const
@@ -73,7 +68,19 @@ namespace rr_gl
 
 	void RealtimeLight::setNumInstances(unsigned instances)
 	{
-		numInstances = instances;
+		if(instances!=numInstances)
+		{
+			for(unsigned i=0;i<numInstances;i++)
+				delete shadowMaps[i];
+			SAFE_DELETE_ARRAY(shadowMaps);
+			numInstances = instances;
+			if(numInstances)
+			{
+				shadowMaps = new Texture*[numInstances];
+				for(unsigned i=0;i<numInstances;i++)
+					shadowMaps[i] = Texture::createShadowmap(shadowMapSize,shadowMapSize);
+			}
+		}
 	}
 
 	unsigned RealtimeLight::getNumInstances() const
@@ -120,6 +127,7 @@ namespace rr_gl
 		}
 		if(numInstances==1)
 		{
+			light.update();
 			return; // only 1 instance -> use unmodified parent
 		}
 

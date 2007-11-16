@@ -214,7 +214,7 @@ void UberProgramSetup::setPostprocess(const rr::RRVec4* brightness, float gamma)
 	//POSTPROCESS_BIGSCREEN = 0;
 }*/
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLight* light, unsigned firstInstance, const Texture* lightDirectMap, const rr::RRVec4* brightness, float gamma)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma)
 {
 	Program* program = getProgram(uberProgram);
 	if(!program)
@@ -296,14 +296,14 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const RealtimeLi
 
 	if(LIGHT_DIRECT_MAP)
 	{
-		if(!lightDirectMap)
+		if(!light->lightDirectMap)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: lightDirectMap==NULL (projected texture is missing).\n");
 			return false;
 		}
 		int id=TEXTURE_2D_LIGHT_DIRECT;
 		glActiveTexture(GL_TEXTURE0+id);
-		lightDirectMap->bindTexture();
+		light->lightDirectMap->bindTexture();
 		program->sendUniform("lightDirectMap", id);
 	}
 

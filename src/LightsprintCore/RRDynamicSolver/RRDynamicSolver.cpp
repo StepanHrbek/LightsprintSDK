@@ -474,6 +474,10 @@ void RRDynamicSolver::verify()
 		RRReporter::report(WARN,"  No static objects in solver, see setStaticObjects().\n");
 		return;
 	}
+	if(!getLights().size())
+	{
+		RRReporter::report(WARN,"  No lights in solver, see setLights().\n");
+	}
 	unsigned* detected = detectDirectIllumination();
 	if(!detected)
 	{

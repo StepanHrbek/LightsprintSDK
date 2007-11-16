@@ -62,14 +62,15 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
+FCDocument*                collada = NULL;
+rr::RRObjects*             adaptedObjects = NULL;
+rr::RRLights*              adaptedLights = NULL;
+rr_gl::Texture*	           lightDirectMap = NULL;
+class Solver*              solver = NULL;
+DynamicObject*             robot;
+DynamicObject*             potato;
 rr_gl::Camera              eye(-1.856,1.440,2.097,2.404,0.000,0.020,1.3,110.0,0.1,100.0);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
-rr_gl::Texture*            lightDirectMap = NULL;
-rr_gl::UberProgram*        uberProgram = NULL;
-class Solver*              solver = NULL;
-rr_gl::RendererOfScene*    rendererOfScene = NULL;
-DynamicObject*             robot = NULL;
-DynamicObject*             potato = NULL;
 int                        winWidth = 0;
 int                        winHeight = 0;
 bool                       modeMovingEye = true;
@@ -81,181 +82,79 @@ rr::RRVec4                 brightness(1);
 float                      gamma = 1;
 float                      rotation = 0;
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RealtimeLight*>* lights);
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// integration with RRDynamicSolver
+// GI solver and renderer
 
 class Solver : public rr_gl::RRDynamicSolverGL
 {
 public:
-	rr::RRVector<rr_gl::RealtimeLight*> realtimeLights;
+	rr_gl::RendererOfScene* rendererOfScene;
+	rr_gl::UberProgram*     uberProgram;
 
 	Solver() : RRDynamicSolverGL("../../data/shaders/")
 	{
-		detectedDirectSum = NULL;
-		detectedNumTriangles = 0;
+		rendererOfScene = new rr_gl::RendererOfScene(this,"../../data/shaders/");
+		uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");
 	}
-	virtual void setLights(const rr::RRLights& _lights)
+	~Solver()
 	{
-		// create realtime lights
-		RRDynamicSolverGL::setLights(_lights);
-		for(unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
-		realtimeLights.clear();
-		for(unsigned i=0;i<_lights.size();i++) realtimeLights.push_back(new rr_gl::RealtimeLight(*_lights[i]));
-		// reset detected direct lighting
-		if(detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
+		delete uberProgram;
+		delete rendererOfScene;
 	}
-	void updateDirtyLights()
+	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	{
-		// alloc space for detected direct illum
-		unsigned updated = 0;
-		unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
-		if(numTriangles!=detectedNumTriangles)
-		{
-			delete[] detectedDirectSum;
-			detectedDirectSum = new unsigned[detectedNumTriangles=numTriangles];
-			memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
-		}
+		const rr::RRVector<rr_gl::RealtimeLight*>* lights = uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL;
 
-		// update shadowmaps and smallMapsCPU
-		for(unsigned i=0;i<realtimeLights.size();i++)
-		{
-			rr_gl::RealtimeLight* light = realtimeLights[i];
-			if(!light || !uberProgram)
-			{
-				RR_ASSERT(0);
-				continue;
-			}
-			if(numTriangles!=light->numTriangles)
-			{
-				delete[] light->smallMapCPU;
-				light->smallMapCPU = new unsigned[light->numTriangles=numTriangles];
-				light->dirty = 1;
-			}
-			if(!light->dirty) continue;
-			light->dirty = 0;
-			// update shadowmap[s]
-			{
-				glColorMask(0,0,0,0);
-				glEnable(GL_POLYGON_OFFSET_FILL);
-				rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
-				for(unsigned i=0;i<light->getNumInstances();i++)
-				{
-					rr_gl::Camera* lightInstance = light->getInstance(i);
-					lightInstance->setupForRender();
-					delete lightInstance;
-					rr_gl::Texture* shadowmap = light->getShadowMap(i);
-					glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
-					shadowmap->renderingToBegin();
-					glClear(GL_DEPTH_BUFFER_BIT);
-					renderScene(uberProgramSetup,NULL);
-				}
-				glDisable(GL_POLYGON_OFFSET_FILL);
-				glColorMask(1,1,1,1);
-				if(light->getNumInstances())
-					light->getShadowMap(0)->renderingToEnd();
-				glViewport(0, 0, winWidth, winHeight);
-			}
-			// update smallmap
-			setupShaderLight = light;
-			memcpy(light->smallMapCPU,RRDynamicSolverGL::detectDirectIllumination(),4*numTriangles);
-			updated++;
-		}
+		// render static scene
+		rendererOfScene->setParams(uberProgramSetup,lights);
+		rendererOfScene->useOptimizedScene();
+		rendererOfScene->setBrightnessGamma(&brightness,gamma);
+		rendererOfScene->render();
 
-		// sum smallMapsCPU into detectedDirectSum
-		if(updated)
+		// render dynamic objects
+		// enable object space
+		uberProgramSetup.OBJECT_SPACE = true;
+		// when not rendering shadows, enable environment maps
+		if(uberProgramSetup.LIGHT_DIRECT)
 		{
-			unsigned numLights = realtimeLights.size();
-			#pragma omp parallel for
-			for(int b=0;b<(int)numTriangles*4;b++)
-			{
-				unsigned sum = 0;
-				for(unsigned l=0;l<numLights;l++)
-					sum += ((unsigned char*)realtimeLights[l]->smallMapCPU)[b];
-				((unsigned char*)detectedDirectSum)[b] = CLAMPED(sum,0,255);
-			}
+			uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
+			uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
+			uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
+		}
+		// render objects
+		if(robot)
+		{
+			robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
+			robot->rotYZ = rr::RRVec2(rotation,0);
+			robot->updatePosition();
+			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+				updateEnvironmentMap(robot->illumination);
+			robot->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,gamma);
+		}
+		if(potato)
+		{
+			potato->worldFoot = rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f);
+			potato->rotYZ = rr::RRVec2(rotation/2,0);
+			potato->updatePosition();
+			if(uberProgramSetup.LIGHT_INDIRECT_ENV)
+				updateEnvironmentMap(potato->illumination);
+			potato->render(uberProgram,uberProgramSetup,lights,0,eye,&brightness,gamma);
 		}
 	}
 
 protected:
-	unsigned* detectedDirectSum;
-	unsigned detectedNumTriangles;
-	// skipped, material properties were already readen from .dae and never change
+	// skipped, material properties were already read from .dae and never change
 	virtual void detectMaterials() {}
-	// detects direct illumination irradiances on all faces in scene
 	virtual unsigned* detectDirectIllumination()
 	{
 		if(!winWidth) return NULL;
-		updateDirtyLights();
-		return detectedDirectSum;
-	}
-
-	rr_gl::RealtimeLight* setupShaderLight;
-	virtual void setupShader(unsigned objectNumber)
-	{
-		rr_gl::UberProgramSetup uberProgramSetup;
-		uberProgramSetup.SHADOW_MAPS = setupShaderLight->getNumInstances(); //!!! radeons 9500-X1250 can't run 6 in one pass
-		uberProgramSetup.SHADOW_SAMPLES = 1;
-		uberProgramSetup.LIGHT_DIRECT = true;
-		uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->origin && setupShaderLight->origin->color!=rr::RRVec3(1);
-		uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::RealtimeLight::POINT;
-		uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
-		uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
-		uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
-		uberProgramSetup.MATERIAL_DIFFUSE = true;
-		uberProgramSetup.FORCE_2D_POSITION = true;
-		if(!uberProgramSetup.useProgram(uberProgram,setupShaderLight,0,lightDirectMap,NULL,1))
-		{
-			error("Failed to compile or link GLSL program.\n",true);
-		}
+		return rr_gl::RRDynamicSolverGL::detectDirectIllumination();
 	}
 };
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// rendering scene
-
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, const rr::RRVector<rr_gl::RealtimeLight*>* lights)
-{
-	// render static scene
-	rendererOfScene->setParams(uberProgramSetup,lights,lightDirectMap);
-	rendererOfScene->useOptimizedScene();
-	rendererOfScene->setBrightnessGamma(&brightness,gamma);
-	rendererOfScene->render();
-
-	// render dynamic objects
-	// enable object space
-	uberProgramSetup.OBJECT_SPACE = true;
-	// when not rendering shadows, enable environment maps
-	if(uberProgramSetup.LIGHT_DIRECT)
-	{
-		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
-		uberProgramSetup.LIGHT_INDIRECT_MAP = false; // stop using ambient map illumination
-		uberProgramSetup.LIGHT_INDIRECT_ENV = true; // use indirect illumination from envmap
-	}
-	// render objects
-	if(robot)
-	{
-		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
-		robot->rotYZ = rr::RRVec2(rotation,0);
-		robot->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-			solver->updateEnvironmentMap(robot->illumination);
-		robot->render(uberProgram,uberProgramSetup,lights,0,lightDirectMap,eye,&brightness,gamma);
-	}
-	if(potato)
-	{
-		potato->worldFoot = rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f);
-		potato->rotYZ = rr::RRVec2(rotation/2,0);
-		potato->updatePosition();
-		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
-			solver->updateEnvironmentMap(potato->illumination);
-		potato->render(uberProgram,uberProgramSetup,lights,0,lightDirectMap,eye,&brightness,gamma);
-	}
-}
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -318,7 +217,19 @@ void keyboard(unsigned char c, int x, int y)
 			selectedLightIndex = MIN(c-'1',(int)solver->getLights().size()-1);
 			if(solver->realtimeLights.size()) modeMovingEye = false;
 			break;
+
 		case 27:
+			delete solver->getEnvironment();
+			delete solver->getScaler();
+			delete solver;
+			delete robot;
+			delete potato;
+			delete adaptedLights;
+			delete adaptedObjects;
+			delete lightDirectMap;
+			delete collada;
+			delete rr::RRReporter::getReporter();
+			rr::RRReporter::setReporter(NULL);
 			exit(0);
 	}
 }
@@ -399,7 +310,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	renderScene(uberProgramSetup,&solver->realtimeLights);
+	solver->renderScene(uberProgramSetup);
 
 	glutSwapBuffers();
 }
@@ -445,6 +356,10 @@ void idle()
 
 int main(int argc, char **argv)
 {
+	// check that we don't have memory leaks
+	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
+	//_crtBreakAlloc = ;
+
 	// check for version mismatch
 	if(!RR_INTERFACE_OK)
 	{
@@ -483,13 +398,24 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(0.9999); // prevents backprojection
 
-	// init shaders
-	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
-	
-	// init textures
-	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	if(!lightDirectMap)
-		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
+	// init solver
+	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
+		error("Problem with licence number.\n", false);
+	solver = new Solver();
+	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
+
+	// init static objects
+	{
+		collada = FCollada::NewTopDocument();
+		FUErrorSimpleHandler errorHandler;
+		collada->LoadFromFile("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
+		if(!errorHandler.IsSuccessful())
+		{
+			puts(errorHandler.GetErrorString());
+			error("",false);
+		}
+		solver->setStaticObjects(*(adaptedObjects=adaptObjectsFromFCollada(collada)),NULL);
+	}
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
@@ -500,27 +426,18 @@ int main(int argc, char **argv)
 	material.MATERIAL_SPECULAR_MAP = true;
 	potato = DynamicObject::create("..\\..\\data\\objects\\potato\\potato01.3ds",0.004f,material,16,16);
 
-	// init static scene and solver and lights
-	if(rr::RRLicense::loadLicense("..\\..\\data\\licence_number")!=rr::RRLicense::VALID)
-		error("Problem with licence number.\n", false);
-	solver = new Solver();
-	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	solver->setScaler(rr::RRScaler::createRgbScaler());
-	FCDocument* collada = FCollada::NewTopDocument();
-	FUErrorSimpleHandler errorHandler;
-	collada->LoadFromFile("..\\..\\data\\scenes\\koupelna\\koupelna4.dae");
-	if(!errorHandler.IsSuccessful())
-	{
-		puts(errorHandler.GetErrorString());
-		error("",false);
-	}
-	solver->setStaticObjects(*adaptObjectsFromFCollada(collada),NULL);
-	solver->setLights(*adaptLightsFromFCollada(collada));
+	// init environment
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(solver->loadIlluminationEnvironmentMap("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
-	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+
+	// init lights
+	solver->setLights(*(adaptedLights=adaptLightsFromFCollada(collada)));
+	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	for(unsigned i=0;i<solver->realtimeLights.size();i++)
+		solver->realtimeLights[i]->lightDirectMap = lightDirectMap;
+
 	solver->calculate();
 
 	glutMainLoop();

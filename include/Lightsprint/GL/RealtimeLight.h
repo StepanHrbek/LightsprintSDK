@@ -83,11 +83,20 @@ public:
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
 
-	//rr_gl::Texture* smallMapGPU;
+	//! Helper for GI calculation, used by RRDynamicSolverGL.
 	unsigned* smallMapCPU;
+	//! Helper for GI calculation, used by RRDynamicSolverGL.
 	unsigned numTriangles;
+
+	//! Marks lights that need update of shadows and GI.
 	bool dirty;
+
+	//! Original RRLight used at our creation, contains additional parameters like color. May be NULL.
 	const rr::RRLight* origin;
+
+	//! Texture projected by light. May be set from outside.
+	const Texture* lightDirectMap;
+
 protected:
 	bool deleteParent;
 	//! Modifies light to become given instance.
@@ -112,7 +121,6 @@ protected:
 	Camera* parent;
 	unsigned numInstances;
 	Texture** shadowMaps;
-	unsigned numInstancesMax;
 	unsigned shadowMapSize;
 };
 

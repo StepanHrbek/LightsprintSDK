@@ -328,7 +328,7 @@ void done_gl_resources()
 #ifdef CORNER_LOGO
 	SAFE_DELETE(lightsprintMap);
 #endif
-	SAFE_DELETE(realtimeLight);
+//!!! uvolnuje se vickrat SAFE_DELETE(realtimeLight);
 	gluDeleteQuadric(quadric);
 }
 
@@ -472,6 +472,10 @@ protected:
 	virtual void detectMaterials()
 	{
 	}
+	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+	{
+		::renderScene(uberProgramSetup,0,&currentFrame.eye);
+	}
 	virtual unsigned* detectDirectIllumination()
 	{
 		return demoPlayer ? RRDynamicSolverGL::detectDirectIllumination() : NULL;
@@ -524,7 +528,8 @@ protected:
 		//uberProgramSetup.OBJECT_SPACE = false;
 		uberProgramSetup.FORCE_2D_POSITION = true;
 
-		if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,demoPlayer->getProjector(currentFrame.projectorIndex),NULL,1))
+		realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
+		if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
 			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
@@ -680,7 +685,8 @@ void renderSceneStatic(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstI
 
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(realtimeLight);
-	level->rendererOfScene->setParams(uberProgramSetup,&lights,demoPlayer->getProjector(currentFrame.projectorIndex));
+	realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
+	level->rendererOfScene->setParams(uberProgramSetup,&lights);
 	level->rendererOfScene->render();
 }
 
@@ -697,57 +703,16 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 	rr::RRVector<rr_gl::RealtimeLight*> lights;
 	lights.push_back(realtimeLight);
-	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,demoPlayer->getProjector(currentFrame.projectorIndex),&globalBrightnessBoosted,globalGammaBoosted);
+	realtimeLight->lightDirectMap = demoPlayer->getProjector(currentFrame.projectorIndex);
+	demoPlayer->getDynamicObjects()->renderSceneDynamic(level->solver,uberProgram,uberProgramSetup,camera,&lights,firstInstance,&globalBrightnessBoosted,globalGammaBoosted);
 }
 
 void updateDepthMap(unsigned mapIndex,unsigned mapIndices)
 {
 	if(!needDepthMapUpdate) return;
-	assert(mapIndex>=0);
-	REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap...\n"));
-	rr_gl::Camera* lightInstance = realtimeLight->getInstance(mapIndex);
-	lightInstance->setupForRender();
-
-	glColorMask(0,0,0,0);
-	rr_gl::Texture* shadowmap = realtimeLight->getShadowMap((mapIndex>=0)?mapIndex:0);
-	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
-	shadowmap->renderingToBegin();
-	glClearDepth(0.9999); // prevents backprojection
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-
-	rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-	uberProgramSetup.SHADOW_MAPS = 0;
-	uberProgramSetup.SHADOW_SAMPLES = 0;
-	uberProgramSetup.LIGHT_DIRECT = false;
-	uberProgramSetup.LIGHT_DIRECT_MAP = false;
-	uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false;
-	uberProgramSetup.LIGHT_INDIRECT_MAP = false;
-	uberProgramSetup.LIGHT_INDIRECT_auto = false;
-	uberProgramSetup.LIGHT_INDIRECT_ENV = false;
-	uberProgramSetup.MATERIAL_DIFFUSE = false;
-	uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;
-	uberProgramSetup.MATERIAL_DIFFUSE_VCOLOR = false;
-	uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
-	uberProgramSetup.MATERIAL_SPECULAR = false;
-	uberProgramSetup.MATERIAL_SPECULAR_CONST = false;
-	uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
-	uberProgramSetup.MATERIAL_NORMAL_MAP = false;
-	uberProgramSetup.MATERIAL_EMISSIVE_MAP = false;
-	//uberProgramSetup.OBJECT_SPACE = false;
-	uberProgramSetup.FORCE_2D_POSITION = false;
-	renderScene(uberProgramSetup,0,lightInstance);
-	shadowmap->renderingToEnd();
-	delete lightInstance;
-
-	glDisable(GL_POLYGON_OFFSET_FILL);
-	glViewport(0, 0, winWidth, winHeight);
-	glColorMask(1,1,1,1);
-
-
-	if(mapIndex==mapIndices-1) 
+	if(level && level->solver) 
 	{
+		((rr_gl::RRDynamicSolverGL*)level->solver)->realtimeLights[0]->dirty = true;
 		needDepthMapUpdate = 0;
 	}
 }
@@ -2330,6 +2295,9 @@ void idle()
 			exit(g_fps ? (unsigned)(g_fps->getAvg()*10) : 0);
 			//keyboard(27,0,0);
 		}
+
+		// implant our light into solver
+		((rr_gl::RRDynamicSolverGL*)level->solver)->realtimeLights.push_back(realtimeLight);
 
 		//for(unsigned i=0;i<6;i++)
 		//	level->solver->calculate();

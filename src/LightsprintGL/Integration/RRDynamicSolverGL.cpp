@@ -112,8 +112,6 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* _pathToShaders, DDIQuality _detection
 
 	captureUv = new CaptureUv;
 	detectBigMap = Texture::create(NULL,BIG_MAP_SIZEX,BIG_MAP_SIZEY,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_CLAMP,GL_CLAMP);
-	smallMapSize = BIG_MAP_SIZEX*BIG_MAP_SIZEY/faceSizeX/faceSizeY;
-	detectSmallMap = new unsigned[smallMapSize*8]; // max static triangles = 64k*8 = 512k
 	char buf1[400]; buf1[399] = 0;
 	char buf2[400]; buf2[399] = 0;
 	_snprintf(buf1,399,"%sscaledown_filter.vs",pathToShaders);
@@ -125,47 +123,147 @@ RRDynamicSolverGL::RRDynamicSolverGL(char* _pathToShaders, DDIQuality _detection
 
 	rendererNonCaching = NULL;
 	rendererCaching = NULL;
-
 	rendererObject = NULL;
+	detectedDirectSum = NULL;
+	detectedNumTriangles = 0;
 
-#ifdef RR_DEVELOPMENT
-	// used by detectDirectIlluminationFromLightmaps
 	_snprintf(buf1,399,"%subershader.vs",pathToShaders);
 	_snprintf(buf2,399,"%subershader.fs",pathToShaders);
-	detectFromLightmapUberProgram = UberProgram::create(buf1,buf2);
-	detectingFromLightmapLayer = -1;
-#endif
+	uberProgram1 = UberProgram::create(buf1,buf2);
 }
 
 RRDynamicSolverGL::~RRDynamicSolverGL()
 {
+	for(unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
+	delete[] detectedDirectSum;
 	delete rendererCaching;
 	delete rendererNonCaching;
 	delete scaleDownProgram;
-	delete[] detectSmallMap;
 	delete detectBigMap;
 	delete captureUv;
-
-#ifdef RR_DEVELOPMENT
-	// used by detectDirectIlluminationFromLightmaps
-	delete detectFromLightmapUberProgram;
-#endif
+	delete uberProgram1;
 }
 
-#ifdef RR_DEVELOPMENT
-/*
-per object lighting:
--renderovat po objektech je neprijemne, protoze to znamena vic facu (i degenerovany)
--slo by zlepsit tim ze by byly degenrace zakazany a vstup s degeneraty zamitnut
--renderovat celou scenu a vyzobavat jen facy z objektu je neprijemne,
-protoze pak neni garantovane ze pujdou facy pekne za sebou
--slo by zlepsit tim ze multiobjekt bude garantovat poradi(slo by pres zakaz optimalizaci v multiobjektu)
-*/
-#endif
+void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
+{
+	// create realtime lights
+	RRDynamicSolver::setLights(_lights);
+	for(unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
+	realtimeLights.clear();
+	for(unsigned i=0;i<_lights.size();i++) realtimeLights.push_back(new rr_gl::RealtimeLight(*_lights[i]));
+	// reset detected direct lighting
+	if(detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
+}
+
+void RRDynamicSolverGL::updateDirtyLights()
+{
+	PreserveViewport p1;
+
+	// alloc space for detected direct illum
+	unsigned updated = 0;
+	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+	if(numTriangles!=detectedNumTriangles)
+	{
+		delete[] detectedDirectSum;
+		detectedNumTriangles = numTriangles;
+		detectedDirectSum = new unsigned[detectedNumTriangles];
+		memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
+	}
+
+	// update shadowmaps and smallMapsCPU
+	for(unsigned i=0;i<realtimeLights.size();i++)
+	{
+		REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap...\n"));
+		rr_gl::RealtimeLight* light = realtimeLights[i];
+		if(!light)
+		{
+			RR_ASSERT(0);
+			continue;
+		}
+		if(numTriangles!=light->numTriangles)
+		{
+			delete[] light->smallMapCPU;
+			light->numTriangles = numTriangles;
+			light->smallMapCPU = new unsigned[numTriangles+2047]; // allocate more so we can read complete last line from GPU, including unused values
+			light->dirty = 1;
+		}
+		if(!light->dirty) continue;
+		light->dirty = 0;
+		// update shadowmap[s]
+		{
+			glClearDepth(0.9999); // prevents backprojection
+			glColorMask(0,0,0,0);
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
+			for(unsigned i=0;i<light->getNumInstances();i++)
+			{
+				rr_gl::Camera* lightInstance = light->getInstance(i);
+				lightInstance->setupForRender();
+				delete lightInstance;
+				rr_gl::Texture* shadowmap = light->getShadowMap(i);
+				glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
+				shadowmap->renderingToBegin();
+				glClear(GL_DEPTH_BUFFER_BIT);
+				renderScene(uberProgramSetup);
+			}
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glColorMask(1,1,1,1);
+			if(light->getNumInstances())
+				light->getShadowMap(0)->renderingToEnd();
+		}
+		// update smallmap
+		setupShaderLight = light;
+		updated += detectDirectIlluminationTo(light->smallMapCPU,light->numTriangles);
+	}
+
+	// sum smallMapsCPU into detectedDirectSum
+	if(updated && realtimeLights.size()>1)
+	{
+		unsigned numLights = realtimeLights.size();
+#pragma omp parallel for
+		for(int b=0;b<(int)numTriangles*4;b++)
+		{
+			unsigned sum = 0;
+			for(unsigned l=0;l<numLights;l++)
+				sum += ((unsigned char*)realtimeLights[l]->smallMapCPU)[b];
+			((unsigned char*)detectedDirectSum)[b] = CLAMPED(sum,0,255);
+		}
+	}
+}
 
 unsigned* RRDynamicSolverGL::detectDirectIllumination()
 {
-	if(!scaleDownProgram) return NULL;
+	updateDirtyLights();
+	if(realtimeLights.size()==1) return realtimeLights[0]->smallMapCPU;
+	return detectedDirectSum;
+}
+
+void RRDynamicSolverGL::setupShader(unsigned objectNumber)
+{
+	rr_gl::UberProgramSetup uberProgramSetup;
+	uberProgramSetup.SHADOW_MAPS = (setupShaderLight->areaType==RealtimeLight::POINT)?setupShaderLight->getNumInstances():1; // radeons 9500-X1250 can't run 6 in one pass
+	uberProgramSetup.SHADOW_SAMPLES = 1;
+	uberProgramSetup.LIGHT_DIRECT = true;
+	uberProgramSetup.LIGHT_DIRECT_COLOR = setupShaderLight->origin && setupShaderLight->origin->color!=rr::RRVec3(1);
+	uberProgramSetup.LIGHT_DIRECT_MAP = setupShaderLight->areaType!=rr_gl::RealtimeLight::POINT;
+	uberProgramSetup.LIGHT_DISTANCE_PHYSICAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::PHYSICAL;
+	uberProgramSetup.LIGHT_DISTANCE_POLYNOMIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::POLYNOMIAL;
+	uberProgramSetup.LIGHT_DISTANCE_EXPONENTIAL = setupShaderLight->origin && setupShaderLight->origin->distanceAttenuationType==rr::RRLight::EXPONENTIAL;
+	uberProgramSetup.MATERIAL_DIFFUSE = true;
+	uberProgramSetup.FORCE_2D_POSITION = true;
+	if(!uberProgramSetup.useProgram(uberProgram1,setupShaderLight,0,NULL,1))
+	{
+		rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n");
+	}
+}
+
+unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsigned _space)
+{
+	if(!scaleDownProgram || !_results)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
 
 	REPORT(rr::RRReportInterval report(rr::INF1,"detectDirectIllumination()\n"));
 
@@ -184,14 +282,14 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 			rendererCaching = rendererNonCaching->createDisplayList();
 		}
 	}
-	if(!rendererObject) return false;
+	if(!rendererObject) return 0;
 
 	rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
 	if(!numTriangles)
 	{
 		RR_ASSERT(0); // legal, but should not happen in well coded program
-		return NULL;
+		return 0;
 	}
 
 	// preserve render states, any changes will be restored at return from this function
@@ -235,26 +333,17 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 
 		// setup shader
 #ifdef RR_DEVELOPMENT
-		if(detectingFromLightmapLayer>=0)
-		{
-			// special path for detectDirectIlluminationFromLightmaps()
-			// this will be removed in future
-			renderedChannels.LIGHT_DIRECT = false;
-			renderedChannels.LIGHT_INDIRECT_MAP = true;
-			UberProgramSetup detectFromLightmapUberProgramSetup;
-			detectFromLightmapUberProgramSetup.LIGHT_INDIRECT_MAP = true;
-			detectFromLightmapUberProgramSetup.MATERIAL_DIFFUSE = true;
-			detectFromLightmapUberProgramSetup.FORCE_2D_POSITION = true;
-			detectFromLightmapUberProgramSetup.useProgram(detectFromLightmapUberProgram,NULL,0,NULL,NULL,1);
-			rendererNonCaching->setIndirectIlluminationLayer(detectingFromLightmapLayer);
-		}
-		else
+		//!!! no support for per object shaders yet
+		/*
+		per object lighting:
+		-renderovat po objektech je neprijemne, protoze to znamena vic facu (i degenerovany)
+		-slo by zlepsit tim ze by byly degenrace zakazany a vstup s degeneraty zamitnut
+		-renderovat celou scenu a vyzobavat jen facy z objektu je neprijemne,
+		protoze pak neni garantovane ze pujdou facy pekne za sebou
+		-slo by zlepsit tim ze multiobjekt bude garantovat poradi(slo by pres zakaz optimalizaci v multiobjektu)
+		*/
 #endif
-		{
-			// standard path customizable by subclassing
-			//!!! no support for per object shaders yet
-			setupShader(0);
-		}
+		setupShader(0);
 
 		// render scene
 		rendererNonCaching->setRenderedChannels(renderedChannels);
@@ -287,36 +376,14 @@ unsigned* RRDynamicSolverGL::detectDirectIllumination()
 		glEnd();
 
 		// read downscaled image to memory
-		RR_ASSERT(captureUv->triCountX*captureUv->triCountY<=smallMapSize);
+		RR_ASSERT(captureUv->triCountX*captureUv->triCountY <= BIG_MAP_SIZEX*BIG_MAP_SIZEY/faceSizeX/faceSizeY);
 		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", captureUv->triCountX, captureUv->triCountY));
-		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, detectSmallMap+captureUv->firstCapturedTriangle);
+		RR_ASSERT(_space+2047>=captureUv->firstCapturedTriangle+captureUv->triCountX*captureUv->triCountY);
+		glReadPixels(0, 0, captureUv->triCountX, captureUv->triCountY, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, _results+captureUv->firstCapturedTriangle);
 	}
 
-	return detectSmallMap;
+	return 1;
 }
-
-#ifdef RR_DEVELOPMENT
-
-void RRDynamicSolverGL::detectDirectIlluminationFromLightmaps(unsigned sourceLayer)
-{
-	detectingFromLightmapLayer = sourceLayer;
-	RRDynamicSolverGL::detectDirectIllumination(detectedCustomRGBA8);
-	detectingFromLightmapLayer = -1;
-}
-
-unsigned RRDynamicSolverGL::updateVertexBuffersFromLightmaps(unsigned layerNumber, bool createMissingBuffers)
-{
-	// loads lightmap [per-pixel-custom] into multiobject [per-triangle-physical]
-	detectDirectIlluminationFromLightmaps(layerNumber);
-	// loads multiobject [per-triangle-physical] into solver [per triangle-physical]
-//!!!	priv->scene->illuminationReset(false,true);
-//!!!	priv->solutionVersion++;
-	// reads interpolated solution [per-vertex-physical] from solver
-	UpdateParameters params;
-	params.measure = rr::RRRadiometricMeasure(0,0,0,1,0);
-	return updateVertexBuffers(layerNumber,-1,createMissingBuffers,&params,NULL);
-}
-#endif
 
 bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminationPixelBuffer* lightmap)
 {

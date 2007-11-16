@@ -55,7 +55,6 @@ void error(const char* message, bool gfxRelated)
 Model_3DS              m3ds;
 rr_gl::Camera          eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.3,60.0);
 rr_gl::RealtimeLight*  realtimeLight = NULL;
-rr_gl::Texture*        lightDirectMap = NULL;
 rr_gl::Texture*        environmentMap = NULL;
 rr_gl::TextureRenderer*textureRenderer = NULL;
 rr_gl::UberProgram*    uberProgram = NULL;
@@ -84,7 +83,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		textureRenderer->renderEnvironment(environmentMap,NULL);
 
 	// render static scene
-	if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,lightDirectMap,NULL,1))
+	if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1))
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -111,7 +110,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			// LIGHT_INDIRECT_ENV = specular surface reflects constant envmap
 			uberProgramSetup.LIGHT_INDIRECT_ENV = true;
 		}
-		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,lightDirectMap,environmentMap,eye,rotation/2);
+		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,environmentMap,eye,rotation/2);
 	}
 	if(robot)
 	{
@@ -124,7 +123,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 		}
-		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,lightDirectMap,environmentMap,eye,rotation);
+		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,environmentMap,eye,rotation);
 	}
 }
 
@@ -348,15 +347,13 @@ int main(int argc, char **argv)
 	if(!shadowmapsPerPass) error("",true);
 	
 	// init textures
-	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	if(!lightDirectMap)
-		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	environmentMap = rr_gl::Texture::load("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 
 	// init light
 	rr_gl::Camera light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
 	realtimeLight = new rr_gl::RealtimeLight(&light,shadowmapsPerPass,512);
+	realtimeLight->lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 
 	// init static .3ds scene
 	if(!m3ds.Load("..\\..\\data\\scenes\\koupelna\\koupelna4.3ds",0.03f))

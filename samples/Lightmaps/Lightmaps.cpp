@@ -81,9 +81,7 @@ void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 rr_gl::Camera              eye(-1.416,1.741,-3.646, 12.230,0,0.050,1.3,70.0,0.1,100.0);
-rr_gl::Camera              light(-1.802,0.715,0.850, 0.635,0,0.300,1.0,70.0,1.0,20.0);
-rr_gl::RealtimeLight*      realtimeLight = NULL;
-rr_gl::Texture*            lightDirectMap = NULL;
+rr_gl::Camera*             light;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
 rr_gl::RendererOfScene*    rendererOfScene = NULL;
@@ -108,9 +106,7 @@ float                      gamma = 1;
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render static scene
-	rr::RRVector<rr_gl::RealtimeLight*> lights;
-	lights.push_back(realtimeLight);
-	rendererOfScene->setParams(uberProgramSetup,&lights,lightDirectMap);
+	rendererOfScene->setParams(uberProgramSetup,&solver->realtimeLights);
 	rendererOfScene->useOriginalScene(realtimeIllumination?0:1);
 	rendererOfScene->setBrightnessGamma(&brightness,gamma);
 	rendererOfScene->render();
@@ -137,7 +133,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			solver->updateEnvironmentMap(robot->illumination);
-		robot->render(uberProgram,uberProgramSetup,&lights,0,lightDirectMap,eye,&brightness,gamma);
+		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);
 	}
 	if(potato)
 	{
@@ -146,27 +142,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->updatePosition();
 		if(uberProgramSetup.LIGHT_INDIRECT_ENV)
 			solver->updateEnvironmentMap(potato->illumination);
-		potato->render(uberProgram,uberProgramSetup,&lights,0,lightDirectMap,eye,&brightness,gamma);
+		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,&brightness,gamma);
 	}
-}
-
-void updateShadowmap(unsigned mapIndex)
-{
-	rr_gl::Camera* lightInstance = realtimeLight->getInstance(mapIndex);
-	lightInstance->setupForRender();
-	delete lightInstance;
-	glColorMask(0,0,0,0);
-	rr_gl::Texture* shadowmap = realtimeLight->getShadowMap(mapIndex);
-	glViewport(0, 0, shadowmap->getWidth(), shadowmap->getHeight());
-	shadowmap->renderingToBegin();
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets all off, perfect for shadowmap
-	renderScene(uberProgramSetup);
-	shadowmap->renderingToEnd();
-	glDisable(GL_POLYGON_OFFSET_FILL);
-	glViewport(0, 0, winWidth, winHeight);
-	glColorMask(1,1,1,1);
 }
 
 
@@ -195,15 +172,16 @@ protected:
 	}
 	// skipped, material properties were already readen from .dae and never change
 	virtual void detectMaterials() {}
+	// called from RRDynamicSolverGL to update shadowmaps
+	virtual void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+	{
+		::renderScene(uberProgramSetup);
+	}
 	// detects direct illumination irradiances on all faces in scene
 	virtual unsigned* detectDirectIllumination()
 	{
 		// don't try to detect when window is not created yet
 		if(!winWidth) return NULL;
-
-		// shadowmap could be outdated, update it
-		updateShadowmap(0);
-
 		return RRDynamicSolverGL::detectDirectIllumination();
 	}
 	// set shader so that direct light+shadows+emissivity are rendered, but no materials
@@ -217,7 +195,7 @@ protected:
 		uberProgramSetup.LIGHT_DIRECT_MAP = true;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.FORCE_2D_POSITION = true;
-		if(!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,lightDirectMap,NULL,1))
+		if(!uberProgramSetup.useProgram(uberProgram,realtimeLights[0],0,NULL,1))
 			error("Failed to compile or link GLSL program.\n",true);
 	}
 };
@@ -379,7 +357,7 @@ void reshape(int w, int h)
 	winHeight = h;
 	glViewport(0, 0, w, h);
 	eye.aspect = (double) winWidth / (double) winHeight;
-	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
+	GLint shadowDepthBits = solver->realtimeLights[0]->getShadowMap(0)->getTexelBits();
 	glPolygonOffset(4, 42 << (shadowDepthBits-16) );
 }
 
@@ -413,14 +391,14 @@ void passive(int x, int y)
 		}
 		else
 		{
-			light.angle -= 0.005*x;
-			light.angleX -= 0.005*y;
-			CLAMP(light.angleX,-M_PI*0.49f,M_PI*0.49f);
+			light->angle -= 0.005*x;
+			light->angleX -= 0.005*y;
+			CLAMP(light->angleX,-M_PI*0.49f,M_PI*0.49f);
 			solver->reportDirectIlluminationChange(true);
 			// changes also position a bit, together with rotation
-			light.pos += light.dir*0.3f;
-			light.update();
-			light.pos -= light.dir*0.3f;
+			light->pos += light->dir*0.3f;
+			light->update();
+			light->pos -= light->dir*0.3f;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
@@ -432,9 +410,10 @@ void display(void)
 
 	// update shadowmaps
 	eye.update();
-	light.update();
-	unsigned numInstances = realtimeLight->getNumInstances();
-	for(unsigned i=0;i<numInstances;i++) updateShadowmap(i);
+	light->update();
+	for(unsigned i=0;i<solver->realtimeLights.size();i++)
+		solver->realtimeLights[i]->dirty = true;
+	solver->reportDirectIlluminationChange(false);
 
 	// update vertex color buffers if they need it
 	if(realtimeIllumination)
@@ -450,7 +429,7 @@ void display(void)
 	glClear(GL_DEPTH_BUFFER_BIT);
 	eye.setupForRender();
 	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.SHADOW_MAPS = numInstances;
+	uberProgramSetup.SHADOW_MAPS = 1;
 	uberProgramSetup.SHADOW_SAMPLES = 4;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
@@ -477,14 +456,14 @@ void idle()
 	{
 		float seconds = (now-prev)/(float)PER_SEC;
 		CLAMP(seconds,0.001f,0.3f);
-		rr_gl::Camera* cam = modeMovingEye?&eye:&light;
+		rr_gl::Camera* cam = modeMovingEye?&eye:light;
 		if(speedForward) cam->moveForward(speedForward*seconds);
 		if(speedBack) cam->moveBack(speedBack*seconds);
 		if(speedRight) cam->moveRight(speedRight*seconds);
 		if(speedLeft) cam->moveLeft(speedLeft*seconds);
 		if(speedForward || speedBack || speedRight || speedLeft)
 		{
-			if(cam==&light) solver->reportDirectIlluminationChange(true);
+			if(cam==light) solver->reportDirectIlluminationChange(true);
 		}
 	}
 	prev = now;
@@ -541,12 +520,6 @@ int main(int argc, char **argv)
 
 	// init shaders
 	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
-	
-	// init textures
-	lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	if(!lightDirectMap)
-		error("Texture ..\\..\\data\\maps\\spot0.png not found.\n",false);
-	realtimeLight = new rr_gl::RealtimeLight(&light,1,512);
 
 	// init dynamic objects
 	rr_gl::UberProgramSetup material;
@@ -572,12 +545,18 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 	solver->setStaticObjects(*adaptObjectsFromFCollada(collada),NULL);
-	solver->setLights(*adaptLightsFromFCollada(collada));
 	const char* cubeSideNames[6] = {"bk","ft","up","dn","rt","lf"};
 	solver->setEnvironment(solver->loadIlluminationEnvironmentMap("..\\..\\data\\maps\\skybox\\skybox_%s.jpg",cubeSideNames,true,true));
 	rendererOfScene = new rr_gl::RendererOfScene(solver,"../../data/shaders/");
 	if(!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
+
+	// init light
+	rr::RRLights lights;
+	lights.push_back(rr::RRLight::createSpotLight(rr::RRVec3(-1.802,0.715,0.850),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),40*3.14159f/180,0.1f));
+	solver->setLights(lights);
+	solver->realtimeLights[0]->lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	light = solver->realtimeLights[0]->getParent();
 
 	glutMainLoop();
 	return 0;

@@ -43,6 +43,20 @@ namespace rr_gl
 		RRDynamicSolverGL(char* pathToShaders, DDIQuality detectionQuality = DDI_AUTO);
 		virtual ~RRDynamicSolverGL();
 
+		//! Sets lights used by both realtime and offline renderer.
+		//
+		//! For realtime rendering, #realtimeLights are created based on #lights given here.
+		//!
+		//! It is legal to modify light properties after set, but not number of lights.
+		//! Changes are processed when #dirty flag is set.
+		//! While renderer reads most of light properties from original lights,
+		//! 'camera' properties like position, direction, fov are taken from #realtimeLights.
+		virtual void setLights(const rr::RRLights& lights);
+		//! Updates shadowmaps and GI from lights with #dirty set. Called by solver in response to reportDirectIlluminationChange().
+		virtual void updateDirtyLights();
+		//! Renders whole scene, called by solver when updating shadowmaps. To be implemented by application.
+		virtual void renderScene(UberProgramSetup uberProgramSetup) = 0;
+
 		//! Creates 2d texture for indirect illumination storage.
 		//! Used for precomputed global illumination of static objects.
 		//! \param width Width of texture.
@@ -102,27 +116,32 @@ namespace rr_gl
 		//! Calling it makes sense if you detect memory leaks.
 		static void cleanup();
 
+		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
+		//! without material. Helper function called from detectDirectIllumination().
+		virtual void setupShader(unsigned objectNumber);
+		//! Helper function called from detectDirectIllumination().
+		virtual unsigned detectDirectIlluminationTo(unsigned* results, unsigned space);
 		//! Detection of direct illumination from custom light sources implemented using OpenGL 2.0.
 		virtual unsigned* detectDirectIllumination();
 
-	protected:
-
-		//! Sets shader so that feeding vertices+normals to rendering pipeline renders irradiance, incoming light
-		//! without material. This is renderer specific operation and can't be implemented here.
-		virtual void setupShader(unsigned objectNumber) = 0;
+		//! Realtime lights, set by setLights(). You may modify them freely.
+		rr::RRVector<rr_gl::RealtimeLight*> realtimeLights;
 
 	private:
-		char pathToShaders[300];
 		// for internal rendering
+		char pathToShaders[300];
 		class CaptureUv* captureUv;
 		const void* rendererObject;
 		class RendererOfRRObject* rendererNonCaching;
 		Renderer* rendererCaching;
 		Texture* detectBigMap;
-		unsigned* detectSmallMap;
-		unsigned smallMapSize;
 		Program* scaleDownProgram;
 		DDIQuality detectionQuality;
+		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination
+		// for GI of multiple lights
+		rr_gl::RealtimeLight* setupShaderLight;
+		unsigned* detectedDirectSum;
+		unsigned detectedNumTriangles;
 	};
 
 };
