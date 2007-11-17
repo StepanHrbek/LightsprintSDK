@@ -516,8 +516,7 @@ int main(int argc, char **argv)
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
-	glClearDepth(0.9999); // prevents backprojection
-
+	
 	// init shaders
 	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
 

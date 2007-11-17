@@ -274,6 +274,7 @@ void reshape(int w, int h)
 	eye.aspect = (double) winWidth / (double) winHeight;
 	GLint shadowDepthBits = realtimeLight->getShadowMap(0)->getTexelBits();
 	glPolygonOffset(4, 42 << (shadowDepthBits-16) );
+	solver->calculate(); // make sure lighting is computed before first display()
 }
 
 void mouse(int button, int state, int x, int y)
@@ -392,7 +393,6 @@ int main(int argc, char **argv)
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
-	glClearDepth(0.9999); // prevents backprojection
 
 	// init shaders
 	uberProgram = rr_gl::UberProgram::create("..\\..\\data\\shaders\\ubershader.vs", "..\\..\\data\\shaders\\ubershader.fs");
@@ -450,10 +450,10 @@ int main(int argc, char **argv)
 	solver->setLights(lights);
 	realtimeLight = solver->realtimeLights[0];
 	realtimeLight->lightDirectMap = rr_gl::Texture::load("..\\..\\data\\maps\\spot0.png", NULL, false, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
-	realtimeLight->setNumInstances(shadowmapsPerPass);
 	realtimeLight->setShadowmapSize(512);
+	realtimeLight->setNumInstances(shadowmapsPerPass);
 
-	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver.
+	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver for games.
 	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.
 	solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
 

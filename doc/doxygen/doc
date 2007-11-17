@@ -220,21 +220,21 @@ Ray-Mesh collisions
 
 \page main_credits Additional credits
 
-Lightsprint SDK uses open source libraries listed below.
+Lightsprint SDK uses free open source libraries listed below.
 They are included here as .dll files.
 You are free to download their sources and rebuild, use them in commercial applications etc.
 
 Used by LightsprintCore:
 - <a href="http://freeimage.sourceforge.net">FreeImage</a> This software uses the FreeImage open source image library.
   FreeImage is used under the FIPL, version 1.0.
-  FreeImage internally uses other open source libraries.
+  FreeImage internally uses other free open source libraries.
 
 Used by LightsprintGL:
 - <a href="http://glew.sourceforge.net/">GLEW</a>
 
 Used by samples:
 - <a href="http://www.feelingsoftware.com/content/view/62/76">FCollada</a> by Feeling Software is used under MIT license.
-  FCollada internally uses other open source libraries.
+  FCollada internally uses other free open source libraries.
 - <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
 
 
@@ -1867,7 +1867,7 @@ Used by samples:
 \page inputs_geometry Geometry
  Scene geometry is specified by RRObjects - set of RRObject objects.
  \n Each object has its own transformation matrix and pointer to RRMesh triangle mesh,
- so object is instance of mesh.
+ so object is an instance of mesh.
  \n Mesh specifies vertices, triangles, normals, unwrap and custom data.
 
 \page inputs_materials Materials
@@ -1880,7 +1880,7 @@ Used by samples:
  Calculations with per-triangle materials are faster, so solver uses per-pixel material only when
  its per-triangle version has sideBits[].pointDetails flag set (set by you).
 
- Materials must be physically correct. Use RRMaterial::validate() to validate your materials.
+ Materials must be physically valid. Use RRMaterial::validate() to validate your materials.
  
 \page inputs_collada Collada (.DAE)
  Collada is one of the most flexible and most widely supported 3d scene file formats.
@@ -1964,7 +1964,7 @@ Used by samples:
  \section gobjects Terminology
    <b>Mesh</b> is set of triangles with fixed positions in local space.
    \n\n
-   <b>Object</b> is instance of mesh, with position, rotation, scale
+   <b>Object</b> is an instance of mesh, with position, rotation, scale
    and material properties.
    <b>Static object</b> never moves, rotates, deforms or changes material properties.
    <b>Dynamic object</b> freely changes these properties.
@@ -2244,7 +2244,7 @@ Used by samples:
  - rr_gl::UberProgram is GLSL program with preprocessor parameters changeable at runtime
  - rr_gl::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs
  - rr_gl::Camera is frustum suitable for camera or spotlight
- - rr_gl::RRLightRuntime is extension of RRLight, structures needed for realtime GI rendering
+ - rr_gl::RealtimeLight is an extension of RRLight, structures needed for realtime GI rendering
  - rr_gl::Renderer is generic renderer interface
 
  Features and limitations of LightsprintGL's renderer

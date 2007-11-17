@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstring>
 #include <GL/glew.h>
 #include "TextureShadowmap.h"
 #include "FBO.h"
@@ -13,12 +14,26 @@
 namespace rr_gl
 {
 
+// AMD doesn't work properly with GL_LINEAR on shadowmaps, it needs GL_NEAREST
+static GLenum filtering()
+{
+	static GLenum mode = GL_LINEAR;
+	static bool inited = 0;
+	if(!inited)
+	{
+		char* renderer = (char*)glGetString(GL_RENDERER);
+		if(renderer && (strstr(renderer,"Radeon")||strstr(renderer,"RADEON")||strstr(renderer,"FireGL"))) mode = GL_NEAREST;
+		inited = 1;
+	}
+	return mode;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // TextureShadowMap
 
 TextureShadowMap::TextureShadowMap(unsigned _width, unsigned _height)
-	: TextureGL(NULL, _width, _height, false, TF_NONE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
+	: TextureGL(NULL, _width, _height, false, TF_NONE, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER)
 {
 	// for shadow2D() instead of texture2D()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
