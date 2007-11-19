@@ -482,7 +482,7 @@ protected:
 	{
 		return demoPlayer ? RRDynamicSolverGL::detectDirectIllumination() : NULL;
 	}
-	virtual void calculate(CalculateParams* params = NULL)
+	virtual void calculate(CalculateParameters* params = NULL)
 	{
 		// assign background work: possibly updating triangleNumbers around dynobjects
 #ifdef BACKGROUND_WORKER

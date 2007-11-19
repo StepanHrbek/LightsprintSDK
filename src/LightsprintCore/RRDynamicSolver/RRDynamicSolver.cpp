@@ -233,10 +233,10 @@ private:
 
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
-void RRDynamicSolver::calculateCore(float improveStep,CalculateParams* _params)
+void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _params)
 {
 	// replace NULL by default parameters
-	static CalculateParams s_params;
+	static CalculateParameters s_params;
 	if(!_params) _params = &s_params;
 
 	bool dirtyFactors = false;
@@ -380,7 +380,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParams* _params)
 }
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
-void RRDynamicSolver::calculate(CalculateParams* _params)
+void RRDynamicSolver::calculate(CalculateParameters* _params)
 {
 	TIME calcBeginTime = GETTIME;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);

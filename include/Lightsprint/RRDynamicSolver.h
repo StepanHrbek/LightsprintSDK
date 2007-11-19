@@ -487,7 +487,7 @@ namespace rr
 		const RRObjectIllumination* getIllumination(unsigned i) const;
 
 		//! Optional parameters of calculate(). Currently used only by Fireball.
-		struct CalculateParams
+		struct CalculateParameters
 		{
 			//! Quality of indirect lighting when direct lighting changes.
 			//! 1..20, default is 3.
@@ -499,7 +499,7 @@ namespace rr
 			//! improves in several consecutive frames when direct lighting doesn't change.
 			unsigned qualityIndirectStatic;
 			//! Sets default parameters. This is used if you send NULL instead of parameters.
-			CalculateParams()
+			CalculateParameters()
 			{
 				qualityIndirectDynamic = 3;
 				qualityIndirectStatic = 3;
@@ -524,7 +524,7 @@ namespace rr
 		//!
 		//! \param params
 		//!  Optional calculation parameters. Currently used only by Fireball.
-		virtual void calculate(CalculateParams* params = NULL);
+		virtual void calculate(CalculateParameters* params = NULL);
 
 		//! Returns version of global illumination solution.
 		//
@@ -1036,7 +1036,7 @@ namespace rr
 		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
 		virtual bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect, unsigned benchTexels, unsigned benchQuality);
 
-		void       calculateCore(float improveStep,CalculateParams* params=NULL);
+		void       calculateCore(float improveStep,CalculateParameters* params=NULL);
 		bool       gatherPerTriangle(const UpdateParameters* aparams, struct ProcessTexelResult* results, unsigned numResultSlots);
 		unsigned   updateVertexBufferFromPerTriangleData(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, RRVec3* perTriangleData, unsigned stride) const;
 		void       updateVertexLookupTableDynamicSolver();
