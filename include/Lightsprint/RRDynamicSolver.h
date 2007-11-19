@@ -408,7 +408,8 @@ namespace rr
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
 		//!  Objects should not move (in 3d space) during our lifetime.
-		//!  Object's getTriangleMaterial() and getPointMaterial() should return values in custom scale.
+		//!  Object's getTriangleMaterial() and getPointMaterial() should return values
+		//!  in custom scale (usually screen colors).
 		//!  If objects provide custom data channels (see RRChanneledData), all objects must have the same channels.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
@@ -600,7 +601,7 @@ namespace rr
 		//!  without final gather. In other words, it assumes that
 		//!  params.applyCurrentSolution=1; applyLights=0; applyEnvironment=0; quality=0.
 		//!  For higher quality final gathered results, use updateVertexBuffers().
-		virtual unsigned updateVertexBuffer(unsigned objectNumber, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params);
+		virtual unsigned updateVertexBuffer(int objectNumber, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params);
 
 		//! Updates vertex buffers with direct, indirect or global illumination and bent normals on whole static scene's surface.
 		//
@@ -869,8 +870,7 @@ namespace rr
 		void verify();
 
 
-		//! Returns multiObject created by merging all objects present in scene.
-		//! MultiObject is created when you insert objects and call calculate().
+		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		const RRObject* getMultiObjectCustom() const;
 
 		//! As getMultiObjectCustom, but with materials converted to physical space.

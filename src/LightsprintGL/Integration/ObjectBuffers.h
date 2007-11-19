@@ -35,7 +35,7 @@ private:
 	rr::RRVec2* atexcoordEmissive;
 	rr::RRVec2* atexcoordAmbient; // could be unique for each vertex (with default unwrap)
 	rr::RRVec2* atexcoordForced2D; // is unique for each vertex. used only if !indices. filled at render() time. (all other buffers are filled at constructor)
-	rr::RRColor* alightIndirectVcolor; // used only if !indices. filled at render() time.
+	rr::RRIlluminationVertexBuffer* alightIndirectVcolor; // used only if !indices. filled at render() time.
 	unsigned numIndices;
 	unsigned* indices;
 

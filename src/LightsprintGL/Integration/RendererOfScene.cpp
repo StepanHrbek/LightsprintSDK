@@ -134,9 +134,7 @@ void RendererOfRRDynamicSolver::render()
 	// create helper renderers
 	if(!rendererNonCaching)
 	{
-		if(!params.solver->getStaticSolver())
-			rr::RRReporter::report(rr::WARN,"Creating renderer, but indirect lighting won't be available if you don't call setStaticObjects() and calculate() first.\n");
-		rendererNonCaching = new RendererOfRRObject(params.solver->getMultiObjectCustom(),params.solver->getStaticSolver(),params.solver->getScaler(),true);
+		rendererNonCaching = new RendererOfRRObject(params.solver->getMultiObjectCustom(),params.solver,params.solver->getScaler(),true);
 	}
 	if(!rendererCaching && rendererNonCaching)
 		rendererCaching = rendererNonCaching->createDisplayList();
@@ -171,7 +169,7 @@ void RendererOfRRDynamicSolver::render()
 	// render static scene
 	// 0 lights -> render 1x
 	// n lights -> render nx
-	unsigned numLights = params.lights?params.lights->size():0;
+	unsigned numLights = params.lights?params.lights&&params.lights->size():0;
 	unsigned numPasses = MAX(1,numLights);
 	UberProgramSetup uberProgramSetup = params.uberProgramSetup;
 	PreserveBlend p1;

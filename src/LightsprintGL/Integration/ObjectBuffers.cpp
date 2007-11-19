@@ -54,7 +54,8 @@ ObjectBuffers::ObjectBuffers(const rr::RRObject* object, bool indexed)
 
 	NEW_ARRAY(atexcoordForced2D,RRVec2);
 	NEW_ARRAY(atexcoordAmbient,RRVec2);
-	NEW_ARRAY(alightIndirectVcolor,RRColor);
+	alightIndirectVcolor = rr::RRIlluminationVertexBuffer::createInSystemMemory(numVerticesMax);
+
 	#undef NEW_ARRAY
 	const rr::RRMaterial* previousMaterial = NULL;
 	for(unsigned t=0;t<numTriangles;t++)
@@ -189,7 +190,7 @@ ObjectBuffers::~ObjectBuffers()
 #endif
 
 	// arrays
-	delete[] alightIndirectVcolor;
+	delete alightIndirectVcolor;
 	delete[] atexcoordForced2D;
 	delete[] atexcoordAmbient;
 	delete[] atexcoordEmissive;
@@ -262,7 +263,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 					{
 						RR_ASSERT(0); // render of vertex buffer requested, but vertex buffer not set
 						glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
-						glSecondaryColorPointer(3, GL_FLOAT, 0, &alightIndirectVcolor[0].x);
+						glSecondaryColorPointer(3, GL_FLOAT, 0, (GLvoid*)alightIndirectVcolor->lockReading());
 					}
 				}
 			}
@@ -273,7 +274,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 				// -> scene will be rendered with random indirect illumination
 				RR_ASSERT(0); // render of vertex buffer requested, but vertex buffer not set
 				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(3, GL_FLOAT, 0, &alightIndirectVcolor[0].x);
+				glColorPointer(3, GL_FLOAT, 0, alightIndirectVcolor->lockReading());
 			}
 		}
 		else
@@ -294,11 +295,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 
 						//rr::RRReportInterval report(rr::INF3,"Updating private vertex buffers of renderer...\n");
 						// refill
-#pragma omp parallel for schedule(static,1)
-						for(int i=params.firstCapturedTriangle*3;(unsigned)i<3*params.lastCapturedTrianglePlus1;i++) // only for our capture interval
-						{
-							params.scene->getTriangleMeasure(i/3,i%3,RM_IRRADIANCE_PHYSICAL_INDIRECT,params.scaler,alightIndirectVcolor[i]);
-						}
+						params.scene->updateVertexBuffer(-1,alightIndirectVcolor,NULL);
 					}
 				}
 				else
@@ -316,7 +313,7 @@ void ObjectBuffers::render(RendererOfRRObject::Params& params, unsigned solution
 			}
 
 			glEnableClientState(GL_COLOR_ARRAY);
-			glColorPointer(3, GL_FLOAT, 0, &alightIndirectVcolor[0].x);
+			glColorPointer(3, GL_FLOAT, 0, alightIndirectVcolor->lockReading());
 		}
 	}
 	// set indirect illumination texcoords + map

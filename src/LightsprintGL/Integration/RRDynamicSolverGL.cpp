@@ -278,7 +278,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(unsigned* _results, unsig
 		rendererObject = getMultiObjectCustom();
 		if(rendererObject)
 		{
-			rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),getStaticSolver(),getScaler(),true);
+			rendererNonCaching = new RendererOfRRObject(getMultiObjectCustom(),this,getScaler(),true);
 			rendererCaching = rendererNonCaching->createDisplayList();
 		}
 	}
@@ -402,7 +402,7 @@ bool RRDynamicSolverGL::updateLightmap_GPU(unsigned objectIndex, rr::RRIlluminat
 
 	// prepare renderer
 	// (could be cached later for higher speed)
-	RendererOfRRObject* renderer = new RendererOfRRObject(object,getStaticSolver(),getScaler(),false);
+	RendererOfRRObject* renderer = new RendererOfRRObject(object,this,getScaler(),false);
 	renderer->setCapture(&captureUv,0,mesh->getNumTriangles());
 	RendererOfRRObject::RenderedChannels channels;
 	channels.NORMALS = true;

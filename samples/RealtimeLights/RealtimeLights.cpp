@@ -438,6 +438,11 @@ int main(int argc, char **argv)
 
 	solver->calculate();
 
+	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver.
+	// This step is expensive for first time, precalculates fireball file,
+	// so it is suitable if you load the same scene many times.
+	//solver->loadFireball(NULL) || solver->buildFireball(5000,NULL);
+
 	glutMainLoop();
 	return 0;
 }

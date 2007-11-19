@@ -85,7 +85,7 @@ public:
 	//!  If you plan to render object only once,
 	//!  technique without buffers (false) is faster and takes less memory.
 	//!  \n Technique without buffers doesn't support setIndirectIlluminationBuffers().
-	RendererOfRRObject(const rr::RRObject* object, const rr::RRStaticSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers);
+	RendererOfRRObject(const rr::RRObject* object, rr::RRDynamicSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers);
 
 	//! Specifies what data channels to feed to GPU during render.
 	struct RenderedChannels
@@ -188,7 +188,7 @@ private:
 	struct Params
 	{
 		const rr::RRObject* object;            ///< object being rendered
-		const rr::RRStaticSolver* scene;       ///< scene it comes from
+		rr::RRDynamicSolver* scene;            ///< scene it comes from
 		const rr::RRScaler* scaler;            ///< scaler used to translate physical to custom irradiance when LIGHT_INDIRECT_VCOLOR
 		RenderedChannels renderedChannels;     ///< set of data channels being rendered
 		// set by setCapture()

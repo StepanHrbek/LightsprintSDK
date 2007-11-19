@@ -58,23 +58,24 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 }
 
 void RRDynamicSolver::updateVertexLookupTablePackedSolver()
-// prepare lookup tables preImportVertex -> Ivertex for all objects
+// prepare lookup tables preImportVertex -> Ivertex for multiobject and for all singleobjects
 {
 	if(!priv->packedSolver || !getMultiObjectPhysical())
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	priv->preVertex2Ivertex.resize(priv->objects.size());
-	for(unsigned objectHandle=0;objectHandle<priv->objects.size();objectHandle++)
+	priv->preVertex2Ivertex.resize(1+priv->objects.size());
+	for(int objectHandle=-1;objectHandle<(int)priv->objects.size();objectHandle++)
 	{
-		RRObjectIllumination* illumination = getIllumination(objectHandle);
 		RRMesh* mesh = getMultiObjectPhysical()->getCollider()->getMesh();
 		unsigned numPostImportVertices = mesh->getNumVertices();
 		unsigned numPostImportTriangles = mesh->getNumTriangles();
-		unsigned numPreImportVertices = illumination->getNumPreImportVertices();
+		unsigned numPreImportVertices = (objectHandle<0) // elements in vertex buffer
+			? numPostImportTriangles*3 // num post import triangles * 3
+			: getIllumination(objectHandle)->getNumPreImportVertices(); // num pre import vertices
 
-		priv->preVertex2Ivertex[objectHandle].resize(numPreImportVertices,NULL);
+		priv->preVertex2Ivertex[1+objectHandle].resize(numPreImportVertices,NULL);
 
 		for(unsigned postImportTriangle=0;postImportTriangle<numPostImportTriangles;postImportTriangle++)
 		{
@@ -82,40 +83,49 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 			mesh->getTriangle(postImportTriangle,postImportTriangleVertices);
 			for(unsigned v=0;v<3;v++)
 			{
-				unsigned postImportVertex = postImportTriangleVertices[v];
-				if(postImportVertex<numPostImportVertices)
+				if(objectHandle<0)
 				{
-					unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
-					RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
-					if(preVertexMulti.object==objectHandle)
-						preVertex = preVertexMulti.index;
-					else
-						continue; // skip asserts
-					if(preVertex<numPreImportVertices)
+					// for multiobject
+					priv->preVertex2Ivertex[0][postImportTriangle*3+v] = priv->packedSolver->getTriangleIrradianceIndirect(postImportTriangle,v);
+				}
+				else
+				{
+					// for singleobjects
+					unsigned postImportVertex = postImportTriangleVertices[v];
+					if(postImportVertex<numPostImportVertices)
 					{
-						/* if more ivertices writes to this vertex, stop after getting first valid pointer and then never overwrite it by NULL
-						proc muze vic ivertexu zapisovat do stejneho vertexu a jeden z nich je NULL?
-						builder:
-							mam triangl, neni uplny degen, ale je to jehlicka
-							nekdo mu proto da surface=null
-							cele tri ivertexy jsou null
-							vezmeme jeden z vrcholu
-							ivertex je null
-							vertex je sdilen vice triangly, takze na stejne pozici je i pekny ivertex obsahujici okolni pekne triangly
-							oba ivertexy zapisu do fib
-						runtime:
-							ve scene je jen 1 vertex
-							kdyz sestavuju vbuf, pro tento 1 vertex hledam ivertex
-							najdu oba
-							musim z nich pouzit ten ktery neni fialovy*/
-						if(!priv->preVertex2Ivertex[objectHandle][preVertex])
-							priv->preVertex2Ivertex[objectHandle][preVertex] = priv->packedSolver->getTriangleIrradianceIndirect(postImportTriangle,v);
+						unsigned preVertex = mesh->getPreImportVertex(postImportVertex,postImportTriangle);
+						RRMesh::MultiMeshPreImportNumber preVertexMulti = preVertex;
+						if(preVertexMulti.object==objectHandle)
+							preVertex = preVertexMulti.index;
+						else
+							continue; // skip asserts
+						if(preVertex<numPreImportVertices)
+						{
+							/* if more ivertices writes to this vertex, stop after getting first valid pointer and then never overwrite it by NULL
+							proc muze vic ivertexu zapisovat do stejneho vertexu a jeden z nich je NULL?
+							builder:
+								mam triangl, neni uplny degen, ale je to jehlicka
+								nekdo mu proto da surface=null
+								cele tri ivertexy jsou null
+								vezmeme jeden z vrcholu
+								ivertex je null
+								vertex je sdilen vice triangly, takze na stejne pozici je i pekny ivertex obsahujici okolni pekne triangly
+								oba ivertexy zapisu do fib
+							runtime:
+								ve scene je jen 1 vertex
+								kdyz sestavuju vbuf, pro tento 1 vertex hledam ivertex
+								najdu oba
+								musim z nich pouzit ten ktery neni fialovy*/
+							if(!priv->preVertex2Ivertex[1+objectHandle][preVertex])
+								priv->preVertex2Ivertex[1+objectHandle][preVertex] = priv->packedSolver->getTriangleIrradianceIndirect(postImportTriangle,v);
+						}
+						else
+							RR_ASSERT(0);
 					}
 					else
 						RR_ASSERT(0);
 				}
-				else
-					RR_ASSERT(0);
 			}
 		}
 
@@ -123,8 +133,8 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 		for(unsigned preImportVertex=0;preImportVertex<numPreImportVertices;preImportVertex++)
 		{
 			static RRVec3 pink(1,0,1);
-			if(!priv->preVertex2Ivertex[objectHandle][preImportVertex])
-				priv->preVertex2Ivertex[objectHandle][preImportVertex] = &pink;
+			if(!priv->preVertex2Ivertex[1+objectHandle][preImportVertex])
+				priv->preVertex2Ivertex[1+objectHandle][preImportVertex] = &pink;
 		}
 	}
 }
@@ -134,22 +144,22 @@ RRIlluminationVertexBuffer* RRDynamicSolver::newVertexBuffer(unsigned numVertice
 	return RRIlluminationVertexBuffer::createInSystemMemory(numVertices);
 }
 
-unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params)
+unsigned RRDynamicSolver::updateVertexBuffer(int objectHandle, RRIlluminationVertexBuffer* vertexBuffer, const UpdateParameters* params)
 {
-	if(!vertexBuffer || objectHandle>=getNumObjects())
+	if(!vertexBuffer || objectHandle>=(int)getNumObjects() || objectHandle<-1)
 	{
 		RR_ASSERT(0);
 		return 0;
 	}
-	RRObjectIllumination* illumination = getIllumination(objectHandle);
-	unsigned numPreImportVertices = illumination->getNumPreImportVertices();
+	unsigned numPreImportVertices = (objectHandle>=0)
+		? getIllumination(objectHandle)->getNumPreImportVertices() // elements in original object vertex buffer
+		: getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles()*3; // elements in multiobject vertex buffer
 
 	// packed solver
 	if(priv->packedSolver)
 	{
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
-		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[objectHandle];
-		// omp doesn't help here, too short cycle
+		const std::vector<const RRVec3*>& preVertex2Ivertex = priv->preVertex2Ivertex[1+objectHandle];
 		RRColorRGBF* lock = vertexBuffer->lockWriting();
 		if(lock)
 		{
@@ -197,8 +207,8 @@ unsigned RRDynamicSolver::updateVertexBuffer(unsigned objectHandle, RRIlluminati
 #pragma omp parallel for schedule(static)
 	for(int preImportVertex=0;(unsigned)preImportVertex<numPreImportVertices;preImportVertex++)
 	{
-		unsigned t = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
-		unsigned v = priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
+		unsigned t = (objectHandle<0)?preImportVertex/3:priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].triangleIndex;
+		unsigned v = (objectHandle<0)?preImportVertex%3:priv->preVertex2PostTriangleVertex[objectHandle][preImportVertex].vertex012;
 		RRColor indirect = RRColor(0);
 		if(t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{

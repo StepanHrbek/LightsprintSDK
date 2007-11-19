@@ -19,7 +19,7 @@ namespace rr_gl
 //
 // RendererOfRRObject
 
-RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, const rr::RRStaticSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers)
+RendererOfRRObject::RendererOfRRObject(const rr::RRObject* objectImporter, rr::RRDynamicSolver* radiositySolver, const rr::RRScaler* scaler, bool useBuffers)
 {
 	params.object = objectImporter;
 	params.scene = radiositySolver;
@@ -451,7 +451,8 @@ void RendererOfRRObject::render()
 				// light indirect color
 				if(params.renderedChannels.LIGHT_INDIRECT_VCOLOR)
 				{
-					if(params.scene)
+					RR_ASSERT(0); // not supported after removal of static solver from public interface
+					/*if(params.scene)
 					{
 						rr::RRColor color;				
 						params.scene->getTriangleMeasure(triangleIdx,v,RM_IRRADIANCE_CUSTOM_INDIRECT,params.scaler,color);
@@ -462,7 +463,7 @@ void RendererOfRRObject::render()
 						// solver not set, but indirect illumination requested
 						// -> scene will be rendered without indirect illumination
 						RR_ASSERT(0);
-					}
+					}*/
 				}
 
 				// light indirect map uv

@@ -175,7 +175,7 @@ namespace rr
 	//! - baking additional (primary) illumination into object, see createObjectWithIllumination()
 	//!
 	//! \section s3 Links between objects
-	//! RRStaticSolver -> RRObject -> RRCollider -> RRMesh
+	//! solver -> RRObject -> RRCollider -> RRMesh
 	//! \n where A -> B means that
 	//!  - A has pointer to B
 	//!  - there is no automatic reference counting in B and no automatic destruction of B from A
