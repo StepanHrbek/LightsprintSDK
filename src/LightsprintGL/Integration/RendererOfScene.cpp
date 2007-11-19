@@ -169,7 +169,7 @@ void RendererOfRRDynamicSolver::render()
 	// render static scene
 	// 0 lights -> render 1x
 	// n lights -> render nx
-	unsigned numLights = params.lights?params.lights&&params.lights->size():0;
+	unsigned numLights = params.lights?params.lights->size():0;
 	unsigned numPasses = MAX(1,numLights);
 	UberProgramSetup uberProgramSetup = params.uberProgramSetup;
 	PreserveBlend p1;
