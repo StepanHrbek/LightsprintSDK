@@ -162,7 +162,7 @@ public:
 		pti(_pti),
 		// collisionHandler: multiObjectCustom is sufficient because only sideBits are tested, we don't need phys scale
 		collisionHandler(_pti.context.solver->getMultiObjectCustom(),_pti.tri.triangleIndex,true),
-		gatherer(_pti.ray,_pti.context.solver->getStaticSolver(),_tools.environment,_tools.scaler)
+		gatherer(_pti.ray,_pti.context.solver->priv->scene,_tools.environment,_tools.scaler)
 	{
 		// used by processTexel even when not shooting to hemisphere
 		irradianceHemisphere = RRColorRGBF(0);
@@ -211,7 +211,7 @@ irradianceHemisphere += irrad;
 bentNormalHemisphere += dir * (irrad.abs().avg()/dirsize);
 hitsScene++;
 hitsReliable++;
-return;
+/*return;
 
 			// intersect scene
 			pti.ray->rayDirInv[0] = dirsize/dir[0];
@@ -266,7 +266,7 @@ return;
 					//	-ve final gatheru chci direct(emisivita facu a realtime spotlight) i indirect(neco spoctene minulym calculate)
 					// ano ale je to neprakticke, neudelam to.
 					// protoze je pracne vzdy spravne zapnout dir+indir, casto se v tom udela chyba
-					pti.context.solver->getStaticSolver()->getTriangleMeasure(pti.ray->hitTriangle,3,
+					pti.context.solver->priv->scene->getTriangleMeasure(pti.ray->hitTriangle,3,
 						RM_EXITANCE_PHYSICAL,
 						//RRRadiometricMeasure(1,0,0,pti.context.params->measure.direct,pti.context.params->measure.indirect),
 						NULL,irrad);
@@ -276,7 +276,7 @@ return;
 				}
 				hitsScene++;
 				hitsReliable++;
-			}
+			}*/
 	}
 
 	// once after shooting
@@ -705,11 +705,11 @@ shoot_from_center:
 // CPU, gathers per-triangle lighting from RRLights, environment, current solution
 bool RRDynamicSolver::gatherPerTriangle(const UpdateParameters* aparams, ProcessTexelResult* results, unsigned numResultSlots)
 {
-	if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RRReporter::report(WARN,"RRDynamicSolver::gatherPerTriangle: Empty scene.\n");
 			RR_ASSERT(0);
@@ -776,11 +776,11 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");
 
-	if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0);
-		if(!getMultiObjectCustom() || !getStaticSolver() || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if(!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RR_ASSERT(0);
 			RRReporter::report(WARN,"Empty scene.\n");

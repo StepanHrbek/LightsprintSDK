@@ -2,7 +2,7 @@
 #define PRIVATE_H
 
 #include <vector>
-#include "Lightsprint/RRDynamicSolver.h"
+#include "../RRStaticSolver/RRStaticSolver.h"
 #include "../RRPackedSolver/RRPackedSolver.h"
 #include "Lightsprint/GL/Timer.h"
 
@@ -22,7 +22,7 @@ namespace rr
 		RRObjects  objects;
 		RRLights   lights;
 		const RRIlluminationEnvironmentMap* environment;
-		RRStaticSolver::SmoothingParameters smoothing;
+		SmoothingParameters smoothing;
 		// scene: function of inputs
 		RRObject*  multiObjectCustom;
 		RRObjectWithPhysicalMaterials* multiObjectPhysical;

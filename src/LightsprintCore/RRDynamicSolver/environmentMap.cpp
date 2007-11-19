@@ -474,7 +474,7 @@ void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illuminati
 		}
 		if(!illumination->cachedTriangleNumbers)
 			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
-		if(cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),NULL,NULL,illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,NULL))
+		if(cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),NULL,NULL,illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,NULL))
 		{
 			// gather succeeded, mark cache as valid
 			// (without taking care, we would cache invalid data in 1st frame [when solver is not created yet]
@@ -520,7 +520,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 		{
 			illumination->cachedTriangleNumbers = new unsigned[6*gatherSize*gatherSize];
 		}
-		if(cubeMapGather(getStaticSolver(),priv->packedSolver,getMultiObjectCustom(),getEnvironment(),getScaler(),illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,gatheredExitance))
+		if(cubeMapGather(priv->scene,priv->packedSolver,getMultiObjectCustom(),getEnvironment(),getScaler(),illumination->envMapWorldCenter,gatherSize,illumination->ray6,illumination->cachedTriangleNumbers,NULL,gatheredExitance))
 		{
 			// gather succeeded, mark cache as valid
 			// (without taking care, we would cache invalid data in 1st frame [when solver is not created yet]
@@ -536,7 +536,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	}
 	else
 	{
-		cubeMapConvertTrianglesToExitances(getStaticSolver(),priv->packedSolver,getEnvironment(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 	}
 
 	// early exit if we don't have valid data

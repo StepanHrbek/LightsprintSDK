@@ -87,7 +87,6 @@ INPUT                  = "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/L
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRMesh.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRCollider.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRObject.h" \
-                         "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRStaticSolver.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRIllumination.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/RRDynamicSolver.h" \
                          "C:/Documents and Settings/Dee/Dokumenty/C/rr/include/Lightsprint/GL/RRDynamicSolverGL.h" \

@@ -245,7 +245,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleData(unsigned objectH
 		RRVec3 data = RRVec3(0);
 		if(t!=RRMesh::UNDEFINED && v!=RRMesh::UNDEFINED)
 		{
-			data = getStaticSolver()->getVertexDataFromTriangleData(t,v,perTriangleData,stride);
+			data = priv->scene->getVertexDataFromTriangleData(t,v,perTriangleData,stride);
 			for(unsigned i=0;i<3;i++)
 			{
 				RR_ASSERT(_finite(data[i]));

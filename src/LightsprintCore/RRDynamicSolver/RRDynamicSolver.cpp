@@ -74,10 +74,10 @@ const RRLights& RRDynamicSolver::getLights() const
 	return priv->lights;
 }
 
-void RRDynamicSolver::setStaticObjects(RRObjects& _objects, const RRStaticSolver::SmoothingParameters* _smoothing)
+void RRDynamicSolver::setStaticObjects(RRObjects& _objects, const SmoothingParameters* _smoothing)
 {
 	priv->objects = _objects;
-	priv->smoothing = _smoothing ? *_smoothing : RRStaticSolver::SmoothingParameters();
+	priv->smoothing = _smoothing ? *_smoothing : SmoothingParameters();
 	priv->dirtyStaticSolver = true;
 	priv->dirtyLights = Private::BIG_CHANGE;
 
@@ -149,12 +149,6 @@ const RRObjectWithPhysicalMaterials* RRDynamicSolver::getMultiObjectPhysical() c
 RRObjectWithIllumination* RRDynamicSolver::getMultiObjectPhysicalWithIllumination()
 {
 	return priv->multiObjectPhysicalWithIllumination;
-}
-
-const RRStaticSolver* RRDynamicSolver::getStaticSolver() const
-{
-	if(priv->dirtyStaticSolver) return NULL; // setStaticObjects() must be followed by calculate(), otherwise we are inconsistent
-	return priv->scene;
 }
 
 RRObjectIllumination* RRDynamicSolver::getIllumination(unsigned i)
@@ -239,7 +233,7 @@ private:
 
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
-RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep,CalculateParams* _params)
+void RRDynamicSolver::calculateCore(float improveStep,CalculateParams* _params)
 {
 	// replace NULL by default parameters
 	static CalculateParams s_params;
@@ -312,7 +306,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep,Cal
 	if(priv->dirtyLights!=Private::NO_CHANGE)
 	{
 		// exit in response to unsuccessful detectDirectIllumination
-		return RRStaticSolver::NOT_IMPROVED;
+		return;
 	}
 	if(dirtyEnergies!=Private::NO_CHANGE)
 	{
@@ -351,31 +345,19 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep,Cal
 
 	REPORT(RRReportInterval report(INF3,"Calculating...\n"));
 	TIME now = GETTIME;
-	RRStaticSolver::Improvement improvement;
 	if(priv->packedSolver)
 	{
 		priv->packedSolver->illuminationImprove(_params->qualityIndirectDynamic,_params->qualityIndirectStatic);
-		improvement = RRStaticSolver::IMPROVED;
+		priv->dirtyResults = true;
 	}
 	else
+	if(priv->scene)
 	{
 		TIME end = (TIME)(now+improveStep*PER_SEC);
-		improvement = priv->scene ? priv->scene->illuminationImprove(endByTime,(void*)&end) : RRStaticSolver::FINISHED;
+		if(priv->scene->illuminationImprove(endByTime,(void*)&end)==RRStaticSolver::IMPROVED)
+			priv->dirtyResults = true;
 	}
 	//REPORT(RRReporter::report(INF3,"imp %d det+res+read %d game %d\n",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
-
-	switch(improvement)
-	{
-		case RRStaticSolver::IMPROVED:
-			priv->dirtyResults = true;
-			improvement = RRStaticSolver::NOT_IMPROVED; // hide improvement until reading results
-			break;
-		case RRStaticSolver::NOT_IMPROVED:
-			break;
-		case RRStaticSolver::FINISHED:
-		case RRStaticSolver::INTERNAL_ERROR:
-			break;
-	}
 
 #if 0
 	// show speed
@@ -394,13 +376,11 @@ RRStaticSolver::Improvement RRDynamicSolver::calculateCore(float improveStep,Cal
 		if(priv->readingResultsPeriod<READING_RESULTS_PERIOD_MAX) priv->readingResultsPeriod *= READING_RESULTS_PERIOD_GROWTH;
 		priv->dirtyResults = false;
 		priv->solutionVersion++;
-		improvement = RRStaticSolver::IMPROVED;
 	}
-	return improvement;
 }
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
-RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
+void RRDynamicSolver::calculate(CalculateParams* _params)
 {
 	TIME calcBeginTime = GETTIME;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
@@ -449,7 +429,7 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
 	}
 
 	// calculate
-	RRStaticSolver::Improvement result = calculateCore(priv->improveStep,_params);
+	calculateCore(priv->improveStep,_params);
 
 	// adjust calcStep
 	priv->lastCalcEndTime = GETTIME;
@@ -462,8 +442,6 @@ RRStaticSolver::Improvement RRDynamicSolver::calculate(CalculateParams* _params)
 		else
 			priv->calcStep = 0.6f*priv->calcStep + 0.4f*lastCalcStep;
 	}
-
-	return result;
 }
 
 void RRDynamicSolver::verify()

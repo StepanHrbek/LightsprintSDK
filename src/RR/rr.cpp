@@ -34,7 +34,7 @@
 #include "ldmgf.h"
 #include "misc.h"
 #include "render.h"
-#include "Lightsprint/RRStaticSolver.h"
+#include "../LightsprintCore/RRStaticSolver/RRStaticSolver.h"
 #include "surface.h"
 #include "World.h"
 #include "world2rrvision.h"

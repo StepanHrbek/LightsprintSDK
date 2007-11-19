@@ -120,7 +120,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRIlluminationEnvironmentMap* skyMap, b
 		error("",false);
 	}
 
-	rr::RRStaticSolver::SmoothingParameters sp;
+	rr::RRDynamicSolver::SmoothingParameters sp;
 	sp.subdivisionSpeed = SUBDIVISION;
 	//zapnuti techto 2 radek zrychli sponzu o 15% 
 	//sp.minFeatureSize = 0.15f;

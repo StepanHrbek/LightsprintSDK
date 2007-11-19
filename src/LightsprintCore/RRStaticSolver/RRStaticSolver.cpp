@@ -3,7 +3,7 @@
 #include <memory.h>
 #include "rrcore.h"
 #include "clusters.h"
-#include "Lightsprint/RRStaticSolver.h"
+#include "../RRStaticSolver/RRStaticSolver.h"
 #include <stdio.h> // dbg printf
 
 namespace rr
@@ -47,12 +47,12 @@ RRStaticSolver::~RRStaticSolver()
 // c) zkontrolovat na zacatku a pak duverovat
 //    +ubyde kontrola fyzikalni legalnosti v rrapi, legalnost zaridi RRMaterial::validate();
    
-RRStaticSolver::RRStaticSolver(RRObject* importer, const SmoothingParameters* smoothing)
+RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::SmoothingParameters* smoothing)
 {
 	scene=new Scene();
 	RR_ASSERT(importer);
 	if(!importer) return;
-	SmoothingParameters defaultSmoothing;
+	RRDynamicSolver::SmoothingParameters defaultSmoothing;
 	if(!smoothing) smoothing = &defaultSmoothing;
 	RRMesh* meshImporter = importer->getCollider()->getMesh();
 	Object *obj=new Object(meshImporter->getNumVertices(),meshImporter->getNumTriangles());

@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news39 ------------------------------------ 2007.11.xx -------------------------------------
+
+CHANGES
+
+- removed RRStaticSolver and sample HelloStaticSolver
+
 \section news38 ------------------------------------ 2007.11.17 -------------------------------------
 
 NEWS

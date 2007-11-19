@@ -38,7 +38,7 @@
 #include <stdarg.h>
 
 #include "geometry_v.h"
-#include "Lightsprint/RRStaticSolver.h"
+#include "../RRStaticSolver/RRStaticSolver.h"
 #include "interpol.h"
 #include "../RRObject/RRCollisionHandler.h" // SkipTriangle
 

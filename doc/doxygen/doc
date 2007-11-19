@@ -850,10 +850,6 @@ Used by samples:
   - \subpage data_pixel_buffer
   - \subpage data_environment_map
 
- \section calc_3 or quickly return single value for given
-  - \subpage data_triangle
-  - \subpage data_ray
-
  \section calc_0 Capabilities by speed
   - \subpage calc_realtime
     - \subpage calc_fireball
@@ -1623,74 +1619,6 @@ Used by samples:
 
 
 
-\page data_triangle Triangle or Vertex
-
- Triangle or Vertex illumination query is designed for AI
- and other subsystems that need very fast access to single value
- (e.g. AI trying to find dark corner for hiding).
-
- \section d41 Suitable for
-   - static objects: YES
-   - dynamic objects: NO
-   - realtime calculated illumination: YES
-   - precalculated illumination: YES
-
- \section d42 Advantages
-   - If you need information only for small subset of scene,
-     querying single triangle is much faster
-     than generating complete lightmap or vertex color buffer for whole object
-     and reading value from it.
-   - Even if you have lightmap or vertex buffer generated,
-     it could be easier to use this query than searching
-     individual value in vertex buffer/lightmap.
-
- \section d43 Disadvantages
-   - Not demonstrated in samples yet.
-
- \section d44 Query
-   - Call RRStaticSolver::getTriangleMeasure with vertex=0,1,2 for triangle vertices
-   - Call RRStaticSolver::getTriangleMeasure with vertex>2 for whole triangle area
-   - Call RRStaticSolver::getSubtriangleMeasure for adaptively subdivided triangles
-   - Reading illumination level from triangle is slightly faster than reading
-     it from vertex, but both are very fast.
-
- \section d45 Returned value
-   - RRColor with single illumination value
-   - see \ref gunits
-
-
-
-
-\page data_ray Ray
-
- Query for illumination at the end of ray is designed for AI
- and other subsystems that need very fast access to single value
- (e.g. AI trying to find dark corner for hiding).
-
- \section d51 Suitable for
-   - static objects: YES
-   - dynamic objects: NO
-   - realtime calculated illumination: YES
-   - precalculated illumination: YES
-
- \section d52 Advantages
-   - Fast access to single value.
-
- \section d53 Disadvantages
-   - Not demonstrated in samples yet.
-
- \section d54 Query
-   - Call RRDynamicSolver::getMultiObjectCustom()->getCollider()->intersect()
-     to find static triangle at the end of ray.
-   - See \ref data_triangle for access to triangle's illumination.
-
- \section d55 Returned value
-   - RRColor with single illumination value
-   - see \ref gunits
-
-
-
-
 \page calc_fireball Fireball
 
  \section fb_features Features
@@ -2016,7 +1944,7 @@ Used by samples:
    \n\n
    RRMesh and RRCollider support all scaled objects: positively or negatively, uniformly or non-uniformly scaled.
    \n\n
-   RRObject, RRStaticSolver and RRDynamicSolver support typical scaled objects:
+   RRObject and RRDynamicSolver support typical scaled objects:
    positively or negatively, uniformly scaled.
    \n Negative scale is supported with both possible interpretations
    for singlesided faces:
@@ -2103,32 +2031,15 @@ Used by samples:
 
  Header: RRDynamicSolver.h
 
- - calculates global illumination in dynamic scenes
+ - calculates global illumination in static or dynamic scenes, offline or realtime
  - gives you full control over speed/quality
  - calculated illumination is available in vertex buffers, lightmaps and environment maps
  - communicates completely in custom units, e.g. screen colors
- - designed for CPU+GPU calculation, faster, GPU access to be implemented in subclasses
+ - purely CPU, GPU based extensions implemented in rr_gl::RRDynamicSolverGL
 
- Samples RealtimeRadiosity and Lightmaps show the result of integration,
- interactive Collada/.3ds scene viewer with global illumination immediately responding
+ Samples RealtimeLights and RealtimeRadiosity show the result of integration,
+ interactive Collada scene viewer with global illumination immediately responding
  to object and light movements.
-
- <hr>
-
- Header: RRStaticSolver.h
-
- - calculates global illumination in static scenes
- - progressive refinement with permanent access to results (you can start calculation and read results 1ms later, you will get raw approximation)
- - calculated illumination is available in triangles and vertices, including adaptively subdivided
- - communicates in physical or custom units (W/m^2 or e.g. screen colors)
- - display independent, purely numerical API
- - designed for CPU only calculation, complete engine
-
- Sample HelloStaticSolver shows you the most simple use case:
- -# Create RRObject that contains whole static scene.
- -# Create RRStaticSolver from object.
- -# Calculate global illumination using RRStaticSolver::illuminationImprove().
- -# Read results using RRStaticSolver::getTriangleMeasure().
 
  <hr>
 
@@ -2311,10 +2222,6 @@ Used by samples:
  - precalculates ambient occlusion maps/vertexcolors with infinite light bounces and color bleeding
  - optional viewer of results (screenshots) is not important for calculation
  - loads Collada scene
-
- <hr>
- <b>HelloStaticSolver</b>
- - calculates static illumination in constructed scene, without renderer
 
  <hr>
  <b>BunnyBenchmark</b>

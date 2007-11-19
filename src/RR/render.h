@@ -2,7 +2,7 @@
 #define _RENDER_H
 
 #include "world.h"
-#include "Lightsprint/RRStaticSolver.h"
+#include "../LightsprintCore/RRStaticSolver/RRStaticSolver.h"
 
 #define C_INDICES 256
 

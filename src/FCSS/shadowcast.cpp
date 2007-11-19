@@ -482,7 +482,7 @@ protected:
 	{
 		return demoPlayer ? RRDynamicSolverGL::detectDirectIllumination() : NULL;
 	}
-	virtual rr::RRStaticSolver::Improvement calculate(CalculateParams* params = NULL)
+	virtual void calculate(CalculateParams* params = NULL)
 	{
 		// assign background work: possibly updating triangleNumbers around dynobjects
 #ifdef BACKGROUND_WORKER
@@ -499,13 +499,11 @@ protected:
 			}
 		}
 		// possibly calculate
-		rr::RRStaticSolver::Improvement result = RRDynamicSolverGL::calculate(params);
+		RRDynamicSolverGL::calculate(params);
 		// possibly wait for background work completion
 #ifdef BACKGROUND_WORKER
 		if(g_backgroundWorker) g_backgroundWorker->waitForCompletion();
 #endif
-		//return rr::RRStaticSolver::IMPROVED; // fps ve stat scene vyleze na 999
-		return result;
 	}
 	virtual void setupShader(unsigned objectNumber)
 	{
@@ -2420,19 +2418,8 @@ void idle()
 		needDepthMapUpdate = 1;
 		needRedisplay = 1;
 	}
-
-	bool rrOn = currentFrame.wantsVertexColors()
-#ifdef CALCULATE_WHEN_PLAYING_PRECALCULATED_MAPS
-		|| currentFrame.wantsLightmaps()
-#endif
-		;
-	// pri kalkulaci nevznikne improve -> neni read results -> aplikace neda display -> pristi calculate je dlouhy
-	// pokud se ale hybe svetlem, aplikace da display -> pristi calculate je kratky
-
-	if(!level || (rrOn && level->solver->calculate(&level->pilot.setup->calculateParams)==rr::RRStaticSolver::IMPROVED) || needRedisplay || gameOn)
-	{
-		glutPostRedisplay();
-	}
+	if(level) level->solver->calculate(&level->pilot.setup->calculateParams);
+	glutPostRedisplay();
 }
 
 void enableInteraction(bool enable)

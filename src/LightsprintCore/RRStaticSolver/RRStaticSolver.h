@@ -8,7 +8,7 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include "RRObject.h"
+#include "Lightsprint/RRDynamicSolver.h"
 
 namespace rr
 {
@@ -56,65 +56,6 @@ namespace rr
 		// import geometry
 		//
 
-		//! Illumination smoothing parameters.
-		//
-		//! Has reasonable default values for both realtime and offline rendering, but:
-		//! - if needle artifacts appear, consider increased minFeatureSize
-		//! - if seams between scene segments appear, consider increased minFeatureSize or vertexWeldDistance
-		struct SmoothingParameters
-		{
-			//! Speed of surface subdivision, 0=no subdivision, 0.3=slow, 1=standard, 3=fast.
-			//! \n Set 0 for the fastest results and realtime responsiveness. Illumination will be available in scene vertices.
-			//!    0 is necessary for realtime calculation.
-			//! \n Set 1 for higher quality, precalculations. Illumination will be available in adaptively subdivided surfaces.
-			//!    You can set slower subdivision for higher quality results with less noise, calculation will be slower.
-			//!    If you set higher speed, calculation will be faster, but results will contain high frequency noise.
-			float subdivisionSpeed;
-			//! Distance in world units. Vertices with lower or equal distance will be internally stitched into one vertex.
-			//! Zero stitches only identical vertices, negative value generates no action.
-			//! Non-stitched vertices at the same location create illumination discontinuity.
-			//! \n If your geometry doesn't need stitching and adapter doesn't split vertices (Collada adapter does),
-			//! make sure to set negative value, calculation will be faster.
-			float vertexWeldDistance;
-			//! Distance in world units. Smaller indirect light features will be smoothed. This could be imagined as a kind of blur.
-			//! Use default 0 for no blur and watch for possible artifacts in areas with small geometry details
-			//! and 'needle' triangles. Increase until artifacts disappear.
-			//! 15cm (0.15 for game with 1m units) could be good for typical interior game.
-			//! Only indirect lighting is affected, so even 15cm blur is mostly invisible.
-			float minFeatureSize;
-			//! Angle in radians, controls automatic smoothgrouping.
-			//! Edges with smaller angle between face normals are smoothed out.
-			//! Optimal value depends on your geometry, but reasonable value could be 0.33.
-			float maxSmoothAngle;
-			//! Makes needle-like triangles with equal or smaller angle (rad) ignored.
-			//! Default 0 removes only completely degenerated triangles.
-			//! 0.001 is a reasonable value to put extremely needle like triangles off calculation,
-			//! which may help in some situations.
-			//! \n Note: if you see needle-like artifacts in realtime rendering,
-			//! try increase minFeatureSize.
-			float ignoreSmallerAngle;
-			//! Makes smaller and equal size triangles ignored.
-			//! Default 0 removes only completely degenerated triangles.
-			//! For typical game interior scenes and world in 1m units,
-			//! 1e-10 is a reasonable value to put extremely small triangles off calculation,
-			//! which may help in some situations.
-			float ignoreSmallerArea;
-			//! Intersection technique used for smoothed object.
-			//! Techniques differ by speed and memory requirements.
-			RRCollider::IntersectTechnique intersectTechnique;
-			//! Sets default values at creation time.
-			SmoothingParameters()
-			{
-				subdivisionSpeed = 0; // disabled
-				maxSmoothAngle = 0.33f; // default angle for automatic smoothing
-				vertexWeldDistance = 0; // weld enabled for identical vertices
-				minFeatureSize = 0; // disabled
-				ignoreSmallerAngle = 0; // ignores degerated triangles
-				ignoreSmallerArea = 0; // ignores degerated triangles
-				intersectTechnique = RRCollider::IT_BSP_FASTER;
-			}
-		};
-
 		//! Creates new static scene.
 		//
 		//! For highest performance, stay with low number of possibly big objects 
@@ -131,11 +72,12 @@ namespace rr
 		//!  \n object->getTriangleMaterial() and getPointMaterial() should return values in physical scale.
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
-		RRStaticSolver(RRObject* object, const SmoothingParameters* smoothing);
+		RRStaticSolver(RRObject* object, const RRDynamicSolver::SmoothingParameters* smoothing);
 
 		//! Destructs static scene.
 		~RRStaticSolver();
-		
+
+
 		//////////////////////////////////////////////////////////////////////////////
 		//
 		// calculate radiosity
@@ -249,43 +191,6 @@ namespace rr
 		friend class Gatherer;
 	};
 
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//  RRLicense
-	//! Everything related to your license number.
-	//
-	//////////////////////////////////////////////////////////////////////////////
-
-	class RR_API RRLicense
-	{
-	public:
-		//! States of your license.
-		enum LicenseStatus
-		{
-			VALID,       ///< Valid license.
-			EXPIRED,     ///< Expired license.
-			WRONG,       ///< Wrong license.
-			NO_INET,     ///< No internet connection to verify license.
-			UNAVAILABLE, ///< Temporarily unable to verify license, try later.
-		};
-		//! Loads license from file.
-		//
-		//! Must be called before any other work with library.
-		//!
-		//! Uses doubles.
-		//! If you create Direct3D device
-		//! before licence check, use D3DCREATE_FPU_PRESERVE flag,
-		//! otherwise Direct3D breaks double precision for whole
-		//! application including DLLs and this function fails.
-		//!
-		//! May connect to Lightsprint servers for verification.
-		//!
-		//! \return Result of license check.
-		//!  If it's not VALID, lighting computed by other functions
-		//!  may be incorrect.
-		static LicenseStatus loadLicense(const char* filename);
-	};
 
 } // namespace
 

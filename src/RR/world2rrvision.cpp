@@ -4,7 +4,7 @@
 
 #include "ldmgf.h"
 #include "render.h"
-#include "Lightsprint/RRObject.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "surface.h"
 #include "world2rrvision.h"
 #include "world2rrintersect.h"
@@ -202,7 +202,7 @@ RRStaticSolver *convert_world2scene(WORLD *world, char *material_mgf, rr::RRColl
 	for(int o=0;o<world->object_num;o++) 
 	{
 		WorldObjectImporter* importer = new WorldObjectImporter(world, &world->object[o], scene_surface_ptr, scene_surfaces, intersectTechnique);
-		RRStaticSolver::SmoothingParameters smoothing;
+		RRDynamicSolver::SmoothingParameters smoothing;
 		smoothing.subdivisionSpeed = 1;
 		staticSolver=new RRStaticSolver(importer,&smoothing);
 		break;

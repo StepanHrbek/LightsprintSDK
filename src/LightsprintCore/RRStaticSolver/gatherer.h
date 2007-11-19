@@ -1,7 +1,7 @@
 #ifndef GATHERER_H
 #define GATHERER_H
 
-#include "Lightsprint/RRStaticSolver.h"
+#include "../RRStaticSolver/RRStaticSolver.h"
 #include "Lightsprint/RRIllumination.h" // toto je jedine misto kde kod z RRStaticSolver zavisi na RRIllumination
 #include "../RRObject/RRCollisionHandler.h" // SkipTriangle
 
